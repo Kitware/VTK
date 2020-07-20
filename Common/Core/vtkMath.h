@@ -418,6 +418,30 @@ public:
   }
 
   /**
+   * Compute dot product between two points p1 and p2.
+   * This version allows for custom range and iterator types to be used. These
+   * types must implement `operator[]`, and at least one of them must have
+   * a `value_type` typedef.
+   *
+   * The first template parameter `ReturnTypeT` sets the return type of this method.
+   * By default, it is set to `double`, but it can be overridden.
+   *
+   * The `EnableT` template parameter is used to make sure that this version
+   * doesn't capture the `float*`, `float[]`, `double*`, `double[]` as
+   * those should go to the other `Distance2BetweenPoints` functions.
+   *
+   * @warning This method assumes that both parameters have 3 components.
+   */
+  template <typename ReturnTypeT = double, typename TupleRangeT1, typename TupleRangeT2,
+    typename EnableT = typename std::conditional<!std::is_pointer<TupleRangeT1>::value &&
+        !std::is_array<TupleRangeT1>::value,
+      TupleRangeT1, TupleRangeT2>::type::value_type>
+  static ReturnTypeT Dot(const TupleRangeT1& a, const TupleRangeT2& b)
+  {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  }
+
+  /**
    * Outer product of two 3-vectors (float version).
    */
   static void Outer(const float a[3], const float b[3], float c[3][3])
@@ -476,6 +500,21 @@ public:
   static double Norm(const double v[3])
   {
     return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  }
+
+  /**
+   * Compute the squared norm of a 3-vector.
+   *
+   * The first template parameter `ReturnTypeT` sets the return type of this method.
+   * By default, it is set to `double`, but it can be overridden.
+   *
+   * The parameter of this function must be a container, and array, or a range of 3
+   * components implementing `operator[]`.
+   */
+  template <typename ReturnTypeT = double, typename TupleRangeT>
+  static ReturnTypeT SquaredNorm(const TupleRangeT& v)
+  {
+    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
   }
 
   /**
@@ -736,7 +775,7 @@ public:
     class LayoutT1 = vtkMatrixUtilities::Layout::Identity,
     class LayoutT2 = vtkMatrixUtilities::Layout::Identity, class MatrixT1, class MatrixT2,
     class MatrixT3>
-  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3& M3)
+  static void MultiplyMatrix(const MatrixT1& M1, const MatrixT2& M2, MatrixT3&& M3)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, MidDimT, ColsT, LayoutT1, LayoutT2>::Compute(M1, M2, M3);
   }
@@ -763,7 +802,7 @@ public:
    */
   template <int RowsT, int ColsT, class LayoutT = vtkMatrixUtilities::Layout::Identity,
     class MatrixT, class VectorT1, class VectorT2>
-  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2& Y)
+  static void MultiplyMatrixWithVector(const MatrixT& M, const VectorT1& X, VectorT2&& Y)
   {
     vtkMathPrivate::MultiplyMatrix<RowsT, ColsT, 1, LayoutT>::Compute(M, X, Y);
   }
@@ -820,7 +859,7 @@ public:
    */
   template <int SizeT, class LayoutT = vtkMatrixUtilities::Layout::Identity, class MatrixT1,
     class MatrixT2>
-  static void InvertMatrix(const MatrixT1& M1, MatrixT2& M2)
+  static void InvertMatrix(const MatrixT1& M1, MatrixT2&& M2)
   {
     vtkMathPrivate::InvertMatrix<SizeT, LayoutT>::Compute(M1, M2);
   }

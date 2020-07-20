@@ -376,14 +376,14 @@ namespace
 //
 // Hexahedron topology
 //
-//  3_______2
+//  1_______2
 //  |\     /|
-//  |7\___/6|
+//  |5\___/6|
 //  | |   | |
 //  | |___| |
-//  |4/   \5|
+//  |4/   \7|
 //  |/_____\|
-//  0       1
+//  0       3
 //
 static constexpr vtkIdType edges[vtkHexahedron::NumberOfEdges][2] = {
   { 0, 1 }, // 0
@@ -412,7 +412,7 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkHexahedron::NumberOfEdges][2] 
   { 2, 4 }, // 0
   { 1, 4 }, // 1
   { 3, 4 }, // 2
-  { 0, 3 }, // 3
+  { 0, 4 }, // 3
   { 2, 5 }, // 4
   { 1, 5 }, // 5
   { 3, 5 }, // 6
@@ -437,7 +437,7 @@ static constexpr vtkIdType pointToIncidentEdges[vtkHexahedron::NumberOfPoints]
                                                  { 0, 1, 9 },  // 1
                                                  { 1, 2, 11 }, // 2
                                                  { 2, 3, 10 }, // 3
-                                                 { 4, 7, 8 },  // 4
+                                                 { 7, 8, 4 },  // 4
                                                  { 4, 9, 5 },  // 5
                                                  { 5, 11, 6 }, // 6
                                                  { 6, 10, 7 }, // 7
@@ -445,11 +445,11 @@ static constexpr vtkIdType pointToIncidentEdges[vtkHexahedron::NumberOfPoints]
 static constexpr vtkIdType pointToIncidentFaces[vtkHexahedron::NumberOfPoints]
                                                [vtkHexahedron::MaximumValence] = {
                                                  { 2, 0, 4 }, // 0
-                                                 { 4, 1, 0 }, // 1
+                                                 { 4, 1, 2 }, // 1
                                                  { 4, 3, 1 }, // 2
                                                  { 4, 0, 3 }, // 3
-                                                 { 5, 3, 0 }, // 4
-                                                 { 0, 1, 5 }, // 5
+                                                 { 5, 2, 0 }, // 4
+                                                 { 2, 1, 5 }, // 5
                                                  { 1, 3, 5 }, // 6
                                                  { 3, 0, 5 }, // 7
                                                };
@@ -500,15 +500,6 @@ bool vtkHexahedron::ComputeCentroid(
   centroid[1] *= 0.5;
   centroid[2] *= 0.5;
   return true;
-}
-
-//------------------------------------------------------------------------------
-bool vtkHexahedron::IsInsideOut()
-{
-  double pt1[3], pt2[3];
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(6, pt2);
-  return (pt2[0] - pt1[0]) * (pt2[1] - pt1[1]) * (pt2[2] - pt1[2]) < 0.0;
 }
 
 // Marching cubes case table

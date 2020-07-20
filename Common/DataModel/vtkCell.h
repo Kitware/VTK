@@ -249,11 +249,19 @@ public:
     vtkIdType cellId, vtkCellData* outCd, int insideOut) = 0;
 
   /**
-   * Inflates the cell by dist. Each point is displaced by dist in the direction of every halfedge.
-   * Input can be negative. If so, the cell will shrink. Artifacts will appear if one shrinks
-   * with -dist larger than any edge length, probably causing the cell to self-intersect.
+   * Inflates the cell. Each edge is displaced following its normal by a
+   * distance of value `dist`. If dist is negative, then the cell shrinks.
+   * The resulting cell edges / faces are colinear / coplanar to their previous
+   * self.
+   *
+   * The cell is assumed to be non-degenerate and to have no
+   * edge of length zero for linear 2D cells.
+   * If it is not the case, then no inflation is performed.
+   * This method needs to be overriden by inheriting non-linear / non-2D cells.
+   *
+   * \return 1 if inflation was successful, 0 if no inflation was performed
    */
-  virtual void Inflate(double dist);
+  virtual int Inflate(double dist);
 
   /**
    * Computes the bounding sphere of the cell. If the number of points in the cell is lower

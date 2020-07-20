@@ -20,6 +20,7 @@
 
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
@@ -191,13 +192,19 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
     }
     case 3:
     {
-      vtkTriangle::ComputeCentroid(this->Points, nullptr, center);
+      if (!vtkTriangle::ComputeCentroid(this->Points, nullptr, center))
+      {
+        break;
+      }
       auto points = vtk::DataArrayTupleRange(this->Points->GetData());
       return vtkMath::Distance2BetweenPoints(center, points[0]);
     }
     case 4:
     {
-      vtkTetra::ComputeCentroid(this->Points, nullptr, center);
+      if (!vtkTetra::ComputeCentroid(this->Points, nullptr, center))
+      {
+        break;
+      }
       auto points = vtk::DataArrayTupleRange(this->Points->GetData());
       return vtkMath::Distance2BetweenPoints(center, points[0]);
     }
@@ -278,69 +285,124 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
 }
 
 //------------------------------------------------------------------------------
-void vtkCell::Inflate(double dist)
+int vtkCell::Inflate(double dist)
 {
   if (this->GetNumberOfFaces() != 0)
   {
     vtkWarningMacro(<< "Base version of vtkCell::Inflate only implements cell inflation"
                     << " for linear non 3D cells. Class " << this->GetClassName()
                     << " needs to overload this method. Ignoring this cell.");
-    return;
+    return 0;
   }
-  std::vector<double> buf(3 * this->Points->GetNumberOfPoints(), 0.0);
-  vtkIdType pointId = 0;
+
+  // Strategy:
+  // For each point, store in a buffer its inflated position by moving each
+  // incident edge their normal direction by a distance of dist. This new
+  // position is done by solving a linear system of equation (intersection of 2
+  // lines).
+
   auto pointRange = vtk::DataArrayTupleRange<3>(this->Points->GetData());
+  using ConstTupleRef = typename decltype(pointRange)::ConstTupleReferenceType;
   using TupleRef = typename decltype(pointRange)::TupleReferenceType;
-  auto stlPoints = vtk::DataArrayTupleRange<3>(this->Points->GetData());
-  auto postPointIt = stlPoints.begin();
-  ++postPointIt;
-  auto prePointIt = stlPoints.end();
-  --prePointIt;
-  double v[3];
-  for (auto pointIt = stlPoints.begin(); pointIt != stlPoints.end();
-       ++pointIt, ++postPointIt, ++prePointIt, ++pointId)
-  {
-    if (postPointIt == stlPoints.end())
-    {
-      postPointIt = stlPoints.begin();
-    }
-    if (prePointIt == stlPoints.end())
-    {
-      prePointIt = stlPoints.begin();
-    }
+  using ConstScalar = typename ConstTupleRef::value_type;
+  using Scalar = typename TupleRef::value_type;
 
-    double* vIt = v;
-    for (auto compIt = pointIt->begin(), postCompIt = postPointIt->begin();
-         compIt != pointIt->end(); ++compIt, ++postCompIt, ++vIt)
-    {
-      *vIt = *compIt - *postCompIt;
-    }
-    vtkMath::Normalize(v);
-    buf[pointId * 3] += v[0] * dist;
-    buf[pointId * 3 + 1] += v[1] * dist;
-    buf[pointId * 3 + 2] += v[2] * dist;
+  std::vector<Scalar> buf(3 * pointRange.size());
 
-    vIt = v;
-    for (auto compIt = pointIt->begin(), preCompIt = prePointIt->begin(); compIt != pointIt->end();
-         ++compIt, ++preCompIt, ++vIt)
-    {
-      *vIt = *compIt - *preCompIt;
-    }
-    vtkMath::Normalize(v);
-    buf[pointId * 3] += v[0] * dist;
-    buf[pointId * 3 + 1] += v[1] * dist;
-    buf[pointId * 3 + 2] += v[2] * dist;
-  }
-  auto it = buf.begin();
-  using TupleRef = typename decltype(stlPoints)::TupleReferenceType;
-  using CompRef = typename decltype(stlPoints)::ComponentReferenceType;
-  for (TupleRef point : stlPoints)
+  Scalar normal[3];
+  vtkPolygon::ComputeNormal(this->Points, normal);
+
+  // Matrix transforming the 3D world into a 2D space
+  // used for solving line intersection.
+  // 2x3 matrix
+  Scalar basis[6];
+
+  // This will be used to store consecutive edge line equations
+  // 2x2 matrix
+  Scalar normals2D[4];
+
+  Scalar edgeNormal3D[3];
+
+  // Offset of the corresponding edge line equations in normals2D, shifted by
+  // dist
+  Scalar y[2];
+
+  // Intersection coordinates in 2D basis normals2D of the intersection between
+  // edges
+  Scalar x[2];
+
+  // Current index in normals2D and y. At each iteration, it binary swaps
+  int baseId = 1;
+
   {
-    for (CompRef comp : point)
+    ConstTupleRef p1 = pointRange[this->Points->GetNumberOfPoints() - 1], p2 = pointRange[0];
+
+    // We do not supporte the case of collapsed edges
+    if (vtkMathUtilities::NearlyEqual<ConstScalar>(p1[0], p2[0]) &&
+      vtkMathUtilities::NearlyEqual<ConstScalar>(p1[1], p2[1]) &&
+      vtkMathUtilities::NearlyEqual<ConstScalar>(p1[2], p2[2]))
     {
-      comp += *(it++);
+      return 0;
+    }
+    Scalar v[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+    vtkMath::Normalize(v);
+
+    // We create a 2D basis with normal to first edge
+    vtkMath::Cross(v, normal, basis);
+    vtkMath::Cross(normal, basis, basis + 3);
+
+    // In this basis the normal of first edge is (1.0, 0.0)
+    normals2D[0] = 1.0;
+    normals2D[1] = 0.0;
+
+    // Shifted line offset
+    y[0] = dist;
+  }
+
+  double* bufIt = buf.data();
+  for (vtkIdType pointId = 0; pointId < this->Points->GetNumberOfPoints();
+       ++pointId, ++baseId %= 2, bufIt += 3)
+  {
+    ConstTupleRef p1 = pointRange[pointId];
+    ConstTupleRef p2 = pointRange[(pointId + 1) % this->Points->GetNumberOfPoints()];
+
+    // We do not support the case of collapsed edges
+    if (vtkMathUtilities::NearlyEqual<ConstScalar>(p1[0], p2[0]) &&
+      vtkMathUtilities::NearlyEqual<ConstScalar>(p1[1], p2[1]) &&
+      vtkMathUtilities::NearlyEqual<ConstScalar>(p1[2], p2[2]))
+    {
+      return 0;
+    }
+    Scalar v[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+    vtkMath::Normalize(v);
+    vtkMath::Cross(v, normal, edgeNormal3D);
+    vtkMath::MultiplyMatrixWithVector<2, 3>(basis, edgeNormal3D, normals2D + 2 * baseId);
+    y[baseId] = vtkMath::Dot(edgeNormal3D, p1) + dist;
+    if (std::fabs(vtkMath::Dot<Scalar, 2>(normals2D, normals2D + 2) - 1.0) <
+      std::numeric_limits<Scalar>::epsilon())
+    {
+      // Incident edges are colinear, we handle that differently.
+      bufIt[0] = p1[0] + dist * edgeNormal3D[0];
+      bufIt[1] = p1[1] + dist * edgeNormal3D[1];
+      bufIt[2] = p1[2] + dist * edgeNormal3D[2];
+    }
+    else
+    {
+      vtkMath::LinearSolve<2, 2>(normals2D, y, x);
+      vtkMath::MultiplyMatrixWithVector<3, 2, vtkMatrixUtilities::Layout::Transpose>(
+        basis, x, bufIt);
     }
   }
+
+  bufIt = buf.data();
+  for (TupleRef point : pointRange)
+  {
+    point[0] = bufIt[0];
+    point[1] = bufIt[1];
+    point[2] = bufIt[2];
+    bufIt += 3;
+  }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

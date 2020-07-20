@@ -57,6 +57,14 @@ public:
   //@}
 
   /**
+   * Inflates this line by extending both end by dist. A degenerate line remains
+   * untouched.
+   *
+   * \return 1 if inflation was successful, 0 if no inflation was performed
+   */
+  int Inflate(double dist) override;
+
+  /**
    * Clip this line using scalar value provided. Like contouring, except
    * that it cuts the line to produce other lines.
    */

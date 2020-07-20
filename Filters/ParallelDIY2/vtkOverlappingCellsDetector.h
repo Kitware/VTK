@@ -19,7 +19,7 @@
  * This filter performs a cell collision detection between the cells of the input.
  * This detection takes the form of a cell array of double. Its name can be
  * reached from the static string attribute
- * vtkOverlappingCellsDetector::NumberOfCollisionsPerCell.
+ * vtkOverlappingCellsDetector::NumberOfOverlapsPerCell.
  *
  * To detect collisions, coarse bounding spheres are estimated for each cell of the input.
  * The center of those spheres is stored in a point cloud which is used to find potential
@@ -74,8 +74,8 @@ public:
    * Getter / Setter for the name of the output array counting cell collisions.
    * This array is a cell array.
    */
-  vtkGetStringMacro(NumberOfCollisionsPerCellArrayName);
-  vtkSetStringMacro(NumberOfCollisionsPerCellArrayName);
+  vtkGetStringMacro(NumberOfOverlapsPerCellArrayName);
+  vtkSetStringMacro(NumberOfOverlapsPerCellArrayName);
   //@}
 
 protected:
@@ -110,7 +110,7 @@ protected:
    * This function can be called with queryCellDataSet and queryDataSet pointing to the same
    * object in memory.
    *
-   * Precondition: cellDataSet MUST have the cell array named NumberOfCollisionsPerCellArrayName()
+   * Precondition: cellDataSet MUST have the cell array named NumberOfOverlapsPerCellArrayName()
    */
   bool DetectOverlappingCells(vtkDataSet* queryCellDataSet, vtkPointSet* queryPointCloud,
     const std::vector<vtkBoundingBox>& queryCellBoundingBoxes, vtkDataSet* cellDataSet,
@@ -125,7 +125,7 @@ protected:
   /**
    * Output cell scalar field counting the number of cells that each cell was found to collide.
    */
-  char* NumberOfCollisionsPerCellArrayName;
+  char* NumberOfOverlapsPerCellArrayName;
 
 private:
   vtkOverlappingCellsDetector(const vtkOverlappingCellsDetector&) = delete;

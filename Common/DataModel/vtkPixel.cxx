@@ -21,6 +21,7 @@
 #include "vtkLine.h"
 #include "vtkMarchingSquaresLineCases.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -185,56 +186,55 @@ int vtkPixel::ComputeNormal(double n[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkPixel::Inflate(double dist)
+int vtkPixel::Inflate(double dist)
 {
   auto range = vtk::DataArrayTupleRange<3>(this->Points->GetData());
   using TupleRef = typename decltype(range)::TupleReferenceType;
-  double n[3];
-  int normalDirection = this->ComputeNormal(n);
+  using ConstTupleRef = typename decltype(range)::ConstTupleReferenceType;
+  using ConstScalar = typename ConstTupleRef::value_type;
+
+  ConstTupleRef p0 = range[0], p3 = range[3];
+
+  int normalDirection = static_cast<int>(vtkMathUtilities::NearlyEqual<ConstScalar>(p3[0], p0[0])) |
+    (static_cast<int>(vtkMathUtilities::NearlyEqual<ConstScalar>(p3[1], p0[1])) << 1) |
+    (static_cast<int>(vtkMathUtilities::NearlyEqual<ConstScalar>(p3[2], p0[2])) << 2);
   int degeneratePixelDirection = -1;
-  if (normalDirection == -1)
+
+  if (normalDirection == 7)
   {
-    auto it = range.cbegin(), jt = range.cbegin();
-    auto compIt = it->cbegin(), compJt = jt->cbegin();
-    ++jt;
-    std::array<double, 3> diff{ *(compJt++) - *(compIt++), *(compJt++) - *(compIt++),
-      *(compJt++) - *(compIt++) };
-    auto maxIt = std::max_element(diff.cbegin(), diff.cend(),
-      [](double a, double b) -> bool { return std::abs(a) < std::abs(b); });
-    degeneratePixelDirection = std::distance(diff.cbegin(), maxIt);
+    // Pixel is collapsed to a single point
+    return 0;
+  }
+  if ((normalDirection + 1) & normalDirection)
+  {
+    static constexpr std::array<int, 5> myLog2{ -1, 0, 1, -1, 2 };
+    // Pixel is degenerate, it is homogeneous to a 1D line.
+    degeneratePixelDirection = myLog2[~(normalDirection | (1 << 3))];
   }
   int index = 0;
   for (TupleRef point : range)
   {
-    auto it = point.begin();
     switch (normalDirection)
     {
-      case 0:
-        *(++it++) += dist * (index % 2 ? 1.0 : -1.0);
-        *(it++) += dist * (index / 2 ? 1.0 : -1.0);
-        break;
       case 1:
-        *(it++) += dist * (index % 2 ? 1.0 : -1.0);
-        *(++it++) += dist * (index / 2 ? 1.0 : -1.0);
+        point[1] += dist * (index % 2 ? 1.0 : -1.0);
+        point[2] += dist * (index / 2 ? 1.0 : -1.0);
         break;
       case 2:
-        *(it++) += dist * (index % 2 ? 1.0 : -1.0);
-        *(it++) += dist * (index / 2 ? 1.0 : -1.0);
+        point[0] += dist * (index % 2 ? 1.0 : -1.0);
+        point[2] += dist * (index / 2 ? 1.0 : -1.0);
         break;
-      case -1:
-        if (degeneratePixelDirection > 0)
-        {
-          ++it;
-          if (degeneratePixelDirection > 1)
-          {
-            ++it;
-          }
-        }
-        *it += dist * (index % 2 ? 1.0 : -1.0);
+      case 4:
+        point[0] += dist * (index % 2 ? 1.0 : -1.0);
+        point[1] += dist * (index / 2 ? 1.0 : -1.0);
+        break;
+      default:
+        point[degeneratePixelDirection] += dist * (index % 2 ? 1.0 : -1.0);
         break;
     }
     ++index;
   }
+  return 1;
 }
 
 //------------------------------------------------------------------------------
