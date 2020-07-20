@@ -1283,12 +1283,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
 #endif
-      this->OFrameBuffer = ospNewFrameBuffer(isize,
-#ifdef VTKOSPRAY_ENABLE_DENOISER
-        OSP_FB_RGBA32F,
-#else
-        OSP_FB_RGBA8,
-#endif
+      this->OFrameBuffer = ospNewFrameBuffer(isize, OSP_FB_RGBA32F,
         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) |
           (this->Accumulate ? OSP_FB_ACCUM : 0)
 #ifdef VTKOSPRAY_ENABLE_DENOISER
@@ -1585,8 +1580,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       const float* color = reinterpret_cast<const float*>(this->ColorBuffer.data());
       this->Buffer.assign(color, color + this->ImageX * this->ImageY * 4);
 #else
-      const unsigned char* rgbauc = reinterpret_cast<const unsigned char*>(rgba);
-      this->Buffer.assign(rgbauc, rgbauc + this->Size[0] * this->Size[1] * 4);
+      const float* rgbaf = reinterpret_cast<const float*>(rgba);
+      this->Buffer.assign(rgbaf, rgbaf + this->Size[0] * this->Size[1] * 4);
 #endif
       ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
@@ -1671,27 +1666,16 @@ void vtkOSPRayRendererNode::WriteLayer(
   {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
     {
-#ifdef VTKOSPRAY_ENABLE_DENOISER
       float* iptr = this->Buffer.data() + j * this->Size[0] * 4;
-#else
-      unsigned char* iptr = this->Buffer.data() + j * this->Size[0] * 4;
-#endif
       float* zptr = this->ZBuffer.data() + j * this->Size[0];
       unsigned char* optr = buffer + j * buffx * 4;
       float* ozptr = Z + j * buffx;
       for (int i = 0; i < buffx && i < this->Size[0]; i++)
       {
-#ifdef VTKOSPRAY_ENABLE_DENOISER
         *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
         *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
         *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
         *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
-#else
-        *optr++ = *iptr++;
-        *optr++ = *iptr++;
-        *optr++ = *iptr++;
-        *optr++ = *iptr++;
-#endif
         *ozptr++ = *zptr;
         zptr++;
       }
@@ -1701,11 +1685,7 @@ void vtkOSPRayRendererNode::WriteLayer(
   {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
     {
-#ifdef VTKOSPRAY_ENABLE_DENOISER
       float* iptr = this->Buffer.data() + j * this->Size[0] * 4;
-#else
-      unsigned char* iptr = this->Buffer.data() + j * this->Size[0] * 4;
-#endif
       float* zptr = this->ZBuffer.data() + j * this->Size[0];
       unsigned char* optr = buffer + j * buffx * 4;
       float* ozptr = Z + j * buffx;
@@ -1716,7 +1696,6 @@ void vtkOSPRayRendererNode::WriteLayer(
           if (this->CompositeOnGL)
           {
             // ospray is cooperating with GL (osprayvolumemapper)
-#ifdef VTKOSPRAY_ENABLE_DENOISER
             float A = iptr[3];
             for (int h = 0; h < 3; h++)
             {
@@ -1725,33 +1704,16 @@ void vtkOSPRayRendererNode::WriteLayer(
               optr++;
               iptr++;
             }
-#else
-            float A = iptr[3] / 255.f;
-            for (int h = 0; h < 3; h++)
-            {
-              *optr = static_cast<unsigned char>(
-                static_cast<float>(*iptr) * (1 - A) + static_cast<float>(*optr) * (A));
-              optr++;
-              iptr++;
-            }
-#endif
             optr++;
             iptr++;
           }
           else
           {
             // ospray owns all layers in window
-#ifdef VTKOSPRAY_ENABLE_DENOISER
             *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
             *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
             *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
             *optr++ = static_cast<unsigned char>(vtkMath::ClampValue(*iptr++, 0.f, 1.f) * 255.f);
-#else
-            *optr++ = *iptr++;
-            *optr++ = *iptr++;
-            *optr++ = *iptr++;
-            *optr++ = *iptr++;
-#endif
           }
           *ozptr = *zptr;
         }

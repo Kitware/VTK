@@ -369,11 +369,7 @@ protected:
   void Denoise();
 
   // internal structures
-#ifdef VTKOSPRAY_ENABLE_DENOISER
   std::vector<float> Buffer;
-#else
-  std::vector<unsigned char> Buffer;
-#endif
   std::vector<float> ZBuffer;
 
   int ColorBufferTex;

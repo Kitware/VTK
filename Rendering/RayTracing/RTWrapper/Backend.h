@@ -43,7 +43,7 @@ namespace RTW
         virtual void SetString(RTWObject, const char *id, const char *s) = 0;
         virtual void SetObject(RTWObject, const char *id, RTWObject other) = 0;
         virtual void SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj) = 0;
-        virtual void SetParam(RTWObject, const char *id, RTWDataType type, const void* mem) =0;
+        virtual void SetParam(RTWObject, const char *id, RTWDataType type, const void* mem) = 0;
         virtual void SetBool(RTWObject, const char *id, bool x) = 0;
         virtual void SetInt(RTWObject, const char *id, int32_t x) = 0;
         virtual void SetVec2i(RTWObject, const char *id, int32_t x, int32_t y) = 0;
