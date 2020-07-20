@@ -1015,7 +1015,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
     if (!albedo)
     {
-      toString << "vec3 albedo = pow(diffuseColor, vec3(2.2));\n"; // to linear color space
+      // VTK colors are expressed in linear color space
+      toString << "vec3 albedo = diffuseColor;\n";
     }
     if (!material)
     {

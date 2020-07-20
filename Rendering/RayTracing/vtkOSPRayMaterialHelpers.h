@@ -50,9 +50,11 @@ OSPTexture NewTexture2D(RTW::Backend* backend, const osp::vec2i& size, const OSP
   void* data, const uint32_t _flags);
 
 /**
- * Manufacture an ospray texture from a 2d vtkImageData
+ * Manufacture an ospray texture from a 2d vtkImageData.
+ * isSRGB can be set to true if the image is 8-bits and sRGB encoded.
  */
-OSPTexture VTKToOSPTexture(RTW::Backend* backend, vtkImageData* vColorTextureMap);
+OSPTexture VTKToOSPTexture(
+  RTW::Backend* backend, vtkImageData* vColorTextureMap, bool isSRGB = false);
 
 /**
  * Construct a set of ospray materials for all of the material names.

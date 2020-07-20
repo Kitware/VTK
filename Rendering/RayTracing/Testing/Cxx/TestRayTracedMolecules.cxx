@@ -113,14 +113,14 @@ int TestRayTracedMolecules(int argc, char* argv[])
   light1->SetFocalPoint(0, 0, 0);
   light1->SetPosition(0, 1, 0.2);
   light1->SetColor(0.95, 0.97, 1.0);
-  light1->SetIntensity(0.8);
+  light1->SetIntensity(0.6);
   ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
   light2->SetFocalPoint(0, 0, 0);
   light2->SetPosition(1.0, 1.0, 1.0);
   light2->SetColor(1.0, 0.8, 0.7);
-  light2->SetIntensity(0.3);
+  light2->SetIntensity(0.07);
   ren->AddLight(light2);
 
   ren->UseShadowsOn();
