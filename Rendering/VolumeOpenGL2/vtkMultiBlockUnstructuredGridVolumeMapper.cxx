@@ -89,6 +89,18 @@ void vtkMultiBlockUnstructuredGridVolumeMapper::Render(vtkRenderer* ren, vtkVolu
 
   for (auto& mapper : this->Mappers)
   {
+    int unused = 0;
+    auto input = mapper->GetInput();
+    auto scalars = vtkAbstractMapper::GetScalars(
+      input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, unused);
+    if (scalars == nullptr)
+    {
+      return;
+    }
+  }
+
+  for (auto& mapper : this->Mappers)
+  {
     mapper->Render(ren, vol);
   }
 }
