@@ -63,6 +63,9 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
 
+namespace
+{
+const int LINE_LENGTH = 4096;
 // wjs: added to manage memory leak
 static vtkHeap* plyHeap = nullptr;
 static void plyInitialize()
@@ -89,6 +92,7 @@ static const char* type_names[] = { "invalid", "char", "short", "int", "int8", "
   "uchar", "ushort", "uint", "uint8", "uint16", "uint32", "float", "float32", "double", "float64" };
 
 static const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 1, 2, 4, 1, 2, 4, 4, 4, 8 };
+}
 
 #define NO_OTHER_PROPS (-1)
 
@@ -692,7 +696,9 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
   char** words;
   char** elist;
   PlyElement* elem;
-  char* orig_line;
+
+  char line_words[LINE_LENGTH];
+  char orig_line[LINE_LENGTH];
 
   /* check for nullptr file pointer */
   if (is == nullptr)
@@ -712,7 +718,7 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
 
   /* read and parse the file's header */
 
-  words = get_words(plyfile->is, &nwords, &orig_line);
+  words = get_words(plyfile->is, &nwords, line_words, orig_line);
   if (!words || !equal_strings(words[0], "ply"))
   {
     free(plyfile);
@@ -766,7 +772,7 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
     /* free up words space */
     free(words);
 
-    words = get_words(plyfile->is, &nwords, &orig_line);
+    words = get_words(plyfile->is, &nwords, line_words, orig_line);
   }
 
   if (plyfile->nelems == 0)
@@ -1538,9 +1544,11 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
   int list_count;
   int store_it;
   char** store_array;
-  char* orig_line;
   char* other_data = nullptr;
   int other_flag;
+
+  char line_words[LINE_LENGTH];
+  char orig_line[LINE_LENGTH];
 
   /* the kind of element we're reading currently */
   elem = plyfile->which_elem;
@@ -1562,7 +1570,7 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
 
   /* read in the element */
 
-  words = get_words(plyfile->is, &nwords, &orig_line);
+  words = get_words(plyfile->is, &nwords, line_words, orig_line);
   if (words == nullptr)
   {
     fprintf(stderr, "ply_get_element: unexpected end of file\n");
@@ -1807,27 +1815,23 @@ Exit:
   returns a list of words from the line, or nullptr if end-of-file
 ******************************************************************************/
 
-char** vtkPLY::get_words(std::istream* is, int* nwords, char** orig_line)
+char** vtkPLY::get_words(std::istream* is, int* nwords, char line_words[], char orig_line[])
 {
-  const int BIG_STRING = 4096;
-  char str[BIG_STRING];
-  char str_copy[BIG_STRING];
   char** words;
   int max_words = 10;
   int num_words = 0;
   char *ptr, *ptr2;
 
   /* read in a line */
-  is->getline(str, BIG_STRING);
+  is->getline(line_words, LINE_LENGTH);
   if (!is->good())
   {
     *nwords = 0;
-    *orig_line = nullptr;
     return (nullptr);
   }
   words = (char**)myalloc(sizeof(char*) * max_words);
 
-  char* pos = strstr(str, "vertex_index");
+  char* pos = strstr(line_words, "vertex_index");
   if (pos != nullptr)
   {
     strcpy(pos, "vertex_indices");
@@ -1837,10 +1841,10 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char** orig_line)
   /* (this guarantees that there will be a space before the */
   /*  null character at the end of the string) */
 
-  str[BIG_STRING - 2] = ' ';
-  str[BIG_STRING - 1] = '\0';
+  line_words[LINE_LENGTH - 2] = ' ';
+  line_words[LINE_LENGTH - 1] = '\0';
 
-  for (ptr = str, ptr2 = str_copy; *ptr != '\0'; ptr++, ptr2++)
+  for (ptr = line_words, ptr2 = orig_line; *ptr != '\0'; ptr++, ptr2++)
   {
     *ptr2 = *ptr;
     if (*ptr == '\t')
@@ -1867,7 +1871,7 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char** orig_line)
 
   /* find the words in the line */
 
-  ptr = str;
+  ptr = line_words;
   while (*ptr != '\0')
   {
 
@@ -1888,7 +1892,6 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char** orig_line)
       if (!words)
       {
         *nwords = 0;
-        *orig_line = nullptr;
         free(oldwords);
         return nullptr;
       }
@@ -1909,7 +1912,6 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char** orig_line)
 
   /* return the list of words */
   *nwords = num_words;
-  *orig_line = str_copy;
   return (words);
 }
 

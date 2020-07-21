@@ -209,8 +209,7 @@ public:
   static PlyElement* find_element(PlyFile*, const char*);
   static PlyProperty* find_property(PlyElement*, const char*, int*);
   static void write_scalar_type(std::ostream*, int);
-  static char** get_words(std::istream*, int*, char**);
-  static char** old_get_words(std::istream*, int*);
+  static char** get_words(std::istream*, int*, char[], char[]);
   static void write_binary_item(PlyFile*, int, unsigned int, double, int);
   static void write_ascii_item(std::ostream*, int, unsigned int, double, int);
   static double old_write_ascii_item(std::ostream*, char*, int);
