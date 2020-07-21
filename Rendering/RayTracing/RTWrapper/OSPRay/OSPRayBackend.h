@@ -247,7 +247,7 @@ namespace RTW
        reinterpret_cast<OSPObject>(obj));
     }
 
-    void SetParam(RTWObject object, const char *id, RTWDataType dataType, const void* mem)
+    void SetParam(RTWObject object, const char *id, RTWDataType dataType, const void* mem) override
     {
       ospSetParam(reinterpret_cast<OSPObject>(object), id, static_cast<OSPDataType>(dataType),
         mem);
