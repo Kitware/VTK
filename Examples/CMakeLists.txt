@@ -3,33 +3,35 @@ project(VTKExamples)
 
 if (VTK_BINARY_DIR)
   function (add_example dir)
-    add_test(
-      NAME    "VTKExample-${dir}"
-      COMMAND "${CMAKE_CTEST_COMMAND}"
-              --build-generator
-                "${CMAKE_GENERATOR}"
-              --build-and-test
-                "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
-                "${CMAKE_CURRENT_BINARY_DIR}/${dir}"
-              --build-options
-                "-DBUILD_TESTING=ON"
-                "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-                "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}"
-                "-DVTK_DIR=${vtk_cmake_build_dir}"
-                "-DQt5_DIR=${Qt5_DIR}"
-              --test-command
-                "${CMAKE_CTEST_COMMAND}"
-                  -C $<CONFIGURATION>)
-    if (WIN32)
-      set(example_path "$ENV{PATH};${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-      string(REPLACE ";" "\;" example_path "${example_path}")
+    if (vtk_cmake_build_dir)
+      add_test(
+        NAME    "VTKExample-${dir}"
+        COMMAND "${CMAKE_CTEST_COMMAND}"
+                --build-generator
+                  "${CMAKE_GENERATOR}"
+                --build-and-test
+                  "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
+                  "${CMAKE_CURRENT_BINARY_DIR}/${dir}"
+                --build-options
+                  "-DBUILD_TESTING=ON"
+                  "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+                  "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}"
+                  "-DVTK_DIR=${vtk_cmake_build_dir}"
+                  "-DQt5_DIR=${Qt5_DIR}"
+                --test-command
+                  "${CMAKE_CTEST_COMMAND}"
+                    -C $<CONFIGURATION>)
+      if (WIN32)
+        set(example_path "$ENV{PATH};${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+        string(REPLACE ";" "\;" example_path "${example_path}")
+        set_property(TEST "VTKExample-${dir}" APPEND
+          PROPERTY
+            ENVIRONMENT "PATH=${example_path}")
+      endif ()
       set_property(TEST "VTKExample-${dir}" APPEND
         PROPERTY
-          ENVIRONMENT "PATH=${example_path}")
+          SKIP_REGULAR_EXPRESSION "Skipping example")
     endif ()
-    set_property(TEST "VTKExample-${dir}" APPEND
-      PROPERTY
-        SKIP_REGULAR_EXPRESSION "Skipping example")
   endfunction ()
 else ()
   macro (add_example dir)
