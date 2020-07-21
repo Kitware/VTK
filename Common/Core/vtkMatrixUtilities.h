@@ -154,7 +154,7 @@ namespace detail
 {
 // Class implementing matrix wrapping.
 template <int RowsT, int ColsT, class MatrixT, class LayoutT, bool MatrixIs2DArrayT>
-struct Wrapper;
+class Wrapper;
 
 // Specializaion of matrix wrapping for matrices stored as 1D arrays
 // in row-wise order
@@ -233,7 +233,7 @@ private:
   {
     static constexpr Scalar ZERO = Scalar(0);
 
-    static Scalar& Get(const MatrixT& M) { return ZERO; }
+    static Scalar& Get(const MatrixT&) { return ZERO; }
   };
 
   template <int RowT>
