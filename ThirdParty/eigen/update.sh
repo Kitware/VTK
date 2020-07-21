@@ -8,7 +8,7 @@ readonly name="eigen"
 readonly ownership="Eigen Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/eigen.git"
-readonly tag="for/vtk-20190613.1-3.3.7"
+readonly tag="for/vtk-20200721-3.3.7"
 readonly paths="
 Eigen/Cholesky
 Eigen/CholmodSupport
