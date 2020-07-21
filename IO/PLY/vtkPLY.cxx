@@ -692,8 +692,7 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
 {
   int i, j;
   PlyFile* plyfile;
-  int nwords;
-  char** words;
+  std::vector<char*> words;
   char** elist;
   PlyElement* elem;
 
@@ -718,26 +717,23 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
 
   /* read and parse the file's header */
 
-  words = get_words(plyfile->is, &nwords, line_words, orig_line);
-  if (!words || !equal_strings(words[0], "ply"))
+  get_words(plyfile->is, &words, line_words, orig_line);
+  if (words.size() == 0 || !equal_strings(words[0], "ply"))
   {
     free(plyfile);
-    if (words)
-      free(words);
     return (nullptr);
   }
 
-  while (words)
+  while (words.size())
   {
 
     /* parse words */
 
     if (equal_strings(words[0], "format"))
     {
-      if (nwords != 3)
+      if (words.size() != 3)
       {
         free(plyfile);
-        free(words);
         return (nullptr);
       }
       if (equal_strings(words[1], "ascii"))
@@ -749,36 +745,29 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
       else
       {
         free(plyfile);
-        free(words);
         return (nullptr);
       }
       plyfile->version = atof(words[2]);
     }
     else if (equal_strings(words[0], "element"))
-      add_element(plyfile, words, nwords);
+      add_element(plyfile, words);
     else if (equal_strings(words[0], "property"))
-      add_property(plyfile, words, nwords);
+      add_property(plyfile, words);
     else if (equal_strings(words[0], "comment"))
       add_comment(plyfile, orig_line);
     else if (equal_strings(words[0], "obj_info"))
       add_obj_info(plyfile, orig_line);
     else if (equal_strings(words[0], "end_header"))
     {
-      free(words);
-      words = nullptr;
       break;
     }
 
-    /* free up words space */
-    free(words);
-
-    words = get_words(plyfile->is, &nwords, line_words, orig_line);
+    get_words(plyfile->is, &words, line_words, orig_line);
   }
 
   if (plyfile->nelems == 0)
   {
     free(plyfile);
-    free(words);
     return (nullptr);
   }
 
@@ -1532,8 +1521,7 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
   int j, k;
   PlyElement* elem;
   PlyProperty* prop;
-  char** words;
-  int nwords;
+  std::vector<char*> words;
   int which_word;
   char *elem_data, *item = nullptr;
   char* item_ptr;
@@ -1570,8 +1558,8 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
 
   /* read in the element */
 
-  words = get_words(plyfile->is, &nwords, line_words, orig_line);
-  if (words == nullptr)
+  get_words(plyfile->is, &words, line_words, orig_line);
+  if (words.size() == 0)
   {
     fprintf(stderr, "ply_get_element: unexpected end of file\n");
     assert(0);
@@ -1646,7 +1634,6 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
     }
   }
 
-  free(words);
   return true;
 }
 
@@ -1815,21 +1802,18 @@ Exit:
   returns a list of words from the line, or nullptr if end-of-file
 ******************************************************************************/
 
-char** vtkPLY::get_words(std::istream* is, int* nwords, char line_words[], char orig_line[])
+void vtkPLY::get_words(
+  std::istream* is, std::vector<char*>* words, char line_words[], char orig_line[])
 {
-  char** words;
-  int max_words = 10;
-  int num_words = 0;
   char *ptr, *ptr2;
+  words->clear();
 
   /* read in a line */
   is->getline(line_words, LINE_LENGTH);
   if (!is->good())
   {
-    *nwords = 0;
-    return (nullptr);
+    return;
   }
-  words = (char**)myalloc(sizeof(char*) * max_words);
 
   char* pos = strstr(line_words, "vertex_index");
   if (pos != nullptr)
@@ -1883,20 +1867,7 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char line_words[], char 
     if (*ptr == '\0')
       break;
 
-    /* save pointer to beginning of word */
-    if (num_words >= max_words)
-    {
-      max_words += 10;
-      char** oldwords = words;
-      words = (char**)realloc(words, sizeof(char*) * max_words);
-      if (!words)
-      {
-        *nwords = 0;
-        free(oldwords);
-        return nullptr;
-      }
-    }
-    words[num_words++] = ptr;
+    words->push_back(ptr);
 
     /* jump over non-spaces */
     while (*ptr != ' ' && *ptr != '\0')
@@ -1909,10 +1880,6 @@ char** vtkPLY::get_words(std::istream* is, int* nwords, char line_words[], char 
     /* place a null character here to mark the end of the word */
     *ptr++ = '\0';
   }
-
-  /* return the list of words */
-  *nwords = num_words;
-  return (words);
 }
 
 /******************************************************************************
@@ -2634,10 +2601,9 @@ Add an element to a PLY file descriptor.
 Entry:
   plyfile - PLY file descriptor
   words   - list of words describing the element
-  nwords  - number of words in the list
 ******************************************************************************/
 
-void vtkPLY::add_element(PlyFile* plyfile, char** words, int)
+void vtkPLY::add_element(PlyFile* plyfile, const std::vector<char*>& words)
 {
   PlyElement* elem;
 
@@ -2687,10 +2653,9 @@ Add a property to a PLY file descriptor.
 Entry:
   plyfile - PLY file descriptor
   words   - list of words describing the property
-  nwords  - number of words in the list
 ******************************************************************************/
 
-void vtkPLY::add_property(PlyFile* plyfile, char** words, int)
+void vtkPLY::add_property(PlyFile* plyfile, const std::vector<char*>& words)
 {
   PlyProperty* prop;
   PlyElement* elem;
