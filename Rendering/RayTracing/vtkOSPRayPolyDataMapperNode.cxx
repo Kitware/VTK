@@ -146,7 +146,7 @@ float MapThroughPWF(double in, vtkPiecewiseFunction* scaleFunction)
 OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, double pointSize, vtkDataArray* scaleArray,
   vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial, OSPMaterial actorMaterial,
-  vtkImageData* vColorTextureMap, int numTextureCoordinates, float* textureCoordinates,
+  vtkImageData* vColorTextureMap, bool sRGB, int numTextureCoordinates, float* textureCoordinates,
   int numCellMaterials, std::vector<OSPMaterial>& CellMaterials, int numPointColors,
   osp::vec4f* PointColors, int numPointValueTextureCoords, float* pointValueTextureCoords,
   RTW::Backend* backend)
@@ -235,7 +235,7 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
   {
     if (vColorTextureMap && _hastm)
     {
-      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, sRGB);
       ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
       ospRelease(t2d);
       ospCommit(actorMaterial);
@@ -285,7 +285,7 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
 OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
   std::vector<unsigned int>& indexArray, std::vector<unsigned int>& rIndexArray, double lineWidth,
   vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, bool useCustomMaterial,
-  OSPMaterial actorMaterial, vtkImageData* vColorTextureMap, int numTextureCoordinates,
+  OSPMaterial actorMaterial, vtkImageData* vColorTextureMap, bool sRGB, int numTextureCoordinates,
   float* textureCoordinates, int numCellMaterials, std::vector<OSPMaterial>& CellMaterials,
   int numPointColors, osp::vec4f* PointColors, int numPointValueTextureCoords,
   float* pointValueTextureCoords, RTW::Backend* backend)
@@ -402,7 +402,7 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
   {
     if (vColorTextureMap && _hastm)
     {
-      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, sRGB);
       ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
       ospRelease(t2d);
       ospCommit(actorMaterial);
@@ -458,7 +458,7 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
 OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>& indexArray,
   std::vector<unsigned int>& rIndexArray, bool useCustomMaterial, OSPMaterial actorMaterial,
   int numNormals, const std::vector<osp::vec3f>& normals, int interpolationType,
-  vtkImageData* vColorTextureMap, vtkImageData* vNormalTextureMap,
+  vtkImageData* vColorTextureMap, bool sRGB, vtkImageData* vNormalTextureMap,
   vtkImageData* vMaterialTextureMap, vtkImageData* vAnisotropyTextureMap, int numTextureCoordinates,
   float* textureCoordinates, const osp::vec4f& textureTransform, int numCellMaterials,
   std::vector<OSPMaterial>& CellMaterials, int numPointColors, osp::vec4f* PointColors,
@@ -630,7 +630,7 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
     if (vColorTextureMap && _hastm)
     {
       // Note: this will only have an affect on OBJMaterials
-      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+      OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, sRGB);
       if (interpolationType == VTK_PBR)
       {
         ospSetObject(actorMaterial, "map_baseColor", ((OSPTexture)(t2d)));
@@ -725,7 +725,7 @@ OSPMaterial MakeActorMaterial(vtkOSPRayRendererNode* orn, OSPRenderer oRenderer,
   }
 
   OSPMaterial oMaterial;
-  if (property->GetInterpolation() == VTK_PBR)
+  if (pt_avail && property->GetInterpolation() == VTK_PBR)
   {
     oMaterial = vtkOSPRayMaterialHelpers::NewMaterial(orn, oRenderer, "principled");
 
@@ -939,8 +939,11 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   vtkImageData* vMaterialTextureMap = nullptr;
   vtkImageData* vAnisotropyTextureMap = nullptr;
 
+  bool sRGB = false;
+
   if (texture)
   {
+    sRGB = texture->GetUseSRGBColorSpace();
     vColorTextureMap = texture->GetInput();
     ospSetVec3f(oMaterial, "kd", 1.0f, 1.0f, 1.0f);
     ospCommit(oMaterial);
@@ -1050,9 +1053,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   {
     this->GeometricModels.emplace_back(vtkosp::RenderAsSpheres(vertices.data(), conn.vertex_index,
       conn.vertex_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-      vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
-      cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
-      (float*)pointValueTextureCoords.data(), backend));
+      vColorTextureMap, sRGB, numTextureCoordinates, (float*)textureCoordinates.data(),
+      numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+      numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
   }
 
   // create an ospray mesh for the line cells
@@ -1063,7 +1066,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       this->GeometricModels.emplace_back(vtkosp::RenderAsSpheres(vertices.data(), conn.line_index,
         conn.line_reverse, pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-        vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+        vColorTextureMap, sRGB, numTextureCoordinates, (float*)textureCoordinates.data(),
         numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
         numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
     }
@@ -1071,7 +1074,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
     {
       this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.line_index,
         conn.line_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-        vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+        vColorTextureMap, sRGB, numTextureCoordinates, (float*)textureCoordinates.data(),
         numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
         numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
     }
@@ -1088,7 +1091,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
         this->GeometricModels.emplace_back(
           vtkosp::RenderAsSpheres(vertices.data(), conn.triangle_index, conn.triangle_reverse,
             pointSize, scaleArray, scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap,
-            numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
+            sRGB, numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
             cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
             (float*)pointValueTextureCoords.data(), backend));
         break;
@@ -1097,7 +1100,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       {
         this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.triangle_index,
           conn.triangle_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          vColorTextureMap, sRGB, numTextureCoordinates, (float*)textureCoordinates.data(),
           numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
           numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
         break;
@@ -1118,7 +1121,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
 
           this->GeometricModels.emplace_back(
             vtkosp::RenderAsCylinders(vertices, conn2.triangle_index, conn2.triangle_reverse,
-              lineWidth, scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, 0,
+              lineWidth, scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, sRGB, 0,
               (float*)textureCoordinates.data(), numCellMaterials, cellMaterials, numPointColors,
               pointColors.data(), 0, (float*)pointValueTextureCoords.data(), backend));
           uniqueMats.insert(oMaterial2);
@@ -1170,12 +1173,13 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           }
         }
 
-        this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.triangle_index,
-          conn.triangle_reverse, useCustomMaterial, oMaterial, numNormals, normals,
-          property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
-          vAnisotropyTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
-          texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
-          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
+        this->GeometricModels.emplace_back(
+          vtkosp::RenderAsTriangles(position, conn.triangle_index, conn.triangle_reverse,
+            useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
+            vColorTextureMap, sRGB, vNormalTextureMap, vMaterialTextureMap, vAnisotropyTextureMap,
+            numTextureCoordinates, (float*)textureCoordinates.data(), texTransform,
+            numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+            numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }
@@ -1188,7 +1192,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       {
         this->GeometricModels.emplace_back(
           vtkosp::RenderAsSpheres(vertices.data(), conn.strip_index, conn.strip_reverse, pointSize,
-            scaleArray, scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap,
+            scaleArray, scaleFunction, useCustomMaterial, oMaterial, vColorTextureMap, sRGB,
             numTextureCoordinates, (float*)textureCoordinates.data(), numCellMaterials,
             cellMaterials, numPointColors, pointColors.data(), numPointValueTextureCoords,
             (float*)pointValueTextureCoords.data(), backend));
@@ -1198,7 +1202,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
       {
         this->GeometricModels.emplace_back(vtkosp::RenderAsCylinders(vertices, conn.strip_index,
           conn.strip_reverse, lineWidth, scaleArray, scaleFunction, useCustomMaterial, oMaterial,
-          vColorTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
+          vColorTextureMap, sRGB, numTextureCoordinates, (float*)textureCoordinates.data(),
           numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
           numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
         break;
@@ -1219,7 +1223,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
 
           this->GeometricModels.emplace_back(
             vtkosp::RenderAsCylinders(vertices, conn2.strip_index, conn2.strip_reverse, lineWidth,
-              scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, 0,
+              scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, sRGB, 0,
               (float*)textureCoordinates.data(), numCellMaterials, cellMaterials, numPointColors,
               pointColors.data(), 0, (float*)pointValueTextureCoords.data(), backend));
 
@@ -1249,12 +1253,13 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
-        this->GeometricModels.emplace_back(vtkosp::RenderAsTriangles(position, conn.strip_index,
-          conn.strip_reverse, useCustomMaterial, oMaterial, numNormals, normals,
-          property->GetInterpolation(), vColorTextureMap, vNormalTextureMap, vMaterialTextureMap,
-          vAnisotropyTextureMap, numTextureCoordinates, (float*)textureCoordinates.data(),
-          texTransform, numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
-          numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
+        this->GeometricModels.emplace_back(
+          vtkosp::RenderAsTriangles(position, conn.strip_index, conn.strip_reverse,
+            useCustomMaterial, oMaterial, numNormals, normals, property->GetInterpolation(),
+            vColorTextureMap, sRGB, vNormalTextureMap, vMaterialTextureMap, vAnisotropyTextureMap,
+            numTextureCoordinates, (float*)textureCoordinates.data(), texTransform,
+            numCellMaterials, cellMaterials, numPointColors, pointColors.data(),
+            numPointValueTextureCoords, (float*)pointValueTextureCoords.data(), backend));
       }
     }
   }

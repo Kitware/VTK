@@ -53,11 +53,11 @@ OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const o
   {
     dataType = OSP_UCHAR;
   }
-  else if (type == OSP_TEXTURE_RGB8)
+  else if (type == OSP_TEXTURE_RGB8 || type == OSP_TEXTURE_SRGB)
   {
     dataType = OSP_VEC3UC;
   }
-  else if (type == OSP_TEXTURE_RGBA8)
+  else if (type == OSP_TEXTURE_RGBA8 || type == OSP_TEXTURE_SRGBA)
   {
     dataType = OSP_VEC4UC;
   }
@@ -91,7 +91,7 @@ OSPTexture vtkOSPRayMaterialHelpers::NewTexture2D(RTW::Backend* backend, const o
 
 //------------------------------------------------------------------------------
 OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
-  RTW::Backend* backend, vtkImageData* vColorTextureMap)
+  RTW::Backend* backend, vtkImageData* vColorTextureMap, bool isSRGB)
 {
   if (backend == nullptr)
   {
@@ -108,11 +108,13 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
 
   if (scalartype == VTK_UNSIGNED_CHAR || scalartype == VTK_CHAR || scalartype == VTK_SIGNED_CHAR)
   {
-    OSPTextureFormat format[4] = { OSP_TEXTURE_R8, OSP_TEXTURE_RGB8, OSP_TEXTURE_RGB8,
+    OSPTextureFormat formatSRGB[4] = { OSP_TEXTURE_L8, OSP_TEXTURE_LA8, OSP_TEXTURE_SRGB,
+      OSP_TEXTURE_SRGBA };
+    OSPTextureFormat formatLinear[4] = { OSP_TEXTURE_R8, OSP_TEXTURE_RGB8, OSP_TEXTURE_RGB8,
       OSP_TEXTURE_RGBA8 };
     std::vector<unsigned char> chars;
 
-    if (comps == 2 || comps > 4)
+    if ((!isSRGB && comps == 2) || comps > 4)
     {
       // no native formats, we need to copy the components to a 3 channels texture
       chars.resize((xsize + 1) * (ysize + 1) * 3, 0);
@@ -135,7 +137,8 @@ OSPTexture vtkOSPRayMaterialHelpers::VTKToOSPTexture(
     }
 
     t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ xsize + 1, ysize + 1 },
-      format[comps - 1], chars.empty() ? vColorTextureMap->GetScalarPointer() : chars.data(),
+      isSRGB ? formatSRGB[comps - 1] : formatLinear[comps - 1],
+      chars.empty() ? vColorTextureMap->GetScalarPointer() : chars.data(),
       OSP_TEXTURE_FILTER_NEAREST);
   }
   else if (scalartype == VTK_FLOAT)

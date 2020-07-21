@@ -303,7 +303,8 @@ public:
         // todo: if the imageData is empty, we should download the texture from the GPU
         if (vColorTextureMap)
         {
-          t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap);
+          t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(
+            backend, vColorTextureMap, text->GetUseSRGBColorSpace());
         }
       }
 
@@ -324,7 +325,7 @@ public:
           unsigned char* oc = ochars.data();
           for (int i = 0; i < isize; i++)
           {
-            double frac = (double)i / (double)isize;
+            double frac = i / static_cast<double>(isize - 1);
             *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
             *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
             *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
@@ -343,7 +344,7 @@ public:
         }
 
         t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars.data(), 0);
+          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_SRGB, ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
@@ -1224,7 +1225,17 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSetInt(oRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
     this->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
 
-    double* bg = ren->GetBackground();
+    double bg[3];
+    ren->GetBackground(bg);
+    for (int i = 0; i < 3; i++)
+    {
+      // when using OSPRay pathtracer, the final image is gamma corrected so the background
+      // has to be converted to linear color space
+      if (type == "pathtracer")
+      {
+        bg[i] = pow(bg[i], 2.2);
+      }
+    }
     ospSetVec4f(oRenderer, "backgroundColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
   }
   else

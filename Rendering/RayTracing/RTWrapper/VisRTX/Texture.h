@@ -19,8 +19,10 @@ namespace RTW
     {
       switch (format)
       {
+      case RTW_TEXTURE_SRGBA: // no support for sRGB textures in VisRTX
       case RTW_TEXTURE_RGBA8:
         return VisRTX::TextureFormat::RGBA8;
+      case RTW_TEXTURE_SRGB: // no support for sRGB textures in VisRTX
       case RTW_TEXTURE_RGB8:
         return VisRTX::TextureFormat::RGB8;
       case RTW_TEXTURE_RGBA32F:
