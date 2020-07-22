@@ -61,7 +61,7 @@ static void CreateImplFile(const char* libName, const char* importName, int numD
 
   for (i = 0; i < numFiles; i++)
   {
-    fprintf(fout, "extern \"C\" { PyObject *PyVTKAddFile_%s(PyObject *dict); }\n", files[i]);
+    fprintf(fout, "extern \"C\" { void PyVTKAddFile_%s(PyObject *dict); }\n", files[i]);
   }
 
   fprintf(fout, "\nstatic PyMethodDef Py%s_Methods[] = {\n", libName);
