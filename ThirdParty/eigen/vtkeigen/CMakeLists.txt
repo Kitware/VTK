@@ -509,7 +509,7 @@ if(EIGEN_BUILD_PKGCONFIG)
         )
 endif()
 
-add_subdirectory(Eigen)
+add_subdirectory(eigen)
 
 add_subdirectory(doc EXCLUDE_FROM_ALL)
 
