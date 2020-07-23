@@ -772,7 +772,7 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel()
       gradient = dy / dx;
     }
 
-    axisData.push_back(std::make_tuple(axisState, abs(gradient), gradient, axis));
+    axisData.push_back(std::make_tuple(axisState, std::abs(gradient), gradient, axis));
   }
 
   // sort the list of axes by state (low enum value to high) and, for standard axes by gradient
