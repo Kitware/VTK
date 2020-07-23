@@ -167,6 +167,7 @@ int TestChartXYZOuterEdgeLabelling(int, char*[])
   // it left and down to set a 3d view.
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
+
   recorder->SetInteractor(view->GetInteractor());
 
   recorder->ReadFromInputStringOn();
