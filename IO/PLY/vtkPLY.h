@@ -68,6 +68,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkIOPLYModule.h" // For export macro
 #include <istream>
 #include <ostream>
+#include <vector>
 
 #define PLY_ASCII 1     /* ascii PLY file */
 #define PLY_BINARY_BE 2 /* binary PLY file, big endian */
@@ -209,13 +210,13 @@ public:
   static PlyElement* find_element(PlyFile*, const char*);
   static PlyProperty* find_property(PlyElement*, const char*, int*);
   static void write_scalar_type(std::ostream*, int);
-  static char** get_words(std::istream*, int*, char**);
-  static char** old_get_words(std::istream*, int*);
+  static void get_words(
+    std::istream* is, std::vector<char*>* words, char line_words[], char orig_line[]);
   static void write_binary_item(PlyFile*, int, unsigned int, double, int);
   static void write_ascii_item(std::ostream*, int, unsigned int, double, int);
   static double old_write_ascii_item(std::ostream*, char*, int);
-  static void add_element(PlyFile*, char**, int);
-  static void add_property(PlyFile*, char**, int);
+  static void add_element(PlyFile*, const std::vector<char*>&);
+  static void add_property(PlyFile*, const std::vector<char*>&);
   static void add_comment(PlyFile*, char*);
   static void add_obj_info(PlyFile*, char*);
   static void copy_property(PlyProperty*, const PlyProperty*);
