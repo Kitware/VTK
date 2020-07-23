@@ -341,7 +341,7 @@ int vtkVortexCore::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray* velocity = input->GetPointData()->GetVectors();
+  vtkDataArray* velocity = this->GetInputArrayToProcess(0, input);
 
   if (velocity == nullptr)
   {
@@ -358,7 +358,7 @@ int vtkVortexCore::RequestData(
     gradient->SetInputData(input);
     gradient->SetResultArrayName("jacobian");
     gradient->SetInputArrayToProcess(
-      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, velocity->GetName());
     gradient->Update();
 
     dataset = gradient->GetOutput();
@@ -405,7 +405,7 @@ int vtkVortexCore::RequestData(
       gradientPrime->SetInputData(dataset);
       gradientPrime->SetResultArrayName("jacobian_prime");
       gradientPrime->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "jacobian");
       gradientPrime->Update();
       jacobianPrime = vtkDoubleArray::SafeDownCast(
         gradientPrime->GetOutput()->GetPointData()->GetAbstractArray("jacobian_prime"));

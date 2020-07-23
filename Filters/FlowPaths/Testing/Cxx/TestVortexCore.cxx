@@ -234,6 +234,8 @@ int TestVortexCore(int argc, char* argv[])
     constructVelocityProfile(unstructuredGrid);
 
     vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
     vortexCore->SetInputData(unstructuredGrid);
     vortexCore->Update();
 
@@ -247,13 +249,15 @@ int TestVortexCore(int argc, char* argv[])
     constructVelocityProfile(unstructuredGrid);
 
     vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
     vortexCore->SetInputData(unstructuredGrid);
     vortexCore->Update();
 
     output2 = vtkPolyData::SafeDownCast(vortexCore->GetOutput());
   }
 
-  if (output1->GetNumberOfCells() != output2->GetNumberOfCells())
+  if (!output1->GetNumberOfCells() || output1->GetNumberOfCells() != output2->GetNumberOfCells())
   {
     return EXIT_FAILURE;
   }
