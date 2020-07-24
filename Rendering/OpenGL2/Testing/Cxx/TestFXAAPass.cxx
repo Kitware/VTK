@@ -141,7 +141,6 @@ int TestFXAAPass(int argc, char* argv[])
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderer> rendererFXAA;
-  rendererFXAA->UseFXAAOn();
 
   // custom passes
   vtkNew<vtkCameraPass> cameraP;
@@ -149,6 +148,7 @@ int TestFXAAPass(int argc, char* argv[])
   vtkNew<vtkDefaultPass> defaultP;
   vtkNew<vtkLightsPass> lights;
   vtkNew<vtkOpenGLFXAAPass> fxaa;
+  fxaa->SetFXAAOptions(rendererFXAA->GetFXAAOptions());
 
   vtkNew<vtkRenderPassCollection> passes;
   passes->AddItem(lights);
