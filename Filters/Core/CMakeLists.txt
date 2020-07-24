@@ -68,6 +68,7 @@ set(classes
   vtkPlaneCutter
   vtkPointDataToCellData
   vtkPolyDataConnectivityFilter
+  vtkPolyDataEdgeConnectivityFilter
   vtkPolyDataNormals
   vtkPolyDataTangents
   vtkProbeFilter
