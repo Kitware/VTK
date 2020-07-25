@@ -27,6 +27,7 @@ set(classes
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter
+  vtkDataObjectToPartitionedDataSetCollection
   vtkDataSetEdgeSubdivisionCriterion
   vtkDataSetToDataObjectFilter
   vtkDecimatePolylineFilter

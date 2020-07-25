@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestClipPolyData.cxx,NO_VALID
   TestConnectivityFilter.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
+  TestDataObjectToPartitionedDataSetCollection.cxx,NO_VALID
   TestDecimatePolylineFilter.cxx
   TestDecimatePro.cxx,NO_VALID
   TestDelaunay2D.cxx
