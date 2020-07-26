@@ -102,7 +102,8 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
   std::set<std::string> result;
   for (const auto& fname : originalSet)
   {
-    const auto unix_fname = vtksys::SystemTools::ConvertToUnixOutputPath(fname);
+    std::string unix_fname = fname;
+    vtksys::SystemTools::ConvertToUnixSlashes(unix_fname);
     result.insert(unix_fname);
 
     // prefixes are used to find other files related to this one.
