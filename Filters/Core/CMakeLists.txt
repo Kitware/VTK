@@ -65,6 +65,7 @@ set(classes
   vtkMergeFilter
   vtkMoleculeAppend
   vtkMultiObjectMassProperties
+  vtkPartitionedDataSetCollectionToMultiBlockDataSet
   vtkPassThrough
   vtkPlaneCutter
   vtkPointDataToCellData

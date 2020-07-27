@@ -20,7 +20,11 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetAlgorithm::vtkPartitionedDataSetAlgorithm() {}
+vtkPartitionedDataSetAlgorithm::vtkPartitionedDataSetAlgorithm()
+{
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
+}
 
 //----------------------------------------------------------------------------
 vtkPartitionedDataSetAlgorithm::~vtkPartitionedDataSetAlgorithm() {}
