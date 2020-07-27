@@ -38,6 +38,8 @@ vtk_add_test_python(
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
   TestMultiObjectMassProperties.py
+  TestPolyDataEdgeConnectivityFilter.py
+  TestPolyDataEdgeConnectivityFilter2.py
   TestPolyDataPlaneCutter.py
   TestProbeFilterImageInput.py
   TestRectilinearGridPlaneCutter.py
