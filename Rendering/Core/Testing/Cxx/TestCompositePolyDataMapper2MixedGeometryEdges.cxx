@@ -165,9 +165,9 @@ int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
 
   // modify the data to force a rebuild of OpenGL structs
   // after rendering set one cylinder to white
-  mapper->SetBlockColor(40, 1.0, 1.0, 1.0);
-  mapper->SetBlockOpacity(40, 1.0);
-  mapper->SetBlockVisibility(40, 1.0);
+  mapper->SetBlockColor(54, 1.0, 1.0, 1.0);
+  mapper->SetBlockOpacity(54, 1.0);
+  mapper->SetBlockVisibility(54, 1.0);
 
   timer->StartTimer();
   win->Render();
@@ -180,9 +180,9 @@ int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
   for (int i = 0; i <= numFrames; i++)
   {
     ren->GetActiveCamera()->Elevation(15.0 / numFrames);
-    ren->GetActiveCamera()->Azimuth(-130.0 / numFrames);
-    ren->GetActiveCamera()->Zoom(pow(1.6, 1.0 / numFrames));
-    ren->GetActiveCamera()->Roll(0.0 / numFrames);
+    ren->GetActiveCamera()->Azimuth(-190.0 / numFrames);
+    ren->GetActiveCamera()->Zoom(pow(1.5, 1.0 / numFrames));
+    ren->GetActiveCamera()->Roll(5.0 / numFrames);
     win->Render();
   }
 
