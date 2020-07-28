@@ -8,6 +8,12 @@
 #include "vtkRenderState.h"
 
 vtkStandardNewMacro(vtkOpenGLFXAAPass);
+vtkCxxSetObjectMacro(vtkOpenGLFXAAPass, FXAAOptions, vtkFXAAOptions);
+
+vtkOpenGLFXAAPass::~vtkOpenGLFXAAPass()
+{
+  this->SetFXAAOptions(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
@@ -33,9 +39,9 @@ void vtkOpenGLFXAAPass::Render(const vtkRenderState* s)
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps = this->DelegatePass->GetNumberOfRenderedProps();
 
-  if (r->GetFXAAOptions())
+  if (this->FXAAOptions)
   {
-    this->FXAAFilter->UpdateConfiguration(r->GetFXAAOptions());
+    this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
   }
 
   this->FXAAFilter->Execute(r);
