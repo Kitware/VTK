@@ -366,10 +366,6 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
           return data;
         }
       }
-      else
-      {
-        ++current_flat_index;
-      }
     }
   }
 

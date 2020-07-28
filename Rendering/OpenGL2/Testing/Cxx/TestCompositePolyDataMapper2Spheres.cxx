@@ -101,17 +101,17 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
           blocks[parent]->SetBlock(block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
-          if (block % 11)
+          if (block % 7)
           {
             double r, g, b;
-            vtkMath::HSVToRGB(0.8 * block / nblocks, 0.2 + 0.8 * ((parent - levelStart) % 8) / 7.0,
+            vtkMath::HSVToRGB(0.8 * block / nblocks, 0.2 + 0.8 * ((parent - levelStart) % 4) / 3.0,
               1.0, &r, &g, &b);
             mapper->SetBlockColor(parent + numLeaves + 1, r, g, b);
-            mapper->SetBlockVisibility(parent + numLeaves, (block % 7) != 0);
+            mapper->SetBlockVisibility(parent + numLeaves, (block % 3) != 0);
             vtkMath::HSVToRGB(0.2 + 0.8 * block / nblocks,
-              0.7 + 0.3 * ((parent - levelStart) % 8) / 7.0, 1.0, &r, &g, &b);
+              0.7 + 0.3 * ((parent - levelStart) % 4) / 3.0, 1.0, &r, &g, &b);
             mapper2->SetBlockColor(parent + numLeaves + 1, r, g, b);
-            mapper2->SetBlockVisibility(parent + numLeaves, (block % 7) != 0);
+            mapper2->SetBlockVisibility(parent + numLeaves, (block % 3) != 0);
           }
           ++numLeaves;
         }
