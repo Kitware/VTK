@@ -982,6 +982,7 @@ struct MapOffsets
       {
         std::fill_n(
           offsets + prevPt->Bin + 1, this->NumBins - prevPt->Bin - 1, curPt - this->BinTuples);
+        return;
       }
     } // for all batches in this range
   }   // operator()
