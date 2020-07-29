@@ -18,6 +18,9 @@ vtk_add_test_python(
   TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py
   TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
+  TestRemovePolyData.py
+  TestRemovePolyData2.py
+  TestRemovePolyData3.py
   TestSplineFilter.py
   TestStaticCellLocator.py
   TestStaticCellLocatorPlaneIntersection.py

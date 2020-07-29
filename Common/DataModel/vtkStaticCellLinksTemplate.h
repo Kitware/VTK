@@ -111,6 +111,12 @@ public:
    */
   TIds* GetCells(vtkIdType ptId) { return (this->Links + this->Offsets[ptId]); }
 
+  /**
+   * Given point ids that define a cell, find the cells that contains all of
+   * these point ids. The set of linked cells is returned in cells.
+   */
+  void GetCells(vtkIdType npts, const vtkIdType* pts, vtkIdList* cells);
+
   //@{
   /**
    * Support vtkAbstractCellLinks API.

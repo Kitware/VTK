@@ -24,8 +24,13 @@
  * attributes available.  (For example, if one dataset has point scalars but
  * another does not, point scalars will not be appended.)
  *
+ * @warning
+ * The related filter vtkRemovePolyData enables the subtraction, or removal
+ * of the cells of a vtkPolyData. Hence vtkRemovePolyData functions like the
+ * inverse operation to vtkAppendPolyData.
+ *
  * @sa
- * vtkAppendFilter
+ * vtkAppendFilter vtkRemovePolyData
  */
 
 #ifndef vtkAppendPolyData_h
