@@ -301,7 +301,11 @@ vtkIdType vtkOpenGLCellToVTKCellMap::ConvertOpenGLCellIdToVTKCellId(
   // check if we really are a vert
   if (result < this->CellMapSizes[0])
   {
+#ifdef NDEBUG
     return this->CellCellMap[result];
+#else
+    return this->CellCellMap.at(result);
+#endif
   }
 
   // OK we are a line maybe?
@@ -327,7 +331,11 @@ vtkIdType vtkOpenGLCellToVTKCellMap::ConvertOpenGLCellIdToVTKCellId(
   }
   if (result < this->CellMapSizes[2])
   {
+#ifdef NDEBUG
     return this->CellCellMap[result + this->CellMapSizes[1] + this->CellMapSizes[0]];
+#else
+    return this->CellCellMap.at(result + this->CellMapSizes[1] + this->CellMapSizes[0]);
+#endif
   }
 
   // must be a strip
@@ -342,8 +350,13 @@ vtkIdType vtkOpenGLCellToVTKCellMap::ConvertOpenGLCellIdToVTKCellId(
   }
   if (result < this->CellMapSizes[3])
   {
+#ifdef NDEBUG
     return this
       ->CellCellMap[result + this->CellMapSizes[2] + this->CellMapSizes[1] + this->CellMapSizes[0]];
+#else
+    return this->CellCellMap.at(
+      result + this->CellMapSizes[2] + this->CellMapSizes[1] + this->CellMapSizes[0]);
+#endif
   }
 
   // error
