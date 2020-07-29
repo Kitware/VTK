@@ -57,15 +57,16 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
 
-  const char* name =
+  const char* Tetname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/overlapping_tetras.vtu");
+  const char* Hexname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/linhex.vtu");
 
   vtkNew<vtkGenerateGlobalIds> globalIds;
 
   if (myrank == 0)
   {
     vtkNew<vtkXMLUnstructuredGridReader> reader;
-    reader->SetFileName(name);
+    reader->SetFileName(Tetname);
     globalIds->SetInputConnection(reader->GetOutputPort());
     globalIds->Update();
   }
@@ -75,8 +76,6 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
     ug->Initialize();
     globalIds->SetInputDataObject(ug);
   }
-
-  delete[] name;
 
   vtkNew<vtkRedistributeDataSetFilter> redistribute;
   redistribute->SetInputConnection(globalIds->GetOutputPort());
@@ -90,9 +89,9 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
     output->GetCellData()->GetArray(detector->GetNumberOfOverlapsPerCellArrayName());
   vtkDataArray* ids = output->GetCellData()->GetArray("GlobalCellIds");
 
-  auto valIt = vtk::DataArrayValueRange(data).cbegin();
-  auto idIt = vtk::DataArrayValueRange(ids).cbegin();
-  for (; valIt != vtk::DataArrayValueRange(data).cend(); ++valIt, ++idIt)
+  auto valIt = vtk::DataArrayValueRange<1>(data).cbegin();
+  auto idIt = vtk::DataArrayValueRange<1>(ids).cbegin();
+  for (; valIt != vtk::DataArrayValueRange<1>(data).cend(); ++valIt, ++idIt)
   {
     if (Collisions[static_cast<vtkIdType>(*idIt)] != *valIt)
     {
@@ -100,6 +99,37 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
       break;
     }
   }
+
+  // Here we test a data set that used to produce an infinite loop
+  // when computing the bounding sphere.
+  // This dataset also checks that empty processes don't make the filter crash.
+  if (myrank == 0)
+  {
+    vtkNew<vtkXMLUnstructuredGridReader> reader;
+    reader->SetFileName(Hexname);
+    detector->SetInputConnection(reader->GetOutputPort());
+  }
+  else
+  {
+    vtkNew<vtkUnstructuredGrid> ug;
+    ug->Initialize();
+    detector->SetInputDataObject(ug);
+  }
+  detector->Update();
+
+  output = vtkDataSet::SafeDownCast(detector->GetOutput(0));
+  data = output->GetCellData()->GetArray(detector->GetNumberOfOverlapsPerCellArrayName());
+  for (const auto val : vtk::DataArrayValueRange<1>(data))
+  {
+    if (val)
+    {
+      retVal = EXIT_FAILURE;
+      break;
+    }
+  }
+
+  delete[] Hexname;
+  delete[] Tetname;
 
   vtkMultiProcessController::SetGlobalController(nullptr);
   contr->Finalize();

@@ -134,6 +134,14 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
       vtkSmartPointer<vtkPoints>, vtkSmartPointer<vtkIdTypeArray>>;
   std::map<int, CellArrayCellTypePointsIdTuple> cactptidList;
 
+  // Creating the output
+  std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ugList;
+
+  if (!source->GetNumberOfCells())
+  {
+    return ugList;
+  }
+
   int pointsType = source->GetPoints()->GetDataType();
 
   // Initializing new pointers.
@@ -218,9 +226,6 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
       ca->ReplaceCellAtId(cellId, idList);
     }
   }
-
-  // Creating the output
-  std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ugList;
 
   // Filling output vtkUnstructured grids, with our list of tuples we just created
   std::transform(cactptidList.begin(), cactptidList.end(), std::inserter(ugList, ugList.begin()),
@@ -319,7 +324,6 @@ int vtkOverlappingCellsDetector::RequestData(
 //----------------------------------------------------------------------------
 int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* output)
 {
-
   std::vector<vtkBoundingBox> cellBoundingBoxes;
 
   // Computing a point cloud of bounding spheres
@@ -380,6 +384,8 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
     detail::ExtractOverlappingCellCandidateByProcess(
       pointCloud, boundingBoxes, output, cellBoundingBoxes);
 
+  this->UpdateProgress(0.0);
+
   // We prepare resetting links between blocks depending on the presence or not
   // of potential cell collisions.
   std::map<int, std::vector<int>> neighbors;
@@ -397,7 +403,10 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
             int connected = (it->second != nullptr);
             const auto dest = rp.out_link().target(i);
             rp.enqueue(dest, &connected, 1);
-            ++it;
+            if (it != overlappingCellCandidatesDataSets.cend())
+            {
+              ++it;
+            }
           }
         };
       }
@@ -485,7 +494,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
   // dummy variable needed in the main cell collision detection algorithm.
   std::unordered_map<vtkIdType, std::set<vtkIdType>> localCollisionListMap;
   if (!this->DetectOverlappingCells(output, pointCloud, cellBoundingBoxes, output, pointCloud,
-        cellBoundingBoxes, localCollisionListMap))
+        cellBoundingBoxes, localCollisionListMap, true /* updateProgress */))
   {
     vtkErrorMacro(<< "Failed to detect self colliding cells");
     return 0;
@@ -581,6 +590,8 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(vtkPointSet* 
     }
   }
 
+  this->UpdateProgress(1.0);
+
   output->GetCellData()->SetActiveScalars(this->GetNumberOfOverlapsPerCellArrayName());
 
   return 1;
@@ -592,7 +603,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
   vtkPointSet* queryPointCloud, const std::vector<vtkBoundingBox>& queryCellBoundingBoxes,
   vtkDataSet* cellDataSet, vtkPointSet* pointCloud,
   const std::vector<vtkBoundingBox>& cellBoundingBoxes,
-  std::unordered_map<vtkIdType, std::set<vtkIdType>>& collisionListMap)
+  std::unordered_map<vtkIdType, std::set<vtkIdType>>& collisionListMap, bool updateProgress)
 {
   assert(cellDataSet->GetNumberOfCells() == pointCloud->GetNumberOfPoints() &&
     static_cast<vtkIdType>(cellBoundingBoxes.size()) == pointCloud->GetNumberOfPoints());
@@ -610,6 +621,8 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
     queryPointCloud->GetPointData()->GetArray(detail::SPHERE_RADIUS_ARRAY_NAME);
 
   vtkIdType querySize = queryPointCloud->GetNumberOfPoints();
+  vtkIdType twentieth = querySize / 20 + 1;
+  double decimal = 0.0;
 
   vtkNew<vtkIdTypeArray> queryNumberOfOverlapsPerCellsArray;
   queryNumberOfOverlapsPerCellsArray->SetNumberOfComponents(1);
@@ -632,6 +645,15 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
   std::map<int, vtkSmartPointer<vtkCell>> cellBank, neighborCellBank;
   for (vtkIdType id = 0; id < querySize; ++id)
   {
+    if (updateProgress)
+    {
+      // Update progress
+      if (!(id % twentieth))
+      {
+        decimal += 0.05;
+        this->UpdateProgress(decimal);
+      }
+    }
     if (queryCellGhostArray && queryCellGhostArray->GetValue(id))
     {
       continue;
