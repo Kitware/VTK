@@ -57,8 +57,8 @@ struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents>
 
   static ArrayHandleType Wrap(vtkAOSDataArrayTemplate<T>* input)
   {
-    return vtkm::cont::make_ArrayHandle(
-      reinterpret_cast<ValueType*>(input->GetPointer(0)), input->GetNumberOfTuples());
+    return vtkm::cont::make_ArrayHandle(reinterpret_cast<ValueType*>(input->GetPointer(0)),
+      input->GetNumberOfTuples(), vtkm::CopyFlag::Off);
   }
 };
 
@@ -76,8 +76,8 @@ struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, NumComponents>
     for (vtkm::IdComponent i = 0; i < NumComponents; ++i)
     {
       storage.SetArray(i,
-        vtkm::cont::make_ArrayHandle<T>(
-          reinterpret_cast<T*>(input->GetComponentArrayPointer(i)), numValues));
+        vtkm::cont::make_ArrayHandle<T>(reinterpret_cast<T*>(input->GetComponentArrayPointer(i)),
+          numValues, vtkm::CopyFlag::Off));
     }
 
     return vtkm::cont::ArrayHandleSOA<ValueType>(storage);
@@ -93,7 +93,7 @@ struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1>
   static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T>* input)
   {
     return vtkm::cont::make_ArrayHandle(
-      input->GetComponentArrayPointer(0), input->GetNumberOfTuples());
+      input->GetComponentArrayPointer(0), input->GetNumberOfTuples(), vtkm::CopyFlag::Off);
   }
 };
 

@@ -21,7 +21,6 @@
 #include "vtkmlib/PortalTraits.h"
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/DataSet.h>
 
 #include "vtkCellData.h"
@@ -197,18 +196,26 @@ public:
     using ValueType = typename Traits::ComponentType;
     using VTKArrayType = vtkAOSDataArrayTemplate<ValueType>;
 
+    if (handle.GetNumberOfBuffers() == 0)
+    {
+      return;
+    }
+
     VTKArrayType* array = VTKArrayType::New();
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
+    VTKArrayType* tmp = VTKArrayType::New();
+    tmp->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
 
-    // VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
-    // the proper free function to VTK
-    auto stolenState = handle.GetStorage().StealArray();
-    auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
-    array->SetVoidArray(stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
-    array->SetArrayFreeFunction(stolenState.second);
+    // VTK-m now has buffer objects managing the data in ArrayHandles.
+    // Currently performing a deep copy until StealArray fuctionality is re-implemented.
+    auto bufferInfo = handle.GetBuffers()[0].GetHostBufferInfo();
+    auto memory = reinterpret_cast<ValueType*>(bufferInfo.GetPointer());
+    tmp->SetVoidArray(memory, size, 1);
+    array->DeepCopy(tmp);
+    tmp->Delete();
 
     this->Data = array;
   }
@@ -221,21 +228,29 @@ public:
     using ValueType = typename Traits::ComponentType;
     using VTKArrayType = vtkSOADataArrayTemplate<ValueType>;
 
+    if (handle.GetNumberOfBuffers() != Traits::NUM_COMPONENTS)
+    {
+      return;
+    }
+
     VTKArrayType* array = VTKArrayType::New();
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
+    VTKArrayType* tmp = VTKArrayType::New();
+    tmp->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
-    auto storage = handle.GetStorage();
+    auto buffers = handle.GetBuffers();
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
     for (vtkm::IdComponent i = 0; i < Traits::NUM_COMPONENTS; ++i)
     {
-      // steal each component array.
-      auto stolenState = storage.GetArray(i).GetStorage().StealArray();
-      auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
-      array->SetArray(
-        i, stolenMemory, size, true, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
-      array->SetArrayFreeFunction(i, stolenState.second);
+      // VTK-m now has buffer objects managing the data in ArrayHandles.
+      // Currently performing a deep copy until StealArray fuctionality is re-implemented.
+      auto bufferInfo = buffers[i].GetHostBufferInfo();
+      auto memory = reinterpret_cast<ValueType*>(bufferInfo.GetPointer());
+      tmp->SetArray(i, memory, size, true, 1);
     }
+    array->DeepCopy(tmp);
+    tmp->Delete();
   }
 };
 } // anonymous namespace

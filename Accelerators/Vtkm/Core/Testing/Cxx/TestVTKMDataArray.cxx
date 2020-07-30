@@ -85,7 +85,7 @@ try
   static const std::vector<double> testData = { 3.0, 6.0, 2.0, 5.0, 1.0, 0.0, 4.0 };
 
   std::cout << "Testing with Basic ArrayHandle\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandle(testData));
+  TestWithArrayHandle(vtkm::cont::make_ArrayHandle(testData, vtkm::CopyFlag::Off));
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleConstant\n";
