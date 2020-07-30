@@ -637,6 +637,26 @@ public:
 
   //@{
   /**
+   * The following methods are used to support view dependent methods
+   * for normalizing data (typically point coordinates). When dealing with
+   * data that can exceed floating point resolution sometimes is it best
+   * to normalize that data based on the current camera view such that
+   * what is seen will be in the sweet spot for floating point resolution.
+   * Input datasets may be double precision but the rendering engine
+   * is currently single precision which also can lead to these issues.
+   * See vtkOpenGLVertexBufferObject for related information.
+   */
+  virtual void UpdateIdealShiftScale(double aspect);
+  vtkGetVector3Macro(FocalPointShift, double);
+  vtkGetMacro(FocalPointScale, double);
+  vtkGetVector3Macro(NearPlaneShift, double);
+  vtkGetMacro(NearPlaneScale, double);
+  vtkSetMacro(ShiftScaleThreshold, double);
+  vtkGetMacro(ShiftScaleThreshold, double);
+  //@}
+
+  //@{
+  /**
    * Get the orientation of the camera.
    */
   double* GetOrientation() VTK_SIZEHINT(3);
@@ -819,6 +839,12 @@ protected:
 
   double FocalDisk;
   double FocalDistance;
+
+  double FocalPointShift[3];
+  double FocalPointScale;
+  double NearPlaneShift[3];
+  double NearPlaneScale;
+  double ShiftScaleThreshold;
 
   vtkCameraCallbackCommand* UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;

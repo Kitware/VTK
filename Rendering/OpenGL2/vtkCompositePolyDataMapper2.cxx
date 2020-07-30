@@ -300,9 +300,32 @@ void vtkCompositeMapperHelper2::RenderPiece(vtkRenderer* ren, vtkActor* actor)
 
   this->CurrentInput = this->Data.begin()->first;
 
+  this->UpdateCameraShiftScale(ren, actor);
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
   this->RenderPieceFinish(ren, actor);
+}
+
+void vtkCompositeMapperHelper2::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor)
+{
+  // handle camera shift scale
+  if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
+    this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
+  {
+    // get ideal shift scale from camera
+    auto posVBO = this->VBOs->GetVBO("vertexMC");
+    if (posVBO)
+    {
+      posVBO->SetCamera(ren->GetActiveCamera());
+      posVBO->SetProp3D(actor);
+      posVBO->UpdateShiftScale(this->CurrentInput->GetPoints()->GetData());
+      // force a rebuild if needed
+      if (posVBO->GetMTime() > posVBO->GetUploadTime())
+      {
+        this->Modified();
+      }
+    }
+  }
 }
 
 void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int primType,
@@ -516,32 +539,48 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
   this->ColorArrayMap.clear();
 
   vtkOpenGLVertexBufferObject* posVBO = this->VBOs->GetVBO("vertexMC");
-  if (posVBO && this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  if (posVBO)
   {
-    posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
-    bbox.GetBounds(bounds);
-    std::vector<double> shift;
-    std::vector<double> scale;
-    for (int i = 0; i < 3; i++)
+    if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
     {
-      shift.push_back(0.5 * (bounds[i * 2] + bounds[i * 2 + 1]));
-      scale.push_back(
-        (bounds[i * 2 + 1] - bounds[i * 2]) ? 1.0 / (bounds[i * 2 + 1] - bounds[i * 2]) : 1.0);
+      posVBO->SetCoordShiftAndScaleMethod(vtkOpenGLVertexBufferObject::MANUAL_SHIFT_SCALE);
+      bbox.GetBounds(bounds);
+      std::vector<double> shift;
+      std::vector<double> scale;
+      for (int i = 0; i < 3; i++)
+      {
+        shift.push_back(0.5 * (bounds[i * 2] + bounds[i * 2 + 1]));
+        scale.push_back(
+          (bounds[i * 2 + 1] - bounds[i * 2]) ? 1.0 / (bounds[i * 2 + 1] - bounds[i * 2]) : 1.0);
+      }
+      posVBO->SetShift(shift);
+      posVBO->SetScale(scale);
     }
-    posVBO->SetShift(shift);
-    posVBO->SetScale(scale);
+    else
+    {
+      posVBO->SetCoordShiftAndScaleMethod(
+        static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+      posVBO->SetProp3D(act);
+      posVBO->SetCamera(ren->GetActiveCamera());
+    }
+  }
+
+  this->VBOs->BuildAllVBOs(ren);
+
+  if (posVBO)
+  {
     // If the VBO coordinates were shifted and scaled, prepare the inverse transform
     // for application to the model->view matrix:
     if (posVBO->GetCoordShiftAndScaleEnabled())
     {
+      std::vector<double> const& shift = posVBO->GetShift();
+      std::vector<double> const& scale = posVBO->GetScale();
       this->VBOInverseTransform->Identity();
       this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
       this->VBOInverseTransform->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
       this->VBOInverseTransform->GetTranspose(this->VBOShiftScale);
     }
   }
-
-  this->VBOs->BuildAllVBOs(ren);
 
   for (int i = vtkOpenGLPolyDataMapper::PrimitiveStart; i < vtkOpenGLPolyDataMapper::PrimitiveEnd;
        i++)
@@ -1596,6 +1635,22 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetSeamlessV(this->SeamlessV);
   helper->SetStatic(1);
   helper->SetSelection(this->GetSelection());
+  helper->SetVBOShiftScaleMethod(this->GetVBOShiftScaleMethod());
+}
+
+void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
+{
+  if (this->ShiftScaleMethod == m)
+  {
+    return;
+  }
+
+  this->Superclass::SetVBOShiftScaleMethod(m);
+
+  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    hiter->second->SetVBOShiftScaleMethod(m);
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -3479,9 +3479,41 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* actor)
     return;
   }
 
+  this->UpdateCameraShiftScale(ren, actor);
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
   this->RenderPieceFinish(ren, actor);
+}
+
+void vtkOpenGLPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor)
+{
+  // handle camera shift scale
+  if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
+    this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
+  {
+    // get ideal shift scale from camera
+    auto posVBO = this->VBOs->GetVBO("vertexMC");
+    if (posVBO)
+    {
+      posVBO->SetCamera(ren->GetActiveCamera());
+      posVBO->SetProp3D(actor);
+      posVBO->UpdateShiftScale(this->CurrentInput->GetPoints()->GetData());
+      // force a rebuild if needed
+      if (posVBO->GetMTime() > posVBO->GetUploadTime())
+      {
+        posVBO->UploadDataArray(this->CurrentInput->GetPoints()->GetData());
+        if (posVBO->GetCoordShiftAndScaleEnabled())
+        {
+          std::vector<double> const& shift = posVBO->GetShift();
+          std::vector<double> const& scale = posVBO->GetScale();
+          this->VBOInverseTransform->Identity();
+          this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+          this->VBOInverseTransform->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
+          this->VBOInverseTransform->GetTranspose(this->VBOShiftScale);
+        }
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -3794,6 +3826,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   {
     posVBO->SetCoordShiftAndScaleMethod(
       static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+    posVBO->SetProp3D(act);
+    posVBO->SetCamera(ren->GetActiveCamera());
   }
 
   this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
@@ -3807,14 +3841,12 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
     this->VBOs->CacheDataArray("tangentMC", tangents, cache, VTK_FLOAT);
   }
 
-  this->VBOs->BuildAllVBOs(cache);
+  this->VBOs->BuildAllVBOs(ren);
 
-  // get it again as it may have been freed
-  posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO && posVBO->GetCoordShiftAndScaleEnabled())
   {
-    std::vector<double> shift = posVBO->GetShift();
-    std::vector<double> scale = posVBO->GetScale();
+    std::vector<double> const& shift = posVBO->GetShift();
+    std::vector<double> const& scale = posVBO->GetScale();
     this->VBOInverseTransform->Identity();
     this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
     this->VBOInverseTransform->Scale(1.0 / scale[0], 1.0 / scale[1], 1.0 / scale[2]);
@@ -4202,7 +4234,18 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
 
 void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
 {
+  if (this->ShiftScaleMethod == m)
+  {
+    return;
+  }
+
   this->ShiftScaleMethod = m;
+  vtkOpenGLVertexBufferObject* posVBO = this->VBOs->GetVBO("vertexMC");
+  if (posVBO)
+  {
+    posVBO->SetCoordShiftAndScaleMethod(
+      static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(this->ShiftScaleMethod));
+  }
 }
 
 int vtkOpenGLPolyDataMapper::GetOpenGLMode(int representation, int primType)

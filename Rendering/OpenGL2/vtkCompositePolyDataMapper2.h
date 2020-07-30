@@ -121,6 +121,11 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
+  /**\brief A convenience method for enabling/disabling
+   *   the VBO's shift+scale transform.
+   */
+  void SetVBOShiftScaleMethod(int m) override;
+
   //@{
   /**
    * Call SetInputArrayToProcess on helpers.

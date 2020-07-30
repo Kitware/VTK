@@ -99,6 +99,9 @@ protected:
 
   bool Marked;
 
+  // handle updating shift scale based on pose changes
+  void UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor) override;
+
   vtkCompositeMapperHelper2() { this->Parent = nullptr; };
   ~vtkCompositeMapperHelper2() override;
 

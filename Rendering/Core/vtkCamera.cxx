@@ -153,6 +153,16 @@ vtkCamera::vtkCamera()
 
   this->ExplicitAspectRatio = 1.0;
   this->UseExplicitAspectRatio = false;
+
+  this->FocalPointScale = 1.0;
+  this->FocalPointShift[0] = 0.0;
+  this->FocalPointShift[1] = 0.0;
+  this->FocalPointShift[2] = 0.0;
+  this->NearPlaneScale = 1.0;
+  this->NearPlaneShift[0] = 0.0;
+  this->NearPlaneShift[1] = 0.0;
+  this->NearPlaneShift[2] = 0.0;
+  this->ShiftScaleThreshold = 2.0;
 }
 
 //------------------------------------------------------------------------------
@@ -1269,6 +1279,105 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
     planes[4 * i + 1] = normals[i][1] * f;
     planes[4 * i + 2] = normals[i][2] * f;
     planes[4 * i + 3] = normals[i][3] * f;
+  }
+}
+
+void vtkCamera::UpdateIdealShiftScale(double aspect)
+{
+  double matrix[4][4];
+  double imatrix[4][4];
+
+  if (this->UseExplicitAspectRatio)
+  {
+    aspect = this->ExplicitAspectRatio;
+  }
+
+  // get the composite perspective matrix
+  vtkMatrix4x4::DeepCopy(*matrix, this->GetCompositeProjectionTransformMatrix(aspect, -1, +1));
+  vtkMatrix4x4::Invert(*matrix, *imatrix);
+
+  double tmp[4];
+  tmp[0] = 0;
+  tmp[1] = 0;
+  tmp[2] = -1;
+  tmp[3] = 1;
+  vtkMatrix4x4::MultiplyPoint(*imatrix, tmp, tmp);
+
+  double shift[3];
+  shift[0] = tmp[0] / tmp[3];
+  shift[1] = tmp[1] / tmp[3];
+  shift[2] = tmp[2] / tmp[3];
+
+  tmp[0] = 1;
+  tmp[1] = 1;
+  tmp[2] = -1;
+  tmp[3] = 1;
+  vtkMatrix4x4::MultiplyPoint(*imatrix, tmp, tmp);
+
+  tmp[0] /= tmp[3];
+  tmp[1] /= tmp[3];
+  tmp[2] /= tmp[3];
+
+  double scale = sqrt(vtkMath::Distance2BetweenPoints(tmp, shift));
+
+  // now snap
+  if (fabs(log10(scale / this->NearPlaneScale)) > this->ShiftScaleThreshold)
+  {
+    this->NearPlaneScale = scale;
+  }
+
+  // our metric for shifting depends on scale
+  double dist2 = vtkMath::Distance2BetweenPoints(this->NearPlaneShift, shift);
+  if (dist2 && log10(sqrt(dist2) / this->NearPlaneScale) > this->ShiftScaleThreshold)
+  {
+    this->NearPlaneShift[0] = shift[0];
+    this->NearPlaneShift[1] = shift[1];
+    this->NearPlaneShift[2] = shift[2];
+  }
+
+  // now the focal point calcs
+  tmp[0] = this->FocalPoint[0];
+  tmp[1] = this->FocalPoint[1];
+  tmp[2] = this->FocalPoint[2];
+  tmp[3] = 1.0;
+  vtkMatrix4x4::MultiplyPoint(*matrix, tmp, tmp);
+
+  tmp[0] = 0.0;
+  tmp[1] = 0.0;
+  tmp[2] /= tmp[3];
+  double fpdepth = tmp[2];
+  tmp[3] = 1.0;
+  vtkMatrix4x4::MultiplyPoint(*imatrix, tmp, tmp);
+
+  shift[0] = tmp[0] / tmp[3];
+  shift[1] = tmp[1] / tmp[3];
+  shift[2] = tmp[2] / tmp[3];
+
+  tmp[0] = 1;
+  tmp[1] = 1;
+  tmp[2] = fpdepth;
+  tmp[3] = 1;
+  vtkMatrix4x4::MultiplyPoint(*imatrix, tmp, tmp);
+
+  tmp[0] /= tmp[3];
+  tmp[1] /= tmp[3];
+  tmp[2] /= tmp[3];
+
+  scale = sqrt(vtkMath::Distance2BetweenPoints(tmp, shift));
+
+  // now snap
+  if (fabs(log10(scale / this->FocalPointScale)) > this->ShiftScaleThreshold)
+  {
+    this->FocalPointScale = scale;
+  }
+
+  // our metric for shifting depends on scale
+  dist2 = vtkMath::Distance2BetweenPoints(this->FocalPointShift, shift);
+  if (dist2 && log10(sqrt(dist2) / this->FocalPointScale) > this->ShiftScaleThreshold)
+  {
+    this->FocalPointShift[0] = shift[0];
+    this->FocalPointShift[1] = shift[1];
+    this->FocalPointShift[2] = shift[2];
   }
 }
 

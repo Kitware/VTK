@@ -556,7 +556,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* viewport
     "tcoordMC", (haveTextures ? poly->GetPointData()->GetTCoords() : nullptr), cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("diffuseColor", c, cache, VTK_UNSIGNED_CHAR);
 
-  this->VBOs->BuildAllVBOs(cache);
+  this->VBOs->BuildAllVBOs(viewport);
   this->VBOUpdateTime
     .Modified(); // need to call all the time or GetNeedToRebuild will always return true;
 
