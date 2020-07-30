@@ -13,6 +13,7 @@ namespace RTW
 
     public:
         FrameBuffer(const rtw::vec2i &size, const RTWFrameBufferFormat format, const uint32_t frameBufferChannels)
+            : Object(RTW_FRAMEBUFFER)
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 
@@ -36,7 +37,7 @@ namespace RTW
         {
         }
 
-        void Clear(const uint32_t frameBufferChannels)
+        void Clear()
         {
             this->frameBuffer->Clear();
         }
@@ -70,6 +71,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
+                std::cerr << "VISRTX Error: Could not get color texture." << std::endl;
                 return 0;
             }  
         }
@@ -82,6 +84,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
+                std::cerr << "VISRTX Error: Could not get depth texture." << std::endl;
                 return 0;
             }             
         }

@@ -13,44 +13,57 @@ namespace RTW
         {
             switch (type)
             {
-            case RTW_OBJECT:
-                return sizeof(Object*);
             case RTW_UCHAR:
                 return 1;
-            case RTW_UCHAR2:
+            case RTW_VEC2UC:
             case RTW_SHORT:
             case RTW_USHORT:
                 return 2;
-            case RTW_UCHAR3:
+            case RTW_VEC3UC:
                 return 3;
-            case RTW_UCHAR4:
+            case RTW_VEC4UC:
             case RTW_INT:
+            case RTW_UINT:
             case RTW_FLOAT:
                 return 4;
-            case RTW_INT2:
-            case RTW_FLOAT2:
+            case RTW_VEC2I:
+            case RTW_VEC2UI:
+            case RTW_VEC2F:
             case RTW_DOUBLE:
                 return 8;
-            case RTW_INT3:
-            case RTW_FLOAT3:
+            case RTW_VEC3I:
+            case RTW_VEC3UI:
+            case RTW_VEC3F:
                 return 12;
-            case RTW_INT4:
-            case RTW_FLOAT4:
-            case RTW_FLOAT3A:
+            case RTW_VEC4I:
+            case RTW_VEC4UI:
+            case RTW_VEC4F:
                 return 16;
 
             default:
-                return 0;
+                if(type >= RTW_OBJECT && type <= RTW_WORLD)
+                    return sizeof(Object *);
+                else return 0;
             }
         }
 
     public:
-        Data(size_t numElements, RTWDataType type, const void *source, const uint32_t dataCreationFlags = 0)
+
+        Data(const void *source, RTWDataType type, size_t width, bool shared = false)
+            : Data(source, type, width, 1, 1, shared) {};
+
+        Data(const void *source, RTWDataType type, size_t width, size_t height, bool shared = false)
+            : Data(source, type, width, height, 1, shared) {};
+        
+        Data(const void *source, RTWDataType type, size_t width, size_t height, size_t depth, bool shared = false)
+            : Object(RTW_DATA)
         {
-            this->numElements = numElements;
+            this->width = width;
+            this->height = height;
+            this->depth = depth;
             this->type = type;
             this->elementSize = GetElementSize(type);
-            this->shared = dataCreationFlags & RTW_DATA_SHARED_BUFFER;
+            this->shared = shared;
 
             if (this->shared)
             {
@@ -58,15 +71,15 @@ namespace RTW
             }
             else
             {
-                size_t size = numElements * this->elementSize;
+                size_t size = GetNumElements() * this->elementSize;
                 this->data = new uint8_t[size];
                 memcpy(this->data, source, size);
             }
 
             // Increase references
-            if (type == RTW_OBJECT)
-            {
-                for (size_t i = 0; i < this->numElements; ++i)
+            if(type >= RTW_OBJECT && type <= RTW_WORLD)
+            { 
+                for (size_t i = 0; i < GetNumElements(); ++i)
                 {
                     Object* obj = reinterpret_cast<Object**>(this->data)[i];
                     if (obj)
@@ -80,9 +93,9 @@ namespace RTW
         ~Data()
         {
             // Release references
-            if (type == RTW_OBJECT)
+            if(type >= RTW_OBJECT && type <= RTW_WORLD)
             {
-                for (size_t i = 0; i < this->numElements; ++i)
+                for (size_t i = 0; i < GetNumElements(); ++i)
                 {
                     Object* obj = reinterpret_cast<Object**>(this->data)[i];
                     if (obj)
@@ -102,10 +115,25 @@ namespace RTW
 
         size_t GetNumElements() const
         {
-            return this->numElements;
+            return this->width * this->height * this->depth;
         }
 
-        RTWDataType GetDataType() const
+        size_t GetWidth() const
+        {
+            return this->width;
+        }
+
+        size_t GetHeight() const
+        {
+            return this->height;
+        }
+
+        size_t GetDepth() const
+        {
+            return this->depth;
+        }
+
+        RTWDataType GetElementDataType() const
         {
             return this->type;
         }
@@ -133,7 +161,7 @@ namespace RTW
         }
 
     private:
-        size_t numElements = 0;
+        size_t width = 0, height = 1, depth = 1;
         RTWDataType type;
         size_t elementSize = 0;
         uint8_t* data = nullptr;

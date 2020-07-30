@@ -5,7 +5,7 @@
 #include "Data.h"
 #include "FrameBuffer.h"
 #include "Light.h"
-#include "Model.h"
+#include "World.h"
 #include "Object.h"
 #include "Texture.h"
 
@@ -18,6 +18,7 @@ namespace RTW
     {
     public:
         Renderer(const char* /*type*/)
+            : Object(RTW_RENDERER)
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
             this->renderer = rtx->CreateRenderer();
@@ -32,62 +33,91 @@ namespace RTW
 
         void Commit() override
         {
-            // Model
-            Model* model = this->GetObject<Model>({ "model" });
-            if (model)
-                this->renderer->SetModel(model->model);
+        }
+
+        float RenderFrame(FrameBuffer* frameBuffer, Camera *camera, World *world)
+        {
+            if (!frameBuffer)
+                return 0.0f;
+            
 
             // Camera
-            Camera* camera = this->GetObject<Camera>({ "camera" });
             if (camera)
-                this->renderer->SetCamera(camera->camera);
-
-            // Lights
-            for (VisRTX::Light* light : this->lastLights)
-                this->renderer->RemoveLight(light);
-
-            this->lastLights.clear();
-
-            Data* lightData = this->GetObject<Data>({ "lights" });
-            if (lightData && lightData->GetDataType() == RTW_OBJECT)
             {
-                Light** lights = reinterpret_cast<Light**>(lightData->GetData());
-                for (size_t i = 0; i < lightData->GetNumElements(); ++i)
+                this->renderer->SetCamera(camera->camera);
+            }
+
+            Light tempLight("AmbientLight");
+            VisRTX::Vec4f backgroundColor = GetVec4f({"backgroundColor"}, VisRTX::Vec4f(0.5f, 0.5f, 0.5f, 1.0f));
+            tempLight.SetVec3f("color", backgroundColor.x, backgroundColor.y, backgroundColor.z);
+            tempLight.SetFloat("intensity", 1.0f);
+            tempLight.Commit();
+
+            bool removeTemp = false;
+
+            // World
+            if (world)
+            {
+                //World
+                VisRTX::Model *model = world->model;
+                this->renderer->SetModel(model);
+
+                // Lights
+                for (VisRTX::Light* light : this->lastLights)
+                    this->renderer->RemoveLight(light);
+
+                this->lastLights.clear();
+
+
+                Data *lightData = world->GetObject<Data>({"light"});
+
+                if (lightData && 
+                    lightData->GetDataType() == RTW_DATA && 
+                    lightData->GetElementDataType() == RTW_LIGHT)
                 {
-                    Light* lightHandle = lights[i];
-                    if (lightHandle)
+                    Light** lights = reinterpret_cast<Light**>(lightData->GetData());
+                    for (size_t i = 0; i < lightData->GetNumElements(); ++i)
                     {
-                        VisRTX::Light* light = lightHandle->light;
-                        this->renderer->AddLight(light);
-                        this->lastLights.push_back(light);
+                        Light* lightHandle = lights[i];
+                        if (lightHandle)
+                        {
+                            VisRTX::Light* light = lightHandle->light;
+                            this->renderer->AddLight(light);
+                            this->lastLights.push_back(light);
+                        }
                     }
+                }
+                else
+                {
+                    //If no light data was supplied, create a miss light from the supplied background color.
+                    this->renderer->AddLight(tempLight.light);
+                    removeTemp = true;
                 }
             }
 
             // Samples per pixel
             int32_t spp;
-            if (this->Get1i({ "spp" }, &spp))
+            if (this->GetInt({ "pixelSamples" }, &spp))
+            {
                 this->renderer->SetSamplesPerPixel(spp);
+            }
 
             // Epsilon
             float epsilon;
-            if (this->Get1f({ "epsilon" }, &epsilon))
+            if (this->GetFloat({ "epsilon" }, &epsilon))
+            {
                 this->renderer->SetEpsilon(epsilon);
+            }
 
             // Max ray recursion depth
-            int32_t minBounces = this->Get1i({ "rouletteDepth" }, 5);
-            int32_t maxBounces = this->Get1i({ "maxDepth" }, 10);
+            int32_t minBounces = this->GetInt({ "rouletteDepth" }, 5);
+            int32_t maxBounces = this->GetFloat({ "maxPathLength" }, 10.0f);
             this->renderer->SetNumBounces(minBounces, maxBounces);
 
             // Denoiser
-            int denoise = this->Get1i({ "denoise" });
+            int denoise = this->GetInt({ "denoise" });
             this->renderer->SetDenoiser(denoise > 0 ? VisRTX::DenoiserType::AI : VisRTX::DenoiserType::NONE);
-        }
 
-        float RenderFrame(FrameBuffer* frameBuffer, const uint32_t /*frameBufferChannels*/)
-        {
-            if (!frameBuffer)
-                return 0.0f;
 
             try
             {
@@ -97,6 +127,9 @@ namespace RTW
             {
                 std::cerr << "VisRTX internal error: " << e.what() << std::endl;
             }
+
+            if(removeTemp)
+                this->renderer->RemoveLight(tempLight.light);
 
             // VisRTX does not use a variance buffer
             return std::numeric_limits<float>::infinity();

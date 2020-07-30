@@ -17,7 +17,8 @@ namespace RTW
         friend class Geometry;
 
     public:
-        Material(const std::string& type) : type(type)
+        Material(const std::string& type) : Object(RTW_MATERIAL), type(type)
+                                            
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 
@@ -34,6 +35,24 @@ namespace RTW
              */
             else
             {
+                //OSPRay 2.0 name backward compatibility.
+                if (this->type == "alloy")
+                    this->type = "Alloy";
+                else if (this->type == "carPaint")
+                    this->type = "CarPaint";
+                else if (this->type == "glass")
+                    this->type = "Glass";
+                else if (this->type == "metal")
+                    this->type = "Metal";
+                else if (this->type == "metallicPaint")
+                    this->type = "MetallicPaint";
+                else if (this->type == "obj")
+                    this->type = "OBJMaterial";
+                else if (this->type == "principled")
+                    this->type = "Principled";
+                else if (this->type == "thinGlass")
+                    this->type = "ThinGlass";
+
                 const std::string materialname = "::ospray::" + this->type;
                 try
                 {
@@ -41,7 +60,7 @@ namespace RTW
                 }
                 catch(const std::exception&)
                 {
-                    std::cerr << "CreateMDLMaterial failed! Falling back to BasicMaterial.\n";
+                    std::cerr << "VisRTX Error: CreateMDLMaterial failed! Falling back to BasicMaterial.\n";
                     this->material = nullptr;
                 }
                 if (!this->material)
@@ -75,11 +94,11 @@ namespace RTW
 
                 //this->PrintAllParameters();
 
-                basicMaterial->SetDiffuse(this->Get3f({ "Kd" }, VisRTX::Vec3f(0.8f, 0.8f, 0.8f)));
-                basicMaterial->SetSpecular(this->Get3f({ "Ks" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
-                basicMaterial->SetShininess(this->Get1f({ "Ns" }, 10.0f));
-                basicMaterial->SetOpacity(this->Get1f({ "d", "alpha" }, 1.0f));
-                basicMaterial->SetTransparencyFilter(this->Get3f({ "Tf" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
+                basicMaterial->SetDiffuse(this->GetVec3f({ "kd", "Kd" }, VisRTX::Vec3f(0.8f, 0.8f, 0.8f)));
+                basicMaterial->SetSpecular(this->GetVec3f({ "ks", "Ks" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
+                basicMaterial->SetShininess(this->GetFloat({ "ns", "Ns" }, 10.0f));
+                basicMaterial->SetOpacity(this->GetFloat({ "d", "alpha" }, 1.0f));
+                basicMaterial->SetTransparencyFilter(this->GetVec3f({ "tf", "Tf" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
 
                 Texture* diffuseTex = this->GetObject<Texture>({ "map_Kd", "map_kd" });
                 if (diffuseTex)
@@ -113,8 +132,8 @@ namespace RTW
                 {
                     return;
                 }
-                basicMaterial->SetEmissive(this->Get3f({ "color" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
-                basicMaterial->SetLuminosity(this->Get1f({ "intensity" }, 0.0f));
+                basicMaterial->SetEmissive(this->GetVec3f({ "color" }, VisRTX::Vec3f(0.0f, 0.0f, 0.0f)));
+                basicMaterial->SetLuminosity(this->GetFloat({ "intensity" }, 0.0f));
             }
 
             /*
@@ -200,10 +219,10 @@ namespace RTW
 
                     static const std::map<std::pair<std::string, std::string>, std::string> renameMap
                     {
-                        { { "OBJMaterial", "map_kd" }, "map_Kd"},
-                        { { "OBJMaterial", "map_bump" }, "map_Bump"},
+                        { { "obj", "map_kd" }, "map_Kd"},
+                        { { "obj", "map_bump" }, "map_Bump"},
                         { { "Glass", "etaInside" }, "eta"},
-                        { { "OBJMaterial", "alpha" }, "d"},
+                        { { "obj", "alpha" }, "d"},
                         { { "ThinGlass", "transmission" }, "attenuationColor"}
                     };
 
@@ -232,9 +251,9 @@ namespace RTW
                     if (paramName == std::string("ior") && paramType == std::string("object"))
                     {
                         Data* iorData = this->GetObject<Data>(names);
-                        assert(iorData->GetDataType() == RTW_FLOAT3);
+                        assert(iorData->GetElementDataType() == RTW_VEC3F);
 
-                        if (iorData->GetDataType() != RTW_FLOAT3)
+                        if (iorData->GetElementDataType() != RTW_VEC3F)
                         {
                             std::cerr << "Error: unexpected data type in ior object\n";
                             return;
@@ -345,7 +364,7 @@ namespace RTW
                     }
                     else if (paramType == std::string("int1"))
                     {
-                        int ospParam = this->Get1i(names);
+                        int ospParam = this->GetInt(names);
 
                         if (mdlMaterial->GetParameterType(paramName.c_str()) == VisRTX::ParameterType::BOOL)
                         {
@@ -358,7 +377,7 @@ namespace RTW
                     }
                     else if (paramType == std::string("float1"))
                     {
-                        float ospParam = this->Get1f(names);
+                        float ospParam = this->GetFloat(names);
 
                         if (mdlMaterial->GetParameterType(paramName.c_str()) == VisRTX::ParameterType::BOOL)
                         {
@@ -371,22 +390,22 @@ namespace RTW
                     }
                     else if (paramType == std::string("float2"))
                     {
-                        VisRTX::Vec2f ospParam = this->Get2f(names);
+                        VisRTX::Vec2f ospParam = this->GetVec2f(names);
                         WARN_NOT_IMPLEMENTED();
                     }
                     else if (paramType == std::string("int3"))
                     {
-                        VisRTX::Vec3i ospParam = this->Get3i(names);
+                        VisRTX::Vec3i ospParam = this->GetVec3i(names);
                         WARN_NOT_IMPLEMENTED();
                     }
                     else if (paramType == std::string("float3"))
                     {
-                        VisRTX::Vec3f ospParam = this->Get3f(names);
+                        VisRTX::Vec3f ospParam = this->GetVec3f(names);
                         mdlMaterial->SetParameterColor(paramName.c_str(), ospParam);
                     }
                     else if (paramType == std::string("float4"))
                     {
-                        VisRTX::Vec4f ospParam = this->Get4f(names);
+                        VisRTX::Vec4f ospParam = this->GetVec4f(names);
                         WARN_NOT_IMPLEMENTED();
                     }
                     else

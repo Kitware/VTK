@@ -15,6 +15,7 @@ namespace RTW
 
     public:
         Light(const std::string& type)
+            : Object(RTW_LIGHT)
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 
@@ -32,7 +33,7 @@ namespace RTW
                 this->light = rtx->CreateHDRILight();
             else
             {
-                std::cerr << "Error: Unhandled light type \"" << type << "\"" << std::endl;
+                std::cerr << "VisRTX Error: Unhandled light type \"" << type << "\"" << std::endl;
                 assert(false);
             }
         }
@@ -45,11 +46,11 @@ namespace RTW
         void Commit() override
         {
             VisRTX::Vec3f color;
-            if (this->Get3f({ "color" }, &color))
+            if (this->GetVec3f({ "color" }, &color))
                 this->light->SetColor(color);
 
             float intensity;
-            if (this->Get1f({ "intensity" }, &intensity))
+            if (this->GetFloat({ "intensity" }, &intensity))
                 this->light->SetIntensity(intensity);
 
             /*
@@ -60,11 +61,11 @@ namespace RTW
                 VisRTX::DirectionalLight* dirLight = dynamic_cast<VisRTX::DirectionalLight*>(this->light);
 
                 VisRTX::Vec3f direction;
-                if (this->Get3f({ "direction" }, &direction))
+                if (this->GetVec3f({ "direction" }, &direction))
                     dirLight->SetDirection(direction);
 
                 float angularDiameter;
-                if (this->Get1f({ "angularDiameter" }, &angularDiameter))
+                if (this->GetFloat({ "angularDiameter" }, &angularDiameter))
                     dirLight->SetAngularDiameter(angularDiameter);
             }
 
@@ -76,11 +77,11 @@ namespace RTW
                 VisRTX::SphericalLight* sphereLight = dynamic_cast<VisRTX::SphericalLight*>(this->light);
 
                 VisRTX::Vec3f position;
-                if (this->Get3f({ "position" }, &position))
+                if (this->GetVec3f({ "position" }, &position))
                     sphereLight->SetPosition(position);
 
                 float radius;
-                if (this->Get1f({ "radius" }, &radius))
+                if (this->GetFloat({ "radius" }, &radius))
                     sphereLight->SetRadius(radius);
             }
 
@@ -92,23 +93,23 @@ namespace RTW
                 VisRTX::SpotLight* spot = dynamic_cast<VisRTX::SpotLight*>(this->light);
 
                 VisRTX::Vec3f position;
-                if (this->Get3f({ "position" }, &position))
+                if (this->GetVec3f({ "position" }, &position))
                     spot->SetPosition(position);
 
                 VisRTX::Vec3f direction;
-                if (this->Get3f({ "direction" }, &direction))
+                if (this->GetVec3f({ "direction" }, &direction))
                     spot->SetDirection(direction);
 
                 float openingAngle;
-                if (this->Get1f({ "openingAngle" }, &openingAngle))
+                if (this->GetFloat({ "openingAngle" }, &openingAngle))
                     spot->SetOpeningAngle(openingAngle);
 
                 float penumbraAngle;
-                if (this->Get1f({ "penumbraAngle" }, &penumbraAngle))
+                if (this->GetFloat({ "penumbraAngle" }, &penumbraAngle))
                     spot->SetPenumbraAngle(penumbraAngle);
 
                 float radius;
-                if (this->Get1f({ "radius" }, &radius))
+                if (this->GetFloat({ "radius" }, &radius))
                     spot->SetRadius(radius);
             }
 
@@ -120,7 +121,7 @@ namespace RTW
                 VisRTX::QuadLight* quad = dynamic_cast<VisRTX::QuadLight*>(this->light);
 
                 VisRTX::Vec3f position, edge1, edge2;
-                if (this->Get3f({ "position" }, &position) && this->Get3f({ "edge1" }, &edge1) && this->Get3f({ "edge2" }, &edge2))
+                if (this->GetVec3f({ "position" }, &position) && this->GetVec3f({ "edge1" }, &edge1) && this->GetVec3f({ "edge2" }, &edge2))
                     quad->SetRect(position, edge1, edge2);
 
                 quad->SetTwoSided(false);
@@ -138,11 +139,11 @@ namespace RTW
                     hdri->SetTexture(texture->texture);
 
                 VisRTX::Vec3f direction;
-                if (this->Get3f({ "dir", "direction" }, &direction))
+                if (this->GetVec3f({ "dir", "direction" }, &direction))
                     hdri->SetDirection(direction);
 
                 VisRTX::Vec3f up;
-                if (this->Get3f({ "up" }, &up))
+                if (this->GetVec3f({ "up" }, &up))
                     hdri->SetUp(up);
             }
         }
