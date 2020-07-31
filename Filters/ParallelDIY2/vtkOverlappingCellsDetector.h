@@ -115,7 +115,8 @@ protected:
   bool DetectOverlappingCells(vtkDataSet* queryCellDataSet, vtkPointSet* queryPointCloud,
     const std::vector<vtkBoundingBox>& queryCellBoundingBoxes, vtkDataSet* cellDataSet,
     vtkPointSet* pointCloud, const std::vector<vtkBoundingBox>& cellBoundingBoxes,
-    std::unordered_map<vtkIdType, std::set<vtkIdType>>& collisionListMap);
+    std::unordered_map<vtkIdType, std::set<vtkIdType>>& collisionListMap,
+    bool updateProgress = false);
 
   /**
    * Local controller.

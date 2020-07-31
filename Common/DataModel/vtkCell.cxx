@@ -269,16 +269,30 @@ double vtkCell::ComputeBoundingSphere(double center[3]) const
     }
     if (pointId != points.size())
     {
-      auto p = points[pointId];
+      ConstRefType p = points[pointId];
       v[0] = p[0] - center[0];
       v[1] = p[1] - center[1];
       v[2] = p[2] - center[2];
       double d = 0.5 * (vtkMath::Norm(v) - std::sqrt(dist2));
       vtkMath::Normalize(v);
       center[0] += d * v[0];
-      center[1] += d * v[0];
+      center[1] += d * v[1];
       center[2] += d * v[2];
-      dist2 = vtkMath::Distance2BetweenPoints(p, center);
+
+      // If dist2 was going to decrease, it means that we have some numeric imprecision, so we
+      // slightly increase dist2.
+      // There is numeric precision problem when 2 points are almost equidistant
+      // to center, off by center's numeric precision in at least one dimension.
+      // When that happens, given maxCenterEpsilon this numeric precision, we
+      // need to shift dist2 by maxCenterEpsilon^2. Since this might be lower
+      // than dist2's numeric precision, we shift it by the max between dist2's
+      // numeric precision and maxCenterEpsilon^2.
+      // Then, we take the max between this shifted dist2 and the new sphere
+      // radius that we just caught.
+      double maxCenterEpsilon = VTK_DBL_EPSILON *
+        std::max({ std::fabs(center[0]), std::fabs(center[1]), std::fabs(center[2]) });
+      dist2 += std::max(dist2 * VTK_DBL_EPSILON, maxCenterEpsilon * maxCenterEpsilon);
+      dist2 = std::max(dist2, vtkMath::Distance2BetweenPoints(p, center));
     }
   } while (pointId != points.size());
   return dist2;
