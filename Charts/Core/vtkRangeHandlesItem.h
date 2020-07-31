@@ -36,25 +36,16 @@
 #define vtkRangeHandlesItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkCommand.h"          // For vtkCommand enum
-#include "vtkPlot.h"
+#include "vtkPlotRangeHandlesItem.h"
 
 class vtkColorTransferFunction;
-class vtkBrush;
 
-class VTKCHARTSCORE_EXPORT vtkRangeHandlesItem : public vtkPlot
+class VTKCHARTSCORE_EXPORT vtkRangeHandlesItem : public vtkPlotRangeHandlesItem
 {
 public:
-  vtkTypeMacro(vtkRangeHandlesItem, vtkPlot);
+  vtkTypeMacro(vtkRangeHandlesItem, vtkPlotRangeHandlesItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkRangeHandlesItem* New();
-
-  enum Handle
-  {
-    NO_HANDLE = -1,
-    LEFT_HANDLE = 0,
-    RIGHT_HANDLE = 1
-  };
 
   /**
    * Paint both handles and the range if
@@ -81,80 +72,38 @@ public:
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
   //@}
 
-  //@{
-  /**
-   * Set/Get the handles width in pixels.
-   * Default is 2.
-   */
-  vtkSetMacro(HandleWidth, float);
-  vtkGetMacro(HandleWidth, float);
-  //@}
-
   /**
    * Compute the handles draw range by using the handle width and the transfer function
    */
   void ComputeHandlesDrawRange();
+
+  void SynchronizeRangeHandlesOn() override;
+
+  void SetSynchronizeHandlesRange(bool synchronize)
+  {
+    this->Superclass::SynchronizeRangeHandlesOff();
+  }
+
+  void SetHandleOrientation(int orientation)
+  {
+    this->Superclass::SetHandleOrientation(Orientation::VERTICAL);
+  }
 
 protected:
   vtkRangeHandlesItem();
   ~vtkRangeHandlesItem() override;
 
   /**
-   * Returns true if the supplied x, y coordinate is around a handle
-   */
-  bool Hit(const vtkContextMouseEvent& mouse) override;
-
-  //@{
-  /**
-   * Interaction methods to interact with the handles.
-   */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
-  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
-  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
-  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override;
-  //@}
-
-  /**
-   * Returns the handle the provided point is over with a provided tolerance,
-   * it can be NO_HANDLE, LEFT_HANDLE or RIGHT_HANDLE
-   */
-  virtual int FindRangeHandle(const vtkVector2f& point, const vtkVector2f& tolerance);
-
-  /**
    * Internal method to set the ActiveHandlePosition
    * and compute the ActiveHandleRangeValue accordingly
    */
-  void SetActiveHandlePosition(double position);
-
-  /**
-   * Internal method to check if the active handle have
-   * actually been moved.
-   */
-  bool IsActiveHandleMoved(double tolerance);
-
-  /**
-   * Set the cursor shape
-   */
-  void SetCursor(int cursor);
+  void SetActiveHandlePosition(double position) override;
 
 private:
   vtkRangeHandlesItem(const vtkRangeHandlesItem&) = delete;
   void operator=(const vtkRangeHandlesItem&) = delete;
 
   vtkColorTransferFunction* ColorTransferFunction = nullptr;
-
-  float HandleWidth = 2;
-  float HandleDelta = 0;
-  float LeftHandleDrawRange[2] = { 0, 0 };
-  float RightHandleDrawRange[2] = { 0, 0 };
-  int ActiveHandle = NO_HANDLE;
-  int HoveredHandle = NO_HANDLE;
-  double ActiveHandlePosition = 0;
-  double ActiveHandleRangeValue = 0;
-  vtkNew<vtkBrush> HighlightBrush;
-  vtkNew<vtkBrush> RangeLabelBrush;
 };
 
 #endif // vtkRangeHandlesItem_h
