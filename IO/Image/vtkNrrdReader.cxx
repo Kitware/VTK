@@ -841,6 +841,23 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
   vtkStringArray* filenames = this->GetFileNames();
   vtkStdString filename = this->GetFileName();
 
+  int outExtent[6];
+  output->GetExtent(outExtent);
+
+  int fileDataExtent[6];
+  this->GetDataExtent(fileDataExtent);
+
+  // cannot do partial reads efficiently from gzipped data stream
+  for (int i = 0; i < 6; i++)
+  {
+    if (fileDataExtent[i] != outExtent[i])
+    {
+      vtkErrorMacro(<< "File and requested extents must agree: " << filename);
+      this->SetErrorCode(vtkErrorCode::UnknownError);
+      return 0;
+    }
+  }
+
   if ((this->GetFileDimensionality() == 2) || (this->GetFileDimensionality() == 3))
   {
     if (filenames != nullptr)
@@ -861,7 +878,8 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
     }
     else
     {
-      lseek(fd, this->GetHeaderSize(), SEEK_SET);
+      off_t offset = this->GetHeaderSize();
+      lseek(fd, offset, SEEK_SET);
       gzFile gf = gzdopen(fd, "r");
       if (gf == nullptr)
       {
@@ -870,7 +888,16 @@ int vtkNrrdReader::vtkNrrdReaderReadDataGZipTemplate(vtkImageData* output, T* ou
         close(fd);
         return 0;
       }
+
       unsigned numBytes = static_cast<unsigned>(inIncr[2]) * sizeof(T);
+      if (this->GetFileDimensionality() == 3)
+      {
+        auto width = fileDataExtent[1] - fileDataExtent[0] + 1;
+        auto height = fileDataExtent[3] - fileDataExtent[2] + 1;
+        auto depth = fileDataExtent[5] - fileDataExtent[4] + 1;
+        numBytes = static_cast<unsigned>(width) * height * depth * sizeof(T);
+      }
+
       int rsize = gzread(gf, outBuffer, numBytes);
       if ((rsize < 0) || (static_cast<unsigned>(rsize) != numBytes))
       {
