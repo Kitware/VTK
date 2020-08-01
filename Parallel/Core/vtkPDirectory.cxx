@@ -14,11 +14,13 @@
   =========================================================================*/
 #include "vtkPDirectory.h"
 
+#include "vtkDirectory.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPSystemTools.h"
 #include "vtkStringArray.h"
+
 #include <string>
-#include <vtkMultiProcessController.h>
 #include <vtksys/Directory.hxx>
 #include <vtksys/SystemTools.hxx>
 
@@ -216,6 +218,92 @@ void vtkPDirectory::Clear()
 {
   this->Path.clear();
   this->Files->Reset();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    auto cwd = vtkDirectory::GetCurrentWorkingDirectory(buf, len);
+    if (controller)
+    {
+      int error = (cwd == nullptr) ? 1 : 0;
+      controller->Broadcast(&error, 1, 0);
+      controller->Broadcast(buf, len, 0);
+    }
+  }
+  else
+  {
+    int error = 0;
+    controller->Broadcast(&error, 1, 0);
+    controller->Broadcast(buf, len, 0);
+    return error ? nullptr : buf;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::MakeDirectory(const char* dir)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::MakeDirectory(dir);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::DeleteDirectory(const char* dir)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::DeleteDirectory(dir);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::Rename(const char* oldname, const char* newname)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::Rename(oldname, newname);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
 }
 
 //------------------------------------------------------------------------------
