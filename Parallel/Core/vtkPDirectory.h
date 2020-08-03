@@ -86,6 +86,26 @@ public:
    */
   void Clear();
 
+  /**
+   * Get the current working directory.
+   */
+  static const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
+
+  /**
+   * Create directory.
+   */
+  static int MakeDirectory(const char* dir);
+
+  /**
+   * Remove a directory.
+   */
+  static int DeleteDirectory(const char* dir);
+
+  /**
+   * Rename a file or directory.
+   */
+  static int Rename(const char* oldname, const char* newname);
+
 protected:
   vtkPDirectory();
   ~vtkPDirectory() override;

@@ -14,13 +14,13 @@
   =========================================================================*/
 #include "vtkPDirectory.h"
 
+#include "vtkDirectory.h"
+#include "vtkMultiProcessController.h"
+#include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
-#include "vtkPSystemTools.h"
 #include "vtkStringArray.h"
+
 #include <string>
-#include <vtkMultiProcessController.h>
-#include <vtksys/Directory.hxx>
-#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPDirectory);
 
@@ -41,54 +41,51 @@ vtkPDirectory::~vtkPDirectory()
 bool vtkPDirectory::Load(const std::string& name)
 {
   this->Clear();
-
-  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-
-  long numFiles = 0;
-  if (controller->GetLocalProcessId() == 0)
+  this->Path = name;
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
   {
-    vtksys::Directory dir;
-    if (dir.Load(name) == false)
+    vtkNew<vtkDirectory> directory;
+    int status = directory->Open(name.c_str());
+    this->Files->DeepCopy(directory->GetFiles());
+    if (controller)
     {
-      numFiles = -1; // failure
-      controller->Broadcast(&numFiles, 1, 0);
-      return false;
-    }
+      controller->Broadcast(&status, 1, 0);
 
-    for (unsigned long i = 0; i < dir.GetNumberOfFiles(); i++)
-    {
-      this->Files->InsertNextValue(dir.GetFile(i));
+      vtkMultiProcessStream stream;
+      stream << this->Files->GetNumberOfValues();
+      for (vtkIdType cc = 0, max = this->Files->GetNumberOfValues(); cc < max; ++cc)
+      {
+        stream << this->Files->GetValue(cc);
+      }
+      controller->Broadcast(stream, 0);
     }
-    numFiles = static_cast<long>(dir.GetNumberOfFiles());
-    controller->Broadcast(&numFiles, 1, 0);
-    for (long i = 0; i < numFiles; i++)
-    {
-      vtkPSystemTools::BroadcastString(this->Files->GetValue(i), 0);
-    }
+    return status != 0;
   }
   else
   {
-    controller->Broadcast(&numFiles, 1, 0);
-    if (numFiles == -1)
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    vtkMultiProcessStream stream;
+    controller->Broadcast(stream, 0);
+    vtkIdType count;
+    stream >> count;
+    this->Files->SetNumberOfValues(count);
+    for (vtkIdType cc = 0; cc < count; ++cc)
     {
-      return false;
+      std::string value;
+      stream >> value;
+      this->Files->SetValue(cc, value);
     }
-    for (long i = 0; i < numFiles; i++)
-    {
-      std::string str;
-      vtkPSystemTools::BroadcastString(str, 0);
-      this->Files->InsertNextValue(str);
-    }
+    return status != 0;
   }
-
-  this->Path = name;
-  return true;
 }
 
 //------------------------------------------------------------------------------
 int vtkPDirectory::Open(const char* dir)
 {
-  return static_cast<int>(this->Load(dir));
+  this->Clear();
+  return (dir != nullptr && this->Load(dir)) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -110,99 +107,24 @@ const char* vtkPDirectory::GetFile(vtkIdType index) const
 //------------------------------------------------------------------------------
 int vtkPDirectory::FileIsDirectory(const char* name)
 {
-  // The vtksys::SystemTools::FileIsDirectory()
-  // does not equal the following code (it probably should),
-  // and it will broke KWWidgets. Reverse back to 1.30
-  // return vtksys::SystemTools::FileIsDirectory(name);
-
-  if (name == nullptr)
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
   {
-    return 0;
+    vtkNew<vtkDirectory> directory;
+    directory->Open(this->Path.c_str());
+    int result = directory->FileIsDirectory(name);
+    if (controller)
+    {
+      controller->Broadcast(&result, 1, 0);
+    }
+    return result;
   }
-
-  int result = 0;
-  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-
-  if (controller->GetLocalProcessId() == 0)
+  else
   {
-    int absolutePath = 0;
-#if defined(_WIN32)
-    if (name[0] == '/' || name[0] == '\\')
-    {
-      absolutePath = 1;
-    }
-    else
-    {
-      for (int i = 0; name[i] != '\0'; i++)
-      {
-        if (name[i] == ':')
-        {
-          absolutePath = 1;
-          break;
-        }
-        else if (name[i] == '/' || name[i] == '\\')
-        {
-          break;
-        }
-      }
-    }
-#else
-    if (name[0] == '/')
-    {
-      absolutePath = 1;
-    }
-#endif
-
-    char* fullPath;
-
-    int n = 0;
-    if (!absolutePath && !this->Path.empty())
-    {
-      n = static_cast<int>(this->Path.size());
-    }
-
-    int m = static_cast<int>(strlen(name));
-
-    fullPath = new char[n + m + 2];
-
-    if (!absolutePath && !this->Path.empty())
-    {
-      strcpy(fullPath, this->Path.c_str());
-#if defined(_WIN32)
-      if (fullPath[n - 1] != '/' && fullPath[n - 1] != '\\')
-      {
-#if !defined(__CYGWIN__)
-        fullPath[n++] = '\\';
-#else
-        fullPath[n++] = '/';
-#endif
-      }
-#else
-      if (fullPath[n - 1] != '/')
-      {
-        fullPath[n++] = '/';
-      }
-#endif
-    }
-
-    strcpy(&fullPath[n], name);
-
-    vtksys::SystemTools::Stat_t fs;
-    if (vtksys::SystemTools::Stat(fullPath, &fs) == 0)
-    {
-#if defined(_WIN32)
-      result = ((fs.st_mode & _S_IFDIR) != 0);
-#else
-      result = S_ISDIR(fs.st_mode);
-#endif
-    }
-
-    delete[] fullPath;
+    int result;
+    controller->Broadcast(&result, 1, 0);
+    return result;
   }
-
-  controller->Broadcast(&result, 1, 0);
-
-  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -216,6 +138,93 @@ void vtkPDirectory::Clear()
 {
   this->Path.clear();
   this->Files->Reset();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkPDirectory::GetCurrentWorkingDirectory(char* buf, unsigned int len)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    auto cwd = vtkDirectory::GetCurrentWorkingDirectory(buf, len);
+    if (controller)
+    {
+      int error = (cwd == nullptr) ? 1 : 0;
+      controller->Broadcast(&error, 1, 0);
+      controller->Broadcast(buf, len, 0);
+    }
+    return cwd;
+  }
+  else
+  {
+    int error = 0;
+    controller->Broadcast(&error, 1, 0);
+    controller->Broadcast(buf, len, 0);
+    return error ? nullptr : buf;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::MakeDirectory(const char* dir)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::MakeDirectory(dir);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::DeleteDirectory(const char* dir)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::DeleteDirectory(dir);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkPDirectory::Rename(const char* oldname, const char* newname)
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller == nullptr || controller->GetLocalProcessId() == 0)
+  {
+    int status = vtkDirectory::Rename(oldname, newname);
+    if (controller)
+    {
+      controller->Broadcast(&status, 1, 0);
+    }
+    return status;
+  }
+  else
+  {
+    int status;
+    controller->Broadcast(&status, 1, 0);
+    return status;
+  }
 }
 
 //------------------------------------------------------------------------------
