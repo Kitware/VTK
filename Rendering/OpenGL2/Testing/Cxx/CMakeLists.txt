@@ -1,10 +1,12 @@
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestBlockOpacity.cxx TestBlockVisibility.cxx
   TestBlurAndSobelPasses.cxx
+  TestCameraShiftScale.cxx,NO_DATA
   TestCoincident.cxx
   TestCompositeDataPointGaussian.cxx,NO_DATA
   TestCompositeDataPointGaussianSelection.cxx,NO_DATA
   TestCompositePolyDataMapper2.cxx,NO_DATA
+  TestCompositePolyDataMapper2CameraShiftScale.cxx,NO_DATA
   TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
   TestCompositePolyDataMapper2CustomShader.cxx,NO_DATA
   TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA

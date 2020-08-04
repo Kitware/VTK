@@ -192,6 +192,7 @@ void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 
   // draw the geometry
   this->LICInterface->PrepareForGeometry();
+  this->UpdateCameraShiftScale(renderer, actor);
   this->RenderPieceStart(renderer, actor);
   this->RenderPieceDraw(renderer, actor);
   this->RenderPieceFinish(renderer, actor);

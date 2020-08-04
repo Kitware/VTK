@@ -189,7 +189,8 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  void SetVBOShiftScaleMethod(int m);
+  virtual void SetVBOShiftScaleMethod(int m);
+  virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
 
   enum PrimitiveTypes
   {
@@ -252,6 +253,9 @@ protected:
 
   // what coordinate should be used for this texture
   std::string GetTextureCoordinateName(const char* tname);
+
+  // handle updating shift scale based on pose changes
+  virtual void UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor);
 
   /**
    * helper function to get the appropriate coincident params

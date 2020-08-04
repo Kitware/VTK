@@ -16,6 +16,7 @@
 
 #include "vtkOpenGLBufferObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkWeakPointer.h"            // For vtkWeakPointer
 
 class vtkOpenGLVertexBufferObjectCache;
 
@@ -32,6 +33,9 @@ union vtkFourByteUnion {
   short s[2];
   float f;
 };
+
+class vtkCamera;
+class vtkProp3D;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObject : public vtkOpenGLBufferObject
 {
@@ -68,13 +72,19 @@ public:
    *
    * The automatic method tells CreatVBO to compute shift and
    * scale vectors that remap the points to the unit cube.
+   *
+   * The camera method will shift scale the VBO so that the visible
+   * part of the data has reasonable values.
    */
   enum ShiftScaleMethod
   {
     DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
     AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
     ALWAYS_AUTO_SHIFT_SCALE, //!< Always shift scale using auto computed values
-    MANUAL_SHIFT_SCALE       //!< Manual shift/scale (for use with AppendVBO)
+    MANUAL_SHIFT_SCALE,      //!< Manual shift/scale (for use with AppendVBO)
+    AUTO_SHIFT,              //!< Only Apply the shift
+    NEAR_PLANE_SHIFT_SCALE,  //!< Shift scale based on camera settings
+    FOCAL_POINT_SHIFT_SCALE  //!< Shift scale based on camera settings
   };
 
   // Description:
@@ -112,9 +122,14 @@ public:
   vtkGetMacro(CoordShiftAndScaleMethod, ShiftScaleMethod);
   virtual void SetCoordShiftAndScaleMethod(ShiftScaleMethod meth);
   virtual void SetShift(const std::vector<double>& shift);
+  virtual void SetShift(double x, double y, double z);
   virtual void SetScale(const std::vector<double>& scale);
+  virtual void SetScale(double x, double y, double z);
   virtual const std::vector<double>& GetShift();
   virtual const std::vector<double>& GetScale();
+
+  // update the shift scale if needed
+  void UpdateShiftScale(vtkDataArray* da);
 
   // Set/Get the DataType to use for the VBO
   // As a side effect sets the DataTypeSize
@@ -144,6 +159,10 @@ public:
   // VBOs may hold onto the cache, never the other way around
   void SetCache(vtkOpenGLVertexBufferObjectCache* cache);
 
+  // used by mappers that support camera based shift scale
+  virtual void SetCamera(vtkCamera* cam);
+  virtual void SetProp3D(vtkProp3D* prop3d);
+
 protected:
   vtkOpenGLVertexBufferObject();
   ~vtkOpenGLVertexBufferObject() override;
@@ -164,6 +183,9 @@ protected:
   std::vector<double> Scale;
 
   vtkOpenGLVertexBufferObjectCache* Cache;
+
+  vtkWeakPointer<vtkCamera> Camera;
+  vtkWeakPointer<vtkProp3D> Prop3D;
 
 private:
   vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) = delete;

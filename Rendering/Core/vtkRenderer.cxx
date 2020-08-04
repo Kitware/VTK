@@ -372,6 +372,9 @@ void vtkRenderer::Render()
 
   timer->MarkEndEvent(); // culling
 
+  // update camera ideal shift scale calcs
+  this->ActiveCamera->UpdateIdealShiftScale(this->GetTiledAspectRatio());
+
   // do the render library specific stuff
   timer->MarkStartEvent("DeviceRender");
   this->DeviceRender();
