@@ -409,7 +409,7 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
 
   os << indent << "DataIncrements: (" << this->DataIncrements[0];
-  for (idx = 1; idx < 2; ++idx)
+  for (idx = 1; idx < 4; ++idx)
   {
     os << ", " << this->DataIncrements[idx];
   }
