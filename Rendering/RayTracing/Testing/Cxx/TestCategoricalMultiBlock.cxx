@@ -50,7 +50,7 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer); // test use ENV instead of BP BP
+  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer); // test use ENV instead of BP
   renderer->SetBackground(1.0, 0.0, 1.0);
   renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
   renderer->SetEnvironmentalBG2(0.6, 0.6, 0.8);

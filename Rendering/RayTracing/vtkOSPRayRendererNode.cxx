@@ -321,6 +321,7 @@ public:
         }
       }
 
+      double bgAlpha = ren->GetBackgroundAlpha();
       if (t2d == nullptr)
       {
         // simple color or gradient
@@ -333,6 +334,7 @@ public:
         else
         {
           ren->GetEnvironmentalBG(bg1);
+          bgAlpha = 1.0;
         }
         if (forpathtracer)
         {
@@ -367,7 +369,7 @@ public:
 
           isize = 256; // todo: configurable
           jsize = 2;
-          ochars.resize(isize * jsize * 3);
+          ochars.resize(isize * jsize * 4);
           unsigned char* oc = ochars.data();
           for (int i = 0; i < isize; i++)
           {
@@ -375,22 +377,25 @@ public:
             *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
             *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
             *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-            *(oc + 3) = *(oc + 0);
-            *(oc + 4) = *(oc + 1);
-            *(oc + 5) = *(oc + 2);
-            oc += 6;
+            *(oc + 3) = bgAlpha * 255;
+            *(oc + 4) = *(oc + 0);
+            *(oc + 5) = *(oc + 1);
+            *(oc + 6) = *(oc + 2);
+            *(oc + 7) = *(oc + 3);
+            oc += 8;
           }
         }
         else
         {
-          ochars.resize(3);
+          ochars.resize(4);
           ochars[0] = bg1[0] * 255;
           ochars[1] = bg1[1] * 255;
           ochars[2] = bg1[2] * 255;
+          ochars[3] = bgAlpha * 255;
         }
 
         t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars.data(), 0);
+          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGBA8, ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
