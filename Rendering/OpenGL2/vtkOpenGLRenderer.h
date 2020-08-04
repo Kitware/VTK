@@ -43,6 +43,7 @@ class vtkPBRLUTTexture;
 class vtkPBRPrefilterTexture;
 class vtkShaderProgram;
 class vtkShadowMapPass;
+class vtkSSAOPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
@@ -223,6 +224,11 @@ protected:
    * Shadows are delegated to an instance of vtkShadowMapPass
    */
   vtkShadowMapPass* ShadowMapPass;
+
+  /**
+   * SSAO is delegated to an instance of vtkSSAOPass
+   */
+  vtkSSAOPass* SSAOPass;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)

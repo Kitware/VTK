@@ -637,6 +637,52 @@ public:
 
   //@{
   /**
+   * Enable or disable Screen Space Ambient Occlusion.
+   * SSAO darkens some pixels to improve depth perception.
+   */
+  vtkSetMacro(UseSSAO, int);
+  vtkGetMacro(UseSSAO, int);
+  //@}
+
+  //@{
+  /**
+   * When using SSAO, define the SSAO hemisphere radius.
+   * Default is 0.5
+   */
+  vtkSetMacro(SSAORadius, double);
+  vtkGetMacro(SSAORadius, double);
+  //@}
+
+  //@{
+  /**
+   * When using SSAO, define the bias when comparing samples.
+   * Default is 0.01
+   */
+  vtkSetMacro(SSAOBias, double);
+  vtkGetMacro(SSAOBias, double);
+  //@}
+
+  //@{
+  /**
+   * When using SSAO, define the number of samples.
+   * Default is 32
+   */
+  vtkSetMacro(SSAOKernelSize, unsigned int);
+  vtkGetMacro(SSAOKernelSize, unsigned int);
+  //@}
+
+  //@{
+  /**
+   * When using SSAO, define blurring of the ambient occlusion.
+   * Blurring can help to improve the result if samples number is low.
+   * Default is false
+   */
+  vtkSetMacro(SSAOBlur, bool);
+  vtkGetMacro(SSAOBlur, bool);
+  //@}
+
+  //@{
+  /**
    * Set/Get a custom Render call. Allows to hook a Render call from an
    * external project.It will be used in place of vtkRenderer::Render() if it
    * is not NULL and its Used ivar is set to true.
@@ -980,6 +1026,12 @@ protected:
    * It has to be a positive value.
    */
   int MaximumNumberOfPeels;
+
+  bool UseSSAO = false;
+  double SSAORadius = 0.5;
+  double SSAOBias = 0.01;
+  unsigned int SSAOKernelSize = 32;
+  bool SSAOBlur = false;
 
   /**
    * Tells if the last call to DeviceRenderTranslucentPolygonalGeometry()

@@ -75,6 +75,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSRGB.cxx
   TestSSAAPass.cxx
   TestSSAOPass.cxx
+  TestSSAOPassWithRenderer.cxx
   TestSurfaceInterpolationSwitch.cxx
   TestTexture16Bits.cxx,NO_DATA
   TestTexture32Bits.cxx,NO_DATA
