@@ -154,7 +154,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
         "    dot(diri,floorFront));\n"
         "  float phix = length(vec2(dirv.x, dirv.z));\n"
         "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
-        "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 0);\n"
+        "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 1.0);\n"
         "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::StereoSphere)
@@ -174,7 +174,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
         "    dot(diri,floorFront));\n"
         "  float phix = length(vec2(dirv.x, dirv.z));\n"
         "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, dirv.z)/3.1415927 + "
-        "0.5, 0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 0);\n"
+        "0.5, 0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 1.0);\n"
         "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::Floor)
