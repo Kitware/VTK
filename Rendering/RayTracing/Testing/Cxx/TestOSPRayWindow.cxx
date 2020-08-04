@@ -76,7 +76,7 @@ int TestOSPRayWindow(int argc, char* argv[])
   ren1->SetEnvironmentalBG(.2, .3, .4);
 
   // render the image
-  renWin->SetWindowName("VTK - Scalar Bar options");
+  renWin->SetWindowName("VTK");
   renWin->SetSize(600, 500);
 
   vtkNew<vtkOSPRayWindowNode> owindow;

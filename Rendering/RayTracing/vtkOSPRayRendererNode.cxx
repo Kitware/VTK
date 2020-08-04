@@ -361,8 +361,6 @@ public:
           {
             for (int i = 0; i < 3; i++)
             {
-              // the final image is gamma corrected so the background has to be converted to linear
-              // color space
               bg2[i] = pow(bg2[i], 2.2);
             }
           }
@@ -386,22 +384,13 @@ public:
         else
         {
           ochars.resize(3);
-          if (forpathtracer)
-          {
-            ochars[0] = pow(bg1[0], 2.2) * 255;
-            ochars[1] = pow(bg1[1], 2.2) * 255;
-            ochars[2] = pow(bg1[2], 2.2) * 255;
-          }
-          else
-          {
-            ochars[0] = bg1[0] * 255;
-            ochars[1] = bg1[1] * 255;
-            ochars[2] = bg1[2] * 255;
-          }
+          ochars[0] = bg1[0] * 255;
+          ochars[1] = bg1[1] * 255;
+          ochars[2] = bg1[2] * 255;
         }
 
-        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
-          (forpathtracer ? OSP_TEXTURE_SRGB : OSP_TEXTURE_RGB8), ochars.data(), 0);
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
+          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
@@ -443,7 +432,7 @@ public:
         ospCommit(ospLight);
         this->BGLight = ospLight;
       }
-    }
+    } //! reusable
 
     if (!forbackplate && (bgMode & 0x2))
     {
@@ -1532,7 +1521,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     vtkCamera* cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
 
-    // ospSetInt(oRenderer, "backgroundEnabled", ren->GetErase());
+    ospSetInt(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL && backend->IsSupported(RTW_DEPTH_COMPOSITING))
     {
       vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
