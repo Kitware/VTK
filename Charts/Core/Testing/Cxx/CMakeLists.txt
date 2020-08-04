@@ -64,6 +64,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestChartXYInvertedAxis.cxx
   TestChartXYZ.cxx
   TestChartXYZMarginsRotations.cxx
+  TestChartXYZOuterEdgeLabelling.cxx
   TestChartXYZUnconstrained.cxx
   TestContext.cxx
   TestContextArea.cxx

@@ -29,6 +29,8 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
+#include "vtkStdString.h"
+#include "vtkTextProperty.h" // For axes text properties
 #include <vector>            // For ivars
 
 class vtkAnnotationLink;
@@ -102,6 +104,49 @@ public:
   void SetAxisColor(const vtkColor4ub& color);
   vtkColor4ub GetAxisColor();
   //@}
+
+  /**
+   * Get the text property for axes. Useful for changing font size, font family, font file.
+   *
+   * For example to use a larger font which is capable of displaying unicode values change
+   * the property like this:
+   *
+   *   chart->GetAxesTextProperty()->SetFontFamily(VTK_FONT_FILE);
+   *   chart->GetAxesTextProperty()->SetFontFile("fonts/DejaVuSans.ttf");
+   *   chart->GetAxesTextProperty()->SetFontSize(32);
+   *
+   * You'll need a unicode capable font in a suitable location.
+   *
+   * Now to get the X axis to display Theta subscript (0) set the label like this using
+   * the hex unicode representation:
+   *
+   *   chart->SetXAxisLabel("\xcf\xb4\xe2\x82\x8d\xe2\x82\x80\xe2\x82\x8e");
+   *
+   * @return
+   */
+  vtkTextProperty* GetAxesTextProperty();
+
+  /**
+   * Set the X axis label
+   */
+  vtkSetMacro(XAxisLabel, vtkStdString);
+
+  /**
+   * Set the Y axis label
+   */
+  vtkSetMacro(YAxisLabel, vtkStdString);
+
+  /**
+   * Set the Z axis label
+   */
+  vtkSetMacro(ZAxisLabel, vtkStdString);
+
+  /**
+   * Set to true to ensure that axis labels are always on the outer edges of the chart.
+   * Default is false, the legacy behaviour, for backwards compatibility, where axis
+   * labelling may occur on inner or back edges.
+   */
+  vtkSetMacro(EnsureOuterEdgeAxisLabelling, bool);
 
   /**
    * Set whether or not we're using this chart to rotate on a timer.
@@ -211,6 +256,45 @@ protected:
   ~vtkChartXYZ() override;
 
   /**
+   * Rotation directions.
+   */
+  enum RotateDirection
+  {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+  };
+
+  /**
+   * The state of an axis.
+   */
+  enum AxisState
+  {
+    VERTICAL,
+    VERTICAL_2,
+    HORIZONTAL,
+    HORIZONTAL_2,
+    DO_NOT_LABEL,
+    STANDARD
+  };
+
+  /**
+   * The direction to data from an axis.
+   */
+  enum Direction
+  {
+    NORTH,
+    NORTH_EAST,
+    EAST,
+    SOUTH_EAST,
+    SOUTH,
+    SOUTH_WEST,
+    WEST,
+    NORTH_WEST
+  };
+
+  /**
    * Calculate the transformation matrices used to draw data points and axes
    * in the scene.  This function also sets up clipping planes that determine
    * whether or not a data point is within range.
@@ -229,6 +313,11 @@ protected:
    * Rotate the chart in response to a mouse movement.
    */
   bool Rotate(const vtkContextMouseEvent& mouse);
+
+  /**
+   * Rotate the chart in a specific direction.
+   */
+  bool Rotate(const RotateDirection rotateDirection);
 
   /**
    * Pan the data within the chart in response to a mouse movement.
@@ -333,6 +422,17 @@ protected:
    */
   void DetermineWhichAxesToLabel();
 
+  /**
+   * New style axis labelling, ensuring labelling is always at the edges of the
+   * chart in the most sensible places.
+   */
+  void NewDetermineWhichAxesToLabel();
+
+  /**
+   * Old-style axis labelling, for compatibility; labelling may occur in less
+   * optimal places e.g. on inner or back edges of the chart.
+   */
+  void LegacyDetermineWhichAxesToLabel();
   /**
    * Draw tick marks and tick mark labels along the axes.
    */
@@ -516,6 +616,11 @@ protected:
   std::vector<vtkIdType> FreePlaces;
 
   /**
+   * The text properties of the axes.
+   */
+  vtkNew<vtkTextProperty> AxesTextProperty;
+
+  /**
    * The label for the X Axis.
    */
   std::string XAxisLabel;
@@ -530,6 +635,12 @@ protected:
    */
   std::string ZAxisLabel;
 
+  /**
+   * If set to true, use the new behaviour of ensuring that axis labels are on the outer
+   * edges of the chart. If false, the legacy behaviour will be used where axis labels
+   * can occur on inner or back edges of the chart.
+   */
+  bool EnsureOuterEdgeAxisLabelling = false;
   /**
    * The six planes that define the bounding cube of our 3D axes.
    */
