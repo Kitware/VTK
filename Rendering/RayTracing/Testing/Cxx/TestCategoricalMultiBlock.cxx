@@ -53,7 +53,7 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   vtkOSPRayRendererNode::SetBackgroundMode(2, renderer); // test use ENV instead of BP
   renderer->SetBackground(1.0, 0.0, 1.0);
   renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
-  renderer->SetEnvironmentalBG2(0.6, 0.6, 0.8);
+  renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
   renderer->GradientEnvironmentalBGOn();
   renderer->SetEnvironmentUp(1.0, 0.0, 0.0);
   renderer->SetEnvironmentRight(0.0, 1.0, 0.0);

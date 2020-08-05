@@ -394,8 +394,8 @@ public:
           ochars[3] = bgAlpha * 255;
         }
 
-        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGBA8, ochars.data(), 0);
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
+          (forpathtracer ? OSP_TEXTURE_SRGBA : OSP_TEXTURE_RGBA8), ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
