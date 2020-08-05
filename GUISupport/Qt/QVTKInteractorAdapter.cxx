@@ -280,20 +280,33 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       (e2->modifiers() & Qt::ShiftModifier) > 0 ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
-    this->AccumulatedDelta += e2->angleDelta().y();
+    double horizontalDelta = e2->angleDelta().x();
+    double verticalDelta = e2->angleDelta().y();
+    this->AccumulatedDelta += verticalDelta + horizontalDelta;
     const int threshold = 120;
 
     // invoke vtk event when accumulated delta passes the threshold
-    if (this->AccumulatedDelta >= threshold)
+    if (this->AccumulatedDelta >= threshold && verticalDelta != 0.0)
     {
       iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e2);
       this->AccumulatedDelta = 0;
     }
-    else if (this->AccumulatedDelta <= -threshold)
+    else if (this->AccumulatedDelta <= -threshold && verticalDelta != 0.0)
     {
       iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e2);
       this->AccumulatedDelta = 0;
     }
+    else if (this->AccumulatedDelta >= threshold && horizontalDelta != 0.0)
+    {
+      iren->InvokeEvent(vtkCommand::MouseWheelLeftEvent, e2);
+      this->AccumulatedDelta = 0;
+    }
+    else if (this->AccumulatedDelta <= -threshold && horizontalDelta != 0.0)
+    {
+      iren->InvokeEvent(vtkCommand::MouseWheelRightEvent, e2);
+      this->AccumulatedDelta = 0;
+    }
+
     return true;
   }
 

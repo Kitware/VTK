@@ -732,6 +732,8 @@ public:
   virtual void MiddleButtonReleaseEvent();
   virtual void MouseWheelForwardEvent();
   virtual void MouseWheelBackwardEvent();
+  virtual void MouseWheelLeftEvent();
+  virtual void MouseWheelRightEvent();
   virtual void ExposeEvent();
   virtual void ConfigureEvent();
   virtual void EnterEvent();
