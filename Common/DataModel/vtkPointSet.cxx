@@ -17,10 +17,12 @@
 #include "vtkCell.h"
 #include "vtkCellLocator.h"
 #include "vtkClosestPointStrategy.h"
+#include "vtkEmptyCell.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointLocator.h"
 #include "vtkPointSetCellIterator.h"
 #include "vtkStaticCellLocator.h"
@@ -29,6 +31,9 @@
 #include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+vtkStandardNewMacro(vtkPointSet);
+vtkStandardExtendedNewMacro(vtkPointSet);
 
 vtkCxxSetObjectMacro(vtkPointSet, Points, vtkPoints);
 vtkCxxSetObjectMacro(vtkPointSet, PointLocator, vtkAbstractPointLocator);
@@ -41,6 +46,7 @@ vtkPointSet::vtkPointSet()
   this->Points = nullptr;
   this->PointLocator = nullptr;
   this->CellLocator = nullptr;
+  this->EmptyCell = vtkEmptyCell::New();
 }
 
 //------------------------------------------------------------------------------
@@ -54,6 +60,10 @@ vtkPointSet::~vtkPointSet()
   }
   this->SetPointLocator(nullptr);
   this->SetCellLocator(nullptr);
+  if (this->EmptyCell)
+  {
+    this->EmptyCell->Delete();
+  }
 }
 
 //------------------------------------------------------------------------------
