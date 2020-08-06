@@ -3783,7 +3783,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   this->TempState.Append(prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "prim3 mtime");
   this->TempState.Append(representation, "representation");
   this->TempState.Append(interpolation, "interpolation");
-  this->TempState.Append(this->LastSelectionState, "last selection state");
   this->TempState.Append(poly->GetMTime(), "polydata mtime");
   this->TempState.Append(this->GetMTime(), "this mtime");
   if (this->CellTextureBuildState != this->TempState)

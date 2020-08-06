@@ -172,6 +172,7 @@ set(headers
   vtkPythagoreanQuadruples.h
   vtkRayCastStructures.h
   vtkRenderingCoreEnums.h
+  vtkStateStorage.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h"
   vtkTDxMotionEventInfo.h)
 

@@ -95,7 +95,6 @@ set(classes
   vtkVolumetricPass)
 
 set(headers
-  vtkStateStorage.h
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 

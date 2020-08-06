@@ -47,8 +47,6 @@
 #ifndef vtkStateStorage_h
 #define vtkStateStorage_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
-
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -57,7 +55,7 @@
 //#define USE_STATE_DEBUGGING 1
 #ifdef USE_STATE_DEBUGGING
 
-class VTKRENDERINGOPENGL2_EXPORT vtkStateStorage
+class vtkStateStorage
 {
 public:
   vtkStateStorage() {}
@@ -128,7 +126,7 @@ inline void vtkStateStorage::Append(const T& value, const char* name)
 
 #else // normal implementation
 
-class VTKRENDERINGOPENGL2_EXPORT vtkStateStorage
+class vtkStateStorage
 {
 public:
   vtkStateStorage() = default;
