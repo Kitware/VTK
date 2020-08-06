@@ -189,7 +189,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType
   else // walk towards point
   {
     this->Mesh->GetCellEdgeNeighbors(tri, nei[1], nei[2], neighbors);
-    if ((newNei = neighbors->GetId(0)) == nei[0])
+    if ((neighbors->GetNumberOfIds() == 0) || ((newNei = neighbors->GetId(0)) == nei[0]))
     {
       this->NumberOfDegeneracies++;
       return -1;
