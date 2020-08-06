@@ -533,9 +533,9 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
               polyLine->GetPointIds()->SetNumberOfIds(
                 streamTracer->GetOutput()->GetNumberOfPoints());
               polyLine->GetPointIds()->SetId(0, streamTracer->GetOutput()->GetNumberOfPoints() - 1);
-              for (int k = 1; k < streamTracer->GetOutput()->GetNumberOfPoints(); k++)
+              for (int l = 1; l < streamTracer->GetOutput()->GetNumberOfPoints(); l++)
               {
-                polyLine->GetPointIds()->SetId(k, k - 1);
+                polyLine->GetPointIds()->SetId(l, l - 1);
               }
 
               // close gap to the critical point at the end
