@@ -30,7 +30,6 @@ namespace RTW
             for (auto it : this->objectMap.map)
                 if (it.second)
                     it.second->Release();
-            }
         }
 
         virtual void Commit() = 0;
