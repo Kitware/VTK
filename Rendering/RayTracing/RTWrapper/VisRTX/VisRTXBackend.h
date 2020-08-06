@@ -71,24 +71,24 @@ namespace RTW
 
         void SetParam(RTWObject target, const char *id, RTWDataType type, const void *mem) override
         {
-            std::cerr << "Error: The VisRTX ParaView backend does not currently support the SetParam call\n";
+            std::cerr << "Error: The VisRTX backend does not currently support the SetParam call\n";
         }
 
         RTWVolume NewVolume(const char *type) override
         {
-            std::cerr << "Error: The VisRTX ParaView backend does not currently support volumetric objects\n";
+            std::cerr << "Error: The VisRTX backend does not currently support volumetric objects\n";
             return nullptr;
         }
 
         RTWVolume NewVolumetricModel(RTWVolume volume) override
         {
-            std::cerr << "Error: The VisRTX ParaView backend does not currently support volumetric models\n";
+            std::cerr << "Error: The VisRTX backend does not currently support volumetric models\n";
             return nullptr;
         }
 
         RTWTransferFunction NewTransferFunction(const char *type) override
         {
-            std::cerr << "Error: The VisRTX ParaView backend does not currently support volumetric transfer functions\n";
+            std::cerr << "Error: The VisRTX backend does not currently support volumetric transfer functions\n";
             return nullptr;
         }
 
