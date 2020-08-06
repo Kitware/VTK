@@ -284,7 +284,6 @@ public:
   bool SetupPathTraceBackground(bool forbackplate, RTW::Backend* backend)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
-    OSPTexture t2d = nullptr;
 
     int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
     bool forpathtracer = true;
@@ -304,6 +303,7 @@ public:
       bgMode = 0x1; // ignore user setting
     }
 
+    OSPTexture t2d = nullptr;
     bool reuseable = this->CanReuseBG(forbackplate) && (bgMode == this->lBackgroundMode);
     if (!reuseable)
     {
