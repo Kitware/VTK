@@ -14,6 +14,7 @@
  =========================================================================*/
 #include "vtkOSPRayMoleculeMapperNode.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkMolecule.h"
@@ -141,10 +142,53 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
           static_cast<float>(allPoints->GetPoint(i)[1]),
           static_cast<float>(allPoints->GetPoint(i)[2]) });
 
-        radii.emplace_back(mapper->GetAtomicRadiusScaleFactor() *
-          mapper->GetPeriodicTable()->GetVDWRadius(atomicNumbers->GetValue(i)));
-
         materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(i)]);
+      }
+
+      switch (mapper->GetAtomicRadiusType())
+      {
+        default:
+          vtkWarningMacro(<< "Unknown radius type: " << mapper->GetAtomicRadiusType()
+                          << ". Falling back to 'VDWRadius'.");
+          VTK_FALLTHROUGH;
+        case vtkMoleculeMapper::VDWRadius:
+          for (vtkIdType i = 0; i < numAtoms; i++)
+          {
+            radii.emplace_back(mapper->GetAtomicRadiusScaleFactor() *
+              mapper->GetPeriodicTable()->GetVDWRadius(atomicNumbers->GetValue(i)));
+          }
+          break;
+        case vtkMoleculeMapper::CovalentRadius:
+          for (vtkIdType i = 0; i < numAtoms; i++)
+          {
+            radii.emplace_back(mapper->GetAtomicRadiusScaleFactor() *
+              mapper->GetPeriodicTable()->GetCovalentRadius(atomicNumbers->GetValue(i)));
+          }
+          break;
+        case vtkMoleculeMapper::UnitRadius:
+          for (vtkIdType i = 0; i < numAtoms; i++)
+          {
+            radii.emplace_back(mapper->GetAtomicRadiusScaleFactor());
+          }
+          break;
+        case vtkMoleculeMapper::CustomArrayRadius:
+          vtkDataArray* allRadii =
+            molecule->GetVertexData()->GetArray(mapper->GetAtomicRadiusArrayName());
+          if (!allRadii)
+          {
+            vtkWarningMacro("AtomicRadiusType set to CustomArrayRadius, but no array named "
+              << mapper->GetAtomicRadiusArrayName() << " found in input VertexData.");
+            for (vtkIdType i = 0; i < numAtoms; i++)
+            {
+              radii.emplace_back(mapper->GetAtomicRadiusScaleFactor());
+            }
+            break;
+          }
+          for (vtkIdType i = 0; i < numAtoms; i++)
+          {
+            radii.emplace_back(allRadii->GetTuple1(i));
+          }
+          break;
       }
       OSPData vertData = ospNewCopyData1D(vertices.data(), OSP_VEC3F, numAtoms);
       ospCommit(vertData);
