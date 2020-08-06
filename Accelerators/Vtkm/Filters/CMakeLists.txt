@@ -126,5 +126,5 @@ if (MSVC)
   endforeach ()
   vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
     PRIVATE
-      ${msvc_warning_flags})
+      ${vtkm_msvc_flags})
 endif ()
