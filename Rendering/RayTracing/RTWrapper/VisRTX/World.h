@@ -9,12 +9,6 @@
 
 namespace RTW
 {
-    int &GetWorldCount()
-    {
-        static int count = 0;
-        return count;
-    }
-
     class World : public Object
     {
         friend class Renderer;
@@ -25,7 +19,6 @@ namespace RTW
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
             this->model = rtx->CreateModel();
-            std::cerr << "Created World, now have " << ++GetWorldCount() << " Worlds.\n";
         }
 
         ~World()
@@ -34,7 +27,6 @@ namespace RTW
                 if (geometry)
                     geometry->Release();
             this->model->Release();
-            std::cerr << "Destroyed World, now have " << --GetWorldCount() << " Worlds.\n";
         }
 
         void Commit() override
