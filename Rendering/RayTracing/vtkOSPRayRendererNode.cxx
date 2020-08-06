@@ -284,13 +284,26 @@ public:
   bool SetupPathTraceBackground(bool forbackplate, RTW::Backend* backend)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
+
+    int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    bool forpathtracer = true;
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
       std::string::npos)
     {
-      return true;
+      forpathtracer = false;
     }
+
+    if (!forpathtracer)
+    {
+      // scivis is backplate only
+      if (!forbackplate)
+      {
+        return true;
+      }
+      bgMode = 0x1; // ignore user setting
+    }
+
     OSPTexture t2d = nullptr;
-    int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
     bool reuseable = this->CanReuseBG(forbackplate) && (bgMode == this->lBackgroundMode);
     if (!reuseable)
     {
@@ -308,20 +321,55 @@ public:
         }
       }
 
+      double bgAlpha = ren->GetBackgroundAlpha();
       if (t2d == nullptr)
       {
         // simple color or gradient
         std::vector<unsigned char> ochars;
-        double* bg1 = (forbackplate ? ren->GetBackground() : ren->GetEnvironmentalBG());
+        double bg1[3];
+        if (forbackplate)
+        {
+          ren->GetBackground(bg1);
+        }
+        else
+        {
+          ren->GetEnvironmentalBG(bg1);
+          bgAlpha = 1.0;
+        }
+        if (forpathtracer)
+        {
+          for (int i = 0; i < 3; i++)
+          {
+            // the final image is gamma corrected so the background has to be converted to linear
+            // color space
+            bg1[i] = pow(bg1[i], 2.2);
+          }
+        }
+
         int isize = 1;
         int jsize = 1;
-
         if (forbackplate ? ren->GetGradientBackground() : ren->GetGradientEnvironmentalBG())
         {
-          double* bg2 = (forbackplate ? ren->GetBackground2() : ren->GetEnvironmentalBG2());
+          double bg2[3];
+          if (forbackplate)
+          {
+            ren->GetBackground2(bg2);
+          }
+          else
+          {
+            ren->GetEnvironmentalBG2(bg2);
+          }
+          if (forpathtracer)
+          {
+            for (int i = 0; i < 3; i++)
+            {
+              bg2[i] = pow(bg2[i], 2.2);
+            }
+          }
+
           isize = 256; // todo: configurable
           jsize = 2;
-          ochars.resize(isize * jsize * 3);
+          ochars.resize(isize * jsize * 4);
           unsigned char* oc = ochars.data();
           for (int i = 0; i < isize; i++)
           {
@@ -329,22 +377,25 @@ public:
             *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
             *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
             *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
-            *(oc + 3) = *(oc + 0);
-            *(oc + 4) = *(oc + 1);
-            *(oc + 5) = *(oc + 2);
-            oc += 6;
+            *(oc + 3) = bgAlpha * 255;
+            *(oc + 4) = *(oc + 0);
+            *(oc + 5) = *(oc + 1);
+            *(oc + 6) = *(oc + 2);
+            *(oc + 7) = *(oc + 3);
+            oc += 8;
           }
         }
         else
         {
-          ochars.resize(3);
+          ochars.resize(4);
           ochars[0] = bg1[0] * 255;
           ochars[1] = bg1[1] * 255;
           ochars[2] = bg1[2] * 255;
+          ochars[3] = bgAlpha * 255;
         }
 
-        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
-          backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_SRGB, ochars.data(), 0);
+        t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
+          (forpathtracer ? OSP_TEXTURE_SRGBA : OSP_TEXTURE_RGBA8), ochars.data(), 0);
       }
 
       // now apply the texture we chose above to the right place
@@ -375,6 +426,14 @@ public:
           east = ren->GetEnvironmentRight();
         }
         ospSetVec3f(ospLight, "direction", (float)east[0], (float)east[1], (float)east[2]);
+        if (bgMode == 0x2)
+        {
+          ospSetInt(ospLight, "visible", 1);
+        }
+        else
+        {
+          ospSetInt(ospLight, "visible", 0); // prevents blending onto backplate in "both" mode
+        }
         ospCommit(ospLight);
         this->BGLight = ospLight;
       }
@@ -1224,19 +1283,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSetInt(oRenderer, "aoSamples", this->GetAmbientSamples(ren));
     ospSetInt(oRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
     this->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
-
-    double bg[3];
-    ren->GetBackground(bg);
-    for (int i = 0; i < 3; i++)
-    {
-      // when using OSPRay pathtracer, the final image is gamma corrected so the background
-      // has to be converted to linear color space
-      if (type == "pathtracer")
-      {
-        bg[i] = pow(bg[i], 2.2);
-      }
-    }
-    ospSetVec4f(oRenderer, "backgroundColor", bg[0], bg[1], bg[2], ren->GetBackgroundAlpha());
   }
   else
   {
