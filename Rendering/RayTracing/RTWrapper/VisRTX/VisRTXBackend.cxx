@@ -1,5 +1,7 @@
 #include "VisRTXBackend.h"
 
+#include "vtkLogger.h"
+
 #define VISRTX_DYNLOAD
 #include <VisRTX.h>
 
@@ -28,7 +30,7 @@ namespace RTW
         // Load library first
         if (!VisRTX_LoadLibrary())
         {
-            // std::cerr << "Error: Failed to load VisRTX library" << std::endl;
+            //vtkLogF(ERROR, "Error: Failed to load VisRTX library");
             return RTW_UNKNOWN_ERROR;
         }
 #endif
@@ -37,7 +39,7 @@ namespace RTW
 
         if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            // std::cerr << "Error: Unsupported device" << std::endl;
+            //vtkLogF("Error: Unsupported device");
             return RTW_UNSUPPORTED_DEVICE;
         }
 

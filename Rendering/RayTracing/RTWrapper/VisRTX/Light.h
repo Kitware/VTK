@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vtkLogger.h"
+
 #include "../Types.h"
 #include "Object.h"
 
@@ -33,7 +35,7 @@ namespace RTW
                 this->light = rtx->CreateHDRILight();
             else
             {
-                std::cerr << "VisRTX Error: Unhandled light type \"" << type << "\"" << std::endl;
+                vtkLogF(ERROR, "VisRTX Error: Unhandled light type \"%s\"", type.c_str());
                 assert(false);
             }
         }

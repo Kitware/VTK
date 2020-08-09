@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vtkLogger.h"
+
 #include "../Types.h"
 #include "Camera.h"
 #include "Data.h"
@@ -125,7 +127,7 @@ namespace RTW
             }
             catch (VisRTX::Exception& e)
             {
-                std::cerr << "VisRTX internal error: " << e.what() << std::endl;
+                vtkLogF(ERROR, "VisRTX internal error: \"%s\"", e.what());
             }
 
             if(removeTemp)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vtkLogger.h"
+
 #include "../Types.h"
 #include "OSPRayMDL.h"
 #include "Texture.h"
@@ -60,7 +62,7 @@ namespace RTW
                 }
                 catch(const std::exception&)
                 {
-                    std::cerr << "VisRTX Error: CreateMDLMaterial failed! Falling back to BasicMaterial.\n";
+                    vtkLogF(ERROR, "VisRTX Error: CreateMDLMaterial failed! Falling back to BasicMaterial.");
                     this->material = nullptr;
                 }
                 if (!this->material)
@@ -181,7 +183,9 @@ namespace RTW
                         case VisRTX::ParameterType::TEXTURE:
                             parameterType = "texture"; break;
                         }
-                        std::cerr << "(mdl) " << this->type << ": " << parameterType << " " << parameter << "\n";
+                        std::stringstream logStrBuf;
+                        logStrBuf << "(mdl) " << this->type << ": " << parameterType << " " << parameter;
+                        vtkLogF(INFO, "%s", logStrBuf.str().c_str());
                     }
                     mdltypes_printed.insert(this->type);
                 }
@@ -194,13 +198,13 @@ namespace RTW
                     std::string complete = this->type + ": " + param;
                     if (ospparams_printed.find(complete) == ospparams_printed.end())
                     {
-                        std::cerr << "(osp) " << complete << "\n";
+                        vtkLogF(INFO, "(osp) %s", complete.c_str());
                         ospparams_printed.insert(complete);
                     }
                 }
 #endif //PRINT_MATERIAL_PARAMETERS
 
-#define WARN_NOT_IMPLEMENTED() std::cerr<<"Warning: type \""<<paramType<<"\" not implemented (Material: "<<this->type<<", "<<paramName<<")\n";
+#define WARN_NOT_IMPLEMENTED() vtkLogF(WARNING, "Warning: type \"%s\" not implemented (Material: %s, %s)", paramType.c_str(), this->type.c_str(), paramName.c_str());
 
                 for (const std::string &param : ospparams_current)
                 {
@@ -255,7 +259,7 @@ namespace RTW
 
                         if (iorData->GetElementDataType() != RTW_VEC3F)
                         {
-                            std::cerr << "Error: unexpected data type in ior object\n";
+                            vtkLogF(ERROR, "Error: unexpected data type in ior object");
                             return;
                         }
 
@@ -359,7 +363,7 @@ namespace RTW
                         }
                         else
                         {
-                            std::cerr << "Object \"" << paramName << "\" of material type \"" << this->type << "\" is not a texture.\n";
+                            vtkLogF(WARNING, "Object \"%s\" of material type \"%s\" is not a texture.", paramName.c_str(), this->type.c_str());
                         }
                     }
                     else if (paramType == std::string("int1"))

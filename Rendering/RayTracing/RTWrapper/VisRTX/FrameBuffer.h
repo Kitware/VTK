@@ -2,6 +2,8 @@
 
 #include "../Types.h"
 
+#include "vtkLogger.h"
+
 #include <VisRTX.h>
 #include <cassert>
 
@@ -71,7 +73,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
-                std::cerr << "VISRTX Error: Could not get color texture." << std::endl;
+                vtkLogF(ERROR, "VISRTX Error: Could not get color texture.");
                 return 0;
             }  
         }
@@ -84,7 +86,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
-                std::cerr << "VISRTX Error: Could not get depth texture." << std::endl;
+                vtkLogF(ERROR, "VISRTX Error: Could not get depth texture.");
                 return 0;
             }             
         }

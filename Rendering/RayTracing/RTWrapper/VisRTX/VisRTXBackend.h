@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vtkLogger.h"
+
 #include "../Backend.h"
 #include <iostream>
 
@@ -71,24 +73,24 @@ namespace RTW
 
         void SetParam(RTWObject target, const char *id, RTWDataType type, const void *mem) override
         {
-            std::cerr << "Error: The VisRTX backend does not currently support the SetParam call\n";
+            vtkLogF(ERROR, "Error: The VisRTX backend does not currently support the SetParam call");
         }
 
         RTWVolume NewVolume(const char *type) override
         {
-            std::cerr << "Error: The VisRTX backend does not currently support volumetric objects\n";
+            vtkLogF(ERROR, "Error: The VisRTX backend does not currently support volumetric objects");
             return nullptr;
         }
 
         RTWVolume NewVolumetricModel(RTWVolume volume) override
         {
-            std::cerr << "Error: The VisRTX backend does not currently support volumetric models\n";
+            vtkLogF(ERROR, "Error: The VisRTX backend does not currently support volumetric models");
             return nullptr;
         }
 
         RTWTransferFunction NewTransferFunction(const char *type) override
         {
-            std::cerr << "Error: The VisRTX backend does not currently support volumetric transfer functions\n";
+            vtkLogF(ERROR, "Error: The VisRTX backend does not currently support volumetric transfer functions");
             return nullptr;
         }
 
