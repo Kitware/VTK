@@ -723,17 +723,17 @@ int vtkVectorFieldTopology::RemoveBoundary(
       continue;
     }
 
-    bool isBoundary = false;
+    bool isBoundaryCell = false;
     for (int ptId = 0; ptId < cell->GetNumberOfPoints(); ptId++)
     {
       if (tridataset->GetPointData()->GetArray("isBoundary")->GetTuple1(cell->GetPointId(ptId)) ==
         1)
       {
-        isBoundary = true;
+        isBoundaryCell = true;
         break;
       }
     }
-    if (!isBoundary)
+    if (!isBoundaryCell)
     {
       cellsWithoutBoundary->InsertNextCell(cell);
     }
