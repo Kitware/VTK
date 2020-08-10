@@ -15,18 +15,25 @@
 
 #include <vtkAppendDataSets.h>
 #include <vtkCellData.h>
+#include <vtkCompositeDataIterator.h>
+#include <vtkCompositeDataSet.h>
+#include <vtkDataArray.h>
 #include <vtkDataObjectTypes.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetAttributes.h>
+#include <vtkDataSetSurfaceFilter.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkIntArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include <vtkPointSet.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkXMLMultiBlockDataReader.h>
 
 #include <numeric> // for iota
 
@@ -576,7 +583,12 @@ bool TestToleranceModes()
 } // end anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
+// We need argc and argv for the end of the test if vtkIdType is 64 bits
+#ifdef VTK_USE_64BITS_IDS
+int TestAppendDataSets(int argc, char* argv[])
+#else
 int TestAppendDataSets(int, char*[])
+#endif
 {
   // Set up d1 data object
   std::vector<DataArrayInfo> d1PointInfo(2, DataArrayInfo());
@@ -892,6 +904,154 @@ int TestAppendDataSets(int, char*[])
     std::cerr << "vtkAppendFilter failed testing tolerances.\n";
     return EXIT_FAILURE;
   }
+
+// This part reads files vtkIdType arrays with vtkIdType of 8 bytes.
+// It will fail at read the vtkIdType is not set to the proper size
+#ifdef VTK_USE_64BITS_IDS
+  {
+    std::cout << "===========================================================" << std::endl;
+    std::cout << "Testing point global id driven merge:" << std::endl;
+
+    const char* startname =
+      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_start.vtm");
+    const char* endname =
+      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sliding_multi_block_end.vtm");
+
+    vtkNew<vtkXMLMultiBlockDataReader> readerStart;
+    readerStart->SetFileName(startname);
+    readerStart->Update();
+
+    vtkNew<vtkXMLMultiBlockDataReader> readerEnd;
+    readerEnd->SetFileName(endname);
+    readerEnd->Update();
+
+    auto inputStartCDS = vtkCompositeDataSet::SafeDownCast(readerStart->GetOutputDataObject(0));
+    auto inputEndCDS = vtkCompositeDataSet::SafeDownCast(readerEnd->GetOutputDataObject(0));
+
+    auto startIter = inputStartCDS->NewIterator();
+    auto endIter = inputEndCDS->NewIterator();
+
+    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+         startIter->GoToNextItem(), endIter->GoToNextItem())
+    {
+      auto startPD = vtkDataSet::SafeDownCast(startIter->GetCurrentDataObject())->GetPointData();
+      auto endPD = vtkDataSet::SafeDownCast(endIter->GetCurrentDataObject())->GetPointData();
+      startPD->SetGlobalIds(
+        vtkIdTypeArray::SafeDownCast(startPD->GetAbstractArray("GlobalPointIds")));
+      endPD->SetGlobalIds(vtkIdTypeArray::SafeDownCast(endPD->GetAbstractArray("GlobalPointIds")));
+    }
+
+    startIter->Delete();
+    endIter->Delete();
+
+    vtkNew<vtkAppendDataSets> appendDataSetsStart;
+    appendDataSetsStart->MergePointsOn();
+    appendDataSetsStart->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+
+    vtkNew<vtkAppendDataSets> appendDataSetsEnd;
+    appendDataSetsEnd->MergePointsOn();
+    appendDataSetsEnd->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+
+    int count = 0;
+
+    inputStartCDS->NewIterator();
+    inputEndCDS->NewIterator();
+    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+         startIter->GoToNextItem(), endIter->GoToNextItem(), ++count)
+    {
+      appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
+      appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
+    }
+
+    if (count != 4)
+    {
+      std::cerr << "Could not load all input object needed for this test" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    startIter->Delete();
+    endIter->Delete();
+
+    appendDataSetsStart->Update();
+    appendDataSetsEnd->Update();
+
+    auto startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
+    auto endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
+
+    if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
+      startPS->GetNumberOfPoints() != 182)
+    {
+      std::cerr << "vtkAppendFilter failed to merge blocks using point global ids" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    vtkIdTypeArray* startData =
+      vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
+    vtkIdTypeArray* endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
+    for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+    {
+      if (startData->GetValue(pointId) != endData->GetValue(pointId))
+      {
+        std::cerr << "vtkAppenDataSets failed to clean using point global ids."
+                  << "The problem most likely comes from vtkAppendFilter" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+
+    vtkNew<vtkDataSetSurfaceFilter> polyDataConverterStart;
+    polyDataConverterStart->SetInputConnection(readerStart->GetOutputPort());
+    polyDataConverterStart->Update();
+
+    appendDataSetsStart->RemoveAllInputs();
+    appendDataSetsStart->SetOutputDataSetType(VTK_POLY_DATA);
+
+    vtkNew<vtkDataSetSurfaceFilter> polyDataConverterEnd;
+    polyDataConverterEnd->SetInputConnection(readerEnd->GetOutputPort());
+    polyDataConverterEnd->Update();
+
+    appendDataSetsEnd->RemoveAllInputs();
+    appendDataSetsEnd->SetOutputDataSetType(VTK_POLY_DATA);
+
+    inputStartCDS =
+      vtkCompositeDataSet::SafeDownCast(polyDataConverterStart->GetOutputDataObject(0));
+    inputEndCDS = vtkCompositeDataSet::SafeDownCast(polyDataConverterEnd->GetOutputDataObject(0));
+    startIter = inputStartCDS->NewIterator();
+    endIter = inputEndCDS->NewIterator();
+    for (startIter->InitTraversal(), endIter->InitTraversal(); !endIter->IsDoneWithTraversal();
+         startIter->GoToNextItem(), endIter->GoToNextItem())
+    {
+      appendDataSetsStart->AddInputData(startIter->GetCurrentDataObject());
+      appendDataSetsEnd->AddInputData(startIter->GetCurrentDataObject());
+    }
+    startIter->Delete();
+    endIter->Delete();
+
+    appendDataSetsStart->Update();
+    appendDataSetsEnd->Update();
+
+    startPS = vtkPointSet::SafeDownCast(appendDataSetsStart->GetOutputDataObject(0));
+    endPS = vtkPointSet::SafeDownCast(appendDataSetsEnd->GetOutputDataObject(0));
+
+    if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
+      startPS->GetNumberOfPoints() != 182)
+    {
+      std::cerr << "vtkAppenDataSets failed to clean using point global ids."
+                << "The problem most likely comes from vtkCleanPolyData" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    startData = vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
+    endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
+    for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+    {
+      if (startData->GetTuple1(pointId) != endData->GetTuple1(pointId))
+      {
+        std::cerr << "Error when merging points in a poly data multi-block" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+  }
+#endif
 
   return EXIT_SUCCESS;
 }

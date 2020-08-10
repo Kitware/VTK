@@ -28,6 +28,13 @@
  * have the same point and/or cell attributes available. (For example, if one dataset
  * has scalars but another does not, scalars will not be appended.)
  *
+ * Points can be merged if MergePoints is set to true. In this case, points are
+ * really merged if there are no ghost cells and no global point ids, or if
+ * there are global point ids. In the case of the presence of global point ids,
+ * the filter exclusively relies on those ids, not checking if points are
+ * coincident. It assumes that the global ids were properly set. In the case of
+ * the absence of global ids, points withing Tolerance are merged.
+ *
  * @sa
  * vtkAppendFilter vtkAppendPolyData
  */
