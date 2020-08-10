@@ -238,7 +238,8 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
 //------------------------------------------------------------------------------
 inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* points)
 {
-  auto ptsPortal = coords.GetData().ReadPortal();
+  auto pointArray = coords.GetDataAsMultiplexer();
+  auto ptsPortal = pointArray.ReadPortal();
   auto numPoints = coords.GetNumberOfPoints();
 
   points->SetDataTypeToFloat();

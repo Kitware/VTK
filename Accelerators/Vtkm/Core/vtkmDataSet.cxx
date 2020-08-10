@@ -134,7 +134,8 @@ double* vtkmDataSet::GetPoint(vtkIdType ptId)
 
 void vtkmDataSet::GetPoint(vtkIdType id, double x[3])
 {
-  auto portal = this->Internals->Coordinates.GetData().ReadPortal();
+  auto pointArray = this->Internals->Coordinates.GetDataAsMultiplexer();
+  auto portal = pointArray.ReadPortal();
   auto value = portal.Get(id);
   x[0] = value[0];
   x[1] = value[1];
@@ -249,7 +250,8 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
 
 void vtkmDataSet::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
-  auto scatter = WorkletGetPointCells::ScatterType(vtkm::cont::make_ArrayHandle(&ptId, 1));
+  auto scatter =
+    WorkletGetPointCells::ScatterType(vtkm::cont::make_ArrayHandle(&ptId, 1, vtkm::CopyFlag::Off));
   vtkm::cont::Invoker invoke(vtkm::cont::DeviceAdapterTagSerial{});
   invoke(WorkletGetPointCells{ cellIds }, scatter,
     this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}));

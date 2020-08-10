@@ -43,7 +43,6 @@
 #include <vtkm/cont/ArrayHandleCartesianProduct.h>
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/CellSetStructured.h>
-#include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/Field.h>
 
 namespace tovtkm
