@@ -672,11 +672,15 @@ void vtkOpenGLState::vtkDrawBuffers(
 
 #ifndef NO_CACHE
   bool changed = false;
-  for (int i = 0; i < static_cast<int>(count) && i < 10; ++i)
+  for (unsigned int i = 0; !changed && i < 10; ++i)
   {
-    if (vals[i] != cs.DrawBinding.GetDrawBuffer(i))
+    if (i < count)
     {
-      changed = true;
+      changed = vals[i] != cs.DrawBinding.GetDrawBuffer(i);
+    }
+    else
+    {
+      changed = cs.DrawBinding.GetDrawBuffer(i) != GL_NONE;
     }
   }
   if (count > 10)
