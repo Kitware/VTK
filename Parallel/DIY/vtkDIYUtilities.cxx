@@ -248,30 +248,6 @@ void vtkDIYUtilities::Broadcast(
 }
 
 //------------------------------------------------------------------------------
-std::vector<vtkDataSet*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
-{
-  std::vector<vtkDataSet*> datasets;
-  if (auto cd = vtkCompositeDataSet::SafeDownCast(dobj))
-  {
-    auto iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-      if (auto ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
-      {
-        datasets.push_back(ds);
-      }
-    }
-    iter->Delete();
-  }
-  else if (auto ds = vtkDataSet::SafeDownCast(dobj))
-  {
-    datasets.push_back(ds);
-  }
-
-  return datasets;
-}
-
-//------------------------------------------------------------------------------
 std::vector<vtkSmartPointer<vtkPoints>> vtkDIYUtilities::ExtractPoints(
   const std::vector<vtkDataSet*>& datasets, bool use_cell_centers)
 {

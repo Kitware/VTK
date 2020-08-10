@@ -41,7 +41,7 @@
 #define vtkOverlappingCellsDetector_h
 
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
-#include "vtkPointSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 #include "vtkBoundingBox.h" // For DetectOverlappingCells
 
@@ -53,11 +53,11 @@ class vtkDataSet;
 class vtkMultiProcessController;
 class vtkPointSet;
 
-class VTKFILTERSPARALLELDIY2_EXPORT vtkOverlappingCellsDetector : public vtkPointSetAlgorithm
+class VTKFILTERSPARALLELDIY2_EXPORT vtkOverlappingCellsDetector : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkOverlappingCellsDetector* New();
-  vtkTypeMacro(vtkOverlappingCellsDetector, vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkOverlappingCellsDetector, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -82,12 +82,14 @@ protected:
   vtkOverlappingCellsDetector();
   ~vtkOverlappingCellsDetector() override;
 
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Main pipeline. Performs cell collision detection in a MPI aware environment.
    */
-  int ExposeOverlappingCellsAmongBlocks(vtkPointSet* output);
+  int ExposeOverlappingCellsAmongBlocks(std::vector<vtkPointSet*>& outputs);
 
   /**
    * Method performing the cell detection.
