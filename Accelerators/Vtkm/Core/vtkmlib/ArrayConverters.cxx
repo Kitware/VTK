@@ -240,7 +240,7 @@ public:
 
     handle.SyncControlArray();
     auto buffers = handle.GetBuffers();
-    const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
+    const vtkm::Id size = handle.GetNumberOfValues();
     for (vtkm::IdComponent i = 0; i < Traits::NUM_COMPONENTS; ++i)
     {
       // VTK-m now has buffer objects managing the data in ArrayHandles.
@@ -251,6 +251,8 @@ public:
     }
     array->DeepCopy(tmp);
     tmp->Delete();
+
+    this->Data = array;
   }
 };
 } // anonymous namespace
