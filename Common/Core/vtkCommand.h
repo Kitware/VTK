@@ -208,6 +208,12 @@
  *  - most of the objects return nullptr
  * - vtkCommand::FifthButtonReleaseEvent
  *  - most of the objects return nullptr
+ * - vtkCommand::MouseWheelLeftEvent
+ *  - most of the objects return nullptr
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QWheelEvent*
+ * - vtkCommand::MouseWheelRightEvent
+ *  - most of the objects return nullptr
+ *  - GUISupport/Qt/QVTKOpenGLWidget returns a QWheelEvent*
  * - vtkCommand::ErrorEvent
  *  - vtkOutputWindow fires this with `char char*` for the error message
  * - vtkCommand::WarningEvent
@@ -363,7 +369,9 @@
     _vtk_add_event(Button3DEvent)                                                                  \
     _vtk_add_event(TextEvent)                                                                      \
     _vtk_add_event(LeftButtonDoubleClickEvent)                                                     \
-    _vtk_add_event(RightButtonDoubleClickEvent)
+    _vtk_add_event(RightButtonDoubleClickEvent)                                                    \
+    _vtk_add_event(MouseWheelLeftEvent)                                                            \
+    _vtk_add_event(MouseWheelRightEvent)
 // clang-format on
 
 #define vtkEventDeclarationMacro(_enum_name)                                                       \

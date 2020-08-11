@@ -200,6 +200,10 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor* i)
 
     i->AddObserver(vtkCommand::MouseWheelBackwardEvent, this->EventCallbackCommand, this->Priority);
 
+    i->AddObserver(vtkCommand::MouseWheelLeftEvent, this->EventCallbackCommand, this->Priority);
+
+    i->AddObserver(vtkCommand::MouseWheelRightEvent, this->EventCallbackCommand, this->Priority);
+
     i->AddObserver(vtkCommand::ExposeEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand, this->Priority);
@@ -1145,6 +1149,28 @@ void vtkInteractorStyle::ProcessEvents(
       else
       {
         self->OnMouseWheelBackward();
+      }
+      break;
+
+    case vtkCommand::MouseWheelLeftEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::MouseWheelLeftEvent))
+      {
+        self->InvokeEvent(vtkCommand::MouseWheelLeftEvent, nullptr);
+      }
+      else
+      {
+        self->OnMouseWheelLeft();
+      }
+      break;
+
+    case vtkCommand::MouseWheelRightEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::MouseWheelRightEvent))
+      {
+        self->InvokeEvent(vtkCommand::MouseWheelRightEvent, nullptr);
+      }
+      else
+      {
+        self->OnMouseWheelRight();
       }
       break;
 
