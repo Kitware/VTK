@@ -784,7 +784,7 @@ int vtkVectorFieldTopology::ImageDataPrepare(
 int vtkVectorFieldTopology::UnstructuredGridPrepare(
   vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset)
 {
-  // cast input to imagedata
+  // cast input to vtkUnstructuredGrid
   vtkUnstructuredGrid* dataset = static_cast<vtkUnstructuredGrid*>(dataSetInput);
 
   if (dataset->GetNumberOfCells() == 0)
@@ -803,7 +803,7 @@ int vtkVectorFieldTopology::UnstructuredGridPrepare(
   }
 
   // find out if data is triangulated otherwise triangulate
-  tridataset->DeepCopy(static_cast<vtkUnstructuredGrid*>(dataSetInput));
+  tridataset->DeepCopy(dataset);
   bool isTriangulated = true;
   for (int cellId = 0; cellId < dataset->GetNumberOfCells(); cellId++)
   {
@@ -863,7 +863,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* separatingSurfaces =
     vtkPolyData::SafeDownCast(outInfo2->Get(vtkDataObject::DATA_OBJECT()));
 
-  // run appropriate functiuon for input data type
+  // run appropriate function for input data type
   vtkNew<vtkUnstructuredGrid> tridataset;
   bool success;
   switch (dataset->GetDataObjectType())
