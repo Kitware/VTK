@@ -203,19 +203,28 @@ public:
 
     VTKArrayType* array = VTKArrayType::New();
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
-    VTKArrayType* tmp = VTKArrayType::New();
-    tmp->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
-
-    // VTK-m now has buffer objects managing the data in ArrayHandles.
-    // Currently performing a deep copy until StealArray fuctionality is re-implemented.
     auto bufferInfo = handle.GetBuffers()[0].GetHostBufferInfo();
-    auto memory = reinterpret_cast<ValueType*>(bufferInfo.GetPointer());
-    tmp->SetVoidArray(memory, size, 1);
-    array->DeepCopy(tmp);
-    tmp->Delete();
+
+    vtkm::cont::internal::TransferredBuffer transfer = bufferInfo.TransferOwnership();
+    auto srcMemory = reinterpret_cast<ValueType*>(transfer.Memory);
+    if (transfer.Memory == transfer.Container)
+    { // transfer the memory ownership over to VTK instead of copy
+      array->SetVoidArray(srcMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+      array->SetArrayFreeFunction(transfer.Delete);
+    }
+    else
+    {
+      // deep copy the memory to VTK as the memory coming from
+      // a source that VTK can't represent
+      ValueType* dataBuffer = new ValueType[size];
+      std::copy(srcMemory, srcMemory + size, dataBuffer);
+
+      array->SetVoidArray(dataBuffer, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+      transfer.Delete(transfer.Container);
+    }
 
     this->Data = array;
   }
@@ -235,22 +244,33 @@ public:
 
     VTKArrayType* array = VTKArrayType::New();
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
-    VTKArrayType* tmp = VTKArrayType::New();
-    tmp->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
     auto buffers = handle.GetBuffers();
     const vtkm::Id size = handle.GetNumberOfValues();
+
     for (vtkm::IdComponent i = 0; i < Traits::NUM_COMPONENTS; ++i)
     {
-      // VTK-m now has buffer objects managing the data in ArrayHandles.
-      // Currently performing a deep copy until StealArray fuctionality is re-implemented.
       auto bufferInfo = buffers[i].GetHostBufferInfo();
-      auto memory = reinterpret_cast<ValueType*>(bufferInfo.GetPointer());
-      tmp->SetArray(i, memory, size, true, 1);
+
+      vtkm::cont::internal::TransferredBuffer transfer = bufferInfo.TransferOwnership();
+      auto srcMemory = reinterpret_cast<ValueType*>(transfer.Memory);
+      if (transfer.Memory == transfer.Container)
+      { // transfer the memory ownership over to VTK instead of copy
+        array->SetArray(i, srcMemory, size, true, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+        array->SetArrayFreeFunction(i, transfer.Delete);
+      }
+      else
+      {
+        // deep copy the memory to VTK as the memory coming from
+        // a source that VTK can't represent
+        ValueType* dataBuffer = new ValueType[size];
+        std::copy(srcMemory, srcMemory + size, dataBuffer);
+
+        array->SetArray(i, dataBuffer, size, true, 0, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+        transfer.Delete(transfer.Container);
+      }
     }
-    array->DeepCopy(tmp);
-    tmp->Delete();
 
     this->Data = array;
   }
