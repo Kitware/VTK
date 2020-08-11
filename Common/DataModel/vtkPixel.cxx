@@ -200,16 +200,16 @@ int vtkPixel::Inflate(double dist)
     (static_cast<int>(vtkMathUtilities::NearlyEqual<ConstScalar>(p3[2], p0[2])) << 2);
   int degeneratePixelDirection = -1;
 
-  if (normalDirection == 7)
+  if (normalDirection == 0b111)
   {
     // Pixel is collapsed to a single point
     return 0;
   }
-  if ((normalDirection + 1) & normalDirection)
+  if ((normalDirection - 1) & normalDirection)
   {
     static constexpr std::array<int, 5> myLog2{ -1, 0, 1, -1, 2 };
     // Pixel is degenerate, it is homogeneous to a 1D line.
-    degeneratePixelDirection = myLog2[~(normalDirection | (1 << 3))];
+    degeneratePixelDirection = myLog2[(~normalDirection & 0b111)];
   }
   int index = 0;
   for (TupleRef point : range)
