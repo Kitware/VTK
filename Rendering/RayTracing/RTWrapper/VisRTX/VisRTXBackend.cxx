@@ -30,7 +30,7 @@ namespace RTW
         // Load library first
         if (!VisRTX_LoadLibrary())
         {
-            //vtkLogF(ERROR, "Error: Failed to load VisRTX library");
+            vtkLogF(TRACE, "Failed to load VisRTX library");
             return RTW_UNKNOWN_ERROR;
         }
 #endif
@@ -39,7 +39,7 @@ namespace RTW
 
         if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            //vtkLogF("Error: Unsupported device");
+            vtkLogF(WARNING, "VisRTX Error: Unsupported device");
             return RTW_UNSUPPORTED_DEVICE;
         }
 
