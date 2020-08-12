@@ -17,8 +17,10 @@
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetCollection.h"
 #include "vtkExecutive.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -27,9 +29,12 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <array>
 #include <string>
+#include <unordered_map>
 
 vtkStandardNewMacro(vtkAppendFilter);
 
@@ -107,26 +112,6 @@ vtkDataSetCollection* vtkAppendFilter::GetInputList()
 int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  bool reallyMergePoints = false;
-  if (this->MergePoints == 1 && inputVector[0]->GetNumberOfInformationObjects() > 0)
-  {
-    reallyMergePoints = true;
-
-    // ensure that none of the inputs has ghost-cells.
-    // (originally the code was checking for ghost cells only on 1st input,
-    // that's not sufficient).
-    for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
-    {
-      vtkDataSet* tempData = vtkDataSet::GetData(inputVector[0], cc);
-      if (tempData->HasAnyGhostCells())
-      {
-        vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
-        reallyMergePoints = false;
-        break;
-      }
-    }
-  }
-
   // get the output info object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -211,6 +196,39 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetDataType(VTK_DOUBLE);
   }
 
+  // We look if we really can merge points.
+  // Additionally to having this->MergePoints set to true,
+  // points can be merge if there are not input cells cells OR if global point ids are
+  // available in the inputs.
+  inputs->InitTraversal(iter);
+  dataSet = inputs->GetNextDataSet(iter);
+  vtkIdTypeArray* globalIdsArray =
+    vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds());
+
+  bool reallyMergePoints = false;
+  if (this->MergePoints == 1 && inputVector[0]->GetNumberOfInformationObjects() > 0)
+  {
+    reallyMergePoints = true;
+
+    // If global point ids are present, we merge points sharing same global id
+    if (!globalIdsArray)
+    {
+      // ensure that none of the inputs has ghost-cells.
+      // (originally the code was checking for ghost cells only on 1st input,
+      // that's not sufficient).
+      for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
+      {
+        vtkDataSet* tempData = vtkDataSet::GetData(inputVector[0], cc);
+        if (tempData->HasAnyGhostCells())
+        {
+          vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
+          reallyMergePoints = false;
+          break;
+        }
+      }
+    }
+  }
+
   // If we aren't merging points, we need to allocate the points here.
   if (!reallyMergePoints)
   {
@@ -226,15 +244,14 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // For optionally merging duplicate points
   vtkIdType* globalIndices = new vtkIdType[totalNumPts];
+
   vtkSmartPointer<vtkIncrementalOctreePointLocator> ptInserter;
   if (reallyMergePoints)
   {
     vtkBoundingBox outputBB;
-
     inputs->InitTraversal(iter);
     while ((dataSet = inputs->GetNextDataSet(iter)))
     {
-
       // Union of bounding boxes
       double localBox[6];
       dataSet->GetBounds(localBox);
@@ -258,25 +275,48 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // append the blocks / pieces in terms of the geometry and topology
+  std::unordered_map<vtkIdType, std::array<double, 3>> addedPointsMap;
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
   inputs->InitTraversal(iter);
   int abort = 0;
+  double p[3];
   while (!abort && (dataSet = inputs->GetNextDataSet(iter)))
   {
     vtkIdType dataSetNumPts = dataSet->GetNumberOfPoints();
     vtkIdType dataSetNumCells = dataSet->GetNumberOfCells();
+    vtkIdTypeArray* dataSetGlobalIdsArray = globalIdsArray
+      ? vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds())
+      : nullptr;
 
     // copy points
     for (vtkIdType ptId = 0; ptId < dataSetNumPts && !abort; ++ptId)
     {
       if (reallyMergePoints)
       {
-        vtkIdType globalPtId = 0;
-        ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
-        globalIndices[ptId + ptOffset] = globalPtId;
-        // The point inserter puts the point into newPts, so we don't have to do that here.
+        if (dataSetGlobalIdsArray)
+        {
+          vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
+          if (!addedPointsMap.count(globalId))
+          {
+            globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
+            dataSet->GetPoint(ptId, p);
+            newPts->InsertNextPoint(p);
+            addedPointsMap.emplace(globalId, std::array<double, 3>({ p[0], p[1], p[2] }));
+          }
+          else
+          {
+            globalIndices[ptId + ptOffset] = globalId;
+          }
+        }
+        else
+        {
+          vtkIdType globalPtId = 0;
+          ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
+          globalIndices[ptId + ptOffset] = globalPtId;
+          // The point inserter puts the point into newPts, so we don't have to do that here.
+        }
       }
       else
       {
@@ -341,7 +381,9 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // this filter can copy global ids except for global point ids when merging
   // points (see paraview/paraview#18666).
   // Note, not copying global ids is the default behavior.
-  if (reallyMergePoints == false)
+  // Since paraview/paraview#19961, global point ids can be used for the merging
+  // decision. In this case, they can be merged.
+  if (reallyMergePoints == false || (reallyMergePoints == true && globalIdsArray))
   {
     output->GetPointData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   }

@@ -7,6 +7,16 @@ vtk_module_test_data(
   Data/delaunay3d.vtu
   Data/disk_out_ref_surface.vtp
   Data/explicitStructuredGrid.vtu
+  Data/sliding_multi_block_end.vtm
+  Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_2_0.vtu
+  Data/sliding_multi_block_end/sliding_multi_block_end_3_0.vtu
+  Data/sliding_multi_block_start.vtm
+  Data/sliding_multi_block_start/sliding_multi_block_start_0_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_1_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_2_0.vtu
+  Data/sliding_multi_block_start/sliding_multi_block_start_3_0.vtu
   Data/tex_debug.jpg
   Data/wavelet300Arrays.vti)
 

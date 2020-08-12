@@ -23,6 +23,12 @@
  * (For example, if one dataset has scalars but another does not, scalars will
  * not be appended.)
  *
+ * You can decide to merge points that are coincident by setting
+ * `MergePoints`. If this flag is set, points are merged if they are within
+ * `Tolerance` radius. If a point global id array is available (point data named
+ * "GlobalPointIds"), then two points are merged if they share the same point global id,
+ * without checking for coincident point.
+ *
  * @sa
  * vtkAppendPolyData
  */
