@@ -19,6 +19,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
@@ -1320,6 +1321,9 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::NORMALS);
     newNormals->Delete();
   }
+
+  // Transform output if image orientation is not axis aligned
+  //  vtkImageTransform::TransformPointSet(input, output);
 
   return 1;
 }
