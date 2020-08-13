@@ -567,6 +567,8 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
 
   this->VBOs->BuildAllVBOs(ren);
 
+  // refetch as it may have been deleted
+  posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO)
   {
     // If the VBO coordinates were shifted and scaled, prepare the inverse transform

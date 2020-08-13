@@ -3843,6 +3843,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
 
   this->VBOs->BuildAllVBOs(ren);
 
+  // refetch as it could have been deleted
+  posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO && posVBO->GetCoordShiftAndScaleEnabled())
   {
     std::vector<double> const& shift = posVBO->GetShift();
