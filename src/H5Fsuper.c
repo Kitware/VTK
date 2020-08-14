@@ -54,6 +54,7 @@
 /********************/
 static herr_t H5F__super_ext_create(H5F_t *f, H5O_loc_t *ext_ptr);
 static herr_t H5F__update_super_ext_driver_msg(H5F_t *f);
+herr_t H5O__fsinfo_set_version(H5F_t *f, H5O_fsinfo_t *fsinfo);
 
 
 /*********************/
