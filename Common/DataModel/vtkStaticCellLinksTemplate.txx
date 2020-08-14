@@ -491,6 +491,62 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkPolyData* pd)
 }
 
 //----------------------------------------------------------------------------
+// Given some point ids, return the cells that use these points in the
+// provided id list.
+template <typename TIds>
+void vtkStaticCellLinksTemplate<TIds>::GetCells(
+  vtkIdType npts, const vtkIdType* pts, vtkIdList* cells)
+{
+  // Initialize to no uses.
+  cells->Reset();
+
+  // Find the shortest cell links list.
+  int minList = 0;
+  vtkIdType minNumCells = VTK_INT_MAX;
+  TIds numCells;
+  for (auto i = 0; i < npts; ++i)
+  {
+    numCells = this->GetNcells(pts[i]);
+    if (numCells < minNumCells)
+    {
+      minList = i;
+      minNumCells = numCells;
+    }
+  }
+
+  // Process the cells in the shortest list
+  auto shortCells = this->GetCells(pts[minList]);
+  for (auto j = 0; j < minNumCells; ++j)
+  {
+    bool foundCell = true;
+    auto cellId = shortCells[j];
+    // Loop over all cell lists looking for this cellId
+    for (auto i = 0; i < npts && foundCell; ++i)
+    {
+      if (i != minList)
+      {
+        numCells = this->GetNcells(pts[i]);
+        auto linkedCells = this->GetCells(pts[i]);
+        vtkIdType k;
+        for (k = 0; k < numCells; ++k)
+        {
+          if (linkedCells[k] == cellId)
+          {
+            break; // we matched cell
+          }
+        }
+        foundCell = (k >= numCells ? false : foundCell);
+      } // search for cell in each list
+    }   // for all cell lists
+
+    if (foundCell)
+    {
+      cells->InsertNextId(cellId);
+    }
+  } // for all cells in shortest list
+}
+
+//----------------------------------------------------------------------------
 // Satisfy vtkAbstractCellLinks API
 template <typename TIds>
 unsigned long vtkStaticCellLinksTemplate<TIds>::GetActualMemorySize()

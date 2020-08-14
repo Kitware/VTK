@@ -86,6 +86,7 @@ set(classes
   vtkRectilinearGridToTetrahedra
   vtkRecursiveDividingCubes
   vtkReflectionFilter
+  vtkRemovePolyData
   vtkRotationFilter
   vtkSampleImplicitFunctionFilter
   vtkShrinkFilter
