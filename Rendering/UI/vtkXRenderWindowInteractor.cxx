@@ -38,6 +38,7 @@
 #include <climits>
 #include <cmath>
 #include <map>
+#include <set>
 #include <sstream>
 
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
@@ -129,14 +130,14 @@ public:
     }
   }
 
-  static std::vector<vtkXRenderWindowInteractor*> Instances;
+  static std::set<vtkXRenderWindowInteractor*> Instances;
 
 private:
   int TimerIdCount;
   std::map<int, vtkXRenderWindowInteractorTimer> LocalToTimer;
 };
 
-std::vector<vtkXRenderWindowInteractor*> vtkXRenderWindowInteractorInternals::Instances;
+std::set<vtkXRenderWindowInteractor*> vtkXRenderWindowInteractorInternals::Instances;
 
 // for some reason the X11 def of KeySym is getting messed up
 typedef XID vtkKeySym;
@@ -326,7 +327,7 @@ void vtkXRenderWindowInteractor::Initialize()
     ren->SetDisplayId(this->DisplayId);
   }
 
-  vtkXRenderWindowInteractorInternals::Instances.push_back(this);
+  vtkXRenderWindowInteractorInternals::Instances.insert(this);
 
   size = ren->GetActualSize();
   size[0] = ((size[0] > 0) ? size[0] : 300);
