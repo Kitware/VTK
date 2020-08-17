@@ -81,6 +81,7 @@ orientation = [
 ]
 blobImage.SetDirectionMatrix(orientation)
 
+# Extract labeled blobs
 discrete = vtk.vtkDiscreteMarchingCubes()
 discrete.SetInputData(blobImage)
 discrete.GenerateValues(n, 1, n)
@@ -93,7 +94,19 @@ mapper.SetScalarRange(0, lut.GetNumberOfColors())
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
+# Put an outline around it
+outline = vtk.vtkImageDataOutlineFilter()
+outline.SetInputData(blobImage)
+
+outlineMapper = vtk.vtkPolyDataMapper()
+outlineMapper.SetInputConnection(outline.GetOutputPort())
+
+outlineActor = vtk.vtkActor()
+outlineActor.SetMapper(outlineMapper)
+outlineActor.GetProperty().SetColor(1,1,1)
+
 ren1.AddActor(actor)
+ren1.AddActor(outlineActor)
 
 renWin.Render()
 iren.Start()

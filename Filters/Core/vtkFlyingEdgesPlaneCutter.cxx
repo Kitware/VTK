@@ -43,6 +43,12 @@ namespace
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdgesPlaneCutter populates the information in this class and
 // then invokes Contour() to actually initiate execution.
+//
+// Note the algorithm has been modified to support oriented images. Hence
+// computations are performed in image space - spacing and origin come into
+// play when the vtkImageTransform::TransformPointSet() is invoked to
+// transform the output points.
+//
 template <class T>
 class vtkFlyingEdgesPlaneCutterAlgorithm
 {
@@ -108,8 +114,6 @@ public:
   // image data in a form more convenient to the algorithm.
   T* Scalars;
   vtkIdType Dims[3];
-  double Origin[3];
-  double Spacing[3];
   double XL, XR;
   vtkIdType NumberOfEdges;
   vtkIdType SliceOffset;
@@ -122,8 +126,10 @@ public:
   int Min2;
   int Max2;
   int Inc2;
-  double* Center; // define plane center
-  double* Normal; // define plane normal
+  double PlaneCenter[3]; // define plane center in physical space
+  double PlaneNormal[3]; // define plane normal in physical space
+  double Center[3];      // define plane center in image space
+  double Normal[3];      // define plane normal in image space
 
   // Output data. Threads write to partitioned memory.
   T* NewScalars;
@@ -136,12 +142,11 @@ public:
   // Setup algorithm
   vtkFlyingEdgesPlaneCutterAlgorithm();
 
-  // Adjust the origin to the lower-left corner of the volume (if necessary)
-  void AdjustOrigin()
+  // Transform the plane into canonical image space.
+  void TransformPlane(vtkImageData* image)
   {
-    this->Origin[0] = this->Origin[0] + this->Spacing[0] * this->Min0;
-    this->Origin[1] = this->Origin[1] + this->Spacing[1] * this->Min1;
-    this->Origin[2] = this->Origin[2] + this->Spacing[2] * this->Min2;
+    image->TransformPhysicalPointToContinuousIndex(this->PlaneCenter, this->Center);
+    image->TransformPhysicalNormalToContinuousIndex(this->PlaneNormal, this->Normal);
   }
 
   // The three main passes of the algorithm.
@@ -295,11 +300,11 @@ public:
       xR[0] = this->Algo->XR;
       for (; slice < end; ++slice)
       {
-        xL[2] = this->Algo->Origin[2] + slice * this->Algo->Spacing[2];
+        xL[2] = slice;
         xR[2] = xL[2];
         for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
         {
-          xL[1] = this->Algo->Origin[1] + row * this->Algo->Spacing[1];
+          xL[1] = row;
           xR[1] = xL[1];
           this->Algo->ProcessXEdge(xL, xR, row, slice);
           rowPtr += this->Algo->Inc1;
@@ -557,15 +562,15 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::InterpolateEdge(vtkIdType ijk[3], T 
 
   const unsigned char* offsets0 = this->VertOffsets[vertMap[0]];
   const T* s0 = s + offsets0[0] * incs[0] + offsets0[1] * incs[1] + offsets0[2] * incs[2];
-  x0[0] = x[0] + offsets0[0] * this->Spacing[0];
-  x0[1] = x[1] + offsets0[1] * this->Spacing[1];
-  x0[2] = x[2] + offsets0[2] * this->Spacing[2];
+  x0[0] = x[0] + offsets0[0];
+  x0[1] = x[1] + offsets0[1];
+  x0[2] = x[2] + offsets0[2];
 
   const unsigned char* offsets1 = this->VertOffsets[vertMap[1]];
   const T* s1 = s + offsets1[0] * incs[0] + offsets1[1] * incs[1] + offsets1[2] * incs[2];
-  x1[0] = x[0] + offsets1[0] * this->Spacing[0];
-  x1[1] = x[1] + offsets1[1] * this->Spacing[1];
-  x1[2] = x[2] + offsets1[2] * this->Spacing[2];
+  x1[0] = x[0] + offsets1[0];
+  x1[1] = x[1] + offsets1[1];
+  x1[2] = x[2] + offsets1[2];
 
   double sV0 = vtkPlane::Evaluate(this->Normal, this->Center, x0);
   double sV1 = vtkPlane::Evaluate(this->Normal, this->Center, x1);
@@ -580,12 +585,14 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::InterpolateEdge(vtkIdType ijk[3], T 
   T* sInt = this->NewScalars + vId;
   *sInt = *s0 + t * (*s1 - *s0);
 
+  // To avoid the cost of transformation later on, use the
+  // physical space normal.
   if (this->NewNormals)
   {
     float* n = this->NewNormals + 3 * vId;
-    n[0] = -this->Normal[0];
-    n[1] = -this->Normal[1];
-    n[2] = -this->Normal[2];
+    n[0] = -this->PlaneNormal[0];
+    n[1] = -this->PlaneNormal[1];
+    n[2] = -this->PlaneNormal[2];
   } // if normals
 
   if (this->InterpolateAttributes)
@@ -621,7 +628,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GeneratePoints(unsigned char loc, vt
       // edgesUses[4] == y axes edge
       // edgesUses[8] == z axes edge
       double x1[3] = { x[0], x[1], x[2] };
-      x1[i] += this->Spacing[i];
+      x1[i] += 1.0;
       vtkIdType ijk1[3] = { ijk[0], ijk[1], ijk[2] };
       ++ijk1[i];
 
@@ -962,9 +969,9 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GenerateOutput(
   // that active voxel axes edges are interpolated to produce points and
   // possibly interpolate attribute data.
   double x[3], sV;
-  x[0] = this->Origin[0] + xL * this->Spacing[0];
-  x[1] = this->Origin[1] + row * this->Spacing[1];
-  x[2] = this->Origin[2] + slice * this->Spacing[2];
+  x[0] = xL;
+  x[1] = row;
+  x[2] = slice;
 
   // compute the ijk for this section
   vtkIdType ijk[3] = { xL, row, slice };
@@ -972,7 +979,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GenerateOutput(
   // load the inc0/inc1/inc2 into local memory
   const int incs[3] = { this->Inc0, this->Inc1, this->Inc2 };
   const T* sPtr = rowPtr + xL * incs[0];
-  const double xSpace = this->Spacing[0];
+  const double xSpace = 1.0;
   const vtkIdType dim0Wall = this->Dims[0] - 2;
 
   for (i = xL; i < xR; ++i)
@@ -1028,8 +1035,6 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   // subsequent processing.
   vtkFlyingEdgesPlaneCutterAlgorithm<T> algo;
   algo.Scalars = scalars;
-  input->GetOrigin(algo.Origin);
-  input->GetSpacing(algo.Spacing);
   algo.Min0 = extent[0];
   algo.Max0 = extent[1];
   algo.Inc0 = incs[0];
@@ -1039,15 +1044,15 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   algo.Min2 = extent[4];
   algo.Max2 = extent[5];
   algo.Inc2 = incs[2];
-  algo.AdjustOrigin();
 
   // The left and right bounds of the x-volume edges
-  algo.XL = algo.Origin[0];
-  algo.XR = algo.Origin[0] + (algo.Max0 - algo.Min0) * algo.Spacing[0];
+  algo.XL = 0.0;
+  algo.XR = algo.Max0 - algo.Min0;
 
-  // Copy down the plane definition
-  algo.Center = self->GetPlane()->GetOrigin();
-  algo.Normal = self->GetPlane()->GetNormal();
+  // Copy the plane definition and transform it into image space
+  self->GetPlane()->GetOrigin(algo.PlaneCenter);
+  self->GetPlane()->GetNormal(algo.PlaneNormal);
+  algo.TransformPlane(input);
 
   // Now allocate working arrays. The XCases array tracks x-edge cases.
   algo.Dims[0] = algo.Max0 - algo.Min0 + 1;
@@ -1070,7 +1075,6 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
   algo.InterpolateAttributes =
     (self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1) ? true
                                                                                          : false;
-
   // PASS 1: Traverse all x-rows building edge cases and counting number of
   // intersections (i.e., accumulate information necessary for later output
   // memory allocation, e.g., the number of output points along the x-rows
@@ -1275,16 +1279,17 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
-  vtkCellArray* newTris = vtkCellArray::New();
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkCellArray> newTris;
+  vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
-  vtkFloatArray* newNormals = nullptr;
 
   // We are interpolating scalars across the plane
-  vtkDataArray* newScalars = inScalars->NewInstance();
+  vtkSmartPointer<vtkDataArray> newScalars;
+  newScalars.TakeReference(inScalars->NewInstance());
   newScalars->SetNumberOfComponents(1);
   newScalars->SetName(inScalars->GetName());
 
+  vtkSmartPointer<vtkFloatArray> newNormals;
   if (this->ComputeNormals)
   {
     newNormals = vtkFloatArray::New();
@@ -1306,24 +1311,22 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
 
   // Update ourselves.
   output->SetPoints(newPts);
-  newPts->Delete();
 
   output->SetPolys(newTris);
-  newTris->Delete();
 
   int idx = output->GetPointData()->AddArray(newScalars);
   output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-  newScalars->Delete();
 
-  if (newNormals)
+  if (this->ComputeNormals)
   {
     idx = output->GetPointData()->AddArray(newNormals);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::NORMALS);
-    newNormals->Delete();
   }
 
-  // Transform output if image orientation is not axis aligned
-  //  vtkImageTransform::TransformPointSet(input, output);
+  // Transform output if image orientation is not axis aligned. Note that since we
+  // are possibly interpolating data, or the normals have been defined in physical
+  // space, we do not want to interpolate normals or vectors.
+  vtkImageTransform::TransformPointSet(input, output, false, false);
 
   return 1;
 }

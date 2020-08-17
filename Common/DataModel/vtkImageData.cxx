@@ -2408,6 +2408,7 @@ void vtkImageData::TransformPhysicalNormalToContinuousIndex(const double xyz[3],
   TransformNormal<double, double>(xyz[0], xyz[1], xyz[2], ijk, this->IndexToPhysicalMatrix);
 }
 
+//------------------------------------------------------------------------------
 void vtkImageData::TransformPhysicalPlaneToContinuousIndex(
   double const normal[4], double xnormal[4])
 {

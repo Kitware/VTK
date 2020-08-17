@@ -82,7 +82,7 @@ orientation = [
   0, 1, 0,
   sin(angle), 0, cos(angle),
 ]
-#blobImage.SetDirectionMatrix(orientation)
+blobImage.SetDirectionMatrix(orientation)
 
 # Create an outline around the image
 outline = vtk.vtkImageDataOutlineFilter()
