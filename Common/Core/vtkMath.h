@@ -902,7 +902,7 @@ public:
     class VectorT1, class MatrixT, class VectorT2>
   static ScalarT Dot(const VectorT1& x, const MatrixT& M, const VectorT2& y)
   {
-    std::array<ScalarT, SizeT> tmp;
+    ScalarT tmp[SizeT];
     vtkMathPrivate::MultiplyMatrix<SizeT, SizeT, 1, LayoutT>::Compute(M, y, tmp);
     return vtkMathPrivate::ContractRowWithCol<ScalarT, 1, SizeT, 1, 0, 0,
       vtkMatrixUtilities::Layout::Identity, vtkMatrixUtilities::Layout::Transpose>::Compute(x, tmp);
