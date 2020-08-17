@@ -45,9 +45,9 @@ README.kitware.md
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    find -name Makefile.am -delete
-    find -name Makefile.in -delete
-    find -name "*.lnt" -delete
+    find . -name Makefile.am -delete
+    find . -name Makefile.in -delete
+    find . -name "*.lnt" -delete
     rm -v src/.indent.pro
     popd
 }
