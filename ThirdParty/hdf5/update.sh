@@ -8,7 +8,7 @@ readonly name="hdf5"
 readonly ownership="HDF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/hdf5.git"
-readonly tag="for/vtk-20200417-1.10.6"
+readonly tag="for/vtk-20200814-1.10.6"
 readonly paths="
 CMakeFilters.cmake
 CMakeInstallation.cmake
@@ -45,9 +45,9 @@ README.kitware.md
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    find -name Makefile.am -delete
-    find -name Makefile.in -delete
-    find -name "*.lnt" -delete
+    find . -name Makefile.am -delete
+    find . -name Makefile.in -delete
+    find . -name "*.lnt" -delete
     rm -v src/.indent.pro
     popd
 }
