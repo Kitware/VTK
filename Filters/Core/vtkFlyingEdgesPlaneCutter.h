@@ -19,7 +19,7 @@
  *
  * vtkFlyingEdgesPlaneCutter is a specialization of the FlyingEdges algorithm
  * to cut a volume with a single plane. It is designed for performance and
- * an exploratory, fast workflow.
+ * an exploratory, fast workflow. The filter handles oriented volumes.
  *
  * This algorithm is not only fast because it uses flying edges, but also
  * because it plays some "tricks" during processing. For example, rather

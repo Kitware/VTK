@@ -25,6 +25,11 @@
  * When an input composite dataset is provided, options exist for producing
  * different styles of outline(s). Also, if the composite dataset has
  * non-geometric members (like tables) the result is unpredictable.
+ *
+ * @warning
+ * Specialized versions of the outline filter are also available. For example
+ * see vtkStructuredGridOutlineFilter, vtkRectilinearGridOutlineFilter, and
+ * vtkImageDataOutlineFilter.
  */
 
 #ifndef vtkOutlineFilter_h

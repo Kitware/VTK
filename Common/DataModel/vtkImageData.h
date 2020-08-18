@@ -19,7 +19,13 @@
  * vtkImageData is a data object that is a concrete implementation of
  * vtkDataSet. vtkImageData represents a geometric structure that is
  * a topological and geometrical regular array of points. Examples include
- * volumes (voxel data) and pixmaps.
+ * volumes (voxel data) and pixmaps. This representation supports images
+ * up to three dimensions. The image may also be oriented (see the
+ * DirectionMatrices and related transformation methods). Note however,
+ * that not all filters support oriented images.
+ *
+ * @sa
+ * vtkImageTransform
  */
 
 #ifndef vtkImageData_h
@@ -369,8 +375,8 @@ public:
 
   //@{
   /**
-   * Set/Get the direction transform of the dataset. The direction is a 3 by 3
-   * matrix.
+   * Set/Get the direction transform of the dataset. The direction matrix is
+   * a 3x3 transformation matrix supporting scaling and rotation.
    */
   vtkGetObjectMacro(DirectionMatrix, vtkMatrix3x3);
   virtual void SetDirectionMatrix(vtkMatrix3x3* m);
@@ -389,7 +395,7 @@ public:
 
   //@{
   /**
-   * Convert coordinates from index space (ijk) to physical space (xyz)
+   * Convert coordinates from index space (ijk) to physical space (xyz).
    */
   virtual void TransformContinuousIndexToPhysicalPoint(double i, double j, double k, double xyz[3]);
   virtual void TransformContinuousIndexToPhysicalPoint(const double ijk[3], double xyz[3]);
@@ -409,7 +415,7 @@ public:
 
   //@{
   /**
-   * Convert coordinates from physical space (xyz) to index space (ijk)
+   * Convert coordinates from physical space (xyz) to index space (ijk).
    */
   virtual void TransformPhysicalPointToContinuousIndex(double x, double y, double z, double ijk[3]);
   virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3], double ijk[3]);
@@ -420,13 +426,14 @@ public:
 
   //@{
   /**
-   * Convert normal from physical space (xyz) to index space (ijk)
+   * Convert normal from physical space (xyz) to index space (ijk).
    */
   virtual void TransformPhysicalNormalToContinuousIndex(const double xyz[3], double ijk[3]);
   //@}
 
   /**
-   * Convert a plane form physical to continuous index
+   * Convert a plane from physical to a continuous index. The plane is represented as
+   * n(x-xo)=0; or using a four component normal: pplane=( nx,ny,nz,-(n(x0)) ).
    */
   virtual void TransformPhysicalPlaneToContinuousIndex(double const pplane[4], double iplane[4]);
 

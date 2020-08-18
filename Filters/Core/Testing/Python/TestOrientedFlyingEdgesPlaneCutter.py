@@ -4,11 +4,14 @@ from math import cos, sin, pi
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+# Plane cut an oriented volume
+
 # Create the RenderWindow, Renderer and both Actors
 #
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
+renWin.SetSize(300,300)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
@@ -81,32 +84,35 @@ orientation = [
 ]
 blobImage.SetDirectionMatrix(orientation)
 
-# Extract labeled blobs
-discrete = vtk.vtkDiscreteMarchingCubes()
-discrete.SetInputData(blobImage)
-discrete.GenerateValues(n, 1, n)
-
-mapper = vtk.vtkPolyDataMapper()
-mapper.SetInputConnection(discrete.GetOutputPort())
-mapper.SetLookupTable(lut)
-mapper.SetScalarRange(0, lut.GetNumberOfColors())
-
-actor = vtk.vtkActor()
-actor.SetMapper(mapper)
-
-# Put an outline around it
+# Create an outline around the image
 outline = vtk.vtkImageDataOutlineFilter()
 outline.SetInputData(blobImage)
+outline.GenerateFacesOn()
 
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
-outlineActor.GetProperty().SetColor(1,1,1)
+outlineActor.GetProperty().SetOpacity(0.25)
 
-ren1.AddActor(actor)
+# Now cut the volume
+plane = vtk.vtkPlane()
+plane.SetOrigin(1,1,1)
+plane.SetNormal(1,1,1)
+
+cutter = vtk.vtkFlyingEdgesPlaneCutter()
+cutter.SetInputData(blobImage)
+cutter.SetPlane(plane)
+
+cutterMapper = vtk.vtkPolyDataMapper()
+cutterMapper.SetInputConnection(cutter.GetOutputPort())
+
+cutterActor = vtk.vtkActor()
+cutterActor.SetMapper(cutterMapper)
+
 ren1.AddActor(outlineActor)
+ren1.AddActor(cutterActor)
 
 renWin.Render()
 iren.Start()
