@@ -1559,7 +1559,7 @@ vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
 
   //
   //   If no simple solution for the normal has been found then use the best-fitting method
-  //   from vtkCustomPlane. If that method can't find normal then it will return normal=[0,0,1] as
+  //   from vtkPlane. If that method can't find normal then it will return normal=[0,0,1] as
   //   default
   //
   if (!normal_computed)
