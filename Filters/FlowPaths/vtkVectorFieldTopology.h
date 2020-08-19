@@ -138,10 +138,9 @@ private:
   /**
    * delete the cells that touch the boundary
    * @param tridataset: input vector field after triangulation
-   * @param dimension: dimension of the input dataset 2 or 3
    * @return 1 if successful, 0 if not
    */
-  int RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset, int dimension);
+  int RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset);
 
   /**
    * for each triangle, we solve the linear vector field analytically for its zeros
@@ -177,14 +176,12 @@ private:
    * @param computeSurfaces: depending on this boolen the separatring surfaces are computed or not
    * @param useIterativeSeeding: depending on this boolen the separatring surfaces  are computed
    * either good or fast
-   * @param dimension: dimension of the input dataset 2 or 3
-
    * @return 1 if successfully terminated
    */
   int ComputeSeparatrices(vtkSmartPointer<vtkPolyData> criticalPoints,
     vtkSmartPointer<vtkPolyData> separatrices, vtkSmartPointer<vtkPolyData> surfaces,
     vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
-    int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding, int dimension);
+    int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
 
   /**
    * this method computes streamsurfaces
