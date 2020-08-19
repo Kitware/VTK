@@ -97,6 +97,14 @@ public:
   vtkGetMacro(ComputeSurfaces, bool);
   //@}
 
+  //@{
+  /**
+   * Specify/see if the boundary cells are treated or not
+   */
+  vtkSetMacro(ExcludeBoundary, bool);
+  vtkGetMacro(ExcludeBoundary, bool);
+  //@}
+
 protected:
   vtkVectorFieldTopology();
   ~vtkVectorFieldTopology() override;
@@ -108,6 +116,31 @@ protected:
 private:
   vtkVectorFieldTopology(const vtkVectorFieldTopology&) = delete;
   void operator=(const vtkVectorFieldTopology&) = delete;
+
+  /**
+   * main function if input is vtkImageData
+   * triangulate, compute critical points, separatrices, and surfaces
+   * @param dataset: the input dataset
+   * @param tridataset: the triangulated version of the input dataset
+   * @return 1 if successfully terminated
+   */
+  int ImageDataPrepare(vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset);
+
+  /**
+   * main function if input is vtkUnstructuredGrid
+   * triangulate if necessary, compute critical points, separatrices, and surfaces
+   * @param dataset: the input dataset
+   * @param tridataset: the triangulated version of the input dataset
+   * @return 1 if successfully terminated
+   */
+  int UnstructuredGridPrepare(vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset);
+
+  /**
+   * delete the cells that touch the boundary
+   * @param tridataset: input vector field after triangulation
+   * @return 1 if successful, 0 if not
+   */
+  int RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset);
 
   /**
    * for each triangle, we solve the linear vector field analytically for its zeros
@@ -147,7 +180,7 @@ private:
    */
   int ComputeSeparatrices(vtkSmartPointer<vtkPolyData> criticalPoints,
     vtkSmartPointer<vtkPolyData> separatrices, vtkSmartPointer<vtkPolyData> surfaces,
-    vtkSmartPointer<vtkImageData> dataset, int integrationStepUnit, double dist, double stepSize,
+    vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
     int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding);
 
   /**
@@ -168,7 +201,7 @@ private:
    */
   int ComputeSurface(int numberOfSeparatingSurfaces, bool isBackward, double normal[3],
     double zeroPos[3], vtkSmartPointer<vtkPolyData> streamSurfaces,
-    vtkSmartPointer<vtkImageData> dataset, int integrationStepUnit, double dist, double stepSize,
+    vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
     int maxNumSteps, bool useIterativeSeeding);
 
   /**
@@ -242,6 +275,17 @@ private:
    * depending on this boolen the separatring surfaces (separatrices in 3D) are computed or not
    */
   bool ComputeSurfaces = false;
+
+  /**
+   * depending on this boolen the cells touching the boundary of the input dataset are treated or
+   * not this prevents detection of the whole boundary in no slip boundary settings
+   */
+  bool ExcludeBoundary = true;
+
+  /**
+   * dimension of the input data: 2 or 3
+   */
+  int Dimension = 2;
 
   /**
    * Analogous to integration step unit in vtkStreamTracer

@@ -31,7 +31,6 @@
 #include "vtkStreamTracer.h"
 
 class vtkAppendPolyData;
-class vtkImageData;
 class vtkRuledSurfaceFilter;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreamSurface : public vtkStreamTracer
@@ -66,7 +65,7 @@ private:
    * output is the final streamsurface
    * @return 1 if successful, 0 if empty
    */
-  int AdvectSimple(vtkImageData* field, vtkPolyData* seeds, vtkPolyData* output);
+  int AdvectSimple(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output);
 
   /**
    * loop: 1.advect one step at a time
@@ -80,7 +79,7 @@ private:
    * @param output: the final surface
    * @return 1 if successful, 0 if not
    */
-  int AdvectIterative(vtkImageData* field, vtkPolyData* seeds, vtkPolyData* output);
+  int AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output);
 
   /**
    * depending on this boolen the simple (fast) or iterative (correct) version is called

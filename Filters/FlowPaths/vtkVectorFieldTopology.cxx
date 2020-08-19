@@ -18,9 +18,14 @@
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
+#include <vtkCellTypes.h>
+#include <vtkDataSetSurfaceFilter.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
+#include <vtkFeatureEdges.h>
+#include <vtkGeometryFilter.h>
 #include <vtkGradientFilter.h>
+#include <vtkIdFilter.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -37,9 +42,11 @@
 #include <vtkQuad.h>
 #include <vtkRegularPolygonSource.h>
 #include <vtkRuledSurfaceFilter.h>
+#include <vtkSelectEnclosedPoints.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamSurface.h>
 #include <vtkStreamTracer.h>
+#include <vtkTetra.h>
 #include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
@@ -86,7 +93,7 @@ int vtkVectorFieldTopology::FillInputPortInformation(int port, vtkInformation* i
 {
   if (port == 0)
   {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   }
   return 1;
 }
@@ -175,6 +182,10 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
     auto cell = tridataset->GetCell(cellId);
+    if (cell->GetCellType() != VTK_TRIANGLE)
+    {
+      continue;
+    }
     vtkIdType indices[3] = { cell->GetPointId(0), cell->GetPointId(1), cell->GetPointId(2) };
 
     // array with the coordinates of the three triagle points: coords[point][component]
@@ -202,15 +213,12 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
 
     if (valueMatrix->Determinant() != 0)
     {
-
-      //      double zeroPos[3];
       valueMatrix->Invert();
+
       // barycentric corrdinates of the zero: lambda = f(T)^-1 (-values[0])
       double lambda[3] = { -values[0][0], -values[0][1], -values[0][2] };
       valueMatrix->MultiplyPoint(lambda, lambda);
-      //      coordsMatrix->MultiplyPoint(lambda, zeroPos);
-      //      double coords0[3] = { coords[0][0], coords[0][1], coords[0][2] };
-      //      vtkMath::Add(zeroPos, coords0, zeroPos);
+
       // barycentric interpolation f(r) = f(T) * lambda + values[0] set to zero and solved for r
       // with lambda = T^-1 (r-r_0) results in r = T * f(T)^-1 (-values[0]) + coords[0]
       double zeroPos[3] = { coords[0][0] + lambda[0] * (coords[1][0] - coords[0][0]) +
@@ -263,6 +271,10 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
     auto cell = tridataset->GetCell(cellId);
+    if (cell->GetCellType() != VTK_TETRA)
+    {
+      continue;
+    }
     vtkIdType indices[4] = { cell->GetPointId(0), cell->GetPointId(1), cell->GetPointId(2),
       cell->GetPointId(3) };
 
@@ -339,7 +351,7 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool isBackward,
   double normal[3], double zeroPos[3], vtkSmartPointer<vtkPolyData> streamSurfaces,
-  vtkSmartPointer<vtkImageData> dataset, int vtkNotUsed(integrationStepUnit), double dist,
+  vtkSmartPointer<vtkDataSet> dataset, int vtkNotUsed(integrationStepUnit), double dist,
   double vtkNotUsed(stepSize), int maxNumSteps, bool useIterativeSeeding)
 {
   // generate circle and add first point again in the back to avoid gap
@@ -396,7 +408,7 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> criticalPoints,
   vtkSmartPointer<vtkPolyData> separatrices, vtkSmartPointer<vtkPolyData> surfaces,
-  vtkSmartPointer<vtkImageData> dataset, int integrationStepUnit, double dist, double stepSize,
+  vtkSmartPointer<vtkDataSet> dataset, int integrationStepUnit, double dist, double stepSize,
   int maxNumSteps, bool computeSurfaces, bool useIterativeSeeding)
 {
   // adapt dist if cell unit was selected
@@ -445,7 +457,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
     int countComplex = 0;
     int countPos = 0;
     int countNeg = 0;
-    for (int i = 0; i < dataset->GetDataDimension(); i++)
+    for (int i = 0; i < this->Dimension; i++)
     {
       if (imag(eigenS.eigenvalues()[i]) == 0.0)
       {
@@ -465,23 +477,23 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
         countPos++;
       }
     }
-    if (dataset->GetDataDimension() == 2)
+    if (this->Dimension == 2)
     {
       criticalPoints->GetPointData()->GetArray("type")->SetTuple1(
-        pointId, Classify2D(countReal, countComplex, countPos, countNeg));
+        pointId, this->Classify2D(countReal, countComplex, countPos, countNeg));
     }
     else
     {
       criticalPoints->GetPointData()->GetArray("type")->SetTuple1(
-        pointId, Classify3D(countReal, countComplex, countPos, countNeg));
+        pointId, this->Classify3D(countReal, countComplex, countPos, countNeg));
     }
 
     // separatrix
     if (criticalPoints->GetPointData()->GetArray("type")->GetTuple1(pointId) == 1 ||
-      (dataset->GetDataDimension() == 3 &&
+      (this->Dimension == 3 &&
         criticalPoints->GetPointData()->GetArray("type")->GetTuple1(pointId) == 2))
     {
-      for (int i = 0; i < dataset->GetDataDimension(); i++)
+      for (int i = 0; i < this->Dimension; i++)
       {
 
         double normal[] = { real(eigenS.eigenvectors().col(i)[0]),
@@ -626,7 +638,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
               numberOfSeparatingLines++;
             }
           }
-          if (computeSurfaces && dataset->GetDataDimension() == 3)
+          if (computeSurfaces && this->Dimension == 3)
           {
             ComputeSurface(numberOfSeparatingSurfaces++, isForward, normal,
               criticalPoints->GetPoint(pointId), surfaces, dataset, integrationStepUnit, dist,
@@ -638,7 +650,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   }
 
   // probe arrays to output surfaces
-  if (computeSurfaces && dataset->GetDataDimension() == 3)
+  if (computeSurfaces && this->Dimension == 3)
   {
     vtkNew<vtkProbeFilter> probe;
     probe->SetInputData(surfaces);
@@ -656,11 +668,168 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   return 1;
 }
 
+//------------------------------------------------------------------------------
+int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset)
+{
+  // assign id to each point
+  vtkNew<vtkIdFilter> idFilter;
+  idFilter->SetInputData(tridataset);
+  idFilter->SetPointIdsArrayName("ids");
+  idFilter->Update();
+
+  // extract surface
+  vtkSmartPointer<vtkPolyData> boundary;
+  if (this->Dimension == 2)
+  {
+    vtkNew<vtkGeometryFilter> geometryFilter;
+    geometryFilter->SetInputData(idFilter->GetOutput());
+    geometryFilter->Update();
+
+    vtkNew<vtkFeatureEdges> surfaceFilter;
+    surfaceFilter->SetInputData(geometryFilter->GetOutput());
+    surfaceFilter->Update();
+    boundary = surfaceFilter->GetOutput();
+  }
+  else
+  {
+    vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
+    surfaceFilter->SetInputData(idFilter->GetOutput());
+    surfaceFilter->Update();
+    boundary = surfaceFilter->GetOutput();
+  }
+
+  // mark all points whose ids appear in the surface
+  vtkNew<vtkDoubleArray> isBoundary;
+  isBoundary->SetNumberOfTuples(tridataset->GetNumberOfPoints());
+  isBoundary->SetName("isBoundary");
+  tridataset->GetPointData()->AddArray(isBoundary);
+  for (int ptId = 0; ptId < tridataset->GetNumberOfPoints(); ptId++)
+  {
+    isBoundary->SetTuple1(ptId, 0);
+  }
+  for (int ptId = 0; ptId < boundary->GetNumberOfPoints(); ptId++)
+  {
+    isBoundary->SetTuple1(boundary->GetPointData()->GetArray("ids")->GetTuple1(ptId), 1);
+  }
+
+  // copy only cells that do not contain any point that is marked as boundary point
+  vtkNew<vtkCellArray> cellsWithoutBoundary;
+  for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
+  {
+    auto cell = tridataset->GetCell(cellId);
+    if ((this->Dimension == 2 && cell->GetCellType() != VTK_TRIANGLE) ||
+      (this->Dimension == 3 && cell->GetCellType() != VTK_TETRA))
+    {
+      continue;
+    }
+
+    bool isBoundaryCell = false;
+    for (int ptId = 0; ptId < cell->GetNumberOfPoints(); ptId++)
+    {
+      if (tridataset->GetPointData()->GetArray("isBoundary")->GetTuple1(cell->GetPointId(ptId)) ==
+        1)
+      {
+        isBoundaryCell = true;
+        break;
+      }
+    }
+    if (!isBoundaryCell)
+    {
+      cellsWithoutBoundary->InsertNextCell(cell);
+    }
+  }
+
+  // set copied cells as cells
+  if (this->Dimension == 2)
+  {
+    tridataset->SetCells(VTK_TRIANGLE, cellsWithoutBoundary);
+  }
+  else
+  {
+    tridataset->SetCells(VTK_TETRA, cellsWithoutBoundary);
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkVectorFieldTopology::ImageDataPrepare(
+  vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset)
+{
+  // cast input to imagedata
+  vtkImageData* dataset = vtkImageData::SafeDownCast(dataSetInput);
+  this->Dimension = dataset->GetDataDimension();
+
+  // these things are necessary for probe and the integrator to work properly in the 2D setting
+  if (this->Dimension == 2)
+  {
+    dataset->SetSpacing(dataset->GetSpacing()[0], dataset->GetSpacing()[1], 1);
+    dataset->SetOrigin(dataset->GetOrigin()[0], dataset->GetOrigin()[1], 0);
+    for (int i = 0; i < dataset->GetNumberOfPoints(); ++i)
+    {
+      auto vector = dataset->GetPointData()->GetVectors()->GetTuple(i);
+      dataset->GetPointData()->GetVectors()->SetTuple3(i, vector[0], vector[1], 0);
+    }
+  }
+
+  // Triangulate the input data
+  vtkNew<vtkDataSetTriangleFilter> triangulateFilter;
+  triangulateFilter->SetInputData(dataset);
+  triangulateFilter->Update();
+  tridataset->DeepCopy(triangulateFilter->GetOutput());
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkVectorFieldTopology::UnstructuredGridPrepare(
+  vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset)
+{
+  // cast input to vtkUnstructuredGrid
+  vtkUnstructuredGrid* dataset = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+
+  if (dataset->GetNumberOfCells() == 0)
+  {
+    return 1;
+  }
+
+  // find out domension from cell types
+  for (int cellId = 0; cellId < dataset->GetNumberOfCells(); cellId++)
+  {
+    if (dataset->GetCell(cellId)->GetCellType() >= VTK_TETRA)
+    {
+      this->Dimension = 3;
+      break;
+    }
+  }
+
+  // find out if data is triangulated otherwise triangulate
+  tridataset->DeepCopy(dataset);
+  bool isTriangulated = true;
+  for (int cellId = 0; cellId < dataset->GetNumberOfCells(); cellId++)
+  {
+    if ((this->Dimension == 2 && tridataset->GetCell(cellId)->GetCellType() > VTK_TRIANGLE) ||
+      (this->Dimension == 3 && dataset->GetCell(cellId)->GetCellType() > VTK_TETRA))
+    {
+      isTriangulated = false;
+      break;
+    }
+  }
+  if (!isTriangulated)
+  {
+    // Triangulate the input data
+    vtkNew<vtkDataSetTriangleFilter> triangulateFilter;
+    triangulateFilter->SetInputData(dataset);
+    triangulateFilter->Update();
+    tridataset->DeepCopy(triangulateFilter->GetOutput());
+  }
+
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
@@ -668,7 +837,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo2 = outputVector->GetInformationObject(2);
 
   // get the input and make sure it has vector data
-  vtkImageData* dataset = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (dataset->GetPointData()->GetVectors() == nullptr)
   {
     for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
@@ -682,20 +851,8 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   }
   if (dataset->GetPointData()->GetVectors() == nullptr)
   {
-    vtkErrorMacro("The field does not contain any vectors as pointdata.");
+    vtkErrorMacro("The input field does not contain any vectors as pointdata.");
     return 0;
-  }
-
-  // these things are necessary for probe and the integrator to work properly in the 2D setting
-  if (dataset->GetDataDimension() == 2)
-  {
-    dataset->SetSpacing(dataset->GetSpacing()[0], dataset->GetSpacing()[1], 1);
-    dataset->SetOrigin(dataset->GetOrigin()[0], dataset->GetOrigin()[1], 0);
-    for (int i = 0; i < dataset->GetNumberOfPoints(); ++i)
-    {
-      auto vector = dataset->GetPointData()->GetVectors()->GetTuple(i);
-      dataset->GetPointData()->GetVectors()->SetTuple3(i, vector[0], vector[1], 0);
-    }
   }
 
   // make output
@@ -706,11 +863,33 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* separatingSurfaces =
     vtkPolyData::SafeDownCast(outInfo2->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Triangulate the input data
-  vtkNew<vtkDataSetTriangleFilter> triangulateFilter3D;
-  triangulateFilter3D->SetInputData(dataset);
-  triangulateFilter3D->Update();
-  vtkSmartPointer<vtkUnstructuredGrid> tridataset = triangulateFilter3D->GetOutput();
+  // run appropriate function for input data type
+  vtkNew<vtkUnstructuredGrid> tridataset;
+  bool success;
+  switch (dataset->GetDataObjectType())
+  {
+    case VTK_IMAGE_DATA:
+    {
+      success = this->ImageDataPrepare(dataset, tridataset);
+      break;
+    }
+    case VTK_UNSTRUCTURED_GRID:
+    {
+      success = this->UnstructuredGridPrepare(dataset, tridataset);
+      break;
+    }
+    default:
+    {
+      vtkErrorMacro("The input field must be vtkImageData or vtkUnstructuredGrid.");
+      success = 0;
+    }
+  }
+
+  // remove boundary cells
+  if (this->ExcludeBoundary)
+  {
+    this->RemoveBoundary(tridataset);
+  }
 
   // Compute critical points
   vtkNew<vtkPoints> criticalPointsPoints;
@@ -721,19 +900,19 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   criticalPoints->SetPoints(criticalPointsPoints);
   criticalPoints->SetVerts(criticalPointsCells);
   criticalPoints->GetPointData()->AddArray(criticalPointsGradients);
-
-  if (dataset->GetDataDimension() == 2)
+  if (this->Dimension == 2)
   {
-    ComputeCriticalPoints2D(criticalPoints, tridataset);
+    this->ComputeCriticalPoints2D(criticalPoints, tridataset);
   }
   else
   {
-    ComputeCriticalPoints3D(criticalPoints, tridataset);
+    this->ComputeCriticalPoints3D(criticalPoints, tridataset);
   }
 
-  ComputeSeparatrices(criticalPoints, separatingLines, separatingSurfaces, dataset,
+  // classify critical points and compute separatrices
+  this->ComputeSeparatrices(criticalPoints, separatingLines, separatingSurfaces, dataset,
     this->IntegrationStepUnit, this->SeparatrixDistance, this->IntegrationStepSize,
     this->MaxNumSteps, this->ComputeSurfaces, this->UseIterativeSeeding);
 
-  return 1;
+  return success;
 }

@@ -17,7 +17,6 @@
 #include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
-#include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkNew.h>
@@ -56,7 +55,7 @@ void vtkStreamSurface::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamSurface::AdvectIterative(vtkImageData* field, vtkPolyData* seeds, vtkPolyData* output)
+int vtkStreamSurface::AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output)
 {
   // adapt dist if cell unit was selected
   double distThreshold = this->InitialIntegrationStep;
@@ -89,6 +88,11 @@ int vtkStreamSurface::AdvectIterative(vtkImageData* field, vtkPolyData* seeds, v
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
+
+    if (StreamTracer->GetOutput()->GetNumberOfPoints() == 0)
+    {
+      return 1;
+    }
 
     // fill in points that were not advected because they reached the boundary
     // i.e. copy a point k with integrationtime(k)==0 if its successor also has
@@ -136,7 +140,6 @@ int vtkStreamSurface::AdvectIterative(vtkImageData* field, vtkPolyData* seeds, v
         }
       }
     }
-
     orderedSurfacePoints->InsertNextPoint(this->StreamTracer->GetOutput()->GetPoint(numPts));
     integrationTimeArray->InsertNextTuple1(this->StreamTracer->GetOutput()
                                              ->GetPointData()
@@ -279,7 +282,7 @@ int vtkStreamSurface::AdvectIterative(vtkImageData* field, vtkPolyData* seeds, v
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamSurface::AdvectSimple(vtkImageData* field, vtkPolyData* seeds, vtkPolyData* output)
+int vtkStreamSurface::AdvectSimple(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output)
 {
   //  this is for comparison with the standard ruled surface
   this->StreamTracer->SetInputData(field);
@@ -310,7 +313,7 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkImageData* field = vtkImageData::SafeDownCast(fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* field = vtkDataSet::SafeDownCast(fieldInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* seeds = vtkPolyData::SafeDownCast(seedsInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // make output
