@@ -228,7 +228,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   this->QuadHelper->Program->SetUniformi("source", this->ColorTexture->GetTextureUnit());
 
   // Precompute generic filmic parameters after each modification
-  if (this->PreComputeMTime > this->GetMTime())
+  if (this->PreComputeMTime < this->GetMTime())
   {
     this->PreComputeAnchorCurveGenericFilmic();
     this->PreComputeMTime = this->GetMTime();
