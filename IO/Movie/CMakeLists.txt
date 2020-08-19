@@ -10,6 +10,9 @@ if (WIN32)
   if (VTK_USE_VIDEO_FOR_WINDOWS)
     list(APPEND classes vtkAVIWriter)
   endif ()
+
+  # TODO - check if Windows Media Foundation is available
+  list(APPEND classes vtkMP4Writer)
 endif ()
 
 vtk_module_add_module(VTK::IOMovie
@@ -18,5 +21,8 @@ vtk_module_add_module(VTK::IOMovie
 if (WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   vtk_module_link(VTK::IOMovie
     PRIVATE
-      vfw32)
+      vfw32
+      mfreadwrite
+      mfplat
+      mfuuid)
 endif ()
