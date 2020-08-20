@@ -11,18 +11,29 @@ if (WIN32)
     list(APPEND classes vtkAVIWriter)
   endif ()
 
-  # TODO - check if Windows Media Foundation is available
-  list(APPEND classes vtkMP4Writer)
+  # Check if Media Foundation is supported. This also adds an option
+  # VTK_USE_MICROSOFT_MEDIA_FOUNDATION that is set to ON/OFF by default based
+  # whether Microsoft Media Foundation was found.
+  include(vtkTestMicrosoftMediaFoundation)
+
+  if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
+    list(APPEND classes vtkMP4Writer)
+  endif ()
 endif ()
 
 vtk_module_add_module(VTK::IOMovie
   CLASSES ${classes})
 
-if (WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+set(libs)
+if (WIN32)
+  if (VTK_USE_VIDEO_FOR_WINDOWS)
+    list(APPEND libs vfw32)
+  endif ()
+
+  if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
+    list(APPEND libs mfreadwrite mfplat mfuuid)
+  endif()
+
   vtk_module_link(VTK::IOMovie
-    PRIVATE
-      vfw32
-      mfreadwrite
-      mfplat
-      mfuuid)
+    PRIVATE ${libs})
 endif ()
