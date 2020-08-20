@@ -15,7 +15,6 @@
 #include "vtkOpenGLCellToVTKCellMap.h"
 
 #include "vtkCellArray.h"
-#include "vtkOpenGLState.h"
 #include "vtkPoints.h"
 #include "vtkProperty.h"
 
