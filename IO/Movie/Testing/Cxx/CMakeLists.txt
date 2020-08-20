@@ -1,7 +1,13 @@
 set(TEST_SRC)
 
-if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
-  list(APPEND TEST_SRC TestAVIWriter.cxx)
+if(WIN32)
+  if (VTK_USE_VIDEO_FOR_WINDOWS)
+    list(APPEND TEST_SRC TestAVIWriter.cxx)
+  endif()
+
+  if (VTK_USE_MICROSOFT_MEDIA_FOUNDATION)
+    list(APPEND TEST_SRC TestMP4Writer.cxx)
+  endif()
 endif()
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
