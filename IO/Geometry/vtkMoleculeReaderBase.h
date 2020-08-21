@@ -82,21 +82,21 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int ReadMolecule(FILE* fp, vtkPolyData* output);
-  int MakeAtomType(const char* atype);
-  int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
+  int MakeAtomType(const char* atomType);
+  unsigned int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 
-  vtkMolecule* Molecule;
-  vtkPoints* Points;
-  vtkUnsignedCharArray* RGB;
-  vtkFloatArray* Radii;
-  vtkIdTypeArray* AtomType;
-  vtkStringArray* AtomTypeStrings;
-  vtkIdTypeArray* Residue;
-  vtkUnsignedCharArray* Chain;
-  vtkUnsignedCharArray* SecondaryStructures;
-  vtkUnsignedCharArray* SecondaryStructuresBegin;
-  vtkUnsignedCharArray* SecondaryStructuresEnd;
-  vtkUnsignedCharArray* IsHetatm;
+  vtkSmartPointer<vtkMolecule> Molecule;
+  vtkSmartPointer<vtkPoints> Points;
+  vtkSmartPointer<vtkUnsignedCharArray> RGB;
+  vtkSmartPointer<vtkFloatArray> Radii;
+  vtkSmartPointer<vtkIdTypeArray> AtomType;
+  vtkSmartPointer<vtkStringArray> AtomTypeStrings;
+  vtkSmartPointer<vtkIdTypeArray> Residue;
+  vtkSmartPointer<vtkUnsignedCharArray> Chain;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructures;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructuresBegin;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructuresEnd;
+  vtkSmartPointer<vtkUnsignedCharArray> IsHetatm;
   vtkSmartPointer<vtkUnsignedIntArray> Model;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
