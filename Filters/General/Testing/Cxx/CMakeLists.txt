@@ -37,6 +37,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestIntersectionPolyDataFilter3.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
+  TestMergeCells.cxx,NO_VALID
   TestRectilinearGridToPointSet.cxx,NO_VALID
   TestReflectionFilter.cxx,NO_VALID
   TestSplitByCellScalarFilter.cxx,NO_VALID

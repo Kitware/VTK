@@ -45,6 +45,7 @@
 #ifndef vtkMergeCells_h
 #define vtkMergeCells_h
 
+#include "vtkAlgorithm.h"
 #include "vtkDataSetAttributes.h"    // Needed for FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
@@ -54,6 +55,7 @@ class vtkCellData;
 class vtkDataSet;
 class vtkMergeCellsSTLCloak;
 class vtkMergePoints;
+class vtkIncrementalPointLocator;
 class vtkPointData;
 class vtkUnstructuredGrid;
 
@@ -114,8 +116,8 @@ public:
    * set a tolerance for that locator here.  The default tolerance
    * is 10e-4.
    */
-  vtkSetClampMacro(PointMergeTolerance, float, 0.0, VTK_FLOAT_MAX);
-  vtkGetMacro(PointMergeTolerance, float);
+  vtkSetClampMacro(PointMergeTolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(PointMergeTolerance, double);
   //@}
 
   //@{
@@ -162,6 +164,16 @@ public:
    */
   int MergeDataSet(vtkDataSet* set);
 
+  //@{
+  /**
+   * Set/get the desired precision for the output points. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  //@}
+
   /**
    * Call Finish() after merging last DataSet to free unneeded memory and to
    * make sure the ugrid's GetNumberOfPoints() reflects the actual
@@ -191,8 +203,10 @@ protected:
   int UseGlobalIds;     // point, or node, IDs
   int UseGlobalCellIds; // cell IDs
 
-  float PointMergeTolerance;
+  double PointMergeTolerance;
   bool MergeDuplicatePoints;
+
+  int OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
   char InputIsUGrid;
   char InputIsPointSet;
@@ -207,7 +221,7 @@ protected:
 
   int NextGrid;
 
-  vtkSmartPointer<vtkMergePoints> Locator;
+  vtkSmartPointer<vtkIncrementalPointLocator> Locator;
 
 private:
   vtkMergeCells(const vtkMergeCells&) = delete;

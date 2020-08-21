@@ -661,148 +661,80 @@ vtkIdType* vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet* set)
 
   vtkIdType* idMap = new vtkIdType[npoints1];
 
-  if (this->PointMergeTolerance == 0.0)
+  double bounds[6];
+  set->GetBounds(bounds);
+  if (npoints0 > 0)
   {
-    // testing shows vtkMergePoints is fastest when tolerance is 0
-    double bounds[6];
-    set->GetBounds(bounds);
+    double tmpBounds[6];
 
-    if (npoints0 > 0)
-    {
-      double tmpBounds[6];
+    // Prior to MapPointsToIdsUsingLocator(), points0->SetNumberOfPoints()
+    // has been called to set the number of points to the upper bound on the
+    // points TO BE merged and now points0->GetNumberOfPoints() does not
+    // refer to the number of the points merged so far. Thus we need to
+    // temporarily set the number to the latter such that grid->GetBounds()
+    // is able to return the correct bounding information. This is a fix to
+    // bug #0009626.
+    points0->GetData()->SetNumberOfTuples(npoints0);
+    grid->GetBounds(tmpBounds); // safe to call GetBounds() for real info
+    points0->GetData()->SetNumberOfTuples(this->TotalNumberOfPoints);
 
-      // Prior to MapPointsToIdsUsingLocator(), points0->SetNumberOfPoints()
-      // has been called to set the number of points to the upper bound on the
-      // points TO BE merged and now points0->GetNumberOfPoints() does not
-      // refer to the number of the points merged so far. Thus we need to
-      // temporarily set the number to the latter such that grid->GetBounds()
-      // is able to return the correct bounding information. This is a fix to
-      // bug #0009626.
+    bounds[0] = ((tmpBounds[0] < bounds[0]) ? tmpBounds[0] : bounds[0]);
+    bounds[2] = ((tmpBounds[2] < bounds[2]) ? tmpBounds[2] : bounds[2]);
+    bounds[4] = ((tmpBounds[4] < bounds[4]) ? tmpBounds[4] : bounds[4]);
 
-      points0->GetData()->SetNumberOfTuples(npoints0);
-      grid->GetBounds(tmpBounds); // safe to call GetBounds() for real info
-      points0->GetData()->SetNumberOfTuples(this->TotalNumberOfPoints);
-
-      bounds[0] = ((tmpBounds[0] < bounds[0]) ? tmpBounds[0] : bounds[0]);
-      bounds[2] = ((tmpBounds[2] < bounds[2]) ? tmpBounds[2] : bounds[2]);
-      bounds[4] = ((tmpBounds[4] < bounds[4]) ? tmpBounds[4] : bounds[4]);
-
-      bounds[1] = ((tmpBounds[1] > bounds[1]) ? tmpBounds[1] : bounds[1]);
-      bounds[3] = ((tmpBounds[3] > bounds[3]) ? tmpBounds[3] : bounds[3]);
-      bounds[5] = ((tmpBounds[5] > bounds[5]) ? tmpBounds[5] : bounds[5]);
-    }
-
-    if (!this->Locator)
-    {
-      this->Locator = vtkSmartPointer<vtkMergePoints>::New();
-      vtkNew<vtkPoints> ptarray;
-      this->Locator->InitPointInsertion(ptarray, bounds);
-    }
-
-    vtkIdType newId;
-    double x[3];
-
-    for (vtkIdType ptId = 0; ptId < npoints1; ptId++)
-    {
-      points1->GetPoint(ptId, x);
-      this->Locator->InsertUniquePoint(x, newId);
-      idMap[ptId] = newId;
-    }
+    bounds[1] = ((tmpBounds[1] > bounds[1]) ? tmpBounds[1] : bounds[1]);
+    bounds[3] = ((tmpBounds[3] > bounds[3]) ? tmpBounds[3] : bounds[3]);
+    bounds[5] = ((tmpBounds[5] > bounds[5]) ? tmpBounds[5] : bounds[5]);
   }
-  else
+  if (!this->Locator)
   {
-    // testing shows vtkKdTree is fastest when tolerance is > 0
-    vtkKdTree* kd = vtkKdTree::New();
-
-    vtkPoints* ptArrays[2];
-    int numArrays;
-
-    if (npoints0 > 0)
+    vtkNew<vtkPoints> ptarray;
+    if (this->PointMergeTolerance == 0.0)
     {
-      // points0->GetNumberOfPoints() is equal to the upper bound
-      // on the points in the final merged grid.  We need to temporarily
-      // set it to the number of points added to the merged grid so far.
-
-      points0->GetData()->SetNumberOfTuples(npoints0);
-
-      ptArrays[0] = points0;
-      ptArrays[1] = points1;
-      numArrays = 2;
+      // testing shows vtkMergePoints is fastest when tolerance is 0
+      this->Locator = vtkSmartPointer<vtkMergePoints>::New();
     }
     else
     {
-      ptArrays[0] = points1;
-      numArrays = 1;
+      // vtkPointLocator allows to merge duplicated points within a given tolerance
+      this->Locator = vtkSmartPointer<vtkPointLocator>::New();
+      this->Locator->SetTolerance(this->PointMergeTolerance);
     }
-
-    vtkIdType nextNewLocalId = npoints0;
-
-    kd->BuildLocatorFromPoints(ptArrays, numArrays);
-
-    vtkIdTypeArray* pointToEquivClassMap =
-      kd->BuildMapForDuplicatePoints(this->PointMergeTolerance);
-
-    kd->Delete();
-
-    if (npoints0 > 0)
+    // Set the desired precision for the points in the output.
+    if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
-      points0->GetData()->SetNumberOfTuples(this->TotalNumberOfPoints);
+      // The logical behaviour would be to use the data type from the input.
+      // However, input is a vtkDataSet, which has no point data type; only the
+      // derived class vtkPointSet has a vtkPoints attribute, so only for that
+      // the logical practice can be applied, while for others (currently
+      // vtkImageData and vtkRectilinearGrid) the data type is the default
+      // for vtkPoints - which is VTK_FLOAT.
+      if (ps)
+      {
+        ptarray->SetDataType(ps->GetPoints()->GetDataType());
+      }
     }
-
-    // The map we get back isn't quite what we need. The range of
-    // the map is a subset of original point IDs which each
-    // represent an equivalence class of duplicate points. But the
-    // point chosen to represent the class could be any one of the
-    // equivalent points. We need to create a map that uses IDs
-    // of points in the points0 array as the representative, and
-    // then new logical contiguous point IDs
-    // (npoints0, npoints0+1, ..., numUniquePoints-1) for the
-    // points in the new set that are not duplicates of points
-    // in the points0 array.
-    std::map<vtkIdType, vtkIdType> newIdMap;
-
-    if (npoints0 > 0) // these were already a unique set
+    else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
     {
-      for (vtkIdType ptId = 0; ptId < npoints0; ptId++)
-      {
-        vtkIdType eqClassRep = pointToEquivClassMap->GetValue(ptId);
-
-        if (eqClassRep != ptId)
-        {
-          newIdMap.insert(std::map<vtkIdType, vtkIdType>::value_type(eqClassRep, ptId));
-        }
-      }
+      ptarray->SetDataType(VTK_FLOAT);
     }
-    for (vtkIdType ptId = 0; ptId < npoints1; ptId++)
+    else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
     {
-      vtkIdType eqClassRep = pointToEquivClassMap->GetValue(ptId + npoints0);
-
-      if (eqClassRep < npoints0)
-      {
-        idMap[ptId] = eqClassRep; // a duplicate of a point in the first set
-        continue;
-      }
-
-      std::pair<std::map<vtkIdType, vtkIdType>::iterator, bool> inserted =
-        newIdMap.insert(std::map<vtkIdType, vtkIdType>::value_type(eqClassRep, nextNewLocalId));
-
-      bool newEqClassRep = inserted.second;
-
-      if (newEqClassRep)
-      {
-        idMap[ptId] = nextNewLocalId; // here's a new unique point
-        nextNewLocalId++;
-      }
-      else
-      {
-        idMap[ptId] = inserted.first->second; // a duplicate of a point in the new set
-      }
+      ptarray->SetDataType(VTK_DOUBLE);
     }
-
-    pointToEquivClassMap->Delete();
-    newIdMap.clear();
+    // Init the vtkPointLocator object
+    this->Locator->InitPointInsertion(ptarray, bounds);
   }
 
+  vtkIdType newId;
+  double x[3];
+
+  for (vtkIdType ptId = 0; ptId < npoints1; ptId++)
+  {
+    points1->GetPoint(ptId, x);
+    this->Locator->InsertUniquePoint(x, newId);
+    idMap[ptId] = newId;
+  }
   return idMap;
 }
 
@@ -826,6 +758,8 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "GlobalIdMap: " << this->GlobalIdMap->IdTypeMap.size() << endl;
   os << indent << "GlobalCellIdMap: " << this->GlobalCellIdMap->IdTypeMap.size() << endl;
+
+  os << indent << "OutputPointsPrecision" << this->OutputPointsPrecision << endl;
 
   os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << endl;
   os << indent << "MergeDuplicatePoints: " << this->MergeDuplicatePoints << endl;
