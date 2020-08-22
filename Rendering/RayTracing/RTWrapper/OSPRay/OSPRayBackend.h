@@ -81,9 +81,15 @@ namespace RTW
         {
           std::runtime_error("OSPRay device could not be fetched!");
         }
+#if OSPRAY_VERSION_MINOR > 1
+        ospDeviceSetErrorCallback(device, [](void *, OSPError, const char *errorDetails) {
+          std::cerr << "OSPRay ERROR: " << errorDetails << std::endl;
+        }, nullptr);
+#else
         ospDeviceSetErrorFunc(device, [](OSPError, const char *errorDetails) {
           std::cerr << "OSPRay ERROR: " << errorDetails << std::endl;
         });
+#endif
         once = true;
       }
       return ret;

@@ -88,7 +88,8 @@ if (VTK_ENABLE_OSPRAY)
   endif ()
   vtk_module_definitions(VTK::RenderingRayTracing
     PRIVATE
-      VTK_ENABLE_OSPRAY)
+      VTK_ENABLE_OSPRAY
+      OSPRAY_VERSION_MINOR=${ospray_VERSION_MINOR})
 endif ()
 
 # VisRTX
