@@ -375,6 +375,11 @@ function (vtk_module_wrap_java)
     return ()
   endif ()
 
+  # Disable CMake's automoc support for these targets.
+  set(CMAKE_AUTOMOC 0)
+  set(CMAKE_AUTORCC 0)
+  set(CMAKE_AUTOUIC 0)
+
   set(_vtk_java_all_wrapped_modules)
   foreach (_vtk_java_module IN LISTS _vtk_java_MODULES)
     _vtk_module_get_module_property("${_vtk_java_module}"

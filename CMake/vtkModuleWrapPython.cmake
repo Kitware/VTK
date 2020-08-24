@@ -737,6 +737,11 @@ function (vtk_module_wrap_python)
     string(PREPEND _vtk_python_component "${_vtk_python_TARGET_NAME}-")
   endif ()
 
+  # Disable CMake's automoc support for these targets.
+  set(CMAKE_AUTOMOC 0)
+  set(CMAKE_AUTORCC 0)
+  set(CMAKE_AUTOUIC 0)
+
   set(_vtk_python_all_modules)
   set(_vtk_python_all_wrapped_modules)
   foreach (_vtk_python_module IN LISTS _vtk_python_sorted_modules_filtered)
