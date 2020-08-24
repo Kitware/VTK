@@ -25,6 +25,7 @@ PRIVATE_DEPENDS
   VTK::jsoncpp
   VTK::vtksys
   VTK::zlib
+  VTK::DomainsChemistry
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersExtraction

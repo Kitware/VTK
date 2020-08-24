@@ -21,6 +21,7 @@
  *
  * @par Thanks:
  * Dr. Jean M. Favre who developed and contributed this class
+ * Angelos Angelopoulos and Spiros Tsalikis for revisions
  */
 
 #ifndef vtkMoleculeReaderBase_h
@@ -38,6 +39,7 @@ class vtkUnsignedCharArray;
 class vtkPoints;
 class vtkStringArray;
 class vtkMolecule;
+class vtkPeriodicTable;
 
 class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
@@ -82,9 +84,10 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int ReadMolecule(FILE* fp, vtkPolyData* output);
-  int MakeAtomType(const char* atomType);
+  static unsigned int MakeAtomType(const char* atomType);
   unsigned int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 
+  static vtkSmartPointer<vtkPeriodicTable> PeriodicTable;
   vtkSmartPointer<vtkMolecule> Molecule;
   vtkSmartPointer<vtkPoints> Points;
   vtkSmartPointer<vtkUnsignedCharArray> RGB;
