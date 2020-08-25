@@ -14,13 +14,13 @@
 =========================================================================*/
 /**
  * @class   vtkMoleculeReaderBase
- * @brief   read Molecular Data files
+ * @brief   Read molecular data files
  *
- * vtkMoleculeReaderBase is a source object that reads Molecule files
+ * vtkMoleculeReaderBase is a source object that reads molecule files.
  * The FileName must be specified
  *
  * @par Thanks:
- * Dr. Jean M. Favre who developed and contributed this class
+ * Dr. Jean M. Favre who originally developed and contributed this class
  * Angelos Angelopoulos and Spiros Tsalikis for revisions
  */
 
@@ -83,9 +83,36 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Reads a molecule from the passed file pointer and creates a vtkPolyData.
+   *
+   * @param fp Molecule file pointer.
+   * @param output Pointer to output vtkPolyData.
+   *
+   * @return Zero upon successfully reading a molecule.
+   */
   int ReadMolecule(FILE* fp, vtkPolyData* output);
+
+  /**
+   * Given a string for the type (name) of an atom, returns a unique
+   * number for that atom.
+   *
+   * @param atomType A string for the type (name) of an atom, e.g. "He" for a helium atom.
+   *
+   * @return Unique number for the atom type.
+   */
   static unsigned int MakeAtomType(const char* atomType);
-  unsigned int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
+
+  /**
+   * Creates molecular bonds (VTK cells) given atomic coordinates (VTK points) and atom types.
+   *
+   * @param points Atomic (VTK points) coordinates.
+   * @param atomTypes Array containing the atom type numbers.
+   * @param newBonds Output bonds.
+   *
+   * @return Number of bonds.
+   */
+  unsigned int MakeBonds(vtkPoints* points, vtkIdTypeArray* atomTypes, vtkCellArray* newBonds);
 
   static vtkSmartPointer<vtkPeriodicTable> PeriodicTable;
   vtkSmartPointer<vtkMolecule> Molecule;

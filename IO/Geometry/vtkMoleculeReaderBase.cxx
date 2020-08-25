@@ -113,7 +113,7 @@ int vtkMoleculeReaderBase::RequestData(vtkInformation* vtkNotUsed(request),
 
 int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
 {
-  vtkDebugMacro(<< "Scanning molecule file");
+  vtkDebugMacro(<< "Reading molecule file");
 
   if (!this->AtomType)
   {
@@ -225,7 +225,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
 
   this->ReadSpecificMolecule(fp);
 
-  vtkDebugMacro(<< "End of molecule scanning");
+  vtkDebugMacro(<< "End of molecule reading");
   output->SetPoints(this->Points);
 
   // Assign bonds
@@ -285,12 +285,12 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
 }
 
 unsigned int vtkMoleculeReaderBase::MakeBonds(
-  vtkPoints* newPoints, vtkIdTypeArray* atomTypes, vtkCellArray* newBonds)
+  vtkPoints* points, vtkIdTypeArray* atomTypes, vtkCellArray* newBonds)
 {
   double X[3], Y[3];
 
   vtkSmartPointer<vtkPolyData> dataset = vtkSmartPointer<vtkPolyData>::New();
-  dataset->SetPoints(newPoints);
+  dataset->SetPoints(points);
 
   vtkSmartPointer<vtkIdList> neighborAtoms = vtkSmartPointer<vtkIdList>::New();
 
@@ -300,7 +300,7 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
   {
     for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
     {
-      newPoints->GetPoint(i, X);
+      points->GetPoint(i, X);
       this->Molecule->AppendAtom(atomTypes->GetValue(i), X[0], X[1], X[2]);
     }
   }
@@ -315,7 +315,7 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
   for (unsigned int atomId = this->NumberOfAtoms - 1; atomId > 0; --atomId)
   {
     bond[0] = atomId;
-    newPoints->GetPoint(atomId, X);
+    points->GetPoint(atomId, X);
 
     vtkIdType atom1Type = atomTypes->GetValue(atomId);
 
@@ -367,7 +367,7 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
         max *= BScale;
       }
 
-      newPoints->GetPoint(neighborAtomId, Y);
+      points->GetPoint(neighborAtomId, Y);
       double dx = X[0] - Y[0];
       double dy = X[1] - Y[1];
       double dz = X[2] - Y[2];
