@@ -78,13 +78,12 @@ int vtkMoleculeReaderBase::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the info object
-  vtkSmartPointer<vtkInformation> outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the output
-  vtkSmartPointer<vtkPolyData> output =
-    vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkSmartPointer<vtkInformation> outMoleculeInfo = outputVector->GetInformationObject(1);
+  vtkInformation* outMoleculeInfo = outputVector->GetInformationObject(1);
   if (outMoleculeInfo)
   {
     this->Molecule = vtkMolecule::SafeDownCast(outMoleculeInfo->Get(vtkDataObject::DATA_OBJECT()));

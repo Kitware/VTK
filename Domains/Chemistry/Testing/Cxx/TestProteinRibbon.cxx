@@ -31,7 +31,7 @@ int TestProteinRibbon(int argc, char* argv[])
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/3GQP.pdb");
 
   // read protein from pdb
-  vtkSmartPointer<vtkPDBReader> reader = vtkSmartPointer<vtkPDBReader>::New();
+  vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
 
   delete[] fileName;
