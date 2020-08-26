@@ -402,8 +402,15 @@ unsigned int vtkMoleculeReaderBase::MakeAtomType(const char* atomType)
     atomTypeName[1] = tolower(atomTypeName[1]);
   }
   unsigned int atomNumber = vtkMoleculeReaderBase::PeriodicTable->GetAtomicNumber(atomTypeName);
-
-  return atomNumber;
+  // This check is required for atom type symbols that do not exist in the dataset, such as O1, N1.
+  if (atomNumber != 0)
+  {
+    return atomNumber;
+  }
+  else
+  {
+    return vtkMoleculeReaderBase::PeriodicTable->GetAtomicNumber(std::string(1, atomTypeName[0]));
+  }
 }
 
 void vtkMoleculeReaderBase::PrintSelf(ostream& os, vtkIndent indent)
