@@ -14,6 +14,7 @@ set(classes
   vtkExtractUserDefinedPiece
   vtkHyperTreeGridGhostCellsGenerator
   vtkIntegrateAttributes
+  vtkPassThroughFilter
   vtkPCellDataToPointData
   vtkPExtractDataArraysOverTime
   vtkPExtractExodusGlobalTemporalVariables
