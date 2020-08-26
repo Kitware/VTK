@@ -365,6 +365,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
 
   // 4. Render in original FB (from renderstate in arg)
 
+  this->FrameBufferObject->RemoveColorAttachments(2);
   ostate->PopFramebufferBindings();
 
   // has something changed that would require us to recreate the shaders?
