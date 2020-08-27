@@ -29,7 +29,6 @@ This module will set the following variables in your project:
 
 #]=======================================================================]
 include(CMakeFindDependencyMacro)
-find_dependency(PkgConfig)
 
 # Look for the header file.
 find_path(MEMKIND_INCLUDE_DIR
@@ -39,7 +38,7 @@ find_path(MEMKIND_INCLUDE_DIR
 # Look for the library.
 find_library(MEMKIND_LIBRARY
   NAMES memkind libmemkind
-  DOX "memkind library")
+  DOC "memkind library")
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MEMKIND
@@ -49,6 +48,14 @@ find_package_handle_standard_args(MEMKIND
 if(MEMKIND_FOUND)
   set(MEMKIND_LIBRARIES ${MEMKIND_LIBRARY})
   set(MEMKIND_INCLUDE_DIRS ${MEMKIND_INCLUDE_DIR})
+  set(pkgconfigfile "${MEMKIND_INCLUDE_DIR}/../lib/pkgconfig/memkind.pc")
+  set(MEMKIND_VERSION_MINOR 0)
+  if(EXISTS "${pkgconfigfile}")
+    file(STRINGS "${pkgconfigfile}" MEMKIND_VERSION_LINE REGEX "Version: ")
+    string(SUBSTRING "${MEMKIND_VERSION_LINE}" 11 -1 MEMKIND_VERSION_STRING) # skip over "Version: ?.", I wouldn't expect >9  major versions
+    string(FIND "${MEMKIND_VERSION_STRING}" "." minorNumLen) 
+    string(SUBSTRING "${MEMKIND_VERSION_STRING}" 0 ${minorNumLen} MEMKIND_VERSION_MINOR)
+  endif()
 
   if(NOT TARGET MEMKIND::MEMKIND)
     add_library(MEMKIND::MEMKIND UNKNOWN IMPORTED)
@@ -56,7 +63,8 @@ if(MEMKIND_FOUND)
       IMPORTED_LINK_INTERFACE_LANGUAGES "C"
       IMPORTED_LOCATION "${MEMKIND_LIBRARY}"
       IMPORTED_IMPLIB "${MEMKIND_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${MEMKIND_INCLUDE_DIRS}")
+      INTERFACE_INCLUDE_DIRECTORIES "${MEMKIND_INCLUDE_DIRS}"
+      MEMKIND_VERSION_MINOR "${MEMKIND_VERSION_MINOR}")
   endif()
 endif()
 

@@ -375,7 +375,7 @@ void vtkObjectBase::SetMemkindDirectory(const char* directoryname)
   {
     MemkindDirectory = strdup(directoryname);
     int err = 0;
-    if (!strncmp(directoryname, "ALLOCATOR_ONLY", 4))
+    if (!strncmp(directoryname, "ALLOCATOR_ONLY", 14))
     {
       // This gives us memkind's managed allocator but without extended memory.
       // It is useful for comparison and has performance benefits from page fault avoidance.
@@ -383,7 +383,19 @@ void vtkObjectBase::SetMemkindDirectory(const char* directoryname)
     }
     else
     {
-      err = memkind_create_pmem(MemkindDirectory, 0, &MemkindHandle);
+      if (!strncmp(directoryname, "DAX_KMEM", 8))
+      {
+#if MEMKIND_VERSION_MINOR > 9
+        MemkindHandle = MEMKIND_DAX_KMEM;
+#else
+        vtkGenericWarningMacro(<< "Warning, DAX_KMEM requires memkind >= 1.10");
+        MemkindHandle = MEMKIND_DEFAULT;
+#endif
+      }
+      else
+      {
+        err = memkind_create_pmem(MemkindDirectory, 0, &MemkindHandle);
+      }
     }
     if (err)
     {
