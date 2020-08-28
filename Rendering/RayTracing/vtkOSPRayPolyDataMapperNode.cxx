@@ -861,19 +861,27 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   {
     length = mapper->GetLength();
   }
+  int scalingMode = vtkOSPRayActorNode::GetEnableScaling(act);
   double pointSize = length / 1000.0 * property->GetPointSize();
   double lineWidth = length / 1000.0 * property->GetLineWidth();
+  if (scalingMode == vtkOSPRayActorNode::ALL_EXACT)
+  {
+    pointSize = property->GetPointSize();
+    lineWidth = property->GetLineWidth();
+  }
   // finer control over sphere and cylinders sizes
-  int enable_scaling = vtkOSPRayActorNode::GetEnableScaling(act);
   vtkDataArray* scaleArray = nullptr;
   vtkPiecewiseFunction* scaleFunction = nullptr;
-  if (enable_scaling && mapper)
+  if (mapper && scalingMode > vtkOSPRayActorNode::ALL_APPROXIMATE)
   {
     vtkInformation* mapInfo = mapper->GetInformation();
     char* scaleArrayName = (char*)mapInfo->Get(vtkOSPRayActorNode::SCALE_ARRAY_NAME());
     scaleArray = poly->GetPointData()->GetArray(scaleArrayName);
-    scaleFunction =
-      vtkPiecewiseFunction::SafeDownCast(mapInfo->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
+    if (scalingMode != vtkOSPRayActorNode::EACH_EXACT)
+    {
+      scaleFunction =
+        vtkPiecewiseFunction::SafeDownCast(mapInfo->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
+    }
   }
 
   // now ask mapper to do most of the work and provide us with
