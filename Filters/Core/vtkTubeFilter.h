@@ -46,7 +46,7 @@
  * criteria, then that line is not tubed.
  *
  * @sa
- * vtkRibbonFilter vtkStreamTracer
+ * vtkRibbonFilter vtkStreamTracer vtkTubeBender
  *
  * @par Thanks:
  * Michael Finch for absolute scalar radius

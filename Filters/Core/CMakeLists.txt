@@ -99,6 +99,7 @@ set(classes
   vtkTransposeTable
   vtkTriangleFilter
   vtkTriangleMeshPointNormals
+  vtkTubeBender
   vtkTubeFilter
   vtkUnstructuredGridQuadricDecimation
   vtkUnstructuredGridToExplicitStructuredGrid

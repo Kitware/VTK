@@ -310,6 +310,16 @@ public:
   static double Gaussian(double mean, double std);
 
   /**
+   * Assign values to a 3-vector (double version). Result is stored in b according to b = a.
+   */
+  static void Assign(const double a[3], double b[3])
+  {
+    b[0] = a[0];
+    b[1] = a[1];
+    b[2] = a[2];
+  }
+
+  /**
    * Addition of two 3-vectors (float version). Result is stored in c according to c = a + b.
    */
   static void Add(const float a[3], const float b[3], float c[3])
