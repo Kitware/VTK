@@ -355,6 +355,8 @@ protected:
   Cursor XCSizeSE;
   Cursor XCSizeSW;
   Cursor XCHand;
+  Cursor XCCustom;
+  Pixmap CursorPixmap;
 
   void CreateAWindow() override;
   void DestroyWindow() override;

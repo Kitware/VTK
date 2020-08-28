@@ -288,6 +288,8 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCSizeSE = 0;
   this->XCSizeSW = 0;
   this->XCHand = 0;
+  this->XCCustom = 0;
+  this->CursorPixmap = 0;
 }
 
 // free up memory & close the window
@@ -730,6 +732,14 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     {
       XFreeCursor(this->DisplayId, this->XCHand);
     }
+    if (this->XCCustom)
+    {
+      XFreeCursor(this->DisplayId, this->XCCustom);
+    }
+    if (this->CursorPixmap)
+    {
+      XFreePixmap(this->DisplayId, CursorPixmap);
+    }
   }
 
   this->XCCrosshair = 0;
@@ -742,6 +752,8 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   this->XCSizeSE = 0;
   this->XCSizeSW = 0;
   this->XCHand = 0;
+  this->XCCustom = 0;
+  this->CursorPixmap = 0;
 
   if (this->OwnContext && this->Internal->ContextId)
   {
@@ -1702,6 +1714,51 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
         this->XCHand = XCreateFontCursor(this->DisplayId, XC_hand1);
       }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
+      break;
+    case VTK_CURSOR_CUSTOM:
+      if (!this->GetCursorFileName())
+      {
+        break;
+      }
+      unsigned int curW;
+      unsigned int curH;
+      int x_hot;
+      int y_hot;
+      XColor fg, bg;
+      Status rc;
+      rc = XAllocNamedColor(this->DisplayId,
+        XDefaultColormap(this->DisplayId, XDefaultScreen(this->DisplayId)), "black", &fg, &fg);
+      if (rc == 0)
+      {
+        vtkErrorMacro(<< "XAllocNamedColor - cannot allocate 'black'");
+        break;
+      }
+      rc = XAllocNamedColor(this->DisplayId,
+        XDefaultColormap(this->DisplayId, XDefaultScreen(this->DisplayId)), "white", &bg, &bg);
+      if (rc == 0)
+      {
+        vtkErrorMacro(<< "XAllocNamedColor - cannot allocate 'white'");
+        break;
+      }
+
+      rc = XReadBitmapFile(this->DisplayId, this->WindowId, this->GetCursorFileName(), &curW, &curH,
+        &this->CursorPixmap, &x_hot, &y_hot);
+      switch (rc)
+      {
+        case BitmapOpenFailed:
+          vtkErrorMacro(<< "XReadBitmapFile - could not open file " << this->GetCursorFileName());
+          break;
+        case BitmapFileInvalid:
+          vtkErrorMacro(<< "XReadBitmapFile - file " << this->GetCursorFileName()
+                        << " doesn't contain a valid bitmap.");
+          break;
+        case BitmapNoMemory:
+          vtkErrorMacro(<< "XReadBitmapFile - not enough memory.");
+          break;
+      }
+      this->XCCustom = XCreatePixmapCursor(
+        this->DisplayId, this->CursorPixmap, this->CursorPixmap, &fg, &bg, 0, 0);
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCCustom);
       break;
   }
 }
