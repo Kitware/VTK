@@ -86,6 +86,8 @@ vtkRenderWindow::vtkRenderWindow()
 #endif
   this->DeviceIndex = 0;
   this->SharedRenderWindow = nullptr;
+
+  this->CursorFileName = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -93,6 +95,7 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
+  this->SetCursorFileName(nullptr);
 
   if (this->Renderers)
   {
