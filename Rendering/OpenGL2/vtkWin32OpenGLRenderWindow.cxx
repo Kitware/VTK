@@ -1509,11 +1509,23 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
     case VTK_CURSOR_CROSSHAIR:
       cursorName = IDC_CROSS;
       break;
+    case VTK_CURSOR_CUSTOM:
+      cursorName = static_cast<LPCTSTR>(this->GetCursorFileName());
+      break;
+    default:
+      cursorName = 0;
+      break;
   }
 
   if (cursorName)
   {
-    HANDLE cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, LR_SHARED | LR_DEFAULTSIZE);
+    UINT fuLoad = LR_SHARED | LR_DEFAULTSIZE;
+    if (shape == VTK_CURSOR_CUSTOM)
+    {
+      fuLoad |= LR_LOADFROMFILE;
+    }
+    HANDLE cursor;
+    cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, fuLoad);
     SetCursor((HCURSOR)cursor);
   }
 }
