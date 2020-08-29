@@ -353,7 +353,8 @@ if (VTK_USE_X)
     PACKAGE X11)
   vtk_module_link(VTK::RenderingOpenGL2
     PUBLIC
-      X11::X11)
+      X11::X11
+      X11::Xcursor)
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 endif ()
