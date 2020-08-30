@@ -14,10 +14,7 @@
 =========================================================================*/
 #include "vtkFFMPEGVideoSource.h"
 
-#include "vtkConditionVariable.h"
-#include "vtkCriticalSection.h"
 #include "vtkMultiThreader.h"
-#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
@@ -32,6 +29,8 @@ extern "C"
 }
 
 #include <cctype>
+#include <condition_variable>
+#include <mutex>
 
 /////////////////////////////////////////////////////////////////////////
 // building ffmpeg on windows
@@ -340,56 +339,56 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
     if (fret >= 0 && this->Internal->Packet.stream_index == this->Internal->VideoStreamIndex)
     {
       // lock the decoder
-      this->FeedMutex->Lock();
+      this->FeedMutex.lock();
 
       int sret = avcodec_send_packet(this->Internal->VideoDecodeContext, &this->Internal->Packet);
       if (sret == 0) // good decode
       {
-        this->FeedCondition->Signal();
+        this->FeedCondition.notify_one();
       }
       else if (sret == AVERROR(EAGAIN))
       {
         // Signal the draining loop
-        this->FeedCondition->Signal();
+        this->FeedCondition.notify_one();
         // Wait here
-        this->FeedCondition->Wait(this->FeedMutex);
+        this->FeedCondition.wait(this->FeedMutex);
         retryPacket = true;
       }
       else if (sret < 0) // error
       {
-        this->FeedMutex->Unlock();
+        this->FeedMutex.unlock();
         return nullptr;
       }
 
-      this->FeedMutex->Unlock();
+      this->FeedMutex.unlock();
     }
 
     // feed audio
     if (fret >= 0 && this->Internal->Packet.stream_index == this->Internal->AudioStreamIndex)
     {
       // lock the decoder
-      this->FeedAudioMutex->Lock();
+      this->FeedAudioMutex.lock();
 
       int sret = avcodec_send_packet(this->Internal->AudioDecodeContext, &this->Internal->Packet);
       if (sret == 0) // good decode
       {
-        this->FeedAudioCondition->Signal();
+        this->FeedAudioCondition.notify_one();
       }
       else if (sret == AVERROR(EAGAIN))
       {
         // Signal the draining loop
-        this->FeedAudioCondition->Signal();
+        this->FeedAudioCondition.notify_one();
         // Wait here
-        this->FeedAudioCondition->Wait(this->FeedAudioMutex);
+        this->FeedAudioCondition.wait(this->FeedAudioMutex);
         retryPacket = true;
       }
       else if (sret < 0) // error
       {
-        this->FeedAudioMutex->Unlock();
+        this->FeedAudioMutex.unlock();
         return nullptr;
       }
 
-      this->FeedAudioMutex->Unlock();
+      this->FeedAudioMutex.unlock();
     }
 
     // are we out of data?
@@ -409,17 +408,17 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
   }
 
   // flush remaining data
-  this->FeedMutex->Lock();
+  this->FeedMutex.lock();
   avcodec_send_packet(this->Internal->VideoDecodeContext, nullptr);
-  this->FeedCondition->Signal();
-  this->FeedMutex->Unlock();
+  this->FeedCondition.notify_one();
+  this->FeedMutex.unlock();
 
   if (this->Internal->AudioDecodeContext)
   {
-    this->FeedAudioMutex->Lock();
+    this->FeedAudioMutex.lock();
     avcodec_send_packet(this->Internal->AudioDecodeContext, nullptr);
-    this->FeedAudioCondition->Signal();
-    this->FeedAudioMutex->Unlock();
+    this->FeedAudioCondition.notify_one();
+    this->FeedAudioMutex.unlock();
   }
 
   this->EndOfFile = true;
@@ -441,9 +440,9 @@ static void vtkThreadSleep(double time)
     double remaining = time - vtkTimerLog::GetUniversalTime();
 
     // check to see if we are being told to quit
-    // data->ActiveFlagLock->Lock();
+    // data->ActiveFlagLock.lock();
     // int activeFlag = *(data->ActiveFlag);
-    // data->ActiveFlagLock->Unlock();
+    // data->ActiveFlagLock.unlock();
 
     // if (activeFlag == 0)
     // {
@@ -487,19 +486,19 @@ void* vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo* data)
 
   while (!done)
   {
-    this->FeedMutex->Lock();
+    this->FeedMutex.lock();
 
     int ret = avcodec_receive_frame(this->Internal->VideoDecodeContext, this->Internal->Frame);
     if (ret == 0)
     {
-      this->FeedCondition->Signal();
+      this->FeedCondition.notify_one();
     }
     else if (ret == AVERROR(EAGAIN))
     {
       // Signal the feeding loop
-      this->FeedCondition->Signal();
+      this->FeedCondition.notify_one();
       // Wait here
-      this->FeedCondition->Wait(this->FeedMutex);
+      this->FeedCondition.wait(this->FeedMutex);
     }
     else if (ret == AVERROR_EOF)
     {
@@ -507,12 +506,12 @@ void* vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo* data)
     }
     else if (ret < 0) // error code
     {
-      this->FeedMutex->Unlock();
+      this->FeedMutex.unlock();
       cerr << "video drain thread exiting on error!\n";
       return nullptr;
     }
 
-    this->FeedMutex->Unlock();
+    this->FeedMutex.unlock();
 
     if (ret == 0)
     {
@@ -567,19 +566,19 @@ void* vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo* data)
 
   while (!done)
   {
-    this->FeedAudioMutex->Lock();
+    this->FeedAudioMutex.lock();
 
     int ret = avcodec_receive_frame(this->Internal->AudioDecodeContext, this->Internal->AudioFrame);
     if (ret == 0)
     {
-      this->FeedAudioCondition->Signal();
+      this->FeedAudioCondition.notify_one();
     }
     else if (ret == AVERROR(EAGAIN))
     {
       // Signal the feeding loop
-      this->FeedAudioCondition->Signal();
+      this->FeedAudioCondition.notify_one();
       // Wait here
-      this->FeedAudioCondition->Wait(this->FeedAudioMutex);
+      this->FeedAudioCondition.wait(this->FeedAudioMutex);
     }
     else if (ret == AVERROR_EOF)
     {
@@ -587,12 +586,12 @@ void* vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo* data)
     }
     else if (ret < 0) // error code
     {
-      this->FeedAudioMutex->Unlock();
+      this->FeedAudioMutex.unlock();
       cerr << "audio drain thread exiting on error!\n";
       return nullptr;
     }
 
-    this->FeedAudioMutex->Unlock();
+    this->FeedAudioMutex.unlock();
 
     if (ret == 0)
     {
@@ -725,7 +724,7 @@ void vtkFFMPEGVideoSource::ReadFrame()
 void vtkFFMPEGVideoSource::InternalGrab()
 {
   // get a thread lock on the frame buffer
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   if (this->AutoAdvance)
   {
@@ -764,7 +763,7 @@ void vtkFFMPEGVideoSource::InternalGrab()
   sws_scale(this->Internal->RGBContext, this->Internal->Frame->data,
     this->Internal->Frame->linesize, 0, this->Internal->Frame->height, dst, dstStride);
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 
   this->Modified();
 }
@@ -876,9 +875,9 @@ void vtkFFMPEGVideoSource::SetFrameSize(int x, int y, int z)
 
   if (this->Initialized)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->UpdateFrameBuffer();
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
 }
 
@@ -927,13 +926,13 @@ void vtkFFMPEGVideoSource::SetOutputFormat(int format)
 
   if (this->FrameBufferBitsPerPixel != numComponents * 8)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->FrameBufferBitsPerPixel = numComponents * 8;
     if (this->Initialized)
     {
       this->UpdateFrameBuffer();
     }
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
 
   this->Modified();

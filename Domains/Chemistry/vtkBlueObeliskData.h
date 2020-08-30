@@ -36,14 +36,21 @@
 #ifndef vtkBlueObeliskData_h
 #define vtkBlueObeliskData_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_1_0
+
 #include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkLegacy.h"                 // For VTK_LEGACY_REMOVE
 #include "vtkNew.h"                    // For vtkNew
 #include "vtkObject.h"
+
+#include <mutex>
 
 class vtkAbstractArray;
 class vtkFloatArray;
 class vtkStringArray;
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkSimpleMutexLock;
+#endif
 class vtkUnsignedShortArray;
 
 // Hidden STL reference: std::vector<vtkAbstractArray*>
@@ -57,10 +64,9 @@ public:
   static vtkBlueObeliskData* New();
 
   /**
-   * Fill this object using an internal vtkBlueObeliskDataParser
-   * instance. Check that the vtkSimpleMutexLock GetWriteMutex() is
-   * locked before calling this method on a static instance in a
-   * multithreaded environment.
+   * Fill this object using an internal vtkBlueObeliskDataParser instance.
+   * Wrap this call with calls to LockWriteMutex and UnlockWriteMutex before calling
+   * this method on a static instance in a multithreaded environment.
    */
   void Initialize();
 
@@ -74,7 +80,26 @@ public:
    * Access the mutex that protects the arrays during a call to
    * Initialize()
    */
+#if !defined(VTK_LEGACY_REMOVE)
+  VTK_DEPRECATED_IN_9_1_0("Use LockWriteMutex() and UnlockWriteMutex() instead.")
   vtkGetObjectMacro(WriteMutex, vtkSimpleMutexLock);
+#endif
+  //@}
+
+  //@{
+  /**
+   * Lock the mutex that protects the arrays during a call to
+   * Initialize().
+   */
+  void LockWriteMutex();
+  //@}
+
+  //@{
+  /**
+   * Unlock the mutex that protects the arrays during a call to
+   * Initialize().
+   */
+  void UnlockWriteMutex();
   //@}
 
   //@{
@@ -124,7 +149,15 @@ protected:
   vtkBlueObeliskData();
   ~vtkBlueObeliskData() override;
 
+#if !defined(VTK_LEGACY_REMOVE)
   vtkSimpleMutexLock* WriteMutex;
+#else
+private:
+  std::mutex NewWriteMutex;
+
+protected:
+#endif
+
   bool Initialized;
 
   /**

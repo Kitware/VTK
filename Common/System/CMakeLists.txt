@@ -7,8 +7,10 @@ set(classes
   vtkServerSocket
   vtkSocket
   vtkSocketCollection
-  vtkThreadMessager
-  vtkTimerLog)
+  vtkTimerLog
+
+  # This class is deprecated.
+  vtkThreadMessager)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestSocketFeatures.cmake")
 

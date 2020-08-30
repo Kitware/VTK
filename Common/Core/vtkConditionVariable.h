@@ -31,6 +31,7 @@
 #define vtkConditionVariable_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"
 #include "vtkThreads.h" // for VTK_USE_PTHREADS and VTK_USE_WIN32_THREADS
 
@@ -106,6 +107,7 @@ typedef int vtkConditionType;
 #endif
 
 // Condition variable that is not a vtkObject.
+VTK_DEPRECATED_IN_9_1_0("Use std::condition_variable_any instead.")
 class VTKCOMMONCORE_EXPORT vtkSimpleConditionVariable
 {
 public:
@@ -147,6 +149,7 @@ private:
   vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) = delete;
 };
 
+VTK_DEPRECATED_IN_9_1_0("Use std::condition_variable_any instead.")
 class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
 {
 public:

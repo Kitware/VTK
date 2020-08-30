@@ -55,9 +55,10 @@
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 #include "vtkToolkits.h"          // Needed for VTK_DEBUG_LEAKS macro setting.
 
+#include <mutex>
+
 class vtkDebugLeaksHashTable;
 class vtkDebugLeaksTraceManager;
-class vtkSimpleCriticalSection;
 class vtkDebugLeaksObserver;
 
 class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
@@ -122,7 +123,7 @@ protected:
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkDebugLeaksTraceManager* TraceManager;
-  static vtkSimpleCriticalSection* CriticalSection;
+  static std::mutex* CriticalSection;
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 

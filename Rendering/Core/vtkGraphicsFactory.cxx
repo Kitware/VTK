@@ -18,12 +18,11 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
 
-#include "vtkCriticalSection.h"
-
 #include <cstdlib>
+#include <mutex>
 
-static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
-static vtkSimpleCriticalSection vtkOffScreenOnlyModeCriticalSection;
+static std::mutex vtkUseMesaClassesCriticalSection;
+static std::mutex vtkOffScreenOnlyModeCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
 #ifdef VTK_USE_OFFSCREEN
@@ -90,9 +89,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname)
 //------------------------------------------------------------------------------
 void vtkGraphicsFactory::SetUseMesaClasses(int use)
 {
-  vtkUseMesaClassesCriticalSection.Lock();
+  vtkUseMesaClassesCriticalSection.lock();
   vtkGraphicsFactory::UseMesaClasses = use;
-  vtkUseMesaClassesCriticalSection.Unlock();
+  vtkUseMesaClassesCriticalSection.unlock();
 }
 
 //------------------------------------------------------------------------------
@@ -104,9 +103,9 @@ int vtkGraphicsFactory::GetUseMesaClasses()
 //------------------------------------------------------------------------------
 void vtkGraphicsFactory::SetOffScreenOnlyMode(int use)
 {
-  vtkOffScreenOnlyModeCriticalSection.Lock();
+  vtkOffScreenOnlyModeCriticalSection.lock();
   vtkGraphicsFactory::OffScreenOnlyMode = use;
-  vtkOffScreenOnlyModeCriticalSection.Unlock();
+  vtkOffScreenOnlyModeCriticalSection.unlock();
 }
 
 //------------------------------------------------------------------------------

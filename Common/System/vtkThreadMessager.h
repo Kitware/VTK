@@ -23,6 +23,8 @@
 #ifndef vtkThreadMessager_h
 #define vtkThreadMessager_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_1_0
+
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkThreads.h" // for VTK_USE_PTHREADS and VTK_USE_WIN32_THREADS
@@ -31,6 +33,7 @@
 #include <pthread.h> // Needed for pthread types
 #endif
 
+VTK_DEPRECATED_IN_9_1_0("Use C++ STL threading classes")
 class VTKCOMMONSYSTEM_EXPORT vtkThreadMessager : public vtkObject
 {
 public:
