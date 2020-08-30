@@ -564,8 +564,6 @@ def QVTKRenderWidgetConeExample():
     # create the widget
     widget = QVTKRenderWindowInteractor(window)
     window.setCentralWidget(widget)
-    widget.Initialize()
-    widget.Start()
     # if you don't want the 'q' key to exit comment this.
     widget.AddObserver("ExitEvent", lambda o, e, a=app: a.quit())
 
@@ -585,6 +583,10 @@ def QVTKRenderWidgetConeExample():
 
     # show the widget
     window.show()
+
+    widget.Initialize()
+    widget.Start()
+
     # start event processing
     app.exec_()
 
