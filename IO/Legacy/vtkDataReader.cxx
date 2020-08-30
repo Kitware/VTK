@@ -77,13 +77,6 @@ vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
 
-// this undef is required on the hp. vtkMutexLock ends up including
-// /usr/include/dce/cma_ux.h which has the gall to #define read as cma_read
-
-#ifdef read
-#undef read
-#endif
-
 // Construct object.
 vtkDataReader::vtkDataReader()
 {

@@ -21,14 +21,6 @@
 
 vtkStandardNewMacro(vtkPNMWriter);
 
-#ifdef write
-#undef write
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 void vtkPNMWriter::WriteFileHeader(ostream* file, vtkImageData* cache, int wExt[6])
 {
   int min1 = wExt[0], max1 = wExt[1], min2 = wExt[2], max2 = wExt[3];

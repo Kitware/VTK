@@ -80,13 +80,6 @@
 #define VTK_QUADRATIC_PYRAMID 27
 #endif
 
-// this undef is required on the hp. vtkMutexLock ends up including
-// /usr/include/dce/cma_ux.h which has the gall to #define write as cma_write
-
-#ifdef write
-#undef write
-#endif
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
 
