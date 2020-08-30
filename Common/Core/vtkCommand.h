@@ -369,6 +369,7 @@
     _vtk_add_event(Button3DEvent)                                                                  \
     _vtk_add_event(TextEvent)                                                                      \
     _vtk_add_event(LeftButtonDoubleClickEvent)                                                     \
+    _vtk_add_event(MiddleButtonDoubleClickEvent)                                                   \
     _vtk_add_event(RightButtonDoubleClickEvent)                                                    \
     _vtk_add_event(MouseWheelLeftEvent)                                                            \
     _vtk_add_event(MouseWheelRightEvent)
