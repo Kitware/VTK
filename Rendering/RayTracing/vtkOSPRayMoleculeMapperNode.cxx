@@ -232,9 +232,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         // each endpoint is doubled because we need to use OSP_BEZIER to vary width
         indices.push_back(bondInd * 8 + 0);
         indices.push_back(bondInd * 8 + 4);
-        // indices.push_back(bondInd*4+1);
-        // indices.push_back(bondInd*4+2);
-        // indices.push_back(bondInd*4+3);
 
         vtkBond bond = molecule->GetBond(bondInd);
         pos1 = bond.GetBeginAtom().GetPosition();
@@ -259,24 +256,18 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
           static_cast<float>(pos2.GetZ()), bondRadius };
 
         // tube from atom1 to midpoint
-        vertsAndRadii.emplace_back(start);
         materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
         vertsAndRadii.emplace_back(start);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
+        vertsAndRadii.emplace_back(start);
         vertsAndRadii.emplace_back(mid);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
         vertsAndRadii.emplace_back(mid);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[0])]);
 
         // tube from midpoint to atom2
-        vertsAndRadii.emplace_back(mid);
         materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
         vertsAndRadii.emplace_back(mid);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
+        vertsAndRadii.emplace_back(mid);
         vertsAndRadii.emplace_back(end);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
         vertsAndRadii.emplace_back(end);
-        materials.emplace_back(_elementMaterials[atomicNumbers->GetValue(atomIds[1])]);
       }
 
       OSPData vertsAndRadiiData =
@@ -292,7 +283,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
 
       if (mapper->GetBondColorMode() == vtkMoleculeMapper::DiscreteByAtom)
       {
-        OSPData materialData = ospNewCopyData1D(materials.data(), OSP_MATERIAL, 4 * numBonds);
+        OSPData materialData = ospNewCopyData1D(materials.data(), OSP_MATERIAL, materials.size());
         ospCommit(materialData);
         ospSetObject(bondsModel, "material", materialData);
         ospRelease(materialData);
