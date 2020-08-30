@@ -26,7 +26,6 @@ void vtkSimpleCriticalSection::Init()
 #endif
 }
 
-// Destruct the vtkMutexVariable
 vtkSimpleCriticalSection::~vtkSimpleCriticalSection()
 {
 #ifdef VTK_USE_WIN32_THREADS

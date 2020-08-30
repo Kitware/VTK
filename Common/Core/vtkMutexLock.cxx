@@ -39,7 +39,6 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
 #endif
 }
 
-// Destruct the vtkMutexVariable
 vtkSimpleMutexLock::~vtkSimpleMutexLock()
 {
 #ifdef VTK_USE_WIN32_THREADS
