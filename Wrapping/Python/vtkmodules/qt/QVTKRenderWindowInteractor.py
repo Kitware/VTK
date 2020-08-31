@@ -92,6 +92,7 @@ if PyQtImpl == "PyQt5":
     from PyQt5.QtWidgets import QWidget
     from PyQt5.QtWidgets import QSizePolicy
     from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtWidgets import QMainWindow
     from PyQt5.QtGui import QCursor
     from PyQt5.QtCore import Qt
     from PyQt5.QtCore import QTimer
@@ -104,6 +105,7 @@ elif PyQtImpl == "PySide2":
     from PySide2.QtWidgets import QWidget
     from PySide2.QtWidgets import QSizePolicy
     from PySide2.QtWidgets import QApplication
+    from PySide2.QtWidgets import QMainWindow
     from PySide2.QtGui import QCursor
     from PySide2.QtCore import Qt
     from PySide2.QtCore import QTimer
@@ -116,6 +118,7 @@ elif PyQtImpl == "PyQt4":
     from PyQt4.QtGui import QWidget
     from PyQt4.QtGui import QSizePolicy
     from PyQt4.QtGui import QApplication
+    from PyQt4.QtGui import QMainWindow
     from PyQt4.QtCore import Qt
     from PyQt4.QtCore import QTimer
     from PyQt4.QtCore import QObject
@@ -127,6 +130,7 @@ elif PyQtImpl == "PySide":
     from PySide.QtGui import QWidget
     from PySide.QtGui import QSizePolicy
     from PySide.QtGui import QApplication
+    from PySide.QtGui import QMainWindow
     from PySide.QtCore import Qt
     from PySide.QtCore import QTimer
     from PySide.QtCore import QObject
@@ -555,10 +559,11 @@ def QVTKRenderWidgetConeExample():
     # every QT app needs an app
     app = QApplication(['QVTKRenderWindowInteractor'])
 
+    window = QMainWindow()
+
     # create the widget
-    widget = QVTKRenderWindowInteractor()
-    widget.Initialize()
-    widget.Start()
+    widget = QVTKRenderWindowInteractor(window)
+    window.setCentralWidget(widget)
     # if you don't want the 'q' key to exit comment this.
     widget.AddObserver("ExitEvent", lambda o, e, a=app: a.quit())
 
@@ -577,7 +582,11 @@ def QVTKRenderWidgetConeExample():
     ren.AddActor(coneActor)
 
     # show the widget
-    widget.show()
+    window.show()
+
+    widget.Initialize()
+    widget.Start()
+
     # start event processing
     app.exec_()
 
