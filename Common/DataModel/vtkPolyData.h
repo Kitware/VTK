@@ -572,7 +572,8 @@ public:
 
   /**
    * This method will remove any cell that is marked as ghost
-   * (has the vtkDataSetAttributes::DUPLICATECELL bit set).
+   * (has the vtkDataSetAttributes::DUPLICATECELL or
+   * the vtkDataSetAttributes::HIDDENCELL bit set).
    * It does not remove unused points.
    */
   void RemoveGhostCells();

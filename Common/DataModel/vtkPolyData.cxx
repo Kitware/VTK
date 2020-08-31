@@ -1633,7 +1633,8 @@ void vtkPolyData::RemoveGhostCells()
     {
       verts->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
+      if (!(cellGhosts[i] &
+            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1643,7 +1644,8 @@ void vtkPolyData::RemoveGhostCells()
     {
       lines->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
+      if (!(cellGhosts[i] &
+            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1653,7 +1655,8 @@ void vtkPolyData::RemoveGhostCells()
     {
       polys->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
+      if (!(cellGhosts[i] &
+            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1663,7 +1666,8 @@ void vtkPolyData::RemoveGhostCells()
     {
       strips->GetNextCell(n, pts);
 
-      if (!(cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
+      if (!(cellGhosts[i] &
+            (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)))
       {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
