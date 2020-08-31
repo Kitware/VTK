@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpaquePass.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFXAAFilter.h"
@@ -43,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 #include "vtkRenderTimerLog.h"
+#include "vtkSSAOPass.h"
 #include "vtkShaderProgram.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
@@ -77,6 +79,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
   this->FXAAFilter = nullptr;
   this->DepthPeelingPass = nullptr;
+  this->SSAOPass = nullptr;
   this->TranslucentPass = nullptr;
   this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer = 0;
@@ -491,7 +494,28 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo
   }
   else
   {
-    this->Superclass::DeviceRenderOpaqueGeometry();
+    if (this->UseSSAO)
+    {
+      if (!this->SSAOPass)
+      {
+        this->SSAOPass = vtkSSAOPass::New();
+        vtkNew<vtkOpaquePass> opaqueP;
+        this->SSAOPass->SetDelegatePass(opaqueP);
+      }
+      vtkRenderState s(this);
+      s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+      s.SetFrameBuffer(fbo);
+      this->SSAOPass->SetRadius(this->SSAORadius);
+      this->SSAOPass->SetBias(this->SSAOBias);
+      this->SSAOPass->SetKernelSize(this->SSAOKernelSize);
+      this->SSAOPass->SetBlur(this->SSAOBlur);
+      this->SSAOPass->Render(&s);
+      this->NumberOfPropsRendered += this->SSAOPass->GetNumberOfRenderedProps();
+    }
+    else
+    {
+      this->Superclass::DeviceRenderOpaqueGeometry();
+    }
   }
 }
 
@@ -735,6 +759,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow* w)
   {
     this->DepthPeelingPass->ReleaseGraphicsResources(w);
   }
+  if (w && this->SSAOPass)
+  {
+    this->SSAOPass->ReleaseGraphicsResources(w);
+  }
   if (w && this->TranslucentPass)
   {
     this->TranslucentPass->ReleaseGraphicsResources(w);
@@ -783,6 +811,12 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   {
     this->DepthPeelingPass->Delete();
     this->DepthPeelingPass = nullptr;
+  }
+
+  if (this->SSAOPass)
+  {
+    this->SSAOPass->Delete();
+    this->SSAOPass = nullptr;
   }
 
   if (this->TranslucentPass)

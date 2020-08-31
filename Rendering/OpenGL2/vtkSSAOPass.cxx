@@ -24,6 +24,7 @@
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -227,6 +228,14 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->FrameBufferObject->AddDepthAttachment(this->DepthTexture);
   this->FrameBufferObject->StartNonOrtho(w, h);
 
+  vtkOpenGLRenderer* glRen = vtkOpenGLRenderer::SafeDownCast(s->GetRenderer());
+
+  vtkOpenGLState* ostate = glRen->GetState();
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
+  ostate->vtkglDepthMask(GL_TRUE);
+  ostate->vtkglClearDepth(1.0);
+  ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
+
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
@@ -272,7 +281,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
       << "\n"
          "  float occlusion = 0.0;\n"
          "  float depth = texture(texDepth, texCoord).r;\n"
-         "  if (depth < 1.0)\n"
+         "  if (depth > 0.0 && depth < 1.0)\n" // discard background and overlay
          "  {\n"
          "    vec3 fragPosVC = texture(texPosition, texCoord).xyz;\n"
          "    vec4 fragPosDC = matProjection * vec4(fragPosVC, 1.0);\n"
@@ -432,6 +441,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
   this->CombineQuadHelper->Program->SetUniformi("texDepth", this->DepthTexture->GetTextureUnit());
 
   ostate->vtkglEnable(GL_DEPTH_TEST);
+  ostate->vtkglDepthFunc(GL_LEQUAL);
   ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
 
   this->CombineQuadHelper->Render();
