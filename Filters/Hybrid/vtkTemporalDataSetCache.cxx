@@ -425,14 +425,7 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
       {
         auto mkhold = vtkTDSCMemkindRAII(this);
         output.TakeReference(input->NewInstance());
-        if (this->GetCacheInMemkind())
-        {
-          output->DeepCopy(input);
-        }
-        else
-        {
-          output->ShallowCopy(input);
-        }
+        output->ShallowCopy(input);
       }
       else
       {

@@ -47,6 +47,8 @@ if (VTK_USE_MEMKIND)
     PACKAGE MEMKIND)
   list(APPEND vtk_memkind_libraries
     MEMKIND::MEMKIND)
+  get_target_property(MEMKIND_VERSION_MINOR MEMKIND::MEMKIND MEMKIND_VERSION_MINOR)
+  list(APPEND VTK_OBJECT_BASE_DEFINES "MEMKIND_VERSION_MINOR=${MEMKIND_VERSION_MINOR}")
 endif()
 
 # Generate the vtkTypeList_Create macros:
@@ -465,10 +467,12 @@ configure_file(
 
 # Allow work arounds for lack of thread_local on odd compilers
 if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0) )
-  set_property(SOURCE vtkObjectBase.cxx
-      PROPERTY
-        COMPILE_DEFINITIONS VTK_HAS_THREADLOCAL)
+  list(APPEND VTK_OBJECT_BASE_DEFINES "VTK_HAS_THREADLOCAL")
 endif ()
+
+set_property(SOURCE vtkObjectBase.cxx
+  PROPERTY
+     COMPILE_DEFINITIONS ${VTK_OBJECT_BASE_DEFINES})
 
 if(MSVC)
   set_source_files_properties(
