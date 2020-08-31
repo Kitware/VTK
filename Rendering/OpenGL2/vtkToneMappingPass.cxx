@@ -228,7 +228,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   this->QuadHelper->Program->SetUniformi("source", this->ColorTexture->GetTextureUnit());
 
   // Precompute generic filmic parameters after each modification
-  if (this->PreComputeMTime > this->GetMTime())
+  if (this->PreComputeMTime < this->GetMTime())
   {
     this->PreComputeAnchorCurveGenericFilmic();
     this->PreComputeMTime = this->GetMTime();
@@ -249,6 +249,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
 
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_DEPTH_TEST);
+  ostate->vtkglClear(GL_DEPTH_BUFFER_BIT);
   ostate->vtkglViewport(x, y, w, h);
   ostate->vtkglScissor(x, y, w, h);
 
