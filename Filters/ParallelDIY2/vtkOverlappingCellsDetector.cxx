@@ -811,7 +811,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
         if (neighborCellBankHandle == neighborCellBank.end())
         {
           neighborCell = vtkGenericCell::InstantiateCell(neighborCellType);
-          neighborCellBank[cellType] = vtkSmartPointer<vtkCell>::Take(neighborCell);
+          neighborCellBank[neighborCellType] = vtkSmartPointer<vtkCell>::Take(neighborCell);
         }
         else
         {
