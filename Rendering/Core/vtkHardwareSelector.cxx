@@ -232,7 +232,6 @@ void vtkHardwareSelector::BeginSelection()
 {
   this->MaximumPointId = 0;
   this->MaximumCellId = 0;
-  this->Renderer->Clear();
   this->Renderer->SetSelector(this);
   this->Internals->HitProps.clear();
   this->Internals->ZValues.clear();

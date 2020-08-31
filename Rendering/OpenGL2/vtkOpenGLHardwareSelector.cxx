@@ -100,7 +100,8 @@ void vtkOpenGLHardwareSelector::BeginSelection()
   rwin->SetMultiSamples(0);
 
   vtkOpenGLState* ostate = rwin->GetState();
-  ostate->ResetFramebufferBindings();
+  ostate->Reset();
+  ostate->Push();
 
   // render normally to set the zbuffer
   if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -127,6 +128,8 @@ void vtkOpenGLHardwareSelector::EndSelection()
   vtkOpenGLRenderWindow* rwin =
     static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
   rwin->SetMultiSamples(this->OriginalMultiSample);
+  vtkOpenGLState* ostate = rwin->GetState();
+  ostate->Pop();
 
   return this->Superclass::EndSelection();
 }
