@@ -88,6 +88,7 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
   const char* MultiBlockTetname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/multiblock_overlapping_tetras.vtm");
   const char* Hexname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/linhex.vtu");
+  const char* TetHexname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tet_hex.vtu");
 
   vtkNew<vtkGenerateGlobalIds> globalIds;
 
@@ -213,6 +214,41 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
   }
   vtkLogEndScope("Overlapping Hexes");
 
+  vtkLogStartScope(TRACE, "Overlapping Tets and Hexes mixture");
+
+  // We test data that has a mixture of tets and hexes
+  if (myrank == 0)
+  {
+    vtkNew<vtkXMLUnstructuredGridReader> reader;
+    reader->SetFileName(TetHexname);
+    detector->SetInputConnection(reader->GetOutputPort());
+  }
+  else
+  {
+    vtkNew<vtkUnstructuredGrid> ug;
+    ug->Initialize();
+    detector->SetInputDataObject(ug);
+  }
+  detector->Update();
+
+  {
+    vtkDataSet* output = vtkDataSet::SafeDownCast(detector->GetOutput(0));
+    vtkDataArray* data =
+      output->GetCellData()->GetArray(detector->GetNumberOfOverlapsPerCellArrayName());
+    for (const auto val : vtk::DataArrayValueRange<1>(data))
+    {
+      if (val)
+      {
+        std::cerr << "Overlapping cells detector detected overlaps on a non-overlapping dataset"
+                  << std::endl;
+        retVal = EXIT_FAILURE;
+        break;
+      }
+    }
+  }
+  vtkLogEndScope("Overlapping Tets and Hexes mixture");
+
+  delete[] TetHexname;
   delete[] Hexname;
   delete[] MultiBlockTetname;
   delete[] Tetname;
