@@ -93,6 +93,10 @@ include(CheckTypeSize)
 
 option(VTK_USE_MPI "Support MPI" OFF)
 
+option(VTK_SERIAL_TESTS_USE_MPIEXEC "Used on HPC to run serial tests on compute nodes" OFF)
+mark_as_advanced(VTK_SERIAL_TESTS_USE_MPIEXEC)
+
+
 set(VTK_BUILD_TESTING "OFF"
   CACHE STRING "Build module testing directories")
 set_property(CACHE VTK_BUILD_TESTING

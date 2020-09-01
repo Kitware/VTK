@@ -217,6 +217,9 @@ More advanced options:
     enable Tkinter support for VTK widgets.
   * `VTK_BUILD_COMPILE_TOOLS_ONLY` (default `OFF`): If set, VTK will compile
     just its compile tools for use in a cross-compile build.
+  * `VTK_SERIAL_TESTS_USE_MPIEXEC` (default `OFF`): Used on HPC to run
+    serial tests on compute nodes. If set, it prefixes serial tests with
+    "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
