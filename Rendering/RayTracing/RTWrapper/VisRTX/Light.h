@@ -45,6 +45,27 @@ namespace RTW
             this->light->Release();
         }
 
+        std::string GetType()
+        {
+            switch(this->light->GetType())
+            {
+            case VisRTX::LightType::AMBIENT:
+                return "ambient";
+            case VisRTX::LightType::DIRECTIONAL:
+                return "distant";
+            case VisRTX::LightType::SPHERICAL:
+                return "sphere";
+            case VisRTX::LightType::SPOT:
+                return "spot";
+            case VisRTX::LightType::QUAD:
+                return "quad";
+            case VisRTX::LightType::HDRI:
+                return "hdri";
+            default:
+                return "unknown";
+            }
+        }
+
         void Commit() override
         {
             VisRTX::Vec3f color;

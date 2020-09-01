@@ -55,7 +55,7 @@ if (VTK_ENABLE_OSPRAY)
   )
 endif()
 
-if (enable_visrtx)
+if (VTK_ENABLE_VISRTX)
   # OSPRay tests that are rerun with the OptiX backend
   set(optix_tests
     TestOSPRayAmbient
@@ -79,7 +79,6 @@ if (enable_visrtx)
     TestCategoricalMaterials
     TestCategoricalMultiBlock
     TestPathTracerBackground
-    TestPathTracerGLTFImporter.cxx DATA{../Data/WaterBottle.glb}
     TestPathTracerLuminous
     TestPathTracerMaterials
     TestPathTracerShadows
@@ -98,7 +97,7 @@ if (enable_visrtx)
     ${optix_test_sources})
 endif ()
 
-if (VTK_ENABLE_OSPRAY AND enable_visrtx)
+if (VTK_ENABLE_OSPRAY AND VTK_ENABLE_VISRTX)
   # Tests combining both OSPRay and OptiX backends
   vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests_combined
     TestRendererType.cxx

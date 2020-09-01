@@ -51,8 +51,8 @@ namespace RTW
             Data *color = reinterpret_cast<Data *>(GetObject<Data>({"color"}, nullptr, &found));
             if(found)
             {
-                assert(material->GetDataType() == RTW_DATA);
-                geometry->SetObject("vertex.color", color);
+                assert(color->GetDataType() == RTW_DATA);
+                geometry->SetObject("color", color);
                 geometry->Commit();
             }
         }

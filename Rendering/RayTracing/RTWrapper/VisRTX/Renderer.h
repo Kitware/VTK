@@ -49,13 +49,12 @@ namespace RTW
                 this->renderer->SetCamera(camera->camera);
             }
 
-            Light tempLight("AmbientLight");
+            Light bgLight("AmbientLight");
             VisRTX::Vec4f backgroundColor = GetVec4f({"backgroundColor"}, VisRTX::Vec4f(0.5f, 0.5f, 0.5f, 1.0f));
-            tempLight.SetVec3f("color", backgroundColor.x, backgroundColor.y, backgroundColor.z);
-            tempLight.SetFloat("intensity", 1.0f);
-            tempLight.Commit();
+            bgLight.SetVec3f("color", backgroundColor.x, backgroundColor.y, backgroundColor.z);
+            bgLight.SetFloat("intensity", 0.5f);
+            bgLight.Commit();
 
-            bool removeTemp = false;
 
             // World
             if (world)
@@ -83,18 +82,15 @@ namespace RTW
                         Light* lightHandle = lights[i];
                         if (lightHandle)
                         {
+                            std::string type = lightHandle->GetType();
                             VisRTX::Light* light = lightHandle->light;
                             this->renderer->AddLight(light);
                             this->lastLights.push_back(light);
                         }
                     }
                 }
-                else
-                {
-                    //If no light data was supplied, create a miss light from the supplied background color.
-                    this->renderer->AddLight(tempLight.light);
-                    removeTemp = true;
-                }
+
+                this->renderer->AddLight(bgLight.light);
             }
 
             // Samples per pixel
@@ -130,8 +126,8 @@ namespace RTW
                 vtkLogF(ERROR, "VisRTX internal error: \"%s\"", e.what());
             }
 
-            if(removeTemp)
-                this->renderer->RemoveLight(tempLight.light);
+            if(world)
+                this->renderer->RemoveLight(bgLight.light);
 
             // VisRTX does not use a variance buffer
             return std::numeric_limits<float>::infinity();
