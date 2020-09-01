@@ -150,6 +150,15 @@ public:
   static vtkTypeBool IntersectWithPlane(
     double bounds[6], double origin[3], double normal[3], double xout[18]);
 
+  /**
+   * Is a box in a frustum. Returns true if the box is in the frustum
+   * even partially. The frustum is defined as 6 planes. This method
+   * is not exact may and return true for cases where there is no
+   * intersection. It should never return false when there is an
+   * intersection though.
+   */
+  static vtkTypeBool IsBoxInFrustum(double planes[24], double bounds[6]);
+
 protected:
   vtkBox();
   ~vtkBox() override;

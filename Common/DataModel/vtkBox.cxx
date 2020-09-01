@@ -819,3 +819,89 @@ void vtkBox::GetXMax(double& x, double& y, double& z)
 {
   this->BBox->GetMaxPoint(x, y, z);
 }
+
+vtkTypeBool vtkBox::IsBoxInFrustum(double planes[24], double bounds[6])
+{
+  // 8 points that define the four quadrants.
+  static const double factor[8][3] = {
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    0.0,
+    1.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+  };
+
+  // for each of the points check if it is in the frustum
+  double size[3];
+  size[0] = bounds[1] - bounds[0];
+  size[1] = bounds[3] - bounds[2];
+  size[2] = bounds[5] - bounds[4];
+
+  // build and test the 8 points
+  bool allNeg[6] = { true, true, true, true, true, true };
+
+  // for each point
+  for (int i = 0; i < 8; ++i)
+  {
+    double pt[3];
+    pt[0] = bounds[0] + size[0] * factor[i][0];
+    pt[1] = bounds[2] + size[1] * factor[i][1];
+    pt[2] = bounds[4] + size[2] * factor[i][2];
+
+    // for each plane
+    bool allPos = true;
+    for (int pj = 0; pj < 6; ++pj)
+    {
+      // eval the plane function
+      double val = pt[0] * planes[pj * 4] + pt[1] * planes[pj * 4 + 1] +
+        pt[2] * planes[pj * 4 + 2] + planes[pj * 4 + 3];
+      // watch for all positive and all Negative conditions
+      if (val < 0)
+      {
+        allPos = false;
+      }
+      else if (val > 0)
+      {
+        allNeg[pj] = false;
+      }
+    }
+
+    // if any point is positive in all 6 planes then we are in the frustum
+    if (allPos)
+    {
+      return true;
+    }
+  }
+
+  // if any plane is negative for all 8 points we are not inside
+  // e.g. all 8 points are on the far side of a given plane
+  for (int l = 0; l < 6; ++l)
+  {
+    if (allNeg[l])
+    {
+      return false;
+    }
+  }
+
+  // not sure so return true
+  return true;
+}
