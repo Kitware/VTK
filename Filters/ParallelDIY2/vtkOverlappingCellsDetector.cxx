@@ -372,8 +372,10 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   std::vector<std::vector<vtkBoundingBox>> cellBoundingBoxesArray(outputs.size());
   std::vector<vtkSmartPointer<vtkPointSet>> pointCloudArray;
 
+  const int size = static_cast<int>(outputs.size());
+
   vtkLogStartScope(TRACE, "extract cell bounding spheres");
-  for (std::size_t localId = 0; localId < outputs.size(); ++localId)
+  for (int localId = 0; localId < size; ++localId)
   {
     pointCloudArray.emplace_back(vtkSmartPointer<vtkPointSet>::Take(
       detail::ConvertCellsToBoundingSpheres(outputs[localId], cellBoundingBoxesArray[localId])));
@@ -386,7 +388,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   diy::Master master(
     comm, 1, -1, []() { return static_cast<void*>(new detail::Block()); },
     [](void* b) -> void { delete static_cast<detail::Block*>(b); });
-  vtkDIYExplicitAssigner assigner(comm, outputs.size());
+  vtkDIYExplicitAssigner assigner(comm, size);
 
   vtkLogStartScope(TRACE, "populate master");
   std::vector<int> gids;
@@ -439,7 +441,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
     overlappingCellCandidatesDataSetsArray;
 
   vtkLogStartScope(TRACE, "isolate overlapping cell candidates for neighbor ranks");
-  for (std::size_t localId = 0; localId < outputs.size(); ++localId)
+  for (int localId = 0; localId < size; ++localId)
   {
     boundingBoxesArray.emplace_back(std::move(master.block<detail::Block>(localId)->BoundingBoxes));
 
@@ -547,7 +549,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   std::vector<std::map<int, vtkSmartPointer<vtkDataSet>>> queryCellDataSetsArray;
 
   vtkLogStartScope(TRACE, "locally treat received cells");
-  for (std::size_t localId = 0; localId < outputs.size(); ++localId)
+  for (int localId = 0; localId < size; ++localId)
   {
     auto& output = outputs[localId];
     auto& pointCloud = pointCloudArray[localId];
@@ -648,7 +650,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   vtkLogEndScope("send back detected overlaps");
 
   vtkLogStartScope(TRACE, "add detected overlaps from other ranks");
-  for (std::size_t localId = 0; localId < outputs.size(); ++localId)
+  for (int localId = 0; localId < size; ++localId)
   {
     auto& collisionIdList = master.block<detail::Block>(localId)->CollisionListMaps;
     auto& collisionListMapList = collisionListMapListArray[localId];
