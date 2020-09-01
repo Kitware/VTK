@@ -52,8 +52,9 @@ namespace RTW
             Light bgLight("AmbientLight");
             VisRTX::Vec4f backgroundColor = GetVec4f({"backgroundColor"}, VisRTX::Vec4f(0.5f, 0.5f, 0.5f, 1.0f));
             bgLight.SetVec3f("color", backgroundColor.x, backgroundColor.y, backgroundColor.z);
-            bgLight.SetFloat("intensity", 0.5f);
+            bgLight.SetFloat("intensity", 0.3f);
             bgLight.Commit();
+            bool removeTemp = false;
 
 
             // World
@@ -82,15 +83,17 @@ namespace RTW
                         Light* lightHandle = lights[i];
                         if (lightHandle)
                         {
-                            std::string type = lightHandle->GetType();
                             VisRTX::Light* light = lightHandle->light;
                             this->renderer->AddLight(light);
                             this->lastLights.push_back(light);
                         }
                     }
                 }
-
-                this->renderer->AddLight(bgLight.light);
+                else
+                {
+                    removeTemp = true;
+                    this->renderer->AddLight(bgLight.light);
+                }
             }
 
             // Samples per pixel
@@ -126,7 +129,7 @@ namespace RTW
                 vtkLogF(ERROR, "VisRTX internal error: \"%s\"", e.what());
             }
 
-            if(world)
+            if(removeTemp)
                 this->renderer->RemoveLight(bgLight.light);
 
             // VisRTX does not use a variance buffer
