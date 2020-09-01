@@ -51,13 +51,14 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkVector.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
+
 #include <algorithm>
 #include <cassert>
+#include <memory>
 #include <unordered_map>
 
 static inline int sizeofFastQuad(int numPts)
@@ -142,6 +143,8 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->OriginalPointIdsName = nullptr;
 
   this->NonlinearSubdivisionLevel = 1;
+
+  this->Delegation = false;
 }
 
 //------------------------------------------------------------------------------
@@ -1459,41 +1462,46 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 // Tris are now degenerate quads so we only need one hash table.
 // We might want to change the method names from QuadHash to just Hash.
 
-//------------------------------------------------------------------------------
+// Coordinate the delegation process.
 int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPolyData* output)
 {
-  vtkUnstructuredGridBase* input = vtkUnstructuredGridBase::SafeDownCast(dataSetInput);
+  return this->UnstructuredGridExecute(dataSetInput, output, nullptr);
+}
 
-  vtkSmartPointer<vtkCellIterator> cellIter =
-    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+//------------------------------------------------------------------------------
+// This method may delegate to vtkGeometryFilter. The "info", if passed in,
+// provides information about the unstructured grid. This avoids the possibility of
+// repeated evaluations, and back and forth delegation, as vtkGeometryFilter and
+// vtkDataSetSurfaceFilter coordinate their efforts.
+int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
+  vtkDataSet* dataSetInput, vtkPolyData* output, vtkGeometryFilterHelper* info)
+{
+  vtkUnstructuredGrid* input = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
+
+  // If no info, then compute information about the unstructured grid.
+  // Depending on the outcome, we may process the data ourselves, or send over
+  // to the faster vtkGeometryFilter.
+  bool mayDelegate = (info == nullptr && this->Delegation);
+  if (info == nullptr)
+  {
+    info = vtkGeometryFilterHelper::CharacterizeUnstructuredGrid(input);
+  }
+  bool handleSubdivision = (!info->IsLinear);
 
   // Before we start doing anything interesting, check if we need handle
   // non-linear cells using sub-division.
-  bool handleSubdivision = false;
-  if (this->NonlinearSubdivisionLevel >= 1)
+  if (info->IsLinear && mayDelegate)
   {
-    // Check to see if the data actually has nonlinear cells.  Handling
-    // nonlinear cells adds unnecessary work if we only have linear cells.
-    vtkIdType numCells = input->GetNumberOfCells();
-    if (input->IsHomogeneous())
-    {
-      if (numCells >= 1)
-      {
-        handleSubdivision = !vtkCellTypes::IsLinear(input->GetCellType(0));
-      }
-    }
-    else
-    {
-      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
-      {
-        if (!vtkCellTypes::IsLinear(cellIter->GetCellType()))
-        {
-          handleSubdivision = true;
-          break;
-        }
-      }
-    }
+    vtkNew<vtkGeometryFilter> gf;
+    vtkGeometryFilterHelper::CopyFilterParams(this, gf.Get());
+    gf->UnstructuredGridExecute(dataSetInput, output, info);
+    delete info;
+    return 1;
   }
+
+  // If here, the data is gnarly and this filter will process it.
+  vtkSmartPointer<vtkCellIterator> cellIter =
+    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
   vtkSmartPointer<vtkUnstructuredGrid> tempInput;
   if (handleSubdivision)
@@ -2415,7 +2423,7 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(
     c = b;
     b = tmp;
   }
-  // We can't put the second smnallest in b because it might change the order
+  // We can't put the second smallest in b because it might change the order
   // of the vertices in the final triangle.
 
   // Look for existing tri in the hash;

@@ -2,6 +2,7 @@
 import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
+import sys
 
 # create pipeline - structured grid
 #
@@ -178,10 +179,20 @@ gf.SetInputData(ug)
 gf.Update()
 pd = gf.GetOutput()
 oa = pd.GetCellData().GetArray('testarray')
+
+# Check that the ordering of polydata arrays is correct. Verts should come before
+# lines.
 correctcelldata = [1, 3, 0, 2]
-for i in range(4):
-    if oa.GetValue(i) != correctcelldata[i]:
-        print('Bad celldata of test array')
-        import sys
-        sys.exit(1)
+if oa.GetValue(0) != correctcelldata[0] and oa.GetValue(0) != correctcelldata[1]:
+    print('Bad celldata of test array')
+    sys.exit(1)
+if oa.GetValue(1) != correctcelldata[0] and oa.GetValue(1) != correctcelldata[1]:
+    print('Bad celldata of test array')
+    sys.exit(1)
+if oa.GetValue(2) != correctcelldata[2] and oa.GetValue(2) != correctcelldata[3]:
+    print('Bad celldata of test array')
+    sys.exit(1)
+if oa.GetValue(3) != correctcelldata[2] and oa.GetValue(3) != correctcelldata[3]:
+    print('Bad celldata of test array')
+    sys.exit(1)
 # --- end of script --

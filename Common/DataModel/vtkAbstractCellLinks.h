@@ -130,6 +130,17 @@ public:
 
   //@{
   /**
+   * Select all cells with a point degree in the range [minDegree,maxDegree).
+   * The degree is the number of cells using a point. The selection is
+   * indicated through the provided unsigned char array, with a non-zero
+   * value indicates selection. The memory allocated for cellSelection must
+   * be the maximum cell id referenced in the links.
+   */
+  virtual void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) = 0;
+  //@}
+
+  //@{
+  /**
    * Force sequential processing (i.e. single thread) of the link building
    * process. By default, sequential processing is off. Note this flag only
    * applies if the class has been compiled with VTK_SMP_IMPLEMENTATION_TYPE

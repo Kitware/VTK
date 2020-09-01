@@ -576,7 +576,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
   // Cell field list constructed from the filtered cell data array
   vtkDataSetAttributes::FieldList cfl(1);
   cfl.InitializeFieldList(processedCellData);
-  opd->InterpolateAllocate(cfl, npoints, npoints);
+  opd->InterpolateAllocate(processedCellData, npoints);
 
   // Pass the input cell data to the output as appropriate.
   if (!this->PassCellData)

@@ -87,6 +87,20 @@ public:
    */
   vtkIdType* GetCells(vtkIdType ptId) { return this->Impl->GetCells(ptId); }
 
+  //@{
+  /**
+   * Select all cells with a point degree in the range [minDegree,maxDegree).
+   * The degree is the number of cells using a point. The selection is
+   * indicated through the provided unsigned char array, with a non-zero
+   * value indicates selection. The memory allocated for cellSelection must
+   * be the maximum cell id referenced in the links.
+   */
+  void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) override
+  {
+    return this->Impl->SelectCells(minMaxDegree, cellSelection);
+  }
+  //@}
+
   /**
    * Make sure any previously created links are cleaned up.
    */

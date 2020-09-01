@@ -73,7 +73,6 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 #include "vtkSMPThreadLocalObject.h"
-#include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkTetra.h"
 #include "vtkTriQuadraticHexahedron.h"
@@ -91,6 +90,7 @@
 #include <algorithm>
 #include <limits>
 #include <set>
+#include <unordered_map>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
 vtkStandardExtendedNewMacro(vtkUnstructuredGrid);
@@ -1958,104 +1958,257 @@ bool vtkUnstructuredGrid::AllocateExact(vtkIdType numCells, vtkIdType connectivi
   return result;
 }
 
-//------------------------------------------------------------------------------
-// Return the cells that use the ptIds provided. This is a set (intersection)
-// operation - it can have significant performance impacts on certain filters
-// like vtkGeometryFilter. It would be nice to make this faster.
-void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
+//----------------------------------------------------------------------------
+// Supporting functions for IsCellBoundary() and GetCellNeighbors(). There
+// are two ways to approach these algorithms. 1) Intersect the cell links
+// lists to determine which cells (if any) are used by all boundary entity
+// points; or 2) find the shortest cell links list of a point, and then see if
+// any cells in that list use all the other points defining the boundary
+// entity. While 2) is faster (for tets - it's data dependent however) - it
+// is not thread-safe in the case when the type of vtkUnstructuredGrid's
+// (vtkCellArray) connectivity array is not the same as vtkIdType. (When
+// shareable is true, the types are the same.) Hence both algorithms are
+// implemented in the following.
+//
+namespace
+{ // anonymous
+// Determine whether the points provides form a boundary entity
+template <class TLinks>
+inline bool IsCellBoundaryImp(vtkUnstructuredGrid* self, TLinks* links, bool shareable,
+  vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
 {
-  // Ensure links are built.
+  if (!shareable)
+  {
+    // Cell faces are currently no greater than 6 in size.
+    // We want to make calls to the links methods only once.
+    npts = (npts > 6 ? 6 : npts);
+    vtkIdType numCells[6];
+    vtkIdType* cells[6];
+
+    // Find the shortest cell links list.
+    int i, j, minList = 0;
+    vtkIdType minNumCells = VTK_INT_MAX;
+    for (i = 0; i < npts; ++i)
+    {
+      numCells[i] = links->GetNcells(pts[i]);
+      cells[i] = links->GetCells(pts[i]);
+      if (numCells[i] < minNumCells)
+      {
+        minList = i;
+        minNumCells = numCells[i];
+      }
+    }
+
+    vtkIdType ncells0 = numCells[minList], *c0 = cells[minList];
+    vtkIdType ncells, *c;
+    for (i = 0; i < ncells0; ++i) // for all cells in the shortest list
+    {
+      vtkIdType candidateCellId = c0[i];
+      if (candidateCellId != cellId)
+      {
+        // check all other lists for inclusion
+        bool inAllLists = true;
+        for (auto linkArray = 0; inAllLists == true && linkArray < npts; ++linkArray)
+        {
+          if (linkArray == minList)
+          {
+            continue; // don't process this list
+          }
+          ncells = numCells[linkArray];
+          c = cells[linkArray];
+          for (j = 0; j < ncells; ++j) // check the next cell list
+          {
+            if (c[j] == candidateCellId)
+            {
+              break; // match found, in cell list
+            }
+          }
+          if (j >= ncells) // cell not found in this list
+          {
+            inAllLists = false;
+            break;
+          }
+        } // intersects
+        if (inAllLists)
+        {
+          return false; // i.e., not a boundary entity
+        }
+      } // if candidate cell != cellId
+    }   // for all potential cell neighbors
+
+    return true;
+  }    // if not shareable
+  else // shareable
+  {
+    // Find the shortest linked list
+    vtkIdType ptId, numCells, minPtId = 0, minNumCells = VTK_INT_MAX;
+    const vtkIdType* minCells;
+    for (auto i = 0; i < npts; ++i)
+    {
+      ptId = pts[i];
+      numCells = links->GetNcells(ptId);
+      if (numCells < minNumCells)
+      {
+        minNumCells = numCells;
+        minPtId = ptId;
+      }
+    }
+    minCells = links->GetCells(minPtId);
+
+    // Now for each cell, see if it contains all the points
+    // in the ptIds list. If so, then this is not a boundary entity.
+    bool match;
+    for (auto i = 0; i < minNumCells; ++i)
+    {
+      if (minCells[i] != cellId) // don't include current cell
+      {
+        const vtkIdType* cellPts;
+        vtkIdType numPts;
+        // GetCellPoints() is not thread safe when vtkIdType is not the same
+        // as the vtkUnstructuredGrid's connectivity array.
+        self->GetCellPoints(minCells[i], numPts, cellPts);
+        match = true;
+        for (auto j = 0; j < npts && match; ++j) // for all pts in input boundary entity
+        {
+          if (pts[j] != minPtId) // of course minPtId is contained by cell
+          {
+            match = false;
+            for (auto k = 0; k < numPts; ++k) // for all points in candidate cell
+            {
+              if (pts[j] == cellPts[k])
+              {
+                match = true; // a match was found
+                break;
+              }
+            } // for all points in current cell
+          }   // if not guaranteed match
+        }     // for all points in input cell
+        if (match)
+        {
+          return false;
+        }
+      } // if not the reference cell
+    }   // for each cell in minimum linked list
+    return true;
+  } // vtkCellArray not shareable
+}
+
+// Identify the neighbors to the specified cell, where the neighbors
+// use all the points in the points list (pts).
+template <class TLinks>
+inline void GetCellNeighborsImp(TLinks* links, bool vtkNotUsed(shareable), vtkIdType cellId,
+  vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
+{
+  // Intersect the cell links lists to determine which cells exist in all
+  // lists. If any cell is contained in all cell lists, then this is a
+  // neighboring cell and added to the list of neighbors.
+  int i, j;
+  vtkIdType ncells0 = links->GetNcells(pts[0]), *c0 = links->GetCells(pts[0]);
+  vtkIdType ncells, *c;
+  for (i = 0; i < ncells0; ++i) // for all cells in first cell list
+  {
+    vtkIdType candidateCellId = c0[i];
+    if (candidateCellId != cellId)
+    {
+      // check all other lists for inclusion
+      bool inAllLists = true;
+      for (auto linkArray = 1; inAllLists == true && linkArray < npts; ++linkArray)
+      {
+        ncells = links->GetNcells(pts[linkArray]);
+        c = links->GetCells(pts[linkArray]);
+        for (j = 0; j < ncells; ++j) // check the next cell list
+        {
+          if (c[j] == candidateCellId)
+          {
+            break; // match found, in cell list
+          }
+        }
+        if (j >= ncells) // cell not found in this list
+        {
+          inAllLists = false;
+          break;
+        }
+      } // intersects
+      if (inAllLists)
+      {
+        cellIds->InsertNextId(candidateCellId);
+      }
+    } // if candidate cell != cellId
+  }   // for all potential cell neighbors
+}
+
+} // end anonymous namespace
+
+//----------------------------------------------------------------------------
+bool vtkUnstructuredGrid::IsCellBoundary(vtkIdType cellId, vtkIdType npts, const vtkIdType* pts)
+{
+  // Ensure that a valid neighborhood request is made.
+  if (npts <= 0)
+  {
+    return false;
+  }
+
+  // Ensure that cell links are available.
   if (!this->Links)
   {
     this->BuildLinks();
   }
-  cellIds->Reset();
 
-  // Ensure that a proper neighborhood request is made.
-  vtkIdType numPts = ptIds->GetNumberOfIds();
-  if (numPts <= 0)
-  {
-    return;
-  }
+  // See if vtkCellArray storage is shareable. This will inform the
+  // GetCellNeighbors() algorithm.
+  bool shareable = this->Connectivity->IsStorageShareable();
 
-  vtkIdType numCells, ptId, *pts = ptIds->GetPointer(0);
-  int minNumCells = VTK_INT_MAX;
-  vtkIdType* minCells = nullptr;
-  vtkIdType minPtId = 0;
-
-  // Find the point used by the fewest number of cells as a starting set.
-  // Note the explicit cast to locator type. Several experiments were
-  // undertaken using virtual methods, switch statements, etc. but there were
-  // significant performance impacts. This includes using different
-  // instantiations of vtkStaticCellLinksTemplate<> of various types (to
-  // reduce memory footprint) - the lesson learned is that the code here is
-  // very sensitive to compiler optimizations so if you make changes, make
-  // sure to test the impacts on performance.
+  // Get the links (cells that use each point) depending on the editable
+  // state of this object.
   if (!this->Editable)
   {
     vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
-
-    for (auto i = 0; i < numPts; ++i)
-    {
-      ptId = pts[i];
-      numCells = links->GetNcells(ptId);
-      if (numCells < minNumCells)
-      {
-        minNumCells = numCells;
-        minPtId = ptId;
-      }
-    }
-    minCells = links->GetCells(minPtId);
+    return IsCellBoundaryImp<vtkStaticCellLinks>(this, links, shareable, cellId, npts, pts);
   }
   else
   {
     vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
+    return IsCellBoundaryImp<vtkCellLinks>(this, links, shareable, cellId, npts, pts);
+  }
+}
 
-    for (auto i = 0; i < numPts; ++i)
-    {
-      ptId = pts[i];
-      numCells = links->GetNcells(ptId);
-      if (numCells < minNumCells)
-      {
-        minNumCells = numCells;
-        minPtId = ptId;
-      }
-    }
-    minCells = links->GetCells(minPtId);
+//----------------------------------------------------------------------------
+// Return the cells that use all of the ptIds provided. This is a set
+// (intersection) operation - it can have significant performance impacts on
+// certain filters like vtkGeometryFilter.
+void vtkUnstructuredGrid::GetCellNeighbors(
+  vtkIdType cellId, vtkIdType npts, const vtkIdType* pts, vtkIdList* cellIds)
+{
+  // Empty the list
+  cellIds->Reset();
+
+  // Ensure that a proper neighborhood request is made.
+  if (npts <= 0)
+  {
+    return;
   }
 
-  // Now for each cell, see if it contains all the points
-  // in the ptIds list. If so, add the cellId to the neighbor list.
-  bool match;
-  for (auto i = 0; i < minNumCells; ++i)
+  // Ensure that links are built.
+  if (!this->Links)
   {
-    if (minCells[i] != cellId) // don't include current cell
-    {
-      const vtkIdType* cellPts;
-      vtkIdType npts;
-      this->GetCellPoints(minCells[i], npts, cellPts);
-      match = true;
-      for (auto j = 0; j < numPts && match; ++j) // for all pts in input cell
-      {
-        if (pts[j] != minPtId) // of course minPtId is contained by cell
-        {
-          match = false;
-          for (auto k = 0; k < npts; ++k) // for all points in candidate cell
-          {
-            if (pts[j] == cellPts[k])
-            {
-              match = true; // a match was found
-              break;
-            }
-          } // for all points in current cell
-        }   // if not guaranteed match
-      }     // for all points in input cell
-      if (match)
-      {
-        cellIds->InsertNextId(minCells[i]);
-      }
-    } // if not the reference cell
-  }   // for all candidate cells attached to point
+    this->BuildLinks();
+  }
+
+  // See if vtkCellArray storage is shareable. This will inform the
+  // GetCellNeighbors() algorithm.
+  bool shareable = this->Connectivity->IsStorageShareable();
+
+  // Get the cell links based on the current state.
+  if (!this->Editable)
+  {
+    vtkStaticCellLinks* links = static_cast<vtkStaticCellLinks*>(this->Links.Get());
+    return GetCellNeighborsImp<vtkStaticCellLinks>(links, shareable, cellId, npts, pts, cellIds);
+  }
+  else
+  {
+    vtkCellLinks* links = static_cast<vtkCellLinks*>(this->Links.Get());
+    return GetCellNeighborsImp<vtkCellLinks>(links, shareable, cellId, npts, pts, cellIds);
+  }
 }
 
 //------------------------------------------------------------------------------

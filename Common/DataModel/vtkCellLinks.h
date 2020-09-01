@@ -93,6 +93,17 @@ public:
    */
   vtkIdType* GetCells(vtkIdType ptId) { return this->Array[ptId].cells; }
 
+  //@{
+  /**
+   * Select all cells with a point degree in the range [minDegree,maxDegree).
+   * The degree is the number of cells using a point. The selection is
+   * indicated through the provided unsigned char array, with a non-zero
+   * value indicates selection. The memory allocated for cellSelection must
+   * be the maximum cell id referenced in the links.
+   */
+  void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) override;
+  //@}
+
   /**
    * Insert a new point into the cell-links data structure. The size parameter
    * is the initial size of the list.
@@ -163,6 +174,8 @@ protected:
     , Size(0)
     , MaxId(-1)
     , Extend(1000)
+    , NumberOfPoints(0)
+    , NumberOfCells(0)
   {
   }
   ~vtkCellLinks() override;
@@ -184,6 +197,10 @@ protected:
   vtkIdType MaxId;            // maximum index inserted thus far
   vtkIdType Extend;           // grow array by this point
   Link* Resize(vtkIdType sz); // function to resize data
+
+  // Some information recorded at build time
+  vtkIdType NumberOfPoints;
+  vtkIdType NumberOfCells;
 
 private:
   vtkCellLinks(const vtkCellLinks&) = delete;

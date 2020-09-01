@@ -123,6 +123,7 @@ public:
    */
   unsigned long GetActualMemorySize();
   void DeepCopy(vtkAbstractCellLinks* src);
+  void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection);
   //@}
 
   //@{
