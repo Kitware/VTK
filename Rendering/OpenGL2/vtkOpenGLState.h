@@ -419,10 +419,6 @@ protected:
   {
   public:
     BufferBindingState();
-    // bool operator==(const BufferBindingState& a, const BufferBindingState& b);
-    // either this holds a vtkOpenGLFramebufferObject
-    vtkOpenGLFramebufferObject* Framebuffer;
-    // or the handle to an unknown OpenGL FO
     unsigned int Binding;
     unsigned int ReadBuffer;
     unsigned int DrawBuffers[10];
