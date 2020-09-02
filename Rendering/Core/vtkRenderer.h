@@ -640,8 +640,9 @@ public:
    * Enable or disable Screen Space Ambient Occlusion.
    * SSAO darkens some pixels to improve depth perception.
    */
-  vtkSetMacro(UseSSAO, int);
-  vtkGetMacro(UseSSAO, int);
+  vtkSetMacro(UseSSAO, bool);
+  vtkGetMacro(UseSSAO, bool);
+  vtkBooleanMacro(UseSSAO, bool);
   //@}
 
   //@{
@@ -679,6 +680,7 @@ public:
    */
   vtkSetMacro(SSAOBlur, bool);
   vtkGetMacro(SSAOBlur, bool);
+  vtkBooleanMacro(SSAOBlur, bool);
   //@}
 
   //@{
