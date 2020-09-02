@@ -329,7 +329,7 @@ void vtkSphereComputeBoundingSphere(
           sphere[j] = (s1[j] + s2[j]) / 2.0;
         }
         r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-        sphere[3] = r2 > 0.0 ? sqrt(r2) : s1[3];
+        sphere[3] = std::max(r2 > 0.0 ? sqrt(r2) : s1[3], sphere[3]);
       }
     }
   }
