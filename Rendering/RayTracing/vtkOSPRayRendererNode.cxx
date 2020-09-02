@@ -336,15 +336,6 @@ public:
           ren->GetEnvironmentalBG(bg1);
           bgAlpha = 1.0;
         }
-        if (forpathtracer)
-        {
-          for (int i = 0; i < 3; i++)
-          {
-            // the final image is gamma corrected so the background has to be converted to linear
-            // color space
-            bg1[i] = pow(bg1[i], 2.2);
-          }
-        }
 
         int isize = 1;
         int jsize = 1;
@@ -358,13 +349,6 @@ public:
           else
           {
             ren->GetEnvironmentalBG2(bg2);
-          }
-          if (forpathtracer)
-          {
-            for (int i = 0; i < 3; i++)
-            {
-              bg2[i] = pow(bg2[i], 2.2);
-            }
           }
 
           isize = 256; // todo: configurable
@@ -394,6 +378,8 @@ public:
           ochars[3] = bgAlpha * 255;
         }
 
+        // when using path tracer, the final image is gamma corrected so the background has to be
+        // sampled in linear color space (using OSP_TEXTURE_SRGBA texture format)
         t2d = vtkOSPRayMaterialHelpers::NewTexture2D(backend, osp::vec2i{ jsize, isize },
           (forpathtracer ? OSP_TEXTURE_SRGBA : OSP_TEXTURE_RGBA8), ochars.data(), 0);
       }
