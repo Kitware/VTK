@@ -44,12 +44,12 @@ vtkQWidgetTexture::vtkQWidgetTexture()
     {
       this->Context->MakeCurrent();
       auto state = this->Context->GetState();
-      state->PushFramebufferBindings();
       this->Framebuffer->bind();
 
       QOpenGLPaintDevice* device = new QOpenGLPaintDevice(this->Framebuffer->size());
       QPainter* painter = new QPainter(device);
 
+      state->Reset();
       state->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 4);
       this->Scene->render(painter);
       this->Framebuffer->release();
@@ -59,20 +59,8 @@ vtkQWidgetTexture::vtkQWidgetTexture()
       delete painter;
       delete device;
 
-      // bring vtk state back in sync with Qt state
-      state->PopFramebufferBindings();
-      state->ResetEnumState(GL_BLEND);
-      state->ResetEnumState(GL_DEPTH_TEST);
-      state->ResetEnumState(GL_SCISSOR_TEST);
-#ifdef GL_MULTISAMPLE
-      state->ResetEnumState(GL_MULTISAMPLE);
-#endif
-      state->ResetGLScissorState();
-      state->ResetGLClearColorState();
-      state->ResetGLViewportState();
-      state->ResetGLDepthFuncState();
-      state->ResetGLBlendFuncState();
-      state->ResetFramebufferBindings();
+      state->Reset();
+
       // reset the depth test to LEQUAL as all vtk classes
       // expect this to be the case when called
       state->vtkglDepthFunc(GL_LEQUAL);
@@ -135,15 +123,8 @@ void vtkQWidgetTexture::AllocateFromWidget()
   // the Qt code can modify a lot of OpenGL State
   // some of which we may want to preserve
   auto state = this->Context->GetState();
-  vtkOpenGLState::ScopedglEnableDisable state0(state, GL_BLEND);
-  vtkOpenGLState::ScopedglEnableDisable state1(state, GL_DEPTH_TEST);
-  vtkOpenGLState::ScopedglEnableDisable state2(state, GL_SCISSOR_TEST);
-#ifdef GL_MULTISAMPLE
-  vtkOpenGLState::ScopedglEnableDisable state3(state, GL_MULTISAMPLE);
-#endif
-  vtkOpenGLState::ScopedglBlendFuncSeparate state5(state);
-  vtkOpenGLState::ScopedglDepthFunc state6(state);
-  vtkOpenGLState::ScopedglViewport state7(state);
+  state->Reset();
+  state->Push();
 
   // typically just created once, maybe no OpenGL
   if (!this->OffscreenSurface)
@@ -172,6 +153,8 @@ void vtkQWidgetTexture::AllocateFromWidget()
       new QOpenGLFramebufferObject(this->Widget->width(), this->Widget->height(), GL_TEXTURE_2D);
     this->RedrawMethod();
   }
+
+  state->Pop();
 }
 
 void vtkQWidgetTexture::Activate()
