@@ -15,6 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWin32OpenGLRenderWindow.h"
 
 #include "vtkCommand.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
@@ -1087,6 +1088,23 @@ void vtkWin32OpenGLRenderWindow::Initialize(void)
       if (result)
       {
         this->GetState()->SetVBOCache(renWin->GetVBOCache());
+      }
+    }
+    else
+    {
+      // when sharing with a Generic window we rely on
+      // the generic window context being current
+      vtkGenericOpenGLRenderWindow* grenWin =
+        vtkGenericOpenGLRenderWindow::SafeDownCast(this->SharedRenderWindow);
+      grenWin->MakeCurrent();
+      HGLRC current = wglGetCurrentContext();
+      if (grenWin && current)
+      {
+        bool result = wglShareLists(current, this->ContextId) == TRUE;
+        if (result)
+        {
+          this->GetState()->SetVBOCache(grenWin->GetVBOCache());
+        }
       }
     }
   }
