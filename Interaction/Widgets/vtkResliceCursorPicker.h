@@ -90,7 +90,7 @@ protected:
   void TransformPoint(double pIn[4], double pOut[4]);
   void InverseTransformPoint(double pIn[4], double pOut[4]);
 
-private:
+  // Helper members
   vtkGenericCell* Cell; // used to accelerate picking
   vtkResliceCursorPolyDataAlgorithm* ResliceCursorAlgorithm;
 
