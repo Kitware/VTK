@@ -49,13 +49,14 @@ namespace RTW
                 this->renderer->SetCamera(camera->camera);
             }
 
-            Light bgLight("AmbientLight");
-            VisRTX::Vec4f backgroundColor = GetVec4f({"backgroundColor"}, VisRTX::Vec4f(0.5f, 0.5f, 0.5f, 1.0f));
-            bgLight.SetVec3f("color", backgroundColor.x, backgroundColor.y, backgroundColor.z);
-            bgLight.SetFloat("intensity", 0.3f);
+            Data *map_backplate = GetObject<Data>({"map_backplate"});
+            Light bgLight("hdri");
+            bgLight.SetVec3f("dir", 1.0, 0.0, 0.0);
+            bgLight.SetVec3f("up", 0.0, 1.0, 0.0);
+            bgLight.SetObject("map", map_backplate);
             bgLight.Commit();
-            bool removeTemp = false;
 
+            bool removeTemp = false;
 
             // World
             if (world)
@@ -89,11 +90,13 @@ namespace RTW
                         }
                     }
                 }
-                else
+                
+                if(map_backplate)
                 {
                     removeTemp = true;
                     this->renderer->AddLight(bgLight.light);
                 }
+
             }
 
             // Samples per pixel
