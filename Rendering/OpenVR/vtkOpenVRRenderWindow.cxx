@@ -74,6 +74,7 @@ vtkCxxSetObjectMacro(vtkOpenVRRenderWindow, DashboardOverlay, vtkOpenVROverlay);
 
 //------------------------------------------------------------------------------
 vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
+  : BaseStationVisibility(false)
 {
   this->SetPhysicalViewDirection(0.0, 0.0, -1.0);
   this->SetPhysicalViewUp(0.0, 1.0, 0.0);
@@ -301,6 +302,13 @@ void vtkOpenVRRenderWindow::RenderModels()
     {
       continue;
     }
+
+    if (!this->BaseStationVisibility &&
+      this->HMD->GetTrackedDeviceClass(unTrackedDevice) == vr::TrackedDeviceClass_TrackingReference)
+    {
+      continue;
+    }
+
     // do we not have a model loaded yet? try loading one
     if (!this->TrackedDeviceToRenderModel[unTrackedDevice])
     {
@@ -601,6 +609,14 @@ bool vtkOpenVRRenderWindow::CreateFrameBuffer(
   this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   return true;
+}
+
+bool vtkOpenVRRenderWindow::IsHMDPresent()
+{
+  // Returns true if the system believes that an HMD is present on the system. This function is much
+  // faster than initializing all of OpenVR just to check for an HMD. Use it when you have a piece
+  // of UI that you want to enable only for users with an HMD.
+  return vr::VR_IsHmdPresent();
 }
 
 //------------------------------------------------------------------------------

@@ -953,7 +953,7 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
   {
     vtkWidgetRepresentation* rep = vtkWidgetRepresentation::SafeDownCast(props->GetItemAsObject(i));
 
-    if (rep && rep->GetInteractionState() != 0)
+    if (rep && rep->IsA("vtkQWidgetRepresentation") && rep->GetInteractionState() != 0)
     {
       mod->SetShowRay(true);
       mod->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
