@@ -3808,10 +3808,11 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       }
       else if (currToken == '(')
       {
-        vtkGenericWarningMacro("Found a list containing scalar data followed "
-                               "by a nested list, but this reader only "
-                               "supports nested lists that precede all "
-                               "scalars. Discarding nested list data.");
+        vtkDebugWithObjectMacro(nullptr,
+          "Found a list containing scalar data followed "
+          "by a nested list, but this reader only "
+          "supports nested lists that precede all "
+          "scalars. Discarding nested list data.");
         vtkFoamEntryValue tmp(this->UpperEntryPtr);
         tmp.SetLabelType(this->LabelType);
         tmp.ReadList(io);
