@@ -52,7 +52,6 @@ vtkPIOReader::vtkPIOReader()
   this->Float64 = false;
   this->NumberOfVariables = 0;
   this->CurrentTimeStep = -1;
-  this->LastTimeStep = -1;
   this->TimeSteps = 0;
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->TimeDataStringArray = vtkStringArray::New();
@@ -68,11 +67,11 @@ vtkPIOReader::vtkPIOReader()
   // External PIO_DATA for actually reading files
   this->pioAdaptor = 0;
 
-  this->MPIController = vtkMultiProcessController::GetGlobalController();
-  if (this->MPIController)
+  this->Controller = vtkMultiProcessController::GetGlobalController();
+  if (this->Controller)
   {
-    this->Rank = this->MPIController->GetLocalProcessId();
-    this->TotalRank = this->MPIController->GetNumberOfProcesses();
+    this->Rank = this->Controller->GetLocalProcessId();
+    this->TotalRank = this->Controller->GetNumberOfProcesses();
   }
   else
   {
@@ -97,8 +96,8 @@ vtkPIOReader::~vtkPIOReader()
   this->TimeDataStringArray->Delete();
   this->SetActiveTimeDataArrayName(nullptr);
 
-  // Do not delete the MPIController which is a singleton
-  this->MPIController = nullptr;
+  // Do not delete the Controller which is a singleton
+  this->Controller = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -120,7 +119,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   if (this->pioAdaptor == 0)
   {
     // Create one PIOAdaptor which builds the MultiBlockDataSet
-    this->pioAdaptor = new PIOAdaptor(this->Rank, this->TotalRank);
+    this->pioAdaptor = new PIOAdaptor(this->Controller);
 
     // Initialize sizes and file reads
     // descriptor.pio file contains information
@@ -157,6 +156,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     this->NumberOfTimeSteps = this->pioAdaptor->GetNumberOfTimeSteps();
     this->TimeDataStringArray->InsertNextValue("SimulationTime");
     this->TimeDataStringArray->InsertNextValue("CycleIndex");
+    this->TimeDataStringArray->InsertNextValue("PIOFileIndex");
 
     this->TimeSteps = nullptr;
     if (this->NumberOfTimeSteps > 0)
@@ -181,6 +181,13 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
       for (int step = 0; step < this->NumberOfTimeSteps; step++)
       {
         this->TimeSteps[step] = this->pioAdaptor->GetCycleIndex(step);
+      }
+    }
+    else if (strcmp(this->ActiveTimeDataArrayName, "PIOFileIndex") == 0)
+    {
+      for (int step = 0; step < this->NumberOfTimeSteps; step++)
+      {
+        this->TimeSteps[step] = this->pioAdaptor->GetPIOFileIndex(step);
       }
     }
     else
@@ -247,7 +254,7 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
     dTime = requestedTimeStep;
 
     // Index of the time step to request
-    while (timeStep < this->NumberOfTimeSteps && this->TimeSteps[timeStep] < dTime)
+    while (timeStep < (this->NumberOfTimeSteps - 1) && this->TimeSteps[timeStep] < dTime)
     {
       timeStep++;
     }
@@ -268,8 +275,6 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
   // Load new geometry and data if time step has changed or selection changed
-  this->LastTimeStep = this->CurrentTimeStep;
-
   // Initialize the PIOAdaptor for reading the requested dump file
   if (!this->pioAdaptor->initializeDump(this->CurrentTimeStep))
   {
@@ -288,7 +293,6 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
 
   // Load the requested data in the correct ordering based on PIO daughters
   this->pioAdaptor->load_variable_data(output, this->CellDataArraySelection);
-
   return 1;
 }
 

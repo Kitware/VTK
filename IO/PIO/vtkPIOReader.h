@@ -146,14 +146,13 @@ protected:
   int NumberOfTimeSteps; // Temporal domain
   double* TimeSteps;     // Times available for request
   int CurrentTimeStep;   // Time currently displayed
-  int LastTimeStep;      // Last time displayed
 
   bool HyperTreeGrid; // Create HTG rather than UnstructuredGrid
   bool Tracers;       // Create UnstructuredGrid for tracer info
   bool Float64;       // Load variable data as 64 bit float
 
   // Controls initializing and querrying MPI
-  vtkMultiProcessController* MPIController;
+  vtkMultiProcessController* Controller;
 
   // Selected field of interest
   vtkDataArraySelection* CellDataArraySelection;
