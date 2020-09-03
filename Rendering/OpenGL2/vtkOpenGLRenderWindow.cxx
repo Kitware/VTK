@@ -1109,6 +1109,9 @@ void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(bool includeDepth)
 void vtkOpenGLRenderWindow::BlitToRenderFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight,
   int destX, int destY, int destWidth, int destHeight, int bufferMode, int interpolation)
 {
+  // Ensure the offscreen framebuffer is created and updated to the right size
+  this->CreateFramebuffers(this->Size[0], this->Size[1]);
+
   // depending on what is current bound this can be tricky, especially between multisampled
   // buffers
   auto ostate = this->GetState();
