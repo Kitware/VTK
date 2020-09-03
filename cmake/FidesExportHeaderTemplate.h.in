@@ -1,0 +1,69 @@
+//=============================================================================
+//
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//=============================================================================
+
+#ifndef @EXPORT_MACRO_NAME@_EXPORT_H
+#define @EXPORT_MACRO_NAME@_EXPORT_H
+
+#if defined(_MSC_VER)
+# if @EXPORT_IS_BUILT_STATIC@
+    /* This is a static component and has no need for exports
+       elf based static libraries are able to have hidden/default visibility
+       controls on symbols so we should propagate this information in that
+       use case
+    */
+#   define @EXPORT_MACRO_NAME@_EXPORT_DEFINE
+#   define @EXPORT_MACRO_NAME@_IMPORT_DEFINE
+#   define @EXPORT_MACRO_NAME@_NO_EXPORT_DEFINE
+# else
+#   define @EXPORT_MACRO_NAME@_EXPORT_DEFINE __declspec(dllexport)
+#   define @EXPORT_MACRO_NAME@_IMPORT_DEFINE __declspec(dllimport)
+#   define @EXPORT_MACRO_NAME@_NO_EXPORT_DEFINE
+# endif
+#else
+#   define @EXPORT_MACRO_NAME@_EXPORT_DEFINE __attribute__((visibility("default")))
+#   define @EXPORT_MACRO_NAME@_IMPORT_DEFINE __attribute__((visibility("default")))
+#   define @EXPORT_MACRO_NAME@_NO_EXPORT_DEFINE __attribute__((visibility("hidden")))
+#endif
+
+#ifndef @EXPORT_MACRO_NAME@_EXPORT
+# if defined(@EXPORT_IMPORT_CONDITION@)
+    /* We are building this library */
+#   define @EXPORT_MACRO_NAME@_EXPORT @EXPORT_MACRO_NAME@_EXPORT_DEFINE
+# else
+    /* We are using this library */
+#   define @EXPORT_MACRO_NAME@_EXPORT @EXPORT_MACRO_NAME@_IMPORT_DEFINE
+# endif
+#endif
+
+#ifndef @EXPORT_MACRO_NAME@_TEMPLATE_EXPORT
+# if defined(@EXPORT_IMPORT_CONDITION@) && defined(_MSC_VER)
+  /* Warning C4910 on windows state that extern explicit template can't be
+     labeled with __declspec(dllexport). So that is why we use a new custom
+     define. But when other modules ( e.g. rendering ) include this header
+     we need them to see that the extern template is actually being imported.
+  */
+    /* We are building this library with MSVC */
+#   define @EXPORT_MACRO_NAME@_TEMPLATE_EXPORT
+# elif defined(@EXPORT_IMPORT_CONDITION@)
+    /* We are building this library */
+#   define @EXPORT_MACRO_NAME@_TEMPLATE_EXPORT @EXPORT_MACRO_NAME@_EXPORT_DEFINE
+# else
+    /* We are using this library */
+#   define @EXPORT_MACRO_NAME@_TEMPLATE_EXPORT @EXPORT_MACRO_NAME@_IMPORT_DEFINE
+# endif
+#endif
+
+#ifndef @EXPORT_MACRO_NAME@_NO_EXPORT
+  #define @EXPORT_MACRO_NAME@_NO_EXPORT @EXPORT_MACRO_NAME@_NO_EXPORT_DEFINE
+#endif
+
+#endif
+
