@@ -859,7 +859,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
       {
         rotationLengthSquared += rotationValue * rotationValue;
       }
-      if (!vtkMathUtilities::NearlyEqual<float>(rotationLengthSquared, 1))
+      if (!vtkMathUtilities::NearlyEqual<float>(rotationLengthSquared, 1.f, 1e-6f))
       {
         vtkWarningWithObjectMacro(this->Self,
           "Invalid node.rotation value. Using normalized rotation for node " << node.Name);
