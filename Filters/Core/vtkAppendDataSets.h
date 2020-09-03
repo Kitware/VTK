@@ -32,7 +32,11 @@
  * really merged if there are no ghost cells and no global point ids, or if
  * there are global point ids. In the case of the presence of global point ids,
  * the filter exclusively relies on those ids, not checking if points are
- * coincident. It assumes that the global ids were properly set. In the case of
+ * coincident. It assumes that the global ids were properly set.
+ * Supported types of global ids are
+ * `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long
+ * long`, and `vtkIdType`.
+ * In the case of
  * the absence of global ids, points withing Tolerance are merged.
  *
  * @sa

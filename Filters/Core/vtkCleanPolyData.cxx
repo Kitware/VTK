@@ -20,12 +20,18 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 
 #include <unordered_map>
 
@@ -33,6 +39,59 @@ vtkStandardNewMacro(vtkCleanPolyData);
 
 namespace
 {
+//==============================================================================
+class IdTypeAdapter
+{
+public:
+  void SetArray(vtkDataArray* array)
+  {
+    this->Array = array;
+    this->IdArray = vtkIdTypeArray::SafeDownCast(array);
+    this->IArray = vtkIntArray::SafeDownCast(array);
+    this->UIArray = vtkUnsignedIntArray::SafeDownCast(array);
+    this->LArray = vtkLongArray::SafeDownCast(array);
+    this->ULArray = vtkUnsignedLongArray::SafeDownCast(array);
+    this->LLArray = vtkLongLongArray::SafeDownCast(array);
+    this->ULLArray = vtkUnsignedLongLongArray::SafeDownCast(array);
+  }
+
+  vtkIdType GetId(vtkIdType idx)
+  {
+    switch (this->Array->GetDataType())
+    {
+      case VTK_ID_TYPE:
+        return this->IdArray->GetValue(idx);
+      case VTK_INT:
+        return static_cast<vtkIdType>(this->IArray->GetValue(idx));
+      case VTK_UNSIGNED_INT:
+        return static_cast<vtkIdType>(this->UIArray->GetValue(idx));
+      case VTK_LONG:
+        return static_cast<vtkIdType>(this->LArray->GetValue(idx));
+      case VTK_UNSIGNED_LONG:
+        return static_cast<vtkIdType>(this->ULArray->GetValue(idx));
+      case VTK_LONG_LONG:
+        return static_cast<vtkIdType>(this->LLArray->GetValue(idx));
+      case VTK_UNSIGNED_LONG_LONG:
+        return static_cast<vtkIdType>(this->ULLArray->GetValue(idx));
+      default:
+        return static_cast<vtkIdType>(this->Array->GetTuple1(idx));
+    }
+  }
+
+  vtkDataArray* GetDataArray() { return this->Array; }
+
+private:
+  vtkDataArray* Array;
+  vtkIdTypeArray* IdArray;
+  vtkIntArray* IArray;
+  vtkUnsignedIntArray* UIArray;
+  vtkLongArray* LArray;
+  vtkUnsignedLongArray* ULArray;
+  vtkLongLongArray* LLArray;
+  vtkUnsignedLongLongArray* ULLArray;
+};
+
+//------------------------------------------------------------------------------
 bool InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
   std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdMap, const double* x, vtkIdType& ptId)
 {
@@ -74,6 +133,7 @@ vtkCleanPolyData::vtkCleanPolyData()
 vtkCleanPolyData::~vtkCleanPolyData()
 {
   this->SetLocator(nullptr);
+  //------------------------------------------------------------------------------
 }
 
 //------------------------------------------------------------------------------
@@ -141,6 +201,10 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // get the input and output
   vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // We use global ids for a handful of integer types
+  IdTypeAdapter idTypeAdapter;
+  idTypeAdapter.SetArray(input->GetPointData()->GetGlobalIds());
 
   vtkPoints* inPts = input->GetPoints();
   vtkIdType numPts = input->GetNumberOfPoints();
@@ -218,8 +282,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  vtkDataArray* globalIdsArray = idTypeAdapter.GetDataArray();
   std::unordered_map<vtkIdType, vtkIdType> addedGlobalIdsMap;
-  vtkIdTypeArray* globalIdsArray = vtkIdTypeArray::SafeDownCast(inputPD->GetGlobalIds());
 
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();
@@ -270,10 +334,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (globalIdsArray &&
+          InsertPointUsingGlobalId(
+            idTypeAdapter.GetId(pts[i]), newPts, addedGlobalIdsMap, newx, ptId))
+        {
+          outputPD->CopyData(inputPD, pts[i], ptId);
+        }
+        else if (this->Locator->InsertUniquePoint(newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -319,10 +386,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (globalIdsArray &&
+          InsertPointUsingGlobalId(
+            idTypeAdapter.GetId(pts[i]), newPts, addedGlobalIdsMap, newx, ptId))
+        {
+          outputPD->CopyData(inputPD, pts[i], ptId);
+        }
+        else if (this->Locator->InsertUniquePoint(newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -392,10 +462,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (globalIdsArray &&
+          InsertPointUsingGlobalId(
+            idTypeAdapter.GetId(pts[i]), newPts, addedGlobalIdsMap, newx, ptId))
+        {
+          outputPD->CopyData(inputPD, pts[i], ptId);
+        }
+        else if (this->Locator->InsertUniquePoint(newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -486,10 +559,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (globalIdsArray &&
+          InsertPointUsingGlobalId(
+            idTypeAdapter.GetId(pts[i]), newPts, addedGlobalIdsMap, newx, ptId))
+        {
+          outputPD->CopyData(inputPD, pts[i], ptId);
+        }
+        else if (this->Locator->InsertUniquePoint(newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
