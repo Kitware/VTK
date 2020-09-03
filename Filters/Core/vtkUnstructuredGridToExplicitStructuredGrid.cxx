@@ -129,6 +129,13 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(
     progressCount++;
 
     int cellType = input->GetCellType(i);
+
+    if (cellType == VTK_EMPTY_CELL)
+    {
+      // ignore empty cells
+      continue;
+    }
+
     if (cellType != VTK_HEXAHEDRON && cellType != VTK_VOXEL)
     {
       vtkErrorMacro("Cell " << i << " is of type " << cellType << " while "
