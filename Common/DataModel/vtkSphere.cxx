@@ -16,6 +16,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkSphere);
 
 //------------------------------------------------------------------------------
@@ -294,7 +296,15 @@ void vtkSphereComputeBoundingSphere(
     sphere[i] = (s1[i] + s2[i]) / 2.0;
   }
   r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-  sphere[3] = r2 > 0.0 ? sqrt(r2) : s1[3];
+  if (r2 > 0.0)
+  {
+    sphere[3] = sqrt(r2);
+  }
+  else
+  {
+    sphere[3] = s1[3];
+    r2 = sphere[3] * sphere[3];
+  }
 
   // Second part: Make a pass over the points to make sure that they fit inside the sphere.
   // If not, adjust the sphere to fit the point.
@@ -329,7 +339,15 @@ void vtkSphereComputeBoundingSphere(
           sphere[j] = (s1[j] + s2[j]) / 2.0;
         }
         r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-        sphere[3] = std::max(r2 > 0.0 ? sqrt(r2) : s1[3], sphere[3]);
+        if (r2 > 0.0)
+        {
+          sphere[3] = sqrt(r2);
+        }
+        else
+        {
+          sphere[3] = std::max(s1[3], sphere[3]);
+          r2 = sphere[3] * sphere[3];
+        }
       }
     }
   }
