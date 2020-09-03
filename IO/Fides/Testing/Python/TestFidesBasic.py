@@ -99,5 +99,35 @@ class TestFidesBasic(Testing.vtkTest):
         self.assertEqual(ds.GetClassName(), "vtkmDataSet")
         return
 
+    def testFourth(self):
+        # This test is based on selecting a BP file that contains some attributes that helps Fides
+        # generate a data model, instead of the user providing the data model.
+        r = vtkIOFides.vtkFidesReader()
+        r.SetFileName(VTK_DATA_ROOT + "/Data/cartesian-attr.bp")
+        r.UpdateInformation()
+        self.assertTrue(r.GetOutputInformation(0).Has(
+            vtkStreamingDemandDrivenPipeline.TIME_STEPS()))
+        nsteps = r.GetOutputInformation(0).Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        self.assertEqual(nsteps, 1)
+        for i in range(nsteps):
+            self.assertEqual(r.GetOutputInformation(0).Get(
+                vtkStreamingDemandDrivenPipeline.TIME_STEPS(),i), i)
+        pds = r.GetPointDataArraySelection()
+        pds.DisableAllArrays()
+        pds.EnableArray("density")
+        r.ConvertToVTKOn()
+        r.Update()
+
+        pds = r.GetOutputDataObject(0)
+        nParts = pds.GetNumberOfPartitions()
+        self.assertEqual(nParts, 1)
+
+        ds = pds.GetPartition(0)
+        self.assertEqual(ds.GetNumberOfCells(), 440)
+        self.assertEqual(ds.GetNumberOfPoints(), 648)
+        self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 1)
+        self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "density")
+        return
+
 if __name__ == "__main__":
     Testing.main([(TestFidesBasic, 'test')])
