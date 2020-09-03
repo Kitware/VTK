@@ -314,10 +314,9 @@ function (vtk_add_test_cxx exename _tests)
         ${MPIEXEC_PREFLAGS})
     endif()
 
-
     ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
       NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
-      COMMAND "${_vtk_test_cxx_pre_args}" "${exename}"
+      COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
               "${test_file}"
               ${args}
               ${${_vtk_build_test}_ARGS}
