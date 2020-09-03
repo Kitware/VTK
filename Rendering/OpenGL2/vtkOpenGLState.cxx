@@ -324,7 +324,7 @@ bool reportOpenGLErrors(std::string& result)
 
 vtkOpenGLState::BufferBindingState::BufferBindingState()
 {
-  this->Framebuffer = nullptr;
+  // this->Framebuffer = nullptr;
   this->ReadBuffer = GL_NONE;
   this->DrawBuffers[0] = GL_BACK;
 }
@@ -337,28 +337,28 @@ vtkOpenGLState::BufferBindingState::BufferBindingState()
 
 unsigned int vtkOpenGLState::BufferBindingState::GetBinding()
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetFBOIndex();
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetFBOIndex();
+  // }
   return this->Binding;
 }
 
 unsigned int vtkOpenGLState::BufferBindingState::GetDrawBuffer(unsigned int val)
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetActiveDrawBuffer(val);
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetActiveDrawBuffer(val);
+  // }
   return this->DrawBuffers[val];
 }
 
 unsigned int vtkOpenGLState::BufferBindingState::GetReadBuffer()
 {
-  if (this->Framebuffer)
-  {
-    return this->Framebuffer->GetActiveReadBuffer();
-  }
+  // if (this->Framebuffer)
+  // {
+  //   return this->Framebuffer->GetActiveReadBuffer();
+  // }
   return this->ReadBuffer;
 }
 
@@ -488,34 +488,7 @@ void vtkOpenGLState::vtkglClearDepth(double val)
 
 void vtkOpenGLState::vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject* fo)
 {
-  vtkOpenGLCheckStateMacro();
-  auto& cs = this->Stack.top();
-
-  if (target == GL_DRAW_FRAMEBUFFER || target == GL_FRAMEBUFFER)
-  {
-#ifndef NO_CACHE
-    if (cs.DrawBinding.Framebuffer != fo)
-#endif
-    {
-      cs.DrawBinding.Binding = 0;
-      cs.DrawBinding.Framebuffer = fo;
-      ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fo ? fo->GetFBOIndex() : 0);
-    }
-  }
-
-  if (target == GL_READ_FRAMEBUFFER || target == GL_FRAMEBUFFER)
-  {
-#ifndef NO_CACHE
-    if (cs.ReadBinding.Framebuffer != fo)
-#endif
-    {
-      cs.ReadBinding.Binding = 0;
-      cs.ReadBinding.Framebuffer = fo;
-      ::glBindFramebuffer(GL_READ_FRAMEBUFFER, fo ? fo->GetFBOIndex() : 0);
-    }
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glBindFramebuffer");
+  this->vtkglBindFramebuffer(target, fo ? fo->GetFBOIndex() : 0);
 }
 
 void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
@@ -526,11 +499,10 @@ void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
   if (target == GL_DRAW_FRAMEBUFFER || target == GL_FRAMEBUFFER)
   {
 #ifndef NO_CACHE
-    if (cs.DrawBinding.Framebuffer || cs.DrawBinding.Binding != val)
+    if (cs.DrawBinding.Binding != val)
 #endif
     {
       cs.DrawBinding.Binding = val;
-      cs.DrawBinding.Framebuffer = nullptr;
       ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, val);
 #ifdef GL_DRAW_BUFFER
       ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&cs.DrawBinding.DrawBuffers[0]);
@@ -541,11 +513,10 @@ void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
   if (target == GL_READ_FRAMEBUFFER || target == GL_FRAMEBUFFER)
   {
 #ifndef NO_CACHE
-    if (cs.ReadBinding.Framebuffer || cs.ReadBinding.Binding != val)
+    if (cs.ReadBinding.Binding != val)
 #endif
     {
       cs.ReadBinding.Binding = val;
-      cs.ReadBinding.Framebuffer = nullptr;
       ::glBindFramebuffer(GL_READ_FRAMEBUFFER, val);
       ::glGetIntegerv(GL_READ_BUFFER, (int*)&cs.ReadBinding.ReadBuffer);
     }
@@ -559,8 +530,7 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
   vtkOpenGLCheckStateMacro();
   auto& cs = this->Stack.top();
 
-  if ((cs.DrawBinding.Framebuffer || cs.DrawBinding.Binding) && val < GL_COLOR_ATTACHMENT0 &&
-    val != GL_NONE)
+  if (cs.DrawBinding.Binding && val < GL_COLOR_ATTACHMENT0 && val != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
@@ -580,7 +550,7 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
   // change all stack entries for the same framebuffer
   for (auto& se : this->DrawBindings)
   {
-    if (se.Framebuffer == cs.DrawBinding.Framebuffer && se.Binding == cs.DrawBinding.Binding)
+    if (se.Binding == cs.DrawBinding.Binding)
     {
       se.DrawBuffers[0] = val;
     }
@@ -592,15 +562,14 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
 void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int* vals)
 {
   vtkOpenGLCheckStateMacro();
-  auto& cs = this->Stack.top();
 
   if (count <= 0)
   {
     return;
   }
 
-  if ((cs.DrawBinding.Framebuffer || cs.DrawBinding.Binding) && vals[0] < GL_COLOR_ATTACHMENT0 &&
-    vals[0] != GL_NONE)
+  auto& cs = this->Stack.top();
+  if (cs.DrawBinding.Binding && vals[0] < GL_COLOR_ATTACHMENT0 && vals[0] != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
@@ -633,7 +602,7 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int* vals)
   // change all stack entries for the same framebuffer
   for (auto& se : this->DrawBindings)
   {
-    if (se.Framebuffer == cs.DrawBinding.Framebuffer && se.Binding == cs.DrawBinding.Binding)
+    if (se.Binding == cs.DrawBinding.Binding)
     {
       for (unsigned int i = 0; i < count && i < 10; ++i)
       {
@@ -649,51 +618,20 @@ void vtkOpenGLState::vtkDrawBuffers(
   unsigned int count, unsigned int* vals, vtkOpenGLFramebufferObject* fo)
 {
   vtkOpenGLCheckStateMacro();
-  auto& cs = this->Stack.top();
 
   if (count <= 0)
   {
     return;
   }
 
-  if (cs.DrawBinding.Framebuffer == nullptr ||
-    (vals[0] < GL_COLOR_ATTACHMENT0 && vals[0] != GL_NONE))
-  {
-    vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
-      " be called from vtkOpenGLFramebufferObject.");
-  }
-
-  if (fo != cs.DrawBinding.Framebuffer)
+  auto& cs = this->Stack.top();
+  if (fo->GetFBOIndex() != cs.DrawBinding.Binding)
   {
     vtkGenericWarningMacro(
       "Attempt to set draw buffers from a Framebuffer Object that is not bound.");
   }
 
-#ifndef NO_CACHE
-  bool changed = false;
-  for (unsigned int i = 0; !changed && i < 10; ++i)
-  {
-    if (i < count)
-    {
-      changed = vals[i] != cs.DrawBinding.GetDrawBuffer(i);
-    }
-    else
-    {
-      changed = cs.DrawBinding.GetDrawBuffer(i) != GL_NONE;
-    }
-  }
-  if (count > 10)
-  {
-    changed = true;
-  }
-  if (changed)
-#endif
-  {
-    ::glDrawBuffers(count, vals);
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glDrawBuffers");
+  this->vtkglDrawBuffers(count, vals);
 }
 
 void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
@@ -701,8 +639,7 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
   vtkOpenGLCheckStateMacro();
   auto& cs = this->Stack.top();
 
-  if ((cs.ReadBinding.Framebuffer || cs.ReadBinding.Binding) && val < GL_COLOR_ATTACHMENT0 &&
-    val != GL_NONE)
+  if (cs.ReadBinding.Binding && val < GL_COLOR_ATTACHMENT0 && val != GL_NONE)
   {
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is currently bound but a hardware read buffer was requested.");
@@ -719,7 +656,7 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
   // change all stack entries for the same framebuffer
   for (auto& se : this->ReadBindings)
   {
-    if (se.Framebuffer == cs.ReadBinding.Framebuffer && se.Binding == cs.ReadBinding.Binding)
+    if (se.Binding == cs.ReadBinding.Binding)
     {
       se.ReadBuffer = val;
     }
@@ -733,28 +670,13 @@ void vtkOpenGLState::vtkReadBuffer(unsigned int val, vtkOpenGLFramebufferObject*
   vtkOpenGLCheckStateMacro();
   auto& cs = this->Stack.top();
 
-  if (cs.ReadBinding.Framebuffer == nullptr || (val < GL_COLOR_ATTACHMENT0 && val != GL_NONE))
-  {
-    vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
-      " be called from vtkOpenGLFramebufferObject.");
-  }
-
-  if (fo != cs.ReadBinding.Framebuffer)
+  if (fo->GetFBOIndex() != cs.ReadBinding.Binding)
   {
     vtkGenericWarningMacro(
       "Attempt to set read buffer from a Framebuffer Object that is not bound.");
   }
 
-#ifndef NO_CACHE
-  if (cs.ReadBinding.ReadBuffer != val)
-#endif
-  {
-    cs.ReadBinding.ReadBuffer = val;
-    ::glReadBuffer(val);
-  }
-
-  vtkCheckOpenGLErrorsWithStack("glReadBuffer");
+  this->vtkglReadBuffer(val);
 }
 
 void vtkOpenGLState::vtkglDepthFunc(GLenum val)
