@@ -823,32 +823,8 @@ void vtkBox::GetXMax(double& x, double& y, double& z)
 vtkTypeBool vtkBox::IsBoxInFrustum(double planes[24], double bounds[6])
 {
   // 8 points that define the four quadrants.
-  static const double factor[8][3] = {
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    0.0,
-    1.0,
-    1.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    1.0,
-    0.0,
-    1.0,
-    0.0,
-    1.0,
-    1.0,
-    1.0,
-    1.0,
-    1.0,
-  };
+  static const double factor[8][3] = { { 0.0, 0.0, 0.0 }, { 1.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 },
+    { 1.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 }, { 1.0, 0.0, 1.0 }, { 0.0, 0.0, 1.0 }, { 1.0, 1.0, 1.0 } };
 
   // for each of the points check if it is in the frustum
   double size[3];
