@@ -377,7 +377,7 @@ int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlane::ComputeBestFittingOriginNormal(vtkPoints* pts, double* origin, double* normal)
+bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal)
 {
   //
   // Note:

@@ -1564,7 +1564,7 @@ vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
   //
   if (!normal_computed)
   {
-    vtkPlane::ComputeBestFittingOriginNormal(input->GetPoints(), origin, normal);
+    vtkPlane::ComputeBestFittingPlane(input->GetPoints(), origin, normal);
   }
 
   vtkTransform* transform = vtkTransform::New();

@@ -158,13 +158,13 @@ public:
 
   //@{
   /**
-   * Given a set of points calculate the best-fitting origin and normal.
+   * Given a set of points calculate the best-fitting origin and normal for the plane.
    * The origin will be the centroid of the points. The normal is determined
    * by using the covariance matrix of the points relative to the centroid.
    * Returns true if successful. If not successful the origin will still contain
    * the centroid and the normal will point into z-direction.
    */
-  static bool ComputeBestFittingOriginNormal(vtkPoints* pts, double* origin, double* normal);
+  static bool ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal);
   //@}
 
 protected:
