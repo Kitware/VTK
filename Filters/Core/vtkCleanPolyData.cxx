@@ -31,7 +31,7 @@
 
 vtkStandardNewMacro(vtkCleanPolyData);
 
-namespace detail
+namespace
 {
 bool InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
   std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdMap, const double* x, vtkIdType& ptId)
@@ -47,7 +47,7 @@ bool InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
   ptId = it->second;
   return false;
 }
-} // namespace detail
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 // Specify a spatial locator for speeding the search process. By
@@ -271,7 +271,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         else if ((globalIdsArray &&
-                   detail::InsertPointUsingGlobalId(
+                   InsertPointUsingGlobalId(
                      globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
           (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
         {
@@ -320,7 +320,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         else if ((globalIdsArray &&
-                   detail::InsertPointUsingGlobalId(
+                   InsertPointUsingGlobalId(
                      globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
           (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
         {
@@ -393,7 +393,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         else if ((globalIdsArray &&
-                   detail::InsertPointUsingGlobalId(
+                   InsertPointUsingGlobalId(
                      globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
           (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
         {
@@ -487,7 +487,7 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           }
         }
         else if ((globalIdsArray &&
-                   detail::InsertPointUsingGlobalId(
+                   InsertPointUsingGlobalId(
                      globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
           (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
         {

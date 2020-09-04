@@ -30,7 +30,7 @@
 
 #include <vector>
 
-namespace detail
+namespace
 {
 //----------------------------------------------------------------------------
 // Strategy:
@@ -38,7 +38,7 @@ namespace detail
 // We throw all edges from one cell to an other and look if they intersect.
 // In the case of a cell of one point, we just check if it lies inside
 // the other cell.
-int IntersectWithCell(vtkCell* self, vtkCell* other, double tol)
+int IntersectWithCellImpl(vtkCell* self, vtkCell* other, double tol)
 {
   if (!other->GetNumberOfPoints() || !self->GetNumberOfPoints())
   {
@@ -94,7 +94,7 @@ int IntersectWithCell(vtkCell* self, vtkCell* other, double tol)
   }
   return 0;
 }
-}
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 // Construct cell.
@@ -428,7 +428,7 @@ int vtkCell::IntersectWithCell(vtkCell* other, const vtkBoundingBox& boundingBox
     return 0;
   }
   /**
-   * Given the strategy of detail::IntersectWithCell,
+   * Given the strategy of IntersectWithCellImpl,
    * the intersection detection is likely to be speeded up
    * if exchanging other given this condition.
    * The implementation first throws edges from first cell
@@ -439,9 +439,9 @@ int vtkCell::IntersectWithCell(vtkCell* other, const vtkBoundingBox& boundingBox
    */
   if (otherBoundingBox.IsSubsetOf(boundingBox))
   {
-    return detail::IntersectWithCell(other, this, tol);
+    return IntersectWithCellImpl(other, this, tol);
   }
-  return detail::IntersectWithCell(this, other, tol);
+  return IntersectWithCellImpl(this, other, tol);
 }
 
 //----------------------------------------------------------------------------
