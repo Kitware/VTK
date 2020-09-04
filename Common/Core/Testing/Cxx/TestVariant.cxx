@@ -164,5 +164,27 @@ int TestVariant(int, char*[])
     errors++;
   }
 
+  vtkVariant doubleToString(103.317);
+  if (doubleToString.ToString() != "103.317")
+  {
+    cerr << "double to string complex conversion failed with default parameters.\n";
+    errors++;
+  }
+  if (doubleToString.ToString(vtkVariant::FIXED_FORMATTING, 8) != "103.31700000")
+  {
+    cerr << "double to string complex conversion failed with fixed formatting.\n";
+    errors++;
+  }
+  if (doubleToString.ToString(vtkVariant::SCIENTIFIC_FORMATTING, 2) != "1.03e+02")
+  {
+    cerr << "double to string complex conversion failed with scientific formatting.\n";
+    errors++;
+  }
+  if (doubleToString.ToString(vtkVariant::HEXFLOAT_FORMATTING, 10) != "0x1.9d449ba5e353fp+6")
+  {
+    cerr << "double to string complex conversion failed with hexfloat formatting.\n";
+    errors++;
+  }
+
   return errors;
 }
