@@ -295,15 +295,31 @@ public:
    */
   const char* GetTypeAsString() const;
 
+  enum StringFormatting
+  {
+    DEFAULT_FORMATTING = 0,
+    FIXED_FORMATTING = 1,
+    SCIENTIFIC_FORMATTING = 2,
+    HEXFLOAT_FORMATTING = 3
+  };
+
   /**
    * Convert the variant to a string.
+   * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
+   * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
+   * argument to control the precision of the output. These two parameters have no effect when the
+   * variant is not numeric or not a numeric array.
    */
-  vtkStdString ToString() const;
+  vtkStdString ToString(int formatting = 0, int precision = 6) const;
 
   /**
    * convert the variant to a Unicode string.
+   * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
+   * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
+   * argument to control the precision of the output. These two parameters have no effect when the
+   * variant is not numeric or not a numeric array.
    */
-  vtkUnicodeString ToUnicodeString() const;
+  vtkUnicodeString ToUnicodeString(int formatting = 0, int precision = 6) const;
 
   //@{
   /**
