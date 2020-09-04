@@ -16,6 +16,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkSphere);
 
 //------------------------------------------------------------------------------
@@ -239,15 +241,18 @@ void vtkSphereComputeBoundingSphere(
       if ((s[2] + s[3]) > (zMax[2] + zMax[3]))
         VTK_ASSIGN_SPHERE(zMax, s);
     }
-    T xSpan = (xMax[0] + xMax[3] - xMin[0] - xMin[3]) * (xMax[0] + xMax[3] - xMin[0] - xMin[3]) +
-      (xMax[1] + xMax[3] - xMin[1] - xMin[3]) * (xMax[1] + xMax[3] - xMin[1] - xMin[3]) +
-      (xMax[2] + xMax[3] - xMin[2] - xMin[3]) * (xMax[2] + xMax[3] - xMin[2] - xMin[3]);
-    T ySpan = (yMax[0] + yMax[3] - yMin[0] - yMin[3]) * (yMax[0] + yMax[3] - yMin[0] - yMin[3]) +
-      (yMax[1] + yMax[3] - yMin[1] - yMin[3]) * (yMax[1] + yMax[3] - yMin[1] - yMin[3]) +
-      (yMax[2] + yMax[3] - yMin[2] - yMin[3]) * (yMax[2] + yMax[3] - yMin[2] - yMin[3]);
-    T zSpan = (zMax[0] + zMax[3] - zMin[0] - zMin[3]) * (zMax[0] + zMax[3] - zMin[0] - zMin[3]) +
-      (zMax[1] + zMax[3] - zMin[1] - zMin[3]) * (zMax[1] + zMax[3] - zMin[1] - zMin[3]) +
-      (zMax[2] + zMax[3] - zMin[2] - zMin[3]) * (zMax[2] + zMax[3] - zMin[2] - zMin[3]);
+    T xSpan =
+      ((xMax[0] + xMax[3]) - (xMin[0] - xMin[3])) * ((xMax[0] + xMax[3]) - (xMin[0] - xMin[3])) +
+      ((xMax[1] + xMax[3]) - (xMin[1] - xMin[3])) * ((xMax[1] + xMax[3]) - (xMin[1] - xMin[3])) +
+      ((xMax[2] + xMax[3]) - (xMin[2] - xMin[3])) * ((xMax[2] + xMax[3]) - (xMin[2] - xMin[3]));
+    T ySpan =
+      ((yMax[0] + yMax[3]) - (yMin[0] - yMin[3])) * ((yMax[0] + yMax[3]) - (yMin[0] - yMin[3])) +
+      ((yMax[1] + yMax[3]) - (yMin[1] - yMin[3])) * ((yMax[1] + yMax[3]) - (yMin[1] - yMin[3])) +
+      ((yMax[2] + yMax[3]) - (yMin[2] - yMin[3])) * ((yMax[2] + yMax[3]) - (yMin[2] - yMin[3]));
+    T zSpan =
+      ((zMax[0] + zMax[3]) - (zMin[0] - zMin[3])) * ((zMax[0] + zMax[3]) - (zMin[0] - zMin[3])) +
+      ((zMax[1] + zMax[3]) - (zMin[1] - zMin[3])) * ((zMax[1] + zMax[3]) - (zMin[1] - zMin[3])) +
+      ((zMax[2] + zMax[3]) - (zMin[2] - zMin[3])) * ((zMax[2] + zMax[3]) - (zMin[2] - zMin[3]));
 
     if (xSpan > ySpan)
     {
@@ -279,7 +284,7 @@ void vtkSphereComputeBoundingSphere(
 
   // Compute initial estimated sphere, take into account the radius of each sphere
   T tmp, v[3], r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-  sphere[3] = sqrt(r2);
+  sphere[3] = r2 > 0.0 ? sqrt(r2) : s1[3];
   T t1 = -s1[3] / (2.0 * sphere[3]);
   T t2 = 1.0 + s2[3] / (2.0 * sphere[3]);
   for (i = 0; i < 3; ++i)
@@ -291,7 +296,15 @@ void vtkSphereComputeBoundingSphere(
     sphere[i] = (s1[i] + s2[i]) / 2.0;
   }
   r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-  sphere[3] = sqrt(r2);
+  if (r2 > 0.0)
+  {
+    sphere[3] = sqrt(r2);
+  }
+  else
+  {
+    sphere[3] = s1[3];
+    r2 = sphere[3] * sphere[3];
+  }
 
   // Second part: Make a pass over the points to make sure that they fit inside the sphere.
   // If not, adjust the sphere to fit the point.
@@ -301,6 +314,10 @@ void vtkSphereComputeBoundingSphere(
     s = spheres[i];
     sR2 = s[3] * s[3];
     dist2 = vtkMath::Distance2BetweenPoints(s, sphere);
+    if (dist2 <= 0.0)
+    {
+      dist2 = s[3];
+    }
     if (sR2 > dist2) // approximation to avoid square roots if possible
     {
       fac = 2.0 * sR2;
@@ -322,7 +339,15 @@ void vtkSphereComputeBoundingSphere(
           sphere[j] = (s1[j] + s2[j]) / 2.0;
         }
         r2 = vtkMath::Distance2BetweenPoints(s1, s2) / 4.0;
-        sphere[3] = sqrt(r2);
+        if (r2 > 0.0)
+        {
+          sphere[3] = sqrt(r2);
+        }
+        else
+        {
+          sphere[3] = std::max(s1[3], sphere[3]);
+          r2 = sphere[3] * sphere[3];
+        }
       }
     }
   }
