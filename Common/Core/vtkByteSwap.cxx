@@ -15,6 +15,8 @@
 #include "vtkByteSwap.h"
 #include "vtkEndian.h"
 #include "vtkObjectFactory.h"
+
+#include <cstdint>
 #include <memory.h>
 
 vtkStandardNewMacro(vtkByteSwap);
@@ -39,10 +41,8 @@ struct vtkByteSwapper<2>
 {
   static inline void Swap(char* data)
   {
-    char one_byte;
-    one_byte = data[0];
-    data[0] = data[1];
-    data[1] = one_byte;
+    const uint16_t& ref16 = *reinterpret_cast<uint16_t*>(data);
+    *reinterpret_cast<uint16_t*>(data) = (ref16 >> 8) | (ref16 << 8);
   }
 };
 template <>
@@ -50,13 +50,9 @@ struct vtkByteSwapper<4>
 {
   static inline void Swap(char* data)
   {
-    char one_byte;
-    one_byte = data[0];
-    data[0] = data[3];
-    data[3] = one_byte;
-    one_byte = data[1];
-    data[1] = data[2];
-    data[2] = one_byte;
+    const uint32_t& ref32 = *reinterpret_cast<uint32_t*>(data);
+    *reinterpret_cast<uint32_t*>(data) =
+      (ref32 >> 24) | (ref32 << 24) | ((ref32 & 0x00ff0000) >> 8) | ((ref32 & 0x0000ff00) << 8);
   }
 };
 template <>
@@ -64,19 +60,11 @@ struct vtkByteSwapper<8>
 {
   static inline void Swap(char* data)
   {
-    char one_byte;
-    one_byte = data[0];
-    data[0] = data[7];
-    data[7] = one_byte;
-    one_byte = data[1];
-    data[1] = data[6];
-    data[6] = one_byte;
-    one_byte = data[2];
-    data[2] = data[5];
-    data[5] = one_byte;
-    one_byte = data[3];
-    data[3] = data[4];
-    data[4] = one_byte;
+    const uint64_t& ref64 = *reinterpret_cast<uint64_t*>(data);
+    *reinterpret_cast<uint64_t*>(data) = (ref64 >> 56) | (ref64 << 56) |
+      ((ref64 & 0x00ff000000000000) >> 40) | ((ref64 & 0x000000000000ff00) << 40) |
+      ((ref64 & 0x0000ff0000000000) >> 24) | ((ref64 & 0x0000000000ff0000) << 24) |
+      ((ref64 & 0x000000ff00000000) >> 8) | ((ref64 & 0x00000000ff000000) << 8);
   }
 };
 
