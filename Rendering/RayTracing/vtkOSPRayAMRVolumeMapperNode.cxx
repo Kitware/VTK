@@ -90,7 +90,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     }
     if (!this->TransferFunction)
     {
-      this->TransferFunction = ospNewTransferFunction("piecewise_linear");
+      this->TransferFunction = ospNewTransferFunction("piecewiseLinear");
     }
 
     vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(mapper->GetInputDataObject(0, 0));
@@ -123,7 +123,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         if (!(level >= lastLevel))
         {
           vtkErrorMacro("ospray requires level info be ordered lowest to highest");
-        };
+        }
         lastLevel = level;
         unsigned int index = iter->GetCurrentIndex();
 
@@ -134,7 +134,6 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         {
           return;
         }
-        float* dataPtr;
         int dim[3];
 
         const vtkAMRBox& box = amrInfo->GetAMRBox(level, index);
@@ -145,7 +144,6 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         dim[0] = hi[0] - lo[0] + 1;
         dim[1] = hi[1] - lo[1] + 1;
         dim[2] = hi[2] - lo[2] + 1;
-
         int fieldAssociation;
         mapper->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
         vtkDataArray* cellArray =
@@ -156,77 +154,79 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
           return;
         }
 
+        OSPData odata;
         if (cellArray->GetDataType() != VTK_FLOAT)
         {
-          if (cellArray->GetDataType() == VTK_DOUBLE) // TODO osp now supports double directly
+          std::vector<float> fdata(dim[0] * dim[1] * dim[2]);
+          for (int i = 0; i < dim[0] * dim[1] * dim[2]; i++)
           {
-            float* fdata = new float[dim[0] * dim[1] * size_t(dim[2])];
-            double* dptr;
-            dptr = (double*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
-            for (size_t i = 0; i < dim[0] * dim[1] * size_t(dim[2]); i++)
-            {
-              fdata[i] = dptr[i];
-            }
-            dataPtr = fdata;
+            fdata[i] = static_cast<float>(cellArray->GetTuple(i)[0]);
           }
-          else
-          {
-            // TODO OSP Now supports UCHAR, SHORT and USHORT
-            std::cerr
-              << "Only doubles and floats are supported in OSPRay AMR volume mapper currently";
-            return;
-          }
+          odata = ospNewCopyData1D(fdata.data(), OSP_FLOAT, dim[0] * dim[1] * dim[2]);
+          ospCommit(odata);
         }
         else
         {
-          dataPtr = (float*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
+          odata = ospNewSharedData1D(reinterpret_cast<float*>(cellArray->GetVoidPointer(0)),
+            OSP_FLOAT, dim[0] * dim[1] * dim[2]);
+          ospCommit(odata);
         }
 
-        OSPData odata = ospNewSharedData1D(dataPtr, OSP_FLOAT, dim[0] * dim[1] * dim[2]);
-        ospCommit(odata);
         brickDataArray.push_back(odata);
         blockLevelArray.push_back(level);
         ospcommon::box3i obox = { lo_v, hi_v };
         blockBoundsArray.push_back(obox);
+      }
+
 #if 0
-        cerr << "BLOCK " << idx << " level " << level << endl;
-        cerr << "BLOCK " << idx << " bounds "
-             << lo_v.x << "," << lo_v.y << "," << lo_v.z << ":"
-             << hi_v.x << "," << hi_v.y << "," << hi_v.z << endl;
-        idx++;
+TODO FIX ME, to be fixed in upcoming OpenVKL release
+      double* bds = mapper->GetBounds();
+#endif
+      ospSetVec3f(this->OSPRayVolume, "gridOrigin",
+#if 0
+TODO FIX ME, to be fixed in upcoming OpenVKL release
+        static_cast<float>(bds[0]),
+        static_cast<float>(bds[1]),
+        static_cast<float>(bds[2]));
+#else
+        0, 0, 0);
+#endif
+      double spacing[3] = { 1.0, 1.0, 1.0 };
+      amr->GetAMRInfo()->GetSpacing(0, spacing);
+      ospSetVec3f(this->OSPRayVolume, "gridSpacing",
+#if 0
+TODO FIX ME, to be fixed in upcoming OpenVKL release
+        static_cast<float>(spacing[0]),
+        static_cast<float>(spacing[1]),
+        static_cast<float>(spacing[2]);
+
+#else
+        1, 1, 1);
 #endif
 
-        double* bds = mapper->GetBounds();
-        ospSetVec3f(this->OSPRayVolume, "gridOrigin", bds[0], bds[2], bds[4]);
-
-        double spacing[3] = { 1.0, 1.0, 1.0 };
-        amr->GetAMRInfo()->GetSpacing(0, spacing);
-        ospSetVec3f(this->OSPRayVolume, "gridSpacing", spacing[0], spacing[1], spacing[2]);
-
-        for (unsigned int i = 0; i < amrInfo->GetNumberOfLevels(); ++i)
-        {
-          amrInfo->GetSpacing(i, spacing);
-          cellWidthArray.push_back(spacing[0]); // TODO - must OSP cells be cubes?
-        }
-        OSPData cellWidthData =
-          ospNewCopyData1D(&cellWidthArray[0], OSP_FLOAT, cellWidthArray.size());
-        ospCommit(cellWidthData);
-        ospSetObject(this->OSPRayVolume, "cellWidth", cellWidthData);
-
-        OSPData brickDataData =
-          ospNewCopyData1D(&brickDataArray[0], OSP_DATA, brickDataArray.size());
-        ospCommit(brickDataData);
-        ospSetObject(this->OSPRayVolume, "block.data", brickDataData);
-        OSPData blockBoundsData =
-          ospNewCopyData1D(&blockBoundsArray[0], OSP_BOX3I, blockBoundsArray.size());
-        ospCommit(blockBoundsData);
-        ospSetObject(this->OSPRayVolume, "block.bounds", blockBoundsData);
-        OSPData blockLevelData =
-          ospNewCopyData1D(&blockLevelArray[0], OSP_INT, blockLevelArray.size());
-        ospCommit(blockLevelData);
-        ospSetObject(this->OSPRayVolume, "block.level", blockLevelData);
-        this->BuildTime.Modified();
+      for (unsigned int i = 0; i < amrInfo->GetNumberOfLevels(); ++i)
+      {
+        amrInfo->GetSpacing(i, spacing);
+        cellWidthArray.push_back(spacing[0]); // TODO - must OSP cells be cubes?
       }
+      OSPData cellWidthData =
+        ospNewCopyData1D(&cellWidthArray[0], OSP_FLOAT, cellWidthArray.size());
+      ospCommit(cellWidthData);
+      ospSetObject(this->OSPRayVolume, "cellWidth", cellWidthData);
+
+      OSPData brickDataData =
+        ospNewCopyData1D(&brickDataArray[0], OSP_DATA, brickDataArray.size());
+      ospCommit(brickDataData);
+      ospSetObject(this->OSPRayVolume, "block.data", brickDataData);
+      OSPData blockBoundsData =
+        ospNewCopyData1D(&blockBoundsArray[0], OSP_BOX3I, blockBoundsArray.size());
+      ospCommit(blockBoundsData);
+      ospSetObject(this->OSPRayVolume, "block.bounds", blockBoundsData);
+      OSPData blockLevelData =
+        ospNewCopyData1D(&blockLevelArray[0], OSP_INT, blockLevelArray.size());
+      ospCommit(blockLevelData);
+      ospSetObject(this->OSPRayVolume, "block.level", blockLevelData);
+      this->BuildTime.Modified();
     }
     if ((vol->GetProperty()->GetMTime() > this->PropertyTime) || volDirty)
     {
