@@ -42,6 +42,7 @@ int TestOSPRayAMRVolumeRenderer(int argc, char* argv[])
   }
 
   double scalarRange[2] = { 4.849e-23, 0.4145 };
+  double dRange = scalarRange[1] - scalarRange[0];
   vtkNew<vtkAMRVolumeMapper> volumeMapper;
 
   vtkNew<vtkAMRGaussianPulseSource> amrSource;
@@ -72,8 +73,10 @@ int TestOSPRayAMRVolumeRenderer(int argc, char* argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 0.2);
+  scalarOpacity->AddPoint(scalarRange[0], 0.5);
+  scalarOpacity->AddPoint(scalarRange[0] + dRange / 4.0, 0.0);
+  scalarOpacity->AddPoint(scalarRange[1] - dRange / 2.0, 0.0);
+  scalarOpacity->AddPoint(scalarRange[1], 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOff();
@@ -82,8 +85,9 @@ int TestOSPRayAMRVolumeRenderer(int argc, char* argv[])
 
   vtkColorTransferFunction* colorTransferFunction = volumeProperty->GetRGBTransferFunction(0);
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.8, 0.6, 0.1);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 0.1, 0.2, 0.8);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.0, 1.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[0] + dRange / 2.0, 1.0, 1.0, 1.0);
+  colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 0.0, 0.0);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
@@ -99,8 +103,6 @@ int TestOSPRayAMRVolumeRenderer(int argc, char* argv[])
   ren->AddViewProp(volume.GetPointer());
   renWin->Render();
   ren->ResetCamera();
-  ren->GetActiveCamera()->Azimuth(140);
-  ren->GetActiveCamera()->Elevation(30);
 
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);

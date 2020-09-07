@@ -192,19 +192,20 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         cellWidthArray.push_back(spacing[0]); // TODO - must OSP cells be cubes?
       }
       OSPData cellWidthData =
-        ospNewCopyData1D(&cellWidthArray[0], OSP_FLOAT, cellWidthArray.size());
+        ospNewCopyData1D(cellWidthArray.data(), OSP_FLOAT, cellWidthArray.size());
       ospCommit(cellWidthData);
       ospSetObject(this->OSPRayVolume, "cellWidth", cellWidthData);
 
-      OSPData brickDataData = ospNewCopyData1D(&brickDataArray[0], OSP_DATA, brickDataArray.size());
+      OSPData brickDataData =
+        ospNewCopyData1D(brickDataArray.data(), OSP_DATA, brickDataArray.size());
       ospCommit(brickDataData);
       ospSetObject(this->OSPRayVolume, "block.data", brickDataData);
       OSPData blockBoundsData =
-        ospNewCopyData1D(&blockBoundsArray[0], OSP_BOX3I, blockBoundsArray.size());
+        ospNewCopyData1D(blockBoundsArray.data(), OSP_BOX3I, blockBoundsArray.size());
       ospCommit(blockBoundsData);
       ospSetObject(this->OSPRayVolume, "block.bounds", blockBoundsData);
       OSPData blockLevelData =
-        ospNewCopyData1D(&blockLevelArray[0], OSP_INT, blockLevelArray.size());
+        ospNewCopyData1D(blockLevelArray.data(), OSP_INT, blockLevelArray.size());
       ospCommit(blockLevelData);
       ospSetObject(this->OSPRayVolume, "block.level", blockLevelData);
       this->BuildTime.Modified();
