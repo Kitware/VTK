@@ -249,7 +249,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospCommit(boundsData);
         ospSetObject(clipBox, "box", boundsData);
         ospCommit(clipBox);
-        ospSetInt(this->Cropper, "invertNormals", 1);
+        ospSetBool(this->Cropper, "invertNormals", true);
         ospCommit(this->Cropper);
       }
       else
