@@ -2312,7 +2312,9 @@ void vtkUnstructuredGrid::RemoveGhostCells()
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 
-    if ((cellGhosts[cellId] & vtkDataSetAttributes::DUPLICATECELL) == 0) // Keep the cell.
+    if ((cellGhosts[cellId] &
+          (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL)) ==
+      0) // Keep the cell.
     {
       for (i = 0; i < numCellPts; i++)
       {
