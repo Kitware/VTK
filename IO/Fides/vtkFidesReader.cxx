@@ -451,6 +451,12 @@ int vtkFidesReader::RequestData(
   fides::metadata::Vector<size_t> blocksToRead = DetermineBlocksToRead(nBlocks, nPieces, piece);
 
   fides::metadata::MetaData selections;
+  if (blocksToRead.Data.empty())
+  {
+    // nothing to read on this rank
+    output->SetNumberOfPartitions(0);
+    return 1;
+  }
   selections.Set(fides::keys::BLOCK_SELECTION(), blocksToRead);
 
   if (!this->StreamSteps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
