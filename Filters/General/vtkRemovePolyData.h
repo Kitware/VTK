@@ -109,9 +109,9 @@ public:
    * deleted. ExactMatch is disabled by default since it takes a extra
    * computation time.
    */
-  vtkSetMacro(ExactMatch, vtkTypeBool);
-  vtkGetMacro(ExactMatch, vtkTypeBool);
-  vtkBooleanMacro(ExactMatch, vtkTypeBool);
+  vtkSetMacro(ExactMatch, bool);
+  vtkGetMacro(ExactMatch, bool);
+  vtkBooleanMacro(ExactMatch, bool);
   //@}
 
 protected:
@@ -126,7 +126,7 @@ protected:
 private:
   vtkIdTypeArray* CellIds;
   vtkIdTypeArray* PointIds;
-  vtkTypeBool ExactMatch;
+  bool ExactMatch;
 
 private:
   vtkRemovePolyData(const vtkRemovePolyData&) = delete;
