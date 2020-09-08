@@ -7,6 +7,7 @@ vtk_module_test_data(
   Data/delaunay3d.vtu
   Data/disk_out_ref_surface.vtp
   Data/explicitStructuredGrid.vtu
+  Data/explicitStructuredGridEmpty.vtu
   Data/sliding_multi_block_end.vtm
   Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
   Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
