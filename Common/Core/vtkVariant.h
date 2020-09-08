@@ -295,7 +295,7 @@ public:
    */
   const char* GetTypeAsString() const;
 
-  enum class StringFormatting : unsigned char
+  enum StringFormatting
   {
     DEFAULT_FORMATTING = 0,
     FIXED_FORMATTING = 1,
