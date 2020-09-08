@@ -50,7 +50,6 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
   this->UseSharedBuffers = true;
   this->SharedData = nullptr;
-  this->Shade = false;
 }
 
 //------------------------------------------------------------------------------
@@ -272,8 +271,11 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     ospSetObject(this->OSPRayVolumeModel, "transferFunction", this->TransferFunction);
     const float densityScale = 1.0f / volProperty->GetScalarOpacityUnitDistance();
     ospSetFloat(this->OSPRayVolumeModel, "densityScale", densityScale);
-    const float anisotropy = orn->GetVolumeAnisotropy(ren); // Carson-TODO: unhardcode
+    const float anisotropy = orn->GetVolumeAnisotropy(ren);
     ospSetFloat(this->OSPRayVolumeModel, "anisotropy", anisotropy);
+    // todo: unhardcode gradientshadingScale value when enabled
+    ospSetFloat(
+      this->OSPRayVolumeModel, "gradientShadingScale", volProperty->GetShade() ? 0.5 : 0.0);
     ospCommit(this->OSPRayVolumeModel);
 
     this->RenderTime = volNode->GetMTime();

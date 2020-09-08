@@ -271,6 +271,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       ospSetFloat(this->OSPRayVolumeModel, "densityScale", densityScale);
       const float anisotropy = orn->GetVolumeAnisotropy(ren); // Carson-TODO: unhardcode
       ospSetFloat(this->OSPRayVolumeModel, "anisotropy", anisotropy);
+      ospSetFloat(
+        this->OSPRayVolumeModel, "gradientShadingScale", volProperty->GetShade() ? 0.5 : 0.0);
       ospCommit(this->OSPRayVolumeModel);
 
       this->PropertyTime.Modified();
