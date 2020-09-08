@@ -314,7 +314,8 @@ void vtkGPUVolumeRayCastMapper::CloneInput(vtkDataSet* input, const int port)
   }
 
   // If we have a timestamp change or data change then create a new clone
-  if (input != this->LastInputs[port] || input->GetMTime() > clone->GetMTime())
+  if (input != this->LastInputs[port] ||
+    (input != nullptr && input->GetMTime() > clone->GetMTime()))
   {
     this->LastInputs[port] = input;
     this->TransformInput(port);
@@ -737,6 +738,12 @@ void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
   vtkDataSet* dataset = this->TransformedInputs[port];
   if (vtkImageData* clone = vtkImageData::SafeDownCast(dataset))
   {
+    if (!dataset)
+    {
+      clone->SetExtent(0, -1, 0, -1, 0, -1);
+      return;
+    }
+
     clone->ShallowCopy(this->GetInput(port));
 
     // Get the current extents.
@@ -768,6 +775,12 @@ void vtkGPUVolumeRayCastMapper::TransformInput(const int port)
   }
   else if (vtkRectilinearGrid* cloneRGrid = vtkRectilinearGrid::SafeDownCast(dataset))
   {
+    if (!dataset)
+    {
+      cloneRGrid->SetExtent(0, -1, 0, -1, 0, -1);
+      return;
+    }
+
     cloneRGrid->ShallowCopy(this->GetInput(port));
 
     // Get the current extents.
