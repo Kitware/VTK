@@ -79,10 +79,21 @@ public:
   vtkTypeMacro(vtkOpenVRRenderWindow, vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  static bool IsHMDPresent();
+
   /**
    * Get the system pointer
    */
   vr::IVRSystem* GetHMD() { return this->HMD; }
+
+  //@{
+  /**
+   * Set/Get the visibility of the base stations. Defaults to false
+   */
+  vtkGetMacro(BaseStationVisibility, bool);
+  vtkSetMacro(BaseStationVisibility, bool);
+  vtkBooleanMacro(BaseStationVisibility, bool);
+  //@}
 
   /**
    * Create an interactor to control renderers in this window.
@@ -349,22 +360,11 @@ public:
   //@}
 
   // implement required virtual functions
-  void SetWindowInfo(const char*) {}
-  void SetNextWindowInfo(const char*) {}
-  void SetParentInfo(const char*) {}
   virtual void* GetGenericDisplayId() { return (void*)this->HelperWindow->GetGenericDisplayId(); }
   virtual void* GetGenericWindowId() { return (void*)this->HelperWindow->GetGenericWindowId(); }
   virtual void* GetGenericParentId() { return (void*)nullptr; }
   virtual void* GetGenericContext() { return (void*)this->HelperWindow->GetGenericContext(); }
   virtual void* GetGenericDrawable() { return (void*)this->HelperWindow->GetGenericDrawable(); }
-  virtual void SetDisplayId(void*) {}
-  void SetWindowId(void*) {}
-  void SetParentId(void*) {}
-  void HideCursor() {}
-  void ShowCursor() {}
-  virtual void SetFullScreen(vtkTypeBool) {}
-  virtual void WindowRemap(void) {}
-  virtual void SetNextWindowId(void*) {}
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
@@ -404,6 +404,7 @@ protected:
   std::string m_strDisplay;
   vr::IVRSystem* HMD;
   vr::IVRRenderModels* OpenVRRenderModels;
+  bool BaseStationVisibility;
 
   struct FramebufferDesc
   {
