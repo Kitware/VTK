@@ -661,18 +661,14 @@ auto GetFormattingFunction(int formatting) -> std::ios_base& (*)(std::ios_base&)
   {
     case (vtkVariant::FIXED_FORMATTING):
       return std::fixed;
-      break;
     case (vtkVariant::SCIENTIFIC_FORMATTING):
       return std::scientific;
-      break;
     case (vtkVariant::HEXFLOAT_FORMATTING):
       return std::hexfloat;
-      break;
     case (vtkVariant::DEFAULT_FORMATTING):
       VTK_FALLTHROUGH;
     default:
       return std::defaultfloat;
-      break;
   }
 }
 

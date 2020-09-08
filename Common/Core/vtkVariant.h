@@ -295,7 +295,7 @@ public:
    */
   const char* GetTypeAsString() const;
 
-  enum StringFormatting
+  enum class StringFormatting : unsigned char
   {
     DEFAULT_FORMATTING = 0,
     FIXED_FORMATTING = 1,
@@ -310,7 +310,7 @@ public:
    * argument to control the precision of the output. These two parameters have no effect when the
    * variant is not numeric or not a numeric array.
    */
-  vtkStdString ToString(int formatting = 0, int precision = 6) const;
+  vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
 
   /**
    * convert the variant to a Unicode string.
@@ -319,7 +319,7 @@ public:
    * argument to control the precision of the output. These two parameters have no effect when the
    * variant is not numeric or not a numeric array.
    */
-  vtkUnicodeString ToUnicodeString(int formatting = 0, int precision = 6) const;
+  vtkUnicodeString ToUnicodeString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
 
   //@{
   /**
