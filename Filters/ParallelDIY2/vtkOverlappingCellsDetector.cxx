@@ -62,10 +62,10 @@
 #include VTK_DIY2(diy/assigner.hpp)
 // clang-format on
 
-namespace detail
+namespace
 {
-static constexpr char SPHERE_RADIUS_ARRAY_NAME[21] = "detail::SphereRadius";
-static constexpr char ID_MAP_TO_ORIGIN_DATASET_IDS_NAME[32] = "detail::IdMapToOriginDataSetIds";
+static constexpr char SPHERE_RADIUS_ARRAY_NAME[21] = "SphereRadius";
+static constexpr char ID_MAP_TO_ORIGIN_DATASET_IDS_NAME[32] = "IdMapToOriginDataSetIds";
 
 //----------------------------------------------------------------------------
 double ComputeEpsilon(const vtkBoundingBox& boundingBox)
@@ -118,7 +118,7 @@ vtkPointSet* ConvertCellsToBoundingSpheres(vtkDataSet* ds, std::vector<vtkBoundi
 }
 
 //----------------------------------------------------------------------------
-// Given an input pointCloud computed using detail::ConvertCellsToBoundingSpheres,
+// Given an input pointCloud computed using ConvertCellsToBoundingSpheres,
 // shared boundingBoxes of each input block, and the input source of local block,
 // this method creates one vtkUnstructuredGrid for each block containing cells
 // from source overlapping the bounding box of corresponding block.
@@ -280,7 +280,7 @@ struct Block : public diy::Serialization<vtkPointSet*>
    */
   std::map<int, std::unordered_map<vtkIdType, std::set<vtkIdType>>> CollisionListMaps;
 };
-} // namespace detail
+} // anonymous namespace
 
 vtkStandardNewMacro(vtkOverlappingCellsDetector);
 vtkCxxSetObjectMacro(vtkOverlappingCellsDetector, Controller, vtkMultiProcessController);
@@ -378,7 +378,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   for (int localId = 0; localId < size; ++localId)
   {
     pointCloudArray.emplace_back(vtkSmartPointer<vtkPointSet>::Take(
-      detail::ConvertCellsToBoundingSpheres(outputs[localId], cellBoundingBoxesArray[localId])));
+      ConvertCellsToBoundingSpheres(outputs[localId], cellBoundingBoxesArray[localId])));
   }
   vtkLogEndScope("extract cell bounding spheres");
 
@@ -386,8 +386,8 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->Controller);
 
   diy::Master master(
-    comm, 1, -1, []() { return static_cast<void*>(new detail::Block()); },
-    [](void* b) -> void { delete static_cast<detail::Block*>(b); });
+    comm, 1, -1, []() { return static_cast<void*>(new Block()); },
+    [](void* b) -> void { delete static_cast<Block*>(b); });
   vtkDIYExplicitAssigner assigner(comm, size);
 
   vtkLogStartScope(TRACE, "populate master");
@@ -395,7 +395,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   assigner.local_gids(comm.rank(), gids);
   for (size_t lid = 0; lid < gids.size(); ++lid)
   {
-    auto block = new detail::Block();
+    auto block = new Block();
     auto link = new diy::Link();
     master.add(gids[lid], block, link);
   }
@@ -405,35 +405,34 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
 
   // First, we share bounding boxes with other blocks
   vtkLogStartScope(TRACE, "share bounding boxes");
-  diy::all_to_all(
-    master, assigner, [&master, &outputs](detail::Block* block, const diy::ReduceProxy& srp) {
-      int myBlockId = srp.gid();
-      int localId = master.lid(myBlockId);
-      auto& output = outputs[localId];
-      if (srp.round() == 0)
+  diy::all_to_all(master, assigner, [&master, &outputs](Block* block, const diy::ReduceProxy& srp) {
+    int myBlockId = srp.gid();
+    int localId = master.lid(myBlockId);
+    auto& output = outputs[localId];
+    if (srp.round() == 0)
+    {
+      for (int i = 0; i < srp.out_link().size(); ++i)
       {
-        for (int i = 0; i < srp.out_link().size(); ++i)
+        if (i != myBlockId)
         {
-          if (i != myBlockId)
-          {
-            srp.enqueue(srp.out_link().target(i), output->GetBounds(), 6);
-          }
+          srp.enqueue(srp.out_link().target(i), output->GetBounds(), 6);
         }
       }
-      else
+    }
+    else
+    {
+      double boundstmp[6];
+      for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
       {
-        double boundstmp[6];
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        if (i != myBlockId)
         {
-          if (i != myBlockId)
-          {
-            const diy::BlockID& blockId = srp.in_link().target(i);
-            srp.dequeue(blockId, boundstmp, 6);
-            block->BoundingBoxes.emplace(blockId.gid, vtkBoundingBox(boundstmp));
-          }
+          const diy::BlockID& blockId = srp.in_link().target(i);
+          srp.dequeue(blockId, boundstmp, 6);
+          block->BoundingBoxes.emplace(blockId.gid, vtkBoundingBox(boundstmp));
         }
       }
-    });
+    }
+  });
   vtkLogEndScope("share bounding boxes");
 
   std::vector<std::map<int, vtkBoundingBox>> boundingBoxesArray;
@@ -443,12 +442,12 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   vtkLogStartScope(TRACE, "isolate overlapping cell candidates for neighbor ranks");
   for (int localId = 0; localId < size; ++localId)
   {
-    boundingBoxesArray.emplace_back(std::move(master.block<detail::Block>(localId)->BoundingBoxes));
+    boundingBoxesArray.emplace_back(std::move(master.block<Block>(localId)->BoundingBoxes));
 
     // We create unstructured grids for each neighbor block, composed
     // from cells that are candidates for intersecting cells from the neighbor.
     overlappingCellCandidatesDataSetsArray.emplace_back(
-      detail::ExtractOverlappingCellCandidateByProcess(pointCloudArray[localId],
+      ExtractOverlappingCellCandidateByProcess(pointCloudArray[localId],
         boundingBoxesArray[localId], outputs[localId], cellBoundingBoxesArray[localId]));
   }
   vtkLogEndScope("isolate overlapping cell candidates for neighbor ranks");
@@ -459,7 +458,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   std::map<int, std::vector<int>> neighbors;
   diy::all_to_all(master, assigner,
     [&master, &neighbors, &overlappingCellCandidatesDataSetsArray](
-      detail::Block*, const diy::ReduceProxy& rp) {
+      Block*, const diy::ReduceProxy& rp) {
       int myBlockId = rp.gid();
       int localId = master.lid(myBlockId);
       auto& overlappingCellCandidatesDataSets = overlappingCellCandidatesDataSetsArray[localId];
@@ -527,7 +526,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
     }
   });
   master.exchange();
-  master.foreach ([](detail::Block* block, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([](Block* block, const diy::Master::ProxyWithLink& cp) {
     // dequeue
     std::vector<int> incoming;
     cp.incoming(incoming);
@@ -579,7 +578,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
 
     // dummy variable needed in the main cell collision detection algorithm.
     std::unordered_map<vtkIdType, std::set<vtkIdType>> localCollisionListMaps;
-    queryCellDataSetsArray.emplace_back(std::move(master.block<detail::Block>(localId)->DataSets));
+    queryCellDataSetsArray.emplace_back(std::move(master.block<Block>(localId)->DataSets));
     auto& queryCellDataSets = queryCellDataSetsArray[localId];
 
     const auto& cellBoundingBoxes = cellBoundingBoxesArray[localId];
@@ -604,7 +603,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       int globalId = pair.first;
       std::vector<vtkBoundingBox> queryCellBoundingBoxes;
       vtkSmartPointer<vtkPointSet> queryPointCloud = vtkSmartPointer<vtkPointSet>::Take(
-        detail::ConvertCellsToBoundingSpheres(queryCellDataSet, queryCellBoundingBoxes));
+        ConvertCellsToBoundingSpheres(queryCellDataSet, queryCellBoundingBoxes));
 
       if (!this->DetectOverlappingCells(queryCellDataSet, queryPointCloud, queryCellBoundingBoxes,
             output, pointCloud, cellBoundingBoxes, collisionListMapList[globalId]))
@@ -633,7 +632,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       }
     });
   master.exchange();
-  master.foreach ([](detail::Block* block, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([](Block* block, const diy::Master::ProxyWithLink& cp) {
     // dequeue
     std::vector<int> incoming;
     cp.incoming(incoming);
@@ -652,7 +651,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   vtkLogStartScope(TRACE, "add detected overlaps from other ranks");
   for (int localId = 0; localId < size; ++localId)
   {
-    auto& collisionIdList = master.block<detail::Block>(localId)->CollisionListMaps;
+    auto& collisionIdList = master.block<Block>(localId)->CollisionListMaps;
     auto& collisionListMapList = collisionListMapListArray[localId];
     vtkIdTypeArray* queryNumberOfOverlapsPerCell = vtkIdTypeArray::SafeDownCast(
       outputs[localId]->GetCellData()->GetAbstractArray(this->NumberOfOverlapsPerCellArrayName));
@@ -671,7 +670,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
         continue;
       }
       vtkIdTypeArray* neighborIdMapArray = vtkIdTypeArray::SafeDownCast(
-        queryCellDataSet->GetCellData()->GetArray(detail::ID_MAP_TO_ORIGIN_DATASET_IDS_NAME));
+        queryCellDataSet->GetCellData()->GetArray(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME));
       for (const auto& pair : collisionListMap)
       {
         // pair.first <=> id of neighbor process which has collision with at least one of our cell.
@@ -724,7 +723,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
   }
 
   vtkDataArray* querySphereRadiusArray =
-    queryPointCloud->GetPointData()->GetArray(detail::SPHERE_RADIUS_ARRAY_NAME);
+    queryPointCloud->GetPointData()->GetArray(SPHERE_RADIUS_ARRAY_NAME);
 
   vtkIdType querySize = queryPointCloud->GetNumberOfPoints();
   vtkIdType twentieth = querySize / 20 + 1;
@@ -786,7 +785,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
     const vtkBoundingBox& bbox = queryCellBoundingBoxes[id];
 
     // We need to shrink currentCell to discard false positive from adjacent cells.
-    double currentCellTolerance = detail::ComputeEpsilon(bbox);
+    double currentCellTolerance = ComputeEpsilon(bbox);
     currentCell->Inflate(-currentCellTolerance);
 
     vtkIdType intersectionCount = 0;
@@ -822,7 +821,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
         neighborCell->DeepCopy(cellDataSet->GetCell(neighborId));
 
         // Shrinking this cell as well.
-        double neighborCellTolerance = detail::ComputeEpsilon(cellBoundingBoxes[neighborId]);
+        double neighborCellTolerance = ComputeEpsilon(cellBoundingBoxes[neighborId]);
         neighborCell->Inflate(-neighborCellTolerance);
         if (currentCell->IntersectWithCell(neighborCell, bbox, cellBoundingBoxes[neighborId]))
         {
