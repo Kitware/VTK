@@ -322,19 +322,20 @@ struct CellArrayType
     }
     OrigCellIds.emplace_back(cellId);
   }
-  void InsertNextCell(vtkIdType npts, vtkIdType cellId)
-  {
-    Cells.emplace_back(npts);
-    OrigCellIds.emplace_back(cellId);
-  }
-  void InsertCellPoint(vtkIdType ptId)
-  {
-    Cells.emplace_back(ptId);
-    if (this->PointMap)
-    {
-      this->PointMap[ptId] = 1;
-    }
-  }
+  // These methods left commented as they may be used in the future.
+  // void InsertNextCell(vtkIdType npts, vtkIdType cellId)
+  // {
+  //   Cells.emplace_back(npts);
+  //   OrigCellIds.emplace_back(cellId);
+  // }
+  // void InsertCellPoint(vtkIdType ptId)
+  // {
+  //   Cells.emplace_back(ptId);
+  //   if (this->PointMap)
+  //   {
+  //     this->PointMap[ptId] = 1;
+  //   }
+  // }
 };
 
 //--------------------------------------------------------------------------
@@ -1305,7 +1306,6 @@ struct IdRecorder
       this->Ids->InsertValue(destId, origId);
     }
   }
-  vtkIdTypeArray* Get() { return this->Ids.Get(); }
   vtkIdType* GetPointer() { return this->Ids->GetPointer(0); }
   vtkTypeBool PassThru() { return (this->Ids.Get() == nullptr ? false : true); }
   void Allocate(vtkIdType num)
@@ -1321,14 +1321,6 @@ struct IdRecorder
     {
       this->Ids->SetNumberOfValues(num);
     }
-  }
-  vtkIdType GetNumberOfValues()
-  {
-    if (this->Ids.Get() != nullptr)
-    {
-      return this->Ids->GetNumberOfValues();
-    }
-    return 0;
   }
 }; // id recorder
 
