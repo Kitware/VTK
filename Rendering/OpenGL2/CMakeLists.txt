@@ -67,6 +67,7 @@ set(classes
   vtkOpenGLVertexBufferObjectCache
   vtkOpenGLVertexBufferObjectGroup
   vtkOrderIndependentTranslucentPass
+  vtkOutlineGlowPass
   vtkOverlayPass
   vtkPanoramicProjectionPass
   vtkPixelBufferObject
@@ -140,6 +141,8 @@ set(shader_files
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
   glsl/vtkOrderIndependentTranslucentPassFinalFS.glsl
+  glsl/vtkOutlineGlowBlurPassFS.glsl
+  glsl/vtkOutlineGlowUpscalePassFS.glsl
   glsl/vtkPointFillPassFS.glsl
   glsl/vtkPointGaussianVS.glsl
   glsl/vtkPointGaussianGS.glsl
