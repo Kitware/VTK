@@ -897,6 +897,9 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(vtkRenderer* ren, vtkActor
     {
       if (draw_surface_with_edges)
       {
+        // have to insert dummy values for points and lines
+        vtkIdType* offsets = hdata->CellCellMap->GetPrimitiveOffsets();
+        this->EdgeValues.resize(offsets[2], 0);
         vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
           this->IndexArray[2], prims[2], poly->GetPoints(), voffset, &this->EdgeValues, ef);
       }

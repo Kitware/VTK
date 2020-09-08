@@ -15,6 +15,8 @@
 =========================================================================*/
 // Template for the polydata mappers geometry shader
 
+uniform int PrimitiveIDOffset;
+
 // VC position of this fragment
 //VTK::PositionVC::Dec
 
