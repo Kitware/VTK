@@ -655,11 +655,29 @@ const char* vtkVariant::GetTypeAsString() const
   return vtkImageScalarTypeNameMacro(this->Type);
 }
 
+auto GetFormattingFunction(int formatting) -> std::ios_base& (*)(std::ios_base&)
+{
+  switch (formatting)
+  {
+    case (vtkVariant::FIXED_FORMATTING):
+      return std::fixed;
+    case (vtkVariant::SCIENTIFIC_FORMATTING):
+      return std::scientific;
+    case (vtkVariant::HEXFLOAT_FORMATTING):
+      return std::hexfloat;
+    case (vtkVariant::DEFAULT_FORMATTING):
+      VTK_FALLTHROUGH;
+    default:
+      return std::defaultfloat;
+  }
+}
+
 template <typename iterT>
-vtkStdString vtkVariantArrayToString(iterT* it)
+vtkStdString vtkVariantArrayToString(iterT* it, int formatting, int precision)
 {
   vtkIdType maxInd = it->GetNumberOfValues();
   std::ostringstream ostr;
+  ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
   for (vtkIdType i = 0; i < maxInd; i++)
   {
     if (i > 0)
@@ -671,7 +689,7 @@ vtkStdString vtkVariantArrayToString(iterT* it)
   return ostr.str();
 }
 
-vtkStdString vtkVariant::ToString() const
+vtkStdString vtkVariant::ToString(int formatting, int precision) const
 {
   if (!this->IsValid())
   {
@@ -689,6 +707,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Float;
     return vtkStdString(ostr.str());
   }
@@ -696,36 +715,42 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Double;
     return vtkStdString(ostr.str());
   }
   if (this->IsChar())
   {
     std::ostringstream ostr;
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Char;
     return vtkStdString(ostr.str());
   }
   if (this->IsUnsignedChar())
   {
     std::ostringstream ostr;
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << static_cast<unsigned int>(this->Data.UnsignedChar);
     return vtkStdString(ostr.str());
   }
   if (this->IsSignedChar())
   {
     std::ostringstream ostr;
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.SignedChar;
     return vtkStdString(ostr.str());
   }
   if (this->IsShort())
   {
     std::ostringstream ostr;
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Short;
     return vtkStdString(ostr.str());
   }
   if (this->IsUnsignedShort())
   {
     std::ostringstream ostr;
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.UnsignedShort;
     return vtkStdString(ostr.str());
   }
@@ -733,6 +758,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Int;
     return vtkStdString(ostr.str());
   }
@@ -740,6 +766,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.UnsignedInt;
     return vtkStdString(ostr.str());
   }
@@ -747,6 +774,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.Long;
     return vtkStdString(ostr.str());
   }
@@ -754,6 +782,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.UnsignedLong;
     return vtkStdString(ostr.str());
   }
@@ -761,6 +790,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.LongLong;
     return vtkStdString(ostr.str());
   }
@@ -768,6 +798,7 @@ vtkStdString vtkVariant::ToString() const
   {
     std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
+    ostr << GetFormattingFunction(formatting) << std::setprecision(precision);
     ostr << this->Data.UnsignedLongLong;
     return vtkStdString(ostr.str());
   }
@@ -778,7 +809,8 @@ vtkStdString vtkVariant::ToString() const
     vtkStdString str;
     switch (arr->GetDataType())
     {
-      vtkArrayIteratorTemplateMacro(str = vtkVariantArrayToString(static_cast<VTK_TT*>(iter)));
+      vtkArrayIteratorTemplateMacro(
+        str = vtkVariantArrayToString(static_cast<VTK_TT*>(iter), formatting, precision));
     }
     iter->Delete();
     return str;
@@ -788,7 +820,7 @@ vtkStdString vtkVariant::ToString() const
   return vtkStdString();
 }
 
-vtkUnicodeString vtkVariant::ToUnicodeString() const
+vtkUnicodeString vtkVariant::ToUnicodeString(int formatting, int precision) const
 {
   if (!this->IsValid())
   {
@@ -803,7 +835,7 @@ vtkUnicodeString vtkVariant::ToUnicodeString() const
     return *this->Data.UnicodeString;
   }
 
-  return vtkUnicodeString::from_utf8(this->ToString());
+  return vtkUnicodeString::from_utf8(this->ToString(formatting, precision));
 }
 
 vtkObjectBase* vtkVariant::ToVTKObject() const
