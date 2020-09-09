@@ -3632,16 +3632,20 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*
     {
       // create the cell scalar array adjusted for ogl Cells
       vtkDataArray* n = this->CurrentInput->GetCellData()->GetNormals();
-      newNorms.reserve(4 * ccmap->GetSize());
+      // Allocate memory to allow for faster direct access methods instead of using push_back to
+      // populate the array.
+      size_t nnSize = newNorms.size(); // Composite mappers can already have values in the array
+      newNorms.resize(nnSize + 4 * ccmap->GetSize(), 0.0f);
       for (size_t i = 0; i < ccmap->GetSize(); i++)
       {
         // RGB32F requires a later version of OpenGL than 3.2
         // with 3.2 we know we have RGBA32F hence the extra value
         double* norms = n->GetTuple(ccmap->GetValue(i));
-        newNorms.push_back(norms[0]);
-        newNorms.push_back(norms[1]);
-        newNorms.push_back(norms[2]);
-        newNorms.push_back(0);
+        newNorms[nnSize + i * 4 + 0] = (norms[0]);
+        newNorms[nnSize + i * 4 + 1] = (norms[1]);
+        newNorms[nnSize + i * 4 + 2] = (norms[2]);
+        /* newNorms[nnSize + i * 4 + 3] = (0); */
+        // Don't set the final value because it is already set faster by the vector resize above.
       }
     }
   }
