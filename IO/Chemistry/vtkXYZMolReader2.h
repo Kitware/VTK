@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGaussianCubeReader2.h
+  Module:    vtkXYZMolReader2.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,29 +13,32 @@
 
 =========================================================================*/
 /**
- * @class   vtkGaussianCubeReader2
- * @brief   Read a Gaussian Cube file and output a
- * vtkMolecule object and a vtkImageData
+ * @class   vtkXYZMolReader2
+ * @brief   read Molecular Data files
  *
+ * vtkXYZMolReader2 is a source object that reads Molecule files
+ * The reader will detect multiple timesteps in an XYZ molecule file.
  *
  * @par Thanks:
- * Dr. Jean M. Favre who developed and contributed this class.
+ * Dr. Jean M. Favre who developed and contributed this class
  */
 
-#ifndef vtkGaussianCubeReader2_h
-#define vtkGaussianCubeReader2_h
+#ifndef vtkXYZMolReader2_h
+#define vtkXYZMolReader2_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
-class vtkMolecule;
-class vtkImageData;
+#include <istream> // for std::istream
+#include <vector>  // for std::vector
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkGaussianCubeReader2 : public vtkMoleculeAlgorithm
+class vtkMolecule;
+
+class VTKIOCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 {
 public:
-  static vtkGaussianCubeReader2* New();
-  vtkTypeMacro(vtkGaussianCubeReader2, vtkMoleculeAlgorithm);
+  static vtkXYZMolReader2* New();
+  vtkTypeMacro(vtkXYZMolReader2, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -46,32 +49,31 @@ public:
   void SetOutput(vtkMolecule*) override;
   //@}
 
-  /**
-   * Get/Set the output (vtkImageData) that the reader will fill
-   */
-  vtkImageData* GetGridOutput();
-
   //@{
   /**
-   * Get/Set the name of the CML file
+   * Get/Set the name of the XYZ Molecule file
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
   //@}
 
 protected:
-  vtkGaussianCubeReader2();
-  ~vtkGaussianCubeReader2() override;
+  vtkXYZMolReader2();
+  ~vtkXYZMolReader2() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int FillOutputPortInformation(int, vtkInformation*) override;
 
   char* FileName;
+  std::vector<istream::pos_type> file_positions; // to store beginning of each tstep
+  std::vector<double> TimeSteps;
+
+  int NumberOfTimeSteps;
+  int NumberOfAtoms;
 
 private:
-  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&) = delete;
-  void operator=(const vtkGaussianCubeReader2&) = delete;
+  vtkXYZMolReader2(const vtkXYZMolReader2&) = delete;
+  void operator=(const vtkXYZMolReader2&) = delete;
 };
 
 #endif

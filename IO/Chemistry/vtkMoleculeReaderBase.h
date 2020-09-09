@@ -27,7 +27,7 @@
 #ifndef vtkMoleculeReaderBase_h
 #define vtkMoleculeReaderBase_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -41,7 +41,7 @@ class vtkStringArray;
 class vtkMolecule;
 class vtkPeriodicTable;
 
-class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
+class VTKIOCHEMISTRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMoleculeReaderBase, vtkPolyDataAlgorithm);

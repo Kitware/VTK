@@ -96,7 +96,6 @@ if (VTK_WRAP_PYTHON)
     Data/room.dat
     Data/test.p3d
     Data/texThres2.vtk
-    Data/thio3xx.xyz
     Data/vwgt.coords
     Data/vwgt.graph)
 

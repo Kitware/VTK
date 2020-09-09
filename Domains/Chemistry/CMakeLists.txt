@@ -1,8 +1,6 @@
 set(classes
   vtkBlueObeliskData
   vtkBlueObeliskDataParser
-  vtkCMLMoleculeReader
-  vtkGaussianCubeReader2
   vtkMoleculeMapper
   vtkMoleculeToAtomBallFilter
   vtkMoleculeToBondStickFilter
@@ -12,10 +10,7 @@ set(classes
   vtkPointSetToMoleculeFilter
   vtkProgrammableElectronicData
   vtkProteinRibbonFilter
-  vtkSimpleBondPerceiver
-  vtkVASPAnimationReader
-  vtkVASPTessellationReader
-  vtkXYZMolReader2)
+  vtkSimpleBondPerceiver)
 
 # Generate configured header file
 configure_file(

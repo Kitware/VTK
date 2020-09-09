@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCMLMoleculeReader.h
+  Module:    vtkGaussianCubeReader2.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,25 +13,29 @@
 
 =========================================================================*/
 /**
- * @class   vtkCMLMoleculeReader
- * @brief   Read a CML file and output a
- * vtkMolecule object
+ * @class   vtkGaussianCubeReader2
+ * @brief   Read a Gaussian Cube file and output a
+ * vtkMolecule object and a vtkImageData
  *
+ *
+ * @par Thanks:
+ * Dr. Jean M. Favre who developed and contributed this class.
  */
 
-#ifndef vtkCMLMoleculeReader_h
-#define vtkCMLMoleculeReader_h
+#ifndef vtkGaussianCubeReader2_h
+#define vtkGaussianCubeReader2_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
 class vtkMolecule;
+class vtkImageData;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkMoleculeAlgorithm
+class VTKIOCHEMISTRY_EXPORT vtkGaussianCubeReader2 : public vtkMoleculeAlgorithm
 {
 public:
-  static vtkCMLMoleculeReader* New();
-  vtkTypeMacro(vtkCMLMoleculeReader, vtkMoleculeAlgorithm);
+  static vtkGaussianCubeReader2* New();
+  vtkTypeMacro(vtkGaussianCubeReader2, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -42,6 +46,11 @@ public:
   void SetOutput(vtkMolecule*) override;
   //@}
 
+  /**
+   * Get/Set the output (vtkImageData) that the reader will fill
+   */
+  vtkImageData* GetGridOutput();
+
   //@{
   /**
    * Get/Set the name of the CML file
@@ -51,17 +60,18 @@ public:
   //@}
 
 protected:
-  vtkCMLMoleculeReader();
-  ~vtkCMLMoleculeReader() override;
+  vtkGaussianCubeReader2();
+  ~vtkGaussianCubeReader2() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   char* FileName;
 
 private:
-  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&) = delete;
-  void operator=(const vtkCMLMoleculeReader&) = delete;
+  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&) = delete;
+  void operator=(const vtkGaussianCubeReader2&) = delete;
 };
 
 #endif
