@@ -671,7 +671,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
         vtkShaderProgram::Substitute(
           GSSource, "//VTK::Edges::Dec", "uniform samplerBuffer edgeTexture;");
         vtkShaderProgram::Substitute(GSSource, "//VTK::Edges::Impl",
-          "float edgeValues = 255.0*texelFetch(edgeTexture, gl_PrimitiveIDIn).r;\n"
+          "float edgeValues = 255.0*texelFetch(edgeTexture, gl_PrimitiveIDIn + "
+          "PrimitiveIDOffset).r;\n"
           "if (edgeValues < 4.0) edgeEqn[2].z = lineWidth;\n"
           "if (mod(edgeValues, 4.0) < 2.0) edgeEqn[1].z = lineWidth;\n"
           "if (mod(edgeValues, 2.0) < 1.0) edgeEqn[0].z = lineWidth;\n");
