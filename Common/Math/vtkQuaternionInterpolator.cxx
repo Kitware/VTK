@@ -16,6 +16,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuaternion.h"
+
+#include <algorithm>
 #include <vector>
 
 vtkStandardNewMacro(vtkQuaternionInterpolator);
@@ -42,6 +44,16 @@ struct TimedQuaternion
   }
 };
 
+// A comparison method for sorting TimedQuaternion in increasing order
+class vtkFunctionCompareTimedQuaternion
+{
+public:
+  bool operator()(const TimedQuaternion& TQ1, const TimedQuaternion& TQ2)
+  {
+    return TQ1.Time < TQ2.Time;
+  }
+};
+
 // The list is arranged in increasing order in T
 class vtkQuaternionList : public std::vector<TimedQuaternion>
 {
@@ -54,6 +66,7 @@ vtkQuaternionInterpolator::vtkQuaternionInterpolator()
   // Set up the interpolation
   this->QuaternionList = new vtkQuaternionList;
   this->InterpolationType = INTERPOLATION_TYPE_SPLINE;
+  this->SearchMethod = vtkQuaternionInterpolator::BinarySearch;
 }
 
 //------------------------------------------------------------------------------
@@ -96,6 +109,25 @@ double vtkQuaternionInterpolator::GetMaximumT()
 }
 
 //------------------------------------------------------------------------------
+int vtkQuaternionInterpolator::GetSearchMethod()
+{
+  return this->SearchMethod;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuaternionInterpolator::SetSearchMethod(int type)
+{
+  if (type < 0 || type >= static_cast<int>(MaxEnum))
+  {
+    vtkGenericWarningMacro("enum out of scope, BinarySearch will be applied");
+    // set to BinarySearch because it is the most effective method
+    this->SearchMethod = BinarySearch;
+  }
+
+  this->SearchMethod = type;
+}
+
+//----------------------------------------------------------------------------
 void vtkQuaternionInterpolator::Initialize()
 {
   // Wipe out old data
@@ -205,15 +237,38 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, vtkQuaterniond& 
   int numQuats = this->GetNumberOfQuaternions();
   if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR || numQuats < 3)
   {
-    QuaternionListIterator iter = this->QuaternionList->begin();
-    QuaternionListIterator nextIter = iter + 1;
-    for (; nextIter != this->QuaternionList->end(); ++iter, ++nextIter)
+    if (this->SearchMethod == vtkQuaternionInterpolator::BinarySearch)
     {
-      if (iter->Time <= t && t <= nextIter->Time)
+      vtkFunctionCompareTimedQuaternion comparator;
+      QuaternionListIterator upBound;
+      TimedQuaternion ToFind;
+      ToFind.Time = t;
+      upBound = std::upper_bound(
+        this->QuaternionList->begin(), this->QuaternionList->end(), ToFind, comparator);
+
+      if (upBound == this->QuaternionList->begin())
       {
-        double T = (t - iter->Time) / (nextIter->Time - iter->Time);
-        q = iter->Q.Slerp(T, nextIter->Q);
-        break;
+        TimedQuaternion& Q = this->QuaternionList->front();
+        q = Q.Q;
+        return;
+      }
+
+      QuaternionListIterator lowBound = upBound - 1;
+      double T = (t - lowBound->Time) / (upBound->Time - lowBound->Time);
+      q = lowBound->Q.Slerp(T, upBound->Q);
+    }
+    else
+    {
+      QuaternionListIterator iter = this->QuaternionList->begin();
+      QuaternionListIterator nextIter = iter + 1;
+      for (; nextIter != this->QuaternionList->end(); ++iter, ++nextIter)
+      {
+        if (iter->Time <= t && t <= nextIter->Time)
+        {
+          double T = (t - iter->Time) / (nextIter->Time - iter->Time);
+          q = iter->Q.Slerp(T, nextIter->Q);
+          break;
+        }
       }
     }
   } // if linear quaternion interpolation
@@ -224,15 +279,35 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, vtkQuaterniond& 
     QuaternionListIterator nextIter = iter + 1;
     QuaternionListIterator iter0, iter1, iter2, iter3;
 
-    // find the interval
     double T = 0.0;
     int i;
-    for (i = 0; nextIter != this->QuaternionList->end(); ++iter, ++nextIter, ++i)
+
+    // find the interval
+    if (this->SearchMethod == BinarySearch)
     {
-      if (iter->Time <= t && t <= nextIter->Time)
+      vtkFunctionCompareTimedQuaternion comparator;
+      QuaternionListIterator upBound;
+      TimedQuaternion ToFind;
+      ToFind.Time = t;
+      upBound = std::upper_bound(
+        this->QuaternionList->begin(), this->QuaternionList->end(), ToFind, comparator);
+
+      QuaternionListIterator lowBound = upBound - 1;
+      T = (t - lowBound->Time) / (upBound->Time - lowBound->Time);
+
+      iter = lowBound;
+      nextIter = upBound;
+      i = std::distance(this->QuaternionList->begin(), iter);
+    }
+    else
+    {
+      for (i = 0; nextIter != this->QuaternionList->end(); ++iter, ++nextIter, ++i)
       {
-        T = (t - iter->Time) / (nextIter->Time - iter->Time);
-        break;
+        if (iter->Time <= t && t <= nextIter->Time)
+        {
+          T = (t - iter->Time) / (nextIter->Time - iter->Time);
+          break;
+        }
       }
     }
 
