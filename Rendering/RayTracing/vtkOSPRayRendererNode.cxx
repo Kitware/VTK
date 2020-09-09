@@ -1283,26 +1283,22 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       this->OWorld = ospNewWorld();
       // put the model into a group (collection of models)
+      if (this->Lights.size())
+      {
+        auto data = ospNewSharedData1D(
+          this->Lights.data(), OSP_LIGHT, static_cast<uint32_t>(this->Lights.size()));
+        ospCommit(data);
+        ospSetObject(this->OWorld, "light", data);
+        ospRelease(data);
+      }
       if (this->Instances.size())
       {
-        if (this->Lights.size())
-        {
-          auto data = ospNewSharedData1D(
-            this->Lights.data(), OSP_LIGHT, static_cast<uint32_t>(this->Lights.size()));
-          ospCommit(data);
-          ospSetObject(this->OWorld, "light", data);
-          ospRelease(data);
-        }
         auto instanceData = ospNewSharedData1D(
           this->Instances.data(), OSP_INSTANCE, static_cast<uint32_t>(this->Instances.size()));
         ospCommit(instanceData);
         ospSetObject(this->OWorld, "instance", instanceData);
         ospRelease(instanceData);
         this->OInstanceData = instanceData;
-      }
-      else
-      {
-        ospRemoveParam(this->OWorld, "instance");
       }
       ospCommit(this->OWorld);
       if (this->Cache->HasRoom())
