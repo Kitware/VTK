@@ -50,31 +50,31 @@ void ProduceOutline(vtkImageData* input, vtkTypeBool genFaces, vtkPoints* points
   // Produce the eight vtkImageData points, possibly oriented. Use the
   // corner indices of the volume.
   double x[3];
-  int dims[3];
-  input->GetDimensions(dims);
+  int ext[6];
+  input->GetExtent(ext);
 
-  input->TransformIndexToPhysicalPoint(0, 0, 0, x);
+  input->TransformIndexToPhysicalPoint(ext[0], ext[2], ext[4], x);
   ptIds[0] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(dims[0] - 1, 0, 0, x);
+  input->TransformIndexToPhysicalPoint(ext[1], ext[2], ext[4], x);
   ptIds[1] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(0, dims[1] - 1, 0, x);
+  input->TransformIndexToPhysicalPoint(ext[0], ext[3], ext[4], x);
   ptIds[2] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(dims[0] - 1, dims[1] - 1, 0, x);
+  input->TransformIndexToPhysicalPoint(ext[1], ext[3], ext[4], x);
   ptIds[3] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(0, 0, dims[2] - 1, x);
+  input->TransformIndexToPhysicalPoint(ext[0], ext[2], ext[5], x);
   ptIds[4] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(dims[0] - 1, 0, dims[2] - 1, x);
+  input->TransformIndexToPhysicalPoint(ext[1], ext[2], ext[5], x);
   ptIds[5] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(0, dims[1] - 1, dims[2] - 1, x);
+  input->TransformIndexToPhysicalPoint(ext[0], ext[3], ext[5], x);
   ptIds[6] = points->InsertNextPoint(x);
 
-  input->TransformIndexToPhysicalPoint(dims[0] - 1, dims[1] - 1, dims[2] - 1, x);
+  input->TransformIndexToPhysicalPoint(ext[1], ext[3], ext[5], x);
   ptIds[7] = points->InsertNextPoint(x);
 
   // Produce topology, lines plus optional quad faces

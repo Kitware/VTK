@@ -146,6 +146,9 @@ public:
   void TransformPlane(vtkImageData* image)
   {
     image->TransformPhysicalPointToContinuousIndex(this->PlaneCenter, this->Center);
+    this->Center[0] = (this->Center[0] - this->Min0);
+    this->Center[1] = (this->Center[1] - this->Min1);
+    this->Center[2] = (this->Center[2] - this->Min2);
     image->TransformPhysicalNormalToContinuousIndex(this->PlaneNormal, this->Normal);
   }
 
@@ -215,9 +218,9 @@ public:
     const double s0, const double s1, vtkIdType ijk0[3], vtkIdType ijk1[3])
   {
     float* x = this->NewPoints + 3 * vId;
-    x[0] = static_cast<float>(x0[0] + t * (x1[0] - x0[0]));
-    x[1] = static_cast<float>(x0[1] + t * (x1[1] - x0[1]));
-    x[2] = static_cast<float>(x0[2] + t * (x1[2] - x0[2]));
+    x[0] = static_cast<float>(x0[0] + t * (x1[0] - x0[0])) + this->Min0;
+    x[1] = static_cast<float>(x0[1] + t * (x1[1] - x0[1])) + this->Min1;
+    x[2] = static_cast<float>(x0[2] + t * (x1[2] - x0[2])) + this->Min2;
 
     T* s = this->NewScalars + vId;
     *s = s0 + t * (s1 - s0);
@@ -578,9 +581,9 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::InterpolateEdge(vtkIdType ijk[3], T 
   // Okay interpolate. Remember the plane value = 0.0.
   double t = -(sV0) / (sV1 - sV0);
   float* xPtr = this->NewPoints + 3 * vId;
-  xPtr[0] = static_cast<float>(x0[0] + t * (x1[0] - x0[0]));
-  xPtr[1] = static_cast<float>(x0[1] + t * (x1[1] - x0[1]));
-  xPtr[2] = static_cast<float>(x0[2] + t * (x1[2] - x0[2]));
+  xPtr[0] = static_cast<float>(x0[0] + t * (x1[0] - x0[0])) + this->Min0;
+  xPtr[1] = static_cast<float>(x0[1] + t * (x1[1] - x0[1])) + this->Min1;
+  xPtr[2] = static_cast<float>(x0[2] + t * (x1[2] - x0[2])) + this->Min2;
 
   T* sInt = this->NewScalars + vId;
   *sInt = *s0 + t * (*s1 - *s0);
@@ -719,7 +722,8 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GeneratePoints(unsigned char loc, vt
 //
 // This method varies significantly from the first pass of vtkFlyingEdges3D
 // because the evaluation of the x-edges is performed by intersection against
-// the cutting plane.
+// the cutting plane. The intersection is computed by evaluating the end points
+// of the x-edge.
 template <class T>
 void vtkFlyingEdgesPlaneCutterAlgorithm<T>::ProcessXEdge(
   double xL[3], double xR[3], vtkIdType row, vtkIdType slice)
