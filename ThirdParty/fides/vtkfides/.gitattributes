@@ -1,0 +1,6 @@
+data/* filter=lfs diff=lfs merge=lfs -text
+/**/data/* filter=lfs diff=lfs merge=lfs -text
+/**/data/*/* filter=lfs diff=lfs merge=lfs -text
+
+# XXX(kitware): Ignore whitespace issues.
+* -whitespace
