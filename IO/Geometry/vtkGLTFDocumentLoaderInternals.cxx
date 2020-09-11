@@ -18,7 +18,7 @@
 #include "vtkGLTFUtils.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
-#include "vtkTransform.h"
+#include "vtkMatrix4x4.h"
 #include "vtk_jsoncpp.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -886,7 +886,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
     node.TRSLoaded = true;
   }
 
-  node.Transform = vtkSmartPointer<vtkTransform>::New();
+  node.Transform = vtkSmartPointer<vtkMatrix4x4>::New();
   // Update the node with its initial transform values
   node.UpdateTransform();
 

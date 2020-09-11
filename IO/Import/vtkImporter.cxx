@@ -212,7 +212,7 @@ vtkIdType vtkImporter::GetNumberOfAnimations()
 
 //------------------------------------------------------------------------------
 bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
-  int& vtkNotUsed(nbTimeSteps), double vtkNotUsed(timeRange)[2],
+  double vtkNotUsed(frameRate), int& vtkNotUsed(nbTimeSteps), double vtkNotUsed(timeRange)[2],
   vtkDoubleArray* vtkNotUsed(timeSteps))
 {
   return false;

@@ -463,13 +463,9 @@ public:
     bool res = true;
     for (auto& uni : this->Uniforms)
     {
-      bool r = uni.second->SetUniform(uni.first.c_str(), p);
-      if (!r)
-      {
-        vtkErrorMacro(<< "vtkOpenGLUniforms: couldn't set custom uniform variable " << uni.first
-                      << endl);
-      }
-      res &= r;
+      // if the uniform is not used, the GLSL compiler optimize it out
+      // false is returned but it is not necessary an error
+      res &= uni.second->SetUniform(uni.first.c_str(), p);
     }
     return res;
   }

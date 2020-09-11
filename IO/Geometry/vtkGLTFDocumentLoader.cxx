@@ -32,6 +32,7 @@
 #include "vtkIntArray.h"
 #include "vtkJPEGReader.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkPNGReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -998,6 +999,15 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
       channel.TargetPath == Animation::Channel::PathType::ROTATION);
     node.UpdateTransform();
   }
+
+  // Compute global transforms
+  for (const auto& scene : this->InternalModel->Scenes)
+  {
+    for (unsigned int node : scene.Nodes)
+    {
+      this->BuildGlobalTransforms(node, nullptr);
+    }
+  }
   return true;
 }
 
@@ -1157,7 +1167,6 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
 void vtkGLTFDocumentLoader::Node::UpdateTransform()
 {
   this->Transform->Identity();
-  this->Transform->PostMultiply();
 
   if (this->TRSLoaded)
   {
@@ -1182,20 +1191,25 @@ void vtkGLTFDocumentLoader::Node::UpdateTransform()
       std::begin(rotationValues), std::begin(rotationValues) + 3, std::end(rotationValues));
     // Initialize quaternion
     vtkQuaternion<float> rotation;
-    rotation.Set(rotationValues.data());
-    float axis[3];
     rotation.Normalize();
-    float angle = rotation.GetRotationAngleAndAxis(axis);
-    angle = vtkMath::DegreesFromRadians(angle);
+    rotation.Set(rotationValues.data());
+
+    float rotationMatrix[3][3];
+    rotation.ToMatrix3x3(rotationMatrix);
 
     // Apply transformations
-    this->Transform->Scale(scale.data());
-    this->Transform->RotateWXYZ(angle, axis);
-    this->Transform->Translate(translation.data());
+    for (int i = 0; i < 3; i++)
+    {
+      for (int j = 0; j < 3; j++)
+      {
+        this->Transform->SetElement(i, j, scale[j] * rotationMatrix[i][j]);
+      }
+      this->Transform->SetElement(i, 3, translation[i]);
+    }
   }
   else
   {
-    this->Transform->SetMatrix(this->Matrix);
+    this->Transform->DeepCopy(this->Matrix);
   }
 }
 
@@ -1417,19 +1431,19 @@ bool vtkGLTFDocumentLoader::BuildModelVTKGeometry()
 
 //------------------------------------------------------------------------------
 void vtkGLTFDocumentLoader::BuildGlobalTransforms(
-  unsigned int nodeIndex, vtkSmartPointer<vtkTransform> parentTransform)
+  unsigned int nodeIndex, vtkSmartPointer<vtkMatrix4x4> parentTransform)
 {
   if (nodeIndex >= this->InternalModel->Nodes.size())
   {
     return;
   }
   Node& node = this->InternalModel->Nodes[nodeIndex];
-  node.GlobalTransform = vtkSmartPointer<vtkTransform>::New();
-  node.GlobalTransform->PostMultiply();
-  node.GlobalTransform->Concatenate(node.Transform);
+
+  node.GlobalTransform = vtkSmartPointer<vtkMatrix4x4>::New();
+  node.GlobalTransform->DeepCopy(node.Transform);
   if (parentTransform != nullptr)
   {
-    node.GlobalTransform->Concatenate(parentTransform);
+    vtkMatrix4x4::Multiply4x4(parentTransform, node.GlobalTransform, node.GlobalTransform);
   }
   for (auto childId : node.Children)
   {
@@ -1485,5 +1499,42 @@ unsigned int vtkGLTFDocumentLoader::GetNumberOfComponentsForType(
       return 16;
     default:
       return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkGLTFDocumentLoader::ComputeJointMatrices(const Model& model, const Skin& skin, Node& node,
+  std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats)
+{
+  jointMats.clear();
+  jointMats.reserve(skin.Joints.size());
+
+  vtkNew<vtkMatrix4x4> inverseMeshGlobal;
+  vtkMatrix4x4::Invert(node.GlobalTransform, inverseMeshGlobal);
+
+  for (unsigned int jointId = 0; jointId < skin.Joints.size(); jointId++)
+  {
+    const Node& jointNode = model.Nodes[skin.Joints[jointId]];
+
+    /**
+     * Joint matrices:
+     * jointMatrix(j) =
+     * globalTransformOfNodeThatTheMeshIsAttachedTo^-1 *
+     * globalTransformOfJointNode(j) *
+     * inverseBindMatrixForJoint(j);
+     * The mesh will be transformed (using vtkWeightedTransformFilter) using this matrix:
+     * mat4 skinMat =
+     * weight.x * jointMatrix[joint.x] +
+     * weight.y * jointMatrix[joint.y] +
+     * weight.z * jointMatrix[joint.z] +
+     * weight.w * jointMatrix[joint.w];
+     */
+
+    vtkNew<vtkMatrix4x4> jointMat;
+    vtkMatrix4x4::Multiply4x4(
+      jointNode.GlobalTransform, skin.InverseBindMatrices[jointId], jointMat);
+    vtkMatrix4x4::Multiply4x4(inverseMeshGlobal, jointMat, jointMat);
+
+    jointMats.emplace_back(jointMat);
   }
 }

@@ -51,6 +51,8 @@ in vec4 vertexMC;
 
 void main()
 {
+  //VTK::CustomBegin::Impl
+
   //VTK::Color::Impl
 
   //VTK::Normal::Impl
@@ -68,4 +70,6 @@ void main()
   //VTK::Light::Impl
 
   //VTK::Picking::Impl
+
+  //VTK::CustomEnd::Impl
 }

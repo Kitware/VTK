@@ -123,8 +123,8 @@ public:
    * the three return arguments can be defined or not.
    * Return true in case of success, false otherwise.
    */
-  virtual bool GetTemporalInformation(
-    vtkIdType animationIndex, int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps);
+  virtual bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
+    double timeRange[2], vtkDoubleArray* timeSteps);
 
   /**
    * Import the actors, camera, lights and properties at a specific timestep.
