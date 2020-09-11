@@ -308,7 +308,7 @@ public:
    * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
    * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
    * argument to control the precision of the output. These two parameters have no effect when the
-   * variant is not numeric or not a numeric array.
+   * variant is not a floating-point value or an array of floating-point values.
    * See the std doc for more information.
    */
   vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
@@ -318,7 +318,7 @@ public:
    * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
    * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
    * argument to control the precision of the output. These two parameters have no effect when the
-   * variant is not numeric or not a numeric array.
+   * variant is not a floating-point value or an array of floating-point values.
    * See the std doc for more information.
    */
   vtkUnicodeString ToUnicodeString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
