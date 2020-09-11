@@ -3,6 +3,7 @@ set(classes
   vtkXMLPDataObjectWriter
   vtkXMLPDataWriter
   vtkXMLPImageDataWriter
+  vtkXMLPPartitionedDataSetWriter
   vtkXMLPPolyDataWriter
   vtkXMLPRectilinearGridWriter
   vtkXMLPStructuredDataWriter
