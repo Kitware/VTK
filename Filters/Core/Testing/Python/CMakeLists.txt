@@ -39,6 +39,7 @@ vtk_add_test_python(
   TestMarchingSquares.py
   TestMultiObjectMassProperties.py
   TestOrientedFlyingEdgesPlaneCutter.py
+  TestOrientedFlyingEdgesPlaneCutter2.py
   TestPolyDataEdgeConnectivityFilter.py
   TestPolyDataEdgeConnectivityFilter2.py
   TestPolyDataPlaneCutter.py
