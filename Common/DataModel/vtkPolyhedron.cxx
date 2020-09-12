@@ -190,11 +190,22 @@ vtkPolyhedron::vtkPolyhedron()
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
   this->Cell = vtkGenericCell::New();
+
+  this->ValenceAtPoint = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkPolyhedron::~vtkPolyhedron()
 {
+  if (this->ValenceAtPoint != nullptr)
+  {
+    delete this->ValenceAtPoint;
+    for (int i = 0; i < this->GetNumberOfPoints(); i++)
+    {
+      delete this->PointToIncidentFaces[i];
+    }
+    delete this->PointToIncidentFaces;
+  }
   this->Line->Delete();
   this->Triangle->Delete();
   this->Quad->Delete();
@@ -1221,6 +1232,53 @@ int vtkPolyhedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoint
   }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyhedron::GeneratePointToIncidentFacesAndValenceAtPoint()
+{
+  // Allocate memory
+  this->PointToIncidentFaces = new vtkIdType*[this->GetNumberOfPoints()];
+  this->ValenceAtPoint = new vtkIdType[this->GetNumberOfPoints()];
+  // Add the faces that hold each cell local point id
+  std::vector<std::set<vtkIdType>> setFacesOfPoint(this->GetNumberOfPoints());
+  for (int faceIndex = 0; faceIndex < this->GetNumberOfFaces(); faceIndex++)
+  {
+    auto face = this->GetFace(faceIndex);
+    // For each point of the face
+    for (int pointIndexFace = 0; pointIndexFace < face->GetNumberOfPoints(); pointIndexFace++)
+    {
+      // Get the global id of the point of the face
+      auto pointId = face->GetPointId(pointIndexFace);
+      // Transform the global id of the point of the face to the local id of the point in the cell
+      auto pointCellLocalId = (*this->PointIdMap)[pointId];
+      // Insert this face in the set
+      setFacesOfPoint[pointCellLocalId].insert(faceIndex);
+    }
+  }
+  // Fill in ValenceAtPoint and PointToIncidentFaces using the set data
+  for (int pointIndex = 0; pointIndex < this->GetNumberOfPoints(); pointIndex++)
+  {
+    this->ValenceAtPoint[pointIndex] = static_cast<vtkIdType>(setFacesOfPoint[pointIndex].size());
+    this->PointToIncidentFaces[pointIndex] = new vtkIdType[ValenceAtPoint[pointIndex]];
+    int indexInsert = 0;
+    for (auto faceId : setFacesOfPoint[pointIndex])
+    {
+      this->PointToIncidentFaces[pointIndex][indexInsert++] = faceId;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPolyhedron::GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds)
+{
+  assert(pointId < this->GetNumberOfPoints() && "pointId too large");
+  if (this->ValenceAtPoint == nullptr)
+  {
+    this->GeneratePointToIncidentFacesAndValenceAtPoint();
+  }
+  faceIds = this->PointToIncidentFaces[pointId];
+  return this->ValenceAtPoint[pointId];
 }
 
 bool IntersectWithContour(vtkCell* cell, vtkDataArray* pointScalars, vtkPointIdMap* pointIdMap,

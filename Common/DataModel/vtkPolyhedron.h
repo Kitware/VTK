@@ -113,12 +113,7 @@ public:
     vtkWarningMacro(<< "vtkPolyhedron::GetPointToIncidentEdges Not Implemented");
     return 0;
   }
-  vtkIdType GetPointToIncidentFaces(
-    vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(faceIds)) override
-  {
-    vtkWarningMacro(<< "vtkPolyhedron::GetPointToIncidentFaces Not Implemented");
-    return 0;
-  }
+  vtkIdType GetPointToIncidentFaces(vtkIdType pointId, const vtkIdType*& faceIds) override;
   vtkIdType GetPointToOneRingPoints(
     vtkIdType vtkNotUsed(pointId), const vtkIdType*& vtkNotUsed(pts)) override
   {
@@ -337,6 +332,8 @@ protected:
   void ComputeParametricCoordinate(const double x[3], double pc[3]);
   void ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
 
+  void GeneratePointToIncidentFacesAndValenceAtPoint();
+
   // Members for supporting geometric operations
   int PolyDataConstructed;
   vtkPolyData* PolyData;
@@ -347,6 +344,10 @@ protected:
   void ConstructLocator();
   vtkIdList* CellIds;
   vtkGenericCell* Cell;
+
+  // Members used in GetPointToIncidentFaces
+  vtkIdType** PointToIncidentFaces;
+  vtkIdType* ValenceAtPoint;
 
 private:
   vtkPolyhedron(const vtkPolyhedron&) = delete;
