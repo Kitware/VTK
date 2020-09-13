@@ -318,7 +318,10 @@ void vtkSynchronizedRenderers::PushImageToScreen()
     return;
   }
 
-  rawImage.PushToViewport(this->Renderer);
+  // If this->FixBackground is true, the rawImage was generated using a black
+  // background. Such an image can be blended. If this->FixBackground is not
+  // true, then the image simply replaces the existing image.
+  rawImage.PushToViewport(this->Renderer, /*blend=*/this->FixBackground);
 
   vtkHardwareSelector* sel = this->Renderer->GetSelector();
   if (sel)
@@ -620,7 +623,7 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
 }
 
 //------------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
+bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren, bool blend)
 {
   if (!this->IsValid())
   {
@@ -644,11 +647,11 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ostate->vtkglScissor(low_point[0], low_point[1], size[0], size[1]);
 
   ren->Clear();
-  return this->PushToFrameBuffer(ren);
+  return this->PushToFrameBuffer(ren, blend);
 }
 
 //------------------------------------------------------------------------------
-bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer* ren)
+bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer* ren, bool blend)
 {
   if (!this->IsValid())
   {
@@ -663,8 +666,18 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer* ren)
 
   // framebuffers have their color premultiplied by alpha.
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
-  ostate->vtkglEnable(GL_BLEND);
-  ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+  if (blend)
+  {
+    vtkLogF(TRACE, "PushToFrameBuffer: using blend");
+    ostate->vtkglEnable(GL_BLEND);
+    ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  }
+  else
+  {
+    ostate->vtkglDisable(GL_BLEND);
+    vtkLogF(TRACE, "PushToFrameBuffer: not-using blend");
+  }
 
   int size[2], low_point[2];
   ren->GetTiledSizeAndOrigin(&size[0], &size[1], &low_point[0], &low_point[1]);

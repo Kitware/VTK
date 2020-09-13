@@ -197,14 +197,20 @@ public:
     /**
      * Pushes the image to the viewport. The OpenGL viewport  and scissor region
      * is setup using the viewport defined by the renderer.
+     *
+     * If blend is true (default), the image will be blended onto to the existing
+     * background, else it will replace it.
      */
-    bool PushToViewport(vtkRenderer* renderer);
+    bool PushToViewport(vtkRenderer* renderer, bool blend = true);
 
     /**
      * This is a raw version of PushToViewport() that assumes that the
      * glViewport() has already been setup externally.
+     *
+     * If blend is true (default), the image will be blended onto to the existing
+     * background, else it will replace it.
      */
-    bool PushToFrameBuffer(vtkRenderer* ren);
+    bool PushToFrameBuffer(vtkRenderer* ren, bool blend = true);
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
