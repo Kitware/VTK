@@ -178,31 +178,13 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         blockBoundsArray.push_back(obox);
       }
 
-#if 0
-TODO FIX ME, to be fixed in upcoming OpenVKL release
       double* bds = mapper->GetBounds();
-#endif
-      ospSetVec3f(this->OSPRayVolume, "gridOrigin",
-#if 0
-TODO FIX ME, to be fixed in upcoming OpenVKL release
-        static_cast<float>(bds[0]),
-        static_cast<float>(bds[1]),
-        static_cast<float>(bds[2]));
-#else
-        0, 0, 0);
-#endif
+      ospSetVec3f(this->OSPRayVolume, "gridOrigin", static_cast<float>(bds[0]),
+        static_cast<float>(bds[2]), static_cast<float>(bds[4]));
       double spacing[3] = { 1.0, 1.0, 1.0 };
       amr->GetAMRInfo()->GetSpacing(0, spacing);
-      ospSetVec3f(this->OSPRayVolume, "gridSpacing",
-#if 0
-TODO FIX ME, to be fixed in upcoming OpenVKL release
-        static_cast<float>(spacing[0]),
-        static_cast<float>(spacing[1]),
-        static_cast<float>(spacing[2]);
-
-#else
-        1, 1, 1);
-#endif
+      ospSetVec3f(this->OSPRayVolume, "gridSpacing", static_cast<float>(spacing[0]),
+        static_cast<float>(spacing[1]), static_cast<float>(spacing[2]));
 
       for (unsigned int i = 0; i < amrInfo->GetNumberOfLevels(); ++i)
       {
@@ -214,8 +196,7 @@ TODO FIX ME, to be fixed in upcoming OpenVKL release
       ospCommit(cellWidthData);
       ospSetObject(this->OSPRayVolume, "cellWidth", cellWidthData);
 
-      OSPData brickDataData =
-        ospNewCopyData1D(&brickDataArray[0], OSP_DATA, brickDataArray.size());
+      OSPData brickDataData = ospNewCopyData1D(&brickDataArray[0], OSP_DATA, brickDataArray.size());
       ospCommit(brickDataData);
       ospSetObject(this->OSPRayVolume, "block.data", brickDataData);
       OSPData blockBoundsData =
