@@ -457,6 +457,11 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdT
         sFactor = this->RadiusFactor;
       }
     }
+    else if (inVectors && this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR_NORM)
+    {
+      sFactor =
+        1.0 + (this->RadiusFactor - 1.0) * vtkMath::Norm(inVectors->GetTuple(pts[j])) / maxSpeed;
+    }
     else if (inScalars && this->VaryRadius == VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR)
     {
       sFactor = inScalars->GetComponent(pts[j], 0);
@@ -786,9 +791,13 @@ const char* vtkTubeFilter::GetVaryRadiusAsString()
   {
     return "VaryRadiusByAbsoluteScalar";
   }
-  else
+  else if (this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR)
   {
     return "VaryRadiusByVector";
+  }
+  else
+  {
+    return "VaryRadiusByVectorNorm";
   }
 }
 

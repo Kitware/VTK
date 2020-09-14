@@ -63,6 +63,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestUnstructuredGridQuadricDecimation.cxx,NO_VALID
   TestUnstructuredGridToExplicitStructuredGrid.cxx
   TestUnstructuredGridToExplicitStructuredGridEmpty.cxx
+  TestVaryRadiusTubeFilter.cxx
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
   )

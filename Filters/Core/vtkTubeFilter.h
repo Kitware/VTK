@@ -21,8 +21,9 @@
  * the rotation of the line normals. (If no normals are present, they are
  * computed automatically.) The radius of the tube can be set to vary with
  * scalar or vector value. If the radius varies with scalar value the radius
- * is linearly adjusted. If the radius varies with vector value, a mass
- * flux preserving variation is used. The number of sides for the tube also
+ * is linearly adjusted. If the radius varies by vector, a mass flux preserving
+ * variation is used. If the radius varies by vector norm, the radius is
+ * linearly adjusted to its norm. The number of sides for the tube also
  * can be specified. You can also specify which of the sides are visible. This
  * is useful for generating interesting striping effects. Other options
  * include the ability to cap the tube and generate texture coordinates.
@@ -61,6 +62,7 @@
 #define VTK_VARY_RADIUS_BY_SCALAR 1
 #define VTK_VARY_RADIUS_BY_VECTOR 2
 #define VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR 3
+#define VTK_VARY_RADIUS_BY_VECTOR_NORM 4
 
 #define VTK_TCOORDS_OFF 0
 #define VTK_TCOORDS_FROM_NORMALIZED_LENGTH 1
@@ -98,11 +100,15 @@ public:
   /**
    * Turn on/off the variation of tube radius with scalar value.
    */
-  vtkSetClampMacro(VaryRadius, int, VTK_VARY_RADIUS_OFF, VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);
+  vtkSetClampMacro(VaryRadius, int, VTK_VARY_RADIUS_OFF, VTK_VARY_RADIUS_BY_VECTOR_NORM);
   vtkGetMacro(VaryRadius, int);
   void SetVaryRadiusToVaryRadiusOff() { this->SetVaryRadius(VTK_VARY_RADIUS_OFF); }
   void SetVaryRadiusToVaryRadiusByScalar() { this->SetVaryRadius(VTK_VARY_RADIUS_BY_SCALAR); }
   void SetVaryRadiusToVaryRadiusByVector() { this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR); }
+  void SetVaryRadiusToVaryRadiusByVectorNorm()
+  {
+    this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR_NORM);
+  }
   void SetVaryRadiusToVaryRadiusByAbsoluteScalar()
   {
     this->SetVaryRadius(VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);
