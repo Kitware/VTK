@@ -51,7 +51,7 @@ void rtwInit()
             vtkLogF(TRACE, "VisRTX/OptiX backend skipped due to environment variable VTK_DEBUG_SKIP_VISRTX_CHECK");
     }
 #else
-    vtkLogF(TRACE, "VisRTX/OptiX backend disabled via CMake configuration for this build")
+    vtkLogF(TRACE, "VisRTX/OptiX backend disabled via CMake configuration for this build");
 #endif
 #ifdef VTK_ENABLE_OSPRAY
         const bool dontSkipOSPRAYInit = vtksys::SystemTools::GetEnv("VTK_DEBUG_SKIP_OSPRAY_CHECK") == nullptr;
