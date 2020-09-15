@@ -83,7 +83,7 @@ if (VTK_ENABLE_VISRTX)
     #TestPathTracerMaterials #Disabled because of unknown instability after OSPRay 2 upgrade. Could not reproduce on NV side.
     TestPathTracerShadows
     TestOSPRayCache
-    TestOSPRayTiling
+    #TestOSPRayTiling #Disabled because of unknown instability after OSPRay 2 upgrade. Could not reproduce on NV side.
     )
 
   set(testname_suffix "OptiX")
