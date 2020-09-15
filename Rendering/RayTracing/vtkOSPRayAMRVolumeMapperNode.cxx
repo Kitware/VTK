@@ -257,6 +257,8 @@ TODO FIX ME, to be fixed in upcoming OpenVKL release
     ospSetFloat(this->OSPRayVolumeModel, "densityScale", densityScale);
     const float anisotropy = orn->GetVolumeAnisotropy(ren);
     ospSetFloat(this->OSPRayVolumeModel, "anisotropy", anisotropy);
+    ospSetFloat(
+      this->OSPRayVolumeModel, "gradientShadingScale", volProperty->GetShade() ? 0.5 : 0.0);
     ospCommit(this->OSPRayVolumeModel);
 
     OSPGroup group = ospNewGroup();

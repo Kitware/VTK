@@ -414,11 +414,11 @@ public:
         ospSetVec3f(ospLight, "direction", (float)east[0], (float)east[1], (float)east[2]);
         if (bgMode == 0x2)
         {
-          ospSetInt(ospLight, "visible", 1);
+          ospSetBool(ospLight, "visible", true);
         }
         else
         {
-          ospSetInt(ospLight, "visible", 0); // prevents blending onto backplate in "both" mode
+          ospSetBool(ospLight, "visible", false); // prevents blending onto backplate in "both" mode
         }
         ospCommit(ospLight);
         this->BGLight = ospLight;
@@ -1232,11 +1232,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     if (ren->GetUseShadows())
     {
-      ospSetInt(oRenderer, "shadowsEnabled", 1);
+      ospSetBool(oRenderer, "shadows", true);
     }
     else
     {
-      ospSetInt(oRenderer, "shadowsEnabled", 0);
+      ospSetBool(oRenderer, "shadows", false);
     }
 
     // todo: this can be expensive and should be cached

@@ -66,7 +66,6 @@ protected:
   double SamplingRate;
   double SamplingStep; // base sampling step of each voxel
   bool UseSharedBuffers;
-  bool Shade; // volume shading set through volProperty
   OSPData SharedData;
 
   vtkTimeStamp BuildTime;
