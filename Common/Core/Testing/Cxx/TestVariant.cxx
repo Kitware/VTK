@@ -180,11 +180,6 @@ int TestVariant(int, char*[])
     cerr << "double to string complex conversion failed with scientific formatting.\n";
     errors++;
   }
-  if (doubleToString.ToString(vtkVariant::HEXFLOAT_FORMATTING, 10) != "0x1.9d449ba5e353fp+6")
-  {
-    cerr << "double to string complex conversion failed with hexfloat formatting.\n";
-    errors++;
-  }
 
   return errors;
 }

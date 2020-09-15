@@ -299,14 +299,13 @@ public:
   {
     DEFAULT_FORMATTING = 0,
     FIXED_FORMATTING = 1,
-    SCIENTIFIC_FORMATTING = 2,
-    HEXFLOAT_FORMATTING = 3
+    SCIENTIFIC_FORMATTING = 2
   };
 
   /**
    * Convert the variant to a string.
    * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
-   * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
+   * SCIENTIFIC_FORMATTING to control the formatting. Set the precision
    * argument to control the precision of the output. These two parameters have no effect when the
    * variant is not a floating-point value or an array of floating-point values.
    * See the std doc for more information.
@@ -316,7 +315,7 @@ public:
   /**
    * convert the variant to a Unicode string.
    * Set the formatting argument to either DEFAULT_FORMATTING, FIXED_FORMATTING,
-   * SCIENTIFIC_FORMATTING or HEXFLOAT_FORMATTING to control the formatting. Set the precision
+   * SCIENTIFIC_FORMATTING to control the formatting. Set the precision
    * argument to control the precision of the output. These two parameters have no effect when the
    * variant is not a floating-point value or an array of floating-point values.
    * See the std doc for more information.
