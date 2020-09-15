@@ -1514,11 +1514,7 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 //------------------------------------------------------------------------------
 vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
 {
-  vtkIdType numPts = input->GetNumberOfPoints();
-  double m[9], v[3], x[3];
-  vtkIdType ptId;
   int i;
-  double *c1, *c2, *c3, det;
   double normal[3];
   double origin[3];
 
@@ -1556,51 +1552,19 @@ vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
   if (w <= (length * tolerance))
   {
     normal_computed = true;
+    origin[0] = 0.5 * (bounds[0] + bounds[1]);
+    origin[1] = 0.5 * (bounds[2] + bounds[3]);
+    origin[2] = 0.5 * (bounds[4] + bounds[5]);
   }
 
-  //  Compute least squares approximation.
-  //  Compute 3x3 least squares matrix
-  v[0] = v[1] = v[2] = 0.0;
-  for (i = 0; i < 9; i++)
-  {
-    m[i] = 0.0;
-  }
-
-  for (ptId = 0; ptId < numPts; ptId++)
-  {
-    input->GetPoint(ptId, x);
-
-    v[0] += x[0] * x[2];
-    v[1] += x[1] * x[2];
-    v[2] += x[2];
-
-    m[0] += x[0] * x[0];
-    m[1] += x[0] * x[1];
-    m[2] += x[0];
-
-    m[3] += x[0] * x[1];
-    m[4] += x[1] * x[1];
-    m[5] += x[1];
-
-    m[6] += x[0];
-    m[7] += x[1];
-  }
-  m[8] = numPts;
-
-  origin[0] = m[2] / numPts;
-  origin[1] = m[5] / numPts;
-  origin[2] = v[2] / numPts;
-
-  //  Solve linear system using Kramers rule
   //
-  c1 = m;
-  c2 = m + 3;
-  c3 = m + 6;
-  if (!normal_computed && (det = vtkMath::Determinant3x3(c1, c2, c3)) > tolerance)
+  //   If no simple solution for the normal has been found then use the best-fitting method
+  //   from vtkPlane. If that method can't find normal then it will return normal=[0,0,1] as
+  //   default
+  //
+  if (!normal_computed)
   {
-    normal[0] = vtkMath::Determinant3x3(v, c2, c3) / det;
-    normal[1] = vtkMath::Determinant3x3(c1, v, c3) / det;
-    normal[2] = -1.0; // because of the formulation
+    vtkPlane::ComputeBestFittingPlane(input->GetPoints(), origin, normal);
   }
 
   vtkTransform* transform = vtkTransform::New();

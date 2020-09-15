@@ -28,6 +28,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+class vtkPoints; // forward declaration
+
 class VTKCOMMONDATAMODEL_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
@@ -152,6 +154,17 @@ public:
     double py[3], double x0[3], double x1[3]);
   int IntersectWithFinitePlane(
     double pOrigin[3], double px[3], double py[3], double x0[3], double x1[3]);
+  //@}
+
+  //@{
+  /**
+   * Given a set of points calculate the best-fitting origin and normal for the plane.
+   * The origin will be the centroid of the points. The normal is determined
+   * by using the covariance matrix of the points relative to the centroid.
+   * Returns true if successful. If not successful the origin will still contain
+   * the centroid and the normal will point into z-direction.
+   */
+  static bool ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal);
   //@}
 
 protected:

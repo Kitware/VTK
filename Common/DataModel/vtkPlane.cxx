@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkPlane.h"
 
+#include <vtkPoints.h>
+
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
@@ -372,6 +374,119 @@ int vtkPlane::IntersectWithFinitePlane(double n[3], double o[3], double pOrigin[
 
   // No intersection has occurred, or a single degenerate point
   return 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal)
+{
+  //
+  // Note:
+  // For details see https://www.ilikebigbits.com/2017_09_25_plane_from_points_2.html
+  //
+
+  origin[0] = 0;
+  origin[1] = 0;
+  origin[2] = 0;
+
+  normal[0] = 0;
+  normal[1] = 0;
+  normal[2] = 1; // default normal direction
+
+  vtkIdType npts = pts->GetNumberOfPoints();
+  if (npts < 3)
+  {
+    return false;
+  }
+
+  // 1. Calculate the centroid of the points; this will become origin
+  double sum[3] = { 0, 0, 0 };
+  for (vtkIdType i = 0; i < npts; i++)
+  {
+    vtkMath::Add(sum, pts->GetPoint(i), sum);
+  }
+
+  vtkMath::Add(origin, sum, origin);
+  vtkMath::MultiplyScalar(origin, 1.0 / npts);
+
+  // 2. Calculate the covariance matrix of the points relative to the centroid
+  double xx = 0;
+  double xy = 0;
+  double xz = 0;
+  double yy = 0;
+  double yz = 0;
+  double zz = 0;
+
+  double r[3];
+  for (vtkIdType i = 0; i < npts; i++)
+  {
+    vtkMath::Subtract(pts->GetPoint(i), origin, r);
+    xx += r[0] * r[0];
+    xy += r[0] * r[1];
+    xz += r[0] * r[2];
+    yy += r[1] * r[1];
+    yz += r[1] * r[2];
+    zz += r[2] * r[2];
+  }
+
+  xx /= npts;
+  xy /= npts;
+  xz /= npts;
+  yy /= npts;
+  yz /= npts;
+  zz /= npts;
+
+  // 3. Do linear regression along the X, Y and Z axis
+  // 4. Weight he result of the linear regressions based on the square of the determinant
+  double weighted_dir[3] = { 0, 0, 0 };
+  {
+    double det_x = yy * zz - yz * yz;
+    double axis_dir[3] = { det_x, xz * yz - xy * zz, xy * yz - xz * yy };
+    double weight = det_x * det_x;
+    if (vtkMath::Dot(weighted_dir, axis_dir) < 0.0)
+    {
+      weight = -weight;
+    }
+    vtkMath::MultiplyScalar(axis_dir, weight);
+    vtkMath::Add(weighted_dir, axis_dir, weighted_dir);
+  }
+  {
+    double det_y = xx * zz - xz * xz;
+    double axis_dir[3] = { xz * yz - xy * zz, det_y, xy * xz - yz * xx };
+    double weight = det_y * det_y;
+    if (vtkMath::Dot(weighted_dir, axis_dir) < 0.0)
+    {
+      weight = -weight;
+    }
+    vtkMath::MultiplyScalar(axis_dir, weight);
+    vtkMath::Add(weighted_dir, axis_dir, weighted_dir);
+  }
+  {
+    double det_z = xx * yy - xy * xy;
+    double axis_dir[3] = { xy * yz - xz * yy, xy * xz - yz * xx, det_z };
+    double weight = det_z * det_z;
+    if (vtkMath::Dot(weighted_dir, axis_dir) < 0.0)
+    {
+      weight = -weight;
+    }
+    vtkMath::MultiplyScalar(axis_dir, weight);
+    vtkMath::Add(weighted_dir, axis_dir, weighted_dir);
+  }
+
+  // normalize the weighted direction
+  double nrm = vtkMath::Normalize(weighted_dir);
+
+  // if weighted_dir is faulty then exit here without altering the default normal direction
+  if (!vtkMath::IsFinite(nrm) || (nrm == 0))
+  {
+    return false;
+  }
+
+  // use weighted direction as normal vector
+  normal[0] = weighted_dir[0];
+  normal[1] = weighted_dir[1];
+  normal[2] = weighted_dir[2];
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
