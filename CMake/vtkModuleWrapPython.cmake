@@ -989,8 +989,6 @@ function.
 A `<module>-<package>` target is created which ensures that all Python modules
 have been copied to the correct location in the build tree.
 
-@todo Support a tree of modules with a single call.
-
 @todo Support freezing the Python package. This should create a header and the
 associated target should provide an interface for including this header. The
 target should then be exported and the header installed properly.
@@ -1036,7 +1034,7 @@ function (vtk_module_add_python_package name)
     if (IS_ABSOLUTE "${_vtk_add_python_package_file}")
       file(RELATIVE_PATH _vtk_add_python_package_name
         "${CMAKE_CURRENT_BINARY_DIR}"
-        "${_vtk_add_python_package_name}")
+        "${_vtk_add_python_package_file}")
     else ()
       set(_vtk_add_python_package_name
         "${_vtk_add_python_package_file}")
@@ -1055,11 +1053,11 @@ function (vtk_module_add_python_package name)
       COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
     list(APPEND _vtk_add_python_package_file_outputs
       "${_vtk_add_python_package_file_output}")
-    # XXX
     if (BUILD_SHARED_LIBS)
+      get_filename_component(_vtk_add_python_package_install_path "${_vtk_add_python_package_name}" DIRECTORY)
       install(
         FILES       "${_vtk_add_python_package_name}"
-        DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
+        DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_install_path}"
         COMPONENT   "${_vtk_add_python_package_COMPONENT}")
     endif()
   endforeach ()
