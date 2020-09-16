@@ -316,8 +316,9 @@ public:
         // todo: if the imageData is empty, we should download the texture from the GPU
         if (vColorTextureMap)
         {
-          t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(
-            backend, vColorTextureMap, text->GetUseSRGBColorSpace());
+          bool isSRGB = text->GetUseSRGBColorSpace() ||
+            (forpathtracer && vColorTextureMap->GetScalarType() == VTK_UNSIGNED_CHAR);
+          t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, isSRGB);
         }
       }
 
