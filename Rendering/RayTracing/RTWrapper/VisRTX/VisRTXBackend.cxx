@@ -1,5 +1,7 @@
 #include "VisRTXBackend.h"
 
+#include "vtkLogger.h"
+
 #define VISRTX_DYNLOAD
 #include <VisRTX.h>
 
@@ -10,13 +12,15 @@
 #include "Data.h"
 #include "FrameBuffer.h"
 #include "Geometry.h"
+#include "GeometricModel.h"
 #include "Light.h"
 #include "Material.h"
-#include "Model.h"
+#include "Instance.h"
+#include "Group.h"
+#include "World.h"
 #include "Object.h"
 #include "Renderer.h"
 #include "Texture.h"
-
 
 namespace RTW
 {
@@ -26,7 +30,7 @@ namespace RTW
         // Load library first
         if (!VisRTX_LoadLibrary())
         {
-            // std::cerr << "Error: Failed to load VisRTX library" << std::endl;
+            vtkLogF(TRACE, "Failed to load VisRTX library");
             return RTW_UNKNOWN_ERROR;
         }
 #endif
@@ -35,7 +39,7 @@ namespace RTW
 
         if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            // std::cerr << "Error: Unsupported device" << std::endl;
+            vtkLogF(WARNING, "VisRTX Error: Unsupported device");
             return RTW_UNSUPPORTED_DEVICE;
         }
 
@@ -80,9 +84,9 @@ namespace RTW
         return false;
     }
 
-    RTWData VisRTXBackend::NewData(size_t numElements, RTWDataType dataType, const void *source, const uint32_t dataCreationFlags)
+    RTWData VisRTXBackend::NewData(RTWDataType dataType, size_t numElements)
     {
-        return reinterpret_cast<RTWData>(new Data(numElements, dataType, source, dataCreationFlags));
+        return reinterpret_cast<RTWData>(new Data(nullptr, dataType, numElements));
     }
 
     RTWGeometry VisRTXBackend::NewGeometry(const char *type)
@@ -95,14 +99,14 @@ namespace RTW
         return reinterpret_cast<RTWTexture>(new Texture(type));
     }
 
-    RTWLight VisRTXBackend::NewLight(RTWRenderer, const char *type)
+    RTWLight VisRTXBackend::NewLight(const char *light_type)
     {
-        return reinterpret_cast<RTWLight>(new Light(type));
+        return reinterpret_cast<RTWLight>(new Light(light_type));
     }
 
-    RTWMaterial VisRTXBackend::NewMaterial(RTWRenderer, const char *type)
+    RTWMaterial VisRTXBackend::NewMaterial(const char *renderer_type, const char *light_type)
     {
-        return reinterpret_cast<RTWMaterial>(new Material(type));
+        return reinterpret_cast<RTWMaterial>(new Material(light_type));
     }
 
     RTWRenderer VisRTXBackend::NewRenderer(const char *type)
@@ -115,10 +119,26 @@ namespace RTW
         return reinterpret_cast<RTWCamera>(new Camera(type));
     }
 
-    RTWModel VisRTXBackend::NewModel()
+    RTWWorld VisRTXBackend::NewWorld()
     {
-        return reinterpret_cast<RTWModel>(new Model());
+        return reinterpret_cast<RTWWorld>(new World());
     }
+
+    RTWInstance VisRTXBackend::NewInstance(RTWGroup group)
+    {
+        return reinterpret_cast<RTWInstance>(new Instance(reinterpret_cast<Group *>(group)));
+    }
+
+    RTWGroup VisRTXBackend::NewGroup()
+    {
+        return reinterpret_cast<RTWGroup>(new Group());
+    }
+
+    RTWGeometricModel VisRTXBackend::NewGeometricModel(RTWGeometry geometry)
+    {
+        return reinterpret_cast<RTWGeometricModel>(new GeometricModel(reinterpret_cast<Geometry *>(geometry)));
+    }
+
 
     RTWFrameBuffer VisRTXBackend::NewFrameBuffer(const rtw::vec2i &size, const RTWFrameBufferFormat format, const uint32_t frameBufferChannels)
     {
@@ -133,14 +153,6 @@ namespace RTW
         reinterpret_cast<Object*>(object)->Release();
     }
 
-    void VisRTXBackend::AddGeometry(RTWModel model, RTWGeometry geometry)
-    {
-        if (!model || !geometry)
-            return;
-
-        reinterpret_cast<Model*>(model)->AddGeometry(reinterpret_cast<Geometry*>(geometry));
-    }
-
     void VisRTXBackend::SetString(RTWObject object, const char *id, const char *s)
     {
         if (!object)
@@ -149,84 +161,84 @@ namespace RTW
         reinterpret_cast<Object*>(object)->SetString(id, s);
     }
 
-    void VisRTXBackend::SetObject(RTWObject object, const char *id, RTWObject other)
+    void VisRTXBackend::SetBool(RTWObject object, const char *id, bool b)
     {
+        if(!object)
+            return;
+
+        reinterpret_cast<Object*>(object)->SetBool(id, b);
+    }
+
+    void VisRTXBackend::SetObject(RTWObject object, const char *id, RTWObject other)
+    { 
         if (!object)
             return;
 
         reinterpret_cast<Object*>(object)->SetObject(id, reinterpret_cast<Object*>(other));
     }
 
-    void VisRTXBackend::SetData(RTWObject object, const char *id, RTWData data)
+    void VisRTXBackend::SetObjectAsData(RTWObject target, const char *id, RTWDataType type, RTWObject obj)
+    {
+        if(!target)
+            return;
+
+        reinterpret_cast<Object*>(target)->SetObject(id, reinterpret_cast<Object*>(obj));
+    }
+
+    void VisRTXBackend::SetInt(RTWObject object, const char *id, int32_t x)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->SetObject<Data>(id, reinterpret_cast<Data*>(data));
+        reinterpret_cast<Object*>(object)->SetInt(id, x);
     }
 
-    void VisRTXBackend::SetMaterial(RTWGeometry geometry, RTWMaterial material)
-    {
-        if (!geometry)
-            return;
-
-        reinterpret_cast<Geometry*>(geometry)->SetMaterial(reinterpret_cast<Material*>(material));
-    }
-
-    void VisRTXBackend::Set1i(RTWObject object, const char *id, int32_t x)
+    void VisRTXBackend::SetFloat(RTWObject object, const char *id, float x)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->Set1i(id, x);
+        reinterpret_cast<Object*>(object)->SetFloat(id, x);
     }
 
-    void VisRTXBackend::Set1f(RTWObject object, const char *id, float x)
+    void VisRTXBackend::SetVec2f(RTWObject object, const char *id, float x, float y)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->Set1f(id, x);
+        reinterpret_cast<Object*>(object)->SetVec2f(id, x, y);
     }
 
-    void VisRTXBackend::Set2f(RTWObject object, const char *id, float x, float y)
-    {
-        if (!object)
-            return;
-
-        reinterpret_cast<Object*>(object)->Set2f(id, x, y);
-    }
-
-    void VisRTXBackend::Set2i(RTWObject object, const char *id, int x, int y)
+    void VisRTXBackend::SetVec2i(RTWObject object, const char *id, int x, int y)
     {
       if (!object)
         return;
 
-      reinterpret_cast<Object*>(object)->Set2i(id, x, y);
+      reinterpret_cast<Object*>(object)->SetVec2i(id, x, y);
     }
 
-    void VisRTXBackend::Set3i(RTWObject object, const char *id, int x, int y, int z)
+    void VisRTXBackend::SetVec3i(RTWObject object, const char *id, int x, int y, int z)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->Set3i(id, x, y, z);
+        reinterpret_cast<Object*>(object)->SetVec3i(id, x, y, z);
     }
 
-    void VisRTXBackend::Set3f(RTWObject object, const char *id, float x, float y, float z)
+    void VisRTXBackend::SetVec3f(RTWObject object, const char *id, float x, float y, float z)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->Set3f(id, x, y, z);
+        reinterpret_cast<Object*>(object)->SetVec3f(id, x, y, z);
     }
 
-    void VisRTXBackend::Set4f(RTWObject object, const char *id, float x, float y, float z, float w)
+    void VisRTXBackend::SetVec4f(RTWObject object, const char *id, float x, float y, float z, float w)
     {
         if (!object)
             return;
 
-        reinterpret_cast<Object*>(object)->Set4f(id, x, y, z, w);
+        reinterpret_cast<Object*>(object)->SetVec4f(id, x, y, z, w);
     }
 
     void VisRTXBackend::RemoveParam(RTWObject object, const char *id)
@@ -237,6 +249,32 @@ namespace RTW
         }
     }
 
+    RTWData VisRTXBackend::NewSharedData1D(const void *source, RTWDataType type, uint32_t numElements)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements, true));
+    }
+
+    RTWData VisRTXBackend::NewSharedData2D(const void *source, RTWDataType type, uint32_t numElements1, uint32_t numElements2)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, true));
+    }
+    
+    RTWData VisRTXBackend::NewSharedData3D(const void *source, RTWDataType type, uint32_t numElements1, uint32_t numElements2, uint32_t numElements3)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, numElements3, true));
+    }
+    
+    RTWData VisRTXBackend::NewCopyData1D(const void *source, RTWDataType type, size_t numElements)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements, false));
+    }
+    
+    RTWData VisRTXBackend::NewCopyData2D(const void *source, RTWDataType type, size_t numElements1, size_t numElements2)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, false));
+    }
+
+
     void VisRTXBackend::Commit(RTWObject object)
     {
         if (!object)
@@ -245,20 +283,23 @@ namespace RTW
         reinterpret_cast<Object*>(object)->Commit();
     }
 
-    float VisRTXBackend::RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, const uint32_t frameBufferChannels)
+    float VisRTXBackend::RenderFrame(RTWFrameBuffer frameBuffer, RTWRenderer renderer, RTWCamera camera, RTWWorld world)
     {
         if (!renderer)
             return 0.0f;
 
-        return reinterpret_cast<Renderer*>(renderer)->RenderFrame(reinterpret_cast<FrameBuffer*>(frameBuffer), frameBufferChannels);
+        return reinterpret_cast<Renderer*>(renderer)->RenderFrame(
+                reinterpret_cast<FrameBuffer*>(frameBuffer), 
+                reinterpret_cast<Camera*>(camera), 
+                reinterpret_cast<World*>(world));
     }
 
-    void VisRTXBackend::FrameBufferClear(RTWFrameBuffer frameBuffer, const uint32_t frameBufferChannels)
+    void VisRTXBackend::FrameBufferClear(RTWFrameBuffer frameBuffer)
     {
         if (!frameBuffer)
             return;
 
-        reinterpret_cast<FrameBuffer*>(frameBuffer)->Clear(frameBufferChannels);
+        reinterpret_cast<FrameBuffer*>(frameBuffer)->Clear();
     }
 
     const void* VisRTXBackend::MapFrameBuffer(RTWFrameBuffer frameBuffer, const RTWFrameBufferChannel channel)

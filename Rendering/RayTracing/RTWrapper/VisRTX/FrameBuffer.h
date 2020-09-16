@@ -2,6 +2,8 @@
 
 #include "../Types.h"
 
+#include "vtkLogger.h"
+
 #include <VisRTX.h>
 #include <cassert>
 
@@ -13,6 +15,7 @@ namespace RTW
 
     public:
         FrameBuffer(const rtw::vec2i &size, const RTWFrameBufferFormat format, const uint32_t frameBufferChannels)
+            : Object(RTW_FRAMEBUFFER)
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 
@@ -36,7 +39,7 @@ namespace RTW
         {
         }
 
-        void Clear(const uint32_t frameBufferChannels)
+        void Clear()
         {
             this->frameBuffer->Clear();
         }
@@ -70,6 +73,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
+                vtkLogF(ERROR, "VISRTX Error: Could not get color texture.");
                 return 0;
             }  
         }
@@ -82,6 +86,7 @@ namespace RTW
             }
             catch(const VisRTX::Exception& e)
             {
+                vtkLogF(ERROR, "VISRTX Error: Could not get depth texture.");
                 return 0;
             }             
         }

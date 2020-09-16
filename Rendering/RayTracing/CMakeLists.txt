@@ -38,11 +38,7 @@ cmake_dependent_option(VTKOSPRAY_ENABLE_DENOISER
   "VTK_ENABLE_OSPRAY" OFF)
 
 option(VTK_ENABLE_VISRTX "Enable VisRTX RayTracing backend" OFF)
-set(enable_visrtx FALSE)
 if (VTK_ENABLE_VISRTX)
-  message(WARNING "VisRTX is temporarily disabled.")
-endif()
-if (enable_visrtx)
   list(APPEND sources RTWrapper/VisRTX/VisRTXBackend.cxx)
 endif ()
 
@@ -93,7 +89,7 @@ if (VTK_ENABLE_OSPRAY)
 endif ()
 
 # VisRTX
-if (enable_visrtx)
+if (VTK_ENABLE_VISRTX)
   vtk_module_find_package(
     PACKAGE VisRTX
     CONFIG_MODE)

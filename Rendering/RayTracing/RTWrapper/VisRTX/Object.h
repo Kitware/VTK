@@ -5,6 +5,7 @@
 #include <VisRTX.h>
 
 #include <cstring>
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <string>
@@ -17,7 +18,8 @@ namespace RTW
     class Object
     {
     public:
-        Object()
+        Object(RTWDataType type = RTW_OBJECT)
+            : dataType(type)
         {
             this->AddRef();
         }
@@ -40,8 +42,11 @@ namespace RTW
 
         void Release()
         {
-            if (--refCount <= 0)
+            assert(refCount > 0);
+            if (--refCount == 0)
+            {
                 delete this;
+            }
         }
 
     private:
@@ -65,8 +70,12 @@ namespace RTW
             return found;
         }
 
-        template<typename T = Object>
-        inline void SetObject(const std::string& id, T* object)
+        inline void SetBool(const std::string& id, bool b)
+        {
+            this->boolMap.Set(id, b);
+        }
+
+        virtual void SetObject(const std::string& id, Object* object)
         {
             // Check if already exists and release
             Object* current = this->objectMap.Get({ id }, nullptr);
@@ -99,126 +108,126 @@ namespace RTW
             return found;
         }
 
-        inline void Set1i(const std::string& id, int32_t x)
+        inline void SetInt(const std::string& id, int32_t x)
         {
             this->int1Map.Set(id, x);
         }
 
-        inline int32_t Get1i(const std::vector<std::string>& ids, int32_t defaultValue = 0, bool* found = nullptr) const
+        inline int32_t GetInt(const std::vector<std::string>& ids, int32_t defaultValue = 0, bool* found = nullptr) const
         {
             return this->int1Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get1i(const std::vector<std::string>& ids, int32_t* result, int32_t defaultValue = 0)
+        inline bool GetInt(const std::vector<std::string>& ids, int32_t* result, int32_t defaultValue = 0)
         {
             bool found;
-            *result = this->Get1i(ids, defaultValue, &found);
+            *result = this->GetInt(ids, defaultValue, &found);
             return found;
         }
 
-        inline void Set1f(const std::string& id, float x)
+        inline void SetFloat(const std::string& id, float x)
         {
             this->float1Map.Set(id, x);
         }
 
-        inline float Get1f(const std::vector<std::string>& ids, float defaultValue = 0.0f, bool* found = nullptr) const
+        inline float GetFloat(const std::vector<std::string>& ids, float defaultValue = 0.0f, bool* found = nullptr) const
         {
             return this->float1Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get1f(const std::vector<std::string>& ids, float* result, float defaultValue = 0.0f)
+        inline bool GetFloat(const std::vector<std::string>& ids, float* result, float defaultValue = 0.0f)
         {
             bool found;
-            *result = this->Get1f(ids, defaultValue, &found);
+            *result = this->GetFloat(ids, defaultValue, &found);
             return found;
         }
 
-        inline void Set2i(const std::string& id, int32_t x, int32_t y)
+        inline void SetVec2i(const std::string& id, int32_t x, int32_t y)
         {
           this->int2Map.Set(id, VisRTX::Vec2i(x, y));
         }
 
-        inline VisRTX::Vec2i Get2i(const std::vector<std::string>& ids, const VisRTX::Vec2i& defaultValue = VisRTX::Vec2i(), bool* found = nullptr) const
+        inline VisRTX::Vec2i GetVec2i(const std::vector<std::string>& ids, const VisRTX::Vec2i& defaultValue = VisRTX::Vec2i(), bool* found = nullptr) const
         {
           return this->int2Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get2i(const std::vector<std::string>& ids, VisRTX::Vec2i* result, const VisRTX::Vec2i& defaultValue = VisRTX::Vec2i())
+        inline bool GetVec2i(const std::vector<std::string>& ids, VisRTX::Vec2i* result, const VisRTX::Vec2i& defaultValue = VisRTX::Vec2i())
         {
           bool found;
-          *result = this->Get2i(ids, defaultValue, &found);
+          *result = this->GetVec2i(ids, defaultValue, &found);
           return found;
         }
 
-        inline void Set2f(const std::string& id, float x, float y)
+        inline void SetVec2f(const std::string& id, float x, float y)
         {
             this->float2Map.Set(id, VisRTX::Vec2f(x, y));
         }
 
-        inline VisRTX::Vec2f Get2f(const std::vector<std::string>& ids, const VisRTX::Vec2f& defaultValue = VisRTX::Vec2f(), bool* found = nullptr) const
+        inline VisRTX::Vec2f GetVec2f(const std::vector<std::string>& ids, const VisRTX::Vec2f& defaultValue = VisRTX::Vec2f(), bool* found = nullptr) const
         {
             return this->float2Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get2f(const std::vector<std::string>& ids, VisRTX::Vec2f* result, const VisRTX::Vec2f& defaultValue = VisRTX::Vec2f())
+        inline bool GetVec2f(const std::vector<std::string>& ids, VisRTX::Vec2f* result, const VisRTX::Vec2f& defaultValue = VisRTX::Vec2f())
         {
             bool found;
-            *result = this->Get2f(ids, defaultValue, &found);
+            *result = this->GetVec2f(ids, defaultValue, &found);
             return found;
         }
 
-        inline void Set3i(const std::string& id, int32_t x, int32_t y, int32_t z)
+        inline void SetVec3i(const std::string& id, int32_t x, int32_t y, int32_t z)
         {
             this->int3Map.Set(id, VisRTX::Vec3i(x, y, z));
         }
 
-        inline VisRTX::Vec3i Get3i(const std::vector<std::string>& ids, const VisRTX::Vec3i& defaultValue = VisRTX::Vec3i(), bool* found = nullptr) const
+        inline VisRTX::Vec3i GetVec3i(const std::vector<std::string>& ids, const VisRTX::Vec3i& defaultValue = VisRTX::Vec3i(), bool* found = nullptr) const
         {
             return this->int3Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get3i(const std::vector<std::string>& ids, VisRTX::Vec3i* result, const VisRTX::Vec3i& defaultValue = VisRTX::Vec3i())
+        inline bool GetVec3i(const std::vector<std::string>& ids, VisRTX::Vec3i* result, const VisRTX::Vec3i& defaultValue = VisRTX::Vec3i())
         {
             bool found;
-            *result = this->Get3i(ids, defaultValue, &found);
+            *result = this->GetVec3i(ids, defaultValue, &found);
             return found;
         }
 
-        inline void Set3f(const std::string& id, float x, float y, float z)
+        inline void SetVec3f(const std::string& id, float x, float y, float z)
         {
             this->float3Map.Set(id, VisRTX::Vec3f(x, y, z));
         }
 
-        inline VisRTX::Vec3f Get3f(const std::vector<std::string>& ids, const VisRTX::Vec3f& defaultValue = VisRTX::Vec3f(), bool* found = nullptr) const
+        inline VisRTX::Vec3f GetVec3f(const std::vector<std::string>& ids, const VisRTX::Vec3f& defaultValue = VisRTX::Vec3f(), bool* found = nullptr) const
         {
             return this->float3Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get3f(const std::vector<std::string>& ids, VisRTX::Vec3f* result, const VisRTX::Vec3f& defaultValue = VisRTX::Vec3f())
+        inline bool GetVec3f(const std::vector<std::string>& ids, VisRTX::Vec3f* result, const VisRTX::Vec3f& defaultValue = VisRTX::Vec3f())
         {
             bool found;
-            *result = this->Get3f(ids, defaultValue, &found);
+            *result = this->GetVec3f(ids, defaultValue, &found);
             return found;
         }
 
-        inline void Set4f(const std::string& id, float x, float y, float z, float w)
+        inline void SetVec4f(const std::string& id, float x, float y, float z, float w)
         {
             this->float4Map.Set(id, VisRTX::Vec4f(x, y, z, w));
         }
 
-        inline VisRTX::Vec4f Get4f(const std::vector<std::string>& ids, const VisRTX::Vec4f& defaultValue = VisRTX::Vec4f(), bool* found = nullptr) const
+        inline VisRTX::Vec4f GetVec4f(const std::vector<std::string>& ids, const VisRTX::Vec4f& defaultValue = VisRTX::Vec4f(), bool* found = nullptr) const
         {
             return this->float4Map.Get(ids, defaultValue, found);
         }
 
-        inline bool Get4f(const std::vector<std::string>& ids, VisRTX::Vec4f* result, const VisRTX::Vec4f& defaultValue = VisRTX::Vec4f())
+        inline bool GetVec4f(const std::vector<std::string>& ids, VisRTX::Vec4f* result, const VisRTX::Vec4f& defaultValue = VisRTX::Vec4f())
         {
             bool found;
-            *result = this->Get4f(ids, defaultValue, &found);
+            *result = this->GetVec4f(ids, defaultValue, &found);
             return found;
         }
 
-        void RemoveParam(const std::string& id)
+        virtual void RemoveParam(const std::string& id)
         {
             this->stringMap.Remove(id);
             this->objectMap.Remove(id);
@@ -231,7 +240,7 @@ namespace RTW
             this->float4Map.Remove(id);
         }
 
-    protected:
+    public:
         void PrintAllParameters() const
         {
             for (auto it : this->stringMap.map)
@@ -294,6 +303,11 @@ namespace RTW
             return result;
         }
 
+        RTWDataType GetDataType() const
+        {
+            return dataType;
+        }
+
     private:
         template<typename T>
         class ParameterMap
@@ -335,6 +349,7 @@ namespace RTW
 
     private:
         ParameterMap<std::string> stringMap;
+        ParameterMap<bool> boolMap;
         ParameterMap<Object*> objectMap;
 
         ParameterMap<int32_t> int1Map;
@@ -344,5 +359,7 @@ namespace RTW
         ParameterMap<VisRTX::Vec3i> int3Map;
         ParameterMap<VisRTX::Vec3f> float3Map;
         ParameterMap<VisRTX::Vec4f> float4Map;
+
+        RTWDataType dataType;
     };
 }

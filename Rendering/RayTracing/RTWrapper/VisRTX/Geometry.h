@@ -10,31 +10,34 @@ namespace RTW
 {
     class Geometry : public Object
     {
-        friend class Model;
+        friend class World;
 
     public:
         Geometry(const std::string& type)
+            : Object(RTW_GEOMETRY)
         {
             VisRTX::Context* rtx = VisRTX_GetContext();
 
-            if (type == "triangles" || type == "trianglemesh")
+            if (type == "mesh")
                 this->geometry = rtx->CreateTriangleGeometry();
-            else if (type == "spheres")
+            else if (type == "sphere")
                 this->geometry = rtx->CreateSphereGeometry();
-            else if (type == "cylinders")
+            else if (type == "curve")
                 this->geometry = rtx->CreateCylinderGeometry();
             else if (type == "isosurfaces")
                 ; // not implemented
             else
             {
-                std::cerr << "Error: Unhandled geometry type \"" << type << "\"" << std::endl;
                 assert(false);
             }
         }
 
         ~Geometry()
         {
-            this->geometry->Release();
+            if(this->geometry)
+                this->geometry->Release();
+            if(this->material)
+                this->material->Release();
         }
 
         void Commit() override
@@ -49,26 +52,27 @@ namespace RTW
             {
                 VisRTX::TriangleGeometry* tri = dynamic_cast<VisRTX::TriangleGeometry*>(this->geometry);
 
-                Data* vertex = this->GetObject<Data>({ "position", "vertex" });
+                Data* vertex = this->GetObject<Data>({ "vertex.position", "position", "vertex" });
                 Data* index = this->GetObject<Data>({ "index" });
                 if (vertex && index)
                 {
                     uint32_t numTriangles = static_cast<uint32_t>(index->GetNumElements());
                     VisRTX::Vec3ui* triangles = reinterpret_cast<VisRTX::Vec3ui*>(index->GetData());
-                    assert(index->GetDataType() == RTW_INT3);
+                    assert(index->GetElementDataType() == RTW_VEC3UI);
 
                     uint32_t numVertices = static_cast<uint32_t>(vertex->GetNumElements());
                     VisRTX::Vec3f* vertices = reinterpret_cast<VisRTX::Vec3f*>(vertex->GetData());
-                    assert(vertex->GetDataType() == RTW_FLOAT3);
+                    assert(vertex->GetElementDataType() == RTW_VEC3F);
 
                     VisRTX::Vec3f* normals = nullptr;
                     Data* normal = this->GetObject<Data>({ "vertex.normal" });
                     if (normal)
                     {
                         normals = reinterpret_cast<VisRTX::Vec3f*>(normal->GetData());
-                        assert(normal->GetDataType() == RTW_FLOAT3);
+                        assert(normal->GetElementDataType() == RTW_VEC3F);
                     }
 
+                        
                     tri->SetTriangles(numTriangles, triangles, numVertices, vertices, normals);
 
 
@@ -76,7 +80,7 @@ namespace RTW
                     if (color)
                     {
                         VisRTX::Vec4f* colors = reinterpret_cast<VisRTX::Vec4f*>(color->GetData());
-                        assert(color->GetDataType() == RTW_FLOAT4);
+                        assert(color->GetElementDataType() == RTW_VEC4F);
                         tri->SetColors(colors);
                     }
                     else
@@ -89,7 +93,7 @@ namespace RTW
                     if (texcoord)
                     {
                         VisRTX::Vec2f* texcoords = reinterpret_cast<VisRTX::Vec2f*>(texcoord->GetData());
-                        assert(texcoord->GetDataType() == RTW_FLOAT2);
+                        assert(texcoord->GetElementDataType() == RTW_VEC2F);
                         tri->SetTexCoords(texcoords);
                     }
                     else
@@ -97,29 +101,21 @@ namespace RTW
                         tri->SetTexCoords(nullptr);
                     }
 
-
-                    Data* materialList = GetObject<Data>({ "materialList" });
-                    Data* materialIndices = GetObject<Data>({ "prim.materialID" });
-                    if (materialList && materialIndices)
+                    Data* materialList = GetObject<Data>({ "material" });
+                    if (materialList)
                     {
-                        assert(materialList->GetDataType() == RTW_OBJECT);
-                        assert(materialIndices->GetDataType() == RTW_INT);
+                        assert(materialList->GetElementDataType() == RTW_MATERIAL);
 
                         std::vector<VisRTX::Material*> triangleMaterials;
                         triangleMaterials.resize(numTriangles);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-                        int* indices = reinterpret_cast<int*>(materialIndices->GetData());
-
+                        
                         for (uint32_t i = 0; i < numTriangles; ++i)
                         {
-                            int triIndex = indices[i];
-                            if (triIndex >= 0)
-                            {
-                                Material* materialHandle = materials[triIndex];
-                                if (materialHandle)
-                                    triangleMaterials[i] = materialHandle->material;
-                            }
+                            Material* materialHandle = materials[i];
+                            if (materialHandle)
+                                triangleMaterials[i] = materialHandle->material;
                         }
 
                         tri->SetMaterials(triangleMaterials.data());
@@ -143,7 +139,7 @@ namespace RTW
             {
                 VisRTX::SphereGeometry* sphere = dynamic_cast<VisRTX::SphereGeometry*>(this->geometry);
 
-                Data* spheres = GetObject<Data>({ "spheres" });
+                Data* spheres = GetObject<Data>({ "sphere.position" });
                 if (spheres)
                 {
                     VisRTX::Vec4f* colors = nullptr;
@@ -151,23 +147,36 @@ namespace RTW
                     if (color)
                     {
                         colors = reinterpret_cast<VisRTX::Vec4f*>(color->GetData());
-                        assert(color->GetDataType() == RTW_FLOAT4);
+                        assert(color->GetElementDataType() == RTW_VEC4F);
+                        sphere->SetColors(reinterpret_cast<VisRTX::Vec4f *>(color->GetData()));
+                    }
+                    else
+                    {
+                        sphere->SetColors(nullptr);
                     }
 
-                    int32_t bytesPerSphere = this->Get1i({ "bytes_per_sphere" }, 16, nullptr);
-                    int32_t offsetCenter = this->Get1i({ "offset_center" }, 0, nullptr);
-                    int32_t offsetRadius = this->Get1i({ "offset_radius" }, -1, nullptr);
-                    int32_t offsetColorIndex = this->Get1i({ "offset_colorID" }, -1, nullptr);
+                    Data *radii = GetObject<Data>({"sphere.radius"});
+                    if (radii)
+                    {
+                        uint32_t numSpheres = spheres->GetNumElements();
+                        sphere->SetSpheres(numSpheres, 
+                                           reinterpret_cast<VisRTX::Vec3f *>(spheres->GetData()),
+                                           reinterpret_cast<float *>(radii->GetData()));
+                    }
+                    else
+                    {
+                        uint32_t numSpheres = spheres->GetNumElements();
+                        sphere->SetSpheres(numSpheres, 
+                                           reinterpret_cast<VisRTX::Vec3f *>(spheres->GetData()),
+                                           nullptr);
+                    }
 
-                    uint32_t numSpheres = spheres->GetNumElements() * spheres->GetElementSize() / bytesPerSphere;
 
-                    sphere->SetSpheresAndColors(numSpheres, spheres->GetData(), bytesPerSphere, offsetCenter, offsetRadius, offsetColorIndex, colors);
-
-                    Data* texcoord = GetObject<Data>({ "texcoord" });
+                    Data* texcoord = GetObject<Data>({ "sphere.texcoord" });
                     if (texcoord)
                     {
                         VisRTX::Vec2f* texcoords = reinterpret_cast<VisRTX::Vec2f*>(texcoord->GetData());
-                        assert(texcoord->GetDataType() == RTW_FLOAT2);
+                        assert(texcoord->GetElementDataType() == RTW_VEC2F);
                         sphere->SetTexCoords(texcoords);
                     }
                     else
@@ -175,28 +184,22 @@ namespace RTW
                         sphere->SetTexCoords(nullptr);
                     }
 
-                    Data* materialList = GetObject<Data>({ "materialList" });
-                    int offset_materialID = this->Get1i({ "offset_materialID" }, -1);
-                    if (materialList && offset_materialID >= 0)
+                    Data* materialList = GetObject<Data>({ "material" });
+                    if (materialList)
                     {
-                        assert(materialList->GetDataType() == RTW_OBJECT);
+                        assert(materialList->GetElementDataType() == RTW_MATERIAL);
 
+                        uint32_t numSpheres = spheres->GetNumElements();
                         std::vector<VisRTX::Material*> sphereMaterials;
                         sphereMaterials.resize(numSpheres);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-
-                        const uint8_t* base = reinterpret_cast<const uint8_t*>(spheres->GetData());
-
+                        
                         for (uint32_t i = 0; i < numSpheres; ++i)
                         {
-                            int index = *reinterpret_cast<const int*>(base + i * bytesPerSphere + offset_materialID);
-                            if (index >= 0)
-                            {
-                                Material* materialHandle = materials[index];
-                                if (materialHandle)
-                                    sphereMaterials[i] = materialHandle->material;
-                            }
+                            Material* materialHandle = materials[i];
+                            if (materialHandle)
+                                sphereMaterials[i] = materialHandle->material;
                         }
 
                         sphere->SetMaterials(sphereMaterials.data());
@@ -212,7 +215,7 @@ namespace RTW
                 }
 
                 float radius;
-                if (this->Get1f({ "radius" }, &radius))
+                if (this->GetFloat({ "radius" }, &radius))
                     sphere->SetRadius(radius);
             }
 
@@ -223,7 +226,8 @@ namespace RTW
             {
                 VisRTX::CylinderGeometry* cyl = dynamic_cast<VisRTX::CylinderGeometry*>(this->geometry);
 
-                Data* cylinders = GetObject<Data>({ "cylinders" });
+                //Non-scale-array variant
+                Data* cylinders = GetObject<Data>({ "vertex.position" });
                 if (cylinders)
                 {
                     VisRTX::Vec4f* colors = nullptr;
@@ -231,23 +235,23 @@ namespace RTW
                     if (color)
                     {
                         colors = reinterpret_cast<VisRTX::Vec4f*>(color->GetData());
-                        assert(color->GetDataType() == RTW_FLOAT4);
+                        assert(color->GetElementDataType() == RTW_VEC4F);
                     }
 
-                    int32_t bytesPerCylinder = this->Get1i({ "bytes_per_cylinder" }, 24, nullptr);
-                    int32_t offsetVertex0 = this->Get1i({ "offset_v0" }, 0, nullptr);
-                    int32_t offsetVertex1 = this->Get1i({ "offset_v1" }, 12, nullptr);
-                    int32_t offsetRadius = this->Get1i({ "offset_radius" }, -1, nullptr);
+                    int32_t bytesPerCylinder = this->GetInt({ "bytes_per_cylinder" }, 24, nullptr);
+                    int32_t offsetVertex0 = this->GetInt({ "offset_v0" }, 0, nullptr);
+                    int32_t offsetVertex1 = this->GetInt({ "offset_v1" }, 12, nullptr);
+                    int32_t offsetRadius = this->GetInt({ "offset_radius" }, -1, nullptr);
 
                     uint32_t numCylinders = cylinders->GetNumElements() * cylinders->GetElementSize() / bytesPerCylinder;
-
                     cyl->SetCylindersAndColors(numCylinders, cylinders->GetData(), bytesPerCylinder, offsetVertex0, offsetVertex1, offsetRadius, colors);
 
-                    Data* texcoord = GetObject<Data>({ "texcoord" });
+
+                    Data* texcoord = GetObject<Data>({ "vertex.texcoord" });
                     if (texcoord)
                     {
                         VisRTX::Vec2f* texcoords = reinterpret_cast<VisRTX::Vec2f*>(texcoord->GetData());
-                        assert(texcoord->GetDataType() == RTW_FLOAT2);
+                        assert(texcoord->GetElementDataType() == RTW_VEC2F);
                         cyl->SetTexCoords(texcoords);
                     }
                     else
@@ -255,28 +259,77 @@ namespace RTW
                         cyl->SetTexCoords(nullptr);
                     }
 
-                    Data* materialList = GetObject<Data>({ "materialList" });
-                    int offset_materialID = this->Get1i({ "offset_materialID" }, -1);
-                    if (materialList && offset_materialID >= 0)
+                    Data* materialList = GetObject<Data>({ "material" });
+                    if (materialList)
                     {
-                        assert(materialList->GetDataType() == RTW_OBJECT);
+                        assert(materialList->GetElementDataType() == RTW_MATERIAL);
 
                         std::vector<VisRTX::Material*> cylinderMaterials;
                         cylinderMaterials.resize(numCylinders);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-
-                        const uint8_t* base = reinterpret_cast<const uint8_t*>(cylinders->GetData());
-
+                        
                         for (uint32_t i = 0; i < numCylinders; ++i)
                         {
-                            int index = *reinterpret_cast<const int*>(base + i * bytesPerCylinder + offset_materialID);
-                            if (index >= 0)
-                            {
-                                Material* materialHandle = materials[index];
-                                if (materialHandle)
-                                    cylinderMaterials[i] = materialHandle->material;
-                            }
+                            Material* materialHandle = materials[i];
+                            if (materialHandle)
+                                cylinderMaterials[i] = materialHandle->material;
+                        }
+
+                        cyl->SetMaterials(cylinderMaterials.data());
+                    }
+                    else
+                    {
+                        cyl->SetMaterials(nullptr);
+                    }
+                }
+                else if(cylinders = GetObject<Data>({"vertex.position_radius"}))
+                {
+                    //Scale-array variant
+                    VisRTX::Vec4f* colors = nullptr;
+                    Data* color = GetObject<Data>({ "color" });
+                    if (color)
+                    {
+                        colors = reinterpret_cast<VisRTX::Vec4f*>(color->GetData());
+                        assert(color->GetElementDataType() == RTW_VEC4F);
+                    }
+
+                    int32_t bytesPerCylinder = this->GetInt({ "bytes_per_cylinder" }, 64, nullptr);
+                    int32_t offsetVertex0 = this->GetInt({ "offset_v0" }, 0, nullptr);
+                    int32_t offsetVertex1 = this->GetInt({ "offset_v1" }, 32, nullptr);
+                    int32_t offsetRadius = this->GetInt({ "offset_radius" }, 12, nullptr);
+
+                    uint32_t numCylinders = cylinders->GetNumElements() * cylinders->GetElementSize() / bytesPerCylinder;
+                    cyl->SetCylindersAndColors(numCylinders, cylinders->GetData(), bytesPerCylinder, offsetVertex0, offsetVertex1, offsetRadius, colors);
+
+
+                    Data* texcoord = GetObject<Data>({ "vertex.texcoord" });
+                    if (texcoord)
+                    {
+                        VisRTX::Vec2f* texcoords = reinterpret_cast<VisRTX::Vec2f*>(texcoord->GetData());
+                        assert(texcoord->GetElementDataType() == RTW_VEC2F);
+                        cyl->SetTexCoords(texcoords);
+                    }
+                    else
+                    {
+                        cyl->SetTexCoords(nullptr);
+                    }
+
+                    Data* materialList = GetObject<Data>({ "material" });
+                    if (materialList)
+                    {
+                        assert(materialList->GetElementDataType() == RTW_MATERIAL);
+
+                        std::vector<VisRTX::Material*> cylinderMaterials;
+                        cylinderMaterials.resize(numCylinders);
+
+                        Material** materials = reinterpret_cast<Material**>(materialList->GetData());
+                        
+                        for (uint32_t i = 0; i < numCylinders; ++i)
+                        {
+                            Material* materialHandle = materials[i];
+                            if (materialHandle)
+                                cylinderMaterials[i] = materialHandle->material;
                         }
 
                         cyl->SetMaterials(cylinderMaterials.data());
@@ -292,7 +345,7 @@ namespace RTW
                 }
 
                 float radius;
-                if (this->Get1f({ "radius" }, &radius))
+                if (this->GetFloat({ "radius" }, &radius))
                     cyl->SetRadius(radius);
             }
 
