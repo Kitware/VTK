@@ -65,6 +65,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestSortFieldData.cxx
   TestStaticCellLocator.cxx
   TestTable.cxx
+  TestThreadedCopy.cxx
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
   TestTriangle.cxx

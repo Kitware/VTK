@@ -50,6 +50,18 @@
 
 namespace
 {
+template <typename ValueType>
+struct threadedCopyFunctor
+{
+  ValueType* src;
+  ValueType* dst;
+  int nComp;
+  void operator()(vtkIdType begin, vtkIdType end) const
+  {
+    // std::copy(src+begin, src+end, dst+begin); //slower
+    memcpy(dst + begin * nComp, src + begin * nComp, (end - begin) * nComp * sizeof(ValueType));
+  }
+};
 
 //--------Copy tuples from src to dest------------------------------------------
 struct DeepCopyWorker
@@ -59,7 +71,22 @@ struct DeepCopyWorker
   void operator()(
     vtkAOSDataArrayTemplate<ValueType>* src, vtkAOSDataArrayTemplate<ValueType>* dst) const
   {
-    std::copy(src->Begin(), src->End(), dst->Begin());
+    vtkIdType len = src->GetNumberOfTuples();
+    if (len < 1024 * 1024)
+    {
+      // With less than a megabyte or so threading is likely to hurt performance. so don't
+      std::copy(src->Begin(), src->End(), dst->Begin());
+    }
+    else
+    {
+      threadedCopyFunctor<ValueType> worker;
+      worker.src = src->GetPointer(0);
+      worker.dst = dst->GetPointer(0);
+      worker.nComp = src->GetNumberOfComponents();
+      // High granularity is likely to hurt performance too, so limit calls. 16 is about maximal.
+      int numThreads = std::min(vtkSMPTools::GetEstimatedNumberOfThreads(), 16);
+      vtkSMPTools::For(0, len, len / numThreads, worker);
+    }
   }
 
 #if defined(__clang__) && defined(__has_warning)
