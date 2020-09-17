@@ -278,7 +278,6 @@ Although it may take you a little more time to write a good merge request,
 you'll likely see payback in faster reviews and better understood and
 maintainable software.
 
-
 Review a Merge Request
 ----------------------
 
@@ -287,6 +286,43 @@ draw their attention and have the topic reviewed.  After typing `@` and
 some text, GitLab will offer completions for developers whose real names
 or user names match.
 
+Here is a list of developpers usernames and their specific area of
+expertise. A merge request without a developer tagged has very low chance
+to be merged in a reasonable timeframe.
+
+ * @mwestphal: Qt, filters, data Model, widgets, parallel, anything else.
+ * @charles.gueunet: filters, data model, SMP, events, pipeline.
+ * @kmorel: General VTK Expertise, VTK-m accelerators.
+ * @demarle: Ray tracing.
+ * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
+ * @sujin.philip: VTK-m Accelerators, SMP, DIY.
+ * @robertmaynard: build-system, VTK-m accelerators, filters, data model, IO.
+ * @yohann.bearzi: filters, data model, HTG, computational geometry, algorithms.
+ * @ken-martin: OpenGL, polygonal and volume rendering, OpenVR, Vulkan, native windows, WebAssembly.
+ * @sebastien.jourdain: web, WebAssembly, Python, Java
+ * @allisonvacanti: VTK-m, vtkDataArray, vtkArrayDispatch, vtk::Range, data model, text rendering.
+ * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
+ * @ben.boeckel: CMake, module system, third-parties.
+ * @cory.quammen: readers, filters, data modeling, general usage, documentation.
+
+If you would like to be included in this list, juste create a merge request.
+
+### Human Reviews ###
+
+Reviewers may add comments providing feedback or to acknowledge their
+approval. When a human reviewers suggest a change, please take it into
+account or discuss your choices with the reviewers until an agreement
+is reached. At this point, please `resolve` the discussion by clicking
+on the dedicated button.
+
+When all discussion have been adressed, the reviewers will either do
+another pass of comment or acknowledge their approval in some form.
+
+Please be swift to adress or discuss comments, it will increase
+the speed at which your changes will be merged.
+
+### Comments Formatting ###
+
 Comments use [GitLab Flavored Markdown][] for formatting.  See GitLab
 documentation on [Special GitLab References][] to add links to things
 like merge requests and commits in other repositories.
@@ -294,10 +330,8 @@ like merge requests and commits in other repositories.
 [GitLab Flavored Markdown]: https://gitlab.kitware.com/help/markdown/markdown
 [Special GitLab References]: https://gitlab.kitware.com/help/markdown/markdown#special-gitlab-references
 
-### Human Reviews ###
 
-Reviewers may add comments providing feedback or to acknowledge their
-approval.  Lines of specific forms will be extracted during
+Lines of specific forms will be extracted during
 [merging](#merge-a-topic) and included as trailing lines of the
 generated merge commit message.
 
@@ -452,8 +486,13 @@ authorized developers may add a comment with a single
 
     Do: merge
 
-to ask that the change be merged into the upstream repository.  By
-convention, do not request a merge if any `-1` or `Rejected-by:`
+in order for your change to be merged into the upstream repository.
+
+If your merge request has been already approved by developpers
+but not merged yet, do not hesitate to tag an authorized developer
+and ask for a merge.
+
+By convention, do not request a merge if any `-1` or `Rejected-by:`
 review comments have not been resolved and superseded by at least
 `+1` or `Acked-by:` review comments from the same user.
 
