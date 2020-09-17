@@ -264,7 +264,7 @@ void QVTKOpenGLWindow::paintGL()
     else
     {
       this->RenderWindowAdapter->blit(
-        this->defaultFramebufferObject(), GL_BACK, QRect(QPoint(0, 0), deviceSize));
+        this->defaultFramebufferObject(), GL_BACK_LEFT, QRect(QPoint(0, 0), deviceSize));
     }
     ostate->Pop();
   }
