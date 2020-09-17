@@ -155,40 +155,6 @@ public:
   }
 
   template <typename T>
-  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagVirtual> handle) const
-  {
-    using BasicHandle = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
-    if (vtkm::cont::IsType<BasicHandle>(handle))
-    {
-      this->operator()(vtkm::cont::Cast<BasicHandle>(handle));
-    }
-    else
-    {
-      this->Data = make_vtkmDataArray(handle);
-    }
-  }
-
-  template <typename T, int N>
-  void operator()(
-    vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagVirtual> handle) const
-  {
-    using SOAHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagSOA>;
-    using BasicHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T, N>, vtkm::cont::StorageTagBasic>;
-    if (vtkm::cont::IsType<SOAHandle>(handle))
-    {
-      this->operator()(vtkm::cont::Cast<SOAHandle>(handle));
-    }
-    else if (vtkm::cont::IsType<BasicHandle>(handle))
-    {
-      this->operator()(vtkm::cont::Cast<BasicHandle>(handle));
-    }
-    else
-    {
-      this->Data = make_vtkmDataArray(handle);
-    }
-  }
-
-  template <typename T>
   void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle) const
   {
     // we can steal this array!
