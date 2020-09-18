@@ -139,6 +139,22 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
+  //@{
+  /**
+   * Set the display extent.  For when this mapper is used as a helper
+   * class.
+   */
+  void SetDisplayExtent(const int extent[6])
+  {
+    this->DisplayExtent[0] = extent[0];
+    this->DisplayExtent[1] = extent[1];
+    this->DisplayExtent[2] = extent[2];
+    this->DisplayExtent[3] = extent[3];
+    this->DisplayExtent[4] = extent[4];
+    this->DisplayExtent[5] = extent[5];
+  }
+  //@}
+
 protected:
   vtkImageSliceMapper();
   ~vtkImageSliceMapper() override;
@@ -161,22 +177,6 @@ protected:
    * used as a helper class.
    */
   void SetPassColorData(int v) { this->PassColorData = (v != 0); }
-
-  //@{
-  /**
-   * Set the display extent.  Internal method, for when this mapper
-   * is used as a helper class.
-   */
-  void SetDisplayExtent(const int extent[6])
-  {
-    this->DisplayExtent[0] = extent[0];
-    this->DisplayExtent[1] = extent[1];
-    this->DisplayExtent[2] = extent[2];
-    this->DisplayExtent[3] = extent[3];
-    this->DisplayExtent[4] = extent[4];
-    this->DisplayExtent[5] = extent[5];
-  }
-  //@}
 
   /**
    * Get the camera orientation as a simple integer [0,1,2,3,4,5]
