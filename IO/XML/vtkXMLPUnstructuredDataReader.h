@@ -29,6 +29,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataReader.h"
 
+class vtkAbstractArray;
 class vtkPointSet;
 class vtkCellArray;
 class vtkXMLUnstructuredDataReader;
@@ -56,7 +57,7 @@ protected:
   virtual void SetupNextPiece();
   vtkIdType GetNumberOfPoints() override;
   vtkIdType GetNumberOfCells() override;
-  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForPoints(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
 
   void SetupEmptyOutput() override;
 

@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataReader.h"
 
+class vtkAbstractArray;
 class vtkPolyData;
 
 class VTKIOXML_EXPORT vtkXMLPPolyDataReader : public vtkXMLPUnstructuredDataReader
@@ -66,7 +67,7 @@ protected:
   void SetupNextPiece() override;
   int ReadPieceData() override;
 
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
   vtkXMLDataReader* CreatePieceReader() override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 

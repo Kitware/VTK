@@ -14,11 +14,13 @@
 =========================================================================*/
 #include "vtkXMLPUnstructuredGridReader.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
@@ -177,7 +179,8 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPUnstructuredGridReader::CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray)
+void vtkXMLPUnstructuredGridReader::CopyArrayForCells(
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
   {
@@ -191,8 +194,15 @@ void vtkXMLPUnstructuredGridReader::CopyArrayForCells(vtkDataArray* inArray, vtk
   vtkIdType numCells = this->PieceReaders[this->Piece]->GetNumberOfCells();
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType tupleSize = inArray->GetDataTypeSize() * components;
-  memcpy(outArray->GetVoidPointer(this->StartCell * components), inArray->GetVoidPointer(0),
-    numCells * tupleSize);
+  if (auto outStringArray = vtkArrayDownCast<vtkStringArray>(outArray))
+  {
+    outStringArray->InsertTuples(this->StartCell, numCells, 0, inArray);
+  }
+  else
+  {
+    memcpy(outArray->GetVoidPointer(this->StartCell * components), inArray->GetVoidPointer(0),
+      numCells * tupleSize);
+  }
 }
 
 //------------------------------------------------------------------------------

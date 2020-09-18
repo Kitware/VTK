@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include "vtkXMLPPolyDataReader.h"
+
+#include "vtkAbstractArray.h"
 #include "vtkCellArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -205,7 +207,7 @@ int vtkXMLPPolyDataReader::ReadPieceData()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray)
+void vtkXMLPPolyDataReader::CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
   {

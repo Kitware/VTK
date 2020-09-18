@@ -30,6 +30,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataReader.h"
 
+class vtkAbstractArray;
 class vtkExtentSplitter;
 class vtkXMLStructuredDataReader;
 
@@ -49,8 +50,8 @@ protected:
 
   vtkIdType GetNumberOfPoints() override;
   vtkIdType GetNumberOfCells() override;
-  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) override;
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForPoints(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
+  void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
 
   virtual void SetOutputExtent(int* extent) = 0;
   virtual void GetPieceInputExtent(int index, int* extent) = 0;
@@ -67,7 +68,7 @@ protected:
   int ReadPieceData() override;
   void CopySubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements, int* outExtent,
     int* outDimensions, vtkIdType* outIncrements, int* subExtent, int* subDimensions,
-    vtkDataArray* inArray, vtkDataArray* outArray);
+    vtkAbstractArray* inArray, vtkAbstractArray* outArray);
   int ComputePieceSubExtents();
 
   vtkExtentSplitter* ExtentSplitter;
