@@ -102,6 +102,7 @@ struct ComputeSH
 
           localWeight += weight;
 
+          // in case we have an alpha channel, we ignore it
           for (int k = 0; k < 3; k++)
           {
             double v = static_cast<double>(this->Image->GetTypedComponent(this->Width * i + j, k));
@@ -183,9 +184,9 @@ int vtkSphericalHarmonics::RequestData(vtkInformation* vtkNotUsed(request),
 
   int nbComp = input->GetNumberOfScalarComponents();
 
-  if (nbComp != 3 || dimensions[2] > 1)
+  if ((nbComp != 3 && nbComp != 4) || dimensions[2] > 1)
   {
-    vtkErrorMacro("Only 2D images with RGB attributes are supported.");
+    vtkErrorMacro("Only 2D images with RGB or RGBA attributes are supported.");
     return 0;
   }
 
