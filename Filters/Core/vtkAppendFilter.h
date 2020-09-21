@@ -27,7 +27,9 @@
  * `MergePoints`. If this flag is set, points are merged if they are within
  * `Tolerance` radius. If a point global id array is available (point data named
  * "GlobalPointIds"), then two points are merged if they share the same point global id,
- * without checking for coincident point.
+ * without checking for coincident point. Supported types of global ids are
+ * `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long
+ * long`, and `vtkIdType`.
  *
  * @sa
  * vtkAppendPolyData

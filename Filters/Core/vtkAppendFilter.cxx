@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkAppendFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -24,17 +25,87 @@
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <array>
 #include <string>
 #include <unordered_map>
+
+namespace
+{
+//==============================================================================
+struct AddAndMergePointsUsingGlobalIds
+{
+  template <class IntegerArrayT>
+  void operator()(IntegerArrayT* dataSetGlobalIdsArray)
+  {
+    double p[3];
+    for (vtkIdType ptId = 0; ptId < this->DataSet->GetNumberOfPoints() && !this->Abort; ++ptId)
+    {
+      vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
+      if (!this->AddedPointsMap.count(globalId))
+      {
+        this->GlobalIndices[ptId + this->PointOffset] = this->NewPoints->GetNumberOfPoints();
+        this->DataSet->GetPoint(ptId, p);
+        this->NewPoints->InsertNextPoint(p);
+        this->AddedPointsMap.emplace(globalId, std::array<double, 3>({ p[0], p[1], p[2] }));
+      }
+      else
+      {
+        this->GlobalIndices[ptId + this->PointOffset] = globalId;
+      }
+      // Update progress
+      ++this->Count;
+      if (!(this->Count % this->Twentieth))
+      {
+        this->Decimal += 0.05;
+        this->Self->UpdateProgress(this->Decimal);
+        this->Abort = this->Self->GetAbortExecute();
+      }
+    }
+  }
+
+  AddAndMergePointsUsingGlobalIds(vtkAppendFilter* self, vtkIdType* globalIndices,
+    vtkDataSet* dataSet, vtkPoints* newPoints,
+    std::unordered_map<vtkIdType, std::array<double, 3>>& addedPointsMap, vtkIdType& pointOffset,
+    vtkIdType& count, vtkIdType twentieth, double decimal, int& abort)
+    : Self(self)
+    , GlobalIndices(globalIndices)
+    , DataSet(dataSet)
+    , NewPoints(newPoints)
+    , AddedPointsMap(addedPointsMap)
+    , PointOffset(pointOffset)
+    , Count(count)
+    , Twentieth(twentieth)
+    , Decimal(decimal)
+    , Abort(abort)
+  {
+  }
+
+  vtkAppendFilter* Self;
+  vtkIdType* GlobalIndices;
+  vtkDataSet* DataSet;
+  vtkPoints* NewPoints;
+  std::unordered_map<vtkIdType, std::array<double, 3>>& AddedPointsMap;
+  vtkIdType& PointOffset;
+  vtkIdType& Count;
+  vtkIdType Twentieth;
+  double Decimal;
+  int& Abort;
+};
+} // anonymous namespace
 
 vtkStandardNewMacro(vtkAppendFilter);
 
@@ -202,8 +273,9 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // available in the inputs.
   inputs->InitTraversal(iter);
   dataSet = inputs->GetNextDataSet(iter);
-  vtkIdTypeArray* globalIdsArray =
-    vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds());
+
+  // We use global ids for a handful of integer types
+  vtkDataArray* globalIdsArray = dataSet->GetPointData()->GetGlobalIds();
 
   bool reallyMergePoints = false;
   if (this->MergePoints == 1 && inputVector[0]->GetNumberOfInformationObjects() > 0)
@@ -278,59 +350,51 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   std::unordered_map<vtkIdType, std::array<double, 3>> addedPointsMap;
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
-  float decimal = 0.0;
+  double decimal = 0.0;
   inputs->InitTraversal(iter);
   int abort = 0;
-  double p[3];
   while (!abort && (dataSet = inputs->GetNextDataSet(iter)))
   {
     vtkIdType dataSetNumPts = dataSet->GetNumberOfPoints();
     vtkIdType dataSetNumCells = dataSet->GetNumberOfCells();
-    vtkIdTypeArray* dataSetGlobalIdsArray = globalIdsArray
-      ? vtkIdTypeArray::SafeDownCast(dataSet->GetPointData()->GetGlobalIds())
-      : nullptr;
 
-    // copy points
-    for (vtkIdType ptId = 0; ptId < dataSetNumPts && !abort; ++ptId)
+    // Special case: we merge points using global ids. We support a handful of integer types
+    if (reallyMergePoints && globalIdsArray)
     {
-      if (reallyMergePoints)
+      AddAndMergePointsUsingGlobalIds worker(this, globalIndices, dataSet, newPts, addedPointsMap,
+        ptOffset, count, twentieth, decimal, abort);
+      if (!vtkArrayDispatch::Dispatch::Execute(dataSet->GetPointData()->GetGlobalIds(), worker))
       {
-        if (dataSetGlobalIdsArray)
-        {
-          vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
-          if (!addedPointsMap.count(globalId))
-          {
-            globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
-            dataSet->GetPoint(ptId, p);
-            newPts->InsertNextPoint(p);
-            addedPointsMap.emplace(globalId, std::array<double, 3>({ p[0], p[1], p[2] }));
-          }
-          else
-          {
-            globalIndices[ptId + ptOffset] = globalId;
-          }
-        }
-        else
+        vtkErrorMacro(<< "Failed to merge datasets using global ids");
+        abort = 1;
+      }
+    }
+    else
+    {
+      // copy points
+      for (vtkIdType ptId = 0; ptId < dataSetNumPts && !abort; ++ptId)
+      {
+        if (reallyMergePoints)
         {
           vtkIdType globalPtId = 0;
           ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
           globalIndices[ptId + ptOffset] = globalPtId;
           // The point inserter puts the point into newPts, so we don't have to do that here.
         }
-      }
-      else
-      {
-        globalIndices[ptId + ptOffset] = ptId + ptOffset;
-        newPts->SetPoint(ptId + ptOffset, dataSet->GetPoint(ptId));
-      }
+        else
+        {
+          globalIndices[ptId + ptOffset] = ptId + ptOffset;
+          newPts->SetPoint(ptId + ptOffset, dataSet->GetPoint(ptId));
+        }
 
-      // Update progress
-      count++;
-      if (!(count % twentieth))
-      {
-        decimal += 0.05;
-        this->UpdateProgress(decimal);
-        abort = this->GetAbortExecute();
+        // Update progress
+        count++;
+        if (!(count % twentieth))
+        {
+          decimal += 0.05;
+          this->UpdateProgress(decimal);
+          abort = this->GetAbortExecute();
+        }
       }
     }
 

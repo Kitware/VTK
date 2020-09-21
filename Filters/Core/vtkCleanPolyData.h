@@ -47,7 +47,10 @@
  * vtkQuantizePolyDataPoints.
  *
  * In addition, if a point global id array is available, then two points are merged
- * if and only if they share the same global id.
+ * if and only if they share the same global id,
+ * without checking for coincident point. Supported types of global ids are
+ * `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long
+ * long`, and `vtkIdType`.
  *
  * Note that merging of points can be disabled. In this case, a point locator
  * will not be used, and points that are not used by any cells will be
