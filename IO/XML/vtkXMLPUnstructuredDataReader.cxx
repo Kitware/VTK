@@ -13,12 +13,15 @@
 
 =========================================================================*/
 #include "vtkXMLPUnstructuredDataReader.h"
+
+#include "vtkAbstractArray.h"
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPointSet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredDataReader.h"
 
@@ -349,7 +352,7 @@ int vtkXMLPUnstructuredDataReader::ReadPieceData()
 
 //------------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(
-  vtkDataArray* inArray, vtkDataArray* outArray)
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!this->PieceReaders[this->Piece])
   {
@@ -363,8 +366,15 @@ void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(
   vtkIdType numPoints = this->PieceReaders[this->Piece]->GetNumberOfPoints();
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType tupleSize = inArray->GetDataTypeSize() * components;
-  memcpy(outArray->GetVoidPointer(this->StartPoint * components), inArray->GetVoidPointer(0),
-    numPoints * tupleSize);
+  if (auto outStringArray = vtkArrayDownCast<vtkStringArray>(outArray))
+  {
+    outStringArray->InsertTuples(this->StartPoint, numPoints, 0, inArray);
+  }
+  else
+  {
+    memcpy(outArray->GetVoidPointer(this->StartPoint * components), inArray->GetVoidPointer(0),
+      numPoints * tupleSize);
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkXMLPDataReader.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
-#include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -344,11 +344,12 @@ int vtkXMLPDataReader::ReadPieceData()
   for (int i = 0; i < output->GetPointData()->GetNumberOfArrays(); ++i)
   {
     this->CopyArrayForPoints(
-      input->GetPointData()->GetArray(i), output->GetPointData()->GetArray(i));
+      input->GetPointData()->GetAbstractArray(i), output->GetPointData()->GetAbstractArray(i));
   }
   for (int i = 0; i < output->GetCellData()->GetNumberOfArrays(); ++i)
   {
-    this->CopyArrayForCells(input->GetCellData()->GetArray(i), output->GetCellData()->GetArray(i));
+    this->CopyArrayForCells(
+      input->GetCellData()->GetAbstractArray(i), output->GetCellData()->GetAbstractArray(i));
   }
 
   return 1;

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkXMLPStructuredDataReader.h"
 
-#include "vtkDataArray.h"
+#include "vtkAbstractArray.h"
 #include "vtkDataSet.h"
 #include "vtkExtentSplitter.h"
 #include "vtkInformation.h"
@@ -297,7 +297,8 @@ int vtkXMLPStructuredDataReader::ReadPieceData()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPStructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray)
+void vtkXMLPStructuredDataReader::CopyArrayForPoints(
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!inArray || !outArray)
   {
@@ -309,7 +310,8 @@ void vtkXMLPStructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray, vtkD
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLPStructuredDataReader::CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray)
+void vtkXMLPStructuredDataReader::CopyArrayForCells(
+  vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   if (!inArray || !outArray)
   {
@@ -323,7 +325,7 @@ void vtkXMLPStructuredDataReader::CopyArrayForCells(vtkDataArray* inArray, vtkDa
 //------------------------------------------------------------------------------
 void vtkXMLPStructuredDataReader ::CopySubExtent(int* inExtent, int* inDimensions,
   vtkIdType* inIncrements, int* outExtent, int* outDimensions, vtkIdType* outIncrements,
-  int* subExtent, int* subDimensions, vtkDataArray* inArray, vtkDataArray* outArray)
+  int* subExtent, int* subDimensions, vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
   unsigned int components = inArray->GetNumberOfComponents();
   unsigned int tupleSize = inArray->GetDataTypeSize() * components;

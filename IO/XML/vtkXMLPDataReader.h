@@ -30,7 +30,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPDataObjectReader.h"
 
-class vtkDataArray;
+class vtkAbstractArray;
 class vtkDataSet;
 class vtkXMLDataReader;
 
@@ -112,8 +112,8 @@ protected:
    */
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
-  virtual void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
-  virtual void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
+  virtual void CopyArrayForPoints(vtkAbstractArray* inArray, vtkAbstractArray* outArray) = 0;
+  virtual void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) = 0;
 
   /**
    * Callback registered with the PieceProgressObserver.
