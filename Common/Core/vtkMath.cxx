@@ -1865,6 +1865,7 @@ void vtkMath::MultiplyQuaternion(const double q1[4], const double q2[4], double 
   vtkQuaternionMultiplication(q1, q2, q);
 }
 
+//----------------------------------------------------------------------------
 void vtkMath::RotateVectorByNormalizedQuaternion(const float v[3], const float q[4], float r[3])
 {
   float f = std::sqrt(q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
