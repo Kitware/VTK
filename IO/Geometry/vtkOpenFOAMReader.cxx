@@ -3978,7 +3978,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   }
   // for reading sublist from vtkFoamEntryValue::readList() or there
   // are cases where lists without the (non)uniform keyword appear
-  // (e. g. coodles/pitsDaily/0/U, uniformFixedValue b.c.)
+  // (e.g. coodles/pitsDaily/0/U)
   else if (currToken == '(')
   {
     this->ReadList(io);
@@ -7244,8 +7244,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry* entryPtr, vtkId
   vtkFoamEntry& entry = *entryPtr;
   const vtkStdString& className = ioPtr->GetClassName();
 
-  // "uniformValue" keyword is for uniformFixedValue B.C.
-  if (entry.FirstValue().GetIsUniform() || entry.GetKeyword() == "uniformValue")
+  if (entry.FirstValue().GetIsUniform())
   {
     if (entry.FirstValue().GetType() == vtkFoamToken::SCALAR ||
       entry.FirstValue().GetType() == vtkFoamToken::LABEL)
@@ -7686,41 +7685,11 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
           return;
         }
       }
-      else
-      {
-        // uniformFixedValue B.C.
-        const vtkFoamEntry* ufvEntry = bEntryI->Dictionary().Lookup("type");
-        if (ufvEntry != nullptr)
-        {
-          if (ufvEntry->ToString() == "uniformFixedValue")
-          {
-            // the boundary is of uniformFixedValue type
-            vtkFoamEntry* uvEntry = bEntryI->Dictionary().Lookup("uniformValue");
-            if (uvEntry != nullptr) // and has a uniformValue entry
-            {
-              vData = this->FillField(uvEntry, nFaces, &io, fieldType);
-              if (vData == nullptr)
-              {
-                iData->Delete();
-                if (acData != nullptr)
-                {
-                  acData->Delete();
-                }
-                if (ctpData != nullptr)
-                {
-                  ctpData->Delete();
-                }
-                return;
-              }
-            }
-          }
-        }
-      }
     }
 
     vtkIdType boundaryStartFace = beI.StartFace - this->BoundaryDict[0].StartFace;
 
-    if (vData == nullptr) // No value or uniformValue entry
+    if (vData == nullptr) // No value entry
     {
       // use patch-internal values as boundary values
       vData = vtkFloatArray::New();
