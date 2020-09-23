@@ -410,8 +410,14 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
     (this->GetOpenGLMode(this->SelectionType, this->LastBoundBO->PrimitiveType) == GL_LINES);
 }
 
-bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer*, vtkActor* actor)
+bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer* ren, vtkActor* actor)
 {
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    return false;
+  }
+
   if (actor->GetProperty()->GetEdgeVisibility() &&
     this->GetOpenGLMode(
       actor->GetProperty()->GetRepresentation(), this->LastBoundBO->PrimitiveType) == GL_TRIANGLES)
