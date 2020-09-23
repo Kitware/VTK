@@ -962,8 +962,8 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       wchar_t* wname = new wchar_t[mbstowcs(nullptr, this->WindowName, 32000) + 1];
       mbstowcs(wname, this->WindowName, 32000);
 #endif
-      int x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-      int y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+      int x = this->Position[0];
+      int y = this->Position[1];
       int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
       int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
 
