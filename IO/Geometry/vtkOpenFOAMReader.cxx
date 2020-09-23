@@ -1504,7 +1504,7 @@ public:
     }
 #endif
 
-    const int MAXLEN = 1024;
+    constexpr int MAXLEN = 1024;
     char buf[MAXLEN + 1];
     int charI = 0;
     switch (c)
@@ -5657,11 +5657,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
 {
   bool use64BitLabels = this->Parent->Use64BitLabels;
 
-  vtkIdType maxNPoints = 256; // assume max number of points per cell
+  constexpr vtkIdType maxNPoints = 256; // assume max number of points per cell
   vtkIdList* cellPoints = vtkIdList::New();
   cellPoints->SetNumberOfIds(maxNPoints);
+
   // assume max number of nPoints per face + points per cell
-  vtkIdType maxNPolyPoints = 1024;
+  constexpr vtkIdType maxNPolyPoints = 1024;
   vtkIdList* polyPoints = vtkIdList::New();
   polyPoints->SetNumberOfIds(maxNPolyPoints);
 
@@ -5686,12 +5687,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
 
   for (vtkIdType cellI = 0; cellI < nCells; cellI++)
   {
-    vtkIdType cellId;
-    if (cellList == nullptr)
-    {
-      cellId = cellI;
-    }
-    else
+    vtkIdType cellId = cellI;
+    if (cellList != nullptr)
     {
       cellId = GetLabelValue(cellList, cellI, use64BitLabels);
       if (cellId >= this->NumCells)
@@ -6549,12 +6546,8 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
 
   for (vtkIdType j = startFace; j < endFace; j++)
   {
-    vtkIdType faceId;
-    if (labels == nullptr)
-    {
-      faceId = j;
-    }
-    else
+    vtkIdType faceId = j;
+    if (labels != nullptr)
     {
       faceId = GetLabelValue(labels, j, use64BitLabels);
       if (faceId >= this->FaceOwner->GetNumberOfTuples())
