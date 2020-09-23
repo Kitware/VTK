@@ -1633,7 +1633,7 @@ public:
           }
           this->IncludeFile(fileNameToken.ToString(), this->ExtractPath(this->FileName));
         }
-        else if (directiveToken == "includeIfPresent")
+        else if (directiveToken == "sinclude" || directiveToken == "includeIfPresent")
         {
           vtkFoamToken fileNameToken;
           if (!this->Read(fileNameToken))
@@ -3380,21 +3380,6 @@ public:
               // delete the FoamFile header subdictionary entry
               delete this->Superclass::back();
               this->Superclass::pop_back();
-            }
-            else if (currToken == "include")
-            {
-              // include the named file. Exiting the included file at
-              // EOF will be handled automatically by
-              // vtkFoamFile::closeIncludedFile()
-              if (this->Superclass::back()->FirstValue().GetType() != vtkFoamToken::STRING)
-              {
-                throw vtkFoamError() << "Expected string as the file name to be included, found "
-                                     << this->Superclass::back()->FirstValue();
-              }
-              const vtkStdString includeFileName(this->Superclass::back()->ToString());
-              delete this->Superclass::back();
-              this->Superclass::pop_back();
-              io.IncludeFile(includeFileName, io.GetFilePath());
             }
           }
           else if (currToken.GetType() == vtkFoamToken::IDENTIFIER)
