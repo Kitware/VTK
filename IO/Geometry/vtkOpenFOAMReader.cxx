@@ -1293,10 +1293,47 @@ public:
   {
     vtkStdString expandedPath;
     bool isExpanded = false, wasPathSeparator = true;
+    size_t charI = 0;
     const size_t nChars = pathIn.length();
-    for (size_t charI = 0; charI < nChars;)
+
+    vtkStdString::size_type delim = 0;
+
+    if ('<' == pathIn[0] && (delim = pathIn.find(">/")) != vtkStdString::npos)
     {
-      char c = pathIn[charI];
+      // Expand a leading <tag>/
+      // Convenient for frequently used directories - see OpenFOAM stringOps.C
+      //
+      // Handle
+      //   <case>/       => FOAM_CASE directory
+      //   <constant>/   => FOAM_CASE/constant directory
+      //   <system>/     => FOAM_CASE/system directory
+      //   <etc>/        => not handled
+
+      const std::string tag(pathIn, 1, delim - 2);
+
+      if (tag == "case")
+      {
+        expandedPath = this->CasePath + '/';
+        isExpanded = true;
+        wasPathSeparator = false;
+      }
+      else if (tag == "constant" || tag == "system")
+      {
+        expandedPath = this->CasePath + '/' + tag + '/';
+        isExpanded = true;
+        wasPathSeparator = false;
+      }
+      // <etc> in not handled
+
+      if (isExpanded)
+      {
+        charI = delim + 2;
+      }
+    }
+
+    while (charI < nChars)
+    {
+      const char c = pathIn[charI];
       switch (c)
       {
         case '$': // $-variable expansion
@@ -1413,7 +1450,7 @@ public:
           charI++;
       }
     }
-    if (isExpanded || expandedPath.substr(0, 1) == "/" || expandedPath.substr(0, 1) == "\\")
+    if (isExpanded || expandedPath[0] == '/' || expandedPath[0] == '\\')
     {
       return expandedPath;
     }
