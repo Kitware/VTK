@@ -19,4 +19,6 @@ vtk_add_test_python(
   structuredGridBlanking.py
   TestGeometryFilter.py
   TestGhostPoints.py,NO_DATA,NO_VALID,NO_OUTPUT
+  TestMarkBoundaryFilter.py,
+  TestMarkBoundaryFilter2.py
 )

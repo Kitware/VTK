@@ -10,6 +10,7 @@ set(classes
   vtkImageDataGeometryFilter
   vtkImageDataToUniformGrid
   vtkLinearToQuadraticCellsFilter
+  vtkMarkBoundaryFilter
   vtkProjectSphereFilter
   vtkRectilinearGridGeometryFilter
   vtkRectilinearGridPartitioner
