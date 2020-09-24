@@ -60,6 +60,10 @@
 // for possible future extension of linehead-aware directives
 #define VTK_FOAMFILE_RECOGNIZE_LINEHEAD 0
 
+// Ignore things like 'U_0' restart files.
+// This could also be made part of the GUI properties
+#define VTK_FOAMFILE_IGNORE_FIELD_RESTART 0
+
 #include "vtkOpenFOAMReader.h"
 
 #include "vtk_zlib.h"
@@ -4472,18 +4476,42 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
   }
 
   // loop over all files and locate valid fields
-  vtkIdType nFieldFiles = directory->GetNumberOfFiles();
-  for (vtkIdType j = 0; j < nFieldFiles; j++)
+  const vtkIdType nFieldFiles = directory->GetNumberOfFiles();
+  for (vtkIdType fileI = 0; fileI < nFieldFiles; ++fileI)
   {
-    const vtkStdString fieldFile(directory->GetFile(j));
+    const vtkStdString fieldFile(directory->GetFile(fileI));
     const size_t len = fieldFile.length();
 
-    // excluded extensions cf. src/OpenFOAM/OSspecific/Unix/Unix.C
-    if (!directory->FileIsDirectory(fieldFile.c_str()) && fieldFile.substr(len - 1) != "~" &&
-      (len < 4 ||
-        (fieldFile.substr(len - 4) != ".bak" && fieldFile.substr(len - 4) != ".BAK" &&
-          fieldFile.substr(len - 4) != ".old")) &&
-      (len < 5 || fieldFile.substr(len - 5) != ".save"))
+    if (!len || (fieldFile[len - 1] == '~') || directory->FileIsDirectory(fieldFile.c_str()))
+    {
+      continue;
+    }
+#if VTK_FOAMFILE_IGNORE_FIELD_RESTART
+    else if (len > 2 && (fieldFile[len - 2] == '_') && (fieldFile[len - 1] == '0'))
+    {
+      // Exclude "*_0" restart files
+      continue;
+    }
+#endif
+    else
+    {
+      // Exclude various backup extensions - cf. Foam::fileName::isBackup()
+
+      auto sep = fieldFile.rfind('.');
+      if (sep != std::string::npos)
+      {
+        ++sep;
+
+        if (!fieldFile.compare(sep, std::string::npos, "bak") ||
+          !fieldFile.compare(sep, std::string::npos, "BAK") ||
+          !fieldFile.compare(sep, std::string::npos, "old") ||
+          !fieldFile.compare(sep, std::string::npos, "save"))
+        {
+          continue;
+        }
+      }
+    }
+
     {
       vtkFoamIOobject io(this->CasePath, this->Parent);
       if (io.Open(tempPath + "/" + fieldFile)) // file exists and readable
@@ -4544,7 +4572,7 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePa
   if (directory->Open((timePath + this->RegionPath() + "/lagrangian").c_str()))
   {
     // search for sub-clouds (OF 1.5 format)
-    vtkIdType nFiles = directory->GetNumberOfFiles();
+    const vtkIdType nFiles = directory->GetNumberOfFiles();
     bool isSubCloud = false;
     for (vtkIdType fileI = 0; fileI < nFiles; fileI++)
     {
@@ -4976,7 +5004,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
   // directories with names convertible to numbers
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
-  vtkIdType nFiles = test->GetNumberOfFiles();
+  const vtkIdType nFiles = test->GetNumberOfFiles();
   for (vtkIdType i = 0; i < nFiles; i++)
   {
     const vtkStdString dir = test->GetFile(i);
