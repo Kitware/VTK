@@ -29,6 +29,9 @@
 // * Minor bug fixes / Strict memory allocation checks
 // * Minor performance enhancements
 // by Philippose Rajan (sarith@rocketmail.com)
+//
+// * Misc cleanup, bugfixes, improvements
+// Mark Olesen (OpenCFD Ltd.)
 
 // Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
 #define VTK_DEPRECATION_LEVEL 0
@@ -405,10 +408,9 @@ private:
   void PopulatePolyMeshDirArrays();
 
   // search a time directory for field objects
-  void GetFieldNames(
-    const vtkStdString&, const bool, vtkStringArray*, vtkStringArray*, vtkStringArray*);
-  void SortFieldFiles(vtkStringArray*, vtkStringArray*, vtkStringArray*);
-  void LocateLagrangianClouds(vtkStringArray*, const vtkStdString&);
+  void GetFieldNames(const vtkStdString&, const bool isLagrangian = false);
+  void SortFieldFiles(vtkStringArray* selections, vtkStringArray* files);
+  void LocateLagrangianClouds(const vtkStdString& timePath);
 
   // read controlDict
   bool ListTimeDirectoriesByControlDict(vtkFoamDict* dict);
@@ -4458,9 +4460,7 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const bool isLagrangian,
-  vtkStringArray* volFieldObjectNames, vtkStringArray* dimFieldObjectNames,
-  vtkStringArray* pointFieldObjectNames)
+void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const bool isLagrangian)
 {
   // open the directory and get num of files
   vtkDirectory* directory = vtkDirectory::New();
@@ -4496,7 +4496,6 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
             cn == "sphericalTensorField" || cn == "symmTensorField" || cn == "tensorField")
           {
             this->LagrangianFieldFiles->InsertNextValue(fieldFile);
-            pointFieldObjectNames->InsertNextValue(io.GetObjectName());
           }
         }
         else if (cn.substr(0, 5) == "point")
@@ -4507,7 +4506,6 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
             cn == "pointTensorField")
           {
             this->PointFieldFiles->InsertNextValue(fieldFile);
-            pointFieldObjectNames->InsertNextValue(io.GetObjectName());
           }
         }
         else if (cn.find("::Internal") != vtkStdString::npos)
@@ -4518,7 +4516,6 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
             cn == "volTensorField::Internal")
           {
             this->DimFieldFiles->InsertNextValue(fieldFile);
-            dimFieldObjectNames->InsertNextValue(io.GetObjectName());
           }
         }
         else
@@ -4528,21 +4525,20 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
             cn == "volSymmTensorField" || cn == "volTensorField")
           {
             this->VolFieldFiles->InsertNextValue(fieldFile);
-            volFieldObjectNames->InsertNextValue(io.GetObjectName());
           }
         }
         io.Close();
       }
     }
   }
-  // inserted objects are squeezed later in SortFieldFiles()
+  // delay Squeeze of inserted objects until SortFieldFiles()
+
   directory->Delete();
 }
 
 //------------------------------------------------------------------------------
 // locate laglangian clouds
-void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(
-  vtkStringArray* lagrangianObjectNames, const vtkStdString& timePath)
+void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePath)
 {
   vtkDirectory* directory = vtkDirectory::New();
   if (directory->Open((timePath + this->RegionPath() + "/lagrangian").c_str()))
@@ -4575,7 +4571,7 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(
           {
             this->Parent->LagrangianPaths->InsertNextValue(subCloudPath);
           }
-          this->GetFieldNames(subCloudFullPath, true, nullptr, nullptr, lagrangianObjectNames);
+          this->GetFieldNames(subCloudFullPath, true);
           this->Parent->PatchDataArraySelection->AddArray(subCloudName.c_str());
         }
       }
@@ -4594,7 +4590,7 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(
         {
           this->Parent->LagrangianPaths->InsertNextValue(cloudPath);
         }
-        this->GetFieldNames(cloudFullPath, true, nullptr, nullptr, lagrangianObjectNames);
+        this->GetFieldNames(cloudFullPath, true);
         this->Parent->PatchDataArraySelection->AddArray(cloudName.c_str());
       }
     }
@@ -4604,17 +4600,30 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenFOAMReaderPrivate::SortFieldFiles(
-  vtkStringArray* selections, vtkStringArray* files, vtkStringArray* objects)
+void vtkOpenFOAMReaderPrivate::SortFieldFiles(vtkStringArray* selections, vtkStringArray* files)
 {
-  objects->Squeeze();
-  files->Squeeze();
-  vtkSortDataArray::Sort(objects, files);
-  for (int nameI = 0; nameI < objects->GetNumberOfValues(); nameI++)
+  // The object (field) name in the FoamFile header should always correspond
+  // to the filename (without any trailing .gz etc)
+
+  auto names = vtkSmartPointer<vtkStringArray>::New();
+  for (vtkIdType i = 0; i < files->GetNumberOfValues(); ++i)
   {
-    selections->InsertNextValue(objects->GetValue(nameI));
+    vtkStdString name(files->GetValue(i));
+    const auto ending = name.rfind(".gz");
+    if (ending != vtkStdString::npos)
+    {
+      name.erase(ending);
+    }
+    names->InsertNextValue(name);
   }
-  objects->Delete();
+
+  names->Squeeze();
+  files->Squeeze();
+  vtkSortDataArray::Sort(names, files);
+  for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
+  {
+    selections->InsertNextValue(names->GetValue(i));
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -4742,19 +4751,14 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   this->VolFieldFiles->Initialize();
   this->DimFieldFiles->Initialize();
   this->PointFieldFiles->Initialize();
-  vtkStringArray* volFieldObjectNames = vtkStringArray::New();
-  vtkStringArray* dimFieldObjectNames = vtkStringArray::New();
-  vtkStringArray* pointFieldObjectNames = vtkStringArray::New();
-  this->GetFieldNames(timePath + this->RegionPath(), false, volFieldObjectNames,
-    dimFieldObjectNames, pointFieldObjectNames);
+  this->GetFieldNames(timePath + this->RegionPath());
 
   this->LagrangianFieldFiles->Initialize();
   if (listNextTimeStep)
   {
     this->Parent->LagrangianPaths->Initialize();
   }
-  vtkStringArray* lagrangianObjectNames = vtkStringArray::New();
-  this->LocateLagrangianClouds(lagrangianObjectNames, timePath);
+  this->LocateLagrangianClouds(timePath);
 
   // if the requested timestep is 0 then we also look at the next
   // timestep to add extra objects that don't exist at timestep 0 into
@@ -4763,20 +4767,19 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   if (listNextTimeStep && this->TimeValues->GetNumberOfTuples() >= 2 && this->TimeStep == 0)
   {
     const vtkStdString timePath2(this->TimePath(1));
-    this->GetFieldNames(timePath2 + this->RegionPath(), false, volFieldObjectNames,
-      dimFieldObjectNames, pointFieldObjectNames);
+    this->GetFieldNames(timePath2 + this->RegionPath());
     // if lagrangian clouds were not found at timestep 0
     if (this->Parent->LagrangianPaths->GetNumberOfTuples() == 0)
     {
-      this->LocateLagrangianClouds(lagrangianObjectNames, timePath2);
+      this->LocateLagrangianClouds(timePath2);
     }
   }
 
   // sort array names. volFields first, followed by internal fields
-  this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles, volFieldObjectNames);
-  this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles, dimFieldObjectNames);
-  this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles, pointFieldObjectNames);
-  this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles, lagrangianObjectNames);
+  this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles);
+  this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles);
+  this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles);
+  this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles);
 
   return 1;
 }
