@@ -51,6 +51,24 @@ vtkOpenGLVertexBufferObject::~vtkOpenGLVertexBufferObject()
 
 vtkCxxSetObjectMacro(vtkOpenGLVertexBufferObject, Cache, vtkOpenGLVertexBufferObjectCache);
 
+bool vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleEnabled()
+{
+  auto value = GetGlobalCoordShiftAndScaleEnabled() ? this->CoordShiftAndScaleEnabled : false;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): returning CoordShiftAndScaleEnabled of " << value);
+  return value;
+}
+
+vtkOpenGLVertexBufferObject::ShiftScaleMethod
+vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
+{
+  auto value = GetGlobalCoordShiftAndScaleEnabled() ? this->CoordShiftAndScaleMethod
+                                                    : ShiftScaleMethod::DISABLE_SHIFT_SCALE;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): returning CoordShiftAndScaleMethod of " << value);
+  return value;
+}
+
 void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(ShiftScaleMethod meth)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CoordShiftAndScaleMethod to "
@@ -219,6 +237,19 @@ const std::vector<double>& vtkOpenGLVertexBufferObject::GetShift()
 const std::vector<double>& vtkOpenGLVertexBufferObject::GetScale()
 {
   return this->Scale;
+}
+
+//-----------------------------------------------------------------------------
+vtkTypeBool vtkOpenGLVertexBufferObject::GlobalCoordShiftAndScaleEnabled = 1;
+
+void vtkOpenGLVertexBufferObject::SetGlobalCoordShiftAndScaleEnabled(vtkTypeBool val)
+{
+  vtkOpenGLVertexBufferObject::GlobalCoordShiftAndScaleEnabled = val;
+}
+
+vtkTypeBool vtkOpenGLVertexBufferObject::GetGlobalCoordShiftAndScaleEnabled()
+{
+  return vtkOpenGLVertexBufferObject::GlobalCoordShiftAndScaleEnabled;
 }
 
 namespace
@@ -463,8 +494,8 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
   }
 
   if (this->Camera && this->Prop3D &&
-    (this->CoordShiftAndScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
-      this->CoordShiftAndScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE))
+    (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
+      this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE))
   {
     vtkCamera* cam = this->Camera;
     double amatrix[16];
@@ -472,7 +503,7 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
 
     double* ishift = cam->GetNearPlaneShift();
     double iscale = cam->GetNearPlaneScale();
-    if (this->CoordShiftAndScaleMethod == FOCAL_POINT_SHIFT_SCALE)
+    if (this->GetCoordShiftAndScaleMethod() == FOCAL_POINT_SHIFT_SCALE)
     {
       ishift = cam->GetFocalPointShift();
       iscale = cam->GetFocalPointScale();
