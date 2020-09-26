@@ -107,6 +107,12 @@ public:
   //@}
 
   /**
+   * Indicate whether the point ids provided defines at least one cell, or a
+   * portion of a cell.
+   */
+  bool MatchesCell(vtkIdType npts, const vtkIdType* pts);
+
+  /**
    * Return a list of cell ids using the point specified by ptId.
    */
   TIds* GetCells(vtkIdType ptId) { return (this->Links + this->Offsets[ptId]); }
