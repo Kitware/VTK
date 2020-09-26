@@ -56,14 +56,9 @@ protected:
   OSPVolume OSPRayVolume;
   OSPVolumetricModel OSPRayVolumeModel;
   OSPTransferFunction TransferFunction;
-  std::vector<float> TFVals;
-  std::vector<float> TFOVals;
 
-  std::vector<unsigned int> Cells;
-  std::vector<unsigned char> CellTypes;
-  std::vector<unsigned int> CellIndices;
-  std::vector<osp::vec3f> Vertices;
-  std::vector<float> Field;
+  std::string LastArrayName = "";
+  int LastArrayComponent = -2;
 
   OSPInstance OSPRayInstance{ nullptr };
 
