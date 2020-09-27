@@ -367,10 +367,11 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
 
     OSPGroup group = ospNewGroup();
     OSPInstance instance = ospNewInstance(group);
-    OSPData instanceData = ospNewCopyData1D(&this->OSPRayVolumeModel, OSP_VOLUMETRIC_MODEL, 1);
+    OSPData instanceData = ospNewSharedData1D(&this->OSPRayVolumeModel, OSP_VOLUMETRIC_MODEL, 1);
     ospCommit(instanceData);
     ospSetObject(group, "volume", instanceData);
     ospCommit(group);
+    ospRelease(instanceData);
     ospCommit(instance);
     ospRelease(group);
     orn->Instances.emplace_back(instance);
