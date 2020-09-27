@@ -303,8 +303,27 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
       array->GetRange(range, comp);
       if (mode == 0 && array->GetNumberOfComponents() > 1) // vector magnitude
       {
-        range[0] = 0.0;
-        range[1] = array->GetMaxNorm();
+        double min = 0;
+        double max = 0;
+        for (int c = 0; c < array->GetNumberOfComponents(); c++)
+        {
+          double lmin = 0;
+          double lmax = 0;
+          double cRange[2];
+          array->GetRange(cRange, c);
+          double ldist = cRange[0] * cRange[0];
+          double rdist = cRange[1] * cRange[1];
+          lmin = std::min(ldist, rdist);
+          if (cRange[0] < 0 && cRange[1] > 0)
+          {
+            lmin = 0;
+          }
+          lmax = std::max(ldist, rdist);
+          min += lmin;
+          max += lmax;
+        }
+        range[0] = std::sqrt(min);
+        range[1] = std::sqrt(max);
       }
       scalarTF->GetTable(range[0], range[1], this->NumColors, &tfOVals[0]);
       colorTF->GetTable(range[0], range[1], this->NumColors, &tfCVals[0]);
@@ -325,7 +344,7 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
       ospSetObject(oTF, "color", colorData);
       OSPData tfAlphaData = ospNewCopyData1D(&tfOVals[0], OSP_FLOAT, NumColors);
       ospSetObject(oTF, "opacity", tfAlphaData);
-      ospSetVec2f(oTF, "valueRange", array->GetRange()[0], array->GetRange()[1]);
+      ospSetVec2f(oTF, "valueRange", range[0], range[1]);
       ospCommit(oTF);
 
       ospRelease(colorData);
