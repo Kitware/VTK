@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOSPRayTetrahedraMapperNode.cxx
+  Module:    vtkOSPRayUnstructuredVolumeMapperNode.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOSPRayTetrahedraMapperNode.h"
+#include "vtkOSPRayUnstructuredVolumeMapperNode.h"
 
 #include "vtkCell.h"
 #include "vtkColorTransferFunction.h"
@@ -38,10 +38,10 @@
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkOSPRayTetrahedraMapperNode);
+vtkStandardNewMacro(vtkOSPRayUnstructuredVolumeMapperNode);
 
 //------------------------------------------------------------------------------
-vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
+vtkOSPRayUnstructuredVolumeMapperNode::vtkOSPRayUnstructuredVolumeMapperNode()
 {
   this->SamplingRate = 0.0f;
   this->NumColors = 128;
@@ -50,7 +50,7 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
   this->TransferFunction = nullptr;
 }
 
-vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
+vtkOSPRayUnstructuredVolumeMapperNode::~vtkOSPRayUnstructuredVolumeMapperNode()
 {
   vtkOSPRayRendererNode* orn = vtkOSPRayRendererNode::GetRendererNode(this);
   if (orn)
@@ -63,13 +63,13 @@ vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
   }
 }
 
-void vtkOSPRayTetrahedraMapperNode::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOSPRayUnstructuredVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
+void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
 {
   if (prepass)
   {

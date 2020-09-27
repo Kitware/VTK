@@ -18,9 +18,9 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayRenderMesh.cxx
     TestOSPRayRotatedNormals.cxx
     TestOSPRayScalarBar.cxx
-    TestOSPRayTetrahedraMapper.cxx
-    TestOSPRayTetrahedraMapperMixedCells.cxx
     TestOSPRayTime.cxx
+    TestOSPRayUnstructuredVolumeMapper.cxx
+    TestOSPRayUnstructuredVolumeMapperMixedCells.cxx
     TestOSPRayWindow.cxx
     TestOSPRayStereo.cxx
     TestRayTracedMolecules.cxx
