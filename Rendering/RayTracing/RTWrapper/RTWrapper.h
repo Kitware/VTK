@@ -38,11 +38,12 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define OSP_BOX3F RTW_BOX3F
 
 #define OSP_INT RTW_INT
-#define OSP_UINT RTW_UINT
 #define OSP_VEC2I RTW_VEC2I
 #define OSP_VEC3I RTW_VEC3I
 #define OSP_VEC4I RTW_VEC4I
 #define OSP_BOX3I RTW_BOX3I
+
+#define OSP_UINT RTW_UINT
 #define OSP_VEC2UI RTW_VEC2UI
 #define OSP_VEC3UI RTW_VEC3UI
 #define OSP_VEC4UI RTW_VEC4UI

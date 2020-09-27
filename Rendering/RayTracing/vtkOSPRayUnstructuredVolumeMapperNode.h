@@ -46,7 +46,7 @@ public:
 
 protected:
   vtkOSPRayUnstructuredVolumeMapperNode();
-  ~vtkOSPRayUnstructuredVolumeMapperNode() override;
+  ~vtkOSPRayUnstructuredVolumeMapperNode() = default;
 
   int NumColors;
   double SamplingRate;
@@ -56,7 +56,6 @@ protected:
 
   OSPVolume OSPRayVolume;
   OSPVolumetricModel OSPRayVolumeModel;
-  OSPTransferFunction TransferFunction;
 
   std::string LastArrayName = "";
   int LastArrayComponent = -2;
