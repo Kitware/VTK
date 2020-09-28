@@ -94,6 +94,14 @@ protected:
 
   void Zoom() override;
 
+  virtual void ZoomTraditional(const vtkRecti& box);
+  virtual void ZoomPerspectiveProjectionUsingViewAngle(const vtkRecti& box);
+  /**
+   * Calculates the focal point to be used when zooming on perspective
+   * projection using the view angle based on the provided rubber band box.
+   */
+  virtual vtkVector3d CalculatePerspectiveZoomFocalPoint(const vtkRecti& box) const;
+
   int StartPosition[2];
   int EndPosition[2];
   int Moving;
@@ -112,9 +120,6 @@ private:
    * endPosition or both.
    */
   void AdjustBox(int startPosition[2], int endPosition[2]) const;
-
-  void ZoomTraditional(const vtkRecti& box);
-  void ZoomPerspectiveProjectionUsingViewAngle(const vtkRecti& box);
 };
 
 #endif

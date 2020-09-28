@@ -342,9 +342,7 @@ void vtkInteractorStyleRubberBandZoom::ZoomPerspectiveProjectionUsingViewAngle(c
   const int* size = this->CurrentRenderer->GetSize();
   vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
 
-  const vtkVector3d rbcenter = impl::GetCenter(box);
-  const vtkVector3d worldRBCenter = impl::DisplayToWorld(rbcenter, this->CurrentRenderer);
-  cam->SetFocalPoint(worldRBCenter.GetData());
+  cam->SetFocalPoint(CalculatePerspectiveZoomFocalPoint(box).GetData());
 
   double zoomFactor;
   if (box.GetWidth() > box.GetHeight())
@@ -357,6 +355,15 @@ void vtkInteractorStyleRubberBandZoom::ZoomPerspectiveProjectionUsingViewAngle(c
   }
 
   cam->Zoom(zoomFactor);
+}
+
+vtkVector3d vtkInteractorStyleRubberBandZoom::CalculatePerspectiveZoomFocalPoint(
+  const vtkRecti& box) const
+{
+  const vtkVector3d rbcenter = impl::GetCenter(box);
+  const vtkVector3d worldRBCenter = impl::DisplayToWorld(rbcenter, this->CurrentRenderer);
+
+  return worldRBCenter;
 }
 
 void vtkInteractorStyleRubberBandZoom::PrintSelf(ostream& os, vtkIndent indent)
