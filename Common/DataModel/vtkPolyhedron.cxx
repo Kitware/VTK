@@ -1765,7 +1765,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
     //          resolve any difficulties that arise from a contour lying within
     //          machine tolerance on an existing mesh point, edge or face.
 
-    if ((v0 <= value && v1 > value) || (v1 <= value && v0 > value))
+    if ((v0 < value && v1 >= value) || (v1 < value && v0 >= value))
     {
       cellPoints->GetPoint(id0, p0);
       cellPoints->GetPoint(id1, p1);
