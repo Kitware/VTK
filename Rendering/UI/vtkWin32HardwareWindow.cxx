@@ -146,8 +146,8 @@ void vtkWin32HardwareWindow::Create()
 
   if (!this->WindowId)
   {
-    int x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-    int y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+    int x = this->Position[0];
+    int y = this->Position[1];
     int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
     int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
 

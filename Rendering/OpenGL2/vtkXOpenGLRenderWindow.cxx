@@ -433,8 +433,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     xsh.y = static_cast<int>(this->Position[1]);
   }
 
-  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+  x = this->Position[0];
+  y = this->Position[1];
   width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   height = ((this->Size[1] > 0) ? this->Size[1] : 300);
 
