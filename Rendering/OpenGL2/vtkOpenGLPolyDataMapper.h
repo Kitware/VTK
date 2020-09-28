@@ -432,6 +432,7 @@ protected:
   std::map<const vtkOpenGLHelper*, int> LastLightCount;
   std::map<const vtkOpenGLHelper*, vtkTimeStamp> LightComplexityChanged;
 
+  bool PointPicking;
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
 
