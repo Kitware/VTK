@@ -23,7 +23,7 @@
 #include "vtkOSPRayMoleculeMapperNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkOSPRayTetrahedraMapperNode.h"
+#include "vtkOSPRayUnstructuredVolumeMapperNode.h"
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
 
@@ -88,7 +88,7 @@ vtkViewNode* cpd_maker()
 
 vtkViewNode* tetm_maker()
 {
-  vtkOSPRayTetrahedraMapperNode* vn = vtkOSPRayTetrahedraMapperNode::New();
+  vtkOSPRayUnstructuredVolumeMapperNode* vn = vtkOSPRayUnstructuredVolumeMapperNode::New();
   return vn;
 }
 

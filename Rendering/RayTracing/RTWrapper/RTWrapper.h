@@ -42,17 +42,26 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define OSP_VEC3I RTW_VEC3I
 #define OSP_VEC4I RTW_VEC4I
 #define OSP_BOX3I RTW_BOX3I
+
 #define OSP_UINT RTW_UINT
 #define OSP_VEC2UI RTW_VEC2UI
 #define OSP_VEC3UI RTW_VEC3UI
 #define OSP_VEC4UI RTW_VEC4UI
+
 #define OSP_UCHAR RTW_UCHAR
 #define OSP_VEC2UC RTW_VEC2UC
 #define OSP_VEC3UC RTW_VEC3UC
 #define OSP_VEC4UC RTW_VEC4UC
 #define OSP_USHORT RTW_USHORT
+
+#define OSP_LONG RTW_LONG
+#define OSP_ULONG RTW_ULONG
+
 #define OSP_SHORT RTW_SHORT
+#define OSP_USHORT RTW_USHORT
+
 #define OSP_DOUBLE RTW_DOUBLE
+
 #define OSP_OBJECT RTW_OBJECT
 #define OSP_RAW RTW_RAW
 // Object reference type.

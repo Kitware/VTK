@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestOSPRayTetrahedraMapper.cxx
+  Module:    TestOSPRayUnstructuredVolumeMapper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -38,18 +38,18 @@
 namespace
 {
 
-static const char* TestOSPRayTetrahedraMapperLog = "# StreamVersion 1\n"
-                                                   "EnterEvent 299 0 0 0 0 0 0\n"
-                                                   "MouseMoveEvent 299 0 0 0 0 0 0\n"
-                                                   "MouseMoveEvent 298 2 0 0 0 0 0\n"
-                                                   "MouseMoveEvent 297 4 0 0 0 0 0\n"
-                                                   "MouseMoveEvent 297 6 0 0 0 0 0\n"
-                                                   "MouseMoveEvent 296 8 0 0 0 0 0\n"
-                                                   "LeaveEvent 399 -8 0 0 0 0 0\n";
+static const char* TestOSPRayUnstructuredVolumeMapperLog = "# StreamVersion 1\n"
+                                                           "EnterEvent 299 0 0 0 0 0 0\n"
+                                                           "MouseMoveEvent 299 0 0 0 0 0 0\n"
+                                                           "MouseMoveEvent 298 2 0 0 0 0 0\n"
+                                                           "MouseMoveEvent 297 4 0 0 0 0 0\n"
+                                                           "MouseMoveEvent 297 6 0 0 0 0 0\n"
+                                                           "MouseMoveEvent 296 8 0 0 0 0 0\n"
+                                                           "LeaveEvent 399 -8 0 0 0 0 0\n";
 
 } // end anon namespace
 
-int TestOSPRayTetrahedraMapper(int argc, char* argv[])
+int TestOSPRayUnstructuredVolumeMapper(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -143,7 +143,7 @@ int TestOSPRayTetrahedraMapper(int argc, char* argv[])
 
   volumeMapper->DebugOn();
   int retVal;
-  retVal = !(
-    vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(), TestOSPRayTetrahedraMapperLog));
+  retVal = !(vtkTesting::InteractorEventLoop(
+    argc, argv, iren.GetPointer(), TestOSPRayUnstructuredVolumeMapperLog));
   return !retVal;
 }

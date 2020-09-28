@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOSPRayTetrahedraMapperNode.h
+  Module:    vtkOSPRayUnstructuredVolumeMapperNode.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,16 +13,16 @@
 
 =========================================================================*/
 /**
- * @class   vtkOSPRayTetrahedraMapperNode
+ * @class   vtkOSPRayUnstructuredVolumeMapperNode
  * @brief   Unstructured grid volume renderer.
  *
- * vtkOSPRayTetrahedraMapperNode implements a volume rendering
- * that directly samples the AMR structure using OSPRay.
+ * vtkOSPRayUnstructuredVolumeMapperNode implements a volume rendering
+ * that directly samples the unstructured grid using OSPRay.
  *
  */
 
-#ifndef vtkOSPRayTetrahedraMapperNode_h
-#define vtkOSPRayTetrahedraMapperNode_h
+#ifndef vtkOSPRayUnstructuredVolumeMapperNode_h
+#define vtkOSPRayUnstructuredVolumeMapperNode_h
 
 #include "vtkOSPRayCache.h"               // For common cache infrastructure
 #include "vtkRenderingRayTracingModule.h" // For export macro
@@ -30,12 +30,13 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayUnstructuredVolumeMapperNode
+  : public vtkVolumeMapperNode
 
 {
 public:
-  vtkTypeMacro(vtkOSPRayTetrahedraMapperNode, vtkVolumeMapperNode);
-  static vtkOSPRayTetrahedraMapperNode* New();
+  vtkTypeMacro(vtkOSPRayUnstructuredVolumeMapperNode, vtkVolumeMapperNode);
+  static vtkOSPRayUnstructuredVolumeMapperNode* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -44,8 +45,8 @@ public:
   void Render(bool prepass) override;
 
 protected:
-  vtkOSPRayTetrahedraMapperNode();
-  ~vtkOSPRayTetrahedraMapperNode() override;
+  vtkOSPRayUnstructuredVolumeMapperNode();
+  ~vtkOSPRayUnstructuredVolumeMapperNode() = default;
 
   int NumColors;
   double SamplingRate;
@@ -55,21 +56,15 @@ protected:
 
   OSPVolume OSPRayVolume;
   OSPVolumetricModel OSPRayVolumeModel;
-  OSPTransferFunction TransferFunction;
-  std::vector<float> TFVals;
-  std::vector<float> TFOVals;
 
-  std::vector<unsigned int> Cells;
-  std::vector<unsigned char> CellTypes;
-  std::vector<unsigned int> CellIndices;
-  std::vector<osp::vec3f> Vertices;
-  std::vector<float> Field;
+  std::string LastArrayName = "";
+  int LastArrayComponent = -2;
 
   OSPInstance OSPRayInstance{ nullptr };
 
 private:
-  vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
-  void operator=(const vtkOSPRayTetrahedraMapperNode&) = delete;
+  vtkOSPRayUnstructuredVolumeMapperNode(const vtkOSPRayUnstructuredVolumeMapperNode&) = delete;
+  void operator=(const vtkOSPRayUnstructuredVolumeMapperNode&) = delete;
 };
 
 #endif

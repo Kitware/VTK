@@ -10,7 +10,7 @@ set(classes
   vtkOSPRayPass
   vtkOSPRayPolyDataMapperNode
   vtkOSPRayRendererNode
-  vtkOSPRayTetrahedraMapperNode
+  vtkOSPRayUnstructuredVolumeMapperNode
   vtkOSPRayViewNodeFactory
   vtkOSPRayVolumeMapper
   vtkOSPRayVolumeMapperNode
