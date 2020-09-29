@@ -381,7 +381,8 @@ int vtkStructuredPointsReader::ReadMeshSimple(const std::string& fname, vtkDataO
           return 1;
         }
 
-        numPts = dim[0] * dim[1] * dim[2];
+        numPts = static_cast<vtkIdType>(dim[0]) * static_cast<vtkIdType>(dim[1]) *
+          static_cast<vtkIdType>(dim[2]);
         output->SetDimensions(dim);
         numCells = output->GetNumberOfCells();
         dimsRead = 1;
