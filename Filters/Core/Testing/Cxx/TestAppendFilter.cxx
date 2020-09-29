@@ -377,7 +377,7 @@ int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendFilter* append)
   append->Update();
   vtkUnstructuredGrid* output = append->GetOutput();
 
-  if (!append->GetMergePoints() && output->GetPointData()->GetNumberOfArrays() > 0 &&
+  if (output->GetPointData()->GetNumberOfArrays() > 0 &&
     output->GetPointData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfPoints())
   {
     std::cerr << "Wrong number of tuples in output point data arrays\n";
@@ -391,6 +391,11 @@ int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendFilter* append)
     return 0;
   }
 
+  if (output->GetPointData()->GetGlobalIds() != nullptr)
+  {
+    std::cerr << "Point global ids should have been discarded after merge!\n";
+    return 0;
+  }
   if (output->GetCellData()->GetGlobalIds() == nullptr)
   {
     std::cerr << "Cell global ids should have been preserved after merge!\n";

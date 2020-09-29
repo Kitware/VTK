@@ -418,7 +418,7 @@ int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendDataSets* append)
     return 0;
   }
 
-  if (!append->GetMergePoints() && output->GetPointData()->GetGlobalIds() != nullptr)
+  if (output->GetPointData()->GetGlobalIds() != nullptr)
   {
     std::cerr << "Point global ids should have been discarded after merge!\n";
     return 0;
