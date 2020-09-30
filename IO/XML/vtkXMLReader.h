@@ -315,6 +315,17 @@ protected:
   // at the end of RequestData.
   virtual void SqueezeOutputArrays(vtkDataObject*) {}
 
+  /**
+   * XML files have not consistently saved out adequate meta-data in past to
+   * correctly create vtkIdTypeArray for global ids and pedigree ids. This was
+   * fixed in vtk/vtk!4819, but all older files don't recreated vtkIdTypeArray
+   * correctly. If global ids or pedigree ids are not of type vtkIdTypeArray VTK
+   * does not handle them correctly, resulting in paraview/paraview#20239. This
+   * methods "annotates" the XML for arrays that are tagged as global/pedigree
+   * ids so they are read properly.
+   */
+  void MarkIdTypeArrays(vtkXMLDataElement* da);
+
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
 

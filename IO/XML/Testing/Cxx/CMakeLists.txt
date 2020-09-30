@@ -16,6 +16,7 @@ set(all_tests
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
+  TestXMLLegacyFileReadIdTypeArrays.cxx,NO_VALID,NO_OUTPUT
   )
 
 if ((NOT DEFINED MSVC_VERSION) OR (MSVC_VERSION GREATER 1800))
@@ -53,3 +54,11 @@ vtk_test_cxx_executable(vtkIOXMLCxxTests tests)
 add_executable(TestXMLCInterface MACOSX_BUNDLE TestXMLCInterface.c)
 target_link_libraries(TestXMLCInterface PRIVATE VTK::IOXML)
 add_test(NAME VTK::IOXML-TestXMLCInterface COMMAND TestXMLCInterface)
+
+# When using 32-bit IDs, this test will not pass since the ids
+# cannot be read in correctly, so we mark it as skipped if that's the
+# reason why the test fails.
+set_property(
+  TEST VTK::IOXMLCxx-TestXMLLegacyFileReadIdTypeArrays
+  APPEND
+  PROPERTY SKIP_REGULAR_EXPRESSION "IdType tag has been ignored")

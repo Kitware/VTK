@@ -266,6 +266,7 @@ void vtkXMLDataReader::SetupOutputData()
   this->PointDataOffset->clear();
   if (ePointData)
   {
+    this->MarkIdTypeArrays(ePointData);
     for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
@@ -294,6 +295,7 @@ void vtkXMLDataReader::SetupOutputData()
   this->CellDataOffset->clear();
   if (eCellData)
   {
+    this->MarkIdTypeArrays(eCellData);
     for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
