@@ -24,6 +24,8 @@
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedIntArray.h"
+
 //
 #include <cmath>
 #include <list>
@@ -549,6 +551,10 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   this->PolyLines->AllocateEstimate(static_cast<vtkIdType>(2 * size * this->MaxTrackLength), 1);
   this->TrailId->Allocate(static_cast<vtkIdType>(size * this->MaxTrackLength));
   this->TrailId->SetName("TrailId");
+
+  vtkNew<vtkUnsignedIntArray> trackLength;
+  trackLength->Allocate(static_cast<vtkIdType>(size * this->MaxTrackLength));
+  trackLength->SetName("TrackLength");
   //
   std::vector<vtkIdType> TempIds(this->MaxTrackLength);
   vtkIdType VertexId = 0;
@@ -570,6 +576,7 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
           outputFieldArrays[fieldId]->InsertNextTuple(index, tp->Fields[fieldId]);
         }
         this->TrailId->InsertNextTuple1(static_cast<double>(tp->TrailId));
+        trackLength->InsertNextValue(tp->length - p);
 
         // export the front end of the line as a vertex on Output1
         if (p == (tp->length - 1))
@@ -590,6 +597,7 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   output0->SetPoints(this->LineCoordinates);
   output0->SetLines(this->PolyLines);
   outPD->AddArray(this->TrailId);
+  outPD->AddArray(trackLength);
   outPD->SetActiveScalars(this->TrailId->GetName());
   this->Internals->InputFieldArrays.resize(0);
 
