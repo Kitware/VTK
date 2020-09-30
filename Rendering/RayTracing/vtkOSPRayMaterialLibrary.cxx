@@ -277,6 +277,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
   bool ok = Json::parseFromStream(jreader, *doc, &root, &errs);
   if (!ok)
   {
+    vtkErrorMacro("JSON parsing error: " << errs);
     return false;
   }
   if (!root.isMember("family"))
