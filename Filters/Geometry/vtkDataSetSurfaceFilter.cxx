@@ -1494,7 +1494,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
   {
     vtkNew<vtkGeometryFilter> gf;
     vtkGeometryFilterHelper::CopyFilterParams(this, gf.Get());
-    gf->UnstructuredGridExecute(dataSetInput, output, info);
+    gf->UnstructuredGridExecute(dataSetInput, output, info, nullptr);
     delete info;
     return 1;
   }

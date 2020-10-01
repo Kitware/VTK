@@ -56,6 +56,10 @@
  * boundary faces--thus the output is an approximation to the normal
  * execution of vtkGeometryFilter.
  *
+ * Finally, this filter takes an optional second, vtkPolyData input. This
+ * input represents a list of faces that are to be excluded from the output
+ * of vtkGeometryFilter.
+ *
  * @warning
  * While vtkGeometryFilter and vtkDataSetSurfaceFilter perform similar operations,
  * there are important differences as follows:
@@ -86,6 +90,7 @@
  * @sa
  * vtkDataSetSurfaceFilter vtkImageDataGeometryFilter
  * vtkStructuredGridGeometryFilter vtkExtractGeometry vtkExtractVOI
+ * vtkMarkBoundaryFilter vtkRemovePolyData
  */
 
 #ifndef vtkGeometryFilter_h
@@ -100,6 +105,7 @@ class vtkUnstructuredGrid;
 class vtkGeometryFilter;
 class vtkDataSetSurfaceFilter;
 struct vtkGeometryFilterHelper;
+struct vtkExcludedFaces;
 
 // Used to coordinate delegation to vtkDataSetSurfaceFilter
 struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
@@ -310,6 +316,23 @@ public:
 
   //@{
   /**
+   * If a second, vtkPolyData input is provided, this second input specifies
+   * a list of faces to be excluded from the output (in the
+   * vtkPolyData::Polys attribute). This is useful to prevent the same face
+   * to be output multiple times in complex pipelines. (A candidate output
+   * boundary face is the same as a face in the excluded face list if it uses
+   * the same point ids as one of the polygons defined in the second input.) For
+   * example, a face may be extracted separately via a threshold filter; thus
+   * this face should not be also extracted via the vtkGeometryFilter. (This
+   * functionality is related to vtkRemovePolyData.)
+   */
+  void SetExcludedFacesData(vtkPolyData*);
+  void SetExcludedFacesConnection(vtkAlgorithmOutput* algOutput);
+  vtkPolyData* GetExcludedFaces();
+  //@}
+
+  //@{
+  /**
    * If the input is an unstructured grid with nonlinear faces, this parameter
    * determines how many times the face is subdivided into linear faces.  If 0,
    * the output is the equivalent of its linear counterpart (and the midpoints
@@ -337,12 +360,20 @@ public:
   /**
    * Direct access methods so that this class can be used as an
    * algorithm without using it as a filter (i.e., no pipeline updates).
+   * Also some internal methods with additional options.
    */
+  int PolyDataExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
   virtual int PolyDataExecute(vtkDataSet*, vtkPolyData*);
+
   int UnstructuredGridExecute(
-    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
+    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info, vtkExcludedFaces* exc);
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
+
+  int StructuredExecute(
+    vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, vtkExcludedFaces* exc);
   virtual int StructuredExecute(vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo);
+
+  int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   //@}
 
