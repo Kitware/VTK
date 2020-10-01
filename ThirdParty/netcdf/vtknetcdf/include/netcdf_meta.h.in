@@ -44,6 +44,7 @@
 #define NC_HAS_HDF4      @NC_HAS_HDF4@ /*!< HDF4 support. */
 #define NC_HAS_HDF5      @NC_HAS_HDF5@ /*!< HDF5 support. */
 #define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support (HDF5 only) */
+#define NC_HAS_SZIP_WRITE @NC_HAS_SZIP@ /*!< szip write support (HDF5 only) */
 #define NC_HAS_DAP2      @NC_HAS_DAP2@ /*!< DAP2 support. */
 #define NC_HAS_DAP4      @NC_HAS_DAP4@ /*!< DAP4 support. */
 #define NC_HAS_BYTERANGE @HAS_BYTERANGE@
@@ -56,7 +57,7 @@
 
 #define NC_HAS_CDF5      @NC_HAS_CDF5@  /*!< CDF5 support. */
 #define NC_HAS_ERANGE_FILL @NC_HAS_ERANGE_FILL@ /*!< ERANGE_FILL Support */
-#define NC_RELAX_COORD_BOUND @NC_RELAX_COORD_BOUND@ /*!< RELAX_COORD_BOUND */
+#define NC_RELAX_COORD_BOUND 1 /*!< RELAX_COORD_BOUND */
 #define NC_DISPATCH_VERSION @NC_DISPATCH_VERSION@ /*!< Dispatch table version */
-
+#define NC_HAS_PAR_FILTERS @NC_HAS_PAR_FILTERS@ /* Parallel I/O with filter support. */
 #endif

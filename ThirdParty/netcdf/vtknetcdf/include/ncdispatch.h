@@ -168,7 +168,6 @@ struct nc_vlen_t;
 
 struct NC;
 
-
 int NC_create(const char *path, int cmode,
 	      size_t initialsz, int basepe, size_t *chunksizehintp,
 	      int useparallel, void *parameters, int *ncidp);

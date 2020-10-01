@@ -108,7 +108,7 @@ NC4_inq_type_equal(int ncid1, nc_type typeid1, int ncid2,
  * @return ::NC_EBADTYPE Type not found.
  * @author Ed Hartnett
  */
-extern int
+EXTERNL int
 NC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
 {
     NC_GRP_INFO_T *grp;

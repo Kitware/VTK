@@ -6,8 +6,13 @@
  * order of functions in this file affects the doxygen documentation.
  */
 
+#include "config.h"
+#include "netcdf.h"
+#include "netcdf_filter.h"
 #include "ncdispatch.h"
+#include "nc4internal.h"
 #include "netcdf_f.h"
+#include "nc4internal.h"
 
 /**
    @defgroup variables Variables
@@ -312,7 +317,7 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
 }
 
 /**
-   Set the compression settings for a netCDF-4/HDF5 variable.
+   Set the zlib compression settings for a netCDF-4/HDF5 variable.
 
    This function must be called after nc_def_var and before nc_enddef
    or any functions which writes data to the file.
@@ -322,17 +327,28 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
    to chunked data, with default chunksizes. Use nc_def_var_chunking()
    to tune performance with user-defined chunksizes.
 
-   If this function is called on a scalar variable, it is ignored.
+   If this function is called on a scalar variable, ::NC_EINVAL is
+   returned. Only chunked variables may use filters.
+
+   If this function is called on a variable which already has szip
+   compression turned on, ::NC_EINVAL is returned.
+
+   @note Parallel I/O reads work with compressed data. Parallel I/O
+   writes work with compressed data in netcdf-c-4.7.4 and later
+   releases, using hdf5-1.10.3 and later releases. Using the zlib,
+   shuffle (or any other) filter requires that collective access be
+   used with the variable. Turning on deflate and/or shuffle for a
+   variable in a file opened for parallel I/O will automatically
+   switch the access for that variable to collective access.
 
    @param ncid NetCDF or group ID, from a previous call to nc_open(),
    nc_create(), nc_def_grp(), or associated inquiry functions such as
    nc_inq_ncid().
    @param varid Variable ID
    @param shuffle True to turn on the shuffle filter. The shuffle
-   filter can assist with the compression of integer data by changing
-   the byte order in the data stream. It makes no sense to use the
-   shuffle filter without setting a deflate level, or to use shuffle
-   on non-integer data.
+   filter can assist with the compression of data by changing the byte
+   order in the data stream. It makes no sense to use the shuffle
+   filter without setting a deflate level.
    @param deflate True to turn on deflation for this variable.
    @param deflate_level A number between 0 (no compression) and 9
    (maximum compression).
@@ -347,11 +363,8 @@ nc_def_var_fill(int ncid, int varid, int no_fill, const void *fill_value)
    @return ::NC_ELATEDEF Too late to change settings for this variable.
    @return ::NC_ENOTINDEFINE Not in define mode.
    @return ::NC_EPERM File is read only.
-   @return ::NC_EMAXDIMS Classic model file exceeds ::NC_MAX_VAR_DIMS.
    @return ::NC_ESTRICTNC3 Attempting to create netCDF-4 type var in
    classic model file
-   @return ::NC_EBADTYPE Bad type.
-   @return ::NC_ENOMEM Out of memory.
    @return ::NC_EHDFERR Error returned by HDF5 layer.
    @return ::NC_EINVAL Invalid input. Deflate can't be set unless
    variable storage is NC_CHUNK.
@@ -422,6 +435,14 @@ nc_def_var_deflate(int ncid, int varid, int shuffle, int deflate, int deflate_le
    data, with default chunksizes. Use nc_def_var_chunking() to tune
    performance with user-defined chunksizes.
 
+   @note Parallel I/O reads work with fletcher32 encoded
+   data. Parallel I/O writes work with fletcher32 in netcdf-c-4.7.4
+   and later releases, using hdf5-1.10.2 and later releases. Using the
+   fletcher32 (or any) filter requires that collective access be used
+   with the variable. Turning on fletcher32 for a variable in a file
+   opened for parallel I/O will automatically switch the access for
+   that variable to collective access.
+
    @param ncid NetCDF or group ID, from a previous call to nc_open(),
    nc_create(), nc_def_grp(), or associated inquiry functions such as
    nc_inq_ncid().
@@ -450,11 +471,25 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
 }
 
 /**
-   Define chunking parameters for a variable
+   Define storage and, if chunked storage is used, chunking parameters
+   for a variable
 
-   The function nc_def_var_chunking sets the chunking parameters for a
-   variable in a netCDF-4 file. It can set the chunk sizes to get chunked
-   storage, or it can set the contiguous flag to get contiguous storage.
+   The storage may be set to NC_CONTIGUOUS, NC_COMPACT, or NC_CHUNKED.
+
+   Contiguous storage means the variable is stored as one block of
+   data in the file. This is the default storage.
+
+   Compact storage means the variable is stored in the header record
+   of the file. This can have large performance benefits on HPC system
+   running many processors. Compact storage is only available for
+   variables whose data are 64 KB or less. Attempting to turn on
+   compact storage for a variable that is too large will result in the
+   ::NC_EVARSIZE error.
+
+   Chunked storage means the data are stored as chunks, of
+   user-configurable size. Chunked storage is required for variable
+   with one or more unlimted dimensions, or variable which use
+   compression, or any other filter.
 
    The total size of a chunk must be less than 4 GiB. That is, the
    product of all chunksizes and the size of the data (or the size of
@@ -464,35 +499,35 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
    before nc_enddef is called. Once the chunking parameters are set for a
    variable, they cannot be changed.
 
-   Note that this does not work for scalar variables. Only non-scalar
-   variables can have chunking.
+   @note Scalar variables may have a storage of NC_CONTIGUOUS or
+   NC_COMPACT. Attempts to set chunking on a scalare variable will
+   cause ::NC_EINVEL to be returned. Only non-scalar variables can
+   have chunking.
 
-   @param[in] ncid NetCDF ID, from a previous call to nc_open or
-   nc_create.
-
-   @param[in] varid Variable ID.
-
-   @param[in] storage If ::NC_CONTIGUOUS, then contiguous storage is used
-   for this variable. Variables with one or more unlimited dimensions
-   cannot use contiguous storage. If contiguous storage is turned on, the
-   chunksizes parameter is ignored. If ::NC_CHUNKED, then chunked storage
-   is used for this variable. Chunk sizes may be specified with the
-   chunksizes parameter or default sizes will be used if that parameter
-   is NULL.
-
-   @param[in] chunksizesp A pointer to an array list of chunk sizes. The
+   @param ncid NetCDF ID, from a previous call to nc_open() or
+   nc_create().
+   @param varid Variable ID.
+   @param storage If ::NC_CONTIGUOUS or ::NC_COMPACT, then contiguous
+   or compact storage is used for this variable. Variables with one or
+   more unlimited dimensions cannot use contiguous or compact
+   storage. If contiguous or compact storage is turned on, the
+   chunksizes parameter is ignored. If ::NC_CHUNKED, then chunked
+   storage is used for this variable. Chunk sizes may be specified
+   with the chunksizes parameter or default sizes will be used if that
+   parameter is NULL.
+   @param chunksizesp A pointer to an array list of chunk sizes. The
    array must have one chunksize for each dimension of the variable. If
    ::NC_CONTIGUOUS storage is set, then the chunksizes parameter is
-   ignored.
+   ignored. Ignored if NULL.
 
    @return ::NC_NOERR No error.
    @return ::NC_EBADID Bad ID.
    @return ::NC_ENOTNC4 Not a netCDF-4 file.
-   @return ::NC_ELATEDEF This variable has already been the subject of a
-   nc_enddef call.  In netCDF-4 files nc_enddef will be called
+   @return ::NC_ELATEDEF This variable has already been the subject of
+   a nc_enddef call.  In netCDF-4 files nc_enddef will be called
    automatically for any data read or write. Once nc_enddef has been
-   called after the nc_def_var call for a variable, it is impossible to
-   set the chunking for that variable.
+   called after the nc_def_var call for a variable, it is impossible
+   to set the chunking for that variable.
    @return ::NC_ENOTINDEFINE Not in define mode.  This is returned for
    netCDF classic or 64-bit offset files, or for netCDF-4 files, when
    they wwere created with ::NC_CLASSIC_MODEL flag by nc_create().
@@ -500,6 +535,11 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
    @return ::NC_EBADCHUNK Returns if the chunk size specified for a
    variable is larger than the length of the dimensions associated with
    variable.
+   @return ::NC_EVARSIZE Compact storage attempted for variable bigger
+   than 64 KB.
+   @return ::NC_EINVAL Attempt to set contiguous or compact storage
+   for var with one or more unlimited dimensions, or chunking for a
+   scalar var.
 
    @section nc_def_var_chunking_example Example
 
@@ -539,10 +579,10 @@ nc_def_var_fletcher32(int ncid, int varid, int fletcher32)
    if (chunksize[d] != chunksize_in[d]) ERR;
    if (storage_in != NC_CHUNKED) ERR;
    @endcode
+   @author Ed Hartnett, Dennis Heimbigner
 */
 int
-nc_def_var_chunking(int ncid, int varid, int storage,
-                    const size_t *chunksizesp)
+nc_def_var_chunking(int ncid, int varid, int storage, const size_t *chunksizesp)
 {
     NC* ncp;
     int stat = NC_check_id(ncid, &ncp);
@@ -629,26 +669,67 @@ nc_def_var_endian(int ncid, int varid, int endian)
 }
 
 /**
-   Define a new variable filter.
-
-   @param ncid File and group ID.
-   @param varid Variable ID.
-   @param id
-   @param nparams Number of filter parameters.
-   @param parms Filter parameters.
-
-   @return ::NC_NOERR No error.
-   @return ::NC_EBADID Bad ID.
-   @author Dennis Heimbigner
-*/
+ * Set szip compression settings on a variable. Szip is an
+ * implementation of the extended-Rice lossless compression algorithm;
+ * it is reported to provide fast and effective compression. Szip is
+ * only available to netCDF if HDF5 was built with szip support.
+ *
+ * SZIP compression cannot be applied to variables with any
+ * user-defined type.
+ *
+ * If zlib compression has already be turned on for a variable, then
+ * this function will return ::NC_EINVAL.
+ *
+ * To learn the szip settings for a variable, use nc_inq_var_szip().
+ *
+ * @note The options_mask parameter may be either NC_SZIP_EC (entropy
+ * coding) or NC_SZIP_NN (nearest neighbor):
+ * * The entropy coding method is best suited for data that has been
+ * processed. The EC method works best for small numbers.
+ * * The nearest neighbor coding method preprocesses the data then the
+ * applies EC method as above.
+ *
+ * For more information about HDF5 and szip, see
+ * https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetSzip
+ * and
+ * https://support.hdfgroup.org/doc_resource/SZIP/index.html.
+ *
+ * @param ncid File ID.
+ * @param varid Variable ID.
+ * @param options_mask The options mask. Can be NC_SZIP_EC or
+ * NC_SZIP_NN.
+ * @param pixels_per_block Pixels per block. Must be even and not
+ * greater than 32, with typical values being 8, 10, 16, or 32. This
+ * parameter affects compression ratio; the more pixel values vary,
+ * the smaller this number should be to achieve better performance. If
+ * pixels_per_block is bigger than the total number of elements in a
+ * dataset chunk, ::NC_EINVAL will be returned.
+ *
+ * @returns ::NC_NOERR No error.
+ * @returns ::NC_EBADID Bad ncid.
+ * @returns ::NC_ENOTVAR Invalid variable ID.
+ * @returns ::NC_ENOTNC4 Attempting netcdf-4 operation on file that is
+ * not netCDF-4/HDF5.
+ * @returns ::NC_ELATEDEF Too late to change settings for this variable.
+ * @returns ::NC_ENOTINDEFINE Not in define mode.
+ * @returns ::NC_EINVAL Invalid input, or zlib filter already applied
+ * to this var.
+ * @author Ed Hartnett
+ */
 int
-nc_def_var_filter(int ncid, int varid, unsigned int id,
-                  size_t nparams, const unsigned int* parms)
+nc_def_var_szip(int ncid, int varid, int options_mask, int pixels_per_block)
 {
-    NC* ncp;
-    int stat = NC_check_id(ncid,&ncp);
-    if(stat != NC_NOERR) return stat;
-    return ncp->dispatch->def_var_filter(ncid,varid,id,nparams,parms);
+    int ret;
+
+    /* This will cause H5Pset_szip to be called when the var is
+     * created. */
+    unsigned int params[2];
+    params[0] = options_mask;
+    params[1] = pixels_per_block;
+    if ((ret = nc_def_var_filter(ncid, varid, HDF5_FILTER_SZIP, 2, params)))
+        return ret;
+
+    return NC_NOERR;
 }
 
 /** @} */
@@ -1107,6 +1188,12 @@ nc_free_string(size_t len, char **data)
    until the file is closed. Once re-opened, the variable chunk cache
    returns to its default value.
 
+   Current cache settings for each var may be obtained with
+   nc_get_var_chunk_cache().
+
+   Default values for these settings may be changed for the whole file
+   with nc_set_chunk_cache().
+
    @param ncid NetCDF or group ID, from a previous call to nc_open(),
    nc_create(), nc_def_grp(), or associated inquiry functions such as
    nc_inq_ncid().
@@ -1168,7 +1255,10 @@ nc_set_var_chunk_cache(int ncid, int varid, size_t size, size_t nelems,
 }
 
 /**
-   Get the per-variable chunk cache settings from the HDF5 layer.
+   Get the per-variable chunk cache settings from the HDF5
+   layer. These settings may be changed with nc_set_var_chunk_cache().
+
+   See nc_set_chunk_cache() for a full discussion of these settings.
 
    @param ncid NetCDF or group ID, from a previous call to nc_open(),
    nc_create(), nc_def_grp(), or associated inquiry functions such as

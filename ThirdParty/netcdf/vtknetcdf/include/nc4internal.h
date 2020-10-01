@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <stdarg.h>
 #include <string.h>
 
 #include "ncdimscale.h"
@@ -27,6 +26,7 @@
 
 #include "netcdf_f.h"
 #include "netcdf_mem.h"
+#include "netcdf_filter.h"
 #ifdef USE_PARALLEL
 #include "netcdf_par.h"
 #endif /* USE_PARALLEL */
@@ -55,6 +55,9 @@ typedef enum {NCNAT, NCVAR, NCDIM, NCATT, NCTYP, NCFLD, NCGRP} NC_SORT;
 
 /** One mega-byte. */
 #define MEGABYTE 1048576
+
+/** The HDF5 ID for the szip filter. */
+#define HDF5_FILTER_SZIP 4
 
 #define X_SCHAR_MIN     (-128)          /**< Minimum signed char value. */
 #define X_SCHAR_MAX     127             /**< Maximum signed char value. */
@@ -123,6 +126,7 @@ typedef enum {NC_FALSE = 0, NC_TRUE = 1} nc_bool_t;
 /* Forward declarations. */
 struct NC_GRP_INFO;
 struct NC_TYPE_INFO;
+struct NC_FIlterobject;
 
 /**
  * This struct provides indexed Access to Meta-data objects. See the
@@ -183,41 +187,38 @@ typedef struct NC_ATT_INFO
 /** This is a struct to handle the var metadata. */
 typedef struct NC_VAR_INFO
 {
-    NC_OBJ hdr;             /**< The hdr contains the name and ID. */
-    char *hdf5_name;        /**< Used if name in HDF5 must be different from name. */
+    NC_OBJ hdr;                  /**< The hdr contains the name and ID. */
+    char *hdf5_name;             /**< Used if name in HDF5 must be different from name. */
     struct NC_GRP_INFO *container; /**< Pointer to containing group. */
-    size_t ndims;           /**< Number of dims. */
-    int *dimids;            /**< Dim IDs. */
-    NC_DIM_INFO_T **dim;    /**< Pointer to dim. */
-    nc_bool_t is_new_var;        /**< True if variable is newly created */
-    nc_bool_t was_coord_var;     /**< True if variable was a coordinate var, but either the dim or var has been renamed */
-    nc_bool_t became_coord_var;  /**< True if variable _became_ a coordinate var, because either the dim or var has been renamed */
-    nc_bool_t fill_val_changed;  /**< True if variable's fill value changes after it has been created */
-    nc_bool_t attr_dirty;        /**< True if variable's attributes are dirty and should be rewritten */
-    nc_bool_t created;           /**< Variable has already been created (_not_ that it was just created) */
-    nc_bool_t written_to;        /**< True if variable has data written to it */
-    struct NC_TYPE_INFO *type_info;
+    size_t ndims;                /**< Number of dims. */
+    int *dimids;                 /**< Dim IDs. */
+    NC_DIM_INFO_T **dim;         /**< Pointer to array of NC_DIM_INFO_T. */
+    nc_bool_t is_new_var;        /**< True if variable is newly created. */
+    nc_bool_t was_coord_var;     /**< True if variable was a coordinate var, but either the dim or var has been renamed. */
+    nc_bool_t became_coord_var;  /**< True if variable _became_ a coordinate var, because either the dim or var has been renamed. */
+    nc_bool_t fill_val_changed;  /**< True if variable's fill value changes after it has been created. */
+    nc_bool_t attr_dirty;        /**< True if variable's attributes are dirty and should be rewritten. */
+    nc_bool_t created;           /**< Variable has already been created (_not_ that it was just created). */
+    nc_bool_t written_to;        /**< True if variable has data written to it. */
+    struct NC_TYPE_INFO *type_info; /**< Contains info about the variable type. */
     int atts_read;               /**< If true, the atts have been read. */
     nc_bool_t meta_read;         /**< True if this vars metadata has been completely read. */
     nc_bool_t coords_read;       /**< True if this var has hidden coordinates att, and it has been read. */
-    NCindex *att;                /**< NCindex<NC_ATT_INFO_T*> */
-    nc_bool_t no_fill;           /**< True if no fill value is defined for var */
-    void *fill_value;
-    size_t *chunksizes;
-    nc_bool_t contiguous;        /**< True if variable is stored contiguously in HDF5 file */
-    int parallel_access;         /**< Type of parallel access for I/O on variable (collective or independent) */
-    nc_bool_t dimscale;          /**< True if var is a dimscale */
-    nc_bool_t *dimscale_attached;  /**< Array of flags that are true if dimscale is attached for that dim index */
-    nc_bool_t deflate;           /**< True if var has deflate filter applied */
-    int deflate_level;
-    nc_bool_t shuffle;           /**< True if var has shuffle filter applied */
-    nc_bool_t fletcher32;        /**< True if var has fletcher32 filter applied */
-    size_t chunk_cache_size, chunk_cache_nelems;
-    float chunk_cache_preemption;
+    NCindex *att;                /**< List of NC_ATT_INFO_T. */
+    nc_bool_t no_fill;           /**< True if no fill value is defined for var. */
+    void *fill_value;            /**< Pointer to fill value, or NULL. */
+    size_t *chunksizes;          /**< For chunked storage, an array (size ndims) of chunksizes. */
+    int storage;                 /**< Storage of this var, compact, contiguous, or chunked. */
+    int parallel_access;         /**< Type of parallel access for I/O on variable (collective or independent). */
+    nc_bool_t dimscale;          /**< True if var is a dimscale. */
+    nc_bool_t *dimscale_attached;  /**< Array of flags that are true if dimscale is attached for that dim index. */
+    nc_bool_t shuffle;           /**< True if var has shuffle filter applied. */
+    nc_bool_t fletcher32;        /**< True if var has fletcher32 filter applied. */
+    size_t chunk_cache_size;     /**< Size in bytes of the var chunk chache. */
+    size_t chunk_cache_nelems;   /**< Number of slots in var chunk cache. */
+    float chunk_cache_preemption; /**< Chunk cache preemtion policy. */
     void *format_var_info;       /**< Pointer to any binary format info. */
-    unsigned int filterid;       /**< ID for arbitrary filter. */
-    size_t nparams;              /**< nparams for arbitrary filter. */
-    unsigned int *params;        /**< Params for arbitrary filter. */
+    NClist* filters;             /**< List of filters to be applied to var data.  */
 } NC_VAR_INFO_T;
 
 /** This is a struct to handle the field metadata from a user-defined
@@ -447,5 +448,58 @@ int log_metadata_nc(NC_FILE_INFO_T *h5);
 
 /* Binary searcher for reserved attributes */
 extern const NC_reservedatt *NC_findreserved(const char *name);
+
+/**************************************************/
+/* Internal filter related structures */
+
+/* Internal filter actions */
+#define NCFILTER_DEF		1
+#define NCFILTER_REMOVE  	2
+#define NCFILTER_INQ	    	3
+#define NCFILTER_FILTERIDS      4
+#define NCFILTER_INFO		5
+#define NCFILTER_FREESPEC	6
+#define NCFILTER_CLIENT_REG	10
+#define NCFILTER_CLIENT_UNREG	11
+#define NCFILTER_CLIENT_INQ	12
+
+typedef enum NC_FILTER_SORT {
+	NC_FILTER_SORT_SPEC=((int)1),
+	NC_FILTER_SORT_IDS=((int)2),
+	NC_FILTER_SORT_CLIENT=((int)3),
+} NC_FILTER_SORT;
+
+/* Provide structs to pass args to filter_actions function for HDF5*/
+
+typedef struct NC_FILTER_SPEC_HDF5 {
+    int active;            /**< true iff HDF5 library was told to activate filter */
+    unsigned int filterid; /**< ID for arbitrary filter. */
+    size_t nparams;        /**< nparams for arbitrary filter. */
+    unsigned int* params;  /**< Params for arbitrary filter. */
+} NC_FILTER_SPEC_HDF5;
+
+typedef struct NC_FILTERIDS_HDF5 {
+    size_t nfilters;          /**< number of filters */
+    unsigned int* filterids;  /**< Filter ids. */
+} NC_FILTERIDS_HDF5;
+
+typedef struct NC_FILTER_CLIENT_HDF5 {
+    unsigned int id;
+    /* The filter info for hdf5 */
+    /* Avoid needing hdf.h by using void* */
+    void* info;
+} NC_FILTER_CLIENT_HDF5;
+
+typedef struct NC_FILTER_OBJ_HDF5 {
+    NC_Filterobject hdr; /* So we can cast it */
+    NC_FILTER_SORT sort; /* discriminate union */
+    union {
+        NC_FILTER_SPEC_HDF5 spec;
+        NC_FILTERIDS_HDF5 ids;
+        NC_FILTER_CLIENT_HDF5 client;
+    } u;
+} NC_FILTER_OBJ_HDF5;
+
+extern void NC4_freefilterspec(NC_FILTER_SPEC_HDF5* f);
 
 #endif /* _NC4INTERNAL_ */

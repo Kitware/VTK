@@ -125,6 +125,9 @@
 /* Define to 1 if you have the `H5allocate_memory' function. */
 #cmakedefine HAVE_H5ALLOCATE_MEMORY
 
+/* Define to 1 if you have the `H5Dread_chunk' function. */
+#undef HAVE_H5DREAD_CHUNK
+
 /* Define to 1 if you have the `H5free_memory' function. */
 #undef HAVE_H5FREE_MEMORY
 
@@ -314,6 +317,10 @@
 
 /* if true, hdf5 has parallelism enabled */
 #cmakedefine HDF5_PARALLEL
+
+/* if true, HDF5 is at least version 1.10.3 and allows parallel I/O with zip
+   */
+#undef HDF5_SUPPORTS_PAR_FILTERS
 
 /* if true, include JNA bug fix */
 #cmakedefine JNA

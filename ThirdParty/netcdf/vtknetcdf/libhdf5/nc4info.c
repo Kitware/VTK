@@ -198,6 +198,8 @@ NC4_read_provenance(NC_FILE_INFO_T* file)
     provenance->superblockversion = superblock;
 
     /* Read the _NCProperties value from the file */
+    /* We do not return a size and assume the size is that upto the
+       first nul character */
     if((ncstat = NC4_read_ncproperties(file,&propstring))) goto done;
     provenance->ncproperties = propstring;
     propstring = NULL;

@@ -9,6 +9,9 @@ See \ref copyright file for more info.
 
 */
 
+#ifndef NCTESTSERVER_H
+#define NCTESTSERVER_H 1
+
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +20,8 @@ See \ref copyright file for more info.
 #include "netcdf.h"
 
 #undef FINDTESTSERVER_DEBUG
+
+enum KIND {NOKIND, DAP2KIND, DAP4KIND, THREDDSKIND};
 
 #define MAXSERVERURL 4096
 #define TIMEOUT 10 /*seconds*/
@@ -28,6 +33,7 @@ See \ref copyright file for more info.
 #endif
 
 static int ping(const char* url);
+static int timedping(const char* url, long timeout);
 
 static char**
 parseServers(const char* remotetestservers)
@@ -73,8 +79,8 @@ This indicates that the server is up and running.
 Return the complete url for the server plus the path.
 */
 
-static char*
-nc_findtestserver(const char* path, int isdap4, const char* serverlist)
+char*
+nc_findtestserver(const char* path, const char* serverlist)
 {
     char** svclist;
     char** svc;
@@ -153,8 +159,15 @@ done:
 See if a server is responding.
 Return NC_ECURL if the ping fails, NC_NOERR otherwise
 */
+
 static int
 ping(const char* url)
+{
+    return timedping(url,TIMEOUT);
+}
+
+static int
+timedping(const char* url, long timeout)
 {
     int stat = NC_NOERR;
     CURLcode cstat = CURLE_OK;
@@ -171,8 +184,9 @@ ping(const char* url)
     CERR((curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10L)));
     CERR((curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L)));
 
-    /* use a very short timeout: 10 seconds */
-    CERR((curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)TIMEOUT)));
+    /* use very short timeouts: 10 seconds */
+    CERR((curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)timeout)));
+    CERR((curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)timeout)));
 
     /* fail on HTTP 400 code errors */
     CERR((curl_easy_setopt(curl, CURLOPT_FAILONERROR, (long)1)));
@@ -210,3 +224,4 @@ done:
         curl_easy_cleanup(curl);
     return stat;
 }
+#endif /*NCTESTSERVER_H*/

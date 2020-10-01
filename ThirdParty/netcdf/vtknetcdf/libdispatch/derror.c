@@ -177,9 +177,9 @@ const char *nc_strerror(int ncerr1)
       case NC_EDAS:
 	 return "NetCDF: Malformed or inaccessible DAP DAS";
       case NC_EDDS:
-	 return "NetCDF: Malformed or inaccessible DAP DDS";
+	 return "NetCDF: Malformed or inaccessible DAP2 DDS or DAP4 DMR response";
       case NC_EDATADDS:
-	 return "NetCDF: Malformed or inaccessible DAP DATADDS";
+	 return "NetCDF: Malformed or inaccessible DAP2 DATADDS or DAP4 DAP response";
       case NC_EDAPURL:
 	 return "NetCDF: Malformed URL";
       case NC_EDAPCONSTRAINT:
@@ -258,7 +258,9 @@ const char *nc_strerror(int ncerr1)
       case NC_EDISKLESS:
 	 return "NetCDF: Error in using diskless access";
       case NC_EFILTER:
-	 return "NetCDF: Filter error: bad id or parameters or filter library non-existent";
+	 return "NetCDF: Filter error: bad id or parameters";
+      case NC_ENOFILTER:
+	 return "NetCDF: Filter error: filter not defined for variable";
       case NC_ECANTEXTEND:
 	return "NetCDF: Attempt to extend dataset during NC_INDEPENDENT I/O operation. Use nc_var_par_access to set mode NC_COLLECTIVE before extending variable.";
       case NC_EMPI: return "NetCDF: MPI operation failed.";

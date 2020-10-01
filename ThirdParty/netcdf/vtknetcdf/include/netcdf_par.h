@@ -22,14 +22,14 @@
 
 #include <vtk_mpi.h>
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
 /** Use with nc_var_par_access() to set parallel access to independent. */
 #define NC_INDEPENDENT 0
 /** Use with nc_var_par_access() to set parallel access to collective. */
 #define NC_COLLECTIVE 1
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* Create a file and enable parallel I/O. */
     EXTERNL int
