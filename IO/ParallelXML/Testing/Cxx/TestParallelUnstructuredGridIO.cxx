@@ -1,3 +1,9 @@
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
+
 #include "vtksys/FStream.hxx"
 #include <vtkCell.h>
 #include <vtkCellData.h>
@@ -96,6 +102,14 @@ bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
 
 int TestParallelUnstructuredGridIO(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  vtkNew<vtkMPIController> contr;
+#else
+  vtkNew<vtkDummyController> contr;
+#endif
+  contr->Initialize(&argc, &argv);
+  vtkMultiProcessController::SetGlobalController(contr);
+
   vtkNew<vtkPoints> points;
 
   points->InsertNextPoint(0, 0, 0);
@@ -285,5 +299,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   if (!CompareGrids(ug.GetPointer(), read))
     return EXIT_FAILURE;
 
+  vtkMultiProcessController::SetGlobalController(nullptr);
+  contr->Finalize();
   return EXIT_SUCCESS;
 }
