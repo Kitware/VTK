@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_ANALYSIS_ANALYZE_CYCLES_HPP
@@ -40,7 +40,7 @@ namespace tao
             std::map< std::string, bool > m_cache;
             std::map< std::string, bool > m_results;
 
-            const std::map< std::string, rule_info >::const_iterator find( const std::string& name ) const noexcept
+            std::map< std::string, rule_info >::const_iterator find( const std::string& name ) const noexcept
             {
                const auto iter = m_info.map.find( name );
                assert( iter != m_info.map.end() );

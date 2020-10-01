@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2015-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_PEGTL_STRING_HPP
@@ -59,7 +59,7 @@ namespace tao
 #define TAO_PEGTL_INTERNAL_EXPAND( ... ) __VA_ARGS__
 
 #define TAO_PEGTL_INTERNAL_STRING_AT( S, x, n ) \
-   tao::TAO_PEGTL_NAMESPACE::internal::string_at< S, ( 0##n < sizeof( x ) ) ? ( x )[ 0##n ] : 0, ( 0##n < sizeof( x ) - 1 ) >::type
+   tao::TAO_PEGTL_NAMESPACE::internal::string_at< S, ( 0##n < ( sizeof( x ) / sizeof( char ) ) ) ? ( x )[ 0##n ] : 0, ( 0##n < ( sizeof( x ) / sizeof( char ) ) - 1 ) >::type
 
 #define TAO_PEGTL_INTERNAL_JOIN_8( M, S, x, n )                                                  \
    tao::TAO_PEGTL_NAMESPACE::internal::string_join< TAO_PEGTL_INTERNAL_DEFER( M )( S, x, n##0 ), \

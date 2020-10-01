@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_IF_MUST_HPP
@@ -7,7 +7,6 @@
 #include "../config.hpp"
 
 #include "must.hpp"
-#include "rule_conjunction.hpp"
 #include "skip_control.hpp"
 #include "trivial.hpp"
 
@@ -38,7 +37,7 @@ namespace tao
             static bool match( Input& in, States&&... st )
             {
                if( Control< Cond >::template match< A, M, Action, Control >( in, st... ) ) {
-                  rule_conjunction< must< Rules >... >::template match< A, M, Action, Control >( in, st... );
+                  Control< must< Rules... > >::template match< A, M, Action, Control >( in, st... );
                   return true;
                }
                return Default;

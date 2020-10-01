@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2017-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_ENDIAN_WIN_HPP
@@ -15,7 +15,7 @@ namespace tao
    {
       namespace internal
       {
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_le
          {
             template< typename T >
@@ -25,7 +25,7 @@ namespace tao
             }
          };
 
-         template< unsigned S >
+         template< std::size_t S >
          struct to_and_from_be;
 
          template<>
