@@ -54,7 +54,9 @@ struct vtkXMLCompositeDataReaderEntry
 
 struct vtkXMLCompositeDataReaderInternals
 {
-  vtkXMLCompositeDataReaderInternals()
+  vtkXMLCompositeDataReaderInternals() { this->ResetUpdateInformation(); }
+
+  void ResetUpdateInformation()
   {
     this->UpdatePiece = 0;
     this->UpdateNumberOfPieces = 1;
@@ -504,14 +506,26 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem, c
 }
 
 //------------------------------------------------------------------------------
+void vtkXMLCompositeDataReader::SetFileName(const char* fname)
+{
+  if (fname == nullptr || this->GetFileName() == nullptr || strcmp(fname, this->GetFileName()) != 0)
+  {
+    // this is a disaster, but a necessary temporary workaround for paraview/paraview#20179:
+    // if filename changed, reset information about update-piece so that
+    // RequestInformation stage does not rely on potentially obsolete
+    // information.
+    this->Internal->ResetUpdateInformation();
+  }
+  this->Superclass::SetFileName(fname);
+}
+
+//------------------------------------------------------------------------------
 int vtkXMLCompositeDataReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestInformation(request, inputVector, outputVector);
-
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
-
   return 1;
 }
 

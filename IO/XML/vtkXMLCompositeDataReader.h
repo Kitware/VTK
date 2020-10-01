@@ -76,6 +76,8 @@ public:
   vtkCompositeDataSet* GetOutput(int);
   //@}
 
+  void SetFileName(const char*) override;
+
 protected:
   vtkXMLCompositeDataReader();
   ~vtkXMLCompositeDataReader() override;
