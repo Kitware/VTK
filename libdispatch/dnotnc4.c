@@ -8,7 +8,10 @@
  * @author Ed Hartnett
  */
 
+#include "netcdf.h"
+#include "netcdf_filter.h"
 #include "ncdispatch.h"
+#include "nc4internal.h"
 
 /**
  * @internal Not allowed for classic model.
@@ -607,6 +610,22 @@ NC_NOTNC4_inq_user_type(int ncid, nc_type typeid1, char *name, size_t *size,
  */
 int
 NC_NOTNC4_inq_typeid(int ncid, const char *name, nc_type *typeidp)
+{
+    return NC_ENOTNC4;
+}
+
+/**
+ * @internal Carry out one of several filter actions
+ *
+ * @param ncid Containing group id
+ * @param varid Containing variable id
+ * @param action Action to perform
+ *
+ * @return ::NC_ENOTNC4 Not allowed for classic model.
+ * @author D. Heimbigner
+ */
+int
+NC_NOTNC4_filter_actions(int ncid, int varid, int action, struct NC_Filterobject* spec)
 {
     return NC_ENOTNC4;
 }

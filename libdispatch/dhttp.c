@@ -263,6 +263,8 @@ setupconn(CURL* curl, const char* objecturl, NCbytes* buf)
     if (cstat != CURLE_OK) goto fail;
     cstat = CURLERR(curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1));
     if (cstat != CURLE_OK) goto fail;
+    cstat = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1); 
+    if (cstat != CURLE_OK) goto fail;
 
     if(buf != NULL) {
 	/* send all data to this function  */

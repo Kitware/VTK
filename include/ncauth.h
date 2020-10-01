@@ -21,6 +21,7 @@ typedef struct NCauth {
 	int compress; /*CURLOPT_ENCODING*/
 	int verbose; /*CURLOPT_ENCODING*/
 	int timeout; /*CURLOPT_TIMEOUT*/
+	int connecttimeout; /*CURLOPT_CONNECTTIMEOUT*/
 	int maxredirs; /*CURLOPT_MAXREDIRS*/
 	char* useragent; /*CURLOPT_USERAGENT*/
 	int cookiejarcreated;

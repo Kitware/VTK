@@ -23,11 +23,19 @@
 #ifndef NETCDF_DISPATCH_H
 #define NETCDF_DISPATCH_H
 
+/* This is the version of the dispatch table. It should be changed
+ * when new functions are added to the dispatch table. */
+#define NC_DISPATCH_VERSION 2
+
+/* Forward */
+struct NC_Filterobject;
+
 /* This is the dispatch table, with a pointer to each netCDF
  * function. */
 struct NC_Dispatch
 {
     int model; /* one of the NC_FORMATX #'s */
+    int dispatch_version;
 
     int (*create)(const char *path, int cmode, size_t initialsz,
                   int basepe, size_t *chunksizehintp, void *parameters,
@@ -137,6 +145,10 @@ struct NC_Dispatch
     int (*set_var_chunk_cache)(int, int, size_t, size_t, float);
     int (*get_var_chunk_cache)(int ncid, int varid, size_t *sizep,
                                size_t *nelemsp, float *preemptionp);
+
+    /* Dispatch table Version 2 or later */
+    /* Handle all filter related actions. */
+    int (*filter_actions)(int ncid, int varid, int action, struct NC_Filterobject*);
 };
 
 #if defined(__cplusplus)
@@ -219,6 +231,8 @@ extern "C" {
     EXTERNL int NC_NOTNC4_inq_user_type(int, nc_type, char *, size_t *,
                                         nc_type *, size_t *, int *);
     EXTERNL int NC_NOTNC4_inq_typeid(int, const char *, nc_type *);
+    EXTERNL int NC_NOTNC4_filter_actions(int, int, int, struct NC_Filterobject*);
+
 #if defined(__cplusplus)
 }
 #endif

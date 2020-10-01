@@ -31,6 +31,7 @@ See COPYRIGHT for license information.
 /* Define the curl flag defaults in envv style */
 static const char* AUTHDEFAULTS[] = {
 "HTTP.TIMEOUT","1800", /*seconds */ /* Long but not infinite */
+"HTTP.CONNECTTIMEOUT","50", /*seconds */ /* Long but not infinite */
 NULL
 };
 
@@ -107,6 +108,8 @@ NC_authsetup(NCauth* auth, NCURI* uri)
 			NC_rclookup("HTTP.VERBOSE",uri_hostport));
     setauthfield(auth,"HTTP.TIMEOUT",
 			NC_rclookup("HTTP.TIMEOUT",uri_hostport));
+    setauthfield(auth,"HTTP.CONNECTTIMEOUT",
+			NC_rclookup("HTTP.CONNECTTIMEOUT",uri_hostport));
     setauthfield(auth,"HTTP.USERAGENT",
 			NC_rclookup("HTTP.USERAGENT",uri_hostport));
     setauthfield(auth,"HTTP.COOKIEFILE",
@@ -217,6 +220,12 @@ setauthfield(NCauth* auth, const char* flag, const char* value)
         if(atoi(value)) auth->curlflags.timeout = atoi(value);
 #ifdef D4DEBUG
             nclog(NCLOGNOTE,"HTTP.TIMEOUT: %ld", auth->curlflags.timeout);
+#endif
+    }
+    if(strcmp(flag,"HTTP.CONNECTTIMEOUT")==0) {
+        if(atoi(value)) auth->curlflags.connecttimeout = atoi(value);
+#ifdef D4DEBUG
+            nclog(NCLOGNOTE,"HTTP.CONNECTTIMEOUT: %ld", auth->curlflags.connecttimeout);
 #endif
     }
     if(strcmp(flag,"HTTP.USERAGENT")==0) {

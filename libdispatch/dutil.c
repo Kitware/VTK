@@ -348,6 +348,6 @@ NC_testmode(const char* path, const char* tag)
     }        
     
 done:
-    nclistfree(modelist);
+    nclistfreeall(modelist);
     return found;
 }

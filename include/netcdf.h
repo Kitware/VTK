@@ -278,8 +278,11 @@ NOTE: The NC_MAX_DIMS, NC_MAX_ATTRS, and NC_MAX_VARS limits
 #define NC_MAX_VAR_DIMS 1024 /**< max per variable dimensions */
 /**@}*/
 
-/** This is the max size of an SD dataset name in HDF4 (from HDF4 documentation).*/
-#define NC_MAX_HDF4_NAME 64
+/** The max size of an SD dataset name in HDF4 (from HDF4
+ * documentation) is 64. But in in the wild we have encountered longer
+ * names. As long as the HDF4 name is not greater than NC_MAX_NAME,
+ * our code will be OK. */
+#define NC_MAX_HDF4_NAME NC_MAX_NAME
 
 /** In HDF5 files you can set the endianness of variables with
     nc_def_var_endian(). This define is used there. */
@@ -295,6 +298,7 @@ NOTE: The NC_MAX_DIMS, NC_MAX_ATTRS, and NC_MAX_VARS limits
 /**@{*/
 #define NC_CHUNKED    0
 #define NC_CONTIGUOUS 1
+#define NC_COMPACT    2
 /**@}*/
 
 /** In HDF5 files you can set check-summing for each variable.
@@ -473,7 +477,13 @@ by the desired type. */
 #define NC_ERCFILE       (-133)    /**< RC file failure */
 #define NC_ENULLPAD      (-134)    /**< Header Bytes not Null-Byte padded */
 #define NC_EINMEMORY     (-135)    /**< In-memory file error */
-#define NC4_LAST_ERROR   (-136)    /**< @internal All netCDF errors > this. */
+#define NC_ENOFILTER     (-136)    /**< Filter not defined on variable. */
+
+#define NC4_LAST_ERROR   (-137)    /**< @internal All netCDF errors > this. */
+
+/* Errors for all remote access methods(e.g. DAP and CDMREMOTE)*/
+#define NC_EURL         (NC_EDAPURL)   /**< Malformed URL */
+#define NC_ECONSTRAINT  (NC_EDAPCONSTRAINT)   /**< Malformed Constraint*/
 
 /** @internal This is used in netCDF-4 files for dimensions without
  * coordinate vars. */
@@ -483,10 +493,6 @@ by the desired type. */
  * our mistake of having chunksizes be first ints, then
  * size_t. Doh! */
 #define NC_HAVE_NEW_CHUNKING_API 1
-
-/* Errors for all remote access methods(e.g. DAP and CDMREMOTE)*/
-#define NC_EURL         (NC_EDAPURL)   /**< Malformed URL */
-#define NC_ECONSTRAINT  (NC_EDAPCONSTRAINT)   /**< Malformed Constraint*/
 
 /*
  * The Interface
@@ -851,6 +857,10 @@ EXTERNL int
 nc_inq_var_deflate(int ncid, int varid, int *shufflep,
                    int *deflatep, int *deflate_levelp);
 
+/* Set szip compression for a variable. */
+EXTERNL int nc_def_var_szip(int ncid, int varid, int options_mask,
+                            int pixels_per_block);
+
 /* Find out szip settings of a var. */
 EXTERNL int
 nc_inq_var_szip(int ncid, int varid, int *options_maskp, int *pixels_per_blockp);
@@ -894,7 +904,7 @@ nc_inq_var_endian(int ncid, int varid, int *endianp);
 EXTERNL int
 nc_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams, const unsigned int* parms);
 
-/* Learn about the filter on a variable */
+/* Learn about the first filter on a variable */
 EXTERNL int
 nc_inq_var_filter(int ncid, int varid, unsigned int* idp, size_t* nparams, unsigned int* params);
 
