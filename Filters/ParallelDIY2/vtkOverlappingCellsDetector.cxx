@@ -289,6 +289,7 @@ vtkCxxSetObjectMacro(vtkOverlappingCellsDetector, Controller, vtkMultiProcessCon
 vtkOverlappingCellsDetector::vtkOverlappingCellsDetector()
   : Controller(nullptr)
   , NumberOfOverlapsPerCellArrayName(nullptr)
+  , Tolerance(0.0)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->SetNumberOfOverlapsPerCellArrayName("NumberOfOverlapsPerCell");
@@ -736,8 +737,9 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
   queryNumberOfOverlapsPerCellsArray->Fill(0.0);
 
   // Handling case where both input data sets point to the same address.
-  vtkDataArray* numberOfCollisionPerCellsArray = queryCellDataSet != cellDataSet
-    ? cellDataSet->GetCellData()->GetArray(this->GetNumberOfOverlapsPerCellArrayName())
+  vtkIdTypeArray* numberOfCollisionPerCellsArray = queryCellDataSet != cellDataSet
+    ? vtkArrayDownCast<vtkIdTypeArray>(
+        cellDataSet->GetCellData()->GetArray(this->GetNumberOfOverlapsPerCellArrayName()))
     : queryNumberOfOverlapsPerCellsArray;
 
   vtkNew<vtkIdList> neighborIds;
@@ -785,7 +787,7 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
     const vtkBoundingBox& bbox = queryCellBoundingBoxes[id];
 
     // We need to shrink currentCell to discard false positive from adjacent cells.
-    double currentCellTolerance = ComputeEpsilon(bbox);
+    double currentCellTolerance = std::max(ComputeEpsilon(bbox), 0.5 * this->Tolerance);
     currentCell->Inflate(-currentCellTolerance);
 
     vtkIdType intersectionCount = 0;
@@ -821,13 +823,14 @@ bool vtkOverlappingCellsDetector::DetectOverlappingCells(vtkDataSet* queryCellDa
         neighborCell->DeepCopy(cellDataSet->GetCell(neighborId));
 
         // Shrinking this cell as well.
-        double neighborCellTolerance = ComputeEpsilon(cellBoundingBoxes[neighborId]);
+        double neighborCellTolerance =
+          std::max(ComputeEpsilon(cellBoundingBoxes[neighborId]), 0.5 * this->Tolerance);
         neighborCell->Inflate(-neighborCellTolerance);
         if (currentCell->IntersectWithCell(neighborCell, bbox, cellBoundingBoxes[neighborId]))
         {
           ++intersectionCount;
-          numberOfCollisionPerCellsArray->SetTuple1(
-            neighborId, numberOfCollisionPerCellsArray->GetTuple1(neighborId) + 1);
+          numberOfCollisionPerCellsArray->SetValue(
+            neighborId, numberOfCollisionPerCellsArray->GetValue(neighborId) + 1);
           collisionListMap[neighborId].insert(id);
         }
       }
@@ -850,4 +853,5 @@ void vtkOverlappingCellsDetector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "NumberOfOverlapsPerCellArrayName: " << this->NumberOfOverlapsPerCellArrayName
      << std::endl;
+  os << indent << "Tolerance: " << this->Tolerance << std::endl;
 }
