@@ -14,10 +14,6 @@
 #include "config.h"
 #include "ncdispatch.h"
 
-/** This is the max size of an SD dataset name in HDF4 (from HDF4
- * documentation).*/
-#define NC_MAX_HDF4_NAME 64
-
 /** This is the max number of dimensions for a HDF4 SD dataset (from
  * HDF4 documentation). */
 #define NC_MAX_HDF4_DIMS 32

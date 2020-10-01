@@ -72,7 +72,7 @@ NC4_get_var_chunk_cache(int ncid, int varid, size_t *sizep,
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param sizep Gets size in bytes of cache.
+ * @param sizep Gets size in MB of cache.
  * @param nelemsp Gets number of element slots in cache.
  * @param preemptionp Gets cache swapping setting.
  *
@@ -123,7 +123,7 @@ nc_get_var_chunk_cache_ints(int ncid, int varid, int *sizep,
  * @param deflatep Gets deflate setting.
  * @param deflate_levelp Gets deflate level.
  * @param fletcher32p Gets fletcher32 setting.
- * @param contiguousp Gets contiguous setting.
+ * @param storagep Gets storage setting.
  * @param chunksizesp Gets chunksizes.
  * @param no_fill Gets fill mode.
  * @param fill_valuep Gets fill value.
@@ -145,7 +145,7 @@ int
 NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                 int *ndimsp, int *dimidsp, int *nattsp,
                 int *shufflep, int *deflatep, int *deflate_levelp,
-                int *fletcher32p, int *contiguousp, size_t *chunksizesp,
+                int *fletcher32p, int *storagep, size_t *chunksizesp,
                 int *no_fill, void *fill_valuep, int *endiannessp,
                 unsigned int *idp, size_t *nparamsp, unsigned int *params)
 {
@@ -187,33 +187,47 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     if (nattsp)
         *nattsp = ncindexcount(var->att);
 
-    /* Chunking stuff. */
-    if (!var->contiguous && chunksizesp)
+    /* Did the user want the chunksizes? */
+    if (var->storage == NC_CHUNKED && chunksizesp)
+    {
         for (d = 0; d < var->ndims; d++)
         {
             chunksizesp[d] = var->chunksizes[d];
             LOG((4, "chunksizesp[%d]=%d", d, chunksizesp[d]));
         }
+    }
 
-    if (contiguousp)
-        *contiguousp = var->contiguous ? NC_CONTIGUOUS : NC_CHUNKED;
+    /* Did the user inquire about the storage? */
+    if (storagep)
+	*storagep = var->storage;
 
     /* Filter stuff. */
-    if (deflatep)
-        *deflatep = (int)var->deflate;
-    if (deflate_levelp)
-        *deflate_levelp = var->deflate_level;
     if (shufflep)
         *shufflep = (int)var->shuffle;
     if (fletcher32p)
         *fletcher32p = (int)var->fletcher32;
 
-    if (idp)
-        *idp = var->filterid;
-    if (nparamsp)
-        *nparamsp = (var->params == NULL ? 0 : var->nparams);
-    if (params && var->params != NULL)
-        memcpy(params,var->params,var->nparams*sizeof(unsigned int));
+    if (deflatep)
+	return NC_EFILTER;
+
+    if (idp) {
+#if 0
+        NC* nc = h5->controller;
+	NC_FILTER_ACTION action;
+	action.action = NCFILTER_INQ_FILTER;
+	action.format = NC_FORMATX_NC_HDF5;
+	action.id =  (idp)?*idp:0;
+	action.nelems = (nparamsp)?*nparamsp:0;
+	action.elems = params;
+	if((retval = nc->dispatch->filter_actions(ncid,varid,&action)) == NC_NOERR) {
+	    if(idp) *idp = action.id;
+	    if(nparamsp) *nparamsp = action.nelems;
+	}
+	return retval;
+#else
+	return NC_EFILTER;
+#endif
+    }
 
     /* Fill value stuff. */
     if (no_fill)
@@ -276,7 +290,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param contiguousp Gets contiguous setting.
+ * @param storagep Gets contiguous setting.
  * @param chunksizesp Gets chunksizes.
  *
  * @returns ::NC_NOERR No error.
@@ -287,7 +301,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
  * @author Ed Hartnett
  */
 int
-nc_inq_var_chunking_ints(int ncid, int varid, int *contiguousp, int *chunksizesp)
+nc_inq_var_chunking_ints(int ncid, int varid, int *storagep, int *chunksizesp)
 {
     NC_VAR_INFO_T *var;
     size_t *cs = NULL;
@@ -305,11 +319,11 @@ nc_inq_var_chunking_ints(int ncid, int varid, int *contiguousp, int *chunksizesp
 
     /* Call the netcdf-4 version directly. */
     retval = NC4_inq_var_all(ncid, varid, NULL, NULL, NULL, NULL, NULL,
-                             NULL, NULL, NULL, NULL, contiguousp, cs, NULL,
+                             NULL, NULL, NULL, NULL, storagep, cs, NULL,
                              NULL, NULL, NULL, NULL, NULL);
 
     /* Copy from size_t array. */
-    if (!retval && chunksizesp && var->contiguous == NC_CHUNKED)
+    if (!retval && chunksizesp && var->storage == NC_CHUNKED)
     {
         for (i = 0; i < var->ndims; i++)
         {
@@ -421,6 +435,13 @@ NC4_var_par_access(int ncid, int varid, int par_access)
     var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid);
     if (!var) return NC_ENOTVAR;
     assert(var->hdr.id == varid);
+
+    /* If zlib, shuffle, or fletcher32 filters are in use, then access
+     * must be collective. Fail an attempt to set such a variable to
+     * independent access. */
+    if ((nclistlength(var->filters) > 0 || var->shuffle || var->fletcher32) &&
+        par_access == NC_INDEPENDENT)
+        return NC_EINVAL;
 
     if (par_access)
         var->parallel_access = NC_COLLECTIVE;

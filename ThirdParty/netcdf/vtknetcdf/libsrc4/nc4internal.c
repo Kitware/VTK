@@ -16,6 +16,8 @@
  * @author Ed Hartnett, Dennis Heimbigner, Ward Fisher
  */
 #include "config.h"
+#include "netcdf.h"
+#include "netcdf_filter.h"
 #include "nc4internal.h"
 #include "nc.h" /* from libsrc */
 #include "ncdispatch.h" /* from libdispatch */
@@ -25,6 +27,8 @@
 size_t nc4_chunk_cache_size = CHUNK_CACHE_SIZE;            /**< Default chunk cache size. */
 size_t nc4_chunk_cache_nelems = CHUNK_CACHE_NELEMS;        /**< Default chunk cache number of elements. */
 float nc4_chunk_cache_preemption = CHUNK_CACHE_PREEMPTION; /**< Default chunk cache preemption. */
+
+static void freefilterlist(NClist* filters);
 
 #ifdef LOGGING
 /* This is the severity level of messages which will be logged. Use
@@ -1335,9 +1339,8 @@ var_free(NC_VAR_INFO_T *var)
     if (var->dimscale_attached)
         free(var->dimscale_attached);
 
-    /* Release parameter information. */
-    if (var->params)
-        free(var->params);
+    /* Release filter information. */
+    freefilterlist(var->filters);
 
     /* Delete any format-specific info. */
     if (var->format_var_info)
@@ -1454,9 +1457,11 @@ nc4_rec_grp_del(NC_GRP_INFO_T *grp)
     ncindexfree(grp->att);
 
     /* Delete all vars. */
-    for (i = 0; i < ncindexsize(grp->vars); i++)
-        if ((retval = var_free((NC_VAR_INFO_T *)ncindexith(grp->vars, i))))
+    for (i = 0; i < ncindexsize(grp->vars); i++) {
+	NC_VAR_INFO_T* v = (NC_VAR_INFO_T *)ncindexith(grp->vars, i);
+        if ((retval = var_free(v)))
             return retval;
+    }
     ncindexfree(grp->vars);
 
     /* Delete all dims, and free the list of dims. */
@@ -1643,7 +1648,6 @@ rec_print_metadata(NC_GRP_INFO_T *grp, int tab_count)
     NC_TYPE_INFO_T *type;
     NC_FIELD_INFO_T *field;
     char tabs[MAX_NESTS+1] = "";
-    char *dims_string = NULL;
     char temp_string[10];
     int t, retval, d, i;
 
@@ -1674,6 +1678,9 @@ rec_print_metadata(NC_GRP_INFO_T *grp, int tab_count)
     for (i = 0; i < ncindexsize(grp->vars); i++)
     {
         int j;
+        char storage_str[NC_MAX_NAME] = "";
+        char *dims_string = NULL;
+
         var = (NC_VAR_INFO_T*)ncindexith(grp->vars,i);
         assert(var);
         if (var->ndims > 0)
@@ -1687,9 +1694,18 @@ rec_print_metadata(NC_GRP_INFO_T *grp, int tab_count)
                 strcat(dims_string, temp_string);
             }
         }
-        LOG((2, "%s VARIABLE - varid: %d name: %s ndims: %d dimscale: %d dimids:%s",
-             tabs, var->hdr.id, var->hdr.name, var->ndims, (int)var->dimscale,
-             (dims_string ? dims_string : " -")));
+        if (!var->meta_read)
+            strcat(storage_str, "unknown");
+        else if (var->storage == NC_CONTIGUOUS)
+            strcat(storage_str, "contiguous");
+        else if (var->storage == NC_COMPACT)
+            strcat(storage_str, "compact");
+        else
+            strcat(storage_str, "chunked");
+        LOG((2, "%s VARIABLE - varid: %d name: %s ndims: %d dimscale: %d "
+             "dimids:%s storage: %s", tabs, var->hdr.id, var->hdr.name,
+             var->ndims, (int)var->dimscale,
+             (dims_string ? dims_string : " -"), storage_str));
         for (j = 0; j < ncindexsize(var->att); j++)
         {
             att = (NC_ATT_INFO_T *)ncindexith(var->att, j);
@@ -1808,4 +1824,16 @@ NC4_show_metadata(int ncid)
     nc_log_level = old_log_level;
 #endif /*LOGGING*/
     return retval;
+}
+
+static void
+freefilterlist(NClist* filters)
+{
+    int i;
+    if(filters == NULL) return;
+    for(i=0;i<nclistlength(filters);i++) {
+	NC_FILTER_SPEC_HDF5* f = nclistget(filters,i);
+	NC4_freefilterspec(f);
+    }
+    nclistfree(filters);
 }

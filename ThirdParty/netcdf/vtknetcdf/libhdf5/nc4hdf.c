@@ -15,6 +15,9 @@
  */
 
 #include "config.h"
+#include "netcdf.h"
+#include "nc4internal.h"
+#include "ncdispatch.h"
 #include "hdf5internal.h"
 #include <math.h>
 
@@ -24,11 +27,6 @@
 #endif
 
 #define NC_HDF5_MAX_NAME 1024 /**< @internal Max size of HDF5 name. */
-
-/* WARNING: GLOBAL VARIABLE */
-
-/* Define list of registered filters */
-static NClist* filters = NULL;
 
 /**
  * @internal Flag attributes in a linked list as dirty.
@@ -907,27 +905,43 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
             BAIL(NC_EHDFERR);
     }
 
-    /* If the user wants to deflate the data, set that up now. */
-    if (var->deflate) {
-        if (H5Pset_deflate(plistid, var->deflate_level) < 0)
-            BAIL(NC_EHDFERR);
-    } else if(var->filterid) {
-        /* Handle szip case here */
-        if(var->filterid == H5Z_FILTER_SZIP) {
-            int options_mask;
-            int bits_per_pixel;
-            if(var->nparams != 2)
-                BAIL(NC_EFILTER);
-            options_mask = (int)var->params[0];
-            bits_per_pixel = (int)var->params[1];
-            if(H5Pset_szip(plistid, options_mask, bits_per_pixel) < 0)
-                BAIL(NC_EFILTER);
-        } else {
-            herr_t code = H5Pset_filter(plistid, var->filterid, H5Z_FLAG_MANDATORY, var->nparams, var->params);
-            if(code < 0) {
-                BAIL(NC_EFILTER);
+    /* If the user wants to compress the data, using either zlib
+     * (a.k.a deflate) or szip, or another filter, set that up now.
+     * Szip and zip can be turned on
+     * either directly with nc_def_var_szip/deflate(), or using
+     * nc_def_var_filter(). If the user
+     * has specified a filter, it will be applied here. */
+    if(var->filters != NULL) {
+	int j;
+	for(j=0;j<nclistlength(var->filters);j++) {
+	    NC_FILTER_SPEC_HDF5* fi = (NC_FILTER_SPEC_HDF5*)nclistget(var->filters,j);
+	    size_t nparams;
+	    unsigned int* params;
+	    nparams = fi->nparams;
+	    params = fi->params;
+            if(fi->filterid == H5Z_FILTER_DEFLATE) {/* Handle zip case here */
+                unsigned level;
+                if(nparams != 1)
+                    BAIL(NC_EFILTER);
+                level = (int)params[0];
+                if(H5Pset_deflate(plistid, level) < 0)
+                    BAIL(NC_EFILTER);
+            } else if(fi->filterid == H5Z_FILTER_SZIP) {/* Handle szip case here */
+                int options_mask;
+                int bits_per_pixel;
+                if(nparams != 2)
+                    BAIL(NC_EFILTER);
+                options_mask = (int)params[0];
+                bits_per_pixel = (int)params[1];
+                if(H5Pset_szip(plistid, options_mask, bits_per_pixel) < 0)
+                    BAIL(NC_EFILTER);
+            } else {
+                herr_t code = H5Pset_filter(plistid, (unsigned int)fi->filterid, H5Z_FLAG_MANDATORY, nparams, params);
+                if(code < 0) {
+                    BAIL(NC_EFILTER);
+                }
             }
-        }
+	}
     }
 
     /* If the user wants to fletcher error correction, set that up now. */
@@ -954,18 +968,20 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
         /* If there are no unlimited dims, and no filters, and the user
          * has not specified chunksizes, use contiguous variable for
          * better performance. */
-        if (!var->shuffle && !var->deflate && !var->fletcher32 &&
+        if (!var->shuffle && !var->fletcher32 && nclistlength(var->filters) == 0 &&
             (var->chunksizes == NULL || !var->chunksizes[0]) && !unlimdim)
-            var->contiguous = NC_TRUE;
+	    var->storage = NC_CONTIGUOUS;
 
-        /* Gather current & maximum dimension sizes, along with chunk sizes */
+        /* Gather current & maximum dimension sizes, along with chunk
+         * sizes. */
         for (d = 0; d < var->ndims; d++)
         {
             dim = var->dim[d];
             assert(dim && dim->hdr.id == var->dimids[d]);
             dimsize[d] = dim->unlimited ? NC_HDF5_UNLIMITED_DIMSIZE : dim->len;
             maxdimsize[d] = dim->unlimited ? H5S_UNLIMITED : (hsize_t)dim->len;
-            if (!var->contiguous) {
+            if (var->storage == NC_CHUNKED)
+            {
                 if (var->chunksizes[d])
                     chunksize[d] = var->chunksizes[d];
                 else
@@ -994,17 +1010,6 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
             }
         }
 
-        if (var->contiguous)
-        {
-            if (H5Pset_layout(plistid, H5D_CONTIGUOUS) < 0)
-                BAIL(NC_EHDFERR);
-        }
-        else
-        {
-            if (H5Pset_chunk(plistid, var->ndims, chunksize) < 0)
-                BAIL(NC_EHDFERR);
-        }
-
         /* Create the dataspace. */
         if ((spaceid = H5Screate_simple(var->ndims, dimsize, maxdimsize)) < 0)
             BAIL(NC_EHDFERR);
@@ -1015,13 +1020,32 @@ var_create_dataset(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, nc_bool_t write_dimid
             BAIL(NC_EHDFERR);
     }
 
+    /* Set the var storage to contiguous, compact, or chunked. Don't
+     * try to set chunking for scalar vars, they will default to
+     * contiguous if not set to compact. */
+    if (var->storage == NC_CONTIGUOUS)
+    {
+        if (H5Pset_layout(plistid, H5D_CONTIGUOUS) < 0)
+            BAIL(NC_EHDFERR);
+    }
+    else if (var->storage == NC_COMPACT)
+    {
+        if (H5Pset_layout(plistid, H5D_COMPACT) < 0)
+            BAIL(NC_EHDFERR);
+    }
+    else if (var->ndims)
+    {
+        if (H5Pset_chunk(plistid, var->ndims, chunksize) < 0)
+            BAIL(NC_EHDFERR);
+    }
+
     /* Turn on creation order tracking. */
     if (H5Pset_attr_creation_order(plistid, H5P_CRT_ORDER_TRACKED|
                                    H5P_CRT_ORDER_INDEXED) < 0)
         BAIL(NC_EHDFERR);
 
     /* Set per-var chunk cache, for chunked datasets. */
-    if (!var->contiguous && var->chunk_cache_size)
+    if (var->storage == NC_CHUNKED && var->chunk_cache_size)
         if (H5Pset_chunk_cache(access_plistid, var->chunk_cache_nelems,
                                var->chunk_cache_size, var->chunk_cache_preemption) < 0)
             BAIL(NC_EHDFERR);
@@ -1093,10 +1117,13 @@ exit:
  * @internal Adjust the chunk cache of a var for better
  * performance.
  *
+ * @note For contiguous and compact storage vars, or when parallel I/O
+ * is in use, this function will do nothing and return ::NC_NOERR;
+ *
  * @param grp Pointer to group info struct.
  * @param var Pointer to var info struct.
  *
- * @return NC_NOERR No error.
+ * @return ::NC_NOERR No error.
  * @author Ed Hartnett
  */
 int
@@ -1106,11 +1133,14 @@ nc4_adjust_var_cache(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
     int d;
     int retval;
 
-    /* Nothing to be done. */
-    if (var->contiguous)
+    /* Nothing to be done for contiguous or compact data. */
+    if (var->storage != NC_CHUNKED)
         return NC_NOERR;
+
 #ifdef USE_PARALLEL4
-    return NC_NOERR;
+    /* Don't set cache for files using parallel I/O. */
+    if (grp->nc4_info->parallel)
+        return NC_NOERR;
 #endif
 
     /* How many bytes in the chunk? */
@@ -2525,7 +2555,7 @@ done:
     return stat;
 }
 
-static int NC4_get_strict_att(NC_FILE_INFO_T*);
+static int NC4_strict_att_exists(NC_FILE_INFO_T*);
 static int NC4_walk(hid_t, int*);
 
 /**
@@ -2557,11 +2587,12 @@ NC4_isnetcdf4(struct NC_FILE_INFO* h5)
 {
     int stat;
     int isnc4 = 0;
+    int exists;
     int count;
 
     /* Look for NC3_STRICT_ATT_NAME */
-    isnc4 = NC4_get_strict_att(h5);
-    if(isnc4 > 0)
+    exists = NC4_strict_att_exists(h5);
+    if(exists)
         goto done;
     /* attribute did not exist */
     /* => last resort: walk the HDF5 file looking for markers */
@@ -2578,26 +2609,26 @@ done:
 }
 
 /**
- * @internal Get the NC3 strict attribute.
+ * @internal See if the NC3 strict attribute exists.
  *
  * @param h5 Pointer to HDF5 file info struct.
  *
- * @returns NC_NOERR No error.
+ * @returns 1 if error || exists; 0 otherwise
  * @author Dennis Heimbigner.
  */
 static int
-NC4_get_strict_att(NC_FILE_INFO_T *h5)
+NC4_strict_att_exists(NC_FILE_INFO_T *h5)
 {
     hid_t grpid = -1;
-    hid_t attid = -1;
-
+    htri_t attr_exists;
+    
     /* Get root group ID. */
     grpid = ((NC_HDF5_GRP_INFO_T *)(h5->root_grp->format_grp_info))->hdf_grpid;
 
-    /* Try to extract the NC3_STRICT_ATT_NAME attribute */
-    attid = H5Aopen_name(grpid, NC3_STRICT_ATT_NAME);
-    H5Aclose(attid);
-    return attid;
+    /* See if the NC3_STRICT_ATT_NAME attribute exists */
+    if ((attr_exists = H5Aexists(grpid, NC3_STRICT_ATT_NAME)) < 0)
+        return 1;
+    return (attr_exists?1:0);
 }
 
 /**
@@ -2666,121 +2697,22 @@ NC4_walk(hid_t gid, int* countp)
     return ncstat;
 }
 
-
-/**************************************************/
-/* Filter registration support */
-
-static int
-filterlookup(int id)
-{
-    int i;
-    if(filters == NULL)
-	filters = nclistnew();
-    for(i=0;i<nclistlength(filters);i++) {
-	NC_FILTER_INFO* x = nclistget(filters,i);
-	if(x != NULL && x->id == id) return i; /* return position */
-    }
-    return -1;
-}
-
-static void
-reclaiminfo(NC_FILTER_INFO* info)
-{
-    if(info != NULL)
-        nullfree(info->info);
-    nullfree(info);
-}
-
-static int
-filterremove(int pos)
-{
-    NC_FILTER_INFO* info = NULL;
-    if(filters == NULL)
-	filters = nclistnew();
-    if(pos < 0 || pos >= nclistlength(filters))
-	return NC_EINVAL;
-    info = nclistget(filters,pos);
-    reclaiminfo(info);
-    nclistremove(filters,pos);
-    return NC_NOERR;
-}
-
-static NC_FILTER_INFO*
-dupfilterinfo(NC_FILTER_INFO* info)
-{
-    NC_FILTER_INFO* dup = NULL;
-    if(info == NULL) goto fail;
-    if(info->info == NULL) goto fail;
-    if((dup = calloc(1,sizeof(NC_FILTER_INFO))) == NULL) goto fail;
-    *dup = *info;
-    if((dup->info = calloc(1,sizeof(H5Z_class2_t))) == NULL) goto fail;
-    {
-        H5Z_class2_t* h5dup = (H5Z_class2_t*)dup->info;
-        H5Z_class2_t* h5info = (H5Z_class2_t*)info->info;
-        *h5dup = *h5info;
-    }
-    return dup;
-fail:
-    reclaiminfo(dup);
-    return NULL;
-}
-
 int
-nc4_filter_action(int op, int format, int id, NC_FILTER_INFO* info)
+NC4_hdf5_remove_filter(NC_VAR_INFO_T* var, unsigned int filterid)
 {
     int stat = NC_NOERR;
-    H5Z_class2_t* h5filterinfo = NULL;
-    herr_t herr;
-    int pos = -1;
-    NC_FILTER_INFO* dup = NULL;
+    NC_HDF5_VAR_INFO_T *hdf5_var;
+    hid_t propid = -1;
+    herr_t herr = -1;
+    H5Z_filter_t hft;
 
-    if(format != NC_FILTER_FORMAT_HDF5)
-	{stat = NC_ENOTNC4; goto done;}
+    hdf5_var = (NC_HDF5_VAR_INFO_T *)var->format_var_info;
+    if ((propid = H5Dget_create_plist(hdf5_var->hdf_datasetid)) < 0)
+	{stat = NC_EHDFERR; goto done;}
 
-    switch (op) {
-    case FILTER_REG: /* Ignore id argument */
-	if(info == NULL || info->info == NULL)
-	    {stat = NC_EINVAL; goto done;}
-	if(info->version != NC_FILTER_INFO_VERSION
-	   || info->format != NC_FILTER_FORMAT_HDF5)
-	    {stat = NC_ENOTNC4; goto done;}
-        h5filterinfo = info->info;
-        /* Another sanity check */
-        if(info->id != h5filterinfo->id)
-	    {stat = NC_EINVAL; goto done;}
-	/* See if this filter is already defined */
-	if((pos = filterlookup(id)) >= 0)
-	    {stat = NC_ENAMEINUSE; goto done;} /* Already defined */
-	if((herr = H5Zregister(h5filterinfo)) < 0)
-	    {stat = NC_EFILTER; goto done;}
-	/* Save a copy of the passed in info */
-	if((dup = dupfilterinfo(info)) == NULL)
-	    {stat = NC_ENOMEM; goto done;}		
-	nclistpush(filters,dup);	
-	break;
-    case FILTER_UNREG:
-	if(id <= 0)
-	    {stat = NC_ENOTNC4; goto done;}
-	/* See if this filter is already defined */
-	if((pos = filterlookup(id)) < 0)
-	    {stat = NC_EFILTER; goto done;} /* Not defined */
-	if((herr = H5Zunregister(id)) < 0)
-	    {stat = NC_EFILTER; goto done;}
-	if((stat=filterremove(pos))) goto done;
-	break;
-    case FILTER_INQ:
-	if(id <= 0)
-	    {stat = NC_ENOTNC4; goto done;}
-	/* Look up the id in our local table */
-	if((pos = filterlookup(id)) < 0)
-	    {stat = NC_EFILTER; goto done;} /* Not defined */
-	if(info != NULL) {
-	    *info = *((NC_FILTER_INFO*)nclistget(filters,pos));
-	}
-	break;
-    default:
-	{stat = NC_EINTERNAL; goto done;}	
-    }
+    hft = filterid;
+    if((herr = H5Premove_filter(propid,hft)) < 0)
+	{stat = NC_EHDFERR; goto done;}
 done:
     return stat;
-} 
+}

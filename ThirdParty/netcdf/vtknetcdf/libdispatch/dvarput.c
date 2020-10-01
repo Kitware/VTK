@@ -221,11 +221,7 @@ NCDEFAULT_put_vars(int ncid, int varid, const size_t * start,
 #endif
         else {
 	  /* mystart is unsigned, will never be < 0 */
-#ifdef RELAX_COORD_BOUND
 	  if (mystart[i] > dimlen) return NC_EINVALCOORDS;
-#else
-          if (mystart[i] >= dimlen) return NC_EINVALCOORDS;
-#endif
        }
 	if(edges == NULL) {
 #if 0
@@ -239,12 +235,12 @@ NCDEFAULT_put_vars(int ncid, int varid, const size_t * start,
 	      myedges[i] = varshape[i] - mystart[i];
 	} else
 	    myedges[i] = edges[i];
-#ifdef RELAX_COORD_BOUND
+
 	if(!is_recdim[i]) {
 	  if (mystart[i] == dimlen && myedges[i] > 0)
               return NC_EINVALCOORDS;
         }
-#endif
+
 	if(!is_recdim[i]) {
           /* myediges is unsigned, will never be < 0 */
 	  if(mystart[i] + myedges[i] > dimlen)
@@ -434,12 +430,8 @@ NCDEFAULT_put_varm(
 
       for (idim = isrecvar; idim <= maxidim; ++idim)
       {
-#ifdef RELAX_COORD_BOUND
 	 if (mystart[idim] > varshape[idim] ||
 	    (mystart[idim] == varshape[idim] && myedges[idim] > 0))
-#else
-         if (mystart[idim] >= varshape[idim])
-#endif
 	 {
 	    status = NC_EINVALCOORDS;
 	    goto done;

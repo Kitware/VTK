@@ -18,6 +18,7 @@
 static const NC_Dispatch HDF5_dispatcher = {
 
     NC_FORMATX_NC4,
+    NC_DISPATCH_VERSION,
 
     NC4_create,
     NC4_open,
@@ -102,6 +103,7 @@ static const NC_Dispatch HDF5_dispatcher = {
     NC4_HDF5_set_var_chunk_cache,
     NC4_get_var_chunk_cache,
 
+    NC4_filter_actions,    
 };
 
 const NC_Dispatch* HDF5_dispatch_table = NULL; /* moved here from ddispatch.c */

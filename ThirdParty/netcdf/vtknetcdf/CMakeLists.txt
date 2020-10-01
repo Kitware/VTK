@@ -21,6 +21,7 @@ set(sources
   libdispatch/denum.c
   libdispatch/derror.c
   libdispatch/dfile.c
+  libdispatch/dfilter.c
   libdispatch/dgroup.c
   libdispatch/dinfermodel.c
   libdispatch/dinternal.c
@@ -80,9 +81,11 @@ set(sources
 
   libhdf5/nc4hdf.c
   libhdf5/nc4info.c
-  libhdf5/hdf5file.c
   libhdf5/hdf5attr.c
+  libhdf5/hdf5debug.c
   libhdf5/hdf5dim.c
+  libhdf5/hdf5file.c
+  libhdf5/hdf5filter.c
   libhdf5/hdf5grp.c
   libhdf5/hdf5type.c
   libhdf5/hdf5internal.c
