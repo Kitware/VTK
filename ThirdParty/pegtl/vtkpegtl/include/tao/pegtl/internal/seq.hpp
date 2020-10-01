@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_SEQ_HPP
@@ -6,7 +6,6 @@
 
 #include "../config.hpp"
 
-#include "rule_conjunction.hpp"
 #include "skip_control.hpp"
 #include "trivial.hpp"
 
@@ -66,9 +65,17 @@ namespace tao
             {
                auto m = in.template mark< M >();
                using m_t = decltype( m );
-               return m( rule_conjunction< Rules... >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) );
+#ifdef __cpp_fold_expressions
+               return m( ( Control< Rules >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) && ... ) );
+#else
+               bool result = true;
+               using swallow = bool[];
+               (void)swallow{ result = result && Control< Rules >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... )... };
+               return m( result );
+#endif
             }
-         };
+
+         };  // namespace internal
 
          template< typename... Rules >
          struct skip_control< seq< Rules... > > : std::true_type

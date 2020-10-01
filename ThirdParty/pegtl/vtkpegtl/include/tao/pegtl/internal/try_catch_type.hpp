@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_INTERNAL_TRY_CATCH_TYPE_HPP
@@ -8,7 +8,6 @@
 
 #include "../config.hpp"
 
-#include "duseltronik.hpp"
 #include "seq.hpp"
 #include "skip_control.hpp"
 #include "trivial.hpp"
@@ -25,7 +24,10 @@ namespace tao
       namespace internal
       {
          template< typename Exception, typename... Rules >
-         struct try_catch_type;
+         struct try_catch_type
+            : try_catch_type< Exception, seq< Rules... > >
+         {
+         };
 
          template< typename Exception >
          struct try_catch_type< Exception >
@@ -33,10 +35,10 @@ namespace tao
          {
          };
 
-         template< typename Exception, typename... Rules >
-         struct try_catch_type
+         template< typename Exception, typename Rule >
+         struct try_catch_type< Exception, Rule >
          {
-            using analyze_t = analysis::generic< analysis::rule_type::seq, Rules... >;
+            using analyze_t = analysis::generic< analysis::rule_type::seq, Rule >;
 
             template< apply_mode A,
                       rewind_mode M,
@@ -52,7 +54,7 @@ namespace tao
                using m_t = decltype( m );
 
                try {
-                  return m( duseltronik< seq< Rules... >, A, m_t::next_rewind_mode, Action, Control >::match( in, st... ) );
+                  return m( Control< Rule >::template match< A, m_t::next_rewind_mode, Action, Control >( in, st... ) );
                }
                catch( const Exception& ) {
                   return false;

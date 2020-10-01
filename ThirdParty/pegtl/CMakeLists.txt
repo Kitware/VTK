@@ -2,7 +2,7 @@ vtk_module_third_party(
   INTERNAL
     HEADER_ONLY
     LICENSE_FILES "vtkpegtl/LICENSE"
-    VERSION       "2.8.1"
+    VERSION       "2.8.3"
   EXTERNAL
     PACKAGE PEGTL
     VERSION 2.0.0

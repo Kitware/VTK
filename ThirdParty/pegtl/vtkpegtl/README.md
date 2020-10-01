@@ -1,7 +1,7 @@
 # Welcome to the PEGTL
 
 [![Release](https://img.shields.io/github/release/taocpp/PEGTL.svg)](https://github.com/taocpp/PEGTL/releases/latest)
-[![Download](https://api.bintray.com/packages/taocpp/public-conan/pegtl%3Ataocpp/images/download.svg)](https://bintray.com/taocpp/public-conan/pegtl%3Ataocpp/_latestVersion)
+[![Download](https://api.bintray.com/packages/conan/conan-center/taocpp-pegtl%3A_/images/download.svg)](https://bintray.com/conan/conan-center/taocpp-pegtl%3A_/_latestVersion)
 [![TravisCI](https://travis-ci.org/taocpp/PEGTL.svg?branch=2.x)](https://travis-ci.org/taocpp/PEGTL)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/pa5sbnw68tu650aq/branch/2.x?svg=true)](https://ci.appveyor.com/project/taocpp/PEGTL)
 [![Coverage](https://coveralls.io/repos/github/taocpp/PEGTL/badge.svg?branch=2.x)](https://coveralls.io/github/taocpp/PEGTL)
@@ -72,7 +72,8 @@ Each commit is automatically tested with multiple architectures, operating syste
   * Mac OS X 10.11, Xcode 7.3
   * macOS 10.12, Xcode 8.3
   * macOS 10.13, Xcode 9.4
-  * macOS 10.14, Xcode 10.2
+  * macOS 10.14, Xcode 10.3
+  * macOS 10.14, Xcode 11.4
 
 * Ubuntu 12.04 LTS (using libstdc++)
 
@@ -81,7 +82,7 @@ Each commit is automatically tested with multiple architectures, operating syste
 * Ubuntu 16.04 LTS (using libstdc++)
 
   * GCC 4.8, 4.9, 5.x, 6.x, 7.x, 8.x, 9.x
-  * Clang 3.5, 3.6, 3.8, 3.9, 4.x, 5.x, 6.x, 7.x, 8.x
+  * Clang 3.5, 3.6, 3.8, 3.9, 4.x, 5.x, 6.x, 7.x, 8.x, 9.x, 10.x
 
 Additionally, each commit is checked with Clang's [Static Analyzer](https://clang-analyzer.llvm.org/), GCC's and Clang's [sanitizers](https://github.com/google/sanitizers), [`clang-tidy`](http://clang.llvm.org/extra/clang-tidy/), and [`valgrind`](http://valgrind.org/).
 Code coverage is automatically measured and the unit tests cover 100% of the core library code (for releases).
@@ -100,6 +101,7 @@ In appreciation of all contributions here are the people that have [directly con
 [<img alt="cdiggins" src="https://avatars2.githubusercontent.com/u/1759994?s=460&v=4?v=4&s=117" width="117">](https://github.com/cdiggins)
 [<img alt="delpinux" src="https://avatars0.githubusercontent.com/u/35096584?v=4&s=117" width="117">](https://github.com/delpinux)
 [<img alt="dkopecek" src="https://avatars2.githubusercontent.com/u/1353140?v=4&s=117" width="117">](https://github.com/dkopecek)
+[<img alt="gene-hightower" src="https://avatars1.githubusercontent.com/u/3957811?v=4&s=117" width="117">](https://github.com/gene-hightower)
 [<img alt="irrequietus" src="https://avatars0.githubusercontent.com/u/231192?v=4&s=117" width="117">](https://github.com/irrequietus)
 [<img alt="jedelbo" src="https://avatars2.githubusercontent.com/u/572755?v=4&s=117" width="117">](https://github.com/jedelbo)
 [<img alt="joelfrederico" src="https://avatars0.githubusercontent.com/u/458871?v=4&s=117" width="117">](https://github.com/joelfrederico)
@@ -120,6 +122,7 @@ In appreciation of all contributions here are the people that have [directly con
 [<img alt="samhocevar" src="https://avatars2.githubusercontent.com/u/245089?v=4&s=117" width="117">](https://github.com/samhocevar)
 [<img alt="sanssecours" src="https://avatars2.githubusercontent.com/u/691989?v=4&s=117" width="117">](https://github.com/sanssecours)
 [<img alt="sgbeal" src="https://avatars1.githubusercontent.com/u/235303?v=4&s=117" width="117">](https://github.com/sgbeal)
+[<img alt="skyrich62" src="https://avatars3.githubusercontent.com/u/23705081?v=4&s=117" width="117">](https://github.com/skyrich62)
 [<img alt="studoot" src="https://avatars1.githubusercontent.com/u/799344?v=4&s=117" width="117">](https://github.com/studoot)
 [<img alt="SvenJo" src="https://avatars1.githubusercontent.com/u/1538181?s=460&v=4?v=4&s=117" width="117">](https://github.com/SvenJo)
 [<img alt="wickedmic" src="https://avatars1.githubusercontent.com/u/12001183?v=4&s=117" width="117">](https://github.com/wickedmic)
@@ -142,7 +145,7 @@ For questions and suggestions regarding the PEGTL, success or failure stories, a
 
 The PEGTL is certified [Open Source](http://www.opensource.org/docs/definition.html) software. It may be used for any purpose, including commercial purposes, at absolutely no cost. It is distributed under the terms of the [MIT license](http://www.opensource.org/licenses/mit-license.html) reproduced here.
 
-> Copyright (c) 2007-2019 Dr. Colin Hirsch and Daniel Frey
+> Copyright (c) 2007-2020 Dr. Colin Hirsch and Daniel Frey
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >

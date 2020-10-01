@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2019-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_PARSE_TREE_TO_DOT_HPP
@@ -76,7 +76,8 @@ namespace tao
                escape( os, s.data(), s.size() );
             }
 
-            void print_dot_node( std::ostream& os, const parse_tree::node& n, const std::string& s )
+            template< typename Node >
+            void print_dot_node( std::ostream& os, const Node& n, const std::string& s )
             {
                os << "  x" << &n << " [ label=\"";
                escape( os, s );
@@ -98,11 +99,11 @@ namespace tao
 
          }  // namespace internal
 
-         void print_dot( std::ostream& os, const parse_tree::node& n )
+         template< typename Node >
+         void print_dot( std::ostream& os, const Node& n )
          {
-            assert( n.is_root() );
             os << "digraph parse_tree\n{\n";
-            internal::print_dot_node( os, n, "ROOT" );
+            internal::print_dot_node( os, n, n.is_root() ? "ROOT" : n.name() );
             os << "}\n";
          }
 

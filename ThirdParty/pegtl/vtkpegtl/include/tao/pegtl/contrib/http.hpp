@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 Dr. Colin Hirsch and Daniel Frey
+// Copyright (c) 2014-2020 Dr. Colin Hirsch and Daniel Frey
 // Please see LICENSE for license or visit https://github.com/taocpp/PEGTL/
 
 #ifndef TAO_PEGTL_CONTRIB_HTTP_HPP
@@ -202,26 +202,43 @@ namespace tao
          {
             namespace chunk_helper
             {
-               template< typename Rule, template< typename... > class Control >
-               struct control
-                  : remove_self_and_first_state< Rule, Control >
+               template< typename Base >
+               struct control;
+
+               template< template< typename... > class Control, typename Rule >
+               struct control< Control< Rule > >
+                  : Control< Rule >
+               {
+                  template< apply_mode A,
+                            rewind_mode M,
+                            template< typename... >
+                            class Action,
+                            template< typename... >
+                            class,
+                            typename Input,
+                            typename State,
+                            typename... States >
+                  static bool match( Input& in, State&& /*unused*/, States&&... st )
+                  {
+                     return Control< Rule >::template match< A, M, Action, Control >( in, st... );
+                  }
+               };
+
+               template< template< typename... > class Control >
+               struct control< Control< chunk_size > >
+                  : remove_first_state< Control< chunk_size > >
                {};
 
                template< template< typename... > class Control >
-               struct control< chunk_size, Control >
-                  : remove_first_state_after_match< Control< chunk_size > >
-               {};
-
-               template< template< typename... > class Control >
-               struct control< chunk_data, Control >
-                  : remove_first_state_after_match< Control< chunk_data > >
+               struct control< Control< chunk_data > >
+                  : remove_first_state< Control< chunk_data > >
                {};
 
                template< template< typename... > class Control >
                struct bind
                {
                   template< typename Rule >
-                  using type = control< Rule, Control >;
+                  using type = control< Control< Rule > >;
                };
 
             }  // namespace chunk_helper
