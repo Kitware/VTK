@@ -1327,6 +1327,35 @@ bool vtkXMLReader::ReadInformation(vtkXMLDataElement* infoRoot, vtkInformation* 
 }
 
 //------------------------------------------------------------------------------
+void vtkXMLReader::MarkIdTypeArrays(vtkXMLDataElement* eDSA)
+{
+  auto gidArrayName = eDSA->GetAttribute(
+    vtkDataSetAttributes::GetAttributeTypeAsString(vtkDataSetAttributes::GLOBALIDS));
+  auto pidArrayName = eDSA->GetAttribute(
+    vtkDataSetAttributes::GetAttributeTypeAsString(vtkDataSetAttributes::PEDIGREEIDS));
+
+  if (gidArrayName == nullptr && pidArrayName == nullptr)
+  {
+    return;
+  }
+  for (int i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
+  {
+    auto eNested = eDSA->GetNestedElement(i);
+    if (auto ename = eNested->GetAttribute("Name"))
+    {
+      if ((gidArrayName && strcmp(ename, gidArrayName) == 0) ||
+        (pidArrayName && strcmp(ename, pidArrayName) == 0))
+      {
+        if (eNested->GetAttribute("IdType") == nullptr)
+        {
+          eNested->SetIntAttribute("IdType", 1);
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkXMLReader::GetLocalDataType(vtkXMLDataElement* da, int dataType)
 {
   int idType;
