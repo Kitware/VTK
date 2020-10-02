@@ -124,7 +124,7 @@ protected:
   bool IsSelectedHT(const vtkHyperTreeGrid* grid, unsigned int treeIndx) const;
 
   // Return the fixedLevel choice for this HyperTree
-  vtkIdType GetFixedLevelOfThisHT(vtkIdType numberOfLevels, unsigned int treeIndx) const;
+  uint32_t GetFixedLevelOfThisHT(uint32_t numberOfLevels, unsigned int treeIndx) const;
 
   const char* GetDataSetName() override;
 
@@ -178,7 +178,7 @@ protected:
   vtkIdType NumberOfPieces;
 
   // Fixed the load maximum level
-  unsigned int FixedLevel = UINT_MAX;
+  uint32_t FixedLevel;
 
   bool Verbose = false;
 

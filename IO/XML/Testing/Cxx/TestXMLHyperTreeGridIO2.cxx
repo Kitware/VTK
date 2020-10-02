@@ -118,6 +118,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
 
   vtkHyperTreeGrid* htgWrite = vtkHyperTreeGrid::SafeDownCast(source->GetOutputDataObject(0));
 
+  std::cout << "Writing TestXMLHyperTreeGridIO2_Appendedv0.htg" << std::endl;
   vtkNew<vtkXMLHyperTreeGridWriter> writer;
   writer->SetFileName(fname.c_str());
   writer->SetDataModeToAppended();
@@ -125,6 +126,7 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
   writer->SetDataSetMajorVersion(0);
   writer->Write();
 
+  std::cout << "Reading TestXMLHyperTreeGridIO2_Appendedv0.htg" << std::endl;
   vtkNew<vtkXMLHyperTreeGridReader> reader;
   reader->SetFileName(fname.c_str());
   reader->Update();
@@ -137,10 +139,13 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  std::cout << "Writing TestXMLHyperTreeGridIO2_Appendedv1.htg" << std::endl;
   fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Appendedv1.htg");
   writer->SetDataSetMajorVersion(1);
   writer->SetFileName(fname.c_str());
   writer->Write();
+
+  std::cout << "Reading TestXMLHyperTreeGridIO2_Appendedv1.htg" << std::endl;
   reader->SetFileName(fname.c_str());
   reader->Update();
   htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
@@ -150,11 +155,14 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  std::cout << "Writing TestXMLHyperTreeGridIO2_Binaryv0.htg" << std::endl;
   fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Binaryv0.htg");
   writer->SetDataSetMajorVersion(0);
   writer->SetFileName(fname.c_str());
   writer->SetDataModeToBinary();
   writer->Write();
+
+  std::cout << "Reading TestXMLHyperTreeGridIO2_Binaryv0.htg" << std::endl;
   reader->SetFileName(fname.c_str());
   reader->Update();
   htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
@@ -164,10 +172,13 @@ int TestXMLHyperTreeGridIO2(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  std::cout << "Writing TestXMLHyperTreeGridIO2_Binaryv1.htg" << std::endl;
   fname = tdir + std::string("/TestXMLHyperTreeGridIO2_Binaryv1.htg");
   writer->SetDataSetMajorVersion(1);
   writer->SetFileName(fname.c_str());
   writer->Write();
+
+  std::cout << "Reading TestXMLHyperTreeGridIO2_Binaryv1.htg" << std::endl;
   reader->SetFileName(fname.c_str());
   reader->Update();
   htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));

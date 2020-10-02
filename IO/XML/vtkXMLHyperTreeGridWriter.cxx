@@ -465,6 +465,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
     }
     descriptor->Squeeze();
     this->Descriptors.emplace_back(vtkSmartPointer<vtkBitArray>::Take(descriptor));
+    auto& desc = this->Descriptors.back();
 
     // Mask BitAarray
     vtkBitArray* mask = input->GetMask() ? vtkBitArray::New() : nullptr;
@@ -498,8 +499,8 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
     // Write the descriptor and mask BitArrays
     if (this->DataMode == Appended)
     {
-      this->WriteArrayAppended(descriptor, infoIndent, this->DescriptorOMG->GetElement(treeIndx),
-        "Descriptor", descriptor->GetNumberOfValues());
+      this->WriteArrayAppended(desc, infoIndent, this->DescriptorOMG->GetElement(treeIndx),
+        "Descriptor", desc->GetNumberOfValues());
       if (input->GetMask())
       {
         this->WriteArrayAppended(
@@ -508,7 +509,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_0(vtkIndent indent)
     }
     else
     {
-      this->WriteArrayInline(descriptor, infoIndent, "Descriptor", descriptor->GetNumberOfValues());
+      this->WriteArrayInline(desc, infoIndent, "Descriptor", desc->GetNumberOfValues());
       if (input->GetMask())
       {
         this->WriteArrayInline(mask, infoIndent, "Mask", mask->GetNumberOfValues());
@@ -609,7 +610,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     os << treeIndent << "<Tree";
     this->WriteScalarAttribute("Index", inIndex);
     vtkHyperTree* tree = input->GetTree(inIndex);
-    const vtkIdType numberOfLevels = tree->GetNumberOfLevels();
+    const int numberOfLevels = static_cast<int>(tree->GetNumberOfLevels());
     this->WriteScalarAttribute("NumberOfLevels", numberOfLevels);
 
     vtkTypeInt64Array* nbVerticesByLevel = vtkTypeInt64Array::New();
