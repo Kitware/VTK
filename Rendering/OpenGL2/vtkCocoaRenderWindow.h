@@ -153,11 +153,19 @@ public:
     vtkDebugMacro("Method not implemented.");
     return nullptr;
   }
-  void SetDisplayId(void*) override
+
+  /**
+   * Set the index of the NSScreen on which the window should be created.
+   * This is useful for creating the render window on secondary displays.
+   * By default, the DisplayId is 0, meaning the window will appear on
+   * the main screen. This function must be called before the window is
+   * created.
+   */
+  void SetDisplayId(void* displayId) override
   {
-    // no-op
-    vtkDebugMacro("Method not implemented.");
+    this->DisplayIndex = displayId ? *(reinterpret_cast<int*>(displayId)) : 0;
   }
+
   void* GetGenericDisplayId() override
   {
     vtkDebugMacro("Method not implemented.");
@@ -439,6 +447,8 @@ private:
 
   bool WantsBestResolution;
   bool ConnectContextToNSView;
+
+  int DisplayIndex = 0;
 };
 
 #endif
