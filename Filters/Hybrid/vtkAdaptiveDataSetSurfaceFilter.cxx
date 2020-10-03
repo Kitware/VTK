@@ -75,6 +75,10 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 
   // Default Locator is 0
   this->Merging = false;
+
+  // vtkGeometryFilter allows an optional 2nd input. Need to
+  // disable this.
+  this->SetNumberOfInputPorts(1);
 }
 
 //------------------------------------------------------------------------------
