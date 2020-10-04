@@ -6,6 +6,16 @@ project(FIDES LANGUAGES C CXX VERSION 0.1)
 list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake")
 
 if (FALSE) # XXX(kitware): not needed for VTK
+# Determine Fides version
+include(Utilities/Git/Git.cmake)
+include(FidesDetermineVersion)
+
+# Load hardcoded version in case this is not a Git repository
+file(STRINGS version.txt version_txt)
+extract_version_components("${version_txt}" "Fides")
+# Get the version from git if we can
+determine_version(${PROJECT_SOURCE_DIR} ${GIT_EXECUTABLE} "Fides")
+
 # Add options for performing sanitization
 include(cmake/FidesSanitize.cmake)
 
