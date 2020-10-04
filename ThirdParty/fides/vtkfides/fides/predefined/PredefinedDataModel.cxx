@@ -212,8 +212,9 @@ void UniformDataModel::CreateCellSet(rapidjson::Value& parent)
 {
   rapidjson::Value cellSet(rapidjson::kObjectType);
   cellSet.AddMember("cell_set_type", "structured", this->Doc.GetAllocator());
+  auto dimVarName = GetRequiredVariableName(this->MetadataSource, "Fides_Dimension_Variable");
   CreateValueVariableDimensions(this->Doc.GetAllocator(),
-    cellSet, "variable_dimensions", "source", "density");
+    cellSet, "variable_dimensions", "source", dimVarName);
   parent.AddMember("cell_set", cellSet, this->Doc.GetAllocator());
 }
 
