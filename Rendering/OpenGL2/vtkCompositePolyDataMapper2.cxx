@@ -1427,9 +1427,8 @@ void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool vi
 {
   if (this->CompositeAttributes)
   {
-    unsigned int start_index = 0;
-    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
-      index, this->GetInputDataObject(0, 0), start_index);
+    auto dataObj =
+      vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index, this->GetInputDataObject(0, 0));
     if (dataObj)
     {
       this->CompositeAttributes->SetBlockVisibility(dataObj, visible);
@@ -1443,9 +1442,8 @@ bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index)
 {
   if (this->CompositeAttributes)
   {
-    unsigned int start_index = 0;
-    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
-      index, this->GetInputDataObject(0, 0), start_index);
+    auto dataObj =
+      vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index, this->GetInputDataObject(0, 0));
     if (dataObj)
     {
       return this->CompositeAttributes->GetBlockVisibility(dataObj);
@@ -1460,9 +1458,8 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 {
   if (this->CompositeAttributes)
   {
-    unsigned int start_index = 0;
-    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
-      index, this->GetInputDataObject(0, 0), start_index);
+    auto dataObj =
+      vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index, this->GetInputDataObject(0, 0));
     if (dataObj)
     {
       this->CompositeAttributes->RemoveBlockVisibility(dataObj);
@@ -1486,9 +1483,8 @@ void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color
 {
   if (this->CompositeAttributes)
   {
-    unsigned int start_index = 0;
-    auto dataObj = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
-      index, this->GetInputDataObject(0, 0), start_index);
+    auto dataObj =
+      vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index, this->GetInputDataObject(0, 0));
 
     if (dataObj)
     {

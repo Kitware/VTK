@@ -48,11 +48,8 @@ int TestCompositeDataDisplayAttributes(int argc, char* argv[])
   block9->SetPiece(1, nullptr);
 
   vtkNew<vtkCompositeDataDisplayAttributes> cdda;
-  unsigned int idx = 0;
-  Verify(cdda->DataObjectFromIndex(0, mb, idx) == mb);
-  idx = 0;
-  Verify(cdda->DataObjectFromIndex(5, mb, idx) == block5);
-  idx = 0;
-  Verify(cdda->DataObjectFromIndex(9, mb, idx) == block9);
+  Verify(cdda->DataObjectFromIndex(0, mb) == mb);
+  Verify(cdda->DataObjectFromIndex(5, mb) == block5);
+  Verify(cdda->DataObjectFromIndex(9, mb) == block9);
   return EXIT_SUCCESS;
 }
