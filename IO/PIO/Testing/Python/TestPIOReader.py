@@ -4,6 +4,9 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+controller = vtk.vtkMultiProcessController.GetGlobalController()
+rank = controller.GetLocalProcessId()
+
 pioreader = vtk.vtkPIOReader()
 pioreader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PIO/simple.pio")
 pioreader.SetCurrentTimeStep(1)
@@ -11,7 +14,7 @@ pioreader.Update()
 
 grid = pioreader.GetOutput()
 block = grid.GetBlock(0)
-piece = block.GetPieceAsDataObject(0)
+piece = block.GetPieceAsDataObject(rank)
 geometryFilter = vtk.vtkHyperTreeGridGeometry()
 geometryFilter.SetInputData(piece)
 geometryFilter.Update()
@@ -25,6 +28,15 @@ renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
+
+syncWindows = vtk.vtkSynchronizedRenderWindows()
+syncWindows.SetRenderWindow(renWin)
+syncWindows.SetParallelController(controller)
+syncWindows.SetIdentifier(1)
+
+syncRenderers = vtk.vtkCompositedSynchronizedRenderers()
+syncRenderers.SetRenderer(ren);
+syncRenderers.SetParallelController(controller);
 
 lut = vtk.vtkLookupTable()
 lut.SetHueRange(0.66, 0)
@@ -49,9 +61,12 @@ actor.SetMapper(mapper)
 ren.AddActor(actor)
 renWin.SetSize(300,300)
 ren.SetBackground(0.5,0.5,0.5)
-ren.ResetCamera()
-ren.GetActiveCamera().Roll(45);
-ren.GetActiveCamera().Azimuth(45);
+
+ren.GetActiveCamera().SetPosition(0.0108652, -0.00586516, 0.0143301)
+ren.GetActiveCamera().SetViewUp(0.707107, 0.707107, 0)
+ren.GetActiveCamera().SetParallelScale(0.00433013)
+ren.GetActiveCamera().SetFocalPoint(0.0025, 0.0025, 0.0025)
+
 renWin.Render()
 
 # prevent the tk window from showing up then start the event loop
