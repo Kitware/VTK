@@ -16,9 +16,9 @@
 #ifndef vtkmlib_ImplicitFunctionConverter_h
 #define vtkmlib_ImplicitFunctionConverter_h
 
-#include "vtkAcceleratorsVTKmCoreModule.h"
-#include "vtkType.h"        // For vtkMTimeType
-#include "vtkmConfigCore.h" //required for general vtkm setup
+#include "vtkAcceleratorsVTKmDataModelModule.h"
+#include "vtkType.h"             // For vtkMTimeType
+#include "vtkmConfigDataModel.h" //required for general vtkm setup
 
 #include "vtkm/cont/ImplicitFunctionHandle.h"
 
@@ -27,7 +27,7 @@ class vtkImplicitFunction;
 namespace tovtkm
 {
 
-class VTKACCELERATORSVTKMCORE_EXPORT ImplicitFunctionConverter
+class VTKACCELERATORSVTKMDATAMODEL_EXPORT ImplicitFunctionConverter
 {
 public:
   ImplicitFunctionConverter();

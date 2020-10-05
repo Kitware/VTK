@@ -17,11 +17,11 @@
 #ifndef vtkmlib_DataSetConverters_h
 #define vtkmlib_DataSetConverters_h
 
-#include "vtkAcceleratorsVTKmCoreModule.h"
+#include "vtkAcceleratorsVTKmDataModelModule.h"
 
 #include "ArrayConverters.h" // for FieldsFlag
 
-#include "vtkmConfigCore.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general vtkm setup
 
 #include <vtkm/cont/DataSet.h>
 
@@ -36,28 +36,28 @@ namespace tovtkm
 {
 
 // convert a vtkPoints array into a coordinate system
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::CoordinateSystem Convert(vtkPoints* points);
 
 // convert an structured grid type
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
 
 // determine the type and call the proper Convert routine
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields = FieldsFlag::None);
 }
 
 namespace fromvtkm
 {
 
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 void PassAttributesInformation(vtkDataSetAttributes* input, vtkDataSetAttributes* output);
 
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtkDataSet* input);
 
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkDataSet* input);
 
 }

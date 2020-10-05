@@ -17,42 +17,44 @@
 list(INSERT 0 CMAKE_MODULE_PATH
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
+set(sources
+  vtkmlib/ArrayConvertersReal.cxx
+  vtkmlib/ArrayConvertersSigned.cxx
+  vtkmlib/ArrayConvertersUnsigned.cxx)
+
+set(private_headers
+  vtkmlib/ArrayConverters.hxx)
+
 set(impl_classes
-  vtkmAverageToCells
-  vtkmAverageToPoints
-  vtkmCleanGrid
-  vtkmClip
-  vtkmContour
-  vtkmCoordinateSystemTransform
-  vtkmExternalFaces
-  vtkmExtractVOI
-  vtkmGradient
-  vtkmHistogram
-  vtkmImageConnectivity
-  vtkmLevelOfDetail
-  vtkmNDHistogram
-  vtkmPointElevation
-  vtkmPointTransform
-  vtkmPolyDataNormals
-  vtkmProbe
-  vtkmThreshold
-  vtkmTriangleMeshPointNormals
-  vtkmWarpScalar
-  vtkmWarpVector
+  vtkmDataSet
   )
+
+set(private_impl_classes
+  vtkmlib/ArrayConverters
+  vtkmlib/CellSetConverters
+  vtkmlib/DataSetConverters
+  vtkmlib/ImageDataConverter
+  vtkmlib/ImplicitFunctionConverter
+  vtkmlib/PolyDataConverter
+  vtkmlib/UnstructuredGridConverter)
 
 foreach (class IN LISTS impl_classes)
   list(APPEND sources "${class}.cxx")
   list(APPEND headers "${class}.h")
 endforeach ()
 
+foreach (class IN LISTS private_impl_classes)
+  list(APPEND sources "${class}.cxx")
+  list(APPEND private_headers "${class}.h")
+endforeach ()
+
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigFilters.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigDataModel.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigDataModel.h"
   @ONLY)
 
 list(APPEND headers
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigDataModel.h")
 
 if (TARGET vtkm::cuda)
   enable_language(CUDA)
@@ -65,36 +67,41 @@ if (TARGET vtkm::cuda)
 endif ()
 
 if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
+  message("Cuda is enabled. All VTK-m base modules will be forced to build as static.")
+  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
     FORCE_STATIC
     SOURCES ${sources}
-    HEADERS ${headers})
+    HEADERS ${headers}
+    PRIVATE_HEADERS ${private_headers})
 else()
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
+  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
     SOURCES ${sources}
-    HEADERS ${headers})
+    HEADERS ${headers}
+    PRIVATE_HEADERS ${private_headers})
 endif()
-_vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
+_vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-vtk_module_set_property(VTK::AcceleratorsVTKmFilters
+vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
   PROPERTY  JOB_POOL_COMPILE
   VALUE     vtkm_pool)
-vtk_module_link(VTK::AcceleratorsVTKmFilters
-  PRIVATE
-    vtkm_worklet
-    vtkm_filter)
 
 if (TARGET vtkm::cuda)
-  vtk_module_set_property(VTK::AcceleratorsVTKmFilters
+  vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
     PROPERTY  CUDA_SEPARABLE_COMPILATION
     VALUE     ON)
-  vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
+  vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()
+
+# We need to install the private headers so that consumers of VTK can write
+# new VTK-m filters and do data conversions correctly.
+vtk_module_install_headers(
+    FILES   ${private_headers}
+    SUBDIR  "vtkmlib")
 
 if (MSVC)
   set(msvc_warning_flags
@@ -122,7 +129,7 @@ if (MSVC)
         ${msvc_warning_flag})
     endif ()
   endforeach ()
-  vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
+  vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PRIVATE
       ${vtkm_msvc_flags})
 endif ()

@@ -17,34 +17,18 @@
 list(INSERT 0 CMAKE_MODULE_PATH
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
-set(sources
-  vtkmlib/ArrayConvertersReal.cxx
-  vtkmlib/ArrayConvertersSigned.cxx
-  vtkmlib/ArrayConvertersUnsigned.cxx)
-
 set(private_headers
-  vtkmlib/ArrayConverters.hxx
-  vtkmlib/vtkmDataArray.hxx
+  vtkmlib/DataArrayConverters.hxx
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h)
 
 set(impl_classes
   vtkmDataArray
-  vtkmDataSet
   )
 
 set(private_impl_classes
-  vtkmlib/ArrayConverters
-  vtkmlib/CellSetConverters
-  vtkmlib/DataSetConverters
-  vtkmlib/ImageDataConverter
-  vtkmlib/ImplicitFunctionConverter
-  vtkmlib/PolyDataConverter
-  vtkmlib/Portals
-  vtkmlib/UnstructuredGridConverter)
-
-set(headers
-  vtkmFilterPolicy.h)
+  vtkmlib/DataArrayConverters
+  vtkmlib/Portals)
 
 foreach (class IN LISTS impl_classes)
   list(APPEND sources "${class}.cxx")
@@ -56,8 +40,6 @@ foreach (class IN LISTS private_impl_classes)
   list(APPEND private_headers "${class}.h")
 endforeach ()
 
-set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
-set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigCore.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigCore.h"

@@ -6,6 +6,7 @@ DESCRIPTION
   VTKm filters and algorithms
 DEPENDS
   VTK::AcceleratorsVTKmCore
+  VTK::AcceleratorsVTKmDataModel
   VTK::CommonExecutionModel
   VTK::FiltersGeneral
   VTK::FiltersGeometry

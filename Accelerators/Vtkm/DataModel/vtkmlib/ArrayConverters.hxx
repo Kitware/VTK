@@ -17,6 +17,7 @@
 #ifndef vtkmlib_ArrayConverters_hxx
 #define vtkmlib_ArrayConverters_hxx
 
+#include "../Core/vtkmlib/DataArrayConverters.hxx"
 #include "ArrayConverters.h"
 
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
@@ -26,50 +27,6 @@
 
 namespace tovtkm
 {
-
-template <typename DataArrayType>
-vtkm::cont::VariantArrayHandle vtkDataArrayToVariantArrayHandle(DataArrayType* input)
-{
-  int numComps = input->GetNumberOfComponents();
-  switch (numComps)
-  {
-    case 1:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input));
-    case 2:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 2>::Wrap(input));
-    case 3:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 3>::Wrap(input));
-    case 4:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 4>::Wrap(input));
-    case 6:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 6>::Wrap(input));
-    case 9:
-      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 9>::Wrap(input));
-    default:
-    {
-      vtkm::Id numTuples = input->GetNumberOfTuples();
-      auto subHandle = DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input);
-      auto offsets =
-        vtkm::cont::ArrayHandleCounting<vtkm::Id>(vtkm::Id(0), vtkm::Id(numComps), numTuples);
-      auto handle = vtkm::cont::make_ArrayHandleGroupVecVariable(subHandle, offsets);
-      return vtkm::cont::VariantArrayHandle(handle);
-    }
-  }
-}
-
-template <typename DataArrayType>
-vtkm::cont::Field ConvertPointField(DataArrayType* input)
-{
-  auto vhandle = vtkDataArrayToVariantArrayHandle(input);
-  return vtkm::cont::make_FieldPoint(input->GetName(), vhandle);
-}
-
-template <typename DataArrayType>
-vtkm::cont::Field ConvertCellField(DataArrayType* input)
-{
-  auto vhandle = vtkDataArrayToVariantArrayHandle(input);
-  return vtkm::cont::make_FieldCell(input->GetName(), vhandle);
-}
 
 template <typename DataArrayType>
 vtkm::cont::Field Convert(DataArrayType* input, int association)

@@ -17,11 +17,11 @@
 #ifndef vtkmlib_UnstructuredGridConverter_h
 #define vtkmlib_UnstructuredGridConverter_h
 
-#include "vtkAcceleratorsVTKmCoreModule.h"
+#include "vtkAcceleratorsVTKmDataModelModule.h"
 
 #include "ArrayConverters.h" // For FieldsFlag
 
-#include "vtkmConfigCore.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general vtkm setup
 
 #include <vtkm/cont/DataSet.h>
 
@@ -32,13 +32,13 @@ namespace tovtkm
 {
 
 // convert an unstructured grid type
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
 }
 
 namespace fromvtkm
 {
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input);
 }
 #endif // vtkmlib_UnstructuredGridConverter_h

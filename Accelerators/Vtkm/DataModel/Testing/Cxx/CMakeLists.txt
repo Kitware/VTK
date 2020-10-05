@@ -1,9 +1,8 @@
 # We are splitting the tests into two executables to workaround an issue in
 # cuda. With all the tests in the same executable several tests are failing
 # in cuda. We have not identified the root cause of the problem yet.
-vtk_add_test_cxx(vtkAcceleratorsVTKmCoreCxxTests tests
-  TestVTKMDataArray.cxx,NO_VALID
-  TestVTKMImplicitDataArray,VALID
+vtk_add_test_cxx(vtkAcceleratorsVTKmDataModelCxxTests tests
+  TestVTKMDataSet.cxx,NO_VALID
   )
 
 if (TARGET vtkm::cuda)
@@ -14,7 +13,7 @@ if (TARGET vtkm::cuda)
     set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
   endforeach()
 
-  #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmCore
+  #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmDataModel
   #so we need to redo this logic
   vtkm_get_cuda_flags(CMAKE_CUDA_FLAGS)
 
@@ -25,12 +24,12 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif()
 
-vtk_test_cxx_executable(vtkAcceleratorsVTKmCoreCxxTests tests
+vtk_test_cxx_executable(vtkAcceleratorsVTKmDataModelCxxTests tests
   RENDERING_FACTORY
   )
 
 if (TARGET vtkm::cuda)
-  # When cuda is enabled VTK::AcceleratorsVTKmCore is built statically but with fpic
+  # When cuda is enabled VTK::AcceleratorsVTKmDataModel is built statically but with fpic
   # enabled so the tests are also built with fpic enabled
-  set_target_properties(vtkAcceleratorsVTKmCoreCxxTests PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(vtkAcceleratorsVTKmDataModelCxxTests PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()

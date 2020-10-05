@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef vtkmlib_ArrayConverters_h
-#define vtkmlib_ArrayConverters_h
+#ifndef vtkmlib_DataArrayConverters_h
+#define vtkmlib_DataArrayConverters_h
 
 #include "vtkAcceleratorsVTKmCoreModule.h" //required for correct implementation
 #include "vtkmConfigCore.h"                //required for general vtkm setup
@@ -29,14 +29,12 @@
 #include <type_traits> // for std::underlying_type
 
 class vtkDataArray;
-class vtkDataSet;
 class vtkPoints;
 
 namespace vtkm
 {
 namespace cont
 {
-class DataSet;
 class CoordinateSystem;
 }
 }
@@ -106,12 +104,6 @@ enum class FieldsFlag
   PointsAndCells = Points | Cells
 };
 
-VTKACCELERATORSVTKMCORE_EXPORT
-void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields);
-
-// determine the type and call the proper Convert routine
-VTKACCELERATORSVTKMCORE_EXPORT
-vtkm::cont::Field Convert(vtkDataArray* input, int association);
 }
 
 namespace fromvtkm
@@ -126,8 +118,6 @@ vtkDataArray* Convert(const vtkm::cont::VariantArrayHandle& input, const char* n
 VTKACCELERATORSVTKMCORE_EXPORT
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input);
 
-VTKACCELERATORSVTKMCORE_EXPORT
-bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output);
 }
 
 inline tovtkm::FieldsFlag operator&(const tovtkm::FieldsFlag& a, const tovtkm::FieldsFlag& b)
