@@ -192,6 +192,10 @@ int vtkGeoProjection::UpdateProjection()
   if (this->PROJ4String && strlen(this->PROJ4String))
   {
     this->Projection = pj_init_plus(this->PROJ4String);
+    if (!this->Projection)
+    {
+      vtkErrorMacro("Cannot set projection with string " << this->PROJ4String);
+    }
   }
   else
   {
