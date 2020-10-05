@@ -27,6 +27,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestColorByStringArrayDefaultLookupTable2D.cxx
   TestColorTransferFunction.cxx,NO_VALID
   TestColorTransferFunctionStringArray.cxx,NO_VALID
+  TestCompositeDataDisplayAttributes.cxx,NO_VALID
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
