@@ -940,7 +940,9 @@ if (LOCAL_BATCH_TEST)
   endif ()
 endif ()
 
-if (NOT EXISTS "${HDF5_GENERATED_SOURCE_DIR}/H5Tinit.c")
+# XXX(kitware): Always run this; whether the file exists or not should not
+# determine whether the command is available.
+if (TRUE OR NOT EXISTS "${HDF5_GENERATED_SOURCE_DIR}/H5Tinit.c")
   add_executable (H5detect ${HDF5_SRC_DIR}/H5detect.c)
   target_include_directories (H5detect PRIVATE "${HDF5_SRC_DIR};${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>")
   target_compile_definitions(H5detect PUBLIC ${HDF_EXTRA_C_FLAGS} ${HDF_EXTRA_FLAGS})
