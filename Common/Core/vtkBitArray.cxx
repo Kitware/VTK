@@ -18,6 +18,15 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
+namespace
+{
+// This is used to initialize the last byte of the array when allocating memory
+// to prevent the presence of uninitialized bits that are out of range for the
+// array.
+static constexpr unsigned char InitializationMaskForUnusedBitsOfLastByte[8] = { 0xff, 0x80, 0xc0,
+  0xe0, 0xf0, 0xf8, 0xfc, 0xfe };
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 class vtkBitArrayLookup
 {
@@ -166,6 +175,8 @@ vtkTypeBool vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
     this->Size = (sz > 0 ? sz : 1);
     if ((this->Array = new unsigned char[(this->Size + 7) / 8]) == nullptr)
     {
+      this->Array[(this->Size + 7) / 8 - 1] &=
+        InitializationMaskForUnusedBitsOfLastByte[this->Size % 8];
       return 0;
     }
     this->DeleteFunction = ::operator delete[];
@@ -294,6 +305,8 @@ unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
     }
   }
 
+  newArray[(newSize + 7) / 8 - 1] &= InitializationMaskForUnusedBitsOfLastByte[newSize % 8];
+
   if (newSize < this->Size)
   {
     this->MaxId = newSize - 1;
@@ -339,6 +352,8 @@ vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
       this->DeleteFunction(this->Array);
     }
   }
+
+  newArray[(newSize + 7) / 8 - 1] &= InitializationMaskForUnusedBitsOfLastByte[newSize % 8];
 
   if (newSize < this->Size)
   {
