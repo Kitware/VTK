@@ -63,6 +63,8 @@ set(vtk_python_version "${Python${VTK_PYTHON_VERSION}_VERSION}")
 set(vtk_python_version_pair "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}.${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
 
 set_property(GLOBAL PROPERTY _vtk_python_soabi "${Python${VTK_PYTHON_VERSION}_SOABI}")
+set_property(GLOBAL PROPERTY _vtk_python_version_major "${Python${VTK_PYTHON_VERSION}_VERSION_MAJOR}")
+set_property(GLOBAL PROPERTY _vtk_python_version_minor "${Python${VTK_PYTHON_VERSION}_VERSION_MINOR}")
 
 # Check deprecated versions of Python
 if (NOT VTK_LEGACY_SILENT AND vtk_python_version VERSION_LESS vtk_python_version_support)
