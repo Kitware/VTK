@@ -2732,6 +2732,12 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
   double axisLength = vtkMath::Norm(deltaVector);
   double rangeScale = axisLength / (this->Range[1] - this->Range[0]);
 
+  // - Test that the delta is numerically different from zero
+  if (fabs(this->DeltaMajor[this->AxisType]) <= FLT_EPSILON)
+  {
+    return;
+  }
+
   // - Reduce the deltaVector to correspond to a major tick step
   vtkMath::Normalize(deltaVector);
   for (int i = 0; i < 3; i++)
@@ -2759,6 +2765,14 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
 
   // - Insert Gridlines points along the axis using the DeltaMajor vector
   double nbIterationAsDouble = (axisLength - axisShift) / vtkMath::Norm(deltaVector);
+
+  // - Test number of points for numerical difficulties
+  if (!std::isfinite(nbIterationAsDouble) || (nbIterationAsDouble <= 0) ||
+    (nbIterationAsDouble > VTK_MAX_TICKS))
+  {
+    return;
+  }
+
   int nbIteration = vtkMath::Floor(nbIterationAsDouble + 2 * FLT_EPSILON) + 1;
   nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
   for (int nbTicks = 0; nbTicks < nbIteration; nbTicks++)
@@ -2815,7 +2829,7 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
 
       // u lines
       u = this->MajorStart[uIndex];
-      while (u <= p2[uIndex] && this->DeltaMajor[uIndex] > 0)
+      while (u <= p2[uIndex] && this->DeltaMajor[uIndex] > FLT_EPSILON)
       {
         innerGridPointClosestU[uIndex] = innerGridPointFarestU[uIndex] = u;
         this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestU);
@@ -2825,7 +2839,7 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
 
       // v lines
       v = this->MajorStart[vIndex];
-      while (v <= p2[vIndex] && this->DeltaMajor[vIndex] > 0)
+      while (v <= p2[vIndex] && this->DeltaMajor[vIndex] > FLT_EPSILON)
       {
         innerGridPointClosestV[vIndex] = innerGridPointFarestV[vIndex] = v;
         this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestV);
@@ -2901,6 +2915,13 @@ void vtkAxisActor::BuildMinorTicks(double p1[3], double p2[3], double localCoord
   double deltaMinor = this->DeltaRangeMinor * rangeScale;
 
   if (deltaMinor <= 0.0)
+  {
+    return;
+  }
+
+  // - Estimate number of steps to catch numerical difficulties
+  double nTicks = axisLength / deltaMinor;
+  if (!std::isfinite(nTicks) || (nTicks <= 0) || (nTicks > VTK_MAX_TICKS))
   {
     return;
   }
@@ -3020,6 +3041,13 @@ void vtkAxisActor::BuildMajorTicks(double p1[3], double p2[3], double localCoord
     return;
   }
 
+  // - Estimate number of steps to catch numerical difficulties
+  double nTicks = axisLength / deltaMajor;
+  if (!std::isfinite(nTicks) || (nTicks <= 0) || (nTicks > VTK_MAX_TICKS))
+  {
+    return;
+  }
+
   // - Insert tick points along the axis using the deltaVector
 
   // step is a multiple of deltaMajor value
@@ -3123,6 +3151,12 @@ void vtkAxisActor::BuildMinorTicksLog(double p1[3], double p2[3], double localCo
   // pre set values
   double log10Range0 = log10(this->Range[0]), log10Range1 = log10(this->Range[1]);
   double lowBound = pow(base, floor(log10Range0)), upBound = pow(base, ceil(log10Range1));
+
+  // log scale can't work with lowBound <= 0
+  if (!std::isfinite(lowBound) || (lowBound <= 0))
+  {
+    return;
+  }
 
   double minorTickPoint[3], minorTickOnAxis[3];
 
@@ -3249,6 +3283,12 @@ void vtkAxisActor::BuildMajorTicksLog(double p1[3], double p2[3], double localCo
   double tickVal, tickRangeVal;
   double log10Range0 = log10(this->Range[0]), log10Range1 = log10(this->Range[1]);
   double lowBound = pow(base, (int)floor(log10Range0)), upBound = pow(base, (int)ceil(log10Range1));
+
+  // log scale can't work with lowBound <= 0
+  if (!std::isfinite(lowBound) || (lowBound <= 0))
+  {
+    return;
+  }
 
   double majorTickOnAxis[3], majorTickPoint[3];
   for (indexTickRangeValue = lowBound; indexTickRangeValue <= upBound; indexTickRangeValue *= base)
