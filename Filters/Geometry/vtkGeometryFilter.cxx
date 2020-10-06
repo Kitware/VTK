@@ -368,8 +368,8 @@ struct CellArrayType
 
   void SetPointMap(vtkIdType* ptMap) { this->PointMap = ptMap; }
   void SetExcludedFaces(vtkStaticCellLinksTemplate<vtkIdType>* exc) { this->ExcFaces = exc; }
-  vtkIdType GetNumberOfCells() { return OrigCellIds.size(); }
-  vtkIdType GetNumberOfConnEntries() { return Cells.size(); }
+  vtkIdType GetNumberOfCells() { return static_cast<vtkIdType>(this->OrigCellIds.size()); }
+  vtkIdType GetNumberOfConnEntries() { return static_cast<vtkIdType>(this->Cells.size()); }
 
   void InsertNextCell(vtkIdType npts, const vtkIdType* pts, vtkIdType cellId)
   {
@@ -1955,7 +1955,7 @@ void PassCellIds(
 
   // Now populate the original cell ids
   CompositeCellIds compIds(extract, threads, origIds);
-  vtkSMPTools::For(0, threads->size(), compIds);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(threads->size()), compIds);
 }
 
 } // anonymous
@@ -2218,7 +2218,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
   CompositeCells compCells(ptMap, &cellArrays, extract, &threads);
-  vtkSMPTools::For(0, threads.size(), compCells);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
 
   // Generate originating cell ids if requested.
   if (this->PassThroughCellIds)
@@ -2440,7 +2440,7 @@ int vtkGeometryFilter::StructuredExecute(
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
   CompositeCells compCells(ptMap, &cellArrays, &extStr, &threads);
-  vtkSMPTools::For(0, threads.size(), compCells);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
 
   // Generate originating cell ids if requested.
   if (this->PassThroughCellIds)
@@ -2613,7 +2613,7 @@ int vtkGeometryFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* output, vt
   cellArrays.AddArrays(numCells, inCD, outCD, 0.0, false);
 
   CompositeCells compCells(ptMap, &cellArrays, &extract, &threads);
-  vtkSMPTools::For(0, threads.size(), compCells);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(threads.size()), compCells);
 
   // Generate originating cell ids if requested.
   if (this->PassThroughCellIds)
