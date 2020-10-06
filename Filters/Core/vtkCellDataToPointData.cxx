@@ -542,11 +542,9 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 
   // Copy all existing cell fields into a temporary cell data array,
   // unless the SelectCellDataArrays option is active.
-  vtkSmartPointer<vtkCellData> processedCellData;
+  vtkSmartPointer<vtkCellData> processedCellData = vtkSmartPointer<vtkCellData>::New();
   if (!this->ProcessAllArrays)
   {
-    processedCellData = vtkSmartPointer<vtkCellData>::New();
-
     vtkCellData* processedCellDataTemp = src->GetCellData();
     for (const auto& name : this->Implementation->CellDataArrays)
     {
@@ -561,7 +559,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
   }
   else
   {
-    processedCellData = vtkSmartPointer<vtkCellData>(src->GetCellData());
+    processedCellData->ShallowCopy(src->GetCellData());
   }
 
   // Remove all fields that are not a data array.
