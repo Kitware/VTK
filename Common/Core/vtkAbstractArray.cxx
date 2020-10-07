@@ -560,9 +560,32 @@ void vtkAbstractArray::GetProminentComponentValues(
 //------------------------------------------------------------------------------
 namespace
 {
+template <typename T, bool U = std::numeric_limits<T>::has_quiet_NaN>
+struct CompareWithNaN
+{
+  bool operator()(T a, T b) const
+  {
+    if (std::isnan(a))
+    {
+      return false;
+    }
+    if (std::isnan(b))
+    {
+      return true;
+    }
+    return a < b;
+  }
+};
+
+template <typename T>
+struct CompareWithNaN<T, false>
+{
+  bool operator()(T a, T b) const { return a < b; }
+};
+
 template <typename T>
 bool AccumulateSampleValues(T* array, int nc, vtkIdType begin, vtkIdType end,
-  std::vector<std::set<T>>& uniques, std::set<std::vector<T>>& tupleUniques,
+  std::vector<std::set<T, CompareWithNaN<T>>>& uniques, std::set<std::vector<T>>& tupleUniques,
   unsigned int maxDiscreteValues)
 {
   // number of discrete components remaining (tracked during iteration):
@@ -610,7 +633,7 @@ template <typename U>
 void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdType maxId, int nc,
   vtkIdType nt, int blockSize, vtkIdType numberOfBlocks, U* ptr, unsigned int maxDiscreteValues)
 {
-  std::vector<std::set<U>> typeSpecificUniques;
+  std::vector<std::set<U, CompareWithNaN<U>>> typeSpecificUniques;
   std::set<std::vector<U>> typeSpecificUniqueTuples;
   typeSpecificUniques.resize(nc);
   // I. Accumulate samples for all components plus the tuple,
