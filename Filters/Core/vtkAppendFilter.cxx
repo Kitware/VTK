@@ -32,7 +32,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <array>
 #include <string>
 #include <unordered_map>
 
@@ -275,7 +274,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // append the blocks / pieces in terms of the geometry and topology
-  std::unordered_map<vtkIdType, std::array<double, 3>> addedPointsMap;
+  std::unordered_map<vtkIdType, vtkIdType> addedPointsMap;
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
@@ -298,16 +297,17 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (dataSetGlobalIdsArray)
         {
           vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
-          if (!addedPointsMap.count(globalId))
+          auto it = addedPointsMap.find(globalId);
+          if (it == addedPointsMap.end())
           {
             globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
             dataSet->GetPoint(ptId, p);
-            newPts->InsertNextPoint(p);
-            addedPointsMap.emplace(globalId, std::array<double, 3>({ p[0], p[1], p[2] }));
+            vtkIdType newPtId = newPts->InsertNextPoint(p);
+            addedPointsMap.emplace(globalId, newPtId);
           }
           else
           {
-            globalIndices[ptId + ptOffset] = globalId;
+            globalIndices[ptId + ptOffset] = it->second;
           }
         }
         else
