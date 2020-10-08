@@ -981,18 +981,45 @@ int TestAppendDataSets(int, char*[])
     if (startPS->GetNumberOfPoints() != endPS->GetNumberOfPoints() ||
       startPS->GetNumberOfPoints() != 182)
     {
-      std::cerr << "vtkAppendFilter failed to merge blocks using point global ids" << std::endl;
+      std::cerr << "vtkAppendFilter failed to merge blocks using point global ids. "
+                << "Number of output points is wrong." << std::endl;
       return EXIT_FAILURE;
     }
 
     vtkIdTypeArray* startData =
       vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
     vtkIdTypeArray* endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
+
+    vtkIdType outCellId = 0;
+    vtkPoints* outPoints = startPS->GetPoints();
+    for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
+    {
+      auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
+      vtkPoints* inPoints = ps->GetPoints();
+      vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
+      for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
+      {
+        vtkCell* inCell = ps->GetCell(inCellId);
+        vtkCell* outCell = startPS->GetCell(outCellId);
+        for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
+        {
+          if (startData->GetValue(outCell->GetPointId(pointId)) !=
+            inData->GetValue(inCell->GetPointId(pointId)))
+          {
+            std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
+                      << "Problem most likely comes from vtkAppendFilter. Cell connectivity of "
+                      << "output cell id " << outCellId << " is wrong." << std::endl;
+            return EXIT_FAILURE;
+          }
+        }
+      }
+    }
+
     for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
     {
       if (startData->GetValue(pointId) != endData->GetValue(pointId))
       {
-        std::cerr << "vtkAppenDataSets failed to clean using point global ids."
+        std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
                   << "The problem most likely comes from vtkAppendFilter" << std::endl;
         return EXIT_FAILURE;
       }
@@ -1042,16 +1069,41 @@ int TestAppendDataSets(int, char*[])
 
     startData = vtkIdTypeArray::SafeDownCast(startPS->GetPointData()->GetGlobalIds());
     endData = vtkIdTypeArray::SafeDownCast(endPS->GetPointData()->GetGlobalIds());
-    for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+
+    vtkIdType outCellId = 0;
+    vtkPoints* outPoints = startPS->GetPoints();
+    for (startIter->InitTraversal(); !startIter->IsDoneWithTraversal(); startIter->GoToNextItem())
     {
-      if (startData->GetTuple1(pointId) != endData->GetTuple1(pointId))
+      auto ps = vtkPointSet::SafeDownCast(startIter->GetCurrentDataObject());
+      vtkPoints* inPoints = ps->GetPoints();
+      vtkIdTypeArray* inData = vtkIdTypeArray::SafeDownCast(ps->GetPointData()->GetGlobalIds());
+      for (vtkIdType inCellId = 0; inCellId < ps->GetNumberOfCells(); ++inCellId, ++outCellId)
       {
-        std::cerr << "Error when merging points in a poly data multi-block" << std::endl;
-        return EXIT_FAILURE;
+        vtkCell* inCell = ps->GetCell(inCellId);
+        vtkCell* outCell = startPS->GetCell(outCellId);
+        for (vtkIdType pointId = 0; pointId < inCell->GetNumberOfPoints(); ++pointId)
+        {
+          if (startData->GetValue(outCell->GetPointId(pointId)) !=
+            inData->GetValue(inCell->GetPointId(pointId)))
+          {
+            std::cerr << "vtkAppendDataSets failed to merge points using point global ids. "
+                      << "Problem most likely comes from vtkCleanPolyData. Cell connectivity of "
+                      << "output cell id " << outCellId << " is wrong." << std::endl;
+            return EXIT_FAILURE;
+          }
+        }
+      }
+
+      for (vtkIdType pointId = 0; pointId < endData->GetNumberOfTuples(); ++pointId)
+      {
+        if (startData->GetTuple1(pointId) != endData->GetTuple1(pointId))
+        {
+          std::cerr << "Error when merging points in a poly data multi-block" << std::endl;
+          return EXIT_FAILURE;
+        }
       }
     }
-  }
 #endif
 
-  return EXIT_SUCCESS;
-}
+    return EXIT_SUCCESS;
+  }
