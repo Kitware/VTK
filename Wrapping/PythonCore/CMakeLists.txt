@@ -26,12 +26,16 @@ set(sources
   PyVTKTemplate.cxx)
 
 set(private_headers
-  PyVTKExtras.h
-)
+  PyVTKExtras.h)
+
+get_property(vtk_python_version_major GLOBAL
+  PROPERTY _vtk_python_version_major)
+get_property(vtk_python_version_minor GLOBAL
+  PROPERTY _vtk_python_version_minor)
 
 vtk_module_add_module(VTK::WrappingPythonCore
   CLASSES ${classes}
   SOURCES ${sources}
   HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers}
-  LIBRARY_NAME_SUFFIX "${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION}")
+  LIBRARY_NAME_SUFFIX "${vtk_python_version_major}.${vtk_python_version_minor}")
