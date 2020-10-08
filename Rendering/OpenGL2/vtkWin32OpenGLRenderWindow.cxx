@@ -60,6 +60,8 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->MFChandledWindow = FALSE; // hsr
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->CursorHidden = 0;
+  this->Resizing = 0;
+  this->Repositioning = 0;
 
   this->WindowIdReferenceCount = 0;
 
@@ -365,7 +367,6 @@ void AdjustWindowRectForBorders(
 //------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
 {
-  static bool resizing = false;
   if ((this->Size[0] != width) || (this->Size[1] != height))
   {
     this->Superclass::SetSize(width, height);
@@ -377,9 +378,9 @@ void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
 
     if (!this->UseOffScreenBuffers)
     {
-      if (!resizing)
+      if (!this->Resizing)
       {
-        resizing = true;
+        this->Resizing = 1;
 
         if (this->ParentId)
         {
@@ -395,7 +396,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
             SWP_NOMOVE | SWP_NOZORDER);
         }
 
-        resizing = false;
+        this->Resizing = 0;
       }
     }
   }
@@ -404,8 +405,6 @@ void vtkWin32OpenGLRenderWindow::SetSize(int width, int height)
 //------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
 {
-  static bool resizing = false;
-
   if ((this->Position[0] != x) || (this->Position[1] != y))
   {
     this->Modified();
@@ -413,13 +412,13 @@ void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
     this->Position[1] = y;
     if (this->Mapped)
     {
-      if (!resizing)
+      if (!this->Repositioning)
       {
-        resizing = true;
+        this->Repositioning = 1;
 
         SetWindowPos(this->WindowId, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-        resizing = false;
+        this->Repositioning = 0;
       }
     }
   }

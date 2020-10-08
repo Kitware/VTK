@@ -310,6 +310,8 @@ protected:
   HWND ParentId;
   HWND NextWindowId;
   vtkTypeBool OwnWindow;
+  vtkTypeBool Resizing;
+  vtkTypeBool Repositioning;
   static const std::string DEFAULT_BASE_WINDOW_NAME;
 
   std::stack<HGLRC> ContextStack;
