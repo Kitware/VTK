@@ -315,6 +315,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     outputPD->CopyAllocate(pd, numPts * numSourcePts);
     if (this->FillCellData)
     {
+      outputCD->CopyGlobalIdsOn();
       outputCD->CopyAllocate(pd, numPts * numSourceCells);
     }
   }
