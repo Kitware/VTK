@@ -32,12 +32,36 @@
 #include "vtkXMLDataParser.h"
 
 #include <algorithm>
+#include <limits>
 #include <numeric>
 
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
 //------------------------------------------------------------------------------
-vtkXMLHyperTreeGridReader::vtkXMLHyperTreeGridReader() = default;
+vtkXMLHyperTreeGridReader::vtkXMLHyperTreeGridReader()
+  : NumberOfPoints(0)
+  , NumberOfPieces(0)
+  , FixedLevel(std::numeric_limits<uint32_t>::max())
+  , UpdatedPiece(0)
+  , UpdateNumberOfPieces(0)
+  , StartPiece(0)
+  , EndPiece(0)
+  , Piece(0)
+{
+  this->CoordinatesBoundingBox[0] = 1;
+  this->CoordinatesBoundingBox[1] = -1;
+  this->CoordinatesBoundingBox[2] = 1;
+  this->CoordinatesBoundingBox[3] = -1;
+  this->CoordinatesBoundingBox[4] = 1;
+  this->CoordinatesBoundingBox[5] = -1;
+
+  this->IndicesBoundingBox[0] = 0;
+  this->IndicesBoundingBox[1] = 0;
+  this->IndicesBoundingBox[2] = 0;
+  this->IndicesBoundingBox[3] = 0;
+  this->IndicesBoundingBox[4] = 0;
+  this->IndicesBoundingBox[5] = 0;
+}
 
 //------------------------------------------------------------------------------
 vtkXMLHyperTreeGridReader::~vtkXMLHyperTreeGridReader() = default;
@@ -144,19 +168,19 @@ bool vtkXMLHyperTreeGridReader::IsSelectedHT(
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkXMLHyperTreeGridReader::GetFixedLevelOfThisHT(
-  vtkIdType numberOfLevels, unsigned int treeIndx) const
+uint32_t vtkXMLHyperTreeGridReader::GetFixedLevelOfThisHT(
+  uint32_t numberOfLevels, unsigned int treeIndx) const
 {
-  unsigned int fixedLevel = this->FixedLevel;
+  uint32_t fixedLevel = this->FixedLevel;
   if (this->IdsSelected.find(treeIndx) != this->IdsSelected.end())
   {
-    unsigned int htFixedLevel = this->IdsSelected.at(treeIndx);
-    if (htFixedLevel != UINT_MAX)
+    uint32_t htFixedLevel = this->IdsSelected.at(treeIndx);
+    if (htFixedLevel != std::numeric_limits<uint32_t>::max())
     {
       fixedLevel = htFixedLevel;
     }
   }
-  return std::min(numberOfLevels, vtkIdType(fixedLevel));
+  return std::min(numberOfLevels, fixedLevel);
 }
 
 //------------------------------------------------------------------------------
@@ -639,13 +663,12 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor_0(
 // Functor used to accumulate in the native array type with dispatch
 struct AccImpl
 {
-  explicit AccImpl(vtkIdType limitedLevel)
+  explicit AccImpl(uint32_t limitedLevel)
     : LimitedLevel(limitedLevel)
   {
   }
   // Fixed input
-  const vtkTypeInt64 LimitedLevel{ 0 };
-  const vtkTypeInt64 Zero{ 0 };
+  const uint32_t LimitedLevel{ 0 };
   // Output
   vtkTypeInt64 FixedNbVertices{ 0 };
   vtkTypeInt64 LimitedLevelElement{ 0 };
@@ -654,9 +677,8 @@ struct AccImpl
   void operator()(ArrayType* array)
   {
     auto range = vtk::DataArrayValueRange<1>(array);
-    this->FixedNbVertices =
-      std::accumulate(range.begin(), range.begin() + this->LimitedLevel, this->Zero);
-    this->LimitedLevelElement = *(range.begin() + this->LimitedLevel - 1);
+    this->FixedNbVertices = std::accumulate(range.begin(), range.begin() + this->LimitedLevel, 0);
+    this->LimitedLevelElement = range[this->LimitedLevel - 1];
   }
 };
 
@@ -677,7 +699,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     vtkXMLDataElement* eTree = elem->GetNestedElement(treeIndxInFile);
     vtkIdType treeIndxInHTG;
     vtkIdType numberOfVertices;
-    vtkIdType numberOfLevels;
+    int numberOfLevels;
     eTree->GetScalarAttribute("Index", treeIndxInHTG);
 
     // Functionnality not available on older versions
@@ -768,6 +790,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
         output->SetMask(mask);
       }
     }
+
     vtkXMLDataElement* nbVerticesByLevelElement =
       eTree->FindNestedElementWithNameAndAttribute("DataArray", "Name", "NbVerticesByLevel");
     vtkSmartPointer<vtkDataArray> nbVerticesByLevelArray = nullptr;
@@ -800,7 +823,6 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     }
     if (eCellData)
     {
-
       for (int j = 0; j < eCellData->GetNumberOfNestedElements(); ++j)
       {
         vtkXMLDataElement* eNested = eCellData->GetNestedElement(j);
