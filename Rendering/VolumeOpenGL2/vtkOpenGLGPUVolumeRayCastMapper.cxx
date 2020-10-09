@@ -2823,10 +2823,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ClearRemovedInputs(vtkWindow*
     }
 
     auto input = (*it).second;
-    input.Texture->ReleaseGraphicsResources(win);
-    input.GradientOpacityTables->ReleaseGraphicsResources(win);
-    input.OpacityTables->ReleaseGraphicsResources(win);
-    input.RGBTables->ReleaseGraphicsResources(win);
+    if (input.Texture)
+    {
+      input.Texture->ReleaseGraphicsResources(win);
+    }
+    if (input.GradientOpacityTables)
+    {
+      input.GradientOpacityTables->ReleaseGraphicsResources(win);
+    }
+    if (input.OpacityTables)
+    {
+      input.OpacityTables->ReleaseGraphicsResources(win);
+    }
+    if (input.RGBTables)
+    {
+      input.RGBTables->ReleaseGraphicsResources(win);
+    }
     this->Parent->AssembledInputs.erase(it);
     orderChanged = true;
   }
