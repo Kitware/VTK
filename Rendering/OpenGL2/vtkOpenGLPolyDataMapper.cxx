@@ -2259,7 +2259,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
-  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor*)
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor* actor)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -2269,7 +2269,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
     FSSource, "//VTK::Camera::Dec", "uniform int cameraParallel;\n", false);
 
   // do we need the vertex in the shader in View Coordinates
-  if (this->LastLightComplexity[this->LastBoundBO] > 0)
+  if (this->LastLightComplexity[this->LastBoundBO] > 0 ||
+    this->DrawingTubes(*this->LastBoundBO, actor))
   {
     vtkShaderProgram::Substitute(VSSource, "//VTK::PositionVC::Dec", "out vec4 vertexVCVSOutput;");
     vtkShaderProgram::Substitute(VSSource, "//VTK::PositionVC::Impl",
