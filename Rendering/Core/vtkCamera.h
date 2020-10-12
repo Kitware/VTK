@@ -683,6 +683,13 @@ public:
 
   //@{
   /**
+   * Get the stereo setting
+   */
+  vtkGetMacro(Stereo, int);
+  //@}
+
+  //@{
+  /**
    * Set the Left Eye setting
    */
   vtkSetMacro(LeftEye, int);
