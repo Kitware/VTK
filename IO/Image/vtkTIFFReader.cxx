@@ -845,13 +845,8 @@ void vtkTIFFReader::ReadVolume(T* buffer)
       }
       else
       {
-        vtkIdType offset =
-          outDims[0] * outDims[1] * static_cast<vtkIdType>(slice - this->OutputExtent[4]);
-        // I don't think this is correct since if `CanRead==false`, we may not have actually
-        // allocated a target buffer with 4 components. For now, I am keeping
-        // the logic same as before.
-        offset *= this->InternalImage->CanRead() ? samplesPerPixel : 4;
-        this->ReadImageInternal(buffer + offset);
+        this->ReadImageInternal(buffer +
+          static_cast<vtkIdType>(slice - this->OutputExtent[4]) * this->OutputIncrements[2]);
       }
     }
 
