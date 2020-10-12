@@ -22,8 +22,11 @@
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringArray.h>
 #include <vtkTestUtilities.h>
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
@@ -139,5 +142,37 @@ int TestCellDataToPointData(int, char*[])
       return EXIT_FAILURE;
     }
   }
+
+  // set up a test to check that the cell data of the input is preserved
+  // vtkCellDataToPointData removed vtkStringArrays from cell data of the
+  // input data set which broke the pipeline concept
+  vtkSmartPointer<vtkPolyData> data = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
+  data->SetPoints(pts);
+  data->Allocate();
+
+  vtkSmartPointer<vtkIdList> lst = vtkSmartPointer<vtkIdList>::New();
+  lst->InsertNextId(pts->InsertNextPoint(0, 0, 0));
+  data->InsertNextCell(VTK_VERTEX, lst);
+
+  vtkSmartPointer<vtkStringArray> array = vtkSmartPointer<vtkStringArray>::New();
+  array->SetName("test-strings");
+  array->InsertNextValue("A");
+  data->GetCellData()->AddArray(array);
+
+  vtkSmartPointer<vtkCellDataToPointData> c2p = vtkSmartPointer<vtkCellDataToPointData>::New();
+  c2p->SetInputData(data);
+  c2p->SetProcessAllArrays(true);
+  c2p->Update();
+
+  vtkStringArray* test =
+    vtkStringArray::SafeDownCast(data->GetCellData()->GetAbstractArray("test-strings"));
+  if (!test)
+  {
+    std::cerr << "vtkCellDataToPointData has removed string array from its input dataset."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
