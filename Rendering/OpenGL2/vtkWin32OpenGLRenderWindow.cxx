@@ -1524,9 +1524,15 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
     {
       fuLoad |= LR_LOADFROMFILE;
     }
-    HANDLE cursor;
-    cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, fuLoad);
-    SetCursor((HCURSOR)cursor);
+    HANDLE cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, fuLoad);
+    if (!cursor)
+    {
+      vtkErrorMacro("failed to load requested cursor shape " << GetLastError());
+    }
+    else
+    {
+      SetCursor((HCURSOR)cursor);
+    }
   }
 }
 
