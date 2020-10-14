@@ -499,7 +499,8 @@ vtkIdType CellProcessor<T>::FindCell(
   else
   {
     const CellFragments<T>* cellIds = this->GetIds(binId);
-    double dist2, *bounds, delta[3] = { 0.0, 0.0, 0.0 };
+    double tol = this->Binner->binTol;
+    double dist2, *bounds, delta[3] = { tol, tol, tol };
     int subId;
     vtkIdType cellId;
 

@@ -199,12 +199,13 @@ void vtkStreamTracer::SetInterpolatorType(int interpType)
   if (interpType == INTERPOLATOR_WITH_CELL_LOCATOR)
   {
     // create an interpolator equipped with a cell locator
-    vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField> cellLoc =
-      vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField>::New();
+    vtkNew<vtkCellLocatorInterpolatedVelocityField> cellLoc;
 
     // specify the type of the cell locator attached to the interpolator
-    vtkSmartPointer<vtkStaticCellLocator> cellLocType =
-      vtkSmartPointer<vtkStaticCellLocator>::New();
+    constexpr double tolerance = 1e-6;
+    vtkNew<vtkStaticCellLocator> cellLocType;
+    cellLocType->SetTolerance(tolerance);
+    cellLocType->UseDiagonalLengthToleranceOn();
     cellLoc->SetCellLocatorPrototype(cellLocType);
 
     this->SetInterpolatorPrototype(cellLoc);
@@ -694,13 +695,7 @@ void vtkStreamTracer::Integrate(vtkPointData* input0Data, vtkPolyData* output,
   if (this->SurfaceStreamlines == true)
   {
     surfaceFunc = vtkInterpolatedVelocityField::SafeDownCast(func);
-    if (surfaceFunc == nullptr)
-    {
-      vtkWarningMacro(<< "Surface Streamlines works only with Point Locator "
-                         "Interpolated Velocity Field, setting it off");
-      this->SetSurfaceStreamlines(false);
-    }
-    else
+    if (surfaceFunc)
     {
       surfaceFunc->SetForceSurfaceTangentVector(true);
       surfaceFunc->SetSurfaceDataset(true);
