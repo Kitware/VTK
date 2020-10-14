@@ -132,8 +132,10 @@ public:
   void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
 
   /**
-   * Get the attribute with the given name and converted to a word type
-   * such as VTK_FLOAT or VTK_UNSIGNED_LONG.
+   * Get the attribute with the given name and converted to a word type.
+   * Word types can be `VTK_TYPE_FLOAT32`, `VTK_TYPE_FLOAT64`, `VTK_INT8`,
+   * `VTK_UINT8`, `VTK_INT16`, `VTK_UINT16`, `VTK_INT32`, `VTK_UINT32`,
+   * `VTK_INT64`, `VTK_UINT64`, `VTK_STRING`, or `VTK_BIT`.
    */
   int GetWordTypeAttribute(const char* name, int& value);
 
