@@ -273,75 +273,51 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
   }
 
   const TaggedCellId tag = this->Cells->GetTag(cellId);
-
-  vtkIdType numPts;
-  const vtkIdType* pts;
   switch (tag.GetCellType())
   {
     case VTK_VERTEX:
-      cell->SetCellTypeToVertex();
-      this->Verts->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 1);
-      break;
-
     case VTK_POLY_VERTEX:
-      cell->SetCellTypeToPolyVertex();
-      this->Verts->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts); // reset number of points
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
     case VTK_LINE:
-      cell->SetCellTypeToLine();
-      this->Lines->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 2);
-      break;
-
     case VTK_POLY_LINE:
-      cell->SetCellTypeToPolyLine();
-      this->Lines->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts); // reset number of points
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
     case VTK_TRIANGLE:
-      cell->SetCellTypeToTriangle();
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 3);
-      break;
-
     case VTK_QUAD:
-      cell->SetCellTypeToQuad();
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      assert(numPts == 4);
-      break;
-
     case VTK_POLYGON:
-      cell->SetCellTypeToPolygon();
-      this->Polys->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts); // reset number of points
-      cell->Points->SetNumberOfPoints(numPts);
-      break;
-
     case VTK_TRIANGLE_STRIP:
-      cell->SetCellTypeToTriangleStrip();
-      this->Strips->GetCellAtId(tag.GetCellId(), numPts, pts);
-      cell->PointIds->SetNumberOfIds(numPts); // reset number of points
-      cell->Points->SetNumberOfPoints(numPts);
+      cell->SetCellType(tag.GetCellType());
       break;
 
     default:
       cell->SetCellTypeToEmptyCell();
-      numPts = 0;
       return;
   }
 
-  double x[3];
-  for (vtkIdType i = 0; i < numPts; ++i)
+  auto cells = this->GetCellArrayInternal(tag);
+  assert(cells != nullptr);
+  cells->GetCellAtId(tag.GetCellId(), cell->PointIds);
+  this->Points->GetPoints(cell->PointIds, cell->Points);
+
+  // some validation code (that existed previously).
+  const auto numPts = cell->GetNumberOfPoints();
+  switch (tag.GetCellType())
   {
-    cell->PointIds->SetId(i, pts[i]);
-    this->Points->GetPoint(pts[i], x);
-    cell->Points->SetPoint(i, x);
+    case VTK_VERTEX:
+      assert(numPts == 1);
+      break;
+
+    case VTK_LINE:
+      assert(numPts == 2);
+      break;
+    case VTK_TRIANGLE:
+      assert(numPts == 3);
+      break;
+
+    case VTK_QUAD:
+      assert(numPts == 4);
+      break;
+
+    default:
+      (void)numPts;
+      break;
   }
 }
 
@@ -1001,14 +977,15 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
     this->BuildCells();
   }
 
-  vtkIdType npts;
-  const vtkIdType* pts;
-  this->GetCellPoints(cellId, npts, pts);
-
-  ptIds->SetNumberOfIds(npts);
-  for (vtkIdType i = 0; i < npts; ++i)
+  const TaggedCellId tag = this->Cells->GetTag(cellId);
+  if (tag.IsDeleted())
   {
-    ptIds->SetId(i, pts[i]);
+    ptIds->SetNumberOfIds(0);
+  }
+  else
+  {
+    auto cells = this->GetCellArrayInternal(tag);
+    cells->GetCellAtId(tag.GetCellId(), ptIds);
   }
 }
 
