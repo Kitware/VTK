@@ -27,7 +27,7 @@ Developed at Kitware Inc
 
 ## **VTX: VTK ADIOS2 READERS**
 
-Developed at Oak Ridge National Laboratory
+Developed at Oak Ridge National Laboratory. Reads node (image and unstructured) and cell (unstructured) centered data.
 
 - **common/VTXDataArray .h/.cxx** : wrapper around vtkDataArray with adios2-related relevant information
 

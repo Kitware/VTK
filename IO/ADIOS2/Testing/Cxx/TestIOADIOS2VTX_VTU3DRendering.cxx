@@ -107,6 +107,8 @@ void WriteBP(const std::string& fileName)
     4.5472, 0.5, 0.915457, 5.38782, 0.5, -0.255387, 5.5, 6.97152e-13, 0.251323, 6, 0.5, 0.118984,
     5.5, 1, 0.251323, 5.61218, 0.5, 0.744613, 4.5, 0.5, 0.421259, 5.5, 0.5, 0.247968 };
 
+  const std::vector<std::int32_t> material = { 1, 2, 3 , 4 , 5 , 6, 7, 8, 9, 10,
+                                               10, 10, 10, 10, 10, 10 };
   // clang-format on
 
   std::vector<double> sol(45);
@@ -115,6 +117,7 @@ void WriteBP(const std::string& fileName)
   adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
   fs.write("types", 11);
   fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+  fs.write("material", material.data(), {}, {}, { 16 });
   fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
   fs.write("sol", sol.data(), {}, {}, { 45 });
 
@@ -132,6 +135,9 @@ void WriteBP(const std::string& fileName)
         <PointData>
           <DataArray Name="sol" />
         </PointData>
+        <CellData>
+          <DataArray Name="material" />
+        </CellData>
       </Piece>
     </UnstructuredGrid>
   </VTKFile>)";

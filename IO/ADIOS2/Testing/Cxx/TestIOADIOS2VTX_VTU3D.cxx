@@ -30,6 +30,7 @@
 #include "vtkADIOS2VTXReader.h"
 
 #include <algorithm> //std::equal
+#include <cstdint>   //std::int32_t
 #include <iostream>
 #include <numeric> //std::iota
 #include <string>
@@ -135,6 +136,9 @@ const std::vector<double> vertices = { 3.98975, -0.000438888, -0.0455599, 4.9175
   4.5472, 0.5, 0.915457, 5.38782, 0.5, -0.255387, 5.5, 6.97152e-13, 0.251323, 6, 0.5, 0.118984,
   5.5, 1, 0.251323, 5.61218, 0.5, 0.744613, 4.5, 0.5, 0.421259, 5.5, 0.5, 0.247968 };
 
+const std::vector<std::int32_t> material = { 1, 2, 3 , 4 , 5 , 6, 7, 8, 9, 10,
+                                             10, 10, 10, 10, 10, 10 };
+
 // clang-format on
 
 } // end empty namespace
@@ -225,7 +229,7 @@ private:
 
     const double* pvertices =
       reinterpret_cast<double*>(unstructuredGrid->GetPoints()->GetVoidPointer(0));
-    // TODO
+
     if (!std::equal(vertices.begin(), vertices.end(), pvertices))
     {
       return false;
@@ -261,6 +265,9 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
                   steps
                 </DataArray>
               </PointData>
+              <CellData>
+                <DataArray Name="material" />
+              </CellData>
             </Piece>
           </UnstructuredGrid>
         </VTKFile>)";
@@ -283,6 +290,7 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
       }
 
       fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
+      fs.write("material", material.data(), {}, {}, { 16 });
       fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
       if (isAttribute)
       {
