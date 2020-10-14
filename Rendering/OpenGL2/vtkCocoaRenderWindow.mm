@@ -1576,6 +1576,7 @@ void vtkCocoaRenderWindow::SetCurrentCursor(int shape)
   switch (shape)
   {
     case VTK_CURSOR_DEFAULT:
+    case VTK_CURSOR_CUSTOM:
     case VTK_CURSOR_ARROW:
       cursor = [NSCursor arrowCursor];
       break;
