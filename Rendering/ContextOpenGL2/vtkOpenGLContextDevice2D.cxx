@@ -509,6 +509,7 @@ void vtkOpenGLContextDevice2D::BuildVBO(
 
   // upload the data
   cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
+  cellBO->VAO->ShaderProgramChanged();
   cellBO->VAO->Bind();
   if (!cellBO->VAO->AddAttributeArray(
         cellBO->Program, cellBO->IBO, "vertexMC", 0, sizeof(float) * stride, VTK_FLOAT, 2, false))
