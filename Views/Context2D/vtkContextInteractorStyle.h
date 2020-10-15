@@ -78,6 +78,12 @@ public:
   void OnLeftButtonUp() override;
 
   /**
+   * Called when the user double-clicks the mouse left button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnLeftButtonDoubleClick() override;
+
+  /**
    * Called when the user clicks the mouse middle button.
    * Default behavior forwards the event to the observed scene.
    */
@@ -90,6 +96,12 @@ public:
   void OnMiddleButtonUp() override;
 
   /**
+   * Called when the user double-clicks the mouse middle button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnMiddleButtonDoubleClick() override;
+
+  /**
    * Called when the user clicks the mouse right button.
    * Default behavior forwards the event to the observed scene.
    */
@@ -100,6 +112,12 @@ public:
    * Default behavior forwards the event to the observed scene.
    */
   void OnRightButtonUp() override;
+
+  /**
+   * Called when the user double-clicks the mouse right button.
+   * Default behavior forwards the event to the observed scene.
+   */
+  void OnRightButtonDoubleClick() override;
 
   /**
    * Called when the user moves the mouse wheel forward.

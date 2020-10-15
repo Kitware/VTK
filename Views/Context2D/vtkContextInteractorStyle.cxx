@@ -258,6 +258,24 @@ void vtkContextInteractorStyle::OnLeftButtonUp()
 }
 
 //------------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnLeftButtonDoubleClick()
+{
+  this->BeginProcessingEvent();
+  bool eatEvent = false;
+  if (this->Scene)
+  {
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::LEFT_BUTTON);
+    eatEvent = this->Scene->DoubleClickEvent(event);
+  }
+  if (!eatEvent)
+  {
+    this->Superclass::OnLeftButtonDoubleClick();
+  }
+  this->EndProcessingEvent();
+}
+
+//------------------------------------------------------------------------------
 void vtkContextInteractorStyle::OnMiddleButtonDown()
 {
   this->BeginProcessingEvent();
@@ -296,6 +314,24 @@ void vtkContextInteractorStyle::OnMiddleButtonUp()
 }
 
 //------------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnMiddleButtonDoubleClick()
+{
+  this->BeginProcessingEvent();
+  bool eatEvent = false;
+  if (this->Scene)
+  {
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    eatEvent = this->Scene->DoubleClickEvent(event);
+  }
+  if (!eatEvent)
+  {
+    this->Superclass::OnMiddleButtonDoubleClick();
+  }
+  this->EndProcessingEvent();
+}
+
+//------------------------------------------------------------------------------
 void vtkContextInteractorStyle::OnRightButtonDown()
 {
   this->BeginProcessingEvent();
@@ -329,6 +365,24 @@ void vtkContextInteractorStyle::OnRightButtonUp()
   if (!eatEvent)
   {
     this->Superclass::OnRightButtonUp();
+  }
+  this->EndProcessingEvent();
+}
+
+//------------------------------------------------------------------------------
+void vtkContextInteractorStyle::OnRightButtonDoubleClick()
+{
+  this->BeginProcessingEvent();
+  bool eatEvent = false;
+  if (this->Scene)
+  {
+    vtkContextMouseEvent event;
+    this->ConstructMouseEvent(event, vtkContextMouseEvent::RIGHT_BUTTON);
+    eatEvent = this->Scene->DoubleClickEvent(event);
+  }
+  if (!eatEvent)
+  {
+    this->Superclass::OnRightButtonDoubleClick();
   }
   this->EndProcessingEvent();
 }
