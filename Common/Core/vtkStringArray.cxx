@@ -399,7 +399,7 @@ vtkStdString* vtkStringArray::ResizeAndExtend(vtkIdType sz)
 vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
 {
   vtkStdString* newArray;
-  vtkIdType newSize = sz;
+  vtkIdType newSize = sz * this->NumberOfComponents;
 
   if (newSize == this->Size)
   {
