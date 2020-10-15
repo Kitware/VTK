@@ -64,6 +64,7 @@ set (VolumeCxxTests
   TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
   TestGPURayCastVolumeDepthPass.cxx
+  TestGPURayCastVolumeGhostArrays.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumeOrientation.cxx
   TestGPURayCastVolumePicking.cxx
