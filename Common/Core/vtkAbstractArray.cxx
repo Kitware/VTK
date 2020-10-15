@@ -190,9 +190,11 @@ int vtkAbstractArray::CopyComponentNames(vtkAbstractArray* da)
 //------------------------------------------------------------------------------
 bool vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
 {
-  vtkIdType numTuples = this->NumberOfComponents == 1
-    ? numValues
-    : (numValues + this->NumberOfComponents - 1) / this->NumberOfComponents;
+  vtkIdType numTuples = numValues / this->NumberOfComponents;
+  if (numValues % this->NumberOfComponents)
+  {
+    ++numTuples;
+  }
   if (!this->Resize(numTuples))
   {
     return false;

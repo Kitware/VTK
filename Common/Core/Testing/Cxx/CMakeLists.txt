@@ -91,6 +91,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   ExampleDataArrayRangeAPI.cxx
   ExampleDataArrayRangeDispatch.cxx
   UnitTestMath.cxx
+  TestAbstractArraySize.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx
