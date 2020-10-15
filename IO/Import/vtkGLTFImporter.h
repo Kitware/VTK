@@ -65,6 +65,7 @@
 #include <map>    // For map
 #include <vector> // For vector
 
+class vtkActor;
 class vtkCamera;
 class vtkGLTFDocumentLoader;
 class vtkTexture;
@@ -102,6 +103,38 @@ public:
    */
   std::string GetOutputsDescription() override { return this->OutputsDescription; };
 
+  /**
+   * update timestep
+   */
+  void UpdateTimeStep(double timestep) override;
+
+  /**
+   * Get the number of available animations.
+   */
+  vtkIdType GetNumberOfAnimations() override;
+
+  /**
+   * Return the name of the animation.
+   */
+  std::string GetAnimationName(vtkIdType animationIndex) override;
+
+  //@{
+  /**
+   * Enable/Disable/Get the status of specific animations
+   */
+  void EnableAnimation(vtkIdType animationIndex) override;
+  void DisableAnimation(vtkIdType animationIndex) override;
+  bool IsAnimationEnabled(vtkIdType animationIndex) override;
+  //@}
+
+  /**
+   * Get temporal informations for the currently enabled animations.
+   * frameRate is used to define the number of frames for one second of simulation.
+   * the three return arguments are defined in this implementation.
+   */
+  bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
+    double timeRange[2], vtkDoubleArray* timeSteps) override;
+
 protected:
   vtkGLTFImporter() = default;
   ~vtkGLTFImporter() override;
@@ -115,8 +148,10 @@ protected:
 
   std::vector<vtkSmartPointer<vtkCamera>> Cameras;
   std::map<int, vtkSmartPointer<vtkTexture>> Textures;
+  std::map<int, std::vector<vtkSmartPointer<vtkActor>>> Actors;
   vtkSmartPointer<vtkGLTFDocumentLoader> Loader;
   std::string OutputsDescription;
+  std::vector<bool> EnabledAnimations;
 
 private:
   vtkGLTFImporter(const vtkGLTFImporter&) = delete;

@@ -53,7 +53,6 @@ class vtkImageData;
 class vtkMatrix4x4;
 class vtkPoints;
 class vtkPolyData;
-class vtkTransform;
 class vtkUnsignedShortArray;
 
 class VTKIOGEOMETRY_EXPORT vtkGLTFDocumentLoader : public vtkObject
@@ -203,7 +202,7 @@ public:
   /**
    * This struct describes a glTF node object.
    * A node represents an object within a scene.
-   * Nodes can contain transform properties (stored as vtkTransform objects) as well as indices to
+   * Nodes can contain transform properties (stored as vtkMatrix4x4 objects) as well as indices to
    * children nodes, forming a hierarchy. No node may be a direct descendant of more than one node.
    */
   struct Node
@@ -213,8 +212,8 @@ public:
     int Mesh;
     int Skin;
 
-    vtkSmartPointer<vtkTransform> Transform;
-    vtkSmartPointer<vtkTransform> GlobalTransform;
+    vtkSmartPointer<vtkMatrix4x4> Transform;
+    vtkSmartPointer<vtkMatrix4x4> GlobalTransform;
 
     bool TRSLoaded;
 
@@ -575,6 +574,20 @@ public:
    */
   const std::vector<std::string>& GetUsedExtensions();
 
+  /**
+   * Concatenate the current node's local transform to its parent's global transform, storing
+   * the resulting transform in the node's globalTransform field. Then does the same for the current
+   * node's children.
+   * Recursive.
+   */
+  void BuildGlobalTransforms(unsigned int nodeIndex, vtkSmartPointer<vtkMatrix4x4> parentTransform);
+
+  /**
+   * Compute all joint matrices of the skin of a specific node
+   */
+  static void ComputeJointMatrices(const Model& model, const Skin& skin, Node& node,
+    std::vector<vtkSmartPointer<vtkMatrix4x4>>& jointMats);
+
 protected:
   vtkGLTFDocumentLoader() = default;
   ~vtkGLTFDocumentLoader() override = default;
@@ -624,14 +637,6 @@ private:
    * Load Model's Images into vtkImageData objects, from filesystem and bufferView when specified.
    */
   bool LoadImageData();
-
-  /**
-   * Concatenate the current node's local transform to its parent's global transform, storing
-   * the resulting transform in the node's globalTransform field. Then does the same for the current
-   * node's children.
-   * Recursive.
-   */
-  void BuildGlobalTransforms(unsigned int nodeIndex, vtkSmartPointer<vtkTransform> parentTransform);
 
   std::shared_ptr<Model> InternalModel;
 
