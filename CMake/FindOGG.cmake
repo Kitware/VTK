@@ -14,7 +14,7 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(OGG REQUIRED_VARS OGG_LIBRARY OGG_INCLUDE_DIR)
 
 if (OGG_FOUND)
-  set(OGG_LIBRARIES "${OGG_LIBRRAY}")
+  set(OGG_LIBRARIES "${OGG_LIBRARY}")
   set(OGG_INCLUDE_DIRS "${OGG_INCLUDE_DIR}")
 
   if (NOT TARGET OGG::OGG)
