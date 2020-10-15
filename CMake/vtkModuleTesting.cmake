@@ -285,7 +285,7 @@ function (vtk_add_test_cxx exename _tests)
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
 
-  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
@@ -377,7 +377,7 @@ function (vtk_add_test_mpi exename _tests)
   _vtk_test_parse_args("${mpi_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${mpi_options}" "" ${options})
 
-  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
 
   set(default_numprocs ${VTK_MPI_NUMPROCS})
   if (${exename}_NUMPROCS)
@@ -566,7 +566,7 @@ function (vtk_add_test_python)
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
   _vtk_test_set_options("${python_options}" "" ${options})
 
-  set(_vtk_fail_regex "(\n|^)ERROR: " "instance(s)? still around")
+  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})
