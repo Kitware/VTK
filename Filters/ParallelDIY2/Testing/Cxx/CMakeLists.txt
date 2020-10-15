@@ -7,8 +7,7 @@ if (TARGET VTK::mpi)
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx
     TestPResampleWithDataSet.cxx
-    TestRedistributeDataSetFilter.cxx
-  )
+    TestRedistributeDataSetFilter.cxx)
 
 # We want 4 processes to test the vtkAggregateDataSetFilter
 # properly.
@@ -33,5 +32,6 @@ vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestExtractSubsetWithSeed.cxx
   TestOverlappingCellsDetector.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
-  TestRedistributeDataSetFilter.cxx,NO_VALID)
+  TestRedistributeDataSetFilter.cxx,NO_VALID
+  TestRedistributeDataSetFilterWithPolyData.cxx)
 vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests non_mpi_tests)
