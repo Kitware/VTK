@@ -2222,7 +2222,7 @@ void vtkOpenGLRenderWindow::Render()
 {
   if (this->Initialized)
   {
-    vtkOpenGLRenderUtilities::MarkDebugEvent("Starting vtkOpenGLRenderWIndow::Render");
+    vtkOpenGLRenderUtilities::MarkDebugEvent("Starting vtkOpenGLRenderWindow::Render");
   }
   this->Superclass::Render();
 
