@@ -161,7 +161,7 @@ struct MarkCellBoundary
   // Threaded method. The cell info is being written to by only one
   // thread. The point info may be written to by multiple threads, but the
   // info is always set to the same value (=1).
-  void MarkCell(vtkIdType cellId, int faceNum, vtkIdType npts, const vtkIdType* pts)
+  void MarkCell(vtkIdType cellId, vtkIdType faceNum, vtkIdType npts, const vtkIdType* pts)
   {
     this->CellMarks[cellId] = 1;
     if (this->FaceMarks != nullptr && faceNum < (int)sizeof(vtkIdType))
@@ -334,7 +334,7 @@ void MarkUGCell(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType, vtkI
   const vtkIdType* pts, vtkUnstructuredGridCellIterator* cellIter, vtkGenericCell* cell,
   MarkCellBoundary* marker)
 {
-  int faceId, numEdgePts, numFacePts;
+  vtkIdType faceId, numEdgePts, numFacePts;
   const int MAX_FACE_POINTS = 32;
   vtkIdType ptIds[MAX_FACE_POINTS]; // cell face point ids
   const vtkIdType* faceVerts;
