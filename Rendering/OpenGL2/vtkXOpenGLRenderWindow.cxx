@@ -1711,10 +1711,6 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
       break;
     case VTK_CURSOR_CUSTOM:
-      if (!this->GetCursorFileName())
-      {
-        break;
-      }
       this->XCCustom = XcursorFilenameLoadCursor(this->DisplayId, this->GetCursorFileName());
       if (!this->XCCustom)
       {
