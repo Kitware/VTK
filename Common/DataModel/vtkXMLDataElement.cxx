@@ -823,11 +823,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "Float32") == 0)
   {
-#if VTK_SIZEOF_FLOAT == 4
-    value = VTK_FLOAT;
-    return 1;
-#elif VTK_SIZEOF_DOUBLE == 4
-    value = VTK_DOUBLE;
+#ifdef VTK_TYPE_FLOAT32
+    value = VTK_TYPE_FLOAT32;
     return 1;
 #else
     vtkErrorMacro("Float32 support not compiled in VTK.");
@@ -836,11 +833,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "Float64") == 0)
   {
-#if VTK_SIZEOF_FLOAT == 8
-    value = VTK_FLOAT;
-    return 1;
-#elif VTK_SIZEOF_DOUBLE == 8
-    value = VTK_DOUBLE;
+#ifdef VTK_TYPE_FLOAT64
+    value = VTK_TYPE_FLOAT64;
     return 1;
 #else
     vtkErrorMacro("Float64 support not compiled in VTK.");
@@ -849,29 +843,28 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "Int8") == 0)
   {
-    // For compatibility, use char when it is signed.
-#if VTK_TYPE_CHAR_IS_SIGNED
-    value = VTK_CHAR;
-#else
-    value = VTK_SIGNED_CHAR;
-#endif
+#ifdef VTK_TYPE_INT8
+    value = VTK_TYPE_INT8;
     return 1;
+#else
+    vtkErrorMacro("Int8 support not compiled in VTK.");
+    return 0;
+#endif
   }
   else if (strcmp(v, "UInt8") == 0)
   {
-    value = VTK_UNSIGNED_CHAR;
+#ifdef VTK_TYPE_UINT8
+    value = VTK_TYPE_UINT8;
     return 1;
+#else
+    vtkErrorMacro("UInt8 support not compiled in VTK.");
+    return 0;
+#endif
   }
   else if (strcmp(v, "Int16") == 0)
   {
-#if VTK_SIZEOF_SHORT == 2
-    value = VTK_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 2
-    value = VTK_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 2
-    value = VTK_LONG;
+#ifdef VTK_TYPE_INT16
+    value = VTK_TYPE_INT16;
     return 1;
 #else
     vtkErrorMacro("Int16 support not compiled in VTK.");
@@ -880,14 +873,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "UInt16") == 0)
   {
-#if VTK_SIZEOF_SHORT == 2
-    value = VTK_UNSIGNED_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 2
-    value = VTK_UNSIGNED_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 2
-    value = VTK_UNSIGNED_LONG;
+#ifdef VTK_TYPE_UINT16
+    value = VTK_TYPE_UINT16;
     return 1;
 #else
     vtkErrorMacro("UInt16 support not compiled in VTK.");
@@ -896,14 +883,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "Int32") == 0)
   {
-#if VTK_SIZEOF_SHORT == 4
-    value = VTK_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 4
-    value = VTK_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 4
-    value = VTK_LONG;
+#ifdef VTK_TYPE_INT32
+    value = VTK_TYPE_INT32;
     return 1;
 #else
     vtkErrorMacro("Int32 support not compiled in VTK.");
@@ -912,14 +893,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "UInt32") == 0)
   {
-#if VTK_SIZEOF_SHORT == 4
-    value = VTK_UNSIGNED_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 4
-    value = VTK_UNSIGNED_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 4
-    value = VTK_UNSIGNED_LONG;
+#ifdef VTK_TYPE_UINT32
+    value = VTK_TYPE_UINT32;
     return 1;
 #else
     vtkErrorMacro("UInt32 support not compiled in VTK.");
@@ -928,17 +903,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "Int64") == 0)
   {
-#if VTK_SIZEOF_SHORT == 8
-    value = VTK_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 8
-    value = VTK_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 8
-    value = VTK_LONG;
-    return 1;
-#elif VTK_SIZEOF_LONG_LONG == 8
-    value = VTK_LONG_LONG;
+#ifdef VTK_TYPE_INT64
+    value = VTK_TYPE_INT64;
     return 1;
 #else
     vtkErrorMacro("Int64 support not compiled in VTK.");
@@ -947,17 +913,8 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
   }
   else if (strcmp(v, "UInt64") == 0)
   {
-#if VTK_SIZEOF_SHORT == 8
-    value = VTK_UNSIGNED_SHORT;
-    return 1;
-#elif VTK_SIZEOF_INT == 8
-    value = VTK_UNSIGNED_INT;
-    return 1;
-#elif VTK_SIZEOF_LONG == 8
-    value = VTK_UNSIGNED_LONG;
-    return 1;
-#elif VTK_SIZEOF_LONG_LONG == 8
-    value = VTK_UNSIGNED_LONG_LONG;
+#ifdef VTK_TYPE_UINT64
+    value = VTK_TYPE_UINT64;
     return 1;
 #else
     vtkErrorMacro("UInt64 support not compiled in VTK.");
