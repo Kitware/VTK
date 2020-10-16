@@ -83,7 +83,7 @@ int TestGPURayCastVolumeUniformGridBlanking(int argc, char* argv[])
   volume->SetProperty(volumeProperty);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(300, 300);
   renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> renderer;
