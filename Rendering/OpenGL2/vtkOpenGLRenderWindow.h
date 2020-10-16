@@ -224,6 +224,11 @@ public:
   //@}
 
   /**
+   * Returns the display framebuffer object.
+   */
+  vtkGetObjectMacro(DisplayFramebuffer, vtkOpenGLFramebufferObject);
+
+  /**
    * Returns its texture unit manager object. A new one will be created if one
    * hasn't already been set up.
    */
