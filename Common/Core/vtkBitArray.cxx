@@ -155,11 +155,7 @@ void vtkBitArray::SetArrayFreeFunction(void (*callback)(void*))
 // Get the data at a particular index.
 int vtkBitArray::GetValue(vtkIdType id) const
 {
-  if (this->Array[id / 8] & (0x80 >> (id % 8)))
-  {
-    return 1;
-  }
-  return 0;
+  return (this->Array[id / 8] & (0x80 >> (id % 8))) != 0;
 }
 
 //------------------------------------------------------------------------------
