@@ -81,6 +81,7 @@ class vtkUnsignedCharArray;
 #define VTK_CURSOR_SIZEALL 8
 #define VTK_CURSOR_HAND 9
 #define VTK_CURSOR_CROSSHAIR 10
+#define VTK_CURSOR_CUSTOM 11
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
@@ -210,6 +211,15 @@ public:
    */
   vtkSetMacro(CurrentCursor, int);
   vtkGetMacro(CurrentCursor, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the full path to the custom cursor.
+   * This is used when the current cursor is set to VTK_CURSOR_CUSTOM.
+   */
+  vtkSetStringMacro(CursorFileName);
+  vtkGetStringMacro(CursorFileName);
   //@}
 
   //@{
@@ -777,6 +787,7 @@ protected:
   int DeviceIndex;
 
   bool UseSRGBColorSpace;
+  char* CursorFileName;
 
   /**
    * The universal time since the last abort check occurred.

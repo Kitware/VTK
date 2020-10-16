@@ -1,3 +1,8 @@
+vtk_module_test_data(
+  Data/pen_1.cur
+  Data/pen_1.xcursor
+  )
+
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestBlockOpacity.cxx TestBlockVisibility.cxx
   TestBlurAndSobelPasses.cxx
@@ -21,6 +26,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCubeMap.cxx
   TestCubeMap2.cxx
   TestCubeMapRerender.cxx
+  TestCustomCursorShape.cxx,NO_VALID
   TestDepthOfFieldPass.cxx
   TestDepthPeelingOcclusionQuery.cxx
   TestDepthPeelingPass.cxx

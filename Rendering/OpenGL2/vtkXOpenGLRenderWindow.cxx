@@ -63,6 +63,7 @@ typedef ptrdiff_t GLsizeiptr;
 #include <sstream>
 
 #include <X11/Xatom.h>
+#include <X11/Xcursor/Xcursor.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
@@ -288,6 +289,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCSizeSE = 0;
   this->XCSizeSW = 0;
   this->XCHand = 0;
+  this->XCCustom = 0;
 }
 
 // free up memory & close the window
@@ -730,6 +732,10 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     {
       XFreeCursor(this->DisplayId, this->XCHand);
     }
+    if (this->XCCustom)
+    {
+      XFreeCursor(this->DisplayId, this->XCCustom);
+    }
   }
 
   this->XCCrosshair = 0;
@@ -742,6 +748,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   this->XCSizeSE = 0;
   this->XCSizeSW = 0;
   this->XCHand = 0;
+  this->XCCustom = 0;
 
   if (this->OwnContext && this->Internal->ContextId)
   {
@@ -1702,6 +1709,15 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
         this->XCHand = XCreateFontCursor(this->DisplayId, XC_hand1);
       }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
+      break;
+    case VTK_CURSOR_CUSTOM:
+      this->XCCustom = XcursorFilenameLoadCursor(this->DisplayId, this->GetCursorFileName());
+      if (!this->XCCustom)
+      {
+        vtkErrorMacro(<< "Failed to load cursor from Xcursor file: " << this->GetCursorFileName());
+        break;
+      }
+      XDefineCursor(this->DisplayId, this->WindowId, this->XCCustom);
       break;
   }
 }
