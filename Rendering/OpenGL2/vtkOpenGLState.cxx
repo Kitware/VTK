@@ -1447,12 +1447,15 @@ void vtkOpenGLState::Reset()
 
 void vtkOpenGLState::Push()
 {
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Pushing OpenGL State");
   this->Stack.push(this->Stack.top());
   this->PushFramebufferBindings();
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Pushing OpenGL State");
 }
 
 void vtkOpenGLState::Pop()
 {
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Popping OpenGL State");
   this->Stack.pop();
   auto& cs = this->Stack.top();
 
@@ -1526,6 +1529,7 @@ void vtkOpenGLState::Pop()
   ::glActiveTexture(cs.ActiveTexture);
 
   ::glBindVertexArray(cs.BoundVAO);
+  vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Popping OpenGL State");
 }
 
 // make the hardware openglstate match the
