@@ -153,8 +153,6 @@ protected:
     vtkInformationVector* outputVector) override;
   void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
-
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&) = delete;
   void operator=(const vtkRTAnalyticSource&) = delete;

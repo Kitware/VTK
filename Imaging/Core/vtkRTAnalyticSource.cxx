@@ -295,13 +295,3 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SubsampleRate: " << this->SubsampleRate << endl;
 }
-
-int vtkRTAnalyticSource::FillOutputPortInformation(int port, vtkInformation* info)
-{
-  if (!this->Superclass::FillOutputPortInformation(port, info))
-  {
-    return 0;
-  }
-
-  return 1;
-}
