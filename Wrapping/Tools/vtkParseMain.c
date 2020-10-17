@@ -288,18 +288,6 @@ static int parse_check_options(int argc, char* argv[], int multi)
       fprintf(stdout, "%s %s\n", parse_exename(argv[0]), ver);
       return 0;
     }
-    else if (argv[i][0] != '-')
-    {
-      if (options.NumberOfFiles == 0)
-      {
-        options.Files = (char**)malloc(sizeof(char*));
-      }
-      else if ((options.NumberOfFiles & (options.NumberOfFiles - 1)) == 0)
-      {
-        options.Files = (char**)realloc(options.Files, 2 * options.NumberOfFiles * sizeof(char*));
-      }
-      options.Files[options.NumberOfFiles++] = argv[i];
-    }
     else if (strcmp(argv[i], "-imacros") == 0)
     {
       i++;
@@ -357,6 +345,18 @@ static int parse_check_options(int argc, char* argv[], int multi)
       {
         vtkParse_UndefineMacro(cp);
       }
+    }
+    else if (argv[i][0] != '-')
+    {
+      if (options.NumberOfFiles == 0)
+      {
+        options.Files = (char**)malloc(sizeof(char*));
+      }
+      else if ((options.NumberOfFiles & (options.NumberOfFiles - 1)) == 0)
+      {
+        options.Files = (char**)realloc(options.Files, 2 * options.NumberOfFiles * sizeof(char*));
+      }
+      options.Files[options.NumberOfFiles++] = argv[i];
     }
     else if (!multi && strcmp(argv[i], "--hints") == 0)
     {

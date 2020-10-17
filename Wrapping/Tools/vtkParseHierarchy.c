@@ -61,7 +61,7 @@ static size_t skip_expression(const char* text, const char* delims)
     {
       j++;
     }
-    if (delims[j] != '\0' || c == '\0')
+    if (delims[j] != '\0')
     {
       break;
     }
