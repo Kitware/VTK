@@ -1075,7 +1075,10 @@ void vtkDualDepthPeelingPass::InitializeOcclusionQuery()
   int numPixels = this->ViewportHeight * this->ViewportWidth;
   this->OcclusionThreshold = numPixels * this->OcclusionRatio;
   this->TranslucentWrittenPixels = this->OcclusionThreshold + 1;
-  this->VolumetricWrittenPixels = this->OcclusionThreshold + 1;
+  // VolumetricWrittenPixels do not need to be initialized since the
+  // TranslucentWrittenPixels are initialized to be above the required OcclusionThreshold
+  // If they would, they may never be updated if IsRenderingVolumes is false
+  this->VolumetricWrittenPixels = 0;
 }
 
 //------------------------------------------------------------------------------
