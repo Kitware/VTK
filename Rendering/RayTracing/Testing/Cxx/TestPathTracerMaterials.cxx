@@ -58,7 +58,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(1, renderer);
-  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(vtkOSPRayRendererNode::Environment, renderer);
   renWin->SetSize(700, 700);
   double up[3] = { 0., 1., 0. };
   vtkOSPRayRendererNode::SetNorthPole(up, renderer);

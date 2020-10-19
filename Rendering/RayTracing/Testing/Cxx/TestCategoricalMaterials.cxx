@@ -47,7 +47,7 @@ int TestCategoricalMaterials(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(vtkOSPRayRendererNode::Environment, renderer);
   renderer->SetEnvironmentalBG(0.0, 0.0, 0.0);
   renderer->SetEnvironmentalBG2(0.8, 0.8, 1.0);
   renderer->GradientEnvironmentalBGOn();

@@ -341,6 +341,15 @@ public:
   static int GetEnableDenoiser(vtkRenderer* renderer);
   //@}
 
+  enum BackgroundMode
+  {
+    None,
+    Backplate,
+    Environment,
+    Both,
+    NumberOfMode
+  };
+
   //@{
   /**
    * Control use of the path tracer backplate and environmental background.
@@ -350,8 +359,8 @@ public:
    * actors acquire color from the environment.
    */
   static vtkInformationIntegerKey* BACKGROUND_MODE();
-  static void SetBackgroundMode(int, vtkRenderer* renderer);
-  static int GetBackgroundMode(vtkRenderer* renderer);
+  static void SetBackgroundMode(BackgroundMode, vtkRenderer* renderer);
+  static BackgroundMode GetBackgroundMode(vtkRenderer* renderer);
   //@}
 
   std::vector<OSPGeometricModel> GeometricModels;

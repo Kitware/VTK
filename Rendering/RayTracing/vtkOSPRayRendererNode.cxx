@@ -285,7 +285,7 @@ public:
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
 
-    int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    auto bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
     bool sameMode = (bgMode == this->lBackgroundMode);
     bool forpathtracer = true;
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
@@ -301,7 +301,7 @@ public:
       {
         return true;
       }
-      bgMode = 0x1; // ignore user setting
+      bgMode = vtkOSPRayRendererNode::Backplate; // ignore user setting
     }
 
     OSPTexture t2d = nullptr;
@@ -389,7 +389,7 @@ public:
       // now apply the texture we chose above to the right place
       if (forbackplate)
       {
-        if (bgMode & 0x1)
+        if (bgMode & vtkOSPRayRendererNode::Backplate)
         {
           ospSetObject(this->Owner->GetORenderer(), "map_backplate", t2d);
         }
@@ -414,7 +414,7 @@ public:
           east = ren->GetEnvironmentRight();
         }
         ospSetVec3f(ospLight, "direction", (float)east[0], (float)east[1], (float)east[2]);
-        if (bgMode == 0x2)
+        if (bgMode == vtkOSPRayRendererNode::Environment)
         {
           ospSetBool(ospLight, "visible", true);
         }
@@ -427,7 +427,7 @@ public:
       }
     } //! reusable
 
-    if (!forbackplate && (bgMode & 0x2))
+    if (!forbackplate && (bgMode & vtkOSPRayRendererNode::Environment))
     {
       this->Owner->AddLight(this->BGLight); // lights cleared every frame, so always add
     }
@@ -437,7 +437,7 @@ public:
   std::map<vtkProp3D*, vtkAbstractMapper3D*> LastMapperFor;
   vtkOSPRayRendererNode* Owner;
 
-  int lBackgroundMode = 0;
+  vtkOSPRayRendererNode::BackgroundMode lBackgroundMode = vtkOSPRayRendererNode::None;
   double lColor1[2][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
   bool lUseGradient[2] = { false, false };
   double lColor2[2][3] = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
@@ -1007,9 +1007,10 @@ int vtkOSPRayRendererNode::GetEnableDenoiser(vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-void vtkOSPRayRendererNode::SetBackgroundMode(int value, vtkRenderer* renderer)
+void vtkOSPRayRendererNode::SetBackgroundMode(
+  vtkOSPRayRendererNode::BackgroundMode value, vtkRenderer* renderer)
 {
-  if (!renderer || value < 0 || value > 3)
+  if (!renderer || value < 0 || value >= vtkOSPRayRendererNode::NumberOfMode)
   {
     return;
   }
@@ -1018,18 +1019,20 @@ void vtkOSPRayRendererNode::SetBackgroundMode(int value, vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-int vtkOSPRayRendererNode::GetBackgroundMode(vtkRenderer* renderer)
+vtkOSPRayRendererNode::BackgroundMode vtkOSPRayRendererNode::GetBackgroundMode(
+  vtkRenderer* renderer)
 {
   if (!renderer)
   {
-    return 2;
+    return vtkOSPRayRendererNode::Environment;
   }
   vtkInformation* info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::BACKGROUND_MODE()))
   {
-    return (info->Get(vtkOSPRayRendererNode::BACKGROUND_MODE()));
+    return (vtkOSPRayRendererNode::BackgroundMode)(
+      info->Get(vtkOSPRayRendererNode::BACKGROUND_MODE()));
   }
-  return 2;
+  return vtkOSPRayRendererNode::Environment;
 }
 
 //------------------------------------------------------------------------------
