@@ -29,6 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -404,13 +405,13 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* newLines;
   vtkDataArray* inScalars;
   vtkDataArray* newScalars = nullptr;
-  int* ext;
+  int ext[6];
   int dims[3];
   int dataSize, estimatedSize;
 
   vtkDebugMacro(<< "Executing 2D structured contour");
 
-  ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  input->GetExtent(ext);
   inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {
@@ -430,10 +431,7 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // We have to compute the dimenisons from the update extent because
   // the extent may be larger.
-  dims[0] = ext[1] - ext[0] + 1;
-  dims[1] = ext[3] - ext[2] + 1;
-  dims[2] = ext[5] - ext[4] + 1;
-
+  vtkStructuredData::GetDimensionsFromExtent(ext, dims);
   //
   // Check dimensionality of data and get appropriate form
   //
