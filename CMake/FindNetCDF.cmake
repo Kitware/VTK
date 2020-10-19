@@ -16,6 +16,12 @@ if (netCDF_FOUND)
   set(NetCDF_INCLUDE_DIRS "${netCDF_INCLUDE_DIR}")
   set(NetCDF_LIBRARIES "${netCDF_LIBRARIES}")
   set(NetCDF_VERSION "${NetCDFVersion}")
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(NetCDF
+    REQUIRED_VARS NetCDF_INCLUDE_DIRS NetCDF_LIBRARIES
+    VERSION_VAR NetCDF_VERSION)
+
   if (NOT TARGET NetCDF::NetCDF)
     add_library(NetCDF::NetCDF INTERFACE IMPORTED)
     if (TARGET "netCDF::netcdf")
@@ -43,6 +49,17 @@ if (PkgConfig_FOUND)
     set(NetCDF_INCLUDE_DIRS "${_NetCDF_INCLUDE_DIRS}")
     set(NetCDF_LIBRARIES "${_NetCDF_LIBRARIES}")
     set(NetCDF_VERSION "${_NetCDF_VERSION}")
+
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(NetCDF
+      REQUIRED_VARS NetCDF_LIBRARIES
+      # This is not required because system-default include paths are not
+      # reported by `FindPkgConfig`, so this might be empty. Assume that if we
+      # have a library, the include directories are fine (if any) since
+      # PkgConfig reported that the package was found.
+      # NetCDF_INCLUDE_DIRS
+      VERSION_VAR NetCDF_VERSION)
+
     if (NOT TARGET NetCDF::NetCDF)
       add_library(NetCDF::NetCDF INTERFACE IMPORTED)
       set_target_properties(NetCDF::NetCDF PROPERTIES
