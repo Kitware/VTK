@@ -77,9 +77,9 @@ int TestResampleToImage(int, char*[])
     }
   }
 
-  if (numHiddenPoints != 2000)
+  if (numHiddenPoints != 1998)
   {
-    std::cout << "Number of Hidden points: expecting 2000 got " << numHiddenPoints << std::endl;
+    std::cout << "Number of Hidden points: expecting 1998 got " << numHiddenPoints << std::endl;
     status = 1;
   }
 
@@ -93,9 +93,9 @@ int TestResampleToImage(int, char*[])
     }
   }
 
-  if (numHiddenCells != 2171)
+  if (numHiddenCells != 2169)
   {
-    std::cout << "Number of Hidden cells: expecting 2171 got " << numHiddenCells << std::endl;
+    std::cout << "Number of Hidden cells: expecting 2169 got " << numHiddenCells << std::endl;
     status = 1;
   }
 
@@ -129,9 +129,9 @@ int TestResampleToImage(int, char*[])
   {
     zeros += !val;
   }
-  if (zeros != 744725)
+  if (zeros != 744732)
   {
-    std::cout << "Caught " << zeros << " invalid points, it should have been 744725" << std::endl;
+    std::cout << "Caught " << zeros << " invalid points, it should have been 744732" << std::endl;
     status = 1;
   }
 
