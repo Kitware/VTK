@@ -43,6 +43,8 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+#include "vtkNew.h"
+
 class vtkPoints;
 class vtkPolyData;
 class vtkTransform;
@@ -50,6 +52,7 @@ class vtkTransformPolyDataFilter;
 class vtkPolyDataMapper2D;
 class vtkActor2D;
 class vtkProperty2D;
+class vtkCellArray;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBorderRepresentation : public vtkWidgetRepresentation
 {
@@ -243,6 +246,65 @@ public:
 
   void SetBWActorDisplayOverlay(bool);
 
+  //@{
+  /**
+   * Set/Get the RGB color of the border.
+   * Default is white (1.0, 1.0, 1.0).
+   */
+  vtkSetVector3Macro(BorderColor, double);
+  vtkGetVector3Macro(BorderColor, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the thickness of the border in screen units.
+   * Default is 1.0.
+   */
+  vtkSetClampMacro(BorderThickness, float, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(BorderThickness, float);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the ratio between no radius and maximum radius.
+   * In order to compute round corners, we create 2 points
+   * in each side of the corner. The maximum radius is then
+   * the minimum length of the two sides of each corners.
+   * This maximum radius is scaled by the CornerRadiusStrength.
+   * Default is 0.0 (no radius).
+   */
+  vtkSetClampMacro(CornerRadiusStrength, double, 0.0, 1.0);
+  vtkGetMacro(CornerRadiusStrength, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the number of points that define each round corners.
+   * A high value increase the resolution of the corners.
+   * Default is 20.
+   */
+  vtkSetClampMacro(CornerResolution, int, 0, 1000);
+  vtkGetMacro(CornerResolution, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the RGB color of the background polygon.
+   * Default is white (1.0, 1.0, 1.0).
+   */
+  vtkSetVector3Macro(PolygonColor, double);
+  vtkGetVector3Macro(PolygonColor, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the opacity of the background color.
+   * Default is 0.0.
+   */
+  vtkSetClampMacro(PolygonOpacity, double, 0.0, 1.0);
+  vtkGetMacro(PolygonOpacity, double);
+  //@}
+
 protected:
   vtkBorderRepresentation();
   ~vtkBorderRepresentation() override;
@@ -250,15 +312,16 @@ protected:
   // Ivars
   int ShowVerticalBorder;
   int ShowHorizontalBorder;
-  vtkProperty2D* BorderProperty;
+  vtkNew<vtkProperty2D> BorderProperty;
+  vtkNew<vtkProperty2D> PolygonProperty;
   vtkTypeBool ProportionalResize;
   int Tolerance;
   vtkTypeBool Moving;
   double SelectionPoint[2];
 
   // Layout (position of lower left and upper right corners of border)
-  vtkCoordinate* PositionCoordinate;
-  vtkCoordinate* Position2Coordinate;
+  vtkNew<vtkCoordinate> PositionCoordinate;
+  vtkNew<vtkCoordinate> Position2Coordinate;
 
   // Sometimes subclasses must negotiate with their superclasses
   // to achieve the correct layout.
@@ -275,16 +338,45 @@ protected:
 
   // Border representation. Subclasses may use the BWTransform class
   // to transform their geometry into the region surrounded by the border.
-  vtkPoints* BWPoints;
-  vtkPolyData* BWPolyData;
-  vtkTransform* BWTransform;
-  vtkTransformPolyDataFilter* BWTransformFilter;
-  vtkPolyDataMapper2D* BWMapper;
-  vtkActor2D* BWActor;
+  vtkNew<vtkPoints> BWPoints;
+  vtkNew<vtkPolyData> BWPolyData;
+  vtkNew<vtkPolyData> PolyDataEdges;
+  vtkNew<vtkPolyData> PolyDataPolygon;
+  vtkNew<vtkTransform> BWTransform;
+  vtkNew<vtkTransformPolyDataFilter> BWTransformFilter;
+  vtkNew<vtkPolyDataMapper2D> BWMapperEdges;
+  vtkNew<vtkPolyDataMapper2D> BWMapperPolygon;
+  vtkNew<vtkActor2D> BWActorEdges;
+  vtkNew<vtkActor2D> BWActorPolygon;
 
   // Constraints on size
   int MinimumSize[2];
   int MaximumSize[2];
+
+  // Properties of the border
+  double BorderColor[3] = { 1.0, 1.0, 1.0 };
+  float BorderThickness = 1.0;
+  double CornerRadiusStrength = 0.0;
+  int CornerResolution = 20;
+
+  // Properties of the inner polygon (ie. the background)
+  double PolygonColor[3] = { 1.0, 1.0, 1.0 };
+  double PolygonOpacity = 0.0;
+
+  /**
+   * Create all 4 round corners with the specified radius and resolution.
+   */
+  void ComputeRoundCorners();
+
+  /**
+   * Create a quarter circle centered in point[idCenterX].x, point[idCenterY].y),
+   * of radius 'radius' with a starting angle 'startAngle' ending in
+   * 'startAngle + PI/2' with CornerResolution number of points.
+   * Computed points are stored in the vtkPoints 'points' and
+   * inserted in the vtkCellArray 'polys'
+   */
+  void ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points, const double radius,
+    vtkIdType xPt, vtkIdType yPt, const double startAngle);
 
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&) = delete;

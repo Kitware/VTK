@@ -60,7 +60,7 @@ vtkTextRepresentation::vtkTextRepresentation()
   this->InitializeTextActor();
 
   this->SetShowBorder(vtkBorderRepresentation::BORDER_ACTIVE);
-  this->BWActor->VisibilityOff();
+  this->BWActorEdges->VisibilityOff();
   this->WindowLocation = AnyLocation;
 }
 
@@ -152,8 +152,8 @@ void vtkTextRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 //------------------------------------------------------------------------------
 int vtkTextRepresentation::RenderOverlay(vtkViewport* w)
 {
-  int count = this->Superclass::RenderOverlay(w);
-  count += this->TextActor->RenderOverlay(w);
+  int count = this->TextActor->RenderOverlay(w);
+  count = this->Superclass::RenderOverlay(w);
   return count;
 }
 
@@ -280,7 +280,6 @@ void vtkTextRepresentation::CheckTextBoundary()
     // The bounding box was the area that is going to be filled with pixels
     // given a text origin of (0, 0). Now get the real size we need, i.e.
     // the full extent from the origin to the bounding box.
-
     double text_size[2];
     text_size[0] = (text_bbox[1] - text_bbox[0] + 1);
     text_size[1] = (text_bbox[3] - text_bbox[2] + 1);
@@ -289,12 +288,20 @@ void vtkTextRepresentation::CheckTextBoundary()
     this->GetRenderer()->NormalizedDisplayToViewport(text_size[0], text_size[1]);
     this->GetRenderer()->ViewportToNormalizedViewport(text_size[0], text_size[1]);
 
-    // update the PositionCoordinate
+    // Convert padding in pixels into viewport
+    // Multiply by 2 to ensure an even padding
+    int* size = win->GetSize();
+    double paddingX = 2 * this->RightPadding / (double)size[0];
+    double paddingY = 2 * this->TopPadding / (double)size[1];
 
+    double posX = text_size[0] + paddingX;
+    double posY = text_size[1] + paddingY;
+
+    // update the PositionCoordinate and add padding
     double* pos2 = this->Position2Coordinate->GetValue();
-    if (pos2[0] != text_size[0] || pos2[1] != text_size[1])
+    if (pos2[0] != posX || pos2[1] != posY)
     {
-      this->Position2Coordinate->SetValue(text_size[0], text_size[1], 0);
+      this->Position2Coordinate->SetValue(posX, posY, 0);
       this->Modified();
     }
     if (this->WindowLocation != AnyLocation)

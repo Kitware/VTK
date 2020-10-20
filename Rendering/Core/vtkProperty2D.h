@@ -110,7 +110,7 @@ public:
    * The DisplayLocation is either background or foreground.
    * If it is background, then this 2D actor will be drawn
    * behind all 3D props or foreground 2D actors. If it is
-   * background, then this 2D actor will be drawn in front of
+   * foreground, then this 2D actor will be drawn in front of
    * all 3D props and background 2D actors. Within 2D actors
    * of the same DisplayLocation type, order is determined by
    * the order in which the 2D actors were added to the viewport.
