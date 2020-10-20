@@ -292,10 +292,17 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   if (t == QEvent::Wheel)
   {
     QWheelEvent* e2 = static_cast<QWheelEvent*>(e);
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    auto x = e2->x();
+    auto y = e2->y();
+#else
+    auto x = e2->position().x();
+    auto y = e2->position().y();
+#endif
 
     iren->SetEventInformationFlipY(
-      static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-      static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(x * this->DevicePixelRatio + DevicePixelRatioTolerance),
+      static_cast<int>(y * this->DevicePixelRatio + DevicePixelRatioTolerance),
       (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
       (e2->modifiers() & Qt::ShiftModifier) > 0 ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);

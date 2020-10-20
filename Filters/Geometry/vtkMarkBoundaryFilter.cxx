@@ -166,7 +166,7 @@ struct MarkCellBoundary
     this->CellMarks[cellId] = 1;
     if (this->FaceMarks != nullptr && faceNum < (int)sizeof(vtkIdType))
     {
-      this->FaceMarks[cellId] |= (1 << faceNum);
+      this->FaceMarks[cellId] |= (static_cast<vtkIdType>(1) << faceNum);
     }
     for (auto i = 0; i < npts; ++i)
     {
