@@ -348,7 +348,7 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex& idx, int role) const
       }
       return QVariant(pixmap);
     }
-    else if (role == Qt::TextColorRole)
+    else if (role == Qt::ForegroundRole)
     {
       // return QVariant(QColor(rgb[0],rgb[1],rgb[2]));
     }
