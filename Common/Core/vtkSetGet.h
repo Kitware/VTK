@@ -153,6 +153,7 @@
     T _intArg = static_cast<T>(_arg);                                                              \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " #name " to "            \
                   << _intArg);                                                                     \
+    (void)_intArg; /* suppress unused warning for when vtkDebugMacro does nothing */               \
     if (this->name != _arg)                                                                        \
     {                                                                                              \
       this->name = _arg;                                                                           \
