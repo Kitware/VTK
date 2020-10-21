@@ -48,6 +48,15 @@ static constexpr vtkIdType Collisions[72] = { 6, 0, 6, 0, 4, 4, 6, 0, 10, 7, // 
   0, 0 };
 }
 
+static constexpr vtkIdType CollisionsWithTolerance[72] = { 4, 0, 4, 0, 1, 1, 4, 0, 4, 3, // 0
+  1, 0, 0, 2, 5, 0, 0, 5, 5, 0,                                                          // 10
+  0, 0, 5, 9, 0, 4, 0, 4, 1, 1,                                                          // 20
+  0, 4, 1, 0, 1, 4, 3, 4, 1, 5,                                                          // 30
+  5, 0, 0, 5, 7, 5, 0, 2, 0, 0,                                                          // 40
+  0, 0, 0, 4, 1, 2, 0, 1, 0, 0,                                                          // 50
+  2, 0, 0, 0, 0, 0, 2, 6, 0, 0,                                                          // 60
+  0, 0 };
+
 static constexpr vtkIdType CollisionsBlocks[144] = { 29, 13, 27, 12, 12, 13, 20, 7, 30, 22, // 0
   13, 7, 3, 21, 25, 4, 10, 19, 20, 12,                                                      // 10
   10, 8, 25, 29, 8, 18, 14, 23, 12, 14,                                                     // 20
@@ -134,6 +143,33 @@ int TestOverlappingCellsDetector(int argc, char* argv[])
   }
 
   vtkLogEndScope("Overlapping Tetras");
+  vtkLogStartScope(TRACE, "Overlapping Tetras with tolerance");
+
+  detector->SetTolerance(0.05);
+  detector->Update();
+  detector->SetTolerance(0.0);
+
+  {
+    vtkDataSet* output = vtkDataSet::SafeDownCast(detector->GetOutput(0));
+    vtkDataArray* data =
+      output->GetCellData()->GetArray(detector->GetNumberOfOverlapsPerCellArrayName());
+    vtkDataArray* ids = output->GetCellData()->GetArray("GlobalCellIds");
+
+    auto valIt = vtk::DataArrayValueRange<1>(data).cbegin();
+    auto idIt = vtk::DataArrayValueRange<1>(ids).cbegin();
+    for (; valIt != vtk::DataArrayValueRange<1>(data).cend(); ++valIt, ++idIt)
+    {
+      if (CollisionsWithTolerance[static_cast<vtkIdType>(*idIt)] != *valIt)
+      {
+        std::cerr << "Overlapping cells detector failed with an unstructured grid and tolerance"
+                  << std::endl;
+        retVal = EXIT_FAILURE;
+        break;
+      }
+    }
+  }
+
+  vtkLogEndScope("Overlapping Tetras with tolerance");
   vtkLogStartScope(TRACE, "MultiBlock Overlapping Tetras");
 
   if (myrank == 0)

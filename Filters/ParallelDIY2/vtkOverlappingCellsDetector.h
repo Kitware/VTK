@@ -35,6 +35,13 @@
  * could have spotted the same collision from
  * the cells sent by the other process indeed). One cell id collision map is stored
  * per neighbor process to avoid cell id collision.
+ *
+ * The user can set a `Tolerance` parameter. It is set by default to zero. When
+ * it is equal to zero or is lower to floating point precision,
+ * then floating point precision is used to compute cell
+ * overlaps. If it is not set to zero, then each cells are deflated by `0.5 *
+ * Tolerance` before the overlaps are computed. The deflation is computed using
+ * `vtkCell::Inflate` with a negative parameter.
  */
 
 #ifndef vtkOverlappingCellsDetector_h
@@ -67,6 +74,14 @@ public:
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
+
+  //@{
+  /**
+   * Getter / Setter for the Tolerance parameter.
+   */
+  vtkGetMacro(Tolerance, double);
+  vtkSetMacro(Tolerance, double);
   //@}
 
   //@{
@@ -129,6 +144,17 @@ protected:
    * Output cell scalar field counting the number of cells that each cell was found to collide.
    */
   char* NumberOfOverlapsPerCellArrayName;
+
+  /**
+   * Tolerance for overlap detections. If its value is lower than floating point
+   * precision, then floating point
+   * precision is used as bound error for overlaps. If not, then cells are
+   * deflated by 0.5 * Tolerance before checking the overlaps. Deflating a cell
+   * by `x` means translating inward its edges / faces by a distance `x` following
+   * the edge's / face's normal direction. `vtkCell::Inflate` is used with a
+   * negative parameter.
+   */
+  double Tolerance;
 
 private:
   vtkOverlappingCellsDetector(const vtkOverlappingCellsDetector&) = delete;
