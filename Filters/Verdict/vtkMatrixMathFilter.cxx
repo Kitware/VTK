@@ -41,7 +41,7 @@ void vtkMatrixMathFilter::PrintSelf(ostream& os, vtkIndent indent)
   static const char* OperationNames[] = {
     "None",
     "Determinant",
-    "Eigenvalue"
+    "Eigenvalue",
     "Eigenvector",
     "Inverse",
   };
