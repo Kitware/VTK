@@ -70,6 +70,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
+#include "vtkPBRFunctions.h"
 // Bring in our fragment lit shader symbols.
 #include "vtkPolyDataEdgesGS.h"
 #include "vtkPolyDataFS.h"
@@ -923,51 +924,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
   bool hasIBL = false;
   bool hasAnisotropy = false;
+  bool hasClearCoat = false;
 
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
   {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec",
-      "//VTK::Light::Dec\n"
-      "const float PI = 3.14159265359;\n"
-      "const float recPI = 0.31830988618;\n"
-      "uniform float metallicUniform;\n"
-      "uniform float roughnessUniform;\n"
-      "uniform vec3 emissiveFactorUniform;\n"
-      "uniform float aoStrengthUniform;\n"
-      "uniform vec3 edgeTintUniform;\n"
-      "uniform float anisotropyUniform;\n\n"
-      "float D_GGX(float NdH, float roughness)\n"
-      "{\n"
-      "  float a = roughness * roughness;\n"
-      "  float a2 = a * a;\n"
-      "  float d = (NdH * a2 - NdH) * NdH + 1.0;\n"
-      "  return a2 / (PI * d * d);\n"
-      "}\n"
-      "float V_SmithCorrelated(float NdV, float NdL, float roughness)\n"
-      "{\n"
-      "  float a2 = roughness * roughness;\n"
-      "  float ggxV = NdL * sqrt(a2 + NdV * (NdV - a2 * NdV));\n"
-      "  float ggxL = NdV * sqrt(a2 + NdL * (NdL - a2 * NdL));\n"
-      "  return 0.5 / (ggxV + ggxL);\n"
-      "}\n"
-      "vec3 F_Schlick(vec3 F0, vec3 F90, float HdL)\n"
-      "{\n"
-      "  return F0 + (F90 - F0) * pow(1.0 - HdL, 5.0);\n"
-      "}\n"
-      "vec3 DiffuseLambert(vec3 albedo)\n"
-      "{\n"
-      "  return albedo * recPI;\n"
-      "}\n"
-      "vec3 SpecularIsotropic(float NdH, float NdV, float NdL, float HdL, float roughness, vec3 "
-      "F0, vec3 F90, out vec3 F)\n"
-      "{\n"
-      "  float D = D_GGX(NdH, roughness);\n"
-      "  float V = V_SmithCorrelated(NdV, NdL, roughness);\n"
-      "  F = F_Schlick(F0, F90, HdL);\n"
-      "  return (D * V) * F;\n"
-      "}\n"
-      "//VTK::Anisotropy::Dec\n",
-      false);
+    // PBR functions
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Dec", vtkPBRFunctions);
 
     // disable default behavior with textures
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl", "");
@@ -1047,39 +1009,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       // anisotropy, tangentVC and bitangentVC are defined
       hasAnisotropy = true;
 
-      // Add functions to handle specular and anisotropic lobe
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Anisotropy::Dec\n",
-        "// Anisotropy functions\n"
-        "float D_GGX_Anisotropic(float at, float ab, float TdH, float BdH, float NdH)\n"
-        "{\n"
-        "  float a2 = at * ab;\n"
-        "  vec3 d = vec3(ab * TdH, at * BdH, a2 * NdH);\n"
-        "  float d2 = dot(d, d);\n"
-        "  float b2 = a2 / d2;\n"
-        "  return a2 * b2 * b2 * recPI;\n"
-        "}\n"
-        "float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float TdV, float BdV, float "
-        "TdL, float BdL, float NdV, float NdL)\n"
-        "{\n"
-        "  float lambdaV = NdL * length(vec3(at * TdV, ab * BdV, NdV));\n"
-        "  float lambdaL = NdV * length(vec3(at * TdL, ab * BdL, NdL));\n"
-        "  return 0.5 / (lambdaV + lambdaL);\n"
-        "}\n"
-        "vec3 SpecularAnisotropic(float at, float ab, vec3 l, vec3 t, vec3 b, vec3 h, float TdV, "
-        "float BdV, float NdH, float NdV, float NdL,\n"
-        "float HdL, float roughness, float anisotropy, vec3 F0, vec3 F90, out vec3 F)\n"
-        "{\n"
-        "  float TdL = dot(t, l);\n"
-        "  float BdL = dot(b, l);\n"
-        "  float TdH = dot(t, h);\n"
-        "  float BdH = dot(b, h);\n"
-        "  // specular anisotropic BRDF\n"
-        "  float D = D_GGX_Anisotropic(at, ab, TdH, BdH, NdH);\n"
-        "  float V = V_SmithGGXCorrelated_Anisotropic(at, ab, TdV, BdV, TdL, BdL, NdV, NdL);\n"
-        "  F = F_Schlick(F0, F90, HdL);\n"
-        "  return (D * V) * F;\n"
-        "}\n\n\n",
-        false);
+      // Load anisotropic functions
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Define::Dec",
+        "#define ANISOTROPY\n"
+        "//VTK::Define::Dec");
 
       // Precompute anisotropic parameters
       // at and ab are the roughness along the tangent and bitangent
@@ -1091,6 +1024,21 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
       toString << "  float TdV = dot(tangentVC, V);\n"
                   "  float BdV = dot(bitangentVC, V);\n";
+    }
+
+    hasClearCoat = actor->GetProperty()->GetCoatStrength() > 0.0;
+    if (hasClearCoat)
+    {
+      // Load clear coat uniforms
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Define::Dec",
+        "#define CLEAR_COAT\n"
+        "//VTK::Define::Dec");
+
+      // Clear coat parameters
+      toString << "  vec3 coatN = coatNormalVCVSOutput;\n";
+      toString << "  float coatRoughness = coatRoughnessUniform;\n";
+      toString << "  float coatStrength = coatStrengthUniform;\n";
+      toString << "  float coatNdV = clamp(dot(coatN, V), 1e-5, 1.0);\n";
     }
 
     if (hasIBL)
@@ -1118,28 +1066,54 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         toString << "  vec3 worldReflect = normalize(envMatrix*reflect(-V, N));\n";
       }
 
-      toString << "  vec3 prefilteredColor = textureLod(prefilterTex, worldReflect,"
+      toString << "  vec3 prefilteredSpecularColor = textureLod(prefilterTex, worldReflect,"
                   " roughness * prefilterMaxLevel).rgb;\n";
       toString << "  vec2 brdf = texture(brdfTex, vec2(NdV, roughness)).rg;\n";
+
+      // Use the same prefilter texture for clear coat but with the clear coat roughness and normal
+
+      if (hasClearCoat)
+      {
+        toString
+          << "  vec3 coatWorldReflect = normalize(envMatrix*reflect(-V,coatN));\n"
+             "  vec3 prefilteredSpecularCoatColor = textureLod(prefilterTex, coatWorldReflect,"
+             " coatRoughness * prefilterMaxLevel).rgb;\n"
+             "  vec2 coatBrdf = texture(brdfTex, vec2(coatNdV, coatRoughness)).rg;\n";
+      }
     }
     else
     {
       toString << "  vec3 irradiance = vec3(0.0);\n";
-      toString << "  vec3 prefilteredColor = vec3(0.0);\n";
+      toString << "  vec3 prefilteredSpecularColor = vec3(0.0);\n";
       toString << "  vec2 brdf = vec2(0.0, 0.0);\n";
+
+      if (hasClearCoat)
+      {
+        toString << "  vec3 prefilteredSpecularCoatColor = vec3(0.0);\n";
+        toString << "  vec2 coatBrdf = vec2(0.0);\n";
+      }
     }
 
     toString << "  vec3 Lo = vec3(0.0);\n";
 
     if (lastLightComplexity != 0)
     {
-      toString << "  vec3 F0 = mix(vec3(0.04), albedo, metallic);\n"
+      toString << "  vec3 F0 = mix(vec3(baseF0Uniform), albedo, metallic);\n"
                   // specular occlusion, it affects only material with an f0 < 0.02,
                   // else f90 is 1.0
                   "  float f90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
                   "  vec3 F90 = mix(vec3(f90), edgeTintUniform, metallic);\n"
                   "  vec3 L, H, radiance, F, specular, diffuse;\n"
                   "  float NdL, NdH, HdL, distanceVC, attenuation, D, Vis;\n\n";
+      if (hasClearCoat)
+      {
+        // Coat layer is dielectric so F0 and F90 are achromatic
+        toString << "  vec3 coatF0 = vec3(coatF0Uniform);\n"
+                    "  vec3 coatF90 = vec3(1.0);\n"
+                    "  vec3 coatLayer, Fc;\n"
+                    "  float coatNdL, coatNdH;\n"
+                    "  vec3 coatColorFactor = mix(vec3(1.0), coatColorUniform, coatStrength);\n";
+      }
     }
 
     toString << "//VTK::Light::Impl\n";
@@ -1216,8 +1190,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
           toString << "specular = SpecularIsotropic(NdV, NdV, NdV, 1.0, roughness, F0, F90, F);\n";
         }
         toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
-                    "  \n\n"
-                    "  Lo += lightColor0 * ((diffuse + specular) * NdV);\n"
+                    "  radiance = lightColor0;\n";
+
+        if (hasClearCoat)
+        {
+          toString << "  // Clear coat is isotropic\n"
+                      "  coatLayer = SpecularIsotropic(coatNdV, coatNdV, coatNdV, 1.0,"
+                      " coatRoughness, coatF0, coatF90, Fc) * radiance * coatNdV * coatStrength;\n"
+                      "  Fc *= coatStrength;\n"
+                      "  radiance *= coatColorFactor;\n"
+                      "  specular *= (1.0 - Fc) * (1.0 - Fc);\n"
+                      "  diffuse *= (1.0 - Fc);\n"
+                      "  Lo += coatLayer;\n";
+        }
+        toString << "  Lo += radiance * (diffuse + specular) * NdV;\n\n"
                     "//VTK::Light::Impl\n";
       }
       else
@@ -1260,8 +1246,27 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
             toString
               << "  specular = SpecularIsotropic(NdH, NdV, NdL, HdL, roughness, F0, F90, F);\n";
           }
-          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
-                      "  Lo += (diffuse + specular) * NdL * radiance;\n";
+
+          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n";
+
+          if (hasClearCoat)
+          {
+            toString
+              << "  coatNdL = clamp(dot(coatN, L), 1e-5, 1.0);\n"
+                 "  coatNdH = clamp(dot(coatN, H), 1e-5, 1.0);\n"
+                 "  // Clear coat is isotropic\n"
+                 "  coatLayer = SpecularIsotropic(coatNdH, coatNdV, coatNdL, HdL,"
+                 " coatRoughness, coatF0, coatF90, Fc) * radiance * coatNdL * coatStrength;\n"
+                 "  // Energy compensation depending on how much light is reflected by the "
+                 "coat layer\n"
+                 "  Fc *= coatStrength;\n"
+                 "  specular *= (1.0 - Fc) * (1.0 - Fc);\n"
+                 "  diffuse *= (1.0 - Fc);\n"
+                 "  radiance *= coatColorFactor;\n"
+                 "  Lo += coatLayer;\n";
+          }
+
+          toString << "  Lo += radiance * (diffuse + specular) * NdL;\n";
         }
         toString << "//VTK::Light::Impl\n";
       }
@@ -1362,8 +1367,26 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
               << "  specular = SpecularIsotropic(NdH, NdV, NdL, HdL, roughness, F0, F90, F);\n";
           }
 
-          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n"
-                      "  Lo += (diffuse + specular) * radiance * NdL;\n\n";
+          toString << "  diffuse = (1.0 - metallic) * (1.0 - F) * DiffuseLambert(albedo);\n";
+
+          if (hasClearCoat)
+          {
+            toString
+              << "  coatNdL = clamp(dot(coatN, L), 1e-5, 1.0);\n"
+                 "  coatNdH = clamp(dot(coatN, H), 1e-5, 1.0);\n"
+                 "  // Clear coat is isotropic\n"
+                 "  coatLayer = SpecularIsotropic(coatNdH, coatNdV, coatNdL, HdL,"
+                 " coatRoughness, coatF0, coatF90, Fc) * radiance * coatNdL * coatStrength;\n"
+                 "  // Energy compensation depending on how much light is reflected by the "
+                 "coat layer\n"
+                 "  Fc *= coatStrength;\n"
+                 "  specular *= (1.0 - Fc) * (1.0 - Fc);\n"
+                 "  diffuse *= (1.0 - Fc);\n"
+                 "  radiance *= coatColorFactor;\n"
+                 "  Lo += coatLayer;\n";
+          }
+
+          toString << "  Lo += radiance * (diffuse + specular) * NdL;\n";
         }
         toString << "//VTK::Light::Impl\n";
       }
@@ -1441,20 +1464,42 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
   if (actor->GetProperty()->GetInterpolation() == VTK_PBR && lastLightComplexity > 0)
   {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
-      "  // In IBL, we assume that v=n, so the amount of light reflected is\n"
-      "  // the reflectance F0\n"
-      "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
-      "  vec3 iblSpecular = prefilteredColor * specularBrdf;\n"
-      // no diffuse for metals
-      "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * albedo;\n"
-      "  vec3 color = iblDiffuse + iblSpecular + Lo;\n"
-      "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
-      "  color += emissiveColor;\n"                            // emissive
-      "  color = pow(color, vec3(1.0/2.2));\n"                 // to sRGB color space
-      "  gl_FragData[0] = vec4(color, opacity);\n"
-      "  //VTK::Light::Impl",
-      false);
+    toString.clear();
+    toString.str("");
+
+    toString << "  // In IBL, we assume that v=n, so the amount of light reflected is\n"
+                "  // the reflectance F0\n"
+                "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
+                "  vec3 iblSpecular = prefilteredSpecularColor * specularBrdf;\n"
+                // no diffuse for metals
+                "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * albedo;\n"
+                "  vec3 color = iblDiffuse + iblSpecular;\n"
+                "\n";
+
+    if (hasClearCoat)
+    {
+      toString
+        << "  // Clear coat attenuation\n"
+           "  Fc = F_Schlick(coatF0, coatF90, coatNdV) * coatStrength;\n"
+           "  iblSpecular *= (1.0 - Fc);\n"
+           "  iblDiffuse *= (1.0 - Fc) * (1.0 - Fc);\n"
+           "  // Clear coat specular\n"
+           "  vec3 iblSpecularClearCoat = prefilteredSpecularCoatColor * (coatF0 * coatBrdf.r + "
+           "coatBrdf.g) * Fc;\n"
+           // Color absorption by the coat layer
+           "  color *= coatColorFactor;\n"
+           "  color += iblSpecularClearCoat;\n"
+           "\n";
+    }
+
+    toString << "  color += Lo;\n"
+                "  color = mix(color, color * ao, aoStrengthUniform);\n" // ambient occlusion
+                "  color += emissiveColor;\n"                            // emissive
+                "  color = pow(color, vec3(1.0/2.2));\n"                 // to sRGB color space
+                "  gl_FragData[0] = vec4(color, opacity);\n"
+                "  //VTK::Light::Impl";
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl", toString.str(), false);
   }
 
   // If rendering luminance values, write those values to the fragment
@@ -1664,7 +1709,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     // ignore special textures
     if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
-      textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex")
+      textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex" ||
+      textures[i].second == "coatNormalTex")
     {
       continue;
     }
@@ -2052,15 +2098,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   {
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
+    std::ostringstream toString;
 
-    // normal mapping
-    std::vector<texinfo> textures = this->GetTextures(actor);
-    bool normalMapping = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
-      return tex.second == "normalTex";
-    }) != textures.end();
-    bool rotationMap = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
-      return tex.second == "anisotropyTex";
-    }) != textures.end();
+    bool hasClearCoat = actor->GetProperty()->GetInterpolation() == VTK_PBR &&
+      actor->GetProperty()->GetCoatStrength() > 0.0;
 
     if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
     {
@@ -2083,24 +2124,36 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "//VTK::Normal::Dec\n"
         "uniform mat3 normalMatrix;\n"
         "in vec3 normalVCVSOutput;");
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-        "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n"
-        //  if (!gl_FrontFacing) does not work in intel hd4000 mac
-        //  if (int(gl_FrontFacing) == 0) does not work on mesa
-        "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
-        //"normalVC = normalVCVarying;"
-        "//VTK::Normal::Impl");
 
-      if ((normalMapping || actor->GetProperty()->GetAnisotropy() != 0.0) &&
-        this->VBOs->GetNumberOfComponents("tangentMC") == 3 && !this->DrawingVertices)
+      toString << "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n"
+                  //  if (!gl_FrontFacing) does not work in intel hd4000 mac
+                  //  if (int(gl_FrontFacing) == 0) does not work on mesa
+                  "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+      //"normalVC = normalVCVarying;";
+      if (hasClearCoat)
       {
-        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Dec",
-          "//VTK::Normal::Dec\n"
-          "in vec3 tangentVCVSOutput[];\n"
-          "out vec3 tangentVCGSOutput;");
-        vtkShaderProgram::Substitute(GSSource, "//VTK::Normal::Impl",
-          "//VTK::Normal::Impl\n"
-          "tangentVCGSOutput = tangentVCVSOutput[i];");
+        toString << "vec3 coatNormalVCVSOutput = normalVCVSOutput;\n";
+      }
+      toString << "//VTK::Normal::Impl";
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl", toString.str());
+
+      // normal mapping
+      std::vector<texinfo> textures = this->GetTextures(actor);
+      bool normalMapping = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
+        return tex.second == "normalTex";
+      }) != textures.end();
+      bool coatNormalMapping = hasClearCoat &&
+        std::find_if(textures.begin(), textures.end(),
+          [](const texinfo& tex) { return tex.second == "coatNormalTex"; }) != textures.end();
+
+      bool hasAnisotropy = actor->GetProperty()->GetInterpolation() == VTK_PBR &&
+        actor->GetProperty()->GetAnisotropy() != 0.0;
+
+      // if we have points tangents, we need it for normal mapping, coat normal mapping and
+      // anisotropy
+      if (this->VBOs->GetNumberOfComponents("tangentMC") == 3 && !this->DrawingVertices &&
+        (normalMapping || coatNormalMapping || hasAnisotropy))
+      {
         vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Dec",
           "//VTK::Normal::Dec\n"
           "in vec3 tangentMC;\n"
@@ -2115,13 +2168,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           " vec3 tangentVC = tangentVCVSOutput;\n"
           "//VTK::Normal::Impl");
 
-        if (actor->GetProperty()->GetAnisotropy() != 0.0)
+        if (hasAnisotropy)
         {
           // We need to rotate the anisotropy direction (the tangent) by anisotropyRotation * 2 *
           // PI
           vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
             "//VTK::Normal::Dec\n"
             "uniform float anisotropyRotationUniform;\n");
+
+          bool rotationMap = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
+            return tex.second == "anisotropyTex";
+          }) != textures.end();
           if (rotationMap)
           {
             // Sample the texture
@@ -2157,19 +2214,39 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           "  vec3 bitangentVC = cross(normalVCVSOutput, tangentVC);\n"
           "//VTK::Normal::Impl");
 
-        if (normalMapping)
+        if (normalMapping || coatNormalMapping)
         {
-          vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
-            "//VTK::Normal::Dec\n"
-            "uniform float normalScaleUniform;\n");
-
           vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-            "  vec3 normalTS = texture(normalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
-            "  normalTS = normalize(normalTS * vec3(normalScaleUniform, normalScaleUniform, "
-            "1.0));\n"
             "  mat3 tbn = mat3(tangentVC, bitangentVC, normalVCVSOutput);\n"
-            "  normalVCVSOutput = normalize(tbn * normalTS);\n"
             "//VTK::Normal::Impl");
+
+          if (normalMapping)
+          {
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+              "//VTK::Normal::Dec\n"
+              "uniform float normalScaleUniform;\n");
+
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+              "  vec3 normalTS = texture(normalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
+              "  normalTS = normalize(normalTS * vec3(normalScaleUniform, normalScaleUniform, "
+              "1.0));\n"
+              "  normalVCVSOutput = normalize(tbn * normalTS);\n"
+              "//VTK::Normal::Impl");
+          }
+          if (coatNormalMapping)
+          {
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
+              "//VTK::Normal::Dec\n"
+              "uniform float coatNormalScaleUniform;\n");
+
+            vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
+              "  vec3 coatNormalTS = texture(coatNormalTex, tcoordVCVSOutput).xyz * 2.0 - 1.0;\n"
+              "  coatNormalTS = normalize(coatNormalTS * vec3(coatNormalScaleUniform, "
+              "coatNormalScaleUniform, "
+              "1.0));\n"
+              "  coatNormalVCVSOutput = normalize(tbn * coatNormalTS);\n"
+              "//VTK::Normal::Impl");
+          }
         }
       }
 
@@ -2185,27 +2262,37 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
         "uniform mat3 normalMatrix;\n"
         "uniform samplerBuffer textureN;\n");
+
+      toString.clear();
+      toString.str("");
       if (this->CellNormalTexture->GetVTKDataType() == VTK_FLOAT)
       {
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-          "vec3 normalVCVSOutput = \n"
-          "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
-          "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
-          "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n");
+        toString << "vec3 normalVCVSOutput = \n"
+                    "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
+                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
+                    "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
       }
       else
       {
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-          "vec3 normalVCVSOutput = \n"
-          "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
-          "normalVCVSOutput = normalVCVSOutput * 255.0/127.0 - 1.0;\n"
-          "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
-          "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n");
-        shaders[vtkShader::Fragment]->SetSource(FSSource);
-        return;
+        toString << "vec3 normalVCVSOutput = \n"
+                    "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
+                    "normalVCVSOutput = normalVCVSOutput * 255.0/127.0 - 1.0;\n"
+                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
+                    "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
       }
+
+      if (hasClearCoat)
+      {
+        toString << "vec3 coatNormalVCVSOutput = normalVCVSOutput;\n";
+      }
+
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl", toString.str());
+      shaders[vtkShader::Fragment]->SetSource(FSSource);
+      return;
     }
 
+    toString.clear();
+    toString.str("");
     // OK we have no point or cell normals, so compute something
     // we have a formula for wireframe
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
@@ -2232,13 +2319,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "  if (abs(fdy.y) < 0.000001) { fdy = vec3(0.0);}\n"
         "  //VTK::UniformFlow::Impl\n" // For further replacements
       );
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-        "vec3 normalVCVSOutput;\n"
-        "  fdx = normalize(fdx);\n"
-        "  fdy = normalize(fdy);\n"
-        "  if (abs(fdx.x) > 0.0)\n"
-        "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
-        "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}");
+
+      toString << "vec3 normalVCVSOutput;\n"
+                  "  fdx = normalize(fdx);\n"
+                  "  fdy = normalize(fdy);\n"
+                  "  if (abs(fdx.x) > 0.0)\n"
+                  "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
+                  "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}\n";
     }
     else // not lines, so surface
     {
@@ -2247,13 +2334,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "  vec3 fdy = dFdy(vertexVC.xyz);\n"
         "  //VTK::UniformFlow::Impl\n" // For further replacements
       );
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
-        "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
-        "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = "
-        "-1.0*normalVCVSOutput; }\n"
-        "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput "
-        "= -1.0*normalVCVSOutput; }");
+
+      toString << "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
+                  "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = "
+                  "-1.0*normalVCVSOutput; }\n"
+                  "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { "
+                  "normalVCVSOutput "
+                  "= -1.0*normalVCVSOutput; }\n";
     }
+
+    if (hasClearCoat)
+    {
+      toString << "vec3 coatNormalVCVSOutput = normalVCVSOutput;\n";
+    }
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl", toString.str());
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
 }
@@ -2474,7 +2568,9 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     ((cam->GetParallelProjection() != 0.0) ? 0x08 : 0) + ((offset != 0.0) ? 0x10 : 0) +
     (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x20 : 0) +
     (vtkOpenGLRenderer::SafeDownCast(ren)->GetUseSphericalHarmonics() ? 0x40 : 0) +
-    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 7);
+    (actor->GetProperty()->GetCoatStrength() > 0.0 ? 0x80 : 0) +
+    (actor->GetProperty()->GetAnisotropy() > 0.0 ? 0x100 : 0) +
+    ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 9);
 
   if (cellBO.Program == nullptr || cellBO.ShaderSourceTime < this->GetMTime() ||
     cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
@@ -3064,9 +3160,31 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
       program->SetUniformf("aoStrengthUniform", static_cast<float>(ppty->GetOcclusionStrength()));
       program->SetUniform3f("emissiveFactorUniform", ppty->GetEmissiveFactor());
       program->SetUniform3f("edgeTintUniform", ppty->GetEdgeTint());
-      program->SetUniformf("anisotropyUniform", static_cast<float>(ppty->GetAnisotropy()));
+
+      if (ppty->GetAnisotropy() > 0.0)
+      {
+        program->SetUniformf("anisotropyUniform", static_cast<float>(ppty->GetAnisotropy()));
+        program->SetUniformf(
+          "anisotropyRotationUniform", static_cast<float>(ppty->GetAnisotropyRotation()));
+      }
+
+      if (ppty->GetCoatStrength() > 0.0)
+      {
+        // Compute the reflectance of the coat layer and the exterior
+        // Hard coded air environment (ior = 1.0)
+        const double environmentIOR = 1.0;
+        program->SetUniformf("coatF0Uniform",
+          static_cast<float>(
+            vtkProperty::ComputeReflectanceFromIOR(ppty->GetCoatIOR(), environmentIOR)));
+        program->SetUniform3f("coatColorUniform", ppty->GetCoatColor());
+        program->SetUniformf("coatStrengthUniform", static_cast<float>(ppty->GetCoatStrength()));
+        program->SetUniformf("coatRoughnessUniform", static_cast<float>(ppty->GetCoatRoughness()));
+        program->SetUniformf(
+          "coatNormalScaleUniform", static_cast<float>(ppty->GetCoatNormalScale()));
+      }
+      // Compute the reflectance of the base layer
       program->SetUniformf(
-        "anisotropyRotationUniform", static_cast<float>(ppty->GetAnisotropyRotation()));
+        "baseF0Uniform", static_cast<float>(ppty->ComputeReflectanceOfBaseLayer()));
     }
 
     // handle specular

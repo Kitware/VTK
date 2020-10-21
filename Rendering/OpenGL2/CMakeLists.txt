@@ -143,6 +143,7 @@ set(shader_files
   glsl/vtkOrderIndependentTranslucentPassFinalFS.glsl
   glsl/vtkOutlineGlowBlurPassFS.glsl
   glsl/vtkOutlineGlowUpscalePassFS.glsl
+  glsl/vtkPBRFunctions.glsl
   glsl/vtkPointFillPassFS.glsl
   glsl/vtkPointGaussianVS.glsl
   glsl/vtkPointGaussianGS.glsl

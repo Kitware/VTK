@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <cmath>
+
 #include <vtksys/SystemTools.hxx>
 
 vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
@@ -72,12 +74,21 @@ vtkProperty::vtkProperty()
   this->EdgeTint[1] = 1.0;
   this->EdgeTint[2] = 1.0;
 
+  this->CoatColor[0] = 1.0;
+  this->CoatColor[1] = 1.0;
+  this->CoatColor[2] = 1.0;
+
   this->NormalScale = 1.0;
   this->OcclusionStrength = 1.0;
   this->Metallic = 0.0;
+  this->BaseIOR = 1.5;
   this->Roughness = 0.5;
   this->Anisotropy = 0.0;
   this->AnisotropyRotation = 0.0;
+  this->CoatIOR = 2.0;
+  this->CoatRoughness = 0.0;
+  this->CoatStrength = 0.0;
+  this->CoatNormalScale = 1.0;
   this->Ambient = 0.0;
   this->Diffuse = 1.0;
   this->Specular = 0.0;
@@ -151,6 +162,13 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetRoughness(p->GetRoughness());
     this->SetAnisotropy(p->GetAnisotropy());
     this->SetAnisotropyRotation(p->GetAnisotropyRotation());
+    this->SetBaseIOR(p->GetBaseIOR());
+    this->SetRoughness(p->GetRoughness());
+    this->SetCoatIOR(p->GetCoatIOR());
+    this->SetCoatRoughness(p->GetCoatRoughness());
+    this->SetCoatStrength(p->GetCoatStrength());
+    this->SetCoatNormalScale(p->GetCoatNormalScale());
+    this->SetCoatColor(p->GetCoatColor());
 
     this->RemoveAllTextures();
     auto iter = p->Textures.begin();
@@ -217,6 +235,32 @@ void vtkProperty::ComputeCompositeColor(double result[3], double ambient,
 }
 
 //------------------------------------------------------------------------------
+double vtkProperty::ComputeReflectanceFromIOR(double IORTo, double IORFrom)
+{
+  return std::pow(IORTo - IORFrom, 2) / std::pow(IORTo + IORFrom, 2);
+}
+
+//------------------------------------------------------------------------------
+double vtkProperty::ComputeIORFromReflectance(double reflectance, double ior)
+{
+  return -ior * (std::sqrt(reflectance) + 1) / (std::sqrt(reflectance) - 1);
+}
+
+//------------------------------------------------------------------------------
+double vtkProperty::ComputeReflectanceOfBaseLayer()
+{
+  // Compute F0 of base with the environment
+  // Hard coded air environment (could be modified with an other IOR)
+  const double environmentIOR = 1.0;
+  double baseToEnvironmentF0 =
+    vtkProperty::ComputeReflectanceFromIOR(this->BaseIOR, environmentIOR);
+  // Recalculate base f0 in case of a coat layer
+  double baseToCoatF0 = vtkProperty::ComputeReflectanceFromIOR(this->BaseIOR, this->CoatIOR);
+  // Mix F0 depending on the coat strength
+  return baseToEnvironmentF0 * (1.0 - this->CoatStrength) + baseToCoatF0 * this->CoatStrength;
+}
+
+//------------------------------------------------------------------------------
 // Return composite color of object (ambient + diffuse + specular). Return value
 // is a pointer to rgb values.
 double* vtkProperty::GetColor()
@@ -262,7 +306,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
     return;
   }
   const bool texNeedLinear = strcmp(name, "materialTex") == 0 || strcmp(name, "normalTex") == 0 ||
-    strcmp(name, "anisotropyTex") == 0;
+    strcmp(name, "anisotropyTex") == 0 || strcmp(name, "coatNormalTex") == 0;
   if (texNeedLinear && tex->GetUseSRGBColorSpace())
   {
     vtkErrorMacro("The " << name << " texture is not in linear color space.");
