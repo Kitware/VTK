@@ -390,7 +390,7 @@ static int preproc_evaluate_char(const char* cp, preproc_int_t* val, int* is_uns
     {
       code = vtkParse_DecodeUtf8(&cp, NULL);
     }
-    else if (*cp != '\'' && *cp != '\n' && *cp != '\0')
+    else
     {
       cp++;
       if (*cp == 'a')
@@ -4092,7 +4092,7 @@ const char* vtkParsePreprocess_ExpandMacro(
             break;
           }
         }
-        else if (*cp != '\0')
+        else
         {
           cp++;
         }
