@@ -187,14 +187,23 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor* i)
 
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
 
+    i->AddObserver(
+      vtkCommand::LeftButtonDoubleClickEvent, this->EventCallbackCommand, this->Priority);
+
     i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(
       vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
 
+    i->AddObserver(
+      vtkCommand::MiddleButtonDoubleClickEvent, this->EventCallbackCommand, this->Priority);
+
     i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
+
+    i->AddObserver(
+      vtkCommand::RightButtonDoubleClickEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(vtkCommand::MouseWheelForwardEvent, this->EventCallbackCommand, this->Priority);
 
@@ -1127,6 +1136,39 @@ void vtkInteractorStyle::ProcessEvents(
       else
       {
         self->OnRightButtonUp();
+      }
+      break;
+
+    case vtkCommand::LeftButtonDoubleClickEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::LeftButtonDoubleClickEvent))
+      {
+        self->InvokeEvent(vtkCommand::vtkCommand::LeftButtonDoubleClickEvent, nullptr);
+      }
+      else
+      {
+        self->OnLeftButtonDoubleClick();
+      }
+      break;
+
+    case vtkCommand::MiddleButtonDoubleClickEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::MiddleButtonDoubleClickEvent))
+      {
+        self->InvokeEvent(vtkCommand::vtkCommand::MiddleButtonDoubleClickEvent, nullptr);
+      }
+      else
+      {
+        self->OnMiddleButtonDoubleClick();
+      }
+      break;
+
+    case vtkCommand::RightButtonDoubleClickEvent:
+      if (self->HandleObservers && self->HasObserver(vtkCommand::RightButtonDoubleClickEvent))
+      {
+        self->InvokeEvent(vtkCommand::vtkCommand::RightButtonDoubleClickEvent, nullptr);
+      }
+      else
+      {
+        self->OnRightButtonDoubleClick();
       }
       break;
 
