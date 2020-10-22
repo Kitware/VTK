@@ -23,9 +23,12 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkTypeUInt32Array.h"
+#include "vtkUnsignedIntArray.h"
 
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
@@ -89,11 +92,15 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     return 0;
   }
 
-  if (this->GetDataSetMajorVersion() < 1 && !this->WriteTrees_0(indent.GetNextIndent()))
+  if (this->GetDataSetMajorVersion() == 0 && !this->WriteTrees_0(indent.GetNextIndent()))
   {
     return 0;
   }
-  else if (this->GetDataSetMajorVersion() >= 1 && !this->WriteTrees_1(indent.GetNextIndent()))
+  else if (this->GetDataSetMajorVersion() == 1 && !this->WriteTrees_1(indent.GetNextIndent()))
+  {
+    return 0;
+  }
+  else if (this->GetDataSetMajorVersion() >= 2 && !this->WriteTrees_2(indent.GetNextIndent()))
   {
     return 0;
   }
@@ -142,7 +149,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     vtkIdType inIndex;
     int treeIndx = 0;
 
-    if (this->GetDataSetMajorVersion() < 1) // Major version < 1
+    if (this->GetDataSetMajorVersion() == 0)
     {
       while (it.GetNextTree(inIndex))
       {
@@ -171,7 +178,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
         inCursor->Delete();
       }
     }
-    else // Major version >= 1
+    else if (this->GetDataSetMajorVersion() == 1)
     {
       while (it.GetNextTree(inIndex))
       {
@@ -217,12 +224,46 @@ int vtkXMLHyperTreeGridWriter::WriteData()
         ++treeIndx;
       }
     }
+    else if (this->GetDataSetMajorVersion() == 2)
+    {
+      auto& metaData = this->MetaDataForVersion2;
+      vtkIdType numberOfVertices = metaData.BreadthFirstIdMap->GetNumberOfIds();
+      this->WriteAppendedArrayDataHelper(metaData.Descriptors, this->DescriptorOMG->GetElement(0));
+      this->WriteAppendedArrayDataHelper(
+        metaData.NumberOfVerticesPerDepth, this->NbVerticesByLevelOMG->GetElement(0));
+      this->WriteAppendedArrayDataHelper(metaData.TreeIds, this->TreeIdsOMG->GetElement(0));
+      this->WriteAppendedArrayDataHelper(
+        metaData.DepthPerTree, this->DepthPerTreeOMG->GetElement(0));
+      if (input->GetMask())
+      {
+        vtkBitArray* breadthFirstReorderedMask = input->GetMask()->NewInstance();
+        breadthFirstReorderedMask->SetNumberOfComponents(1);
+        breadthFirstReorderedMask->SetNumberOfValues(numberOfVertices);
+        input->GetMask()->GetTuples(metaData.BreadthFirstIdMap, breadthFirstReorderedMask);
+        this->WriteAppendedArrayDataHelper(breadthFirstReorderedMask, this->MaskOMG->GetElement(0));
+        breadthFirstReorderedMask->Delete();
+      }
+      for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
+      {
+        // We remap the input array to a breadth first ordering
+        vtkAbstractArray* array = pd->GetAbstractArray(i);
+        vtkAbstractArray* breadthFirstReorderedArray = array->NewInstance();
+        int numberOfComponents = array->GetNumberOfComponents();
+        breadthFirstReorderedArray->SetNumberOfComponents(numberOfComponents);
+        breadthFirstReorderedArray->SetNumberOfValues(numberOfVertices * numberOfComponents);
+        array->GetTuples(metaData.BreadthFirstIdMap, breadthFirstReorderedArray);
+        this->WriteAppendedArrayDataHelper(
+          breadthFirstReorderedArray, this->CellDataOMG->GetElement(i));
+        breadthFirstReorderedArray->Delete();
+      }
+    }
     this->EndAppendedData();
   }
   this->Descriptors.clear();
   this->NbVerticesByLevels.clear();
   this->Masks.clear();
   this->Ids.clear();
+  this->MetaDataForVersion2.Initialize();
   if (!this->EndFile())
   {
     return 0;
@@ -321,8 +362,10 @@ vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
   , NbVerticesByLevelOMG(new OffsetsManagerGroup)
   , MaskOMG(new OffsetsManagerGroup)
   , CellDataOMG(new OffsetsManagerGroup)
+  , TreeIdsOMG(new OffsetsManagerGroup)
+  , DepthPerTreeOMG(new OffsetsManagerGroup)
   , NumberOfTrees(0)
-  , DataSetMajorVersion(1)
+  , DataSetMajorVersion(2)
   , DataSetMinorVersion(0)
 {
 }
@@ -335,6 +378,8 @@ vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
   delete this->NbVerticesByLevelOMG;
   delete this->MaskOMG;
   delete this->CellDataOMG;
+  delete this->TreeIdsOMG;
+  delete this->DepthPerTreeOMG;
 }
 
 //------------------------------------------------------------------------------
@@ -615,13 +660,38 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
 
     vtkTypeInt64Array* nbVerticesByLevel = vtkTypeInt64Array::New();
     vtkBitArray* descriptor = vtkBitArray::New();
-    vtkBitArray* mask = vtkBitArray::New();
     vtkIdList* ids = vtkIdList::New();
-    tree->GetByLevelForWriter(input->GetMask(), nbVerticesByLevel, descriptor, mask, ids);
+    tree->ComputeBreadthFirstOrderDescriptor(input->GetMask(), nbVerticesByLevel, descriptor, ids);
+
+    // squeezing last zeros of last row out of descriptor
+    if (vtkIdType lastNonZeroId = descriptor->GetNumberOfValues())
+    {
+      while (lastNonZeroId && !descriptor->GetValue(--lastNonZeroId))
+        ;
+
+      descriptor->SetNumberOfValues(lastNonZeroId + 1);
+    }
+
+    if (input->GetMask())
+    {
+      this->Masks.emplace_back(vtkSmartPointer<vtkBitArray>::New());
+      auto& mask = this->Masks.back();
+      mask->SetNumberOfValues(ids->GetNumberOfIds());
+      mask->SetNumberOfComponents(1);
+      mask->GetTuples(ids, mask);
+      // squeezing last zeros of last row out of mask
+      if (vtkIdType lastNonZeroId = mask->GetNumberOfValues())
+      {
+        while (lastNonZeroId && !mask->GetValue(--lastNonZeroId))
+          ;
+
+        mask->SetNumberOfValues(lastNonZeroId + 1);
+      }
+    }
+
     this->NbVerticesByLevels.emplace_back(
       vtkSmartPointer<vtkTypeInt64Array>::Take(nbVerticesByLevel));
     this->Descriptors.emplace_back(vtkSmartPointer<vtkBitArray>::Take(descriptor));
-    this->Masks.emplace_back(vtkSmartPointer<vtkBitArray>::Take(mask));
     this->Ids.emplace_back(vtkSmartPointer<vtkIdList>::Take(ids));
 
     vtkIndent infoIndent = treeIndent.GetNextIndent();
@@ -629,7 +699,6 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     const vtkIdType numberOfVertices = ids->GetNumberOfIds();
     // Because non describe last False values...
     assert(numberOfVertices >= descriptor->GetNumberOfTuples());
-    assert(numberOfVertices >= mask->GetNumberOfTuples());
     this->WriteScalarAttribute("NumberOfVertices", numberOfVertices);
     os << ">\n";
 
@@ -643,8 +712,9 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
         nbVerticesByLevel->GetNumberOfValues());
       if (input->GetMask())
       {
-        this->WriteArrayAppended(mask, infoIndent, this->MaskOMG->GetElement(treeIndx), "Mask",
-          input->GetMask() ? mask->GetNumberOfValues() : 0);
+        this->WriteArrayAppended(this->Masks.back(), infoIndent,
+          this->MaskOMG->GetElement(treeIndx), "Mask",
+          input->GetMask() ? this->Masks.back()->GetNumberOfValues() : 0);
       }
     }
     else
@@ -654,7 +724,8 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
         nbVerticesByLevel, infoIndent, "NbVerticesByLevel", nbVerticesByLevel->GetNumberOfValues());
       if (input->GetMask())
       {
-        this->WriteArrayInline(mask, infoIndent, "Mask", mask->GetNumberOfValues());
+        this->WriteArrayInline(
+          this->Masks.back(), infoIndent, "Mask", this->Masks.back()->GetNumberOfValues());
       }
     }
 
@@ -704,6 +775,153 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     os << treeIndent << "</Tree>\n";
   }
   os << indent << "</Trees>\n";
+
+  os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLHyperTreeGridWriter::WriteTrees_2(vtkIndent indent)
+{
+  vtkHyperTreeGrid* input = this->GetInput();
+  vtkCellData* cd = input->GetCellData();
+  vtkIdType numberOfCellDataArrays = cd->GetNumberOfArrays();
+
+  // Count the actual number of hypertrees represented in this hypertree grid
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+  input->InitializeTreeIterator(it);
+  this->NumberOfTrees = 0;
+  vtkIdType inIndex;
+  while (it.GetNextTree(inIndex))
+  {
+    ++this->NumberOfTrees;
+  }
+
+  // Allocate offsets managers for appended data
+  if (this->DataMode == Appended)
+  {
+    this->DescriptorOMG->Allocate(1, this->NumberOfTimeSteps);
+    this->NbVerticesByLevelOMG->Allocate(1, this->NumberOfTimeSteps);
+    this->TreeIdsOMG->Allocate(1, this->NumberOfTimeSteps);
+    this->DepthPerTreeOMG->Allocate(1, this->NumberOfTimeSteps);
+    this->CellDataOMG->Allocate(numberOfCellDataArrays, this->NumberOfTimeSteps);
+    if (input->GetMask())
+    {
+      this->MaskOMG->Allocate(1, this->NumberOfTimeSteps);
+    }
+  }
+
+  // Collect description by processing depth first and writing breadth first
+  input->InitializeTreeIterator(it);
+
+  auto& metaData = this->MetaDataForVersion2;
+
+  metaData.Descriptors = vtkSmartPointer<vtkBitArray>::New();
+  metaData.TreeIds = vtkSmartPointer<vtkTypeInt64Array>::New();
+  metaData.NumberOfVerticesPerDepth = vtkSmartPointer<vtkTypeInt64Array>::New();
+  metaData.DepthPerTree = vtkSmartPointer<vtkTypeUInt32Array>::New();
+  metaData.BreadthFirstIdMap = vtkSmartPointer<vtkIdList>::New();
+
+  metaData.TreeIds->SetNumberOfValues(input->GetNumberOfNonEmptyTrees());
+  metaData.DepthPerTree->SetNumberOfValues(input->GetNumberOfNonEmptyTrees());
+
+  vtkIdType currentId = 0;
+
+  while (it.GetNextTree(inIndex))
+  {
+    vtkHyperTree* tree = input->GetTree(inIndex);
+    metaData.TreeIds->SetValue(currentId, inIndex);
+
+    vtkIdType previousSize = metaData.NumberOfVerticesPerDepth->GetNumberOfValues();
+    tree->ComputeBreadthFirstOrderDescriptor(input->GetMask(), metaData.NumberOfVerticesPerDepth,
+      metaData.Descriptors, metaData.BreadthFirstIdMap);
+    metaData.DepthPerTree->SetValue(
+      currentId++, metaData.NumberOfVerticesPerDepth->GetNumberOfValues() - previousSize);
+  }
+
+  ostream& os = *(this->Stream);
+  os << indent << "<Trees>\n";
+  vtkIndent treeIndent = indent.GetNextIndent();
+  vtkIndent infoIndent = treeIndent.GetNextIndent();
+
+  if (this->DataMode == Appended)
+  {
+    this->WriteArrayAppended(metaData.Descriptors, infoIndent, this->DescriptorOMG->GetElement(0),
+      "Descriptors", metaData.Descriptors->GetNumberOfValues());
+    this->WriteArrayAppended(metaData.NumberOfVerticesPerDepth, infoIndent,
+      this->NbVerticesByLevelOMG->GetElement(0), "NumberOfVerticesPerDepth",
+      metaData.NumberOfVerticesPerDepth->GetNumberOfValues());
+    this->WriteArrayAppended(metaData.TreeIds, infoIndent, this->TreeIdsOMG->GetElement(0),
+      "TreeIds", metaData.TreeIds->GetNumberOfValues());
+    this->WriteArrayAppended(metaData.DepthPerTree, infoIndent,
+      this->DepthPerTreeOMG->GetElement(0), "DepthPerTree",
+      metaData.DepthPerTree->GetNumberOfValues());
+    if (input->GetMask())
+    {
+      this->WriteArrayAppended(input->GetMask(), infoIndent, this->MaskOMG->GetElement(0), "Mask",
+        metaData.BreadthFirstIdMap->GetNumberOfIds());
+    }
+  }
+  else
+  {
+    this->WriteArrayInline(
+      metaData.Descriptors, infoIndent, "Descriptors", metaData.Descriptors->GetNumberOfValues());
+    this->WriteArrayInline(metaData.NumberOfVerticesPerDepth, infoIndent,
+      "NumberOfVerticesPerDepth", metaData.NumberOfVerticesPerDepth->GetNumberOfValues());
+    this->WriteArrayInline(
+      metaData.TreeIds, infoIndent, "TreeIds", metaData.TreeIds->GetNumberOfValues());
+    this->WriteArrayInline(metaData.DepthPerTree, infoIndent, "DepthPerTree",
+      metaData.DepthPerTree->GetNumberOfValues());
+    if (input->GetMask())
+    {
+      vtkBitArray* breadthFirstReorderedMask = input->GetMask()->NewInstance();
+      breadthFirstReorderedMask->SetNumberOfComponents(1);
+      breadthFirstReorderedMask->SetNumberOfValues(metaData.BreadthFirstIdMap->GetNumberOfIds());
+      input->GetMask()->GetTuples(metaData.BreadthFirstIdMap, breadthFirstReorderedMask);
+      this->WriteArrayInline(breadthFirstReorderedMask, infoIndent, "Mask",
+        metaData.BreadthFirstIdMap->GetNumberOfIds());
+      breadthFirstReorderedMask->Delete();
+    }
+  }
+
+  os << indent << "</Trees>\n";
+
+  // Write the vertices data
+  os << indent << "<CellData>\n";
+
+  for (int i = 0; i < cd->GetNumberOfArrays(); ++i)
+  {
+    vtkAbstractArray* array = cd->GetAbstractArray(i);
+
+    // Write the data or XML description for appended data
+    if (this->DataMode == Appended)
+    {
+      this->WriteArrayAppended(array, infoIndent, this->CellDataOMG->GetElement(0),
+        array->GetName(),
+        metaData.BreadthFirstIdMap->GetNumberOfIds() * array->GetNumberOfComponents());
+    }
+    else
+    {
+      // We remap the input array to a breadth first ordering
+      vtkAbstractArray* breadthFirstReorderedArray = array->NewInstance();
+      int numberOfComponents = array->GetNumberOfComponents();
+      breadthFirstReorderedArray->SetNumberOfComponents(numberOfComponents);
+      breadthFirstReorderedArray->SetNumberOfValues(
+        metaData.BreadthFirstIdMap->GetNumberOfIds() * numberOfComponents);
+      array->GetTuples(metaData.BreadthFirstIdMap, breadthFirstReorderedArray);
+      this->WriteArrayInline(breadthFirstReorderedArray, infoIndent, array->GetName(),
+        breadthFirstReorderedArray->GetNumberOfValues());
+      breadthFirstReorderedArray->Delete();
+    }
+  }
+
+  // Increment to next tree with CellData
+  os << indent << "</CellData>\n";
 
   os.flush();
   if (os.fail())
@@ -776,4 +994,14 @@ void vtkXMLHyperTreeGridWriter::WriteCellDataAppendedArrayDataHelper(
       offsets.GetRangeMaxPosition(this->CurrentTimeIndex), range[1], "RangeMax");
   }
   b->Delete();
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLHyperTreeGridWriter::HyperTreeGridMetaDataForVersion2::Initialize()
+{
+  this->Descriptors = nullptr;
+  this->TreeIds = nullptr;
+  this->NumberOfVerticesPerDepth = nullptr;
+  this->DepthPerTree = nullptr;
+  this->BreadthFirstIdMap = nullptr;
 }

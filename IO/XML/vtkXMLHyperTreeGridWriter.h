@@ -63,7 +63,6 @@
 #ifndef vtkXMLHyperTreeGridWriter_h
 #define vtkXMLHyperTreeGridWriter_h
 
-#include "vtkBitArray.h"     // For ivar
 #include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // For internal attributes
 #include "vtkXMLWriter.h"
@@ -72,10 +71,13 @@
 
 class OffsetsManagerGroup;
 class OffsetsManagerArray;
+class vtkBitArray;
+class vtkIdList;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkTypeInt64Array;
+class vtkTypeUInt32Array;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridWriter : public vtkXMLWriter
 {
@@ -138,6 +140,7 @@ protected:
   // Tree Descriptor and  CellData
   int WriteTrees_0(vtkIndent);
   int WriteTrees_1(vtkIndent);
+  int WriteTrees_2(vtkIndent);
 
   // </HyperTreeGrid>
   int FinishPrimaryElement(vtkIndent);
@@ -160,11 +163,24 @@ protected:
   void WriteCellDataAppendedArrayDataHelper(vtkAbstractArray* array, vtkIdType numberOfVertices,
     OffsetsManager& offsets, vtkHyperTree* tree);
 
+  struct HyperTreeGridMetaDataForVersion2
+  {
+    void Initialize();
+
+    vtkSmartPointer<vtkBitArray> Descriptors;
+    vtkSmartPointer<vtkTypeInt64Array> TreeIds;
+    vtkSmartPointer<vtkTypeInt64Array> NumberOfVerticesPerDepth;
+    vtkSmartPointer<vtkIdList> BreadthFirstIdMap;
+    vtkSmartPointer<vtkTypeUInt32Array> DepthPerTree;
+  } MetaDataForVersion2;
+
   OffsetsManagerGroup* CoordsOMG;
   OffsetsManagerGroup* DescriptorOMG;
   OffsetsManagerGroup* NbVerticesByLevelOMG;
   OffsetsManagerGroup* MaskOMG;
   OffsetsManagerGroup* CellDataOMG;
+  OffsetsManagerGroup* TreeIdsOMG;
+  OffsetsManagerGroup* DepthPerTreeOMG;
 
   int NumberOfTrees;
 
