@@ -291,6 +291,11 @@ public:
   vtkIdType GetNumberOfVertices();
 
   /**
+   * Get the number of non empty trees in this grid.
+   */
+  vtkIdType GetNumberOfNonEmptyTrees();
+
+  /**
    * Get the number of leaves in the primal tree grid.
    */
   vtkIdType GetNumberOfLeaves();
