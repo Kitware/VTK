@@ -15,6 +15,7 @@
 #include "vtkXMLReader.h"
 
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkBitArray.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
@@ -757,6 +758,52 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xml
     result = (xmlparser->ReadInlineData(
                 da, isAscii, data, startIndex, numWords, array->GetDataType()) == numWords);
   }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+template <>
+int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
+  vtkIdType arrayIndex, vtkBitArrayIterator* iter, vtkIdType startIndex, vtkIdType numValues)
+{
+  // We need to handle bit array separately because the "word" concept is a bit
+  // different: a word size is in bits rather than bytes...
+  if (!iter)
+  {
+    return 0;
+  }
+  vtkBitArray* array = vtkArrayDownCast<vtkBitArray>(iter->GetArray());
+  // Number of expected words:
+  int bitShift = startIndex % 8;
+  size_t numBytes = (numValues + bitShift + 7) / 8;
+  size_t startByteIndex = startIndex / 8;
+  int result;
+
+  vtkNew<vtkBitArray> tmp;
+  tmp->SetNumberOfValues(numValues + bitShift);
+  tmp->SetNumberOfComponents(array->GetNumberOfComponents());
+
+  void* data = tmp->GetVoidPointer(0);
+  if (da->GetAttribute("offset"))
+  {
+    vtkTypeInt64 offset = 0;
+    da->GetScalarAttribute("offset", offset);
+    result =
+      (xmlparser->ReadAppendedData(offset, data, startByteIndex, numBytes, VTK_BIT) == numBytes);
+  }
+  else
+  {
+    int isAscii = 1;
+    const char* format = da->GetAttribute("format");
+    if (format && (strcmp(format, "binary") == 0))
+    {
+      isAscii = 0;
+    }
+    result =
+      (xmlparser->ReadInlineData(da, isAscii, data, startByteIndex, numBytes, VTK_BIT) == numBytes);
+  }
+
+  array->InsertTuples(arrayIndex, numValues / tmp->GetNumberOfComponents(), bitShift, tmp);
   return result;
 }
 
