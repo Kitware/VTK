@@ -93,6 +93,7 @@ void vtkActor::ShallowCopy(vtkProp* prop)
     this->SetProperty(a->GetProperty());
     this->SetBackfaceProperty(a->GetBackfaceProperty());
     this->SetTexture(a->GetTexture());
+    this->SetPropertyKeys(a->GetPropertyKeys());
   }
 
   // Now do superclass
