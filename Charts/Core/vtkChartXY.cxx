@@ -21,6 +21,7 @@
 #include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
+#include "vtkCallbackCommand.h"
 #include "vtkChartLegend.h"
 #include "vtkColorSeries.h"
 #include "vtkCommand.h"
@@ -61,6 +62,7 @@
 
 // My STL containers
 #include <algorithm>
+#include <unordered_map>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -76,21 +78,56 @@ public:
     this->Borders[2] = 20;
     this->Borders[3] = 20;
   }
-  vtkPlot* GetPlotByColumn(vtkIdType columnId)
+
+  static void InvalidateCache(vtkObject*, unsigned long, void* clientData, void*)
   {
-    std::vector<vtkPlot*>::iterator it = this->plots.begin();
-    for (; it != this->plots.end(); ++it)
+    vtkChartXYPrivate* self = reinterpret_cast<vtkChartXYPrivate*>(clientData);
+    self->PlotCacheUpdated = false;
+  }
+
+  void UpdatePlotCache()
+  {
+    if (!this->PlotCacheUpdated)
     {
-      vtkPlot* plot = *it;
-      vtkTable* table = plot->GetInput();
-      const int idx = 1; // column
-      if (table &&
-        table->GetColumn(columnId) == plot->GetData()->GetInputAbstractArrayToProcess(idx, table))
+      this->PlotCache.clear();
+
+      // build map to find array index from its pointer to speed up access
+      // the table should be shared between all plots
+      std::unordered_map<vtkTable*, std::unordered_map<vtkAbstractArray*, vtkIdType>> colMap;
+      for (vtkPlot* plot : this->plots)
       {
-        return plot;
+        vtkTable* table = plot->GetInput();
+        if (table)
+        {
+          auto it = colMap.find(table);
+          if (it == colMap.end())
+          {
+            std::unordered_map<vtkAbstractArray*, vtkIdType> tableColMap;
+
+            vtkIdType nbCols = table->GetNumberOfColumns();
+            for (vtkIdType i = 0; i < nbCols; i++)
+            {
+              tableColMap[table->GetColumn(i)] = i;
+            }
+
+            colMap[table] = std::move(tableColMap);
+          }
+        }
       }
+
+      // build map to find plot from column index
+      for (vtkPlot* plot : this->plots)
+      {
+        vtkTable* table = plot->GetInput();
+
+        constexpr int idx = 1; // column
+        vtkAbstractArray* array = plot->GetData()->GetInputAbstractArrayToProcess(idx, table);
+
+        this->PlotCache[colMap[table][array]] = plot;
+      }
+
+      this->PlotCacheUpdated = true;
     }
-    return nullptr;
   }
 
   std::vector<vtkPlot*> plots;                   // Charts can contain multiple plots of data
@@ -100,6 +137,8 @@ public:
   vtkSmartPointer<vtkContextClip> Clip;          // Colors in the chart
   int Borders[4];
   vtkTimeStamp TransformCalculatedTime;
+  std::unordered_map<vtkIdType, vtkPlot*> PlotCache;
+  bool PlotCacheUpdated = false;
 };
 
 //------------------------------------------------------------------------------
@@ -220,11 +259,10 @@ void vtkChartXY::Update()
       vtkSelectionNode* node = selection->GetNumberOfNodes() > 0 ? selection->GetNode(0) : nullptr;
       vtkIdTypeArray* idArray =
         node ? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()) : nullptr;
-      std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
-      for (; it != this->ChartPrivate->plots.end(); ++it)
+      for (vtkPlot* plot : this->ChartPrivate->plots)
       {
         // Use the first selection node for all plots to select the rows.
-        (*it)->SetSelection(idArray);
+        plot->SetSelection(idArray);
       }
     }
     else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
@@ -249,41 +287,33 @@ void vtkChartXY::Update()
     else if (this->SelectionMethod == vtkChart::SELECTION_COLUMNS)
     {
       // Retrieve all the selected plots
+      this->ChartPrivate->UpdatePlotCache();
       std::vector<vtkPlot*> selectedPlots;
       for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
       {
         vtkSelectionNode* node = selection->GetNode(i);
         vtkIdTypeArray* selectedColumns =
           vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
-        vtkIdType* ptr = reinterpret_cast<vtkIdType*>(selectedColumns->GetVoidPointer(0));
         for (vtkIdType j = 0; j < selectedColumns->GetNumberOfTuples(); ++j)
         {
-          vtkPlot* selectedPlot = this->ChartPrivate->GetPlotByColumn(ptr[j]);
-          if (selectedPlot)
-          {
-            selectedPlots.push_back(selectedPlot);
-          }
+          selectedPlots.push_back(this->ChartPrivate->PlotCache[j]);
         }
       }
       // Now iterate through the plots to update selection data
-      std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
-      for (; it != this->ChartPrivate->plots.end(); ++it)
+      for (vtkPlot* plot : this->ChartPrivate->plots)
       {
-        vtkPlot* plot = *it;
-        vtkIdTypeArray* plotSelection = nullptr;
-        bool ownPlotSelection = false;
+        vtkSmartPointer<vtkIdTypeArray> plotSelection;
         bool isSelected =
           std::find(selectedPlots.begin(), selectedPlots.end(), plot) != selectedPlots.end();
         if (isSelected)
         {
-          static int idx = 1; // y
+          constexpr int idx = 1; // y
           vtkAbstractArray* column =
             plot->GetData()->GetInputAbstractArrayToProcess(idx, plot->GetInput());
           plotSelection = plot->GetSelection();
           if (!plotSelection || plotSelection->GetNumberOfTuples() != column->GetNumberOfTuples())
           {
-            plotSelection = vtkIdTypeArray::New();
-            ownPlotSelection = true;
+            plotSelection = vtkSmartPointer<vtkIdTypeArray>::New();
             for (vtkIdType j = 0; j < column->GetNumberOfTuples(); ++j)
             {
               plotSelection->InsertNextValue(j);
@@ -291,10 +321,6 @@ void vtkChartXY::Update()
           }
         }
         plot->SetSelection(plotSelection);
-        if (ownPlotSelection)
-        {
-          plotSelection->Delete();
-        }
       }
     }
   }
@@ -1207,6 +1233,13 @@ vtkIdType vtkChartXY::AddPlot(vtkPlot* plot)
   }
   plot->Register(this);
   this->ChartPrivate->plots.push_back(plot);
+  this->ChartPrivate->PlotCacheUpdated = false;
+
+  vtkNew<vtkCallbackCommand> invalidateCacheCallback;
+  invalidateCacheCallback->SetClientData(this->ChartPrivate);
+  invalidateCacheCallback->SetCallback(vtkChartXYPrivate::InvalidateCache);
+  plot->AddObserver(vtkCommand::ModifiedEvent, invalidateCacheCallback);
+
   vtkIdType plotIndex = static_cast<vtkIdType>(this->ChartPrivate->plots.size() - 1);
   this->SetPlotCorner(plot, 0);
   // Ensure that the bounds are recalculated
