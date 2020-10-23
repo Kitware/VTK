@@ -464,7 +464,60 @@ vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
 // struct vtkFoamLabelVectorVector
 struct vtkFoamLabelVectorVector
 {
-  typedef std::vector<vtkTypeInt64> CellType;
+  // A std::vector-like data structure where the data
+  // lies on the stack. If the requested size in the
+  // resize method is larger than s, the class allocates
+  // the array on the heap.
+  //
+  // Unlike std::vector, the array is not default initialized
+  // and behaves more like std::array in that manner.
+  template <typename T, size_t s = 2 * 64 / sizeof(T)>
+  struct StackVector
+  {
+    ~StackVector()
+    {
+      if (ptr != stck)
+      {
+        delete[] ptr;
+      }
+    }
+
+    void resize(const size_t n)
+    {
+      if (n > s)
+      {
+        if (ptr != stck)
+        {
+          delete[] ptr;
+        }
+
+        ptr = new T[n];
+      }
+
+      internal_size = n;
+    }
+
+    size_t size() const { return internal_size; }
+
+    const T& operator[](const size_t pos) const
+    {
+      assert(pos < internal_size);
+      return ptr[pos];
+    }
+
+    T& operator[](const size_t pos)
+    {
+      assert(pos < internal_size);
+      return ptr[pos];
+    }
+
+  private:
+    T stck[s];
+    T* ptr = stck;
+    std::size_t internal_size = 0;
+  };
+
+  using CellType = StackVector<vtkTypeInt64>;
 
   virtual ~vtkFoamLabelVectorVector() = default;
   virtual size_t GetLabelSize() const = 0; // in bytes
@@ -492,8 +545,8 @@ private:
   ArrayT* Body;
 
 public:
-  typedef ArrayT LabelArrayType;
-  typedef typename ArrayT::ValueType LabelType;
+  using LabelArrayType = ArrayT;
+  using LabelType = typename ArrayT::ValueType;
 
   ~vtkFoamLabelVectorVectorImpl() override
   {
