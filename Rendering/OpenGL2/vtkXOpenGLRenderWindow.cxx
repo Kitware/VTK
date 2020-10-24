@@ -63,7 +63,9 @@ typedef ptrdiff_t GLsizeiptr;
 #include <sstream>
 
 #include <X11/Xatom.h>
+#if VTK_HAVE_XCURSOR
 #include <X11/Xcursor/Xcursor.h>
+#endif
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
@@ -1711,6 +1713,7 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
       break;
     case VTK_CURSOR_CUSTOM:
+#if VTK_HAVE_XCURSOR
       this->XCCustom = XcursorFilenameLoadCursor(this->DisplayId, this->GetCursorFileName());
       if (!this->XCCustom)
       {
@@ -1718,6 +1721,16 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
         break;
       }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCCustom);
+#else
+    {
+      static bool once = false;
+      if (!once)
+      {
+        once = true;
+        vtkWarningMacro("VTK built without Xcursor support; ignoring requests for custom cursors.");
+      }
+    }
+#endif
       break;
   }
 }
