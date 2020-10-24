@@ -730,12 +730,12 @@ struct FastBounds
         double y = static_cast<double>(tuple[1]);
         double z = static_cast<double>(tuple[2]);
 
-        localBds[0] = std::min(x, localBds[0]);
-        localBds[1] = std::max(x, localBds[1]);
-        localBds[2] = std::min(y, localBds[2]);
-        localBds[3] = std::max(y, localBds[3]);
-        localBds[4] = std::min(z, localBds[4]);
-        localBds[5] = std::max(z, localBds[5]);
+        localBds[0] = std::min(localBds[0], x);
+        localBds[1] = std::max(localBds[1], x);
+        localBds[2] = std::min(localBds[2], y);
+        localBds[3] = std::max(localBds[3], y);
+        localBds[4] = std::min(localBds[4], z);
+        localBds[5] = std::max(localBds[5], z);
       }
       if (this->PointUses != nullptr)
       {
@@ -756,12 +756,12 @@ struct FastBounds
 
     for (auto iter = this->LocalBounds.begin(); iter != this->LocalBounds.end(); ++iter)
     {
-      xmin = std::min((*iter)[0], xmin);
-      xmax = std::max((*iter)[1], xmax);
-      ymin = std::min((*iter)[2], ymin);
-      ymax = std::max((*iter)[3], ymax);
-      zmin = std::min((*iter)[4], zmin);
-      zmax = std::max((*iter)[5], zmax);
+      xmin = std::min(xmin, (*iter)[0]);
+      xmax = std::max(xmax, (*iter)[1]);
+      ymin = std::min(ymin, (*iter)[2]);
+      ymax = std::max(ymax, (*iter)[3]);
+      zmin = std::min(zmin, (*iter)[4]);
+      zmax = std::max(zmax, (*iter)[5]);
     }
 
     this->Bounds[0] = xmin;
