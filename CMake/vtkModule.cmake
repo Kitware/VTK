@@ -1501,6 +1501,77 @@ function (vtk_module_compile_features module)
 endfunction ()
 
 #[==[
+@ingroup module-impl
+@brief Manage the private link target for a module
+
+This function manages the private link target for a module.
+
+~~~
+_vtk_private_kit_link_target(<module>
+  [CREATE_IF_NEEDED]
+  [SETUP_TARGET_NAME <var>]
+  [USAGE_TARGET_NAME <var>])
+~~~
+#]==]
+function (_vtk_private_kit_link_target module)
+  cmake_parse_arguments(_vtk_private_kit_link_target
+    "CREATE_IF_NEEDED"
+    "SETUP_TARGET_NAME;USAGE_TARGET_NAME"
+    ""
+    ${ARGN})
+
+  if (_vtk_private_kit_link_target_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_private_kit_link_target: "
+      "${_vtk_private_kit_link_target_UNPARSED_ARGUMENTS}.")
+  endif ()
+
+  # Compute the target name.
+  get_property(_vtk_private_kit_link_base_target_name GLOBAL
+    PROPERTY "_vtk_module_${module}_target_name")
+  if (NOT _vtk_private_kit_link_base_target_name)
+    message(FATAL_ERROR
+      "_vtk_private_kit_link_target only works for modules built in the "
+      "current project.")
+  endif ()
+
+  set(_vtk_private_kit_link_target_setup_name
+    "${_vtk_private_kit_link_base_target_name}-private-kit-links")
+  get_property(_vtk_private_kit_link_namespace GLOBAL
+    PROPERTY "_vtk_module_${module}_namespace")
+  if (_vtk_private_kit_link_namespace)
+    set(_vtk_private_kit_link_target_usage_name
+      "${_vtk_private_kit_link_namespace}::${_vtk_private_kit_link_target_setup_name}")
+  else ()
+    set(_vtk_private_kit_link_target_usage_name
+      ":${_vtk_private_kit_link_target_setup_name}")
+  endif ()
+
+  # Create the target if requested.
+  if (_vtk_private_kit_link_target_CREATE_IF_NEEDED AND
+      NOT TARGET "${_vtk_private_kit_link_target_setup_name}")
+    add_library("${_vtk_private_kit_link_target_setup_name}" INTERFACE)
+    if (NOT _vtk_private_kit_link_target_setup_name STREQUAL _vtk_private_kit_link_target_usage_name)
+      add_library("${_vtk_private_kit_link_target_usage_name}" ALIAS
+        "${_vtk_private_kit_link_target_setup_name}")
+    endif ()
+    _vtk_module_install("${_vtk_private_kit_link_target_setup_name}")
+  endif ()
+
+  if (_vtk_private_kit_link_target_SETUP_TARGET_NAME)
+    set("${_vtk_private_kit_link_target_SETUP_TARGET_NAME}"
+      "${_vtk_private_kit_link_target_setup_name}"
+      PARENT_SCOPE)
+  endif ()
+
+  if (_vtk_private_kit_link_target_USAGE_TARGET_NAME)
+    set("${_vtk_private_kit_link_target_USAGE_TARGET_NAME}"
+      "${_vtk_private_kit_link_target_usage_name}"
+      PARENT_SCOPE)
+  endif ()
+endfunction ()
+
+#[==[
 @ingroup module
 @brief Add link libraries to a module
 
@@ -1533,28 +1604,16 @@ function (vtk_module_link module)
   get_property(_vtk_link_kit GLOBAL
     PROPERTY "_vtk_module_${module}_kit")
   if (_vtk_link_kit)
-    foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
-      if (NOT TARGET "${_vtk_link_private}")
-        continue ()
-      endif ()
-
-      get_property(_vtk_link_private_imported
-        TARGET    "${_vtk_link_private}"
-        PROPERTY  IMPORTED)
-      if (_vtk_link_private_imported)
-        get_property(_vtk_link_private_imported_global
-          TARGET    "${_vtk_link_private}"
-          PROPERTY  IMPORTED_GLOBAL)
-        if (NOT _vtk_link_private_imported_global)
-          set_property(TARGET "${_vtk_link_private}"
-            PROPERTY
-              IMPORTED_GLOBAL TRUE)
-        endif ()
-      endif ()
-    endforeach ()
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "_vtk_kit_${_vtk_link_kit}_private_links" ${_vtk_link_PRIVATE})
+    if (_vtk_link_PRIVATE)
+      _vtk_private_kit_link_target("${module}"
+        CREATE_IF_NEEDED
+        SETUP_TARGET_NAME _vtk_link_private_kit_link_target)
+      foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
+        target_link_libraries("${_vtk_link_private_kit_link_target}"
+          INTERFACE
+            "$<LINK_ONLY:${_vtk_link_private}>")
+      endforeach ()
+    endif ()
   endif ()
 
   target_link_libraries("${_vtk_link_target}"
@@ -2421,6 +2480,13 @@ function (vtk_module_build)
         list(APPEND _vtk_build_kit_modules_object_libraries
           "${_vtk_build_kit_module_target_name}-objects")
 
+        _vtk_private_kit_link_target("${_vtk_build_kit_module}"
+          USAGE_TARGET_NAME _vtk_build_kit_module_usage_name)
+        if (TARGET "${_vtk_build_kit_module_usage_name}")
+          list(APPEND _vtk_build_kit_modules_private_depends
+            "${_vtk_build_kit_module_usage_name}")
+        endif ()
+
         # Since there is no link step for modules, we need to copy the private
         # dependencies of the constituent modules into the kit so that their
         # private dependencies are actually linked.
@@ -2444,9 +2510,6 @@ function (vtk_module_build)
         endforeach ()
       endforeach ()
 
-      get_property(_vtk_build_kit_private_links GLOBAL
-        PROPERTY "_vtk_kit_${_vtk_build_kit}_private_links")
-
       if (_vtk_build_kit_modules_private_depends)
         list(REMOVE_DUPLICATES _vtk_build_kit_modules_private_depends)
       endif ()
@@ -2457,8 +2520,7 @@ function (vtk_module_build)
       target_link_libraries("${_vtk_build_target_name}"
         PRIVATE
           ${_vtk_build_kit_modules_object_libraries}
-          ${_vtk_build_kit_modules_private_depends}
-          ${_vtk_build_kit_private_links})
+          ${_vtk_build_kit_modules_private_depends})
       get_property(_vtk_build_kit_library_name GLOBAL
         PROPERTY "_vtk_kit_${_vtk_build_kit}_library_name")
       if (_vtk_build_LIBRARY_NAME_SUFFIX)
