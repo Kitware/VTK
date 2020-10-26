@@ -1791,8 +1791,8 @@ void vtkPDFContextDevice2D::BeginClipPathForTexture()
 {
   assert(!this->IsInTexturedFill);
   this->IsInTexturedFill = true;
-  this->TextureBounds[0] = this->TextureBounds[2] = VTK_INT_MAX;
-  this->TextureBounds[1] = this->TextureBounds[3] = VTK_INT_MIN;
+  this->TextureBounds[0] = this->TextureBounds[2] = VTK_FLOAT_MAX;
+  this->TextureBounds[1] = this->TextureBounds[3] = VTK_FLOAT_MIN;
   this->PushGraphicsState(); // so we can pop the clip path
   this->ApplyFillAlpha(255); // Match the OpenGL implementation
 }
@@ -1819,8 +1819,8 @@ void vtkPDFContextDevice2D::FillTexture()
 
   this->IsInTexturedFill = false;
 
-  if (this->TextureBounds[0] == VTK_INT_MAX || this->TextureBounds[1] == VTK_INT_MIN ||
-    this->TextureBounds[2] == VTK_INT_MAX || this->TextureBounds[3] == VTK_INT_MIN)
+  if (this->TextureBounds[0] == VTK_FLOAT_MAX || this->TextureBounds[1] == VTK_FLOAT_MIN ||
+    this->TextureBounds[2] == VTK_FLOAT_MAX || this->TextureBounds[3] == VTK_FLOAT_MIN)
   { // No geometry to texture:
     this->PopGraphicsState();
     return;
