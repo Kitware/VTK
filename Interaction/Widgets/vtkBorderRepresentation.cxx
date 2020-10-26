@@ -440,7 +440,7 @@ void vtkBorderRepresentation::UpdateShowBorder()
   bool visible = (newBorder != NoBorder);
   if (currentBorder != newBorder && visible)
   {
-    vtkCellArray* outline = vtkCellArray::New();
+    vtkNew<vtkCellArray> outline;
     switch (newBorder)
     {
       case AllBorders:
@@ -471,8 +471,6 @@ void vtkBorderRepresentation::UpdateShowBorder()
         break;
     }
     this->BWPolyData->SetLines(outline);
-    outline->Delete();
-    this->BWPolyData->Modified();
     this->Modified();
   }
   this->BWActor->SetVisibility(visible);
@@ -510,6 +508,11 @@ void vtkBorderRepresentation::BuildRepresentation()
     double ty = pos1[1];
     double sx = (pos2[0] - pos1[0]) / size[0];
     double sy = (pos2[1] - pos1[1]) / size[1];
+
+    sx = (sx < this->MinimumSize[0] ? this->MinimumSize[0]
+                                    : (sx > this->MaximumSize[0] ? this->MaximumSize[0] : sx));
+    sy = (sy < this->MinimumSize[1] ? this->MinimumSize[1]
+                                    : (sy > this->MaximumSize[1] ? this->MaximumSize[1] : sy));
 
     this->BWTransform->Identity();
     this->BWTransform->Translate(tx, ty, 0.0);
