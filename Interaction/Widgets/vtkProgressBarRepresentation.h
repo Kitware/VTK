@@ -69,6 +69,26 @@ public:
 
   //@{
   /**
+   * Set/Get the padding between the border and the progressbar.
+   * The padding is expressed in percentage of the border box size
+   * default is 0.017,0.1
+   */
+  vtkSetVector2Macro(Padding, double);
+  vtkGetVector2Macro(Padding, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get frame visibility
+   * default is on
+   */
+  vtkSetMacro(DrawFrame, bool);
+  vtkGetMacro(DrawFrame, bool);
+  vtkBooleanMacro(DrawFrame, bool);
+  //@}
+
+  //@{
+  /**
    * Set/Get the progress bar color
    * Default is pure green
    */
@@ -100,7 +120,6 @@ public:
    * Satisfy the superclasses' API.
    */
   void BuildRepresentation() override;
-  void GetSize(double size[2]) override;
   //@}
 
   //@{
@@ -123,12 +142,15 @@ protected:
   double ProgressRate;
   double ProgressBarColor[3];
   double BackgroundColor[3];
+  double Padding[2];
   bool DrawBackground;
+  bool DrawFrame;
 
   vtkPoints* Points;
   vtkUnsignedCharArray* ProgressBarData;
   vtkProperty2D* Property;
   vtkActor2D* Actor;
+  vtkActor2D* FrameActor;
   vtkActor2D* BackgroundActor;
 
 private:
