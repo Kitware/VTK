@@ -20,7 +20,7 @@
 #ifndef vtkmDataSet_h
 #define vtkmDataSet_h
 
-#include "vtkAcceleratorsVTKmCoreModule.h" // For export macro
+#include "vtkAcceleratorsVTKmDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
 #include <memory> // for std::shared_ptr
@@ -39,7 +39,7 @@ class vtkPoints;
 class vtkCell;
 class vtkGenericCell;
 
-class VTKACCELERATORSVTKMCORE_EXPORT vtkmDataSet : public vtkDataSet
+class VTKACCELERATORSVTKMDATAMODEL_EXPORT vtkmDataSet : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkmDataSet, vtkDataSet);

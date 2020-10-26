@@ -1,0 +1,15 @@
+NAME
+  VTK::AcceleratorsVTKmDataModel
+LIBRARY_NAME
+  vtkAcceleratorsVTKmDataModel
+DESCRIPTION
+  VTKm data structures
+DEPENDS
+  VTK::AcceleratorsVTKmCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::vtkm
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::TestingCore
+  VTK::TestingRendering

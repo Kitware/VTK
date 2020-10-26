@@ -17,11 +17,11 @@
 #ifndef vtkmlib_PolyDataConverter_h
 #define vtkmlib_PolyDataConverter_h
 
-#include "vtkAcceleratorsVTKmCoreModule.h"
+#include "vtkAcceleratorsVTKmDataModelModule.h"
 
 #include "ArrayConverters.h" // for FieldsFlag
 
-#include "vtkmConfigCore.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general vtkm setup
 
 #include <vtkm/cont/DataSet.h>
 
@@ -31,13 +31,13 @@ class vtkDataSet;
 namespace tovtkm
 {
 // convert an polydata type
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields = FieldsFlag::None);
 }
 
 namespace fromvtkm
 {
-VTKACCELERATORSVTKMCORE_EXPORT
+VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input);
 }
 #endif // vtkmlib_PolyDataConverter_h

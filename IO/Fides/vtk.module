@@ -7,7 +7,7 @@ DESCRIPTION
 DEPENDS
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
-  VTK::AcceleratorsVTKmCore
+  VTK::AcceleratorsVTKmDataModel
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::fides
