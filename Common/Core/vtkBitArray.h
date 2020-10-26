@@ -66,6 +66,12 @@ public:
   void SetNumberOfTuples(vtkIdType number) override;
 
   /**
+   * In addition to setting the number of values, this method also sets the
+   * unused bits of the last byte of the array.
+   */
+  bool SetNumberOfValues(vtkIdType number) override;
+
+  /**
    * Set the tuple at the ith location using the jth tuple in the source array.
    * This method assumes that the two arrays have the same type
    * and structure. Note that range checking and memory allocation is not
@@ -295,6 +301,19 @@ protected:
   vtkBitArray();
   ~vtkBitArray() override;
 
+  /**
+   * This method should be called
+   * whenever MaxId needs to be changed, as this method fills the unused bits of
+   * the last byte to zero. If those bits are kept uninitialized, one can
+   * trigger errors when reading the last byte.
+   *
+   * @note This method can be called with `this->MaxId < 0`. In this instance, nothing happens.
+   *
+   * @warning The buffer `this->Array` needs to already be allocated prior to calling this
+   * method.
+   */
+  virtual void InitializeUnusedBitsInLastByte();
+
   unsigned char* Array; // pointer to data
   unsigned char* ResizeAndExtend(vtkIdType sz);
   // function to resize data
@@ -339,6 +358,7 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
   if (id > this->MaxId)
   {
     this->MaxId = id;
+    this->InitializeUnusedBitsInLastByte();
   }
   this->DataChanged();
 }
@@ -355,7 +375,7 @@ inline void vtkBitArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 
 inline vtkIdType vtkBitArray::InsertNextValue(int i)
 {
-  this->InsertValue(++this->MaxId, i);
+  this->InsertValue(this->MaxId + 1, i);
   this->DataChanged();
   return this->MaxId;
 }
@@ -364,5 +384,4 @@ inline void vtkBitArray::Squeeze()
 {
   this->ResizeAndExtend(this->MaxId + 1);
 }
-
 #endif
