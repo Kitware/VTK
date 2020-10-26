@@ -654,7 +654,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
 
   int numVerts = this->VBOs->GetNumberOfTuples("vertexWC");
 
-  if (this->Points.IBO->IndexCount)
+  if (this->Points.IBO->IndexCount && actor->GetProperty()->GetPointSize() != 0.f)
   {
     this->UpdateShaders(this->Points, viewport, actor);
     if (this->Points.Program)
@@ -671,7 +671,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
   }
 
-  if (this->Lines.IBO->IndexCount)
+  if (this->Lines.IBO->IndexCount && actor->GetProperty()->GetLineWidth() != 0.f)
   {
     // Set the LineWidth
     this->UpdateShaders(this->Lines, viewport, actor);
