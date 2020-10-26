@@ -39,6 +39,10 @@ Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
 `<MAJOR_VERSION>` must be one of `2` or `3`. If not specified, it defaults to
 the value of `${VTK_PYTHON_VERSION}`.
 #]==]
+
+cmake_policy(PUSH)
+cmake_policy(SET CMP0053 NEW)
+
 function (vtk_module_python_default_destination var)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_module_python
     ""
@@ -1136,3 +1140,5 @@ function (vtk_module_add_python_module name)
   _vtk_module_apply_properties("${_vtk_add_python_module_target_name}")
   _vtk_module_install("${_vtk_add_python_module_target_name}")
 endfunction ()
+
+cmake_policy(POP)
