@@ -999,15 +999,6 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
       channel.TargetPath == Animation::Channel::PathType::ROTATION);
     node.UpdateTransform();
   }
-
-  // Compute global transforms
-  for (const auto& scene : this->InternalModel->Scenes)
-  {
-    for (unsigned int node : scene.Nodes)
-    {
-      this->BuildGlobalTransforms(node, nullptr);
-    }
-  }
   return true;
 }
 
@@ -1450,6 +1441,18 @@ void vtkGLTFDocumentLoader::BuildGlobalTransforms(
     this->BuildGlobalTransforms(childId, node.GlobalTransform);
   }
   return;
+}
+
+//------------------------------------------------------------------------------
+void vtkGLTFDocumentLoader::BuildGlobalTransforms()
+{
+  for (const auto& scene : this->InternalModel->Scenes)
+  {
+    for (unsigned int node : scene.Nodes)
+    {
+      this->BuildGlobalTransforms(node, nullptr);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

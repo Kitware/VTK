@@ -862,6 +862,7 @@ int vtkGLTFReader::RequestData(
         this->Loader->ResetAnimation(i);
       }
     }
+    this->Loader->BuildGlobalTransforms();
   }
 
   vtkIdType selectedScene = this->CurrentScene;
