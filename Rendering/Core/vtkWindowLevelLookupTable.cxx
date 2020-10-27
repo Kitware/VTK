@@ -42,46 +42,43 @@ vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
 //------------------------------------------------------------------------------
 // Table is built as a linear ramp between MinimumTableValue and
 // MaximumTableValue.
-void vtkWindowLevelLookupTable::Build()
+void vtkWindowLevelLookupTable::ForceBuild()
 {
-  if (this->Table->GetNumberOfTuples() < 1 ||
-    (this->GetMTime() > this->BuildTime && this->InsertTime < this->BuildTime))
+  double start[4], incr[4];
+
+  for (int j = 0; j < 4; j++)
   {
-    int i, j;
-    unsigned char* rgba;
-    double start[4], incr[4];
+    start[j] = this->MinimumTableValue[j] * 255;
+    incr[j] = ((this->MaximumTableValue[j] - this->MinimumTableValue[j]) /
+      (this->NumberOfColors - 1) * 255);
+  }
 
-    for (j = 0; j < 4; j++)
+  if (this->InverseVideo)
+  {
+    for (vtkIdType i = 0; i < this->NumberOfColors; i++)
     {
-      start[j] = this->MinimumTableValue[j] * 255;
-      incr[j] = ((this->MaximumTableValue[j] - this->MinimumTableValue[j]) /
-        (this->NumberOfColors - 1) * 255);
-    }
-
-    if (this->InverseVideo)
-    {
-      for (i = 0; i < this->NumberOfColors; i++)
+      unsigned char* rgba = this->Table->WritePointer(4 * i, 4);
+      for (int j = 0; j < 4; j++)
       {
-        rgba = this->Table->WritePointer(4 * i, 4);
-        for (j = 0; j < 4; j++)
-        {
-          rgba[j] =
-            static_cast<unsigned char>(start[j] + (this->NumberOfColors - i - 1) * incr[j] + 0.5);
-        }
-      }
-    }
-    else
-    {
-      for (i = 0; i < this->NumberOfColors; i++)
-      {
-        rgba = this->Table->WritePointer(4 * i, 4);
-        for (j = 0; j < 4; j++)
-        {
-          rgba[j] = static_cast<unsigned char>(start[j] + i * incr[j] + 0.5);
-        }
+        rgba[j] =
+          static_cast<unsigned char>(start[j] + (this->NumberOfColors - i - 1) * incr[j] + 0.5);
       }
     }
   }
+  else
+  {
+    for (vtkIdType i = 0; i < this->NumberOfColors; i++)
+    {
+      unsigned char* rgba = this->Table->WritePointer(4 * i, 4);
+      for (int j = 0; j < 4; j++)
+      {
+        rgba[j] = static_cast<unsigned char>(start[j] + i * incr[j] + 0.5);
+      }
+    }
+  }
+
+  this->BuildSpecialColors();
+
   this->BuildTime.Modified();
 }
 

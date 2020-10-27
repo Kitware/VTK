@@ -50,7 +50,7 @@ public:
    * Generate lookup table as a linear ramp between MinimumTableValue
    * and MaximumTableValue.
    */
-  void Build() override;
+  void ForceBuild() override;
 
   //@{
   /**
