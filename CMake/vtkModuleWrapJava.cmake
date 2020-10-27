@@ -19,6 +19,10 @@ and third arguments, respectively.
 _vtk_module_wrap_java_sources(<module> <sources> <classes>)
 ~~~
 #]==]
+
+cmake_policy(PUSH)
+cmake_policy(SET CMP0053 NEW)
+
 function (_vtk_module_wrap_java_sources module sources java_sources)
   _vtk_module_get_module_property("${module}"
     PROPERTY  "exclude_wrap"
@@ -407,3 +411,5 @@ function (vtk_module_wrap_java)
       PARENT_SCOPE)
   endif ()
 endfunction ()
+
+cmake_policy(POP)
