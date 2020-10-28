@@ -64,6 +64,25 @@ static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 0;
 static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
 #endif
 
+// Some linux drivers have issues reading a multisampled texture,
+// so we check the driver's "Renderer" against this list of strings.
+struct vtkOpenGLRenderWindowDriverInfo
+{
+  const char* Vendor;
+  const char* Version;
+  const char* Renderer;
+};
+static const vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug[] = {
+  // OpenGL Vendor: Intel
+  // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
+  // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
+  { "Intel", "", "Mesa Intel" },
+  // OpenGL Vendor: X.Org
+  // OpenGL Version: 4.6 (Core Profile) Mesa 20.0.8
+  // OpenGL Renderer: AMD RAVEN (DRM 3.35.0, 5.4.0-42-generic, LLVM 10.0.0)
+  { "X.Org", "", "AMD" },
+};
+
 const char* defaultWindowName = "Visualization Toolkit - OpenGL";
 
 const char* ResolveShader =
@@ -889,16 +908,25 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
 
     bool copiedColor = false;
 
-    // Some intel linux drivers have issues reading a multisampled texture
-    // OpenGL Vendor: Intel
-    // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
-    // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
+    // Some linux drivers have issues reading a multisampled texture
     bool useTexture = false;
     if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
     {
-      if (this->GetState()->GetRenderer().find("Mesa Intel") == std::string::npos)
+      useTexture = true;
+      const std::string& vendorString = this->GetState()->GetVendor();
+      const std::string& versionString = this->GetState()->GetVersion();
+      const std::string& rendererString = this->GetState()->GetRenderer();
+      size_t numExceptions =
+        sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
+      for (size_t i = 0; i < numExceptions; i++)
       {
-        useTexture = true;
+        if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
+          versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
+          rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
+        {
+          useTexture = false;
+          break;
+        }
       }
     }
 
@@ -969,16 +997,25 @@ void vtkOpenGLRenderWindow::Frame()
     this->GetState()->vtkglViewport(0, 0, fbsize[0], fbsize[1]);
     this->GetState()->vtkglScissor(0, 0, fbsize[0], fbsize[1]);
 
-    // Some intel linux drivers have issues reading a multisampled texture
-    // OpenGL Vendor: Intel
-    // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
-    // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
+    // Some linux drivers have issues reading a multisampled texture
     bool useTexture = false;
     if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
     {
-      if (this->GetState()->GetRenderer().find("Mesa Intel") == std::string::npos)
+      useTexture = true;
+      const std::string& vendorString = this->GetState()->GetVendor();
+      const std::string& versionString = this->GetState()->GetVersion();
+      const std::string& rendererString = this->GetState()->GetRenderer();
+      size_t numExceptions =
+        sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
+      for (size_t i = 0; i < numExceptions; i++)
       {
-        useTexture = true;
+        if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
+          versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
+          rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
+        {
+          useTexture = false;
+          break;
+        }
       }
     }
 
