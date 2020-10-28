@@ -80,14 +80,14 @@ unsigned char* vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
   }
   if ((--newSize) > this->MaxId)
   {
-    if (newSize < 0 || newSize / 8 == this->MaxId / 8)
+    if (newSize > -1 && (this->MaxId < 0 || newSize / 8 != this->MaxId / 8))
     {
       this->MaxId = newSize;
+      this->InitializeUnusedBitsInLastByte();
     }
     else
     {
       this->MaxId = newSize;
-      this->InitializeUnusedBitsInLastByte();
     }
   }
   this->DataChanged();
@@ -118,14 +118,14 @@ void vtkBitArray::SetArray(unsigned char* array, vtkIdType size, int save, int d
 
   this->Array = array;
   this->Size = size;
-  if (size < 1 || this->MaxId / 8 == (size - 1) / 8)
+  if (size > 0 && (this->MaxId < 0 || (size - 1) / 8 != this->MaxId / 8))
   {
     this->MaxId = size - 1;
+    this->InitializeUnusedBitsInLastByte();
   }
   else
   {
     this->MaxId = size - 1;
-    this->InitializeUnusedBitsInLastByte();
   }
 
   if (save != 0)
@@ -310,10 +310,14 @@ unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
   this->Array = newArray;
   if (newSize < this->Size)
   {
-    this->MaxId = newSize - 1;
-    if (this->MaxId > 0)
+    if (newSize > 0 && (this->MaxId < 0 || (newSize - 1) / 8 != this->MaxId / 8))
     {
+      this->MaxId = newSize - 1;
       this->InitializeUnusedBitsInLastByte();
+    }
+    else
+    {
+      this->MaxId = newSize - 1;
     }
   }
   this->DeleteFunction = ::operator delete[];
@@ -356,20 +360,20 @@ vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
     }
   }
 
-  this->Size = newSize;
   this->Array = newArray;
   if (newSize < this->Size)
   {
-    if (newSize < 1 || this->MaxId / 8 == (newSize - 1) / 8)
-    {
-      this->MaxId = newSize - 1;
-    }
-    else
+    if (newSize > 0 && (this->MaxId < 0 || (newSize - 1) / 8 != this->MaxId / 8))
     {
       this->MaxId = newSize - 1;
       this->InitializeUnusedBitsInLastByte();
     }
+    else
+    {
+      this->MaxId = newSize - 1;
+    }
   }
+  this->Size = newSize;
   this->DeleteFunction = ::operator delete[];
   this->DataChanged();
 
@@ -391,7 +395,7 @@ bool vtkBitArray::SetNumberOfValues(vtkIdType number)
   {
     return false;
   }
-  if (previousMaxId < 0 || previousMaxId / 8 != this->MaxId / 8)
+  if (number > 0 && (previousMaxId < 0 || previousMaxId / 8 != this->MaxId / 8))
   {
     this->InitializeUnusedBitsInLastByte();
   }

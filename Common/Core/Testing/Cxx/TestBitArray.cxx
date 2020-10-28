@@ -20,11 +20,6 @@
 #include <bitset>
 #include <string>
 
-namespace
-{
-static constexpr unsigned char BitMask[8] = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-} // anonymous namespace
-
 // This test makes sure that the unsused reachable bits of the last byte are set
 // to zero.
 int TestBitArray(int, char*[])
@@ -46,7 +41,7 @@ int TestBitArray(int, char*[])
     return EXIT_FAILURE;
   }
 
-  array->SetNumberOfValues(0);
+  array->SetNumberOfValues(1);
 
   // [1111 1011 | 101]
   array->InsertValue(0, 1);
@@ -70,15 +65,14 @@ int TestBitArray(int, char*[])
               << ", it should be 11111011 10100000" << std::endl;
     return EXIT_FAILURE;
   }
-  return EXIT_SUCCESS;
 
   unsigned char* ptr = array->WritePointer(0, 18);
   // [1111 1011 | 1111 0011 | 10]
   ptr[1] = 0xf3;
   ptr[2] = (ptr[2] & 0x3f) | 0x80;
+  data = static_cast<unsigned char*>(array->GetVoidPointer(0));
   str = std::bitset<8>(data[0]).to_string() + std::string(" ") +
     std::bitset<8>(data[1]).to_string() + std::string(" ") + std::bitset<8>(data[2]).to_string();
-  data = static_cast<unsigned char*>(array->GetVoidPointer(0));
   if (str != std::string("11111011 11110011 10000000"))
   {
     std::cerr << "Bit array not initialized as supposed. The raw data is " << str
@@ -87,8 +81,8 @@ int TestBitArray(int, char*[])
   }
 
   array->Resize(2);
-  str = std::bitset<8>(data[0]).to_string();
   data = static_cast<unsigned char*>(array->GetVoidPointer(0));
+  str = std::bitset<8>(data[0]).to_string();
   if (str != std::string("11000000"))
   {
     std::cerr << "Bit array not initialized as supposed. The raw data is " << str
