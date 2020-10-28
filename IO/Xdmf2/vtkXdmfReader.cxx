@@ -412,6 +412,7 @@ int vtkXdmfReader::RequestData(
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject* output = vtkDataObject::GetData(outInfo);
 
   // * Collect information about what part of the data is requested.
   unsigned int updatePiece = 0;
@@ -432,7 +433,8 @@ int vtkXdmfReader::RequestData(
 
   // will be set for structured datasets only.
   int update_extent[6] = { 0, -1, 0, -1, 0, -1 };
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+  if (output->GetExtentType() == VTK_3D_EXTENT &&
+    outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), update_extent);
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
@@ -476,8 +478,6 @@ int vtkXdmfReader::RequestData(
     vtkErrorMacro("Failed to read data.");
     return 0;
   }
-
-  vtkDataObject* output = vtkDataObject::GetData(outInfo);
 
   if (!output->IsA(data->GetClassName()))
   {
