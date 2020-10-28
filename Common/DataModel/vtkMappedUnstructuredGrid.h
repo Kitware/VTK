@@ -230,7 +230,8 @@ private:
   class _exportDecl _className : public vtkMappedUnstructuredGrid<_impl, _cIter>                   \
   {                                                                                                \
   public:                                                                                          \
-    vtkTypeMacro(_className, vtkMappedUnstructuredGrid<_impl, _cIter>);                            \
+    typedef vtkMappedUnstructuredGrid<_impl, _cIter> SelfType;                                     \
+    vtkTypeMacro(_className, SelfType);                                                            \
     static _className* New();                                                                      \
                                                                                                    \
   protected:                                                                                       \
@@ -286,7 +287,7 @@ private:
 #define vtkMakeMappedUnstructuredGrid(_className, _impl)                                           \
   vtkMakeExportedMappedUnstructuredGrid(_className, _impl, )
 
-#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)              \
+#define vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter)                           \
   vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, )
 
 #endif // vtkMappedUnstructuredGrid_h
