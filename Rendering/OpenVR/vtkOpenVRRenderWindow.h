@@ -393,6 +393,11 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  /**
+   * Render the controller and base stattion models
+   */
+  void RenderModels();
+
 protected:
   vtkOpenVRRenderWindow();
   ~vtkOpenVRRenderWindow() override;
@@ -422,7 +427,6 @@ protected:
   // devices may have polygonal models
   // load them
   vtkOpenVRModel* FindOrLoadRenderModel(const char* modelName);
-  void RenderModels();
   std::vector<vtkOpenVRModel*> VTKRenderModels;
   vtkOpenVRModel* TrackedDeviceToRenderModel[vr::k_unMaxTrackedDeviceCount];
   vr::TrackedDevicePose_t TrackedDevicePose[vr::k_unMaxTrackedDeviceCount];
