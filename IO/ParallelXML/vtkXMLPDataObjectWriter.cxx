@@ -321,7 +321,7 @@ void vtkXMLPDataObjectWriter::SplitFileName()
   // Split the FileName into its PathName, FileNameBase, and
   // FileNameExtension components.
 
-  std::string pathname = vtksys::SystemTools::GetProgramPath(this->FileName);
+  std::string pathname = vtksys::SystemTools::GetFilenamePath(this->FileName);
   // Pathname may be empty if FileName is simply a filename without any leading
   // "/".
   if (!pathname.empty())
