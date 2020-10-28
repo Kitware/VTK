@@ -583,6 +583,11 @@ public:
   void BuildGlobalTransforms(unsigned int nodeIndex, vtkSmartPointer<vtkMatrix4x4> parentTransform);
 
   /**
+   * Build all global transforms
+   */
+  void BuildGlobalTransforms();
+
+  /**
    * Compute all joint matrices of the skin of a specific node
    */
   static void ComputeJointMatrices(const Model& model, const Skin& skin, Node& node,

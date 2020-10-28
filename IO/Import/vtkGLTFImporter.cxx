@@ -610,6 +610,7 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
       this->Loader->ApplyAnimation(static_cast<float>(timestep), animationId);
     }
   }
+  this->Loader->BuildGlobalTransforms();
 
   auto model = this->Loader->GetInternalModel();
 
