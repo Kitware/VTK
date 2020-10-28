@@ -931,6 +931,7 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
         this->ResolveQuad->Program->SetUniformi("tex", tex->GetTextureUnit());
         this->ResolveQuad->Render();
         tex->Deactivate();
+        copiedColor = true;
         this->GetState()->vtkglEnable(GL_DEPTH_TEST);
         this->GetState()->vtkglEnable(GL_BLEND);
       }
