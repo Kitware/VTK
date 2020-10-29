@@ -31,9 +31,12 @@ RTW::OSPRayBackend* rtwOSPRayBackend = nullptr;
 void rtwInit()
 {
 #ifdef VTK_ENABLE_VISRTX
-        const bool dontSkipVisRTXInit = vtksys::SystemTools::GetEnv("VTK_DEBUG_SKIP_VISRTX_CHECK") == nullptr;
+  const bool enableVisRTX = vtksys::SystemTools::GetEnv("VTK_DISABLE_VISRTX") == nullptr;
 
-    if (!rtwVisRTXBackend)
+  if (!rtwVisRTXBackend && enableVisRTX)
+  {
+    rtwVisRTXBackend = new RTW::VisRTXBackend();
+    if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
     {
         vtkLogF(TRACE, "VisRTX/OptiX backend enabled in CMake configuration. Checking for support...");
         if(dontSkipVisRTXInit)
@@ -50,13 +53,17 @@ void rtwInit()
         else
             vtkLogF(TRACE, "VisRTX/OptiX backend skipped due to environment variable VTK_DEBUG_SKIP_VISRTX_CHECK");
     }
+  }
 #else
     vtkLogF(TRACE, "VisRTX/OptiX backend disabled via CMake configuration for this build");
 #endif
 #ifdef VTK_ENABLE_OSPRAY
-        const bool dontSkipOSPRAYInit = vtksys::SystemTools::GetEnv("VTK_DEBUG_SKIP_OSPRAY_CHECK") == nullptr;
+  const bool enableOSPRAY = vtksys::SystemTools::GetEnv("VTK_DISABLE_OSPRAY") == nullptr;
 
-    if (!rtwOSPRayBackend && dontSkipOSPRAYInit)
+  if (!rtwOSPRayBackend && enableOSPRAY)
+  {
+    rtwOSPRayBackend = new RTW::OSPRayBackend();
+    if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
     {
         rtwOSPRayBackend = new RTW::OSPRayBackend();
         if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
@@ -67,6 +74,7 @@ void rtwInit()
             rtwOSPRayBackend = nullptr;
         }
     }
+  }
 #endif
 }
 
