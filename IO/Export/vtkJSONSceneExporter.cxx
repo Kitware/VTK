@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkJSONSceneExporter.h"
 
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkArchiver.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataIterator.h"
@@ -38,6 +39,9 @@
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
 #include "vtkTexture.h"
+#include "vtkVolume.h"
+#include "vtkVolumeCollection.h"
+#include "vtkVolumeProperty.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -70,7 +74,8 @@ vtkJSONSceneExporter::~vtkJSONSceneExporter()
 
 //------------------------------------------------------------------------------
 
-void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor)
+void vtkJSONSceneExporter::WriteDataObject(
+  ostream& os, vtkDataObject* dataObject, vtkActor* actor = nullptr, vtkVolume* volume = nullptr)
 {
   // Skip if nothing to process
   if (dataObject == nullptr)
@@ -82,19 +87,27 @@ void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
   if (dataObject->IsA("vtkDataSet"))
   {
     std::string texturesString;
-    if (this->WriteTextures && actor->GetTexture())
-    {
-      // Write out the textures, add it to the textures string
-      texturesString += this->WriteTexture(actor->GetTexture());
-    }
+    std::string renderingSetup;
 
-    if (this->WriteTextureLODs && actor->GetTexture())
+    if (actor)
     {
-      // Write out the texture LODs, add it to the textures string
-      texturesString += this->WriteTextureLODSeries(actor->GetTexture());
-    }
+      if (this->WriteTextures && actor->GetTexture())
+      {
+        // Write out the textures, add it to the textures string
+        texturesString += this->WriteTexture(actor->GetTexture());
+      }
 
-    std::string renderingSetup = this->ExtractRenderingSetup(actor);
+      if (this->WriteTextureLODs && actor->GetTexture())
+      {
+        // Write out the texture LODs, add it to the textures string
+        texturesString += this->WriteTextureLODSeries(actor->GetTexture());
+      }
+      renderingSetup = this->ExtractActorRenderingSetup(actor);
+    }
+    else if (volume)
+    {
+      renderingSetup = this->ExtractVolumeRenderingSetup(volume);
+    }
     std::string addOnMeta = renderingSetup + texturesString + "\n";
     std::string dsMeta =
       this->WriteDataSet(vtkDataSet::SafeDownCast(dataObject), addOnMeta.c_str());
@@ -114,15 +127,54 @@ void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
     {
-      this->WriteDataObject(os, iter->GetCurrentDataObject(), actor);
+      this->WriteDataObject(os, iter->GetCurrentDataObject(), actor, volume);
       iter->GoToNextItem();
     }
   }
 }
 
 //------------------------------------------------------------------------------
+std::string vtkJSONSceneExporter::ExtractVolumeRenderingSetup(vtkVolume* volume)
+{
+  vtkAbstractVolumeMapper* mapper = volume->GetMapper();
 
-std::string vtkJSONSceneExporter::ExtractRenderingSetup(vtkActor* actor)
+  const char* colorArrayName = mapper->GetArrayName();
+  int scalarMode = mapper->GetScalarMode();
+
+  vtkVolumeProperty* property = volume->GetProperty();
+
+  double* p3dPosition = volume->GetPosition();
+  double* p3dScale = volume->GetScale();
+  double* p3dOrigin = volume->GetOrigin();
+  double* p3dRotateWXYZ = volume->GetOrientationWXYZ();
+
+  int interpolationType = property->GetInterpolationType();
+
+  const char* INDENT = "      ";
+  std::stringstream renderingConfig;
+  renderingConfig << ",\n"
+                  << "\"volume\": {\n"
+                  << INDENT << "  \"origin\": [" << p3dOrigin[0] << ", " << p3dOrigin[1] << ", "
+                  << p3dOrigin[2] << "],\n"
+                  << INDENT << "  \"scale\": [" << p3dScale[0] << ", " << p3dScale[1] << ", "
+                  << p3dScale[2] << "],\n"
+                  << INDENT << "  \"position\": [" << p3dPosition[0] << ", " << p3dPosition[1]
+                  << ", " << p3dPosition[2] << "]\n"
+                  << INDENT << "},\n"
+                  << INDENT << "\"volumeRotation\": [" << p3dRotateWXYZ[0] << ", "
+                  << p3dRotateWXYZ[1] << ", " << p3dRotateWXYZ[2] << ", " << p3dRotateWXYZ[3]
+                  << "],\n"
+                  << INDENT << "\"mapper\": {\n"
+                  << INDENT << "  \"colorByArrayName\": \"" << colorArrayName << "\",\n"
+                  << INDENT << "  \"scalarMode\": " << scalarMode << "\n"
+                  << INDENT << "},\n"
+                  << INDENT << "\"property\": {\n"
+                  << INDENT << "  \"interpolationType\": " << interpolationType << "\n"
+                  << INDENT << "}\n";
+  return renderingConfig.str();
+}
+
+std::string vtkJSONSceneExporter::ExtractActorRenderingSetup(vtkActor* actor)
 {
   vtkMapper* mapper = actor->GetMapper();
   // int scalarVisibility = mapper->GetScalarVisibility();
@@ -296,7 +348,53 @@ void vtkJSONSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors
 }
 
 //------------------------------------------------------------------------------
+void vtkJSONSceneExporter::WritePropCollection(
+  vtkPropCollection* props, std::ostream& sceneComponents)
+{
+  vtkIdType nbProps = props->GetNumberOfItems();
+  for (vtkIdType rpIdx = 0; rpIdx < nbProps; rpIdx++)
+  {
+    vtkProp* prop = vtkProp::SafeDownCast(props->GetItemAsObject(rpIdx));
+    // Skip non-visible actors
+    if (!prop || !prop->GetVisibility())
+    {
+      continue;
+    }
 
+    // Skip actors with no geometry
+    vtkActor* actor = vtkActor::SafeDownCast(prop);
+    if (actor)
+    {
+      vtkMapper* mapper = actor->GetMapper();
+
+      vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
+      this->WriteDataObject(sceneComponents, dataObject, actor);
+      this->WriteLookupTable(mapper->GetArrayName(), mapper->GetLookupTable());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkJSONSceneExporter::WriteVolumeCollection(
+  vtkVolumeCollection* volumes, std::ostream& sceneComponents)
+{
+  vtkVolume* volume = nullptr;
+  volumes->InitTraversal();
+  while ((volume = volumes->GetNextVolume()))
+  {
+    // Skip non-visible actors
+    if (!volume || !volume->GetVisibility())
+    {
+      continue;
+    }
+
+    vtkAbstractVolumeMapper* mapper = volume->GetMapper();
+    vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
+    this->WriteDataObject(sceneComponents, dataObject, nullptr, volume);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkJSONSceneExporter::WriteData()
 {
   this->DatasetCount = 0;
@@ -326,29 +424,9 @@ void vtkJSONSceneExporter::WriteData()
 
   std::stringstream sceneComponents;
   vtkPropCollection* renProps = renderer->GetViewProps();
-  vtkIdType nbProps = renProps->GetNumberOfItems();
-  for (vtkIdType rpIdx = 0; rpIdx < nbProps; rpIdx++)
-  {
-    vtkProp* renProp = vtkProp::SafeDownCast(renProps->GetItemAsObject(rpIdx));
 
-    // Skip non-visible actors
-    if (!renProp || !renProp->GetVisibility())
-    {
-      continue;
-    }
-
-    // Skip actors with no geometry
-    vtkActor* actor = vtkActor::SafeDownCast(renProp);
-    if (!actor)
-    {
-      continue;
-    }
-
-    vtkMapper* mapper = actor->GetMapper();
-    vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
-    this->WriteDataObject(sceneComponents, dataObject, actor);
-    this->WriteLookupTable(mapper->GetArrayName(), mapper->GetLookupTable());
-  }
+  this->WritePropCollection(renProps, sceneComponents);
+  this->WriteVolumeCollection(renderer->GetVolumes(), sceneComponents);
 
   std::stringstream sceneJsonFile;
   sceneJsonFile << "{\n"

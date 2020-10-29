@@ -37,8 +37,11 @@ class vtkActor;
 class vtkDataObject;
 class vtkDataSet;
 class vtkPolyData;
+class vtkPropCollection;
 class vtkScalarsToColors;
 class vtkTexture;
+class vtkVolume;
+class vtkVolumeCollection;
 
 class VTKIOEXPORT_EXPORT vtkJSONSceneExporter : public vtkExporter
 {
@@ -143,8 +146,12 @@ protected:
   vtkJSONSceneExporter();
   ~vtkJSONSceneExporter() override;
 
-  void WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor);
-  std::string ExtractRenderingSetup(vtkActor* actor);
+  void WritePropCollection(vtkPropCollection* collection, std::ostream& sceneComponents);
+  void WriteVolumeCollection(vtkVolumeCollection* volumeCollection, std::ostream& sceneComponents);
+
+  void WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor, vtkVolume* volume);
+  std::string ExtractVolumeRenderingSetup(vtkVolume* volume);
+  std::string ExtractActorRenderingSetup(vtkActor* actor);
   std::string WriteDataSet(vtkDataSet* dataset, const char* addOnMeta);
   void WriteLookupTable(const char* name, vtkScalarsToColors* lookupTable);
 
