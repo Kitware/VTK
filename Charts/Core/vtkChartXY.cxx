@@ -296,7 +296,8 @@ void vtkChartXY::Update()
           vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
         for (vtkIdType j = 0; j < selectedColumns->GetNumberOfTuples(); ++j)
         {
-          selectedPlots.push_back(this->ChartPrivate->PlotCache[j]);
+          vtkIdType id = selectedColumns->GetTypedComponent(j, 0);
+          selectedPlots.push_back(this->ChartPrivate->PlotCache[id]);
         }
       }
       // Now iterate through the plots to update selection data
