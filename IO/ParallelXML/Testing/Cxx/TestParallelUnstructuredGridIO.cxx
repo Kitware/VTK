@@ -8,6 +8,7 @@
 #include <vtkCell.h>
 #include <vtkCellData.h>
 #include <vtkIdList.h>
+#include <vtkLogger.h>
 #include <vtkMultiProcessController.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
@@ -108,6 +109,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   vtkNew<vtkDummyController> contr;
 #endif
   contr->Initialize(&argc, &argv);
+  vtkLogger::SetThreadName("rank=" + std::to_string(contr->GetLocalProcessId()));
   vtkMultiProcessController::SetGlobalController(contr);
 
   vtkNew<vtkPoints> points;
@@ -270,10 +272,14 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   w->SetDataModeToAscii();
   w->Update();
   delete[] tempDir;
+
+  // Barrier needed to ensure we don't start checking for files before the
+  // writer has written them out on all ranks.
+  contr->Barrier();
   vtksys::ifstream f(fn.c_str());
   if (!f.good())
   {
-    std::cerr << "File " << fn << " does not exist." << std::endl;
+    vtkLogF(ERROR, "File '%s' does not exist!", fn.c_str());
     return EXIT_FAILURE;
   }
 
@@ -284,7 +290,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
 
   // first try reading the piece with a non-parallel reader
   vtkUnstructuredGrid* read = r->GetOutput();
-  cout << "Comparing original with .vtu" << endl;
+  vtkLogF(INFO, "Comparing original with .vtu");
   if (!CompareGrids(ug.GetPointer(), read))
     return EXIT_FAILURE;
 
@@ -295,7 +301,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   pr->Update();
 
   read = pr->GetOutput();
-  cout << "Comparing original with .pvtu" << endl;
+  vtkLogF(INFO, "Comparing original with .pvtu");
   if (!CompareGrids(ug.GetPointer(), read))
     return EXIT_FAILURE;
 
