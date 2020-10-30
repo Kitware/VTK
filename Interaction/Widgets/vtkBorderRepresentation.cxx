@@ -477,6 +477,15 @@ void vtkBorderRepresentation::UpdateShowBorder()
 }
 
 //------------------------------------------------------------------------------
+void vtkBorderRepresentation::SetBWActorDisplayOverlay(bool enable)
+{
+  if (this->BWActor)
+  {
+    this->BWActor->SetVisibility(enable);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkBorderRepresentation::BuildRepresentation()
 {
   if (this->Renderer &&

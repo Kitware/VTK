@@ -32,6 +32,7 @@
 QVTKOpenGLStereoWidget::QVTKOpenGLStereoWidget(QWidget* parent, Qt::WindowFlags f)
   : QVTKOpenGLStereoWidget(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New(), nullptr, parent, f)
 {
+  this->setAttribute(Qt::WA_Hover);
 }
 
 //------------------------------------------------------------------------------

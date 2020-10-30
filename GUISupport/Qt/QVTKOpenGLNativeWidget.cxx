@@ -39,6 +39,7 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(QWidget* parentWdg, Qt::WindowFla
   : QVTKOpenGLNativeWidget(
       vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New().GetPointer(), parentWdg, f)
 {
+  this->setAttribute(Qt::WA_Hover);
 }
 
 //------------------------------------------------------------------------------

@@ -44,6 +44,8 @@ vtkBorderWidget::vtkBorderWidget()
     vtkWidgetEvent::EndSelect, this, vtkBorderWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkBorderWidget::MoveAction);
+  this->CallbackMapper->SetCallbackMethod(
+    vtkCommand::HoverEvent, vtkWidgetEvent::HoverLeave, this, vtkBorderWidget::HoverLeaveAction);
 }
 
 //------------------------------------------------------------------------------
@@ -272,6 +274,22 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkBorderWidget::HoverLeaveAction(vtkAbstractWidget* w)
+{
+  auto self = vtkBorderWidget::SafeDownCast(w);
+
+  auto representation = self->GetBorderRepresentation();
+  if (representation)
+  {
+    representation->SetBWActorDisplayOverlay(false);
+    representation->SetInteractionState(vtkBorderRepresentation::Outside);
+  }
+
+  self->SetCursor(false);
+  self->Render();
 }
 
 //------------------------------------------------------------------------------

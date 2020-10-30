@@ -112,6 +112,11 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     return true;
   }
 
+  if (t == QEvent::HoverLeave)
+  {
+    iren->InvokeEvent(vtkCommand::HoverEvent, nullptr);
+  }
+
   // the following events only happen if the interactor is enabled
   if (!iren->GetEnabled())
     return false;
@@ -134,6 +139,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     {
       iren->InvokeEvent(vtkCommand::MouseMoveEvent, e2);
     }
+
     else if (t == QEvent::MouseButtonPress)
     {
       switch (e2->button())
