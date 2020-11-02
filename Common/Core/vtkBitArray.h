@@ -355,7 +355,7 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
                                         : (this->Array[id / 8] & (~(0x80 >> id % 8))));
   if (id > this->MaxId)
   {
-    if (this->MaxId >= 0 && id / 8 == this->MaxId / 8)
+    if (this->MaxId > 0 && id / 8 == this->MaxId / 8)
     {
       this->MaxId = id;
     }
