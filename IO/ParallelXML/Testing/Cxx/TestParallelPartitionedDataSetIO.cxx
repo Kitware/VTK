@@ -21,6 +21,7 @@
 
 #include "vtkCell.h"
 #include "vtkIdList.h"
+#include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -98,6 +99,7 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
   vtkNew<vtkDummyController> contr;
 #endif
   contr->Initialize(&argc, &argv);
+  vtkLogger::SetThreadName("rank=" + std::to_string(contr->GetLocalProcessId()));
   vtkMultiProcessController::SetGlobalController(contr);
 
   vtkNew<vtkPoints> points;
@@ -253,10 +255,15 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
   w->SetDataModeToAscii();
   w->Update();
   delete[] tempDir;
+
+  // Barrier needed to ensure we don't start checking for files before the
+  // writer has written them out on all ranks.
+  contr->Barrier();
+
   vtksys::ifstream f(fn.c_str());
   if (!f.good())
   {
-    std::cerr << "File " << fn << " does not exist." << std::endl;
+    vtkLogF(ERROR, "File '%s' does not exist!", fn.c_str());
     return EXIT_FAILURE;
   }
 
@@ -267,7 +274,7 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
 
   // first try reading the piece with a non-parallel reader
   vtkPartitionedDataSet* read = vtkPartitionedDataSet::SafeDownCast(r->GetOutput());
-  cout << "Comparing original with .vtu" << endl;
+  vtkLogF(INFO, "Comparing original with .vtu");
   bool retVal =
     CompareGrids(ug.GetPointer(), vtkUnstructuredGrid::SafeDownCast(read->GetPartition(0)));
 
