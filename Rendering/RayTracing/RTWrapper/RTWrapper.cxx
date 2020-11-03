@@ -35,46 +35,54 @@ void rtwInit()
 
   if (!rtwVisRTXBackend && enableVisRTX)
   {
+    vtkLogF(TRACE, "VisRTX/OptiX backend enabled, attempting to initialize backend");
     rtwVisRTXBackend = new RTW::VisRTXBackend();
     if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
     {
-        vtkLogF(TRACE, "VisRTX/OptiX backend enabled in CMake configuration. Checking for support...");
-        if(dontSkipVisRTXInit)
-        {
-            rtwVisRTXBackend = new RTW::VisRTXBackend();
-            if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
-            {
-                vtkLogF(TRACE, "Failed to initialize RTW_VisRTX backend.");
-                rtwVisRTXBackend->Shutdown();
-                delete rtwVisRTXBackend;
-                rtwVisRTXBackend = nullptr;
-            }
-        }
-        else
-            vtkLogF(TRACE, "VisRTX/OptiX backend skipped due to environment variable VTK_DEBUG_SKIP_VISRTX_CHECK");
+      vtkLogF(TRACE, "VisRTX/OptiX backend initialization failed, retrying initialization");
+      rtwVisRTXBackend = new RTW::VisRTXBackend();
+      if (rtwVisRTXBackend->Init() != RTW_NO_ERROR)
+      {
+        vtkLogF(TRACE, "VisRTX/OptiX backend initialization failed, terminating initialization");
+        rtwVisRTXBackend->Shutdown();
+        delete rtwVisRTXBackend;
+        rtwVisRTXBackend = nullptr;
+      }
     }
   }
+  else if (!enableVisRTX)
+  {
+    vtkLogF(TRACE, "VisRTX/OptiX backend skipped due to env variable VTK_DISABLE_VISRTX");
+  }
 #else
-    vtkLogF(TRACE, "VisRTX/OptiX backend disabled via CMake configuration for this build");
+  vtkLogF(TRACE, "VisRTX/OptiX backend disabled via CMake configuration for this build");
 #endif
 #ifdef VTK_ENABLE_OSPRAY
   const bool enableOSPRAY = vtksys::SystemTools::GetEnv("VTK_DISABLE_OSPRAY") == nullptr;
 
   if (!rtwOSPRayBackend && enableOSPRAY)
   {
+    vtkLogF(TRACE, "OSPRay backend enabled, attempting to initialize backend");
     rtwOSPRayBackend = new RTW::OSPRayBackend();
     if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
     {
-        rtwOSPRayBackend = new RTW::OSPRayBackend();
-        if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
-        {
-            // std::cerr << "WARNING: Failed to initialize RTW OSPRay backend.\n";
-            rtwOSPRayBackend->Shutdown();
-            delete rtwOSPRayBackend;
-            rtwOSPRayBackend = nullptr;
-        }
+      vtkLogF(TRACE, "OSPRay backend initialization failed, retrying initialization");
+      rtwOSPRayBackend = new RTW::OSPRayBackend();
+      if (rtwOSPRayBackend->Init() != RTW_NO_ERROR)
+      {
+        vtkLogF(TRACE, "OSPRay backend initialization failed, terminating initialization");
+        rtwOSPRayBackend->Shutdown();
+        delete rtwOSPRayBackend;
+        rtwOSPRayBackend = nullptr;
+      }
     }
   }
+  else if (!enableOSPRAY)
+  {
+    vtkLogF(TRACE, "OSPRay backend skipped due to env variable VTK_DISABLE_OSPRAY");
+  }
+#else
+  vtkLogF(TRACE, "OSPRay backend disabled via CMake configuration for this build");
 #endif
 }
 
