@@ -149,11 +149,8 @@
 #define vtkSetEnumMacro(name, enumType)                                                            \
   virtual void Set##name(enumType _arg)                                                            \
   {                                                                                                \
-    using T = typename std::underlying_type<enumType>::type;                                       \
-    T _intArg = static_cast<T>(_arg);                                                              \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " #name " to "            \
-                  << _intArg);                                                                     \
-    (void)_intArg; /* suppress unused warning for when vtkDebugMacro does nothing */               \
+                  << static_cast<std::underlying_type<enumType>::type>(_arg));                     \
     if (this->name != _arg)                                                                        \
     {                                                                                              \
       this->name = _arg;                                                                           \
@@ -166,12 +163,10 @@
 // vtkSetMacro can't be used because 'enum class' won't trivially convert to integer for logging.
 //
 #define vtkGetEnumMacro(name, enumType)                                                            \
-  virtual enumType Get##name()                                                                     \
+  virtual enumType Get##name() const                                                               \
   {                                                                                                \
-    using T = typename std::underlying_type<enumType>::type;                                       \
-    T _intName = static_cast<T>(this->name);                                                       \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of "       \
-                  << _intName);                                                                    \
+                  << static_cast<std::underlying_type<enumType>::type>(this->name));               \
     return this->name;                                                                             \
   }
 
