@@ -4405,14 +4405,16 @@ const char* vtkParsePreprocess_ExpandMacro(
     }
     return macro->Definition;
   }
-
-  if (rp == stack_rp)
+  else
   {
-    rp = (char*)malloc(strlen(stack_rp) + 1);
-    strcpy(rp, stack_rp);
+    char* tmp = (char*)malloc(strlen(rp) + 1);
+    strcpy(tmp, rp);
+    if (rp != stack_rp)
+    {
+      free(rp);
+    }
+    return tmp;
   }
-
-  return rp;
 }
 
 /**
@@ -4631,14 +4633,17 @@ const char* vtkParsePreprocess_ProcessString(PreprocessInfo* info, const char* t
       }
       return tp;
     }
-    if (rp == stack_rp)
+    else
     {
-      rp = (char*)malloc(strlen(stack_rp) + 1);
-      strcpy(rp, stack_rp);
+      char* tmp = (char*)malloc(strlen(rp) + 1);
+      strcpy(tmp, rp);
+      if (rp != stack_rp)
+      {
+        free(rp);
+      }
+      return tmp;
     }
   }
-
-  return rp;
 }
 
 /**

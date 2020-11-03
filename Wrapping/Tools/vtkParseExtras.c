@@ -251,13 +251,13 @@ static const char* vtkparse_string_replace(
     if (any_replaced)
     {
       /* return a string that was allocated with malloc */
-      if (result == result_store)
+      tmp = (char*)malloc(strlen(result) + 1);
+      strcpy(tmp, result);
+      cp = tmp;
+      if (result != result_store)
       {
-        tmp = (char*)malloc(strlen(result) + 1);
-        strcpy(tmp, result);
-        result = tmp;
+        free(result);
       }
-      cp = result;
     }
   }
 
