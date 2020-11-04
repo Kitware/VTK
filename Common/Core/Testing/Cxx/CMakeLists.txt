@@ -110,7 +110,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestArrayUniqueValueDetection.cxx
   TestArrayUserTypes.cxx
   TestArrayVariants.cxx
-  TestBitArray.cxx
   TestCollection.cxx
   TestConditionVariable.cxx
   # TestCxxFeatures.cxx # This is in its own exe too.

@@ -162,6 +162,10 @@ vtkHyperTree* vtkHyperTreeGridNonOrientedSuperCursor::GetInformation(
     leaf = entry.IsLeaf(this->Grid);
     id = entry.GetGlobalNodeIndex();
   }
+  else
+  {
+    level = UINT_MAX;
+  }
   return tree;
 }
 
