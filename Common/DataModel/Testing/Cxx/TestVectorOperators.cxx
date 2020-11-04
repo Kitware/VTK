@@ -113,5 +113,25 @@ int TestVectorOperators(int, char*[])
     ++retVal;
   }
 
+  // Test the += operator
+  result = vec3ia;
+  result += vec3ib;
+  if (result != vtkVector3i(0, 12, 17))
+  {
+    cerr << "Vector += operator failed." << endl;
+    cerr << vec3ia << " + " << vec3ib << " = " << result << endl;
+    ++retVal;
+  }
+
+  // Test the -= operator
+  result = vec3ia;
+  result -= vec3ib;
+  if (result != vtkVector3i(0, 0, 1))
+  {
+    cerr << "Vector -= operator failed." << endl;
+    cerr << vec3ia << " - " << vec3ib << " = " << result << endl;
+    ++retVal;
+  }
+
   return retVal;
 }
