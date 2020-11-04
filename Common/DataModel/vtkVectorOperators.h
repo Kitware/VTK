@@ -47,6 +47,20 @@ vtkVector<A, Size> operator+(const vtkVector<A, Size>& v1, const vtkVector<A, Si
 }
 
 // Description:
+// Add the vector b to the vector a of the same basic type.
+template <typename T, int Size>
+vtkVector<T, Size> operator+=(vtkVector<T, Size>& a, const vtkVector<T, Size>& b)
+{
+  vtkVector<T, Size> ret;
+  for (int dim = 0; dim < Size; ++dim)
+  {
+    a[dim] += b[dim];
+  }
+
+  return ret;
+}
+
+// Description:
 // Performs subtraction of vectors of the same basic type.
 template <typename A, int Size>
 vtkVector<A, Size> operator-(const vtkVector<A, Size>& v1, const vtkVector<A, Size>& v2)
@@ -56,6 +70,20 @@ vtkVector<A, Size> operator-(const vtkVector<A, Size>& v1, const vtkVector<A, Si
   {
     ret[i] = v1[i] - v2[i];
   }
+  return ret;
+}
+
+// Description:
+// Substract the vector b to the vector a of the same basic type.
+template <typename T, int Size>
+vtkVector<T, Size> operator-=(vtkVector<T, Size>& a, const vtkVector<T, Size>& b)
+{
+  vtkVector<T, Size> ret;
+  for (int dim = 0; dim < Size; ++dim)
+  {
+    a[dim] -= b[dim];
+  }
+
   return ret;
 }
 
