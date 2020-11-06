@@ -364,7 +364,7 @@ public:
 
     POINT_ID_LOW24,
     POINT_ID_HIGH24, // if needed
-    PROCESS_PASS,    // best to be after point id pass
+    PROCESS_PASS,    // must be after point id pass
 
     CELL_ID_LOW24,
     CELL_ID_HIGH24, // if needed
@@ -388,6 +388,14 @@ public:
   // grab the pixel buffer and save it
   // typically called internally
   virtual void SavePixelBuffer(int passNo);
+
+  // does the selection process have high cell data
+  // requiring a high24 pass
+  bool HasHighCellIds();
+
+  // does the selection process have high point data
+  // requiring a high24 pass
+  bool HasHighPointIds();
 
 protected:
   vtkHardwareSelector();
