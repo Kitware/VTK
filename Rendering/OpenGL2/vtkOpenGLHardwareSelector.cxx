@@ -204,14 +204,13 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
     }
     float color[3];
     // Since 0 is reserved for nothing selected, we offset propid by 1.
-    propid = propid + 1;
+    propid = propid + ID_OFFSET;
     vtkHardwareSelector::Convert(propid, color);
     this->SetPropColorValue(color);
   }
   else if (this->CurrentPass == PROCESS_PASS)
   {
     float color[3];
-    // Since 0 is reserved for nothing selected, we offset propid by 1.
     vtkHardwareSelector::Convert(this->ProcessID + 1, color);
     this->SetPropColorValue(color);
   }
@@ -240,8 +239,6 @@ void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
     vtkErrorMacro("Indices > 0xffffff are not supported.");
     return;
   }
-
-  index += ID_OFFSET;
 
   if (this->CurrentPass == COMPOSITE_INDEX_PASS)
   {

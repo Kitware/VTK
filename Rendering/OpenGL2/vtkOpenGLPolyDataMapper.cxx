@@ -1894,13 +1894,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(
           FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = vertexIDVSOutput + 1;\n"
+          "  int idx = vertexIDVSOutput;\n"
           "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
           "float((idx/65536)%256)/255.0, 1.0);\n");
         break;
 
       case vtkHardwareSelector::POINT_ID_HIGH24:
-        // this may yerk on openGL ES 2.0 so no really huge meshes in ES 2.0 OK
         vtkShaderProgram::Substitute(
           VSSource, "//VTK::Picking::Dec", "flat out int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(
@@ -1913,24 +1912,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(
           FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = (vertexIDVSOutput + 1);\n idx = ((idx & 0xff000000) >> 24);\n"
+          "  int idx = vertexIDVSOutput;\n idx = ((idx & 0xff000000) >> 24);\n"
           "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
 
       // cell ID is just gl_PrimitiveID
       case vtkHardwareSelector::CELL_ID_LOW24:
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = gl_PrimitiveID + 1 + PrimitiveIDOffset;\n"
+          "  int idx = gl_PrimitiveID + PrimitiveIDOffset;\n"
           "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
           "float((idx/65536)%256)/255.0, 1.0);\n");
         break;
 
       case vtkHardwareSelector::CELL_ID_HIGH24:
-        // this may yerk on openGL ES 2.0 so no really huge meshes in ES 2.0 OK
         // if (selector &&
         //     selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = (gl_PrimitiveID + 1 + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> "
+          "  int idx = (gl_PrimitiveID + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> "
           "24);\n"
           "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
@@ -4525,7 +4523,6 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
         unsigned int outval = processArray->GetValue(inval) + 1;
         processdata[pos] = outval & 0xff;
         processdata[pos + 1] = (outval & 0xff00) >> 8;
@@ -4558,8 +4555,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
-        vtkIdType outval = pointArrayId->GetValue(inval) + 1;
+        vtkIdType outval = pointArrayId->GetValue(inval);
         plowdata[pos] = outval & 0xff;
         plowdata[pos + 1] = (outval & 0xff00) >> 8;
         plowdata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4588,8 +4584,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
-        vtkIdType outval = pointArrayId->GetValue(inval) + 1;
+        vtkIdType outval = pointArrayId->GetValue(inval);
         phighdata[pos] = (outval & 0xff000000) >> 24;
         phighdata[pos + 1] = (outval & 0xff00000000) >> 32;
         phighdata[pos + 2] = (outval & 0xff0000000000) >> 40;
@@ -4635,10 +4630,9 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
         vtkIdType vtkCellId =
           this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
-        unsigned int outval = compositeArray->GetValue(vtkCellId) + 1;
+        unsigned int outval = compositeArray->GetValue(vtkCellId);
         compositedata[pos] = outval & 0xff;
         compositedata[pos + 1] = (outval & 0xff00) >> 8;
         compositedata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4671,13 +4665,11 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
         vtkIdType outval = this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
         }
-        outval++;
         clowdata[pos] = outval & 0xff;
         clowdata[pos + 1] = (outval & 0xff00) >> 8;
         clowdata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4706,13 +4698,11 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
         vtkIdType outval = this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
         }
-        outval++;
         chighdata[pos] = (outval & 0xff000000) >> 24;
         chighdata[pos + 1] = (outval & 0xff00000000) >> 32;
         chighdata[pos + 2] = (outval & 0xff0000000000) >> 40;
