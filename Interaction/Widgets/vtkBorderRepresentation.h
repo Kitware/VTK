@@ -204,6 +204,7 @@ public:
     AdjustingE2,
     AdjustingE3
   };
+  vtkSetClampMacro(InteractionState, int, 0, AdjustingE3);
 
   /**
    * Return the MTime of this object. It takes into account MTimes
@@ -239,6 +240,8 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
+
+  void SetBWActorDisplayOverlay(bool);
 
 protected:
   vtkBorderRepresentation();

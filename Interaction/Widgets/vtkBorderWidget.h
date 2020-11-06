@@ -160,6 +160,7 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void HoverLeaveAction(vtkAbstractWidget*);
 
   // Special internal methods to support subclasses handling events.
   // If a non-zero value is returned, the subclass is handling the event.

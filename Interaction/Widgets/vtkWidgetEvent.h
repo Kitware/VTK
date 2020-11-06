@@ -75,7 +75,8 @@ public:
     EndSelect3D,
     Move3D,
     AddPoint3D,
-    AddFinalPoint3D
+    AddFinalPoint3D,
+    HoverLeave
   };
 
   //@{

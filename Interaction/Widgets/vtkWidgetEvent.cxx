@@ -38,6 +38,7 @@ static const char* vtkWidgetEventStrings[] = {
   "TimedOut",
   "ModifyEvent",
   "Reset",
+  "HoverLeave",
   nullptr,
 };
 
