@@ -37,8 +37,6 @@ const static char* Slash = "\\/";
 const static char* Slash = "/";
 #endif
 
-using namespace std;
-
 namespace
 {
 // Global size information
@@ -64,7 +62,7 @@ static const int mpiTag = 2564961;
 
 // Used in load balancing of hypertree grid
 std::map<int, int> myHyperTree;
-bool sort_desc(const pair<int, int>& a, const pair<int, int>& b)
+bool sort_desc(const std::pair<int, int>& a, const std::pair<int, int>& b)
 {
   return (a.first > b.first);
 }
@@ -248,7 +246,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
       numFiles = directory->GetNumberOfFiles();
       for (unsigned int i = 0; i < numFiles; i++)
       {
-        string fileName = directory->GetFile(i);
+        std::string fileName = directory->GetFile(i);
         std::size_t found = fileName.find(this->dumpBaseName);
         if (found != std::string::npos)
         {
@@ -260,7 +258,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
             long cycle = std::strtol(timeStr.c_str(), &p, 10);
             if (*p == 0)
             {
-              ostringstream tempStr;
+              std::ostringstream tempStr;
               tempStr << this->dumpDirectory[dir] << Slash << fileName;
               std::pair<long, std::string> pair(cycle, tempStr.str());
               fileMap.insert(pair);
@@ -440,7 +438,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
 int PIOAdaptor::parsePIOFile(const char* PIOFileName)
 {
   this->descFileName = PIOFileName;
-  ifstream pioStr(this->descFileName);
+  std::ifstream pioStr(this->descFileName);
   if (!pioStr)
   {
     vtkGenericWarningMacro("Could not open the global description .pio file: " << PIOFileName);
@@ -449,12 +447,12 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
 
   // Get the directory name from the full path of the .pio file in GUI
   // or simple name from python script
-  string::size_type dirPos = this->descFileName.find_last_of(Slash);
-  string dirName;
-  if (dirPos == string::npos)
+  std::string::size_type dirPos = this->descFileName.find_last_of(Slash);
+  std::string dirName;
+  if (dirPos == std::string::npos)
   {
     // No directory name included
-    ostringstream tempStr;
+    std::ostringstream tempStr;
     tempStr << "." << Slash;
     dirName = tempStr.str();
   }
@@ -467,14 +465,14 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
   // Either .pio file or an actual basename-dmp000000 to guide open file
   // Opening actual dump file requires asking for All files and picking PIOReader
   // Opening a pio suffix file defaults to the correct action
-  string::size_type pos = this->descFileName.rfind('.');
-  string suffix = this->descFileName.substr(pos + 1);
+  std::string::size_type pos = this->descFileName.rfind('.');
+  std::string suffix = this->descFileName.substr(pos + 1);
   if (suffix == "pio")
   {
     // Parse the pio input file
     char inBuf[256];
-    string rest;
-    string keyword;
+    std::string rest;
+    std::string keyword;
     this->useHTG = false;
     this->useTracer = false;
     this->useFloat64 = false;
@@ -485,14 +483,14 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
       if (inBuf[0] != '#' && pioStr.gcount() > 1)
       {
         // Remove quotes from input
-        string localline(inBuf);
+        std::string localline(inBuf);
         localline.erase(std::remove(localline.begin(), localline.end(), '\"'), localline.end());
         localline.erase(std::remove(localline.begin(), localline.end(), '\''), localline.end());
 
-        string::size_type keyPos = localline.find(' ');
+        std::string::size_type keyPos = localline.find(' ');
         keyword = localline.substr(0, keyPos);
         rest = localline.substr(keyPos + 1);
-        istringstream line(rest.c_str());
+        std::istringstream line(rest.c_str());
 
         if (keyword == "DUMP_DIRECTORY")
         {
@@ -505,7 +503,7 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
           else
           {
             // If partial path append to the dir of the .pio file
-            ostringstream tempStr;
+            std::ostringstream tempStr;
             tempStr << dirName << Slash << rest;
             this->dumpDirectory.push_back(tempStr.str());
           }
@@ -513,7 +511,7 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
         if (keyword == "DUMP_BASE_NAME")
         {
           line >> rest;
-          ostringstream tempStr;
+          std::ostringstream tempStr;
           tempStr << rest << "-dmp";
           this->dumpBaseName = tempStr.str();
         }
@@ -544,8 +542,8 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
     //
     // Use the basename-dmp000000 file to discern the info that is in the pio file
     //
-    string::size_type pos1 = this->descFileName.rfind(Slash);
-    string::size_type pos2 = this->descFileName.find("-dmp");
+    std::string::size_type pos1 = this->descFileName.rfind(Slash);
+    std::string::size_type pos2 = this->descFileName.find("-dmp");
     this->dumpBaseName = this->descFileName.substr(pos1 + 1, pos2 - pos1 + 3);
     this->dumpDirectory.push_back(this->descFileName.substr(0, pos1));
     this->useHTG = false;

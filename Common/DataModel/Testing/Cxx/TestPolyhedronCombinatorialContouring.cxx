@@ -23,8 +23,6 @@
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-using namespace std;
-
 /* This is the layout of a cube with points on each edge
    In the test below we're going to test all combinations of
    edge points being present. As there are 12 edge points, the

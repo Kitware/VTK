@@ -21,8 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <set>
 
-using namespace std;
-
 int TestPolyhedronCutter(int argc, char* argv[])
 {
   vtkObject::GlobalWarningDisplayOff();
@@ -81,7 +79,7 @@ int TestPolyhedronCutter(int argc, char* argv[])
   }
 
   vtkIdList* ids = cell->GetPointIds();
-  set<vtkIdType> uniqueIds;
+  std::set<vtkIdType> uniqueIds;
 
   for (int i = 0; i < 5; ++i)
   {

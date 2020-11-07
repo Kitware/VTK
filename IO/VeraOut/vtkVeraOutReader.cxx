@@ -49,8 +49,6 @@
 #include <sstream>
 #include <vector>
 
-using namespace std;
-
 #define VERA_MAX_DIMENSION 6
 #define DATASET_NAME_MAX_SIZE 1024
 

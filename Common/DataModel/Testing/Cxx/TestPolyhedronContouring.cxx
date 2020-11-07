@@ -21,8 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-using namespace std;
-
 int TestPolyhedronContouring(int argc, char* argv[])
 {
   vtkObject::GlobalWarningDisplayOff();

@@ -34,8 +34,6 @@
 
 #include <string>
 
-using namespace std;
-
 namespace
 {
 bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)

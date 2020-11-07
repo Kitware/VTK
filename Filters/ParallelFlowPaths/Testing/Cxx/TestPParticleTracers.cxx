@@ -40,7 +40,6 @@
     return EXIT_FAILURE;                                                                           \
   }
 
-using namespace std;
 class TestTimeSource : public vtkAlgorithm
 {
 public:
@@ -266,7 +265,7 @@ private:
   TestTimeSource(const TestTimeSource&) = delete;
   void operator=(const TestTimeSource&) = delete;
 
-  vector<double> TimeSteps;
+  std::vector<double> TimeSteps;
   int Extent[6];
   double BoundingBox[6];
   int Spacing;
@@ -295,7 +294,7 @@ int TestPParticleTracer(vtkMPIController* c, int staticOption)
   filter->SetInputData(1, ps);
   filter->SetStartTime(0.0);
 
-  vector<double> times;
+  std::vector<double> times;
   times.push_back(0.5);
   times.push_back(1.5);
   times.push_back(2.5);

@@ -14,7 +14,6 @@ PURPOSE.  See the above copyright notice for more information.
 // The data is volume rendered considering the two components as independent.
 #include <fstream>
 #include <iostream>
-using namespace std;
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -165,7 +164,7 @@ int TestGPURayCastClippingUserTransform(int argc, char* argv[])
   double spacing[3] = { 1.4844, 1.4844, 1.2 };
 
   // Read the image
-  streampos size;
+  std::streampos size;
   char* memblock;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/MagnitudeImage_256x256x148");

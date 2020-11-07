@@ -769,8 +769,7 @@ struct UnitTestValueIteratorAPI
     CHECK_TRUE(iter == iter1);
 
     {
-      using namespace std;
-      swap(iter1, iter2);
+      std::swap(iter1, iter2);
     }
 
     CHECK_FALSE(iter1 < iter2);
@@ -779,8 +778,7 @@ struct UnitTestValueIteratorAPI
     CHECK_TRUE(iter == iter2);
 
     {
-      using namespace std;
-      swap(iter1, iter2);
+      std::swap(iter1, iter2);
     }
 
     CHECK_TRUE(iter1 < iter2);
