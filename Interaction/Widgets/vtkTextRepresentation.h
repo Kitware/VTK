@@ -135,6 +135,30 @@ public:
   void ExecuteTextActorModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
   //@}
 
+  //@{
+  /**
+   * Set/Get the padding between the text and the top border,
+   * in pixels unit.
+   * To ensure that padding is even, this value is multiplied by 2, so
+   * a right padding of 1 means a 2 pixels padding.
+   * Default is 0.
+   */
+  vtkSetClampMacro(RightPadding, int, 0.0, 4000.0);
+  vtkGetMacro(RightPadding, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the padding between the text and the right border,
+   * in pixels unit.
+   * To ensure that padding is even, this value is multiplied by 2, so
+   * a top padding of 1 means a 2 pixels padding.
+   * Default is 0.
+   */
+  vtkSetClampMacro(TopPadding, int, 0.0, 4000.0);
+  vtkGetMacro(TopPadding, int);
+  //@}
+
 protected:
   vtkTextRepresentation();
   ~vtkTextRepresentation() override;
@@ -155,6 +179,9 @@ protected:
 
   // observer to observe internal TextActor and TextProperty
   vtkTextRepresentationObserver* Observer;
+
+  int RightPadding = 0.0;
+  int TopPadding = 0.0;
 
 private:
   vtkTextRepresentation(const vtkTextRepresentation&) = delete;
