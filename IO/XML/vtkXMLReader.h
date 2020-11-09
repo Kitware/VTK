@@ -25,7 +25,8 @@
 #define vtkXMLReader_h
 
 #include "vtkAlgorithm.h"
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"  // For export macro
+#include "vtkSmartPointer.h" // for vtkSmartPointer.
 
 #include <string> // for std::string
 #include <vector>
@@ -33,6 +34,7 @@
 class vtkAbstractArray;
 class vtkCallbackCommand;
 class vtkCommand;
+class vtkDataArray;
 class vtkDataArraySelection;
 class vtkDataSet;
 class vtkDataSetAttributes;
@@ -352,9 +354,16 @@ protected:
   vtkStringArray* TimeDataStringArray;
 
   /**
-   * Active index of array used for time. If no time array is used, its value should be -1.
+   * Name of the field-data array used to determine the time for the dataset
+   * being read.
    */
   char* ActiveTimeDataArrayName;
+
+  /**
+   * Populated in `ReadXMLInformation` from the field data for the array chosen
+   * using ActiveTimeDataArrayName, if any. `nullptr` otherwise.
+   */
+  vtkSmartPointer<vtkDataArray> TimeDataArray;
 
   // The observer to modify this object when the array selections are
   // modified.

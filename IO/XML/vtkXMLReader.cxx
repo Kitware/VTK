@@ -54,6 +54,7 @@
 #include <cctype>
 #include <functional>
 #include <locale> // C++ locale
+#include <numeric>
 #include <sstream>
 #include <vector>
 
@@ -485,6 +486,8 @@ int vtkXMLReader::ReadXMLInformation()
       this->DestroyXMLParser();
     }
 
+    this->TimeDataArray = nullptr;
+
     // Open the input file.  If it fails, the error was already
     // reported by OpenStream.
     if (!this->OpenStream())
@@ -522,7 +525,6 @@ int vtkXMLReader::ReadXMLInformation()
 
     if (this->FieldDataElement) // read the field data information
     {
-      bool foundTimeData = false;
       this->TimeDataStringArray->Initialize();
       for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements(); i++)
       {
@@ -534,33 +536,21 @@ int vtkXMLReader::ReadXMLInformation()
           if (array->IsNumeric())
           {
             array->SetNumberOfTuples(1);
-            if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
-            {
-              this->DataError = 1;
-            }
-            vtkDataArray* da = vtkDataArray::SafeDownCast(array);
-            if (da)
+            if (this->ReadArrayValues(eNested, 0, array, 0, 1))
             {
               this->TimeDataStringArray->InsertNextValue(name);
-              if (this->ActiveTimeDataArrayName && !strcmp(name, this->ActiveTimeDataArrayName))
+              if (this->ActiveTimeDataArrayName && strcmp(name, this->ActiveTimeDataArrayName) == 0)
               {
-                double val = da->GetComponent(0, 0);
-                vtkInformation* info = this->GetCurrentOutputInformation();
-                info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
-                double range[2] = { val, val };
-                info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
-                foundTimeData = true;
+                this->TimeDataArray = vtkDataArray::SafeDownCast(array);
               }
+            }
+            else
+            {
+              this->DataError = 1;
             }
           }
           array->Delete();
         }
-      }
-      if (!foundTimeData)
-      {
-        vtkInformation* info = this->GetCurrentOutputInformation();
-        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-        info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
       }
     }
 
@@ -585,26 +575,35 @@ int vtkXMLReader::RequestInformation(vtkInformation* request,
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     this->SetupOutputInformation(outInfo);
 
-    if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_RANGE()))
+    if (this->TimeDataArray && this->TimeDataArray->GetNumberOfTuples() >= 1)
     {
+      // this is set in ReadXMLInformation if this->ActiveTimeDataArrayName was selected.
+      double tvalue = this->TimeDataArray->GetComponent(0, 0);
+      double trange[2] = { tvalue, tvalue };
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &tvalue, 1);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), trange, 2);
+    }
+    else if (this->GetNumberOfTimeSteps() > 0)
+    {
+      // note: I think is here to handle the case where multiple timesteps are
+      // provided in the same XML file.
+
       // this->NumberOfTimeSteps has been set during the
       // this->ReadXMLInformation()
       int numTimesteps = this->GetNumberOfTimeSteps();
       this->TimeStepRange[0] = 0;
       this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps - 1 : 0);
-      if (numTimesteps != 0)
-      {
-        std::vector<double> timeSteps(numTimesteps);
-        for (int i = 0; i < numTimesteps; i++)
-        {
-          timeSteps[i] = i;
-        }
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps[0], numTimesteps);
-        double timeRange[2];
-        timeRange[0] = timeSteps[0];
-        timeRange[1] = timeSteps[numTimesteps - 1];
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
-      }
+      std::vector<double> timeSteps(numTimesteps);
+      std::iota(timeSteps.begin(), timeSteps.end(), 0.0);
+      double timeRange[2] = { timeSteps[0], timeSteps[numTimesteps - 1] };
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps[0], numTimesteps);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+    }
+    else
+    {
+      this->TimeStepRange[0] = this->TimeStepRange[1] = 0;
+      outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
+      outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
   }
   else
