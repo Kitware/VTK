@@ -39,6 +39,7 @@ set(classes
   vtkPlotPie
   vtkPlotPoints3D
   vtkPlotPoints
+  vtkPlotRangeHandlesItem
   vtkPlotStacked
   vtkPlotSurface
   vtkRangeHandlesItem
