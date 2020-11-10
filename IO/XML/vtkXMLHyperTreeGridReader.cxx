@@ -56,11 +56,11 @@ vtkXMLHyperTreeGridReader::vtkXMLHyperTreeGridReader()
   this->CoordinatesBoundingBox[5] = -1;
 
   this->IndicesBoundingBox[0] = 0;
-  this->IndicesBoundingBox[1] = 0;
+  this->IndicesBoundingBox[1] = std::numeric_limits<unsigned int>::max();
   this->IndicesBoundingBox[2] = 0;
-  this->IndicesBoundingBox[3] = 0;
+  this->IndicesBoundingBox[3] = std::numeric_limits<unsigned int>::max();
   this->IndicesBoundingBox[4] = 0;
-  this->IndicesBoundingBox[5] = 0;
+  this->IndicesBoundingBox[5] = std::numeric_limits<unsigned int>::max();
 }
 
 //------------------------------------------------------------------------------
@@ -70,22 +70,6 @@ vtkXMLHyperTreeGridReader::~vtkXMLHyperTreeGridReader() = default;
 void vtkXMLHyperTreeGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-namespace
-{
-void setMinMaxCoordinate(vtkDataArray* gridCoords, double& c_min, double& c_max)
-{
-  if (gridCoords->GetNumberOfValues())
-  {
-    double o_min = gridCoords->GetRange()[0], o_max = gridCoords->GetRange()[1];
-    if (c_min > c_max)
-    {
-      std::swap(c_min, c_max);
-    }
-    c_min = (c_min < o_min) ? o_min - 1 : (c_min > o_max) ? o_max : c_min;
-    c_max = (c_max > o_max) ? o_max + 1 : (c_max < o_min) ? o_min : c_max;
-  }
-}
 }
 
 //------------------------------------------------------------------------------
@@ -148,19 +132,19 @@ void vtkXMLHyperTreeGridReader::CalculateHTs(const vtkHyperTreeGrid* grid)
   if (this->SelectedHTs == COORDINATES_BOUNDING_BOX)
   {
     this->SelectedHTs = INDICES_BOUNDING_BOX;
-    // Get*Coordinates is not const... so casting
-    auto* c_grid = const_cast<vtkHyperTreeGrid*>(grid);
-    setMinMaxCoordinate(
-      c_grid->GetXCoordinates(), this->CoordinatesBoundingBox[0], this->CoordinatesBoundingBox[1]);
-    setMinMaxCoordinate(
-      c_grid->GetYCoordinates(), this->CoordinatesBoundingBox[2], this->CoordinatesBoundingBox[3]);
-    setMinMaxCoordinate(
-      c_grid->GetZCoordinates(), this->CoordinatesBoundingBox[4], this->CoordinatesBoundingBox[5]);
-    this->IndicesBoundingBox[0] = grid->FindDichotomicX(this->CoordinatesBoundingBox[0]);
+    // if coord_min{x,y,z} < HTG->coord_min{x,y,z} then ht_idx{x,y,z} = 0
+    double* htg_bbox = const_cast<vtkHyperTreeGrid*>(grid)->GetBounds();
+    this->IndicesBoundingBox[0] = this->CoordinatesBoundingBox[0] <= htg_bbox[0]
+      ? 0
+      : grid->FindDichotomicX(this->CoordinatesBoundingBox[0]);
     this->IndicesBoundingBox[1] = grid->FindDichotomicX(this->CoordinatesBoundingBox[1]);
-    this->IndicesBoundingBox[2] = grid->FindDichotomicY(this->CoordinatesBoundingBox[2]);
+    this->IndicesBoundingBox[2] = this->CoordinatesBoundingBox[2] <= htg_bbox[2]
+      ? 0
+      : grid->FindDichotomicY(this->CoordinatesBoundingBox[2]);
     this->IndicesBoundingBox[3] = grid->FindDichotomicY(this->CoordinatesBoundingBox[3]);
-    this->IndicesBoundingBox[4] = grid->FindDichotomicZ(this->CoordinatesBoundingBox[4]);
+    this->IndicesBoundingBox[4] = this->CoordinatesBoundingBox[4] <= htg_bbox[4]
+      ? 0
+      : grid->FindDichotomicZ(this->CoordinatesBoundingBox[4]);
     this->IndicesBoundingBox[5] = grid->FindDichotomicZ(this->CoordinatesBoundingBox[5]);
   }
   this->FixedHTs = true;
