@@ -52,6 +52,16 @@ test with a baseline image.
                   ... -V DATA{../Data/Baseline/MyTest.png,:} ...
           )
 
+4.  Some tests may require additional files not referenced on the command line.
+    For these files, add references to a `vtk_module_test_data` call (usually
+    in the `Testing` parent directory). For example, adding
+    `Testing/Data/lines.vtp` would mean adding `Data/lines.vtp` entry to the
+    call (the `Testing` directory is part of the path that is looked in
+    automatically.
+
+        vtk_module_test_data(
+          Data/lines.vtp)
+
 Notes:
 
 * If the data file references other data files, e.g. `.mhd -> .raw`,
