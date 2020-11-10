@@ -306,12 +306,10 @@ vtkStandardNewMacro(MappedGrid);
 
 } // end anonymous namespace
 
-using namespace std;
-
-bool compareFiles(const string& p1, const string& p2)
+bool compareFiles(const std::string& p1, const std::string& p2)
 {
-  vtksys::ifstream f1(p1.c_str(), ifstream::binary | ifstream::ate);
-  vtksys::ifstream f2(p2.c_str(), ifstream::binary | ifstream::ate);
+  vtksys::ifstream f1(p1.c_str(), std::ifstream::binary | std::ifstream::ate);
+  vtksys::ifstream f2(p2.c_str(), std::ifstream::binary | std::ifstream::ate);
 
   if (f1.fail() || f2.fail())
   {
@@ -326,8 +324,8 @@ bool compareFiles(const string& p1, const string& p2)
   // seek back to beginning and use equal to compare contents
   f1.seekg(0, vtksys::ifstream::beg);
   f2.seekg(0, vtksys::ifstream::beg);
-  return equal(istreambuf_iterator<char>(f1.rdbuf()), istreambuf_iterator<char>(),
-    istreambuf_iterator<char>(f2.rdbuf()));
+  return equal(std::istreambuf_iterator<char>(f1.rdbuf()), std::istreambuf_iterator<char>(),
+    std::istreambuf_iterator<char>(f2.rdbuf()));
 }
 
 int TestXMLMappedUnstructuredGridIO(int argc, char* argv[])
@@ -459,15 +457,15 @@ int TestXMLMappedUnstructuredGridIO(int argc, char* argv[])
 
   char* tempDir =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
-  string dir(tempDir);
+  std::string dir(tempDir);
   if (dir.empty())
   {
     cerr << "Could not determine temporary directory." << endl;
     return EXIT_FAILURE;
   }
 
-  string f1 = dir + "/test_ug_input.vtu";
-  string f2 = dir + "/test_mapped_input.vtu";
+  std::string f1 = dir + "/test_ug_input.vtu";
+  std::string f2 = dir + "/test_mapped_input.vtu";
 
   vtkNew<vtkXMLUnstructuredGridWriter> w;
   w->SetInputData(ug);

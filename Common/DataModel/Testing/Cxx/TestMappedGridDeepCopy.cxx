@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <string>
 
 namespace
 { // this namespace contains the supporting mapped grid definition used in the test
@@ -305,8 +304,6 @@ private:
 vtkStandardNewMacro(MappedGrid);
 
 } // end anonymous namespace
-
-using namespace std;
 
 int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 {

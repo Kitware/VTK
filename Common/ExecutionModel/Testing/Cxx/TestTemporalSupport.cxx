@@ -34,7 +34,6 @@
     cerr << "Error on Line " << __LINE__ << ":" << endl;                                           \
   }
 
-using namespace std;
 class TestAlgorithm : public vtkAlgorithm
 {
 public:
@@ -171,7 +170,7 @@ public:
   }
 
 private:
-  vector<double> TimeSteps;
+  std::vector<double> TimeSteps;
   bool HasTimeDependentData;
   TestTimeSource(const TestTimeSource&) = delete;
   void operator=(const TestTimeSource&) = delete;

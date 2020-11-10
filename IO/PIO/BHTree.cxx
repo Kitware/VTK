@@ -49,8 +49,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "BHTree.h"
 
-using namespace std;
-
 /////////////////////////////////////////////////////////////////////////
 //
 // BHLeaf contains information about stored points
@@ -273,20 +271,20 @@ int BHTree::insertLeaf(double* loc)
 
 void BHTree::print()
 {
-  cout << "Number of leaves " << leafIndex << " Number of nodes " << nodeIndex << endl;
+  std::cout << "Number of leaves " << leafIndex << " Number of nodes " << nodeIndex << std::endl;
   int i, j;
-  cout << "LEAVES" << endl;
+  std::cout << "LEAVES" << std::endl;
   for (i = 1; i <= this->leafIndex; i++)
-    cout << "   Leaf " << i << " index " << i << " loc " << bhLeaf[i]->location[0] << "     "
-         << bhLeaf[i]->location[1] << endl;
+    std::cout << "   Leaf " << i << " index " << i << " loc " << bhLeaf[i]->location[0] << "     "
+              << bhLeaf[i]->location[1] << std::endl;
 
-  cout << "NODES" << endl;
+  std::cout << "NODES" << std::endl;
   for (i = 1; i <= this->nodeIndex; i++)
   {
-    cout << "   Node " << i << " index " << (i * -1) << "   children ";
+    std::cout << "   Node " << i << " index " << (i * -1) << "   children ";
     for (j = 0; j < this->numberOfChildren; j++)
-      cout << "  " << bhNode[i]->child[j];
-    cout << endl;
+      std::cout << "  " << bhNode[i]->child[j];
+    std::cout << std::endl;
   }
 }
 

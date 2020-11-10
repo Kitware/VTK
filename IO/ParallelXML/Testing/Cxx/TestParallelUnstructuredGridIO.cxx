@@ -23,8 +23,6 @@
 
 #include <string>
 
-using namespace std;
-
 bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
 {
   if (s->GetNumberOfCells() != t->GetNumberOfCells())

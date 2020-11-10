@@ -763,8 +763,7 @@ struct UnitTestTupleIteratorAPI
     CHECK_EQUAL_NODUMP(iterB, iter2);
 
     { // ADL swap:
-      using namespace std;
-      swap(iterA, iterB);
+      std::swap(iterA, iterB);
     }
 
     CHECK_NOT_EQUAL_NODUMP(iterA, iter1);
@@ -2016,8 +2015,7 @@ struct UnitTestComponentIteratorAPI
     CHECK_TRUE(iter == iter1);
 
     {
-      using namespace std;
-      swap(iter1, iter2);
+      std::swap(iter1, iter2);
     }
 
     CHECK_FALSE(iter1 < iter2);
@@ -2026,8 +2024,7 @@ struct UnitTestComponentIteratorAPI
     CHECK_TRUE(iter == iter2);
 
     {
-      using namespace std;
-      swap(iter1, iter2);
+      std::swap(iter1, iter2);
     }
 
     CHECK_TRUE(iter1 < iter2);

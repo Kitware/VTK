@@ -26,9 +26,8 @@
 
 #include <ctime>
 #include <vector>
-using namespace std;
 
-void CheckEqual(vtkTable* table, vector<vector<double>>& stdTable)
+void CheckEqual(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
   // Check sizes
   if (table->GetNumberOfRows() != static_cast<vtkIdType>(stdTable[0].size()))
@@ -131,7 +130,7 @@ int TestTable(int, char*[])
 
   // Make a table and a parallel vector of vectors
   vtkTable* table = vtkTable::New();
-  vector<vector<double>> stdTable;
+  std::vector<std::vector<double>> stdTable;
 
   int size = 100;
   double prob = 1.0 - 1.0 / size;
@@ -242,11 +241,11 @@ int TestTable(int, char*[])
          << endl;
     table->RemoveRow(row);
 
-    cout << "Removing row " << row << " from vector< vector<double> > with " << stdTable[0].size()
-         << " rows " << endl;
+    cout << "Removing row " << row << " from std::vector< std::vector<double> > with "
+         << stdTable[0].size() << " rows " << endl;
     for (unsigned int j = 0; j < stdTable.size(); j++)
     {
-      vector<double>::iterator rowIt = stdTable[j].begin() + row;
+      std::vector<double>::iterator rowIt = stdTable[j].begin() + row;
       stdTable[j].erase(rowIt);
     }
   }
@@ -265,13 +264,14 @@ int TestTable(int, char*[])
       table->RemoveColumnByName(table->GetColumnName(col));
     }
 
-    vector<vector<double>>::iterator colIt = stdTable.begin() + col;
+    std::vector<std::vector<double>>::iterator colIt = stdTable.begin() + col;
     stdTable.erase(colIt);
   }
 
   cout << "vtkTable size: " << table->GetNumberOfRows() << "," << table->GetNumberOfColumns()
        << endl;
-  cout << "vector<vector<double> > size: " << stdTable[0].size() << "," << stdTable.size() << endl;
+  cout << "std::vector<std::vector<double> > size: " << stdTable[0].size() << "," << stdTable.size()
+       << endl;
 
   cout << "Checking that table matches expected table." << endl;
   CheckEqual(table, stdTable);
