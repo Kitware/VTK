@@ -21,6 +21,7 @@
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
 #import "vtkNew.h"
+#import "vtkOpenGLState.h"
 #import "vtkStringArray.h"
 
 //----------------------------------------------------------------------------
@@ -125,6 +126,10 @@
 
   if (_myVTKRenderWindow && _myVTKRenderWindow->GetMapped())
   {
+    vtkOpenGLState* state = _myVTKRenderWindow->GetState();
+    state->ResetGLScissorState();
+    vtkOpenGLState::ScopedglScissor ss(state);
+
     _myVTKRenderWindow->Render();
   }
 }
