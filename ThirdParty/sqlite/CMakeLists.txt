@@ -1,7 +1,7 @@
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "public-domain"
-    VERSION       "3.30.1"
+    VERSION       "3.33.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE SQLite3
