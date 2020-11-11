@@ -95,6 +95,12 @@ if (NOT cdash_show_third_party_warnings)
     # Suppress ThirdParty source code from displaying warnings.
     "[Tt]hird[Pp]arty"
 
+    # clang will often give multiline warnings from macro expansions,
+    # where the first part has "warning:" and subsequent parts have "note:"
+    # and those will sometimes expand into systems headers. When this occurs
+    # for ThirdParty code, we want it suppressed too. Do so here for headers within Xcode.
+    "Xcode\\.app/Contents/Developer.+note:"
+
     # Suppress Remote module source code from displaying warnings.
     # Suppress modules individually as just "Remote" is a common pattern
     "[Rr]emote.[Mm]oment[Ii]nvariants"
