@@ -1531,6 +1531,7 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
     else
     {
       SetCursor((HCURSOR)cursor);
+      DestroyCursor((HCURSOR)cursor);
     }
   }
 }
