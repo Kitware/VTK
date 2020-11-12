@@ -206,7 +206,7 @@ def _global_func(impl, array, axis, controller):
                 return dsa.NoneArray;
 
             if res is dsa.NoneArray:
-                if max_dims is 1:
+                if max_dims == 1:
                     # Weird trick to make the array look like a scalar
                     max_dims = ()
                 res = numpy.empty(max_dims)
