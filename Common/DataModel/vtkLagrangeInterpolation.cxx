@@ -159,7 +159,7 @@ void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(const int order[3], con
 void vtkLagrangeInterpolation::WedgeShapeFunctions(
   const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* shape)
 {
-  static vtkNew<vtkLagrangeTriangle> tri;
+  vtkNew<vtkLagrangeTriangle> tri;
   vtkHigherOrderInterpolation::WedgeShapeFunctions(
     order, numberOfPoints, pcoords, shape, *tri, vtkLagrangeInterpolation::EvaluateShapeFunctions);
 }
@@ -168,7 +168,7 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(
 void vtkLagrangeInterpolation::WedgeShapeDerivatives(
   const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* derivs)
 {
-  static vtkNew<vtkLagrangeTriangle> tri;
+  vtkNew<vtkLagrangeTriangle> tri;
   vtkHigherOrderInterpolation::WedgeShapeDerivatives(order, numberOfPoints, pcoords, derivs, *tri,
     vtkLagrangeInterpolation::EvaluateShapeAndGradient);
 }
@@ -176,7 +176,7 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(
 void vtkLagrangeInterpolation::WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints,
   const double* pcoords, double* fieldVals, int fieldDim, double* fieldAtPCoords)
 {
-  static vtkNew<vtkLagrangeTriangle> tri;
+  vtkNew<vtkLagrangeTriangle> tri;
   this->vtkHigherOrderInterpolation::WedgeEvaluate(order, numberOfPoints, pcoords, fieldVals,
     fieldDim, fieldAtPCoords, *tri, vtkLagrangeInterpolation::EvaluateShapeFunctions);
 }
@@ -184,7 +184,7 @@ void vtkLagrangeInterpolation::WedgeEvaluate(const int order[3], const vtkIdType
 void vtkLagrangeInterpolation::WedgeEvaluateDerivative(const int order[3], const double* pcoords,
   vtkPoints* points, const double* fieldVals, int fieldDim, double* fieldDerivs)
 {
-  static vtkNew<vtkLagrangeTriangle> tri;
+  vtkNew<vtkLagrangeTriangle> tri;
   this->vtkHigherOrderInterpolation::WedgeEvaluateDerivative(order, pcoords, points, fieldVals,
     fieldDim, fieldDerivs, *tri, vtkLagrangeInterpolation::EvaluateShapeAndGradient);
 }
