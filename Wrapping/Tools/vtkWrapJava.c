@@ -25,12 +25,12 @@ HierarchyInfo* hierarchyInfo = NULL;
 StringCache* stringCache = NULL;
 int numberOfWrappedFunctions = 0;
 FunctionInfo* wrappedFunctions[1000];
-FunctionInfo* currentFunction;
-ClassInfo* CurrentData;
+FunctionInfo* thisFunction;
+ClassInfo* thisClass;
 
 void output_proto_vars(FILE* fp, int i)
 {
-  unsigned int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* ignore void */
   if (aType == VTK_PARSE_VOID)
@@ -38,7 +38,7 @@ void output_proto_vars(FILE* fp, int i)
     return;
   }
 
-  if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+  if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
   {
     fprintf(fp, "jobject id0, jstring id1");
     return;
@@ -117,18 +117,18 @@ void output_proto_vars(FILE* fp, int i)
 /* when the cpp file doesn't have enough info use the hint file */
 void use_hints(FILE* fp)
 {
-  unsigned int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* use the hint */
   switch (rType)
   {
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
       /* for vtkDataWriter we want to handle this case specially */
-      if (strcmp(currentFunction->Name, "GetBinaryOutputString") != 0 ||
-        strcmp(CurrentData->Name, "vtkDataWriter") != 0)
+      if (strcmp(thisFunction->Name, "GetBinaryOutputString") != 0 ||
+        strcmp(thisClass->Name, "vtkDataWriter") != 0)
       {
         fprintf(fp, "    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,%i);\n",
-          MAX_ARGS, currentFunction->HintSize);
+          MAX_ARGS, thisFunction->HintSize);
       }
       else
       {
@@ -141,42 +141,42 @@ void use_hints(FILE* fp)
 
     case VTK_PARSE_FLOAT_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfDoubleFromDouble(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_INT_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromInt(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_LONG_LONG_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromLongLong(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_SIGNED_CHAR_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromSignedChar(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_BOOL_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromBool(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_SHORT_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfShortFromShort(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_LONG_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromLong(env,temp%i,%i);\n", MAX_ARGS,
-        currentFunction->HintSize);
+        thisFunction->HintSize);
       break;
 
     case VTK_PARSE_UNSIGNED_INT_PTR:
@@ -190,7 +190,7 @@ void use_hints(FILE* fp)
 
 void return_result(FILE* fp)
 {
-  unsigned int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   switch (rType)
   {
@@ -360,11 +360,11 @@ void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount
 
 void get_args(FILE* fp, int i)
 {
-  unsigned int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
   int j;
 
   /* handle VAR FUNCTIONS */
-  if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+  if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
   {
     fprintf(fp, "  env->GetJavaVM(&(temp%i->vm));\n", i);
     fprintf(fp, "  temp%i->uobj = env->NewGlobalRef(id0);\n", i);
@@ -398,12 +398,12 @@ void get_args(FILE* fp, int i)
       break;
     case VTK_PARSE_OBJECT_PTR:
       fprintf(fp, "  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i));\n", i,
-        currentFunction->ArgClasses[i], i);
+        thisFunction->ArgClasses[i], i);
       break;
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "  tempArray%i = (void *)(env->GetDoubleArrayElements(id%i,nullptr));\n", i, i);
-      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n", i, j, i, j);
       }
@@ -416,13 +416,13 @@ void get_args(FILE* fp, int i)
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_BOOL_PTR:
       fprintf(fp, "  tempArray%i = (void *)(env->GetIntArrayElements(id%i,nullptr));\n", i, i);
-      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  temp%i[%i] = ((jint *)tempArray%i)[%i];\n", i, j, i, j);
       }
       break;
     case VTK_PARSE_UNKNOWN:
-      fprintf(fp, "  temp%i = static_cast<%s>(id%i);\n", i, currentFunction->ArgClasses[i], i);
+      fprintf(fp, "  temp%i = static_cast<%s>(id%i);\n", i, thisFunction->ArgClasses[i], i);
       break;
     case VTK_PARSE_VOID:
     case VTK_PARSE_OBJECT:
@@ -436,11 +436,11 @@ void get_args(FILE* fp, int i)
 
 void copy_and_release_args(FILE* fp, int i)
 {
-  unsigned int aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
   int j;
 
   /* handle VAR FUNCTIONS */
-  if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+  if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
   {
     fprintf(fp, "  delete[] temp%i_str;\n", i);
     return;
@@ -456,7 +456,7 @@ void copy_and_release_args(FILE* fp, int i)
   {
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
-      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  ((jdouble *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
       }
@@ -472,7 +472,7 @@ void copy_and_release_args(FILE* fp, int i)
     case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_BOOL_PTR:
-      for (j = 0; j < currentFunction->ArgCounts[i]; j++)
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  ((jint *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
       }
@@ -485,7 +485,7 @@ void copy_and_release_args(FILE* fp, int i)
 
 void do_return(FILE* fp)
 {
-  unsigned int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
   /* ignore void */
   if (rType == VTK_PARSE_VOID)
@@ -646,20 +646,20 @@ int DoneOne(void)
   {
     fi = wrappedFunctions[i];
 
-    if ((!strcmp(fi->Name, currentFunction->Name)) &&
-      (fi->NumberOfArguments == currentFunction->NumberOfArguments))
+    if ((!strcmp(fi->Name, thisFunction->Name)) &&
+      (fi->NumberOfArguments == thisFunction->NumberOfArguments))
     {
       match = 1;
       for (j = 0; j < fi->NumberOfArguments; j++)
       {
-        if (!CheckMatch(currentFunction->ArgTypes[j], fi->ArgTypes[j],
-              currentFunction->ArgClasses[j], fi->ArgClasses[j]))
+        if (!CheckMatch(thisFunction->ArgTypes[j], fi->ArgTypes[j], thisFunction->ArgClasses[j],
+              fi->ArgClasses[j]))
         {
           match = 0;
         }
       }
-      if (!CheckMatch(currentFunction->ReturnType, fi->ReturnType, currentFunction->ReturnClass,
-            fi->ReturnClass))
+      if (!CheckMatch(
+            thisFunction->ReturnType, fi->ReturnType, thisFunction->ReturnClass, fi->ReturnClass))
       {
         match = 0;
       }
@@ -675,7 +675,7 @@ void HandleDataReader(FILE* fp, ClassInfo* data)
   fprintf(fp, "\n");
   fprintf(fp, "extern \"C\" JNIEXPORT void");
   fprintf(fp, " JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj, jbyteArray id0, jint id1)\n",
-    data->Name, currentFunction->Name, numberOfWrappedFunctions);
+    data->Name, thisFunction->Name, numberOfWrappedFunctions);
   fprintf(fp, "{\n");
   fprintf(fp, "  %s *op;\n", data->Name);
   fprintf(fp, "  op = (%s *)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
@@ -828,13 +828,13 @@ int checkFunctionSignature(ClassInfo* data)
 
   int i, j;
   int args_ok = 1;
-  unsigned int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   unsigned int aType = 0;
   unsigned int baseType = 0;
 
   /* some functions will not get wrapped no matter what else */
-  if (currentFunction->IsOperator || currentFunction->ArrayFailure || currentFunction->IsExcluded ||
-    currentFunction->IsDeleted || !currentFunction->IsPublic || !currentFunction->Name)
+  if (thisFunction->IsOperator || thisFunction->ArrayFailure || thisFunction->IsExcluded ||
+    thisFunction->IsDeleted || !thisFunction->IsPublic || !thisFunction->Name)
   {
     return 0;
   }
@@ -843,35 +843,34 @@ int checkFunctionSignature(ClassInfo* data)
      (non-virtual) method which returns a pointer of the same type as
      the current pointer. Since all methods are virtual in Java, this
      looks like polymorphic return type.  */
-  if (!strcmp("NewInstance", currentFunction->Name))
+  if (!strcmp("NewInstance", thisFunction->Name))
   {
     return 0;
   }
 
-  if (!strcmp("SafeDownCast", currentFunction->Name))
+  if (!strcmp("SafeDownCast", thisFunction->Name))
   {
     return 0;
   }
 
   /* The GetInput() in vtkMapper cannot be overridden with a
    * different return type, Java doesn't allow this */
-  if (strcmp(data->Name, "vtkMapper") == 0 && strcmp(currentFunction->Name, "GetInput") == 0)
+  if (strcmp(data->Name, "vtkMapper") == 0 && strcmp(thisFunction->Name, "GetInput") == 0)
   {
     return 0;
   }
 
   /* function pointer arguments for callbacks */
-  if (currentFunction->NumberOfArguments == 2 &&
-    currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION &&
-    currentFunction->ArgTypes[1] == VTK_PARSE_VOID_PTR && rType == VTK_PARSE_VOID)
+  if (thisFunction->NumberOfArguments == 2 && thisFunction->ArgTypes[0] == VTK_PARSE_FUNCTION &&
+    thisFunction->ArgTypes[1] == VTK_PARSE_VOID_PTR && rType == VTK_PARSE_VOID)
   {
     return 1;
   }
 
   /* check to see if we can handle the args */
-  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
-    aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
     baseType = (aType & VTK_PARSE_BASE_TYPE);
 
     for (j = 0; supported_types[j] != 0; j++)
@@ -892,11 +891,11 @@ int checkFunctionSignature(ClassInfo* data)
       if ((aType & VTK_PARSE_INDIRECT) == 0)
       {
         qualified_name = vtkParseHierarchy_QualifiedEnumName(
-          hierarchyInfo, data, stringCache, currentFunction->ArgClasses[i]);
+          hierarchyInfo, data, stringCache, thisFunction->ArgClasses[i]);
       }
       if (qualified_name)
       {
-        currentFunction->ArgClasses[i] = qualified_name;
+        thisFunction->ArgClasses[i] = qualified_name;
       }
       else
       {
@@ -910,7 +909,7 @@ int checkFunctionSignature(ClassInfo* data)
       {
         args_ok = 0;
       }
-      else if (!isClassWrapped(currentFunction->ArgClasses[i]))
+      else if (!isClassWrapped(thisFunction->ArgClasses[i]))
       {
         args_ok = 0;
       }
@@ -957,11 +956,11 @@ int checkFunctionSignature(ClassInfo* data)
     if ((rType & VTK_PARSE_INDIRECT) == 0)
     {
       qualified_name = vtkParseHierarchy_QualifiedEnumName(
-        hierarchyInfo, data, stringCache, currentFunction->ReturnClass);
+        hierarchyInfo, data, stringCache, thisFunction->ReturnClass);
     }
     if (qualified_name)
     {
-      currentFunction->ReturnClass = qualified_name;
+      thisFunction->ReturnClass = qualified_name;
     }
     else
     {
@@ -975,7 +974,7 @@ int checkFunctionSignature(ClassInfo* data)
     {
       args_ok = 0;
     }
-    else if (!isClassWrapped(currentFunction->ReturnClass))
+    else if (!isClassWrapped(thisFunction->ReturnClass))
     {
       args_ok = 0;
     }
@@ -1000,13 +999,12 @@ int checkFunctionSignature(ClassInfo* data)
     args_ok = 0;
 
   /* make sure we have all the info we need for array arguments in */
-  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
-    aType = (currentFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
-      (currentFunction->ArgCounts[i] <= 0) && (aType != VTK_PARSE_OBJECT_PTR) &&
-      (aType != VTK_PARSE_CHAR_PTR))
+    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) && (thisFunction->ArgCounts[i] <= 0) &&
+      (aType != VTK_PARSE_OBJECT_PTR) && (aType != VTK_PARSE_CHAR_PTR))
       args_ok = 0;
   }
 
@@ -1024,7 +1022,7 @@ int checkFunctionSignature(ClassInfo* data)
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_BOOL_PTR:
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
-      args_ok = currentFunction->HaveHint;
+      args_ok = thisFunction->HaveHint;
       break;
   }
 
@@ -1032,17 +1030,15 @@ int checkFunctionSignature(ClassInfo* data)
   if (!strcmp("vtkObject", data->Name))
   {
     /* remove the original vtkCommand observer methods */
-    if (!strcmp(currentFunction->Name, "AddObserver") ||
-      !strcmp(currentFunction->Name, "GetCommand") ||
-      (!strcmp(currentFunction->Name, "RemoveObserver") &&
-        (currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG)) ||
-      ((!strcmp(currentFunction->Name, "RemoveObservers") ||
-         !strcmp(currentFunction->Name, "HasObserver")) &&
-        (((currentFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG) &&
-           (currentFunction->ArgTypes[0] != (VTK_PARSE_CHAR_PTR | VTK_PARSE_CONST))) ||
-          (currentFunction->NumberOfArguments > 1))) ||
-      (!strcmp(currentFunction->Name, "RemoveAllObservers") &&
-        (currentFunction->NumberOfArguments > 0)))
+    if (!strcmp(thisFunction->Name, "AddObserver") || !strcmp(thisFunction->Name, "GetCommand") ||
+      (!strcmp(thisFunction->Name, "RemoveObserver") &&
+        (thisFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG)) ||
+      ((!strcmp(thisFunction->Name, "RemoveObservers") ||
+         !strcmp(thisFunction->Name, "HasObserver")) &&
+        (((thisFunction->ArgTypes[0] != VTK_PARSE_UNSIGNED_LONG) &&
+           (thisFunction->ArgTypes[0] != (VTK_PARSE_CHAR_PTR | VTK_PARSE_CONST))) ||
+          (thisFunction->NumberOfArguments > 1))) ||
+      (!strcmp(thisFunction->Name, "RemoveAllObservers") && (thisFunction->NumberOfArguments > 0)))
     {
       args_ok = 0;
     }
@@ -1050,14 +1046,14 @@ int checkFunctionSignature(ClassInfo* data)
   else if (!strcmp("vtkObjectBase", data->Name))
   {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name, "Print"))
+    if (!strcmp(thisFunction->Name, "Print"))
     {
       args_ok = 0;
     }
   }
 
   /* make sure it isn't a Delete or New function */
-  if (!strcmp("Delete", currentFunction->Name) || !strcmp("New", currentFunction->Name))
+  if (!strcmp("Delete", thisFunction->Name) || !strcmp("New", thisFunction->Name))
   {
     args_ok = 0;
   }
@@ -1069,38 +1065,37 @@ void outputFunction(FILE* fp, ClassInfo* data)
 {
   int i;
   int args_ok;
-  unsigned int rType = (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   const char* jniFunction = 0;
   char* jniFunctionNew = 0;
   char* jniFunctionOld = 0;
   size_t j;
-  CurrentData = data;
+  thisClass = data;
 
   args_ok = checkFunctionSignature(data);
 
   /* handle DataReader SetBinaryInputString as a special case */
-  if (!strcmp("SetBinaryInputString", currentFunction->Name) &&
+  if (!strcmp("SetBinaryInputString", thisFunction->Name) &&
     (!strcmp("vtkDataReader", data->Name) || !strcmp("vtkStructuredGridReader", data->Name) ||
       !strcmp("vtkRectilinearGridReader", data->Name) ||
       !strcmp("vtkUnstructuredGridReader", data->Name) ||
       !strcmp("vtkStructuredPointsReader", data->Name) || !strcmp("vtkPolyDataReader", data->Name)))
   {
-    if (currentFunction->IsLegacy)
+    if (thisFunction->IsLegacy)
     {
       fprintf(fp, "#if !defined(VTK_LEGACY_REMOVE)\n");
     }
     HandleDataReader(fp, data);
-    if (currentFunction->IsLegacy)
+    if (thisFunction->IsLegacy)
     {
       fprintf(fp, "#endif\n");
     }
-    wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+    wrappedFunctions[numberOfWrappedFunctions] = thisFunction;
     numberOfWrappedFunctions++;
   }
 
-  if (!currentFunction->IsExcluded && currentFunction->IsPublic && args_ok &&
-    strcmp(data->Name, currentFunction->Name) != 0 &&
-    strcmp(data->Name, currentFunction->Name + 1) != 0)
+  if (!thisFunction->IsExcluded && thisFunction->IsPublic && args_ok &&
+    strcmp(data->Name, thisFunction->Name) != 0 && strcmp(data->Name, thisFunction->Name + 1) != 0)
   {
     /* make sure we haven't already done one of these */
     if (!DoneOne())
@@ -1110,7 +1105,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
       /* Underscores are escaped in method names, see
            http://java.sun.com/javase/6/docs/technotes/guides/jni/spec/design.html#wp133
          VTK class names contain no underscore and do not need to be escaped.  */
-      jniFunction = currentFunction->Name;
+      jniFunction = thisFunction->Name;
       jniFunctionOld = 0;
       j = 0;
       while (jniFunction[j] != '\0')
@@ -1130,7 +1125,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
         j++;
       }
 
-      if (currentFunction->IsLegacy)
+      if (thisFunction->IsLegacy)
       {
         fprintf(fp, "#if !defined(VTK_LEGACY_REMOVE)\n");
       }
@@ -1139,13 +1134,13 @@ void outputFunction(FILE* fp, ClassInfo* data)
       fprintf(fp, " JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj", data->Name, jniFunction,
         numberOfWrappedFunctions);
 
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
         fprintf(fp, ",");
         output_proto_vars(fp, i);
 
         /* ignore args after function pointer */
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
           break;
         }
@@ -1156,26 +1151,26 @@ void outputFunction(FILE* fp, ClassInfo* data)
       fprintf(fp, "  %s *op;\n", data->Name);
 
       /* process the args */
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
-        output_temp(fp, i, currentFunction->ArgTypes[i], currentFunction->ArgClasses[i],
-          currentFunction->ArgCounts[i]);
+        output_temp(fp, i, thisFunction->ArgTypes[i], thisFunction->ArgClasses[i],
+          thisFunction->ArgCounts[i]);
 
         /* ignore args after function pointer */
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
           break;
         }
       }
-      output_temp(fp, MAX_ARGS, currentFunction->ReturnType, currentFunction->ReturnClass, 0);
+      output_temp(fp, MAX_ARGS, thisFunction->ReturnType, thisFunction->ReturnClass, 0);
 
       /* now get the required args from the stack */
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
         get_args(fp, i);
 
         /* ignore args after function pointer */
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
           break;
         }
@@ -1186,27 +1181,27 @@ void outputFunction(FILE* fp, ClassInfo* data)
       switch (rType)
       {
         case VTK_PARSE_VOID:
-          fprintf(fp, "  op->%s(", currentFunction->Name);
+          fprintf(fp, "  op->%s(", thisFunction->Name);
           break;
         default:
           if ((rType & VTK_PARSE_INDIRECT) == VTK_PARSE_REF)
           {
-            fprintf(fp, "  temp%i = &(op)->%s(", MAX_ARGS, currentFunction->Name);
+            fprintf(fp, "  temp%i = &(op)->%s(", MAX_ARGS, thisFunction->Name);
           }
           else
           {
-            fprintf(fp, "  temp%i = (op)->%s(", MAX_ARGS, currentFunction->Name);
+            fprintf(fp, "  temp%i = (op)->%s(", MAX_ARGS, thisFunction->Name);
           }
           break;
       }
 
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
         if (i)
         {
           fprintf(fp, ",");
         }
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
           fprintf(fp, "vtkJavaVoidFunc,(void *)temp%i", i);
           break;
@@ -1219,31 +1214,30 @@ void outputFunction(FILE* fp, ClassInfo* data)
 
       fprintf(fp, ");\n");
 
-      if (currentFunction->NumberOfArguments == 2 &&
-        currentFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
+      if (thisFunction->NumberOfArguments == 2 && thisFunction->ArgTypes[0] == VTK_PARSE_FUNCTION)
       {
         fprintf(fp, "  op->%sArgDelete(vtkJavaVoidFuncArgDelete);\n", jniFunction);
       }
 
       /* now copy and release any arrays */
-      for (i = 0; i < currentFunction->NumberOfArguments; i++)
+      for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
         copy_and_release_args(fp, i);
 
         /* ignore args after function pointer */
-        if (currentFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+        if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
           break;
         }
       }
       do_return(fp);
       fprintf(fp, "}\n");
-      if (currentFunction->IsLegacy)
+      if (thisFunction->IsLegacy)
       {
         fprintf(fp, "#endif\n");
       }
 
-      wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+      wrappedFunctions[numberOfWrappedFunctions] = thisFunction;
       numberOfWrappedFunctions++;
       if (jniFunctionNew)
       {
@@ -1384,7 +1378,7 @@ int main(int argc, char* argv[])
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
-    currentFunction = data->Functions[i];
+    thisFunction = data->Functions[i];
     outputFunction(fp, data);
   }
 
