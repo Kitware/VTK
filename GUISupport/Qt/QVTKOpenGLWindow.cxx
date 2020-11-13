@@ -238,6 +238,11 @@ void QVTKOpenGLWindow::paintGL()
   this->Superclass::paintGL();
   if (this->RenderWindow)
   {
+    auto ostate = this->RenderWindow->GetState();
+    ostate->Reset();
+    ostate->Push();
+    // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
+    ostate->vtkglDepthFunc(GL_LEQUAL);
     Q_ASSERT(this->RenderWindowAdapter);
     this->RenderWindowAdapter->paint();
 
@@ -246,10 +251,6 @@ void QVTKOpenGLWindow::paintGL()
     // (e.g. progress bar). Hence we need to make sure to call makeCurrent()
     // before proceeding with blit-ing.
     this->makeCurrent();
-
-    auto ostate = this->RenderWindow->GetState();
-    ostate->Reset();
-    ostate->Push();
 
     const QSize deviceSize = this->size() * this->devicePixelRatioF();
     const auto fmt = this->context()->format();
