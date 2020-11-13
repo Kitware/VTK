@@ -282,7 +282,7 @@ void vtkBorderWidget::HoverLeaveAction(vtkAbstractWidget* w)
   auto self = vtkBorderWidget::SafeDownCast(w);
 
   auto representation = self->GetBorderRepresentation();
-  if (representation)
+  if (representation && representation->GetShowBorder() != vtkBorderRepresentation::BORDER_ON)
   {
     representation->SetBWActorDisplayOverlay(false);
     representation->SetInteractionState(vtkBorderRepresentation::Outside);
