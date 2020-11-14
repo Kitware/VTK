@@ -493,10 +493,12 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   if (this->Internal->Backend != nullptr)
   {
     RTW::Backend* backend = this->Internal->Backend;
-    // DDM NO ospRelease(this->OWorld);
     ospRelease(this->ORenderer);
     ospRelease(this->OFrameBuffer);
     // DDM NO ospRelease(this->OCamera);
+    this->CacheContents.clear();
+    this->Cache->SetSize(0);
+    this->Lights.clear();
   }
   this->AccumulateMatrix->Delete();
   delete this->Internal;
@@ -1273,7 +1275,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
   }
   else
   {
-    this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+
+    int newCSize = vtkOSPRayRendererNode::GetTimeCacheSize(ren);
+    int currentCSize = this->Cache->GetSize();
+    if (newCSize < currentCSize)
+    {
+      this->CacheContents.clear();
+    }
+    this->Cache->SetSize(newCSize);
     double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
     auto cached = this->Cache->Get(tstep);
     if (cached)
@@ -1282,30 +1291,37 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     }
     else
     {
+      if (this->CacheContents.find(this->OWorld) == this->CacheContents.end())
+      {
+        ospRelease(this->OWorld);
+      }
       this->OWorld = ospNewWorld();
       // put the model into a group (collection of models)
+      OSPData lights = nullptr;
       if (this->Lights.size())
       {
-        auto data = ospNewSharedData1D(
+        lights = ospNewCopyData1D(
           this->Lights.data(), OSP_LIGHT, static_cast<uint32_t>(this->Lights.size()));
-        ospCommit(data);
-        ospSetObject(this->OWorld, "light", data);
-        ospRelease(data);
+        ospCommit(lights);
+        ospSetObject(this->OWorld, "light", lights);
       }
+      OSPData instances = nullptr;
       if (this->Instances.size())
       {
-        auto instanceData = ospNewSharedData1D(
+        instances = ospNewCopyData1D(
           this->Instances.data(), OSP_INSTANCE, static_cast<uint32_t>(this->Instances.size()));
-        ospCommit(instanceData);
-        ospSetObject(this->OWorld, "instance", instanceData);
-        ospRelease(instanceData);
-        this->OInstanceData = instanceData;
+        ospCommit(instances);
+        ospSetObject(this->OWorld, "instance", instances);
       }
       ospCommit(this->OWorld);
+      ospRelease(lights);
+      ospRelease(instances);
+
       if (this->Cache->HasRoom())
       {
         auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, this->OWorld);
         this->Cache->Set(tstep, std::move(cacheEntry));
+        this->CacheContents.insert(this->OWorld);
       }
     }
 
@@ -1554,7 +1570,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     bool useDenoiser =
       this->GetEnableDenoiser(ren) && (this->AccumulateCount >= this->GetDenoiserThreshold(ren));
     ospSetInt(oRenderer, "denoise", useDenoiser ? 1 : 0);
-
     ospCommit(oRenderer);
 
     const bool backendDepthNormalization = backend->IsSupported(RTW_DEPTH_NORMALIZATION);
@@ -1574,12 +1589,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
-
-    // release data used to store instances and clear world
-    ospRelease(this->OInstanceData);
-    this->OInstanceData = nullptr;
-    // DDM NO ospRelease(this->OWorld);
-    this->OWorld = nullptr;
 
     // Check if backend can do direct OpenGL display using textures
     bool useOpenGLInterop = backend->IsSupported(RTW_OPENGL_INTEROP);
