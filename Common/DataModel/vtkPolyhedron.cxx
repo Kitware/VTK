@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTriangle.h"
 #include "vtkVector.h"
 
+#include <cmath>
 #include <functional>
 #include <map>
 #include <set>
@@ -653,8 +654,8 @@ int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], dou
   return (numHits > 0);
 }
 
-#define VTK_MAX_ITER 10 // Maximum iterations for ray-firing
-#define VTK_VOTE_THRESHOLD 3
+static const int VTK_MAX_ITER = 10; // Maximum iterations for ray-firing
+static const int VTK_VOTE_THRESHOLD = 3;
 
 //------------------------------------------------------------------------------
 // Shoot random rays and count the number of intersections
@@ -704,7 +705,7 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
   double tol = tolerance * length;
 
   for (deltaVotes = 0, iterNumber = 1;
-       (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD); iterNumber++)
+       (iterNumber < VTK_MAX_ITER) && (std::abs(deltaVotes) < VTK_VOTE_THRESHOLD); iterNumber++)
   {
     //  Define a random ray to fire.
     do
@@ -803,9 +804,6 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
   //
   return (deltaVotes < 0 ? 0 : 1);
 }
-
-#undef VTK_MAX_ITER
-#undef VTK_VOTE_THRESHOLD
 
 //------------------------------------------------------------------------------
 // Determine whether or not a polyhedron is convex. This method is adapted
@@ -994,7 +992,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
     v[0] = x[0] - o[0];
     v[1] = x[1] - o[1];
     v[2] = x[2] - o[2];
-    dist = fabs(vtkMath::Dot(v, n));
+    dist = std::abs(vtkMath::Dot(v, n));
     if (dist < minDist)
     {
       minDist = dist;
@@ -1574,8 +1572,8 @@ void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, 
   int choose(-1);
   for (int i = 0; i < nPoints; ++i)
   {
-    double minDiff = abs(60.0 - minAngles[i]);
-    double maxDiff = abs(maxAngles[i] - 60.0);
+    double minDiff = std::abs(60.0 - minAngles[i]);
+    double maxDiff = std::abs(maxAngles[i] - 60.0);
     double range = minDiff + maxDiff;
     if (range < minRange)
     {
