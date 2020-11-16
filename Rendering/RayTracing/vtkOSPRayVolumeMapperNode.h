@@ -28,7 +28,7 @@
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 
-class vtkAbstractArray;
+class vtkDataArray;
 class vtkDataSet;
 class vtkVolume;
 
@@ -70,6 +70,8 @@ protected:
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
+  vtkDataArray* LastArray;
+  int LastComponent;
 
   OSPGeometry OSPRayIsosurface;
   OSPVolume OSPRayVolume{ nullptr };
