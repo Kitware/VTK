@@ -1805,6 +1805,21 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
   assert("pre: positive_width" && width > 0);
   assert("pre: positive_height" && height > 0);
 
+#if defined(__APPLE__)
+  // make sure requested multisamples is OK with platform
+  // APPLE Intel systems seem to have buggy multisampled
+  // frambuffer blits etc that cause issues
+  if (this->MultiSamples > 0)
+  {
+    char const* tmp = reinterpret_cast<const char*>(::glGetString(GL_VENDOR));
+    std::string vendor = tmp ? tmp : std::string();
+    if (vendor.find("Intel") != std::string::npos)
+    {
+      this->MultiSamples = 0;
+    }
+  }
+#endif
+
   if (this->LastMultiSamples != this->MultiSamples)
   {
     this->OffScreenFramebuffer->ReleaseGraphicsResources(this);
