@@ -1018,6 +1018,16 @@ bool vtkTextureObject::CreateTextureBuffer(
   this->CreateTexture();
   this->Bind();
 
+  int maxSize = -1;
+  this->Context->GetState()->vtkglGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &maxSize);
+  if (maxSize > 0 && static_cast<unsigned int>(maxSize) < numValues)
+  {
+    vtkErrorMacro("Attempt to use a texture buffer exceeding your hardware's limits. "
+                  "This can happen when trying to color by cell data with a large dataset. "
+                  "Hardware limit is "
+      << maxSize << " values while " << numValues << " was requested.");
+  }
+
   // Source texture data from the PBO.
   glTexBuffer(this->Target, this->InternalFormat, this->BufferObject->GetHandle());
 
