@@ -65,22 +65,18 @@ protected:
   int NumColors;
   double SamplingRate;
   double SamplingStep; // base sampling step of each voxel
-  bool UseSharedBuffers;
-  OSPData SharedData;
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
   vtkDataArray* LastArray;
   int LastComponent;
 
-  OSPGeometry OSPRayIsosurface;
-  OSPVolume OSPRayVolume{ nullptr };
-  OSPVolumetricModel OSPRayVolumeModel{ nullptr };
-  OSPGeometricModel OSPRayGeometricModel{ nullptr };
-  OSPGeometricModel Cropper{ nullptr };
-
-  OSPInstance OSPRayInstance{ nullptr };
+  OSPVolume OSPRayVolume;
+  OSPVolumetricModel OSPRayVolumeModel;
+  OSPGeometricModel Cropper;
   OSPTransferFunction TransferFunction;
+  OSPInstance OSPRayInstance;
+
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
