@@ -203,6 +203,12 @@ void QVTKOpenGLWindow::initializeGL()
   if (this->RenderWindow)
   {
     Q_ASSERT(this->RenderWindowAdapter.data() == nullptr);
+
+    auto ostate = this->RenderWindow->GetState();
+    ostate->Reset();
+    // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
+    ostate->vtkglDepthFunc(GL_LEQUAL);
+
     this->RenderWindowAdapter.reset(
       new QVTKRenderWindowAdapter(this->context(), this->RenderWindow, this));
     this->RenderWindowAdapter->setDefaultCursor(this->defaultCursor());
