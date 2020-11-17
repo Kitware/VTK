@@ -324,7 +324,7 @@ void vtkOpenGLStickMapperCreateVBO(vtkPolyData* poly, vtkIdType numPts, unsigned
     // colors or selection ids
     if (selectionIds)
     {
-      vtkIdType thisId = selectionIds[i] + 1;
+      vtkIdType thisId = selectionIds[i];
       cPtr[0] = thisId % 256;
       cPtr[1] = (thisId >> 8) % 256;
       cPtr[2] = (thisId >> 16) % 256;
