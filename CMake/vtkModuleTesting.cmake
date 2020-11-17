@@ -642,6 +642,12 @@ function (vtk_add_test_python)
         # This must match the skip() function in vtk/test/Testing.py"
         SKIP_RETURN_CODE 125
       )
+
+    if (numprocs)
+      set_tests_properties("${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
+        PROPERTIES
+          PROCESSORS "${numprocs}")
+    endif ()
   endforeach ()
 endfunction ()
 
