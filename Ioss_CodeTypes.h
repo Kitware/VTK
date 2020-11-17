@@ -85,7 +85,7 @@ inline const std::string IOSS_SYM_TENSOR() { return std::string("sym_tensor_33")
 #endif
 
 #if defined(SEACAS_HAVE_MPI)
-#include <mpi.h>
+#include <vtk_mpi.h>
 #define PAR_UNUSED(x)
 #else
 #define PAR_UNUSED(x)                                                                              \
