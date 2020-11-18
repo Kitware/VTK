@@ -17,6 +17,9 @@
 #include <type_traits>
 #include <vector>
 
+// XXX(kitware): mangle namespace
+#define fmt vtkioss_fmt
+
 #ifndef FMT_HEADER_ONLY
 #define FMT_HEADER_ONLY
 #endif
