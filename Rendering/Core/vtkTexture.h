@@ -279,24 +279,22 @@ public:
    * Border Color (RGBA). The values can be any valid float value,
    * if the gpu supports it. Initial value is (0.0f, 0.0f, 0.0f, 0.0f),
    * as in the OpenGL spec.
+   *
+   * \note
+   * This property is ignored for OpenGL ES <= 3.2
    */
   vtkSetVector4Macro(BorderColor, float);
   vtkGetVector4Macro(BorderColor, float);
   //@}
 
-  // ClampToBorder is not supported in ES 2.0
-  // Wrap values.
-#ifndef GL_ES_VERSION_3_0
-  enum { ClampToEdge = 0, Repeat, MirroredRepeat, ClampToBorder, NumberOfWrapModes };
-#else
   enum
   {
     ClampToEdge = 0,
     Repeat,
     MirroredRepeat,
+    ClampToBorder,
     NumberOfWrapModes
   };
-#endif
 
   //@{
   /**
@@ -307,13 +305,13 @@ public:
    * - MirroredRepeat
    * - ClampToBorder
    * Initial value is Repeat (as in OpenGL spec)
+   *
+   * \note
+   * ClampToBorder is not supported with OpenGL ES <= 3.2.
+   * Wrap will default to ClampToEdge if it is set to ClampToBorder in this case.
    */
   vtkGetMacro(Wrap, int);
-#ifndef GL_ES_VERSION_3_0
   vtkSetClampMacro(Wrap, int, ClampToEdge, ClampToBorder);
-#else
-  vtkSetClampMacro(Wrap, int, ClampToEdge, MirroredRepeat);
-#endif
   //@}
 
   //@{

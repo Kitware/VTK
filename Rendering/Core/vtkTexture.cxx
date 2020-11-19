@@ -148,11 +148,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-#ifndef GL_ES_VERSION_3_0
   const int WrapAsString[4] = { ClampToEdge, Repeat, MirroredRepeat, ClampToBorder };
-#else
-  const int WrapAsString[3] = { ClampToEdge, Repeat, MirroredRepeat };
-#endif
   os << indent << "MaximumAnisotropicFiltering: " << this->MaximumAnisotropicFiltering << "\n";
   os << indent << "Mipmap: " << (this->Mipmap ? "On\n" : "Off\n");
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
