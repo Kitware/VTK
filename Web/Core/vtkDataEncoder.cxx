@@ -16,7 +16,6 @@
 
 #include "vtkBase64Utilities.h"
 #include "vtkCommand.h"
-#include "vtkConditionVariable.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
 #include "vtkMultiThreader.h"
@@ -27,7 +26,9 @@
 
 #include <cassert>
 #include <cmath>
+#include <condition_variable>
 #include <map>
+#include <mutex>
 #include <vector>
 
 #include <vtksys/SystemTools.hxx>
@@ -77,12 +78,12 @@ public:
 
 private:
   bool Done;
-  vtkSimpleMutexLock DoneLock;
-  vtkSimpleMutexLock OutputsLock;
-  vtkSimpleConditionVariable OutputsAvailable;
+  std::mutex DoneLock;
+  std::mutex OutputsLock;
+  std::condition_variable_any OutputsAvailable;
 
-  vtkSimpleMutexLock ThreadDoneLock;
-  vtkSimpleConditionVariable ThreadDone;
+  std::mutex ThreadDoneLock;
+  std::condition_variable_any ThreadDone;
   int ActiveThreadCount;
 
   //------------------------------------------------------------------------
@@ -91,8 +92,8 @@ private:
 
   //------------------------------------------------------------------------
   // Constructs used to synchronization.
-  vtkSimpleMutexLock InputsLock;
-  vtkSimpleConditionVariable InputsAvailable;
+  std::mutex InputsLock;
+  std::condition_variable_any InputsAvailable;
 
   //------------------------------------------------------------------------
   // InputsLock must be held before accessing any of the following members.
@@ -111,22 +112,22 @@ public:
   // threads when they are done.
   void BeginWorker()
   {
-    this->ThreadDoneLock.Lock();
+    this->ThreadDoneLock.lock();
     this->ActiveThreadCount++;
-    this->ThreadDoneLock.Unlock();
+    this->ThreadDoneLock.unlock();
   }
 
   //------------------------------------------------------------------------
   // Each thread should call this method when it ends.
   void EndWorker()
   {
-    this->ThreadDoneLock.Lock();
+    this->ThreadDoneLock.lock();
     this->ActiveThreadCount--;
     bool last_thread = (this->ActiveThreadCount == 0);
-    this->ThreadDoneLock.Unlock();
+    this->ThreadDoneLock.unlock();
     if (last_thread)
     {
-      this->ThreadDone.Signal();
+      this->ThreadDone.notify_one();
     }
   }
 
@@ -135,26 +136,26 @@ public:
   {
     // Get the done lock so we other threads don't end up testing the Done
     // flag and quitting before this thread starts to wait for them to quit.
-    this->DoneLock.Lock();
+    this->DoneLock.lock();
     this->Done = true;
 
     // Grab the ThreadDoneLock. so even if any thread ends up check this->Done
     // as soon as we release the lock, it won't get a chance to terminate.
-    this->ThreadDoneLock.Lock();
+    this->ThreadDoneLock.lock();
 
     // release the done lock. Let threads test for this->Done flag.
-    this->DoneLock.Unlock();
+    this->DoneLock.unlock();
 
     // Tell all workers that inputs are available, so they will try to check
     // the input as well as the done flag.
-    this->InputsAvailable.Broadcast();
+    this->InputsAvailable.notify_all();
 
     // Now wait for thread to terminate releasing this->ThreadDoneLock as soon
     // as we start waiting. Thus, no threads have got a chance to call
     // EndWorker() till the main thread starts waiting for them.
-    this->ThreadDone.Wait(this->ThreadDoneLock);
+    this->ThreadDone.wait(this->ThreadDoneLock);
 
-    this->ThreadDoneLock.Unlock();
+    this->ThreadDoneLock.unlock();
 
     // reset Done flag since all threads have died.
     this->Done = false;
@@ -163,9 +164,9 @@ public:
   //------------------------------------------------------------------------
   bool IsDone()
   {
-    this->DoneLock.Lock();
+    this->DoneLock.lock();
     bool val = this->Done;
-    this->DoneLock.Unlock();
+    this->DoneLock.unlock();
     return val;
   }
 
@@ -173,7 +174,7 @@ public:
   void PushAndTakeReference(
     vtkTypeUInt32 key, vtkImageData*& data, vtkTypeUInt64 stamp, int quality, int encoding)
   {
-    this->InputsLock.Lock();
+    this->InputsLock.lock();
     {
       vtkSharedData::InputValueType& value = this->Inputs[key];
       value.Image.TakeReference(data);
@@ -182,21 +183,21 @@ public:
       value.Encoding = encoding;
       data = nullptr;
     }
-    this->InputsLock.Unlock();
-    this->InputsAvailable.Signal();
+    this->InputsLock.unlock();
+    this->InputsAvailable.notify_one();
   }
 
   //------------------------------------------------------------------------
   vtkTypeUInt64 GetExpectedOutputStamp(vtkTypeUInt32 key)
   {
     vtkTypeUInt64 stamp = 0;
-    this->InputsLock.Lock();
+    this->InputsLock.lock();
     vtkSharedData::InputMapType::iterator iter = this->Inputs.find(key);
     if (iter != this->Inputs.end())
     {
       stamp = iter->second.OutputStamp;
     }
-    this->InputsLock.Unlock();
+    this->InputsLock.unlock();
     return stamp;
   }
 
@@ -208,7 +209,7 @@ public:
   {
     vtkTypeUInt32 stamp = 0;
 
-    this->InputsLock.Lock();
+    this->InputsLock.lock();
     do
     {
       // Check if we have an input available, if so, return it.
@@ -229,12 +230,12 @@ public:
       if (image == nullptr && !this->IsDone())
       {
         // No data is available, let's wait till it becomes available.
-        this->InputsAvailable.Wait(this->InputsLock);
+        this->InputsAvailable.wait(this->InputsLock);
       }
 
     } while (image == nullptr && !this->IsDone());
 
-    this->InputsLock.Unlock();
+    this->InputsLock.unlock();
     return stamp;
   }
 
@@ -242,7 +243,7 @@ public:
   void SetOutputReference(
     const vtkTypeUInt32& key, vtkTypeUInt64 timestamp, vtkUnsignedCharArray*& dataRef)
   {
-    this->OutputsLock.Lock();
+    this->OutputsLock.lock();
     assert(dataRef->GetReferenceCount() == 1);
     OutputMapType::iterator iter = this->Outputs.find(key);
     if (iter == this->Outputs.end() || iter->second.Data == nullptr ||
@@ -260,15 +261,15 @@ public:
       dataRef->Delete();
       dataRef = nullptr;
     }
-    this->OutputsLock.Unlock();
-    this->OutputsAvailable.Broadcast();
+    this->OutputsLock.unlock();
+    this->OutputsAvailable.notify_all();
   }
 
   //------------------------------------------------------------------------
   bool CopyLatestOutputIfDifferent(vtkTypeUInt32 key, vtkUnsignedCharArray* data)
   {
     vtkTypeUInt64 dataTimeStamp = 0;
-    this->OutputsLock.Lock();
+    this->OutputsLock.lock();
     {
       const vtkSharedData::OutputValueType& output = this->Outputs[key];
       if (output.Data != nullptr &&
@@ -280,17 +281,17 @@ public:
       }
       dataTimeStamp = output.TimeStamp;
     }
-    this->OutputsLock.Unlock();
+    this->OutputsLock.unlock();
 
     vtkTypeUInt64 outputTS = 0;
 
-    this->InputsLock.Lock();
+    this->InputsLock.lock();
     vtkSharedData::InputMapType::iterator iter = this->Inputs.find(key);
     if (iter != this->Inputs.end())
     {
       outputTS = iter->second.OutputStamp;
     }
-    this->InputsLock.Unlock();
+    this->InputsLock.unlock();
 
     return (dataTimeStamp >= outputTS);
   }
@@ -298,14 +299,14 @@ public:
   //------------------------------------------------------------------------
   void Flush(vtkTypeUInt32 key, vtkTypeUInt64 timestamp)
   {
-    this->OutputsLock.Lock();
+    this->OutputsLock.lock();
     while (this->Outputs[key].TimeStamp < timestamp)
     {
       // output is not yet ready, we have to wait.
-      this->OutputsAvailable.Wait(this->OutputsLock);
+      this->OutputsAvailable.wait(this->OutputsLock);
     }
 
-    this->OutputsLock.Unlock();
+    this->OutputsLock.unlock();
   }
 };
 

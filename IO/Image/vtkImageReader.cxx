@@ -28,14 +28,6 @@ vtkObjectFactoryNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader, Transform, vtkTransform);
 
-#ifdef read
-#undef read
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 //------------------------------------------------------------------------------
 vtkImageReader::vtkImageReader()
 {

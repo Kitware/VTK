@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkVideoSource.h"
 
-#include "vtkCriticalSection.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -25,6 +24,8 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtksys/SystemTools.hxx"
+
+#include <mutex>
 
 //---------------------------------------------------------------
 // Important FrameBufferMutex rules:
@@ -131,8 +132,6 @@ vtkVideoSource::vtkVideoSource()
   this->PlayerThreader = vtkMultiThreader::New();
   this->PlayerThreadId = -1;
 
-  this->FrameBufferMutex = vtkCriticalSection::New();
-
   this->FrameBufferSize = 0;
   this->FrameBuffer = nullptr;
   this->FrameBufferTimeStamps = nullptr;
@@ -153,7 +152,6 @@ vtkVideoSource::~vtkVideoSource()
   this->vtkVideoSource::ReleaseSystemResources();
 
   this->SetFrameBufferSize(0);
-  this->FrameBufferMutex->Delete();
   this->PlayerThreader->Delete();
 }
 
@@ -329,12 +327,12 @@ void vtkVideoSource::SetFrameSize(int x, int y, int z)
 
   if (this->Initialized)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->FrameSize[0] = x;
     this->FrameSize[1] = y;
     this->FrameSize[2] = z;
     this->UpdateFrameBuffer();
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
   else
   {
@@ -367,7 +365,7 @@ void vtkVideoSource::SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z
     this->Modified();
     if (this->Initialized)
     { // modify the FrameBufferExtent
-      this->FrameBufferMutex->Lock();
+      this->FrameBufferMutex.lock();
       this->ClipRegion[0] = x0;
       this->ClipRegion[1] = x1;
       this->ClipRegion[2] = y0;
@@ -375,7 +373,7 @@ void vtkVideoSource::SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z
       this->ClipRegion[4] = z0;
       this->ClipRegion[5] = z1;
       this->UpdateFrameBuffer();
-      this->FrameBufferMutex->Unlock();
+      this->FrameBufferMutex.unlock();
     }
     else
     {
@@ -401,7 +399,7 @@ void vtkVideoSource::InternalGrab()
   int* lptr;
 
   // get a thread lock on the frame buffer
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   if (this->AutoAdvance)
   {
@@ -461,7 +459,7 @@ void vtkVideoSource::InternalGrab()
 
   this->Modified();
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
@@ -609,7 +607,7 @@ void vtkVideoSource::Stop()
 // Rewind back to the frame with the earliest timestamp.
 void vtkVideoSource::Rewind()
 {
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   double* stamp = this->FrameBufferTimeStamps;
   double lowest = 0;
@@ -646,14 +644,14 @@ void vtkVideoSource::Rewind()
     }
   }
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
 // Fast-forward to the frame with the latest timestamp.
 void vtkVideoSource::FastForward()
 {
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   double* stamp = this->FrameBufferTimeStamps;
   double highest = 0;
@@ -698,21 +696,21 @@ void vtkVideoSource::FastForward()
     }
   }
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
 // Rotate the buffers
 void vtkVideoSource::Seek(int n)
 {
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
   this->AdvanceFrameBuffer(n);
   this->FrameIndex = (this->FrameIndex + n) % this->FrameBufferSize;
   while (this->FrameIndex < 0)
   {
     this->FrameIndex += this->FrameBufferSize;
   }
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
   this->Modified();
 }
 
@@ -766,13 +764,13 @@ void vtkVideoSource::SetOutputFormat(int format)
 
   if (this->FrameBufferBitsPerPixel != numComponents * 8)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->FrameBufferBitsPerPixel = numComponents * 8;
     if (this->Initialized)
     {
       this->UpdateFrameBuffer();
     }
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
 
   this->Modified();
@@ -798,7 +796,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     return;
   }
 
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   if (this->FrameBuffer == nullptr)
   {
@@ -877,11 +875,11 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
     this->UpdateFrameBuffer();
   }
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
-// This function MUST be called only from within a FrameBufferMutex->Lock()
+// This function MUST be called only from within a FrameBufferMutex.lock()
 void vtkVideoSource::AdvanceFrameBuffer(int n)
 {
   int i = (this->FrameBufferIndex - n) % this->FrameBufferSize;
@@ -897,7 +895,7 @@ double vtkVideoSource::GetFrameTimeStamp(int frame)
 {
   double timeStamp;
 
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   if (this->FrameBufferSize <= 0)
   {
@@ -905,7 +903,7 @@ double vtkVideoSource::GetFrameTimeStamp(int frame)
   }
 
   timeStamp = this->FrameBufferTimeStamps[(this->FrameBufferIndex + frame) % this->FrameBufferSize];
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 
   return timeStamp;
 }
@@ -1109,7 +1107,7 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
   int saveOutputExtent4 = outputExtent[4];
   outputExtent[4] = firstOutputExtent4;
 
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   int index = this->FrameBufferIndex;
   this->FrameTimeStamp = this->FrameBufferTimeStamps[index % this->FrameBufferSize];
@@ -1193,7 +1191,7 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
     outputExtent[4] = saveOutputExtent4;
   }
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 
   return 1;
 }

@@ -105,8 +105,6 @@ set(classes
   vtkCollectionIterator
   vtkCommand
   vtkCommonInformationKeyManager
-  vtkConditionVariable
-  vtkCriticalSection
   vtkDataArray
   vtkDataArrayCollection
   vtkDataArrayCollectionIterator
@@ -159,7 +157,6 @@ set(classes
   vtkMersenneTwister
   vtkMinimalStandardRandomSequence
   vtkMultiThreader
-  vtkMutexLock
   vtkOStrStreamWrapper
   vtkOStreamWrapper
   vtkObject
@@ -179,7 +176,6 @@ set(classes
   vtkScalarsToColors
   vtkShortArray
   vtkSignedCharArray
-  vtkSimpleCriticalSection
   vtkSmartPointerBase
   vtkSortDataArray
   vtkStdString
@@ -201,7 +197,13 @@ set(classes
   vtkWeakPointerBase
   vtkWeakReference
   vtkWindow
-  vtkXMLFileOutputWindow)
+  vtkXMLFileOutputWindow
+
+  # These classes are deprecated.
+  vtkConditionVariable
+  vtkCriticalSection
+  vtkSimpleCriticalSection
+  vtkMutexLock)
 
 set(template_classes
   vtkAOSDataArrayTemplate

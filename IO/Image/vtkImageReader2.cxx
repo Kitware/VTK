@@ -32,14 +32,6 @@
 
 vtkStandardNewMacro(vtkImageReader2);
 
-#ifdef read
-#undef read
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 //------------------------------------------------------------------------------
 vtkImageReader2::vtkImageReader2()
 {

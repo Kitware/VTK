@@ -35,8 +35,9 @@
 #include "vtkIOVideoModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+#include <mutex>
+
 class vtkTimerLog;
-class vtkCriticalSection;
 class vtkMultiThreader;
 class vtkScalarsToColors;
 
@@ -335,7 +336,7 @@ protected:
 
   // A mutex for the frame buffer: must be applied when any of the
   // below data is modified.
-  vtkCriticalSection* FrameBufferMutex;
+  std::mutex FrameBufferMutex;
 
   // set according to the needs of the hardware:
   // number of bits per framebuffer pixel

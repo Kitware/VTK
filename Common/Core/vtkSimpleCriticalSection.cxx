@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkSimpleCriticalSection.h"
 
 void vtkSimpleCriticalSection::Init()
@@ -26,7 +29,6 @@ void vtkSimpleCriticalSection::Init()
 #endif
 }
 
-// Destruct the vtkMutexVariable
 vtkSimpleCriticalSection::~vtkSimpleCriticalSection()
 {
 #ifdef VTK_USE_WIN32_THREADS

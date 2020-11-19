@@ -31,12 +31,11 @@
 #include "vtkMultiThreader.h"  // for ivar
 #include "vtkNew.h"            // for ivar
 #include "vtkVideoSource.h"
+#include <condition_variable>
 #include <functional> // for audio callback
+#include <mutex>
 
 class vtkFFMPEGVideoSourceInternal;
-
-class vtkConditionVariable;
-class vtkMutexLock;
 class vtkFFMPEGVideoSource;
 
 // audio callback struct, outside the class so that we
@@ -199,10 +198,10 @@ protected:
 
   bool EndOfFile;
 
-  vtkNew<vtkConditionVariable> FeedCondition;
-  vtkNew<vtkMutexLock> FeedMutex;
-  vtkNew<vtkConditionVariable> FeedAudioCondition;
-  vtkNew<vtkMutexLock> FeedAudioMutex;
+  std::condition_variable_any FeedCondition;
+  std::mutex FeedMutex;
+  std::condition_variable_any FeedAudioCondition;
+  std::mutex FeedAudioMutex;
   static void* FeedThread(vtkMultiThreader::ThreadInfo* data);
   void* Feed(vtkMultiThreader::ThreadInfo* data);
   int FeedThreadId;

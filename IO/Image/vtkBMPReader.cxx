@@ -23,14 +23,6 @@
 
 vtkStandardNewMacro(vtkBMPReader);
 
-#ifdef read
-#undef read
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 vtkBMPReader::vtkBMPReader()
 {
   this->Colors = nullptr;

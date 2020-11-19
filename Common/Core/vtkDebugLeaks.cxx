@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkDebugLeaks.h"
 
-#include "vtkCriticalSection.h"
 #include "vtkDebug.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
@@ -23,6 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -187,10 +187,10 @@ void vtkDebugLeaksTraceManager::PrintObjects(std::ostream& vtkNotUsed(os)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::ConstructClass(vtkObjectBase* object)
 {
-  vtkDebugLeaks::CriticalSection->Lock();
+  vtkDebugLeaks::CriticalSection->lock();
   vtkDebugLeaks::MemoryTable->IncrementCount(object->GetClassName());
   vtkDebugLeaks::TraceManager->RegisterObject(object);
-  vtkDebugLeaks::CriticalSection->Unlock();
+  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object)) {}
@@ -200,9 +200,9 @@ void vtkDebugLeaks::ConstructClass(vtkObjectBase* vtkNotUsed(object)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::ConstructClass(const char* className)
 {
-  vtkDebugLeaks::CriticalSection->Lock();
+  vtkDebugLeaks::CriticalSection->lock();
   vtkDebugLeaks::MemoryTable->IncrementCount(className);
-  vtkDebugLeaks::CriticalSection->Unlock();
+  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::ConstructClass(const char* vtkNotUsed(className)) {}
@@ -212,7 +212,7 @@ void vtkDebugLeaks::ConstructClass(const char* vtkNotUsed(className)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
 {
-  vtkDebugLeaks::CriticalSection->Lock();
+  vtkDebugLeaks::CriticalSection->lock();
 
   // Ensure the trace manager has not yet been deleted.
   if (vtkDebugLeaks::TraceManager)
@@ -227,7 +227,7 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* object)
   {
     vtkGenericWarningMacro("Deleting unknown object: " << object->GetClassName());
   }
-  vtkDebugLeaks::CriticalSection->Unlock();
+  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object)) {}
@@ -237,7 +237,7 @@ void vtkDebugLeaks::DestructClass(vtkObjectBase* vtkNotUsed(object)) {}
 #ifdef VTK_DEBUG_LEAKS
 void vtkDebugLeaks::DestructClass(const char* className)
 {
-  vtkDebugLeaks::CriticalSection->Lock();
+  vtkDebugLeaks::CriticalSection->lock();
 
   // Due to globals being deleted, this table may already have
   // been deleted.
@@ -245,7 +245,7 @@ void vtkDebugLeaks::DestructClass(const char* className)
   {
     vtkGenericWarningMacro("Deleting unknown object: " << className);
   }
-  vtkDebugLeaks::CriticalSection->Unlock();
+  vtkDebugLeaks::CriticalSection->unlock();
 }
 #else
 void vtkDebugLeaks::DestructClass(const char* vtkNotUsed(className)) {}
@@ -384,7 +384,7 @@ void vtkDebugLeaks::ClassInitialize()
   vtkDebugLeaks::TraceManager = new vtkDebugLeaksTraceManager;
 
   // Create the lock for the critical sections.
-  vtkDebugLeaks::CriticalSection = new vtkSimpleCriticalSection;
+  vtkDebugLeaks::CriticalSection = new std::mutex;
 
   // Default to error when leaks occur while running tests.
   vtkDebugLeaks::ExitError = 1;
@@ -432,7 +432,7 @@ vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable;
 vtkDebugLeaksTraceManager* vtkDebugLeaks::TraceManager;
 
 // Purposely not initialized.  ClassInitialize will handle it.
-vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
+std::mutex* vtkDebugLeaks::CriticalSection;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 int vtkDebugLeaks::ExitError;

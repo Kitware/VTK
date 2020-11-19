@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkMILVideoSource.h"
-#include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 
 #include <cctype>
 #include <cstring>
 #include <mil.h>
+#include <mutex>
 
 vtkStandardNewMacro(vtkMILVideoSource);
 
@@ -528,7 +528,7 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void* UserPtr)
 //------------------------------------------------------------------------------
 void vtkMILVideoSource::InternalGrab()
 {
-  this->FrameBufferMutex->Lock();
+  this->FrameBufferMutex.lock();
 
   if (this->AutoAdvance)
   {
@@ -576,7 +576,7 @@ void vtkMILVideoSource::InternalGrab()
 
   this->Modified();
 
-  this->FrameBufferMutex->Unlock();
+  this->FrameBufferMutex.unlock();
 }
 
 //------------------------------------------------------------------------------
@@ -750,11 +750,11 @@ void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
 
   if (this->Initialized)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->UpdateFrameBuffer();
     vtkMILVideoSourceSetSize(this->MILDigID, this->FrameSize, this->FrameMaxSize);
     this->AllocateMILBuffer();
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
 
   this->Modified();
@@ -792,14 +792,14 @@ void vtkMILVideoSource::SetOutputFormat(int format)
 
   if (this->FrameBufferBitsPerPixel != numComponents * 8)
   {
-    this->FrameBufferMutex->Lock();
+    this->FrameBufferMutex.lock();
     this->FrameBufferBitsPerPixel = numComponents * 8;
     if (this->Initialized)
     {
       this->UpdateFrameBuffer();
       this->AllocateMILBuffer();
     }
-    this->FrameBufferMutex->Unlock();
+    this->FrameBufferMutex.unlock();
   }
 
   // set video format to match the output format

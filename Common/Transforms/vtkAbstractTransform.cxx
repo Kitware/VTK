@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkAbstractTransform.h"
 
-#include "vtkCriticalSection.h"
 #include "vtkDataArray.h"
 #include "vtkDebugLeaks.h"
 #include "vtkHomogeneousTransform.h"
@@ -29,8 +28,6 @@ vtkAbstractTransform::vtkAbstractTransform()
   this->MyInverse = nullptr;
   this->DependsOnInverse = 0;
   this->InUnRegister = 0;
-  this->UpdateMutex = new vtkSimpleCriticalSection;
-  this->InverseMutex = new vtkSimpleCriticalSection;
 }
 
 //------------------------------------------------------------------------------
@@ -40,8 +37,6 @@ vtkAbstractTransform::~vtkAbstractTransform()
   {
     this->MyInverse->Delete();
   }
-  delete this->UpdateMutex;
-  delete this->InverseMutex;
 }
 
 //------------------------------------------------------------------------------
@@ -194,14 +189,14 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vtkPo
 //------------------------------------------------------------------------------
 vtkAbstractTransform* vtkAbstractTransform::GetInverse()
 {
-  this->InverseMutex->Lock();
+  this->InverseMutex.lock();
   if (this->MyInverse == nullptr)
   {
     // we create a circular reference here, it is dealt with in UnRegister
     this->MyInverse = this->MakeTransform();
     this->MyInverse->SetInverse(this);
   }
-  this->InverseMutex->Unlock();
+  this->InverseMutex.unlock();
   return this->MyInverse;
 }
 
@@ -274,7 +269,7 @@ void vtkAbstractTransform::DeepCopy(vtkAbstractTransform* transform)
 void vtkAbstractTransform::Update()
 {
   // locking is require to ensure that the class is thread-safe
-  this->UpdateMutex->Lock();
+  this->UpdateMutex.lock();
 
   // check to see if we are a special 'inverse' transform
   if (this->DependsOnInverse && this->MyInverse->GetMTime() >= this->UpdateTime.GetMTime())
@@ -294,7 +289,7 @@ void vtkAbstractTransform::Update()
   }
 
   this->UpdateTime.Modified();
-  this->UpdateMutex->Unlock();
+  this->UpdateMutex.unlock();
 }
 
 //------------------------------------------------------------------------------

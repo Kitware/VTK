@@ -25,6 +25,7 @@
 #define vtkMutexLock_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"
 #include "vtkThreads.h" // for VTK_USE_PTHREADS and VTK_USE_WIN32_THREADS
 
@@ -44,6 +45,7 @@ typedef int vtkMutexType;
 #endif
 
 // Mutex lock that is not a vtkObject.
+VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.")
 class VTKCOMMONCORE_EXPORT vtkSimpleMutexLock
 {
 public:
@@ -74,6 +76,7 @@ private:
   vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) = delete;
 };
 
+VTK_DEPRECATED_IN_9_1_0("Use std::mutex instead.")
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
 {
 public:

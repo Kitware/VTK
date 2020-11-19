@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
@@ -39,7 +42,6 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
 #endif
 }
 
-// Destruct the vtkMutexVariable
 vtkSimpleMutexLock::~vtkSimpleMutexLock()
 {
 #ifdef VTK_USE_WIN32_THREADS

@@ -42,10 +42,11 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <mutex>
+
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
-class vtkSimpleCriticalSection;
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
 {
@@ -333,8 +334,8 @@ private:
   // if necessary.
 
   vtkTimeStamp UpdateTime;
-  vtkSimpleCriticalSection* UpdateMutex;
-  vtkSimpleCriticalSection* InverseMutex;
+  std::mutex UpdateMutex;
+  std::mutex InverseMutex;
   int DependsOnInverse;
 
   // MyInverse is a transform which is the inverse of this one.

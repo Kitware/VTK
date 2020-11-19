@@ -13,6 +13,9 @@
 
   =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPeriodicTable.h"
 
 #include "vtkAbstractArray.h"
@@ -21,7 +24,6 @@
 #include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
-#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
@@ -41,14 +43,14 @@ vtkStandardNewMacro(vtkPeriodicTable);
 //------------------------------------------------------------------------------
 vtkPeriodicTable::vtkPeriodicTable()
 {
-  this->BlueObeliskData->GetWriteMutex()->Lock();
+  this->BlueObeliskData->LockWriteMutex();
 
   if (!this->BlueObeliskData->IsInitialized())
   {
     this->BlueObeliskData->Initialize();
   }
 
-  this->BlueObeliskData->GetWriteMutex()->Unlock();
+  this->BlueObeliskData->UnlockWriteMutex();
 }
 
 //------------------------------------------------------------------------------

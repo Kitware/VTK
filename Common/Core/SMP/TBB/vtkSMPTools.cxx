@@ -15,8 +15,9 @@
 
 #include "vtkSMPTools.h"
 
-#include "vtkCriticalSection.h"
 #include "vtkSMP.h"
+
+#include <mutex>
 
 #ifdef _MSC_VER
 #pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
@@ -41,7 +42,7 @@ struct vtkSMPToolsInit
 
 static bool vtkSMPToolsInitialized = 0;
 static int vtkTBBNumSpecifiedThreads = 0;
-static vtkSimpleCriticalSection vtkSMPToolsCS;
+static std::mutex vtkSMPToolsCS;
 
 //------------------------------------------------------------------------------
 const char* vtkSMPTools::GetBackend()
@@ -52,7 +53,7 @@ const char* vtkSMPTools::GetBackend()
 //------------------------------------------------------------------------------
 void vtkSMPTools::Initialize(int numThreads)
 {
-  vtkSMPToolsCS.Lock();
+  vtkSMPToolsCS.lock();
   if (!vtkSMPToolsInitialized)
   {
     // If numThreads <= 0, don't create a task_scheduler_init
@@ -64,7 +65,7 @@ void vtkSMPTools::Initialize(int numThreads)
     }
     vtkSMPToolsInitialized = true;
   }
-  vtkSMPToolsCS.Unlock();
+  vtkSMPToolsCS.unlock();
 }
 
 //------------------------------------------------------------------------------

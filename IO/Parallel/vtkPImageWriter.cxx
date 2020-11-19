@@ -36,14 +36,6 @@
 
 vtkStandardNewMacro(vtkPImageWriter);
 
-#ifdef write
-#undef write
-#endif
-
-#ifdef close
-#undef close
-#endif
-
 //------------------------------------------------------------------------------
 vtkPImageWriter::vtkPImageWriter()
 {
