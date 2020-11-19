@@ -358,18 +358,10 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
         this->TextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
         this->TextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
       }
-      if (this->Repeat)
-      {
-        this->TextureObject->SetWrapS(vtkTextureObject::Repeat);
-        this->TextureObject->SetWrapT(vtkTextureObject::Repeat);
-        this->TextureObject->SetWrapR(vtkTextureObject::Repeat);
-      }
-      else
-      {
-        this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-        this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
-        this->TextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-      }
+      this->TextureObject->SetWrapS(this->GetWrap());
+      this->TextureObject->SetWrapT(this->GetWrap());
+      this->TextureObject->SetWrapR(this->GetWrap());
+      this->TextureObject->SetBorderColor(this->GetBorderColor());
 
       // modify the load time to the current time
       this->LoadTime.Modified();

@@ -98,28 +98,6 @@ public:
 
   //@{
   /**
-   * Turn on/off the repetition of the texture map when the texture
-   * coords extend beyond the [0,1] range.
-   */
-  vtkGetMacro(Repeat, vtkTypeBool);
-  vtkSetMacro(Repeat, vtkTypeBool);
-  vtkBooleanMacro(Repeat, vtkTypeBool);
-  //@}
-
-  //@{
-  /**
-   * Turn on/off the clamping of the texture map when the texture
-   * coords extend beyond the [0,1] range.
-   * Only used when Repeat is off, and edge clamping is supported by
-   * the graphics card.
-   */
-  vtkGetMacro(EdgeClamp, vtkTypeBool);
-  vtkSetMacro(EdgeClamp, vtkTypeBool);
-  vtkBooleanMacro(EdgeClamp, vtkTypeBool);
-  //@}
-
-  //@{
-  /**
    * Turn on/off linear interpolation of the texture map when rendering.
    */
   vtkGetMacro(Interpolate, vtkTypeBool);
@@ -296,6 +274,63 @@ public:
   vtkBooleanMacro(UseSRGBColorSpace, bool);
   //@}
 
+  //@{
+  /**
+   * Border Color (RGBA). The values can be any valid float value,
+   * if the gpu supports it. Initial value is (0.0f, 0.0f, 0.0f, 0.0f),
+   * as in the OpenGL spec.
+   */
+  vtkSetVector4Macro(BorderColor, float);
+  vtkGetVector4Macro(BorderColor, float);
+  //@}
+
+  // ClampToBorder is not supported in ES 2.0
+  // Wrap values.
+#ifndef GL_ES_VERSION_3_0
+  enum { ClampToEdge = 0, Repeat, MirroredRepeat, ClampToBorder, NumberOfWrapModes };
+#else
+  enum
+  {
+    ClampToEdge = 0,
+    Repeat,
+    MirroredRepeat,
+    NumberOfWrapModes
+  };
+#endif
+
+  //@{
+  /**
+   * Wrap mode for the texture coordinates
+   * Valid values are:
+   * - ClampToEdge
+   * - Repeat
+   * - MirroredRepeat
+   * - ClampToBorder
+   * Initial value is Repeat (as in OpenGL spec)
+   */
+  vtkGetMacro(Wrap, int);
+#ifndef GL_ES_VERSION_3_0
+  vtkSetClampMacro(Wrap, int, ClampToEdge, ClampToBorder);
+#else
+  vtkSetClampMacro(Wrap, int, ClampToEdge, MirroredRepeat);
+#endif
+  //@}
+
+  //@{
+  /**
+   * Convenience functions to maintain backwards compatibility.
+   * For new code, use the SetWrap API.
+   */
+  virtual void SetRepeat(vtkTypeBool r) { this->SetWrap(r ? Repeat : ClampToEdge); }
+  virtual vtkTypeBool GetRepeat() { return (this->GetWrap() == Repeat); }
+  virtual void RepeatOn() { this->SetRepeat(true); }
+  virtual void RepeatOff() { this->SetRepeat(false); }
+  virtual void SetEdgeClamp(vtkTypeBool r) { this->SetWrap(r ? ClampToEdge : Repeat); }
+  virtual vtkTypeBool GetEdgeClamp() { return (this->GetWrap() == ClampToEdge); }
+  virtual void EdgeClampOn() { this->SetEdgeClamp(true); }
+  virtual void EdgeClampOff() { this->SetEdgeClamp(false); }
+  //@}
+
 protected:
   vtkTexture();
   ~vtkTexture() override;
@@ -306,8 +341,8 @@ protected:
 
   bool Mipmap;
   float MaximumAnisotropicFiltering;
-  vtkTypeBool Repeat;
-  vtkTypeBool EdgeClamp;
+  int Wrap;
+  float BorderColor[4];
   vtkTypeBool Interpolate;
   int Quality;
   int ColorMode;
