@@ -30,8 +30,24 @@
 #include "vtkXMLHyperTreeGridWriter.h"
 
 #include <algorithm>
+#include <array>
 #include <string>
-
+namespace
+{
+template <class M_HTG>
+size_t count_trees(M_HTG* htg)
+{
+  size_t nbTrees = 0;
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator itHTG;
+  vtkIdType iHT = 0;
+  htg->InitializeTreeIterator(itHTG);
+  while (itHTG.GetNextTree(iHT))
+  {
+    ++nbTrees;
+  }
+  return nbTrees;
+}
+}
 int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
 {
   const char* tmpstr =
@@ -40,7 +56,7 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   delete[] tmpstr;
 
   std::string fname = tdir + std::string("/TestXMLHyperTreeGridIOReduction_Appendedv1.htg");
-
+  // using default source: 5 levels, 5x5x2 HT grid, [-10,10] for x, y, z
   vtkNew<vtkRandomHyperTreeGridSource> source;
   source->Update();
   auto* htg = source->GetHyperTreeGridOutput();
@@ -74,7 +90,7 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   }
 
   // Testing HT extraction one by one by selecting center of each HT, note we keep level == 9
-  std::cout << "Testing HT extraction of each of the 25 HTs of the grid" << std::endl;
+  std::cout << "Testing HT extraction of each of the 50 HTs of the grid" << std::endl;
   vtkDataArray* htgXCoords = htg->GetXCoordinates();
   vtkDataArray* htgYCoords = htg->GetYCoordinates();
   vtkDataArray* htgZCoords = htg->GetZCoordinates();
@@ -97,21 +113,7 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
         reader->Update();
         vtkHyperTreeGrid* htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
 
-        size_t nbTrees = 0;
-        vtkHyperTreeGrid::vtkHyperTreeGridIterator itHTG;
-        vtkIdType iHT = 0;
-        htgRead->InitializeTreeIterator(itHTG);
-        while (itHTG.GetNextTree(iHT))
-        {
-          ++nbTrees;
-          // Loop to count actual trees
-          // bounding box calculation here for further debugging purposes when test fails
-          // Kind of testing GetBounds works on cursor (no SEGV)
-          double htBounds[6] = { 0, 0, 0, 0, 0, 0 };
-          vtkNew<vtkHyperTreeGridOrientedGeometryCursor> cursor;
-          htgRead->InitializeOrientedGeometryCursor(cursor, iHT);
-          cursor->GetBounds(htBounds);
-        }
+        const size_t nbTrees = count_trees(htgRead);
         if (nbTrees - 1)
         {
           std::cout << "Got " << nbTrees << " instead of 1" << std::endl;
@@ -120,29 +122,42 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
       }
     }
   }
+  // We select a bounding box larger than HT grid
+  {
+    std::array<double, 6> out_bbox = { htgXCoords->GetRange()[0] - 1e+8,
+      htgXCoords->GetRange()[1] + 1e+8, htgYCoords->GetRange()[0] - 1e+8,
+      htgYCoords->GetRange()[1] + 1e+8, htgZCoords->GetRange()[0] - 1e+8,
+      htgZCoords->GetRange()[1] + 1e+8 };
+    std::cout << "Selecting larger bounding box: ";
+    for (double e : out_bbox)
+    {
+      std::cout << e << " ";
+    }
+    std::cout << std::endl;
 
+    reader->SetFileName(fname.c_str());
+    reader->SetCoordinatesBoundingBox(
+      out_bbox[0], out_bbox[1], out_bbox[2], out_bbox[3], out_bbox[4], out_bbox[5]);
+    reader->Update();
+    vtkHyperTreeGrid* htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
+    const size_t nbTrees = count_trees(htgRead);
+    const size_t maxTrees = htgRead->GetMaxNumberOfTrees();
+    if (nbTrees - htgRead->GetMaxNumberOfTrees())
+    {
+      std::cout << "Got " << nbTrees << " instead of " << maxTrees << " trees" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
   // We select 9 HTs at the center of the 5x5 HT grid
-  std::cout << "Testing extraction of the 9x9 HTs at the center of the 5x5 HT grid" << std::endl;
+  std::cout << "Testing extraction of the 3x3x1 HTs at the center of the 5x5x2 HT grid"
+            << std::endl;
   const double coordsTest[6] = { -6, 2, -6, 2, 0, 10 };
   reader->SetFileName(fname.c_str());
   reader->SetCoordinatesBoundingBox(
     coordsTest[0], coordsTest[1], coordsTest[2], coordsTest[3], coordsTest[4], coordsTest[5]);
   reader->Update();
   vtkHyperTreeGrid* htgRead = vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0));
-  size_t nbTrees = 0;
-  vtkHyperTreeGrid::vtkHyperTreeGridIterator itHTG;
-  vtkIdType iHT = 0;
-  htgRead->InitializeTreeIterator(itHTG);
-  while (itHTG.GetNextTree(iHT))
-  {
-    ++nbTrees;
-    // We only need to count trees, so lines below are useless
-    // boundingbox extraction here for further debugging in case test fails
-    double htBounds[6] = { 0, 0, 0, 0, 0, 0 };
-    vtkNew<vtkHyperTreeGridOrientedGeometryCursor> cursor;
-    htgRead->InitializeOrientedGeometryCursor(cursor, iHT);
-    cursor->GetBounds(htBounds);
-  }
+  const size_t nbTrees = count_trees(htgRead);
   if (nbTrees - 9)
   {
     std::cout << "Got " << nbTrees << " instead of 9" << std::endl;
