@@ -35,10 +35,9 @@ vtkObjectFactoryNewMacro(vtkTexture);
 // Construct object and initialize.
 vtkTexture::vtkTexture()
 {
+  this->Wrap = Repeat;
   this->Mipmap = false;
-  this->Repeat = 1;
   this->Interpolate = 0;
-  this->EdgeClamp = 0;
   this->MaximumAnisotropicFiltering = 4.0;
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
   this->PremultipliedAlpha = false;
@@ -57,6 +56,11 @@ vtkTexture::vtkTexture()
   this->BlendingMode = VTK_TEXTURE_BLENDING_MODE_NONE;
 
   this->RestrictPowerOf2ImageSmaller = 0;
+
+  this->BorderColor[0] = 0.0f;
+  this->BorderColor[1] = 0.0f;
+  this->BorderColor[2] = 0.0f;
+  this->BorderColor[3] = 0.0f;
 
   // By default select active point scalars.
   this->SetInputArrayToProcess(
@@ -144,11 +148,10 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  const int WrapAsString[4] = { ClampToEdge, Repeat, MirroredRepeat, ClampToBorder };
   os << indent << "MaximumAnisotropicFiltering: " << this->MaximumAnisotropicFiltering << "\n";
   os << indent << "Mipmap: " << (this->Mipmap ? "On\n" : "Off\n");
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
-  os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
-  os << indent << "EdgeClamp:   " << (this->EdgeClamp ? "On\n" : "Off\n");
   os << indent << "CubeMap:   " << (this->CubeMap ? "On\n" : "Off\n");
   os << indent << "UseSRGBColorSpace:   " << (this->UseSRGBColorSpace ? "On\n" : "Off\n");
   os << indent << "Quality:     ";
@@ -179,6 +182,9 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
   os << "\n";
+  os << indent << "Wrap: " << WrapAsString[this->Wrap] << "\n";
+  os << indent << "Border Color: { " << this->BorderColor[0] << ", " << this->BorderColor[1] << ", "
+     << this->BorderColor[2] << ", " << this->BorderColor[3] << " }\n";
 
   os << indent << "PremultipliedAlpha: " << (this->PremultipliedAlpha ? "On\n" : "Off\n");
 

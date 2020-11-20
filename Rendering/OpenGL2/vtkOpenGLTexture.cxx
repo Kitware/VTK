@@ -358,18 +358,30 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
         this->TextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
         this->TextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
       }
-      if (this->Repeat)
+      int wrap = this->GetWrap();
+      switch (this->GetWrap())
       {
-        this->TextureObject->SetWrapS(vtkTextureObject::Repeat);
-        this->TextureObject->SetWrapT(vtkTextureObject::Repeat);
-        this->TextureObject->SetWrapR(vtkTextureObject::Repeat);
+        case vtkTexture::ClampToEdge:
+          wrap = vtkTextureObject::ClampToEdge;
+          break;
+        case vtkTexture::Repeat:
+          wrap = vtkTextureObject::Repeat;
+          break;
+        case vtkTexture::MirroredRepeat:
+          wrap = vtkTextureObject::MirroredRepeat;
+          break;
+        case vtkTexture::ClampToBorder:
+#ifndef GL_ES_VERSION_3_0
+          wrap = vtkTextureObject::ClampToBorder;
+#else
+          wrap = vtkTextureObject::ClampToEdge;
+#endif
+          break;
       }
-      else
-      {
-        this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-        this->TextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
-        this->TextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-      }
+      this->TextureObject->SetWrapS(wrap);
+      this->TextureObject->SetWrapT(wrap);
+      this->TextureObject->SetWrapR(wrap);
+      this->TextureObject->SetBorderColor(this->GetBorderColor());
 
       // modify the load time to the current time
       this->LoadTime.Modified();
