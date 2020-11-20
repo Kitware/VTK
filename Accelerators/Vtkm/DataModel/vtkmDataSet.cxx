@@ -265,7 +265,7 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
     std::lock_guard<std::mutex> lock(locator.lock);
     if (locator.buildTime < this->GetMTime())
     {
-      locator.control.reset(new vtkm::cont::PointLocatorUniformGrid);
+      locator.control.reset(new vtkm::cont::PointLocatorSparseGrid);
       locator.control->SetCoordinates(this->Internals->Coordinates);
       locator.control->Update();
       locator.buildTime = this->GetMTime();

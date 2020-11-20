@@ -30,7 +30,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/CleanGrid.h>
-#include <vtkm/filter/CleanGrid.hxx>
 
 vtkStandardNewMacro(vtkmCleanGrid);
 

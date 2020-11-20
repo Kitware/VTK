@@ -33,7 +33,6 @@
 
 #include <vtkm/cont/RuntimeDeviceTracker.h>
 #include <vtkm/filter/Contour.h>
-#include <vtkm/filter/Contour.hxx>
 
 vtkStandardNewMacro(vtkmContour);
 

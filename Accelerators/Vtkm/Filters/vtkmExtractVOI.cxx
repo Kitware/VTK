@@ -27,7 +27,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include "vtkm/filter/ExtractStructured.h"
-#include "vtkm/filter/ExtractStructured.hxx"
 
 vtkStandardNewMacro(vtkmExtractVOI);
 

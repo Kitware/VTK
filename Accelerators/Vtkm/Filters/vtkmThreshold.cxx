@@ -31,7 +31,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/Threshold.h>
-#include <vtkm/filter/Threshold.hxx>
 
 vtkStandardNewMacro(vtkmThreshold);
 

@@ -33,7 +33,6 @@
 #include <vtkm/filter/VertexClustering.h>
 // To handle computing custom coordinate sets bounds we need to include
 // the following
-#include <vtkm/cont/ArrayRangeCompute.hxx>
 
 vtkStandardNewMacro(vtkmLevelOfDetail);
 

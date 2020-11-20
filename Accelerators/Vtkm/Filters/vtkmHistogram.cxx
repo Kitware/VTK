@@ -32,7 +32,6 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkmFilterPolicy.h"
-#include <vtkm/cont/ArrayRangeCompute.hxx>
 #include <vtkm/filter/Histogram.h>
 
 vtkStandardNewMacro(vtkmHistogram);

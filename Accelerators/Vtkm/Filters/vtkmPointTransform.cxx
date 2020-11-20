@@ -33,7 +33,6 @@
 
 #include "vtkm/cont/Error.h"
 #include "vtkm/filter/PointTransform.h"
-#include "vtkm/filter/PointTransform.hxx"
 
 #include "vtkmFilterPolicy.h"
 
