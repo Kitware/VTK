@@ -378,8 +378,7 @@ FTC_CMapCache* vtkFreeTypeTools::GetCMapCache()
 }
 
 //----------------------------------------------------------------------------
-FT_CALLBACK_DEF(FT_Error)
-vtkFreeTypeToolsFaceRequester(
+static FT_Error vtkFreeTypeToolsFaceRequester(
   FTC_FaceID face_id, FT_Library lib, FT_Pointer request_data, FT_Face* face)
 {
 #if VTK_FTFC_DEBUG_CD
