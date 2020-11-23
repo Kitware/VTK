@@ -123,13 +123,13 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
     ospCommit(elementMaterials);
 
     // now translate the three things we may actually draw into OSPRay calls
-    if (mapper->GetRenderAtoms())
+    const vtkIdType numAtoms = molecule->GetNumberOfAtoms();
+    if (mapper->GetRenderAtoms() && numAtoms)
     {
       OSPGeometry atoms = ospNewGeometry("sphere");
       OSPGeometricModel atomsModel = ospNewGeometricModel(atoms);
       ospRelease(atoms);
 
-      const vtkIdType numAtoms = molecule->GetNumberOfAtoms();
       vtkPoints* allPoints = molecule->GetAtomicPositionArray();
       std::vector<osp::vec3f> vertices;
       std::vector<float> radii;
@@ -209,7 +209,8 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       ospRelease(materialsData);
     }
 
-    if (mapper->GetRenderBonds())
+    const vtkIdType numBonds = molecule->GetNumberOfBonds();
+    if (mapper->GetRenderBonds() && numBonds)
     {
       OSPGeometry bonds = ospNewGeometry("curve");
       OSPGeometricModel bondsModel = ospNewGeometricModel(bonds);
@@ -221,7 +222,6 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
       float bondRadius = mapper->GetBondRadius();
       vtkVector3f bondCenter;
 
-      const vtkIdType numBonds = molecule->GetNumberOfBonds();
       std::vector<osp::vec4f> vertsAndRadii;
       std::vector<OSPMaterial> materials;
       std::vector<unsigned int> indices;
