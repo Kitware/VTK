@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkmClip.h"
+#include "vtkmClipInternals.h"
 
 #include "vtkCellIterator.h"
 #include "vtkDataArray.h"
@@ -36,10 +37,8 @@
 
 #include "vtkmFilterPolicy.h"
 
+#include <vtkm/cont/DataSet.h>
 #include <vtkm/cont/RuntimeDeviceTracker.h>
-
-#include <vtkm/filter/ClipWithField.h>
-#include <vtkm/filter/ClipWithImplicitFunction.h>
 
 #include <algorithm>
 
@@ -50,19 +49,17 @@ void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ClipValue: " << this->ClipValue << "\n";
+  os << indent << "ClipValue: " << this->GetClipValue() << "\n";
   os << indent << "ClipFunction: \n";
-  this->ClipFunction->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
+  this->GetClipFunction()->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "ComputeScalars: " << this->GetComputeScalars() << "\n";
 }
 
 //------------------------------------------------------------------------------
 vtkmClip::vtkmClip()
-  : ClipValue(0.)
-  , ComputeScalars(true)
-  , ClipFunction(nullptr)
-  , ClipFunctionConverter(new tovtkm::ImplicitFunctionConverter)
+  : Internals(new vtkmClip::internals)
 {
+  this->Internals->ClipFunctionConverter.reset(new tovtkm::ImplicitFunctionConverter());
   // Clip active point scalars by default
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -75,22 +72,52 @@ vtkmClip::~vtkmClip() = default;
 vtkMTimeType vtkmClip::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
-  if (this->ClipFunction)
+  if (this->GetClipFunction())
   {
-    mTime = std::max(mTime, this->ClipFunction->GetMTime());
+    mTime = std::max(mTime, this->GetClipFunction()->GetMTime());
   }
   return mTime;
 }
 
 //------------------------------------------------------------------------------
+double vtkmClip::GetClipValue()
+{
+  return this->Internals->ClipValue;
+}
+
+//------------------------------------------------------------------------------
+void vtkmClip::SetClipValue(double val)
+{
+  this->Internals->ClipValue = val;
+}
+
+//------------------------------------------------------------------------------
+bool vtkmClip::GetComputeScalars()
+{
+  return this->Internals->ComputeScalars;
+}
+
+//------------------------------------------------------------------------------
+void vtkmClip::SetComputeScalars(bool val)
+{
+  this->Internals->ComputeScalars = val;
+}
+
+//------------------------------------------------------------------------------
 void vtkmClip::SetClipFunction(vtkImplicitFunction* clipFunction)
 {
-  if (this->ClipFunction != clipFunction)
+  if (this->GetClipFunction() != clipFunction)
   {
-    this->ClipFunction = clipFunction;
-    this->ClipFunctionConverter->Set(clipFunction);
+    this->Internals->ClipFunction = clipFunction;
+    this->Internals->ClipFunctionConverter->Set(clipFunction);
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+vtkImplicitFunction* vtkmClip::GetClipFunction()
+{
+  return this->Internals->ClipFunction;
 }
 
 //------------------------------------------------------------------------------
@@ -111,7 +138,7 @@ int vtkmClip::RequestData(
   // Find the scalar array:
   int assoc = this->GetInputArrayAssociation(0, inInfoVec);
   vtkDataArray* scalars = this->GetInputArrayToProcess(0, inInfoVec);
-  if (!this->ClipFunction &&
+  if (!this->GetClipFunction() &&
     (assoc != vtkDataObject::FIELD_ASSOCIATION_POINTS || scalars == nullptr ||
       scalars->GetName() == nullptr || scalars->GetName()[0] == '\0'))
   {
@@ -129,37 +156,18 @@ int vtkmClip::RequestData(
   {
     // Convert inputs to vtkm objects:
     auto fieldsFlag =
-      this->ComputeScalars ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
+      this->GetComputeScalars() ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
     auto in = tovtkm::Convert(input, fieldsFlag);
 
     // Run filter:
     vtkm::cont::DataSet result;
-    if (this->ClipFunction)
+    if (this->GetClipFunction())
     {
-      vtkm::filter::ClipWithImplicitFunction functionFilter;
-      auto function = this->ClipFunctionConverter->Get();
-      if (function.GetValid())
-      {
-        functionFilter.SetImplicitFunction(function);
-        result = functionFilter.Execute(in);
-      }
+      result = this->Internals->ExecuteClipWithImplicitFunction(in);
     }
     else
     {
-      vtkm::filter::ClipWithField fieldFilter;
-      if (!this->ComputeScalars)
-      {
-        // explicitly convert just the field we need
-        auto inField = tovtkm::Convert(scalars, assoc);
-        in.AddField(inField);
-        // don't pass this field
-        fieldFilter.SetFieldsToPass(
-          vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
-      }
-
-      fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::POINTS);
-      fieldFilter.SetClipValue(this->ClipValue);
-      result = fieldFilter.Execute(in);
+      result = this->Internals->ExecuteClipWithField(in, scalars, assoc);
     }
 
     // Convert result to output:
@@ -169,7 +177,7 @@ int vtkmClip::RequestData(
       return 0;
     }
 
-    if (!this->ClipFunction && this->ComputeScalars)
+    if (!this->GetClipFunction() && this->GetComputeScalars())
     {
       output->GetPointData()->SetActiveScalars(scalars->GetName());
     }
@@ -189,8 +197,8 @@ int vtkmClip::RequestData(
                       << "Falling back to serial implementation.");
 
       vtkNew<vtkTableBasedClipDataSet> filter;
-      filter->SetClipFunction(this->ClipFunction);
-      filter->SetValue(this->ClipValue);
+      filter->SetClipFunction(this->GetClipFunction());
+      filter->SetValue(this->GetClipValue());
       filter->SetInputData(input);
       filter->Update();
       output->ShallowCopy(filter->GetOutput());

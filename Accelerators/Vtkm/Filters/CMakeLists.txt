@@ -46,6 +46,10 @@ foreach (class IN LISTS impl_classes)
   list(APPEND headers "${class}.h")
 endforeach ()
 
+list(APPEND sources
+  "vtkmClipInstantiationsWithField.cxx"
+  "vtkmClipInstantiationsWithImplicitFunction.cxx")
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigFilters.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h"
