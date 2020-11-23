@@ -2467,75 +2467,83 @@ void vtkMultiBlockPLOT3DReader::ClearGeometryCache()
 
 int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
 {
-  this->Internal->CheckBinaryFile(fp, this->FileSize);
+  auto& internals = (*this->Internal);
 
-  if (!this->Internal->Settings.BinaryFile)
+  // attempt to auto-detect other settings; we do this irrespective of
+  // this->AutoDetectionCheck flag; if auto-detection code could successfully
+  // determine settings and they don't match with the user-specified ones, we
+  // report an error.
+  try
   {
-    vtkDebugMacro("Auto-detection only works with binary files.");
-    if (this->BinaryFile)
+    if (!internals.CheckBinaryFile(fp, this->FileSize))
     {
-      vtkWarningMacro("This appears to be an ASCII file. Please make sure "
-                      "that all settings are correct to read it correctly.");
+      throw "Could not determine binary/ascii file type";
     }
-    this->Internal->Settings.ByteOrder = this->ByteOrder;
-    this->Internal->Settings.HasByteCount = this->HasByteCount;
-    this->Internal->Settings.MultiGrid = this->MultiGrid;
-    this->Internal->Settings.NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
-    this->Internal->Settings.Precision = this->DoublePrecision ? 8 : 4;
-    this->Internal->Settings.IBlanking = this->IBlanking;
-    return 1;
-  }
 
-  if (!this->Internal->CheckByteOrder(fp))
-  {
-    vtkErrorMacro("Could not determine big/little endianness of file.");
-    return 0;
-  }
-  if (!this->Internal->CheckByteCount(fp))
-  {
-    vtkErrorMacro("Could not determine if file has Fortran byte counts.");
-    return 0;
-  }
+    if (!internals.Settings.BinaryFile)
+    {
+      // ascii file, not much to auto-detect.
+      vtkDebugMacro("Auto-detection only works with binary files.");
+      if (this->BinaryFile && !this->AutoDetectFormat)
+      {
+        vtkWarningMacro("This appears to be an ASCII file. Please make sure "
+                        "that all settings are correct to read it correctly.");
+      }
+      this->Internal->Settings.ByteOrder = this->ByteOrder;
+      this->Internal->Settings.HasByteCount = this->HasByteCount;
+      this->Internal->Settings.MultiGrid = this->MultiGrid;
+      this->Internal->Settings.NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
+      this->Internal->Settings.Precision = this->DoublePrecision ? 8 : 4;
+      this->Internal->Settings.IBlanking = this->IBlanking;
+      return 1;
+    }
 
-  if (!this->Internal->Settings.HasByteCount)
-  {
-    if (!this->Internal->CheckCFile(fp, this->FileSize))
+    // binary file, continue with auto-detection.
+    if (!internals.CheckByteOrder(fp))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.");
-      return 0;
+      throw "Could not determine big/little endianness of file.";
     }
-  }
-  else
-  {
-    if (!this->Internal->CheckMultiGrid(fp))
+    if (!internals.CheckByteCount(fp))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.");
-      return 0;
+      throw "Could not determine if file has Fortran byte counts.";
     }
-    if (!this->Internal->Check2DGeom(fp))
+
+    if (!internals.Settings.HasByteCount)
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.");
-      return 0;
+      if (!internals.CheckCFile(fp, this->FileSize))
+      {
+        throw "CheckCFile failed; could not determine settings for file.";
+      }
     }
-    if (!this->Internal->CheckBlankingAndPrecision(fp))
+    else
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.");
-      return 0;
+      if (!internals.CheckMultiGrid(fp))
+      {
+        throw "CheckMultiGrid failed; could not determine settings for file.";
+      }
+      if (!internals.Check2DGeom(fp))
+      {
+        throw "Check2DGeom failed; could not determine settings for file.";
+      }
+      if (!internals.CheckBlankingAndPrecision(fp))
+      {
+        throw "CheckBlankingAndPrecision failed; could not determine settings for file.";
+      }
     }
-  }
-  if (!this->AutoDetectFormat)
-  {
-    if (!this->ForceRead &&
-      (this->Internal->Settings.BinaryFile != this->BinaryFile ||
-        this->Internal->Settings.ByteOrder != this->ByteOrder ||
-        this->Internal->Settings.HasByteCount != this->HasByteCount ||
-        this->Internal->Settings.MultiGrid != this->MultiGrid ||
-        this->Internal->Settings.NumberOfDimensions != (this->TwoDimensionalGeometry ? 2 : 3) ||
-        this->Internal->Settings.Precision != (this->DoublePrecision ? 8 : 4) ||
-        this->Internal->Settings.IBlanking != this->IBlanking))
+
+    // if we reached here, auto-detection was reasonably successful;
+    if (!this->AutoDetectFormat && !this->ForceRead &&
+      (internals.Settings.BinaryFile != this->BinaryFile ||
+        internals.Settings.ByteOrder != this->ByteOrder ||
+        internals.Settings.HasByteCount != this->HasByteCount ||
+        internals.Settings.MultiGrid != this->MultiGrid ||
+        internals.Settings.NumberOfDimensions != (this->TwoDimensionalGeometry ? 2 : 3) ||
+        internals.Settings.Precision != (this->DoublePrecision ? 8 : 4) ||
+        internals.Settings.IBlanking != this->IBlanking))
     {
       vtkErrorMacro(<< "The settings that you provided do not match what was auto-detected "
-                    << "in the file. The detected settings are: "
+                    << "in the file. Set `ForceRead` to true to get past this error.\n"
+                    << "The detected settings are: "
                     << "\n"
                     << "BinaryFile: " << (this->Internal->Settings.BinaryFile ? 1 : 0) << "\n"
                     << "ByteOrder: " << this->Internal->Settings.ByteOrder << "\n"
@@ -2547,14 +2555,25 @@ int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
                     << "IBlanking: " << (this->Internal->Settings.IBlanking ? 1 : 0) << endl);
       return 0;
     }
-    this->Internal->Settings.BinaryFile = this->BinaryFile;
-    this->Internal->Settings.ByteOrder = this->ByteOrder;
-    this->Internal->Settings.HasByteCount = this->HasByteCount;
-    this->Internal->Settings.MultiGrid = this->MultiGrid;
-    this->Internal->Settings.NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
-    this->Internal->Settings.Precision = this->DoublePrecision ? 8 : 4;
-    this->Internal->Settings.IBlanking = this->IBlanking;
-    return 1;
+  }
+  catch (const char* msg)
+  {
+    if (this->AutoDetectFormat)
+    {
+      vtkErrorMacro(<< "Auto detection check failed. Cannot read. See error below:\n" << msg);
+      return 0;
+    }
+  }
+
+  if (!this->AutoDetectFormat)
+  {
+    internals.Settings.BinaryFile = this->BinaryFile;
+    internals.Settings.ByteOrder = this->ByteOrder;
+    internals.Settings.HasByteCount = this->HasByteCount;
+    internals.Settings.MultiGrid = this->MultiGrid;
+    internals.Settings.NumberOfDimensions = this->TwoDimensionalGeometry ? 2 : 3;
+    internals.Settings.Precision = this->DoublePrecision ? 8 : 4;
+    internals.Settings.IBlanking = this->IBlanking;
   }
   return 1;
 }

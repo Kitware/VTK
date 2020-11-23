@@ -32,7 +32,7 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
   return retVal;
 }
 
-void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSize)
+int vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSize)
 {
   rewind(fp);
   this->Settings.BinaryFile = 0;
@@ -41,13 +41,13 @@ void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSi
   // a coordinate.
   if (fileSize < 12)
   {
-    return;
+    return 0;
   }
 
   char bytes[12];
   if (fread(bytes, 1, 12, fp) != 12)
   {
-    return;
+    return 0;
   }
   // Check the first 12 bytes. If we find non-ascii characters, then we
   // assume that it is binary.
@@ -57,9 +57,10 @@ void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSi
           bytes[i] == '\n' || bytes[i] == '\t'))
     {
       this->Settings.BinaryFile = 1;
-      return;
+      return 1;
     }
   }
+  return 1;
 }
 
 int vtkMultiBlockPLOT3DReaderInternals::CheckByteOrder(FILE* fp)
