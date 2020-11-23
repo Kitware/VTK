@@ -286,6 +286,7 @@ public:
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
 
     int bgMode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    bool sameMode = (bgMode == this->lBackgroundMode);
     bool forpathtracer = true;
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
       std::string::npos)
@@ -304,7 +305,7 @@ public:
     }
 
     OSPTexture t2d = nullptr;
-    bool reuseable = this->CanReuseBG(forbackplate) && (bgMode == this->lBackgroundMode);
+    bool reuseable = sameMode && this->CanReuseBG(forbackplate);
     if (!reuseable)
     {
       vtkTexture* text =
@@ -1105,7 +1106,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   bool bpreused = this->Internal->SetupPathTraceBackground(true, backend);
   bool envreused = this->Internal->SetupPathTraceBackground(false, backend);
   this->Internal->lBackgroundMode = vtkOSPRayRendererNode::GetBackgroundMode(
-    static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above check
+    static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above checks
   bool bgreused = envreused && bpreused;
 
   // skip every actor/volume when caching is on
