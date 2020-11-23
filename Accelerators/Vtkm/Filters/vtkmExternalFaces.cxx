@@ -33,7 +33,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/ExternalFaces.h>
-#include <vtkm/filter/ExternalFaces.hxx>
 
 vtkStandardNewMacro(vtkmExternalFaces);
 

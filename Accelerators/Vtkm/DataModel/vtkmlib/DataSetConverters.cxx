@@ -240,11 +240,11 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
   auto coordsArray = vtkm::cont::Cast<coordType>(vtkmOut.GetCoordinateSystem().GetData());
 
   vtkSmartPointer<vtkDataArray> xArray =
-    Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetStorage().GetFirstArray()));
+    Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray()));
   vtkSmartPointer<vtkDataArray> yArray =
-    Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetStorage().GetSecondArray()));
+    Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray()));
   vtkSmartPointer<vtkDataArray> zArray =
-    Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetStorage().GetThirdArray()));
+    Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray()));
 
   if (!xArray || !yArray || !zArray)
   {

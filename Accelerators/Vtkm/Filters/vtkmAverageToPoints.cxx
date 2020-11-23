@@ -28,7 +28,6 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/PointAverage.h>
-#include <vtkm/filter/PointAverage.hxx>
 
 vtkStandardNewMacro(vtkmAverageToPoints);
 

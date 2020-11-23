@@ -39,9 +39,7 @@
 #include <vtkm/cont/RuntimeDeviceTracker.h>
 
 #include <vtkm/filter/ClipWithField.h>
-#include <vtkm/filter/ClipWithField.hxx>
 #include <vtkm/filter/ClipWithImplicitFunction.h>
-#include <vtkm/filter/ClipWithImplicitFunction.hxx>
 
 #include <algorithm>
 

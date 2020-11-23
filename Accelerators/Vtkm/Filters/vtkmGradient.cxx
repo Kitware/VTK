@@ -31,7 +31,6 @@
 
 #include <vtkm/filter/Gradient.h>
 #include <vtkm/filter/PointAverage.h>
-#include <vtkm/filter/PointAverage.hxx>
 
 vtkStandardNewMacro(vtkmGradient);
 
