@@ -9,10 +9,10 @@ Provides the following variables:
   * `NetCDF_HAS_PARALLEL`: Whether or not NetCDF was found with parallel IO support.
 #]==]
 
-function(get_is_parallel_aware include_dir)
+function(FindNetCDF_get_is_parallel_aware include_dir)
   file(STRINGS "${include_dir}/netcdf_meta.h" _netcdf_lines
     REGEX "#define[ \t]+NC_HAS_PARALLEL[ \t]")
-  string(REGEX REPLACE ".*NC_HAS_PARALLEL *\([0-1]*\).*" "\\1" _netcdf_has_parallel "${_netcdf_lines}")
+  string(REGEX REPLACE ".*NC_HAS_PARALLEL[ \t]*([0-1]+).*" "\\1" _netcdf_has_parallel "${_netcdf_lines}")
   if (_netcdf_has_parallel)
     set(NetCDF_HAS_PARALLEL TRUE PARENT_SCOPE)
   else()
@@ -49,7 +49,7 @@ if (netCDF_FOUND)
     endif ()
   endif ()
 
-  get_is_parallel_aware("${NetCDF_INCLUDE_DIRS}")
+  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIRS}")
   # Skip the rest of the logic in this file.
   return ()
 endif ()
@@ -80,7 +80,7 @@ if (PkgConfig_FOUND)
         INTERFACE_LINK_LIBRARIES "PkgConfig::_NetCDF")
     endif ()
 
-    get_is_parallel_aware("${_NetCDF_INCLUDEDIR}")
+    FindNetCDF_get_is_parallel_aware("${_NetCDF_INCLUDEDIR}")
     # Skip the rest of the logic in this file.
     return ()
   endif ()
@@ -110,7 +110,7 @@ if (NetCDF_INCLUDE_DIR)
   unset(_netcdf_version_note)
   unset(_netcdf_version_lines)
 
-  get_is_parallel_aware("${NetCDF_INCLUDE_DIR}")
+  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIR}")
 endif ()
 
 include(FindPackageHandleStandardArgs)
