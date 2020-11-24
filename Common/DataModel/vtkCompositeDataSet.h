@@ -64,7 +64,7 @@ public:
    * data objects are initialized to nullptr. This also shallow copies the meta data
    * associated with all the nodes.
    */
-  virtual void CopyStructure(vtkCompositeDataSet* input) = 0;
+  virtual void CopyStructure(vtkCompositeDataSet* input);
 
   /**
    * Sets the data set at the location pointed by the iterator.
