@@ -1,9 +1,18 @@
 set(SEACAS_HAVE_MPI OFF)
-# XXX(kitware): MPI support needs to come from hdf5 and netcdf. Then exodus
-# needs to detect that and enable its MPI APIs.
-# if (TARGET VTK::mpi)
-#   set(SEACAS_HAVE_MPI ON)
-# endif ()
+
+# XXX(kitware): MPI support needs to come from hdf5 and netcdf. When NetCDF has
+# parallel support, exodus auto-detects it and enables Exodus parallel API that
+# ioss must use. Checking this global-property helps use determine if NetCDF has
+# parallel support.
+get_property(vtk_netcdf_has_parallel GLOBAL PROPERTY "_vtk_netcdf_has_parallel")
+if (vtk_netcdf_has_parallel)
+  if (NOT TARGET VTK::mpi)
+    message(FATAL_ERROR
+      "An external MPI-aware NetCDF is requires that VTK be built with MPI "
+      "support as well.")
+  endif()
+  set(SEACAS_HAVE_MPI ON)
+endif ()
 
 set(SEACAS_HAVE_EXODUS ON)
 
