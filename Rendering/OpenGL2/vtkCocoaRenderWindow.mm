@@ -21,7 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
-#import <Foundation/Foundation.h>
 
 #import "vtkCocoaGLView.h"
 #import "vtkCocoaRenderWindow.h"
@@ -706,22 +705,21 @@ void vtkCocoaRenderWindow::CreateAWindow()
     (void)[app setActivationPolicy:NSApplicationActivationPolicyRegular];
 
     NSWindow* theWindow = nil;
-    NSScreen* screen = nil;
-    // Get the screen's size (in points).  (If there's no mainScreen, the
-    // rectangle will become all zeros and not used anyway.)
-    @try
-    {
-      screen = [[NSScreen screens] objectAtIndex:this->DisplayIndex];
-    }
-    @catch (NSException*)
-    {
-    }
 
-    if (!screen)
+    // Revert to main screen if specified screen isn't available.
+    NSScreen* screen;
+    NSArray* allScreens = [NSScreen screens];
+    if (this->DisplayIndex >= 0 && (NSUInteger)this->DisplayIndex < [allScreens count])
     {
-      // Revert to main screen if specified screen isn't available.
+      screen = [allScreens objectAtIndex:this->DisplayIndex];
+    }
+    else
+    {
       screen = [NSScreen mainScreen];
     }
+
+    // Get the screen's size (in points).  (If there's no screen, the
+    // rectangle will become all zeros and not used anyway.)
     NSRect screenRect = [screen frame];
 
     // Convert from points to pixels.
@@ -1123,12 +1121,14 @@ int* vtkCocoaRenderWindow::GetScreenSize()
   // which CreateAWindow() also uses (it could be nil too).
   if (!screen)
   {
-    @try
+    NSArray* allScreens = [NSScreen screens];
+    if (this->DisplayIndex >= 0 && (NSUInteger)this->DisplayIndex < [allScreens count])
     {
-      screen = [[NSScreen screens] objectAtIndex:this->DisplayIndex];
+      screen = [allScreens objectAtIndex:this->DisplayIndex];
     }
-    @catch (NSException*)
+    else
     {
+      screen = [NSScreen mainScreen];
     }
   }
 
