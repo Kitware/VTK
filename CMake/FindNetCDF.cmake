@@ -6,7 +6,19 @@ Provides the following variables:
   * `NetCDF_LIBRARIES`: Libraries necessary to use NetCDF.
   * `NetCDF_VERSION`: The version of NetCDF found.
   * `NetCDF::NetCDF`: A target to use with `target_link_libraries`.
+  * `NetCDF_HAS_PARALLEL`: Whether or not NetCDF was found with parallel IO support.
 #]==]
+
+function(FindNetCDF_get_is_parallel_aware include_dir)
+  file(STRINGS "${include_dir}/netcdf_meta.h" _netcdf_lines
+    REGEX "#define[ \t]+NC_HAS_PARALLEL[ \t]")
+  string(REGEX REPLACE ".*NC_HAS_PARALLEL[ \t]*([0-1]+).*" "\\1" _netcdf_has_parallel "${_netcdf_lines}")
+  if (_netcdf_has_parallel)
+    set(NetCDF_HAS_PARALLEL TRUE PARENT_SCOPE)
+  else()
+    set(NetCDF_HAS_PARALLEL FALSE PARENT_SCOPE)
+  endif()
+endfunction()
 
 # Try to find a CMake-built NetCDF.
 find_package(netCDF CONFIG QUIET)
@@ -36,6 +48,8 @@ if (netCDF_FOUND)
         INTERFACE_LINK_LIBRARIES "${netCDF_LIBRARIES}")
     endif ()
   endif ()
+
+  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIRS}")
   # Skip the rest of the logic in this file.
   return ()
 endif ()
@@ -65,6 +79,8 @@ if (PkgConfig_FOUND)
       set_target_properties(NetCDF::NetCDF PROPERTIES
         INTERFACE_LINK_LIBRARIES "PkgConfig::_NetCDF")
     endif ()
+
+    FindNetCDF_get_is_parallel_aware("${_NetCDF_INCLUDEDIR}")
     # Skip the rest of the logic in this file.
     return ()
   endif ()
@@ -93,6 +109,8 @@ if (NetCDF_INCLUDE_DIR)
   unset(_netcdf_version_patch)
   unset(_netcdf_version_note)
   unset(_netcdf_version_lines)
+
+  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIR}")
 endif ()
 
 include(FindPackageHandleStandardArgs)
