@@ -6,7 +6,22 @@ vtk_module_third_party(
   EXTERNAL
     PACKAGE NetCDF
     TARGETS NetCDF::NetCDF
+    USE_VARIABLES NetCDF_HAS_PARALLEL
     STANDARD_INCLUDE_DIRS)
+
+set(vtk_netcdf_has_parallel FALSE)
+if (VTK_MODULE_USE_EXTERNAL_vtknetcdf AND NetCDF_HAS_PARALLEL AND TARGET VTK::mpi)
+  vtk_module_link(VTK::netcdf
+    INTERFACE
+      VTK::mpi)
+  set(vtk_netcdf_has_parallel TRUE)
+endif()
+
+# set a property to let dependencies know that NetCDF has
+# parallel API
+set_property(GLOBAL
+  PROPERTY
+    "_vtk_netcdf_has_parallel" "${vtk_netcdf_has_parallel}")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_netcdf.h.in"
