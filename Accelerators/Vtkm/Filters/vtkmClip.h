@@ -32,13 +32,6 @@
 
 class vtkImplicitFunction;
 
-namespace tovtkm
-{
-
-class ImplicitFunctionConverter;
-
-} // namespace tovtkm
-
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -50,15 +43,15 @@ public:
    * The scalar value to use when clipping the dataset. Values greater than
    * ClipValue are preserved in the output dataset. Default is 0.
    */
-  vtkGetMacro(ClipValue, double);
-  vtkSetMacro(ClipValue, double);
+  double GetClipValue();
+  void SetClipValue(double);
 
   /**
    * If true, all input point data arrays will be mapped onto the output
    * dataset. Default is true.
    */
-  vtkGetMacro(ComputeScalars, bool);
-  vtkSetMacro(ComputeScalars, bool);
+  bool GetComputeScalars();
+  void SetComputeScalars(bool);
 
   /**
    * Set the implicit function with which to perform the clipping. If set,
@@ -66,7 +59,7 @@ public:
    * function.
    */
   void SetClipFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
+  vtkImplicitFunction* GetClipFunction();
 
   vtkMTimeType GetMTime() override;
 
@@ -87,16 +80,12 @@ protected:
   ~vtkmClip() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  double ClipValue;
-  bool ComputeScalars;
-
-  vtkImplicitFunction* ClipFunction;
-  std::unique_ptr<tovtkm::ImplicitFunctionConverter> ClipFunctionConverter;
-
   vtkTypeBool ForceVTKm = false;
+
+  struct internals;
+  std::unique_ptr<internals> Internals;
 
 private:
   vtkmClip(const vtkmClip&) = delete;
