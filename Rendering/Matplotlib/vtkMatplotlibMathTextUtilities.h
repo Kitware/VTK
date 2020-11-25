@@ -23,6 +23,25 @@
  * configure and debug python initialization (all are optional):
  * - VTK_MATPLOTLIB_DEBUG: Enable verbose debugging output during initialization
  * of the python environment.
+ *
+ * This class handles rendering multiline and multicolumn strings into image data.
+ * Use '\n' to define a line, and '|' to define a column.
+ *
+ * This class does not support rendering multiline and multicolumn strings into
+ * a vtkPath.
+ *
+ * Example :
+ *
+ * str =    "$\\sum_{i=0}^\\infty x_i$ | 2 | 3 | 4 \n"
+ *        +  1 | 2 | 3";
+ *
+ * The vertical space between two lines can be set with vtkTextProperty::SetLineSpacing and
+ * vtkTextProperty::SetLineOffset
+ *
+ * The horizontal space between two cells can be set with vtkTextProperty::SetCellOffset
+ *
+ * Currently, it is not possible to draw separators between grid cells. Only exterior
+ * edges can be drawn with vtkTextProperty::SetFrame
  */
 
 #ifndef vtkMatplotlibMathTextUtilities_h
@@ -31,12 +50,17 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkRenderingMatplotlibModule.h" // For export macro
 
+#include <bits/c++config.h>
+#include <vector>
+
 struct _object;
 typedef struct _object PyObject;
+class vtkSmartPyObject;
 class vtkImageData;
 class vtkPath;
 class vtkPythonInterpreter;
 class vtkTextProperty;
+struct TextColors;
 
 class VTKRENDERINGMATPLOTLIB_EXPORT vtkMatplotlibMathTextUtilities : public vtkMathTextUtilities
 {
@@ -69,15 +93,17 @@ public:
    * The origin of the image's extents is aligned with the anchor point
    * described by the text property's vertical and horizontal justification
    * options.
+   * This function supports multiline and multicolumn strings.
    */
   bool RenderString(const char* str, vtkImageData* image, vtkTextProperty* tprop, int dpi,
-    int textDims[2] = NULL) override;
+    int textDims[2] = nullptr) override;
 
   /**
    * Parse the MathText expression in str and fill path with a contour of the
    * glyphs. The origin of the path coordinates is aligned with the anchor point
    * described by the text property's horizontal and vertical justification
    * options.
+   * This function does not support multiline and multicolumn strings.
    */
   bool StringToPath(const char* str, vtkPath* path, vtkTextProperty* tprop, int dpi) override;
 
@@ -101,6 +127,59 @@ protected:
 
   bool CheckForError();
   bool CheckForError(PyObject* object);
+
+  /**
+   * Replace each occurence of strToFind in str by replacementStr.
+   * Used to protect escaped pipe before the splitting process, and recover them
+   * after.
+   */
+  void FindAndReplaceInString(
+    std::string& str, const std::string& strToFind, const std::string& replacementStr);
+
+  static constexpr const char* PipeProtectString = "VTK_PROTECT_PIPE";
+
+  /**
+   * Compute rgba values of the foreground, background and frame
+   * of the text property.
+   */
+  void ComputeTextColors(vtkTextProperty* tprop, TextColors& tcolors);
+
+  typedef std::vector<std::vector<std::string>> GridOfStrings;
+
+  /**
+   * Parse the string to handle multiline and multicolumn.
+   * Divide it in lines (splitted with '\n') and cells (splitted with '|')
+   * and store each cell string in strGrid. Also compute the maximum number of cells of all
+   * lines to ensure that all lines have the same number of cells.
+   */
+  bool ParseString(const char* str, GridOfStrings& strGrid, std::size_t& maxNumberOfCells);
+
+  /**
+   * Given a grid of string and its corresponding maximum number of cells,
+   * text property and dpi, compute the resulting number of rows and cols
+   * of the image.
+   * Precondition : Matplotlib rendering is available and mask parser is initialized.
+   */
+  bool ComputeRowsAndCols(const GridOfStrings& strGrid, const long int maxNumberOfCells,
+    vtkTextProperty* tprop, int dpi, long int& rows, long int& cols);
+
+  /**
+   * Given a cell string, text property and dpi, call python mathtext to render the cell and store
+   * it in list if list is not nullptr, and store in rows and cols the size of the python data.
+   * Precondition : Matplotlib rendering is available and mask parser is initialized.
+   */
+  bool ComputeCellRowsAndCols(const char* cellStr, vtkTextProperty* tprop, int dpi, long int& rows,
+    long int& cols, vtkSmartPyObject* list);
+
+  /**
+   * Render in the image starting from (rowStart, colStart) to (rowStart + cellRows, colStart +
+   * cellCols) a cell of size (pythonRows, pythonCols) with pixels value stored in pythonData. If
+   * the python cell size is inferior to the cell size, fill with background color.
+   */
+  bool RenderOneCell(vtkImageData* image, int bbox[4], const long int rowStart,
+    const long int colStart, vtkSmartPyObject& pythonData, const long int pythonRows,
+    const long int pythonCols, const long int cellRows, const long int cellCols,
+    vtkTextProperty* tprop, const TextColors& tcolors);
 
   /**
    * Returns a matplotlib.font_manager.FontProperties PyObject, initialized from

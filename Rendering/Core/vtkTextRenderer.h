@@ -338,6 +338,7 @@ protected:
 
   vtksys::RegularExpression* MathTextRegExp;
   vtksys::RegularExpression* MathTextRegExp2;
+  vtksys::RegularExpression* MathTextRegExpColumn;
 
   //@{
   /**

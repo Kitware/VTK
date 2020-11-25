@@ -243,6 +243,15 @@ public:
   vtkGetMacro(LineOffset, double);
   //@}
 
+  //@{
+  /**
+   * Set/Get the horizontal offset between cells.
+   * Only used by MatplotlibMathTextUtilities
+   */
+  vtkSetMacro(CellOffset, double);
+  vtkGetMacro(CellOffset, double);
+  //@}
+
   /**
    * Shallow copy of a text property.
    */
@@ -272,6 +281,7 @@ protected:
   double Orientation;
   double LineOffset;
   double LineSpacing;
+  double CellOffset;
 
 private:
   vtkTextProperty(const vtkTextProperty&) = delete;

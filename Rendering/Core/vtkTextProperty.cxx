@@ -55,6 +55,7 @@ vtkTextProperty::vtkTextProperty()
 
   this->LineOffset = 0.0;
   this->LineSpacing = 1.1; // why not 1.0 ?
+  this->CellOffset = 0.0;
 
   this->Orientation = 0.0;
 }
@@ -157,4 +158,5 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Orientation: " << this->Orientation << "\n";
   os << indent << "Line Offset: " << this->LineOffset << "\n";
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
+  os << indent << "Cell Offset: " << this->CellOffset << "\n";
 }
