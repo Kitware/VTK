@@ -37,6 +37,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVoronoiKernel.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkSPHInterpolator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Locator, vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator, Kernel, vtkSPHKernel);
@@ -91,7 +93,7 @@ struct ProbePoints
       vtkDataArray* array = this->InPD->GetArray(arrayName);
       if (array != nullptr)
       {
-        outPD->RemoveArray(array->GetName());
+        assert(outPD->GetArray(arrayName) == nullptr);
         this->Arrays.ExcludeArray(array);
         this->DerivArrays.ExcludeArray(array);
       }
@@ -324,6 +326,12 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData* sourcePD = source->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+
+  for (const auto& excludedArray : this->ExcludedArrays)
+  {
+    outPD->CopyFieldOff(excludedArray.c_str());
+  }
+
   outPD->InterpolateAllocate(sourcePD, numPts);
 
   // Masking if requested
