@@ -46,6 +46,17 @@ vtkCompositeDataSet* vtkCompositeDataSet::GetData(vtkInformationVector* v, int i
 }
 
 //------------------------------------------------------------------------------
+void vtkCompositeDataSet::CopyStructure(vtkCompositeDataSet* input)
+{
+  if (input != this)
+  {
+    // copy data-information and other common stuff by calling
+    // superclass' ShallowCopy.
+    this->Superclass::ShallowCopy(input);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkCompositeDataSet::ShallowCopy(vtkDataObject* src)
 {
   if (src == this)
