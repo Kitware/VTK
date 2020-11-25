@@ -36,6 +36,7 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <cassert>
 #include <vector>
 
 vtkStandardNewMacro(vtkPointInterpolator);
@@ -87,7 +88,7 @@ struct ProbePoints
       vtkDataArray* array = this->InPD->GetArray(arrayName);
       if (array != nullptr)
       {
-        outPD->RemoveArray(array->GetName());
+        assert(outPD->GetArray(arrayName) == nullptr);
         this->Arrays.ExcludeArray(array);
       }
     }
@@ -304,6 +305,11 @@ void vtkPointInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataS
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData* inPD = source->GetPointData();
   vtkPointData* outPD = output->GetPointData();
+
+  for (const auto& excludedArray : this->ExcludedArrays)
+  {
+    outPD->CopyFieldOff(excludedArray.c_str());
+  }
   outPD->InterpolateAllocate(inPD, numPts);
 
   // Masking if requested
