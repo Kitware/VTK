@@ -307,6 +307,8 @@ void vtkUniformGridAMR::CopyStructure(vtkCompositeDataSet* src)
     return;
   }
 
+  this->Superclass::CopyStructure(src);
+
   if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))
   {
     this->SetAMRInfo(hbds->GetAMRInfo());
