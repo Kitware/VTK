@@ -1171,11 +1171,15 @@
 #define set_NC_string vtknetcdf_set_NC_string
 #define showopenobjects vtknetcdf_showopenobjects
 #define showopenobjects5 vtknetcdf_showopenobjects5
-#define strlcat vtknetcdf_strlcat
 #define UDF0_dispatch_table vtknetcdf_UDF0_dispatch_table
 #define UDF0_magic_number vtknetcdf_UDF0_magic_number
 #define UDF1_dispatch_table vtknetcdf_UDF1_dispatch_table
 #define UDF1_magic_number vtknetcdf_UDF1_magic_number
 #define write_numrecs vtknetcdf_write_numrecs
+
+/* Only define strlcat conditionally, as it's provided by system headers on the BSDs. */
+#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(_BSD_SOURCE)
+#define strlcat vtknetcdf_strlcat
+#endif
 
 #endif
