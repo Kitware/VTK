@@ -32,7 +32,6 @@
 #include "vtkObject.h"
 
 #include <string> // STL Header
-#include <vector> // STL Header
 
 #ifdef _WIN32
 #include <sys/timeb.h> // Needed for Win32 implementation of timer
@@ -218,7 +217,6 @@ protected:
   static int NextEntry;
   static int WrapFlag;
   static int TicksPerSecond;
-  static std::vector<vtkTimerLogEntry> TimerLog;
 
 #ifdef _WIN32
 #ifndef _WIN32_WCE
@@ -289,5 +287,18 @@ private:
     vtkTimerLog::FormatAndMarkEvent(                                                               \
       "Mark: In %s, line %d, class %s: %s", __FILE__, __LINE__, this->GetClassName(), string);     \
   }
+
+// Implementation detail for Schwarz counter idiom.
+class VTKCOMMONSYSTEM_EXPORT vtkTimerLogCleanup
+{
+public:
+  vtkTimerLogCleanup();
+  ~vtkTimerLogCleanup();
+
+private:
+  vtkTimerLogCleanup(const vtkTimerLogCleanup&) = delete;
+  void operator=(const vtkTimerLogCleanup&) = delete;
+};
+static vtkTimerLogCleanup vtkTimerLogCleanupInstance;
 
 #endif
