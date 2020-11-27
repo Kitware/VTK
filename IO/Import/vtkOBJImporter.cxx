@@ -169,6 +169,7 @@ struct vtkOBJImportedPolyDataWithMaterial
   { // initialize some structures to store the file contents in
     points = vtkSmartPointer<vtkPoints>::New();
     tcoords = vtkSmartPointer<vtkFloatArray>::New();
+    colors = vtkSmartPointer<vtkFloatArray>::New();
     normals = vtkSmartPointer<vtkFloatArray>::New();
     polys = vtkSmartPointer<vtkCellArray>::New();
     tcoord_polys = vtkSmartPointer<vtkCellArray>::New();
@@ -177,6 +178,7 @@ struct vtkOBJImportedPolyDataWithMaterial
     normal_polys = vtkSmartPointer<vtkCellArray>::New();
     tcoords->SetNumberOfComponents(2);
     normals->SetNumberOfComponents(3);
+    colors->SetNumberOfComponents(3);
 
     materialName = "";
     mtlProperties = nullptr;
@@ -191,6 +193,7 @@ struct vtkOBJImportedPolyDataWithMaterial
 
   // these are unique per entity
   vtkSmartPointer<vtkFloatArray> tcoords;
+  vtkSmartPointer<vtkFloatArray> colors;
   vtkSmartPointer<vtkCellArray> polys;
   vtkSmartPointer<vtkCellArray> tcoord_polys;
   vtkSmartPointer<vtkCellArray> pointElems;
@@ -280,9 +283,9 @@ To find a full specification, search the net for "OBJ format", eg.:
 
 We support the following types:
 
-v <x> <y> <z>
+v <x> <y> <z> <r> <g> <b>
 
-    vertex
+    vertex position and optionally a vertex color
 
 vn <x> <y> <z>
 
@@ -366,21 +369,24 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->DefaultMTLFileName)
   {
     mtlname = this->FileName + ".mtl";
-  }
-  FILE* defMTL = vtksys::SystemTools::Fopen(mtlname, "r");
-  if (defMTL == nullptr)
-  {
-    if (!this->DefaultMTLFileName)
+    if (vtksys::SystemTools::FileExists(mtlname))
     {
-      vtkErrorMacro(<< "The MTL file " << mtlname << " could not be found");
-      fclose(in);
-      return 0;
+      this->MTLFileName = mtlname;
     }
-  }
-  else
-  {
-    this->MTLFileName = mtlname;
-    fclose(defMTL);
+    else
+    {
+      mtlname = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/" +
+        vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName) + ".mtl";
+      if (vtksys::SystemTools::FileExists(mtlname))
+      {
+        this->MTLFileName = mtlname;
+      }
+      else
+      {
+        vtkErrorMacro(<< "The default MTL file could not be found");
+        return 0;
+      }
+    }
   }
 
   int mtlParseResult;
@@ -418,6 +424,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPoints* points = poly_list.back()->points;
   vtkFloatArray* tcoords = poly_list.back()->tcoords;
   vtkFloatArray* normals = poly_list.back()->normals;
+  vtkFloatArray* colors = poly_list.back()->colors;
   vtkCellArray* polys = poly_list.back()->polys;
   vtkCellArray* tcoord_polys = poly_list.back()->tcoord_polys;
   vtkCellArray* pointElems = poly_list.back()->pointElems;
@@ -430,6 +437,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   bool hasTCoords = false;                 // has vt x y z
   bool hasPolysWithTextureIndices = false; // has f i/t/n or f i/t
   bool hasNormals = false;                 // has f i/t/n or f i//n
+  bool hasColors = false;                  // has v x y z r g b
   bool tcoords_same_as_verts = true;
   bool normals_same_as_verts = true;
   bool everything_ok = true; // (use of this flag avoids early return and associated memory leak)
@@ -442,6 +450,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     const int MAX_LINE = 100000;
     char rawLine[MAX_LINE];
     float xyz[3];
+    float col[3];
 
     int lineNr = 0;
     while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
@@ -482,8 +491,11 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       static long lastVertexIndex = 0;
       if (strcmp(cmd, "v") == 0)
       {
-        // this is a vertex definition, expect three floats, separated by whitespace:
-        if (sscanf(pLine, "%f %f %f", xyz, xyz + 1, xyz + 2) == 3)
+        // this is a vertex definition, expect three floats (six if vertex color), separated by
+        // whitespace:
+        int nbRead =
+          sscanf(pLine, "%f %f %f %f %f %f", xyz, xyz + 1, xyz + 2, col, col + 1, col + 2);
+        if (nbRead >= 3)
         {
           if (use_scale)
           {
@@ -493,6 +505,12 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
           }
           points->InsertNextPoint(xyz);
           lastVertexIndex++;
+
+          if (nbRead == 6)
+          {
+            hasColors = true;
+            colors->InsertNextTypedTuple(col);
+          }
         }
         else
         {
@@ -509,7 +527,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         // this is a tcoord, expect two floats, separated by whitespace:
         if (sscanf(pLine, "%f %f", xyz, xyz + 1) == 2)
         {
-          tcoords->InsertNextTuple(xyz);
+          tcoords->InsertNextTypedTuple(xyz);
         }
         else
         {
@@ -522,7 +540,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         // this is a normal, expect three floats, separated by whitespace:
         if (sscanf(pLine, "%f %f %f", xyz, xyz + 1, xyz + 2) == 3)
         {
-          normals->InsertNextTuple(xyz);
+          normals->InsertNextTypedTuple(xyz);
           hasNormals = true;
         }
         else
@@ -907,6 +925,13 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       vtkDebugMacro("generating output polydata ....  \n"
         << "tcoords same as verts!? " << tcoords_same_as_verts << " ... hasTCoords?" << hasTCoords
         << " ... numPolysWithTCoords = " << numPolysWithTCoords);
+
+      // assign the points color as point data
+      if (hasColors)
+      {
+        output->GetPointData()->SetScalars(colors);
+      }
+
       // if there are no tcoords or normals or they match exactly
       // then we can just copy the data into the output (easy!)
       if ((!hasTCoords || tcoords_same_as_verts) && (!hasNormals || normals_same_as_verts))
