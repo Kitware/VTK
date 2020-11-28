@@ -247,6 +247,10 @@ public:
    * SetEdgeCallback(), SetTriangleCallback(), and SetTetrahedronCallback()
    * with valid values!
    */
+  void AdaptivelySample3FacetLinear(double* v0, double* v1, double* v2, double* v3) const;
+  void AdaptivelySample2FacetLinear(double* v0, double* v1, double* v2) const;
+  void AdaptivelySample1FacetLinear(double* v0, double* v1) const;
+
   void AdaptivelySample3Facet(double* v0, double* v1, double* v2, double* v3) const;
   void AdaptivelySample2Facet(double* v0, double* v1, double* v2) const;
   void AdaptivelySample1Facet(double* v0, double* v1) const;
