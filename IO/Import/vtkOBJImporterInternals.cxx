@@ -43,15 +43,15 @@ int localVerbosity = 0;
 
 void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
 {
-  mtl->amb[0] = 0.2;
-  mtl->amb[1] = 0.2;
-  mtl->amb[2] = 0.2;
-  mtl->diff[0] = 0.8;
-  mtl->diff[1] = 0.8;
-  mtl->diff[2] = 0.8;
-  mtl->spec[0] = 1.0;
-  mtl->spec[1] = 1.0;
-  mtl->spec[2] = 1.0;
+  mtl->amb[0] = 0.0;
+  mtl->amb[1] = 0.0;
+  mtl->amb[2] = 0.0;
+  mtl->diff[0] = 1.0;
+  mtl->diff[1] = 1.0;
+  mtl->diff[2] = 1.0;
+  mtl->spec[0] = 0.0;
+  mtl->spec[1] = 0.0;
+  mtl->spec[2] = 0.0;
   mtl->map_Kd_scale[0] = 1.0;
   mtl->map_Kd_scale[1] = 1.0;
   mtl->map_Kd_scale[2] = 1.0;
@@ -392,6 +392,7 @@ void bindTexturedPolydataToRenderWindow(
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputData(objPoly);
+    mapper->SetColorModeToDirectScalars();
 
     vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
@@ -486,6 +487,8 @@ void bindTexturedPolydataToRenderWindow(
           raw_mtl_data->map_Kd_scale[2]);
         actor->GetTexture()->SetTransform(tf);
       }
+
+      mapper->ScalarVisibilityOff();
 
       properties->SetDiffuseColor(raw_mtl_data->diff);
       properties->SetSpecularColor(raw_mtl_data->spec);
