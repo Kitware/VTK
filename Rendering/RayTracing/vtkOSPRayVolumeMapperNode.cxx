@@ -20,6 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 #include "vtkOSPRayCache.h"
 #include "vtkOSPRayMaterialHelpers.h"
 #include "vtkOSPRayRendererNode.h"
@@ -50,6 +51,8 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
   this->UseSharedBuffers = true;
   this->SharedData = nullptr;
+  this->LastArray = nullptr;
+  this->LastComponent = -1;
 }
 
 //------------------------------------------------------------------------------
@@ -148,18 +151,32 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     vtkVolumeProperty* volProperty = vol->GetProperty();
     // when input data is modified
-    vtkDataArray* sca = nullptr;
-    if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
+    vtkDataArray* componentArray = nullptr;
+    int comp = volProperty->GetRGBTransferFunction()->GetVectorComponent();
+    if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime || sa != LastArray ||
+      comp != LastComponent)
     {
+      LastArray = sa;
+      LastComponent = comp;
       int ncomp = sa->GetNumberOfComponents();
       if (ncomp > 1)
       {
-        int comp = 0; // mapper->GetArrayComponent(); not yet supported
-        sca = sa->NewInstance();
-        sca->SetNumberOfComponents(1);
-        sca->SetNumberOfTuples(sa->GetNumberOfTuples());
-        sca->CopyComponent(0, sa, comp);
-        sa = sca;
+        componentArray = sa->NewInstance();
+        componentArray->SetNumberOfComponents(1);
+        componentArray->SetNumberOfTuples(sa->GetNumberOfTuples());
+        if (volProperty->GetRGBTransferFunction()->GetVectorMode() !=
+          vtkColorTransferFunction::MAGNITUDE)
+        {
+          componentArray->CopyComponent(0, sa, comp);
+        }
+        else
+        {
+          for (vtkIdType t = 0; t < sa->GetNumberOfTuples(); ++t)
+          {
+            componentArray->SetTuple1(t, vtkMath::Norm(sa->GetTuple3(t)));
+          }
+        }
+        sa = componentArray;
       }
       int ScalarDataType = sa->GetDataType();
       void* ScalarDataPointer = sa->GetVoidPointer(0);
@@ -223,8 +240,16 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospSetVec3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
       this->SamplingStep = std::min(scale[0], std::min(scale[1], scale[2]));
 
-      this->SharedData =
-        ospNewSharedData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
+      if (!componentArray)
+      {
+        this->SharedData =
+          ospNewSharedData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
+      }
+      else
+      {
+        this->SharedData =
+          ospNewCopyData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
+      }
       ospCommit(this->SharedData);
       ospSetObject(this->OSPRayVolume, "data", this->SharedData);
 
@@ -341,9 +366,9 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       this->OSPRayInstance = instance;
     }
 
-    if (sca)
+    if (componentArray)
     {
-      sca->Delete();
+      componentArray->Delete();
     }
   }
 }
