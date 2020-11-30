@@ -142,6 +142,17 @@ namespace RTW
       ospRelease(shared);
       return reinterpret_cast<RTWData>(data);
     }
+    RTWData NewCopyData3D(const void *source, RTWDataType dataType, size_t numElements, size_t numElements2, size_t numElements3) override
+    {
+      OSPData data = ospNewData(static_cast<OSPDataType>(dataType), numElements, numElements2, numElements3);
+      ospCommit(data);
+      OSPData shared = ospNewSharedData3D(source, static_cast<OSPDataType>(dataType), numElements, numElements2, numElements3);
+      ospCommit(shared);
+      ospCopyData(shared, data, 0, 0, 0);
+      ospCommit(data);
+      ospRelease(shared);
+      return reinterpret_cast<RTWData>(data);
+    }
 
     RTWData NewData(RTWDataType dataType, size_t numElements) override
     {

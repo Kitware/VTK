@@ -156,6 +156,7 @@ std::set<RTWBackendType> rtwGetAvailableBackends();
 #define ospNewData backend->NewData
 #define ospNewCopyData1D backend->NewCopyData1D
 #define ospNewCopyData2D backend->NewCopyData2D
+#define ospNewCopyData3D backend->NewCopyData3D
 #define ospNewSharedData1D backend->NewSharedData1D
 #define ospNewSharedData2D backend->NewSharedData2D
 #define ospNewSharedData3D backend->NewSharedData3D

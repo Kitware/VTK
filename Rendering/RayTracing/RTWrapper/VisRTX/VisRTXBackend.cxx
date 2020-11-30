@@ -274,6 +274,11 @@ namespace RTW
         return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, false));
     }
 
+    RTWData VisRTXBackend::NewCopyData3D(const void *source, RTWDataType type, size_t numElements1, size_t numElements2, size_t numElements3)
+    {
+        return reinterpret_cast<RTWData>(new Data(source, type, numElements1, numElements2, numElements3, false));
+    }
+
 
     void VisRTXBackend::Commit(RTWObject object)
     {

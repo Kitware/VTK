@@ -287,7 +287,6 @@ public:
   /**
    * Methods for other nodes to access
    */
-  OSPWorld GetOWorld() { return this->OWorld; }
   OSPRenderer GetORenderer() { return this->ORenderer; }
   void AddLight(OSPLight light) { this->Lights.push_back(light); }
 
@@ -379,7 +378,6 @@ protected:
   OSPRenderer ORenderer{ nullptr };
   OSPFrameBuffer OFrameBuffer{ nullptr };
   OSPCamera OCamera{ nullptr };
-  OSPData OInstanceData{ nullptr };
   int ImageX, ImageY;
   std::vector<OSPLight> Lights;
   int NumActors;
@@ -406,6 +404,7 @@ protected:
   std::vector<osp::vec4f> DenoisedBuffer;
 
   vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
+  std::set<OSPWorld> CacheContents;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;
