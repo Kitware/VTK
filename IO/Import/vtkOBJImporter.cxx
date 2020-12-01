@@ -381,11 +381,13 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->MTLFileName = mtlname;
       }
-      else
-      {
-        vtkErrorMacro(<< "The default MTL file could not be found");
-        return 0;
-      }
+    }
+  }
+  else
+  {
+    if (!vtksys::SystemTools::FileExists(this->MTLFileName))
+    {
+      vtkErrorMacro(<< "The MTL file " << this->MTLFileName << " could not be found");
     }
   }
 

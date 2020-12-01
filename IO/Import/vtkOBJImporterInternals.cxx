@@ -488,7 +488,13 @@ void bindTexturedPolydataToRenderWindow(
         actor->GetTexture()->SetTransform(tf);
       }
 
-      mapper->ScalarVisibilityOff();
+      // When the material is created from a MTL file,
+      // the name is different than the default "x" name.
+      // in this case, we disable vertex coloring
+      if (raw_mtl_data->name != "x")
+      {
+        mapper->ScalarVisibilityOff();
+      }
 
       properties->SetDiffuseColor(raw_mtl_data->diff);
       properties->SetSpecularColor(raw_mtl_data->spec);
