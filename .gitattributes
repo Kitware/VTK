@@ -1,0 +1,6 @@
+*.docx binary
+
+# XXX(kitware): ignore whitespace problems
+* -whitespace
+src/CMakeLists.txt -crlf
+src/adf/ADF_internals.c -crlf
