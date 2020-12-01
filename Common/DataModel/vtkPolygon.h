@@ -163,9 +163,11 @@ public:
 
   /**
    * Triangulate this polygon. The user must provide the vtkIdList outTris.
-   * On output, the outTris list contains the ids of the points defining
-   * the triangulation. The ids are ordered into groups of three: each
-   * three-group defines one triangle.
+   * On output, the outTris list contains the ids of the points defining the
+   * triangulation (i.e., not the associated polygon->PointIds, rather the
+   * index into the polygon->Points array). The ids are ordered into groups
+   * of three: each three-group defines one triangle. The method returns
+   * non-zero if the triangulation is successful.
    */
   int Triangulate(vtkIdList* outTris);
 

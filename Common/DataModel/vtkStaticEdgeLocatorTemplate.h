@@ -25,29 +25,31 @@
  * tuple; and 2) the data associated with the edge.
  *
  * This class is non-incremental (i.e., static). That is, an array of edges
- * is provided and the locator is built from this array. Incremental
- * additions of new edges is not allowed (analogoues to vtkStaticPointLocator
- * and vtkStaticCellLocator).
+ * must be provided and the locator is built from this array. Once the locator
+ * is built, incremental additions of new edges is not allowed (analogoues to
+ * vtkStaticPointLocator and vtkStaticCellLocator).
  *
  * Finally, there are two distinct usage patterns for this class. One is to
  * inject edges and then later search for them. This pattern begins with
  * BuildLocator() and then is followed by repeated calls to IsInsertedEdge().
  * Internally this operates on an array of EdgeTupleType. The second pattern
- * operates on an array of MergeTupleType. It simply sorts the array using
- * MergeEdges(), thereby grouping identical edges. An offset array is created
- * that refers to the beginning of each group, hence indirectly indicating
- * the number of unique edges, and providing O(1) access to each edge.
+ * also operates on an array of EdgeTupleType. It simply sorts an array of
+ * vtkEdgeTupleType using MergeEdges(), thereby grouping identical edges.
+ * An offset array is created that refers to the beginning of each group,
+ * hence indirectly indicating the number of unique edges, and providing O(1)
+ * access to each edge. Typically the offset array can be uses to renumber
+ * duplicate edges and/or data (such as points) associated with the edge.
  *
  * @warning
  * The id tuple type can be specified via templating to reduce memory and
  * speed processing.
  *
  * @warning
- * By default, a parametric coordinate T is associated with edges. By using
- * the appropriate template parameter it is possible to associate other data
- * with each edge. Note however that this data is not used when comparing and
- * sorting the edges. (This could be changed - define appropriate comparison
- * operators.)
+ * Data is associated with edges (e.g., a parametric coordinate, or original
+ * id). By using the appropriate template parameter it is possible to
+ * associate other data with each edge. Note however that this data is not
+ * used when comparing and sorting the edges. (This could be changed - define
+ * appropriate comparison operators.)
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -75,7 +77,7 @@ struct EdgeTuple
 {
   TId V0;
   TId V1;
-  TED T;
+  TED Data;
 
   // Default constructor - nothing needs to be done
   EdgeTuple() = default;
@@ -85,7 +87,7 @@ struct EdgeTuple
   EdgeTuple(TId v0, TId v1, TED data)
     : V0(v0)
     , V1(v1)
-    , T(data)
+    , Data(data)
   {
     if (this->V0 > this->V1)
     {
@@ -95,9 +97,28 @@ struct EdgeTuple
     }
   }
 
+  void Define(TId v0, TId v1)
+  {
+    if (v0 < v1)
+    {
+      this->V0 = v0;
+      this->V1 = v1;
+    }
+    else
+    {
+      this->V0 = v1;
+      this->V1 = v0;
+    }
+  }
+
   bool operator==(const EdgeTuple& et) const
   {
     return ((this->V0 == et.V0 && this->V1 == et.V1) ? true : false);
+  }
+
+  bool operator!=(const EdgeTuple& et) const
+  {
+    return ((this->V0 != et.V0 || this->V1 != et.V1) ? true : false);
   }
 
   bool IsEdge(TId v0, TId v1) const
@@ -125,62 +146,6 @@ struct EdgeTuple
 };
 
 /**
- * Definition of an edge tuple using for creating an edge merge table. Note
- * that the TId template type may be specified to manage memory resources,
- * and provide increased speeds (e.g., sort) by using smaller types (32-int
- * versus 64-bit vtkIdType). It is required that V0 < V1.
- */
-template <typename TId, typename TED>
-struct MergeTuple
-{
-  TId V0;
-  TId V1;
-  TId EId; // originating edge id
-  TED T;
-
-  // Default constructor - nothing needs to be done
-  MergeTuple() = default;
-
-  // Construct an edge and ensure that the edge tuple (vo,v1) is
-  // specified such that (v0<v1).
-  MergeTuple(TId v0, TId v1, TId eid, TED data)
-    : V0(v0)
-    , V1(v1)
-    , EId(eid)
-    , T(data)
-  {
-    if (this->V0 > this->V1)
-    {
-      TId tmp = this->V0;
-      this->V0 = this->V1;
-      this->V1 = tmp;
-    }
-  }
-
-  bool operator==(const MergeTuple& et) const
-  {
-    return ((this->V0 == et.V0 && this->V1 == et.V1) ? true : false);
-  }
-
-  bool operator!=(const MergeTuple& et) const
-  {
-    return ((this->V0 != et.V0 || this->V1 != et.V1) ? true : false);
-  }
-
-  // Sort on v0 first, then v1.
-  bool operator<(const MergeTuple& tup) const
-  {
-    if (this->V0 < tup.V0)
-      return true;
-    if (tup.V0 < this->V0)
-      return false;
-    if (this->V1 < tup.V1)
-      return true;
-    return false;
-  }
-};
-
-/**
  * Templated on types of ids defining an edge, and any data associated with
  * the edge.
  */
@@ -193,7 +158,6 @@ public:
    * Some convenient typedefs.
    */
   typedef EdgeTuple<IDType, EdgeData> EdgeTupleType;
-  typedef MergeTuple<IDType, EdgeData> MergeTupleType;
   //@)
 
   /**
@@ -224,18 +188,18 @@ public:
   IDType GetNumberOfEdges() { return this->NumEdges; }
 
   /**
-   * This method sorts (in place) an array of MergeTupleType (of length
+   * This method sorts (in place) an array of EdgeTupleType (of length
    * numEdges) into separate groups, and allocates and returns an offset
    * array providing access to each group. Each grouping is a list of
    * duplicate edges. The method indicates the number of unique edges
    * numUniqueEdges. Note that the offset array end value
    * offsets[numUniqueEdges] = numEdges, i.e., total allocation of the
    * offsets array is numUniqueEdges+1. Also note that the EId contained in
-   * the sorted MergeTuples can be used to renumber edges from initial ids
+   * the sorted EdgeTuples can be used to represent data on edges, and
+   * perform operations such as renumber edges from initial edge ids
    * (possibly one of several duplicates) to unique edge ids.
    */
-  const IDType* MergeEdges(
-    vtkIdType numEdges, MergeTupleType* edgeArray, vtkIdType& numUniqueEdges);
+  const IDType* MergeEdges(vtkIdType numEdges, EdgeTupleType* edgeArray, vtkIdType& numUniqueEdges);
 
   /**
    * This method constructs the edge locator to be used when searching for
@@ -337,7 +301,7 @@ protected:
   }
 
   // Support MergeEdges usage pattern
-  MergeTupleType* MergeArray;
+  EdgeTupleType* MergeArray;
   std::vector<IDType> MergeOffsets;
 
 private:

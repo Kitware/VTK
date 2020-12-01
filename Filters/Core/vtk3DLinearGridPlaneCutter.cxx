@@ -176,10 +176,18 @@ struct ClassifyPoints : public Classify
 
 //========================= Compute edge intersections ========================
 // Use vtkStaticEdgeLocatorTemplate for edge-based point merging.
+template <typename IDType>
+struct EdgeDataType
+{
+  float T;
+  IDType EId;
+};
+
 template <typename IDType, typename TIP>
 struct ExtractEdgesBase
 {
   typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
+  typedef std::vector<EdgeTuple<IDType, EdgeDataType<IDType>>> MergeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.
@@ -193,7 +201,7 @@ struct ExtractEdgesBase
 
   const TIP* InPts;
   CellIter* Iter;
-  MergeTuple<IDType, float>* Edges;
+  EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
   vtkCellArray* Tris;
   vtkIdType NumTris;
   int NumThreadsUsed;
@@ -245,7 +253,8 @@ struct ExtractEdgesBase
     // Copy local edges to global edge array. Add in the originating edge id
     // used later when merging.
     EdgeVectorType emptyVector;
-    this->Edges = new MergeTuple<IDType, float>[3 * this->NumTris]; // three edges per triangle
+    this->Edges =
+      new EdgeTuple<IDType, EdgeDataType<IDType>>[3 * this->NumTris]; // three edges per triangle
     vtkIdType edgeNum = 0;
     for (auto ldItr = this->LocalData.begin(); ldItr != ldEnd; ++ldItr)
     {
@@ -254,8 +263,8 @@ struct ExtractEdgesBase
       {
         this->Edges[edgeNum].V0 = eItr->V0;
         this->Edges[edgeNum].V1 = eItr->V1;
-        this->Edges[edgeNum].T = eItr->T;
-        this->Edges[edgeNum].EId = edgeNum;
+        this->Edges[edgeNum].Data.T = eItr->Data;
+        this->Edges[edgeNum].Data.EId = edgeNum;
         edgeNum++;
       }
       (*ldItr).LocalEdges.swap(emptyVector); // frees memory
@@ -338,7 +347,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
 template <typename TIP, typename TOP, typename IDType>
 struct ProducePoints
 {
-  typedef MergeTuple<IDType, float> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
 
   const MergeTupleType* Edges;
   const TIP* InPts;
@@ -378,9 +387,9 @@ struct ProducePoints
       p1[2] = x1[2] - d1 * this->Normal[2];
 
       // compute intersection position based on p0 and p1
-      x[0] = p0[0] + mergeTuple->T * (p1[0] - p0[0]);
-      x[1] = p0[1] + mergeTuple->T * (p1[1] - p0[1]);
-      x[2] = p0[2] + mergeTuple->T * (p1[2] - p0[2]);
+      x[0] = p0[0] + mergeTuple->Data.T * (p1[0] - p0[0]);
+      x[1] = p0[1] + mergeTuple->Data.T * (p1[1] - p0[1]);
+      x[2] = p0[2] + mergeTuple->Data.T * (p1[2] - p0[2]);
     }
   }
 };
@@ -428,10 +437,10 @@ struct ProduceTriangles
 template <typename TIds>
 struct ProduceAttributes
 {
-  const MergeTuple<TIds, float>* Edges; // all edges
-  ArrayList* Arrays;                    // the list of attributes to interpolate
+  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges
+  ArrayList* Arrays;                                // the list of attributes to interpolate
 
-  ProduceAttributes(const MergeTuple<TIds, float>* mt, ArrayList* arrays)
+  ProduceAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, ArrayList* arrays)
     : Edges(mt)
     , Arrays(arrays)
   {
@@ -439,7 +448,7 @@ struct ProduceAttributes
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const MergeTuple<TIds, float>* mergeTuple;
+    const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeTuple;
     TIds v0, v1;
     float t;
 
@@ -448,7 +457,7 @@ struct ProduceAttributes
       mergeTuple = this->Edges + ptId;
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
-      t = mergeTuple->T;
+      t = mergeTuple->Data.T;
       this->Arrays->InterpolateEdge(v0, v1, t, ptId);
     }
   }
@@ -458,7 +467,7 @@ struct ProduceAttributes
 template <typename IDType>
 struct ProduceMergedTriangles
 {
-  typedef MergeTuple<IDType, float> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
 
   const MergeTupleType* MergeArray;
   const IDType* Offsets;
@@ -495,7 +504,7 @@ struct ProduceMergedTriangles
         const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
         for (IDType i = 0; i < numPtsInGroup; ++i)
         {
-          const IDType connIdx = mergeArray[offsets[ptId] + i].EId;
+          const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId;
           conn->SetValue(connIdx, static_cast<ValueType>(ptId));
         } // for this group of coincident edges
       }   // for all merged points
@@ -533,7 +542,7 @@ struct ProduceMergedTriangles
 template <typename TIP, typename TOP, typename IDType>
 struct ProduceMergedPoints
 {
-  typedef MergeTuple<IDType, float> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
 
   const MergeTupleType* MergeArray;
   const IDType* Offsets;
@@ -575,9 +584,9 @@ struct ProduceMergedPoints
       p1[2] = x1[2] - d1 * this->Normal[2];
 
       // compute intersection position based on p0 and p1
-      x[0] = p0[0] + mergeTuple->T * (p1[0] - p0[0]);
-      x[1] = p0[1] + mergeTuple->T * (p1[1] - p0[1]);
-      x[2] = p0[2] + mergeTuple->T * (p1[2] - p0[2]);
+      x[0] = p0[0] + mergeTuple->Data.T * (p1[0] - p0[0]);
+      x[1] = p0[1] + mergeTuple->Data.T * (p1[1] - p0[1]);
+      x[2] = p0[2] + mergeTuple->Data.T * (p1[2] - p0[2]);
     }
   }
 };
@@ -587,11 +596,12 @@ struct ProduceMergedPoints
 template <typename TIds>
 struct ProduceMergedAttributes
 {
-  const MergeTuple<TIds, float>* Edges; // all edges, sorted into groups of merged edges
-  const TIds* Offsets;                  // refer to single, unique, merged edge
-  ArrayList* Arrays;                    // carry list of attributes to interpolate
+  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges, sorted into groups of merged edges
+  const TIds* Offsets;                              // refer to single, unique, merged edge
+  ArrayList* Arrays;                                // carry list of attributes to interpolate
 
-  ProduceMergedAttributes(const MergeTuple<TIds, float>* mt, const TIds* offsets, ArrayList* arrays)
+  ProduceMergedAttributes(
+    const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets, ArrayList* arrays)
     : Edges(mt)
     , Offsets(offsets)
     , Arrays(arrays)
@@ -600,7 +610,7 @@ struct ProduceMergedAttributes
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const MergeTuple<TIds, float>* mergeTuple;
+    const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeTuple;
     TIds v0, v1;
     float t;
 
@@ -609,7 +619,7 @@ struct ProduceMergedAttributes
       mergeTuple = this->Edges + this->Offsets[ptId];
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
-      t = mergeTuple->T;
+      t = mergeTuple->Data.T;
       this->Arrays->InterpolateEdge(v0, v1, t, ptId);
     }
   }
@@ -624,7 +634,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
 {
   // Extract edges that the plane intersects.
   vtkIdType numTris = 0;
-  MergeTuple<TIds, float>* mergeEdges = nullptr; // may need reference counting
+  EdgeTuple<TIds, EdgeDataType<TIds>>* mergeEdges = nullptr; // may need reference counting
 
   // Extract edges
   int ptsType = inPts->GetDataType();
@@ -721,7 +731,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
     // Merge coincident edges. The Offsets refer to the single unique edge
     // from the sorted group of duplicate edges.
     vtkIdType numPts;
-    vtkStaticEdgeLocatorTemplate<TIds, float> loc;
+    vtkStaticEdgeLocatorTemplate<TIds, EdgeDataType<TIds>> loc;
     const TIds* offsets = loc.MergeEdges(3 * numTris, mergeEdges, numPts);
 
     // Generate triangles from merged edges.

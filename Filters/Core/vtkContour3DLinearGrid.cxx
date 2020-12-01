@@ -500,11 +500,18 @@ void ProcessFastPath(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, T
 //========================= GENERAL PATH (POINT MERGING) =======================
 // Use vtkStaticEdgeLocatorTemplate for edge-based point merging. Processing is
 // available with and without a scalar tree.
+template <typename IDType>
+struct EdgeDataType
+{
+  float T;
+  IDType EId;
+};
+
 template <typename IDType, typename TS>
 struct ExtractEdgesBase
 {
   typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
-  typedef std::vector<MergeTuple<IDType, float>> MergeVectorType;
+  typedef std::vector<EdgeTuple<IDType, EdgeDataType<IDType>>> MergeVectorType;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.
@@ -519,7 +526,7 @@ struct ExtractEdgesBase
   CellIter* Iter;
   const TS* Scalars;
   double Value;
-  MergeTuple<IDType, float>* Edges;
+  EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
   vtkCellArray* Tris;
   vtkIdType NumTris;
   int NumThreadsUsed;
@@ -559,9 +566,9 @@ struct ExtractEdgesBase
   {
     const std::vector<EdgeVectorType*>* LocalEdges;
     const std::vector<vtkIdType>* TriOffsets;
-    MergeTuple<IDT, float>* OutEdges;
+    EdgeTuple<IDT, EdgeDataType<IDT>>* OutEdges;
     ProduceEdges(const std::vector<EdgeVectorType*>* le, const std::vector<vtkIdType>* o,
-      MergeTuple<IDT, float>* outEdges)
+      EdgeTuple<IDT, EdgeDataType<IDT>>* outEdges)
       : LocalEdges(le)
       , TriOffsets(o)
       , OutEdges(outEdges)
@@ -571,7 +578,7 @@ struct ExtractEdgesBase
     {
       vtkIdType triOffset, edgeNum;
       const EdgeVectorType* lEdges;
-      MergeTuple<IDT, float>* edges;
+      EdgeTuple<IDT, EdgeDataType<IDT>>* edges;
 
       for (; threadId < endThreadId; ++threadId)
       {
@@ -584,8 +591,8 @@ struct ExtractEdgesBase
         {
           edges->V0 = eItr->V0;
           edges->V1 = eItr->V1;
-          edges->T = eItr->T;
-          edges->EId = edgeNum;
+          edges->Data.T = eItr->Data;
+          edges->Data.EId = edgeNum;
           edges++;
           edgeNum++;
         }
@@ -617,7 +624,8 @@ struct ExtractEdgesBase
     this->Tris->ResizeExact(this->NumTris + this->TotalTris, 3 * (this->NumTris + this->TotalTris));
 
     // Copy local edges to composited edge array.
-    this->Edges = new MergeTuple<IDType, float>[3 * this->NumTris]; // three edges per triangle
+    this->Edges =
+      new EdgeTuple<IDType, EdgeDataType<IDType>>[3 * this->NumTris]; // three edges per triangle
     ProduceEdges<IDType> produceEdges(&localEdges, &localTriOffsets, this->Edges);
     EXECUTE_SMPFOR(this->Sequential, this->NumThreadsUsed, produceEdges);
     // EdgeVectorType emptyVector;
@@ -758,7 +766,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TS>
 template <typename IDType>
 struct ProduceMergedTriangles
 {
-  typedef MergeTuple<IDType, float> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
 
   const MergeTupleType* MergeArray;
   const IDType* Offsets;
@@ -800,7 +808,7 @@ struct ProduceMergedTriangles
         const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
         for (IDType i = 0; i < numPtsInGroup; ++i)
         {
-          const IDType connIdx = mergeArray[offsets[ptId] + i].EId + connOffset;
+          const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId + connOffset;
           conn->SetValue(connIdx, static_cast<ValueType>(ptId + ptOffset));
         } // for this group of coincident edges
       }   // for all merged points
@@ -840,7 +848,7 @@ struct ProduceMergedTriangles
 template <typename TIP, typename TOP, typename IDType>
 struct ProduceMergedPoints
 {
-  typedef MergeTuple<IDType, float> MergeTupleType;
+  typedef EdgeTuple<IDType, EdgeDataType<IDType>> MergeTupleType;
 
   const MergeTupleType* MergeArray;
   const IDType* Offsets;
@@ -869,7 +877,7 @@ struct ProduceMergedPoints
       mergeTuple = this->MergeArray + this->Offsets[ptId];
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
-      t = mergeTuple->T;
+      t = mergeTuple->Data.T;
       x0 = inPts + 3 * v0;
       x1 = inPts + 3 * v1;
       x = outPts + 3 * ptId;
@@ -885,13 +893,13 @@ struct ProduceMergedPoints
 template <typename TIds>
 struct ProduceAttributes
 {
-  const MergeTuple<TIds, float>* Edges; // all edges, sorted into groups of merged edges
-  const TIds* Offsets;                  // refer to single, unique, merged edge
-  ArrayList* Arrays;                    // carry list of attributes to interpolate
-  vtkIdType TotalPts;                   // total points / multiple contours computed previously
+  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges, sorted into groups of merged edges
+  const TIds* Offsets;                              // refer to single, unique, merged edge
+  ArrayList* Arrays;                                // carry list of attributes to interpolate
+  vtkIdType TotalPts; // total points / multiple contours computed previously
 
-  ProduceAttributes(
-    const MergeTuple<TIds, float>* mt, const TIds* offsets, ArrayList* arrays, vtkIdType totalPts)
+  ProduceAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets,
+    ArrayList* arrays, vtkIdType totalPts)
     : Edges(mt)
     , Offsets(offsets)
     , Arrays(arrays)
@@ -901,7 +909,7 @@ struct ProduceAttributes
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const MergeTuple<TIds, float>* mergeTuple;
+    const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeTuple;
     TIds v0, v1;
     float t;
 
@@ -910,7 +918,7 @@ struct ProduceAttributes
       mergeTuple = this->Edges + this->Offsets[ptId];
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
-      t = mergeTuple->T;
+      t = mergeTuple->Data.T;
       this->Arrays->InterpolateEdge(v0, v1, t, ptId + this->TotalPts);
     }
   }
@@ -950,7 +958,7 @@ int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int 
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
   vtkIdType numTris = 0;
-  MergeTuple<TIds, float>* mergeEdges = nullptr; // may need reference counting
+  EdgeTuple<TIds, EdgeDataType<TIds>>* mergeEdges = nullptr; // may need reference counting
   switch (sType) // process these scalar types, others could easily be added
   {
     EXTRACT_MERGED(VTK_UNSIGNED_INT, unsigned int);
@@ -973,7 +981,7 @@ int ProcessMerged(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, int 
   // Merge coincident edges. The Offsets refer to the single unique edge
   // from the sorted group of duplicate edges.
   vtkIdType numPts;
-  vtkStaticEdgeLocatorTemplate<TIds, float> loc;
+  vtkStaticEdgeLocatorTemplate<TIds, EdgeDataType<TIds>> loc;
   const TIds* offsets = loc.MergeEdges(3 * numTris, mergeEdges, numPts);
 
   // Generate triangles.

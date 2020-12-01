@@ -70,6 +70,7 @@ set(classes
   vtkPolyDataConnectivityFilter
   vtkPolyDataEdgeConnectivityFilter
   vtkPolyDataNormals
+  vtkPolyDataPlaneClipper
   vtkPolyDataTangents
   vtkProbeFilter
   vtkQuadricClustering
