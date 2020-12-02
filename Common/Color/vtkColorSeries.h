@@ -25,10 +25,10 @@
  *
  * For a web page of the default palettes, see:
  * <a
- * href="http://htmlpreview.github.io/?https://github.com/lorensen/VTKExamples/blob/master/src/Python/Visualization/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
+ * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
  * Use
  * <a
- * href="https://lorensen.github.io/VTKExamples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
+ * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
  * to generate this table.
  *
  * It is also possible to add schemes beyond the default palettes.
@@ -43,7 +43,7 @@
  *
  * The "Brewer" palettes are courtesy of
  * Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
- * and present under the Apache License. See the source code for details.
+ * and under the Apache License. See the source code for details.
  */
 
 #ifndef vtkColorSeries_h
