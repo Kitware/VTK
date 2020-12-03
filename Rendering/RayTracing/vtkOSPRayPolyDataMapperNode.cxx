@@ -155,7 +155,6 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
     return OSPGeometry();
   OSPGeometry ospMesh = ospNewGeometry("sphere");
   OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
-  ospRelease(ospMesh);
 
   size_t numSpheres = indexArray.size();
   std::vector<osp::vec3f> vdata;
@@ -237,8 +236,8 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
     {
       OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, sRGB);
       ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
-      ospRelease(t2d);
       ospCommit(actorMaterial);
+      ospRelease(t2d);
     }
     else if (numCellMaterials)
     {
@@ -252,7 +251,6 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
       _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numSpheres);
       ospCommit(_cmats);
       ospSetObject(ospGeoModel, "material", _cmats);
-      ospRelease(_cmats);
     }
     else if (numPointColors)
     {
@@ -266,7 +264,6 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
       _PointColors = ospNewCopyData1D(&perPointColors[0], OSP_VEC4F, numSpheres);
       ospCommit(_PointColors);
       ospSetObject(ospGeoModel, "color", _PointColors);
-      ospRelease(_PointColors);
     }
   }
 
@@ -277,6 +274,9 @@ OSPGeometricModel RenderAsSpheres(osp::vec3f* vertices, std::vector<unsigned int
   }
   ospCommit(ospMesh);
   ospCommit(ospGeoModel);
+  ospRelease(ospMesh);
+  ospRelease(_cmats);
+  ospRelease(_PointColors);
 
   return ospGeoModel;
 }
@@ -294,9 +294,9 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
     return OSPGeometry();
   OSPGeometry ospMesh = ospNewGeometry("curve");
   OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
-  ospRelease(ospMesh);
 
   size_t numCylinders = indexArray.size() / 2;
+  OSPData _mdata = nullptr;
   if (scaleArray != nullptr)
   {
     std::vector<osp::vec4f> mdata;
@@ -312,10 +312,9 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
       mdata.emplace_back(osp::vec4f({ v.x, v.y, v.z, r }));
       mdata.emplace_back(osp::vec4f({ v.x, v.y, v.z, r }));
     }
-    OSPData _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC4F, mdata.size());
+    _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC4F, mdata.size());
     ospCommit(_mdata);
     ospSetObject(ospMesh, "vertex.position_radius", _mdata);
-    ospRelease(_mdata);
     ospSetInt(ospMesh, "type", OSP_ROUND);
     ospSetInt(ospMesh, "basis", OSP_BEZIER);
   }
@@ -327,11 +326,9 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
     {
       mdata.emplace_back(vertices[indexArray[i]]);
     }
-    OSPData _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC3F, mdata.size());
+    _mdata = ospNewCopyData1D(mdata.data(), OSP_VEC3F, mdata.size());
     ospCommit(_mdata);
     ospSetObject(ospMesh, "vertex.position", _mdata);
-    ospRelease(_mdata);
-
     ospSetFloat(ospMesh, "radius", lineWidth);
     ospSetInt(ospMesh, "type", OSP_ROUND);
     ospSetInt(ospMesh, "basis", OSP_LINEAR);
@@ -346,7 +343,6 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
   OSPData _idata = ospNewCopyData1D(indices.data(), OSP_UINT, indices.size());
   ospCommit(_idata);
   ospSetObject(ospMesh, "index", _idata);
-  ospRelease(_idata);
 
   // send the texture map and texture coordinates over
   bool _hastm = false;
@@ -404,8 +400,8 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
     {
       OSPTexture t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vColorTextureMap, sRGB);
       ospSetObject(actorMaterial, "map_kd", ((OSPTexture)(t2d)));
-      ospRelease(t2d);
       ospCommit(actorMaterial);
+      ospRelease(t2d);
     }
     else if (numCellMaterials)
     {
@@ -419,7 +415,6 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
       _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numCylinders);
       ospCommit(_cmats);
       ospSetObject(ospGeoModel, "material", _cmats);
-      ospRelease(_cmats);
     }
     else if (numPointColors)
     {
@@ -432,14 +427,12 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
       _PointColors = ospNewCopyData1D(&perPointColor[0], OSP_VEC4F, numCylinders);
       ospCommit(_PointColors);
       ospSetObject(ospGeoModel, "color", _PointColors);
-      ospRelease(_PointColors);
 #if 0
       //this should work, but it doesn't render whole mesh, I think ospray bug
       // per point color
       _PointColors = ospNewCopyData1D(&PointColors[0], OSP_VEC4F, numPointColors);
       ospCommit(_PointColors);
       ospSetObject(ospMesh, "vertex.color", _PointColors);
-      ospRelease(_PointColors);
 #endif
     }
   }
@@ -450,6 +443,11 @@ OSPGeometricModel RenderAsCylinders(std::vector<osp::vec3f>& vertices,
   }
   ospCommit(ospMesh);
   ospCommit(ospGeoModel);
+  ospRelease(ospMesh);
+  ospRelease(_mdata);
+  ospRelease(_idata);
+  ospRelease(_cmats);
+  ospRelease(_PointColors);
 
   return ospGeoModel;
 }
@@ -469,7 +467,6 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
     return OSPGeometry();
   OSPGeometry ospMesh = ospNewGeometry("mesh");
   OSPGeometricModel ospGeoModel = ospNewGeometricModel(ospMesh);
-  ospRelease(ospMesh);
   ospCommit(vertices);
   ospSetObject(ospMesh, "vertex.position", vertices);
 
@@ -484,7 +481,6 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
   OSPData index = ospNewCopyData1D(triangles.data(), OSP_VEC3UI, numTriangles);
   ospCommit(index);
   ospSetObject(ospMesh, "index", index);
-  ospRelease(index);
 
   OSPData _normals = nullptr;
   if (numNormals)
@@ -492,7 +488,6 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
     _normals = ospNewCopyData1D(normals.data(), OSP_VEC3F, numNormals);
     ospCommit(_normals);
     ospSetObject(ospMesh, "vertex.normal", _normals);
-    ospRelease(_normals);
   }
 
   // send the texture map and texture coordinates over
@@ -514,7 +509,6 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, numPointValueTextureCoords);
       ospCommit(tcs);
       ospSetObject(ospMesh, "vertex.texcoord", tcs);
-      ospRelease(tcs);
     }
     else if (numTextureCoordinates)
     {
@@ -531,9 +525,7 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         tc[i / 2] = osp::vec2f{ t1, t2 };
       }
       tcs = ospNewCopyData1D(tc.data(), OSP_VEC2F, numTextureCoordinates / 2);
-      ospCommit(tcs);
       ospSetObject(ospMesh, "vertex.texcoord", tcs);
-      ospRelease(tcs);
     }
   }
 
@@ -558,8 +550,8 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetVec4f(actorMaterial, "map_Bump.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
-      ospRelease(t2d);
       ospCommit(actorMaterial);
+      ospRelease(t2d);
     }
 
     if (interpolationType == VTK_PBR && _hastm)
@@ -583,15 +575,15 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetObject(actorMaterial, "map_roughness", t2dR);
         ospSetVec4f(actorMaterial, "map_roughness.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
-        ospRelease(t2dR);
 
         OSPTexture t2dM = vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vMetallicTextureMap);
         ospSetObject(actorMaterial, "map_metallic", t2dM);
         ospSetVec4f(actorMaterial, "map_metallic.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
-        ospRelease(t2dM);
 
         ospCommit(actorMaterial);
+        ospRelease(t2dR);
+        ospRelease(t2dM);
       }
 
       if (vAnisotropyTextureMap)
@@ -614,15 +606,15 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetObject(actorMaterial, "map_anisotropy", t2dA);
         ospSetVec4f(actorMaterial, "map_anisotropy.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
-        ospRelease(t2dA);
 
         OSPTexture t2dR =
           vtkOSPRayMaterialHelpers::VTKToOSPTexture(backend, vAnisotropyRotationTextureMap);
         ospSetObject(actorMaterial, "map_rotation", t2dR);
         ospSetVec4f(actorMaterial, "map_rotation.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
-        ospRelease(t2dR);
         ospCommit(actorMaterial);
+        ospRelease(t2dA);
+        ospRelease(t2dR);
       }
 
       if (vCoatNormalTextureMap)
@@ -631,8 +623,8 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetObject(actorMaterial, "map_coatNormal", t2d);
         ospSetVec4f(actorMaterial, "map_coatNormal.transform", textureTransform.x,
           textureTransform.y, textureTransform.z, textureTransform.w);
-        ospRelease(t2d);
         ospCommit(actorMaterial);
+        ospRelease(t2d);
       }
     }
 
@@ -652,8 +644,8 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
         ospSetVec4f(actorMaterial, "map_kd.transform", textureTransform.x, textureTransform.y,
           textureTransform.z, textureTransform.w);
       }
-      ospRelease(t2d);
       ospCommit(actorMaterial);
+      ospRelease(t2d);
     }
     else if (numCellMaterials)
     {
@@ -666,14 +658,12 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
       _cmats = ospNewCopyData1D(&perCellMats[0], OSP_MATERIAL, numTriangles);
       ospCommit(_cmats);
       ospSetObject(ospGeoModel, "material", _cmats);
-      ospRelease(_cmats);
     }
     else if (numPointColors)
     {
       _PointColors = ospNewCopyData1D(&PointColors[0], OSP_VEC4F, numPointColors);
       ospCommit(_PointColors);
       ospSetObject(ospMesh, "vertex.color", _PointColors);
-      ospRelease(_PointColors);
     }
   }
   if (actorMaterial && !perCellColor)
@@ -683,6 +673,11 @@ OSPGeometricModel RenderAsTriangles(OSPData vertices, std::vector<unsigned int>&
   }
   ospCommit(ospMesh);
   ospCommit(ospGeoModel);
+  ospRelease(index);
+  ospRelease(_normals);
+  ospRelease(tcs);
+  ospRelease(_cmats);
+  ospRelease(_PointColors);
 
   return ospGeoModel;
 }
