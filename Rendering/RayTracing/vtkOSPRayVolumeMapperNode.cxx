@@ -45,14 +45,17 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->SamplingRate = 0.0;
   this->SamplingStep = 1.0;
   this->NumColors = 128;
+
   this->OSPRayVolume = nullptr;
+  this->OSPRayVolumeModel = nullptr;
   this->Cropper = nullptr;
   this->TransferFunction = nullptr;
-  this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
-  this->UseSharedBuffers = true;
-  this->SharedData = nullptr;
+  this->OSPRayInstance = nullptr;
+
   this->LastArray = nullptr;
   this->LastComponent = -1;
+
+  this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>;
 }
 
 //------------------------------------------------------------------------------
@@ -65,25 +68,11 @@ vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
     RTW::Backend* backend = orn->GetBackend();
     if (backend != nullptr)
     {
+      ospRelease(this->OSPRayVolume);
+      ospRelease(this->OSPRayVolumeModel);
+      ospRelease(this->Cropper);
       ospRelease(this->TransferFunction);
-      ospRelease(this->SharedData);
-
-      if (this->OSPRayVolumeModel)
-      {
-        ospRelease(this->OSPRayVolumeModel);
-      }
-      if (this->OSPRayInstance)
-      {
-        ospRelease(this->OSPRayInstance);
-      }
-      if (this->Cropper)
-      {
-        ospRelease(this->Cropper);
-      }
-      if (this->OSPRayGeometricModel)
-      {
-        ospRelease(this->OSPRayGeometricModel);
-      }
+      ospRelease(this->OSPRayInstance);
     }
   }
 }
@@ -217,6 +206,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         return;
       }
 
+      ospRelease(this->OSPRayVolume);
       this->OSPRayVolume = ospNewVolume("structuredRegular");
       //
       // Send Volumetric data to OSPRay
@@ -240,20 +230,20 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospSetVec3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
       this->SamplingStep = std::min(scale[0], std::min(scale[1], scale[2]));
 
+      OSPData volData;
       if (!componentArray)
       {
-        this->SharedData =
-          ospNewSharedData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
+        volData = ospNewSharedData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
       }
       else
       {
-        this->SharedData =
-          ospNewCopyData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
+        volData = ospNewCopyData3D(ScalarDataPointer, ospVoxelType, dim[0], dim[1], dim[2]);
       }
-      ospCommit(this->SharedData);
-      ospSetObject(this->OSPRayVolume, "data", this->SharedData);
+      ospCommit(volData);
+      ospSetObject(this->OSPRayVolume, "data", volData);
 
       ospCommit(this->OSPRayVolume);
+      ospRelease(volData);
     }
 
     if (mapper->GetMTime() > this->BuildTime)
@@ -275,6 +265,8 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospCommit(clipBox);
         ospSetBool(this->Cropper, "invertNormals", true);
         ospCommit(this->Cropper);
+        ospRelease(clipBox);
+        ospRelease(boundsData);
       }
       else
       {
@@ -291,7 +283,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     }
 
     ospRelease(this->OSPRayVolumeModel);
-    ospRelease(this->OSPRayInstance);
     this->OSPRayVolumeModel = ospNewVolumetricModel(this->OSPRayVolume);
     ospSetObject(this->OSPRayVolumeModel, "transferFunction", this->TransferFunction);
     const float densityScale = 1.0f / volProperty->GetScalarOpacityUnitDistance();
@@ -315,32 +306,40 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         double* p = contours->GetValues();
         std::vector<float> values(p, p + nbContours);
 
-        this->OSPRayIsosurface = ospNewGeometry("isosurface");
+        OSPGeometry OSPRayIsosurface = ospNewGeometry("isosurface");
         OSPData isosurfaces = ospNewCopyData1D(values.data(), OSP_FLOAT, values.size());
         ospCommit(isosurfaces);
 
-        ospSetObject(this->OSPRayIsosurface, "isovalue", isosurfaces);
-        ospSetObject(this->OSPRayIsosurface, "volume", this->OSPRayVolumeModel);
-        ospCommit(this->OSPRayIsosurface);
+        ospSetObject(OSPRayIsosurface, "isovalue", isosurfaces);
+        ospSetObject(OSPRayIsosurface, "volume", this->OSPRayVolumeModel);
+        ospCommit(OSPRayIsosurface);
+        ospRelease(isosurfaces);
 
         OSPGroup group = ospNewGroup();
         OSPInstance instance = ospNewInstance(group);
-        ospCommit(instance);
-        ospRelease(group);
-        this->OSPRayGeometricModel = ospNewGeometricModel(this->OSPRayIsosurface);
+
+        OSPGeometricModel OSPRayGeometricModel = ospNewGeometricModel(OSPRayIsosurface);
+
         OSPMaterial material =
           vtkOSPRayMaterialHelpers::NewMaterial(orn, orn->GetORenderer(), "obj");
         ospCommit(material);
-        ospSetObjectAsData(this->OSPRayGeometricModel, "material", OSP_MATERIAL, material);
-        ospCommit(this->OSPRayGeometricModel);
-        ospRelease(this->OSPRayIsosurface);
-        OSPData instanceData =
-          ospNewCopyData1D(&this->OSPRayGeometricModel, OSP_GEOMETRIC_MODEL, 1);
-        ospRelease(this->OSPRayGeometricModel);
+        ospSetObjectAsData(OSPRayGeometricModel, "material", OSP_MATERIAL, material);
+        ospCommit(OSPRayGeometricModel);
+        ospRelease(material);
+        ospRelease(OSPRayIsosurface);
+
+        OSPData instanceData = ospNewCopyData1D(&OSPRayGeometricModel, OSP_GEOMETRIC_MODEL, 1);
         ospCommit(instanceData);
+        ospRelease(OSPRayGeometricModel);
+
         ospSetObject(group, "geometry", instanceData);
         ospCommit(group);
+        ospCommit(instance);
+        ospRelease(group);
+
         orn->Instances.emplace_back(instance);
+
+        ospRelease(this->OSPRayInstance);
         this->OSPRayInstance = instance;
       }
       else
@@ -352,8 +351,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       OSPGroup group = ospNewGroup();
       OSPInstance instance = ospNewInstance(group);
-      ospCommit(instance);
-      ospRelease(group);
       OSPData instanceData = ospNewCopyData1D(&this->OSPRayVolumeModel, OSP_VOLUMETRIC_MODEL, 1);
       ospCommit(instanceData);
       ospSetObject(group, "volume", instanceData);
@@ -362,7 +359,11 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospSetObjectAsData(group, "clippingGeometry", OSP_GEOMETRIC_MODEL, this->Cropper);
       }
       ospCommit(group);
+      ospCommit(instance);
+      ospRelease(group);
+      ospRelease(instanceData);
       orn->Instances.emplace_back(instance);
+      ospRelease(this->OSPRayInstance);
       this->OSPRayInstance = instance;
     }
 
@@ -398,21 +399,22 @@ void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(
   scalarTF->GetTable(tfRangeD[0], tfRangeD[1], this->NumColors, &this->TFOVals[0]);
   colorTF->GetTable(tfRangeD[0], tfRangeD[1], this->NumColors, &this->TFVals[0]);
 
+  ospRelease(this->TransferFunction);
   this->TransferFunction = ospNewTransferFunction("piecewiseLinear");
-  OSPData colorData = ospNewCopyData1D(&this->TFVals[0], OSP_VEC3F, this->NumColors);
 
+  OSPData colorData = ospNewCopyData1D(&this->TFVals[0], OSP_VEC3F, this->NumColors);
   ospCommit(colorData);
   ospSetObject(this->TransferFunction, "color", colorData);
-  ospRelease(colorData);
 
   ospSetVec2f(this->TransferFunction, "valueRange", tfRange.x, tfRange.y);
 
   OSPData tfAlphaData = ospNewCopyData1D(&this->TFOVals[0], OSP_FLOAT, this->NumColors);
   ospCommit(tfAlphaData);
   ospSetObject(this->TransferFunction, "opacity", tfAlphaData);
-  ospRelease(tfAlphaData);
 
   ospCommit(this->TransferFunction);
+  ospRelease(colorData);
+  ospRelease(tfAlphaData);
 
   this->PropertyTime.Modified();
 }
