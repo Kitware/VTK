@@ -23,13 +23,12 @@
  * of what colors are returned. In essence a color scheme is set and then
  * the number of colors and individual color values may be requested.
  *
- * For a web page of the default palettes, see:
+ * For a web page showcasing the default palettes, see:
  * <a
- * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>.
- * Use
+ * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKColorSeriesPatches.html">VTKColorSeriesPatches</a>,
  * <a
  * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/ColorSeriesPatches/">ColorSeriesPatches</a>
- * to generate this table.
+ * was used to generate this table.
  *
  * It is also possible to add schemes beyond the default palettes.
  * Whenever \a SetColorScheme is called with a string for which no palette

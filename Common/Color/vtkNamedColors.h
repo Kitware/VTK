@@ -16,13 +16,12 @@
  * @class   vtkNamedColors
  * @brief   A class holding colors and their names.
  *
- * For a web page of VTK Named Colors and their RGB values, see:
+ * For a web page showcasing VTK Named Colors and their RGB values, see:
  * <a
- * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>.
- * Use
- * <a
+ * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>,
+ *.<a
  * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/NamedColorPatches/">NamedColorPatches</a>
- * to generate this table.
+ * was used to generate this table.
  *
  * Color names are case insensitive and are stored as lower-case names
  * along with a 4-element array whose elements are red, green, blue and alpha,
@@ -43,15 +42,15 @@
  * 06-Dec-2017).
  *
  * Web colors and names in <a href="https://en.wikipedia.org/wiki/Web_colors">Web colors</a> take
- * precedence over those in colors.py. One consequence of this
- * is that while colors.py specifies green as equivalent to
+ * precedence over those in <em>colors.py</em>. One consequence of this
+ * is that while <em>colors.py</em> specifies green as equivalent to
  * (0,255,0), the web color standard defines it as (0,128,0).
  *
- * The SetColor methods will overwrite existing colors if the name of the
+ * The \a SetColor methods will overwrite existing colors if the name of the
  * color being set matches an existing color. Note that ColorExists() can be
  * used to test for existence of the color being set.
  *
- * In the case of the GetColor methods returning doubles, alternative versions,
+ * In the case of the \a GetColor methods returning doubles, alternative versions,
  * identified by the letters RGB in the names, are provided.
  * These get functions return just the red, green and blue components of
  * a color.
