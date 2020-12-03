@@ -727,11 +727,11 @@ void vtkChartXY::RecalculatePlotBounds()
       }
       else
       {
-        if (y1[0] > bounds[2] || std::isnan(bounds[2])) // min
+        if (y1[0] > bounds[2] || std::isnan(y1[0])) // min
         {
           y1[0] = bounds[2];
         }
-        if (y1[1] < bounds[3] || std::isnan(bounds[3])) // max
+        if (y1[1] < bounds[3] || std::isnan(y1[1])) // max
         {
           y1[1] = bounds[3];
         }
@@ -747,11 +747,11 @@ void vtkChartXY::RecalculatePlotBounds()
       }
       else
       {
-        if (x1[0] > bounds[0] || std::isnan(bounds[0])) // min
+        if (x1[0] > bounds[0] || std::isnan(x1[0])) // min
         {
           x1[0] = bounds[0];
         }
-        if (x1[1] < bounds[1] || std::isnan(bounds[1])) // max
+        if (x1[1] < bounds[1] || std::isnan(x1[1])) // max
         {
           x1[1] = bounds[1];
         }
@@ -767,11 +767,11 @@ void vtkChartXY::RecalculatePlotBounds()
       }
       else
       {
-        if (y2[0] > bounds[2] || std::isnan(bounds[2])) // min
+        if (y2[0] > bounds[2] || std::isnan(y2[0])) // min
         {
           y2[0] = bounds[2];
         }
-        if (y2[1] < bounds[3] || std::isnan(bounds[3])) // max
+        if (y2[1] < bounds[3] || std::isnan(y2[1])) // max
         {
           y2[1] = bounds[3];
         }
@@ -787,11 +787,11 @@ void vtkChartXY::RecalculatePlotBounds()
       }
       else
       {
-        if (x2[0] > bounds[0] || std::isnan(bounds[0])) // min
+        if (x2[0] > bounds[0] || std::isnan(x2[0])) // min
         {
           x2[0] = bounds[0];
         }
-        if (x2[1] < bounds[1] || std::isnan(bounds[1])) // max
+        if (x2[1] < bounds[1] || std::isnan(x2[1])) // max
         {
           x2[1] = bounds[1];
         }
