@@ -16,13 +16,12 @@
  * @class   vtkNamedColors
  * @brief   A class holding colors and their names.
  *
- * For a web page of VTK Named Colors and their RGB values, see:
+ * For a web page showcasing VTK Named Colors and their RGB values, see:
  * <a
- * href="http://htmlpreview.github.io/?https://github.com/lorensen/VTKExamples/blob/master/src/Python/Visualization/VTKNamedColorPatches.html">VTKNamedColorPatches</a>.
- * Use
- * <a
- * href="https://lorensen.github.io/VTKExamples/site/Python/Visualization/NamedColorPatches/">NamedColorPatches</a>
- * to generate this table.
+ * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>,
+ *.<a
+ * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/NamedColorPatches/">NamedColorPatches</a>
+ * was used to generate this table.
  *
  * Color names are case insensitive and are stored as lower-case names
  * along with a 4-element array whose elements are red, green, blue and alpha,
@@ -32,24 +31,26 @@
  * lies in the range 0...255 and if the RGBA values are double then each
  * element lies in the range 0...1.
  *
- * The colors and names are those in <a href="http://en.wikipedia.org/wiki/Web_colors">Web
+ * The colors and names are those in <a href="https://en.wikipedia.org/wiki/Web_colors">Web
  * colors</a> that are derived from the CSS3 specification: <a
- * href="http://www.w3.org/TR/css3-color/#svg-color">CSS Color Module Level 3</a> In this table
+ * href="https://www.w3.org/TR/css-color-3/">CSS Color Module Level 3</a> In this table
  * common synonyms such as cyan/aqua and magenta/fuchsia are also included.
  *
  * Also included in this class are names and colors taken from
- * Wrapping/Tcl/vtktesting/colors.tcl and Wrapping/Python/vtk/util/colors.py.
+ * <em>Wrapping/Python/vtkmodules/util/colors.py</em> that were originally taken from
+ * <em>Wrapping/Tcl/vtktesting/colors.tcl</em> (no longer in the VTK source files - deleted
+ * 06-Dec-2017).
  *
- * Web colors and names in <a href="http://en.wikipedia.org/wiki/Web_colors">Web colors</a> take
- * precedence over those in colors.py. One consequence of this
- * is that while colors.py specifies green as equivalent to
+ * Web colors and names in <a href="https://en.wikipedia.org/wiki/Web_colors">Web colors</a> take
+ * precedence over those in <em>colors.py</em>. One consequence of this
+ * is that while <em>colors.py</em> specifies green as equivalent to
  * (0,255,0), the web color standard defines it as (0,128,0).
  *
- * The SetColor methods will overwrite existing colors if the name of the
+ * The \a SetColor methods will overwrite existing colors if the name of the
  * color being set matches an existing color. Note that ColorExists() can be
  * used to test for existence of the color being set.
  *
- * In the case of the GetColor methods returning doubles, alternative versions,
+ * In the case of the \a GetColor methods returning doubles, alternative versions,
  * identified by the letters RGB in the names, are provided.
  * These get functions return just the red, green and blue components of
  * a color.
