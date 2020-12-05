@@ -344,65 +344,6 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     texture->SetMinificationFilter(interpolation);
     texture->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    if (rgBlock)
-    {
-      vtkDataArray* xCoords = rgBlock->GetXCoordinates();
-      this->CoordsTexSizes[0] = xCoords->GetNumberOfTuples();
-      float fRange[2];
-      double* r = xCoords->GetFiniteRange(0);
-      for (int i = 0; i < 2; ++i)
-      {
-        fRange[i] = static_cast<float>(r[i]);
-      }
-      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[0], this->CoordsBias[0]);
-      vtkDataArray* yCoords = rgBlock->GetYCoordinates();
-      this->CoordsTexSizes[1] = yCoords->GetNumberOfTuples();
-      r = yCoords->GetFiniteRange(0);
-      for (int i = 0; i < 2; ++i)
-      {
-        fRange[i] = static_cast<float>(r[i]);
-      }
-      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[1], this->CoordsBias[1]);
-      vtkDataArray* zCoords = rgBlock->GetZCoordinates();
-      this->CoordsTexSizes[2] = zCoords->GetNumberOfTuples();
-      r = zCoords->GetFiniteRange(0);
-      for (int i = 0; i < 2; ++i)
-      {
-        fRange[i] = static_cast<float>(r[i]);
-      }
-      this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[2], this->CoordsBias[2]);
-
-      vtkNew<vtkFloatArray> coordsArray;
-      coordsArray->SetNumberOfComponents(3);
-      int numTuples = std::max(this->CoordsTexSizes[0], this->CoordsTexSizes[1]);
-      numTuples = std::max(numTuples, this->CoordsTexSizes[2]);
-      coordsArray->SetNumberOfTuples(numTuples);
-      for (int i = 0; i < this->CoordsTexSizes[0]; ++i)
-      {
-        coordsArray->SetTypedComponent(i, 0,
-          static_cast<float>(xCoords->GetTuple1(i) * this->CoordsScale[0] + this->CoordsBias[0]));
-      }
-      for (int i = 0; i < this->CoordsTexSizes[1]; ++i)
-      {
-        coordsArray->SetTypedComponent(i, 1,
-          static_cast<float>(yCoords->GetTuple1(i) * this->CoordsScale[1] + this->CoordsBias[1]));
-      }
-      for (int i = 0; i < this->CoordsTexSizes[2]; ++i)
-      {
-        coordsArray->SetTypedComponent(i, 2,
-          static_cast<float>(zCoords->GetTuple1(i) * this->CoordsScale[2] + this->CoordsBias[2]));
-      }
-
-      void* coordsPtr = static_cast<void*>(coordsArray->GetPointer(0));
-      this->CoordsTex->Create1DFromRaw(numTuples, 3, VTK_FLOAT, coordsPtr);
-      this->CoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
-      this->CoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
-      this->CoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
-      this->CoordsTex->SetMagnificationFilter(vtkTextureObject::Nearest);
-      this->CoordsTex->SetMinificationFilter(vtkTextureObject::Nearest);
-      this->CoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-    }
-
     if (useXStride)
     {
       ostate->vtkglPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
@@ -484,6 +425,65 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
 
     delete[] tupPtr;
     sliceArray->Delete();
+  }
+
+  if (rgBlock)
+  {
+    vtkDataArray* xCoords = rgBlock->GetXCoordinates();
+    this->CoordsTexSizes[0] = xCoords->GetNumberOfTuples();
+    float fRange[2];
+    double* r = xCoords->GetFiniteRange(0);
+    for (int i = 0; i < 2; ++i)
+    {
+      fRange[i] = static_cast<float>(r[i]);
+    }
+    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[0], this->CoordsBias[0]);
+    vtkDataArray* yCoords = rgBlock->GetYCoordinates();
+    this->CoordsTexSizes[1] = yCoords->GetNumberOfTuples();
+    r = yCoords->GetFiniteRange(0);
+    for (int i = 0; i < 2; ++i)
+    {
+      fRange[i] = static_cast<float>(r[i]);
+    }
+    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[1], this->CoordsBias[1]);
+    vtkDataArray* zCoords = rgBlock->GetZCoordinates();
+    this->CoordsTexSizes[2] = zCoords->GetNumberOfTuples();
+    r = zCoords->GetFiniteRange(0);
+    for (int i = 0; i < 2; ++i)
+    {
+      fRange[i] = static_cast<float>(r[i]);
+    }
+    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[2], this->CoordsBias[2]);
+
+    vtkNew<vtkFloatArray> coordsArray;
+    coordsArray->SetNumberOfComponents(3);
+    int numTuples = std::max(this->CoordsTexSizes[0], this->CoordsTexSizes[1]);
+    numTuples = std::max(numTuples, this->CoordsTexSizes[2]);
+    coordsArray->SetNumberOfTuples(numTuples);
+    for (int i = 0; i < this->CoordsTexSizes[0]; ++i)
+    {
+      coordsArray->SetTypedComponent(i, 0,
+        static_cast<float>(xCoords->GetTuple1(i) * this->CoordsScale[0] + this->CoordsBias[0]));
+    }
+    for (int i = 0; i < this->CoordsTexSizes[1]; ++i)
+    {
+      coordsArray->SetTypedComponent(i, 1,
+        static_cast<float>(yCoords->GetTuple1(i) * this->CoordsScale[1] + this->CoordsBias[1]));
+    }
+    for (int i = 0; i < this->CoordsTexSizes[2]; ++i)
+    {
+      coordsArray->SetTypedComponent(i, 2,
+        static_cast<float>(zCoords->GetTuple1(i) * this->CoordsScale[2] + this->CoordsBias[2]));
+    }
+
+    void* coordsPtr = static_cast<void*>(coordsArray->GetPointer(0));
+    this->CoordsTex->Create1DFromRaw(numTuples, 3, VTK_FLOAT, coordsPtr);
+    this->CoordsTex->SetWrapR(vtkTextureObject::ClampToEdge);
+    this->CoordsTex->SetWrapS(vtkTextureObject::ClampToEdge);
+    this->CoordsTex->SetWrapT(vtkTextureObject::ClampToEdge);
+    this->CoordsTex->SetMagnificationFilter(vtkTextureObject::Nearest);
+    this->CoordsTex->SetMinificationFilter(vtkTextureObject::Nearest);
+    this->CoordsTex->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
   }
 
   vtkSmartPointer<vtkUnsignedCharArray> ugCellBlankArray = dataSet->GetCellGhostArray();
