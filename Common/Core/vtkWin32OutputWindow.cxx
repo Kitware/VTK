@@ -92,7 +92,7 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
     // if no new line is found then just add the text
     if (NewLinePos == 0)
     {
-      vtkWin32OutputWindow::AddText(someText);
+      this->AddText(someText);
       OutputDebugString(someText);
       switch (streamtype)
       {
@@ -114,8 +114,8 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       strncpy(buffer, someText, len);
       buffer[len] = 0;
       someText = NewLinePos + 1;
-      vtkWin32OutputWindow::AddText(buffer);
-      vtkWin32OutputWindow::AddText("\r\n");
+      this->AddText(buffer);
+      this->AddText("\r\n");
       OutputDebugString(buffer);
       OutputDebugString("\r\n");
       switch (streamtype)
@@ -141,7 +141,7 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
 //
 void vtkWin32OutputWindow::AddText(const char* someText)
 {
-  if (!Initialize() || (strlen(someText) == 0))
+  if (!this->Initialize() || (strlen(someText) == 0))
   {
     return;
   }
@@ -207,18 +207,22 @@ int vtkWin32OutputWindow::Initialize()
     RegisterClass(&wndClass);
   }
 
+  const char* title = this->GetWindowTitle();
+
   // create parent container window
 #ifdef _WIN32_WCE
-  HWND win = CreateWindow(L"vtkOutputWindow", L"vtkOutputWindow", WS_OVERLAPPED | WS_CLIPCHILDREN,
-    0, 0, 800, 512, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+  std::vector<wchar_t> wtitle(strlen(title) + 1);
+  mbstowcs(wtitle.data(), title, wtitle.size());
+  HWND win = CreateWindow(L"vtkOutputWindow", wtitle.data(), WS_OVERLAPPED | WS_CLIPCHILDREN, 0, 0,
+    800, 512, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #elif UNICODE
-  HWND win =
-    CreateWindow(L"vtkOutputWindow", L"vtkOutputWindow", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0,
-      0, 900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+  std::vector<wchar_t> wtitle(strlen(title) + 1);
+  mbstowcs(wtitle.data(), title, wtitle.size());
+  HWND win = CreateWindow(L"vtkOutputWindow", wtitle.data(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+    0, 0, 900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #else
-  HWND win =
-    CreateWindow("vtkOutputWindow", "vtkOutputWindow", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, 0,
-      900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+  HWND win = CreateWindow("vtkOutputWindow", title, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, 0,
+    900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #endif
 
   // Now create child window with text display box
