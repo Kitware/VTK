@@ -70,13 +70,18 @@ public:
   void SendToStdErrOff();
   //@}
 
+  /**
+   * Returns the window title.
+   */
+  virtual const char* GetWindowTitle() { return "vtkOutputWindow"; }
+
 protected:
   vtkWin32OutputWindow();
   ~vtkWin32OutputWindow() override;
 
-  void PromptText(const char* text);
-  static void AddText(const char*);
-  static int Initialize();
+  virtual void PromptText(const char* text);
+  virtual void AddText(const char*);
+  virtual int Initialize();
 
 private:
   vtkWin32OutputWindow(const vtkWin32OutputWindow&) = delete;
