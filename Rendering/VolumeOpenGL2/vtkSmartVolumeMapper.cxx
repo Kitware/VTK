@@ -594,8 +594,13 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
   int isCellData = 0;
   vtkDataArray* dataArray = this->GetScalars(
     input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, isCellData);
-  int const numComponents = dataArray->GetNumberOfComponents();
+  if (!dataArray)
+  {
+    vtkErrorMacro("Failed to locate data array.");
+    return;
+  }
 
+  int const numComponents = dataArray->GetNumberOfComponents();
   switch (this->VectorMode)
   {
     case MAGNITUDE:

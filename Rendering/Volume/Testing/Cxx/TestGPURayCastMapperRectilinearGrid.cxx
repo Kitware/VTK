@@ -25,6 +25,7 @@
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
@@ -33,6 +34,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkTypeFloat64Array.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
@@ -85,6 +88,28 @@ vtkSmartPointer<vtkRectilinearGrid> ModifyGridSpacing(
   newCoords->InsertNextTuple1(i * 0.08 * coords->GetTuple1(i));
   return output;
 }
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkRectilinearGrid> ModifyDataType(
+  vtkSmartPointer<vtkRectilinearGrid> input, int type_case)
+{
+  vtkNew<vtkRectilinearGrid> output;
+  output->ShallowCopy(input);
+  if (type_case == 0)
+  {
+    vtkNew<vtkTypeInt64Array> lscalars;
+    lscalars->DeepCopy(input->GetPointData()->GetScalars());
+    output->GetPointData()->AddArray(lscalars);
+  }
+  else
+  {
+    vtkNew<vtkTypeFloat64Array> lscalars;
+    lscalars->DeepCopy(input->GetPointData()->GetScalars());
+    output->GetPointData()->AddArray(lscalars);
+  }
+  return output;
+}
+
 } // end namespace TestGPURayCastMapperRectilinearGridNS
 
 //----------------------------------------------------------------------------
@@ -102,7 +127,7 @@ int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->SetSize(301, 300); // Intentional NPOT size
+  renWin->SetSize(301, 450); // Intentional NPOT size
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(0, 0.53, 0.53, 0.83);
@@ -124,17 +149,19 @@ int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
   volumeProperty->SetColor(ctf);
   volumeProperty->SetScalarOpacity(pf);
 
-  vtkNew<vtkGPUVolumeRayCastMapper> mapper[4];
-  vtkNew<vtkVolume> volume[4];
-  vtkNew<vtkRenderer> ren[4];
-  ren[0]->SetViewport(0, 0, 0.5, 0.5);
-  ren[1]->SetViewport(0.5, 0, 1, 0.5);
-  ren[2]->SetViewport(0, 0.5, 0.5, 1);
-  ren[3]->SetViewport(0.5, 0.5, 1, 1);
-  vtkNew<vtkDataSetMapper> dsMapper[4];
-  vtkNew<vtkActor> dsActor[4];
+  vtkNew<vtkGPUVolumeRayCastMapper> mapper[6];
+  vtkNew<vtkVolume> volume[6];
+  vtkNew<vtkRenderer> ren[6];
+  ren[0]->SetViewport(0, 0, 0.5, 0.33);
+  ren[1]->SetViewport(0.5, 0, 1, 0.33);
+  ren[2]->SetViewport(0, 0.33, 0.5, 0.66);
+  ren[3]->SetViewport(0.5, 0.33, 1, 0.66);
+  ren[4]->SetViewport(0, 0.66, 0.5, 1);
+  ren[5]->SetViewport(0.5, 0.66, 1, 1);
+  vtkNew<vtkDataSetMapper> dsMapper[6];
+  vtkNew<vtkActor> dsActor[6];
 
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < 6; ++i)
   {
     mapper[i]->UseJitteringOn();
     if (i == 0)
@@ -142,10 +169,17 @@ int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
       mapper[i]->SetInputData(rGrid);
       dsMapper[i]->SetInputData(rGrid);
     }
-    else
+    else if (i < 4)
     {
       vtkSmartPointer<vtkRectilinearGrid> newGrid =
         TestGPURayCastMapperRectilinearGridNS::ModifyGridSpacing(rGrid, i - 1);
+      mapper[i]->SetInputData(newGrid);
+      dsMapper[i]->SetInputData(newGrid);
+    }
+    else
+    {
+      vtkSmartPointer<vtkRectilinearGrid> newGrid =
+        TestGPURayCastMapperRectilinearGridNS::ModifyDataType(rGrid, i - 4);
       mapper[i]->SetInputData(newGrid);
       dsMapper[i]->SetInputData(newGrid);
     }
