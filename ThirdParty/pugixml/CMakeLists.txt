@@ -5,7 +5,8 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE pugixml
-    TARGETS pugixml
+    TARGETS pugixml::pugixml
+            pugixml
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
