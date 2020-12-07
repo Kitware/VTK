@@ -4700,6 +4700,7 @@ vtk_module_third_party_external(
   [VERSION              <version>]
   [COMPONENTS           <component>...]
   [OPTIONAL_COMPONENTS  <component>...]
+  [TARGETS              <target>...]
   [INCLUDE_DIRS <path-or-variable>...]
   [LIBRARIES    <target-or-variable>...]
   [DEFINITIONS  <variable>...]
@@ -4718,6 +4719,9 @@ Only the `PACKAGE` argument is required. The arguments are as follows:
   * `COMPONENTS`: The list of components to request from the package.
   * `OPTIONAL_COMPONENTS`: The list of optional components to request from the
     package.
+  * `TARGETS`: The list of targets to search for when using this package.
+    Targets which do not exist will be ignored to support different versions of
+    a package using different target names.
   * `STANDARD_INCLUDE_DIRS`: If present, standard include directories will be
     added to the module target. This is usually only required if both internal
     and external are supported for a given dependency.
