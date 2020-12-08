@@ -1,0 +1,17 @@
+NAME
+  VTK::IOOMF
+LIBRARY_NAME
+  vtkIOOMF
+DESCRIPTION
+  The base OMF Reader library
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+  VTK::FiltersTexture
+  VTK::IOImage
+  VTK::jsoncpp
+  VTK::RenderingCore
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::TestingCore
