@@ -6,6 +6,9 @@ DESCRIPTION
   The base OMF Reader library
 DEPENDS
   VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
   VTK::FiltersCore
   VTK::FiltersTexture
   VTK::IOImage
@@ -14,4 +17,7 @@ DEPENDS
   VTK::vtksys
   VTK::zlib
 TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
   VTK::TestingCore
+  VTK::TestingRendering
