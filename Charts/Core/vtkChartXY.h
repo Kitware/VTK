@@ -484,6 +484,14 @@ protected:
   bool ForceAxesToBounds;
 
   /**
+   * Property to ignore NaN in RecalculateBounds().
+   * Prevents the final bounds to contain NaN if one of the plots contains NaN
+   * in its bounds.
+   * False by default.
+   */
+  bool IgnoreNanInBounds;
+
+  /**
    * Property to enable zooming the chart with the mouse wheel.
    * True by default.
    */
