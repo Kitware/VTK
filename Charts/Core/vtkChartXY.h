@@ -241,6 +241,18 @@ public:
 
   //@{
   /**
+   * Ignore NaN in RecalculateBounds().
+   * Prevents the final bounds to contain NaN if one of the plots contains NaN
+   * in its bounds.
+   * False by default.
+   */
+  vtkSetMacro(IgnoreNanInBounds, bool);
+  vtkGetMacro(IgnoreNanInBounds, bool);
+  vtkBooleanMacro(IgnoreNanInBounds, bool);
+  //@}
+
+  //@{
+  /**
    * Set the width fraction for any bar charts drawn in this chart. It is
    * assumed that all bar plots will use the same array for the X axis, and that
    * this array is regularly spaced. The delta between the first two x values is
