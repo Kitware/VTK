@@ -777,11 +777,14 @@ void vtkProbeFilter::ProbePointsImageData(
 
   vtkIdType numSrcCells = source->GetNumberOfCells();
 
-  // dummy call required before multithreaded calls
-  static_cast<void>(source->GetCellType(0));
-  ProbeImageDataWorklet worklet(
-    this, source, srcIdx, start, spacing, dim, outPD, maskArray, source->GetMaxCellSize());
-  vtkSMPTools::For(0, numSrcCells, worklet);
+  if (numSrcCells > 0)
+  {
+    // dummy call required before multithreaded calls
+    static_cast<void>(source->GetCellType(0));
+    ProbeImageDataWorklet worklet(
+      this, source, srcIdx, start, spacing, dim, outPD, maskArray, source->GetMaxCellSize());
+    vtkSMPTools::For(0, numSrcCells, worklet);
+  }
 
   this->MaskPoints->Modified();
 }
