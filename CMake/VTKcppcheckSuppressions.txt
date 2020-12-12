@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.90 with the flags below.
+// at least on macOS with cppcheck 2.3 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -641,18 +641,22 @@ constParameter:*/Rendering/RayTracing/RTWrapper/VisRTX/Object.h
 // False positive: Assignment of function parameter has no effect outside the function. Did you forget dereferencing it?
 uselessAssignmentPtrArg:*/Wrapping/Tools/vtkParse.tab.c
 
-// False positives: https://trac.cppcheck.net/ticket/9223#comment:3
-nullPointerRedundantCheck,*/Wrapping/Tools/vtkWrapPython.c
-nullPointerRedundantCheck,*/Wrapping/Tools/vtkParsePreprocess.c
+// False positive
+nullPointerArithmeticRedundantCheck:*/Wrapping/Tools/vtkParse.tab.c
+
+// False positive: Either the condition 'm+1>outputsize' is redundant or the array 'output[16]' is accessed at index 16, which is out of bounds.
+arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
 constArgument:*/Wrapping/Tools/vtkParsePreprocess.c
 duplicateCondition:*/Wrapping/Tools/vtkParse.tab.c
+knownConditionTrueFalse:*/Utilities/KWIML/vtkkwiml/test/test.c
+knownConditionTrueFalse:*/Wrapping/Tools/vtkParsePreprocess.c
 redundantAssignment:*/Wrapping/Tools/lex.yy.c
 redundantAssignment:*/Wrapping/Tools/vtkParsePreprocess.c
 redundantInitialization:*/Wrapping/Tools/lex.yy.c
 syntaxError:*/CMake/patches/3.10/FindMPI/test_mpi.c
-constArgument:*/Wrapping/Tools/vtkParsePreprocess.c
+unreachableCode:*/Wrapping/Tools/vtkParse.tab.c
 unreadVariable:*/Wrapping/Tools/lex.yy.c
 unreadVariable:*/Wrapping/Tools/vtkParse.tab.c
 unreadVariable:*/Wrapping/Tools/vtkParseExtras.c
@@ -666,7 +670,6 @@ unreadVariable:*/Wrapping/Tools/vtkWrapHierarchy.c
 unreadVariable:*/Wrapping/Tools/vtkWrapJava.c
 unreadVariable:*/Wrapping/Tools/vtkWrapPythonMethodDef.c
 unreadVariable:*/Wrapping/Tools/vtkWrapText.c
-nullPointerRedundantCheck:*/Wrapping/Tools/lex.yy.c
 
 // 4 warnings, should fix!
 invalidPointerCast:*/Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
@@ -700,3 +703,4 @@ syntaxError:*/Examples/GUI/Win32/vtkBorland/ProjectDemo/Project_vtkDemo.cpp
 memleak:*/Wrapping/Tools/vtkParsePreprocess.c
 duplicateAssignExpression:*/Wrapping/Tools/vtkWrapText.c
 nullPointer:*/Wrapping/Tools/lex.yy.c
+nullPointerArithmeticRedundantCheck:*/Wrapping/Tools/vtkParse.tab.c:7649,warning,Either the condition '!yynewItems' is redundant or there is pointer arithmetic with NULL pointer.
