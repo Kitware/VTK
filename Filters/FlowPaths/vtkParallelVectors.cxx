@@ -448,6 +448,9 @@ int vtkParallelVectors::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  this->UniquePointIdToValidId->Initialize();
+  this->UniquePointIdToValidId->SetNumberOfComponents(1);
+
   this->Prefilter(info, inputVector, outputVector);
 
   // Check that the input names for the two vector fields have been set
@@ -539,7 +542,7 @@ int vtkParallelVectors::RequestData(
   }
 
   std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
-
+  vtkIdType validPointCounter = 0;
   for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId)
   {
     // We only parse 3D cells
@@ -608,6 +611,11 @@ int vtkParallelVectors::RequestData(
 
       vtkIdType pIdx;
       locator->InsertUniquePoint(p_out, pIdx);
+
+      // Build our map from original point to inserted point id.
+      // Overwriting values in this array with other valid ids is expected and fine.
+      // At the end of the process, the map will have the last encountered valid ids.
+      this->UniquePointIdToValidId->InsertTypedComponent(pIdx, 0, validPointCounter++);
       if (pIdx != pIndex[counter])
       {
         if (counter == 2)
@@ -664,6 +672,9 @@ int vtkParallelVectors::RequestData(
   output->SetLines(outputLines);
 
   this->Postfilter(info, inputVector, outputVector);
+
+  // Free the UniquePointIdToValidId map.
+  this->UniquePointIdToValidId->Initialize();
 
   return 1;
 }
