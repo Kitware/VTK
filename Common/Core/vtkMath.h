@@ -1073,9 +1073,11 @@ public:
 
   /**
    * Solve linear equations Ax = b using Crout's method. Input is square
-   * matrix A and load vector x. Solution x is written over load vector. The
+   * matrix A and load vector b. Solution x is written over load vector. The
    * dimension of the matrix is specified in size. If error is found, method
    * returns a 0.
+   * Note: Even if method succeeded the matrix A could be close to singular.
+   *       The solution should be checked against relevant tolerance criteria.
    */
   static vtkTypeBool SolveLinearSystem(double** A, double* x, int size);
 

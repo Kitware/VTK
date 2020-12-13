@@ -617,7 +617,7 @@ void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset, vtk
     {
       loop->Points->GetPoint(j, y0);
       loop->Points->GetPoint((j + 1) % numLoopPts, y1);
-      if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == 2)
+      if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == vtkLine::Intersect)
       {
         x[0] = x0[0] + u * (x1[0] - x0[0]);
         x[1] = x0[1] + u * (x1[1] - x0[1]);
@@ -844,7 +844,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
     {
       loop->Points->GetPoint(j, y0);
       loop->Points->GetPoint((j + 1) % numLoopPts, y1);
-      if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == 2)
+      if ((result = vtkLine::Intersection(x0, x1, y0, y1, u, v)) == vtkLine::Intersect)
       {
         x[0] = x0[0] + u * (x1[0] - x0[0]);
         x[1] = x0[1] + u * (x1[1] - x0[1]);

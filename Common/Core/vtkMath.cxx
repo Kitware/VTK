@@ -336,7 +336,7 @@ void vtkMath::Perpendiculars(const float v1[3], float v2[3], float v3[3], double
 
 //------------------------------------------------------------------------------
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
-// and load vector x. Solution x is written over load vector. The dimension of
+// and load vector b. Solution x is written over load vector. The dimension of
 // the matrix is specified in size. If error is found, method returns a 0.
 vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
 {
@@ -346,6 +346,11 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
   {
     double det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
 
+    // Note:
+    // Below is a simplistic tolerance.
+    // Future efforst should be made to:
+    // a) replace the use the the numerically unstable Cramer's method
+    // b) determine more accurately if the matrix is singular
     static const double eps = 256.0 * std::numeric_limits<double>::epsilon();
 
     if (std::fabs(det) < eps)
