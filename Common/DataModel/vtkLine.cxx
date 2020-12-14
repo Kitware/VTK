@@ -163,10 +163,9 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
     double diff[3];
     vtkMath::Subtract(ptu, ptv, diff);
     double diff2 = vtkMath::SquaredNorm(diff);
-    // compare diff > 3 * eps * max(nrm(ptu),nrm(ptv))
+    // compare diff > 1e-6 * max(nrm(ptu),nrm(ptv))
     // but without taking square roots, hence square this equation
-    if (diff2 > 9 * DBL_EPSILON * DBL_EPSILON *
-        std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)))
+    if (diff2 > 1e-12 * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)))
     {
       return NoIntersect;
     }
