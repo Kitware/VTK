@@ -1127,24 +1127,13 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList* ptIds, vtkPoints* pts, double to
   this->Array = new vtkLocalPolyVertex[numVerts];
   int i;
 
-  // now load the data into the array
-  double x[3];
+  // Load the data into the array.
   for (i = 0; i < numVerts; i++)
   {
     this->Array[i].id = i;
-    pts->GetPoint(i, x);
-    this->Array[i].x[0] = x[0];
-    this->Array[i].x[1] = x[1];
-    this->Array[i].x[2] = x[2];
-    this->Array[i].next = this->Array + (i + 1) % numVerts;
-    if (i == 0)
-    {
-      this->Array[i].previous = this->Array + numVerts - 1;
-    }
-    else
-    {
-      this->Array[i].previous = this->Array + i - 1;
-    }
+    pts->GetPoint(i, this->Array[i].x);
+    this->Array[i].next = (i == (numVerts - 1) ? this->Array : this->Array + i + 1);
+    this->Array[i].previous = (i == 0 ? this->Array + numVerts - 1 : this->Array + i - 1);
   }
 
   // Make sure that there are no coincident vertices.
@@ -1181,7 +1170,7 @@ vtkPolyVertexList::~vtkPolyVertexList()
 //------------------------------------------------------------------------------
 // Remove the vertex from the polygon (forming a triangle with
 // its previous and next neighbors, and reinsert the neighbors
-// into the priority queue.
+// into the priority queue).
 void vtkPolyVertexList::RemoveVertex(
   vtkLocalPolyVertex* vtx, vtkIdList* tris, vtkPriorityQueue* queue)
 {
@@ -1410,7 +1399,7 @@ int vtkPolygon::EarCutTriangulation()
     }
   }
 
-  // For each vertex in priority queue, and as long as there
+  // For each vertex in the priority queue, and as long as there
   // are three or more vertices, remove the vertex (if possible)
   // and create a new triangle. If the number of vertices in the
   // queue is equal to the number of vertices, then the polygon

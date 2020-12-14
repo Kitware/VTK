@@ -42,6 +42,7 @@ vtk_add_test_python(
   TestOrientedFlyingEdgesPlaneCutter2.py
   TestPolyDataEdgeConnectivityFilter.py
   TestPolyDataEdgeConnectivityFilter2.py
+  TestPolyDataPlaneClipper.py
   TestPolyDataPlaneCutter.py
   TestProbeFilterImageInput.py
   TestRectilinearGridPlaneCutter.py

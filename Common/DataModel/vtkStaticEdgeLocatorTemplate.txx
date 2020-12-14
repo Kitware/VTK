@@ -23,7 +23,7 @@
 // Gather coincident edges into contiguous runs. Use this for merging edges.
 template <typename IDType, typename EdgeData>
 const IDType* vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::MergeEdges(
-  vtkIdType numEdges, MergeTupleType* mergeArray, vtkIdType& numUniqueEdges)
+  vtkIdType numEdges, EdgeTupleType* mergeArray, vtkIdType& numUniqueEdges)
 {
   // Sort the edges. Note that the sort is first on V0, then V1. So both
   // V0 and V1 are sorted in ascending order.
