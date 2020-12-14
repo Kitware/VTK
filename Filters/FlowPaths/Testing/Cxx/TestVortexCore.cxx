@@ -259,6 +259,19 @@ int TestVortexCore(int argc, char* argv[])
 
   if (!output1->GetNumberOfCells() || output1->GetNumberOfCells() != output2->GetNumberOfCells())
   {
+    std::cerr << "Number of output cells in outputs did not match" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (output1->CheckAttributes())
+  {
+    std::cerr << "Output 1 attribute check failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (output2->CheckAttributes())
+  {
+    std::cerr << "Output 2 attribute check failed" << std::endl;
     return EXIT_FAILURE;
   }
 

@@ -448,6 +448,9 @@ int vtkParallelVectors::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  this->UniquePointIdToValidId->Initialize();
+  this->UniquePointIdToValidId->SetNumberOfComponents(1);
+
   this->Prefilter(info, inputVector, outputVector);
 
   // Check that the input names for the two vector fields have been set
@@ -539,7 +542,7 @@ int vtkParallelVectors::RequestData(
   }
 
   std::vector<std::array<vtkIdType, 3>> surfaceTriangles;
-
+  vtkIdType validPointCounter = 0;
   for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); ++cellId)
   {
     // We only parse 3D cells
@@ -606,21 +609,26 @@ int vtkParallelVectors::RequestData(
         continue;
       }
 
+      if (counter == 2)
+      {
+        // If we are here, then we have found at least three faces that
+        // contain unique points on which the vector field is parallel.
+        // This can happen if the vector fields are constant across all
+        // corners of the tetrahedron, but then the concept of computing
+        // parallel vector lines becomes moot.
+        ++counter;
+        break;
+      }
+
       vtkIdType pIdx;
       locator->InsertUniquePoint(p_out, pIdx);
+
+      // Build our map from original point to inserted point id.
+      // Overwriting values in this array with other valid ids is expected and fine.
+      // At the end of the process, the map will have the last encountered valid ids.
+      this->UniquePointIdToValidId->InsertTypedComponent(pIdx, 0, validPointCounter++);
       if (pIdx != pIndex[counter])
       {
-        if (counter == 2)
-        {
-          // If we are here, then we have found at least three faces that
-          // contain unique points on which the vector field is parallel.
-          // This can happen if the vector fields are constant across all
-          // corners of the tetrahedron, but then the concept of computing
-          // parallel vector lines becomes moot.
-          ++counter;
-          break;
-        }
-
         // We have identified either our first or second point. Record it
         // and continue searching.
         pIndex[counter] = pIdx;
@@ -664,6 +672,9 @@ int vtkParallelVectors::RequestData(
   output->SetLines(outputLines);
 
   this->Postfilter(info, inputVector, outputVector);
+
+  // Free the UniquePointIdToValidId map.
+  this->UniquePointIdToValidId->Initialize();
 
   return 1;
 }
