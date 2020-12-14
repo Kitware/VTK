@@ -1275,7 +1275,7 @@ private:
 public:
   vtkFoamFile(const vtkStdString& casePath, vtkOpenFOAMReader* reader)
     : vtkFoamFileStack(reader)
-    , InputMode(INPUT_MODE_ERROR)
+    , InputMode(INPUT_MODE_MERGE)
     , StackI(0)
     , CasePath(casePath)
   {
