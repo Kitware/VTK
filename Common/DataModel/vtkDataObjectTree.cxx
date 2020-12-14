@@ -156,8 +156,7 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     return;
   }
 
-  this->Superclass::CopyStructure(source);
-
+  this->Superclass::CopyStructure(compositeSource);
   this->Internals->Children.clear();
   if (!source)
   {
