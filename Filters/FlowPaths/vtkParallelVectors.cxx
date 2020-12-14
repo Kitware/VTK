@@ -609,6 +609,17 @@ int vtkParallelVectors::RequestData(
         continue;
       }
 
+      if (counter == 2)
+      {
+        // If we are here, then we have found at least three faces that
+        // contain unique points on which the vector field is parallel.
+        // This can happen if the vector fields are constant across all
+        // corners of the tetrahedron, but then the concept of computing
+        // parallel vector lines becomes moot.
+        ++counter;
+        break;
+      }
+
       vtkIdType pIdx;
       locator->InsertUniquePoint(p_out, pIdx);
 
@@ -618,17 +629,6 @@ int vtkParallelVectors::RequestData(
       this->UniquePointIdToValidId->InsertTypedComponent(pIdx, 0, validPointCounter++);
       if (pIdx != pIndex[counter])
       {
-        if (counter == 2)
-        {
-          // If we are here, then we have found at least three faces that
-          // contain unique points on which the vector field is parallel.
-          // This can happen if the vector fields are constant across all
-          // corners of the tetrahedron, but then the concept of computing
-          // parallel vector lines becomes moot.
-          ++counter;
-          break;
-        }
-
         // We have identified either our first or second point. Record it
         // and continue searching.
         pIndex[counter] = pIdx;
