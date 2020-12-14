@@ -257,10 +257,40 @@ void vtkParallelVectorsForVortexCore::Postfilter(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkPolyData* output = vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
-  output->GetPointData()->AddArray(this->QCriterionArray);
-  output->GetPointData()->AddArray(this->DeltaCriterionArray);
-  output->GetPointData()->AddArray(this->Lambda_2CriterionArray);
-  output->GetPointData()->AddArray(this->Lambda_ciCriterionArray);
+  // We need to remap from original positions in these arrays to positions in new arrays that
+  // correspond to point indices in the output. Since a locator is used to insert points into
+  // the output, we need to do this here.
+  vtkDoubleArray* criteriaArrays[4] = { this->QCriterionArray, this->DeltaCriterionArray,
+    this->Lambda_2CriterionArray, this->Lambda_ciCriterionArray };
+  vtkSmartPointer<vtkDoubleArray> remappedArrays[4];
+
+  for (int i = 0; i < sizeof(criteriaArrays) / sizeof(vtkDoubleArray*); ++i)
+  {
+    remappedArrays[i].TakeReference(criteriaArrays[i]->NewInstance());
+    remappedArrays[i]->SetNumberOfComponents(criteriaArrays[i]->GetNumberOfComponents());
+    remappedArrays[i]->SetNumberOfTuples(output->GetNumberOfPoints());
+    remappedArrays[i]->SetName(criteriaArrays[i]->GetName());
+
+    output->GetPointData()->AddArray(remappedArrays[i]);
+  }
+
+  for (vtkIdType uniqueId = 0; uniqueId < this->UniquePointIdToValidId->GetNumberOfTuples();
+       ++uniqueId)
+  {
+    assert(uniqueId < output->GetNumberOfPoints());
+    vtkIdType originalId = this->UniquePointIdToValidId->GetTypedComponent(uniqueId, 0);
+    for (int i = 0; i < 4; ++i)
+    {
+      remappedArrays[i]->SetTypedComponent(
+        uniqueId, 0, criteriaArrays[i]->GetTypedComponent(originalId, 0));
+    }
+  }
+
+  // Clear the criteria arrays
+  for (int i = 0; i < sizeof(criteriaArrays) / sizeof(vtkDoubleArray*); ++i)
+  {
+    criteriaArrays[i]->Initialize();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -311,6 +341,11 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
     }
   }
 
+  // Note that values are inserted into these arrays without regard to the
+  // point merging being done in vtkParallelVectors::RequestData().
+  // At the end of the algorithm, we need to create new arrays from
+  // these arrays based on the map defined by UniquePointIdToValidId
+  // in the superclass.
   this->QCriterionArray->InsertNextTuple(&vortexCriteria[0]);
   this->DeltaCriterionArray->InsertNextTuple(&vortexCriteria[1]);
   this->Lambda_2CriterionArray->InsertNextTuple(&vortexCriteria[2]);
