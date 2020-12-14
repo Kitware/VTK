@@ -63,8 +63,13 @@
 class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkCellDerivatives, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
    * Construct to compute the gradient of the scalars and vectors.
