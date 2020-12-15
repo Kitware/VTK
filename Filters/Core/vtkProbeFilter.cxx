@@ -44,6 +44,16 @@ vtkCxxSetObjectMacro(vtkProbeFilter, FindCellStrategy, vtkFindCellStrategy);
 
 #define CELL_TOLERANCE_FACTOR_SQR 1e-6
 
+static inline bool IsBlankedCell(vtkUnsignedCharArray* gcells, vtkIdType cellId)
+{
+  if (gcells)
+  {
+    const auto flag = gcells->GetTypedComponent(cellId, 0);
+    return (flag & (vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::DUPLICATECELL)) != 0;
+  }
+  return false;
+}
+
 class vtkProbeFilter::vtkVectorOfArrays : public std::vector<vtkDataArray*>
 {
 };
@@ -383,6 +393,9 @@ void vtkProbeFilter::ProbeEmptyPoints(
   pd = source->GetPointData();
   cd = source->GetCellData();
 
+  auto sourceGhostFlags =
+    vtkUnsignedCharArray::SafeDownCast(cd->GetArray(vtkDataSetAttributes::GhostArrayName()));
+
   // lets use a stack allocated array if possible for performance reasons
   int mcs = source->GetMaxCellSize();
   if (mcs <= 256)
@@ -489,7 +502,7 @@ void vtkProbeFilter::ProbeEmptyPoints(
       : source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights);
 
     vtkCell* cell = nullptr;
-    if (cellId >= 0)
+    if (cellId >= 0 && !::IsBlankedCell(sourceGhostFlags, cellId))
     {
       cell = source->GetCell(cellId);
       if (this->ComputeTolerance)
@@ -731,9 +744,17 @@ public:
       weights = &dynamicweights[0];
     }
 
+    auto sourceGhostFlags = vtkUnsignedCharArray::SafeDownCast(
+      this->Source->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+
     CellStorage& cs = this->Cells.Local();
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
+      if (IsBlankedCell(sourceGhostFlags, cellId))
+      {
+        continue;
+      }
+
       vtkCell* cell = cs.GetCell(this->Source, cellId);
       this->ProbeFilter->ProbeImagePointsInCell(cell, cellId, this->Source, this->SrcBlockId,
         this->Start, this->Spacing, this->Dim, this->OutPointData, this->MaskArray, weights);
@@ -898,6 +919,9 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
     tol2 = sLength2 * CELL_TOLERANCE_FACTOR_SQR;
   }
 
+  auto sourceGhostFlags =
+    vtkUnsignedCharArray::SafeDownCast(cd->GetArray(vtkDataSetAttributes::GhostArrayName()));
+
   // Loop over all input points, interpolating source data
   vtkIdType progressInterval = endId / 20 + 1;
   for (vtkIdType ptId = startId; ptId < endId && !GetAbortExecute(); ptId++)
@@ -924,7 +948,7 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
     int subId;
     double pcoords[3], weights[8];
     vtkIdType cellId = source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights);
-    if (cellId >= 0)
+    if (cellId >= 0 && !::IsBlankedCell(sourceGhostFlags, cellId))
     {
       source->GetCellPoints(cellId, pointIds);
 
