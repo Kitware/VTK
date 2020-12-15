@@ -26,9 +26,15 @@ const IDType* vtkStaticEdgeLocatorTemplate<IDType, EdgeData>::MergeEdges(
   vtkIdType numEdges, EdgeTupleType* mergeArray, vtkIdType& numUniqueEdges)
 {
   // Sort the edges. Note that the sort is first on V0, then V1. So both
-  // V0 and V1 are sorted in ascending order.
-  this->NumEdges = numEdges;
+  // V0 and V1 are sorted in ascending order. Look out for empty cases.
+  this->MergeOffsets.clear(); // make sure offsets are empty initially
+  if ((this->NumEdges = numEdges) <= 0)
+  {
+    numUniqueEdges = 0;
+    return nullptr;
+  }
   this->MergeArray = mergeArray;
+
   vtkSMPTools::Sort(this->MergeArray, this->MergeArray + numEdges);
 
   // Now build offsets, i.e., determine the number of unique edges and determine

@@ -14,6 +14,7 @@ set(classes
   vtkHausdorffDistancePointSetFilter
   vtkHyperTreeGridOutlineFilter
   vtkImageDataOutlineFilter
+  vtkImprintFilter
   vtkLinearCellExtrusionFilter
   vtkLinearExtrusionFilter
   vtkLinearSubdivisionFilter
