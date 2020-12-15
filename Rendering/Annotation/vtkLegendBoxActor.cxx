@@ -887,7 +887,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
         posY = p2[1] - this->Padding - (double)i * size[1] - 0.5 * size[1] - 0.25 * tempi[1];
         this->Transform[i]->Identity();
         this->Transform[i]->Translate(posX, posY, 0.0);
-        this->Transform[i]->Scale(0.5 * sf, 0.5 * sf, 1);
+        this->Transform[i]->Scale(0.5 * sf, 0.5 * sf, 0);
         this->SymbolMapper[i]->SetScalarVisibility(this->ScalarVisibility);
         this->SymbolActor[i]->GetProperty()->DeepCopy(this->GetProperty());
         this->Colors->GetTuple(i, color);
