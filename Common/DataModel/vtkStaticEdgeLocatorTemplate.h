@@ -91,9 +91,7 @@ struct EdgeTuple
   {
     if (this->V0 > this->V1)
     {
-      TId tmp = this->V0;
-      this->V0 = this->V1;
-      this->V1 = tmp;
+      std::swap(this->V0, this->V1);
     }
   }
 

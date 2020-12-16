@@ -101,15 +101,16 @@ void BaseCell::BuildCases(
     int* triCases = cases[caseNum];
 
     // Count the number of edges
-    int count;
-    for (count = 0; triCases[count] != (-1); ++count)
+    int count = 0;
+    while (triCases[count] != -1)
     {
+      ++count;
     }
     caseArray[caseOffset++] = count;
 
     // Now populate the edges
     const vtkIdType* edge;
-    for (count = 0; triCases[count] != (-1); ++count)
+    for (count = 0; triCases[count] != -1; ++count)
     {
       edge = edges[triCases[count]];
       caseArray[caseOffset++] = edge[0];

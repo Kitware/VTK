@@ -381,12 +381,15 @@ int vtkCutter::RequestData(
     // See if the input can be fully processed by the fast vtk3DLinearGridPlaneCutter.
     // This algorithm can provide a substantial speed improvement over the more general
     // algorithm for vtkUnstructuredGrids.
+    // NOTE: CanFullyProcessDataObject may be interesting here to check
+    // if some cells will be skipped
     if (this->GetGenerateTriangles() && this->GetCutFunction() &&
       this->GetCutFunction()->IsA("vtkPlane") && this->GetNumberOfContours() == 1 &&
       this->GetGenerateCutScalars() == 0 &&
       (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
       vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input))
     {
+      std::cout << "plane cutter (otpmized) case!" << std::endl;
       vtkNew<vtk3DLinearGridPlaneCutter> linear3DCutter;
 
       // Create a copy of vtkPlane and nudge it by the single contour
@@ -416,11 +419,13 @@ int vtkCutter::RequestData(
       return retval;
     }
 
+    std::cout << "UG cutter case!" << std::endl;
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);
   }
   else
   {
+    std::cout << "DS cutter case!" << std::endl;
     vtkDebugMacro(<< "Executing DataSet Cutter");
     this->DataSetCutter(input, output);
   }
