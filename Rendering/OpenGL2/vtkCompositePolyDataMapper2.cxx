@@ -298,6 +298,14 @@ void vtkCompositeMapperHelper2::RenderPiece(vtkRenderer* ren, vtkActor* actor)
     return;
   }
 
+  if (ren->GetSelector())
+  {
+    for (auto& it : this->Data)
+    {
+      this->CurrentInput = it.first;
+      this->UpdateMaximumPointCellIds(ren, actor);
+    }
+  }
   this->CurrentInput = this->Data.begin()->first;
 
   this->UpdateCameraShiftScale(ren, actor);
@@ -963,7 +971,6 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
       compval |= compositedata[pos + 1];
       compval = compval << 8;
       compval |= compositedata[pos];
-      compval -= 1;
       if (compval <= maxFlatIndex)
       {
         this->PickPixels[compval].push_back(pos);
@@ -1032,7 +1039,8 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
+        // as this pass happens after both low and high point passes
+        // the computed value should be higher than StartVertex
         inval -= hdata->StartVertex;
         unsigned int outval = processArray->GetValue(inval) + 1;
         processdata[pos] = outval & 0xff;
@@ -1053,6 +1061,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
     if (rawplowdata)
     {
       unsigned char* plowdata = sel->GetPixelBuffer(vtkHardwareSelector::POINT_ID_LOW24);
+      bool hasHighPointIds = sel->HasHighPointIds();
 
       for (auto pos : pixeloffsets)
       {
@@ -1067,16 +1076,21 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
-        inval -= hdata->StartVertex;
-        vtkIdType outval = inval + 1;
-        if (pointArrayId)
+        // this pass happens before the high pass which means the value
+        // could underflow etc when the high data is not around yet and high
+        // data is needed.
+        if (rawphighdata || !hasHighPointIds)
         {
-          outval = pointArrayId->GetValue(inval) + 1;
+          inval -= hdata->StartVertex;
+          vtkIdType outval = inval;
+          if (pointArrayId && static_cast<vtkIdType>(inval) <= pointArrayId->GetMaxId())
+          {
+            outval = pointArrayId->GetValue(inval);
+          }
+          plowdata[pos] = outval & 0xff;
+          plowdata[pos + 1] = (outval & 0xff00) >> 8;
+          plowdata[pos + 2] = (outval & 0xff0000) >> 16;
         }
-        plowdata[pos] = outval & 0xff;
-        plowdata[pos + 1] = (outval & 0xff00) >> 8;
-        plowdata[pos + 2] = (outval & 0xff0000) >> 16;
       }
     }
   }
@@ -1102,12 +1116,12 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
+        // always happens after the low pass so we should be safe
         inval -= hdata->StartVertex;
-        vtkIdType outval = inval + 1;
+        vtkIdType outval = inval;
         if (pointArrayId)
         {
-          outval = pointArrayId->GetValue(inval) + 1;
+          outval = pointArrayId->GetValue(inval);
         }
         phighdata[pos] = (outval & 0xff000000) >> 24;
         phighdata[pos + 1] = (outval & 0xff00000000) >> 32;
@@ -1154,10 +1168,12 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
+
+        // always gets called after the cell high and low are available
+        // so it is safe
         vtkIdType vtkCellId =
           hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
-        unsigned int outval = compositeArray->GetValue(vtkCellId) + 1;
+        unsigned int outval = compositeArray->GetValue(vtkCellId);
         compositedata[pos] = outval & 0xff;
         compositedata[pos + 1] = (outval & 0xff00) >> 8;
         compositedata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -1171,6 +1187,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
       ? vtkArrayDownCast<vtkIdTypeArray>(cd->GetArray(this->CellIdArrayName))
       : nullptr;
     unsigned char* clowdata = sel->GetPixelBuffer(vtkHardwareSelector::CELL_ID_LOW24);
+    bool hasHighCellIds = sel->HasHighCellIds();
 
     if (rawclowdata)
     {
@@ -1189,16 +1206,22 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
-        vtkIdType outval = hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
-        if (cellArrayId)
+        // this pass happens before the high pass which means the value
+        // could underflow etc when the high data is not around yet and high
+        // data is needed. This underflow would happen in the ConvertToOpenGLCellId
+        // code when passed too low a number
+        if (rawchighdata || !hasHighCellIds)
         {
-          outval = cellArrayId->GetValue(outval);
+          vtkIdType outval =
+            hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
+          if (cellArrayId && outval <= cellArrayId->GetMaxId())
+          {
+            outval = cellArrayId->GetValue(outval);
+          }
+          clowdata[pos] = outval & 0xff;
+          clowdata[pos + 1] = (outval & 0xff00) >> 8;
+          clowdata[pos + 2] = (outval & 0xff0000) >> 16;
         }
-        outval++;
-        clowdata[pos] = outval & 0xff;
-        clowdata[pos + 1] = (outval & 0xff00) >> 8;
-        clowdata[pos + 2] = (outval & 0xff0000) >> 16;
       }
     }
   }
@@ -1224,13 +1247,12 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
+        // always called after low24 so safe
         vtkIdType outval = hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
         }
-        outval++;
         chighdata[pos] = (outval & 0xff000000) >> 24;
         chighdata[pos + 1] = (outval & 0xff00000000) >> 32;
         chighdata[pos + 2] = (outval & 0xff0000000000) >> 40;

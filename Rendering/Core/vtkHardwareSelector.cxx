@@ -297,9 +297,14 @@ bool vtkHardwareSelector::CaptureBuffers()
   this->Renderer->SetPreserveColorBuffer(0);
 
   this->BeginSelection();
+
+  // maybe the second iteration could just call process pixel buffers
+  // I think that is all that is needed instead of the full PreCapture, Render, PostCapture.
+  // Normally render is what calls ProcessPixelBuffers
+
   for (this->Iteration = 0; this->Iteration < 2; this->Iteration++)
   {
-    for (this->CurrentPass = MIN_KNOWN_PASS; this->CurrentPass < MAX_KNOWN_PASS;
+    for (this->CurrentPass = MIN_KNOWN_PASS; this->CurrentPass <= MAX_KNOWN_PASS;
          this->CurrentPass++)
     {
       if (!this->PassRequired(this->CurrentPass))
@@ -328,8 +333,18 @@ bool vtkHardwareSelector::CaptureBuffers()
 void vtkHardwareSelector::SetPropColorValue(vtkIdType val)
 {
   float color[3];
-  vtkHardwareSelector::Convert(val + 1, color);
+  vtkHardwareSelector::Convert(val, color);
   this->SetPropColorValue(color);
+}
+
+bool vtkHardwareSelector::HasHighPointIds()
+{
+  return this->MaximumPointId >= 0xffffff;
+}
+
+bool vtkHardwareSelector::HasHighCellIds()
+{
+  return this->MaximumCellId >= 0xffffff;
 }
 
 //------------------------------------------------------------------------------
@@ -421,7 +436,7 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
       int val = this->Convert(xx, yy, pixelbuffer);
       if (val > 0)
       {
-        val--;
+        val -= ID_OFFSET;
         if (this->Internals->HitProps.find(val) == this->Internals->HitProps.end())
         {
           this->Internals->HitProps.insert(val);
@@ -679,7 +694,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     PixelInformation info;
     info.Valid = true;
 
-    actorid--;
+    actorid -= ID_OFFSET;
     info.PropID = actorid;
     info.Prop = this->GetPropFromID(actorid);
     if (this->ActorPassOnly)
@@ -687,8 +702,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
       return info;
     }
 
-    int composite_id =
-      this->Convert(display_position, this->PixBuffer[COMPOSITE_INDEX_PASS]) - ID_OFFSET;
+    int composite_id = this->Convert(display_position, this->PixBuffer[COMPOSITE_INDEX_PASS]);
     if (composite_id < 0 || composite_id > 0xffffff)
     {
       // the pixel did not hit any composite
@@ -704,17 +718,11 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
       high24 = this->Convert(display_position, this->PixBuffer[POINT_ID_HIGH24]);
     }
 
-    // id 0 is reserved for nothing present.
-    info.AttributeID = (this->GetID(low24, high24, 0) - ID_OFFSET);
-    if (info.AttributeID < 0)
-    {
-      // the pixel did not hit any cell.
-      return PixelInformation();
-    }
+    info.AttributeID = this->GetID(low24, high24, 0);
 
     info.ProcessID =
       this->Convert(display_position[0], display_position[1], this->PixBuffer[PROCESS_PASS]);
-    info.ProcessID--;
+    info.ProcessID -= ID_OFFSET;
     return info;
   }
 

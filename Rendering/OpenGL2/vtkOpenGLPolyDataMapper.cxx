@@ -411,10 +411,9 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
     (this->GetOpenGLMode(this->SelectionType, this->LastBoundBO->PrimitiveType) == GL_LINES);
 }
 
-bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer* ren, vtkActor* actor)
+bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer*, vtkActor* actor)
 {
-  vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  if (this->PointPicking)
   {
     return false;
   }
@@ -764,7 +763,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
 
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
-  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer*, vtkActor* actor)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -793,13 +792,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   // that means cell scalars will not have correct
   // primitiveIds to lookup into the texture map
   // so we must skip cell scalar coloring when point picking
-  // The boolean will be used in an else clause below
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool pointPicking = false;
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
-    pointPicking = true;
-  }
 
   // handle color point attributes
   if (this->VBOs->GetNumberOfComponents("scalarColor") != 0 && !this->DrawingVertices)
@@ -830,7 +822,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
                  "  float opacity = opacityUniform * texColor.a;";
   }
   // are we doing cell scalar coloring by texture?
-  else if (this->HaveCellScalars && !this->DrawingVertices && !pointPicking)
+  else if (this->HaveCellScalars && !this->DrawingVertices && !this->PointPicking)
   {
     colorImpl +=
       "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
@@ -1894,13 +1886,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(
           FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = vertexIDVSOutput + 1;\n"
+          "  int idx = vertexIDVSOutput;\n"
           "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
           "float((idx/65536)%256)/255.0, 1.0);\n");
         break;
 
       case vtkHardwareSelector::POINT_ID_HIGH24:
-        // this may yerk on openGL ES 2.0 so no really huge meshes in ES 2.0 OK
         vtkShaderProgram::Substitute(
           VSSource, "//VTK::Picking::Dec", "flat out int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(
@@ -1913,24 +1904,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
         vtkShaderProgram::Substitute(
           FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = (vertexIDVSOutput + 1);\n idx = ((idx & 0xff000000) >> 24);\n"
+          "  int idx = vertexIDVSOutput;\n idx = ((idx & 0xff000000) >> 24);\n"
           "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
 
       // cell ID is just gl_PrimitiveID
       case vtkHardwareSelector::CELL_ID_LOW24:
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = gl_PrimitiveID + 1 + PrimitiveIDOffset;\n"
+          "  int idx = gl_PrimitiveID + PrimitiveIDOffset;\n"
           "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
           "float((idx/65536)%256)/255.0, 1.0);\n");
         break;
 
       case vtkHardwareSelector::CELL_ID_HIGH24:
-        // this may yerk on openGL ES 2.0 so no really huge meshes in ES 2.0 OK
         // if (selector &&
         //     selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = (gl_PrimitiveID + 1 + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> "
+          "  int idx = (gl_PrimitiveID + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> "
           "24);\n"
           "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
@@ -2021,19 +2011,38 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Dec",
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n");
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-      "float xpos = 2.0*gl_PointCoord.x - 1.0;\n"
-      "  float ypos = 1.0 - 2.0*gl_PointCoord.y;\n"
-      "  float len2 = xpos*xpos+ ypos*ypos;\n"
-      "  if (len2 > 1.0) { discard; }\n"
-      "  vec3 normalVCVSOutput = normalize(\n"
-      "    vec3(2.0*gl_PointCoord.x - 1.0, 1.0 - 2.0*gl_PointCoord.y, sqrt(1.0 - len2)));\n"
-      "  gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
-      "  if (cameraParallel == 0)\n"
-      "  {\n"
-      "    float ZCalcQ = (normalVCVSOutput.z*ZCalcR - 1.0);\n"
-      "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
-      "  }\n");
+
+    // when point picking always move fragments to the closest point
+    // to the camera.
+    if (this->PointPicking)
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+        "  vec3 normalVCVSOutput = vec3(0.0,0.0,1.0);\n"
+        "  gl_FragDepth = gl_FragCoord.z + ZCalcS*ZCalcR;\n"
+        "  if (cameraParallel == 0)\n"
+        "  {\n"
+        "    float ZCalcQ = (ZCalcR - 1.0);\n"
+        "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
+        "  }\n"
+        "//VTK::Depth::Impl");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+        "float xpos = 2.0*gl_PointCoord.x - 1.0;\n"
+        "  float ypos = 1.0 - 2.0*gl_PointCoord.y;\n"
+        "  float len2 = xpos*xpos+ ypos*ypos;\n"
+        "  if (len2 > 1.0) { discard; }\n"
+        "  vec3 normalVCVSOutput = normalize(\n"
+        "    vec3(2.0*gl_PointCoord.x - 1.0, 1.0 - 2.0*gl_PointCoord.y, sqrt(1.0 - len2)));\n"
+        "  gl_FragDepth = gl_FragCoord.z + normalVCVSOutput.z*ZCalcS*ZCalcR;\n"
+        "  if (cameraParallel == 0)\n"
+        "  {\n"
+        "    float ZCalcQ = (normalVCVSOutput.z*ZCalcR - 1.0);\n"
+        "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
+        "  }\n"
+        "//VTK::Depth::Impl");
+    }
 
     vtkShaderProgram::Substitute(
       FSSource, "//VTK::Normal::Impl", "//Normal computed in Depth::Impl");
@@ -2073,7 +2082,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "  {\n"
       "    float ZCalcQ = (lenZ*ZCalcR/clamp(tubeBasis2.z,0.5,1.0) - 1.0);\n"
       "    gl_FragDepth = (ZCalcS - gl_FragCoord.z) / ZCalcQ + ZCalcS;\n"
-      "  }\n");
+      "  }\n"
+      "//VTK::Depth::Impl");
     vtkShaderProgram::Substitute(FSSource, "//VTK::Normal::Impl",
       "vec3 normalVCVSOutput = normalize(tubeBasis1 + tubeBasis2*lenZ);\n");
 
@@ -2410,7 +2420,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   float factor = 0.0;
   float offset = 0.0;
   this->GetCoincidentParameters(ren, actor, factor, offset);
-  vtkOpenGLCamera* cam = (vtkOpenGLCamera*)(ren->GetActiveCamera());
 
   // if we need an offset handle it here
   // The value of .000016 is suitable for depth buffers
@@ -2421,11 +2430,19 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-    if (cam->GetParallelProjection())
+    if (ren->GetActiveCamera()->GetParallelProjection())
     {
       vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec", "uniform float cCValue;");
-      vtkShaderProgram::Substitute(
-        FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragCoord.z + cCValue;\n");
+      if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
+      {
+        vtkShaderProgram::Substitute(
+          FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragDepth + cCValue;\n");
+      }
+      else
+      {
+        vtkShaderProgram::Substitute(
+          FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragCoord.z + cCValue;\n");
+      }
     }
     else
     {
@@ -2433,11 +2450,22 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
         "uniform float cCValue;\n"
         "uniform float cSValue;\n"
         "uniform float cDValue;");
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "float Zdc = gl_FragCoord.z*2.0 - 1.0;\n"
-        "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
-        "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
-        "  gl_FragDepth = Zdc2*0.5 + 0.5;\n");
+      if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
+      {
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+          "float Zdc = gl_FragDepth*2.0 - 1.0;\n"
+          "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
+          "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
+          "  gl_FragDepth = Zdc2*0.5 + 0.5;\n");
+      }
+      else
+      {
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+          "float Zdc = gl_FragCoord.z*2.0 - 1.0;\n"
+          "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
+          "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
+          "  gl_FragDepth = Zdc2*0.5 + 0.5;\n");
+      }
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -3269,8 +3297,7 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
     {
       this->GetCoincidentTopologyPointOffsetParameter(u);
     }
-    else if (primType == PrimitiveLines || prop->GetRepresentation() == VTK_WIREFRAME ||
-      this->DrawingSelection)
+    else if (primType == PrimitiveLines || prop->GetRepresentation() == VTK_WIREFRAME)
     {
       this->GetCoincidentTopologyLineOffsetParameters(f, u);
     }
@@ -3280,6 +3307,13 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
     }
     factor = f;
     offset = u;
+  }
+
+  // always move selections a bit closer to the camera
+  // but not as close as point picking would move
+  if (this->DrawingSelection)
+  {
+    offset -= 1.0;
   }
 
   // hardware picking always offset due to saved zbuffer
@@ -3315,12 +3349,6 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
   }
   selector->UpdateMaximumPointId(maxPointId);
 
-  bool pointPicking = false;
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
-    pointPicking = true;
-  }
-
   // the maximum number of cells in a draw call is the max of
   // 1) the sum of IBO size divided by the stride
   // 2) the max of any used call in a cellIdArray
@@ -3332,7 +3360,7 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
     if (this->Primitives[i].IBO->IndexCount)
     {
       GLenum mode = this->GetOpenGLMode(representation, i);
-      if (pointPicking)
+      if (this->PointPicking)
       {
         mode = GL_POINTS;
       }
@@ -3359,6 +3387,15 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor)
 {
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  vtkHardwareSelector* selector = ren->GetSelector();
+  this->PointPicking = false;
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    this->PointPicking = true;
+  }
+
   // Set the PointSize and LineWidget
   vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   vtkOpenGLState* ostate = renWin->GetState();
@@ -3380,7 +3417,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor
     }
   }
 
-  vtkHardwareSelector* selector = ren->GetSelector();
   int picking = getPickState(ren);
   if (this->LastSelectionState != picking)
   {
@@ -3437,15 +3473,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 {
   int representation = actor->GetProperty()->GetRepresentation();
 
-  // render points for point picking in a special way
-  // all cell types should be rendered as points
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool pointPicking = false;
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
-    pointPicking = true;
-  }
-
   vtkOpenGLRenderWindow* renWin = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
   vtkOpenGLState* ostate = renWin->GetState();
 
@@ -3457,6 +3484,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
   }
 #endif
 
+  vtkHardwareSelector* selector = ren->GetSelector();
   bool draw_surface_with_edges =
     (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
@@ -3470,7 +3498,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
     if (this->Primitives[i].IBO->IndexCount)
     {
       GLenum mode = this->GetOpenGLMode(representation, i);
-      if (pointPicking)
+      if (this->PointPicking)
       {
         ostate->vtkglPointSize(this->GetPointPickingPrimitiveSize(i));
         mode = GL_POINTS;
@@ -4488,7 +4516,6 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
   int currPass = sel->GetCurrentPass();
 
   // get some common useful values
-  bool pointPicking = sel->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS;
   vtkPointData* pd = poly->GetPointData();
   vtkCellData* cd = poly->GetCellData();
   unsigned char* rawplowdata = sel->GetRawPixelBuffer(vtkHardwareSelector::POINT_ID_LOW24);
@@ -4525,7 +4552,6 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
         unsigned int outval = processArray->GetValue(inval) + 1;
         processdata[pos] = outval & 0xff;
         processdata[pos + 1] = (outval & 0xff00) >> 8;
@@ -4558,8 +4584,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
-        vtkIdType outval = pointArrayId->GetValue(inval) + 1;
+        vtkIdType outval = pointArrayId->GetValue(inval);
         plowdata[pos] = outval & 0xff;
         plowdata[pos + 1] = (outval & 0xff00) >> 8;
         plowdata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4588,8 +4613,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawplowdata[pos + 1];
         inval = inval << 8;
         inval |= rawplowdata[pos];
-        inval -= 1;
-        vtkIdType outval = pointArrayId->GetValue(inval) + 1;
+        vtkIdType outval = pointArrayId->GetValue(inval);
         phighdata[pos] = (outval & 0xff000000) >> 24;
         phighdata[pos + 1] = (outval & 0xff00000000) >> 32;
         phighdata[pos + 2] = (outval & 0xff0000000000) >> 40;
@@ -4635,10 +4659,9 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
         vtkIdType vtkCellId =
-          this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
-        unsigned int outval = compositeArray->GetValue(vtkCellId) + 1;
+          this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(this->PointPicking, inval);
+        unsigned int outval = compositeArray->GetValue(vtkCellId);
         compositedata[pos] = outval & 0xff;
         compositedata[pos + 1] = (outval & 0xff00) >> 8;
         compositedata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4671,13 +4694,12 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
-        vtkIdType outval = this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
+        vtkIdType outval =
+          this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(this->PointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
         }
-        outval++;
         clowdata[pos] = outval & 0xff;
         clowdata[pos + 1] = (outval & 0xff00) >> 8;
         clowdata[pos + 2] = (outval & 0xff0000) >> 16;
@@ -4706,13 +4728,12 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
         inval |= rawclowdata[pos + 1];
         inval = inval << 8;
         inval |= rawclowdata[pos];
-        inval -= 1;
-        vtkIdType outval = this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
+        vtkIdType outval =
+          this->CellCellMap->ConvertOpenGLCellIdToVTKCellId(this->PointPicking, inval);
         if (cellArrayId)
         {
           outval = cellArrayId->GetValue(outval);
         }
-        outval++;
         chighdata[pos] = (outval & 0xff000000) >> 24;
         chighdata[pos + 1] = (outval & 0xff00000000) >> 32;
         chighdata[pos + 2] = (outval & 0xff0000000000) >> 40;
