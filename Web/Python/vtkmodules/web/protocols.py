@@ -369,6 +369,9 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         sView = self.getView(viewId)
         realViewId = str(self.getGlobalId(sView))
 
+        if realViewId in self.viewsInAnimations:
+            return
+
         self.viewsInAnimations.append(realViewId)
         if len(self.viewsInAnimations) == 1:
             self.animate()
@@ -466,8 +469,8 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
         if not realViewId in self.trackingViews:
             observerCallback = lambda *args, **kwargs: self.pushRender(realViewId)
-            startCallback = lambda *args, **kwargs: self.startViewAnimation()
-            stopCallback = lambda *args, **kwargs: self.stopViewAnimation()
+            startCallback = lambda *args, **kwargs: self.startViewAnimation(realViewId)
+            stopCallback = lambda *args, **kwargs: self.stopViewAnimation(realViewId)
             tag = self.getApplication().AddObserver('UpdateEvent', observerCallback)
             tagStart = self.getApplication().AddObserver('StartInteractionEvent', startCallback)
             tagStop = self.getApplication().AddObserver('EndInteractionEvent', stopCallback)
