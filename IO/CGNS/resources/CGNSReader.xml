@@ -1,0 +1,313 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="internal_sources">
+    <!-- CGNSReader -->
+    <SourceProxy name="CGNSReader"
+                 class="vtkCGNSReader"
+                 label="CGNS Reader">
+      <Documentation short_help="Read a dataset in CGNS format."
+                     long_help="Read files stored in CGNS format.">
+        The CGNS reader reads files stored in CGNS format.
+        The default file extension is .cgns. The output of this reader is
+        a multi-block dataset.
+      </Documentation>
+
+      <StringVectorProperty name="BaseInfo"
+        command="GetBaseSelection"
+        number_of_elements_per_command="2"
+        information_only="1"
+        si_class="vtkSIDataArraySelectionProperty" />
+
+      <StringVectorProperty name="Bases"
+                            command="GetBaseSelection"
+                            information_property="BaseInfo"
+                            number_of_elements_per_command="2"
+                            element_types="2 0"
+                            repeat_command="1"
+                            si_class="vtkSIDataArraySelectionProperty">
+        <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+            <Property function="ArrayList" name="BaseInfo" />
+          </RequiredProperties>
+        </ArraySelectionDomain>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="FamilyInfo"
+        command="GetFamilySelection"
+        number_of_elements_per_command="2"
+        information_only="1"
+        si_class="vtkSIDataArraySelectionProperty" />
+
+      <StringVectorProperty name="Families"
+                            command="GetFamilySelection"
+                            information_property="FamilyInfo"
+                            number_of_elements_per_command="2"
+                            element_types="2 0"
+                            repeat_command="1"
+                            si_class="vtkSIDataArraySelectionProperty">
+        <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+            <Property function="ArrayList" name="FamilyInfo" />
+          </RequiredProperties>
+        </ArraySelectionDomain>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="PointArrayInfo"
+                            information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Point" />
+      </StringVectorProperty>
+
+      <StringVectorProperty name="PointArrayStatus"
+                            command="SetPointArrayStatus"
+                            number_of_elements="0"
+                            repeat_command="1"
+                            number_of_elements_per_command="2"
+                            element_types="2 0"
+                            information_property="PointArrayInfo"
+                            label="Point Arrays"
+                            >
+        <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+            <Property name="PointArrayInfo" function="ArrayList" />
+          </RequiredProperties>
+        </ArraySelectionDomain>
+        <Documentation>
+          This property contains a list of the point-centered arrays to read.
+        </Documentation>
+      </StringVectorProperty>
+
+      <StringVectorProperty name="CellArrayInfo"
+                            information_only="1">
+        <ArraySelectionInformationHelper attribute_name="Cell" />
+      </StringVectorProperty>
+
+      <StringVectorProperty name="CellArrayStatus"
+                            command="SetCellArrayStatus"
+                            number_of_elements="0"
+                            repeat_command="1"
+                            number_of_elements_per_command="2"
+                            element_types="2 0"
+                            information_property="CellArrayInfo"
+                            label="Cell Arrays"
+                            >
+        <ArraySelectionDomain name="array_list">
+          <RequiredProperties>
+            <Property name="CellArrayInfo" function="ArrayList" />
+          </RequiredProperties>
+        </ArraySelectionDomain>
+        <Documentation>
+          This property contains a list of the cell-centered arrays to read.
+        </Documentation>
+      </StringVectorProperty>
+
+      <IntVectorProperty name="LoadMesh"
+                         command="SetLoadMesh"
+                         number_of_elements="1"
+                         default_values="1">
+       <BooleanDomain name="bool" />
+       <Documentation>
+         Toggle whether zone mesh must be read for selected bases/families.
+       </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="LoadPatches"
+                         command="SetLoadBndPatch"
+                         number_of_elements="1"
+                         default_values="0">
+       <BooleanDomain name="bool" />
+       <Documentation>
+          Toggle whether boundary condition patches must be read for selected
+          bases/families.
+       </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="DoublePrecisionMesh"
+                         command="SetDoublePrecisionMesh"
+                         number_of_elements="1"
+                         animateable="0"
+                         default_values="1"
+                         label="Use Double Precision Mesh"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Toggle whether to load mesh with double precision values or with floating values
+          If unchecked, mesh coordinates are store on 32 bit so it has lower memory footprint.
+          If checked, mesh coordinates are store on 64 bit so it has higher memory requirements.
+          Changing this property may impact the loading performance
+          since if the cgns file mesh precision and the wanted precision are different
+          conversion will occur
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="CacheMesh"
+                         command="SetCacheMesh"
+                         number_of_elements="1"
+                         animateable="0"
+                         default_values="0"
+                         label="Caching Mesh Points"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Toggle whether to cache mesh points.
+          If unchecked, mesh coordinates are read at every time step.
+          If checked, mesh coordinates are store in the cache. When loading a new iteration,
+          the mesh coordinates will be retrieved from the cache.
+          Changing this property may impact the loading performance.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="CacheConnectivity"
+                         command="SetCacheConnectivity"
+                         number_of_elements="1"
+                         animateable="0"
+                         default_values="0"
+                         label="Caching Unstructured Mesh Connectivity"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Toggle whether to cache mesh connectivity for unstructured meshes.
+          If unchecked, mesh connectivity are read at every time step.
+          If checked, mesh connectivity are store in the cache. When loading a new iteration,
+          the mesh connectivity will be retrieved from the cache.
+          Changing this property may impact the loading performance.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="CreateEachSolutionAsBlock"
+                         command="SetCreateEachSolutionAsBlock"
+                         number_of_elements="1"
+                         animateable="0"
+                         default_values="0"
+                         label="Each Solution As Block (Debug)"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Toggle whether to load each Solution node under a zone separately.
+          This is intended only for debug purpose
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="IgnoreFlowSolutionPointers"
+                         command="SetIgnoreFlowSolutionPointers"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="Ignore FlowSolutionPointers"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          When checked, the reader will simply ignore **FlowSolutionPointers** in the
+          CGNS file since they are either incomplete or invalid. To locate unsteady
+          solution, the **UseUnsteadyPattern** option should then be activated.
+        </Documentation>
+      </IntVectorProperty>
+
+      <IntVectorProperty name="UseUnsteadyPattern"
+                         command="SetUseUnsteadyPattern"
+                         number_of_elements="1"
+                         default_values="0"
+                         label="Use Unsteady Pattern on FlowSolution_t"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          When checked, the reader will use pattern matching to detect FlowSolution_t
+          that are relevant for the current timestep. It rely on **FlowSolution_t**
+          nodes being labelled as **...AtStep[tsindex]** to locate
+          solution nodes for a specific timestep. Note, ***tsindex*** starts with 1.
+        </Documentation>
+      </IntVectorProperty>
+
+      <!-- End CGNSReader -->
+    </SourceProxy>
+  </ProxyGroup>
+
+  <ProxyGroup name="sources">
+    <!-- Begin CGNSSeriesReader -->
+    <SourceProxy name="CGNSSeriesReader"
+                 class="vtkCGNSFileSeriesReader"
+                 label="CGNS Series Reader"
+                 si_class="vtkSIMetaReaderProxy">
+      <Documentation
+         short_help="Read a dataset in CGNS format."
+         long_help="Read binary files stored in CGNS format.">
+        The CGNS reader reads binary files stored in CGNS format.
+        The default file extension is .cgns. The output of this reader is
+        a multi-block dataset.
+        This reader also supports file series.
+      </Documentation>
+
+      <StringVectorProperty name="FileNameInfo"
+                            command="GetCurrentFileName"
+                            information_only="1" >
+      <SimpleStringInformationHelper />
+    </StringVectorProperty>
+
+      <StringVectorProperty name="FileNames"
+                            clean_command="RemoveAllFileNames"
+                            command="AddFileName"
+                            number_of_elements="0"
+                            repeat_command="1"
+                            information_property="FileNameInfo"
+                            panel_visibility="never">
+        <FileListDomain name="files" />
+        <Documentation>
+          The list of files to be read by the reader. If more than 1 file is
+          specified, the reader will switch to file series mode in which it will
+          pretend that it can support time and provide 1 file per time step.
+        </Documentation>
+      </StringVectorProperty>
+
+      <SubProxy command="SetReader">
+        <Proxy name="Reader"
+               proxygroup="internal_sources"
+               proxyname="CGNSReader">
+        </Proxy>
+        <ExposedProperties>
+          <Property name="BaseInfo" />
+          <Property name="Bases" />
+          <Property name="FamilyInfo" />
+          <Property name="Families" />
+          <Property name="CellArrayInfo" />
+          <Property name="CellArrayStatus" />
+          <Property name="PointArrayInfo" />
+          <Property name="PointArrayStatus" />
+          <Property name="LoadMesh" />
+          <Property name="LoadPatches" />
+          <Property name="DoublePrecisionMesh" />
+          <Property name="CacheMesh" />
+          <Property name="CacheConnectivity" />
+          <Property name="CreateEachSolutionAsBlock" />
+          <Property name="IgnoreFlowSolutionPointers" />
+          <Property name="UseUnsteadyPattern" />
+        </ExposedProperties>
+      </SubProxy>
+
+      <IntVectorProperty name="IgnoreReaderTime"
+                         command="SetIgnoreReaderTime"
+                         number_of_elements="1"
+                         default_values="0"
+                         panel_visibility="advanced">
+        <Documentation>
+          When reading a file-series, if each file in the series does not provide correct time
+          information, the reader will not be able to animate through the file series correctly.
+          Check this to ignore the time information provided by each file.
+        </Documentation>
+        <BooleanDomain name="bool" />
+      </IntVectorProperty>
+
+      <DoubleVectorProperty name="TimestepValues"
+                           repeatable="1"
+                           information_only="1">
+        <TimeStepsInformationHelper/>
+        <Documentation>
+          Available time step values.
+        </Documentation>
+      </DoubleVectorProperty>
+
+      <Hints>
+        <ReaderFactory extensions="cgns"
+           file_description="CGNS Files" />
+      </Hints>
+
+      <!-- End of CGNSSeriesReader -->
+    </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>

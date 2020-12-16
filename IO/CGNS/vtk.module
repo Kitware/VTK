@@ -1,0 +1,24 @@
+NAME
+  VTK::IOCGNSReader
+LIBRARY_NAME
+  vtkIOCGNSReader
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::cgns
+  VTK::FiltersExtraction
+  VTK::ParallelCore
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::TestingCore
+  VTK::TestingRendering

@@ -80,6 +80,7 @@ set(vtk_cmake_module_files
   FindTBB.cmake
   FindTHEORA.cmake
   Findutf8cpp.cmake
+  FindCGNS.cmake
 
   vtkCMakeBackports.cmake
   vtkDetectLibraryType.cmake
