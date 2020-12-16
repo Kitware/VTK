@@ -4865,20 +4865,14 @@ function (vtk_module_third_party_external)
   set(_vtk_third_party_external_used_targets FALSE)
   if (_vtk_third_party_external_TARGETS)
     set(_vtk_third_party_external_have_targets TRUE)
-    set(_vtk_third_party_external_all_targets_okay TRUE)
     foreach (_vtk_third_party_external_target IN LISTS _vtk_third_party_external_TARGETS)
-      if (NOT TARGET "${_vtk_third_party_external_target}")
-        set(_vtk_third_party_external_all_targets_okay FALSE)
-        break ()
+      if (TARGET "${_vtk_third_party_external_target}")
+        target_link_libraries("${_vtk_third_party_external_real_target_name}"
+          INTERFACE
+            "${_vtk_third_party_external_target}")
+        set(_vtk_third_party_external_used_targets TRUE)
       endif ()
     endforeach ()
-
-    if (_vtk_third_party_external_all_targets_okay)
-      target_link_libraries("${_vtk_third_party_external_real_target_name}"
-        INTERFACE
-          ${_vtk_third_party_external_TARGETS})
-      set(_vtk_third_party_external_used_targets TRUE)
-    endif ()
   endif ()
 
   if (NOT _vtk_third_party_external_used_targets)
