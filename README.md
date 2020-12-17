@@ -34,6 +34,9 @@ Learning Resources
 * Doxygen-generated nightly reference documentation is
   available [online][vtk-doxygen].
 
+* There is now a large collection of [VTK Examples][vtk-examples] that
+  showcase VTK features and provide a useful learning resource.
+
 Reporting Bugs
 ==============
 
@@ -85,5 +88,6 @@ See [Copyright.txt][vtk-copyright] for details.
 [vtk-copyright]: Copyright.txt
 [vtk-discourse]: https://discourse.vtk.org/
 [vtk-doxygen]: https://www.vtk.org/doc/nightly/html
+[vtk-examples]: https://kitware.github.io/vtk-examples/site/
 [vtk-homepage]: https://www.vtk.org/
 [vtk-issues]: https://gitlab.kitware.com/vtk/vtk/-/issues

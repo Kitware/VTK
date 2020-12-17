@@ -18,8 +18,8 @@
  *
  * For a web page showcasing VTK Named Colors and their RGB values, see:
  * <a
- * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>,
- *.<a
+ * href="https://htmlpreview.github.io/?https://github.com/Kitware/vtk-examples/blob/gh-pages/VTKNamedColorPatches.html">VTKNamedColorPatches</a>;
+ * <a
  * href="https://kitware.github.io/vtk-examples/site/Python/Visualization/NamedColorPatches/">NamedColorPatches</a>
  * was used to generate this table.
  *
