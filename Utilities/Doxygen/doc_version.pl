@@ -184,7 +184,7 @@ print DEST_FILE
   "  \@li VTK Examples: https://kitware.github.io/vtk-examples/site/\n",
   "  \@li VTK Dashboard: https://open.cdash.org/index.php?project=VTK\n",
   "  \@li Commercial <a href=\"https://www.kitware.com/products/support.html\">support</a> ",
-  "  and <a href=\"http://www.kitware.com/products/protraining.php\">training</a> ",
+  "  and <a href=\"https://www.kitware.com/products/protraining.php\">training</a> ",
   "  are available from Kitware\n",
   " ",
   "*/\n\n";
