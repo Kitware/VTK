@@ -181,13 +181,14 @@ struct EdgeDataType
 {
   float T;
   IDType EId;
+  IDType CId;
 };
 
 template <typename IDType, typename TIP>
 struct ExtractEdgesBase
 {
-  typedef std::vector<EdgeTuple<IDType, float>> EdgeVectorType;
-  typedef std::vector<EdgeTuple<IDType, EdgeDataType<IDType>>> MergeVectorType;
+  using MapEdgeCell = std::tuple<EdgeTuple<IDType, float>, vtkIdType>;
+  using EdgeVectorType = std::vector<MapEdgeCell>;
 
   // Track local data on a per-thread basis. In the Reduce() method this
   // information will be used to composite the data from each thread.
@@ -202,6 +203,7 @@ struct ExtractEdgesBase
   const TIP* InPts;
   CellIter* Iter;
   EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
+  vtkIdType* Cells;
   vtkCellArray* Tris;
   vtkIdType NumTris;
   int NumThreadsUsed;
@@ -252,22 +254,24 @@ struct ExtractEdgesBase
     // used later when merging.
     this->Edges =
       new EdgeTuple<IDType, EdgeDataType<IDType>>[3 * this->NumTris]; // three edges per triangle
+    std::cout << "nb tris: " << this->NumTris << std::endl;
+    // TODO: use separate array for cell ids ?
     vtkIdType edgeNum = 0;
     for (auto& ld : this->LocalData)
     {
       for (const auto& le : ld.LocalEdges)
       {
-        this->Edges[edgeNum].V0 = le.V0;
-        this->Edges[edgeNum].V1 = le.V1;
-        this->Edges[edgeNum].Data.T = le.Data;
+        this->Edges[edgeNum].V0 = std::get<0>(le).V0;
+        this->Edges[edgeNum].V1 = std::get<0>(le).V1;
+        this->Edges[edgeNum].Data.T = std::get<0>(le).Data;
         this->Edges[edgeNum].Data.EId = edgeNum;
+        this->Edges[edgeNum].Data.CId = std::get<1>(le);
         edgeNum++;
       }
-      EdgeVectorType emptyVector;
-      ld.LocalEdges.swap(emptyVector); // frees memory
-    }                                  // For all threads
-  }                                    // Reduce
-};                                     // ExtractEdgesBase
+      EdgeVectorType().swap(ld.LocalEdges); // frees memory
+    }                                       // For all threads
+  }                                         // Reduce
+};                                          // ExtractEdgesBase
 
 // Traverse all cells and extract intersected edges (without a sphere tree).
 template <typename IDType, typename TIP>
@@ -315,19 +319,26 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
         if (*edges > 0)
         {
           unsigned short numEdges = *(edges++);
+          if (numEdges % 3 != 0) // Debug stuff
+          {
+            std::cerr << "you missed something jock" << std::endl;
+          }
           for (i = 0; i < numEdges; ++i, edges += 2)
           {
             unsigned char v0 = edges[0];
             unsigned char v1 = edges[1];
             double deltaScalar = s[v1] - s[v0];
+            // keep cell id here ?
+            // TODO deport t computation
             double t = (deltaScalar == 0.0 ? 0.0 : (-s[v0] / deltaScalar));
-            t = (c[v0] < c[v1] ? t : (1.0 - t));  // edges (v0,v1) must have v0<v1
-            lEdges.emplace_back(c[v0], c[v1], t); // edge constructor may swap v0<->v1
-          }                                       // for all edges in this case
-        }                                         // if contour passes through this cell
-      }                                           // if plane intersects
-      c = cellIter->Next();                       // move to the next cell
-    }                                             // for all cells in this batch
+            t = (c[v0] < c[v1] ? t : (1.0 - t)); // edges (v0,v1) must have v0<v1
+            lEdges.emplace_back(EdgeTuple<IDType, float>(c[v0], c[v1], t),
+              cellId);      // edge constructor may swap v0<->v1
+          }                 // for all edges in this case
+        }                   // if contour passes through this cell
+      }                     // if plane intersects
+      c = cellIter->Next(); // move to the next cell
+    }                       // for all cells in this batch
   }
 
   // Composite local thread data
@@ -409,6 +420,7 @@ struct ProduceTriangles
       using ValueType = typename CellStateT::ValueType;
       auto* offsets = state.GetOffsets();
       auto* conn = state.GetConnectivity();
+      // auto* originalIds = state.GetOriginalIds();
 
       auto offsetRange = vtk::DataArrayValueRange<1>(offsets, triId, endTriId + 1);
       ValueType offset = 3 * (triId - 1); // Incremented before first use
@@ -445,16 +457,12 @@ struct ProducePDAttributes
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeTuple;
-    TIds v0, v1;
-    float t;
-
     for (; ptId < endPtId; ++ptId)
     {
-      mergeTuple = this->Edges + ptId;
-      v0 = mergeTuple->V0;
-      v1 = mergeTuple->V1;
-      t = mergeTuple->Data.T;
+      const auto& mergeTuple = this->Edges[ptId];
+      TIds v0 = mergeTuple.V0;
+      TIds v1 = mergeTuple.V1;
+      float t = mergeTuple.Data.T;
       this->Arrays->InterpolateEdge(v0, v1, t, ptId);
     }
   }
@@ -464,15 +472,27 @@ struct ProducePDAttributes
 template <typename TIds>
 struct ProduceCDAttributes
 {
-  ArrayList* Arrays; // the list of attributes to interpolate
+  const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges
+  ArrayList* Arrays;                                // the list of attributes to interpolate
 
-  ProduceCDAttributes(ArrayList* arrays)
-    : Arrays(arrays)
+  ProduceCDAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, ArrayList* arrays)
+    : Edges(mt)
+    , Arrays(arrays)
   {
     std::cout << "Produce CD attribute" << std::endl;
   }
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId) {}
+  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  {
+    // use this->Array->Copy with the right cell id.
+    for (; cellId < endCellId; ++cellId)
+    {
+      // assume 3*cellId is the first point of the triangle cellId
+      // TODO: split the cell data array in a separate array ?
+      const auto& mergeTuple = this->Edges[3 * cellId];
+      this->Arrays->Copy(mergeTuple.Data.CId, cellId);
+    }
+  }
 };
 
 // This method generates the output isosurface triangle connectivity list.
@@ -740,6 +760,12 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
       pointArrays.AddArrays(numPts, inPD, outPD);
       ProducePDAttributes<TIds> interpolatePoints(mergeEdges, &pointArrays);
       EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+
+      ArrayList cellArrays;
+      outCD->InterpolateAllocate(inCD, numTris);
+      cellArrays.AddArrays(numTris, inCD, outCD);
+      ProduceCDAttributes<TIds> interpolateCells(mergeEdges, &cellArrays);
+      EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
     }
   }
 

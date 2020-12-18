@@ -386,7 +386,7 @@ int vtkCutter::RequestData(
     if (this->GetGenerateTriangles() && this->GetCutFunction() &&
       this->GetCutFunction()->IsA("vtkPlane") && this->GetNumberOfContours() == 1 &&
       this->GetGenerateCutScalars() == 0 &&
-      (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
+      // (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
       vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input))
     {
       std::cout << "plane cutter (otpmized) case!" << std::endl;
@@ -419,13 +419,11 @@ int vtkCutter::RequestData(
       return retval;
     }
 
-    std::cout << "UG cutter case!" << std::endl;
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");
     this->UnstructuredGridCutter(input, output);
   }
   else
   {
-    std::cout << "DS cutter case!" << std::endl;
     vtkDebugMacro(<< "Executing DataSet Cutter");
     this->DataSetCutter(input, output);
   }
