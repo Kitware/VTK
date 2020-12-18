@@ -16,8 +16,11 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
+#include "vtkCubeSource.h"
+#include "vtkCutter.h"
 #include "vtkHandleRepresentation.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
@@ -424,6 +427,17 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   this->PlaneSource->SetNormal(planeNormal);
   this->PlaneSource->SetCenter(plane->GetOrigin());
 
+  // Clip to bounds
+  double* imageBounds = this->GetResliceCursor()->GetImage()->GetBounds();
+  double* boundedOrigin = this->PlaneSource->GetOrigin();
+  double* boundedP1 = this->PlaneSource->GetPoint1();
+  double* boundedP2 = this->PlaneSource->GetPoint2();
+  this->BoundPlane(imageBounds, boundedOrigin, boundedP1, boundedP2);
+
+  this->PlaneSource->SetOrigin(boundedOrigin);
+  this->PlaneSource->SetPoint1(boundedP1);
+  this->PlaneSource->SetPoint2(boundedP2);
+
   double planeAxis1[3];
   double planeAxis2[3];
 
@@ -719,6 +733,51 @@ void vtkResliceCursorRepresentation::InvertTable()
 }
 
 //------------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::BoundPlane(
+  double bounds[6], double origin[3], double p1[3], double p2[3])
+{
+  double v1[3];
+  vtkMath::Subtract(p1, origin, v1);
+
+  double v2[3];
+  vtkMath::Subtract(p2, origin, v2);
+
+  double n[3] = { 0, 0, 1 };
+  vtkMath::Cross(v1, v2, n);
+
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin(origin);
+  plane->SetNormal(n);
+  vtkMath::Normalize(v1);
+  vtkMath::Normalize(v2);
+  vtkMath::Normalize(n);
+
+  vtkNew<vtkCubeSource> cubeSource;
+  cubeSource->SetBounds(bounds);
+
+  vtkNew<vtkCutter> cutter;
+  cutter->SetCutFunction(plane.Get());
+  cutter->SetInputConnection(cubeSource->GetOutputPort());
+  cutter->Update();
+
+  vtkPolyData* cutBounds = cutter->GetOutput();
+  if (cutBounds->GetNumberOfPoints() == 0)
+  {
+    return;
+  }
+
+  double localBounds[6];
+  vtkBoundingBox::ComputeLocalBounds(cutBounds->GetPoints(), v1, v2, n, localBounds);
+
+  for (int i = 0; i < 3; i++)
+  {
+    origin[i] = localBounds[0] * v1[i] + localBounds[2] * v2[i] + localBounds[4] * n[i];
+    p1[i] = localBounds[1] * v1[i] + localBounds[2] * v2[i] + localBounds[4] * n[i];
+    p2[i] = localBounds[0] * v1[i] + localBounds[3] * v2[i] + localBounds[4] * n[i];
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkResliceCursorRepresentation::CreateDefaultResliceAlgorithm()
 {
   // Allows users to optionally use their own reslice filters or other

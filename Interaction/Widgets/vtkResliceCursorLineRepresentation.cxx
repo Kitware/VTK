@@ -42,6 +42,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform.h"
 #include "vtkWindow.h"
 
 #include <sstream>
@@ -341,40 +342,58 @@ void vtkResliceCursorLineRepresentation ::RotateVectorAboutVector(double vectorT
   double angle,   // angle in radians
   double o[3])
 {
-  //  let
-  //        [v] = [vx, vy, vz]      the vector to be rotated.
-  //        [l] = [lx, ly, lz]      the vector about rotation
-  //              | 1  0  0|
-  //        [i] = | 0  1  0|           the identity matrix
-  //              | 0  0  1|
-  //
-  //              |   0  lz -ly |
-  //        [L] = | -lz   0  lx |
-  //              |  ly -lx   0 |
-  //
-  //        d = sqrt(lx*lx + ly*ly + lz*lz)
-  //        a                       the angle of rotation
-  //
-  //    then
-  //
-  //   matrix operations gives:
-  //
-  //    [v] = [v]x{[i] + sin(a)/d*[L] + ((1 - cos(a))/(d*d)*([L]x[L]))}
 
-  // normalize the axis vector
-  double v[3] = { vectorToBeRotated[0], vectorToBeRotated[1], vectorToBeRotated[2] };
-  double l[3] = { axis[0], axis[1], axis[2] };
-  vtkMath::Normalize(v);
-  vtkMath::Normalize(l);
-  const double u = sin(angle);
-  const double w = 1.0 - cos(angle);
+  double tempAxis[3] = { axis[0], axis[1], axis[2] };
+  vtkMath::Normalize(tempAxis);
 
-  o[0] = v[0] * (1 - w * (l[2] * l[2] + l[1] * l[1])) + v[1] * (-u * l[2] + w * l[0] * l[1]) +
-    v[2] * (u * l[1] + w * l[0] * l[1]);
-  o[1] = v[0] * (u * l[2] + w * l[0] * l[1]) + v[1] * (1 - w * (l[0] * l[0] + l[2] * l[2])) +
-    v[2] * (-u * l[0] + w * l[1] * l[2]);
-  o[2] = v[0] * (-u * l[1] + w * l[0] * l[2]) + v[1] * (u * l[0] + w * l[1] * l[2]) +
-    v[2] * (1 - w * (l[1] * l[1] + l[0] * l[0]));
+  double x = axis[0];
+  double y = axis[1];
+  double z = axis[2];
+
+  double s = sin(angle);
+  double c = cos(angle);
+  double t = 1 - c;
+
+  double a00 = 1;
+  double a10 = 0;
+  double a20 = 0;
+  double a30 = 0;
+  double a01 = 0;
+  double a11 = 1;
+  double a21 = 0;
+  double a31 = 0;
+  double a02 = 0;
+  double a12 = 0;
+  double a22 = 1;
+  double a32 = 0;
+  double a03 = 0;
+  double a13 = 0;
+  double a23 = 0;
+  double a33 = 1;
+
+  double b00 = x * x * t + c;
+  double b10 = y * x * t + z * s;
+  double b20 = z * x * t - y * s;
+  double b01 = x * y * t - z * s;
+  double b11 = y * y * t + c;
+  double b21 = z * y * t + x * s;
+  double b02 = x * z * t + y * s;
+  double b12 = y * z * t - x * s;
+  double b22 = z * z * t + c;
+
+  double mat00 = a00 * b00 + a01 * b10 + a02 * b20;
+  double mat10 = a10 * b00 + a11 * b10 + a12 * b20;
+  double mat20 = a20 * b00 + a21 * b10 + a22 * b20;
+  double mat01 = a00 * b01 + a01 * b11 + a02 * b21;
+  double mat11 = a10 * b01 + a11 * b11 + a12 * b21;
+  double mat21 = a20 * b01 + a21 * b11 + a22 * b21;
+  double mat02 = a00 * b02 + a01 * b12 + a02 * b22;
+  double mat12 = a10 * b02 + a11 * b12 + a12 * b22;
+  double mat22 = a20 * b02 + a21 * b12 + a22 * b22;
+
+  o[0] = mat00 * vectorToBeRotated[0] + mat01 * vectorToBeRotated[1] + mat02 * vectorToBeRotated[2];
+  o[1] = mat10 * vectorToBeRotated[0] + mat11 * vectorToBeRotated[1] + mat12 * vectorToBeRotated[2];
+  o[2] = mat20 * vectorToBeRotated[0] + mat21 * vectorToBeRotated[1] + mat22 * vectorToBeRotated[2];
 }
 
 //------------------------------------------------------------------------------

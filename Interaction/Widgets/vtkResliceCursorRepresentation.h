@@ -298,6 +298,12 @@ protected:
   // with its physical location
   virtual void ComputeOrigin(vtkMatrix4x4*);
 
+  /**
+   * Fit the plane defined by origin, p1, p2 onto the bounds.
+   * Plane is untouched if does not intersect bounds.
+   */
+  void BoundPlane(double bounds[6], double origin[3], double p1[3], double p2[3]);
+
   //@{
   void GetVector1(double d[3]);
   void GetVector2(double d[3]);
