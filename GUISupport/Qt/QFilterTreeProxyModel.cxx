@@ -55,7 +55,11 @@ bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& s
 
   QModelIndex idx = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+  return (sourceModel()->data(idx).toString().contains(filterRegularExpression()));
+#else
   return (sourceModel()->data(idx).toString().contains(filterRegExp()));
+#endif
 }
 
 bool QFilterTreeProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
