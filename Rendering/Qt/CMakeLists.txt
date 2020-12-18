@@ -10,8 +10,8 @@ vtk_module_add_module(VTK::RenderingQt
   CLASSES ${classes})
 
 vtk_module_find_package(
-  PACKAGE     Qt5
+  PACKAGE     Qt${VTK_QT_MAJOR_VERSION}
   COMPONENTS  Widgets
   FORWARD_VERSION_REQ MINOR
-  VERSION_VAR         Qt5_VERSION)
-vtk_module_link(VTK::RenderingQt PUBLIC Qt5::Widgets)
+  VERSION_VAR         Qt${VTK_QT_MAJOR_VERSION}_VERSION)
+vtk_module_link(VTK::RenderingQt PUBLIC Qt${VTK_QT_MAJOR_VERSION}::Widgets)
