@@ -60,7 +60,12 @@ QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)
   : Parent(p)
 {
   this->SignalMapper = new QSignalMapper(this);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+  QObject::connect(
+    this->SignalMapper, &QSignalMapper::mappedInt, this, &QVTKInteractorInternal::TimerEvent);
+#else
   QObject::connect(this->SignalMapper, SIGNAL(mapped(int)), this, SLOT(TimerEvent(int)));
+#endif
 }
 
 QVTKInteractorInternal::~QVTKInteractorInternal() = default;
