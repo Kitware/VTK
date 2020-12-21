@@ -34,8 +34,10 @@
 #include <vector> // For member variables
 
 class vtkActor;
+class vtkColorTransferFunction;
 class vtkDataObject;
 class vtkDataSet;
+class vtkPiecewiseFunction;
 class vtkPolyData;
 class vtkPropCollection;
 class vtkScalarsToColors;
@@ -150,6 +152,8 @@ protected:
   void WriteVolumeCollection(vtkVolumeCollection* volumeCollection, std::ostream& sceneComponents);
 
   void WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor, vtkVolume* volume);
+  std::string ExtractPiecewiseFunctionSetup(vtkPiecewiseFunction* pwf);
+  std::string ExtractColorTransferFunctionSetup(vtkColorTransferFunction* volume);
   std::string ExtractVolumeRenderingSetup(vtkVolume* volume);
   std::string ExtractActorRenderingSetup(vtkActor* actor);
   std::string WriteDataSet(vtkDataSet* dataset, const char* addOnMeta);
