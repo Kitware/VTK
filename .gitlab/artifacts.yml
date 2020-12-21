@@ -1,0 +1,74 @@
+# Lists of paths for artifacts of various stages.
+
+.cmake_build_artifacts:
+    artifacts:
+        expire_in: 1d
+        # Because build logs are in here, we should always upload artifacts.
+        when: always
+        paths:
+            # Logs of the build
+            - compile_output.log
+
+            # The artifacts of the build.
+            - build/bin/
+            - build/lib/
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test
+            - build/Utilities/KWIML/vtkkwiml/test/kwiml_test.exe
+
+            # Python packages go here
+            - build/lib64/
+
+            # Needed for installation.
+            - build/CMakeCache.txt
+            - build/build.ninja
+            - build/rules.ninja
+            - build/cmake_install.cmake
+            - build/*/cmake_install.cmake
+            - build/*/*/cmake_install.cmake
+            - build/*/*/*/cmake_install.cmake
+            - build/*/*/*/*/cmake_install.cmake
+            - build/*/*/*/*/*/cmake_install.cmake
+            - build/*/*/*/*/*/*/cmake_install.cmake
+            - build/*/*/*/*/*/*/*/cmake_install.cmake
+            - build/*/*/*/*/*/*/*/*/cmake_install.cmake
+
+            # CTest files.
+            - build/CTestCustom.cmake
+            # XXX(globbing): Can be simplified with support from
+            # https://gitlab.com/gitlab-org/gitlab-runner/issues/4840
+            - build/CTestTestfile.cmake
+            - build/*/CTestTestfile.cmake
+            - build/*/*/CTestTestfile.cmake
+            - build/*/*/*/CTestTestfile.cmake
+            - build/*/*/*/*/CTestTestfile.cmake
+            - build/*/*/*/*/*/CTestTestfile.cmake
+            - build/*/*/*/*/*/*/CTestTestfile.cmake
+            - build/*/*/*/*/*/*/*/CTestTestfile.cmake
+            - build/*/*/*/*/*/*/*/*/CTestTestfile.cmake
+            - build/*/*.h
+            - build/*/*/*.h
+            - build/*/*/*/*.h
+            - build/*/*/*/*/*.h
+            - build/*/*/*/*/*/*.h
+            - build/*/*/*/*/*/*/*.h
+            - build/*/*/*/*/*/*/*/*.h
+            - build/*/*/*/*/*/*/*/*/*.h
+            - build/*/*/*/*.hxx
+            - build/ExternalData/
+            - build/Testing/
+            - build/Testing/Temporary/
+
+            # CDash files.
+            - build/DartConfiguration.tcl
+
+            # Virtual environment
+            - build/ci-venv/
+
+.cmake_test_artifacts:
+    artifacts:
+        expire_in: 1d
+        # Tests failing should still upload the artifact for further testing.
+        when: always
+        paths:
+            # Debugging logs
+            - build/Testing/Temporary/Last*.log

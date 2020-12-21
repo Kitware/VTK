@@ -26,6 +26,30 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
+.fedora33_mpi_renderless:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_renderless
+
+.fedora33_java_mpi_qt_tbb:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_java_mpi_qt_tbb
+
+.fedora33_mpi_python_qt_tbb:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb
+
 .linux_builder_tags:
     tags:
         - build

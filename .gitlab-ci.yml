@@ -1,0 +1,94 @@
+include:
+    # Metadata shared my many jobs
+    - local: .gitlab/rules.yml
+    - local: .gitlab/artifacts.yml
+
+    # OS builds.
+    - local: .gitlab/os-linux.yml
+
+stages:
+    - build
+    - test
+
+################################################################################
+# Job declarations
+#
+# Each job must pull in each of the following keys:
+#
+#   - a "base image"
+#   - a build script
+#   - tags for the jobs
+#     - already provided for upload and CI update jobs
+#   - rules for when to run the job
+#
+# Additionally, jobs may also contain:
+#
+#   - artifacts
+#   - dependency/needs jobs for required jobs
+################################################################################
+
+# Linux
+
+## Basic builds
+
+build:fedora33-mpi-renderless:
+    extends:
+        - .fedora33_mpi_renderless
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:fedora33-mpi-renderless:
+    extends:
+        - .fedora33_mpi_renderless
+        - .cmake_test_linux
+        - .linux_builder_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:fedora33-mpi-renderless
+    needs:
+        - build:fedora33-mpi-renderless
+
+build:fedora33-java-mpi-qt-tbb:
+    extends:
+        - .fedora33_java_mpi_qt_tbb
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    # The Java build extends the build time considerably.
+    timeout: 2 hours
+
+test:fedora33-java-mpi-qt-tbb:
+    extends:
+        - .fedora33_java_mpi_qt_tbb
+        - .cmake_test_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:fedora33-java-mpi-qt-tbb
+    needs:
+        - build:fedora33-java-mpi-qt-tbb
+
+build:fedora33-mpi-python-qt-tbb:
+    extends:
+        - .fedora33_mpi_python_qt_tbb
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:fedora33-mpi-python-qt-tbb:
+    extends:
+        - .fedora33_mpi_python_qt_tbb
+        - .cmake_test_linux
+        - .linux_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:fedora33-mpi-python-qt-tbb
+    needs:
+        - build:fedora33-mpi-python-qt-tbb

@@ -48,7 +48,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "renderless")
 
   # "mpi" forces MPI modules to be ON, but these require rendering, so force
   # them off too.
+  set(VTK_MODULE_ENABLE_VTK_DomainsParallelChemistry NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_FiltersParallelGeometry NO CACHE STRING "")
+  set(VTK_MODULE_ENABLE_VTK_FiltersParallelMPI NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_IOMPIParallel NO CACHE STRING "")
 endif ()
 
