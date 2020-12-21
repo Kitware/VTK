@@ -21,8 +21,8 @@
  * of cells, that are on one side of a specified plane.) The input
  * vtkPolyData must consist of convex polygons forming one or more manifold
  * shells (use vtkTriangleFilter to triangulate the input if necessary. Note
- * that if the cells are non-convex, then the clipping operation will likely
- * produce erroneous results.)
+ * that if the input cells are non-convex, then the clipping operation will
+ * likely produce erroneous results.)
  *
  * An optional, second vtkPolyData output may also be generated if either
  * ClippingLoops or Capping is enabled. The clipping loops are a set of lines
@@ -96,10 +96,10 @@ public:
    * Specify whether to cap the clipped output vtkPolyData. If enabled, a
    * second vtkPolyData output will be produced that contains the capping
    * polygons (in vtkPolyData:Polys). Note that the capping operation assumes
-   * that the input to this filter is a manifold shell. If not, the results
-   * may be poor. Note that point data or cell data is not produced on this
-   * second output (because the results of interpolation across the cap(s)
-   * are generally nonsensical).
+   * that the input to this filter is a manifold shell. If not, no output
+   * will be generated. Note that point data or cell data is not produced on
+   * this second output (because the results of interpolation across the
+   * cap(s) are generally nonsensical).
    */
   vtkSetMacro(Capping, bool);
   vtkGetMacro(Capping, bool);

@@ -643,7 +643,6 @@ void GenerateCap(vtkPolyData* pd)
   vtkStaticCellLinksTemplate<vtkIdType> links;
   links.ThreadedBuildLinks(numPts, numLines, lines);
   vtkNew<vtkCellArray> polys;
-  pd->SetPolys(polys);
   vtkNew<vtkPolygon> polygon;
   vtkIdType* lineConn =
     reinterpret_cast<vtkIdTypeArray*>(lines->GetConnectivityArray())->GetPointer(0);
@@ -657,13 +656,16 @@ void GenerateCap(vtkPolyData* pd)
   vtkIdType lineId, npts, startPt, currentPt, nextPt;
   vtkIdType numLoopPts, currentLine;
   const vtkIdType* pts;
-  polygon->PointIds->Reset();
-  polygon->Points->Reset();
   vtkNew<vtkIdList> outTris;
 
+  // Run across all lines, seeking those that have not been visited. An
+  // unvisited line is part of a new loop.
+  vtkIdType totTris = 0;
+  vtkNew<vtkIdTypeArray> outConn; // collect the output triangles
+  vtkNew<vtkIdTypeArray> outOffsets;
   for (lineId = 0; lineId < numLines; ++lineId)
   {
-    if (!visited[lineId])
+    if (!visited[lineId]) // start next loop
     {
       currentLine = lineId;
       visited[lineId] = 1;
@@ -674,6 +676,8 @@ void GenerateCap(vtkPolyData* pd)
 
       // Traverse loop
       bool closed = true;
+      polygon->PointIds->Reset();
+      polygon->Points->Reset();
       while (closed && nextPt != startPt)
       {
         // By inserting the points at the beginning of this while() loop, the
@@ -694,8 +698,8 @@ void GenerateCap(vtkPolyData* pd)
         nextPt = (pts[0] != nextPt ? pts[0] : pts[1]);
       }
 
-      // If loop is closed, triangulate the polygon and then feed into the
-      // filter output.
+      // If the last loop is closed, triangulate the polygon and then feed
+      // the resulting triangles into the filter output.
       if (closed)
       {
         // The vtkPolygon triangulation creates the connectivity array. It
@@ -705,29 +709,38 @@ void GenerateCap(vtkPolyData* pd)
           vtkIdType* ids = polygon->PointIds->GetPointer(0);
           vtkIdType numTris = outTris->GetNumberOfIds() / 3;
           vtkIdType* outTrisPtr = outTris->GetPointer(0);
-          vtkNew<vtkIdTypeArray> outConn;
-          vtkNew<vtkIdTypeArray> outOffsets;
-          outConn->SetNumberOfTuples(3 * numTris);
-          outOffsets->SetNumberOfTuples(numTris + 1);
+
+          outConn->WritePointer(0, 3 * (numTris + totTris));
+          outOffsets->WritePointer(0, totTris + numTris + 1);
           vtkIdType* outConnPtr = outConn->GetPointer(0);
           vtkIdType* outOffsetsPtr = outOffsets->GetPointer(0);
+
           vtkSMPTools::For(0, numTris,
-            [&, ids, outTrisPtr, outConnPtr, outOffsetsPtr](vtkIdType triId, vtkIdType endTriId) {
+            [&, totTris, ids, outTrisPtr, outConnPtr, outOffsetsPtr](
+              vtkIdType triId, vtkIdType endTriId) {
               for (; triId < endTriId; ++triId)
               {
+                vtkIdType tID = triId + totTris;
                 vtkIdType* triIn = outTrisPtr + 3 * triId;
-                vtkIdType* triOut = outConnPtr + 3 * triId;
+                vtkIdType* triOut = outConnPtr + 3 * tID;
                 triOut[0] = ids[triIn[0]];
                 triOut[1] = ids[triIn[1]];
                 triOut[2] = ids[triIn[2]];
-                outOffsetsPtr[triId] = 3 * triId;
+                outOffsetsPtr[tID] = 3 * tID;
               }
             });
-          outOffsets->SetComponent(numTris, 0, 3 * numTris);
-          polys->SetData(outOffsets, outConn);
+          totTris += numTris;
         } // successful triangulation
       }   // if closed loop
     }     // if not visited
+  }
+
+  // If some triangles were produced, send them to the output
+  if (totTris > 0)
+  {
+    outOffsets->SetComponent(totTris, 0, 3 * totTris);
+    polys->SetData(outOffsets, outConn);
+    pd->SetPolys(polys);
   }
 
   // Clean up
