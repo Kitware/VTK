@@ -1,0 +1,77 @@
+# Linux-specific builder configurations and build commands
+
+## Base images
+
+.linux:
+    variables:
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+        GIT_SUBMODULE_STRATEGY: none
+
+.fedora33:
+    extends: .linux
+    image: "kitware/vtk:ci-fedora33-20210126"
+
+.fedora_mpich_addon:
+    variables:
+        MODULES: mpi/mpich-x86_64
+        # Even with SHM size of 512m, SIGBUS still happened. Let's just use the
+        # network instead for reliability.
+        # https://wiki.mpich.org/mpich/index.php/Frequently_Asked_Questions#Q:_Why_MPI_Put_raises_SIGBUS_error_inside_docker.3F
+        MPIR_CVAR_NOLOCAL: 1
+
+.fedora_openmpi_addon:
+    variables:
+        # Needed to work with OpenMPI
+        OMPI_ALLOW_RUN_AS_ROOT: 1
+        OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+        MODULES: mpi/openmpi-x86_64
+
+.linux_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux
+
+.linux_tester_tags:
+    tags:
+        - docker
+        - linux
+        - x11
+
+## Linux-specific scripts
+
+.before_script_linux: &before_script_linux
+    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/ninja.sh
+    - .gitlab/ci/sccache.sh
+    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
+    - cmake --version
+    - ninja --version
+    - "git submodule update --init --recursive || :"
+    - git submodule foreach --recursive cmake "-Dusername:STRING=$CI_PROJECT_NAMESPACE" "-Durl_prefix:STRING=https://$CI_SERVER_HOST" -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    # Load any modules that may be necessary.
+    - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
+
+.cmake_build_linux:
+    stage: build
+
+    script:
+        - *before_script_linux
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+
+    interruptible: true
+
+.cmake_test_linux:
+    stage: test
+
+    script:
+        - *before_script_linux
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+
+    interruptible: true
