@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 project(ImageProcessing)
 
 find_package(VTK
-  OPTIONAL_COMPONENTS
-    TestingCore
-    TestingRendering)
-find_package(VTK
   COMPONENTS
     CommonSystem
     IOImage
@@ -16,7 +12,10 @@ find_package(VTK
     ImagingStencil
     InteractionStyle
     RenderingCore
-    RenderingOpenGL2)
+    RenderingOpenGL2
+  OPTIONAL_COMPONENTS
+    TestingCore
+    TestingRendering)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
   return ()
