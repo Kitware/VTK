@@ -28,13 +28,26 @@ print("Processing: ", sphere.GetOutput().GetNumberOfCells(), " triangles")
 plane = vtk.vtkPlane()
 plane.SetOrigin(0, 0, 0)
 plane.SetNormal(-1, -1, -1)
+planes = vtk.vtkPlaneCollection()
+planes.AddItem(plane)
 
-# Clipper
+# vtkPolyDataPlaneClipper
 clipper = vtk.vtkPolyDataPlaneClipper()
 clipper.SetInputConnection(sphere.GetOutputPort())
 clipper.SetPlane(plane)
 clipper.SetBatchSize(10000)
 clipper.CappingOn()
+
+# Compare to vtkClipClosedSurface
+closedClipper = vtk.vtkClipClosedSurface()
+closedClipper.SetInputConnection(sphere.GetOutputPort())
+closedClipper.SetClippingPlanes(planes)
+
+# Compare to vtkClipPolyData
+oldClipper = vtk.vtkClipPolyData()
+oldClipper.SetInputConnection(sphere.GetOutputPort())
+oldClipper.SetValue(0.0)
+oldClipper.SetClipFunction(plane)
 
 # Time execution
 timer = vtk.vtkTimerLog()
@@ -43,15 +56,15 @@ clipper.Update()
 timer.StopTimer()
 print("vtkPolyDataPlaneClipper Execution time: ", timer.GetElapsedTime())
 
-# Compare to vtkClipPolyData
-# oldClipper = vtk.vtkClipPolyData()
-# oldClipper.SetInputConnection(sphere.GetOutputPort())
-# oldClipper.SetValue(0.0)
-# oldClipper.SetClipFunction(plane)
-# timer.StartTimer()
-# oldClipper.Update()
-# timer.StopTimer()
-# print("vtkClipPolyData Execution time: ", timer.GetElapsedTime())
+#timer.StartTimer()
+#closedClipper.Update()
+#timer.StopTimer()
+#print("vtkClipClosedSurface Execution time: ", timer.GetElapsedTime())
+
+#timer.StartTimer()
+#oldClipper.Update()
+#timer.StopTimer()
+#print("vtkClipPolyData Execution time: ", timer.GetElapsedTime())
 
 # Display the clipped cells
 mapper = vtk.vtkPolyDataMapper()
