@@ -14,6 +14,12 @@ set(CTEST_TEST_TIMEOUT 100)
 
 set(test_exclusions)
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
+  list(APPEND test_exclusions
+    # GPURayCast doesn't work with the CI's VNC setup.
+    "TestGPURayCast")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
