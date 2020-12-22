@@ -8,6 +8,7 @@ find_package(VTK
     IOLegacy
     IOXML
     InteractionStyle
+    vtksys
   OPTIONAL_COMPONENTS
     IOExport
     IOImport

@@ -13,6 +13,7 @@ find_package(VTK
     InteractionStyle
     RenderingCore
     RenderingOpenGL2
+    vtksys
   OPTIONAL_COMPONENTS
     TestingCore
     TestingRendering)
