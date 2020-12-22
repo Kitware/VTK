@@ -51,27 +51,27 @@ test:fedora33-mpi-renderless:
     needs:
         - build:fedora33-mpi-renderless
 
-build:fedora33-java-mpi-qt-tbb:
-    extends:
-        - .fedora33_java_mpi_qt_tbb
-        - .cmake_build_linux
-        - .linux_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-    # The Java build extends the build time considerably.
-    timeout: 2 hours
+# build:fedora33-java-mpi-qt-tbb:
+#     extends:
+#         - .fedora33_java_mpi_qt_tbb
+#         - .cmake_build_linux
+#         - .linux_builder_tags
+#         - .cmake_build_artifacts
+#         - .run_manually
+#     # The Java build extends the build time considerably.
+#     timeout: 2 hours
 
-test:fedora33-java-mpi-qt-tbb:
-    extends:
-        - .fedora33_java_mpi_qt_tbb
-        - .cmake_test_linux
-        - .linux_tester_tags
-        - .cmake_test_artifacts
-        - .run_automatically
-    dependencies:
-        - build:fedora33-java-mpi-qt-tbb
-    needs:
-        - build:fedora33-java-mpi-qt-tbb
+# test:fedora33-java-mpi-qt-tbb:
+#     extends:
+#         - .fedora33_java_mpi_qt_tbb
+#         - .cmake_test_linux
+#         - .linux_tester_tags
+#         - .cmake_test_artifacts
+#         - .run_automatically
+#     dependencies:
+#         - build:fedora33-java-mpi-qt-tbb
+#     needs:
+#         - build:fedora33-java-mpi-qt-tbb
 
 build:fedora33-mpi-python-qt-tbb:
     extends:
