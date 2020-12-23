@@ -12,6 +12,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::ioss
 OPTIONAL_DEPENDS
+  VTK::ParallelMPI
   VTK::mpi
 TEST_DEPENDS
   VTK::FiltersGeometry
