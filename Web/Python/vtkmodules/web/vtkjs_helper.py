@@ -187,9 +187,9 @@ def zipAllTimeSteps(directoryPath):
     # Update root index.json urls and write it in the archive
     for obj in rootIndexObj["scene"]:
       obj["id"] = obj["name"]
-      obj["type"] = "httpDataSetSeriesReader"
-      obj["httpDataSetSeriesReader"] = { }
-      obj["httpDataSetSeriesReader"]["url"] = objNameToUrls[obj["name"]]
+      obj["type"] = "vtkHttpDataSetSeriesReader"
+      obj["vtkHttpDataSetSeriesReader"] = { }
+      obj["vtkHttpDataSetSeriesReader"]["url"] = objNameToUrls[obj["name"]]
     zf.writestr("index.json", json.dumps(rootIndexObj, indent=2), compress_type=compression)
     os.remove(rootIndexPath)
 
