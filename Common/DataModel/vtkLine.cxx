@@ -93,7 +93,7 @@ void vtkLine::EvaluateLocation(
 // The parameters (u,v) are the parametric coordinates of the lines at the
 // position of closest approach.
 int vtkLine::Intersection(const double a1[3], const double a2[3], const double b1[3],
-  const double b2[3], double& u, double& v)
+  const double b2[3], double& u, double& v, const double tolerance)
 {
   double a21[3], b21[3], b1a1[3];
   double c[2];
@@ -163,9 +163,10 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
     double diff[3];
     vtkMath::Subtract(ptu, ptv, diff);
     double diff2 = vtkMath::SquaredNorm(diff);
-    // compare diff > 1e-6 * max(nrm(ptu),nrm(ptv))
+    // compare diff > tolerance * max(nrm(ptu),nrm(ptv))
     // but without taking square roots, hence square this equation
-    if (diff2 > 1e-12 * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)))
+    if (diff2 >
+      tolerance * tolerance * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)))
     {
       return NoIntersect;
     }
@@ -183,8 +184,8 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
 }
 
 //------------------------------------------------------------------------------
-int vtkLine::Intersection3D(
-  double a1[3], double a2[3], double b1[3], double b2[3], double& u, double& v)
+int vtkLine::Intersection3D(double a1[3], double a2[3], double b1[3], double b2[3], double& u,
+  double& v, const double tolerance)
 {
   // Description:
   // Performs intersection of two finite 3D lines. An intersection is found if
@@ -196,7 +197,7 @@ int vtkLine::Intersection3D(
   //
   // Note: Legacy method; vtkLine::Intersection() now performs the check that the
   // distance between the closest points is within a relative tolerance.
-  return vtkLine::Intersection(a1, a2, b1, b2, u, v);
+  return vtkLine::Intersection(a1, a2, b1, b2, u, v, tolerance);
 }
 
 int vtkLine::Inflate(double dist)

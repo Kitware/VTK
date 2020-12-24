@@ -348,7 +348,7 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
 
     // Note:
     // Below is a simplistic tolerance.
-    // Future efforst should be made to:
+    // Future efforts should be made to:
     // a) replace the use the the numerically unstable Cramer's method
     // b) determine more accurately if the matrix is singular
     static const double eps = 256.0 * std::numeric_limits<double>::epsilon();

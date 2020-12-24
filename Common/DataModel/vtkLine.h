@@ -99,11 +99,13 @@ public:
    * The parameters (u,v) are the parametric coordinates of the lines at the
    * position of closest approach.
    *
-   * The results are of type vtkLine::IntersectionType.
+   * The results are of type vtkLine::IntersectionType. An intersection occurs
+   * if (u,v) are in the interval [0,1] and the intersection point falls within
+   * a tolerance relative to the projection line lengths.
    *
    */
   static int Intersection(const double p1[3], const double p2[3], const double x1[3],
-    const double x2[3], double& u, double& v);
+    const double x2[3], double& u, double& v, const double tolerance = 1e-6);
 
   /**
    * Performs intersection of two finite 3D lines. An intersection is found if
@@ -115,12 +117,10 @@ public:
    *
    * The results are of type vtkLine::IntersectionType.
    *
-   * NOTE: "Unlike Intersection(), which determines whether the projections of
-   * two lines onto a plane intersect, Intersection3D() determines whether the
-   * lines themselves in 3D space intersect, within a tolerance.
+   * NOTE: Legacy method, returns vtkLine::Intersection(...).
    */
-  static int Intersection3D(
-    double p1[3], double p2[3], double x1[3], double x2[3], double& u, double& v);
+  static int Intersection3D(double p1[3], double p2[3], double x1[3], double x2[3], double& u,
+    double& v, const double tolerance = 1e-6);
 
   /**
    * Compute the distance of a point x to a finite line (p1,p2). The method
