@@ -641,7 +641,10 @@ int vtkLine::IntersectWithLine(const double p1[3], const double p2[3], double to
   this->Points->GetPoint(0, a1);
   this->Points->GetPoint(1, a2);
 
-  if (this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == Intersect)
+  // check line-line intersection; use inf tolerance which will force
+  // vtkLine::Intersection() to only check parametric intersection
+  // we then perform the tolerance check here using the absolute tolerance tol
+  if (this->Intersection(p1, p2, a1, a2, t, pcoords[0], vtkMath::Inf()) == Intersect)
   {
     // make sure we are within tolerance
     for (i = 0; i < 3; i++)
