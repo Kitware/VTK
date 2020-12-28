@@ -165,8 +165,9 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
     double diff2 = vtkMath::SquaredNorm(diff);
     // compare diff > tolerance * max(nrm(ptu),nrm(ptv))
     // but without taking square roots, hence square this equation
-    if (diff2 >
-      tolerance * tolerance * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)))
+    if (std::isfinite(tolerance) &&
+      (diff2 >
+        tolerance * tolerance * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu))))
     {
       return NoIntersect;
     }
