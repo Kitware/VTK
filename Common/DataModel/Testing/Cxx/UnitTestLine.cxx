@@ -24,10 +24,6 @@ namespace
 {
 static const double EPSILON = 1.e-6;
 
-static const int VTK_NO_INTERSECTION = 0;
-static const int VTK_YES_INTERSECTION = 2;
-static const int VTK_ON_LINE = 3;
-
 void GenerateIntersectingLineSegments(vtkMinimalStandardRandomSequence* seq, double* a1, double* a2,
   double* b1, double* b2, double& u, double& v)
 {
@@ -315,7 +311,7 @@ int TestLineIntersection_PositiveResult(vtkMinimalStandardRandomSequence* seq, u
     double uv[2];
     int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, uv[0], uv[1]);
 
-    if (returnValue != VTK_YES_INTERSECTION)
+    if (returnValue != vtkLine::Intersect)
     {
       return EXIT_FAILURE;
     }
@@ -339,7 +335,7 @@ int TestLineIntersection_NegativeResult(vtkMinimalStandardRandomSequence* seq, u
 
     int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, u, v);
 
-    if (returnValue != VTK_NO_INTERSECTION)
+    if (returnValue != vtkLine::NoIntersect)
     {
       return EXIT_FAILURE;
     }
@@ -358,7 +354,7 @@ int TestLineIntersection_ColinearResult(vtkMinimalStandardRandomSequence* seq, u
 
     int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, u, v);
 
-    if (returnValue != VTK_ON_LINE)
+    if (returnValue != vtkLine::OnLine)
     {
       return EXIT_FAILURE;
     }
