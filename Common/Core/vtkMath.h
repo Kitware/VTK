@@ -1072,6 +1072,16 @@ public:
   //@}
 
   /**
+   * Solve linear equation Ax = b using Gaussian Elimination with Partial Pivoting
+   * for a 2x2 system. If the matrix is found to be singular within a small numerical
+   * tolerance close to machine precision then 0 is returned.
+   * Note: Even if method succeeded the matrix A could be close to singular.
+   *       The solution should be checked against relevant tolerance criteria.
+   */
+  static vtkTypeBool SolveLinearSystemGEPP2x2(
+    double a00, double a01, double a10, double a11, double b0, double b1, double& x0, double& x1);
+
+  /**
    * Solve linear equations Ax = b using Crout's method. Input is square
    * matrix A and load vector b. Solution x is written over load vector. The
    * dimension of the matrix is specified in size. If error is found, method

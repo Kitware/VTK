@@ -332,6 +332,92 @@ void vtkMath::Perpendiculars(const float v1[3], float v2[3], float v3[3], double
   vtkMathPerpendiculars(v1, v2, v3, theta);
 }
 
+//------------------------------------------------------------------------------
+// Solve linear equation Ax = b using Gaussian Elimination with Partial Pivoting
+// for a 2x2 system. If the matrix is found to be singular within a small numerical
+// tolerance close to machine precision then 0 is returned.
+vtkTypeBool vtkMath::SolveLinearSystemGEPP2x2(
+  double a00, double a01, double a10, double a11, double b0, double b1, double& x0, double& x1)
+{
+  // Check if any of the matrix coefficients is zero.
+  // If so then swap rows/columns to form an upper triangular matrix without
+  // having to use GEPP.
+  bool cols_swapped = false;
+  if ((a00 == 0) || (a01 == 0) || (a10 == 0) || (a11 == 0))
+  {
+    // zero in either row of the 2nd column?
+    if ((a01 == 0) || (a11 == 0))
+    {
+      // swap columns
+      std::swap(a00, a01);
+      std::swap(a10, a11);
+      cols_swapped = true;
+    }
+    // zero in a00?
+    if (a00 == 0)
+    {
+      // swap rows
+      std::swap(a00, a10);
+      std::swap(a01, a11);
+      std::swap(b0, b1);
+    }
+  }
+  else
+  {
+    // None of the matrix coefficients are exactly zero.
+    // Use GEPP to form upper triangular matrix, i.e. so that a10 == 0.
+    // Select pivot by looking at largest absolute value in a00, a10
+    if (fabs(a00) < fabs(a10))
+    {
+      // swap rows so largest coefficient in first column is in the first row
+      std::swap(a00, a10);
+      std::swap(a01, a11);
+      std::swap(b0, b1);
+    }
+    // a10 = 0;            // bookkeeping only, value is no longer required
+    const double f = -a10 / a00;
+    a11 += a01 * f;
+    b1 += b0 * f;
+  }
+  // Have now an exact zero in a10.
+  // Need to check for singularity by looking at a11.
+  // Note the choice of eps is reasonable but somewhat arbitrary.
+  static const double eps = 256 * std::numeric_limits<double>::epsilon();
+  if (fabs(a11) < eps)
+  {
+    // matrix is singular within small numerical tolerance
+    return 0;
+  }
+  // Solve the triangular system
+  if (a11 != 0)
+  {
+    x1 = b1 / a11;
+  }
+  else
+  {
+    return 0;
+  }
+  if (a00 != 0)
+  {
+    x0 = (b0 - a01 * x1) / a00;
+  }
+  else
+  {
+    return 0;
+  }
+  // other failures in solution?
+  if (!std::isfinite(x0) || !std::isfinite(x1))
+  {
+    return 0;
+  }
+  // If necessary swap solution vector rows.
+  if (cols_swapped)
+  {
+    std::swap(x0, x1);
+  }
+  return 1;
+}
+
 #define VTK_SMALL_NUMBER 1.0e-12
 
 //------------------------------------------------------------------------------
@@ -344,28 +430,7 @@ vtkTypeBool vtkMath::SolveLinearSystem(double** A, double* x, int size)
   //
   if (size == 2)
   {
-    double det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
-
-    // Note:
-    // Below is a simplistic tolerance.
-    // Future efforts should be made to:
-    // a) replace the use the the numerically unstable Cramer's method
-    // b) determine more accurately if the matrix is singular
-    static const double eps = 256.0 * std::numeric_limits<double>::epsilon();
-
-    if (std::fabs(det) < eps)
-    {
-      // Unable to solve linear system
-      return 0;
-    }
-
-    double y[2];
-    y[0] = (A[1][1] * x[0] - A[0][1] * x[1]) / det;
-    y[1] = (-A[1][0] * x[0] + A[0][0] * x[1]) / det;
-
-    x[0] = y[0];
-    x[1] = y[1];
-    return 1;
+    return SolveLinearSystemGEPP2x2(A[0][0], A[0][1], A[1][0], A[1][1], x[0], x[1], x[0], x[1]);
   }
   else if (size == 1)
   {

@@ -109,7 +109,7 @@ bool PointsAreCoincident(double p[3], double q[3], double tolerance)
 bool LineSegmentsIntersect(double p1[3], double p2[3], double q1[3], double q2[3], double tolerance)
 {
   double u, v;
-  if (vtkLine::Intersection3D(p1, p2, q1, q2, u, v) == vtkLine::Intersect)
+  if (vtkLine::Intersection(p1, p2, q1, q2, u, v) == vtkLine::Intersect)
   {
     if ((std::abs(u) > tolerance && std::abs(u - 1.) > tolerance) ||
       (std::abs(v) > tolerance && std::abs(v - 1.) > tolerance))
@@ -260,11 +260,8 @@ bool vtkCellValidator::ContiguousEdges(vtkCell* twoDimensionalCell, double toler
     edge->GetPoints()->GetPoint(0, x[0]);
     edge->GetPoints()->GetPoint(1, x[1]);
 
-    if (vtkLine::Intersection3D(p[0], p[1], x[0], x[1], u, v) == vtkLine::NoIntersect)
-    {
-      return false;
-    }
-    else if ((std::abs(u) > tolerance && std::abs(1. - u) > tolerance) ||
+    vtkLine::Intersection(p[0], p[1], x[0], x[1], u, v, vtkMath::Inf());
+    if ((std::abs(u) > tolerance && std::abs(1. - u) > tolerance) ||
       (std::abs(v) > tolerance && std::abs(1. - v) > tolerance))
     {
       return false;

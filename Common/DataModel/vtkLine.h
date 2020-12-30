@@ -24,6 +24,7 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 class vtkIncrementalPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkLine : public vtkCell
@@ -119,6 +120,7 @@ public:
    *
    * NOTE: Legacy method, returns vtkLine::Intersection(...).
    */
+  VTK_DEPRECATED_IN_9_1_0("Use vtkLine::Intersection(...) instead.")
   static int Intersection3D(double p1[3], double p2[3], double x1[3], double x2[3], double& u,
     double& v, const double tolerance = 1e-6);
 
