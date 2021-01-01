@@ -137,6 +137,14 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
   int j;
   vtkIdType cellId;
 
+  // If this method is called outside of dataset (e.g.,
+  // vtkPolyData::BuildLinks()) then will have to perform initial link
+  // allocation.
+  if (this->Array == nullptr)
+  {
+    this->Allocate(numPts);
+  }
+
   // fill out lists with number of references to cells
   std::vector<vtkIdType> linkLoc(numPts, 0);
 
