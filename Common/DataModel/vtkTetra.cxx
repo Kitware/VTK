@@ -954,8 +954,9 @@ int vtkTetra::JacobianInverse(double** inverse, double derivs[12])
     if (numWarns++ < VTK_MAX_WARNS)
     {
       vtkErrorMacro(<< "Jacobian inverse not found");
-      vtkErrorMacro(<< "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << m[1][0] << " "
-                    << m[1][1] << " " << m[1][2] << m[2][0] << " " << m[2][1] << " " << m[2][2]);
+      vtkErrorMacro(<< "Matrix:(" << m[0][0] << "," << m[0][1] << "," << m[0][2] << " " << m[1][0]
+                    << "," << m[1][1] << "," << m[1][2] << " " << m[2][0] << "," << m[2][1] << ","
+                    << m[2][2] << ")");
       return 0;
     }
   }
