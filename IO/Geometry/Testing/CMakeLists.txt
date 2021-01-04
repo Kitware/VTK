@@ -8,6 +8,11 @@ vtk_module_test_data(
   Data/OpenFOAM/64BitFloats/constant/,REGEX:.*
   Data/OpenFOAM/64BitFloats/constant/polyMesh/,REGEX:.*
   Data/OpenFOAM/64BitFloats/system/,REGEX:.*
+  Data/OpenFOAM/DimFields/cavity/,REGEX:.*
+  Data/OpenFOAM/DimFields/cavity/0/,REGEX:.*
+  Data/OpenFOAM/DimFields/cavity/constant/,REGEX:.*
+  Data/OpenFOAM/DimFields/cavity/constant/polyMesh/,REGEX:.*
+  Data/OpenFOAM/DimFields/cavity/system/,REGEX:.*
   Data/OpenFOAM/cavity/,REGEX:.*
   Data/OpenFOAM/cavity/0/,REGEX:.*
   Data/OpenFOAM/cavity/0.5/,REGEX:.*

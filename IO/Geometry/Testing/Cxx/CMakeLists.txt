@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOBJReaderRelative.cxx,NO_VALID
   TestOBJReaderSingleTexture.cxx,NO_VALID
   TestOpenFOAMReader.cxx
+  TestOpenFOAMReaderDimensionedFields.cxx,NO_VALID
   TestOpenFOAMReader64BitFloats.cxx
   TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestProStarReader.cxx
