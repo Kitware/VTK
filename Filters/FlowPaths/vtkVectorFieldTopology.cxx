@@ -109,68 +109,174 @@ int vtkVectorFieldTopology::FillOutputPortInformation(int port, vtkInformation* 
 }
 
 //----------------------------------------------------------------------------
-int vtkVectorFieldTopology::Classify2D(
-  int vtkNotUsed(countReal), int countComplex, int countPos, int countNeg)
+int vtkVectorFieldTopology::Classify2D(int countComplex, int countPos, int countNeg)
 {
   // make simple type that corresponds to the number of positive eigenvalues
-  // SOURCE2D 2, SADDLE2D 1, SINK2D 0, (CENTER2D 3)
+  // SOURCE_2D 2, SADDLE_2D 1, SINK_2D 0, (CENTER_2D 3)
   // in analogy to ttk, where the type corresponds to the down directions
-  int critType = vtkVectorFieldTopology::DEGENERATE2D;
+  int critType = vtkVectorFieldTopology::DEGENERATE_2D;
   if (countPos + countNeg == 2)
   {
     switch (countPos)
     {
       case 0:
-        critType = vtkVectorFieldTopology::SINK2D;
+        critType = vtkVectorFieldTopology::SINK_2D;
         break;
       case 1:
-        critType = vtkVectorFieldTopology::SADDLE2D;
+        critType = vtkVectorFieldTopology::SADDLE_2D;
         break;
       case 2:
-        critType = vtkVectorFieldTopology::SOURCE2D;
+        critType = vtkVectorFieldTopology::SOURCE_2D;
         break;
       default:
         break;
     }
   }
-  if (countComplex == 2)
+  else if (countComplex == 2)
   {
-    critType = vtkVectorFieldTopology::CENTER2D;
+    critType = vtkVectorFieldTopology::CENTER_2D;
   }
   return critType;
 }
 
 //----------------------------------------------------------------------------
-int vtkVectorFieldTopology::Classify3D(
-  int vtkNotUsed(countReal), int countComplex, int countPos, int countNeg)
+int vtkVectorFieldTopology::ClassifyDetailed2D(int countComplex, int countPos, int countNeg)
+{
+  // determine which type of critical point we have including distinction between node and spiral
+  // ATTRACTING_NODE_2D 0, ATTRACTING_FOCUS_2D 1, NODE_SADDLE_2D 2, REPELLING_NODE_2D 3,
+  // REPELLING_FOCUS_2D 4, CENTER_DETAILED_2D 5
+  int critType = vtkVectorFieldTopology::DEGENERATE_2D;
+  if (countPos + countNeg == 2)
+  {
+    switch (countPos)
+    {
+      case 0:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::ATTRACTING_NODE_2D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::ATTRACTING_FOCUS_2D;
+        }
+        break;
+      case 1:
+        critType = vtkVectorFieldTopology::NODE_SADDLE_2D;
+        break;
+      case 2:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::REPELLING_NODE_2D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::REPELLING_FOCUS_2D;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  else if (countComplex == 2)
+  {
+    critType = vtkVectorFieldTopology::CENTER_DETAILED_2D;
+  }
+  return critType;
+}
+
+//----------------------------------------------------------------------------
+int vtkVectorFieldTopology::Classify3D(int countComplex, int countPos, int countNeg)
 {
   // make simple type that corresponds to the number of positive eigenvalues
-  // SOURCE3D 3, SADDLE23D 2, SADDLE13D 1, SINK3D 0, (CENTER3D 4)
+  // SOURCE_3D 3, SADDLE_2_3D 2, SADDLE_1_3D 1, SINK_3D 0, (CENTER_3D 4)
   // in analogy to ttk, where the type corresponds to the down directions
-  int critType = vtkVectorFieldTopology::DEGENERATE3D;
-  if (countComplex > 0)
-  {
-    critType = vtkVectorFieldTopology::CENTER3D;
-  }
+  int critType = vtkVectorFieldTopology::DEGENERATE_3D;
   if (countPos + countNeg == 3)
   {
     switch (countPos)
     {
       case 0:
-        critType = vtkVectorFieldTopology::SINK3D;
+        critType = vtkVectorFieldTopology::SINK_3D;
         break;
       case 1:
-        critType = vtkVectorFieldTopology::SADDLE13D;
+        critType = vtkVectorFieldTopology::SADDLE_1_3D;
         break;
       case 2:
-        critType = vtkVectorFieldTopology::SADDLE23D;
+        critType = vtkVectorFieldTopology::SADDLE_2_3D;
         break;
       case 3:
-        critType = vtkVectorFieldTopology::SOURCE3D;
+        critType = vtkVectorFieldTopology::SOURCE_3D;
         break;
       default:
         break;
     }
+  }
+  else if (countComplex > 0)
+  {
+    critType = vtkVectorFieldTopology::CENTER_3D;
+  }
+  return critType;
+}
+
+//----------------------------------------------------------------------------
+int vtkVectorFieldTopology::ClassifyDetailed3D(int countComplex, int countPos, int countNeg)
+{
+  // determine which type of critical point we have including distinction between node and spiral
+  // ATTRACTING_NODE_3D 0, ATTRACTING_FOCUS_3D 1, NODE_SADDLE_1_3D 2, FOCUS_SADDLE_1_3D 3,
+  // NODE_SADDLE_2_3D 4, FOCUS_SADDLE_2_3D 5, REPELLING_NODE_3D 6, REPELLING_FOCUS_3D 7,
+  // CENTER_DETAILED_3D 8
+  int critType = vtkVectorFieldTopology::DEGENERATE_3D;
+  if (countPos + countNeg == 3)
+  {
+    switch (countPos)
+    {
+      case 0:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::ATTRACTING_NODE_3D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::ATTRACTING_FOCUS_3D;
+        }
+        break;
+      case 1:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::NODE_SADDLE_1_3D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::FOCUS_SADDLE_1_3D;
+        }
+        break;
+      case 2:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::NODE_SADDLE_2_3D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::FOCUS_SADDLE_2_3D;
+        }
+        break;
+      case 3:
+        if (countComplex == 0)
+        {
+          critType = vtkVectorFieldTopology::REPELLING_NODE_3D;
+        }
+        else
+        {
+          critType = vtkVectorFieldTopology::REPELLING_FOCUS_3D;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  else if (countComplex > 0)
+  {
+    critType = vtkVectorFieldTopology::CENTER_DETAILED_3D;
   }
   return critType;
 }
@@ -357,7 +463,7 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   // generate circle and add first point again in the back to avoid gap
   vtkNew<vtkRegularPolygonSource> circle;
   circle->GeneratePolygonOff();
-  circle->SetNumberOfSides(6);
+  circle->SetNumberOfSides(8);
   circle->SetRadius(dist);
   circle->SetCenter(zeroPos);
   circle->SetNormal(normal);
@@ -423,6 +529,11 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   criticalPointsTypes->SetName("type");
   criticalPoints->GetPointData()->AddArray(criticalPointsTypes);
 
+  vtkNew<vtkDoubleArray> criticalPointsTypesDetailed;
+  criticalPointsTypesDetailed->SetNumberOfTuples(criticalPoints->GetNumberOfPoints());
+  criticalPointsTypesDetailed->SetName("typeDetailed");
+  criticalPoints->GetPointData()->AddArray(criticalPointsTypesDetailed);
+
   vtkNew<vtkStreamTracer> streamTracer;
   streamTracer->SetInputData(dataset);
   streamTracer->SetIntegratorTypeToRungeKutta4();
@@ -480,12 +591,18 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
     if (this->Dimension == 2)
     {
       criticalPoints->GetPointData()->GetArray("type")->SetTuple1(
-        pointId, this->Classify2D(countReal, countComplex, countPos, countNeg));
+        pointId, this->Classify2D(countComplex, countPos, countNeg));
+      criticalPoints->GetPointData()
+        ->GetArray("typeDetailed")
+        ->SetTuple1(pointId, this->ClassifyDetailed2D(countComplex, countPos, countNeg));
     }
     else
     {
       criticalPoints->GetPointData()->GetArray("type")->SetTuple1(
-        pointId, this->Classify3D(countReal, countComplex, countPos, countNeg));
+        pointId, this->Classify3D(countComplex, countPos, countNeg));
+      criticalPoints->GetPointData()
+        ->GetArray("typeDetailed")
+        ->SetTuple1(pointId, this->ClassifyDetailed3D(countComplex, countPos, countNeg));
     }
 
     // separatrix

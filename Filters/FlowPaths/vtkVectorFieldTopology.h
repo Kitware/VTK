@@ -208,49 +208,100 @@ private:
    * simple type that corresponds to the number of positive eigenvalues
    * in analogy to ttk, where the type corresponds to the down directions
    */
-  enum CriticalType3D
+  enum CriticalType2D
   {
-    DEGENERATE3D = -1,
-    SINK3D = 0,
-    SADDLE13D = 1,
-    SADDLE23D = 2,
-    SOURCE3D = 3,
-    CENTER3D = 4
+    DEGENERATE_2D = -1,
+    SINK_2D = 0,
+    SADDLE_2D = 1,
+    SOURCE_2D = 2,
+    CENTER_2D = 3
+  };
+
+  /**
+   * detailed type that additionally distinguishes nodes from foci
+   * nomenclature as in James Helman, Hesselink: "Visualizing Vector Field Topology in Fluid Flows"
+   */
+  enum CriticalTypeDetailed2D
+  {
+    //    DEGENERATE2D = -1,
+    ATTRACTING_NODE_2D = 0,
+    ATTRACTING_FOCUS_2D = 1,
+    NODE_SADDLE_2D = 2,
+    REPELLING_NODE_2D = 3,
+    REPELLING_FOCUS_2D = 4,
+    CENTER_DETAILED_2D = 5
   };
 
   /**
    * simple type that corresponds to the number of positive eigenvalues
    * in analogy to ttk, where the type corresponds to the down directions
    */
-  enum CriticalType2D
+  enum CriticalType3D
   {
-    DEGENERATE2D = -1,
-    SINK2D = 0,
-    SADDLE2D = 1,
-    SOURCE2D = 2,
-    CENTER2D = 3
+    DEGENERATE_3D = -1,
+    SINK_3D = 0,
+    SADDLE_1_3D = 1,
+    SADDLE_2_3D = 2,
+    SOURCE_3D = 3,
+    CENTER_3D = 4
   };
 
   /**
-   * determine which type of critical point we have based on the eigenvalues of the Jacobian in 3D
-   * @param countReal: number of real valued eigenvalues
-   * @param countReal: number of complex valued eigenvalues
-   * @param countPos: number of positive eigenvalues
-   * @param countNeg: number of negative eigenvalues
-   * @return type of critical point: SOURCE3D 3, SADDLE23D 2, SADDLE13D 1, SINK3D 0, (CENTER3D 4)
+   * detailed type that additionally distinguishes nodes from foci
+   * nomenclature as in James Helman, Hesselink: "Visualizing Vector Field Topology in Fluid Flows"
    */
-  static int Classify3D(int countReal, int countComplex, int countPos, int countNeg);
+  enum CriticalTypeDetailed3D
+  {
+    ATTRACTING_NODE_3D = 0,
+    ATTRACTING_FOCUS_3D = 1,
+    NODE_SADDLE_1_3D = 2,
+    FOCUS_SADDLE_1_3D = 3,
+    NODE_SADDLE_2_3D = 4,
+    FOCUS_SADDLE_2_3D = 5,
+    REPELLING_NODE_3D = 6,
+    REPELLING_FOCUS_3D = 7,
+    CENTER_DETAILED_3D = 8
+  };
 
   /**
    * determine which type of critical point we have based on the eigenvalues of the Jacobian in 2D
-   * @param countReal: number of real valued eigenvalues
    * @param countReal: number of complex valued eigenvalues
    * @param countPos: number of positive eigenvalues
    * @param countNeg: number of negative eigenvalues
-   * @return type of critical point: SOURCE2D 2, SADDLE2D 1, SINK2D 0, (CENTER2D 3)
+   * @return type of critical point: SOURCE_2D 2, SADDLE_2D 1, SINK_2D 0, (CENTER_2D 3)
    */
-  static int Classify2D(int countReal, int countComplex, int countPos, int countNeg);
+  static int Classify2D(int countComplex, int countPos, int countNeg);
 
+  /**
+   * determine which type of critical point we have including distinction between node and spiral
+   * @param countReal: number of complex valued eigenvalues
+   * @param countPos: number of positive eigenvalues
+   * @param countNeg: number of negative eigenvalues
+   * @return type of critical point: ATTRACTING_NODE_2D 0, ATTRACTING_FOCUS_2D 1, NODE_SADDLE_2D 2,
+   * REPELLING_NODE_2D 3, REPELLING_FOCUS_2D 4, CENTER_DETAILED_2D 5,
+   */
+  static int ClassifyDetailed2D(int countComplex, int countPos, int countNeg);
+
+  /**
+   * determine which type of critical point we have based on the eigenvalues of the Jacobian in 3D
+   * @param countReal: number of complex valued eigenvalues
+   * @param countPos: number of positive eigenvalues
+   * @param countNeg: number of negative eigenvalues
+   * @return type of critical point: SOURCE_3D 3, SADDLE_2_3D 2, SADDLE_1_3D 1, SINK_3D 0,
+   * (CENTER_3D 4)
+   */
+  static int Classify3D(int countComplex, int countPos, int countNeg);
+
+  /**
+   * determine which type of critical point we have including distinction between node and spiral
+   * @param countReal: number of complex valued eigenvalues
+   * @param countPos: number of positive eigenvalues
+   * @param countNeg: number of negative eigenvalues
+   * @return type of critical point: ATTRACTING_NODE_3D 0, ATTRACTING_FOCUS_3D 1, NODE_SADDLE_1_3D
+   * 2, FOCUS_SADDLE_1_3D 3, NODE_SADDLE_2_3D 4, FOCUS_SADDLE_2_3D 5, REPELLING_NODE_3D 6,
+   * REPELLING_FOCUS_3D 7, CENTER_DETAILED_3D 8
+   */
+  static int ClassifyDetailed3D(int countComplex, int countPos, int countNeg);
   /**
    * number of iterations in this class and in vtkStreamTracer
    */
