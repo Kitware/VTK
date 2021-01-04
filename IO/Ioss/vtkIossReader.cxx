@@ -48,6 +48,7 @@
 #include <vtk_ioss.h>
 // clang-format off
 #include VTK_IOSS(init/Ionit_Initializer.h)
+#include VTK_IOSS(Ioss_Assembly.h)
 #include VTK_IOSS(Ioss_DatabaseIO.h)
 #include VTK_IOSS(Ioss_EdgeBlock.h)
 #include VTK_IOSS(Ioss_EdgeSet.h)
@@ -189,6 +190,9 @@ class vtkIossReader::vtkInternals
     EntityNames;
   vtkTimeStamp SelectionsMTime;
 
+  // Keeps track of idx of a paritioned dataset in the output.
+  std::map<std::pair<Ioss::EntityType, std::string>, unsigned int> DatasetIndexMap;
+
   std::map<DatabaseHandle, std::shared_ptr<Ioss::Region>> RegionMap;
 
   vtkIossUtilities::Cache Cache;
@@ -253,6 +257,11 @@ public:
    * and those available.
    */
   bool GenerateOutput(vtkPartitionedDataSetCollection* output, vtkIossReader* self);
+
+  /**
+   * Fills up the vtkDataAssembly with ioss-assemblies, if present.
+   */
+  bool ReadAssemblies(vtkPartitionedDataSetCollection* output, const DatabaseHandle& handle);
 
   /**
    * Adds geometry (points) and topology (cell) information to the grid for the
@@ -455,6 +464,11 @@ private:
     vtkNew<vtkIdTypeArray> ids;
     ids->DeepCopy(array);
     return ids;
+  }
+
+  unsigned int GetDataSetIndexForEntity(const Ioss::GroupingEntity* entity) const
+  {
+    return this->DatasetIndexMap.at(std::make_pair(entity->type(), entity->name()));
   }
 };
 
@@ -774,6 +788,8 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
   assembly->SetRootNodeName("Ioss");
   output->SetDataAssembly(assembly);
 
+  this->DatasetIndexMap.clear();
+
   for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
   {
     std::set<std::string> enabled_entities;
@@ -787,30 +803,106 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
       }
     }
 
-    // we delay creating a node for this entity-type until one is needed
-    int entity_node = -1;
+    if (this->EntityNames[etype].size() == 0)
+    {
+      // skip 0-count entity types; keeps output assembly simpler to read.
+      continue;
+    }
+
+    const int entity_node =
+      assembly->AddNode(vtkIossReader::GetDataAssemblyNodeNameForEntityType(etype));
 
     // EntityNames are sorted by their exodus "id".
     for (const auto& ename : this->EntityNames[etype])
     {
+      const auto pdsIdx = output->GetNumberOfPartitionedDataSets();
       if (enabled_entities.find(ename.second) != enabled_entities.end())
       {
-        auto pdsIdx = output->GetNumberOfPartitionedDataSets();
         vtkNew<vtkPartitionedDataSet> parts;
         output->SetPartitionedDataSet(pdsIdx, parts);
-        output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
-        output->GetMetaData(pdsIdx)->Set(
-          vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
-        if (entity_node == -1)
-        {
-          entity_node =
-            assembly->AddNode(vtkIossReader::GetDataAssemblyNodeNameForEntityType(etype));
-        }
-        auto node = assembly->AddNode(ename.second.c_str(), entity_node);
-        assembly->AddDataSetIndex(node, pdsIdx);
       }
+      else
+      {
+        output->SetPartitionedDataSet(pdsIdx, nullptr);
+      }
+      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
+      output->GetMetaData(pdsIdx)->Set(
+        vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
+      auto node = assembly->AddNode(ename.second.c_str(), entity_node);
+      assembly->AddDataSetIndex(node, pdsIdx);
+
+      auto ioss_etype =
+        vtkIossUtilities::GetIossEntityType(static_cast<vtkIossReader::EntityType>(etype));
+      this->DatasetIndexMap[std::make_pair(ioss_etype, ename.second)] = pdsIdx;
     }
   }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIossReader::vtkInternals::ReadAssemblies(
+  vtkPartitionedDataSetCollection* output, const DatabaseHandle& handle)
+{
+  /**
+   * It's not entirely clear how IOSS-assemblies should be made available in the data
+   * model. For now, we'll add them under the default vtkDataAssembly associated
+   * with the output
+   **/
+  auto assembly = output->GetDataAssembly();
+  assert(assembly != nullptr);
+
+  auto region = this->GetRegion(handle);
+  if (!region)
+  {
+    return false;
+  }
+
+  // assemblies in Ioss are simply stored as a vector. we need to build graph
+  // from that vector of assemblies.
+  std::set<const Ioss::GroupingEntity*> root_assemblies;
+  auto node_assemblies = assembly->AddNode("assemblies");
+  for (auto& ioss_assembly : region->get_assemblies())
+  {
+    assert(ioss_assembly != nullptr);
+    root_assemblies.insert(ioss_assembly);
+
+    for (auto child : ioss_assembly->get_members())
+    {
+      // a child cannot be a root, so remove it.
+      root_assemblies.erase(child);
+    }
+  }
+
+  std::function<void(const Ioss::Assembly*, int)> processAssembly;
+  processAssembly = [&assembly, &processAssembly, this](
+                      const Ioss::Assembly* ioss_assembly, int parent) {
+    auto node = assembly->AddNode(ioss_assembly->name().c_str(), parent);
+    if (ioss_assembly->get_member_type() == Ioss::ASSEMBLY)
+    {
+      for (auto& child : ioss_assembly->get_members())
+      {
+        processAssembly(dynamic_cast<const Ioss::Assembly*>(child), node);
+      }
+    }
+    else
+    {
+      for (auto& child : ioss_assembly->get_members())
+      {
+        auto dschild = assembly->AddNode(child->name().c_str(), node);
+        assembly->AddDataSetIndex(dschild, this->GetDataSetIndexForEntity(child));
+      }
+    }
+  };
+
+  // to preserve order of assemblies, we iterate over region assemblies.
+  for (auto& ioss_assembly : region->get_assemblies())
+  {
+    if (root_assemblies.find(ioss_assembly) != root_assemblies.end())
+    {
+      processAssembly(ioss_assembly, node_assemblies);
+    }
+  }
+
   return true;
 }
 
@@ -1628,11 +1720,17 @@ int vtkIossReader::ReadMesh(
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
   for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
   {
+    auto pds = collection->GetPartitionedDataSet(pdsIdx);
+    if (pds == nullptr)
+    {
+      // this happens when the entity has not been selected.
+      continue;
+    }
+
     const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
     const auto vtk_entity_type =
       static_cast<vtkIossReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
 
-    auto pds = collection->GetPartitionedDataSet(pdsIdx);
     assert(pds != nullptr);
     pds->SetNumberOfPartitions(static_cast<unsigned int>(dbaseHandles.size()));
     for (unsigned int cc = 0; cc < static_cast<unsigned int>(dbaseHandles.size()); ++cc)
@@ -1680,6 +1778,10 @@ int vtkIossReader::ReadMesh(
 
   if (dbaseHandles.size())
   {
+    // FIXME: if reading of more ranks than writing, we don't read the following
+    // data in those extra ranks. Consequently, we must communicate that from
+    // root node to those ranks.
+
     // Read global data. Since global data is expected to be identical on all
     // files in a partitioned collection, we can read it from the first
     // dbaseHandle alone.
@@ -1692,10 +1794,12 @@ int vtkIossReader::ReadMesh(
     {
       internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
     }
+
+    // Handle assemblies.
+    internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
 
   internals.ClearCacheUnused();
-
   return 1;
 }
 
