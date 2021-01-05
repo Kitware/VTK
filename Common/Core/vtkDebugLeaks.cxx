@@ -15,6 +15,7 @@
 #include "vtkDebugLeaks.h"
 
 #include "vtkDebug.h"
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
@@ -287,8 +288,7 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 #ifdef VTK_DEBUG_LEAKS
   if (vtkDebugLeaks::MemoryTable->IsEmpty())
   {
-    // Log something anyway, so users know vtkDebugLeaks is active/working.
-    cerr << "vtkDebugLeaks has found no leaks.\n";
+    vtkLogF(TRACE, "vtkDebugLeaks has found no leaks.");
     return 0;
   }
 
