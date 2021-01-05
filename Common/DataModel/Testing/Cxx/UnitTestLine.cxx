@@ -309,7 +309,7 @@ int TestLineIntersection_PositiveResult(vtkMinimalStandardRandomSequence* seq, u
     GenerateIntersectingLineSegments(seq, a1, a2, b1, b2, u, v);
 
     double uv[2];
-    int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, uv[0], uv[1]);
+    int returnValue = vtkLine::Intersection(a1, a2, b1, b2, uv[0], uv[1]);
 
     if (returnValue != vtkLine::Intersect)
     {
@@ -333,7 +333,7 @@ int TestLineIntersection_NegativeResult(vtkMinimalStandardRandomSequence* seq, u
   {
     GenerateNonintersectingLineSegments(seq, a1, a2, b1, b2);
 
-    int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, u, v);
+    int returnValue = vtkLine::Intersection(a1, a2, b1, b2, u, v);
 
     if (returnValue != vtkLine::NoIntersect)
     {
@@ -352,7 +352,7 @@ int TestLineIntersection_ColinearResult(vtkMinimalStandardRandomSequence* seq, u
   {
     GenerateColinearLineSegments(seq, a1, a2, b1, b2);
 
-    int returnValue = vtkLine::Intersection3D(a1, a2, b1, b2, u, v);
+    int returnValue = vtkLine::Intersection(a1, a2, b1, b2, u, v);
 
     if (returnValue != vtkLine::OnLine)
     {
@@ -476,7 +476,7 @@ int UnitTestLine(int, char*[])
 
   const unsigned nTest = 1.e4;
 
-  std::cout << "Testing vtkLine::vtkLine::Intersection3D" << std::endl;
+  std::cout << "Testing vtkLine::vtkLine::Intersection" << std::endl;
   if (TestLineIntersection(sequence, nTest) == EXIT_FAILURE)
   {
     return EXIT_FAILURE;

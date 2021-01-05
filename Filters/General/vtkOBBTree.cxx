@@ -596,7 +596,7 @@ static inline int vtkOBBTreeLineIntersectsTriangle(const double p1[3], const dou
     pt1 = tpoints[i];
     pt2 = tpoints[i + 1];
 
-    if (vtkLine::Intersection(p1, p2, pt1, pt2, t, v) == 2)
+    if (vtkLine::Intersection(p1, p2, pt1, pt2, t, v) == vtkLine::Intersect)
     {
       vec[0] = (p1[0] + v12[0] * t) - (pt1[0] + (pt2[0] - pt1[0]) * v);
       vec[1] = (p1[1] + v12[1] * t) - (pt1[1] + (pt2[1] - pt1[1]) * v);

@@ -774,7 +774,7 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
       //   of degenerate cases (e.g., ray intersects at vertex).
       //
 
-      if ((status = vtkLine::Intersection(x, xray, x1, x2, u, v)) == VTK_POLYGON_INTERSECTION)
+      if ((status = vtkLine::Intersection(x, xray, x1, x2, u, v)) == vtkLine::Intersect)
       {
         // This test checks for vertex and edge intersections
         // For example
