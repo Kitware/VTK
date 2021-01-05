@@ -202,6 +202,7 @@ struct ExtractEdgesBase
   const TIP* InPts;
   CellIter* Iter;
   EdgeTuple<IDType, EdgeDataType<IDType>>* Edges;
+  const bool ComputeCells;
   IDType* Cells;
   vtkCellArray* Tris;
   vtkIdType NumTris;
@@ -212,10 +213,11 @@ struct ExtractEdgesBase
   // Keep track of generated points and triangles on a per thread basis
   vtkSMPThreadLocal<LocalDataType> LocalData;
 
-  ExtractEdgesBase(TIP* inPts, CellIter* c, vtkPlane* plane, vtkCellArray* tris)
+  ExtractEdgesBase(TIP* inPts, CellIter* c, vtkPlane* plane, vtkCellArray* tris, bool computeCells)
     : InPts(inPts)
     , Iter(c)
     , Edges(nullptr)
+    , ComputeCells(computeCells)
     , Tris(tris)
     , NumTris(0)
     , NumThreadsUsed(0)
@@ -251,8 +253,9 @@ struct ExtractEdgesBase
 
     // Copy local edges to global edge array. Add in the originating edge id
     // and the original cell id used later when merging.
-    this->Edges =
-      new EdgeTuple<IDType, EdgeDataType<IDType>>[3 * this->NumTris]; // three edges per triangle
+    const IDType edgeSize = this->NumTris * 3;
+    const IDType cellSize = this->ComputeCells ? this->NumTris : 0;
+    this->Edges = new EdgeTuple<IDType, EdgeDataType<IDType>>[edgeSize]; // three edges per triangle
     this->Cells = new IDType[this->NumTris];
 
     vtkIdType edgeNum = 0;
@@ -286,11 +289,12 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
   const double* Distance;
 
   ExtractEdges(TIP* inPts, CellIter* c, vtkPlane* plane, unsigned char* inout, double* distance,
-    vtkCellArray* tris)
-    : ExtractEdgesBase<IDType, TIP>(inPts, c, plane, tris)
+    vtkCellArray* tris, bool computeCells)
+    : ExtractEdgesBase<IDType, TIP>(inPts, c, plane, tris, computeCells)
     , InOut(inout)
     , Distance(distance)
   {
+    std::cout << "cells: " << this->ComputeCells << std::endl;
   }
 
   // Set up the iteration process
@@ -325,21 +329,29 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
         if (*edges > 0)
         {
           const unsigned short numEdges = *(edges++);
+          // three-edges form a triangles corresponding to a cell
+          assert(numEdges % 3 == 0);
+
+          // edge info
           for (i = 0; i < numEdges; ++i, edges += 2)
           {
             unsigned char v0 = edges[0];
             unsigned char v1 = edges[1];
             double deltaScalar = s[v1] - s[v0];
-            // keep cell id here ?
             // TODO deport t computation
             double t = (deltaScalar == 0.0 ? 0.0 : (-s[v0] / deltaScalar));
             t = (c[v0] < c[v1] ? t : (1.0 - t));  // edges (v0,v1) must have v0<v1
             lEdges.emplace_back(c[v0], c[v1], t); // edge constructor may swap v0<->v1
           }                                       // for all edges in this case
-          for (i = 0; i < numEdges; i += 3)
+
+          // cell info
+          if (this->ComputeCells)
           {
-            lCells.emplace_back(cellId);
-          }                 // for all edge-triplet
+            for (i = 0; i < numEdges; i += 3)
+            {
+              lCells.emplace_back(cellId);
+            }
+          }
         }                   // if contour passes through this cell
       }                     // if plane intersects
       c = cellIter->Next(); // move to the next cell
@@ -376,7 +388,6 @@ struct ProducePoints
   {
   }
 
-  // mark
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     for (; ptId < endPtId; ++ptId)
@@ -425,7 +436,6 @@ struct ProduceTriangles
       using ValueType = typename CellStateT::ValueType;
       auto* offsets = state.GetOffsets();
       auto* conn = state.GetConnectivity();
-      // auto* originalIds = state.GetOriginalIds();
 
       auto offsetRange = vtk::DataArrayValueRange<1>(offsets, triId, endTriId + 1);
       ValueType offset = 3 * (triId - 1); // Incremented before first use
@@ -670,12 +680,15 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
   EdgeTuple<TIds, EdgeDataType<TIds>>* mergeEdges = nullptr; // may need reference counting
   TIds* originalCells = nullptr;
 
+  const bool computeCells = (inCD != nullptr && inCD->GetNumberOfArrays() > 0);
+
   // Extract edges
   int ptsType = inPts->GetDataType();
   if (ptsType == VTK_FLOAT)
   {
     float* pts = static_cast<float*>(inPts->GetVoidPointer(0));
-    ExtractEdges<TIds, float> extractEdges(pts, cellIter, plane, inout, distance, newPolys);
+    ExtractEdges<TIds, float> extractEdges(
+      pts, cellIter, plane, inout, distance, newPolys, computeCells);
     EXECUTE_REDUCED_SMPFOR(seqProcessing, numCells, extractEdges, numThreads);
     numTris = extractEdges.NumTris;
     mergeEdges = extractEdges.Edges;
@@ -684,7 +697,8 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
   else // if (ptsType == VTK_DOUBLE)
   {
     double* pts = static_cast<double*>(inPts->GetVoidPointer(0));
-    ExtractEdges<TIds, double> extractEdges(pts, cellIter, plane, inout, distance, newPolys);
+    ExtractEdges<TIds, double> extractEdges(
+      pts, cellIter, plane, inout, distance, newPolys, computeCells);
     EXECUTE_REDUCED_SMPFOR(seqProcessing, numCells, extractEdges, numThreads);
     numTris = extractEdges.NumTris;
     mergeEdges = extractEdges.Edges;
