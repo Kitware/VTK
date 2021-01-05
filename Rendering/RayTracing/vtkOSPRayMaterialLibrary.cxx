@@ -280,6 +280,9 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
     vtkErrorMacro("JSON parsing error: " << errs);
     return false;
   }
+
+  std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
+
   if (!root.isMember("family"))
   {
     vtkErrorMacro("Not a materials file. Must have \"family\"=\"...\" entry.");
@@ -361,7 +364,6 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
     this->Internal->ImplNames[nickname] = implname;
     if (nextmat.isMember("textures"))
     {
-      std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
       const Json::Value textures = nextmat["textures"];
       for (const std::string& tname : textures.getMemberNames())
       {
@@ -448,6 +450,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
   std::string str;
   std::string nickname = "";
   std::string implname = "obj";
+  std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
 
   const std::vector<std::string> singles{ "d ", "Ks ", "alpha ", "roughness ", "eta ",
     "thickness " };
@@ -609,7 +612,6 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
         vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
         if (fromfile)
         {
-          std::string parentDir = vtksys::SystemTools::GetParentDirectory(filename);
           std::string tfullname = parentDir + "/" + tfname;
           if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
           {
