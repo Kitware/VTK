@@ -71,8 +71,9 @@
  * @section DataAssemblyPathQueries Supported Path Queries
  *
  * `vtkDataAssembly::SelectNodes` can be used find nodes that match the
- * specified query (or queries). The syntax for queries, which is a minimal/simplified
- * subset of XPath location queries, is as follows:
+ * specified query (or queries) using XPath 1.0 syntax.
+ *
+ * For example:
  *
  * * '/' is used as the path separator. If a node name has a `/` it must be
  * escaped using `\\` in the query. Note, escaping is not necessary when using
@@ -216,6 +217,11 @@ public:
    * Returns the path for a node.
    */
   std::string GetNodePath(int id) const;
+
+  /**
+   * Return a node id given the path. Returns `-1` if path is not valid.
+   */
+  int GetFirstNodeByPath(const char* path) const;
 
   /**
    * Add a dataset index to a node. The node id can refer to any
@@ -374,6 +380,21 @@ public:
    * Deep copy the `other`.
    */
   void DeepCopy(vtkDataAssembly* other);
+
+  /**
+   * Validates a node name.
+   */
+  static bool IsNodeNameValid(const char* name);
+
+  /**
+   * Converts any string to a string that is a valid node name.
+   */
+  static std::string MakeValidNodeName(const char* name);
+
+  /**
+   * Returns true for node names that are reserved.
+   */
+  static bool IsNodeNameReserved(const char* name);
 
 protected:
   vtkDataAssembly();
