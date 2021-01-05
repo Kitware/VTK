@@ -54,7 +54,7 @@ vtkTextProperty::vtkTextProperty()
   this->UseTightBoundingBox = 0;
 
   this->LineOffset = 0.0;
-  this->LineSpacing = 1.1; // why not 1.0 ?
+  this->LineSpacing = 1.0;
   this->CellOffset = 0.0;
 
   this->Orientation = 0.0;
