@@ -72,7 +72,10 @@ public:
 
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose
-  virtual void PositionProp(vtkEventData*);
+  // if last world event position \p lwpos and orientation \p lwori are defined
+  // then this function do not use the Interactor3D to get the last world event position
+  // and orientation. This is useful when one needs to pass custom world event data.
+  virtual void PositionProp(vtkEventData*, double* lwpos = nullptr, double* lwori = nullptr);
 
   // This method handles updating the camera based on changes in the devices
   // pose. We use Dolly as the state to mean moving the camera forward
