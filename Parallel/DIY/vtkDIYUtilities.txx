@@ -25,11 +25,13 @@
 #include <map>
 #include <vector>
 
+// clang-format off
 #include "vtk_diy2.h" // needed for DIY
-#include VTK_DIY2(diy / link.hpp)
-#include VTK_DIY2(diy / master.hpp)
-#include VTK_DIY2(diy / mpi.hpp)
-#include VTK_DIY2(diy / reduce - operations.hpp)
+#include VTK_DIY2(diy/link.hpp)
+#include VTK_DIY2(diy/master.hpp)
+#include VTK_DIY2(diy/mpi.hpp)
+#include VTK_DIY2(diy/reduce-operations.hpp)
+// clang-format on
 
 //------------------------------------------------------------------------------
 template <class DataSetT>
