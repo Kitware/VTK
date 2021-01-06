@@ -102,6 +102,7 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty* tprop)
 
   this->SetLineOffset(tprop->GetLineOffset());
   this->SetLineSpacing(tprop->GetLineSpacing());
+  this->SetCellOffset(tprop->GetCellOffset());
 
   this->SetShadowOffset(tprop->GetShadowOffset());
 }
