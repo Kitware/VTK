@@ -1,0 +1,4 @@
+# This file is hashed by the build and used to indicate a difference in the
+# socket protocol in use. On Windows, the CRLF line endings end up with a
+# different hash eventually. Prevent this from happening.
+vtkSocketCommunicator.cxx  eol=lf
