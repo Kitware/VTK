@@ -17,6 +17,7 @@
 #include "vtkAbstractPointLocator.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
