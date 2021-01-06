@@ -423,8 +423,10 @@ private:
   void SortFieldFiles(vtkStringArray* selections, vtkStringArray* files);
   void LocateLagrangianClouds(const vtkStdString& timePath);
 
-  // read controlDict
-  bool ListTimeDirectoriesByControlDict(vtkFoamDict* dict);
+  // List time directories according to system/controlDict
+  bool ListTimeDirectoriesByControlDict(const vtkFoamDict& dict);
+
+  // List time directories by searching in a case directory
   bool ListTimeDirectoriesByInstances();
 
   // read mesh files
@@ -4868,64 +4870,60 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 }
 
 //------------------------------------------------------------------------------
-// list time directories according to controlDict
-bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(vtkFoamDict* dictPtr)
+// List time directories according to system/controlDict
+bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDict& dict)
 {
-  vtkFoamDict& dict = *dictPtr;
+  // Note: use double (not float) to handle time values precisely
 
-  const vtkFoamEntry* startTimeEntry = dict.Lookup("startTime");
-  if (startTimeEntry == nullptr)
+  const vtkFoamEntry* eptr;
+
+  if ((eptr = dict.Lookup("startTime")) == nullptr)
   {
-    vtkErrorMacro(<< "startTime entry not found in controlDict");
+    vtkErrorMacro(<< "No 'startTime' in controlDict");
     return false;
   }
-  // using double to precisely handle time values
-  const double startTime = startTimeEntry->ToDouble();
+  const double startTime = eptr->ToDouble();
 
-  const vtkFoamEntry* endTimeEntry = dict.Lookup("endTime");
-  if (endTimeEntry == nullptr)
+  if ((eptr = dict.Lookup("endTime")) == nullptr)
   {
-    vtkErrorMacro(<< "endTime entry not found in controlDict");
+    vtkErrorMacro(<< "No 'endTime' in controlDict");
     return false;
   }
-  const double endTime = endTimeEntry->ToDouble();
+  const double endTime = eptr->ToDouble();
 
-  const vtkFoamEntry* deltaTEntry = dict.Lookup("deltaT");
-  if (deltaTEntry == nullptr)
+  if ((eptr = dict.Lookup("deltaT")) == nullptr)
   {
-    vtkErrorMacro(<< "deltaT entry not found in controlDict");
+    vtkErrorMacro(<< "No 'deltaT' in controlDict");
     return false;
   }
-  const double deltaT = deltaTEntry->ToDouble();
+  const double deltaT = eptr->ToDouble();
 
-  const vtkFoamEntry* writeIntervalEntry = dict.Lookup("writeInterval");
-  if (writeIntervalEntry == nullptr)
+  if ((eptr = dict.Lookup("writeInterval")) == nullptr)
   {
-    vtkErrorMacro(<< "writeInterval entry not found in controlDict");
+    vtkErrorMacro(<< "No 'writeInterval' in controlDict");
     return false;
   }
-  const double writeInterval = writeIntervalEntry->ToDouble();
+  const double writeInterval = eptr->ToDouble();
 
-  const vtkFoamEntry* timeFormatEntry = dict.Lookup("timeFormat");
-  if (timeFormatEntry == nullptr)
+  if ((eptr = dict.Lookup("timeFormat")) == nullptr)
   {
-    vtkErrorMacro(<< "timeFormat entry not found in controlDict");
+    vtkErrorMacro(<< "No 'timeFormat' in controlDict");
     return false;
   }
-  const vtkStdString timeFormat(timeFormatEntry->ToString());
+  const vtkStdString timeFormat(eptr->ToString());
 
-  const vtkFoamEntry* timePrecisionEntry = dict.Lookup("timePrecision");
-  vtkTypeInt64 timePrecision // default is 6
-    = (timePrecisionEntry != nullptr ? timePrecisionEntry->ToInt() : 6);
+  // Default timePrecision is 6
+  const vtkTypeInt64 timePrecision =
+    ((eptr = dict.Lookup("timePrecision")) != nullptr ? eptr->ToInt() : 6);
 
-  // calculate the time step increment based on type of run
-  const vtkFoamEntry* writeControlEntry = dict.Lookup("writeControl");
-  if (writeControlEntry == nullptr)
+  // Calculate time step increment based on type of run
+  if ((eptr = dict.Lookup("writeControl")) == nullptr)
   {
-    vtkErrorMacro(<< "writeControl entry not found in controlDict");
+    vtkErrorMacro(<< "No 'writeControl' in controlDict");
     return false;
   }
-  const vtkStdString writeControl(writeControlEntry->ToString());
+  const vtkStdString writeControl(eptr->ToString());
+
   double timeStepIncrement;
   if (writeControl == "timeStep")
   {
@@ -4937,23 +4935,22 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(vtkFoamDict* dic
   }
   else
   {
-    vtkErrorMacro(<< "Time step can't be determined because writeControl is"
-                     " set to "
-                  << writeControl.c_str());
+    vtkErrorMacro(<< "Cannot determine time-step for writeControl: " << writeControl);
     return false;
   }
 
-  // calculate how many timesteps there should be
+  // How many timesteps there should be
   const double tempResult = (endTime - startTime) / timeStepIncrement;
+
   // +0.5 to round up
   const int tempNumTimeSteps = static_cast<int>(tempResult + 0.5) + 1;
 
-  // make sure time step dir exists
+  // Make sure time step dir exists
   vtkDirectory* test = vtkDirectory::New();
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
 
-  // determine time name based on Foam::Time::timeName()
+  // Determine time name based on Foam::Time::timeName()
   // cf. src/OpenFOAM/db/Time/Time.C
   std::ostringstream parser;
 #ifdef _MSC_VER
@@ -5040,16 +5037,16 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(vtkFoamDict* dic
 }
 
 //------------------------------------------------------------------------------
-// list time directories by searching all valid time instances in a
+// List time directories by searching all valid time instances in a
 // case directory
 bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 {
-  // open the case directory
+  // Open the case directory
   vtkDirectory* test = vtkDirectory::New();
   if (!test->Open(this->CasePath.c_str()))
   {
     test->Delete();
-    vtkErrorMacro(<< "Can't open directory " << this->CasePath.c_str());
+    vtkErrorMacro(<< "Can't open directory " << this->CasePath);
     return false;
   }
 
@@ -5113,9 +5110,9 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
       if (this->TimeValues->GetValue(timeI - 1) == this->TimeValues->GetValue(timeI))
       {
         vtkWarningMacro(<< "Different time directories with the same time value "
-                        << this->TimeNames->GetValue(timeI - 1).c_str() << " and "
-                        << this->TimeNames->GetValue(timeI).c_str() << " found. "
-                        << this->TimeNames->GetValue(timeI).c_str() << " will be ignored.");
+                        << this->TimeNames->GetValue(timeI - 1) << " and "
+                        << this->TimeNames->GetValue(timeI) << " found. "
+                        << this->TimeNames->GetValue(timeI) << " will be ignored.");
         this->TimeValues->RemoveTuple(timeI);
         // vtkStringArray does not have RemoveTuple()
         for (vtkIdType timeJ = timeI + 1; timeJ < this->TimeNames->GetNumberOfTuples(); timeJ++)
@@ -5162,56 +5159,55 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const vtkStdString& casePat
   {
     vtkFoamIOobject io(this->CasePath, this->Parent);
 
-    // open and check if controlDict is readable
+    // Open and check if controlDict is readable
     if (!io.Open(controlDictPath))
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": "
-                    << io.GetError().c_str());
+      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
       return false;
     }
+
     vtkFoamDict dict;
     if (!dict.Read(io))
     {
-      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                    << io.GetFileName().c_str() << ": " << io.GetError().c_str());
+      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                    << ": " << io.GetError());
       return false;
     }
     if (dict.GetType() != vtkFoamToken::DICTIONARY)
     {
-      vtkErrorMacro(<< "The file type of " << io.GetFileName().c_str() << " is not a dictionary");
+      vtkErrorMacro(<< "The file " << io.GetFileName() << " is not a dictionary");
       return false;
     }
 
-    const vtkFoamEntry* writeControlEntry = dict.Lookup("writeControl");
-    if (writeControlEntry == nullptr)
+    const vtkFoamEntry* eptr;
+    if ((eptr = dict.Lookup("writeControl")) == nullptr)
     {
-      vtkErrorMacro(<< "writeControl entry not found in " << io.GetFileName().c_str());
+      vtkErrorMacro(<< "No 'writeControl' in " << io.GetFileName());
       return false;
     }
-    const vtkStdString writeControl(writeControlEntry->ToString());
+    const vtkStdString writeControl(eptr->ToString());
 
-    // empty if not found
-    const vtkFoamEntry* adjustTimeStepEntry = dict.Lookup("adjustTimeStep");
-    const vtkStdString adjustTimeStep =
-      adjustTimeStepEntry == nullptr ? vtkStdString() : adjustTimeStepEntry->ToString();
+    // list time directories according to controlDict.
+    // When (adjustTimeStep, writeControl) == (on, adjustableRunTime) or (off, timeStep)
+    // list by time instances in the case directory otherwise
+    // (different behaviour from paraFoam)
 
-    // list time directories according to controlDict if (adjustTimeStep
-    // writeControl) == (off, timeStep) or (on, adjustableRunTime); list
-    // by time instances in the case directory otherwise (different behavior
-    // from paraFoam)
-    // valid switching words cf. src/OpenFOAM/db/Switch/Switch.C
-    if ((((adjustTimeStep == "off" || adjustTimeStep == "no" || adjustTimeStep == "n" ||
-            adjustTimeStep == "false" || adjustTimeStep.empty()) &&
-           writeControl == "timeStep") ||
-          ((adjustTimeStep == "on" || adjustTimeStep == "yes" || adjustTimeStep == "y" ||
-             adjustTimeStep == "true") &&
-            writeControl == "adjustableRunTime")))
+    bool adjustTimeStep = false;
+    if ((eptr = dict.Lookup("adjustTimeStep")) != nullptr)
     {
-      ret = this->ListTimeDirectoriesByControlDict(&dict);
+      const vtkStdString sw(eptr->ToString());
+
+      // Switch values for 'true' (cf. src/OpenFOAM/db/Switch/Switch.C)
+      adjustTimeStep = (sw == "on" || sw == "yes" || sw == "y" || sw == "true" || sw == "t");
+    }
+
+    if (adjustTimeStep ? (writeControl == "adjustableRunTime") : (writeControl == "timeStep"))
+    {
+      ret = this->ListTimeDirectoriesByControlDict(dict);
     }
     else
     {
-      // cannot list by controlDict, fall through to below
+      // Cannot list by controlDict, fall through to below
       listByControlDict = false;
     }
   }
