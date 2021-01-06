@@ -413,8 +413,8 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
   constexpr const char* INDENT = "    ";
   meta << INDENT << "{\n"
        << INDENT << "  \"name\": \"" << this->DatasetCount << "\",\n"
-       << INDENT << "  \"type\": \"httpDataSetReader\",\n"
-       << INDENT << "  \"httpDataSetReader\": { \"url\": \"" << this->DatasetCount << "\" }";
+       << INDENT << "  \"type\": \"vtkHttpDataSetReader\",\n"
+       << INDENT << "  \"vtkHttpDataSetReader\": { \"url\": \"" << this->DatasetCount << "\" }";
 
   if (addOnMeta != nullptr)
   {

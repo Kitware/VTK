@@ -205,8 +205,6 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
     return;
   }
 
-  this->GetArchiver()->OpenArchive();
-
   // Capture vtkDataSet definition
   std::stringstream metaJsonFile;
   metaJsonFile << "{\n";
@@ -276,9 +274,11 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
   }
 
   // PointData
+  bool isEmpty = true;
   std::string fieldJSON = this->WriteDataSetAttributes(dataset->GetPointData(), "pointData");
   if (!fieldJSON.empty())
   {
+    isEmpty = false;
     metaJsonFile << ",\n" << fieldJSON.c_str();
   }
 
@@ -286,17 +286,21 @@ void vtkJSONDataSetWriter::Write(vtkDataSet* dataset)
   fieldJSON = this->WriteDataSetAttributes(dataset->GetCellData(), "cellData");
   if (!fieldJSON.empty())
   {
+    isEmpty = false;
     metaJsonFile << ",\n" << fieldJSON.c_str();
   }
 
   metaJsonFile << "}\n";
 
-  // Write meta-data file
-  std::string metaJsonFileStr = metaJsonFile.str();
-  this->GetArchiver()->InsertIntoArchive(
-    "index.json", metaJsonFileStr.c_str(), metaJsonFileStr.size());
-
-  this->GetArchiver()->CloseArchive();
+  // Create archive only if there's actually something to write
+  if (this->ValidDataSet || !isEmpty)
+  {
+    this->GetArchiver()->OpenArchive();
+    std::string metaJsonFileStr = metaJsonFile.str();
+    this->GetArchiver()->InsertIntoArchive(
+      "index.json", metaJsonFileStr.c_str(), metaJsonFileStr.size());
+    this->GetArchiver()->CloseArchive();
+  }
 }
 
 //------------------------------------------------------------------------------
