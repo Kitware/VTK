@@ -61,20 +61,19 @@ template <int ContainerTypeT, class ContainerT>
 struct ScalarTypeExtractor
 {
   typedef typename ContainerT::value_type value_type;
+  static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
+    "value_type is not a numeric type");
 };
 
 // Extracting for C++ arrays
 template <class ContainerT>
 struct ScalarTypeExtractor<1, ContainerT>
 {
-  typedef typename std::remove_all_extents<ContainerT>::type value_type;
-};
-
-// Extracting for C++ pointers
-template <class ContainerT>
-struct ScalarTypeExtractor<2, ContainerT>
-{
-  typedef typename std::remove_pointer<ContainerT>::type value_type;
+  typedef typename std::remove_pointer<
+    typename std::remove_all_extents<typename std::remove_pointer<ContainerT>::type>::type>::type
+    value_type;
+  static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
+    "value_type is not a numeric type");
 };
 } // namespace detail
 
@@ -90,11 +89,67 @@ struct ScalarTypeExtractor<2, ContainerT>
 template <class ContainerT>
 struct ScalarTypeExtractor
 {
+private:
+  typedef typename std::remove_reference<ContainerT>::type DerefContainer;
+
+public:
   typedef typename detail::ScalarTypeExtractor<
-    // This parameter equals 0, 1 or 2
-    std::is_array<ContainerT>::value + std::is_pointer<ContainerT>::value * 2,
+    // This parameter equals 0 or 1
+    std::is_array<DerefContainer>::value || std::is_pointer<DerefContainer>::value,
     ContainerT>::value_type value_type;
+  static_assert(std::is_integral<value_type>::value || std::is_floating_point<value_type>::value,
+    "value_type is not a numeric type");
 };
+
+//-----------------------------------------------------------------------------
+/**
+ * At compile time, returns `true` if the templated parameter is a 2D array
+ * (`double[3][3]` for instance), false otherwise.
+ */
+template <class MatrixT>
+static constexpr bool MatrixIs2DArray()
+{
+  typedef typename std::remove_extent<MatrixT>::type Row;
+  typedef typename std::remove_extent<Row>::type Value;
+  return std::is_array<MatrixT>::value && std::is_array<Row>::value && !std::is_array<Value>::value;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * At compile time, returns `true` if the templated parameter is a pointer to
+ * pointer (`double**` for instance), false otherwise.
+ */
+template <class MatrixT>
+static constexpr bool MatrixIsPointerToPointer()
+{
+  typedef typename std::remove_pointer<MatrixT>::type Row;
+  typedef typename std::remove_pointer<Row>::type Value;
+  return std::is_pointer<MatrixT>::value && std::is_pointer<Row>::value &&
+    !std::is_pointer<Value>::value;
+}
+
+//-----------------------------------------------------------------------------
+/**
+ * At compile time, returns `true` if the templated parameter layout is 2D,
+ * i.e. elements can be accessed using the operator `[][]`. It returns false otherwise.
+ */
+template <class MatrixT>
+static constexpr bool MatrixLayoutIs2D()
+{
+  typedef typename std::remove_pointer<MatrixT>::type RowPointer;
+  typedef typename std::remove_extent<MatrixT>::type RowArray;
+  typedef typename std::remove_pointer<MatrixT>::type ValuePointerPointer;
+  typedef typename std::remove_extent<MatrixT>::type ValuePointerArray;
+  typedef typename std::remove_pointer<MatrixT>::type ValueArrayPointer;
+  typedef typename std::remove_extent<MatrixT>::type ValueArrayArray;
+  return ((std::is_array<RowPointer>::value && !std::is_same<RowPointer, MatrixT>::value) ||
+           std::is_pointer<RowPointer>::value || std::is_array<RowArray>::value ||
+           (std::is_pointer<RowArray>::value && !std::is_same<RowArray, MatrixT>::value)) &&
+    (!std::is_array<ValuePointerPointer>::value || !std::is_pointer<ValuePointerPointer>::value) &&
+    (!std::is_array<ValueArrayPointer>::value || !std::is_pointer<ValueArrayPointer>::value) &&
+    (!std::is_array<ValuePointerArray>::value || !std::is_pointer<ValuePointerArray>::value) &&
+    (!std::is_array<ValueArrayArray>::value || !std::is_pointer<ValueArrayArray>::value);
+}
 
 namespace detail
 {
@@ -153,7 +208,7 @@ struct Mapper
 namespace detail
 {
 // Class implementing matrix wrapping.
-template <int RowsT, int ColsT, class MatrixT, class LayoutT, bool MatrixIs2DArrayT>
+template <int RowsT, int ColsT, class MatrixT, class LayoutT, bool MatrixLayoutIs2DT>
 class Wrapper;
 
 // Specializaion of matrix wrapping for matrices stored as 1D arrays
@@ -280,25 +335,22 @@ class Wrapper
 private:
   using Scalar = typename ScalarTypeExtractor<MatrixT>::value_type;
 
-  static constexpr bool MatrixIs2DArray =
-    std::is_array<typename std::remove_extent<MatrixT>::type>::value;
-
-  static_assert(!MatrixIs2DArray || !std::is_same<LayoutT, Layout::Diag>::value,
+  static_assert(!MatrixLayoutIs2D<MatrixT>() || !std::is_same<LayoutT, Layout::Diag>::value,
     "A diagonal  matrix cannot be a 2D array");
 
 public:
   template <int RowT, int ColT>
   static const Scalar& Get(const MatrixT& M)
   {
-    return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT, MatrixIs2DArray>::template Get<RowT,
-      ColT>(M);
+    return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT,
+      MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(M);
   }
 
   template <int RowT, int ColT>
   static Scalar& Get(MatrixT& M)
   {
-    return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT, MatrixIs2DArray>::template Get<RowT,
-      ColT>(M);
+    return detail::Wrapper<RowsT, ColsT, MatrixT, LayoutT,
+      MatrixLayoutIs2D<MatrixT>()>::template Get<RowT, ColT>(M);
   }
 };
 } // namespace vtkMatrixUtilities

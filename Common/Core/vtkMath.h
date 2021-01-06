@@ -989,6 +989,9 @@ public:
    */
   static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]);
   static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]);
+  template <class QuaternionT, class MatrixT,
+    class EnableT = typename std::enable_if<!vtkMatrixUtilities::MatrixIs2DArray<MatrixT>()>::type>
+  static void QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A);
   //@}
 
   //@{
@@ -998,11 +1001,14 @@ public:
    * The quaternion is in the form [w, x, y, z].
    * The method used is that of B.K.P. Horn.
    * See: https://people.csail.mit.edu/bkph/articles/Quaternions.pdf
-   * @sa QuaternionToMatrix3x3() MultiplyQuaternion()
+   * @saQuaternionToMatrix3x3() MultiplyQuaternion()
    * @sa vtkQuaternion
    */
   static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
+  template <class MatrixT, class QuaternionT,
+    class EnableT = typename std::enable_if<!vtkMatrixUtilities::MatrixIs2DArray<MatrixT>()>::type>
+  static void Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q);
   //@}
 
   //@{
@@ -1818,6 +1824,141 @@ inline void vtkMath::TensorFromSymmetricTensor(T tensor[9])
   tensor[5] = tensor[7]; // YZ
   tensor[2] = tensor[6]; // XZ
   tensor[1] = tensor[3]; // XY
+}
+
+namespace
+{
+template <class QuaternionT, class MatrixT>
+inline void vtkQuaternionToMatrix3x3(const QuaternionT& quat, MatrixT& A)
+{
+  typedef typename vtkMatrixUtilities::ScalarTypeExtractor<MatrixT>::value_type Scalar;
+
+  Scalar ww = quat[0] * quat[0];
+  Scalar wx = quat[0] * quat[1];
+  Scalar wy = quat[0] * quat[2];
+  Scalar wz = quat[0] * quat[3];
+
+  Scalar xx = quat[1] * quat[1];
+  Scalar yy = quat[2] * quat[2];
+  Scalar zz = quat[3] * quat[3];
+
+  Scalar xy = quat[1] * quat[2];
+  Scalar xz = quat[1] * quat[3];
+  Scalar yz = quat[2] * quat[3];
+
+  Scalar rr = xx + yy + zz;
+  // normalization factor, just in case quaternion was not normalized
+  Scalar f = 1 / (ww + rr);
+  Scalar s = (ww - rr) * f;
+  f *= 2;
+
+  typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
+
+  Wrapper::template Get<0, 0>(A) = xx * f + s;
+  Wrapper::template Get<1, 0>(A) = (xy + wz) * f;
+  Wrapper::template Get<2, 0>(A) = (xz - wy) * f;
+
+  Wrapper::template Get<0, 1>(A) = (xy - wz) * f;
+  Wrapper::template Get<1, 1>(A) = yy * f + s;
+  Wrapper::template Get<2, 1>(A) = (yz + wx) * f;
+
+  Wrapper::template Get<0, 2>(A) = (xz + wy) * f;
+  Wrapper::template Get<1, 2>(A) = (yz - wx) * f;
+  Wrapper::template Get<2, 2>(A) = zz * f + s;
+}
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+inline void vtkMath::QuaternionToMatrix3x3(const float quat[4], float A[3][3])
+{
+  vtkQuaternionToMatrix3x3(quat, A);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkMath::QuaternionToMatrix3x3(const double quat[4], double A[3][3])
+{
+  vtkQuaternionToMatrix3x3(quat, A);
+}
+
+//-----------------------------------------------------------------------------
+template <class QuaternionT, class MatrixT, class EnableT>
+inline void vtkMath::QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A)
+{
+  vtkQuaternionToMatrix3x3(q, A);
+}
+
+namespace
+{
+//------------------------------------------------------------------------------
+//  The solution is based on
+//  Berthold K. P. Horn (1987),
+//  "Closed-form solution of absolute orientation using unit quaternions,"
+//  Journal of the Optical Society of America A, 4:629-642
+template <class MatrixT, class QuaternionT>
+inline void vtkMatrix3x3ToQuaternion(const MatrixT& A, QuaternionT& quat)
+{
+  typedef typename vtkMatrixUtilities::ScalarTypeExtractor<QuaternionT>::value_type Scalar;
+
+  Scalar N[4][4];
+
+  typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
+
+  // on-diagonal elements
+  N[0][0] = Wrapper::template Get<0, 0>(A) + Wrapper::template Get<1, 1>(A) +
+    Wrapper::template Get<2, 2>(A);
+  N[1][1] = Wrapper::template Get<0, 0>(A) - Wrapper::template Get<1, 1>(A) -
+    Wrapper::template Get<2, 2>(A);
+  N[2][2] = -Wrapper::template Get<0, 0>(A) + Wrapper::template Get<1, 1>(A) -
+    Wrapper::template Get<2, 2>(A);
+  N[3][3] = -Wrapper::template Get<0, 0>(A) - Wrapper::template Get<1, 1>(A) +
+    Wrapper::template Get<2, 2>(A);
+
+  // off-diagonal elements
+  N[0][1] = N[1][0] = Wrapper::template Get<2, 1>(A) - Wrapper::template Get<1, 2>(A);
+  N[0][2] = N[2][0] = Wrapper::template Get<0, 2>(A) - Wrapper::template Get<2, 0>(A);
+  N[0][3] = N[3][0] = Wrapper::template Get<1, 0>(A) - Wrapper::template Get<0, 1>(A);
+
+  N[1][2] = N[2][1] = Wrapper::template Get<1, 0>(A) + Wrapper::template Get<0, 1>(A);
+  N[1][3] = N[3][1] = Wrapper::template Get<0, 2>(A) + Wrapper::template Get<2, 0>(A);
+  N[2][3] = N[3][2] = Wrapper::template Get<2, 1>(A) + Wrapper::template Get<1, 2>(A);
+
+  Scalar eigenvectors[4][4], eigenvalues[4];
+
+  // convert into format that JacobiN can use,
+  // then use Jacobi to find eigenvalues and eigenvectors
+  Scalar *NTemp[4], *eigenvectorsTemp[4];
+  for (int i = 0; i < 4; ++i)
+  {
+    NTemp[i] = N[i];
+    eigenvectorsTemp[i] = eigenvectors[i];
+  }
+  vtkMath::JacobiN(NTemp, 4, eigenvalues, eigenvectorsTemp);
+
+  // the first eigenvector is the one we want
+  quat[0] = eigenvectors[0][0];
+  quat[1] = eigenvectors[1][0];
+  quat[2] = eigenvectors[2][0];
+  quat[3] = eigenvectors[3][0];
+}
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+inline void vtkMath::Matrix3x3ToQuaternion(const float A[3][3], float quat[4])
+{
+  vtkMatrix3x3ToQuaternion(A, quat);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
+{
+  vtkMatrix3x3ToQuaternion(A, quat);
+}
+
+//-----------------------------------------------------------------------------
+template <class MatrixT, class QuaternionT, class EnableT>
+inline void vtkMath::Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q)
+{
+  vtkMatrix3x3ToQuaternion(A, q);
 }
 
 namespace vtk_detail
