@@ -30,8 +30,11 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
+#include <sstream>
+
 #include <vtksys/SystemTools.hxx>
 
+#include <numeric>
 #include <vector>
 
 // We need to define Py_ssize_t for older python API version
@@ -515,37 +518,24 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
     }
   }
 
-  vtkDebugMacro(<< "Calculating metrics for '" << str << "'");
+  // First, parse the string
+  GridOfStrings strGrid;
+  std::size_t maxNumberOfCells;
+  if (!this->ParseString(str, strGrid, maxNumberOfCells))
+  {
+    vtkErrorMacro(<< "Failed to parse string.");
+    return false;
+  }
 
   long int rows = 0;
   long int cols = 0;
-
-  vtkPythonScopeGilEnsurer gilEnsurer;
-  vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser, const_cast<char*>("to_mask"),
-    const_cast<char*>("sii"), const_cast<char*>(str), tprop->GetFontSize(), dpi));
-  if (this->CheckForError(resultTuple))
+  if (!this->ComputeRowsAndCols(strGrid, maxNumberOfCells, tprop, dpi, rows, cols))
   {
+    vtkErrorMacro(<< "Failed to compute rows and cols.");
     return false;
   }
 
-  // numpyArray is a borrowed reference, no smart wrapper needed:
-  PyObject* numpyArray = PyTuple_GetItem(resultTuple, 0);
-  if (this->CheckForError(numpyArray))
-  {
-    return false;
-  }
-
-  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, const_cast<char*>("shape")));
-  if (this->CheckForError(dimTuple))
-  {
-    return false;
-  }
-
-  PyArg_ParseTuple(dimTuple, "ii", &rows, &cols);
-  if (this->CheckForError())
-  {
-    return false;
-  }
+  vtkDebugMacro(<< "Calculating metrics for '" << str << "'");
 
   int extent[4];
   this->GetJustifiedBBox(rows, cols, tprop, extent);
@@ -579,6 +569,341 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
 }
 
 //------------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& strGrid,
+  const long int maxNumberOfCells, vtkTextProperty* tprop, int dpi, long int& rows, long int& cols)
+{
+  // All columns must have the same width
+  // so store the maximum number of cols
+  // for each column
+  std::vector<long int> vecColumnWidth;
+  vecColumnWidth.resize(maxNumberOfCells);
+  std::fill(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
+
+  // For each line
+  for (std::size_t i = 0; i < strGrid.size(); ++i)
+  {
+    const std::size_t lineNumberOfCells = strGrid[i].size();
+
+    // Number of rows of this line. This
+    // is the maximum number of rows of
+    // all cells of the line
+    long int lineRows = 0;
+
+    // Number of columns of this line
+    // this is the sum of cols of each cell
+    long int lineCols = 0;
+
+    // For each cells
+    for (std::size_t j = 0; j < lineNumberOfCells; ++j)
+    {
+      const std::string& cell = strGrid[i][j];
+
+      long int cellPythonRows = 0;
+      long int cellPythonCols = 0;
+      if (!this->ComputeCellRowsAndCols(
+            cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, nullptr))
+      {
+        vtkErrorMacro(<< "Failed to compute rows and cols for cell : " << cell);
+        return false;
+      }
+
+      lineRows = std::max(lineRows, cellPythonRows);
+
+      // Store the maximum number of cols for each column
+      vecColumnWidth[j] = std::max(vecColumnWidth[j], cellPythonCols);
+    }
+
+    lineRows *= tprop->GetLineSpacing();
+    lineRows += tprop->GetLineOffset();
+
+    rows += lineRows;
+  }
+
+  // The total number of cols is the sum of the maximum number of cols
+  // of cells for each column
+  cols = std::accumulate(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
+
+  // Handle horizontal offset between cells
+  cols += tprop->GetCellOffset() * maxNumberOfCells;
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, vtkTextProperty* tprop,
+  int dpi, long int& rows, long int& cols, vtkSmartPyObject* list)
+{
+  vtkPythonScopeGilEnsurer gilEnsurer;
+  vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser, const_cast<char*>("to_mask"),
+    const_cast<char*>("sii"), const_cast<char*>(str), tprop->GetFontSize(), dpi));
+  if (this->CheckForError(resultTuple))
+  {
+    return false;
+  }
+
+  // numpyArray is a borrowed reference, no smart wrapper needed:
+  PyObject* numpyArray = PyTuple_GetItem(resultTuple, 0);
+  if (this->CheckForError(numpyArray))
+  {
+    return false;
+  }
+
+  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, const_cast<char*>("shape")));
+  if (this->CheckForError(dimTuple))
+  {
+    return false;
+  }
+
+  PyArg_ParseTuple(dimTuple, "ii", &rows, &cols);
+  if (this->CheckForError())
+  {
+    return false;
+  }
+
+  // Store python data if needed
+  if (list != nullptr)
+  {
+    vtkSmartPyObject flatArray(
+      PyObject_CallMethod(numpyArray, const_cast<char*>("flatten"), const_cast<char*>("")));
+    if (this->CheckForError(flatArray))
+    {
+      return false;
+    }
+
+    list->TakeReference(
+      PyObject_CallMethod(flatArray, const_cast<char*>("tolist"), const_cast<char*>("")));
+    if (this->CheckForError(*list))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void vtkMatplotlibMathTextUtilities::FindAndReplaceInString(
+  std::string& str, const std::string& strToFind, const std::string& replacementStr)
+{
+  size_t start_pos = 0;
+  while ((start_pos = str.find(strToFind, start_pos)) != std::string::npos)
+  {
+    str.replace(start_pos, strToFind.length(), replacementStr);
+    start_pos += replacementStr.length();
+  }
+}
+
+//------------------------------------------------------------------------------
+struct TextColors
+{
+  unsigned char fgR, fgG, fgB;
+  double fgA;
+  unsigned char bgR, bgG, bgB;
+  double bgA;
+  bool hasBackground;
+  unsigned char frR, frG, frB;
+  bool hasFrame;
+  int frW;
+};
+
+//------------------------------------------------------------------------------
+void vtkMatplotlibMathTextUtilities::ComputeTextColors(vtkTextProperty* tprop, TextColors& tcolors)
+{
+  double* fgColor = tprop->GetColor();
+  tcolors.fgR = static_cast<unsigned char>(fgColor[0] * 255);
+  tcolors.fgG = static_cast<unsigned char>(fgColor[1] * 255);
+  tcolors.fgB = static_cast<unsigned char>(fgColor[2] * 255);
+  tcolors.fgA = tprop->GetOpacity();
+
+  double* bgColor = tprop->GetBackgroundColor();
+  tcolors.bgR = static_cast<unsigned char>(bgColor[0] * 255);
+  tcolors.bgG = static_cast<unsigned char>(bgColor[1] * 255);
+  tcolors.bgB = static_cast<unsigned char>(bgColor[2] * 255);
+  tcolors.bgA = tprop->GetBackgroundOpacity();
+  tcolors.hasBackground = (static_cast<unsigned char>(tcolors.bgA * 255) != 0);
+
+  double* frameColor = tprop->GetFrameColor();
+  tcolors.frR = static_cast<unsigned char>(frameColor[0] * 255);
+  tcolors.frG = static_cast<unsigned char>(frameColor[1] * 255);
+  tcolors.frB = static_cast<unsigned char>(frameColor[2] * 255);
+  tcolors.hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
+  tcolors.frW = tprop->GetFrameWidth();
+}
+
+//------------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox[4],
+  const long int rowStart, const long int colStart, vtkSmartPyObject& pythonData,
+  const long int pythonRows, const long int pythonCols, const long int cellRows,
+  const long int cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
+{
+  vtkDebugMacro("RenderOneCell start = ("
+    << rowStart << "," << colStart << "). Drawing python data of size (" << pythonRows << ","
+    << pythonCols << ") inside a cell of size (" << cellRows << "," << cellCols << ").");
+
+  assert(cellCols >= pythonCols);
+  assert(cellRows >= pythonRows);
+
+  const long int rowEnd = rowStart - cellRows + 1;
+  const long int colEnd = colStart + cellCols - 1;
+
+  // Handle cell horizontal justification
+  long int colOffset;
+  switch (tprop->GetJustification())
+  {
+    default:
+    case VTK_TEXT_LEFT:
+      colOffset = 0;
+      break;
+    case VTK_TEXT_CENTERED:
+      colOffset = (cellCols - pythonCols) / 2;
+      break;
+    case VTK_TEXT_RIGHT:
+      colOffset = (cellCols - pythonCols);
+      break;
+  }
+  const long int pythonColStart = colStart + colOffset;
+  const long int pythonColEnd = pythonColStart + pythonCols;
+
+  // Handle cell vertical justification
+  long int rowOffset;
+  switch (tprop->GetVerticalJustification())
+  {
+    default:
+    case VTK_TEXT_BOTTOM:
+      rowOffset = (cellRows - pythonRows);
+      break;
+    case VTK_TEXT_CENTERED:
+      rowOffset = (cellRows - pythonRows) / 2;
+      break;
+    case VTK_TEXT_TOP:
+      rowOffset = 0;
+      break;
+  }
+  const long int pythonRowStart = rowStart - rowOffset;
+  const long int pythonRowEnd = pythonRowStart - pythonRows;
+
+  long int ind = 0;
+  for (long int row = rowStart; row >= rowEnd; --row)
+  {
+    for (long int col = colStart; col <= colEnd; ++col)
+    {
+      unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
+
+      // Background, do not load python data
+      if (row > pythonRowStart || col < pythonColStart || row <= pythonRowEnd ||
+        col >= pythonColEnd)
+      {
+        if (tcolors.hasFrame &&
+          (col < (bbox[0] + tcolors.frW) || col > (bbox[1] - tcolors.frW) ||
+            row > (bbox[3] - tcolors.frW) || row < (bbox[2] + tcolors.frW)))
+        {
+          ptr[0] = static_cast<unsigned char>(tcolors.frR);
+          ptr[1] = static_cast<unsigned char>(tcolors.frG);
+          ptr[2] = static_cast<unsigned char>(tcolors.frB);
+          ptr[3] = 255;
+        }
+        else if (tcolors.hasBackground)
+        {
+          ptr[0] = static_cast<unsigned char>(tcolors.bgR);
+          ptr[1] = static_cast<unsigned char>(tcolors.bgG);
+          ptr[2] = static_cast<unsigned char>(tcolors.bgB);
+          ptr[3] = static_cast<unsigned char>(255 * tcolors.bgA);
+        }
+        else
+        {
+          ptr[0] = tcolors.fgR;
+          ptr[1] = tcolors.fgG;
+          ptr[2] = tcolors.fgB;
+          ptr[3] = 0;
+        }
+      } // end background
+      else
+      {
+        // item is borrowed, no need for a smart wrapper
+        PyObject* item = PyList_GetItem(pythonData, ind++);
+        if (this->CheckForError(item))
+        {
+          return false;
+        }
+        const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
+        if (this->CheckForError())
+        {
+          return false;
+        }
+
+        if (tcolors.hasFrame &&
+          (col < (bbox[0] + tcolors.frW) || col > (bbox[1] - tcolors.frW) ||
+            row > (bbox[3] - tcolors.frW) || row < (bbox[2] + tcolors.frW)))
+        {
+          const float fg_blend = tcolors.fgA * (val / 255.f);
+          const float fr_blend = 1.f - fg_blend;
+
+          ptr[0] = static_cast<unsigned char>(fr_blend * tcolors.frR + fg_blend * tcolors.fgR);
+          ptr[1] = static_cast<unsigned char>(fr_blend * tcolors.frG + fg_blend * tcolors.fgG);
+          ptr[2] = static_cast<unsigned char>(fr_blend * tcolors.frB + fg_blend * tcolors.fgB);
+          ptr[3] = 255;
+        }
+        else if (tcolors.hasBackground)
+        {
+          const float fg_blend = tcolors.fgA * (val / 255.f);
+          const float bg_blend = 1.f - fg_blend;
+
+          ptr[0] = static_cast<unsigned char>(bg_blend * tcolors.bgR + fg_blend * tcolors.fgR);
+          ptr[1] = static_cast<unsigned char>(bg_blend * tcolors.bgG + fg_blend * tcolors.fgG);
+          ptr[2] = static_cast<unsigned char>(bg_blend * tcolors.bgB + fg_blend * tcolors.fgB);
+          ptr[3] = static_cast<unsigned char>(255 * (fg_blend + tcolors.bgA * bg_blend));
+        }
+        else
+        {
+          ptr[0] = tcolors.fgR;
+          ptr[1] = tcolors.fgG;
+          ptr[2] = tcolors.fgB;
+          ptr[3] = static_cast<unsigned char>(val * tcolors.fgA);
+        }
+      } // end text
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::ParseString(
+  const char* str, GridOfStrings& strGrid, std::size_t& maxNumberOfCells)
+{
+  // First, change all occurence of escaped pipe ("\|")
+  // Into a special character and recover them after splitting
+  std::string stdStr = std::string(str);
+  this->FindAndReplaceInString(stdStr, "\\|", this->PipeProtectString);
+
+  maxNumberOfCells = 0;
+  std::stringstream ss(stdStr);
+  std::string line;
+  strGrid.clear();
+
+  // Split lines
+  while (std::getline(ss, line))
+  {
+    std::size_t numberOfCells = 0;
+    std::vector<std::string> lineStrVec;
+
+    // A cell is defined by a pipe '|'
+    std::stringstream ssCell(line);
+    std::string cell;
+    while (std::getline(ssCell, cell, '|'))
+    {
+      // Recover the escaped pipe
+      this->FindAndReplaceInString(cell, this->PipeProtectString, "\\|");
+      lineStrVec.push_back(std::move(cell));
+      numberOfCells++;
+    }
+    strGrid.push_back(lineStrVec);
+    maxNumberOfCells = std::max(maxNumberOfCells, numberOfCells);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::RenderString(
   const char* str, vtkImageData* image, vtkTextProperty* tprop, int dpi, int textDims[2])
 {
@@ -597,138 +922,162 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
     }
   }
 
-  vtkDebugMacro(<< "Converting '" << str << "' into MathText image...");
+  TextColors tcolors;
+  this->ComputeTextColors(tprop, tcolors);
 
-  long int rows = 0;
-  long int cols = 0;
-  long int ind = 0;
-
-  double* fgColor = tprop->GetColor();
-  unsigned char fgR = static_cast<unsigned char>(fgColor[0] * 255);
-  unsigned char fgG = static_cast<unsigned char>(fgColor[1] * 255);
-  unsigned char fgB = static_cast<unsigned char>(fgColor[2] * 255);
-  double fgA = tprop->GetOpacity();
-
-  double* bgColor = tprop->GetBackgroundColor();
-  unsigned char bgR = static_cast<unsigned char>(bgColor[0] * 255);
-  unsigned char bgG = static_cast<unsigned char>(bgColor[1] * 255);
-  unsigned char bgB = static_cast<unsigned char>(bgColor[2] * 255);
-  double bgA = tprop->GetBackgroundOpacity();
-  bool hasBackground = (static_cast<unsigned char>(bgA * 255) != 0);
-
-  double* frameColor = tprop->GetFrameColor();
-  unsigned char frR = static_cast<unsigned char>(frameColor[0] * 255);
-  unsigned char frG = static_cast<unsigned char>(frameColor[1] * 255);
-  unsigned char frB = static_cast<unsigned char>(frameColor[2] * 255);
-  bool hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
-  int frW = tprop->GetFrameWidth();
-
-  vtkPythonScopeGilEnsurer gilEnsurer;
-  vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser, const_cast<char*>("to_mask"),
-    const_cast<char*>("sii"), const_cast<char*>(str), tprop->GetFontSize(), dpi));
-  if (this->CheckForError(resultTuple))
+  // Parse the string by lines and columns and store
+  // each cell string in the string grid
+  GridOfStrings strGrid;
+  std::size_t maxNumberOfCells;
+  if (!this->ParseString(str, strGrid, maxNumberOfCells))
   {
+    vtkErrorMacro(<< "Failed to parse string.");
     return false;
   }
 
-  // numpyArray is a borrowed reference, no smart wrapper needed:
-  PyObject* numpyArray = PyTuple_GetItem(resultTuple, 0);
-  if (this->CheckForError(numpyArray))
+  // For each line, render all the cells
+  // And store each cell python representation
+  // and the associated rows and cols
+  std::vector<std::vector<vtkSmartPyObject>> gridPythonData;
+  std::vector<std::vector<long int>> gridRowsAndCols;
+
+  // All columns must have the same width
+  // so store the maximum number of cols
+  // for each column
+  std::vector<long int> vecColumnWidth;
+  vecColumnWidth.resize(maxNumberOfCells);
+  std::fill(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
+
+  // Store the number of rows of each line
+  std::vector<long int> vecLineRows;
+
+  // The total number of rows is the sum
+  // of all rows of each line
+  long int totalRows = 0;
+
+  // For each line
+  for (std::size_t i = 0; i < strGrid.size(); ++i)
   {
-    return false;
+    const std::size_t lineNumberOfCells = strGrid[i].size();
+
+    // Number of rows of this line. This
+    // is the maximum number of rows of
+    // all cells of the line
+    long int lineRows = 0;
+
+    // Number of columns of this line
+    // this is the sum of cols of each cell
+    long int lineCols = 0;
+
+    // store each cell matplotlib representation
+    std::vector<vtkSmartPyObject> cellsPythonData;
+    // And its number of python rows and cols
+    std::vector<long int> cellsPythonRowsAndCols;
+
+    // For each cells
+    for (std::size_t j = 0; j < lineNumberOfCells; ++j)
+    {
+      std::string& cell = strGrid[i][j];
+
+      long int cellPythonRows = 0;
+      long int cellPythonCols = 0;
+      vtkSmartPyObject cellPythonData;
+
+      if (!this->ComputeCellRowsAndCols(
+            cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, &cellPythonData))
+      {
+        vtkErrorMacro(<< "Failed to compute rows and cols for cell : " << cell);
+        return false;
+      }
+
+      lineRows = std::max(lineRows, cellPythonRows);
+
+      cellsPythonData.push_back(cellPythonData);
+      cellsPythonRowsAndCols.push_back(cellPythonRows);
+      cellsPythonRowsAndCols.push_back(cellPythonCols);
+
+      // Store the maximum number of cols for each column
+      vecColumnWidth[j] = std::max(vecColumnWidth[j], cellPythonCols);
+    }
+
+    // Missing cells are replaced by empty data
+    for (std::size_t j = lineNumberOfCells; j < maxNumberOfCells; ++j)
+    {
+      cellsPythonData.push_back(vtkSmartPyObject());
+      cellsPythonRowsAndCols.push_back(0);
+      cellsPythonRowsAndCols.push_back(0);
+    }
+
+    lineRows *= tprop->GetLineSpacing();
+    lineRows += tprop->GetLineOffset();
+
+    vecLineRows.push_back(lineRows);
+
+    totalRows += lineRows;
+
+    gridPythonData.push_back(cellsPythonData);
+    gridRowsAndCols.push_back(cellsPythonRowsAndCols);
   }
 
-  vtkSmartPyObject flatArray(
-    PyObject_CallMethod(numpyArray, const_cast<char*>("flatten"), const_cast<char*>("")));
-  if (this->CheckForError(flatArray))
-  {
-    return false;
-  }
+  // The total number of cols is the sum of the maximum number of cols
+  // of cells for each column
+  long int totalCols = std::accumulate(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
 
-  vtkSmartPyObject list(
-    PyObject_CallMethod(flatArray, const_cast<char*>("tolist"), const_cast<char*>("")));
-  if (this->CheckForError(list))
-  {
-    return false;
-  }
+  // Handle horizontal offset between cells
+  totalCols += tprop->GetCellOffset() * maxNumberOfCells;
 
-  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, const_cast<char*>("shape")));
-  if (this->CheckForError(dimTuple))
-  {
-    return false;
-  }
+  // Create justified bounding box.
+  int bbox[4];
+  this->GetJustifiedBBox(totalRows, totalCols, tprop, bbox);
+  this->PrepareImageData(image, bbox);
 
-  PyArg_ParseTuple(dimTuple, "ii", &rows, &cols);
-  if (this->CheckForError())
-  {
-    return false;
-  }
+  const std::size_t numberOfLines = gridPythonData.size();
+  const std::size_t numberOfCells = gridPythonData[0].size();
 
-  // numPixels = PyObject_Length(list);
-  if (this->CheckForError())
+  vtkDebugMacro("RenderString of size ("
+    << totalRows << "," << totalCols << "), starting at (" << bbox[3] << "," << bbox[0]
+    << "), ending at (" << bbox[2] << "," << bbox[1] << "), with " << numberOfLines << " lines and "
+    << numberOfCells << " cells per line");
+
+  long int rowStart = bbox[3];
+
+  for (std::size_t i = 0; i < numberOfLines; ++i)
   {
-    return false;
+    long int colStart = bbox[0];
+
+    std::vector<vtkSmartPyObject>& cellsPythonData = gridPythonData[i];
+    std::vector<long int>& cellsPythonRowsAndCols = gridRowsAndCols[i];
+
+    // The number of rows of this line
+    const long int lineRows = vecLineRows[i];
+
+    for (std::size_t j = 0; j < numberOfCells; ++j)
+    {
+      vtkSmartPyObject& cellPythonData = cellsPythonData[j];
+      const long int pythonRows = cellsPythonRowsAndCols[2 * j];
+      const long int pythonCols = cellsPythonRowsAndCols[2 * j + 1];
+
+      // Get the width of the cell and don't forget offset between cells
+      long int cellCols = vecColumnWidth[j] + tprop->GetCellOffset();
+
+      // The cell number of rows is the number of rows of the line
+      if (!this->RenderOneCell(image, bbox, rowStart, colStart, cellPythonData, pythonRows,
+            pythonCols, lineRows, cellCols, tprop, tcolors))
+      {
+        vtkErrorMacro(<< "Failed to render cell number " << j);
+        return false;
+      };
+
+      colStart += cellCols;
+    }
+
+    rowStart -= lineRows;
   }
 
   if (textDims)
   {
-    textDims[0] = cols;
-    textDims[1] = rows;
-  }
-
-  // Create justified bounding box.
-  int bbox[4];
-  this->GetJustifiedBBox(rows, cols, tprop, bbox);
-
-  this->PrepareImageData(image, bbox);
-
-  for (long int row = bbox[3]; row >= bbox[2]; --row)
-  {
-    for (long int col = bbox[0]; col <= bbox[1]; ++col)
-    {
-      // item is borrowed, no need for a smart wrapper
-      PyObject* item = PyList_GetItem(list, ind++);
-      if (this->CheckForError(item))
-      {
-        return false;
-      }
-      const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
-      if (this->CheckForError())
-      {
-        return false;
-      }
-      unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
-
-      if (hasFrame &&
-        (col < (bbox[0] + frW) || col > (bbox[1] - frW) || row > (bbox[3] - frW) ||
-          row < (bbox[2] + frW)))
-      {
-        const float fg_blend = fgA * (val / 255.f);
-        const float fr_blend = 1.f - fg_blend;
-
-        ptr[0] = static_cast<unsigned char>(fr_blend * frR + fg_blend * fgR);
-        ptr[1] = static_cast<unsigned char>(fr_blend * frG + fg_blend * fgG);
-        ptr[2] = static_cast<unsigned char>(fr_blend * frB + fg_blend * fgB);
-        ptr[3] = 255;
-      }
-      else if (hasBackground)
-      {
-        const float fg_blend = fgA * (val / 255.f);
-        const float bg_blend = 1.f - fg_blend;
-
-        ptr[0] = static_cast<unsigned char>(bg_blend * bgR + fg_blend * fgR);
-        ptr[1] = static_cast<unsigned char>(bg_blend * bgG + fg_blend * fgG);
-        ptr[2] = static_cast<unsigned char>(bg_blend * bgB + fg_blend * fgB);
-        ptr[3] = static_cast<unsigned char>(255 * (fg_blend + bgA * bg_blend));
-      }
-      else
-      {
-        ptr[0] = fgR;
-        ptr[1] = fgG;
-        ptr[2] = fgB;
-        ptr[3] = static_cast<unsigned char>(val * fgA);
-      }
-    }
+    textDims[0] = totalCols;
+    textDims[1] = totalRows;
   }
 
   // Mark the image data as modified, as it is possible that only

@@ -152,8 +152,8 @@ void vtkTextRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 //------------------------------------------------------------------------------
 int vtkTextRepresentation::RenderOverlay(vtkViewport* w)
 {
-  int count = this->TextActor->RenderOverlay(w);
-  count = this->Superclass::RenderOverlay(w);
+  int count = this->Superclass::RenderOverlay(w);
+  count += this->TextActor->RenderOverlay(w);
   return count;
 }
 
