@@ -455,8 +455,10 @@ private:
   void InterpolateCellToPoint(
     vtkFloatArray*, vtkFloatArray*, vtkPointSet*, vtkDataArray*, vtkTypeInt64);
 
+  // Convert OpenFOAM dimension array to string
+  vtkStdString ConstructDimensions(const vtkFoamDict& dict) const;
+
   // read and create cell/point fields
-  void ConstructDimensions(vtkStdString*, vtkFoamDict*);
   bool ReadFieldFile(vtkFoamIOobject*, vtkFoamDict*, const vtkStdString&, vtkDataArraySelection*);
   vtkFloatArray* FillField(vtkFoamEntry*, vtkIdType, vtkFoamIOobject*, const vtkStdString&);
   void GetVolFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&,
@@ -2804,11 +2806,12 @@ public:
     }
   }
 
-  // reads dimensionSet
+  // Read dimensions set (always ASCII)
+  // - the leading '[' has already been removed
   void ReadDimensionSet(vtkFoamIOobject& io)
   {
     assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-    const int nDims = 7;
+    const int nDims = 7; // There are 7 base dimensions
     this->Superclass::Type = LABELLIST;
     if (this->LabelType == INT32)
     {
@@ -7447,87 +7450,120 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry* entryPtr, vtkId
 }
 
 //------------------------------------------------------------------------------
-// convert OpenFOAM's dimension array representation to string
-void vtkOpenFOAMReaderPrivate::ConstructDimensions(vtkStdString* dimString, vtkFoamDict* dictPtr)
+// Convert OpenFOAM dimension array to string representation
+vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& dict) const
 {
   if (!this->Parent->GetAddDimensionsToArrayNames())
   {
-    return;
+    return vtkStdString();
   }
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
-  vtkFoamEntry* dimEntry = dictPtr->Lookup("dimensions");
-  if (dimEntry != nullptr && dimEntry->FirstValue().GetType() == vtkFoamToken::LABELLIST)
+
+  const vtkFoamEntry* dimEntry = dict.Lookup("dimensions");
+  if ((dimEntry == nullptr) || (dimEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST))
   {
-    vtkDataArray& dims = dimEntry->LabelList();
-    if (dims.GetNumberOfTuples() == 7)
+    return vtkStdString();
+  }
+
+  const int nDims = 7; // There are 7 base dimensions
+  vtkTypeInt64 dimSet[7];
+  static const char* units[7] = { "kg", "m", "s", "K", "mol", "A", "cd" };
+
+  const vtkDataArray& dims = dimEntry->LabelList();
+  if (dims.GetNumberOfTuples() == nDims)
+  {
+    const bool use64BitLabels = this->Parent->GetUse64BitLabels();
+
+    for (vtkIdType i = 0; i < nDims; ++i)
     {
-      vtkTypeInt64 dimSet[7];
-      for (vtkIdType dimI = 0; dimI < 7; dimI++)
-      {
-        dimSet[dimI] = GetLabelValue(&dims, dimI, use64BitLabels);
-      }
-      static const char* units[7] = { "kg", "m", "s", "K", "mol", "A", "cd" };
-      std::ostringstream posDim, negDim;
-      int posSpc = 0, negSpc = 0;
-      if (dimSet[0] == 1 && dimSet[1] == -1 && dimSet[2] == -2)
-      {
-        posDim << "Pa";
-        dimSet[0] = dimSet[1] = dimSet[2] = 0;
-        posSpc = 1;
-      }
-      for (int dimI = 0; dimI < 7; dimI++)
-      {
-        vtkTypeInt64 dimDim = dimSet[dimI];
-        if (dimDim > 0)
-        {
-          if (posSpc)
-          {
-            posDim << " ";
-          }
-          posDim << units[dimI];
-          if (dimDim > 1)
-          {
-            posDim << dimDim;
-          }
-          posSpc++;
-        }
-        else if (dimDim < 0)
-        {
-          if (negSpc)
-          {
-            negDim << " ";
-          }
-          negDim << units[dimI];
-          if (dimDim < -1)
-          {
-            negDim << -dimDim;
-          }
-          negSpc++;
-        }
-      }
-      *dimString += " [" + posDim.str();
-      if (negSpc > 0)
-      {
-        if (posSpc == 0)
-        {
-          *dimString += "1";
-        }
-        if (negSpc > 1)
-        {
-          *dimString += "/(" + negDim.str() + ")";
-        }
-        else
-        {
-          *dimString += "/" + negDim.str();
-        }
-      }
-      else if (posSpc == 0)
-      {
-        *dimString += "-";
-      }
-      *dimString += "]";
+      dimSet[i] = GetLabelValue(&dims, i, use64BitLabels);
     }
   }
+  else
+  {
+    return vtkStdString();
+  }
+
+  // Stringify
+  vtkStdString dimString;
+  {
+    std::ostringstream posDim, negDim;
+    int posSpc = 0, negSpc = 0;
+
+    // Some standard units
+    if (dimSet[0] == 1 && dimSet[1] == -1 && dimSet[2] == -2)
+    {
+      posDim << "Pa";
+      posSpc = 1;
+      dimSet[0] = dimSet[1] = dimSet[2] = 0;
+    }
+    else if (dimSet[0] == 1 && dimSet[1] == 1 && dimSet[2] == -2)
+    {
+      posDim << "N";
+      posSpc = 1;
+      dimSet[0] = dimSet[1] = dimSet[2] = 0;
+    }
+    else if (dimSet[0] == 1 && dimSet[1] == 2 && dimSet[2] == -3)
+    {
+      posDim << "W";
+      posSpc = 1;
+      dimSet[0] = dimSet[1] = dimSet[2] = 0;
+    }
+    // Note: cannot know if 'J' or 'N m' is the better representation, so skip that one
+
+    for (vtkIdType dimI = 0; dimI < nDims; ++dimI)
+    {
+      vtkTypeInt64 dimDim = dimSet[dimI];
+      if (dimDim > 0)
+      {
+        if (posSpc)
+        {
+          posDim << ' ';
+        }
+        posDim << units[dimI];
+        if (dimDim > 1)
+        {
+          posDim << dimDim;
+        }
+        ++posSpc;
+      }
+      else if (dimDim < 0)
+      {
+        if (negSpc > 0)
+        {
+          negDim << ' ';
+        }
+        negDim << units[dimI];
+        if (dimDim < -1)
+        {
+          negDim << -dimDim;
+        }
+        ++negSpc;
+      }
+    }
+    dimString += " [" + posDim.str();
+    if (negSpc > 0)
+    {
+      if (posSpc == 0)
+      {
+        dimString += '1';
+      }
+      if (negSpc > 1)
+      {
+        dimString += "/(" + negDim.str() + ")";
+      }
+      else
+      {
+        dimString += "/" + negDim.str();
+      }
+    }
+    else if (posSpc == 0)
+    {
+      dimString += '-';
+    }
+    dimString += ']';
+  }
+
+  return dimString;
 }
 
 //------------------------------------------------------------------------------
@@ -7585,8 +7621,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     return;
   }
 
-  vtkStdString dimString;
-  this->ConstructDimensions(&dimString, &dict);
+  const vtkStdString dimString(this->ConstructDimensions(dict));
 
   vtkFloatArray *acData = nullptr, *ctpData = nullptr;
 
@@ -7901,8 +7936,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
     return;
   }
 
-  vtkStdString dimString;
-  this->ConstructDimensions(&dimString, &dict);
+  const vtkStdString dimString(this->ConstructDimensions(dict));
 
   // AdditionalCellPoints is nullptr if creation of InternalMesh had been skipped
   if (this->AdditionalCellPoints != nullptr)
