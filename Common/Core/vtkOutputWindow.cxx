@@ -114,8 +114,6 @@ void vtkOutputWindowDisplayDebugText(const char* message)
 void vtkOutputWindowDisplayErrorText(
   const char* fname, int lineno, const char* message, vtkObject* sourceObj)
 {
-  vtkLogger::Log(vtkLogger::VERBOSITY_ERROR, fname, lineno, message);
-
   std::ostringstream vtkmsg;
   vtkmsg << "ERROR: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
   if (sourceObj && sourceObj->HasObserver(vtkCommand::ErrorEvent))
@@ -124,6 +122,7 @@ void vtkOutputWindowDisplayErrorText(
   }
   else if (auto win = vtkOutputWindow::GetInstance())
   {
+    vtkLogger::Log(vtkLogger::VERBOSITY_ERROR, fname, lineno, message);
     vtkOutputWindowPrivateAccessor helper_raii(win);
     win->DisplayErrorText(vtkmsg.str().c_str());
   }
@@ -132,8 +131,6 @@ void vtkOutputWindowDisplayErrorText(
 void vtkOutputWindowDisplayWarningText(
   const char* fname, int lineno, const char* message, vtkObject* sourceObj)
 {
-  vtkLogger::Log(vtkLogger::VERBOSITY_WARNING, fname, lineno, message);
-
   std::ostringstream vtkmsg;
   vtkmsg << "Warning: In " << fname << ", line " << lineno << "\n" << message << "\n\n";
   if (sourceObj && sourceObj->HasObserver(vtkCommand::WarningEvent))
@@ -142,6 +139,7 @@ void vtkOutputWindowDisplayWarningText(
   }
   else if (auto win = vtkOutputWindow::GetInstance())
   {
+    vtkLogger::Log(vtkLogger::VERBOSITY_WARNING, fname, lineno, message);
     vtkOutputWindowPrivateAccessor helper_raii(win);
     win->DisplayWarningText(vtkmsg.str().c_str());
   }
