@@ -432,7 +432,7 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   double* boundedOrigin = this->PlaneSource->GetOrigin();
   double* boundedP1 = this->PlaneSource->GetPoint1();
   double* boundedP2 = this->PlaneSource->GetPoint2();
-  this->BoundPlane(imageBounds, boundedOrigin, boundedP1, boundedP2);
+  vtkResliceCursorRepresentation::BoundPlane(imageBounds, boundedOrigin, boundedP1, boundedP2);
 
   this->PlaneSource->SetOrigin(boundedOrigin);
   this->PlaneSource->SetPoint1(boundedP1);
