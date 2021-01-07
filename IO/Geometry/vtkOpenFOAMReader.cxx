@@ -71,8 +71,6 @@
 #include "vtk_zlib.h"
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
-#include <sstream>
-#include <vector>
 
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
@@ -104,6 +102,7 @@
 #include "vtkTriangle.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkTypeInt8Array.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
@@ -122,7 +121,12 @@
 // for isalnum() / isspace() / isdigit()
 #include <cctype>
 
+#include <map>
+#include <memory>
+#include <set>
+#include <sstream>
 #include <typeinfo>
+#include <unordered_set>
 #include <vector>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
@@ -132,7 +136,15 @@ uLong ZEXPORT crc32(uLong, const Bytef*, uInt)
 }
 #endif
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
 vtkStandardNewMacro(vtkOpenFOAMReader);
+
+// The name for finiteArea mesh
+static constexpr const char* const NAME_AREAMESH = "areaMesh";
+
+// The name for finiteVolume internal mesh (unzoned)
+static constexpr const char* const NAME_INTERNALMESH = "internalMesh";
 
 //------------------------------------------------------------------------------
 // Local Functions
@@ -284,6 +296,74 @@ struct vtkFoamEntry;
 struct vtkFoamDict;
 
 //------------------------------------------------------------------------------
+// struct vtkFoamPatch
+// A simple struct to hold OpenFOAM boundary patch information extracted
+// from polyMesh/boundary. Similar to Foam::polyPatch
+struct vtkFoamPatch
+{
+  // General patch types (fits as vtkTypeInt8)
+  enum patchType
+  {
+    GEOMETRICAL = 0, // symmetryPlane, wedge, cyclic, empty, etc.
+    PHYSICAL = 1,    // patch, wall
+    PROCESSOR = 2    // processor
+  };
+
+  vtkStdString name_;
+  vtkIdType index_;
+  vtkIdType start_;
+  vtkIdType size_;
+  vtkIdType offset_; // The start-face offset into all boundaries
+  patchType type_;
+};
+
+//------------------------------------------------------------------------------
+// struct vtkFoamBoundaryDict
+// A collection of boundary patches with additional grouping and selection information
+struct vtkFoamBoundaryDict : public std::vector<vtkFoamPatch>
+{
+  // Patch groups, according to the inGroups keyword
+  std::map<std::string, std::vector<vtkIdType>> groups;
+
+  // Indices of active patches. Selected directly or via a group
+  std::unordered_set<vtkIdType> patchActive;
+
+  // we need to keep the path to time directory where the current mesh
+  // is read from, since boundaryDict may be accessed multiple times
+  // at a timestep for patch selections
+  vtkStdString TimeDir;
+
+  // Reset storage
+  void clearAll()
+  {
+    this->clear();
+    groups.clear();
+    patchActive.clear();
+  }
+
+  void enablePatch(const vtkIdType patchIndex) { patchActive.emplace(patchIndex); }
+
+  void enableGroup(const std::string& groupName)
+  {
+    auto citer = groups.find(groupName);
+    if (citer != groups.end())
+    {
+      const std::vector<vtkIdType>& patchIndices = citer->second;
+      for (const vtkIdType patchIndex : patchIndices)
+      {
+        patchActive.emplace(patchIndex);
+      }
+    }
+  }
+
+  // True if given patch index is active
+  bool isActive(const vtkIdType patchIndex) const
+  {
+    return (patchActive.find(patchIndex) != patchActive.end());
+  }
+};
+
+//------------------------------------------------------------------------------
 // class vtkOpenFOAMReaderPrivate
 // the reader core of vtkOpenFOAMReader
 class vtkOpenFOAMReaderPrivate : public vtkObject
@@ -308,28 +388,6 @@ public:
     const vtkStdString&, const vtkStdString&, const vtkStdString&, vtkOpenFOAMReaderPrivate*);
 
 private:
-  struct vtkFoamBoundaryEntry
-  {
-    enum bt
-    {
-      PHYSICAL = 1,   // patch, wall
-      PROCESSOR = 2,  // processor
-      GEOMETRICAL = 0 // symmetryPlane, wedge, cyclic, empty, etc.
-    };
-    vtkStdString BoundaryName;
-    vtkIdType NFaces, StartFace, AllBoundariesStartFace;
-    bool IsActive;
-    bt BoundaryType;
-  };
-
-  struct vtkFoamBoundaryDict : public std::vector<vtkFoamBoundaryEntry>
-  {
-    // we need to keep the path to time directory where the current mesh
-    // is read from, since boundaryDict may be accessed multiple times
-    // at a timestep for patch selections
-    vtkStdString TimeDir;
-  };
-
   vtkOpenFOAMReader* Parent;
 
   // case and region
@@ -339,9 +397,9 @@ private:
 
   // time information
   vtkDoubleArray* TimeValues;
+  vtkStringArray* TimeNames;
   int TimeStep;
   int TimeStepOld;
-  vtkStringArray* TimeNames;
 
   int InternalMeshSelectionStatus;
   int InternalMeshSelectionStatusOld;
@@ -465,11 +523,13 @@ private:
     const bool isInternalField = false);
   void GetPointFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&);
 
-  // create lagrangian mesh/fields
+  // Create lagrangian mesh/fields
   vtkMultiBlockDataSet* MakeLagrangianMesh();
 
-  // create point/face/cell zones
-  vtkFoamDict* GatherBlocks(const char*, bool);
+  // Read specified file (typeName)
+  std::unique_ptr<vtkFoamDict> GatherBlocks(const char* typeName, const bool mandatory);
+
+  // Create point/face/cell zones
   bool GetPointZoneMesh(vtkMultiBlockDataSet*, vtkPoints*);
   bool GetFaceZoneMesh(vtkMultiBlockDataSet*, const vtkFoamLabelVectorVector*, vtkPoints*);
   bool GetCellZoneMesh(vtkMultiBlockDataSet*, const vtkFoamLabelVectorVector*,
@@ -2725,15 +2785,23 @@ public:
   bool GetIsUniform() const { return this->IsUniform; }
   int Read(vtkFoamIOobject& io);
   void ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& firstKeyword);
+
   const vtkDataArray& LabelList() const { return *this->Superclass::LabelListPtr; }
   vtkDataArray& LabelList() { return *this->Superclass::LabelListPtr; }
+
   const vtkFoamLabelVectorVector& LabelListList() const
   {
     return *this->Superclass::LabelListListPtr;
   }
+
   const vtkFloatArray& ScalarList() const { return *this->Superclass::ScalarListPtr; }
   vtkFloatArray& ScalarList() { return *this->Superclass::ScalarListPtr; }
+
   const vtkFloatArray& VectorList() const { return *this->Superclass::VectorListPtr; }
+
+  const vtkStringArray& StringList() const { return *this->Superclass::StringListPtr; }
+  vtkStringArray& StringList() { return *this->Superclass::StringListPtr; }
+
   const vtkFoamDict& Dictionary() const { return *this->Superclass::DictPtr; }
   vtkFoamDict& Dictionary() { return *this->Superclass::DictPtr; }
 
@@ -3217,21 +3285,28 @@ public:
     }
     this->Superclass::clear();
   }
+
   const vtkStdString& GetKeyword() const { return this->Keyword; }
   void SetKeyword(const vtkStdString& keyword) { this->Keyword = keyword; }
+
   const vtkFoamEntryValue& FirstValue() const { return *this->Superclass::operator[](0); }
   vtkFoamEntryValue& FirstValue() { return *this->Superclass::operator[](0); }
+
   const vtkDataArray& LabelList() const { return this->FirstValue().LabelList(); }
   vtkDataArray& LabelList() { return this->FirstValue().LabelList(); }
   const vtkFoamLabelVectorVector& LabelListList() const
   {
     return this->FirstValue().LabelListList();
   }
+
   const vtkFloatArray& ScalarList() const { return this->FirstValue().ScalarList(); }
   vtkFloatArray& ScalarList() { return this->FirstValue().ScalarList(); }
+
   const vtkFloatArray& VectorList() const { return this->FirstValue().VectorList(); }
+
   const vtkFoamDict& Dictionary() const { return this->FirstValue().Dictionary(); }
   vtkFoamDict& Dictionary() { return this->FirstValue().Dictionary(); }
+
   void* Ptr() { return this->FirstValue().Ptr(); }
   const vtkFoamDict* GetUpperDictPtr() const { return this->UpperDictPtr; }
 
@@ -4715,7 +4790,7 @@ void vtkOpenFOAMReaderPrivate::SortFieldFiles(vtkStringArray* selections, vtkStr
 }
 
 //------------------------------------------------------------------------------
-// create field data lists and cell/point array selection lists
+// Create field data lists and cell/point array selection lists
 int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelectionNames,
   vtkStringArray* pointSelectionNames, vtkStringArray* lagrangianSelectionNames,
   const bool listNextTimeStep)
@@ -4724,12 +4799,12 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   if (this->PolyMeshFacesDir->GetValue(this->TimeStep) != this->BoundaryDict.TimeDir ||
     this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld)
   {
-    this->BoundaryDict.clear();
+    this->BoundaryDict.clearAll();
     this->BoundaryDict.TimeDir = this->PolyMeshFacesDir->GetValue(this->TimeStep);
 
     const bool isSubRegion = !this->RegionName.empty();
-    vtkFoamDict* boundaryDict = this->GatherBlocks("boundary", isSubRegion);
-    if (boundaryDict == nullptr)
+    auto boundaryEntriesPtr(this->GatherBlocks("boundary", isSubRegion));
+    if (!boundaryEntriesPtr)
     {
       if (isSubRegion)
       {
@@ -4738,97 +4813,146 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
     }
     else
     {
-      // Add the internal mesh by default always
-      const vtkStdString internalMeshName(this->RegionPrefix() + "internalMesh");
-      this->Parent->PatchDataArraySelection->AddArray(internalMeshName.c_str());
-      this->InternalMeshSelectionStatus =
-        this->Parent->GetPatchArrayStatus(internalMeshName.c_str());
+      const vtkIdType nBoundaries = static_cast<vtkIdType>(boundaryEntriesPtr->size());
 
-      // iterate through each entry in the boundary file
-      vtkTypeInt64 allBoundariesNextStartFace = 0;
-      this->BoundaryDict.resize(boundaryDict->size());
-      for (size_t i = 0; i < boundaryDict->size(); i++)
+      this->BoundaryDict.resize(nBoundaries);
+      auto& inGroups = this->BoundaryDict.groups;
+
+      // Iterate through each entry in the boundary file
+      vtkTypeInt64 allBoundariesStartFace = 0;
+      for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
       {
-        vtkFoamEntry* boundaryEntryI = boundaryDict->operator[](i);
-        const vtkFoamEntry* nFacesEntry = boundaryEntryI->Dictionary().Lookup("nFaces");
-        if (nFacesEntry == nullptr)
-        {
-          vtkErrorMacro(<< "nFaces entry not found in boundary entry "
-                        << boundaryEntryI->GetKeyword().c_str());
-          delete boundaryDict;
-          return 0;
-        }
-        vtkTypeInt64 nFaces = nFacesEntry->ToInt();
+        // The patch entry to populate
+        vtkFoamPatch& patch = this->BoundaryDict[patchi];
+        patch.index_ = patchi;
+        patch.offset_ = allBoundariesStartFace;
+        patch.type_ = vtkFoamPatch::GEOMETRICAL;
 
-        // extract name of the current patch for insertion
-        const vtkStdString& boundaryNameI = boundaryEntryI->GetKeyword();
+        // The name/dictionary, from "polyMesh/boundary" entry
+        const vtkFoamEntry* eptr = boundaryEntriesPtr->operator[](patchi);
+        const vtkStdString& patchName = eptr->GetKeyword();
+        const vtkFoamDict& patchDict = eptr->Dictionary();
 
-        // create BoundaryDict entry
-        vtkFoamBoundaryEntry& BoundaryEntryI = this->BoundaryDict[i];
-        BoundaryEntryI.NFaces = nFaces;
-        BoundaryEntryI.BoundaryName = boundaryNameI;
-        const vtkFoamEntry* startFaceEntry = boundaryEntryI->Dictionary().Lookup("startFace");
-        if (startFaceEntry == nullptr)
+        patch.name_ = patchName;
+
+        if ((eptr = patchDict.Lookup("nFaces")) == nullptr)
         {
-          vtkErrorMacro(<< "startFace entry not found in boundary entry "
-                        << boundaryEntryI->GetKeyword().c_str());
-          delete boundaryDict;
+          vtkErrorMacro(<< "No 'nFaces' entry found for patch: " << patch.name_);
           return 0;
         }
-        BoundaryEntryI.StartFace = startFaceEntry->ToInt();
-        const vtkFoamEntry* typeEntry = boundaryEntryI->Dictionary().Lookup("type");
-        if (typeEntry == nullptr)
+        patch.size_ = eptr->ToInt();
+
+        if ((eptr = patchDict.Lookup("startFace")) == nullptr)
         {
-          vtkErrorMacro(<< "type entry not found in boundary entry "
-                        << boundaryEntryI->GetKeyword().c_str());
-          delete boundaryDict;
+          vtkErrorMacro(<< "No 'startFace' entry found for patch: " << patch.name_);
           return 0;
         }
-        BoundaryEntryI.AllBoundariesStartFace = allBoundariesNextStartFace;
-        const vtkStdString typeNameI(typeEntry->ToString());
-        // if the basic type of the patch is one of the following the
+        patch.start_ = eptr->ToInt();
+
+        if ((eptr = patchDict.Lookup("type")) == nullptr)
+        {
+          vtkErrorMacro(<< "No 'type' entry found for patch: " << patch.name_);
+          return 0;
+        }
+        const vtkStdString patchTypeName(eptr->ToString());
+
+        // If the basic type of the patch is one of the following the
         // point-filtered values at patches are overridden by patch values
-        if (typeNameI == "patch" || typeNameI == "wall")
+        if (patchTypeName == "patch" || patchTypeName == "wall")
         {
-          BoundaryEntryI.BoundaryType = vtkFoamBoundaryEntry::PHYSICAL;
-          allBoundariesNextStartFace += nFaces;
+          patch.type_ = vtkFoamPatch::PHYSICAL;
+          allBoundariesStartFace += patch.size_;
         }
-        else if (typeNameI == "processor")
+        else if (patchTypeName == "processor")
         {
-          BoundaryEntryI.BoundaryType = vtkFoamBoundaryEntry::PROCESSOR;
-          allBoundariesNextStartFace += nFaces;
+          patch.type_ = vtkFoamPatch::PROCESSOR;
+          allBoundariesStartFace += patch.size_;
         }
-        else
-        {
-          BoundaryEntryI.BoundaryType = vtkFoamBoundaryEntry::GEOMETRICAL;
-        }
-        BoundaryEntryI.IsActive = false;
 
-        // always hide processor patches for decomposed cases to keep
-        // vtkAppendCompositeDataLeaves happy
-        if (!this->ProcessorName.empty() &&
-          BoundaryEntryI.BoundaryType == vtkFoamBoundaryEntry::PROCESSOR)
+        // Handle inGroups which could have this type of content:
+        //   - inGroups (name1 .. nameN);
+        //   - inGroups 2(name1 name2);
+        // but never for processor boundaries (potential clutter or false positives)
+        if ((eptr = patchDict.Lookup("inGroups")) != nullptr &&
+          patch.type_ != vtkFoamPatch::PROCESSOR)
         {
-          continue;
-        }
-        const vtkStdString selectionName(this->RegionPrefix() + "patch/" + boundaryNameI);
-        if (this->Parent->PatchDataArraySelection->ArrayExists(selectionName.c_str()))
-        {
-          // Mark boundary if selected for display
-          if (this->Parent->GetPatchArrayStatus(selectionName.c_str()))
+          for (const vtkFoamEntryValue* subentry : *eptr)
           {
-            BoundaryEntryI.IsActive = true;
+            if (subentry && subentry->GetType() == vtkFoamToken::STRINGLIST)
+            {
+              // Yes this is really needed, VTK constness is a bit odd
+              vtkStringArray& groupNames = const_cast<vtkStringArray&>(subentry->StringList());
+              const vtkIdType nGroups = groupNames.GetNumberOfValues();
+
+              for (vtkIdType groupi = 0; groupi < nGroups; ++groupi)
+              {
+                const std::string& groupName = groupNames.GetValue(groupi);
+                inGroups[groupName].push_back(patchi);
+              }
+            }
           }
         }
-        else
+      }
+    }
+
+    // Handle the selection array
+
+    if (boundaryEntriesPtr)
+    {
+      // Add the internal mesh by default
+      const vtkStdString displayName(this->RegionPrefix() + NAME_INTERNALMESH);
+      this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
+      this->InternalMeshSelectionStatus = this->Parent->GetPatchArrayStatus(displayName.c_str());
+    }
+
+    // Patch groups (sorted)
+    for (auto citer = this->BoundaryDict.groups.begin(), endIter = this->BoundaryDict.groups.end();
+         citer != endIter; ++citer)
+    {
+      const std::string& groupName = citer->first;
+      const vtkStdString displayName(this->RegionPrefix() + "group/" + groupName);
+      if (this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()))
+      {
+        if (this->Parent->GetPatchArrayStatus(displayName.c_str()))
         {
-          // add patch to list with selection status turned off:
-          // the patch is added to list even if its size is zero
-          this->Parent->PatchDataArraySelection->DisableArray(selectionName.c_str());
+          // Selected by group
+          this->BoundaryDict.enableGroup(groupName);
         }
       }
+      else
+      {
+        // Add to list with selection status == off.
+        this->Parent->PatchDataArraySelection->DisableArray(displayName.c_str());
+      }
+    }
 
-      delete boundaryDict;
+    // Individual patches
+    for (vtkFoamPatch& patch : this->BoundaryDict)
+    {
+      const vtkStdString& patchName = patch.name_;
+
+      // always hide processor patches for decomposed cases to keep
+      // vtkAppendCompositeDataLeaves happy
+      if (patch.type_ == vtkFoamPatch::PROCESSOR && !this->ProcessorName.empty())
+      {
+        continue;
+      }
+
+      const vtkStdString displayName(this->RegionPrefix() + "patch/" + patchName);
+      if (this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()))
+      {
+        if (this->Parent->GetPatchArrayStatus(displayName.c_str()))
+        {
+          // Selected by patch
+          this->BoundaryDict.enablePatch(patch.index_);
+        }
+      }
+      else
+      {
+        // Add to list with selection status == off.
+        // The patch is added to list even if its size is zero
+        this->Parent->PatchDataArraySelection->DisableArray(displayName.c_str());
+      }
     }
   }
 
@@ -6696,43 +6820,45 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   const vtkIdType nBoundaries = static_cast<vtkIdType>(this->BoundaryDict.size());
   bool use64BitLabels = this->Parent->GetUse64BitLabels();
 
-  // do a consistency check of BoundaryDict
-  vtkIdType previousEndFace = -1;
-  for (int boundaryI = 0; boundaryI < nBoundaries; boundaryI++)
+  // Consistency check for BoundaryDict
   {
-    const vtkFoamBoundaryEntry& beI = this->BoundaryDict[boundaryI];
-    vtkIdType startFace = beI.StartFace;
-    vtkIdType nFaces = beI.NFaces;
-    if (startFace < 0 || nFaces < 0)
+    vtkIdType prevEndFace = -1;
+    for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
     {
-      vtkErrorMacro(<< "Neither of startFace " << startFace << " nor nFaces " << nFaces
-                    << " can be negative for patch " << beI.BoundaryName.c_str());
+      const vtkFoamPatch& patch = this->BoundaryDict[patchi];
+      const vtkIdType startFace = patch.start_;
+      const vtkIdType nFaces = patch.size_;
+      if (startFace < 0 || nFaces < 0)
+      {
+        vtkErrorMacro(<< "Neither startFace " << startFace << " nor nFaces " << nFaces
+                      << " can be negative for patch " << patch.name_);
+        return nullptr;
+      }
+      if (prevEndFace >= 0 && prevEndFace != startFace)
+      {
+        vtkErrorMacro(<< "The end face number " << prevEndFace - 1 << " of patch "
+                      << this->BoundaryDict[patchi - 1].name_.c_str()
+                      << " is inconsistent with start face number " << startFace << " of patch "
+                      << patch.name_);
+        return nullptr;
+      }
+      prevEndFace = startFace + nFaces;
+    }
+    if (prevEndFace > facesPoints->GetNumberOfElements())
+    {
+      vtkErrorMacro(<< "The end face number " << prevEndFace - 1 << " of the last patch "
+                    << this->BoundaryDict.back().name_.c_str() << " exceeds the number of faces "
+                    << facesPoints->GetNumberOfElements());
       return nullptr;
     }
-    if (previousEndFace >= 0 && previousEndFace != startFace)
-    {
-      vtkErrorMacro(<< "The end face number " << previousEndFace - 1 << " of patch "
-                    << this->BoundaryDict[boundaryI - 1].BoundaryName.c_str()
-                    << " is not consistent with the start face number " << startFace << " of patch "
-                    << beI.BoundaryName.c_str());
-      return nullptr;
-    }
-    previousEndFace = startFace + nFaces;
-  }
-  if (previousEndFace > facesPoints->GetNumberOfElements())
-  {
-    vtkErrorMacro(<< "The end face number " << previousEndFace - 1 << " of the last patch "
-                  << this->BoundaryDict[nBoundaries - 1].BoundaryName.c_str()
-                  << " exceeds the number of faces " << facesPoints->GetNumberOfElements());
-    return nullptr;
   }
 
   vtkMultiBlockDataSet* boundaryMesh = vtkMultiBlockDataSet::New();
 
   if (this->Parent->GetCreateCellToPoint())
   {
-    vtkIdType boundaryStartFace =
-      (!this->BoundaryDict.empty() ? this->BoundaryDict[0].StartFace : 0);
+    const vtkIdType boundaryStartFace =
+      (!this->BoundaryDict.empty() ? this->BoundaryDict[0].start_ : 0);
     this->AllBoundaries = vtkPolyData::New();
     this->AllBoundaries->AllocateEstimate(
       facesPoints->GetNumberOfElements() - boundaryStartFace, 1);
@@ -6745,24 +6871,26 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   // count the max number of points per face and the number of points
   // (with duplicates) in mesh
   vtkIdType maxNFacePoints = 0;
-  for (int boundaryI = 0; boundaryI < nBoundaries; boundaryI++)
+  for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
   {
-    vtkIdType startFace = this->BoundaryDict[boundaryI].StartFace;
-    vtkIdType endFace = startFace + this->BoundaryDict[boundaryI].NFaces;
+    const vtkFoamPatch& patch = this->BoundaryDict[patchi];
+    const vtkIdType startFace = patch.start_;
+    const vtkIdType endFace = startFace + patch.size_;
+
     vtkIdType nPoints = 0;
-    for (vtkIdType j = startFace; j < endFace; j++)
+    for (vtkIdType facei = startFace; facei < endFace; ++facei)
     {
-      vtkIdType nFacePoints = facesPoints->GetSize(j);
+      vtkIdType nFacePoints = facesPoints->GetSize(facei);
       nPoints += nFacePoints;
-      if (nFacePoints > maxNFacePoints)
+      if (maxNFacePoints < nFacePoints)
       {
         maxNFacePoints = nFacePoints;
       }
     }
-    nBoundaryPointsList->SetValue(boundaryI, nPoints);
+    nBoundaryPointsList->SetValue(patchi, nPoints);
   }
 
-  // aloocate array for converting int vector to vtkIdType List:
+  // Allocate array for converting int vector to vtkIdType List:
   // workaround for 64bit machines
   vtkIdList* facePointsVtkId = vtkIdList::New();
   facePointsVtkId->SetNumberOfIds(maxNFacePoints);
@@ -6781,24 +6909,24 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     this->InternalPoints->SetNumberOfValues(this->NumPoints);
     this->InternalPoints->FillComponent(0, -1);
 
-    // mark boundary points as 0
-    for (int boundaryI = 0; boundaryI < nBoundaries; boundaryI++)
+    // Mark boundary points as 0
+    for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
     {
-      const vtkFoamBoundaryEntry& beI = this->BoundaryDict[boundaryI];
-      if (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL ||
-        beI.BoundaryType == vtkFoamBoundaryEntry::PROCESSOR)
-      {
-        vtkIdType startFace = beI.StartFace;
-        vtkIdType endFace = startFace + beI.NFaces;
+      const vtkFoamPatch& patch = this->BoundaryDict[patchi];
 
-        for (vtkIdType j = startFace; j < endFace; j++)
+      if (patch.type_ == vtkFoamPatch::PHYSICAL || patch.type_ == vtkFoamPatch::PROCESSOR)
+      {
+        const vtkIdType startFace = patch.start_;
+        const vtkIdType endFace = startFace + patch.size_;
+
+        for (vtkIdType facei = startFace; facei < endFace; ++facei)
         {
-          const void* facePoints = facesPoints->operator[](j);
-          vtkIdType nFacePoints = facesPoints->GetSize(j);
-          for (vtkIdType k = 0; k < nFacePoints; k++)
+          const void* facePoints = facesPoints->operator[](facei);
+          vtkIdType nFacePoints = facesPoints->GetSize(facei);
+          for (vtkIdType pointi = 0; pointi < nFacePoints; ++pointi)
           {
-            SetLabelValue(this->InternalPoints, GetCastLabelValue(facePoints, k, use64BitLabels), 0,
-              use64BitLabels);
+            SetLabelValue(this->InternalPoints,
+              GetCastLabelValue(facePoints, pointi, use64BitLabels), 0, use64BitLabels);
           }
         }
       }
@@ -6807,90 +6935,87 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
   vtkTypeInt64 nAllBoundaryPoints = 0;
   std::vector<std::vector<vtkIdType>> procCellList;
-  vtkIntArray* pointTypes = nullptr;
+  vtkTypeInt8Array* pointTypes = nullptr;
 
   if (this->Parent->GetCreateCellToPoint())
   {
-    // create global to AllBounaries point map
-    for (int pointI = 0; pointI < this->NumPoints; pointI++)
+    // Create global to AllBounaries point map
+    for (vtkIdType pointi = 0; pointi < this->NumPoints; ++pointi)
     {
-      if (GetLabelValue(this->InternalPoints, pointI, use64BitLabels) == 0)
+      if (GetLabelValue(this->InternalPoints, pointi, use64BitLabels) == 0)
       {
-        SetLabelValue(this->InternalPoints, pointI, nAllBoundaryPoints, use64BitLabels);
+        SetLabelValue(this->InternalPoints, pointi, nAllBoundaryPoints, use64BitLabels);
         nAllBoundaryPoints++;
       }
     }
 
     if (!this->ProcessorName.empty())
     {
-      // initialize physical-processor boundary shared point list
+      // Initialize physical-processor boundary shared point list
       procCellList.resize(static_cast<size_t>(nAllBoundaryPoints));
-      pointTypes = vtkIntArray::New();
+      pointTypes = vtkTypeInt8Array::New();
       pointTypes->SetNumberOfTuples(nAllBoundaryPoints);
-      for (vtkIdType pointI = 0; pointI < nAllBoundaryPoints; pointI++)
-      {
-        pointTypes->SetValue(pointI, 0);
-      }
+      pointTypes->FillValue(0);
     }
   }
 
-  for (int boundaryI = 0; boundaryI < nBoundaries; boundaryI++)
+  for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
   {
-    const vtkFoamBoundaryEntry& beI = this->BoundaryDict[boundaryI];
-    vtkIdType nFaces = beI.NFaces;
-    vtkIdType startFace = beI.StartFace;
-    vtkIdType endFace = startFace + nFaces;
+    const vtkFoamPatch& patch = this->BoundaryDict[patchi];
+    const vtkIdType startFace = patch.start_;
+    const vtkIdType nFaces = patch.size_;
+    const vtkIdType endFace = startFace + nFaces;
 
     if (this->Parent->GetCreateCellToPoint() &&
-      (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL ||
-        beI.BoundaryType == vtkFoamBoundaryEntry::PROCESSOR))
+      (patch.type_ == vtkFoamPatch::PHYSICAL || patch.type_ == vtkFoamPatch::PROCESSOR))
     {
-      // add faces to AllBoundaries
+      // Add faces to AllBoundaries
       this->InsertFacesToGrid(this->AllBoundaries, facesPoints, startFace, endFace,
         this->InternalPoints, facePointsVtkId, nullptr, false);
 
       if (!this->ProcessorName.empty())
       {
-        // mark belonging boundary types and, if PROCESSOR, cell numbers
-        vtkIdType abStartFace = beI.AllBoundariesStartFace;
-        vtkIdType abEndFace = abStartFace + beI.NFaces;
-        for (vtkIdType faceI = abStartFace; faceI < abEndFace; faceI++)
+        // Mark belonging boundary types and, if PROCESSOR, cell numbers
+        const vtkIdType absStartFace = patch.offset_;
+        const vtkIdType absEndFace = absStartFace + nFaces;
+        for (vtkIdType facei = absStartFace; facei < absEndFace; ++facei)
         {
           vtkIdType nPoints;
           const vtkIdType* points;
-          this->AllBoundaries->GetCellPoints(faceI, nPoints, points);
-          if (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL)
+          this->AllBoundaries->GetCellPoints(facei, nPoints, points);
+          if (patch.type_ == vtkFoamPatch::PHYSICAL)
           {
-            for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
+            for (vtkIdType pointi = 0; pointi < nPoints; ++pointi)
             {
-              *pointTypes->GetPointer(points[pointI]) |= vtkFoamBoundaryEntry::PHYSICAL;
+              *pointTypes->GetPointer(points[pointi]) |= vtkFoamPatch::PHYSICAL;
             }
           }
-          else // PROCESSOR
+          else
           {
-            for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
+            // PROCESSOR
+            for (vtkIdType pointi = 0; pointi < nPoints; ++pointi)
             {
-              vtkIdType pointJ = points[pointI];
-              *pointTypes->GetPointer(pointJ) |= vtkFoamBoundaryEntry::PROCESSOR;
-              procCellList[pointJ].push_back(faceI);
+              const vtkIdType procPoint = points[pointi];
+              *pointTypes->GetPointer(procPoint) |= vtkFoamPatch::PROCESSOR;
+              procCellList[procPoint].push_back(facei);
             }
           }
         }
       }
     }
 
-    // skip below if inactive
-    if (!beI.IsActive)
+    // Skip below if not active
+    if (!this->BoundaryDict.isActive(patch.index_))
     {
       continue;
     }
 
-    // Create the mesh
+    // Create the boundary patch mesh
     vtkPolyData* bm = vtkPolyData::New();
-    ::AppendBlock(boundaryMesh, bm, beI.BoundaryName);
+    ::AppendBlock(boundaryMesh, bm, patch.name_);
 
     bm->AllocateEstimate(nFaces, 1);
-    vtkIdType nBoundaryPoints = nBoundaryPointsList->GetValue(boundaryI);
+    const vtkIdType nBoundaryPoints = nBoundaryPointsList->GetValue(patchi);
 
     // create global to boundary-local point map and boundary points
     vtkDataArray* boundaryPointList;
@@ -6903,16 +7028,16 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       boundaryPointList = vtkTypeInt32Array::New();
     }
     boundaryPointList->SetNumberOfValues(nBoundaryPoints);
-    vtkIdType pointI = 0;
-    for (vtkIdType j = startFace; j < endFace; j++)
+    vtkIdType pointi = 0;
+    for (vtkIdType facei = startFace; facei < endFace; ++facei)
     {
-      const void* facePoints = facesPoints->operator[](j);
-      vtkIdType nFacePoints = facesPoints->GetSize(j);
-      for (int k = 0; k < nFacePoints; k++)
+      const void* facePoints = facesPoints->operator[](facei);
+      const vtkIdType nFacePoints = facesPoints->GetSize(facei);
+      for (int fp = 0; fp < nFacePoints; ++fp)
       {
-        SetLabelValue(boundaryPointList, pointI, GetCastLabelValue(facePoints, k, use64BitLabels),
+        SetLabelValue(boundaryPointList, pointi, GetCastLabelValue(facePoints, fp, use64BitLabels),
           use64BitLabels);
-        pointI++;
+        ++pointi;
       }
     }
     vtkSortDataArray::Sort(boundaryPointList);
@@ -6947,7 +7072,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     boundaryPoints->SetData(boundaryPointArray);
     boundaryPointArray->Delete();
 
-    // set points for boundary
+    // Set points for boundary
     bm->SetPoints(boundaryPoints);
     boundaryPoints->Delete();
 
@@ -7018,8 +7143,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       this->AllBoundaries->BuildLinks();
       for (int pointI = 0; pointI < nAllBoundaryPoints; pointI++)
       {
-        if (pointTypes->GetValue(pointI) ==
-          (vtkFoamBoundaryEntry::PHYSICAL | vtkFoamBoundaryEntry::PROCESSOR))
+        if (pointTypes->GetValue(pointI) == (vtkFoamPatch::PHYSICAL | vtkFoamPatch::PROCESSOR))
         {
           const std::vector<vtkIdType>& procCells = procCellList[pointI];
           for (size_t cellI = 0; cellI < procCellList[pointI].size(); cellI++)
@@ -7041,10 +7165,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 // truncate face owner to have only boundary face info
 void vtkOpenFOAMReaderPrivate::TruncateFaceOwner()
 {
-  vtkIdType boundaryStartFace = !this->BoundaryDict.empty() ? this->BoundaryDict[0].StartFace
-                                                            : this->FaceOwner->GetNumberOfTuples();
-  // all the boundary faces
-  vtkIdType nBoundaryFaces = this->FaceOwner->GetNumberOfTuples() - boundaryStartFace;
+  const vtkIdType boundaryStartFace =
+    (!this->BoundaryDict.empty() ? this->BoundaryDict[0].start_
+                                 : this->FaceOwner->GetNumberOfTuples());
+
+  // All boundary faces
+  const vtkIdType nBoundaryFaces = this->FaceOwner->GetNumberOfTuples() - boundaryStartFace;
   memmove(this->FaceOwner->GetVoidPointer(0), this->FaceOwner->GetVoidPointer(boundaryStartFace),
     static_cast<size_t>(this->FaceOwner->GetDataTypeSize() * nBoundaryFaces));
   this->FaceOwner->Resize(nBoundaryFaces);
@@ -7119,28 +7245,31 @@ void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
   vtkMultiBlockDataSet* boundaryMesh, vtkFloatArray* pointArray)
 {
   bool use64BitLabels = this->Parent->GetUse64BitLabels();
-  for (vtkIdType boundaryI = 0, activeBoundaryI = 0;
-       boundaryI < static_cast<vtkIdType>(this->BoundaryDict.size()); boundaryI++)
+
+  unsigned int activeBoundaryIndex = 0;
+  for (const vtkFoamPatch& patch : this->BoundaryDict)
   {
-    if (this->BoundaryDict[boundaryI].IsActive)
+    if (!this->BoundaryDict.isActive(patch.index_))
     {
-      vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryI);
-      vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
+      vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
+      const vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
+
       vtkFloatArray* boundaryPointArray = vtkFloatArray::New();
       boundaryPointArray->SetNumberOfComponents(3);
       boundaryPointArray->SetNumberOfTuples(nBoundaryPoints);
-      for (int pointI = 0; pointI < nBoundaryPoints; pointI++)
+      for (vtkIdType pointi = 0; pointi < nBoundaryPoints; ++pointi)
       {
         boundaryPointArray->SetTuple(
-          pointI, GetLabelValue(bpMap, pointI, use64BitLabels), pointArray);
+          pointi, GetLabelValue(bpMap, pointi, use64BitLabels), pointArray);
       }
       vtkPoints* boundaryPoints = vtkPoints::New();
       boundaryPoints->SetData(boundaryPointArray);
       boundaryPointArray->Delete();
-      vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(static_cast<unsigned int>(activeBoundaryI)))
-        ->SetPoints(boundaryPoints);
+
+      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+      bm->SetPoints(boundaryPoints);
       boundaryPoints->Delete();
-      activeBoundaryI++;
+      ++activeBoundaryIndex;
     }
   }
 }
@@ -7591,7 +7720,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
 
   // The internalField
   vtkFoamEntry* iEntry = nullptr;
-
   {
     const vtkStdString entryName = (isInternalField ? "value" : "internalField");
 
@@ -7697,12 +7825,12 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     return;
   }
 
-  // set boundary values
-  const vtkFoamEntry* bEntry = nullptr;
+  // Set boundary values
+  const vtkFoamEntry* bfieldEntries = nullptr;
   if (!isInternalField)
   {
-    bEntry = dict.Lookup("boundaryField");
-    if (bEntry == nullptr)
+    bfieldEntries = dict.Lookup("boundaryField");
+    if (bfieldEntries == nullptr)
     {
       vtkWarningMacro(<< "boundaryField not found in object " << varName.c_str()
                       << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
@@ -7719,24 +7847,48 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     }
   }
 
-  for (int boundaryI = 0, activeBoundaryI = 0;
-       boundaryI < static_cast<int>(this->BoundaryDict.size()); boundaryI++)
+  unsigned int activeBoundaryIndex = 0;
+  for (const vtkFoamPatch& patch : this->BoundaryDict)
   {
-    const vtkFoamBoundaryEntry& beI = this->BoundaryDict[boundaryI];
-    const vtkStdString& boundaryNameI = beI.BoundaryName;
+    const vtkIdType nFaces = patch.size_;
 
-    const vtkIdType nFaces = beI.NFaces;
     vtkFloatArray* vData = nullptr;
 
-    if (!isInternalField)
+    if (bfieldEntries != nullptr)
     {
-      const vtkFoamEntry* bEntryI = bEntry->Dictionary().Lookup(boundaryNameI, true);
+      bool badEntry = false;
 
-      if (bEntryI == nullptr)
+      const vtkFoamEntry* bfieldEntry = bfieldEntries->Dictionary().Lookup(patch.name_, true);
+      if (bfieldEntry == nullptr)
       {
-        vtkWarningMacro(<< "boundaryField " << boundaryNameI.c_str() << " not found in object "
-                        << varName.c_str()
-                        << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
+        badEntry = true;
+        vtkWarningMacro(<< "boundaryField " << patch.name_ << " not found in object " << varName
+                        << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+      }
+      else if (bfieldEntry->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
+      {
+        badEntry = true;
+        vtkWarningMacro(<< "boundaryField " << patch.name_ << " not a subdictionary in object "
+                        << varName << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+      }
+      else
+      {
+        // Look for "value" entry
+        vtkFoamEntry* vEntry = bfieldEntry->Dictionary().Lookup("value");
+        if (vEntry != nullptr)
+        {
+          vData = this->FillField(vEntry, nFaces, &io, fieldType);
+
+          if (vData == nullptr)
+          {
+            badEntry = true;
+          }
+        }
+      }
+
+      // If anything unexpected happened, get out
+      if (badEntry)
+      {
         iData->Delete();
         if (acData != nullptr)
         {
@@ -7747,49 +7899,15 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
           ctpData->Delete();
         }
         return;
-      }
-
-      if (bEntryI->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
-      {
-        vtkWarningMacro(<< "Type of boundaryField " << boundaryNameI.c_str()
-                        << " is not a subdictionary in object " << varName.c_str()
-                        << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
-        iData->Delete();
-        if (acData != nullptr)
-        {
-          acData->Delete();
-        }
-        if (ctpData != nullptr)
-        {
-          ctpData->Delete();
-        }
-        return;
-      }
-
-      vtkFoamEntry* vEntry = bEntryI->Dictionary().Lookup("value");
-      if (vEntry != nullptr) // the boundary has a value entry
-      {
-        vData = this->FillField(vEntry, nFaces, &io, fieldType);
-        if (vData == nullptr)
-        {
-          iData->Delete();
-          if (acData != nullptr)
-          {
-            acData->Delete();
-          }
-          if (ctpData != nullptr)
-          {
-            ctpData->Delete();
-          }
-          return;
-        }
       }
     }
 
-    vtkIdType boundaryStartFace = beI.StartFace - this->BoundaryDict[0].StartFace;
+    // Relative start
+    const vtkIdType boundaryStartFace = patch.start_ - this->BoundaryDict[0].start_;
 
-    if (vData == nullptr) // No value entry
+    if (vData == nullptr)
     {
+      // No value entry
       // use patch-internal values as boundary values
       vData = vtkFloatArray::New();
       vData->SetNumberOfComponents(iData->GetNumberOfComponents());
@@ -7803,20 +7921,21 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
 
     if (this->Parent->GetCreateCellToPoint())
     {
-      vtkIdType startFace = beI.AllBoundariesStartFace;
+      const vtkIdType startFace = patch.offset_;
+
       // if reading a processor sub-case of a decomposed case as is,
       // use the patch values of the processor patch as is
-      if (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL ||
-        (this->ProcessorName.empty() && beI.BoundaryType == vtkFoamBoundaryEntry::PROCESSOR))
+      if (patch.type_ == vtkFoamPatch::PHYSICAL ||
+        (this->ProcessorName.empty() && patch.type_ == vtkFoamPatch::PROCESSOR))
       {
         // set the same value to AllBoundaries
-        for (vtkIdType faceI = 0; faceI < nFaces; faceI++)
+        for (vtkIdType facei = 0; facei < nFaces; ++facei)
         {
-          acData->SetTuple(faceI + startFace, faceI, vData);
+          acData->SetTuple(facei + startFace, facei, vData);
         }
       }
-      // implies && this->ProcessorName != ""
-      else if (beI.BoundaryType == vtkFoamBoundaryEntry::PROCESSOR)
+      // implies && !this->ProcessorName.empty()
+      else if (patch.type_ == vtkFoamPatch::PROCESSOR)
       {
         // average patch internal value and patch value assuming the
         // patch value to be the patchInternalField of the neighbor
@@ -7839,9 +7958,9 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
       }
     }
 
-    if (beI.IsActive)
+    if (this->BoundaryDict.isActive(patch.index_))
     {
-      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryI));
+      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       ::AddArrayToFieldData(bm->GetCellData(), vData, io.GetObjectName(), dimString);
 
       if (this->Parent->GetCreateCellToPoint())
@@ -7860,7 +7979,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
         pData->Delete();
       }
 
-      activeBoundaryI++;
+      ++activeBoundaryIndex;
     }
     vData->Delete();
   }
@@ -7992,14 +8111,14 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
     return;
   }
 
-  // use patch-internal values as boundary values
-  for (vtkIdType boundaryI = 0, activeBoundaryI = 0;
-       boundaryI < static_cast<vtkIdType>(this->BoundaryDict.size()); boundaryI++)
+  // Use patch-internal values as boundary values
+  unsigned int activeBoundaryIndex = 0;
+  for (const vtkFoamPatch& patch : this->BoundaryDict)
   {
-    if (this->BoundaryDict[boundaryI].IsActive)
+    if (this->BoundaryDict.isActive(patch.index_))
     {
       vtkFloatArray* vData = vtkFloatArray::New();
-      vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryI);
+      vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
       vData->SetNumberOfComponents(iData->GetNumberOfComponents());
       vData->SetNumberOfTuples(nPoints);
@@ -8008,12 +8127,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
         vData->SetTuple(j, GetLabelValue(bpMap, j, use64BitLabels), iData);
       }
 
-      vtkPolyData* bm = vtkPolyData::SafeDownCast(
-        boundaryMesh->GetBlock(static_cast<unsigned int>(activeBoundaryI)));
-
+      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       ::AddArrayToFieldData(bm->GetPointData(), vData, io.GetObjectName(), dimString);
       vData->Delete();
-      activeBoundaryI++;
+      ++activeBoundaryIndex;
     }
   }
   iData->Delete();
@@ -8170,16 +8287,16 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 }
 
 //------------------------------------------------------------------------------
-// returns a dictionary of block names for a specified domain
-vtkFoamDict* vtkOpenFOAMReaderPrivate::GatherBlocks(const char* typeIn, bool mustRead)
+// Returns a dictionary of block names for a specified domain
+std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
+  const char* typeName, const bool mandatory)
 {
-  vtkStdString type(typeIn);
-  vtkStdString blockPath = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir) + type;
+  vtkStdString blockPath(this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir) + typeName);
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
   if (!(io.Open(blockPath) || io.Open(blockPath + ".gz")))
   {
-    if (mustRead)
+    if (mandatory)
     {
       vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": "
                     << io.GetError().c_str());
@@ -8187,19 +8304,17 @@ vtkFoamDict* vtkOpenFOAMReaderPrivate::GatherBlocks(const char* typeIn, bool mus
     return nullptr;
   }
 
-  vtkFoamDict* dictPtr = new vtkFoamDict;
+  std::unique_ptr<vtkFoamDict> dictPtr(new vtkFoamDict);
   vtkFoamDict& dict = *dictPtr;
   if (!dict.Read(io))
   {
     vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
                   << io.GetFileName().c_str() << ": " << io.GetError().c_str());
-    delete dictPtr;
     return nullptr;
   }
   if (dict.GetType() != vtkFoamToken::DICTIONARY)
   {
     vtkErrorMacro(<< "The file type of " << io.GetFileName().c_str() << " is not a dictionary");
-    delete dictPtr;
     return nullptr;
   }
   return dictPtr;
@@ -8210,17 +8325,16 @@ vtkFoamDict* vtkOpenFOAMReaderPrivate::GatherBlocks(const char* typeIn, bool mus
 bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
   vtkMultiBlockDataSet* pointZoneMesh, vtkPoints* points)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
-  vtkFoamDict* pointZoneDictPtr = this->GatherBlocks("pointZones", false);
-
-  if (pointZoneDictPtr == nullptr)
+  auto pointZoneDictPtr(this->GatherBlocks("pointZones", false));
+  if (!pointZoneDictPtr)
   {
-    // not an error
+    // Not an error
     return true;
   }
 
   vtkFoamDict& pointZoneDict = *pointZoneDictPtr;
-  int nPointZones = static_cast<int>(pointZoneDict.size());
+  const int nPointZones = static_cast<int>(pointZoneDict.size());
+  const bool use64BitLabels = this->Parent->GetUse64BitLabels();
 
   for (int i = 0; i < nPointZones; i++)
   {
@@ -8229,7 +8343,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
     vtkFoamEntry* pointLabelsEntry = dict.Lookup("pointLabels");
     if (pointLabelsEntry == nullptr)
     {
-      delete pointZoneDictPtr;
       vtkErrorMacro(<< "pointLabels not found in pointZones");
       return false;
     }
@@ -8245,7 +8358,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
 
     if (pointLabelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
     {
-      delete pointZoneDictPtr;
       vtkErrorMacro(<< "pointLabels not of type labelList: type = "
                     << pointLabelsEntry->FirstValue().GetType());
       return false;
@@ -8259,7 +8371,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
       vtkErrorMacro(<< "The length of pointLabels " << nPoints << " for pointZone "
                     << pointZoneDict[i]->GetKeyword().c_str() << " exceeds the number of points "
                     << this->NumPoints);
-      delete pointZoneDictPtr;
       return false;
     }
 
@@ -8290,8 +8401,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
     pzm->Delete();
   }
 
-  delete pointZoneDictPtr;
-
   return true;
 }
 
@@ -8300,17 +8409,16 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
 bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet* faceZoneMesh,
   const vtkFoamLabelVectorVector* facesPoints, vtkPoints* points)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
-  vtkFoamDict* faceZoneDictPtr = this->GatherBlocks("faceZones", false);
-
-  if (faceZoneDictPtr == nullptr)
+  auto faceZoneDictPtr(this->GatherBlocks("faceZones", false));
+  if (!faceZoneDictPtr)
   {
-    // not an error
+    // Not an error
     return true;
   }
 
   vtkFoamDict& faceZoneDict = *faceZoneDictPtr;
-  int nFaceZones = static_cast<int>(faceZoneDict.size());
+  const int nFaceZones = static_cast<int>(faceZoneDict.size());
+  const bool use64BitLabels = this->Parent->GetUse64BitLabels();
 
   for (int i = 0; i < nFaceZones; i++)
   {
@@ -8319,7 +8427,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet* faceZoneMes
     vtkFoamEntry* faceLabelsEntry = dict.Lookup("faceLabels");
     if (faceLabelsEntry == nullptr)
     {
-      delete faceZoneDictPtr;
       vtkErrorMacro(<< "faceLabels not found in faceZones");
       return false;
     }
@@ -8335,7 +8442,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet* faceZoneMes
 
     if (faceLabelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
     {
-      delete faceZoneDictPtr;
       vtkErrorMacro(<< "faceLabels not of type labelList");
       return false;
     }
@@ -8348,7 +8454,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet* faceZoneMes
       vtkErrorMacro(<< "The length of faceLabels " << nFaces << " for faceZone "
                     << faceZoneDict[i]->GetKeyword().c_str() << " exceeds the number of faces "
                     << this->FaceOwner->GetNumberOfTuples());
-      delete faceZoneDictPtr;
       return false;
     }
 
@@ -8382,8 +8487,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet* faceZoneMes
     fzm->Delete();
   }
 
-  delete faceZoneDictPtr;
-
   return true;
 }
 
@@ -8393,16 +8496,16 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* cellZoneMes
   const vtkFoamLabelVectorVector* cellsFaces, const vtkFoamLabelVectorVector* facesPoints,
   vtkPoints* points)
 {
-  vtkFoamDict* cellZoneDictPtr = this->GatherBlocks("cellZones", false);
-
-  if (cellZoneDictPtr == nullptr)
+  auto cellZoneDictPtr(this->GatherBlocks("cellZones", false));
+  if (!cellZoneDictPtr)
   {
-    // not an error
+    // Not an error
     return true;
   }
 
   vtkFoamDict& cellZoneDict = *cellZoneDictPtr;
-  int nCellZones = static_cast<int>(cellZoneDict.size());
+  const int nCellZones = static_cast<int>(cellZoneDict.size());
+  // const bool use64BitLabels = this->Parent->GetUse64BitLabels();
 
   for (int i = 0; i < nCellZones; i++)
   {
@@ -8411,7 +8514,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* cellZoneMes
     vtkFoamEntry* cellLabelsEntry = dict.Lookup("cellLabels");
     if (cellLabelsEntry == nullptr)
     {
-      delete cellZoneDictPtr;
       vtkErrorMacro(<< "cellLabels not found in cellZones");
       return false;
     }
@@ -8427,7 +8529,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* cellZoneMes
 
     if (cellLabelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
     {
-      delete cellZoneDictPtr;
       vtkErrorMacro(<< "cellLabels not of type labelList");
       return false;
     }
@@ -8440,7 +8541,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* cellZoneMes
       vtkErrorMacro(<< "The length of cellLabels " << nCells << " for cellZone "
                     << cellZoneDict[i]->GetKeyword().c_str() << " exceeds the number of cells "
                     << this->NumCells);
-      delete cellZoneDictPtr;
       return false;
     }
 
@@ -8461,7 +8561,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* cellZoneMes
     czm->Delete();
   }
 
-  delete cellZoneDictPtr;
   return true;
 }
 
@@ -8485,7 +8584,8 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
 
   // RegionName check is added since subregions have region name prefixes
   const bool createEulerians =
-    this->Parent->PatchDataArraySelection->ArrayExists("internalMesh") || !this->RegionName.empty();
+    this->Parent->PatchDataArraySelection->ArrayExists(NAME_INTERNALMESH) ||
+    !this->RegionName.empty();
 
   // determine if we need to reconstruct meshes
   if (recreateInternalMesh)
@@ -8548,7 +8648,8 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
   // Create Internal Mesh only if required for display
   if (createEulerians && recreateInternalMesh)
   {
-    if (this->Parent->GetPatchArrayStatus((this->RegionPrefix() + "internalMesh").c_str()))
+    const vtkStdString displayName(this->RegionPrefix() + NAME_INTERNALMESH);
+    if (this->Parent->GetPatchArrayStatus(displayName.c_str()))
     {
       this->InternalMesh = this->MakeInternalMesh(cellFaces, facePoints, pointArray);
     }
@@ -8812,10 +8913,10 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     }
   }
 
-  // Add Internal Mesh to final output only if selected for display
+  // Add Internal mesh to final output only if selected for display
   if (this->InternalMesh != nullptr)
   {
-    ::SetBlock(output, 0, this->InternalMesh, "internalMesh");
+    ::SetBlock(output, 0, this->InternalMesh, NAME_INTERNALMESH);
   }
 
   // Set boundary meshes/data as output
