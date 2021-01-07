@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkJSONDataSetWriter.h"
 
+#include "vtkArchiver.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -34,8 +35,6 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/MD5.h"
 #include "vtksys/SystemTools.hxx"
-
-#include "vtkArchiver.h"
 
 #include <fstream>
 #include <sstream>
@@ -320,7 +319,7 @@ bool vtkJSONDataSetWriter::WriteArrayContents(vtkDataArray* input, const char* f
   }
 
   // Check if we need to convert the (u)int64 to (u)int32
-  vtkSmartPointer<vtkDataArray> arrayToWrite = input;
+  vtkSmartPointer<vtkDataArray> arrayToWrite;
   vtkIdType arraySize = input->GetNumberOfTuples() * input->GetNumberOfComponents();
   switch (input->GetDataType())
   {
@@ -357,6 +356,9 @@ bool vtkJSONDataSetWriter::WriteArrayContents(vtkDataArray* input, const char* f
         }
         arrayToWrite = int32;
       }
+      break;
+    default:
+      arrayToWrite = input;
       break;
   }
 

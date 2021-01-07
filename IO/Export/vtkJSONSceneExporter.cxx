@@ -70,7 +70,9 @@ vtkJSONSceneExporter::vtkJSONSceneExporter()
 
 vtkJSONSceneExporter::~vtkJSONSceneExporter()
 {
-  delete[] this->FileName;
+  this->SetFileName(nullptr);
+  this->SetTextureLODsBaseUrl(nullptr);
+  this->SetPolyLODsBaseUrl(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -123,7 +125,8 @@ void vtkJSONSceneExporter::WriteDataObject(
   if (dataObject->IsA("vtkCompositeDataSet"))
   {
     vtkCompositeDataSet* composite = vtkCompositeDataSet::SafeDownCast(dataObject);
-    vtkSmartPointer<vtkCompositeDataIterator> iter = composite->NewIterator();
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(composite->NewIterator());
     iter->SkipEmptyNodesOn();
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
