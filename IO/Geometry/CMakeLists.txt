@@ -6,6 +6,7 @@ set(classes
   vtkChacoReader
   vtkFacetWriter
   vtkFLUENTReader
+  vtkFLUENTCFFReader
   vtkGAMBITReader
   vtkGLTFDocumentLoader
   vtkGLTFReader

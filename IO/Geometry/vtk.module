@@ -11,6 +11,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::hdf5
   VTK::IOCore
   VTK::IOLegacy
   VTK::nlohmannjson

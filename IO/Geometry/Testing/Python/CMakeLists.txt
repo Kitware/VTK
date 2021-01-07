@@ -5,6 +5,7 @@ vtk_add_test_python(
   Plot3DVectors.py
   TestAVSucdReader.py
   TestFLUENTReader.py
+  TestFLUENTCFFReader.py
   TestGAMBITReader.py
   # TestPolygonWriters.py # needs vtkCGMWriter (not built)
   motor.py
