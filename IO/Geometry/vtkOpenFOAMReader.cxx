@@ -4806,7 +4806,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
         {
           continue;
         }
-        const vtkStdString selectionName(this->RegionPrefix() + boundaryNameI);
+        const vtkStdString selectionName(this->RegionPrefix() + "patch/" + boundaryNameI);
         if (this->Parent->PatchDataArraySelection->ArrayExists(selectionName.c_str()))
         {
           // Mark boundary if selected for display
@@ -8788,33 +8788,34 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     ::SetBlock(output, 0, this->InternalMesh, "internalMesh");
   }
 
-  // set boundary meshes/data as output
+  // Set boundary meshes/data as output
   if (this->BoundaryMesh != nullptr && this->BoundaryMesh->GetNumberOfBlocks() > 0)
   {
-    ::AppendBlock(output, this->BoundaryMesh, "Patches");
+    ::AppendBlock(output, this->BoundaryMesh, "boundary");
   }
 
-  // set lagrangian mesh as output
+  // Set lagrangian mesh as output
   if (lagrangianMesh != nullptr)
   {
     if (lagrangianMesh->GetNumberOfBlocks() > 0)
     {
-      ::AppendBlock(output, lagrangianMesh, "Lagrangian Particles");
+      ::AppendBlock(output, lagrangianMesh, "lagrangian");
     }
     lagrangianMesh->Delete();
   }
 
   if (this->Parent->GetReadZones())
   {
+    // Set zone meshes as output
     vtkMultiBlockDataSet* zones = nullptr;
-    // set Zone Meshes as output
-    if (this->PointZoneMesh != nullptr)
+
+    if (this->CellZoneMesh != nullptr)
     {
       if (zones == nullptr)
       {
         zones = vtkMultiBlockDataSet::New();
       }
-      ::AppendBlock(zones, this->PointZoneMesh, "pointZones");
+      ::AppendBlock(zones, this->CellZoneMesh, "cellZones");
     }
 
     if (this->FaceZoneMesh != nullptr)
@@ -8826,17 +8827,18 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
       ::AppendBlock(zones, this->FaceZoneMesh, "faceZones");
     }
 
-    if (this->CellZoneMesh != nullptr)
+    if (this->PointZoneMesh != nullptr)
     {
       if (zones == nullptr)
       {
         zones = vtkMultiBlockDataSet::New();
       }
-      ::AppendBlock(zones, this->CellZoneMesh, "cellZones");
+      ::AppendBlock(zones, this->PointZoneMesh, "pointZones");
     }
+
     if (zones != nullptr)
     {
-      ::AppendBlock(output, zones, "Zones");
+      ::AppendBlock(output, zones, "zones");
     }
   }
 
