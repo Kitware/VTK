@@ -256,7 +256,7 @@ struct ExtractEdgesBase
     const IDType edgeSize = this->NumTris * 3;
     const IDType cellSize = this->ComputeCells ? this->NumTris : 0;
     this->Edges = new EdgeTuple<IDType, EdgeDataType<IDType>>[edgeSize]; // three edges per triangle
-    this->Cells = new IDType[this->NumTris];
+    this->Cells = new IDType[cellSize];
 
     vtkIdType edgeNum = 0;
     for (auto& ld : this->LocalData)
@@ -294,7 +294,6 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
     , InOut(inout)
     , Distance(distance)
   {
-    std::cout << "cells: " << this->ComputeCells << std::endl;
   }
 
   // Set up the iteration process
@@ -338,7 +337,11 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
             unsigned char v0 = edges[0];
             unsigned char v1 = edges[1];
             double deltaScalar = s[v1] - s[v0];
-            // TODO deport t computation
+            // the t here is computed for each edges of each cell
+            // so it is computed twice for most edges.
+            // This could be improved by deffering the computation
+            // of t to the last moment (when we are producing points / attributes)
+            // This way, we should be able to compute t only once per output edge.
             double t = (deltaScalar == 0.0 ? 0.0 : (-s[v0] / deltaScalar));
             t = (c[v0] < c[v1] ? t : (1.0 - t));  // edges (v0,v1) must have v0<v1
             lEdges.emplace_back(c[v0], c[v1], t); // edge constructor may swap v0<->v1
@@ -497,10 +500,9 @@ struct ProduceCDAttributes
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    // use this->Array->Copy with the right cell id.
     for (; cellId < endCellId; ++cellId)
     {
-      // assume 3*cellId is the first point of the triangle cellId
+      // retrieve CellData for the corresponding cell
       this->Arrays->Copy(this->Cells[cellId], cellId);
     }
   }
@@ -786,7 +788,6 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
       EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
     }
   }
-
   else // generate merged output
   {
     // Merge coincident edges. The Offsets refer to the single unique edge
@@ -832,7 +833,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
           mergeEdges, offsets, inPtsPtr, outPtsPtr, distance, plane);
         EXECUTE_SMPFOR(seqProcessing, numPts, producePts);
       }
-      else // outPtsType == VTK_FLOAT
+      else // outPtsType == VTK_DOUBLE
       {
         double* outPtsPtr = static_cast<double*>(outPts->GetVoidPointer(0));
         ProduceMergedPoints<double, double, TIds> producePts(
@@ -844,11 +845,17 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
     // Now process point data attributes if requested
     if (intAttr)
     {
-      ArrayList arrays;
+      ArrayList pointArrays;
       outPD->InterpolateAllocate(inPD, numPts);
-      arrays.AddArrays(numPts, inPD, outPD);
-      ProduceMergedAttributes<TIds> interpolate(mergeEdges, offsets, &arrays);
-      EXECUTE_SMPFOR(seqProcessing, numPts, interpolate);
+      pointArrays.AddArrays(numPts, inPD, outPD);
+      ProduceMergedAttributes<TIds> interpolatePoints(mergeEdges, offsets, &pointArrays);
+      EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+
+      ArrayList cellArrays;
+      outCD->InterpolateAllocate(inCD, numTris);
+      cellArrays.AddArrays(numTris, inCD, outCD);
+      ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
+      EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
     }
   }
 
