@@ -429,23 +429,27 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 
   // Clip to bounds
   double* imageBounds = this->GetResliceCursor()->GetImage()->GetBounds();
-  double* boundedOrigin = this->PlaneSource->GetOrigin();
-  double* boundedP1 = this->PlaneSource->GetPoint1();
-  double* boundedP2 = this->PlaneSource->GetPoint2();
-  vtkResliceCursorRepresentation::BoundPlane(imageBounds, boundedOrigin, boundedP1, boundedP2);
+  double boundedOrigin[3];
+  double boundedP1[3];
+  double boundedP2[3];
+  this->PlaneSource->GetOrigin(boundedOrigin);
+  this->PlaneSource->GetPoint1(boundedP1);
+  this->PlaneSource->GetPoint2(boundedP2);
+  int boundPlane =
+    vtkResliceCursorRepresentation::BoundPlane(imageBounds, boundedOrigin, boundedP1, boundedP2);
 
-  this->PlaneSource->SetOrigin(boundedOrigin);
-  this->PlaneSource->SetPoint1(boundedP1);
-  this->PlaneSource->SetPoint2(boundedP2);
+  if (boundPlane == 1)
+  {
+    this->PlaneSource->SetOrigin(boundedOrigin);
+    this->PlaneSource->SetPoint1(boundedP1);
+    this->PlaneSource->SetPoint2(boundedP2);
+  }
 
   double planeAxis1[3];
   double planeAxis2[3];
 
-  double* p1 = this->PlaneSource->GetPoint1();
-  double* o = this->PlaneSource->GetOrigin();
-  vtkMath::Subtract(p1, o, planeAxis1);
-  double* p2 = this->PlaneSource->GetPoint2();
-  vtkMath::Subtract(p2, o, planeAxis2);
+  vtkMath::Subtract(boundedP1, boundedOrigin, planeAxis1);
+  vtkMath::Subtract(boundedP2, boundedOrigin, planeAxis2);
 
   // The x,y dimensions of the plane
   //
@@ -733,7 +737,7 @@ void vtkResliceCursorRepresentation::InvertTable()
 }
 
 //------------------------------------------------------------------------------
-void vtkResliceCursorRepresentation::BoundPlane(
+int vtkResliceCursorRepresentation::BoundPlane(
   double bounds[6], double origin[3], double p1[3], double p2[3])
 {
   double v1[3];
@@ -763,7 +767,7 @@ void vtkResliceCursorRepresentation::BoundPlane(
   vtkPolyData* cutBounds = cutter->GetOutput();
   if (cutBounds->GetNumberOfPoints() == 0)
   {
-    return;
+    return 0;
   }
 
   double localBounds[6];
@@ -775,6 +779,7 @@ void vtkResliceCursorRepresentation::BoundPlane(
     p1[i] = localBounds[1] * v1[i] + localBounds[2] * v2[i] + localBounds[4] * n[i];
     p2[i] = localBounds[0] * v1[i] + localBounds[3] * v2[i] + localBounds[4] * n[i];
   }
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
@@ -342,15 +343,9 @@ void vtkResliceCursorLineRepresentation ::RotateVectorAboutVector(double vectorT
   double angle,   // angle in radians
   double o[3])
 {
-  vtkTransform* transform = vtkTransform::New();
+  vtkNew<vtkTransform> transform;
   transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
-
-  double* transformedVector = transform->TransformVector(vectorToBeRotated);
-  o[0] = transformedVector[0];
-  o[1] = transformedVector[1];
-  o[2] = transformedVector[2];
-
-  transform->Delete();
+  transform->TransformVector(vectorToBeRotated, o);
 }
 
 //------------------------------------------------------------------------------
