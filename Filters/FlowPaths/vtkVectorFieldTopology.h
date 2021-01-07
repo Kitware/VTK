@@ -328,6 +328,11 @@ private:
   bool ComputeSurfaces = false;
 
   /**
+   * the name of the array in pointdata that is being processed
+   */
+  const char* NameOfVectorArray;
+
+  /**
    * depending on this boolen the cells touching the boundary of the input dataset are treated or
    * not this prevents detection of the whole boundary in no slip boundary settings
    */
