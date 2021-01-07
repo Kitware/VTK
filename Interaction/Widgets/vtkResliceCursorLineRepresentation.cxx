@@ -342,58 +342,15 @@ void vtkResliceCursorLineRepresentation ::RotateVectorAboutVector(double vectorT
   double angle,   // angle in radians
   double o[3])
 {
+  vtkTransform* transform = vtkTransform::New();
+  transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
 
-  double tempAxis[3] = { axis[0], axis[1], axis[2] };
-  vtkMath::Normalize(tempAxis);
+  double* transformedVector = transform->TransformVector(vectorToBeRotated);
+  o[0] = transformedVector[0];
+  o[1] = transformedVector[1];
+  o[2] = transformedVector[2];
 
-  double x = axis[0];
-  double y = axis[1];
-  double z = axis[2];
-
-  double s = sin(angle);
-  double c = cos(angle);
-  double t = 1 - c;
-
-  double a00 = 1;
-  double a10 = 0;
-  double a20 = 0;
-  double a30 = 0;
-  double a01 = 0;
-  double a11 = 1;
-  double a21 = 0;
-  double a31 = 0;
-  double a02 = 0;
-  double a12 = 0;
-  double a22 = 1;
-  double a32 = 0;
-  double a03 = 0;
-  double a13 = 0;
-  double a23 = 0;
-  double a33 = 1;
-
-  double b00 = x * x * t + c;
-  double b10 = y * x * t + z * s;
-  double b20 = z * x * t - y * s;
-  double b01 = x * y * t - z * s;
-  double b11 = y * y * t + c;
-  double b21 = z * y * t + x * s;
-  double b02 = x * z * t + y * s;
-  double b12 = y * z * t - x * s;
-  double b22 = z * z * t + c;
-
-  double mat00 = a00 * b00 + a01 * b10 + a02 * b20;
-  double mat10 = a10 * b00 + a11 * b10 + a12 * b20;
-  double mat20 = a20 * b00 + a21 * b10 + a22 * b20;
-  double mat01 = a00 * b01 + a01 * b11 + a02 * b21;
-  double mat11 = a10 * b01 + a11 * b11 + a12 * b21;
-  double mat21 = a20 * b01 + a21 * b11 + a22 * b21;
-  double mat02 = a00 * b02 + a01 * b12 + a02 * b22;
-  double mat12 = a10 * b02 + a11 * b12 + a12 * b22;
-  double mat22 = a20 * b02 + a21 * b12 + a22 * b22;
-
-  o[0] = mat00 * vectorToBeRotated[0] + mat01 * vectorToBeRotated[1] + mat02 * vectorToBeRotated[2];
-  o[1] = mat10 * vectorToBeRotated[0] + mat11 * vectorToBeRotated[1] + mat12 * vectorToBeRotated[2];
-  o[2] = mat20 * vectorToBeRotated[0] + mat21 * vectorToBeRotated[1] + mat22 * vectorToBeRotated[2];
+  transform->Delete();
 }
 
 //------------------------------------------------------------------------------
