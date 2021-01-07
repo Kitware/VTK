@@ -18,6 +18,14 @@
  *
  * vtkLinearTransform provides a generic interface for linear
  * (affine or 12 degree-of-freedom) geometric transformations.
+ *
+ * @warning
+ * Portions of this class (i.e., when transforming arrays of points and/or
+ * associated attributes such as normals and vectors) has been threaded with
+ * vtkSMPTools. Using TBB or other non-sequential type (set in the CMake
+ * variable VTK_SMP_IMPLEMENTATION_TYPE) may improve performance
+ * significantly.
+ *
  * @sa
  * vtkTransform vtkIdentityTransform
  */
