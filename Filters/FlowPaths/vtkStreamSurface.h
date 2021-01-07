@@ -76,10 +76,12 @@ private:
    * output is the final streamsurface
    * @param field: vector field in which the surfave is advected
    * @param seeds: initial values
+   * @param integrationDirection: forward, backward, or both
    * @param output: the final surface
    * @return 1 if successful, 0 if not
    */
-  int AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output);
+  int AdvectIterative(
+    vtkDataSet* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output);
 
   /**
    * depending on this boolen the simple (fast) or iterative (correct) version is called

@@ -55,7 +55,8 @@ void vtkStreamSurface::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamSurface::AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtkPolyData* output)
+int vtkStreamSurface::AdvectIterative(
+  vtkDataSet* field, vtkPolyData* seeds, int integrationDirection, vtkPolyData* output)
 {
   // adapt dist if cell unit was selected
   double distThreshold = this->InitialIntegrationStep;
@@ -84,7 +85,7 @@ int vtkStreamSurface::AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtk
     this->StreamTracer->SetMaximumPropagation(this->MaximumPropagation);
     this->StreamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
     this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
-    this->StreamTracer->SetIntegrationDirection(this->IntegrationDirection);
+    this->StreamTracer->SetIntegrationDirection(integrationDirection);
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
@@ -267,7 +268,7 @@ int vtkStreamSurface::AdvectIterative(vtkDataSet* field, vtkPolyData* seeds, vtk
     if (this->StreamTracer->GetOutput()
           ->GetPointData()
           ->GetArray("IntegrationTime")
-          ->GetRange()[1 - this->IntegrationDirection] == 0)
+          ->GetRange()[1 - integrationDirection] == 0)
     {
       vtkDebugMacro("Surface stagnates. All particles have left the boundary.");
       break;
@@ -322,7 +323,18 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   int finishedSuccessfully = 0;
   if (this->UseIterativeSeeding)
   {
-    finishedSuccessfully = AdvectIterative(field, seeds, output);
+    // if this->IntegrationDirection is set to BOTH, then run forward and backward separately and
+    // combine results
+    if (this->IntegrationDirection == 2)
+    {
+      finishedSuccessfully = AdvectIterative(field, seeds, 0, output);
+      finishedSuccessfully =
+        std::min(finishedSuccessfully, AdvectIterative(field, seeds, 1, output));
+    }
+    else
+    {
+      finishedSuccessfully = AdvectIterative(field, seeds, 0, output);
+    }
   }
   else
   {
