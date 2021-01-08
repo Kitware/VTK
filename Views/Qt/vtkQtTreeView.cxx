@@ -230,10 +230,17 @@ void vtkQtTreeView::SetFilterColumn(int i)
 }
 
 //------------------------------------------------------------------------------
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+void vtkQtTreeView::SetFilterRegExp(const QRegularExpression& pattern)
+{
+  this->TreeFilter->setFilterRegularExpression(pattern);
+}
+#else
 void vtkQtTreeView::SetFilterRegExp(const QRegExp& pattern)
 {
   this->TreeFilter->setFilterRegExp(pattern);
 }
+#endif
 
 //------------------------------------------------------------------------------
 void vtkQtTreeView::SetFilterTreeLevel(int level)

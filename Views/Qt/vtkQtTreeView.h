@@ -116,7 +116,11 @@ public:
   /**
    * The column used to filter on
    */
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+  void SetFilterRegExp(const QRegularExpression& pattern);
+#else
   void SetFilterRegExp(const QRegExp& pattern);
+#endif
 
   /**
    * The column used to filter on

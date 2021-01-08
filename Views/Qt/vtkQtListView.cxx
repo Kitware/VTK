@@ -160,11 +160,19 @@ void vtkQtListView::SetDecorationStrategy(int value)
 }
 
 //------------------------------------------------------------------------------
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+void vtkQtListView::SetFilterRegExp(const QRegularExpression& pattern)
+{
+  this->ListView->selectionModel()->clearSelection();
+  this->TableSorter->setFilterRegularExpression(pattern);
+}
+#else
 void vtkQtListView::SetFilterRegExp(const QRegExp& pattern)
 {
   this->ListView->selectionModel()->clearSelection();
   this->TableSorter->setFilterRegExp(pattern);
 }
+#endif
 
 void vtkQtListView::SetColorByArray(bool b)
 {
