@@ -196,6 +196,7 @@ int TestCoincidentHandleWidgets(int argc, char* argv[])
   rep->SetHandleRepresentation(handle);
   seedWidget->SetInteractor(iren);
   seedWidget->On();
+  renWin->Render();
 
   vtkHandleWidget* handleWidget = seedWidget->CreateNewHandle();
   handleWidget->EnabledOn();

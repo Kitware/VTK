@@ -56,6 +56,7 @@ int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   seedWidget->SetInteractor(iren);
   seedWidget->On();
   seedWidget->ProcessEventsOff();
+  renWin->Render();
 
   // Place two different points in different translation mode.
   double bounds[6] = { 0, 0.05, 0, 0.05, 0, 0.05 };
