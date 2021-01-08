@@ -45,9 +45,9 @@ endif ()
 # get some type sizes
 include(CheckTypeSize)
 CHECK_TYPE_SIZE(long SIZE_OF_LONG)
-if (FALSE) # XXX(kitware): Hardcoded settings.
 CHECK_TYPE_SIZE(off_t SIZE_OF_OFF_T)
 
+if (FALSE) # XXX(kitware): Hardcoded settings.
 if ("${SIZE_OF_OFF_T}" LESS 8)
   option(CGNS_ENABLE_LFS "Enable or disable large file support" "OFF")
 endif ("${SIZE_OF_OFF_T}" LESS 8)
