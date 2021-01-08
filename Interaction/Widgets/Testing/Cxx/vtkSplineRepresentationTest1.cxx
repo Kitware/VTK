@@ -1,26 +1,38 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkSplineRepresentation.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "WidgetTestingMacros.h"
+#include "vtkDoubleArray.h"
+#include "vtkParametricSpline.h"
+#include "vtkPlaneSource.h"
 #include "vtkSplineRepresentation.h"
+#include "vtkTestErrorObserver.h"
 
 #include <cstdlib>
 #include <iostream>
 
-#include "WidgetTestingMacros.h"
-
-#include "vtkPlaneSource.h"
-#include "vtkPointHandleRepresentation3D.h"
-
-#include "vtkPolyData.h"
-#include "vtkProperty.h"
-
-#include "vtkDoubleArray.h"
-#include "vtkParametricSpline.h"
-
 int vtkSplineRepresentationTest1(int, char*[])
 {
-  vtkSmartPointer<vtkSplineRepresentation> node1 = vtkSmartPointer<vtkSplineRepresentation>::New();
+  vtkNew<vtkSplineRepresentation> node1;
+
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  node1->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   EXERCISE_BASIC_REPRESENTATION_METHODS(vtkSplineRepresentation, node1);
 
-  vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<vtkPlaneSource>::New();
+  vtkNew<vtkPlaneSource> planeSource;
   node1->SetPlaneSource(planeSource);
 
   TEST_SET_GET_BOOLEAN(node1, ProjectToPlane);
@@ -34,7 +46,7 @@ int vtkSplineRepresentationTest1(int, char*[])
 
   TEST_SET_GET_DOUBLE_RANGE(node1, ProjectionPosition, -10.0, 10.0);
 
-  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
+  vtkNew<vtkPolyData> pd;
   node1->GetPolyData(pd);
   if (pd == nullptr)
   {
@@ -71,6 +83,7 @@ int vtkSplineRepresentationTest1(int, char*[])
     return EXIT_FAILURE;
   }
   node1->SetNumberOfHandles(-1);
+  errorObserver->CheckErrorMessage("ERROR: Invalid npts, must be >= 0\n");
   numHandles = node1->GetNumberOfHandles();
   std::cout << "After setting num handles to -1, got back " << numHandles << std::endl;
   node1->SetNumberOfHandles(0);
@@ -80,12 +93,12 @@ int vtkSplineRepresentationTest1(int, char*[])
   // 0 is invalid
   TEST_SET_GET_INT_RANGE(node1, Resolution, 10, 100);
 
-  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
-
+  vtkNew<vtkParametricSpline> pspline;
+  node1->SetNumberOfHandles(10);
   pspline->SetPoints(node1->GetParametricSpline()->GetPoints());
   node1->SetParametricSpline(pspline);
   vtkSmartPointer<vtkParametricSpline> pspline2 = node1->GetParametricSpline();
-  if (pspline2 != pspline)
+  if (pspline2.GetPointer() != pspline.GetPointer())
   {
     std::cerr << "Error setting/getting parametric spline." << std::endl;
     return EXIT_FAILURE;
@@ -191,7 +204,7 @@ int vtkSplineRepresentationTest1(int, char*[])
 
   std::cout << "Summed Length = " << node1->GetSummedLength();
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(2);
   points->SetPoint(0, 3.0, 6.8, -9.9);
   points->SetPoint(1, -3.0, -6.8, 9.9);

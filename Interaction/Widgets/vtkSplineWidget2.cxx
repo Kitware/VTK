@@ -48,8 +48,6 @@ vtkSplineWidget2::vtkSplineWidget2()
     vtkWidgetEvent::EndScale, this, vtkSplineWidget2::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkSplineWidget2::MoveAction);
-  this->CallbackMapper->SetCallbackMethod(
-    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkSplineWidget2::MoveAction);
 
   this->KeyEventCallbackCommand = vtkCallbackCommand::New();
   this->KeyEventCallbackCommand->SetClientData(this);

@@ -1,6 +1,7 @@
 set(classes
   vtk3DWidget
   vtkAbstractPolygonalHandleRepresentation3D
+  vtkAbstractSplineRepresentation
   vtkAbstractWidget
   vtkAffineRepresentation
   vtkAffineRepresentation2D
