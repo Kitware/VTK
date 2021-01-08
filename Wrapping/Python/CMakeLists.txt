@@ -181,3 +181,7 @@ add_custom_target(vtk_python_copy ALL
   DEPENDS
     ${python_copied_modules}
     ${_vtk_python_zip})
+
+if (VTK_BUILD_TESTING)
+  add_subdirectory(Testing)
+endif ()
