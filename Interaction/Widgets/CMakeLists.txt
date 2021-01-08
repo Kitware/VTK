@@ -27,6 +27,9 @@ set(classes
   vtkBrokenLineWidget
   vtkButtonRepresentation
   vtkButtonWidget
+  vtkCameraHandleSource
+  vtkCameraPathRepresentation
+  vtkCameraPathWidget
   vtkCameraRepresentation
   vtkCameraWidget
   vtkCaptionRepresentation

@@ -80,6 +80,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   vtkBiDimensionalRepresentation2DTest1.cxx
   vtkBiDimensionalWidgetTest1.cxx
   vtkBorderWidgetTest1.cxx
+  vtkCameraPathRepresentationTest1.cxx
   vtkCaptionRepresentationTest1.cxx
   vtkCaptionWidgetTest1.cxx
   vtkConstrainedPointHandleRepresentationTest1.cxx
