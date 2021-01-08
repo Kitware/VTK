@@ -1,6 +1,9 @@
 vtk_module_test_data(
   Data/mbwavelet_ascii.q
-  Data/mbwavelet_ascii.xyz)
+  Data/mbwavelet_ascii.xyz
+)
+
+message(STATUS "${_vtk_build_TEST_INPUT_DATA_DIRECTORY}")
 
 add_subdirectory(Cxx)
 
