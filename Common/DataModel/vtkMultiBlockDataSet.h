@@ -76,6 +76,11 @@ public:
   /**
    * Sets the data object as the given block. The total number of blocks will
    * be resized to fit the requested block no.
+   *
+   * @remark while most vtkDataObject subclasses, including vtkMultiBlockDataSet
+   * as acceptable as a block, `vtkPartitionedDataSet`,
+   * `vtkPartitionedDataSetCollection`, and `vtkUniformGridAMR`
+   * are not valid.
    */
   void SetBlock(unsigned int blockno, vtkDataObject* block);
 
