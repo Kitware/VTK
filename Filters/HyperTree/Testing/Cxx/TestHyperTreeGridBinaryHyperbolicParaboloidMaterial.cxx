@@ -40,7 +40,6 @@ int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial(int argc, char* argv[])
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  htGrid->Update();
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
   htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   htGrid->SetMaxDepth(6);
