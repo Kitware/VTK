@@ -112,6 +112,7 @@ set(python_files
   vtkmodules/qt/QVTKRenderWindowInteractor.py
   vtkmodules/qt/__init__.py
   vtkmodules/test/BlackBox.py
+  vtkmodules/test/ErrorObserver.py
   vtkmodules/test/Testing.py
   vtkmodules/test/__init__.py
   vtkmodules/tk/__init__.py
