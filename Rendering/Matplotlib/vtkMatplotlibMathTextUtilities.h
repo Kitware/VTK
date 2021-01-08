@@ -50,7 +50,6 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkRenderingMatplotlibModule.h" // For export macro
 
-#include <bits/c++config.h>
 #include <vector>
 
 struct _object;
