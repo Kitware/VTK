@@ -162,6 +162,13 @@ protected:
   vtkPartitionedDataSetCollection();
   ~vtkPartitionedDataSetCollection() override;
 
+  /**
+   * Overridden to create a vtkPartitionedDataSet whenever a vtkMultiPieceDataSet
+   * is encountered. This is necessary since vtkPartitionedDataSetCollection
+   * cannot contain vtkMultiPieceDataSets
+   */
+  vtkDataObjectTree* CreateForCopyStructure(vtkDataObjectTree* other) override;
+
 private:
   vtkPartitionedDataSetCollection(const vtkPartitionedDataSetCollection&) = delete;
   void operator=(const vtkPartitionedDataSetCollection&) = delete;

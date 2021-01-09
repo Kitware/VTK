@@ -132,6 +132,13 @@ protected:
   vtkMultiBlockDataSet();
   ~vtkMultiBlockDataSet() override;
 
+  /**
+   * Overridden to create a vtkMultiPieceDataSet whenever a
+   * vtkPartitionedDataSet is encountered. This is necessary since
+   * vtkMultiBlockDataSet cannot contain vtPartitionedDataSets.
+   */
+  vtkDataObjectTree* CreateForCopyStructure(vtkDataObjectTree* other) override;
+
 private:
   vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) = delete;
   void operator=(const vtkMultiBlockDataSet&) = delete;

@@ -18,6 +18,7 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -196,6 +197,14 @@ void vtkPartitionedDataSetCollection::DeepCopy(vtkDataObject* src)
       this->SetDataAssembly(nullptr);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkDataObjectTree* vtkPartitionedDataSetCollection::CreateForCopyStructure(vtkDataObjectTree* other)
+{
+  return vtkMultiPieceDataSet::SafeDownCast(other)
+    ? vtkPartitionedDataSet::New()
+    : this->Superclass::CreateForCopyStructure(other);
 }
 
 //------------------------------------------------------------------------------

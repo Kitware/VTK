@@ -89,6 +89,14 @@ void vtkMultiBlockDataSet::RemoveBlock(unsigned int blockno)
 }
 
 //------------------------------------------------------------------------------
+vtkDataObjectTree* vtkMultiBlockDataSet::CreateForCopyStructure(vtkDataObjectTree* other)
+{
+  return vtkPartitionedDataSet::SafeDownCast(other)
+    ? vtkMultiPieceDataSet::New()
+    : this->Superclass::CreateForCopyStructure(other);
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiBlockDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
