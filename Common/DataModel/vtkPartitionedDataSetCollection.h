@@ -17,7 +17,7 @@
  * @brief   Composite dataset that groups datasets as a collection.
  *
  * vtkPartitionedDataSetCollection is a vtkCompositeDataSet that stores
- * a collection of vtkPartitionedDataSets. These items can represent
+ * a collection of non-null vtkPartitionedDataSets. These items can represent
  * different concepts depending on the context. For example, they can
  * represent region of different materials in a simulation or parts in
  * an assembly. It is not requires that items have anything in common.
@@ -32,6 +32,7 @@
 
 class vtkPartitionedDataSet;
 class vtkDataAssembly;
+class vtkDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPartitionedDataSetCollection : public vtkDataObjectTree
 {
@@ -49,7 +50,7 @@ public:
   /**
    * Set the number of blocks. This will cause allocation if the new number of
    * blocks is greater than the current size. All new blocks are initialized to
-   * null.
+   * with empty `vtkPartitionedDataSetCollection` instances.
    */
   void SetNumberOfPartitionedDataSets(unsigned int numDataSets);
 
@@ -67,6 +68,8 @@ public:
   /**
    * Sets the data object as the given block. The total number of blocks will
    * be resized to fit the requested block no.
+   *
+   * @remark `dataset` cannot be nullptr.
    */
   void SetPartitionedDataSet(unsigned int idx, vtkPartitionedDataSet* dataset);
 
@@ -74,6 +77,26 @@ public:
    * Remove the given block from the dataset.
    */
   void RemovePartitionedDataSet(unsigned int idx);
+
+  //@{
+  /**
+   * API to get/set partitions using a tuple index.
+   */
+  void SetPartition(unsigned int idx, unsigned int partition, vtkDataObject* object);
+  vtkDataSet* GetPartition(unsigned int idx, unsigned int partition);
+  vtkDataObject* GetPartitionAsDataObject(unsigned int idx, unsigned int partition);
+  //@}
+
+  /**
+   * Returns the number of partitions in a partitioned dataset at the given index.
+   */
+  unsigned int GetNumberOfPartitions(unsigned int idx);
+
+  /**
+   * Set number of partitions at a given index. Note, this will call
+   * `SetNumberOfPartitionedDataSets` if needed to grow the collection.
+   */
+  void SetNumberOfPartitions(unsigned int idx, unsigned int numPartitions);
 
   /**
    * Returns true if meta-data is available for a given block.

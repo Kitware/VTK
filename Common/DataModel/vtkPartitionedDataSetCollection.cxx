@@ -23,6 +23,7 @@
 #include "vtkPartitionedDataSet.h"
 
 #include <algorithm>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 vtkCxxSetObjectMacro(vtkPartitionedDataSetCollection, DataAssembly, vtkDataAssembly);
@@ -54,7 +55,16 @@ vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
 //------------------------------------------------------------------------------
 void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(unsigned int numDataSets)
 {
+  auto old_size = this->GetNumberOfPartitionedDataSets();
   this->Superclass::SetNumberOfChildren(numDataSets);
+
+  // add non-null vtkPartitionedDataSet's to the collection.
+  for (unsigned int cc = old_size; cc < numDataSets; ++cc)
+  {
+    auto ptd = vtkPartitionedDataSet::New();
+    this->SetPartitionedDataSet(cc, ptd);
+    ptd->FastDelete();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -73,6 +83,11 @@ vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(un
 void vtkPartitionedDataSetCollection::SetPartitionedDataSet(
   unsigned int idx, vtkPartitionedDataSet* dataset)
 {
+  if (dataset == nullptr)
+  {
+    vtkErrorMacro("A partitioned dataset cannot be nullptr.");
+    return;
+  }
   this->Superclass::SetChild(idx, dataset);
 }
 
@@ -80,6 +95,54 @@ void vtkPartitionedDataSetCollection::SetPartitionedDataSet(
 void vtkPartitionedDataSetCollection::RemovePartitionedDataSet(unsigned int idx)
 {
   this->Superclass::RemoveChild(idx);
+}
+
+//------------------------------------------------------------------------------
+void vtkPartitionedDataSetCollection::SetPartition(
+  unsigned int idx, unsigned int partition, vtkDataObject* object)
+{
+  if (this->GetNumberOfPartitionedDataSets() <= idx)
+  {
+    this->SetNumberOfPartitionedDataSets(idx + 1);
+  }
+  auto ptd = this->GetPartitionedDataSet(idx);
+  assert(ptd != nullptr);
+  ptd->SetPartition(partition, object);
+}
+
+//------------------------------------------------------------------------------
+vtkDataSet* vtkPartitionedDataSetCollection::GetPartition(unsigned int idx, unsigned int partition)
+{
+  auto ptd = this->GetPartitionedDataSet(idx);
+  return ptd ? ptd->GetPartition(partition) : nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkDataObject* vtkPartitionedDataSetCollection::GetPartitionAsDataObject(
+  unsigned int idx, unsigned int partition)
+{
+  auto ptd = this->GetPartitionedDataSet(idx);
+  return ptd ? ptd->GetPartitionAsDataObject(partition) : nullptr;
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitions(unsigned int idx)
+{
+  auto ptd = this->GetPartitionedDataSet(idx);
+  return ptd ? ptd->GetNumberOfPartitions() : 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkPartitionedDataSetCollection::SetNumberOfPartitions(
+  unsigned int idx, unsigned int numPartitions)
+{
+  if (this->GetNumberOfPartitionedDataSets() <= idx)
+  {
+    this->SetNumberOfPartitionedDataSets(idx + 1);
+  }
+  auto ptd = this->GetPartitionedDataSet(idx);
+  assert(ptd != nullptr);
+  ptd->SetNumberOfPartitions(numPartitions);
 }
 
 //------------------------------------------------------------------------------
