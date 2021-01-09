@@ -32,17 +32,7 @@ set(headers
 set(private_headers
   QVTKInteractorInternal.h)
 
-find_package(Qt6Widgets QUIET)
-set(_vtk_qt_version 6)
-if(NOT Qt6Widgets_FOUND)
-  find_package(Qt5Widgets QUIET)
-  if(NOT Qt5Widgets_FOUND)
-    message(FATAL_ERROR "Could not find a valid Qt installation.")
-  endif()
-  set(_vtk_qt_version 5)
-endif()
-set(VTK_QT_MAJOR_VERSION ${_vtk_qt_version} CACHE INTERNAL
-  "Major version number for the Qt installation used.")
+include(vtkQt)
 set(qt_components
   OpenGL
   Widgets)

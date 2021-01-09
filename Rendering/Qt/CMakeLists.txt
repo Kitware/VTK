@@ -9,6 +9,7 @@ set(classes
 vtk_module_add_module(VTK::RenderingQt
   CLASSES ${classes})
 
+include(vtkQt)
 vtk_module_find_package(
   PACKAGE     Qt${VTK_QT_MAJOR_VERSION}
   COMPONENTS  Widgets

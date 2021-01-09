@@ -7,6 +7,7 @@ set(classes
   vtkQtTreeView
   vtkQtView)
 
+include(vtkQt)
 vtk_module_find_package(
   PACKAGE     Qt${VTK_QT_MAJOR_VERSION}
   COMPONENTS  Widgets
