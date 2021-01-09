@@ -70,6 +70,10 @@ vtkVectorFieldTopology::vtkVectorFieldTopology()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(3);
+
+  // by default process active point vectors
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
 //----------------------------------------------------------------------------
@@ -388,11 +392,16 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
       vtkVector3d(tridataset->GetPoint(indices[1])), vtkVector3d(tridataset->GetPoint(indices[2])),
       vtkVector3d(tridataset->GetPoint(indices[3])) };
 
-    vtkVector3d values[4] = { vtkVector3d(
-                                tridataset->GetPointData()->GetVectors()->GetTuple(indices[0])),
-      vtkVector3d(tridataset->GetPointData()->GetVectors()->GetTuple(indices[1])),
-      vtkVector3d(tridataset->GetPointData()->GetVectors()->GetTuple(indices[2])),
-      vtkVector3d(tridataset->GetPointData()->GetVectors()->GetTuple(indices[3])) };
+    vtkVector3d values[4] = {
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[0])),
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[1])),
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[2])),
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[3]))
+    };
 
     vtkNew<vtkMatrix3x3> valueMatrix;
     vtkNew<vtkMatrix3x3> coordsMatrix;
@@ -493,13 +502,16 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   this->StreamSurface->SetMaximumNumberOfSteps(maxNumSteps);
   this->StreamSurface->SetSourceData(currentCircle);
   this->StreamSurface->SetMaximumPropagation(dist * maxNumSteps);
+  this->StreamSurface->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
+
   this->StreamSurface->Update();
 
-  for (int i = 0; i < StreamSurface->GetOutput()->GetNumberOfPoints(); ++i)
-  {
-    StreamSurface->GetOutput()->GetPointData()->GetArray("index")->SetTuple1(
-      i, numberOfSeparatingSurfaces);
-  }
+  vtkNew<vtkDoubleArray> indexArray;
+  indexArray->SetName("index");
+  indexArray->SetNumberOfTuples(StreamSurface->GetOutput()->GetNumberOfPoints());
+  indexArray->Fill(numberOfSeparatingSurfaces);
+  StreamSurface->GetOutput()->GetPointData()->AddArray(indexArray);
 
   // add current surface to existing surfaces
   vtkNew<vtkAppendPolyData> appendSurfaces;
@@ -543,6 +555,8 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   streamTracer->SetMaximumNumberOfSteps(maxNumSteps);
   streamTracer->SetMaximumPropagation(dist * maxNumSteps);
   streamTracer->SetTerminalSpeed(epsilon);
+  streamTracer->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
 
   int numberOfSeparatingLines = 0;
   int numberOfSeparatingSurfaces = 0;
@@ -775,11 +789,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
     probe->Update();
     for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); ++i)
     {
-      if (probe->GetOutput()->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
-      {
-        surfaces->GetPointData()->SetVectors(probe->GetOutput()->GetPointData()->GetArray(i));
-        break;
-      }
+      surfaces->GetPointData()->AddArray(probe->GetOutput()->GetPointData()->GetArray(i));
     }
   }
   return 1;
@@ -883,8 +893,10 @@ int vtkVectorFieldTopology::ImageDataPrepare(
     dataset->SetOrigin(dataset->GetOrigin()[0], dataset->GetOrigin()[1], 0);
     for (int i = 0; i < dataset->GetNumberOfPoints(); ++i)
     {
-      auto vector = dataset->GetPointData()->GetVectors()->GetTuple(i);
-      dataset->GetPointData()->GetVectors()->SetTuple3(i, vector[0], vector[1], 0);
+      auto vector = dataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(i);
+      dataset->GetPointData()
+        ->GetArray(this->NameOfVectorArray)
+        ->SetTuple3(i, vector[0], vector[1], 0);
     }
   }
 
@@ -953,24 +965,16 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo1 = outputVector->GetInformationObject(1);
   vtkInformation* outInfo2 = outputVector->GetInformationObject(2);
 
-  // get the input and make sure it has vector data
+  // get the input and make sure the input data has vector-valued data
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (dataset->GetPointData()->GetVectors() == nullptr)
-  {
-    for (int i = 0; i < dataset->GetPointData()->GetNumberOfArrays(); i++)
-    {
-      if (dataset->GetPointData()->GetArray(i)->GetNumberOfComponents() == 3)
-      {
-        dataset->GetPointData()->SetVectors(dataset->GetPointData()->GetArray(i));
-        break;
-      }
-    }
-  }
-  if (dataset->GetPointData()->GetVectors() == nullptr)
+  int vecType(0);
+  vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, dataset, vecType);
+  if (!vectors)
   {
     vtkErrorMacro("The input field does not contain any vectors as pointdata.");
     return 0;
   }
+  this->NameOfVectorArray = vectors->GetName();
 
   // make output
   vtkPolyData* criticalPoints =

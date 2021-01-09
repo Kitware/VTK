@@ -86,6 +86,10 @@ int vtkStreamSurface::AdvectIterative(
     this->StreamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
     this->StreamTracer->SetInitialIntegrationStep(this->InitialIntegrationStep);
     this->StreamTracer->SetIntegrationDirection(integrationDirection);
+    int vecType(0);
+    vtkSmartPointer<vtkDataArray> vectors = this->GetInputArrayToProcess(0, field, vecType);
+    this->StreamTracer->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vectors->GetName());
     // setting this to zero makes the tracer do 1 step
     this->StreamTracer->SetMaximumNumberOfSteps(0);
     this->StreamTracer->Update();
@@ -163,15 +167,6 @@ int vtkStreamSurface::AdvectIterative(
     iterationArray->SetNumberOfTuples(orderedSurface->GetNumberOfPoints());
     iterationArray->Fill(currentIteration);
     orderedSurface->GetPointData()->AddArray(iterationArray);
-
-    vtkNew<vtkDoubleArray> indexArray;
-    indexArray->SetName("index");
-    indexArray->SetNumberOfTuples(orderedSurface->GetNumberOfPoints());
-    orderedSurface->GetPointData()->AddArray(indexArray);
-    for (int k = 0; k < orderedSurface->GetNumberOfPoints(); k++)
-    {
-      indexArray->SetTuple1(k, k);
-    }
 
     // insert cells
     for (int k = 0; k < orderedSurface->GetNumberOfPoints() - 2; k += 2)
@@ -333,7 +328,7 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      finishedSuccessfully = AdvectIterative(field, seeds, 0, output);
+      finishedSuccessfully = AdvectIterative(field, seeds, this->IntegrationDirection, output);
     }
   }
   else
