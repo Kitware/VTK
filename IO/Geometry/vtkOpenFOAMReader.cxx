@@ -5970,7 +5970,8 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
   const vtkFoamLabelListList* cellsFaces, const vtkFoamLabelListList* facesPoints,
   vtkFloatArray* pointArray, vtkIdTypeArray* additionalCells, vtkDataArray* cellList)
 {
-  bool use64BitLabels = this->Parent->Use64BitLabels;
+  const bool cellList64Bit = ::Is64BitArray(cellList);
+  const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
 
   constexpr vtkIdType maxNPoints = 256; // assume max number of points per cell
   vtkIdList* cellPoints = vtkIdList::New();
@@ -6005,7 +6006,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     vtkIdType cellId = cellI;
     if (cellList != nullptr)
     {
-      cellId = GetLabelValue(cellList, cellI, use64BitLabels);
+      cellId = GetLabelValue(cellList, cellI, cellList64Bit);
       if (cellId >= this->NumCells)
       {
         vtkWarningMacro(<< "cellLabels id " << cellId << " exceeds the number of cells " << nCells
@@ -6107,7 +6108,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       vtkFoamLabelListList::CellType face0Points;
       facePoints.GetCell(cellBaseFaceId, face0Points);
 
-      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels) == cellId)
+      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, faceOwner64Bit) == cellId)
       {
         // if it is an owner face flip the points
         for (int j = 0; j < 4; j++)
@@ -6164,7 +6165,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
             // of the faceI-th face as the pivot point; or use the
             // next point otherwise
             if (faceINextPoint ==
-              (GetLabelValue(this->FaceOwner, cellFaceI, use64BitLabels) == cellId
+              (GetLabelValue(this->FaceOwner, cellFaceI, faceOwner64Bit) == cellId
                   ? cellPoints->GetId(1 + foundDup)
                   : cellPoints->GetId(3 - foundDup)))
             {
@@ -6220,7 +6221,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       }
       // copy the face-point list of the opposite face to cell-point list
       int basePointI = 4;
-      if (GetLabelValue(this->FaceOwner, cellOppositeFaceI, use64BitLabels) == cellId)
+      if (GetLabelValue(this->FaceOwner, cellOppositeFaceI, faceOwner64Bit) == cellId)
       {
         for (int pointI = pivotPointI; pointI < 4; pointI++)
         {
@@ -6267,7 +6268,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       vtkFoamLabelListList::CellType face0Points;
       facePoints.GetCell(cellBaseFaceId, face0Points);
 
-      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels) == cellId)
+      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, faceOwner64Bit) == cellId)
       {
         for (int j = 0; j < 3; j++)
         {
@@ -6342,7 +6343,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           // previous point of the base face use the previous point of
           // the faceI-th face as the pivot point; or use the next
           // point otherwise
-          vtkTypeInt64 faceOwnerVal = GetLabelValue(this->FaceOwner, cellFaceI, use64BitLabels);
+          vtkTypeInt64 faceOwnerVal = GetLabelValue(this->FaceOwner, cellFaceI, faceOwner64Bit);
           if (faceINextPoint == (faceOwnerVal == cellId ? baseFacePrevPoint : baseFaceNextPoint))
           {
             pivotPoint = faceIPrevPoint;
@@ -6375,7 +6376,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       {
         // We have found a pivot. We can process cell as a wedge
         vtkTypeInt64 faceOwnerVal =
-          GetLabelValue(this->FaceOwner, static_cast<vtkIdType>(cellOppositeFaceI), use64BitLabels);
+          GetLabelValue(this->FaceOwner, static_cast<vtkIdType>(cellOppositeFaceI), faceOwner64Bit);
         if (faceOwnerVal == cellId)
         {
           if (dupPoint2)
@@ -6475,7 +6476,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       }
 
       // Add base-face points (in order) to cell points
-      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels) == cellId)
+      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, faceOwner64Bit) == cellId)
       {
         // if it is an owner face, flip the points (to point inwards)
         for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size()); ++j)
@@ -6512,7 +6513,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       {
         // calculate cell centroid and insert it to point list
         vtkDataArray* polyCellPoints;
-        if (use64BitLabels)
+        if (cellList64Bit)
         {
           polyCellPoints = vtkTypeInt64Array::New();
         }
@@ -6535,7 +6536,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
             bool foundDup = false;
             for (vtkIdType l = 0; l < polyCellPoints->GetDataSize(); l++)
             {
-              vtkTypeInt64 polyCellPoint = GetLabelValue(polyCellPoints, l, use64BitLabels);
+              vtkTypeInt64 polyCellPoint = GetLabelValue(polyCellPoints, l, cellList64Bit);
               if (polyCellPoint == faceJPointK)
               {
                 foundDup = true;
@@ -6544,7 +6545,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
             }
             if (!foundDup)
             {
-              AppendLabelValue(polyCellPoints, faceJPointK, use64BitLabels);
+              AppendLabelValue(polyCellPoints, faceJPointK, cellList64Bit);
               float* pointK = pointArray->GetPointer(3 * faceJPointK);
               centroid[0] += pointK[0];
               centroid[1] += pointK[1];
@@ -6569,7 +6570,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           vtkTypeInt64 cellFacesJ = cellFaces[j];
           vtkFoamLabelListList::CellType faceJPoints;
           facePoints.GetCell(cellFacesJ, faceJPoints);
-          vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner, cellFacesJ, use64BitLabels);
+          vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner, cellFacesJ, faceOwner64Bit);
           int flipNeighbor = (faceOwnerValue == cellId ? -1 : 1);
           size_t nTris = faceJPoints.size() % 2;
 
@@ -6683,7 +6684,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           return;
         }
         polyPoints->SetId(0, static_cast<vtkIdType>(baseFacePoints.size()));
-        vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner, cellFaces0, use64BitLabels);
+        vtkTypeInt64 faceOwnerValue = GetLabelValue(this->FaceOwner, cellFaces0, faceOwner64Bit);
         if (faceOwnerValue == cellId)
         {
           // add first face to cell points
@@ -6723,7 +6724,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           polyPoints->SetId(
             static_cast<vtkIdType>(nPolyPoints++), static_cast<vtkIdType>(faceJPoints.size()));
           int pointI, delta; // must be signed
-          faceOwnerValue = GetLabelValue(this->FaceOwner, cellFacesJ, use64BitLabels);
+          faceOwnerValue = GetLabelValue(this->FaceOwner, cellFacesJ, faceOwner64Bit);
           if (faceOwnerValue == cellId)
           {
             pointI = 0;
@@ -6850,14 +6851,15 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
   bool isLookupValue)
 {
   vtkPolyData& bm = *boundaryMesh;
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
+
+  const bool faceLabels64Bit = ::Is64BitArray(labels);
 
   for (vtkIdType j = startFace; j < endFace; j++)
   {
     vtkIdType faceId = j;
     if (labels != nullptr)
     {
-      faceId = GetLabelValue(labels, j, use64BitLabels);
+      faceId = GetLabelValue(labels, j, faceLabels64Bit);
       if (faceId >= this->FaceOwner->GetNumberOfTuples())
       {
         vtkWarningMacro(<< "faceLabels id " << faceId << " exceeds the number of faces "
@@ -6922,7 +6924,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   const vtkFoamLabelListList* facesPoints, vtkFloatArray* pointArray)
 {
   const vtkIdType nBoundaries = static_cast<vtkIdType>(this->BoundaryDict.size());
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
 
   // Consistency check for BoundaryDict
   {
@@ -6999,10 +7000,13 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   vtkIdList* facePointsVtkId = vtkIdList::New();
   facePointsVtkId->SetNumberOfIds(maxNFacePoints);
 
+  // Use same integer width as per faces
+  const bool meshPoints64Bit = (facesPoints && facesPoints->IsLabel64());
+
   // create initial internal point list: set all points to -1
   if (this->Parent->GetCreateCellToPoint())
   {
-    if (use64BitLabels)
+    if (meshPoints64Bit)
     {
       this->InternalPoints = vtkTypeInt64Array::New();
     }
@@ -7029,7 +7033,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
           for (vtkIdType pointi = 0; pointi < nFacePoints; ++pointi)
           {
             SetLabelValue(
-              this->InternalPoints, facesPoints->GetValue(facei, pointi), 0, use64BitLabels);
+              this->InternalPoints, facesPoints->GetValue(facei, pointi), 0, meshPoints64Bit);
           }
         }
       }
@@ -7045,9 +7049,9 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     // Create global to AllBounaries point map
     for (vtkIdType pointi = 0; pointi < this->NumPoints; ++pointi)
     {
-      if (GetLabelValue(this->InternalPoints, pointi, use64BitLabels) == 0)
+      if (GetLabelValue(this->InternalPoints, pointi, meshPoints64Bit) == 0)
       {
-        SetLabelValue(this->InternalPoints, pointi, nAllBoundaryPoints, use64BitLabels);
+        SetLabelValue(this->InternalPoints, pointi, nAllBoundaryPoints, meshPoints64Bit);
         nAllBoundaryPoints++;
       }
     }
@@ -7122,7 +7126,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
     // create global to boundary-local point map and boundary points
     vtkDataArray* boundaryPointList;
-    if (use64BitLabels)
+    if (meshPoints64Bit)
     {
       boundaryPointList = vtkTypeInt64Array::New();
     }
@@ -7137,14 +7141,14 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       const vtkIdType nFacePoints = facesPoints->GetSize(facei);
       for (int fp = 0; fp < nFacePoints; ++fp)
       {
-        SetLabelValue(boundaryPointList, pointi, facesPoints->GetValue(facei, fp), use64BitLabels);
+        SetLabelValue(boundaryPointList, pointi, facesPoints->GetValue(facei, fp), meshPoints64Bit);
         ++pointi;
       }
     }
     vtkSortDataArray::Sort(boundaryPointList);
 
     vtkDataArray* bpMap;
-    if (use64BitLabels)
+    if (meshPoints64Bit)
     {
       bpMap = vtkTypeInt64Array::New();
     }
@@ -7158,12 +7162,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     vtkIdType oldPointJ = -1;
     for (int j = 0; j < nBoundaryPoints; j++)
     {
-      vtkTypeInt64 pointJ = GetLabelValue(boundaryPointList, j, use64BitLabels);
+      vtkTypeInt64 pointJ = GetLabelValue(boundaryPointList, j, meshPoints64Bit);
       if (pointJ != oldPointJ)
       {
         oldPointJ = pointJ;
         boundaryPointArray->InsertNextTuple(pointArray->GetPointer(3 * pointJ));
-        AppendLabelValue(bpMap, pointJ, use64BitLabels);
+        AppendLabelValue(bpMap, pointJ, meshPoints64Bit);
       }
     }
     boundaryPointArray->Squeeze();
@@ -7190,7 +7194,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   if (this->Parent->GetCreateCellToPoint())
   {
     this->AllBoundaries->Squeeze();
-    if (use64BitLabels)
+    if (meshPoints64Bit)
     {
       this->AllBoundariesPointMap = vtkTypeInt64Array::New();
     }
@@ -7205,15 +7209,15 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     vtkIdType nInternalPoints = 0;
     for (vtkIdType pointI = 0, allBoundaryPointI = 0; pointI < this->NumPoints; pointI++)
     {
-      vtkIdType globalPointId = GetLabelValue(this->InternalPoints, pointI, use64BitLabels);
+      vtkIdType globalPointId = GetLabelValue(this->InternalPoints, pointI, meshPoints64Bit);
       if (globalPointId == -1)
       {
-        SetLabelValue(this->InternalPoints, nInternalPoints, pointI, use64BitLabels);
+        SetLabelValue(this->InternalPoints, nInternalPoints, pointI, meshPoints64Bit);
         nInternalPoints++;
       }
       else
       {
-        SetLabelValue(&abpMap, allBoundaryPointI, pointI, use64BitLabels);
+        SetLabelValue(&abpMap, allBoundaryPointI, pointI, meshPoints64Bit);
         allBoundaryPointI++;
       }
     }
@@ -7299,12 +7303,15 @@ bool vtkOpenFOAMReaderPrivate::ExtendArray(T1* array, vtkIdType nTuples)
 vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   vtkUnstructuredGrid* internalMesh, vtkFloatArray* pointArray)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
   if (this->Parent->GetDecomposePolyhedra())
   {
-    const vtkIdType nAdditionalCells = static_cast<vtkIdType>(this->AdditionalCellPoints->size());
-    this->ExtendArray<vtkFloatArray, float>(pointArray, this->NumPoints + nAdditionalCells);
-    for (int i = 0; i < nAdditionalCells; i++)
+    const vtkIdType nAdditionalPoints = static_cast<vtkIdType>(this->AdditionalCellPoints->size());
+    this->ExtendArray<vtkFloatArray, float>(pointArray, this->NumPoints + nAdditionalPoints);
+
+    const bool cellPoints64Bit =
+      (nAdditionalPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
+
+    for (int i = 0; i < nAdditionalPoints; i++)
     {
       vtkDataArray* polyCellPoints = this->AdditionalCellPoints->operator[](i);
       float centroid[3];
@@ -7313,7 +7320,7 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
       for (vtkIdType j = 0; j < nCellPoints; j++)
       {
         float* pointK =
-          pointArray->GetPointer(3 * GetLabelValue(polyCellPoints, j, use64BitLabels));
+          pointArray->GetPointer(3 * GetLabelValue(polyCellPoints, j, cellPoints64Bit));
         centroid[0] += pointK[0];
         centroid[1] += pointK[1];
         centroid[2] += pointK[2];
@@ -7345,8 +7352,6 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
 void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
   vtkMultiBlockDataSet* boundaryMesh, vtkFloatArray* pointArray)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
-
   unsigned int activeBoundaryIndex = 0;
   for (const vtkFoamPatch& patch : this->BoundaryDict)
   {
@@ -7354,6 +7359,7 @@ void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
     {
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
+      const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
       vtkFloatArray* boundaryPointArray = vtkFloatArray::New();
       boundaryPointArray->SetNumberOfComponents(3);
@@ -7361,7 +7367,7 @@ void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
       for (vtkIdType pointi = 0; pointi < nBoundaryPoints; ++pointi)
       {
         boundaryPointArray->SetTuple(
-          pointi, GetLabelValue(bpMap, pointi, use64BitLabels), pointArray);
+          pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), pointArray);
       }
       vtkPoints* boundaryPoints = vtkPoints::New();
       boundaryPoints->SetData(boundaryPointArray);
@@ -7385,7 +7391,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
     return;
   }
 
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
+  const bool meshPoints64Bit = ::Is64BitArray(pointList);
 
   // a dummy call to let GetPointCells() build the cell links if still not built
   // (not using BuildLinks() since it always rebuild links)
@@ -7407,7 +7413,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
     float* tuples = iData->GetPointer(0);
     for (vtkTypeInt64 pointI = 0; pointI < nPoints; pointI++)
     {
-      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
+      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, meshPoints64Bit) : pointI;
       if (ug)
       {
         ug->GetPointCells(pI, nCells, cells);
@@ -7433,7 +7439,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
     float* pDataPtr = pData->GetPointer(0);
     for (vtkTypeInt64 pointI = 0; pointI < nPoints; pointI++)
     {
-      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
+      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, meshPoints64Bit) : pointI;
       if (ug)
       {
         ug->GetPointCells(pI, nCells, cells);
@@ -7467,7 +7473,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
     float* pDataPtr = pData->GetPointer(0);
     for (vtkTypeInt64 pointI = 0; pointI < nPoints; pointI++)
     {
-      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, use64BitLabels) : pointI;
+      vtkTypeInt64 pI = pointList ? GetLabelValue(pointList, pointI, meshPoints64Bit) : pointI;
       if (ug)
       {
         ug->GetPointCells(pI, nCells, cells);
@@ -7795,7 +7801,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
   {
     return;
   }
-  const bool use64BitLabels = io.IsLabel64();
 
   // For internal field (eg, volScalarField::Internal)
   const auto colons = io.GetClassName().find("::Internal");
@@ -7936,6 +7941,8 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     }
   }
 
+  const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
+
   unsigned int activeBoundaryIndex = 0;
   for (const vtkFoamPatch& patch : this->BoundaryDict)
   {
@@ -8003,7 +8010,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
       vData->SetNumberOfTuples(nFaces);
       for (int j = 0; j < nFaces; j++)
       {
-        vtkTypeInt64 cellId = GetLabelValue(this->FaceOwner, boundaryStartFace + j, use64BitLabels);
+        vtkTypeInt64 cellId = GetLabelValue(this->FaceOwner, boundaryStartFace + j, faceOwner64Bit);
         vData->SetTuple(j, cellId, iData);
       }
     }
@@ -8035,7 +8042,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
         {
           const float* vTuple = vData->GetPointer(nComponents * faceI);
           const float* iTuple = iData->GetPointer(nComponents *
-            GetLabelValue(this->FaceOwner, boundaryStartFace + faceI, use64BitLabels));
+            GetLabelValue(this->FaceOwner, boundaryStartFace + faceI, faceOwner64Bit));
           float* acTuple = acData->GetPointer(nComponents * (startFace + faceI));
           for (int componentI = 0; componentI < nComponents; componentI++)
           {
@@ -8087,11 +8094,13 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
 
     if (ctpData != nullptr)
     {
+      const bool meshPoints64Bit = ::Is64BitArray(this->AllBoundariesPointMap);
+
       // set cell-to-pint data for internal mesh
       for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
       {
         ctpData->SetTuple(
-          GetLabelValue(this->AllBoundariesPointMap, pointI, use64BitLabels), pointI, bpData);
+          GetLabelValue(this->AllBoundariesPointMap, pointI, meshPoints64Bit), pointI, bpData);
       }
       ::AddArrayToFieldData(internalMesh->GetPointData(), ctpData, io.GetObjectName(), dimString);
       ctpData->Delete();
@@ -8112,7 +8121,6 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
   {
     return;
   }
-  const bool use64BitLabels = io.IsLabel64();
 
   if (io.GetClassName().substr(0, 5) != "point")
   {
@@ -8154,6 +8162,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
     const int nAdditionalPoints = static_cast<int>(this->AdditionalCellPoints->size());
     const int nComponents = iData->GetNumberOfComponents();
     this->ExtendArray<vtkFloatArray, float>(iData, this->NumPoints + nAdditionalPoints);
+
+    const bool cellPoints64Bit =
+      (nAdditionalPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
+
     for (int i = 0; i < nAdditionalPoints; i++)
     {
       vtkDataArray* acp = this->AdditionalCellPoints->operator[](i);
@@ -8165,7 +8177,8 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
       }
       for (vtkIdType j = 0; j < nPoints; j++)
       {
-        const float* tuple = iData->GetPointer(nComponents * GetLabelValue(acp, j, use64BitLabels));
+        const float* tuple =
+          iData->GetPointer(nComponents * GetLabelValue(acp, j, cellPoints64Bit));
         for (int k = 0; k < nComponents; k++)
         {
           interpolatedValue[k] += tuple[k];
@@ -8209,11 +8222,13 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
       vtkFloatArray* vData = vtkFloatArray::New();
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
+      const bool meshPoints64Bit = ::Is64BitArray(bpMap);
+
       vData->SetNumberOfComponents(iData->GetNumberOfComponents());
       vData->SetNumberOfTuples(nPoints);
       for (vtkIdType j = 0; j < nPoints; j++)
       {
-        vData->SetTuple(j, GetLabelValue(bpMap, j, use64BitLabels), iData);
+        vData->SetTuple(j, GetLabelValue(bpMap, j, meshPoints64Bit), iData);
       }
 
       vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
