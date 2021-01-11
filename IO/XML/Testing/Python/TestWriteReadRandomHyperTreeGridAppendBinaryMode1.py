@@ -18,16 +18,7 @@ print("Writing HTG to {}".format(name))
 writer.Update()
 
 # Creating HTG Reader
-reader = vtk.vtkXMLHyperTreeGridWriter()
+reader = vtk.vtkXMLHyperTreeGridReader()
 reader.SetFileName( name )
 print("Reading HTG from {}".format(name))
 reader.Update()
-
-# Creating HTG Writer
-writer = vtk.vtkXMLHyperTreeGridWriter()
-writer.SetInputConnection(source.GetOutputPort())
-writer.SetDataSetMajorVersion(1)
-writer.SetDataModeToAppended()
-writer.SetFileName( name )
-print("Writing HTG once again to {}".format(name))
-writer.Update()
