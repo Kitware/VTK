@@ -75,7 +75,7 @@ public:
     if (!this->GetError())
     {
       std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \""
-                << expectedMsg << std::endl;
+                << expectedMsg << '\"' << std::endl;
       return 1;
     }
     else
@@ -84,7 +84,7 @@ public:
       if (gotMsg.find(expectedMsg) == std::string::npos)
       {
         std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\""
-                  << gotMsg << std::endl;
+                  << gotMsg << '\"' << std::endl;
         return 1;
       }
     }
@@ -97,7 +97,7 @@ public:
     if (!this->GetWarning())
     {
       std::cout << "ERROR: Failed to catch any warning. Expected the warning message to contain \""
-                << expectedMsg << std::endl;
+                << expectedMsg << '\"' << std::endl;
       return 1;
     }
     else
@@ -106,7 +106,7 @@ public:
       if (gotMsg.find(expectedMsg) == std::string::npos)
       {
         std::cout << "ERROR: Warning message does not contain \"" << expectedMsg << "\" got \n\""
-                  << gotMsg << std::endl;
+                  << gotMsg << '\"' << std::endl;
         return 1;
       }
     }

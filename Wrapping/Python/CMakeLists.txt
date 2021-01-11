@@ -112,6 +112,7 @@ set(python_files
   vtkmodules/qt/QVTKRenderWindowInteractor.py
   vtkmodules/qt/__init__.py
   vtkmodules/test/BlackBox.py
+  vtkmodules/test/ErrorObserver.py
   vtkmodules/test/Testing.py
   vtkmodules/test/__init__.py
   vtkmodules/tk/__init__.py
@@ -180,3 +181,7 @@ add_custom_target(vtk_python_copy ALL
   DEPENDS
     ${python_copied_modules}
     ${_vtk_python_zip})
+
+if (VTK_BUILD_TESTING)
+  add_subdirectory(Testing)
+endif ()
