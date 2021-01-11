@@ -271,6 +271,21 @@ vtkTypeInt64 GetCastLabelValue(const void* array, size_t idx, bool use64BitLabel
 
 //------------------------------------------------------------------------------
 // Forward Declarations
+
+struct vtkFoamError;
+struct vtkFoamToken;
+struct vtkFoamFileStack;
+struct vtkFoamFile;
+struct vtkFoamIOobject;
+template <typename T>
+struct vtkFoamReadValue;
+struct vtkFoamEntryValue;
+struct vtkFoamEntry;
+struct vtkFoamDict;
+
+//------------------------------------------------------------------------------
+// Some storage containers
+
 template <typename T>
 struct vtkFoamArrayVector : public std::vector<T*>
 {
@@ -299,17 +314,6 @@ template <typename ArrayT>
 struct vtkFoamLabelVectorVectorImpl;
 typedef vtkFoamLabelVectorVectorImpl<vtkTypeInt32Array> vtkFoamLabel32VectorVector;
 typedef vtkFoamLabelVectorVectorImpl<vtkTypeInt64Array> vtkFoamLabel64VectorVector;
-
-struct vtkFoamError;
-struct vtkFoamToken;
-struct vtkFoamFileStack;
-struct vtkFoamFile;
-struct vtkFoamIOobject;
-template <typename T>
-struct vtkFoamReadValue;
-struct vtkFoamEntryValue;
-struct vtkFoamEntry;
-struct vtkFoamDict;
 
 //------------------------------------------------------------------------------
 // struct vtkFoamPatch
@@ -544,8 +548,10 @@ private:
   vtkStdString ConstructDimensions(const vtkFoamDict& dict) const;
 
   // read and create cell/point fields
-  bool ReadFieldFile(vtkFoamIOobject*, vtkFoamDict*, const vtkStdString&, vtkDataArraySelection*);
-  vtkFloatArray* FillField(vtkFoamEntry*, vtkIdType, vtkFoamIOobject*, const vtkStdString&);
+  bool ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict, const vtkStdString& varName,
+    const vtkDataArraySelection* selection);
+  vtkFloatArray* FillField(vtkFoamEntry& entry, const vtkIdType nElements,
+    const vtkFoamIOobject& io, const vtkStdString& fieldType);
   void GetVolFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&,
     const bool isInternalField = false);
   void GetPointFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&);
@@ -823,18 +829,100 @@ public:
 };
 
 //------------------------------------------------------------------------------
+// class vtkFoamStreamOption
+// Some elements from Foam::IOstreamOption and from Foam::IOstream
+// - format (ASCII | BINARY)
+// - label, scalar sizes
+//
+// Note: all enums pack into 32-bits, so we can use them in vtkFoamToken, vtkFoamFile etc.
+// without adversely affecting the size of the structures
+struct vtkFoamStreamOption
+{
+public:
+  // The OpenFOAM input stream format is ASCII or BINARY
+  enum fileFormat : unsigned char
+  {
+    ASCII = 0, // Default is ASCII unless otherwise specified
+    BINARY
+  };
+
+  // Bitwidth of an OpenFOAM label (integer type)
+  enum labelType : unsigned char
+  {
+    UNKNOWN_LABEL = 0, // For assertions
+    INT32,
+    INT64
+  };
+
+  // Bitwidth of an OpenFOAM scalar (floating-point type)
+  enum scalarType : unsigned char
+  {
+    UNKNOWN_SCALAR = 0, // For assertions
+    FLOAT32,
+    FLOAT64
+  };
+
+private:
+  fileFormat Format = fileFormat::ASCII;
+  labelType LabelType = labelType::UNKNOWN_LABEL;
+  scalarType ScalarType = scalarType::FLOAT64;
+
+public:
+  // Default construct
+  vtkFoamStreamOption() = default;
+
+  // Construct with specified handling for labels/floats
+  vtkFoamStreamOption(const bool use64BitLabels, const bool use64BitFloats)
+  {
+    this->SetLabel64(use64BitLabels);
+    this->SetFloat64(use64BitFloats);
+  }
+
+  fileFormat GetFormat() const { return this->Format; }
+  bool IsAsciiFormat() const { return this->Format != fileFormat::BINARY; }
+  void SetUseBinaryFormat(const bool on)
+  {
+    this->Format = (on ? fileFormat::BINARY : fileFormat::ASCII);
+  }
+
+  labelType GetLabelType() const { return this->LabelType; }
+  bool IsLabel64() const { return this->LabelType == labelType::INT64; }
+  bool HasLabelType() const noexcept { return this->LabelType != labelType::UNKNOWN_LABEL; }
+  void SetLabelType(labelType t) { this->LabelType = t; }
+  void SetLabel64(const bool on) { this->LabelType = (on ? labelType::INT64 : labelType::INT32); }
+
+  scalarType GetScalarType() const { return this->ScalarType; }
+  bool IsFloat64() const { return this->ScalarType == scalarType::FLOAT64; }
+
+  void SetScalarType(scalarType t) { this->ScalarType = t; }
+  void SetFloat64(const bool on)
+  {
+    this->ScalarType = (on ? scalarType::FLOAT64 : scalarType::FLOAT32);
+  }
+
+  const vtkFoamStreamOption& GetStreamOption() const
+  {
+    return static_cast<const vtkFoamStreamOption&>(*this);
+  }
+  void SetStreamOption(const vtkFoamStreamOption& opt)
+  {
+    static_cast<vtkFoamStreamOption&>(*this) = opt;
+  }
+};
+
+//------------------------------------------------------------------------------
 // class vtkFoamToken
 // token class which also works as container for list types
 // - a word token is treated as a string token for simplicity
 // - handles only atomic types. Handling of list types are left to the
 //   derived classes.
-struct vtkFoamToken
+struct vtkFoamToken : public vtkFoamStreamOption
 {
 public:
   enum tokenType
   {
-    // undefined type
-    UNDEFINED,
+    // Undefined type
+    UNDEFINED = 0,
     // atomic types
     PUNCTUATION,
     LABEL,
@@ -856,17 +944,8 @@ public:
     TOKEN_ERROR
   };
 
-  // Bitwidth of labels.
-  enum labelType
-  {
-    NO_LABEL_TYPE = 0, // Used for assertions.
-    INT32,
-    INT64
-  };
-
 protected:
-  tokenType Type;
-  labelType LabelType;
+  tokenType Type = tokenType::UNDEFINED;
   union {
     char Char;
     vtkTypeInt64 Int;
@@ -891,22 +970,22 @@ protected:
     }
   }
 
-  void AssignData(const vtkFoamToken& value)
+  void AssignData(const vtkFoamToken& tok)
   {
-    switch (value.Type)
+    switch (tok.Type)
     {
       case PUNCTUATION:
-        this->Char = value.Char;
+        this->Char = tok.Char;
         break;
       case LABEL:
-        this->Int = value.Int;
+        this->Int = tok.Int;
         break;
       case SCALAR:
-        this->Double = value.Double;
+        this->Double = tok.Double;
         break;
       case STRING:
       case IDENTIFIER:
-        this->String = new vtkStdString(*value.String);
+        this->String = new vtkStdString(*tok.String);
         break;
       case UNDEFINED:
       case STRINGLIST:
@@ -924,23 +1003,18 @@ protected:
   }
 
 public:
-  vtkFoamToken()
-    : Type(UNDEFINED)
-    , LabelType(NO_LABEL_TYPE)
+  // Default construct
+  vtkFoamToken() = default;
+
+  vtkFoamToken(const vtkFoamToken& tok)
+    : vtkFoamStreamOption(tok)
+    , Type(tok.Type)
   {
-  }
-  vtkFoamToken(const vtkFoamToken& value)
-    : Type(value.Type)
-    , LabelType(value.LabelType)
-  {
-    this->AssignData(value);
+    this->AssignData(tok);
   }
   ~vtkFoamToken() { this->Clear(); }
 
   tokenType GetType() const { return this->Type; }
-
-  void SetLabelType(labelType type) { this->LabelType = type; }
-  labelType GetLabelType() const { return this->LabelType; }
 
   template <typename T>
   bool Is() const;
@@ -969,7 +1043,7 @@ public:
   // workaround for SunOS-CC5.6-dbg
   vtkTypeInt64 ToInt() const
   {
-    assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
+    assert("Label type not set!" && this->HasLabelType());
     return this->Int;
   }
 
@@ -1003,8 +1077,8 @@ public:
   {
     this->Clear();
 
-    assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
-    if (this->LabelType == INT64)
+    assert("Label type not set!" && this->HasLabelType());
+    if (this->IsLabel64())
     {
       vtkGenericWarningMacro("Setting a 64 bit label from a 32 bit integer.");
     }
@@ -1016,8 +1090,8 @@ public:
   {
     this->Clear();
 
-    assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
-    if (this->LabelType == INT32)
+    assert("Label type not set!" && this->HasLabelType());
+    if (!this->IsLabel64())
     {
       vtkGenericWarningMacro("Setting a 32 bit label from a 64 bit integer. "
                              "Precision loss may occur.");
@@ -1044,12 +1118,12 @@ public:
     this->Type = STRING;
     this->String = new vtkStdString(value);
   }
-  vtkFoamToken& operator=(const vtkFoamToken& value)
+  vtkFoamToken& operator=(const vtkFoamToken& tok)
   {
     this->Clear();
-    this->Type = value.Type;
-    this->LabelType = value.LabelType;
-    this->AssignData(value);
+    this->SetStreamOption(tok);
+    this->Type = tok.Type;
+    this->AssignData(tok);
     return *this;
   }
   bool operator==(const char value) const
@@ -1058,12 +1132,12 @@ public:
   }
   bool operator==(const vtkTypeInt32 value) const
   {
-    assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
+    assert("Label type not set!" && this->HasLabelType());
     return this->Type == LABEL && this->Int == static_cast<vtkTypeInt64>(value);
   }
   bool operator==(const vtkTypeInt64 value) const
   {
-    assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
+    assert("Label type not set!" && this->HasLabelType());
     return this->Type == LABEL && this->Int == value;
   }
   bool operator==(const vtkStdString& value) const
@@ -1076,33 +1150,33 @@ public:
   }
   bool operator!=(const char value) const { return !this->operator==(value); }
 
-  friend std::ostringstream& operator<<(std::ostringstream& str, const vtkFoamToken& value)
+  friend std::ostringstream& operator<<(std::ostringstream& str, const vtkFoamToken& tok)
   {
-    switch (value.GetType())
+    switch (tok.GetType())
     {
       case TOKEN_ERROR:
         str << "badToken (an unexpected EOF?)";
         break;
       case PUNCTUATION:
-        str << value.Char;
+        str << tok.Char;
         break;
       case LABEL:
-        assert("Label type not set!" && value.LabelType != NO_LABEL_TYPE);
-        if (value.LabelType == INT32)
+        assert("Label type not set!" && tok.HasLabelType());
+        if (tok.IsLabel64())
         {
-          str << static_cast<vtkTypeInt32>(value.Int);
+          str << tok.Int;
         }
         else
         {
-          str << value.Int;
+          str << static_cast<vtkTypeInt32>(tok.Int);
         }
         break;
       case SCALAR:
-        str << value.Double;
+        str << tok.Double;
         break;
       case STRING:
       case IDENTIFIER:
-        str << *value.String;
+        str << *(tok.String);
         break;
       case UNDEFINED:
       case STRINGLIST:
@@ -1130,14 +1204,14 @@ inline bool vtkFoamToken::Is<char>() const
 template <>
 inline bool vtkFoamToken::Is<vtkTypeInt32>() const
 {
-  assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
-  return this->Type == LABEL && this->LabelType == INT32;
+  assert("Label type not set!" && this->HasLabelType());
+  return this->Type == LABEL && !(this->IsLabel64());
 }
 
 template <>
 inline bool vtkFoamToken::Is<vtkTypeInt64>() const
 {
-  assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
+  assert("Label type not set!" && this->HasLabelType());
   return this->Type == LABEL;
 }
 
@@ -1162,8 +1236,8 @@ inline char vtkFoamToken::To<char>() const
 template <>
 inline vtkTypeInt32 vtkFoamToken::To<vtkTypeInt32>() const
 {
-  assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
-  if (this->LabelType == INT64)
+  assert("Label type not set!" && this->HasLabelType());
+  if (this->IsLabel64())
   {
     vtkGenericWarningMacro("Casting 64 bit label to int32. Precision loss "
                            "may occur.");
@@ -1174,7 +1248,7 @@ inline vtkTypeInt32 vtkFoamToken::To<vtkTypeInt32>() const
 template <>
 inline vtkTypeInt64 vtkFoamToken::To<vtkTypeInt64>() const
 {
-  assert("Label type not set!" && this->LabelType != NO_LABEL_TYPE);
+  assert("Label type not set!" && this->HasLabelType());
   return this->Int;
 }
 
@@ -1220,12 +1294,10 @@ protected:
     , IsCompressed(false)
     , ZStatus(Z_OK)
     , LineNumber(0)
-    ,
 #if VTK_FOAMFILE_RECOGNIZE_LINEHEAD
-    WasNewline(true)
-    ,
+    , WasNewline(true)
 #endif
-    Inbuf(nullptr)
+    , Inbuf(nullptr)
     , Outbuf(nullptr)
     , BufPtr(nullptr)
     , BufEndPtr(nullptr)
@@ -1263,14 +1335,16 @@ public:
 
 //------------------------------------------------------------------------------
 // class vtkFoamFile
-// read and tokenize the input.
-struct vtkFoamFile : public vtkFoamFileStack
+// Read and tokenize the input. Retains format and label/scalar size informatio
+struct vtkFoamFile
+  : public vtkFoamStreamOption
+  , public vtkFoamFileStack
 {
 private:
   typedef vtkFoamFileStack Superclass;
 
 public:
-  // #inputMode values
+  // The dictionary #inputMode values
   enum inputModes
   {
     INPUT_MODE_MERGE,
@@ -1281,17 +1355,19 @@ public:
   };
 
 private:
-  inputModes InputMode;
-
-  // inclusion handling
-  vtkFoamFileStack* Stack[VTK_FOAMFILE_INCLUDE_STACK_SIZE];
-  int StackI;
+  // The path to the case
   vtkStdString CasePath;
 
-  // declare and define as private
-  vtkFoamFile() = delete;
+  // The current input mode
+  inputModes InputMode;
+
+  // Handling include files
+  vtkFoamFileStack* Stack[VTK_FOAMFILE_INCLUDE_STACK_SIZE];
+  int StackI;
+
   bool InflateNext(unsigned char* buf, int requestSize, int* readSize = nullptr);
   int NextTokenHead();
+
   // hacks to keep exception throwing / recursive codes out-of-line to make
   // putBack(), getc() and readExpecting() inline expandable
   void ThrowDuplicatedPutBackException();
@@ -1416,18 +1492,25 @@ private:
   }
 
 public:
+  // No default construct, copy or assignment
+  vtkFoamFile() = delete;
+  vtkFoamFile(const vtkFoamFile&) = delete;
+  void operator=(const vtkFoamFile&) = delete;
+
   vtkFoamFile(const vtkStdString& casePath, vtkOpenFOAMReader* reader)
-    : vtkFoamFileStack(reader)
+    : vtkFoamStreamOption(reader->GetUse64BitLabels(), reader->GetUse64BitFloats())
+    , vtkFoamFileStack(reader)
+    , CasePath(casePath)
     , InputMode(INPUT_MODE_MERGE)
     , StackI(0)
-    , CasePath(casePath)
   {
   }
   ~vtkFoamFile() { this->Close(); }
 
-  inputModes GetInputMode() const { return this->InputMode; }
   vtkStdString GetCasePath() const { return this->CasePath; }
   vtkStdString GetFilePath() const { return this->ExtractPath(this->FileName); }
+
+  inputModes GetInputMode() const { return this->InputMode; }
 
   vtkStdString ExpandPath(const vtkStdString& pathIn, const vtkStdString& defaultPath)
   {
@@ -1618,8 +1701,9 @@ public:
   // returns true if success, false if encountered EOF
   bool Read(vtkFoamToken& token)
   {
-    token.SetLabelType(
-      this->Reader->GetUse64BitLabels() ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+    token.SetStreamOption(this->GetStreamOption());
+    const bool use64BitLabels = this->IsLabel64();
+
     // expanded the outermost loop in nextTokenHead() for performance
     int c;
     while (isspace(c = this->Getc())) // isspace() accepts -1 as EOF
@@ -1674,7 +1758,7 @@ public:
         {
           // label token
           buf[charI] = '\0';
-          if (this->Reader->GetUse64BitLabels())
+          if (use64BitLabels)
           {
             token = static_cast<vtkTypeInt64>(strtoll(buf, nullptr, 10));
           }
@@ -1990,6 +2074,11 @@ public:
     while (this->CloseIncludedFile())
       ;
     this->Clear();
+
+    // Reinstate values from reader (eg, GUI)
+    auto& streamOpt = static_cast<vtkFoamStreamOption&>(*this);
+    streamOpt.SetLabel64(this->Reader->GetUse64BitLabels());
+    streamOpt.SetFloat64(this->Reader->GetUse64BitFloats());
   }
 
   // gzread with buffering handling
@@ -2456,47 +2545,34 @@ int vtkFoamFile::NextTokenHead()
 
 //------------------------------------------------------------------------------
 // class vtkFoamIOobject
-// holds file handle, file format, name of the object the file holds and
-// type of the object.
+// Extends vtkFoamFile with OpenFOAM class/object information
 struct vtkFoamIOobject : public vtkFoamFile
 {
 private:
   typedef vtkFoamFile Superclass;
 
-public:
-  enum fileFormat
-  {
-    UNDEFINED,
-    ASCII,
-    BINARY
-  };
+  vtkStdString objectName_;
+  vtkStdString headerClassName_;
+  vtkFoamError error_;
 
-private:
-  fileFormat Format;
-  vtkStdString ObjectName;
-  vtkStdString HeaderClassName;
-  vtkFoamError E;
-
-  bool Use64BitLabels;
-  bool Use64BitFloats;
-
-  // inform IO object if lagrangian/positions has extra data (OF 1.4 - 2.4)
+  // Inform IO object that lagrangian/positions has extra data (OpenFOAM v1.4 - v2.4)
   const bool LagrangianPositionsExtraData;
 
-  void ReadHeader(); // defined later
-
-  // Disallow default bitwise copy/assignment constructor
-  vtkFoamIOobject(const vtkFoamIOobject&) = delete;
-  void operator=(const vtkFoamIOobject&) = delete;
-  vtkFoamIOobject() = delete;
+  // Reads OpenFOAM format/class/object information and handles "arch" information
+  void ReadHeader();
 
 public:
+  // No generated methods
+  vtkFoamIOobject() = delete;
+  vtkFoamIOobject(const vtkFoamIOobject&) = delete;
+  void operator=(const vtkFoamIOobject&) = delete;
+
+  // Construct for specified case -path
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader* reader)
     : vtkFoamFile(casePath, reader)
-    , Format(UNDEFINED)
-    , E()
-    , Use64BitLabels(reader->GetUse64BitLabels())
-    , Use64BitFloats(reader->GetUse64BitFloats())
+    , objectName_()
+    , headerClassName_()
+    , error_()
     , LagrangianPositionsExtraData(static_cast<bool>(!reader->GetPositionsIsIn13Format()))
   {
   }
@@ -2510,7 +2586,7 @@ public:
     }
     catch (vtkFoamError& e)
     {
-      this->E = e;
+      this->SetError(e);
       return false;
     }
 
@@ -2521,7 +2597,7 @@ public:
     catch (vtkFoamError& e)
     {
       this->Superclass::Close();
-      this->E = e;
+      this->SetError(e);
       return false;
     }
     return true;
@@ -2530,20 +2606,15 @@ public:
   void Close()
   {
     this->Superclass::Close();
-    this->Format = UNDEFINED;
-    this->ObjectName.erase();
-    this->HeaderClassName.erase();
-    this->E.erase();
-    this->Use64BitLabels = this->Reader->GetUse64BitLabels();
-    this->Use64BitFloats = this->Reader->GetUse64BitFloats();
+    this->objectName_.clear();
+    this->headerClassName_.clear();
+    this->error_.clear();
   }
-  fileFormat GetFormat() const { return this->Format; }
-  const vtkStdString& GetClassName() const { return this->HeaderClassName; }
-  const vtkStdString& GetObjectName() const { return this->ObjectName; }
-  const vtkFoamError& GetError() const { return this->E; }
-  void SetError(const vtkFoamError& e) { this->E = e; }
-  bool GetUse64BitLabels() const { return this->Use64BitLabels; }
-  bool GetUse64BitFloats() const { return this->Use64BitFloats; }
+
+  const vtkStdString& GetClassName() const { return this->headerClassName_; }
+  const vtkStdString& GetObjectName() const { return this->objectName_; }
+  const vtkFoamError& GetError() const { return this->error_; }
+  void SetError(const vtkFoamError& e) { this->error_ = e; }
   bool GetLagrangianPositionsExtraData() const { return this->LagrangianPositionsExtraData; }
 };
 
@@ -2617,6 +2688,7 @@ public:
     {
     }
     listT* GetPtr() { return this->Ptr; }
+
     void ReadUniformValues(vtkFoamIOobject& io, const vtkIdType size)
     {
       primitiveT value = vtkFoamReadValue<primitiveT>::ReadValue(io);
@@ -2625,6 +2697,7 @@ public:
         this->Ptr->SetValue(i, value);
       }
     }
+
     void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
     {
       for (vtkIdType i = 0; i < size; i++)
@@ -2632,6 +2705,7 @@ public:
         this->Ptr->SetValue(i, vtkFoamReadValue<primitiveT>::ReadValue(io));
       }
     }
+
     void ReadBinaryList(vtkFoamIOobject& io, const int size)
     {
       typedef typename listT::ValueType ListValueType;
@@ -2652,6 +2726,7 @@ public:
         fileData->Delete();
       }
     }
+
     void ReadValue(vtkFoamIOobject&, vtkFoamToken& currToken)
     {
       if (!currToken.Is<primitiveT>())
@@ -2678,6 +2753,7 @@ public:
       this->Ptr->SetNumberOfComponents(nComponents);
     }
     listT* GetPtr() { return this->Ptr; }
+
     void ReadUniformValues(vtkFoamIOobject& io, const vtkIdType size)
     {
       io.ReadExpecting('(');
@@ -2697,6 +2773,7 @@ public:
         vtkFoamReadValue<int>::ReadValue(io);
       }
     }
+
     void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
     {
       typedef typename listT::ValueType ListValueType;
@@ -2716,6 +2793,7 @@ public:
         }
       }
     }
+
     void ReadBinaryList(vtkFoamIOobject& io, const int size)
     {
       if (isPositions) // lagrangian/positions (class Cloud)
@@ -2723,7 +2801,7 @@ public:
         // xyz (3*scalar) + celli (label)
         // in OpenFOAM 1.4 -> 2.4 also had facei (label) and stepFraction (scalar)
 
-        const unsigned labelSize = (io.GetUse64BitLabels() ? 8 : 4);
+        const unsigned labelSize = (io.IsLabel64() ? 8 : 4);
         const unsigned tupleLength = (sizeof(primitiveT) * nComponents + labelSize +
           (io.GetLagrangianPositionsExtraData() ? (labelSize + sizeof(primitiveT)) : 0));
 
@@ -2765,6 +2843,7 @@ public:
         }
       }
     }
+
     void ReadValue(vtkFoamIOobject& io, vtkFoamToken& currToken)
     {
       if (currToken != '(')
@@ -2854,20 +2933,20 @@ public:
   // mixedRhoE B.C. in rhopSonicFoam/shockTube)
   void MakeLabelList(const vtkTypeInt64 labelValue, const vtkIdType size)
   {
-    assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
+    assert("Label type not set!" && this->HasLabelType());
     this->Superclass::Type = LABELLIST;
-    if (this->LabelType == INT32)
-    {
-      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
-      array->SetNumberOfValues(size);
-      array->FillValue(static_cast<vtkTypeInt32>(labelValue));
-      this->Superclass::LabelListPtr = array;
-    }
-    else
+    if (this->IsLabel64())
     {
       vtkTypeInt64Array* array = vtkTypeInt64Array::New();
       array->SetNumberOfValues(size);
       array->FillValue(labelValue);
+      this->Superclass::LabelListPtr = array;
+    }
+    else
+    {
+      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+      array->SetNumberOfValues(size);
+      array->FillValue(static_cast<vtkTypeInt32>(labelValue));
       this->Superclass::LabelListPtr = array;
     }
   }
@@ -2884,26 +2963,26 @@ public:
   // - the leading '[' has already been removed
   void ReadDimensionSet(vtkFoamIOobject& io)
   {
-    assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
+    assert("Label type not set!" && this->HasLabelType());
     const int nDims = 7; // There are 7 base dimensions
     this->Superclass::Type = LABELLIST;
-    if (this->LabelType == INT32)
-    {
-      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
-      array->SetNumberOfValues(nDims);
-      for (vtkIdType i = 0; i < nDims; ++i)
-      {
-        array->SetValue(i, vtkFoamReadValue<vtkTypeInt32>::ReadValue(io));
-      }
-      this->Superclass::LabelListPtr = array;
-    }
-    else
+    if (this->IsLabel64())
     {
       vtkTypeInt64Array* array = vtkTypeInt64Array::New();
       array->SetNumberOfValues(nDims);
       for (vtkIdType i = 0; i < nDims; ++i)
       {
         array->SetValue(i, vtkFoamReadValue<vtkTypeInt64>::ReadValue(io));
+      }
+      this->Superclass::LabelListPtr = array;
+    }
+    else
+    {
+      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+      array->SetNumberOfValues(nDims);
+      for (vtkIdType i = 0; i < nDims; ++i)
+      {
+        array->SetValue(i, vtkFoamReadValue<vtkTypeInt32>::ReadValue(io));
       }
       this->Superclass::LabelListPtr = array;
     }
@@ -2918,10 +2997,10 @@ public:
   // stream if the format is binary.
   void ReadLabelListList(vtkFoamIOobject& io)
   {
-    assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-    bool use64BitLabels = this->LabelType == INT64;
+    const bool use64BitLabels = io.IsLabel64();
+
     vtkFoamToken currToken;
-    currToken.SetLabelType(this->LabelType);
+    currToken.SetStreamOption(io);
     if (!io.Read(currToken))
     {
       throw vtkFoamError() << "Unexpected EOF";
@@ -2962,7 +3041,7 @@ public:
 
           void* listI = this->LabelListListPtr->WritePointer(i, bodyI, sizeJ);
 
-          if (io.GetFormat() == vtkFoamIOobject::ASCII)
+          if (io.IsAsciiFormat())
           {
             io.ReadExpecting('(');
             for (int j = 0; j < sizeJ; j++)
@@ -3017,14 +3096,14 @@ public:
   // reads compact list of labels.
   void ReadCompactIOLabelList(vtkFoamIOobject& io)
   {
-    if (io.GetFormat() != vtkFoamIOobject::BINARY)
+    if (io.IsAsciiFormat())
     {
       this->ReadLabelListList(io);
       return;
     }
 
-    assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-    bool use64BitLabels = this->LabelType == INT64;
+    this->SetStreamOption(io);
+    const bool use64BitLabels = io.IsLabel64();
 
     if (use64BitLabels)
     {
@@ -3038,6 +3117,7 @@ public:
     for (int arrayI = 0; arrayI < 2; arrayI++)
     {
       vtkFoamToken currToken;
+      currToken.SetStreamOption(io);
       if (!io.Read(currToken))
       {
         throw vtkFoamError() << "Unexpected EOF";
@@ -3069,13 +3149,14 @@ public:
 
   bool ReadField(vtkFoamIOobject& io)
   {
+    this->SetStreamOption(io);
+
     try
     {
       // lagrangian labels (cf. gnemdFoam/nanoNozzle)
       if (io.GetClassName() == "labelField")
       {
-        assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-        if (this->LabelType == INT64)
+        if (io.IsLabel64())
         {
           this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
         }
@@ -3088,7 +3169,7 @@ public:
 
       else if (io.GetClassName() == "scalarField")
       {
-        if (io.GetUse64BitFloats())
+        if (io.IsFloat64())
         {
           this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
         }
@@ -3099,7 +3180,7 @@ public:
       }
       else if (io.GetClassName() == "sphericalTensorField")
       {
-        if (io.GetUse64BitFloats())
+        if (io.IsFloat64())
         {
           this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(
             io);
@@ -3114,7 +3195,7 @@ public:
 
       else if (io.GetClassName() == "vectorField")
       {
-        if (io.GetUse64BitFloats())
+        if (io.IsFloat64())
         {
           this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(
             io);
@@ -3127,7 +3208,7 @@ public:
       }
       else if (io.GetClassName() == "symmTensorField")
       {
-        if (io.GetUse64BitFloats())
+        if (io.IsFloat64())
         {
           this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(
             io);
@@ -3140,7 +3221,7 @@ public:
       }
       else if (io.GetClassName() == "tensorField")
       {
-        if (io.GetUse64BitFloats())
+        if (io.IsFloat64())
         {
           this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(
             io);
@@ -3153,7 +3234,7 @@ public:
       }
       else
       {
-        throw vtkFoamError() << "Non-supported field type " << io.GetClassName();
+        throw vtkFoamError() << "Unsupported field type " << io.GetClassName();
       }
     }
     catch (vtkFoamError& e)
@@ -3170,7 +3251,10 @@ public:
 template <vtkFoamToken::tokenType listType, typename traitsT>
 void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
 {
+  this->SetStreamOption(io);
+
   vtkFoamToken currToken;
+  currToken.SetStreamOption(io);
   if (!io.Read(currToken))
   {
     throw vtkFoamError() << "Unexpected EOF";
@@ -3186,7 +3270,7 @@ void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
       throw vtkFoamError() << "List size must not be negative: size = " << size;
     }
     list.GetPtr()->SetNumberOfTuples(size);
-    if (io.GetFormat() == vtkFoamIOobject::ASCII)
+    if (io.IsAsciiFormat())
     {
       if (!io.Read(currToken))
       {
@@ -3359,17 +3443,18 @@ public:
     }
   }
 
-  vtkFoamToken::labelType GetLabelType() const { return this->Token.GetLabelType(); }
-
-  void SetLabelType(vtkFoamToken::labelType lt) { this->Token.SetLabelType(lt); }
+  void SetStreamOption(const vtkFoamStreamOption& opt) { this->Token.SetStreamOption(opt); }
+  bool IsLabel64() const { return this->Token.IsLabel64(); } // convenience
 
   vtkFoamToken::tokenType GetType() const
   {
-    return this->Token.GetType() == vtkFoamToken::UNDEFINED ? vtkFoamToken::DICTIONARY
-                                                            : this->Token.GetType();
+    return (this->Token.GetType() == vtkFoamToken::UNDEFINED ? vtkFoamToken::DICTIONARY
+                                                             : this->Token.GetType());
   }
+
   const vtkFoamToken& GetToken() const { return this->Token; }
   const vtkFoamDict* GetUpperDictPtr() const { return this->UpperDictPtr; }
+
   vtkFoamEntry* Lookup(const vtkStdString& keyword, bool regex = false) const
   {
     if (this->Token.GetType() == vtkFoamToken::UNDEFINED)
@@ -3395,7 +3480,7 @@ public:
       }
     }
 
-    // not found
+    // Not found
     return nullptr;
   }
 
@@ -3405,9 +3490,10 @@ public:
   bool Read(vtkFoamIOobject& io, const bool isSubDictionary = false,
     const vtkFoamToken& firstToken = vtkFoamToken())
   {
+    vtkFoamToken currToken;
+    currToken.SetStreamOption(io);
     try
     {
-      vtkFoamToken currToken;
       if (firstToken.GetType() == vtkFoamToken::UNDEFINED)
       {
         // read the first token
@@ -3613,59 +3699,50 @@ public:
 
 void vtkFoamIOobject::ReadHeader()
 {
-  vtkFoamToken firstToken;
-  firstToken.SetLabelType(
-    this->Reader->GetUse64BitLabels() ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
-
   this->Superclass::ReadExpecting("FoamFile");
   this->Superclass::ReadExpecting('{');
 
   vtkFoamDict headerDict;
-  headerDict.SetLabelType(firstToken.GetLabelType());
-  // throw exception in case of error
-  headerDict.Read(*this, true, vtkFoamToken());
+  headerDict.SetStreamOption(this->GetStreamOption());
+  headerDict.Read(*this, true, vtkFoamToken()); // Throw exception in case of error
 
-  const vtkFoamEntry* formatEntry = headerDict.Lookup("format");
-  if (formatEntry == nullptr)
+  const vtkFoamEntry* eptr;
+
+  if ((eptr = headerDict.Lookup("format")) == nullptr)
   {
-    throw vtkFoamError() << "format entry (binary/ascii) not found in FoamFile header";
+    throw vtkFoamError() << "No 'format' (ascii|binary) in FoamFile header";
   }
-  // case does matter (e. g. "BINARY" is treated as ascii)
-  // cf. src/OpenFOAM/db/IOstreams/IOstreams/IOstream.C
-  this->Format = (formatEntry->ToString() == "binary" ? BINARY : ASCII);
+  this->SetUseBinaryFormat("binary" == eptr->ToString()); // case sensitive
 
   // Newer (binary) files have 'arch' entry with "label=(32|64) scalar=(32|64)"
   // If this entry does not exist, or is incomplete, uses the fallback values
   // that come from the reader (defined in constructor and Close)
-  const vtkFoamEntry* archEntry = headerDict.Lookup("arch");
-  if (archEntry)
+  if ((eptr = headerDict.Lookup("arch")) != nullptr)
   {
-    const vtkStdString archValue = archEntry->ToString();
+    const vtkStdString archValue(eptr->ToString());
     vtksys::RegularExpression re;
 
     if (re.compile("^.*label *= *(32|64).*$") && re.find(archValue.c_str()))
     {
-      this->Use64BitLabels = ("64" == re.match(1));
+      this->SetLabel64("64" == re.match(1));
     }
     if (re.compile("^.*scalar *= *(32|64).*$") && re.find(archValue.c_str()))
     {
-      this->Use64BitFloats = ("64" == re.match(1));
+      this->SetFloat64("64" == re.match(1));
     }
   }
 
-  const vtkFoamEntry* classEntry = headerDict.Lookup("class");
-  if (classEntry == nullptr)
+  if ((eptr = headerDict.Lookup("class")) == nullptr)
   {
-    throw vtkFoamError() << "class name not found in FoamFile header";
+    throw vtkFoamError() << "No 'class' in FoamFile header";
   }
-  this->HeaderClassName = classEntry->ToString();
+  this->headerClassName_ = eptr->ToString();
 
-  const vtkFoamEntry* objectEntry = headerDict.Lookup("object");
-  if (objectEntry == nullptr)
+  if ((eptr = headerDict.Lookup("object")) == nullptr)
   {
-    throw vtkFoamError() << "object name not found in FoamFile header";
+    throw vtkFoamError() << "No 'object' in FoamFile header";
   }
-  this->ObjectName = objectEntry->ToString();
+  this->objectName_ = eptr->ToString();
 }
 
 vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntry* upperEntryPtr)
@@ -3700,14 +3777,14 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
       this->Superclass::VtkObjectPtr->Register(nullptr);
       break;
     case LABELLISTLIST:
-      assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-      if (this->LabelType == INT32)
+      assert("Label type not set!" && this->HasLabelType());
+      if (this->IsLabel64())
       {
-        this->LabelListListPtr = new vtkFoamLabel32VectorVector(*value.LabelListListPtr);
+        this->LabelListListPtr = new vtkFoamLabel64VectorVector(*value.LabelListListPtr);
       }
       else
       {
-        this->LabelListListPtr = new vtkFoamLabel64VectorVector(*value.LabelListListPtr);
+        this->LabelListListPtr = new vtkFoamLabel32VectorVector(*value.LabelListListPtr);
       }
       break;
     case ENTRYVALUELIST:
@@ -3726,7 +3803,7 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
       if (this->UpperEntryPtr != nullptr)
       {
         this->DictPtr = new vtkFoamDict(*value.DictPtr, this->UpperEntryPtr->GetUpperDictPtr());
-        this->DictPtr->SetLabelType(value.GetLabelType());
+        this->DictPtr->SetStreamOption(value.GetStreamOption());
       }
       else
       {
@@ -3797,9 +3874,10 @@ void vtkFoamEntryValue::Clear()
 // token)') only if a list comes as the first value.
 void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
 {
-  assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
+  this->SetStreamOption(io);
+
   vtkFoamToken currToken;
-  currToken.SetLabelType(this->LabelType);
+  currToken.SetStreamOption(io);
   io.Read(currToken);
 
   // initial guess of the list type
@@ -3808,25 +3886,25 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     // if the first token is of type LABEL it might be either an element of
     // a labelList or the size of a sublist so proceed to the next token
     vtkFoamToken nextToken;
-    nextToken.SetLabelType(this->LabelType);
+    nextToken.SetStreamOption(io);
     if (!io.Read(nextToken))
     {
       throw vtkFoamError() << "Unexpected EOF";
     }
     if (nextToken.GetType() == this->Superclass::LABEL)
     {
-      if (this->LabelType == INT32)
-      {
-        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
-        array->InsertNextValue(currToken.To<vtkTypeInt32>());
-        array->InsertNextValue(nextToken.To<vtkTypeInt32>());
-        this->Superclass::LabelListPtr = array;
-      }
-      else
+      if (this->IsLabel64())
       {
         vtkTypeInt64Array* array = vtkTypeInt64Array::New();
         array->InsertNextValue(currToken.To<vtkTypeInt64>());
         array->InsertNextValue(nextToken.To<vtkTypeInt64>());
+        this->Superclass::LabelListPtr = array;
+      }
+      else
+      {
+        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+        array->InsertNextValue(currToken.To<vtkTypeInt32>());
+        array->InsertNextValue(nextToken.To<vtkTypeInt32>());
         this->Superclass::LabelListPtr = array;
       }
       this->Superclass::Type = LABELLIST;
@@ -3842,24 +3920,24 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));
-      this->Superclass::EntryValuePtrs->back()->SetLabelType(this->LabelType);
+      this->Superclass::EntryValuePtrs->back()->SetStreamOption(*this);
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
       this->Superclass::Type = ENTRYVALUELIST;
     }
     else if (nextToken == ')') // list with only one label element
     {
-      if (this->LabelType == INT32)
-      {
-        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
-        array->SetNumberOfValues(1);
-        array->SetValue(0, currToken.To<vtkTypeInt32>());
-        this->Superclass::LabelListPtr = array;
-      }
-      else
+      if (this->IsLabel64())
       {
         vtkTypeInt64Array* array = vtkTypeInt64Array::New();
         array->SetNumberOfValues(1);
         array->SetValue(0, currToken.To<vtkTypeInt64>());
+        this->Superclass::LabelListPtr = array;
+      }
+      else
+      {
+        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+        array->SetNumberOfValues(1);
+        array->SetValue(0, currToken.To<vtkTypeInt32>());
         this->Superclass::LabelListPtr = array;
       }
       this->Superclass::Type = LABELLIST;
@@ -3881,7 +3959,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   else if (currToken.GetType() == this->Superclass::STRING)
   {
     vtkFoamToken nextToken;
-    nextToken.SetLabelType(this->LabelType);
+    nextToken.SetStreamOption(io);
     if (!io.Read(nextToken))
     {
       throw vtkFoamError() << "Unexpected EOF";
@@ -3923,7 +4001,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   {
     this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
     this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));
-    this->Superclass::EntryValuePtrs->back()->SetLabelType(this->LabelType);
+    this->Superclass::EntryValuePtrs->back()->SetStreamOption(io);
     if (currToken == '(')
     {
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
@@ -3938,6 +4016,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     do
     {
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));
+      this->Superclass::EntryValuePtrs->back()->SetStreamOption(io);
       this->Superclass::EntryValuePtrs->back()->Read(io);
     } while (*this->Superclass::EntryValuePtrs->back() != ')' &&
       *this->Superclass::EntryValuePtrs->back() != '}' &&
@@ -3976,7 +4055,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         for (int i = 0; i < size; i++)
         {
           slPtr->SetValue(
-            i, static_cast<float>(GetLabelValue(this->LabelListPtr, i, this->LabelType == INT64)));
+            i, static_cast<float>(GetLabelValue(this->LabelListPtr, i, io.IsLabel64())));
         }
         this->LabelListPtr->Delete();
         slPtr->SetValue(size, currToken.To<float>());
@@ -3986,18 +4065,18 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       }
       else if (currToken.GetType() == this->Superclass::LABEL)
       {
-        assert("Label type not set!" && currToken.GetLabelType() != NO_LABEL_TYPE);
-        if (currToken.GetLabelType() == INT32)
-        {
-          assert(vtkTypeInt32Array::FastDownCast(this->LabelListPtr) != nullptr);
-          static_cast<vtkTypeInt32Array*>(this->LabelListPtr)
-            ->InsertNextValue(currToken.To<vtkTypeInt32>());
-        }
-        else
+        assert("Label type not set!" && currToken.HasLabelType());
+        if (currToken.IsLabel64())
         {
           assert(vtkTypeInt64Array::FastDownCast(this->LabelListPtr) != nullptr);
           static_cast<vtkTypeInt64Array*>(this->LabelListPtr)
             ->InsertNextValue(currToken.To<vtkTypeInt64>());
+        }
+        else
+        {
+          assert(vtkTypeInt32Array::FastDownCast(this->LabelListPtr) != nullptr);
+          static_cast<vtkTypeInt32Array*>(this->LabelListPtr)
+            ->InsertNextValue(currToken.To<vtkTypeInt32>());
         }
       }
       else
@@ -4019,7 +4098,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
           "supports nested lists that precede all "
           "scalars. Discarding nested list data.");
         vtkFoamEntryValue tmp(this->UpperEntryPtr);
-        tmp.SetLabelType(this->LabelType);
+        tmp.SetStreamOption(io);
         tmp.ReadList(io);
       }
       else
@@ -4079,7 +4158,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
 void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& firstKeyword)
 {
   this->Superclass::DictPtr = new vtkFoamDict(this->UpperEntryPtr->GetUpperDictPtr());
-  this->DictPtr->SetLabelType(io.GetUse64BitLabels() ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+  this->DictPtr->SetStreamOption(io);
   this->Superclass::Type = this->Superclass::DICTIONARY;
   this->Superclass::DictPtr->Read(io, true, firstKeyword);
 }
@@ -4089,10 +4168,10 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& 
 // composite entry value, 1 otherwise
 int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
 {
-  this->SetLabelType(io.GetUse64BitLabels() ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+  this->SetStreamOption(io);
 
   vtkFoamToken currToken;
-  currToken.SetLabelType(this->LabelType);
+  currToken.SetStreamOption(io);
   if (!io.Read(currToken))
   {
     throw vtkFoamError() << "Unexpected EOF";
@@ -4152,7 +4231,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     this->IsUniform = false;
     if (currToken == "List<scalar>")
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
       }
@@ -4163,7 +4242,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<sphericalTensor>")
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(io);
       }
@@ -4174,7 +4253,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<vector>")
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(io);
       }
@@ -4185,7 +4264,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<symmTensor>")
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(io);
       }
@@ -4196,7 +4275,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     }
     else if (currToken == "List<tensor>")
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(io);
       }
@@ -4209,8 +4288,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     // this needs checking but not many bool fields in use
     else if (currToken == "List<label>" || currToken == "List<bool>")
     {
-      assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-      if (this->LabelType == INT64)
+      if (io.IsLabel64())
       {
         this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
@@ -4223,7 +4301,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     else if (currToken.GetType() == this->Superclass::LABEL && currToken.To<vtkTypeInt64>() == 0)
     {
       this->Superclass::Type = this->Superclass::EMPTYLIST;
-      if (io.GetFormat() == vtkFoamIOobject::ASCII)
+      if (io.IsAsciiFormat())
       {
         io.ReadExpecting('(');
         io.ReadExpecting(')');
@@ -4244,7 +4322,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   else if (currToken == "List<scalar>")
   {
     this->IsUniform = false;
-    if (io.GetUse64BitFloats())
+    if (io.IsFloat64())
     {
       this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
     }
@@ -4257,8 +4335,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   else if (currToken == "List<label>")
   {
     this->IsUniform = false;
-    assert("Label type not set!" && this->GetLabelType() != NO_LABEL_TYPE);
-    if (this->LabelType == INT64)
+    if (io.IsLabel64())
     {
       this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
     }
@@ -4291,6 +4368,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
   for (;;)
   {
     this->Superclass::push_back(new vtkFoamEntryValue(this));
+    this->Superclass::back()->SetStreamOption(io);
     if (!this->Superclass::back()->Read(io))
     {
       break;
@@ -4334,6 +4412,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
             this->Superclass::pop_back();
             // make new labelList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
+            this->Superclass::back()->SetStreamOption(io);
             this->Superclass::back()->MakeLabelList(value, asize);
           }
           else if (lastValue.Dictionary().GetType() == vtkFoamToken::SCALAR)
@@ -4347,6 +4426,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
             this->Superclass::pop_back();
             // make new labelList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
+            this->Superclass::back()->SetStreamOption(io);
             this->Superclass::back()->MakeScalarList(value, asize);
           }
         }
@@ -4370,8 +4450,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           {
             this->Superclass::push_back(
               new vtkFoamEntryValue(*identifiedEntry->operator[](valueI), this));
-            this->back()->SetLabelType(
-              io.GetUse64BitLabels() ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+            this->back()->SetStreamOption(io);
           }
           break;
         }
@@ -5423,7 +5502,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
   {
     vtkFoamEntryValue dict(nullptr);
 
-    if (io.GetUse64BitFloats())
+    if (io.IsFloat64())
     {
       dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
         vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false>>(io);
@@ -5471,7 +5550,7 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdSt
   }
 
   vtkFoamEntryValue dict(nullptr);
-  dict.SetLabelType(this->Parent->Use64BitLabels ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+  dict.SetStreamOption(io);
   try
   {
     if (io.GetClassName() == "faceCompactList")
@@ -5497,8 +5576,6 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdSt
 vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
   const vtkStdString& meshDir)
 {
-  bool use64BitLabels = this->Parent->Use64BitLabels;
-
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
   // Read polyMesh/owner
@@ -5511,9 +5588,10 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
       return nullptr;
     }
   }
+  const bool use64BitLabels = io.IsLabel64();
 
   vtkFoamEntryValue ownerDict(nullptr);
-  ownerDict.SetLabelType(use64BitLabels ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+  ownerDict.SetStreamOption(io);
   try
   {
     if (use64BitLabels)
@@ -5546,8 +5624,15 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
     }
   }
 
+  if (use64BitLabels != io.IsLabel64())
+  {
+    vtkErrorMacro(<< "owner/neighbour with different label-size: should not happen"
+                  << io.GetCasePath().c_str());
+    return nullptr;
+  }
+
   vtkFoamEntryValue neighDict(nullptr);
-  neighDict.SetLabelType(use64BitLabels ? vtkFoamToken::INT64 : vtkFoamToken::INT32);
+  neighDict.SetStreamOption(io);
   try
   {
     if (use64BitLabels)
@@ -6846,13 +6931,13 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   // create initial internal point list: set all points to -1
   if (this->Parent->GetCreateCellToPoint())
   {
-    if (!use64BitLabels)
+    if (use64BitLabels)
     {
-      this->InternalPoints = vtkTypeInt32Array::New();
+      this->InternalPoints = vtkTypeInt64Array::New();
     }
     else
     {
-      this->InternalPoints = vtkTypeInt64Array::New();
+      this->InternalPoints = vtkTypeInt32Array::New();
     }
     this->InternalPoints->SetNumberOfValues(this->NumPoints);
     this->InternalPoints->FillComponent(0, -1);
@@ -7037,13 +7122,13 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   if (this->Parent->GetCreateCellToPoint())
   {
     this->AllBoundaries->Squeeze();
-    if (!use64BitLabels)
+    if (use64BitLabels)
     {
-      this->AllBoundariesPointMap = vtkTypeInt32Array::New();
+      this->AllBoundariesPointMap = vtkTypeInt64Array::New();
     }
     else
     {
-      this->AllBoundariesPointMap = vtkTypeInt64Array::New();
+      this->AllBoundariesPointMap = vtkTypeInt32Array::New();
     }
     vtkDataArray& abpMap = *this->AllBoundariesPointMap;
     abpMap.SetNumberOfValues(nAllBoundaryPoints);
@@ -7343,13 +7428,12 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject* ioPtr, vtkFoamDict* dictPtr,
-  const vtkStdString& varName, vtkDataArraySelection* selection)
+bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict,
+  const vtkStdString& varName, const vtkDataArraySelection* selection)
 {
   const vtkStdString varPath(this->CurrentTimeRegionPath() + "/" + varName);
 
-  // open the file
-  vtkFoamIOobject& io = *ioPtr;
+  // Open the file
   if (!io.Open(varPath))
   {
     vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": " << io.GetError().c_str());
@@ -7363,8 +7447,7 @@ bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject* ioPtr, vtkFoamDict
     return false;
   }
 
-  // read the field file into dictionary
-  vtkFoamDict& dict = *dictPtr;
+  // Read the field file into dictionary
   if (!dict.Read(io))
   {
     vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
@@ -7381,12 +7464,11 @@ bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject* ioPtr, vtkFoamDict
 }
 
 //------------------------------------------------------------------------------
-vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry* entryPtr, vtkIdType nElements,
-  vtkFoamIOobject* ioPtr, const vtkStdString& fieldType)
+vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vtkIdType nElements,
+  const vtkFoamIOobject& io, const vtkStdString& fieldType)
 {
   vtkFloatArray* data;
-  vtkFoamEntry& entry = *entryPtr;
-  const vtkStdString& className = ioPtr->GetClassName();
+  const vtkStdString& className = io.GetClassName();
 
   if (entry.FirstValue().GetIsUniform())
   {
@@ -7450,7 +7532,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry* entryPtr, vtkId
       else
       {
         vtkErrorMacro(<< "Number of components and field class doesn't match "
-                      << "for " << ioPtr->GetFileName().c_str() << ". class = " << className.c_str()
+                      << "for " << io.GetFileName().c_str() << ". class = " << className.c_str()
                       << ", nComponents = " << nComponents);
         return nullptr;
       }
@@ -7510,8 +7592,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry* entryPtr, vtkId
     }
     else
     {
-      vtkErrorMacro(<< ioPtr->GetFileName().c_str() << " is not a valid "
-                    << ioPtr->GetClassName().c_str());
+      vtkErrorMacro(<< io.GetFileName().c_str() << " is not a valid " << io.GetClassName().c_str());
       return nullptr;
     }
   }
@@ -7540,7 +7621,7 @@ vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& di
   const vtkDataArray& dims = dimEntry->LabelList();
   if (dims.GetNumberOfTuples() == nDims)
   {
-    const bool use64BitLabels = this->Parent->GetUse64BitLabels();
+    const bool use64BitLabels = dict.IsLabel64();
 
     for (vtkIdType i = 0; i < nDims; ++i)
     {
@@ -7640,13 +7721,13 @@ vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& di
 void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* internalMesh,
   vtkMultiBlockDataSet* boundaryMesh, const vtkStdString& varName, const bool isInternalField)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
-  if (!this->ReadFieldFile(&io, &dict, varName, this->Parent->CellDataArraySelection))
+  if (!this->ReadFieldFile(io, dict, varName, this->Parent->CellDataArraySelection))
   {
     return;
   }
+  const bool use64BitLabels = io.IsLabel64();
 
   // For internal field (eg, volScalarField::Internal)
   const auto colons = io.GetClassName().find("::Internal");
@@ -7683,7 +7764,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
   // Eg, from "volScalarField" -> "ScalarField",
   // Eg, from "volScalarField::Internal" -> "ScalarField"
   const vtkStdString fieldType(io.GetClassName().substr(3, colons - 3));
-  vtkFloatArray* iData = this->FillField(iEntry, this->NumCells, &io, fieldType);
+  vtkFloatArray* iData = this->FillField(*iEntry, this->NumCells, io, fieldType);
   if (iData == nullptr)
   {
     return;
@@ -7817,7 +7898,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
         vtkFoamEntry* vEntry = bfieldEntry->Dictionary().Lookup("value");
         if (vEntry != nullptr)
         {
-          vData = this->FillField(vEntry, nFaces, &io, fieldType);
+          vData = this->FillField(*vEntry, nFaces, io, fieldType);
 
           if (vData == nullptr)
           {
@@ -7957,13 +8038,13 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
 void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* internalMesh,
   vtkMultiBlockDataSet* boundaryMesh, const vtkStdString& varName)
 {
-  bool use64BitLabels = this->Parent->GetUse64BitLabels();
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
-  if (!this->ReadFieldFile(&io, &dict, varName, this->Parent->PointDataArraySelection))
+  if (!this->ReadFieldFile(io, dict, varName, this->Parent->PointDataArraySelection))
   {
     return;
   }
+  const bool use64BitLabels = io.IsLabel64();
 
   if (io.GetClassName().substr(0, 5) != "point")
   {
@@ -7989,7 +8070,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
   }
 
   vtkStdString fieldType = io.GetClassName().substr(5, vtkStdString::npos);
-  vtkFloatArray* iData = this->FillField(iEntry, this->NumPoints, &io, fieldType);
+  vtkFloatArray* iData = this->FillField(*iEntry, this->NumPoints, io, fieldType);
   if (iData == nullptr)
   {
     return;
@@ -8123,7 +8204,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     vtkFoamEntryValue dict(nullptr);
     try
     {
-      if (io.GetUse64BitFloats())
+      if (io.IsFloat64())
       {
         dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
           vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
@@ -8278,7 +8359,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
   }
 
   const vtkFoamDict& zones = *zonesDictPtr;
-  // const bool use64BitLabels = this->Parent->GetUse64BitLabels();
+  // const bool use64BitLabels = zones.IsLabel64();
 
   // Limits
   const unsigned nZones = static_cast<unsigned>(zones.size());
@@ -8356,7 +8437,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
   }
 
   const vtkFoamDict& zones = *zonesDictPtr;
-  const bool use64BitLabels = this->Parent->GetUse64BitLabels();
+  const bool use64BitLabels = zones.IsLabel64();
 
   // Limits
   const unsigned nZones = static_cast<unsigned>(zones.size());
@@ -8448,7 +8529,7 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
   }
 
   const vtkFoamDict& zones = *zonesDictPtr;
-  const bool use64BitLabels = this->Parent->GetUse64BitLabels();
+  const bool use64BitLabels = zones.IsLabel64();
 
   // Limits
   const unsigned nZones = static_cast<unsigned>(zones.size());
