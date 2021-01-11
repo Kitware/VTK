@@ -22,24 +22,26 @@
  * cells. Each folder can contain any number of data files.
  *
  * @par Thanks:
- * Thanks to Terry Jordan of SAIC at the National Energy
- * Technology Laboratory who developed this class.
- * Please address all comments to Terry Jordan (terry.jordan@sa.netl.doe.gov).
- * GUI Based selection of mesh regions and fields available in the case,
- * minor bug fixes, strict memory allocation checks,
- * minor performance enhancements by Philippose Rajan (sarith@rocketmail.com).
+ * Thanks to Terry Jordan (terry.jordan@sa.netl.doe.gov) of SAIC
+ * at the National Energy Technology Laboratory who originally
+ * developed this class.
  *
+ * Takuya Oshima of Niigata University, Japan (oshima@eng.niigata-u.ac.jp)
+ * provided the major bulk of improvements (rewrite) that made the reader
+ * truly functional and icluded the following features:
  * Token-based FoamFile format lexer/parser,
  * performance/stability/compatibility enhancements, gzipped file
  * support, lagrangian field support, variable timestep support,
  * builtin cell-to-point filter, pointField support, polyhedron
- * decomposition support, OF 1.5 extended format support, multiregion
- * support, old mesh format support, parallelization support for
- * decomposed cases in conjunction with vtkPOpenFOAMReader, et. al. by
- * Takuya Oshima of Niigata University, Japan (oshima@eng.niigata-u.ac.jp).
+ * decomposition support, multiregion support, parallelization support for
+ * decomposed cases in conjunction with vtkPOpenFOAMReader etc.
  *
- * Misc cleanup, bugfixes, improvements
- * Mark Olesen (OpenCFD Ltd.)
+ * Philippose Rajan (sarith@rocketmail.com) added
+ * GUI-based selection of mesh regions and fields available in the case,
+ * minor bug fixes, strict memory allocation checks,
+ *
+ * Mark Olesen (OpenCFD Ltd.) www.openfoam.com
+ * has provided various bugfixes, improvements, cleanup
  */
 
 #ifndef vtkOpenFOAMReader_h
