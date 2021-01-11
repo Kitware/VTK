@@ -229,28 +229,101 @@ void AppendLabelValue(vtkDataArray* array, vtkTypeInt64 val, bool use64BitLabels
 //------------------------------------------------------------------------------
 // Some storage containers
 
+// Manage a list of pointers
 template <typename T>
-struct vtkFoamArrayVector : public std::vector<T*>
+struct vtkFoamPtrList : public std::vector<T*>
 {
 private:
   typedef std::vector<T*> Superclass;
 
-public:
-  ~vtkFoamArrayVector()
+  // Plain 'delete' each entry
+  void DeleteAll()
   {
-    for (size_t arrayI = 0; arrayI < Superclass::size(); arrayI++)
+    for (T* ptr : *this)
     {
-      if (Superclass::operator[](arrayI))
-      {
-        Superclass::operator[](arrayI)->Delete();
-      }
+      delete ptr;
     }
+  }
+
+public:
+  // Inherit all constructors
+  using std::vector<T*>::vector;
+
+  // Default construct
+  vtkFoamPtrList() = default;
+
+  // No copy construct/assignment
+  vtkFoamPtrList(const vtkFoamPtrList&) = delete;
+  void operator=(const vtkFoamPtrList&) = delete;
+
+  // Destructor - delete each entry
+  ~vtkFoamPtrList() { DeleteAll(); }
+
+  // Remove top element, deleting its pointer
+  void remove_back()
+  {
+    if (!Superclass::empty())
+    {
+      delete Superclass::back();
+      Superclass::pop_back();
+    }
+  }
+
+  // Clear list, delete all elements
+  void clear()
+  {
+    DeleteAll();
+    Superclass::clear();
   }
 };
 
-typedef vtkFoamArrayVector<vtkDataArray> vtkFoamLabelArrayVector;
-typedef vtkFoamArrayVector<vtkIntArray> vtkFoamIntArrayVector;
-typedef vtkFoamArrayVector<vtkFloatArray> vtkFoamFloatArrayVector;
+// Manage a list of vtkDataObject pointers
+template <typename ObjectT>
+struct vtkFoamDataArrayVector : public std::vector<ObjectT*>
+{
+private:
+  typedef std::vector<ObjectT*> Superclass;
+
+  // Invoke vtkDataObject Delete() on each (non-null) entry
+  void DeleteAll()
+  {
+    for (ObjectT* ptr : *this)
+    {
+      if (ptr)
+      {
+        ptr->Delete();
+      }
+    }
+  }
+
+public:
+  // Destructor - invoke vtkDataObject Delete() on each entry
+  ~vtkFoamDataArrayVector() { DeleteAll(); }
+
+  // Remove top element, invoking vtkDataObject Delete() on it
+  void remove_back()
+  {
+    if (!Superclass::empty())
+    {
+      ObjectT* ptr = Superclass::back();
+      if (ptr)
+      {
+        ptr->Delete();
+      }
+      Superclass::pop_back();
+    }
+  }
+
+  // Clear list, invoking vtkDataObject Delete() on each element
+  void clear()
+  {
+    DeleteAll();
+    Superclass::clear();
+  }
+};
+
+// Forward Declarations
+typedef vtkFoamDataArrayVector<vtkDataArray> vtkFoamLabelArrayVector;
 
 //------------------------------------------------------------------------------
 // struct vtkFoamLabelListList - details in the implementation class
@@ -960,7 +1033,7 @@ protected:
     vtkDataArray* LabelListPtr;
     // List types (non-vtkObject)
     vtkFoamLabelListList* LabelListListPtr;
-    std::vector<vtkFoamEntryValue*>* EntryValuePtrs;
+    vtkFoamPtrList<vtkFoamEntryValue>* EntryValuePtrs;
     vtkFoamDict* DictPtr;
   };
 
@@ -3347,10 +3420,10 @@ void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
 // class vtkFoamEntry
 // a class that represents an entry of a dictionary. note that an
 // entry can have more than one value.
-struct vtkFoamEntry : public std::vector<vtkFoamEntryValue*>
+struct vtkFoamEntry : public vtkFoamPtrList<vtkFoamEntryValue>
 {
 private:
-  typedef std::vector<vtkFoamEntryValue*> Superclass;
+  typedef vtkFoamPtrList<vtkFoamEntryValue> Superclass;
   vtkStdString Keyword;
   vtkFoamDict* UpperDictPtr;
 
@@ -3366,22 +3439,15 @@ public:
     , Keyword(entry.GetKeyword())
     , UpperDictPtr(upperDictPtr)
   {
-    for (size_t valueI = 0; valueI < entry.size(); valueI++)
+    for (size_t i = 0; i < entry.size(); ++i)
     {
-      this->Superclass::operator[](valueI) = new vtkFoamEntryValue(*entry[valueI], this);
+      (*this)[i] = new vtkFoamEntryValue(*entry[i], this);
     }
   }
 
-  ~vtkFoamEntry() { this->Clear(); }
+  ~vtkFoamEntry() = default;
 
-  void Clear()
-  {
-    for (size_t i = 0; i < this->Superclass::size(); i++)
-    {
-      delete this->Superclass::operator[](i);
-    }
-    this->Superclass::clear();
-  }
+  void Clear() { this->Superclass::clear(); }
 
   const vtkStdString& GetKeyword() const { return this->Keyword; }
   void SetKeyword(const vtkStdString& keyword) { this->Keyword = keyword; }
@@ -3437,7 +3503,7 @@ private:
   vtkFoamDict(const vtkFoamDict&) = delete;
 
 public:
-  vtkFoamDict(const vtkFoamDict* upperDictPtr = nullptr)
+  explicit vtkFoamDict(const vtkFoamDict* upperDictPtr = nullptr)
     : Superclass()
     , Token()
     , UpperDictPtr(upperDictPtr)
@@ -3450,10 +3516,14 @@ public:
   {
     if (dict.GetType() == vtkFoamToken::DICTIONARY)
     {
-      for (size_t entryI = 0; entryI < dict.size(); entryI++)
+      for (size_t i = 0; i < dict.size(); ++i)
       {
-        this->operator[](entryI) = new vtkFoamEntry(*dict[entryI], this);
+        (*this)[i] = new vtkFoamEntry(*dict[i], this);
       }
+    }
+    else
+    {
+      Superclass::assign(dict.size(), nullptr);
     }
   }
 
@@ -3461,10 +3531,20 @@ public:
   {
     if (this->Token.GetType() == vtkFoamToken::UNDEFINED)
     {
-      for (size_t i = 0; i < this->Superclass::size(); i++)
+      for (auto* ptr : *this)
       {
-        delete this->operator[](i);
+        delete ptr;
       }
+    }
+  }
+
+  // Remove top element, deleting its pointer
+  void remove_back()
+  {
+    if (!Superclass::empty())
+    {
+      delete Superclass::back();
+      Superclass::pop_back();
     }
   }
 
@@ -3480,6 +3560,22 @@ public:
   const vtkFoamToken& GetToken() const { return this->Token; }
   const vtkFoamDict* GetUpperDictPtr() const { return this->UpperDictPtr; }
 
+  // Return list of keywords - table of contents
+  std::vector<std::string> Toc() const
+  {
+    std::vector<std::string> list;
+    list.reserve(this->size());
+    for (const vtkFoamEntry* eptr : *this)
+    {
+      const std::string& key = eptr->GetKeyword();
+      if (!key.empty()) // should not really happen anyhow
+      {
+        list.push_back(key);
+      }
+    }
+    return list;
+  }
+
   vtkFoamEntry* Lookup(const vtkStdString& keyword, bool regex = false) const
   {
     if (this->Token.GetType() == vtkFoamToken::UNDEFINED)
@@ -3487,13 +3583,14 @@ public:
       int lastMatch = -1;
       for (size_t i = 0; i < this->Superclass::size(); i++)
       {
+        const vtkStdString& key = this->operator[](i)->GetKeyword();
         vtksys::RegularExpression rex;
-        if (this->operator[](i)->GetKeyword() == keyword) // found
+        if (key == keyword) // found
         {
           return this->operator[](i);
         }
-        else if (regex && rex.compile(this->operator[](i)->GetKeyword()) && rex.find(keyword) &&
-          rex.start(0) == 0 && rex.end(0) == keyword.size())
+        else if (regex && rex.compile(key) && rex.find(keyword) && rex.start(0) == 0 &&
+          rex.end(0) == keyword.size())
         {
           // regular expression matches full keyword
           lastMatch = static_cast<int>(i);
@@ -3652,9 +3749,8 @@ public:
 
             if (currToken == "FoamFile")
             {
-              // delete the FoamFile header subdictionary entry
-              delete this->Superclass::back();
-              this->Superclass::pop_back();
+              // Drop the FoamFile header subdictionary entry
+              this->remove_back();
             }
           }
           else if (currToken.GetType() == vtkFoamToken::IDENTIFIER)
@@ -3814,7 +3910,7 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
     case ENTRYVALUELIST:
     {
       const size_t nValues = value.EntryValuePtrs->size();
-      this->EntryValuePtrs = new std::vector<vtkFoamEntryValue*>(nValues);
+      this->EntryValuePtrs = new vtkFoamPtrList<vtkFoamEntryValue>(nValues);
       for (size_t valueI = 0; valueI < nValues; valueI++)
       {
         this->EntryValuePtrs->operator[](valueI) =
@@ -3866,10 +3962,6 @@ void vtkFoamEntryValue::Clear()
         delete this->LabelListListPtr;
         break;
       case ENTRYVALUELIST:
-        for (size_t valueI = 0; valueI < this->EntryValuePtrs->size(); valueI++)
-        {
-          delete this->EntryValuePtrs->operator[](valueI);
-        }
         delete this->EntryValuePtrs;
         break;
       case DICTIONARY:
@@ -3942,7 +4034,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     }
     else if (nextToken == '(') // list of list: read recursively
     {
-      this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
+      this->Superclass::EntryValuePtrs = new vtkFoamPtrList<vtkFoamEntryValue>;
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));
       this->Superclass::EntryValuePtrs->back()->SetStreamOption(*this);
       this->Superclass::EntryValuePtrs->back()->ReadList(io);
@@ -4023,7 +4115,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   // list of lists or dictionaries: read recursively
   else if (currToken == '(' || currToken == '{')
   {
-    this->Superclass::EntryValuePtrs = new std::vector<vtkFoamEntryValue*>;
+    this->Superclass::EntryValuePtrs = new vtkFoamPtrList<vtkFoamEntryValue>;
     this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));
     this->Superclass::EntryValuePtrs->back()->SetStreamOption(io);
     if (currToken == '(')
@@ -4051,9 +4143,8 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       throw vtkFoamError() << "Expected ')' before " << *this->Superclass::EntryValuePtrs->back();
     }
 
-    // delete ')'
-    delete this->Superclass::EntryValuePtrs->back();
-    this->EntryValuePtrs->pop_back();
+    // Drop ')'
+    this->Superclass::EntryValuePtrs->remove_back();
     this->Superclass::Type = ENTRYVALUELIST;
     return;
   }
@@ -4415,9 +4506,8 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
         // rare
         if (lastValue.GetType() == vtkFoamToken::EMPTYLIST && secondLastValue == 0)
         {
-          delete this->Superclass::back();
-          this->Superclass::pop_back(); // delete the last value
-          // mark new last value as empty
+          // Remove last value, and mark new last value as EMPTYLIST
+          this->remove_back();
           this->Superclass::back()->SetEmptyList();
         }
         // for an exceptional expression of `LABEL{LABELorSCALAR}' without
@@ -4429,12 +4519,10 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           {
             const vtkTypeInt64 asize = secondLastValue.To<vtkTypeInt64>();
             const vtkTypeInt64 value = lastValue.Dictionary().GetToken().ToInt();
-            // delete last two values
-            delete this->Superclass::back();
-            this->Superclass::pop_back();
-            delete this->Superclass::back();
-            this->Superclass::pop_back();
-            // make new labelList
+            // Remove the last two values
+            this->remove_back();
+            this->remove_back();
+            // Make new labelList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
             this->Superclass::back()->SetStreamOption(io);
             this->Superclass::back()->MakeLabelList(value, asize);
@@ -4443,12 +4531,10 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
           {
             const vtkTypeInt64 asize = secondLastValue.To<vtkTypeInt64>();
             const float value = lastValue.Dictionary().GetToken().ToFloat();
-            // delete last two values
-            delete this->Superclass::back();
-            this->Superclass::pop_back();
-            delete this->Superclass::back();
-            this->Superclass::pop_back();
-            // make new labelList
+            // Remove the last two values
+            this->remove_back();
+            this->remove_back();
+            // Make new scalarList
             this->Superclass::push_back(new vtkFoamEntryValue(this));
             this->Superclass::back()->SetStreamOption(io);
             this->Superclass::back()->MakeScalarList(value, asize);
@@ -4459,10 +4545,9 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
 
     if (this->Superclass::back()->GetType() == vtkFoamToken::IDENTIFIER)
     {
-      // substitute identifier
+      // Substitute identifier
       const vtkStdString identifier(this->Superclass::back()->ToIdentifier());
-      delete this->Superclass::back();
-      this->Superclass::pop_back();
+      this->remove_back();
 
       for (const vtkFoamDict* uDictPtr = this->UpperDictPtr;;)
       {
@@ -4490,8 +4575,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
     }
     else if (*this->Superclass::back() == ';')
     {
-      delete this->Superclass::back();
-      this->Superclass::pop_back();
+      this->remove_back();
       break;
     }
     else if (this->Superclass::back()->GetType() == vtkFoamToken::DICTIONARY)
