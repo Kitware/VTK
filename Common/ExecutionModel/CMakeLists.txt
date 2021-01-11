@@ -34,6 +34,8 @@ set(classes
   vtkMultiBlockDataSetAlgorithm
   vtkMultiTimeStepAlgorithm
   vtkParallelReader
+  vtkPartitionedDataSetAlgorithm
+  vtkPartitionedDataSetCollectionAlgorithm
   vtkPassInputTypeAlgorithm
   vtkPiecewiseFunctionAlgorithm
   vtkPiecewiseFunctionShiftScale
