@@ -308,6 +308,21 @@ int vtkStreamingTessellator::BestTets( int* vtkNotUsed(connOffsets), double** vt
   return 1;
 }
 
+void vtkStreamingTessellator::AdaptivelySample3FacetLinear(
+  double* v0, double* v1, double* v2, double* v3) const
+{
+  Callback3(v0, v1, v2, v3, this->Algorithm, this->PrivateData, this->ConstPrivateData);
+}
+
+void vtkStreamingTessellator::AdaptivelySample2FacetLinear(double* v0, double* v1, double* v2) const
+{
+  Callback2(v0, v1, v2, this->Algorithm, this->PrivateData, this->ConstPrivateData);
+}
+
+void vtkStreamingTessellator::AdaptivelySample1FacetLinear(double* v0, double* v1) const
+{
+  Callback1(v0, v1, this->Algorithm, this->PrivateData, this->ConstPrivateData);
+}
 
 void vtkStreamingTessellator::AdaptivelySample0Facet( double* v0 ) const
 {

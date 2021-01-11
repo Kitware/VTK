@@ -1075,6 +1075,9 @@ vtkIdType vtkPyramid::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
   return numberOfPointsInFace[faceId];
 }
 
+// The choice of the parametric coord for the top coner of the pyramid
+// is not unique and is defined by (a, b, 1.), where a, b in [0., 1.].
+// In the current implementation, it is arbitrary definied to (0., 0., 1.).
 static double vtkPyramidCellPCoords[15] = {
   0.0, 0.0, 0.0, //
   1.0, 0.0, 0.0, //
