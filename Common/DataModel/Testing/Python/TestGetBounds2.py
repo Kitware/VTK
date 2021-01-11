@@ -59,16 +59,16 @@ print("Input data:")
 print("\tNum Points: {0}".format(polyData.GetNumberOfPoints()))
 print("\tNum Cells: {0}".format(polyData.GetNumberOfCells()))
 
-# Currently vtkPolyData takes into account cells that are connected to
-# points; hence only connected points (i.e., points used by cells) are
-# considered.
-
 # Compute bounds on polydata
 polyData.GetBounds(box)
 
 assert box[0] == 0.0
-assert box[1] == 6.0
+assert box[1] == 8.0
 assert box[2] == 0.0
 assert box[3] == 1.0
 assert box[4] == 0.0
 assert box[5] == 0.0
+
+# CellsBounds consider only points that belong to at least one cell.
+polyData.GetCellsBounds(box)
+assert box[1] == 6.0

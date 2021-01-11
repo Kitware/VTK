@@ -413,7 +413,7 @@ void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow* win)
 //------------------------------------------------------------------------------
 void vtkLabeledContourMapper::ComputeBounds()
 {
-  this->GetInput()->GetBounds(this->Bounds);
+  this->GetInput()->GetCellsBounds(this->Bounds);
 }
 
 //------------------------------------------------------------------------------

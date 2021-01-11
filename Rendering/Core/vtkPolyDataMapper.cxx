@@ -136,7 +136,12 @@ double* vtkPolyDataMapper::GetBounds()
 void vtkPolyDataMapper::ComputeBounds()
 {
   vtkPolyData* input = this->GetInput();
-  if (input)
+  if (input && input->GetNumberOfCells())
+  {
+    input->GetCellsBounds(this->Bounds);
+  }
+  // We prefer cells bounds but if polydata has no cell defined, use classic bounds instead.
+  else if (input)
   {
     input->GetBounds(this->Bounds);
   }

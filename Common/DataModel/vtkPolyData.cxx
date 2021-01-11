@@ -102,6 +102,7 @@ vtkPolyData::vtkPolyData()
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+  vtkMath::UninitializeBounds(this->CellsBounds);
 }
 
 //------------------------------------------------------------------------------
@@ -460,27 +461,26 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 // unused points make no contribution to the bounding box computation. This
 // is more costly to compute than using just the points, but for rendering
 // and historical reasons, produces preferred results.
-void vtkPolyData::ComputeBounds()
+void vtkPolyData::ComputeCellsBounds()
 {
-  if (this->GetMeshMTime() > this->ComputeTime)
+  if (this->GetMeshMTime() > this->CellsBoundsTime)
   {
-    // If there are no cells, but there are points, compute the bounds from the
-    // parent class vtkPointSet (which just examines points).
+    // If there are no cells, uninitialize the bounds.
     vtkIdType numPts = this->GetNumberOfPoints();
     vtkIdType numCells = this->GetNumberOfCells();
-    if (numCells <= 0 && numPts > 0)
+    if (numCells <= 0)
     {
-      vtkPointSet::ComputeBounds();
+      vtkMath::UninitializeBounds(this->CellsBounds);
       return;
     }
 
     // We are going to compute the bounds
-    this->ComputeTime.Modified();
+    this->CellsBoundsTime.Modified();
 
     // Make sure this vtkPolyData has points.
     if (this->Points == nullptr || numPts <= 0)
     {
-      vtkMath::UninitializeBounds(this->Bounds);
+      vtkMath::UninitializeBounds(this->CellsBounds);
       return;
     }
 
@@ -534,8 +534,18 @@ void vtkPolyData::ComputeBounds()
     } // for all cell arrays
 
     // Perform the bounding box computation
-    vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->Bounds);
+    vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
     delete[] ptUses;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyData::GetCellsBounds(double bounds[6])
+{
+  this->ComputeCellsBounds();
+  for (int i = 0; i < 6; i++)
+  {
+    bounds[i] = this->CellsBounds[i];
   }
 }
 
@@ -1526,6 +1536,13 @@ void vtkPolyData::DeepCopy(vtkDataObject* dataObject)
     {
       this->BuildLinks();
     }
+
+    this->CellsBoundsTime = polyData->CellsBoundsTime;
+    for (int idx = 0; idx < 3; ++idx)
+    {
+      this->CellsBounds[2 * idx] = polyData->CellsBounds[2 * idx];
+      this->CellsBounds[2 * idx + 1] = polyData->CellsBounds[2 * idx + 1];
+    }
   }
 }
 
@@ -1742,6 +1759,14 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
   os << indent << "Piece: " << this->GetPiece() << endl;
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
+
+  double bounds[6];
+  this->GetCellsBounds(bounds);
+  os << indent << "CellsBounds: \n";
+  os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
+  os << indent << "CellsBounds Time: " << this->CellsBoundsTime.GetMTime() << "\n";
 }
 
 //------------------------------------------------------------------------------
