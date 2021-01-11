@@ -14,26 +14,24 @@
 =========================================================================*/
 #include "vtkAMReXGridReader.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRDataSetCache.h"
+#include "vtkAMReXGridReaderInternal.h"
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataArraySelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-
-#include "vtkAMRBox.h"
-#include "vtkAMRDataSetCache.h"
-#include "vtkAMReXGridReaderInternal.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
-
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -42,8 +40,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
-
-using vtksystools = vtksys::SystemTools;
 
 vtkStandardNewMacro(vtkAMReXGridReader);
 //------------------------------------------------------------------------------
@@ -102,33 +98,19 @@ void vtkAMReXGridReader::SetFileName(const char* arg)
   }
 
   // both set to the same value, just return
-  if (this->FileName && arg && (strcmp(this->FileName, arg) != 0))
+  if (this->FileName && arg && strcmp(this->FileName, arg) == 0)
   {
     return;
   }
 
   delete[] this->FileName;
-  if (arg)
-  {
-    size_t n = strlen(arg) + 1;
-    char* cp1 = new char[n];
-    const char* cp2 = (arg);
-    this->FileName = cp1;
-    do
-    {
-      *cp1++ = *cp2++;
-    } while (--n);
-  }
-  else
-  {
-    this->FileName = nullptr;
-  }
-
+  this->FileName = vtksys::SystemTools::DuplicateString(arg);
   this->Internal->SetFileName(this->FileName);
   this->LoadedMetaData = false;
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkAMReXGridReader::ReadMetaData()
 {
   this->Internal->ReadMetaData();
@@ -213,6 +195,10 @@ int vtkAMReXGridReader::FillMetaData()
       this->Metadata->SetAMRBlockSourceIndex(i, j, globalID++);
     }
   }
+
+  // Add time information.
+  auto info = this->Metadata->GetInformation();
+  info->Set(vtkDataObject::DATA_TIME_STEP(), this->Internal->Header->time);
   return (1);
   // TODO: Need to handle Ghost Cells - Patrick O'Leary
 }
