@@ -1315,6 +1315,13 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
       case 0:
       case 1:
       case 2:
+      {
+        int type = cell->GetCellType();
+        if (type == VTK_EMPTY_CELL)
+        {
+          // Empty cells are not supported by vtkPolyData
+          break;
+        }
 
         npts = cell->GetNumberOfPoints();
         pts->Reset();
@@ -1327,13 +1334,14 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet* input, vtkPolyData* outp
           this->RecordOrigPointId(pt, ptId);
           pts->InsertId(i, pt);
         }
-        newCellId = output->InsertNextCell(cell->GetCellType(), pts);
+        newCellId = output->InsertNextCell(type, pts);
         if (newCellId > 0)
         {
           outputCD->CopyData(cd, cellId, newCellId);
           this->RecordOrigCellId(newCellId, cellId);
         }
         break;
+      }
       case 3:
         for (j = 0; j < cell->GetNumberOfFaces(); j++)
         {
