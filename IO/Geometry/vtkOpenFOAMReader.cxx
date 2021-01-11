@@ -91,7 +91,6 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkCollection.h"
-#include "vtkConvexPointSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDirectory.h"
 #include "vtkDoubleArray.h"
@@ -106,6 +105,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkPolyhedron.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
 #include "vtkSortDataArray.h"
@@ -780,7 +780,7 @@ private:
   // Read polyMesh/{owner,neighbour} and check overall number of faces
   vtkFoamLabelListList* ReadOwnerNeighbourFiles(const vtkStdString& meshDir);
 
-  bool CheckFacePoints(const vtkFoamLabelListList*);
+  bool CheckFaceList(const vtkFoamLabelListList& faces);
 
   // create mesh
   void InsertCellsToGrid(vtkUnstructuredGrid*, const vtkFoamLabelListList*,
@@ -3093,7 +3093,14 @@ public:
   // stream if the format is binary.
   void ReadLabelListList(vtkFoamIOobject& io)
   {
-    const bool use64BitLabels = io.IsLabel64();
+    // NOTE:
+    // when OpenFOAM writes a "faceCompactList" it automatically switches to ASCII
+    // if it detects that the offsets will overflow 32bits.
+    //
+    // We risk the same overflow potential when constructing a compact labelListList.
+    // Thus assume the worst and use 64bit sizing when reading ASCII.
+
+    const bool use64BitLabels = (io.IsLabel64() || io.IsAsciiFormat());
 
     vtkFoamToken currToken;
     currToken.SetStreamOption(io);
@@ -3193,8 +3200,8 @@ public:
     }
   }
 
-  // reads compact list of labels.
-  void ReadCompactIOLabelList(vtkFoamIOobject& io)
+  // Read compact labelListList which has offsets and data
+  void ReadCompactLabelListList(vtkFoamIOobject& io)
   {
     if (io.IsAsciiFormat())
     {
@@ -5658,7 +5665,7 @@ vtkFoamLabelListList* vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdString
   {
     if (io.GetClassName() == "faceCompactList")
     {
-      dict.ReadCompactIOLabelList(io);
+      dict.ReadCompactLabelListList(io);
     }
     else
     {
@@ -5831,10 +5838,9 @@ vtkFoamLabelListList* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const vt
     // Set the number of cells
     this->NumCells = static_cast<vtkIdType>(nCells);
 
-    // Create cellFaces.
-    // TBD: check nTotalCellFaces does not overflow 32bit
+    // Create cellFaces. Avoid 32bit overflow for nTotalCellFaces
     vtkFoamLabelListList* cells;
-    if (use64BitLabels)
+    if (use64BitLabels || (VTK_TYPE_INT32_MAX < nTotalCellFaces))
     {
       cells = new vtkFoamLabelListList64;
     }
@@ -5933,29 +5939,29 @@ vtkFoamLabelListList* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const vt
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenFOAMReaderPrivate::CheckFacePoints(const vtkFoamLabelListList* facePoints)
+bool vtkOpenFOAMReaderPrivate::CheckFaceList(const vtkFoamLabelListList& faces)
 {
-  const vtkIdType nFaces = facePoints->GetNumberOfElements();
+  const vtkIdType nFaces = faces.GetNumberOfElements();
+  const vtkIdType nPoints = this->NumPoints;
 
   vtkFoamLabelListList::CellType face;
   for (vtkIdType facei = 0; facei < nFaces; ++facei)
   {
-    facePoints->GetCell(facei, face);
+    faces.GetCell(facei, face);
+
     if (face.size() < 3)
     {
-      vtkErrorMacro(<< "Face " << facei << " has only " << face.size()
-                    << " points which is not enough to constitute a face"
-                       " (a face must have at least 3 points)");
+      vtkErrorMacro(<< "Face " << facei << " is bad. Has " << face.size()
+                    << " points but requires 3 or more");
       return false;
     }
 
-    for (size_t pointi = 0; pointi < face.size(); ++pointi)
+    for (const vtkTypeInt64 pointi : face)
     {
-      const vtkTypeInt64 p = face[pointi];
-      if (p < 0 || p >= this->NumPoints)
+      if (pointi < 0 || pointi >= nPoints)
       {
-        vtkErrorMacro(<< "The point number " << p << " at face number " << facei
-                      << " is out of range for " << this->NumPoints << " points");
+        vtkErrorMacro(<< "Face " << facei << " is bad. Point " << pointi
+                      << " out of range: " << nPoints << " points");
         return false;
       }
     }
@@ -5982,7 +5988,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
   vtkIdList* polyPoints = vtkIdList::New();
   polyPoints->SetNumberOfIds(maxNPolyPoints);
 
-  vtkIdType nCells = (cellList == nullptr ? this->NumCells : cellList->GetNumberOfTuples());
+  const vtkIdType nCells = (cellList == nullptr ? this->NumCells : cellList->GetNumberOfTuples());
   int nAdditionalPoints = 0;
   this->NumTotalAdditionalCells = 0;
 
@@ -6025,15 +6031,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     int cellType = VTK_POLYHEDRON; // Fallback value
     if (cellFaces.size() == 6)
     {
-      size_t j = 0;
-      for (; j < cellFaces.size(); j++)
+      bool allQuads = false;
+      for (size_t facei = 0; facei < cellFaces.size(); ++facei)
       {
-        if (facePoints.GetSize(cellFaces[j]) != 4)
+        allQuads = (facePoints.GetSize(cellFaces[facei]) == 4);
+        if (!allQuads)
         {
           break;
         }
       }
-      if (j == cellFaces.size())
+      if (allQuads)
       {
         cellType = VTK_HEXAHEDRON;
       }
@@ -6041,16 +6048,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     else if (cellFaces.size() == 5)
     {
       int nTris = 0, nQuads = 0;
-      for (size_t j = 0; j < cellFaces.size(); j++)
+      for (size_t facei = 0; facei < cellFaces.size(); ++facei)
       {
-        vtkIdType nPoints = facePoints.GetSize(cellFaces[j]);
+        const vtkIdType nPoints = facePoints.GetSize(cellFaces[facei]);
         if (nPoints == 3)
         {
-          nTris++;
+          ++nTris;
         }
         else if (nPoints == 4)
         {
-          nQuads++;
+          ++nQuads;
         }
         else
         {
@@ -6068,15 +6075,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     }
     else if (cellFaces.size() == 4)
     {
-      size_t j = 0;
-      for (; j < cellFaces.size(); j++)
+      bool allTris = false;
+      for (size_t facei = 0; facei < cellFaces.size(); ++facei)
       {
-        if (facePoints.GetSize(cellFaces[j]) != 3)
+        allTris = (facePoints.GetSize(cellFaces[facei]) == 3);
+        if (!allTris)
         {
           break;
         }
       }
-      if (j == cellFaces.size())
+      if (allTris)
       {
         cellType = VTK_TETRA;
       }
@@ -6085,12 +6093,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     // Not a known (standard) primitive mesh-shape
     if (cellType == VTK_POLYHEDRON)
     {
-      size_t nPoints = 0;
-      for (size_t j = 0; j < cellFaces.size(); j++)
+      bool allEmpty = true;
+      for (size_t facei = 0; facei < cellFaces.size(); ++facei)
       {
-        nPoints += facePoints.GetSize(cellFaces[j]);
+        allEmpty = (facePoints.GetSize(cellFaces[facei]) == 0);
+        if (!allEmpty)
+        {
+          break;
+        }
       }
-      if (nPoints == 0)
+      if (allEmpty)
       {
         cellType = VTK_EMPTY_CELL;
       }
@@ -6506,7 +6518,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
       internalMesh->InsertNextCell(VTK_EMPTY_CELL, 0, cellPoints->GetPointer(0));
     }
 
-    // OFpolyhedron || vtkConvexPointSet
+    // OFpolyhedron || vtkPolyhedron
     if (cellType == VTK_POLYHEDRON)
     {
       if (additionalCells != nullptr) // decompose into tets and pyramids
@@ -6814,7 +6826,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
 
     // insert decomposed cells into mesh
     const int nComponents = additionalCells->GetNumberOfComponents();
-    vtkIdType nAdditionalCells = additionalCells->GetNumberOfTuples();
+    const vtkIdType nAdditionalCells = additionalCells->GetNumberOfTuples();
     for (vtkIdType i = 0; i < nAdditionalCells; i++)
     {
       if (additionalCells->GetComponent(i, 4) == -1)
@@ -7125,6 +7137,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     const vtkIdType nBoundaryPoints = nBoundaryPointsList->GetValue(patchi);
 
     // create global to boundary-local point map and boundary points
+
     vtkDataArray* boundaryPointList;
     if (meshPoints64Bit)
     {
@@ -8767,7 +8780,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     // get the points
     pointArray = this->ReadPointsFile();
     if ((pointArray == nullptr && recreateInternalMesh) ||
-      (facePoints != nullptr && !this->CheckFacePoints(facePoints)))
+      (facePoints != nullptr && !this->CheckFaceList(*facePoints)))
     {
       delete cellFaces;
       delete facePoints;
