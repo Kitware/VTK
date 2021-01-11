@@ -2561,6 +2561,49 @@ private:
   // Reads OpenFOAM format/class/object information and handles "arch" information
   void ReadHeader();
 
+  // Attempt to open file (or file.gz) and read header
+  bool OpenFile(const vtkStdString& file, bool fallbackGzip = false)
+  {
+    try
+    {
+      this->Superclass::Open(file);
+      fallbackGzip = false;
+    }
+    catch (const vtkFoamError& err)
+    {
+      if (!fallbackGzip)
+      {
+        this->SetError(err);
+        return false;
+      }
+    }
+
+    if (fallbackGzip)
+    {
+      try
+      {
+        this->Superclass::Open(file + ".gz");
+      }
+      catch (const vtkFoamError& err)
+      {
+        this->SetError(err);
+        return false;
+      }
+    }
+
+    try
+    {
+      this->ReadHeader();
+    }
+    catch (const vtkFoamError& err)
+    {
+      this->Superclass::Close();
+      this->SetError(err);
+      return false;
+    }
+    return true;
+  }
+
 public:
   // No generated methods
   vtkFoamIOobject() = delete;
@@ -2578,30 +2621,11 @@ public:
   }
   ~vtkFoamIOobject() { this->Close(); }
 
-  bool Open(const vtkStdString& file)
-  {
-    try
-    {
-      this->Superclass::Open(file);
-    }
-    catch (vtkFoamError& e)
-    {
-      this->SetError(e);
-      return false;
-    }
+  // Attempt to open file (without gzip fallback) and read FoamFile header
+  bool Open(const vtkStdString& file) { return OpenFile(file); }
 
-    try
-    {
-      this->ReadHeader();
-    }
-    catch (vtkFoamError& e)
-    {
-      this->Superclass::Close();
-      this->SetError(e);
-      return false;
-    }
-    return true;
-  }
+  // Attempt to open file (with gzip fallback) and read FoamFile header
+  bool OpenOrGzip(const vtkStdString& file) { return OpenFile(file, true); }
 
   void Close()
   {
@@ -3237,9 +3261,9 @@ public:
         throw vtkFoamError() << "Unsupported field type " << io.GetClassName();
       }
     }
-    catch (vtkFoamError& e)
+    catch (const vtkFoamError& err)
     {
-      io.SetError(e);
+      io.SetError(err);
       return false;
     }
     return true;
@@ -3682,7 +3706,7 @@ public:
       }
       throw vtkFoamError() << "Expected keyword or identifier, found " << currToken;
     }
-    catch (vtkFoamError& e)
+    catch (const vtkFoamError& err)
     {
       if (isSubDictionary)
       {
@@ -3690,7 +3714,7 @@ public:
       }
       else
       {
-        io.SetError(e);
+        io.SetError(err);
         return false;
       }
     }
@@ -4668,12 +4692,11 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
 //------------------------------------------------------------------------------
 void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const bool isLagrangian)
 {
-  // open the directory and get num of files
-  vtkDirectory* directory = vtkDirectory::New();
+  // Open the directory and get num of files
+  auto directory = vtkSmartPointer<vtkDirectory>::New();
   if (!directory->Open(tempPath.c_str()))
   {
-    // no data
-    directory->Delete();
+    // No data
     return;
   }
 
@@ -4762,15 +4785,14 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
     }
   }
   // delay Squeeze of inserted objects until SortFieldFiles()
-
-  directory->Delete();
 }
 
 //------------------------------------------------------------------------------
 // locate laglangian clouds
 void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePath)
 {
-  vtkDirectory* directory = vtkDirectory::New();
+  auto directory = vtkSmartPointer<vtkDirectory>::New();
+
   if (directory->Open((timePath + this->RegionPath() + "/lagrangian").c_str()))
   {
     // search for sub-clouds (OF 1.5 format)
@@ -4786,10 +4808,8 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePa
         const vtkStdString subCloudFullPath(timePath + "/" + subCloudName);
         // lagrangian positions. there are many concrete class names
         // e. g. Cloud<parcel>, basicKinematicCloud etc.
-        if ((io.Open(subCloudFullPath + "/positions") ||
-              io.Open(subCloudFullPath + "/positions.gz")) &&
-          io.GetClassName().find("Cloud") != vtkStdString::npos &&
-          io.GetObjectName() == "positions")
+        if (io.OpenOrGzip(subCloudFullPath + "/positions") && io.GetObjectName() == "positions" &&
+          io.GetClassName().find("Cloud") != vtkStdString::npos)
         {
           isSubCloud = true;
           // a lagrangianPath has to be in a bit different format from
@@ -4812,8 +4832,8 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePa
       vtkFoamIOobject io(this->CasePath, this->Parent);
       const vtkStdString cloudName(this->RegionPrefix() + "lagrangian");
       const vtkStdString cloudFullPath(timePath + "/" + cloudName);
-      if ((io.Open(cloudFullPath + "/positions") || io.Open(cloudFullPath + "/positions.gz")) &&
-        io.GetClassName().find("Cloud") != vtkStdString::npos && io.GetObjectName() == "positions")
+      if (io.OpenOrGzip(cloudFullPath + "/positions") && io.GetObjectName() == "positions" &&
+        io.GetClassName().find("Cloud") != vtkStdString::npos)
       {
         const vtkStdString cloudPath(this->RegionName + "/lagrangian");
         if (this->Parent->LagrangianPaths->LookupValue(cloudPath) == -1)
@@ -4826,7 +4846,6 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const vtkStdString& timePa
     }
     this->Parent->LagrangianPaths->Squeeze();
   }
-  directory->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -5440,7 +5459,7 @@ void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
 {
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
-  if (io.Open(path) || io.Open(path + ".gz"))
+  if (io.OpenOrGzip(path))
   {
     io.Close();
     // set points/faces location to current timesteps value
@@ -5490,9 +5509,9 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
     this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir) + "points";
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
-  if (!(io.Open(pointPath) || io.Open(pointPath + ".gz")))
+  if (!io.OpenOrGzip(pointPath))
   {
-    vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": " << io.GetError().c_str());
+    vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
     return nullptr;
   }
 
@@ -5515,11 +5534,11 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
 
     pointArray = static_cast<vtkFloatArray*>(dict.Ptr());
   }
-  catch (vtkFoamError& e)
-  { // Something is horribly wrong.
+  catch (const vtkFoamError& err)
+  {
     vtkErrorMacro("Mesh points data are neither 32 nor 64 bit, or some other "
                   "parse error occurred while reading points. Failed at line "
-      << io.GetLineNumber() << " of " << io.GetFileName().c_str() << ": " << e.c_str());
+      << io.GetLineNumber() << " of " << io.GetFileName() << ": " << err);
     return nullptr;
   }
 
@@ -5540,11 +5559,11 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdSt
   // Read polyMesh/faces
   {
     const vtkStdString facePath(meshDir + "faces");
-    if (!(io.Open(facePath) || io.Open(facePath + ".gz")))
+    if (!io.OpenOrGzip(facePath))
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": " << io.GetError().c_str()
-                    << ". If you are trying to read a parallel "
-                       "decomposed case, set Case Type to Decomposed Case.");
+      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError()
+                    << ". If you are trying to read a parallel decomposed case, "
+                       "set Case Type to Decomposed Case.");
       return nullptr;
     }
   }
@@ -5562,10 +5581,10 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadFacesFile(const vtkStdSt
       dict.ReadLabelListList(io);
     }
   }
-  catch (vtkFoamError& e)
+  catch (const vtkFoamError& err)
   {
-    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                  << io.GetFileName().c_str() << ": " << e.c_str());
+    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                  << ": " << err);
     return nullptr;
   }
   return static_cast<vtkFoamLabelVectorVector*>(dict.Ptr());
@@ -5581,10 +5600,9 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
   // Read polyMesh/owner
   {
     const vtkStdString ownPath(meshDir + "owner");
-    if (!(io.Open(ownPath) || io.Open(ownPath + ".gz")))
+    if (!io.OpenOrGzip(ownPath))
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": "
-                    << io.GetError().c_str());
+      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
       return nullptr;
     }
   }
@@ -5605,10 +5623,10 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
         vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
     }
   }
-  catch (vtkFoamError& e)
+  catch (const vtkFoamError& err)
   {
-    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                  << io.GetFileName().c_str() << ": " << e.c_str());
+    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                  << ": " << err);
     return nullptr;
   }
   io.Close();
@@ -5616,10 +5634,9 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
   // Read polyMesh/neighbour
   {
     const vtkStdString neiPath(meshDir + "neighbour");
-    if (!(io.Open(neiPath) || io.Open(neiPath + ".gz")))
+    if (!io.OpenOrGzip(neiPath))
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": "
-                    << io.GetError().c_str());
+      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
       return nullptr;
     }
   }
@@ -5646,10 +5663,10 @@ vtkFoamLabelVectorVector* vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
         vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
     }
   }
-  catch (vtkFoamError& e)
+  catch (const vtkFoamError& err)
   {
-    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                  << io.GetFileName().c_str() << ": " << e.c_str());
+    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                  << ": " << err);
     return nullptr;
   }
 
@@ -8195,7 +8212,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     ::AppendBlock(lagrangianMesh, meshI, pathI.substr(pathI.rfind('/') + 1));
 
     vtkFoamIOobject io(this->CasePath, this->Parent);
-    if (!(io.Open(positionsPath) || io.Open(positionsPath + ".gz")))
+    if (!io.OpenOrGzip(positionsPath))
     {
       meshI->Delete();
       continue;
@@ -8215,10 +8232,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
           vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
       }
     }
-    catch (vtkFoamError& e)
+    catch (const vtkFoamError& err)
     {
-      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                    << io.GetFileName().c_str() << ": " << e.c_str());
+      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                    << ": " << err);
       meshI->Delete();
       continue;
     }
@@ -8315,12 +8332,11 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
   vtkStdString blockPath(this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir) + typeName);
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
-  if (!(io.Open(blockPath) || io.Open(blockPath + ".gz")))
+  if (!io.OpenOrGzip(blockPath))
   {
     if (mandatory)
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName().c_str() << ": "
-                    << io.GetError().c_str());
+      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
     }
     return nullptr;
   }
@@ -8329,13 +8345,13 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
   vtkFoamDict& dict = *dictPtr;
   if (!dict.Read(io))
   {
-    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of "
-                  << io.GetFileName().c_str() << ": " << io.GetError().c_str());
+    vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                  << ": " << io.GetError());
     return nullptr;
   }
   if (dict.GetType() != vtkFoamToken::DICTIONARY)
   {
-    vtkErrorMacro(<< "The file type of " << io.GetFileName().c_str() << " is not a dictionary");
+    vtkErrorMacro(<< "The file type of " << io.GetFileName() << " is not a dictionary");
     return nullptr;
   }
   return dictPtr;
@@ -9450,10 +9466,10 @@ int vtkOpenFOAMReader::MakeInformationVector(
 
   // search subregions under constant subdirectory
   vtkStdString constantPath(casePath + "constant/");
-  vtkDirectory* dir = vtkDirectory::New();
+  auto dir = vtkSmartPointer<vtkDirectory>::New();
   if (!dir->Open(constantPath.c_str()))
   {
-    vtkErrorMacro(<< "Can't open " << constantPath.c_str());
+    vtkErrorMacro(<< "Can't open " << constantPath);
     return 0;
   }
   for (int fileI = 0; fileI < dir->GetNumberOfFiles(); fileI++)
@@ -9472,7 +9488,6 @@ int vtkOpenFOAMReader::MakeInformationVector(
       }
     }
   }
-  dir->Delete();
   masterReader->Delete();
   this->Parent->NumberOfReaders += this->Readers->GetNumberOfItems();
 
