@@ -156,7 +156,7 @@ int vtkmCoordinateSystemTransform::RequestData(
   try
   {
     vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
-    vtkDataArray* transformResult;
+    vtkPoints* points = nullptr;
     if (this->TransformType == TransformTypes::CarToCyl ||
       this->TransformType == TransformTypes::CylToCar)
     { // Cylindrical coordinate transform
@@ -165,8 +165,7 @@ int vtkmCoordinateSystemTransform::RequestData(
       (this->TransformType == TransformTypes::CarToCyl) ? cylindricalCT.SetCartesianToCylindrical()
                                                         : cylindricalCT.SetCylindricalToCartesian();
       auto result = cylindricalCT.Execute(in);
-      transformResult = fromvtkm::Convert(result.GetField(
-        "cylindricalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
+      points = fromvtkm::Convert(result.GetCoordinateSystem());
     }
     else
     { // Spherical coordinate system
@@ -175,16 +174,14 @@ int vtkmCoordinateSystemTransform::RequestData(
       (this->TransformType == TransformTypes::CarToSph) ? sphericalCT.SetCartesianToSpherical()
                                                         : sphericalCT.SetSphericalToCartesian();
       auto result = sphericalCT.Execute(in);
-      transformResult = fromvtkm::Convert(result.GetField(
-        "sphericalCoordinateSystemTransform", vtkm::cont::Field::Association::POINTS));
+      points = fromvtkm::Convert(result.GetCoordinateSystem());
     }
-    vtkPoints* newPts = vtkPoints::New();
-    // Update points
-    newPts->SetNumberOfPoints(transformResult->GetNumberOfTuples());
-    newPts->SetData(transformResult);
-    output->SetPoints(newPts);
-    newPts->Delete();
-    transformResult->FastDelete();
+
+    if (points)
+    {
+      output->SetPoints(points);
+      points->FastDelete();
+    }
   }
   catch (const vtkm::cont::Error& e)
   {
