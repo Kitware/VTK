@@ -21,6 +21,9 @@ fow.SetFileName("TestEmptyXMLErrors.txt")
 fow.SetFlush(0)
 fow.SetInstance(fow)
 
+# Loguru will still send messages to stderr. Disable that.
+vtk.vtkLogger.SetStderrVerbosity(vtk.vtkLogger.VERBOSITY_OFF)
+
 # Prepare some test files.
 f = open('emptyFile.vtk', 'wt')
 f.close()
