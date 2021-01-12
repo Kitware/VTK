@@ -157,7 +157,7 @@ uLong ZEXPORT crc32(uLong, const Bytef*, uInt)
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
 // The name for finiteArea mesh
-static constexpr const char* const NAME_AREAMESH = "areaMesh";
+// pending: static constexpr const char* const NAME_AREAMESH = "areaMesh";
 
 // The name for finiteVolume internal mesh (unzoned)
 static constexpr const char* const NAME_INTERNALMESH = "internalMesh";
@@ -628,6 +628,40 @@ struct vtkFoamBoundaryDict : public std::vector<vtkFoamPatch>
 };
 
 //------------------------------------------------------------------------------
+// Simple handling of common OpenFOAM data types
+struct vtkFoamTypes
+{
+  // Primitive types, with nComponents encoded in lower 4 bits
+  enum dataType
+  {
+    NO_TYPE = 0,
+    LABEL_TYPE = 0x11,
+    SCALAR_TYPE = 1,
+    VECTOR_TYPE = 3,
+    SYMM_TENSOR_TYPE = 6,
+    TENSOR_TYPE = 9,
+    SPH_TENSOR_TYPE = 0x21
+  };
+
+  // The number of data components
+  static int GetNumberOfComponents(const dataType dtype) noexcept { return (dtype & 0xF); }
+
+  static bool IsLabel(const dataType dtype) noexcept { return dtype == LABEL_TYPE; }
+  static bool IsScalar(const dataType dtype) noexcept { return dtype == SCALAR_TYPE; }
+  static bool IsNumeric(const dataType dtype) noexcept { return IsLabel(dtype) || IsScalar(dtype); }
+
+  // Is a VectorSpace type?
+  static bool IsVectorSpace(const dataType dtype) noexcept
+  {
+    return GetNumberOfComponents(dtype) > 1 || dtype == SPH_TENSOR_TYPE;
+  }
+
+  // Parse things like "scalarField" or "ScalarField" -> SCALAR_TYPE etc.
+  // Ignore case on first letter, which makes it convenient for "volScalarField" too.
+  static dataType ToEnum(const std::string& fieldType, size_t pos = 0);
+};
+
+//------------------------------------------------------------------------------
 // Forward Declarations
 
 struct vtkFoamError;
@@ -685,6 +719,7 @@ private:
   // filenames / directories
   vtkStringArray* VolFieldFiles;
   vtkStringArray* DimFieldFiles;
+  vtkStringArray* AreaFieldFiles;
   vtkStringArray* PointFieldFiles;
   vtkStringArray* LagrangianFieldFiles;
   vtkStringArray* PolyMeshPointsDir;
@@ -760,7 +795,9 @@ private:
   void AppendMeshDirToArray(vtkStringArray*, const vtkStdString&, const int);
   void PopulatePolyMeshDirArrays();
 
-  // search a time directory for field objects
+  void AddFieldName(
+    const vtkStdString& fieldName, const vtkStdString& fieldType, const bool isLagrangian = false);
+  // Search a time directory for field objects
   void GetFieldNames(const vtkStdString&, const bool isLagrangian = false);
   void SortFieldFiles(vtkStringArray* selections, vtkStringArray* files);
   void LocateLagrangianClouds(const vtkStdString& timePath);
@@ -782,9 +819,10 @@ private:
 
   bool CheckFaceList(const vtkFoamLabelListList& faces);
 
-  // create mesh
+  // Create mesh
   void InsertCellsToGrid(vtkUnstructuredGrid*, const vtkFoamLabelListList*,
-    const vtkFoamLabelListList*, vtkFloatArray*, vtkIdTypeArray*, vtkDataArray*);
+    const vtkFoamLabelListList*, vtkFloatArray*, vtkIdTypeArray* additionalCellIds = nullptr,
+    vtkDataArray* cellLabels = nullptr);
   vtkUnstructuredGrid* MakeInternalMesh(
     const vtkFoamLabelListList*, const vtkFoamLabelListList*, vtkFloatArray*);
   void InsertFacesToGrid(vtkPolyData*, const vtkFoamLabelListList*, vtkIdType, vtkIdType,
@@ -809,10 +847,10 @@ private:
   bool ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict, const vtkStdString& varName,
     const vtkDataArraySelection* selection);
   vtkFloatArray* FillField(vtkFoamEntry& entry, const vtkIdType nElements,
-    const vtkFoamIOobject& io, const vtkStdString& fieldType);
-  void GetVolFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&,
-    const bool isInternalField = false);
-  void GetPointFieldAtTimeStep(vtkUnstructuredGrid*, vtkMultiBlockDataSet*, const vtkStdString&);
+    const vtkFoamIOobject& io, const vtkFoamTypes::dataType fieldDataType);
+  void GetVolFieldAtTimeStep(const vtkStdString& varName, const bool isInternalField = false);
+  // void GetAreaFieldAtTimeStep(const vtkStdString& varName);
+  void GetPointFieldAtTimeStep(const vtkStdString& varName);
 
   // Create lagrangian mesh/fields
   vtkMultiBlockDataSet* MakeLagrangianMesh();
@@ -878,6 +916,82 @@ void AddArrayToFieldData(vtkDataSetAttributes* fieldData, vtkDataArray* array,
 }
 
 } // End anonymous namespace
+
+//------------------------------------------------------------------------------
+// Simple handling of common OpenFOAM data types
+
+vtkFoamTypes::dataType vtkFoamTypes::ToEnum(const std::string& fieldType, size_t pos)
+{
+  vtkFoamTypes::dataType dtype(vtkFoamTypes::NO_TYPE);
+
+  const char firstChar = fieldType[pos];
+  ++pos; // First character is handled separately (for ignoring case)
+
+  size_t len = fieldType.find("Field", pos);
+  if (len != std::string::npos)
+  {
+    len -= pos;
+  }
+
+  switch (firstChar)
+  {
+    case 'L':
+    case 'l':
+    {
+      if (fieldType.compare(pos, len, "abel") == 0)
+      {
+        // (Label | label)
+        dtype = vtkFoamTypes::LABEL_TYPE;
+      }
+    }
+    break;
+
+    case 'S':
+    case 's':
+    {
+      if (fieldType.compare(pos, len, "calar") == 0)
+      {
+        // (Scalar | scalar)
+        dtype = vtkFoamTypes::SCALAR_TYPE;
+      }
+      else if (fieldType.compare(pos, len, "phericalTensor") == 0)
+      {
+        // (SphericalTensor | sphericalTensor)
+        dtype = vtkFoamTypes::SPH_TENSOR_TYPE;
+      }
+      else if (fieldType.compare(pos, len, "ymmTensor") == 0)
+      {
+        // (SymmTensor | symmTensor)
+        dtype = vtkFoamTypes::SYMM_TENSOR_TYPE;
+      }
+    }
+    break;
+
+    case 'T':
+    case 't':
+    {
+      if (fieldType.compare(pos, len, "ensor") == 0)
+      {
+        // (Tensor | tensor)
+        dtype = vtkFoamTypes::TENSOR_TYPE;
+      }
+    }
+    break;
+
+    case 'V':
+    case 'v':
+    {
+      if (fieldType.compare(pos, len, "ector") == 0)
+      {
+        // (Vector | vector)
+        dtype = vtkFoamTypes::VECTOR_TYPE;
+      }
+    }
+    break;
+  }
+
+  return dtype;
+}
 
 //------------------------------------------------------------------------------
 // class vtkFoamError
@@ -4619,6 +4733,7 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
 
   this->VolFieldFiles = vtkStringArray::New();
   this->DimFieldFiles = vtkStringArray::New();
+  this->AreaFieldFiles = vtkStringArray::New();
   this->PointFieldFiles = vtkStringArray::New();
   this->LagrangianFieldFiles = vtkStringArray::New();
   this->PolyMeshPointsDir = vtkStringArray::New();
@@ -4658,6 +4773,7 @@ vtkOpenFOAMReaderPrivate::~vtkOpenFOAMReaderPrivate()
   this->PolyMeshFacesDir->Delete();
   this->VolFieldFiles->Delete();
   this->DimFieldFiles->Delete();
+  this->AreaFieldFiles->Delete();
   this->PointFieldFiles->Delete();
   this->LagrangianFieldFiles->Delete();
 
@@ -4781,6 +4897,98 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenFOAMReaderPrivate::AddFieldName(
+  const vtkStdString& fieldName, const vtkStdString& fieldType, const bool isLagrangian)
+{
+  if (fieldName.empty() || fieldType.empty())
+  {
+    return;
+  }
+
+  size_t len = fieldType.find("Field");
+  bool isInternalField = false;
+
+  if (len == std::string::npos)
+  {
+    return;
+  }
+  else if ((len + 5) == fieldType.size())
+  {
+    // OK: ends_with("Field")
+  }
+  else if (fieldType.compare(len, std::string::npos, "Field::Internal") == 0)
+  {
+    // OK: ends_with("Field::Internal")
+    // but only valid for volScalarField::Internal, etc
+
+    isInternalField = true;
+    if (isLagrangian || (fieldType.compare(0, 3, "vol") != 0))
+    {
+      return;
+    }
+  }
+  else
+  {
+    // Some other (unknown) type - ignore
+    return;
+  }
+
+  if (isLagrangian)
+  {
+    // Lagrangian (point) fields: labelField, scalarField, vectorField, ...
+
+    const auto fieldDataType(vtkFoamTypes::ToEnum(fieldType));
+    if (fieldDataType != vtkFoamTypes::NO_TYPE)
+    {
+      // NB: Cloud has labelField too
+      this->LagrangianFieldFiles->InsertNextValue(fieldName);
+    }
+    return;
+  }
+
+  size_t prefix = 0;
+  vtkStringArray* target = nullptr;
+  if (fieldType.compare(0, 3, "vol") == 0) // starts_with("vol")
+  {
+    // Volume fields: volScalarField, volVectorField, ...
+    // or Dimensioned (internal) fields: volScalarField::Internal, ...
+    prefix = 3;
+    len -= prefix;
+
+    target = this->VolFieldFiles;
+    if (isInternalField)
+    {
+      target = this->DimFieldFiles;
+    }
+  }
+  else if (fieldType.compare(0, 4, "area") == 0) // starts_with("area")
+  {
+    // Mesh area fields: areaScalarField, areaVectorField, ...
+    prefix = 4;
+    len -= prefix;
+
+    target = this->AreaFieldFiles;
+  }
+  else if (fieldType.compare(0, 5, "point") == 0) // starts_with("point")
+  {
+    // Mesh point fields: pointScalarField, pointVectorField, ...
+    prefix = 5;
+    len -= prefix;
+
+    target = this->PointFieldFiles;
+  }
+
+  if (target != nullptr)
+  {
+    const auto fieldDataType(vtkFoamTypes::ToEnum(fieldType.substr(prefix, len)));
+    if (vtkFoamTypes::IsScalar(fieldDataType) || vtkFoamTypes::IsVectorSpace(fieldDataType))
+    {
+      target->InsertNextValue(fieldName);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const bool isLagrangian)
 {
   // Open the directory and get num of files
@@ -4828,51 +5036,11 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const
       }
     }
 
+    vtkFoamIOobject io(this->CasePath, this->Parent);
+    if (io.Open(tempPath + "/" + fieldFile)) // file exists and readable
     {
-      vtkFoamIOobject io(this->CasePath, this->Parent);
-      if (io.Open(tempPath + "/" + fieldFile)) // file exists and readable
-      {
-        const vtkStdString& cn = io.GetClassName();
-        if (isLagrangian)
-        {
-          // Lagrangian (point) fields
-          if (cn == "labelField" || cn == "scalarField" || cn == "vectorField" ||
-            cn == "sphericalTensorField" || cn == "symmTensorField" || cn == "tensorField")
-          {
-            this->LagrangianFieldFiles->InsertNextValue(fieldFile);
-          }
-        }
-        else if (cn.substr(0, 5) == "point")
-        {
-          // Mesh point fields
-          if (cn == "pointScalarField" || cn == "pointVectorField" ||
-            cn == "pointSphericalTensorField" || cn == "pointSymmTensorField" ||
-            cn == "pointTensorField")
-          {
-            this->PointFieldFiles->InsertNextValue(fieldFile);
-          }
-        }
-        else if (cn.find("::Internal") != vtkStdString::npos)
-        {
-          // Mesh internal fields
-          if (cn == "volScalarField::Internal" || cn == "volVectorField::Internal" ||
-            cn == "volSphericalTensorField::Internal" || cn == "volSymmTensorField::Internal" ||
-            cn == "volTensorField::Internal")
-          {
-            this->DimFieldFiles->InsertNextValue(fieldFile);
-          }
-        }
-        else
-        {
-          // Mesh volume fields
-          if (cn == "volScalarField" || cn == "volVectorField" || cn == "volSphericalTensorField" ||
-            cn == "volSymmTensorField" || cn == "volTensorField")
-          {
-            this->VolFieldFiles->InsertNextValue(fieldFile);
-          }
-        }
-        io.Close();
-      }
+      this->AddFieldName(fieldFile, io.GetClassName(), isLagrangian);
+      io.Close();
     }
   }
   // delay Squeeze of inserted objects until SortFieldFiles()
@@ -5139,6 +5307,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   // this->CellDataArraySelection->RemoveAllArrays();
   this->VolFieldFiles->Initialize();
   this->DimFieldFiles->Initialize();
+  this->AreaFieldFiles->Initialize();
   this->PointFieldFiles->Initialize();
   this->GetFieldNames(timePath + this->RegionPath());
 
@@ -5167,6 +5336,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   // sort array names. volFields first, followed by internal fields
   this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles);
   this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles);
+  // pending: this->SortFieldFiles(cellSelectionNames, this->AreaFieldFiles);
   this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles);
   this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles);
 
@@ -6815,8 +6985,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
     vtkIdTypeArray* additionalCells = vtkIdTypeArray::New();
     additionalCells->SetNumberOfComponents(5); // accommodates tetra or pyramid
 
-    this->InsertCellsToGrid(
-      internalMesh, cellsFaces, facesPoints, pointArray, additionalCells, nullptr);
+    this->InsertCellsToGrid(internalMesh, cellsFaces, facesPoints, pointArray, additionalCells);
 
     // for polyhedral decomposition
     pointArray->Squeeze();
@@ -6843,7 +7012,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   }
   else
   {
-    this->InsertCellsToGrid(internalMesh, cellsFaces, facesPoints, pointArray, nullptr, nullptr);
+    this->InsertCellsToGrid(internalMesh, cellsFaces, facesPoints, pointArray);
   }
 
   // Set points for internalMesh
@@ -7552,7 +7721,7 @@ bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& d
 
 //------------------------------------------------------------------------------
 vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vtkIdType nElements,
-  const vtkFoamIOobject& io, const vtkStdString& fieldType)
+  const vtkFoamIOobject& io, const vtkFoamTypes::dataType fieldDataType)
 {
   vtkFloatArray* data;
   const vtkStdString& className = io.GetClassName();
@@ -7594,10 +7763,8 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vt
         return nullptr;
       }
 
-      if ((fieldType == "SphericalTensorField" && nComponents == 1) ||
-        (fieldType == "VectorField" && nComponents == 3) ||
-        (fieldType == "SymmTensorField" && nComponents == 6) ||
-        (fieldType == "TensorField" && nComponents == 9))
+      if ((vtkFoamTypes::GetNumberOfComponents(fieldDataType) == nComponents) &&
+        vtkFoamTypes::IsVectorSpace(fieldDataType))
       {
         data = vtkFloatArray::New();
         data->SetNumberOfComponents(nComponents);
@@ -7619,7 +7786,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vt
       else
       {
         vtkErrorMacro(<< "Number of components and field class doesn't match "
-                      << "for " << io.GetFileName().c_str() << ". class = " << className.c_str()
+                      << "for " << io.GetFileName() << ". class = " << className
                       << ", nComponents = " << nComponents);
         return nullptr;
       }
@@ -7627,12 +7794,12 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vt
   }
   else // nonuniform
   {
-    if ((fieldType == "ScalarField" && entry.FirstValue().GetType() == vtkFoamToken::SCALARLIST) ||
-      ((fieldType == "VectorField" || fieldType == "SphericalTensorField" ||
-         fieldType == "SymmTensorField" || fieldType == "TensorField") &&
-        entry.FirstValue().GetType() == vtkFoamToken::VECTORLIST))
+    if ((entry.FirstValue().GetType() == vtkFoamToken::SCALARLIST &&
+          vtkFoamTypes::IsScalar(fieldDataType)) ||
+      (entry.FirstValue().GetType() == vtkFoamToken::VECTORLIST &&
+        vtkFoamTypes::IsVectorSpace(fieldDataType)))
     {
-      vtkIdType nTuples = entry.ScalarList().GetNumberOfTuples();
+      const vtkIdType nTuples = entry.ScalarList().GetNumberOfTuples();
       if (nTuples != nElements)
       {
         vtkErrorMacro(<< "Number of cells/points in mesh and field don't match: "
@@ -7659,27 +7826,17 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vt
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
     {
       data = vtkFloatArray::New();
-      // set the number of components as appropriate if the list is empty
-      if (fieldType == "ScalarField" || fieldType == "SphericalTensorField")
+
+      // Set appropriate number of components for empty list as well
+      const int nComp = vtkFoamTypes::GetNumberOfComponents(fieldDataType);
+      if (nComp > 0)
       {
-        data->SetNumberOfComponents(1);
-      }
-      else if (fieldType == "VectorField")
-      {
-        data->SetNumberOfComponents(3);
-      }
-      else if (fieldType == "SymmTensorField")
-      {
-        data->SetNumberOfComponents(6);
-      }
-      else if (fieldType == "TensorField")
-      {
-        data->SetNumberOfComponents(9);
+        data->SetNumberOfComponents(nComp);
       }
     }
     else
     {
-      vtkErrorMacro(<< io.GetFileName().c_str() << " is not a valid " << io.GetClassName().c_str());
+      vtkErrorMacro(<< io.GetFileName() << " is not a valid " << io.GetClassName());
       return nullptr;
     }
   }
@@ -7804,10 +7961,13 @@ vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& di
 }
 
 //------------------------------------------------------------------------------
-// read volume or internal field at a timestep
-void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* internalMesh,
-  vtkMultiBlockDataSet* boundaryMesh, const vtkStdString& varName, const bool isInternalField)
+// Read volume or internal field at a timestep
+void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
+  const vtkStdString& varName, const bool isInternalField)
 {
+  vtkUnstructuredGrid* internalMesh = this->InternalMesh;
+  vtkMultiBlockDataSet* boundaryMesh = this->BoundaryMesh;
+
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
   if (!this->ReadFieldFile(io, dict, varName, this->Parent->CellDataArraySelection))
@@ -7816,14 +7976,17 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
   }
 
   // For internal field (eg, volScalarField::Internal)
-  const auto colons = io.GetClassName().find("::Internal");
+  const bool hasColons = (io.GetClassName().find("::Internal") != vtkStdString::npos);
 
-  if (io.GetClassName().substr(0, 3) != "vol" ||
-    (colons == vtkStdString::npos ? isInternalField : !isInternalField))
+  if ((io.GetClassName().compare(0, 3, "vol") != 0) ||
+    (hasColons ? !isInternalField : isInternalField))
   {
-    vtkErrorMacro(<< io.GetFileName().c_str() << " is not a volume/internal field");
+    vtkErrorMacro(<< io.GetFileName() << " is not a volume/internal field");
     return;
   }
+
+  // Eg, from "volScalarField" or "volScalarField::Internal" -> SCALAR_TYPE
+  const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 3));
 
   // The internalField
   vtkFoamEntry* iEntry = nullptr;
@@ -7833,7 +7996,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     iEntry = dict.Lookup(entryName);
     if (iEntry == nullptr)
     {
-      vtkErrorMacro(<< entryName << " not found in " << io.GetFileName().c_str());
+      vtkErrorMacro(<< entryName << " not found in " << io.GetFileName());
       return;
     }
 
@@ -7841,16 +8004,13 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     {
       if (this->NumCells > 0)
       {
-        vtkErrorMacro(<< entryName << " of " << io.GetFileName().c_str() << " is empty");
+        vtkErrorMacro(<< entryName << " of " << io.GetFileName() << " is empty");
       }
       return;
     }
   }
 
-  // Eg, from "volScalarField" -> "ScalarField",
-  // Eg, from "volScalarField::Internal" -> "ScalarField"
-  const vtkStdString fieldType(io.GetClassName().substr(3, colons - 3));
-  vtkFloatArray* iData = this->FillField(*iEntry, this->NumCells, io, fieldType);
+  vtkFloatArray* iData = this->FillField(*iEntry, this->NumCells, io, fieldDataType);
   if (iData == nullptr)
   {
     return;
@@ -7939,8 +8099,8 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
     bfieldEntries = dict.Lookup("boundaryField");
     if (bfieldEntries == nullptr)
     {
-      vtkWarningMacro(<< "boundaryField not found in object " << varName.c_str()
-                      << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
+      vtkWarningMacro(<< "boundaryField not found in object " << varName
+                      << " at time = " << this->TimeNames->GetValue(this->TimeStep));
       iData->Delete();
       if (acData != nullptr)
       {
@@ -7986,7 +8146,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
         vtkFoamEntry* vEntry = bfieldEntry->Dictionary().Lookup("value");
         if (vEntry != nullptr)
         {
-          vData = this->FillField(*vEntry, nFaces, io, fieldType);
+          vData = this->FillField(*vEntry, nFaces, io, fieldDataType);
 
           if (vData == nullptr)
           {
@@ -8124,10 +8284,12 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(vtkUnstructuredGrid* intern
 }
 
 //------------------------------------------------------------------------------
-// read point field at a timestep
-void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* internalMesh,
-  vtkMultiBlockDataSet* boundaryMesh, const vtkStdString& varName)
+// Read point field at a timestep
+void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const vtkStdString& varName)
 {
+  vtkUnstructuredGrid* internalMesh = this->InternalMesh;
+  vtkMultiBlockDataSet* boundaryMesh = this->BoundaryMesh;
+
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
   if (!this->ReadFieldFile(io, dict, varName, this->Parent->PointDataArraySelection))
@@ -8135,16 +8297,19 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
     return;
   }
 
-  if (io.GetClassName().substr(0, 5) != "point")
+  if (io.GetClassName().compare(0, 5, "point") != 0)
   {
-    vtkErrorMacro(<< io.GetFileName().c_str() << " is not a pointField");
+    vtkErrorMacro(<< io.GetFileName() << " is not a pointField");
     return;
   }
+
+  // Eg, from "pointScalarField" -> SCALAR_TYPE
+  const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 5));
 
   vtkFoamEntry* iEntry = dict.Lookup("internalField");
   if (iEntry == nullptr)
   {
-    vtkErrorMacro(<< "internalField not found in " << io.GetFileName().c_str());
+    vtkErrorMacro(<< "internalField not found in " << io.GetFileName());
     return;
   }
 
@@ -8153,13 +8318,12 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(vtkUnstructuredGrid* inte
     // if there's no cell there shouldn't be any boundary faces either
     if (this->NumPoints > 0)
     {
-      vtkErrorMacro(<< "internalField of " << io.GetFileName().c_str() << " is empty");
+      vtkErrorMacro(<< "internalField of " << io.GetFileName() << " is empty");
     }
     return;
   }
 
-  vtkStdString fieldType = io.GetClassName().substr(5, vtkStdString::npos);
-  vtkFloatArray* iData = this->FillField(*iEntry, this->NumPoints, io, fieldType);
+  vtkFloatArray* iData = this->FillField(*iEntry, this->NumPoints, io, fieldDataType);
   if (iData == nullptr)
   {
     return;
@@ -9011,22 +9175,17 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
 
       for (vtkIdType i = 0; i < this->VolFieldFiles->GetNumberOfValues(); ++i)
       {
-        this->GetVolFieldAtTimeStep(
-          this->InternalMesh, this->BoundaryMesh, this->VolFieldFiles->GetValue(i));
+        this->GetVolFieldAtTimeStep(this->VolFieldFiles->GetValue(i));
         this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
       }
       for (vtkIdType i = 0; i < this->DimFieldFiles->GetNumberOfValues(); ++i)
       {
-        this->GetVolFieldAtTimeStep(
-          this->InternalMesh, this->BoundaryMesh, this->DimFieldFiles->GetValue(i),
-          true // Internal field
-        );
+        this->GetVolFieldAtTimeStep(this->DimFieldFiles->GetValue(i), true); // Internal field
         this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
       }
       for (vtkIdType i = 0; i < this->PointFieldFiles->GetNumberOfValues(); ++i)
       {
-        this->GetPointFieldAtTimeStep(
-          this->InternalMesh, this->BoundaryMesh, this->PointFieldFiles->GetValue(i));
+        this->GetPointFieldAtTimeStep(this->PointFieldFiles->GetValue(i));
         this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
       }
     }
