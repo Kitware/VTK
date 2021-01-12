@@ -30,6 +30,7 @@
 #include "vtkScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
+#include "vtkTrivialProducer.h"
 
 #include <cmath>
 
@@ -234,13 +235,19 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet* input, vtkPolyD
   double* values = this->ContourValues->GetValues();
   vtkPolyData* contourOutput;
 
+  vtkNew<vtkTrivialProducer> producer;
+  producer->SetOutput(input);
+  // Explicitly update the update extent in the trivial producer to prevent
+  // an error when downstream algorithms request a different extent.
+  producer->UpdateWholeExtent();
+
   if (dim == 2) // marching squares
   {
     vtkMarchingSquares* msquares;
     int i;
 
     msquares = vtkMarchingSquares::New();
-    msquares->SetInputData((vtkImageData*)input);
+    msquares->SetInputConnection(producer->GetOutputPort());
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i = 0; i < numContours; i++)
@@ -260,7 +267,8 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet* input, vtkPolyD
     int i;
 
     mcubes = vtkImageMarchingCubes::New();
-    mcubes->SetInputData((vtkImageData*)input);
+
+    mcubes->SetInputConnection(producer->GetOutputPort());
     mcubes->SetComputeNormals(this->ComputeNormals);
     mcubes->SetComputeGradients(this->ComputeGradients);
     mcubes->SetComputeScalars(this->ComputeScalars);
