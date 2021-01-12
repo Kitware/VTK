@@ -51,29 +51,31 @@ vtkHandleWidget::vtkHandleWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkHandleWidget::MoveAction);
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select3D,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
       this, vtkHandleWidget::SelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::EndSelect3D, this, vtkHandleWidget::EndSelectAction);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(
       vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkHandleWidget::MoveAction3D);
   }
+  this->LastDevice = static_cast<int>(vtkEventDataDevice::Any);
 
   this->ShowInactive = false;
   this->EnableAxisConstraint = 1;
@@ -163,6 +165,15 @@ void vtkHandleWidget::SelectAction3D(vtkAbstractWidget* w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->WidgetRep->StartComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  // watch for motion events from this device
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+  self->LastDevice = static_cast<int>(edd->GetDevice());
 
   self->WidgetState = vtkHandleWidget::Active;
   reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)
@@ -260,6 +271,7 @@ void vtkHandleWidget::EndSelectAction(vtkAbstractWidget* w)
 
   // Return state to not selected
   self->WidgetState = vtkHandleWidget::Start;
+  self->LastDevice = static_cast<int>(vtkEventDataDevice::Any);
 
   // Highlight as necessary
   self->WidgetRep->Highlight(0);
@@ -321,6 +333,18 @@ void vtkHandleWidget::MoveAction(vtkAbstractWidget* w)
 void vtkHandleWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkHandleWidget* self = reinterpret_cast<vtkHandleWidget*>(w);
+
+  // watch for motion events from the selected device
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+  if (!edd->DeviceMatches(static_cast<vtkEventDataDevice>(self->LastDevice)))
+  {
+    return;
+  }
 
   // Set the cursor appropriately
   if (self->WidgetState == vtkHandleWidget::Start)

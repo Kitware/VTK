@@ -1,0 +1,74 @@
+{
+  "action_manifest_version": 0,
+  "alias_info": {},
+  "app_key": "system.generated.vtk.exe",
+  "bindings": {
+    "/actions/vtk": {
+      "sources": [
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/startmovement"
+            },
+            "position": {
+              "output": "/actions/vtk/in/movement"
+            }
+          },
+          "mode": "trackpad",
+          "path": "/user/hand/right/input/trackpad"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/rightgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/grip"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/leftgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/grip"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/showmenu"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/application_menu"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/nextcamerapose"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/triggeraction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/trigger"
+        }
+      ]
+    }
+  },
+  "category": "steamvr_input",
+  "controller_type": "vive_controller",
+  "description": "",
+  "name": "Bindings for VTK applications for Vive Controllers",
+  "options": {},
+  "simulated_actions": []
+}

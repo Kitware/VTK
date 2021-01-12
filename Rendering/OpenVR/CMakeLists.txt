@@ -66,3 +66,23 @@ vtk_module_add_module(VTK::RenderingOpenVR
 vtk_module_link(VTK::RenderingOpenVR
   PUBLIC
     OpenVR::OpenVR)
+
+set(openvr_input_files
+  vtk_openvr_actions.json
+  vtk_openvr_binding_hpmotioncontroller.json
+  vtk_openvr_binding_vive_controller.json
+  vtk_openvr_binding_oculus_touch.json
+)
+
+foreach(inputfile ${openvr_input_files})
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/${inputfile}
+    ${CMAKE_BINARY_DIR}/${input_file}
+    COPYONLY)
+endforeach()
+
+install(
+  FILES ${openvr_input_files}
+  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  COMPONENT   runtime
+)

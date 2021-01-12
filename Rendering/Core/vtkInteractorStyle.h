@@ -247,6 +247,13 @@ public:
    */
   virtual void OnMove3D(vtkEventData*) {}
   virtual void OnButton3D(vtkEventData*) {}
+  virtual void OnPick3D(vtkEventData*) {}
+  virtual void OnClip3D(vtkEventData*) {}
+  virtual void OnSelect3D(vtkEventData*) {}
+  virtual void OnMenu3D(vtkEventData*) {}
+  virtual void OnNextPose3D(vtkEventData*) {}
+  virtual void OnPositionProp3D(vtkEventData*) {}
+  virtual void OnViewerMovement3D(vtkEventData*) {}
 
   /**
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses

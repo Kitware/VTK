@@ -67,26 +67,27 @@ vtkTensorWidget::vtkTensorWidget()
     vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkTensorWidget::MoveAction);
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed.Get(),
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed.Get(),
       vtkWidgetEvent::Select3D, this, vtkTensorWidget::SelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed.Get(),
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed.Get(),
       vtkWidgetEvent::EndSelect3D, this, vtkTensorWidget::EndSelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent, ed.Get(),
       vtkWidgetEvent::Move3D, this, vtkTensorWidget::MoveAction3D);
   }
@@ -257,6 +258,15 @@ void vtkTensorWidget::SelectAction3D(vtkAbstractWidget* w)
     self->GrabFocus(self->EventCallbackCommand);
   }
 
+  // watch for motion events from this device
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+  self->LastDevice = static_cast<int>(edd->GetDevice());
+
   self->WidgetState = vtkTensorWidget::Active;
   self->WidgetRep->StartComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
@@ -394,6 +404,19 @@ void vtkTensorWidget::MoveAction3D(vtkAbstractWidget* w)
 
   // See whether we're active
   if (self->WidgetState == vtkTensorWidget::Start)
+  {
+    return;
+  }
+
+  // watch for motion events from this device
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+
+  if (!edd->DeviceMatches(static_cast<vtkEventDataDevice>(self->LastDevice)))
   {
     return;
   }

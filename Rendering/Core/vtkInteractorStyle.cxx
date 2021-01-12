@@ -260,6 +260,13 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor* i)
 
     i->AddObserver(vtkCommand::Move3DEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::Button3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::ViewerMovement3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::Select3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::Clip3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::NextPose3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::PositionProp3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::Pick3DEvent, this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::Menu3DEvent, this->EventCallbackCommand, this->Priority);
 
     i->AddObserver(vtkCommand::DropFilesEvent, this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::UpdateDropLocationEvent, this->EventCallbackCommand, this->Priority);
@@ -992,6 +999,18 @@ void vtkInteractorStyle::DelegateTDxEvent(unsigned long event, void* calldata)
   }
 }
 
+#define vtkISEventDataMacro(eventname)                                                             \
+  case vtkCommand::eventname##Event:                                                               \
+    if (self->HandleObservers && self->HasObserver(vtkCommand::eventname##Event))                  \
+    {                                                                                              \
+      aborted = (self->InvokeEvent(vtkCommand::eventname##Event, calldata) == 1);                  \
+    }                                                                                              \
+    if (!aborted)                                                                                  \
+    {                                                                                              \
+      self->On##eventname(static_cast<vtkEventData*>(calldata));                                   \
+    }                                                                                              \
+    break
+
 //------------------------------------------------------------------------------
 void vtkInteractorStyle::ProcessEvents(
   vtkObject* vtkNotUsed(object), unsigned long event, void* clientdata, void* calldata)
@@ -1451,27 +1470,15 @@ void vtkInteractorStyle::ProcessEvents(
       }
       break;
 
-    case vtkCommand::Move3DEvent:
-      if (self->HandleObservers && self->HasObserver(vtkCommand::Move3DEvent))
-      {
-        aborted = (self->InvokeEvent(vtkCommand::Move3DEvent, calldata) == 1);
-      }
-      if (!aborted)
-      {
-        self->OnMove3D(static_cast<vtkEventData*>(calldata));
-      }
-      break;
-
-    case vtkCommand::Button3DEvent:
-      if (self->HandleObservers && self->HasObserver(vtkCommand::Button3DEvent))
-      {
-        aborted = (self->InvokeEvent(vtkCommand::Button3DEvent, calldata) == 1);
-      }
-      if (!aborted)
-      {
-        self->OnButton3D(static_cast<vtkEventData*>(calldata));
-      }
-      break;
+      vtkISEventDataMacro(Move3D);
+      vtkISEventDataMacro(Button3D);
+      vtkISEventDataMacro(Menu3D);
+      vtkISEventDataMacro(Select3D);
+      vtkISEventDataMacro(NextPose3D);
+      vtkISEventDataMacro(ViewerMovement3D);
+      vtkISEventDataMacro(Pick3D);
+      vtkISEventDataMacro(PositionProp3D);
+      vtkISEventDataMacro(Clip3D);
 
     case vtkCommand::DropFilesEvent:
       if (self->HandleObservers && self->HasObserver(vtkCommand::DropFilesEvent))

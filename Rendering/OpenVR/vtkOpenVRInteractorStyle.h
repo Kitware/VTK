@@ -48,8 +48,11 @@ public:
   /**
    * Override generic event bindings to call the corresponding action.
    */
-  void OnButton3D(vtkEventData* edata) override;
+  void OnSelect3D(vtkEventData* edata) override;
+  void OnNextPose3D(vtkEventData* edata) override;
+  void OnViewerMovement3D(vtkEventData* edata) override;
   void OnMove3D(vtkEventData* edata) override;
+  void OnMenu3D(vtkEventData* edata) override;
   //@}
 
   //@{
@@ -93,12 +96,14 @@ public:
    * Actions are defined by a VTKIS_*STATE*, interaction entry points,
    * and the corresponding method for interaction.
    */
-  void MapInputToAction(vtkEventDataDevice device, vtkEventDataDeviceInput input, int state);
+  void MapInputToAction(vtkCommand::EventIds eid, int state);
+  void MapInputToAction(vtkCommand::EventIds eid, vtkEventDataAction action, int state);
   //@}
 
   //@{
   /**
-   * Define the helper text that goes with an input
+   * Define the helper text that goes with an input,
+   * deprecated as open vr mostly provides it
    */
   void AddTooltipForInput(
     vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text);
@@ -167,7 +172,7 @@ protected:
   vtkNew<vtkSphereSource> Sphere;
 
   // device input to interaction state mapping
-  int InputMap[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
+  std::map<std::tuple<vtkCommand::EventIds, vtkEventDataAction>, int> InputMap;
   vtkOpenVRControlsHelper* ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
 
   // Utility routines

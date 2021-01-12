@@ -103,26 +103,27 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
     1, "Z", vtkWidgetEvent::Reset, this, vtkImplicitPlaneWidget2::TranslationAxisUnLock);
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select3D,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
       this, vtkImplicitPlaneWidget2::SelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::EndSelect3D, this, vtkImplicitPlaneWidget2::EndSelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D,
       this, vtkImplicitPlaneWidget2::MoveAction3D);
   }
@@ -176,6 +177,13 @@ void vtkImplicitPlaneWidget2::SelectAction3D(vtkAbstractWidget* w)
 {
   vtkImplicitPlaneWidget2* self = reinterpret_cast<vtkImplicitPlaneWidget2*>(w);
 
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+
   // We want to compute an orthogonal vector to the plane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)
     ->SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
@@ -197,6 +205,8 @@ void vtkImplicitPlaneWidget2::SelectAction3D(vtkAbstractWidget* w)
   self->WidgetState = vtkImplicitPlaneWidget2::Active;
   self->WidgetRep->StartComplexInteraction(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  self->LastDevice = static_cast<int>(edd->GetDevice());
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
@@ -327,6 +337,13 @@ void vtkImplicitPlaneWidget2::MoveAction3D(vtkAbstractWidget* w)
 
   // See whether we're active
   if (self->WidgetState == vtkImplicitPlaneWidget2::Start)
+  {
+    return;
+  }
+
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd || static_cast<int>(edd->GetDevice()) != self->LastDevice)
   {
     return;
   }
