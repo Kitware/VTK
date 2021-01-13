@@ -46,9 +46,15 @@ class vtkDataArray;
 class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, obtaining type information,
+   * and printing.
+   */
   static vtkWarpScalar* New();
   vtkTypeMacro(vtkWarpScalar, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
@@ -88,6 +94,16 @@ public:
   vtkBooleanMacro(XYPlane, vtkTypeBool);
   //@}
 
+  //@{
+  /**
+   * Set/get the desired precision for the output points type. By default
+   * (DEFAULT_PRECISION) the output type is SINGLE_PRECISION, otherwise it is
+   * either SINGLE_PRECISION or DOUBLE_PRECISION as specified by the user.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
+  //@}
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
@@ -102,11 +118,7 @@ protected:
   vtkTypeBool UseNormal;
   double Normal[3];
   vtkTypeBool XYPlane;
-
-  double* (vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray* normals);
-  double* DataNormal(vtkIdType id, vtkDataArray* normals = nullptr);
-  double* InstanceNormal(vtkIdType id, vtkDataArray* normals = nullptr);
-  double* ZNormal(vtkIdType id, vtkDataArray* normals = nullptr);
+  int OutputPointsPrecision;
 
 private:
   vtkWarpScalar(const vtkWarpScalar&) = delete;
