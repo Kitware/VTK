@@ -3678,7 +3678,7 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
     vtkMath::UninitializeBounds(this->Bounds);
     return;
   }
-  this->GetInput()->GetBounds(this->Bounds);
+  this->GetInput()->GetCellsBounds(this->Bounds);
 }
 
 //------------------------------------------------------------------------------

@@ -56,10 +56,6 @@ print("Input data:")
 print("\tNum Points: {0}".format(output.GetNumberOfPoints()))
 print("\tNum Cells: {0}".format(output.GetNumberOfCells()))
 
-# Currently vtkPolyData takes into account cells that are connected to
-# points; hence only connected points (i.e., points used by cells) are
-# considered.
-
 # Compute bounds on polydata
 points.Modified()
 timer.StartTimer()

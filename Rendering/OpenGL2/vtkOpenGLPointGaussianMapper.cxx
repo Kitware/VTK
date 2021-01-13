@@ -1031,7 +1031,7 @@ void vtkOpenGLPointGaussianMapper::ComputeBounds()
     if (pd)
     {
       double bounds[6];
-      pd->GetBounds(bounds);
+      pd->GetCellsBounds(bounds);
       bbox.AddBounds(bounds);
     }
     iter->GoToNextItem();

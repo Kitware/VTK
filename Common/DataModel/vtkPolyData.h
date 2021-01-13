@@ -136,10 +136,30 @@ public:
 
   /**
    * Compute the (X, Y, Z)  bounds of the data. Note that the method only considers
-   * points that are used by cells (unless there are no cells, in which case all
-   * points are considered). This is done for usability and historical reasons.
+   * points that are used by cells.
+   * This is done for usability and historical reasons.
+   *
+   * IMPORTANT
+   *
+   * Until vtk 9.0.1, vtkPolyData::ComputeBounds() used to ignore points that do not belong
+   * to any cell.
+   * That was not consistent with other vtkPointSet subclasses and thus was error prone.
+   * See this ParaView issue https://gitlab.kitware.com/paraview/paraview/-/issues/20354
+   * Now it defers to vtkPointSet::ComputeBounds() so vtkPolyData::GetBounds() may
+   * not return the same bounds as before. This behavior is probably the one you want
+   * when using bounds.
+   *
+   * The previous behavior is still availble through vtkPolyData::ComputeCellsBounds()
+   * and vtkPolyData::GetCellsBounds(). This is mainly used for rendering purpose.
    */
-  void ComputeBounds() override;
+  void ComputeCellsBounds();
+
+  /**
+   * Get the cells bounds.
+   * Internally calls ComputeCellsBounds().
+   * @sa ComputeCellsBounds()
+   */
+  void GetCellsBounds(double bounds[6]);
 
   /**
    * Recover extra allocated memory when creating data whose initial size
@@ -680,6 +700,11 @@ protected:
 
   // dummy static member below used as a trick to simplify traversal
   static vtkPolyDataDummyContainter DummyContainer;
+
+  // Take into account only points that belong to at least one cell.
+  double CellsBounds[6];
+
+  vtkTimeStamp CellsBoundsTime;
 
 private:
   // Hide these from the user and the compiler.
