@@ -159,7 +159,7 @@ protected:
    * of the image.
    * Precondition : Matplotlib rendering is available and mask parser is initialized.
    */
-  bool ComputeRowsAndCols(const GridOfStrings& strGrid, const long int maxNumberOfCells,
+  bool ComputeRowsAndCols(const GridOfStrings& strGrid, const std::size_t& maxNumberOfCells,
     vtkTextProperty* tprop, int dpi, long int& rows, long int& cols);
 
   /**
