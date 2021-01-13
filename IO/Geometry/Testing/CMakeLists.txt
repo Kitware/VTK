@@ -3,11 +3,6 @@ vtk_module_test_data(
   Data/AMR/Enzo/DD0010/,REGEX:.*
   Data/IncOctPntLocData.dat
   Data/IncOctPntLocResult.dat
-  Data/OpenFOAM/64BitFloats/,REGEX:.*
-  Data/OpenFOAM/64BitFloats/0/,REGEX:.*
-  Data/OpenFOAM/64BitFloats/constant/,REGEX:.*
-  Data/OpenFOAM/64BitFloats/constant/polyMesh/,REGEX:.*
-  Data/OpenFOAM/64BitFloats/system/,REGEX:.*
   Data/OpenFOAM/DimFields/cavity/,REGEX:.*
   Data/OpenFOAM/DimFields/cavity/0/,REGEX:.*
   Data/OpenFOAM/DimFields/cavity/constant/,REGEX:.*
@@ -28,6 +23,11 @@ vtk_module_test_data(
   Data/OpenFOAM/cavity/constant/,REGEX:.*
   Data/OpenFOAM/cavity/constant/polyMesh/,REGEX:.*
   Data/OpenFOAM/cavity/system/,REGEX:.*
+  Data/OpenFOAM/precision/case01/,REGEX:.*
+  Data/OpenFOAM/precision/case01/0/,REGEX:.*
+  Data/OpenFOAM/precision/case01/constant/,REGEX:.*
+  Data/OpenFOAM/precision/case01/constant/polyMesh/,REGEX:.*
+  Data/OpenFOAM/precision/case01/system/,REGEX:.*
   Data/OpenFOAM/regex/,REGEX:.*
   Data/OpenFOAM/regex/0/,REGEX:.*
   Data/OpenFOAM/regex/constant/,REGEX:.*
