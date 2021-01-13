@@ -570,7 +570,8 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
 
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& strGrid,
-  const long int maxNumberOfCells, vtkTextProperty* tprop, int dpi, long int& rows, long int& cols)
+  const std::size_t& maxNumberOfCells, vtkTextProperty* tprop, int dpi, long int& rows,
+  long int& cols)
 {
   // All columns must have the same width
   // so store the maximum number of cols
@@ -588,10 +589,6 @@ bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& str
     // is the maximum number of rows of
     // all cells of the line
     long int lineRows = 0;
-
-    // Number of columns of this line
-    // this is the sum of cols of each cell
-    long int lineCols = 0;
 
     // For each cells
     for (std::size_t j = 0; j < lineNumberOfCells; ++j)
@@ -964,10 +961,6 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
     // is the maximum number of rows of
     // all cells of the line
     long int lineRows = 0;
-
-    // Number of columns of this line
-    // this is the sum of cols of each cell
-    long int lineCols = 0;
 
     // store each cell matplotlib representation
     std::vector<vtkSmartPyObject> cellsPythonData;
