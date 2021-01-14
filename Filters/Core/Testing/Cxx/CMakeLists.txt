@@ -1,4 +1,5 @@
 vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
+  Test3DLinearGridPlaneCutterCellData.cxx
   TestAppendArcLength.cxx,NO_VALID
   TestAppendDataSets.cxx,NO_VALID
   TestAppendFilter.cxx,NO_VALID

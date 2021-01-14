@@ -316,7 +316,8 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TIP>
       // Does the plane cut this cell?
       if (Classify::PlaneIntersects(this->InOut, cellIter->NumVerts, c))
       {
-        unsigned short isoCase, i;
+        unsigned short isoCase;
+        vtkIdType i;
         // Compute case by repeated masking with function value
         for (isoCase = 0, i = 0; i < cellIter->NumVerts; ++i)
         {
@@ -781,8 +782,9 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
       ProducePDAttributes<TIds> interpolatePoints(mergeEdges, &pointArrays);
       EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
 
+      // Cell data
       ArrayList cellArrays;
-      outCD->InterpolateAllocate(inCD, numTris);
+      outCD->CopyAllocate(inCD, numTris);
       cellArrays.AddArrays(numTris, inCD, outCD);
       ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
       EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
@@ -845,14 +847,16 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
     // Now process point data attributes if requested
     if (intAttr)
     {
+      // Point data
       ArrayList pointArrays;
       outPD->InterpolateAllocate(inPD, numPts);
       pointArrays.AddArrays(numPts, inPD, outPD);
       ProduceMergedAttributes<TIds> interpolatePoints(mergeEdges, offsets, &pointArrays);
       EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
 
+      // Cell data
       ArrayList cellArrays;
-      outCD->InterpolateAllocate(inCD, numTris);
+      outCD->CopyAllocate(inCD, numTris);
       cellArrays.AddArrays(numTris, inCD, outCD);
       ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
       EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
