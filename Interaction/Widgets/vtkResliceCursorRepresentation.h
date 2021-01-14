@@ -262,6 +262,13 @@ public:
   vtkGetObjectMacro(PlaneSource, vtkPlaneSource);
   //@}
 
+  /**
+   * Fit the plane defined by origin, p1, p2 onto the bounds.
+   * Plane is untouched if does not intersect bounds.
+   * return 1 if the bounds is intersected, else 0
+   */
+  static int BoundPlane(double bounds[6], double origin[3], double p1[3], double p2[3]);
+
 protected:
   vtkResliceCursorRepresentation();
   ~vtkResliceCursorRepresentation() override;

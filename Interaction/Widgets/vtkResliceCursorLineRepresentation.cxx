@@ -25,6 +25,7 @@
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
@@ -42,6 +43,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform.h"
 #include "vtkWindow.h"
 
 #include <sstream>
@@ -341,40 +343,9 @@ void vtkResliceCursorLineRepresentation ::RotateVectorAboutVector(double vectorT
   double angle,   // angle in radians
   double o[3])
 {
-  //  let
-  //        [v] = [vx, vy, vz]      the vector to be rotated.
-  //        [l] = [lx, ly, lz]      the vector about rotation
-  //              | 1  0  0|
-  //        [i] = | 0  1  0|           the identity matrix
-  //              | 0  0  1|
-  //
-  //              |   0  lz -ly |
-  //        [L] = | -lz   0  lx |
-  //              |  ly -lx   0 |
-  //
-  //        d = sqrt(lx*lx + ly*ly + lz*lz)
-  //        a                       the angle of rotation
-  //
-  //    then
-  //
-  //   matrix operations gives:
-  //
-  //    [v] = [v]x{[i] + sin(a)/d*[L] + ((1 - cos(a))/(d*d)*([L]x[L]))}
-
-  // normalize the axis vector
-  double v[3] = { vectorToBeRotated[0], vectorToBeRotated[1], vectorToBeRotated[2] };
-  double l[3] = { axis[0], axis[1], axis[2] };
-  vtkMath::Normalize(v);
-  vtkMath::Normalize(l);
-  const double u = sin(angle);
-  const double w = 1.0 - cos(angle);
-
-  o[0] = v[0] * (1 - w * (l[2] * l[2] + l[1] * l[1])) + v[1] * (-u * l[2] + w * l[0] * l[1]) +
-    v[2] * (u * l[1] + w * l[0] * l[1]);
-  o[1] = v[0] * (u * l[2] + w * l[0] * l[1]) + v[1] * (1 - w * (l[0] * l[0] + l[2] * l[2])) +
-    v[2] * (-u * l[0] + w * l[1] * l[2]);
-  o[2] = v[0] * (-u * l[1] + w * l[0] * l[2]) + v[1] * (u * l[0] + w * l[1] * l[2]) +
-    v[2] * (1 - w * (l[1] * l[1] + l[0] * l[0]));
+  vtkNew<vtkTransform> transform;
+  transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
+  transform->TransformVector(vectorToBeRotated, o);
 }
 
 //------------------------------------------------------------------------------

@@ -98,6 +98,15 @@ public:
 
   //@{
   /**
+   * Compute local bounds.
+   * Not as fast as vtkPoints.getBounds() if u, v, w form a natural basis.
+   */
+  static void ComputeLocalBounds(
+    vtkPoints* points, double u[3], double v[3], double w[3], double outputBounds[6]);
+  //@}
+
+  //@{
+  /**
    * Set the minimum point of the bounding box - if the min point
    * is greater than the max point then the max point will also be changed.
    */

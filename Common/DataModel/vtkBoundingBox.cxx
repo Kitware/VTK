@@ -818,3 +818,20 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, 
     worker(pts->GetData(), ptUses, bounds);
   }
 }
+
+// ---------------------------------------------------------------------------
+void vtkBoundingBox::ComputeLocalBounds(
+  vtkPoints* points, double u[3], double v[3], double w[3], double outputBounds[6])
+{
+  vtkBoundingBox bbox;
+
+  for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
+  {
+    double* point = points->GetPoint(i);
+    double du = vtkMath::Dot(point, u);
+    double dv = vtkMath::Dot(point, v);
+    double dw = vtkMath::Dot(point, w);
+    bbox.AddPoint(du, dv, dw);
+  }
+  bbox.GetBounds(outputBounds);
+}

@@ -88,6 +88,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   vtkLineWidget2Test1.cxx
   vtkPolyLineRepresentationTest1.cxx
   vtkPolyLineWidgetTest1.cxx
+  vtkResliceCursorRepresentationTest1.cxx
   vtkSeedRepresentationTest1.cxx
   vtkSeedWidgetTest1.cxx
   vtkSplineRepresentationTest1.cxx
