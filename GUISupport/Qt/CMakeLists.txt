@@ -41,11 +41,11 @@ if(VTK_QT_MAJOR_VERSION VERSION_GREATER_EQUAL 6)
 endif()
 
 vtk_module_find_package(
-  PACKAGE     Qt${VTK_QT_MAJOR_VERSION}
+  PACKAGE     "Qt${VTK_QT_MAJOR_VERSION}"
   VERSION     5.9
   COMPONENTS  ${qt_components}
   FORWARD_VERSION_REQ MINOR
-  VERSION_VAR         Qt${VTK_QT_MAJOR_VERSION}_VERSION)
+  VERSION_VAR         "Qt${VTK_QT_MAJOR_VERSION}_VERSION")
 
 set(CMAKE_AUTOMOC 1)
 
@@ -54,7 +54,7 @@ vtk_module_add_module(VTK::GUISupportQt
   HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers})
 
-foreach(_qt_comp ${qt_components})
+foreach(_qt_comp IN LISTS qt_components)
   list(APPEND qt_modules "Qt${VTK_QT_MAJOR_VERSION}::${_qt_comp}")
 endforeach()
 
