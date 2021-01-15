@@ -633,7 +633,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
           if (sourcePD)
           {
             double bounds[6];
-            sourcePD->GetBounds(bounds);
+            sourcePD->GetCellsBounds(bounds);
             if (vtkMath::AreBoundsInitialized(bounds))
             {
               bbox.AddBounds(bounds);
@@ -676,7 +676,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
       if (source != nullptr)
       {
         double bounds[6];
-        source->GetBounds(bounds); // can be invalid/uninitialized
+        source->GetCellsBounds(bounds); // can be invalid/uninitialized
         if (vtkMath::AreBoundsInitialized(bounds))
         {
           bbox.AddBounds(bounds);
