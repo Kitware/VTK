@@ -19,15 +19,20 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
+#include <vtksys/RegularExpression.hxx>
+
 #include <vtk_pugixml.h>
 
 #include <algorithm>
 #include <cassert>
 #include <deque>
 #include <functional>
+#include <numeric>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
+
+static constexpr const char* DATASET_NODE_NAME = "dataset";
 
 //============================================================================
 //** vtkDataAssemblyVisitor **
@@ -51,14 +56,14 @@ vtkDataAssemblyVisitor::~vtkDataAssemblyVisitor() = default;
 //------------------------------------------------------------------------------
 const char* vtkDataAssemblyVisitor::GetCurrentNodeName() const
 {
-  return this->Internals->CurrentNode.attribute("name").value(); // TODO: unmangle
+  return this->Internals->CurrentNode.name();
 }
 
 //------------------------------------------------------------------------------
 std::vector<unsigned int> vtkDataAssemblyVisitor::GetCurrentDataSetIndices() const
 {
   std::vector<unsigned int> indices;
-  for (auto child : this->Internals->CurrentNode.children("dataset"))
+  for (auto child : this->Internals->CurrentNode.children(DATASET_NODE_NAME))
   {
     indices.push_back(child.attribute("id").as_uint());
   }
@@ -75,6 +80,18 @@ namespace
 {
 
 //------------------------------------------------------------------------------
+static bool IsAssemblyNode(const pugi::xml_node& node)
+{
+  return (!vtkDataAssembly::IsNodeNameReserved(node.name()));
+}
+
+//------------------------------------------------------------------------------
+static bool IsDataSetNode(const pugi::xml_node& node)
+{
+  return strcmp(node.name(), DATASET_NODE_NAME) == 0;
+}
+
+//------------------------------------------------------------------------------
 struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 {
   std::unordered_map<int, pugi::xml_node>& NodeMap;
@@ -87,7 +104,7 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
   }
   bool for_each(pugi::xml_node& node) override
   {
-    if (strcmp(node.name(), "node") == 0)
+    if (IsAssemblyNode(node))
     {
       if (auto attr = node.attribute("id"))
       {
@@ -98,23 +115,18 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
         }
         else
         {
-          vtkLogF(ERROR, "Invalid required attribute, id='%s'", attr.value());
+          vtkLogF(ERROR, "Invalid required attribute, id='%s' on '%s'", attr.value(),
+            node.path().c_str());
           return false;
         }
       }
       else
       {
-        vtkLogF(ERROR, "Missing required attribute 'id' on 'node'.");
-        return false;
-      }
-
-      if (!node.attribute("name"))
-      {
-        vtkLogF(ERROR, "Missing required attribute 'name' on 'node'.");
+        vtkLogF(ERROR, "Missing required attribute 'id' on node '%s'", node.path().c_str());
         return false;
       }
     }
-    else if (strcmp(node.name(), "dataset") == 0)
+    else if (IsDataSetNode(node))
     {
       if (auto attr = node.attribute("id"))
       {
@@ -260,47 +272,6 @@ protected:
   ~SelectNodesVisitor() override = default;
 };
 vtkStandardNewMacro(SelectNodesVisitor);
-//------------------------------------------------------------------------------
-std::string ConvertToXPathQuery(const std::string& path_query)
-{
-  auto is_unescaped_slash = [](const std::string& str, size_t offset) {
-    return (str[offset] == '/' && (offset == 0 || str[offset - 1] != '\\'));
-  };
-
-  auto push_name = [](std::ostream& str, const std::string& name) {
-    if (!name.empty())
-    {
-      str << "node[@name='" << name.c_str() << "']";
-      return true;
-    }
-    return false;
-  };
-
-  std::ostringstream stream;
-  std::ostringstream name_stream;
-  for (size_t cc = 0, max = path_query.size(); cc < max; ++cc)
-  {
-    const auto& c = path_query[cc];
-    if (is_unescaped_slash(path_query, cc))
-    {
-      push_name(stream, name_stream.str());
-      name_stream.str(std::string());
-      stream << c;
-    }
-    else
-    {
-      name_stream << c;
-    }
-  }
-  if (!push_name(stream, name_stream.str()) && path_query != "/")
-  {
-    // happens the path_query ends with a '/'. we treat that as
-    // a request to select all child nodes but not the parent.
-    stream << "node";
-  }
-
-  return stream.str();
-}
 }
 
 //============================================================================
@@ -320,9 +291,9 @@ public:
 
     ValidationAndInitializationWalker walker{ this->NodeMap, this->MaxUniqueId };
     auto root = doc.first_child();
-    if (strcmp(root.name(), "VTKDataAssembly") == 0 &&
-      root.attribute("version").as_float() == 1.0f && root.attribute("id").as_int(-1) == 0 &&
-      root.attribute("name") && root.traverse(walker))
+    if (::IsAssemblyNode(root) && root.attribute("version").as_float() == 1.0f &&
+      root.attribute("id").as_int(-1) == 0 &&
+      strcmp(root.attribute("type").as_string(), "vtkDataAssembly") == 0 && root.traverse(walker))
     {
       this->NodeMap[0] = root;
       return true;
@@ -371,10 +342,82 @@ vtkDataAssembly::vtkDataAssembly()
 vtkDataAssembly::~vtkDataAssembly() = default;
 
 //------------------------------------------------------------------------------
+bool vtkDataAssembly::IsNodeNameValid(const char* name)
+{
+  if (name == nullptr || name[0] == '\0' || vtkDataAssembly::IsNodeNameReserved(name))
+  {
+    return false;
+  }
+
+  if ((name[0] < 'a' || name[0] > 'z') && (name[0] < 'A' || name[0] > 'Z') && name[0] != '_')
+  {
+    // names must start with a letter or underscore.
+    return false;
+  }
+
+  vtksys::RegularExpression regEx("[^a-zA-Z0-9\\-_.]");
+  if (regEx.find(name))
+  {
+    // found a non-acceptable character; names can contain letters,
+    // digits, hyphens, underscores, and periods.
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+std::string vtkDataAssembly::MakeValidNodeName(const char* name)
+{
+  if (name == nullptr || name[0] == '\0')
+  {
+    vtkLog(ERROR, "cannot convert empty string to a valid name");
+    return std::string();
+  }
+
+  if (vtkDataAssembly::IsNodeNameReserved(name))
+  {
+    vtkLogF(ERROR, "'%s' is a reserved name.", name);
+    return std::string();
+  }
+
+  const char sorted_valid_chars[] =
+    ".-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+  const auto sorted_valid_chars_len = strlen(sorted_valid_chars);
+
+  std::string result;
+  result.reserve(strlen(name));
+  for (size_t cc = 0, max = strlen(name); cc < max; ++cc)
+  {
+    if (std::binary_search(
+          sorted_valid_chars, sorted_valid_chars + sorted_valid_chars_len, name[cc]))
+    {
+      result += name[cc];
+    }
+    else
+    {
+      result += '_';
+    }
+  }
+
+  if ((name[0] < 'a' || name[0] > 'z') && (name[0] < 'A' || name[0] > 'Z') && name[0] != '_')
+  {
+    return "_" + result;
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::IsNodeNameReserved(const char* name)
+{
+  return name ? strcmp(name, DATASET_NODE_NAME) == 0 : false;
+}
+
+//------------------------------------------------------------------------------
 void vtkDataAssembly::Initialize()
 {
   this->Internals.reset(new vtkDataAssembly::vtkInternals());
-  this->Internals->Parse("<VTKDataAssembly name='assembly' version='1.0' id='0' />", this);
+  this->Internals->Parse("<assembly type='vtkDataAssembly' version='1.0' id='0' />", this);
   this->Modified();
 }
 
@@ -427,9 +470,9 @@ void vtkDataAssembly::DeepCopy(vtkDataAssembly* other)
 //------------------------------------------------------------------------------
 int vtkDataAssembly::AddNode(const char* name, int parent)
 {
-  if (name == nullptr || name[0] == '\0')
+  if (!vtkDataAssembly::IsNodeNameValid(name))
   {
-    vtkErrorMacro("Name cannot be empty.");
+    vtkErrorMacro("Invalid name specified '" << (name ? name : "(nullptr)"));
     return -1;
   }
 
@@ -442,9 +485,8 @@ int vtkDataAssembly::AddNode(const char* name, int parent)
   }
 
   auto child = ++internals.MaxUniqueId;
-  auto cnode = pnode.append_child("node");
+  auto cnode = pnode.append_child(name);
   cnode.append_attribute("id") = child;
-  cnode.append_attribute("name") = name; // todo: mangle name.
   internals.NodeMap[child] = cnode;
   this->Modified();
   return child;
@@ -461,13 +503,22 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
     return std::vector<int>{};
   }
 
+  // validate names first to avoid partial additions.
+  for (const auto& name : names)
+  {
+    if (!vtkDataAssembly::IsNodeNameValid(name.c_str()))
+    {
+      vtkErrorMacro("Invalid name specified '" << name.c_str() << "'.");
+      return std::vector<int>{};
+    }
+  }
+
   std::vector<int> ids;
   for (const auto& name : names)
   {
     auto child = ++internals.MaxUniqueId;
-    auto cnode = pnode.append_child("node");
+    auto cnode = pnode.append_child(name.c_str());
     cnode.append_attribute("id") = child;
-    cnode.append_attribute("name") = name.c_str(); // todo: mangle name.
     internals.NodeMap[child] = cnode;
     ids.push_back(child);
   }
@@ -508,16 +559,16 @@ bool vtkDataAssembly::RemoveNode(int id)
 //------------------------------------------------------------------------------
 void vtkDataAssembly::SetNodeName(int id, const char* name)
 {
-  if (name == nullptr || name[0] == '\0')
+  if (!vtkDataAssembly::IsNodeNameValid(name))
   {
-    vtkErrorMacro("Name cannot be empty.");
+    vtkErrorMacro("Invalid name specified '" << (name ? name : "(nullptr)") << "'.");
     return;
   }
 
   auto& internals = (*this->Internals);
   if (auto node = internals.FindNode(id))
   {
-    node.attribute("name").set_value(name); // TODO: mangle
+    node.set_name(name);
     this->Modified();
   }
   else
@@ -532,7 +583,7 @@ const char* vtkDataAssembly::GetNodeName(int id) const
   const auto& internals = (*this->Internals);
   if (auto node = internals.FindNode(id))
   {
-    return node.attribute("name").value(); // TODO: demangle
+    return node.name();
   }
   else
   {
@@ -550,21 +601,15 @@ std::string vtkDataAssembly::GetNodePath(int id) const
     return std::string{};
   }
 
-  std::vector<std::string> names;
-  // not adding root node in path here, seems unnecessary
-  while (node && node.attribute("id").as_int(-1) != 0)
-  {
-    names.push_back(node.attribute("name").value());
-    node = node.parent();
-  }
-  std::reverse(std::begin(names), std::end(names));
-  std::ostringstream stream;
-  stream << "/"; // since we skip root
-  for (auto& name : names)
-  {
-    stream << "/" << name;
-  }
-  return stream.str();
+  return node.path();
+}
+
+//------------------------------------------------------------------------------
+int vtkDataAssembly::GetFirstNodeByPath(const char* path) const
+{
+  const auto& internals = (*this->Internals);
+  auto node = internals.FindNode(vtkDataAssembly::GetRootNode()).first_element_by_path(path);
+  return node ? node.attribute("id").as_int() : -1;
 }
 
 //------------------------------------------------------------------------------
@@ -584,7 +629,7 @@ bool vtkDataAssembly::AddDataSetIndex(int id, unsigned int dataset_index)
     return true;
   }
 
-  auto dsnode = node.append_child("dataset");
+  auto dsnode = node.append_child(DATASET_NODE_NAME);
   dsnode.append_attribute("id") = dataset_index;
   this->Modified();
   return true;
@@ -607,7 +652,7 @@ bool vtkDataAssembly::AddDataSetIndices(int id, const std::vector<unsigned int>&
     if (set.find(idx) == set.end())
     {
       set.insert(idx);
-      auto dsnode = node.append_child("dataset");
+      auto dsnode = node.append_child(DATASET_NODE_NAME);
       dsnode.append_attribute("id") = idx;
       modified = true;
     }
@@ -629,7 +674,7 @@ bool vtkDataAssembly::RemoveDataSetIndex(int id, unsigned int dataset_index)
     return false;
   }
 
-  for (auto child : node.children("dataset"))
+  for (auto child : node.children(DATASET_NODE_NAME))
   {
     if (child.attribute("id").as_uint() == dataset_index)
     {
@@ -658,7 +703,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
     std::vector<pugi::xml_node>* ToRemove = nullptr;
     bool for_each(pugi::xml_node& nnode) override
     {
-      if (strcmp(nnode.name(), "dataset") == 0)
+      if (strcmp(nnode.name(), DATASET_NODE_NAME) == 0)
       {
         this->ToRemove->push_back(nnode);
       }
@@ -674,7 +719,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
   }
   else
   {
-    for (const auto& dschild : node.children("dataset"))
+    for (const auto& dschild : node.children(DATASET_NODE_NAME))
     {
       to_remove.push_back(dschild);
     }
@@ -705,12 +750,9 @@ int vtkDataAssembly::GetNumberOfChildren(int parent) const
   {
     return 0;
   }
-  int count = 0;
-  for (const auto& cnode : node.children("node"))
-  {
-    (void)cnode;
-    ++count;
-  }
+
+  auto range = node.children();
+  const int count = std::count_if(range.begin(), range.end(), ::IsAssemblyNode);
   return count;
 }
 
@@ -720,13 +762,16 @@ int vtkDataAssembly::GetChild(int parent, int index) const
   const auto& internals = (*this->Internals);
   const auto node = internals.FindNode(parent);
   int cur_child = 0;
-  for (const auto& cnode : node.children("node"))
+  for (const auto& cnode : node.children())
   {
-    if (cur_child == index)
+    if (::IsAssemblyNode(cnode))
     {
-      return cnode.attribute("id").as_int(-1);
+      if (cur_child == index)
+      {
+        return cnode.attribute("id").as_int(-1);
+      }
+      ++cur_child;
     }
-    ++cur_child;
   }
   return -1;
 }
@@ -737,13 +782,16 @@ int vtkDataAssembly::GetChildIndex(int parent, int child) const
   const auto& internals = (*this->Internals);
   const auto node = internals.FindNode(parent);
   int index = 0;
-  for (const auto& cnode : node.children("node"))
+  for (const auto& cnode : node.children())
   {
-    if (cnode.attribute("id").as_int(-1) == child)
+    if (::IsAssemblyNode(cnode))
     {
-      return index;
+      if (cnode.attribute("id").as_int(-1) == child)
+      {
+        return index;
+      }
+      ++index;
     }
-    ++index;
   }
   return -1;
 }
@@ -840,10 +888,13 @@ void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int travers
       if (visitor->GetTraverseSubtree(cid))
       {
         visitor->BeginSubTree(cid);
-        for (const auto& child : node.children("node"))
+        for (const auto& child : node.children())
         {
-          vinternals.CurrentNode = child;
-          iterate(child);
+          if (::IsAssemblyNode(child))
+          {
+            vinternals.CurrentNode = child;
+            iterate(child);
+          }
         }
         vinternals.CurrentNode = node;
         visitor->EndSubTree(cid);
@@ -869,11 +920,14 @@ void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int travers
       if (visitor->GetTraverseSubtree(cid))
       {
         visitor->BeginSubTree(cid);
-        for (const auto& child : node.children("node"))
+        for (const auto& child : node.children())
         {
-          vinternals.CurrentNode = child;
-          visitor->Visit(child.attribute("id").as_int(-1));
-          fifo_visited.push_back(child);
+          if (::IsAssemblyNode(child))
+          {
+            vinternals.CurrentNode = child;
+            visitor->Visit(child.attribute("id").as_int(-1));
+            fifo_visited.push_back(child);
+          }
         }
         vinternals.CurrentNode = node;
         visitor->EndSubTree(cid);
@@ -892,18 +946,26 @@ std::vector<int> vtkDataAssembly::SelectNodes(
 {
   const auto& internals = (*this->Internals);
   vtkNew<SelectNodesVisitor> visitor;
-  for (const auto& str : path_queries)
+  for (const auto& query : path_queries)
   {
-    auto converted_query = ConvertToXPathQuery(str);
-    vtkLogF(TRACE, "path='%s', xpath='%s'", str.c_str(), converted_query.c_str());
-    auto set = internals.Document.select_nodes(converted_query.c_str());
-    std::transform(set.begin(), set.end(),
-      std::inserter(visitor->UnorderedSelectedNodes, visitor->UnorderedSelectedNodes.end()),
-      [&internals](const pugi::xpath_node& xnode) {
-        // note: if xpath matches the document, the xnode is the document and not the
-        // first-child and the attribute request fails.
-        return (xnode.node() == internals.Document) ? 0 : xnode.node().attribute("id").as_int(-1);
+    vtkLogF(TRACE, "query='%s'", query.c_str());
+    auto set = internals.Document.select_nodes(query.c_str());
+
+    auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
+      [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
+        if (xnode.node() == internals.Document)
+        {
+          // note: if xpath matches the document, the xnode is the document and not the
+          // first-child and the attribute request fails.
+          result->insert(0);
+        }
+        else if (::IsAssemblyNode(xnode.node()))
+        {
+          result->insert(xnode.node().attribute("id").as_int(-1));
+        }
+        return result;
       });
+    (void)notUsed;
   }
 
   this->Visit(visitor, traversal_order);
@@ -995,7 +1057,7 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
                     const pugi::xml_node& src, pugi::xml_node dest) -> void {
     for (const auto& child : src.children())
     {
-      if (strcmp(child.name(), "node") == 0)
+      if (::IsAssemblyNode(child))
       {
         const auto id = child.attribute("id").as_int(-1);
         if (complete_subtree.find(id) != complete_subtree.end())
@@ -1004,14 +1066,14 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
         }
         else if (partial_subtree.find(id) != partial_subtree.end())
         {
-          auto dest_child = dest.append_child("node");
+          auto dest_child = dest.append_child(child.name());
           dest_child.append_copy(child.attribute("id"));
-          dest_child.append_copy(child.attribute("name"));
           subset_copier(child, dest_child);
         }
       }
       else
       {
+        assert(::IsDataSetNode(child));
         // copy dataset nodes.
         dest.append_copy(child);
       }

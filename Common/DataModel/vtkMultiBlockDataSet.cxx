@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkMultiBlockDataSet.h"
 
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkUniformGridAMR.h"
 
 vtkStandardNewMacro(vtkMultiBlockDataSet);
 //------------------------------------------------------------------------------
@@ -28,13 +30,13 @@ vtkMultiBlockDataSet::~vtkMultiBlockDataSet() = default;
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformation* info)
 {
-  return info ? vtkMultiBlockDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return vtkMultiBlockDataSet::SafeDownCast(vtkDataObject::GetData(info));
 }
 
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformationVector* v, int i)
 {
-  return vtkMultiBlockDataSet::GetData(v->GetInformationObject(i));
+  return vtkMultiBlockDataSet::SafeDownCast(vtkDataObject::GetData(v, i));
 }
 
 //------------------------------------------------------------------------------
@@ -58,12 +60,25 @@ vtkDataObject* vtkMultiBlockDataSet::GetBlock(unsigned int blockno)
 //------------------------------------------------------------------------------
 void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
 {
-  if (block && block->IsA("vtkCompositeDataSet") && !block->IsA("vtkMultiBlockDataSet") &&
-    !block->IsA("vtkMultiPieceDataSet") && !block->IsA("vtkPartitionedDataSet"))
+  if (vtkUniformGridAMR::SafeDownCast(block) != nullptr)
   {
-    vtkErrorMacro(<< block->GetClassName() << " cannot be added as a block.");
+    vtkErrorMacro("vtkUniformGridAMR cannot be added as block.");
     return;
   }
+
+  if (vtkPartitionedDataSet::SafeDownCast(block) != nullptr &&
+    vtkMultiPieceDataSet::SafeDownCast(block) == nullptr)
+  {
+    vtkErrorMacro("vtkPartitionedDataSet cannot be added as a block.");
+    return;
+  }
+
+  if (vtkPartitionedDataSetCollection::SafeDownCast(block) != nullptr)
+  {
+    vtkErrorMacro("vtkPartitionedDataSetCollection cannot be added as a block.");
+    return;
+  }
+
   this->Superclass::SetChild(blockno, block);
 }
 
@@ -71,6 +86,14 @@ void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
 void vtkMultiBlockDataSet::RemoveBlock(unsigned int blockno)
 {
   this->Superclass::RemoveChild(blockno);
+}
+
+//------------------------------------------------------------------------------
+vtkDataObjectTree* vtkMultiBlockDataSet::CreateForCopyStructure(vtkDataObjectTree* other)
+{
+  return vtkPartitionedDataSet::SafeDownCast(other)
+    ? vtkMultiPieceDataSet::New()
+    : this->Superclass::CreateForCopyStructure(other);
 }
 
 //------------------------------------------------------------------------------

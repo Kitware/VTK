@@ -781,7 +781,7 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
 
 //----------------------------------------------------------------------------
 bool vtkIossReader::vtkInternals::GenerateOutput(
-  vtkPartitionedDataSetCollection* output, vtkIossReader* self)
+  vtkPartitionedDataSetCollection* output, vtkIossReader*)
 {
   // we skip NODEBLOCK since we never put out NODEBLOCK in the output by itself.
   vtkNew<vtkDataAssembly> assembly;
@@ -792,17 +792,6 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
 
   for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
   {
-    std::set<std::string> enabled_entities;
-    auto selection = self->GetEntitySelection(etype);
-    for (int idx = 0, max = selection->GetNumberOfArrays(); idx < max; ++idx)
-    {
-      auto name = selection->GetArrayName(idx);
-      if (name != nullptr && selection->GetArraySetting(idx) != 0)
-      {
-        enabled_entities.insert(name);
-      }
-    }
-
     if (this->EntityNames[etype].size() == 0)
     {
       // skip 0-count entity types; keeps output assembly simpler to read.
@@ -816,15 +805,8 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
     for (const auto& ename : this->EntityNames[etype])
     {
       const auto pdsIdx = output->GetNumberOfPartitionedDataSets();
-      if (enabled_entities.find(ename.second) != enabled_entities.end())
-      {
-        vtkNew<vtkPartitionedDataSet> parts;
-        output->SetPartitionedDataSet(pdsIdx, parts);
-      }
-      else
-      {
-        output->SetPartitionedDataSet(pdsIdx, nullptr);
-      }
+      vtkNew<vtkPartitionedDataSet> parts;
+      output->SetPartitionedDataSet(pdsIdx, parts);
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
       output->GetMetaData(pdsIdx)->Set(
         vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
@@ -1720,17 +1702,18 @@ int vtkIossReader::ReadMesh(
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
   for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
   {
-    auto pds = collection->GetPartitionedDataSet(pdsIdx);
-    if (pds == nullptr)
-    {
-      // this happens when the entity has not been selected.
-      continue;
-    }
-
     const std::string blockname(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
     const auto vtk_entity_type =
       static_cast<vtkIossReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
 
+    auto selection = this->GetEntitySelection(vtk_entity_type);
+    if (!selection->ArrayIsEnabled(blockname.c_str()))
+    {
+      // skip disabled blocks.
+      continue;
+    }
+
+    auto pds = collection->GetPartitionedDataSet(pdsIdx);
     assert(pds != nullptr);
     pds->SetNumberOfPartitions(static_cast<unsigned int>(dbaseHandles.size()));
     for (unsigned int cc = 0; cc < static_cast<unsigned int>(dbaseHandles.size()); ++cc)

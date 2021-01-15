@@ -198,6 +198,14 @@ protected:
    */
   int HasChildMetaData(unsigned int index);
 
+  /**
+   * When copying structure from another vtkDataObjectTree, this method gets
+   * called for create a new non-leaf for the `other` node. Subclasses can
+   * override this to create a different type of vtkDataObjectTree subclass, if
+   * appropriate. Default implementation, simply calls `NewInstance` on other;
+   */
+  virtual vtkDataObjectTree* CreateForCopyStructure(vtkDataObjectTree* other);
+
   // The internal datastructure. Subclasses need not access this directly.
   vtkDataObjectTreeInternals* Internals;
 

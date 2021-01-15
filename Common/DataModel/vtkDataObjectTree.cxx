@@ -196,9 +196,15 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     vtkDataObjectTree* compositeSrc = vtkDataObjectTree::SafeDownCast(srcIter->DataObject);
     if (compositeSrc)
     {
-      vtkDataObjectTree* copy = compositeSrc->NewInstance();
-      myIter->DataObject.TakeReference(copy);
-      copy->CopyStructure(compositeSrc);
+      if (vtkDataObjectTree* copy = this->CreateForCopyStructure(compositeSrc))
+      {
+        myIter->DataObject.TakeReference(copy);
+        copy->CopyStructure(compositeSrc);
+      }
+      else
+      {
+        vtkErrorMacro("CopyStructure has encountered an error and will fail!");
+      }
     }
 
     // shallow copy meta data.
@@ -211,6 +217,12 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     }
   }
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkDataObjectTree* vtkDataObjectTree::CreateForCopyStructure(vtkDataObjectTree* other)
+{
+  return other ? other->NewInstance() : nullptr;
 }
 
 //------------------------------------------------------------------------------

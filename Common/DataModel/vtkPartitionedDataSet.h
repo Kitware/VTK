@@ -128,6 +128,12 @@ protected:
   vtkPartitionedDataSet();
   ~vtkPartitionedDataSet() override;
 
+  /**
+   * vtkPartitionedDataSet cannot contain non-leaf children. This ensures that
+   * we don't accidentally create them in CopyStructure
+   */
+  vtkDataObjectTree* CreateForCopyStructure(vtkDataObjectTree*) override { return nullptr; }
+
 private:
   vtkPartitionedDataSet(const vtkPartitionedDataSet&) = delete;
   void operator=(const vtkPartitionedDataSet&) = delete;

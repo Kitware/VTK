@@ -53,6 +53,7 @@
 #include VTK_DIY2(diy/algorithms.hpp)
 // clang-format on
 
+#include <functional>
 #include <set>
 
 template <typename T, int Size>
@@ -317,76 +318,6 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
 #endif
 
   return next_seeds;
-}
-
-void Append(vtkPartitionedDataSet* input, vtkPartitionedDataSet* output)
-{
-  unsigned int next = output->GetNumberOfPartitions();
-  output->SetNumberOfPartitions(next + input->GetNumberOfPartitions());
-  for (unsigned int cc = 0, max = input->GetNumberOfPartitions(); cc < max; ++cc, ++next)
-  {
-    output->SetPartition(next, input->GetPartition(cc));
-  }
-}
-
-template <typename V, typename SizeT>
-vtkPartitionedDataSet* vtkSafeGet(V& vec, SizeT off)
-{
-  return (off < static_cast<SizeT>(vec.size())) ? vec[off] : nullptr;
-}
-
-void GenerateOutput(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
-  const std::vector<vtkSmartPointer<vtkPartitionedDataSet>>& parts, unsigned int& flat_index)
-{
-  auto max = input->GetNumberOfBlocks();
-  output->SetNumberOfBlocks(max);
-  for (unsigned int cc = 0; cc < max; ++cc)
-  {
-    ++flat_index;
-    if (vtkSafeGet(parts, flat_index) == nullptr)
-    {
-      if (auto imb = vtkMultiBlockDataSet::SafeDownCast(input->GetBlock(cc)))
-      {
-        auto omb = vtkMultiBlockDataSet::New();
-        output->SetBlock(cc, omb);
-        omb->FastDelete();
-        ::GenerateOutput(imb, omb, parts, flat_index);
-      }
-      else if (auto imp = vtkMultiPieceDataSet::SafeDownCast(input->GetBlock(cc)))
-      {
-        vtkNew<vtkPartitionedDataSet> pds;
-        for (unsigned int piece = 0; piece < imp->GetNumberOfPieces(); ++piece)
-        {
-          ++flat_index;
-          if (auto inpart = vtkSafeGet(parts, flat_index))
-          {
-            Append(inpart, pds);
-          }
-        }
-
-        if (pds->GetNumberOfPartitions() > 0)
-        {
-          output->SetBlock(cc, pds);
-        }
-        else
-        {
-          auto omp = vtkMultiPieceDataSet::New();
-          omp->SetNumberOfPieces(imp->GetNumberOfPieces());
-          output->SetBlock(cc, omp);
-          omp->FastDelete();
-        }
-      }
-    }
-    else
-    {
-      output->SetBlock(cc, vtkSafeGet(parts, flat_index));
-    }
-
-    if (input->HasMetaData(cc))
-    {
-      output->GetMetaData(cc)->Copy(input->GetMetaData(cc));
-    }
-  }
 }
 
 } // namespace {}
@@ -715,9 +646,15 @@ int vtkExtractSubsetWithSeed::RequestData(
   {
     auto inputMB = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
     assert(inputMB != nullptr);
-    // Worst case: we need to match up structure and across all ranks.
+    // Worst case: we need to match up structure and that too across all ranks.
 
+    // counts: key == composite id, value = number of dataset in result
     std::vector<size_t> counts;
+    // input_dataset_map: key == input dataset, value is composite id
+    std::map<vtkDataObject*, unsigned int> input_dataset_map;
+    // local_id: key == composite id, value = local block id
+    std::vector<int> local_id;
+
     int lid = 0;
     auto citer = inputMB->NewIterator();
     for (citer->InitTraversal();
@@ -728,10 +665,15 @@ int vtkExtractSubsetWithSeed::RequestData(
       if (citer->GetCurrentDataObject() == b->Input)
       {
         counts.resize(citer->GetCurrentFlatIndex() + 1, 0);
+        local_id.resize(citer->GetCurrentFlatIndex() + 1, -1);
+
+        local_id[citer->GetCurrentFlatIndex()] = lid;
         counts[citer->GetCurrentFlatIndex()] = b->Extracts.size() + b->Seeds.size();
+        input_dataset_map[citer->GetCurrentDataObject()] = citer->GetCurrentFlatIndex();
         ++lid;
       }
     }
+    citer->Delete();
 
     size_t global_num_counts = 0;
     diy::mpi::all_reduce(comm, counts.size(), global_num_counts, diy::mpi::maximum<size_t>());
@@ -740,51 +682,83 @@ int vtkExtractSubsetWithSeed::RequestData(
     std::vector<size_t> global_counts(global_num_counts);
     diy::mpi::all_reduce(comm, counts, global_counts, diy::mpi::maximum<size_t>());
 
-    std::vector<vtkSmartPointer<vtkPartitionedDataSet>> parts(global_num_counts);
-    lid = 0;
-    citer->SkipEmptyNodesOff();
-    for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
+    std::vector<vtkSmartPointer<vtkDataObject>> output_blocks(global_num_counts);
+    for (size_t cc = 0; cc < global_num_counts; ++cc)
     {
-      const auto findex = citer->GetCurrentFlatIndex();
-      if (findex >= static_cast<unsigned int>(global_num_counts))
+      if (global_counts[cc] == 0)
       {
-        // we're done.
-        break;
-      }
-      const auto& count = global_counts[findex];
-      if (count == 0)
-      {
-        if (!prunePredicate(citer->GetCurrentDataObject()))
-        {
-          ++lid;
-        }
         continue;
       }
-      else if (prunePredicate(citer->GetCurrentDataObject()) ||
-        lid >= static_cast<int>(gids.size()))
+
+      auto pieces = vtkSmartPointer<vtkMultiPieceDataSet>::New();
+      if (local_id[cc] == -1)
       {
-        // this block is not present locally (or was treated as such). So just
-        // put a partitioned dataset with matching parts.
-        vtkNew<vtkPartitionedDataSet> pds;
-        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
-        parts[findex] = pds;
+        pieces->SetNumberOfPieces(global_counts[cc]);
       }
       else
       {
-        auto b = master.block<BlockT>(lid);
-        assert(b->Input == citer->GetCurrentDataObject());
-        vtkNew<vtkPartitionedDataSet> pds;
-        b->AddExtracts(pds);
-        // pads will nullptr, if needed.
-        pds->SetNumberOfPartitions(static_cast<unsigned int>(count));
-        parts[findex] = pds;
-        ++lid;
+        auto b = master.block<BlockT>(local_id[cc]);
+        b->AddExtracts(pieces);
+        pieces->SetNumberOfPieces(global_counts[cc]);
       }
+      output_blocks[cc] = pieces;
+      // TODO: here, if numpieces is 1, we can remove the MP and replace it with
+      // the piece itself, if needed.
     }
-    citer->Delete();
 
-    unsigned int flat_index = 0;
-    ::GenerateOutput(inputMB, outputMB, parts, flat_index);
+    // now, put the pieces in output_blocks in the output MB.
+    // we use a trick, copy into to output and then replace
+    outputMB->ShallowCopy(inputMB);
+
+    std::function<vtkDataObject*(vtkDataObject*)> replaceLeaves;
+    replaceLeaves = [&replaceLeaves, &input_dataset_map, &output_blocks](
+                      vtkDataObject* output) -> vtkDataObject* {
+      if (auto mb = vtkMultiBlockDataSet::SafeDownCast(output))
+      {
+        for (unsigned int cc = 0; cc < mb->GetNumberOfBlocks(); ++cc)
+        {
+          mb->SetBlock(cc, replaceLeaves(mb->GetBlock(cc)));
+        }
+        return mb;
+      }
+      else if (auto mp = vtkMultiPieceDataSet::SafeDownCast(output))
+      {
+        // since a leaf node can result in multiple pieces e.g. replaceLeaves()
+        // may return a vtkMultiPieceDataSet, we handle it this way.
+        std::vector<vtkDataObject*> extracts;
+        for (unsigned int cc = 0; cc < mp->GetNumberOfPieces(); ++cc)
+        {
+          extracts.push_back(replaceLeaves(mp->GetPiece(cc)));
+        }
+
+        mp->SetNumberOfPieces(0);
+        for (auto& extractDO : extracts)
+        {
+          if (auto e = vtkMultiPieceDataSet::SafeDownCast(extractDO))
+          {
+            for (unsigned cc = 0; e != nullptr && cc < e->GetNumberOfPieces(); ++cc)
+            {
+              mp->SetPiece(mp->GetNumberOfPieces(), e->GetPiece(cc));
+            }
+          }
+          else
+          {
+            mp->SetPiece(mp->GetNumberOfPieces(), extractDO);
+          }
+        }
+        return mp;
+      }
+      else
+      {
+        auto iter = input_dataset_map.find(output);
+        if (iter != input_dataset_map.end())
+        {
+          return output_blocks[iter->second];
+        }
+        return nullptr;
+      }
+    };
+    replaceLeaves(outputMB);
   }
 
   vtkInformation* info = outputVector->GetInformationObject(0);

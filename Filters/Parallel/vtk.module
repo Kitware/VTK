@@ -3,6 +3,8 @@ NAME
 LIBRARY_NAME
   vtkFiltersParallel
 IMPLEMENTABLE
+IMPLEMENTS
+  VTK::FiltersCore
 KIT
   VTK::Parallel
 GROUPS

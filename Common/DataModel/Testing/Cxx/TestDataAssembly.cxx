@@ -26,8 +26,9 @@ void Assemble(vtkDataAssembly* assembly, const std::vector<int>& children, int& 
   std::copy(std::next(children.begin(), 1), children.end(), subset.begin());
   for (auto cc = 0; cc < children.front(); ++cc)
   {
-    auto child = assembly->AddNode(
-      ("Child[" + std::to_string(depth) + "]#" + std::to_string(cc)).c_str(), parent);
+    auto name = ("Child[" + std::to_string(depth) + "]#" + std::to_string(cc));
+    auto child =
+      assembly->AddNode(vtkDataAssembly::MakeValidNodeName(name.c_str()).c_str(), parent);
     ++count;
     Assemble(assembly, subset, count, child, (depth + 1));
   }
@@ -101,7 +102,7 @@ int TestDataAssembly(int, char*[])
     VERIFY((assembly->SelectNodes({ "/" }) == std::vector<int>{ 0 }));
     VERIFY((assembly->SelectNodes({ "//sets" }) == std::vector<int>{ 2 }));
     VERIFY((assembly->SelectNodes({ "/sets" }) == std::vector<int>{}));
-    VERIFY((assembly->SelectNodes({ "//sets/" }) == std::vector<int>{ 6, 7, 8 }));
+    VERIFY((assembly->SelectNodes({ "//sets/*" }) == std::vector<int>{ 6, 7, 8 }));
     assembly->Print(cout);
 
     vtkNew<vtkDataAssembly> subset;
