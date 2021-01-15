@@ -272,6 +272,7 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer* ren, vtkActor* actor)
   vtkOpenGLRenderWindow* rw = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   vtkOpenGLState* ostate = rw->GetState();
   vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+  vtkOpenGLState::ScopedglEnableDisable cfsaver(ostate, GL_CULL_FACE);
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
@@ -287,6 +288,9 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer* ren, vtkActor* actor)
   this->Superclass::Render(ren, actor);
 
   this->LICInterface->CompletedGeometry();
+
+  // Disable cull face to make sure geometry won't be culled again
+  ostate->vtkglDisable(GL_CULL_FACE);
 
   // --------------------------------------------- composite vectors for parallel LIC
   this->LICInterface->GatherVectors();
