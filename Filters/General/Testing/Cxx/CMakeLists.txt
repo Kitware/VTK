@@ -60,6 +60,12 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   TestYoungsMaterialInterface.cxx
   )
 
+if (TARGET VTK::IOIoss)
+  vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
+    TestAnimateModes.cxx
+    )
+endif()
+
 set(all_tests
   ${tests}
   ${data_tests}

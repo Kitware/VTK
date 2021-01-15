@@ -1,4 +1,5 @@
 set(classes
+  vtkAnimateModes
   vtkAnnotationLink
   vtkAppendLocationAttributes
   vtkAppendPoints
