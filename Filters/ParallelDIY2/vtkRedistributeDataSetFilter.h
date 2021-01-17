@@ -46,6 +46,28 @@
  * on when it is known that the data is spatially partitioned as is the case
  * after this filter has executed.
  *
+ * @section SupportedDataTypes  Supported Data Types
+ *
+ * vtkRedistributeDataSetFilter is primarily intended for unstructured datasets
+ * i.e. vtkUnstructuredGrid, vtkPolyData and composite datasets comprising of
+ * the same. It will work when applied to structured datasets as well, however,
+ * it results in conversion of the dataset to an unstructured grid -- which is
+ * often not suitable. Also, other redistribution and load balancing strategies
+ * can be applied to structured data which may be more efficient and hence
+ * should be preferred over using this filter.
+ *
+ * For composite datasets, the filter supports `vtkPartitionedDataSet` and
+ * `vtkPartitionedDataSetCollection`. When input is a
+ * `vtkPartitionedDataSetCollection`, you can set `LoadBalanceAcrossAllBlocks`
+ * to true to build the load balancing KdTree using all vtkPartitionedDataSets
+ * in the collection. Default is load balance each `vtkPartitionedDataSet`
+ * separately.
+ *
+ * For `vtkMultiBlockDataSet`, the filter internally uses
+ * `vtkDataObjectToPartitionedDataSetCollection` and
+ * `vtkPartitionedDataSetCollectionToMultiBlockDataSet` to convert the
+ * vtkMultiBlockDataSet to a vtkPartitionedDataSetCollection and back.
+ *
  */
 #ifndef vtkRedistributeDataSetFilter_h
 #define vtkRedistributeDataSetFilter_h
@@ -67,6 +89,7 @@ class vtkBoundingBox;
 class vtkPartitionedDataSet;
 class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
+class vtkDataObjectTree;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkRedistributeDataSetFilter : public vtkDataObjectAlgorithm
 {
@@ -245,6 +268,20 @@ public:
   vtkBooleanMacro(EnableDebugging, bool);
   //@}
 
+  //@{
+  /**
+   * When UseExplicitCuts is false, and input is a
+   * `vtkPartitionedDataSetCollection`, set this to true to generate cuts for
+   * load balancing using all the datasets in the
+   * vtkPartitionedDataSetCollection.
+   *
+   * Default is true.
+   */
+  vtkSetMacro(LoadBalanceAcrossAllBlocks, bool);
+  vtkGetMacro(LoadBalanceAcrossAllBlocks, bool);
+  vtkBooleanMacro(LoadBalanceAcrossAllBlocks, bool);
+  //@}
+
 protected:
   vtkRedistributeDataSetFilter();
   ~vtkRedistributeDataSetFilter() override;
@@ -281,14 +318,11 @@ private:
   vtkRedistributeDataSetFilter(const vtkRedistributeDataSetFilter&) = delete;
   void operator=(const vtkRedistributeDataSetFilter&) = delete;
 
-  bool Redistribute(vtkDataObject* inputDO, vtkPartitionedDataSet* outputPDS,
+  bool InitializeCuts(vtkDataObjectTree* input);
+  bool Redistribute(vtkPartitionedDataSet* inputDO, vtkPartitionedDataSet* outputPDS,
     const std::vector<vtkBoundingBox>& cuts, vtkIdType* mb_offset = nullptr);
   bool RedistributeDataSet(
     vtkDataSet* inputDS, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts);
-  int RedistributeMultiBlockDataSet(
-    vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output, vtkIdType* mb_offset = nullptr);
-  int RedistributeMultiPieceDataSet(
-    vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output, vtkIdType* mb_offset = nullptr);
   vtkSmartPointer<vtkDataSet> ClipDataSet(vtkDataSet* dataset, const vtkBoundingBox& bbox);
 
   void MarkGhostCells(vtkPartitionedDataSet* pieces);
@@ -313,6 +347,7 @@ private:
   bool ExpandExplicitCuts;
   bool EnableDebugging;
   bool ValidDim[3];
+  bool LoadBalanceAcrossAllBlocks;
 };
 
 #endif
