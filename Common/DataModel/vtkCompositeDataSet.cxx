@@ -15,7 +15,7 @@
 #include "vtkCompositeDataSet.h"
 
 #include "vtkBoundingBox.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -23,6 +23,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+
+#include <numeric>
 
 vtkInformationKeyMacro(vtkCompositeDataSet, NAME, String);
 vtkInformationKeyMacro(vtkCompositeDataSet, CURRENT_PROCESS_CAN_LOAD_BLOCK, Integer);
@@ -89,14 +91,13 @@ void vtkCompositeDataSet::Initialize()
 //------------------------------------------------------------------------------
 unsigned long vtkCompositeDataSet::GetActualMemorySize()
 {
-  unsigned long memSize = 0;
-  vtkCompositeDataIterator* iter = this->NewIterator();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    vtkDataObject* dobj = iter->GetCurrentDataObject();
-    memSize += dobj->GetActualMemorySize();
-  }
-  iter->Delete();
+  using Opts = vtk::CompositeDataSetOptions;
+  auto range = vtk::Range(this, Opts::SkipEmptyNodes);
+  auto memSize = std::accumulate(range.begin(), range.end(), static_cast<unsigned long>(0),
+    [](unsigned long result, vtkDataObject* block) {
+      assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
+      return result + block->GetActualMemorySize();
+    });
   return memSize;
 }
 
@@ -115,37 +116,31 @@ vtkIdType vtkCompositeDataSet::GetNumberOfCells()
 //------------------------------------------------------------------------------
 vtkIdType vtkCompositeDataSet::GetNumberOfElements(int type)
 {
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(this->NewIterator());
-  iter->SkipEmptyNodesOn();
-  vtkIdType numElements = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    numElements += iter->GetCurrentDataObject()->GetNumberOfElements(type);
-  }
-
+  using Opts = vtk::CompositeDataSetOptions;
+  auto range = vtk::Range(this, Opts::SkipEmptyNodes);
+  auto numElements = std::accumulate(range.begin(), range.end(), static_cast<vtkIdType>(0),
+    [type](unsigned long result, vtkDataObject* block) {
+      assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
+      return result + block->GetNumberOfElements(type);
+    });
   return numElements;
 }
 
 //------------------------------------------------------------------------------
 void vtkCompositeDataSet::GetBounds(double bounds[6])
 {
+  using Opts = vtk::CompositeDataSetOptions;
   double bds[6];
   vtkBoundingBox bbox;
-  vtkCompositeDataIterator* iter = this->NewIterator();
-
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  for (vtkDataObject* dobj : vtk::Range(this, Opts::SkipEmptyNodes))
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
+    if (auto ds = vtkDataSet::SafeDownCast(dobj))
     {
       ds->GetBounds(bds);
       bbox.AddBounds(bds);
     }
   }
-
   bbox.GetBounds(bounds);
-  iter->Delete();
 }
 
 //------------------------------------------------------------------------------
