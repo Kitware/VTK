@@ -32,9 +32,15 @@
 class VTKFILTERSGENERAL_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, obtaining type information,
+   * and printing.
+   */
   static vtkWarpVector* New();
   vtkTypeMacro(vtkWarpVector, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
@@ -42,6 +48,17 @@ public:
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
+  //@}
+
+  //@{
+  /**
+   * Set/get the desired precision for the output points type. By default
+   * (DEFAULT_PRECISION) the output type is the same as the input points
+   * type. Otherwise, specify the precision as SINGLE_PRECISION or
+   * DOUBLE_PRECISION.
+   */
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
@@ -54,6 +71,7 @@ protected:
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double ScaleFactor;
+  int OutputPointsPrecision;
 
 private:
   vtkWarpVector(const vtkWarpVector&) = delete;
