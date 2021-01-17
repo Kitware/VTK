@@ -430,16 +430,15 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     add_library("${name}" MODULE
       ${_vtk_python_library_sources})
     if (WIN32 AND NOT CYGWIN)
-      # XXX(python-debug): This is disabled out because there's no reliable way
-      # to tell whether we're using a debug build of Python or not. Since using
-      # a debug Python build is so rare, just assume we're always using a
-      # non-debug build of Python itself.
+      # This is enabled explicitly by VTK_WINDOWS_PYTHON_DEBUGGABLE because there's no
+      # reliable way to detect whether we're using a debug build of Python or not.  This
+      # option is not in VTK's CMakeLists.txt, but it can be enabled via the cache.
       #
       # The proper fix is to dig around and ask the backing `PythonN::Python`
       # target used by `VTK::Python` for its properties to find out, per
       # configuration, whether it is a debug build. If it is, add the postfix
       # (regardless of VTK's build type). Otherwise, no postfix.
-      if (FALSE)
+      if (VTK_WINDOWS_PYTHON_DEBUGGABLE)
         set_property(TARGET "${name}"
           APPEND_STRING
           PROPERTY
