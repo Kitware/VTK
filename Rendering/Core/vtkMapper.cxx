@@ -114,9 +114,14 @@ double* vtkMapper::GetBounds()
     this->Update();
   }
   vtkDataSet* input = this->GetInput();
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
   if (!input)
   {
     vtkMath::UninitializeBounds(this->Bounds);
+  }
+  else if (pd)
+  {
+    pd->GetCellsBounds(this->Bounds);
   }
   else
   {

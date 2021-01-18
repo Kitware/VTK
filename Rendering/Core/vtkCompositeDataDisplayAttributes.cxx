@@ -22,6 +22,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributes);
 
@@ -325,12 +326,17 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   else if (dobj && blockVisible == true)
   {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
-    if (ds)
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(ds);
+    double bounds[6];
+    if (pd)
     {
-      double bounds[6];
-      ds->GetBounds(bounds);
-      bbox->AddBounds(bounds);
+      pd->GetCellsBounds(bounds);
     }
+    else if (ds)
+    {
+      ds->GetBounds(bounds);
+    }
+    bbox->AddBounds(bounds);
   }
 }
 
