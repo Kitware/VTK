@@ -223,6 +223,37 @@
   }
 
 //
+// Set std::string. Creates a member Set"name"()
+//
+#define vtkSetStdStringFromCharMacro(name)                                                         \
+  virtual void Set##name(const char* arg)                                                          \
+  {                                                                                                \
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to "         \
+                  << (arg ? arg : "(null)"));                                                      \
+    if (arg)                                                                                       \
+    {                                                                                              \
+      this->name = arg;                                                                            \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      this->name.clear();                                                                          \
+    }                                                                                              \
+    this->Modified();                                                                              \
+  }
+
+//
+// Get character string.  Creates member Get"name"()
+// (e.g., char *GetFilename());
+//
+#define vtkGetCharFromStdStringMacro(name)                                                         \
+  virtual const char* Get##name()                                                                  \
+  {                                                                                                \
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of "       \
+                  << this->name);                                                                  \
+    return this->name.c_str();                                                                     \
+  }
+
+//
 // Set built-in type where value is constrained between min/max limits.
 // Create member Set"name"() (eg., SetRadius()). #defines are
 // convenience for clamping open-ended values.
