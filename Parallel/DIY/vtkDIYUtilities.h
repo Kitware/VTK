@@ -26,16 +26,21 @@
 #include "vtkParallelDIYModule.h" // for export macros
 #include "vtkSmartPointer.h"      // needed for vtkSmartPointer
 
+#include <vector> // For GetDataSets
+
 // clang-format off
 #include "vtk_diy2.h" // needed for DIY
+#include VTK_DIY2(diy/master.hpp)
 #include VTK_DIY2(diy/mpi.hpp)
 #include VTK_DIY2(diy/serialization.hpp)
 #include VTK_DIY2(diy/types.hpp)
 // clang-format on
 
+class vtkDataArray;
 class vtkBoundingBox;
 class vtkDataObject;
 class vtkDataSet;
+class vtkFieldData;
 class vtkMultiProcessController;
 class vtkPoints;
 
@@ -64,6 +69,16 @@ public:
    */
   static void Save(diy::BinaryBuffer& bb, vtkDataSet*);
   static void Load(diy::BinaryBuffer& bb, vtkDataSet*&);
+  //@}
+
+  static void Save(diy::BinaryBuffer& bb, vtkFieldData*);
+  static void Load(diy::BinaryBuffer& bb, vtkFieldData*&);
+  //@{
+  /**
+   * Load/Save a vtkDataArray in a diy::BinaryBuffer.
+   */
+  static void Save(diy::BinaryBuffer& bb, vtkDataArray*);
+  static void Load(diy::BinaryBuffer& bb, vtkDataArray*&);
   //@}
 
   /**
@@ -119,6 +134,22 @@ public:
    */
   static vtkBoundingBox GetLocalBounds(vtkDataObject* dobj);
 
+  /**
+   * Links master such that there is communication between ranks as given
+   * in `linksMap`.
+   *
+   * LinksMapT needs to have `Links& LinksMapT::operator[](int)` implemented, and each
+   * `Links` needs to have `Links::count(int)` implemented. A fitting class could
+   * be `std::vector<std::set<int>>`. Given an integer `localId` mapping to the
+   * the relative block position in the current rank, and given `globalId`
+   * the id of a block uniquely identified in all rank,
+   * block of local id `localId` in the current
+   * rank is to be linked to block of global id `globalId` if and
+   * only if `linksMap[localId].count(globalId) != 0`.
+   */
+  template <class BlockT, class AssignerT, class LinksMapT>
+  static void Link(diy::Master& master, const AssignerT& assigner, const LinksMapT& linksMap);
+
 protected:
   vtkDIYUtilities();
   ~vtkDIYUtilities() override;
@@ -135,6 +166,20 @@ struct Serialization<vtkDataSet*>
 {
   static void save(BinaryBuffer& bb, vtkDataSet* const& p) { vtkDIYUtilities::Save(bb, p); }
   static void load(BinaryBuffer& bb, vtkDataSet*& p) { vtkDIYUtilities::Load(bb, p); }
+};
+
+template <>
+struct Serialization<vtkDataArray*>
+{
+  static void save(BinaryBuffer& bb, vtkDataArray* const& da) { vtkDIYUtilities::Save(bb, da); }
+  static void load(BinaryBuffer& bb, vtkDataArray*& da) { vtkDIYUtilities::Load(bb, da); }
+};
+
+template <>
+struct Serialization<vtkFieldData*>
+{
+  static void save(BinaryBuffer& bb, vtkFieldData* const& fd) { vtkDIYUtilities::Save(bb, fd); }
+  static void load(BinaryBuffer& bb, vtkFieldData*& fd) { vtkDIYUtilities::Load(bb, fd); }
 };
 }
 

@@ -8,6 +8,7 @@ IMPLEMENTS
   VTK::FiltersCore
   VTK::FiltersParallel
 DEPENDS
+  VTK::CommonMath
   VTK::FiltersCore
   VTK::FiltersParallel
   VTK::ParallelDIY
