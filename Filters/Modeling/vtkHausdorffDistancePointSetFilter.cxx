@@ -54,6 +54,7 @@
 
 vtkStandardNewMacro(vtkHausdorffDistancePointSetFilter);
 
+//------------------------------------------------------------------------------
 vtkHausdorffDistancePointSetFilter::vtkHausdorffDistancePointSetFilter()
 {
   this->RelativeDistance[0] = 0.0;
@@ -69,8 +70,10 @@ vtkHausdorffDistancePointSetFilter::vtkHausdorffDistancePointSetFilter()
   this->TargetDistanceMethod = POINT_TO_POINT;
 }
 
+//------------------------------------------------------------------------------
 vtkHausdorffDistancePointSetFilter::~vtkHausdorffDistancePointSetFilter() = default;
 
+//------------------------------------------------------------------------------
 int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -101,6 +104,8 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
   this->RelativeDistance[1] = 0.0;
   this->HausdorffDistance = 0.0;
 
+  // TODO: using vtkStaticCellLocator, vtkStaticPointLocator is going to be much faster.
+  // Need to investigate and replace if appropriate.
   vtkSmartPointer<vtkKdTreePointLocator> pointLocatorA =
     vtkSmartPointer<vtkKdTreePointLocator>::New();
   vtkSmartPointer<vtkKdTreePointLocator> pointLocatorB =
@@ -235,6 +240,7 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkHausdorffDistancePointSetFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   // The input should be two vtkPointsSets
@@ -251,6 +257,7 @@ int vtkHausdorffDistancePointSetFilter::FillInputPortInformation(int port, vtkIn
   return 0;
 }
 
+//------------------------------------------------------------------------------
 void vtkHausdorffDistancePointSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -12,12 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkExecutive.h"
 #include "vtkHausdorffDistancePointSetFilter.h"
 #include "vtkMathUtilities.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkTestErrorObserver.h"
 
 int UnitTestHausdorffDistancePointSetFilter(int, char*[])
 {
@@ -73,18 +75,36 @@ int UnitTestHausdorffDistancePointSetFilter(int, char*[])
       }
     }
   }
+
   // Now test some error conditions
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  int errorStatus = 0;
+
   auto emptyPoints = vtkSmartPointer<vtkPolyData>::New();
   {
     auto hausdorffDistance = vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
+    hausdorffDistance->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     hausdorffDistance->Update();
+    errorStatus += errorObserver->CheckErrorMessage("returned failure for request: vtkInformation");
     hausdorffDistance->SetInputData(0, emptyPoints);
   }
   {
     auto hausdorffDistance = vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
+    hausdorffDistance->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     hausdorffDistance->Update();
+    errorStatus += errorObserver->CheckErrorMessage("returned failure for request: vtkInformation");
     hausdorffDistance->SetInputData(1, emptyPoints);
   }
+  if (errorStatus)
+  {
+    std::cout << "Failed" << std::endl;
+    ++status;
+  }
+  else
+  {
+    std::cout << "Passed" << std::endl;
+  }
+
   // Exercise some standard methods
   {
     auto hausdorffDistance = vtkSmartPointer<vtkHausdorffDistancePointSetFilter>::New();
