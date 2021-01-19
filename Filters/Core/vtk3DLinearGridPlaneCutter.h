@@ -32,8 +32,8 @@
  * the cut surface. Otherwise when point merging is not required, a fast path
  * process produces independent triangles representing the cut surface.
  *
- * This algorithm is fast because it is threaded, and may perform oeprations (in a
- * preprocessing step) to accelerate the plane cutting.
+ * This algorithm is fast because it is threaded, and may perform operations
+ * (in a preprocessing step) to accelerate the plane cutting.
  *
  * Because this filter may build an initial data structure during a
  * preprocessing step, the first execution of the filter may take longer than
@@ -109,9 +109,9 @@ public:
    * surface. On the other hand, merging reduced output data size and may be
    * just as fast especially for smaller data. By default this is off.
    */
-  vtkSetMacro(MergePoints, vtkTypeBool);
-  vtkGetMacro(MergePoints, vtkTypeBool);
-  vtkBooleanMacro(MergePoints, vtkTypeBool);
+  vtkSetMacro(MergePoints, bool);
+  vtkGetMacro(MergePoints, bool);
+  vtkBooleanMacro(MergePoints, bool);
   //@}
 
   //@{
@@ -119,9 +119,9 @@ public:
    * Indicate whether to interpolate input attributes onto the cut
    * plane. By default this option is on.
    */
-  vtkSetMacro(InterpolateAttributes, vtkTypeBool);
-  vtkGetMacro(InterpolateAttributes, vtkTypeBool);
-  vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
+  vtkSetMacro(InterpolateAttributes, bool);
+  vtkGetMacro(InterpolateAttributes, bool);
+  vtkBooleanMacro(InterpolateAttributes, bool);
   //@}
 
   //@{
@@ -131,9 +131,9 @@ public:
    * associated with the output polygons. By default computing of normals is
    * off.
    */
-  vtkSetMacro(ComputeNormals, vtkTypeBool);
-  vtkGetMacro(ComputeNormals, vtkTypeBool);
-  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
+  vtkSetMacro(ComputeNormals, bool);
+  vtkGetMacro(ComputeNormals, bool);
+  vtkBooleanMacro(ComputeNormals, bool);
   //@}
 
   /**
@@ -161,9 +161,9 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing, vtkTypeBool);
-  vtkGetMacro(SequentialProcessing, vtkTypeBool);
-  vtkBooleanMacro(SequentialProcessing, vtkTypeBool);
+  vtkSetMacro(SequentialProcessing, bool);
+  vtkGetMacro(SequentialProcessing, bool);
+  vtkBooleanMacro(SequentialProcessing, bool);
   //@}
 
   /**
@@ -195,11 +195,11 @@ protected:
   ~vtk3DLinearGridPlaneCutter() override;
 
   vtkPlane* Plane;
-  vtkTypeBool MergePoints;
-  vtkTypeBool InterpolateAttributes;
-  vtkTypeBool ComputeNormals;
+  bool MergePoints;
+  bool InterpolateAttributes;
+  bool ComputeNormals;
   int OutputPointsPrecision;
-  vtkTypeBool SequentialProcessing;
+  bool SequentialProcessing;
   int NumberOfThreadsUsed;
   bool LargeIds; // indicate whether integral ids are large(==true) or not
 

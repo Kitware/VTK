@@ -384,7 +384,6 @@ int vtkCutter::RequestData(
     if (this->GetGenerateTriangles() && this->GetCutFunction() &&
       this->GetCutFunction()->IsA("vtkPlane") && this->GetNumberOfContours() == 1 &&
       this->GetGenerateCutScalars() == 0 &&
-      (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
       vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input))
     {
       vtkNew<vtk3DLinearGridPlaneCutter> linear3DCutter;
