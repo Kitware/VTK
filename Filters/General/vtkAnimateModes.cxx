@@ -116,7 +116,7 @@ int vtkAnimateModes::ExecuteInformation(
 
 //----------------------------------------------------------------------------
 int vtkAnimateModes::ComputeInputUpdateExtent(
-  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
   auto inInfo = inputVector[0]->GetInformationObject(0);
   const int num_timesteps = static_cast<int>(this->InputTimeSteps.size());
