@@ -1,6 +1,8 @@
 # Qt6 support
 
-The `vtkGUISupportQt` module now supports Qt6. At configure time, VTK would first look for Qt6. If
-not found, it would look for Qt5 next.
+VTK now supports Qt6.
 
-Added an *internal* CMake cache variable `VTK_QT_MAJOR_VERSION` that shows the Qt version used.
+(Re)Introduced a CMake variable `VTK_QT_VERSION` that can be set to one of *Auto*(default), *6* or
+*5*. If set to *Auto*, VTK will automatically deduce the installed Qt version. When both Qt5 and
+Qt6 are locatable by CMake, VTK will prefer Qt6. This behavior can be changed by setting the
+`VTK_QT_VERSION` directly to the desired version (5 or 6).
