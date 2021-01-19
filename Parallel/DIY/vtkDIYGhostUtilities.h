@@ -87,6 +87,13 @@ public:
   //@}
 
   /**
+   * This helper structure owns a typedef to the block type of `DataSetT` used with diy to generate
+   * ghosts. This block type is defined as `DataSetTypeToBlockTypeConverter<DataSetT>::BlockType`.
+   */
+  template <class DataSetT>
+  struct DataSetTypeToBlockTypeConverter;
+
+  /**
    * Structure to inherit from for data sets having a grid topology.
    */
   struct GridBlockStructure
@@ -263,13 +270,6 @@ public:
 protected:
   vtkDIYGhostUtilities();
   ~vtkDIYGhostUtilities() override;
-
-  /**
-   * This helper structure owns a typedef to the block type of `DataSetT` used with diy to generate
-   * ghosts. This block type is defined as `DataSetTypeToBlockTypeConverter<DataSetT>::BlockType`.
-   */
-  template <class DataSetT>
-  struct DataSetTypeToBlockTypeConverter;
 
   //@{
   /**
