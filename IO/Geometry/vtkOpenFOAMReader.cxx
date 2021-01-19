@@ -5203,7 +5203,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 
         // If the basic type of the patch is one of the following the
         // point-filtered values at patches are overridden by patch values
-        if (patchTypeName == "patch" || patchTypeName == "wall")
+        if (patchTypeName == "patch" || patchTypeName == "wall" || patchTypeName == "mappedWall")
         {
           patch.type_ = vtkFoamPatch::PHYSICAL;
           allBoundariesStartFace += patch.size_;
@@ -8122,6 +8122,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     const vtkIdType nFaces = patch.size_;
 
     vtkFloatArray* vData = nullptr;
+    vtkStdString bcType;
 
     if (bfieldEntries != nullptr)
     {
@@ -8142,12 +8143,22 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       }
       else
       {
+        const vtkFoamDict& patchDict = bfieldEntry->Dictionary();
+
         // Look for "value" entry
-        vtkFoamEntry* vEntry = bfieldEntry->Dictionary().Lookup("value");
-        if (vEntry != nullptr)
+        vtkFoamEntry* vEntry = patchDict.Lookup("value");
+        if (vEntry == nullptr)
+        {
+          // For alternative fallback
+          const vtkFoamEntry* eptr = patchDict.Lookup("type");
+          if (eptr != nullptr)
+          {
+            bcType = eptr->ToString();
+          }
+        }
+        else
         {
           vData = this->FillField(*vEntry, nFaces, io, fieldDataType);
-
           if (vData == nullptr)
           {
             badEntry = true;
@@ -8176,15 +8187,25 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
 
     if (vData == nullptr)
     {
-      // No value entry
-      // use patch-internal values as boundary values
+      // No "value" entry
+      // Default to patch-internal values as boundary values
       vData = vtkFloatArray::New();
       vData->SetNumberOfComponents(iData->GetNumberOfComponents());
       vData->SetNumberOfTuples(nFaces);
-      for (int j = 0; j < nFaces; j++)
+
+      // Ad hoc handling of some known bcs without a "value"
+      if (bcType == "noSlip")
       {
-        vtkTypeInt64 cellId = GetLabelValue(this->FaceOwner, boundaryStartFace + j, faceOwner64Bit);
-        vData->SetTuple(j, cellId, iData);
+        vData->FillValue(0);
+      }
+      else
+      {
+        for (vtkIdType facei = 0; facei < nFaces; ++facei)
+        {
+          vtkTypeInt64 cellId =
+            GetLabelValue(this->FaceOwner, boundaryStartFace + facei, faceOwner64Bit);
+          vData->SetTuple(facei, cellId, iData);
+        }
       }
     }
 
