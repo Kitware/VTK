@@ -3190,7 +3190,8 @@ int vtkCGNSReader::GetUnstructuredZone(
               }
               else if (binfo.BCElementList.size() > 0)
               {
-                vtkIdType residualNumFacesToRead = binfo.BCElementList.size();
+                vtkIdType residualNumFacesToRead =
+                  static_cast<vtkIdType>(binfo.BCElementList.size());
 
                 std::vector<bool> BCElementRead(binfo.BCElementList.size(), false);
 
@@ -3242,7 +3243,8 @@ int vtkCGNSReader::GetUnstructuredZone(
                   vtkIdType curFaceId = faceElemToRead[0].first;
                   std::vector<vtkIdType> rangeIdx;
                   rangeIdx.push_back(0);
-                  for (size_t ii = 1; ii < faceElemToRead.size(); ii++)
+                  vtkIdType sizeFaceElemToRead = static_cast<vtkIdType>(faceElemToRead.size());
+                  for (vtkIdType ii = 1; ii < sizeFaceElemToRead; ii++)
                   {
                     if (faceElemToRead[ii].first != curFaceId + 1)
                     {
@@ -3250,7 +3252,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                     curFaceId = faceElemToRead[ii].first;
                   }
-                  rangeIdx.push_back(faceElemToRead.size());
+                  rangeIdx.push_back(sizeFaceElemToRead);
 
                   // Do each partial range read
                   for (size_t ii = 1; ii < rangeIdx.size(); ii++)
@@ -3330,7 +3332,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                   }
 
-                  residualNumFacesToRead -= faceElemToRead.size();
+                  residualNumFacesToRead -= sizeFaceElemToRead;
                   if (residualNumFacesToRead <= 0)
                     break;
                 }
@@ -3787,7 +3789,8 @@ int vtkCGNSReader::GetUnstructuredZone(
               {
                 // This a bit more tricky to implement because it generate lot of small IO
 
-                vtkIdType residualNumElemToRead = binfo.BCElementList.size();
+                vtkIdType residualNumElemToRead =
+                  static_cast<vtkIdType>(binfo.BCElementList.size());
                 std::vector<bool> BCElementRead(binfo.BCElementList.size(), false);
 
                 const auto bcminmax = std::minmax_element(
@@ -3848,7 +3851,8 @@ int vtkCGNSReader::GetUnstructuredZone(
                   vtkIdType curElemId = elemToRead[0].first;
                   std::vector<vtkIdType> rangeIdx;
                   rangeIdx.push_back(0);
-                  for (size_t ii = 1; ii < elemToRead.size(); ii++)
+                  vtkIdType sizeElemToRead = static_cast<vtkIdType>(elemToRead.size());
+                  for (vtkIdType ii = 1; ii < sizeElemToRead; ii++)
                   {
                     if (elemToRead[ii].first != curElemId + 1)
                     {
@@ -3856,7 +3860,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                     curElemId = elemToRead[ii].first;
                   }
-                  rangeIdx.push_back(elemToRead.size());
+                  rangeIdx.push_back(sizeElemToRead);
 
                   // Do each partial range read
                   for (size_t ii = 1; ii < rangeIdx.size(); ii++)
@@ -4091,7 +4095,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                   }
 
-                  residualNumElemToRead -= elemToRead.size();
+                  residualNumElemToRead -= sizeElemToRead;
                   if (residualNumElemToRead <= 0)
                     break;
                 }
