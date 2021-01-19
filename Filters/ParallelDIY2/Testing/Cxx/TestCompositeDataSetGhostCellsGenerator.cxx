@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#define _USE_MATH_DEFINES
+
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPIController.h"
 #else
@@ -418,3 +420,5 @@ int TestCompositeDataSetGhostCellsGenerator(int argc, char* argv[])
   contr->Finalize();
   return retVal;
 }
+
+#undef _USE_MATH_DEFINES

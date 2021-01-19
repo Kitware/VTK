@@ -675,8 +675,8 @@ struct Comparator<false>
   static bool Equals(const ValueT& val1, const ValueT& val2)
   {
     return std::fabs(val1 - val2) <
-      std::max<ValueT>(std::numeric_limits<ValueT>::epsilon() *
-          std::max<ValueT>(std::fabs(val1), std::fabs(val2)),
+      std::max(std::numeric_limits<ValueT>::epsilon() *
+            std::max(std::fabs(val1), std::fabs(val2)),
         std::numeric_limits<ValueT>::min());
   }
 };
@@ -692,31 +692,33 @@ struct RectilinearGridFittingWorker
   template <class ArrayT>
   void operator()(ArrayT* localArray)
   {
-    const auto localArrayRange = vtk::DataArrayValueRange<1>(localArray);
-    const auto arrayRange = vtk::DataArrayValueRange<1>(vtkArrayDownCast<ArrayT>(this->Array));
-    if (localArrayRange[localArrayRange.size() - 1] > arrayRange[arrayRange.size() - 1])
+    ArrayT* array = ArrayT::SafeDownCast(this->Array);
+    if (localArray->GetValue(localArray->GetNumberOfTuples() - 1) >
+        array->GetValue(array->GetNumberOfTuples() - 1))
     {
-      this->FitArrays(arrayRange, localArrayRange);
+      this->FitArrays(array, localArray);
     }
     else
     {
-      this->FitArrays(localArrayRange, arrayRange);
+      this->FitArrays(localArray, array);
       std::swap(this->MinId, this->LocalMinId);
       std::swap(this->MaxId, this->LocalMaxId);
     }
   }
 
-  template <class ArrayRangeT>
-  void FitArrays(const ArrayRangeT& lowerMaxArray, const ArrayRangeT& upperMaxArray)
+  template <class ArrayT>
+  void FitArrays(ArrayT* lowerMaxArray, ArrayT* upperMaxArray)
   {
-    using ValueType = typename ArrayRangeT::value_type;
+    using ValueType = typename ArrayT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-    const auto& lowerMinArray = lowerMaxArray[0] > upperMaxArray[0] ? upperMaxArray : lowerMaxArray;
-    const auto& upperMinArray = lowerMaxArray[0] < upperMaxArray[0] ? upperMaxArray : lowerMaxArray;
+    const auto& lowerMinArray = lowerMaxArray->GetValue(0) > upperMaxArray->GetValue(0)
+    ? upperMaxArray : lowerMaxArray;
+    const auto& upperMinArray = lowerMaxArray->GetValue(0) < upperMaxArray->GetValue(0)
+    ? upperMaxArray : lowerMaxArray;
     vtkIdType id = 0;
-    while (id < lowerMinArray.size() &&
-      (lowerMinArray[id] < upperMinArray[0] &&
-        !Comparator<IsInteger>::Equals(lowerMinArray[id], upperMinArray[0])))
+    while (id < lowerMinArray->GetNumberOfTuples() &&
+      (lowerMinArray->GetValue(id) < upperMinArray->GetValue(0) &&
+        !Comparator<IsInteger>::Equals(lowerMinArray->GetValue(id), upperMinArray->GetValue(0))))
     {
       ++id;
     }
@@ -724,27 +726,26 @@ struct RectilinearGridFittingWorker
     {
       this->LocalMinId = 0;
       this->MinId = id;
-      if (lowerMaxArray[0] > upperMaxArray[0])
+      if (lowerMaxArray->GetValue(0) > upperMaxArray->GetValue(0))
       {
         std::swap(this->MaxId, this->LocalMaxId);
       }
     }
   }
 
-  template <class ArrayRangeT>
-  bool SubArraysAreEqual(
-    const ArrayRangeT& lowerArray, const ArrayRangeT& upperArray, vtkIdType lowerId)
+  template <class ArrayT>
+  bool SubArraysAreEqual(ArrayT* lowerArray, ArrayT* upperArray, vtkIdType lowerId)
   {
     vtkIdType upperId = 0;
-    using ValueType = typename ArrayRangeT::value_type;
+    using ValueType = typename ArrayT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-    while (lowerId < lowerArray.size() && upperId < upperArray.size() &&
-      Comparator<IsInteger>::Equals(lowerArray[lowerId], upperArray[upperId]))
+    while (lowerId < lowerArray->GetNumberOfTuples() && upperId < upperArray->GetNumberOfTuples() &&
+      Comparator<IsInteger>::Equals(lowerArray->GetValue(lowerId), upperArray->GetValue(upperId)))
     {
       ++lowerId;
       ++upperId;
     }
-    if (lowerId == lowerArray.size())
+    if (lowerId == lowerArray->GetNumberOfTuples())
     {
       this->MaxId = lowerId - 1;
       this->LocalMaxId = upperId - 1;
