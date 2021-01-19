@@ -220,6 +220,8 @@ More advanced options:
   * `VTK_SERIAL_TESTS_USE_MPIEXEC` (default `OFF`): Used on HPC to run
     serial tests on compute nodes. If set, it prefixes serial tests with
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
+  * `VTK_WINDOWS_PYTHON_DEBUGGABLE` (default `OFF`): Set to `ON` if using a
+    debug build of Python.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
