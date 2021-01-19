@@ -430,15 +430,15 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     add_library("${name}" MODULE
       ${_vtk_python_library_sources})
     if (WIN32 AND NOT CYGWIN)
-      # This is enabled explicitly by VTK_WINDOWS_PYTHON_DEBUGGABLE because there's no
-      # reliable way to detect whether we're using a debug build of Python or not.  This
-      # option is not in VTK's CMakeLists.txt, but it can be enabled via the cache.
+      # This is enabled explicitly by the USE_DEBUG_SUFFIX argument because
+      # there's no reliable way to detect whether we're using a debug build of
+      # Python or not.
       #
       # The proper fix is to dig around and ask the backing `PythonN::Python`
       # target used by `VTK::Python` for its properties to find out, per
       # configuration, whether it is a debug build. If it is, add the postfix
       # (regardless of VTK's build type). Otherwise, no postfix.
-      if (VTK_WINDOWS_PYTHON_DEBUGGABLE)
+      if (_vtk_python_USE_DEBUG_SUFFIX)
         set_property(TARGET "${name}"
           APPEND_STRING
           PROPERTY
@@ -527,6 +527,7 @@ vtk_module_wrap_python(
 
   [PYTHON_PACKAGE <package>]
   [SOABI <soabi>]
+  [USE_DEBUG_SUFFIX <ON|OFF>]
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
@@ -573,6 +574,9 @@ vtk_module_wrap_python(
     `package.subpackage`).
   * `SOABI`: (Required for wheel support): If given, generate libraries with
     the SOABI tag in the module filename.
+  * `USE_DEBUG_SUFFIX` (Defaults to `OFF`): If `ON`, Windows modules will have
+    a `_d` suffix appended to the module name. This is intended for use with
+    debug Python builds.
   * `INSTALL_EXPORT`: If provided, static installs will add the installed
     libraries to the provided export set.
   * `COMPONENT`: Defaults to `python`. All install rules created by this
@@ -581,7 +585,7 @@ vtk_module_wrap_python(
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS;SOABI"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;DEPENDS;SOABI;USE_DEBUG_SUFFIX"
     "MODULES")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
@@ -615,6 +619,10 @@ function (vtk_module_wrap_python)
 
   if (NOT DEFINED _vtk_python_TARGET_SPECIFIC_COMPONENTS)
     set(_vtk_python_TARGET_SPECIFIC_COMPONENTS OFF)
+  endif ()
+
+  if (NOT DEFINED _vtk_python_USE_DEBUG_SUFFIX)
+    set(_vtk_python_USE_DEBUG_SUFFIX OFF)
   endif ()
 
   if (_vtk_python_SOABI)

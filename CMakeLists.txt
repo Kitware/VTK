@@ -371,6 +371,9 @@ if (VTK_WRAP_PYTHON)
     "${vtk_required_python_modules}\n")
   get_property(vtk_soabi GLOBAL
     PROPERTY  _vtk_python_soabi)
+  cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
+    "WIN32;VTK_WRAP_PYTHON" OFF)
+  mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTKPython
@@ -380,6 +383,7 @@ if (VTK_WRAP_PYTHON)
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
     SOABI               "${vtk_soabi}"
+    USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
     TARGET          VTK::vtkpythonmodules)
