@@ -93,6 +93,11 @@ public:
   virtual vtkIdType GetNumberOfCells(int dim = -1) = 0;
 
   /**
+   * Get the number of elements for a specific attribute type (POINT, CELL, etc.).
+   */
+  vtkIdType GetNumberOfElements(int type) override;
+
+  /**
    * Return -1 if the dataset is explicitly defined by cells of varying
    * dimensions or if there are no cells. If the dataset is explicitly
    * defined by cells of a unique dimension, return this dimension.
