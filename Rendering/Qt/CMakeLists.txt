@@ -11,8 +11,8 @@ vtk_module_add_module(VTK::RenderingQt
 
 include(vtkQt)
 vtk_module_find_package(
-  PACKAGE     "Qt${VTK_QT_MAJOR_VERSION}"
+  PACKAGE     "Qt${vtk_qt_major_version}"
   COMPONENTS  Widgets
   FORWARD_VERSION_REQ MINOR
-  VERSION_VAR         "Qt${VTK_QT_MAJOR_VERSION}_VERSION")
-vtk_module_link(VTK::RenderingQt PUBLIC "Qt${VTK_QT_MAJOR_VERSION}::Widgets")
+  VERSION_VAR         "Qt${vtk_qt_major_version}_VERSION")
+vtk_module_link(VTK::RenderingQt PUBLIC "Qt${vtk_qt_major_version}::Widgets")

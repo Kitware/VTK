@@ -142,8 +142,8 @@ if (TARGET VTK::opengl)
   set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
 endif ()
 
-if(@VTK_QT_MAJOR_VERSION@) # VTK_QT_VERSION
-  set("${CMAKE_FIND_PACKAGE_NAME}_QT_VERSION" "@VTK_QT_MAJOR_VERSION@")
+if(@vtk_qt_major_version@) # VTK_QT_VERSION
+  set("${CMAKE_FIND_PACKAGE_NAME}_QT_VERSION" "@vtk_qt_major_version@")
 endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModule.cmake")

@@ -25,5 +25,5 @@ else()
     set(_vtk_qt_version 5)
   endif()
 endif()
-set(VTK_QT_MAJOR_VERSION ${_vtk_qt_version} CACHE INTERNAL
+set(vtk_qt_major_version ${_vtk_qt_version} CACHE INTERNAL
   "Major version number for the Qt installation used.")

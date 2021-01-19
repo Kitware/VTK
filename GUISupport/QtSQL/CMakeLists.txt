@@ -10,9 +10,9 @@ vtk_module_add_module(VTK::GUISupportQtSQL
 
 include(vtkQt)
 vtk_module_find_package(
-  PACKAGE     "Qt${VTK_QT_MAJOR_VERSION}"
+  PACKAGE     "Qt${vtk_qt_major_version}"
   COMPONENTS  Widgets Sql
   FORWARD_VERSION_REQ MINOR
-  VERSION_VAR         "Qt${VTK_QT_MAJOR_VERSION}_VERSION")
+  VERSION_VAR         "Qt${vtk_qt_major_version}_VERSION")
 vtk_module_link(VTK::GUISupportQtSQL
-  PUBLIC "Qt${VTK_QT_MAJOR_VERSION}::Sql" "Qt${VTK_QT_MAJOR_VERSION}::Widgets")
+  PUBLIC "Qt${vtk_qt_major_version}::Sql" "Qt${vtk_qt_major_version}::Widgets")
