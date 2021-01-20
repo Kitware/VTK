@@ -647,8 +647,8 @@ bool SynchronizeGridExtents(const ImageDataBlockStructure& localBlockStructure,
     static_cast<int>(std::lround((origin[2] - localOrigin[2]) / spacing[2])) };
 
   shiftedExtent =
-    ExtentType({ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
-      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] });
+    ExtentType{ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
+      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] };
   return true;
 }
 
@@ -805,8 +805,8 @@ bool SynchronizeGridExtents(const RectilinearGridBlockStructure& localBlockStruc
     extent[4] + zWorker.MinId - localExtent[4] - zWorker.LocalMinId };
 
   shiftedExtent =
-    ExtentType({ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
-      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] });
+    ExtentType{ extent[0] - originDiff[0], extent[1] - originDiff[0], extent[2] - originDiff[1],
+      extent[3] - originDiff[1], extent[4] - originDiff[2], extent[5] - originDiff[2] };
   return true;
 }
 
@@ -1012,8 +1012,8 @@ vtkSmartPointer<vtkIdList> ComputeOutputGridInterfaceCellIds(
   typename BlockT::BlockStructureType blockStructure = block->BlockStructures.at(gid);
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
-  ExtentType localExtent(
-    { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] });
+  ExtentType localExtent{
+    gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
   return ComputeGridInterfaceCellIds(localExtent, extent, grid);
 }
@@ -1100,8 +1100,8 @@ vtkSmartPointer<vtkIdList> ComputeOutputGridInterfacePointIds(
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
-  ExtentType localExtent(
-    { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] });
+  ExtentType localExtent
+    { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
   // We do a bit shift on adjacencyMask to have the same adjacency mask as in the Input version of
   // this function. It produces an axial symmetry on each dimension having an adjacency.
@@ -1208,7 +1208,7 @@ void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>&
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent)
-  : Extent({ extent[0], extent[1], extent[2], extent[3], extent[4], extent[5] })
+  : Extent{ extent[0], extent[1], extent[2], extent[3], extent[4], extent[5] }
 {
 }
 
@@ -1216,10 +1216,10 @@ vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent)
 vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int extent[6],
   const double origin[3], const double spacing[3], const double orientationQuaternion[4])
   : GridBlockStructure(extent)
-  , Origin({ origin[0], origin[1], origin[2] })
-  , Spacing({ spacing[0], spacing[1], spacing[2] })
-  , OrientationQuaternion({ orientationQuaternion[0], orientationQuaternion[1],
-      orientationQuaternion[2], orientationQuaternion[3] })
+  , Origin{ origin[0], origin[1], origin[2] }
+  , Spacing{ spacing[0], spacing[1], spacing[2] }
+  , OrientationQuaternion{ orientationQuaternion[0], orientationQuaternion[1],
+      orientationQuaternion[2], orientationQuaternion[3] }
 {
 }
 
@@ -1227,8 +1227,8 @@ vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int
 vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int extent[6],
   const double origin[3], const double spacing[3], vtkMatrix3x3* directionMatrix)
   : GridBlockStructure(extent)
-  , Origin({ origin[0], origin[1], origin[2] })
-  , Spacing({ spacing[0], spacing[1], spacing[2] })
+  , Origin{ origin[0], origin[1], origin[2] }
+  , Spacing{ spacing[0], spacing[1], spacing[2] }
 {
   vtkMath::Matrix3x3ToQuaternion(directionMatrix->GetData(), OrientationQuaternion.GetData());
 }
