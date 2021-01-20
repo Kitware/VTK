@@ -152,7 +152,12 @@ void vtkX3DExporterFIByteWriter::TryFlush()
   if (this->CurrentBytePos == 8)
   {
     this->Stream->write((char*)(&(this->CurrentByte)), 1);
+#if defined(_POSIX_VERSION)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
     this->CurrentByte = 0;
+#pragma GCC diagnostic pop
+#endif
     this->CurrentBytePos = 0;
   }
 }
