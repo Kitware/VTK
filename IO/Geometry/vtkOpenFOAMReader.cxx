@@ -1554,7 +1554,7 @@ private:
   vtkFoamFileStack* Stack[VTK_FOAMFILE_INCLUDE_STACK_SIZE];
   int StackI;
 
-  bool InflateNext(unsigned char* buf, int requestSize, int* readSize = nullptr);
+  bool InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize = nullptr);
   int NextTokenHead();
 
   // hacks to keep exception throwing / recursive codes out-of-line to make
@@ -2270,12 +2270,13 @@ public:
     streamOpt.SetFloat64(this->Reader->GetUse64BitFloats());
   }
 
-  // gzread with buffering handling
-  int Read(unsigned char* buf, const int len)
+  // fread or gzread with buffering handling
+  vtkTypeInt64 Read(unsigned char* buf, const vtkTypeInt64 len)
   {
-    int readlen;
-    const int buflen = static_cast<int>(this->Superclass::BufEndPtr - this->Superclass::BufPtr);
-    if (len > buflen)
+    const size_t buflen = (this->Superclass::BufEndPtr - this->Superclass::BufPtr);
+
+    vtkTypeInt64 readlen;
+    if (static_cast<size_t>(len) > buflen)
     {
       memcpy(buf, this->Superclass::BufPtr, buflen);
       this->InflateNext(buf + buflen, len - buflen, &readlen);
@@ -2302,11 +2303,11 @@ public:
       this->Superclass::BufPtr += len;
       readlen = len;
     }
-    for (int i = 0; i < readlen; i++)
+    for (vtkTypeInt64 i = 0; i < readlen; ++i)
     {
       if (buf[i] == '\n')
       {
-        this->Superclass::LineNumber++;
+        ++this->Superclass::LineNumber;
       }
     }
     return readlen;
@@ -2592,7 +2593,7 @@ void vtkFoamFile::ThrowDuplicatedPutBackException()
   throw this->StackString() << "Attempted duplicated putBack()";
 }
 
-bool vtkFoamFile::InflateNext(unsigned char* buf, int requestSize, int* readSize)
+bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize)
 {
   if (readSize)
   {
@@ -2606,7 +2607,7 @@ bool vtkFoamFile::InflateNext(unsigned char* buf, int requestSize, int* readSize
       return false;
     }
     this->Superclass::Z.next_out = buf;
-    this->Superclass::Z.avail_out = requestSize;
+    this->Superclass::Z.avail_out = static_cast<uInt>(requestSize);
 
     do
     {
@@ -2657,8 +2658,9 @@ bool vtkFoamFile::InflateNext(unsigned char* buf, int requestSize, int* readSize
   this->Superclass::BufPtr = this->Superclass::Outbuf + 1;
   this->Superclass::BufEndPtr = this->Superclass::BufPtr + size;
   if (readSize)
-  { // Cast size_t to int -- since requestSize is int, this should be ok.
-    *readSize = static_cast<int>(size);
+  {
+    // Cast size_t to int64. Should be OK since requestSize came from OpenFOAM (signed integer)
+    *readSize = static_cast<vtkTypeInt64>(size);
   }
   return true;
 }
@@ -2919,13 +2921,14 @@ public:
       }
     }
 
-    void ReadBinaryList(vtkFoamIOobject& io, const int size)
+    void ReadBinaryList(vtkFoamIOobject& io, const size_t size)
     {
+      const size_t nbytes = (size * sizeof(primitiveT));
+
       typedef typename listT::ValueType ListValueType;
       if (typeid(ListValueType) == typeid(primitiveT))
       {
-        io.Read(reinterpret_cast<unsigned char*>(this->Ptr->GetPointer(0)),
-          static_cast<int>(size * sizeof(primitiveT)));
+        io.Read(reinterpret_cast<unsigned char*>(this->Ptr->GetPointer(0)), nbytes);
       }
       else
       {
@@ -2933,8 +2936,7 @@ public:
           vtkDataArray::CreateDataArray(vtkTypeTraits<primitiveT>::VTKTypeID());
         fileData->SetNumberOfComponents(this->Ptr->GetNumberOfComponents());
         fileData->SetNumberOfTuples(this->Ptr->GetNumberOfTuples());
-        io.Read(reinterpret_cast<unsigned char*>(fileData->GetVoidPointer(0)),
-          static_cast<int>(size * sizeof(primitiveT)));
+        io.Read(reinterpret_cast<unsigned char*>(fileData->GetVoidPointer(0)), nbytes);
         this->Ptr->DeepCopy(fileData);
         fileData->Delete();
       }
@@ -3007,8 +3009,11 @@ public:
       }
     }
 
-    void ReadBinaryList(vtkFoamIOobject& io, const int size)
+    void ReadBinaryList(vtkFoamIOobject& io, const size_t size)
     {
+      // Should be OK, since size came from OpenFOAM also used (signed integer)
+      const vtkTypeInt64 listLen = static_cast<vtkTypeInt64>(size);
+
       if (isPositions) // lagrangian/positions (class Cloud)
       {
         // xyz (3*scalar) + celli (label)
@@ -3022,9 +3027,9 @@ public:
         // memory management via std::vector
         std::vector<unsigned char> bufferContainer;
         bufferContainer.resize(tupleLength);
-        primitiveT* buffer = reinterpret_cast<primitiveT*>(&bufferContainer[0]);
+        primitiveT* buffer = reinterpret_cast<primitiveT*>(bufferContainer.data());
 
-        for (int i = 0; i < size; i++)
+        for (vtkTypeInt64 i = 0; i < listLen; ++i)
         {
           io.ReadExpecting('(');
           io.Read(reinterpret_cast<unsigned char*>(buffer), tupleLength);
@@ -3039,14 +3044,15 @@ public:
         // Compiler hint for better unrolling:
         VTK_ASSUME(this->Ptr->GetNumberOfComponents() == nComponents);
 
-        const int tupleLength = sizeof(primitiveT) * nComponents;
+        const unsigned tupleLength = (sizeof(primitiveT) * nComponents);
         primitiveT buffer[nComponents];
-        for (int i = 0; i < size; i++)
+
+        for (vtkTypeInt64 i = 0; i < listLen; ++i)
         {
           const int readLength = io.Read(reinterpret_cast<unsigned char*>(buffer), tupleLength);
           if (readLength != tupleLength)
           {
-            throw vtkFoamError() << "Failed to read tuple " << i << " of " << size << ": Expected "
+            throw vtkFoamError() << "Failed to read tuple " << i << '/' << listLen << ": Expected "
                                  << tupleLength << " bytes, got " << readLength << " bytes.";
           }
           for (int c = 0; c < nComponents; ++c)
@@ -3270,15 +3276,15 @@ public:
             }
             io.ReadExpecting(')');
           }
-          else
+          else if (sublistLen > 0)
           {
-            if (sublistLen > 0) // avoid invalid reference to labelListI.at(0)
-            {
-              io.ReadExpecting('(');
-              io.Read(reinterpret_cast<unsigned char*>(sublist),
-                static_cast<int>(sublistLen * this->LabelListListPtr->GetLabelSize()));
-              io.ReadExpecting(')');
-            }
+            // Non-empty (binary) list - only read parentheses only when size > 0
+            const size_t nbytes =
+              static_cast<size_t>(sublistLen * this->LabelListListPtr->GetLabelSize());
+
+            io.ReadExpecting('(');
+            io.Read(reinterpret_cast<unsigned char*>(sublist), nbytes);
+            io.ReadExpecting(')');
           }
           nTotalElems += sublistLen;
         }
@@ -3345,20 +3351,24 @@ public:
       }
       if (currToken.GetType() == vtkFoamToken::LABEL)
       {
-        vtkTypeInt64 sizeI = currToken.To<vtkTypeInt64>();
-        if (sizeI < 0)
+        vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
+        if (listLen < 0)
         {
-          throw vtkFoamError() << "List size must not be negative: size = " << sizeI;
+          throw vtkFoamError() << "Illegal negative list length: " << listLen;
         }
-        if (sizeI > 0) // avoid invalid reference
+
+        vtkDataArray* array = (arrayI == 0 ? this->Superclass::LabelListListPtr->GetOffsetsArray()
+                                           : this->Superclass::LabelListListPtr->GetDataArray());
+        array->SetNumberOfValues(static_cast<vtkIdType>(listLen));
+
+        if (listLen > 0)
         {
-          vtkDataArray* array = (arrayI == 0 ? this->Superclass::LabelListListPtr->GetOffsetsArray()
-                                             : this->Superclass::LabelListListPtr->GetDataArray());
-          array->SetNumberOfValues(static_cast<vtkIdType>(sizeI));
-          io.ReadExpecting('(');
+          // Non-empty (binary) list - only read parentheses only when size > 0
+
+          io.ReadExpecting('('); // Begin list
           io.Read(reinterpret_cast<unsigned char*>(array->GetVoidPointer(0)),
-            static_cast<int>(sizeI * array->GetDataTypeSize()));
-          io.ReadExpecting(')');
+            static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
+          io.ReadExpecting(')'); // End list
         }
       }
       else
@@ -3516,9 +3526,9 @@ void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
     {
       if (size > 0)
       {
-        // read parentheses only when size > 0
+        // Non-empty (binary) list - only read parentheses only when size > 0
         io.ReadExpecting('(');
-        list.ReadBinaryList(io, static_cast<int>(size));
+        list.ReadBinaryList(io, size);
         io.ReadExpecting(')');
       }
     }
