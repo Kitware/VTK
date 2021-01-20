@@ -26,6 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
 
 vtkStandardNewMacro(vtkCompositeDataSetGhostCellsGenerator);
 vtkCxxSetObjectMacro(vtkCompositeDataSetGhostCellsGenerator, Controller, vtkMultiProcessController);
@@ -103,6 +104,10 @@ int vtkCompositeDataSetGhostCellsGenerator::RequestData(
     vtkDIYUtilities::GetDataSets<vtkRectilinearGrid>(inputDO);
   std::vector<vtkRectilinearGrid*> outputsRG =
     vtkDIYUtilities::GetDataSets<vtkRectilinearGrid>(outputDO);
+  std::vector<vtkStructuredGrid*> inputsSG =
+    vtkDIYUtilities::GetDataSets<vtkStructuredGrid>(inputDO);
+  std::vector<vtkStructuredGrid*> outputsSG =
+    vtkDIYUtilities::GetDataSets<vtkStructuredGrid>(outputDO);
 
   if (inputsID.size() && inputsRG.size())
   {
@@ -113,7 +118,9 @@ int vtkCompositeDataSetGhostCellsGenerator::RequestData(
   return vtkDIYGhostUtilities::GenerateGhostCells(
            inputsID, outputsID, inputGhostLevels, this->NumberOfGhostLayers, this->Controller) &&
     vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsRG, outputsRG, inputGhostLevels, this->NumberOfGhostLayers, this->Controller);
+      inputsRG, outputsRG, inputGhostLevels, this->NumberOfGhostLayers, this->Controller) &&
+    vtkDIYGhostUtilities::GenerateGhostCells(
+      inputsSG, outputsSG, inputGhostLevels, this->NumberOfGhostLayers, this->Controller);
 }
 
 //----------------------------------------------------------------------------
