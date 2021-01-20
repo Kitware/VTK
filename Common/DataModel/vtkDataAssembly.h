@@ -319,6 +319,50 @@ public:
    */
   int GetParent(int id) const;
 
+  /**
+   * Returns true if attribute with the given name is present
+   * on the chosen node.
+   */
+  bool HasAttribute(int id, const char* name) const;
+
+  //@{
+  /**
+   * Set an attribute. Will replace an existing attribute with the same name if
+   * present.
+   */
+  void SetAttribute(int id, const char* name, const char* value);
+  void SetAttribute(int id, const char* name, int value);
+  void SetAttribute(int id, const char* name, unsigned int value);
+#if VTK_ID_TYPE_IMPL != VTK_INT
+  void SetAttribute(int id, const char* name, vtkIdType value);
+#endif
+  //@}
+
+  //@{
+  /**
+   * Get an attribute value. Returns true if a value was provided else false.
+   */
+  bool GetAttribute(int id, const char* name, const char*& value) const;
+  bool GetAttribute(int id, const char* name, int& value) const;
+  bool GetAttribute(int id, const char* name, unsigned int& value) const;
+#if VTK_ID_TYPE_IMPL != VTK_INT
+  bool GetAttribute(int id, const char* name, vtkIdType& value) const;
+#endif
+  //@}
+
+  //@{
+  /**
+   * Get an attribute value. Returns the value associated with the node or the
+   * provided default value.
+   */
+  const char* GetAttributeOrDefault(int id, const char* name, const char* default_value) const;
+  int GetAttributeOrDefault(int id, const char* name, int default_value) const;
+  unsigned int GetAttributeOrDefault(int id, const char* name, unsigned int default_value) const;
+#if VTK_ID_TYPE_IMPL != VTK_INT
+  vtkIdType GetAttributeOrDefault(int id, const char* name, vtkIdType default_value) const;
+#endif
+  //@}
+
   //@{
   /**
    * Visit each node in the assembly for processing. The traversal order can be
