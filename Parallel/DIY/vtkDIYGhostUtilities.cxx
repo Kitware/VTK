@@ -27,6 +27,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <vector>
@@ -59,13 +61,17 @@ using DataSetTypeToBlockTypeConverter =
 /**
  * Block typedefs
  */
-using ImageDataBlockStructure = vtkDIYGhostUtilities::ImageDataBlockStructure;
 using ImageDataBlock = vtkDIYGhostUtilities::ImageDataBlock;
 using RectilinearGridBlock = vtkDIYGhostUtilities::RectilinearGridBlock;
-using RectilinearGridBlockStructure = vtkDIYGhostUtilities::RectilinearGridBlockStructure;
+using StructuredGridBlock = vtkDIYGhostUtilities::StructuredGridBlock;
 
-using GridInformation = vtkDIYGhostUtilities::GridInformation;
-using RectilinearGridInformation = vtkDIYGhostUtilities::RectilinearGridInformation;
+using ImageDataBlockStructure = ImageDataBlock::BlockStructureType;
+using RectilinearGridBlockStructure = RectilinearGridBlock::BlockStructureType;
+using StructuredGridBlockStructure = StructuredGridBlock::BlockStructureType;
+
+using ImageDataInformation = ImageDataBlock::InformationType;
+using RectilinearGridInformation = RectilinearGridBlock::InformationType;
+using StructuredGridInformation = StructuredGridBlock::InformationType;
 //@}
 
 //============================================================================
@@ -154,7 +160,7 @@ void FillGridPointArray(ArrayT* array, GridDataSetT* grid, int imin, int imax, i
 
 //----------------------------------------------------------------------------
 /**
- * Clone a `grid` into a `clone`. CloneGrid should have wider extents than grid.
+ * Clone a `grid` into a `clone`. clone should have wider extents than grid.
  * This function does a deep copy of every scalar fields.
  */
 template <class GridDataSetT>
@@ -168,26 +174,26 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
     cloneCellData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfCells());
   }
 
-  int* extent = grid->GetExtent();
+  const int* cloneExtent = clone->GetExtent();
+  const int* gridExtent = grid->GetExtent();
 
   // We use `std::max` here to work for grids of dimension 2 and 1.
   // This gives "thickness" to the degenerate dimension
-  int imin = extent[0];
-  int imax = std::max(extent[1], extent[0] + 1);
-  int jmin = extent[2];
-  int jmax = std::max(extent[3], extent[2] + 1);
-  int kmin = extent[4];
-  int kmax = std::max(extent[5], extent[4] + 1);
+  int imin = gridExtent[0];
+  int imax = std::max(gridExtent[1], gridExtent[0] + 1);
+  int jmin = gridExtent[2];
+  int jmax = std::max(gridExtent[3], gridExtent[2] + 1);
+  int kmin = gridExtent[4];
+  int kmax = std::max(gridExtent[5], gridExtent[4] + 1);
 
-  const int* cloneExtent = clone->GetExtent();
-  const int* gridExtent = grid->GetExtent();
-  for (int k = kmin; k < kmax; ++k)
+  int ijk[3];
+
+  for (ijk[2] = kmin; ijk[2] < kmax; ++ijk[2])
   {
-    for (int j = jmin; j < jmax; ++j)
+    for (ijk[1] = jmin; ijk[1] < jmax; ++ijk[1])
     {
-      for (int i = imin; i < imax; ++i)
+      for (ijk[0] = imin; ijk[0] < imax; ++ijk[0])
       {
-        int ijk[3] = { i, j, k };
         cloneCellData->SetTuple(vtkStructuredData::ComputeCellIdForExtent(cloneExtent, ijk),
           vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk), gridCellData);
       }
@@ -202,17 +208,16 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
     clonePointData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfPoints());
   }
 
-  imax = extent[1];
-  jmax = extent[3];
-  kmax = extent[5];
+  imax = gridExtent[1];
+  jmax = gridExtent[3];
+  kmax = gridExtent[5];
 
-  for (int k = kmin; k <= kmax; ++k)
+  for (ijk[2] = kmin; ijk[2] <= kmax; ++ijk[2])
   {
-    for (int j = jmin; j <= jmax; ++j)
+    for (ijk[1] = jmin; ijk[1] <= jmax; ++ijk[1])
     {
-      for (int i = imin; i <= imax; ++i)
+      for (ijk[0] = imin; ijk[0] <= imax; ++ijk[0])
       {
-        int ijk[3] = { i, j, k };
         clonePointData->SetTuple(vtkStructuredData::ComputePointIdForExtent(cloneExtent, ijk),
           vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk), gridPointData);
       }
@@ -317,15 +322,15 @@ ExtentType PeelOffGhostLayers(GridDataSetT* grid, int ghostLevel)
 }
 
 //----------------------------------------------------------------------------
-void AddGhostLayerOfGridPoints(int vtkNotUsed(extentIdx), GridInformation& vtkNotUsed(information),
-  ImageDataBlockStructure& vtkNotUsed(blockStructure))
+void AddGhostLayerOfGridPoints(int vtkNotUsed(extentIdx), ImageDataInformation& vtkNotUsed(information),
+  const ImageDataBlockStructure& vtkNotUsed(blockStructure))
 {
   // Do nothing for image data. Points are all implicit.
 }
 
 //----------------------------------------------------------------------------
 void AddGhostLayerOfGridPoints(int extentIdx, RectilinearGridInformation& blockInformation,
-  RectilinearGridBlockStructure& blockStructure)
+  const RectilinearGridBlockStructure& blockStructure)
 {
   int layerThickness = blockInformation.ExtentGhostThickness[extentIdx];
   vtkSmartPointer<vtkDataArray>& coordinateGhosts = blockInformation.CoordinateGhosts[extentIdx];
@@ -338,16 +343,30 @@ void AddGhostLayerOfGridPoints(int extentIdx, RectilinearGridInformation& blockI
   }
   if (coordinateGhosts->GetNumberOfTuples() < layerThickness)
   {
-    if (extentIdx == 0 || extentIdx == 2 || extentIdx == 4)
+    if (!(extentIdx % 2))
     {
-      coordinateGhosts->InsertTuples(
-        0, layerThickness, coords->GetNumberOfTuples() - layerThickness - 1, coords);
+      vtkSmartPointer<vtkDataArray> tmp = vtkSmartPointer<vtkDataArray>::Take(coords->NewInstance());
+      tmp->InsertTuples(0, layerThickness - coordinateGhosts->GetNumberOfTuples(),
+          coords->GetNumberOfTuples() - layerThickness - 1, coords);
+      tmp->InsertTuples(tmp->GetNumberOfTuples(),
+          coordinateGhosts->GetNumberOfTuples(), 0, coordinateGhosts);
+      std::swap(tmp, coordinateGhosts);
     }
     else
     {
-      coordinateGhosts->InsertTuples(0, layerThickness, 0, coords);
+      coordinateGhosts->InsertTuples(coordinateGhosts->GetNumberOfTuples(), layerThickness
+          - coordinateGhosts->GetNumberOfTuples(), 1, coords);
     }
   }
+}
+
+//----------------------------------------------------------------------------
+void AddGhostLayerOfGridPoints(int vtkNotUsed(extentIdx),
+    StructuredGridInformation& vtkNotUsed(blockInformation),
+    const StructuredGridBlockStructure& vtkNotUsed(blockStructure))
+{
+  // Do nothing, we only have grid interfaces at this point. We will allocate the points
+  // after the accumulated extent is computed.
 }
 
 //----------------------------------------------------------------------------
@@ -361,9 +380,10 @@ void AddGhostLayerOfGridPoints(int extentIdx, RectilinearGridInformation& blockI
  */
 // void AddGhostLayerToGrid(int idx, int outputGhostLevels, const ExtentType& extent,
 //    ExtentType& outputExtentShift, ExtentType& neighborExtentWithNewGhosts)
-template <class BlockStructureT, class BlockInformationT>
-void AddGhostLayerToGrid(int idx, int outputGhostLevels, BlockStructureT& blockStructure,
-  BlockInformationT& blockInformation)
+template <class BlockT>
+void AddGhostLayerToGrid(int idx, int outputGhostLevels,
+  typename BlockT::BlockStructureType& blockStructure,
+  typename BlockT::InformationType& blockInformation)
 {
   const ExtentType& extent = blockStructure.Extent;
   bool upperBound = idx % 2;
@@ -386,9 +406,10 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels, BlockStructureT& blockS
  * extent shift (`outputExtentShift`) for the output grid, as well as the extent of the current
  * block's neighbor `neighborExtentWithNewGhosts`.
  */
-template <class BlockStructuresT, class IteratorT, class BlockInformationT>
-void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformationT& blockInformation,
-  Links& localLinks, unsigned char adjacencyMask, unsigned char overlapMask, int outputGhostLevels)
+template <class BlockT, class IteratorT>
+void LinkGrid(BlockMapType<typename BlockT::BlockStructureType>& blockStructures, IteratorT& it,
+  typename BlockT::InformationType& blockInformation, Links& localLinks,
+  unsigned char adjacencyMask, unsigned char overlapMask, int outputGhostLevels, int dim)
 {
   int gid = it->first;
   auto& blockStructure = it->second;
@@ -399,9 +420,13 @@ void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformation
   // |  |  | |
   // |__|__|/
   //
-  if (((overlapMask == Overlap::YZ) && (adjacencyMask & (Adjacency::Left | Adjacency::Right))) ||
-    ((overlapMask == Overlap::XZ) && (adjacencyMask & (Adjacency::Front | Adjacency::Back))) ||
-    ((overlapMask == Overlap::XY) && (adjacencyMask & (Adjacency::Bottom | Adjacency::Top))))
+  if ((((dim == 3 && overlapMask == Overlap::YZ) || (dim == 2 && overlapMask & Overlap::YZ)
+          || (dim == 1 && !overlapMask)) &&
+        (adjacencyMask & (Adjacency::Left | Adjacency::Right))) ||
+    ((((dim == 3 && overlapMask == Overlap::XZ) || (dim == 2 && overlapMask & Overlap::XZ))) &&
+     (adjacencyMask & (Adjacency::Front | Adjacency::Back))) ||
+    ((((dim == 3 && overlapMask == Overlap::XY) || (dim == 2 && overlapMask & Overlap::XY))) &&
+     (adjacencyMask & (Adjacency::Bottom | Adjacency::Top))))
   {
     // idx is the index in extent of current block on which side the face overlap occurs
     int idx = -1;
@@ -426,11 +451,16 @@ void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformation
         idx = 5;
         break;
       default:
-        std::cerr << "WRONG adjacencyMask " << std::endl;
-        break;
+        // Blocks are not connected, we can erase current block
+        it = blockStructures.erase(it);
+        if (dim != 1)
+        {
+          vtkLog(ERROR, "Wrong adjacency mask for 1D grid inputs");
+        }
+        return;
     }
 
-    AddGhostLayerToGrid(idx, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx, outputGhostLevels, blockStructure, blockInformation);
   }
   // Here we look at ajacency where edges overlaps but no face overlap occurs
   //   ___
@@ -440,11 +470,14 @@ void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformation
   //    |  | |
   //    |__|/
   //
-  else if (((overlapMask == Overlap::X) && (adjacencyMask & (Adjacency::Front | Adjacency::Back)) &&
+  else if ((((dim == 3 && overlapMask == Overlap::X) || (dim == 2 && !overlapMask)) &&
+        (adjacencyMask & (Adjacency::Front | Adjacency::Back)) &&
              (adjacencyMask & (Adjacency::Bottom | Adjacency::Top))) ||
-    ((overlapMask == Overlap::Y) && (adjacencyMask & (Adjacency::Left | Adjacency::Right)) &&
+    (((dim == 3 && overlapMask == Overlap::Y) || (dim == 2 && !overlapMask)) &&
+     (adjacencyMask & (Adjacency::Left | Adjacency::Right)) &&
       (adjacencyMask & (Adjacency::Bottom | Adjacency::Top))) ||
-    ((overlapMask == Overlap::Z) && (adjacencyMask & (Adjacency::Left | Adjacency::Right)) &&
+    (((dim == 3 && overlapMask == Overlap::Z) || (dim == 2 && !overlapMask)) &&
+      (adjacencyMask & (Adjacency::Left | Adjacency::Right)) &&
       (adjacencyMask & (Adjacency::Front | Adjacency::Back))))
   {
     // idx1 and idx2 are the indices in extent of current block
@@ -501,12 +534,17 @@ void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformation
         idx2 = 3;
         break;
       default:
-        std::cerr << "WRONG adjacencyMask" << std::endl;
-        break;
+        // Blocks are not connected, we can erase current block
+        it = blockStructures.erase(it);
+        if (dim != 2)
+        {
+          vtkLog(ERROR, "Wrong adjacency mask for 2D grid inputs");
+        }
+        return;
     }
 
-    AddGhostLayerToGrid(idx1, outputGhostLevels, blockStructure, blockInformation);
-    AddGhostLayerToGrid(idx2, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx1, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx2, outputGhostLevels, blockStructure, blockInformation);
   }
   // Here we look at ajacency where corners touch but no edges / faces overlap
   //   ___
@@ -564,16 +602,19 @@ void LinkGrid(BlockStructuresT& blockStructures, IteratorT& it, BlockInformation
         idx2 = 3;
         idx3 = 5;
         break;
-      // If we didn't reach any case in the 3 switches, then we do not need any connection with this
-      // neighbor block. We remove this block from our local map.
       default:
+        // Blocks are not connected, we can erase current block
         it = blockStructures.erase(it);
+        if (dim != 3)
+        {
+          vtkLog(ERROR, "Wrong adjacency mask for 3D grid inputs");
+        }
         return;
     }
 
-    AddGhostLayerToGrid(idx1, outputGhostLevels, blockStructure, blockInformation);
-    AddGhostLayerToGrid(idx2, outputGhostLevels, blockStructure, blockInformation);
-    AddGhostLayerToGrid(idx3, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx1, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx2, outputGhostLevels, blockStructure, blockInformation);
+    AddGhostLayerToGrid<BlockT>(idx3, outputGhostLevels, blockStructure, blockInformation);
   }
 
   // If we reach this point, then the current neighboring block is indeed adjacent to us.
@@ -623,15 +664,18 @@ bool SynchronizeGridExtents(const ImageDataBlockStructure& localBlockStructure,
   const VectorType& localOrigin = localBlockStructure.Origin;
   const VectorType& localSpacing = localBlockStructure.Spacing;
   const QuaternionType& localQ = localBlockStructure.OrientationQuaternion;
+  int localDim = localBlockStructure.DataDimension;
 
   const ExtentType& extent = blockStructure.Extent;
   const QuaternionType& q = blockStructure.OrientationQuaternion;
   const VectorType& spacing = blockStructure.Spacing;
+  int dim = blockStructure.DataDimension;
 
-  // We skip if spacing or quaternions don't match
+  // We skip if dimension, spacing or quaternions don't match
   // spacing == localSpacing <=> dot(spacing, localSpacing) == norm(localSpacing)^2
   // q == localQ <=> dot(q, localQ) == 1 (both are unitary quaternions)
   if (extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5] ||
+    dim != localDim ||
     !vtkMathUtilities::NearlyEqual(
       vtkMath::Dot(spacing, localSpacing), vtkMath::SquaredNorm(localSpacing)) ||
     !(std::fabs(vtkMath::Dot<double, 4>(q.GetData(), localQ.GetData()) - 1.0) < VTK_DBL_EPSILON))
@@ -768,9 +812,9 @@ struct RectilinearGridFittingWorker
 bool SynchronizeGridExtents(const RectilinearGridBlockStructure& localBlockStructure,
   const RectilinearGridBlockStructure& blockStructure, ExtentType& shiftedExtent)
 {
-  // TODO comment
   const ExtentType& extent = blockStructure.Extent;
-  if (extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
+  if (localBlockStructure.DataDimension != blockStructure.DataDimension ||
+      extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
   {
     return false;
   }
@@ -810,27 +854,388 @@ bool SynchronizeGridExtents(const RectilinearGridBlockStructure& localBlockStruc
   return true;
 }
 
+//============================================================================
+struct StructuredGridFittingWorker
+{
+  /**
+   * Constructor storing the 6 faces of the neighboring block.
+   */
+  StructuredGridFittingWorker(const vtkSmartPointer<vtkPoints> points[6],
+      vtkNew<vtkStaticPointLocator> locator[6],
+      const ExtentType& extent, StructuredGridBlockStructure::Grid2D& grid)
+    : Points{ points[0]->GetData(), points[1]->GetData(), points[2]->GetData(), points[3]->GetData(),
+        points[4]->GetData(), points[5]->GetData() }
+    , Locator{ locator[0], locator[1], locator[2], locator[3], locator[4], locator[5] }
+    , Grid(grid)
+  {
+    // We compute the extent of each external face of the neighbor block.
+    for (int i = 0; i < 6; ++i)
+    {
+      ExtentType& e = this->Extent[i];
+      e[i] = extent[i];
+      e[i % 2 ? i - 1 : i + 1] = extent[i];
+      for (int j = 0; j < 6; ++j)
+      {
+        if (i / 2 != j / 2)
+        {
+          e[j] = extent[j];
+        }
+      }
+    }
+  }
+
+  /**
+   * This method determines the local points (points from on external face of local block) are
+   * connected the the points of one of the 6 faces of the block's neighbor.
+   * The main subroutine `GridsFit` is asymmetrical: it needs to be called twice, first by querying
+   * from the local block, finally by querying from the neighbor's block.
+   *
+   * If grids are connected, the overlapping extent is extracted in the form of a 2D grid.
+   *
+   * This method determines if grids are connected regardless of the orientation of their extent.
+   * This means that given a direct frame (i, j, k) spanning the first grid, i can be mangled with
+   * any dimension of the other grid. To simplify mpi communication, the convention is express the
+   * indexing of the neighboring block relative to the one of the local block. For instance, if we
+   * find that (i, -j) of the first grid connect with (j, k) of the second, we will multiply the
+   * second dimension by -1 so that the local grid is spanned by (i, j), and the second by (j, -k).
+   */
+  template<class ArrayT>
+  void operator()(ArrayT* localPoints)
+  {
+    for (int sideId = 0; sideId < 6; ++sideId)
+    {
+      ArrayT* points = vtkArrayDownCast<ArrayT>(this->Points[sideId]);
+      if (this->GridsFit(localPoints, this->LocalExtent, this->LocalExtentIndex,
+            points, this->Locator[sideId], this->Extent[sideId], sideId))
+      {
+        this->Connected = true;
+      }
+      else if (this->GridsFit(points, this->Extent[sideId], sideId,
+            localPoints, this->LocalLocator, this->LocalExtent, this->LocalExtentIndex))
+      {
+        this->Connected = true;
+        std::swap(this->Grid, this->LocalGrid);
+      }
+      else
+      {
+        continue;
+      }
+
+      // Now, we flip the grids so the local grid uses canonical coordinates (x increasing, y
+      // increasing)
+      if (this->LocalGrid.StartX > this->LocalGrid.EndX)
+      {
+        std::swap(this->LocalGrid.StartX, this->LocalGrid.EndX);
+        this->LocalGrid.XOrientation *= -1;
+        std::swap(this->Grid.StartX, this->Grid.EndX);
+        this->Grid.XOrientation *= -1;
+      }
+      if (this->LocalGrid.StartY > this->LocalGrid.EndY)
+      {
+        std::swap(this->LocalGrid.StartY, this->LocalGrid.EndY);
+        this->LocalGrid.YOrientation *= -1;
+        std::swap(this->Grid.StartY, this->Grid.EndY);
+        this->Grid.YOrientation *= -1;
+      }
+
+      // We have a 2D grid, we succeeded for sure
+      if ((this->Grid.EndX - this->Grid.StartX) && (this->Grid.EndY - this->Grid.StartY))
+      {
+        this->BestConnectionFound = true;
+        return;
+      }
+    }
+  }
+
+  /**
+   * This looks if the 4 corners of the grid composed of points from `queryPoints` are points of the
+   * second grid.
+   * queryExtentId and extentId are parameters that tell on which face of the block the grids lie.
+   * For each corners part of the neighboring grids, a subroutine is called to see if grids fit
+   * perfectly. One match is not a sufficient condition for us to stop checking if grids fit.
+   * Indeed, one can catch an edge on one face, while an entire face fits elsewhere, so this method
+   * might be called even if a match has been found.
+   */
+  template<class ArrayT>
+  bool GridsFit(ArrayT* queryPoints, const ExtentType& queryExtent, int queryExtentId,
+      ArrayT* points, vtkAbstractPointLocator* locator, const ExtentType& extent, int extentId)
+  {
+    using ValueType = typename ArrayT::ValueType;
+    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+
+    bool retVal = false;
+
+    int queryXDim = (queryExtentId + 2) % 6;
+    queryXDim -= queryXDim % 2;
+    int queryYDim = (queryExtentId + 4) % 6;
+    queryYDim -= queryYDim % 2;
+    int queryijk[3];
+    queryijk[queryExtentId / 2] = queryExtent[queryExtentId];
+
+    int xCorners[2] = { queryExtent[queryXDim], queryExtent[queryXDim + 1] };
+    int yCorners[2] = { queryExtent[queryYDim], queryExtent[queryYDim + 1] };
+    constexpr int sweepDirection[2] = { 1, -1 };
+
+    for (int xCornerId = 0; xCornerId < 2; ++xCornerId)
+    {
+      queryijk[queryXDim / 2] = xCorners[xCornerId];
+      for (int yCornerId = 0; yCornerId < 2; ++yCornerId)
+      {
+        queryijk[queryYDim / 2] = yCorners[yCornerId];
+        vtkIdType queryPointId = vtkStructuredData::ComputePointIdForExtent(
+            queryExtent.data(), queryijk);
+        ValueType queryPoint[3];
+        queryPoints->GetTypedTuple(queryPointId, queryPoint);
+        double tmp[3] = { static_cast<double>(queryPoint[0]), static_cast<double>(queryPoint[1]),
+          static_cast<double>(queryPoint[2]) };
+        vtkIdType pointId = locator->FindClosestPoint(tmp);
+        ValueType point[3];
+        points->GetTypedTuple(pointId, point);
+
+        if (Comparator<IsInteger>::Equals(point[0], queryPoint[0]) &&
+            Comparator<IsInteger>::Equals(point[1], queryPoint[1]) &&
+            Comparator<IsInteger>::Equals(point[2], queryPoint[2]))
+        {
+          if (this->SweepGrids(queryPoints, queryExtentId, queryExtent, queryXDim,
+                xCorners[xCornerId], xCorners[(xCornerId + 1) % 2], sweepDirection[xCornerId],
+                queryYDim, yCorners[yCornerId], yCorners[(yCornerId + 1) % 2],
+                sweepDirection[yCornerId], points, pointId, extentId, extent))
+          {
+            retVal = true;
+          }
+        }
+      }
+    }
+    return retVal;
+  }
+
+  /**
+   * This method is called when one corner of the querying grid exists inside the other grid.
+   * Both grids are swept in all directions. If points match until one corner is reached, then grids
+   * are connected. If grids are connected, if the grid overlapping is larger than any previous
+   * computed one, its extents and the id of the face are saved.
+   */
+  template<class ArrayT>
+  bool SweepGrids(ArrayT* queryPoints, int queryExtentId, const ExtentType& queryExtent,
+      int queryXDim, int queryXBegin, int queryXEnd, int directionX, int queryYDim, int queryYBegin,
+      int queryYEnd, int directionY, ArrayT* points, int pointId, int extentId, const ExtentType& extent)
+  {
+    using ValueType = typename ArrayT::ValueType;
+    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+    constexpr int sweepDirection[2] = { 1, -1 };
+
+    bool retVal = false;
+
+    int queryijk[3], ijk[3];
+    queryijk[queryExtentId / 2] = queryExtent[queryExtentId];
+    vtkStructuredData::ComputePointStructuredCoordsForExtent(pointId, extent.data(), ijk);
+
+    int xdim = ((extentId + 2) % 6);
+    xdim -= xdim % 2;
+    int ydim = ((extentId + 4) % 6);
+    ydim -= ydim % 2;
+
+    int xCorners[2] = { extent[xdim], extent[xdim + 1] };
+    int yCorners[2] = { extent[ydim], extent[ydim + 1] };
+
+    int xBegin = ijk[xdim / 2];
+    int yBegin = ijk[ydim / 2];
+
+    for (int xCornerId = 0; xCornerId < 2; ++xCornerId)
+    {
+      for (int yCornerId = 0; yCornerId < 2; ++yCornerId)
+      {
+        bool gridsAreFitting = true;
+        int queryX, queryY = queryYBegin, x, y = yBegin;
+
+        for (queryX = queryXBegin, x = xBegin;
+            gridsAreFitting && queryX != queryXEnd + directionX &&
+            x != xCorners[(xCornerId + 1) % 2] + sweepDirection[xCornerId];
+            queryX += directionX, x += sweepDirection[xCornerId])
+        {
+          queryijk[queryXDim / 2] = queryX;
+          ijk[xdim / 2] = x;
+
+          for (queryY = queryYBegin, y = yBegin;
+              gridsAreFitting && queryY != queryYEnd + directionY &&
+              y != yCorners[(yCornerId + 1) % 2] + sweepDirection[yCornerId];
+              queryY += directionY, y += sweepDirection[yCornerId])
+          {
+            queryijk[queryYDim / 2] = queryY;
+            ijk[ydim / 2] = y;
+
+            vtkIdType queryPointId = vtkStructuredData::ComputePointIdForExtent(
+                queryExtent.data(), queryijk);
+            vtkIdType id = vtkStructuredData::ComputePointIdForExtent(extent.data(), ijk);
+
+            ValueType queryPoint[3];
+            queryPoints->GetTypedTuple(queryPointId, queryPoint);
+            ValueType point[3];
+            points->GetTypedTuple(id, point);
+
+            if (!Comparator<IsInteger>::Equals(point[0], queryPoint[0]) ||
+                !Comparator<IsInteger>::Equals(point[1], queryPoint[1]) ||
+                !Comparator<IsInteger>::Equals(point[2], queryPoint[2]))
+            {
+              gridsAreFitting = false;
+            }
+          }
+        }
+        queryX -= directionX;
+        queryY -= directionY;
+        x -= sweepDirection[xCornerId];
+        y -= sweepDirection[yCornerId];
+        // We save grid characteristics if the new grid is larger than the previous selected one.
+        // This can happen when an edge is caught, but a whole face should be caught instead
+        if (gridsAreFitting &&
+            (std::abs(this->LocalGrid.EndX - this->LocalGrid.StartX) <= std::abs(queryX - queryXBegin) ||
+             std::abs(this->LocalGrid.EndY - this->LocalGrid.StartY) <= std::abs(queryY - queryYBegin)))
+        {
+          this->LocalGrid.StartX = queryXBegin;
+          this->LocalGrid.StartY = queryYBegin;
+          this->LocalGrid.EndX = queryX;
+          this->LocalGrid.EndY = queryY;
+          this->LocalGrid.XOrientation = directionX;
+          this->LocalGrid.YOrientation = directionY;
+          this->LocalGrid.ExtentId = queryExtentId;
+
+          this->Grid.StartX = xBegin;
+          this->Grid.StartY = yBegin;
+          this->Grid.EndX = x;
+          this->Grid.EndY = y;
+          this->Grid.XOrientation = sweepDirection[xCornerId];
+          this->Grid.YOrientation = sweepDirection[yCornerId];
+          this->Grid.ExtentId = queryExtentId;
+
+          retVal = true;
+        }
+      }
+    }
+    return retVal;
+  }
+
+  vtkDataArray* Points[6];
+  vtkStaticPointLocator* Locator[6];
+  int LocalExtentIndex;
+  ExtentType LocalExtent;
+  ExtentType Extent[6];
+  vtkStaticPointLocator* LocalLocator;
+  bool Connected = false;
+  bool BestConnectionFound = false;
+  StructuredGridBlockStructure::Grid2D& Grid;
+  StructuredGridBlockStructure::Grid2D LocalGrid;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * Function to be overloaded for each supported input grid data sets.
+ * This function will return true if 2 input block structures are adjacent, false otherwise.
+ */
+bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
+    StructuredGridBlockStructure& blockStructure, ExtentType& shiftedExtent)
+{
+  const ExtentType& extent = blockStructure.Extent;
+  shiftedExtent = extent;
+  
+  if (localBlockStructure.DataDimension != blockStructure.DataDimension ||
+      extent[0] > extent[1] || extent[2] > extent[3] || extent[4] > extent[5])
+  {
+    return false;
+  }
+  const ExtentType& localExtent = localBlockStructure.Extent;
+  const vtkSmartPointer<vtkPoints>* localPoints = localBlockStructure.OuterPointLayers;
+  const vtkSmartPointer<vtkPoints>* points = blockStructure.OuterPointLayers;
+
+  // This grid will be set by the structured grid fitting worker if the 2 blocks are connected.
+  StructuredGridBlockStructure::Grid2D& gridInterface = blockStructure.GridInterface;
+
+  // We need locators to query points inside grids.
+  // Locators need `vtkDataSet`, so we create a `vtkPointSet` with the points of each face of the
+  // neighboring block.
+  vtkNew<vtkStaticPointLocator> locator[6];
+  for (int id = 0; id < 6; ++id)
+  {
+    vtkNew<vtkPointSet> ps;
+    ps->SetPoints(points[id]);
+    locator[id]->SetDataSet(ps);
+    locator[id]->BuildLocator();
+  }
+
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  StructuredGridFittingWorker worker(points, locator, extent, gridInterface);
+
+  // We look for a connection until either we tried them all, or if we found the best connection,
+  // i.e. a full 2D grid has been found.
+  // We iterate on each face of the local block.
+  for (worker.LocalExtentIndex = 0;
+      !worker.BestConnectionFound && worker.LocalExtentIndex < 6; ++worker.LocalExtentIndex)
+  {
+    vtkNew<vtkStaticPointLocator> localLocator;
+    vtkNew<vtkPointSet> ps;
+
+    ps->SetPoints(localPoints[worker.LocalExtentIndex]);
+    localLocator->SetDataSet(ps);
+    localLocator->BuildLocator();
+
+    worker.LocalLocator = localLocator;
+    worker.LocalExtent = localExtent;
+    worker.LocalExtent[worker.LocalExtentIndex + (worker.LocalExtentIndex % 2 ? -1 : 1)] =
+      localExtent[worker.LocalExtentIndex];
+
+    Dispatcher::Execute(localPoints[worker.LocalExtentIndex]->GetData(), worker);
+  }
+
+  if (!worker.Connected)
+  {
+    return false;
+  }
+  
+  const auto& localGrid = worker.LocalGrid;
+  int xdim = (localGrid.ExtentId + 2) % 6;
+  xdim -= xdim % 2;
+  int ydim = (localGrid.ExtentId + 4) % 6;
+  ydim -= ydim % 2;
+
+  // We match extents to local extents.
+  // We know the intersection already, so we ca just use the local grid interface extent.
+  shiftedExtent[xdim] = localGrid.StartX;
+  shiftedExtent[xdim + 1] = localGrid.EndX;
+  shiftedExtent[ydim] = localGrid.StartY;
+  shiftedExtent[ydim + 1] = localGrid.EndY;
+
+  const auto& grid = worker.Grid;
+  // Concerning the dimension orthogonal to the interface grid, we just copy the corresponding value
+  // from the local extent, and we add the "depth" of the neighbor grid by looking at what is in
+  // `extent`.
+  int oppositeExtentId = grid.ExtentId + (grid.ExtentId % 2 ? -1 : 1);
+  int deltaExtent = (localGrid.ExtentId % 2 ? -1 : 1) * std::abs(extent[grid.ExtentId] - extent[oppositeExtentId]);
+  shiftedExtent[localGrid.ExtentId + (localGrid.ExtentId % 2 ? -1 : 1)] = shiftedExtent[localGrid.ExtentId] + deltaExtent;
+  shiftedExtent[localGrid.ExtentId] = localExtent[localGrid.ExtentId];
+
+  return true;
+}
+
 //----------------------------------------------------------------------------
 void UpdateOutputGridPoints(
-  vtkImageData* vtkNotUsed(output), GridInformation& vtkNotUsed(blockInformation))
+  vtkImageData* vtkNotUsed(output), ImageDataInformation& vtkNotUsed(blockInformation))
 {
   // Points are implicit in an vtkImageData. We do nothing.
 }
 
 //----------------------------------------------------------------------------
-void AppendGhostPointsForRectilinearGrid(
-  vtkDataArray*& coordinates, vtkDataArray*& preCoordinates, vtkDataArray* postCoordinates)
+void AppendGhostPointsForRectilinearGrid(vtkSmartPointer<vtkDataArray>& coordinates,
+    vtkSmartPointer<vtkDataArray>& preCoordinates, vtkSmartPointer<vtkDataArray>& postCoordinates)
 {
   if (preCoordinates)
   {
     std::swap(preCoordinates, coordinates);
-    coordinates->InsertTuples(
-      coordinates->GetNumberOfTuples(), preCoordinates->GetNumberOfTuples(), 0, preCoordinates);
+    coordinates->InsertTuples(coordinates->GetNumberOfTuples(),
+        preCoordinates->GetNumberOfTuples(), 0, preCoordinates.GetPointer());
   }
   if (postCoordinates)
   {
-    coordinates->InsertTuples(
-      coordinates->GetNumberOfTuples(), postCoordinates->GetNumberOfTuples(), 0, postCoordinates);
+    coordinates->InsertTuples(coordinates->GetNumberOfTuples(),
+        postCoordinates->GetNumberOfTuples(), 0, postCoordinates.GetPointer());
   }
 }
 
@@ -840,25 +1245,61 @@ void UpdateOutputGridPoints(
 {
   auto& coordinateGhosts = blockInformation.CoordinateGhosts;
 
-  vtkDataArray* xCoordinates = output->GetXCoordinates();
-  vtkDataArray* preXCoordinates = coordinateGhosts[0];
+  vtkSmartPointer<vtkDataArray> xCoordinates = blockInformation.XCoordinates;
+  vtkSmartPointer<vtkDataArray>& preXCoordinates = coordinateGhosts[0];
   AppendGhostPointsForRectilinearGrid(xCoordinates, preXCoordinates, coordinateGhosts[1]);
   output->SetXCoordinates(xCoordinates);
 
-  vtkDataArray* yCoordinates = output->GetYCoordinates();
-  vtkDataArray* preYCoordinates = coordinateGhosts[2];
+  vtkSmartPointer<vtkDataArray>& yCoordinates = blockInformation.YCoordinates;
+  vtkSmartPointer<vtkDataArray>& preYCoordinates = coordinateGhosts[2];
   AppendGhostPointsForRectilinearGrid(yCoordinates, preYCoordinates, coordinateGhosts[3]);
   output->SetYCoordinates(yCoordinates);
 
-  vtkDataArray* zCoordinates = output->GetZCoordinates();
-  vtkDataArray* preZCoordinates = coordinateGhosts[4];
+  vtkSmartPointer<vtkDataArray>& zCoordinates = blockInformation.ZCoordinates;
+  vtkSmartPointer<vtkDataArray>& preZCoordinates = coordinateGhosts[4];
   AppendGhostPointsForRectilinearGrid(zCoordinates, preZCoordinates, coordinateGhosts[5]);
   output->SetZCoordinates(zCoordinates);
 }
 
 //----------------------------------------------------------------------------
-template <class GridDataSetT, class BlockInformationT>
-void UpdateOutputGridStructure(GridDataSetT* output, BlockInformationT& blockInformation)
+void UpdateOutputGridPoints(vtkStructuredGrid* output,
+    StructuredGridInformation& blockInformation)
+{
+  // We create a new instance because at this point input and output share the same point arrays.
+  // This is done in vtkStructuredGrid::CopyStructure.
+  vtkNew<vtkPoints> points;
+  vtkPoints* inputPoints = blockInformation.InputPoints;
+  const ExtentType& inputExtent = blockInformation.Extent;
+  const int* extent = output->GetExtent();
+
+  points->SetNumberOfPoints((extent[1] - extent[0] + 1) * (extent[3] - extent[2] + 1) *
+      (extent[5] - extent[4] + 1));
+
+  int ijk[3];
+
+  for (int k = inputExtent[4]; k <= inputExtent[5]; ++k)
+  {
+    ijk[2] = k;
+    for (int j = inputExtent[2]; j <= inputExtent[3]; ++j)
+    {
+      ijk[1] = j;
+      for (int i = inputExtent[0]; i <= inputExtent[1]; ++i)
+      {
+        ijk[0] = i;
+        double* point = inputPoints->GetPoint(
+            vtkStructuredData::ComputePointIdForExtent(inputExtent.data(), ijk));
+        points->SetPoint(vtkStructuredData::ComputePointIdForExtent(extent, ijk), point);
+      }
+    }
+  }
+  output->SetPoints(points);
+}
+
+//----------------------------------------------------------------------------
+template <class GridDataSetT>
+void UpdateOutputGridStructure(GridDataSetT* output,
+    typename DataSetTypeToBlockTypeConverter<GridDataSetT>
+    ::BlockType::InformationType& blockInformation)
 {
   const ExtentType& ghostThickness = blockInformation.ExtentGhostThickness;
   ExtentType outputExtent = blockInformation.Extent;
@@ -905,6 +1346,9 @@ LinkMap ComputeGridLinkMapAndAllocateGhosts(const diy::Master& master,
       continue;
     }
 
+    auto& output = outputs[localId];
+    int dim = output->GetDataDimension();
+
     auto& localLinks = linkMap[localId];
 
     BlockStructureType localBlockStructure(input, block->Information);
@@ -934,16 +1378,16 @@ LinkMap ComputeGridLinkMapAndAllocateGhosts(const diy::Master& master,
 
       // We compute the adjacency mask and the extent.
       // We update our neighbor's block extent with ghost layers given spatial adjacency.
-      LinkGrid(blockStructures, it, block->Information, localLinks, adjacencyMask, overlapMask,
-        outputGhostLevels);
+      LinkGrid<BlockType>(blockStructures, it, block->Information, localLinks,
+        adjacencyMask, overlapMask, outputGhostLevels, dim);
     }
 
-    auto& output = outputs[localId];
     UpdateOutputGridStructure(output, block->Information);
 
     // Now that output is allocated and spatially defined, we clone the input into the output.
     CloneGrid(input, output);
   }
+
   return linkMap;
 }
 
@@ -970,13 +1414,16 @@ vtkSmartPointer<vtkIdList> ComputeGridInterfaceCellIds(
   vtkNew<vtkIdList> ids;
   ids->SetNumberOfIds((imax - imin) * (jmax - jmin) * (kmax - kmin));
   vtkIdType count = 0;
+  int ijk[3];
   for (int k = kmin; k < kmax; ++k)
   {
+    ijk[2] = k;
     for (int j = jmin; j < jmax; ++j)
     {
+      ijk[1] = j;
       for (int i = imin; i < imax; ++i, ++count)
       {
-        int ijk[3] = { i, j, k };
+        ijk[0] = i;
         ids->SetId(count, vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk));
       }
     }
@@ -989,11 +1436,15 @@ vtkSmartPointer<vtkIdList> ComputeGridInterfaceCellIds(
  * This function returns the ids in input `grid` of the cells such that `grid`'s extent overlaps the
  * block of global id gid's extent when ghosts are added.
  */
-template <class GridDataSetT, class BlockT>
+template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeInputGridInterfaceCellIds(
-  const BlockT* block, int gid, GridDataSetT* grid)
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
 {
-  typename BlockT::BlockStructureType blockStructure = block->BlockStructures.at(gid);
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
 
@@ -1005,11 +1456,15 @@ vtkSmartPointer<vtkIdList> ComputeInputGridInterfaceCellIds(
  * This function returns the ids in output `grid` of the cells such that `grid`'s extent overlaps
  * the block of global id gid's extent when ghosts are added.
  */
-template <class GridDataSetT, class BlockT>
+template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputGridInterfaceCellIds(
-  const BlockT* block, int gid, GridDataSetT* grid)
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
 {
-  typename BlockT::BlockStructureType blockStructure = block->BlockStructures.at(gid);
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
   ExtentType localExtent{
@@ -1056,13 +1511,16 @@ vtkSmartPointer<vtkIdList> ComputeGridInterfacePointIds(unsigned char adjacencyM
   vtkNew<vtkIdList> ids;
   ids->SetNumberOfIds((imax - imin + 1) * (jmax - jmin + 1) * (kmax - kmin + 1));
   vtkIdType count = 0;
+  int ijk[3];
   for (int k = kmin; k <= kmax; ++k)
   {
+    ijk[2] = k;
     for (int j = jmin; j <= jmax; ++j)
     {
+      ijk[1] = j;
       for (int i = imin; i <= imax; ++i, ++count)
       {
-        int ijk[3] = { i, j, k };
+        ijk[0] = i;
         ids->SetId(count, vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk));
       }
     }
@@ -1075,11 +1533,15 @@ vtkSmartPointer<vtkIdList> ComputeGridInterfacePointIds(unsigned char adjacencyM
  * This function returns the ids in input `grid` of the pointss such that `grid`'s extent overlaps
  * the block of global id gid's extent when ghosts are added.
  */
-template <class GridDataSetT, class BlockT>
+template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeInputGridInterfacePointIds(
-  const BlockT* block, int gid, GridDataSetT* grid)
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
 {
-  typename BlockT::BlockStructureType blockStructure = block->BlockStructures.at(gid);
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
@@ -1092,11 +1554,15 @@ vtkSmartPointer<vtkIdList> ComputeInputGridInterfacePointIds(
  * This function returns the ids in output `grid` of the points such that `grid`'s extent overlaps
  * the block of global id gid's extent when ghosts are added.
  */
-template <class GridDataSetT, class BlockT>
+template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputGridInterfacePointIds(
-  const BlockT* block, int gid, GridDataSetT* grid)
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
 {
-  typename BlockT::BlockStructureType blockStructure = block->BlockStructures.at(gid);
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
@@ -1116,22 +1582,20 @@ vtkSmartPointer<vtkIdList> ComputeOutputGridInterfacePointIds(
  * different size.
  */
 template <class GridDataSetT>
-void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>& outputs,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostCellArrays,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostPointArrays)
+void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
     auto& output = outputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
+
+    vtkUnsignedCharArray* ghostCellArray = block->GhostCellArray;
+    vtkUnsignedCharArray* ghostPointArray = block->GhostPointArray;
 
     ExtentType localExtent;
     output->GetExtent(localExtent.data());
 
-    vtkSmartPointer<vtkUnsignedCharArray>& ghostCellArray = ghostCellArrays[localId];
-    vtkSmartPointer<vtkUnsignedCharArray>& ghostPointArray = ghostPointArrays[localId];
-
-    BlockType* block = master.block<BlockType>(localId);
     const ExtentType& localExtentWithNoGhosts = block->Information.Extent;
 
     int isDimensionDegenerate[3] = { localExtent[0] == localExtent[1],
@@ -1144,61 +1608,61 @@ void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>&
     // This is repeated for each dimension.
     if (!isDimensionDegenerate[0])
     {
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtent[0],
+      FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtentWithNoGhosts[1],
+      FillGridCellArray(ghostCellArray, output, localExtentWithNoGhosts[1],
         localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
         localExtent[5] + isDimensionDegenerate[2],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtent[0],
+      FillGridPointArray(ghostPointArray, output, localExtent[0],
         localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
         localExtent[5], vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtentWithNoGhosts[1] + 1,
+      FillGridPointArray(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
         localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
         vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
     }
     if (!isDimensionDegenerate[1])
     {
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtent[0],
+      FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtent[0],
+      FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtent[0], localExtent[1],
+      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
         vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtent[0], localExtent[1],
+      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
         vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
     }
     if (!isDimensionDegenerate[2])
     {
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtent[0],
+      FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridCellArray(ghostCellArray.GetPointer(), output, localExtent[0],
+      FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
         vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtent[0], localExtent[1],
+      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
         vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
 
-      FillGridPointArray(ghostPointArray.GetPointer(), output, localExtent[0], localExtent[1],
+      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
         vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
     }
@@ -1207,15 +1671,16 @@ void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>&
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
-vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent)
+vtkDIYGhostUtilities::GridBlockStructure::GridBlockStructure(const int* extent, int dim)
   : Extent{ extent[0], extent[1], extent[2], extent[3], extent[4], extent[5] }
+  , DataDimension(dim)
 {
 }
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int extent[6],
-  const double origin[3], const double spacing[3], const double orientationQuaternion[4])
-  : GridBlockStructure(extent)
+  int dim, const double origin[3], const double spacing[3], const double orientationQuaternion[4])
+  : GridBlockStructure(extent, dim)
   , Origin{ origin[0], origin[1], origin[2] }
   , Spacing{ spacing[0], spacing[1], spacing[2] }
   , OrientationQuaternion{ orientationQuaternion[0], orientationQuaternion[1],
@@ -1225,8 +1690,8 @@ vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int extent[6],
-  const double origin[3], const double spacing[3], vtkMatrix3x3* directionMatrix)
-  : GridBlockStructure(extent)
+  int dim, const double origin[3], const double spacing[3], vtkMatrix3x3* directionMatrix)
+  : GridBlockStructure(extent, dim)
   , Origin{ origin[0], origin[1], origin[2] }
   , Spacing{ spacing[0], spacing[1], spacing[2] }
 {
@@ -1235,17 +1700,17 @@ vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(const int
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::ImageDataBlockStructure::ImageDataBlockStructure(
-  vtkImageData* image, const GridInformation& information)
-  : ImageDataBlockStructure(information.Extent.data(), image->GetOrigin(), image->GetSpacing(),
-      image->GetDirectionMatrix())
+  vtkImageData* image, const ImageDataInformation& information)
+  : ImageDataBlockStructure(information.Extent.data(), image->GetDataDimension(),
+      image->GetOrigin(), image->GetSpacing(), image->GetDirectionMatrix())
 {
 }
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::RectilinearGridBlockStructure::RectilinearGridBlockStructure(
-  const int extent[6], vtkDataArray* xCoordinates, vtkDataArray* yCoordinates,
+  const int extent[6], int dim, vtkDataArray* xCoordinates, vtkDataArray* yCoordinates,
   vtkDataArray* zCoordinates)
-  : GridBlockStructure(extent)
+  : GridBlockStructure(extent, dim)
   , XCoordinates(vtkSmartPointer<vtkDataArray>::Take(xCoordinates))
   , YCoordinates(vtkSmartPointer<vtkDataArray>::Take(yCoordinates))
   , ZCoordinates(vtkSmartPointer<vtkDataArray>::Take(zCoordinates))
@@ -1254,12 +1719,63 @@ vtkDIYGhostUtilities::RectilinearGridBlockStructure::RectilinearGridBlockStructu
 
 //----------------------------------------------------------------------------
 vtkDIYGhostUtilities::RectilinearGridBlockStructure::RectilinearGridBlockStructure(
-  vtkRectilinearGrid* vtkNotUsed(grid), const RectilinearGridInformation& information)
-  : GridBlockStructure(information.Extent.data())
-  , XCoordinates(vtkSmartPointer<vtkDataArray>::Take(information.XCoordinates.GetPointer()))
-  , YCoordinates(vtkSmartPointer<vtkDataArray>::Take(information.YCoordinates.GetPointer()))
-  , ZCoordinates(vtkSmartPointer<vtkDataArray>::Take(information.ZCoordinates.GetPointer()))
+  vtkRectilinearGrid* grid, const RectilinearGridInformation& information)
+  : GridBlockStructure(information.Extent.data(), grid->GetDataDimension())
+  , XCoordinates(information.XCoordinates)
+  , YCoordinates(information.YCoordinates)
+  , ZCoordinates(information.ZCoordinates)
 {
+}
+
+//----------------------------------------------------------------------------
+vtkDIYGhostUtilities::StructuredGridBlockStructure::StructuredGridBlockStructure(
+    const int extent[6], int dim, vtkDataArray* points[6])
+  : GridBlockStructure(extent, dim)
+{
+  for (int i = 0; i < 6; ++i)
+  {
+    this->OuterPointLayers[i] = vtkSmartPointer<vtkPoints>::New();
+    this->OuterPointLayers[i]->SetData(points[i]);
+    points[i]->FastDelete();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkDIYGhostUtilities::StructuredGridBlockStructure::StructuredGridBlockStructure(
+    vtkStructuredGrid* grid, const StructuredGridInformation& info)
+  : GridBlockStructure(info.Extent.data(), grid->GetDataDimension())
+  , OuterPointLayers{ info.OuterPointLayers[0].Points, info.OuterPointLayers[1].Points,
+      info.OuterPointLayers[2].Points, info.OuterPointLayers[3].Points,
+      info.OuterPointLayers[4].Points, info.OuterPointLayers[5].Points }
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& vtkNotUsed(master),
+    std::vector<vtkImageData*>& vtkNotUsed(inputs))
+{
+  // Do nothing, there is no extra information needed from input for vtkImageData.
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& vtkNotUsed(master),
+    std::vector<vtkRectilinearGrid*>& vtkNotUsed(inputs))
+{
+  // Do nothing, there is no extra information needed from input for vtkRectilinearGrid.
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
+    std::vector<vtkStructuredGrid*>& inputs)
+{
+  using BlockType = StructuredGridBlock;
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    vtkStructuredGrid* input = inputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
+    typename BlockType::InformationType& information = block->Information;
+    information.InputPoints = input->GetPoints();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1284,6 +1800,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
         const ExtentType& extent = block->Information.Extent;
         double* origin = input->GetOrigin();
         double* spacing = input->GetSpacing();
+        int dimension = input->GetDataDimension();
         QuaternionType q;
         vtkMath::Matrix3x3ToQuaternion(input->GetDirectionMatrix()->GetData(), q.GetData());
         double* qBuffer = q.GetData();
@@ -1292,6 +1809,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
           const diy::BlockID& blockId = srp.out_link().target(i);
           if (blockId.gid != myBlockId)
           {
+            srp.enqueue(blockId, &dimension, 1);
             srp.enqueue(blockId, origin, 3);
             srp.enqueue(blockId, spacing, 3);
             srp.enqueue(blockId, qBuffer, 4);
@@ -1301,6 +1819,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
       }
       else
       {
+        int dimension;
         int extent[6];
         double origin[3];
         double spacing[3];
@@ -1310,13 +1829,14 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
           const diy::BlockID& blockId = srp.in_link().target(i);
           if (blockId.gid != myBlockId)
           {
+            srp.dequeue(blockId, &dimension, 1);
             srp.dequeue(blockId, origin, 3);
             srp.dequeue(blockId, spacing, 3);
             srp.dequeue(blockId, q, 4);
             srp.dequeue(blockId, extent, 6);
 
             block->BlockStructures.emplace(
-              blockId.gid, ImageDataBlockStructure(extent, origin, spacing, q));
+              blockId.gid, ImageDataBlockStructure(extent, dimension, origin, spacing, q));
           }
         }
       }
@@ -1346,9 +1866,9 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
     vtkDataArray* inputYCoordinates = input->GetYCoordinates();
     vtkDataArray* inputZCoordinates = input->GetZCoordinates();
 
-    info.XCoordinates = inputXCoordinates->NewInstance();
-    info.YCoordinates = inputYCoordinates->NewInstance();
-    info.ZCoordinates = inputZCoordinates->NewInstance();
+    info.XCoordinates.TakeReference(inputXCoordinates->NewInstance());
+    info.YCoordinates.TakeReference(inputYCoordinates->NewInstance());
+    info.ZCoordinates.TakeReference(inputZCoordinates->NewInstance());
 
     info.XCoordinates->InsertTuples(
       0, extent[1] - extent[0] + 1, extent[0] - inputExtent[0], inputXCoordinates);
@@ -1361,11 +1881,14 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
 
   // Share Block Structures of everyone
   diy::all_to_all(
-    master, assigner, [](BlockType* block, const diy::ReduceProxy& srp) {
+    master, assigner, [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp) {
       int myBlockId = srp.gid();
+      int localId = master.lid(myBlockId);
+      auto& input = inputs[localId];
       if (srp.round() == 0)
       {
         auto& info = block->Information;
+        int dimension = input->GetDataDimension();
         const ExtentType& extent = info.Extent;
         vtkDataArray* xCoordinates = info.XCoordinates;
         vtkDataArray* yCoordinates = info.YCoordinates;
@@ -1375,6 +1898,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
           const diy::BlockID& blockId = srp.out_link().target(i);
           if (blockId.gid != myBlockId)
           {
+            srp.enqueue(blockId, &dimension, 1);
             srp.enqueue(blockId, extent.data(), 6);
             srp.enqueue<vtkDataArray*>(blockId, xCoordinates);
             srp.enqueue<vtkDataArray*>(blockId, yCoordinates);
@@ -1385,6 +1909,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
       else
       {
         int extent[6];
+        int dimension;
         for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
         {
           const diy::BlockID& blockId = srp.in_link().target(i);
@@ -1394,13 +1919,15 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
             vtkDataArray* yCoordinates = nullptr;
             vtkDataArray* zCoordinates = nullptr;
 
+            srp.dequeue(blockId, &dimension, 1);
             srp.dequeue(blockId, extent, 6);
             srp.dequeue<vtkDataArray*>(blockId, xCoordinates);
             srp.dequeue<vtkDataArray*>(blockId, yCoordinates);
             srp.dequeue<vtkDataArray*>(blockId, zCoordinates);
 
             block->BlockStructures.emplace(blockId.gid,
-              RectilinearGridBlockStructure(extent, xCoordinates, yCoordinates, zCoordinates));
+              RectilinearGridBlockStructure(extent, dimension, xCoordinates, yCoordinates,
+                zCoordinates));
           }
         }
       }
@@ -1408,7 +1935,124 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
 }
 
 //----------------------------------------------------------------------------
-vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoints>& outputPoints,
+    ExtentType extent, int i)
+{
+  int j = (i + 2) % 6;
+  j -= j % 2;
+  int k = (i + 4) % 6;
+  k -= k % 2;
+
+  vtkPoints* inputPoints = input->GetPoints();
+  int* inputExtent = input->GetExtent();
+
+  outputPoints = vtkSmartPointer<vtkPoints>::New();
+  outputPoints->SetDataType(inputPoints->GetDataType());
+  outputPoints->SetNumberOfPoints(
+      (extent[j + 1] - extent[j] + 1) * (extent[k + 1] - extent[k] + 1));
+
+  // We collapse one dimension
+  extent[i + (i % 2 ? -1 : 1)] = extent[i];
+
+  int ijk[3];
+  ijk[i / 2] = extent[i];
+  for (int y = extent[k]; y <= extent[k + 1]; ++y)
+  {
+    ijk[k / 2] = y;
+    for (int x = extent[j]; x <= extent[j + 1]; ++x)
+    {
+      ijk[j / 2] = x;
+      outputPoints->SetPoint(vtkStructuredData::ComputePointIdForExtent(extent.data(), ijk),
+          inputPoints->GetPoint(vtkStructuredData::ComputePointIdForExtent(inputExtent, ijk)));
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
+    const vtkDIYExplicitAssigner& assigner,
+    std::vector<vtkStructuredGrid*>& inputs, int inputGhostLevels)
+{
+  using BlockType = StructuredGridBlock;
+
+  // In addition to the extent, we need to share the points lying on the 6 external faces of each
+  // structured grid. These points will be used to determine if structured grids are connected or
+  // not.
+
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    vtkStructuredGrid* input = inputs[localId];
+    int* inputExtent = input->GetExtent();
+    if (!IsExtentValid(inputExtent))
+    {
+      continue;
+    }
+    BlockType* block = master.block<BlockType>(localId);
+    StructuredGridInformation& info = block->Information;
+    ExtentType& extent = info.Extent;
+    extent = PeelOffGhostLayers(input, inputGhostLevels);
+
+    for (int i = 0; i < 6; ++i)
+    {
+      CopyOuterLayerGridPoints(input, info.OuterPointLayers[i].Points, extent, i);
+    }
+  }
+
+  // Share Block Structures of everyone
+  diy::all_to_all(master, assigner, [&master, &inputs](
+        BlockType* block, const diy::ReduceProxy& srp) {
+    int myBlockId = srp.gid();
+    int localId = master.lid(myBlockId);
+    auto& input = inputs[localId];
+    if (srp.round() == 0)
+    {
+      auto& info = block->Information;
+      int dimension = input->GetDataDimension();
+      const ExtentType& extent = info.Extent;
+      for (int i = 0; i < srp.out_link().size(); ++i)
+      {
+        const diy::BlockID& blockId = srp.out_link().target(i);
+        if (blockId.gid != myBlockId)
+        {
+          srp.enqueue(blockId, &dimension, 1);
+          srp.enqueue(blockId, extent.data(), 6);
+          for (int extentId = 0; extentId < 6; ++extentId)
+          {
+            srp.enqueue<vtkDataArray*>(blockId, info.OuterPointLayers[extentId].Points->GetData());
+          }
+        }
+      }
+    }
+    else
+    {
+      int extent[6];
+      int dimension;
+      for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+      {
+        const diy::BlockID& blockId = srp.in_link().target(i);
+        if (blockId.gid != myBlockId)
+        {
+          vtkDataArray* points[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+
+          srp.dequeue(blockId, &dimension, 1);
+          srp.dequeue(blockId, extent, 6);
+          for (int extentId = 0; extentId < 6; ++extentId)
+          {
+            vtkDataArray* tmp = points[extentId];
+            srp.dequeue<vtkDataArray*>(blockId, tmp);
+            points[extentId] = tmp;
+          }
+
+          block->BlockStructures.emplace(blockId.gid,
+              StructuredGridBlockStructure(extent, dimension, points));
+        }
+      }
+    }
+  });
+}
+
+//----------------------------------------------------------------------------
+LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
   const diy::Master& master, std::vector<vtkImageData*>& inputs,
   std::vector<vtkImageData*>& outputs, int outputGhostLevels)
 {
@@ -1416,7 +2060,7 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGho
 }
 
 //----------------------------------------------------------------------------
-vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
   const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
   std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels)
 {
@@ -1424,23 +2068,36 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGho
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
-  std::vector<vtkImageData*>& outputs,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostCellArrays,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostPointArrays)
+LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+    const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
+    std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels)
 {
-  FillGridHiddenGhosts(master, outputs, ghostCellArrays, ghostPointArrays);
-  FillDuplicateGhosts(master, outputs, ghostCellArrays, ghostPointArrays);
+  return ComputeGridLinkMapAndAllocateGhosts(master, inputs, outputs,
+      outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
-  std::vector<vtkRectilinearGrid*>& outputs,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostCellArrays,
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>>& ghostPointArrays)
+  std::vector<vtkImageData*>& outputs)
 {
-  FillGridHiddenGhosts(master, outputs, ghostCellArrays, ghostPointArrays);
-  FillDuplicateGhosts(master, outputs, ghostCellArrays, ghostPointArrays);
+  FillGridHiddenGhosts(master, outputs);
+  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
+  std::vector<vtkRectilinearGrid*>& outputs)
+{
+  FillGridHiddenGhosts(master, outputs);
+  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
+    std::vector<vtkStructuredGrid*>& outputs)
+{
+  FillGridHiddenGhosts(master, outputs);
+  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
 }
 
 //----------------------------------------------------------------------------
@@ -1453,6 +2110,13 @@ vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
+{
+  return ComputeInputGridInterfaceCellIds(block, gid, input);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
+    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
   return ComputeInputGridInterfaceCellIds(block, gid, input);
 }
@@ -1467,6 +2131,13 @@ vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
+{
+  return ComputeOutputGridInterfaceCellIds(block, gid, input);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
+    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
   return ComputeOutputGridInterfaceCellIds(block, gid, input);
 }
@@ -1481,6 +2152,13 @@ vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
+{
+  return ComputeInputGridInterfacePointIds(block, gid, input);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
+    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
   return ComputeInputGridInterfacePointIds(block, gid, input);
 }
@@ -1495,6 +2173,13 @@ vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
+{
+  return ComputeOutputGridInterfacePointIds(block, gid, input);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
+    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
   return ComputeOutputGridInterfacePointIds(block, gid, input);
 }
