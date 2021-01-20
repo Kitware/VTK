@@ -74,7 +74,6 @@ void vtkDIYUtilities::Link(
     void operator()(BlockT*, const diy::ReduceProxy& rp) const
     {
       int myBlockId = rp.gid();
-      this->Neighbors[myBlockId];
       if (rp.round() == 0)
       {
         int localId = this->Master.lid(myBlockId);
@@ -89,7 +88,7 @@ void vtkDIYUtilities::Link(
       }
       else
       {
-        std::vector<int>& myNeighbors = this->Neighbors.at(myBlockId);
+        std::vector<int>& myNeighbors = this->Neighbors[myBlockId];
         for (int i = 0; i < rp.in_link().size(); ++i)
         {
           const auto& src = rp.in_link().target(i);
