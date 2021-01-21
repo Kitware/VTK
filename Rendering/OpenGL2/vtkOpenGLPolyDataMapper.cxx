@@ -2422,50 +2422,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   this->GetCoincidentParameters(ren, actor, factor, offset);
 
   // if we need an offset handle it here
-  // The value of .000016 is suitable for depth buffers
+  // The value of .000016 (1/65000) is suitable for depth buffers
   // of at least 16 bit depth. We do not query the depth
   // right now because we would need some mechanism to
   // cache the result taking into account FBO changes etc.
   if (factor != 0.0 || offset != 0.0)
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-
-    if (ren->GetActiveCamera()->GetParallelProjection())
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec", "uniform float cOffset;");
+    if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec", "uniform float cCValue;");
-      if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
-      {
-        vtkShaderProgram::Substitute(
-          FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragDepth + cCValue;\n");
-      }
-      else
-      {
-        vtkShaderProgram::Substitute(
-          FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragCoord.z + cCValue;\n");
-      }
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragDepth + 1.0*cOffset/65000;\n");
     }
     else
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec",
-        "uniform float cCValue;\n"
-        "uniform float cSValue;\n"
-        "uniform float cDValue;");
-      if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
-      {
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-          "float Zdc = gl_FragDepth*2.0 - 1.0;\n"
-          "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
-          "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
-          "  gl_FragDepth = Zdc2*0.5 + 0.5;\n");
-      }
-      else
-      {
-        vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-          "float Zdc = gl_FragCoord.z*2.0 - 1.0;\n"
-          "  float Z2 = -1.0*cDValue/(Zdc + cCValue) + cSValue;\n"
-          "  float Zdc2 = -1.0*cCValue - cDValue/Z2;\n"
-          "  gl_FragDepth = Zdc2*0.5 + 0.5;\n");
-      }
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::Depth::Impl", "gl_FragDepth = gl_FragCoord.z + 1.0*cOffset/65000;\n");
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -2996,22 +2969,11 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   }
 
   // handle coincident
-  if (cellBO.Program->IsUniformUsed("cCValue"))
+  if (cellBO.Program->IsUniformUsed("cOffset"))
   {
-    float diag = actor->GetLength();
     float factor, offset;
     this->GetCoincidentParameters(ren, actor, factor, offset);
-    if (cam->GetParallelProjection())
-    {
-      // one unit of offset is based on 1/1000 of bounding length
-      cellBO.Program->SetUniformf("cCValue", -2.0 * 0.001 * diag * offset * vcdc->GetElement(2, 2));
-    }
-    else
-    {
-      cellBO.Program->SetUniformf("cCValue", vcdc->GetElement(2, 2));
-      cellBO.Program->SetUniformf("cDValue", vcdc->GetElement(3, 2));
-      cellBO.Program->SetUniformf("cSValue", -0.001 * diag * offset);
-    }
+    cellBO.Program->SetUniformf("cOffset", offset);
   }
 
   vtkNew<vtkMatrix3x3> env;
