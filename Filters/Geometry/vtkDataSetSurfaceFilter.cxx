@@ -51,6 +51,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkVector.h"
 #include "vtkVoxel.h"
@@ -195,9 +196,14 @@ int vtkDataSetSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   switch (input->GetDataObjectType())
   {
     case VTK_UNSTRUCTURED_GRID:
-    case VTK_UNSTRUCTURED_GRID_BASE:
     {
       this->UnstructuredGridExecute(input, output);
+      output->CheckAttributes();
+      return 1;
+    }
+    case VTK_UNSTRUCTURED_GRID_BASE:
+    {
+      this->UnstructuredGridBaseExecute(input, output);
       output->CheckAttributes();
       return 1;
     }
@@ -1511,6 +1517,56 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
   vtkSmartPointer<vtkCellIterator> cellIter =
     vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
 
+  return this->UnstructuredGridExecuteInternal(input, output, handleSubdivision, cellIter);
+}
+
+//========================================================================
+// Tris are now degenerate quads so we only need one hash table.
+// We might want to change the method names from QuadHash to just Hash.
+
+// Coordinate the delegation process.
+int vtkDataSetSurfaceFilter::UnstructuredGridBaseExecute(
+  vtkDataSet* dataSetInput, vtkPolyData* output)
+{
+  vtkUnstructuredGridBase* input = vtkUnstructuredGridBase::SafeDownCast(dataSetInput);
+
+  vtkSmartPointer<vtkCellIterator> cellIter =
+    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+
+  // Before we start doing anything interesting, check if we need handle
+  // non-linear cells using sub-division.
+  bool handleSubdivision = false;
+  if (this->NonlinearSubdivisionLevel >= 1)
+  {
+    // Check to see if the data actually has nonlinear cells.  Handling
+    // nonlinear cells adds unnecessary work if we only have linear cells.
+    vtkIdType numCells = input->GetNumberOfCells();
+    if (input->IsHomogeneous())
+    {
+      if (numCells >= 1)
+      {
+        handleSubdivision = !vtkCellTypes::IsLinear(input->GetCellType(0));
+      }
+    }
+    else
+    {
+      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
+      {
+        if (!vtkCellTypes::IsLinear(cellIter->GetCellType()))
+        {
+          handleSubdivision = true;
+          break;
+        }
+      }
+    }
+  }
+
+  return this->UnstructuredGridExecuteInternal(input, output, handleSubdivision, cellIter);
+}
+
+int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input,
+  vtkPolyData* output, bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter)
+{
   vtkSmartPointer<vtkUnstructuredGrid> tempInput;
   if (handleSubdivision)
   {

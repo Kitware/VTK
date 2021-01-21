@@ -82,10 +82,15 @@
 #include "vtkGeometryFilter.h"        // To facilitate delegation
 #include "vtkPolyDataAlgorithm.h"
 
+template <typename ArrayType>
+class vtkSmartPointer;
+
+class vtkCellIterator;
 class vtkPointData;
 class vtkPoints;
 class vtkIdTypeArray;
 class vtkStructuredGrid;
+class vtkUnstructuredGridBase;
 
 // Helper structure for hashing faces.
 struct vtkFastGeomQuadStruct
@@ -215,6 +220,7 @@ public:
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
   int UnstructuredGridExecute(
     vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
+  virtual int UnstructuredGridBaseExecute(vtkDataSet* input, vtkPolyData* output);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
@@ -324,6 +330,9 @@ protected:
   vtkTypeBool Delegation;
 
 private:
+  int UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input, vtkPolyData* output,
+    bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter);
+
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) = delete;
   void operator=(const vtkDataSetSurfaceFilter&) = delete;
 };
