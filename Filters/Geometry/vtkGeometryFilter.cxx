@@ -225,7 +225,6 @@ int vtkGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
       return this->PolyDataExecute(input, output, &exc);
     }
     case VTK_UNSTRUCTURED_GRID:
-    case VTK_UNSTRUCTURED_GRID_BASE:
     {
       return this->UnstructuredGridExecute(input, output, nullptr, &exc);
     }
@@ -246,6 +245,10 @@ int vtkGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     case VTK_IMAGE_DATA:
       dataDim = vtkImageData::SafeDownCast(input)->GetDataDimension();
       break;
+
+    default:
+      vtkErrorMacro("Data type " << input->GetDataObjectType() << "is not supported.");
+      return 0;
   }
 
   // Delegate to the faster structured processing if possible. It simplifies
