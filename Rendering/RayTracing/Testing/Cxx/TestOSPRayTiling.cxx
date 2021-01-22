@@ -50,7 +50,7 @@ int TestOSPRayTiling(int argc, char* argv[])
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
-  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(vtkOSPRayRendererNode::Environment, renderer);
 
   vtkSmartPointer<vtkLight> l = vtkSmartPointer<vtkLight>::New();
   l->SetLightTypeToHeadlight();

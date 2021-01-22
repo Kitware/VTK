@@ -49,7 +49,7 @@ int TestPathTracerBackground(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
-  vtkOSPRayRendererNode::SetBackgroundMode(2, renderer);
+  vtkOSPRayRendererNode::SetBackgroundMode(vtkOSPRayRendererNode::Environment, renderer);
   vtkOSPRayRendererNode::SetSamplesPerPixel(16, renderer);
 
   vtkSmartPointer<vtkLight> l = vtkSmartPointer<vtkLight>::New();

@@ -96,7 +96,8 @@ int TestRayTracedMolecules(int argc, char* argv[])
   ren->GetActiveCamera()->Zoom(1.7);
   ren->SetBackground(0.4, 0.5, 0.6);
   ren->SetEnvironmentalBG(1.0, 0.0, 1.0);
-  vtkOSPRayRendererNode::SetBackgroundMode(1, ren); // test use BP instead of ENV
+  vtkOSPRayRendererNode::SetBackgroundMode(
+    vtkOSPRayRendererNode::Backplate, ren); // test use BP instead of ENV
   win->SetSize(450, 450);
 
   // add a plane

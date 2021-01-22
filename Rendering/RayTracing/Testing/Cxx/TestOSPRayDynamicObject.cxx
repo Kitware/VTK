@@ -51,7 +51,8 @@ int TestOSPRayDynamicObject(int argc, char* argv[])
   actor->SetMapper(mapper);
   renderer->SetBackground(0.0, 0.0, 1.0);
   renderer->SetEnvironmentalBG(0.0, 0.5, 0.5);
-  vtkOSPRayRendererNode::SetBackgroundMode(3, renderer); // test use ENV with BP
+  vtkOSPRayRendererNode::SetBackgroundMode(
+    vtkOSPRayRendererNode::Both, renderer); // test use ENV with BP
   renWin->SetSize(400, 400);
   renWin->Render();
 
