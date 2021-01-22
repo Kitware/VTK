@@ -62,6 +62,20 @@ public:
    */
   static vtkDataObject* NewDataObject(int typeId);
 
+  /*
+   * Returns true if the `typeId` is same or or a subclass of
+   * `targetTypeId`.
+   */
+  static bool TypeIdIsA(int typeId, int targetTypeId);
+
+  /**
+   * Given two data types, returns the closest common data type.
+   * If both data types ids are valid, at worse, this will return
+   * `VTK_DATA_OBJECT`. If one of the types is invalid (or unknown),
+   * simply returns the valid (or known) type. If both are invalid, returns -1.
+   */
+  static int GetCommonBaseTypeId(int typeA, int typeB);
+
 protected:
   vtkDataObjectTypes() = default;
   ~vtkDataObjectTypes() override = default;

@@ -43,10 +43,9 @@ public:
   void InternalImageStencilDataCopy(vtkImageStencilData* s);
 
   /**
-   * Get the data type as an integer (this will return VTK_DATA_OBJECT
-   * for now, maybe a proper type constant will be reserved later).
+   * Returns `VTK_IMAGE_STENCIL_DATA`.
    */
-  int GetDataObjectType() override { return VTK_DATA_OBJECT; }
+  int GetDataObjectType() override { return VTK_IMAGE_STENCIL_DATA; }
 
   /**
    * The extent type is 3D, just like vtkImageData.

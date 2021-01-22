@@ -52,6 +52,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnnotation* New();
 
+  /**
+   * Returns `VTK_ANNOTATION`.
+   */
+  int GetDataObjectType() override { return VTK_ANNOTATION; }
+
   //@{
   /**
    * The selection to which this set of annotations will apply.
