@@ -2,7 +2,7 @@
       </ProxyProperty>
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositeDataSetGhostCellsGenerator.cxx
+  Module:    vtkGhostCellsGenerator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCompositeDataSetGhostCellsGenerator.h"
+#include "vtkGhostCellsGenerator.h"
 
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -28,11 +28,11 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkStandardNewMacro(vtkCompositeDataSetGhostCellsGenerator);
-vtkCxxSetObjectMacro(vtkCompositeDataSetGhostCellsGenerator, Controller, vtkMultiProcessController);
+vtkStandardNewMacro(vtkGhostCellsGenerator);
+vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSetGhostCellsGenerator::vtkCompositeDataSetGhostCellsGenerator()
+vtkGhostCellsGenerator::vtkGhostCellsGenerator()
   : Controller(nullptr)
   , NumberOfGhostLayers(2)
 {
@@ -40,21 +40,20 @@ vtkCompositeDataSetGhostCellsGenerator::vtkCompositeDataSetGhostCellsGenerator()
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataSetGhostCellsGenerator::~vtkCompositeDataSetGhostCellsGenerator()
+vtkGhostCellsGenerator::~vtkGhostCellsGenerator()
 {
   this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
-int vtkCompositeDataSetGhostCellsGenerator::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkGhostCellsGenerator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataSetGhostCellsGenerator::RequestData(
+int vtkGhostCellsGenerator::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
@@ -124,7 +123,7 @@ int vtkCompositeDataSetGhostCellsGenerator::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataSetGhostCellsGenerator::RequestUpdateExtent(
+int vtkGhostCellsGenerator::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   outputVector->GetInformationObject(0)->Set(
@@ -133,7 +132,7 @@ int vtkCompositeDataSetGhostCellsGenerator::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataSetGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestCompositeDataSetGhostCellsGenerator.cxx
+  Module:    TestGhostCellsGenerator.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,10 +22,10 @@
 #endif
 
 #include "vtkCellData.h"
-#include "vtkCompositeDataSetGhostCellsGenerator.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
@@ -295,7 +295,7 @@ bool Test1DGrids(int myrank)
 
     pds->SetPartition(0, point2cell->GetOutputDataObject(0));
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -323,7 +323,7 @@ bool Test1DGrids(int myrank)
 
     pds->SetPartition(0, image);
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -367,7 +367,7 @@ bool Test1DGrids(int myrank)
     pds->SetPartition(0, rgImage);
 
     vtkLog(INFO, "Testing ghost points for 1D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -407,7 +407,7 @@ bool Test1DGrids(int myrank)
     pds->SetPartition(0, point2cell->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 1D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -434,7 +434,7 @@ bool Test1DGrids(int myrank)
     pds->SetPartition(0, sgImage);
 
     vtkLog(INFO, "Testing ghost points for 1D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -474,7 +474,7 @@ bool Test1DGrids(int myrank)
     pds->SetPartition(0, point2cell->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 1D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -566,7 +566,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(0, point2cell0->GetOutputDataObject(0));
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -596,7 +596,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(0, image0);
     pds->SetPartition(1, image1);
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -652,7 +652,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(1, rgImage1);
 
     vtkLog(INFO, "Testing ghost points for 2D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -700,7 +700,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 2D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -733,7 +733,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(1, sgImage1);
 
     vtkLog(INFO, "Testing ghost points for 2D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -780,7 +780,7 @@ bool Test2DGrids(int myrank)
     pds->SetPartition(1, point2cell1->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 2D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -897,7 +897,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(2, point2cell2->GetOutputDataObject(0));
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -931,7 +931,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(2, image2);
     pds->SetPartition(3, image3);
 
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputDataObject(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1011,7 +1011,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(3, rgImage3);
 
     vtkLog(INFO, "Testing ghost points for 3D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1073,7 +1073,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkRectilinearGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1118,7 +1118,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(3, sgImage3);
 
     vtkLog(INFO, "Testing ghost points for 3D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1179,7 +1179,7 @@ bool Test3DGrids(int myrank)
     pds->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
     vtkLog(INFO, "Testing ghost cells for 3D vtkStructuredGrid in rank " << myrank);
-    vtkNew<vtkCompositeDataSetGhostCellsGenerator> generator;
+    vtkNew<vtkGhostCellsGenerator> generator;
     generator->SetInputData(pds);
     generator->SetNumberOfGhostLayers(numberOfGhostLayers);
     generator->Update();
@@ -1208,7 +1208,7 @@ bool Test3DGrids(int myrank)
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
-int TestCompositeDataSetGhostCellsGenerator(int argc, char* argv[])
+int TestGhostCellsGenerator(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> contr;
