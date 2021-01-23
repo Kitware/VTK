@@ -77,15 +77,15 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   VERIFY(assembly != nullptr);
   vtkLogF(INFO, "Assembly XML:\n%s", assembly->SerializeToXML(vtkIndent(2)).c_str());
 
-  auto ids = assembly->SelectNodes({ "//Element_Blocks" });
+  auto ids = assembly->SelectNodes({ "//*[@label='Element Blocks']" });
   VERIFY(ids.size() == 1);
   VERIFY(assembly->GetDataSetIndices(ids.front()) == std::vector<unsigned int>({ 0, 1 }));
 
-  ids = assembly->SelectNodes({ "//Side_Sets" });
+  ids = assembly->SelectNodes({ "//*[@label='Side Sets']" });
   VERIFY(ids.size() == 1);
   VERIFY(assembly->GetDataSetIndices(ids.front()) == std::vector<unsigned int>({ 2 }));
 
-  ids = assembly->SelectNodes({ "//Node_Sets" });
+  ids = assembly->SelectNodes({ "//*[@label='Node Sets']" });
   VERIFY(ids.size() == 1);
   VERIFY(assembly->GetDataSetIndices(ids.front()) == std::vector<unsigned int>({ 3, 4 }));
 

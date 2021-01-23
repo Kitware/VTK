@@ -47,6 +47,7 @@ set(classes
   vtkCubicLine
   vtkCylinder
   vtkDataAssembly
+  vtkDataAssemblyUtilities
   vtkDataObject
   vtkDataObjectCollection
   vtkDataObjectTree
