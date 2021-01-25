@@ -92,3 +92,13 @@ test:fedora33-mpi-python-qt-tbb:
         - build:fedora33-mpi-python-qt-tbb
     needs:
         - build:fedora33-mpi-python-qt-tbb
+
+## Documentation
+
+build:documentation:
+    extends:
+        - .fedora33_doxygen_mpi_python_qt_tbb
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_doxygen_artifacts
+        - .run_manually

@@ -16,6 +16,9 @@ function (configuration_flag_module variable configuration)
   endif ()
 endfunction ()
 
+# doxygen
+configuration_flag(VTK_BUILD_DOCUMENTATION "doxygen")
+
 # kits
 configuration_flag(VTK_ENABLE_KITS "kits")
 
