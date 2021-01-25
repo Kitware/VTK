@@ -343,13 +343,39 @@ int vtkXMLPDataReader::ReadPieceData()
   // Copy point data and cell data for this piece.
   for (int i = 0; i < output->GetPointData()->GetNumberOfArrays(); ++i)
   {
-    this->CopyArrayForPoints(
-      input->GetPointData()->GetAbstractArray(i), output->GetPointData()->GetAbstractArray(i));
+    // Ensure that the arrays are inserted in the correct order
+    auto outputArray = output->GetPointData()->GetAbstractArray(i);
+    auto arrayName = outputArray->GetName();
+    if (arrayName)
+    {
+      auto inputArray = input->GetPointData()->GetAbstractArray(arrayName);
+      if (!inputArray)
+      {
+        vtkErrorMacro("Piece point data array " << arrayName << " not found");
+      }
+      else
+      {
+        this->CopyArrayForPoints(inputArray, outputArray);
+      }
+    }
   }
   for (int i = 0; i < output->GetCellData()->GetNumberOfArrays(); ++i)
   {
-    this->CopyArrayForCells(
-      input->GetCellData()->GetAbstractArray(i), output->GetCellData()->GetAbstractArray(i));
+    // Ensure that the arrays are inserted in the correct order
+    auto outputArray = output->GetCellData()->GetAbstractArray(i);
+    auto arrayName = outputArray->GetName();
+    if (arrayName)
+    {
+      auto inputArray = input->GetCellData()->GetAbstractArray(arrayName);
+      if (!inputArray)
+      {
+        vtkErrorMacro("Piece cell data array " << arrayName << " not found");
+      }
+      else
+      {
+        this->CopyArrayForCells(inputArray, outputArray);
+      }
+    }
   }
 
   return 1;
