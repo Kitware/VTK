@@ -62,14 +62,12 @@ vtkInteractorStyle3D::~vtkInteractorStyle3D()
 
 //------------------------------------------------------------------------------
 // We handle all adjustments here
-void vtkInteractorStyle3D::PositionProp(vtkEventData* ed)
+void vtkInteractorStyle3D::PositionProp(vtkEventData* ed, double* lwpos, double* lwori)
 {
   if (this->CurrentRenderer == nullptr || this->InteractionProp == nullptr)
   {
     return;
   }
-
-  vtkRenderWindowInteractor3D* rwi = static_cast<vtkRenderWindowInteractor3D*>(this->Interactor);
 
   if (ed->GetType() != vtkCommand::Move3DEvent)
   {
@@ -79,7 +77,22 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed)
   double wpos[3];
   edd->GetWorldPosition(wpos);
 
-  double* lwpos = rwi->GetLastWorldEventPosition(rwi->GetPointerIndex());
+  double wori[4];
+  edd->GetWorldOrientation(wori);
+
+  // If no user defined last world event and last world orientation,
+  // use the ones stored by vtkRenderWindowInteractor3D
+  if (lwpos == nullptr || lwori == nullptr)
+  {
+    vtkRenderWindowInteractor3D* rwi = static_cast<vtkRenderWindowInteractor3D*>(this->Interactor);
+    if (rwi == nullptr)
+    {
+      vtkErrorMacro("vtkRenderWindowInteractor3D is necessary without setting lwpos and lwori.");
+      return;
+    }
+    lwpos = rwi->GetLastWorldEventPosition(rwi->GetPointerIndex());
+    lwori = rwi->GetLastWorldEventOrientation(rwi->GetPointerIndex());
+  }
 
   double trans[3];
   for (int i = 0; i < 3; i++)
@@ -102,10 +115,6 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData* ed)
   {
     this->InteractionProp->AddPosition(trans);
   }
-
-  double* wori = rwi->GetWorldEventOrientation(rwi->GetPointerIndex());
-
-  double* lwori = rwi->GetLastWorldEventOrientation(rwi->GetPointerIndex());
 
   // compute the net rotation
   vtkQuaternion<double> q1;
