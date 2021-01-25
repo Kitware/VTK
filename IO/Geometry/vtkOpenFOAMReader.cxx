@@ -684,20 +684,30 @@ public:
   static vtkOpenFOAMReaderPrivate* New();
   vtkTypeMacro(vtkOpenFOAMReaderPrivate, vtkObject);
 
-  vtkDoubleArray* GetTimeValues() { return this->TimeValues; }
   vtkGetMacro(TimeStep, int);
   vtkSetMacro(TimeStep, int);
+
+  vtkDoubleArray* GetTimeValues() { return this->TimeValues; }
+  bool HasPolyMesh() const
+  {
+    return this->PolyMeshFacesDir && this->PolyMeshFacesDir->GetNumberOfValues() > 0;
+  }
+
   const vtkStdString& GetRegionName() const { return this->RegionName; }
 
-  // gather timestep information
-  bool MakeInformationVector(
-    const vtkStdString&, const vtkStdString&, const vtkStdString&, vtkOpenFOAMReader*);
+  // Gather time instances information and create mesh times
+  bool MakeInformationVector(const vtkStdString& casePath, const vtkStdString& controlDictPath,
+    const vtkStdString& procName, vtkOpenFOAMReader* parent, const bool requirePolyMesh = true);
+
   // read mesh/fields and create dataset
   int RequestData(vtkMultiBlockDataSet*, bool, bool, bool);
   void SetTimeValue(const double);
   int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, const bool);
-  void SetupInformation(
-    const vtkStdString&, const vtkStdString&, const vtkStdString&, vtkOpenFOAMReaderPrivate*);
+
+  // Copy time instances information and create mesh times
+  void SetupInformation(const vtkStdString& casePath, const vtkStdString& regionName,
+    const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master,
+    const bool requirePolyMesh = true);
 
 private:
   vtkOpenFOAMReader* Parent;
@@ -4888,10 +4898,12 @@ void vtkOpenFOAMReaderPrivate::SetTimeValue(const double requestedTime)
 }
 
 //------------------------------------------------------------------------------
+// Copy time instances information and create mesh times
 void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
-  const vtkStdString& regionName, const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master)
+  const vtkStdString& regionName, const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master,
+  const bool requirePolyMesh)
 {
-  // copy parent, path and timestep information from master
+  // Copy parent, path and timestep information from master
   this->CasePath = casePath;
   this->RegionName = regionName;
   this->ProcessorName = procName;
@@ -4903,7 +4915,12 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
   this->TimeNames = master->TimeNames;
   this->TimeNames->Register(nullptr);
 
-  this->PopulatePolyMeshDirArrays();
+  // Normally will have already checked for a region polyMesh/ before calling this method,
+  // but provision for a missing mesh anyhow
+  if (requirePolyMesh)
+  {
+    this->PopulatePolyMeshDirArrays();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -5150,6 +5167,13 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   vtkStringArray* pointSelectionNames, vtkStringArray* lagrangianSelectionNames,
   const bool listNextTimeStep)
 {
+  if (!this->HasPolyMesh())
+  {
+    // Ignore a region without a mesh, but will normally be precluded earlier
+    vtkWarningMacro("Called MakeMetaDataAtTimeStep without a mesh.");
+    return 1;
+  }
+
   // Read the patches from the boundary file into selection array
   if (this->PolyMeshFacesDir->GetValue(this->TimeStep) != this->BoundaryDict.TimeDir ||
     this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld)
@@ -5626,17 +5650,18 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 }
 
 //------------------------------------------------------------------------------
-// gather the necessary information to create a path to the data
+// Gather the necessary information to create a path to the data
 bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const vtkStdString& casePath,
-  const vtkStdString& controlDictPath, const vtkStdString& procName, vtkOpenFOAMReader* parent)
+  const vtkStdString& controlDictPath, const vtkStdString& procName, vtkOpenFOAMReader* parent,
+  const bool requirePolyMesh)
 {
   this->CasePath = casePath;
   this->ProcessorName = procName;
   this->Parent = parent;
 
-  // list timesteps (skip parsing controlDict entirely if
-  // ListTimeStepsByControlDict is false)
-  bool ret = false; // tentatively set to false to suppress warning by older compilers
+  bool ret = false; // Tentative return value
+
+  // List timesteps by directory or predict from controlDict values
 
   int listByControlDict = this->Parent->GetListTimeStepsByControlDict();
   if (listByControlDict)
@@ -5720,7 +5745,11 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const vtkStdString& casePat
     this->SetTimeStep(0);
   }
 
-  this->PopulatePolyMeshDirArrays();
+  // Normally expect a (default region) polyMesh/, but not for multi-region cases
+  if (requirePolyMesh)
+  {
+    this->PopulatePolyMeshDirArrays();
+  }
   return ret;
 }
 
@@ -8900,6 +8929,13 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool recreateInternalMesh,
   bool recreateBoundaryMesh, bool updateVariables)
 {
+  if (!this->HasPolyMesh())
+  {
+    // Ignore a region without a mesh, but will normally be precluded earlier
+    vtkWarningMacro("Called RequestData without a mesh.");
+    return 1;
+  }
+
   const bool topoChanged = (this->TimeStepOld == -1) || (this->FaceOwner == nullptr) ||
     (this->PolyMeshFacesDir->GetValue(this->TimeStep) !=
       this->PolyMeshFacesDir->GetValue(this->TimeStepOld));
@@ -9657,7 +9693,10 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           regionName = "defaultRegion";
         }
-        ::AppendBlock(output, subOutput, regionName);
+        if (reader->HasPolyMesh()) // sanity check
+        {
+          ::AppendBlock(output, subOutput, regionName);
+        }
       }
       else
       {
@@ -9705,61 +9744,100 @@ int vtkOpenFOAMReader::MakeInformationVector(
 {
   *this->FileNameOld = vtkStdString(this->FileName);
 
-  // clear prior case information
+  // Clear prior case information
   this->Readers->RemoveAllItems();
 
-  // recreate case information
+  // Recreate case information
   vtkStdString casePath, controlDictPath;
   this->CreateCasePath(casePath, controlDictPath);
-  casePath += procName + (procName.empty() ? "" : "/");
-  vtkOpenFOAMReaderPrivate* masterReader = vtkOpenFOAMReaderPrivate::New();
-  if (!masterReader->MakeInformationVector(casePath, controlDictPath, procName, this->Parent))
+
+  if (!procName.empty())
   {
-    masterReader->Delete();
+    casePath += procName + "/";
+  }
+
+  // Check for mesh directory and subregions.
+  // Should check contents of constant/regionProperties, but that file may be missing so instead
+  // check the existence of files in constant/polyMesh and constant/{region}/polyMesh.
+  // A multi-region case will often not have the default region
+
+  bool hasDefaultRegion = false;
+  std::vector<vtkStdString> regionNames;
+
+  {
+    const vtkStdString constantPath(casePath + "constant/");
+    auto dir = vtkSmartPointer<vtkDirectory>::New();
+    if (!dir->Open(constantPath.c_str()))
+    {
+      vtkErrorMacro(<< "Cannot open directory: " << constantPath);
+      return 0;
+    }
+
+    {
+      const vtkStdString meshTestFile(constantPath + "polyMesh/faces");
+      if (vtksys::SystemTools::FileExists(meshTestFile, true) ||
+        vtksys::SystemTools::FileExists(meshTestFile + ".gz", true))
+      {
+        hasDefaultRegion = true;
+      }
+    }
+
+    for (vtkIdType entryi = 0; entryi < dir->GetNumberOfFiles(); ++entryi)
+    {
+      vtkStdString subDir(dir->GetFile(entryi));
+      if (subDir != "." && subDir != ".." && dir->FileIsDirectory(subDir.c_str()))
+      {
+        const vtkStdString meshTestFile(constantPath + subDir + "/polyMesh/faces");
+        if (vtksys::SystemTools::FileExists(meshTestFile, true) ||
+          vtksys::SystemTools::FileExists(meshTestFile + ".gz", true))
+        {
+          regionNames.push_back(std::move(subDir));
+        }
+      }
+    }
+
+    if (!hasDefaultRegion && regionNames.empty())
+    {
+      vtkErrorMacro(<< this->FileName << " contains no meshes.");
+      return 0;
+    }
+
+    // Consistently ordered
+    std::sort(regionNames.begin(), regionNames.end());
+  }
+
+  auto masterReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
+  if (!masterReader->MakeInformationVector(
+        casePath, controlDictPath, procName, this->Parent, hasDefaultRegion))
+  {
     return 0;
   }
 
   if (masterReader->GetTimeValues()->GetNumberOfTuples() == 0)
   {
     vtkErrorMacro(<< this->FileName << " contains no timestep data.");
-    masterReader->Delete();
     return 0;
   }
 
-  this->Readers->AddItem(masterReader);
+  if (hasDefaultRegion)
+  {
+    this->Readers->AddItem(masterReader);
+  }
+
+  // Add subregions
+  for (const auto& regionName : regionNames)
+  {
+    auto subReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
+    subReader->SetupInformation(casePath, regionName, procName, masterReader);
+    this->Readers->AddItem(subReader);
+  }
+
+  this->Parent->NumberOfReaders += this->Readers->GetNumberOfItems();
 
   if (outputVector != nullptr)
   {
     this->SetTimeInformation(outputVector, masterReader->GetTimeValues());
   }
-
-  // search subregions under constant subdirectory
-  vtkStdString constantPath(casePath + "constant/");
-  auto dir = vtkSmartPointer<vtkDirectory>::New();
-  if (!dir->Open(constantPath.c_str()))
-  {
-    vtkErrorMacro(<< "Can't open " << constantPath);
-    return 0;
-  }
-  for (int fileI = 0; fileI < dir->GetNumberOfFiles(); fileI++)
-  {
-    vtkStdString subDir(dir->GetFile(fileI));
-    if (subDir != "." && subDir != ".." && dir->FileIsDirectory(subDir.c_str()))
-    {
-      vtkStdString boundaryPath(constantPath + subDir + "/polyMesh/boundary");
-      if (vtksys::SystemTools::FileExists(boundaryPath.c_str(), true) ||
-        vtksys::SystemTools::FileExists((boundaryPath + ".gz").c_str(), true))
-      {
-        vtkOpenFOAMReaderPrivate* subReader = vtkOpenFOAMReaderPrivate::New();
-        subReader->SetupInformation(casePath, subDir, procName, masterReader);
-        this->Readers->AddItem(subReader);
-        subReader->Delete();
-      }
-    }
-  }
-  masterReader->Delete();
-  this->Parent->NumberOfReaders += this->Readers->GetNumberOfItems();
-
   if (this->Parent == this)
   {
     this->CreateCharArrayFromString(this->CasePath, "CasePath", casePath);
