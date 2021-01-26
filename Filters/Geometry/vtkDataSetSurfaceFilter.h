@@ -217,14 +217,33 @@ public:
     return this->StructuredExecute(input, output, ext, wholeExt);
   }
 #endif
+
+  /**
+   * Execute the filter on \a input and store the result in \a output.
+   * The correct function should be used accordingly to the type of the input.
+   *
+   * Input can be any subclass of \a vtkUnstructuredGridBase.
+   * In case of a \a vtkUnstructuredGrid or subclass instance, an optimized version
+   * of the filter is executed.
+   */
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
-  int UnstructuredGridExecute(
-    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
-  virtual int UnstructuredGridBaseExecute(vtkDataSet* input, vtkPolyData* output);
+  //@{
+  /**
+   * Execute the filter on \a input and store the result in \a output.
+   * The correct function should be used accordingly to the type of the input.
+   */
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
     vtkIdType* wholeExt, bool extractface[6]);
+  //@}
+
+  /**
+   * Optimized \a UnstructuredGridExecute function for vtkUnstructuredGrid and subclass instances
+   * only. This function is used in vtkGeometryFilter.
+   */
+  int UnstructuredGridExecute(
+    vtkDataSet* input, vtkPolyData* output, vtkGeometryFilterHelper* info);
 #ifdef VTK_USE_64BIT_IDS
   virtual int UniformGridExecute(
     vtkDataSet* input, vtkPolyData* output, int* ext32, int* wholeExt32, bool extractface[6])
@@ -330,6 +349,7 @@ protected:
   vtkTypeBool Delegation;
 
 private:
+  int UnstructuredGridBaseExecute(vtkDataSet* input, vtkPolyData* output);
   int UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input, vtkPolyData* output,
     bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter);
 

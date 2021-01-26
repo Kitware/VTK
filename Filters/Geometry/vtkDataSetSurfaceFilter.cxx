@@ -196,14 +196,9 @@ int vtkDataSetSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   switch (input->GetDataObjectType())
   {
     case VTK_UNSTRUCTURED_GRID:
-    {
-      this->UnstructuredGridExecute(input, output);
-      output->CheckAttributes();
-      return 1;
-    }
     case VTK_UNSTRUCTURED_GRID_BASE:
     {
-      this->UnstructuredGridBaseExecute(input, output);
+      this->UnstructuredGridExecute(input, output);
       output->CheckAttributes();
       return 1;
     }
@@ -1473,13 +1468,18 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //========================================================================
-// Tris are now degenerate quads so we only need one hash table.
-// We might want to change the method names from QuadHash to just Hash.
-
 // Coordinate the delegation process.
 int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPolyData* output)
 {
-  return this->UnstructuredGridExecute(dataSetInput, output, nullptr);
+  switch (dataSetInput->GetDataObjectType())
+  {
+    case VTK_UNSTRUCTURED_GRID:
+      return this->UnstructuredGridExecute(dataSetInput, output, nullptr);
+    case VTK_UNSTRUCTURED_GRID_BASE:
+      return this->UnstructuredGridBaseExecute(dataSetInput, output);
+    default:
+      return 0;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1520,11 +1520,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(
   return this->UnstructuredGridExecuteInternal(input, output, handleSubdivision, cellIter);
 }
 
-//========================================================================
-// Tris are now degenerate quads so we only need one hash table.
-// We might want to change the method names from QuadHash to just Hash.
-
-// Coordinate the delegation process.
+//------------------------------------------------------------------------------
+// Unoptimized version of UnstructuredGridExecute for non vtkUnstructuredGrid instances
 int vtkDataSetSurfaceFilter::UnstructuredGridBaseExecute(
   vtkDataSet* dataSetInput, vtkPolyData* output)
 {
@@ -1564,6 +1561,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridBaseExecute(
   return this->UnstructuredGridExecuteInternal(input, output, handleSubdivision, cellIter);
 }
 
+//========================================================================
+// Tris are now degenerate quads so we only need one hash table.
+// We might want to change the method names from QuadHash to just Hash.
 int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input,
   vtkPolyData* output, bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter)
 {
