@@ -36,6 +36,8 @@ foreach (target IN LISTS targets_to_build)
 endforeach ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
+  # Relocate the install tree.
+  set(ENV{DESTDIR} "${CTEST_BINARY_DIRECTORY}/install")
   execute_process(
     COMMAND "${CMAKE_COMMAND}"
             -DCMAKE_INSTALL_COMPONENT=doxygen
@@ -50,13 +52,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
   endif ()
 endif ()
 
-file(GLOB logs
-  "${CTEST_SOURCE_DIRECTORY}/compile_output.log"
-  "${CTEST_SOURCE_DIRECTORY}/doxygen_output.log"
-  "${CTEST_SOURCE_DIRECTORY}/prepare_output.log")
-if (logs)
-  list(APPEND CTEST_NOTES_FILES ${logs})
-  ctest_submit(PARTS Notes)
+if (build_result)
+  file(GLOB logs
+    "${CTEST_SOURCE_DIRECTORY}/compile_output.log"
+    "${CTEST_SOURCE_DIRECTORY}/doxygen_output.log"
+    "${CTEST_SOURCE_DIRECTORY}/prepare_output.log")
+  if (logs)
+    list(APPEND CTEST_NOTES_FILES ${logs})
+    ctest_submit(PARTS Notes)
+  endif ()
 endif ()
 
 if (build_result)
