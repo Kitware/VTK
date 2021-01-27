@@ -805,6 +805,139 @@ int vtkDataAssembly::GetParent(int id) const
 }
 
 //------------------------------------------------------------------------------
+bool vtkDataAssembly::HasAttribute(int id, const char* name) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  return (node.attribute(name));
+}
+
+//------------------------------------------------------------------------------
+void vtkDataAssembly::SetAttribute(int id, const char* name, const char* value)
+{
+  const auto& internals = (*this->Internals);
+  auto node = internals.FindNode(id);
+  auto attr = node.attribute(name);
+  if (!attr)
+  {
+    attr = node.append_attribute(name);
+  }
+  attr.set_value(value);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkDataAssembly::SetAttribute(int id, const char* name, int value)
+{
+  this->SetAttribute(id, name, std::to_string(value).c_str());
+}
+
+//------------------------------------------------------------------------------
+void vtkDataAssembly::SetAttribute(int id, const char* name, unsigned int value)
+{
+  this->SetAttribute(id, name, std::to_string(value).c_str());
+}
+
+//------------------------------------------------------------------------------
+#if VTK_ID_TYPE_IMPL != VTK_INT
+void vtkDataAssembly::SetAttribute(int id, const char* name, vtkIdType value)
+{
+  this->SetAttribute(id, name, std::to_string(value).c_str());
+}
+#endif
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::GetAttribute(int id, const char* name, const char*& value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  if (auto attr = node.attribute(name))
+  {
+    value = attr.as_string();
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::GetAttribute(int id, const char* name, int& value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  if (auto attr = node.attribute(name))
+  {
+    value = attr.as_int();
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::GetAttribute(int id, const char* name, unsigned int& value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  if (auto attr = node.attribute(name))
+  {
+    value = attr.as_uint();
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+#if VTK_ID_TYPE_IMPL != VTK_INT
+bool vtkDataAssembly::GetAttribute(int id, const char* name, vtkIdType& value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  if (auto attr = node.attribute(name))
+  {
+    value = static_cast<vtkIdType>(attr.as_llong());
+    return true;
+  }
+  return false;
+}
+#endif
+
+//------------------------------------------------------------------------------
+const char* vtkDataAssembly::GetAttributeOrDefault(
+  int id, const char* name, const char* default_value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  return node.attribute(name).as_string(default_value);
+}
+
+//------------------------------------------------------------------------------
+int vtkDataAssembly::GetAttributeOrDefault(int id, const char* name, int default_value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  return node.attribute(name).as_int(default_value);
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkDataAssembly::GetAttributeOrDefault(
+  int id, const char* name, unsigned int default_value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  return node.attribute(name).as_uint(default_value);
+}
+
+#if VTK_ID_TYPE_IMPL != VTK_INT
+//------------------------------------------------------------------------------
+vtkIdType vtkDataAssembly::GetAttributeOrDefault(
+  int id, const char* name, vtkIdType default_value) const
+{
+  const auto& internals = (*this->Internals);
+  const auto node = internals.FindNode(id);
+  return static_cast<vtkIdType>(node.attribute(name).as_llong(default_value));
+}
+#endif
+
+//------------------------------------------------------------------------------
 int vtkDataAssembly::FindFirstNodeWithName(const char* name, int traversal_order) const
 {
   vtkNew<FindNodesWithNameVisitor> visitor;
@@ -1007,21 +1140,27 @@ bool vtkDataAssembly::RemapDataSetIndices(
 //------------------------------------------------------------------------------
 void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>& selected_branches)
 {
-  if (other == nullptr)
-  {
-    this->Initialize();
-    return;
-  }
-
   this->Initialize();
-  this->SetRootNodeName(other->GetRootNodeName());
-  if (selected_branches.size() == 0)
+  if (other == nullptr)
   {
     return;
   }
 
   auto& internals = (*this->Internals);
   const auto& ointernals = (*other->Internals);
+
+  if (selected_branches.size() == 0)
+  {
+    auto src = ointernals.Document.first_child();
+    auto dest = internals.Document.first_child();
+
+    dest.set_name(src.name());
+    for (const auto& attribute : src.attributes())
+    {
+      dest.append_copy(attribute);
+    }
+    return;
+  }
 
   std::unordered_set<int> complete_subtree;
   std::unordered_set<int> partial_subtree;
@@ -1055,6 +1194,11 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
   std::function<void(const pugi::xml_node&, pugi::xml_node)> subset_copier;
   subset_copier = [&partial_subtree, &complete_subtree, &subset_copier](
                     const pugi::xml_node& src, pugi::xml_node dest) -> void {
+    // first, copy src attributes over.
+    for (const auto& attribute : src.attributes())
+    {
+      dest.append_copy(attribute);
+    }
     for (const auto& child : src.children())
     {
       if (::IsAssemblyNode(child))
@@ -1067,7 +1211,6 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
         else if (partial_subtree.find(id) != partial_subtree.end())
         {
           auto dest_child = dest.append_child(child.name());
-          dest_child.append_copy(child.attribute("id"));
           subset_copier(child, dest_child);
         }
       }

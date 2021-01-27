@@ -150,6 +150,11 @@ public:
   static vtkDataObjectTree* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
+  /**
+   * Overridden to return `VTK_DATA_OBJECT_TREE`.
+   */
+  int GetDataObjectType() override { return VTK_DATA_OBJECT_TREE; }
+
 protected:
   vtkDataObjectTree();
   ~vtkDataObjectTree() override;

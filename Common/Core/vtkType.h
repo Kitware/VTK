@@ -115,6 +115,14 @@
 #define VTK_PARTITIONED_DATA_SET_COLLECTION 38
 #define VTK_UNIFORM_HYPER_TREE_GRID 39
 #define VTK_EXPLICIT_STRUCTURED_GRID 40
+#define VTK_DATA_OBJECT_TREE 41
+#define VTK_ABSTRACT_ELECTRONIC_DATA 42
+#define VTK_OPEN_QUBE_ELECTRONIC_DATA 43
+#define VTK_ANNOTATION 44
+#define VTK_ANNOTATION_LAYERS 45
+#define VTK_BSP_CUTS 46
+#define VTK_GEO_JSON_FEATURE 47
+#define VTK_IMAGE_STENCIL_DATA 48
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

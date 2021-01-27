@@ -49,6 +49,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Returns VTK_BSP_CUTS.
+   */
+  virtual int GetDataObjectType() { return VTK_BSP_CUTS; }
+
+  /**
    * Initialize the cuts with arrays of information.  This type of
    * information would be obtained from a graph partitioning software
    * package like Zoltan.

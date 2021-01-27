@@ -34,6 +34,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Returns `VTK_ABSTRACT_ELECTRONIC_DATA`.
+   */
+  int GetDataObjectType() override { return VTK_ABSTRACT_ELECTRONIC_DATA; }
+
+  /**
    * Returns the number of molecular orbitals available.
    */
   virtual vtkIdType GetNumberOfMOs() = 0;

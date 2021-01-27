@@ -46,6 +46,22 @@ vtkGenericDataSet::~vtkGenericDataSet()
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkGenericDataSet::GetNumberOfElements(int type)
+{
+  switch (type)
+  {
+    case vtkDataObject::POINT:
+      return this->GetNumberOfPoints();
+
+    case vtkDataObject::CELL:
+      return this->GetNumberOfCells();
+
+    default:
+      return this->Superclass::GetNumberOfElements(type);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

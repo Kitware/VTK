@@ -21,6 +21,8 @@
  * AMR dataset, it creates a vtkDataAssembly for the output
  * vtkPartitionedDataSetCollection that reflects the input's hierarchical
  * organization.
+ *
+ * @sa vtkDataAssemblyUtilities
  */
 
 #ifndef vtkDataObjectToPartitionedDataSetCollection_h
@@ -28,10 +30,6 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-
-class vtkMultiBlockDataSet;
-class vtkPartitionedDataSetCollection;
-class vtkUniformGridAMR;
 
 class VTKFILTERSCORE_EXPORT vtkDataObjectToPartitionedDataSetCollection
   : public vtkPartitionedDataSetCollectionAlgorithm
@@ -48,8 +46,6 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int ConvertFromMultiBlock(vtkMultiBlockDataSet* input, vtkPartitionedDataSetCollection* output);
-  int ConvertFromAMR(vtkUniformGridAMR* input, vtkPartitionedDataSetCollection* output);
 
 private:
   vtkDataObjectToPartitionedDataSetCollection(

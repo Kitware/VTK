@@ -46,6 +46,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnnotationLayers* New();
 
+  /**
+   * Returns `VTK_ANNOTATION`.
+   */
+  int GetDataObjectType() override { return VTK_ANNOTATION_LAYERS; }
+
   //@{
   /**
    * The current annotation associated with this annotation link.

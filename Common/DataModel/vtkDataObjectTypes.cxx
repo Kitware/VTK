@@ -14,10 +14,10 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkDataObjectTypes.h"
 
-#include "vtkObjectFactory.h"
-
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkArrayData.h"
+#include "vtkBSPCuts.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
@@ -29,9 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
+#include "vtkMolecule.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNonOverlappingAMR.h"
+#include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -51,8 +54,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkArrayData.h"
-#include "vtkMolecule.h"
+#include <map>
 
 vtkStandardNewMacro(vtkDataObjectTypes);
 
@@ -101,24 +103,29 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPartitionedDataSetCollection",
   "vtkUniformHyperTreeGrid",
   "vtkExplicitStructuredGrid",
+  "vtkDataObjectTree",
+  "vtkAbstractElectronicData",
+  "vtkOpenQubeElectronicData",
+  "vtkAnnotation",
+  "vtkAnnotationLayers",
+  "vtkBSPCuts",
+  "vtkGeoJSONFeature",
+  "vtkImageStencilData",
   nullptr,
 };
+
+namespace
+{
+bool IsTypeIdValid(int typeId)
+{
+  return (typeId >= VTK_POLY_DATA && typeId <= VTK_IMAGE_STENCIL_DATA);
+}
+}
 
 //------------------------------------------------------------------------------
 const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
 {
-  static int numClasses = 0;
-
-  // find length of table
-  if (numClasses == 0)
-  {
-    while (vtkDataObjectTypesStrings[numClasses] != nullptr)
-    {
-      numClasses++;
-    }
-  }
-
-  if (type >= 0 && type < numClasses)
+  if (::IsTypeIdValid(type))
   {
     return vtkDataObjectTypesStrings[type];
   }
@@ -135,167 +142,144 @@ int vtkDataObjectTypes::GetTypeIdFromClassName(const char* classname)
   {
     return -1;
   }
-
-  for (int idx = 0; vtkDataObjectTypesStrings[idx] != nullptr; idx++)
+  for (int idx = 0; vtkDataObjectTypesStrings[idx] != nullptr; ++idx)
   {
     if (strcmp(vtkDataObjectTypesStrings[idx], classname) == 0)
     {
       return idx;
     }
   }
-
   return -1;
 }
 
 //------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
 {
-  const char* className = vtkDataObjectTypes::GetClassNameFromTypeId(type);
-  if (strcmp(className, "UnknownClass") != 0)
+  switch (type)
   {
-    return vtkDataObjectTypes::NewDataObject(className);
+    case VTK_POLY_DATA:
+      return vtkPolyData::New();
+    case VTK_STRUCTURED_POINTS:
+      return vtkStructuredPoints::New();
+    case VTK_STRUCTURED_GRID:
+      return vtkStructuredGrid::New();
+    case VTK_RECTILINEAR_GRID:
+      return vtkRectilinearGrid::New();
+    case VTK_UNSTRUCTURED_GRID:
+      return vtkUnstructuredGrid::New();
+    case VTK_PIECEWISE_FUNCTION:
+      return vtkPiecewiseFunction::New();
+    case VTK_IMAGE_DATA:
+      return vtkImageData::New();
+    case VTK_DATA_OBJECT:
+      return vtkDataObject::New();
+    case VTK_DATA_SET:
+      return nullptr;
+    case VTK_POINT_SET:
+      return nullptr;
+    case VTK_UNIFORM_GRID:
+      return vtkUniformGrid::New();
+    case VTK_COMPOSITE_DATA_SET:
+      return nullptr;
+    case VTK_MULTIGROUP_DATA_SET:
+      return nullptr;
+    case VTK_MULTIBLOCK_DATA_SET:
+      return vtkMultiBlockDataSet::New();
+    case VTK_HIERARCHICAL_DATA_SET:
+      return nullptr;
+    case VTK_HIERARCHICAL_BOX_DATA_SET:
+      return vtkHierarchicalBoxDataSet::New();
+    case VTK_GENERIC_DATA_SET:
+      return nullptr;
+    case VTK_HYPER_OCTREE:
+      return nullptr;
+    case VTK_TEMPORAL_DATA_SET:
+      return nullptr;
+    case VTK_TABLE:
+      return vtkTable::New();
+    case VTK_GRAPH:
+      return nullptr;
+    case VTK_TREE:
+      return vtkTree::New();
+    case VTK_SELECTION:
+      return vtkSelection::New();
+    case VTK_DIRECTED_GRAPH:
+      return vtkDirectedGraph::New();
+    case VTK_UNDIRECTED_GRAPH:
+      return vtkUndirectedGraph::New();
+    case VTK_MULTIPIECE_DATA_SET:
+      return vtkMultiPieceDataSet::New();
+    case VTK_DIRECTED_ACYCLIC_GRAPH:
+      return vtkDirectedAcyclicGraph::New();
+    case VTK_ARRAY_DATA:
+      return vtkArrayData::New();
+    case VTK_REEB_GRAPH:
+      return vtkReebGraph::New();
+    case VTK_UNIFORM_GRID_AMR:
+      return vtkUniformGridAMR::New();
+    case VTK_NON_OVERLAPPING_AMR:
+      return vtkNonOverlappingAMR::New();
+    case VTK_OVERLAPPING_AMR:
+      return vtkOverlappingAMR::New();
+    case VTK_HYPER_TREE_GRID:
+      return vtkHyperTreeGrid::New();
+    case VTK_MOLECULE:
+      return vtkMolecule::New();
+    case VTK_PISTON_DATA_OBJECT:
+      return nullptr;
+    case VTK_PATH:
+      return vtkPath::New();
+    case VTK_UNSTRUCTURED_GRID_BASE:
+      return nullptr;
+    case VTK_PARTITIONED_DATA_SET:
+      return vtkPartitionedDataSet::New();
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
+      return vtkPartitionedDataSetCollection::New();
+    case VTK_UNIFORM_HYPER_TREE_GRID:
+      return vtkUniformHyperTreeGrid::New();
+    case VTK_EXPLICIT_STRUCTURED_GRID:
+      return vtkExplicitStructuredGrid::New();
+    case VTK_DATA_OBJECT_TREE:
+      return nullptr;
+    case VTK_ABSTRACT_ELECTRONIC_DATA:
+      return nullptr;
+    case VTK_OPEN_QUBE_ELECTRONIC_DATA:
+      /**
+       * we cannot support creating this since its not part of this module
+       */
+      return nullptr;
+    case VTK_ANNOTATION:
+      return vtkAnnotation::New();
+    case VTK_ANNOTATION_LAYERS:
+      return vtkAnnotationLayers::New();
+    case VTK_BSP_CUTS:
+      return vtkBSPCuts::New();
+    case VTK_GEO_JSON_FEATURE:
+      /**
+       * we cannot support creating this since its not part of this module
+       */
+      return nullptr;
+    case VTK_IMAGE_STENCIL_DATA:
+      /**
+       * we cannot support creating this since its not part of this module
+       */
+      return nullptr;
+    default:
+      vtkLogF(WARNING, "Unknown data type '%d'", type);
+      return nullptr;
   }
-
-  return nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* classname)
 {
-
-  if (!classname)
+  const auto typeId = vtkDataObjectTypes::GetTypeIdFromClassName(classname);
+  auto dobj = typeId != -1 ? vtkDataObjectTypes::NewDataObject(typeId) : nullptr;
+  if (dobj == nullptr)
   {
-    vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \""
-      << classname << "\" which does not exist.");
-    return nullptr;
+    vtkLogF(WARNING, "'NewDataObject' cannot create '%s'.", (classname ? classname : "(nullptr)"));
   }
-
-  // Check for some standard types.
-  if (strcmp(classname, "vtkImageData") == 0)
-  {
-    return vtkImageData::New();
-  }
-  else if (strcmp(classname, "vtkDataObject") == 0)
-  {
-    return vtkDataObject::New();
-  }
-  else if (strcmp(classname, "vtkPolyData") == 0)
-  {
-    return vtkPolyData::New();
-  }
-  else if (strcmp(classname, "vtkRectilinearGrid") == 0)
-  {
-    return vtkRectilinearGrid::New();
-  }
-  else if (strcmp(classname, "vtkStructuredGrid") == 0)
-  {
-    return vtkStructuredGrid::New();
-  }
-  else if (strcmp(classname, "vtkStructuredPoints") == 0)
-  {
-    return vtkStructuredPoints::New();
-  }
-  else if (strcmp(classname, "vtkUnstructuredGrid") == 0)
-  {
-    return vtkUnstructuredGrid::New();
-  }
-  else if (strcmp(classname, "vtkUniformGrid") == 0)
-  {
-    return vtkUniformGrid::New();
-  }
-  else if (strcmp(classname, "vtkMultiBlockDataSet") == 0)
-  {
-    return vtkMultiBlockDataSet::New();
-  }
-  else if (strcmp(classname, "vtkHierarchicalBoxDataSet") == 0)
-  {
-    return vtkHierarchicalBoxDataSet::New();
-  }
-  else if (strcmp(classname, "vtkOverlappingAMR") == 0)
-  {
-    return vtkOverlappingAMR::New();
-  }
-  else if (strcmp(classname, "vtkNonOverlappingAMR") == 0)
-  {
-    return vtkNonOverlappingAMR::New();
-  }
-  else if (strcmp(classname, "vtkHyperTreeGrid") == 0)
-  {
-    return vtkHyperTreeGrid::New();
-  }
-  else if (strcmp(classname, "vtkUniformHyperTreeGrid") == 0)
-  {
-    return vtkUniformHyperTreeGrid::New();
-  }
-  else if (strcmp(classname, "vtkTable") == 0)
-  {
-    return vtkTable::New();
-  }
-  else if (strcmp(classname, "vtkTree") == 0)
-  {
-    return vtkTree::New();
-  }
-  else if (strcmp(classname, "vtkSelection") == 0)
-  {
-    return vtkSelection::New();
-  }
-  else if (strcmp(classname, "vtkDirectedGraph") == 0)
-  {
-    return vtkDirectedGraph::New();
-  }
-  else if (strcmp(classname, "vtkUndirectedGraph") == 0)
-  {
-    return vtkUndirectedGraph::New();
-  }
-  else if (strcmp(classname, "vtkMultiPieceDataSet") == 0)
-  {
-    return vtkMultiPieceDataSet::New();
-  }
-  else if (strcmp(classname, "vtkDirectedAcyclicGraph") == 0)
-  {
-    return vtkDirectedAcyclicGraph::New();
-  }
-  else if (strcmp(classname, "vtkAnnotation") == 0)
-  {
-    return vtkAnnotation::New();
-  }
-  else if (strcmp(classname, "vtkAnnotationLayers") == 0)
-  {
-    return vtkAnnotationLayers::New();
-  }
-  else if (strcmp(classname, "vtkReebGraph") == 0)
-  {
-    return vtkReebGraph::New();
-  }
-  else if (strcmp(classname, "vtkMolecule") == 0)
-  {
-    return vtkMolecule::New();
-  }
-  else if (strcmp(classname, "vtkArrayData") == 0)
-  {
-    return vtkArrayData::New();
-  }
-  else if (strcmp(classname, "vtkPath") == 0)
-  {
-    return vtkPath::New();
-  }
-  else if (strcmp(classname, "vtkPartitionedDataSet") == 0)
-  {
-    return vtkPartitionedDataSet::New();
-  }
-  else if (strcmp(classname, "vtkPartitionedDataSetCollection") == 0)
-  {
-    return vtkPartitionedDataSetCollection::New();
-  }
-  else if (strcmp(classname, "vtkExplicitStructuredGrid") == 0)
-  {
-    return vtkExplicitStructuredGrid::New();
-  }
-
-  vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \""
-    << classname << "\" which does not exist.");
-
-  return nullptr;
+  return dobj;
 }
 
 //------------------------------------------------------------------------------
@@ -304,10 +288,9 @@ void vtkDataObjectTypes::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//------------------------------------------------------------------------------
 int vtkDataObjectTypes::Validate()
 {
-  int rc = 0;
-
   for (int i = 0; vtkDataObjectTypesStrings[i] != nullptr; i++)
   {
     const char* cls = vtkDataObjectTypesStrings[i];
@@ -332,9 +315,111 @@ int vtkDataObjectTypes::Validate()
       cerr << "Check that the correct value is being returned by GetDataObjectType() ";
       cerr << "for this object type. Also check that the values in vtkDataObjectTypesStrings ";
       cerr << "are in the same order as the #define's in vtkType.h.";
-      rc = 1;
+      return EXIT_FAILURE;
+    }
+  }
+
+  if (vtkDataObjectTypes::TypeIdIsA(VTK_DATA_SET, VTK_DATA_OBJECT) &&
+    !vtkDataObjectTypes::TypeIdIsA(VTK_DATA_SET, VTK_TABLE) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_PARTITIONED_DATA_SET_COLLECTION, VTK_COMPOSITE_DATA_SET) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_MULTIBLOCK_DATA_SET, VTK_DATA_OBJECT_TREE) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_POINT_SET) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_DATA_SET) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_HIERARCHICAL_BOX_DATA_SET, VTK_UNIFORM_GRID_AMR))
+  {
+    return EXIT_SUCCESS;
+  }
+
+  return EXIT_FAILURE;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataObjectTypes::TypeIdIsA(int typeId, int targetTypeId)
+{
+  if (!::IsTypeIdValid(typeId) || !::IsTypeIdValid(targetTypeId))
+  {
+    return false;
+  }
+
+  if (typeId == targetTypeId)
+  {
+    return true;
+  }
+
+  if (vtkDataObjectTypes::GetCommonBaseTypeId(typeId, targetTypeId) == targetTypeId)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
+int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
+{
+  if (!::IsTypeIdValid(typeA) && !::IsTypeIdValid(typeB))
+  {
+    return -1;
+  }
+  else if (!::IsTypeIdValid(typeA) && ::IsTypeIdValid(typeB))
+  {
+    return typeB;
+  }
+  else if (::IsTypeIdValid(typeA) && !::IsTypeIdValid(typeB))
+  {
+    return typeA;
+  }
+
+  auto computeBranch = [](int type) {
+    // list immediate base-classes, no need to list any that are direct subclasses
+    // of vtkDataObject since that's assumed by this point.
+    static const std::map<int, int> bases = { { VTK_UNIFORM_HYPER_TREE_GRID, VTK_HYPER_TREE_GRID },
+      { VTK_UNDIRECTED_GRAPH, VTK_GRAPH }, { VTK_DIRECTED_GRAPH, VTK_GRAPH },
+      { VTK_MOLECULE, VTK_UNDIRECTED_GRAPH }, { VTK_DIRECTED_ACYCLIC_GRAPH, VTK_DIRECTED_GRAPH },
+      { VTK_REEB_GRAPH, VTK_DIRECTED_GRAPH }, { VTK_TREE, VTK_DIRECTED_ACYCLIC_GRAPH },
+      { VTK_RECTILINEAR_GRID, VTK_DATA_SET }, { VTK_POINT_SET, VTK_DATA_SET },
+      { VTK_IMAGE_DATA, VTK_DATA_SET }, { VTK_UNSTRUCTURED_GRID_BASE, VTK_POINT_SET },
+      { VTK_STRUCTURED_GRID, VTK_POINT_SET }, { VTK_POLY_DATA, VTK_POINT_SET },
+      { VTK_PATH, VTK_POINT_SET }, { VTK_EXPLICIT_STRUCTURED_GRID, VTK_POINT_SET },
+      { VTK_UNSTRUCTURED_GRID, VTK_UNSTRUCTURED_GRID_BASE }, { VTK_UNIFORM_GRID, VTK_IMAGE_DATA },
+      { VTK_STRUCTURED_POINTS, VTK_IMAGE_DATA }, { VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
+      { VTK_HIERARCHICAL_BOX_DATA_SET, VTK_OVERLAPPING_AMR },
+      { VTK_NON_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
+      { VTK_DATA_OBJECT_TREE, VTK_COMPOSITE_DATA_SET },
+      { VTK_PARTITIONED_DATA_SET_COLLECTION, VTK_DATA_OBJECT_TREE },
+      { VTK_PARTITIONED_DATA_SET, VTK_DATA_OBJECT_TREE },
+      { VTK_MULTIPIECE_DATA_SET, VTK_PARTITIONED_DATA_SET },
+      { VTK_MULTIBLOCK_DATA_SET, VTK_DATA_OBJECT_TREE },
+      { VTK_OPEN_QUBE_ELECTRONIC_DATA, VTK_ABSTRACT_ELECTRONIC_DATA } };
+
+    std::vector<int> branch;
+    do
+    {
+      branch.push_back(type);
+      auto iter = bases.find(type);
+      type = (iter != bases.end()) ? iter->second : VTK_DATA_OBJECT;
+    } while (type != VTK_DATA_OBJECT);
+    branch.push_back(VTK_DATA_OBJECT);
+    std::reverse(branch.begin(), branch.end());
+    return branch;
+  };
+
+  std::vector<int> branchA = computeBranch(typeA);
+  std::vector<int> branchB = computeBranch(typeB);
+
+  int baseType = VTK_DATA_OBJECT;
+  size_t index = 0;
+  for (size_t max = std::min(branchA.size(), branchB.size()); index < max; ++index)
+  {
+    if (branchA[index] == branchB[index])
+    {
+      baseType = branchA[index];
+    }
+    else
+    {
       break;
     }
   }
-  return rc;
+  return baseType;
 }

@@ -14,47 +14,87 @@
 =========================================================================*/
 /**
  * @class vtkExtractBlockUsingDataAssembly
- * @brief pass through only selected datasets in a vtkPartitionedDataSetCollection.
+ * @brief extract blocks from certain composite datasets
  *
- * vtkExtractBlockUsingDataAssembly is similar to vtkExtractBlock filter for
- * vtkPartitionedDataSetCollection that uses the `vtkDataAssembly` provided by
- * the vtkPartitionedDataSetCollection to determine which datasets to pass
- * through.
+ * vtkExtractBlockUsingDataAssembly is intended to extract selected blocks
+ * from certain composite datasets. Blocks to extract are selected using
+ * selectors. For supported selectors see `vtkDataAssembly::SelectNodes`.
+ *
+ * The specific data-assembly to use to apply the selectors to determine the
+ * blocks to extract is chosen using `vtkExtractBlockUsingDataAssembly::SetAssemblyName`.
+ *
+ * @section SupportedDataTypes Supported Data Types
+ *
+ * This filter accepts `vtkUniformGridAMR`,
+ * `vtkMultiBlockDataSet`, and `vtkPartitionedDataSetCollection` (and
+ * subclasses). vtkMultiPieceDataSet and vtkPartitionedDataSet are not accepted
+ * as inputs since those composite datasets are not comprised of "blocks".
+ *
+ * For vtkOverlappingAMR, since extracting blocks cannot always guarantee a valid
+ * overlapping AMR, this filter generates a `vtkPartitionedDataSetCollection`
+ * instead. Any blanking information present in the input vtkOverlappingAMR is
+ * also discarded for the same reason.
+ *
+ * For all other supported input data types, the type is preserved.
  */
 
 #ifndef vtkExtractBlockUsingDataAssembly_h
 #define vtkExtractBlockUsingDataAssembly_h
 
-#include "vtkDataObjectAlgorithm.h"
+#include "vtkCompositeDataSetAlgorithm.h"
 #include "vtkFiltersExtractionModule.h" // For export macro
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlockUsingDataAssembly : public vtkDataObjectAlgorithm
+class vtkDataAssembly;
+class vtkPartitionedDataSetCollection;
+
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlockUsingDataAssembly
+  : public vtkCompositeDataSetAlgorithm
 {
 public:
   static vtkExtractBlockUsingDataAssembly* New();
-  vtkTypeMacro(vtkExtractBlockUsingDataAssembly, vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkExtractBlockUsingDataAssembly, vtkCompositeDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
-   * Choose nodes to pass through.
+   * API to set selectors. Multiple selectors can be added using `AddSelector`.
+   * The order in which selectors are specified is not preserved and has no
+   * impact on the result.
+   *
+   * `AddSelector` returns true if the selector was added, false if the selector
+   * was already specified and hence not added.
+   *
+   * @sa vtkDataAssembly::SelectNodes
    */
-  bool AddNodePath(const char* path);
-  void ClearNodePaths();
+  bool AddSelector(const char* selector);
+  void ClearSelectors();
   //@}
 
   /**
-   * Convenience method to set a single path.
-   * This clears any other existing paths.
+   * Convenience method to set a single selector.
+   * This clears any other existing selectors.
    */
-  void SetNodePath(const char* path);
+  void SetSelector(const char* selector);
 
   //@{
   /**
-   * Get currently chosen paths.
+   * API to access selectors.
    */
-  int GetNumberOfPaths() const;
-  const char* GetNodePath(int index) const;
+  int GetNumberOfSelectors() const;
+  const char* GetSelector(int index) const;
+  //@}
+
+  //@{
+  /**
+   * Get/Set the active assembly to use. The chosen assembly is used
+   * in combination with the selectors specified to determine which blocks
+   * are to be extracted.
+   *
+   * By default, this is set to
+   * vtkDataAssemblyUtilities::HierarchyName().
+   */
+  vtkSetStringMacro(AssemblyName);
+  vtkGetStringMacro(AssemblyName);
   //@}
 
   //@{
@@ -76,23 +116,28 @@ public:
   vtkGetMacro(PruneDataAssembly, bool);
   vtkBooleanMacro(PruneDataAssembly, bool);
   //@}
+
 protected:
   vtkExtractBlockUsingDataAssembly();
   ~vtkExtractBlockUsingDataAssembly() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkExtractBlockUsingDataAssembly(const vtkExtractBlockUsingDataAssembly&) = delete;
   void operator=(const vtkExtractBlockUsingDataAssembly&) = delete;
+
+  bool Execute(vtkPartitionedDataSetCollection* input, vtkDataAssembly* inAssembly,
+    vtkPartitionedDataSetCollection* output, vtkDataAssembly* outAssembly) const;
 
   class vtkInternals;
   vtkInternals* Internals;
 
   bool SelectSubtrees;
   bool PruneDataAssembly;
+  char* AssemblyName;
 };
 
 #endif
