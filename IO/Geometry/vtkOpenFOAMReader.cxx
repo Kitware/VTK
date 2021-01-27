@@ -6189,8 +6189,9 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
   polyPoints->SetNumberOfIds(maxNPolyPoints);
 
   const vtkIdType nCells = (cellList == nullptr ? this->NumCells : cellList->GetNumberOfTuples());
-  int nAdditionalPoints = 0;
-  this->NumTotalAdditionalCells = 0;
+
+  // Local variable for polyhedral decomposition
+  vtkIdType nAdditionalPoints = 0;
 
   // alias
   const vtkFoamLabelListList& facePoints = *facesPoints;
@@ -6200,6 +6201,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
   vtkSmartPointer<vtkIdTypeArray> arrayId;
   if (cellList)
   {
+    if (additionalCells) // sanity check
+    {
+      vtkErrorMacro(<< "Decompose polyhedral is not supported on mesh subset");
+      return;
+    }
+
     // create array holding cell id only on zone mesh
     arrayId = vtkSmartPointer<vtkIdTypeArray>::New();
     arrayId->SetName("CellId");
@@ -7007,7 +7014,8 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
 
   if (this->Parent->GetDecomposePolyhedra())
   {
-    // for polyhedral decomposition
+    // For polyhedral decomposition
+    this->NumTotalAdditionalCells = 0;
     this->AdditionalCellIds = vtkIdTypeArray::New();
     this->NumAdditionalCells = vtkIntArray::New();
     this->AdditionalCellPoints = new vtkFoamLabelArrayVector;
@@ -8681,13 +8689,17 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     const vtkFoamDict& dict = zones[zonei]->Dictionary();
 
     // Look up cellLabels
-    vtkFoamEntry* labelsEntry = dict.Lookup(labelsName);
-    if (labelsEntry == nullptr)
+    vtkFoamEntry* eptr = dict.Lookup(labelsName);
+    if (eptr == nullptr)
     {
       vtkErrorMacro(<< labelsName << " not found in " << zonePrefix);
       return false;
     }
-    else if (labelsEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
+
+    // Some OpenFOAM versions write an empty list as zero label only (in binary)
+    if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
+      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
       // Allocate empty mesh if the list is empty
       vtkUnstructuredGrid* zm = vtkUnstructuredGrid::New();
@@ -8695,14 +8707,13 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
       zm->Delete();
       continue;
     }
-    else if (labelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
+    else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
     {
       vtkErrorMacro(<< labelsName << " is not a labelList");
       return false;
     }
 
-    vtkDataArray& labels = labelsEntry->LabelList();
-
+    vtkDataArray& labels = labelsEntry.LabelList();
     const vtkIdType nLabels = labels.GetNumberOfTuples();
     if (nLabels > maxLabels)
     {
@@ -8759,13 +8770,17 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
     const vtkFoamDict& dict = zones[zonei]->Dictionary();
 
     // Look up faceLabels
-    vtkFoamEntry* labelsEntry = dict.Lookup(labelsName);
-    if (labelsEntry == nullptr)
+    vtkFoamEntry* eptr = dict.Lookup(labelsName);
+    if (eptr == nullptr)
     {
       vtkErrorMacro(<< labelsName << " not found in " << zonePrefix);
       return false;
     }
-    else if (labelsEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
+
+    // Some OpenFOAM versions write an empty list as zero label only (in binary)
+    if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
+      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
       // Allocate empty mesh if the list is empty
       vtkPolyData* zm = vtkPolyData::New();
@@ -8773,14 +8788,13 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
       zm->Delete();
       continue;
     }
-    else if (labelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
+    else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
     {
       vtkErrorMacro(<< labelsName << " is not a labelList");
       return false;
     }
 
-    vtkDataArray& labels = labelsEntry->LabelList();
-
+    vtkDataArray& labels = labelsEntry.LabelList();
     const vtkIdType nLabels = labels.GetNumberOfTuples();
     if (nLabels > maxLabels)
     {
@@ -8851,13 +8865,17 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
     const vtkFoamDict& dict = zones[zonei]->Dictionary();
 
     // Look up pointLabels
-    vtkFoamEntry* labelsEntry = dict.Lookup(labelsName);
-    if (labelsEntry == nullptr)
+    vtkFoamEntry* eptr = dict.Lookup(labelsName);
+    if (eptr == nullptr)
     {
       vtkErrorMacro(<< labelsName << " not found in " << zonePrefix);
       return false;
     }
-    else if (labelsEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
+
+    // Some OpenFOAM versions write an empty list as zero label only (in binary)
+    if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
+      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
       // Allocate empty mesh if the list is empty
       vtkPolyData* zm = vtkPolyData::New();
@@ -8865,14 +8883,13 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
       zm->Delete();
       continue;
     }
-    else if (labelsEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST)
+    else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
     {
       vtkErrorMacro(<< labelsName << " is not a labelList");
       return false;
     }
 
-    vtkDataArray& labels = labelsEntry->LabelList();
-
+    vtkDataArray& labels = labelsEntry.LabelList();
     const vtkIdType nLabels = labels.GetNumberOfTuples();
     if (nLabels > maxLabels)
     {
