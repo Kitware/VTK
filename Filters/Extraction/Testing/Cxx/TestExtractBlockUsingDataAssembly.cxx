@@ -42,8 +42,9 @@ int TestExtractBlockUsingDataAssembly(int, char*[])
 
   vtkNew<vtkExtractBlockUsingDataAssembly> extractor;
   extractor->SetInputDataObject(pdc);
-  extractor->AddNodePath("//b0");
-  extractor->AddNodePath("//faces");
+  extractor->SetAssemblyName("Assembly");
+  extractor->AddSelector("//b0");
+  extractor->AddSelector("//faces");
   extractor->Update();
 
   auto output = vtkPartitionedDataSetCollection::SafeDownCast(extractor->GetOutputDataObject(0));
