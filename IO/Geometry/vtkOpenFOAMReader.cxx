@@ -7572,10 +7572,12 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
 void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
   vtkMultiBlockDataSet* boundaryMesh, vtkFloatArray* pointArray)
 {
+  const auto& patches = this->BoundaryDict;
+
   unsigned int activeBoundaryIndex = 0;
-  for (const vtkFoamPatch& patch : this->BoundaryDict)
+  for (const vtkFoamPatch& patch : patches)
   {
-    if (!this->BoundaryDict.isActive(patch.index_))
+    if (patches.isActive(patch.index_))
     {
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
