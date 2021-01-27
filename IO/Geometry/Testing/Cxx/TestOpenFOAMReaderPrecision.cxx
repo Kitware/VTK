@@ -30,16 +30,18 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
+int TestOpenFOAMReaderPrecision(int argc, char* argv[])
 {
   // Read file name.
   char* filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/OpenFOAM/64BitFloats/test.foam");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/OpenFOAM/precision/case01/case01.foam");
 
   // Read the file
   vtkNew<vtkOpenFOAMReader> reader;
   reader->SetFileName(filename);
   delete[] filename;
+  // Do not need to set labels/scalar precision
+  // OLD:
   reader->Use64BitFloatsOn();
 
   // Visualize
