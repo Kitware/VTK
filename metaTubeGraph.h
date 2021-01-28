@@ -12,16 +12,16 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METATUBEGRAPH_H
-#define ITKMetaIO_METATUBEGRAPH_H
+#  define ITKMetaIO_METATUBEGRAPH_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable: 4251 )
-#endif
+#  ifdef _MSC_VER
+#    pragma warning(disable : 4251)
+#  endif
 
-#include <vector>
+#  include <vector>
 
 
 /*!    MetaTubeGraph (.h and .cpp)
@@ -34,125 +34,128 @@
  * \date May 22, 2002
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 class TubeGraphPnt
 {
 public:
-
-  TubeGraphPnt(int dim)
-{
-    m_Dim = dim;
+  explicit TubeGraphPnt(int dim)
+  {
+    m_Dim = static_cast<unsigned int>(dim);
     m_GraphNode = -1;
     m_R = 0;
     m_P = 0;
-    m_T = new float[m_Dim*m_Dim];
-}
+    m_T = new float[m_Dim * m_Dim];
+  }
 
-  ~TubeGraphPnt()
-{
-    delete [] m_T;
-}
+  ~TubeGraphPnt() { delete[] m_T; }
 
   unsigned int m_Dim;
-  int    m_GraphNode;
-  float  m_R;
-  float  m_P;
-  float* m_T;
+  int          m_GraphNode;
+  float        m_R;
+  float        m_P;
+  float *      m_T;
 };
-
-
 
 
 class METAIO_EXPORT MetaTubeGraph : public MetaObject
 {
 
-  /////
-  //
   // PUBLIC
-  //
-  ////
-  public:
+public:
+  typedef std::vector<TubeGraphPnt *> PointListType;
+  // Constructors & Destructor
+  MetaTubeGraph();
 
-   typedef std::vector<TubeGraphPnt*> PointListType;
-    ////
-    //
-    // Constructors & Destructor
-    //
-    ////
-    MetaTubeGraph(void);
+  explicit MetaTubeGraph(const char * _headerName);
 
-    MetaTubeGraph(const char *_headerName);
+  explicit MetaTubeGraph(const MetaTubeGraph * _tube);
 
-    MetaTubeGraph(const MetaTubeGraph *_tube);
+  explicit MetaTubeGraph(unsigned int dim);
 
-    MetaTubeGraph(unsigned int dim);
+  ~MetaTubeGraph() override;
 
-    ~MetaTubeGraph(void) override;
+  void
+  PrintInfo() const override;
 
-    void PrintInfo(void) const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
-    void CopyInfo(const MetaObject * _object) override;
+  //    NPoints(...)
+  //       Required Field
+  //       Number of points which compose the tube
+  void
+  NPoints(int npnt);
+  int
+  NPoints() const;
 
-    //    NPoints(...)
-    //       Required Field
-    //       Number of points which compose the tube
-    void  NPoints(int npnt);
-    int   NPoints(void) const;
+  //    PointDim(...)
+  //       Required Field
+  //       Definition of points
+  void
+  PointDim(const char * pointDim);
+  const char *
+  PointDim() const;
 
-    //    PointDim(...)
-    //       Required Field
-    //       Definition of points
-    void        PointDim(const char* pointDim);
-    const char* PointDim(void) const;
-
-    //    Root(...)
-    //       Optional Field
-    //       Set if this tube is a root
-    void  Root(int root);
-    int   Root(void) const;
+  //    Root(...)
+  //       Optional Field
+  //       Set if this tube is a root
+  void
+  Root(int root);
+  int
+  Root() const;
 
 
-    void  Clear(void) override;
+  void
+  Clear() override;
 
-    PointListType &  GetPoints(void) {return m_PointList;}
-    const PointListType &  GetPoints(void) const {return m_PointList;}
+  PointListType &
+  GetPoints()
+  {
+    return m_PointList;
+  }
+  const PointListType &
+  GetPoints() const
+  {
+    return m_PointList;
+  }
 
-    MET_ValueEnumType ElementType(void) const;
-    void  ElementType(MET_ValueEnumType _elementType);
+  MET_ValueEnumType
+  ElementType() const;
+  void
+  ElementType(MET_ValueEnumType _elementType);
 
-  ////
-  //
   // PROTECTED
-  //
-  ////
-  protected:
+protected:
 
-    void  M_Destroy(void) override;
+  void
+  M_SetupReadFields() override;
 
-    void  M_SetupReadFields(void) override;
+  void
+  M_SetupWriteFields() override;
 
-    void  M_SetupWriteFields(void) override;
+  bool
+  M_Read() override;
 
-    bool  M_Read(void) override;
+  bool
+  M_Write() override;
 
-    bool  M_Write(void) override;
+  int m_Root{}; // "Root = "            0
 
-    int m_Root;         // "Root = "            0
+  int m_NPoints{}; // "NPoints = "         0
 
-    int m_NPoints;      // "NPoints = "         0
+  char m_PointDim[255]{}; // "PointDim = "       "x y z r"
 
-    char m_PointDim[255]; // "PointDim = "       "x y z r"
+  PointListType m_PointList;
 
-    PointListType m_PointList;
-
-    MET_ValueEnumType m_ElementType;
+  MET_ValueEnumType m_ElementType;
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 #endif

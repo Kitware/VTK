@@ -12,85 +12,77 @@
 #include "metaTransform.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4702)
+#  pragma warning(disable : 4702)
 #endif
 
-#include <cctype>
-#include <cstdio>
-#include <string>
-
 #if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
+namespace METAIO_NAMESPACE
+{
 #endif
 
 
 /** MetaTransform constructors */
-MetaTransform::
-MetaTransform()
-:MetaObject()
+MetaTransform::MetaTransform()
+  : MetaObject()
 {
-  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
-  Clear();
+  META_DEBUG_PRINT( "MetaTransform()" );
+  MetaTransform::Clear();
 }
 
 //
-MetaTransform::
-MetaTransform(const char *_headerName)
-:MetaObject()
+MetaTransform::MetaTransform(const char * _headerName)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
-  Clear();
-  Read(_headerName);
+  META_DEBUG_PRINT( "MetaTransform()" );
+  MetaTransform::Clear();
+  MetaTransform::Read(_headerName);
 }
 
 //
-MetaTransform::
-MetaTransform(const MetaTransform *_group)
-:MetaObject()
+MetaTransform::MetaTransform(const MetaTransform * _group)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
-  Clear();
-  CopyInfo(_group);
+  META_DEBUG_PRINT( "MetaTransform()" );
+  MetaTransform::Clear();
+  MetaTransform::CopyInfo(_group);
 }
 
-MetaTransform::
-MetaTransform(unsigned int dim)
-:MetaObject(dim)
+MetaTransform::MetaTransform(unsigned int dim)
+  : MetaObject(dim)
 {
-  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
-  Clear();
+  META_DEBUG_PRINT( "MetaTransform()" );
+  MetaTransform::Clear();
 }
 
 //
-MetaTransform::
-~MetaTransform()
+MetaTransform::~MetaTransform()
 {
   delete parameters;
-  M_Destroy();
+  MetaObject::M_Destroy();
 }
 
 //
-void MetaTransform::
-PrintInfo() const
+void
+MetaTransform::PrintInfo() const
 {
   MetaObject::PrintInfo();
 }
 
-void MetaTransform::
-CopyInfo(const MetaObject * _object)
+void
+MetaTransform::CopyInfo(const MetaObject * _object)
 {
   MetaObject::CopyInfo(_object);
 }
 
 /** Clear group information */
-void MetaTransform::
-Clear()
+void
+MetaTransform::Clear()
 {
-  if(META_DEBUG) std::cout << "MetaTransform: Clear" << std::endl;
+  META_DEBUG_PRINT( "MetaTransform: Clear" );
 
   MetaObject::Clear();
 
-  strcpy(m_ObjectTypeName,"Transform");
+  strcpy(m_ObjectTypeName, "Transform");
 
   delete parameters;
   parameters = nullptr;
@@ -98,214 +90,207 @@ Clear()
   transformOrder = 0;
 
 
-  for(unsigned int i=0;i<100;i++)
-    {
+  for (unsigned int i = 0; i < 100; i++)
+  {
     gridSpacing[i] = 1;
     gridOrigin[i] = 0;
     gridRegionSize[i] = 0;
     gridRegionIndex[i] = 0;
-    }
+  }
 }
 
-/** Destroy group information */
-void MetaTransform::
-M_Destroy()
-{
-  MetaObject::M_Destroy();
-}
 
 /** Set Read fields */
-void MetaTransform::
-M_SetupReadFields()
+void
+MetaTransform::M_SetupReadFields()
 {
-  if(META_DEBUG) std::cout << "MetaTransform: M_SetupReadFields" << std::endl;
+  META_DEBUG_PRINT( "MetaTransform: M_SetupReadFields" );
   MetaObject::M_SetupReadFields();
 
   int nDimsRecordNumber = MET_GetFieldRecordNumber("NDims", &m_Fields);
 
-  MET_FieldRecordType* mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "Order", MET_INT,false);
+  auto * mF = new MET_FieldRecordType;
+  MET_InitReadField(mF, "Order", MET_INT, false);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "GridRegionSize", MET_DOUBLE_ARRAY,false,nDimsRecordNumber);
+  MET_InitReadField(mF, "GridRegionSize", MET_DOUBLE_ARRAY, false, nDimsRecordNumber);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "GridRegionIndex", MET_DOUBLE_ARRAY,false,nDimsRecordNumber);
+  MET_InitReadField(mF, "GridRegionIndex", MET_DOUBLE_ARRAY, false, nDimsRecordNumber);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "GridOrigin", MET_DOUBLE_ARRAY,false,nDimsRecordNumber);
+  MET_InitReadField(mF, "GridOrigin", MET_DOUBLE_ARRAY, false, nDimsRecordNumber);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "GridSpacing", MET_DOUBLE_ARRAY,false,nDimsRecordNumber);
+  MET_InitReadField(mF, "GridSpacing", MET_DOUBLE_ARRAY, false, nDimsRecordNumber);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "NParameters", MET_INT,true);
+  MET_InitReadField(mF, "NParameters", MET_INT, true);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "Parameters", MET_NONE);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
-
 }
 
-void MetaTransform::
-M_SetupWriteFields()
+void
+MetaTransform::M_SetupWriteFields()
 {
   MetaObject::M_SetupWriteFields();
 
   // We don't want to write the matrix and the offset
   MET_FieldRecordType * mF;
-  mF = MET_GetFieldRecord("TransformMatrix",&m_Fields);
+  mF = MET_GetFieldRecord("TransformMatrix", &m_Fields);
 
-  FieldsContainerType::iterator it = m_Fields.begin();
-  while(it != m_Fields.end())
+  auto it = m_Fields.begin();
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  mF = MET_GetFieldRecord("Offset",&m_Fields);
+  mF = MET_GetFieldRecord("Offset", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  mF = MET_GetFieldRecord("ElementSpacing",&m_Fields);
+  mF = MET_GetFieldRecord("ElementSpacing", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  int i;
+  int  i;
   bool writeCoR = false;
-  for(i=0;i<m_NDims;i++)
+  for (i = 0; i < m_NDims; i++)
+  {
+    if (m_CenterOfRotation[i] != 0.0)
     {
-    if(m_CenterOfRotation[i] != 0.0)
-      {
       writeCoR = true;
       break;
-      }
     }
+  }
 
-  if(!writeCoR)
-    {
-    mF = MET_GetFieldRecord("CenterOfRotation",&m_Fields);
+  if (!writeCoR)
+  {
+    mF = MET_GetFieldRecord("CenterOfRotation", &m_Fields);
     it = m_Fields.begin();
-    while(it != m_Fields.end())
+    while (it != m_Fields.end())
+    {
+      if (*it == mF)
       {
-      if(*it == mF)
-        {
         m_Fields.erase(it);
         break;
-        }
-      ++it;
       }
+      ++it;
     }
+  }
 
-  if(transformOrder > 0)
-    {
+  if (transformOrder > 0)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "Order", MET_INT,transformOrder);
+    MET_InitWriteField(mF, "Order", MET_INT, transformOrder);
     m_Fields.push_back(mF);
-    }
+  }
 
   // Grid Spacing
   bool writeGridSpacing = false;
-  for(i=0;i<100;i++)
+  for (i = 0; i < 100; i++)
+  {
+    if (gridSpacing[i] != 1)
     {
-    if(gridSpacing[i] != 1)
-      {
       writeGridSpacing = true;
       break;
-      }
     }
+  }
 
-  if(writeGridSpacing)
-    {
+  if (writeGridSpacing)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "GridSpacing", MET_DOUBLE_ARRAY,m_NDims,gridSpacing);
+    MET_InitWriteField(mF, "GridSpacing", MET_DOUBLE_ARRAY, static_cast<size_t>(m_NDims), gridSpacing);
     m_Fields.push_back(mF);
-    }
+  }
 
   // Grid Origin
   bool writeGridOrigin = false;
-  for(i=0;i<100;i++)
+  for (i = 0; i < 100; i++)
+  {
+    if (gridOrigin[i] != 0)
     {
-    if(gridOrigin[i] != 0)
-      {
       writeGridOrigin = true;
       break;
-      }
     }
+  }
 
-  if(writeGridOrigin)
-    {
+  if (writeGridOrigin)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "GridOrigin", MET_DOUBLE_ARRAY,m_NDims,gridOrigin);
+    MET_InitWriteField(mF, "GridOrigin", MET_DOUBLE_ARRAY, static_cast<size_t>(m_NDims), gridOrigin);
     m_Fields.push_back(mF);
-    }
+  }
 
   // Grid region size
   bool writeGridRegionSize = false;
-  for(i=0;i<100;i++)
+  for (i = 0; i < 100; i++)
+  {
+    if (gridRegionSize[i] != 0)
     {
-    if(gridRegionSize[i] != 0)
-      {
       writeGridRegionSize = true;
       break;
-      }
     }
+  }
 
-  if(writeGridRegionSize)
-    {
+  if (writeGridRegionSize)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "GridRegionSize", MET_DOUBLE_ARRAY,m_NDims,gridRegionSize);
+    MET_InitWriteField(mF, "GridRegionSize", MET_DOUBLE_ARRAY, static_cast<size_t>(m_NDims), gridRegionSize);
     m_Fields.push_back(mF);
-    }
+  }
 
 
   // Grid region index
   bool writeGridRegionIndex = false;
-  for(i=0;i<100;i++)
+  for (i = 0; i < 100; i++)
+  {
+    if (gridRegionIndex[i] != 0)
     {
-    if(gridRegionIndex[i] != 0)
-      {
       writeGridRegionIndex = true;
       break;
-      }
     }
+  }
 
-  if(writeGridRegionIndex)
-    {
+  if (writeGridRegionIndex)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "GridRegionIndex", MET_DOUBLE_ARRAY,m_NDims,gridRegionIndex);
+    MET_InitWriteField(mF, "GridRegionIndex", MET_DOUBLE_ARRAY, static_cast<size_t>(m_NDims), gridRegionIndex);
     m_Fields.push_back(mF);
-    }
+  }
 
   mF = new MET_FieldRecordType;
-  MET_InitWriteField(mF, "NParameters", MET_INT,parametersDimension);
+  MET_InitWriteField(mF, "NParameters", MET_INT, parametersDimension);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
@@ -313,107 +298,116 @@ M_SetupWriteFields()
   m_Fields.push_back(mF);
 }
 
-bool MetaTransform::
-M_Write()
+bool
+MetaTransform::M_Write()
 {
 
-  if(!MetaObject::M_Write())
-{
+  if (!MetaObject::M_Write())
+  {
     std::cout << "MetaLandmark: M_Read: Error parsing file" << std::endl;
     return false;
-}
+  }
 
   /** Then copy all points */
-  if(m_BinaryData)
+  if (m_BinaryData)
+  {
+    char *       data = new char[parametersDimension * sizeof(double)];
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < parametersDimension; i++)
     {
-    char* data = new char[parametersDimension*sizeof(double)];
-    unsigned int j=0;
-    for(unsigned int i=0;i<parametersDimension;i++)
-      {
-      data[j] = (char)parameters[i];
-      j+=sizeof(double);
-      }
-    m_WriteStream->write((char *)data,parametersDimension*sizeof(double));
-    m_WriteStream->write("\n",1);
-    delete [] data;
+      data[j] = static_cast<char>(parameters[i]);
+      j += sizeof(double);
     }
+    m_WriteStream->write(data, parametersDimension * sizeof(double));
+    m_WriteStream->write("\n", 1);
+    delete[] data;
+  }
   else
+  {
+    for (unsigned int i = 0; i < parametersDimension; i++)
     {
-     for(unsigned int i=0;i<parametersDimension;i++)
-      {
       *m_WriteStream << parameters[i] << " ";
-      }
-      *m_WriteStream << std::endl;
     }
+    *m_WriteStream << std::endl;
+  }
 
   return true;
-
 }
 
 
 // Set/Get the spacing
-const double * MetaTransform::GridSpacing() const
+const double *
+MetaTransform::GridSpacing() const
 {
   return gridSpacing;
 }
 
-void  MetaTransform::GridSpacing(const double * _gridSpacing)
+void
+MetaTransform::GridSpacing(const double * _gridSpacing)
 {
-  for(int i=0;i<m_NDims;i++)
-    {
+  for (int i = 0; i < m_NDims; i++)
+  {
     gridSpacing[i] = _gridSpacing[i];
-    }
+  }
 }
 
 // Set/Get the grid index
-const double * MetaTransform::GridOrigin() const
+const double *
+MetaTransform::GridOrigin() const
 {
   return gridOrigin;
 }
 
-void  MetaTransform::GridOrigin(const double * _gridOrigin)
+void
+MetaTransform::GridOrigin(const double * _gridOrigin)
 {
-  for(int i=0;i<m_NDims;i++)
-    {
+  for (int i = 0; i < m_NDims; i++)
+  {
     gridOrigin[i] = _gridOrigin[i];
-    }
+  }
 }
 
 // Set/Get the region size
-const double * MetaTransform::GridRegionSize() const
+const double *
+MetaTransform::GridRegionSize() const
 {
   return gridRegionSize;
 }
 
-void  MetaTransform::GridRegionSize(const double * _gridRegionSize)
+void
+MetaTransform::GridRegionSize(const double * _gridRegionSize)
 {
-  for(int i=0;i<m_NDims;i++)
-    {
+  for (int i = 0; i < m_NDims; i++)
+  {
     gridRegionSize[i] = _gridRegionSize[i];
-    }
+  }
 }
 
 // Set/Get the region index
-const double * MetaTransform::GridRegionIndex() const
+const double *
+MetaTransform::GridRegionIndex() const
 {
   return gridRegionIndex;
 }
 
-void  MetaTransform::GridRegionIndex(const double * _gridRegionIndex)
+void
+MetaTransform::GridRegionIndex(const double * _gridRegionIndex)
 {
-  for(int i=0;i<m_NDims;i++)
-    {
+  for (int i = 0; i < m_NDims; i++)
+  {
     gridRegionIndex[i] = _gridRegionIndex[i];
-    }
+  }
 }
 
-const double * MetaTransform::Parameters() const
+const double *
+MetaTransform::Parameters() const
 {
   return parameters;
 }
 
 
-void  MetaTransform::Parameters(unsigned int dimension, const double * _parameters)
+void
+MetaTransform::Parameters(unsigned int dimension, const double * _parameters)
 {
   parametersDimension = dimension;
 
@@ -422,127 +416,120 @@ void  MetaTransform::Parameters(unsigned int dimension, const double * _paramete
   parameters = new double[parametersDimension];
 
   // Copy the parameters
-  for(unsigned int i=0;i<parametersDimension;i++)
-    {
+  for (unsigned int i = 0; i < parametersDimension; i++)
+  {
     parameters[i] = _parameters[i];
-    }
+  }
 }
 
-bool MetaTransform::
-M_Read()
+bool
+MetaTransform::M_Read()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTransform: M_Read: Loading Header" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTransform: M_Read: Loading Header" );
 
-  if(!MetaObject::M_Read())
-    {
+  if (!MetaObject::M_Read())
+  {
     std::cout << "MetaTransform: M_Read: Error parsing file" << std::endl;
     return false;
-    }
+  }
 
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTransform: M_Read: Parsing Header" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTransform: M_Read: Parsing Header" );
 
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("NParameters", &m_Fields);
-  if(mF->defined)
-    {
-    parametersDimension = (unsigned int)mF->value[0];
-    }
+  if (mF->defined)
+  {
+    parametersDimension = static_cast<unsigned int>(mF->value[0]);
+  }
 
   mF = MET_GetFieldRecord("GridSpacing", &m_Fields);
   int i;
-  if(mF && mF->defined)
+  if (mF && mF->defined)
+  {
+    for (i = 0; i < mF->length; i++)
     {
-    for(i=0; i<mF->length; i++)
-      {
-      gridSpacing[i] = static_cast<double>( mF->value[i] );
-      }
+      gridSpacing[i] = mF->value[i];
     }
+  }
 
   mF = MET_GetFieldRecord("GridOrigin", &m_Fields);
-  if(mF && mF->defined)
+  if (mF && mF->defined)
+  {
+    for (i = 0; i < mF->length; i++)
     {
-    for(i=0; i<mF->length; i++)
-      {
-      gridOrigin[i] = static_cast<double>( mF->value[i] );
-      }
+      gridOrigin[i] = mF->value[i];
     }
+  }
 
   mF = MET_GetFieldRecord("GridRegionSize", &m_Fields);
-  if(mF && mF->defined)
+  if (mF && mF->defined)
+  {
+    for (i = 0; i < mF->length; i++)
     {
-    for(i=0; i<mF->length; i++)
-      {
-      gridRegionSize[i] = static_cast<double>( mF->value[i] );
-      }
+      gridRegionSize[i] = mF->value[i];
     }
+  }
 
   mF = MET_GetFieldRecord("GridRegionIndex", &m_Fields);
-  if(mF && mF->defined)
+  if (mF && mF->defined)
+  {
+    for (i = 0; i < mF->length; i++)
     {
-    for(i=0; i<mF->length; i++)
-      {
-      gridRegionIndex[i] = static_cast<double>( mF->value[i] );
-      }
+      gridRegionIndex[i] = mF->value[i];
     }
+  }
 
 
   mF = MET_GetFieldRecord("Order", &m_Fields);
-  if(mF->defined)
-    {
-    transformOrder = (unsigned int)mF->value[0];
-    }
+  if (mF->defined)
+  {
+    transformOrder = static_cast<unsigned int>(mF->value[0]);
+  }
 
   delete parameters;
 
   parameters = new double[parametersDimension];
 
-  if(m_BinaryData)
+  if (m_BinaryData)
+  {
+    char * _data = new char[parametersDimension * sizeof(double)];
+    m_ReadStream->read(_data, parametersDimension * sizeof(double));
+
+    auto gc = static_cast<unsigned int>(m_ReadStream->gcount());
+    if (gc != parametersDimension * sizeof(double))
     {
-    char* _data = new char[parametersDimension*sizeof(double)];
-    m_ReadStream->read((char *)_data, parametersDimension*sizeof(double));
-
-    unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
-    if(gc != parametersDimension*sizeof(double))
-      {
-      std::cout << "MetaTransform: m_Read: data not read completely"
-                << std::endl;
-      std::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << std::endl;
-      delete [] _data;
+      std::cout << "MetaTransform: m_Read: data not read completely" << std::endl;
+      std::cout << "   ideal = " << parametersDimension * sizeof(double) << " : actual = " << gc << std::endl;
+      delete[] _data;
       return false;
-      }
+    }
 
-    unsigned long k=0;
+    unsigned long k = 0;
 
-    for(unsigned int j=0; j<parametersDimension; j++)
-      {
+    for (unsigned int j = 0; j < parametersDimension; j++)
+    {
       parameters[j] = _data[k];
       k += sizeof(double);
-      }
-    delete [] _data;
-}
+    }
+    delete[] _data;
+  }
   else
+  {
+    for (unsigned int k = 0; k < parametersDimension; k++)
     {
-    for(unsigned int k=0; k<parametersDimension; k++)
-      {
       *m_ReadStream >> parameters[k];
       m_ReadStream->get();
-      }
     }
+  }
 
-/*
-    char c = ' ';
-    while( (c!='\n') && (!m_ReadStream->eof()))
-    {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
-    }
- */
+  /*
+      char c = ' ';
+      while( (c!='\n') && (!m_ReadStream->eof()))
+      {
+        c = m_ReadStream->get();// to avoid unrecognize charactere
+      }
+   */
   return true;
 }
 

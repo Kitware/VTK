@@ -12,86 +12,66 @@
 #include "metaTubeGraph.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4702)
+#  pragma warning(disable : 4702)
 #endif
 
-#include <cctype>
-#include <cstdio>
-#include <string>
-
 #if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
+namespace METAIO_NAMESPACE
+{
 #endif
 
 /** MetaTubeGraph Constructors */
-MetaTubeGraph::
-MetaTubeGraph()
-:MetaObject()
+MetaTubeGraph::MetaTubeGraph()
+  : MetaObject()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph()" << std::endl;
-    }
-  Clear();
+  META_DEBUG_PRINT( "MetaTubeGraph()" );
+  MetaTubeGraph::Clear();
 }
 
 
-MetaTubeGraph::
-MetaTubeGraph(const char *_headerName)
-:MetaObject()
+MetaTubeGraph::MetaTubeGraph(const char * _headerName)
+  : MetaObject()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph()" << std::endl;
-    }
-  Clear();
-  Read(_headerName);
+  META_DEBUG_PRINT( "MetaTubeGraph()" );
+  MetaTubeGraph::Clear();
+  MetaTubeGraph::Read(_headerName);
 }
 
 
-MetaTubeGraph::
-MetaTubeGraph(const MetaTubeGraph *_tube)
-:MetaObject()
+MetaTubeGraph::MetaTubeGraph(const MetaTubeGraph * _tube)
+  : MetaObject()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph()" << std::endl;
-    }
-  Clear();
-  CopyInfo(_tube);
+  META_DEBUG_PRINT( "MetaTubeGraph()" );
+  MetaTubeGraph::Clear();
+  MetaTubeGraph::CopyInfo(_tube);
 }
 
 
-MetaTubeGraph::
-MetaTubeGraph(unsigned int dim)
-:MetaObject(dim)
+MetaTubeGraph::MetaTubeGraph(unsigned int dim)
+  : MetaObject(dim)
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph()" << std::endl;
-    }
-  Clear();
+  META_DEBUG_PRINT( "MetaTubeGraph()" );
+  MetaTubeGraph::Clear();
 }
 
 /** Destructor */
-MetaTubeGraph::
-~MetaTubeGraph()
+MetaTubeGraph::~MetaTubeGraph()
 {
   // Delete the list of pointers to tubes.
-  PointListType::iterator it = m_PointList.begin();
-  while(it != m_PointList.end())
-    {
-    TubeGraphPnt* pnt = *it;
+  auto it = m_PointList.begin();
+  while (it != m_PointList.end())
+  {
+    TubeGraphPnt * pnt = *it;
     ++it;
     delete pnt;
-    }
+  }
   m_PointList.clear();
-  M_Destroy();
+MetaObject::M_Destroy();
 }
 
 //
-void MetaTubeGraph::
-PrintInfo() const
+void
+MetaTubeGraph::PrintInfo() const
 {
   MetaObject::PrintInfo();
   std::cout << "Root = " << m_Root << std::endl;
@@ -102,72 +82,68 @@ PrintInfo() const
   std::cout << "ElementType = " << str << std::endl;
 }
 
-void MetaTubeGraph::
-CopyInfo(const MetaObject * _object)
+void
+MetaTubeGraph::CopyInfo(const MetaObject * _object)
 {
   MetaObject::CopyInfo(_object);
 }
 
 
-
-void MetaTubeGraph::
-PointDim(const char* pointDim)
+void
+MetaTubeGraph::PointDim(const char * pointDim)
 {
-  strcpy(m_PointDim,pointDim);
+  strcpy(m_PointDim, pointDim);
 }
 
-const char* MetaTubeGraph::
-PointDim() const
+const char *
+MetaTubeGraph::PointDim() const
 {
   return m_PointDim;
 }
 
-void MetaTubeGraph::
-NPoints(int npnt)
+void
+MetaTubeGraph::NPoints(int npnt)
 {
   m_NPoints = npnt;
 }
 
-int MetaTubeGraph::
-NPoints() const
+int
+MetaTubeGraph::NPoints() const
 {
   return m_NPoints;
 }
 
-void MetaTubeGraph::
-Root(int root)
+void
+MetaTubeGraph::Root(int root)
 {
   m_Root = root;
 }
 
-int MetaTubeGraph::
-Root() const
+int
+MetaTubeGraph::Root() const
 {
   return m_Root;
 }
 
 
 /** Clear tube information */
-void MetaTubeGraph::
-Clear()
+void
+MetaTubeGraph::Clear()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph: Clear" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTubeGraph: Clear" );
 
   MetaObject::Clear();
 
-  strcpy(m_ObjectTypeName,"TubeGraph");
+  strcpy(m_ObjectTypeName, "TubeGraph");
 
   // Delete the list of pointers to tubes.
-  PointListType::iterator it = m_PointList.begin();
-  while(it != m_PointList.end())
-{
-    TubeGraphPnt* pnt = *it;
+  auto it = m_PointList.begin();
+  while (it != m_PointList.end())
+  {
+    TubeGraphPnt * pnt = *it;
     ++it;
     delete pnt;
-}
+  }
   m_PointList.clear();
 
   m_Root = 0;
@@ -176,22 +152,11 @@ Clear()
   m_ElementType = MET_FLOAT;
 }
 
-/** Destroy tube information */
-void MetaTubeGraph::
-M_Destroy()
-{
-  MetaObject::M_Destroy();
-}
-
 /** Set Read fields */
-void MetaTubeGraph::
-M_SetupReadFields()
+void
+MetaTubeGraph::M_SetupReadFields()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph: M_SetupReadFields"
-                        << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTubeGraph: M_SetupReadFields" );
 
   MetaObject::M_SetupReadFields();
 
@@ -213,134 +178,121 @@ M_SetupReadFields()
   MET_InitReadField(mF, "Points", MET_NONE, true);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
-
 }
 
-void MetaTubeGraph::
-M_SetupWriteFields()
+void
+MetaTubeGraph::M_SetupWriteFields()
 {
   MetaObject::M_SetupWriteFields();
 
-  MET_FieldRecordType * mF;
+  MET_FieldRecordType *         mF;
   FieldsContainerType::iterator it;
 
-  mF = MET_GetFieldRecord("TransformMatrix",&m_Fields);
+  mF = MET_GetFieldRecord("TransformMatrix", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  mF = MET_GetFieldRecord("Offset",&m_Fields);
+  mF = MET_GetFieldRecord("Offset", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  mF = MET_GetFieldRecord("ElementSpacing",&m_Fields);
+  mF = MET_GetFieldRecord("ElementSpacing", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  mF = MET_GetFieldRecord("CenterOfRotation",&m_Fields);
+  mF = MET_GetFieldRecord("CenterOfRotation", &m_Fields);
   it = m_Fields.begin();
-  while(it != m_Fields.end())
+  while (it != m_Fields.end())
+  {
+    if (*it == mF)
     {
-    if(*it == mF)
-      {
       m_Fields.erase(it);
       break;
-      }
-    ++it;
     }
+    ++it;
+  }
 
-  if(m_Root>0)
-    {
+  if (m_Root > 0)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "Root", MET_INT,m_Root);
+    MET_InitWriteField(mF, "Root", MET_INT, m_Root);
     m_Fields.push_back(mF);
-    }
+  }
 
-  if(strlen(m_PointDim)>0)
-    {
+  if (strlen(m_PointDim) > 0)
+  {
     mF = new MET_FieldRecordType;
-    MET_InitWriteField(mF, "PointDim", MET_STRING,
-                           strlen(m_PointDim),m_PointDim);
+    MET_InitWriteField(mF, "PointDim", MET_STRING, strlen(m_PointDim), m_PointDim);
     m_Fields.push_back(mF);
-    }
+  }
 
-  m_NPoints = (int)m_PointList.size();
+  m_NPoints = static_cast<int>(m_PointList.size());
   mF = new MET_FieldRecordType;
-  MET_InitWriteField(mF, "NPoints", MET_INT,m_NPoints);
+  MET_InitWriteField(mF, "NPoints", MET_INT, m_NPoints);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "Points", MET_NONE);
   m_Fields.push_back(mF);
-
 }
 
 
-
-bool MetaTubeGraph::
-M_Read()
+bool
+MetaTubeGraph::M_Read()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph: M_Read: Loading Header"
-                        << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTubeGraph: M_Read: Loading Header" );
 
-  if(!MetaObject::M_Read())
-    {
-    std::cout << "MetaTubeGraph: M_Read: Error parsing file"
-                        << std::endl;
+  if (!MetaObject::M_Read())
+  {
+    std::cout << "MetaTubeGraph: M_Read: Error parsing file" << std::endl;
     return false;
-    }
+  }
 
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph: M_Read: Parsing Header"
-                        << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTubeGraph: M_Read: Parsing Header" );
 
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("Root", &m_Fields);
-  if(mF->defined)
-    {
-    m_Root= (int)mF->value[0];
-    }
+  if (mF->defined)
+  {
+    m_Root = static_cast<int>(mF->value[0]);
+  }
 
   mF = MET_GetFieldRecord("NPoints", &m_Fields);
-  if(mF->defined)
-    {
-    m_NPoints= (int)mF->value[0];
-    }
+  if (mF->defined)
+  {
+    m_NPoints = static_cast<int>(mF->value[0]);
+  }
 
   mF = MET_GetFieldRecord("PointDim", &m_Fields);
-  if(mF->defined)
-    {
-    strcpy(m_PointDim,(char *)(mF->value));
-    }
+  if (mF->defined)
+  {
+    strcpy(m_PointDim, reinterpret_cast<char *>(mF->value));
+  }
 
 
   int i;
@@ -349,242 +301,232 @@ M_Read()
   int posTx = -1;
   int posGraphNode = -1;
 
-  int pntDim;
-  char** pntVal = nullptr;
+  int     pntDim;
+  char ** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
-  if(META_DEBUG)
-    {
-    std::cout << "MetaTubeGraph: Parsing point dim"
-                        << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaTubeGraph: Parsing point dim" );
 
   unsigned int j;
-  for(j = 0; j < (unsigned int)pntDim; j++)
+  for (j = 0; j < static_cast<unsigned int>(pntDim); j++)
+  {
+    if (!strcmp(pntVal[j], "node") || !strcmp(pntVal[j], "Node"))
     {
-    if(!strcmp(pntVal[j], "node") || !strcmp(pntVal[j], "Node"))
-      {
       posGraphNode = j;
-      }
-    if(!strcmp(pntVal[j], "s") || !strcmp(pntVal[j], "S") ||
-      !strcmp(pntVal[j], "r") || !strcmp(pntVal[j], "R") ||
-      !strcmp(pntVal[j], "rad") || !strcmp(pntVal[j], "Rad") ||
-      !strcmp(pntVal[j], "radius") || !strcmp(pntVal[j], "Radius"))
-      {
-      posR = j;
-      }
-    if(!strcmp(pntVal[j], "p") || !strcmp(pntVal[j], "P"))
-      {
-      posP = j;
-      }
-    if(!strcmp(pntVal[j], "txx"))
-      {
-      posTx = j;
-      }
     }
-
-  for(i=0;i<pntDim;i++)
+    if (!strcmp(pntVal[j], "s") || !strcmp(pntVal[j], "S") || !strcmp(pntVal[j], "r") || !strcmp(pntVal[j], "R") ||
+        !strcmp(pntVal[j], "rad") || !strcmp(pntVal[j], "Rad") || !strcmp(pntVal[j], "radius") ||
+        !strcmp(pntVal[j], "Radius"))
     {
-    delete [] pntVal[i];
+      posR = j;
     }
-  delete [] pntVal;
+    if (!strcmp(pntVal[j], "p") || !strcmp(pntVal[j], "P"))
+    {
+      posP = j;
+    }
+    if (!strcmp(pntVal[j], "txx"))
+    {
+      posTx = j;
+    }
+  }
+
+  for (i = 0; i < pntDim; i++)
+  {
+    delete[] pntVal[i];
+  }
+  delete[] pntVal;
 
   float v[30];
 
-  if(m_Event)
-    {
-    m_Event->StartReading(m_NPoints);
-    }
+  if (m_Event)
+  {
+    m_Event->StartReading(static_cast<unsigned int>(m_NPoints));
+  }
 
-  if(m_BinaryData)
-    {
+  if (m_BinaryData)
+  {
     int elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
-    int readSize = m_NPoints*pntDim*elementSize;
+    int readSize = m_NPoints * pntDim * elementSize;
 
-    char* _data = new char[readSize];
-    m_ReadStream->read((char *)_data, readSize);
+    char * _data = new char[readSize];
+    m_ReadStream->read(_data, readSize);
 
     int gc = static_cast<int>(m_ReadStream->gcount());
-    if(gc != readSize)
-      {
-      std::cout << "MetaLine: m_Read: data not read completely"
-                << std::endl;
-      std::cout << "   ideal = " << readSize << " : actual = " << gc
-                << std::endl;
-      delete [] _data;
+    if (gc != readSize)
+    {
+      std::cout << "MetaLine: m_Read: data not read completely" << std::endl;
+      std::cout << "   ideal = " << readSize << " : actual = " << gc << std::endl;
+      delete[] _data;
       return false;
-      }
+    }
 
     double td;
-    for(j=0; j<(unsigned int)m_NPoints; j++)
-      {
-      TubeGraphPnt* pnt = new TubeGraphPnt(m_NDims);
-
-      MET_ValueToDouble(m_ElementType,_data,posGraphNode,&td);
-      pnt->m_GraphNode=(int)td;
-
-      if(posR != -1)
-        {
-        MET_ValueToDouble(m_ElementType, _data, posR, &td);
-        pnt->m_R = (float)td;
-        }
-
-      if(posP != -1)
-        {
-        MET_ValueToDouble(m_ElementType, _data, posP, &td);
-        pnt->m_P = (float)td;
-        }
-
-      if(posTx != -1)
-        {
-        for(int r=0; r<m_NDims*m_NDims; r++)
-          {
-          MET_ValueToDouble(m_ElementType, _data, posTx+r, &td);
-          pnt->m_T[r] = (float)td;
-          }
-        }
-      m_PointList.push_back(pnt);
-      }
-    delete [] _data;
-    }
-  else
+    for (j = 0; j < static_cast<unsigned int>(m_NPoints); j++)
     {
-    for(j=0; j<(unsigned int)m_NPoints; j++)
+      auto * pnt = new TubeGraphPnt(m_NDims);
+
+      MET_ValueToDouble(m_ElementType, _data, posGraphNode, &td);
+      pnt->m_GraphNode = static_cast<int>(td);
+
+      if (posR != -1)
       {
-      if(m_Event)
+        MET_ValueToDouble(m_ElementType, _data, posR, &td);
+        pnt->m_R = static_cast<float>(td);
+      }
+
+      if (posP != -1)
+      {
+        MET_ValueToDouble(m_ElementType, _data, posP, &td);
+        pnt->m_P = static_cast<float>(td);
+      }
+
+      if (posTx != -1)
+      {
+        for (int r = 0; r < m_NDims * m_NDims; r++)
         {
-        m_Event->SetCurrentIteration(j+1);
+          MET_ValueToDouble(m_ElementType, _data, posTx + r, &td);
+          pnt->m_T[r] = static_cast<float>(td);
         }
+      }
+      m_PointList.push_back(pnt);
+    }
+    delete[] _data;
+  }
+  else
+  {
+    for (j = 0; j < static_cast<unsigned int>(m_NPoints); j++)
+    {
+      if (m_Event)
+      {
+        m_Event->SetCurrentIteration(j + 1);
+      }
 
-     TubeGraphPnt* pnt = new TubeGraphPnt(m_NDims);
+      auto * pnt = new TubeGraphPnt(m_NDims);
 
-     for(int k=0; k<pntDim; k++)
-       {
-       *m_ReadStream >> v[k];
-       m_ReadStream->get();
-       }
+      for (int k = 0; k < pntDim; k++)
+      {
+        *m_ReadStream >> v[k];
+        m_ReadStream->get();
+      }
 
-     pnt->m_GraphNode = (int)v[posGraphNode];
+      pnt->m_GraphNode = static_cast<int>(v[posGraphNode]);
 
-     if(posR != -1)
-       {
-       pnt->m_R = v[posR];
-       }
+      if (posR != -1)
+      {
+        pnt->m_R = v[posR];
+      }
 
-     if(posP != -1)
-       {
-       pnt->m_P = v[posP];
-       }
+      if (posP != -1)
+      {
+        pnt->m_P = v[posP];
+      }
 
-      if(posTx >= 0 && posTx<pntDim)
+      if (posTx >= 0 && posTx < pntDim)
+      {
+        for (int r = 0; r < m_NDims * m_NDims; r++)
         {
-        for(int r=0; r<m_NDims*m_NDims; r++)
-          {
-          pnt->m_T[r] = v[posTx+r];
-          }
+          pnt->m_T[r] = v[posTx + r];
         }
+      }
 
       m_PointList.push_back(pnt);
-      }
+    }
 
 
     char c = ' ';
-    while( (c!='\n') && (!m_ReadStream->eof()))
-      {
-      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
-      }
-    }
-
-  if(m_Event)
+    while ((c != '\n') && (!m_ReadStream->eof()))
     {
-    m_Event->StopReading();
+      c = static_cast<char>(m_ReadStream->get()); // to avoid unrecognize charactere
     }
+  }
+
+  if (m_Event)
+  {
+    m_Event->StopReading();
+  }
 
   return true;
 }
 
-MET_ValueEnumType MetaTubeGraph::
-ElementType() const
+MET_ValueEnumType
+MetaTubeGraph::ElementType() const
 {
   return m_ElementType;
 }
 
-void MetaTubeGraph::
-ElementType(MET_ValueEnumType _elementType)
+void
+MetaTubeGraph::ElementType(MET_ValueEnumType _elementType)
 {
   m_ElementType = _elementType;
 }
 
-bool MetaTubeGraph::
-M_Write()
+bool
+MetaTubeGraph::M_Write()
 {
 
-  if(!MetaObject::M_Write())
-    {
-    std::cout << "MetaTubeGraph: M_Read: Error parsing file"
-                        << std::endl;
+  if (!MetaObject::M_Write())
+  {
+    std::cout << "MetaTubeGraph: M_Read: Error parsing file" << std::endl;
     return false;
-    }
+  }
 
   /** Then copy all tubes points */
-  if(m_BinaryData)
-    {
+  if (m_BinaryData)
+  {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
-    int elementSize;
+    int                           elementSize;
     MET_SizeOfType(m_ElementType, &elementSize);
 
-    char* data = new char[(m_NDims*m_NDims+3)*m_NPoints*elementSize];
-    int i=0;
-    int d;
-    while(it != itEnd)
+    char * data = new char[(m_NDims * m_NDims + 3) * m_NPoints * elementSize];
+    int    i = 0;
+    int    d;
+    while (it != itEnd)
+    {
+      MET_DoubleToValue(static_cast<double>((*it)->m_GraphNode), m_ElementType, data, i++);
+
+      MET_DoubleToValue(static_cast<double>((*it)->m_R), m_ElementType, data, i++);
+
+      MET_DoubleToValue(static_cast<double>((*it)->m_P), m_ElementType, data, i++);
+
+      for (d = 0; d < m_NDims * m_NDims; d++)
       {
-      MET_DoubleToValue((double)(*it)->m_GraphNode,m_ElementType,data,i++);
-
-      MET_DoubleToValue((double)(*it)->m_R,m_ElementType,data,i++);
-
-      MET_DoubleToValue((double)(*it)->m_P,m_ElementType,data,i++);
-
-      for(d = 0; d < m_NDims*m_NDims; d++)
-        {
-        MET_DoubleToValue((double)(*it)->m_T[d],m_ElementType,data,i++);
-        }
-
-      ++it;
+        MET_DoubleToValue(static_cast<double>((*it)->m_T[d]), m_ElementType, data, i++);
       }
 
-    m_WriteStream->write((char *)data,
-                         (m_NDims*m_NDims+3)*m_NPoints*elementSize);
-    m_WriteStream->write("\n",1);
-    delete [] data;
+      ++it;
     }
+
+    m_WriteStream->write(data, (m_NDims * m_NDims + 3) * m_NPoints * elementSize);
+    m_WriteStream->write("\n", 1);
+    delete[] data;
+  }
   else
-    {
+  {
     PointListType::const_iterator it = m_PointList.begin();
     PointListType::const_iterator itEnd = m_PointList.end();
 
     int d;
-    while(it != itEnd)
-      {
+    while (it != itEnd)
+    {
       *m_WriteStream << (*it)->m_GraphNode << " ";
 
       *m_WriteStream << (*it)->m_R << " ";
 
       *m_WriteStream << (*it)->m_P << " ";
 
-      for(d = 0; d < m_NDims*m_NDims; d++)
-        {
+      for (d = 0; d < m_NDims * m_NDims; d++)
+      {
         *m_WriteStream << (*it)->m_T[d] << " ";
-        }
+      }
 
       *m_WriteStream << std::endl;
 
       ++it;
-      }
     }
+  }
   return true;
-
 }
 
 #if (METAIO_USE_NAMESPACE)

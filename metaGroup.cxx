@@ -12,104 +12,88 @@
 #include "metaGroup.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4702)
+#  pragma warning(disable : 4702)
 #endif
 
-#include <cctype>
-#include <cstdio>
-#include <string>
-
 #if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
+namespace METAIO_NAMESPACE
+{
 #endif
 
 //
 // MedImage Constructors
 //
-MetaGroup::
-MetaGroup()
-:MetaObject()
+MetaGroup::MetaGroup()
+  : MetaObject()
 {
-  if(META_DEBUG) std::cout << "MetaGroup()" << std::endl;
-  Clear();
-
+  META_DEBUG_PRINT( "MetaGroup()" );
+  MetaGroup::Clear();
 }
 
 //
-MetaGroup::
-MetaGroup(const char *_headerName)
-:MetaObject()
+MetaGroup::MetaGroup(const char * _headerName)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaGroup()" << std::endl;
-  Clear();
-  Read(_headerName);
+  META_DEBUG_PRINT( "MetaGroup()" );
+  MetaGroup::Clear();
+  MetaGroup::Read(_headerName);
 }
 
 //
-MetaGroup::
-MetaGroup(const MetaGroup *_group)
-:MetaObject()
+MetaGroup::MetaGroup(const MetaGroup * _group)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaGroup()" << std::endl;
-  Clear();
-  CopyInfo(_group);
+  META_DEBUG_PRINT( "MetaGroup()" );
+  MetaGroup::Clear();
+  MetaGroup::CopyInfo(_group);
 }
 
-MetaGroup::
-MetaGroup(unsigned int dim)
-:MetaObject(dim)
+MetaGroup::MetaGroup(unsigned int dim)
+  : MetaObject(dim)
 {
-  if(META_DEBUG) std::cout << "MetaGroup()" << std::endl;
-  Clear();
-}
-
-//
-MetaGroup::
-~MetaGroup()
-{
-  M_Destroy();
+  META_DEBUG_PRINT( "MetaGroup()" );
+  MetaGroup::Clear();
 }
 
 //
-void MetaGroup::
-PrintInfo() const
+MetaGroup::~MetaGroup()
+{
+MetaObject::M_Destroy();
+}
+
+//
+void
+MetaGroup::PrintInfo() const
 {
   MetaObject::PrintInfo();
 }
 
-void MetaGroup::
-CopyInfo(const MetaObject * _object)
+void
+MetaGroup::CopyInfo(const MetaObject * _object)
 {
   MetaObject::CopyInfo(_object);
 }
 
 /** Clear group information */
-void MetaGroup::
-Clear()
+void
+MetaGroup::Clear()
 {
-  if(META_DEBUG) std::cout << "MetaGroup: Clear" << std::endl;
+  META_DEBUG_PRINT( "MetaGroup: Clear" );
 
   MetaObject::Clear();
 
-  strcpy(m_ObjectTypeName,"Group");
-}
-
-/** Destroy group information */
-void MetaGroup::
-M_Destroy()
-{
-  MetaObject::M_Destroy();
+  strcpy(m_ObjectTypeName, "Group");
 }
 
 /** Set Read fields */
-void MetaGroup::
-M_SetupReadFields()
+void
+MetaGroup::M_SetupReadFields()
 {
-  if(META_DEBUG) std::cout << "MetaGroup: M_SetupReadFields" << std::endl;
+  META_DEBUG_PRINT( "MetaGroup: M_SetupReadFields" );
 
   MetaObject::M_SetupReadFields();
 
-  MET_FieldRecordType * mF = new MET_FieldRecordType;
+  auto * mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "EndGroup", MET_NONE, true);
   mF->terminateRead = true;
   m_Fields.push_back(mF);
@@ -118,35 +102,29 @@ M_SetupReadFields()
   mF->required = false;
 }
 
-void MetaGroup::
-M_SetupWriteFields()
+void
+MetaGroup::M_SetupWriteFields()
 {
   MetaObject::M_SetupWriteFields();
 
-  MET_FieldRecordType * mF = new MET_FieldRecordType;
+  auto * mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "EndGroup", MET_NONE);
   m_Fields.push_back(mF);
 }
 
 
-bool MetaGroup::
-M_Read()
+bool
+MetaGroup::M_Read()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaGroup: M_Read: Loading Header" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaGroup: M_Read: Loading Header" );
 
-  if(!MetaObject::M_Read())
-    {
+  if (!MetaObject::M_Read())
+  {
     std::cout << "MetaGroup: M_Read: Error parsing file" << std::endl;
     return false;
-    }
+  }
 
-  if(META_DEBUG)
-    {
-    std::cout << "MetaGroup: M_Read: Parsing Header" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaGroup: M_Read: Parsing Header" );
 
   return true;
 }

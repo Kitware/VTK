@@ -12,12 +12,12 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METAELLIPSE_H
-#define ITKMetaIO_METAELLIPSE_H
+#  define ITKMetaIO_METAELLIPSE_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#include <list>
+#  include <list>
 
 
 /*!    MetaEllipse (.h and .cpp)
@@ -34,71 +34,67 @@
  *    MetaObject.h
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 
 class METAIO_EXPORT MetaEllipse : public MetaObject
 {
 
-  /////
-  //
   // PUBLIC
-  //
-  ////
-  public:
+public:
+  // Constructors & Destructor
+  MetaEllipse();
 
-    ////
-    //
-    // Constructors & Destructor
-    //
-    ////
-    MetaEllipse(void);
+  explicit MetaEllipse(const char * _headerName);
 
-    MetaEllipse(const char *_headerName);
+  explicit MetaEllipse(const MetaEllipse * _ellipse);
 
-    MetaEllipse(const MetaEllipse *_ellipse);
+  explicit MetaEllipse(unsigned int dim);
 
-    MetaEllipse(unsigned int dim);
+  ~MetaEllipse() override;
 
-    ~MetaEllipse(void) override;
+  void
+  PrintInfo() const override;
 
-    void PrintInfo(void) const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
-    void CopyInfo(const MetaObject * _object) override;
+  void
+  Clear() override;
 
-    void  Clear(void) override;
+  void
+  Radius(const float * radius);
+  void
+  Radius(float radius);
+  void
+  Radius(float r1, float r2);
+  void
+  Radius(float r1, float r2, float r3);
+  const float *
+  Radius() const;
 
-    void  Radius(const float* radius);
-    void  Radius(float radius);
-    void  Radius(float r1,float r2);
-    void  Radius(float r1,float r2, float r3);
-    const float* Radius(void) const;
 
-
-  ////
-  //
   // PROTECTED
-  //
-  ////
-  protected:
+protected:
 
-    void  M_Destroy(void) override;
+  void
+  M_SetupReadFields() override;
 
-    void  M_SetupReadFields(void) override;
+  void
+  M_SetupWriteFields() override;
 
-    void  M_SetupWriteFields(void) override;
+  bool
+  M_Read() override;
 
-    bool  M_Read(void) override;
-
-    float m_Radius[100];  // "Radius = "     0
-
+  float m_Radius[100]{}; // "Radius = "     0
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif
