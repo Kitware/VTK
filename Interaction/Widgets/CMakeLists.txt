@@ -1,6 +1,7 @@
 set(classes
   vtk3DWidget
   vtkAbstractPolygonalHandleRepresentation3D
+  vtkAbstractSplineRepresentation
   vtkAbstractWidget
   vtkAffineRepresentation
   vtkAffineRepresentation2D
@@ -26,6 +27,9 @@ set(classes
   vtkBrokenLineWidget
   vtkButtonRepresentation
   vtkButtonWidget
+  vtkCameraHandleSource
+  vtkCameraPathRepresentation
+  vtkCameraPathWidget
   vtkCameraRepresentation
   vtkCameraWidget
   vtkCaptionRepresentation

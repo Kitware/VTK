@@ -29,19 +29,19 @@
 #define vtkCurveRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
+#include "vtkLegacy.h"
+#include "vtkPolyDataAlgorithm.h" // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
 class vtkCellPicker;
-class vtkConeSource;
 class vtkDoubleArray;
+class vtkHandleSource;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
 class vtkProp;
 class vtkProperty;
-class vtkSphereSource;
 class vtkTransform;
 
 #define VTK_PROJECTION_YZ 0
@@ -152,12 +152,23 @@ public:
 
   //@{
   /**
-   * Sets the representation to be a directional curve with the end represented
-   * as a cone.
+   * @deprecated VTK 9.1. Use `GetDirectional`  and `SetDirectional` instead.
    */
-  void SetDirectionalLine(bool val);
-  vtkGetMacro(DirectionalLine, bool);
-  vtkBooleanMacro(DirectionalLine, bool);
+  VTK_LEGACY(virtual void SetDirectionalLine(bool val));
+  VTK_LEGACY(virtual bool GetDirectionalLine());
+  VTK_LEGACY(virtual void DirectionalLineOn());
+  VTK_LEGACY(virtual void DirectionalLineOff());
+  //@}
+
+  //@{
+  /**
+   * Set the representation to be directional or not.
+   * The meaning of being directional depends on the representation and
+   * its handles implementations in the subclasses.
+   */
+  virtual void SetDirectional(bool val);
+  vtkGetMacro(Directional, bool);
+  vtkBooleanMacro(Directional, bool);
   //@}
 
   //@{
@@ -207,7 +218,7 @@ public:
 
   //@{
   /**
-   * These are methods that satisfy vtkWidgetRepresentation's
+   * These are methods that satisfy vtkWidgetRepresentation
    * API. Note that a version of place widget is available where the
    * center and handle position are specified.
    */
@@ -281,8 +292,6 @@ protected:
   vtkCurveRepresentation();
   ~vtkCurveRepresentation() override;
 
-  class HandleSource;
-
   double LastEventPosition[3];
   double Bounds[6];
 
@@ -297,19 +306,22 @@ protected:
   void ProjectPointsToOrthoPlane();
   void ProjectPointsToObliquePlane();
 
-  int NumberOfHandles;
+  int NumberOfHandles = 0;
   vtkTypeBool Closed;
 
   // The line segments
   vtkActor* LineActor;
   void HighlightLine(int highlight);
-
-  // Glyphs representing hot spots (e.g., handles)
-  vtkActor** Handle;
-  HandleSource** HandleGeometry;
-  void Initialize();
   int HighlightHandle(vtkProp* prop); // returns handle index or -1 on fail
-  int GetHandleIndex(vtkProp* prop);  // returns handle index or -1 on fail
+
+  // accessors to glyphs representing hot spots (e.g., handles)
+  virtual vtkActor* GetHandleActor(int index) = 0;
+  virtual vtkHandleSource* GetHandleSource(int index) = 0;
+
+  /**
+   * returns handle index or -1 on fail
+   */
+  virtual int GetHandleIndex(vtkProp* prop) = 0;
   virtual void SizeHandles();
 
   /**
@@ -318,7 +330,7 @@ protected:
   virtual int InsertHandleOnLine(double* pos) = 0;
 
   virtual void PushHandle(double* pos);
-  void EraseHandle(const int&);
+  virtual void EraseHandle(const int&);
 
   // Do the picking
   vtkCellPicker* HandlePicker;
@@ -338,7 +350,7 @@ protected:
   vtkTransform* Transform;
 
   // Manage how the representation appears
-  bool DirectionalLine;
+  bool Directional = false;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -354,41 +366,8 @@ protected:
 
   int TranslationAxis;
 
-  class HandleSource : public vtkPolyDataAlgorithm
-  {
-  public:
-    static HandleSource* New();
-
-    vtkSetMacro(UseSphere, bool);
-    vtkGetMacro(UseSphere, bool);
-    vtkBooleanMacro(UseSphere, bool);
-
-    vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
-    vtkGetMacro(Radius, double);
-
-    vtkSetVector3Macro(Center, double);
-    vtkGetVectorMacro(Center, double, 3);
-
-    vtkSetVector3Macro(Direction, double);
-    vtkGetVectorMacro(Direction, double, 3);
-
-  protected:
-    HandleSource();
-    ~HandleSource() override = default;
-    int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  private:
-    bool UseSphere;
-    // Used by both
-    double Radius;
-    double Center[3];
-    // Cone only
-    double Direction[3];
-  };
-
 private:
   vtkCurveRepresentation(const vtkCurveRepresentation&) = delete;
   void operator=(const vtkCurveRepresentation&) = delete;
 };
-
 #endif

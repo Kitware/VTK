@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSplineWidget2.cxx
+  Module:    vtkCameraPathWidget.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,56 +12,56 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSplineWidget2.h"
+#include "vtkCameraPathWidget.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCameraPathRepresentation.h"
 #include "vtkCommand.h"
 #include "vtkEvent.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSplineRepresentation.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
-vtkStandardNewMacro(vtkSplineWidget2);
 //------------------------------------------------------------------------------
-vtkSplineWidget2::vtkSplineWidget2()
+vtkStandardNewMacro(vtkCameraPathWidget);
+
+//------------------------------------------------------------------------------
+vtkCameraPathWidget::vtkCameraPathWidget()
 {
-  this->WidgetState = vtkSplineWidget2::Start;
   this->ManagesCursor = 1;
 
   // Define widget events
-  this->CallbackMapper->SetCallbackMethod(
-    vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select, this, vtkSplineWidget2::SelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent, vtkWidgetEvent::Select,
+    this, vtkCameraPathWidget::SelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
-    vtkWidgetEvent::EndSelect, this, vtkSplineWidget2::EndSelectAction);
+    vtkWidgetEvent::EndSelect, this, vtkCameraPathWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonPressEvent,
-    vtkWidgetEvent::Translate, this, vtkSplineWidget2::TranslateAction);
+    vtkWidgetEvent::Translate, this, vtkCameraPathWidget::TranslateAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MiddleButtonReleaseEvent,
-    vtkWidgetEvent::EndTranslate, this, vtkSplineWidget2::EndSelectAction);
-  this->CallbackMapper->SetCallbackMethod(
-    vtkCommand::RightButtonPressEvent, vtkWidgetEvent::Scale, this, vtkSplineWidget2::ScaleAction);
+    vtkWidgetEvent::EndTranslate, this, vtkCameraPathWidget::EndSelectAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::RightButtonPressEvent, vtkWidgetEvent::Scale,
+    this, vtkCameraPathWidget::ScaleAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::RightButtonReleaseEvent,
-    vtkWidgetEvent::EndScale, this, vtkSplineWidget2::EndSelectAction);
+    vtkWidgetEvent::EndScale, this, vtkCameraPathWidget::EndSelectAction);
   this->CallbackMapper->SetCallbackMethod(
-    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkSplineWidget2::MoveAction);
+    vtkCommand::MouseMoveEvent, vtkWidgetEvent::Move, this, vtkCameraPathWidget::MoveAction);
 
-  this->KeyEventCallbackCommand = vtkCallbackCommand::New();
   this->KeyEventCallbackCommand->SetClientData(this);
-  this->KeyEventCallbackCommand->SetCallback(vtkSplineWidget2::ProcessKeyEvents);
+  this->KeyEventCallbackCommand->SetCallback(vtkCameraPathWidget::ProcessKeyEvents);
 }
 
 //------------------------------------------------------------------------------
-vtkSplineWidget2::~vtkSplineWidget2()
+void vtkCameraPathWidget::SetRepresentation(vtkCameraPathRepresentation* r)
 {
-  this->KeyEventCallbackCommand->Delete();
+  this->Superclass::SetWidgetRepresentation(vtkWidgetRepresentation::SafeDownCast(r));
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::SetEnabled(int enabling)
+void vtkCameraPathWidget::SetEnabled(int enabling)
 {
   int enabled = this->Enabled;
 
@@ -100,10 +100,10 @@ void vtkSplineWidget2::SetEnabled(int enabling)
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::SelectAction(vtkAbstractWidget* w)
+void vtkCameraPathWidget::SelectAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
-  vtkSplineWidget2* self = vtkSplineWidget2::SafeDownCast(w);
+  vtkCameraPathWidget* self = vtkCameraPathWidget::SafeDownCast(w);
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -112,7 +112,7 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget* w)
   // Okay, make sure that the pick is in the current renderer
   if (!self->CurrentRenderer || !self->CurrentRenderer->IsInViewport(X, Y))
   {
-    self->WidgetState = vtkSplineWidget2::Start;
+    self->WidgetState = vtkCameraPathWidget::Start;
     return;
   }
 
@@ -123,31 +123,32 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget* w)
   e[1] = static_cast<double>(Y);
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
-  if (interactionState == vtkSplineRepresentation::Outside)
+  if (interactionState == vtkCameraPathRepresentation::Outside)
   {
     return;
   }
 
   // We are definitely selected
-  self->WidgetState = vtkSplineWidget2::Active;
+  self->WidgetState = vtkCameraPathWidget::Active;
   self->GrabFocus(self->EventCallbackCommand);
 
-  if (interactionState == vtkSplineRepresentation::OnLine && self->Interactor->GetControlKey())
+  if (interactionState == vtkCameraPathRepresentation::OnLine && self->Interactor->GetControlKey())
   {
     // Add point.
-    reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)
-      ->SetInteractionState(vtkSplineRepresentation::Inserting);
+    reinterpret_cast<vtkCameraPathRepresentation*>(self->WidgetRep)
+      ->SetInteractionState(vtkCameraPathRepresentation::Inserting);
   }
-  else if (interactionState == vtkSplineRepresentation::OnHandle && self->Interactor->GetShiftKey())
+  else if (interactionState == vtkCameraPathRepresentation::OnHandle &&
+    self->Interactor->GetShiftKey())
   {
     // remove point.
-    reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)
-      ->SetInteractionState(vtkSplineRepresentation::Erasing);
+    reinterpret_cast<vtkCameraPathRepresentation*>(self->WidgetRep)
+      ->SetInteractionState(vtkCameraPathRepresentation::Erasing);
   }
   else
   {
-    reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)
-      ->SetInteractionState(vtkSplineRepresentation::Moving);
+    reinterpret_cast<vtkCameraPathRepresentation*>(self->WidgetRep)
+      ->SetInteractionState(vtkCameraPathRepresentation::Moving);
   }
 
   // start the interaction
@@ -158,17 +159,16 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::TranslateAction(vtkAbstractWidget* w)
+void vtkCameraPathWidget::TranslateAction(vtkAbstractWidget* w)
 {
-  // Not sure this should be any different that SelectAction
-  vtkSplineWidget2::SelectAction(w);
+  vtkCameraPathWidget::SelectAction(w);
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::ScaleAction(vtkAbstractWidget* w)
+void vtkCameraPathWidget::ScaleAction(vtkAbstractWidget* w)
 {
   // We are in a static method, cast to ourself
-  vtkSplineWidget2* self = reinterpret_cast<vtkSplineWidget2*>(w);
+  vtkCameraPathWidget* self = reinterpret_cast<vtkCameraPathWidget*>(w);
 
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
@@ -177,7 +177,7 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget* w)
   // Okay, make sure that the pick is in the current renderer
   if (!self->CurrentRenderer || !self->CurrentRenderer->IsInViewport(X, Y))
   {
-    self->WidgetState = vtkSplineWidget2::Start;
+    self->WidgetState = vtkCameraPathWidget::Start;
     return;
   }
 
@@ -188,17 +188,17 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget* w)
   e[1] = static_cast<double>(Y);
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
-  if (interactionState == vtkSplineRepresentation::Outside)
+  if (interactionState == vtkCameraPathRepresentation::Outside)
   {
     return;
   }
 
   // We are definitely selected
-  self->WidgetState = vtkSplineWidget2::Active;
+  self->WidgetState = vtkCameraPathWidget::Active;
   self->GrabFocus(self->EventCallbackCommand);
   // Scale
-  reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)
-    ->SetInteractionState(vtkSplineRepresentation::Scaling);
+  reinterpret_cast<vtkCameraPathRepresentation*>(self->WidgetRep)
+    ->SetInteractionState(vtkCameraPathRepresentation::Scaling);
 
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -208,12 +208,12 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::MoveAction(vtkAbstractWidget* w)
+void vtkCameraPathWidget::MoveAction(vtkAbstractWidget* w)
 {
-  vtkSplineWidget2* self = reinterpret_cast<vtkSplineWidget2*>(w);
+  vtkCameraPathWidget* self = reinterpret_cast<vtkCameraPathWidget*>(w);
 
   // See whether we're active
-  if (self->WidgetState == vtkSplineWidget2::Start)
+  if (self->WidgetState == vtkCameraPathWidget::Start)
   {
     return;
   }
@@ -235,10 +235,10 @@ void vtkSplineWidget2::MoveAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget* w)
+void vtkCameraPathWidget::EndSelectAction(vtkAbstractWidget* w)
 {
-  vtkSplineWidget2* self = reinterpret_cast<vtkSplineWidget2*>(w);
-  if (self->WidgetState == vtkSplineWidget2::Start)
+  vtkCameraPathWidget* self = reinterpret_cast<vtkCameraPathWidget*>(w);
+  if (self->WidgetState == vtkCameraPathWidget::Start)
   {
     return;
   }
@@ -255,9 +255,9 @@ void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget* w)
   self->WidgetRep->EndWidgetInteraction(e);
 
   // Return state to not active
-  self->WidgetState = vtkSplineWidget2::Start;
-  reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)
-    ->SetInteractionState(vtkSplineRepresentation::Outside);
+  self->WidgetState = vtkCameraPathWidget::Start;
+  reinterpret_cast<vtkCameraPathRepresentation*>(self->WidgetRep)
+    ->SetInteractionState(vtkCameraPathRepresentation::Outside);
   self->ReleaseFocus();
 
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -267,20 +267,20 @@ void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::CreateDefaultRepresentation()
+void vtkCameraPathWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
   {
-    this->WidgetRep = vtkSplineRepresentation::New();
+    this->WidgetRep = vtkCameraPathRepresentation::New();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
+void vtkCameraPathWidget::ProcessKeyEvents(vtkObject*, unsigned long event, void* clientdata, void*)
 {
-  vtkSplineWidget2* self = static_cast<vtkSplineWidget2*>(clientdata);
+  vtkCameraPathWidget* self = static_cast<vtkCameraPathWidget*>(clientdata);
   vtkRenderWindowInteractor* iren = self->GetInteractor();
-  vtkSplineRepresentation* rep = vtkSplineRepresentation::SafeDownCast(self->WidgetRep);
+  vtkCameraPathRepresentation* rep = vtkCameraPathRepresentation::SafeDownCast(self->WidgetRep);
   switch (event)
   {
     case vtkCommand::KeyPressEvent:
@@ -323,7 +323,8 @@ void vtkSplineWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* c
 }
 
 //------------------------------------------------------------------------------
-void vtkSplineWidget2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCameraPathWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "WidgetState: " << this->WidgetState << "\n";
 }
