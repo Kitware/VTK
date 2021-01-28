@@ -358,7 +358,7 @@ struct UnstructuredSpheres : public DataSetSpheres
     vtkUnstructuredGrid* grid = static_cast<vtkUnstructuredGrid*>(this->DataSet);
     double cellPts[120], *p, r;
     vtkIdType ptNum;
-    const vtkIdType* cellIds;
+    vtkNew<vtkIdList> cellIds;
     vtkIdType numCellPts;
     double& radius = this->Radius.Local();
     vtkIdType& count = this->Count.Local();
@@ -371,12 +371,12 @@ struct UnstructuredSpheres : public DataSetSpheres
 
     for (; cellId < endCellId; ++cellId, sphere += 4)
     {
-      grid->GetCellPoints(cellId, numCellPts, cellIds);
-      numCellPts = (numCellPts < 40 ? numCellPts : 40);
+      grid->GetCellPoints(cellId, cellIds);
+      numCellPts = std::min(cellIds->GetNumberOfIds(), static_cast<vtkIdType>(40));
       p = cellPts;
       for (ptNum = 0; ptNum < numCellPts; ++ptNum, p += 3)
       {
-        grid->GetPoint(cellIds[ptNum], p);
+        grid->GetPoint(cellIds->GetId(ptNum), p);
       }
       vtkSphere::ComputeBoundingSphere(cellPts, numCellPts, sphere, nullptr);
 
