@@ -1492,14 +1492,14 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // If the points were normalized, reverse the normalization process.
   if (this->NormalizeCoordinates)
   {
-    UnnormalizePoints(newPts, length, center);
+    UnnormalizePoints(outPts, length, center);
   }
 
   // If error scalars are requested, create them.
   if (this->GenerateErrorScalars)
   {
     vtkSmartPointer<vtkFloatArray> errorScalars;
-    errorScalars.TakeReference(ProduceErrorScalars(input->GetPoints(), newPts));
+    errorScalars.TakeReference(ProduceErrorScalars(input->GetPoints(), outPts));
     int idx = output->GetPointData()->AddArray(errorScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   }
@@ -1508,7 +1508,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   if (this->GenerateErrorVectors)
   {
     vtkSmartPointer<vtkFloatArray> errorVectors;
-    errorVectors.TakeReference(ProduceErrorVectors(input->GetPoints(), newPts));
+    errorVectors.TakeReference(ProduceErrorVectors(input->GetPoints(), outPts));
     output->GetPointData()->AddArray(errorVectors);
   }
 
