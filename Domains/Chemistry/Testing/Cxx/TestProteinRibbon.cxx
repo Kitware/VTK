@@ -18,6 +18,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkInteractorStyleSwitch.h"
+#include "vtkNew.h"
 #include "vtkPDBReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -37,29 +38,26 @@ int TestProteinRibbon(int argc, char* argv[])
   delete[] fileName;
 
   // setup ribbon filter
-  vtkSmartPointer<vtkProteinRibbonFilter> ribbonFilter =
-    vtkSmartPointer<vtkProteinRibbonFilter>::New();
+  vtkNew<vtkProteinRibbonFilter> ribbonFilter;
   ribbonFilter->SetInputConnection(reader->GetOutputPort());
   ribbonFilter->Update();
 
   // setup poly data mapper
-  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputData(ribbonFilter->GetOutput());
   polyDataMapper->Update();
 
   // setup actor
-  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(polyDataMapper);
 
   // setup render window
-  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> win = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win);
-  vtkSmartPointer<vtkInteractorStyleSwitch> is =
-    vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle());
+  vtkInteractorStyleSwitch* is = vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle());
   if (is)
   {
     is->SetCurrentStyleToTrackballCamera();

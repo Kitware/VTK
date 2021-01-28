@@ -25,8 +25,8 @@ TEST_DEPENDS
   VTK::DomainsChemistryOpenGL2
   VTK::FiltersGeometry
   VTK::InteractionStyle
+  VTK::IOChemistry
   VTK::IOLegacy
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
-  VTK::IOChemistry

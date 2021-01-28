@@ -16,14 +16,14 @@ DEPENDS
   VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonSystem
+  VTK::DomainsChemistry
   VTK::RenderingCore
   VTK::vtksys
   VTK::zlib
-  VTK::DomainsChemistry
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::DomainsChemistry
   VTK::FiltersGeometry
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
-  VTK::DomainsChemistry
