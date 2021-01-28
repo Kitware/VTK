@@ -256,6 +256,10 @@ static PyObject* PyVTKTemplate_Call(PyObject*, PyObject*, PyObject*)
   return nullptr;
 }
 
+#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 //------------------------------------------------------------------------------
 // clang-format off
 PyTypeObject PyVTKTemplate_Type = {

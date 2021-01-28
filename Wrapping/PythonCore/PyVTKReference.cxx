@@ -970,6 +970,10 @@ static PyObject* PyVTKReference_New(PyTypeObject*, PyObject* args, PyObject* kwd
   return nullptr;
 }
 
+#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 // clang-format off
 //------------------------------------------------------------------------------
 PyTypeObject PyVTKReference_Type = {

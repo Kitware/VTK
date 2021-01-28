@@ -504,6 +504,10 @@ void vtkWrapPython_GenerateObjectType(FILE* fp, const char* module, const char* 
 {
   /* Generate the TypeObject */
   fprintf(fp,
+    "#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION\n"
+    "#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"\n"
+    "#endif\n"
+    "\n"
     "static PyTypeObject Py%s_Type = {\n"
     "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
     "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
