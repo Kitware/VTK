@@ -58,6 +58,46 @@
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb
 
+.fedora_memcheck:
+    variables:
+        CMAKE_BUILD_TYPE: RelWithDebInfo
+
+.fedora_asan_addon:
+    extends: .fedora_memcheck
+
+    variables:
+        CTEST_MEMORYCHECK_TYPE: AddressSanitizer
+        # Disable LeakSanitizer for now. It's catching all kinds of errors that
+        # need investigated or suppressed.
+        # CTEST_MEMORYCHECK_SANITIZER_OPTIONS: detect_leaks=0
+
+.fedora_ubsan_addon:
+    extends: .fedora_memcheck
+
+    variables:
+        CTEST_MEMORYCHECK_TYPE: UndefinedBehaviorSanitizer
+
+.fedora33_asan:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+        - .fedora_asan_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_asan_mpi_python_qt_tbb
+
+.fedora33_ubsan:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+        - .fedora_ubsan_addon
+
+    variables:
+        # MPI and Python are currently not part of this list because there are
+        # issues with tests using external executables when testing UBSan
+        # around ASan not being first in the initial library list.
+        CMAKE_CONFIGURATION: fedora33_qt_tbb_ubsan
+
 .linux_builder_tags:
     tags:
         - build
@@ -68,6 +108,13 @@
     tags:
         - docker
         - linux
+        - x11
+
+.linux_tester_priv_tags:
+    tags:
+        - docker
+        - linux
+        - privileged
         - x11
 
 ## Linux-specific scripts
@@ -106,4 +153,12 @@
         - *before_script_linux
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
+    interruptible: true
+
+.cmake_memcheck_linux:
+    stage: test
+
+    script:
+        - *before_script_linux
+        - "$LAUNCHER ctest --output-on-failure -V -S .gitlab/ci/ctest_memcheck.cmake"
     interruptible: true
