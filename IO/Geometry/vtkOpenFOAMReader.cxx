@@ -831,7 +831,7 @@ private:
   }
 
   // Append time directories for mesh
-  void AppendMeshDirToArray(vtkStringArray*, const std::string&, int);
+  void AppendMeshDirToArray(vtkStringArray*, vtkIdType timeIndex, bool changed);
 
   // Search time directories for mesh
   void PopulatePolyMeshDirArrays();
@@ -1417,7 +1417,7 @@ public:
 };
 
 template <>
-inline bool vtkFoamToken::Is<char>() const
+inline bool vtkFoamToken::Is<vtkTypeInt8>() const
 {
   // masquerade for bool
   return this->Type == LABEL;
@@ -1449,10 +1449,11 @@ inline bool vtkFoamToken::Is<double>() const
   return this->Type == SCALAR;
 }
 
+// ie, a bool value
 template <>
-inline char vtkFoamToken::To<char>() const
+inline vtkTypeInt8 vtkFoamToken::To<vtkTypeInt8>() const
 {
-  return static_cast<char>(this->Int);
+  return static_cast<vtkTypeInt8>(this->Int);
 }
 
 template <>
@@ -1574,6 +1575,13 @@ public:
     INPUT_MODE_WARN,
     INPUT_MODE_ERROR
   };
+
+  // Check for existence of specified file
+  static bool IsFile(const std::string& file, bool checkGzip = true)
+  {
+    return (vtksys::SystemTools::FileExists(file, true) ||
+      (checkGzip && vtksys::SystemTools::FileExists(file + ".gz", true)));
+  }
 
   // Generic exception throwing with stack trace
   void ThrowStackTrace(const std::string& msg);
@@ -2807,23 +2815,23 @@ private:
   void ReadHeader();
 
   // Attempt to open file (or file.gz) and read header
-  bool OpenFile(const std::string& file, bool fallbackGzip = false)
+  bool OpenFile(const std::string& file, bool checkGzip = false)
   {
     try
     {
       this->Superclass::Open(file);
-      fallbackGzip = false;
+      checkGzip = false;
     }
     catch (const vtkFoamError& err)
     {
-      if (!fallbackGzip)
+      if (!checkGzip)
       {
         this->SetError(err);
         return false;
       }
     }
 
-    if (fallbackGzip)
+    if (checkGzip)
     {
       try
       {
@@ -2896,9 +2904,9 @@ public:
 };
 
 template <>
-inline char vtkFoamReadValue<char>::ReadValue(vtkFoamIOobject& io)
+inline vtkTypeInt8 vtkFoamReadValue<vtkTypeInt8>::ReadValue(vtkFoamIOobject& io)
 {
-  return static_cast<char>(io.ReadIntValue());
+  return static_cast<vtkTypeInt8>(io.ReadIntValue());
 }
 
 template <>
@@ -2960,10 +2968,7 @@ public:
     void ReadUniformValues(vtkFoamIOobject& io, const vtkIdType size)
     {
       primitiveT value = vtkFoamReadValue<primitiveT>::ReadValue(io);
-      for (vtkIdType i = 0; i < size; i++)
-      {
-        this->Ptr->SetValue(i, value);
-      }
+      this->Ptr->FillValue(value);
     }
 
     void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
@@ -4704,7 +4709,7 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
     // List<bool> is read as a list of bytes (binary) or ints (ascii)
     // - primary location is the flipMap entry in faceZones
     this->IsUniformEntry = false;
-    this->ReadNonuniformList<BOOLLIST, listTraits<vtkCharArray, char>>(io);
+    this->ReadNonuniformList<BOOLLIST, listTraits<vtkTypeInt8Array, vtkTypeInt8>>(io);
   }
   else if (currToken.GetType() == this->Superclass::PUNCTUATION ||
     currToken.GetType() == this->Superclass::LABEL ||
@@ -5847,29 +5852,24 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
 }
 
 //------------------------------------------------------------------------------
+// Append time value for a mesh points/faces change
 void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
-  vtkStringArray* polyMeshDir, const std::string& path, int timeI)
+  vtkStringArray* instances, vtkIdType timeIndex, bool changed)
 {
-  vtkFoamIOobject io(this->CasePath, this->Parent);
-
-  if (io.OpenOrGzip(path))
+  if (changed)
   {
-    io.Close();
-    // set points/faces location to current timesteps value
-    polyMeshDir->SetValue(timeI, this->TimeNames->GetValue(timeI));
+    // Changed, set to current time instance name
+    instances->SetValue(timeIndex, this->TimeNames->GetValue(timeIndex));
+  }
+  else if (timeIndex > 0)
+  {
+    // No change, set to previous time instance name
+    instances->SetValue(timeIndex, instances->GetValue(timeIndex - 1));
   }
   else
   {
-    if (timeI != 0)
-    {
-      // set points/faces location to previous timesteps value
-      polyMeshDir->SetValue(timeI, polyMeshDir->GetValue(timeI - 1));
-    }
-    else
-    {
-      // set points/faces to constant
-      polyMeshDir->SetValue(timeI, "constant");
-    }
+    // No change for the first instance, set to "constant" time instance
+    instances->SetValue(timeIndex, "constant");
   }
 }
 
@@ -5879,17 +5879,21 @@ void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
 void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
 {
   // initialize size to number of timesteps
-  vtkIdType nSteps = this->TimeValues->GetNumberOfTuples();
-  this->PolyMeshPointsDir->SetNumberOfValues(nSteps);
-  this->PolyMeshFacesDir->SetNumberOfValues(nSteps);
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+  this->PolyMeshPointsDir->SetNumberOfValues(nTimes);
+  this->PolyMeshFacesDir->SetNumberOfValues(nTimes);
 
-  // loop through each timestep
-  for (int i = 0; i < static_cast<int>(nSteps); i++)
+  for (vtkIdType timei = 0; timei < nTimes; ++timei)
   {
-    // create the path to the timestep
-    std::string polyMeshPath = this->TimeRegionPath(i) + "/polyMesh/";
-    AppendMeshDirToArray(this->PolyMeshPointsDir, polyMeshPath + "points", i);
-    AppendMeshDirToArray(this->PolyMeshFacesDir, polyMeshPath + "faces", i);
+    // The mesh directory for this timestep
+    const std::string meshDir(this->TimeRegionPath(timei) + "/polyMesh/");
+
+    const bool hasMeshDir = vtksys::SystemTools::FileIsDirectory(meshDir);
+    const bool topoChanged = hasMeshDir && vtkFoamFile::IsFile(meshDir + "faces", true);
+    const bool pointsMoved = hasMeshDir && vtkFoamFile::IsFile(meshDir + "points", true);
+
+    AppendMeshDirToArray(this->PolyMeshFacesDir, timei, topoChanged);
+    AppendMeshDirToArray(this->PolyMeshPointsDir, timei, pointsMoved);
   }
 }
 
@@ -9906,26 +9910,15 @@ int vtkOpenFOAMReader::MakeInformationVector(
       return 0;
     }
 
-    {
-      const std::string meshTestFile(constantPath + "polyMesh/faces");
-      if (vtksys::SystemTools::FileExists(meshTestFile, true) ||
-        vtksys::SystemTools::FileExists(meshTestFile + ".gz", true))
-      {
-        hasDefaultRegion = true;
-      }
-    }
+    hasDefaultRegion = vtkFoamFile::IsFile(constantPath + "polyMesh/faces", true);
 
     for (vtkIdType entryi = 0; entryi < dir->GetNumberOfFiles(); ++entryi)
     {
       std::string subDir(dir->GetFile(entryi));
-      if (subDir != "." && subDir != ".." && dir->FileIsDirectory(subDir.c_str()))
+      if (subDir != "." && subDir != ".." && dir->FileIsDirectory(subDir.c_str()) &&
+        vtkFoamFile::IsFile((constantPath + subDir + "/polyMesh/faces"), true))
       {
-        const std::string meshTestFile(constantPath + subDir + "/polyMesh/faces");
-        if (vtksys::SystemTools::FileExists(meshTestFile, true) ||
-          vtksys::SystemTools::FileExists(meshTestFile + ".gz", true))
-        {
-          regionNames.push_back(std::move(subDir));
-        }
+        regionNames.push_back(std::move(subDir));
       }
     }
 
