@@ -164,6 +164,10 @@ static PyMemberDef PyVTKMethodDescriptor_Members[] = {
   { nullptr, 0, 0, 0, nullptr }
 };
 
+#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 //------------------------------------------------------------------------------
 // clang-format off
 PyTypeObject PyVTKMethodDescriptor_Type = {

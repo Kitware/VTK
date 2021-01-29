@@ -78,6 +78,15 @@
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0,
 #endif
 
+// Python 3.8 contains a deprecation marker on the `tp_print` field. Since some
+// compilers are very touchy about this situation, just suppress the warning.
+#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000
+// GCC-alike (but not Intel) need this.
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
+#define VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#endif
+#endif
+
 #endif
 
 // ===== Macros needed for Python 2 ====

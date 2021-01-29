@@ -41,6 +41,10 @@ static void PyVTKNamespace_Delete(PyObject* op)
   PyVTKNamespace_Type.tp_base->tp_dealloc(op);
 }
 
+#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 //------------------------------------------------------------------------------
 // clang-format off
 PyTypeObject PyVTKNamespace_Type = {
