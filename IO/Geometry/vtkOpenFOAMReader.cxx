@@ -78,6 +78,9 @@
 // This could also be made part of the GUI properties
 #define VTK_FOAMFILE_IGNORE_FIELD_RESTART 0
 
+// Support extra decomposition of polyhedral cells
+#define VTK_FOAMFILE_DECOMPOSE_POLYHEDRA 1
+
 //------------------------------------------------------------------------------
 // Developer option to debug the reader states
 #define VTK_FOAMFILE_DEBUG 0
@@ -855,11 +858,13 @@ private:
   vtkMultiBlockDataSet* FaceZoneMesh;
   vtkMultiBlockDataSet* PointZoneMesh;
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   // For polyhedral decomposition
-  int NumTotalAdditionalCells;
+  vtkIdType NumTotalAdditionalCells;
   vtkIdTypeArray* AdditionalCellIds;
   vtkIntArray* NumAdditionalCells;
   vtkFoamLabelArrayVector* AdditionalCellPoints;
+#endif
 
   // Constructor and destructor are kept private
   vtkOpenFOAMReaderPrivate();
@@ -933,8 +938,12 @@ private:
 
   // Create volume mesh
   void InsertCellsToGrid(vtkUnstructuredGrid*, const vtkFoamLabelListList& meshCells,
-    const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray,
-    vtkIdTypeArray* additionalCellIds = nullptr, vtkDataArray* cellLabels = nullptr);
+    const vtkFoamLabelListList& meshFaces, vtkDataArray* cellLabels = nullptr
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+    ,
+    vtkIdTypeArray* additionalCellIds = nullptr, vtkFloatArray* pointArray = nullptr
+#endif
+  );
 
   vtkUnstructuredGrid* MakeInternalMesh(const vtkFoamLabelListList& meshCells,
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
@@ -945,7 +954,8 @@ private:
   template <typename T1, typename T2>
   bool ExtendArray(T1*, vtkIdType);
 
-  vtkMultiBlockDataSet* MakeBoundaryMesh(const vtkFoamLabelListList& meshFaces, vtkFloatArray*);
+  vtkMultiBlockDataSet* MakeBoundaryMesh(
+    const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
 
   void TruncateFaceOwner();
 
@@ -4956,11 +4966,13 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->FaceZoneMesh = nullptr;
   this->CellZoneMesh = nullptr;
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   // For polyhedral decomposition
   this->NumTotalAdditionalCells = 0;
   this->AdditionalCellIds = nullptr;
   this->NumAdditionalCells = nullptr;
   this->AdditionalCellPoints = nullptr;
+#endif
 
   this->Parent = nullptr;
 }
@@ -4999,6 +5011,7 @@ void vtkOpenFOAMReaderPrivate::ClearInternalMeshes()
     this->InternalMesh = nullptr;
   }
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   // For polyhedral decomposition
   this->NumTotalAdditionalCells = 0;
   if (this->AdditionalCellIds != nullptr)
@@ -5014,6 +5027,7 @@ void vtkOpenFOAMReaderPrivate::ClearInternalMeshes()
 
   delete this->AdditionalCellPoints;
   this->AdditionalCellPoints = nullptr;
+#endif
 }
 
 void vtkOpenFOAMReaderPrivate::ClearZoneMeshes()
@@ -6570,9 +6584,14 @@ bool vtkOpenFOAMReaderPrivate::CheckFaceList(const vtkFoamLabelListList& faces)
 //------------------------------------------------------------------------------
 // determine cell shape and insert the cell into the mesh
 // hexahedron, prism, pyramid, tetrahedron and decompose polyhedron
-void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMesh,
-  const vtkFoamLabelListList& meshCells, const vtkFoamLabelListList& meshFaces,
-  vtkFloatArray* pointArray, vtkIdTypeArray* additionalCells, vtkDataArray* cellList)
+void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
+  vtkUnstructuredGrid* internalMesh, const vtkFoamLabelListList& meshCells,
+  const vtkFoamLabelListList& meshFaces, vtkDataArray* cellList
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+  ,
+  vtkIdTypeArray* additionalCells, vtkFloatArray* pointArray
+#endif
+)
 {
   const bool cellList64Bit = ::Is64BitArray(cellList);
   const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
@@ -6592,18 +6611,20 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
 
   const vtkIdType nCells = (cellList == nullptr ? this->NumCells : cellList->GetNumberOfTuples());
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   // Local variable for polyhedral decomposition
   vtkIdType nAdditionalPoints = 0;
+
+  if (additionalCells && cellList) // sanity check
+  {
+    vtkErrorMacro(<< "Decompose polyhedral is not supported on mesh subset");
+    return;
+  }
+#endif
 
   vtkSmartPointer<vtkIdTypeArray> arrayId;
   if (cellList)
   {
-    if (additionalCells) // sanity check
-    {
-      vtkErrorMacro(<< "Decompose polyhedral is not supported on mesh subset");
-      return;
-    }
-
     // create array holding cell id only on zone mesh
     arrayId = vtkSmartPointer<vtkIdTypeArray>::New();
     arrayId->SetName("CellId");
@@ -7125,8 +7146,11 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
     // OFpolyhedron || vtkPolyhedron
     if (cellType == VTK_POLYHEDRON)
     {
-      if (additionalCells != nullptr) // decompose into tets and pyramids
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+      if (additionalCells != nullptr)
       {
+        // Decompose into tets and pyramids
+
         // calculate cell centroid and insert it to point list
         vtkDataArray* polyCellPoints;
         if (cellList64Bit)
@@ -7138,8 +7162,9 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           polyCellPoints = vtkTypeInt32Array::New();
         }
         this->AdditionalCellPoints->push_back(polyCellPoints);
-        float centroid[3];
-        centroid[0] = centroid[1] = centroid[2] = 0.0F;
+
+        double centroid[3];
+        centroid[0] = centroid[1] = centroid[2] = 0; // zero the contents
         for (size_t j = 0; j < cellFaces.size(); j++)
         {
           // remove duplicate points from faces
@@ -7148,12 +7173,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           meshFaces.GetCell(cellFacesJ, faceJPoints);
           for (size_t k = 0; k < faceJPoints.size(); k++)
           {
-            vtkTypeInt64 faceJPointK = faceJPoints[k];
+            const vtkTypeInt64 faceJPointK = faceJPoints[k];
             bool foundDup = false;
             for (vtkIdType l = 0; l < polyCellPoints->GetDataSize(); l++)
             {
-              vtkTypeInt64 polyCellPoint = GetLabelValue(polyCellPoints, l, cellList64Bit);
-              if (polyCellPoint == faceJPointK)
+              const vtkTypeInt64 polyCellPointi = GetLabelValue(polyCellPoints, l, cellList64Bit);
+              if (polyCellPointi == faceJPointK)
               {
                 foundDup = true;
                 break; // look no more
@@ -7162,18 +7187,20 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
             if (!foundDup)
             {
               AppendLabelValue(polyCellPoints, faceJPointK, cellList64Bit);
-              float* pointK = pointArray->GetPointer(3 * faceJPointK);
-              centroid[0] += pointK[0];
-              centroid[1] += pointK[1];
-              centroid[2] += pointK[2];
+              const float* tuple = pointArray->GetPointer(3 * faceJPointK);
+              centroid[0] += static_cast<double>(tuple[0]);
+              centroid[1] += static_cast<double>(tuple[1]);
+              centroid[2] += static_cast<double>(tuple[2]);
             }
           }
         }
         polyCellPoints->Squeeze();
-        const float weight = 1.0F / static_cast<float>(polyCellPoints->GetDataSize());
-        centroid[0] *= weight;
-        centroid[1] *= weight;
-        centroid[2] *= weight;
+        {
+          const double weight = 1.0 / static_cast<double>(polyCellPoints->GetDataSize());
+          centroid[0] *= weight;
+          centroid[1] *= weight;
+          centroid[2] *= weight;
+        }
         pointArray->InsertNextTuple(centroid);
 
         // polyhedron decomposition.
@@ -7200,14 +7227,14 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
           // e. g. autoRefineMesh
           if (faceJPoints.size() >= 5 && nTris)
           {
-            float *point0, *point1, *point2;
-            point0 = pointArray->GetPointer(3 * faceJPoints[faceJPoints.size() - 1]);
-            point1 = pointArray->GetPointer(3 * faceJPoints[0]);
-            point2 = pointArray->GetPointer(3 * faceJPoints[faceJPoints.size() - 2]);
+            const float* point0 = pointArray->GetPointer(3 * faceJPoints[faceJPoints.size() - 1]);
+            const float* point1 = pointArray->GetPointer(3 * faceJPoints[0]);
+            const float* point2 = pointArray->GetPointer(3 * faceJPoints[faceJPoints.size() - 2]);
             float vsizeSqr1 = 0.0F, vsizeSqr2 = 0.0F, dotProduct = 0.0F;
             for (int i = 0; i < 3; i++)
             {
-              const float v1 = point1[i] - point0[i], v2 = point2[i] - point0[i];
+              const float v1 = point1[i] - point0[i];
+              const float v2 = point2[i] - point0[i];
               vsizeSqr1 += v1 * v1;
               vsizeSqr2 += v2 * v2;
               dotProduct += v1 * v2;
@@ -7283,8 +7310,11 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(vtkUnstructuredGrid* internalMe
         this->NumAdditionalCells->InsertNextValue(nAdditionalCells);
         this->NumTotalAdditionalCells += nAdditionalCells;
       }
-      else // don't decompose; use VTK_POLYHEDRON
+      else
+#endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
       {
+        // Not decomposed - using VTK_POLYHEDRON
+
         // get first face
         vtkTypeInt64 cellFaces0 = cellFaces[0];
         vtkFoamLabelListList::CellType baseFacePoints;
@@ -7399,6 +7429,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   vtkUnstructuredGrid* internalMesh = vtkUnstructuredGrid::New();
   internalMesh->Allocate(this->NumCells);
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   if (this->Parent->GetDecomposePolyhedra())
   {
     // For polyhedral decomposition
@@ -7410,16 +7441,17 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
     auto additionalCells = vtkSmartPointer<vtkIdTypeArray>::New();
     additionalCells->SetNumberOfComponents(5); // Accommodate tetra or pyramid
 
-    this->InsertCellsToGrid(internalMesh, meshCells, meshFaces, pointArray, additionalCells);
+    this->InsertCellsToGrid(
+      internalMesh, meshCells, meshFaces, nullptr, additionalCells, pointArray);
 
-    // for polyhedral decomposition
+    // For polyhedral decomposition
     pointArray->Squeeze();
     this->AdditionalCellIds->Squeeze();
     this->NumAdditionalCells->Squeeze();
     additionalCells->Squeeze();
 
-    // insert decomposed cells into mesh
-    const int nComponents = additionalCells->GetNumberOfComponents();
+    // Insert decomposed cells into mesh
+    const int nComponents = additionalCells->GetNumberOfComponents(); // Should still be 5
     const vtkIdType nAdditionalCells = additionalCells->GetNumberOfTuples();
     for (vtkIdType i = 0; i < nAdditionalCells; i++)
     {
@@ -7435,8 +7467,9 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
     internalMesh->Squeeze();
   }
   else
+#endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   {
-    this->InsertCellsToGrid(internalMesh, meshCells, meshFaces, pointArray);
+    this->InsertCellsToGrid(internalMesh, meshCells, meshFaces);
   }
 
   // Set points for internalMesh
@@ -7892,35 +7925,42 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
 {
   const auto nOldPoints = internalMesh->GetPoints()->GetNumberOfPoints();
 
-  if (this->Parent->GetDecomposePolyhedra())
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+  if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
+    !this->AdditionalCellPoints->empty())
   {
-    const vtkIdType nAdditionalPoints = static_cast<vtkIdType>(this->AdditionalCellPoints->size());
-    this->ExtendArray<vtkFloatArray, float>(pointArray, this->NumPoints + nAdditionalPoints);
+    const auto& addCellPoints = *this->AdditionalCellPoints;
+    const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
+    this->ExtendArray<vtkFloatArray, float>(pointArray, this->NumPoints + nAddPoints);
 
-    const bool cellPoints64Bit =
-      (nAdditionalPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
+    const bool cellPoints64Bit = ::Is64BitArray(this->AdditionalCellPoints->front());
 
-    for (int i = 0; i < nAdditionalPoints; i++)
+    double centroid[3];
+    for (vtkIdType i = 0, newPointi = this->NumPoints; i < nAddPoints; ++i, ++newPointi)
     {
-      vtkDataArray* polyCellPoints = this->AdditionalCellPoints->operator[](i);
-      float centroid[3];
-      centroid[0] = centroid[1] = centroid[2] = 0.0F;
-      vtkIdType nCellPoints = polyCellPoints->GetDataSize();
+      vtkDataArray* polyCellPoints = addCellPoints[i];
+      const vtkIdType nCellPoints = polyCellPoints->GetDataSize();
+
+      centroid[0] = centroid[1] = centroid[2] = 0; // zero contents
       for (vtkIdType j = 0; j < nCellPoints; j++)
       {
-        float* pointK =
-          pointArray->GetPointer(3 * GetLabelValue(polyCellPoints, j, cellPoints64Bit));
-        centroid[0] += pointK[0];
-        centroid[1] += pointK[1];
-        centroid[2] += pointK[2];
+        const vtkTypeInt64 polyCellPointi = GetLabelValue(polyCellPoints, j, cellPoints64Bit);
+        const float* tuple = pointArray->GetPointer(3 * polyCellPointi);
+        centroid[0] += static_cast<double>(tuple[0]);
+        centroid[1] += static_cast<double>(tuple[1]);
+        centroid[2] += static_cast<double>(tuple[2]);
       }
-      const float weight = (nCellPoints ? 1.0F / static_cast<float>(nCellPoints) : 0.0F);
-      centroid[0] *= weight;
-      centroid[1] *= weight;
-      centroid[2] *= weight;
-      pointArray->InsertTuple(this->NumPoints + i, centroid);
+      if (nCellPoints)
+      {
+        const double weight = 1.0 / static_cast<double>(nCellPoints);
+        centroid[0] *= weight;
+        centroid[1] *= weight;
+        centroid[2] *= weight;
+      }
+      pointArray->InsertTuple(newPointi, centroid);
     }
   }
+#endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
 
   if (nOldPoints != pointArray->GetNumberOfTuples())
   {
@@ -8397,8 +8437,13 @@ std::string vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& dic
 void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   const std::string& varName, bool isInternalField)
 {
+  // Where to map data
   vtkUnstructuredGrid* internalMesh = this->InternalMesh;
   vtkMultiBlockDataSet* boundaryMesh = this->BoundaryMesh;
+
+  // Boundary information
+  const auto& patches = this->BoundaryDict;
+  const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
@@ -8420,21 +8465,26 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   // Eg, from "volScalarField" or "volScalarField::Internal" -> SCALAR_TYPE
   const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 3));
 
-  // The internalField
-  vtkFoamEntry* iEntry = nullptr;
+  // -------------------------
+  // Handle dictionary lookups first
+
+  // The "dimensions" entry - stringify
+  const std::string dimString(this->ConstructDimensions(dict));
+
+  // The "internalField" entry, or "value" for Dimensioned field
+  vtkFoamEntry* ifieldEntry = nullptr;
   {
     const std::string entryName = (isInternalField ? "value" : "internalField");
 
-    iEntry = dict.Lookup(entryName);
-    if (iEntry == nullptr)
+    ifieldEntry = dict.Lookup(entryName);
+    if (ifieldEntry == nullptr)
     {
       vtkErrorMacro(<< entryName << " not found in " << io.GetFileName());
       return;
     }
-
-    if (iEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    else if (ifieldEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
     {
-      if (this->NumCells > 0)
+      if (this->NumCells)
       {
         vtkErrorMacro(<< entryName << " of " << io.GetFileName() << " is empty");
       }
@@ -8442,311 +8492,326 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     }
   }
 
-  vtkFloatArray* iData = this->FillField(*iEntry, this->NumCells, io, fieldDataType);
-  if (iData == nullptr)
-  {
-    return;
-  }
-
-  const std::string dimString(this->ConstructDimensions(dict));
-
-  vtkFloatArray *acData = nullptr, *ctpData = nullptr;
-
-  if (this->Parent->GetCreateCellToPoint())
-  {
-    acData = vtkFloatArray::New();
-    acData->SetNumberOfComponents(iData->GetNumberOfComponents());
-    acData->SetNumberOfTuples(this->AllBoundaries->GetNumberOfCells());
-  }
-
-  if (iData->GetSize() > 0)
-  {
-    // Add field only if internal Mesh exists (skip if not selected).
-    // Note we still need to read internalField even if internal mesh is
-    // not selected, since boundaries without value entries may refer to
-    // the internalField.
-    if (internalMesh != nullptr)
-    {
-      if (this->Parent->GetDecomposePolyhedra())
-      {
-        // add values for decomposed cells
-        this->ExtendArray<vtkFloatArray, float>(
-          iData, this->NumCells + this->NumTotalAdditionalCells);
-        vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
-        vtkIdType additionalCellI = this->NumCells;
-        for (vtkIdType tupleI = 0; tupleI < nTuples; tupleI++)
-        {
-          const int nCells = this->NumAdditionalCells->GetValue(tupleI);
-          const vtkIdType cellId = this->AdditionalCellIds->GetValue(tupleI);
-          for (int cellI = 0; cellI < nCells; cellI++)
-          {
-            iData->InsertTuple(additionalCellI++, cellId, iData);
-          }
-        }
-      }
-
-      // Set data to internal mesh
-      ::AddArrayToFieldData(internalMesh->GetCellData(), iData, io.GetObjectName(), dimString);
-
-      if (this->Parent->GetCreateCellToPoint())
-      {
-        // Create cell-to-point interpolated data
-        ctpData = vtkFloatArray::New();
-        ctpData->SetNumberOfComponents(iData->GetNumberOfComponents());
-        ctpData->SetNumberOfTuples(internalMesh->GetPoints()->GetNumberOfPoints());
-        if (this->InternalPoints != nullptr)
-        {
-          this->InterpolateCellToPoint(ctpData, iData, internalMesh, this->InternalPoints,
-            this->InternalPoints->GetNumberOfTuples());
-        }
-
-        if (this->Parent->GetDecomposePolyhedra())
-        {
-          // assign cell values to additional points
-          vtkIdType nPoints = this->AdditionalCellIds->GetNumberOfTuples();
-          for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
-          {
-            ctpData->SetTuple(
-              this->NumPoints + pointI, this->AdditionalCellIds->GetValue(pointI), iData);
-          }
-        }
-      }
-    }
-  }
-  else
-  {
-    // determine as there's no cells
-    iData->Delete();
-    if (acData != nullptr)
-    {
-      acData->Delete();
-    }
-    return;
-  }
-
-  // Set boundary values
+  // The "boundaryField" entry
   const vtkFoamEntry* bfieldEntries = nullptr;
   if (!isInternalField)
   {
     bfieldEntries = dict.Lookup("boundaryField");
     if (bfieldEntries == nullptr)
     {
-      vtkWarningMacro(<< "boundaryField not found in object " << varName
+      vtkWarningMacro(<< "boundaryField not found in " << io.GetFileName()
                       << " at time = " << this->TimeNames->GetValue(this->TimeStep));
-      iData->Delete();
-      if (acData != nullptr)
-      {
-        acData->Delete();
-      }
-      if (ctpData != nullptr)
-      {
-        ctpData->Delete();
-      }
       return;
     }
   }
 
-  const auto& patches = this->BoundaryDict;
+  // -------------------------
 
-  const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
-
-  unsigned int activeBoundaryIndex = 0;
-  for (const vtkFoamPatch& patch : patches)
+  // Generate internal field data
+  vtkFloatArray* iData = this->FillField(*ifieldEntry, this->NumCells, io, fieldDataType);
+  if (iData == nullptr)
   {
-    const vtkIdType nFaces = patch.size_;
+    return;
+  }
+  else if (iData->GetSize() == 0)
+  {
+    // Determined that there are no cells. Ignore the field
+    iData->Delete();
+    return;
+  }
 
-    vtkFloatArray* vData = nullptr;
-    std::string bcType;
+  // Invariant for this field
+  const int nComponents = iData->GetNumberOfComponents();
 
-    if (bfieldEntries != nullptr)
+  // The cell-to-point interpolated data for cells
+  vtkFloatArray* ctpData = nullptr;
+
+  // Add field only if internal Mesh exists (skip if not selected).
+  // Note we still need to read internalField even if internal mesh is
+  // not selected, since boundaries without value entries may refer to
+  // the internalField.
+  if (internalMesh != nullptr)
+  {
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+    if (this->Parent->GetDecomposePolyhedra() && this->NumTotalAdditionalCells > 0)
     {
-      bool badEntry = false;
+      // Add values for decomposed cells
+      const vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
+      vtkIdType newCelli = this->NumCells;
 
-      const vtkFoamEntry* bfieldEntry = bfieldEntries->Dictionary().Lookup(patch.name_, true);
-      if (bfieldEntry == nullptr)
-      {
-        badEntry = true;
-        vtkWarningMacro(<< "boundaryField " << patch.name_ << " not found in object " << varName
-                        << " at time = " << this->TimeNames->GetValue(this->TimeStep));
-      }
-      else if (bfieldEntry->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
-      {
-        badEntry = true;
-        vtkWarningMacro(<< "boundaryField " << patch.name_ << " not a subdictionary in object "
-                        << varName << " at time = " << this->TimeNames->GetValue(this->TimeStep));
-      }
-      else
-      {
-        const vtkFoamDict& patchDict = bfieldEntry->Dictionary();
+      this->ExtendArray<vtkFloatArray, float>(
+        iData, this->NumCells + this->NumTotalAdditionalCells);
 
-        // Look for "value" entry
-        vtkFoamEntry* vEntry = patchDict.Lookup("value");
-        if (vEntry == nullptr)
+      for (vtkIdType tupleI = 0; tupleI < nTuples; tupleI++)
+      {
+        const int nvals = this->NumAdditionalCells->GetValue(tupleI);
+        const vtkIdType cellId = this->AdditionalCellIds->GetValue(tupleI);
+        for (int vali = 0; vali < nvals; ++vali)
         {
-          // For alternative fallback
-          const vtkFoamEntry* eptr = patchDict.Lookup("type");
-          if (eptr != nullptr)
-          {
-            bcType = eptr->ToString();
-          }
+          iData->InsertTuple(newCelli++, cellId, iData);
+        }
+      }
+    }
+#endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+
+    // Set data to internal mesh
+    ::AddArrayToFieldData(internalMesh->GetCellData(), iData, io.GetObjectName(), dimString);
+
+    if (this->Parent->GetCreateCellToPoint())
+    {
+      // Create cell-to-point interpolated data
+      ctpData = vtkFloatArray::New();
+      ctpData->SetNumberOfComponents(nComponents);
+      ctpData->SetNumberOfTuples(internalMesh->GetPoints()->GetNumberOfPoints());
+      if (this->InternalPoints != nullptr)
+      {
+        this->InterpolateCellToPoint(ctpData, iData, internalMesh, this->InternalPoints,
+          this->InternalPoints->GetNumberOfTuples());
+      }
+
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+      if (this->Parent->GetDecomposePolyhedra())
+      {
+        // assign cell values to additional points
+        const vtkIdType nAddPoints = this->AdditionalCellIds->GetNumberOfTuples();
+        for (vtkIdType pointi = 0, newPointi = this->NumPoints; pointi < nAddPoints;
+             ++pointi, ++newPointi)
+        {
+          ctpData->SetTuple(newPointi, this->AdditionalCellIds->GetValue(pointi), iData);
+        }
+      }
+#endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+    }
+  }
+
+  // Handle cell zones
+  // ...
+
+  // The cell-to-point interpolated data for boundary cells
+  vtkFloatArray* acData = nullptr;
+
+  if (boundaryMesh != nullptr)
+  {
+    if (this->Parent->GetCreateCellToPoint())
+    {
+      acData = vtkFloatArray::New();
+      acData->SetNumberOfComponents(nComponents);
+      acData->SetNumberOfTuples(this->AllBoundaries->GetNumberOfCells());
+    }
+
+    unsigned int activeBoundaryIndex = 0;
+    vtkFoamError warnings;
+
+    for (const vtkFoamPatch& patch : patches)
+    {
+      const vtkIdType nFaces = patch.size_;
+
+      vtkFloatArray* vData = nullptr;
+      std::string bcType;
+
+      if (bfieldEntries != nullptr)
+      {
+        bool badEntry = false;
+
+        const vtkFoamEntry* bfieldEntry = bfieldEntries->Dictionary().Lookup(patch.name_, true);
+        if (bfieldEntry == nullptr)
+        {
+          badEntry = true;
+          warnings << "not found";
+        }
+        else if (bfieldEntry->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
+        {
+          badEntry = true;
+          warnings << "not a subdictionary";
         }
         else
         {
-          vData = this->FillField(*vEntry, nFaces, io, fieldDataType);
-          if (vData == nullptr)
+          const vtkFoamDict& patchDict = bfieldEntry->Dictionary();
+
+          // Look for "value" entry
+          vtkFoamEntry* vEntry = patchDict.Lookup("value");
+          if (vEntry == nullptr)
           {
-            badEntry = true;
+            // For alternative fallback
+            const vtkFoamEntry* eptr = patchDict.Lookup("type");
+            if (eptr != nullptr)
+            {
+              bcType = eptr->ToString();
+            }
+          }
+          else
+          {
+            vData = this->FillField(*vEntry, nFaces, io, fieldDataType);
+            if (vData == nullptr)
+            {
+              badEntry = true;
+            }
+          }
+        }
+
+        // If anything unexpected happened, get out
+        if (badEntry)
+        {
+          if (!warnings.empty())
+          {
+            vtkWarningMacro(<< "boundaryField " << patch.name_ << ' ' << warnings << " in object "
+                            << varName
+                            << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+          }
+
+          iData->Delete();
+          if (acData != nullptr)
+          {
+            acData->Delete();
+          }
+          if (ctpData != nullptr)
+          {
+            ctpData->Delete();
+          }
+          return;
+        }
+      }
+
+      // Relative start into the FaceOwner list, which may have been truncated (boundaries only)
+      // or have its original length
+
+      const vtkIdType boundaryStartFace = patch.start_ -
+        (this->FaceOwner->GetNumberOfTuples() < this->NumFaces ? patches.startFace() : 0);
+
+      if (vData == nullptr)
+      {
+        // No "value" entry
+        // Default to patch-internal values as boundary values
+        vData = vtkFloatArray::New();
+        vData->SetNumberOfComponents(nComponents);
+        vData->SetNumberOfTuples(nFaces);
+
+        // Ad hoc handling of some known bcs without a "value"
+        if (bcType == "noSlip")
+        {
+          vData->FillValue(0);
+        }
+        else
+        {
+          for (vtkIdType bFacei = 0; bFacei < nFaces; ++bFacei)
+          {
+            const vtkTypeInt64 own =
+              GetLabelValue(this->FaceOwner, bFacei + boundaryStartFace, faceOwner64Bit);
+
+            vData->SetTuple(bFacei, own, iData);
           }
         }
       }
 
-      // If anything unexpected happened, get out
-      if (badEntry)
+      if (this->Parent->GetCreateCellToPoint())
       {
-        iData->Delete();
-        if (acData != nullptr)
+        const vtkIdType startFace = patch.offset_;
+
+        // if reading a processor sub-case of a decomposed case as is,
+        // use the patch values of the processor patch as is
+        if (patch.type_ == vtkFoamPatch::PHYSICAL ||
+          (this->ProcessorName.empty() && patch.type_ == vtkFoamPatch::PROCESSOR))
         {
-          acData->Delete();
+          // set the same value to AllBoundaries
+          for (vtkIdType bFacei = 0; bFacei < nFaces; ++bFacei)
+          {
+            acData->SetTuple(bFacei + startFace, bFacei, vData);
+          }
         }
-        if (ctpData != nullptr)
+        // implies && !this->ProcessorName.empty()
+        else if (patch.type_ == vtkFoamPatch::PROCESSOR)
         {
-          ctpData->Delete();
-        }
-        return;
-      }
-    }
+          // average patch internal value and patch value assuming the
+          // patch value to be the patchInternalField of the neighbor
+          // decomposed mesh. Using double precision to avoid degrade in
+          // accuracy.
+          for (vtkIdType bFacei = 0; bFacei < nFaces; ++bFacei)
+          {
+            const vtkIdType own =
+              GetLabelValue(this->FaceOwner, bFacei + boundaryStartFace, faceOwner64Bit);
 
-    // Relative start into the FaceOwner list, which may have been truncated (boundaries only)
-    // or have its original length
+            const float* vTuple = vData->GetPointer(bFacei * nComponents);
+            const float* iTuple = iData->GetPointer(own * nComponents);
+            float* acTuple = acData->GetPointer((bFacei + startFace) * nComponents);
 
-    const vtkIdType boundaryStartFace = patch.start_ -
-      (this->FaceOwner->GetNumberOfTuples() < this->NumFaces ? patches.startFace() : 0);
-
-    if (vData == nullptr)
-    {
-      // No "value" entry
-      // Default to patch-internal values as boundary values
-      vData = vtkFloatArray::New();
-      vData->SetNumberOfComponents(iData->GetNumberOfComponents());
-      vData->SetNumberOfTuples(nFaces);
-
-      // Ad hoc handling of some known bcs without a "value"
-      if (bcType == "noSlip")
-      {
-        vData->FillValue(0);
-      }
-      else
-      {
-        for (vtkIdType facei = 0; facei < nFaces; ++facei)
-        {
-          vtkTypeInt64 cellId =
-            GetLabelValue(this->FaceOwner, boundaryStartFace + facei, faceOwner64Bit);
-          vData->SetTuple(facei, cellId, iData);
+            for (int cmpt = 0; cmpt < nComponents; ++cmpt)
+            {
+              acTuple[cmpt] = static_cast<float>(
+                0.5 * (static_cast<double>(vTuple[cmpt]) + static_cast<double>(iTuple[cmpt])));
+            }
+          }
         }
       }
+
+      if (patches.isActive(patch.index_))
+      {
+        vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+        ::AddArrayToFieldData(bm->GetCellData(), vData, io.GetObjectName(), dimString);
+
+        if (this->Parent->GetCreateCellToPoint())
+        {
+          // construct cell-to-point interpolated boundary values. This
+          // is done independently from allBoundary interpolation so
+          // that the interpolated values are not affected by
+          // neighboring patches especially at patch edges and for
+          // baffle patches
+          vtkFloatArray* pData = vtkFloatArray::New();
+          pData->SetNumberOfComponents(vData->GetNumberOfComponents());
+          vtkIdType nPoints = bm->GetPoints()->GetNumberOfPoints();
+          pData->SetNumberOfTuples(nPoints);
+          this->InterpolateCellToPoint(pData, vData, bm, nullptr, nPoints);
+          ::AddArrayToFieldData(bm->GetPointData(), pData, io.GetObjectName(), dimString);
+          pData->Delete();
+        }
+
+        ++activeBoundaryIndex;
+      }
+      vData->Delete();
     }
 
     if (this->Parent->GetCreateCellToPoint())
     {
-      const vtkIdType startFace = patch.offset_;
+      // Create cell-to-point interpolated data for all boundaries and
+      // override internal values
+      vtkFloatArray* bpData = vtkFloatArray::New();
+      bpData->SetNumberOfComponents(nComponents);
+      vtkIdType nPoints = this->AllBoundariesPointMap->GetNumberOfTuples();
+      bpData->SetNumberOfTuples(nPoints);
+      this->InterpolateCellToPoint(bpData, acData, this->AllBoundaries, nullptr, nPoints);
+      acData->Delete();
 
-      // if reading a processor sub-case of a decomposed case as is,
-      // use the patch values of the processor patch as is
-      if (patch.type_ == vtkFoamPatch::PHYSICAL ||
-        (this->ProcessorName.empty() && patch.type_ == vtkFoamPatch::PROCESSOR))
+      if (ctpData != nullptr)
       {
-        // set the same value to AllBoundaries
-        for (vtkIdType facei = 0; facei < nFaces; ++facei)
+        const bool meshPoints64Bit = ::Is64BitArray(this->AllBoundariesPointMap);
+
+        // set cell-to-pint data for internal mesh
+        for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
         {
-          acData->SetTuple(facei + startFace, facei, vData);
+          ctpData->SetTuple(
+            GetLabelValue(this->AllBoundariesPointMap, pointI, meshPoints64Bit), pointI, bpData);
         }
+        ::AddArrayToFieldData(internalMesh->GetPointData(), ctpData, io.GetObjectName(), dimString);
+        ctpData->Delete();
       }
-      // implies && !this->ProcessorName.empty()
-      else if (patch.type_ == vtkFoamPatch::PROCESSOR)
-      {
-        // average patch internal value and patch value assuming the
-        // patch value to be the patchInternalField of the neighbor
-        // decomposed mesh. Using double precision to avoid degrade in
-        // accuracy.
-        const int nComponents = vData->GetNumberOfComponents();
-        for (vtkIdType faceI = 0; faceI < nFaces; faceI++)
-        {
-          const float* vTuple = vData->GetPointer(nComponents * faceI);
-          const float* iTuple = iData->GetPointer(nComponents *
-            GetLabelValue(this->FaceOwner, boundaryStartFace + faceI, faceOwner64Bit));
-          float* acTuple = acData->GetPointer(nComponents * (startFace + faceI));
-          for (int componentI = 0; componentI < nComponents; componentI++)
-          {
-            acTuple[componentI] = static_cast<float>(
-              (static_cast<double>(vTuple[componentI]) + static_cast<double>(iTuple[componentI])) *
-              0.5);
-          }
-        }
-      }
+
+      bpData->Delete();
     }
-
-    if (patches.isActive(patch.index_))
-    {
-      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
-      ::AddArrayToFieldData(bm->GetCellData(), vData, io.GetObjectName(), dimString);
-
-      if (this->Parent->GetCreateCellToPoint())
-      {
-        // construct cell-to-point interpolated boundary values. This
-        // is done independently from allBoundary interpolation so
-        // that the interpolated values are not affected by
-        // neighboring patches especially at patch edges and for
-        // baffle patches
-        vtkFloatArray* pData = vtkFloatArray::New();
-        pData->SetNumberOfComponents(vData->GetNumberOfComponents());
-        vtkIdType nPoints = bm->GetPoints()->GetNumberOfPoints();
-        pData->SetNumberOfTuples(nPoints);
-        this->InterpolateCellToPoint(pData, vData, bm, nullptr, nPoints);
-        ::AddArrayToFieldData(bm->GetPointData(), pData, io.GetObjectName(), dimString);
-        pData->Delete();
-      }
-
-      ++activeBoundaryIndex;
-    }
-    vData->Delete();
   }
+
+  // Done with internalField
   iData->Delete();
-
-  if (this->Parent->GetCreateCellToPoint())
-  {
-    // Create cell-to-point interpolated data for all boundaries and
-    // override internal values
-    vtkFloatArray* bpData = vtkFloatArray::New();
-    bpData->SetNumberOfComponents(acData->GetNumberOfComponents());
-    vtkIdType nPoints = this->AllBoundariesPointMap->GetNumberOfTuples();
-    bpData->SetNumberOfTuples(nPoints);
-    this->InterpolateCellToPoint(bpData, acData, this->AllBoundaries, nullptr, nPoints);
-    acData->Delete();
-
-    if (ctpData != nullptr)
-    {
-      const bool meshPoints64Bit = ::Is64BitArray(this->AllBoundariesPointMap);
-
-      // set cell-to-pint data for internal mesh
-      for (vtkIdType pointI = 0; pointI < nPoints; pointI++)
-      {
-        ctpData->SetTuple(
-          GetLabelValue(this->AllBoundariesPointMap, pointI, meshPoints64Bit), pointI, bpData);
-      }
-      ::AddArrayToFieldData(internalMesh->GetPointData(), ctpData, io.GetObjectName(), dimString);
-      ctpData->Delete();
-    }
-
-    bpData->Delete();
-  }
 }
 
 //------------------------------------------------------------------------------
 // Read point field at a timestep
 void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varName)
 {
+  // Where to map data
   vtkUnstructuredGrid* internalMesh = this->InternalMesh;
   vtkMultiBlockDataSet* boundaryMesh = this->BoundaryMesh;
+
+  // Boundary information
+  const auto& patches = this->BoundaryDict;
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
   vtkFoamDict dict;
@@ -8764,93 +8829,117 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   // Eg, from "pointScalarField" -> SCALAR_TYPE
   const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 5));
 
-  vtkFoamEntry* iEntry = dict.Lookup("internalField");
-  if (iEntry == nullptr)
-  {
-    vtkErrorMacro(<< "internalField not found in " << io.GetFileName());
-    return;
-  }
+  // -------------------------
+  // Handle dictionary lookups first
 
-  if (iEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+  // The "dimensions" entry - stringify
+  const std::string dimString(this->ConstructDimensions(dict));
+
+  // The "internalField" entry
+  vtkFoamEntry* ifieldEntry = nullptr;
   {
-    // if there's no cell there shouldn't be any boundary faces either
-    if (this->NumPoints > 0)
+    ifieldEntry = dict.Lookup("internalField");
+    if (ifieldEntry == nullptr)
     {
-      vtkErrorMacro(<< "internalField of " << io.GetFileName() << " is empty");
+      vtkErrorMacro(<< "internalField not found in " << io.GetFileName());
+      return;
     }
-    return;
+    else if (ifieldEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    {
+      if (this->NumPoints)
+      {
+        vtkErrorMacro(<< "internalField of " << io.GetFileName() << " is empty");
+      }
+      return;
+    }
   }
 
-  vtkFloatArray* iData = this->FillField(*iEntry, this->NumPoints, io, fieldDataType);
+  // The "boundaryField" entry
+  const vtkFoamEntry* bfieldEntries = nullptr;
+  {
+    bfieldEntries = dict.Lookup("boundaryField");
+    if (bfieldEntries == nullptr)
+    {
+      vtkWarningMacro(<< "boundaryField not found in " << io.GetFileName()
+                      << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+      return;
+    }
+  }
+
+  // -------------------------
+
+  // Generate internal field data
+  vtkFloatArray* iData = this->FillField(*ifieldEntry, this->NumPoints, io, fieldDataType);
   if (iData == nullptr)
   {
     return;
   }
-
-  const std::string dimString(this->ConstructDimensions(dict));
-
-  // AdditionalCellPoints is nullptr if creation of InternalMesh had been skipped
-  if (this->AdditionalCellPoints != nullptr)
+  else if (iData->GetSize() == 0)
   {
-    // point-to-cell interpolation to additional cell centroidal points
-    // for decomposed cells
-    const int nAdditionalPoints = static_cast<int>(this->AdditionalCellPoints->size());
-    const int nComponents = iData->GetNumberOfComponents();
-    this->ExtendArray<vtkFloatArray, float>(iData, this->NumPoints + nAdditionalPoints);
-
-    const bool cellPoints64Bit =
-      (nAdditionalPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
-
-    for (int i = 0; i < nAdditionalPoints; i++)
-    {
-      vtkDataArray* acp = this->AdditionalCellPoints->operator[](i);
-      vtkIdType nPoints = acp->GetDataSize();
-      double interpolatedValue[9];
-      for (int k = 0; k < nComponents; k++)
-      {
-        interpolatedValue[k] = 0.0;
-      }
-      for (vtkIdType j = 0; j < nPoints; j++)
-      {
-        const float* tuple =
-          iData->GetPointer(nComponents * GetLabelValue(acp, j, cellPoints64Bit));
-        for (int k = 0; k < nComponents; k++)
-        {
-          interpolatedValue[k] += tuple[k];
-        }
-      }
-      const double weight = 1.0 / static_cast<double>(nPoints);
-      for (int k = 0; k < nComponents; k++)
-      {
-        interpolatedValue[k] *= weight;
-      }
-      // will automatically be converted to float
-      iData->InsertTuple(this->NumPoints + i, interpolatedValue);
-    }
-  }
-
-  if (iData->GetSize() > 0)
-  {
-    // Add field only if internal Mesh exists (skip if not selected).
-    // Note we still need to read internalField even if internal mesh is
-    // not selected, since boundaries without value entries may refer to
-    // the internalField.
-    if (internalMesh != nullptr)
-    {
-      // Set data to internal mesh
-      ::AddArrayToFieldData(internalMesh->GetPointData(), iData, io.GetObjectName(), dimString);
-    }
-  }
-  else
-  {
-    // determine as there's no points
+    // Determined that there are no points. Ignore the field
     iData->Delete();
     return;
   }
 
+  // Invariant for this field
+  const int nComponents = iData->GetNumberOfComponents();
+
+  // Add field only if internal Mesh exists (skip if not selected).
+  // Note we still need to read internalField even if internal mesh is
+  // not selected, since boundaries without value entries may refer to
+  // the internalField.
+  if (internalMesh != nullptr)
+  {
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
+    if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
+      !this->AdditionalCellPoints->empty())
+    {
+      // The point-to-cell interpolation to additional cell centroidal points for decomposed cells
+      const auto& addCellPoints = *this->AdditionalCellPoints;
+      const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
+      this->ExtendArray<vtkFloatArray, float>(iData, this->NumPoints + nAddPoints);
+
+      const bool cellPoints64Bit =
+        (nAddPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
+
+      double interpolatedValue[9];
+      for (vtkIdType i = 0, newPointi = this->NumPoints; i < nAddPoints; ++i, ++newPointi)
+      {
+        vtkDataArray* acp = addCellPoints[i];
+        const vtkIdType nPoints = acp->GetDataSize();
+
+        for (int cmpt = 0; cmpt < nComponents; ++cmpt)
+        {
+          interpolatedValue[cmpt] = 0; // zero contents
+        }
+        for (vtkIdType meshPointi = 0; meshPointi < nPoints; ++meshPointi)
+        {
+          const float* tuple =
+            iData->GetPointer(nComponents * GetLabelValue(acp, meshPointi, cellPoints64Bit));
+
+          for (int cmpt = 0; cmpt < nComponents; ++cmpt)
+          {
+            interpolatedValue[cmpt] += tuple[cmpt];
+          }
+        }
+        const double weight = 1.0 / static_cast<double>(nPoints);
+        for (int cmpt = 0; cmpt < nComponents; ++cmpt)
+        {
+          interpolatedValue[cmpt] *= weight;
+        }
+
+        // Will automatically be converted to float
+        iData->InsertTuple(newPointi, interpolatedValue);
+      }
+    }
+#endif
+
+    // Set data to internal mesh
+    ::AddArrayToFieldData(internalMesh->GetPointData(), iData, io.GetObjectName(), dimString);
+  }
+
   // Boundary
   // Use patch-internal values as boundary values
-  const auto& patches = this->BoundaryDict;
 
   unsigned int activeBoundaryIndex = 0;
 
@@ -8863,11 +8952,11 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
-      vData->SetNumberOfComponents(iData->GetNumberOfComponents());
+      vData->SetNumberOfComponents(nComponents);
       vData->SetNumberOfTuples(nPoints);
-      for (vtkIdType j = 0; j < nPoints; j++)
+      for (vtkIdType pointi = 0; pointi < nPoints; ++pointi)
       {
-        vData->SetTuple(j, GetLabelValue(bpMap, j, meshPoints64Bit), iData);
+        vData->SetTuple(pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), iData);
       }
 
       vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
@@ -8877,6 +8966,11 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       ++activeBoundaryIndex;
     }
   }
+
+  // Handle any zones
+  // ...
+
+  // Done with internalField
   iData->Delete();
 }
 
@@ -9133,7 +9227,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     zm->Allocate(nLabels);
 
     // Insert cells
-    this->InsertCellsToGrid(zm, meshCells, meshFaces, nullptr, nullptr, &labels);
+    this->InsertCellsToGrid(zm, meshCells, meshFaces, &labels);
 
     // Set points for zone
     zm->SetPoints(points);
@@ -9375,12 +9469,14 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   recreateInternalMesh |=
     (this->InternalMeshSelectionStatus != this->InternalMeshSelectionStatusOld);
 
+#if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   if (this->InternalMeshSelectionStatus)
   {
     // Cell representation changed that affects the internalMesh
     recreateInternalMesh |=
       (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld);
   }
+#endif
 
   // NOTE: this is still not quite right for zones, but until we get better separation
   // - can remove zones without triggering reread
