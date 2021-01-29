@@ -605,9 +605,11 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    this->ActualTimeStep =
-      std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
-        std::bind2nd(H5PartToleranceCheck(this->TimeStepTolerance), requestedTimeValue)) -
+    auto toleranceCheck = H5PartToleranceCheck(this->TimeStepTolerance);
+    this->ActualTimeStep = std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
+                             [&toleranceCheck, &requestedTimeValue](double timeStepValue) {
+                               return toleranceCheck(timeStepValue, requestedTimeValue);
+                             }) -
       this->TimeStepValues.begin();
     //
     if (requestedTimeValue < this->TimeStepValues.front() ||
