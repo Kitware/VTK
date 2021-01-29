@@ -10,7 +10,7 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    libasan libubsan clang-tools-extra
+    libasan libtsan libubsan clang-tools-extra
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
