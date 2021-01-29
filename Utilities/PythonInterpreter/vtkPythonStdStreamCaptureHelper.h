@@ -21,6 +21,7 @@
 #define vtkPythonStdStreamCaptureHelper_h
 
 #include "structmember.h"
+#include "vtkPythonCompatibility.h"
 #include "vtkPythonInterpreter.h"
 
 struct vtkPythonStdStreamCaptureHelper
@@ -82,17 +83,25 @@ static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
   { 0, 0, 0, 0, 0 }
 };
 
+#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
 #if PY_VERSION_HEX >= 0x02060000
   PyVarObject_HEAD_INIT(&PyType_Type, 0)
 #else
   PyObject_HEAD_INIT(&PyType_Type) 0,
 #endif
-    "vtkPythonStdStreamCaptureHelper",      // tp_name
-  sizeof(vtkPythonStdStreamCaptureHelper),  // tp_basicsize
-  0,                                        // tp_itemsize
-  0,                                        // tp_dealloc
-  0,                                        // tp_print
+    "vtkPythonStdStreamCaptureHelper",     // tp_name
+  sizeof(vtkPythonStdStreamCaptureHelper), // tp_basicsize
+  0,                                       // tp_itemsize
+  0,                                       // tp_dealloc
+#if PY_VERSION_HEX >= 0x03080000
+  0, // tp_vectorcall_offset
+#else
+  nullptr, // tp_print
+#endif
   0,                                        // tp_getattr
   0,                                        // tp_setattr
   0,                                        // tp_compare
@@ -132,19 +141,7 @@ static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
   0,                                        // PyObject *tp_cache;
   0,                                        // PyObject *tp_subclasses;
   0,                                        // PyObject *tp_weaklist;
-  0,                                        // tp_del
-#if PY_VERSION_HEX >= 0x02060000
-  0, // tp_version_tag
-#endif
-#if PY_VERSION_HEX >= 0x03040000
-  0, // tp_finalize
-#endif
-#if PY_VERSION_HEX >= 0x03080000
-  0, // tp_vectorcall
-#if PY_VERSION_HEX < 0x03090000
-  0, // tp_print
-#endif
-#endif
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
 
 static PyObject* vtkWrite(PyObject* self, PyObject* args)

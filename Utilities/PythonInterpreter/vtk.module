@@ -8,4 +8,5 @@ DEPENDS
   VTK::vtksys
 PRIVATE_DEPENDS
   VTK::CommonMisc
+  VTK::WrappingPythonCore
 EXCLUDE_WRAP
