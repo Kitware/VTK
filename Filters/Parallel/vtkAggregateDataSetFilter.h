@@ -52,6 +52,18 @@ public:
   vtkGetMacro(NumberOfTargetProcesses, int);
   //@}
 
+  //@{
+  /**
+   * Get/Set if the filter should merge coincidental points
+   * Note 1: The filter will only merge points if the ghost cell array doesn't exist
+   * Note 2: This option is only taken into account with vtkUnstructuredGrid objects
+   * Defaults to On
+   */
+  vtkSetMacro(MergePoints, bool);
+  vtkGetMacro(MergePoints, bool);
+  vtkBooleanMacro(MergePoints, bool);
+  //@}
+
 protected:
   vtkAggregateDataSetFilter();
   ~vtkAggregateDataSetFilter() override;
@@ -61,6 +73,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int NumberOfTargetProcesses;
+
+  bool MergePoints = true;
 
 private:
   vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) = delete;

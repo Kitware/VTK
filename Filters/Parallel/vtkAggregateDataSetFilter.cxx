@@ -184,7 +184,7 @@ int vtkAggregateDataSetFilter::RequestData(
     else if (input->IsA("vtkUnstructuredGrid"))
     {
       vtkNew<vtkAppendFilter> appendFilter;
-      appendFilter->MergePointsOn();
+      appendFilter->SetMergePoints(this->MergePoints);
       for (std::vector<vtkSmartPointer<vtkDataObject>>::iterator it = recvBuffer.begin();
            it != recvBuffer.end(); ++it)
       {
