@@ -23,6 +23,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#include "vtk_mpi.h"
+#endif
+
 #include <vtksys/SystemTools.hxx>
 
 #include <Ioss_ElementTopology.h>
@@ -574,6 +579,64 @@ std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock)
   }
 
   return std::string();
+}
+
+// Implementation detail for Schwarz counter idiom.
+class vtkIossUtilitiesCleanup
+{
+public:
+  vtkIossUtilitiesCleanup();
+  ~vtkIossUtilitiesCleanup();
+
+private:
+  vtkIossUtilitiesCleanup(const vtkIossUtilitiesCleanup&) = delete;
+  void operator=(const vtkIossUtilitiesCleanup&) = delete;
+};
+static vtkIossUtilitiesCleanup vtkIossUtilitiesCleanupInstance;
+
+static unsigned int vtkIossUtilitiesCleanupCounter = 0;
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+static vtkMPIController* vtkIossUtilitiesCleanupMPIController = nullptr;
+#endif
+
+vtkIossUtilitiesCleanup::vtkIossUtilitiesCleanup()
+{
+  ++vtkIossUtilitiesCleanupCounter;
+}
+
+vtkIossUtilitiesCleanup::~vtkIossUtilitiesCleanup()
+{
+  if (--vtkIossUtilitiesCleanupCounter == 0)
+  {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+    if (vtkIossUtilitiesCleanupMPIController)
+    {
+      vtkLogF(TRACE, "Cleaning up MPI controller created for Ioss filters.");
+      vtkIossUtilitiesCleanupMPIController->Finalize();
+      vtkIossUtilitiesCleanupMPIController->Delete();
+      vtkIossUtilitiesCleanupMPIController = nullptr;
+    }
+#endif
+  }
+}
+
+void InitializeEnvironmentForIoss()
+{
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  int mpiOk;
+  MPI_Initialized(&mpiOk);
+  if (!mpiOk)
+  {
+    vtkLogF(TRACE,
+      "Initializing MPI for Ioss filters since process did not do so in an MPI enabled build.");
+    assert(vtkIossUtilitiesCleanupMPIController == nullptr);
+    vtkIossUtilitiesCleanupMPIController = vtkMPIController::New();
+
+    static int argc = 0;
+    static char** argv = { nullptr };
+    vtkIossUtilitiesCleanupMPIController->Initialize(&argc, &argv);
+  }
+#endif
 }
 
 } // end of namespace.

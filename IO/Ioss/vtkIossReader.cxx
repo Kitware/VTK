@@ -913,6 +913,10 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
     // configurable since our vtkDataArraySelection object would need to purged
     // and refilled.
     properties.add(Ioss::Property("FIELD_SUFFIX_SEPARATOR", ""));
+    // If MPI is enabled in the build, Ioss can call MPI routines. We need to
+    // make sure that MPI is initialized before calling
+    // Ioss::IOFactory::create.
+    vtkIossUtilities::InitializeEnvironmentForIoss();
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
       "exodusII", dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))

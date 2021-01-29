@@ -291,8 +291,10 @@ if (NOT DEFINED "${CMAKE_FIND_PACKAGE_NAME}_FOUND")
     vtkjava)
   # Build the `_LIBRARIES` variable.
   foreach (_vtk_component IN LISTS _vtk_found_components)
-    list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES"
-      "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")
+    if (TARGET "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")
+      list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES"
+        "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")
+    endif ()
   endforeach ()
   unset(_vtk_component)
   unset(_vtk_found_components)

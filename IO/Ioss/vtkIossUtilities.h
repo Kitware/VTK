@@ -198,6 +198,9 @@ bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname
  * Finds a displacement field name. Returns empty string if none can be found.
  */
 std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock);
+
+void InitializeEnvironmentForIoss();
+
 };
 
 #endif

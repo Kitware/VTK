@@ -34,6 +34,8 @@ target_compile_options(vtkjava_tests
 target_link_libraries(vtkjava_tests
   PRIVATE
     VTK::vtkjava)
+# Apparently the Java compilation doesn't set up dependencies properly?
+add_dependencies(vtkjava_tests vtkjava)
 
 set(vtk_test_classpath
   "$<TARGET_FILE:vtkjava_tests>"

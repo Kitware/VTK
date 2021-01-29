@@ -2,17 +2,17 @@ cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 project(IO)
 
 find_package(VTK
-  OPTIONAL_COMPONENTS
-    IOExport
-    IOImport
-    TestingRendering)
-find_package(VTK
   COMPONENTS
     CommonCore
     IOGeometry
     IOLegacy
     IOXML
-    InteractionStyle)
+    InteractionStyle
+    vtksys
+  OPTIONAL_COMPONENTS
+    IOExport
+    IOImport
+    TestingRendering)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
   return ()
