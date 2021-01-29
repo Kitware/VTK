@@ -24,6 +24,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
+#include <cmath>
+
 vtkObjectFactoryNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader, Transform, vtkTransform);

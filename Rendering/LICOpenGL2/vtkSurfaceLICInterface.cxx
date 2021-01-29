@@ -41,6 +41,7 @@
 #include "vtkSurfaceLICHelper.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <deque>

@@ -26,6 +26,8 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+#include <cmath>
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
 

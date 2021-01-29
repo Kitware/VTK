@@ -17,6 +17,8 @@
 #include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
+#include <cmath>
+
 vtkStandardNewMacro(vtkRungeKutta45);
 
 //------------------------------------------------------------------------------

@@ -15,6 +15,8 @@
 #include "vtkAmoebaMinimizer.h"
 #include "vtkObjectFactory.h"
 
+#include <cmath>
+
 #define N_STEPS_NO_VALUE_IMPROVEMENT 2
 #define N_STEPS_NO_PARAM_IMPROVEMENT 18
 

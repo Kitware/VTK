@@ -32,6 +32,7 @@
 #include "vtkTypedArray.h"
 
 #include <algorithm>
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkNormalizeMatrixVectors

@@ -26,6 +26,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkTypedArray.h>
 
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 

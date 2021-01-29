@@ -22,6 +22,7 @@
 #include "vtkSmartPointer.h"
 #include <limits>
 
+#include <cmath>
 #include <vector>
 
 template <class A>

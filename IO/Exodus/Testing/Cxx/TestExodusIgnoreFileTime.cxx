@@ -24,6 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 
+#include <cmath>
 #include <cstdio>
 #include <vector>
 

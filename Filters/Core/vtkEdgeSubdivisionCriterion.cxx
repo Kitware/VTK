@@ -12,6 +12,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkStreamingTessellator.h"
 
+#include <cmath>
+
 void vtkEdgeSubdivisionCriterion::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

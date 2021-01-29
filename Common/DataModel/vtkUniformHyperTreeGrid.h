@@ -32,6 +32,7 @@
 
 #include "limits.h" // UINT_MAX
 
+#include <cmath>  // std::round
 #include <memory> // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
@@ -211,7 +212,7 @@ protected:
     {
       return UINT_MAX;
     }
-    return round((value - this->Origin[0]) / this->GridScale[0]);
+    return std::round((value - this->Origin[0]) / this->GridScale[0]);
   }
   unsigned int FindDichotomicY(double value) const override
   {
@@ -220,7 +221,7 @@ protected:
     {
       return UINT_MAX;
     }
-    return round((value - this->Origin[1]) / this->GridScale[1]);
+    return std::round((value - this->Origin[1]) / this->GridScale[1]);
   }
   unsigned int FindDichotomicZ(double value) const override
   {
@@ -229,7 +230,7 @@ protected:
     {
       return UINT_MAX;
     }
-    return round((value - this->Origin[2]) / this->GridScale[2]);
+    return std::round((value - this->Origin[2]) / this->GridScale[2]);
   }
 
   /**

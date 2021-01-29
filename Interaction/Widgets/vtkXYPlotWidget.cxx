@@ -21,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkXYPlotActor.h"
 
+#include <cmath>
+
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 

@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 
 #include <algorithm>
+#include <cmath>
 
 //------------------------------------------------------------------------------
 vtkMarkerUtilities::vtkMarkerUtilities() = default;

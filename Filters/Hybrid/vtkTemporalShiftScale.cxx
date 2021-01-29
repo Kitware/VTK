@@ -21,6 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 vtkStandardNewMacro(vtkTemporalShiftScale);

@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <deque>
 #include <limits>

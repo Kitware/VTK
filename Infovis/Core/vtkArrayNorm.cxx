@@ -27,6 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+#include <cmath>
 #include <limits>
 #include <sstream>
 #include <stdexcept>

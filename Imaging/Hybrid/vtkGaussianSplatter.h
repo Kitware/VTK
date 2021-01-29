@@ -76,6 +76,8 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
+#include <cmath> // for std::exp
+
 #define VTK_ACCUMULATION_MODE_MIN 0
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
@@ -248,7 +250,7 @@ public:
   void SetScalar(vtkIdType idx, double dist2, double* sPtr)
   {
     double v = (this->*SampleFactor)(this->S) *
-      exp(static_cast<double>(this->ExponentFactor * (dist2) / (this->Radius2)));
+      std::exp(static_cast<double>(this->ExponentFactor * (dist2) / (this->Radius2)));
     //@}
 
     if (!this->Visited[idx])

@@ -29,6 +29,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
 
+#include <cmath>
 #include <sstream>
 
 // New quadratic cells

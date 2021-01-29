@@ -19,6 +19,7 @@
 #include "vtkPixelExtentIO.h"
 
 #include <algorithm>
+#include <cmath>
 
 using std::deque;
 using std::vector;

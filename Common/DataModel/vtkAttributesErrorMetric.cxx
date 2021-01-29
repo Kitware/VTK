@@ -20,6 +20,7 @@
 #include "vtkGenericDataSet.h"
 #include "vtkObjectFactory.h"
 #include <cassert>
+#include <cmath>
 
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 

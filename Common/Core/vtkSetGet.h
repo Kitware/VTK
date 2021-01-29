@@ -31,7 +31,6 @@
 #include "vtkCompiler.h"
 #include "vtkLegacy.h"
 #include "vtkSystemIncludes.h"
-#include <math.h>
 #include <type_traits> // for std::underlying type.
 #include <typeinfo>
 
