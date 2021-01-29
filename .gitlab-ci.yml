@@ -128,6 +128,26 @@ test:fedora33-asan:
     needs:
         - build:fedora33-asan
 
+build:fedora33-tsan:
+    extends:
+        - .fedora33_tsan
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:fedora33-tsan:
+    extends:
+        - .fedora33_tsan
+        - .cmake_memcheck_linux
+        - .linux_tester_priv_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:fedora33-tsan
+    needs:
+        - build:fedora33-tsan
+
 build:fedora33-ubsan:
     extends:
         - .fedora33_ubsan
