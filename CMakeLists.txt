@@ -45,6 +45,7 @@ include(vtkCompilerExtraFlags)
 include(vtkInitializeBuildType)
 include(vtkSupportMacros)
 include(vtkDownload)
+include(vtkSanitize)
 include(vtkTesting)
 include(vtkMobileDevices)
 include(vtkWrapSettings)
@@ -58,10 +59,6 @@ if (NOT CMAKE_INSTALL_LICENSEDIR)
   set(CMAKE_INSTALL_LICENSEDIR
     "${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}")
 endif ()
-
-# Setup compiler flags for dynamic analysis
-# Should be included after vtkTesting
-include(vtkCompilerDynamicAnalysisFlags)
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
@@ -483,6 +480,11 @@ install(
 if (VTK_WHEEL_BUILD)
   include(vtkWheelFinalization)
 endif ()
+
+# Setup compiler flags for dynamic analysis. This is included late to avoid
+# interfering with any `try_compile` or other things involved with a normal
+# configuration.
+include(vtkSanitizeFlags)
 
 #-----------------------------------------------------------------------------
 # Do this at the end so the all variables it uses are setup.

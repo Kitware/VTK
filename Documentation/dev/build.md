@@ -206,6 +206,10 @@ More advanced options:
     build machine with absolute paths, but finding dependencies in
     non-standard locations may require work without passing extra information
     when consuming VTK.
+  * `VTK_ENABLE_SANITIZER` (default `OFF`): Whether to enable sanitization of
+    the VTK codebase or not.
+  * `VTK_SANITIZER` (default `address`; requires `VTK_ENABLE_SANITIZER`): The
+    sanitizer to use.
   * `VTK_USE_LARGE_DATA` (default `OFF`; requires `VTK_BUILD_TESTING`):
     Whether to enable tests which use "large" data or not (usually used to
     reduce the amount of data downloading required for the test suite).
