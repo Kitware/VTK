@@ -79,6 +79,24 @@
 #define VTK_FOAMFILE_IGNORE_FIELD_RESTART 0
 
 //------------------------------------------------------------------------------
+// Developer option to debug the reader states
+#define VTK_FOAMFILE_DEBUG 0
+
+// Similar to vtkErrorMacro etc.
+#if VTK_FOAMFILE_DEBUG
+#define vtkFoamDebug(x)                                                                            \
+  do                                                                                               \
+  {                                                                                                \
+    std::cerr << "" x;                                                                             \
+  } while (false)
+#else
+#define vtkFoamDebug(x)                                                                            \
+  do                                                                                               \
+  {                                                                                                \
+  } while (false)
+#endif // VTK_FOAMFILE_DEBUG
+
+//------------------------------------------------------------------------------
 
 #include "vtkOpenFOAMReader.h"
 
@@ -727,7 +745,7 @@ public:
   const std::string& GetRegionName() const noexcept { return this->RegionName; }
 
   // Read mesh/fields and create dataset
-  int RequestData(vtkMultiBlockDataSet*, bool, bool, bool);
+  int RequestData(vtkMultiBlockDataSet* output);
   int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, bool);
 
   // Gather time instances information and create mesh times
@@ -789,7 +807,7 @@ private:
   vtkMultiBlockDataSet* FaceZoneMesh;
   vtkMultiBlockDataSet* PointZoneMesh;
 
-  // For polyhedra handling
+  // For polyhedral decomposition
   int NumTotalAdditionalCells;
   vtkIdTypeArray* AdditionalCellIds;
   vtkIntArray* NumAdditionalCells;
@@ -805,6 +823,7 @@ private:
   // Clear mesh construction
   void ClearInternalMeshes();
   void ClearBoundaryMeshes();
+  void ClearZoneMeshes();
   void ClearMeshes();
 
   std::string RegionPath() const
@@ -4878,13 +4897,12 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->FaceZoneMesh = nullptr;
   this->CellZoneMesh = nullptr;
 
-  // For decomposing polyhedra
-  this->NumAdditionalCells = nullptr;
+  // For polyhedral decomposition
+  this->NumTotalAdditionalCells = 0;
   this->AdditionalCellIds = nullptr;
   this->NumAdditionalCells = nullptr;
   this->AdditionalCellPoints = nullptr;
 
-  this->NumTotalAdditionalCells = 0;
   this->Parent = nullptr;
 }
 
@@ -4916,6 +4934,9 @@ void vtkOpenFOAMReaderPrivate::ClearInternalMeshes()
     this->InternalMesh->Delete();
     this->InternalMesh = nullptr;
   }
+
+  // For polyhedral decomposition
+  this->NumTotalAdditionalCells = 0;
   if (this->AdditionalCellIds != nullptr)
   {
     this->AdditionalCellIds->Delete();
@@ -4926,9 +4947,13 @@ void vtkOpenFOAMReaderPrivate::ClearInternalMeshes()
     this->NumAdditionalCells->Delete();
     this->NumAdditionalCells = nullptr;
   }
+
   delete this->AdditionalCellPoints;
   this->AdditionalCellPoints = nullptr;
+}
 
+void vtkOpenFOAMReaderPrivate::ClearZoneMeshes()
+{
   if (this->PointZoneMesh != nullptr)
   {
     this->PointZoneMesh->Delete();
@@ -4978,6 +5003,7 @@ void vtkOpenFOAMReaderPrivate::ClearMeshes()
 {
   this->ClearInternalMeshes();
   this->ClearBoundaryMeshes();
+  this->ClearZoneMeshes();
 }
 
 void vtkOpenFOAMReaderPrivate::SetTimeValue(double requestedTime)
@@ -5007,6 +5033,9 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const std::string& casePath,
   const std::string& regionName, const std::string& procName, vtkOpenFOAMReaderPrivate* master,
   bool requirePolyMesh)
 {
+  vtkFoamDebug(<< "SetupInformation (" << this->RegionName << "/" << procName
+               << ") polyMesh:" << requirePolyMesh << "\n");
+
   // Copy parent, path and timestep information from master
   this->CasePath = casePath;
   this->RegionName = regionName;
@@ -5271,6 +5300,9 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   vtkStringArray* pointSelectionNames, vtkStringArray* lagrangianSelectionNames,
   bool listNextTimeStep)
 {
+  vtkFoamDebug(<< "MakeMetaDataAtTimeStep (" << this->RegionName << "/" << this->ProcessorName
+               << ")\n");
+
   if (!this->HasPolyMesh())
   {
     // Ignore a region without a mesh, but will normally be precluded earlier
@@ -5753,6 +5785,9 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
   const std::string& controlDictPath, const std::string& procName, vtkOpenFOAMReader* parent,
   bool requirePolyMesh)
 {
+  vtkFoamDebug(<< "MakeInformationVector (" << this->RegionName << "/" << procName
+               << ") polyMesh:" << requirePolyMesh << " - list times\n");
+
   this->CasePath = casePath;
   this->ProcessorName = procName;
   this->Parent = parent;
@@ -9063,8 +9098,7 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 
 //------------------------------------------------------------------------------
 // return 0 if there's any error, 1 if success
-int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool recreateInternalMesh,
-  bool recreateBoundaryMesh, bool updateVariables)
+int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 {
   if (!this->HasPolyMesh())
   {
@@ -9073,6 +9107,15 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     return 1;
   }
 
+  //----------------------------------------
+  // Determine changes in state
+
+  // Basics
+  const bool changedStorageType =
+    (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld) ||
+    (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
+
+  // Mesh changes
   const bool topoChanged = (this->TimeStepOld == -1) || (this->FaceOwner == nullptr) ||
     (this->PolyMeshFacesDir->GetValue(this->TimeStep) !=
       this->PolyMeshFacesDir->GetValue(this->TimeStepOld));
@@ -9081,10 +9124,44 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     (this->PolyMeshPointsDir->GetValue(this->TimeStep) !=
       this->PolyMeshPointsDir->GetValue(this->TimeStepOld));
 
+  // Internal mesh
+  bool recreateInternalMesh = (changedStorageType) || (topoChanged) || (!this->Parent->CacheMesh) ||
+    (this->Parent->SkipZeroTime != this->Parent->SkipZeroTimeOld) ||
+    (this->Parent->ListTimeStepsByControlDict != this->Parent->ListTimeStepsByControlDictOld);
+
+  // Internal mesh - selection changes
   recreateInternalMesh |=
-    (topoChanged) || (this->InternalMeshSelectionStatus != this->InternalMeshSelectionStatusOld);
+    (this->InternalMeshSelectionStatus != this->InternalMeshSelectionStatusOld);
+
+  if (this->InternalMeshSelectionStatus)
+  {
+    // Cell representation changed that affects the internalMesh
+    recreateInternalMesh |=
+      (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld);
+  }
+
+  // NOTE: this is still not quite right for zones, but until we get better separation
+  // - can remove zones without triggering reread
+  recreateInternalMesh |=
+    (this->Parent->ReadZones && (this->Parent->ReadZones != this->Parent->ReadZonesOld));
+
+  // Boundary mesh
+  bool recreateBoundaryMesh = (changedStorageType) ||
+    (this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld) ||
+    (this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld);
+
+  // Fields
+  bool updateVariables = (changedStorageType) || (this->TimeStep != this->TimeStepOld) ||
+    (this->Parent->CellDataArraySelection->GetMTime() != this->Parent->CellSelectionMTimeOld) ||
+    (this->Parent->PointDataArraySelection->GetMTime() != this->Parent->PointSelectionMTimeOld) ||
+    (this->Parent->LagrangianDataArraySelection->GetMTime() !=
+      this->Parent->LagrangianSelectionMTimeOld) ||
+    (this->Parent->PositionsIsIn13Format != this->Parent->PositionsIsIn13FormatOld) ||
+    (this->Parent->AddDimensionsToArrayNames != this->Parent->AddDimensionsToArrayNamesOld);
+
+  // Apply these changes too
   recreateBoundaryMesh |= recreateInternalMesh;
-  updateVariables |= recreateBoundaryMesh || (this->TimeStep != this->TimeStepOld);
+  updateVariables |= recreateBoundaryMesh;
 
   const bool moveInternalPoints = !recreateInternalMesh && pointsMoved;
   const bool moveBoundaryPoints = !recreateBoundaryMesh && pointsMoved;
@@ -9094,14 +9171,32 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     this->Parent->PatchDataArraySelection->ArrayExists(NAME_INTERNALMESH) ||
     !this->RegionName.empty();
 
-  // determine if we need to reconstruct meshes
+  vtkFoamDebug(<< "RequestData (" << this->RegionName << "/" << this->ProcessorName << ")\n"
+               << " internal=" << recreateInternalMesh      //
+               << " boundary=" << recreateBoundaryMesh      //
+               << " zones=" << this->Parent->GetReadZones() //
+               << " topoChanged=" << topoChanged            //
+               << " pointsMoved=" << pointsMoved            //
+               << " variables=" << updateVariables          //
+               << " eulerians=" << createEulerians          //
+               << "\n");
+
+  //----------------------------------------
+
+  // Determine if we need to reconstruct meshes
   if (recreateInternalMesh)
   {
     this->ClearInternalMeshes();
+    this->ClearZoneMeshes();
   }
   if (recreateBoundaryMesh)
   {
     this->ClearBoundaryMeshes();
+  }
+  // Discard unwanted remnant zones
+  if (!this->Parent->GetReadZones())
+  {
+    this->ClearZoneMeshes();
   }
 
   vtkFoamLabelListList* facePoints = nullptr;
@@ -9166,10 +9261,11 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
     {
       this->InternalMesh = this->MakeInternalMesh(cellFaces, facePoints, pointArray);
     }
-    // read and construct zones
+
+    // Read and construct zones
     if (this->Parent->GetReadZones())
     {
-      vtkPoints* points;
+      vtkPoints* points = nullptr;
       if (this->InternalMesh != nullptr)
       {
         points = this->InternalMesh->GetPoints();
@@ -9183,8 +9279,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
       this->PointZoneMesh = vtkMultiBlockDataSet::New();
       if (!this->GetPointZoneMesh(this->PointZoneMesh, points))
       {
-        this->PointZoneMesh->Delete();
-        this->PointZoneMesh = nullptr;
+        this->ClearZoneMeshes();
         delete cellFaces;
         delete facePoints;
         if (this->InternalMesh == nullptr)
@@ -9203,13 +9298,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
       this->FaceZoneMesh = vtkMultiBlockDataSet::New();
       if (!this->GetFaceZoneMesh(this->FaceZoneMesh, facePoints, points))
       {
-        this->FaceZoneMesh->Delete();
-        this->FaceZoneMesh = nullptr;
-        if (this->PointZoneMesh != nullptr)
-        {
-          this->PointZoneMesh->Delete();
-          this->PointZoneMesh = nullptr;
-        }
+        this->ClearZoneMeshes();
         delete cellFaces;
         delete facePoints;
         if (this->InternalMesh == nullptr)
@@ -9228,18 +9317,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
       this->CellZoneMesh = vtkMultiBlockDataSet::New();
       if (!this->GetCellZoneMesh(this->CellZoneMesh, cellFaces, facePoints, points))
       {
-        this->CellZoneMesh->Delete();
-        this->CellZoneMesh = nullptr;
-        if (this->FaceZoneMesh != nullptr)
-        {
-          this->FaceZoneMesh->Delete();
-          this->FaceZoneMesh = nullptr;
-        }
-        if (this->PointZoneMesh != nullptr)
-        {
-          this->PointZoneMesh->Delete();
-          this->PointZoneMesh = nullptr;
-        }
+        this->ClearZoneMeshes();
         delete cellFaces;
         delete facePoints;
         if (this->InternalMesh == nullptr)
@@ -9354,19 +9432,21 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output, bool rec
   {
     if (createEulerians)
     {
+      // Clean up arrays of the previous timestep
+
+      // Internal
       if (!recreateInternalMesh && this->InternalMesh != nullptr)
       {
-        // clean up arrays of the previous timestep
-        // Check if Internal Mesh Exists first...
         this->InternalMesh->GetCellData()->Initialize();
         this->InternalMesh->GetPointData()->Initialize();
       }
-      // Check if Boundary Mesh Exists first...
+
+      // Boundary
       if (!recreateBoundaryMesh && this->BoundaryMesh != nullptr)
       {
         for (unsigned int i = 0; i < this->BoundaryMesh->GetNumberOfBlocks(); i++)
         {
-          vtkPolyData* bm = vtkPolyData::SafeDownCast(this->BoundaryMesh->GetBlock(i));
+          auto* bm = vtkPolyData::SafeDownCast(this->BoundaryMesh->GetBlock(i));
           bm->GetCellData()->Initialize();
           bm->GetPointData()->Initialize();
         }
@@ -9749,22 +9829,25 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int nSteps = 0;
-  double requestedTimeValue(0);
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  // Times
   {
-    nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    int nTimes = 0;
+    double requestedTimeValue(0);
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+    {
+      nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
-    requestedTimeValue = (1 == nSteps
-        // Only one time-step available, UPDATE_TIME_STEP is unreliable
-        ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
-        : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
-  }
+      requestedTimeValue = (1 == nTimes
+          // Only one time-step available, UPDATE_TIME_STEP is unreliable
+          ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
+          : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
+    }
 
-  if (nSteps > 0)
-  {
-    outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
-    this->SetTimeValue(requestedTimeValue);
+    if (nTimes > 0)
+    {
+      outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
+      this->SetTimeValue(requestedTimeValue);
+    }
   }
 
   if (this->Parent == this)
@@ -9777,42 +9860,17 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->CurrentReaderIndex = 0;
   }
 
-  // Determine changes in flags etc.
-
-  const bool changedStorageType =
-    (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld) ||
-    (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
-
-  // internal mesh selection change is detected within each reader
-  const bool recreateInternalMesh = (changedStorageType) || (!this->Parent->CacheMesh) ||
-    (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld) ||
-    (this->Parent->ReadZones != this->Parent->ReadZonesOld) ||
-    (this->Parent->SkipZeroTime != this->Parent->SkipZeroTimeOld) ||
-    (this->Parent->ListTimeStepsByControlDict != this->Parent->ListTimeStepsByControlDictOld);
-
-  const bool recreateBoundaryMesh = (changedStorageType) ||
-    (this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld) ||
-    (this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld);
-
-  const bool updateVariables = (changedStorageType) ||
-    (this->Parent->CellDataArraySelection->GetMTime() != this->Parent->CellSelectionMTimeOld) ||
-    (this->Parent->PointDataArraySelection->GetMTime() != this->Parent->PointSelectionMTimeOld) ||
-    (this->Parent->LagrangianDataArraySelection->GetMTime() !=
-      this->Parent->LagrangianSelectionMTimeOld) ||
-    (this->Parent->PositionsIsIn13Format != this->Parent->PositionsIsIn13FormatOld) ||
-    (this->Parent->AddDimensionsToArrayNames != this->Parent->AddDimensionsToArrayNamesOld);
-
-  // create dataset
+  // Create dataset
   int ret = 1;
   vtkOpenFOAMReaderPrivate* reader;
-  // if the only region is not a subregion, omit being wrapped by a
-  // multiblock dataset
+
+  // Avoid wrapping single region as a multiblock dataset
   if (this->Readers->GetNumberOfItems() == 1 &&
     (reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers->GetItemAsObject(0)))
       ->GetRegionName()
       .empty())
   {
-    ret = reader->RequestData(output, recreateInternalMesh, recreateBoundaryMesh, updateVariables);
+    ret = reader->RequestData(output);
     this->Parent->CurrentReaderIndex++;
   }
   else
@@ -9821,9 +9879,8 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
     while ((reader = vtkOpenFOAMReaderPrivate::SafeDownCast(
               this->Readers->GetNextItemAsObject())) != nullptr)
     {
-      vtkMultiBlockDataSet* subOutput = vtkMultiBlockDataSet::New();
-      if (reader->RequestData(
-            subOutput, recreateInternalMesh, recreateBoundaryMesh, updateVariables))
+      auto subOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+      if (reader->RequestData(subOutput))
       {
         std::string regionName(reader->GetRegionName());
         if (regionName.empty())
@@ -9839,7 +9896,6 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         ret = 0;
       }
-      subOutput->Delete();
       this->Parent->CurrentReaderIndex++;
     }
   }
