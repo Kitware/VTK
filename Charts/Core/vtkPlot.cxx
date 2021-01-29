@@ -21,6 +21,8 @@
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkContextMapper2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextTransform.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
@@ -28,6 +30,7 @@
 #include "vtkPen.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTransform2D.h"
 #include <sstream>
 
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
@@ -673,4 +676,27 @@ bool vtkPlot::ClampPos(double pos[2])
   double bounds[4];
   this->GetBounds(bounds);
   return vtkPlot::ClampPos(pos, bounds);
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlot::Hit(const vtkContextMouseEvent& mouse)
+{
+  if (!this->Interactive || !this->Visible)
+  {
+    return false;
+  }
+  double screenBounds[4];
+  this->GetBounds(screenBounds);
+  vtkContextTransform* transform = vtkContextTransform::SafeDownCast(this->Parent);
+  vtkVector2f tol;
+  constexpr int picking_zone_size = 5;
+  if (transform != nullptr)
+  {
+    tol.SetX(std::fabs(
+      picking_zone_size * (1.0 / transform->GetTransform()->GetMatrix()->GetElement(0, 0))));
+    tol.SetY(std::fabs(
+      picking_zone_size * (1.0 / transform->GetTransform()->GetMatrix()->GetElement(1, 1))));
+  }
+  vtkVector2f loc;
+  return this->GetNearestPoint(mouse.GetPos(), tol, &loc) >= 0;
 }

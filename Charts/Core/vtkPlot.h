@@ -394,6 +394,11 @@ public:
   virtual bool ClampPos(double pos[2]);
   //@}
 
+  /**
+   * Returns true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent& mouse) override;
+
 protected:
   vtkPlot();
   ~vtkPlot() override;

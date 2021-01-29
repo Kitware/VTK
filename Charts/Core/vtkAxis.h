@@ -593,6 +593,11 @@ public:
    */
   virtual vtkStdString GenerateSimpleLabel(double val);
 
+  /**
+   * Return true if the supplied x, y coordinate is inside the item.
+   */
+  bool Hit(const vtkContextMouseEvent& mouse) override;
+
 protected:
   vtkAxis();
   ~vtkAxis() override;
@@ -666,6 +671,11 @@ protected:
    */
   void GenerateLogScaleTickMarks(
     int order, double min = 1.0, double max = 9.0, bool detailLabels = true);
+
+  /**
+   * Calculate the position where the title of the axis would be drawn.
+   */
+  void CalculateTitlePosition(vtkVector2f& out);
 
   int Position;  // The position of the axis (LEFT, BOTTOM, RIGHT, TOP)
   float* Point1; // The position of point 1 (usually the origin)
