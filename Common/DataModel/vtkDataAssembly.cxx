@@ -1082,23 +1082,34 @@ std::vector<int> vtkDataAssembly::SelectNodes(
   for (const auto& query : path_queries)
   {
     vtkLogF(TRACE, "query='%s'", query.c_str());
-    auto set = internals.Document.select_nodes(query.c_str());
+    if (query.empty())
+    {
+      continue;
+    }
+    try
+    {
+      auto set = internals.Document.select_nodes(query.c_str());
 
-    auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
-      [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
-        if (xnode.node() == internals.Document)
-        {
-          // note: if xpath matches the document, the xnode is the document and not the
-          // first-child and the attribute request fails.
-          result->insert(0);
-        }
-        else if (::IsAssemblyNode(xnode.node()))
-        {
-          result->insert(xnode.node().attribute("id").as_int(-1));
-        }
-        return result;
-      });
-    (void)notUsed;
+      auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
+        [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
+          if (xnode.node() == internals.Document)
+          {
+            // note: if xpath matches the document, the xnode is the document and not the
+            // first-child and the attribute request fails.
+            result->insert(0);
+          }
+          else if (::IsAssemblyNode(xnode.node()))
+          {
+            result->insert(xnode.node().attribute("id").as_int(-1));
+          }
+          return result;
+        });
+      (void)notUsed;
+    }
+    catch (pugi::xpath_exception& exp)
+    {
+      vtkLogF(TRACE, "xpath exception: %s", exp.what());
+    }
   }
 
   this->Visit(visitor, traversal_order);
