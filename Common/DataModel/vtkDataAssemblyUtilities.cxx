@@ -434,7 +434,7 @@ public:
   std::set<int> SelectedNodes;
   std::vector<unsigned int> CompositeIndices;
 
-  void Visit(int nodeid)
+  void Visit(int nodeid) override
   {
     auto assembly = this->GetAssembly();
     assert(assembly->HasAttribute(nodeid, "cid"));

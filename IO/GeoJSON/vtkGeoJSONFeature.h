@@ -49,7 +49,7 @@ public:
   /**
    * Returns `VTK_GEO_JSON_FEATURE`.
    */
-  virtual int GetDataObjectType() { return VTK_GEO_JSON_FEATURE; }
+  int GetDataObjectType() override { return VTK_GEO_JSON_FEATURE; }
 
   //@{
   /**
