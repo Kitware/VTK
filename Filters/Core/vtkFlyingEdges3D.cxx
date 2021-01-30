@@ -56,6 +56,9 @@ public:
   };
 
   // Dealing with boundary situations when processing volumes.
+  // The voxel cells on the +x,+y,+z boundaries reference cell
+  // axes triads which are not fully formed. These are treated
+  // specially during certain operations (e.g., point generation).
   enum CellClass
   {
     Interior = 0,
@@ -722,7 +725,8 @@ void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char lo
       sPtr + incs[2], sPtr - incs[2], g0);
   }
 
-  // Interpolate the cell axes edges
+  // Interpolate the cell axes edges. Recall this is the triad of edges
+  // located at the origin of the voxel.
   for (int i = 0; i < 3; ++i)
   {
     if (edgeUses[i * 4])
@@ -739,62 +743,123 @@ void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char lo
     }
   }
 
-  // On the boundary cells special work has to be done to cover the partial
-  // cell axes. These are boundary situations where the voxel axes is not
-  // fully formed. These situations occur on the +x,+y,+z volume
-  // boundaries. (The other cases fall through the default: case which is
-  // expected.)
+  // Interior voxels are completed at this point, avoid the switch statement.
+  if (loc == Interior)
+  {
+    return;
+  }
+
+  // On the boundary voxels special work has to be done to process the
+  // partial cell axes located on the + boundary faces of the volume. These
+  // are boundary situations where the voxel axes is not fully formed.  (The
+  // other cases fall through the default: case which is expected.)
   //
-  // Note that loc is one of 27 regions in the volume, with (0,1,2)
-  // indicating (interior, min, max) along coordinate axes.
+  // Note that loc describes one of 64 (2^6) voxel configurations in the
+  // volume, with (0,1,2) in each of the +x, +y, +z directions indicating
+  // (interior, min, max) along the coordinate axes. Note that processing
+  // boundary voxels really only requires seven possibilities corresponding
+  // to various combinations of +x,+y,+z (an eighth combination loc==0 is
+  // interior).  However, for historical reasons, and to signal to
+  // the gradient computation that a boundary voxel is involved, the more
+  // complex switch statement below is used.
   switch (loc)
   {
+    //+x
     case 2:
+    case 3:
     case 6:
+    case 7:
     case 18:
-    case 22: //+x
+    case 19:
+    case 22:
+    case 23:
       this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
       break;
+
+    //+y
     case 8:
     case 9:
+    case 12:
+    case 13:
     case 24:
-    case 25: //+y
+    case 25:
+    case 28:
+    case 29:
       this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
       break;
+
+    //+x +y
+    case 10:
+    case 11:
+    case 14:
+    case 15:
+    case 26:
+    case 27:
+    case 30:
+    case 31:
+      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, 11, edgeUses, eIds);
+      break;
+
+    //+z
     case 32:
     case 33:
     case 36:
-    case 37: //+z
+    case 37:
+    case 48:
+    case 49:
+    case 52:
+    case 53:
       this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
       break;
-    case 10:
-    case 26: //+x +y
-      this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, 11, edgeUses, eIds);
-      break;
+
+    //+x +z
     case 34:
-    case 38: //+x +z
+    case 35:
+    case 38:
+    case 39:
+    case 50:
+    case 51:
+    case 54:
+    case 55:
       this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 5, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 9, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 7, edgeUses, eIds);
       break;
+
+    //+y +z
     case 40:
-    case 41: //+y +z
+    case 41:
+    case 44:
+    case 45:
+    case 56:
+    case 57:
+    case 60:
+    case 61:
       this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 3, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 10, edgeUses, eIds);
       break;
-    case 42: //+x +y +z happens no more than once per volume
+
+    //+x +y +z
+    case 42:
+    case 43:
+    case 46:
+    case 47:
+    case 58:
+    case 59:
+    case 62:
+    case 63:
       this->InterpolateEdge(value, ijk, sPtr, incs, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 3, edgeUses, eIds);
@@ -805,7 +870,8 @@ void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char lo
       this->InterpolateEdge(value, ijk, sPtr, incs, 6, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, 7, edgeUses, eIds);
       break;
-    default: // interior, or -x,-y,-z boundaries
+
+    default: // voxels with only -x,-y,-z boundaries
       return;
   }
 }
@@ -1051,10 +1117,23 @@ void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
   unsigned char eCase = this->InitVoxelIds(ePtr, eMD, eIds);
 
   // Determine the proximity to the boundary of volume. This information is
-  // used to generate edge intersections.
+  // used to generate edge intersections. It also controls calculations (like
+  // gradient computation) when proximity to the boundary is important. Currently,
+  // the loc variable can take on values [0,63] representing all combinations
+  // of +/- x,y,z boundaries and interior(==0).
   unsigned char loc, yLoc, zLoc, yzLoc;
-  yLoc = (row < 1 ? MinBoundary : (row >= (this->Dims[1] - 2) ? MaxBoundary : Interior));
-  zLoc = (slice < 1 ? MinBoundary : (slice >= (this->Dims[2] - 2) ? MaxBoundary : Interior));
+  yLoc = Interior;
+  if (row < 1)
+    yLoc |= MinBoundary;
+  if (row >= (this->Dims[1] - 2))
+    yLoc |= MaxBoundary;
+
+  zLoc = Interior;
+  if (slice < 1)
+    zLoc |= MinBoundary;
+  if (slice >= (this->Dims[2] - 2))
+    zLoc |= MaxBoundary;
+
   yzLoc = (yLoc << 2) | (zLoc << 4);
 
   // compute the ijk for this section
@@ -1074,9 +1153,14 @@ void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
       // Start by generating triangles for this case
       this->GenerateTris(eCase, numTris, eIds, triId);
 
-      // Now generate point(s) along voxel axes if needed. Remember to take
-      // boundary into account.
-      loc = yzLoc | (i < 1 ? MinBoundary : (i >= dim0Wall ? MaxBoundary : Interior));
+      // Now generate point(s) along voxel cell triad axes if
+      // needed. Remember to take the volume boundary into account.
+      loc = yzLoc;
+      if (i < 1)
+        loc |= MinBoundary;
+      if (i >= dim0Wall)
+        loc |= MaxBoundary;
+
       if (this->CaseIncludesAxes(eCase) || loc != Interior)
       {
         unsigned char const* const edgeUses = this->GetEdgeUses(eCase);
