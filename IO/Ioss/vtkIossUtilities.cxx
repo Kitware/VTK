@@ -12,6 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#include "vtk_mpi.h"
+#endif
+
 #include "vtkIossUtilities.h"
 
 #include "vtkArrayDispatch.h"
@@ -22,11 +27,6 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-#include "vtkMPIController.h"
-#include "vtk_mpi.h"
-#endif
 
 #include <vtksys/SystemTools.hxx>
 
