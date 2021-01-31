@@ -12,26 +12,28 @@ renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-# Create a synthetic source
-sphere = vtk.vtkSphere()
-sphere.SetCenter( 0.0,0.0,0.0)
-sphere.SetRadius(0.25)
-
-# Iso-surface to create geometry. This uses a very small volume to stress
-# boundary conditions in vtkFlyingEdges; i.e., we want the sphere isosurface
-# to intersect the boundary.
-sample = vtk.vtkSampleFunction()
-sample.SetImplicitFunction(sphere)
-sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(3,3,3)
+# Create a synthetic source: a volume with a single voxel
+im = vtk.vtkImageData()
+im.SetDimensions(2,2,2)
+im.AllocateScalars(10,1)
+s = im.GetPointData().GetScalars()
+s.InsertTuple1(0,-1.0)
+s.InsertTuple1(1,-1.0)
+s.InsertTuple1(2,-1.0)
+s.InsertTuple1(3,-1.0)
+s.InsertTuple1(4,1.0)
+s.InsertTuple1(5,1.0)
+s.InsertTuple1(6,1.0)
+s.InsertTuple1(7,1.0)
 
 iso = vtk.vtkFlyingEdges3D()
-iso.SetInputConnection(sample.GetOutputPort())
-iso.SetValue(0,0.25)
-iso.ComputeNormalsOn()
-iso.ComputeGradientsOn()
+iso.SetInputData(im)
+iso.SetValue(0,0.0)
+iso.ComputeNormalsOff()
+iso.ComputeGradientsOff()
 iso.ComputeScalarsOn()
 iso.InterpolateAttributesOff()
+iso.Update()
 
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
@@ -42,7 +44,8 @@ isoActor.GetProperty().SetColor(1,1,1)
 isoActor.GetProperty().SetOpacity(1)
 
 outline = vtk.vtkOutlineFilter()
-outline.SetInputConnection(sample.GetOutputPort())
+outline.SetInputData(im)
+
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
