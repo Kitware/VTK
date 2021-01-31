@@ -59,10 +59,11 @@ protected:
   void operator=(const vtkADIOS2VTXReader&) = delete;
 
   int RequestInformation(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
   int RequestUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector);
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
+  int RequestData(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
 
 private:
   char* FileName;
