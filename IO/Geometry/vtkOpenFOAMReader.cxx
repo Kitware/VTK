@@ -922,7 +922,7 @@ private:
   bool ListTimeDirectoriesByInstances();
 
   // Read polyMesh/points (vectorField)
-  vtkFloatArray* ReadPointsFile();
+  vtkSmartPointer<vtkFloatArray> ReadPointsFile();
 
   // Read polyMesh/faces (faceCompactList or faceList)
   std::unique_ptr<vtkFoamLabelListList> ReadFacesFile(const std::string& meshDir);
@@ -951,17 +951,14 @@ private:
   void InsertFacesToGrid(vtkPolyData*, const vtkFoamLabelListList& meshFaces, vtkIdType startFace,
     vtkIdType endFace, vtkDataArray*, vtkIdList*, vtkDataArray*, bool);
 
-  template <typename T1, typename T2>
-  bool ExtendArray(T1*, vtkIdType);
-
   vtkMultiBlockDataSet* MakeBoundaryMesh(
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
 
   void TruncateFaceOwner();
 
   // Move additional points for decomposed cells
-  vtkPoints* MoveInternalMesh(vtkUnstructuredGrid*, vtkFloatArray*);
-  void MoveBoundaryMesh(vtkMultiBlockDataSet*, vtkFloatArray*);
+  bool MoveInternalMesh(vtkUnstructuredGrid*, vtkFloatArray*);
+  bool MoveBoundaryMesh(vtkMultiBlockDataSet*, vtkFloatArray*);
 
   // cell-to-point interpolator
   void InterpolateCellToPoint(
@@ -973,8 +970,8 @@ private:
   // read and create cell/point fields
   bool ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict, const std::string& varName,
     const vtkDataArraySelection* selection);
-  vtkFloatArray* FillField(vtkFoamEntry& entry, vtkIdType nElements, const vtkFoamIOobject& io,
-    vtkFoamTypes::dataType fieldDataType);
+  vtkSmartPointer<vtkFloatArray> FillField(vtkFoamEntry& entry, vtkIdType nElements,
+    const vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType);
   void GetVolFieldAtTimeStep(const std::string& varName, bool isInternalField = false);
   // void GetAreaFieldAtTimeStep(const std::string& varName);
   void GetPointFieldAtTimeStep(const std::string& varName);
@@ -3039,6 +3036,19 @@ private:
   void ReadList(vtkFoamIOobject& io);
 
 public:
+  // Construct empty value with given parent
+  explicit vtkFoamEntryValue(const vtkFoamEntry* parent)
+    : IsUniformEntry(false)
+    , Managed(true)
+    , UpperEntryPtr(parent)
+  {
+  }
+  // Copy construct
+  vtkFoamEntryValue(vtkFoamEntryValue& val, const vtkFoamEntry* parent);
+  ~vtkFoamEntryValue() { this->Clear(); }
+
+  // Helper Classes
+
   // reads primitive int/float lists
   template <typename listT, typename primitiveT>
   class listTraits
@@ -3224,14 +3234,7 @@ public:
     }
   };
 
-  vtkFoamEntryValue(const vtkFoamEntry* upperEntryPtr)
-    : IsUniformEntry(false)
-    , Managed(true)
-    , UpperEntryPtr(upperEntryPtr)
-  {
-  }
-  vtkFoamEntryValue(vtkFoamEntryValue& val, const vtkFoamEntry*);
-  ~vtkFoamEntryValue() { this->Clear(); }
+  // Member Functions
 
   void SetEmptyList()
   {
@@ -3260,11 +3263,13 @@ public:
   const vtkFoamDict& Dictionary() const { return *this->Superclass::DictPtr; }
   vtkFoamDict& Dictionary() { return *this->Superclass::DictPtr; }
 
-  // Release the managed pointer
-  void* Ptr()
+  // Release the managed pointer, cast to specified type
+  template <class DataType>
+  DataType* ReleasePtr()
   {
-    this->Managed = false;               // Not managed = do not delete pointer in destructor
-    return this->Superclass::AnyPointer; // List pointers are in a single union
+    // Not managed = do not delete pointer in destructor
+    this->Managed = false;
+    return static_cast<DataType*>(this->Superclass::AnyPointer);
   }
 
   std::string ToString() const
@@ -3294,14 +3299,14 @@ public:
     this->Superclass::Type = LABELLIST;
     if (this->IsLabel64())
     {
-      vtkTypeInt64Array* array = vtkTypeInt64Array::New();
+      auto* array = vtkTypeInt64Array::New();
       array->SetNumberOfValues(size);
       array->FillValue(labelValue);
       this->Superclass::LabelListPtr = array;
     }
     else
     {
-      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+      auto* array = vtkTypeInt32Array::New();
       array->SetNumberOfValues(size);
       array->FillValue(static_cast<vtkTypeInt32>(labelValue));
       this->Superclass::LabelListPtr = array;
@@ -3774,9 +3779,13 @@ public:
 
   const vtkFoamDict& Dictionary() const { return this->FirstValue().Dictionary(); }
   vtkFoamDict& Dictionary() { return this->FirstValue().Dictionary(); }
-
-  void* Ptr() { return this->FirstValue().Ptr(); }
   const vtkFoamDict* GetUpperDictPtr() const { return this->UpperDictPtr; }
+
+  template <class DataType>
+  DataType* ReleasePtr()
+  {
+    return this->FirstValue().ReleasePtr<DataType>();
+  }
 
   std::string ToString() const
   {
@@ -4194,23 +4203,23 @@ void vtkFoamIOobject::ReadHeader()
   this->objectName_ = eptr->ToString();
 }
 
-vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntry* upperEntryPtr)
+vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntry* parent)
   : vtkFoamToken(value)
   , IsUniformEntry(value.IsUniform())
   , Managed(true)
-  , UpperEntryPtr(upperEntryPtr)
+  , UpperEntryPtr(parent)
 {
   switch (this->Superclass::Type)
   {
     case VECTORLIST:
     {
-      vtkFloatArray* fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
-      if (fa->GetNumberOfComponents() == 6)
+      auto* array = vtkFloatArray::SafeDownCast(value.ToVTKObject());
+      if (array->GetNumberOfComponents() == 6)
       {
-        // create deepcopies for vtkObjects to avoid duplicated mainpulation
-        vtkFloatArray* newfa = vtkFloatArray::New();
-        newfa->DeepCopy(fa);
-        this->Superclass::VtkObjectPtr = newfa;
+        // DeepCopy for symmTensor fields to avoid duplicated manipulation
+        auto* arrayCopy = vtkFloatArray::New();
+        arrayCopy->DeepCopy(array);
+        this->Superclass::VtkObjectPtr = arrayCopy;
       }
       else
       {
@@ -4242,20 +4251,20 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
       for (size_t valueI = 0; valueI < nValues; valueI++)
       {
         this->EntryValuePtrs->operator[](valueI) =
-          new vtkFoamEntryValue(*value.EntryValuePtrs->operator[](valueI), upperEntryPtr);
+          new vtkFoamEntryValue(*value.EntryValuePtrs->operator[](valueI), this->UpperEntryPtr);
       }
     }
     break;
     case DICTIONARY:
       // UpperEntryPtr is null when called from vtkFoamDict constructor
-      if (this->UpperEntryPtr != nullptr)
+      if (this->UpperEntryPtr == nullptr)
       {
-        this->DictPtr = new vtkFoamDict(*value.DictPtr, this->UpperEntryPtr->GetUpperDictPtr());
-        this->DictPtr->SetStreamOption(value.GetStreamOption());
+        this->DictPtr = nullptr;
       }
       else
       {
-        this->DictPtr = nullptr;
+        this->DictPtr = new vtkFoamDict(*value.DictPtr, this->UpperEntryPtr->GetUpperDictPtr());
+        this->DictPtr->SetStreamOption(value.GetStreamOption());
       }
       break;
     case BOOLLIST:
@@ -4339,14 +4348,14 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       if (this->IsLabel64())
       {
-        vtkTypeInt64Array* array = vtkTypeInt64Array::New();
+        auto* array = vtkTypeInt64Array::New();
         array->InsertNextValue(currToken.To<vtkTypeInt64>());
         array->InsertNextValue(nextToken.To<vtkTypeInt64>());
         this->Superclass::LabelListPtr = array;
       }
       else
       {
-        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+        auto* array = vtkTypeInt32Array::New();
         array->InsertNextValue(currToken.To<vtkTypeInt32>());
         array->InsertNextValue(nextToken.To<vtkTypeInt32>());
         this->Superclass::LabelListPtr = array;
@@ -4372,14 +4381,14 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       if (this->IsLabel64())
       {
-        vtkTypeInt64Array* array = vtkTypeInt64Array::New();
+        auto* array = vtkTypeInt64Array::New();
         array->SetNumberOfValues(1);
         array->SetValue(0, currToken.To<vtkTypeInt64>());
         this->Superclass::LabelListPtr = array;
       }
       else
       {
-        vtkTypeInt32Array* array = vtkTypeInt32Array::New();
+        auto* array = vtkTypeInt32Array::New();
         array->SetNumberOfValues(1);
         array->SetValue(0, currToken.To<vtkTypeInt32>());
         this->Superclass::LabelListPtr = array;
@@ -5351,8 +5360,12 @@ void vtkOpenFOAMReaderPrivate::SortFieldFiles(vtkStringArray* selections, vtkStr
   // The object (field) name in the FoamFile header should always correspond
   // to the filename (without any trailing .gz etc)
 
-  auto names = vtkSmartPointer<vtkStringArray>::New();
-  for (vtkIdType i = 0; i < files->GetNumberOfValues(); ++i)
+  const vtkIdType nFiles = files->GetNumberOfValues();
+
+  vtkNew<vtkStringArray> names;
+  names->SetNumberOfValues(nFiles);
+
+  for (vtkIdType i = 0; i < nFiles; ++i)
   {
     std::string name(files->GetValue(i));
     const auto ending = name.rfind(".gz");
@@ -5360,13 +5373,13 @@ void vtkOpenFOAMReaderPrivate::SortFieldFiles(vtkStringArray* selections, vtkStr
     {
       name.erase(ending);
     }
-    names->InsertNextValue(name);
+    names->SetValue(i, name);
   }
 
   names->Squeeze();
   files->Squeeze();
   vtkSortDataArray::Sort(names, files);
-  for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
+  for (vtkIdType i = 0; i < nFiles; ++i)
   {
     selections->InsertNextValue(names->GetValue(i));
   }
@@ -6139,7 +6152,7 @@ void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
 //
 // - sets NumPoints
 
-vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
+vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile()
 {
   // Assume failure
   this->NumPoints = 0;
@@ -6158,7 +6171,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
     }
   }
 
-  vtkFloatArray* pointArray = nullptr;
+  vtkSmartPointer<vtkFloatArray> pointArray;
 
   try
   {
@@ -6175,7 +6188,8 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
         vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false>>(io);
     }
 
-    pointArray = static_cast<vtkFloatArray*>(dict.Ptr());
+    // Capture content as smart pointer
+    pointArray.TakeReference(dict.ReleasePtr<vtkFloatArray>());
   }
   catch (const vtkFoamError& err)
   {
@@ -6185,9 +6199,9 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::ReadPointsFile()
     return nullptr;
   }
 
-  assert(pointArray);
+  assert(pointArray.Get() != nullptr);
 
-  // Set the number of points
+  // The number of points
   this->NumPoints = pointArray->GetNumberOfTuples();
 
   return pointArray;
@@ -6221,10 +6235,13 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
     }
   }
 
-  vtkFoamEntryValue dict(nullptr);
-  dict.SetStreamOption(io);
+  std::unique_ptr<vtkFoamLabelListList> meshFaces;
+
   try
   {
+    vtkFoamEntryValue dict(nullptr);
+    dict.SetStreamOption(io);
+
     if (io.GetClassName() == "faceCompactList")
     {
       dict.ReadCompactLabelListList(io);
@@ -6233,6 +6250,9 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
     {
       dict.ReadLabelListList(io);
     }
+
+    // Capture content
+    meshFaces.reset(dict.ReleasePtr<vtkFoamLabelListList>());
   }
   catch (const vtkFoamError& err)
   {
@@ -6240,8 +6260,6 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
                   << ": " << err);
     return nullptr;
   }
-
-  std::unique_ptr<vtkFoamLabelListList> meshFaces(static_cast<vtkFoamLabelListList*>(dict.Ptr()));
 
   if (meshFaces)
   {
@@ -6301,7 +6319,8 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     }
     io.Close();
 
-    this->FaceOwner = static_cast<vtkDataArray*>(ownerDict.Ptr());
+    // Store owner faces
+    this->FaceOwner = ownerDict.ReleasePtr<vtkDataArray>();
   }
 
   // Read polyMesh/neighbour
@@ -6345,7 +6364,8 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     }
     io.Close();
 
-    this->FaceNeigh = static_cast<vtkDataArray*>(neighDict.Ptr());
+    // Store neighbour faces
+    this->FaceNeigh = neighDict.ReleasePtr<vtkDataArray>();
   }
 
   // Basic checks
@@ -6598,12 +6618,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
   // Scratch array for inserting primitive cell points
   constexpr vtkIdType maxNPoints = 256; // max num of points per cell
-  auto cellPoints = vtkSmartPointer<vtkIdList>::New();
+  vtkNew<vtkIdList> cellPoints;
   cellPoints->SetNumberOfIds(maxNPoints);
 
   // Scratch array for inserting polyhedral faces and sizes
   constexpr vtkIdType maxNPolyPoints = 1024; // max num of nPoints per face + points per cell
-  auto polyPoints = vtkSmartPointer<vtkIdList>::New();
+  vtkNew<vtkIdList> polyPoints;
   polyPoints->SetNumberOfIds(maxNPolyPoints);
 
   // Scratch array for analyzing cell types (cell shape)
@@ -7426,7 +7446,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   vtkFloatArray* pointArray)
 {
   // Create Mesh
-  vtkUnstructuredGrid* internalMesh = vtkUnstructuredGrid::New();
+  auto* internalMesh = vtkUnstructuredGrid::New();
   internalMesh->Allocate(this->NumCells);
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
@@ -7438,7 +7458,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
     this->NumAdditionalCells = vtkIntArray::New();
     this->AdditionalCellPoints = new vtkFoamLabelArrayVector;
 
-    auto additionalCells = vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkNew<vtkIdTypeArray> additionalCells;
     additionalCells->SetNumberOfComponents(5); // Accommodate tetra or pyramid
 
     this->InsertCellsToGrid(
@@ -7473,10 +7493,9 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   }
 
   // Set points for internalMesh
-  vtkPoints* points = vtkPoints::New();
+  vtkNew<vtkPoints> points;
   points->SetData(pointArray);
   internalMesh->SetPoints(points);
-  points->Delete();
 
   return internalMesh;
 }
@@ -7573,7 +7592,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     return nullptr;
   }
 
-  vtkMultiBlockDataSet* boundaryMesh = vtkMultiBlockDataSet::New();
+  auto* boundaryMesh = vtkMultiBlockDataSet::New();
 
   if (this->Parent->GetCreateCellToPoint())
   {
@@ -7584,7 +7603,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   }
   this->BoundaryPointMap = new vtkFoamLabelArrayVector;
 
-  vtkIdTypeArray* nBoundaryPointsList = vtkIdTypeArray::New();
+  vtkNew<vtkIdTypeArray> nBoundaryPointsList;
   nBoundaryPointsList->SetNumberOfValues(nBoundaries);
 
   // count the max number of points per face and the number of points
@@ -7611,7 +7630,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
   // Allocate array for converting int vector to vtkIdType List:
   // workaround for 64bit machines
-  vtkIdList* facePointsVtkId = vtkIdList::New();
+  vtkNew<vtkIdList> facePointsVtkId;
   facePointsVtkId->SetNumberOfIds(maxNFacePoints);
 
   // Use same integer width as per faces
@@ -7654,7 +7673,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
   vtkTypeInt64 nAllBoundaryPoints = 0;
   std::vector<std::vector<vtkIdType>> procCellList;
-  vtkTypeInt8Array* pointTypes = nullptr;
+  vtkSmartPointer<vtkTypeInt8Array> pointTypes;
 
   if (this->Parent->GetCreateCellToPoint())
   {
@@ -7672,7 +7691,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     {
       // Initialize physical-processor boundary shared point list
       procCellList.resize(static_cast<size_t>(nAllBoundaryPoints));
-      pointTypes = vtkTypeInt8Array::New();
+      pointTypes = vtkSmartPointer<vtkTypeInt8Array>::New();
       pointTypes->SetNumberOfTuples(nAllBoundaryPoints);
       pointTypes->FillValue(0);
     }
@@ -7730,7 +7749,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     }
 
     // Create the boundary patch mesh
-    vtkPolyData* bm = vtkPolyData::New();
+    vtkNew<vtkPolyData> bm;
     ::AppendBlock(boundaryMesh, bm, patch.name_);
 
     bm->AllocateEstimate(nFaces, 1);
@@ -7770,7 +7789,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       bpMap = vtkTypeInt32Array::New();
     }
     this->BoundaryPointMap->push_back(bpMap);
-    vtkFloatArray* boundaryPointArray = vtkFloatArray::New();
+    vtkNew<vtkFloatArray> boundaryPointArray;
     boundaryPointArray->SetNumberOfComponents(3);
     vtkIdType oldPointJ = -1;
     for (int j = 0; j < nBoundaryPoints; j++)
@@ -7786,23 +7805,17 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     boundaryPointArray->Squeeze();
     bpMap->Squeeze();
     boundaryPointList->Delete();
-    vtkPoints* boundaryPoints = vtkPoints::New();
+    vtkNew<vtkPoints> boundaryPoints;
     boundaryPoints->SetData(boundaryPointArray);
-    boundaryPointArray->Delete();
 
     // Set points for boundary
     bm->SetPoints(boundaryPoints);
-    boundaryPoints->Delete();
 
     // insert faces to boundary mesh
     this->InsertFacesToGrid(
       bm, meshFaces, startFace, endFace, bpMap, facePointsVtkId, nullptr, true);
-    bm->Delete();
     bpMap->ClearLookup();
   }
-
-  nBoundaryPointsList->Delete();
-  facePointsVtkId->Delete();
 
   if (this->Parent->GetCreateCellToPoint())
   {
@@ -7847,10 +7860,9 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
     // set dummy vtkPoints to tell the grid the number of points
     // (otherwise GetPointCells will crash)
-    vtkPoints* allBoundaryPoints = vtkPoints::New();
+    vtkNew<vtkPoints> allBoundaryPoints;
     allBoundaryPoints->SetNumberOfPoints(abpMap.GetNumberOfTuples());
     this->AllBoundaries->SetPoints(allBoundaryPoints);
-    allBoundaryPoints->Delete();
 
     if (!this->ProcessorName.empty())
     {
@@ -7872,7 +7884,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
           // not typically be so large
         }
       }
-      pointTypes->Delete();
     }
   }
 
@@ -7902,25 +7913,8 @@ void vtkOpenFOAMReaderPrivate::TruncateFaceOwner()
 }
 
 //------------------------------------------------------------------------------
-// this is necessary due to the strange vtkDataArrayTemplate::Resize()
-// implementation when the array size is to be extended
-template <typename T1, typename T2>
-bool vtkOpenFOAMReaderPrivate::ExtendArray(T1* array, vtkIdType nTuples)
-{
-  vtkIdType newSize = nTuples * array->GetNumberOfComponents();
-  void* ptr = malloc(static_cast<size_t>(newSize * array->GetDataTypeSize()));
-  if (ptr == nullptr)
-  {
-    return false;
-  }
-  memmove(ptr, array->GetVoidPointer(0), array->GetDataSize() * array->GetDataTypeSize());
-  array->SetArray(static_cast<T2*>(ptr), newSize, 0);
-  return true;
-}
-
-//------------------------------------------------------------------------------
-// move polyhedral cell centroids
-vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
+// Move mesh points, including the cell centroids for any decomposed polyhedra
+bool vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   vtkUnstructuredGrid* internalMesh, vtkFloatArray* pointArray)
 {
   const auto nOldPoints = internalMesh->GetPoints()->GetNumberOfPoints();
@@ -7931,7 +7925,7 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   {
     const auto& addCellPoints = *this->AdditionalCellPoints;
     const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
-    this->ExtendArray<vtkFloatArray, float>(pointArray, this->NumPoints + nAddPoints);
+    pointArray->Resize(this->NumPoints + nAddPoints);
 
     const bool cellPoints64Bit = ::Is64BitArray(this->AdditionalCellPoints->front());
 
@@ -7966,19 +7960,20 @@ vtkPoints* vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   {
     vtkErrorMacro(<< "Mismatch in number of old points (" << nOldPoints << ") and new points ("
                   << pointArray->GetNumberOfTuples() << ')');
-    return nullptr;
+    return false;
   }
 
-  // instantiate the points class
-  vtkPoints* points = vtkPoints::New();
+  // Update the mesh points. No Delete on pointArray (still used outside)
+  vtkNew<vtkPoints> points;
   points->SetData(pointArray);
   internalMesh->SetPoints(points);
-  return points;
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
-// move boundary points
-void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
+// Move boundary points
+bool vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
   vtkMultiBlockDataSet* boundaryMesh, vtkFloatArray* pointArray)
 {
   const auto& patches = this->BoundaryDict;
@@ -7992,25 +7987,25 @@ void vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
       const vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
-      vtkFloatArray* boundaryPointArray = vtkFloatArray::New();
+      vtkNew<vtkFloatArray> boundaryPointArray;
       boundaryPointArray->SetNumberOfComponents(3);
       boundaryPointArray->SetNumberOfTuples(nBoundaryPoints);
       for (vtkIdType pointi = 0; pointi < nBoundaryPoints; ++pointi)
       {
-        boundaryPointArray->SetTuple(
-          pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), pointArray);
+        const auto meshPointi = GetLabelValue(bpMap, pointi, meshPoints64Bit);
+        boundaryPointArray->SetTuple(pointi, meshPointi, pointArray);
       }
-      vtkPoints* boundaryPoints = vtkPoints::New();
+      vtkNew<vtkPoints> boundaryPoints;
       boundaryPoints->SetData(boundaryPointArray);
-      boundaryPointArray->Delete();
 
-      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       bm->SetPoints(boundaryPoints);
-      boundaryPoints->Delete();
 
       ++activeBoundaryIndex;
     }
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -8027,13 +8022,11 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
 
   // a dummy call to let GetPointCells() build the cell links if still not built
   // (not using BuildLinks() since it always rebuild links)
-  vtkIdList* pointCells = vtkIdList::New();
-  mesh->GetPointCells(0, pointCells);
-  pointCells->Delete();
+  mesh->GetPointCells(0, vtkNew<vtkIdList>());
 
   // Set up to grab point cells
-  vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(mesh);
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(mesh);
+  auto* ug = vtkUnstructuredGrid::SafeDownCast(mesh);
+  auto* pd = vtkPolyData::SafeDownCast(mesh);
   vtkIdType nCells;
   vtkIdType* cells;
 
@@ -8170,19 +8163,19 @@ bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& d
 }
 
 //------------------------------------------------------------------------------
-vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdType nElements,
-  const vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType)
+vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry,
+  vtkIdType nElements, const vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType)
 {
-  vtkFloatArray* data;
   const std::string& className = io.GetClassName();
 
+  vtkSmartPointer<vtkFloatArray> data;
   if (entry.FirstValue().IsUniform())
   {
     if (entry.FirstValue().GetType() == vtkFoamToken::SCALAR ||
       entry.FirstValue().GetType() == vtkFoamToken::LABEL)
     {
       const float num = entry.ToFloat();
-      data = vtkFloatArray::New();
+      data = vtkSmartPointer<vtkFloatArray>::New();
       data->SetNumberOfValues(nElements);
       data->FillValue(num);
     }
@@ -8216,7 +8209,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdTyp
       if ((vtkFoamTypes::GetNumberOfComponents(fieldDataType) == nComponents) &&
         vtkFoamTypes::IsVectorSpace(fieldDataType))
       {
-        data = vtkFloatArray::New();
+        data = vtkSmartPointer<vtkFloatArray>::New();
         data->SetNumberOfComponents(nComponents);
         data->SetNumberOfTuples(nElements);
         if (nComponents == 6)
@@ -8256,7 +8249,9 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdTyp
                       << "mesh = " << nElements << ", field = " << nTuples);
         return nullptr;
       }
-      data = static_cast<vtkFloatArray*>(entry.Ptr());
+
+      // Capture content as smart pointer
+      data.TakeReference(entry.ReleasePtr<vtkFloatArray>());
       const int nComponents = data->GetNumberOfComponents();
       if (nComponents == 6)
       {
@@ -8275,7 +8270,7 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdTyp
     }
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
     {
-      data = vtkFloatArray::New();
+      data = vtkSmartPointer<vtkFloatArray>::New();
 
       // Set appropriate number of components for empty list as well
       const int nComp = vtkFoamTypes::GetNumberOfComponents(fieldDataType);
@@ -8508,7 +8503,8 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   // -------------------------
 
   // Generate internal field data
-  vtkFloatArray* iData = this->FillField(*ifieldEntry, this->NumCells, io, fieldDataType);
+  vtkSmartPointer<vtkFloatArray> iData =
+    this->FillField(*ifieldEntry, this->NumCells, io, fieldDataType);
   if (iData == nullptr)
   {
     return;
@@ -8516,7 +8512,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   else if (iData->GetSize() == 0)
   {
     // Determined that there are no cells. Ignore the field
-    iData->Delete();
     return;
   }
 
@@ -8524,7 +8519,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   const int nComponents = iData->GetNumberOfComponents();
 
   // The cell-to-point interpolated data for cells
-  vtkFloatArray* ctpData = nullptr;
+  vtkSmartPointer<vtkFloatArray> ctpData;
 
   // Add field only if internal Mesh exists (skip if not selected).
   // Note we still need to read internalField even if internal mesh is
@@ -8538,9 +8533,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       // Add values for decomposed cells
       const vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
       vtkIdType newCelli = this->NumCells;
-
-      this->ExtendArray<vtkFloatArray, float>(
-        iData, this->NumCells + this->NumTotalAdditionalCells);
+      iData->Resize(this->NumCells + this->NumTotalAdditionalCells);
 
       for (vtkIdType tupleI = 0; tupleI < nTuples; tupleI++)
       {
@@ -8560,7 +8553,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     if (this->Parent->GetCreateCellToPoint())
     {
       // Create cell-to-point interpolated data
-      ctpData = vtkFloatArray::New();
+      ctpData = vtkSmartPointer<vtkFloatArray>::New();
       ctpData->SetNumberOfComponents(nComponents);
       ctpData->SetNumberOfTuples(internalMesh->GetPoints()->GetNumberOfPoints());
       if (this->InternalPoints != nullptr)
@@ -8588,13 +8581,13 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   // ...
 
   // The cell-to-point interpolated data for boundary cells
-  vtkFloatArray* acData = nullptr;
+  vtkSmartPointer<vtkFloatArray> acData;
 
   if (boundaryMesh != nullptr)
   {
     if (this->Parent->GetCreateCellToPoint())
     {
-      acData = vtkFloatArray::New();
+      acData = vtkSmartPointer<vtkFloatArray>::New();
       acData->SetNumberOfComponents(nComponents);
       acData->SetNumberOfTuples(this->AllBoundaries->GetNumberOfCells());
     }
@@ -8606,7 +8599,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     {
       const vtkIdType nFaces = patch.size_;
 
-      vtkFloatArray* vData = nullptr;
+      vtkSmartPointer<vtkFloatArray> vData;
       std::string bcType;
 
       if (bfieldEntries != nullptr)
@@ -8658,16 +8651,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
                             << varName
                             << " at time = " << this->TimeNames->GetValue(this->TimeStep));
           }
-
-          iData->Delete();
-          if (acData != nullptr)
-          {
-            acData->Delete();
-          }
-          if (ctpData != nullptr)
-          {
-            ctpData->Delete();
-          }
           return;
         }
       }
@@ -8682,7 +8665,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       {
         // No "value" entry
         // Default to patch-internal values as boundary values
-        vData = vtkFloatArray::New();
+        vData = vtkSmartPointer<vtkFloatArray>::New();
         vData->SetNumberOfComponents(nComponents);
         vData->SetNumberOfTuples(nFaces);
 
@@ -8745,7 +8728,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
 
       if (patches.isActive(patch.index_))
       {
-        vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+        auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
         ::AddArrayToFieldData(bm->GetCellData(), vData, io.GetObjectName(), dimString);
 
         if (this->Parent->GetCreateCellToPoint())
@@ -8755,32 +8738,29 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
           // that the interpolated values are not affected by
           // neighboring patches especially at patch edges and for
           // baffle patches
-          vtkFloatArray* pData = vtkFloatArray::New();
+          vtkNew<vtkFloatArray> pData;
           pData->SetNumberOfComponents(vData->GetNumberOfComponents());
-          vtkIdType nPoints = bm->GetPoints()->GetNumberOfPoints();
+          const vtkIdType nPoints = bm->GetPoints()->GetNumberOfPoints();
           pData->SetNumberOfTuples(nPoints);
           this->InterpolateCellToPoint(pData, vData, bm, nullptr, nPoints);
           ::AddArrayToFieldData(bm->GetPointData(), pData, io.GetObjectName(), dimString);
-          pData->Delete();
         }
 
         ++activeBoundaryIndex;
       }
-      vData->Delete();
     }
 
     if (this->Parent->GetCreateCellToPoint())
     {
       // Create cell-to-point interpolated data for all boundaries and
       // override internal values
-      vtkFloatArray* bpData = vtkFloatArray::New();
+      vtkNew<vtkFloatArray> bpData;
       bpData->SetNumberOfComponents(nComponents);
       vtkIdType nPoints = this->AllBoundariesPointMap->GetNumberOfTuples();
       bpData->SetNumberOfTuples(nPoints);
       this->InterpolateCellToPoint(bpData, acData, this->AllBoundaries, nullptr, nPoints);
-      acData->Delete();
 
-      if (ctpData != nullptr)
+      if (ctpData)
       {
         const bool meshPoints64Bit = ::Is64BitArray(this->AllBoundariesPointMap);
 
@@ -8791,15 +8771,9 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
             GetLabelValue(this->AllBoundariesPointMap, pointI, meshPoints64Bit), pointI, bpData);
         }
         ::AddArrayToFieldData(internalMesh->GetPointData(), ctpData, io.GetObjectName(), dimString);
-        ctpData->Delete();
       }
-
-      bpData->Delete();
     }
   }
-
-  // Done with internalField
-  iData->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -8869,7 +8843,8 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   // -------------------------
 
   // Generate internal field data
-  vtkFloatArray* iData = this->FillField(*ifieldEntry, this->NumPoints, io, fieldDataType);
+  vtkSmartPointer<vtkFloatArray> iData =
+    this->FillField(*ifieldEntry, this->NumPoints, io, fieldDataType);
   if (iData == nullptr)
   {
     return;
@@ -8877,7 +8852,6 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   else if (iData->GetSize() == 0)
   {
     // Determined that there are no points. Ignore the field
-    iData->Delete();
     return;
   }
 
@@ -8897,7 +8871,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       // The point-to-cell interpolation to additional cell centroidal points for decomposed cells
       const auto& addCellPoints = *this->AdditionalCellPoints;
       const vtkIdType nAddPoints = static_cast<vtkIdType>(addCellPoints.size());
-      this->ExtendArray<vtkFloatArray, float>(iData, this->NumPoints + nAddPoints);
+      iData->Resize(this->NumPoints + nAddPoints);
 
       const bool cellPoints64Bit =
         (nAddPoints > 0 && ::Is64BitArray(this->AdditionalCellPoints->front()));
@@ -8947,7 +8921,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   {
     if (patches.isActive(patch.index_))
     {
-      vtkFloatArray* vData = vtkFloatArray::New();
+      vtkNew<vtkFloatArray> vData;
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
@@ -8959,9 +8933,8 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
         vData->SetTuple(pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), iData);
       }
 
-      vtkPolyData* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       ::AddArrayToFieldData(bm->GetPointData(), vData, io.GetObjectName(), dimString);
-      vData->Delete();
 
       ++activeBoundaryIndex;
     }
@@ -8969,15 +8942,12 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
 
   // Handle any zones
   // ...
-
-  // Done with internalField
-  iData->Delete();
 }
 
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 {
-  vtkMultiBlockDataSet* lagrangianMesh = vtkMultiBlockDataSet::New();
+  auto* lagrangianMesh = vtkMultiBlockDataSet::New();
 
   for (int cloudI = 0; cloudI < this->Parent->LagrangianPaths->GetNumberOfTuples(); cloudI++)
   {
@@ -9006,120 +8976,114 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 
     // create an empty mesh to keep node/leaf structure of the
     // multi-block consistent even if mesh doesn't exist
-    vtkPolyData* meshI = vtkPolyData::New();
+    vtkNew<vtkPolyData> meshI;
 
     // Extract the cloud name
     ::AppendBlock(lagrangianMesh, meshI, pathI.substr(pathI.rfind('/') + 1));
 
-    vtkFoamIOobject io(this->CasePath, this->Parent);
-    if (!io.OpenOrGzip(positionsPath))
+    // Get the parcel positions as vtkPoints
+    vtkNew<vtkPoints> points;
     {
-      meshI->Delete();
-      continue;
-    }
-
-    vtkFoamEntryValue dict(nullptr);
-    try
-    {
-      if (io.IsFloat64())
+      vtkFoamIOobject io(this->CasePath, this->Parent);
+      if (!io.OpenOrGzip(positionsPath))
       {
-        dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
+        continue;
       }
-      else
+
+      vtkFoamEntryValue dict(nullptr);
+      try
       {
-        dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-          vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
+        if (io.IsFloat64())
+        {
+          dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
+        }
+        else
+        {
+          dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
+        }
+
+        // Transfer float tuples to points
+        auto* pointArray = dict.ReleasePtr<vtkFloatArray>();
+        points->SetData(pointArray);
+        pointArray->Delete();
+      }
+      catch (const vtkFoamError& err)
+      {
+        vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                      << ": " << err);
+        continue;
       }
     }
-    catch (const vtkFoamError& err)
-    {
-      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
-                    << ": " << err);
-      meshI->Delete();
-      continue;
-    }
-    io.Close();
 
-    vtkFloatArray* pointArray = static_cast<vtkFloatArray*>(dict.Ptr());
-    const vtkIdType nParticles = pointArray->GetNumberOfTuples();
+    const vtkIdType nParticles = points->GetNumberOfPoints();
 
-    // instantiate the points class
-    vtkPoints* points = vtkPoints::New();
-    points->SetData(pointArray);
-    pointArray->Delete();
-
-    // create lagrangian mesh
+    // Create lagrangian mesh
     meshI->AllocateEstimate(nParticles, 1);
     for (vtkIdType i = 0; i < nParticles; i++)
     {
       meshI->InsertNextCell(VTK_VERTEX, 1, &i);
     }
     meshI->SetPoints(points);
-    points->Delete();
 
-    // read lagrangian fields
+    if (!nParticles)
+    {
+      continue; // Could be empty or missing for a particular region or processor
+    }
+
+    // Read lagrangian fields
     for (int fieldI = 0; fieldI < this->LagrangianFieldFiles->GetNumberOfValues(); fieldI++)
     {
       const std::string varPath(cloudPath + this->LagrangianFieldFiles->GetValue(fieldI));
 
-      vtkFoamIOobject io2(this->CasePath, this->Parent);
-      if (!io2.Open(varPath))
+      vtkFoamIOobject io(this->CasePath, this->Parent);
+      if (!io.Open(varPath))
       {
-        // if the field file doesn't exist we simply return without
-        // issuing an error as a simple way of supporting multi-region
-        // lagrangians
-        continue;
+        continue; // Could be empty or missing for a particular region or processor
       }
 
       // if the variable is disabled on selection panel then skip it
-      const std::string selectionName(io2.GetObjectName());
+      const std::string selectionName(io.GetObjectName());
       if (this->Parent->LagrangianDataArraySelection->ArrayExists(selectionName.c_str()) &&
         !this->Parent->GetLagrangianArrayStatus(selectionName.c_str()))
       {
         continue;
       }
 
-      // read the field file into dictionary
-      vtkFoamEntryValue dict2(nullptr);
-      if (!dict2.ReadField(io2))
+      // Read the field file into dictionary
+      vtkFoamEntryValue dict(nullptr);
+      if (!dict.ReadField(io))
       {
-        vtkErrorMacro(<< "Error reading line " << io2.GetLineNumber() << " of " << io2.GetFileName()
-                      << ": " << io2.GetError());
+        vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                      << ": " << io.GetError());
         continue;
       }
 
-      // set lagrangian values
-      if (dict2.GetType() != vtkFoamToken::SCALARLIST &&
-        dict2.GetType() != vtkFoamToken::VECTORLIST && dict2.GetType() != vtkFoamToken::LABELLIST)
+      // Set lagrangian values
+      if (dict.GetType() != vtkFoamToken::SCALARLIST &&
+        dict.GetType() != vtkFoamToken::VECTORLIST && dict.GetType() != vtkFoamToken::LABELLIST)
       {
-        vtkErrorMacro(<< io2.GetFileName() << ": Unsupported lagrangian field type "
-                      << io2.GetClassName());
+        vtkErrorMacro(<< io.GetFileName() << ": Unsupported lagrangian field type "
+                      << io.GetClassName());
         continue;
       }
 
-      vtkDataArray* lData = static_cast<vtkDataArray*>(dict2.Ptr());
+      // Capture content as smart pointer
+      auto fldData = vtkSmartPointer<vtkDataArray>::Take(dict.ReleasePtr<vtkDataArray>());
 
-      // GetNumberOfTuples() works for both scalar and vector
-      const vtkIdType nParticles2 = lData->GetNumberOfTuples();
-      if (nParticles2 != meshI->GetNumberOfCells())
+      const vtkIdType nValues = fldData->GetNumberOfTuples();
+      if (nValues != meshI->GetNumberOfCells())
       {
-        vtkErrorMacro(<< io2.GetFileName()
-                      << ": Sizes of lagrangian mesh and field don't match: mesh = "
-                      << meshI->GetNumberOfCells() << ", field = " << nParticles2);
-        lData->Delete();
+        vtkErrorMacro(<< io.GetFileName() << ": Size mismatch for lagrangian mesh ("
+                      << meshI->GetNumberOfCells() << ") and field (" << nValues << ')');
         continue;
       }
 
-      ::AddArrayToFieldData(meshI->GetCellData(), lData, selectionName);
-      if (this->Parent->GetCreateCellToPoint())
-      {
-        // questionable if this is worth bothering with:
-        ::AddArrayToFieldData(meshI->GetPointData(), lData, selectionName);
-      }
-      lData->Delete();
+      // Provide identical data as cell and as point data
+      ::AddArrayToFieldData(meshI->GetCellData(), fldData, selectionName);
+      ::AddArrayToFieldData(meshI->GetPointData(), fldData, selectionName);
     }
-    meshI->Delete();
   }
   return lagrangianMesh;
 }
@@ -9163,6 +9127,7 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
 bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
   const vtkFoamLabelListList& meshCells, const vtkFoamLabelListList& meshFaces, vtkPoints* points)
 {
+  typedef vtkUnstructuredGrid zoneVtkType;
   constexpr const char* const zonePrefix = "cellZone";
   constexpr const char* const zoneTypeName = "cellZones";
   constexpr const char* const labelsName = "cellLabels";
@@ -9195,14 +9160,15 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     }
     vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
 
+    // Need mesh, even if the list is empty
+    vtkNew<zoneVtkType> zm;
+
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
       (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
-      // Allocate empty mesh if the list is empty
-      vtkUnstructuredGrid* zm = vtkUnstructuredGrid::New();
+      // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
-      zm->Delete();
       continue;
     }
     else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
@@ -9223,7 +9189,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
 
     // Allocate new grid: we do not use resize() beforehand since it
     // could lead to undefined pointers if we return by error
-    vtkUnstructuredGrid* zm = vtkUnstructuredGrid::New();
     zm->Allocate(nLabels);
 
     // Insert cells
@@ -9233,7 +9198,6 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     zm->SetPoints(points);
 
     ::SetBlock(zoneMesh, zonei, zm, zoneName);
-    zm->Delete();
   }
 
   return true;
@@ -9245,6 +9209,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
 bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
   vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList& meshFaces, vtkPoints* points)
 {
+  typedef vtkPolyData zoneVtkType;
   constexpr const char* const zonePrefix = "faceZone";
   constexpr const char* const zoneTypeName = "faceZones";
   constexpr const char* const labelsName = "faceLabels";
@@ -9277,14 +9242,15 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
     }
     vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
 
+    // Need mesh, even if the list is empty
+    vtkNew<zoneVtkType> zm;
+
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
       (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
-      // Allocate empty mesh if the list is empty
-      vtkPolyData* zm = vtkPolyData::New();
+      // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
-      zm->Delete();
       continue;
     }
     else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
@@ -9305,7 +9271,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
 
     // Allocate new grid: we do not use resize() beforehand since it
     // could lead to undefined pointer if we return by error
-    vtkPolyData* zm = vtkPolyData::New();
     zm->AllocateEstimate(nLabels, 1);
 
     // allocate array for converting int vector to vtkIdType vector:
@@ -9319,7 +9284,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
         maxNFacePoints = nFacePoints;
       }
     }
-    vtkIdList* facePointsVtkId = vtkIdList::New();
+    vtkNew<vtkIdList> facePointsVtkId;
     facePointsVtkId->SetNumberOfIds(maxNFacePoints);
 
     // Insert faces
@@ -9330,7 +9295,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
     zm->SetPoints(points);
 
     ::SetBlock(zoneMesh, zonei, zm, zoneName);
-    zm->Delete();
   }
 
   return true;
@@ -9341,6 +9305,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
 
 bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, vtkPoints* points)
 {
+  typedef vtkPolyData zoneVtkType;
   constexpr const char* const zonePrefix = "pointZone";
   constexpr const char* const zoneTypeName = "pointZones";
   constexpr const char* const labelsName = "pointLabels";
@@ -9373,14 +9338,15 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
     }
     vtkFoamEntryValue& labelsEntry = eptr->FirstValue();
 
+    // Need mesh, even if the list is empty
+    vtkNew<zoneVtkType> zm;
+
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
       (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
     {
-      // Allocate empty mesh if the list is empty
-      vtkPolyData* zm = vtkPolyData::New();
+      // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
-      zm->Delete();
       continue;
     }
     else if (labelsEntry.GetType() != vtkFoamToken::LABELLIST)
@@ -9401,7 +9367,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 
     // Allocate new grid: we do not use resize() beforehand since it
     // could lead to undefined pointer if we return by error
-    vtkPolyData* zm = vtkPolyData::New();
     zm->AllocateEstimate(nLabels, 1);
 
     // Insert points
@@ -9426,7 +9391,6 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
     zm->SetPoints(points);
 
     ::SetBlock(zoneMesh, zonei, zm, zoneName);
-    zm->Delete();
   }
 
   return true;
@@ -9573,7 +9537,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     this->Parent->UpdateProgress(0.3);
   }
 
-  vtkFloatArray* pointArray = nullptr;
+  vtkSmartPointer<vtkFloatArray> pointArray;
   if (createEulerians &&
     (recreateInternalMesh ||
       (recreateBoundaryMesh && !recreateInternalMesh && this->InternalMesh == nullptr) ||
@@ -9581,7 +9545,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   {
     // Read polyMesh/points, set the number of faces
     pointArray = this->ReadPointsFile();
-    if ((pointArray == nullptr && recreateInternalMesh) ||
+    if ((recreateInternalMesh && pointArray.Get() == nullptr) ||
       (meshFaces && !this->CheckFaceList(*meshFaces)))
     {
       return 0;
@@ -9589,8 +9553,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     this->Parent->UpdateProgress(0.4);
   }
 
-  // make internal mesh
-  // Create Internal Mesh only if required for display
+  // Create internal mesh, only if required for display
   if (createEulerians && recreateInternalMesh)
   {
     const std::string displayName(this->RegionPrefix() + NAME_INTERNALMESH);
@@ -9603,26 +9566,24 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   // Read and construct zones
   if (createEulerians && recreateInternalMesh && this->Parent->GetReadZones())
   {
-    vtkPoints* points = nullptr;
+    vtkSmartPointer<vtkPoints> tmpPoints; // Localized vtkPoints storage
+    vtkWeakPointer<vtkPoints> points;
+
     if (this->InternalMesh != nullptr)
     {
       points = this->InternalMesh->GetPoints();
     }
     else
     {
-      points = vtkPoints::New();
-      points->SetData(pointArray);
+      tmpPoints = vtkSmartPointer<vtkPoints>::New();
+      tmpPoints->SetData(pointArray);
+      points = tmpPoints;
     }
 
     this->PointZoneMesh = vtkMultiBlockDataSet::New();
     if (!this->GetPointZoneMesh(this->PointZoneMesh, points))
     {
       this->ClearZoneMeshes();
-      if (this->InternalMesh == nullptr)
-      {
-        points->Delete();
-      }
-      pointArray->Delete();
       return 0;
     }
     if (this->PointZoneMesh->GetNumberOfBlocks() == 0)
@@ -9635,11 +9596,6 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     if (!this->GetFaceZoneMesh(this->FaceZoneMesh, *meshFaces, points))
     {
       this->ClearZoneMeshes();
-      if (this->InternalMesh == nullptr)
-      {
-        points->Delete();
-      }
-      pointArray->Delete();
       return 0;
     }
     if (this->FaceZoneMesh->GetNumberOfBlocks() == 0)
@@ -9652,21 +9608,12 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     if (!this->GetCellZoneMesh(this->CellZoneMesh, *meshCells, *meshFaces, points))
     {
       this->ClearZoneMeshes();
-      if (this->InternalMesh == nullptr)
-      {
-        points->Delete();
-      }
-      pointArray->Delete();
       return 0;
     }
     if (this->CellZoneMesh->GetNumberOfBlocks() == 0)
     {
       this->CellZoneMesh->Delete();
       this->CellZoneMesh = nullptr;
-    }
-    if (this->InternalMesh == nullptr)
-    {
-      points->Delete();
     }
   }
 
@@ -9679,25 +9626,18 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     this->TruncateFaceOwner();
   }
 
+  // Create boundary mesh
   if (createEulerians && recreateBoundaryMesh)
   {
-    vtkFloatArray* boundaryPointArray;
-    if (pointArray != nullptr)
+    vtkFloatArray* boundaryPointArray = pointArray.Get();
+    if (boundaryPointArray == nullptr)
     {
-      boundaryPointArray = pointArray;
+      boundaryPointArray = vtkFloatArray::SafeDownCast(this->InternalMesh->GetPoints()->GetData());
     }
-    else
-    {
-      boundaryPointArray = static_cast<vtkFloatArray*>(this->InternalMesh->GetPoints()->GetData());
-    }
-    // Create boundary mesh
+
     this->BoundaryMesh = this->MakeBoundaryMesh(*meshFaces, boundaryPointArray);
     if (this->BoundaryMesh == nullptr)
     {
-      if (pointArray != nullptr)
-      {
-        pointArray->Delete();
-      }
       return 0;
     }
   }
@@ -9705,25 +9645,26 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   // Don't need meshFaces beyond here
   meshFaces.reset(nullptr);
 
-  // if only point coordinates change refresh point vector
+  // Update the points in each mesh, if the point coordinates changed
   if (createEulerians && moveInternalPoints)
   {
-    // refresh the points in each mesh
-    vtkPoints* points;
-    // Check if Internal Mesh exists first....
+    vtkSmartPointer<vtkPoints> tmpPoints; // Localized vtkPoints storage
+    vtkWeakPointer<vtkPoints> points;
+
+    // Update internal mesh first, since decomposed polyhedra will modify pointArray
     if (this->InternalMesh != nullptr)
     {
-      points = this->MoveInternalMesh(this->InternalMesh, pointArray);
-      if (points == nullptr)
+      if (!this->MoveInternalMesh(this->InternalMesh, pointArray))
       {
-        pointArray->Delete();
         return 0;
       }
+      points = this->InternalMesh->GetPoints();
     }
     else
     {
-      points = vtkPoints::New();
-      points->SetData(pointArray);
+      tmpPoints = vtkSmartPointer<vtkPoints>::New();
+      tmpPoints->SetData(pointArray);
+      points = tmpPoints;
     }
 
     if (this->PointZoneMesh != nullptr)
@@ -9747,71 +9688,71 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
         vtkUnstructuredGrid::SafeDownCast(this->CellZoneMesh->GetBlock(i))->SetPoints(points);
       }
     }
-    points->Delete();
   }
 
+  // Update boundary mesh
   if (createEulerians && moveBoundaryPoints)
   {
-    // Check if Boundary Mesh exists first....
     if (this->BoundaryMesh != nullptr)
     {
       this->MoveBoundaryMesh(this->BoundaryMesh, pointArray);
     }
   }
 
-  if (pointArray != nullptr)
-  {
-    pointArray->Delete();
-  }
+  // Don't need mesh points beyond here...
+  // Be explicit: pointArray = vtkSmartPointer<vtkFloatArray>{};
+
   this->Parent->UpdateProgress(0.5);
 
+  // Eulerian variables
+  if (updateVariables && createEulerians)
+  {
+    // Clean up arrays of the previous timestep
+
+    // Internal
+    if (!recreateInternalMesh && this->InternalMesh != nullptr)
+    {
+      this->InternalMesh->GetCellData()->Initialize();
+      this->InternalMesh->GetPointData()->Initialize();
+    }
+
+    // Boundary
+    if (!recreateBoundaryMesh && this->BoundaryMesh != nullptr)
+    {
+      for (unsigned int i = 0; i < this->BoundaryMesh->GetNumberOfBlocks(); i++)
+      {
+        auto* bm = vtkPolyData::SafeDownCast(this->BoundaryMesh->GetBlock(i));
+        bm->GetCellData()->Initialize();
+        bm->GetPointData()->Initialize();
+      }
+    }
+
+    // read field data variables into Internal/Boundary meshes
+    vtkIdType nFieldsRead = 0;
+    const vtkIdType nFieldsToRead = (this->VolFieldFiles->GetNumberOfValues() +
+      this->DimFieldFiles->GetNumberOfValues() + this->PointFieldFiles->GetNumberOfValues());
+
+    for (vtkIdType i = 0; i < this->VolFieldFiles->GetNumberOfValues(); ++i)
+    {
+      this->GetVolFieldAtTimeStep(this->VolFieldFiles->GetValue(i));
+      this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
+    }
+    for (vtkIdType i = 0; i < this->DimFieldFiles->GetNumberOfValues(); ++i)
+    {
+      this->GetVolFieldAtTimeStep(this->DimFieldFiles->GetValue(i), true); // Internal field
+      this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
+    }
+    for (vtkIdType i = 0; i < this->PointFieldFiles->GetNumberOfValues(); ++i)
+    {
+      this->GetPointFieldAtTimeStep(this->PointFieldFiles->GetValue(i));
+      this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
+    }
+  }
+
+  // Read lagrangian mesh and fields
   vtkMultiBlockDataSet* lagrangianMesh = nullptr;
   if (updateVariables)
   {
-    if (createEulerians)
-    {
-      // Clean up arrays of the previous timestep
-
-      // Internal
-      if (!recreateInternalMesh && this->InternalMesh != nullptr)
-      {
-        this->InternalMesh->GetCellData()->Initialize();
-        this->InternalMesh->GetPointData()->Initialize();
-      }
-
-      // Boundary
-      if (!recreateBoundaryMesh && this->BoundaryMesh != nullptr)
-      {
-        for (unsigned int i = 0; i < this->BoundaryMesh->GetNumberOfBlocks(); i++)
-        {
-          auto* bm = vtkPolyData::SafeDownCast(this->BoundaryMesh->GetBlock(i));
-          bm->GetCellData()->Initialize();
-          bm->GetPointData()->Initialize();
-        }
-      }
-
-      // read field data variables into Internal/Boundary meshes
-      vtkIdType nFieldsRead = 0;
-      const vtkIdType nFieldsToRead = (this->VolFieldFiles->GetNumberOfValues() +
-        this->DimFieldFiles->GetNumberOfValues() + this->PointFieldFiles->GetNumberOfValues());
-
-      for (vtkIdType i = 0; i < this->VolFieldFiles->GetNumberOfValues(); ++i)
-      {
-        this->GetVolFieldAtTimeStep(this->VolFieldFiles->GetValue(i));
-        this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
-      }
-      for (vtkIdType i = 0; i < this->DimFieldFiles->GetNumberOfValues(); ++i)
-      {
-        this->GetVolFieldAtTimeStep(this->DimFieldFiles->GetValue(i), true); // Internal field
-        this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
-      }
-      for (vtkIdType i = 0; i < this->PointFieldFiles->GetNumberOfValues(); ++i)
-      {
-        this->GetPointFieldAtTimeStep(this->PointFieldFiles->GetValue(i));
-        this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
-      }
-    }
-    // read lagrangian mesh and fields
     lagrangianMesh = this->MakeLagrangianMesh();
   }
 
@@ -9819,8 +9760,8 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   {
     for (unsigned int i = 0; i < this->CellZoneMesh->GetNumberOfBlocks(); i++)
     {
-      vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(this->CellZoneMesh->GetBlock(i));
-      vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(ug->GetCellData()->GetArray("CellId"));
+      auto* ug = vtkUnstructuredGrid::SafeDownCast(this->CellZoneMesh->GetBlock(i));
+      auto* idArray = vtkIdTypeArray::SafeDownCast(ug->GetCellData()->GetArray("CellId"));
 
       // allocate arrays, cellId array will be removed
       ug->GetCellData()->CopyAllocate(this->InternalMesh->GetCellData(), ug->GetNumberOfCells());
@@ -9863,37 +9804,22 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
   if (this->Parent->GetReadZones())
   {
-    // Set zone meshes as output
-    vtkMultiBlockDataSet* zones = nullptr;
+    // Add zone meshes (if any) to output
+    vtkNew<vtkMultiBlockDataSet> zones;
 
     if (this->CellZoneMesh != nullptr)
     {
-      if (zones == nullptr)
-      {
-        zones = vtkMultiBlockDataSet::New();
-      }
       ::AppendBlock(zones, this->CellZoneMesh, "cellZones");
     }
-
     if (this->FaceZoneMesh != nullptr)
     {
-      if (zones == nullptr)
-      {
-        zones = vtkMultiBlockDataSet::New();
-      }
       ::AppendBlock(zones, this->FaceZoneMesh, "faceZones");
     }
-
     if (this->PointZoneMesh != nullptr)
     {
-      if (zones == nullptr)
-      {
-        zones = vtkMultiBlockDataSet::New();
-      }
       ::AppendBlock(zones, this->PointZoneMesh, "pointZones");
     }
-
-    if (zones != nullptr)
+    if (zones->GetNumberOfBlocks() != 0)
     {
       ::AppendBlock(output, zones, "zones");
     }
@@ -10164,8 +10090,7 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  auto* output = vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Times
   {
@@ -10425,7 +10350,6 @@ void vtkOpenFOAMReader::AddSelectionNames(
   {
     selections->AddArray(objects->GetValue(nameI).c_str());
   }
-  objects->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -10462,9 +10386,10 @@ vtkDoubleArray* vtkOpenFOAMReader::GetTimeValues()
 //------------------------------------------------------------------------------
 int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
 {
-  vtkStringArray* cellSelectionNames = vtkStringArray::New();
-  vtkStringArray* pointSelectionNames = vtkStringArray::New();
-  vtkStringArray* lagrangianSelectionNames = vtkStringArray::New();
+  vtkNew<vtkStringArray> cellDataNames;
+  vtkNew<vtkStringArray> pointDataNames;
+  vtkNew<vtkStringArray> lagrangianDataNames;
+
   int ret = 1;
   vtkOpenFOAMReaderPrivate* reader;
   this->Readers->InitTraversal();
@@ -10472,11 +10397,11 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
     nullptr)
   {
     ret *= reader->MakeMetaDataAtTimeStep(
-      cellSelectionNames, pointSelectionNames, lagrangianSelectionNames, listNextTimeStep);
+      cellDataNames, pointDataNames, lagrangianDataNames, listNextTimeStep);
   }
-  this->AddSelectionNames(this->Parent->CellDataArraySelection, cellSelectionNames);
-  this->AddSelectionNames(this->Parent->PointDataArraySelection, pointSelectionNames);
-  this->AddSelectionNames(this->Parent->LagrangianDataArraySelection, lagrangianSelectionNames);
+  this->AddSelectionNames(this->Parent->CellDataArraySelection, cellDataNames);
+  this->AddSelectionNames(this->Parent->PointDataArraySelection, pointDataNames);
+  this->AddSelectionNames(this->Parent->LagrangianDataArraySelection, lagrangianDataNames);
 
   return ret;
 }
