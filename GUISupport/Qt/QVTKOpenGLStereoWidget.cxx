@@ -21,7 +21,6 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QLayout>
 #include <QOpenGLContext>
 #include <QResizeEvent>

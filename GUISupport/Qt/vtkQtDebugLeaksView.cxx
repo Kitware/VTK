@@ -162,7 +162,11 @@ void vtkQtDebugLeaksView::onFilterTextChanged(const QString& text)
 {
   if (this->filterEnabled())
   {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    this->Internal->ProxyModel->setFilterRegularExpression(text);
+#else
     this->Internal->ProxyModel->setFilterRegExp(text);
+#endif
   }
 }
 
@@ -175,7 +179,11 @@ void vtkQtDebugLeaksView::onFilterToggled()
     text = "";
   }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+  this->Internal->ProxyModel->setFilterRegularExpression(text);
+#else
   this->Internal->ProxyModel->setFilterRegExp(text);
+#endif
 }
 
 //------------------------------------------------------------------------------

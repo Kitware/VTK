@@ -148,7 +148,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
           iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, e2);
           break;
 
-        case Qt::MidButton:
+        case Qt::MiddleButton:
           iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, e2);
           break;
 
@@ -168,7 +168,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
           iren->InvokeEvent(vtkCommand::LeftButtonDoubleClickEvent, e2);
           break;
 
-        case Qt::MidButton:
+        case Qt::MiddleButton:
           iren->InvokeEvent(vtkCommand::MiddleButtonDoubleClickEvent, e2);
           break;
 
@@ -188,7 +188,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
           iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, e2);
           break;
 
-        case Qt::MidButton:
+        case Qt::MiddleButton:
           iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, e2);
           break;
 

@@ -25,7 +25,6 @@
 
 #include <QApplication>
 #include <QCursor>
-#include <QDesktopWidget>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLDebugLogger>
@@ -36,6 +35,10 @@
 #include <QScreen>
 #include <QWidget>
 #include <QWindow>
+
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+#include <QDesktopWidget>
+#endif
 
 #include <sstream>
 
@@ -187,7 +190,11 @@ public:
   {
     if (this->ParentWidget)
     {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+      return this->ParentWidget->screen()->size();
+#else
       return QApplication::desktop()->screenGeometry(this->ParentWidget).size();
+#endif
     }
     else if (this->ParentWindow)
     {

@@ -32,6 +32,7 @@ The following variables are provided by this module:
     are also targets and may be linked to using `target_link_libraries`.
   * `VTK_AUTOINIT_INCLUDE`: The header to include for access to VTK's autoinit
     support.
+  * `VTK_QT_VERSION`: The major version of Qt used by VTK if Qt support enabled.
 
 For more information about the Python in use by VTK, the `VTK_PYTHON_VERSION`
 variable may be used to query the `find_package(Python)` that VTK performs
@@ -139,6 +140,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-pa
 
 if (TARGET VTK::opengl)
   set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
+endif ()
+
+if(@vtk_qt_major_version@) # VTK_QT_VERSION
+  set("${CMAKE_FIND_PACKAGE_NAME}_QT_VERSION" "@vtk_qt_major_version@")
 endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModule.cmake")

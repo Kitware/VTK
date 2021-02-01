@@ -54,7 +54,7 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQVTKOpenGLWidgetWithMSAA,TestQtWithMSAA.cxx
   )
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package("Qt${vtk_qt_major_version}" COMPONENTS Widgets REQUIRED)
 
 vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
   QTestApp.cxx
@@ -62,7 +62,7 @@ vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
 
 target_link_libraries(vtkGUISupportQtCxxTests
   PRIVATE
-    Qt5::Widgets)
+    "Qt${vtk_qt_major_version}::Widgets")
 
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetPicking
  PROPERTIES RUN_SERIAL ON)

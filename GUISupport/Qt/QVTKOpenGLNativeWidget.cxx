@@ -15,7 +15,6 @@
 #include "QVTKOpenGLNativeWidget.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFunctions>

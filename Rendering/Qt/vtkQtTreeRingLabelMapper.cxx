@@ -360,10 +360,15 @@ void vtkQtTreeRingLabelMapper::LabelTree(vtkTree* tree, vtkDataArray* sectorInfo
     // set ellipsis bounds for this piece of text
     // Note, don't use ellipsis unless at least 5 characters (w's) can be displayed...
     QString minString("wwwww");
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 11, 0))
+    int minStringWidth = fontMetric.width(minString);
+#else
+    int minStringWidth = fontMetric.horizontalAdvance(minString);
+#endif
     double allowedTextWidth = 0;
     if (sdimDC[0] > sdimDC[1])
     {
-      if (sdimDC[0] < fontMetric.width(minString))
+      if (sdimDC[0] < minStringWidth)
       {
         continue;
       }
@@ -371,7 +376,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(vtkTree* tree, vtkDataArray* sectorInfo
     }
     else
     {
-      if (sdimDC[1] < fontMetric.width(minString))
+      if (sdimDC[1] < minStringWidth)
       {
         continue;
       }
@@ -408,11 +413,19 @@ void vtkQtTreeRingLabelMapper::LabelTree(vtkTree* tree, vtkDataArray* sectorInfo
         break;
       case VTK_TEXT_CENTERED:
         // FIXME - The width is not correct for html encodings...
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 11, 0))
         delta_x = -(fontMetric.width(testString)) / 2.;
+#else
+        delta_x = -(fontMetric.horizontalAdvance(testString)) / 2.;
+#endif
         break;
       case VTK_TEXT_RIGHT:
         // FIXME - The width is not correct for html encodings...
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 11, 0))
         delta_x = -fontMetric.width(testString);
+#else
+        delta_x = -fontMetric.horizontalAdvance(testString);
+#endif
         break;
     }
 
