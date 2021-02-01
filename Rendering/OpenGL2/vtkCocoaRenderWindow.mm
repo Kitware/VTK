@@ -385,7 +385,10 @@ bool vtkCocoaRenderWindow::IsDrawable()
 
   // then check that the drawable is valid
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   bool ok = [context view] != nil;
+#pragma clang diagnostic pop
 
   return win && ok;
 }
@@ -846,7 +849,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
       // SetParentId() was added for) then the Tk superview handles the events.
       NSRect glRect = NSMakeRect(x, y, width, height);
       NSView* glView = [[NSView alloc] initWithFrame:glRect];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [glView setWantsBestResolutionOpenGLSurface:wantsBest];
+#pragma clang diagnostic pop
       [parent addSubview:glView];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
@@ -866,7 +872,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       // Create a vtkCocoaGLView.
       vtkCocoaGLView* glView = [[vtkCocoaGLView alloc] initWithFrame:viewRect];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [glView setWantsBestResolutionOpenGLSurface:wantsBest];
+#pragma clang diagnostic pop
       [window setContentView:glView];
       // We have to set the frame's view rect again to work around rounding
       // that occurs when setting the window's content view.
@@ -887,7 +896,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
   if (connectContextToNSView)
   {
     NSView* view = (NSView*)this->GetWindowId();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [context setView:view];
+#pragma clang diagnostic pop
   }
 
   // the error "invalid drawable" in the console from this call can appear
@@ -1009,7 +1021,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
 
     // This syncs the OpenGL context to the VBL to prevent tearing
     GLint one = 1;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
+#pragma clang diagnostic pop
   }
 
   this->SetPixelFormat((void*)pixelFormat);
@@ -1045,7 +1060,10 @@ void vtkCocoaRenderWindow::Start()
     if (connectContextToNSView)
     {
       NSView* view = (NSView*)this->GetWindowId();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [context setView:view];
+#pragma clang diagnostic pop
     }
 
     // the error "invalid drawable" in the console from this call can appear
