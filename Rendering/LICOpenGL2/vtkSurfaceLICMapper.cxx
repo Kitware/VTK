@@ -181,6 +181,7 @@ void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
   vtkOpenGLRenderWindow* rw = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
   vtkOpenGLState* ostate = rw->GetState();
   vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+  vtkOpenGLState::ScopedglEnableDisable cfsaver(ostate, GL_CULL_FACE);
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(rw);
@@ -192,11 +193,15 @@ void vtkSurfaceLICMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 
   // draw the geometry
   this->LICInterface->PrepareForGeometry();
+
   this->UpdateCameraShiftScale(renderer, actor);
   this->RenderPieceStart(renderer, actor);
   this->RenderPieceDraw(renderer, actor);
   this->RenderPieceFinish(renderer, actor);
   this->LICInterface->CompletedGeometry();
+
+  // Disable cull face to make sure geometry won't be culled again
+  ostate->vtkglDisable(GL_CULL_FACE);
 
   // --------------------------------------------- compoiste vectors for parallel LIC
   this->LICInterface->GatherVectors();
