@@ -476,6 +476,8 @@ protected:
     bool CubeMapSeamless;
     bool LineSmooth;
     int BoundVAO;
+    int BoundArrayBuffer;
+    int BoundElementArrayBuffer;
     int BoundProgram;
     BufferBindingState DrawBinding;
     BufferBindingState ReadBinding;

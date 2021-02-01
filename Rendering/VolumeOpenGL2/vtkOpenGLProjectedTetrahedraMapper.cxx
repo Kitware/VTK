@@ -1032,8 +1032,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     this->Tris.IBO->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
     this->Tris.IBO->IndexCount = indexArray.size();
     this->Tris.IBO->Bind();
-    glDrawRangeElements(GL_TRIANGLES, 0, static_cast<GLuint>(numPts - 1),
-      static_cast<GLsizei>(this->Tris.IBO->IndexCount), GL_UNSIGNED_INT, nullptr);
+    // Avoid underflow in numPts-1 calculation
+    if (numPts > 0)
+    {
+      glDrawRangeElements(GL_TRIANGLES, 0, static_cast<GLuint>(numPts - 1),
+        static_cast<GLsizei>(this->Tris.IBO->IndexCount), GL_UNSIGNED_INT, nullptr);
+    }
     this->Tris.IBO->Release();
     this->Tris.VAO->Release();
     this->VBO->Release();

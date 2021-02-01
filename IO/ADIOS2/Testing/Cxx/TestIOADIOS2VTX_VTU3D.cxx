@@ -148,7 +148,7 @@ public:
   TesterVTU3D()
   {
     this->SetNumberOfInputPorts(1);
-    this->SetNumberOfOutputPorts(0);
+    this->SetNumberOfOutputPorts(1);
   }
 
   void Init(const std::string& streamName, const size_t steps)
@@ -194,6 +194,11 @@ private:
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
     return 1;
+  }
+
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) final
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   }
 
   bool DoCheckData(vtkMultiBlockDataSet* multiBlock)

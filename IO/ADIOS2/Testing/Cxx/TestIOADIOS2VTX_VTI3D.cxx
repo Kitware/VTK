@@ -134,7 +134,7 @@ public:
   TesterVTI3D()
   {
     this->SetNumberOfInputPorts(1);
-    this->SetNumberOfOutputPorts(0);
+    this->SetNumberOfOutputPorts(1);
   }
 
   void Init(const std::string& streamName, const size_t steps)
@@ -144,7 +144,7 @@ public:
   }
 
   int ProcessRequest(
-    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output)
+    vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override
   {
     if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
@@ -179,6 +179,12 @@ private:
   int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) final
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    return 1;
+  }
+
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) final
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
     return 1;
   }
 
