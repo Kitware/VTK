@@ -850,7 +850,7 @@ private:
     vtkFloatArray*, vtkFloatArray*, vtkPointSet*, vtkDataArray*, vtkTypeInt64);
 
   // Convert OpenFOAM dimension array to string
-  vtkStdString ConstructDimensions(const vtkFoamDict& dict) const;
+  std::string ConstructDimensions(const vtkFoamDict& dict) const;
 
   // read and create cell/point fields
   bool ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict, const vtkStdString& varName,
@@ -1238,17 +1238,30 @@ public:
   double To<double>() const;
 #endif
 
-  // workaround for SunOS-CC5.6-dbg
+  // True if token represents punctuation
+  bool IsPunctuation() const noexcept { return this->Type == PUNCTUATION; }
+
+  // True if token represents a numerical value
+  bool IsNumeric() const noexcept { return this->Type == LABEL || this->Type == SCALAR; }
+
   vtkTypeInt64 ToInt() const
   {
     assert("Label type not set!" && this->HasLabelType());
     return this->Int;
   }
 
-  // workaround for SunOS-CC5.6-dbg
+  // Mostly the same as To<float>, with additional check
   float ToFloat() const
   {
-    return this->Type == LABEL ? static_cast<float>(this->Int) : static_cast<float>(this->Double);
+    return this->Type == LABEL ? static_cast<float>(this->Int)
+                               : this->Type == SCALAR ? static_cast<float>(this->Double) : 0.0F;
+  }
+
+  // Mostly the same as To<double>, with additional check
+  double ToDouble() const
+  {
+    return this->Type == LABEL ? static_cast<double>(this->Int)
+                               : this->Type == SCALAR ? this->Double : 0.0;
   }
 
   vtkStdString ToString() const { return *this->String; }
@@ -1551,6 +1564,9 @@ public:
     INPUT_MODE_ERROR
   };
 
+  // Generic exception throwing with stack trace
+  void ThrowStackTrace(const std::string& msg);
+
 private:
   // The path to the case
   vtkStdString CasePath;
@@ -1565,11 +1581,11 @@ private:
   bool InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize = nullptr);
   int NextTokenHead();
 
-  // hacks to keep exception throwing / recursive codes out-of-line to make
+  // Keep exception throwing / recursive codes out-of-line to make
   // putBack(), getc() and readExpecting() inline expandable
   void ThrowDuplicatedPutBackException();
   void ThrowUnexpectedEOFException();
-  void ThrowUnexpectedNondigitCharExecption(int c);
+  void ThrowUnexpectedNondigitException(int c);
   void ThrowUnexpectedTokenException(char, int c);
   int ReadNext();
 
@@ -2415,7 +2431,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
     }
     else
     {
-      this->ThrowUnexpectedNondigitCharExecption(c);
+      this->ThrowUnexpectedNondigitException(c);
     }
   }
 
@@ -2475,7 +2491,7 @@ FloatType vtkFoamFile::ReadFloatValue()
 
   if (!isdigit(c) && c != '.') // Attention: isdigit() accepts EOF
   {
-    this->ThrowUnexpectedNondigitCharExecption(c);
+    this->ThrowUnexpectedNondigitException(c);
   }
 
   double num = 0;
@@ -2568,14 +2584,19 @@ FloatType vtkFoamFile::ReadFloatValue()
   return static_cast<FloatType>(negNum ? -num : num);
 }
 
+void vtkFoamFile::ThrowStackTrace(const std::string& msg)
+{
+  throw this->StackString() << msg;
+}
+
 // hacks to keep exception throwing code out-of-line to make
 // putBack() and readExpecting() inline expandable
 void vtkFoamFile::ThrowUnexpectedEOFException()
 {
-  throw this->StackString() << "Unexpected EOF";
+  this->ThrowStackTrace("Unexpected EOF");
 }
 
-void vtkFoamFile::ThrowUnexpectedNondigitCharExecption(int c)
+void vtkFoamFile::ThrowUnexpectedNondigitException(int c)
 {
   throw this->StackString() << "Expected a number, found a non-digit character "
                             << static_cast<char>(c);
@@ -2583,22 +2604,22 @@ void vtkFoamFile::ThrowUnexpectedNondigitCharExecption(int c)
 
 void vtkFoamFile::ThrowUnexpectedTokenException(char expected, int c)
 {
-  vtkFoamError sstr;
-  sstr << this->StackString() << "Expected punctuation token '" << expected << "', found ";
+  vtkFoamError err;
+  err << this->StackString() << "Expected punctuation token '" << expected << "', found ";
   if (c == EOF)
   {
-    sstr << "EOF";
+    err << "EOF";
   }
   else
   {
-    sstr << static_cast<char>(c);
+    err << static_cast<char>(c);
   }
-  throw sstr;
+  throw err;
 }
 
 void vtkFoamFile::ThrowDuplicatedPutBackException()
 {
-  throw this->StackString() << "Attempted duplicated putBack()";
+  this->ThrowStackTrace("Attempted duplicated putBack()");
 }
 
 bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize)
@@ -3179,34 +3200,68 @@ public:
     this->Superclass::ScalarListPtr->FillValue(scalarValue);
   }
 
-  // Read dimensions set (always ASCII)
-  // - the leading '[' has already been removed
+  // Read dimensions set (always ASCII). The leading '[' has already been removed before calling.
+  // - can be integer or floating point
+  // - user-generated files may have only the first five dimensions.
+  // Note
+  // - may even have "human-readable" values such as [kg m^-1 s^-2] but they are very rare
+  //   and we silently skip these
   void ReadDimensionSet(vtkFoamIOobject& io)
   {
-    assert("Label type not set!" && this->HasLabelType());
-    const int nDims = 7; // There are 7 base dimensions
-    this->Superclass::Type = LABELLIST;
-    if (this->IsLabel64())
+    const int nDimensions = 7; // There are 7 base dimensions
+    this->MakeScalarList(0.0, nDimensions);
+    vtkFloatArray& dims = *(this->Superclass::ScalarListPtr);
+
+    // Read using tokenizer to handle scalar/label, variable lengths, and ignore human-readable
+    vtkFoamToken tok;
+    char expectEnding = ']';
+    bool goodInput = true;
+
+    for (int ndims = 0; ndims < nDimensions && goodInput && expectEnding; ++ndims)
     {
-      vtkTypeInt64Array* array = vtkTypeInt64Array::New();
-      array->SetNumberOfValues(nDims);
-      for (vtkIdType i = 0; i < nDims; ++i)
+      if (!io.Read(tok))
       {
-        array->SetValue(i, vtkFoamReadValue<vtkTypeInt64>::ReadValue(io));
+        goodInput = false;
       }
-      this->Superclass::LabelListPtr = array;
+      else if (tok.IsNumeric())
+      {
+        dims.SetValue(ndims, tok.ToFloat());
+      }
+      else if (tok.IsPunctuation())
+      {
+        if (tok == expectEnding)
+        {
+          expectEnding = '\0'; // Already got the closing ']'
+        }
+        else
+        {
+          goodInput = false;
+        }
+      }
+      else
+      {
+        // Some unknown token type (eg, encountered human-readable units)
+        // - skip until ']'
+        while ((goodInput = io.Read(tok)) == true)
+        {
+          if (tok.IsPunctuation() && (tok == expectEnding))
+          {
+            expectEnding = '\0'; // Already got the closing ']'
+            break;
+          }
+        }
+        break;
+      }
     }
-    else
+
+    if (!goodInput)
     {
-      vtkTypeInt32Array* array = vtkTypeInt32Array::New();
-      array->SetNumberOfValues(nDims);
-      for (vtkIdType i = 0; i < nDims; ++i)
-      {
-        array->SetValue(i, vtkFoamReadValue<vtkTypeInt32>::ReadValue(io));
-      }
-      this->Superclass::LabelListPtr = array;
+      io.ThrowStackTrace("Unexpected input while parsing dimensions array");
     }
-    io.ReadExpecting(']');
+    else if (expectEnding)
+    {
+      io.ReadExpecting(expectEnding);
+    }
   }
 
   template <vtkFoamToken::tokenType listType, typename traitsT>
@@ -4293,21 +4348,25 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       if (currToken.GetType() == this->Superclass::SCALAR)
       {
-        // switch to scalarList
-        // LabelListPtr and ScalarListPtr are packed into a single union so
-        // we need a temporary pointer
-        vtkFloatArray* slPtr = vtkFloatArray::New();
-        vtkIdType size = this->Superclass::LabelListPtr->GetNumberOfTuples();
-        slPtr->SetNumberOfValues(size + 1);
-        for (int i = 0; i < size; i++)
+        // Encountered a scalar while reading a labelList - switch representation
+        // Need intermediate pointer since LabelListPtr and ScalarListPtr are in a union
+
+        vtkDataArray* labels = this->LabelListPtr;
+        const vtkIdType currLen = labels->GetNumberOfTuples();
+        const bool use64BitLabels = ::Is64BitArray(labels); // <- Same as io.IsLabel64()
+
+        // Copy, with append
+        auto* scalars = vtkFloatArray::New();
+        scalars->SetNumberOfValues(currLen + 1);
+        for (vtkIdType i = 0; i < currLen; ++i)
         {
-          slPtr->SetValue(
-            i, static_cast<float>(GetLabelValue(this->LabelListPtr, i, io.IsLabel64())));
+          scalars->SetValue(i, static_cast<float>(GetLabelValue(labels, i, use64BitLabels)));
         }
-        this->LabelListPtr->Delete();
-        slPtr->SetValue(size, currToken.To<float>());
-        // copy after LabelListPtr is deleted
-        this->Superclass::ScalarListPtr = slPtr;
+        scalars->SetValue(currLen, currToken.To<float>()); // Append value
+
+        // Replace
+        labels->Delete();
+        this->Superclass::ScalarListPtr = scalars;
         this->Superclass::Type = SCALARLIST;
       }
       else if (currToken.GetType() == this->Superclass::LABEL)
@@ -4333,7 +4392,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     }
     else if (this->Superclass::Type == this->Superclass::SCALARLIST)
     {
-      if (currToken.Is<float>())
+      if (currToken.IsNumeric())
       {
         this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
       }
@@ -7885,119 +7944,141 @@ vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdTyp
 
 //------------------------------------------------------------------------------
 // Convert OpenFOAM dimension array to string representation
-vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& dict) const
+std::string vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& dict) const
 {
+  const int nDimensions = 7; // There are 7 base dimensions
+  static const char* units[7] = { "kg", "m", "s", "K", "mol", "A", "cd" };
+
   if (!this->Parent->GetAddDimensionsToArrayNames())
   {
-    return vtkStdString();
+    return std::string();
   }
 
   const vtkFoamEntry* dimEntry = dict.Lookup("dimensions");
-  if ((dimEntry == nullptr) || (dimEntry->FirstValue().GetType() != vtkFoamToken::LABELLIST))
+  if ((dimEntry == nullptr) || (dimEntry->FirstValue().GetType() != vtkFoamToken::SCALARLIST))
   {
-    return vtkStdString();
+    return std::string();
   }
 
-  const int nDims = 7; // There are 7 base dimensions
-  vtkTypeInt64 dimSet[7];
-  static const char* units[7] = { "kg", "m", "s", "K", "mol", "A", "cd" };
+  const vtkFloatArray& values = dimEntry->ScalarList();
+  const vtkIdType nValues = values.GetNumberOfTuples();
 
-  const vtkDataArray& dims = dimEntry->LabelList();
-  if (dims.GetNumberOfTuples() == nDims)
+  // Expect seven dimensions, but may have only the first five.
+  // OpenFOAM accepts both and so do we.
+  if (nValues != 5 && nValues != nDimensions)
   {
-    const bool use64BitLabels = dict.IsLabel64();
-
-    for (vtkIdType i = 0; i < nDims; ++i)
-    {
-      dimSet[i] = GetLabelValue(&dims, i, use64BitLabels);
-    }
-  }
-  else
-  {
-    return vtkStdString();
+    return std::string();
   }
 
-  // Stringify
-  vtkStdString dimString;
+  // Make a copy
+  float dims[7] = { 0 };
+
+  for (vtkIdType i = 0; i < nValues; ++i)
   {
-    std::ostringstream posDim, negDim;
-    int posSpc = 0, negSpc = 0;
-
-    // Some standard units
-    if (dimSet[0] == 1 && dimSet[1] == -1 && dimSet[2] == -2)
-    {
-      posDim << "Pa";
-      posSpc = 1;
-      dimSet[0] = dimSet[1] = dimSet[2] = 0;
-    }
-    else if (dimSet[0] == 1 && dimSet[1] == 1 && dimSet[2] == -2)
-    {
-      posDim << "N";
-      posSpc = 1;
-      dimSet[0] = dimSet[1] = dimSet[2] = 0;
-    }
-    else if (dimSet[0] == 1 && dimSet[1] == 2 && dimSet[2] == -3)
-    {
-      posDim << "W";
-      posSpc = 1;
-      dimSet[0] = dimSet[1] = dimSet[2] = 0;
-    }
-    // Note: cannot know if 'J' or 'N m' is the better representation, so skip that one
-
-    for (vtkIdType dimI = 0; dimI < nDims; ++dimI)
-    {
-      vtkTypeInt64 dimDim = dimSet[dimI];
-      if (dimDim > 0)
-      {
-        if (posSpc)
-        {
-          posDim << ' ';
-        }
-        posDim << units[dimI];
-        if (dimDim > 1)
-        {
-          posDim << dimDim;
-        }
-        ++posSpc;
-      }
-      else if (dimDim < 0)
-      {
-        if (negSpc > 0)
-        {
-          negDim << ' ';
-        }
-        negDim << units[dimI];
-        if (dimDim < -1)
-        {
-          negDim << -dimDim;
-        }
-        ++negSpc;
-      }
-    }
-    dimString += " [" + posDim.str();
-    if (negSpc > 0)
-    {
-      if (posSpc == 0)
-      {
-        dimString += '1';
-      }
-      if (negSpc > 1)
-      {
-        dimString += "/(" + negDim.str() + ")";
-      }
-      else
-      {
-        dimString += "/" + negDim.str();
-      }
-    }
-    else if (posSpc == 0)
-    {
-      dimString += '-';
-    }
-    dimString += ']';
+    dims[i] = values.GetValue(i);
   }
 
-  return dimString;
+  const auto equal = // Compare floats with rounding
+    [](const float a, const float b) { return (std::abs(a - b) < 1e-3); };
+
+  const auto integral = // Test if integral/non-integral
+    [](const float val) { return (std::abs(val - std::round(val)) < 1e-4); };
+
+  // Stringify. Use stringstream to build the string
+  std::ostringstream dimensions, denominator;
+  dimensions << " [";
+  int nPositive = 0;
+  int nNegative = 0;
+
+  // Some standard units
+  if (equal(dims[0], 1) && equal(dims[1], -1) && equal(dims[2], -2))
+  {
+    dimensions << "Pa";
+    nPositive = 1;
+    dims[0] = dims[1] = dims[2] = 0;
+  }
+  else if (equal(dims[0], 1) && equal(dims[1], 1) && equal(dims[2], -2))
+  {
+    dimensions << "N";
+    nPositive = 1;
+    dims[0] = dims[1] = dims[2] = 0;
+  }
+  else if (equal(dims[0], 1) && equal(dims[1], 2) && equal(dims[2], -3))
+  {
+    dimensions << "W";
+    nPositive = 1;
+    dims[0] = dims[1] = dims[2] = 0;
+  }
+  // Note: cannot know if 'J' or 'N m' is the better representation, so skip that one
+
+  for (int dimi = 0; dimi < nDimensions; ++dimi)
+  {
+    float expon = dims[dimi];
+
+    if (expon > 0)
+    {
+      if (nPositive++)
+      {
+        dimensions << ' ';
+      }
+      dimensions << units[dimi];
+      if (equal(expon, 1))
+      {
+        continue;
+      }
+      if (!integral(expon))
+      {
+        dimensions << '^';
+      }
+      dimensions << expon;
+    }
+    else if (expon < 0)
+    {
+      expon = -expon;
+      if (nNegative++)
+      {
+        denominator << ' ';
+      }
+      denominator << units[dimi];
+      if (equal(expon, 1))
+      {
+        continue;
+      }
+      if (!integral(expon))
+      {
+        denominator << '^';
+      }
+      denominator << expon;
+    }
+  }
+
+  // Finalize, adding denominator as required
+  if (nNegative)
+  {
+    if (nPositive == 0)
+    {
+      // No numerator
+      dimensions << '1';
+    }
+    dimensions << '/';
+
+    if (nNegative > 1)
+    {
+      dimensions << '(' << denominator.str() << ')';
+    }
+    else
+    {
+      dimensions << denominator.str();
+    }
+  }
+  else if (nPositive == 0)
+  {
+    // No dimensions
+    dimensions << '-';
+  }
+
+  dimensions << ']';
+  return dimensions.str();
 }
 
 //------------------------------------------------------------------------------
@@ -8056,7 +8137,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     return;
   }
 
-  const vtkStdString dimString(this->ConstructDimensions(dict));
+  const std::string dimString(this->ConstructDimensions(dict));
 
   vtkFloatArray *acData = nullptr, *ctpData = nullptr;
 
@@ -8390,7 +8471,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const vtkStdString& varNa
     return;
   }
 
-  const vtkStdString dimString(this->ConstructDimensions(dict));
+  const std::string dimString(this->ConstructDimensions(dict));
 
   // AdditionalCellPoints is nullptr if creation of InternalMesh had been skipped
   if (this->AdditionalCellPoints != nullptr)
