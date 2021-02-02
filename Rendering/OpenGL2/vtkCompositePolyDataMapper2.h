@@ -77,7 +77,7 @@ public:
   /**
    * Set/get the color for a block given its flat index.
    */
-  void SetBlockColor(unsigned int index, double color[3]);
+  void SetBlockColor(unsigned int index, const double color[3]);
   void SetBlockColor(unsigned int index, double r, double g, double b)
   {
     double color[3] = { r, g, b };

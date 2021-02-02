@@ -1501,7 +1501,7 @@ void vtkCompositePolyDataMapper2::RemoveBlockVisibilities()
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
+void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, const double color[3])
 {
   if (this->CompositeAttributes)
   {
