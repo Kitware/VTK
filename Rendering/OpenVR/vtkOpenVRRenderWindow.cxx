@@ -320,7 +320,7 @@ void vtkOpenVRRenderWindow::Render()
 void vtkOpenVRRenderWindow::StereoMidpoint()
 {
   // render the left eye models
-  this->RenderModels();
+  // this->RenderModels();
 
   this->GetState()->vtkglDisable(GL_MULTISAMPLE);
 
@@ -340,7 +340,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
 void vtkOpenVRRenderWindow::StereoRenderComplete()
 {
   // render the right eye models
-  this->RenderModels();
+  // this->RenderModels();
 
   // reset the camera to a neutral position
   vtkRenderer* ren = static_cast<vtkRenderer*>(this->GetRenderers()->GetItemAsObject(0));
