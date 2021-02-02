@@ -48,13 +48,17 @@ public:
     BothAbove = 3   // entire edge is above isovalue
   };
 
-  // Dealing with boundary situations when processing images.
+  // Dealing with boundary situations when processing volumes.
+  // The voxel cells on the +x,+y,+z boundaries reference cell
+  // axes triads which are not fully formed. These are treated
+  // specially during certain operations (e.g., point generation).
   enum CellClass
   {
     Interior = 0,
     MinBoundary = 1,
     MaxBoundary = 2
   };
+
   // Edges to generate output line primitives (aka case table).
   static const unsigned char EdgeCases[16][5];
 
@@ -132,7 +136,7 @@ public:
   // Count edge intersections near image boundaries.
   void CountBoundaryYInts(unsigned char loc, unsigned char* edgeUses, vtkIdType* eMD)
   {
-    if (loc == 2)
+    if ((loc & 2))
     { //+x boundary
       eMD[1] += edgeUses[3];
     }
@@ -296,25 +300,26 @@ const unsigned char vtkFlyingEdges2DAlgorithm<T>::VertOffsets[4][2] = {
   { 1, 1 },
 };
 
-// Initialize case array
+// Initialize case array. Format for each line is:
+// numLine segments, (id0,id1), (id2,id3).
 template <class T>
 const unsigned char vtkFlyingEdges2DAlgorithm<T>::EdgeCases[16][5] = {
-  { 0, 0, 0, 0, 0 },
-  { 1, 0, 2, 0, 0 },
-  { 1, 3, 0, 0, 0 },
-  { 1, 3, 2, 0, 0 },
-  { 1, 2, 1, 0, 0 },
-  { 1, 0, 1, 0, 0 },
-  { 2, 2, 1, 3, 0 },
-  { 1, 3, 1, 0, 0 },
-  { 1, 1, 3, 0, 0 },
-  { 2, 0, 2, 3, 1 },
-  { 1, 1, 0, 0, 0 },
-  { 1, 1, 2, 0, 0 },
-  { 1, 2, 3, 0, 0 },
-  { 1, 0, 3, 0, 0 },
-  { 1, 2, 0, 0, 0 },
-  { 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0 }, // case 0
+  { 1, 0, 2, 0, 0 }, // 1
+  { 1, 3, 0, 0, 0 }, // 2
+  { 1, 3, 2, 0, 0 }, // 3
+  { 1, 2, 1, 0, 0 }, // 4
+  { 1, 0, 1, 0, 0 }, // 5
+  { 2, 2, 1, 3, 0 }, // 6
+  { 1, 3, 1, 0, 0 }, // 7
+  { 1, 1, 3, 0, 0 }, // 8
+  { 2, 0, 2, 3, 1 }, // 9
+  { 1, 1, 0, 0, 0 }, // 10
+  { 1, 1, 2, 0, 0 }, // 11
+  { 1, 2, 3, 0, 0 }, // 12
+  { 1, 0, 3, 0, 0 }, // 13
+  { 1, 2, 0, 0, 0 }, // 14
+  { 0, 0, 0, 0, 0 }, // 15
 };
 
 //------------------------------------------------------------------------------
@@ -424,19 +429,28 @@ void vtkFlyingEdges2DAlgorithm<T>::GeneratePoints(
   switch (loc)
   {
     case 2: //+x edge
+    case 3:
+    case 6:
+    case 7:
       this->InterpolateEdge(value, sPtr, ijk, 3, edgeUses, eIds);
       break;
 
     case 8: //+y
+    case 9:
+    case 12:
+    case 13:
       this->InterpolateEdge(value, sPtr, ijk, 1, edgeUses, eIds);
       break;
 
     case 10: //+x +y
+    case 11:
+    case 14:
+    case 15:
       this->InterpolateEdge(value, sPtr, ijk, 1, edgeUses, eIds);
       this->InterpolateEdge(value, sPtr, ijk, 3, edgeUses, eIds);
       break;
 
-    default: // interior, or -x,-y boundary
+    default: // interior, or -x,-y boundaries
       return;
   }
 }
@@ -623,7 +637,13 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
   // Determine the proximity to the boundary of volume. This information is
   // used to generate edge intersections.
   unsigned char loc, yLoc;
-  yLoc = ((row >= (this->Dims[1] - 2) ? MaxBoundary : Interior) << 2);
+  yLoc = Interior;
+  if (row < 1)
+    yLoc |= MinBoundary;
+  if (row >= (this->Dims[1] - 2))
+    yLoc |= MaxBoundary;
+
+  yLoc = (yLoc << 2);
 
   // Run along pixels in x-row direction and generate output primitives. Note
   // that active pixel axes edges are interpolated to produce points and
@@ -641,7 +661,12 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
 
       // Now generate point(s) along pixel axes if needed. Remember to take
       // boundary into account.
-      loc = yLoc | (i >= (this->Dims[0] - 2) ? MaxBoundary : Interior);
+      loc = yLoc;
+      if (i < 1)
+        loc |= MinBoundary;
+      if (i >= (this->Dims[0] - 2))
+        loc |= MaxBoundary;
+
       if (this->CaseIncludesAxes(eCase) || loc != Interior)
       {
         sPtr = rowPtr + i * this->Inc0;

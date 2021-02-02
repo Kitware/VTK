@@ -60,6 +60,7 @@
  * @sa
  * vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
  * vtkMarchingCubes vtkDiscreteFlyingEdges3D vtkContour3DLinearGrid
+ * vtkFlyingEdgesPlaneCutter
  */
 
 #ifndef vtkFlyingEdges3D_h
