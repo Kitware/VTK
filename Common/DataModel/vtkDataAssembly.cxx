@@ -238,10 +238,7 @@ public:
     const auto curids = this->GetCurrentDataSetIndices();
     std::copy(curids.begin(), curids.end(), std::back_inserter(this->DataSetIndices));
   }
-  bool GetTraverseSubtree(int nodeid) override
-  {
-    return this->TraverseSubtree || (nodeid == this->Root);
-  }
+  bool GetTraverseSubtree(int vtkNotUsed(nodeid)) override { return this->TraverseSubtree; }
 
 protected:
   GetDataSetIndicesVisitor() = default;
@@ -661,7 +658,17 @@ bool vtkDataAssembly::AddDataSetIndices(int id, const std::vector<unsigned int>&
   {
     this->Modified();
   }
-  return true;
+  return modified;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::AddDataSetIndexRange(int id, unsigned int index_start, int count)
+{
+  // for now, we're doing this easy thing..at some point we may want to add
+  // support for storing ranges compactly.
+  std::vector<unsigned int> indices(count);
+  std::iota(indices.begin(), indices.end(), index_start);
+  return this->AddDataSetIndices(id, indices);
 }
 
 //------------------------------------------------------------------------------
@@ -980,11 +987,23 @@ std::vector<int> vtkDataAssembly::GetChildNodes(
 std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
   int id, bool traverse_subtree, int traversal_order) const
 {
+  std::vector<int> ids;
+  ids.push_back(id);
+  return this->GetDataSetIndices(ids, traverse_subtree, traversal_order);
+}
+
+//------------------------------------------------------------------------------
+std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
+  const std::vector<int>& ids, bool traverse_subtree, int traversal_order) const
+{
   vtkNew<GetDataSetIndicesVisitor> visitor;
   visitor->TraverseSubtree = traverse_subtree;
-  visitor->Root = id;
-  this->Visit(id, visitor,
-    traverse_subtree ? traversal_order : vtkDataAssembly::TraversalOrder::BreadthFirst);
+  for (const auto& nodeid : ids)
+  {
+    visitor->Root = nodeid;
+    this->Visit(nodeid, visitor,
+      traverse_subtree ? traversal_order : vtkDataAssembly::TraversalOrder::BreadthFirst);
+  }
 
   // uniquify dataset indices.
   auto& indices = visitor->DataSetIndices;

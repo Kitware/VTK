@@ -93,13 +93,15 @@ bool TestPartitionedDataSetCollection()
     vtkLogF(ERROR, "vtkDataAssemblyUtilities::GenerateHierarchy should return true.");
     return false;
   }
+  hierarchy->Print(cout);
 
   const auto root = vtkDataAssembly::GetRootNode();
   vtkLogIfF(ERROR,
     hierarchy->GetAttributeOrDefault(root, "vtk_type", -1) != VTK_PARTITIONED_DATA_SET_COLLECTION,
     "vtk_type mismatch!");
   vtkLogIfF(ERROR, hierarchy->GetNumberOfChildren(root) != 5, "child count mismatch!");
-  vtkLogIfF(ERROR, !hierarchy->GetDataSetIndices(root).empty(), "dataset count mismatch!");
+  // 6, since we add cid for root and the 5 partitioned datasets.
+  vtkLogIfF(ERROR, hierarchy->GetDataSetIndices(root).size() != 6, "dataset count mismatch!");
 
   vtkNew<vtkPartitionedDataSetCollection> xformed;
   if (!vtkDataAssemblyUtilities::GenerateHierarchy(collection, hierarchy, xformed))
@@ -108,7 +110,8 @@ bool TestPartitionedDataSetCollection()
     return false;
   }
 
-  vtkLogIfF(ERROR, hierarchy->GetDataSetIndices(root).size() != 5, "dataset count mismatch!");
+  vtkLogIfF(ERROR, xformed->GetDataAssembly()->GetDataSetIndices(root).size() != 5,
+    "dataset count mismatch!");
   vtkLogIfF(
     ERROR, xformed->GetNumberOfPartitionedDataSets() != 5, "partitioned dataset count mismatch!");
 
@@ -158,6 +161,7 @@ bool TestMultiBlockDataSet()
     vtkLogF(ERROR, "vtkDataAssemblyUtilities::GenerateHierarchy should return true.");
     return false;
   }
+  hierarchy->Print(cout);
 
   auto XPath = [&hierarchy](const std::string& path) {
     auto nodes = hierarchy->SelectNodes({ path });
@@ -176,8 +180,18 @@ bool TestMultiBlockDataSet()
     "node sets mismatch");
 
   vtkLogIfF(ERROR,
-    vtkDataAssemblyUtilities::GenerateCompositeIndicesFromSelectors(
-      hierarchy, { "//*[@label='Node Sets']" }) != std::vector<unsigned int>{ 7 },
+    hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/false) !=
+      std::vector<unsigned int>({ 7u }),
+    "GetDataSetIndices incorrect.");
+
+  vtkLogIfF(ERROR,
+    hierarchy->GetDataSetIndices(7, /*traverse_subtree=*/true) !=
+      std::vector<unsigned int>({ 7u, 8u, 9u }),
+    "GetDataSetIndices incorrect.");
+
+  vtkLogIfF(ERROR,
+    vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+      { "//*[@label='Node Sets']" }, hierarchy, nullptr) != std::vector<unsigned int>{ 7 },
     "node set cid mismatch");
 
   vtkNew<vtkPartitionedDataSetCollection> xformed;
@@ -187,7 +201,6 @@ bool TestMultiBlockDataSet()
     return false;
   }
 
-  hierarchy->Print(cout);
   vtkLogIfF(ERROR, xformed->GetNumberOfPartitionedDataSets() != 6, "dataset source mismatch");
   return true;
 }

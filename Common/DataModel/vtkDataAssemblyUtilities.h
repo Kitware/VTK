@@ -60,10 +60,13 @@ public:
 
   /**
    * Populates `hierarchy` with a representation of the hierarchy for the given
-   * composite dataset `input`. If `output` is non-null, then the input is also
-   * converted to a `vtkPartitionedDataSetCollection` that, together with the
-   * `hierarchy`, can represent similar logical organization of datasets
-   * as the `input`.
+   * composite dataset `input`. A hierarchy represents the input dataset's
+   * structure as represented in the dataset itself.
+   *
+   * If `output` is non-null, then the input is also
+   * converted to a `vtkPartitionedDataSetCollection`. The vtkDataAssembly on
+   * the `output` is updated to be a copy of the hierarchy with correct dataset
+   * indices so that relationships in the input blocks are preserved.
    *
    * If input is not a `vtkMultiBlockDataSet`, `vtkPartitionedDataSetCollection`, or
    * `vtkUniformGridAMR`, then there's no hierarchy to represent and hence this
@@ -87,18 +90,26 @@ public:
     vtkPartitionedDataSetCollection* input, vtkDataAssembly* hierarchy);
 
   /**
-   * Convert nodes selected using the provided selectors to a list of composite
-   * indices using the hierarchy. The hierarchy is assumed to be generated using
-   * `GenerateHierarchy` and has encoded meta-data that helps us recover the
-   * composite indices for the input dataset.
+   * Given a vtkDataAssembly and collection of selectors, returns a list of
+   * selected composite indices for the selected nodes. The vtkDataAssembly can
+   * represent either a hierarchy or simply be an assembly. For the later, an
+   * associated `vtkPartitionedDataSetCollection` must be provided to correctly
+   * determine the composite index for the selected nodes. When an
+   * hierarchy is used, the hierarchy encodes enough information to determine
+   * composite ids and hence the `data` argument must be nullptr.
    *
-   * Currently, this is only supported for hierarchy that represent a
-   * vtkMultiBlockDataSet. This is so since filters that work with composite
-   * indices are to be treated as legacy and should be updated to work directly
-   * with selectors instead.
+   * `leaf_nodes_only` can be used to indicate if the composite ids must only
+   * refer to leaf nodes i.e. nodes that cannot have additional child nodes.
    */
-  static std::vector<unsigned int> GenerateCompositeIndicesFromSelectors(vtkDataAssembly* hierarchy,
-    const std::vector<std::string>& selectors, bool leaf_nodes_only = false);
+  static std::vector<unsigned int> GetSelectedCompositeIds(
+    const std::vector<std::string>& selectors, vtkDataAssembly* hierarchyOrAssembly,
+    vtkPartitionedDataSetCollection* data = nullptr, bool leaf_nodes_only = false);
+
+  /**
+   * For a vtkDataAssembly representing an hierarchy, returns the selector for
+   * the given composite id.
+   */
+  static std::string GetSelectorForCompositeId(unsigned int id, vtkDataAssembly* hierarchy);
 
 protected:
   vtkDataAssemblyUtilities();

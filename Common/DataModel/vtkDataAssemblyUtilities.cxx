@@ -26,10 +26,12 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
+#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <iterator>
 #include <set>
+#include <sstream>
 
 vtkStandardNewMacro(vtkDataAssemblyUtilities);
 //----------------------------------------------------------------------------
@@ -107,11 +109,14 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
   hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", amr->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", amr->GetClassName());
 
   if (output)
   {
     output->SetNumberOfPartitionedDataSets(amr->GetNumberOfLevels());
   }
+
+  std::map<int, unsigned int> output_node2dataset_map;
 
   for (unsigned int level = 0, numLevels = amr->GetNumberOfLevels(); level < numLevels; ++level)
   {
@@ -120,16 +125,38 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     hierarchy->SetAttribute(node, "amr_level", level);
 
     const auto numDataSets = amr->GetNumberOfDataSets(level);
+    if (numDataSets > 0)
+    {
+      // since a level doesn't have a composite index (see vtkAMRInformation::GetIndex),
+      // we add composite indices for all datasets within a level.
+      hierarchy->AddDataSetIndex(node, amr->GetCompositeIndex(level, 0));
+    }
     hierarchy->SetAttribute(node, "number_of_datasets", numDataSets);
     if (output)
     {
+      output_node2dataset_map[node] = level;
       output->SetNumberOfPartitions(level, numDataSets);
-      hierarchy->AddDataSetIndex(node, level);
       for (unsigned int cc = 0; cc < numDataSets; ++cc)
       {
         output->SetPartition(level, cc, amr->GetDataSet(level, cc));
       }
     }
+  }
+
+  if (output)
+  {
+    // if output is non-null, create a vtkDataAssembly that represents the
+    // hierarchy for the input and update dataset indices in it to point to the
+    // partitioned-dataset index in the output.
+    vtkNew<vtkDataAssembly> clone;
+    clone->DeepCopy(hierarchy);
+    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
+    for (auto& pair : output_node2dataset_map)
+    {
+      clone->AddDataSetIndex(pair.first, pair.second);
+    }
+    output->SetDataAssembly(clone);
   }
 
   return true;
@@ -141,6 +168,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 {
   assert(input != nullptr && hierarchy != nullptr);
 
+  std::map<int, unsigned int> output_node2dataset_map;
+
   auto appendToOutput = [&](vtkDataObject* dobj, vtkInformation* metadata, int nodeid) {
     if (!output)
     {
@@ -149,7 +178,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
     const auto oid = output->GetNumberOfPartitionedDataSets();
     output->SetNumberOfPartitionedDataSets(oid + 1);
-    hierarchy->AddDataSetIndex(nodeid, oid);
+    output_node2dataset_map[nodeid] = oid;
     if (metadata)
     {
       output->GetMetaData(oid)->Copy(metadata);
@@ -175,7 +204,13 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
   unsigned int cid = 0;
   std::function<void(vtkDataObject*, int, vtkInformation*)> f;
   f = [&](vtkDataObject* dobj, int nodeid, vtkInformation* dobjMetaData) {
-    hierarchy->SetAttribute(nodeid, "cid", cid++);
+    // in a hierarchy, the dataset-index corresponds to the composite index;
+    // we add the "cid" attribute, however, to enable users to build selectors
+    // using cid.
+    hierarchy->SetAttribute(nodeid, "cid", cid);
+    hierarchy->AddDataSetIndex(nodeid, cid);
+    ++cid;
+
     if (auto mb = vtkMultiBlockDataSet::SafeDownCast(dobj))
     {
       hierarchy->SetAttribute(nodeid, "vtk_type", dobj->GetDataObjectType());
@@ -210,7 +245,24 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", input->GetClassName());
   f(input, vtkDataAssembly::GetRootNode(), nullptr);
+
+  if (output)
+  {
+    // if output is non-null, create a vtkDataAssembly that represents the
+    // hierarchy for the input and update dataset indices in it to point to the
+    // partitioned-dataset index in the output.
+    vtkNew<vtkDataAssembly> clone;
+    clone->DeepCopy(hierarchy);
+    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
+    for (auto& pair : output_node2dataset_map)
+    {
+      clone->AddDataSetIndex(pair.first, pair.second);
+    }
+    output->SetDataAssembly(clone);
+  }
   return true;
 }
 
@@ -224,23 +276,52 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
     output->ShallowCopy(input);
   }
 
+  std::map<int, unsigned int> output_node2dataset_map;
+
+  unsigned int cid = 0;
   hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", input->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", input->GetClassName());
+  hierarchy->AddDataSetIndex(vtkDataAssembly::GetRootNode(), cid++);
+
   for (unsigned int p = 0; p < input->GetNumberOfPartitionedDataSets(); ++p)
   {
     auto node = hierarchy->AddNode(("Block" + std::to_string(p)).c_str());
+
+    // dataset index in a hierarchy represents the composite index.
+    hierarchy->AddDataSetIndex(node, cid++);
+
     auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
     if (metadata && metadata->Has(vtkCompositeDataSet::NAME()))
     {
       hierarchy->SetAttribute(node, "label", metadata->Get(vtkCompositeDataSet::NAME()));
     }
-    hierarchy->SetAttribute(node, "bid", p);
+
     if (output)
     {
-      hierarchy->AddDataSetIndex(node, p);
+      output_node2dataset_map[node] = p;
     }
+
+    cid += input->GetNumberOfPartitions(p);
   }
+
+  if (output)
+  {
+    // if output is non-null, create a vtkDataAssembly that represents the
+    // hierarchy for the input and update dataset indices in it to point to the
+    // partitioned-dataset index in the output.
+    vtkNew<vtkDataAssembly> clone;
+    clone->DeepCopy(hierarchy);
+    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
+    for (auto& pair : output_node2dataset_map)
+    {
+      clone->AddDataSetIndex(pair.first, pair.second);
+    }
+    output->SetDataAssembly(clone);
+  }
+
   return true;
 }
 
@@ -328,7 +409,7 @@ public:
         const auto num_partitions = this->Input->GetNumberOfPartitions(datasets[0]);
         if (num_partitions == 1)
         {
-          top->SetBlock(index, this->Input->GetPartition(datasets[0], 0));
+          top->SetBlock(index, this->Input->GetPartitionAsDataObject(datasets[0], 0));
         }
         else
         {
@@ -385,7 +466,7 @@ vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
 
   const auto root = vtkDataAssembly::GetRootNode();
 
-  if (strcmp(hierarchy->GetAttributeOrDefault(root, "vtk_category", ""), "hierarchy") != 0)
+  if (strcmp(hierarchy->GetAttributeOrDefault(root, "vtk_category", ""), "xformed_hierarchy") != 0)
   {
     vtkLogF(
       ERROR, "Input hierarchy not generated using `vtkDataAssemblyUtilities` is not supported!");
@@ -455,7 +536,6 @@ public:
   static vtkGenerateIdsVisitor* New();
   vtkTypeMacro(vtkGenerateIdsVisitor, vtkDataAssemblyVisitor);
 
-  bool LeavesOnly = false;
   std::set<int> SelectedNodes;
   std::vector<unsigned int> CompositeIndices;
 
@@ -468,7 +548,7 @@ public:
     if (!this->EnabledStack.empty() ||
       this->SelectedNodes.find(nodeid) != this->SelectedNodes.end())
     {
-      if (this->LeavesOnly && vtkDataObjectTypes::TypeIdIsA(type, VTK_COMPOSITE_DATA_SET))
+      if (vtkDataObjectTypes::TypeIdIsA(type, VTK_COMPOSITE_DATA_SET))
       {
         if (vtkDataObjectTypes::TypeIdIsA(type, VTK_MULTIPIECE_DATA_SET))
         {
@@ -517,44 +597,103 @@ vtkStandardNewMacro(vtkGenerateIdsVisitor);
 }
 
 //----------------------------------------------------------------------------
-std::vector<unsigned int> vtkDataAssemblyUtilities::GenerateCompositeIndicesFromSelectors(
-  vtkDataAssembly* hierarchy, const std::vector<std::string>& selectors,
-  bool leaf_nodes_only /*=false*/)
+std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+  const std::vector<std::string>& selectors, vtkDataAssembly* hierarchyOrAssembly,
+  vtkPartitionedDataSetCollection* data, bool leaf_nodes_only)
 {
-  if (hierarchy == nullptr || selectors.empty())
+  if (hierarchyOrAssembly == nullptr || selectors.empty())
   {
     return {};
   }
 
   const auto root = vtkDataAssembly::GetRootNode();
+  const bool isHierarchy =
+    (strcmp(hierarchyOrAssembly->GetAttributeOrDefault(root, "vtk_category", ""), "hierarchy") ==
+      0);
+  if (!isHierarchy && data == nullptr)
+  {
+    vtkLogF(ERROR, "Missing required `data` argument.");
+    return {};
+  }
+
+  if (isHierarchy && leaf_nodes_only)
+  {
+    const auto dataType = hierarchyOrAssembly->GetAttributeOrDefault(root, "vtk_type", -1);
+    // for now we only support MBs. we could support AMR and PDC,
+    // but I don't see the point in doing so right now.
+    if (!vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
+    {
+      vtkLogF(ERROR, "Hierarchy does not represent a supported composite dataset type (%s)",
+        vtkDataObjectTypes::GetClassNameFromTypeId(dataType));
+      return {};
+    }
+
+    // the worst case: we need to traverse the hierarchy and determine composite
+    // ids.
+    const auto nodes = hierarchyOrAssembly->SelectNodes(selectors);
+    vtkNew<vtkGenerateIdsVisitor> visitor;
+    std::copy(nodes.begin(), nodes.end(),
+      std::inserter(visitor->SelectedNodes, visitor->SelectedNodes.end()));
+    hierarchyOrAssembly->Visit(visitor);
+    return visitor->CompositeIndices;
+  }
+
+  // here, we only traverse the subtree if not a hierarchy. Otherwise, the
+  // dataset indices are directly composite ids so we don't need to traverse
+  // substree.
+  const auto dsIndices = hierarchyOrAssembly->GetDataSetIndices(
+    hierarchyOrAssembly->SelectNodes(selectors), /*traverse_subtree=*/!isHierarchy);
+
+  if (isHierarchy)
+  {
+    assert(leaf_nodes_only == false);
+
+    // in this case, dsIndices directly correspond to the composite ids;
+    // nothing more to do.
+    return dsIndices;
+  }
+  else if (!isHierarchy && leaf_nodes_only == false)
+  {
+    // convert partitioned dataset index to composite index.
+    assert(data != nullptr);
+
+    std::vector<unsigned int> cids(dsIndices.size());
+    std::transform(dsIndices.begin(), dsIndices.end(), cids.begin(),
+      [data](unsigned int partitionIdx) { return data->GetCompositeIndex(partitionIdx); });
+    return cids;
+  }
+  else
+  {
+    assert(isHierarchy == false);
+    assert(leaf_nodes_only == true);
+    assert(data != nullptr);
+    // convert partitioned dataset index to composite index for individual
+    // partitions.
+    std::vector<unsigned int> cids;
+    for (const auto& partitionIdx : dsIndices)
+    {
+      for (unsigned int cc = 0; cc < data->GetNumberOfPartitions(partitionIdx); ++cc)
+      {
+        cids.push_back(data->GetCompositeIndex(partitionIdx, cc));
+      }
+    }
+    return cids;
+  }
+}
+
+//----------------------------------------------------------------------------
+std::string vtkDataAssemblyUtilities::GetSelectorForCompositeId(
+  unsigned int id, vtkDataAssembly* hierarchy)
+{
+  const auto root = vtkDataAssembly::GetRootNode();
   if (strcmp(hierarchy->GetAttributeOrDefault(root, "vtk_category", ""), "hierarchy") != 0)
   {
-    vtkLogF(
-      ERROR, "Input hierarchy not generated using `vtkDataAssemblyUtilities` is not supported!");
+    vtkLogF(ERROR,
+      "GetSelectorForCompositeId is only supported on a data-assembly representation a hierarchy.");
     return {};
   }
 
-  const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
-
-  // we only support MBs. we could support AMR, but I don't see the point in
-  // doing so.
-  if (!vtkDataObjectTypes::TypeIdIsA(dataType, VTK_MULTIBLOCK_DATA_SET))
-  {
-    vtkLogF(ERROR, "Hierarchy does not represent a supported composite dataset type (%s)",
-      vtkDataObjectTypes::GetClassNameFromTypeId(dataType));
-    return {};
-  }
-
-  auto nodes = hierarchy->SelectNodes(selectors);
-  if (nodes.empty())
-  {
-    return {};
-  }
-
-  vtkNew<vtkGenerateIdsVisitor> visitor;
-  visitor->LeavesOnly = leaf_nodes_only;
-  std::copy(nodes.begin(), nodes.end(),
-    std::inserter(visitor->SelectedNodes, visitor->SelectedNodes.end()));
-  hierarchy->Visit(visitor);
-  return visitor->CompositeIndices;
+  std::ostringstream str;
+  str << "//*[@cid='" << id << "']";
+  return str.str();
 }

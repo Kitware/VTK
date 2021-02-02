@@ -236,12 +236,20 @@ public:
   bool AddDataSetIndex(int id, unsigned int dataset_index);
 
   /**
-   * Same as `AddDataSetIndex` except supported adding multiple dataset indices
+   * Same as `AddDataSetIndex` except supports adding multiple dataset indices
    * in one go. Note, a dataset index only gets added once.
    *
    * @returns true if any dataset index was successfully added.
    */
   bool AddDataSetIndices(int id, const std::vector<unsigned int>& dataset_indices);
+
+  /**
+   * Same as `AddDataSetIndices` except this supports adding a contiguous range of dataset
+   * indices in one go.
+   *
+   * @ returns true if any dataset index was successfully added.
+   */
+  bool AddDataSetIndexRange(int id, unsigned int index_start, int count);
 
   /**
    * Removes a dataset index from a node.
@@ -377,6 +385,7 @@ public:
     int traversal_order = vtkDataAssembly::TraversalOrder::DepthFirst) const;
   //@}
 
+  //@{
   /**
    * Returns the dataset indices associated with the node.
    *
@@ -391,6 +400,10 @@ public:
    */
   std::vector<unsigned int> GetDataSetIndices(int id, bool traverse_subtree = true,
     int traversal_order = vtkDataAssembly::TraversalOrder::DepthFirst) const;
+  std::vector<unsigned int> GetDataSetIndices(const std::vector<int>& ids,
+    bool traverse_subtree = true,
+    int traversal_order = vtkDataAssembly::TraversalOrder::DepthFirst) const;
+  //@}
 
   /**
    * Returns ids for nodes matching the path_queries. See Section

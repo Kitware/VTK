@@ -129,9 +129,6 @@ private:
   vtkExtractBlockUsingDataAssembly(const vtkExtractBlockUsingDataAssembly&) = delete;
   void operator=(const vtkExtractBlockUsingDataAssembly&) = delete;
 
-  bool Execute(vtkPartitionedDataSetCollection* input, vtkDataAssembly* inAssembly,
-    vtkPartitionedDataSetCollection* output, vtkDataAssembly* outAssembly) const;
-
   class vtkInternals;
   vtkInternals* Internals;
 

@@ -76,7 +76,6 @@ int vtkDataObjectToPartitionedDataSetCollection::RequestData(
   if (vtkDataAssemblyUtilities::GenerateHierarchy(
         vtkCompositeDataSet::SafeDownCast(inputDO), assembly, output))
   {
-    output->SetDataAssembly(assembly);
     return 1;
   }
 
