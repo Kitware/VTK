@@ -523,7 +523,7 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   std::size_t maxNumberOfCells;
   if (!this->ParseString(str, strGrid, maxNumberOfCells))
   {
-    vtkErrorMacro(<< "Failed to parse string.");
+    vtkWarningMacro(<< "Failed to parse string.");
     return false;
   }
 
@@ -531,7 +531,7 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   long int cols = 0;
   if (!this->ComputeRowsAndCols(strGrid, maxNumberOfCells, tprop, dpi, rows, cols))
   {
-    vtkErrorMacro(<< "Failed to compute rows and cols.");
+    vtkWarningMacro(<< "Failed to compute rows and cols.");
     return false;
   }
 
@@ -600,7 +600,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& str
       if (!this->ComputeCellRowsAndCols(
             cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, nullptr))
       {
-        vtkErrorMacro(<< "Failed to compute rows and cols for cell : " << cell);
+        vtkWarningMacro(<< "Failed to compute rows and cols for cell : " << cell);
         return false;
       }
 
@@ -678,6 +678,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, vtk
   return true;
 }
 
+//------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::FindAndReplaceInString(
   std::string& str, const std::string& strToFind, const std::string& replacementStr)
 {
@@ -928,7 +929,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
   std::size_t maxNumberOfCells;
   if (!this->ParseString(str, strGrid, maxNumberOfCells))
   {
-    vtkErrorMacro(<< "Failed to parse string.");
+    vtkWarningMacro(<< "Failed to parse string.");
     return false;
   }
 
@@ -979,7 +980,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
       if (!this->ComputeCellRowsAndCols(
             cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, &cellPythonData))
       {
-        vtkErrorMacro(<< "Failed to compute rows and cols for cell : " << cell);
+        vtkWarningMacro(<< "Failed to compute rows and cols for cell : " << cell);
         return false;
       }
 
