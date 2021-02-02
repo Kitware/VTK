@@ -10,8 +10,9 @@ set_property(CACHE VTK_QT_VERSION PROPERTY STRINGS "${vtk_supported_qt_versions}
 
 if (NOT VTK_QT_VERSION STREQUAL "Auto")
   if (NOT VTK_QT_VERSION IN_LIST vtk_supported_qt_versions)
-    message(FATAL_ERROR "Supported Qt versions are \"${vtk_supported_qt_versions}\"."
-      " But VTK_QT_VERSION is set to ${VTK_QT_VERSION}.")
+    message(FATAL_ERROR
+      "Supported Qt versions are \"${vtk_supported_qt_versions}\". But "
+      "VTK_QT_VERSION is set to ${VTK_QT_VERSION}.")
   endif ()
   set(_vtk_qt_version "${VTK_QT_VERSION}")
 else ()
@@ -20,7 +21,8 @@ else ()
   if (NOT Qt6_FOUND)
     find_package(Qt5 QUIET COMPONENTS Core)
     if (NOT Qt5_FOUND)
-      message(FATAL_ERROR "Could not find a valid Qt installation.")
+      message(FATAL_ERROR
+        "Could not find a valid Qt installation.")
     endif ()
     set(_vtk_qt_version 5)
   endif ()
