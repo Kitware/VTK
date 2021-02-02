@@ -79,7 +79,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
   vtkUniformGridAMR* amr, vtkDataAssembly* hierarchy, vtkPartitionedDataSetCollection* output)
 {
   assert(amr != nullptr && hierarchy != nullptr);
-  hierarchy->SetRootNodeName(amr->GetClassName());
+  hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", amr->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
 
@@ -90,7 +90,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   for (unsigned int level = 0, numLevels = amr->GetNumberOfLevels(); level < numLevels; ++level)
   {
-    auto node = hierarchy->AddNode(("Level" + std::to_string(level)).c_str());
+    auto node = hierarchy->AddNode(("Block" + std::to_string(level)).c_str());
     hierarchy->SetAttribute(node, "label", ("Level " + std::to_string(level)).c_str());
     hierarchy->SetAttribute(node, "amr_level", level);
 
@@ -183,7 +183,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     }
   };
 
-  hierarchy->SetRootNodeName(input->GetClassName());
+  hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
   f(input, vtkDataAssembly::GetRootNode(), nullptr);
   return true;
@@ -199,7 +199,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
     output->ShallowCopy(input);
   }
 
-  hierarchy->SetRootNodeName(input->GetClassName());
+  hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", input->GetDataObjectType());
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
   for (unsigned int p = 0; p < input->GetNumberOfPartitionedDataSets(); ++p)
