@@ -809,30 +809,41 @@ struct vtkFoamTypes
   enum dataType
   {
     NO_TYPE = 0,
-    LABEL_TYPE = 0x11,
     SCALAR_TYPE = 1,
     VECTOR_TYPE = 3,
     SYMM_TENSOR_TYPE = 6,
     TENSOR_TYPE = 9,
-    SPH_TENSOR_TYPE = 0x21
+    // Single-component types, but disambiguate from SCALAR_TYPE
+    BOOL_TYPE = (0x10 | SCALAR_TYPE),
+    LABEL_TYPE = (0x20 | SCALAR_TYPE),
+    SPH_TENSOR_TYPE = (0x30 | SCALAR_TYPE)
   };
 
   // The number of data components
   static int GetNumberOfComponents(const dataType dtype) noexcept { return (dtype & 0xF); }
 
-  static bool IsLabel(const dataType dtype) noexcept { return dtype == LABEL_TYPE; }
-  static bool IsScalar(const dataType dtype) noexcept { return dtype == SCALAR_TYPE; }
-  static bool IsNumeric(const dataType dtype) noexcept { return IsLabel(dtype) || IsScalar(dtype); }
+  static bool IsGood(dataType dtype) noexcept { return dtype != NO_TYPE; }
+  static bool IsBool(dataType dtype) noexcept { return dtype == BOOL_TYPE; }
+  static bool IsLabel(dataType dtype) noexcept { return dtype == LABEL_TYPE; }
+  static bool IsScalar(dataType dtype) noexcept { return dtype == SCALAR_TYPE; }
+  static bool IsNumeric(dataType dtype) noexcept { return IsLabel(dtype) || IsScalar(dtype); }
 
   // Is a VectorSpace type?
-  static bool IsVectorSpace(const dataType dtype) noexcept
+  static bool IsVectorSpace(dataType dtype) noexcept
   {
     return GetNumberOfComponents(dtype) > 1 || dtype == SPH_TENSOR_TYPE;
   }
 
   // Parse things like "scalarField" or "ScalarField" -> SCALAR_TYPE etc.
-  // Ignore case on first letter, which makes it convenient for "volScalarField" too.
-  static dataType ToEnum(const std::string& fieldType, size_t pos = 0);
+  // Ignore case on first letter (at pos), which makes it convenient for "volScalarField" too.
+  static dataType FieldToEnum(const std::string& fieldTypeName, size_t pos = 0);
+
+  // Handle "List<scalar>" -> SCALAR_TYPE etc.
+  static dataType ListToEnum(const std::string& listTypeName);
+
+private:
+  // Implementation for FieldToEnum, ListToEnum
+  static dataType ToEnumImpl(const std::string& str, size_t pos, size_t len, bool ignoreCase);
 };
 
 //------------------------------------------------------------------------------
@@ -1114,77 +1125,124 @@ void AddArrayToFieldData(vtkDataSetAttributes* fieldData, vtkDataArray* array,
 //------------------------------------------------------------------------------
 // Simple handling of common OpenFOAM data types
 
-vtkFoamTypes::dataType vtkFoamTypes::ToEnum(const std::string& fieldType, size_t pos)
+// Low-level implementation
+vtkFoamTypes::dataType vtkFoamTypes::ToEnumImpl(
+  const std::string& str, size_t pos, size_t last, bool ignoreCase)
 {
   vtkFoamTypes::dataType dtype(vtkFoamTypes::NO_TYPE);
 
-  const char firstChar = fieldType[pos];
-  ++pos; // First character is handled separately (for ignoring case)
-
-  size_t len = fieldType.find("Field", pos);
-  if (len != std::string::npos)
+  char firstChar = str[pos];
+  if (ignoreCase)
   {
-    len -= pos;
+    firstChar = std::tolower(firstChar);
+  }
+  ++pos; // First character handled separately (for ignoring case)
+
+  size_t len = std::string::npos;
+  if (last != std::string::npos)
+  {
+    if (last > pos)
+    {
+      len = last - pos;
+    }
+    else
+    {
+      // Caught bad input
+      firstChar = '\0';
+    }
   }
 
   switch (firstChar)
   {
-    case 'L':
+    case '\0':
+    {
+      break;
+    }
+
+    case 'b':
+    {
+      if (str.compare(pos, len, "ool") == 0)
+      {
+        // (Bool | bool)
+        dtype = vtkFoamTypes::BOOL_TYPE;
+      }
+      break;
+    }
+
     case 'l':
     {
-      if (fieldType.compare(pos, len, "abel") == 0)
+      if (str.compare(pos, len, "abel") == 0)
       {
         // (Label | label)
         dtype = vtkFoamTypes::LABEL_TYPE;
       }
+      break;
     }
-    break;
 
-    case 'S':
     case 's':
     {
-      if (fieldType.compare(pos, len, "calar") == 0)
+      if (str.compare(pos, len, "calar") == 0)
       {
         // (Scalar | scalar)
         dtype = vtkFoamTypes::SCALAR_TYPE;
       }
-      else if (fieldType.compare(pos, len, "phericalTensor") == 0)
+      else if (str.compare(pos, len, "phericalTensor") == 0)
       {
         // (SphericalTensor | sphericalTensor)
         dtype = vtkFoamTypes::SPH_TENSOR_TYPE;
       }
-      else if (fieldType.compare(pos, len, "ymmTensor") == 0)
+      else if (str.compare(pos, len, "ymmTensor") == 0)
       {
         // (SymmTensor | symmTensor)
         dtype = vtkFoamTypes::SYMM_TENSOR_TYPE;
       }
+      break;
     }
-    break;
 
-    case 'T':
     case 't':
     {
-      if (fieldType.compare(pos, len, "ensor") == 0)
+      if (str.compare(pos, len, "ensor") == 0)
       {
         // (Tensor | tensor)
         dtype = vtkFoamTypes::TENSOR_TYPE;
       }
+      break;
     }
-    break;
 
-    case 'V':
     case 'v':
     {
-      if (fieldType.compare(pos, len, "ector") == 0)
+      if (str.compare(pos, len, "ector") == 0)
       {
         // (Vector | vector)
         dtype = vtkFoamTypes::VECTOR_TYPE;
       }
+      break;
     }
-    break;
   }
 
   return dtype;
+}
+
+// Fields: expects scalarField, volScalarField etc.
+vtkFoamTypes::dataType vtkFoamTypes::FieldToEnum(const std::string& fieldTypeName, size_t pos)
+{
+  // With ignoreCase
+  return vtkFoamTypes::ToEnumImpl(fieldTypeName, pos, fieldTypeName.find("Field", pos), true);
+}
+
+// Lists: expects "List<scalar>", "List<vector>" etc.
+vtkFoamTypes::dataType vtkFoamTypes::ListToEnum(const std::string& listTypeName)
+{
+  const auto endp = listTypeName.find('>');
+
+  if ((endp != std::string::npos) && (endp + 1 == listTypeName.length()) &&
+    listTypeName.compare(0, 5, "List<") == 0)
+  {
+    // Without ignoreCase
+    return vtkFoamTypes::ToEnumImpl(listTypeName, 5, endp, false);
+  }
+
+  return vtkFoamTypes::NO_TYPE;
 }
 
 //------------------------------------------------------------------------------
@@ -1289,14 +1347,14 @@ public:
     STRING,
     IDENTIFIER,
     // List types (vtkObject-derived)
-    STRINGLIST,
+    BOOLLIST,
     LABELLIST,
     SCALARLIST,
     VECTORLIST,
+    STRINGLIST,
     // List types (non-vtkObject)
     LABELLISTLIST,
     ENTRYVALUELIST,
-    BOOLLIST,
     EMPTYLIST,
     DICTIONARY,
     // error state
@@ -1314,10 +1372,11 @@ protected:
     std::string* String;
     // List types (vtkObject-derived)
     vtkObjectBase* VtkObjectPtr;
-    vtkStringArray* StringListPtr;
+    vtkTypeInt8Array* BoolListPtr;
+    vtkDataArray* LabelListPtr;
     vtkFloatArray* ScalarListPtr;
     vtkFloatArray* VectorListPtr;
-    vtkDataArray* LabelListPtr;
+    vtkStringArray* StringListPtr;
     // List types (non-vtkObject)
     vtkFoamLabelListList* LabelListListPtr;
     vtkFoamPtrList<vtkFoamEntryValue>* EntryValuePtrs;
@@ -1326,7 +1385,7 @@ protected:
 
   void Clear()
   {
-    if (this->Type == STRING || this->Type == IDENTIFIER)
+    if (this->Type == STRING || this->Type == IDENTIFIER) // IsStringType
     {
       delete this->String;
     }
@@ -1349,17 +1408,7 @@ protected:
       case IDENTIFIER:
         this->String = new std::string(*tok.String);
         break;
-      case UNDEFINED:
-      case STRINGLIST:
-      case LABELLIST:
-      case SCALARLIST:
-      case VECTORLIST:
-      case LABELLISTLIST:
-      case ENTRYVALUELIST:
-      case BOOLLIST:
-      case EMPTYLIST:
-      case DICTIONARY:
-      case TOKEN_ERROR:
+      default:
         break;
     }
   }
@@ -1402,10 +1451,13 @@ public:
   double To<double>() const;
 #endif
 
-  // True if token represents punctuation
+  // Token represents punctuation
   bool IsPunctuation() const noexcept { return this->Type == PUNCTUATION; }
 
-  // True if token represents a numerical value
+  // Token represents a numerical value
+  bool IsLabel() const noexcept { return this->Type == LABEL || this->Type == SCALAR; }
+
+  // Token represents a numerical value
   bool IsNumeric() const noexcept { return this->Type == LABEL || this->Type == SCALAR; }
 
   vtkTypeInt64 ToInt() const
@@ -1427,6 +1479,9 @@ public:
     return this->Type == LABEL ? static_cast<double>(this->Int)
                                : this->Type == SCALAR ? this->Double : 0.0;
   }
+
+  // Token represents string content
+  bool IsStringType() const noexcept { return this->Type == STRING || this->Type == IDENTIFIER; }
 
   std::string ToString() const { return *this->String; }
   std::string ToIdentifier() const { return *this->String; }
@@ -3455,7 +3510,11 @@ public:
   }
 
   template <vtkFoamToken::tokenType listType, typename traitsT>
-  void ReadNonuniformList(vtkFoamIOobject& io);
+  void ReadNonUniformList(vtkFoamIOobject& io);
+
+  // Dispatch reading of uniform list based on the field data type (scalar, vector etc).
+  // Return false if could not be dispatched
+  bool ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType);
 
   // reads a list of labelLists. requires size prefix of the listList
   // to be present. size of each sublist must also be present in the
@@ -3477,7 +3536,7 @@ public:
     {
       throw vtkFoamError() << "Unexpected EOF";
     }
-    if (currToken.GetType() == vtkFoamToken::LABEL)
+    if (currToken.IsLabel())
     {
       const vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
       if (listLen < 0)
@@ -3504,7 +3563,7 @@ public:
         {
           throw vtkFoamError() << "Unexpected EOF";
         }
-        if (currToken.GetType() == vtkFoamToken::LABEL)
+        if (currToken.IsLabel())
         {
           const vtkTypeInt64 sublistLen = currToken.To<vtkTypeInt64>();
           if (sublistLen < 0)
@@ -3542,7 +3601,7 @@ public:
           this->Superclass::LabelListListPtr->SetOffset(idx, nTotalElems);
           while (io.Read(currToken) && currToken != ')')
           {
-            if (currToken.GetType() != vtkFoamToken::LABEL)
+            if (!currToken.IsLabel())
             {
               throw vtkFoamError() << "Expected an integer, found " << currToken;
             }
@@ -3598,7 +3657,7 @@ public:
       {
         throw vtkFoamError() << "Unexpected EOF";
       }
-      if (currToken.GetType() == vtkFoamToken::LABEL)
+      if (currToken.IsLabel())
       {
         vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
         if (listLen < 0)
@@ -3631,86 +3690,14 @@ public:
   {
     this->SetStreamOption(io);
 
+    // Basic field types: "boolField", "labelField", "scalarField" ...
+    vtkFoamTypes::dataType listDataType(vtkFoamTypes::FieldToEnum(io.GetClassName()));
+
     try
     {
-      // lagrangian labels (cf. gnemdFoam/nanoNozzle)
-      if (io.GetClassName() == "labelField")
+      if (vtkFoamTypes::IsGood(listDataType))
       {
-        if (io.IsLabel64())
-        {
-          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
-        }
-        else
-        {
-          this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
-        }
-      }
-      // lagrangian scalars
-
-      else if (io.GetClassName() == "scalarField")
-      {
-        if (io.IsFloat64())
-        {
-          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
-        }
-        else
-        {
-          this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
-        }
-      }
-      else if (io.GetClassName() == "sphericalTensorField")
-      {
-        if (io.IsFloat64())
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(
-            io);
-        }
-        else
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false>>(
-            io);
-        }
-      }
-      // polyMesh/points, lagrangian vectors
-
-      else if (io.GetClassName() == "vectorField")
-      {
-        if (io.IsFloat64())
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(
-            io);
-        }
-        else
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false>>(
-            io);
-        }
-      }
-      else if (io.GetClassName() == "symmTensorField")
-      {
-        if (io.IsFloat64())
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(
-            io);
-        }
-        else
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false>>(
-            io);
-        }
-      }
-      else if (io.GetClassName() == "tensorField")
-      {
-        if (io.IsFloat64())
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(
-            io);
-        }
-        else
-        {
-          this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false>>(
-            io);
-        }
+        this->ReadNonUniformList(io, listDataType);
       }
       else
       {
@@ -3729,7 +3716,7 @@ public:
 // generic reader for nonuniform lists. requires size prefix of the
 // list to be present in the stream if the format is binary.
 template <vtkFoamToken::tokenType listType, typename traitsT>
-void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
+void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
 {
   this->SetStreamOption(io);
 
@@ -3794,6 +3781,107 @@ void vtkFoamEntryValue::ReadNonuniformList(vtkFoamIOobject& io)
   {
     throw vtkFoamError() << "Expected integer or '(', found " << currToken;
   }
+}
+
+// Dispatch known field/list types for non-uniform reading
+bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::dataType listDataType)
+{
+  bool handled = true;
+  switch (listDataType)
+  {
+    case vtkFoamTypes::BOOL_TYPE:
+    {
+      // List<bool> is read as a list of bytes (binary) or ints (ascii)
+      // - primary location is the flipMap entry in faceZones
+      this->ReadNonUniformList<BOOLLIST, listTraits<vtkTypeInt8Array, vtkTypeInt8>>(io);
+      break;
+    }
+
+    case vtkFoamTypes::LABEL_TYPE:
+    {
+      if (io.IsLabel64())
+      {
+        this->ReadNonUniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+      }
+      break;
+    }
+
+    case vtkFoamTypes::SCALAR_TYPE:
+    {
+      if (io.IsFloat64())
+      {
+        this->ReadNonUniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
+      }
+      break;
+    }
+
+    case vtkFoamTypes::SPH_TENSOR_TYPE:
+    {
+      if (io.IsFloat64())
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1>>(io);
+      }
+      break;
+    }
+
+    case vtkFoamTypes::VECTOR_TYPE:
+    {
+      if (io.IsFloat64())
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3>>(io);
+      }
+      break;
+    }
+
+    case vtkFoamTypes::SYMM_TENSOR_TYPE:
+    {
+      if (io.IsFloat64())
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6>>(io);
+      }
+      break;
+    }
+
+    case vtkFoamTypes::TENSOR_TYPE:
+    {
+      if (io.IsFloat64())
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9>>(io);
+      }
+      else
+      {
+        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9>>(io);
+      }
+      break;
+    }
+
+    default:
+    {
+      handled = false;
+      break;
+    }
+  }
+  return handled;
 }
 
 //------------------------------------------------------------------------------
@@ -4009,11 +4097,10 @@ public:
         if (isSubDictionary)
         {
           // the following if clause is for an exceptional expression
-          // of `LABEL{LABELorSCALAR}' without type prefix
+          // of `LABEL{numeric}' without type prefix
           // (e. g. `2{-0}' in mixedRhoE B.C. in
           // rhopSonicFoam/shockTube)
-          if (currToken.GetType() == vtkFoamToken::LABEL ||
-            currToken.GetType() == vtkFoamToken::SCALAR)
+          if (currToken.IsNumeric())
           {
             this->Token = currToken;
             io.ReadExpecting('}');
@@ -4030,7 +4117,7 @@ public:
         {
           // list of dictionaries is read as a usual dictionary
           // polyMesh/boundary, point/face/cell-Zones
-          if (currToken.GetType() == vtkFoamToken::LABEL)
+          if (currToken.IsLabel())
           {
             io.ReadExpecting('(');
             if (currToken.To<vtkTypeInt64>() > 0)
@@ -4087,8 +4174,7 @@ public:
         currToken = firstToken;
       }
 
-      if (currToken == ';' || currToken.GetType() == vtkFoamToken::STRING ||
-        currToken.GetType() == vtkFoamToken::IDENTIFIER)
+      if (currToken == ';' || currToken.IsStringType())
       {
         // general dictionary
         do
@@ -4172,9 +4258,7 @@ public:
             }
           }
           // skip empty entry only with ';'
-        } while (io.Read(currToken) &&
-          (currToken.GetType() == vtkFoamToken::STRING ||
-            currToken.GetType() == vtkFoamToken::IDENTIFIER || currToken == ';'));
+        } while (io.Read(currToken) && (currToken.IsStringType() || currToken == ';'));
 
         if (currToken.GetType() == vtkFoamToken::TOKEN_ERROR || currToken == '}' ||
           currToken == ')')
@@ -4297,6 +4381,7 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
       }
     }
     break;
+    case BOOLLIST:
     case LABELLIST:
     case SCALARLIST:
     case STRINGLIST:
@@ -4336,8 +4421,6 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
         this->DictPtr->SetStreamOption(value.GetStreamOption());
       }
       break;
-    case BOOLLIST:
-      break;
     case EMPTYLIST:
       break;
     case UNDEFINED:
@@ -4358,6 +4441,7 @@ void vtkFoamEntryValue::Clear()
   {
     switch (this->Superclass::Type)
     {
+      case BOOLLIST:
       case LABELLIST:
       case SCALARLIST:
       case VECTORLIST:
@@ -4380,7 +4464,6 @@ void vtkFoamEntryValue::Clear()
       case STRING:
       case IDENTIFIER:
       case TOKEN_ERROR:
-      case BOOLLIST:
       case EMPTYLIST:
       default:
         break;
@@ -4403,7 +4486,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   io.Read(currToken);
 
   // initial guess of the list type
-  if (currToken.GetType() == this->Superclass::LABEL)
+  if (currToken.IsLabel())
   {
     // if the first token is of type LABEL it might be either an element of
     // a labelList or the size of a sublist so proceed to the next token
@@ -4413,7 +4496,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       throw vtkFoamError() << "Unexpected EOF";
     }
-    if (nextToken.GetType() == this->Superclass::LABEL)
+    if (nextToken.IsLabel())
     {
       if (this->IsLabel64())
       {
@@ -4431,7 +4514,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       }
       this->Superclass::Type = LABELLIST;
     }
-    else if (nextToken.GetType() == this->Superclass::SCALAR)
+    else if (nextToken.GetType() == vtkFoamToken::SCALAR)
     {
       this->Superclass::ScalarListPtr = vtkFloatArray::New();
       this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
@@ -4470,7 +4553,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       throw vtkFoamError() << "Expected number, '(' or ')', found " << nextToken;
     }
   }
-  else if (currToken.GetType() == this->Superclass::SCALAR)
+  else if (currToken.GetType() == vtkFoamToken::SCALAR)
   {
     this->Superclass::ScalarListPtr = vtkFloatArray::New();
     this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
@@ -4478,7 +4561,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   }
   // if the first word is a string we have to read another token to determine
   // if the first word is a keyword for the following dictionary
-  else if (currToken.GetType() == this->Superclass::STRING)
+  else if (currToken.GetType() == vtkFoamToken::STRING)
   {
     vtkFoamToken nextToken;
     nextToken.SetStreamOption(io);
@@ -4486,7 +4569,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     {
       throw vtkFoamError() << "Unexpected EOF";
     }
-    if (nextToken.GetType() == this->Superclass::STRING) // list of strings
+    if (nextToken.GetType() == vtkFoamToken::STRING) // list of strings
     {
       this->Superclass::StringListPtr = vtkStringArray::New();
       this->Superclass::StringListPtr->InsertNextValue(currToken.ToString());
@@ -4565,7 +4648,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
   {
     if (this->Superclass::Type == LABELLIST)
     {
-      if (currToken.GetType() == this->Superclass::SCALAR)
+      if (currToken.GetType() == vtkFoamToken::SCALAR)
       {
         // Encountered a scalar while reading a labelList - switch representation
         // Need intermediate pointer since LabelListPtr and ScalarListPtr are in a union
@@ -4588,7 +4671,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         this->Superclass::ScalarListPtr = scalars;
         this->Superclass::Type = SCALARLIST;
       }
-      else if (currToken.GetType() == this->Superclass::LABEL)
+      else if (currToken.IsLabel())
       {
         assert("Label type not set!" && currToken.HasLabelType());
         if (currToken.IsLabel64())
@@ -4609,7 +4692,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         throw vtkFoamError() << "Expected a number, found " << currToken;
       }
     }
-    else if (this->Superclass::Type == this->Superclass::SCALARLIST)
+    else if (this->Superclass::Type == vtkFoamToken::SCALARLIST)
     {
       if (currToken.IsNumeric())
       {
@@ -4631,9 +4714,9 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         throw vtkFoamError() << "Expected a number, found " << currToken;
       }
     }
-    else if (this->Superclass::Type == this->Superclass::STRINGLIST)
+    else if (this->Superclass::Type == vtkFoamToken::STRINGLIST)
     {
-      if (currToken.GetType() == this->Superclass::STRING)
+      if (currToken.GetType() == vtkFoamToken::STRING)
       {
         this->Superclass::StringListPtr->InsertNextValue(currToken.ToString());
       }
@@ -4642,9 +4725,9 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         throw vtkFoamError() << "Expected a string, found " << currToken;
       }
     }
-    else if (this->Superclass::Type == this->Superclass::ENTRYVALUELIST)
+    else if (this->Superclass::Type == vtkFoamToken::ENTRYVALUELIST)
     {
-      if (currToken.GetType() == this->Superclass::LABEL)
+      if (currToken.IsLabel())
       {
         // skip the number of elements to make things simple
         if (!io.Read(currToken))
@@ -4665,15 +4748,19 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     }
   }
 
-  if (this->Superclass::Type == this->Superclass::LABELLIST)
+  if (this->Superclass::Type == vtkFoamToken::BOOLLIST)
+  {
+    this->Superclass::BoolListPtr->Squeeze();
+  }
+  else if (this->Superclass::Type == vtkFoamToken::LABELLIST)
   {
     this->Superclass::LabelListPtr->Squeeze();
   }
-  else if (this->Superclass::Type == this->Superclass::SCALARLIST)
+  else if (this->Superclass::Type == vtkFoamToken::SCALARLIST)
   {
     this->Superclass::ScalarListPtr->Squeeze();
   }
-  else if (this->Superclass::Type == this->Superclass::STRINGLIST)
+  else if (this->Superclass::Type == vtkFoamToken::STRINGLIST)
   {
     this->Superclass::StringListPtr->Squeeze();
   }
@@ -4684,7 +4771,7 @@ void vtkFoamEntryValue::ReadDictionary(vtkFoamIOobject& io, const vtkFoamToken& 
 {
   this->Superclass::DictPtr = new vtkFoamDict(this->UpperEntryPtr->GetUpperDictPtr());
   this->DictPtr->SetStreamOption(io);
-  this->Superclass::Type = this->Superclass::DICTIONARY;
+  this->Superclass::Type = vtkFoamToken::DICTIONARY;
   this->Superclass::DictPtr->Read(io, true, firstKeyword);
 }
 
@@ -4701,6 +4788,8 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   {
     throw vtkFoamError() << "Unexpected EOF";
   }
+
+  vtkFoamTypes::dataType listDataType(vtkFoamTypes::NO_TYPE);
 
   if (currToken == '{')
   {
@@ -4735,15 +4824,13 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
       this->Superclass::operator=("uniform");
       return 0;
     }
-    else if (currToken.GetType() == this->Superclass::LABEL ||
-      currToken.GetType() == this->Superclass::SCALAR ||
-      currToken.GetType() == this->Superclass::STRING)
+    else if (currToken.IsNumeric() || currToken.GetType() == vtkFoamToken::STRING)
     {
       this->Superclass::operator=(currToken);
     }
     else // unexpected punctuation token
     {
-      throw vtkFoamError() << "Expected number, string or (, found " << currToken;
+      throw vtkFoamError() << "Expected number, string or ( for uniform entry, found " << currToken;
     }
     this->IsUniformEntry = true;
   }
@@ -4751,81 +4838,25 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
   {
     if (!io.Read(currToken))
     {
-      throw vtkFoamError() << "Expected list type specifier, found EOF";
+      throw vtkFoamError() << "Expected list type specifier for nonuniform entry, found EOF";
     }
     this->IsUniformEntry = false;
-    if (currToken == "List<scalar>")
+
+    listDataType = vtkFoamTypes::NO_TYPE;
+
+    if (currToken.GetType() == vtkFoamToken::STRING)
     {
-      if (io.IsFloat64())
-      {
-        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
-      }
+      // List types: "List<label>", "List<scalar>" ...
+      listDataType = vtkFoamTypes::ListToEnum(currToken.ToString());
     }
-    else if (currToken == "List<sphericalTensor>")
+    if (vtkFoamTypes::IsGood(listDataType))
     {
-      if (io.IsFloat64())
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1, false>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1, false>>(io);
-      }
+      this->ReadNonUniformList(io, listDataType);
     }
-    else if (currToken == "List<vector>")
+    else if (currToken.IsLabel() && currToken.To<vtkTypeInt64>() == 0)
     {
-      if (io.IsFloat64())
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3, false>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3, false>>(io);
-      }
-    }
-    else if (currToken == "List<symmTensor>")
-    {
-      if (io.IsFloat64())
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6, false>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6, false>>(io);
-      }
-    }
-    else if (currToken == "List<tensor>")
-    {
-      if (io.IsFloat64())
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9, false>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9, false>>(io);
-      }
-    }
-    // List<bool> may or may not be read as List<label>,
-    // this needs checking but not many bool fields in use
-    else if (currToken == "List<label>" || currToken == "List<bool>")
-    {
-      if (io.IsLabel64())
-      {
-        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
-      }
-      else
-      {
-        this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
-      }
-    }
-    // an empty list doesn't have a list type specifier
-    else if (currToken.GetType() == this->Superclass::LABEL && currToken.To<vtkTypeInt64>() == 0)
-    {
-      this->Superclass::Type = this->Superclass::EMPTYLIST;
+      // An empty list doesn't have a list type specifier
+      this->Superclass::Type = vtkFoamToken::EMPTYLIST;
       if (io.IsAsciiFormat())
       {
         io.ReadExpecting('(');
@@ -4842,45 +4873,14 @@ int vtkFoamEntryValue::Read(vtkFoamIOobject& io)
       throw vtkFoamError() << "Unsupported nonuniform list type " << currToken;
     }
   }
-  // turbulentTemperatureCoupledBaffleMixed boundary condition
-  // uses lists without a uniform/nonuniform keyword
-  else if (currToken == "List<scalar>")
+  else if (currToken.GetType() == vtkFoamToken::STRING &&
+    (listDataType = vtkFoamTypes::ListToEnum(currToken.ToString())) != vtkFoamTypes::NO_TYPE)
   {
+    // Lists without a uniform/nonuniform keyword - eg, zones
     this->IsUniformEntry = false;
-    if (io.IsFloat64())
-    {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
-    }
-    else
-    {
-      this->ReadNonuniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
-    }
+    this->ReadNonUniformList(io, listDataType);
   }
-  // zones have list without a uniform/nonuniform keyword
-  else if (currToken == "List<label>")
-  {
-    this->IsUniformEntry = false;
-    if (io.IsLabel64())
-    {
-      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
-    }
-    else
-    {
-      this->ReadNonuniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
-    }
-  }
-  else if (currToken == "List<bool>")
-  {
-    // List<bool> is read as a list of bytes (binary) or ints (ascii)
-    // - primary location is the flipMap entry in faceZones
-    this->IsUniformEntry = false;
-    this->ReadNonuniformList<BOOLLIST, listTraits<vtkTypeInt8Array, vtkTypeInt8>>(io);
-  }
-  else if (currToken.GetType() == this->Superclass::PUNCTUATION ||
-    currToken.GetType() == this->Superclass::LABEL ||
-    currToken.GetType() == this->Superclass::SCALAR ||
-    currToken.GetType() == this->Superclass::STRING ||
-    currToken.GetType() == this->Superclass::IDENTIFIER)
+  else if (currToken.IsPunctuation() || currToken.IsNumeric() || currToken.IsStringType())
   {
     this->Superclass::operator=(currToken);
   }
@@ -4903,7 +4903,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
     {
       vtkFoamEntryValue& secondLastValue =
         *this->Superclass::operator[](this->Superclass::size() - 2);
-      if (secondLastValue.GetType() == vtkFoamToken::LABEL)
+      if (secondLastValue.IsLabel())
       {
         vtkFoamEntryValue& lastValue = *this->Superclass::back();
 
@@ -5262,7 +5262,7 @@ void vtkOpenFOAMReaderPrivate::AddFieldName(
   {
     // Lagrangian (point) fields: labelField, scalarField, vectorField, ...
 
-    const auto fieldDataType(vtkFoamTypes::ToEnum(fieldType));
+    const auto fieldDataType(vtkFoamTypes::FieldToEnum(fieldType));
     if (fieldDataType != vtkFoamTypes::NO_TYPE)
     {
       // NB: Cloud has labelField too
@@ -5305,7 +5305,7 @@ void vtkOpenFOAMReaderPrivate::AddFieldName(
 
   if (target != nullptr)
   {
-    const auto fieldDataType(vtkFoamTypes::ToEnum(fieldType.substr(prefix, len)));
+    const auto fieldDataType(vtkFoamTypes::FieldToEnum(fieldType.substr(prefix, len)));
     if (vtkFoamTypes::IsScalar(fieldDataType) || vtkFoamTypes::IsVectorSpace(fieldDataType))
     {
       target->InsertNextValue(fieldName);
@@ -5550,9 +5550,8 @@ bool vtkFoamBoundaries::update(const vtkFoamDict& dict)
       const auto* ownptr = patchDict.Lookup("myProcNo");
       const auto* neiptr = patchDict.Lookup("neighbProcNo");
 
-      if (ownptr != nullptr && neiptr != nullptr &&
-        (ownptr->FirstValue().GetType() == vtkFoamToken::LABEL) &&
-        (neiptr->FirstValue().GetType() == vtkFoamToken::LABEL))
+      if (ownptr != nullptr && neiptr != nullptr && // Safety
+        ownptr->FirstValue().IsLabel() && neiptr->FirstValue().IsLabel())
       {
         const vtkTypeInt64 own = ownptr->FirstValue().ToInt();
         const vtkTypeInt64 nei = neiptr->FirstValue().ToInt();
@@ -6257,13 +6256,13 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile()
 
     if (io.IsFloat64())
     {
-      dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, false>>(io);
+      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
+        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3>>(io);
     }
     else
     {
-      dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, false>>(io);
+      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
+        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3>>(io);
     }
 
     // Capture content as smart pointer
@@ -6380,12 +6379,12 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     {
       if (use64BitLabels)
       {
-        ownerDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
+        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
           vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        ownerDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
+        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
           vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
@@ -6425,12 +6424,12 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     {
       if (use64BitLabels)
       {
-        neighDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
+        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
           vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        neighDict.ReadNonuniformList<vtkFoamEntryValue::LABELLIST,
+        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
           vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
@@ -8236,8 +8235,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
   vtkSmartPointer<vtkFloatArray> data;
   if (entry.FirstValue().IsUniform())
   {
-    if (entry.FirstValue().GetType() == vtkFoamToken::SCALAR ||
-      entry.FirstValue().GetType() == vtkFoamToken::LABEL)
+    if (entry.FirstValue().IsNumeric())
     {
       const float num = entry.ToFloat();
       data = vtkSmartPointer<vtkFloatArray>::New();
@@ -8247,7 +8245,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
     else
     {
       float tupleBuffer[9], *tuple;
-      int nComponents;
+      int nComponents = -1;
       // have to determine the type of vector
       if (entry.FirstValue().GetType() == vtkFoamToken::LABELLIST)
       {
@@ -8523,7 +8521,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   }
 
   // Eg, from "volScalarField" or "volScalarField::Internal" -> SCALAR_TYPE
-  const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 3));
+  const auto fieldDataType(vtkFoamTypes::FieldToEnum(io.GetClassName(), 3));
 
   // -------------------------
   // Handle dictionary lookups first
@@ -9023,7 +9021,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   }
 
   // Eg, from "pointScalarField" -> SCALAR_TYPE
-  const auto fieldDataType(vtkFoamTypes::ToEnum(io.GetClassName(), 5));
+  const auto fieldDataType(vtkFoamTypes::FieldToEnum(io.GetClassName(), 5));
 
   // -------------------------
   // Handle dictionary lookups first
@@ -9217,12 +9215,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       {
         if (io.IsFloat64())
         {
-          dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
             vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
         }
         else
         {
-          dict.ReadNonuniformList<vtkFoamToken::VECTORLIST,
+          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
             vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
         }
 
@@ -9395,7 +9393,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
 
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
-      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
+      (labelsEntry.IsLabel() && labelsEntry.ToInt() == 0))
     {
       // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
@@ -9531,7 +9529,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
 
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
-      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
+      (labelsEntry.IsLabel() && labelsEntry.ToInt() == 0))
     {
       // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
@@ -9681,7 +9679,7 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 
     // Some OpenFOAM versions write an empty list as zero label only (in binary)
     if ((labelsEntry.GetType() == vtkFoamToken::EMPTYLIST) ||
-      (labelsEntry.GetType() == vtkFoamToken::LABEL && labelsEntry.ToInt() == 0))
+      (labelsEntry.IsLabel() && labelsEntry.ToInt() == 0))
     {
       // For empty list - store empty mesh (for proper block ordering)
       ::SetBlock(zoneMesh, zonei, zm, zoneName);
