@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.8)
+
 include("${CMAKE_CURRENT_LIST_DIR}/gitlab_ci.cmake")
 
 # Read the files from the build directory.
@@ -9,18 +11,23 @@ ctest_start(APPEND)
 include(ProcessorCount)
 ProcessorCount(nproc)
 
-# Default to a reasonable test timeout.
-set(CTEST_TEST_TIMEOUT 100)
+set(CTEST_MEMORYCHECK_TYPE "$ENV{CTEST_MEMORYCHECK_TYPE}")
+set(CTEST_MEMORYCHECK_SANITIZER_OPTIONS "$ENV{CTEST_MEMORYCHECK_SANITIZER_OPTIONS}")
 
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
-ctest_test(APPEND
+ctest_memcheck(
   PARALLEL_LEVEL "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
-  REPEAT UNTIL_PASS:3)
-ctest_submit(PARTS Test)
+  DEFECT_COUNT defects)
+ctest_submit(PARTS Memcheck)
 
 if (test_result)
   message(FATAL_ERROR
     "Failed to test")
+endif ()
+
+if (defects)
+  message(FATAL_ERROR
+    "Found ${defects} memcheck defects")
 endif ()

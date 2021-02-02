@@ -330,6 +330,12 @@ function (vtk_add_test_cxx exename _tests)
         SKIP_RETURN_CODE 125
       )
 
+    if (_vtk_testing_ld_preload)
+      set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
+        PROPERTY
+          ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
+    endif ()
+
     list(APPEND ${_tests} "${test_file}")
   endforeach ()
 
@@ -425,6 +431,13 @@ function (vtk_add_test_mpi exename _tests)
         # This must match VTK_SKIP_RETURN_CODE in vtkTestingObjectFactory.h"
         SKIP_RETURN_CODE 125
       )
+
+    if (_vtk_testing_ld_preload)
+      set_property(TEST "${_vtk_build_test}Cxx-MPI-${vtk_test_prefix}${test_name}" APPEND
+        PROPERTY
+          ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
+    endif ()
+
     set_property(TEST "${_vtk_build_test}Cxx-MPI-${vtk_test_prefix}${test_name}" APPEND
       PROPERTY
         REQUIRED_FILES "$<TARGET_FILE:${exename}>")
@@ -634,6 +647,13 @@ function (vtk_add_test_python)
     else ()
       ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}" ${testArgs})
     endif()
+
+    if (_vtk_testing_ld_preload)
+      set_property(TEST "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
+        APPEND
+        PROPERTY
+          ENVIRONMENT "LD_PRELOAD=${_vtk_testing_ld_preload}")
+    endif ()
 
     set_tests_properties("${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
       PROPERTIES
