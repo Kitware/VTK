@@ -2064,3 +2064,13 @@ void vtkCompositePolyDataMapper2::ProcessSelectorPixelBuffers(
     helper.second->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
   }
 }
+
+//-----------------------------------------------------------------------------
+vtkMTimeType vtkCompositePolyDataMapper2::GetMTime()
+{
+  if (this->CompositeAttributes)
+  {
+    return std::max(this->Superclass::GetMTime(), this->CompositeAttributes->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}

@@ -150,6 +150,11 @@ public:
   void ProcessSelectorPixelBuffers(
     vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop) override;
 
+  /**
+   * Overridden to include vtkCompositeDataDisplayAttributes' mtime.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2() override;
