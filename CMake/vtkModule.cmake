@@ -2193,13 +2193,13 @@ See CMake documentation for the difference between `ARCHIVE`, `LIBRARY`, and
     destination for library files.
   * `RUNTIME_DESTINATION`: (Defaults to `${CMAKE_INSTALL_BINDIR}`) The install
     destination for runtime files.
-  * `CMAKE_DESTINATION`: (Defaults to `<library destination>/cmake/<package>`)
+  * `CMAKE_DESTINATION`: (Defaults to `<LIBRARY_DESTINATION>/cmake/<PACKAGE>`)
     The install destination for CMake files.
   * `LICENSE_DESTINATION`: (Defaults to `${CMAKE_INSTALL_DATAROOTDIR}/licenses/${CMAKE_PROJECT_NAME}`)
     The install destination for license files (relevant for third party
     packages).
-  * `HIERARCHY_DESTINATION`: (Defaults to `<library
-    destination>/vtk/hierarchy/<PACKAGE>`) The install destination
+  * `HIERARCHY_DESTINATION`: (Defaults to
+    `<LIBRARY_DESTINATION>/vtk/hierarchy/<PACKAGE>`) The install destination
     for hierarchy files (used for language wrapping).
 #]==]
 function (vtk_module_build)
