@@ -46,6 +46,65 @@
 // https://discourse.paraview.org/ and/or KitWare
 //
 // ---------------------------------------------------------------------------
+// OpenFOAM mesh files (serial), located under constant/polyMesh/
+//
+// https://www.openfoam.com/documentation/user-guide/mesh-description.php
+//
+// - points (type: vectorField)
+//   * x,y,z values
+//
+// - faces (type: faceList or faceCompactList)
+//   * a list of list of nodes.
+//     Either stored as such, or as offsets and content
+//
+// - owner (type: labelList)
+//   * the 'owner' cell for each face.
+//
+// - neighbour (type: labelList)
+//   * for 'neighbour' cell for each internal face.
+//
+// - boundary (type: polyBoundaryMesh)
+//   * list of patches with startFace/nFaces for external boundary regions
+//
+// The owner cell always has a lower number than neighbour.
+// The face points outwards from owner to neighbour.
+//
+// To construct the internal (volume) mesh
+// - require points, faces, owner/neighbour.
+//   Construct cells from owner/neighbour + faces.
+//
+// To construct the boundary mesh
+// - require points, faces.
+//   The owners from the boundary faces are size (owner_list - neighbour_list).
+//
+// To construct cell zones, cell sets
+// - similar requirements as internal mesh
+//
+// To construct face zones, face sets
+// - require points, faces, owners
+//
+// To construct point zones, point sets
+// - require points only
+//
+// ---------------------------------------------------------------------------
+// Patch/mesh selection naming
+// single region:
+// - internalMesh
+// - group/...
+// - patch/...
+// - lagrangian/...
+//
+// multi-region:
+// - /regionName/internalMesh
+// - /regionName/group/...
+// - /regionName/patch/...
+// - /regionName/lagrangian/...
+//
+// Prefixed with "/regionName/" to provide unambiguous names. For example,
+// - "lagrangian/..."  (lagrangian on default region)
+// - "/lagrangian/..." (mesh region called 'lagrangian' - silly, but accept)
+//
+// ---------------------------------------------------------------------------
 
 // Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
 #define VTK_DEPRECATION_LEVEL 0
@@ -989,14 +1048,44 @@ private:
   void ClearZoneMeshes();
   void ClearMeshes();
 
+  // The subdirectory for a region. Eg, "/solid". Empty for default region.
   std::string RegionPath() const
   {
-    return (this->RegionName.empty() ? "" : "/") + this->RegionName;
+    if (this->RegionName.empty())
+    {
+      return "";
+    }
+    return ("/" + this->RegionName);
   }
+
+  // Prefix display qualifier for a region. Eg, "/solid/". Empty for default region.
   std::string RegionPrefix() const
   {
-    return this->RegionName + (this->RegionName.empty() ? "" : "/");
+    if (this->RegionName.empty())
+    {
+      return "";
+    }
+    return ("/" + this->RegionName + "/");
   }
+
+  // Test if display (selection) name matches the current region.
+  // See RegionPrefix() comments
+  bool IsDisplayRegion(const std::string& displayName) const
+  {
+    if (this->RegionName.empty())
+    {
+      return (displayName[0] != '/');
+    }
+    else if (displayName[0] != '/')
+    {
+      return false;
+    }
+    // Match "/regionName/..."
+    const auto slash1 = displayName.find('/', 1);
+    return (slash1 != std::string::npos) &&
+      (displayName.compare(1, slash1 - 1, this->RegionName) == 0);
+  }
+
   std::string TimePath(int timeIndex) const
   {
     return this->CasePath + this->TimeNames->GetValue(timeIndex);
@@ -5393,71 +5482,53 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const std::string& tempPath, bool i
       }
     }
 
+    // Note: for isLagrangian, could reject "positions" and "coordinates" instead of opening files
+
     vtkFoamIOobject io(this->CasePath, this->Parent);
     if (io.Open(tempPath + "/" + fieldFile)) // file exists and readable
     {
       this->AddFieldName(fieldFile, io.GetClassName(), isLagrangian);
-      io.Close();
     }
   }
   // delay Squeeze of inserted objects until SortFieldFiles()
 }
 
 //------------------------------------------------------------------------------
-// locate laglangian clouds
+// Locate lagrangian clouds
 void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const std::string& timePath)
 {
-  vtkNew<vtkDirectory> directory;
+  const std::string lagrangianDir(timePath + this->RegionPath() + "/lagrangian");
 
-  if (directory->Open((timePath + this->RegionPath() + "/lagrangian").c_str()))
+  vtkNew<vtkDirectory> directory;
+  if (directory->Open(lagrangianDir.c_str()))
   {
-    // search for sub-clouds (OF 1.5 format)
+    // Search for clouds (OF 1.5 and later format)
     const vtkIdType nFiles = directory->GetNumberOfFiles();
-    bool isSubCloud = false;
-    for (vtkIdType fileI = 0; fileI < nFiles; fileI++)
+
+    for (vtkIdType filei = 0; filei < nFiles; ++filei)
     {
-      const std::string fileNameI(directory->GetFile(fileI));
-      if (fileNameI != "." && fileNameI != ".." && directory->FileIsDirectory(fileNameI.c_str()))
+      const std::string cloudName(directory->GetFile(filei));
+      if (cloudName == "." || cloudName == ".." || !directory->FileIsDirectory(cloudName.c_str()))
       {
-        vtkFoamIOobject io(this->CasePath, this->Parent);
-        const std::string subCloudName(this->RegionPrefix() + "lagrangian/" + fileNameI);
-        const std::string subCloudFullPath(timePath + "/" + subCloudName);
-        // lagrangian positions. there are many concrete class names
-        // e. g. Cloud<parcel>, basicKinematicCloud etc.
-        if (io.OpenOrGzip(subCloudFullPath + "/positions") && io.GetObjectName() == "positions" &&
-          io.GetClassName().find("Cloud") != std::string::npos)
-        {
-          isSubCloud = true;
-          // a lagrangianPath has to be in a bit different format from
-          // subCloudName to make the "lagrangian" reserved path
-          // component and a mesh region with the same name
-          // distinguishable later
-          const std::string subCloudPath(this->RegionName + "/lagrangian/" + fileNameI);
-          if (this->Parent->LagrangianPaths->LookupValue(subCloudPath) == -1)
-          {
-            this->Parent->LagrangianPaths->InsertNextValue(subCloudPath);
-          }
-          this->GetFieldNames(subCloudFullPath, true);
-          this->Parent->PatchDataArraySelection->AddArray(subCloudName.c_str());
-        }
+        continue;
       }
-    }
-    // if there's no sub-cloud then OF < 1.5 format
-    if (!isSubCloud)
-    {
+
+      const std::string cloudPath(lagrangianDir + "/" + cloudName);
+      const std::string displayName(this->RegionPrefix() + "lagrangian/" + cloudName);
+
+      // lagrangian positions. there are many concrete class names
+      // e. g. Cloud<parcel>, basicKinematicCloud etc.
+
       vtkFoamIOobject io(this->CasePath, this->Parent);
-      const std::string cloudName(this->RegionPrefix() + "lagrangian");
-      const std::string cloudFullPath(timePath + "/" + cloudName);
-      if (io.OpenOrGzip(cloudFullPath + "/positions") && io.GetObjectName() == "positions" &&
+      if (io.OpenOrGzip(cloudPath + "/positions") && io.GetObjectName() == "positions" &&
         io.GetClassName().find("Cloud") != std::string::npos)
       {
-        const std::string cloudPath(this->RegionName + "/lagrangian");
-        if (this->Parent->LagrangianPaths->LookupValue(cloudPath) == -1)
+        if (this->Parent->LagrangianPaths->LookupValue(displayName) == -1)
         {
-          this->Parent->LagrangianPaths->InsertNextValue(cloudPath);
+          this->Parent->LagrangianPaths->InsertNextValue(displayName);
         }
-        this->GetFieldNames(cloudFullPath, true);
-        this->Parent->PatchDataArraySelection->AddArray(cloudName.c_str());
+        this->GetFieldNames(cloudPath, true);
+        this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
       }
     }
     this->Parent->LagrangianPaths->Squeeze();
@@ -9175,43 +9246,48 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
 //------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 {
+  // Can have several clouds coming from different regions.
+  // Displayed in selection panel like this:
+  // - lagrangian/someCloud
+  // - /regionName/lagrangian/otherCloud
+  //
+  // Pick out active ones with matching region
+
   auto* lagrangianMesh = vtkMultiBlockDataSet::New();
 
-  for (int cloudI = 0; cloudI < this->Parent->LagrangianPaths->GetNumberOfTuples(); cloudI++)
-  {
-    const std::string& pathI = this->Parent->LagrangianPaths->GetValue(cloudI);
+  const vtkIdType nClouds = this->Parent->LagrangianPaths->GetNumberOfTuples();
 
-    // still can't distinguish on patch selection panel, but can
-    // distinguish the "lagrangian" reserved path component and a mesh
-    // region with the same name
-    std::string subCloudName;
-    if (pathI[0] == '/')
-    {
-      subCloudName = pathI.substr(1, std::string::npos);
-    }
-    else
-    {
-      subCloudName = pathI;
-    }
-    if (this->RegionName != pathI.substr(0, pathI.find('/')) ||
-      !this->Parent->GetPatchArrayStatus(subCloudName.c_str()))
+  for (vtkIdType cloudi = 0; cloudi < nClouds; ++cloudi)
+  {
+    const std::string& displayName = this->Parent->LagrangianPaths->GetValue(cloudi);
+
+    if (!this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()) ||
+      !this->Parent->GetPatchArrayStatus(displayName.c_str()) ||
+      !this->IsDisplayRegion(displayName))
     {
       continue;
     }
 
-    const std::string cloudPath(this->CurrentTimePath() + "/" + subCloudName + "/");
-    const std::string positionsPath(cloudPath + "positions");
+    // Equivalent to CurrentTimeRegionPath() + "lagrangian/{cloudName}"
+    std::string cloudPath(this->CurrentTimePath());
+    if (displayName[0] != '/')
+    {
+      cloudPath += '/';
+    }
+    cloudPath += displayName;
 
     // create an empty mesh to keep node/leaf structure of the
     // multi-block consistent even if mesh doesn't exist
-    vtkNew<vtkPolyData> meshI;
+    vtkNew<vtkPolyData> cloudMesh;
 
-    // Extract the cloud name
-    ::AppendBlock(lagrangianMesh, meshI, pathI.substr(pathI.rfind('/') + 1));
+    // The cloud name is the final component of the displayName
+    ::AppendBlock(lagrangianMesh, cloudMesh, displayName.substr(displayName.rfind('/') + 1));
 
     // Get the parcel positions as vtkPoints
     vtkNew<vtkPoints> points;
     {
+      const std::string positionsPath(cloudPath + "/positions");
+
       vtkFoamIOobject io(this->CasePath, this->Parent);
       if (!io.OpenOrGzip(positionsPath))
       {
@@ -9248,12 +9324,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     const vtkIdType nParticles = points->GetNumberOfPoints();
 
     // Create lagrangian mesh
-    meshI->AllocateEstimate(nParticles, 1);
+    cloudMesh->AllocateEstimate(nParticles, 1);
     for (vtkIdType i = 0; i < nParticles; i++)
     {
-      meshI->InsertNextCell(VTK_VERTEX, 1, &i);
+      cloudMesh->InsertNextCell(VTK_VERTEX, 1, &i);
     }
-    meshI->SetPoints(points);
+    cloudMesh->SetPoints(points);
 
     if (!nParticles)
     {
@@ -9261,20 +9337,21 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     }
 
     // Read lagrangian fields
-    for (int fieldI = 0; fieldI < this->LagrangianFieldFiles->GetNumberOfValues(); fieldI++)
+    const vtkIdType nFields = this->LagrangianFieldFiles->GetNumberOfValues();
+    for (vtkIdType fieldi = 0; fieldi < nFields; ++fieldi)
     {
-      const std::string varPath(cloudPath + this->LagrangianFieldFiles->GetValue(fieldI));
+      const std::string varPath(cloudPath + "/" + this->LagrangianFieldFiles->GetValue(fieldi));
 
       vtkFoamIOobject io(this->CasePath, this->Parent);
-      if (!io.Open(varPath))
+      if (!io.OpenOrGzip(varPath))
       {
         continue; // Could be empty or missing for a particular region or processor
       }
 
-      // if the variable is disabled on selection panel then skip it
-      const std::string selectionName(io.GetObjectName());
-      if (this->Parent->LagrangianDataArraySelection->ArrayExists(selectionName.c_str()) &&
-        !this->Parent->GetLagrangianArrayStatus(selectionName.c_str()))
+      // If the variable is disabled on selection panel then skip it
+      const std::string varDisplayName(io.GetObjectName());
+      if (this->Parent->LagrangianDataArraySelection->ArrayExists(varDisplayName.c_str()) &&
+        !this->Parent->GetLagrangianArrayStatus(varDisplayName.c_str()))
       {
         continue;
       }
@@ -9301,16 +9378,16 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       auto fldData = vtkSmartPointer<vtkDataArray>::Take(dict.ReleasePtr<vtkDataArray>());
 
       const vtkIdType nValues = fldData->GetNumberOfTuples();
-      if (nValues != meshI->GetNumberOfCells())
+      if (nValues != nParticles)
       {
-        vtkErrorMacro(<< io.GetFileName() << ": Size mismatch for lagrangian mesh ("
-                      << meshI->GetNumberOfCells() << ") and field (" << nValues << ')');
+        vtkErrorMacro(<< io.GetFileName() << ": Size mismatch for lagrangian mesh (" << nParticles
+                      << ") and field (" << nValues << ')');
         continue;
       }
 
       // Provide identical data as cell and as point data
-      ::AddArrayToFieldData(meshI->GetCellData(), fldData, selectionName);
-      ::AddArrayToFieldData(meshI->GetPointData(), fldData, selectionName);
+      ::AddArrayToFieldData(cloudMesh->GetCellData(), fldData, varDisplayName);
+      ::AddArrayToFieldData(cloudMesh->GetPointData(), fldData, varDisplayName);
     }
   }
   return lagrangianMesh;
@@ -9841,10 +9918,9 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   const bool moveInternalPoints = !recreateInternalMesh && pointsMoved;
   const bool moveBoundaryPoints = !recreateBoundaryMesh && pointsMoved;
 
-  // RegionName check is added since subregions have region name prefixes
-  const bool createEulerians =
-    this->Parent->PatchDataArraySelection->ArrayExists(NAME_INTERNALMESH) ||
-    !this->RegionName.empty();
+  // Has eulerian fields if there is an internal mesh
+  const bool createEulerians = this->Parent->PatchDataArraySelection->ArrayExists(
+    (this->RegionPrefix() + NAME_INTERNALMESH).c_str());
 
   vtkFoamDebug(<< "RequestData (" << this->RegionName << "/" << this->ProcessorName << ")\n"
                << " internal=" << recreateInternalMesh      //
@@ -9924,7 +10000,8 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   if (createEulerians && recreateInternalMesh)
   {
     const std::string displayName(this->RegionPrefix() + NAME_INTERNALMESH);
-    if (this->Parent->GetPatchArrayStatus(displayName.c_str()))
+    if (this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()) &&
+      this->Parent->GetPatchArrayStatus(displayName.c_str()))
     {
       this->InternalMesh = this->MakeInternalMesh(*meshCells, *meshFaces, pointArray);
     }
@@ -10521,7 +10598,7 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
         std::string regionName(reader->GetRegionName());
         if (regionName.empty())
         {
-          regionName = "defaultRegion";
+          regionName = "defaultRegion"; // == OpenFOAM "region0"
         }
         if (reader->HasPolyMesh()) // sanity check
         {
