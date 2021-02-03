@@ -304,6 +304,7 @@ to be merged in a reasonable timeframe.
  * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
+ * @seanm: macOS, Cocoa, cppcheck, clang
 
 If you would like to be included in this list, juste create a merge request.
 
