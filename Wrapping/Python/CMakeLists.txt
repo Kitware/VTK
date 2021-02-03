@@ -99,7 +99,7 @@ endif ()
 
 set(python_files
   vtk.py
-  vtkmodules/__init__.py
+  vtkmodules/__init__.py.in
   vtkmodules/gtk/GtkGLExtVTKRenderWindow.py
   vtkmodules/gtk/GtkGLExtVTKRenderWindowInteractor.py
   vtkmodules/gtk/GtkVTKRenderWindow.py
@@ -140,23 +140,46 @@ set(python_copied_modules)
 foreach (python_file IN LISTS python_files)
   set(output_python_file
     "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/${python_file}")
-  add_custom_command(
-    OUTPUT  "${output_python_file}"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-            "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
-            "${output_python_file}"
-    COMMENT "Copying ${python_file} to the binary directory")
+  if (python_file MATCHES "\\.in$")
+    string(REPLACE ".in" "" output_python_file "${output_python_file}")
+    configure_file(
+      "${python_file}"
+      "${output_python_file}"
+      @ONLY)
+  else ()
+    add_custom_command(
+      OUTPUT  "${output_python_file}"
+      DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+              "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
+              "${output_python_file}"
+      COMMENT "Copying ${python_file} to the binary directory")
+  endif ()
   if (BUILD_SHARED_LIBS)
     get_filename_component(python_file_directory "${python_file}" DIRECTORY)
     install(
-      FILES       "${python_file}"
+      FILES       "${output_python_file}"
       DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/${python_file_directory}"
       COMPONENT   "python")
   endif ()
   list(APPEND python_copied_modules
     "${output_python_file}")
 endforeach ()
+
+set(vtk_build_paths_module
+  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/_build_paths.py")
+if (WIN32 AND VTK_DLL_PATHS)
+  string(REPLACE ";" "',\n    '" vtk_dll_paths_python "${VTK_DLL_PATHS}")
+  file(WRITE "${vtk_build_paths_module}"
+    "paths = [\n    '${vtk_dll_paths_python}',\n]\n")
+  # Add the file to the zip only if required in the install tree.
+  if (NOT VTK_RELOCATABLE_INSTALL AND NOT VTK_UNIFIED_INSTALL_TREE)
+    list(APPEND _vtk_python_files
+      "${vtk_build_paths_module}")
+  endif ()
+elseif (EXISTS "${vtk_build_paths_module}")
+  file(REMOVE "${vtk_build_paths_module}")
+endif ()
 
 list(APPEND _vtk_python_files
   ${python_copied_modules})

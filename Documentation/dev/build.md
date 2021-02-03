@@ -233,6 +233,9 @@ More advanced options:
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
   * `VTK_WINDOWS_PYTHON_DEBUGGABLE` (default `OFF`): Set to `ON` if using a
     debug build of Python.
+  * `VTK_DLL_PATHS` (default `""`): If set, these paths will be added via
+    Python 3.8's `os.add_dll_directory` mechanism in order to find dependent
+    DLLs when loading VTK's Python modules.
 
 The VTK module system provides a number of variables to control modules which
 are not otherwise controlled by the other options provided.
