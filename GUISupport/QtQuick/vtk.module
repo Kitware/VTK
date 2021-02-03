@@ -1,0 +1,22 @@
+NAME
+  VTK::GUISupportQtQuick
+LIBRARY_NAME
+  vtkGUISupportQtQuick
+GROUPS
+  Qt
+DEPENDS
+  VTK::CommonCore
+  VTK::GUISupportQt
+  VTK::InteractionWidgets
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::FiltersExtraction
+  VTK::InteractionStyle
+  VTK::opengl
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::TestingCore
+  VTK::TestingRendering
+EXCLUDE_WRAP
