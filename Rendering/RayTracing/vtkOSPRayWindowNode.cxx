@@ -53,6 +53,17 @@ void vtkOSPRayWindowNode::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkOSPRayWindowNode::Render(bool prepass)
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    static bool warned = false;
+    if (!warned)
+    {
+      vtkWarningMacro(<< "Ignoring render request because OSPRay is not supported.");
+      warned = true;
+    }
+    return;
+  }
+
   if (!prepass)
   {
     // composite all renderers framebuffers together

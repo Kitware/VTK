@@ -86,6 +86,11 @@ public:
   static void RTShutdown();
 
   /**
+   * A run time query to see if OSPRay can possibly work.
+   */
+  static bool IsSupported();
+
+  /**
    * A run time query to see if a particular backend is available.
    * Eg. "OSPRay raycaster", "OSPRay pathtracer" or "OptiX pathtracer".
    */
