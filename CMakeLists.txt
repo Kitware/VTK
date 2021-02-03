@@ -52,6 +52,12 @@ include(vtkWrapSettings)
 include(vtkCrossCompiling)
 include(vtkObjectFactory)
 
+option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+cmake_dependent_option(VTK_UNIFIED_INSTALL_TREE "Assume that the install tree contains all of VTK's dependencies" OFF
+  VTK_RELOCATABLE_INSTALL OFF)
+mark_as_advanced(VTK_UNIFIED_INSTALL_TREE)
+
 set(CMAKE_INSTALL_LICENSEDIR ""
   CACHE PATH "License files (DATAROOTDIR/licenses/${CMAKE_PROJECT_NAME}")
 mark_as_advanced(CMAKE_INSTALL_LICENSEDIR)
