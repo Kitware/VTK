@@ -27,10 +27,10 @@
 
 #include "vtkHardwareWindow.h"
 #include "vtkRenderWindow.h"
+#include "vtkStringArray.h"
+#include "vtkUnicodeString.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkWindows.h"
-
-#include "vtkStringArray.h"
 
 #include <shellapi.h> // for drag and drop
 #include <winuser.h>  // for touch support
@@ -789,7 +789,7 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
     this->InvokeEvent(vtkCommand::UpdateDropLocationEvent, location);
   }
 
-  UINT cFiles = DragQueryFile(hdrop, 0xFFFFFFFF, nullptr, 0);
+  UINT cFiles = DragQueryFileW(hdrop, 0xFFFFFFFF, nullptr, 0);
 
   if (cFiles > 0)
   {
@@ -798,17 +798,12 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 
     for (UINT i = 0; i < cFiles; i++)
     {
-      TCHAR file[MAX_PATH];
-      UINT cch = DragQueryFile(hdrop, i, file, MAX_PATH);
+      WCHAR file[MAX_PATH];
+      UINT cch = DragQueryFileW(hdrop, i, file, MAX_PATH);
       if (cch > 0 && cch < MAX_PATH)
       {
-#ifdef UNICODE
-        char cFile[MAX_PATH];
-        wcstombs(cFile, file, cch);
-        filePaths->InsertNextValue(cFile);
-#else
-        filePaths->InsertNextValue(file);
-#endif
+        filePaths->InsertNextValue(
+          vtkUnicodeString::from_utf16(reinterpret_cast<vtkTypeUInt16*>(file)).utf8_str());
         ret = 1;
       }
     }
