@@ -206,6 +206,13 @@ More advanced options:
     build machine with absolute paths, but finding dependencies in
     non-standard locations may require work without passing extra information
     when consuming VTK.
+  * `VTK_UNIFIED_INSTALL_TREE` (default `OFF`): If set, the install tree is
+    stipulated to be a unified install tree of VTK and all of its dependencies;
+    a unified tree usually simplifies things including, but not limited to,
+    the Python module paths, library search paths, and plugin searching. This
+    option is irrelevant if a relocatable install is requested as such setups
+    assume that dependencies are set up either via a unified tree or some other
+    mechanism such as modules).
   * `VTK_ENABLE_SANITIZER` (default `OFF`): Whether to enable sanitization of
     the VTK codebase or not.
   * `VTK_SANITIZER` (default `address`; requires `VTK_ENABLE_SANITIZER`): The
