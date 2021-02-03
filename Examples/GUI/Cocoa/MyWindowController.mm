@@ -51,7 +51,10 @@
   BasicVTKView* thisView = [self leftView];
 
   // Explicitly enable HiDPI/Retina (this is the default anyway).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [thisView setWantsBestResolutionOpenGLSurface:YES];
+#pragma clang diagnostic pop
 
   [thisView initializeVTKSupport];
 
@@ -104,7 +107,10 @@
 
   // Explicitly disable HiDPI/Retina as a demonstration of the difference.
   // One might want to disable it to reduce memory usage / increase performance.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [thisView setWantsBestResolutionOpenGLSurface:NO];
+#pragma clang diagnostic pop
 
   [thisView initializeVTKSupport];
 
@@ -155,7 +161,10 @@
 
   // Explicitly enable HiDPI/Retina (this is required when using CAOpenGLLayer, otherwise the view
   // will be 1/4 size on Retina).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [thisView setWantsBestResolutionOpenGLSurface:YES];
+#pragma clang diagnostic pop
 
   [thisView initializeVTKSupport];
   [thisView initializeLayerSupport];
