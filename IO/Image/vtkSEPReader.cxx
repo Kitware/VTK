@@ -383,7 +383,7 @@ bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
 {
   vtkDebugMacro(<< "Read data: opening file " << this->BinaryFilename);
 
-  FILE* dataFile = fopen(this->BinaryFilename.c_str(), "rb");
+  FILE* dataFile = vtksys::SystemTools::Fopen(this->BinaryFilename.c_str(), "rb");
 
   if (!dataFile)
   {
