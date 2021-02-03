@@ -348,9 +348,9 @@ struct PointConnectivity : PointConnectivityBase
     // accommodate more smoothing edges (although after a certain point,
     // additional edges make little difference, especially at the cost of
     // memory and speed).
-    this->Offsets = new std::atomic<TIds>[this->NumPts + 1] {}; // Initialized to zero
-    this->Edges = nullptr;                                      // initially until constructed
-    this->EdgeCounts = new EDGE_COUNT_TYPE[this->NumPts];       // values set later
+    this->Offsets = new std::atomic<TIds>[this->NumPts + 1](); // Initialized to zero
+    this->Edges = nullptr;                                     // initially until constructed
+    this->EdgeCounts = new EDGE_COUNT_TYPE[this->NumPts];      // values set later
   }
 
   ~PointConnectivity() override
