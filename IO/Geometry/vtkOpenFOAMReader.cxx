@@ -246,6 +246,36 @@ void AppendLabelValue(vtkDataArray* array, vtkTypeInt64 val, bool use64BitLabels
   }
 }
 
+// Tuple remapping for symmTensor ordering
+// OpenFOAM [XX XY XZ YY YZ ZZ]
+// VTK uses [XX YY ZZ XY YZ XZ]
+template <typename T>
+void remapFoamSymmTensor(T data[])
+{
+  std::swap(data[1], data[3]); // swap XY <-> YY
+  std::swap(data[2], data[5]); // swap XZ <-> ZZ
+}
+
+// Generic tuple remapping is a no-op
+template <bool symmTensor, typename T>
+void remapFoamTuple(T[])
+{
+}
+
+// Remapping for symmTensor (float)
+template <>
+void remapFoamTuple<true>(float data[])
+{
+  ::remapFoamSymmTensor(data);
+}
+
+// Remapping for symmTensor (double)
+template <>
+void remapFoamTuple<true>(double data[])
+{
+  ::remapFoamSymmTensor(data);
+}
+
 } // End anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -3173,48 +3203,56 @@ public:
 
   // Helper Classes
 
-  // reads primitive int/float lists
+  // Reads primitive int/float lists
   template <typename listT, typename primitiveT>
   class listTraits
   {
     listT* Ptr;
 
   public:
+    using ValueType = typename listT::ValueType;
+
     listTraits()
       : Ptr(listT::New())
     {
     }
-    listT* GetPtr() { return this->Ptr; }
 
-    void ReadUniformValues(vtkFoamIOobject& io, const vtkIdType size)
+    // Get the contained pointer
+    listT* GetPointer() const noexcept { return this->Ptr; }
+
+    // Deference pointer for operation
+    listT* operator->() const noexcept { return this->Ptr; }
+
+    void ReadUniformValues(vtkFoamIOobject& io)
     {
       primitiveT value = vtkFoamReadValue<primitiveT>::ReadValue(io);
       this->Ptr->FillValue(value);
     }
 
-    void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
+    void ReadAsciiList(vtkFoamIOobject& io)
     {
-      for (vtkIdType i = 0; i < size; i++)
+      const vtkIdType nTuples = this->Ptr->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < nTuples; ++i)
       {
         this->Ptr->SetValue(i, vtkFoamReadValue<primitiveT>::ReadValue(io));
       }
     }
 
-    void ReadBinaryList(vtkFoamIOobject& io, const size_t size)
+    void ReadBinaryList(vtkFoamIOobject& io)
     {
-      const size_t nbytes = (size * sizeof(primitiveT));
+      // nComponents == 1
+      const vtkIdType nTuples = this->Ptr->GetNumberOfTuples();
+      const size_t nbytes = (nTuples * sizeof(primitiveT));
 
-      typedef typename listT::ValueType ListValueType;
-      if (typeid(ListValueType) == typeid(primitiveT))
+      if (typeid(ValueType) == typeid(primitiveT))
       {
         io.Read(reinterpret_cast<unsigned char*>(this->Ptr->GetPointer(0)), nbytes);
       }
       else
       {
-        vtkDataArray* fileData =
-          vtkDataArray::CreateDataArray(vtkTypeTraits<primitiveT>::VTKTypeID());
-        fileData->SetNumberOfComponents(this->Ptr->GetNumberOfComponents());
-        fileData->SetNumberOfTuples(this->Ptr->GetNumberOfTuples());
+        auto* fileData = vtkDataArray::CreateDataArray(vtkTypeTraits<primitiveT>::VTKTypeID());
+        // nComponents == 1
+        fileData->SetNumberOfTuples(nTuples);
         io.Read(reinterpret_cast<unsigned char*>(fileData->GetVoidPointer(0)), nbytes);
         this->Ptr->DeepCopy(fileData);
         fileData->Delete();
@@ -3231,8 +3269,8 @@ public:
     }
   };
 
-  // reads rank 1 lists of types vector, sphericalTensor, symmTensor
-  // and tensor. if isPositions is true it reads Cloud type of data as
+  // Reads rank 1 lists of types vector, sphericalTensor, symmTensor and tensor.
+  // If isPositions is true it reads Cloud type of data as
   // particle positions. cf. (the positions format)
   // src/lagrangian/basic/particle/particleIO.C - writePosition()
   template <typename listT, typename primitiveT, int nComponents, bool isPositions = false>
@@ -3241,57 +3279,67 @@ public:
     listT* Ptr;
 
   public:
+    using ValueType = typename listT::ValueType;
+
     vectorListTraits()
       : Ptr(listT::New())
     {
       this->Ptr->SetNumberOfComponents(nComponents);
     }
-    listT* GetPtr() { return this->Ptr; }
 
-    void ReadUniformValues(vtkFoamIOobject& io, const vtkIdType size)
+    // Get the contained pointer
+    listT* GetPointer() const noexcept { return this->Ptr; }
+
+    // Deference pointer for operation
+    listT* operator->() const noexcept { return this->Ptr; }
+
+    void ReadUniformValues(vtkFoamIOobject& io)
     {
+      const vtkIdType nTuples = this->Ptr->GetNumberOfTuples();
+
       io.ReadExpecting('(');
-      primitiveT vectorValue[nComponents];
-      for (int j = 0; j < nComponents; j++)
+      primitiveT tuple[nComponents];
+      for (int cmpt = 0; cmpt < nComponents; ++cmpt)
       {
-        vectorValue[j] = vtkFoamReadValue<primitiveT>::ReadValue(io);
+        tuple[cmpt] = vtkFoamReadValue<primitiveT>::ReadValue(io);
       }
-      for (vtkIdType i = 0; i < size; i++)
-      {
-        this->Ptr->SetTuple(i, vectorValue);
-      }
+      ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
       io.ReadExpecting(')');
       if (isPositions)
       {
-        // skip label celli
-        vtkFoamReadValue<int>::ReadValue(io);
+        vtkFoamReadValue<vtkTypeInt64>::ReadValue(io); // Skip label celli
+      }
+
+      for (vtkIdType i = 0; i < nTuples; ++i)
+      {
+        this->Ptr->SetTuple(i, tuple);
       }
     }
 
-    void ReadAsciiList(vtkFoamIOobject& io, const vtkIdType size)
+    void ReadAsciiList(vtkFoamIOobject& io)
     {
-      typedef typename listT::ValueType ListValueType;
-      for (vtkIdType i = 0; i < size; i++)
+      const vtkIdType nTuples = this->Ptr->GetNumberOfTuples();
+
+      for (vtkIdType i = 0; i < nTuples; ++i)
       {
         io.ReadExpecting('(');
-        ListValueType* vectorTupleI = this->Ptr->GetPointer(nComponents * i);
-        for (int j = 0; j < nComponents; j++)
+        ValueType* tuple = this->Ptr->GetPointer(nComponents * i);
+        for (int cmpt = 0; cmpt < nComponents; ++cmpt)
         {
-          vectorTupleI[j] = static_cast<ListValueType>(vtkFoamReadValue<primitiveT>::ReadValue(io));
+          tuple[cmpt] = static_cast<ValueType>(vtkFoamReadValue<primitiveT>::ReadValue(io));
         }
+        ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
         io.ReadExpecting(')');
         if (isPositions)
         {
-          // skip label celli
-          vtkFoamReadValue<vtkTypeInt64>::ReadValue(io);
+          vtkFoamReadValue<vtkTypeInt64>::ReadValue(io); // Skip label celli
         }
       }
     }
 
-    void ReadBinaryList(vtkFoamIOobject& io, const size_t size)
+    void ReadBinaryList(vtkFoamIOobject& io)
     {
-      // Should be OK, since size came from OpenFOAM also used (signed integer)
-      const vtkTypeInt64 listLen = static_cast<vtkTypeInt64>(size);
+      const vtkTypeInt64 nTuples = this->Ptr->GetNumberOfTuples();
 
       if (isPositions) // lagrangian/positions (class Cloud)
       {
@@ -3308,7 +3356,7 @@ public:
         bufferContainer.resize(tupleLength);
         primitiveT* buffer = reinterpret_cast<primitiveT*>(bufferContainer.data());
 
-        for (vtkTypeInt64 i = 0; i < listLen; ++i)
+        for (vtkTypeInt64 i = 0; i < nTuples; ++i)
         {
           io.ReadExpecting('(');
           io.Read(reinterpret_cast<unsigned char*>(buffer), tupleLength);
@@ -3318,25 +3366,24 @@ public:
       }
       else
       {
-        typedef typename listT::ValueType ListValueType;
-
         // Compiler hint for better unrolling:
         VTK_ASSUME(this->Ptr->GetNumberOfComponents() == nComponents);
 
         const unsigned tupleLength = (sizeof(primitiveT) * nComponents);
-        primitiveT buffer[nComponents];
+        primitiveT tuple[nComponents];
 
-        for (vtkTypeInt64 i = 0; i < listLen; ++i)
+        for (vtkTypeInt64 i = 0; i < nTuples; ++i)
         {
-          const int readLength = io.Read(reinterpret_cast<unsigned char*>(buffer), tupleLength);
+          const int readLength = io.Read(reinterpret_cast<unsigned char*>(tuple), tupleLength);
           if (readLength != tupleLength)
           {
-            throw vtkFoamError() << "Failed to read tuple " << i << '/' << listLen << ": Expected "
+            throw vtkFoamError() << "Failed to read tuple " << i << '/' << nTuples << ": Expected "
                                  << tupleLength << " bytes, got " << readLength << " bytes.";
           }
-          for (int c = 0; c < nComponents; ++c)
+          ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
+          for (int cmpt = 0; cmpt < nComponents; ++cmpt)
           {
-            this->Ptr->SetTypedComponent(i, c, static_cast<ListValueType>(buffer[c]));
+            this->Ptr->SetTypedComponent(i, cmpt, static_cast<ValueType>(tuple[cmpt]));
           }
         }
       }
@@ -3348,13 +3395,14 @@ public:
       {
         throw vtkFoamError() << "Expected '(', found " << currToken;
       }
-      primitiveT v[nComponents];
-      for (int j = 0; j < nComponents; j++)
+      primitiveT tuple[nComponents];
+      for (int cmpt = 0; cmpt < nComponents; ++cmpt)
       {
-        v[j] = vtkFoamReadValue<primitiveT>::ReadValue(io);
+        tuple[cmpt] = vtkFoamReadValue<primitiveT>::ReadValue(io);
       }
-      this->Ptr->InsertNextTuple(v);
+      ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
       io.ReadExpecting(')');
+      this->Ptr->InsertNextTuple(tuple);
     }
   };
 
@@ -3728,7 +3776,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
   }
   traitsT list;
   this->Superclass::Type = listType;
-  this->Superclass::VtkObjectPtr = list.GetPtr();
+  this->Superclass::VtkObjectPtr = list.GetPointer();
   if (currToken.Is<vtkTypeInt64>())
   {
     const vtkTypeInt64 size = currToken.To<vtkTypeInt64>();
@@ -3736,7 +3784,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
     {
       throw vtkFoamError() << "List size must not be negative: size = " << size;
     }
-    list.GetPtr()->SetNumberOfTuples(size);
+    list->SetNumberOfTuples(size);
     if (io.IsAsciiFormat())
     {
       if (!io.Read(currToken))
@@ -3747,7 +3795,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
       // e. g. simpleFoam/pitzDaily3Blocks/constant/polyMesh/faceZones
       if (currToken == '{')
       {
-        list.ReadUniformValues(io, size);
+        list.ReadUniformValues(io);
         io.ReadExpecting('}');
         return;
       }
@@ -3755,7 +3803,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
       {
         throw vtkFoamError() << "Expected '(', found " << currToken;
       }
-      list.ReadAsciiList(io, size);
+      list.ReadAsciiList(io);
       io.ReadExpecting(')');
     }
     else
@@ -3764,7 +3812,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
       {
         // Non-empty (binary) list - only read parentheses only when size > 0
         io.ReadExpecting('(');
-        list.ReadBinaryList(io, size);
+        list.ReadBinaryList(io);
         io.ReadExpecting(')');
       }
     }
@@ -3775,7 +3823,7 @@ void vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io)
     {
       list.ReadValue(io, currToken);
     }
-    list.GetPtr()->Squeeze();
+    list->Squeeze();
   }
   else
   {
@@ -4364,26 +4412,10 @@ vtkFoamEntryValue::vtkFoamEntryValue(vtkFoamEntryValue& value, const vtkFoamEntr
 {
   switch (this->Superclass::Type)
   {
-    case VECTORLIST:
-    {
-      auto* array = vtkFloatArray::SafeDownCast(value.ToVTKObject());
-      if (array->GetNumberOfComponents() == 6)
-      {
-        // DeepCopy for symmTensor fields to avoid duplicated manipulation
-        auto* arrayCopy = vtkFloatArray::New();
-        arrayCopy->DeepCopy(array);
-        this->Superclass::VtkObjectPtr = arrayCopy;
-      }
-      else
-      {
-        this->Superclass::VtkObjectPtr = value.ToVTKObject();
-        this->Superclass::VtkObjectPtr->Register(nullptr);
-      }
-    }
-    break;
     case BOOLLIST:
     case LABELLIST:
     case SCALARLIST:
+    case VECTORLIST:
     case STRINGLIST:
       this->Superclass::VtkObjectPtr = value.ToVTKObject();
       this->Superclass::VtkObjectPtr->Register(nullptr);
@@ -8275,15 +8307,6 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
         data = vtkSmartPointer<vtkFloatArray>::New();
         data->SetNumberOfComponents(nComponents);
         data->SetNumberOfTuples(nElements);
-        if (nComponents == 6)
-        {
-          // Remap symmTensor tuple
-          // OpenFOAM = (XX, XY, XZ, YY, YZ, ZZ)
-          // VTK uses = (XX, YY, ZZ, XY, YZ, XZ)
-
-          std::swap(tuple[1], tuple[3]); // swap XY <-> YY
-          std::swap(tuple[2], tuple[5]); // swap XZ <-> ZZ
-        }
         for (vtkIdType i = 0; i < nElements; i++)
         {
           data->SetTuple(i, tuple);
@@ -8315,21 +8338,6 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
 
       // Capture content as smart pointer
       data.TakeReference(entry.ReleasePtr<vtkFloatArray>());
-      const int nComponents = data->GetNumberOfComponents();
-      if (nComponents == 6)
-      {
-        for (vtkIdType tuplei = 0; tuplei < nTuples; ++tuplei)
-        {
-          float* tuple = data->GetPointer(nComponents * tuplei);
-
-          // Remap symmTensor tuple
-          // OpenFOAM = (XX, XY, XZ, YY, YZ, ZZ)
-          // VTK uses = (XX, YY, ZZ, XY, YZ, XZ)
-
-          std::swap(tuple[1], tuple[3]); // swap XY <-> YY
-          std::swap(tuple[2], tuple[5]); // swap XZ <-> ZZ
-        }
-      }
     }
     else if (entry.FirstValue().GetType() == vtkFoamToken::EMPTYLIST && nElements <= 0)
     {
