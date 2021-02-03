@@ -286,7 +286,7 @@ draw their attention and have the topic reviewed.  After typing `@` and
 some text, GitLab will offer completions for developers whose real names
 or user names match.
 
-Here is a list of developpers usernames and their specific area of
+Here is a list of developers usernames and their specific area of
 expertise. A merge request without a developer tagged has very low chance
 to be merged in a reasonable timeframe.
 
@@ -489,13 +489,44 @@ authorized developers may add a comment with a single
 
 in order for your change to be merged into the upstream repository.
 
-If your merge request has been already approved by developpers
+If your merge request has been already approved by developers
 but not merged yet, do not hesitate to tag an authorized developer
 and ask for a merge.
 
 By convention, do not request a merge if any `-1` or `Rejected-by:`
 review comments have not been resolved and superseded by at least
 `+1` or `Acked-by:` review comments from the same user.
+
+The `Do: merge` command accepts the following arguments:
+
+* `-t <topic>`: substitute `<topic>` for the name of the MR topic
+  branch in the constructed merge commit message.
+
+Additionally, `Do: merge` extracts configuration from trailing lines
+in the MR description (the following have no effect if used in a MR
+comment instead):
+
+* `Backport: release[:<commit-ish>]`: merge the topic branch into
+  the `release` branch to backport the change.  This is allowed
+  only if the topic branch is based on a commit in `release` already.
+  If only part of the topic branch should be backported, specify it as
+  `:<commit-ish>`.  The `<commit-ish>` may use [git rev-parse](https://git-scm.com/docs/git-rev-parse)
+  syntax to reference commits relative to the topic `HEAD`.
+  See additional [backport instructions](https://gitlab.kitware.com/utils/git-workflow/-/wikis/Backport-topics) for details.
+  For example:
+
+ * `Backport: release`
+    Merge the topic branch head into both `release` and `master`.
+ * `Backport: release:HEAD~1^2`
+    Merge the topic branch head's parent's second parent commit into
+    the `release` branch.  Merge the topic branch head to `master`.
+
+* `Topic-rename: <topic>`: substitute `<topic>` for the name of
+  the MR topic branch in the constructed merge commit message.
+  It is also used in merge commits constructed by `Do: stage`.
+  The `-t` option to a `Do: merge` command overrides any topic
+  rename set in the MR description.
+
 
 ### Merge Success ###
 
