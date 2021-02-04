@@ -979,6 +979,8 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
   // distance to closest point
   minDist2 = radius * radius;
 
+  // Process the queue of candidate bins until the candidate bins are
+  // further away than the current closest point.
   while (!queue.empty())
   {
     binId = queue.top().second;
@@ -1048,7 +1050,8 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
       }
     }
 
-    // queue neighbors, if they are not already processed
+    // Expand the search: queue neighbors if they are not already processed. (TODO: this
+    // is pretty inefficient with sparse locators, since bins are revisited repeatedly.)
     this->Binner->GetBinIndices(binId, ijk);
     int ijkLo[3] = { std::max(ijk[0] - 1, 0), std::max(ijk[1] - 1, 0), std::max(ijk[2] - 1, 0) };
     int ijkHi[3] = { std::min(ijk[0] + 1, this->Binner->Divisions[0] - 1),
@@ -1069,7 +1072,7 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
             // get bin bounding box
             bds[0] = this->Binner->Bounds[0] + ijk[0] * this->Binner->hX;
             bds[2] = this->Binner->Bounds[2] + ijk[1] * this->Binner->hY;
-            bds[4] = this->Binner->Bounds[3] + ijk[2] * this->Binner->hZ;
+            bds[4] = this->Binner->Bounds[4] + ijk[2] * this->Binner->hZ;
             bds[1] = bds[0] + this->Binner->hX;
             bds[3] = bds[2] + this->Binner->hY;
             bds[5] = bds[4] + this->Binner->hZ;

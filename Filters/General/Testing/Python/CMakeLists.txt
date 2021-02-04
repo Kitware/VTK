@@ -21,6 +21,7 @@ vtk_add_test_python(
   TestRemovePolyData.py
   TestRemovePolyData2.py
   TestRemovePolyData3.py
+  TestSparseCellLocator.py
   TestSplineFilter.py
   TestStaticCellLocator.py
   TestStaticCellLocatorPlaneIntersection.py
