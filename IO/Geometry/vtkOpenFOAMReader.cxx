@@ -1121,22 +1121,21 @@ private:
   bool ListTimeDirectoriesByInstances();
 
   // Read polyMesh/points (vectorField)
-  vtkSmartPointer<vtkFloatArray> ReadPointsFile();
+  vtkSmartPointer<vtkFloatArray> ReadPointsFile(const std::string& meshDir);
 
   // Read polyMesh/faces (faceCompactList or faceList)
   std::unique_ptr<vtkFoamLabelListList> ReadFacesFile(const std::string& meshDir);
 
-  // Read polyMesh/{owner,neighbour}, check overall number of faces. Return meshCells
-  std::unique_ptr<vtkFoamLabelListList> ReadOwnerNeighbourFiles(const std::string& meshDir);
+  // Read polyMesh/{owner,neighbour}, check overall number of faces.
+  bool ReadOwnerNeighbourFiles(const std::string& meshDir);
 
   // Create meshCells from owner/neighbour information
-  std::unique_ptr<vtkFoamLabelListList> CreateCellFaces(
-    const vtkDataArray& faceOwner, const vtkDataArray& faceNeigh);
+  std::unique_ptr<vtkFoamLabelListList> CreateCellFaces();
 
   bool CheckFaceList(const vtkFoamLabelListList& faces);
 
   // Create volume mesh
-  void InsertCellsToGrid(vtkUnstructuredGrid*, const vtkFoamLabelListList& meshCells,
+  void InsertCellsToGrid(vtkUnstructuredGrid*, std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr,
     const vtkFoamLabelListList& meshFaces, vtkIdList* cellLabels = nullptr
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
     ,
@@ -1144,7 +1143,7 @@ private:
 #endif
   );
 
-  vtkUnstructuredGrid* MakeInternalMesh(const vtkFoamLabelListList& meshCells,
+  vtkUnstructuredGrid* MakeInternalMesh(std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr,
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
 
   void InsertFacesToGrid(vtkPolyData*, const vtkFoamLabelListList& meshFaces, vtkIdType startFace,
@@ -1152,8 +1151,6 @@ private:
 
   vtkMultiBlockDataSet* MakeBoundaryMesh(
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
-
-  void TruncateFaceOwner();
 
   // Move additional points for decomposed cells
   bool MoveInternalMesh(vtkUnstructuredGrid*, vtkFloatArray*);
@@ -1182,8 +1179,9 @@ private:
   std::unique_ptr<vtkFoamDict> GatherBlocks(const char* typeName, bool mandatory);
 
   // Create (cell|face|point) zones
-  bool GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList& meshCells,
-    const vtkFoamLabelListList& meshFaces, vtkPoints*);
+  bool GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
+    std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr, const vtkFoamLabelListList& meshFaces,
+    vtkPoints*);
   bool GetFaceZoneMesh(
     vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList& meshFaces, vtkPoints*);
   bool GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, vtkPoints*);
@@ -6332,7 +6330,7 @@ void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
 //
 // - sets NumPoints
 
-vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile()
+vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(const std::string& meshDir)
 {
   // Assume failure
   this->NumPoints = 0;
@@ -6341,10 +6339,8 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile()
 
   // Read polyMesh/points
   {
-    const std::string pointPath =
-      this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir) + "points";
-
-    if (!io.OpenOrGzip(pointPath))
+    const std::string pointsPath(meshDir + "points");
+    if (!io.OpenOrGzip(pointsPath))
     {
       vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
       return nullptr;
@@ -6450,14 +6446,10 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
 }
 
 //------------------------------------------------------------------------------
-// Read owner, neighbour files and create meshCells
-//
+// Read owner, neighbour files
 // - sets NumFaces and NumInternalFaces, and NumCells
-//
-// Return meshCells
 
-std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(
-  const std::string& meshDir)
+bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& meshDir)
 {
   // Assume failure
   this->NumCells = 0;
@@ -6470,7 +6462,7 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     if (!io.OpenOrGzip(ownPath))
     {
       vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return nullptr;
+      return false;
     }
   }
   const bool use64BitLabels = io.IsLabel64();
@@ -6495,12 +6487,31 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     {
       vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                     << ": " << err);
-      return nullptr;
+      return false;
     }
     io.Close();
 
     // Store owner faces
     this->FaceOwner = ownerDict.ReleasePtr<vtkDataArray>();
+    const vtkIdType nFaces = this->FaceOwner->GetNumberOfTuples();
+
+    // Count cells, check validity
+    vtkTypeInt64 nCells = -1;
+    for (vtkIdType facei = 0; facei < nFaces; ++facei)
+    {
+      const vtkTypeInt64 celli = GetLabelValue(this->FaceOwner, facei, use64BitLabels);
+      if (celli < 0)
+      {
+        vtkErrorMacro(<< "Illegal cell label in owner addressing. Face " << facei);
+        return false;
+      }
+      if (nCells < celli)
+      {
+        nCells = celli; // <- max(nCells, celli)
+      }
+    }
+
+    this->NumCells = static_cast<vtkIdType>(++nCells);
   }
 
   // Read polyMesh/neighbour
@@ -6509,7 +6520,7 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     if (!io.OpenOrGzip(neiPath))
     {
       vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return nullptr;
+      return false;
     }
   }
 
@@ -6517,7 +6528,7 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
   {
     vtkErrorMacro(<< "owner/neighbour with different label-size: should not happen"
                   << io.GetCasePath());
-    return nullptr;
+    return false;
   }
 
   {
@@ -6540,26 +6551,62 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
     {
       vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                     << ": " << err);
-      return nullptr;
+      return false;
     }
     io.Close();
 
     // Store neighbour faces
     this->FaceNeigh = neighDict.ReleasePtr<vtkDataArray>();
+    const vtkIdType nFaces = this->FaceOwner->GetNumberOfTuples();
+
+    if (nFaces == this->FaceNeigh->GetNumberOfTuples())
+    {
+      // Extremely old meshes had identical size for owner/neighbour and -1 padding
+      vtkIdType nInternalFaces = 0;
+      for (vtkIdType facei = 0; facei < nFaces; ++facei)
+      {
+        if (GetLabelValue(this->FaceNeigh, facei, use64BitLabels) < 0)
+        {
+          break;
+        }
+        else
+        {
+          ++nInternalFaces;
+        }
+      }
+      this->FaceNeigh->Resize(nInternalFaces);
+    }
+    else
+    {
+      // Check validity
+      const vtkIdType nInternalFaces = this->FaceNeigh->GetNumberOfTuples();
+
+      for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
+      {
+        const vtkTypeInt64 celli = GetLabelValue(this->FaceNeigh, facei, use64BitLabels);
+        if (celli < 0)
+        {
+          vtkErrorMacro(<< "Illegal cell label in neighbour addressing. Face " << facei);
+          return false;
+        }
+      }
+    }
   }
 
-  // Basic checks
-  const vtkDataArray& faceOwner = *this->FaceOwner;
-  const vtkDataArray& faceNeigh = *this->FaceNeigh;
+  // Size checks
+  if (this->NumCells == 0)
+  {
+    vtkWarningMacro(<< "The mesh contains no cells");
+  }
 
-  const vtkIdType nFaces = faceOwner.GetNumberOfTuples();
-  const vtkIdType nInternalFaces = faceNeigh.GetNumberOfTuples();
+  const vtkIdType nFaces = this->FaceOwner->GetNumberOfTuples();
+  const vtkIdType nInternalFaces = this->FaceNeigh->GetNumberOfTuples();
 
   if (nFaces < nInternalFaces)
   {
     vtkErrorMacro(<< "Number of owner faces " << nFaces
                   << " not equal or greater than number of neighbour faces " << nInternalFaces);
-    return nullptr;
+    return false;
   }
 
   // Set or check number of mesh faces
@@ -6571,83 +6618,65 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadOwnerNeighbo
   {
     vtkErrorMacro(<< "Expected " << this->NumFaces << " faces, but owner had " << nFaces
                   << " faces");
-    return nullptr;
+    return false;
   }
   this->NumInternalFaces = nInternalFaces;
 
-  // The cell-faces
-  return this->CreateCellFaces(faceOwner, faceNeigh);
+  return true;
 }
 
 //------------------------------------------------------------------------------
 // Create meshCells from owner/neighbour information
 //
-// - sets NumFaces and NumInternalFaces (again), and NumCells
-//
-// Return meshCells
-std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces(
-  const vtkDataArray& faceOwner, const vtkDataArray& faceNeigh)
-{
-  // Reset
-  this->NumCells = 0;
+// - sets NumFaces and NumInternalFaces (again), optionally NumCells
 
-  const bool use64BitLabels = ::Is64BitArray(&faceOwner);
+std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces()
+{
+  if (!this->FaceOwner)
+  {
+    vtkErrorMacro(<< "Cannot create cell faces without face owner information");
+    return nullptr;
+  }
+  if (!this->FaceNeigh)
+  {
+    vtkErrorMacro(<< "Cannot create cell faces without face neighbour information");
+    return nullptr;
+  }
+  const bool use64BitLabels = ::Is64BitArray(this->FaceOwner);
+
+  const vtkDataArray& faceOwner = *this->FaceOwner;
+  const vtkDataArray& faceNeigh = *this->FaceNeigh;
 
   const vtkIdType nFaces = faceOwner.GetNumberOfTuples();
   const vtkIdType nInternalFaces = faceNeigh.GetNumberOfTuples();
 
-  // Extra safety
+  // Extra safety (consistency)
   this->NumFaces = nFaces;
   this->NumInternalFaces = nInternalFaces;
 
-  // Determine the number of cells and number of cell faces (total)
-  vtkTypeInt64 nCells = -1;
-  vtkTypeInt64 nTotalCellFaces = 0;
-
-  for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
+  // Recalculate number of cells if needed
+  if (this->NumCells == 0)
   {
-    const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-    if (own >= 0)
+    vtkTypeInt64 nCells = -1;
+    for (vtkIdType facei = 0; facei < nFaces; ++facei)
     {
-      ++nTotalCellFaces;
-      if (nCells < own)
+      const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
+      if (nCells < celli)
       {
-        nCells = own; // <- max(nCells, own)
+        nCells = celli; // <- max(nCells, celli)
       }
     }
 
-    const vtkTypeInt64 nei = GetLabelValue(&faceNeigh, facei, use64BitLabels);
-    if (nei >= 0)
-    {
-      ++nTotalCellFaces;
-      if (nCells < nei)
-      {
-        nCells = nei; // <- max(nCells, nei)
-      }
-    }
+    // Set the number of cells
+    this->NumCells = static_cast<vtkIdType>(++nCells);
   }
 
-  for (vtkIdType facei = nInternalFaces; facei < nFaces; ++facei)
-  {
-    const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-    if (own >= 0)
-    {
-      ++nTotalCellFaces;
-      if (nCells < own)
-      {
-        nCells = own; // <- max(nCells, own)
-      }
-    }
-  }
-  ++nCells;
+  // The number of cells
+  const vtkTypeInt64 nCells = this->NumCells;
 
-  if (nCells == 0)
-  {
-    vtkWarningMacro(<< "The mesh contains no cells");
-  }
-
-  // Set the number of cells
-  this->NumCells = static_cast<vtkIdType>(nCells);
+  // Total number of cell faces
+  const vtkTypeInt64 nTotalCellFaces =
+    static_cast<vtkTypeInt64>(nFaces) + static_cast<vtkTypeInt64>(nInternalFaces);
 
   // Create meshCells. Avoid 32bit overflow for nTotalCellFaces
   std::unique_ptr<vtkFoamLabelListList> meshCells;
@@ -6670,28 +6699,15 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces(
     // Accumulate offsets into slot *above*
     constexpr vtkIdType cellIndexOffset = 1;
 
+    for (vtkIdType facei = 0; facei < nFaces; ++facei)
+    {
+      const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
+      cells.IncrementOffset(cellIndexOffset + celli);
+    }
     for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
     {
-      const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-      if (own >= 0)
-      {
-        cells.IncrementOffset(cellIndexOffset + own);
-      }
-
-      const vtkTypeInt64 nei = GetLabelValue(&faceNeigh, facei, use64BitLabels);
-      if (nei >= 0)
-      {
-        cells.IncrementOffset(cellIndexOffset + nei);
-      }
-    }
-
-    for (vtkIdType facei = nInternalFaces; facei < nFaces; ++facei)
-    {
-      const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-      if (own >= 0)
-      {
-        cells.IncrementOffset(cellIndexOffset + own);
-      }
+      const vtkTypeInt64 celli = GetLabelValue(&faceNeigh, facei, use64BitLabels);
+      cells.IncrementOffset(cellIndexOffset + celli);
     }
 
     // Reduce per-cell face count -> start offsets
@@ -6719,30 +6735,29 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces(
   // Add face numbers to cell-faces list, using tmpAddr offsets to manage the locations
   for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
   {
-    const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-    if (own >= 0)
+    // owner
     {
-      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(own);
-      tmpAddr->IncrementOffset(own);
+      const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
+      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(celli);
+      tmpAddr->IncrementOffset(celli);
       cells.SetValue(next, facei);
     }
-
-    const vtkTypeInt64 nei = GetLabelValue(&faceNeigh, facei, use64BitLabels);
-    if (nei >= 0)
+    // neighbour
     {
-      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(nei);
-      tmpAddr->IncrementOffset(nei);
+      const vtkTypeInt64 celli = GetLabelValue(&faceNeigh, facei, use64BitLabels);
+      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(celli);
+      tmpAddr->IncrementOffset(celli);
       cells.SetValue(next, facei);
     }
   }
 
   for (vtkIdType facei = nInternalFaces; facei < nFaces; ++facei)
   {
-    const vtkTypeInt64 own = GetLabelValue(&faceOwner, facei, use64BitLabels);
-    if (own >= 0)
+    // owner
     {
-      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(own);
-      tmpAddr->IncrementOffset(own);
+      const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
+      const vtkTypeInt64 next = tmpAddr->GetBeginOffset(celli);
+      tmpAddr->IncrementOffset(celli);
       cells.SetValue(next, facei);
     }
   }
@@ -6785,7 +6800,7 @@ bool vtkOpenFOAMReaderPrivate::CheckFaceList(const vtkFoamLabelListList& faces)
 // determine cell shape and insert the cell into the mesh
 // hexahedron, prism, pyramid, tetrahedron and decompose polyhedron
 void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
-  vtkUnstructuredGrid* internalMesh, const vtkFoamLabelListList& meshCells,
+  vtkUnstructuredGrid* internalMesh, std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr,
   const vtkFoamLabelListList& meshFaces, vtkIdList* cellLabels
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   ,
@@ -6821,6 +6836,15 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     return;
   }
 #endif
+  if (!nCells)
+  {
+    return;
+  }
+  if (!meshCellsPtr)
+  {
+    meshCellsPtr = this->CreateCellFaces();
+  }
+  const auto& meshCells = *meshCellsPtr;
 
   for (vtkIdType celli = 0; celli < nCells; ++celli)
   {
@@ -7610,7 +7634,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 //------------------------------------------------------------------------------
 // derive cell types and create the internal mesh
 vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
-  const vtkFoamLabelListList& meshCells, const vtkFoamLabelListList& meshFaces,
+  std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr, const vtkFoamLabelListList& meshFaces,
   vtkFloatArray* pointArray)
 {
   // Create Mesh
@@ -7630,7 +7654,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
     additionalCells->SetNumberOfComponents(5); // Accommodate tetra or pyramid
 
     this->InsertCellsToGrid(
-      internalMesh, meshCells, meshFaces, nullptr, additionalCells, pointArray);
+      internalMesh, meshCellsPtr, meshFaces, nullptr, additionalCells, pointArray);
 
     // For polyhedral decomposition
     pointArray->Squeeze();
@@ -7657,7 +7681,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   else
 #endif // VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
   {
-    this->InsertCellsToGrid(internalMesh, meshCells, meshFaces);
+    this->InsertCellsToGrid(internalMesh, meshCellsPtr, meshFaces);
   }
 
   // Set points for internalMesh
@@ -8055,28 +8079,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   }
 
   return boundaryMesh;
-}
-
-//------------------------------------------------------------------------------
-// truncate face owner to have only boundary face info
-void vtkOpenFOAMReaderPrivate::TruncateFaceOwner()
-{
-  const vtkIdType boundaryStartFace =
-    (!this->BoundaryDict.empty() ? this->BoundaryDict.startFace()
-                                 : this->FaceOwner->GetNumberOfTuples());
-
-  // All boundary faces
-  const vtkIdType nBoundaryFaces = this->FaceOwner->GetNumberOfTuples() - boundaryStartFace;
-  memmove(this->FaceOwner->GetVoidPointer(0), this->FaceOwner->GetVoidPointer(boundaryStartFace),
-    static_cast<size_t>(this->FaceOwner->GetDataTypeSize() * nBoundaryFaces));
-  this->FaceOwner->Resize(nBoundaryFaces);
-
-  // Has side effect on neighbour too
-  if (this->FaceNeigh != nullptr)
-  {
-    this->FaceNeigh->Delete();
-    this->FaceNeigh = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -9430,7 +9432,8 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
 // Populate cell zone(s) mesh
 
 bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
-  const vtkFoamLabelListList& meshCells, const vtkFoamLabelListList& meshFaces, vtkPoints* points)
+  std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr, const vtkFoamLabelListList& meshFaces,
+  vtkPoints* points)
 {
   const bool supportFields = this->Parent->CopyDataToCellZones;
 
@@ -9536,7 +9539,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
     zm->Allocate(nUsed);
 
     // Insert cells
-    this->InsertCellsToGrid(zm, meshCells, meshFaces, elemIds);
+    this->InsertCellsToGrid(zm, meshCellsPtr, meshFaces, elemIds);
 
     // Set points for zone
     zm->SetPoints(points);
@@ -9951,17 +9954,16 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   }
 
   // Mesh primitives
+  vtkSmartPointer<vtkFloatArray> pointArray;
   std::unique_ptr<vtkFoamLabelListList> meshCells;
   std::unique_ptr<vtkFoamLabelListList> meshFaces;
 
-  std::string meshDir;
   if (createEulerians && (recreateInternalMesh || recreateBoundaryMesh))
   {
-    // Path to polyMesh/ files
-    meshDir = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir);
+    const std::string facesInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir);
 
     // Read polyMesh/faces, create the list of faces, set the number of faces
-    meshFaces = this->ReadFacesFile(meshDir);
+    meshFaces = this->ReadFacesFile(facesInstance);
     if (!meshFaces)
     {
       return 0;
@@ -9971,23 +9973,25 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
   if (createEulerians && recreateInternalMesh)
   {
-    // Read polyMesh/{owner,neighbour}, create FaceOwner/FaceNeigh and meshCells vectors
-    meshCells = this->ReadOwnerNeighbourFiles(meshDir);
-    if (!meshCells)
+    const std::string facesInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir);
+
+    // Read polyMesh/{owner,neighbour}, create FaceOwner/FaceNeigh
+    if (!this->ReadOwnerNeighbourFiles(facesInstance))
     {
       return 0;
     }
     this->Parent->UpdateProgress(0.3);
   }
 
-  vtkSmartPointer<vtkFloatArray> pointArray;
   if (createEulerians &&
     (recreateInternalMesh ||
       (recreateBoundaryMesh && !recreateInternalMesh && this->InternalMesh == nullptr) ||
       moveInternalPoints || moveBoundaryPoints))
   {
+    const std::string pointsInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir);
+
     // Read polyMesh/points, set the number of faces
-    pointArray = this->ReadPointsFile();
+    pointArray = this->ReadPointsFile(pointsInstance);
     if ((recreateInternalMesh && pointArray.Get() == nullptr) ||
       (meshFaces && !this->CheckFaceList(*meshFaces)))
     {
@@ -10003,7 +10007,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     if (this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()) &&
       this->Parent->GetPatchArrayStatus(displayName.c_str()))
     {
-      this->InternalMesh = this->MakeInternalMesh(*meshCells, *meshFaces, pointArray);
+      this->InternalMesh = this->MakeInternalMesh(meshCells, *meshFaces, pointArray);
     }
   }
 
@@ -10025,7 +10029,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     }
 
     this->CellZoneMesh = vtkMultiBlockDataSet::New();
-    if (!this->GetCellZoneMesh(this->CellZoneMesh, *meshCells, *meshFaces, points) ||
+    if (!this->GetCellZoneMesh(this->CellZoneMesh, meshCells, *meshFaces, points) ||
       this->CellZoneMesh->GetNumberOfBlocks() == 0)
     {
       this->cellZoneMap.clearAll();
@@ -10055,12 +10059,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   // Don't need meshCells beyond here
   meshCells.reset(nullptr);
 
-  // Only need boundary face owners beyond here,
-  // except if we have faceZones, then we still need them
-  if (createEulerians && recreateInternalMesh && !this->FaceZoneMesh)
-  {
-    this->TruncateFaceOwner();
-  }
+  // Note: preserve face owner/neighbour information for reconstruction, face zones etc.
 
   // Create boundary mesh
   if (createEulerians && recreateBoundaryMesh)
