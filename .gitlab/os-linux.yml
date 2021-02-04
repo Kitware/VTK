@@ -58,6 +58,14 @@
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb
 
+.fedora33_tidy:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb_tidy
+
 .fedora_memcheck:
     variables:
         CMAKE_BUILD_TYPE: RelWithDebInfo
