@@ -341,11 +341,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
     {
       vtkHigherOrderQuadrilateral* cellBezier =
         dynamic_cast<vtkHigherOrderQuadrilateral*>(cell->GetRepresentativeCell());
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1]);
       }
@@ -361,11 +360,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       vtkIdType numPts = cell->PointIds->GetNumberOfIds();
       vtkHigherOrderWedge* cellBezier =
         dynamic_cast<vtkHigherOrderWedge*>(cell->GetRepresentativeCell());
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1], degs[2], numPts);
       }
@@ -379,11 +377,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
     {
       vtkHigherOrderHexahedron* cellBezier =
         dynamic_cast<vtkHigherOrderHexahedron*>(cell->GetRepresentativeCell());
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1], degs[2]);
       }
@@ -403,11 +400,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
         dynamic_cast<vtkBezierQuadrilateral*>(cell->GetRepresentativeCell());
 
       // Set the degrees
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1]);
       }
@@ -427,11 +423,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
         dynamic_cast<vtkBezierHexahedron*>(cell->GetRepresentativeCell());
 
       // Set the degrees
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1], degs[2]);
       }
@@ -450,11 +445,10 @@ void vtkDataSet::SetCellOrderAndRationalWeights(vtkIdType cellId, vtkGenericCell
       vtkBezierWedge* cellBezier = dynamic_cast<vtkBezierWedge*>(cell->GetRepresentativeCell());
 
       // Set the degrees
-      if (GetCellData()->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = this->GetCellData()->GetHigherOrderDegrees();
+      if (v)
       {
         double degs[3];
-        vtkDataArray* v = GetCellData()->GetHigherOrderDegrees();
         v->GetTuple(cellId, degs);
         cellBezier->SetOrder(degs[0], degs[1], degs[2], numPts);
       }
