@@ -496,52 +496,6 @@ double vtkAxisFollower::GetScreenOffset()
 }
 
 //------------------------------------------------------------------------------
-int vtkAxisFollower::RenderOpaqueGeometry(vtkViewport* vp)
-{
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  if (this->GetIsOpaque())
-  {
-    vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
-    this->Render(ren);
-    return 1;
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-int vtkAxisFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
-{
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  if (!this->GetIsOpaque())
-  {
-    vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
-    this->Render(ren);
-    return 1;
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
 void vtkAxisFollower::Render(vtkRenderer* ren)
 {
   if (this->EnableDistanceLOD && !this->TestDistanceVisibility())
@@ -550,31 +504,8 @@ void vtkAxisFollower::Render(vtkRenderer* ren)
     return;
   }
 
-  this->Property->Render(this, ren);
-
-  this->Device->SetProperty(this->Property);
-  this->Property->Render(this, ren);
-  if (this->BackfaceProperty)
-  {
-    this->BackfaceProperty->BackfaceRender(this, ren);
-    this->Device->SetBackfaceProperty(this->BackfaceProperty);
-  }
-
-  /* render the texture */
-  if (this->Texture)
-  {
-    this->Texture->Render(ren);
-  }
-
-  // make sure the device has the same matrix
   this->ComputeTransformMatrix(ren);
-  this->Device->SetUserMatrix(this->Matrix);
-
-  this->SetVisibility(this->VisibleAtCurrentViewAngle);
-  if (this->VisibleAtCurrentViewAngle)
-  {
-    this->Device->Render(ren, this->Mapper);
-  }
+  this->Superclass::Render(ren);
 }
 
 //------------------------------------------------------------------------------

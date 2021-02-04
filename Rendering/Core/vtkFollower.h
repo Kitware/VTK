@@ -69,11 +69,6 @@ public:
   //@}
 
   /**
-   * Does this prop have some translucent polygonal geometry?
-   */
-  vtkTypeBool HasTranslucentPolygonalGeometry() override;
-
-  /**
    * Release any graphics resources associated with this vtkProp3DFollower.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
