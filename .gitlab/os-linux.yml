@@ -65,6 +65,10 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb_tidy
+        # Disabled for now. There are two deprecation warnings currently in the codebase:
+        #   - TBB deprecated header (#18107)
+        #   - a deprecated Python API call
+        # CTEST_NO_WARNINGS_ALLOWED: 1
 
 .fedora_memcheck:
     variables:
