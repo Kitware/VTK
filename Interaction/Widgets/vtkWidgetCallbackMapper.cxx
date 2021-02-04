@@ -15,6 +15,7 @@
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkAbstractWidget.h"
 #include "vtkCommand.h"
+#include "vtkEventData.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
 #include <map>
@@ -105,6 +106,9 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, int modi
 void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, vtkEventData* edata,
   unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f)
 {
+  // make sure the type is set
+  edata->SetType(VTKEvent);
+
   this->EventTranslator->SetTranslation(VTKEvent, edata, widgetEvent);
   this->SetCallbackMethod(widgetEvent, w, f);
 }

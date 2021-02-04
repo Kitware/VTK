@@ -100,26 +100,27 @@ vtkDistanceWidget::vtkDistanceWidget()
     vtkWidgetEvent::EndSelect, this, vtkDistanceWidget::EndSelectAction);
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::AddPoint3D, this, vtkDistanceWidget::AddPointAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::EndSelect3D, this, vtkDistanceWidget::EndSelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(
       vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkDistanceWidget::MoveAction3D);
   }
@@ -355,6 +356,13 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
 
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+
   // Freshly enabled and placing the first point
   if (self->WidgetState == vtkDistanceWidget::Start)
   {
@@ -366,6 +374,7 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget* w)
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent, &(self->CurrentHandle));
     self->EventCallbackCommand->SetAbortFlag(1);
+    self->LastDevice = static_cast<int>(edd->GetDevice());
   }
 
   // Placing the second point is easy
@@ -401,7 +410,7 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget* w)
     {
       self->CurrentHandle = 1;
     }
-    self->InvokeEvent(vtkCommand::Button3DEvent, self->CallData);
+    self->InvokeEvent(vtkCommand::Select3DEvent, self->CallData);
     self->EventCallbackCommand->SetAbortFlag(1);
   }
 
@@ -445,6 +454,13 @@ void vtkDistanceWidget::MoveAction(vtkAbstractWidget* w)
 void vtkDistanceWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkDistanceWidget* self = reinterpret_cast<vtkDistanceWidget*>(w);
+
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd || static_cast<int>(edd->GetDevice()) != self->LastDevice)
+  {
+    return;
+  }
 
   // Do nothing if in start mode or valid handle not selected
   if (self->WidgetState == vtkDistanceWidget::Start)
@@ -501,7 +517,7 @@ void vtkDistanceWidget::EndSelectAction3D(vtkAbstractWidget* w)
   }
 
   self->ReleaseFocus();
-  self->InvokeEvent(vtkCommand::Button3DEvent, self->CallData);
+  self->InvokeEvent(vtkCommand::Select3DEvent, self->CallData);
   self->CurrentHandle = -1;
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);

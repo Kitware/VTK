@@ -1,0 +1,71 @@
+{
+  "action_manifest_version": 0,
+  "alias_info": {},
+  "app_key": "system.generated.paraview.exe",
+  "bindings": {
+    "/actions/vtk": {
+      "sources": [
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/vtk/in/movement"
+            }
+          },
+          "mode": "joystick",
+          "path": "/user/hand/right/input/joystick"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/leftgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/grip"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/nextcamerapose"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/left/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/triggeraction"
+            }
+          },
+          "mode": "trigger",
+          "path": "/user/hand/right/input/trigger"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/showmenu"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/b"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/vtk/in/rightgripaction"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/grip"
+        }
+      ]
+    }
+  },
+  "category": "steamvr_input",
+  "controller_type": "oculus_touch",
+  "description": "",
+  "name": "vtk-oculus",
+  "options": {},
+  "simulated_actions": []
+}

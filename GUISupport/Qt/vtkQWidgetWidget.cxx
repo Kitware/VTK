@@ -44,29 +44,33 @@ vtkQWidgetWidget::vtkQWidgetWidget()
   this->WidgetState = vtkQWidgetWidget::Start;
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select3D,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
       this, vtkQWidgetWidget::SelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::EndSelect3D, this, vtkQWidgetWidget::EndSelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(
       vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D, this, vtkQWidgetWidget::MoveAction3D);
   }
+
+  // start off responding to all move events
+  this->LastDevice = static_cast<int>(vtkEventDataDevice::Any);
 }
 
 //------------------------------------------------------------------------------
@@ -118,6 +122,15 @@ void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
     return;
   }
 
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+
+  self->LastDevice = static_cast<int>(edd->GetDevice());
+
   QPointF mousePos(widgetCoords[0], widgetCoords[1]);
   Qt::MouseButton button = Qt::LeftButton;
   QPoint ptGlobal = mousePos.toPoint();
@@ -152,6 +165,19 @@ void vtkQWidgetWidget::SelectAction3D(vtkAbstractWidget* w)
 void vtkQWidgetWidget::MoveAction3D(vtkAbstractWidget* w)
 {
   vtkQWidgetWidget* self = reinterpret_cast<vtkQWidgetWidget*>(w);
+
+  vtkEventData* edata = static_cast<vtkEventData*>(self->CallData);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
+  if (!edd)
+  {
+    return;
+  }
+
+  if (self->LastDevice != static_cast<int>(edd->GetDevice()) &&
+    self->LastDevice != static_cast<int>(vtkEventDataDevice::Any))
+  {
+    return;
+  }
 
   int interactionState = self->WidgetRep->ComputeComplexInteractionState(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
@@ -206,6 +232,9 @@ void vtkQWidgetWidget::EndSelectAction3D(vtkAbstractWidget* w)
   {
     return;
   }
+
+  // reset back to responding to all move events
+  self->LastDevice = static_cast<int>(vtkEventDataDevice::Any);
 
   self->WidgetRep->ComputeComplexInteractionState(
     self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);

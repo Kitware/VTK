@@ -23,11 +23,14 @@
 #ifndef vtkOpenVRRenderWindowInteractor_h
 #define vtkOpenVRRenderWindowInteractor_h
 
-#include "vtkRenderWindowInteractor3D.h"
-#include "vtkRenderingOpenVRModule.h" // For export macro
-
 #include "vtkNew.h"                // ivars
 #include "vtkOpenVRRenderWindow.h" // ivars
+#include "vtkRenderWindowInteractor3D.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
+#include <functional>                 // for ivar
+#include <map>                        // for ivar
+#include <string>                     // for ivar
+#include <tuple>                      // for ivar
 
 class vtkTransform;
 class vtkMatrix4x4;
@@ -112,13 +115,39 @@ public:
   /**
    * Get the latest touchpad or joystick position for a device
    */
-  void GetTouchPadPosition(vtkEventDataDevice, vtkEventDataDeviceInput, float[3]) override;
+  // void GetTouchPadPosition(vtkEventDataDevice, vtkEventDataDeviceInput, float[3]) override;
   //@}
 
   /*
    * Return starting physical to world matrix
    */
   void GetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
+
+  //@{
+  /**
+   * Assign an event or std::function to an event path
+   */
+  void AddAction(std::string path, vtkCommand::EventIds, bool isAnalog);
+  void AddAction(std::string path, bool isAnalog, std::function<void(vtkEventData*)>);
+  //@}
+  // add an event action
+
+  //@{
+  /**
+   * Set/Get the json file describing action bindings for events
+   * See https://github.com/ValveSoftware/openvr/wiki/Action-manifest
+   */
+  vtkGetMacro(ActionManifestFileName, std::string);
+  vtkSetMacro(ActionManifestFileName, std::string);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the json file describing action set to use
+   */
+  vtkGetMacro(ActionSetName, std::string);
+  vtkSetMacro(ActionSetName, std::string);
+  //@}
 
 protected:
   vtkOpenVRRenderWindowInteractor();
@@ -155,14 +184,49 @@ protected:
    * Handle multitouch events. Multitouch events recognition starts when
    * both controllers the trigger pressed.
    */
-  int DeviceInputDown[VTKI_MAX_POINTERS][2];
-  int DeviceInputDownCount[2];
+  int DeviceInputDownCount[vtkEventDataNumberOfDevices];
   virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
 
   /**
    * Store physical to world matrix at the start of a multi-touch gesture
    */
   vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
+
+  class ActionData
+  {
+  public:
+    vr::VRActionHandle_t ActionHandle;
+    vtkCommand::EventIds EventId;
+    std::function<void(vtkEventData*)> Function;
+    bool UseFunction = false;
+    bool IsAnalog = false;
+  };
+
+  std::map<std::string, ActionData> ActionMap;
+
+  std::string ActionManifestFileName;
+  std::string ActionSetName;
+
+  vr::VRActionSetHandle_t ActionsetVTK = vr::k_ulInvalidActionSetHandle;
+
+  enum TrackerEnum
+  {
+    LeftHand = 0,
+    RightHand,
+    Head,
+    NumberOfTrackers
+  };
+
+  struct TrackerActions
+  {
+    vr::VRInputValueHandle_t Source = vr::k_ulInvalidInputValueHandle;
+    // vr::VRActionHandle_t ActionPose = vr::k_ulInvalidActionHandle;
+    // vr::InputPoseActionData_t LastPoseData;
+    vr::TrackedDevicePose_t LastPose;
+  };
+  TrackerActions Trackers[NumberOfTrackers];
+
+  void HandleGripEvents(vtkEventData* ed);
 
 private:
   vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) = delete;

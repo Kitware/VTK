@@ -29,6 +29,7 @@ enum class vtkEventDataDevice
   RightController,
   LeftController,
   GenericTracker,
+  Any,
   NumberOfDevices
 };
 
@@ -38,6 +39,7 @@ const int vtkEventDataNumberOfDevices = (static_cast<int>(vtkEventDataDevice::Nu
 enum class vtkEventDataDeviceInput
 {
   Unknown = -1,
+  Any,
   Trigger,
   TrackPad,
   Joystick,
@@ -52,6 +54,7 @@ const int vtkEventDataNumberOfInputs = (static_cast<int>(vtkEventDataDeviceInput
 enum class vtkEventDataAction
 {
   Unknown = -1,
+  Any,
   Press,
   Release,
   Touch,
@@ -68,6 +71,7 @@ public:
   vtkBaseTypeMacro(vtkEventData, vtkObjectBase);
 
   int GetType() const { return this->Type; }
+  void SetType(int val) { this->Type = val; }
 
   // are two events equivalent
   bool operator==(const vtkEventData& a) const
@@ -114,6 +118,12 @@ public:
   void SetInput(vtkEventDataDeviceInput v) { this->Input = v; }
   void SetAction(vtkEventDataAction v) { this->Action = v; }
 
+  bool DeviceMatches(vtkEventDataDevice val)
+  {
+    return val == this->Device || val == vtkEventDataDevice::Any ||
+      this->Device == vtkEventDataDevice::Any;
+  }
+
   vtkEventDataForDevice* GetAsEventDataForDevice() override { return this; }
 
 protected:
@@ -124,7 +134,12 @@ protected:
   bool Equivalent(const vtkEventData* e) const override
   {
     const vtkEventDataForDevice* edd = static_cast<const vtkEventDataForDevice*>(e);
-    return this->Device == edd->Device && this->Input == edd->Input && this->Action == edd->Action;
+    return (this->Device == vtkEventDataDevice::Any || edd->Device == vtkEventDataDevice::Any ||
+             this->Device == edd->Device) &&
+      (this->Input == vtkEventDataDeviceInput::Any || edd->Input == vtkEventDataDeviceInput::Any ||
+        this->Input == edd->Input) &&
+      (this->Action == vtkEventDataAction::Any || edd->Action == vtkEventDataAction::Any ||
+        this->Action == edd->Action);
   }
 
   vtkEventDataForDevice()
@@ -146,6 +161,12 @@ class vtkEventDataDevice3D : public vtkEventDataForDevice
 {
 public:
   vtkTypeMacro(vtkEventDataDevice3D, vtkEventDataForDevice);
+  static vtkEventDataDevice3D* New()
+  {
+    vtkEventDataDevice3D* ret = new vtkEventDataDevice3D;
+    ret->InitializeObjectBase();
+    return ret;
+  }
 
   vtkEventDataDevice3D* GetAsEventDataDevice3D() override { return this; }
 
@@ -222,48 +243,6 @@ protected:
 private:
   vtkEventDataDevice3D(const vtkEventDataDevice3D& c) = delete;
   void operator=(const vtkEventDataDevice3D&) = delete;
-};
-
-// subclass for button event 3d
-class vtkEventDataButton3D : public vtkEventDataDevice3D
-{
-public:
-  vtkTypeMacro(vtkEventDataButton3D, vtkEventDataDevice3D);
-  static vtkEventDataButton3D* New()
-  {
-    vtkEventDataButton3D* ret = new vtkEventDataButton3D;
-    ret->InitializeObjectBase();
-    return ret;
-  }
-
-protected:
-  vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
-  ~vtkEventDataButton3D() override = default;
-
-private:
-  vtkEventDataButton3D(const vtkEventDataButton3D& c) = delete;
-  void operator=(const vtkEventDataButton3D&) = delete;
-};
-
-// subclass for move event 3d
-class vtkEventDataMove3D : public vtkEventDataDevice3D
-{
-public:
-  vtkTypeMacro(vtkEventDataMove3D, vtkEventDataDevice3D);
-  static vtkEventDataMove3D* New()
-  {
-    vtkEventDataMove3D* ret = new vtkEventDataMove3D;
-    ret->InitializeObjectBase();
-    return ret;
-  }
-
-protected:
-  vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }
-  ~vtkEventDataMove3D() override = default;
-
-private:
-  vtkEventDataMove3D(const vtkEventDataMove3D& c) = delete;
-  void operator=(const vtkEventDataMove3D&) = delete;
 };
 
 #endif

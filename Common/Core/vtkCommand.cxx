@@ -103,6 +103,13 @@ bool vtkCommand::EventHasData(unsigned long event)
   {
     case vtkCommand::Button3DEvent:
     case vtkCommand::Move3DEvent:
+    case vtkCommand::ViewerMovement3DEvent:
+    case vtkCommand::Menu3DEvent:
+    case vtkCommand::NextPose3DEvent:
+    case vtkCommand::Clip3DEvent:
+    case vtkCommand::PositionProp3DEvent:
+    case vtkCommand::Pick3DEvent:
+    case vtkCommand::Select3DEvent:
       return true;
     default:
       return false;

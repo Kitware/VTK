@@ -125,6 +125,7 @@ protected:
 
   double DollyPhysicalSpeed;
   vtkNew<vtkTimerLog> LastDolly3DEventTime;
+  double LastTrackPadPosition[2];
 
 private:
   vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete;

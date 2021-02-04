@@ -30,26 +30,27 @@ vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
   this->WidgetState = vtkOpenVRPanelWidget::Start;
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Press);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed, vtkWidgetEvent::Select3D,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed, vtkWidgetEvent::Select3D,
       this, vtkOpenVRPanelWidget::SelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataButton3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
-    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     ed->SetAction(vtkEventDataAction::Release);
-    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent, ed,
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Select3DEvent, ed,
       vtkWidgetEvent::EndSelect3D, this, vtkOpenVRPanelWidget::EndSelectAction3D);
   }
 
   {
-    vtkNew<vtkEventDataMove3D> ed;
-    ed->SetDevice(vtkEventDataDevice::RightController);
+    vtkNew<vtkEventDataDevice3D> ed;
+    ed->SetDevice(vtkEventDataDevice::Any);
+    ed->SetInput(vtkEventDataDeviceInput::Any);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent, ed, vtkWidgetEvent::Move3D,
       this, vtkOpenVRPanelWidget::MoveAction3D);
   }

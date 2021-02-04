@@ -191,6 +191,11 @@ protected:
   // On by default.
   vtkTypeBool ProcessEvents;
 
+  // Used by subclasses to ensure different events comes from the same
+  // hardware device. Such as starting a move with the right controller
+  // should then only respond to move events from the right controller.
+  int LastDevice;
+
 private:
   vtkAbstractWidget(const vtkAbstractWidget&) = delete;
   void operator=(const vtkAbstractWidget&) = delete;
