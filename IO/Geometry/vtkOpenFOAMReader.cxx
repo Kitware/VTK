@@ -243,6 +243,12 @@ vtkStandardNewMacro(vtkOpenFOAMReader);
 // The name for finiteVolume internal mesh (unzoned)
 static constexpr const char* const NAME_INTERNALMESH = "internalMesh";
 
+// Index is "constant" time
+static constexpr int TIMEINDEX_CONSTANT = -1;
+
+// Index has not been visited
+static constexpr int TIMEINDEX_UNVISITED = -2;
+
 //------------------------------------------------------------------------------
 // Local Functions
 
@@ -765,10 +771,6 @@ struct vtkFoamBoundaries : public std::vector<vtkFoamPatch>
   // Active patch indices, selected by group
   std::unordered_set<vtkIdType> patchActiveByGroup;
 
-  // We maintain the corresponding face-instances time directory
-  // to ensure that topology or other changes are noticed
-  std::string timeName_;
-
   // Reset group and patch selections
   void clearSelections()
   {
@@ -952,10 +954,7 @@ public:
   vtkStringArray* GetTimeNames() { return this->TimeNames; }
   vtkDoubleArray* GetTimeValues() { return this->TimeValues; }
 
-  bool HasPolyMesh() const
-  {
-    return this->PolyMeshFacesDir && this->PolyMeshFacesDir->GetNumberOfValues();
-  }
+  bool HasPolyMesh() const noexcept { return !this->PolyMeshTimeIndexFaces.empty(); }
 
   const std::string& GetRegionName() const noexcept { return this->RegionName; }
 
@@ -963,11 +962,11 @@ public:
   int RequestData(vtkMultiBlockDataSet* output);
   int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, bool);
 
-  // Gather time instances information and create mesh times
+  // Gather time instances information and create cache for mesh times
   bool MakeInformationVector(const std::string& casePath, const std::string& controlDictPath,
     const std::string& procName, vtkOpenFOAMReader* parent, bool requirePolyMesh = true);
 
-  // Copy time instances information and create mesh times
+  // Copy time instances information and create cache for mesh times
   void SetupInformation(const std::string& casePath, const std::string& regionName,
     const std::string& procName, vtkOpenFOAMReaderPrivate* master, bool requirePolyMesh = true);
 
@@ -981,8 +980,17 @@ private:
   // Time information
   vtkDoubleArray* TimeValues; // Time values
   vtkStringArray* TimeNames;  // Directory names
+
+  // Topology indices into TimeValues, TimeName
+  std::vector<vtkIdType> PolyMeshTimeIndexPoints;
+  std::vector<vtkIdType> PolyMeshTimeIndexFaces;
+
+  // Indices into TimeValues, TimeName
   int TimeStep;
   int TimeStepOld;
+
+  // Topology time index, driven by PolyMeshTimeIndexFaces
+  int TopologyTimeIndex;
 
   int InternalMeshSelectionStatus;
   int InternalMeshSelectionStatusOld;
@@ -993,8 +1001,6 @@ private:
   vtkStringArray* AreaFieldFiles;
   vtkStringArray* PointFieldFiles;
   vtkStringArray* LagrangianFieldFiles;
-  vtkStringArray* PolyMeshPointsDir;
-  vtkStringArray* PolyMeshFacesDir;
 
   // Mesh dimensions and construction information
   vtkIdType NumPoints;
@@ -1094,23 +1100,27 @@ private:
     }
     return this->CasePath + this->TimeNames->GetValue(timeIndex);
   }
+  std::string CurrentTimePath() const { return this->TimePath(this->TimeStep); }
+
+  // TimePath + region
   std::string TimeRegionPath(int timeIndex) const
   {
     return this->TimePath(timeIndex) + this->RegionPath();
   }
-  std::string CurrentTimePath() const { return this->TimePath(this->TimeStep); }
 
   std::string CurrentTimeRegionPath() const { return this->TimeRegionPath(this->TimeStep); }
-  std::string CurrentTimeRegionMeshPath(vtkStringArray* dir) const
+
+  std::string CurrentTimeRegionPath(const std::vector<vtkIdType>& indexer) const
   {
-    return this->CasePath + dir->GetValue(this->TimeStep) + this->RegionPath() + "/polyMesh/";
+    return this->TimeRegionPath(indexer[this->TimeStep]);
   }
 
-  // Append time directories for mesh
-  void AppendMeshDirToArray(vtkStringArray*, vtkIdType timeIndex, bool changed);
+#if VTK_FOAMFILE_DEBUG
+  void PrintMeshTimes(const char* name, const std::vector<vtkIdType>&) const; // For debugging
+#endif
 
   // Search time directories for mesh
-  void PopulatePolyMeshDirArrays();
+  void PopulateMeshTimeIndices();
 
   void AddFieldName(
     const std::string& fieldName, const std::string& fieldType, bool isLagrangian = false);
@@ -1120,19 +1130,19 @@ private:
   void LocateLagrangianClouds(const std::string& timePath);
 
   // List time directories according to system/controlDict
-  bool ListTimeDirectoriesByControlDict(const vtkFoamDict& dict);
+  vtkFoamError ListTimeDirectoriesByControlDict(const std::string& controlDictPath);
 
   // List time directories by searching in a case directory
   bool ListTimeDirectoriesByInstances();
 
   // Read polyMesh/points (vectorField)
-  vtkSmartPointer<vtkFloatArray> ReadPointsFile(const std::string& meshDir);
+  vtkSmartPointer<vtkFloatArray> ReadPointsFile(const std::string& timeRegionDir);
 
   // Read polyMesh/faces (faceCompactList or faceList)
-  std::unique_ptr<vtkFoamLabelListList> ReadFacesFile(const std::string& meshDir);
+  std::unique_ptr<vtkFoamLabelListList> ReadFacesFile(const std::string& timeRegionDir);
 
   // Read polyMesh/{owner,neighbour}, check overall number of faces.
-  bool ReadOwnerNeighbourFiles(const std::string& meshDir);
+  bool ReadOwnerNeighbourFiles(const std::string& timeRegionDir);
 
   // Create meshCells from owner/neighbour information
   std::unique_ptr<vtkFoamLabelListList> CreateCellFaces();
@@ -1180,8 +1190,8 @@ private:
   // Create lagrangian mesh/fields
   vtkMultiBlockDataSet* MakeLagrangianMesh();
 
-  // Read specified file (typeName)
-  std::unique_ptr<vtkFoamDict> GatherBlocks(const char* typeName, bool mandatory);
+  // Read specified file (typeName) from polyMesh directory, using faces instance
+  std::unique_ptr<vtkFoamDict> GetPolyMeshFile(const std::string& typeName, bool mandatory);
 
   // Create (cell|face|point) zones
   bool GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
@@ -5149,7 +5159,8 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->TimeNames = vtkStringArray::New();
 
   this->TimeStep = 0;
-  this->TimeStepOld = -1;
+  this->TimeStepOld = TIMEINDEX_UNVISITED;
+  this->TopologyTimeIndex = TIMEINDEX_UNVISITED;
 
   // Selection
   this->InternalMeshSelectionStatus = 0;
@@ -5166,8 +5177,6 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->AreaFieldFiles = vtkStringArray::New();
   this->PointFieldFiles = vtkStringArray::New();
   this->LagrangianFieldFiles = vtkStringArray::New();
-  this->PolyMeshPointsDir = vtkStringArray::New();
-  this->PolyMeshFacesDir = vtkStringArray::New();
 
   // For creating cell-to-point translated data
   this->BoundaryPointMap = nullptr;
@@ -5206,8 +5215,6 @@ vtkOpenFOAMReaderPrivate::~vtkOpenFOAMReaderPrivate()
   this->TimeValues->Delete();
   this->TimeNames->Delete();
 
-  this->PolyMeshPointsDir->Delete();
-  this->PolyMeshFacesDir->Delete();
   this->VolFieldFiles->Delete();
   this->DimFieldFiles->Delete();
   this->AreaFieldFiles->Delete();
@@ -5334,6 +5341,77 @@ void vtkOpenFOAMReaderPrivate::SetTimeValue(double requestedTime)
 }
 
 //------------------------------------------------------------------------------
+// Gather the necessary information to create a path to the data
+bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath,
+  const std::string& controlDictPath, const std::string& procName, vtkOpenFOAMReader* parent,
+  bool requirePolyMesh)
+{
+  vtkFoamDebug(<< "MakeInformationVector (" << this->RegionName << "/" << procName
+               << ") polyMesh:" << requirePolyMesh << " - list times\n");
+
+  this->CasePath = casePath;
+  this->ProcessorName = procName;
+  this->Parent = parent;
+
+  bool scanTimeDirs = true;
+  bool listOk = true; // Tentative return value
+
+  // List timesteps by directory or predict from controlDict values
+
+  if (!controlDictPath.empty() && this->Parent->GetListTimeStepsByControlDict())
+  {
+    vtkFoamError errors = this->ListTimeDirectoriesByControlDict(controlDictPath);
+
+    listOk = errors.empty();
+    if (listOk)
+    {
+      scanTimeDirs = false;
+    }
+    else
+    {
+      // Fall through to list by directory
+      vtkWarningMacro(<< errors << " - listing by instance instead");
+    }
+  }
+
+  if (scanTimeDirs)
+  {
+    listOk = this->ListTimeDirectoriesByInstances();
+  }
+  if (!listOk)
+  {
+    return false;
+  }
+
+  // does not seem to be required even if number of timesteps reduced
+  // upon refresh since ParaView rewinds TimeStep to 0, but for precaution
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+  if (nTimes)
+  {
+    if (this->TimeStep >= nTimes)
+    {
+      this->SetTimeStep(static_cast<int>(nTimes - 1));
+    }
+  }
+  else
+  {
+    this->SetTimeStep(0);
+  }
+
+  // Clear any cached knowledge
+  this->PolyMeshTimeIndexPoints.clear();
+  this->PolyMeshTimeIndexFaces.clear();
+
+  // Normally expect a (default region) polyMesh/, but not for multi-region cases
+  if (requirePolyMesh)
+  {
+    this->PopulateMeshTimeIndices();
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 // Copy time instances information and create mesh times
 void vtkOpenFOAMReaderPrivate::SetupInformation(const std::string& casePath,
   const std::string& regionName, const std::string& procName, vtkOpenFOAMReaderPrivate* master,
@@ -5354,11 +5432,14 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const std::string& casePath,
   this->TimeNames = master->TimeNames;
   this->TimeNames->Register(nullptr);
 
-  // Normally will have already checked for a region polyMesh/ before calling this method,
-  // but provision for a missing mesh anyhow
+  // Clear any cached knowledge
+  this->PolyMeshTimeIndexPoints.clear();
+  this->PolyMeshTimeIndexFaces.clear();
+
+  // Normally expect a (default region) polyMesh/, but not for multi-region cases
   if (requirePolyMesh)
   {
-    this->PopulatePolyMeshDirArrays();
+    this->PopulateMeshTimeIndices();
   }
 }
 
@@ -5762,13 +5843,14 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
     return 1;
   }
 
+  // Track topology change
+  const bool topoChanged = (this->TopologyTimeIndex < -1 ||
+    (this->TopologyTimeIndex != this->PolyMeshTimeIndexFaces[this->TimeStep]));
+  this->TopologyTimeIndex = this->PolyMeshTimeIndexFaces[this->TimeStep];
+
   // Change in topology or selection, may need to update boundaries
   {
     auto& patches = this->BoundaryDict;
-
-    // Change in topology, need to create/recreate from file
-    const bool topoChanged = (patches.timeName_.empty() ||
-      (this->PolyMeshFacesDir->GetValue(this->TimeStep) != patches.timeName_));
 
     // User selection changed
     const bool selectChanged = topoChanged ||
@@ -5780,10 +5862,8 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
     if (topoChanged)
     {
       patches.clearAll();
-      patches.timeName_ = this->PolyMeshFacesDir->GetValue(this->TimeStep);
-
       const bool isSubRegion = !this->RegionName.empty();
-      auto boundaryEntriesPtr(this->GatherBlocks("boundary", isSubRegion));
+      auto boundaryEntriesPtr(this->GetPolyMeshFile("boundary", isSubRegion));
 
       if (boundaryEntriesPtr)
       {
@@ -5888,6 +5968,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 
   // Add scalars and vectors to metadata
   std::string timePath(this->CurrentTimePath());
+
   // do not do "RemoveAllArrays()" to accumulate array selections
   // this->CellDataArraySelection->RemoveAllArrays();
   this->VolFieldFiles->Initialize();
@@ -5930,58 +6011,102 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 
 //------------------------------------------------------------------------------
 // List time directories according to system/controlDict
-bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDict& dict)
+
+vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
+  const std::string& controlDictPath)
 {
   // Note: use double (not float) to handle time values precisely
 
+  // Open and check if controlDict is readable
+  vtkFoamIOobject io(this->CasePath, this->Parent);
+
+  if (!io.Open(controlDictPath))
+  {
+    return vtkFoamError() << "Error opening " << io.GetFileName() << ": " << io.GetError();
+  }
+
+  vtkFoamDict dict;
+  if (!dict.Read(io))
+  {
+    return vtkFoamError() << "Error reading line " << io.GetLineNumber() << " of "
+                          << io.GetFileName() << ": " << io.GetError();
+  }
+
+  if (dict.GetType() != vtkFoamToken::DICTIONARY)
+  {
+    return vtkFoamError() << "The file " << io.GetFileName() << " is not a dictionary";
+  }
+
   const vtkFoamEntry* eptr;
+
+  // Calculate time step increment based on type of run
+  if ((eptr = dict.Lookup("writeControl")) == nullptr)
+  {
+    return vtkFoamError() << "No 'writeControl' in " << io.GetFileName();
+  }
+  const std::string writeControl(eptr->ToString());
+
+  // When (adjustTimeStep, writeControl) == (on, adjustableRunTime) or (off, timeStep)
+  // list by time instances in the case directory otherwise
+  // (different behaviour from paraFoam)
+
+  bool adjustTimeStep = false;
+  if ((eptr = dict.Lookup("adjustTimeStep")) != nullptr)
+  {
+    const std::string sw(eptr->ToString());
+
+    // Switch values for 'true' (cf. src/OpenFOAM/db/Switch/Switch.C)
+    adjustTimeStep = (sw == "on" || sw == "yes" || sw == "y" || sw == "true" || sw == "t");
+  }
+  if (adjustTimeStep)
+  {
+    if (writeControl.compare(0, 10, "adjustable") != 0)
+    {
+      // Require "adjustable" or "adjustableRunTime"
+      return vtkFoamError() << "Used adjustTimeStep, but writeControl was not adjustable: "
+                            << writeControl;
+    }
+  }
+  else if (writeControl != "timeStep")
+  {
+    return vtkFoamError() << "Use fixed time step, but writeControl was not 'timeStep': "
+                          << writeControl;
+  }
 
   if ((eptr = dict.Lookup("startTime")) == nullptr)
   {
-    vtkErrorMacro(<< "No 'startTime' in controlDict");
-    return false;
+    return vtkFoamError() << "No 'startTime' in controlDict";
   }
   const double startTime = eptr->ToDouble();
 
   if ((eptr = dict.Lookup("endTime")) == nullptr)
   {
-    vtkErrorMacro(<< "No 'endTime' in controlDict");
-    return false;
+    return vtkFoamError() << "No 'endTime' in controlDict";
   }
   const double endTime = eptr->ToDouble();
 
   if ((eptr = dict.Lookup("deltaT")) == nullptr)
   {
-    vtkErrorMacro(<< "No 'deltaT' in controlDict");
-    return false;
+    return vtkFoamError() << "No 'deltaT' in controlDict";
   }
   const double deltaT = eptr->ToDouble();
 
   if ((eptr = dict.Lookup("writeInterval")) == nullptr)
   {
-    vtkErrorMacro(<< "No 'writeInterval' in controlDict");
-    return false;
+    return vtkFoamError() << "No 'writeInterval' in controlDict";
   }
   const double writeInterval = eptr->ToDouble();
 
-  if ((eptr = dict.Lookup("timeFormat")) == nullptr)
+  // "timeFormat" is optional - default is "general"
+  std::string timeFormat("general");
+  if ((eptr = dict.Lookup("timeFormat")) != nullptr)
   {
-    vtkErrorMacro(<< "No 'timeFormat' in controlDict");
-    return false;
+    timeFormat = eptr->ToString();
   }
-  const std::string timeFormat(eptr->ToString());
 
   // Default timePrecision is 6
   const vtkTypeInt64 timePrecision =
     ((eptr = dict.Lookup("timePrecision")) != nullptr ? eptr->ToInt() : 6);
-
-  // Calculate time step increment based on type of run
-  if ((eptr = dict.Lookup("writeControl")) == nullptr)
-  {
-    vtkErrorMacro(<< "No 'writeControl' in controlDict");
-    return false;
-  }
-  const std::string writeControl(eptr->ToString());
 
   double timeStepIncrement = 1;
   if (writeControl == "timeStep")
@@ -5994,20 +6119,11 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDic
   }
   else
   {
-    vtkErrorMacro(<< "Cannot determine time-step for writeControl: " << writeControl);
-    return false;
+    return vtkFoamError() << "Cannot determine time-step for writeControl: " << writeControl;
   }
 
-  // How many timesteps there should be
-  const double tempResult = (endTime - startTime) / timeStepIncrement;
-
-  // +0.5 to round up
-  const int tempNumTimeSteps = static_cast<int>(tempResult + 0.5) + 1;
-
-  // Make sure time step dir exists
-  vtkNew<vtkDirectory> testdir;
-  this->TimeValues->Initialize();
-  this->TimeNames->Initialize();
+  // How many timesteps there should be, rounded up
+  const int numTimeSteps = 1 + static_cast<int>((endTime - startTime) / timeStepIncrement + 0.5);
 
   // Determine time name based on Foam::Time::timeName()
   // cf. src/OpenFOAM/db/Time/Time.C
@@ -6015,7 +6131,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDic
 #ifdef _MSC_VER
   bool correctExponent = true;
 #endif
-  if (timeFormat == "general")
+  if (timeFormat == "general" || timeFormat.empty())
   {
     parser.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
   }
@@ -6032,65 +6148,65 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDic
   }
   else
   {
-    vtkWarningMacro("Warning: unsupported time format. Assuming general.");
     parser.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
   }
   parser.precision(timePrecision);
 
-  for (int i = 0; i < tempNumTimeSteps; i++)
+  this->TimeValues->Initialize();
+  this->TimeNames->Initialize();
+
+  for (int timeStepi = 0; timeStepi < numTimeSteps; ++timeStepi)
   {
     parser.str("");
-    const double tempStep = i * timeStepIncrement + startTime;
-    parser << tempStep; // stringstream doesn't require ends
+    const double timeValue = startTime + timeStepIncrement * timeStepi;
+    parser << timeValue;
+
+    std::string timeName(parser.str());
+
 #ifdef _MSC_VER
     // workaround for format difference in MSVC++:
     // remove an extra 0 from exponent
     if (correctExponent)
     {
-      std::string tempStr(parser.str());
-      const auto pos = tempStr.find('e');
-      if (pos != std::string::npos && tempStr.length() >= pos + 3 && tempStr[pos + 2] == '0')
+      const auto pos = timeName.find('e');
+      if (pos != std::string::npos && timeName.length() >= pos + 3 && timeName[pos + 2] == '0')
       {
-        tempStr.erase(pos + 2, 1);
-        parser.str(tempStr);
+        timeName.erase(pos + 2, 1);
       }
     }
 #endif
+
     // Add the time steps that actually exist to steps
     // allows the run to be stopped short of controlDict spec
     // allows for removal of timesteps
-    if (testdir->Open((this->CasePath + parser.str()).c_str()))
+    if (vtksys::SystemTools::FileIsDirectory(this->CasePath + timeName))
     {
-      this->TimeValues->InsertNextValue(tempStep);
-      this->TimeNames->InsertNextValue(parser.str());
+      this->TimeNames->InsertNextValue(timeName);
+      this->TimeValues->InsertNextValue(timeValue);
     }
     // necessary for reading the case/0 directory whatever the timeFormat is
     // based on Foam::Time::operator++() cf. src/OpenFOAM/db/Time/Time.C
-    else if ((fabs(tempStep) < 1.0e-14L) // 10*SMALL
-      && testdir->Open((this->CasePath + std::string("0")).c_str()))
+    else if ((fabs(timeValue) < 1.0e-14L) // 10*SMALL
+      && vtksys::SystemTools::FileIsDirectory(this->CasePath + "0"))
     {
-      this->TimeValues->InsertNextValue(tempStep);
-      this->TimeNames->InsertNextValue(std::string("0"));
+      this->TimeNames->InsertNextValue("0");
+      this->TimeValues->InsertNextValue(0);
     }
+  }
+
+  // If there are no other times and "constant/" directory exists - treat as startTime
+  if (this->TimeValues->GetNumberOfTuples() == 0 &&
+    vtksys::SystemTools::FileIsDirectory(this->CasePath + "constant"))
+  {
+    parser.str("");
+    parser << startTime;
+    this->TimeNames->InsertNextValue(parser.str());
+    this->TimeValues->InsertNextValue(startTime);
   }
 
   this->TimeValues->Squeeze();
   this->TimeNames->Squeeze();
-
-  if (this->TimeValues->GetNumberOfTuples() == 0)
-  {
-    // set the number of timesteps to 1 if the constant subdirectory exists
-    if (testdir->Open((this->CasePath + "constant").c_str()))
-    {
-      parser.str("");
-      parser << startTime;
-      this->TimeValues->InsertNextValue(startTime);
-      this->TimeValues->Squeeze();
-      this->TimeNames->InsertNextValue(parser.str());
-      this->TimeNames->Squeeze();
-    }
-  }
-  return true;
+  return vtkFoamError();
 }
 
 //------------------------------------------------------------------------------
@@ -6099,8 +6215,8 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(const vtkFoamDic
 bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 {
   // Open the case directory
-  vtkNew<vtkDirectory> testdir;
-  if (!testdir->Open(this->CasePath.c_str()))
+  vtkNew<vtkDirectory> dir;
+  if (!dir->Open(this->CasePath.c_str()))
   {
     vtkErrorMacro(<< "Can't open directory " << this->CasePath);
     return false;
@@ -6108,58 +6224,66 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 
   const bool ignore0Dir = this->Parent->GetSkipZeroTime();
 
-  // search all the directories in the case directory and detect
-  // directories with names convertible to numbers
-  this->TimeValues->Initialize();
+  // Detect all directories in the case directory with names convertible to numbers
   this->TimeNames->Initialize();
-  const vtkIdType nFiles = testdir->GetNumberOfFiles();
+  this->TimeValues->Initialize();
+
+  const vtkIdType nFiles = dir->GetNumberOfFiles();
   for (vtkIdType filei = 0; filei < nFiles; ++filei)
   {
-    const std::string timeName = testdir->GetFile(filei);
-    bool isTimeDir = testdir->FileIsDirectory(timeName.c_str());
+    const char* timeName = dir->GetFile(filei);
 
-    if (!isTimeDir || timeName == "." || timeName == ".." || (ignore0Dir && timeName == "0"))
-    {
-      // Skip files, optionally ignore 0/ directory
-      continue;
-    }
+    // Perform string checks first (quick) before any filestat
+    // - expect numbers starting with a digit or [-+]
+    // - no numbers starting with '.', since they would be hidden files!
 
-    // Check if the name is convertible to a number
-    for (size_t j = 0; j < timeName.length() && isTimeDir; ++j)
-    {
-      const char c = timeName[j];
-      isTimeDir = (isdigit(c) || c == '+' || c == '-' || c == '.' || c == 'e' || c == 'E');
-    }
-    if (!isTimeDir)
+    // Optionally ignore "0/" directory
+    if (ignore0Dir && timeName[0] == '0' && timeName[1] == '\0')
     {
       continue;
     }
 
-    // convert to a number
-    char* endptr;
-    double timeValue = strtod(timeName.c_str(), &endptr);
-    // check if the value really was converted to a number
-    if (timeValue == 0.0 && endptr == timeName.c_str())
+    bool isNumber = (std::isdigit(timeName[0]) || timeName[0] == '+' || timeName[0] == '-');
+    for (const char* p = (timeName + 1); *p && isNumber; ++p)
     {
-      continue;
+      const char c = *p;
+      isNumber = (std::isdigit(c) || c == '+' || c == '-' || c == '.' || c == 'E' || c == 'e');
     }
 
-    // add to the instance list
-    this->TimeValues->InsertNextValue(timeValue);
-    this->TimeNames->InsertNextValue(timeName);
+    if (isNumber)
+    {
+      // Convert to a number
+      char* endptr = nullptr;
+      const double timeValue = std::strtod(timeName, &endptr);
+
+      // Check for good parse of entire string, and filestat that it is a directory
+      if (timeName != endptr && *endptr == '\0' && dir->FileIsDirectory(timeName))
+      {
+        this->TimeNames->InsertNextValue(timeName);
+        this->TimeValues->InsertNextValue(timeValue);
+      }
+    }
+  }
+
+  // If there are no other times, use "constant/" directory
+  if (this->TimeValues->GetNumberOfTuples() == 0 && dir->FileIsDirectory("constant"))
+  {
+    this->TimeNames->InsertNextValue("constant");
+    this->TimeValues->InsertNextValue(0);
   }
 
   this->TimeValues->Squeeze();
   this->TimeNames->Squeeze();
 
-  if (this->TimeValues->GetNumberOfTuples() > 1)
+  vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+
+  if (nTimes > 1)
   {
-    // sort the detected time directories
+    // Sort the detected time directories
     vtkSortDataArray::Sort(this->TimeValues, this->TimeNames);
 
-    // if there are duplicated timeValues found, remove duplicates
-    // (e.g. "0" and "0.000")
-    for (vtkIdType timeI = 1; timeI < this->TimeValues->GetNumberOfTuples(); timeI++)
+    // Remove duplicate time values (e.g. "0" and "0.000")
+    for (vtkIdType timeI = 1; timeI < nTimes; ++timeI)
     {
       // compare by exact match
       if (this->TimeValues->GetValue(timeI - 1) == this->TimeValues->GetValue(timeI))
@@ -6170,24 +6294,13 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
                         << this->TimeNames->GetValue(timeI) << " will be ignored.");
         this->TimeValues->RemoveTuple(timeI);
         // vtkStringArray does not have RemoveTuple()
-        for (vtkIdType timeJ = timeI + 1; timeJ < this->TimeNames->GetNumberOfTuples(); timeJ++)
+        for (vtkIdType oldTimei = timeI + 1; oldTimei < nTimes; ++oldTimei)
         {
-          this->TimeNames->SetValue(timeJ - 1, this->TimeNames->GetValue(timeJ));
+          this->TimeNames->SetValue(oldTimei - 1, this->TimeNames->GetValue(oldTimei));
         }
-        this->TimeNames->Resize(this->TimeNames->GetNumberOfTuples() - 1);
+        --nTimes;
+        this->TimeNames->Resize(nTimes);
       }
-    }
-  }
-
-  if (this->TimeValues->GetNumberOfTuples() == 0)
-  {
-    // set the number of timesteps to 1 if the constant subdirectory exists
-    if (testdir->Open((this->CasePath + "constant").c_str()))
-    {
-      this->TimeValues->InsertNextValue(0.0);
-      this->TimeValues->Squeeze();
-      this->TimeNames->InsertNextValue("constant");
-      this->TimeNames->Squeeze();
     }
   }
 
@@ -6195,156 +6308,89 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 }
 
 //------------------------------------------------------------------------------
-// Gather the necessary information to create a path to the data
-bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath,
-  const std::string& controlDictPath, const std::string& procName, vtkOpenFOAMReader* parent,
-  bool requirePolyMesh)
+// Print changes in mesh times (debugging only)
+#if VTK_FOAMFILE_DEBUG
+void vtkOpenFOAMReaderPrivate::PrintMeshTimes(
+  const char* name, const std::vector<vtkIdType>& indexer) const
 {
-  vtkFoamDebug(<< "MakeInformationVector (" << this->RegionName << "/" << procName
-               << ") polyMesh:" << requirePolyMesh << " - list times\n");
+  // Yes this is really needed, VTK constness is a bit odd
+  auto& timeNames = const_cast<vtkStringArray&>(*this->TimeNames);
 
-  this->CasePath = casePath;
-  this->ProcessorName = procName;
-  this->Parent = parent;
+  std::cerr << name << " times (";
 
-  bool ret = false; // Tentative return value
-
-  // List timesteps by directory or predict from controlDict values
-
-  int listByControlDict = this->Parent->GetListTimeStepsByControlDict();
-  if (listByControlDict)
+  vtkIdType prev = TIMEINDEX_UNVISITED;
+  for (const auto idx : indexer)
   {
-    vtkFoamIOobject io(this->CasePath, this->Parent);
-
-    // Open and check if controlDict is readable
-    if (!io.Open(controlDictPath))
+    if (idx == TIMEINDEX_UNVISITED)
     {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return false;
+      std::cerr << " .";
     }
-
-    vtkFoamDict dict;
-    if (!dict.Read(io))
+    else if (prev != idx)
     {
-      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
-                    << ": " << io.GetError());
-      return false;
+      std::cerr << ' ';
+      if (idx < 0)
+      {
+        std::cerr << "constant";
+      }
+      else
+      {
+        std::cerr << timeNames.GetValue(idx);
+      }
     }
-    if (dict.GetType() != vtkFoamToken::DICTIONARY)
-    {
-      vtkErrorMacro(<< "The file " << io.GetFileName() << " is not a dictionary");
-      return false;
-    }
-
-    const vtkFoamEntry* eptr;
-    if ((eptr = dict.Lookup("writeControl")) == nullptr)
-    {
-      vtkErrorMacro(<< "No 'writeControl' in " << io.GetFileName());
-      return false;
-    }
-    const std::string writeControl(eptr->ToString());
-
-    // list time directories according to controlDict.
-    // When (adjustTimeStep, writeControl) == (on, adjustableRunTime) or (off, timeStep)
-    // list by time instances in the case directory otherwise
-    // (different behaviour from paraFoam)
-
-    bool adjustTimeStep = false;
-    if ((eptr = dict.Lookup("adjustTimeStep")) != nullptr)
-    {
-      const std::string sw(eptr->ToString());
-
-      // Switch values for 'true' (cf. src/OpenFOAM/db/Switch/Switch.C)
-      adjustTimeStep = (sw == "on" || sw == "yes" || sw == "y" || sw == "true" || sw == "t");
-    }
-
-    if (adjustTimeStep ? (writeControl == "adjustableRunTime") : (writeControl == "timeStep"))
-    {
-      ret = this->ListTimeDirectoriesByControlDict(dict);
-    }
-    else
-    {
-      // Cannot list by controlDict, fall through to below
-      listByControlDict = false;
-    }
+    prev = idx;
   }
-
-  if (!listByControlDict)
-  {
-    ret = this->ListTimeDirectoriesByInstances();
-  }
-
-  if (!ret)
-  {
-    return ret;
-  }
-
-  // does not seem to be required even if number of timesteps reduced
-  // upon refresh since ParaView rewinds TimeStep to 0, but for precaution
-  if (this->TimeValues->GetNumberOfTuples() > 0)
-  {
-    if (this->TimeStep >= this->TimeValues->GetNumberOfTuples())
-    {
-      this->SetTimeStep(static_cast<int>(this->TimeValues->GetNumberOfTuples() - 1));
-    }
-  }
-  else
-  {
-    this->SetTimeStep(0);
-  }
-
-  // Normally expect a (default region) polyMesh/, but not for multi-region cases
-  if (requirePolyMesh)
-  {
-    this->PopulatePolyMeshDirArrays();
-  }
-  return ret;
+  std::cerr << " )\n";
 }
+#endif
 
 //------------------------------------------------------------------------------
-// Append time value for a mesh points/faces change
-void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
-  vtkStringArray* instances, vtkIdType timeIndex, bool changed)
+// Local Function
+
+namespace
 {
-  if (changed)
-  {
-    // Changed, set to current time instance name
-    instances->SetValue(timeIndex, this->TimeNames->GetValue(timeIndex));
-  }
-  else if (timeIndex > 0)
-  {
-    // No change, set to previous time instance name
-    instances->SetValue(timeIndex, instances->GetValue(timeIndex - 1));
-  }
-  else
-  {
-    // No change for the first instance, set to "constant" time instance
-    instances->SetValue(timeIndex, "constant");
-  }
+
+// Update mesh instance for change
+// - Changed: set to current time index
+// - No change: set to previous time instance
+// - No change and first instance: it is "constant" time instance
+inline static void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool changed)
+{
+  list[i] = changed ? i : (i == 0) ? TIMEINDEX_CONSTANT : list[i - 1];
 }
+
+} // End anonymous namespace
 
 //------------------------------------------------------------------------------
 // create a Lookup Table containing the location of the points
 // and faces files for each time steps mesh
-void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
+void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices()
 {
-  // initialize size to number of timesteps
-  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
-  this->PolyMeshPointsDir->SetNumberOfValues(nTimes);
-  this->PolyMeshFacesDir->SetNumberOfValues(nTimes);
+  auto& faces = this->PolyMeshTimeIndexFaces;
+  auto& points = this->PolyMeshTimeIndexPoints;
 
-  for (vtkIdType timei = 0; timei < nTimes; ++timei)
+  // Ensure consistent sizing
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+
+  faces.resize(nTimes, TIMEINDEX_UNVISITED);
+  points.resize(nTimes, TIMEINDEX_UNVISITED);
+
+  for (vtkIdType timeIter = 0; timeIter < nTimes; ++timeIter)
   {
     // The mesh directory for this timestep
-    const std::string meshDir(this->TimeRegionPath(timei) + "/polyMesh/");
+    const std::string meshDir(this->TimeRegionPath(timeIter) + "/polyMesh/");
 
     const bool hasMeshDir = vtksys::SystemTools::FileIsDirectory(meshDir);
     const bool topoChanged = hasMeshDir && vtkFoamFile::IsFile(meshDir + "faces", true);
     const bool pointsMoved = hasMeshDir && vtkFoamFile::IsFile(meshDir + "points", true);
 
-    AppendMeshDirToArray(this->PolyMeshFacesDir, timei, topoChanged);
-    AppendMeshDirToArray(this->PolyMeshPointsDir, timei, pointsMoved);
+    UpdateTimeInstance(faces, timeIter, topoChanged);
+    UpdateTimeInstance(points, timeIter, pointsMoved);
   }
+
+#if VTK_FOAMFILE_DEBUG
+  PrintMeshTimes("faces", faces);
+  PrintMeshTimes("points", points);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -6352,7 +6398,8 @@ void vtkOpenFOAMReaderPrivate::PopulatePolyMeshDirArrays()
 //
 // - sets NumPoints
 
-vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(const std::string& meshDir)
+vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(
+  const std::string& timeRegionDir)
 {
   // Assume failure
   this->NumPoints = 0;
@@ -6360,13 +6407,10 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(const st
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
   // Read polyMesh/points
+  if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/points"))
   {
-    const std::string pointsPath(meshDir + "points");
-    if (!io.OpenOrGzip(pointsPath))
-    {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return nullptr;
-    }
+    vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
+    return nullptr;
   }
 
   vtkSmartPointer<vtkFloatArray> pointArray;
@@ -6413,7 +6457,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(const st
 // Return meshFaces
 
 std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
-  const std::string& meshDir)
+  const std::string& timeRegionDir)
 {
   // Assume failure
   this->NumFaces = 0;
@@ -6422,15 +6466,12 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
   // Read polyMesh/faces
+  if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/faces"))
   {
-    const std::string facePath(meshDir + "faces");
-    if (!io.OpenOrGzip(facePath))
-    {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError()
-                    << ". If you are trying to read a parallel decomposed case, "
-                       "set Case Type to Decomposed Case.");
-      return nullptr;
-    }
+    vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError()
+                  << ". If you are trying to read a parallel decomposed case, "
+                     "set Case Type to Decomposed Case.");
+    return nullptr;
   }
 
   std::unique_ptr<vtkFoamLabelListList> meshFaces;
@@ -6471,7 +6512,7 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::ReadFacesFile(
 // Read owner, neighbour files
 // - sets NumFaces and NumInternalFaces, and NumCells
 
-bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& meshDir)
+bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRegionDir)
 {
   // Assume failure
   this->NumCells = 0;
@@ -6479,13 +6520,10 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& meshDi
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
   // Read polyMesh/owner
+  if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/owner"))
   {
-    const std::string ownPath(meshDir + "owner");
-    if (!io.OpenOrGzip(ownPath))
-    {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return false;
-    }
+    vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
+    return false;
   }
   const bool use64BitLabels = io.IsLabel64();
 
@@ -6537,13 +6575,10 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& meshDi
   }
 
   // Read polyMesh/neighbour
+  if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/neighbour"))
   {
-    const std::string neiPath(meshDir + "neighbour");
-    if (!io.OpenOrGzip(neiPath))
-    {
-      vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
-      return false;
-    }
+    vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
+    return false;
   }
 
   if (use64BitLabels != io.IsLabel64())
@@ -9418,14 +9453,15 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 }
 
 //------------------------------------------------------------------------------
-// Returns a dictionary of block names for a specified domain
-std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
-  const char* typeName, bool mandatory)
+// Read specified file (typeName) from polyMesh directory as dictionary
+
+std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GetPolyMeshFile(
+  const std::string& typeName, bool mandatory)
 {
-  std::string blockPath(this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir) + typeName);
+  const std::string timeRegionDir(this->CurrentTimeRegionPath(this->PolyMeshTimeIndexFaces));
 
   vtkFoamIOobject io(this->CasePath, this->Parent);
-  if (!io.OpenOrGzip(blockPath))
+  if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/" + typeName))
   {
     if (mandatory)
     {
@@ -9468,7 +9504,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
 
   zoneMap.clearAll(); // Remove all old ids and errors
 
-  auto zonesDictPtr(this->GatherBlocks(zoneFileName, false));
+  auto zonesDictPtr(this->GetPolyMeshFile(zoneFileName, false));
   if (zonesDictPtr == nullptr)
   {
     // Not an error if mesh zones are missing
@@ -9594,7 +9630,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
 
   zoneMap.clearAll(); // Remove all old ids and errors
 
-  auto zonesDictPtr(this->GatherBlocks(zoneFileName, false));
+  auto zonesDictPtr(this->GetPolyMeshFile(zoneFileName, false));
   if (zonesDictPtr == nullptr)
   {
     // Not an error if mesh zones are missing
@@ -9754,7 +9790,7 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 
   zoneMap.clearAll(); // Remove all old ids and errors
 
-  auto zonesDictPtr(this->GatherBlocks(zoneFileName, false));
+  auto zonesDictPtr(this->GetPolyMeshFile(zoneFileName, false));
   if (zonesDictPtr == nullptr)
   {
     // Not an error if mesh zones are missing
@@ -9891,13 +9927,13 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
     (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
 
   // Mesh changes
-  const bool topoChanged = (this->TimeStepOld == -1) || (this->FaceOwner == nullptr) ||
-    (this->PolyMeshFacesDir->GetValue(this->TimeStep) !=
-      this->PolyMeshFacesDir->GetValue(this->TimeStepOld));
+  const bool topoChanged = (this->TimeStepOld < 0) || (this->FaceOwner == nullptr) ||
+    (this->PolyMeshTimeIndexFaces[this->TimeStep] !=
+      this->PolyMeshTimeIndexFaces[this->TimeStepOld]);
 
-  const bool pointsMoved = (this->TimeStepOld == -1) ||
-    (this->PolyMeshPointsDir->GetValue(this->TimeStep) !=
-      this->PolyMeshPointsDir->GetValue(this->TimeStepOld));
+  const bool pointsMoved = (this->TimeStepOld < 0) ||
+    (this->PolyMeshTimeIndexPoints[this->TimeStep] !=
+      this->PolyMeshTimeIndexPoints[this->TimeStepOld]);
 
   // Internal mesh
   bool recreateInternalMesh = (changedStorageType) || (topoChanged) || (!this->Parent->CacheMesh) ||
@@ -9982,8 +10018,9 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
   if (createEulerians && (recreateInternalMesh || recreateBoundaryMesh))
   {
-    const std::string facesInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir);
+    const std::string facesInstance = this->CurrentTimeRegionPath(this->PolyMeshTimeIndexFaces);
 
+    vtkFoamDebug(<< "Read faces: " << facesInstance << "\n");
     // Read polyMesh/faces, create the list of faces, set the number of faces
     meshFaces = this->ReadFacesFile(facesInstance);
     if (!meshFaces)
@@ -9995,7 +10032,9 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
   if (createEulerians && recreateInternalMesh)
   {
-    const std::string facesInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir);
+    const std::string facesInstance = this->CurrentTimeRegionPath(this->PolyMeshTimeIndexFaces);
+
+    vtkFoamDebug(<< "Read owner/neighbour: " << facesInstance << "\n");
 
     // Read polyMesh/{owner,neighbour}, create FaceOwner/FaceNeigh
     if (!this->ReadOwnerNeighbourFiles(facesInstance))
@@ -10010,7 +10049,9 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
       (recreateBoundaryMesh && !recreateInternalMesh && this->InternalMesh == nullptr) ||
       moveInternalPoints || moveBoundaryPoints))
   {
-    const std::string pointsInstance = this->CurrentTimeRegionMeshPath(this->PolyMeshPointsDir);
+    const std::string pointsInstance = this->CurrentTimeRegionPath(this->PolyMeshTimeIndexPoints);
+
+    vtkFoamDebug(<< "Read points: " << pointsInstance << "\n");
 
     // Read polyMesh/points, set the number of faces
     pointArray = this->ReadPointsFile(pointsInstance);
@@ -10103,18 +10144,28 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   meshFaces.reset(nullptr);
 
   // Update the points in each mesh, if the point coordinates changed
+
+  // Update internal mesh first - decomposed polyhedra will modify pointArray
+  if (createEulerians && moveInternalPoints)
+  {
+    if (this->InternalMesh != nullptr)
+    {
+      vtkFoamDebug("Move internal points\n");
+      if (!this->MoveInternalMesh(this->InternalMesh, pointArray))
+      {
+        return 0; // Failed!
+      }
+    }
+  }
+
+  // Update zones
   if (createEulerians && moveInternalPoints)
   {
     vtkSmartPointer<vtkPoints> tmpPoints; // Localized vtkPoints storage
     vtkWeakPointer<vtkPoints> points;
 
-    // Update internal mesh first, since decomposed polyhedra will modify pointArray
     if (this->InternalMesh != nullptr)
     {
-      if (!this->MoveInternalMesh(this->InternalMesh, pointArray))
-      {
-        return 0;
-      }
       points = this->InternalMesh->GetPoints();
     }
     else
@@ -10155,6 +10206,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   {
     if (this->BoundaryMesh != nullptr)
     {
+      vtkFoamDebug("Move boundary points\n");
       this->MoveBoundaryMesh(this->BoundaryMesh, pointArray);
     }
   }
@@ -10303,7 +10355,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   else
   {
     this->ClearMeshes();
-    this->TimeStepOld = -1;
+    this->TimeStepOld = TIMEINDEX_UNVISITED;
   }
   this->InternalMeshSelectionStatusOld = this->InternalMeshSelectionStatus;
 
