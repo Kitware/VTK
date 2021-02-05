@@ -1264,10 +1264,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
       vtkIdType newCellId = output->InsertNextCell(cellType2D, cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
 
-      if (outputCD->SetActiveAttribute(
-            "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+      vtkDataArray* v = outputCD->GetHigherOrderDegrees();
+      if (v)
       {
-        vtkDataArray* v = outputCD->GetHigherOrderDegrees();
         double degrees[3];
         degrees[0] = surfel->Degrees[0];
         degrees[1] = surfel->Degrees[1];

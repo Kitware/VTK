@@ -58,10 +58,9 @@ void vtkBezierCurve::EvaluateLocationProjectedNode(
 void vtkBezierCurve::SetRationalWeightsFromPointData(
   vtkPointData* point_data, const vtkIdType numPts)
 {
-  if (point_data->SetActiveAttribute(
-        "RationalWeights", vtkDataSetAttributes::AttributeTypes::RATIONALWEIGHTS) != -1)
+  vtkDataArray* v = point_data->GetRationalWeights();
+  if (v)
   {
-    vtkDataArray* v = point_data->GetRationalWeights();
     this->GetRationalWeights()->SetNumberOfTuples(numPts);
     for (vtkIdType i = 0; i < numPts; i++)
     {
