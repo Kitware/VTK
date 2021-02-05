@@ -137,6 +137,9 @@
 // This could also be made part of the GUI properties
 #define VTK_FOAMFILE_IGNORE_FIELD_RESTART 0
 
+// Support for finiteArea
+#define VTK_FOAMFILE_FINITE_AREA 0
+
 // Support extra decomposition of polyhedral cells
 #define VTK_FOAMFILE_DECOMPOSE_POLYHEDRA 1
 
@@ -237,8 +240,10 @@ uLong ZEXPORT crc32(uLong, const Bytef*, uInt)
 
 vtkStandardNewMacro(vtkOpenFOAMReader);
 
+#if VTK_FOAMFILE_FINITE_AREA
 // The name for finiteArea mesh
-// pending: static constexpr const char* const NAME_AREAMESH = "areaMesh";
+static constexpr const char* const NAME_AREAMESH = "areaMesh";
+#endif
 
 // The name for finiteVolume internal mesh (unzoned)
 static constexpr const char* const NAME_INTERNALMESH = "internalMesh";
@@ -1040,6 +1045,11 @@ private:
   vtkFoamLabelArrayVector* AdditionalCellPoints;
 #endif
 
+#if VTK_FOAMFILE_FINITE_AREA
+  vtkFoamZones areaMeshMap;
+  vtkPolyData* AreaMesh;
+#endif
+
   // Constructor and destructor are kept private
   vtkOpenFOAMReaderPrivate();
   ~vtkOpenFOAMReaderPrivate() override;
@@ -1051,6 +1061,7 @@ private:
   void ClearInternalMeshes();
   void ClearBoundaryMeshes();
   void ClearZoneMeshes();
+  void ClearAreaMeshes();
   void ClearMeshes();
 
   // The subdirectory for a region. Eg, "/solid". Empty for default region.
@@ -1184,8 +1195,11 @@ private:
   vtkSmartPointer<vtkFloatArray> FillField(vtkFoamEntry& entry, vtkIdType nElements,
     const vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType);
   void GetVolFieldAtTimeStep(const std::string& varName, bool isInternalField = false);
-  // void GetAreaFieldAtTimeStep(const std::string& varName);
   void GetPointFieldAtTimeStep(const std::string& varName);
+
+#if VTK_FOAMFILE_FINITE_AREA
+  void GetAreaFieldAtTimeStep(const std::string& varName);
+#endif
 
   // Create lagrangian mesh/fields
   vtkMultiBlockDataSet* MakeLagrangianMesh();
@@ -1200,6 +1214,11 @@ private:
   bool GetFaceZoneMesh(
     vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList& meshFaces, vtkPoints*);
   bool GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, vtkPoints*);
+
+#if VTK_FOAMFILE_FINITE_AREA
+  // Mechanism for finiteArea mesh is similar to faceZone
+  bool GetAreaMesh(vtkPolyData* areaMesh, const vtkFoamLabelListList& meshFaces, vtkPoints*);
+#endif
 };
 
 vtkStandardNewMacro(vtkOpenFOAMReaderPrivate);
@@ -5207,6 +5226,11 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->AdditionalCellPoints = nullptr;
 #endif
 
+#if VTK_FOAMFILE_FINITE_AREA
+  this->areaMeshMap.reset(vtkFoamZones::FACE);
+  this->AreaMesh = nullptr;
+#endif
+
   this->Parent = nullptr;
 }
 
@@ -5284,6 +5308,18 @@ void vtkOpenFOAMReaderPrivate::ClearZoneMeshes()
   }
 }
 
+void vtkOpenFOAMReaderPrivate::ClearAreaMeshes()
+{
+#if VTK_FOAMFILE_FINITE_AREA
+  this->areaMeshMap.clearAll();
+  if (this->AreaMesh != nullptr)
+  {
+    this->AreaMesh->Delete();
+    this->AreaMesh = nullptr;
+  }
+#endif
+}
+
 void vtkOpenFOAMReaderPrivate::ClearBoundaryMeshes()
 {
   if (this->BoundaryMesh != nullptr)
@@ -5317,6 +5353,7 @@ void vtkOpenFOAMReaderPrivate::ClearMeshes()
   this->ClearInternalMeshes();
   this->ClearBoundaryMeshes();
   this->ClearZoneMeshes();
+  this->ClearAreaMeshes();
 }
 
 void vtkOpenFOAMReaderPrivate::SetTimeValue(double requestedTime)
@@ -6002,7 +6039,9 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   // sort array names. volFields first, followed by internal fields
   this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles);
   this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles);
-  // pending: this->SortFieldFiles(cellSelectionNames, this->AreaFieldFiles);
+#if VTK_FOAMFILE_FINITE_AREA
+  this->SortFieldFiles(cellSelectionNames, this->AreaFieldFiles);
+#endif
   this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles);
   this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles);
 
@@ -9303,6 +9342,85 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
 }
 
 //------------------------------------------------------------------------------
+// Read area field at a timestep
+#if VTK_FOAMFILE_FINITE_AREA
+void vtkOpenFOAMReaderPrivate::GetAreaFieldAtTimeStep(const std::string& varName)
+{
+  // Where to map data
+  vtkPolyData* areaMesh = this->AreaMesh;
+
+  // Really simple, skip if not selected, or no areaMesh
+  const vtkIdType nFaces = (areaMesh ? areaMesh->GetNumberOfCells() : 0);
+
+  if (!nFaces)
+  {
+    return;
+  }
+
+  vtkFoamIOobject io(this->CasePath, this->Parent);
+  vtkFoamDict dict;
+  if (!this->ReadFieldFile(io, dict, varName, this->Parent->CellDataArraySelection))
+  {
+    return;
+  }
+
+  if (io.GetClassName().compare(0, 4, "area") != 0)
+  {
+    vtkErrorMacro(<< io.GetFileName() << " is not a areaField");
+    return;
+  }
+
+  // Eg, from "areaScalarField" -> SCALAR_TYPE
+  const auto fieldDataType(vtkFoamTypes::FieldToEnum(io.GetClassName(), 4));
+
+  // -------------------------
+  // Handle dictionary lookups first
+
+  // The "dimensions" entry - stringify
+  const std::string dimString(this->ConstructDimensions(dict));
+
+  // The "internalField" entry
+  vtkFoamEntry* ifieldEntry = nullptr;
+  {
+    ifieldEntry = dict.Lookup("internalField");
+    if (ifieldEntry == nullptr)
+    {
+      vtkErrorMacro(<< "internalField not found in " << io.GetFileName());
+      return;
+    }
+    else if (ifieldEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
+    {
+      if (this->NumFaces)
+      {
+        vtkErrorMacro(<< "internalField of " << io.GetFileName() << " is empty");
+      }
+      return;
+    }
+  }
+
+  // Forget "boundaryField" entry
+  // - don't really handle edge constraints,
+
+  // -------------------------
+
+  // Generate internal field data
+  vtkSmartPointer<vtkFloatArray> iData = this->FillField(*ifieldEntry, nFaces, io, fieldDataType);
+  if (iData == nullptr)
+  {
+    return;
+  }
+  else if (iData->GetSize() == 0)
+  {
+    // Determined that there are no faces. Ignore the field
+    return;
+  }
+
+  // Set data to area mesh
+  ::AddArrayToFieldData(areaMesh->GetCellData(), iData, io.GetObjectName(), dimString);
+}
+#endif
+
+//------------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 {
   // Can have several clouds coming from different regions.
@@ -9908,6 +10026,108 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, 
 }
 
 //------------------------------------------------------------------------------
+// Populate face zone(s) mesh
+
+#if VTK_FOAMFILE_FINITE_AREA
+bool vtkOpenFOAMReaderPrivate::GetAreaMesh(
+  vtkPolyData* areaMesh, const vtkFoamLabelListList& meshFaces, vtkPoints* points)
+{
+  // Tie to faces instance (like zones etc)
+  const std::string timeRegionDir(this->CurrentTimeRegionPath(*this->PolyMeshTimeIndexFaces));
+
+  auto& zoneMap = this->areaMeshMap;
+  zoneMap.clearAll(); // Remove all old ids and errors
+
+  vtkFoamIOobject io(this->CasePath, this->Parent);
+
+  // Read faMesh/faceLabels
+  if (!io.OpenOrGzip(timeRegionDir + "/faMesh/faceLabels"))
+  {
+    // Not an error if missing
+    return true;
+  }
+  const bool use64BitLabels = io.IsLabel64();
+
+  vtkSmartPointer<vtkDataArray> labelArray;
+
+  {
+    vtkFoamEntryValue dict(nullptr);
+    dict.SetStreamOption(io);
+    try
+    {
+      if (use64BitLabels)
+      {
+        dict.ReadNonUniformList<vtkFoamToken::LABELLIST,
+          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+      }
+      else
+      {
+        dict.ReadNonUniformList<vtkFoamToken::LABELLIST,
+          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+      }
+
+      // Capture content as smart pointer
+      labelArray.TakeReference(dict.ReleasePtr<vtkDataArray>());
+    }
+    catch (const vtkFoamError& err)
+    {
+      vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                    << ": " << err);
+      return false;
+    }
+    io.Close();
+  }
+
+  if (labelArray)
+  {
+    vtkDataArray& labels = *labelArray;
+    const vtkIdType nLabels = labels.GetNumberOfTuples();
+
+    // Transcribe into vtkIdList. Don't check for questionable entries just yet
+    auto elemIds = vtkSmartPointer<vtkIdList>::New();
+    elemIds->SetNumberOfIds(nLabels);
+
+    // Size for per-face scratch array
+    vtkIdType maxNFacePoints = 16;
+
+    for (vtkIdType idx = 0; idx < nLabels; ++idx)
+    {
+      const vtkTypeInt64 elemId = GetLabelValue(labelArray, idx, use64BitLabels);
+
+      const vtkIdType nFacePoints = meshFaces.GetSize(elemId);
+      if (maxNFacePoints < nFacePoints)
+      {
+        maxNFacePoints = nFacePoints;
+      }
+
+      elemIds->SetId(idx, elemId);
+    }
+
+    zoneMap.zones_[NAME_AREAMESH] = elemIds;
+
+    // Per-face scratch array
+    auto facePointsVtkId = vtkSmartPointer<vtkIdList>::New();
+    facePointsVtkId->SetNumberOfIds(maxNFacePoints);
+
+    // Allocate new grid: we do not use resize() beforehand since it
+    // could lead to undefined pointer if we return by error
+
+    areaMesh->AllocateEstimate(nLabels, 1);
+
+    // Insert faces
+    this->InsertFacesToGrid(
+      areaMesh, meshFaces, 0, nLabels, nullptr, facePointsVtkId, elemIds, false);
+
+    // Set points for zone
+    areaMesh->SetPoints(points);
+
+    return true;
+  }
+  return false;
+}
+#endif
+
+//------------------------------------------------------------------------------
 // return 0 if there's any error, 1 if success
 int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 {
@@ -10117,6 +10337,17 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
       this->PointZoneMesh->Delete();
       this->PointZoneMesh = nullptr;
     }
+
+#if VTK_FOAMFILE_FINITE_AREA
+    // Needs a proper selection mechanism
+    this->AreaMesh = vtkPolyData::New();
+    if (!this->GetAreaMesh(this->AreaMesh, *meshFaces, points))
+    {
+      this->areaMeshMap.clearAll();
+      this->AreaMesh->Delete();
+      this->AreaMesh = nullptr;
+    }
+#endif
   }
 
   // Don't need meshCells beyond here
@@ -10276,8 +10507,12 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
     // read field data variables into Internal/Boundary meshes
     vtkIdType nFieldsRead = 0;
-    const vtkIdType nFieldsToRead = (this->VolFieldFiles->GetNumberOfValues() +
+    vtkIdType nFieldsToRead = (this->VolFieldFiles->GetNumberOfValues() +
       this->DimFieldFiles->GetNumberOfValues() + this->PointFieldFiles->GetNumberOfValues());
+
+#if VTK_FOAMFILE_FINITE_AREA
+    nFieldsToRead += this->AreaFieldFiles->GetNumberOfValues();
+#endif
 
     for (vtkIdType i = 0; i < this->VolFieldFiles->GetNumberOfValues(); ++i)
     {
@@ -10294,6 +10529,13 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
       this->GetPointFieldAtTimeStep(this->PointFieldFiles->GetValue(i));
       this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
     }
+#if VTK_FOAMFILE_FINITE_AREA
+    for (vtkIdType i = 0; i < this->AreaFieldFiles->GetNumberOfValues(); ++i)
+    {
+      this->GetAreaFieldAtTimeStep(this->AreaFieldFiles->GetValue(i));
+      this->Parent->UpdateProgress(0.5 + (0.5 * ++nFieldsRead) / nFieldsToRead);
+    }
+#endif
   }
 
   // Read lagrangian mesh and fields
@@ -10314,6 +10556,14 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   {
     ::AppendBlock(output, this->BoundaryMesh, "boundary");
   }
+
+#if VTK_FOAMFILE_FINITE_AREA
+  // Set finiteArea mesh/data as output
+  if (this->AreaMesh != nullptr)
+  {
+    ::AppendBlock(output, this->AreaMesh, NAME_AREAMESH);
+  }
+#endif
 
   // Set lagrangian mesh as output
   if (lagrangianMesh != nullptr)
