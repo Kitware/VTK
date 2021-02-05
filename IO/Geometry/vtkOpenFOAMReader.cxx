@@ -974,14 +974,13 @@ public:
 private:
   vtkOpenFOAMReader* Parent;
 
-  // Case and region
-  std::string CasePath;
-  std::string RegionName;
-  std::string ProcessorName;
+  std::string CasePath;      // The full path to the case - includes trailing '/'
+  std::string RegionName;    // Region name. Empty for default region
+  std::string ProcessorName; // Processor subdirectory. Empty for serial case
 
-  // time information
-  vtkDoubleArray* TimeValues;
-  vtkStringArray* TimeNames;
+  // Time information
+  vtkDoubleArray* TimeValues; // Time values
+  vtkStringArray* TimeNames;  // Directory names
   int TimeStep;
   int TimeStepOld;
 
@@ -1086,8 +1085,13 @@ private:
       (displayName.compare(1, slash1 - 1, this->RegionName) == 0);
   }
 
+  // The timeName for the given index, with special handling for "constant" time directory
   std::string TimePath(int timeIndex) const
   {
+    if (timeIndex < 0)
+    {
+      return this->CasePath + "constant";
+    }
     return this->CasePath + this->TimeNames->GetValue(timeIndex);
   }
   std::string TimeRegionPath(int timeIndex) const
@@ -1095,6 +1099,7 @@ private:
     return this->TimePath(timeIndex) + this->RegionPath();
   }
   std::string CurrentTimePath() const { return this->TimePath(this->TimeStep); }
+
   std::string CurrentTimeRegionPath() const { return this->TimeRegionPath(this->TimeStep); }
   std::string CurrentTimeRegionMeshPath(vtkStringArray* dir) const
   {
@@ -1376,33 +1381,33 @@ public:
   // The OpenFOAM input stream format is ASCII or BINARY
   enum fileFormat : unsigned char
   {
-    ASCII = 0, // Default is ASCII unless otherwise specified
+    ASCII = 0, // ASCII unless otherwise specified
     BINARY
   };
 
-  // Bitwidth of an OpenFOAM label (integer type)
+  // Bitwidth of an OpenFOAM label (integer type).
+  // Corresponds to WM_LABEL_SIZE (32|64)
   enum labelType : unsigned char
   {
-    UNKNOWN_LABEL = 0, // For assertions
     INT32,
     INT64
   };
 
   // Bitwidth of an OpenFOAM scalar (floating-point type)
+  // Corresponds to WM_PRECISION_OPTION (SP|DP|SPDP)
   enum scalarType : unsigned char
   {
-    UNKNOWN_SCALAR = 0, // For assertions
     FLOAT32,
     FLOAT64
   };
 
 private:
   fileFormat Format = fileFormat::ASCII;
-  labelType LabelType = labelType::UNKNOWN_LABEL;
+  labelType LabelType = labelType::INT32;
   scalarType ScalarType = scalarType::FLOAT64;
 
 public:
-  // Default construct
+  // Default construct. ASCII, Int32, double precision
   vtkFoamStreamOption() = default;
 
   // Construct with specified handling for labels/floats
@@ -1412,33 +1417,27 @@ public:
     this->SetFloat64(use64BitFloats);
   }
 
-  fileFormat GetFormat() const { return this->Format; }
-  bool IsAsciiFormat() const { return this->Format != fileFormat::BINARY; }
-  void SetUseBinaryFormat(const bool on)
+  bool IsAsciiFormat() const noexcept { return this->Format == fileFormat::ASCII; }
+  bool IsLabel64() const noexcept { return this->LabelType == labelType::INT64; }
+  bool IsFloat64() const noexcept { return this->ScalarType == scalarType::FLOAT64; }
+
+  void SetBinaryFormat(const bool on)
   {
     this->Format = (on ? fileFormat::BINARY : fileFormat::ASCII);
   }
-
-  labelType GetLabelType() const { return this->LabelType; }
-  bool IsLabel64() const { return this->LabelType == labelType::INT64; }
-  bool HasLabelType() const noexcept { return this->LabelType != labelType::UNKNOWN_LABEL; }
-  void SetLabelType(labelType t) { this->LabelType = t; }
-  void SetLabel64(const bool on) { this->LabelType = (on ? labelType::INT64 : labelType::INT32); }
-
-  scalarType GetScalarType() const { return this->ScalarType; }
-  bool IsFloat64() const { return this->ScalarType == scalarType::FLOAT64; }
-
-  void SetScalarType(scalarType t) { this->ScalarType = t; }
-  void SetFloat64(const bool on)
+  void SetLabel64(const bool on) noexcept
+  {
+    this->LabelType = (on ? labelType::INT64 : labelType::INT32);
+  }
+  void SetFloat64(const bool on) noexcept
   {
     this->ScalarType = (on ? scalarType::FLOAT64 : scalarType::FLOAT32);
   }
-
-  const vtkFoamStreamOption& GetStreamOption() const
+  const vtkFoamStreamOption& GetStreamOption() const noexcept
   {
     return static_cast<const vtkFoamStreamOption&>(*this);
   }
-  void SetStreamOption(const vtkFoamStreamOption& opt)
+  void SetStreamOption(const vtkFoamStreamOption& opt) noexcept
   {
     static_cast<vtkFoamStreamOption&>(*this) = opt;
   }
@@ -1571,17 +1570,13 @@ public:
   // Token represents punctuation
   bool IsPunctuation() const noexcept { return this->Type == PUNCTUATION; }
 
-  // Token represents a numerical value
+  // Token represents an integer value
   bool IsLabel() const noexcept { return this->Type == LABEL || this->Type == SCALAR; }
 
   // Token represents a numerical value
   bool IsNumeric() const noexcept { return this->Type == LABEL || this->Type == SCALAR; }
 
-  vtkTypeInt64 ToInt() const
-  {
-    assert("Label type not set!" && this->HasLabelType());
-    return this->Int;
-  }
+  vtkTypeInt64 ToInt() const noexcept { return this->Int; }
 
   // Mostly the same as To<float>, with additional check
   float ToFloat() const
@@ -1623,27 +1618,20 @@ public:
   void operator=(const vtkTypeInt32 value)
   {
     this->Clear();
-
-    assert("Label type not set!" && this->HasLabelType());
     if (this->IsLabel64())
     {
-      vtkGenericWarningMacro("Setting a 64 bit label from a 32 bit integer.");
+      vtkGenericWarningMacro("Assigning int32 label to int64");
     }
-
     this->Type = LABEL;
     this->Int = static_cast<vtkTypeInt32>(value);
   }
   void operator=(const vtkTypeInt64 value)
   {
     this->Clear();
-
-    assert("Label type not set!" && this->HasLabelType());
     if (!this->IsLabel64())
     {
-      vtkGenericWarningMacro("Setting a 32 bit label from a 64 bit integer. "
-                             "Precision loss may occur.");
+      vtkGenericWarningMacro("Assigning int64 label to int32 - may lose precision");
     }
-
     this->Type = LABEL;
     this->Int = value;
   }
@@ -1679,12 +1667,10 @@ public:
   }
   bool operator==(const vtkTypeInt32 value) const
   {
-    assert("Label type not set!" && this->HasLabelType());
     return this->Type == LABEL && this->Int == static_cast<vtkTypeInt64>(value);
   }
   bool operator==(const vtkTypeInt64 value) const
   {
-    assert("Label type not set!" && this->HasLabelType());
     return this->Type == LABEL && this->Int == value;
   }
   bool operator==(const std::string& value) const
@@ -1697,47 +1683,37 @@ public:
   }
   bool operator!=(const char value) const { return !this->operator==(value); }
 
-  friend std::ostringstream& operator<<(std::ostringstream& str, const vtkFoamToken& tok)
+  friend std::ostringstream& operator<<(std::ostringstream& os, const vtkFoamToken& tok)
   {
     switch (tok.GetType())
     {
       case TOKEN_ERROR:
-        str << "badToken (an unexpected EOF?)";
+        os << "badToken (an unexpected EOF?)";
         break;
       case PUNCTUATION:
-        str << tok.Char;
+        os << tok.Char;
         break;
       case LABEL:
-        assert("Label type not set!" && tok.HasLabelType());
         if (tok.IsLabel64())
         {
-          str << tok.Int;
+          os << tok.Int;
         }
         else
         {
-          str << static_cast<vtkTypeInt32>(tok.Int);
+          os << static_cast<vtkTypeInt32>(tok.Int);
         }
         break;
       case SCALAR:
-        str << tok.Double;
+        os << tok.Double;
         break;
       case STRING:
       case IDENTIFIER:
-        str << *(tok.String);
+        os << *(tok.String);
         break;
-      case UNDEFINED:
-      case STRINGLIST:
-      case LABELLIST:
-      case SCALARLIST:
-      case VECTORLIST:
-      case LABELLISTLIST:
-      case ENTRYVALUELIST:
-      case BOOLLIST:
-      case EMPTYLIST:
-      case DICTIONARY:
+      default:
         break;
     }
-    return str;
+    return os;
   }
 };
 
@@ -1751,14 +1727,12 @@ inline bool vtkFoamToken::Is<vtkTypeInt8>() const
 template <>
 inline bool vtkFoamToken::Is<vtkTypeInt32>() const
 {
-  assert("Label type not set!" && this->HasLabelType());
   return this->Type == LABEL && !(this->IsLabel64());
 }
 
 template <>
 inline bool vtkFoamToken::Is<vtkTypeInt64>() const
 {
-  assert("Label type not set!" && this->HasLabelType());
   return this->Type == LABEL;
 }
 
@@ -1784,11 +1758,9 @@ inline vtkTypeInt8 vtkFoamToken::To<vtkTypeInt8>() const
 template <>
 inline vtkTypeInt32 vtkFoamToken::To<vtkTypeInt32>() const
 {
-  assert("Label type not set!" && this->HasLabelType());
   if (this->IsLabel64())
   {
-    vtkGenericWarningMacro("Casting 64 bit label to int32. Precision loss "
-                           "may occur.");
+    vtkGenericWarningMacro("Casting int64 label to int32 - may lose precision");
   }
   return static_cast<vtkTypeInt32>(this->Int);
 }
@@ -1796,7 +1768,6 @@ inline vtkTypeInt32 vtkFoamToken::To<vtkTypeInt32>() const
 template <>
 inline vtkTypeInt64 vtkFoamToken::To<vtkTypeInt64>() const
 {
-  assert("Label type not set!" && this->HasLabelType());
   return this->Int;
 }
 
@@ -1818,17 +1789,16 @@ inline double vtkFoamToken::To<double>() const
 struct vtkFoamFileStack
 {
 protected:
-  vtkOpenFOAMReader* Reader;
+  vtkOpenFOAMReader* Reader; // GUI preference
   std::string FileName;
   FILE* File;
-  bool IsCompressed;
   z_stream Z;
   int ZStatus;
   int LineNumber;
+  bool IsCompressed;
 #if VTK_FOAMFILE_RECOGNIZE_LINEHEAD
   bool WasNewline;
 #endif
-
   // buffer pointers. using raw pointers for performance reason.
   unsigned char* Inbuf;
   unsigned char* Outbuf;
@@ -1838,9 +1808,9 @@ protected:
   vtkFoamFileStack(vtkOpenFOAMReader* reader)
     : Reader(reader)
     , File(nullptr)
-    , IsCompressed(false)
     , ZStatus(Z_OK)
     , LineNumber(0)
+    , IsCompressed(false)
 #if VTK_FOAMFILE_RECOGNIZE_LINEHEAD
     , WasNewline(true)
 #endif
@@ -1858,12 +1828,12 @@ protected:
   {
     // this->FileName = "";
     this->File = nullptr;
-    this->IsCompressed = false;
     // this->ZStatus = Z_OK;
     this->Z.zalloc = Z_NULL;
     this->Z.zfree = Z_NULL;
     this->Z.opaque = Z_NULL;
     // this->LineNumber = 0;
+    this->IsCompressed = false;
 #if VTK_FOAMFILE_RECOGNIZE_LINEHEAD
     this->WasNewline = true;
 #endif
@@ -1877,7 +1847,90 @@ protected:
 public:
   const std::string& GetFileName() const noexcept { return this->FileName; }
   int GetLineNumber() const noexcept { return this->LineNumber; }
-  vtkOpenFOAMReader* GetReader() const noexcept { return this->Reader; }
+
+  // Try to open the file. Return non-empty error string on failure
+  vtkFoamError TryOpen(const std::string& fileName)
+  {
+    vtkFoamError errors;
+    do
+    {
+      // Line number 0 to indicate beginning of file when an exception is thrown
+      this->LineNumber = 0;
+      this->FileName = fileName;
+
+      if (this->File)
+      {
+        errors << "File already opened within this object";
+        break;
+      }
+      this->File = vtksys::SystemTools::Fopen(this->FileName, "rb");
+      if (this->File == nullptr)
+      {
+        errors << "Cannot open file for reading";
+        break;
+      }
+
+      unsigned char zMagic[2];
+      if (fread(zMagic, 1, 2, this->File) == 2 && zMagic[0] == 0x1f && zMagic[1] == 0x8b)
+      {
+        // gzip-compressed format
+        this->Z.avail_in = 0;
+        this->Z.next_in = Z_NULL;
+        // + 32 to automatically recognize gzip format
+        if (inflateInit2(&this->Z, 15 + 32) == Z_OK)
+        {
+          this->IsCompressed = true;
+          this->Inbuf = new unsigned char[VTK_FOAMFILE_INBUFSIZE];
+        }
+        else
+        {
+          fclose(this->File);
+          this->File = nullptr;
+
+          errors << "Cannot init zstream";
+          if (this->Z.msg)
+          {
+            errors << " " << this->Z.msg;
+          }
+          break;
+        }
+      }
+      else
+      {
+        this->IsCompressed = false;
+      }
+      rewind(this->File);
+
+      this->ZStatus = Z_OK;
+      this->Outbuf = new unsigned char[VTK_FOAMFILE_OUTBUFSIZE + 1];
+      this->BufPtr = this->Outbuf + 1;
+      this->BufEndPtr = this->BufPtr;
+      this->LineNumber = 1;
+    } while (false);
+
+    return errors;
+  }
+
+  void CloseCurrentFile()
+  {
+    if (this->IsCompressed)
+    {
+      inflateEnd(&this->Z);
+    }
+
+    delete[] this->Inbuf;
+    delete[] this->Outbuf;
+    this->Inbuf = this->Outbuf = nullptr;
+
+    if (this->File)
+    {
+      fclose(this->File);
+      this->File = nullptr;
+    }
+    // don't reset the line number so that the last line number is
+    // retained after close
+    // lineNumber_ = 0;
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -1890,9 +1943,29 @@ struct vtkFoamFile
 private:
   typedef vtkFoamFileStack Superclass;
 
+  // Find last slash (os-specific)
+  static size_t rfind_slash(const std::string& str, size_t pos = std::string::npos) noexcept
+  {
+#if defined(_WIN32)
+    return str.find_last_of("/\\", pos);
+#else
+    return str.find_last_of('/', pos);
+#endif
+  }
+
+  // String equivalent cwd (os-specific)
+  static std::string cwd_string() noexcept
+  {
+#if defined(_WIN32)
+    return std::string(".\\");
+#else
+    return std::string("./");
+#endif
+  }
+
 public:
   // The dictionary #inputMode values
-  enum inputModes
+  enum inputMode
   {
     INPUT_MODE_MERGE,
     INPUT_MODE_OVERWRITE,
@@ -1901,22 +1974,14 @@ public:
     INPUT_MODE_ERROR
   };
 
-  // Check for existence of specified file
-  static bool IsFile(const std::string& file, bool checkGzip = true)
-  {
-    return (vtksys::SystemTools::FileExists(file, true) ||
-      (checkGzip && vtksys::SystemTools::FileExists(file + ".gz", true)));
-  }
-
   // Generic exception throwing with stack trace
   void ThrowStackTrace(const std::string& msg);
 
 private:
-  // The path to the case
-  std::string CasePath;
+  std::string CasePath; // The full path to the case - includes trailing '/'
 
   // The current input mode
-  inputModes InputMode;
+  inputMode InputMode;
 
   // Handling include files
   vtkFoamFileStack* Stack[VTK_FOAMFILE_INCLUDE_STACK_SIZE];
@@ -1972,80 +2037,12 @@ private:
     {
       return false;
     }
-    this->Clear();
     this->StackI--;
+    this->Superclass::CloseCurrentFile();
     // use the default bitwise assignment operator
     this->Superclass::operator=(*this->Stack[this->StackI]);
     delete this->Stack[this->StackI];
     return true;
-  }
-
-  void Clear()
-  {
-    if (this->Superclass::IsCompressed)
-    {
-      inflateEnd(&this->Superclass::Z);
-    }
-
-    delete[] this->Superclass::Inbuf;
-    delete[] this->Superclass::Outbuf;
-    this->Superclass::Inbuf = this->Superclass::Outbuf = nullptr;
-
-    if (this->Superclass::File)
-    {
-      fclose(this->Superclass::File);
-      this->Superclass::File = nullptr;
-    }
-    // don't reset the line number so that the last line number is
-    // retained after close
-    // lineNumber_ = 0;
-  }
-
-  //! Return file name (part beyond last /)
-  std::string ExtractName(const std::string& path) const
-  {
-#if defined(_WIN32)
-    const std::string pathFindSeparator = "/\\", pathSeparator = "\\";
-#else
-    const std::string pathFindSeparator = "/", pathSeparator = "/";
-#endif
-    auto pos = path.find_last_of(pathFindSeparator);
-    if (pos == std::string::npos)
-    {
-      // no slash
-      return path;
-    }
-    else if (pos + 1 == path.size())
-    {
-      // final trailing slash
-      const auto endPos = pos;
-      pos = path.find_last_of(pathFindSeparator, pos - 1);
-      if (pos == std::string::npos)
-      {
-        // no further slash
-        return path.substr(0, endPos);
-      }
-      else
-      {
-        return path.substr(pos + 1, endPos - pos - 1);
-      }
-    }
-    else
-    {
-      return path.substr(pos + 1);
-    }
-  }
-
-  //! Return directory path name (part before last /)
-  std::string ExtractPath(const std::string& path) const
-  {
-#if defined(_WIN32)
-    const std::string pathFindSeparator = "/\\", pathSeparator = "\\";
-#else
-    const std::string pathFindSeparator = "/", pathSeparator = "/";
-#endif
-    const auto pos = path.find_last_of(pathFindSeparator);
-    return pos == std::string::npos ? std::string(".") + pathSeparator : path.substr(0, pos + 1);
   }
 
 public:
@@ -2065,9 +2062,77 @@ public:
   ~vtkFoamFile() { this->Close(); }
 
   std::string GetCasePath() const noexcept { return this->CasePath; }
-  std::string GetFilePath() const { return this->ExtractPath(this->FileName); }
+  std::string GetFilePath() const { return vtkFoamFile::ExtractPath(this->FileName); }
+  inputMode GetInputMode() const noexcept { return this->InputMode; }
 
-  inputModes GetInputMode() const noexcept { return this->InputMode; }
+  void Open(const std::string& fileName)
+  {
+    vtkFoamError err = this->Superclass::TryOpen(fileName);
+    if (!err.empty())
+    {
+      this->ThrowStackTrace(err);
+    }
+  }
+
+  void Close()
+  {
+    while (this->CloseIncludedFile())
+      ;
+    this->CloseCurrentFile();
+
+    // Reinstate values from reader (eg, GUI)
+    auto& streamOpt = static_cast<vtkFoamStreamOption&>(*this);
+    streamOpt.SetLabel64(this->Reader->GetUse64BitLabels());
+    streamOpt.SetFloat64(this->Reader->GetUse64BitFloats());
+  }
+
+  // Static File Functions
+
+  // Check for existence of specified file
+  static bool IsFile(const std::string& file, bool checkGzip = true)
+  {
+    return (vtksys::SystemTools::FileExists(file, true) ||
+      (checkGzip && vtksys::SystemTools::FileExists(file + ".gz", true)));
+  }
+
+  //! Return file name (part beyond last /)
+  static std::string ExtractName(const std::string& path)
+  {
+    auto pos = vtkFoamFile::rfind_slash(path);
+    if (pos == std::string::npos)
+    {
+      // no slash
+      return path;
+    }
+    else if (pos + 1 == path.length())
+    {
+      // trailing slash
+      const auto endPos = pos;
+      pos = vtkFoamFile::rfind_slash(path, pos - 1);
+      if (pos == std::string::npos)
+      {
+        // no further slash
+        return path.substr(0, endPos);
+      }
+      else
+      {
+        return path.substr(pos + 1, endPos - pos - 1);
+      }
+    }
+    else
+    {
+      return path.substr(pos + 1);
+    }
+  }
+
+  //! Return directory path name (part before last /). Return includes trailing slash!
+  static std::string ExtractPath(const std::string& path)
+  {
+    const auto pos = vtkFoamFile::rfind_slash(path);
+    return pos == std::string::npos ? vtkFoamFile::cwd_string() : path.substr(0, pos + 1);
+  }
+
+  // Member Functions
 
   std::string ExpandPath(const std::string& pathIn, const std::string& defaultPath)
   {
@@ -2132,7 +2197,7 @@ public:
           else if (variable == "FOAM_CASENAME")
           {
             // FOAM_CASENAME is the final directory name from CasePath
-            expandedPath += this->ExtractName(this->CasePath);
+            expandedPath += vtkFoamFile::ExtractName(this->CasePath);
             wasPathSeparator = false;
             isExpanded = true;
           }
@@ -2223,7 +2288,7 @@ public:
                 // No fallback
                 homeDir.clear();
               }
-              expandedPath = this->ExtractPath(homeDir) + userName;
+              expandedPath = vtkFoamFile::ExtractPath(homeDir) + userName;
 #else
               const struct passwd* pwentry = getpwnam(userName.c_str());
               if (pwentry == nullptr)
@@ -2463,7 +2528,7 @@ public:
           {
             this->ThrowStackTrace("Unexpected EOF reading filename");
           }
-          this->IncludeFile(fileNameToken.ToString(), this->ExtractPath(this->FileName));
+          this->IncludeFile(fileNameToken.ToString(), vtkFoamFile::ExtractPath(this->FileName));
         }
         else if (directiveToken == "sinclude" || directiveToken == "includeIfPresent")
         {
@@ -2475,14 +2540,14 @@ public:
 
           // special treatment since the file is allowed to be missing
           const std::string fullName =
-            this->ExpandPath(fileNameToken.ToString(), this->ExtractPath(this->FileName));
+            this->ExpandPath(fileNameToken.ToString(), vtkFoamFile::ExtractPath(this->FileName));
 
           FILE* fh = vtksys::SystemTools::Fopen(fullName, "rb");
           if (fh)
           {
             fclose(fh);
 
-            this->IncludeFile(fileNameToken.ToString(), this->ExtractPath(this->FileName));
+            this->IncludeFile(fileNameToken.ToString(), vtkFoamFile::ExtractPath(this->FileName));
           }
         }
         else if (directiveToken == "inputMode")
@@ -2588,70 +2653,6 @@ public:
     return true;
   }
 
-  void Open(const std::string& fileName)
-  {
-    // reset line number to indicate the beginning of the file when an
-    // exception is thrown
-    this->Superclass::LineNumber = 0;
-    this->Superclass::FileName = fileName;
-
-    if (this->Superclass::File)
-    {
-      this->ThrowStackTrace("File already opened within this object");
-    }
-
-    if ((this->Superclass::File = vtksys::SystemTools::Fopen(this->Superclass::FileName, "rb")) ==
-      nullptr)
-    {
-      this->ThrowStackTrace("Cannot open file for reading");
-    }
-
-    unsigned char zMagic[2];
-    if (fread(zMagic, 1, 2, this->Superclass::File) == 2 && zMagic[0] == 0x1f && zMagic[1] == 0x8b)
-    {
-      // gzip-compressed format
-      this->Superclass::Z.avail_in = 0;
-      this->Superclass::Z.next_in = Z_NULL;
-      // + 32 to automatically recognize gzip format
-      if (inflateInit2(&this->Superclass::Z, 15 + 32) == Z_OK)
-      {
-        this->Superclass::IsCompressed = true;
-        this->Superclass::Inbuf = new unsigned char[VTK_FOAMFILE_INBUFSIZE];
-      }
-      else
-      {
-        fclose(this->Superclass::File);
-        this->Superclass::File = nullptr;
-        throw this->StackString() << "Can't init zstream "
-                                  << (this->Superclass::Z.msg ? this->Superclass::Z.msg : "");
-      }
-    }
-    else
-    {
-      // uncompressed format
-      this->Superclass::IsCompressed = false;
-    }
-    rewind(this->Superclass::File);
-
-    this->Superclass::ZStatus = Z_OK;
-    this->Superclass::Outbuf = new unsigned char[VTK_FOAMFILE_OUTBUFSIZE + 1];
-    this->Superclass::BufPtr = this->Superclass::Outbuf + 1;
-    this->Superclass::BufEndPtr = this->Superclass::BufPtr;
-    this->Superclass::LineNumber = 1;
-  }
-
-  void Close()
-  {
-    while (this->CloseIncludedFile())
-      ;
-    this->Clear();
-
-    // Reinstate values from reader (eg, GUI)
-    auto& streamOpt = static_cast<vtkFoamStreamOption&>(*this);
-    streamOpt.SetLabel64(this->Reader->GetUse64BitLabels());
-    streamOpt.SetFloat64(this->Reader->GetUse64BitFloats());
-  }
-
   // fread or gzread with buffering handling
   vtkTypeInt64 Read(unsigned char* buf, const vtkTypeInt64 len)
   {
@@ -2723,16 +2724,18 @@ public:
 
   void ReadExpecting(const char* str)
   {
-    vtkFoamToken t;
-    if (!this->Read(t) || t != str)
+    vtkFoamToken tok;
+    if (!this->Read(tok) || tok != str)
     {
-      throw this->StackString() << "Expected string \"" << str << "\", found " << t;
+      throw this->StackString() << "Expected string \"" << str << "\", found " << tok;
     }
   }
 
-  vtkTypeInt64 ReadIntValue();
-  template <typename FloatType>
-  FloatType ReadFloatValue();
+  // ASCII read of longest integer
+  vtkTypeInt64 ReadIntegerValue();
+
+  // ASCII read of longest floating-point
+  double ReadDoubleValue();
 };
 
 int vtkFoamFile::ReadNext()
@@ -2746,7 +2749,7 @@ int vtkFoamFile::ReadNext()
 
 // specialized for reading an integer value.
 // not using the standard strtol() for speed reason.
-vtkTypeInt64 vtkFoamFile::ReadIntValue()
+vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
 {
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
@@ -2811,8 +2814,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntValue()
 // extremely simplified high-performing string to floating point
 // conversion code based on
 // ParaView3/VTK/Utilities/vtksqlite/vtk_sqlite3.c
-template <typename FloatType>
-FloatType vtkFoamFile::ReadFloatValue()
+double vtkFoamFile::ReadDoubleValue()
 {
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
@@ -2939,7 +2941,7 @@ FloatType vtkFoamFile::ReadFloatValue()
   }
   this->PutBack(c);
 
-  return static_cast<FloatType>(negNum ? -num : num);
+  return negNum ? -num : num;
 }
 
 void vtkFoamFile::ThrowStackTrace(const std::string& msg)
@@ -3142,6 +3144,7 @@ private:
   // Attempt to open file (or file.gz) and read header
   bool OpenFile(const std::string& file, bool checkGzip = false)
   {
+    this->ClearError(); // Discard any previous errors
     try
     {
       this->Superclass::Open(file);
@@ -3149,6 +3152,15 @@ private:
     }
     catch (const vtkFoamError& err)
     {
+      if (checkGzip)
+      {
+        // Avoid checking again if already ends_with(".gz")
+        const auto len = file.length();
+        if (len > 3 && file.compare(len - 3, std::string::npos, ".gz") == 0)
+        {
+          checkGzip = false;
+        }
+      }
       if (!checkGzip)
       {
         this->SetError(err);
@@ -3182,6 +3194,14 @@ private:
     return true;
   }
 
+  void CloseFile()
+  {
+    this->Superclass::Close();
+    this->objectName_.clear();
+    this->headerClassName_.clear();
+    this->error_.clear();
+  }
+
 public:
   // No generated methods
   vtkFoamIOobject() = delete;
@@ -3198,64 +3218,67 @@ public:
   ~vtkFoamIOobject() { this->Close(); }
 
   // Attempt to open file (without gzip fallback) and read FoamFile header
-  bool Open(const std::string& file) { return OpenFile(file); }
+  bool Open(const std::string& file) { return this->OpenFile(file, false); }
 
   // Attempt to open file (with gzip fallback) and read FoamFile header
-  bool OpenOrGzip(const std::string& file) { return OpenFile(file, true); }
+  bool OpenOrGzip(const std::string& file) { return this->OpenFile(file, true); }
 
-  void Close()
+  // Attempt to open file relative to the case, and read FoamFile header
+  bool OpenCaseFile(const std::string& file) { return this->OpenFile(this->GetCasePath() + file); }
+
+  // Attempt to open file (or file.gz) relative to the case, and read FoamFile header
+  bool OpenCaseFileOrGzip(const std::string& file)
   {
-    this->Superclass::Close();
-    this->objectName_.clear();
-    this->headerClassName_.clear();
-    this->error_.clear();
+    return this->OpenFile(this->GetCasePath() + file);
   }
+
+  void Close() { this->CloseFile(); }
 
   const std::string& GetClassName() const noexcept { return this->headerClassName_; }
   const std::string& GetObjectName() const noexcept { return this->objectName_; }
   const vtkFoamError& GetError() const noexcept { return this->error_; }
-  void SetError(const vtkFoamError& e) { this->error_ = e; }
+  void ClearError() noexcept { this->error_.clear(); }
   bool HasError() const noexcept { return !this->error_.empty(); }
+  void SetError(const vtkFoamError& err) { this->error_ = err; }
   bool GetLagrangianPositionsExtraData() const { return this->LagrangianPositionsExtraData_; }
 };
 
 //------------------------------------------------------------------------------
-// workarounding class for older compilers (gcc-3.3.x and possibly older)
+// ASCII read of primitive, with type casting
 template <typename T>
 struct vtkFoamReadValue
 {
-public:
   static T ReadValue(vtkFoamIOobject& io);
 };
 
 template <>
 inline vtkTypeInt8 vtkFoamReadValue<vtkTypeInt8>::ReadValue(vtkFoamIOobject& io)
 {
-  return static_cast<vtkTypeInt8>(io.ReadIntValue());
+  return static_cast<vtkTypeInt8>(io.ReadIntegerValue());
 }
 
 template <>
 inline vtkTypeInt32 vtkFoamReadValue<vtkTypeInt32>::ReadValue(vtkFoamIOobject& io)
 {
-  return static_cast<vtkTypeInt32>(io.ReadIntValue());
+  return static_cast<vtkTypeInt32>(io.ReadIntegerValue());
 }
 
 template <>
 inline vtkTypeInt64 vtkFoamReadValue<vtkTypeInt64>::ReadValue(vtkFoamIOobject& io)
 {
-  return io.ReadIntValue();
+  return io.ReadIntegerValue();
 }
 
 template <>
 inline float vtkFoamReadValue<float>::ReadValue(vtkFoamIOobject& io)
 {
-  return io.ReadFloatValue<float>();
+  return static_cast<float>(io.ReadDoubleValue());
 }
 
 template <>
 inline double vtkFoamReadValue<double>::ReadValue(vtkFoamIOobject& io)
 {
-  return io.ReadFloatValue<double>();
+  return io.ReadDoubleValue();
 }
 
 //------------------------------------------------------------------------------
@@ -3394,7 +3417,7 @@ public:
       io.ReadExpecting(')');
       if (isPositions)
       {
-        vtkFoamReadValue<vtkTypeInt64>::ReadValue(io); // Skip label celli
+        (void)io.ReadIntegerValue(); // Skip label celli
       }
 
       for (vtkIdType i = 0; i < nTuples; ++i)
@@ -3419,7 +3442,7 @@ public:
         io.ReadExpecting(')');
         if (isPositions)
         {
-          vtkFoamReadValue<vtkTypeInt64>::ReadValue(io); // Skip label celli
+          (void)io.ReadIntegerValue(); // Skip label celli
         }
       }
     }
@@ -3554,7 +3577,6 @@ public:
   // mixedRhoE B.C. in rhopSonicFoam/shockTube)
   void MakeLabelList(const vtkTypeInt64 labelValue, const vtkIdType size)
   {
-    assert("Label type not set!" && this->HasLabelType());
     this->Superclass::Type = LABELLIST;
     if (this->IsLabel64())
     {
@@ -4434,7 +4456,7 @@ void vtkFoamIOobject::ReadHeader()
   {
     throw vtkFoamError() << "No 'format' (ascii|binary) in FoamFile header";
   }
-  this->SetUseBinaryFormat("binary" == eptr->ToString()); // case sensitive
+  this->SetBinaryFormat("binary" == eptr->ToString()); // case sensitive
 
   // Newer files have 'arch' entry with "label=(32|64) scalar=(32|64)"
   // If this entry does not exist, or is incomplete, use the fallback values
@@ -4792,7 +4814,6 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       }
       else if (currToken.IsLabel())
       {
-        assert("Label type not set!" && currToken.HasLabelType());
         if (currToken.IsLabel64())
         {
           assert(vtkTypeInt64Array::FastDownCast(this->LabelListPtr) != nullptr);
@@ -5123,11 +5144,12 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
 // vtkOpenFOAMReaderPrivate constructor and destructor
 vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
 {
-  // DATA TIMES
-  this->TimeStep = 0;
-  this->TimeStepOld = -1;
+  // Time information
   this->TimeValues = vtkDoubleArray::New();
   this->TimeNames = vtkStringArray::New();
+
+  this->TimeStep = 0;
+  this->TimeStepOld = -1;
 
   // Selection
   this->InternalMeshSelectionStatus = 0;
