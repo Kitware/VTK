@@ -172,18 +172,7 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkFollower::RenderOpaqueGeometry(vtkViewport* vp)
 {
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  if (this->GetIsOpaque())
+  if (this->HasOpaqueGeometry())
   {
     vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
     this->Render(ren);
@@ -195,21 +184,14 @@ int vtkFollower::RenderOpaqueGeometry(vtkViewport* vp)
 //------------------------------------------------------------------------------
 int vtkFollower::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  if (!this->GetIsOpaque())
+  if (this->HasTranslucentPolygonalGeometry())
   {
     vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
+
+    // Needed as we don't call this->Device->RenderTranslucentPolygonalGeometry
+    this->Device->SetIsRenderingTranslucentPolygonalGeometry(true);
     this->Render(ren);
+    this->Device->SetIsRenderingTranslucentPolygonalGeometry(false);
     return 1;
   }
   return 0;
@@ -220,26 +202,6 @@ void vtkFollower::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Device->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
-}
-
-//------------------------------------------------------------------------------
-// Description:
-// Does this prop have some translucent polygonal geometry?
-vtkTypeBool vtkFollower::HasTranslucentPolygonalGeometry()
-{
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-  // make sure we have a property
-  if (!this->Property)
-  {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  // is this actor opaque ?
-  return !this->GetIsOpaque();
 }
 
 //------------------------------------------------------------------------------
