@@ -42,6 +42,11 @@
 
 #include <sstream>
 
+#ifdef __APPLE__
+#include <sys/sysctl.h>
+#include <sys/types.h>
+#endif
+
 class vtkOSPRayPassInternals : public vtkRenderPass
 {
 public:
@@ -184,6 +189,10 @@ vtkOSPRayPass::~vtkOSPRayPass()
 //------------------------------------------------------------------------------
 void vtkOSPRayPass::RTInit()
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    return;
+  }
   if (RTDeviceRefCount == 0)
   {
     rtwInit();
@@ -194,6 +203,10 @@ void vtkOSPRayPass::RTInit()
 //------------------------------------------------------------------------------
 void vtkOSPRayPass::RTShutdown()
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    return;
+  }
   --RTDeviceRefCount;
   if (RTDeviceRefCount == 0)
   {
@@ -213,6 +226,17 @@ vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode);
 //------------------------------------------------------------------------------
 void vtkOSPRayPass::Render(const vtkRenderState* s)
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    static bool warned = false;
+    if (!warned)
+    {
+      vtkWarningMacro(<< "Ignoring render request because OSPRay is not supported.");
+      warned = true;
+    }
+    return;
+  }
+
   vtkRenderer* ren = s->GetRenderer();
   if (ren)
   {
@@ -236,6 +260,17 @@ void vtkOSPRayPass::Render(const vtkRenderState* s)
 //------------------------------------------------------------------------------
 void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    static bool warned = false;
+    if (!warned)
+    {
+      vtkWarningMacro(<< "Ignoring render request because OSPRay is not supported.");
+      warned = true;
+    }
+    return;
+  }
+
   this->NumberOfRenderedProps = 0;
 
   if (this->SceneGraph)
@@ -385,8 +420,64 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 }
 
 //------------------------------------------------------------------------------
+bool vtkOSPRayPass::IsSupported()
+{
+  static bool detected = false;
+  static bool is_supported = true;
+
+  // Short-circuit to avoid querying on every call.
+  if (detected)
+  {
+    return is_supported;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Note that this class is used for OSPRay and OptiX (in addition to any
+  // other RayTracing backends). Currently the only "spoiling" detection is
+  // Apple's Rosetta. Since the only other backend is OptiX today and is not
+  // supported on macOS within VTK anyways, there is no conflict.
+  //////////////////////////////////////////////////////////////////////////////
+
+#ifdef __APPLE__
+  // Detect if we are being translated by Rosetta. OSPRay uses AVX instructions
+  // which are not supported.
+  {
+    int is_translated = 0;
+    size_t size = sizeof(is_translated);
+    if (sysctlbyname("sysctl.proc_translated", &is_translated, &size, nullptr, 0) == -1)
+    {
+      if (errno == ENOENT)
+      {
+        is_translated = 0;
+      }
+      else
+      {
+        // Error occurred. Just continue and let it work if it can or crash if
+        // it doesn't.
+      }
+    }
+    if (is_translated)
+    {
+      is_supported = false;
+    }
+  }
+#endif
+
+  //////////////////////////////////////////////////////////////////////////////
+  // See the comment at the beginning of any conditions.
+  //////////////////////////////////////////////////////////////////////////////
+
+  detected = true;
+  return is_supported;
+}
+
+//------------------------------------------------------------------------------
 bool vtkOSPRayPass::IsBackendAvailable(const char* choice)
 {
+  if (!vtkOSPRayPass::IsSupported())
+  {
+    return false;
+  }
   std::set<RTWBackendType> bends = rtwGetAvailableBackends();
   if (!strcmp(choice, "OSPRay raycaster"))
   {
