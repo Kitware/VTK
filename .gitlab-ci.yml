@@ -93,6 +93,19 @@ test:fedora33-mpi-python-qt-tbb:
     needs:
         - build:fedora33-mpi-python-qt-tbb
 
+## Static analysis builds
+
+build:fedora33-tidy:
+    extends:
+        - .fedora33_tidy
+        - .cmake_build_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    # clang-tidy really hampers compilation cache improvements, so it takes
+    # longer.
+    timeout: 2 hours
+
 ## Sanitizer builds
 
 build:fedora33-asan:

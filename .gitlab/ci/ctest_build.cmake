@@ -13,6 +13,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
     DoxygenDoc)
 endif ()
 
+set(num_warnings 0)
 foreach (target IN LISTS targets_to_build)
   set(build_args)
   if (NOT target STREQUAL "all")
@@ -29,8 +30,11 @@ foreach (target IN LISTS targets_to_build)
   endif ()
 
   ctest_build(
+    NUMBER_WARNINGS num_warnings_target
     RETURN_VALUE    build_result
     ${build_args})
+
+  math(EXPR num_warnings "${num_warnings} + ${num_warnings_target}")
 
   ctest_submit(PARTS Build)
 endforeach ()
@@ -66,4 +70,9 @@ endif ()
 if (build_result)
   message(FATAL_ERROR
     "Failed to build")
+endif ()
+
+if ("$ENV{CTEST_NO_WARNINGS_ALLOWED}" AND num_warnings GREATER 0)
+  message(FATAL_ERROR
+    "Found ${num_warnings} warnings (treating as fatal).")
 endif ()

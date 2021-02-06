@@ -486,6 +486,12 @@ endif ()
 # configuration.
 include(vtkSanitizeFlags)
 
+# Some generated code has some warnings that we need to exclude for now.
+configure_file(
+  "${VTK_SOURCE_DIR}/.clang-tidy"
+  "${VTK_BINARY_DIR}/.clang-tidy"
+  COPYONLY)
+
 #-----------------------------------------------------------------------------
 # Do this at the end so the all variables it uses are setup.
 include(vtkBuildPath)
