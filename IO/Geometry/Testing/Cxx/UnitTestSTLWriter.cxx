@@ -137,7 +137,7 @@ int UnitTestSTLWriter(int argc, char* argv[])
   }
 
   // Make sure the reported number of written triangles is right in the binary file
-  FILE* fp = fopen(fileName.c_str(), "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(fileName, "rb");
   if (!fp)
   {
     cerr << "Could not open file '" << fileName << "'" << std::endl;
@@ -195,7 +195,7 @@ int UnitTestSTLWriter(int argc, char* argv[])
     }
   }
 
-  fp = fopen(fileName.c_str(), "rb");
+  fp = vtksys::SystemTools::Fopen(fileName, "rb");
   if (!fp)
   {
     cerr << "Could not open file '" << fileName << "'" << std::endl;
