@@ -29,6 +29,27 @@
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
 
+#if !defined(VTK_LEGACY_REMOVE)
+double eta(vtkIdType n, vtkIdType chi, double sigma)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHigherOrderTriangle::eta, "VTK 9.1", vtkHigherOrderTriangle::Eta);
+  return vtkHigherOrderTriangle::Eta(n, chi, sigma);
+}
+
+double d_eta(vtkIdType n, vtkIdType chi, double sigma)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkHigherOrderTriangle::d_eta, "VTK 9.1", vtkHigherOrderTriangle::Deta);
+  return vtkHigherOrderTriangle::Deta(n, chi, sigma);
+}
+
+vtkHigherOrderCurve* vtkHigherOrderTriangle::getEdgeCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderTriangle::getEdgeCell, "VTK 9.1", vtkHigherOrderTriangle::GetEdgeCell);
+  return this->GetEdgeCell();
+}
+#endif
+
 //------------------------------------------------------------------------------
 vtkHigherOrderTriangle::vtkHigherOrderTriangle()
 {
@@ -745,7 +766,7 @@ double vtkHigherOrderTriangle::GetParametricDistance(const double pcoords[3])
 }
 
 //------------------------------------------------------------------------------
-double vtkHigherOrderTriangle::eta(vtkIdType n, vtkIdType chi, double sigma)
+double vtkHigherOrderTriangle::Eta(vtkIdType n, vtkIdType chi, double sigma)
 {
   double result = 1.;
   for (vtkIdType i = 1; i <= chi; i++)
@@ -756,7 +777,7 @@ double vtkHigherOrderTriangle::eta(vtkIdType n, vtkIdType chi, double sigma)
 }
 
 //------------------------------------------------------------------------------
-double vtkHigherOrderTriangle::d_eta(vtkIdType n, vtkIdType chi, double sigma)
+double vtkHigherOrderTriangle::Deta(vtkIdType n, vtkIdType chi, double sigma)
 {
   if (chi == 0)
   {
@@ -765,8 +786,8 @@ double vtkHigherOrderTriangle::d_eta(vtkIdType n, vtkIdType chi, double sigma)
   else
   {
     double chi_d = static_cast<double>(chi);
-    return (n / chi_d * eta(n, chi - 1, sigma) +
-      (n * sigma - chi_d + 1.) / chi_d * d_eta(n, chi - 1, sigma));
+    return (n / chi_d * Eta(n, chi - 1, sigma) +
+      (n * sigma - chi_d + 1.) / chi_d * Deta(n, chi - 1, sigma));
   }
 }
 

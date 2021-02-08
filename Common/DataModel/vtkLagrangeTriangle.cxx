@@ -118,7 +118,7 @@ void vtkLagrangeTriangle::InterpolateFunctions(const double pcoords[3], double* 
 
       for (vtkIdType dim = 0; dim < 3; dim++)
       {
-        weights[idx] *= eta(n, lambda[dim], tau[dim]);
+        weights[idx] *= Eta(n, lambda[dim], tau[dim]);
       }
     }
   }
@@ -192,13 +192,13 @@ void vtkLagrangeTriangle::InterpolateDerivs(const double pcoords[3], double* der
       vtkIdType lambda[3];
       this->ToBarycentricIndex(idx, lambda);
 
-      double eta_alpha = eta(n, lambda[0], tau[0]);
-      double eta_beta = eta(n, lambda[1], tau[1]);
-      double eta_gamma = eta(n, lambda[2], tau[2]);
+      double eta_alpha = Eta(n, lambda[0], tau[0]);
+      double eta_beta = Eta(n, lambda[1], tau[1]);
+      double eta_gamma = Eta(n, lambda[2], tau[2]);
 
-      double d_eta_alpha = d_eta(n, lambda[0], tau[0]);
-      double d_eta_beta = d_eta(n, lambda[1], tau[1]);
-      double d_eta_gamma = d_eta(n, lambda[2], tau[2]);
+      double d_eta_alpha = Deta(n, lambda[0], tau[0]);
+      double d_eta_beta = Deta(n, lambda[1], tau[1]);
+      double d_eta_gamma = Deta(n, lambda[2], tau[2]);
 
       double d_f_d_tau1 = (d_eta_alpha * eta_beta * eta_gamma - eta_alpha * eta_beta * d_eta_gamma);
       double d_f_d_tau2 = (eta_alpha * d_eta_beta * eta_gamma - eta_alpha * eta_beta * d_eta_gamma);
@@ -209,7 +209,7 @@ void vtkLagrangeTriangle::InterpolateDerivs(const double pcoords[3], double* der
   }
 }
 
-vtkHigherOrderCurve* vtkLagrangeTriangle::getEdgeCell()
+vtkHigherOrderCurve* vtkLagrangeTriangle::GetEdgeCell()
 {
   return EdgeCell;
 }

@@ -93,7 +93,8 @@ public:
   static int PointIndexFromIJK(int i, int j, const int* order);
   bool TransformApproxToCellParams(int subCell, double* pcoords);
 
-  virtual vtkHigherOrderCurve* getEdgeCell() = 0;
+  virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
 
 protected:
   vtkHigherOrderQuadrilateral();

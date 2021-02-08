@@ -142,10 +142,10 @@ void vtkLagrangeTetra::InterpolateFunctions(const double pcoords[3], double* wei
       vtkIdType lambda[4];
       this->ToBarycentricIndex(idx, lambda);
 
-      weights[idx] = (vtkLagrangeTriangle::eta(n, lambda[0], tau[0]) *
-        vtkLagrangeTriangle::eta(n, lambda[1], tau[1]) *
-        vtkLagrangeTriangle::eta(n, lambda[2], tau[2]) *
-        vtkLagrangeTriangle::eta(n, lambda[3], tau[3]));
+      weights[idx] = (vtkLagrangeTriangle::Eta(n, lambda[0], tau[0]) *
+        vtkLagrangeTriangle::Eta(n, lambda[1], tau[1]) *
+        vtkLagrangeTriangle::Eta(n, lambda[2], tau[2]) *
+        vtkLagrangeTriangle::Eta(n, lambda[3], tau[3]));
     }
   }
 }
@@ -277,15 +277,15 @@ void vtkLagrangeTetra::InterpolateDerivs(const double pcoords[3], double* derivs
       vtkIdType lambda[4];
       this->ToBarycentricIndex(idx, lambda);
 
-      double eta_alpha = vtkLagrangeTriangle::eta(n, lambda[0], tau[0]);
-      double eta_beta = vtkLagrangeTriangle::eta(n, lambda[1], tau[1]);
-      double eta_gamma = vtkLagrangeTriangle::eta(n, lambda[2], tau[2]);
-      double eta_delta = vtkLagrangeTriangle::eta(n, lambda[3], tau[3]);
+      double eta_alpha = vtkLagrangeTriangle::Eta(n, lambda[0], tau[0]);
+      double eta_beta = vtkLagrangeTriangle::Eta(n, lambda[1], tau[1]);
+      double eta_gamma = vtkLagrangeTriangle::Eta(n, lambda[2], tau[2]);
+      double eta_delta = vtkLagrangeTriangle::Eta(n, lambda[3], tau[3]);
 
-      double d_eta_alpha = vtkLagrangeTriangle::d_eta(n, lambda[0], tau[0]);
-      double d_eta_beta = vtkLagrangeTriangle::d_eta(n, lambda[1], tau[1]);
-      double d_eta_gamma = vtkLagrangeTriangle::d_eta(n, lambda[2], tau[2]);
-      double d_eta_delta = vtkLagrangeTriangle::d_eta(n, lambda[3], tau[3]);
+      double d_eta_alpha = vtkLagrangeTriangle::Deta(n, lambda[0], tau[0]);
+      double d_eta_beta = vtkLagrangeTriangle::Deta(n, lambda[1], tau[1]);
+      double d_eta_gamma = vtkLagrangeTriangle::Deta(n, lambda[2], tau[2]);
+      double d_eta_delta = vtkLagrangeTriangle::Deta(n, lambda[3], tau[3]);
 
       double d_f_d_tau1 = (d_eta_alpha * eta_beta * eta_gamma * eta_delta -
         eta_alpha * eta_beta * eta_gamma * d_eta_delta);
@@ -304,11 +304,11 @@ void vtkLagrangeTetra::InterpolateDerivs(const double pcoords[3], double* derivs
     }
   }
 }
-vtkHigherOrderCurve* vtkLagrangeTetra::getEdgeCell()
+vtkHigherOrderCurve* vtkLagrangeTetra::GetEdgeCell()
 {
   return EdgeCell;
 }
-vtkHigherOrderTriangle* vtkLagrangeTetra::getFaceCell()
+vtkHigherOrderTriangle* vtkLagrangeTetra::GetFaceCell()
 {
   return FaceCell;
 }

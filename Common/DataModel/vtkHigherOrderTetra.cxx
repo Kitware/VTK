@@ -102,6 +102,22 @@ static constexpr vtkIdType FifteenPointTetraSubtetras[28][4] = { { 0, 4, 10, 14 
 #endif
 }
 
+#if !defined(VTK_LEGACY_REMOVE)
+vtkHigherOrderCurve* vtkHigherOrderTetra::getEdgeCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderTetra::getEdgeCell, "VTK 9.1", vtkHigherOrderTetra::GetEdgeCell);
+  return this->GetEdgeCell();
+}
+
+vtkHigherOrderTriangle* vtkHigherOrderTetra::getFaceCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderHexahedron::getFaceCell, "VTK 9.1", vtkHigherOrderTetra::GetFaceCell);
+  return this->GetFaceCell();
+}
+#endif
+
 //------------------------------------------------------------------------------
 vtkHigherOrderTetra::vtkHigherOrderTetra()
 {

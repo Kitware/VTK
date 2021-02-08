@@ -53,8 +53,8 @@ public:
   vtkCell* GetFace(int faceId) override;
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
-  vtkHigherOrderCurve* getEdgeCell() override;
-  vtkHigherOrderTriangle* getFaceCell() override;
+  vtkHigherOrderCurve* GetEdgeCell() override;
+  vtkHigherOrderTriangle* GetFaceCell() override;
 
 protected:
   vtkLagrangeTetra();
