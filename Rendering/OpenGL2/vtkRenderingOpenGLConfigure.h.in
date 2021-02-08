@@ -26,6 +26,9 @@
 /* Whether VTK was built to support Cocoa on the Mac.  */
 #cmakedefine VTK_USE_COCOA
 
+/* Whether we are cross-compiling for iOS. */
+#cmakedefine APPLE_IOS
+
 /*--------------------------------------------------------------------------*/
 /* Rendering Configuration                                                  */
 #cmakedefine VTK_USE_X
