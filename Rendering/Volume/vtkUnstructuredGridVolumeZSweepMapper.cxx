@@ -1925,23 +1925,7 @@ public:
   }
 
   // Destructor.
-  ~vtkPixelListFrame()
-  {
-#if 0
-      vtkIdType i=0;
-      vtkIdType c=this->Vector.size();
-      while(i<c)
-      {
-        vtkPixelList *l=&(Vector[i]);
-        while(!l->empty())
-        {
-          delete l->front();
-          l->pop_front();
-        }
-        ++i;
-      }
-#endif
-  }
+  ~vtkPixelListFrame() {}
 
   vtkPixelList* GetList(int i)
   {
