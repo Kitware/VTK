@@ -79,8 +79,8 @@ public:
     int& np, int eids[], double weights[], int& nInside, int inPoints[], int& nOutside,
     int outPoints[]);
 
-  static double findTetraSetCuttingPlane(const double normal[3], const double fraction,
-    const int vertexCount, const double vertices[][3], const int tetraCount, const int tetras[][4]);
+  static double findTetraSetCuttingPlane(const double normal[3], double fraction, int vertexCount,
+    const double vertices[][3], int tetraCount, const int tetras[][4]);
 
   static bool cellInterfaceD(
 
@@ -92,9 +92,9 @@ public:
     int eids[4], double weights[2], int& polygonPoints, int polygonIds[], int& nRemPoints,
     int remPoints[]);
 
-  static double findTriangleSetCuttingPlane(const double normal[3], const double fraction,
-    const int vertexCount, const double vertices[][3], const int triangleCount,
-    const int triangles[][3], bool axisSymetric = false);
+  static double findTriangleSetCuttingPlane(const double normal[3], double fraction,
+    int vertexCount, const double vertices[][3], int triangleCount, const int triangles[][3],
+    bool axisSymetric = false);
 };
 
 class vtkYoungsMaterialInterfaceInternals

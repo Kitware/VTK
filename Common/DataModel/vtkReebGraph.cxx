@@ -371,7 +371,7 @@ public:
 
   // Description:
   // Finalize a vertex.
-  void EndVertex(const vtkIdType N);
+  void EndVertex(vtkIdType N);
 
   // Description:
   // Remove an arc during filtering by persistence.
@@ -444,7 +444,7 @@ public:
   // Description:
   // Simplify labels.
   void SimplifyLabels(
-    const vtkIdType nodeId, vtkReebLabelTag onlyLabel = 0, bool goDown = true, bool goUp = true);
+    vtkIdType nodeId, vtkReebLabelTag onlyLabel = 0, bool goDown = true, bool goUp = true);
 
   // ACCESSORS
 

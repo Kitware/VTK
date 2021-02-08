@@ -659,11 +659,11 @@ public:
   CommunicationManager() = default;
   ~CommunicationManager() { this->Clear(); }
 
-  unsigned char* GetRcvBuffer(const int fromRank);
-  unsigned int GetRcvBufferSize(const int fromRank);
+  unsigned char* GetRcvBuffer(int fromRank);
+  unsigned int GetRcvBufferSize(int fromRank);
 
-  void EnqueueRcv(const int fromRank);
-  void EnqueueSend(const int toRank, unsigned char* data, unsigned int nbytes);
+  void EnqueueRcv(int fromRank);
+  void EnqueueSend(int toRank, unsigned char* data, unsigned int nbytes);
   void Exchange(vtkMPIController* comm);
   int NumMsgs();
   void Clear();
@@ -702,7 +702,7 @@ void CommunicationManager::Clear()
 }
 
 //------------------------------------------------------------------------------
-unsigned char* CommunicationManager::GetRcvBuffer(const int fromRank)
+unsigned char* CommunicationManager::GetRcvBuffer(int fromRank)
 {
   assert(
     "pre: cannot find buffer for requested rank!" && (this->Rcv.find(fromRank) != this->Rcv.end()));
@@ -710,7 +710,7 @@ unsigned char* CommunicationManager::GetRcvBuffer(const int fromRank)
 }
 
 //------------------------------------------------------------------------------
-unsigned int CommunicationManager::GetRcvBufferSize(const int fromRank)
+unsigned int CommunicationManager::GetRcvBufferSize(int fromRank)
 {
   assert("pre: cannot find bytesize size of requested rank!" &&
     (this->RcvByteSize.find(fromRank) != this->RcvByteSize.end()));
@@ -724,7 +724,7 @@ int CommunicationManager::NumMsgs()
 }
 
 //------------------------------------------------------------------------------
-void CommunicationManager::EnqueueRcv(const int fromRank)
+void CommunicationManager::EnqueueRcv(int fromRank)
 {
   assert("pre: rcv from rank has already been enqueued!" &&
     (this->Rcv.find(fromRank) == this->Rcv.end()));
@@ -734,7 +734,7 @@ void CommunicationManager::EnqueueRcv(const int fromRank)
 }
 
 //------------------------------------------------------------------------------
-void CommunicationManager::EnqueueSend(const int toRank, unsigned char* data, unsigned int nbytes)
+void CommunicationManager::EnqueueSend(int toRank, unsigned char* data, unsigned int nbytes)
 {
   assert("pre: send to rank has already been enqueued!" &&
     (this->Send.find(toRank) == this->Send.end()));

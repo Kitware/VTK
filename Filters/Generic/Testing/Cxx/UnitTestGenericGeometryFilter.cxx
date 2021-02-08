@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-static vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(const int xres, const int yres);
+static vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(int xres, int yres);
 static vtkSmartPointer<vtkBridgeDataSet> CreateVertexData();
 static vtkSmartPointer<vtkBridgeDataSet> CreateTetraData();
 
@@ -217,7 +217,7 @@ int UnitTestGenericGeometryFilter(int, char*[])
   return status;
 }
 
-vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(const int xres, const int yres)
+vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(int xres, int yres)
 {
   vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
   plane->SetXResolution(xres);

@@ -34,7 +34,7 @@ vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism();
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();
 
 template <typename T>
-int TestCell(const VTKCellType cellType, vtkSmartPointer<T> cell);
+int TestCell(VTKCellType cellType, vtkSmartPointer<T> cell);
 
 //------------------------------------------------------------------------------
 int TestPentagonalPrism(int, char*[])
@@ -126,7 +126,7 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
 }
 
 template <typename T>
-int TestCell(const VTKCellType cellType, vtkSmartPointer<T> aCell)
+int TestCell(VTKCellType cellType, vtkSmartPointer<T> aCell)
 {
   int status = 0;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;

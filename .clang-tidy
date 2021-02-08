@@ -90,7 +90,6 @@ performance-*,\
 -performance-unnecessary-value-param,\
 portability-*,\
 readability-*,\
--readability-avoid-const-params-in-decls,\
 -readability-braces-around-statements,\
 -readability-container-size-empty,\
 -readability-convert-member-functions-to-static,\

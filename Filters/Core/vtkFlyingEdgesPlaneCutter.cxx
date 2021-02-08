@@ -247,12 +247,12 @@ public:
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
   // neighborhood information.
-  void InterpolateEdge(vtkIdType ijk[3], T const* const s, const int incs[3], double x[3],
-    unsigned char edgeNum, unsigned char const* const edgeUses, vtkIdType* eIds);
+  void InterpolateEdge(vtkIdType ijk[3], T const* s, const int incs[3], double x[3],
+    unsigned char edgeNum, unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Produce the output points on the voxel axes for this voxel cell.
   void GeneratePoints(unsigned char loc, vtkIdType ijk[3], const T* sPtr, const int incs[3],
-    double x[3], const double sV, unsigned char const* const edgeUses, vtkIdType* eIds);
+    double x[3], double sV, unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Helper function to set up the point ids on voxel edges.
   unsigned char InitVoxelIds(unsigned char* ePtr[4], vtkIdType* eMD[4], vtkIdType* eIds)

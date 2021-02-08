@@ -7,7 +7,7 @@
 #include "vtkGraphWeightEuclideanDistanceFilter.h"
 
 template <typename T>
-static bool FuzzyCompare(const T a, const T b);
+static bool FuzzyCompare(T a, T b);
 
 int TestGraphWeightEuclideanDistanceFilter(int, char*[])
 {
@@ -63,7 +63,7 @@ int TestGraphWeightEuclideanDistanceFilter(int, char*[])
 }
 
 template <typename T>
-static bool FuzzyCompare(const T a, const T b)
+static bool FuzzyCompare(T a, T b)
 {
   if (fabs(static_cast<float>(a) - static_cast<float>(b)) < 1e-4)
   {

@@ -431,9 +431,9 @@ public:
     CGNS_ENUMT(GridLocation_t) varcentering, const CGNSRead::char_33 name, vtkCGNSReader* self);
   static int getGridAndSolutionNames(int base, std::string& gridCoordName,
     std::vector<std::string>& solutionNames, vtkCGNSReader* reader);
-  static int getCoordsIdAndFillRind(const std::string& gridCoordName, const int physicalDim,
+  static int getCoordsIdAndFillRind(const std::string& gridCoordName, int physicalDim,
     std::size_t& nCoordsArray, std::vector<double>& gridChildId, int* rind, vtkCGNSReader* self);
-  static int getVarsIdAndFillRind(const double cgioSolId, std::size_t& nVarArray,
+  static int getVarsIdAndFillRind(double cgioSolId, std::size_t& nVarArray,
     CGNS_ENUMT(GridLocation_t) & varCentering, std::vector<double>& solChildId, int* rind,
     vtkCGNSReader* self);
 
@@ -442,26 +442,25 @@ public:
    * conventions i.e. 0-based point extents specified as (x-min,x-max,
    * y-min,y-max, z-min, z-max).
    */
-  static int readSolution(const std::string& solutionName, const int cellDim, const int physicalDim,
+  static int readSolution(const std::string& solutionName, int cellDim, int physicalDim,
     const cgsize_t* zsize, vtkDataSet* dataset, const int* voi, vtkCGNSReader* self);
 
-  static int fillArrayInformation(const std::vector<double>& solChildId, const int physicalDim,
+  static int fillArrayInformation(const std::vector<double>& solChildId, int physicalDim,
     std::vector<CGNSRead::CGNSVariable>& cgnsVars, std::vector<CGNSRead::CGNSVector>& cgnsVectors,
     vtkCGNSReader* self);
 
-  static int AllocateVtkArray(const int physicalDim, const vtkIdType nVals,
-    const CGNS_ENUMT(GridLocation_t) varCentering,
-    const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
+  static int AllocateVtkArray(int physicalDim, vtkIdType nVals,
+    CGNS_ENUMT(GridLocation_t) varCentering, const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
     const std::vector<CGNSRead::CGNSVector>& cgnsVectors, std::vector<vtkDataArray*>& vtkVars,
     vtkCGNSReader* self);
 
-  static int AttachReferenceValue(const int base, vtkDataSet* ds, vtkCGNSReader* self);
+  static int AttachReferenceValue(int base, vtkDataSet* ds, vtkCGNSReader* self);
 
   /**
    * return -1 is num_timesteps<=0 or timesteps == NULL, otherwise will always
    * returns an index in the range [0, num_timesteps).
    */
-  static int GetTimeStepIndex(const double time, const double* timesteps, int num_timesteps)
+  static int GetTimeStepIndex(double time, const double* timesteps, int num_timesteps)
   {
     if (timesteps == NULL || num_timesteps <= 0)
     {
@@ -506,8 +505,8 @@ public:
     return vtkDataSet::SafeDownCast(zoneDO);
   }
 
-  static int readBCData(const double nodeId, const int cellDim, const int physicalDim,
-    const CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset, vtkCGNSReader* self);
+  static int readBCData(double nodeId, int cellDim, int physicalDim,
+    CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset, vtkCGNSReader* self);
 
   static std::string GenerateMeshKey(const char* basename, const char* zonename);
 };
@@ -943,7 +942,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
 
 //------------------------------------------------------------------------------
 int vtkCGNSReader::vtkPrivate::getCoordsIdAndFillRind(const std::string& gridCoordNameStr,
-  const int physicalDim, std::size_t& nCoordsArray, std::vector<double>& gridChildId, int* rind,
+  int physicalDim, std::size_t& nCoordsArray, std::vector<double>& gridChildId, int* rind,
   vtkCGNSReader* self)
 {
   CGNSRead::char_33 GridCoordName;
@@ -1007,7 +1006,7 @@ int vtkCGNSReader::vtkPrivate::getCoordsIdAndFillRind(const std::string& gridCoo
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::getVarsIdAndFillRind(const double cgioSolId, std::size_t& nVarArray,
+int vtkCGNSReader::vtkPrivate::getVarsIdAndFillRind(double cgioSolId, std::size_t& nVarArray,
   CGNS_ENUMT(GridLocation_t) & varCentering, std::vector<double>& solChildId, int* rind,
   vtkCGNSReader* self)
 {
@@ -1082,9 +1081,8 @@ int vtkCGNSReader::vtkPrivate::getVarsIdAndFillRind(const double cgioSolId, std:
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, const int cellDim,
-  const int physicalDim, const cgsize_t* zsize, vtkDataSet* dataset, const int* voi,
-  vtkCGNSReader* self)
+int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, int cellDim,
+  int physicalDim, const cgsize_t* zsize, vtkDataSet* dataset, const int* voi, vtkCGNSReader* self)
 {
   if (solutionNameStr.empty())
   {
@@ -1304,9 +1302,8 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::readBCData(const double nodeId, const int cellDim,
-  const int physicalDim, const CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset,
-  vtkCGNSReader* self)
+int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physicalDim,
+  CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset, vtkCGNSReader* self)
 {
   if (cellDim == 0 || physicalDim == 0)
   {
@@ -1618,7 +1615,7 @@ int vtkCGNSReader::vtkPrivate::readBCData(const double nodeId, const int cellDim
 
 //------------------------------------------------------------------------------
 int vtkCGNSReader::vtkPrivate::fillArrayInformation(const std::vector<double>& solChildId,
-  const int physicalDim, std::vector<CGNSRead::CGNSVariable>& cgnsVars,
+  int physicalDim, std::vector<CGNSRead::CGNSVariable>& cgnsVars,
   std::vector<CGNSRead::CGNSVector>& cgnsVectors, vtkCGNSReader* self)
 {
   // Read variable names
@@ -1659,9 +1656,8 @@ int vtkCGNSReader::vtkPrivate::fillArrayInformation(const std::vector<double>& s
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::AllocateVtkArray(const int physicalDim, const vtkIdType nVals,
-  const CGNS_ENUMT(GridLocation_t) varCentering,
-  const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
+int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, vtkIdType nVals,
+  CGNS_ENUMT(GridLocation_t) varCentering, const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
   const std::vector<CGNSRead::CGNSVector>& cgnsVectors, std::vector<vtkDataArray*>& vtkVars,
   vtkCGNSReader* self)
 {
@@ -1750,8 +1746,7 @@ int vtkCGNSReader::vtkPrivate::AllocateVtkArray(const int physicalDim, const vtk
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::AttachReferenceValue(
-  const int base, vtkDataSet* ds, vtkCGNSReader* self)
+int vtkCGNSReader::vtkPrivate::AttachReferenceValue(int base, vtkDataSet* ds, vtkCGNSReader* self)
 {
   // Handle Reference Values (Mach Number, ...)
   const std::map<std::string, double>& arrState = self->Internal->GetBase(base).referenceState;

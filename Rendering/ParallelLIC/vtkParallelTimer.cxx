@@ -108,9 +108,9 @@ public:
 
   // Description:
   // Stream insertion operators for adding data to the buffer.
-  vtkParallelTimerBuffer& operator<<(const int v);
-  vtkParallelTimerBuffer& operator<<(const long long v);
-  vtkParallelTimerBuffer& operator<<(const double v);
+  vtkParallelTimerBuffer& operator<<(int v);
+  vtkParallelTimerBuffer& operator<<(long long v);
+  vtkParallelTimerBuffer& operator<<(double v);
   vtkParallelTimerBuffer& operator<<(const char* v);
   template <size_t N>
   vtkParallelTimerBuffer& operator<<(const char v[N]);
@@ -198,7 +198,7 @@ void vtkParallelTimerBuffer::ClearForReal()
 }
 
 //------------------------------------------------------------------------------
-vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const int v)
+vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(int v)
 {
   const char c = 'i';
   this->PushBack(&c, 1);
@@ -207,7 +207,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const int v)
 }
 
 //------------------------------------------------------------------------------
-vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const long long v)
+vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(long long v)
 {
   const char c = 'l';
   this->PushBack(&c, 1);
@@ -216,7 +216,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const long long v)
 }
 
 //------------------------------------------------------------------------------
-vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(const double v)
+vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator<<(double v)
 {
   const char c = 'd';
   this->PushBack(&c, 1);
