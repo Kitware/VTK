@@ -14,6 +14,49 @@
 =========================================================================*/
 // This class was developed by Takuya Oshima at Niigata University,
 // Japan (oshima@eng.niigata-u.ac.jp).
+//
+// ---------------------------------------------------------------------------
+//
+// Bugs or support questions should be addressed to the discourse forum
+// https://discourse.paraview.org/ and/or KitWare
+//
+// ---------------------------------------------------------------------------
+// OpenFOAM decomposed cases have different formats (JAN 2021)
+//
+// - "Uncollated" with separate directories for each rank
+//   processor0 ... processorN
+//
+// - "Collated" with a single directory for all NN ranks
+//   processorsNN
+//
+// - "Collated" with directories for (inclusive) ranges of ranks
+//   processorsNN_first-last, ...
+//
+// The collated format is not yet supported by the underlying readers
+//------------------------------------------------------------------------------
+
+// Support for reading collated format
+#define VTK_FOAMFILE_COLLATED_FORMAT 0
+
+//------------------------------------------------------------------------------
+// Developer option to debug the reader states
+#define VTK_FOAMFILE_DEBUG 0
+
+// Similar to vtkErrorMacro etc.
+#if VTK_FOAMFILE_DEBUG
+#define vtkFoamDebug(x)                                                                            \
+  do                                                                                               \
+  {                                                                                                \
+    std::cerr << "" x;                                                                             \
+  } while (false)
+#else
+#define vtkFoamDebug(x)                                                                            \
+  do                                                                                               \
+  {                                                                                                \
+  } while (false)
+#endif // VTK_FOAMFILE_DEBUG
+
+//------------------------------------------------------------------------------
 
 #include "vtkPOpenFOAMReader.h"
 
@@ -35,8 +78,270 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 
+#include <cctype>
+#include <cstring>
+
+//------------------------------------------------------------------------------
+
 vtkStandardNewMacro(vtkPOpenFOAMReader);
 vtkCxxSetObjectMacro(vtkPOpenFOAMReader, Controller, vtkMultiProcessController);
+
+//------------------------------------------------------------------------------
+
+// Local Functions
+
+namespace
+{
+
+// Create a sub-reader with the current characteristics
+vtkSmartPointer<vtkOpenFOAMReader> NewFoamReader(vtkOpenFOAMReader* parent)
+{
+  auto reader = vtkSmartPointer<vtkOpenFOAMReader>::New();
+  reader->SetFileName(parent->GetFileName());
+  reader->SetParent(parent);
+  reader->SetSkipZeroTime(parent->GetSkipZeroTime());
+  reader->SetUse64BitLabels(parent->GetUse64BitLabels());
+  reader->SetUse64BitFloats(parent->GetUse64BitFloats());
+
+  return reader;
+}
+
+// Generate a processor dirname from number or tuple.
+// For 1 component:
+//   procNum -> 'processor<procNum>'
+//
+// For 3 component tuple (nprocs, first, size)
+//
+// - processors<nprocs>, when first == size == 0
+// - processors<nprocs>_<first>-<last>, where last is inclusive
+static std::string ProcessorDirName(const vtkIntArray* dirs, int index)
+{
+  if (index < 0 || index >= dirs->GetNumberOfTuples())
+  {
+    return std::string();
+  }
+  else if (3 == dirs->GetNumberOfComponents())
+  {
+    // Collated name
+    const auto nprocs = dirs->GetTypedComponent(index, 0);
+    const auto first = dirs->GetTypedComponent(index, 1);
+    const auto size = dirs->GetTypedComponent(index, 2);
+
+    std::string stem("processors" + std::to_string(nprocs));
+    if (size)
+    {
+      const auto last = (first + size - 1); // inclusive range
+      return (stem + "_" + std::to_string(first) + "-" + std::to_string(last));
+    }
+    return stem;
+  }
+
+  // Uncollated name
+  return std::string("processor" + std::to_string(dirs->GetValue(index)));
+}
+
+#if VTK_FOAMFILE_COLLATED_FORMAT
+// Number of processor pieces represented by the tuple
+static inline int ProcessorsNumPieces(const int procTuple[])
+{
+  const auto nprocs = procTuple[0];
+  // const auto first = procTuple[1];
+  const auto size = procTuple[2];
+
+  return (size ? size : nprocs);
+}
+#endif
+
+// Search and list processor subdirectories
+// Detect collated and uncollated processor directories
+// - "processor(\d+)"
+// - "processors(\d+)"
+// - "processors(\d+)_(\d+)-(\d+)"
+//
+// string parsing logic as per fileOperation / parseProcsNumRange from OpenFOAM-v2012
+//
+// Return either collated or uncollated directories, never a mix.
+// Use the number of components to distinguish
+vtkSmartPointer<vtkIntArray> ScanForProcessorDirs(vtkDirectory* dir)
+{
+  // Uncollated: save processor id
+  auto uncollated = vtkSmartPointer<vtkIntArray>::New();
+  uncollated->SetNumberOfComponents(1);
+
+  // Collated: save (processor count, first, size) tuple
+  auto collated = vtkSmartPointer<vtkIntArray>::New();
+  collated->SetNumberOfComponents(3);
+
+  // Sort keys for collated
+  vtkNew<vtkIntArray> collatedNums;
+  int procTuple[3] = { 0, 0, 0 };
+
+  const vtkIdType nFiles = dir->GetNumberOfFiles();
+  for (vtkIdType filei = 0; filei < nFiles; ++filei)
+  {
+    const char* subdir = dir->GetFile(filei);
+
+    if (strncmp(subdir, "processor", 9) != 0 || !dir->FileIsDirectory(subdir))
+    {
+      continue;
+    }
+
+    if (isdigit(subdir[9]))
+    {
+      // processor<digits>
+      const char* nptr = (subdir + 9);
+      char* endptr = nullptr;
+
+      errno = 0;
+      long parsed = std::strtol(nptr, &endptr, 10);
+      if (errno || nptr == endptr)
+      {
+        continue; // bad parse
+      }
+      const auto procId = static_cast<int>(parsed);
+
+      // Require end of string
+      if (*endptr == '\0')
+      {
+        uncollated->InsertNextValue(procId);
+      }
+    }
+    else if (subdir[9] == 's' && isdigit(subdir[10]))
+    {
+      // processors<digits> or processors<digits>_<digits>-<digits>
+      const char* nptr = (subdir + 10);
+      char* endptr = nullptr;
+
+      // 1. numProcs
+      errno = 0;
+      long parsed = std::strtol(nptr, &endptr, 10);
+      if (errno || nptr == endptr)
+      {
+        continue; // bad parse
+      }
+      const auto nProcs = static_cast<int>(parsed);
+
+      // End of string? Then no range and we are done.
+      if (*endptr == '\0')
+      {
+        procTuple[0] = nProcs;
+        procTuple[1] = 0;
+        procTuple[2] = 0;
+
+        collated->InsertNextTypedTuple(procTuple);
+        collatedNums->InsertNextValue(nProcs);
+        continue;
+      }
+
+      // Parse point at start of range ('_' character)?
+      if (*endptr != '_')
+      {
+        continue;
+      }
+      nptr = ++endptr;
+
+      // 2. firstProc
+      errno = 0;
+      parsed = std::strtol(nptr, &endptr, 10);
+      if (errno || nptr == endptr)
+      {
+        continue; // bad parse
+      }
+      const auto firstProc = static_cast<int>(parsed);
+
+      // Parse point at range separator ('-' character)?
+      if (*endptr != '-')
+      {
+        continue;
+      }
+      nptr = ++endptr;
+
+      // 3. lastProc
+      errno = 0;
+      parsed = std::strtol(nptr, &endptr, 10);
+      if (errno || nptr == endptr)
+      {
+        continue; // bad parse
+      }
+      const auto lastProc = static_cast<int>(parsed);
+
+      if (
+        // Parse point at end of string
+        (*endptr == '\0')
+        // Input plausibility - accept nProcs == 0 in case that becomes useful in the future
+        && (nProcs >= 0 && firstProc >= 0 && firstProc <= lastProc))
+      {
+        // Convert first/last to start/size
+        procTuple[0] = nProcs;
+        procTuple[1] = firstProc;
+        procTuple[2] = (lastProc - firstProc + 1);
+
+        collated->InsertNextTypedTuple(procTuple);
+        collatedNums->InsertNextValue(nProcs);
+      }
+    }
+  }
+
+  collatedNums->Squeeze();
+  collated->Squeeze();
+  uncollated->Squeeze();
+
+  vtkSortDataArray::Sort(uncollated);
+  vtkSortDataArray::Sort(collatedNums, collated);
+
+#if VTK_FOAMFILE_DEBUG
+  std::cerr << "processor (";
+  for (vtkIdType proci = 0; proci < uncollated->GetNumberOfTuples(); ++proci)
+  {
+    std::cerr << ' ' << uncollated->GetValue(proci);
+  }
+  std::cerr << " )\n";
+
+  std::cerr << "processors (";
+  for (vtkIdType proci = 0; proci < collated->GetNumberOfTuples(); ++proci)
+  {
+    collated->GetTypedTuple(proci, procTuple);
+    std::cerr << ' ' << procTuple[0];
+    if (procTuple[2])
+    {
+      std::cerr << '_' << procTuple[1] << '-' << (procTuple[1] + procTuple[2] - 1);
+    }
+  }
+  std::cerr << " )\n";
+#endif // VTK_FOAMFILE_DEBUG
+
+#if VTK_FOAMFILE_COLLATED_FORMAT
+  const int nCollated = static_cast<int>(collated->GetNumberOfTuples());
+  if (nCollated)
+  {
+    // Sanity checks.
+    // Same number of processors, check that total number of pieces add up, etc.
+    if (collatedNums->GetValue(0) != collatedNums->GetValue(nCollated - 1))
+    {
+      // Failed
+      return uncollated;
+    }
+    else if (nCollated > 1)
+    {
+      // Identical nProcs. Now re-sort based on first-last range
+      for (int i = 0; i < nCollated; ++i)
+      {
+        const int firstProc = collated->GetTypedComponent(i, 1);
+        collatedNums->SetTValue(i, firstProc);
+      }
+
+      vtkSortDataArray::Sort(collatedNums, collated);
+    }
+
+    // Done
+    return collated;
+  }
+#endif
+
+  return uncollated;
+}
+
+} // End anonymous namespace
 
 //------------------------------------------------------------------------------
 vtkPOpenFOAMReader::vtkPOpenFOAMReader()
@@ -134,6 +439,8 @@ int vtkPOpenFOAMReader::RequestInformation(
     return 0;
   }
 
+  // Handle the decomposed case
+
   if (*this->Superclass::FileNameOld != this->Superclass::FileName ||
     this->Superclass::ListTimeStepsByControlDict !=
       this->Superclass::ListTimeStepsByControlDictOld ||
@@ -155,72 +462,48 @@ int vtkPOpenFOAMReader::RequestInformation(
     this->Superclass::Readers->RemoveAllItems();
     this->Superclass::NumberOfReaders = 0;
 
-    vtkStringArray* procNames = vtkStringArray::New();
-    vtkDoubleArray* timeValues;
-
-    // recreate case information
+    // Recreate case information
     vtkStdString masterCasePath, controlDictPath;
     this->Superclass::CreateCasePath(masterCasePath, controlDictPath);
 
     this->Superclass::CreateCharArrayFromString(
       this->Superclass::CasePath, "CasePath", masterCasePath);
 
+    int nProcessorDirs = 0;
+    auto processorDirs = vtkSmartPointer<vtkIntArray>::New();
+    vtkDoubleArray* timeValues;
+
     int ret = 1;
     if (this->ProcessId == 0)
     {
-      // search and list processor subdirectories
-      vtkDirectory* dir = vtkDirectory::New();
+      // Search and list processor subdirectories
+      vtkNew<vtkDirectory> dir;
       if (!dir->Open(masterCasePath.c_str()))
       {
-        vtkErrorMacro(<< "Can't open " << masterCasePath.c_str());
-        dir->Delete();
+        vtkErrorMacro(<< "Cannot open " << masterCasePath);
         this->BroadcastStatus(ret = 0);
         return 0;
       }
-      vtkIntArray* procNos = vtkIntArray::New();
-      for (int fileI = 0; fileI < dir->GetNumberOfFiles(); fileI++)
-      {
-        const vtkStdString subDir(dir->GetFile(fileI));
-        if (subDir.substr(0, 9) == "processor")
-        {
-          const vtkStdString procNoStr(subDir.substr(9, vtkStdString::npos));
-          char* conversionEnd;
-          const int procNo = strtol(procNoStr.c_str(), &conversionEnd, 10);
-          if (procNoStr.c_str() + procNoStr.length() == conversionEnd && procNo >= 0)
-          {
-            procNos->InsertNextValue(procNo);
-            procNames->InsertNextValue(subDir);
-          }
-        }
-      }
-      procNos->Squeeze();
-      procNames->Squeeze();
-      dir->Delete();
 
-      // sort processor subdirectories by processor numbers
-      vtkSortDataArray::Sort(procNos, procNames);
-      procNos->Delete();
+      processorDirs = ::ScanForProcessorDirs(dir);
+      nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
 
-      // get time directories from the first processor subdirectory
-      if (procNames->GetNumberOfTuples() > 0)
+      if (nProcessorDirs)
       {
-        vtkOpenFOAMReader* masterReader = vtkOpenFOAMReader::New();
-        masterReader->SetFileName(this->FileName);
-        masterReader->SetParent(this);
-        masterReader->SetSkipZeroTime(this->SkipZeroTime);
-        masterReader->SetUse64BitLabels(this->Use64BitLabels);
-        masterReader->SetUse64BitFloats(this->Use64BitFloats);
-        if (!masterReader->MakeInformationVector(outputVector, procNames->GetValue(0)) ||
+        // Get times from the first processor subdirectory
+        const std::string procDirName = ::ProcessorDirName(processorDirs, 0);
+        vtkFoamDebug(<< "First processor dir: " << procDirName << "\n");
+
+        auto masterReader = ::NewFoamReader(this);
+
+        if (!masterReader->MakeInformationVector(outputVector, procDirName) ||
           !masterReader->MakeMetaDataAtTimeStep(true))
         {
-          procNames->Delete();
-          masterReader->Delete();
           this->BroadcastStatus(ret = 0);
           return 0;
         }
         this->Superclass::Readers->AddItem(masterReader);
         timeValues = masterReader->GetTimeValues();
-        masterReader->Delete();
       }
       else
       {
@@ -244,45 +527,43 @@ int vtkPOpenFOAMReader::RequestInformation(
         return 0;
       }
 
-      this->Broadcast(procNames);
+      this->Controller->Broadcast(processorDirs, 0);
       this->Controller->Broadcast(timeValues, 0);
       if (this->ProcessId != 0)
       {
         this->Superclass::SetTimeInformation(outputVector, timeValues);
-        timeValues->Delete();
       }
+      nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
     }
 
-    if (this->ProcessId == 0 && procNames->GetNumberOfTuples() == 0)
-    {
-      timeValues->Delete();
-    }
+    // Create reader instances for processor subdirectories,
+    // skip first one since it has already been created above
 
-    // create reader instances for other processor subdirectories
-    // skip processor0 since it's already created
-    for (int procI = (this->ProcessId ? this->ProcessId : this->NumProcesses);
-         procI < procNames->GetNumberOfTuples(); procI += this->NumProcesses)
+    for (int dirIndex = (this->ProcessId ? this->ProcessId : this->NumProcesses);
+         dirIndex < nProcessorDirs; dirIndex += this->NumProcesses)
     {
-      vtkOpenFOAMReader* subReader = vtkOpenFOAMReader::New();
-      subReader->SetFileName(this->FileName);
-      subReader->SetParent(this);
-      subReader->SetUse64BitLabels(this->Use64BitLabels);
-      subReader->SetUse64BitFloats(this->Use64BitFloats);
-      // if getting metadata failed simply delete the reader instance
-      if (subReader->MakeInformationVector(nullptr, procNames->GetValue(procI)) &&
+      const std::string procDirName = ::ProcessorDirName(processorDirs, dirIndex);
+      vtkFoamDebug(<< "Additional processor dir: " << procDirName << "\n");
+
+      auto subReader = ::NewFoamReader(this);
+
+      // If getting metadata failed, simply skip the reader instance
+      if (subReader->MakeInformationVector(nullptr, procDirName) &&
         subReader->MakeMetaDataAtTimeStep(true))
       {
         this->Superclass::Readers->AddItem(subReader);
       }
       else
       {
-        vtkWarningMacro(<< "Removing reader for processor subdirectory "
-                        << procNames->GetValue(procI).c_str());
+        vtkWarningMacro(<< "Removing reader for processor subdirectory " << procDirName);
       }
-      subReader->Delete();
     }
 
-    procNames->Delete();
+    // Cleanup
+    if (this->ProcessId != 0 || (nProcessorDirs == 0))
+    {
+      timeValues->Delete();
+    }
 
     this->GatherMetaData();
     this->Superclass::Refresh = false;
@@ -299,8 +580,7 @@ int vtkPOpenFOAMReader::RequestData(
 {
   vtkSmartPointer<vtkMultiProcessController> splitController;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  auto* output = vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
@@ -331,7 +611,7 @@ int vtkPOpenFOAMReader::RequestData(
   }
 
   int ret = 1;
-  if (this->Superclass::Readers->GetNumberOfItems() > 0)
+  if (this->Superclass::Readers->GetNumberOfItems())
   {
     int nSteps = 0;
     double requestedTimeValue(0);
