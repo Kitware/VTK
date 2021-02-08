@@ -585,7 +585,7 @@ public:
     this->InputData = tracer->InputData;
     this->VecType = 0;
     this->VecName = nullptr;
-    this->Input0 = 0;
+    this->Input0 = nullptr;
     if (!tracer->EmptyData)
     {
       vtkCompositeDataIterator* iter = tracer->InputData->NewIterator();
@@ -846,7 +846,7 @@ inline vtkIdType LastPointIndex(vtkPolyData* pathPoly)
 {
   vtkCellArray* pathCells = pathPoly->GetLines();
   AssertGt(pathCells->GetNumberOfCells(), 0);
-  const vtkIdType* path(0);
+  const vtkIdType* path(nullptr);
   vtkIdType nPoints(0);
   pathCells->InitTraversal();
   pathCells->GetNextCell(nPoints, path);
@@ -1154,7 +1154,7 @@ public:
         {
           if (this->HasData[i])
           {
-            this->Send(NoMoreTasks, i, 0);
+            this->Send(NoMoreTasks, i, nullptr);
           }
         }
       }
@@ -1372,7 +1372,7 @@ vtkPStreamTracer::vtkPStreamTracer()
   {
     this->Controller->Register(this);
   }
-  this->Interpolator = 0;
+  this->Interpolator = nullptr;
   this->GenerateNormalsInIntegrate = 0;
 
   this->EmptyData = 0;
@@ -1383,9 +1383,9 @@ vtkPStreamTracer::~vtkPStreamTracer()
   if (this->Controller)
   {
     this->Controller->UnRegister(this);
-    this->Controller = 0;
+    this->Controller = nullptr;
   }
-  this->SetInterpolator(0);
+  this->SetInterpolator(nullptr);
 }
 
 int vtkPStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
@@ -1442,7 +1442,7 @@ int vtkPStreamTracer::RequestData(
   }
 
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkDataSet* source = 0;
+  vtkDataSet* source = nullptr;
   if (sourceInfo)
   {
     source = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -1497,7 +1497,7 @@ int vtkPStreamTracer::RequestData(
   auto originalSeedIds = this->Utils->ComputeSeeds(source, seedPoints, maxId);
   taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId);
 
-  Task* task(0);
+  Task* task(nullptr);
   std::vector<int> traceIds;
   int iterations = 0;
   while ((task = taskManager.NextTask()))
@@ -1742,7 +1742,7 @@ bool vtkPStreamTracer::TraceOneStep(
 
   memcpy(outPoint, lastPoint, sizeof(double) * 3);
 
-  double timeStepTaken = this->SimpleIntegrate(0, outPoint, this->LastUsedStepSize, func);
+  double timeStepTaken = this->SimpleIntegrate(nullptr, outPoint, this->LastUsedStepSize, func);
   PRINT("Simple Integrate from :" << lastPoint[0] << " " << lastPoint[1] << " " << lastPoint[2]
                                   << " to " << outPoint[0] << " " << outPoint[1] << " "
                                   << outPoint[2]);
@@ -1780,7 +1780,7 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   AssertEq(
     headPoly->GetPointData()->GetNumberOfArrays(), pathPoly->GetPointData()->GetNumberOfArrays());
 
-  const vtkIdType* path(0);
+  const vtkIdType* path(nullptr);
   vtkIdType nPoints(0);
   pathCells->InitTraversal();
   pathCells->GetNextCell(nPoints, path);

@@ -26,16 +26,16 @@ vtkCxxSetObjectMacro(vtkSILBuilder, SIL, vtkMutableDirectedGraph);
 //------------------------------------------------------------------------------
 vtkSILBuilder::vtkSILBuilder()
 {
-  this->NamesArray = 0;
-  this->CrossEdgesArray = 0;
-  this->SIL = 0;
+  this->NamesArray = nullptr;
+  this->CrossEdgesArray = nullptr;
+  this->SIL = nullptr;
   this->RootVertex = -1;
 }
 
 //------------------------------------------------------------------------------
 vtkSILBuilder::~vtkSILBuilder()
 {
-  this->SetSIL(0);
+  this->SetSIL(nullptr);
 }
 
 //------------------------------------------------------------------------------

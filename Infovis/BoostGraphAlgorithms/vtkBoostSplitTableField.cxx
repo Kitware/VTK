@@ -140,7 +140,7 @@ int vtkBoostSplitTableField::RequestData(
   implementation::tokenizers_t tokenizers;
   for (vtkIdType column = 0; column < input->GetNumberOfColumns(); ++column)
   {
-    tokenizers.push_back(static_cast<implementation::tokenizer_t*>(0));
+    tokenizers.push_back(static_cast<implementation::tokenizer_t*>(nullptr));
 
     for (vtkIdType field = 0; field < this->Fields->GetNumberOfValues(); ++field)
     {

@@ -24,7 +24,7 @@ vtkSQLDatabase* ODBCCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkODBCDatabase* db = 0;
+  vtkODBCDatabase* db = nullptr;
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "odbc")
   {

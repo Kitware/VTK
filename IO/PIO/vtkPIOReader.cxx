@@ -52,7 +52,7 @@ vtkPIOReader::vtkPIOReader()
   this->Float64 = false;
   this->NumberOfVariables = 0;
   this->CurrentTimeStep = -1;
-  this->TimeSteps = 0;
+  this->TimeSteps = nullptr;
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->TimeDataStringArray = vtkStringArray::New();
 
@@ -65,7 +65,7 @@ vtkPIOReader::vtkPIOReader()
   this->SetActiveTimeDataArrayName("CycleIndex");
 
   // External PIO_DATA for actually reading files
-  this->pioAdaptor = 0;
+  this->pioAdaptor = nullptr;
 
   this->Controller = vtkMultiProcessController::GetGlobalController();
   if (this->Controller)
@@ -116,7 +116,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
 
   // Get ParaView information and output pointers
   vtkInformation* outInfo = outVector->GetInformationObject(0);
-  if (this->pioAdaptor == 0)
+  if (this->pioAdaptor == nullptr)
   {
     // Create one PIOAdaptor which builds the MultiBlockDataSet
     this->pioAdaptor = new PIOAdaptor(this->Controller);
@@ -129,7 +129,7 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
       vtkErrorMacro("Error in pio description file");
       this->SetErrorCode(vtkErrorCode::FileFormatError);
       delete this->pioAdaptor;
-      this->pioAdaptor = 0;
+      this->pioAdaptor = nullptr;
       return 0;
     }
 
@@ -227,7 +227,7 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
   // If no PIOAdaptor there was an earlier failure
-  if (this->pioAdaptor == 0)
+  if (this->pioAdaptor == nullptr)
   {
     vtkErrorMacro("Error in pio description file");
     this->SetErrorCode(vtkErrorCode::FileFormatError);

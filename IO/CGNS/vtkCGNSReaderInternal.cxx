@@ -91,12 +91,12 @@ int getFirstNodeId(
       return 1;
     }
 
-    if (name != NULL && cgio_get_name(cgioNum, idList[n], nodeName))
+    if (name != nullptr && cgio_get_name(cgioNum, idList[n], nodeName))
     {
       return 1;
     }
 
-    if (0 == strcmp(nodeLabel, label) && (name == NULL || 0 == strcmp(nodeName, name)))
+    if (0 == strcmp(nodeLabel, label) && (name == nullptr || 0 == strcmp(nodeName, name)))
     {
       *id = idList[n];
       nId = 1;
@@ -176,7 +176,7 @@ int get_section_connectivity(const int cgioNum, const double cgioSectionId, cons
     if (sizeOfCnt == sizeof(int))
     {
       int* data = new int[nn];
-      if (data == 0)
+      if (data == nullptr)
       {
         std::cerr << "Allocation failed for temporary connectivity array\n";
       }
@@ -199,7 +199,7 @@ int get_section_connectivity(const int cgioNum, const double cgioSectionId, cons
     else if (sizeOfCnt == sizeof(cglong_t))
     {
       cglong_t* data = new cglong_t[nn];
-      if (data == 0)
+      if (data == nullptr)
       {
         std::cerr << "Allocation failed for temporary connectivity array\n";
         return 1;
@@ -278,7 +278,7 @@ int get_section_start_offset(const int cgioNum, const double cgioSectionId, cons
     if (sizeOfCnt == sizeof(int))
     {
       int* data = new int[nn];
-      if (data == 0)
+      if (data == nullptr)
       {
         std::cerr << "Allocation failed for temporary connectivity offset array\n";
       }
@@ -301,7 +301,7 @@ int get_section_start_offset(const int cgioNum, const double cgioSectionId, cons
     else if (sizeOfCnt == sizeof(cglong_t))
     {
       cglong_t* data = new cglong_t[nn];
-      if (data == 0)
+      if (data == nullptr)
       {
         std::cerr << "Allocation failed for temporary connectivity array\n";
         return 1;
@@ -522,13 +522,13 @@ inline const int* getTranslator(const int cellType)
     case VTK_PYRAMID:
     case VTK_QUADRATIC_PYRAMID:
     case VTK_WEDGE:
-      return NULL;
+      return nullptr;
     case VTK_QUADRATIC_WEDGE:
       return CGNSRead::PENTA_15_ToVTK;
     case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
       return CGNSRead::PENTA_18_ToVTK;
     case VTK_HEXAHEDRON:
-      return NULL;
+      return nullptr;
     case VTK_QUADRATIC_HEXAHEDRON:
       return CGNSRead::HEXA_20_ToVTK;
     case VTK_TRIQUADRATIC_HEXAHEDRON:
@@ -544,7 +544,7 @@ inline const int* getTranslator(const int cellType)
     case VTK_LAGRANGE_PYRAMID:
       return CGNSRead::PYRA_30_ToVTK;
     default:
-      return NULL;
+      return nullptr;
   }
 }
 
@@ -560,7 +560,7 @@ void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elem
     translator = getTranslator(cells_types[icell]);
     vtkIdType numPointsPerCell = elements[pos];
     pos++;
-    if (translator != NULL)
+    if (translator != nullptr)
     {
       for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
       {
@@ -583,7 +583,7 @@ void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType*
   int tmp[maxPointsPerCells];
   const int* translator;
   translator = getTranslator(cell_type);
-  if (translator == NULL)
+  if (translator == nullptr)
   {
     return;
   }

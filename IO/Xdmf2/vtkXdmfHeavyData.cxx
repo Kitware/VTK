@@ -155,7 +155,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData(XdmfGrid* xmfGrid, int blockId)
   if (!xmfGrid || xmfGrid->GetGridType() == XDMF_GRID_UNSET)
   {
     // sanity check-ensure that the xmfGrid is valid.
-    return 0;
+    return nullptr;
   }
 
   XdmfInt32 gridType = (xmfGrid->GetGridType() & XDMF_GRID_MASK);
@@ -256,7 +256,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
 
   if (valid_children.empty())
   {
-    return 0;
+    return nullptr;
   }
 
   std::deque<vtkSmartPointer<vtkDataObject>> child_data_objects;
@@ -288,7 +288,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
     return mb;
   }
 
-  return 0;
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -386,10 +386,10 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
   XdmfInt32 status = xmfGrid->Update();
   if (status == XDMF_FAIL)
   {
-    return 0;
+    return nullptr;
   }
 
-  vtkDataObject* dataObject = 0;
+  vtkDataObject* dataObject = nullptr;
 
   switch (vtk_data_type)
   {
@@ -415,13 +415,13 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
 
     default:
       // un-handled case.
-      return 0;
+      return nullptr;
   }
 
   if (caching)
   {
     cache[blockId].dataset = vtkDataSet::SafeDownCast(dataObject);
-    dataObject->Register(0);
+    dataObject->Register(nullptr);
   }
   return dataObject;
 }
@@ -999,7 +999,7 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
     }
   }
 
-  points->Register(0);
+  points->Register(nullptr);
   return points;
 }
 
@@ -1020,7 +1020,7 @@ bool vtkXdmfHeavyData::ReadAttributes(vtkDataSet* dataSet, XdmfGrid* xmfGrid, in
       continue;
     }
 
-    vtkFieldData* fieldData = 0;
+    vtkFieldData* fieldData = nullptr;
     // skip disabled arrays.
     switch (attrCenter)
     {
@@ -1210,7 +1210,7 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
   if (xmfDataItem.Update() == XDMF_FAIL)
   {
     vtkErrorWithObjectMacro(this->Reader, "Failed to read attribute data");
-    return 0;
+    return nullptr;
   }
 
   vtkXdmfDataArray* xmfConvertor = vtkXdmfDataArray::New();
@@ -1280,7 +1280,7 @@ bool vtkXdmfHeavyData::ReadGhostSets(
     }
     XdmfInt32 setCenter = xmfSet->GetSetType();
     vtkIdType numElems = 0;
-    vtkDataSetAttributes* dsa = 0;
+    vtkDataSetAttributes* dsa = nullptr;
     unsigned char ghostFlag = 0;
     switch (setCenter)
     {
@@ -1387,7 +1387,7 @@ vtkMultiBlockDataSet* vtkXdmfHeavyData::ReadSets(
     }
 
     // Okay now we have an enabled set. Create a new dataset for it
-    vtkDataSet* set = 0;
+    vtkDataSet* set = nullptr;
 
     XdmfInt32 setType = xmfSet->GetSetType();
     switch (setType)

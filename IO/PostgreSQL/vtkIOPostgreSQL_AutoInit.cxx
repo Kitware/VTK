@@ -24,7 +24,7 @@ vtkSQLDatabase* PostgreSQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkPostgreSQLDatabase* db = 0;
+  vtkPostgreSQLDatabase* db = nullptr;
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "psql")
   {

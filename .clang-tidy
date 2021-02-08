@@ -74,7 +74,6 @@ modernize-*,\
 -modernize-use-default-member-init,\
 -modernize-use-emplace,\
 -modernize-use-equals-delete,\
--modernize-use-nullptr,\
 -modernize-use-trailing-return-type,\
 -modernize-use-using,\
 mpi-*,\

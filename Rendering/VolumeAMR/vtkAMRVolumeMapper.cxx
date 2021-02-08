@@ -80,21 +80,21 @@ vtkAMRVolumeMapper::~vtkAMRVolumeMapper()
 void vtkAMRVolumeMapper::SetInputData(vtkImageData* vtkNotUsed(genericInput))
 {
   vtkErrorMacro("Mapper expects a hierarchical dataset as input");
-  this->Resampler->SetInputConnection(0, 0);
+  this->Resampler->SetInputConnection(0, nullptr);
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputData(vtkDataSet* vtkNotUsed(genericInput))
 {
   vtkErrorMacro("Mapper expects a hierarchical dataset as input");
-  this->Resampler->SetInputConnection(0, 0);
+  this->Resampler->SetInputConnection(0, nullptr);
 }
 
 //------------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputData(vtkRectilinearGrid* vtkNotUsed(genericInput))
 {
   vtkErrorMacro("Mapper expects a hierarchical dataset as input");
-  this->Resampler->SetInputConnection(0, 0);
+  this->Resampler->SetInputConnection(0, nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -559,7 +559,7 @@ void vtkAMRVolumeMapper::UpdateGrid()
     this->Grid->Delete();
   }
   this->Grid = vtkUniformGrid::SafeDownCast(mb->GetBlock(0));
-  this->Grid->Register(0);
+  this->Grid->Register(nullptr);
   this->GridNeedsToBeUpdated = false;
 #if PRINTSTATS
   this->Grid->GetDimensions(gridDim);

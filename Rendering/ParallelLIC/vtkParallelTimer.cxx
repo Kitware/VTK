@@ -63,7 +63,7 @@ using std::ios_base;
 /*
 For singleton pattern
 **/
-vtkParallelTimer* vtkParallelTimer::GlobalInstance = 0;
+vtkParallelTimer* vtkParallelTimer::GlobalInstance = nullptr;
 vtkParallelTimer::vtkParallelTimerDestructor vtkParallelTimer::GlobalInstanceDestructor;
 
 //------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer()
   : Size(0)
   , At(0)
   , GrowBy(4096)
-  , Data(0)
+  , Data(nullptr)
 {
 }
 
@@ -170,7 +170,7 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer(const vtkParallelTimerBuffer& oth
   : Size(0)
   , At(0)
   , GrowBy(4096)
-  , Data(0)
+  , Data(nullptr)
 {
   *this = other;
 }
@@ -194,7 +194,7 @@ void vtkParallelTimerBuffer::ClearForReal()
   this->At = 0;
   this->Size = 0;
   free(this->Data);
-  this->Data = 0;
+  this->Data = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -307,8 +307,8 @@ void vtkParallelTimerBuffer::Gather(int rootRank)
   // in serial this is a no-op
   if (worldSize > 1)
   {
-    int* bufferSizes = 0;
-    int* disp = 0;
+    int* bufferSizes = nullptr;
+    int* disp = nullptr;
     if (worldRank == rootRank)
     {
       bufferSizes = static_cast<int*>(malloc(worldSize * sizeof(int)));
@@ -316,7 +316,7 @@ void vtkParallelTimerBuffer::Gather(int rootRank)
     }
     int bufferSize = static_cast<int>(this->GetSize());
     MPI_Gather(&bufferSize, 1, MPI_INT, bufferSizes, 1, MPI_INT, rootRank, MPI_COMM_WORLD);
-    char* log = 0;
+    char* log = nullptr;
     int cumSize = 0;
     if (worldRank == rootRank)
     {
@@ -381,9 +381,9 @@ vtkParallelTimer::vtkParallelTimer()
   : GlobalLevel(0)
   , WorldRank(0)
   , WriterRank(0)
-  , FileName(0)
+  , FileName(nullptr)
   , WriteOnClose(0)
-  , Log(0)
+  , Log(nullptr)
 {
 #if vtkParallelTimerDEBUG > 1
   cerr << "=====vtkParallelTimer::vtkParallelTimer" << endl;
@@ -424,7 +424,7 @@ vtkParallelTimer::~vtkParallelTimer()
   }
 #endif
 
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 
   delete this->Log;
 }
@@ -436,7 +436,7 @@ vtkParallelTimer* vtkParallelTimer::GetGlobalInstance()
   cerr << "=====vtkParallelTimer::GetGlobalInstance" << endl;
 #endif
 
-  if (vtkParallelTimer::GlobalInstance == 0)
+  if (vtkParallelTimer::GlobalInstance == nullptr)
   {
     vtkParallelTimer* log = vtkParallelTimer::New();
     ostringstream oss;
@@ -465,7 +465,7 @@ void vtkParallelTimer::DeleteGlobalInstance()
     vtkParallelTimer::GlobalInstance->Delete();
     vtkParallelTimer::GlobalInstance = nullptr;
 
-    vtkParallelTimer::GlobalInstanceDestructor.SetLog(0);
+    vtkParallelTimer::GlobalInstanceDestructor.SetLog(nullptr);
   }
 }
 
@@ -502,7 +502,7 @@ void vtkParallelTimer::StartEvent(const char* event)
 #endif
 
   timeval wallt;
-  gettimeofday(&wallt, 0x0);
+  gettimeofday(&wallt, nullptr);
   double walls = static_cast<double>(wallt.tv_sec) + static_cast<double>(wallt.tv_usec) / 1.0E6;
 
 #if vtkParallelTimerDEBUG < 0
@@ -534,7 +534,7 @@ void vtkParallelTimer::EndEvent(const char* event)
 #endif
 
   timeval wallt;
-  gettimeofday(&wallt, 0x0);
+  gettimeofday(&wallt, nullptr);
   double walle = static_cast<double>(wallt.tv_sec) + static_cast<double>(wallt.tv_usec) / 1.0E6;
 
 #if vtkParallelTimerDEBUG > 0

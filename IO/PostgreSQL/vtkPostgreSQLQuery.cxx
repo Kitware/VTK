@@ -230,7 +230,7 @@ void vtkPostgreSQLQuery::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkPostgreSQLQuery::Execute()
 {
-  if (this->Query == 0)
+  if (this->Query == nullptr)
   {
     vtkErrorMacro("Cannot execute before a query has been set.");
     return false;
@@ -266,7 +266,7 @@ bool vtkPostgreSQLQuery::Execute()
       this->Active = false;
       this->DeleteQueryResults();
       vtkWarningMacro(<< "Query string was set but empty.");
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
     };
     break;
 
@@ -275,7 +275,7 @@ bool vtkPostgreSQLQuery::Execute()
       returnStatus = true;
       this->Active = true;
       this->DeleteQueryResults();
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
     };
     break;
 
@@ -283,7 +283,7 @@ bool vtkPostgreSQLQuery::Execute()
     {
       returnStatus = true;
       this->Active = true;
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
     };
     break;
 
@@ -341,12 +341,12 @@ const char* vtkPostgreSQLQuery::GetFieldName(int column)
   if (!this->Active || !this->QueryInternals->QueryResults)
   {
     vtkErrorMacro("Query is not active!");
-    return 0;
+    return nullptr;
   }
   else if (column < 0 || column >= this->GetNumberOfFields())
   {
     vtkErrorMacro("Illegal field index " << column);
-    return 0;
+    return nullptr;
   }
   return PQfname(this->QueryInternals->QueryResults, column);
 }
@@ -448,7 +448,7 @@ bool vtkPostgreSQLQuery::HasError()
   {
     return false;
   }
-  return this->LastErrorText != 0;
+  return this->LastErrorText != nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -468,7 +468,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
   {
     case PGRES_COMMAND_OK:
     {
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
       this->TransactionInProgress = true;
       status = true;
     };
@@ -512,7 +512,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
   {
     case PGRES_COMMAND_OK:
     {
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
       this->TransactionInProgress = false;
       status = true;
     };
@@ -558,7 +558,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
   {
     case PGRES_COMMAND_OK:
     {
-      this->SetLastErrorText(0);
+      this->SetLastErrorText(nullptr);
       this->TransactionInProgress = false;
       status = true;
     };

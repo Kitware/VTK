@@ -301,7 +301,7 @@ vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
   if (this->CompositeShader)
   {
     delete this->CompositeShader;
-    this->CompositeShader = 0;
+    this->CompositeShader = nullptr;
   }
   if (this->FBO)
   {

@@ -48,9 +48,9 @@ vtkStandardNewMacro(vtkBoostPrimMinimumSpanningTree);
 // Constructor/Destructor
 vtkBoostPrimMinimumSpanningTree::vtkBoostPrimMinimumSpanningTree()
 {
-  this->EdgeWeightArrayName = 0;
+  this->EdgeWeightArrayName = nullptr;
   this->OriginVertexIndex = 0;
-  this->ArrayName = 0;
+  this->ArrayName = nullptr;
   this->SetArrayName("Not Set");
   this->ArrayNameSet = false;
   this->NegateEdgeWeights = false;
@@ -62,8 +62,8 @@ vtkBoostPrimMinimumSpanningTree::vtkBoostPrimMinimumSpanningTree()
 //------------------------------------------------------------------------------
 vtkBoostPrimMinimumSpanningTree::~vtkBoostPrimMinimumSpanningTree()
 {
-  this->SetEdgeWeightArrayName(0);
-  this->SetArrayName(0);
+  this->SetEdgeWeightArrayName(nullptr);
+  this->SetArrayName(nullptr);
 }
 
 // Description:

@@ -41,7 +41,7 @@ static inline void vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 
 vtkStandardNewMacro(vtkMPICommunicator);
 
-vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = 0;
+vtkMPICommunicator* vtkMPICommunicator::WorldCommunicator = nullptr;
 
 vtkMPICommunicatorOpaqueComm::vtkMPICommunicatorOpaqueComm(MPI_Comm* handle)
 {
@@ -368,7 +368,7 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
 {
   int err, size;
 
-  if (vtkMPICommunicator::WorldCommunicator == 0)
+  if (vtkMPICommunicator::WorldCommunicator == nullptr)
   {
     // Install an error handler
     MPI_Errhandler errhandler;
@@ -390,9 +390,9 @@ vtkMPICommunicator* vtkMPICommunicator::GetWorldCommunicator()
       vtkGenericWarningMacro("MPI error occurred: " << msg);
       delete[] msg;
       delete comm->MPIComm->Handle;
-      comm->MPIComm = 0;
+      comm->MPIComm = nullptr;
       comm->Delete();
-      return 0;
+      return nullptr;
     }
     comm->InitializeNumberOfProcesses();
     comm->Initialized = 1;
@@ -547,7 +547,7 @@ int vtkMPICommunicator::Initialize(vtkProcessGroup* group)
   {
     MPI_Group_free(&subGroup);
     delete this->MPIComm->Handle;
-    this->MPIComm->Handle = 0;
+    this->MPIComm->Handle = nullptr;
 
     char* msg = vtkMPIController::ErrorString(err);
     vtkErrorMacro("MPI error occurred: " << msg);
@@ -604,7 +604,7 @@ int vtkMPICommunicator::SplitInitialize(vtkCommunicator* oldcomm, int color, int
     MPI_SUCCESS)
   {
     delete this->MPIComm->Handle;
-    this->MPIComm->Handle = 0;
+    this->MPIComm->Handle = nullptr;
 
     char* msg = vtkMPIController::ErrorString(err);
     vtkErrorMacro("MPI error occurred: " << msg);
@@ -649,7 +649,7 @@ void vtkMPICommunicator::InitializeCopy(vtkMPICommunicator* source)
     MPI_Comm_free(this->MPIComm->Handle);
   }
   delete this->MPIComm->Handle;
-  this->MPIComm->Handle = 0;
+  this->MPIComm->Handle = nullptr;
 
   this->LocalProcessId = source->LocalProcessId;
   this->NumberOfProcesses = source->NumberOfProcesses;
@@ -1539,7 +1539,7 @@ int vtkMPICommunicator::TestSome(
 int vtkMPICommunicator::Iprobe(int source, int tag, int* flag, int* actualSource)
 {
   return CheckForMPIError(vtkMPICommunicatorIprobe(
-    source, tag, flag, actualSource, MPI_INT, NULL, this->MPIComm->Handle));
+    source, tag, flag, actualSource, MPI_INT, nullptr, this->MPIComm->Handle));
 }
 
 //------------------------------------------------------------------------------

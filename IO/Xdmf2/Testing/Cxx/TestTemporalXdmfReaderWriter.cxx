@@ -47,8 +47,8 @@ int TestStaticMesh(vtkXdmfReader* reader)
   ASSERT_TEST(steps == 3, "Read data does not have 3 time steps as expected!");
   double* timeSteps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
-  vtkPoints* geometryAtT0 = 0;
-  vtkCellArray* topologyAtT0 = 0;
+  vtkPoints* geometryAtT0 = nullptr;
+  vtkCellArray* topologyAtT0 = nullptr;
   for (int i = 0; i < steps; i++)
   {
     double updateTime = timeSteps[i];

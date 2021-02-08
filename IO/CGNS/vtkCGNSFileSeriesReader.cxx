@@ -66,9 +66,9 @@ vtkCxxSetObjectMacro(vtkCGNSFileSeriesReader, Controller, vtkMultiProcessControl
 //----------------------------------------------------------------------------
 vtkCGNSFileSeriesReader::vtkCGNSFileSeriesReader()
   : FileSeriesHelper()
-  , Reader(NULL)
+  , Reader(nullptr)
   , IgnoreReaderTime(false)
-  , Controller(NULL)
+  , Controller(nullptr)
   , ReaderObserverId(0)
   , InProcessRequest(false)
   , ActiveFiles()
@@ -81,8 +81,8 @@ vtkCGNSFileSeriesReader::vtkCGNSFileSeriesReader()
 //----------------------------------------------------------------------------
 vtkCGNSFileSeriesReader::~vtkCGNSFileSeriesReader()
 {
-  this->SetReader(NULL);
-  this->SetController(NULL);
+  this->SetReader(nullptr);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   // vtkCGNSReaderFileSeriesReader split files among ranks.
   if (this->FileSeriesHelper->GetPartitionedFiles())
   {
-    this->Reader->SetController(NULL);
+    this->Reader->SetController(nullptr);
     this->Reader->SetDistributeBlocks(false);
   }
   else
@@ -273,7 +273,7 @@ void vtkCGNSFileSeriesReader::ChooseActiveFile(int index)
 {
   std::string fname =
     (index < static_cast<int>(this->ActiveFiles.size())) ? this->ActiveFiles[index] : std::string();
-  if (this->Reader->GetFileName() == NULL || this->Reader->GetFileName() != fname)
+  if (this->Reader->GetFileName() == nullptr || this->Reader->GetFileName() != fname)
   {
     this->Reader->SetFileName(fname.c_str());
     this->Reader->UpdateInformation();

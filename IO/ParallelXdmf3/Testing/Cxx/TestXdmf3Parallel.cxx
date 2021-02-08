@@ -152,7 +152,7 @@ int TestXdmf3Parallel(int argc, char** argv)
   p->Delete();
   contr->Finalize();
   contr->Delete();
-  vtkMultiProcessController::SetGlobalController(0);
+  vtkMultiProcessController::SetGlobalController(nullptr);
 
   if (retVal)
   {

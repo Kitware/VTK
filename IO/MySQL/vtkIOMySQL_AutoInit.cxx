@@ -24,7 +24,7 @@ vtkSQLDatabase* MySQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkMySQLDatabase* db = 0;
+  vtkMySQLDatabase* db = nullptr;
 
   if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "mysql")
   {

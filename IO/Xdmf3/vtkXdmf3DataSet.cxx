@@ -406,7 +406,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
 
     unsigned int ncomp = 1;
 
-    vtkFieldData* fieldData = 0;
+    vtkFieldData* fieldData = nullptr;
 
     shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())
@@ -1786,7 +1786,7 @@ void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
       continue;
     }
 
-    vtkFieldData* fieldData = 0;
+    vtkFieldData* fieldData = nullptr;
     shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())
     {
@@ -1973,7 +1973,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
 
     unsigned int ncomp = 1;
 
-    vtkFieldData* fieldData = 0;
+    vtkFieldData* fieldData = nullptr;
 
     shared_ptr<const XdmfAttributeCenter> attrCenter = xmfAttribute->getCenter();
     if (attrCenter == XdmfAttributeCenter::Grid())

@@ -359,7 +359,7 @@ void vtkFFMPEGWriterInternal::End()
     }
 
     avformat_free_context(this->avFormatContext);
-    this->avFormatContext = 0;
+    this->avFormatContext = nullptr;
   }
 
   if (this->avOutputFormat)
@@ -367,7 +367,7 @@ void vtkFFMPEGWriterInternal::End()
     // Next line was done inside av_free(this->avFormatContext).
     // av_free(this->avOutputFormat);
 
-    this->avOutputFormat = 0;
+    this->avOutputFormat = nullptr;
   }
 
   if (this->avCodecContext)
@@ -664,7 +664,7 @@ vtkStandardNewMacro(vtkFFMPEGWriter);
 //------------------------------------------------------------------------------
 vtkFFMPEGWriter::vtkFFMPEGWriter()
 {
-  this->Internals = 0;
+  this->Internals = nullptr;
   this->Quality = 2;
   this->Compression = true;
   this->Rate = 25;
@@ -772,7 +772,7 @@ void vtkFFMPEGWriter::End()
   this->Internals->End();
 
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //------------------------------------------------------------------------------

@@ -854,7 +854,7 @@ vtkGDALRasterReader::~vtkGDALRasterReader()
 
   if (this->FileName)
   {
-    this->SetFileName(0);
+    this->SetFileName(nullptr);
   }
 }
 

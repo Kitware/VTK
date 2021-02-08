@@ -127,7 +127,7 @@ namespace vtkFileSeriesHelperNS
 {
 int GetTimeStepIndex(const double time, const double* timesteps, int num_timesteps)
 {
-  if (timesteps == NULL || num_timesteps <= 0)
+  if (timesteps == nullptr || num_timesteps <= 0)
   {
     return -1;
   }
@@ -148,7 +148,7 @@ vtkStandardNewMacro(vtkFileSeriesHelper);
 vtkCxxSetObjectMacro(vtkFileSeriesHelper, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkFileSeriesHelper::vtkFileSeriesHelper()
-  : Controller(NULL)
+  : Controller(nullptr)
   , FileNames()
   , IgnoreReaderTime(false)
   , PartitionedFiles(false)
@@ -163,7 +163,7 @@ vtkFileSeriesHelper::vtkFileSeriesHelper()
 //----------------------------------------------------------------------------
 vtkFileSeriesHelper::~vtkFileSeriesHelper()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ void vtkFileSeriesHelper::RemoveAllFileNames()
 //----------------------------------------------------------------------------
 void vtkFileSeriesHelper::AddFileName(const char* fname)
 {
-  if (fname != NULL && fname[0] != '\0')
+  if (fname != nullptr && fname[0] != '\0')
   {
     const std::string fname_str(fname);
     if (std::find(this->FileNames.begin(), this->FileNames.end(), fname_str) ==
@@ -204,7 +204,7 @@ void vtkFileSeriesHelper::SetFileNames(const std::vector<std::string>& filenames
 //----------------------------------------------------------------------------
 bool vtkFileSeriesHelper::ReadMetaFile(const char* metafilename)
 {
-  if (metafilename == NULL || metafilename[0] == '\0')
+  if (metafilename == nullptr || metafilename[0] == '\0')
   {
     // vtkErrorMacro("Invalid 'metafilename' passed to `ReadMetaFile`.");
     return false;
@@ -280,7 +280,7 @@ bool vtkFileSeriesHelper::UpdateInformation(
     return true;
   }
 
-  if (this->Controller == NULL || this->Controller->GetLocalProcessId() == 0)
+  if (this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
   {
     // Update information about timesteps.
     bool ignoreReaderTime = this->IgnoreReaderTime;
@@ -377,7 +377,7 @@ bool vtkFileSeriesHelper::UpdateInformation(
 //----------------------------------------------------------------------------
 void vtkFileSeriesHelper::Broadcast(int srcRank)
 {
-  if (this->Controller == NULL || this->Controller->GetNumberOfProcesses() <= 1)
+  if (this->Controller == nullptr || this->Controller->GetNumberOfProcesses() <= 1)
   {
     return;
   }

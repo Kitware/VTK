@@ -46,7 +46,7 @@ vtkOpenGLImageGradient::~vtkOpenGLImageGradient()
   if (this->Helper)
   {
     this->Helper->Delete();
-    this->Helper = 0;
+    this->Helper = nullptr;
   }
 }
 

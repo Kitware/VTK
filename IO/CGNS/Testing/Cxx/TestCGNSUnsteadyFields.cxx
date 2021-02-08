@@ -39,21 +39,21 @@ int TestField(vtkMultiBlockDataSet* mb, double value)
   {
     cout << "Block #" << i << endl;
     vtkMultiBlockDataSet* mb2 = vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(i));
-    vtk_assert(mb2 != 0);
+    vtk_assert(mb2 != nullptr);
     for (unsigned int j = 0; j < mb2->GetNumberOfBlocks(); ++j)
     {
       cout << " - Sub-block #" << j << endl;
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(mb2->GetBlock(j));
-      vtk_assert(ug != 0);
+      vtk_assert(ug != nullptr);
       vtkCellData* cd = ug->GetCellData();
-      vtk_assert(cd != 0);
+      vtk_assert(cd != nullptr);
       vtkIdType na = cd->GetNumberOfArrays();
       cout << "    - number of arrays: " << na << endl;
       vtk_assert(na == 1);
       for (vtkIdType k = 0; k < na; ++k)
       {
         vtkDataArray* ar = cd->GetArray(k);
-        vtk_assert(ar != 0);
+        vtk_assert(ar != nullptr);
         vtkIdType nt = ar->GetNumberOfTuples();
         vtkIdType nc = ar->GetNumberOfComponents();
         vtk_assert(nt == 1);

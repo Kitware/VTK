@@ -46,7 +46,7 @@ public:
     cout << t;
   }
 
-  vtkMPIOutputWindow() { this->Controller = 0; }
+  vtkMPIOutputWindow() { this->Controller = nullptr; }
 
   friend class vtkMPIController;
 
@@ -81,13 +81,13 @@ vtkMPIController::vtkMPIController()
     this->RMICommunicator = comm;
   }
 
-  this->OutputWindow = 0;
+  this->OutputWindow = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkMPIController::~vtkMPIController()
 {
-  this->SetCommunicator(0);
+  this->SetCommunicator(nullptr);
   if (this->RMICommunicator)
   {
     this->RMICommunicator->Delete();
@@ -101,7 +101,7 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Initialized: " << (vtkMPIController::Initialized ? "(yes)" : "(no)") << endl;
 }
 
-vtkMPICommunicator* vtkMPIController::WorldRMICommunicator = 0;
+vtkMPICommunicator* vtkMPIController::WorldRMICommunicator = nullptr;
 
 //------------------------------------------------------------------------------
 void vtkMPIController::TriggerRMIInternal(
@@ -125,7 +125,7 @@ void vtkMPIController::TriggerRMIInternal(
 //------------------------------------------------------------------------------
 void vtkMPIController::Initialize()
 {
-  this->Initialize(0, 0, 1);
+  this->Initialize(nullptr, nullptr, 1);
 }
 
 //------------------------------------------------------------------------------
@@ -175,14 +175,14 @@ void vtkMPIController::Finalize(int finalizedExternally)
   if (vtkMPIController::Initialized)
   {
     vtkMPIController::WorldRMICommunicator->Delete();
-    vtkMPIController::WorldRMICommunicator = 0;
+    vtkMPIController::WorldRMICommunicator = nullptr;
     vtkMPICommunicator::WorldCommunicator->Delete();
-    vtkMPICommunicator::WorldCommunicator = 0;
-    this->SetCommunicator(0);
+    vtkMPICommunicator::WorldCommunicator = nullptr;
+    this->SetCommunicator(nullptr);
     if (this->RMICommunicator)
     {
       this->RMICommunicator->Delete();
-      this->RMICommunicator = 0;
+      this->RMICommunicator = nullptr;
     }
     if (finalizedExternally == 0)
     {
@@ -200,12 +200,12 @@ void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
 {
   if (this->Communicator != comm)
   {
-    if (this->Communicator != 0)
+    if (this->Communicator != nullptr)
     {
       this->Communicator->UnRegister(this);
     }
     this->Communicator = comm;
-    if (this->Communicator != 0)
+    if (this->Communicator != nullptr)
     {
       this->Communicator->Register(this);
     }
@@ -221,7 +221,7 @@ void vtkMPIController::InitializeRMICommunicator()
   if (this->RMICommunicator)
   {
     this->RMICommunicator->Delete();
-    this->RMICommunicator = 0;
+    this->RMICommunicator = nullptr;
   }
   if (this->Communicator)
   {

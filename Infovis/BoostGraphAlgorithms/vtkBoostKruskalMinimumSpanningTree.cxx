@@ -49,8 +49,8 @@ vtkStandardNewMacro(vtkBoostKruskalMinimumSpanningTree);
 // Constructor/Destructor
 vtkBoostKruskalMinimumSpanningTree::vtkBoostKruskalMinimumSpanningTree()
 {
-  this->EdgeWeightArrayName = 0;
-  this->OutputSelectionType = 0;
+  this->EdgeWeightArrayName = nullptr;
+  this->OutputSelectionType = nullptr;
   this->SetOutputSelectionType("MINIMUM_SPANNING_TREE_EDGES");
   this->NegateEdgeWeights = false;
   this->EdgeWeightMultiplier = 1;
@@ -58,7 +58,7 @@ vtkBoostKruskalMinimumSpanningTree::vtkBoostKruskalMinimumSpanningTree()
 
 vtkBoostKruskalMinimumSpanningTree::~vtkBoostKruskalMinimumSpanningTree()
 {
-  this->SetEdgeWeightArrayName(0);
+  this->SetEdgeWeightArrayName(nullptr);
 }
 
 void vtkBoostKruskalMinimumSpanningTree::SetNegateEdgeWeights(bool value)

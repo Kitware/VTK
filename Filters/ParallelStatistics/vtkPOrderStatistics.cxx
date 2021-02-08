@@ -42,14 +42,14 @@ vtkCxxSetObjectMacro(vtkPOrderStatistics, Controller, vtkMultiProcessController)
 //------------------------------------------------------------------------------
 vtkPOrderStatistics::vtkPOrderStatistics()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
 vtkPOrderStatistics::~vtkPOrderStatistics()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -283,7 +283,7 @@ void vtkPOrderStatistics::Learn(
       }
 
       // Allocate receive buffer on reducer process, based on the global size obtained above
-      char* sPack_g = 0;
+      char* sPack_g = nullptr;
       if (myRank == rProc)
       {
         sPack_g = new char[ncTotal];

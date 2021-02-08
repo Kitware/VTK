@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkTableToPostgreSQLWriter);
 //------------------------------------------------------------------------------
 vtkTableToPostgreSQLWriter::vtkTableToPostgreSQLWriter()
 {
-  this->Database = 0;
+  this->Database = nullptr;
 }
 
 //------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ vtkStandardNewMacro(ExternalVTKWidget);
 //------------------------------------------------------------------------------
 ExternalVTKWidget::ExternalVTKWidget()
 {
-  this->RenderWindow = 0;
+  this->RenderWindow = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void ExternalVTKWidget::SetRenderWindow(vtkExternalOpenGLRenderWindow* w)
   }
 
   // Swap the renderers from the old window to the new one
-  vtkRendererCollection* renderers = 0;
+  vtkRendererCollection* renderers = nullptr;
 
   // Unregister the previous window
   if (this->RenderWindow)
