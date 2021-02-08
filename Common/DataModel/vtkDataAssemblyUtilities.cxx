@@ -327,7 +327,7 @@ public:
   }
 
   bool GetTraverseSubtree(int) override { return this->TraverseSubtree; }
-  virtual void BeginSubTree(int vtkNotUsed(nodeid)) override {}
+  void BeginSubTree(int vtkNotUsed(nodeid)) override {}
   void EndSubTree(int vtkNotUsed(nodeid)) override
   {
     assert(this->Stack.size() > 0);

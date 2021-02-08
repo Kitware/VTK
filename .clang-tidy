@@ -75,7 +75,6 @@ modernize-*,\
 -modernize-use-emplace,\
 -modernize-use-equals-delete,\
 -modernize-use-nullptr,\
--modernize-use-override,\
 -modernize-use-trailing-return-type,\
 -modernize-use-using,\
 mpi-*,\

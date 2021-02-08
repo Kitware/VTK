@@ -57,7 +57,7 @@ class MyProcess : public vtkProcess
 public:
   static MyProcess* New();
 
-  virtual void Execute();
+  void Execute() override;
 
   void SetArgs(int anArgc, char* anArgv[]);
 
@@ -313,7 +313,7 @@ class MyProcess2 : public vtkProcess
 public:
   static MyProcess2* New();
 
-  virtual void Execute();
+  void Execute() override;
   void SetArgs(int anArgc, char* anArgv[]);
 
 protected:

@@ -102,14 +102,14 @@ void MatrixMultArray(const float* A, float* B, vtkIdType length)
 class MatrixMultOperation : public vtkCommunicator::Operation
 {
 public:
-  void Function(const void* A, void* B, vtkIdType length, int type)
+  void Function(const void* A, void* B, vtkIdType length, int type) override
   {
     switch (type)
     {
       vtkTemplateMacro(MatrixMultArray((const VTK_TT*)A, (VTK_TT*)B, length));
     }
   }
-  int Commutative() { return 0; }
+  int Commutative() override { return 0; }
 };
 
 //=============================================================================

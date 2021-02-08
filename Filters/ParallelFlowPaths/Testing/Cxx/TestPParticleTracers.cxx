@@ -132,7 +132,7 @@ protected:
     }
   }
 
-  ~TestTimeSource() = default;
+  ~TestTimeSource() override = default;
 
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override

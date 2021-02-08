@@ -745,8 +745,7 @@ public:
     }
   }
 
-  virtual bool PreparePoint(
-    PStreamTracerPoint* point, vtkAbstractInterpolatedVelocityField* func) override
+  bool PreparePoint(PStreamTracerPoint* point, vtkAbstractInterpolatedVelocityField* func) override
   {
     AMRPStreamTracerPoint* amrPoint = AMRPStreamTracerPoint::SafeDownCast(point);
     vtkAMRInterpolatedVelocityField* amrFunc = vtkAMRInterpolatedVelocityField::SafeDownCast(func);
