@@ -1906,7 +1906,7 @@ bool vtkChartXYZ::RemovePlot(vtkPlot3D* plot)
   {
     if (this->Plots[i] == plot)
     {
-      this->Plots[i] = 0;
+      this->Plots[i] = nullptr;
       this->FreePlaces.push_back(i);
       ret = true;
     }

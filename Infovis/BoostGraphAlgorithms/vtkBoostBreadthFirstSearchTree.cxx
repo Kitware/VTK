@@ -133,7 +133,7 @@ vtkBoostBreadthFirstSearchTree::vtkBoostBreadthFirstSearchTree()
 {
   // Default values for the origin vertex
   this->OriginVertexIndex = 0;
-  this->ArrayName = 0;
+  this->ArrayName = nullptr;
   this->SetArrayName("Not Set");
   this->ArrayNameSet = false;
   this->OriginValue = 0;

@@ -36,14 +36,14 @@ vtkCxxSetObjectMacro(vtkPKMeansStatistics, Controller, vtkMultiProcessController
 //------------------------------------------------------------------------------
 vtkPKMeansStatistics::vtkPKMeansStatistics()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
 vtkPKMeansStatistics::~vtkPKMeansStatistics()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

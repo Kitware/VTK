@@ -200,7 +200,7 @@ vtkH5PartReader::~vtkH5PartReader()
   this->Zarray = nullptr;
 
   this->PointDataArraySelection->Delete();
-  this->PointDataArraySelection = 0;
+  this->PointDataArraySelection = nullptr;
 }
 
 //------------------------------------------------------------------------------

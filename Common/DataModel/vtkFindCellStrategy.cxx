@@ -24,15 +24,7 @@ vtkFindCellStrategy::vtkFindCellStrategy()
 }
 
 //------------------------------------------------------------------------------
-vtkFindCellStrategy::~vtkFindCellStrategy()
-{
-  // if ( this->PointSet != nullptr )
-  // {
-  //   vtkPointSet *ps = this->PointSet;
-  //   this->PointSet = nullptr;
-  //   ps->Delete();
-  // }
-}
+vtkFindCellStrategy::~vtkFindCellStrategy() = default;
 
 //------------------------------------------------------------------------------
 int vtkFindCellStrategy::Initialize(vtkPointSet* ps)

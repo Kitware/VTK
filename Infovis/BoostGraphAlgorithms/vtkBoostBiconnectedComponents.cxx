@@ -42,13 +42,13 @@ vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
 vtkBoostBiconnectedComponents::vtkBoostBiconnectedComponents()
 {
-  this->OutputArrayName = 0;
+  this->OutputArrayName = nullptr;
 }
 
 vtkBoostBiconnectedComponents::~vtkBoostBiconnectedComponents()
 {
   // release mem
-  this->SetOutputArrayName(0);
+  this->SetOutputArrayName(nullptr);
 }
 
 int vtkBoostBiconnectedComponents::RequestData(vtkInformation* vtkNotUsed(request),

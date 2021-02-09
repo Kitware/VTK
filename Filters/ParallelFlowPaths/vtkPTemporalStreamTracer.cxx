@@ -162,7 +162,7 @@ void vtkPTemporalStreamTracer::AssignUniqueIds(
   if (this->UpdateNumPieces > 1)
   {
     vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-    if (com == 0)
+    if (com == nullptr)
     {
       vtkErrorMacro("MPICommunicator needed for this operation.");
       return;
@@ -203,7 +203,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   ParticleVector& sending, ParticleVector& received, bool removeself)
 {
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(this->Controller->GetCommunicator());
-  if (com == 0)
+  if (com == nullptr)
   {
     vtkErrorMacro("MPICommunicator needed for this operation.");
     return;

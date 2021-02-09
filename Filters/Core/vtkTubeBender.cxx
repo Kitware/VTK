@@ -44,7 +44,7 @@ vtkTubeBender::vtkTubeBender()
   this->Radius = 1.0;
 }
 
-vtkTubeBender::~vtkTubeBender() {}
+vtkTubeBender::~vtkTubeBender() = default;
 
 int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

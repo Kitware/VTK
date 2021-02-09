@@ -65,7 +65,7 @@ static FT_Error vtkFontConfigFreeTypeToolsFaceRequester(
     matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
     matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
     matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
-    FT_Set_Transform(*face, &matrix, NULL);
+    FT_Set_Transform(*face, &matrix, nullptr);
   }
 
   return static_cast<FT_Error>(0);

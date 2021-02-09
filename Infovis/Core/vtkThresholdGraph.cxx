@@ -20,10 +20,7 @@ vtkThresholdGraph::vtkThresholdGraph()
 }
 
 //------------------------------------------------------------------------------
-vtkThresholdGraph::~vtkThresholdGraph()
-{
-  // Do nothing.
-}
+vtkThresholdGraph::~vtkThresholdGraph() = default;
 
 //------------------------------------------------------------------------------
 void vtkThresholdGraph::PrintSelf(ostream& os, vtkIndent indent)

@@ -177,7 +177,7 @@ vtkMPIMultiBlockPLOT3DReader::vtkMPIMultiBlockPLOT3DReader()
 }
 
 //------------------------------------------------------------------------------
-vtkMPIMultiBlockPLOT3DReader::~vtkMPIMultiBlockPLOT3DReader() {}
+vtkMPIMultiBlockPLOT3DReader::~vtkMPIMultiBlockPLOT3DReader() = default;
 
 //------------------------------------------------------------------------------
 bool vtkMPIMultiBlockPLOT3DReader::CanUseMPIIO()

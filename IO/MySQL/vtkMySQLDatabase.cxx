@@ -44,12 +44,12 @@ vtkMySQLDatabase::vtkMySQLDatabase()
   this->Tables->Delete();
 
   // Initialize instance variables
-  this->DatabaseType = 0;
+  this->DatabaseType = nullptr;
   this->SetDatabaseType("mysql");
-  this->HostName = 0;
-  this->User = 0;
-  this->Password = 0;
-  this->DatabaseName = 0;
+  this->HostName = nullptr;
+  this->User = nullptr;
+  this->Password = nullptr;
+  this->DatabaseName = nullptr;
   this->Reconnect = 1;
   // Default: connect to local machine on standard port
   this->SetHostName("localhost");
@@ -63,11 +63,11 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
   {
     this->Close();
   }
-  this->SetDatabaseType(0);
-  this->SetHostName(0);
-  this->SetUser(0);
-  this->SetDatabaseName(0);
-  this->SetPassword(0);
+  this->SetDatabaseType(nullptr);
+  this->SetHostName(nullptr);
+  this->SetUser(nullptr);
+  this->SetDatabaseName(nullptr);
+  this->SetPassword(nullptr);
 
   this->Tables->UnRegister(this);
 
@@ -153,7 +153,7 @@ bool vtkMySQLDatabase::Open(const char* password)
   this->Private->Connection =
     mysql_real_connect(&this->Private->NullConnection, this->GetHostName(), this->GetUser(),
       (password && strlen(password) ? password : this->Password), this->GetDatabaseName(),
-      this->GetServerPort(), 0, 0);
+      this->GetServerPort(), nullptr, 0);
 
   if (this->Private->Connection == nullptr)
   {
@@ -167,7 +167,7 @@ bool vtkMySQLDatabase::Open(const char* password)
     if (this->Password != password)
     {
       delete[] this->Password;
-      this->Password = password ? vtksys::SystemTools::DuplicateString(password) : 0;
+      this->Password = password ? vtksys::SystemTools::DuplicateString(password) : nullptr;
     }
 
     return true;
@@ -255,7 +255,7 @@ vtkStringArray* vtkMySQLDatabase::GetRecord(const char* table)
     return results;
   }
 
-  MYSQL_RES* record = mysql_list_fields(this->Private->Connection, table, 0);
+  MYSQL_RES* record = mysql_list_fields(this->Private->Connection, table, nullptr);
 
   if (!record)
   {
@@ -297,7 +297,7 @@ const char* vtkMySQLDatabase::GetLastErrorText()
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -593,7 +593,7 @@ bool vtkMySQLDatabase::CreateDatabase(const char* dbName, bool dropExisting = fa
   if (!strcmp(dbName, tmpName))
   {
     this->Close();
-    this->DatabaseName = 0;
+    this->DatabaseName = nullptr;
     needToReopen = true;
   }
   if (this->IsOpen() || this->Open(this->Password))
@@ -623,7 +623,7 @@ bool vtkMySQLDatabase::DropDatabase(const char* dbName)
   if (!strcmp(dbName, tmpName))
   {
     this->Close();
-    this->DatabaseName = 0;
+    this->DatabaseName = nullptr;
     dropSelf = true;
   }
   if (this->IsOpen() || this->Open(this->Password))

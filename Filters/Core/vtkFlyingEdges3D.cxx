@@ -135,9 +135,9 @@ public:
   vtkFlyingEdges3DAlgorithm();
 
   // The three main passes of the algorithm.
-  void ProcessXEdge(double value, T const* const inPtr, vtkIdType row, vtkIdType slice); // PASS 1
-  void ProcessYZEdges(vtkIdType row, vtkIdType slice);                                   // PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);           // PASS 4
+  void ProcessXEdge(double value, T const* inPtr, vtkIdType row, vtkIdType slice); // PASS 1
+  void ProcessYZEdges(vtkIdType row, vtkIdType slice);                             // PASS 2
+  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);     // PASS 4
 
   // Place holder for now in case fancy bit fiddling is needed later.
   void SetXEdge(unsigned char* ePtr, unsigned char edgeCase) { *ePtr = edgeCase; }
@@ -257,19 +257,18 @@ public:
   }
 
   // Compute the gradient on a point which may be on the boundary of the volume.
-  void ComputeBoundaryGradient(vtkIdType ijk[3], T const* const s0_start, T const* const s0_end,
-    T const* const s1_start, T const* const s1_end, T const* const s2_start, T const* const s2_end,
-    float g[3]);
+  void ComputeBoundaryGradient(vtkIdType ijk[3], T const* s0_start, T const* s0_end,
+    T const* s1_start, T const* s1_end, T const* s2_start, T const* s2_end, float g[3]);
 
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
   // neighborhood information (e.g., gradients).
-  void InterpolateEdge(double value, vtkIdType ijk[3], T const* const s, const int incs[3],
-    unsigned char edgeNum, unsigned char const* const edgeUses, vtkIdType* eIds);
+  void InterpolateEdge(double value, vtkIdType ijk[3], T const* s, const int incs[3],
+    unsigned char edgeNum, unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Produce the output points on the voxel axes for this voxel cell.
-  void GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3], T const* const sPtr,
-    const int incs[3], unsigned char const* const edgeUses, vtkIdType* eIds);
+  void GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3], T const* sPtr,
+    const int incs[3], unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Helper function to set up the point ids on voxel edges.
   unsigned char InitVoxelIds(unsigned char* ePtr[4], vtkIdType* eMD[4], vtkIdType* eIds)

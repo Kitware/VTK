@@ -113,12 +113,12 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
 vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
 {
   this->SetController(nullptr);
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   if (this->OpenedFileName)
   {
     nc_close(this->NCDFFD);
   }
-  this->SetOpenedFileName(0);
+  this->SetOpenedFileName(nullptr);
   if (this->SelectionObserver)
   {
     this->SelectionObserver->Delete();
@@ -179,7 +179,7 @@ int vtkPNetCDFPOPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     if (retval != NC_NOERR)                                          // checks if read file error
     {
       vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
-      this->SetOpenedFileName(0);
+      this->SetOpenedFileName(nullptr);
       return 0;
     }
     this->SetOpenedFileName(this->FileName);

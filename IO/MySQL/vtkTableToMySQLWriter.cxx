@@ -29,11 +29,11 @@ vtkStandardNewMacro(vtkTableToMySQLWriter);
 //------------------------------------------------------------------------------
 vtkTableToMySQLWriter::vtkTableToMySQLWriter()
 {
-  this->Database = 0;
+  this->Database = nullptr;
 }
 
 //------------------------------------------------------------------------------
-vtkTableToMySQLWriter::~vtkTableToMySQLWriter() {}
+vtkTableToMySQLWriter::~vtkTableToMySQLWriter() = default;
 
 //------------------------------------------------------------------------------
 void vtkTableToMySQLWriter::WriteData()

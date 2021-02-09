@@ -697,17 +697,16 @@ public:
 
   // Gather time instances information and create mesh times
   bool MakeInformationVector(const vtkStdString& casePath, const vtkStdString& controlDictPath,
-    const vtkStdString& procName, vtkOpenFOAMReader* parent, const bool requirePolyMesh = true);
+    const vtkStdString& procName, vtkOpenFOAMReader* parent, bool requirePolyMesh = true);
 
   // read mesh/fields and create dataset
   int RequestData(vtkMultiBlockDataSet*, bool, bool, bool);
-  void SetTimeValue(const double);
-  int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, const bool);
+  void SetTimeValue(double);
+  int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, bool);
 
   // Copy time instances information and create mesh times
   void SetupInformation(const vtkStdString& casePath, const vtkStdString& regionName,
-    const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master,
-    const bool requirePolyMesh = true);
+    const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master, bool requirePolyMesh = true);
 
 private:
   vtkOpenFOAMReader* Parent;
@@ -802,13 +801,13 @@ private:
   }
 
   // search time directories for mesh
-  void AppendMeshDirToArray(vtkStringArray*, const vtkStdString&, const int);
+  void AppendMeshDirToArray(vtkStringArray*, const vtkStdString&, int);
   void PopulatePolyMeshDirArrays();
 
   void AddFieldName(
-    const vtkStdString& fieldName, const vtkStdString& fieldType, const bool isLagrangian = false);
+    const vtkStdString& fieldName, const vtkStdString& fieldType, bool isLagrangian = false);
   // Search a time directory for field objects
-  void GetFieldNames(const vtkStdString&, const bool isLagrangian = false);
+  void GetFieldNames(const vtkStdString&, bool isLagrangian = false);
   void SortFieldFiles(vtkStringArray* selections, vtkStringArray* files);
   void LocateLagrangianClouds(const vtkStdString& timePath);
 
@@ -836,7 +835,7 @@ private:
   vtkUnstructuredGrid* MakeInternalMesh(
     const vtkFoamLabelListList*, const vtkFoamLabelListList*, vtkFloatArray*);
   void InsertFacesToGrid(vtkPolyData*, const vtkFoamLabelListList*, vtkIdType, vtkIdType,
-    vtkDataArray*, vtkIdList*, vtkDataArray*, const bool);
+    vtkDataArray*, vtkIdList*, vtkDataArray*, bool);
   template <typename T1, typename T2>
   bool ExtendArray(T1*, vtkIdType);
   vtkMultiBlockDataSet* MakeBoundaryMesh(const vtkFoamLabelListList*, vtkFloatArray*);
@@ -856,9 +855,9 @@ private:
   // read and create cell/point fields
   bool ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& dict, const vtkStdString& varName,
     const vtkDataArraySelection* selection);
-  vtkFloatArray* FillField(vtkFoamEntry& entry, const vtkIdType nElements,
-    const vtkFoamIOobject& io, const vtkFoamTypes::dataType fieldDataType);
-  void GetVolFieldAtTimeStep(const vtkStdString& varName, const bool isInternalField = false);
+  vtkFloatArray* FillField(vtkFoamEntry& entry, vtkIdType nElements, const vtkFoamIOobject& io,
+    vtkFoamTypes::dataType fieldDataType);
+  void GetVolFieldAtTimeStep(const vtkStdString& varName, bool isInternalField = false);
   // void GetAreaFieldAtTimeStep(const vtkStdString& varName);
   void GetPointFieldAtTimeStep(const vtkStdString& varName);
 
@@ -866,7 +865,7 @@ private:
   vtkMultiBlockDataSet* MakeLagrangianMesh();
 
   // Read specified file (typeName)
-  std::unique_ptr<vtkFoamDict> GatherBlocks(const char* typeName, const bool mandatory);
+  std::unique_ptr<vtkFoamDict> GatherBlocks(const char* typeName, bool mandatory);
 
   // Create (cell|face|point) zones
   bool GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList*,
@@ -1571,8 +1570,8 @@ private:
   // putBack(), getc() and readExpecting() inline expandable
   void ThrowDuplicatedPutBackException();
   void ThrowUnexpectedEOFException();
-  void ThrowUnexpectedNondigitCharExecption(const int c);
-  void ThrowUnexpectedTokenException(const char, const int c);
+  void ThrowUnexpectedNondigitCharExecption(int c);
+  void ThrowUnexpectedTokenException(char, int c);
   int ReadNext();
 
   void PutBack(const int c)
@@ -2577,13 +2576,13 @@ void vtkFoamFile::ThrowUnexpectedEOFException()
   throw this->StackString() << "Unexpected EOF";
 }
 
-void vtkFoamFile::ThrowUnexpectedNondigitCharExecption(const int c)
+void vtkFoamFile::ThrowUnexpectedNondigitCharExecption(int c)
 {
   throw this->StackString() << "Expected a number, found a non-digit character "
                             << static_cast<char>(c);
 }
 
-void vtkFoamFile::ThrowUnexpectedTokenException(const char expected, const int c)
+void vtkFoamFile::ThrowUnexpectedTokenException(char expected, int c)
 {
   vtkFoamError sstr;
   sstr << this->StackString() << "Expected punctuation token '" << expected << "', found ";
@@ -4876,7 +4875,7 @@ void vtkOpenFOAMReaderPrivate::ClearMeshes()
   this->ClearBoundaryMeshes();
 }
 
-void vtkOpenFOAMReaderPrivate::SetTimeValue(const double requestedTime)
+void vtkOpenFOAMReaderPrivate::SetTimeValue(double requestedTime)
 {
   const vtkIdType nTimeValues = this->TimeValues->GetNumberOfTuples();
 
@@ -4901,7 +4900,7 @@ void vtkOpenFOAMReaderPrivate::SetTimeValue(const double requestedTime)
 // Copy time instances information and create mesh times
 void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
   const vtkStdString& regionName, const vtkStdString& procName, vtkOpenFOAMReaderPrivate* master,
-  const bool requirePolyMesh)
+  bool requirePolyMesh)
 {
   // Copy parent, path and timestep information from master
   this->CasePath = casePath;
@@ -4925,7 +4924,7 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const vtkStdString& casePath,
 
 //------------------------------------------------------------------------------
 void vtkOpenFOAMReaderPrivate::AddFieldName(
-  const vtkStdString& fieldName, const vtkStdString& fieldType, const bool isLagrangian)
+  const vtkStdString& fieldName, const vtkStdString& fieldType, bool isLagrangian)
 {
   if (fieldName.empty() || fieldType.empty())
   {
@@ -5016,7 +5015,7 @@ void vtkOpenFOAMReaderPrivate::AddFieldName(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, const bool isLagrangian)
+void vtkOpenFOAMReaderPrivate::GetFieldNames(const vtkStdString& tempPath, bool isLagrangian)
 {
   // Open the directory and get num of files
   auto directory = vtkSmartPointer<vtkDirectory>::New();
@@ -5165,7 +5164,7 @@ void vtkOpenFOAMReaderPrivate::SortFieldFiles(vtkStringArray* selections, vtkStr
 // Create field data lists and cell/point array selection lists
 int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelectionNames,
   vtkStringArray* pointSelectionNames, vtkStringArray* lagrangianSelectionNames,
-  const bool listNextTimeStep)
+  bool listNextTimeStep)
 {
   if (!this->HasPolyMesh())
   {
@@ -5653,7 +5652,7 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 // Gather the necessary information to create a path to the data
 bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const vtkStdString& casePath,
   const vtkStdString& controlDictPath, const vtkStdString& procName, vtkOpenFOAMReader* parent,
-  const bool requirePolyMesh)
+  bool requirePolyMesh)
 {
   this->CasePath = casePath;
   this->ProcessorName = procName;
@@ -5755,7 +5754,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const vtkStdString& casePat
 
 //------------------------------------------------------------------------------
 void vtkOpenFOAMReaderPrivate::AppendMeshDirToArray(
-  vtkStringArray* polyMeshDir, const vtkStdString& path, const int timeI)
+  vtkStringArray* polyMeshDir, const vtkStdString& path, int timeI)
 {
   vtkFoamIOobject io(this->CasePath, this->Parent);
 
@@ -7759,8 +7758,8 @@ bool vtkOpenFOAMReaderPrivate::ReadFieldFile(vtkFoamIOobject& io, vtkFoamDict& d
 }
 
 //------------------------------------------------------------------------------
-vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, const vtkIdType nElements,
-  const vtkFoamIOobject& io, const vtkFoamTypes::dataType fieldDataType)
+vtkFloatArray* vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry& entry, vtkIdType nElements,
+  const vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType)
 {
   vtkFloatArray* data;
   const vtkStdString& className = io.GetClassName();
@@ -8002,7 +8001,7 @@ vtkStdString vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& di
 //------------------------------------------------------------------------------
 // Read volume or internal field at a timestep
 void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
-  const vtkStdString& varName, const bool isInternalField)
+  const vtkStdString& varName, bool isInternalField)
 {
   vtkUnstructuredGrid* internalMesh = this->InternalMesh;
   vtkMultiBlockDataSet* boundaryMesh = this->BoundaryMesh;
@@ -8630,7 +8629,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 //------------------------------------------------------------------------------
 // Returns a dictionary of block names for a specified domain
 std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GatherBlocks(
-  const char* typeName, const bool mandatory)
+  const char* typeName, bool mandatory)
 {
   vtkStdString blockPath(this->CurrentTimeRegionMeshPath(this->PolyMeshFacesDir) + typeName);
 

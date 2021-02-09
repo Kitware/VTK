@@ -70,7 +70,7 @@ public:
    * filename before calling this function.  Returns true if the
    * database was opened successfully; false otherwise.
    */
-  bool Open(const char* password = 0) override;
+  bool Open(const char* password = nullptr) override;
 
   /**
    * Close the connection to the database.

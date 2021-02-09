@@ -97,7 +97,7 @@ int vtkBoostBrandesCentrality::RequestData(vtkInformation* vtkNotUsed(request),
   edgeCMap->SetName("centrality");
   vtkGraphEdgePropertyMapHelper<vtkFloatArray*> helper(edgeCMap);
 
-  vtkSmartPointer<vtkDataArray> edgeWeight(0);
+  vtkSmartPointer<vtkDataArray> edgeWeight(nullptr);
   if (this->UseEdgeWeightArray && this->EdgeWeightArrayName)
   {
     if (!this->InvertEdgeWeightArray)

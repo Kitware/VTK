@@ -17,8 +17,8 @@
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 
-int TestPdb(const char* pdbFileName, const unsigned int validNumberOfAtoms,
-  const unsigned int validNumberOfModels);
+int TestPdb(
+  const char* pdbFileName, unsigned int validNumberOfAtoms, unsigned int validNumberOfModels);
 
 /**
  * @brief Test entry point.
@@ -50,8 +50,8 @@ int TestPDBReader(int argc, char* argv[])
  * @param validNumberOfAtoms The amount of atoms the PDB should have to be valid.
  * @param validNumberOfModels The amount of models the PDB should have to be valid.
  */
-int TestPdb(const char* pdbFileName, const unsigned int validNumberOfAtoms,
-  const unsigned int validNumberOfModels)
+int TestPdb(
+  const char* pdbFileName, unsigned int validNumberOfAtoms, unsigned int validNumberOfModels)
 {
   const auto pdbReader = vtkSmartPointer<vtkPDBReader>::New();
   pdbReader->SetFileName(pdbFileName);

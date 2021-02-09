@@ -69,7 +69,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
   if (this->vtkArray)
   {
     this->vtkArray->Delete();
-    this->vtkArray = 0;
+    this->vtkArray = nullptr;
   }
   switch (array->GetNumberType())
   {
@@ -129,16 +129,16 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
       break;
     default:
       vtkErrorMacro("Cannot create VTK data array: " << array->GetNumberType());
-      return 0;
+      return nullptr;
   }
   if (CopyShape)
   {
     if (array->GetRank() > rank + 1)
     {
       this->vtkArray->Delete();
-      this->vtkArray = 0;
+      this->vtkArray = nullptr;
       vtkErrorMacro("Rank of Xdmf array is more than 1 + rank of dataset");
-      return 0;
+      return nullptr;
     }
     if (array->GetRank() > rank)
     {
@@ -234,7 +234,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!chara)
         {
           XdmfErrorMessage("Cannot downcast data array");
-          return (0);
+          return (nullptr);
         }
         chara->SetArray((char*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -245,7 +245,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!uchara)
         {
           XdmfErrorMessage("Cannot downcast ucharata array");
-          return (0);
+          return (nullptr);
         }
         uchara->SetArray((unsigned char*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -256,7 +256,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!shorta)
         {
           XdmfErrorMessage("Cannot downcast data array");
-          return (0);
+          return (nullptr);
         }
         shorta->SetArray((short*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -267,7 +267,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!ushorta)
         {
           XdmfErrorMessage("Cannot downcast ushortata array");
-          return (0);
+          return (nullptr);
         }
         ushorta->SetArray((unsigned short*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -278,7 +278,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!inta)
         {
           XdmfErrorMessage("Cannot downcast intata array");
-          return (0);
+          return (nullptr);
         }
         inta->SetArray((int*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -289,7 +289,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!uinta)
         {
           XdmfErrorMessage("Cannot downcast uintata array");
-          return (0);
+          return (nullptr);
         }
         uinta->SetArray((unsigned int*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -300,7 +300,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!longa)
         {
           XdmfErrorMessage("Cannot downcast longa array");
-          return (0);
+          return (nullptr);
         }
         longa->SetArray((long*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -311,7 +311,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!floata)
         {
           XdmfErrorMessage("Cannot downcast floatata array");
-          return (0);
+          return (nullptr);
         }
         floata->SetArray((float*)array->GetDataPointer(), components * tuples, 0);
       }
@@ -322,14 +322,14 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
         if (!doublea)
         {
           XdmfErrorMessage("Cannot downcast doubleata array");
-          return (0);
+          return (nullptr);
         }
         doublea->SetArray((double*)array->GetDataPointer(), components * tuples, 0);
       }
       break;
       default:
         XdmfErrorMessage("Can't handle number type");
-        return (0);
+        return (nullptr);
     }
     array->Reset();
   }

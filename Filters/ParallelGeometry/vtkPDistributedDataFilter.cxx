@@ -156,10 +156,10 @@ void convertGhostLevelsToBitFields(vtkDataSetAttributes* dsa, unsigned int bit)
 };
 
 //------------------------------------------------------------------------------
-vtkPDistributedDataFilter::vtkPDistributedDataFilter() {}
+vtkPDistributedDataFilter::vtkPDistributedDataFilter() = default;
 
 //------------------------------------------------------------------------------
-vtkPDistributedDataFilter::~vtkPDistributedDataFilter() {}
+vtkPDistributedDataFilter::~vtkPDistributedDataFilter() = default;
 
 //------------------------------------------------------------------------------
 vtkIdTypeArray* vtkPDistributedDataFilter::GetGlobalElementIdArray(vtkDataSet* set)

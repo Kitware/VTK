@@ -105,7 +105,7 @@ static vtkSmartPointer<vtkTriQuadraticHexahedron> MakeTriQuadraticHexahedron();
 static vtkSmartPointer<vtkCubicLine> MakeCubicLine();
 
 template <typename T>
-int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
+int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> cell, int linear = 1);
 //------------------------------------------------------------------------------
 int UnitTestCells(int, char*[])
 {
@@ -824,7 +824,7 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
 }
 
 template <typename T>
-int TestOneCell(const VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
+int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
 {
   int status = 0;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;

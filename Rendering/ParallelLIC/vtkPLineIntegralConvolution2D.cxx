@@ -30,7 +30,7 @@ vtkPLineIntegralConvolution2D::vtkPLineIntegralConvolution2D()
 }
 
 //------------------------------------------------------------------------------
-vtkPLineIntegralConvolution2D::~vtkPLineIntegralConvolution2D() {}
+vtkPLineIntegralConvolution2D::~vtkPLineIntegralConvolution2D() = default;
 
 //------------------------------------------------------------------------------
 void vtkPLineIntegralConvolution2D::SetCommunicator(vtkPainterCommunicator* comm)

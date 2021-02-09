@@ -80,11 +80,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of"
 
+  # Python notes triggered from MPI4Py Cython-generated code.
+  "include/python3.*: note:"
+
   # Ignore moc-generated code (and rcc and uic).
   "\\.dir[/\\\\][^/\\\\]*_autogen"
-
-  # Ignore diy2 warnings
-  "vtkdiy2"
 
   # Intel compilers warn about large functions, but we don't usually care.
   "remark #11074: Inlining inhibited by limit (max-total-size|max-size)"
@@ -166,6 +166,9 @@ if (NOT cdash_show_third_party_warnings)
     # third party hdf5
     # if(NULL == (*full_name = (char *)H5MM_malloc(path1_len + path2_len + 2 + 2))) /* Extra "+2" to quiet GCC warning - 2019/07/05, QAK */
     "H5MM.*quiet GCC warning"
+
+    # Ignore diy2 warnings
+    "vtkdiy2"
 
     # missing overrides may be suppressed, but the superclass shows up as a match on some systems
     # it makes no sense to suppress the offending class but report the superclass

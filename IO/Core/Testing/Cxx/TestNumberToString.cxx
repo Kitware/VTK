@@ -23,7 +23,7 @@
 namespace
 {
 template <typename T>
-int TestConvert(const unsigned int samples);
+int TestConvert(unsigned int samples);
 template <typename T>
 int ConvertNumericLimitsValue(const char* t, T);
 }
@@ -84,7 +84,7 @@ int TestNumberToString(int, char*[])
 namespace
 {
 template <typename T>
-int TestConvert(const unsigned int samples)
+int TestConvert(unsigned int samples)
 {
   std::cout << "Testing type: " << typeid(T).name() << std::endl;
   for (int p = 5; p < 20; ++p)

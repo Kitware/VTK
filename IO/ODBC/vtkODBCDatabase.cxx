@@ -51,7 +51,7 @@
 vtkStandardNewMacro(vtkODBCDatabase);
 
 //------------------------------------------------------------------------------
-static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = 0)
+static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int* code = nullptr)
 {
   SQLINTEGER sqlNativeCode = 0;
   SQLSMALLINT messageLength = 0;
@@ -185,7 +185,7 @@ vtkODBCDatabase::vtkODBCDatabase()
   this->ServerPort = -1; // use whatever the driver defaults to
 
   // Initialize instance variables
-  this->DatabaseType = 0;
+  this->DatabaseType = nullptr;
   this->SetDatabaseType("ODBC");
 }
 
@@ -198,7 +198,7 @@ vtkODBCDatabase::~vtkODBCDatabase()
   }
   if (this->DatabaseType)
   {
-    this->SetDatabaseType(0);
+    this->SetDatabaseType(nullptr);
   }
   this->SetLastErrorText(nullptr);
   this->SetUserName(nullptr);
@@ -572,7 +572,7 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "DataSourceName: ";
-  if (this->DataSourceName == 0)
+  if (this->DataSourceName == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -582,7 +582,7 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "DatabaseName: ";
-  if (this->DatabaseName == 0)
+  if (this->DatabaseName == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -592,7 +592,7 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "UserName: ";
-  if (this->UserName == 0)
+  if (this->UserName == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -601,7 +601,7 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
     os << this->UserName << endl;
   }
   os << indent << "HostName: ";
-  if (this->HostName == 0)
+  if (this->HostName == nullptr)
   {
     os << "(none)" << endl;
   }
@@ -610,7 +610,7 @@ void vtkODBCDatabase::PrintSelf(ostream& os, vtkIndent indent)
     os << this->HostName << endl;
   }
   os << indent << "Password: ";
-  if (this->Password == 0)
+  if (this->Password == nullptr)
   {
     os << "(none)" << endl;
   }

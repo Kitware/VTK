@@ -36,13 +36,13 @@ vtkCxxSetObjectMacro(vtkPBivariateLinearTableThreshold, Controller, vtkMultiProc
 
 vtkPBivariateLinearTableThreshold::vtkPBivariateLinearTableThreshold()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 vtkPBivariateLinearTableThreshold::~vtkPBivariateLinearTableThreshold()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 void vtkPBivariateLinearTableThreshold::PrintSelf(ostream& os, vtkIndent indent)

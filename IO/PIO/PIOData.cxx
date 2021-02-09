@@ -7,11 +7,11 @@ PIO_DATA::PIO_DATA(const char* piofile, const std::list<std::string>* fields_to_
   const std::set<const char*, Cstring_less>* cdata)
 {
   this->Infile = nullptr;
-  buf = 0;
+  buf = nullptr;
   size_buf = 0;
-  pio_field = 0;
-  name = 0;
-  pio_dandt = 0;
+  pio_field = nullptr;
+  name = nullptr;
+  pio_dandt = nullptr;
   verbose = false;
   defer_read_data = _defer_read_data;
   // Add known data type field
@@ -68,7 +68,7 @@ PIO_DATA::PIO_DATA(const char* piofile, const std::list<std::string>* fields_to_
   AddRealData("npmax_t");
   AddRealData("pmax_t");
   AddRealData("pmax_t");
-  if (rdata != 0)
+  if (rdata != nullptr)
   {
     std::set<const char*, Cstring_less>::const_iterator q;
     for (q = rdata->begin(); q != rdata->end(); ++q)
@@ -77,20 +77,20 @@ PIO_DATA::PIO_DATA(const char* piofile, const std::list<std::string>* fields_to_
 
   AddCharData("matident");
   AddCharData("hist_prbnm");
-  if (cdata != 0)
+  if (cdata != nullptr)
   {
     std::set<const char*, Cstring_less>::const_iterator q;
     for (q = cdata->begin(); q != cdata->end(); ++q)
       AddCharData(*q);
   }
 
-  if (piofile != 0)
+  if (piofile != nullptr)
   {
     if (!read(piofile, fields_to_read))
     {
       if (pio_field)
         delete[] pio_field;
-      pio_field = 0;
+      pio_field = nullptr;
     }
     else
       insert_VAR_MAP_pairs();
@@ -101,7 +101,7 @@ PIO_DATA::~PIO_DATA()
 {
   if (buf)
     delete[] buf;
-  buf = 0;
+  buf = nullptr;
   size_buf = 0;
   if (pio_field)
   {
@@ -109,10 +109,10 @@ PIO_DATA::~PIO_DATA()
     {
       if (pio_field[i].data)
         delete[] pio_field[i].data;
-      pio_field[i].data = 0;
+      pio_field[i].data = nullptr;
       if (pio_field[i].cdata)
         delete[] pio_field[i].cdata;
-      pio_field[i].cdata = 0;
+      pio_field[i].cdata = nullptr;
       pio_field[i].cdata_len = 0;
       if (pio_field[i].pio_name)
       {
@@ -121,14 +121,14 @@ PIO_DATA::~PIO_DATA()
       }
     }
     delete[] pio_field;
-    pio_field = 0;
+    pio_field = nullptr;
   }
   if (name)
     delete[] name;
-  name = 0;
+  name = nullptr;
   if (pio_dandt)
     delete[] pio_dandt;
-  pio_dandt = 0;
+  pio_dandt = nullptr;
   VarMMap.clear();
   delete this->Infile;
   this->Infile = nullptr;
@@ -144,7 +144,7 @@ PIO_DATA::~PIO_DATA()
 bool PIO_DATA::read(const char* piofile, const std::list<std::string>* fields_to_read)
 {
   bool status;
-  if (piofile == 0)
+  if (piofile == nullptr)
   {
     std::cerr << "PIO_DATA::read - file name not given" << std::endl;
     return false;
@@ -204,7 +204,7 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
   read_pio_word(pio_signature);
   if (pio_num <= 0)
   {
-    pio_field = 0;
+    pio_field = nullptr;
     delete this->Infile;
     this->Infile = nullptr;
     return true;
@@ -262,9 +262,9 @@ bool PIO_DATA::set_scalar_field(std::valarray<int>& v, const char* fieldname)
     return false;
   }
   PIO_FIELD* Pio_field = VarMMap.equal_range(fieldname).first->second;
-  bool free_data = (Pio_field->data == 0);
+  bool free_data = (Pio_field->data == nullptr);
   const double* cl = GetPIOData(*Pio_field);
-  if (cl != 0)
+  if (cl != nullptr)
   {
     int64_t length = Pio_field->length;
     if (v.size() < size_t(length))
@@ -289,9 +289,9 @@ bool PIO_DATA::set_scalar_field(std::valarray<int64_t>& v, const char* fieldname
     return false;
   }
   PIO_FIELD* Pio_field = VarMMap.equal_range(fieldname).first->second;
-  bool free_data = (Pio_field->data == 0);
+  bool free_data = (Pio_field->data == nullptr);
   const double* cl = GetPIOData(*Pio_field);
-  if (cl != 0)
+  if (cl != nullptr)
   {
     int64_t length = Pio_field->length;
     if (v.size() < size_t(length))
@@ -316,9 +316,9 @@ bool PIO_DATA::set_scalar_field(std::valarray<uint64_t>& v, const char* fieldnam
     return false;
   }
   PIO_FIELD* Pio_field = VarMMap.equal_range(fieldname).first->second;
-  bool free_data = (Pio_field->data == 0);
+  bool free_data = (Pio_field->data == nullptr);
   const double* cl = GetPIOData(*Pio_field);
-  if (cl != 0)
+  if (cl != nullptr)
   {
     int64_t length = Pio_field->length;
     if (v.size() < size_t(length))
@@ -343,21 +343,21 @@ bool PIO_DATA::set_scalar_field(std::valarray<double>& v, const char* fieldname)
     return false;
   }
   PIO_FIELD* Pio_field = VarMMap.equal_range(fieldname).first->second;
-  bool free_data = (Pio_field->data == 0);
+  bool free_data = (Pio_field->data == nullptr);
   const double* cl = GetPIOData(*Pio_field);
-  if (cl != 0)
+  if (cl != nullptr)
   {
     int64_t length = Pio_field->length;
 
-    const double* cell_active = 0;
-    PIO_FIELD* Pf = 0;
+    const double* cell_active = nullptr;
+    PIO_FIELD* Pf = nullptr;
     bool FreePf = false;
     if (VarMMap.count("cell_active") == 1)
     {
       Pf = VarMMap.equal_range("cell_active").first->second;
       if (Pf->length == length)
       {
-        FreePf = (Pf->data == 0);
+        FreePf = (Pf->data == nullptr);
         cell_active = GetPIOData(*Pf);
       }
     }
@@ -392,14 +392,14 @@ bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const c
   }
   if (v.size() < numdim)
     v.resize(numdim);
-  const double* cell_active = 0;
+  const double* cell_active = nullptr;
   int64_t cell_active_length = 0;
-  PIO_FIELD* Pf = 0;
+  PIO_FIELD* Pf = nullptr;
   bool FreePf = false;
   if (VarMMap.count("cell_active") == 1)
   {
     Pf = VarMMap.equal_range("cell_active").first->second;
-    FreePf = (Pf->data == 0);
+    FreePf = (Pf->data == nullptr);
     cell_active = GetPIOData(*Pf);
     cell_active_length = Pf->length;
   }
@@ -408,9 +408,9 @@ bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const c
   for (uint32_t i = 0; (i < numdim) && (ii != b.second); ++i, ++ii)
   {
     PIO_FIELD* Pio_field = ii->second;
-    bool free_data = (Pio_field->data == 0);
+    bool free_data = (Pio_field->data == nullptr);
     const double* cl = GetPIOData(*Pio_field);
-    if (cl != 0)
+    if (cl != nullptr)
     {
       int64_t length = Pio_field->length;
       if (v[i].size() < size_t(length))
@@ -477,7 +477,7 @@ void PIO_DATA::print(std::ostream& out)
   {
     if (pio_field[i].read_field_data && defer_read_data)
       ReadPioFieldData(pio_field[i]);
-    if (pio_field[i].data != 0)
+    if (pio_field[i].data != nullptr)
     {
       if (pio_field[i].length > 1)
       {
@@ -494,7 +494,7 @@ void PIO_DATA::print(std::ostream& out)
       if (defer_read_data)
         FreePIOData(pio_field[i]);
     }
-    if (pio_field[i].cdata != 0)
+    if (pio_field[i].cdata != nullptr)
     {
       if (pio_field[i].length > 1)
       {
@@ -563,7 +563,7 @@ bool PIO_DATA::GetPIOfileTime(const char* piofile, double& time)
   read_pio_word(pio_signature);
   if (pio_num <= 0)
   {
-    pio_field = 0;
+    pio_field = nullptr;
     delete this->Infile;
     this->Infile = nullptr;
     return false;
@@ -619,17 +619,17 @@ bool IsPIOfile(const char* piofile)
 
 void PIO_DATA::GetPIOData(PIO_FIELD& _pio_field, const double*& _data, const char*& _cdata)
 {
-  _data = 0;
-  _cdata = 0;
+  _data = nullptr;
+  _cdata = nullptr;
   if (!_pio_field.read_field_data)
     return;
   // Check if data is already read
-  if (_pio_field.data != 0)
+  if (_pio_field.data != nullptr)
   {
     _data = _pio_field.data;
     return;
   }
-  if (_pio_field.cdata != 0)
+  if (_pio_field.cdata != nullptr)
   {
     _cdata = _pio_field.cdata;
     return;
@@ -641,47 +641,47 @@ void PIO_DATA::GetPIOData(PIO_FIELD& _pio_field, const double*& _data, const cha
 
 void PIO_DATA::GetPIOData(PIO_FIELD& _pio_field, const double*& _data)
 {
-  _data = 0;
+  _data = nullptr;
   if (!_pio_field.read_field_data)
     return;
   // Check if data is already read
-  if (_pio_field.data != 0)
+  if (_pio_field.data != nullptr)
   {
     _data = _pio_field.data;
     return;
   }
   ReadPioFieldData(_pio_field);
   _data = _pio_field.data;
-  if (_data == 0)
+  if (_data == nullptr)
     FreePIOData(_pio_field);
 }
 
 void PIO_DATA::GetPIOData(PIO_FIELD& _pio_field, const char*& _cdata)
 {
-  _cdata = 0;
+  _cdata = nullptr;
   if (!_pio_field.read_field_data)
     return;
   // Check if data is already read
-  if (_pio_field.cdata != 0)
+  if (_pio_field.cdata != nullptr)
   {
     _cdata = _pio_field.cdata;
     return;
   }
   ReadPioFieldData(_pio_field);
   _cdata = _pio_field.cdata;
-  if (_cdata == 0)
+  if (_cdata == nullptr)
     FreePIOData(_pio_field);
 }
 
 const double* PIO_DATA::GetPIOData(PIO_FIELD& _pio_field)
 {
   if (!_pio_field.read_field_data)
-    return 0;
+    return nullptr;
   // Check if data is already read
-  if (_pio_field.data == 0)
+  if (_pio_field.data == nullptr)
   {
     ReadPioFieldData(_pio_field);
-    if (_pio_field.data == 0)
+    if (_pio_field.data == nullptr)
       FreePIOData(_pio_field);
   }
   return _pio_field.data;
@@ -689,9 +689,9 @@ const double* PIO_DATA::GetPIOData(PIO_FIELD& _pio_field)
 
 void PIO_DATA::GetPIOData(const char* _name, const double*& _data, const char*& _cdata)
 {
-  _data = 0;
-  _cdata = 0;
-  if ((_name != 0) && (VarMMap.find(_name) != VarMMap.end()))
+  _data = nullptr;
+  _cdata = nullptr;
+  if ((_name != nullptr) && (VarMMap.find(_name) != VarMMap.end()))
   {
     PIO_FIELD* Pio_field = VarMMap.equal_range(_name).first->second;
     GetPIOData(*Pio_field, _data, _cdata);
@@ -700,8 +700,8 @@ void PIO_DATA::GetPIOData(const char* _name, const double*& _data, const char*& 
 
 void PIO_DATA::GetPIOData(const char* _name, const double*& _data)
 {
-  _data = 0;
-  if ((_name != 0) && (VarMMap.find(_name) != VarMMap.end()))
+  _data = nullptr;
+  if ((_name != nullptr) && (VarMMap.find(_name) != VarMMap.end()))
   {
     PIO_FIELD* Pio_field = VarMMap.equal_range(_name).first->second;
     _data = GetPIOData(*Pio_field);
@@ -710,7 +710,7 @@ void PIO_DATA::GetPIOData(const char* _name, const double*& _data)
 
 double PIO_DATA::GetPIOData(const char* _name, int index)
 {
-  if ((_name != 0) && (VarMMap.find(_name) != VarMMap.end()))
+  if ((_name != nullptr) && (VarMMap.find(_name) != VarMMap.end()))
   {
     PIO_FIELD* Pio_field = VarMMap.equal_range(_name).first->second;
     const double* data = GetPIOData(*Pio_field);
@@ -721,8 +721,8 @@ double PIO_DATA::GetPIOData(const char* _name, int index)
 
 void PIO_DATA::GetPIOData(const char* _name, const char*& _cdata)
 {
-  _cdata = 0;
-  if ((_name != 0) && (VarMMap.find(_name) != VarMMap.end()))
+  _cdata = nullptr;
+  if ((_name != nullptr) && (VarMMap.find(_name) != VarMMap.end()))
   {
     PIO_FIELD* Pio_field = VarMMap.equal_range(_name).first->second;
     GetPIOData(*Pio_field, _cdata);
@@ -731,12 +731,12 @@ void PIO_DATA::GetPIOData(const char* _name, const char*& _cdata)
 
 const double* PIO_DATA::GetPIOData(const char* _name)
 {
-  if ((_name != 0) && (VarMMap.find(_name) != VarMMap.end()))
+  if ((_name != nullptr) && (VarMMap.find(_name) != VarMMap.end()))
   {
     PIO_FIELD* Pio_field = VarMMap.equal_range(_name).first->second;
     return GetPIOData(*Pio_field);
   }
-  return 0;
+  return nullptr;
 }
 
 int PIO_DATA::get_pio_num_with_size(int64_t n) const
@@ -757,22 +757,22 @@ int PIO_DATA::get_pio_num_with_size(int64_t n) const
 
 void PIO_DATA::FreePIOData(PIO_FIELD& _pio_field)
 {
-  if (_pio_field.data != 0)
+  if (_pio_field.data != nullptr)
     delete[] _pio_field.data;
-  if (_pio_field.cdata != 0)
+  if (_pio_field.cdata != nullptr)
     delete[] _pio_field.cdata;
   _pio_field.cdata_len = 0;
-  _pio_field.data = 0;
-  _pio_field.cdata = 0;
+  _pio_field.data = nullptr;
+  _pio_field.cdata = nullptr;
 }
 
 void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
 {
-  if (_pio_field.data != 0 || _pio_field.cdata != 0)
+  if (_pio_field.data != nullptr || _pio_field.cdata != nullptr)
     return; // Data already read
   this->Infile->seekg(_pio_field.position, std::ios::beg);
   size_t slen = sizeof(double);
-  if (_pio_field.data != 0)
+  if (_pio_field.data != nullptr)
     delete[] _pio_field.data;
   _pio_field.data = new double[_pio_field.length];
   bool char_data = true;
@@ -801,7 +801,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
   if (char_data)
   {
     _pio_field.cdata_len = slen + 1;
-    if (_pio_field.cdata != 0)
+    if (_pio_field.cdata != nullptr)
       delete[] _pio_field.cdata;
     _pio_field.cdata = new char[_pio_field.length * _pio_field.cdata_len];
     for (int64_t j = 0; j < _pio_field.length; ++j)
@@ -822,7 +822,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
       fstr2Cstr(cc, slen);
     }
     delete[] _pio_field.data;
-    _pio_field.data = 0;
+    _pio_field.data = nullptr;
     if ((strcmp(_pio_field.pio_name, "hist_dandt") == 0) ||
       (strcmp(_pio_field.pio_name, "hist_prbnm") == 0))
     { // These are 16 char long strings

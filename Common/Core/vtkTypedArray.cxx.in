@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkType@VTK_TYPE_NAME@Array);
 
 //----------------------------------------------------------------------------
-vtkType@VTK_TYPE_NAME@Array::vtkType@VTK_TYPE_NAME@Array()
-{
-}
+vtkType@VTK_TYPE_NAME@Array::vtkType@VTK_TYPE_NAME@Array() = default;
 
 //----------------------------------------------------------------------------
-vtkType@VTK_TYPE_NAME@Array::~vtkType@VTK_TYPE_NAME@Array()
-{
-}
+vtkType@VTK_TYPE_NAME@Array::~vtkType@VTK_TYPE_NAME@Array() = default;
 
 //----------------------------------------------------------------------------
 void vtkType@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)

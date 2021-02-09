@@ -97,9 +97,9 @@ vtkBoostBreadthFirstSearch::vtkBoostBreadthFirstSearch()
 {
   // Default values for the origin vertex
   this->OriginVertexIndex = 0;
-  this->InputArrayName = 0;
-  this->OutputArrayName = 0;
-  this->OutputSelectionType = 0;
+  this->InputArrayName = nullptr;
+  this->OutputArrayName = nullptr;
+  this->OutputSelectionType = nullptr;
   this->SetOutputSelectionType("MAX_DIST_FROM_ROOT");
   this->OriginValue = -1;
   this->OutputSelection = false;
@@ -110,9 +110,9 @@ vtkBoostBreadthFirstSearch::vtkBoostBreadthFirstSearch()
 
 vtkBoostBreadthFirstSearch::~vtkBoostBreadthFirstSearch()
 {
-  this->SetInputArrayName(0);
-  this->SetOutputArrayName(0);
-  this->SetOutputSelectionType(0);
+  this->SetInputArrayName(nullptr);
+  this->SetOutputArrayName(nullptr);
+  this->SetOutputSelectionType(nullptr);
 }
 
 void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)

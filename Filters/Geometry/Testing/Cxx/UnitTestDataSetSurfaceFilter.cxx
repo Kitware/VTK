@@ -50,8 +50,8 @@
 #include <map>
 #include <sstream>
 
-static vtkSmartPointer<vtkDataSet> CreatePolyData(const int xres, const int yres);
-static vtkSmartPointer<vtkDataSet> CreateTriangleStripData(const int xres, const int yres);
+static vtkSmartPointer<vtkDataSet> CreatePolyData(int xres, int yres);
+static vtkSmartPointer<vtkDataSet> CreateTriangleStripData(int xres, int yres);
 static vtkSmartPointer<vtkDataSet> CreateTetraData();
 static vtkSmartPointer<vtkDataSet> CreatePolygonData(int sides = 6);
 static vtkSmartPointer<vtkDataSet> CreateQuadraticWedgeData();
@@ -554,7 +554,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   return status;
 }
 
-vtkSmartPointer<vtkDataSet> CreateTriangleStripData(const int xres, const int yres)
+vtkSmartPointer<vtkDataSet> CreateTriangleStripData(int xres, int yres)
 {
   vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
   plane->SetXResolution(xres);
@@ -574,7 +574,7 @@ vtkSmartPointer<vtkDataSet> CreateTriangleStripData(const int xres, const int yr
   return unstructuredGrid;
 }
 
-vtkSmartPointer<vtkDataSet> CreatePolyData(const int xres, const int yres)
+vtkSmartPointer<vtkDataSet> CreatePolyData(int xres, int yres)
 {
   vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
   plane->SetXResolution(xres);

@@ -38,14 +38,14 @@ vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
 vtkPPCAStatistics::vtkPPCAStatistics()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
 vtkPPCAStatistics::~vtkPPCAStatistics()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

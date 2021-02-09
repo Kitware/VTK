@@ -311,7 +311,7 @@ struct PointConnectivityBase
       this->OptLevel = 2;
     }
   }
-  virtual ~PointConnectivityBase() {}
+  virtual ~PointConnectivityBase() = default;
 
   // Supports configuring connectivity (the counting and insertion
   // processes).

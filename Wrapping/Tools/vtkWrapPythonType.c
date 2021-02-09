@@ -512,10 +512,10 @@ static void vtkWrapPython_SequenceProtocol(
     fprintf(fp,
       "static PySequenceMethods Py%s_AsSequence = {\n"
       "  Py%s_SequenceSize, // sq_length\n"
-      "  0, // sq_concat\n"
-      "  0, // sq_repeat\n"
+      "  nullptr, // sq_concat\n"
+      "  nullptr, // sq_repeat\n"
       "  Py%s_SequenceItem, // sq_item\n"
-      "  0, // sq_slice\n",
+      "  nullptr, // sq_slice\n",
       classname, classname, classname);
 
     if (setItemFunc)
@@ -524,14 +524,14 @@ static void vtkWrapPython_SequenceProtocol(
     }
     else
     {
-      fprintf(fp, "  0, // sq_ass_item\n");
+      fprintf(fp, "  nullptr, // sq_ass_item\n");
     }
 
     fprintf(fp,
-      "  0, // sq_ass_slice\n"
-      "  0, // sq_contains\n"
-      "  0, // sq_inplace_concat\n"
-      "  0, // sq_inplace_repeat\n"
+      "  nullptr, // sq_ass_slice\n"
+      "  nullptr, // sq_contains\n"
+      "  nullptr, // sq_inplace_concat\n"
+      "  nullptr, // sq_inplace_repeat\n"
       "};\n\n");
   }
 }
@@ -802,7 +802,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
       "  {\n"
       "    return new %s(*static_cast<const %s*>(obj));\n"
       "  }\n"
-      "  return 0;\n"
+      "  return nullptr;\n"
       "}\n"
       "\n",
       classname, data->Name, data->Name);

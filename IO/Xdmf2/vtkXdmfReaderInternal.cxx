@@ -37,9 +37,9 @@ using namespace xdmf2;
 //------------------------------------------------------------------------------
 vtkXdmfDocument::vtkXdmfDocument()
 {
-  this->ActiveDomain = 0;
+  this->ActiveDomain = nullptr;
   this->ActiveDomainIndex = -1;
-  this->LastReadContents = 0;
+  this->LastReadContents = nullptr;
   this->LastReadContentsLength = 0;
 }
 
@@ -65,10 +65,10 @@ bool vtkXdmfDocument::Parse(const char* xmffilename)
 
   this->ActiveDomainIndex = -1;
   delete this->ActiveDomain;
-  this->ActiveDomain = 0;
+  this->ActiveDomain = nullptr;
 
   delete[] this->LastReadContents;
-  this->LastReadContents = 0;
+  this->LastReadContents = nullptr;
   this->LastReadContentsLength = 0;
   this->LastReadFilename = std::string();
 
@@ -107,7 +107,7 @@ bool vtkXdmfDocument::ParseString(const char* xmfdata, size_t length)
 
   this->ActiveDomainIndex = -1;
   delete this->ActiveDomain;
-  this->ActiveDomain = 0;
+  this->ActiveDomain = nullptr;
 
   delete this->LastReadContents;
   this->LastReadContentsLength = 0;
@@ -119,11 +119,11 @@ bool vtkXdmfDocument::ParseString(const char* xmfdata, size_t length)
   memcpy(this->LastReadContents, xmfdata, length);
   this->LastReadContents[length] = 0;
 
-  this->XMLDOM.SetInputFileName(0);
+  this->XMLDOM.SetInputFileName(nullptr);
   if (!this->XMLDOM.Parse(this->LastReadContents))
   {
     delete this->LastReadContents;
-    this->LastReadContents = 0;
+    this->LastReadContents = nullptr;
     this->LastReadContentsLength = 0;
     return false;
   }
@@ -177,7 +177,7 @@ bool vtkXdmfDocument::SetActiveDomain(int index)
 
   this->ActiveDomainIndex = -1;
   delete this->ActiveDomain;
-  this->ActiveDomain = 0;
+  this->ActiveDomain = nullptr;
 
   vtkXdmfDomain* domain = new vtkXdmfDomain(&this->XMLDOM, index);
   if (!domain->IsValid())
@@ -196,7 +196,7 @@ bool vtkXdmfDocument::SetActiveDomain(int index)
 //------------------------------------------------------------------------------
 vtkXdmfDomain::vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index)
 {
-  this->XMLDOM = 0;
+  this->XMLDOM = nullptr;
   this->XMFGrids = nullptr;
   this->NumberOfGrids = 0;
   this->SIL = vtkMutableDirectedGraph::New();
@@ -249,9 +249,9 @@ vtkXdmfDomain::~vtkXdmfDomain()
   delete[] this->XMFGrids;
   this->XMFGrids = nullptr;
   this->SIL->Delete();
-  this->SIL = 0;
+  this->SIL = nullptr;
   this->SILBuilder->Delete();
-  this->SILBuilder = 0;
+  this->SILBuilder = nullptr;
   delete this->PointArrays;
   delete this->CellArrays;
   delete this->Grids;

@@ -95,7 +95,7 @@ static PyObject* PyVTKMethodDescriptor_Call(PyObject* ob, PyObject* args, PyObje
 
   if (func)
   {
-    result = PyEval_CallObjectWithKeywords(func, args, kwds);
+    result = PyObject_Call(func, args, kwds);
     Py_DECREF(func);
   }
 

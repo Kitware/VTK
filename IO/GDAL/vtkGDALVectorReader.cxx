@@ -59,7 +59,7 @@ public:
     }
     else
     {
-      this->LastError = 0;
+      this->LastError = nullptr;
     }
     this->LayerIdx = 0;
     this->AppendFeatures = appendFeatures;
@@ -126,9 +126,9 @@ public:
   bool ReadLayer(OGRLayer* layer, vtkMultiBlockDataSet* mbds)
   {
     OGRFeature* feat;
-    vtkPolyData* pd = 0;
+    vtkPolyData* pd = nullptr;
     vtkIdType nTotPoly = 0;
-    vtkCellArray *lines = 0, *verts = 0;
+    vtkCellArray *lines = nullptr, *verts = nullptr;
 
     OGRFeatureDefn* fdef = layer->GetLayerDefn();
     int numFields = fdef->GetFieldCount();
@@ -391,8 +391,8 @@ public:
 //------------------------------------------------------------------------------
 vtkGDALVectorReader::vtkGDALVectorReader()
 {
-  this->FileName = 0;
-  this->Implementation = 0;
+  this->FileName = nullptr;
+  this->Implementation = nullptr;
   this->ActiveLayer = -1;
 
   this->SetNumberOfInputPorts(0);
@@ -410,7 +410,7 @@ vtkGDALVectorReader::vtkGDALVectorReader()
 //------------------------------------------------------------------------------
 vtkGDALVectorReader::~vtkGDALVectorReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   delete this->Implementation;
 }
 
@@ -607,7 +607,7 @@ int vtkGDALVectorReader::RequestData(
     return 0;
   }
 
-  vtkMultiBlockDataSet* mbds = 0;
+  vtkMultiBlockDataSet* mbds = nullptr;
   vtkInformation* oi = outputVector->GetInformationObject(0);
   if (!oi)
   {
@@ -623,7 +623,7 @@ int vtkGDALVectorReader::RequestData(
   // Deleting this->Implementation is required in order to force re-reading each
   // time RequestData() is executed.
   delete this->Implementation;
-  this->Implementation = 0;
+  this->Implementation = nullptr;
 
   if (this->InitializeInternal() == VTK_ERROR)
   {
@@ -677,7 +677,7 @@ int vtkGDALVectorReader::InitializeInternal()
       {
         vtkErrorMacro(<< this->Implementation->LastError);
         delete this->Implementation;
-        this->Implementation = 0;
+        this->Implementation = nullptr;
       }
       return VTK_ERROR;
     }

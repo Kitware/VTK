@@ -47,12 +47,11 @@ public:
     (void)this->OriginalValue;
 #endif
   }
-  ~vtkTDSCMemkindRAII()
-  {
 #ifdef VTK_USE_MEMKIND
-    vtkObjectBase::SetUsingMemkind(this->OriginalValue);
+  ~vtkTDSCMemkindRAII() { vtkObjectBase::SetUsingMemkind(this->OriginalValue); }
+#else
+  ~vtkTDSCMemkindRAII() = default;
 #endif
-  }
   vtkTDSCMemkindRAII(vtkTDSCMemkindRAII const&) = default;
 };
 

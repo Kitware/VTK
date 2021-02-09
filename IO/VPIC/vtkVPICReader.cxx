@@ -56,13 +56,13 @@ vtkVPICReader::vtkVPICReader()
   this->SelectionObserver->SetClientData(this);
   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   // External VPICDataSet for actually reading files
-  this->vpicData = 0;
-  this->exchanger = 0;
-  this->VariableName = 0;
-  this->VariableStruct = 0;
-  this->TimeSteps = 0;
-  this->dataLoaded = 0;
-  this->data = 0;
+  this->vpicData = nullptr;
+  this->exchanger = nullptr;
+  this->VariableName = nullptr;
+  this->VariableStruct = nullptr;
+  this->TimeSteps = nullptr;
+  this->dataLoaded = nullptr;
+  this->data = nullptr;
 
   // One overlap cell on first plane and one extra on last plane
   this->ghostLevel0 = 1;
@@ -158,7 +158,7 @@ int vtkVPICReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
   // is changed it will be called again
   // Only want to create the VPICDataSet one time
 
-  if (this->vpicData == 0)
+  if (this->vpicData == nullptr)
   {
 
     // Create the general VPICDataSet structure first time method is called

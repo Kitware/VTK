@@ -46,7 +46,7 @@ class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
 public:
   vtkUnicodeStringOutputIterator& operator++(int) override;
   vtkUnicodeStringOutputIterator& operator*() override;
-  vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) override;
+  vtkUnicodeStringOutputIterator& operator=(vtkUnicodeString::value_type value) override;
 
   vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
   ~vtkUnicodeStringOutputIterator() override;

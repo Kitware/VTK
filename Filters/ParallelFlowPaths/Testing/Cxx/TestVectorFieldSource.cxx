@@ -82,7 +82,7 @@ TestVectorFieldSource::TestVectorFieldSource()
 
 // Description:
 // Destructor.
-TestVectorFieldSource::~TestVectorFieldSource() {}
+TestVectorFieldSource::~TestVectorFieldSource() = default;
 int TestVectorFieldSource::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputInfoVector)
 {

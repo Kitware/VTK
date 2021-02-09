@@ -152,7 +152,7 @@ PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
     this->Rank = 0;
     this->TotalRank = 1;
   }
-  this->pioData = 0;
+  this->pioData = nullptr;
 
   // For load balancing in unstructured grid
   startCell = new int[this->TotalRank];
@@ -162,7 +162,7 @@ PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
 
 PIOAdaptor::~PIOAdaptor()
 {
-  if (this->pioData != 0)
+  if (this->pioData != nullptr)
     delete this->pioData;
   this->Controller = nullptr;
   delete[] startCell;
@@ -305,7 +305,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
     return 0;
   }
   delete this->pioData;
-  this->pioData = 0;
+  this->pioData = nullptr;
 
   /////////////////////////////////////////////////////////////////////////////
   //
@@ -656,14 +656,14 @@ int PIOAdaptor::initializeDump(int timeStep)
   if (this->Rank == 0)
   {
     // Start with a fresh pioData initialized for this time step
-    if (this->pioData != 0)
+    if (this->pioData != nullptr)
     {
       delete this->pioData;
-      this->pioData = 0;
+      this->pioData = nullptr;
     }
 
     // Create one PIOData which accesses the PIO file to fetch data
-    if (this->pioData == 0)
+    if (this->pioData == nullptr)
     {
       this->pioData = new PIO_DATA(this->dumpFileName[timeStep].c_str(), &this->fieldsToRead);
       if (this->pioData->good_read())
@@ -673,7 +673,7 @@ int PIOAdaptor::initializeDump(int timeStep)
         const double* amhc_r8 = this->pioData->GetPIOData("amhc_r8");
         const double* amhc_l = this->pioData->GetPIOData("amhc_l");
 
-        if (amhc_i != 0 && amhc_r8 != 0 && amhc_l != 0)
+        if (amhc_i != nullptr && amhc_r8 != nullptr && amhc_l != nullptr)
         {
           dimension = uint32_t(amhc_i[Nnumdim]);
           numberOfDaughters = (int)pow(2.0, dimension);
@@ -1469,8 +1469,8 @@ void PIOAdaptor::create_amr_HTG(vtkMultiBlockDataSet* grid)
   std::valarray<int> histsize;
   std::valarray<int> level;
   std::valarray<std::valarray<double>> center;
-  int64_t* cell_daughter = 0;
-  int* cell_level = 0;
+  int64_t* cell_daughter = nullptr;
+  int* cell_level = nullptr;
   double* cell_center[3];
 
   if (this->Rank == 0)
@@ -1748,7 +1748,7 @@ void PIOAdaptor::load_variable_data_HTG(
 {
   for (size_t var = 0; var < this->variableName.size(); var++)
   {
-    double** dataVector = 0;
+    double** dataVector = nullptr;
     std::valarray<double> scalarArray;
     std::valarray<std::valarray<double>> vectorArray;
     int numberOfComponents;

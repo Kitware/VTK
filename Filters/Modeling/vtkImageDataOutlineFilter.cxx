@@ -34,7 +34,7 @@ vtkImageDataOutlineFilter::vtkImageDataOutlineFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkImageDataOutlineFilter::~vtkImageDataOutlineFilter() {}
+vtkImageDataOutlineFilter::~vtkImageDataOutlineFilter() = default;
 
 //------------------------------------------------------------------------------
 // Core method to produce an oriented vtkImageData outline.

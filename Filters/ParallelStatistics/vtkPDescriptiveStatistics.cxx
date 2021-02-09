@@ -35,14 +35,14 @@ vtkCxxSetObjectMacro(vtkPDescriptiveStatistics, Controller, vtkMultiProcessContr
 //------------------------------------------------------------------------------
 vtkPDescriptiveStatistics::vtkPDescriptiveStatistics()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
 vtkPDescriptiveStatistics::~vtkPDescriptiveStatistics()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------

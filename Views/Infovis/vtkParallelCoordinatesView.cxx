@@ -107,10 +107,7 @@ vtkParallelCoordinatesView::vtkParallelCoordinatesView()
 }
 
 //------------------------------------------------------------------------------
-vtkParallelCoordinatesView::~vtkParallelCoordinatesView()
-{
-  // nothing to do
-}
+vtkParallelCoordinatesView::~vtkParallelCoordinatesView() = default;
 
 void vtkParallelCoordinatesView::PrepareForRendering()
 {

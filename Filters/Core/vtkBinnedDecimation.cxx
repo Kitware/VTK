@@ -1299,7 +1299,7 @@ vtkBinnedDecimation::vtkBinnedDecimation()
 }
 
 //----------------------------------------------------------------------------
-vtkBinnedDecimation::~vtkBinnedDecimation() {}
+vtkBinnedDecimation::~vtkBinnedDecimation() = default;
 
 //----------------------------------------------------------------------------
 // Use the same approach as vtkQuadricClustering (which is a bit of a mess but

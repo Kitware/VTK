@@ -26,10 +26,10 @@
 
 vtkStandardNewMacro(vtkIossFilesScanner);
 //----------------------------------------------------------------------------
-vtkIossFilesScanner::vtkIossFilesScanner() {}
+vtkIossFilesScanner::vtkIossFilesScanner() = default;
 
 //----------------------------------------------------------------------------
-vtkIossFilesScanner::~vtkIossFilesScanner() {}
+vtkIossFilesScanner::~vtkIossFilesScanner() = default;
 
 //----------------------------------------------------------------------------
 bool vtkIossFilesScanner::IsMetaFile(const std::string& filename)
