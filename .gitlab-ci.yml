@@ -100,7 +100,7 @@ build:fedora33-tidy:
         - .fedora33_tidy
         - .cmake_build_linux
         - .linux_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_tidy_artifacts
         - .run_manually
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
