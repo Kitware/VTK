@@ -80,6 +80,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "[Qq]t.*warning C4714"
   "[Qq]t.*note: see declaration of"
 
+  # Python notes triggered from MPI4Py Cython-generated code.
+  "include/python3.*: note:"
+
   # Ignore moc-generated code (and rcc and uic).
   "\\.dir[/\\\\][^/\\\\]*_autogen"
 
