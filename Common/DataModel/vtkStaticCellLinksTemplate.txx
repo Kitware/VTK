@@ -356,7 +356,7 @@ void vtkStaticCellLinksTemplate<TIds>::ThreadedBuildLinks(
 
   // Create an array of atomics with initial count=0. This will keep
   // track of point uses. Count them in parallel.
-  std::atomic<TIds>* counts = new std::atomic<TIds>[numPts] {};
+  std::atomic<TIds>* counts = new std::atomic<TIds>[numPts]();
   CountUses<TIds> count(cellArray, counts);
   vtkSMPTools::For(0, numCells, count);
 

@@ -632,7 +632,7 @@ void BinPointsDecimate(int genMode, vtkIdType numPts, PointsT* pts, vtkPointData
   // is a problem because a ptId can == zero; as a workaround, we'll
   // initially use negative ids, and convert to positive ids in the
   // final composition.
-  std::atomic<TIds>* ptMap = new std::atomic<TIds>[numBins] {};
+  std::atomic<TIds>* ptMap = new std::atomic<TIds>[numBins]();
 
   // Is the triangle output? And eventually the offset into the output cell array.
   TIds* triMap = new TIds[numTris + 1];
