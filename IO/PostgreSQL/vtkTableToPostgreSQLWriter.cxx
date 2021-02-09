@@ -33,7 +33,7 @@ vtkTableToPostgreSQLWriter::vtkTableToPostgreSQLWriter()
 }
 
 //------------------------------------------------------------------------------
-vtkTableToPostgreSQLWriter::~vtkTableToPostgreSQLWriter() {}
+vtkTableToPostgreSQLWriter::~vtkTableToPostgreSQLWriter() = default;
 
 //------------------------------------------------------------------------------
 void vtkTableToPostgreSQLWriter::WriteData()

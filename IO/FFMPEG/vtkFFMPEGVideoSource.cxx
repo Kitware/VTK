@@ -68,7 +68,7 @@ extern "C"
 class vtkFFMPEGVideoSourceInternal
 {
 public:
-  vtkFFMPEGVideoSourceInternal() {}
+  vtkFFMPEGVideoSourceInternal() = default;
   void ReleaseSystemResources()
   {
     if (this->Frame)

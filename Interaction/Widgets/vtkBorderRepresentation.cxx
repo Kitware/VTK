@@ -105,7 +105,7 @@ vtkBorderRepresentation::vtkBorderRepresentation()
 }
 
 //------------------------------------------------------------------------------
-vtkBorderRepresentation::~vtkBorderRepresentation() {}
+vtkBorderRepresentation::~vtkBorderRepresentation() = default;
 
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::ComputeRoundCorners()

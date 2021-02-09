@@ -24,7 +24,7 @@ vtkFindCellStrategy::vtkFindCellStrategy()
 }
 
 //------------------------------------------------------------------------------
-vtkFindCellStrategy::~vtkFindCellStrategy() {}
+vtkFindCellStrategy::~vtkFindCellStrategy() = default;
 
 //------------------------------------------------------------------------------
 int vtkFindCellStrategy::Initialize(vtkPointSet* ps)

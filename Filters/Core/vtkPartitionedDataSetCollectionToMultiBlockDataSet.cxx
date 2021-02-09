@@ -150,15 +150,11 @@ vtkStandardNewMacro(vtkPDC2MBVisitor);
 vtkObjectFactoryNewMacro(vtkPartitionedDataSetCollectionToMultiBlockDataSet);
 //----------------------------------------------------------------------------
 vtkPartitionedDataSetCollectionToMultiBlockDataSet::
-  vtkPartitionedDataSetCollectionToMultiBlockDataSet()
-{
-}
+  vtkPartitionedDataSetCollectionToMultiBlockDataSet() = default;
 
 //----------------------------------------------------------------------------
 vtkPartitionedDataSetCollectionToMultiBlockDataSet::
-  ~vtkPartitionedDataSetCollectionToMultiBlockDataSet()
-{
-}
+  ~vtkPartitionedDataSetCollectionToMultiBlockDataSet() = default;
 
 //------------------------------------------------------------------------------
 int vtkPartitionedDataSetCollectionToMultiBlockDataSet::FillInputPortInformation(

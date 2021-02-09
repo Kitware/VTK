@@ -56,7 +56,7 @@ vtkPolyDataPlaneClipper::vtkPolyDataPlaneClipper()
 }
 
 //------------------------------------------------------------------------------
-vtkPolyDataPlaneClipper::~vtkPolyDataPlaneClipper() {}
+vtkPolyDataPlaneClipper::~vtkPolyDataPlaneClipper() = default;
 
 //------------------------------------------------------------------------------
 // Get the output dataset representing the capped loops.

@@ -21,10 +21,10 @@
 vtkStandardNewMacro(vtkPCellSizeFilter);
 
 //------------------------------------------------------------------------------
-vtkPCellSizeFilter::vtkPCellSizeFilter() {}
+vtkPCellSizeFilter::vtkPCellSizeFilter() = default;
 
 //------------------------------------------------------------------------------
-vtkPCellSizeFilter::~vtkPCellSizeFilter() {}
+vtkPCellSizeFilter::~vtkPCellSizeFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])

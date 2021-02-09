@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkMySQLToTableReader);
 
 //------------------------------------------------------------------------------
-vtkMySQLToTableReader::vtkMySQLToTableReader() {}
+vtkMySQLToTableReader::vtkMySQLToTableReader() = default;
 
 //------------------------------------------------------------------------------
-vtkMySQLToTableReader::~vtkMySQLToTableReader() {}
+vtkMySQLToTableReader::~vtkMySQLToTableReader() = default;
 
 //------------------------------------------------------------------------------
 int vtkMySQLToTableReader::RequestData(

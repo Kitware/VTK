@@ -71,7 +71,7 @@ vtkPolyDataEdgeConnectivityFilter::vtkPolyDataEdgeConnectivityFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkPolyDataEdgeConnectivityFilter::~vtkPolyDataEdgeConnectivityFilter() {}
+vtkPolyDataEdgeConnectivityFilter::~vtkPolyDataEdgeConnectivityFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkPolyDataEdgeConnectivityFilter::SetSourceData(vtkPolyData* input)

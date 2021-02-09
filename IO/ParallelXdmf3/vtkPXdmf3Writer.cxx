@@ -25,10 +25,10 @@
 vtkStandardNewMacro(vtkPXdmf3Writer);
 
 //------------------------------------------------------------------------------
-vtkPXdmf3Writer::vtkPXdmf3Writer() {}
+vtkPXdmf3Writer::vtkPXdmf3Writer() = default;
 
 //------------------------------------------------------------------------------
-vtkPXdmf3Writer::~vtkPXdmf3Writer() {}
+vtkPXdmf3Writer::~vtkPXdmf3Writer() = default;
 
 //------------------------------------------------------------------------------
 void vtkPXdmf3Writer::PrintSelf(ostream& os, vtkIndent indent)

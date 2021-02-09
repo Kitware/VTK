@@ -84,10 +84,8 @@ vtkLightRepresentation::vtkLightRepresentation()
 }
 
 //------------------------------------------------------------------------------
-vtkLightRepresentation::~vtkLightRepresentation()
-{
-  // Needed in order to be able to forward declare the classes in vtkNew
-}
+// Needed in order to be able to forward declare the classes in vtkNew
+vtkLightRepresentation::~vtkLightRepresentation() = default;
 
 //------------------------------------------------------------------------------
 void vtkLightRepresentation::SetLightPosition(double x[3])

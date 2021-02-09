@@ -26,7 +26,7 @@ vtkPDataSetGhostGenerator::vtkPDataSetGhostGenerator()
 }
 
 //------------------------------------------------------------------------------
-vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator() {}
+vtkPDataSetGhostGenerator::~vtkPDataSetGhostGenerator() = default;
 
 //------------------------------------------------------------------------------
 void vtkPDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent)

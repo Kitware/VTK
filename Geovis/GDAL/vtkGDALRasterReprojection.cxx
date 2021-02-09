@@ -32,7 +32,7 @@ vtkGDALRasterReprojection::vtkGDALRasterReprojection()
 }
 
 //------------------------------------------------------------------------------
-vtkGDALRasterReprojection::~vtkGDALRasterReprojection() {}
+vtkGDALRasterReprojection::~vtkGDALRasterReprojection() = default;
 
 //------------------------------------------------------------------------------
 void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)

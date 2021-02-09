@@ -75,7 +75,7 @@ vtkPExtractRectilinearGrid::vtkPExtractRectilinearGrid()
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractRectilinearGrid::~vtkPExtractRectilinearGrid() {}
+vtkPExtractRectilinearGrid::~vtkPExtractRectilinearGrid() = default;
 
 //------------------------------------------------------------------------------
 void vtkPExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)

@@ -34,10 +34,12 @@
 
 vtkStandardNewMacro(vtkDataObjectToPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
-vtkDataObjectToPartitionedDataSetCollection::vtkDataObjectToPartitionedDataSetCollection() {}
+vtkDataObjectToPartitionedDataSetCollection::vtkDataObjectToPartitionedDataSetCollection() =
+  default;
 
 //----------------------------------------------------------------------------
-vtkDataObjectToPartitionedDataSetCollection::~vtkDataObjectToPartitionedDataSetCollection() {}
+vtkDataObjectToPartitionedDataSetCollection::~vtkDataObjectToPartitionedDataSetCollection() =
+  default;
 
 //----------------------------------------------------------------------------
 int vtkDataObjectToPartitionedDataSetCollection::FillInputPortInformation(int, vtkInformation* info)

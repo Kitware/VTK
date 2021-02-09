@@ -55,10 +55,7 @@ public:
     this->DataSet = nullptr;
   }
 
-  ~MyEndPickCommand() override
-  {
-    // empty
-  }
+  ~MyEndPickCommand() override = default;
 
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
     void* vtkNotUsed(callData)) override

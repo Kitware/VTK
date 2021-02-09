@@ -49,20 +49,21 @@ void annotate(const std::string& str)
 vtkStandardNewMacro(vtkOpenGLHardwareSelector);
 
 //------------------------------------------------------------------------------
+#ifdef vtkOpenGLHardwareSelectorDEBUG
 vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector()
 {
-#ifdef vtkOpenGLHardwareSelectorDEBUG
   cerr << "=====vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector" << endl;
-#endif
 }
 
 //------------------------------------------------------------------------------
 vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
 {
-#ifdef vtkOpenGLHardwareSelectorDEBUG
   cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
-#endif
 }
+#else
+vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector() = default;
+vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector() = default;
+#endif
 
 //------------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::PreCapturePass(int pass)

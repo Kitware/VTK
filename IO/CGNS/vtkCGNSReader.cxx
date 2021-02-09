@@ -251,7 +251,7 @@ public:
     CGNSRead::releaseIds(cgioNum, childrenIds);
   }
 
-  ~BCInformation() {}
+  ~BCInformation() = default;
 
   // Create a new dataset that represents the patch for the given zone.
   vtkSmartPointer<vtkDataSet> CreateDataSet(int cellDim, vtkStructuredGrid* zoneGrid) const
@@ -413,7 +413,7 @@ public:
     CGNSRead::releaseIds(cgioNum, childrenIds);
   }
 
-  ~BCInformationUns() {}
+  ~BCInformationUns() = default;
 
 private:
   BCInformationUns(const BCInformationUns&) = delete;

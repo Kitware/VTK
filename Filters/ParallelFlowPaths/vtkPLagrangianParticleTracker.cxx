@@ -53,7 +53,7 @@ public:
     this->count = 0;
   }
 
-  ~MessageStream() {}
+  ~MessageStream() = default;
 
   int GetSize() { return this->Size; }
 

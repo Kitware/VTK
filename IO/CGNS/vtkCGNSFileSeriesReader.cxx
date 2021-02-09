@@ -300,7 +300,7 @@ struct ANode
 {
   std::map<std::string, ANode*> Children;
   std::vector<vtkSmartPointer<vtkDataSet>> Datasets;
-  ANode() {}
+  ANode() = default;
   ~ANode()
   {
     for (auto iter = this->Children.begin(); iter != this->Children.end(); ++iter)

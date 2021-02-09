@@ -150,7 +150,7 @@ public:
     , hi(h)
   {
   }
-  ~Interval() {}
+  ~Interval() = default;
 
   int Low() const { return this->lo; }
   int High() const { return this->hi; }
@@ -656,7 +656,7 @@ struct StructuredGrid
 class CommunicationManager
 {
 public:
-  CommunicationManager() {}
+  CommunicationManager() = default;
   ~CommunicationManager() { this->Clear(); }
 
   unsigned char* GetRcvBuffer(const int fromRank);

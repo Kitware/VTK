@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkPostgreSQLToTableReader);
 
 //------------------------------------------------------------------------------
-vtkPostgreSQLToTableReader::vtkPostgreSQLToTableReader() {}
+vtkPostgreSQLToTableReader::vtkPostgreSQLToTableReader() = default;
 
 //------------------------------------------------------------------------------
-vtkPostgreSQLToTableReader::~vtkPostgreSQLToTableReader() {}
+vtkPostgreSQLToTableReader::~vtkPostgreSQLToTableReader() = default;
 
 //------------------------------------------------------------------------------
 int vtkPostgreSQLToTableReader::RequestData(

@@ -84,10 +84,7 @@ vtkMeshQuality::vtkMeshQuality()
   this->CompatibilityMode = 0;
 }
 
-vtkMeshQuality::~vtkMeshQuality()
-{
-  // Nothing yet.
-}
+vtkMeshQuality::~vtkMeshQuality() = default;
 
 int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)

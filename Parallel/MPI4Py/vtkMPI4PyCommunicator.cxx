@@ -24,7 +24,7 @@
 vtkStandardNewMacro(vtkMPI4PyCommunicator);
 
 //------------------------------------------------------------------------------
-vtkMPI4PyCommunicator::vtkMPI4PyCommunicator() {}
+vtkMPI4PyCommunicator::vtkMPI4PyCommunicator() = default;
 
 //------------------------------------------------------------------------------
 PyObject* vtkMPI4PyCommunicator::ConvertToPython(vtkMPICommunicator* comm)

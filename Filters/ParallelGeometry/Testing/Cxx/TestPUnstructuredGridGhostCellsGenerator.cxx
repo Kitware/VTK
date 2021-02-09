@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkRTAnalyticSource2, vtkRTAnalyticSource);
 
 protected:
-  vtkRTAnalyticSource2() {}
+  vtkRTAnalyticSource2() = default;
 
   void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo) override
   {

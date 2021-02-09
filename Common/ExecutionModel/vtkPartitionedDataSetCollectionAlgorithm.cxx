@@ -27,7 +27,7 @@ vtkPartitionedDataSetCollectionAlgorithm::vtkPartitionedDataSetCollectionAlgorit
 }
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollectionAlgorithm::~vtkPartitionedDataSetCollectionAlgorithm() {}
+vtkPartitionedDataSetCollectionAlgorithm::~vtkPartitionedDataSetCollectionAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollectionAlgorithm::GetOutput()

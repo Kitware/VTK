@@ -47,10 +47,8 @@ vtkInformationKey* vtkInformationKeyLookup::Find(
 vtkInformationKeyLookup::vtkInformationKeyLookup() = default;
 
 //------------------------------------------------------------------------------
-vtkInformationKeyLookup::~vtkInformationKeyLookup()
-{
-  // Keys are owned / cleaned up by the vtk*InformationKeyManagers.
-}
+// Keys are owned / cleaned up by the vtk*InformationKeyManagers.
+vtkInformationKeyLookup::~vtkInformationKeyLookup() = default;
 
 //------------------------------------------------------------------------------
 void vtkInformationKeyLookup::RegisterKey(

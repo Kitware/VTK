@@ -24,15 +24,17 @@
 vtkStandardNewMacro(vtkPSurfaceLICInterface);
 
 //------------------------------------------------------------------------------
-vtkPSurfaceLICInterface::vtkPSurfaceLICInterface() {}
+vtkPSurfaceLICInterface::vtkPSurfaceLICInterface() = default;
 
 //------------------------------------------------------------------------------
+#ifdef vtkPSurfaceLICInterfaceDEBUG
 vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 {
-#ifdef vtkPSurfaceLICInterfaceDEBUG
   cerr << "=====vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface" << endl;
-#endif
 }
+#else
+vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface() = default;
+#endif
 
 //------------------------------------------------------------------------------
 bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()

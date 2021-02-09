@@ -75,7 +75,7 @@ vtkPExtractVOI::vtkPExtractVOI()
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractVOI::~vtkPExtractVOI() {}
+vtkPExtractVOI::~vtkPExtractVOI() = default;
 
 //------------------------------------------------------------------------------
 void vtkPExtractVOI::PrintSelf(ostream& os, vtkIndent indent)

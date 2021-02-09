@@ -38,11 +38,9 @@ vtkHyperTreeGridToUnstructuredGrid::vtkHyperTreeGridToUnstructuredGrid()
 }
 
 //------------------------------------------------------------------------------
-vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid()
-{
-  // The class members are only used during process and are destroyed once
-  // the process is finished to reduce stack size during recursive calls.
-}
+// The class members are only used during process and are destroyed once the
+// process is finished to reduce stack size during recursive calls.
+vtkHyperTreeGridToUnstructuredGrid::~vtkHyperTreeGridToUnstructuredGrid() = default;
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)

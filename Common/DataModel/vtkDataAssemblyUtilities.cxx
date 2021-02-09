@@ -33,10 +33,10 @@
 
 vtkStandardNewMacro(vtkDataAssemblyUtilities);
 //----------------------------------------------------------------------------
-vtkDataAssemblyUtilities::vtkDataAssemblyUtilities() {}
+vtkDataAssemblyUtilities::vtkDataAssemblyUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkDataAssemblyUtilities::~vtkDataAssemblyUtilities() {}
+vtkDataAssemblyUtilities::~vtkDataAssemblyUtilities() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataAssemblyUtilities::PrintSelf(ostream& os, vtkIndent indent)

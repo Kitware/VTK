@@ -1925,7 +1925,7 @@ public:
   }
 
   // Destructor.
-  ~vtkPixelListFrame() {}
+  ~vtkPixelListFrame() = default;
 
   vtkPixelList* GetList(int i)
   {

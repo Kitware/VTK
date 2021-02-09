@@ -48,10 +48,7 @@ vtkGraphAnnotationLayersFilter::vtkGraphAnnotationLayersFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkGraphAnnotationLayersFilter::~vtkGraphAnnotationLayersFilter()
-{
-  //
-}
+vtkGraphAnnotationLayersFilter::~vtkGraphAnnotationLayersFilter() = default;
 
 //------------------------------------------------------------------------------
 int vtkGraphAnnotationLayersFilter::FillInputPortInformation(int port, vtkInformation* info)

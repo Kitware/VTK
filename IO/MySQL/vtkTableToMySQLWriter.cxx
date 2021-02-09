@@ -33,7 +33,7 @@ vtkTableToMySQLWriter::vtkTableToMySQLWriter()
 }
 
 //------------------------------------------------------------------------------
-vtkTableToMySQLWriter::~vtkTableToMySQLWriter() {}
+vtkTableToMySQLWriter::~vtkTableToMySQLWriter() = default;
 
 //------------------------------------------------------------------------------
 void vtkTableToMySQLWriter::WriteData()

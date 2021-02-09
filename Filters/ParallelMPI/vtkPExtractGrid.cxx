@@ -76,7 +76,7 @@ vtkPExtractGrid::vtkPExtractGrid()
 }
 
 //------------------------------------------------------------------------------
-vtkPExtractGrid::~vtkPExtractGrid() {}
+vtkPExtractGrid::~vtkPExtractGrid() = default;
 
 //------------------------------------------------------------------------------
 void vtkPExtractGrid::PrintSelf(ostream& os, vtkIndent indent)

@@ -80,7 +80,7 @@ vtkAnimateModes::vtkAnimateModes()
 }
 
 //----------------------------------------------------------------------------
-vtkAnimateModes::~vtkAnimateModes() {}
+vtkAnimateModes::~vtkAnimateModes() = default;
 
 //----------------------------------------------------------------------------
 int vtkAnimateModes::ExecuteInformation(
