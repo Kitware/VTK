@@ -161,3 +161,29 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
   os << indent << "Cell Offset: " << this->CellOffset << "\n";
 }
+
+//------------------------------------------------------------------------------
+void vtkTextProperty::SetBackgroundRGBA(double rgba[4])
+{
+  this->SetBackgroundRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextProperty::SetBackgroundRGBA(double r, double g, double b, double a)
+{
+  this->SetBackgroundColor(r, g, b);
+  this->SetBackgroundOpacity(a);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextProperty::GetBackgroundRGBA(double rgba[4])
+{
+  this->GetBackgroundRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextProperty::GetBackgroundRGBA(double& r, double& g, double& b, double& a)
+{
+  this->GetBackgroundColor(r, g, b);
+  a = this->GetBackgroundOpacity();
+}
