@@ -5,7 +5,7 @@
 FindJPEG
 --------
 
-Find the JPEG library (libjpeg)
+Find the Joint Photographic Experts Group (JPEG) library (``libjpeg``)
 
 Imported targets
 ^^^^^^^^^^^^^^^^
@@ -58,8 +58,8 @@ foreach(name ${jpeg_names})
 endforeach()
 
 if(NOT JPEG_LIBRARY)
-  find_library(JPEG_LIBRARY_RELEASE NAMES ${jpeg_names})
-  find_library(JPEG_LIBRARY_DEBUG NAMES ${jpeg_names_debug})
+  find_library(JPEG_LIBRARY_RELEASE NAMES ${jpeg_names} NAMES_PER_DIR)
+  find_library(JPEG_LIBRARY_DEBUG NAMES ${jpeg_names_debug} NAMES_PER_DIR)
   include(SelectLibraryConfigurations)
   select_library_configurations(JPEG)
   mark_as_advanced(JPEG_LIBRARY_RELEASE JPEG_LIBRARY_DEBUG)
@@ -67,11 +67,17 @@ endif()
 unset(jpeg_names)
 unset(jpeg_names_debug)
 
-if(JPEG_INCLUDE_DIR AND EXISTS "${JPEG_INCLUDE_DIR}/jpeglib.h")
-  file(GLOB _JPEG_CONFIG_HEADERS "${JPEG_INCLUDE_DIR}/jconfig*.h")
-  list(INSERT _JPEG_CONFIG_HEADERS 0
-    "${JPEG_INCLUDE_DIR}/jpeglib.h")
+if(JPEG_INCLUDE_DIR)
+  file(GLOB _JPEG_CONFIG_HEADERS_FEDORA "${JPEG_INCLUDE_DIR}/jconfig*.h")
+  file(GLOB _JPEG_CONFIG_HEADERS_DEBIAN "${JPEG_INCLUDE_DIR}/*/jconfig.h")
+  set(_JPEG_CONFIG_HEADERS
+    "${JPEG_INCLUDE_DIR}/jpeglib.h"
+    ${_JPEG_CONFIG_HEADERS_FEDORA}
+    ${_JPEG_CONFIG_HEADERS_DEBIAN})
   foreach (_JPEG_CONFIG_HEADER IN LISTS _JPEG_CONFIG_HEADERS)
+    if (NOT EXISTS "${_JPEG_CONFIG_HEADER}")
+      continue ()
+    endif ()
     file(STRINGS "${_JPEG_CONFIG_HEADER}"
       jpeg_lib_version REGEX "^#define[\t ]+JPEG_LIB_VERSION[\t ]+.*")
 
@@ -86,6 +92,8 @@ if(JPEG_INCLUDE_DIR AND EXISTS "${JPEG_INCLUDE_DIR}/jpeglib.h")
   unset(jpeg_lib_version)
   unset(_JPEG_CONFIG_HEADER)
   unset(_JPEG_CONFIG_HEADERS)
+  unset(_JPEG_CONFIG_HEADERS_FEDORA)
+  unset(_JPEG_CONFIG_HEADERS_DEBIAN)
 endif()
 
 include(FindPackageHandleStandardArgs)
