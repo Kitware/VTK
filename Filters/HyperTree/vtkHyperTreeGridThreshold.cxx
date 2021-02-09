@@ -27,6 +27,7 @@
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 
 #include <cmath>
+#include <limits>
 
 vtkStandardNewMacro(vtkHyperTreeGridThreshold);
 
