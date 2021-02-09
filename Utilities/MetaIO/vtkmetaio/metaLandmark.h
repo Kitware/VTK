@@ -12,16 +12,16 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METALANDMARK_H
-#define ITKMetaIO_METALANDMARK_H
+#  define ITKMetaIO_METALANDMARK_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable: 4251 )
-#endif
+#  ifdef _MSC_VER
+#    pragma warning(disable : 4251)
+#  endif
 
-#include <list>
+#  include <list>
 
 
 /*!    MetaLandmark (.h and .cxx)
@@ -38,107 +38,110 @@
  *    MetaFileLib.h
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 class LandmarkPnt
 {
 public:
-
-  LandmarkPnt(int dim);
+  explicit LandmarkPnt(int dim);
   ~LandmarkPnt();
 
   unsigned int m_Dim;
-  float* m_X;
-  float  m_Color[4];
+  float *      m_X;
+  float        m_Color[4]{};
 };
-
-
 
 
 class METAIO_EXPORT MetaLandmark : public MetaObject
 {
 
-  /////
-  //
   // PUBLIC
-  //
-  ////
-  public:
+public:
+  typedef std::list<LandmarkPnt *> PointListType;
+  // Constructors & Destructor
+  MetaLandmark();
 
-   typedef std::list<LandmarkPnt*> PointListType;
-    ////
-    //
-    // Constructors & Destructor
-    //
-    ////
-    MetaLandmark(void);
+  explicit MetaLandmark(const char * _headerName);
 
-    MetaLandmark(const char *_headerName);
+  explicit MetaLandmark(const MetaLandmark * _tube);
 
-    MetaLandmark(const MetaLandmark *_tube);
+  explicit MetaLandmark(unsigned int dim);
 
-    MetaLandmark(unsigned int dim);
+  ~MetaLandmark() override;
 
-    ~MetaLandmark(void) override;
+  void
+  PrintInfo() const override;
 
-    void PrintInfo(void) const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
-    void CopyInfo(const MetaObject * _object) override;
+  //    NPoints(...)
+  //       Required Field
+  //       Number of points which compose the tube
+  void
+  NPoints(int npnt);
+  int
+  NPoints() const;
 
-    //    NPoints(...)
-    //       Required Field
-    //       Number of points which compose the tube
-    void  NPoints(int npnt);
-    int   NPoints(void) const;
-
-    //    PointDim(...)
-    //       Required Field
-    //       Definition of points
-    void        PointDim(const char* pointDim);
-    const char* PointDim(void) const;
+  //    PointDim(...)
+  //       Required Field
+  //       Definition of points
+  void
+  PointDim(const char * pointDim);
+  const char *
+  PointDim() const;
 
 
-    void  Clear(void) override;
+  void
+  Clear() override;
 
-    PointListType & GetPoints(void) {return m_PointList;}
-    const PointListType & GetPoints(void) const  {return m_PointList;}
+  PointListType &
+  GetPoints()
+  {
+    return m_PointList;
+  }
+  const PointListType &
+  GetPoints() const
+  {
+    return m_PointList;
+  }
 
-    MET_ValueEnumType ElementType(void) const;
-    void  ElementType(MET_ValueEnumType _elementType);
+  MET_ValueEnumType
+  ElementType() const;
+  void
+  ElementType(MET_ValueEnumType _elementType);
 
-  ////
-  //
   // PROTECTED
-  //
-  ////
-  protected:
+protected:
+  bool m_ElementByteOrderMSB{};
 
-    bool  m_ElementByteOrderMSB;
+  void
+  M_SetupReadFields() override;
 
-    void  M_Destroy(void) override;
+  void
+  M_SetupWriteFields() override;
 
-    void  M_SetupReadFields(void) override;
+  bool
+  M_Read() override;
 
-    void  M_SetupWriteFields(void) override;
+  bool
+  M_Write() override;
 
-    bool  M_Read(void) override;
+  int m_NPoints; // "NPoints = "         0
 
-    bool  M_Write(void) override;
+  char m_PointDim[255]{}; // "PointDim = "       "x y z r"
 
-    int   m_NPoints;      // "NPoints = "         0
+  PointListType m_PointList;
 
-    char m_PointDim[255]; // "PointDim = "       "x y z r"
-
-    PointListType m_PointList;
-
-    MET_ValueEnumType m_ElementType;
+  MET_ValueEnumType m_ElementType;
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif

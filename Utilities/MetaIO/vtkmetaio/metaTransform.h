@@ -12,12 +12,12 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METATRANSFORM_H
-#define ITKMetaIO_METATRANSFORM_H
+#  define ITKMetaIO_METATRANSFORM_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#include <list>
+#  include <list>
 
 
 /*!    MetaTransform (.h and .cpp)
@@ -34,98 +34,111 @@
  *    MetaObject.h
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 
 class METAIO_EXPORT MetaTransform : public MetaObject
 {
 
-  /////
-  //
   // PUBLIC
-  //
-  ////
-  public:
+public:
+  // Constructors & Destructor
+  MetaTransform();
 
-    ////
-    //
-    // Constructors & Destructor
-    //
-    ////
-    MetaTransform(void);
+  explicit MetaTransform(const char * _headerName);
 
-    MetaTransform(const char *_headerName);
+  explicit MetaTransform(const MetaTransform * _group);
 
-    MetaTransform(const MetaTransform *_group);
+  explicit MetaTransform(unsigned int dim);
 
-    MetaTransform(unsigned int dim);
+  ~MetaTransform() override;
 
-    ~MetaTransform(void) override;
+  void
+  PrintInfo() const override;
 
-    void PrintInfo(void) const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
-    void CopyInfo(const MetaObject * _object) override;
+  void
+  Clear() override;
 
-    void  Clear(void) override;
+  // Set/Get the parameters of the transforms
+  const double *
+  Parameters() const;
+  void
+  Parameters(unsigned int dimension, const double * _parameters);
 
-    // Set/Get the parameters of the transforms
-    const double * Parameters(void) const;
-    void  Parameters(unsigned int dimension, const double * _parameters);
+  unsigned int
+  NParameters() const
+  {
+    return parametersDimension;
+  }
 
-    unsigned int NParameters() {return parametersDimension;}
+  unsigned int
+  TransformOrder() const
+  {
+    return transformOrder;
+  }
+  void
+  TransformOrder(unsigned int order)
+  {
+    transformOrder = order;
+  }
 
-    unsigned int TransformOrder() {return transformOrder;}
-    void TransformOrder(unsigned int order) {transformOrder = order;}
+  // Set/Get the grid spacing
+  const double *
+  GridSpacing() const;
+  void
+  GridSpacing(const double * _gridSpacing);
 
-    // Set/Get the grid spacing
-    const double * GridSpacing(void) const;
-    void  GridSpacing(const double * _gridSize);
+  // Set/Get the grid origin
+  const double *
+  GridOrigin() const;
+  void
+  GridOrigin(const double * _gridOrigin);
 
-   // Set/Get the grid origin
-    const double * GridOrigin(void) const;
-    void  GridOrigin(const double * _gridOrigin);
+  // Set/Get the grid region size
+  const double *
+  GridRegionSize() const;
+  void
+  GridRegionSize(const double * _gridRegionSize);
 
-    // Set/Get the grid region size
-    const double * GridRegionSize(void) const;
-    void  GridRegionSize(const double * _gridRegionSize);
+  // Set/Get the grid region index
+  const double *
+  GridRegionIndex() const;
+  void
+  GridRegionIndex(const double * _gridRegionIndex);
 
-    // Set/Get the grid region index
-    const double * GridRegionIndex(void) const;
-    void  GridRegionIndex(const double * _gridRegionIndex);
-
-  ////
-  //
   // PROTECTED
-  //
-  ////
-  protected:
+protected:
+  void
+  M_SetupReadFields() override;
 
-    void  M_Destroy(void) override;
+  void
+  M_SetupWriteFields() override;
 
-    void  M_SetupReadFields(void) override;
+  bool
+  M_Read() override;
+  bool
+  M_Write() override;
 
-    void  M_SetupWriteFields(void) override;
-
-    bool  M_Read(void) override;
-    bool  M_Write(void) override;
-
-    double* parameters;
-    unsigned int parametersDimension;
-    unsigned int transformOrder;
+  double *     parameters{};
+  unsigned int parametersDimension{};
+  unsigned int transformOrder{};
 
   // This ivars are used for the BSplineTransform
-  double gridSpacing[100];
-  double gridOrigin[100];
-  double gridRegionSize[100];
-  double gridRegionIndex[100];
-
+  double gridSpacing[100]{};
+  double gridOrigin[100]{};
+  double gridRegionSize[100]{};
+  double gridRegionIndex[100]{};
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif

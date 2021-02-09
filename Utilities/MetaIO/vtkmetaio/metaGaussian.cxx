@@ -12,109 +12,91 @@
 #include "metaGaussian.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4702)
+#  pragma warning(disable : 4702)
 #endif
 
-#include <cctype>
-#include <cstdio>
-#include <string>
-
 #if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
+namespace METAIO_NAMESPACE
+{
 #endif
 
 //
 // MedImage Constructors
 //
-MetaGaussian::
-MetaGaussian()
-:MetaObject( )
+MetaGaussian::MetaGaussian()
+  : MetaObject()
 {
-  if(META_DEBUG) std::cout << "MetaGaussian()" << std::endl;
-  Clear();
-
+  META_DEBUG_PRINT( "MetaGaussian()" );
+  MetaGaussian::Clear();
 }
 
 //
-MetaGaussian::
-MetaGaussian(const char *_headerName)
-:MetaObject()
+MetaGaussian::MetaGaussian(const char * _headerName)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaGaussian()" << std::endl;
-  Clear();
-  Read(_headerName);
+  META_DEBUG_PRINT( "MetaGaussian()" );
+  MetaGaussian::Clear();
+  MetaGaussian::Read(_headerName);
 }
 
 //
-MetaGaussian::
-MetaGaussian(const MetaGaussian *_gaussian)
-:MetaObject()
+MetaGaussian::MetaGaussian(const MetaGaussian * _gaussian)
+  : MetaObject()
 {
-  if(META_DEBUG)  std::cout << "MetaGaussian()" << std::endl;
-  Clear();
-  CopyInfo(_gaussian);
+  META_DEBUG_PRINT( "MetaGaussian()" );
+  MetaGaussian::Clear();
+  MetaGaussian::CopyInfo(_gaussian);
 }
 
-MetaGaussian::
-MetaGaussian(unsigned int dim)
-:MetaObject(dim)
+MetaGaussian::MetaGaussian(unsigned int dim)
+  : MetaObject(dim)
 {
-  if(META_DEBUG) std::cout << "MetaGaussian()" << std::endl;
-  Clear();
-}
-
-//
-MetaGaussian::
-~MetaGaussian()
-{
-  M_Destroy();
+  META_DEBUG_PRINT( "MetaGaussian()" );
+  MetaGaussian::Clear();
 }
 
 //
-void MetaGaussian::
-PrintInfo() const
+MetaGaussian::~MetaGaussian()
+{
+MetaObject::M_Destroy();
+}
+
+//
+void
+MetaGaussian::PrintInfo() const
 {
   MetaObject::PrintInfo();
   std::cout << "\n"
             << "Maximum = " << m_Maximum << "\n"
-            << "Radius = " << m_Radius
-            << "Sigma = " << m_Sigma
-            << std::endl;
+            << "Radius = " << m_Radius << "Sigma = " << m_Sigma << std::endl;
 }
 
-void MetaGaussian::
-CopyInfo(const MetaObject * _object)
+void
+MetaGaussian::CopyInfo(const MetaObject * _object)
 {
   MetaObject::CopyInfo(_object);
 }
 
 /** Clear gaussian information */
-void MetaGaussian::
-Clear()
+void
+MetaGaussian::Clear()
 {
-  if(META_DEBUG) std::cout << "MetaGaussian: Clear" << std::endl;
+  META_DEBUG_PRINT( "MetaGaussian: Clear" );
 
   MetaObject::Clear();
 
-  strcpy(m_ObjectTypeName,"Gaussian");
+  strcpy(m_ObjectTypeName, "Gaussian");
 
   m_Maximum = 1;
   m_Radius = 1;
   m_Sigma = 1;
 }
 
-/** Destroy gaussian information */
-void MetaGaussian::
-M_Destroy()
-{
-  MetaObject::M_Destroy();
-}
-
 /** Set Read fields */
-void MetaGaussian::
-M_SetupReadFields()
+void
+MetaGaussian::M_SetupReadFields()
 {
-  if(META_DEBUG) std::cout << "MetaGaussian: M_SetupReadFields" << std::endl;
+  META_DEBUG_PRINT( "MetaGaussian: M_SetupReadFields" );
 
   MetaObject::M_SetupReadFields();
 
@@ -133,11 +115,10 @@ M_SetupReadFields()
   mF = new MET_FieldRecordType;
   MET_InitReadField(mF, "Sigma", MET_FLOAT, true);
   m_Fields.push_back(mF);
-
 }
 
-void MetaGaussian::
-M_SetupWriteFields()
+void
+MetaGaussian::M_SetupWriteFields()
 {
   MetaObject::M_SetupWriteFields();
 
@@ -154,44 +135,41 @@ M_SetupWriteFields()
   mF = new MET_FieldRecordType;
   MET_InitWriteField(mF, "Sigma", MET_FLOAT, m_Sigma);
   m_Fields.push_back(mF);
-
 }
 
 
-bool MetaGaussian::
-M_Read()
+bool
+MetaGaussian::M_Read()
 {
-  if(META_DEBUG) std::cout << "MetaGaussian: M_Read: Loading Header"
-                           << std::endl;
+  META_DEBUG_PRINT( "MetaGaussian: M_Read: Loading Header" );
 
-  if(!MetaObject::M_Read())
-{
+  if (!MetaObject::M_Read())
+  {
     std::cout << "MetaGaussian: M_Read: Error parsing file" << std::endl;
     return false;
-}
+  }
 
-  if(META_DEBUG) std::cout << "MetaGaussian: M_Read: Parsing Header"
-                           << std::endl;
+  META_DEBUG_PRINT( "MetaGaussian: M_Read: Parsing Header" );
 
   MET_FieldRecordType * mF;
 
   mF = MET_GetFieldRecord("Maximum", &m_Fields);
-  if( mF->defined )
-{
-    m_Maximum = (float)mF->value[0];
-}
+  if (mF->defined)
+  {
+    m_Maximum = static_cast<float>(mF->value[0]);
+  }
 
   mF = MET_GetFieldRecord("Radius", &m_Fields);
-  if( mF->defined )
-{
-    m_Radius = (float)mF->value[0];
-}
+  if (mF->defined)
+  {
+    m_Radius = static_cast<float>(mF->value[0]);
+  }
 
   mF = MET_GetFieldRecord("Sigma", &m_Fields);
-  if( mF->defined )
-{
-    m_Sigma = (float)mF->value[0];
-}
+  if (mF->defined)
+  {
+    m_Sigma = static_cast<float>(mF->value[0]);
+  }
 
   return true;
 }

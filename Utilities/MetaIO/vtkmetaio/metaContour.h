@@ -12,21 +12,22 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METACONTOUR_H
-#define ITKMetaIO_METACONTOUR_H
+#  define ITKMetaIO_METACONTOUR_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable: 4786 )
-#pragma warning ( disable: 4251 )
-#endif
+#  ifdef _MSC_VER
+#    pragma warning(disable : 4786)
+#    pragma warning(disable : 4251)
+#  endif
 
-#include <list>
+#  include <list>
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 /**
  * Description:
@@ -40,44 +41,39 @@ namespace METAIO_NAMESPACE {
 class METAIO_EXPORT ContourControlPnt
 {
 public:
-
-  ContourControlPnt(int dim);
+  explicit ContourControlPnt(int dim);
   ~ContourControlPnt();
 
   unsigned int m_Dim;
   unsigned int m_Id;
-  float* m_X;
-  float* m_XPicked;
-  float* m_V;
-  float  m_Color[4];
+  float *      m_X;
+  float *      m_XPicked;
+  float *      m_V;
+  float        m_Color[4]{};
 };
 
 
 class METAIO_EXPORT ContourInterpolatedPnt
 {
 public:
-
-  ContourInterpolatedPnt(int dim)
-    {
-    m_Dim = dim;
+  explicit ContourInterpolatedPnt(int dim)
+  {
+    m_Dim = static_cast<unsigned int>(dim);
     m_Id = 0;
     m_X = new float[m_Dim];
-    //Color is red by default
-    m_Color[0]=1.0f;
-    m_Color[1]=0.0f;
-    m_Color[2]=0.0f;
-    m_Color[3]=1.0f;
-    }
+    // Color is red by default
+    m_Color[0] = 1.0f;
+    m_Color[1] = 0.0f;
+    m_Color[2] = 0.0f;
+    m_Color[3] = 1.0f;
+  }
 
-  ~ContourInterpolatedPnt()
-    {
-    delete []m_X;
-    }
+  ~ContourInterpolatedPnt() { delete[] m_X; }
 
   unsigned int m_Dim;
-  float* m_X;
-  unsigned int  m_Id;
-  float  m_Color[4];
+  float *      m_X;
+  unsigned int m_Id;
+  float        m_Color[4]{};
 };
 
 
@@ -85,86 +81,115 @@ class METAIO_EXPORT MetaContour : public MetaObject
 {
 
 public:
+  typedef std::list<ContourControlPnt *>      ControlPointListType;
+  typedef std::list<ContourInterpolatedPnt *> InterpolatedPointListType;
 
- typedef std::list<ContourControlPnt*> ControlPointListType;
- typedef std::list<ContourInterpolatedPnt*> InterpolatedPointListType;
+  MetaContour();
+  explicit MetaContour(const char * _headerName);
+  explicit MetaContour(const MetaContour * _contour);
+  explicit MetaContour(unsigned int dim);
 
- MetaContour(void);
- MetaContour(const char *_headerName);
- MetaContour(const MetaContour *_Contour);
- MetaContour(unsigned int dim);
+  ~MetaContour() override;
 
- ~MetaContour(void) override;
-
-  void PrintInfo(void) const override;
-  void CopyInfo(const MetaObject * _object) override;
+  void
+  PrintInfo() const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
   //    NPoints(...)
   //       Required Field
   //       Number of points which compose the tube
-  int   NControlPoints(void) const;
+  int
+  NControlPoints() const;
 
   //    ControlPointDim(...)
   //       Required Field
   //       Definition of points
-  void        ControlPointDim(const char* pointDim);
-  const char* ControlPointDim(void) const;
+  void
+  ControlPointDim(const char * pointDim);
+  const char *
+  ControlPointDim() const;
 
-  MET_InterpolationEnumType  Interpolation(void) const;
-  void Interpolation(MET_InterpolationEnumType _interpolation);
+  MET_InterpolationEnumType
+  Interpolation() const;
+  void
+  Interpolation(MET_InterpolationEnumType _interpolation);
 
-  int   NInterpolatedPoints(void) const;
+  int
+  NInterpolatedPoints() const;
 
-  void        InterpolatedPointDim(const char* pointDim);
-  const char* InterpolatedPointDim(void) const;
+  void
+  InterpolatedPointDim(const char * pointDim);
+  const char *
+  InterpolatedPointDim() const;
 
-  void Closed(bool close);
-  bool Closed() const;
+  void
+  Closed(bool close);
+  bool
+  Closed() const;
 
-  void     AttachedToSlice(long int slice);
-  long int AttachedToSlice() const;
+  void
+  AttachedToSlice(long int slice);
+  long int
+  AttachedToSlice() const;
 
-  void DisplayOrientation(int display);
-  int  DisplayOrientation() const;
+  void
+  DisplayOrientation(int display);
+  int
+  DisplayOrientation() const;
 
-  void  Clear(void) override;
+  void
+  Clear() override;
 
-  ControlPointListType & GetControlPoints(void)
-    {return m_ControlPointsList;}
-  const ControlPointListType & GetControlPoints(void) const
-    {return m_ControlPointsList;}
+  ControlPointListType &
+  GetControlPoints()
+  {
+    return m_ControlPointsList;
+  }
+  const ControlPointListType &
+  GetControlPoints() const
+  {
+    return m_ControlPointsList;
+  }
 
-  InterpolatedPointListType & GetInterpolatedPoints(void)
-    {return m_InterpolatedPointsList;}
-  const InterpolatedPointListType & GetInterpolatedPoints(void) const
-    {return m_InterpolatedPointsList;}
+  InterpolatedPointListType &
+  GetInterpolatedPoints()
+  {
+    return m_InterpolatedPointsList;
+  }
+  const InterpolatedPointListType &
+  GetInterpolatedPoints() const
+  {
+    return m_InterpolatedPointsList;
+  }
 
 protected:
+  bool m_ElementByteOrderMSB{};
+  void
+  M_SetupReadFields() override;
+  void
+  M_SetupWriteFields() override;
+  bool
+  M_Read() override;
+  bool
+  M_Write() override;
 
-  bool  m_ElementByteOrderMSB;
-  void  M_Destroy(void) override;
-  void  M_SetupReadFields(void) override;
-  void  M_SetupWriteFields(void) override;
-  bool  M_Read(void) override;
-  bool  M_Write(void) override;
-
-  int m_NControlPoints;
-  int m_NInterpolatedPoints;
-  char m_ControlPointDim[255];
-  char m_InterpolatedPointDim[255];
-  bool m_Closed;
+  int                       m_NControlPoints{};
+  int                       m_NInterpolatedPoints{};
+  char                      m_ControlPointDim[255]{};
+  char                      m_InterpolatedPointDim[255]{};
+  bool                      m_Closed{};
   MET_InterpolationEnumType m_InterpolationType;
   ControlPointListType      m_ControlPointsList;
   InterpolatedPointListType m_InterpolatedPointsList;
 
-  int       m_DisplayOrientation;
-  long      m_AttachedToSlice;
-
+  int  m_DisplayOrientation{};
+  long m_AttachedToSlice{};
 };
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif

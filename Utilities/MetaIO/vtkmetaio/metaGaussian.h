@@ -12,12 +12,12 @@
 #include "metaTypes.h"
 
 #ifndef ITKMetaIO_METAGAUSSIAN_H
-#define ITKMetaIO_METAGAUSSIAN_H
+#  define ITKMetaIO_METAGAUSSIAN_H
 
-#include "metaUtils.h"
-#include "metaObject.h"
+#  include "metaUtils.h"
+#  include "metaObject.h"
 
-#include <list>
+#  include <list>
 
 
 /*!    MetaGaussian (.h and .cpp)
@@ -34,86 +34,101 @@
  *    MetaObject.h
  */
 
-#if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
-#endif
+#  if (METAIO_USE_NAMESPACE)
+namespace METAIO_NAMESPACE
+{
+#  endif
 
 class METAIO_EXPORT MetaGaussian : public MetaObject
 {
 
-  /////
-  //
   // PUBLIC
-  //
-  ////
-  public:
+public:
+  // Constructors & Destructor
+  MetaGaussian();
 
-    ////
-    //
-    // Constructors & Destructor
-    //
-    ////
-    MetaGaussian();
+  explicit MetaGaussian(const char * _headerName);
 
-    MetaGaussian(const char *_headerName);
+  explicit MetaGaussian(const MetaGaussian * _gaussian);
 
-    MetaGaussian(const MetaGaussian *_gaussian);
+  explicit MetaGaussian(unsigned int dim);
 
-    MetaGaussian(unsigned int dim);
+  ~MetaGaussian() override;
 
-    ~MetaGaussian(void) override;
+  void
+  PrintInfo() const override;
 
-    void PrintInfo(void) const override;
+  void
+  CopyInfo(const MetaObject * _object) override;
 
-    void CopyInfo(const MetaObject * _object) override;
+  void
+  Clear() override;
 
-    void  Clear(void) override;
+  /** Set/Get the maximum value. */
+  void
+  Maximum(float val)
+  {
+    m_Maximum = val;
+  }
+  float
+  Maximum() const
+  {
+    return m_Maximum;
+  }
 
-    /** Set/Get the maximum value. */
-    void Maximum(float val) { m_Maximum = val; }
-    float Maximum() const { return m_Maximum; }
+  /** Set/Get the radius value. */
+  void
+  Radius(float val)
+  {
+    m_Radius = val;
+  }
+  float
+  Radius() const
+  {
+    return m_Radius;
+  }
 
-    /** Set/Get the radius value. */
-    void Radius(float val) { m_Radius = val; }
-    float Radius() const { return m_Radius; }
+  /** Set/Get the sigma value. */
+  void
+  Sigma(float val)
+  {
+    m_Sigma = val;
+  }
+  float
+  Sigma() const
+  {
+    return m_Sigma;
+  }
 
-    /** Set/Get the sigma value. */
-    void Sigma(float val) { m_Sigma = val; }
-    float Sigma() const { return m_Sigma; }
-
-  ////
-  //
   // PROTECTED
-  //
-  ////
-  protected:
+protected:
 
-    void  M_Destroy(void) override;
+  /** Set up the fields to read a MetaGaussian file. */
+  void
+  M_SetupReadFields() override;
 
-    /** Set up the fields to read a MetaGaussian file. */
-    void  M_SetupReadFields(void) override;
+  /** Set up the fields to write a MetaGaussian file. */
+  void
+  M_SetupWriteFields() override;
 
-    /** Set up the fields to write a MetaGaussian file. */
-    void  M_SetupWriteFields(void) override;
+  /** Read the MetaGaussian file properties. */
+  bool
+  M_Read() override;
 
-    /** Read the MetaGaussian file properties. */
-    bool  M_Read(void) override;
+  /** The maximum value of the MetaGaussian object. */
+  float m_Maximum{};
 
-    /** The maximum value of the MetaGaussian object. */
-    float m_Maximum;
+  /** The radius of the MetaGaussian object. */
+  float m_Radius{};
 
-    /** The radius of the MetaGaussian object. */
-    float m_Radius;
-
-    /** The standard deviation of the MetaGaussian object. */
-    float m_Sigma;
-
+  /** The standard deviation of the MetaGaussian object. */
+  float m_Sigma{};
 };
 
 
-#if (METAIO_USE_NAMESPACE)
+#  if (METAIO_USE_NAMESPACE)
 };
-#endif
+#  endif
 
 
 #endif

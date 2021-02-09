@@ -10,98 +10,72 @@
   See the License for more information.
 ============================================================================*/
 #ifdef _MSC_VER
-#pragma warning(disable:4702)
-#pragma warning(disable:4284)
+#  pragma warning(disable : 4702)
+#  pragma warning(disable : 4284)
 #endif
 
 #include "metaVesselTube.h"
 
 #if (METAIO_USE_NAMESPACE)
-namespace METAIO_NAMESPACE {
+namespace METAIO_NAMESPACE
+{
 #endif
 
-VesselTubePnt::
-VesselTubePnt(int dim)
-: TubePnt(dim)
-{
-}
+VesselTubePnt::VesselTubePnt(int dim)
+  : TubePnt(dim)
+{}
 
-VesselTubePnt::
-~VesselTubePnt()
-{
-}
+VesselTubePnt::~VesselTubePnt() = default;
 
 /** MetaVesselTube Constructors */
-MetaVesselTube::
-MetaVesselTube()
-:MetaTube()
+MetaVesselTube::MetaVesselTube()
+  : MetaTube()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaVesselTube()" << std::endl;
-    }
-  this->Clear();
+  META_DEBUG_PRINT( "MetaVesselTube()" );
+  MetaVesselTube::Clear();
 }
 
 
-MetaVesselTube::
-MetaVesselTube(const char *_headerName)
-:MetaTube(_headerName)
+MetaVesselTube::MetaVesselTube(const char * _headerName)
+  : MetaTube(_headerName)
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaVesselTube()" << std::endl;
-    }
-  this->Clear();
+  META_DEBUG_PRINT( "MetaVesselTube()" );
+  MetaVesselTube::Clear();
 }
 
 
-MetaVesselTube::
-MetaVesselTube(const MetaVesselTube *_VesselTube)
-:MetaTube(_VesselTube)
+MetaVesselTube::MetaVesselTube(const MetaVesselTube * _vesselTube)
+  : MetaTube(_vesselTube)
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaVesselTube()" << std::endl;
-    }
-  this->Clear();
+  META_DEBUG_PRINT( "MetaVesselTube()" );
+  MetaVesselTube::Clear();
 }
 
 
-MetaVesselTube::
-MetaVesselTube(unsigned int dim)
-:MetaTube(dim)
+MetaVesselTube::MetaVesselTube(unsigned int dim)
+  : MetaTube(dim)
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaVesselTube()" << std::endl;
-    }
-  this->Clear();
+  META_DEBUG_PRINT( "MetaVesselTube()" );
+  MetaVesselTube::Clear();
 }
 
 /** Destructor */
-MetaVesselTube::
-~MetaVesselTube()
-{
-}
+MetaVesselTube::~MetaVesselTube() = default;
 
 /** Clear VesselTube information */
-void MetaVesselTube::
-Clear()
+void
+MetaVesselTube::Clear()
 {
-  if(META_DEBUG)
-    {
-    std::cout << "MetaVesselTube: Clear" << std::endl;
-    }
+  META_DEBUG_PRINT( "MetaVesselTube: Clear" );
 
   MetaTube::Clear();
 
-  strcpy(m_ObjectSubTypeName,"Vessel");
+  strcpy(m_ObjectSubTypeName, "Vessel");
 }
 
 //
-void MetaVesselTube::
-PrintInfo() const
+void
+MetaVesselTube::PrintInfo() const
 {
   std::cout << "VesselTube" << std::endl;
 
