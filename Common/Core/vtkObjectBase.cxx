@@ -484,17 +484,28 @@ void vtkObjectBase::SetIsInMemkind(bool v)
 //------------------------------------------------------------------------------
 vtkObjectBase::vtkMemkindRAII::vtkMemkindRAII(bool newValue)
 {
+  this->Save(newValue);
+}
+
+//------------------------------------------------------------------------------
+vtkObjectBase::vtkMemkindRAII::~vtkMemkindRAII()
+{
+  this->Restore();
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectBase::vtkMemkindRAII::Save(bool newValue)
+{
 #ifdef VTK_USE_MEMKIND
   this->OriginalValue = vtkObjectBase::GetUsingMemkind();
   vtkObjectBase::SetUsingMemkind(newValue);
 #else
-  (void)this->OriginalValue;
   (void)newValue;
 #endif
 }
 
 //------------------------------------------------------------------------------
-vtkObjectBase::vtkMemkindRAII::~vtkMemkindRAII()
+void vtkObjectBase::vtkMemkindRAII::Restore()
 {
 #ifdef VTK_USE_MEMKIND
   vtkObjectBase::SetUsingMemkind(this->OriginalValue);
