@@ -20,18 +20,18 @@
 // left on disk.
 #include <testSystemTools.h>
 
+#include <cstdlib> /* free */
+#include <cstring> /* strcmp */
 #include <iostream>
 #include <sstream>
-#include <stdlib.h> /* free */
-#include <string.h> /* strcmp */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#  include <io.h> /* _umask (MSVC) / umask (Borland) */
+#  include <io.h> /* _umask (MSVC) */
 #  ifdef _MSC_VER
-#    define umask _umask // Note this is still umask on Borland
+#    define umask _umask
 #  endif
 #endif
 #include <sys/stat.h> /* umask (POSIX), _S_I* constants (Windows) */
-// Visual C++ does not define mode_t (note that Borland does, however).
+// Visual C++ does not define mode_t.
 #if defined(_MSC_VER)
 typedef unsigned short mode_t;
 #endif
@@ -328,7 +328,14 @@ static bool CheckFileOperations()
   }
 
   // While we're at it, check proper TestFileAccess functionality.
-  if (kwsys::SystemTools::TestFileAccess(testNewFile,
+  bool do_write_test = true;
+#if defined(__linux__)
+  // If we are running as root on linux ignore this check, as
+  // root can always write to files
+  do_write_test = (getuid() != 0);
+#endif
+  if (do_write_test &&
+      kwsys::SystemTools::TestFileAccess(testNewFile,
                                          kwsys::TEST_FILE_WRITE)) {
     std::cerr
       << "TestFileAccess incorrectly indicated that this is a writable file:"
@@ -412,6 +419,28 @@ static bool CheckFileOperations()
     std::string const& msg = kwsys::SystemTools::GetLastSystemError();
     std::cerr << "RemoveFile(\"" << testFileMissingDir << "\") failed: " << msg
               << "\n";
+    res = false;
+  }
+
+#if !defined(_WIN32)
+  std::string const testBadSymlink(testNewDir + "/badSymlink.txt");
+  std::string const testBadSymlinkTgt(testNewDir + "/missing/symlinkTgt.txt");
+  if (!kwsys::SystemTools::CreateSymlink(testBadSymlinkTgt, testBadSymlink)) {
+    std::cerr << "Problem with CreateSymlink for: " << testBadSymlink << " -> "
+              << testBadSymlinkTgt << std::endl;
+    res = false;
+  }
+
+  if (!kwsys::SystemTools::Touch(testBadSymlink, false)) {
+    std::cerr << "Problem with Touch (no create) for: " << testBadSymlink
+              << std::endl;
+    res = false;
+  }
+#endif
+
+  if (!kwsys::SystemTools::Touch(testNewDir, false)) {
+    std::cerr << "Problem with Touch (no create) for: " << testNewDir
+              << std::endl;
     res = false;
   }
 
@@ -500,7 +529,7 @@ static bool CheckStringOperations()
 
   char* cres =
     kwsys::SystemTools::AppendStrings("Mary Had A", " Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with AppendStrings "
               << "\"Mary Had A\" \" Little Lamb.\"" << std::endl;
     res = false;
@@ -508,7 +537,7 @@ static bool CheckStringOperations()
   delete[] cres;
 
   cres = kwsys::SystemTools::AppendStrings("Mary Had", " A ", "Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with AppendStrings "
               << "\"Mary Had\" \" A \" \"Little Lamb.\"" << std::endl;
     res = false;
@@ -522,7 +551,7 @@ static bool CheckStringOperations()
   }
 
   cres = kwsys::SystemTools::RemoveChars("Mary Had A Little Lamb.", "aeiou");
-  if (strcmp(cres, "Mry Hd A Lttl Lmb.")) {
+  if (strcmp(cres, "Mry Hd A Lttl Lmb.") != 0) {
     std::cerr << "Problem with RemoveChars "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -530,7 +559,7 @@ static bool CheckStringOperations()
   delete[] cres;
 
   cres = kwsys::SystemTools::RemoveCharsButUpperHex("Mary Had A Little Lamb.");
-  if (strcmp(cres, "A")) {
+  if (strcmp(cres, "A") != 0) {
     std::cerr << "Problem with RemoveCharsButUpperHex "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -539,7 +568,7 @@ static bool CheckStringOperations()
 
   char* cres2 = strdup("Mary Had A Little Lamb.");
   kwsys::SystemTools::ReplaceChars(cres2, "aeiou", 'X');
-  if (strcmp(cres2, "MXry HXd A LXttlX LXmb.")) {
+  if (strcmp(cres2, "MXry HXd A LXttlX LXmb.") != 0) {
     std::cerr << "Problem with ReplaceChars "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -561,7 +590,7 @@ static bool CheckStringOperations()
   }
 
   cres = kwsys::SystemTools::DuplicateString("Mary Had A Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with DuplicateString "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -1113,6 +1142,42 @@ static bool CheckURLParsing()
   return ret;
 }
 
+static bool CheckSplitString()
+{
+  bool ret = true;
+
+  auto check_split = [](std::string const& input,
+                        std::initializer_list<const char*> expected) -> bool {
+    auto const components = kwsys::SystemTools::SplitString(input, '/');
+    if (components.size() != expected.size()) {
+      std::cerr << "Incorrect split count for " << input << ": "
+                << components.size() << std::endl;
+      return false;
+    }
+    size_t i = 0;
+    for (auto& part : expected) {
+      if (components[i] != part) {
+        std::cerr << "Incorrect split component " << i << " for " << input
+                  << ": " << components[i] << std::endl;
+        return false;
+      }
+      ++i;
+    }
+    return true;
+  };
+
+  // No separators
+  ret &= check_split("nosep", { "nosep" });
+  // Simple
+  ret &= check_split("first/second", { "first", "second" });
+  // Separator at beginning
+  ret &= check_split("/starts/sep", { "", "starts", "sep" });
+  // Separator at end
+  ret &= check_split("ends/sep/", { "ends", "sep", "" });
+
+  return ret;
+}
+
 int testSystemTools(int, char* [])
 {
   bool res = true;
@@ -1161,6 +1226,8 @@ int testSystemTools(int, char* [])
   res &= CheckCopyFileIfDifferent();
 
   res &= CheckURLParsing();
+
+  res &= CheckSplitString();
 
   return res ? 0 : 1;
 }
