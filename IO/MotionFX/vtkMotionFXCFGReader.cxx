@@ -1155,6 +1155,14 @@ struct action<MotionFX::CFG::Value>
     }
     else
     {
+      // do nothing
+    }
+    if (tupleRe.find(content))
+    {
+      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
+    }
+    else
+    {
       state.ActiveValue.StringValue = content;
     }
   }
