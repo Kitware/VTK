@@ -303,7 +303,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
     {
       for (int i = 0; i < 8; i++)
       {
-        pairQueue.push(std::make_pair(pTempNode->GetChild(i), nodeLevel + 1));
+        pairQueue.push(std::make_pair(pTempNode->GetChild(i), tempLevel + 1));
       }
     }
   }
