@@ -28,9 +28,9 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkStringArray.h"
-#include "vtkUnicodeString.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkWindows.h"
+#include "vtksys/Encoding.hxx"
 
 #include <shellapi.h> // for drag and drop
 #include <winuser.h>  // for touch support
@@ -798,12 +798,11 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 
     for (UINT i = 0; i < cFiles; i++)
     {
-      WCHAR file[MAX_PATH];
+      wchar_t file[MAX_PATH];
       UINT cch = DragQueryFileW(hdrop, i, file, MAX_PATH);
       if (cch > 0 && cch < MAX_PATH)
       {
-        filePaths->InsertNextValue(
-          vtkUnicodeString::from_utf16(reinterpret_cast<vtkTypeUInt16*>(file)).utf8_str());
+        filePaths->InsertNextValue(vtksys::Encoding::ToNarrow(file));
         ret = 1;
       }
     }
