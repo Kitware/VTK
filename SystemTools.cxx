@@ -6,9 +6,7 @@
 #  define _XOPEN_SOURCE_EXTENDED
 #endif
 
-#if defined(_WIN32) &&                                                        \
-  (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__) ||      \
-   defined(__MINGW32__))
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
 #  define KWSYS_WINDOWS_DIRS
 #else
 #  if defined(__SUNPRO_CC)
@@ -50,27 +48,27 @@
 #  pragma set woff 1375 /* base class destructor not virtual */
 #endif
 
-#include <ctype.h>
-#include <errno.h>
+#include <cctype>
+#include <cerrno>
 #ifdef __QNX__
 #  include <malloc.h> /* for malloc/free on QNX */
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 
 #if defined(_WIN32) && !defined(_MSC_VER) && defined(__GNUC__)
 #  include <strings.h> /* for strcasecmp */
 #endif
 
 #ifdef _MSC_VER
-#  define umask _umask // Note this is still umask on Borland
+#  define umask _umask
 #endif
 
 // support for realpath call
 #ifndef _WIN32
-#  include <limits.h>
+#  include <climits>
 #  include <pwd.h>
 #  include <sys/ioctl.h>
 #  include <sys/time.h>
@@ -81,7 +79,7 @@
 #    include <sys/param.h>
 #    include <termios.h>
 #  endif
-#  include <signal.h> /* sigprocmask */
+#  include <csignal> /* sigprocmask */
 #endif
 
 #ifdef __linux
@@ -98,17 +96,10 @@
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
 #    define KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 #  endif
-#elif defined(__CYGWIN__)
-#  include <windows.h>
-#  undef _WIN32
 #endif
 
 #if !KWSYS_CXX_HAS_ENVIRON_IN_STDLIB_H
 extern char** environ;
-#endif
-
-#ifdef __CYGWIN__
-#  include <sys/cygwin.h>
 #endif
 
 // getpwnam doesn't exist on Windows and Cray Xt3/Catamount
@@ -154,9 +145,7 @@ public:
 }
 #endif
 
-#if defined(_WIN32) &&                                                        \
-  (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__) ||      \
-   defined(__MINGW32__))
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
 #  include <direct.h>
 #  include <io.h>
 #  define _unlink unlink
@@ -169,13 +158,6 @@ public:
 #  define KWSYS_SYSTEMTOOLS_MAXPATH MAXPATHLEN
 #else
 #  define KWSYS_SYSTEMTOOLS_MAXPATH 16384
-#endif
-#if defined(__WATCOMC__)
-#  include <direct.h>
-#  define _mkdir mkdir
-#  define _rmdir rmdir
-#  define _getcwd getcwd
-#  define _chdir chdir
 #endif
 
 #if defined(__BEOS__) && !defined(__ZETA__)
@@ -259,11 +241,7 @@ inline const char* Getcwd(char* buf, unsigned int len)
 }
 inline int Chdir(const std::string& dir)
 {
-#  if defined(__BORLANDC__)
-  return chdir(dir.c_str());
-#  else
   return _wchdir(KWSYS_NAMESPACE::Encoding::ToWide(dir).c_str());
-#  endif
 }
 inline void Realpath(const std::string& path, std::string& resolved_path,
                      std::string* errorMessage = 0)
@@ -937,15 +915,9 @@ bool SystemTools::MakeDirectory(const std::string& path, const mode_t* mode)
   }
   topdir = dir;
   if (Mkdir(topdir, mode) != 0) {
-    // There is a bug in the Borland Run time library which makes MKDIR
-    // return EACCES when it should return EEXISTS
     // if it is some other error besides directory exists
     // then return false
-    if ((errno != EEXIST)
-#ifdef __BORLANDC__
-        && (errno != EACCES)
-#endif
-    ) {
+    if (errno != EEXIST) {
       return false;
     }
   }
@@ -1311,15 +1283,7 @@ bool SystemTools::PathExists(const std::string& path)
   if (path.empty()) {
     return false;
   }
-#if defined(__CYGWIN__)
-  // Convert path to native windows path if possible.
-  char winpath[MAX_PATH];
-  if (SystemTools::PathCygwinToWin32(path.c_str(), winpath)) {
-    return (GetFileAttributesA(winpath) != INVALID_FILE_ATTRIBUTES);
-  }
-  struct stat st;
-  return lstat(path.c_str(), &st) == 0;
-#elif defined(_WIN32)
+#if defined(_WIN32)
   return (GetFileAttributesW(Encoding::ToWindowsExtendedPath(path).c_str()) !=
           INVALID_FILE_ATTRIBUTES);
 #else
@@ -1341,14 +1305,7 @@ bool SystemTools::FileExists(const std::string& filename)
   if (filename.empty()) {
     return false;
   }
-#if defined(__CYGWIN__)
-  // Convert filename to native windows path if possible.
-  char winpath[MAX_PATH];
-  if (SystemTools::PathCygwinToWin32(filename.c_str(), winpath)) {
-    return (GetFileAttributesA(winpath) != INVALID_FILE_ATTRIBUTES);
-  }
-  return access(filename.c_str(), R_OK) == 0;
-#elif defined(_WIN32)
+#if defined(_WIN32)
   DWORD attr =
     GetFileAttributesW(Encoding::ToWindowsExtendedPath(filename).c_str());
   if (attr == INVALID_FILE_ATTRIBUTES) {
@@ -1448,37 +1405,15 @@ int SystemTools::Stat(const std::string& path, SystemTools::Stat_t* buf)
   // long paths, but _wstat64 rejects paths with '?' in them, thinking
   // they are wildcards.
   std::wstring const& wpath = Encoding::ToWide(path);
-#  if defined(__BORLANDC__)
-  return _wstati64(wpath.c_str(), buf);
-#  else
   return _wstat64(wpath.c_str(), buf);
-#  endif
 #else
   return stat(path.c_str(), buf);
 #endif
 }
 
-#ifdef __CYGWIN__
-bool SystemTools::PathCygwinToWin32(const char* path, char* win32_path)
-{
-  auto itr = SystemToolsStatics->Cyg2Win32Map.find(path);
-  if (itr != SystemToolsStatics->Cyg2Win32Map.end()) {
-    strncpy(win32_path, itr->second.c_str(), MAX_PATH);
-  } else {
-    if (cygwin_conv_path(CCP_POSIX_TO_WIN_A, path, win32_path, MAX_PATH) !=
-        0) {
-      win32_path[0] = 0;
-    }
-    SystemToolsStatics->Cyg2Win32Map.insert(
-      SystemToolsStatic::StringMap::value_type(path, win32_path));
-  }
-  return win32_path[0] != 0;
-}
-#endif
-
 bool SystemTools::Touch(const std::string& filename, bool create)
 {
-  if (!SystemTools::PathExists(filename)) {
+  if (!SystemTools::FileExists(filename)) {
     if (create) {
       FILE* file = Fopen(filename, "a+b");
       if (file) {
@@ -2118,7 +2053,7 @@ std::string SystemTools::ConvertToUnixOutputPath(const std::string& path)
     ret.erase(pos, 1);
   }
   // escape spaces and () in the path
-  if (ret.find_first_of(" ") != std::string::npos) {
+  if (ret.find_first_of(' ') != std::string::npos) {
     std::string result;
     char lastch = 1;
     for (const char* ch = ret.c_str(); *ch != '\0'; ++ch) {
@@ -2516,8 +2451,8 @@ bool SystemTools::CopyADirectory(const std::string& source,
     return false;
   }
   for (fileNum = 0; fileNum < dir.GetNumberOfFiles(); ++fileNum) {
-    if (strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), ".") &&
-        strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), "..")) {
+    if (strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), ".") != 0 &&
+        strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), "..") != 0) {
       std::string fullPath = source;
       fullPath += "/";
       fullPath += dir.GetFile(static_cast<unsigned long>(fileNum));
@@ -2679,8 +2614,8 @@ bool SystemTools::RemoveADirectory(const std::string& source)
   dir.Load(source);
   size_t fileNum;
   for (fileNum = 0; fileNum < dir.GetNumberOfFiles(); ++fileNum) {
-    if (strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), ".") &&
-        strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), "..")) {
+    if (strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), ".") != 0 &&
+        strcmp(dir.GetFile(static_cast<unsigned long>(fileNum)), "..") != 0) {
       std::string fullPath = source;
       fullPath += "/";
       fullPath += dir.GetFile(static_cast<unsigned long>(fileNum));
@@ -3158,7 +3093,7 @@ bool SystemTools::SplitProgramPath(const std::string& in_name,
   SystemTools::ConvertToUnixSlashes(dir);
 
   if (!SystemTools::FileIsDirectory(dir)) {
-    std::string::size_type slashPos = dir.rfind("/");
+    std::string::size_type slashPos = dir.rfind('/');
     if (slashPos != std::string::npos) {
       file = dir.substr(slashPos + 1);
       dir.resize(slashPos);
@@ -3716,7 +3651,7 @@ std::string SystemTools::GetFilenamePath(const std::string& filename)
   std::string fn = filename;
   SystemTools::ConvertToUnixSlashes(fn);
 
-  std::string::size_type slash_pos = fn.rfind("/");
+  std::string::size_type slash_pos = fn.rfind('/');
   if (slash_pos == 0) {
     return "/";
   }
