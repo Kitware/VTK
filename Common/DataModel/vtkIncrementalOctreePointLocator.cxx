@@ -281,8 +281,8 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   }
 
   int tempLevel;
-  vtkPoints* thePoints = nullptr;
-  vtkCellArray* nodeQuads = nullptr;
+  vtkNew<vtkPoints> thePoints;
+  vtkNew<vtkCellArray> nodeQuads;
   vtkIncrementalOctreeNode* pTempNode = nullptr;
   std::list<vtkIncrementalOctreeNode*> nodesList;
   std::queue<std::pair<vtkIncrementalOctreeNode*, int>> pairQueue;
@@ -309,9 +309,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   }
 
   // collect the vertices and quads of each node
-  thePoints = vtkPoints::New();
   thePoints->Allocate(8 * static_cast<int>(nodesList.size()));
-  nodeQuads = vtkCellArray::New();
   nodeQuads->AllocateEstimate(static_cast<vtkIdType>(nodesList.size()) * 6, 4);
   for (std::list<vtkIncrementalOctreeNode*>::iterator lit = nodesList.begin();
        lit != nodesList.end(); ++lit)
@@ -322,11 +320,6 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   // attach points and quads
   polysData->SetPoints(thePoints);
   polysData->SetPolys(nodeQuads);
-  thePoints->Delete();
-  nodeQuads->Delete();
-  thePoints = nullptr;
-  nodeQuads = nullptr;
-  pTempNode = nullptr;
 }
 
 //------------------------------------------------------------------------------
