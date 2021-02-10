@@ -39,4 +39,32 @@ void QQuickVTKRenderWindow::sync() {}
 void QQuickVTKRenderWindow::paint() {}
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w) {}
+void QQuickVTKRenderWindow::cleanup() {}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
+{
+  if (window())
+  {
+    QObject::disconnect(
+      window(), &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderWindow::sync);
+    QObject::disconnect(
+      window(), &QQuickWindow::beforeRendering, this, &QQuickVTKRenderWindow::paint);
+    QObject::disconnect(
+      window(), &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderWindow::cleanup);
+  }
+  if (w)
+  {
+    QObject::connect(w, &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderWindow::sync,
+      Qt::DirectConnection);
+    QObject::connect(
+      w, &QQuickWindow::beforeRendering, this, &QQuickVTKRenderWindow::paint, Qt::DirectConnection);
+    QObject::connect(w, &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderWindow::cleanup,
+      Qt::DirectConnection);
+    // Do not clear the scenegraph before the QML rendering
+    // to preserve the VTK render
+    w->setClearBeforeRendering(false);
+    // This allows the cleanup method to be called on the render thread
+    w->setPersistentSceneGraph(false);
+  }
+}

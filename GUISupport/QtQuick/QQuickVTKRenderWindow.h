@@ -48,6 +48,7 @@ public:
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
+  virtual void cleanup();
 
 protected Q_SLOTS:
   virtual void handleWindowChanged(QQuickWindow* w);

@@ -16,6 +16,8 @@
 // Description
 // Tests QQuickVTKWindowItem
 
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
@@ -37,5 +39,22 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   QQuickWindow* window = qobject_cast<QQuickWindow*>(topLevel);
 
   window->show();
-  return app.exec();
+
+  vtkNew<vtkTesting> vtktesting;
+  vtktesting->AddArguments(argc, argv);
+
+  //  vtkNew<vtkGenericOpenGLRenderWindow> renWin;
+  //  renWin->Render();
+  //  vtktesting->SetRenderWindow(renWin);
+
+  int retVal = vtktesting->RegressionTest(10);
+  switch (retVal)
+  {
+    case vtkTesting::DO_INTERACTOR:
+      return app.exec();
+    case vtkTesting::FAILED:
+    case vtkTesting::NOT_RUN:
+      return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
