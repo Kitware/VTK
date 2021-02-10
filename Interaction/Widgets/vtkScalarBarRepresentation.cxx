@@ -31,6 +31,7 @@
 #include "vtkTextProperty.h"
 
 #include <algorithm>
+#include <cmath>
 
 //=============================================================================
 vtkStandardNewMacro(vtkScalarBarRepresentation);

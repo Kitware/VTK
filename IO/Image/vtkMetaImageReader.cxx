@@ -34,6 +34,7 @@
 #include "vtkmetaio/metaObject.h"
 #include "vtkmetaio/metaTypes.h"
 #include "vtkmetaio/metaUtils.h"
+#include <cmath>
 #include <string>
 
 #include <sys/stat.h>

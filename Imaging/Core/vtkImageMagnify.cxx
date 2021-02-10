@@ -20,6 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <cmath>
+
 vtkStandardNewMacro(vtkImageMagnify);
 
 //------------------------------------------------------------------------------

@@ -24,6 +24,8 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <cmath>
+
 vtkStandardNewMacro(vtkImageViewer);
 
 //------------------------------------------------------------------------------

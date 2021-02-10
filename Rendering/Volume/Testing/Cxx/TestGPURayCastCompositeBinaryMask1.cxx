@@ -28,6 +28,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <cmath>
+
 int TestGPURayCastCompositeBinaryMask1(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;

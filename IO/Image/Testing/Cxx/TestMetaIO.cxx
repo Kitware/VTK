@@ -24,6 +24,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
+#include <cmath>
+
 int TestMetaIO(int argc, char* argv[])
 {
   vtkOutputWindow::GetInstance()->PromptUserOn();

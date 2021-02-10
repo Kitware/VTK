@@ -23,6 +23,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <cmath>
 #include <string>
 #include <vector>
 

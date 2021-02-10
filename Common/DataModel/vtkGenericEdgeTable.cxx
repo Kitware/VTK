@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 vtkStandardNewMacro(vtkGenericEdgeTable);

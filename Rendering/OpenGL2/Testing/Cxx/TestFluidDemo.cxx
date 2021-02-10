@@ -23,6 +23,7 @@
 static bool g_Animation = true;
 constexpr static float g_Spacing = 2.0f * g_ParticleRadius;
 
+#include <cmath>
 #include <queue>
 
 constexpr float colorRamp[] = { 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0,

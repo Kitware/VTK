@@ -21,6 +21,8 @@
 #include "vtkInformation.h"
 #include "vtkRectilinearGrid.h"
 
+#include <cmath>
+
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {

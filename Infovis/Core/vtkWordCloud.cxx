@@ -51,6 +51,7 @@
 #endif
 // stl
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <functional>
 #include <iostream>

@@ -21,6 +21,8 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+#include <cmath>
+
 int TestThreadedCopy(int ac, char* av[])
 {
   double GB = 0.01;

@@ -41,6 +41,7 @@
 #include "vtkTextureObject.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <cmath>
 #include <deque>
 using std::deque;
 

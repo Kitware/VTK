@@ -16,6 +16,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <cmath>
+
 //=============================================================================
 int TestContingencyStatistics(int, char*[])
 {
