@@ -323,7 +323,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
 }
 
 //------------------------------------------------------------------------------
-static vtkIdType OCTREE_NODE_FACES_LUT[6][4] = {
+static vtkIdType NODE_FACE_LUT[6][4] = {
   { 0, 1, 5, 4 },
   { 0, 4, 6, 2 },
   { 6, 7, 3, 2 },
@@ -353,10 +353,10 @@ void vtkIncrementalOctreePointLocator::AddPolys(
 
   for (i = 0; i < 6; i++)
   {
-    idList[0] = pntIds[OCTREE_NODE_FACES_LUT[i][0]];
-    idList[1] = pntIds[OCTREE_NODE_FACES_LUT[i][1]];
-    idList[2] = pntIds[OCTREE_NODE_FACES_LUT[i][2]];
-    idList[3] = pntIds[OCTREE_NODE_FACES_LUT[i][3]];
+    idList[0] = pntIds[NODE_FACE_LUT[i][0]];
+    idList[1] = pntIds[NODE_FACE_LUT[i][1]];
+    idList[2] = pntIds[NODE_FACE_LUT[i][2]];
+    idList[3] = pntIds[NODE_FACE_LUT[i][3]];
     polygs->InsertNextCell(4, idList);
   }
 }
