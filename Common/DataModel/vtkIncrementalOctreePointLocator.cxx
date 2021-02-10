@@ -332,6 +332,9 @@ static vtkIdType NODE_FACE_LUT[6][4] = {
   { 4, 5, 7, 6 },
 };
 
+static vtkIdType NODE_POINT_LUT[8][3] = { { 0, 2, 4 }, { 1, 2, 4 }, { 0, 3, 4 }, { 1, 3, 4 },
+  { 0, 2, 5 }, { 1, 2, 5 }, { 0, 3, 5 }, { 1, 3, 5 } };
+
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::AddPolys(
   vtkIncrementalOctreeNode* node, vtkPoints* points, vtkCellArray* polygs)
@@ -345,9 +348,9 @@ void vtkIncrementalOctreePointLocator::AddPolys(
   node->GetBounds(bounds);
   for (i = 0; i < 8; i++)
   {
-    ptCord[0] = bounds[i & 1];
-    ptCord[1] = bounds[i & 2];
-    ptCord[2] = bounds[i & 4];
+    ptCord[0] = bounds[NODE_POINT_LUT[i][0]];
+    ptCord[1] = bounds[NODE_POINT_LUT[i][1]];
+    ptCord[2] = bounds[NODE_POINT_LUT[i][2]];
     pntIds[i] = points->InsertNextPoint(ptCord);
   }
 
