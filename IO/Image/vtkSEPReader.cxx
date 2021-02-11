@@ -261,11 +261,12 @@ bool vtkSEPReader::ReadHeader()
   if (!vtksys::SystemTools::Stat(this->FileName, &fs))
   {
 #ifdef _WIN32
-    file = std::ifstream(this->FileName.c_str(), ios::in | ios::binary);
+    file.open(this->FileName.c_str(), ios::in | ios::binary);
 #else
-    file = std::ifstream(this->FileName.c_str(), ios::in);
+    file.open(this->FileName.c_str(), ios::in);
 #endif
   }
+
   if (file.fail())
   {
     vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);
