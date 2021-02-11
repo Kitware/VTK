@@ -67,7 +67,7 @@ static SystemToolsManager SystemToolsManagerInstance;
 // combined using the | operator.
 typedef int TestFilePermissions;
 #if defined(_WIN32) && !defined(__CYGWIN__)
-// On Windows (VC and Borland), no system header defines these constants...
+// On Windows (VC), no system header defines these constants...
 static const TestFilePermissions TEST_FILE_OK = 0;
 static const TestFilePermissions TEST_FILE_READ = 4;
 static const TestFilePermissions TEST_FILE_WRITE = 2;
@@ -317,11 +317,7 @@ public:
  * Cross platform wrapper for stat struct
  */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#  if defined(__BORLANDC__)
-  typedef struct stati64 Stat_t;
-#  else
   typedef struct _stat64 Stat_t;
-#  endif
 #else
   typedef struct stat Stat_t;
 #endif
@@ -334,15 +330,6 @@ public:
    */
   static int Stat(const char* path, Stat_t* buf);
   static int Stat(const std::string& path, Stat_t* buf);
-
-/**
- * Converts Cygwin path to Win32 path. Uses dictionary container for
- * caching and calls to cygwin_conv_to_win32_path from Cygwin dll
- * for actual translation.  Returns true on success, else false.
- */
-#ifdef __CYGWIN__
-  static bool PathCygwinToWin32(const char* path, char* win32_path);
-#endif
 
   /**
    * Return file length
@@ -411,11 +398,11 @@ public:
    * (which defaults to the current working directory).  The full path
    * is returned.
    */
-  static std::string CollapseFullPath(const std::string& in_relative);
-  static std::string CollapseFullPath(const std::string& in_relative,
+  static std::string CollapseFullPath(std::string const& in_path);
+  static std::string CollapseFullPath(std::string const& in_path,
                                       const char* in_base);
-  static std::string CollapseFullPath(const std::string& in_relative,
-                                      const std::string& in_base);
+  static std::string CollapseFullPath(std::string const& in_path,
+                                      std::string const& in_base);
 
   /**
    * Get the real path for a given path, removing all symlinks.  In
@@ -549,12 +536,13 @@ public:
    */
 
   /**
-   * Open a file considering unicode.
+   * Open a file considering unicode. On Windows, if 'e' is present in
+   * mode it is first discarded.
    */
   static FILE* Fopen(const std::string& file, const char* mode);
 
 /**
- * Visual C++ does not define mode_t (note that Borland does, however).
+ * Visual C++ does not define mode_t.
  */
 #if defined(_MSC_VER)
   typedef unsigned short mode_t;
@@ -675,6 +663,11 @@ public:
    * Return true if the file is a directory
    */
   static bool FileIsDirectory(const std::string& name);
+
+  /**
+   * Return true if the file is an executable
+   */
+  static bool FileIsExecutable(const std::string& name);
 
   /**
    * Return true if the file is a symlink
@@ -869,7 +862,7 @@ public:
   /**
    * Get current working directory CWD
    */
-  static std::string GetCurrentWorkingDirectory(bool collapse = true);
+  static std::string GetCurrentWorkingDirectory();
 
   /**
    * Change directory to the directory specified
@@ -981,7 +974,6 @@ private:
     return &SystemToolsManagerInstance;
   }
 
-  static SystemToolsStatic* Statics;
   friend class SystemToolsStatic;
   friend class SystemToolsManager;
 };
