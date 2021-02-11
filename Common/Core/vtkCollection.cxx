@@ -98,9 +98,9 @@ void vtkCollection::AddItem(vtkObject* a)
   elem->Item = a;
   elem->Next = nullptr;
 
-  this->Modified();
-
   this->NumberOfItems++;
+
+  this->Modified();
 }
 
 // Insert an object into the list. There must be at least one
@@ -148,9 +148,9 @@ void vtkCollection::InsertItem(int i, vtkObject* a)
   a->Register(this);
   elem->Item = a;
 
-  this->Modified();
-
   this->NumberOfItems++;
+
+  this->Modified();
 }
 
 // Remove an object from the list. Removes the first object found, not
