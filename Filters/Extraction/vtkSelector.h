@@ -27,6 +27,8 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+#include <set> // for std::set
+
 class vtkCompositeDataSet;
 class vtkDataObject;
 class vtkSelectionNode;
@@ -161,6 +163,9 @@ private:
   void ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output);
   void ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
     SelectionMode inheritedSelectionMode, unsigned int compositeIndex = 0);
+  void ProcessSelectors(vtkCompositeDataSet* input);
+
+  std::set<unsigned int> SubsetCompositeIds;
 };
 
 #endif

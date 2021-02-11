@@ -24,6 +24,7 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -77,6 +78,8 @@ vtkInformationKeyMacro(vtkSelectionNode, PIXEL_COUNT, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INVERSE, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INDEXED_VERTICES, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, COMPONENT_NUMBER, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, ASSEMBLY_NAME, String);
+vtkInformationKeyMacro(vtkSelectionNode, SELECTORS, StringVector);
 
 //------------------------------------------------------------------------------
 vtkSelectionNode::vtkSelectionNode()

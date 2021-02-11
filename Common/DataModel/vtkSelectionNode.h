@@ -55,6 +55,8 @@ class vtkInformation;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationStringKey;
+class vtkInformationStringVectorKey;
 class vtkProp;
 class vtkTable;
 
@@ -274,6 +276,20 @@ public:
    * Process id the selection is on.
    */
   static vtkInformationIntegerKey* PROCESS_ID();
+
+  //@{
+  /**
+   * Keys for selector-based identification of
+   * blocks to choose from a composite dataset. `ASSEMBLY_NAME` identifies the
+   * name for the assembly to use and `SELECTORS` provide a list of node
+   * selectors applied to the chosen assembly.
+   *
+   * Use `vtkDataAssemblyUtilities::HierarchyName` as the assembly name
+   * to use the data hierarchy
+   */
+  static vtkInformationStringKey* ASSEMBLY_NAME();
+  static vtkInformationStringVectorKey* SELECTORS();
+  //@}
 
   /**
    * Used to identify a node in composite datasets.

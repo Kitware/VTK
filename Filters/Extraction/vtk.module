@@ -23,6 +23,7 @@ TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::IOExodus
+  VTK::IOIoss
   VTK::IOLegacy
   VTK::IOXML
   VTK::InteractionStyle

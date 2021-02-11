@@ -16,6 +16,8 @@
 #include "vtkSelector.h"
 
 #include "vtkCompositeDataSet.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
@@ -24,6 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
@@ -82,9 +85,14 @@ void vtkSelector::ProcessBlock(
 //------------------------------------------------------------------------------
 void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
 {
-  if (vtkCompositeDataSet::SafeDownCast(input))
+  if (auto cd = vtkCompositeDataSet::SafeDownCast(input))
   {
     assert(vtkCompositeDataSet::SafeDownCast(output) != nullptr);
+
+    // Populate SubsetCompositeIds if selector expressions are provided in
+    // vtkSelectionNode's properties.
+    this->ProcessSelectors(cd);
+
     auto inputDOT = vtkDataObjectTree::SafeDownCast(input);
     auto outputDOT = vtkDataObjectTree::SafeDownCast(output);
     if (inputDOT && outputDOT)
@@ -137,6 +145,31 @@ void vtkSelector::ExpandToConnectedElements(vtkDataObject* output)
       expander->SetInputDataObject(output);
       expander->Update();
       output->ShallowCopy(expander->GetOutputDataObject(0));
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSelector::ProcessSelectors(vtkCompositeDataSet* input)
+{
+  this->SubsetCompositeIds.clear();
+
+  auto properties = this->Node->GetProperties();
+  if (properties->Has(vtkSelectionNode::ASSEMBLY_NAME()) &&
+    properties->Has(vtkSelectionNode::SELECTORS()))
+  {
+    if (auto assembly = vtkDataAssemblyUtilities::GetDataAssembly(
+          properties->Get(vtkSelectionNode::ASSEMBLY_NAME()), input))
+    {
+      std::vector<std::string> selectors(properties->Length(vtkSelectionNode::SELECTORS()));
+      for (int cc = 0; cc < static_cast<int>(selectors.size()); ++cc)
+      {
+        selectors[cc] = properties->Get(vtkSelectionNode::SELECTORS(), cc);
+      }
+
+      auto cids = vtkDataAssemblyUtilities::GetSelectedCompositeIds(
+        selectors, assembly, vtkPartitionedDataSetCollection::SafeDownCast(input));
+      this->SubsetCompositeIds.insert(cids.begin(), cids.end());
     }
   }
 }
@@ -248,6 +281,19 @@ vtkSelector::SelectionMode vtkSelector::GetBlockSelection(unsigned int composite
       // we only "INCLUDE" the chosen subtree(s).
       // For all other nodes, we will simply return INHERIT, that way the state
       // from the parent is inherited unless overridden.
+      return compositeIndex == 0 ? EXCLUDE : INHERIT;
+    }
+  }
+  else if (properties->Has(vtkSelectionNode::SELECTORS()) &&
+    properties->Has(vtkSelectionNode::ASSEMBLY_NAME()))
+  {
+    if (this->SubsetCompositeIds.find(compositeIndex) != this->SubsetCompositeIds.end())
+    {
+      return INCLUDE;
+    }
+    else
+    {
+      // see earlier explanation for why this is done for root node.
       return compositeIndex == 0 ? EXCLUDE : INHERIT;
     }
   }

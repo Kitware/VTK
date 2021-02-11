@@ -45,6 +45,31 @@ void vtkDataAssemblyUtilities::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataAssembly> vtkDataAssemblyUtilities::GetDataAssembly(
+  const char* name, vtkCompositeDataSet* cd)
+{
+  if (name == nullptr || cd == nullptr)
+  {
+    return nullptr;
+  }
+  else if (strcmp(name, vtkDataAssemblyUtilities::HierarchyName()) == 0)
+  {
+    vtkNew<vtkDataAssembly> assembly;
+    if (vtkDataAssemblyUtilities::GenerateHierarchy(cd, assembly))
+    {
+      return assembly;
+    }
+  }
+  else if (auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(cd))
+  {
+    // TODO: use name here; we don't support named assemblies yet on PDC.
+    return pdc->GetDataAssembly();
+  }
+
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
 bool vtkDataAssemblyUtilities::GenerateHierarchy(vtkCompositeDataSet* input,
   vtkDataAssembly* hierarchy, vtkPartitionedDataSetCollection* output /*=nullptr*/)
 {

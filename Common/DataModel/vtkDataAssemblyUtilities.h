@@ -51,6 +51,14 @@ public:
   static const char* HierarchyName() { return "Hierarchy"; }
 
   /**
+   * Convenience method to get a named vtkDataAssembly from a
+   * vtkCompositeDataSet, if available. May return nullptr if none exists or
+   * possible.
+   */
+  static vtkSmartPointer<vtkDataAssembly> GetDataAssembly(
+    const char* name, vtkCompositeDataSet* cd);
+
+  /**
    * Populates `hierarchy` with a representation of the hierarchy for the given
    * composite dataset `input`. If `output` is non-null, then the input is also
    * converted to a `vtkPartitionedDataSetCollection` that, together with the
