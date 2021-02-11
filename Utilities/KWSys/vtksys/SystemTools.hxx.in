@@ -67,7 +67,7 @@ static SystemToolsManager SystemToolsManagerInstance;
 // combined using the | operator.
 typedef int TestFilePermissions;
 #if defined(_WIN32) && !defined(__CYGWIN__)
-// On Windows (VC and Borland), no system header defines these constants...
+// On Windows (VC), no system header defines these constants...
 static const TestFilePermissions TEST_FILE_OK = 0;
 static const TestFilePermissions TEST_FILE_READ = 4;
 static const TestFilePermissions TEST_FILE_WRITE = 2;
@@ -317,11 +317,7 @@ public:
  * Cross platform wrapper for stat struct
  */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#  if defined(__BORLANDC__)
-  typedef struct stati64 Stat_t;
-#  else
   typedef struct _stat64 Stat_t;
-#  endif
 #else
   typedef struct stat Stat_t;
 #endif
@@ -334,15 +330,6 @@ public:
    */
   static int Stat(const char* path, Stat_t* buf);
   static int Stat(const std::string& path, Stat_t* buf);
-
-/**
- * Converts Cygwin path to Win32 path. Uses dictionary container for
- * caching and calls to cygwin_conv_to_win32_path from Cygwin dll
- * for actual translation.  Returns true on success, else false.
- */
-#ifdef __CYGWIN__
-  static bool PathCygwinToWin32(const char* path, char* win32_path);
-#endif
 
   /**
    * Return file length
@@ -555,7 +542,7 @@ public:
   static FILE* Fopen(const std::string& file, const char* mode);
 
 /**
- * Visual C++ does not define mode_t (note that Borland does, however).
+ * Visual C++ does not define mode_t.
  */
 #if defined(_MSC_VER)
   typedef unsigned short mode_t;
