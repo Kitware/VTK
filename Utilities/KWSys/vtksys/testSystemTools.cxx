@@ -20,18 +20,18 @@
 // left on disk.
 #include <testSystemTools.h>
 
+#include <cstdlib> /* free */
+#include <cstring> /* strcmp */
 #include <iostream>
 #include <sstream>
-#include <stdlib.h> /* free */
-#include <string.h> /* strcmp */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#  include <io.h> /* _umask (MSVC) / umask (Borland) */
+#  include <io.h> /* _umask (MSVC) */
 #  ifdef _MSC_VER
-#    define umask _umask // Note this is still umask on Borland
+#    define umask _umask
 #  endif
 #endif
 #include <sys/stat.h> /* umask (POSIX), _S_I* constants (Windows) */
-// Visual C++ does not define mode_t (note that Borland does, however).
+// Visual C++ does not define mode_t.
 #if defined(_MSC_VER)
 typedef unsigned short mode_t;
 #endif
@@ -422,6 +422,28 @@ static bool CheckFileOperations()
     res = false;
   }
 
+#if !defined(_WIN32)
+  std::string const testBadSymlink(testNewDir + "/badSymlink.txt");
+  std::string const testBadSymlinkTgt(testNewDir + "/missing/symlinkTgt.txt");
+  if (!kwsys::SystemTools::CreateSymlink(testBadSymlinkTgt, testBadSymlink)) {
+    std::cerr << "Problem with CreateSymlink for: " << testBadSymlink << " -> "
+              << testBadSymlinkTgt << std::endl;
+    res = false;
+  }
+
+  if (!kwsys::SystemTools::Touch(testBadSymlink, false)) {
+    std::cerr << "Problem with Touch (no create) for: " << testBadSymlink
+              << std::endl;
+    res = false;
+  }
+#endif
+
+  if (!kwsys::SystemTools::Touch(testNewDir, false)) {
+    std::cerr << "Problem with Touch (no create) for: " << testNewDir
+              << std::endl;
+    res = false;
+  }
+
   kwsys::SystemTools::Touch(testNewFile, true);
   if (!kwsys::SystemTools::RemoveADirectory(testNewDir)) {
     std::cerr << "Problem with RemoveADirectory for: " << testNewDir
@@ -507,7 +529,7 @@ static bool CheckStringOperations()
 
   char* cres =
     kwsys::SystemTools::AppendStrings("Mary Had A", " Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with AppendStrings "
               << "\"Mary Had A\" \" Little Lamb.\"" << std::endl;
     res = false;
@@ -515,7 +537,7 @@ static bool CheckStringOperations()
   delete[] cres;
 
   cres = kwsys::SystemTools::AppendStrings("Mary Had", " A ", "Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with AppendStrings "
               << "\"Mary Had\" \" A \" \"Little Lamb.\"" << std::endl;
     res = false;
@@ -529,7 +551,7 @@ static bool CheckStringOperations()
   }
 
   cres = kwsys::SystemTools::RemoveChars("Mary Had A Little Lamb.", "aeiou");
-  if (strcmp(cres, "Mry Hd A Lttl Lmb.")) {
+  if (strcmp(cres, "Mry Hd A Lttl Lmb.") != 0) {
     std::cerr << "Problem with RemoveChars "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -537,7 +559,7 @@ static bool CheckStringOperations()
   delete[] cres;
 
   cres = kwsys::SystemTools::RemoveCharsButUpperHex("Mary Had A Little Lamb.");
-  if (strcmp(cres, "A")) {
+  if (strcmp(cres, "A") != 0) {
     std::cerr << "Problem with RemoveCharsButUpperHex "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -546,7 +568,7 @@ static bool CheckStringOperations()
 
   char* cres2 = strdup("Mary Had A Little Lamb.");
   kwsys::SystemTools::ReplaceChars(cres2, "aeiou", 'X');
-  if (strcmp(cres2, "MXry HXd A LXttlX LXmb.")) {
+  if (strcmp(cres2, "MXry HXd A LXttlX LXmb.") != 0) {
     std::cerr << "Problem with ReplaceChars "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
@@ -568,7 +590,7 @@ static bool CheckStringOperations()
   }
 
   cres = kwsys::SystemTools::DuplicateString("Mary Had A Little Lamb.");
-  if (strcmp(cres, "Mary Had A Little Lamb.")) {
+  if (strcmp(cres, "Mary Had A Little Lamb.") != 0) {
     std::cerr << "Problem with DuplicateString "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
