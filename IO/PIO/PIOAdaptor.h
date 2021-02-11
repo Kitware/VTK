@@ -65,6 +65,7 @@ protected:
   int parsePIOFile(const char* DumpDescFile);
   int collectMetaData(const char* DumpDescFile);
   void collectVariableMetaData();
+  std::string trimString(const std::string& str);
 
   // Create the unstructured grid for tracers
   void create_tracer_UG(vtkMultiBlockDataSet* grid);
