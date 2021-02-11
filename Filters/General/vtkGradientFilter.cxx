@@ -407,8 +407,8 @@ struct PointGradients : public GradientsBase<TData>
   void Initialize()
   {
     this->Cell.Local().TakeReference(vtkGenericCell::New());
-    this->Values.Local().reserve(8);
-    this->Gradient.Local().reserve(this->NumComp * 3);
+    this->Values.Local().resize(8);
+    this->Gradient.Local().resize(this->NumComp * 3);
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
@@ -562,8 +562,8 @@ struct CellGradients : public GradientsBase<TData>
   void Initialize()
   {
     this->Cell.Local().TakeReference(vtkGenericCell::New());
-    this->Values.Local().reserve(8);
-    this->Gradient.Local().reserve(this->NumComp * 3);
+    this->Values.Local().resize(8);
+    this->Gradient.Local().resize(this->NumComp * 3);
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
