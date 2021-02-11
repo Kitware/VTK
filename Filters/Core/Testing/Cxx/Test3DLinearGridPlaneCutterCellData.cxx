@@ -18,6 +18,7 @@
 #include <vtkCellData.h>
 #include <vtkIdFilter.h>
 #include <vtkNew.h>
+#include <vtkPassArrays.h>
 #include <vtkPlane.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -37,6 +38,10 @@ int Test3DLinearGridPlaneCutterCellData(int argc, char* argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin(0.0, 0.0, 0.0);
+  plane->SetNormal(0, 1.0, 0.5);
+
   // add simple cell data
   vtkNew<vtkIdFilter> computeIds;
   computeIds->SetInputConnection(reader->GetOutputPort());
@@ -45,15 +50,27 @@ int Test3DLinearGridPlaneCutterCellData(int argc, char* argv[])
   computeIds->SetCellIdsArrayName(cellArrayName);
   computeIds->Update();
 
-  vtkNew<vtkPlane> plane;
-  plane->SetOrigin(0.0, 0.0, 0.0);
-  plane->SetNormal(0, 1.0, 0.5);
+  vtkNew<vtkPassArrays> removeArrays;
+  removeArrays->SetInputConnection(computeIds->GetOutputPort());
 
+  // create plane cutter
   vtkNew<vtk3DLinearGridPlaneCutter> slicer;
-  slicer->SetInputConnection(computeIds->GetOutputPort());
+  slicer->SetInputConnection(removeArrays->GetOutputPort());
   slicer->SetPlane(plane);
   slicer->SetInterpolateAttributes(true);
   slicer->SetMergePoints(false);
+  slicer->Update();
+
+  // smoke test with no point data
+  removeArrays->ClearPointDataArrays();
+  slicer->Update();
+
+  // smoke test with no point and no cell data
+  removeArrays->ClearCellDataArrays();
+  slicer->Update();
+
+  // smoke test with cell data only
+  removeArrays->AddCellDataArray(cellArrayName);
   slicer->Update();
 
   vtkNew<vtkPolyDataMapper> mapper;
