@@ -218,6 +218,7 @@ struct ExtractEdgesBase
     , Iter(c)
     , Edges(nullptr)
     , ComputeCells(computeCells)
+    , Cells(nullptr)
     , Tris(tris)
     , NumTris(0)
     , NumThreadsUsed(0)
@@ -256,7 +257,10 @@ struct ExtractEdgesBase
     const IDType edgeSize = this->NumTris * 3;
     const IDType cellSize = this->ComputeCells ? this->NumTris : 0;
     this->Edges = new EdgeTuple<IDType, EdgeDataType<IDType>>[edgeSize]; // three edges per triangle
-    this->Cells = new IDType[cellSize];
+    if (cellSize > 0)
+    {
+      this->Cells = new IDType[cellSize];
+    }
 
     vtkIdType edgeNum = 0;
     for (auto& ld : this->LocalData)
@@ -776,18 +780,24 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
     if (intAttr)
     {
       // Point data
-      ArrayList pointArrays;
-      outPD->InterpolateAllocate(inPD, numPts);
-      pointArrays.AddArrays(numPts, inPD, outPD);
-      ProducePDAttributes<TIds> interpolatePoints(mergeEdges, &pointArrays);
-      EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+      if (inPD && inPD->GetNumberOfArrays() > 0)
+      {
+        ArrayList pointArrays;
+        outPD->InterpolateAllocate(inPD, numPts);
+        pointArrays.AddArrays(numPts, inPD, outPD);
+        ProducePDAttributes<TIds> interpolatePoints(mergeEdges, &pointArrays);
+        EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+      }
 
       // Cell data
-      ArrayList cellArrays;
-      outCD->CopyAllocate(inCD, numTris);
-      cellArrays.AddArrays(numTris, inCD, outCD);
-      ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
-      EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
+      if (inCD && inCD->GetNumberOfArrays() > 0)
+      {
+        ArrayList cellArrays;
+        outCD->CopyAllocate(inCD, numTris);
+        cellArrays.AddArrays(numTris, inCD, outCD);
+        ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
+        EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
+      }
     }
   }
   else // generate merged output
@@ -848,18 +858,24 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
     if (intAttr)
     {
       // Point data
-      ArrayList pointArrays;
-      outPD->InterpolateAllocate(inPD, numPts);
-      pointArrays.AddArrays(numPts, inPD, outPD);
-      ProduceMergedAttributes<TIds> interpolatePoints(mergeEdges, offsets, &pointArrays);
-      EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+      if (inPD && inPD->GetNumberOfArrays() > 0)
+      {
+        ArrayList pointArrays;
+        outPD->InterpolateAllocate(inPD, numPts);
+        pointArrays.AddArrays(numPts, inPD, outPD);
+        ProduceMergedAttributes<TIds> interpolatePoints(mergeEdges, offsets, &pointArrays);
+        EXECUTE_SMPFOR(seqProcessing, numPts, interpolatePoints);
+      }
 
       // Cell data
-      ArrayList cellArrays;
-      outCD->CopyAllocate(inCD, numTris);
-      cellArrays.AddArrays(numTris, inCD, outCD);
-      ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
-      EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
+      if (inCD && inCD->GetNumberOfArrays() > 0)
+      {
+        ArrayList cellArrays;
+        outCD->CopyAllocate(inCD, numTris);
+        cellArrays.AddArrays(numTris, inCD, outCD);
+        ProduceCDAttributes<TIds> interpolateCells(originalCells, &cellArrays);
+        EXECUTE_SMPFOR(seqProcessing, numTris, interpolateCells);
+      }
     }
   }
 
