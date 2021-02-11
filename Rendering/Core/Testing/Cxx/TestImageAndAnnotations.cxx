@@ -12,6 +12,8 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
+#include <cassert>
+
 namespace
 {
 
@@ -82,6 +84,30 @@ int TestImageAndAnnotations(int argc, char* argv[])
   cornerAnnotation->SetText(2, "background/transparent"); // upper left
   cornerAnnotation->SetText(3, "foreground/transparent"); // upper right
   cornerAnnotation->GetTextProperty()->SetColor(1, 1, 1);
+
+  double rgba[4] = {};
+  cornerAnnotation->GetTextProperty()->SetBackgroundRGBA(.25, .50, .75, 1.0);
+  cornerAnnotation->GetTextProperty()->GetBackgroundRGBA(rgba);
+
+  assert("SetBackgroundRGBA correctly get/set values" &&
+    (rgba[0] == .25 && rgba[1] == .50 && rgba[2] == .75 && rgba[3] == 1.0));
+
+  {
+    double rgb[3] = {};
+    cornerAnnotation->GetTextProperty()->GetBackgroundColor(rgb);
+
+    assert("SetBackgroundRGBA correctly sets BackgroundColor" &&
+      (rgba[0] == .25 && rgba[1] == .50 && rgba[2] == .75));
+
+    assert("SetBackgroundRGBA correctly sets opacity" &&
+      (cornerAnnotation->GetTextProperty()->GetBackgroundOpacity() == 1));
+  }
+
+  cornerAnnotation->GetTextProperty()->SetBackgroundRGBA(0, 0, 0, 0);
+  cornerAnnotation->GetTextProperty()->GetBackgroundRGBA(rgba);
+
+  assert("SetBackgroundRGBA correctly get/sets values" &&
+    (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 0));
 
   renderer->AddViewProp(cornerAnnotation);
 
