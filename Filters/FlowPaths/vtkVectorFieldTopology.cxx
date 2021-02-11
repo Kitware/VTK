@@ -304,10 +304,14 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
       vtkVector3d(tridataset->GetPoint(indices[2])) };
 
     // array with the vector values at the three triagle points: values[point][component]
-    vtkVector3d values[3] = { vtkVector3d(
-                                tridataset->GetPointData()->GetVectors()->GetTuple(indices[0])),
-      vtkVector3d(tridataset->GetPointData()->GetVectors()->GetTuple(indices[1])),
-      vtkVector3d(tridataset->GetPointData()->GetVectors()->GetTuple(indices[2])) };
+    vtkVector3d values[3] = {
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[0])),
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[1])),
+      vtkVector3d(
+        tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[2]))
+    };
 
     // matrix f(T) to convert to barycentric coordinates
     vtkNew<vtkMatrix3x3> valueMatrix;
