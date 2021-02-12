@@ -4240,74 +4240,75 @@ macro (vtk_module_find_package)
     endif ()
   endforeach ()
 
-  if (NOT _vtk_find_package_PRIVATE)
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "_vtk_module_find_packages_${_vtk_build_PACKAGE}" "${_vtk_find_package_PACKAGE}")
-    set(_vtk_find_package_base "_vtk_module_find_package_${_vtk_build_module}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base}" "${_vtk_find_package_PACKAGE}")
-    set(_vtk_find_package_base_package "${_vtk_find_package_base}_${_vtk_find_package_PACKAGE}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_config" "${_vtk_find_package_CONFIG_MODE}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_components" "${_vtk_find_package_COMPONENTS}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_optional_components" "${_vtk_find_package_OPTIONAL_COMPONENTS}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_optional_components_found" "${_vtk_find_package_optional_components_found}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_exact" "0")
-    if (DEFINED _vtk_find_package_FORWARD_VERSION_REQ)
-      string(FIND "${_vtk_find_package_VERSION_VAR}" "@" _vtk_find_package_idx)
-      if (_vtk_find_package_idx EQUAL -1)
-        if (NOT DEFINED "${_vtk_find_package_VERSION_VAR}")
-          message(FATAL_ERROR
-            "The `${_vtk_find_package_VERSION_VAR}` variable is not defined.")
-        endif ()
-        set(_vtk_find_package_version "${${_vtk_find_package_VERSION_VAR}}")
-      else ()
-        string(CONFIGURE "${_vtk_find_package_VERSION_VAR}" _vtk_find_package_version)
-      endif ()
-      unset(_vtk_find_package_idx)
-
-      if ("${_vtk_find_package_version}" STREQUAL "")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "_vtk_module_find_packages_${_vtk_build_PACKAGE}" "${_vtk_find_package_PACKAGE}")
+  set(_vtk_find_package_base "_vtk_module_find_package_${_vtk_build_module}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base}" "${_vtk_find_package_PACKAGE}")
+  set(_vtk_find_package_base_package "${_vtk_find_package_base}_${_vtk_find_package_PACKAGE}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_private" "${_vtk_find_package_PRIVATE}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_config" "${_vtk_find_package_CONFIG_MODE}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_components" "${_vtk_find_package_COMPONENTS}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_optional_components" "${_vtk_find_package_OPTIONAL_COMPONENTS}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_optional_components_found" "${_vtk_find_package_optional_components_found}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_exact" "0")
+  if (DEFINED _vtk_find_package_FORWARD_VERSION_REQ)
+    string(FIND "${_vtk_find_package_VERSION_VAR}" "@" _vtk_find_package_idx)
+    if (_vtk_find_package_idx EQUAL -1)
+      if (NOT DEFINED "${_vtk_find_package_VERSION_VAR}")
         message(FATAL_ERROR
-          "The `${_vtk_find_package_PACKAGE}` version is empty.")
+          "The `${_vtk_find_package_VERSION_VAR}` variable is not defined.")
       endif ()
+      set(_vtk_find_package_version "${${_vtk_find_package_VERSION_VAR}}")
+    else ()
+      string(CONFIGURE "${_vtk_find_package_VERSION_VAR}" _vtk_find_package_version)
+    endif ()
+    unset(_vtk_find_package_idx)
 
-      if (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MAJOR")
-        set(_vtk_find_package_version_regex "^\([^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MINOR")
-        set(_vtk_find_package_version_regex "^\([^.]*.[^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "PATCH")
-        set(_vtk_find_package_version_regex "^\([^.]*.[^.]*.[^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "EXACT")
-        set(_vtk_find_package_version_regex "^\\(.*\\)$")
-        set_property(GLOBAL
-          PROPERTY
-            "${_vtk_find_package_base_package}_exact" "1")
-      endif ()
+    if ("${_vtk_find_package_version}" STREQUAL "")
+      message(FATAL_ERROR
+        "The `${_vtk_find_package_PACKAGE}` version is empty.")
+    endif ()
 
-      string(REGEX REPLACE "${_vtk_find_package_version_regex}" "\\1"
-        _vtk_find_package_found_version "${_vtk_find_package_version}")
-      unset(_vtk_find_package_version_regex)
-      unset(_vtk_find_package_version)
-
+    if (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MAJOR")
+      set(_vtk_find_package_version_regex "^\([^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MINOR")
+      set(_vtk_find_package_version_regex "^\([^.]*.[^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "PATCH")
+      set(_vtk_find_package_version_regex "^\([^.]*.[^.]*.[^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "EXACT")
+      set(_vtk_find_package_version_regex "^\\(.*\\)$")
       set_property(GLOBAL
         PROPERTY
-          "${_vtk_find_package_base_package}_version" "${_vtk_find_package_found_version}")
-      unset(_vtk_find_package_found_version)
+          "${_vtk_find_package_base_package}_exact" "1")
     endif ()
+
+    string(REGEX REPLACE "${_vtk_find_package_version_regex}" "\\1"
+      _vtk_find_package_found_version "${_vtk_find_package_version}")
+    unset(_vtk_find_package_version_regex)
+    unset(_vtk_find_package_version)
+
+    set_property(GLOBAL
+      PROPERTY
+        "${_vtk_find_package_base_package}_version" "${_vtk_find_package_found_version}")
+    unset(_vtk_find_package_found_version)
   endif ()
 
   unset(_vtk_find_package_base)
