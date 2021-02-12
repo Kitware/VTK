@@ -168,12 +168,12 @@ public:
   Root(bool root)
   {
     m_Root = root;
-  };
+  }
   bool
   Root() const
   {
     return m_Root;
-  };
+  }
 
   //    Artery(...)
   //       Optional Field
@@ -182,12 +182,12 @@ public:
   Artery(bool artery)
   {
     m_Artery = artery;
-  };
+  }
   bool
   Artery() const
   {
     return m_Artery;
-  };
+  }
 
   //    ParentPoint(...)
   //       Optional Field
@@ -196,12 +196,12 @@ public:
   ParentPoint(int parentPoint)
   {
     m_ParentPoint = parentPoint;
-  };
+  }
   int
   ParentPoint() const
   {
     return m_ParentPoint;
-  };
+  }
 
   // PROTECTED
 protected:

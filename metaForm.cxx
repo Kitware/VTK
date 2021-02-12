@@ -485,9 +485,9 @@ MetaForm::GetUserField(const char * _name)
     int eSize;
     MET_SizeOfType((*it)->type, &eSize);
     const auto itLength = static_cast<unsigned int>((*it)->length);
-    char *     out;
     if (!strcmp((*it)->name, _name))
     {
+      char *     out;
       if ((*it)->type == MET_STRING)
       {
         out = new char[(itLength + 1) * eSize];

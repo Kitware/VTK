@@ -206,7 +206,7 @@ TubePnt::GetFieldIndex(const char * name) const
 float
 TubePnt::GetField(int indx) const
 {
-  if (indx >= 0 && indx < m_ExtraFields.size())
+  if (indx >= 0 && static_cast<size_t>(indx) < m_ExtraFields.size())
   {
     return m_ExtraFields[indx].second;
   }
@@ -534,7 +534,7 @@ MetaTube::M_SetFloatIntoBinaryData(float val, char * _data, int i) const
 float
 MetaTube::M_GetFloatFromBinaryData(size_t pos, const char * _data, size_t readSize)
 {
-  if (pos >= 0 && pos < readSize)
+  if (pos < readSize)
   {
     float        tf;
     char * const num = reinterpret_cast<char *>(&tf);
@@ -671,27 +671,27 @@ MetaTube::M_Read()
   {
     posR = M_GetPosition("R", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("radius", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("Radius", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("rad", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("Rad", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("s", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("S", positionUsed);
   }
@@ -1120,27 +1120,27 @@ MetaTube::M_Write()
   {
     posR = M_GetPosition("R", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("radius", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("Radius", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("rad", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("Rad", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("s", positionUsed);
   }
-  else if (posR == -1)
+  if (posR == -1)
   {
     posR = M_GetPosition("S", positionUsed);
   }
