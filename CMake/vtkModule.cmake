@@ -4519,6 +4519,8 @@ if (_vtk_module_find_package_enabled)
     set(_vtk_export_module_install_content)
     foreach (_vtk_export_package IN LISTS _vtk_export_packages)
       set(_vtk_export_base_package "${_vtk_export_base}_${_vtk_export_package}")
+      get_property(_vtk_export_private GLOBAL
+        PROPERTY "${_vtk_export_base_package}_private")
       get_property(_vtk_export_version GLOBAL
         PROPERTY "${_vtk_export_base_package}_version")
       get_property(_vtk_export_config GLOBAL
@@ -4571,7 +4573,11 @@ if (_vtk_module_find_package_enabled)
   endif ()\n")
 
       string(APPEND _vtk_export_module_build_content "${_vtk_export_module_content}")
-      string(APPEND _vtk_export_module_install_content "${_vtk_export_module_content}")
+      # Private usages should be guarded by `$<BUILD_INTERFACE>` and can be
+      # skipped for the install tree regardless of the build mode.
+      if (NOT _vtk_export_private)
+        string(APPEND _vtk_export_module_install_content "${_vtk_export_module_content}")
+      endif ()
     endforeach ()
 
     set(_vtk_export_module_trailer
