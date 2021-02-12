@@ -4468,7 +4468,8 @@ if (_vtk_module_find_package_components_required)
   list(REMOVE_DUPLICATES _vtk_module_find_package_components_required)
 endif ()\n\n")
 
-  set(_vtk_export_content)
+  set(_vtk_export_build_content)
+  set(_vtk_export_install_content)
   foreach (_vtk_export_module IN LISTS _vtk_export_MODULES)
     get_property(_vtk_export_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_export_module}_target_name")
@@ -4513,7 +4514,8 @@ if (_vtk_module_find_package_enabled)
   endif ()\n\n")
 
     list(REMOVE_DUPLICATES _vtk_export_packages)
-    set(_vtk_export_module_content)
+    set(_vtk_export_module_build_content)
+    set(_vtk_export_module_install_content)
     foreach (_vtk_export_package IN LISTS _vtk_export_packages)
       set(_vtk_export_base_package "${_vtk_export_base}_${_vtk_export_package}")
       get_property(_vtk_export_version GLOBAL
@@ -4567,7 +4569,8 @@ if (_vtk_module_find_package_enabled)
       \"Failed to find the ${_vtk_export_package} package.\")
   endif ()\n")
 
-      string(APPEND _vtk_export_module_content "${_vtk_export_module_content}")
+      string(APPEND _vtk_export_module_build_content "${_vtk_export_module_content}")
+      string(APPEND _vtk_export_module_install_content "${_vtk_export_module_content}")
     endforeach ()
 
     set(_vtk_export_module_trailer
@@ -4577,9 +4580,13 @@ unset(_vtk_module_find_package_fail_if_not_found)
 unset(_vtk_module_find_package_enabled)
 unset(_vtk_module_find_package_required)\n\n")
 
-    if (_vtk_export_module_content)
-      string(APPEND _vtk_export_content
-        "${_vtk_export_module_prelude}${_vtk_export_module_content}${_vtk_export_module_trailer}")
+    if (_vtk_export_module_build_content)
+      string(APPEND _vtk_export_build_content
+        "${_vtk_export_module_prelude}${_vtk_export_module_build_content}${_vtk_export_module_trailer}")
+    endif ()
+    if (_vtk_export_module_install_content)
+      string(APPEND _vtk_export_install_content
+        "${_vtk_export_module_prelude}${_vtk_export_module_install_content}${_vtk_export_module_trailer}")
     endif ()
   endforeach ()
 
@@ -4588,18 +4595,27 @@ unset(_vtk_module_find_package_required)\n\n")
 unset(_vtk_module_find_package_components_required)
 unset(_vtk_module_find_package_quiet)\n")
 
-  set(_vtk_export_output_file
+  set(_vtk_export_build_file
     "${CMAKE_BINARY_DIR}/${_vtk_export_CMAKE_DESTINATION}/${_vtk_export_FILE_NAME}")
-  if (_vtk_export_content)
-    file(WRITE "${_vtk_export_output_file}"
-      "${_vtk_export_prelude}${_vtk_export_content}${_vtk_export_trailer}")
+  set(_vtk_export_install_file
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_export_FILE_NAME}.install")
+  if (_vtk_export_build_content)
+    file(WRITE "${_vtk_export_build_file}"
+      "${_vtk_export_prelude}${_vtk_export_build_content}${_vtk_export_trailer}")
   else ()
-    file(WRITE "${_vtk_export_output_file}" "")
+    file(WRITE "${_vtk_export_build_file}" "")
+  endif ()
+  if (_vtk_export_install_content)
+    file(WRITE "${_vtk_export_install_file}"
+      "${_vtk_export_prelude}${_vtk_export_install_content}${_vtk_export_trailer}")
+  else ()
+    file(WRITE "${_vtk_export_install_file}" "")
   endif ()
 
   install(
-    FILES       "${_vtk_export_output_file}"
+    FILES       "${_vtk_export_install_file}"
     DESTINATION "${_vtk_export_CMAKE_DESTINATION}"
+    RENAME      "${_vtk_export_FILE_NAME}"
     COMPONENT   "${_vtk_export_COMPONENT}")
 endfunction ()
 
