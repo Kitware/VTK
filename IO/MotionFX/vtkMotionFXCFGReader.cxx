@@ -753,7 +753,7 @@ struct UniversalTransformMotion : public Motion
   {
     vtkVector3d translation_vector;
     vtkVector3d rotation_center;
-    vtkVector4<double> quaternion;
+    vtkVector4d quaternion;
     vtkVector3d linear_scale;
 
     tuple_type()
@@ -806,7 +806,7 @@ struct UniversalTransformMotion : public Motion
     {
       const double interval = (next->first - prev->first);
       const double dt = std::min(time - prev->first, interval);
-      const double t = dt / interval; // normalized dt
+      t = dt / interval; // normalized dt
     }
     else // this also handles single entry files
     {
@@ -815,34 +815,25 @@ struct UniversalTransformMotion : public Motion
     }
 
     const vtkVector3d rotation_center =
-      (1.0 - t) * prev->second.rotation_center + t * next->second.rotation_center;
+      prev->second.rotation_center * (1.0 - t) + next->second.rotation_center * t;
     transform->Translate((rotation_center * -1.0).GetData());
 
     const vtkVector3d linear_scale =
-      (1.0 - t) * prev->second.linear_scale + t * next->second.linear_scale;
+      prev->second.linear_scale * (1.0 - t) + next->second.linear_scale * t;
     transform->Scale(linear_scale.GetData());
 
-    double quatdotprod = prev->second.quaternion[0] * next->second.quaternion[0] +
-      prev->second.quaternion[1] * next->second.quaternion[1] +
-      prev->second.quaternion[2] * next->second.quaternion[2] +
-      prev->second.quaternion[3] * next->second.quaternion[3];
+    double quatdotprod = prev->second.quaternion.Dot(next->second.quaternion);
 
     if (quatdotprod < 0.0)
     {
-      next->second.quaternion[0] = -next->second.quaternion[0];
-      next->second.quaternion[1] = -next->second.quaternion[1];
-      next->second.quaternion[2] = -next->second.quaternion[2];
-      next->second.quaternion[3] = -next->second.quaternion[3];
+      next->second.quaternion = -next->second.quaternion;
       quatdotprod = -quatdotprod;
     }
 
-    vtkVector4<double> quatnow;
+    vtkVector4d quatnow;
     if (quatdotprod > 0.9995) // linear interpolation (LERP)
     {
-      quatnow[0] = (1.0 - t) * prev->second.quaternion[0] + t * next->second.quaternion[0];
-      quatnow[1] = (1.0 - t) * prev->second.quaternion[1] + t * next->second.quaternion[1];
-      quatnow[2] = (1.0 - t) * prev->second.quaternion[2] + t * next->second.quaternion[2];
-      quatnow[3] = (1.0 - t) * prev->second.quaternion[3] + t * next->second.quaternion[3];
+      quatnow = prev->second.quaternion * (1.0 - t) + next->second.quaternion * t;
     }
     else // spherical linear interpolation (SLERP)
     {
@@ -850,20 +841,14 @@ struct UniversalTransformMotion : public Motion
       const double sndiff = std::sin(thdiff);
       const double cfi = sin((1.0 - t) * thdiff) / sndiff;
       const double cfn = sin(t * thdiff) / sndiff;
-      quatnow[0] = cfi * prev->second.quaternion[0] + cfn * next->second.quaternion[0];
-      quatnow[1] = cfi * prev->second.quaternion[1] + cfn * next->second.quaternion[1];
-      quatnow[2] = cfi * prev->second.quaternion[2] + cfn * next->second.quaternion[2];
-      quatnow[3] = cfi * prev->second.quaternion[3] + cfn * next->second.quaternion[3];
+      quatnow = prev->second.quaternion * cfi + next->second.quaternion * cfn;
     }
 
-    const double quatmag = std::sqrt(quatnow[0] * quatnow[0] + quatnow[1] * quatnow[1] +
-      quatnow[2] * quatnow[2] + quatnow[3] * quatnow[3]);
+    const double quatmag = quatnow.Norm();
+    const double oquatmag = 1.0 / quatmag;
     if (quatmag > 0.1) // Should never lead to division by zero for a quaternion
     {
-      quatnow[0] = quatnow[0] / quatmag;
-      quatnow[1] = quatnow[1] / quatmag;
-      quatnow[2] = quatnow[2] / quatmag;
-      quatnow[3] = quatnow[3] / quatmag;
+      quatnow = quatnow * oquatmag;
     }
 
     vtkVector3d axis;
@@ -891,18 +876,13 @@ struct UniversalTransformMotion : public Motion
       axis[0] = quatnow[0] * coeff;
       axis[1] = quatnow[1] * coeff;
       axis[2] = quatnow[2] * coeff;
-      const double anrm = 1.0 /
-        std::sqrt(axis[0] * axis[0] + axis[1] * axis[1] +
-          axis[2] * axis[2]); // Should never lead to division by zero for a quaternion
-      axis[0] = axis[0] * anrm;
-      axis[1] = axis[1] * anrm;
-      axis[2] = axis[2] * anrm;
+      axis.Normalize(); // Should never lead to division by zero for a quaternion
     }
 
     transform->RotateWXYZ(angle, axis.GetData());
 
     const vtkVector3d translation_vector =
-      (1.0 - t) * prev->second.translation_vector + t * next->second.translation_vector;
+      prev->second.translation_vector * (1.0 - t) + next->second.translation_vector * t;
     transform->Translate(translation_vector.GetData());
 
     ApplyTransform worker(transform);
@@ -1065,8 +1045,8 @@ struct action<MotionFX::UniversalTransformRow::Row>
     tuple_type tuple;
     tuple.translation_vector = vtkVector3d(active_numbers[1], active_numbers[2], active_numbers[3]);
     tuple.rotation_center = vtkVector3d(active_numbers[4], active_numbers[5], active_numbers[6]);
-    tuple.quaternion = vtkVector4<double>(
-      active_numbers[7], active_numbers[8], active_numbers[9], active_numbers[10]);
+    tuple.quaternion =
+      vtkVector4d(active_numbers[7], active_numbers[8], active_numbers[9], active_numbers[10]);
     tuple.linear_scale = vtkVector3d(active_numbers[11], active_numbers[12], active_numbers[13]);
     state[active_numbers[0]] = tuple;
     active_numbers.clear();
@@ -1148,18 +1128,11 @@ struct action<MotionFX::CFG::Value>
           vtkGenericWarningMacro("Expecting number, got '" << val << "'");
         }
       }
+      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
     }
     else if (numberRe.find(content))
     {
       state.ActiveValue.DoubleValue.push_back(std::atof(numberRe.match(0).c_str()));
-    }
-    else
-    {
-      // do nothing
-    }
-    if (tupleRe.find(content))
-    {
-      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
     }
     else
     {
