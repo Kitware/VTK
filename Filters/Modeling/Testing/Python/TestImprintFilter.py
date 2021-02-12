@@ -31,7 +31,7 @@ p1Mapper.SetInputConnection(plane1.GetOutputPort())
 
 p1Actor = vtk.vtkActor()
 p1Actor.SetMapper(p1Mapper)
-p1Actor.GetProperty().SetRepresentationToWireframe()
+p1Actor.GetProperty().SetRepresentationToSurface()
 
 plane2 = vtk.vtkPlaneSource()
 plane2.SetXResolution(res)
@@ -45,7 +45,7 @@ p2Mapper.SetInputConnection(plane2.GetOutputPort())
 
 p2Actor = vtk.vtkActor()
 p2Actor.SetMapper(p2Mapper)
-p2Actor.GetProperty().SetRepresentationToWireframe()
+p2Actor.GetProperty().SetRepresentationToSurface()
 
 # Now imprint
 imp = vtk.vtkImprintFilter()
@@ -59,7 +59,7 @@ mapper.SetInputConnection(imp.GetOutputPort())
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
-actor.GetProperty().SetRepresentationToWireframe()
+actor.GetProperty().SetRepresentationToSurface()
 
 # Create the RenderWindow, Renderer
 #
