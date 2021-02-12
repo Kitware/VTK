@@ -101,21 +101,23 @@ public:
   using vtkAbstractPointLocator::GetBounds;
 
   /**
-   * Given a position x, return the id of the point closest to it. An
-   * alternative method (defined in the superclass) requires separate x-y-z
-   * values. These methods are thread safe if BuildLocator() is directly or
-   * indirectly called from a single thread first.
+   * Given a position x, return the id of the point closest to it, or (-1) if
+   * no point found. An alternative method (defined in the superclass)
+   * requires separate x-y-z values. These methods are thread safe if
+   * BuildLocator() is directly or indirectly called from a single thread
+   * first.
    */
   vtkIdType FindClosestPoint(const double x[3]) override;
 
   //@{
   /**
    * Given a position x and a radius r, return the id of the point closest to
-   * the point in that radius.  These methods are thread safe if
-   * BuildLocator() is directly or indirectly called from a single thread
-   * first. dist2 returns the squared distance to the point. Note that if multiple
-   * points are located the same distance away, the actual point returned is a
-   * function in which order the points are processed (i.e., indeterminate).
+   * the point in that radius, or (-1) if nothing found.  These methods are
+   * thread safe if BuildLocator() is directly or indirectly called from a
+   * single thread first. dist2 returns the squared distance to the
+   * point. Note that if multiple points are located the same distance away,
+   * the actual point returned is a function in which order the points are
+   * processed (i.e., indeterminate).
    */
   vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
   virtual vtkIdType FindClosestPointWithinRadius(

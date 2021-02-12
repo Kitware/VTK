@@ -1,0 +1,165 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkImprintFilter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+/**
+ * @class   vtkImprintFilter
+ * @brief   Imprint the contact surface of one object onto another surface
+ *
+ * This filter imprints the contact surface of one vtkPolyData mesh onto
+ * a second, input vtkPolyData mesh. There are two inputs to the filter:
+ * the target, which is the surface to be imprinted, and the imprint, which
+ * is the object imprinting the target.
+ *
+ * A high level overview of the algorithm is as follows. 1) The target cells
+ * are segregated into two subsets: those that may intersect the imprint
+ * surface (the candidate cells determined by bounding box checks), and those
+ * that do not. 2) The non-candidates are sent to the output, the candidate
+ * intersection cells are further proceesed - eventually they will be
+ * triangulated as a result of contact with the imprint, with the result of
+ * the triangulation appended to the output. 3) The imprint points are projected
+ * onto the candidate cells, determining a classification (on a target point,
+ * on a target edge, interior to a target cell, outside the target).  4) The
+ * non-outside imprint points are associated with one or more target cells.
+ * 5) The imprint edges are intersected with the target cell edges, producing
+ * additional points associated with the the candidate cells, as well as
+ * "fragments" or portions of edges associated with the candidate target
+ * cells. 6) On a per-candidate-target-cell basis, the points and edge
+ * fragments associated with that cell are used to triangulate the cell.
+ * 7) Finally, the triangulated target cells are appended to the output.
+ *
+ * Some notes:
+ * -- The algorithm assumes that the input target and imprint cells are convex.
+ * -- The number of output points is (numTargetPts + numImprintPts + numEdgeIntPts).
+ * -- Not all of the output points may be used, for example if an imprint point
+ *    is coincident (within the tolerance) of a target point, the target point
+ *    replaces the imprint point.
+ * -- Candidate cells which may reside within the bounding box of the imprint
+ *    but may not actually intersect the imprint will be appended to the output
+ *    without triangulation.
+ * -- Candidate cells that are intersected will be triangulated: i.e., triangles
+ *    will be produced and appended to the output.
+ * -- Triangulation requires combining the points and edge fragments associated
+ *    with each target candidate cell, as well as the candidate cell's defining
+ *    points and edges, to produce the final triangulation.
+ * -- Portions of the algorithm are threaded. For example, steps #1 and #2 (candidate
+ *    segregation); point projection step #3; cell triangulation step #6. Future
+ *    implementations may further parallelize the algorithm.
+ */
+
+#ifndef vtkImprintFilter_h
+#define vtkImprintFilter_h
+
+#include "vtkFiltersModelingModule.h" // For export macro
+#include "vtkPolyDataAlgorithm.h"
+
+class vtkStaticCellLocator;
+
+class VTKFILTERSMODELING_EXPORT vtkImprintFilter : public vtkPolyDataAlgorithm
+{
+public:
+  //@{
+  /**
+   * Standard methods to instantiate, print and provide type information.
+   */
+  static vtkImprintFilter* New();
+  vtkTypeMacro(vtkImprintFilter, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
+
+  /**
+   * Specify the first vtkPolyData input connection which defines the
+   * surface mesh to imprint (i.e., the target).
+   */
+  void SetTargetConnection(vtkAlgorithmOutput* algOutput);
+  vtkAlgorithmOutput* GetTargetConnection();
+
+  //@{
+  /**
+   * Specify the first vtkPolyData input which defines the surface mesh to
+   * imprint (i.e., the taregt). The imprint surface is provided by the
+   * second input.
+   */
+  void SetTargetData(vtkDataObject* target);
+  vtkDataObject* GetTarget();
+  //@}
+
+  /**
+   * Specify the a second vtkPolyData input connection which defines the
+   * surface mesh with which to imprint the target (the target is provided by
+   * the first input).
+   */
+  void SetImprintConnection(vtkAlgorithmOutput* algOutput);
+  vtkAlgorithmOutput* GetImprintConnection();
+
+  //@{
+  /**
+   * Specify the a second vtkPolyData input which defines the surface mesh
+   * with which to imprint the target (i.e., the first input).
+   */
+  void SetImprintData(vtkDataObject* imprint);
+  vtkDataObject* GetImprint();
+  //@}
+
+  //@{
+  /**
+   * Specify a tolerance which controls how close the imprint surface must be
+   * to the target to successfully imprint the surface.
+   */
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Tolerance, double);
+  //@}
+
+  enum SpecifiedOutput
+  {
+    TARGET_CELLS = 0,
+    IMPRINTED_CELLS = 1,
+    MERGED_IMPRINT = 2
+  };
+
+  //@{
+  /**
+   * Control what is output by the filter. This can be useful for debugging
+   * or to extract portions of the data. The choices are: TARGET_CELLS -
+   * output the target cells in contact (relative to the tolerance) of the
+   * imprint mesh; IMPRINTED_CELLS - output the target's imprinted cells
+   * after intersection and triangulation with the imprint mesh;
+   * MERGED_IMPRINT - merge the target and imprint meshs after the imprint
+   * operation. By default, MERGED_IMPRINT is produced.
+   */
+  vtkSetClampMacro(OutputType, int, TARGET_CELLS, MERGED_IMPRINT);
+  vtkGetMacro(OutputType, int);
+  void SetOutputTypeToTargetCells() { this->SetOutputType(TARGET_CELLS); }
+  void SetOutputTypeToImprintedCells() { this->SetOutputType(IMPRINTED_CELLS); }
+  void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
+  //@}
+
+protected:
+  vtkImprintFilter();
+  ~vtkImprintFilter() override;
+
+  double Tolerance;
+  int OutputType;
+
+  // Used internally to project points from imprint onto target
+  vtkSmartPointer<vtkStaticCellLocator> CellLocator;
+
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+private:
+  vtkImprintFilter(const vtkImprintFilter&) = delete;
+  void operator=(const vtkImprintFilter&) = delete;
+};
+
+#endif
