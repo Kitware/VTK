@@ -4158,7 +4158,9 @@ The `PACKAGE` argument is the only required argument. The rest are optional.
 Note that `PRIVATE` is *only* applicable for private dependencies on interface
 targets (basically, header libraries) because some platforms require private
 shared libraries dependencies to be present when linking dependent libraries
-and executables as well.
+and executables as well. Such usages should additionally be used only via a
+`$<BUILD_INTERFACE>` generator expression to avoid putting the target name into
+the install tree at all.
 #]==]
 macro (vtk_module_find_package)
   # This needs to be a macro because find modules typically set variables which
