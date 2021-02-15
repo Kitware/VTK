@@ -305,7 +305,6 @@ MetaFEMObject::M_Read()
     std::string            s;
     std::string::size_type b;
     std::string::size_type e;
-    bool                   clID;
     std::string            errorMessage;
 
     if (segment_read > 3)
@@ -362,7 +361,7 @@ MetaFEMObject::M_Read()
     }
     else
     {
-      clID = this->IsClassNamePresent(s); // obtain the class ID from FEMObjectFactory
+      bool clID = this->IsClassNamePresent(s); // obtain the class ID from FEMObjectFactory
       if (!clID)
       {
         errorMessage = s;

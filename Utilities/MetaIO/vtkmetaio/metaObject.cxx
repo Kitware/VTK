@@ -755,9 +755,8 @@ MetaObject::DistanceUnits(MET_DistanceUnitsEnumType _distanceUnits)
 void
 MetaObject::DistanceUnits(const char * _distanceUnits)
 {
-  int  i;
   bool found = false;
-  for (i = 0; i < MET_NUM_DISTANCE_UNITS_TYPES; i++)
+  for (size_t i = 0; i < MET_NUM_DISTANCE_UNITS_TYPES; i++)
   {
     if (!strcmp(_distanceUnits, MET_DistanceUnitsTypeName[i]))
     {
@@ -800,7 +799,7 @@ void
 MetaObject::AnatomicalOrientation(const char * _ao)
 {
   int i;
-  int j;
+  size_t j;
   for (i = 0; i < m_NDims; i++)
   {
     for (j = 0; j < MET_NUM_ORIENTATION_TYPES; j++)
@@ -837,8 +836,7 @@ MetaObject::AnatomicalOrientation(int _dim, MET_OrientationEnumType _ao)
 void
 MetaObject::AnatomicalOrientation(int _dim, char _ao)
 {
-  int j;
-  for (j = 0; j < MET_NUM_ORIENTATION_TYPES; j++)
+  for (size_t j = 0; j < MET_NUM_ORIENTATION_TYPES; j++)
   {
     if (_ao == MET_OrientationTypeName[j][0])
     {
@@ -1763,9 +1761,9 @@ MetaObject ::GetUserField(const char * _name)
     int eSize;
     MET_SizeOfType((*it)->type, &eSize);
     const auto itLength = static_cast<unsigned int>((*it)->length);
-    char *     out;
     if (!strcmp((*it)->name, _name))
     {
+      char *     out;
       if ((*it)->type == MET_STRING)
       {
         out = new char[(itLength + 1) * eSize];
