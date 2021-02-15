@@ -175,13 +175,7 @@ int vtkSEPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   const auto AssignDimensionId = [this](const std::string& Name) -> int {
     auto iter = std::find(std::begin(this->Label), std::end(this->Label), Name);
-    const int id = std::distance(this->Label, iter);
-    if (!details::DimensionIsInRange(id))
-    {
-      vtkWarningMacro("Couldn't find dimension named " << Name << " in " << this->FileName);
-    }
-
-    return id;
+    return std::distance(this->Label, iter);
   };
 
   this->XArrayId = AssignDimensionId(this->XDimension);
@@ -357,21 +351,54 @@ bool vtkSEPReader::ReadHeader()
 
   if (this->Label[0].empty())
   {
-    vtkWarningMacro("Could not find the 0th dimension Label in "
+    vtkWarningMacro("Could not find the 1st dimension Label in "
       << this->FileName << ". Assigning default value " << this->XDimension);
     this->Label[0] = this->XDimension;
   }
   if (this->Label[1].empty())
   {
-    vtkWarningMacro("Could not find the 1st dimension Label in "
+    vtkWarningMacro("Could not find the 2nd dimension Label in "
       << this->FileName << ". Assigning default value " << this->YDimension);
     this->Label[1] = this->YDimension;
   }
-  if (this->Label[2].empty())
+
+  if (this->OutputGridDimension == 3)
   {
-    vtkWarningMacro("Could not find the 2nd dimension Label in "
-      << this->FileName << ". Assigning default value " << this->ZDimension);
-    this->Label[2] = this->ZDimension;
+    if (this->Label[2].empty())
+    {
+      vtkWarningMacro("Could not find the 3rd dimension Label in "
+        << this->FileName << ". Assigning default value " << this->ZDimension);
+      this->Label[2] = this->ZDimension;
+    }
+    if (this->Label[3].empty())
+    {
+      vtkWarningMacro("Could not find the 1st fixed dimension Label in "
+        << this->FileName << ". Assigning default value " << this->FixedDimension1);
+      this->Label[3] = this->FixedDimension1;
+    }
+  }
+  else
+  {
+    if (this->Label[2].empty())
+    {
+      vtkWarningMacro("Could not find the 1st fixed dimension Label in "
+        << this->FileName << ". Assigning default value " << this->FixedDimension1);
+      this->Label[2] = this->FixedDimension1;
+    }
+    if (this->Label[3].empty())
+    {
+      vtkWarningMacro("Could not find the 2nd fixed dimension Label in "
+        << this->FileName << ". Assigning default value " << this->FixedDimension2);
+      this->Label[3] = this->FixedDimension2;
+    }
+  }
+
+  for (int i = 4; i < details::SEP_READER_MAX_DIMENSION; ++i)
+  {
+    if (this->Label[i].empty())
+    {
+      this->Label[i] = "Dimension " + std::to_string(i + 1);
+    }
   }
 
   file.close();
@@ -458,7 +485,7 @@ bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
 
   int minK = updateExtents[4], maxK = updateExtents[5];
   int fixedValue2 = 0;
-  if (OutputGridDimension == 2)
+  if (this->OutputGridDimension == 2)
   {
     // In 2D, there is no  varying k dimension, but a second fixed scalar
     minK = maxK = 0;
