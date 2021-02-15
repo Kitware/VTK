@@ -1053,12 +1053,6 @@ MetaImage::M_GetTagValue(const std::string & buffer, const char * tag)
     return "";
   }
 
-  size_t posend = buffer.find('\r', pos2);
-  if (posend == std::string::npos)
-  {
-    buffer.find('\n', pos2);
-  }
-
   // Get the element data filename
   std::string value;
   bool        firstspace = true;
@@ -2741,11 +2735,6 @@ MetaImage::ReadROIStream(int *           _indexMin,
           std::strncat(wrds[0], wrds[i], METAIO_MAX_WORD_SIZE);
         }
       }
-      // If the specified size of the third dimension is less than the size
-      // specified by the regular expression, we should only read a volume with the specified
-      // size.  Otherwise, the code will crash when trying to fill m_ElementData more than it can hold.
-      // Therefore, we modify maxV to ensure that the images spanned by minV:stepV:maxV are less than or equal
-      // to the size in the last dimension.
       int cnt = 0;
 
       // Uses the _indexMin and _indexMax

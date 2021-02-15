@@ -220,8 +220,7 @@ MET_ReadSubType(std::istream & _fp)
 bool
 MET_StringToType(const char * _s, MET_ValueEnumType * _vType)
 {
-  int i;
-  for (i = 0; i < MET_NUM_VALUE_TYPES; i++)
+  for (size_t i = 0; i < MET_NUM_VALUE_TYPES; i++)
   {
     if (!strcmp(_s, MET_ValueTypeName[i]))
     {
@@ -833,7 +832,6 @@ MET_StringToWordArray(const char * s, int * n, char *** val)
   *val = new char *[*n];
 
   ptrdiff_t i;
-  ptrdiff_t j;
   for (i = 0; i < *n; i++)
   {
     if (p == l)
@@ -846,7 +844,7 @@ MET_StringToWordArray(const char * s, int * n, char *** val)
     {
       p++;
     }
-    j = 0;
+    ptrdiff_t j = 0;
     while (p < l && s[p] != ' ')
     {
       (*val)[i][j++] = s[p++];
@@ -1017,20 +1015,16 @@ MET_Read(std::istream &                       fp,
 {
 
   char   s[1024];
-  int    i;
   size_t j;
 
   std::vector<MET_FieldRecordType *>::iterator fieldIter;
 
   MET_SeperatorChar = _met_SeperatorChar;
 
-  bool found;
-
-  unsigned char c;
   while (!fp.eof())
   {
-    i = 0;
-    c = static_cast<unsigned char>(fp.get());
+    int i = 0;
+    unsigned char c = static_cast<unsigned char>(fp.get());
     while (!fp.eof() && c != MET_SeperatorChar && c != ':' && isspace(c))
     {
       c = static_cast<unsigned char>(fp.get());
@@ -1055,7 +1049,7 @@ MET_Read(std::istream &                       fp,
       s[i--] = '\0';
     }
 
-    found = false;
+    bool found = false;
     for (fieldIter = fields->begin(); fieldIter != fields->end(); ++fieldIter)
     {
       if (!strcmp((*fieldIter)->name, s))
@@ -1660,9 +1654,7 @@ MET_WriteFieldToFile(std::ostream & _fp, const char * _fieldName, MET_ValueEnumT
 bool
 MET_StringToInterpolationType(const char * _str, MET_InterpolationEnumType * _type)
 {
-  int i;
-
-  for (i = 0; i < MET_NUM_INTERPOLATION_TYPES; i++)
+  for (size_t i = 0; i < MET_NUM_INTERPOLATION_TYPES; i++)
   {
     if (!strcmp(MET_InterpolationTypeName[i], _str))
     {
