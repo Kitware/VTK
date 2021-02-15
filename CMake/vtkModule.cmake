@@ -4158,7 +4158,9 @@ The `PACKAGE` argument is the only required argument. The rest are optional.
 Note that `PRIVATE` is *only* applicable for private dependencies on interface
 targets (basically, header libraries) because some platforms require private
 shared libraries dependencies to be present when linking dependent libraries
-and executables as well.
+and executables as well. Such usages should additionally be used only via a
+`$<BUILD_INTERFACE>` generator expression to avoid putting the target name into
+the install tree at all.
 #]==]
 macro (vtk_module_find_package)
   # This needs to be a macro because find modules typically set variables which
@@ -4238,74 +4240,75 @@ macro (vtk_module_find_package)
     endif ()
   endforeach ()
 
-  if (NOT _vtk_find_package_PRIVATE)
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "_vtk_module_find_packages_${_vtk_build_PACKAGE}" "${_vtk_find_package_PACKAGE}")
-    set(_vtk_find_package_base "_vtk_module_find_package_${_vtk_build_module}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base}" "${_vtk_find_package_PACKAGE}")
-    set(_vtk_find_package_base_package "${_vtk_find_package_base}_${_vtk_find_package_PACKAGE}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_config" "${_vtk_find_package_CONFIG_MODE}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_components" "${_vtk_find_package_COMPONENTS}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_optional_components" "${_vtk_find_package_OPTIONAL_COMPONENTS}")
-    set_property(GLOBAL APPEND
-      PROPERTY
-        "${_vtk_find_package_base_package}_optional_components_found" "${_vtk_find_package_optional_components_found}")
-    set_property(GLOBAL
-      PROPERTY
-        "${_vtk_find_package_base_package}_exact" "0")
-    if (DEFINED _vtk_find_package_FORWARD_VERSION_REQ)
-      string(FIND "${_vtk_find_package_VERSION_VAR}" "@" _vtk_find_package_idx)
-      if (_vtk_find_package_idx EQUAL -1)
-        if (NOT DEFINED "${_vtk_find_package_VERSION_VAR}")
-          message(FATAL_ERROR
-            "The `${_vtk_find_package_VERSION_VAR}` variable is not defined.")
-        endif ()
-        set(_vtk_find_package_version "${${_vtk_find_package_VERSION_VAR}}")
-      else ()
-        string(CONFIGURE "${_vtk_find_package_VERSION_VAR}" _vtk_find_package_version)
-      endif ()
-      unset(_vtk_find_package_idx)
-
-      if ("${_vtk_find_package_version}" STREQUAL "")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "_vtk_module_find_packages_${_vtk_build_PACKAGE}" "${_vtk_find_package_PACKAGE}")
+  set(_vtk_find_package_base "_vtk_module_find_package_${_vtk_build_module}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base}" "${_vtk_find_package_PACKAGE}")
+  set(_vtk_find_package_base_package "${_vtk_find_package_base}_${_vtk_find_package_PACKAGE}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_private" "${_vtk_find_package_PRIVATE}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_version" "${_vtk_find_package_VERSION}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_config" "${_vtk_find_package_CONFIG_MODE}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_components" "${_vtk_find_package_COMPONENTS}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_optional_components" "${_vtk_find_package_OPTIONAL_COMPONENTS}")
+  set_property(GLOBAL APPEND
+    PROPERTY
+      "${_vtk_find_package_base_package}_optional_components_found" "${_vtk_find_package_optional_components_found}")
+  set_property(GLOBAL
+    PROPERTY
+      "${_vtk_find_package_base_package}_exact" "0")
+  if (DEFINED _vtk_find_package_FORWARD_VERSION_REQ)
+    string(FIND "${_vtk_find_package_VERSION_VAR}" "@" _vtk_find_package_idx)
+    if (_vtk_find_package_idx EQUAL -1)
+      if (NOT DEFINED "${_vtk_find_package_VERSION_VAR}")
         message(FATAL_ERROR
-          "The `${_vtk_find_package_PACKAGE}` version is empty.")
+          "The `${_vtk_find_package_VERSION_VAR}` variable is not defined.")
       endif ()
+      set(_vtk_find_package_version "${${_vtk_find_package_VERSION_VAR}}")
+    else ()
+      string(CONFIGURE "${_vtk_find_package_VERSION_VAR}" _vtk_find_package_version)
+    endif ()
+    unset(_vtk_find_package_idx)
 
-      if (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MAJOR")
-        set(_vtk_find_package_version_regex "^\([^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MINOR")
-        set(_vtk_find_package_version_regex "^\([^.]*.[^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "PATCH")
-        set(_vtk_find_package_version_regex "^\([^.]*.[^.]*.[^.]*\).*")
-      elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "EXACT")
-        set(_vtk_find_package_version_regex "^\\(.*\\)$")
-        set_property(GLOBAL
-          PROPERTY
-            "${_vtk_find_package_base_package}_exact" "1")
-      endif ()
+    if ("${_vtk_find_package_version}" STREQUAL "")
+      message(FATAL_ERROR
+        "The `${_vtk_find_package_PACKAGE}` version is empty.")
+    endif ()
 
-      string(REGEX REPLACE "${_vtk_find_package_version_regex}" "\\1"
-        _vtk_find_package_found_version "${_vtk_find_package_version}")
-      unset(_vtk_find_package_version_regex)
-      unset(_vtk_find_package_version)
-
+    if (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MAJOR")
+      set(_vtk_find_package_version_regex "^\([^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "MINOR")
+      set(_vtk_find_package_version_regex "^\([^.]*.[^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "PATCH")
+      set(_vtk_find_package_version_regex "^\([^.]*.[^.]*.[^.]*\).*")
+    elseif (_vtk_find_package_FORWARD_VERSION_REQ STREQUAL "EXACT")
+      set(_vtk_find_package_version_regex "^\\(.*\\)$")
       set_property(GLOBAL
         PROPERTY
-          "${_vtk_find_package_base_package}_version" "${_vtk_find_package_found_version}")
-      unset(_vtk_find_package_found_version)
+          "${_vtk_find_package_base_package}_exact" "1")
     endif ()
+
+    string(REGEX REPLACE "${_vtk_find_package_version_regex}" "\\1"
+      _vtk_find_package_found_version "${_vtk_find_package_version}")
+    unset(_vtk_find_package_version_regex)
+    unset(_vtk_find_package_version)
+
+    set_property(GLOBAL
+      PROPERTY
+        "${_vtk_find_package_base_package}_version" "${_vtk_find_package_found_version}")
+    unset(_vtk_find_package_found_version)
   endif ()
 
   unset(_vtk_find_package_base)
@@ -4374,9 +4377,7 @@ function (vtk_module_export_find_packages)
     set(_vtk_export_COMPONENT "development")
   endif ()
 
-  set(_vtk_export_output_file
-    "${CMAKE_BINARY_DIR}/${_vtk_export_CMAKE_DESTINATION}/${_vtk_export_FILE_NAME}")
-  file(WRITE "${_vtk_export_output_file}"
+  set(_vtk_export_prelude
 "set(_vtk_module_find_package_quiet)
 if (\${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
   set(_vtk_module_find_package_quiet QUIET)
@@ -4468,6 +4469,8 @@ if (_vtk_module_find_package_components_required)
   list(REMOVE_DUPLICATES _vtk_module_find_package_components_required)
 endif ()\n\n")
 
+  set(_vtk_export_build_content)
+  set(_vtk_export_install_content)
   foreach (_vtk_export_module IN LISTS _vtk_export_MODULES)
     get_property(_vtk_export_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_export_module}_target_name")
@@ -4487,7 +4490,7 @@ endif ()\n\n")
       continue ()
     endif ()
 
-    file(APPEND "${_vtk_export_output_file}"
+    set(_vtk_export_module_prelude
 "set(_vtk_module_find_package_enabled OFF)
 set(_vtk_module_find_package_is_required OFF)
 set(_vtk_module_find_package_fail_if_not_found OFF)
@@ -4512,8 +4515,12 @@ if (_vtk_module_find_package_enabled)
   endif ()\n\n")
 
     list(REMOVE_DUPLICATES _vtk_export_packages)
+    set(_vtk_export_module_build_content)
+    set(_vtk_export_module_install_content)
     foreach (_vtk_export_package IN LISTS _vtk_export_packages)
       set(_vtk_export_base_package "${_vtk_export_base}_${_vtk_export_package}")
+      get_property(_vtk_export_private GLOBAL
+        PROPERTY "${_vtk_export_base_package}_private")
       get_property(_vtk_export_version GLOBAL
         PROPERTY "${_vtk_export_base_package}_version")
       get_property(_vtk_export_config GLOBAL
@@ -4545,7 +4552,7 @@ if (_vtk_module_find_package_enabled)
         set(_vtk_export_exact_arg EXACT)
       endif ()
 
-      file(APPEND "${_vtk_export_output_file}"
+      set(_vtk_export_module_content
 "  find_package(${_vtk_export_package}
     ${_vtk_export_version}
     ${_vtk_export_exact_arg}
@@ -4564,25 +4571,58 @@ if (_vtk_module_find_package_enabled)
     list(APPEND \"\${CMAKE_FIND_PACKAGE_NAME}_${_vtk_export_target_name}_NOT_FOUND_MESSAGE\"
       \"Failed to find the ${_vtk_export_package} package.\")
   endif ()\n")
+
+      string(APPEND _vtk_export_module_build_content "${_vtk_export_module_content}")
+      # Private usages should be guarded by `$<BUILD_INTERFACE>` and can be
+      # skipped for the install tree regardless of the build mode.
+      if (NOT _vtk_export_private)
+        string(APPEND _vtk_export_module_install_content "${_vtk_export_module_content}")
+      endif ()
     endforeach ()
 
-    file(APPEND "${_vtk_export_output_file}"
+    set(_vtk_export_module_trailer
 "endif ()
 
 unset(_vtk_module_find_package_fail_if_not_found)
 unset(_vtk_module_find_package_enabled)
 unset(_vtk_module_find_package_required)\n\n")
 
+    if (_vtk_export_module_build_content)
+      string(APPEND _vtk_export_build_content
+        "${_vtk_export_module_prelude}${_vtk_export_module_build_content}${_vtk_export_module_trailer}")
+    endif ()
+    if (_vtk_export_module_install_content)
+      string(APPEND _vtk_export_install_content
+        "${_vtk_export_module_prelude}${_vtk_export_module_install_content}${_vtk_export_module_trailer}")
+    endif ()
   endforeach ()
 
-  file(APPEND "${_vtk_export_output_file}"
+  set(_vtk_export_trailer
     "unset(_vtk_module_find_package_components)
 unset(_vtk_module_find_package_components_required)
 unset(_vtk_module_find_package_quiet)\n")
 
+  set(_vtk_export_build_file
+    "${CMAKE_BINARY_DIR}/${_vtk_export_CMAKE_DESTINATION}/${_vtk_export_FILE_NAME}")
+  set(_vtk_export_install_file
+    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_export_FILE_NAME}.install")
+  if (_vtk_export_build_content)
+    file(WRITE "${_vtk_export_build_file}"
+      "${_vtk_export_prelude}${_vtk_export_build_content}${_vtk_export_trailer}")
+  else ()
+    file(WRITE "${_vtk_export_build_file}" "")
+  endif ()
+  if (_vtk_export_install_content)
+    file(WRITE "${_vtk_export_install_file}"
+      "${_vtk_export_prelude}${_vtk_export_install_content}${_vtk_export_trailer}")
+  else ()
+    file(WRITE "${_vtk_export_install_file}" "")
+  endif ()
+
   install(
-    FILES       "${CMAKE_BINARY_DIR}/${_vtk_export_CMAKE_DESTINATION}/${_vtk_export_FILE_NAME}"
+    FILES       "${_vtk_export_install_file}"
     DESTINATION "${_vtk_export_CMAKE_DESTINATION}"
+    RENAME      "${_vtk_export_FILE_NAME}"
     COMPONENT   "${_vtk_export_COMPONENT}")
 endfunction ()
 
