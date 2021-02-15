@@ -143,42 +143,10 @@ protected:
    */
   void ComputeTextColors(vtkTextProperty* tprop, TextColors& tcolors);
 
-  typedef std::vector<std::vector<std::string>> GridOfStrings;
-
   /**
-   * Parse the string to handle multiline and multicolumn.
-   * Divide it in lines (splitted with '\n') and cells (splitted with '|')
-   * and store each cell string in strGrid. Also compute the maximum number of cells of all
-   * lines to ensure that all lines have the same number of cells.
+   * Modify matplotlib.rcParams to customize math text font.
    */
-  bool ParseString(const char* str, GridOfStrings& strGrid, std::size_t& maxNumberOfCells);
-
-  /**
-   * Given a grid of string and its corresponding maximum number of cells,
-   * text property and dpi, compute the resulting number of rows and cols
-   * of the image.
-   * Precondition : Matplotlib rendering is available and mask parser is initialized.
-   */
-  bool ComputeRowsAndCols(const GridOfStrings& strGrid, const std::size_t& maxNumberOfCells,
-    vtkTextProperty* tprop, int dpi, long int& rows, long int& cols);
-
-  /**
-   * Given a cell string, text property and dpi, call python mathtext to render the cell and store
-   * it in list if list is not nullptr, and store in rows and cols the size of the python data.
-   * Precondition : Matplotlib rendering is available and mask parser is initialized.
-   */
-  bool ComputeCellRowsAndCols(const char* cellStr, vtkTextProperty* tprop, int dpi, long int& rows,
-    long int& cols, vtkSmartPyObject* list);
-
-  /**
-   * Render in the image starting from (rowStart, colStart) to (rowStart + cellRows, colStart +
-   * cellCols) a cell of size (pythonRows, pythonCols) with pixels value stored in pythonData. If
-   * the python cell size is inferior to the cell size, fill with background color.
-   */
-  bool RenderOneCell(vtkImageData* image, int bbox[4], const long int rowStart,
-    const long int colStart, vtkSmartPyObject& pythonData, const long int pythonRows,
-    const long int pythonCols, const long int cellRows, const long int cellCols,
-    vtkTextProperty* tprop, const TextColors& tcolors);
+  bool SetMathTextFont(vtkTextProperty* tprop);
 
   /**
    * Returns a matplotlib.font_manager.FontProperties PyObject, initialized from
@@ -236,6 +204,44 @@ private:
    */
   static Availability MPLMathTextAvailable;
   //@}
+
+  typedef std::vector<std::vector<std::string>> GridOfStrings;
+
+  /**
+   * Parse the string to handle multiline and multicolumn.
+   * Divide it in lines (splitted with '\n') and cells (splitted with '|')
+   * and store each cell string in strGrid. Also compute the maximum number of cells of all
+   * lines to ensure that all lines have the same number of cells.
+   */
+  bool ParseString(const char* str, GridOfStrings& strGrid, std::size_t& maxNumberOfCells);
+
+  /**
+   * Given a grid of string and its corresponding maximum number of cells,
+   * text property and dpi, compute the resulting number of rows and cols
+   * of the image.
+   * Precondition : Matplotlib rendering is available and mask parser is initialized.
+   */
+  bool ComputeRowsAndCols(const GridOfStrings& strGrid, const std::size_t& maxNumberOfCells,
+    vtkTextProperty* tprop, PyObject* pyFontProp, int dpi, std::uint64_t& rows,
+    std::uint64_t& cols);
+
+  /**
+   * Given a cell string, text property and dpi, call python mathtext to render the cell and store
+   * it in list if list is not nullptr, and store in rows and cols the size of the python data.
+   * Precondition : Matplotlib rendering is available and mask parser is initialized.
+   */
+  bool ComputeCellRowsAndCols(const char* cellStr, PyObject* pyFontProp, int dpi,
+    std::uint64_t& rows, std::uint64_t& cols, vtkSmartPyObject* list);
+
+  /**
+   * Render in the image starting from (rowStart, colStart) to (rowStart + cellRows, colStart +
+   * cellCols) a cell of size (pythonRows, pythonCols) with pixels value stored in pythonData. If
+   * the python cell size is inferior to the cell size, fill with background color.
+   */
+  bool RenderOneCell(vtkImageData* image, int bbox[4], const std::int64_t rowStart,
+    const std::int64_t colStart, vtkSmartPyObject& pythonData, const std::uint64_t pythonRows,
+    const std::uint64_t pythonCols, const std::uint64_t cellRows, const std::uint64_t cellCols,
+    vtkTextProperty* tprop, const TextColors& tcolors);
 };
 
 #endif
