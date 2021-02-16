@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.8)
 
 # Find Git.
 find_program(GIT_COMMAND NAMES git git.cmd)
