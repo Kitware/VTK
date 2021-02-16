@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkPolyDataEdgeConnectivityFilter
- * @brief   segment polygonal data based on shared edge connectivity
+ * @brief   segment polygonal mesh based on shared edge connectivity
  *
  * vtkPolyDataEdgeConnectivityFilter is a filter to segment cells that
  * share common edges (i.e., are edge connected), given certain conditions on
@@ -51,9 +51,10 @@
  * added to the output cell attribute data by enabling ColorRegions.
  *
  * @warning
- * To be clear: this filter segments data based on *cell* attribute data based
- * on edge-connected meshes. The similar vtkPolyDataConnectivityFilter segments
- * based on point attribute data and point-connected meshes.
+ * To be clear: if scalar connectivity is enabled, this filter segments data
+ * based on *cell* attribute data based on edge-connected meshes. The similar
+ * vtkPolyDataConnectivityFilter segments based on point attribute data and
+ * point-connected meshes.
  *
  * @warning
  * A second, optional vtkPolyData (the Source) may be specified which
@@ -243,18 +244,34 @@ public:
   vtkGetVectorMacro(ClosestPoint, double, 3);
   //@}
 
+  // Control the region growing process.
+  enum RegionGrowingType
+  {
+    RegionGrowingOff = 0,
+    LargeRegions = 1,
+    SmallRegions = 2
+  };
+
   //@{
   /**
-   * Enable/Disable the growing of large regions. This is a postprocessing
-   * step (after the connected traversal to define regions) which assimilates
-   * small regions into larger ones, i.e., a region growing operation useful
-   * as a segmentation algorithm. If enabled (depending on the data and
-   * filter parameters), many if not all small regions will be eliminated.
-   * Note that region growing ignores barrier edges. This is off by default.
+   * Specify a strategy for region growing. Regions growing is a
+   * postprocessing step which assimilates small regions into larger regions;
+   * i.e., region growing is an additional step as part of a segmentation
+   * workflow. By default, region growing is off. If growing large regions
+   * is enabled, then smaller regions are assimilated into larger regions. If
+   * growing small regions is enabled, then small regions are combined to
+   * form larger regions. Note that the definition of a large region is a
+   * region that exceeds the large region threshold.
    */
-  vtkSetMacro(GrowLargeRegions, vtkTypeBool);
-  vtkGetMacro(GrowLargeRegions, vtkTypeBool);
-  vtkBooleanMacro(GrowLargeRegions, vtkTypeBool);
+  vtkSetClampMacro(RegionGrowing, int, RegionGrowingOff, SmallRegions);
+  vtkGetMacro(RegionGrowing, int);
+  void SetRegionGrowingOff() { this->SetRegionGrowing(RegionGrowingOff); }
+  void GrowLargeRegionsOff() { this->SetRegionGrowing(RegionGrowingOff); }
+  void GrowSmallRegionsOff() { this->SetRegionGrowing(RegionGrowingOff); }
+  void SetRegionGrowingToLargeRegions() { this->SetRegionGrowing(LargeRegions); }
+  void GrowLargeRegionsOn() { this->SetRegionGrowing(LargeRegions); }
+  void SetRegionGrowingToSmallRegions() { this->SetRegionGrowing(SmallRegions); }
+  void GrowSmallRegionsOn() { this->SetRegionGrowing(SmallRegions); }
   //@}
 
   //@{
@@ -326,11 +343,12 @@ protected:
   bool IsBarrierEdge(vtkIdType p0, vtkIdType p1);
 
   // Methods implementing iterative region growing
-  vtkTypeBool GrowLargeRegions;
+  int RegionGrowing;
   double LargeRegionThreshold;
   int CurrentGrowPass; // region growing is a multiple-pass process
   double ComputeRegionAreas();
-  void GrowRegions();
+  void GrowLargeRegions();
+  void GrowSmallRegions();
   int AssimilateCell(vtkIdType cellId, vtkIdType npts, const vtkIdType* pts);
   double TotalArea;                       // the total area of the input mesh
   std::vector<double> CellAreas;          // the area of each polygonal cell

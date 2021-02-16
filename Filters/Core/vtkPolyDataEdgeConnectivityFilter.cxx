@@ -38,6 +38,17 @@
 
 vtkStandardNewMacro(vtkPolyDataEdgeConnectivityFilter);
 
+namespace
+{ // anonymous
+
+enum RegionType
+{
+  SmallRegion = 0,
+  LargeRegion = 1
+};
+
+}; // anonymous namespace
+
 //------------------------------------------------------------------------------
 // Construct with default extraction mode to extract largest regions.
 vtkPolyDataEdgeConnectivityFilter::vtkPolyDataEdgeConnectivityFilter()
@@ -59,7 +70,7 @@ vtkPolyDataEdgeConnectivityFilter::vtkPolyDataEdgeConnectivityFilter()
   this->CellNeighbors = vtkSmartPointer<vtkIdList>::New();
   this->CellEdgeNeighbors = vtkSmartPointer<vtkIdList>::New();
 
-  this->GrowLargeRegions = 0;
+  this->RegionGrowing = RegionGrowingOff;
   this->LargeRegionThreshold = 0.10;
 
   this->ColorRegions = 1;
@@ -322,12 +333,17 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   vtkDebugMacro(<< "Identified " << this->NumberOfRegions << " region(s)");
 
   // Optionally, assimilate small regions into bigger regions.
-  if (this->ExtractionMode == VTK_EXTRACT_LARGE_REGIONS || this->GrowLargeRegions)
+  if (this->ExtractionMode == VTK_EXTRACT_LARGE_REGIONS || this->RegionGrowing == LargeRegions ||
+    this->RegionGrowing == SmallRegions)
   {
     this->ComputeRegionAreas();
-    if (this->GrowLargeRegions)
+    if (this->RegionGrowing == LargeRegions)
     {
-      this->GrowRegions();
+      this->GrowLargeRegions();
+    }
+    else if (this->RegionGrowing == SmallRegions)
+    {
+      this->GrowSmallRegions();
     }
   }
 
@@ -452,7 +468,8 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   {
     for (cellId = 0; cellId < numCells; cellId++)
     {
-      if (this->RegionIds[cellId] >= 0 && this->RegionClassification[this->RegionIds[cellId]] == 1)
+      if (this->RegionIds[cellId] >= 0 &&
+        this->RegionClassification[this->RegionIds[cellId]] == LargeRegion)
       {
         this->Mesh->GetCellPoints(cellId, npts, pts);
         this->PointIds->Reset();
@@ -703,7 +720,7 @@ double vtkPolyDataEdgeConnectivityFilter::ComputeRegionAreas()
   std::fill_n(this->RegionAreas.begin(), this->NumberOfRegions, 0.0);
 
   this->RegionClassification.reserve(this->NumberOfRegions);
-  std::fill_n(this->RegionClassification.begin(), this->NumberOfRegions, 0);
+  std::fill_n(this->RegionClassification.begin(), this->NumberOfRegions, SmallRegion);
 
   // Traverse polygons and compute area
   double area, normal[3];
@@ -730,7 +747,7 @@ double vtkPolyDataEdgeConnectivityFilter::ComputeRegionAreas()
   {
     if (this->RegionAreas[regNum] >= areaThreshold)
     {
-      this->RegionClassification[regNum] = 1;
+      this->RegionClassification[regNum] = LargeRegion;
     }
   }
 
@@ -740,7 +757,7 @@ double vtkPolyDataEdgeConnectivityFilter::ComputeRegionAreas()
 //------------------------------------------------------------------------------
 // Loop over cells, those in small regions are assigned to larger regions if they
 // are "close" enough. This is iterative.
-void vtkPolyDataEdgeConnectivityFilter::GrowRegions()
+void vtkPolyDataEdgeConnectivityFilter::GrowLargeRegions()
 {
   // Reuse the Wave vector to load up cells in small regions. We want to eliminate
   // looping over all cells and just process the cells in small regions.
@@ -749,7 +766,7 @@ void vtkPolyDataEdgeConnectivityFilter::GrowRegions()
   for (auto cellId = 0; cellId < numCells; ++cellId)
   {
     vtkIdType regId = this->RegionIds[cellId];
-    if (regId >= 0 && this->RegionClassification[regId] == 0)
+    if (regId >= 0 && this->RegionClassification[regId] == SmallRegion)
     {
       this->Wave.push_back(cellId);
     }
@@ -779,7 +796,7 @@ void vtkPolyDataEdgeConnectivityFilter::GrowRegions()
       {
         vtkIdType cellId = this->Wave[candidate];
         vtkIdType regId = this->RegionIds[cellId];
-        if (regId >= 0 && this->RegionClassification[regId] == 0)
+        if (regId >= 0 && this->RegionClassification[regId] == SmallRegion)
         {
           iter->GetCellAtId(cellId, npts, pts);
           vtkIdType largeRegId = this->AssimilateCell(cellId, npts, pts);
@@ -792,6 +809,75 @@ void vtkPolyDataEdgeConnectivityFilter::GrowRegions()
       }   // for all candidates
     }     // while things are changing
   }       // for each region growing pass
+}
+
+//------------------------------------------------------------------------------
+// Loop over cells, those in small regions are combined with other small
+// regions to produce larger regions. This is iterative using a wave
+// propagation approach.
+void vtkPolyDataEdgeConnectivityFilter::GrowSmallRegions()
+{
+  // Iteratively combine small cells with other small cells to create larger
+  // regions. Note that these small regions are grown by combining with all
+  // unvisited, unassigned edge neighbors that are also part of small regions.
+  //
+  this->Wave.clear();
+  const vtkIdType numCells = this->Mesh->GetPolys()->GetNumberOfCells();
+  std::vector<char> smallVisited(numCells, 0);
+
+  for (auto cellId = 0; cellId < numCells; ++cellId)
+  {
+    vtkIdType regId = this->RegionIds[cellId];
+    if (regId >= 0 && this->RegionClassification[regId] == SmallRegion && smallVisited[cellId] == 0)
+    {
+      this->Wave.push_back(cellId);
+      smallVisited[cellId] = 1;
+    }
+
+    // Now start growing the small region. Note: small regions are potentially
+    // assigned to other small regions. The end result is the number of cells
+    // in a previously extracted region may actually reduce to zero.
+    vtkIdType numIds;
+    while ((numIds = static_cast<vtkIdType>(this->Wave.size())) > 0)
+    {
+      for (auto i = 0; i < numIds; i++)
+      {
+        vtkIdType currentCellId = this->Wave[i];
+        vtkIdType currentRegionId = this->RegionIds[cellId];
+
+        // Check all edge neighbors
+        const vtkIdType* pts;
+        vtkIdType npts;
+        this->Mesh->GetCellPoints(currentCellId, npts, pts);
+        for (auto j = 0; j < npts; ++j)
+        {
+          vtkIdType v0 = pts[j];
+          vtkIdType v1 = pts[(j + 1) % npts];
+          this->Mesh->GetCellEdgeNeighbors(currentCellId, v0, v1, this->CellNeighbors);
+          vtkIdType numNeis = this->CellNeighbors->GetNumberOfIds();
+
+          for (auto k = 0; k < numNeis; ++k)
+          {
+            vtkIdType neiId = this->CellNeighbors->GetId(k);
+            regId = this->RegionIds[neiId];
+            if (regId >= 0 && this->RegionClassification[regId] == SmallRegion &&
+              smallVisited[neiId] == 0)
+            {
+              this->Wave2.push_back(neiId);
+              this->RegionIds[neiId] = currentRegionId; // Now part of a new region
+              smallVisited[neiId] = 1;
+              vtkIdType regionSize = this->RegionSizes->GetValue(regId);
+              this->RegionSizes->SetValue(regId, (regionSize - 1));
+            } // if cell not yet visited
+          }   // for all edge neighbors
+        }     // for all edges of this cell
+      }       // for all cells in this propagation wave
+
+      this->Wave = this->Wave2;
+      this->Wave2.clear();
+      this->Wave2.reserve(numCells);
+    } // while wave is not empty
+  }   // for all cells
 }
 
 //------------------------------------------------------------------------------
@@ -831,7 +917,7 @@ int vtkPolyDataEdgeConnectivityFilter::AssimilateCell(
       neiId = this->CellEdgeNeighbors->GetId(j);
       regId = this->RegionIds[neiId];
 
-      if (regId >= 0 && this->RegionClassification[regId] == 1)
+      if (regId >= 0 && this->RegionClassification[regId] == LargeRegion)
       {
         if (e2 > longestAdjacentEdge2)
         {
@@ -887,7 +973,7 @@ void vtkPolyDataEdgeConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << indent << id << ": " << this->RegionSizes->GetValue(id) << std::endl;
   }
 
-  os << indent << "Grow Large Regions: " << (this->GrowLargeRegions ? "On\n" : "Off\n");
+  os << indent << "Region Growing: " << this->RegionGrowing << "\n";
   os << indent << "Large Region Threshold: " << this->LargeRegionThreshold << "\n";
 
   os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
