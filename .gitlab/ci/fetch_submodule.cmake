@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 2.8.8)
 
+# Find Git.
+find_program(GIT_COMMAND NAMES git git.cmd)
+
+execute_process(
+  COMMAND "${GIT_COMMAND}" submodule update --init --recursive
+  OUTPUT_VARIABLE init_submodules
+  RESULT_VARIABLE res
+  ERROR_VARIABLE err
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+# Ignore the error; we just want to make sure the submodules are present.
+
 # Check if we're in a merge request (nothing should be needed if not).
 if ("$ENV{CI_MERGE_REQUEST_ID}" STREQUAL "")
   return ()
 endif ()
-
-# Find Git.
-find_program(GIT_COMMAND NAMES git git.cmd)
 
 if (NOT GIT_COMMAND)
   message(FATAL_ERROR
