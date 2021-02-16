@@ -93,6 +93,13 @@ public:
     OnLine = 3
   };
 
+  // Control the meaning of the provided tolerance.
+  enum ToleranceType
+  {
+    Relative = 0,
+    Absolute = 1
+  };
+
   /**
    * Performs intersection of the projection of two finite 3D lines onto a 2D
    * plane. An intersection is found if the projection of the two lines onto
@@ -102,11 +109,16 @@ public:
    *
    * The results are of type vtkLine::IntersectionType. An intersection occurs
    * if (u,v) are in the interval [0,1] and the intersection point falls within
-   * a tolerance relative to the projection line lengths.
+   * the tolerance specified. Different types of tolerancing can be used by
+   * specifying a tolerance type with the enum provided (vtkLine::ToleranceType).
+   * The tolerance types may be: Relative) relative to the projection line lengths
+   * (this is default); or Absolute) the distance between the points at (u,v) on
+   * the two lines must be less than or equal to the tolerance specified.
    *
    */
   static int Intersection(const double p1[3], const double p2[3], const double x1[3],
-    const double x2[3], double& u, double& v, const double tolerance = 1e-6);
+    const double x2[3], double& u, double& v, const double tolerance = 1e-6,
+    int toleranceType = ToleranceType::Relative);
 
   /**
    * Performs intersection of two finite 3D lines. An intersection is found if
