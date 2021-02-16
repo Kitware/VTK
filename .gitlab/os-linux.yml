@@ -138,7 +138,7 @@
     - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
     - cmake --version
     - ninja --version
-    - git submodule foreach --recursive cmake "-Dusername:STRING=$CI_PROJECT_NAMESPACE" "-Durl_prefix:STRING=https://$CI_SERVER_HOST" -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
+    - git submodule foreach --recursive cmake -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
     - git submodule sync --recursive
     - git submodule update --init --recursive
     # Load any modules that may be necessary.
