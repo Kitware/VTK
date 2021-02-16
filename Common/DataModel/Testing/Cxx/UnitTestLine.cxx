@@ -420,6 +420,14 @@ int TestLineIntersection(vtkMinimalStandardRandomSequence* seq, unsigned nTests)
   {
     return EXIT_FAILURE;
   }
+  if (TestLineIntersectionAbsTol_PositiveResult(seq, nTests) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestLineIntersectionAbsTol_NegativeResult(seq, nTests) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
   if (TestLineIntersection_ColinearResult(seq, nTests) == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
