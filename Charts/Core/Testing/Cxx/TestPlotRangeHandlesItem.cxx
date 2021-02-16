@@ -313,5 +313,38 @@ int TestPlotRangeHandlesItem(int, char*[])
     return EXIT_FAILURE;
   }
 
+  //
+  // Disable automatic height computation of vertical handles
+  //
+  VRangeItem->ExtentToAxisRangeOff();
+  Vcbk->EventSpy.clear();
+  const char leftEvents3[] = "# StreamVersion 1\n"
+                             "LeftButtonPressEvent 20 10 0 0 0 0 0\n"
+                             "MouseMoveEvent 10 10 0 0 0 0 0\n"
+                             "LeftButtonReleaseEvent 10 10 0 0 0 0 0\n";
+  recorder->SetInputString(leftEvents3);
+  recorder->Play();
+
+  if (Vcbk->EventSpy[vtkCommand::StartInteractionEvent] != 1 ||
+    Vcbk->EventSpy[vtkCommand::InteractionEvent] != 1 ||
+    Vcbk->EventSpy[vtkCommand::EndInteractionEvent] != 1)
+  {
+    std::cerr << "Move left handle: Wrong number of fired events : "
+              << Vcbk->EventSpy[vtkCommand::StartInteractionEvent] << " "
+              << Vcbk->EventSpy[vtkCommand::InteractionEvent] << " "
+              << Vcbk->EventSpy[vtkCommand::EndInteractionEvent] << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  VRangeItem->ComputeHandlesDrawRange();
+  VRangeItem->GetHandlesRange(rangeV);
+
+  if (rangeV[0] != 9.75 || rangeV[1] != 30)
+  {
+    std::cerr << "3. Unexepected range in vertical range handle : [" << rangeV[0] << ", "
+              << rangeV[1] << "]. Expecting : [9.75, 30]." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

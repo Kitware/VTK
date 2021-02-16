@@ -476,7 +476,7 @@ int vtkPlotRangeHandlesItem::FindRangeHandle(const vtkVector2f& point, const vtk
   pos[0] = point.GetX();
   pos[1] = point.GetY();
 
-  double length[2] = { 0, 1 };
+  double length[2] = { this->Extent[2], this->Extent[3] };
   if (this->ExtentToAxisRange)
   {
     double screenBounds[4];
