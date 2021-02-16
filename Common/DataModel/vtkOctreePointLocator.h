@@ -164,7 +164,7 @@ public:
   /**
    * Get a list of the original IDs of all points in a leaf node.
    */
-  vtkIdTypeArray* GetPointsInRegion(int leafNodeId);
+  VTK_NEWINSTANCE vtkIdTypeArray* GetPointsInRegion(int leafNodeId);
 
   /**
    * Delete the octree data structure.
