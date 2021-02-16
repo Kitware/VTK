@@ -18,6 +18,7 @@
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -69,15 +70,17 @@ void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(unsigned in
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets()
+unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets() const
 {
-  return this->Superclass::GetNumberOfChildren();
+  return const_cast<vtkPartitionedDataSetCollection*>(this)->Superclass::GetNumberOfChildren();
 }
 
 //------------------------------------------------------------------------------
-vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(unsigned int idx)
+vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(
+  unsigned int idx) const
 {
-  return vtkPartitionedDataSet::SafeDownCast(this->Superclass::GetChild(idx));
+  return vtkPartitionedDataSet::SafeDownCast(
+    const_cast<vtkPartitionedDataSetCollection*>(this)->Superclass::GetChild(idx));
 }
 
 //------------------------------------------------------------------------------
@@ -127,7 +130,7 @@ vtkDataObject* vtkPartitionedDataSetCollection::GetPartitionAsDataObject(
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitions(unsigned int idx)
+unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitions(unsigned int idx) const
 {
   auto ptd = this->GetPartitionedDataSet(idx);
   return ptd ? ptd->GetNumberOfPartitions() : 0;
@@ -205,6 +208,39 @@ vtkDataObjectTree* vtkPartitionedDataSetCollection::CreateForCopyStructure(vtkDa
   return vtkMultiPieceDataSet::SafeDownCast(other)
     ? vtkPartitionedDataSet::New()
     : this->Superclass::CreateForCopyStructure(other);
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkPartitionedDataSetCollection::GetCompositeIndex(unsigned int idx) const
+{
+  if (idx >= this->GetNumberOfPartitionedDataSets())
+  {
+    vtkLogF(ERROR, "invalid partition index '%u'", idx);
+    return 0;
+  }
+
+  unsigned int cid = 1;
+  for (unsigned int cc = 0; cc < idx; ++cc)
+  {
+    cid += 1 + this->GetNumberOfPartitions(cc);
+  }
+  return cid;
+}
+
+//------------------------------------------------------------------------------
+unsigned int vtkPartitionedDataSetCollection::GetCompositeIndex(
+  unsigned int idx, unsigned int partition) const
+{
+  if (idx >= this->GetNumberOfPartitionedDataSets() ||
+    partition >= this->GetNumberOfPartitions(idx))
+  {
+    vtkLogF(ERROR, "invalid partition index ('%u', '%u')", idx, partition);
+    return 0;
+  }
+
+  unsigned int cid = this->GetCompositeIndex(idx);
+  // cid is the vtkPartitionedDataSet's index. So add 1.
+  return cid + partition + 1;
 }
 
 //------------------------------------------------------------------------------
