@@ -518,6 +518,19 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
     }
   }
 
+  // Configure math text font
+  if (!this->SetMathTextFont(tprop))
+  {
+    return false;
+  }
+
+  // Get the font property used for all non math text.
+  vtkSmartPyObject pyFontProp(this->GetFontProperties(tprop));
+  if (this->CheckForError(pyFontProp))
+  {
+    return false;
+  }
+
   // First, parse the string
   GridOfStrings strGrid;
   std::size_t maxNumberOfCells;
@@ -527,9 +540,10 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
     return false;
   }
 
-  long int rows = 0;
-  long int cols = 0;
-  if (!this->ComputeRowsAndCols(strGrid, maxNumberOfCells, tprop, dpi, rows, cols))
+  std::uint64_t rows = 0;
+  std::uint64_t cols = 0;
+  if (!this->ComputeRowsAndCols(
+        strGrid, maxNumberOfCells, tprop, pyFontProp.GetPointer(), dpi, rows, cols))
   {
     vtkWarningMacro(<< "Failed to compute rows and cols.");
     return false;
@@ -570,13 +584,13 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
 
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& strGrid,
-  const std::size_t& maxNumberOfCells, vtkTextProperty* tprop, int dpi, long int& rows,
-  long int& cols)
+  const std::size_t& maxNumberOfCells, vtkTextProperty* tprop, PyObject* pyFontProp, int dpi,
+  std::uint64_t& rows, std::uint64_t& cols)
 {
   // All columns must have the same width
   // so store the maximum number of cols
   // for each column
-  std::vector<long int> vecColumnWidth;
+  std::vector<std::uint64_t> vecColumnWidth;
   vecColumnWidth.resize(maxNumberOfCells);
   std::fill(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
 
@@ -588,17 +602,17 @@ bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& str
     // Number of rows of this line. This
     // is the maximum number of rows of
     // all cells of the line
-    long int lineRows = 0;
+    std::uint64_t lineRows = 0;
 
     // For each cells
     for (std::size_t j = 0; j < lineNumberOfCells; ++j)
     {
       const std::string& cell = strGrid[i][j];
 
-      long int cellPythonRows = 0;
-      long int cellPythonCols = 0;
+      std::uint64_t cellPythonRows = 0;
+      std::uint64_t cellPythonCols = 0;
       if (!this->ComputeCellRowsAndCols(
-            cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, nullptr))
+            cell.c_str(), pyFontProp, dpi, cellPythonRows, cellPythonCols, nullptr))
       {
         vtkWarningMacro(<< "Failed to compute rows and cols for cell : " << cell);
         return false;
@@ -627,19 +641,40 @@ bool vtkMatplotlibMathTextUtilities::ComputeRowsAndCols(const GridOfStrings& str
 }
 
 //------------------------------------------------------------------------------
-bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, vtkTextProperty* tprop,
-  int dpi, long int& rows, long int& cols, vtkSmartPyObject* list)
+bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyObject* pyFontProp,
+  int dpi, std::uint64_t& rows, std::uint64_t& cols, vtkSmartPyObject* list)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser, const_cast<char*>("to_mask"),
-    const_cast<char*>("sii"), const_cast<char*>(str), tprop->GetFontSize(), dpi));
-  if (this->CheckForError(resultTuple))
+
+  // Call the parse method
+  // ftimage, depth = parse(str, dpi, fontProp)
+  vtkSmartPyObject parse(PyString_FromString("parse"));
+  vtkSmartPyObject pyStr(PyString_FromString(str));
+  vtkSmartPyObject pyDpi(PyInt_FromLong(dpi));
+  vtkSmartPyObject resTupleParse(PyObject_CallMethodObjArgs(this->MaskParser, parse.GetPointer(),
+    pyStr.GetPointer(), pyDpi.GetPointer(), pyFontProp, nullptr));
+  if (this->CheckForError(resTupleParse))
   {
     return false;
   }
 
-  // numpyArray is a borrowed reference, no smart wrapper needed:
-  PyObject* numpyArray = PyTuple_GetItem(resultTuple, 0);
+  // Get ftimage
+  PyObject* ftImage = PyTuple_GetItem(resTupleParse, 0);
+  if (this->CheckForError(ftImage))
+  {
+    return false;
+  }
+
+  // Convert ftimage into a numpy array
+  vtkSmartPyObject numpy(PyImport_ImportModule("numpy"));
+  if (this->CheckForError(numpy))
+  {
+    return false;
+  }
+
+  vtkSmartPyObject asarray(PyString_FromString("asarray"));
+  vtkSmartPyObject numpyArray(
+    PyObject_CallMethodObjArgs(numpy.GetPointer(), asarray.GetPointer(), ftImage, nullptr));
   if (this->CheckForError(numpyArray))
   {
     return false;
@@ -728,10 +763,42 @@ void vtkMatplotlibMathTextUtilities::ComputeTextColors(vtkTextProperty* tprop, T
 }
 
 //------------------------------------------------------------------------------
+bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
+{
+  vtkSmartPyObject mplBase(PyImport_ImportModule("matplotlib"));
+  if (this->CheckForError(mplBase))
+  {
+    return false;
+  }
+  vtkSmartPyObject rcParams(PyObject_GetAttrString(mplBase, "rcParams"));
+
+  // See https://matplotlib.org/stable/tutorials/text/mathtext.html for available fonts
+  // Default is dejavusans
+  switch (tprop->GetFontFamily())
+  {
+    case VTK_TIMES:
+      // stix is designed to work well with Times New Roman
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("stix"));
+      break;
+    default:
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("dejavusans"));
+      break;
+  }
+
+  if (tprop->GetShadow())
+  {
+    vtkWarningMacro(<< "Text shadow is not supported with math text.");
+    tprop->ShadowOff();
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox[4],
-  const long int rowStart, const long int colStart, vtkSmartPyObject& pythonData,
-  const long int pythonRows, const long int pythonCols, const long int cellRows,
-  const long int cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
+  const std::int64_t rowStart, const std::int64_t colStart, vtkSmartPyObject& pythonData,
+  const std::uint64_t pythonRows, const std::uint64_t pythonCols, const std::uint64_t cellRows,
+  const std::uint64_t cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
 {
   vtkDebugMacro("RenderOneCell start = ("
     << rowStart << "," << colStart << "). Drawing python data of size (" << pythonRows << ","
@@ -740,11 +807,11 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
   assert(cellCols >= pythonCols);
   assert(cellRows >= pythonRows);
 
-  const long int rowEnd = rowStart - cellRows + 1;
-  const long int colEnd = colStart + cellCols - 1;
+  const std::int64_t rowEnd = rowStart - cellRows + 1;
+  const std::int64_t colEnd = colStart + cellCols - 1;
 
   // Handle cell horizontal justification
-  long int colOffset;
+  std::uint64_t colOffset;
   switch (tprop->GetJustification())
   {
     default:
@@ -758,11 +825,11 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
       colOffset = (cellCols - pythonCols);
       break;
   }
-  const long int pythonColStart = colStart + colOffset;
-  const long int pythonColEnd = pythonColStart + pythonCols;
+  const std::int64_t pythonColStart = colStart + colOffset;
+  const std::int64_t pythonColEnd = pythonColStart + pythonCols;
 
   // Handle cell vertical justification
-  long int rowOffset;
+  std::uint64_t rowOffset;
   switch (tprop->GetVerticalJustification())
   {
     default:
@@ -776,13 +843,13 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
       rowOffset = 0;
       break;
   }
-  const long int pythonRowStart = rowStart - rowOffset;
-  const long int pythonRowEnd = pythonRowStart - pythonRows;
+  const std::int64_t pythonRowStart = rowStart - rowOffset;
+  const std::int64_t pythonRowEnd = pythonRowStart - pythonRows;
 
-  long int ind = 0;
-  for (long int row = rowStart; row >= rowEnd; --row)
+  std::uint64_t ind = 0;
+  for (std::int64_t row = rowStart; row >= rowEnd; --row)
   {
-    for (long int col = colStart; col <= colEnd; ++col)
+    for (std::int64_t col = colStart; col <= colEnd; ++col)
     {
       unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
@@ -923,6 +990,20 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
   TextColors tcolors;
   this->ComputeTextColors(tprop, tcolors);
 
+  // To customize math text font, we must use rcParams
+  // (see https://matplotlib.org/stable/tutorials/introductory/customizing.html)
+  if (!this->SetMathTextFont(tprop))
+  {
+    return false;
+  }
+
+  // Create the font property used for all non math text
+  vtkSmartPyObject pyFontProp(this->GetFontProperties(tprop));
+  if (this->CheckForError(pyFontProp))
+  {
+    return false;
+  }
+
   // Parse the string by lines and columns and store
   // each cell string in the string grid
   GridOfStrings strGrid;
@@ -937,21 +1018,21 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
   // And store each cell python representation
   // and the associated rows and cols
   std::vector<std::vector<vtkSmartPyObject>> gridPythonData;
-  std::vector<std::vector<long int>> gridRowsAndCols;
+  std::vector<std::vector<std::uint64_t>> gridRowsAndCols;
 
   // All columns must have the same width
   // so store the maximum number of cols
   // for each column
-  std::vector<long int> vecColumnWidth;
+  std::vector<std::uint64_t> vecColumnWidth;
   vecColumnWidth.resize(maxNumberOfCells);
   std::fill(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
 
   // Store the number of rows of each line
-  std::vector<long int> vecLineRows;
+  std::vector<std::uint64_t> vecLineRows;
 
   // The total number of rows is the sum
   // of all rows of each line
-  long int totalRows = 0;
+  std::uint64_t totalRows = 0;
 
   // For each line
   for (std::size_t i = 0; i < strGrid.size(); ++i)
@@ -961,24 +1042,24 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
     // Number of rows of this line. This
     // is the maximum number of rows of
     // all cells of the line
-    long int lineRows = 0;
+    std::uint64_t lineRows = 0;
 
     // store each cell matplotlib representation
     std::vector<vtkSmartPyObject> cellsPythonData;
     // And its number of python rows and cols
-    std::vector<long int> cellsPythonRowsAndCols;
+    std::vector<std::uint64_t> cellsPythonRowsAndCols;
 
     // For each cells
     for (std::size_t j = 0; j < lineNumberOfCells; ++j)
     {
       std::string& cell = strGrid[i][j];
 
-      long int cellPythonRows = 0;
-      long int cellPythonCols = 0;
+      std::uint64_t cellPythonRows = 0;
+      std::uint64_t cellPythonCols = 0;
       vtkSmartPyObject cellPythonData;
 
-      if (!this->ComputeCellRowsAndCols(
-            cell.c_str(), tprop, dpi, cellPythonRows, cellPythonCols, &cellPythonData))
+      if (!this->ComputeCellRowsAndCols(cell.c_str(), pyFontProp.GetPointer(), dpi, cellPythonRows,
+            cellPythonCols, &cellPythonData))
       {
         vtkWarningMacro(<< "Failed to compute rows and cols for cell : " << cell);
         return false;
@@ -1015,7 +1096,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
 
   // The total number of cols is the sum of the maximum number of cols
   // of cells for each column
-  long int totalCols = std::accumulate(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
+  std::uint64_t totalCols = std::accumulate(vecColumnWidth.begin(), vecColumnWidth.end(), 0);
 
   // Handle horizontal offset between cells
   totalCols += tprop->GetCellOffset() * maxNumberOfCells;
@@ -1033,26 +1114,26 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
     << "), ending at (" << bbox[2] << "," << bbox[1] << "), with " << numberOfLines << " lines and "
     << numberOfCells << " cells per line");
 
-  long int rowStart = bbox[3];
+  std::int64_t rowStart = bbox[3];
 
   for (std::size_t i = 0; i < numberOfLines; ++i)
   {
-    long int colStart = bbox[0];
+    std::int64_t colStart = bbox[0];
 
     std::vector<vtkSmartPyObject>& cellsPythonData = gridPythonData[i];
-    std::vector<long int>& cellsPythonRowsAndCols = gridRowsAndCols[i];
+    std::vector<std::uint64_t>& cellsPythonRowsAndCols = gridRowsAndCols[i];
 
     // The number of rows of this line
-    const long int lineRows = vecLineRows[i];
+    const std::uint64_t lineRows = vecLineRows[i];
 
     for (std::size_t j = 0; j < numberOfCells; ++j)
     {
       vtkSmartPyObject& cellPythonData = cellsPythonData[j];
-      const long int pythonRows = cellsPythonRowsAndCols[2 * j];
-      const long int pythonCols = cellsPythonRowsAndCols[2 * j + 1];
+      const std::uint64_t pythonRows = cellsPythonRowsAndCols[2 * j];
+      const std::uint64_t pythonCols = cellsPythonRowsAndCols[2 * j + 1];
 
       // Get the width of the cell and don't forget offset between cells
-      long int cellCols = vecColumnWidth[j] + tprop->GetCellOffset();
+      std::uint64_t cellCols = vecColumnWidth[j] + tprop->GetCellOffset();
 
       // The cell number of rows is the number of rows of the line
       if (!this->RenderOneCell(image, bbox, rowStart, colStart, cellPythonData, pythonRows,
