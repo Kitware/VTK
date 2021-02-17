@@ -39,7 +39,7 @@ namespace RTW
 
         if (!rtx || rtx->GetDeviceCount() <= 0)
         {
-            vtkLogF(WARNING, "VisRTX Error: Unsupported device");
+            vtkLogF(TRACE, "VisRTX Error: Unsupported device");
             return RTW_UNSUPPORTED_DEVICE;
         }
 
