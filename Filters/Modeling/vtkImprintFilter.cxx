@@ -43,8 +43,7 @@ vtkImprintFilter::vtkImprintFilter()
 {
   this->Tolerance = 0.001;
   this->OutputType = MERGED_IMPRINT;
-
-  this->CellLocator = vtkSmartPointer<vtkStaticCellLocator>::New();
+  this->ProduceTriangulationInput = (-1);
 
   this->SetNumberOfInputPorts(2);
 }
@@ -225,6 +224,108 @@ vtkCandidateInfo* GetCandidateInfo(vtkCandidateArray* candidateArray, vtkIdType 
   return cInfo;
 }
 
+// Separate the kept candidate cells from the input target. This reduces
+// the overall work.
+struct BoundsCull
+{
+  vtkPolyData* Target;          // input vtkPolyData to algorithm
+  vtkPolyData* Imprint;         // imprinting vtkPolyData
+  int OutputType;               // control what is output
+  double Tol;                   // tolerance
+  vtkPolyData* CandidateOutput; // kept cells
+  vtkPolyData* Output;          // initially, cells not processed by imprint
+
+  // Internal methods for computing
+  vtkBoundingBox ImprintBounds;
+  std::vector<char> CellMarks;
+  vtkNew<vtkStaticCellLocator> ImprintLocator;
+
+  BoundsCull(vtkPolyData* target, vtkPolyData* imprint, int outputType, double tol,
+    vtkPolyData* candidateOutput, vtkPolyData* output)
+    : Target(target)
+    , Imprint(imprint)
+    , OutputType(outputType)
+    , Tol(tol)
+    , CandidateOutput(candidateOutput)
+    , Output(output)
+  {
+    vtkIdType numCells = target->GetNumberOfCells();
+    this->CellMarks.resize(numCells);
+    double imprintBds[6];
+    this->Imprint->GetBounds(imprintBds);
+    this->ImprintBounds.SetBounds(imprintBds);
+    this->ImprintBounds.Inflate(this->Tol);
+    this->ImprintLocator->SetDataSet(this->Imprint);
+    this->ImprintLocator->BuildLocator();
+  }
+
+  // Needed for Reduce() to run
+  void Initialize() {}
+
+  // Mark the cells
+  void operator()(vtkIdType cellId, vtkIdType endCellId)
+  {
+    vtkBoundingBox targetBounds;
+    double targetCellBounds[6];
+    vtkNew<vtkIdList> cells;
+    vtkPolyData* target = this->Target;
+    vtkStaticCellLocator* imprintLoc = this->ImprintLocator;
+
+    // Loop over target cells and mark those that should be kept.
+    for (; cellId < endCellId; ++cellId)
+    {
+      int cellType = target->GetCellType(cellId);
+      if (cellType == VTK_TRIANGLE || cellType == VTK_QUAD || cellType == VTK_POLYGON)
+      {
+        target->GetCellBounds(cellId, targetCellBounds);
+        targetBounds.SetBounds(targetCellBounds);
+        targetBounds.GetBounds(targetCellBounds);
+        if (this->ImprintBounds.Intersects(targetBounds))
+        {
+          imprintLoc->FindCellsWithinBounds(targetCellBounds, cells);
+          // Negative mark means it's not kept but may be part of the output
+          this->CellMarks[cellId] = (cells->GetNumberOfIds() > 0 ? cellType : -cellType);
+        }
+        else
+        {
+          this->CellMarks[cellId] = -cellType;
+        }
+      }
+    }
+  } // operator()
+
+  // Produce final output
+  void Reduce()
+  {
+    // Loop over all cell marks, and output the target candidate cells
+    // accordingly. Note that if just the target candidate cells are desired,
+    // the other cells are not output.
+    vtkIdType npts;
+    const vtkIdType* pts;
+    vtkPolyData* target = this->Target;
+    vtkPolyData* candidateOutput = this->CandidateOutput;
+    vtkPolyData* output = this->Output;
+    int outputType = this->OutputType;
+    vtkIdType cellId;
+    auto iter = this->CellMarks.begin();
+
+    for (cellId = 0; iter != this->CellMarks.end(); ++iter, ++cellId)
+    {
+      if (*iter > 0)
+      {
+        target->GetCellPoints(cellId, npts, pts);
+        candidateOutput->InsertNextCell(*iter, npts, pts);
+      }
+      else if (outputType != vtkImprintFilter::TARGET_CELLS)
+      {
+        target->GetCellPoints(cellId, npts, pts);
+        output->InsertNextCell(-(*iter), npts, pts);
+      }
+    }
+  } // Reduce()
+
+}; // BoundsCull
+
 // Project imprint points onto the target and gather information about the
 // projection.
 template <typename DataT>
@@ -242,10 +343,10 @@ struct ProjPoints
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
 
-  ProjPoints(vtkPolyData* target, vtkStaticCellLocator* cellLoc, DataT* impPts,
+  ProjPoints(vtkPolyData* target, vtkStaticCellLocator* targetLoc, DataT* impPts,
     vtkPointArray* pArray, double tol)
     : Target(target)
-    , CellLocator(cellLoc)
+    , CellLocator(targetLoc)
     , ImprintPts(impPts)
     , ImprintArray(pArray)
     , Tol(tol)
@@ -269,7 +370,7 @@ struct ProjPoints
     vtkGenericCell* cell = this->Cell.Local();
     vtkCellArrayIterator* targetIter = this->CellIterator.Local();
     const auto imprintPts = vtk::DataArrayTupleRange<3>(this->ImprintPts);
-    vtkStaticCellLocator* cellLoc = this->CellLocator;
+    vtkStaticCellLocator* targetLoc = this->CellLocator;
     vtkIdType cellId;
     int subId, inside;
     double x[3], dist2, closest[3], tol = this->Tol;
@@ -287,7 +388,7 @@ struct ProjPoints
       x[2] = xTuple[2];
 
       // See if the point projects onto the target
-      if (!cellLoc->FindClosestPointWithinRadius(
+      if (!targetLoc->FindClosestPointWithinRadius(
             x, tol, closest, cell, cellId, subId, dist2, inside))
       {
         pt.Classification = PointClassification::Outside;
@@ -351,12 +452,12 @@ struct ProjPoints
 struct ProjPointsWorker
 {
   template <typename DataT>
-  void operator()(DataT* impPts, vtkPolyData* candidateOutput, vtkStaticCellLocator* cellLoc,
+  void operator()(DataT* impPts, vtkPolyData* candidateOutput, vtkStaticCellLocator* targetLoc,
     vtkPointArray* pArray, double tol)
   {
     vtkIdType numPts = impPts->GetNumberOfTuples();
 
-    ProjPoints<DataT> pp(candidateOutput, cellLoc, impPts, pArray, tol);
+    ProjPoints<DataT> pp(candidateOutput, targetLoc, impPts, pArray, tol);
 
     vtkSMPTools::For(0, numPts, pp); // currently a non-thread-safe operation
     // pp.Initialize();
@@ -537,23 +638,21 @@ struct ProduceIntersectionPoints
     target->GetPoint(v0, y0);
     target->GetPoint(v1, y1);
 
-    if (vtkLine::Intersection(x0, x1, y0, y1, u, v, this->Tol) != vtkLine::Intersect)
+    if (vtkLine::Intersection(x0, x1, y0, y1, u, v, this->Tol, vtkLine::Absolute) !=
+      vtkLine::Intersect)
     {
       return;
     }
 
     // Okay we may need to add an intersection point. Check to see whether the point is
     // within tolerance of the target end points. If so, we discard it.
-    double xU[3], xV[3];
-    for (auto i = 0; i < 3; ++i)
-    {
-      xU[i] = x0[i] + u * (x1[i] - x0[i]);
-      xV[i] = y0[i] + v * (y1[i] - y0[i]);
-    }
+    double yU[3];
+    yU[0] = y0[0] + v * (y1[0] - y0[0]);
+    yU[1] = y0[1] + v * (y1[1] - y0[1]);
+    yU[2] = y0[2] + v * (y1[2] - y0[2]);
 
-    if (vtkMath::Distance2BetweenPoints(xU, xV) > this->Tol2 ||
-      vtkMath::Distance2BetweenPoints(xV, y0) <= this->Tol2 ||
-      vtkMath::Distance2BetweenPoints(xV, y1) <= this->Tol2)
+    if (vtkMath::Distance2BetweenPoints(yU, y0) <= this->Tol2 ||
+      vtkMath::Distance2BetweenPoints(yU, y1) <= this->Tol2)
     {
       return;
     }
@@ -566,7 +665,7 @@ struct ProduceIntersectionPoints
     target->GetCellEdgeNeighbors(-1, v0, v1, neighbors);
     cells[0] = (neighbors->GetNumberOfIds() < 1 ? -1 : neighbors->GetId(0));
     cells[1] = (neighbors->GetNumberOfIds() < 2 ? -1 : neighbors->GetId(1));
-    newPts.emplace_back(vtkPointInfo(PointClassification::OnEdge, -1, cells, v0, v1, xV, v));
+    newPts.emplace_back(vtkPointInfo(PointClassification::OnEdge, -1, cells, v0, v1, yU, v));
 
   } // IntersectEdges()
 
@@ -715,16 +814,36 @@ struct Triangulate
   vtkCandidateArray* CandidateArray;
   vtkPolyData* Output;
   vtkIdType TargetOffset;
+  vtkIdType ProduceTriangulationInput;
 
   Triangulate(vtkPoints* outPts, vtkPointArray* pa, vtkPolyData* candidates, vtkCandidateArray* ca,
-    vtkPolyData* output, vtkIdType offset)
+    vtkPolyData* output, vtkIdType offset, vtkIdType triDebug)
     : OutPts(outPts)
     , PointArray(pa)
     , Candidates(candidates)
     , CandidateArray(ca)
     , Output(output)
     , TargetOffset(offset)
+    , ProduceTriangulationInput(triDebug)
   {
+  }
+
+  // For debugging purposes. Create a little python snippet that
+  // can be used elsewhere.
+  void PrintTriangulationInput(vtkPolyData* pd)
+  {
+    vtkPoints* pts = pd->GetPoints();
+    vtkIdType numPts = pts->GetNumberOfPoints();
+
+    cout << "triPts = vtk.vtkPoints()\n";
+    cout << "triPts.SetNumberOfPoints(" << numPts << ")\n";
+
+    double x[3];
+    for (auto id = 0; id < numPts; ++id)
+    {
+      pts->GetPoint(id, x);
+      cout << "triPts.SetPoint(" << id << "," << x[0] << "," << x[1] << "," << x[2] << ")\n";
+    }
   }
 
   // Setup the triangulation pipeline
@@ -750,6 +869,7 @@ struct Triangulate
     polyData->GetPointData()->AddArray(ptMap);
     triangulator->SetInputData(polyData);
     triangulator->SetOffset(10.0);
+    triangulator->SetTolerance(0.01);
 
     for (; cellId < endCellId; cellId++)
     {
@@ -797,6 +917,10 @@ struct Triangulate
         // TODO: Constraint edges (if any)
 
         // Triangulate
+        if (this->ProduceTriangulationInput == cellId)
+        {
+          this->PrintTriangulationInput(polyData);
+        }
         polyData->Modified();
         triangulator->Update();
 
@@ -919,37 +1043,13 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // overlap tests.
   output->AllocateEstimate(numTargetCells, 3);
   candidateOutput->AllocateEstimate(numImprintCells, 3);
-  vtkBoundingBox targetBounds;
-  vtkBoundingBox imprintBounds;
-  double imprintBds[6], targetCellBounds[6];
-  imprint->GetCellsBounds(imprintBds);
-  imprintBounds.SetBounds(imprintBds);
-  imprintBounds.Inflate(this->Tolerance);
-  vtkIdType npts;
-  const vtkIdType* pts;
-  for (auto i = 0; i < numTargetCells; ++i)
-  {
-    int cellType = target->GetCellType(i);
-    if (cellType == VTK_TRIANGLE || cellType == VTK_QUAD || cellType == VTK_POLYGON)
-    {
-      target->GetCellBounds(i, targetCellBounds);
-      targetBounds.SetBounds(targetCellBounds);
-      target->GetCellPoints(i, npts, pts);
-      if (!targetBounds.Intersects(imprintBounds))
-      {
-        // This cell is kept
-        output->InsertNextCell(cellType, npts, pts);
-      }
-      else
-      {
-        // Otherwise this gets shunted to the candidate output for further
-        // processing.
-        candidateOutput->InsertNextCell(cellType, npts, pts);
-      }
-    }
-  }
 
-  // The output type may just be the target candidate cells.
+  // Use a threaded bounding-box intersection operation to separate the kept
+  // candidate cells from the target cells.
+  BoundsCull bc(target, imprint, this->OutputType, this->Tolerance, candidateOutput, output);
+  vtkSMPTools::For(0, numTargetCells, bc);
+
+  // The desired output type may just be the target candidate cells.
   if (this->OutputType == TARGET_CELLS)
   {
     output->ShallowCopy(candidateOutput);
@@ -971,23 +1071,28 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(target);
     return 1;
   }
-  this->CellLocator->SetDataSet(candidateOutput);
-  this->CellLocator->BuildLocator();
+  vtkNew<vtkStaticCellLocator> candidateCellLocator;
+  candidateCellLocator->SetDataSet(candidateOutput);
+  candidateCellLocator->BuildLocator();
 
-  // Create an initial array of pointers to information structures, in which
-  // each struct contains information about the points and edge fragments
-  // within each target candidate cell.
+  // Create an initial array of pointers to candidate cell information
+  // structures, in which each struct contains information about the points
+  // and edge fragments within each target candidate cell.
   vtkCandidateArray candidateArray(numCandidateCells, nullptr);
 
-  // Now project all imprint points onto the candidate target. This points
-  // array will grow over time as edge intersection points are computed.
+  // Now project all imprint points onto the target candidate cells. The
+  // result is a classification of these points, typically interior but
+  // sometimes on the edge or face of a target cell. Initially all imprint
+  // points are placed in the vtkPointArray; however the points array will
+  // grow later when the edge intersection points are computed.
   vtkPointArray pArray(numImprintPts);
   using ProjPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   ProjPointsWorker ppWorker;
   if (!ProjPointsDispatch::Execute(imprintPts->GetData(), ppWorker, candidateOutput,
-        this->CellLocator, &pArray, this->Tolerance))
+        candidateCellLocator, &pArray, this->Tolerance))
   {
-    ppWorker(imprintPts->GetData(), candidateOutput, this->CellLocator, &pArray, this->Tolerance);
+    ppWorker(
+      imprintPts->GetData(), candidateOutput, candidateCellLocator, &pArray, this->Tolerance);
   }
 
   // With the points projected, add points classified as not-outside to the
@@ -998,19 +1103,20 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Now produce edge intersection points and optionally constraint
   // edges. This an intersection of the imprint edges against the target
   // edges.
-  ProduceIntersectionPoints pip(outPts, imprint, &pArray, candidateOutput, this->CellLocator,
+  ProduceIntersectionPoints pip(outPts, imprint, &pArray, candidateOutput, candidateCellLocator,
     &candidateArray, numTargetPts, this->Tolerance);
   vtkSMPTools::For(0, numImprintCells, pip);
 
   // Generate triangulated target candidate cells. The points and/or
-  // constraint edges are associated with the candidate cells via
-  // the candidate array.
+  // constraint edges are associated with the candidate cells via the
+  // candidate array.
   if (this->OutputType == IMPRINTED_CELLS)
   {
     // This eliminates the target cells that were passed through previously.
     output->ShallowCopy(candidateOutput);
   }
-  Triangulate tri(outPts, &pArray, candidateOutput, &candidateArray, output, numTargetPts);
+  Triangulate tri(outPts, &pArray, candidateOutput, &candidateArray, output, numTargetPts,
+    this->ProduceTriangulationInput);
   vtkSMPTools::For(0, numCandidateCells, tri);
 
   return 1;
