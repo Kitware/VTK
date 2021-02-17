@@ -134,10 +134,6 @@ endforeach ()
 
 include(vtkInstallCMakePackageHelpers)
 
-if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
-  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
-  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
-endif ()
 if (NOT VTK_RELOCATABLE_INSTALL)
   list(APPEND vtk_cmake_files_to_install
     "${vtk_cmake_build_dir}/vtk-find-package-helpers.cmake")

@@ -73,6 +73,13 @@
             # Debugging logs
             - build/Testing/Temporary/Last*.log
 
+.cmake_tidy_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - compile_output.log
+
 .cmake_doxygen_artifacts:
     artifacts:
         expire_in: 1d
