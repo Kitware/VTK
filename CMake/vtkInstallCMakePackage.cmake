@@ -114,12 +114,12 @@ set(vtk_cmake_patch_files
   patches/3.18/FindPython/Support.cmake
   patches/3.18/FindPython2.cmake
   patches/3.18/FindPython3.cmake
-  patches/3.19/FindHDF5.cmake
   patches/3.19/FindJPEG.cmake
   patches/3.19/FindLibArchive.cmake
   patches/3.19/FindSQLite3.cmake
   patches/3.19/FindX11.cmake
   patches/3.20/FindGDAL.cmake
+  patches/3.21/FindHDF5.cmake
   patches/99/FindOpenGL.cmake)
 
 set(vtk_cmake_files_to_install)
