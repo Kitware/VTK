@@ -65,9 +65,9 @@ void vtkDIYUtilities::Link(
 {
   struct Functor
   {
-    Functor(const diy::Master& master, const LinksMapT& linksMap)
-      : Master(master)
-      , LinksMap(linksMap)
+    Functor(const diy::Master& inMaster, const LinksMapT& inLinksMap)
+      : Master(inMaster)
+      , LinksMap(inLinksMap)
     {
     }
 
