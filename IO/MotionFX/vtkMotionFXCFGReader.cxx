@@ -780,7 +780,7 @@ struct UniversalTransformMotion : public Motion
     set(this->utm, "utm", params);
   }
 
-  // read_position_file is defined later since it needs the Actions namespace.
+  // read_universaltransform_file is defined later since it needs the Actions namespace.
   bool read_universaltransform_file(const std::string& rootDir) const;
 
   bool Move(vtkPoints* pts, double time) const override
@@ -1326,9 +1326,9 @@ public:
         {
           mpf->read_position_file(dir);
         }
-        else if (auto mpf = std::dynamic_pointer_cast<const impl::UniversalTransformMotion>(motion))
+        else if (auto mut = std::dynamic_pointer_cast<const impl::UniversalTransformMotion>(motion))
         {
-          mpf->read_universaltransform_file(dir);
+          mut->read_universaltransform_file(dir);
         }
       }
     }
