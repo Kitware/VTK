@@ -232,7 +232,9 @@ public:
    */
   class VTKCOMMONCORE_EXPORT vtkMemkindRAII
   {
+#ifdef VTK_USE_MEMKIND
     bool OriginalValue;
+#endif
 
   public:
     vtkMemkindRAII(bool newValue);

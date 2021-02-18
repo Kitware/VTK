@@ -31,7 +31,9 @@
 // A helper class to to turn on memkind, if enabled, while ensuring it always is restored
 class vtkTDSCMemkindRAII
 {
+#ifdef VTK_USE_MEMKIND
   bool OriginalValue = false;
+#endif
 
 public:
   vtkTDSCMemkindRAII(vtkTemporalDataSetCache* owner)
@@ -44,7 +46,6 @@ public:
     }
 #else
     (void)owner;
-    (void)this->OriginalValue;
 #endif
   }
 #ifdef VTK_USE_MEMKIND
