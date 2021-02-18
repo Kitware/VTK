@@ -286,7 +286,7 @@ int vtkTemporalDataSetCache::RequestDataObject(
 
       if (!output || !output->IsA(input->GetClassName()))
       {
-        auto mkhold = vtkTDSCMemkindRAII(this);
+        vtkTDSCMemkindRAII(this);
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
@@ -409,7 +409,7 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   CacheType::iterator pos = this->Cache.find(upTime);
   if (pos != this->Cache.end())
   {
-    auto mkhold = vtkTDSCMemkindRAII(this);
+    vtkTDSCMemkindRAII(this);
     vtkDataObject* cachedData = pos->second.second;
     output.TakeReference(cachedData->NewInstance());
     output->ShallowCopy(cachedData);
@@ -423,7 +423,7 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
     {
       if (inTime == upTime)
       {
-        auto mkhold = vtkTDSCMemkindRAII(this);
+        vtkTDSCMemkindRAII(this);
         output.TakeReference(input->NewInstance());
         output->ShallowCopy(input);
       }
@@ -493,7 +493,7 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkTemporalDataSetCache::ReplaceCacheItem(
   vtkDataObject* input, double inTime, vtkMTimeType outputUpdateTime)
 {
-  auto mkhold = vtkTDSCMemkindRAII(this);
+  vtkTDSCMemkindRAII(this);
   vtkDataObject* cachedData = input->NewInstance();
   if (input->GetUsingMemkind() && !this->IsASource)
   {
