@@ -796,21 +796,21 @@ struct UniversalTransformMotion : public Motion
     time = std::max(this->transforms.begin()->first, time);
 
     auto next = this->transforms.lower_bound(time);
+    auto prev = next;
 
     vtkNew<vtkTransform> transform;
     transform->PostMultiply();
 
     double t;
-    auto prev = std::prev(next);
     if (next->first > time)
     {
+      prev = std::prev(next);
       const double interval = (next->first - prev->first);
       const double dt = std::min(time - prev->first, interval);
       t = dt / interval; // normalized dt
     }
     else // this also handles single entry files
     {
-      prev = next;
       t = 0.0;
     }
 
