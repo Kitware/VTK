@@ -521,14 +521,19 @@ void vtkSEPReader::ReadDataPiece(FILE* file, char*& dataOutput, vtkIdType offset
 {
   std::size_t len = details::DataFormatSize[static_cast<std::size_t>(this->DataFormat)];
   static_cast<void>(fseek(file, static_cast<long int>(offset * len), SEEK_SET));
-#if defined(_POSIX_VERSION)
+
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
-  fread(dataOutput, len, range, file);
-#pragma GCC diagnostic pop
-#else
-  static_cast<void>(fread(dataOutput, len, range, file));
 #endif
+
+  size_t amountRead = fread(dataOutput, len, range, file);
+  static_cast<void>(amountRead);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
   dataOutput += range * len;
 }
 
