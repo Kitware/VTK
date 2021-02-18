@@ -222,8 +222,8 @@ private:
   }
 
   // disable copying
-  vtkSMPThreadLocal(const vtkSMPThreadLocal&);
-  void operator=(const vtkSMPThreadLocal&);
+  vtkSMPThreadLocal(const vtkSMPThreadLocal&) = delete;
+  void operator=(const vtkSMPThreadLocal&) = delete;
 };
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h
