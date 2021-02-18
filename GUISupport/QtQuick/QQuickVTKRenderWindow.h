@@ -21,14 +21,26 @@
 #ifndef QQuickVTKRenderWindow_h
 #define QQuickVTKRenderWindow_h
 
+// vtk includes
+#include "vtkSmartPointer.h" // For vtkSmartPointer
+
 // Qt includes
+#include <QOpenGLFunctions> // For QOpenGLFunctions
+#include <QPointer>         // For QPointer
 #include <QQuickItem>
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
-#include <QOpenGLFunctions>             // for QOpenGLFunctions
 
 // Forward declarations
+class QEvent;
+class QHoverEvent;
+class QKeyEvent;
+class QMouseEvent;
+class QQuickVTKInteractorAdapter;
 class QQuickWindow;
+class QWheelEvent;
+class vtkGenericOpenGLRenderWindow;
+class vtkRenderWindow;
 
 /**
  * \class QQuickVTKRenderWindow
@@ -45,6 +57,15 @@ public:
   QQuickVTKRenderWindow(QQuickItem* parent = 0);
   ~QQuickVTKRenderWindow();
 
+  //@{
+  /**
+   * Set/Get the render window for the item.
+   */
+  void setRenderWindow(vtkRenderWindow* renWin);
+  void setRenderWindow(vtkGenericOpenGLRenderWindow* renWin);
+  vtkRenderWindow* renderWindow() const;
+  //@}
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
@@ -52,6 +73,27 @@ public Q_SLOTS:
 
 protected Q_SLOTS:
   virtual void handleWindowChanged(QQuickWindow* w);
+
+protected:
+  QPointer<QQuickVTKInteractorAdapter> m_interactorAdapter;
+  vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
+  bool m_initialized = false;
+
+  // Event handlers
+  void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
+  void wheelEvent(QWheelEvent*) override;
+  void hoverMoveEvent(QHoverEvent* event) override;
+
+  void keyPressEvent(QKeyEvent* event) override;
+  void keyReleaseEvent(QKeyEvent* event) override;
+
+  void focusInEvent(QFocusEvent*) override;
+  void focusOutEvent(QFocusEvent*) override;
+
+  bool event(QEvent* e) override;
 
 private:
   Q_DISABLE_COPY(QQuickVTKRenderWindow)

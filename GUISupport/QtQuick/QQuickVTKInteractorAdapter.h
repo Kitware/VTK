@@ -12,20 +12,16 @@
   PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/**
- * @class QQuickVTKInteractorAdapter
- * @brief
- *
- */
-
 #ifndef QQuickVTKInteractorAdapter_h
 #define QQuickVTKInteractorAdapter_h
 
 // VTK includes
-#include <QVTKInteractorAdapter.h>
+#include "QVTKInteractorAdapter.h"
+#include "vtkGUISupportQtQuickModule.h" // for export macro
 
 // Qt includes
-#include <QScopedPointer> // for QScopedPointer
+#include <QList>    // for QList
+#include <QPointer> // for QPointer
 
 // Forward declarations
 class QEnterEvent;
@@ -40,7 +36,11 @@ class QWheelEvent;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 
-class QQuickVTKInteractorAdapter : public QVTKInteractorAdapter
+/**
+ * @class QQuickVTKInteractorAdapter
+ * @brief Intermediate class that handles relaying Qt events to VTK
+ */
+class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKInteractorAdapter : public QVTKInteractorAdapter
 {
   Q_OBJECT
   typedef QVTKInteractorAdapter Superclass;
@@ -62,7 +62,7 @@ public:
 
   /// Map the event position to VTK display coordinates.
   static QPointF mapAndFlipEventPosition(
-    QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPoint& localPos);
+    QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPointF& localPos);
 
 protected:
   void QueueEvent(QEvent* e);
@@ -72,10 +72,10 @@ protected:
   /// The mapping considers the following:
   /// - VTK widgets expect display coordinates, not viewport/local coordinates
   /// - QVTKInteractorAdapter inverts y
-  static QPointF mapEventPosition(QQuickItem* item, const QPoint& localPos);
+  static QPointF mapEventPosition(QQuickItem* item, const QPointF& localPos);
 
 private:
-  QScopedPointer<QQuickWindow> m_qwindow;
+  QPointer<QQuickWindow> m_qwindow;
   QList<QEvent*> m_queuedEvents;
 
   Q_DISABLE_COPY(QQuickVTKInteractorAdapter)

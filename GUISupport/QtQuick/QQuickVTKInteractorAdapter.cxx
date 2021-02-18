@@ -1,12 +1,23 @@
-/*=============================================================================
-Copyright and License information
-=============================================================================*/
+/*=========================================================================
 
-// AlogViz includes
+  Program:   Visualization Toolkit
+  Module:    QQuickVTKInteractorAdapter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "QQuickVTKInteractorAdapter.h"
 
 // Qt includes
+#include <QEvent>
 #include <QQuickItem>
+#include <QQuickWindow>
 
 // VTK includes
 #include <vtkRenderWindow.h>
@@ -27,8 +38,8 @@ void QQuickVTKInteractorAdapter::setQQuickWindow(QQuickWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-QPointF QQuickVTKInteractorAdapter ::mapAndFlipEventPosition(
-  QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPoint& localPos)
+QPointF QQuickVTKInteractorAdapter::mapAndFlipEventPosition(
+  QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPointF& localPos)
 {
   QPointF eventPos = QQuickVTKInteractorAdapter::mapEventPosition(item, localPos);
   eventPos.setY(interactor->GetSize()[1] - eventPos.y() - 1);
@@ -36,7 +47,7 @@ QPointF QQuickVTKInteractorAdapter ::mapAndFlipEventPosition(
 }
 
 //-----------------------------------------------------------------------------
-QPointF QQuickVTKInteractorAdapter::mapEventPosition(QQuickItem* item, const QPoint& localPos)
+QPointF QQuickVTKInteractorAdapter::mapEventPosition(QQuickItem* item, const QPointF& localPos)
 {
   // Account for the difference in coordinate reference systems.
   // Qt uses quadrant IV and VTK uses quadrant I. So the point should be
@@ -53,9 +64,10 @@ void QQuickVTKInteractorAdapter::QueueHoverEvent(QQuickItem* item, QHoverEvent* 
 {
   // Treat Qt hover event as mouse move event. Actual Qt mouse move events occur
   // only when the mouse button is pressed.
-  QPointF pos = mapEventPosition(item, e->pos());
+  QPointF pos = mapEventPosition(item, e->posF());
+  QPointF oldPos = mapEventPosition(item, e->oldPosF());
 
-  QMouseEvent* newEvent = new QMouseEvent(QEvent::MouseMove, pos, Qt::NoButton, 0, 0);
+  QHoverEvent* newEvent = new QHoverEvent(e->type(), pos, oldPos, e->modifiers());
   QueueEvent(newEvent);
 }
 
@@ -96,15 +108,11 @@ void QQuickVTKInteractorAdapter::QueueGeometryChanged(
 //-----------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueWheelEvent(QQuickItem* item, QWheelEvent* e)
 {
-  QPointF pos = mapEventPosition(item, e->pos());
+  QPointF pos = mapEventPosition(item, e->position());
+  QPointF globalPos = mapEventPosition(item, e->globalPosition());
 
-  //  QWheelEvent* newEvent = new QWheelEvent(e->pos(), e->globalPos(),
-  //                                  e->pixelDelta(), e->angleDelta(),
-  //                                  0, Qt::Vertical, e->buttons(),
-  //                                  e->modifiers(), e->phase(),
-  //                                  e->source());
-  QWheelEvent* newEvent =
-    new QWheelEvent(pos, e->globalPos(), e->delta(), e->buttons(), e->modifiers());
+  QWheelEvent* newEvent = new QWheelEvent(pos, globalPos, e->pixelDelta(), e->angleDelta(),
+    e->buttons(), e->modifiers(), e->phase(), e->inverted(), e->source());
   QueueEvent(newEvent);
 }
 
@@ -130,7 +138,7 @@ void QQuickVTKInteractorAdapter::ProcessEvents(vtkRenderWindowInteractor* intera
 {
   if (interactor)
   {
-    foreach (QEvent* e, m_queuedEvents)
+    for (QEvent* e : this->m_queuedEvents)
     {
       ProcessEvent(e, interactor);
     }

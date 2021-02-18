@@ -1,9 +1,11 @@
 set(classes
   QQuickVTKRenderWindow
+  QQuickVTKInteractorAdapter
   )
 
 set(headers
   QQuickVTKRenderWindow.h
+  QQuickVTKInteractorAdapter.h
   )
 
 set(private_headers
