@@ -28,7 +28,7 @@ foreach (target IN LISTS targets_to_build)
     set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
 
     if (NOT target STREQUAL "all")
-      set(CTEST_BUILD_COMMAND "${CTEST_BUILD_COMMAND} ${target}")
+      string(APPEND CTEST_BUILD_COMMAND " ${target}")
     endif ()
   endif ()
 
