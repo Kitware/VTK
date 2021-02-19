@@ -6,6 +6,9 @@ ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 # Pick up from where the configure left off.
 ctest_start(APPEND)
 
+include(ProcessorCount)
+ProcessorCount(nproc)
+
 set(targets_to_build "all")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
@@ -22,7 +25,7 @@ foreach (target IN LISTS targets_to_build)
 
   if (CTEST_CMAKE_GENERATOR MATCHES "Make")
     # Drop the `-i` flag without remorse.
-    set(CTEST_BUILD_COMMAND "make -j 4 ${CTEST_BUILD_FLAGS}")
+    set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
 
     if (NOT target STREQUAL "all")
       set(CTEST_BUILD_COMMAND "${CTEST_BUILD_COMMAND} ${target}")
