@@ -9318,16 +9318,67 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   {
     if (patches.isActive(patch.index_))
     {
-      vtkNew<vtkFloatArray> vData;
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
-      vData->SetNumberOfComponents(nComponents);
-      vData->SetNumberOfTuples(nPoints);
-      for (vtkIdType pointi = 0; pointi < nPoints; ++pointi)
+      vtkSmartPointer<vtkFloatArray> vData;
+      std::string bcType;
+
+      if (bfieldEntries != nullptr)
       {
-        vData->SetTuple(pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), iData);
+        const vtkFoamEntry* bfieldEntry = bfieldEntries->Dictionary().Lookup(patch.name_, true);
+        if (bfieldEntry == nullptr)
+        {
+          // badEntry - but be silent about it
+        }
+        else if (bfieldEntry->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
+        {
+          // badEntry - but be silent about it
+        }
+        else
+        {
+          const vtkFoamDict& patchDict = bfieldEntry->Dictionary();
+
+          // Look for "value" entry
+          vtkFoamEntry* vEntry = patchDict.Lookup("value");
+          if (vEntry == nullptr)
+          {
+            // For alternative fallback
+            const vtkFoamEntry* eptr = patchDict.Lookup("type");
+            if (eptr != nullptr)
+            {
+              bcType = eptr->ToString();
+            }
+          }
+          else
+          {
+            vData = this->FillField(*vEntry, nPoints, io, fieldDataType);
+            // silent about bad entry
+          }
+        }
+      }
+
+      if (vData == nullptr)
+      {
+        // No "value" entry
+        // Default to patch-internal values as boundary values
+        vData = vtkSmartPointer<vtkFloatArray>::New();
+        vData->SetNumberOfComponents(nComponents);
+        vData->SetNumberOfTuples(nPoints);
+
+        // Ad hoc handling of some known bcs without a "value"
+        if (bcType == "noSlip")
+        {
+          vData->FillValue(0);
+        }
+        else
+        {
+          for (vtkIdType pointi = 0; pointi < nPoints; ++pointi)
+          {
+            vData->SetTuple(pointi, GetLabelValue(bpMap, pointi, meshPoints64Bit), iData);
+          }
+        }
       }
 
       auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
