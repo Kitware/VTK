@@ -65,6 +65,7 @@ extern "C" void vtk_jpeg_output_message(j_common_ptr cinfo)
   (*cinfo->err->format_message)(cinfo, buffer);
   vtk_jpeg_error_mgr* err = reinterpret_cast<vtk_jpeg_error_mgr*>(cinfo->err);
   vtkWarningWithObjectMacro(err->JPEGReader, "libjpeg error: " << buffer);
+  cinfo->err->num_warnings++;
 }
 
 extern "C" void jpg_null(j_decompress_ptr vtkNotUsed(cinfo)) {}
@@ -72,7 +73,7 @@ extern "C" void jpg_null(j_decompress_ptr vtkNotUsed(cinfo)) {}
 extern "C" boolean fill_input_buffer(j_decompress_ptr vtkNotUsed(cinfo))
 {
   vtkGenericWarningMacro(<< "libjpeg error: unexpected end of JPEG data!");
-  return TRUE;
+  return FALSE;
 }
 
 extern "C" void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
@@ -125,6 +126,9 @@ void vtkJPEGReader::ExecuteInformation()
     return;
   }
 
+  // reset the error code before reading
+  this->ErrorCode = 0;
+
   if (!this->MemoryBuffer)
   {
     jerr.fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
@@ -152,6 +156,7 @@ void vtkJPEGReader::ExecuteInformation()
   jerr.pub.error_exit = vtk_jpeg_error_exit;
   // for any output message call vtk_jpeg_output_message
   jerr.pub.output_message = vtk_jpeg_output_message;
+  jerr.pub.num_warnings = 0;
   if (setjmp(jerr.setjmp_buffer))
   {
     // clean up
@@ -239,6 +244,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   jerr.pub.error_exit = vtk_jpeg_error_exit;
   // for any output message call vtk_jpeg_output_message
   jerr.pub.output_message = vtk_jpeg_output_message;
+  jerr.pub.num_warnings = 0;
   if (setjmp(jerr.setjmp_buffer))
   {
     // clean up
@@ -318,14 +324,14 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   {
     fclose(jerr.fp);
   }
-  return 0;
+  return jerr.pub.num_warnings;
 }
 
 //------------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-void vtkJPEGReaderUpdate(vtkJPEGReader* self, vtkImageData* data, OT* outPtr)
+void vtkJPEGReader::InternalUpdate(vtkImageData* data, OT* outPtr)
 {
   vtkIdType outIncr[3];
   int outExtent[6];
@@ -340,15 +346,17 @@ void vtkJPEGReaderUpdate(vtkJPEGReader* self, vtkImageData* data, OT* outPtr)
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
   {
-    self->ComputeInternalFileName(idx2);
+    this->ComputeInternalFileName(idx2);
     // read in a JPEG file
-    if (vtkJPEGReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize) == 2)
+    if (vtkJPEGReaderUpdate2(this, outPtr2, outExtent, outIncr, pixSize) != 0)
     {
-      const char* fn = self->GetInternalFileName();
-      vtkErrorWithObjectMacro(self, "libjpeg could not read file: " << fn);
+      const char* fn = this->GetInternalFileName();
+      vtkErrorMacro("libjpeg could not read file: " << fn);
+      this->ErrorCode = 2;
+      return;
     }
 
-    self->UpdateProgress((idx2 - outExtent[4]) / (outExtent[5] - outExtent[4] + 1.0));
+    this->UpdateProgress((idx2 - outExtent[4]) / (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
   }
 }
@@ -373,11 +381,14 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInforma
   // Call the correct templated function for the output
   void* outPtr;
 
+  // reset the error code before reading
+  this->ErrorCode = 0;
+
   // Call the correct templated function for the input
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
   {
-    vtkTemplateMacro(vtkJPEGReaderUpdate(this, data, (VTK_TT*)(outPtr)));
+    vtkTemplateMacro(this->InternalUpdate(data, (VTK_TT*)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
   }
@@ -388,6 +399,9 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
+
+  // reset the error code before reading
+  this->ErrorCode = 0;
 
   // open the file
   jerr.fp = vtksys::SystemTools::Fopen(fname, "rb");
