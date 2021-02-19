@@ -6,6 +6,9 @@
         # Because build logs are in here, we should always upload artifacts.
         when: always
         paths:
+            # Install tree
+            - build/install/
+
             # Logs of the build
             - compile_output.log
 
@@ -70,6 +73,9 @@
         # Tests failing should still upload the artifact for further testing.
         when: always
         paths:
+            # Install tree (if any)
+            - build/install/
+
             # Debugging logs
             - build/Testing/Temporary/Last*.log
 
