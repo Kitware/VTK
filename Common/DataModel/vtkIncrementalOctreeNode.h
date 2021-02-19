@@ -178,9 +178,13 @@ public:
    * upon 2. For case 0, pntId needs to be specified. For cases 1 and 2, the
    * actual point index is returned via pntId. Note that this function always
    * returns 1 to indicate the success of point insertion.
+   * numberOfNodes is the number of nodes present in the tree at this time.
+   * it is used to assign an index to each node which can be used to associate
+   * application specifc information with each node. It is updated if new nodes
+   * are added to the tree.
    */
-  int InsertPoint(
-    vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode);
+  int InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId,
+    int ptMode, int* numberOfNodes);
 
   /**
    * Given a point inside this node, get the minimum squared distance to all
@@ -218,6 +222,18 @@ public:
    * are added to vtkIdList by vtkIdList::SetId().
    */
   void ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, vtkIdList* idList);
+  //@}
+  /**
+   * Returns the maximum level of the tree. If a tree has one node it returns 1
+   * else it returns the maximum level of its children plus 1.
+   */
+  int ComputeNumberOfLevels() const;
+  /**
+   * Returns the index of this node in the octree. The index of the node
+   * enables users of this class to associate additional information with each node.
+   */
+  int GetIndex() const { return this->Index; }
+  vtkIdList* GetPointIds() const { return this->PointIdSet; }
 
 protected:
   vtkIncrementalOctreeNode();
@@ -260,6 +276,13 @@ private:
   vtkIdList* PointIdSet;
 
   /**
+   * Index of the node.
+   * Nodes are assigned an index from 0 to number of nodes - 1. Root node
+   * has index 0.
+   */
+  int Index;
+
+  /**
    * The parent of this node, nullptr for the root node of an octree.
    */
   vtkIncrementalOctreeNode* Parent;
@@ -295,9 +318,10 @@ private:
    * vtkPoints::InsertNextPoint() upon 2. The returned value of this function
    * indicates whether pntIds needs to be destroyed (1) or just unregistered
    * from this node as it has been attached to another node (0).
+   * numberOfNodes in the tree is updated with new created nodes
    */
   int CreateChildNodes(vtkPoints* points, vtkIdList* pntIds, const double newPnt[3],
-    vtkIdType* pntIdx, int maxPts, int ptMode);
+    vtkIdType* pntIdx, int maxPts, int ptMode, int* numberOfNodes);
 
   /**
    * Create a vtkIdList object for storing point indices. Two arguments

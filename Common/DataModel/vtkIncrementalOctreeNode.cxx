@@ -73,6 +73,7 @@ vtkIncrementalOctreeNode::vtkIncrementalOctreeNode()
   this->Children = nullptr;
   this->PointIdSet = nullptr;
   this->NumberOfPoints = 0;
+  this->Index = 0;
 
   // unnecessary to initialize spatial and data bounding boxes here as
   // SetBounds() are always called by the user for the root node of an
@@ -317,7 +318,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion(vt
 
 //------------------------------------------------------------------------------
 int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pntIds,
-  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode)
+  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode, int* numberOfNodes)
 {
   // There are two scenarios for which this function is invoked.
   //
@@ -379,12 +380,14 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 
     // This call internally sets the cener and default data bounding box, too.
     this->Children[i] = vtkIncrementalOctreeNode::New();
+    this->Children[i]->Index = *numberOfNodes + i;
     this->Children[i]->SetParent(this);
     this->Children[i]->SetBounds(octMin[0], octMax[0], octMin[1], octMax[1], octMin[2], octMax[2]);
 
     // allocate a list of point-indices (size = 2^n) for index registration
     this->Children[i]->CreatePointIdSet((maxPts >> 2), (maxPts >> 1));
   }
+  *numberOfNodes += 8;
   boxPtr[0] = nullptr;
   boxPtr[1] = nullptr;
   boxPtr[2] = nullptr;
@@ -416,7 +419,8 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
     // The fact is that we are going to insert the new point to an already
     // full octant (child node). Thus we need to further divide this child
     // to avoid the overflow problem.
-    this->Children[target]->CreateChildNodes(points, pntIds, newPnt, pntIdx, maxPts, ptMode);
+    this->Children[target]->CreateChildNodes(
+      points, pntIds, newPnt, pntIdx, maxPts, ptMode, numberOfNodes);
     dvidId = fullId;
   }
   else
@@ -451,8 +455,8 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 }
 
 //------------------------------------------------------------------------------
-int vtkIncrementalOctreeNode::InsertPoint(
-  vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode)
+int vtkIncrementalOctreeNode::InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts,
+  vtkIdType* pntId, int ptMode, int* numberOfNodes)
 {
   if (this->PointIdSet)
   {
@@ -472,7 +476,8 @@ int vtkIncrementalOctreeNode::InsertPoint(
       // overflow: divide this node and delete the list of point-indices.
       // Note that the number of exactly duplicate points might be greater
       // than or equal to maxPts.
-      if (this->CreateChildNodes(points, this->PointIdSet, newPnt, pntId, maxPts, ptMode))
+      if (this->CreateChildNodes(
+            points, this->PointIdSet, newPnt, pntId, maxPts, ptMode, numberOfNodes))
       {
         this->PointIdSet->Delete();
       }
@@ -796,7 +801,7 @@ void vtkIncrementalOctreeNode::ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, v
 void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
+  os << indent << "Index: " << this->Index << endl;
   os << indent << "Parent: " << this->Parent << endl;
   os << indent << "Children: " << this->Children << endl;
   os << indent << "PointIdSet: " << this->PointIdSet << endl;
@@ -809,4 +814,22 @@ void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->MinDataBounds[2] << endl;
   os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " " << this->MaxDataBounds[1]
      << " " << this->MaxDataBounds[2] << endl;
+}
+
+//------------------------------------------------------------------------------
+int vtkIncrementalOctreeNode::ComputeNumberOfLevels() const
+{
+  if (this->Children)
+  {
+    int maxLevel = 0;
+    for (int i = 0; i < 8; i++)
+    {
+      maxLevel = std::max(maxLevel, this->Children[i]->ComputeNumberOfLevels());
+    }
+    return maxLevel + 1;
+  }
+  else
+  {
+    return 1;
+  }
 }

@@ -15,6 +15,7 @@
 
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -135,6 +136,11 @@ private:
   double LargestDist2;
   std::map<double, std::list<vtkIdType>> dist2ToIds;
 };
+bool GetBounds(void*, vtkIncrementalOctreeNode* node, double* bounds)
+{
+  node->GetBounds(bounds);
+  return true;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -151,6 +157,7 @@ vtkIncrementalOctreePointLocator::vtkIncrementalOctreePointLocator()
   this->InsertTolerance2 = 0.000001;
   this->LocatorPoints = nullptr;
   this->OctreeRootNode = nullptr;
+  this->NumberOfNodes = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -182,6 +189,7 @@ void vtkIncrementalOctreePointLocator::FreeSearchStructure()
     vtkIncrementalOctreePointLocator::DeleteAllDescendants(this->OctreeRootNode);
     this->OctreeRootNode->Delete();
     this->OctreeRootNode = nullptr;
+    this->NumberOfNodes = 0;
   }
 
   if (this->LocatorPoints)
@@ -263,6 +271,7 @@ void vtkIncrementalOctreePointLocator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FudgeFactor: " << this->FudgeFactor << endl;
   os << indent << "LocatorPoints: " << this->LocatorPoints << endl;
+  os << indent << "NumberOfNodes: " << this->NumberOfNodes << endl;
   os << indent << "OctreeRootNode: " << this->OctreeRootNode << endl;
   os << indent << "BuildCubicOctree: " << this->BuildCubicOctree << endl;
   os << indent << "MaxPointsPerLeaf: " << this->MaxPointsPerLeaf << endl;
@@ -272,6 +281,13 @@ void vtkIncrementalOctreePointLocator::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtkPolyData* polysData)
+{
+  this->GenerateRepresentation(nodeLevel, polysData, ::GetBounds, nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtkPolyData* polysData,
+  bool (*GetBounds)(void*, vtkIncrementalOctreeNode*, double*), void* data)
 {
   if (this->OctreeRootNode == nullptr)
   {
@@ -311,15 +327,21 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
   // collect the vertices and quads of each node
   thePoints->Allocate(8 * static_cast<int>(nodesList.size()));
   nodeQuads->AllocateEstimate(static_cast<vtkIdType>(nodesList.size()) * 6, 4);
+  vtkNew<vtkIntArray> nodeIndexes;
+  nodeIndexes->SetName("Index");
+  nodeIndexes->Allocate(nodesList.size() * 6);
+  vtkIdType cellIndex = 0;
   for (std::list<vtkIncrementalOctreeNode*>::iterator lit = nodesList.begin();
        lit != nodesList.end(); ++lit)
   {
-    vtkIncrementalOctreePointLocator::AddPolys(*lit, thePoints, nodeQuads);
+    vtkIncrementalOctreePointLocator::AddPolys(
+      *lit, thePoints, nodeQuads, nodeIndexes, cellIndex, GetBounds, data);
   }
 
   // attach points and quads
   polysData->SetPoints(thePoints);
   polysData->SetPolys(nodeQuads);
+  polysData->GetCellData()->AddArray(nodeIndexes);
 }
 
 //------------------------------------------------------------------------------
@@ -336,8 +358,9 @@ static vtkIdType NODE_POINT_LUT[8][3] = { { 0, 2, 4 }, { 1, 2, 4 }, { 0, 3, 4 },
   { 0, 2, 5 }, { 1, 2, 5 }, { 0, 3, 5 }, { 1, 3, 5 } };
 
 //------------------------------------------------------------------------------
-void vtkIncrementalOctreePointLocator::AddPolys(
-  vtkIncrementalOctreeNode* node, vtkPoints* points, vtkCellArray* polygs)
+void vtkIncrementalOctreePointLocator::AddPolys(vtkIncrementalOctreeNode* node, vtkPoints* points,
+  vtkCellArray* polygs, vtkIntArray* nodeIndexes, vtkIdType& cellIndex,
+  bool (*GetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data)
 {
   int i;
   double bounds[6];
@@ -345,22 +368,27 @@ void vtkIncrementalOctreePointLocator::AddPolys(
   vtkIdType pntIds[8];
   vtkIdType idList[4];
 
-  node->GetBounds(bounds);
-  for (i = 0; i < 8; i++)
+  if (GetBounds(data, node, bounds))
   {
-    ptCord[0] = bounds[NODE_POINT_LUT[i][0]];
-    ptCord[1] = bounds[NODE_POINT_LUT[i][1]];
-    ptCord[2] = bounds[NODE_POINT_LUT[i][2]];
-    pntIds[i] = points->InsertNextPoint(ptCord);
-  }
+    for (i = 0; i < 8; i++)
+    {
+      ptCord[0] = bounds[NODE_POINT_LUT[i][0]];
+      ptCord[1] = bounds[NODE_POINT_LUT[i][1]];
+      ptCord[2] = bounds[NODE_POINT_LUT[i][2]];
+      pntIds[i] = points->InsertNextPoint(ptCord);
+    }
 
-  for (i = 0; i < 6; i++)
-  {
-    idList[0] = pntIds[NODE_FACE_LUT[i][0]];
-    idList[1] = pntIds[NODE_FACE_LUT[i][1]];
-    idList[2] = pntIds[NODE_FACE_LUT[i][2]];
-    idList[3] = pntIds[NODE_FACE_LUT[i][3]];
-    polygs->InsertNextCell(4, idList);
+    int nodeIndex = node->GetIndex();
+    for (i = 0; i < 6; i++)
+    {
+      idList[0] = pntIds[NODE_FACE_LUT[i][0]];
+      idList[1] = pntIds[NODE_FACE_LUT[i][1]];
+      idList[2] = pntIds[NODE_FACE_LUT[i][2]];
+      idList[3] = pntIds[NODE_FACE_LUT[i][3]];
+      polygs->InsertNextCell(4, idList);
+
+      nodeIndexes->InsertValue(cellIndex++, nodeIndex);
+    }
   }
 }
 
@@ -1062,6 +1090,7 @@ int vtkIncrementalOctreePointLocator::InitPointInsertion(
 
   // init the octree with an empty leaf node
   this->OctreeRootNode = vtkIncrementalOctreeNode::New();
+  ++this->NumberOfNodes;
 
   // this call internally inits the middle (center) and data range, too
   this->OctreeRootNode->SetBounds(
@@ -1231,9 +1260,9 @@ int vtkIncrementalOctreePointLocator::InsertUniquePoint(const double point[3], v
 {
   vtkIncrementalOctreeNode* leafContainer = nullptr;
   pntId = this->IsInsertedPoint(point, &leafContainer);
-  return ((pntId > -1)
-      ? 0
-      : leafContainer->InsertPoint(this->LocatorPoints, point, this->MaxPointsPerLeaf, &pntId, 2));
+  return ((pntId > -1) ? 0
+                       : leafContainer->InsertPoint(this->LocatorPoints, point,
+                           this->MaxPointsPerLeaf, &pntId, 2, &this->NumberOfNodes));
 }
 
 //------------------------------------------------------------------------------
@@ -1241,14 +1270,15 @@ void vtkIncrementalOctreePointLocator::InsertPointWithoutChecking(
   const double point[3], vtkIdType& pntId, int insert)
 {
   this->GetLeafContainer(this->OctreeRootNode, point)
-    ->InsertPoint(this->LocatorPoints, point, this->MaxPointsPerLeaf, &pntId, (insert << 1));
+    ->InsertPoint(this->LocatorPoints, point, this->MaxPointsPerLeaf, &pntId, (insert << 1),
+      &this->NumberOfNodes);
 }
 
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::InsertPoint(vtkIdType ptId, const double x[3])
 {
   this->GetLeafContainer(this->OctreeRootNode, x)
-    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &ptId, 1);
+    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &ptId, 1, &this->NumberOfNodes);
 }
 
 //------------------------------------------------------------------------------
@@ -1256,6 +1286,12 @@ vtkIdType vtkIncrementalOctreePointLocator::InsertNextPoint(const double x[3])
 {
   vtkIdType pntId = -1;
   this->GetLeafContainer(this->OctreeRootNode, x)
-    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &pntId, 2);
+    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &pntId, 2, &this->NumberOfNodes);
   return pntId;
+}
+
+//------------------------------------------------------------------------------
+int vtkIncrementalOctreePointLocator::ComputeNumberOfLevels()
+{
+  return this->Level = this->OctreeRootNode->ComputeNumberOfLevels();
 }
