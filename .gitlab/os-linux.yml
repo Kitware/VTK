@@ -9,7 +9,7 @@
 
 .fedora33:
     extends: .linux
-    image: "kitware/vtk:ci-fedora33-20210126"
+    image: "kitware/vtk:ci-fedora33-20210219"
 
 .fedora_mpich_addon:
     variables:
