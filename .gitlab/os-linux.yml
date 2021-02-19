@@ -41,6 +41,15 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_renderless
+        VTK_INSTALL: 1
+
+.fedora33_mpi_renderless_ext_vtk:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_renderless_ext_vtk
 
 .fedora33_java_mpi_qt_tbb:
     extends:
@@ -57,6 +66,15 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb
+        VTK_INSTALL: 1
+
+.fedora33_mpi_python_qt_tbb_ext_vtk:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_python_qt_tbb_ext_vtk
 
 .fedora33_tidy:
     extends:
@@ -163,6 +181,15 @@
     script:
         - *before_script_linux
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+
+    interruptible: true
+
+.cmake_test_external_linux:
+    stage: test-ext
+
+    script:
+        - *before_script_linux
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
 
     interruptible: true
 
