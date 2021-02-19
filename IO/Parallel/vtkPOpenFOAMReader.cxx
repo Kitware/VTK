@@ -297,6 +297,11 @@ int vtkPOpenFOAMReader::RequestInformation(
 int vtkPOpenFOAMReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  vtkSmartPointer<vtkMultiProcessController> splitController;
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
     int ret = 1;
@@ -306,13 +311,24 @@ int vtkPOpenFOAMReader::RequestData(
     }
     this->BroadcastStatus(ret);
     this->GatherMetaData();
+
+    if (this->NumProcesses > 1)
+    {
+      splitController.TakeReference(this->Controller->PartitionController(1, this->ProcessId));
+      vtkNew<vtkMultiBlockDataSet> mb;
+      if (this->ProcessId == 0)
+      {
+        mb->CopyStructure(output);
+        splitController->Broadcast(mb, 0);
+      }
+      else
+      {
+        splitController->Broadcast(mb, 0);
+        output->CopyStructure(mb);
+      }
+    }
     return ret;
   }
-
-  vtkSmartPointer<vtkMultiProcessController> splitController;
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int ret = 1;
   if (this->Superclass::Readers->GetNumberOfItems() > 0)

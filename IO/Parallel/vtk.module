@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::ImagingCore
   VTK::InteractionImage
+  VTK::ParallelCore
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
