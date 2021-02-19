@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkRenderingContextOpenGL2
 KIT
   VTK::OpenGL
+GROUPS
+  Rendering
 IMPLEMENTS
   VTK::RenderingContext2D
 DEPENDS
