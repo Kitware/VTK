@@ -9,7 +9,7 @@
 
 .fedora33:
     extends: .linux
-    image: "kitware/vtk:ci-fedora33-20210126"
+    image: "kitware/vtk:ci-fedora33-20210219"
 
 .fedora_mpich_addon:
     variables:
@@ -83,6 +83,12 @@
         # need investigated or suppressed.
         # CTEST_MEMORYCHECK_SANITIZER_OPTIONS: detect_leaks=0
 
+.fedora_tsan_addon:
+    extends: .fedora_memcheck
+
+    variables:
+        CTEST_MEMORYCHECK_TYPE: ThreadSanitizer
+
 .fedora_ubsan_addon:
     extends: .fedora_memcheck
 
@@ -97,6 +103,15 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora33_asan_mpi_python_qt_tbb
+
+.fedora33_tsan:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+        - .fedora_tsan_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_qt_tbb_tsan
 
 .fedora33_ubsan:
     extends:

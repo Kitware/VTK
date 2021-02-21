@@ -10,7 +10,7 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    libasan libubsan clang-tools-extra
+    libasan libtsan libubsan clang-tools-extra
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -38,8 +38,8 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   python3-twisted python3-autobahn python3 python3-devel python3-numpy \
-   python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi
+    python3-twisted python3-autobahn python3 python3-devel python3-numpy \
+    python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
 
 python3 -m pip install wslink
 
