@@ -6,6 +6,9 @@ ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
 # Pick up from where the configure left off.
 ctest_start(APPEND)
 
+include(ProcessorCount)
+ProcessorCount(nproc)
+
 set(targets_to_build "all")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
@@ -22,10 +25,10 @@ foreach (target IN LISTS targets_to_build)
 
   if (CTEST_CMAKE_GENERATOR MATCHES "Make")
     # Drop the `-i` flag without remorse.
-    set(CTEST_BUILD_COMMAND "make -j 4 ${CTEST_BUILD_FLAGS}")
+    set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
 
     if (NOT target STREQUAL "all")
-      set(CTEST_BUILD_COMMAND "${CTEST_BUILD_COMMAND} ${target}")
+      string(APPEND CTEST_BUILD_COMMAND " ${target}")
     endif ()
   endif ()
 
@@ -59,8 +62,7 @@ endif ()
 if (build_result)
   file(GLOB logs
     "${CTEST_SOURCE_DIRECTORY}/compile_output.log"
-    "${CTEST_SOURCE_DIRECTORY}/doxygen_output.log"
-    "${CTEST_SOURCE_DIRECTORY}/prepare_output.log")
+    "${CTEST_SOURCE_DIRECTORY}/doxygen_output.log")
   if (logs)
     list(APPEND CTEST_NOTES_FILES ${logs})
     ctest_submit(PARTS Notes)
@@ -75,4 +77,15 @@ endif ()
 if ("$ENV{CTEST_NO_WARNINGS_ALLOWED}" AND num_warnings GREATER 0)
   message(FATAL_ERROR
     "Found ${num_warnings} warnings (treating as fatal).")
+endif ()
+
+if (NOT "$ENV{VTK_INSTALL}" STREQUAL "")
+  ctest_build(APPEND
+    TARGET install
+    RETURN_VALUE install_result)
+
+  if (install_result)
+    message(FATAL_ERROR
+      "Failed to install")
+  endif ()
 endif ()

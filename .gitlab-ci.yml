@@ -9,6 +9,7 @@ include:
 stages:
     - build
     - test
+    - test-ext
 
 ################################################################################
 # Job declarations
@@ -51,6 +52,18 @@ test:fedora33-mpi-renderless:
     needs:
         - build:fedora33-mpi-renderless
 
+test-ext:vtk:fedora33-mpi-renderless:
+    extends:
+        - .fedora33_mpi_renderless_ext_vtk
+        - .cmake_test_external_linux
+        - .linux_builder_tags
+        - .cmake_tidy_artifacts
+        - .run_automatically
+    dependencies:
+        - test:fedora33-mpi-renderless
+    needs:
+        - test:fedora33-mpi-renderless
+
 # build:fedora33-java-mpi-qt-tbb:
 #     extends:
 #         - .fedora33_java_mpi_qt_tbb
@@ -92,6 +105,18 @@ test:fedora33-mpi-python-qt-tbb:
         - build:fedora33-mpi-python-qt-tbb
     needs:
         - build:fedora33-mpi-python-qt-tbb
+
+test-ext:vtk:fedora33-mpi-python-qt-tbb:
+    extends:
+        - .fedora33_mpi_python_qt_tbb_ext_vtk
+        - .cmake_test_external_linux
+        - .linux_builder_tags
+        - .cmake_tidy_artifacts
+        - .run_automatically
+    dependencies:
+        - test:fedora33-mpi-python-qt-tbb
+    needs:
+        - test:fedora33-mpi-python-qt-tbb
 
 ## Static analysis builds
 
