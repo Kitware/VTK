@@ -117,10 +117,14 @@ public:
   {
     return vtkHigherOrderWedge::GetNumberOfApproximatingWedges(this->GetOrder());
   }
-  virtual vtkHigherOrderQuadrilateral* getBdyQuad() = 0;
-  virtual vtkHigherOrderTriangle* getBdyTri() = 0;
-  virtual vtkHigherOrderCurve* getEdgeCell() = 0;
-  virtual vtkHigherOrderInterpolation* getInterp() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderQuadrilateral* getBdyQuad());
+  virtual vtkHigherOrderQuadrilateral* GetBoundaryQuad() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderTriangle* getBdyTri());
+  virtual vtkHigherOrderTriangle* GetBoundaryTri() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
+  virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderInterpolation* getInterp());
+  virtual vtkHigherOrderInterpolation* GetInterpolation() = 0;
 
 protected:
   vtkHigherOrderWedge();

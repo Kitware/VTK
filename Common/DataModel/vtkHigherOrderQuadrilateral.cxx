@@ -28,6 +28,15 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+vtkHigherOrderCurve* vtkHigherOrderQuadrilateral::getEdgeCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderQuadrilateral::getEdgeCell, "VTK 9.1", vtkHigherOrderQuadrilateral::GetEdgeCell);
+  return this->GetEdgeCell();
+}
+#endif
+
 vtkHigherOrderQuadrilateral::vtkHigherOrderQuadrilateral()
 {
   this->Approx = nullptr;

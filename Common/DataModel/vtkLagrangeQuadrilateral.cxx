@@ -108,7 +108,7 @@ void vtkLagrangeQuadrilateral::InterpolateDerivs(const double pcoords[3], double
   vtkLagrangeInterpolation::Tensor2ShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }
 
-vtkHigherOrderCurve* vtkLagrangeQuadrilateral::getEdgeCell()
+vtkHigherOrderCurve* vtkLagrangeQuadrilateral::GetEdgeCell()
 {
   return EdgeCell;
 }

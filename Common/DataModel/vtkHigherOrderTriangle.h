@@ -97,9 +97,12 @@ public:
   static void BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkIdType order);
   static vtkIdType Index(const vtkIdType* bindex, vtkIdType order);
 
-  static double eta(vtkIdType n, vtkIdType chi, double sigma);
-  static double d_eta(vtkIdType n, vtkIdType chi, double sigma);
-  virtual vtkHigherOrderCurve* getEdgeCell() = 0;
+  VTK_LEGACY(static double eta(vtkIdType n, vtkIdType chi, double sigma));
+  static double Eta(vtkIdType n, vtkIdType chi, double sigma);
+  VTK_LEGACY(static double d_eta(vtkIdType n, vtkIdType chi, double sigma));
+  static double Deta(vtkIdType n, vtkIdType chi, double sigma);
+  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
+  virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
 
 protected:
   vtkHigherOrderTriangle();

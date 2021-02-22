@@ -101,8 +101,10 @@ public:
 
   static void BarycentricIndex(vtkIdType index, vtkIdType* bindex, vtkIdType order);
   static vtkIdType Index(const vtkIdType* bindex, vtkIdType order);
-  virtual vtkHigherOrderCurve* getEdgeCell() = 0;
-  virtual vtkHigherOrderTriangle* getFaceCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
+  virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderTriangle* getFaceCell());
+  virtual vtkHigherOrderTriangle* GetFaceCell() = 0;
 
 protected:
   vtkHigherOrderTetra();

@@ -34,6 +34,29 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+vtkHigherOrderCurve* vtkHigherOrderHexahedron::getEdgeCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderHexahedron::getEdgeCell, "VTK 9.1", vtkHigherOrderHexahedron::GetEdgeCell);
+  return this->GetEdgeCell();
+}
+
+vtkHigherOrderQuadrilateral* vtkHigherOrderHexahedron::getFaceCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderHexahedron::getFaceCell, "VTK 9.1", vtkHigherOrderHexahedron::GetFaceCell);
+  return this->GetFaceCell();
+}
+
+vtkHigherOrderInterpolation* vtkHigherOrderHexahedron::getInterp()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderHexahedron::getInterp, "VTK 9.1", vtkHigherOrderHexahedron::GetInterpolation);
+  return this->GetInterpolation();
+}
+#endif
+
 vtkHigherOrderHexahedron::vtkHigherOrderHexahedron()
 {
   this->Approx = nullptr;
@@ -470,7 +493,7 @@ int vtkHigherOrderHexahedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptId
 void vtkHigherOrderHexahedron::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  this->getInterp()->Tensor3EvaluateDerivative(
+  this->GetInterpolation()->Tensor3EvaluateDerivative(
     this->Order, pcoords, this->GetPoints(), values, dim, derivs);
 }
 

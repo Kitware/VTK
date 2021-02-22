@@ -63,9 +63,9 @@ public:
   void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
 
   vtkDoubleArray* GetRationalWeights();
-  vtkHigherOrderCurve* getEdgeCell() override;
-  vtkHigherOrderQuadrilateral* getFaceCell() override;
-  vtkHigherOrderInterpolation* getInterp() override;
+  vtkHigherOrderCurve* GetEdgeCell() override;
+  vtkHigherOrderQuadrilateral* GetFaceCell() override;
+  vtkHigherOrderInterpolation* GetInterpolation() override;
 
 protected:
   vtkHexahedron* GetApproximateHex(

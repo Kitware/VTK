@@ -236,15 +236,15 @@ vtkDoubleArray* vtkBezierHexahedron::GetRationalWeights()
 {
   return RationalWeights.Get();
 }
-vtkHigherOrderCurve* vtkBezierHexahedron::getEdgeCell()
+vtkHigherOrderCurve* vtkBezierHexahedron::GetEdgeCell()
 {
   return EdgeCell;
 }
-vtkHigherOrderQuadrilateral* vtkBezierHexahedron::getFaceCell()
+vtkHigherOrderQuadrilateral* vtkBezierHexahedron::GetFaceCell()
 {
   return FaceCell;
 }
-vtkHigherOrderInterpolation* vtkBezierHexahedron::getInterp()
+vtkHigherOrderInterpolation* vtkBezierHexahedron::GetInterpolation()
 {
   return Interp;
 };

@@ -104,9 +104,12 @@ public:
   int PointIndexFromIJK(int i, int j, int k);
   bool TransformApproxToCellParams(int subCell, double* pcoords);
   bool TransformFaceToCellParams(int bdyFace, double* pcoords);
-  virtual vtkHigherOrderCurve* getEdgeCell() = 0;
-  virtual vtkHigherOrderQuadrilateral* getFaceCell() = 0;
-  virtual vtkHigherOrderInterpolation* getInterp() = 0;
+  virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
+  virtual vtkHigherOrderQuadrilateral* GetFaceCell() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderQuadrilateral* getFaceCell());
+  virtual vtkHigherOrderInterpolation* GetInterpolation() = 0;
+  VTK_LEGACY(virtual vtkHigherOrderInterpolation* getInterp());
 
   static vtkIdType NodeNumberingMappingFromVTK8To9(
     const int order[3], const vtkIdType node_id_vtk8);

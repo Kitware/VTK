@@ -177,6 +177,36 @@ static bool linearWedgeLocationFromSubId(
   return true;
 }
 
+#if !defined(VTK_LEGACY_REMOVE)
+vtkHigherOrderQuadrilateral* vtkHigherOrderWedge::getBdyQuad()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderWedge::getBdyQuad, "VTK 9.1", vtkHigherOrderWedge::GetBoundaryQuad);
+  return this->GetBoundaryQuad();
+}
+
+vtkHigherOrderTriangle* vtkHigherOrderWedge::getBdyTri()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderWedge::getBdyTri, "VTK 9.1", vtkHigherOrderWedge::GetBoundaryTri);
+  return this->GetBoundaryTri();
+}
+
+vtkHigherOrderCurve* vtkHigherOrderWedge::getEdgeCell()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderWedge::getEdgeCell, "VTK 9.1", vtkHigherOrderWedge::GetEdgeCell);
+  return this->GetEdgeCell();
+}
+
+vtkHigherOrderInterpolation* vtkHigherOrderWedge::getInterp()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkHigherOrderWedge::getInterp, "VTK 9.1", vtkHigherOrderWedge::GetInterpolation);
+  return this->GetInterpolation();
+}
+#endif
+
 vtkHigherOrderWedge::vtkHigherOrderWedge()
 {
   this->Approx = nullptr;
@@ -551,7 +581,7 @@ int vtkHigherOrderWedge::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vt
 void vtkHigherOrderWedge::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  this->getInterp()->WedgeEvaluateDerivative(
+  this->GetInterpolation()->WedgeEvaluateDerivative(
     this->Order, pcoords, this->GetPoints(), values, dim, derivs);
 }
 

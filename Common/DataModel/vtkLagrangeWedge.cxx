@@ -109,19 +109,19 @@ void vtkLagrangeWedge::InterpolateDerivs(const double pcoords[3], double* derivs
     this->GetOrder(), this->GetOrder()[3], pcoords, derivs);
 }
 
-vtkHigherOrderQuadrilateral* vtkLagrangeWedge::getBdyQuad()
+vtkHigherOrderQuadrilateral* vtkLagrangeWedge::GetBoundaryQuad()
 {
   return BdyQuad;
 };
-vtkHigherOrderTriangle* vtkLagrangeWedge::getBdyTri()
+vtkHigherOrderTriangle* vtkLagrangeWedge::GetBoundaryTri()
 {
   return BdyTri;
 };
-vtkHigherOrderCurve* vtkLagrangeWedge::getEdgeCell()
+vtkHigherOrderCurve* vtkLagrangeWedge::GetEdgeCell()
 {
   return EdgeCell;
 }
-vtkHigherOrderInterpolation* vtkLagrangeWedge::getInterp()
+vtkHigherOrderInterpolation* vtkLagrangeWedge::GetInterpolation()
 {
   return Interp;
 };

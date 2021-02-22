@@ -53,7 +53,7 @@ public:
 
   void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
   vtkDoubleArray* GetRationalWeights();
-  vtkHigherOrderCurve* getEdgeCell() override;
+  vtkHigherOrderCurve* GetEdgeCell() override;
 
 protected:
   // The verion of GetApproximateQuad between Lagrange and Bezier is different because Bezier is

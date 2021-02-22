@@ -199,7 +199,7 @@ vtkDoubleArray* vtkBezierQuadrilateral::GetRationalWeights()
 {
   return RationalWeights.Get();
 }
-vtkHigherOrderCurve* vtkBezierQuadrilateral::getEdgeCell()
+vtkHigherOrderCurve* vtkBezierQuadrilateral::GetEdgeCell()
 {
   return EdgeCell;
 }

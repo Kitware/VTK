@@ -219,19 +219,19 @@ vtkDoubleArray* vtkBezierWedge::GetRationalWeights()
 {
   return RationalWeights.Get();
 }
-vtkHigherOrderQuadrilateral* vtkBezierWedge::getBdyQuad()
+vtkHigherOrderQuadrilateral* vtkBezierWedge::GetBoundaryQuad()
 {
   return BdyQuad;
 };
-vtkHigherOrderTriangle* vtkBezierWedge::getBdyTri()
+vtkHigherOrderTriangle* vtkBezierWedge::GetBoundaryTri()
 {
   return BdyTri;
 };
-vtkHigherOrderCurve* vtkBezierWedge::getEdgeCell()
+vtkHigherOrderCurve* vtkBezierWedge::GetEdgeCell()
 {
   return EdgeCell;
 }
-vtkHigherOrderInterpolation* vtkBezierWedge::getInterp()
+vtkHigherOrderInterpolation* vtkBezierWedge::GetInterpolation()
 {
   return Interp;
 };
