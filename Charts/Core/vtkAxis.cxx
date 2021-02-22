@@ -18,6 +18,7 @@
 #include "vtkAxisExtended.h"
 #include "vtkChart.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -319,39 +320,10 @@ bool vtkAxis::Paint(vtkContext2D* painter)
   // Draw the axis title if there is one
   if (!this->Title.empty() && this->TitleVisible)
   {
-    int x = 0;
-    int y = 0;
+    vtkVector2f titlePosition;
+    CalculateTitlePosition(titlePosition);
     painter->ApplyTextProp(this->TitleProperties);
-
-    // Draw the axis label
-    if (this->Position == vtkAxis::LEFT)
-    {
-      // Draw the axis label
-      x = vtkContext2D::FloatToInt(this->Point1[0] - this->MaxLabel[0] - 10);
-      y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
-    }
-    else if (this->Position == vtkAxis::RIGHT)
-    {
-      // Draw the axis label
-      x = vtkContext2D::FloatToInt(this->Point1[0] + this->MaxLabel[0] + 10);
-      y = vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2;
-    }
-    else if (this->Position == vtkAxis::BOTTOM)
-    {
-      x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
-      y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 10);
-    }
-    else if (this->Position == vtkAxis::TOP)
-    {
-      x = vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2;
-      y = vtkContext2D::FloatToInt(this->Point1[1] + this->MaxLabel[1] + 10);
-    }
-    else if (this->Position == vtkAxis::PARALLEL)
-    {
-      x = vtkContext2D::FloatToInt(this->Point1[0]);
-      y = vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 15);
-    }
-    painter->DrawString(x, y, this->Title);
+    painter->DrawString(titlePosition.GetX(), titlePosition.GetY(), this->Title);
   }
 
   // Now draw the tick marks
@@ -1428,6 +1400,30 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
 }
 
 //------------------------------------------------------------------------------
+bool vtkAxis::Hit(const vtkContextMouseEvent& mouse)
+{
+  if (!this->Interactive || !this->Visible)
+  {
+    return false;
+  }
+
+  vtkVector2f textDistance;
+  CalculateTitlePosition(textDistance);
+  vtkVector2f vpos = mouse.GetPos();
+  if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT ||
+    this->Position == vtkAxis::PARALLEL)
+  {
+    return vpos.GetX() < vtkMath::Max(this->Point1[0], textDistance.GetX()) &&
+      vpos.GetX() > vtkMath::Min(this->Point1[0], textDistance.GetX());
+  }
+  else
+  {
+    return vpos.GetY() < vtkMath::Max(this->Point1[1], textDistance.GetY()) &&
+      vpos.GetY() > vtkMath::Min(this->Point1[1], textDistance.GetY());
+  }
+}
+
+//------------------------------------------------------------------------------
 // This methods generates tick labels for 8 different format notations
 //   1 - Scientific 5 * 10^6
 //   2 - Decimal e.g. 5000
@@ -1833,6 +1829,38 @@ void vtkAxis::GenerateLogScaleTickMarks(int order, double min, double max, bool 
       this->TickLabels->InsertNextValue("");
     }
     result += 1.0;
+  }
+}
+
+void vtkAxis::CalculateTitlePosition(vtkVector2f& out)
+{
+  // Draw the axis label
+  if (this->Position == vtkAxis::LEFT)
+  {
+    // Draw the axis label
+    out.SetX(vtkContext2D::FloatToInt(this->Point1[0] - this->MaxLabel[0] - 10));
+    out.SetY(vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2);
+  }
+  else if (this->Position == vtkAxis::RIGHT)
+  {
+    // Draw the axis label
+    out.SetX(vtkContext2D::FloatToInt(this->Point1[0] + this->MaxLabel[0] + 10));
+    out.SetY(vtkContext2D::FloatToInt(this->Point1[1] + this->Point2[1]) / 2);
+  }
+  else if (this->Position == vtkAxis::BOTTOM)
+  {
+    out.SetX(vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2);
+    out.SetY(vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 10));
+  }
+  else if (this->Position == vtkAxis::TOP)
+  {
+    out.SetX(vtkContext2D::FloatToInt(this->Point1[0] + this->Point2[0]) / 2);
+    out.SetY(vtkContext2D::FloatToInt(this->Point1[1] + this->MaxLabel[1] + 10));
+  }
+  else if (this->Position == vtkAxis::PARALLEL)
+  {
+    out.SetX(vtkContext2D::FloatToInt(this->Point1[0]));
+    out.SetY(vtkContext2D::FloatToInt(this->Point1[1] - this->MaxLabel[1] - 15));
   }
 }
 

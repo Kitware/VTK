@@ -229,6 +229,19 @@ public:
   bool HasTransform() { return this->Transform != nullptr; }
 
   /**
+   * Return the item id under mouse cursor at position (x,y).
+   * Return -1 if there is no item under the mouse cursor.
+   * \post valid_result: result>=-1 && result<this->GetNumberOfItems()
+   */
+  vtkIdType GetPickedItem(int x, int y);
+
+  /**
+   * Return the item under the mouse.
+   * If no item is under the mouse, the method returns a null pointer.
+   */
+  vtkAbstractContextItem* GetPickedItem();
+
+  /**
    * Enum of valid selection modes for charts in the scene
    */
   enum
@@ -294,19 +307,6 @@ protected:
    * Test if BufferId is supported by the OpenGL context.
    */
   void TestBufferIdSupport();
-
-  /**
-   * Return the item id under mouse cursor at position (x,y).
-   * Return -1 if there is no item under the mouse cursor.
-   * \post valid_result: result>=-1 && result<this->GetNumberOfItems()
-   */
-  vtkIdType GetPickedItem(int x, int y);
-
-  /**
-   * Return the item under the mouse.
-   * If no item is under the mouse, the method returns a null pointer.
-   */
-  vtkAbstractContextItem* GetPickedItem();
 
   /**
    * Make sure the buffer id used for picking is up-to-date.
