@@ -1229,11 +1229,10 @@ void vtkHigherOrderWedge::GetQuadrilateralFace(vtkHigherOrderQuadrilateral* resu
 void vtkHigherOrderWedge::SetOrderFromCellData(
   vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
 {
-  if (cell_data->SetActiveAttribute(
-        "HigherOrderDegrees", vtkDataSetAttributes::AttributeTypes::HIGHERORDERDEGREES) != -1)
+  vtkDataArray* v = cell_data->GetHigherOrderDegrees();
+  if (v)
   {
     double degs[3];
-    vtkDataArray* v = cell_data->GetHigherOrderDegrees();
     v->GetTuple(cell_id, degs);
     this->SetOrder(degs[0], degs[1], degs[2], numPts);
   }
