@@ -148,7 +148,7 @@ bool vtkTetra::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, dou
   centroid[0] = centroid[1] = centroid[2] = 0.0;
   if (!pointIds)
   {
-    for (vtkIdType i = 0; i < vtkTetra::MaximumFaceSize; ++i)
+    for (vtkIdType i = 0; i < vtkTetra::NumberOfPoints; ++i)
     {
       points->GetPoint(i, p);
       centroid[0] += p[0];
@@ -158,7 +158,7 @@ bool vtkTetra::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, dou
   }
   else
   {
-    for (vtkIdType i = 0; i < vtkTetra::MaximumFaceSize; ++i)
+    for (vtkIdType i = 0; i < vtkTetra::NumberOfPoints; ++i)
     {
       points->GetPoint(pointIds[i], p);
       centroid[0] += p[0];
@@ -166,9 +166,9 @@ bool vtkTetra::ComputeCentroid(vtkPoints* points, const vtkIdType* pointIds, dou
       centroid[2] += p[2];
     }
   }
-  centroid[0] /= vtkTetra::MaximumFaceSize;
-  centroid[1] /= vtkTetra::MaximumFaceSize;
-  centroid[2] /= vtkTetra::MaximumFaceSize;
+  centroid[0] /= vtkTetra::NumberOfPoints;
+  centroid[1] /= vtkTetra::NumberOfPoints;
+  centroid[2] /= vtkTetra::NumberOfPoints;
   return true;
 }
 
