@@ -405,6 +405,9 @@ int vtkCutter::RequestData(
       newPlane->Push(-d + this->GetValue(0));
 
       linear3DCutter->SetPlane(newPlane);
+      bool mergePoints =
+        this->GetLocator() && !this->GetLocator()->IsA("vtkNonMergingPointLocator");
+      linear3DCutter->SetMergePoints(mergePoints);
       linear3DCutter->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
       linear3DCutter->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
       vtkNew<vtkEventForwarderCommand> progressForwarder;
