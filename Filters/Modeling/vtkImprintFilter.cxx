@@ -50,7 +50,7 @@ vtkImprintFilter::vtkImprintFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkImprintFilter::~vtkImprintFilter() {}
+vtkImprintFilter::~vtkImprintFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkImprintFilter::SetTargetConnection(vtkAlgorithmOutput* algOutput)
