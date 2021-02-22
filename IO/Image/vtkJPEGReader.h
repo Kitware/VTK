@@ -59,6 +59,9 @@ protected:
   vtkJPEGReader() = default;
   ~vtkJPEGReader() override = default;
 
+  template <class OT>
+  void InternalUpdate(vtkImageData* data, OT* outPtr);
+
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;
 
