@@ -768,6 +768,8 @@ void PIO_DATA::FreePIOData(PIO_FIELD& _pio_field)
 
 void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
 {
+  PIO_FIELD* cell_daughter_field = VarMMap.equal_range("cell_daughter").first->second;
+  int number_of_cells = cell_daughter_field->length;
   if (_pio_field.data != 0 || _pio_field.cdata != 0)
     return; // Data already read
   this->Infile->seekg(_pio_field.position, std::ios::beg);
@@ -776,12 +778,26 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
     delete[] _pio_field.data;
   _pio_field.data = new double[_pio_field.length];
   bool char_data = true;
-  for (int64_t j = 0; j < _pio_field.length; ++j)
+
+  // Data per cell assumed to not be string
+  if (_pio_field.length == number_of_cells)
   {
-    read_pio_word(_pio_field.data[j]);
-    if (char_data && !is_a_string((char*)(_pio_field.data + j), slen))
-      char_data = false;
+    for (int64_t j = 0; j < _pio_field.length; ++j)
+    {
+      read_pio_word(_pio_field.data[j]);
+    }
+    char_data = false;
   }
+  else
+  {
+    for (int64_t j = 0; j < _pio_field.length; ++j)
+    {
+      read_pio_word(_pio_field.data[j]);
+      if (char_data && !is_a_string((char*)(_pio_field.data + j), slen))
+        char_data = false;
+    }
+  }
+
   if (char_data)
   {
     char_data = false;
@@ -794,6 +810,7 @@ void PIO_DATA::ReadPioFieldData(PIO_FIELD& _pio_field)
       }
     }
   }
+
   if (RealData.find(_pio_field.pio_name) != RealData.end())
     char_data = false;
   else if (CharData.find(_pio_field.pio_name) != CharData.end())

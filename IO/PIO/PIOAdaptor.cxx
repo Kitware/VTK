@@ -246,6 +246,7 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
     else
     {
       numFiles = directory->GetNumberOfFiles();
+      uint64_t numDumps = 0;
       for (unsigned int i = 0; i < numFiles; i++)
       {
         string fileName = directory->GetFile(i);
@@ -264,9 +265,22 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
               tempStr << this->dumpDirectory[dir] << Slash << fileName;
               std::pair<long, std::string> pair(cycle, tempStr.str());
               fileMap.insert(pair);
+              numDumps++;
             }
           }
         }
+      }
+      if (numDumps == 0)
+      {
+        // get the original base name for the warning message
+        string basename = this->dumpBaseName;
+        string::size_type pos = basename.find("-dmp");
+        if (pos != string::npos)
+        {
+          basename = basename.substr(0, pos);
+        }
+        vtkGenericWarningMacro("No files exist with the base name: '"
+          << basename << "' in the dump directory: " << this->dumpDirectory[dir]);
       }
     }
   }
@@ -276,7 +290,6 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
   }
   if (this->dumpFileName.empty())
   {
-    vtkGenericWarningMacro("No files exist with the base name :" << this->dumpBaseName);
     return 0;
   }
 
@@ -424,6 +437,28 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Remove whitespace from the beginning and end of a string
+//
+///////////////////////////////////////////////////////////////////////////////
+
+string PIOAdaptor::trimString(const string& str)
+{
+  string whitespace = " \n\r\t\f\v";
+  size_t start = str.find_first_not_of(whitespace);
+  size_t end = str.find_last_not_of(whitespace);
+  if (start == string::npos || end == string::npos)
+  {
+    // the whole line is whitespace
+    return string("");
+  }
+  else
+  {
+    return str.substr(start, end - start + 1);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Read the global descriptor file (name.pio)
 //
 // DUMP_BASE_NAME base        (Required)
@@ -482,55 +517,69 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
 
     while (pioStr.getline(inBuf, 256))
     {
-      if (inBuf[0] != '#' && pioStr.gcount() > 1)
+      string localline(inBuf);
+      localline = trimString(localline);
+      if (localline.length() > 0)
       {
-        // Remove quotes from input
-        string localline(inBuf);
-        localline.erase(std::remove(localline.begin(), localline.end(), '\"'), localline.end());
-        localline.erase(std::remove(localline.begin(), localline.end(), '\''), localline.end());
-
-        string::size_type keyPos = localline.find(' ');
-        keyword = localline.substr(0, keyPos);
-        rest = localline.substr(keyPos + 1);
-        istringstream line(rest.c_str());
-
-        if (keyword == "DUMP_DIRECTORY")
+        if (localline[0] != '#' && localline[0] != '!')
         {
-          line >> rest;
-          if (rest[0] == '/')
+          // Remove quotes from input
+          localline.erase(std::remove(localline.begin(), localline.end(), '\"'), localline.end());
+          localline.erase(std::remove(localline.begin(), localline.end(), '\''), localline.end());
+
+          // check for comments in the middle of the line
+          string::size_type poundPos = localline.find('#');
+          if (poundPos != string::npos)
           {
-            // If a full path is given use it
-            this->dumpDirectory.push_back(rest);
+            localline = localline.substr(0, poundPos);
           }
-          else
+
+          string::size_type bangPos = localline.find('!');
+          if (bangPos != string::npos)
           {
-            // If partial path append to the dir of the .pio file
+            localline = localline.substr(0, bangPos);
+          }
+
+          string::size_type keyPos = localline.find(' ');
+          keyword = trimString(localline.substr(0, keyPos));
+          rest = trimString(localline.substr(keyPos + 1));
+
+          if (keyword == "DUMP_DIRECTORY")
+          {
+            if (rest[0] == '/')
+            {
+              // If a full path is given use it
+              this->dumpDirectory.push_back(rest);
+            }
+            else
+            {
+              // If partial path append to the dir of the .pio file
+              ostringstream tempStr;
+              tempStr << dirName << Slash << rest;
+              this->dumpDirectory.push_back(tempStr.str());
+            }
+          }
+          if (keyword == "DUMP_BASE_NAME")
+          {
             ostringstream tempStr;
-            tempStr << dirName << Slash << rest;
-            this->dumpDirectory.push_back(tempStr.str());
+            tempStr << rest << "-dmp";
+            this->dumpBaseName = tempStr.str();
           }
-        }
-        if (keyword == "DUMP_BASE_NAME")
-        {
-          line >> rest;
-          ostringstream tempStr;
-          tempStr << rest << "-dmp";
-          this->dumpBaseName = tempStr.str();
-        }
-        if (keyword == "MAKE_HTG")
-        {
-          if (rest == "YES")
-            this->useHTG = true;
-        }
-        if (keyword == "MAKE_TRACER")
-        {
-          if (rest == "YES")
-            this->useTracer = true;
-        }
-        if (keyword == "FLOAT64")
-        {
-          if (rest == "YES")
-            this->useFloat64 = true;
+          if (keyword == "MAKE_HTG")
+          {
+            if (rest == "YES")
+              this->useHTG = true;
+          }
+          if (keyword == "MAKE_TRACER")
+          {
+            if (rest == "YES")
+              this->useTracer = true;
+          }
+          if (keyword == "FLOAT64")
+          {
+            if (rest == "YES")
+              this->useFloat64 = true;
+          }
         }
       }
     }
@@ -1679,37 +1728,58 @@ void PIOAdaptor::load_variable_data_UG(
           static_cast<int>(this->pioData->VarMMap.count(this->variableName[var].c_str()));
         dataVector = new double*[numberOfComponents];
 
+        bool status = true;
         if (numberOfComponents == 1)
         {
-          this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
+          status = this->pioData->set_scalar_field(scalarArray, this->variableName[var].c_str());
           dataVector[0] = &scalarArray[0];
         }
         else
         {
-          this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
+          status = this->pioData->set_vector_field(vectorArray, this->variableName[var].c_str());
           for (int d = 0; d < numberOfComponents; d++)
           {
             dataVector[d] = &vectorArray[d][0];
           };
         }
-        // Send number of cells, number of components and data
-        for (int rank = 1; rank < this->TotalRank; rank++)
+
+        if (status == false)
         {
-          this->Controller->Send(&countCell[rank], 1, rank, mpiTag);
-          this->Controller->Send(&numberOfComponents, 1, rank, mpiTag);
-          for (int d = 0; d < numberOfComponents; d++)
+          // send a -1 as the number of cells to signal to other ranks to skip this variable
+          int negative_one = -1;
+          for (int rank = 1; rank < this->TotalRank; rank++)
           {
-            this->Controller->Send(&dataVector[d][startCell[rank]], countCell[rank], rank, mpiTag);
+            this->Controller->Send(&negative_one, 1, rank, mpiTag);
           }
+          vtkGenericWarningMacro("Error, PIO data was not retrieved: " << this->variableName[var]);
         }
-        // Add the data to the structure
-        add_amr_UG_scalar(grid, this->variableName[var], cell_daughter, dataVector, numberOfCells,
-          numberOfComponents);
-        delete[] dataVector;
+        else
+        {
+          // Send number of cells, number of components and data
+          for (int rank = 1; rank < this->TotalRank; rank++)
+          {
+            this->Controller->Send(&countCell[rank], 1, rank, mpiTag);
+            this->Controller->Send(&numberOfComponents, 1, rank, mpiTag);
+            for (int d = 0; d < numberOfComponents; d++)
+            {
+              this->Controller->Send(
+                &dataVector[d][startCell[rank]], countCell[rank], rank, mpiTag);
+            }
+          }
+          // Add the data to the structure
+          add_amr_UG_scalar(grid, this->variableName[var], cell_daughter, dataVector, numberOfCells,
+            numberOfComponents);
+          delete[] dataVector;
+        }
       }
       else
       {
         this->Controller->Receive(&numberOfCells, 1, 0, mpiTag);
+        if (numberOfCells == -1)
+        {
+          // there was a problem reading this variable, skip
+          continue;
+        }
         this->Controller->Receive(&numberOfComponents, 1, 0, mpiTag);
 
         // Allocate space to receive data
