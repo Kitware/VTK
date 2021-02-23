@@ -41,9 +41,10 @@ Required:
     - Version 3.8 or newer, however, the latest version is always recommended
   * Supported compiler
     - GCC 4.8 or newer
-    - Clang 4 or newer
-    - Xcode 9 or newer
-    - Visual Studio 2015 or newer
+    - Clang 3.3 or newer
+    - Apple Clang 5.0 (from Xcode 5.0) or newer
+    - Microsoft Visual Studio 2015 or newer
+    - Intel 14.0 or newer
 
 Optional dependencies:
 
