@@ -1009,7 +1009,6 @@ void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //=============================================================================
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkCurveRepresentation::SetDirectionalLine(bool val)
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -1037,5 +1036,4 @@ void vtkCurveRepresentation::DirectionalLineOff()
     vtkCurveRepresentation::DirectionalLineOff, "VTK 9.1", vtkCurveRepresentation::DirectionalOff);
   this->DirectionalOff();
 }
-#endif // !defined(VTK_LEGACY_REMOVE)
 //=============================================================================
