@@ -115,57 +115,68 @@ protected:
   ~vtkPassInputTypeAlgorithm() override = default;
 
   /**
+   * This is called within ProcessRequest when a request asks the
+   * algorithm to create empty output data objects. This typically happens
+   * early on in the execution of the pipeline. The default behavior is to
+   * create an output DataSet of the same type as the input for each
+   * output port. This method can be overridden to change the output
+   * data type of an algorithm. This happens in the first pass of the pipeline
+   * execution process.
+   */
+  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+
+  /**
    * This is called within ProcessRequest when a request asks for
    * Information. Typically an algorithm provides whatever lightweight
    * information about its output that it can here without doing any
-   * lengthy computations. This happens in the first pass of the pipeline
-   * execution.
+   * lengthy computations. This happens after the RequestDataObject pass of
+   * the pipeline execution process.
    */
   virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
 
+  /**
+   * This is called within ProcessRequest when a request ask for temporal
+   * information to be updated. This special pass is only used for
+   * temporal data, this happend after the RequestInformation pass of the
+   * pipeline execution process.
+   */
   virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
 
+  /**
+   * This is called within ProcessRequest when a request ask for meta
+   * information to be updated. This special pass is only used for
+   * temporal data, this happend after the RequestUpdateTime pass of the
+   * pipeline execution process.
+   */
   virtual int RequestUpdateTimeDependentInformation(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
 
-  //@{
   /**
    * This is called within ProcessRequest when each filter in the pipeline
    * decides what portion of its input is needed to create the portion of its
-   * output that the downstream filter asks for. This happens during the
-   * second pass in the pipeline execution process.
+   * output that the downstream filter asks for. This happens after the
+   * RequestInformation / RequestUpdateTimeDependentInformation pass of the
+   * pipeline execution process.
    */
   virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
   }
-  //@}
-
-  /**
-   * This is called within ProcessRequest to when a request asks the
-   * algorithm to create empty output data objects. This typically happens
-   * early on in the execution of the pipeline. The default behavior is to
-   * create an output DataSet of the same type as the input for each
-   * output port. This method can be overridden to change the output
-   * data type of an algorithm. This happens in the third pass of the
-   * pipeline execution.
-   */
-  virtual int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
 
   /**
    * This is called within ProcessRequest when a request asks the algorithm
    * to do its work. This is the method you should override to do whatever the
-   * algorithm is designed to do. This happens during the fourth pass in the
+   * algorithm is designed to do. This happens during the final pass in the
    * pipeline execution process.
    */
   virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
