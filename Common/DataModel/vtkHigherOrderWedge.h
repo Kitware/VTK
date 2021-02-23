@@ -38,6 +38,7 @@
 
 #include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For deprecation macros
 #include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
@@ -117,13 +118,17 @@ public:
   {
     return vtkHigherOrderWedge::GetNumberOfApproximatingWedges(this->GetOrder());
   }
-  VTK_LEGACY(virtual vtkHigherOrderQuadrilateral* getBdyQuad());
+  VTK_DEPRECATED_IN_9_1_0("renamed to GetBoundaryQuad")
+  virtual vtkHigherOrderQuadrilateral* getBdyQuad();
   virtual vtkHigherOrderQuadrilateral* GetBoundaryQuad() = 0;
-  VTK_LEGACY(virtual vtkHigherOrderTriangle* getBdyTri());
+  VTK_DEPRECATED_IN_9_1_0("renamed to GetBoundaryTri")
+  virtual vtkHigherOrderTriangle* getBdyTri();
   virtual vtkHigherOrderTriangle* GetBoundaryTri() = 0;
-  VTK_LEGACY(virtual vtkHigherOrderCurve* getEdgeCell());
+  VTK_DEPRECATED_IN_9_1_0("renamed to GetEdgeCell")
+  virtual vtkHigherOrderCurve* getEdgeCell();
   virtual vtkHigherOrderCurve* GetEdgeCell() = 0;
-  VTK_LEGACY(virtual vtkHigherOrderInterpolation* getInterp());
+  VTK_DEPRECATED_IN_9_1_0("renamed to GetInterpolation")
+  virtual vtkHigherOrderInterpolation* getInterp();
   virtual vtkHigherOrderInterpolation* GetInterpolation() = 0;
 
 protected:

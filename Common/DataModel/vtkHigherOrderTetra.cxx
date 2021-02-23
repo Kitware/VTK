@@ -13,7 +13,8 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+// Hide VTK_DEPRECATED_IN_9_0_0() and VTK_DEPRECATED_IN_9_1_0() warnings for
+// this class.
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkHigherOrderTetra.h"
@@ -102,7 +103,6 @@ static constexpr vtkIdType FifteenPointTetraSubtetras[28][4] = { { 0, 4, 10, 14 
 #endif
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 vtkHigherOrderCurve* vtkHigherOrderTetra::getEdgeCell()
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -116,7 +116,6 @@ vtkHigherOrderTriangle* vtkHigherOrderTetra::getFaceCell()
     vtkHigherOrderHexahedron::getFaceCell, "VTK 9.1", vtkHigherOrderTetra::GetFaceCell);
   return this->GetFaceCell();
 }
-#endif
 
 //------------------------------------------------------------------------------
 vtkHigherOrderTetra::vtkHigherOrderTetra()

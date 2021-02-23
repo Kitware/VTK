@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkHigherOrderQuadrilateral.h"
 
 #include "vtkCellData.h"
@@ -28,14 +32,12 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-#if !defined(VTK_LEGACY_REMOVE)
 vtkHigherOrderCurve* vtkHigherOrderQuadrilateral::getEdgeCell()
 {
   VTK_LEGACY_REPLACED_BODY(
     vtkHigherOrderQuadrilateral::getEdgeCell, "VTK 9.1", vtkHigherOrderQuadrilateral::GetEdgeCell);
   return this->GetEdgeCell();
 }
-#endif
 
 vtkHigherOrderQuadrilateral::vtkHigherOrderQuadrilateral()
 {

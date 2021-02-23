@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkHigherOrderTriangle.h"
 
 #include "vtkCellArray.h"
@@ -29,7 +33,6 @@
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
 
-#if !defined(VTK_LEGACY_REMOVE)
 double eta(vtkIdType n, vtkIdType chi, double sigma)
 {
   VTK_LEGACY_REPLACED_BODY(vtkHigherOrderTriangle::eta, "VTK 9.1", vtkHigherOrderTriangle::Eta);
@@ -48,7 +51,6 @@ vtkHigherOrderCurve* vtkHigherOrderTriangle::getEdgeCell()
     vtkHigherOrderTriangle::getEdgeCell, "VTK 9.1", vtkHigherOrderTriangle::GetEdgeCell);
   return this->GetEdgeCell();
 }
-#endif
 
 //------------------------------------------------------------------------------
 vtkHigherOrderTriangle::vtkHigherOrderTriangle()
