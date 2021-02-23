@@ -11,9 +11,6 @@ if(VTK_BUILD_BODR_DATA_GENERATOR)
   )
 endif()
 
-set(TestVASPAnimationReader_ARGS DATA{../Data/VASP/NPT_Z_ANIMATE.out})
-set(TestVASPTessellationReader_ARGS DATA{../Data/VASP/NPT_Z_TESSELLATE.out})
-
 vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   ${generator_test}
   TestBallAndStick.cxx
@@ -37,10 +34,7 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestProgrammableElectronicData.cxx,NO_VALID
   TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx,NO_VALID
-  TestVASPAnimationReader.cxx
-  TestVASPTessellationReader.cxx
   TestVDWSpheres.cxx
-  TestCMLMoleculeReader.cxx
   )
 vtk_test_cxx_executable(vtkDomainsChemistryCxxTests tests
   RENDERING_FACTORY

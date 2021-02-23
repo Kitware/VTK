@@ -14,19 +14,20 @@
 =========================================================================*/
 /**
  * @class   vtkMoleculeReaderBase
- * @brief   read Molecular Data files
+ * @brief   Read molecular data files
  *
- * vtkMoleculeReaderBase is a source object that reads Molecule files
+ * vtkMoleculeReaderBase is a source object that reads molecule files.
  * The FileName must be specified
  *
  * @par Thanks:
- * Dr. Jean M. Favre who developed and contributed this class
+ * Dr. Jean M. Favre who originally developed and contributed this class
+ * Angelos Angelopoulos and Spiros Tsalikis for revisions
  */
 
 #ifndef vtkMoleculeReaderBase_h
 #define vtkMoleculeReaderBase_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -38,8 +39,9 @@ class vtkUnsignedCharArray;
 class vtkPoints;
 class vtkStringArray;
 class vtkMolecule;
+class vtkPeriodicTable;
 
-class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
+class VTKIOCHEMISTRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMoleculeReaderBase, vtkPolyDataAlgorithm);
@@ -81,22 +83,50 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Reads a molecule from the passed file pointer and creates a vtkPolyData.
+   *
+   * @param fp Molecule file pointer.
+   * @param output Pointer to output vtkPolyData.
+   *
+   * @return Zero upon successfully reading a molecule.
+   */
   int ReadMolecule(FILE* fp, vtkPolyData* output);
-  int MakeAtomType(const char* atype);
-  int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 
-  vtkMolecule* Molecule;
-  vtkPoints* Points;
-  vtkUnsignedCharArray* RGB;
-  vtkFloatArray* Radii;
-  vtkIdTypeArray* AtomType;
-  vtkStringArray* AtomTypeStrings;
-  vtkIdTypeArray* Residue;
-  vtkUnsignedCharArray* Chain;
-  vtkUnsignedCharArray* SecondaryStructures;
-  vtkUnsignedCharArray* SecondaryStructuresBegin;
-  vtkUnsignedCharArray* SecondaryStructuresEnd;
-  vtkUnsignedCharArray* IsHetatm;
+  /**
+   * Given a string for the type (name) of an atom, returns a unique
+   * number for that atom.
+   *
+   * @param atomType A string for the type (name) of an atom, e.g. "He" for a helium atom.
+   *
+   * @return Unique number for the atom type.
+   */
+  static unsigned int MakeAtomType(const char* atomType);
+
+  /**
+   * Creates molecular bonds (VTK cells) given atomic coordinates (VTK points) and atom types.
+   *
+   * @param points Atomic (VTK points) coordinates.
+   * @param atomTypes Array containing the atom type numbers.
+   * @param newBonds Output bonds.
+   *
+   * @return Number of bonds.
+   */
+  unsigned int MakeBonds(vtkPoints* points, vtkIdTypeArray* atomTypes, vtkCellArray* newBonds);
+
+  static vtkSmartPointer<vtkPeriodicTable> PeriodicTable;
+  vtkSmartPointer<vtkMolecule> Molecule;
+  vtkSmartPointer<vtkPoints> Points;
+  vtkSmartPointer<vtkUnsignedCharArray> RGB;
+  vtkSmartPointer<vtkFloatArray> Radii;
+  vtkSmartPointer<vtkIdTypeArray> AtomType;
+  vtkSmartPointer<vtkStringArray> AtomTypeStrings;
+  vtkSmartPointer<vtkIdTypeArray> Residue;
+  vtkSmartPointer<vtkUnsignedCharArray> Chain;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructures;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructuresBegin;
+  vtkSmartPointer<vtkUnsignedCharArray> SecondaryStructuresEnd;
+  vtkSmartPointer<vtkUnsignedCharArray> IsHetatm;
   vtkSmartPointer<vtkUnsignedIntArray> Model;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;

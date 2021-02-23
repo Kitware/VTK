@@ -7,7 +7,6 @@ set(classes
   vtkFacetWriter
   vtkFLUENTReader
   vtkGAMBITReader
-  vtkGaussianCubeReader
   vtkGLTFDocumentLoader
   vtkGLTFReader
   vtkHoudiniPolyDataWriter
@@ -15,19 +14,16 @@ set(classes
   vtkMCubesReader
   vtkMCubesWriter
   vtkMFIXReader
-  vtkMoleculeReaderBase
   vtkOBJReader
   vtkOBJWriter
   vtkOpenFOAMReader
   vtkParticleReader
-  vtkPDBReader
   vtkProStarReader
   vtkPTSReader
   vtkSTLReader
   vtkSTLWriter
   vtkTecplotReader
-  vtkWindBladeReader
-  vtkXYZMolReader)
+  vtkWindBladeReader)
 
 set(private_classes
   vtkGLTFDocumentLoaderInternals

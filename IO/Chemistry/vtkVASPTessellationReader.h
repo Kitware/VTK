@@ -24,7 +24,7 @@
 #ifndef vtkVASPTessellationReader_h
 #define vtkVASPTessellationReader_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
 namespace vtksys
@@ -34,7 +34,7 @@ class RegularExpression;
 
 class vtkUnstructuredGrid;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkVASPTessellationReader : public vtkMoleculeAlgorithm
+class VTKIOCHEMISTRY_EXPORT vtkVASPTessellationReader : public vtkMoleculeAlgorithm
 {
 public:
   static vtkVASPTessellationReader* New();

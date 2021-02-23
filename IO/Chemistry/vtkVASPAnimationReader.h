@@ -24,7 +24,7 @@
 #ifndef vtkVASPAnimationReader_h
 #define vtkVASPAnimationReader_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkIOChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 #include "vtkVector.h" // For vtkVector3f
 
@@ -33,7 +33,7 @@ namespace vtksys
 class RegularExpression;
 }
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkVASPAnimationReader : public vtkMoleculeAlgorithm
+class VTKIOCHEMISTRY_EXPORT vtkVASPAnimationReader : public vtkMoleculeAlgorithm
 {
 public:
   static vtkVASPAnimationReader* New();

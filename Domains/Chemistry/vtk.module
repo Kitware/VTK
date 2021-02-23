@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkDomainsChemistry
 DESCRIPTION
-  File readers and algorithms used in chemistry
+  Algorithms used in chemistry
 IMPLEMENTABLE
 GROUPS
   StandAlone
@@ -25,7 +25,7 @@ TEST_DEPENDS
   VTK::DomainsChemistryOpenGL2
   VTK::FiltersGeometry
   VTK::InteractionStyle
-  VTK::IOGeometry
+  VTK::IOChemistry
   VTK::IOLegacy
   VTK::RenderingOpenGL2
   VTK::TestingCore

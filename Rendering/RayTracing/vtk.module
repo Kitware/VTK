@@ -30,6 +30,7 @@ TEST_DEPENDS
   VTK::FiltersModeling
   VTK::FiltersSources
   VTK::FiltersTexture
+  VTK::IOChemistry
   VTK::IOGeometry
   VTK::IOImage
   VTK::IOImport

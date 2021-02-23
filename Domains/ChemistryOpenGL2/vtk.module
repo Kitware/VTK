@@ -20,6 +20,7 @@ TEST_DEPENDS
   VTK::CommonSystem
   VTK::FiltersSources
   VTK::InteractionStyle
+  VTK::IOChemistry
   VTK::IOGeometry
   VTK::RenderingOpenGL2
   VTK::TestingCore
