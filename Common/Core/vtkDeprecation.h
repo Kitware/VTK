@@ -24,6 +24,45 @@
 
 #include "vtkVersion.h"
 
+//----------------------------------------------------------------------------
+// These macros may be used to deprecate APIs in VTK. They act as attributes on
+// method declarations and do not remove methods from a build based on build
+// configuration.
+//
+// To use:
+//
+// In the declaration:
+//
+// ```cxx
+// VTK_DEPRECATED_IN_9_1_0("reason for the deprecation")
+// void oldApi();
+// ```
+//
+// When selecting which version to deprecate an API in, use the newest macro
+// available in this header.
+//
+// In the implementation:
+//
+// ```cxx
+// // Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+// #define VTK_DEPRECATION_LEVEL 0
+//
+// #include "vtkLegacy.h"
+//
+// void oldApi()
+// {
+//   // One of:
+//   VTK_LEGACY_BODY(oldApi, "VTK 9.1");
+//   VTK_LEGACY_REPLACED_BODY(oldApi, "VTK 9.1", newApi);
+//
+//   // Remaining implementation.
+// }
+// ```
+//
+// Please note the `VTK_DEPRECATED_IN_` version in the `VTK_DEPRECATION_LEVEL`
+// comment so that it can be removed when that version is finally removed.
+//----------------------------------------------------------------------------
+
 // The level at which warnings should be made.
 #ifndef VTK_DEPRECATION_LEVEL
 // VTK defaults to deprecation of its current version.
