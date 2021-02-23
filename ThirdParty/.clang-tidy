@@ -6,6 +6,7 @@ bugprone-*,\
 -bugprone-branch-clone,\
 -bugprone-copy-constructor-init,\
 -bugprone-exception-escape,\
+-bugprone-fold-init-type,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
