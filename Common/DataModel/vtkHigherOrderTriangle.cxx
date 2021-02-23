@@ -33,13 +33,13 @@
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
 
-double eta(vtkIdType n, vtkIdType chi, double sigma)
+double vtkHigherOrderTriangle::eta(vtkIdType n, vtkIdType chi, double sigma)
 {
   VTK_LEGACY_REPLACED_BODY(vtkHigherOrderTriangle::eta, "VTK 9.1", vtkHigherOrderTriangle::Eta);
   return vtkHigherOrderTriangle::Eta(n, chi, sigma);
 }
 
-double d_eta(vtkIdType n, vtkIdType chi, double sigma)
+double vtkHigherOrderTriangle::d_eta(vtkIdType n, vtkIdType chi, double sigma)
 {
   VTK_LEGACY_REPLACED_BODY(vtkHigherOrderTriangle::d_eta, "VTK 9.1", vtkHigherOrderTriangle::Deta);
   return vtkHigherOrderTriangle::Deta(n, chi, sigma);
