@@ -154,10 +154,14 @@ public:
   /**
    * @deprecated VTK 9.1. Use `GetDirectional`  and `SetDirectional` instead.
    */
-  VTK_LEGACY(virtual void SetDirectionalLine(bool val));
-  VTK_LEGACY(virtual bool GetDirectionalLine());
-  VTK_LEGACY(virtual void DirectionalLineOn());
-  VTK_LEGACY(virtual void DirectionalLineOff());
+  VTK_DEPRECATED_IN_9_1_0("renamed to SetDirectional")
+  virtual void SetDirectionalLine(bool val);
+  VTK_DEPRECATED_IN_9_1_0("renamed to GetDirectional")
+  virtual bool GetDirectionalLine();
+  VTK_DEPRECATED_IN_9_1_0("renamed to DirectionalOn")
+  virtual void DirectionalLineOn();
+  VTK_DEPRECATED_IN_9_1_0("renamed to DirectionalOff")
+  virtual void DirectionalLineOff();
   //@}
 
   //@{

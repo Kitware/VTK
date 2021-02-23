@@ -13,7 +13,8 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+// Hide VTK_DEPRECATED_IN_9_0_0() and VTK_DEPRECATED_IN_9_1_0() warnings for
+// this class.
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkHigherOrderHexahedron.h"
@@ -34,7 +35,6 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-#if !defined(VTK_LEGACY_REMOVE)
 vtkHigherOrderCurve* vtkHigherOrderHexahedron::getEdgeCell()
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -55,7 +55,6 @@ vtkHigherOrderInterpolation* vtkHigherOrderHexahedron::getInterp()
     vtkHigherOrderHexahedron::getInterp, "VTK 9.1", vtkHigherOrderHexahedron::GetInterpolation);
   return this->GetInterpolation();
 }
-#endif
 
 vtkHigherOrderHexahedron::vtkHigherOrderHexahedron()
 {

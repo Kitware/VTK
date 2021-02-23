@@ -13,7 +13,8 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_0_0() warnings for this class.
+// Hide VTK_DEPRECATED_IN_9_0_0() and VTK_DEPRECATED_IN_9_1_0() warnings for
+// this class.
 #define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkHigherOrderWedge.h"
@@ -177,7 +178,6 @@ static bool linearWedgeLocationFromSubId(
   return true;
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 vtkHigherOrderQuadrilateral* vtkHigherOrderWedge::getBdyQuad()
 {
   VTK_LEGACY_REPLACED_BODY(
@@ -205,7 +205,6 @@ vtkHigherOrderInterpolation* vtkHigherOrderWedge::getInterp()
     vtkHigherOrderWedge::getInterp, "VTK 9.1", vtkHigherOrderWedge::GetInterpolation);
   return this->GetInterpolation();
 }
-#endif
 
 vtkHigherOrderWedge::vtkHigherOrderWedge()
 {

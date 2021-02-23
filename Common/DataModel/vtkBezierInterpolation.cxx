@@ -12,6 +12,10 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkBezierInterpolation.h"
 #include <array>
 #include <functional>
@@ -116,14 +120,12 @@ static vtkVector3i unflattenTetrahedron(const int deg, const vtkIdType flat)
   return { cv_tri[0], cv_tri[1], level };
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 int vtkBezierInterpolation::flattenSimplex(const int dim, const int deg, const vtkVector3i coord)
 {
   VTK_LEGACY_REPLACED_BODY(
     vtkBezierInterpolation::flattenSimplex, "VTK 9.1", vtkBezierInterpolation::FlattenSimplex);
   return vtkBezierInterpolation::FlattenSimplex(dim, deg, coord);
 }
-#endif
 
 int vtkBezierInterpolation::FlattenSimplex(const int dim, const int deg, const vtkVector3i coord)
 {
@@ -147,7 +149,6 @@ int vtkBezierInterpolation::FlattenSimplex(const int dim, const int deg, const v
   }
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 vtkVector3i vtkBezierInterpolation::unflattenSimplex(
   const int dim, const int deg, const vtkIdType flat)
 {
@@ -155,7 +156,6 @@ vtkVector3i vtkBezierInterpolation::unflattenSimplex(
     vtkBezierInterpolation::unFlattenSimplex, "VTK 9.1", vtkBezierInterpolation::UnFlattenSimplex);
   return vtkBezierInterpolation::UnFlattenSimplex(dim, deg, flat);
 }
-#endif
 
 vtkVector3i vtkBezierInterpolation::UnFlattenSimplex(
   const int dim, const int deg, const vtkIdType flat)
@@ -203,7 +203,6 @@ void iterateSimplex(
   }
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkBezierInterpolation::deCasteljauSimplex(
   const int dim, const int deg, const double pcoords[3], double* weights)
 {
@@ -211,7 +210,6 @@ void vtkBezierInterpolation::deCasteljauSimplex(
     vtkBezierInterpolation::DeCasteljauSimplex);
   vtkBezierInterpolation::DeCasteljauSimplex(dim, deg, pcoords, weights);
 }
-#endif
 
 // FIXME this could be greatly optimized
 void vtkBezierInterpolation::DeCasteljauSimplex(
@@ -260,7 +258,6 @@ void vtkBezierInterpolation::DeCasteljauSimplex(
   }
 }
 
-#if !defined(VTK_LEGACY_REMOVE)
 void vtkBezierInterpolation::deCasteljauSimplexDeriv(
   const int dim, const int deg, const double pcoords[3], double* weights)
 {
@@ -268,7 +265,6 @@ void vtkBezierInterpolation::deCasteljauSimplexDeriv(
     vtkBezierInterpolation::DeCasteljauSimplexDeriv);
   vtkBezierInterpolation::DeCasteljauSimplexDeriv(dim, deg, pcoords, weights);
 }
-#endif
 
 void vtkBezierInterpolation::DeCasteljauSimplexDeriv(
   const int dim, const int deg, const double pcoords[3], double* weights)

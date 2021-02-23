@@ -19,6 +19,7 @@
 #define vtkBezierInterpolation_h
 
 #include "vtkCommonDataModelModule.h" // For export macro.
+#include "vtkDeprecation.h"           // For deprecation macros
 #include "vtkHigherOrderInterpolation.h"
 #include "vtkSmartPointer.h" // For API.
 #include "vtkVector.h"       // For FlattenSimplex
@@ -43,22 +44,25 @@ public:
   // Elements https://scholar.colorado.edu/cgi/viewcontent.cgi?article=1170&context=mcen_gradetds
   // Chapter 3, pg 25. given a dimmension ( 2 triangle, 3 tetrahedron ) and the degree of the
   // simplex flatten a simplicial bezier function's coordinate to an integer
-  VTK_LEGACY(static int flattenSimplex(const int dim, const int deg, const vtkVector3i coord));
+  VTK_DEPRECATED_IN_9_1_0("renamed to FlattenSimplex")
+  static int flattenSimplex(const int dim, const int deg, const vtkVector3i coord);
   static int FlattenSimplex(const int dim, const int deg, const vtkVector3i coord);
 
   // given a dimmension ( 2 triangle, 3 tetrahedron ) and the degree of the simplex,
   // unflatten a simplicial bezier function integer to a simplicial coordinate
-  VTK_LEGACY(
-    static vtkVector3i unflattenSimplex(const int dim, const int deg, const vtkIdType flat));
+  VTK_DEPRECATED_IN_9_1_0("renamed to UnFlattenSimplex")
+  static vtkVector3i unflattenSimplex(const int dim, const int deg, const vtkIdType flat);
   static vtkVector3i UnFlattenSimplex(const int dim, const int deg, const vtkIdType flat);
 
   // simplicial version of deCasteljau
-  VTK_LEGACY(static void deCasteljauSimplex(
-    const int dim, const int deg, const double* pcoords, double* weights));
+  VTK_DEPRECATED_IN_9_1_0("renamed to DeCasteljauSimplex")
+  static void deCasteljauSimplex(
+    const int dim, const int deg, const double* pcoords, double* weights);
   static void DeCasteljauSimplex(
     const int dim, const int deg, const double* pcoords, double* weights);
-  VTK_LEGACY(static void deCasteljauSimplexDeriv(
-    const int dim, const int deg, const double* pcoords, double* weights));
+  VTK_DEPRECATED_IN_9_1_0("renamed to DeCasteljauSimplexDeriv")
+  static void deCasteljauSimplexDeriv(
+    const int dim, const int deg, const double* pcoords, double* weights);
   static void DeCasteljauSimplexDeriv(
     const int dim, const int deg, const double* pcoords, double* weights);
 
