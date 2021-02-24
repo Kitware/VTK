@@ -28,11 +28,7 @@ public:
   vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm);
 
 protected:
-  vtkTestAlgorithm()
-    : Superclass()
-  {
-    this->SetNumberOfOutputPorts(2);
-  }
+  vtkTestAlgorithm() { this->SetNumberOfOutputPorts(2); }
 
   int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) override
   {

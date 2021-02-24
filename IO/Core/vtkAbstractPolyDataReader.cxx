@@ -17,7 +17,6 @@
 #include "vtkAbstractPolyDataReader.h"
 
 vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
-  : vtkPolyDataAlgorithm()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);

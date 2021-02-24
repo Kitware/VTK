@@ -574,8 +574,6 @@ const char* get_data_type(const CGNS_ENUMT(DataType_t) dt)
 //----------------------------------------------------------------------------
 vtkCGNSReader::vtkCGNSReader()
   : Internal(new CGNSRead::vtkCGNSMetaData())
-  , MeshPointsCache()
-  , ConnectivitiesCache()
 {
   this->FileName = nullptr;
   this->LoadBndPatch = false;

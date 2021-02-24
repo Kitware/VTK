@@ -37,7 +37,6 @@ vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 
 //------------------------------------------------------------------------------
 vtkBiDimensionalRepresentation2D::vtkBiDimensionalRepresentation2D()
-  : vtkBiDimensionalRepresentation()
 {
   // Create the geometry for the two axes
   this->LineCells = vtkCellArray::New();

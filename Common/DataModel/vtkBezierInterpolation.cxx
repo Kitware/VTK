@@ -33,10 +33,7 @@
 
 vtkStandardNewMacro(vtkBezierInterpolation);
 
-vtkBezierInterpolation::vtkBezierInterpolation()
-  : vtkHigherOrderInterpolation()
-{
-}
+vtkBezierInterpolation::vtkBezierInterpolation() = default;
 
 vtkBezierInterpolation::~vtkBezierInterpolation() = default;
 

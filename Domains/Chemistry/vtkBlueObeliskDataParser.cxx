@@ -44,8 +44,7 @@ vtkStandardNewMacro(vtkBlueObeliskDataParser);
 
 //------------------------------------------------------------------------------
 vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
-  : vtkXMLParser()
-  , Target(nullptr)
+  : Target(nullptr)
   , IsProcessingAtom(false)
   , IsProcessingValue(false)
   , CurrentValueType(None)

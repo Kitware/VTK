@@ -25,7 +25,6 @@ vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //------------------------------------------------------------------------------
 vtkOutlineCornerSource::vtkOutlineCornerSource()
-  : vtkOutlineSource()
 {
   this->CornerFactor = 0.2;
 }

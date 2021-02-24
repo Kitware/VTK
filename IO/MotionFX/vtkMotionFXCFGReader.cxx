@@ -609,10 +609,8 @@ struct PositionFileMotion : public Motion
   template <typename MapType>
   PositionFileMotion(const MapType& params)
     : Motion(params)
-    , positionFile()
     , isOrientation(false)
     , initial_centerOfMass{ VTK_DOUBLE_MAX }
-    , positions()
   {
     std::string motion_type;
     set(motion_type, "motion_type", params);
@@ -1037,9 +1035,7 @@ class vtkMotionFXCFGReader::vtkInternals
 {
 public:
   vtkInternals()
-    : Motions()
-    , TimeRange(0, -1)
-    , Geometries()
+    : TimeRange(0, -1)
   {
   }
   ~vtkInternals() = default;
@@ -1170,8 +1166,7 @@ private:
 vtkStandardNewMacro(vtkMotionFXCFGReader);
 //------------------------------------------------------------------------------
 vtkMotionFXCFGReader::vtkMotionFXCFGReader()
-  : FileName()
-  , TimeResolution(100)
+  : TimeResolution(100)
   , Internals(nullptr)
 {
   this->SetNumberOfInputPorts(0);

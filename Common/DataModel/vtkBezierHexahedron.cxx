@@ -36,10 +36,7 @@
 
 vtkStandardNewMacro(vtkBezierHexahedron);
 
-vtkBezierHexahedron::vtkBezierHexahedron()
-  : vtkHigherOrderHexahedron()
-{
-}
+vtkBezierHexahedron::vtkBezierHexahedron() = default;
 
 vtkBezierHexahedron::~vtkBezierHexahedron() = default;
 

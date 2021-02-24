@@ -103,8 +103,7 @@ vtkStandardNewMacro(vtkBoostBetweennessClustering);
 
 //------------------------------------------------------------------------------
 vtkBoostBetweennessClustering::vtkBoostBetweennessClustering()
-  : vtkGraphAlgorithm()
-  , Threshold(0)
+  : Threshold(0)
   , UseEdgeWeightArray(false)
   , InvertEdgeWeightArray(false)
   , EdgeWeightArrayName(nullptr)

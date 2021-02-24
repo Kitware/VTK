@@ -52,7 +52,6 @@ const double AxisAlignedY[3][4][2][3] = {
 //------------------------------------------------------------------------------
 // Creates a follower with no camera set
 vtkAxisFollower::vtkAxisFollower()
-  : vtkFollower()
 {
   this->AutoCenter = 1;
 

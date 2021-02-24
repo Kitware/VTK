@@ -819,7 +819,6 @@ void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkGDALRasterReader::vtkGDALRasterReader()
-  : vtkImageReader2()
 {
   this->Impl = new vtkGDALRasterReaderInternal(this);
 

@@ -13,8 +13,7 @@ vtkStandardNewMacro(vtkThresholdGraph);
 
 //------------------------------------------------------------------------------
 vtkThresholdGraph::vtkThresholdGraph()
-  : vtkGraphAlgorithm()
-  , LowerThreshold(0.0)
+  : LowerThreshold(0.0)
   , UpperThreshold(0.0)
 {
 }

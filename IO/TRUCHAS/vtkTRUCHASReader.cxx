@@ -739,7 +739,6 @@ vtkStandardNewMacro(vtkTRUCHASReader);
 
 //------------------------------------------------------------------------------
 vtkTRUCHASReader::vtkTRUCHASReader()
-  : vtkMultiBlockDataSetAlgorithm()
 {
   this->Internals = new vtkTRUCHASReader::Internal;
   this->FileName = nullptr;

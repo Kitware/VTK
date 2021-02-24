@@ -76,13 +76,10 @@ struct FieldInfo
   mutable int OutputLocation;
 
   FieldInfo()
-    : Name()
-    , Type(VTK_VOID)
+    : Type(VTK_VOID)
     , NumberOfComponents(0)
     , LUT(nullptr)
     , Information(nullptr)
-    , ComponentNames{}
-    , Location{}
     , OutputLocation(-1)
   {
   }

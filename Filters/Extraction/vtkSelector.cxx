@@ -32,10 +32,7 @@
 #include "vtkUniformGridAMRDataIterator.h"
 
 //------------------------------------------------------------------------------
-vtkSelector::vtkSelector()
-  : InsidednessArrayName()
-{
-}
+vtkSelector::vtkSelector() = default;
 
 //------------------------------------------------------------------------------
 vtkSelector::~vtkSelector() = default;

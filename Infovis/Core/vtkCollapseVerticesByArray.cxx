@@ -47,8 +47,7 @@ public:
 
 //------------------------------------------------------------------------------
 vtkCollapseVerticesByArray::vtkCollapseVerticesByArray()
-  : vtkGraphAlgorithm()
-  , AllowSelfLoops(false)
+  : AllowSelfLoops(false)
   , VertexArray(nullptr)
   , CountEdgesCollapsed(false)
   , EdgesCollapsedArray(nullptr)

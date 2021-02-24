@@ -43,7 +43,6 @@ vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 //------------------------------------------------------------------------------
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget()
-  : vtkPolyDataSourceWidget()
 {
   this->DiagonalRatio = 0.3;
   this->State = vtkImplicitPlaneWidget::Start;

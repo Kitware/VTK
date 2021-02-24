@@ -41,8 +41,7 @@ struct vtkBalloon
   vtkImageData* Image;
 
   vtkBalloon()
-    : Text()
-    , Image(nullptr)
+    : Image(nullptr)
   {
   }
   vtkBalloon(const vtkBalloon& balloon)

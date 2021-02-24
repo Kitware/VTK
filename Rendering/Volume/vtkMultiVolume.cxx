@@ -25,8 +25,7 @@
 #include "vtkVolumeProperty.h"
 
 vtkMultiVolume::vtkMultiVolume()
-  : Superclass()
-  , TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
+  : TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
 {
   vtkMath::UninitializeBounds(this->Bounds);
   vtkMath::UninitializeBounds(this->DataBounds.data());

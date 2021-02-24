@@ -30,10 +30,7 @@
 
 vtkStandardNewMacro(vtkLagrangeQuadrilateral);
 
-vtkLagrangeQuadrilateral::vtkLagrangeQuadrilateral()
-  : vtkHigherOrderQuadrilateral()
-{
-}
+vtkLagrangeQuadrilateral::vtkLagrangeQuadrilateral() = default;
 
 vtkLagrangeQuadrilateral::~vtkLagrangeQuadrilateral() = default;
 

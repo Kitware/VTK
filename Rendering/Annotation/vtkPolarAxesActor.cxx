@@ -214,7 +214,6 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkPolarAxesActor::vtkPolarAxesActor()
-  : vtkActor()
 {
   // Default bounds
   this->Bounds[0] = -1.0;

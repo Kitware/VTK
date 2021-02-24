@@ -44,7 +44,6 @@ vtkStandardNewMacro(vtkPlaneWidget);
 vtkCxxSetObjectMacro(vtkPlaneWidget, PlaneProperty, vtkProperty);
 
 vtkPlaneWidget::vtkPlaneWidget()
-  : vtkPolyDataSourceWidget()
 {
   this->State = vtkPlaneWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkPlaneWidget::ProcessEvents);

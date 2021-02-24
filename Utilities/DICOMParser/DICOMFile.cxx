@@ -28,7 +28,6 @@
 #include <string>
 
 DICOMFile::DICOMFile()
-  : InputStream()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
   union {

@@ -775,7 +775,6 @@ vtkStandardNewMacro(vtkLoopBooleanPolyDataFilter);
 
 //------------------------------------------------------------------------------
 vtkLoopBooleanPolyDataFilter::vtkLoopBooleanPolyDataFilter()
-  : vtkPolyDataAlgorithm()
 {
   this->Operation = VTK_UNION;
 

@@ -18,12 +18,9 @@
 #include "vtkDataSet.h"
 #include "vtkProp3D.h"
 
-vtkPolyDataSourceWidget::vtkPolyDataSourceWidget()
-  : vtk3DWidget()
-{
-  // child classes should call this constructor so that the vtk3DWidget()
-  // constructor can set up some pertinent variables (e.g. Input and Prop3D)
-}
+// child classes should call this constructor so that the vtk3DWidget()
+// constructor can set up some pertinent variables (e.g. Input and Prop3D)
+vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() = default;
 
 void vtkPolyDataSourceWidget::PlaceWidget()
 {

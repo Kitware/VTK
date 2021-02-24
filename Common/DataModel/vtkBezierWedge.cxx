@@ -37,10 +37,7 @@
 
 vtkStandardNewMacro(vtkBezierWedge);
 
-vtkBezierWedge::vtkBezierWedge()
-  : vtkHigherOrderWedge()
-{
-}
+vtkBezierWedge::vtkBezierWedge() = default;
 
 vtkBezierWedge::~vtkBezierWedge() = default;
 

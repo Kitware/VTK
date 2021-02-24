@@ -1487,7 +1487,6 @@ protected:
 
   vtkFoamFileStack(vtkOpenFOAMReader* reader)
     : Reader(reader)
-    , FileName()
     , File(nullptr)
     , IsCompressed(false)
     , ZStatus(Z_OK)
@@ -2813,9 +2812,6 @@ public:
   // Construct for specified case -path
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader* reader)
     : vtkFoamFile(casePath, reader)
-    , objectName_()
-    , headerClassName_()
-    , error_()
     , LagrangianPositionsExtraData(static_cast<bool>(!reader->GetPositionsIsIn13Format()))
   {
   }
@@ -3089,8 +3085,7 @@ public:
   };
 
   vtkFoamEntryValue(const vtkFoamEntry* upperEntryPtr)
-    : vtkFoamToken()
-    , IsUniform(false)
+    : IsUniform(false)
     , Managed(true)
     , UpperEntryPtr(upperEntryPtr)
   {
@@ -3644,14 +3639,11 @@ private:
 
 public:
   explicit vtkFoamDict(const vtkFoamDict* upperDictPtr = nullptr)
-    : Superclass()
-    , Token()
-    , UpperDictPtr(upperDictPtr)
+    : UpperDictPtr(upperDictPtr)
   {
   }
   vtkFoamDict(const vtkFoamDict& dict, const vtkFoamDict* upperDictPtr)
     : Superclass(dict.size())
-    , Token()
     , UpperDictPtr(upperDictPtr)
   {
     if (dict.GetType() == vtkFoamToken::DICTIONARY)

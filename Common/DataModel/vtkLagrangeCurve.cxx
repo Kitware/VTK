@@ -28,10 +28,7 @@
 #include "vtkVectorOperators.h"
 
 vtkStandardNewMacro(vtkLagrangeCurve);
-vtkLagrangeCurve::vtkLagrangeCurve()
-  : vtkHigherOrderCurve()
-{
-}
+vtkLagrangeCurve::vtkLagrangeCurve() = default;
 
 vtkLagrangeCurve::~vtkLagrangeCurve() = default;
 

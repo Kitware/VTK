@@ -38,10 +38,7 @@
 vtkStandardNewMacro(vtkmWarpScalar);
 
 //------------------------------------------------------------------------------
-vtkmWarpScalar::vtkmWarpScalar()
-  : vtkWarpScalar()
-{
-}
+vtkmWarpScalar::vtkmWarpScalar() = default;
 
 //------------------------------------------------------------------------------
 vtkmWarpScalar::~vtkmWarpScalar() = default;

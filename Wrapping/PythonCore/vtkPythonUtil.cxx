@@ -50,8 +50,7 @@ class PyVTKObjectGhost
 {
 public:
   PyVTKObjectGhost()
-    : vtk_ptr()
-    , vtk_class(nullptr)
+    : vtk_class(nullptr)
     , vtk_dict(nullptr)
   {
   }

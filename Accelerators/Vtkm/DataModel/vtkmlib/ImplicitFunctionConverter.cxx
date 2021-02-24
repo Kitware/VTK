@@ -35,7 +35,6 @@ inline vtkm::Vec<vtkm::FloatDefault, 3> MakeFVec3(const double x[3])
 
 ImplicitFunctionConverter::ImplicitFunctionConverter()
   : InFunction(nullptr)
-  , OutFunction()
   , MTime(0)
 {
 }

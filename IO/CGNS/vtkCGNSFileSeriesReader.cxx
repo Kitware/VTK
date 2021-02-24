@@ -65,13 +65,11 @@ vtkStandardNewMacro(vtkCGNSFileSeriesReader);
 vtkCxxSetObjectMacro(vtkCGNSFileSeriesReader, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkCGNSFileSeriesReader::vtkCGNSFileSeriesReader()
-  : FileSeriesHelper()
-  , Reader(nullptr)
+  : Reader(nullptr)
   , IgnoreReaderTime(false)
   , Controller(nullptr)
   , ReaderObserverId(0)
   , InProcessRequest(false)
-  , ActiveFiles()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);

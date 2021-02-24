@@ -34,10 +34,7 @@
 
 vtkStandardNewMacro(vtkBezierTriangle);
 //------------------------------------------------------------------------------
-vtkBezierTriangle::vtkBezierTriangle()
-  : vtkHigherOrderTriangle()
-{
-}
+vtkBezierTriangle::vtkBezierTriangle() = default;
 
 //------------------------------------------------------------------------------
 vtkBezierTriangle::~vtkBezierTriangle() = default;

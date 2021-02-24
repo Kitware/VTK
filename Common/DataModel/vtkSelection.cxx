@@ -329,8 +329,7 @@ vtkStandardNewMacro(vtkSelection);
 
 //------------------------------------------------------------------------------
 vtkSelection::vtkSelection()
-  : Expression()
-  , Internals(new vtkSelection::vtkInternals())
+  : Internals(new vtkSelection::vtkInternals())
 {
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);

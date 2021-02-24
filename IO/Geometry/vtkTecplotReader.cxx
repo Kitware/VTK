@@ -87,7 +87,6 @@ FileStreamReader::FileStreamReader()
   , Eof(true)
   , Pos(BUFF_SIZE)
   , BuffEnd(BUFF_SIZE)
-  , FileName()
 {
 }
 

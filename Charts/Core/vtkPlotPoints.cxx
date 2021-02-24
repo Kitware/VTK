@@ -51,7 +51,6 @@ class vtkPlotPoints::VectorPIMPL : public std::vector<vtkIndexedVector2f>
 {
 public:
   VectorPIMPL(vtkVector2f* array, size_t n)
-    : std::vector<vtkIndexedVector2f>()
   {
     this->reserve(n);
     for (size_t i = 0; i < n; ++i)

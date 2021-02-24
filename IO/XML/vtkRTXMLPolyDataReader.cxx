@@ -29,7 +29,6 @@ public:
 
 //------------------------------------------------------------------------------
 vtkRTXMLPolyDataReader::vtkRTXMLPolyDataReader()
-  : vtkXMLPolyDataReader()
 {
   this->Internal = new vtkRTXMLPolyDataReaderInternals;
   this->DataLocation = nullptr;

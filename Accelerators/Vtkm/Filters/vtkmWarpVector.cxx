@@ -38,10 +38,7 @@
 vtkStandardNewMacro(vtkmWarpVector);
 
 //------------------------------------------------------------------------------
-vtkmWarpVector::vtkmWarpVector()
-  : vtkWarpVector()
-{
-}
+vtkmWarpVector::vtkmWarpVector() = default;
 
 //------------------------------------------------------------------------------
 vtkmWarpVector::~vtkmWarpVector() = default;

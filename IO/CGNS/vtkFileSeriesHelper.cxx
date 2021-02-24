@@ -149,11 +149,8 @@ vtkCxxSetObjectMacro(vtkFileSeriesHelper, Controller, vtkMultiProcessController)
 //----------------------------------------------------------------------------
 vtkFileSeriesHelper::vtkFileSeriesHelper()
   : Controller(nullptr)
-  , FileNames()
   , IgnoreReaderTime(false)
   , PartitionedFiles(false)
-  , Information()
-  , AggregatedTimeSteps()
   , AggregatedTimeRangeValid(false)
   , AggregatedTimeRange(0, 0)
 {

@@ -136,8 +136,7 @@ void vtkCMLMoleculeReader::PrintSelf(ostream& os, vtkIndent indent)
 vtkStandardNewMacro(vtkCMLParser);
 
 vtkCMLParser::vtkCMLParser()
-  : vtkXMLParser()
-  , Target(nullptr)
+  : Target(nullptr)
 {
 }
 

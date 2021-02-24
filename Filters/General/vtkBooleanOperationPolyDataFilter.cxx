@@ -30,7 +30,6 @@ vtkStandardNewMacro(vtkBooleanOperationPolyDataFilter);
 
 //------------------------------------------------------------------------------
 vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter()
-  : vtkPolyDataAlgorithm()
 {
   this->Tolerance = 1e-6;
   this->Operation = VTK_UNION;

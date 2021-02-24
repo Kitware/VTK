@@ -60,10 +60,7 @@ struct vtkObserverCompare
 class vtkObserverMap : public std::map<vtkInteractorObserver*, int, vtkObserverCompare>
 {
 public:
-  vtkObserverMap()
-    : std::map<vtkInteractorObserver*, int, vtkObserverCompare>()
-  {
-  }
+  vtkObserverMap() = default;
 };
 typedef vtkObserverMap::iterator ObserverMapIterator;
 

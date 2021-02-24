@@ -36,10 +36,7 @@
 
 vtkStandardNewMacro(vtkLagrangeHexahedron);
 
-vtkLagrangeHexahedron::vtkLagrangeHexahedron()
-  : vtkHigherOrderHexahedron()
-{
-}
+vtkLagrangeHexahedron::vtkLagrangeHexahedron() = default;
 
 vtkLagrangeHexahedron::~vtkLagrangeHexahedron() = default;
 

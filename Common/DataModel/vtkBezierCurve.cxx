@@ -29,10 +29,7 @@
 
 vtkStandardNewMacro(vtkBezierCurve);
 
-vtkBezierCurve::vtkBezierCurve()
-  : vtkHigherOrderCurve()
-{
-}
+vtkBezierCurve::vtkBezierCurve() = default;
 
 vtkBezierCurve::~vtkBezierCurve() = default;
 

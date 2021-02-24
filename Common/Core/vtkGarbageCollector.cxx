@@ -241,7 +241,6 @@ public:
       , VisitOrder(0)
       , Count(0)
       , GarbageCount(0)
-      , References()
     {
     }
     ~Entry() { assert(this->GarbageCount == 0); }

@@ -32,10 +32,7 @@
 
 vtkStandardNewMacro(vtkBezierTetra);
 //------------------------------------------------------------------------------
-vtkBezierTetra::vtkBezierTetra()
-  : vtkHigherOrderTetra()
-{
-}
+vtkBezierTetra::vtkBezierTetra() = default;
 
 //------------------------------------------------------------------------------
 vtkBezierTetra::~vtkBezierTetra() = default;

@@ -65,8 +65,7 @@ vtkStandardNewMacro(vtkInteractiveArea);
 
 //------------------------------------------------------------------------------
 vtkInteractiveArea::vtkInteractiveArea()
-  : Superclass()
-  , Actions(new MouseActions)
+  : Actions(new MouseActions)
 {
   Superclass::Interactive = true;
 }
