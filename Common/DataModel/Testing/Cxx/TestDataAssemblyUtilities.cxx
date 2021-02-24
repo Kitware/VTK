@@ -128,8 +128,9 @@ vtkSmartPointer<vtkMultiBlockDataSet> CreateMultiBlock(
 
     const auto& blockNames = iter->second;
     vtkNew<vtkMultiBlockDataSet> mb;
-    mb->SetNumberOfBlocks(blockNames.size());
-    for (size_t cc = 0; cc < blockNames.size(); ++cc)
+    unsigned int numBlocks = static_cast<unsigned int>(blockNames.size());
+    mb->SetNumberOfBlocks(numBlocks);
+    for (unsigned int cc = 0; cc < numBlocks; ++cc)
     {
       mb->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), blockNames[cc].c_str());
       mb->SetBlock(cc, populate(blockNames[cc]));
