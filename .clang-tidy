@@ -15,7 +15,6 @@ bugprone-*,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
 -bugprone-unhandled-self-assignment,\
--bugprone-unused-return-value,\
 -bugprone-use-after-move,\
 clang-analyzer-*,\
 -clang-analyzer-core.CallAndMessage,\

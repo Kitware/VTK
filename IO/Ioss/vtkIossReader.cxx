@@ -931,7 +931,7 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
 
     // release the dbase ptr since region (if created successfully) takes over
     // the ownership and calls delete on it when done.
-    dbase.release();
+    (void)dbase.release();
 
     riter =
       this->RegionMap.insert(std::make_pair(std::make_pair(dbasename, processor), region)).first;
