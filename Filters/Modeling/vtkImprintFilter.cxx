@@ -693,7 +693,8 @@ struct ProduceIntersectionPoints
         {
           if ((cInfo = GetCandidateInfo(candidateArray, pIter->Cells[i])) != nullptr)
           {
-            cInfo->PerimeterPoints.emplace_back((pArray->size() - 1 + this->TargetOffset));
+            cInfo->PerimeterPoints.emplace_back(
+              static_cast<vtkIdType>(pArray->size() - 1 + this->TargetOffset));
           }
         } // for cells on either side of edge
       }   // for all intersection points
