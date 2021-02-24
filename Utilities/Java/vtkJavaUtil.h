@@ -26,9 +26,10 @@
 extern VTKJAVA_EXPORT jlong q(JNIEnv* env, jobject obj);
 
 extern VTKJAVA_EXPORT void* vtkJavaGetPointerFromObject(JNIEnv* env, jobject obj);
-extern VTKJAVA_EXPORT char* vtkJavaUTFToChar(JNIEnv* env, jstring in);
-extern VTKJAVA_EXPORT bool vtkJavaUTFToString(JNIEnv* env, jstring in, std::string& out);
-extern VTKJAVA_EXPORT jstring vtkJavaMakeJavaString(JNIEnv* env, const char* in);
+extern VTKJAVA_EXPORT char* vtkJavaUTF8ToChar(JNIEnv* env, jbyteArray bytes, jint length);
+extern VTKJAVA_EXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint length);
+extern VTKJAVA_EXPORT jbyteArray vtkJavaCharToUTF8(JNIEnv* env, const char* chars, size_t length);
+extern VTKJAVA_EXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text);
 
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(
   JNIEnv* env, const float* arr, int size);
@@ -49,8 +50,6 @@ extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfLongFromLong(
   JNIEnv* env, const long* arr, int size);
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(
   JNIEnv* env, const unsigned char* arr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromChar(
-  JNIEnv* env, const char* arr, int size);
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfCharFromChar(
   JNIEnv* env, const char* arr, int size);
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(

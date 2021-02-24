@@ -40,15 +40,17 @@ void output_proto_vars(FILE* fp, int i)
 
   if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
   {
-    fprintf(fp, "jobject id0, jstring id1");
+    fprintf(fp, "jobject id0, jbyteArray id1, jint len1");
     return;
   }
 
   if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING) ||
     (aType == VTK_PARSE_STRING_REF))
   {
-    fprintf(fp, "jstring ");
+    fprintf(fp, " jbyteArray ");
     fprintf(fp, "id%i", i);
+    fprintf(fp, ", jint ");
+    fprintf(fp, "len%i", i);
     return;
   }
 
@@ -227,7 +229,7 @@ void return_result(FILE* fp)
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
-      fprintf(fp, "jstring ");
+      fprintf(fp, "jbyteArray ");
       break;
     case VTK_PARSE_OBJECT_PTR:
       fprintf(fp, "jlong ");
@@ -368,8 +370,7 @@ void get_args(FILE* fp, int i)
   {
     fprintf(fp, "  env->GetJavaVM(&(temp%i->vm));\n", i);
     fprintf(fp, "  temp%i->uobj = env->NewGlobalRef(id0);\n", i);
-    fprintf(fp, "  char *temp%i_str;\n", i);
-    fprintf(fp, "  temp%i_str = vtkJavaUTFToChar(env,id1);\n", i);
+    fprintf(fp, "  char* temp%i_str = vtkJavaUTF8ToChar(env,id1,len1);\n", i);
     fprintf(
       fp, "  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),temp%i_str,\"()V\");\n", i, i);
     return;
@@ -390,11 +391,11 @@ void get_args(FILE* fp, int i)
       fprintf(fp, "  temp%i = (id%i != 0) ? true : false;\n", i, i);
       break;
     case VTK_PARSE_CHAR_PTR:
-      fprintf(fp, "  temp%i = vtkJavaUTFToChar(env,id%i);\n", i, i);
+      fprintf(fp, "  temp%i = vtkJavaUTF8ToChar(env,id%i,len%i);\n", i, i, i);
       break;
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
-      fprintf(fp, "  vtkJavaUTFToString(env,id%i,temp%i);\n", i, i);
+      fprintf(fp, "  temp%i = vtkJavaUTF8ToString(env,id%i,len%i);\n", i, i, i);
       break;
     case VTK_PARSE_OBJECT_PTR:
       fprintf(fp, "  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i));\n", i,
@@ -497,17 +498,19 @@ void do_return(FILE* fp)
   {
     case VTK_PARSE_CHAR_PTR:
     {
-      fprintf(fp, "  return vtkJavaMakeJavaString(env,temp%i);\n", MAX_ARGS);
+      fprintf(fp,
+        "  return vtkJavaCharToUTF8(env,temp%i,temp%i == nullptr ? 0 : strlen(temp%i));\n",
+        MAX_ARGS, MAX_ARGS, MAX_ARGS);
       break;
     }
     case VTK_PARSE_STRING:
     {
-      fprintf(fp, "  return vtkJavaMakeJavaString(env,temp%i.c_str());\n", MAX_ARGS);
+      fprintf(fp, "  return vtkJavaStringToUTF8(env,temp%i);\n", MAX_ARGS);
       break;
     }
     case VTK_PARSE_STRING_REF:
     {
-      fprintf(fp, "  return vtkJavaMakeJavaString(env,temp%i->c_str());\n", MAX_ARGS);
+      fprintf(fp, "  return vtkJavaStringToUTF8(env,*temp%i);\n", MAX_ARGS);
       break;
     }
     case VTK_PARSE_OBJECT_PTR:
@@ -1394,7 +1397,8 @@ int main(int argc, char* argv[])
     fprintf(fp, "}\n");
 
     fprintf(fp,
-      "\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_%s_VTKGetClassNameFromReference(JNIEnv "
+      "\nextern \"C\" JNIEXPORT jbyteArray JNICALL "
+      "Java_vtk_%s_VTKGetClassNameBytesFromReference(JNIEnv "
       "*env,jclass,jlong id)\n",
       data->Name);
     fprintf(fp, "{\n");
@@ -1406,7 +1410,7 @@ int main(int argc, char* argv[])
     // fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n");
     fprintf(fp, "    name = op->GetClassName();\n");
     fprintf(fp, "  }\n");
-    fprintf(fp, "  return vtkJavaMakeJavaString(env,name);\n");
+    fprintf(fp, "  return vtkJavaCharToUTF8(env,name,strlen(name));\n");
     fprintf(fp, "}\n");
 
     fprintf(fp,
@@ -1446,44 +1450,43 @@ int main(int argc, char* argv[])
     fprintf(fp, "\n#include \"vtkJavaAwt.h\"\n\n");
   }
 
-  if (!strcmp("vtkObject", data->Name))
+  if (!strcmp("vtkObjectBase", data->Name))
   {
     /* Add the Print method to vtkObjectBase. */
     fprintf(fp,
-      "\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObjectBase_Print(JNIEnv *env,jobject "
+      "\nextern \"C\" JNIEXPORT jbyteArray JNICALL Java_vtk_vtkObjectBase_PrintBytes(JNIEnv "
+      "*env,jobject "
       "obj)\n");
-    fprintf(fp, "{\n  vtkObjectBase *op;\n");
-    fprintf(fp, "  jstring tmp;\n\n");
-    fprintf(fp, "  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
-
-    fprintf(fp, "  std::ostringstream vtkmsg_with_warning_C4701;\n");
-    fprintf(fp, "  op->Print(vtkmsg_with_warning_C4701);\n");
-    fprintf(fp, "  vtkmsg_with_warning_C4701.put('\\0');\n");
-    fprintf(fp, "  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");
-
-    fprintf(fp, "  return tmp;\n");
+    fprintf(fp, "{\n");
+    fprintf(fp, "  vtkObjectBase* op = (vtkObjectBase*)vtkJavaGetPointerFromObject(env,obj);\n");
+    fprintf(fp, "  std::ostringstream stream;\n");
+    fprintf(fp, "  op->Print(stream);\n");
+    fprintf(fp, "  stream.put('\\0');\n");
+    fprintf(fp, "  const std::string& text = stream.str();\n");
+    fprintf(fp, "  return vtkJavaStringToUTF8(env,text);\n");
     fprintf(fp, "}\n");
+  }
 
+  if (!strcmp("vtkObject", data->Name))
+  {
     fprintf(fp,
       "\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject "
-      "obj, jstring id0, jobject id1, jstring id2)\n");
-    fprintf(fp, "{\n  vtkObject *op;\n");
-
+      "obj, jbyteArray id0, jint len0, jobject id1, jbyteArray id2, jint len2)\n");
+    fprintf(fp, "{\n");
     fprintf(fp, "  vtkJavaCommand *cbc = vtkJavaCommand::New();\n");
     fprintf(fp, "  cbc->AssignJavaVM(env);\n");
     fprintf(fp, "  cbc->SetGlobalRef(env->NewGlobalRef(id1));\n");
-    fprintf(fp, "  char    *temp2;\n");
-    fprintf(fp, "  temp2 = vtkJavaUTFToChar(env,id2);\n");
-    fprintf(fp, "  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),temp2,\"()V\"));\n");
-    fprintf(fp, "  char    *temp0;\n");
-    fprintf(fp, "  temp0 = vtkJavaUTFToChar(env,id0);\n");
-    fprintf(fp, "  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj);\n");
-    fprintf(fp, "  unsigned long     temp20;\n");
-    fprintf(fp, "  temp20 = op->AddObserver(temp0,cbc);\n");
-    fprintf(fp, "  delete[] temp0;\n");
-    fprintf(fp, "  delete[] temp2;\n");
+    fprintf(fp, "  char* handler = vtkJavaUTF8ToChar(env,id2,len2);\n");
+    fprintf(
+      fp, "  cbc->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),handler,\"()V\"));\n");
+    fprintf(fp, "  delete[] handler;\n");
+    fprintf(fp, "  char* event = vtkJavaUTF8ToChar(env,id0,len0);\n");
+    fprintf(fp, "  vtkObject* op = (vtkObject*)vtkJavaGetPointerFromObject(env,obj);\n");
+    fprintf(fp, "  unsigned long result = op->AddObserver(event,cbc);\n");
+    fprintf(fp, "  delete[] event;\n");
     fprintf(fp, "  cbc->Delete();\n");
-    fprintf(fp, "  return temp20;\n}\n");
+    fprintf(fp, "  return result;\n");
+    fprintf(fp, "}\n");
   }
 
   vtkParse_Free(file_info);

@@ -474,90 +474,49 @@ static void JNU_ThrowByName(JNIEnv* env, const char* name, const char* msg)
   env->DeleteLocalRef(cls);
 }
 
-static char* JNU_GetStringNativeChars(JNIEnv* env, jstring jstr)
+JNIEXPORT char* vtkJavaUTF8ToChar(JNIEnv* env, jbyteArray bytes, jint length)
 {
-  if (jstr == nullptr)
+  char* result = new char[length + 1];
+  if (result == nullptr)
   {
-    return nullptr;
-  }
-  jbyteArray bytes = nullptr;
-  jthrowable exc;
-  char* result = nullptr;
-  if (env->EnsureLocalCapacity(2) < 0)
-  {
-    return nullptr; /* out of memory error */
-  }
-  jclass Class_java_lang_String = env->GetObjectClass(jstr);
-  jmethodID MID_String_getBytes =
-    env->GetMethodID(Class_java_lang_String, "getBytes", "(Ljava/lang/String;)[B");
-  jstring encoding = env->NewStringUTF("UTF-8");
-  bytes = (jbyteArray)env->CallObjectMethod(jstr, MID_String_getBytes, encoding);
-  env->DeleteLocalRef(encoding);
-  exc = env->ExceptionOccurred();
-  if (!exc)
-  {
-    jint len = env->GetArrayLength(bytes);
-    result = new char[len + 1];
-
-    if (result == nullptr)
-    {
-      JNU_ThrowByName(env, "java/lang/OutOfMemoryError", nullptr);
-      env->DeleteLocalRef(bytes);
-      return nullptr;
-    }
-    env->GetByteArrayRegion(bytes, 0, len, (jbyte*)result);
-    result[len] = 0; /* nullptr-terminate */
+    JNU_ThrowByName(env, "java/lang/OutOfMemoryError", "in vtkJavaUTF8ToChar()");
   }
   else
   {
-    env->DeleteLocalRef(exc);
+    env->GetByteArrayRegion(bytes, 0, length, (jbyte*)result);
+    result[length] = '\0'; /* nullptr-terminate */
   }
-  env->DeleteLocalRef(bytes);
+
   return result;
 }
 
-JNIEXPORT char* vtkJavaUTFToChar(JNIEnv* env, jstring in)
+JNIEXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint length)
 {
-  return JNU_GetStringNativeChars(env, in);
-}
-
-JNIEXPORT bool vtkJavaUTFToString(JNIEnv* env, jstring in, std::string& out)
-{
-  const char* cstring = JNU_GetStringNativeChars(env, in);
-  if (cstring)
+  std::string result;
+  char* cstring = vtkJavaUTF8ToChar(env, bytes, length);
+  if (cstring != nullptr)
   {
-    out = cstring;
+    result.assign(cstring, length);
     delete[] cstring;
-    return true;
   }
 
-  return false;
+  return result;
 }
 
-JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv* env, const char* in)
+JNIEXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text)
 {
-  if (!in)
+  return vtkJavaCharToUTF8(env, text.c_str(), text.length());
+}
+
+JNIEXPORT jbyteArray vtkJavaCharToUTF8(JNIEnv* env, const char* chars, size_t length)
+{
+  jbyteArray result = env->NewByteArray(length);
+  if (chars)
   {
-    return env->NewStringUTF("");
+    env->SetByteArrayRegion(result, 0, length, (jbyte*)chars);
   }
-  else
-  {
-    size_t length = strlen(in);
-    jbyteArray bytes = env->NewByteArray((jsize)length);
-    env->SetByteArrayRegion(bytes, 0, (jsize)length, (jbyte*)in);
 
-    jclass Class_java_lang_String = env->FindClass("java/lang/String");
-    jmethodID MID_String_ctor =
-      env->GetMethodID(Class_java_lang_String, "<init>", "([BLjava/lang/String;)V");
-
-    jstring encoding = env->NewStringUTF("UTF-8");
-    jstring result =
-      (jstring)env->NewObject(Class_java_lang_String, MID_String_ctor, bytes, encoding);
-    env->DeleteLocalRef(encoding);
-    env->DeleteLocalRef(bytes);
-
-    return result;
-  }
+  return result;
 }
 
 //**jcp this is the callback interface stub for Java. no user parms are passed
