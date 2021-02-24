@@ -515,11 +515,11 @@ private:
   using IdStorageType = IdStorage<TupleSize>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef APIType value_type;
-  typedef ValueIdType difference_type;
-  typedef void pointer;
-  typedef ConstValueReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = APIType;
+  using difference_type = ValueIdType;
+  using pointer = void;
+  using reference = ConstValueReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ConstValueIterator() noexcept
@@ -676,11 +676,11 @@ private:
   using IdStorageType = IdStorage<TupleSize>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef GetAPIType<ArrayType> value_type;
-  typedef ValueIdType difference_type;
-  typedef ValueReference<ArrayType, TupleSize> pointer;
-  typedef ValueReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = GetAPIType<ArrayType>;
+  using difference_type = ValueIdType;
+  using pointer = ValueReference<ArrayType, TupleSize>;
+  using reference = ValueReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ValueIterator() noexcept = default;

@@ -381,11 +381,11 @@ private:
   using NumCompsType = GenericTupleSize<TupleSize>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef GetAPIType<ArrayType> value_type;
-  typedef ComponentIdType difference_type;
-  typedef void pointer;
-  typedef ConstComponentReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = GetAPIType<ArrayType>;
+  using difference_type = ComponentIdType;
+  using pointer = void;
+  using reference = ConstComponentReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ConstComponentIterator() noexcept
@@ -566,11 +566,11 @@ private:
   using APIType = GetAPIType<ArrayType>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef APIType value_type;
-  typedef ComponentIdType difference_type;
-  typedef ComponentReference<ArrayType, TupleSize> pointer;
-  typedef ComponentReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = APIType;
+  using difference_type = ComponentIdType;
+  using pointer = ComponentReference<ArrayType, TupleSize>;
+  using reference = ComponentReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ComponentIterator() noexcept = default;
@@ -1272,11 +1272,11 @@ private:
   using NumCompsType = GenericTupleSize<TupleSize>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef ConstTupleReference<ArrayType, TupleSize> value_type;
-  typedef TupleIdType difference_type;
-  typedef ConstTupleReference<ArrayType, TupleSize> pointer;
-  typedef ConstTupleReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = ConstTupleReference<ArrayType, TupleSize>;
+  using difference_type = TupleIdType;
+  using pointer = ConstTupleReference<ArrayType, TupleSize>;
+  using reference = ConstTupleReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ConstTupleIterator() noexcept = default;
@@ -1456,11 +1456,11 @@ private:
   using NumCompsType = GenericTupleSize<TupleSize>;
 
 public:
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef TupleReference<ArrayType, TupleSize> value_type;
-  typedef TupleIdType difference_type;
-  typedef TupleReference<ArrayType, TupleSize> pointer;
-  typedef TupleReference<ArrayType, TupleSize> reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = TupleReference<ArrayType, TupleSize>;
+  using difference_type = TupleIdType;
+  using pointer = TupleReference<ArrayType, TupleSize>;
+  using reference = TupleReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   TupleIterator() noexcept = default;
