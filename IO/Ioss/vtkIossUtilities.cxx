@@ -399,7 +399,7 @@ static vtkSmartPointer<vtkDataArray> ChangeComponents(vtkDataArray* array, int n
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
   if (!Dispatch::Execute(result, worker))
   {
-    std::runtime_error("Failed to strip extra components from array!");
+    throw std::runtime_error("Failed to strip extra components from array!");
   }
   return result;
 }
