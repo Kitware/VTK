@@ -4374,7 +4374,8 @@ int DisplaySurfaceSkeleton(vtkPolyData* surfaceMesh, vtkTable* skeleton)
 
   // 2 nodes per arc of the skeleton
   vtkActor** nodeActors =
-    (vtkActor**)malloc(sizeof(vtkActor*) * 2 * skeleton->GetNumberOfColumns());
+    // NOLINTNEXTLINE(bugprone-sizeof-expression)
+    (vtkActor**)malloc(sizeof(*nodeActors) * 2 * skeleton->GetNumberOfColumns());
 
   int sampleId = 0;
   double* point = (double*)malloc(sizeof(double) * 3);
@@ -4495,7 +4496,8 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable*
 
   // 2 nodes per arc of the skeleton
   vtkActor** nodeActors =
-    (vtkActor**)malloc(sizeof(vtkActor*) * 2 * skeleton->GetNumberOfColumns());
+    // NOLINTNEXTLINE(bugprone-sizeof-expression)
+    (vtkActor**)malloc(sizeof(*nodeActors) * 2 * skeleton->GetNumberOfColumns());
 
   int sampleId = 0;
   double* point = (double*)malloc(sizeof(double) * 3);

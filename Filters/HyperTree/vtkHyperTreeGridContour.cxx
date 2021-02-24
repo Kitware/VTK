@@ -343,7 +343,8 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   this->SelectedCells->SetNumberOfTuples(numCells);
 
   // Initialize storage for signs and values
-  this->CellSigns = (vtkBitArray**)malloc(numContours * sizeof(vtkBitArray*));
+  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  this->CellSigns = (vtkBitArray**)malloc(numContours * sizeof(*this->CellSigns));
   this->Signs.resize(numContours, true);
   for (int c = 0; c < numContours; ++c)
   {

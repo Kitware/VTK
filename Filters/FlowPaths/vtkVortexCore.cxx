@@ -264,7 +264,8 @@ void vtkParallelVectorsForVortexCore::Postfilter(
     this->Lambda_2CriterionArray, this->Lambda_ciCriterionArray };
   vtkSmartPointer<vtkDoubleArray> remappedArrays[4];
 
-  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(vtkDoubleArray*); ++i)
+  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(*criteriaArrays); ++i)
   {
     remappedArrays[i].TakeReference(criteriaArrays[i]->NewInstance());
     remappedArrays[i]->SetNumberOfComponents(criteriaArrays[i]->GetNumberOfComponents());
@@ -287,7 +288,8 @@ void vtkParallelVectorsForVortexCore::Postfilter(
   }
 
   // Clear the criteria arrays
-  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(vtkDoubleArray*); ++i)
+  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  for (size_t i = 0; i < sizeof(criteriaArrays) / sizeof(*criteriaArrays); ++i)
   {
     criteriaArrays[i]->Initialize();
   }
