@@ -809,7 +809,12 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   }
 
   /* export New method for use by subclasses */
-  fprintf(fp, "extern \"C\" { PyObject *Py%s_TypeNew(); }\n\n", classname);
+  fprintf(fp,
+    "#ifndef DECLARED_Py%s_TypeNew\n"
+    "extern \"C\" { PyObject *Py%s_TypeNew(); }\n"
+    "#define DECLARED_Py%s_TypeNew\n"
+    "#endif\n\n",
+    classname, classname, classname);
 
   /* import New method of the superclass */
   if (has_superclass && !is_external)
