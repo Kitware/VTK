@@ -66,8 +66,14 @@ public:
   vtkGetMacro(HBScale, double);
   //@}
 
-  vtkGetMacro(NumberOfAtoms, int);
+  /**
+   * Number of atoms in the molecule.
+   */
+  vtkGetMacro(NumberOfAtoms, vtkIdType);
 
+  /**
+   * Number of models that make up the molecule.
+   */
   vtkGetMacro(NumberOfModels, unsigned int);
 
 protected:
@@ -77,7 +83,7 @@ protected:
   char* FileName;
   double BScale;
   double HBScale;
-  int NumberOfAtoms;
+  vtkIdType NumberOfAtoms;
   unsigned int NumberOfModels;
 
   int FillOutputPortInformation(int, vtkInformation*) override;

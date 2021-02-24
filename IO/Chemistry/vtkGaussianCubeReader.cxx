@@ -123,7 +123,7 @@ int vtkGaussianCubeReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Read in number of atoms, x-origin, y-origin z-origin
   //
-  if (fscanf(fp, "%d %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], &elements[7],
+  if (fscanf(fp, "%lld %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], &elements[7],
         &elements[11]) != 4)
   {
     vtkErrorMacro("GaussianCubeReader error reading file: "
