@@ -38,12 +38,13 @@ build configuration.
 Required:
 
   * [CMake][cmake]
-    - Version 3.8 or newer, however, the latest version is always recommended
+    - Version 3.12 or newer, however, the latest version is always recommended
   * Supported compiler
     - GCC 4.8 or newer
-    - Clang 4 or newer
-    - Xcode 9 or newer
-    - Visual Studio 2015 or newer
+    - Clang 3.3 or newer
+    - Apple Clang 5.0 (from Xcode 5.0) or newer
+    - Microsoft Visual Studio 2015 or newer
+    - Intel 14.0 or newer
 
 Optional dependencies:
 
@@ -151,9 +152,9 @@ to modify include:
 
   * `BUILD_SHARED_LIBS` (default `ON`): If set, shared libraries will be
     built. This is usually what is wanted.
-  * `VTK_USE_CUDA` (default `OFF`): Whether CUDA support will be available or
+  * `VTK_USE_CUDA` (default `OFF`): Whether [CUDA][cuda] support will be available or
     not.
-  * `VTK_USE_MPI` (default `OFF`): Whether MPI support will be available or
+  * `VTK_USE_MPI` (default `OFF`): Whether [MPI][mpi] support will be available or
     not.
   * `VTK_WRAP_PYTHON` (default `OFF`; requires `VTK_ENABLE_WRAPPING`): Whether
     Python support will be available or not.
@@ -170,13 +171,13 @@ Less common, but variables which may be of interest to some:
     values are `OFF` (no testing), `WANT` (enable tests as possible), and `ON`
     (enable all tests; may error out if features otherwise disabled are
     required by test code).
-  * `VTK_ENABLE_KITS` (default `OFF`): requires CMake 3.12+): Compile VTK into
+  * `VTK_ENABLE_KITS` (default `OFF`): Compile VTK into
     a smaller set of libraries. Can be useful on platforms where VTK takes a
     long time to launch due to expensive disk access.
   * `VTK_ENABLE_WRAPPING` (default `ON`): Whether any wrapping support will be
     available or not.
-  * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING` and CMake >=
-    3.12): Whether Java support will be available or not.
+  * `VTK_WRAP_JAVA` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
+    Whether Java support will be available or not.
 
 More advanced options:
 
@@ -334,6 +335,7 @@ The following targets are used to build documentation for VTK:
 [cmake-download]: https://cmake.org/download
 [cmake-find_package-search]: https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
 [cmake-modules-find]: https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
+[cuda]: https://developer.nvidia.com/cuda-zone
 [ffmpeg]: https://ffmpeg.org
 [git]: https://git-scm.org
 [mesa]: https://www.mesa3d.org
