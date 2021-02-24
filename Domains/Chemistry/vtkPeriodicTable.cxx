@@ -133,8 +133,7 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
   // Compare with other lowercase strings
   for (unsigned short ind = 0; ind <= numElements; ++ind)
   {
-    if (lnames->GetValue(ind).compare(lowerStr) == 0 ||
-      lsymbols->GetValue(ind).compare(lowerStr) == 0)
+    if (lnames->GetValue(ind) == lowerStr || lsymbols->GetValue(ind) == lowerStr)
     {
       return ind;
     }

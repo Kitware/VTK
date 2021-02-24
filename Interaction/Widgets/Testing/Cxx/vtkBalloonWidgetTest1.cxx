@@ -36,7 +36,7 @@ int vtkBalloonWidgetTest1(int, char*[])
     std::cerr << "1. Get null return string." << std::endl;
     return EXIT_FAILURE;
   }
-  if (stdString.compare(retstr) != 0)
+  if (stdString != retstr)
   {
     std::cerr << "1. Expected " << stdString << ", got " << retstr << std::endl;
     return EXIT_FAILURE;

@@ -98,7 +98,6 @@ readability-*,\
 -readability-redundant-smartptr-get,\
 -readability-simplify-boolean-expr,\
 -readability-static-accessed-through-instance,\
--readability-string-compare,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
 "

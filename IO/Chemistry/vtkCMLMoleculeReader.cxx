@@ -261,7 +261,7 @@ void vtkCMLParser::NewBond(const char** attr)
         for (currentAtomId = 0; currentAtomId < static_cast<vtkIdType>(this->AtomNames.size());
              ++currentAtomId)
         {
-          if (this->AtomNames[currentAtomId].compare(*words_iter) == 0)
+          if (this->AtomNames[currentAtomId] == *words_iter)
           {
             found = true;
             break;

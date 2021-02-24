@@ -68,7 +68,7 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
     ss << "PCA " << eval;
 
     std::string rowName = rowNames->GetValue(i);
-    if (rowName.compare(ss.str()) == 0)
+    if (rowName == ss.str())
     {
       eigenvalues->InsertNextValue(meanCol->GetValue(i));
       eval++;
@@ -134,7 +134,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
     ss << "PCA " << eval;
 
     std::string rowName = rowNames->GetValue(i);
-    if (rowName.compare(ss.str()) == 0)
+    if (rowName == ss.str())
     {
       std::vector<double> eigenvector;
       for (int val = 0; val < numberOfEigenvalues; val++)

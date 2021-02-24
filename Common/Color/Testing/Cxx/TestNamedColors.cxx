@@ -801,7 +801,7 @@ bool TestRGBToHTMLColor()
     vtkColor3ub inputColor(dataList[i].colorVector);
     const char* expectedOutput = dataList[i].colorString;
     outputString = color->RGBToHTMLColor(inputColor);
-    if (outputString.compare(expectedOutput) != 0)
+    if (outputString != expectedOutput)
     {
       vtkGenericWarningMacro(<< "Fail: input `" << inputColor << "`"
                              << ", found '" << outputString << "', expected '" << expectedOutput
@@ -838,7 +838,7 @@ bool TestRGBAToHTMLColor()
     vtkColor4ub inputColor(dataList[i].colorVector);
     char const* expectedOutput = dataList[i].colorString;
     outputString = color->RGBAToHTMLColor(inputColor);
-    if (outputString.compare(expectedOutput) != 0)
+    if (outputString != expectedOutput)
     {
       vtkGenericWarningMacro(<< "Fail: input `" << inputColor << "`"
                              << ", found '" << outputString << "', expected '" << expectedOutput

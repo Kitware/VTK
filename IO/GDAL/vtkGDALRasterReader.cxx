@@ -157,7 +157,7 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::~vtkGDALRasterReaderInternal()
 //------------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::string& fileName)
 {
-  if (fileName.compare(this->PrevReadFileName) == 0)
+  if (fileName == this->PrevReadFileName)
   {
     return;
   }

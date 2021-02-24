@@ -319,11 +319,11 @@ void vtkBiomTableReader::ParseSparseness()
 
   // We should find either 'sparse' or 'dense' between these quotes
   std::string matrix_type = this->FileContents.substr(pos2 + 1, pos3 - pos2 - 1);
-  if (matrix_type.compare("sparse") == 0)
+  if (matrix_type == "sparse")
   {
     this->Sparse = true;
   }
-  else if (matrix_type.compare("dense") == 0)
+  else if (matrix_type == "dense")
   {
     this->Sparse = false;
   }

@@ -106,7 +106,7 @@ public:
   //----------------------------------------------------------------------------
   hid_t OpenFile(char* _FileName)
   {
-    if (this->FileName.compare(_FileName) != 0)
+    if (this->FileName != _FileName)
     {
       this->CloseFile();
       if (_FileName != nullptr)

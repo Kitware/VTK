@@ -52,7 +52,7 @@ bool compareMask(vtkBitArray* bm, const std::vector<bool>& ref_bm)
 //------------------------------------------------------------------------------
 void displayMask(const std::string& msg, vtkHyperTreeGrid* htg)
 {
-  if (msg.compare(""))
+  if (!msg.empty())
   {
     std::cout << msg << " ";
     std::cout.flush();

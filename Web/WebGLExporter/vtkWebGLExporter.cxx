@@ -228,7 +228,7 @@ void vtkWebGLExporter::parseActor2D(
     ss << (vtkMTimeType)actor;
     for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
     {
-      if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
+      if (this->Internal->tempObj[i]->GetId() == ss.str())
       {
         vtkWebGLObject* obj = this->Internal->tempObj[i];
         this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
@@ -278,7 +278,7 @@ void vtkWebGLExporter::parseActor(
       ss << (size_t)actor;
       for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
       {
-        if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
+        if (this->Internal->tempObj[i]->GetId() == ss.str())
         {
           obj = this->Internal->tempObj[i];
           this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
@@ -404,7 +404,7 @@ void vtkWebGLExporter::parseActor(
       ss << (size_t)actor;
       for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
       {
-        if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
+        if (this->Internal->tempObj[i]->GetId() == ss.str())
         {
           vtkWebGLObject* obj = this->Internal->tempObj[i];
           this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
