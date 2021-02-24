@@ -66,10 +66,7 @@ vtkPDALReader::vtkPDALReader()
 //------------------------------------------------------------------------------
 vtkPDALReader::~vtkPDALReader()
 {
-  if (this->FileName)
-  {
-    delete[] this->FileName;
-  }
+  delete[] this->FileName;
 }
 
 //------------------------------------------------------------------------------

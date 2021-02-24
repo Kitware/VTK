@@ -162,8 +162,7 @@ PIOAdaptor::PIOAdaptor(vtkMultiProcessController* ctrl)
 
 PIOAdaptor::~PIOAdaptor()
 {
-  if (this->pioData != nullptr)
-    delete this->pioData;
+  delete this->pioData;
   this->Controller = nullptr;
   delete[] startCell;
   delete[] endCell;

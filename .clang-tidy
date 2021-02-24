@@ -81,7 +81,6 @@ portability-*,\
 readability-*,\
 -readability-braces-around-statements,\
 -readability-convert-member-functions-to-static,\
--readability-delete-null-pointer,\
 -readability-else-after-return,\
 -readability-function-size,\
 -readability-implicit-bool-conversion,\

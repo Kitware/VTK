@@ -4115,8 +4115,7 @@ int vtkCGNSReader::GetUnstructuredZone(
               // Renumbering and reducing of points should theoretically be done
               bcGrid->SetPoints(points);
               bcGrid->SetCells(bcCellsTypes, bcCells.GetPointer());
-              if (bcCellsTypes != nullptr)
-                delete[] bcCellsTypes;
+              delete[] bcCellsTypes;
 
               //
               // Add ispatch 0=false/1=true as field data
