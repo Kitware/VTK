@@ -151,8 +151,8 @@ struct Motion
   template <typename MapType>
   Motion(const MapType& params)
   {
-    set(this->tstart_prescribe, "tstart_prescribe", params);
-    set(this->tend_prescribe, "tend_prescribe", params);
+    set(this->tstart_prescribe, "tstart_prescribe", params, 0.0);
+    set(this->tend_prescribe, "tend_prescribe", params, VTK_DOUBLE_MAX);
     set(this->t_damping, "t_damping", params, 0.0);
     set(this->stl, "stl", params);
   }
@@ -741,6 +741,160 @@ struct PositionFileMotion : public Motion
   }
 };
 
+//-----------------------------------------------------------------------------
+// Move given a universal transform file.
+struct UniversalTransformMotion : public Motion
+{
+  // name of the file that contains the transformation data
+  // as a function of time.
+  std::string utm;
+
+  struct tuple_type
+  {
+    vtkVector3d translation_vector;
+    vtkVector3d rotation_center;
+    vtkVector4d quaternion;
+    vtkVector3d linear_scale;
+
+    tuple_type()
+      : translation_vector(0.0)
+      , rotation_center(0.0)
+      , quaternion(0.0)
+      , linear_scale(0.0)
+    {
+    }
+  };
+
+  mutable std::map<double, tuple_type> transforms; // (derived).
+
+  template <typename MapType>
+  UniversalTransformMotion(const MapType& params)
+    : Motion(params)
+    , utm()
+    , transforms()
+  {
+    std::string motion_type;
+    set(motion_type, "motion_type", params);
+    assert(motion_type == "UNIVERSAL_TRANSFORM");
+
+    set(this->utm, "utm", params);
+  }
+
+  // read_universaltransform_file is defined later since it needs the Actions namespace.
+  bool read_universaltransform_file(const std::string& rootDir) const;
+
+  bool Move(vtkPoints* pts, double time) const override
+  {
+    if (this->transforms.size() < 1)
+    {
+      // at least one entry is required
+      return false;
+    }
+
+    // let's clamp to time range in the universal transform file
+    time = std::min(this->transforms.rbegin()->first, time);
+    time = std::max(this->transforms.begin()->first, time);
+
+    auto next = this->transforms.lower_bound(time);
+    auto prev = next;
+
+    vtkNew<vtkTransform> transform;
+    transform->PostMultiply();
+
+    double t;
+    if (next->first > time)
+    {
+      prev = std::prev(next);
+      const double interval = (next->first - prev->first);
+      const double dt = std::min(time - prev->first, interval);
+      t = dt / interval; // normalized dt
+    }
+    else // this also handles single entry files
+    {
+      t = 0.0;
+    }
+
+    const vtkVector3d rotation_center =
+      prev->second.rotation_center * (1.0 - t) + next->second.rotation_center * t;
+    transform->Translate((rotation_center * -1.0).GetData());
+
+    const vtkVector3d linear_scale =
+      prev->second.linear_scale * (1.0 - t) + next->second.linear_scale * t;
+    transform->Scale(linear_scale.GetData());
+
+    double quatdotprod = prev->second.quaternion.Dot(next->second.quaternion);
+
+    if (quatdotprod < 0.0)
+    {
+      next->second.quaternion = -next->second.quaternion;
+      quatdotprod = -quatdotprod;
+    }
+
+    vtkVector4d quatnow;
+    if (quatdotprod > 0.9995) // linear interpolation (LERP)
+    {
+      quatnow = prev->second.quaternion * (1.0 - t) + next->second.quaternion * t;
+    }
+    else // spherical linear interpolation (SLERP)
+    {
+      const double thdiff = std::acos(quatdotprod);
+      const double sndiff = std::sin(thdiff);
+      const double cfi = sin((1.0 - t) * thdiff) / sndiff;
+      const double cfn = sin(t * thdiff) / sndiff;
+      quatnow = prev->second.quaternion * cfi + next->second.quaternion * cfn;
+    }
+
+    const double quatmag = quatnow.Norm();
+    const double oquatmag = 1.0 / quatmag;
+    if (quatmag > 0.1) // Should never lead to division by zero for a quaternion
+    {
+      quatnow = quatnow * oquatmag;
+    }
+
+    vtkVector3d axis;
+    double angle;
+    if (quatnow[3] == 1.0)
+    {
+      // Arbitrary axis
+      axis[0] = 1.0;
+      axis[1] = 0.0;
+      axis[2] = 0.0;
+      angle = 0.0;
+    }
+    else if (quatnow[3] == 0.0)
+    {
+      // Arbitrary axis
+      axis[0] = 1.0;
+      axis[1] = 0.0;
+      axis[2] = 0.0;
+      angle = 180.0;
+    }
+    else
+    {
+      const double coeff = 1.0 / std::sqrt(1.0 - quatnow[3] * quatnow[3]);
+      angle = vtkMath::DegreesFromRadians(2.0 * std::acos(quatnow[3]));
+      axis[0] = quatnow[0] * coeff;
+      axis[1] = quatnow[1] * coeff;
+      axis[2] = quatnow[2] * coeff;
+      axis.Normalize(); // Should never lead to division by zero for a quaternion
+    }
+
+    transform->RotateWXYZ(angle, axis.GetData());
+
+    const vtkVector3d translation_vector =
+      prev->second.translation_vector * (1.0 - t) + next->second.translation_vector * t;
+    transform->Translate(translation_vector.GetData());
+
+    ApplyTransform worker(transform);
+    // transform points.
+    using PointTypes = vtkTypeList::Create<float, double>;
+    vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+    pts->GetData()->Modified();
+    return true;
+  }
+};
+
+//-----------------------------------------------------------------------------
 template <typename MapType>
 std::shared_ptr<const Motion> CreateMotion(const MapType& params)
 {
@@ -776,6 +930,10 @@ std::shared_ptr<const Motion> CreateMotion(const MapType& params)
     else if (motion_type == "POSITION_FILE")
     {
       return std::make_shared<PositionFileMotion>(params);
+    }
+    else if (motion_type == "UNIVERSAL_TRANSFORM")
+    {
+      return std::make_shared<UniversalTransformMotion>(params);
     }
     vtkGenericWarningMacro("Unsupported motion_type '" << motion_type << "'. Skipping.");
   }
@@ -856,7 +1014,47 @@ struct action<MotionFX::OrientationsPositionFile::Row>
 };
 } // namespace PositionFile
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// actions when parsing UniversalTransformRow::Grammar
+namespace UniversalTransformFile
+{
+template <typename Rule>
+struct action : nothing<Rule>
+{
+};
+
+template <>
+struct action<MotionFX::Common::Number>
+{
+  // if a Number is encountered, push it into the set of active_numbers.
+  template <typename Input, typename OtherState>
+  static void apply(const Input& in, std::vector<double>& active_numbers, OtherState&)
+  {
+    active_numbers.push_back(std::atof(in.string().c_str()));
+  }
+};
+
+template <>
+struct action<MotionFX::UniversalTransformRow::Row>
+{
+  template <typename UniversalTransformType>
+  static void apply0(std::vector<double>& active_numbers, UniversalTransformType& state)
+  {
+    assert(active_numbers.size() == 14);
+    using tuple_type = typename UniversalTransformType::mapped_type;
+    tuple_type tuple;
+    tuple.translation_vector = vtkVector3d(active_numbers[1], active_numbers[2], active_numbers[3]);
+    tuple.rotation_center = vtkVector3d(active_numbers[4], active_numbers[5], active_numbers[6]);
+    tuple.quaternion =
+      vtkVector4d(active_numbers[7], active_numbers[8], active_numbers[9], active_numbers[10]);
+    tuple.linear_scale = vtkVector3d(active_numbers[11], active_numbers[12], active_numbers[13]);
+    state[active_numbers[0]] = tuple;
+    active_numbers.clear();
+  }
+};
+} // namespace UniversalTransformSpace
+
+//-----------------------------------------------------------------------------
 // actions when parsing CFG::Grammar
 namespace CFG
 {
@@ -930,6 +1128,7 @@ struct action<MotionFX::CFG::Value>
           vtkGenericWarningMacro("Expecting number, got '" << val << "'");
         }
       }
+      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
     }
     else if (numberRe.find(content))
     {
@@ -1031,6 +1230,26 @@ bool PositionFileMotion::read_position_file(const std::string& rootDir) const
   }
   return false;
 }
+
+bool UniversalTransformMotion::read_universaltransform_file(const std::string& rootDir) const
+{
+  // read universalTransformFile.
+  try
+  {
+    tao::pegtl::read_input<> in(rootDir + "/" + this->utm);
+    std::vector<double> numbers;
+    tao::pegtl::parse<MotionFX::UniversalTransformRow::Grammar,
+      Actions::UniversalTransformFile::action /*, tao::pegtl::tracer*/>(
+      in, numbers, this->transforms);
+    return true;
+  }
+  catch (const tao::pegtl::input_error& e)
+  {
+    vtkGenericWarningMacro(
+      "UniversalTransformMotion::read_universaltransform_file failed: " << e.what());
+  }
+  return false;
+}
 } // impl
 
 class vtkMotionFXCFGReader::vtkInternals
@@ -1106,6 +1325,10 @@ public:
         if (auto mpf = std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
         {
           mpf->read_position_file(dir);
+        }
+        else if (auto mut = std::dynamic_pointer_cast<const impl::UniversalTransformMotion>(motion))
+        {
+          mut->read_universaltransform_file(dir);
         }
       }
     }
