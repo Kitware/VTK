@@ -130,8 +130,8 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 }
 #endif
 
-static std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
-static std::vector<std::string> PythonPaths;
+std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
+std::vector<std::string> PythonPaths;
 
 void NotifyInterpreters(unsigned long eventid, void* calldata = nullptr)
 {

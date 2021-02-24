@@ -22,7 +22,7 @@
 
 namespace
 {
-static const double EPSILON = 1.e-6;
+const double EPSILON = 1.e-6;
 
 void GenerateIntersectingLineSegments(vtkMinimalStandardRandomSequence* seq, double* a1, double* a2,
   double* b1, double* b2, double& u, double& v)

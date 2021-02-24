@@ -59,8 +59,7 @@
 namespace
 {
 
-static void GetPointBounds(
-  float* points, int numPoints, HPDF_REAL bbox[4], const float radius = 0.f)
+void GetPointBounds(float* points, int numPoints, HPDF_REAL bbox[4], const float radius = 0.f)
 {
   bbox[0] = static_cast<HPDF_REAL>(points[0]);
   bbox[1] = static_cast<HPDF_REAL>(points[0]);
@@ -81,7 +80,7 @@ static void GetPointBounds(
   bbox[3] += radius;
 }
 
-static void PolygonToShading(
+void PolygonToShading(
   float* points, int numPoints, unsigned char* colors, int nc_comps, HPDF_Shading shading)
 {
   assert(numPoints >= 3);
@@ -105,7 +104,7 @@ static void PolygonToShading(
   }
 }
 
-static void LineSegmentToShading(const float p1[2], const unsigned char rgb1[3], const float p2[2],
+void LineSegmentToShading(const float p1[2], const unsigned char rgb1[3], const float p2[2],
   const unsigned char rgb2[3], float radius, HPDF_Shading shading)
 {
   float pDy = p2[1] - p1[1];
@@ -129,8 +128,8 @@ static void LineSegmentToShading(const float p1[2], const unsigned char rgb1[3],
   PolygonToShading(quad, 4, color, 3, shading);
 }
 
-static void PolyLineToShading(const float* points, int numPoints, const unsigned char* color,
-  int nc_comps, float radius, HPDF_Shading shading)
+void PolyLineToShading(const float* points, int numPoints, const unsigned char* color, int nc_comps,
+  float radius, HPDF_Shading shading)
 {
   for (int i = 0; i < numPoints - 1; ++i)
   {

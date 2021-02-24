@@ -80,13 +80,13 @@ namespace
 {
 
 //------------------------------------------------------------------------------
-static bool IsAssemblyNode(const pugi::xml_node& node)
+bool IsAssemblyNode(const pugi::xml_node& node)
 {
   return (!vtkDataAssembly::IsNodeNameReserved(node.name()));
 }
 
 //------------------------------------------------------------------------------
-static bool IsDataSetNode(const pugi::xml_node& node)
+bool IsDataSetNode(const pugi::xml_node& node)
 {
   return strcmp(node.name(), DATASET_NODE_NAME) == 0;
 }

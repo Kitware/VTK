@@ -64,7 +64,7 @@ inline void vtkBSplineTransformWeights(double F[4], double G[4], double f)
 //-------------------------------------------------------------
 // if the support region for the b-spline is not fully within
 // the bounds, take action here according to the BorderMode
-static int vtkBSplineTransformBorder(int gridId0[3], int gridId1[3], int gridId2[3], int gridId3[3],
+int vtkBSplineTransformBorder(int gridId0[3], int gridId1[3], int gridId2[3], int gridId3[3],
   double* ff[3], double* gg[3], int ext[3], int borderMode)
 {
   int pointIsInvalid = 0;

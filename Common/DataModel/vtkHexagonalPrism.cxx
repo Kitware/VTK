@@ -346,7 +346,7 @@ namespace
 //    \ 6/   \7 /
 //     \/_____\/
 //      0     1
-static constexpr vtkIdType edges[vtkHexagonalPrism::NumberOfEdges][2] = {
+constexpr vtkIdType edges[vtkHexagonalPrism::NumberOfEdges][2] = {
   { 0, 1 },   // 0
   { 1, 2 },   // 1
   { 2, 3 },   // 2
@@ -367,19 +367,19 @@ static constexpr vtkIdType edges[vtkHexagonalPrism::NumberOfEdges][2] = {
   { 5, 11 },  // 17
 };
 
-static constexpr vtkIdType faces[vtkHexagonalPrism::NumberOfFaces]
-                                [vtkHexagonalPrism::MaximumFaceSize + 1] = {
-                                  { 0, 5, 4, 3, 2, 1, -1 },     // 0
-                                  { 6, 7, 8, 9, 10, 11, -1 },   // 1
-                                  { 0, 1, 7, 6, -1, -1, -1 },   // 2
-                                  { 1, 2, 8, 7, -1, -1, -1 },   // 3
-                                  { 2, 3, 9, 8, -1, -1, -1 },   // 4
-                                  { 3, 4, 10, 9, -1, -1, -1 },  // 5
-                                  { 4, 5, 11, 10, -1, -1, -1 }, // 6
-                                  { 5, 0, 6, 11, -1, -1, -1 },  // 7
-                                };
+constexpr vtkIdType faces[vtkHexagonalPrism::NumberOfFaces]
+                         [vtkHexagonalPrism::MaximumFaceSize + 1] = {
+                           { 0, 5, 4, 3, 2, 1, -1 },     // 0
+                           { 6, 7, 8, 9, 10, 11, -1 },   // 1
+                           { 0, 1, 7, 6, -1, -1, -1 },   // 2
+                           { 1, 2, 8, 7, -1, -1, -1 },   // 3
+                           { 2, 3, 9, 8, -1, -1, -1 },   // 4
+                           { 3, 4, 10, 9, -1, -1, -1 },  // 5
+                           { 4, 5, 11, 10, -1, -1, -1 }, // 6
+                           { 5, 0, 6, 11, -1, -1, -1 },  // 7
+                         };
 
-static constexpr vtkIdType edgeToAdjacentFaces[vtkHexagonalPrism::NumberOfEdges][2] = {
+constexpr vtkIdType edgeToAdjacentFaces[vtkHexagonalPrism::NumberOfEdges][2] = {
   { 0, 2 }, // 0
   { 0, 3 }, // 1
   { 0, 4 }, // 2
@@ -400,67 +400,67 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkHexagonalPrism::NumberOfEdges]
   { 6, 7 }, // 17
 };
 
-static constexpr vtkIdType faceToAdjacentFaces[vtkHexagonalPrism::NumberOfFaces]
-                                              [vtkHexagonalPrism::MaximumFaceSize] = {
-                                                { 7, 6, 5, 4, 3, 2 },   // 0
-                                                { 2, 3, 4, 5, 6, 7 },   // 1
-                                                { 0, 3, 1, 7, -1, -1 }, // 2
-                                                { 0, 4, 1, 2, -1, -1 }, // 3
-                                                { 0, 5, 1, 3, -1, -1 }, // 4
-                                                { 0, 6, 1, 4, -1, -1 }, // 5
-                                                { 0, 7, 1, 5, -1, -1 }, // 6
-                                                { 0, 2, 1, 6, -1, -1 }, // 7
-                                              };
+constexpr vtkIdType faceToAdjacentFaces[vtkHexagonalPrism::NumberOfFaces]
+                                       [vtkHexagonalPrism::MaximumFaceSize] = {
+                                         { 7, 6, 5, 4, 3, 2 },   // 0
+                                         { 2, 3, 4, 5, 6, 7 },   // 1
+                                         { 0, 3, 1, 7, -1, -1 }, // 2
+                                         { 0, 4, 1, 2, -1, -1 }, // 3
+                                         { 0, 5, 1, 3, -1, -1 }, // 4
+                                         { 0, 6, 1, 4, -1, -1 }, // 5
+                                         { 0, 7, 1, 5, -1, -1 }, // 6
+                                         { 0, 2, 1, 6, -1, -1 }, // 7
+                                       };
 
-static constexpr vtkIdType pointToIncidentEdges[vtkHexagonalPrism::NumberOfPoints]
-                                               [vtkHexagonalPrism::MaximumValence] = {
-                                                 { 0, 12, 5 },   // 0
-                                                 { 0, 1, 13 },   // 1
-                                                 { 1, 2, 14 },   // 2
-                                                 { 2, 3, 15 },   // 3
-                                                 { 3, 4, 16 },   // 4
-                                                 { 4, 5, 17 },   // 5
-                                                 { 6, 11, 12 },  // 6
-                                                 { 6, 13, 7 },   // 7
-                                                 { 7, 14, 8 },   // 8
-                                                 { 8, 15, 9 },   // 9
-                                                 { 9, 16, 10 },  // 10
-                                                 { 10, 17, 11 }, // 11
-                                               };
+constexpr vtkIdType pointToIncidentEdges[vtkHexagonalPrism::NumberOfPoints]
+                                        [vtkHexagonalPrism::MaximumValence] = {
+                                          { 0, 12, 5 },   // 0
+                                          { 0, 1, 13 },   // 1
+                                          { 1, 2, 14 },   // 2
+                                          { 2, 3, 15 },   // 3
+                                          { 3, 4, 16 },   // 4
+                                          { 4, 5, 17 },   // 5
+                                          { 6, 11, 12 },  // 6
+                                          { 6, 13, 7 },   // 7
+                                          { 7, 14, 8 },   // 8
+                                          { 8, 15, 9 },   // 9
+                                          { 9, 16, 10 },  // 10
+                                          { 10, 17, 11 }, // 11
+                                        };
 
-static constexpr vtkIdType pointToIncidentFaces[vtkHexagonalPrism::NumberOfPoints]
-                                               [vtkHexagonalPrism::MaximumValence] = {
-                                                 { 2, 7, 0 }, // 0
-                                                 { 0, 3, 2 }, // 1
-                                                 { 0, 4, 3 }, // 2
-                                                 { 0, 5, 4 }, // 3
-                                                 { 0, 6, 5 }, // 4
-                                                 { 0, 7, 6 }, // 5
-                                                 { 1, 7, 2 }, // 6
-                                                 { 2, 3, 1 }, // 7
-                                                 { 3, 4, 1 }, // 8
-                                                 { 4, 5, 1 }, // 9
-                                                 { 5, 6, 1 }, // 10
-                                                 { 6, 7, 1 }, // 11
-                                               };
+constexpr vtkIdType pointToIncidentFaces[vtkHexagonalPrism::NumberOfPoints]
+                                        [vtkHexagonalPrism::MaximumValence] = {
+                                          { 2, 7, 0 }, // 0
+                                          { 0, 3, 2 }, // 1
+                                          { 0, 4, 3 }, // 2
+                                          { 0, 5, 4 }, // 3
+                                          { 0, 6, 5 }, // 4
+                                          { 0, 7, 6 }, // 5
+                                          { 1, 7, 2 }, // 6
+                                          { 2, 3, 1 }, // 7
+                                          { 3, 4, 1 }, // 8
+                                          { 4, 5, 1 }, // 9
+                                          { 5, 6, 1 }, // 10
+                                          { 6, 7, 1 }, // 11
+                                        };
 
-static constexpr vtkIdType pointToOneRingPoints[vtkHexagonalPrism::NumberOfPoints]
-                                               [vtkHexagonalPrism::MaximumValence] = {
-                                                 { 1, 6, 5 },  // 0
-                                                 { 0, 2, 7 },  // 1
-                                                 { 1, 3, 8 },  // 2
-                                                 { 2, 4, 9 },  // 3
-                                                 { 3, 5, 10 }, // 4
-                                                 { 4, 0, 11 }, // 5
-                                                 { 7, 11, 0 }, // 6
-                                                 { 6, 1, 8 },  // 7
-                                                 { 7, 2, 9 },  // 8
-                                                 { 8, 3, 10 }, // 9
-                                                 { 9, 4, 11 }, // 10
-                                                 { 10, 5, 6 }, // 11
-                                               };
+constexpr vtkIdType pointToOneRingPoints[vtkHexagonalPrism::NumberOfPoints]
+                                        [vtkHexagonalPrism::MaximumValence] = {
+                                          { 1, 6, 5 },  // 0
+                                          { 0, 2, 7 },  // 1
+                                          { 1, 3, 8 },  // 2
+                                          { 2, 4, 9 },  // 3
+                                          { 3, 5, 10 }, // 4
+                                          { 4, 0, 11 }, // 5
+                                          { 7, 11, 0 }, // 6
+                                          { 6, 1, 8 },  // 7
+                                          { 7, 2, 9 },  // 8
+                                          { 8, 3, 10 }, // 9
+                                          { 9, 4, 11 }, // 10
+                                          { 10, 5, 6 }, // 11
+                                        };
 
-static constexpr vtkIdType numberOfPointsInFace[vtkHexagonalPrism::NumberOfFaces] = {
+constexpr vtkIdType numberOfPointsInFace[vtkHexagonalPrism::NumberOfFaces] = {
   6, // 0
   6, // 1
   4, // 2

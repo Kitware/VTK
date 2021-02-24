@@ -58,7 +58,7 @@ int* endCell;
 int* countCell;
 
 // mpi tag
-static const int mpiTag = 2564961;
+const int mpiTag = 2564961;
 
 // Used in load balancing of hypertree grid
 std::map<int, int> myHyperTree;
@@ -67,7 +67,7 @@ bool sort_desc(const std::pair<int, int>& a, const std::pair<int, int>& b)
   return (a.first > b.first);
 }
 
-static void BroadcastString(vtkMultiProcessController* controller, std::string& str, int rank)
+void BroadcastString(vtkMultiProcessController* controller, std::string& str, int rank)
 {
   unsigned long len = static_cast<unsigned long>(str.size()) + 1;
   controller->Broadcast(&len, 1, 0);
@@ -89,7 +89,7 @@ static void BroadcastString(vtkMultiProcessController* controller, std::string& 
   }
 }
 
-static void BroadcastStringVector(
+void BroadcastStringVector(
   vtkMultiProcessController* controller, std::vector<std::string>& svec, int rank)
 {
   unsigned long len = static_cast<unsigned long>(svec.size());
@@ -103,7 +103,7 @@ static void BroadcastStringVector(
   }
 }
 
-static void BroadcastStringList(
+void BroadcastStringList(
   vtkMultiProcessController* controller, std::list<std::string>& slist, int rank)
 {
   unsigned long len = static_cast<unsigned long>(slist.size());
@@ -117,7 +117,7 @@ static void BroadcastStringList(
   }
 }
 
-static void BroadcastDoubleVector(
+void BroadcastDoubleVector(
   vtkMultiProcessController* controller, std::vector<double>& dvec, int rank)
 {
   unsigned long len = static_cast<unsigned long>(dvec.size());

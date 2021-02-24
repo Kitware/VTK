@@ -787,7 +787,7 @@ struct LINE_CASES_t
 };
 using LINE_CASES = struct LINE_CASES_t;
 
-static LINE_CASES lineCases[] = {
+LINE_CASES lineCases[] = {
   { { -1, -1 } },   // 0
   { { 100, 1 } },   // 1
   { { 0, 101 } },   // 2

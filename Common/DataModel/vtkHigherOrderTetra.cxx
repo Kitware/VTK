@@ -44,11 +44,11 @@ namespace
 
 // The linearized tetra is comprised of six linearized edges. Each edge is
 // comprised of two vertices. These must be consistent with vtkTetra.
-static constexpr vtkIdType EdgeVertices[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 },
+constexpr vtkIdType EdgeVertices[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 },
   { 2, 3 } };
 
 // The barycentric coordinates of the four vertices of the linear tetra.
-static constexpr vtkIdType LinearVertices[4][4] = { { 0, 0, 0, 1 }, { 1, 0, 0, 0 }, { 0, 1, 0, 0 },
+constexpr vtkIdType LinearVertices[4][4] = { { 0, 0, 0, 1 }, { 1, 0, 0, 0 }, { 0, 1, 0, 0 },
   { 0, 0, 1, 0 } };
 
 // When describing a linearized tetra face, there is a mapping between the
@@ -56,36 +56,35 @@ static constexpr vtkIdType LinearVertices[4][4] = { { 0, 0, 0, 1 }, { 1, 0, 0, 0
 // triangle system. These are the relevant indices within the four-component
 // system for each face (e.g. face 0 varies across the barycentric tetra
 // coordinates 0, 2 and 3).
-static constexpr vtkIdType FaceBCoords[4][3] = { { 0, 2, 3 }, { 2, 0, 1 }, { 2, 1, 3 },
-  { 1, 0, 3 } };
+constexpr vtkIdType FaceBCoords[4][3] = { { 0, 2, 3 }, { 2, 0, 1 }, { 2, 1, 3 }, { 1, 0, 3 } };
 
 // When describing a linearized tetra face, there is a mapping between the
 // four-component barycentric tetra system and the three-component barycentric
 // triangle system. These are the constant indices within the four-component
 // system for each face (e.g. face 0 holds barycentric tetra coordinate 1
 // constant).
-static constexpr vtkIdType FaceMinCoord[4] = { 1, 3, 0, 2 };
+constexpr vtkIdType FaceMinCoord[4] = { 1, 3, 0, 2 };
 
 // Each linearized tetra edge holds two barycentric tetra coordinates constant
 // and varies the other two. These are the coordinates that are held constant
 // for each edge.
-static constexpr vtkIdType EdgeMinCoords[6][2] = { { 1, 2 }, { 2, 3 }, { 0, 2 }, { 0, 1 }, { 1, 3 },
+constexpr vtkIdType EdgeMinCoords[6][2] = { { 1, 2 }, { 2, 3 }, { 0, 2 }, { 0, 1 }, { 1, 3 },
   { 0, 3 } };
 
 // The coordinate that increments when traversing an edge (i.e. the coordinate
 // of the nonzero component of the second vertex of the edge).
-static constexpr vtkIdType EdgeCountingCoord[6] = { 0, 1, 3, 2, 2, 2 };
+constexpr vtkIdType EdgeCountingCoord[6] = { 0, 1, 3, 2, 2, 2 };
 
 // When a linearized tetra vertex is cast into barycentric coordinates, one of
 // its coordinates is maximal and the other three are minimal. These are the
 // indices of the maximal barycentric coordinate for each vertex.
-static constexpr vtkIdType VertexMaxCoords[4] = { 3, 0, 1, 2 };
+constexpr vtkIdType VertexMaxCoords[4] = { 3, 0, 1, 2 };
 
 // There are three different layouts for breaking an octahedron into four
 // tetras. given the six vertices of the octahedron, these are the layouts for
 // each of the three four-tetra configurations.
-static constexpr vtkIdType LinearTetras[3][4][4] = { { { 2, 0, 1, 4 }, { 2, 1, 5, 4 },
-                                                       { 2, 5, 3, 4 }, { 2, 3, 0, 4 } },
+constexpr vtkIdType LinearTetras[3][4][4] = { { { 2, 0, 1, 4 }, { 2, 1, 5, 4 }, { 2, 5, 3, 4 },
+                                                { 2, 3, 0, 4 } },
   { { 0, 4, 1, 5 }, { 0, 1, 2, 5 }, { 0, 2, 3, 5 }, { 0, 3, 4, 5 } },
   { { 1, 5, 2, 3 }, { 1, 2, 0, 3 }, { 1, 0, 4, 3 }, { 1, 4, 5, 3 } } };
 
@@ -94,7 +93,7 @@ double FifteenPointTetraCoords[15 * 3] = { 0., 0., 0., 1., 0., 0., 0., 1., 0., 0
   0., .5, .5, 0., 0., .5, 0., 0., 0., .5, .5, 0., .5, 0., .5, .5, 1. / 3., 1. / 3., 0., 1. / 3., 0.,
   1. / 3., 1. / 3., 1. / 3, 1. / 3., 0., 1. / 3., 1. / 3., .25, .25, .25 };
 
-static constexpr vtkIdType FifteenPointTetraSubtetras[28][4] = { { 0, 4, 10, 14 }, { 1, 4, 10, 14 },
+constexpr vtkIdType FifteenPointTetraSubtetras[28][4] = { { 0, 4, 10, 14 }, { 1, 4, 10, 14 },
   { 1, 5, 10, 14 }, { 2, 5, 10, 14 }, { 2, 6, 10, 14 }, { 0, 6, 10, 14 }, { 0, 7, 11, 14 },
   { 3, 7, 11, 14 }, { 3, 8, 11, 14 }, { 1, 8, 11, 14 }, { 1, 4, 11, 14 }, { 0, 4, 11, 14 },
   { 1, 5, 12, 14 }, { 2, 5, 12, 14 }, { 2, 9, 12, 14 }, { 3, 9, 12, 14 }, { 3, 8, 12, 14 },

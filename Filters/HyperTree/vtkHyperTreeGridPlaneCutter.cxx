@@ -39,8 +39,8 @@ namespace
 {
 vtkIdType First8Integers[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-static constexpr unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14,
-  15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+constexpr unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16,
+  17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 }
 
 vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);

@@ -23,7 +23,7 @@ vtkStandardNewMacro(vtkLSDynaSummaryParser);
 
 namespace
 {
-static void vtkLSTrimWhitespace(std::string& line)
+void vtkLSTrimWhitespace(std::string& line)
 {
   std::string::size_type llen = line.length();
   while (llen &&

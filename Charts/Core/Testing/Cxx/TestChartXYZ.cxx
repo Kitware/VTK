@@ -30,7 +30,7 @@
 // Need a timer so that we can animate, and then take a snapshot!
 namespace
 {
-static double angle = 0;
+double angle = 0;
 
 void ProcessEvents(vtkObject* caller, unsigned long, void* clientData, void* callerData)
 {

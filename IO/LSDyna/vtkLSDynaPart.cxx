@@ -35,8 +35,8 @@
 namespace
 {
 
-static const char* TypeNames[] = { "PARTICLE", "BEAM", "SHELL", "THICK_SHELL", "SOLID",
-  "RIGID_BODY", "ROAD_SURFACE", nullptr };
+const char* TypeNames[] = { "PARTICLE", "BEAM", "SHELL", "THICK_SHELL", "SOLID", "RIGID_BODY",
+  "ROAD_SURFACE", nullptr };
 
 typedef std::vector<bool> BitVector;
 

@@ -367,7 +367,7 @@ static void CopyCellData(vtkCellData* input, vtkCellData* output, const CellWork
 }
 
 //------------------------------------------------------------------------------
-static void CopyPointData(vtkPointData* inPD, vtkPointData* outPD, vtkIdList* srcIds)
+void CopyPointData(vtkPointData* inPD, vtkPointData* outPD, vtkIdList* srcIds)
 {
   const auto numValues = srcIds->GetNumberOfIds();
   outPD->CopyAllocate(inPD, numValues);

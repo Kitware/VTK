@@ -368,7 +368,7 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdL
 //
 namespace
 { // required so we don't violate ODR
-static constexpr vtkIdType edges[4][2] = {
+constexpr vtkIdType edges[4][2] = {
   { 0, 1 },
   { 1, 2 },
   { 3, 2 },
@@ -382,7 +382,7 @@ struct LINE_CASES_t
 };
 using LINE_CASES = struct LINE_CASES_t;
 
-static LINE_CASES lineCases[] = {
+LINE_CASES lineCases[] = {
   { { -1, -1, -1, -1, -1 } },
   { { 0, 3, -1, -1, -1 } },
   { { 1, 0, -1, -1, -1 } },

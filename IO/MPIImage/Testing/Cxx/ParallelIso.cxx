@@ -47,12 +47,12 @@
 namespace
 {
 
-static const float ISO_START = 4250.0;
-static const float ISO_STEP = -1250.0;
-static const int ISO_NUM = 3;
+const float ISO_START = 4250.0;
+const float ISO_STEP = -1250.0;
+const int ISO_NUM = 3;
 // Just pick a tag which is available
-static const int ISO_VALUE_RMI_TAG = 300;
-static const int ISO_OUTPUT_TAG = 301;
+const int ISO_VALUE_RMI_TAG = 300;
+const int ISO_OUTPUT_TAG = 301;
 
 struct ParallelIsoArgs_tmp
 {

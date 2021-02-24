@@ -69,7 +69,7 @@ inline void SwapPoint(
 // this is average case linear, worse case quadratic implementation
 // (i.e., just like quicksort) -- there is the median of 5 or
 // median of medians algorithm, but I'm too lazy to implement it
-static void QuickSelect(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vtkIdType start,
+void QuickSelect(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vtkIdType start,
   vtkIdType end, vtkIdType nth, int axis)
 {
   // base case
@@ -121,8 +121,8 @@ static void QuickSelect(vtkPoints* points, vtkPointData* data, vtkPointData* tem
 //------------------------------------------------------------------------------
 // divide the data into sampling strata and randomly sample it
 // (one sample per stratum)
-static void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp,
-  vtkIdType start, vtkIdType end, vtkIdType size, int depth)
+void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* temp, vtkIdType start,
+  vtkIdType end, vtkIdType size, int depth)
 {
   // if size >= end - start return them all
   if (size >= (end - start))
@@ -206,7 +206,7 @@ static void SortAndSample(vtkPoints* points, vtkPointData* data, vtkPointData* t
 //------------------------------------------------------------------------------
 // For UNIFORM_SPATIAL_BOUNDS only,
 // Compute the nearestPointRadius for the point locator
-static double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfPoints)
+double GetNearestPointRadius(double bounds[3], vtkIdType maximumNumberOfPoints)
 {
   vtkBoundingBox boundingBox;
   boundingBox.AddBounds(bounds);

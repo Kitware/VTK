@@ -54,8 +54,8 @@
 
 namespace
 {
-static const char* CELL_OWNERSHIP_ARRAYNAME = "__RDSF_CELL_OWNERSHIP__";
-static const char* GHOST_CELL_ARRAYNAME = "__RDSF_GHOST_CELLS__";
+const char* CELL_OWNERSHIP_ARRAYNAME = "__RDSF_CELL_OWNERSHIP__";
+const char* GHOST_CELL_ARRAYNAME = "__RDSF_GHOST_CELLS__";
 }
 
 namespace detail

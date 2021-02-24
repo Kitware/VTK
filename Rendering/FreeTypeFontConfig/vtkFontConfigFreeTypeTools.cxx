@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkFontConfigFreeTypeTools);
 namespace
 {
 // The FreeType face requester callback:
-static FT_Error vtkFontConfigFreeTypeToolsFaceRequester(
+FT_Error vtkFontConfigFreeTypeToolsFaceRequester(
   FTC_FaceID face_id, FT_Library lib, FT_Pointer request_data, FT_Face* face)
 {
   // Get a pointer to the current vtkFontConfigFreeTypeTools object

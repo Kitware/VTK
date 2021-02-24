@@ -292,7 +292,7 @@ namespace
 //   |/___\|
 //   0     1
 //
-static constexpr vtkIdType edges[vtkTetra::NumberOfEdges][2] = {
+constexpr vtkIdType edges[vtkTetra::NumberOfEdges][2] = {
   { 0, 1 }, // 0
   { 1, 2 }, // 1
   { 2, 0 }, // 2
@@ -300,13 +300,13 @@ static constexpr vtkIdType edges[vtkTetra::NumberOfEdges][2] = {
   { 1, 3 }, // 4
   { 2, 3 }, // 5
 };
-static constexpr vtkIdType faces[vtkTetra::NumberOfFaces][vtkTetra::MaximumFaceSize + 1] = {
+constexpr vtkIdType faces[vtkTetra::NumberOfFaces][vtkTetra::MaximumFaceSize + 1] = {
   { 0, 1, 3, -1 }, // 0
   { 1, 2, 3, -1 }, // 1
   { 2, 0, 3, -1 }, // 2
   { 0, 2, 1, -1 }, // 3
 };
-static constexpr vtkIdType edgeToAdjacentFaces[vtkTetra::NumberOfEdges][2] = {
+constexpr vtkIdType edgeToAdjacentFaces[vtkTetra::NumberOfEdges][2] = {
   { 0, 3 }, // 0
   { 1, 3 }, // 1
   { 2, 3 }, // 2
@@ -314,34 +314,30 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkTetra::NumberOfEdges][2] = {
   { 0, 1 }, // 4
   { 1, 2 }, // 5
 };
-static constexpr vtkIdType faceToAdjacentFaces[vtkTetra::NumberOfFaces]
-                                              [vtkTetra::MaximumFaceSize] = {
-                                                { 3, 1, 2 }, // 0
-                                                { 3, 2, 0 }, // 1
-                                                { 3, 0, 1 }, // 2
-                                                { 2, 1, 0 }, // 3
-                                              };
-static constexpr vtkIdType pointToIncidentEdges[vtkTetra::NumberOfPoints]
-                                               [vtkTetra::MaximumValence] = {
-                                                 { 0, 3, 2 }, // 0
-                                                 { 0, 1, 4 }, // 1
-                                                 { 1, 2, 5 }, // 2
-                                                 { 3, 4, 5 }, // 3
-                                               };
-static constexpr vtkIdType pointToIncidentFaces[vtkTetra::NumberOfPoints]
-                                               [vtkTetra::MaximumValence] = {
-                                                 { 0, 2, 3 }, // 0
-                                                 { 3, 1, 0 }, // 1
-                                                 { 3, 2, 1 }, // 2
-                                                 { 0, 1, 2 }, // 3
-                                               };
-static constexpr vtkIdType pointToOneRingPoints[vtkTetra::NumberOfPoints]
-                                               [vtkTetra::MaximumValence] = {
-                                                 { 1, 3, 2 }, // 0
-                                                 { 0, 2, 3 }, // 1
-                                                 { 1, 0, 3 }, // 2
-                                                 { 0, 1, 2 }, // 3
-                                               };
+constexpr vtkIdType faceToAdjacentFaces[vtkTetra::NumberOfFaces][vtkTetra::MaximumFaceSize] = {
+  { 3, 1, 2 }, // 0
+  { 3, 2, 0 }, // 1
+  { 3, 0, 1 }, // 2
+  { 2, 1, 0 }, // 3
+};
+constexpr vtkIdType pointToIncidentEdges[vtkTetra::NumberOfPoints][vtkTetra::MaximumValence] = {
+  { 0, 3, 2 }, // 0
+  { 0, 1, 4 }, // 1
+  { 1, 2, 5 }, // 2
+  { 3, 4, 5 }, // 3
+};
+constexpr vtkIdType pointToIncidentFaces[vtkTetra::NumberOfPoints][vtkTetra::MaximumValence] = {
+  { 0, 2, 3 }, // 0
+  { 3, 1, 0 }, // 1
+  { 3, 2, 1 }, // 2
+  { 0, 1, 2 }, // 3
+};
+constexpr vtkIdType pointToOneRingPoints[vtkTetra::NumberOfPoints][vtkTetra::MaximumValence] = {
+  { 1, 3, 2 }, // 0
+  { 0, 2, 3 }, // 1
+  { 1, 0, 3 }, // 2
+  { 0, 1, 2 }, // 3
+};
 
 typedef int EDGE_LIST;
 struct TRIANGLE_CASES_t
@@ -350,7 +346,7 @@ struct TRIANGLE_CASES_t
 };
 using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
-static TRIANGLE_CASES triCases[] = {
+TRIANGLE_CASES triCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1 } },
   { { 3, 0, 2, -1, -1, -1, -1 } },
   { { 1, 0, 4, -1, -1, -1, -1 } },

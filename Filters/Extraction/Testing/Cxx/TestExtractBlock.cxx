@@ -37,7 +37,7 @@ vtkSmartPointer<vtkDataObject> GetSphere(double x, double y, double z)
   return sphere->GetOutputDataObject(0);
 }
 
-static int TestExtractBlockMultiBlock()
+int TestExtractBlockMultiBlock()
 {
   vtkNew<vtkMultiBlockDataSet> mb0;
   mb0->SetBlock(0, GetSphere(0, 0, -2));

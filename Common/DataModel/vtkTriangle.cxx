@@ -400,7 +400,7 @@ struct LINE_CASES_t
 };
 using LINE_CASES = struct LINE_CASES_t;
 
-static LINE_CASES lineCases[] = {
+LINE_CASES lineCases[] = {
   { { -1, -1, -1 } },
   { { 0, 2, -1 } },
   { { 1, 0, -1 } },
@@ -894,7 +894,7 @@ struct TRIANGLE_CASES_t
 };
 using TRIANGLE_CASES = struct TRIANGLE_CASES_t;
 
-static TRIANGLE_CASES triangleCases[] = {
+TRIANGLE_CASES triangleCases[] = {
   { { -1, -1, -1, -1, -1, -1, -1 } },   // 0
   { { 0, 2, 100, -1, -1, -1, -1 } },    // 1
   { { 1, 0, 101, -1, -1, -1, -1 } },    // 2
@@ -1032,7 +1032,7 @@ double Determinant(const double a[3], const double b[3], const double c[3], cons
     b[2] - d[2], c[0] - d[0], c[1] - d[1], c[2] - d[2]);
 }
 
-static const double eps = 256 * std::numeric_limits<double>::epsilon();
+const double eps = 256 * std::numeric_limits<double>::epsilon();
 
 // The orientation values are chosen so that any combination of 3 will produce
 // a unique value.

@@ -71,9 +71,9 @@ struct RecvBuffer
   std::vector<vtkIdType> indices;
 };
 
-static const int HTGGCG_SIZE_EXCHANGE_TAG = 5098;
-static const int HTGGCG_DATA_EXCHANGE_TAG = 5099;
-static const int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
+const int HTGGCG_SIZE_EXCHANGE_TAG = 5098;
+const int HTGGCG_DATA_EXCHANGE_TAG = 5099;
+const int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
 }
 
 //------------------------------------------------------------------------------

@@ -49,7 +49,7 @@ vtkStandardNewMacro(vtkGLTFImporter);
 namespace
 {
 // Desired attenuation value when distanceToLight == lightRange
-static const float MIN_LIGHT_ATTENUATION = 0.01;
+const float MIN_LIGHT_ATTENUATION = 0.01;
 
 /**
  * Builds a new vtkCamera object with properties from a glTF Camera struct

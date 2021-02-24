@@ -426,7 +426,7 @@ namespace
 //       \/____\/
 //       0      1
 
-static constexpr vtkIdType edges[vtkPentagonalPrism::NumberOfEdges][2] = {
+constexpr vtkIdType edges[vtkPentagonalPrism::NumberOfEdges][2] = {
   { 0, 1 }, // 0
   { 1, 2 }, // 1
   { 2, 3 }, // 2
@@ -444,18 +444,18 @@ static constexpr vtkIdType edges[vtkPentagonalPrism::NumberOfEdges][2] = {
   { 4, 9 }, // 14
 };
 
-static constexpr vtkIdType faces[vtkPentagonalPrism::NumberOfFaces]
-                                [vtkPentagonalPrism::MaximumFaceSize + 1] = {
-                                  { 0, 4, 3, 2, 1, -1 },  // 0
-                                  { 5, 6, 7, 8, 9, -1 },  // 1
-                                  { 0, 1, 6, 5, -1, -1 }, // 2
-                                  { 1, 2, 7, 6, -1, -1 }, // 3
-                                  { 2, 3, 8, 7, -1, -1 }, // 4
-                                  { 3, 4, 9, 8, -1, -1 }, // 5
-                                  { 4, 0, 5, 9, -1, -1 }, // 6
-                                };
+constexpr vtkIdType faces[vtkPentagonalPrism::NumberOfFaces]
+                         [vtkPentagonalPrism::MaximumFaceSize + 1] = {
+                           { 0, 4, 3, 2, 1, -1 },  // 0
+                           { 5, 6, 7, 8, 9, -1 },  // 1
+                           { 0, 1, 6, 5, -1, -1 }, // 2
+                           { 1, 2, 7, 6, -1, -1 }, // 3
+                           { 2, 3, 8, 7, -1, -1 }, // 4
+                           { 3, 4, 9, 8, -1, -1 }, // 5
+                           { 4, 0, 5, 9, -1, -1 }, // 6
+                         };
 
-static constexpr vtkIdType edgeToAdjacentFaces[vtkPentagonalPrism::NumberOfEdges][2] = {
+constexpr vtkIdType edgeToAdjacentFaces[vtkPentagonalPrism::NumberOfEdges][2] = {
   { 0, 2 }, // 0
   { 0, 3 }, // 1
   { 0, 4 }, // 2
@@ -473,60 +473,60 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkPentagonalPrism::NumberOfEdges
   { 5, 6 }, // 14
 };
 
-static constexpr vtkIdType faceToAdjacentFaces[vtkPentagonalPrism::NumberOfFaces]
-                                              [vtkPentagonalPrism::MaximumFaceSize] = {
-                                                { 6, 5, 4, 3, 2 },  // 0
-                                                { 2, 3, 4, 5, 6 },  // 1
-                                                { 0, 3, 1, 6, -1 }, // 2
-                                                { 0, 4, 1, 2, -1 }, // 3
-                                                { 0, 5, 1, 3, -1 }, // 4
-                                                { 0, 6, 1, 4, -1 }, // 5
-                                                { 0, 2, 1, 5, -1 }, // 6
-                                              };
+constexpr vtkIdType faceToAdjacentFaces[vtkPentagonalPrism::NumberOfFaces]
+                                       [vtkPentagonalPrism::MaximumFaceSize] = {
+                                         { 6, 5, 4, 3, 2 },  // 0
+                                         { 2, 3, 4, 5, 6 },  // 1
+                                         { 0, 3, 1, 6, -1 }, // 2
+                                         { 0, 4, 1, 2, -1 }, // 3
+                                         { 0, 5, 1, 3, -1 }, // 4
+                                         { 0, 6, 1, 4, -1 }, // 5
+                                         { 0, 2, 1, 5, -1 }, // 6
+                                       };
 
-static constexpr vtkIdType pointToIncidentEdges[vtkPentagonalPrism::NumberOfPoints]
-                                               [vtkPentagonalPrism::MaximumValence] = {
-                                                 { 0, 10, 4 }, // 0
-                                                 { 0, 1, 11 }, // 1
-                                                 { 1, 2, 12 }, // 2
-                                                 { 2, 3, 13 }, // 3
-                                                 { 3, 4, 14 }, // 4
-                                                 { 5, 9, 10 }, // 5
-                                                 { 5, 11, 6 }, // 6
-                                                 { 6, 12, 7 }, // 7
-                                                 { 7, 13, 8 }, // 8
-                                                 { 8, 14, 9 }, // 9
-                                               };
+constexpr vtkIdType pointToIncidentEdges[vtkPentagonalPrism::NumberOfPoints]
+                                        [vtkPentagonalPrism::MaximumValence] = {
+                                          { 0, 10, 4 }, // 0
+                                          { 0, 1, 11 }, // 1
+                                          { 1, 2, 12 }, // 2
+                                          { 2, 3, 13 }, // 3
+                                          { 3, 4, 14 }, // 4
+                                          { 5, 9, 10 }, // 5
+                                          { 5, 11, 6 }, // 6
+                                          { 6, 12, 7 }, // 7
+                                          { 7, 13, 8 }, // 8
+                                          { 8, 14, 9 }, // 9
+                                        };
 
-static constexpr vtkIdType pointToIncidentFaces[vtkPentagonalPrism::NumberOfPoints]
-                                               [vtkPentagonalPrism::MaximumValence] = {
-                                                 { 2, 6, 0 }, // 0
-                                                 { 0, 3, 2 }, // 1
-                                                 { 0, 4, 3 }, // 2
-                                                 { 0, 5, 4 }, // 3
-                                                 { 0, 6, 5 }, // 4
-                                                 { 1, 6, 2 }, // 5
-                                                 { 2, 3, 1 }, // 6
-                                                 { 3, 4, 1 }, // 7
-                                                 { 4, 5, 1 }, // 8
-                                                 { 5, 6, 1 }, // 9
-                                               };
+constexpr vtkIdType pointToIncidentFaces[vtkPentagonalPrism::NumberOfPoints]
+                                        [vtkPentagonalPrism::MaximumValence] = {
+                                          { 2, 6, 0 }, // 0
+                                          { 0, 3, 2 }, // 1
+                                          { 0, 4, 3 }, // 2
+                                          { 0, 5, 4 }, // 3
+                                          { 0, 6, 5 }, // 4
+                                          { 1, 6, 2 }, // 5
+                                          { 2, 3, 1 }, // 6
+                                          { 3, 4, 1 }, // 7
+                                          { 4, 5, 1 }, // 8
+                                          { 5, 6, 1 }, // 9
+                                        };
 
-static constexpr vtkIdType pointToOneRingPoints[vtkPentagonalPrism::NumberOfPoints]
-                                               [vtkPentagonalPrism::MaximumValence] = {
-                                                 { 1, 5, 4 }, // 0
-                                                 { 0, 2, 6 }, // 1
-                                                 { 1, 3, 7 }, // 2
-                                                 { 2, 4, 8 }, // 3
-                                                 { 3, 0, 9 }, // 4
-                                                 { 6, 9, 0 }, // 5
-                                                 { 5, 1, 7 }, // 6
-                                                 { 6, 2, 8 }, // 7
-                                                 { 7, 3, 9 }, // 8
-                                                 { 8, 4, 5 }, // 9
-                                               };
+constexpr vtkIdType pointToOneRingPoints[vtkPentagonalPrism::NumberOfPoints]
+                                        [vtkPentagonalPrism::MaximumValence] = {
+                                          { 1, 5, 4 }, // 0
+                                          { 0, 2, 6 }, // 1
+                                          { 1, 3, 7 }, // 2
+                                          { 2, 4, 8 }, // 3
+                                          { 3, 0, 9 }, // 4
+                                          { 6, 9, 0 }, // 5
+                                          { 5, 1, 7 }, // 6
+                                          { 6, 2, 8 }, // 7
+                                          { 7, 3, 9 }, // 8
+                                          { 8, 4, 5 }, // 9
+                                        };
 
-static constexpr vtkIdType numberOfPointsInFace[vtkPentagonalPrism::NumberOfFaces] = {
+constexpr vtkIdType numberOfPointsInFace[vtkPentagonalPrism::NumberOfFaces] = {
   5, // 0
   5, // 1
   4, // 2

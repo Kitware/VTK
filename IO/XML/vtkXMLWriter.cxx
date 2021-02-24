@@ -353,7 +353,7 @@ void WriteDataArrayFallback(ValueType*, vtkDataArray* array, WriteBinaryDataBloc
 
 //------------------------------------------------------------------------------
 // Specialize for string arrays:
-static int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
+int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   vtkArrayIteratorTemplate<vtkStdString>* iter, int wordType, size_t outWordSize, size_t numStrings,
   int)
 {

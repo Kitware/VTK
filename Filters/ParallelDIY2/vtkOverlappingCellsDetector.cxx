@@ -65,8 +65,8 @@
 
 namespace
 {
-static constexpr char SPHERE_RADIUS_ARRAY_NAME[21] = "SphereRadius";
-static constexpr char ID_MAP_TO_ORIGIN_DATASET_IDS_NAME[32] = "IdMapToOriginDataSetIds";
+constexpr char SPHERE_RADIUS_ARRAY_NAME[21] = "SphereRadius";
+constexpr char ID_MAP_TO_ORIGIN_DATASET_IDS_NAME[32] = "IdMapToOriginDataSetIds";
 
 //----------------------------------------------------------------------------
 double ComputeEpsilon(const vtkBoundingBox& boundingBox)

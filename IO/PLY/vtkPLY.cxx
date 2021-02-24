@@ -67,15 +67,15 @@ namespace
 {
 const int LINE_LENGTH = 4096;
 // wjs: added to manage memory leak
-static vtkHeap* plyHeap = nullptr;
-static void plyInitialize()
+vtkHeap* plyHeap = nullptr;
+void plyInitialize()
 {
   if (plyHeap == nullptr)
   {
     plyHeap = vtkHeap::New();
   }
 }
-static void plyCleanUp()
+void plyCleanUp()
 {
   if (plyHeap)
   {
@@ -83,15 +83,15 @@ static void plyCleanUp()
     plyHeap = nullptr;
   }
 }
-static void* plyAllocateMemory(size_t n)
+void* plyAllocateMemory(size_t n)
 {
   return plyHeap->AllocateMemory(n);
 }
 
-static const char* type_names[] = { "invalid", "char", "short", "int", "int8", "int16", "int32",
-  "uchar", "ushort", "uint", "uint8", "uint16", "uint32", "float", "float32", "double", "float64" };
+const char* type_names[] = { "invalid", "char", "short", "int", "int8", "int16", "int32", "uchar",
+  "ushort", "uint", "uint8", "uint16", "uint32", "float", "float32", "double", "float64" };
 
-static const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 1, 2, 4, 1, 2, 4, 4, 4, 8 };
+const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 1, 2, 4, 1, 2, 4, 4, 4, 8 };
 }
 
 #define NO_OTHER_PROPS (-1)

@@ -266,7 +266,7 @@ struct vtkESIDeepCopyImpl
 };
 
 // Deep copies a specified component (or magnitude of compno < 0).
-static void vtkESIDeepCopy(vtkAbstractArray* out, vtkAbstractArray* in, int compno)
+void vtkESIDeepCopy(vtkAbstractArray* out, vtkAbstractArray* in, int compno)
 {
   if (in->GetNumberOfComponents() == 1)
   {

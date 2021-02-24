@@ -89,7 +89,7 @@ inline void vtkLinearTransformNormal(T1 mat[4][4], T2 in[3], T3 out[3])
 
 // This controls when to switch to threading. It is based on empirical
 // experiments and could readily be changed.
-static constexpr int VTK_SMP_THRESHOLD = 350000;
+constexpr int VTK_SMP_THRESHOLD = 350000;
 
 //------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
