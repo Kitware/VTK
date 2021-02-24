@@ -1,6 +1,6 @@
 /*=========================================================================
   Program:   Visualization Toolkit
-  Module:    vtkHierarchicalBoxDataSet.h
+  Module:    vtkHierarchicalBoxDataSet.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.

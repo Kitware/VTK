@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    $RCSfile PIOAdaptor.h,v $
+  Module:    PIOAdaptor.h
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
