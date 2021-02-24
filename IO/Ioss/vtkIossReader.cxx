@@ -139,7 +139,7 @@ bool Broadcast(vtkMultiProcessController* controller, T& data, int root)
 vtkSmartPointer<vtkAbstractArray> JoinArrays(
   const std::vector<vtkSmartPointer<vtkAbstractArray>>& arrays)
 {
-  if (arrays.size() == 0)
+  if (arrays.empty())
   {
     return nullptr;
   }
@@ -558,7 +558,7 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
     return false;
   }
 
-  if (filenames.size() == 0)
+  if (filenames.empty())
   {
     vtkErrorWithObjectMacro(self, "No filename specified.");
     return false;
@@ -630,7 +630,7 @@ bool vtkIossReader::vtkInternals::UpdateDatabaseNames(vtkIossReader* self)
       }
     }
   }
-  return (this->DatabaseNames.size() > 0);
+  return !this->DatabaseNames.empty();
 }
 
 //----------------------------------------------------------------------------
@@ -654,9 +654,9 @@ bool vtkIossReader::vtkInternals::UpdateTimeInformation(vtkIossReader* self)
     // read all databases to collect timestep information.
     for (const auto& pair : this->DatabaseNames)
     {
-      assert(pair.second.ProcessCount == 0 || pair.second.Ranks.size() > 0);
+      assert(pair.second.ProcessCount == 0 || !pair.second.Ranks.empty());
       const auto fileids = this->GetFileIds(pair.first, rank, numRanks);
-      if (fileids.size() == 0)
+      if (fileids.empty())
       {
         continue;
       }
@@ -792,7 +792,7 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
 
   for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
   {
-    if (this->EntityNames[etype].size() == 0)
+    if (this->EntityNames[etype].empty())
     {
       // skip 0-count entity types; keeps output assembly simpler to read.
       continue;
@@ -965,7 +965,7 @@ std::vector<DatabaseHandle> vtkIossReader::vtkInternals::GetDatabaseHandles(
       }
     }
   }
-  else if (timestep <= 0 && this->TimestepValues.size() == 0)
+  else if (timestep <= 0 && this->TimestepValues.empty())
   {
     dbasename = this->DatabaseNames.begin()->first;
   }
@@ -1565,7 +1565,7 @@ void vtkIossReader::SetFileName(const char* fname)
   auto& internals = (*this->Internals);
   if (fname == nullptr)
   {
-    if (internals.FileNames.size() != 0)
+    if (!internals.FileNames.empty())
     {
       internals.FileNames.clear();
       internals.FileNamesMTime.Modified();
@@ -1600,7 +1600,7 @@ void vtkIossReader::AddFileName(const char* fname)
 void vtkIossReader::ClearFileNames()
 {
   auto& internals = (*this->Internals);
-  if (internals.FileNames.size() > 0)
+  if (!internals.FileNames.empty())
   {
     internals.FileNames.clear();
     internals.FileNamesMTime.Modified();
@@ -1645,7 +1645,7 @@ int vtkIossReader::ReadMetaData(vtkInformation* metadata)
   {
     // add timesteps to metadata
     const auto timesteps = internals.GetTimeSteps();
-    if (timesteps.size() > 0)
+    if (!timesteps.empty())
     {
       metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0],
         static_cast<int>(timesteps.size()));
@@ -1763,7 +1763,7 @@ int vtkIossReader::ReadMesh(
     }
   }
 
-  if (dbaseHandles.size())
+  if (!dbaseHandles.empty())
   {
     // FIXME: if reading of more ranks than writing, we don't read the following
     // data in those extra ranks. Consequently, we must communicate that from

@@ -581,7 +581,7 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
         }
       }
     }
-    if (this->dumpDirectory.size() == 0)
+    if (this->dumpDirectory.empty())
     {
       this->dumpDirectory.push_back(dirName);
     }

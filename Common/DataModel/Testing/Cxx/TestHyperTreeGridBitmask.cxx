@@ -172,7 +172,7 @@ void initUniformHyperTreeSeveralRootCells(
     cursor->SetGlobalIndexStart(nbElementsInHTG);
     // std::cout << "GlobalIndexStart of HT " << treeId << " : " << nbElementsInHTG << std::endl;
     cursor->SetMask(false);
-    if (sub.size())
+    if (!sub.empty())
     {
       subdivide(cursor, sub.at(treeIndex));
     }

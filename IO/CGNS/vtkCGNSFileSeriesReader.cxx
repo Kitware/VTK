@@ -202,7 +202,7 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   {
     // For most pipeline passes, it's sufficient to choose the first file in the
     // active set, if any, and then pass the request to the internal reader.
-    if (this->ActiveFiles.size() > 0)
+    if (!this->ActiveFiles.empty())
     {
       this->ChooseActiveFile(0);
       if (!this->Reader->ProcessRequest(request, inputVector, outputVector))
@@ -336,13 +336,13 @@ struct ANode
 
   vtkSmartPointer<vtkDataObject> Get() const
   {
-    if (this->Children.size() == 0)
+    if (this->Children.empty())
     {
       if (this->Datasets.size() == 1)
       {
         return this->Datasets.front();
       }
-      else if (this->Datasets.size() > 0)
+      else if (!this->Datasets.empty())
       {
         vtkNew<vtkMultiPieceDataSet> mp;
         mp->SetNumberOfPieces(static_cast<unsigned int>(this->Datasets.size()));

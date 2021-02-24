@@ -591,7 +591,7 @@ int vtkPDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet* set
     return 1;
   }
 
-  if (this->UserRegionAssignments.size() > 0)
+  if (!this->UserRegionAssignments.empty())
   {
     if (static_cast<int>(this->UserRegionAssignments.size()) != nregions)
     {

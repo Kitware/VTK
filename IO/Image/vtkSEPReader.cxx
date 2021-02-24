@@ -343,7 +343,7 @@ bool vtkSEPReader::ReadHeader()
       else if (key == "in")
       {
         std::string path = vtksys::SystemTools::GetFilenamePath(this->FileName);
-        if (path == "")
+        if (path.empty())
         {
           this->BinaryFilename = value;
         }
@@ -355,19 +355,19 @@ bool vtkSEPReader::ReadHeader()
     }
   }
 
-  if (this->Label[0] == "")
+  if (this->Label[0].empty())
   {
     vtkWarningMacro("Could not find the 0th dimension Label in "
       << this->FileName << ". Assigning default value " << this->XDimension);
     this->Label[0] = this->XDimension;
   }
-  if (this->Label[1] == "")
+  if (this->Label[1].empty())
   {
     vtkWarningMacro("Could not find the 1st dimension Label in "
       << this->FileName << ". Assigning default value " << this->YDimension);
     this->Label[1] = this->YDimension;
   }
-  if (this->Label[2] == "")
+  if (this->Label[2].empty())
   {
     vtkWarningMacro("Could not find the 2nd dimension Label in "
       << this->FileName << ". Assigning default value " << this->ZDimension);

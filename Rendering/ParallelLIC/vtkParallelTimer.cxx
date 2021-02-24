@@ -407,13 +407,13 @@ vtkParallelTimer::~vtkParallelTimer()
 
   // Alert the user that he left events on the stack,
   // this is usually a sign of trouble.
-  if (this->StartTime.size() > 0)
+  if (!this->StartTime.empty())
   {
     vtkErrorMacro(<< "Start time stack has " << this->StartTime.size() << " remaining.");
   }
 
 #if vtkParallelTimerDEBUG < 0
-  if (this->EventId.size() > 0)
+  if (!this->EventId.empty())
   {
     size_t nIds = this->EventId.size();
     vtkErrorMacro(<< "Event id stack has " << nIds << " remaining.");
@@ -538,7 +538,7 @@ void vtkParallelTimer::EndEvent(const char* event)
   double walle = static_cast<double>(wallt.tv_sec) + static_cast<double>(wallt.tv_usec) / 1.0E6;
 
 #if vtkParallelTimerDEBUG > 0
-  if (this->StartTime.size() == 0)
+  if (this->StartTime.empty())
   {
     vtkErrorMacro("No event to end! " << event);
     return;

@@ -390,7 +390,7 @@ vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
     vtkSmartPointer<vtkUniformGridAMR> amr;
     amr.TakeReference(vtkUniformGridAMR::SafeDownCast(vtkDataObjectTypes::NewDataObject(dataType)));
     amr->Initialize(static_cast<int>(blocks_per_level.size()),
-      blocks_per_level.size() ? &blocks_per_level[0] : nullptr);
+      !blocks_per_level.empty() ? &blocks_per_level[0] : nullptr);
     for (const auto child : hierarchy->GetChildNodes(root, /*traverse_subtree=*/false))
     {
       auto level = hierarchy->GetAttributeOrDefault(child, "amr_level", 0u);
@@ -440,7 +440,7 @@ public:
     assert(assembly->HasAttribute(nodeid, "cid"));
     const auto cid = assembly->GetAttributeOrDefault(nodeid, "cid", 0u);
     const auto type = assembly->GetAttributeOrDefault(nodeid, "vtk_type", 0);
-    if (this->EnabledStack.size() > 0 ||
+    if (!this->EnabledStack.empty() ||
       this->SelectedNodes.find(nodeid) != this->SelectedNodes.end())
     {
       if (this->LeavesOnly && vtkDataObjectTypes::TypeIdIsA(type, VTK_COMPOSITE_DATA_SET))
@@ -471,7 +471,7 @@ public:
 
   void EndSubTree(int nodeid) override
   {
-    if (this->EnabledStack.size() > 0 && this->EnabledStack.back() == nodeid)
+    if (!this->EnabledStack.empty() && this->EnabledStack.back() == nodeid)
     {
       this->EnabledStack.pop_back();
     }
@@ -496,7 +496,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GenerateCompositeIndicesFrom
   vtkDataAssembly* hierarchy, const std::vector<std::string>& selectors,
   bool leaf_nodes_only /*=false*/)
 {
-  if (hierarchy == nullptr || selectors.size() == 0)
+  if (hierarchy == nullptr || selectors.empty())
   {
     return {};
   }
@@ -521,7 +521,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GenerateCompositeIndicesFrom
   }
 
   auto nodes = hierarchy->SelectNodes(selectors);
-  if (nodes.size() == 0)
+  if (nodes.empty())
   {
     return {};
   }

@@ -443,7 +443,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
       delete[] this->Internals->AllExtents;
 
       // Wait for all the sends to complete
-      if (this->Internals->SendReqs.size() > 0)
+      if (!this->Internals->SendReqs.empty())
       {
         MPI_Waitall(static_cast<int>(this->Internals->SendReqs.size()),
           &this->Internals->SendReqs[0], MPI_STATUSES_IGNORE);
@@ -613,7 +613,7 @@ int vtkPNetCDFPOPReader::ReadAndSend(vtkInformation* outInfo, int varID)
 
       // Check to see if any of the previous sends have completed
       // (This helps to keep the number of 'in-flight' sends to a minimum.)
-      if (this->Internals->SendReqs.size())
+      if (!this->Internals->SendReqs.empty())
       {
         int foundOne = 1;
         int reqIndex = 0;
@@ -725,7 +725,7 @@ bool vtkPNetCDFPOPReader::IsReaderRank()
 // file metadata is read by a single rank and broadcast to all the others.)
 bool vtkPNetCDFPOPReader::IsFirstReaderRank()
 {
-  if (this->Internals->ReaderRanks.size() == 0)
+  if (this->Internals->ReaderRanks.empty())
   {
     return false; // sanity check
   }

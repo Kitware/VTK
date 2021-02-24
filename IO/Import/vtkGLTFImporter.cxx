@@ -649,7 +649,7 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
       vtkUniforms* uniforms = shaderProp->GetVertexCustomUniforms();
       uniforms->RemoveAllUniforms();
 
-      if (jointMats.size() > 0)
+      if (!jointMats.empty())
       {
         std::vector<float> vec;
         vec.reserve(16 * jointMats.size());
@@ -668,7 +668,7 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
           "jointMatrices", static_cast<int>(jointMats.size()), vec.data());
       }
 
-      if (node.Weights.size() > 0)
+      if (!node.Weights.empty())
       {
         size_t nbWeights = vtkMath::Min<size_t>(node.Weights.size(), 4);
         uniforms->SetUniform1fv("morphWeights", static_cast<int>(nbWeights), node.Weights.data());

@@ -70,7 +70,7 @@ vtkFileSeriesHelper::vtkTimeInformation::vtkTimeInformation(vtkInformation* info
   {
     this->TimeStepsValid = true;
     this->TimeSteps.resize(info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()));
-    if (this->TimeSteps.size() > 0)
+    if (!this->TimeSteps.empty())
     {
       info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeSteps[0]);
     }
@@ -169,7 +169,7 @@ vtkFileSeriesHelper::~vtkFileSeriesHelper()
 //----------------------------------------------------------------------------
 void vtkFileSeriesHelper::RemoveAllFileNames()
 {
-  if (this->FileNames.size() > 0)
+  if (!this->FileNames.empty())
   {
     this->FileNames.clear();
     this->Modified();
@@ -273,7 +273,7 @@ bool vtkFileSeriesHelper::UpdateInformation(
   this->AggregatedTimeRangeValid = false;
   this->AggregatedTimeRange = std::pair<double, double>(0, 0);
 
-  if (this->FileNames.size() == 0)
+  if (this->FileNames.empty())
   {
     // Having no files is not an error since the internal reader may have the
     // filename optional.
@@ -419,7 +419,7 @@ void vtkFileSeriesHelper::FillTimeInformation(vtkInformation* info) const
   {
     info->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
   }
-  if (this->AggregatedTimeSteps.size() > 0)
+  if (!this->AggregatedTimeSteps.empty())
   {
     info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->AggregatedTimeSteps[0],
       static_cast<int>(this->AggregatedTimeSteps.size()));
@@ -444,7 +444,7 @@ std::vector<std::string> vtkFileSeriesHelper::GetActiveFiles(vtkInformation* out
   if (hasTime)
   {
     // let's clamp the time to available timesteps.
-    if (this->AggregatedTimeSteps.size() > 0)
+    if (!this->AggregatedTimeSteps.empty())
     {
       tindex = vtkFileSeriesHelperNS::GetTimeStepIndex(
         time, &this->AggregatedTimeSteps[0], static_cast<int>(this->AggregatedTimeSteps.size()));

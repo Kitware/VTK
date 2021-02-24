@@ -522,7 +522,7 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
     internals.NodeMap[child] = cnode;
     ids.push_back(child);
   }
-  if (ids.size() > 0)
+  if (!ids.empty())
   {
     this->Modified();
   }
@@ -730,7 +730,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
     dsnode.parent().remove_child(dsnode);
   }
 
-  if (to_remove.size() > 0)
+  if (!to_remove.empty())
   {
     this->Modified();
     return true;
@@ -951,7 +951,7 @@ int vtkDataAssembly::FindFirstNodeWithName(const char* name, int traversal_order
   {
     // catch the interrupt exception.
   }
-  return visitor->Matches.size() ? visitor->Matches.front() : -1;
+  return !visitor->Matches.empty() ? visitor->Matches.front() : -1;
 }
 
 //------------------------------------------------------------------------------
@@ -1043,7 +1043,7 @@ void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int travers
     visitor->Visit(id);
 
     fifo_visited.push_back(internals.NodeMap.at(id));
-    while (fifo_visited.size() > 0)
+    while (!fifo_visited.empty())
     {
       auto node = fifo_visited.front();
       fifo_visited.pop_front();
@@ -1149,7 +1149,7 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
   auto& internals = (*this->Internals);
   const auto& ointernals = (*other->Internals);
 
-  if (selected_branches.size() == 0)
+  if (selected_branches.empty())
   {
     auto src = ointernals.Document.first_child();
     auto dest = internals.Document.first_child();

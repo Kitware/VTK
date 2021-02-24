@@ -637,7 +637,7 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
   else if (vtkWrap_IsStdVector(val))
   {
     fprintf(fp,
-      "      if (tempr%ssize() == 0)\n"
+      "      if (tempr%sempty())\n"
       "      {\n"
       "        result = PyTuple_New(0);\n"
       "      }\n"
@@ -1033,7 +1033,7 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
       fprintf(fp,
         "    if (!ap.ErrorOccurred())\n"
         "    {\n"
-        "      PyObject *vec = (temp%d.size() == 0 ?\n"
+        "      PyObject *vec = (temp%d.empty() ?\n"
         "        PyTuple_New(0) :\n"
         "        vtkPythonArgs::BuildTuple(temp%d.data(), temp%d.size()));\n"
         "      ap.SetContents(%d, vec);\n"

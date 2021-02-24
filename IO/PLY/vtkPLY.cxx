@@ -718,13 +718,13 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
   /* read and parse the file's header */
 
   get_words(plyfile->is, &words, line_words, orig_line);
-  if (words.size() == 0 || !equal_strings(words[0], "ply"))
+  if (words.empty() || !equal_strings(words[0], "ply"))
   {
     free(plyfile);
     return (nullptr);
   }
 
-  while (words.size())
+  while (!words.empty())
   {
 
     /* parse words */
@@ -1559,7 +1559,7 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
   /* read in the element */
 
   get_words(plyfile->is, &words, line_words, orig_line);
-  if (words.size() == 0)
+  if (words.empty())
   {
     fprintf(stderr, "ply_get_element: unexpected end of file\n");
     assert(0);

@@ -50,7 +50,7 @@ int vtkMySQLToTableReader::RequestData(
     vtkErrorMacro(<< "Wrong type of database for this reader");
     return 1;
   }
-  if (this->TableName == "")
+  if (this->TableName.empty())
   {
     vtkErrorMacro(<< "No table selected");
     return 1;

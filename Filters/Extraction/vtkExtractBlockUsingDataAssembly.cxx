@@ -75,7 +75,7 @@ bool vtkExtractBlockUsingDataAssembly::AddSelector(const char* selector)
 void vtkExtractBlockUsingDataAssembly::ClearSelectors()
 {
   auto& internals = *this->Internals;
-  if (internals.Selectors.size() > 0)
+  if (!internals.Selectors.empty())
   {
     internals.Selectors.clear();
     this->Modified();

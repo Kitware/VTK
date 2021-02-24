@@ -417,7 +417,7 @@ int vtkCONVERGECFDReader::RequestData(
   size_t fileIndex = this->SelectTimeStepIndex(outInfo);
   std::string fileName = this->FileNames[fileIndex];
 
-  if (fileName.size() < 1 || fileName[0] == '\0')
+  if (fileName.empty())
   {
     vtkErrorMacro("No file sequence found");
     return 0;
@@ -976,7 +976,7 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
     }
   }
 
-  if (times.size() > 0)
+  if (!times.empty())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
     outInfo->Set(

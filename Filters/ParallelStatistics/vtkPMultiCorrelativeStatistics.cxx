@@ -124,7 +124,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   std::map<vtkStdString, vtkIdType> meanIndex;
   for (vtkIdType r = 1; r < nRow; ++r)
   {
-    if (sparseCov->GetValueByName(r, "Column2").ToString() == "")
+    if (sparseCov->GetValueByName(r, "Column2").ToString().empty())
     {
       meanIndex[sparseCov->GetValueByName(r, "Column1").ToString()] = r - 1;
 
@@ -138,7 +138,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics(
   for (vtkIdType r = 1; r < nRow; ++r)
   {
     vtkStdString col2 = sparseCov->GetValueByName(r, "Column2").ToString();
-    if (col2 != "")
+    if (!col2.empty())
     {
       covToMeans[r - 1] = std::pair<vtkIdType, vtkIdType>(
         meanIndex[sparseCov->GetValueByName(r, "Column1").ToString()], meanIndex[col2]);

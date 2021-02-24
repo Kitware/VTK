@@ -770,7 +770,7 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
     return false;
   }
 
-  if (this->baseList.size() > 0)
+  if (!this->baseList.empty())
   {
     this->baseList.clear();
   }
@@ -827,7 +827,7 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
     }
     this->baseList[numBase].nzones = static_cast<int>(nzones);
 
-    if (this->baseList[numBase].times.size() < 1)
+    if (this->baseList[numBase].times.empty())
     {
       // If no time information were found
       // just put default values

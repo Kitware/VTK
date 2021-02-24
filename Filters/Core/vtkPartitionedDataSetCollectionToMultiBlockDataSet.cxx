@@ -51,7 +51,7 @@ public:
     vtkLogF(TRACE, "visit %s, ds-count=%ld", this->GetCurrentNodeName(), dataset_indices.size());
     if (this->GetAssembly()->GetNumberOfChildren(nodeid) != 0)
     {
-      if (dataset_indices.size() > 0)
+      if (!dataset_indices.empty())
       {
         // non-leaf node has dataset indices associated with it;
         // can't represent hierarchy in multiblock.

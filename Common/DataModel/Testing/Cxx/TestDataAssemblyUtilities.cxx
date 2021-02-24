@@ -99,7 +99,7 @@ bool TestPartitionedDataSetCollection()
     hierarchy->GetAttributeOrDefault(root, "vtk_type", -1) != VTK_PARTITIONED_DATA_SET_COLLECTION,
     "vtk_type mismatch!");
   vtkLogIfF(ERROR, hierarchy->GetNumberOfChildren(root) != 5, "child count mismatch!");
-  vtkLogIfF(ERROR, hierarchy->GetDataSetIndices(root).size() != 0, "dataset count mismatch!");
+  vtkLogIfF(ERROR, !hierarchy->GetDataSetIndices(root).empty(), "dataset count mismatch!");
 
   vtkNew<vtkPartitionedDataSetCollection> xformed;
   if (!vtkDataAssemblyUtilities::GenerateHierarchy(collection, hierarchy, xformed))

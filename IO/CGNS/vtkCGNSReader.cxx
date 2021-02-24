@@ -204,7 +204,7 @@ public:
       else if (strcmp(nodeLabel, "FamilyName_t") == 0)
       {
         CGNSRead::readNodeStringData(cgioNum, *iter, this->FamilyName);
-        if (this->FamilyName.size() > 0 && this->FamilyName[0] == '/')
+        if (!this->FamilyName.empty() && this->FamilyName[0] == '/')
         {
           // This is a family path
           std::string::size_type pos = this->FamilyName.find('/', 1);
@@ -378,7 +378,7 @@ public:
       else if (strcmp(nodeLabel, "FamilyName_t") == 0)
       {
         CGNSRead::readNodeStringData(cgioNum, *iter, this->FamilyName);
-        if (this->FamilyName.size() > 0 && this->FamilyName[0] == '/')
+        if (!this->FamilyName.empty() && this->FamilyName[0] == '/')
         {
           // This is a family path
           std::string::size_type pos = this->FamilyName.find('/', 1);
@@ -768,7 +768,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
         gname[32] = '\0';
         CGNSRead::removeTrailingWhiteSpaces(gname);
         std::string tmpStr = std::string(gname);
-        if (tmpStr != "Null" && tmpStr != "")
+        if (tmpStr != "Null" && !tmpStr.empty())
         {
           unvalidatedSolutionNames.push_back(tmpStr);
         }
@@ -791,8 +791,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
     // should assume that FlowSolutionPointers are invalid, and we use the some
     // heuristics to decide which FlowSolution_t nodes correspond to current
     // timestep.
-    ignoreFlowSolutionPointers =
-      (solutionNames.size() == 0 && unvalidatedSolutionNames.size() != 0);
+    ignoreFlowSolutionPointers = (solutionNames.empty() && !unvalidatedSolutionNames.empty());
     if (ignoreFlowSolutionPointers)
     {
       vtkGenericWarningMacro("`FlowSolutionPointers` in the CGNS file '"
@@ -841,7 +840,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
         }
       }
     }
-    else if (baseInfo.times.size() > 0)
+    else if (!baseInfo.times.empty())
     {
       // we don't have FlowSolutionPointers in the dataset
       stepNumbers.insert(self->ActualTimeStep + 1);
@@ -857,7 +856,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
         cgio_get_label(self->cgioNum, childId[cc], nodeLabel) == CG_OK &&
         strcmp(nodeLabel, "FlowSolution_t") == 0)
       {
-        if (stepNumbers.size() > 0)
+        if (!stepNumbers.empty())
         {
           if (stepRe.find(nodeName) == true &&
             stepNumbers.find(atoi(stepRe.match(1).c_str())) != stepNumbers.end())
@@ -1943,7 +1942,7 @@ vtkSmartPointer<vtkDataObject> vtkCGNSReader::vtkPrivate::readCurvilinearZone(in
         mzone->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), sniter->c_str());
       }
     }
-    if (solutionNames.size() > 0)
+    if (!solutionNames.empty())
     {
       return mzone.Get();
     }
@@ -3006,7 +3005,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
   // SetUp zone Blocks
   vtkMultiBlockDataSet* mzone = vtkMultiBlockDataSet::New();
-  if (bndSec.size() > 0 && requiredPatch)
+  if (!bndSec.empty() && requiredPatch)
   {
     mzone->SetNumberOfBlocks(2);
   }
@@ -3183,7 +3182,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     break;
                 }
               }
-              else if (binfo.BCElementList.size() > 0)
+              else if (!binfo.BCElementList.empty())
               {
                 vtkIdType residualNumFacesToRead =
                   static_cast<vtkIdType>(binfo.BCElementList.size());
@@ -3227,7 +3226,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                   }
                   //  Nothing to read in this section
-                  if (faceElemToRead.size() == 0)
+                  if (faceElemToRead.empty())
                   {
                     continue;
                   }
@@ -3417,7 +3416,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     CGNSRead::releaseIds(this->cgioNum, zoneChildren);
     zoneChildren.clear();
   }
-  else if (bndSec.size() > 0 && requiredPatch)
+  else if (!bndSec.empty() && requiredPatch)
   {
     //----------------------------------------------------------------------------
     // Handle boundary conditions (BC) patches for unstructured grid
@@ -3780,7 +3779,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                 }
                 bcCells->SetCells(numElemToRead, cellBcLocations.GetPointer());
               }
-              else if (binfo.BCElementList.size() > 0)
+              else if (!binfo.BCElementList.empty())
               {
                 // This a bit more tricky to implement because it generate lot of small IO
 
@@ -3834,7 +3833,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     }
                   }
                   //  Nothing to read in this section
-                  if (elemToRead.size() == 0)
+                  if (elemToRead.empty())
                   {
                     continue;
                   }
@@ -4172,7 +4171,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     zoneChildren.clear();
   }
   //
-  if ((bndSec.size() > 0 || hasNFace) && requiredPatch)
+  if ((!bndSec.empty() || hasNFace) && requiredPatch)
   {
     mbase->SetBlock(zone, mzone);
   }
@@ -4311,7 +4310,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Adjust requested time based on available timesteps.
     std::vector<double>& ts = this->Internal->GetTimes();
 
-    if (ts.size() > 0)
+    if (!ts.empty())
     {
       int tsIndex =
         vtkPrivate::GetTimeStepIndex(requestedTimeValue, &ts[0], static_cast<int>(ts.size()));
@@ -4641,7 +4640,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   this->NumberOfBases = this->Internal->GetNumberOfBaseNodes();
 
   // Set up time information
-  if (this->Internal->GetTimes().size() != 0)
+  if (!this->Internal->GetTimes().empty())
   {
     std::vector<double> timeSteps(
       this->Internal->GetTimes().begin(), this->Internal->GetTimes().end());

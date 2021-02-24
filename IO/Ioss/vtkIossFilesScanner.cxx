@@ -42,7 +42,7 @@ bool vtkIossFilesScanner::IsMetaFile(const std::string& filename)
 
   std::string s;
   std::getline(metafile, s);
-  if (s.size() == 0 ||
+  if (s.empty() ||
     s.size() != static_cast<size_t>(std::count_if(s.begin(), s.end(), [](unsigned char c) {
       return std::isprint(c);
     })))
@@ -87,7 +87,7 @@ std::set<std::string> vtkIossFilesScanner::GetFilesFromMetaFile(const std::strin
 std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
   const std::set<std::string>& originalSet, const std::vector<std::string>& directoryListing)
 {
-  if (originalSet.size() == 0)
+  if (originalSet.empty())
   {
     return originalSet;
   }
