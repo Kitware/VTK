@@ -14,7 +14,6 @@ bugprone-*,\
 -bugprone-not-null-terminated-result,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
--bugprone-suspicious-missing-comma,\
 -bugprone-suspicious-semicolon,\
 -bugprone-suspicious-string-compare,\
 -bugprone-throw-keyword-missing,\
