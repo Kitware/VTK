@@ -189,7 +189,7 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtksys::SystemTools::RemoveADirectory(directoryName.c_str());
+  vtksys::SystemTools::RemoveADirectory(directoryName);
 
   return EXIT_SUCCESS;
 }
