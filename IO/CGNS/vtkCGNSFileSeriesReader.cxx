@@ -163,7 +163,7 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   vtkInformation* outInfo = outputVector->GetInformationObject(requestFromPort);
 
   assert(this->InProcessRequest == false);
-  SCOPED_SET<bool>(this->InProcessRequest, true);
+  SCOPED_SET<bool> markInProgress(this->InProcessRequest, true);
 
   // Since we are dealing with potentially temporal or partitioned fileseries, a
   // single rank may have to read more than 1 file. Before processing any
