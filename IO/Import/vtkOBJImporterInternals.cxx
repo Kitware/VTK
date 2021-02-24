@@ -245,6 +245,7 @@ bool tokenGetTexture(size_t& t, std::vector<Token>& tokens, vtkOBJImportedMateri
 }
 }
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "mtlsyntax.cxx"
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   std::string Filename, int& result_code)

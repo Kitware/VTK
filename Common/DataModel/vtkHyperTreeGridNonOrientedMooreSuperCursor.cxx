@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedMooreSuperCursor);
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursorData.cxx"
 
 //------------------------------------------------------------------------------

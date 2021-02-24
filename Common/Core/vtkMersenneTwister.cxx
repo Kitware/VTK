@@ -24,6 +24,7 @@
 /* Monte Carlo and Quasi-Monte Carlo Methods 1998,        */
 /* Springer, 2000, pp 56--69.                             */
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkMersenneTwister_Private.cxx"
 #include "vtkMultiThreader.h"
 #include "vtkNew.h"

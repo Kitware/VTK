@@ -57,6 +57,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkTableBasedClipCases.cxx"
 
 vtkStandardNewMacro(vtkTableBasedClipDataSet);

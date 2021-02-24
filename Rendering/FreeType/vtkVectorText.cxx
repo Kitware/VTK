@@ -26,6 +26,7 @@
 
 vtkStandardNewMacro(vtkVectorText);
 
+// NOLINTNEXTLINE(bugprone-suspicious-include)
 #include "vtkVectorTextData.cxx"
 
 // Construct object with no string set and backing enabled.
