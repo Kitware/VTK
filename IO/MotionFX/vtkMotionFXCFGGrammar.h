@@ -92,6 +92,30 @@ struct Grammar : star<Row>
 } // namespace OrientationsPositionFile
 
 //-----------------------------------------------------------------------------
+// rules for parsing a universal transform file
+namespace UniversalTransformRow
+{
+using namespace Common;
+
+// format: time
+//         trnvecx trnvecy trnvecz
+//         rotcntrx rotcntry rotcntrz
+//         quat0 quat1 quat2 quat3
+//         scalex scaley scalez
+struct Row
+  : seq<star<space>, Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter,
+      Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter,
+      Number, Delimiter, Number, Delimiter, Number, Delimiter, Number, Delimiter, Number,
+      star<space>>
+{
+};
+
+struct Grammar : star<Row>
+{
+};
+} // namespace UniversalTransformRow
+
+//-----------------------------------------------------------------------------
 // rules to parse CFG file.
 namespace CFG
 {
