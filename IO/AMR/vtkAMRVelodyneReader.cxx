@@ -107,7 +107,7 @@ void vtkAMRVelodyneReader::UpdateFileName(int index)
 int vtkAMRVelodyneReader::RequestInformation(
   vtkInformation* rqst, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  this->vtkOverlappingAMRAlgorithm::RequestInformation(rqst, inputVector, outputVector);
+  this->Superclass::RequestInformation(rqst, inputVector, outputVector);
   this->FillMetaData();
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());

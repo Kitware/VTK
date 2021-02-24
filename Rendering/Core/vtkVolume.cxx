@@ -430,7 +430,7 @@ vtkVolumeProperty* vtkVolume::GetProperty()
 
 vtkMTimeType vtkVolume::GetMTime()
 {
-  vtkMTimeType mTime = this->vtkObject::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
   if (this->Property != nullptr)

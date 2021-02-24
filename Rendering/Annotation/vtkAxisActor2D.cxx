@@ -647,6 +647,7 @@ void vtkAxisActor2D::UpdateAdjustedRange()
   // both Position and Position2 coordinates, we will have to bypass
   // it.
 
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   if (this->vtkActor2D::Superclass::GetMTime() <= this->AdjustedRangeBuildTime)
   {
     return;

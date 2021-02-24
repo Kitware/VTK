@@ -271,7 +271,7 @@ bool vtkMultiVolume::VolumesChanged()
 
 vtkMTimeType vtkMultiVolume::GetMTime()
 {
-  auto mTime = this->vtkObject::GetMTime();
+  auto mTime = this->Superclass::GetMTime();
 
   mTime = this->BoundsComputeTime > mTime ? this->BoundsComputeTime.GetMTime() : mTime;
 

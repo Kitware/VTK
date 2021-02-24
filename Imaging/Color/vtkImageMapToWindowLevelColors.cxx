@@ -71,6 +71,7 @@ int vtkImageMapToWindowLevelColors::RequestData(
       this->DataWasPassed = 0;
     }
 
+    // NOLINTNEXTLINE(bugprone-parent-virtual-call)
     return this->vtkThreadedImageAlgorithm::RequestData(request, inputVector, outputVector);
   }
 

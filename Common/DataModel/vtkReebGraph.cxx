@@ -2058,7 +2058,7 @@ vtkReebGraph::~vtkReebGraph()
 //------------------------------------------------------------------------------
 void vtkReebGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  Superclass::PrintSelf(os, indent);
   os << indent << "Reeb graph general statistics:" << endl;
   os << indent << indent << "Number Of Node(s): " << this->Storage->GetNumberOfNodes() << endl;
   os << indent << indent << "Number Of Arc(s): " << this->Storage->GetNumberOfArcs() << endl;

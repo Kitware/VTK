@@ -133,6 +133,7 @@ void vtkImageStack::ShallowCopy(vtkProp* prop)
   }
 
   // Now do prop superclass (NOT vtkImageSlice)
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   this->vtkProp3D::ShallowCopy(prop);
 }
 

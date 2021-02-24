@@ -12,7 +12,6 @@ bugprone-*,\
 -bugprone-misplaced-widening-cast,\
 -bugprone-narrowing-conversions,\
 -bugprone-not-null-terminated-result,\
--bugprone-parent-virtual-call,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
 -bugprone-sizeof-expression,\
