@@ -61,33 +61,36 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
-  vtkSetStringMacro(Title) vtkGetStringMacro(Title)
-    /** @} */
+  vtkSetStringMacro(Title);
+  vtkGetStringMacro(Title);
+  /** @} */
 
-    /** A description of the exported document. @{ */
-    vtkSetStringMacro(Description) vtkGetStringMacro(Description)
-    /** @} */
+  /** A description of the exported document. @{ */
+  vtkSetStringMacro(Description);
+  vtkGetStringMacro(Description);
+  /** @} */
 
-    /** The name of the exported file. @{ */
-    vtkSetStringMacro(FileName) vtkGetStringMacro(FileName)
-    /** @} */
+  /** The name of the exported file. @{ */
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
+  /** @} */
 
-    /**
-     * If true, draw all text as path objects rather than text objects. Enabling
-     * this option will:
-     *
-     * - Improve portability (text will look exactly the same everywhere).
-     * - Increase file size (text objects are much more compact than paths).
-     * - Prevent text from being easily edited (text metadata is lost).
-     *
-     * Note that some text (e.g. MathText) is always rendered as a path.
-     *
-     * The default is true, as many browsers and SVG viewers render text
-     * inconsistently.
-     *
-     * @{
-     */
-    vtkSetMacro(TextAsPath, bool);
+  /**
+   * If true, draw all text as path objects rather than text objects. Enabling
+   * this option will:
+   *
+   * - Improve portability (text will look exactly the same everywhere).
+   * - Increase file size (text objects are much more compact than paths).
+   * - Prevent text from being easily edited (text metadata is lost).
+   *
+   * Note that some text (e.g. MathText) is always rendered as a path.
+   *
+   * The default is true, as many browsers and SVG viewers render text
+   * inconsistently.
+   *
+   * @{
+   */
+  vtkSetMacro(TextAsPath, bool);
   vtkGetMacro(TextAsPath, bool);
   vtkBooleanMacro(TextAsPath, bool);
   /**@}*/
