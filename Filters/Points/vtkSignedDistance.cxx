@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSignedDistance.h
+  Module:    vtkSignedDistance.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.
