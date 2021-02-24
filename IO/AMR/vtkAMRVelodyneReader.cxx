@@ -65,8 +65,8 @@ void vtkAMRVelodyneReader::PrintSelf(std::ostream& os, vtkIndent indent)
 void vtkAMRVelodyneReader::SetFileName(const char* fileName)
 {
   assert("pre: Internal Velodyne Reader is nullptr" && (this->Internal != nullptr));
-  if (fileName && strcmp(fileName, "") &&
-    ((this->FileName == nullptr) || strcmp(fileName, this->FileName)))
+  if (fileName && *fileName &&
+    ((this->FileName == nullptr) || strcmp(fileName, this->FileName) != 0))
   {
     if (this->FileName)
     {

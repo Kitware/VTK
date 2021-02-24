@@ -61,7 +61,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   in >> *sinkArray;
 
   // Check that the arrays are the same
-  if (strcmp(sourceArray->GetName(), sinkArray->GetName()))
+  if (strcmp(sourceArray->GetName(), sinkArray->GetName()) != 0)
   {
     cerr << "Sink array has name \"" << sinkArray->GetName() << "\", should be \""
          << sourceArray->GetName() << "\".\n";
@@ -98,7 +98,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_VARIANT_ARRAY_DATA_CHECK(0, ToChar, "Character");
   VTK_VARIANT_ARRAY_DATA_CHECK(1, ToFloat, "Float");
   VTK_VARIANT_ARRAY_DATA_CHECK(2, ToDouble, "Double");
-  if (strcmp(sourceArray->GetValue(3).ToString(), sinkArray->GetValue(3).ToString()))
+  if (strcmp(sourceArray->GetValue(3).ToString(), sinkArray->GetValue(3).ToString()) != 0)
   {
     cerr << "String mismatch: \"" << sourceArray->GetValue(3).ToString() << "\" vs. \""
          << sinkArray->GetValue(3).ToString() << "\".\n";
