@@ -96,7 +96,6 @@ readability-*,\
 -readability-redundant-declaration,\
 -readability-redundant-preprocessor,\
 -readability-redundant-smartptr-get,\
--readability-redundant-string-init,\
 -readability-simplify-boolean-expr,\
 -readability-static-accessed-through-instance,\
 -readability-static-definition-in-anonymous-namespace,\
