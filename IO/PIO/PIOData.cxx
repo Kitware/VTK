@@ -438,7 +438,7 @@ bool PIO_DATA::set_vector_field(std::valarray<std::valarray<double>>& v, const c
 
 void PIO_DATA::print(const char* filename)
 {
-  std::ofstream out(filename);
+  vtksys::ofstream out(filename);
   print(out);
   out.close();
 }
