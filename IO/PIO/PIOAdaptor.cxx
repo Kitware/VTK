@@ -30,6 +30,7 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <vtksys/FStream.hxx>
 
 #ifdef _WIN32
 const static char* Slash = "\\/";
@@ -473,7 +474,7 @@ std::string PIOAdaptor::trimString(const std::string& str)
 int PIOAdaptor::parsePIOFile(const char* PIOFileName)
 {
   this->descFileName = PIOFileName;
-  std::ifstream pioStr(this->descFileName);
+  vtksys::ifstream pioStr(this->descFileName.c_str());
   if (!pioStr)
   {
     vtkGenericWarningMacro("Could not open the global description .pio file: " << PIOFileName);
