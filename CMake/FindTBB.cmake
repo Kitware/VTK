@@ -68,6 +68,32 @@
 #  FindTBB helper functions and macros
 #
 
+# Use TBBConfig.cmake if possible.
+
+set(_tbb_find_quiet)
+if (TBB_FIND_QUIETLY)
+  set(_tbb_find_quiet QUIET)
+endif ()
+set(_tbb_find_components)
+set(_tbb_find_optional_components)
+foreach (_tbb_find_component IN LISTS TBB_FIND_COMPONENTS)
+  if (TBB_FIND_REQUIRED_${_tbb_find_component})
+    list(APPEND _tbb_find_components "${_tbb_find_component}")
+  else ()
+    list(APPEND _tbb_find_optional_components "${_tbb_find_component}")
+  endif ()
+endforeach ()
+unset(_tbb_find_component)
+find_package(TBB CONFIG ${_tbb_find_quiet}
+  COMPONENTS ${_tbb_find_components}
+  OPTIONAL_COMPONENTS ${_tbb_find_optional_components})
+unset(_tbb_find_quiet)
+unset(_tbb_find_components)
+unset(_tbb_find_optional_components)
+if (TBB_FOUND)
+  return ()
+endif ()
+
 #====================================================
 # Fix the library path in case it is a linker script
 #====================================================
