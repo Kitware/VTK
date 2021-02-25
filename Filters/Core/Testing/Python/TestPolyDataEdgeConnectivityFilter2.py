@@ -27,9 +27,9 @@ cs.Update()
 
 # Create barrier edges
 edges = vtk.vtkCellArray()
-edge = [57,58]
+edge = [68,69]
 edges.InsertNextCell(2,edge)
-edge = [58,59]
+edge = [69,70]
 edges.InsertNextCell(2,edge)
 
 bedges = vtk.vtkPolyData()
@@ -46,17 +46,21 @@ conn.BarrierEdgesOn()
 conn.GrowLargeRegionsOff()
 conn.SetExtractionModeToLargestRegion()
 conn.SetExtractionModeToAllRegions()
+#conn.SetExtractionModeToLargeRegions()
+#conn.SetLargeRegionThreshold(0.075)
 conn.ColorRegionsOn()
+conn.CellRegionAreasOn()
 conn.Update()
 
 tessMapper = vtk.vtkPolyDataMapper()
 tessMapper.SetInputConnection(conn.GetOutputPort())
-#tessMapper.SetInputConnection(cs.GetOutputPort())
 tessMapper.ScalarVisibilityOn()
 tessMapper.SetScalarModeToUseCellData()
 tessMapper.SetScalarRange(0,conn.GetNumberOfExtractedRegions()-1)
+tessMapper.SetScalarRange(0,2) # Color just the top two regions
 print("Num cells: ",conn.GetOutput().GetNumberOfCells())
 print("Num regions: ",conn.GetNumberOfExtractedRegions())
+print("Total area: ",conn.GetTotalArea())
 
 tessActor = vtk.vtkActor()
 tessActor.SetMapper(tessMapper)
@@ -64,10 +68,21 @@ tessActor.GetProperty().SetColor(1,1,1)
 tessActor.GetProperty().EdgeVisibilityOn()
 tessActor.GetProperty().SetEdgeColor(0,0,0)
 
+# For debugging
+planeMapper = vtk.vtkPolyDataMapper()
+planeMapper.SetInputConnection(cs.GetOutputPort())
+planeMapper.ScalarVisibilityOn()
+planeMapper.SetScalarModeToUseCellData()
+planeMapper.SetScalarRange(cs.GetOutput().GetCellData().GetScalars().GetRange())
+planeActor = vtk.vtkActor()
+planeActor.SetMapper(planeMapper)
+#planeActor.GetProperty().SetRepresentationToWireframe()
+
 # Define graphics objects
 ren1 = vtk.vtkRenderer()
 ren1.SetBackground(0,0,0)
 ren1.AddActor(tessActor)
+#ren1.AddActor(planeActor)
 
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
