@@ -78,6 +78,23 @@ public:
 
   //@{
   /**
+   * Return the version of the file read; for example, VTK legacy readers
+   * will return the version of the VTK legacy file. (In the case of VTK
+   * legacy files, see vtkDataWriter.h for the enum types returned.) This
+   * method only returns useful information after a successful read is
+   * performed; and some derived classes may not return relevant
+   * information.) Note that for VTK legacy readers, the FileVersion is
+   * defined by the compositing the major version digits with the minor
+   * version digit. Extremely ancient VTK files (e.g., before version 4.2)
+   * will return a FileVersion of 3.0.
+   */
+  vtkGetMacro(FileVersion, int);
+  vtkGetMacro(FileMajorVersion, int);
+  vtkGetMacro(FileMinorVersion, int);
+  //@}
+
+  //@{
+  /**
    * Is the file a valid vtk file of the passed dataset type ?
    * The dataset type is passed as a lower case string.
    */
@@ -410,15 +427,6 @@ public:
 
   //@{
   /**
-   * Return major and minor version of the file.
-   * Returns version 3.0 if the version cannot be read from file.
-   */
-  vtkGetMacro(FileMajorVersion, int);
-  vtkGetMacro(FileMinorVersion, int);
-  //@}
-
-  //@{
-  /**
    * Internal function to read in a value.  Returns zero if there was an
    * error.
    */
@@ -510,6 +518,9 @@ protected:
   ~vtkDataReader() override;
 
   std::string CurrentFileName;
+  int FileVersion;
+  int FileMajorVersion;
+  int FileMinorVersion;
   int FileType;
   istream* IS;
 
@@ -578,8 +589,6 @@ protected:
   vtkTypeBool ReadAllColorScalars;
   vtkTypeBool ReadAllTCoords;
   vtkTypeBool ReadAllFields;
-  int FileMajorVersion;
-  int FileMinorVersion;
 
   std::locale CurrentLocale;
 

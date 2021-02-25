@@ -14,11 +14,11 @@
 =========================================================================*/
 /**
  * @class   vtkDataWriter
- * @brief   helper class for objects that write vtk data files
+ * @brief   helper class for objects that write VTK data files
  *
- * vtkDataWriter is a helper class that opens and writes the vtk header and
+ * vtkDataWriter is a helper class that opens and writes the VTK header and
  * point data (e.g., scalars, vectors, normals, etc.) from a vtk data file.
- * See text for various formats.
+ * See the VTK textbook and online resources for various formats.
  *
  * @sa
  * vtkDataSetWriter vtkPolyDataWriter vtkStructuredGridWriter
@@ -47,21 +47,53 @@ class vtkTable;
 class VTKIOLEGACY_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
+  //@{
+  /**
+   * Standard methods for type information and printing.
+   */
   vtkTypeMacro(vtkDataWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   /**
-   * Created object with default header, ASCII format, and default names for
+   * Create object with default header, ASCII format, and default names for
    * scalars, vectors, tensors, normals, and texture coordinates.
    */
   static vtkDataWriter* New();
 
   //@{
   /**
-   * Specify file name of vtk polygon data file to write.
+   * Specify the file name of VTK data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
+
+  // Currently VTK can write out two different versions of file format: files
+  // of VTK reader version 4.2 and previous; and VTK reader version 5.1 and
+  // later. This will likely change in the future. (Note: the major
+  // difference in the two formats is the way cell arrays are written out.)
+  // By default, Version 5.1 files are written out.
+  enum VTKFileVersion
+  {
+    VTK_LEGACY_READER_VERSION_4_2 = 42,
+    VTK_LEGACY_READER_VERSION_5_1 = 51
+  };
+
+  //@{
+  /**
+   * Specify the VTK file version to write. See the enum documentaion above
+   * (VTKFileVersion) for additional information about supported versions.
+   * It is possible to get the file major and minor versions separately.  See
+   * also vtkDataReader for related methods. (Note, the parsing of the
+   * FileVersion into major and minor version is as follows: the least
+   * significant digit is the minor version; the remaining digits are the
+   * major version.
+   */
+  void SetFileVersion(int);
+  vtkGetMacro(FileVersion, int);
+  vtkGetMacro(FileMajorVersion, int);
+  vtkGetMacro(FileMinorVersion, int);
   //@}
 
   //@{
@@ -102,7 +134,7 @@ public:
 
   //@{
   /**
-   * Specify the header for the vtk data file.
+   * Specify the header for the VTK data file.
    */
   vtkSetStringMacro(Header);
   vtkGetStringMacro(Header);
@@ -111,7 +143,7 @@ public:
   //@{
   /**
    * If true, vtkInformation objects attached to arrays and array component
-   * nameswill be written to the output. Default is true.
+   * nameswill be written to the output. The default is true.
    */
   vtkSetMacro(WriteArrayMetaData, bool);
   vtkGetMacro(WriteArrayMetaData, bool);
@@ -120,7 +152,7 @@ public:
 
   //@{
   /**
-   * Specify file type (ASCII or BINARY) for vtk data file.
+   * Specify the file type (ASCII or BINARY) of the VTK data file.
    */
   vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
   vtkGetMacro(FileType, int);
@@ -244,6 +276,12 @@ public:
   int WriteCells(ostream* fp, vtkCellArray* cells, const char* label);
 
   /**
+   * Write out the cells of the data set.
+   * @note Legacy implementation for file version < 5.0.
+   */
+  int WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char* label);
+
+  /**
    * Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
    * Returns 0 if error.
    */
@@ -300,6 +338,9 @@ protected:
   void WriteData() override; // dummy method to allow this class to be instantiated and delegated to
 
   char* FileName;
+  int FileVersion;
+  int FileMajorVersion;
+  int FileMinorVersion;
   char* Header;
   int FileType;
 
