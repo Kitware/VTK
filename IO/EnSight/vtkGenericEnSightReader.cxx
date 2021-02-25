@@ -1276,75 +1276,44 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
 }
 
 //------------------------------------------------------------------------------
-void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
+void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
 {
-  int wildcardPos, numWildcards, numDigits = 1, i;
-  int tmpNum = num, multTen = 1;
-  char newChar;
-  int newNum;
+  int wildcardPos, numWildcards, i, j;
+  char pattern[32];
+  char numStr[32];
+  char filenameTmp[2048];
+  int len, cnt, numStrLen;
+  int foundWildcard = 0;
 
-  wildcardPos = static_cast<int>(strcspn(fileName, "*"));
-  numWildcards = static_cast<int>(strspn(fileName + wildcardPos, "*"));
+  wildcardPos = static_cast<int>(strcspn(filename, "*"));
+  numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
 
-  tmpNum /= 10;
-  while (tmpNum >= 1)
+  if (numWildcards < 1)
+    return;
+  else if (numWildcards == 1)
+    strcpy(pattern, "%d");
+  else
+    snprintf(pattern, sizeof(pattern), "%%0%dd", numWildcards);
+  snprintf(numStr, sizeof(numStr), pattern, num);
+  numStrLen = static_cast<int>(strlen(numStr));
+  len = static_cast<int>(strlen(filename));
+  cnt = 0;
+  for (i = 0; i < len; i++)
   {
-    numDigits++;
-    multTen *= 10;
-    tmpNum /= 10;
-  }
-
-  for (i = 0; i < numWildcards - numDigits; i++)
-  {
-    fileName[i + wildcardPos] = '0';
-  }
-
-  tmpNum = num;
-  for (i = numWildcards - numDigits; i < numWildcards; i++)
-  {
-    newNum = tmpNum / multTen;
-    switch (newNum)
+    if (filename[i] == '*')
     {
-      case 0:
-        newChar = '0';
-        break;
-      case 1:
-        newChar = '1';
-        break;
-      case 2:
-        newChar = '2';
-        break;
-      case 3:
-        newChar = '3';
-        break;
-      case 4:
-        newChar = '4';
-        break;
-      case 5:
-        newChar = '5';
-        break;
-      case 6:
-        newChar = '6';
-        break;
-      case 7:
-        newChar = '7';
-        break;
-      case 8:
-        newChar = '8';
-        break;
-      case 9:
-        newChar = '9';
-        break;
-      default:
-        // This case should never be reached.
-        return;
+      if (foundWildcard == 0)
+      {
+        for (j = 0; j < numStrLen; j++)
+          filenameTmp[cnt++] = numStr[j];
+        foundWildcard = 1;
+      }
     }
-    assert(newChar == ('0' + newNum));
-
-    fileName[i + wildcardPos] = newChar;
-    tmpNum -= multTen * newNum;
-    multTen /= 10;
+    else
+      filenameTmp[cnt++] = filename[i];
   }
+  filenameTmp[cnt] = '\0';
+  strcpy(filename, filenameTmp);
 }
 
 //------------------------------------------------------------------------------

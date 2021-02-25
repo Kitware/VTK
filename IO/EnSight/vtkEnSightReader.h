@@ -253,6 +253,7 @@ protected:
 
   /**
    * Replace the *'s in the filename with the given filename number.
+   * Note: This method hides the superclass method
    */
   void ReplaceWildcards(char* filename, int num);
 
