@@ -166,7 +166,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree* tree1, vtkTree* tree2)
   {
     vtkIdType vertexId1 = vertexItr;
     std::string nodeName = nodeNames1->GetValue(vertexId1);
-    if (nodeName.compare("") == 0)
+    if (nodeName.empty())
     {
       continue;
     }

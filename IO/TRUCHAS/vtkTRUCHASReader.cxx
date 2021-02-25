@@ -106,7 +106,7 @@ public:
   //----------------------------------------------------------------------------
   hid_t OpenFile(char* _FileName)
   {
-    if (this->FileName.compare(_FileName) != 0)
+    if (this->FileName != _FileName)
     {
       this->CloseFile();
       if (_FileName != nullptr)
@@ -739,7 +739,6 @@ vtkStandardNewMacro(vtkTRUCHASReader);
 
 //------------------------------------------------------------------------------
 vtkTRUCHASReader::vtkTRUCHASReader()
-  : vtkMultiBlockDataSetAlgorithm()
 {
   this->Internals = new vtkTRUCHASReader::Internal;
   this->FileName = nullptr;
@@ -1164,7 +1163,7 @@ int vtkTRUCHASReader::RequestData(
 int vtkTRUCHASReader::CanReadFile(const char* filename)
 {
   size_t len = strlen(filename);
-  if (len < 3 || strcmp(filename + len - 3, ".h5"))
+  if (len < 3 || strcmp(filename + len - 3, ".h5") != 0)
   {
     return 0;
   }

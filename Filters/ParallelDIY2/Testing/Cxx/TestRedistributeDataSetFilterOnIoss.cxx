@@ -38,7 +38,7 @@
 
 namespace
 {
-static std::string GetFileName(int argc, char* argv[], const std::string& fnameC)
+std::string GetFileName(int argc, char* argv[], const std::string& fnameC)
 {
   char* fileNameC = vtkTestUtilities::ExpandDataFileName(argc, argv, fnameC.c_str());
   std::string fname(fileNameC);

@@ -446,7 +446,7 @@ unsigned long vtkUniformHyperTreeGrid::GetActualMemorySizeBytes()
 {
   unsigned long size = 0; // in bytes
 
-  size += (this->vtkDataObject::GetActualMemorySize() << 10);
+  size += (this->Superclass::GetActualMemorySize() << 10);
 
   // Iterate over all trees in grid
   vtkHyperTreeGridIterator it;

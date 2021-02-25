@@ -143,7 +143,7 @@ std::string vtkX3DExporterFIByteWriter::GetStringStream(vtkIdType& size)
   }
 
   size = 0;
-  return nullptr;
+  return std::string();
 }
 
 //------------------------------------------------------------------------------

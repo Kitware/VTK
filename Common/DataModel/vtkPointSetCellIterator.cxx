@@ -61,8 +61,7 @@ void vtkPointSetCellIterator::IncrementToNextCell()
 
 //------------------------------------------------------------------------------
 vtkPointSetCellIterator::vtkPointSetCellIterator()
-  : vtkCellIterator()
-  , PointSet(nullptr)
+  : PointSet(nullptr)
   , PointSetPoints(nullptr)
   , CellId(0)
 {

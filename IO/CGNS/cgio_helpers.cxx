@@ -127,7 +127,7 @@ int readBaseIds(int cgioNum, double rootId, std::vector<double>& baseIds)
 
   baseIds.clear();
   getNodeChildrenId(cgioNum, rootId, baseIds);
-  if (baseIds.size() < 1)
+  if (baseIds.empty())
   {
     std::cerr << "Error: Not enough nodes under the root description file." << std::endl;
     return 1;
@@ -698,7 +698,7 @@ int readZoneInfo(int cgioNum, double zoneId, CGNSRead::ZoneInformation& zoneInfo
       if (strcmp(nodeLabel, "FamilyName_t") == 0)
       {
         CGNSRead::readNodeStringData(cgioNum, zoneChildId, zoneInfo.family);
-        if (zoneInfo.family.size() > 0 && zoneInfo.family[0] == '/')
+        if (!zoneInfo.family.empty() && zoneInfo.family[0] == '/')
         {
           // This is a family path
           std::string::size_type pos = zoneInfo.family.find('/', 1);
@@ -732,7 +732,7 @@ int readZoneInfo(int cgioNum, double zoneId, CGNSRead::ZoneInformation& zoneInfo
                 strcmp(nodeLabel, "FamilyName_t") == 0)
               {
                 CGNSRead::readNodeStringData(cgioNum, bcChildId, bcinfo.family);
-                if (bcinfo.family.size() > 0 && bcinfo.family[0] == '/')
+                if (!bcinfo.family.empty() && bcinfo.family[0] == '/')
                 {
                   // This is a family path
                   std::string::size_type pos = bcinfo.family.find('/', 1);

@@ -29,10 +29,7 @@
 
 vtkStandardNewMacro(vtkLagrangeTetra);
 //------------------------------------------------------------------------------
-vtkLagrangeTetra::vtkLagrangeTetra()
-  : vtkHigherOrderTetra()
-{
-}
+vtkLagrangeTetra::vtkLagrangeTetra() = default;
 
 //------------------------------------------------------------------------------
 vtkLagrangeTetra::~vtkLagrangeTetra() = default;

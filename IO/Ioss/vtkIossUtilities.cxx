@@ -399,7 +399,7 @@ static vtkSmartPointer<vtkDataArray> ChangeComponents(vtkDataArray* array, int n
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
   if (!Dispatch::Execute(result, worker))
   {
-    std::runtime_error("Failed to strip extra components from array!");
+    throw std::runtime_error("Failed to strip extra components from array!");
   }
   return result;
 }
@@ -538,7 +538,7 @@ bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname
   if (entity->type() == Ioss::EntityType::SIDESET)
   {
     auto sideSet = static_cast<Ioss::SideSet*>(entity);
-    bool is_transient = (sideSet->get_side_blocks().size() > 0);
+    bool is_transient = !sideSet->get_side_blocks().empty();
     for (auto& sideBlock : sideSet->get_side_blocks())
     {
       is_transient &= IsFieldTransient(sideBlock, fieldname);

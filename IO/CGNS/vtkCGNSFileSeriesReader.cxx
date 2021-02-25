@@ -65,13 +65,11 @@ vtkStandardNewMacro(vtkCGNSFileSeriesReader);
 vtkCxxSetObjectMacro(vtkCGNSFileSeriesReader, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkCGNSFileSeriesReader::vtkCGNSFileSeriesReader()
-  : FileSeriesHelper()
-  , Reader(nullptr)
+  : Reader(nullptr)
   , IgnoreReaderTime(false)
   , Controller(nullptr)
   , ReaderObserverId(0)
   , InProcessRequest(false)
-  , ActiveFiles()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -163,7 +161,7 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   vtkInformation* outInfo = outputVector->GetInformationObject(requestFromPort);
 
   assert(this->InProcessRequest == false);
-  SCOPED_SET<bool>(this->InProcessRequest, true);
+  SCOPED_SET<bool> markInProgress(this->InProcessRequest, true);
 
   // Since we are dealing with potentially temporal or partitioned fileseries, a
   // single rank may have to read more than 1 file. Before processing any
@@ -202,7 +200,7 @@ int vtkCGNSFileSeriesReader::ProcessRequest(
   {
     // For most pipeline passes, it's sufficient to choose the first file in the
     // active set, if any, and then pass the request to the internal reader.
-    if (this->ActiveFiles.size() > 0)
+    if (!this->ActiveFiles.empty())
     {
       this->ChooseActiveFile(0);
       if (!this->Reader->ProcessRequest(request, inputVector, outputVector))
@@ -336,13 +334,13 @@ struct ANode
 
   vtkSmartPointer<vtkDataObject> Get() const
   {
-    if (this->Children.size() == 0)
+    if (this->Children.empty())
     {
       if (this->Datasets.size() == 1)
       {
         return this->Datasets.front();
       }
-      else if (this->Datasets.size() > 0)
+      else if (!this->Datasets.empty())
       {
         vtkNew<vtkMultiPieceDataSet> mp;
         mp->SetNumberOfPieces(static_cast<unsigned int>(this->Datasets.size()));

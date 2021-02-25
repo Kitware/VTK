@@ -54,7 +54,7 @@
 //------------------------------------------------------------------------------
 namespace
 {
-static const std::array<char, 13> arrayTypes = {
+const std::array<char, 13> arrayTypes = {
   ' ', // VTK_VOID            0
   ' ', // VTK_BIT             1
   'b', // VTK_CHAR            2
@@ -70,17 +70,17 @@ static const std::array<char, 13> arrayTypes = {
   'L'  // VTK_ID_TYPE        12
 };
 
-static const std::unordered_map<char, std::string> javascriptMapping = { { 'b', "Int8Array" },
+const std::unordered_map<char, std::string> javascriptMapping = { { 'b', "Int8Array" },
   { 'B', "Uint8Array" }, { 'h', "Int16Array" }, { 'H', "Int16Array" }, { 'i', "Int32Array" },
   { 'I', "Uint32Array" }, { 'l', "Int32Array" }, { 'L', "Uint32Array" }, { 'f', "Float32Array" },
   { 'd', "Float64Array" } };
 
-static std::string getJSArrayType(vtkDataArray* array)
+std::string getJSArrayType(vtkDataArray* array)
 {
   return javascriptMapping.at(arrayTypes.at(array->GetDataType()));
 }
 
-static Json::Value getRangeInfo(vtkDataArray* array, vtkIdType component)
+Json::Value getRangeInfo(vtkDataArray* array, vtkIdType component)
 {
   double r[2];
   array->GetRange(r, component);

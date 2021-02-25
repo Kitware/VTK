@@ -732,7 +732,7 @@ struct vtkPlaneCutCases
 // polygon; followed by hexahedron edge ids. This repeats until a negative
 // number appears.
 //
-static vtkPlaneCutCases VTK_PLANE_CUT_CASES_POLYGON[] = {
+vtkPlaneCutCases VTK_PLANE_CUT_CASES_POLYGON[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, // 0 0
   { { 3, 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },     // 1 1
   { { 3, 1, 0, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },     // 2 1
@@ -994,7 +994,7 @@ static vtkPlaneCutCases VTK_PLANE_CUT_CASES_POLYGON[] = {
 //=============================================================================
 // Marching Cube Cases, this may be improved at some point in order to produce polygon
 // instead of triangles.
-static vtkPlaneCutCases VTK_PLANE_CUT_CASES_TRIANGLES[] = {
+vtkPlaneCutCases VTK_PLANE_CUT_CASES_TRIANGLES[] = {
   { { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }, /* 0 0 */
   { { 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    /* 1 1 */
   { { 0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },    /* 2 1 */
@@ -1254,8 +1254,8 @@ static vtkPlaneCutCases VTK_PLANE_CUT_CASES_TRIANGLES[] = {
 }; /* 255 0 */
 
 //------------------------------------------------------------------------------
-static int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 },
-  { 4, 7 }, { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
+int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 }, { 4, 7 },
+  { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
 
 template <typename T>
 void CutStructuredGrid(T* pts, vtkIdType ptId, vtkIdType cellId, int dims[3], vtkIdType sliceOffset,

@@ -276,7 +276,7 @@ bool vtkSEPReader::ReadHeader()
   std::string line;
   while (vtksys::SystemTools::GetLineFromStream(file, line))
   {
-    std::vector<std::string> splittedLine = vtksys::SystemTools::SplitString(line.c_str(), '=');
+    std::vector<std::string> splittedLine = vtksys::SystemTools::SplitString(line, '=');
     if (splittedLine.size() == 2)
     {
       std::string key = splittedLine[0];
@@ -343,7 +343,7 @@ bool vtkSEPReader::ReadHeader()
       else if (key == "in")
       {
         std::string path = vtksys::SystemTools::GetFilenamePath(this->FileName);
-        if (path == "")
+        if (path.empty())
         {
           this->BinaryFilename = value;
         }
@@ -355,19 +355,19 @@ bool vtkSEPReader::ReadHeader()
     }
   }
 
-  if (this->Label[0] == "")
+  if (this->Label[0].empty())
   {
     vtkWarningMacro("Could not find the 0th dimension Label in "
       << this->FileName << ". Assigning default value " << this->XDimension);
     this->Label[0] = this->XDimension;
   }
-  if (this->Label[1] == "")
+  if (this->Label[1].empty())
   {
     vtkWarningMacro("Could not find the 1st dimension Label in "
       << this->FileName << ". Assigning default value " << this->YDimension);
     this->Label[1] = this->YDimension;
   }
-  if (this->Label[2] == "")
+  if (this->Label[2].empty())
   {
     vtkWarningMacro("Could not find the 2nd dimension Label in "
       << this->FileName << ". Assigning default value " << this->ZDimension);
@@ -384,7 +384,7 @@ bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
 {
   vtkDebugMacro(<< "Read data: opening file " << this->BinaryFilename);
 
-  FILE* dataFile = vtksys::SystemTools::Fopen(this->BinaryFilename.c_str(), "rb");
+  FILE* dataFile = vtksys::SystemTools::Fopen(this->BinaryFilename, "rb");
 
   if (!dataFile)
   {

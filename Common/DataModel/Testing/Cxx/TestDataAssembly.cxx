@@ -18,7 +18,7 @@ namespace
 void Assemble(vtkDataAssembly* assembly, const std::vector<int>& children, int& count,
   int parent = 0, int depth = 1)
 {
-  if (children.size() == 0)
+  if (children.empty())
   {
     return;
   }
@@ -101,7 +101,7 @@ int TestDataAssembly(int, char*[])
 
     VERIFY((assembly->SelectNodes({ "/" }) == std::vector<int>{ 0 }));
     VERIFY((assembly->SelectNodes({ "//sets" }) == std::vector<int>{ 2 }));
-    VERIFY((assembly->SelectNodes({ "/sets" }) == std::vector<int>{}));
+    VERIFY(assembly->SelectNodes({ "/sets" }).empty());
     VERIFY((assembly->SelectNodes({ "//sets/*" }) == std::vector<int>{ 6, 7, 8 }));
     assembly->Print(cout);
 
@@ -112,7 +112,7 @@ int TestDataAssembly(int, char*[])
     subset->RemapDataSetIndices({ { 11, 0 }, { 6, 1 } }, /*remove_unmapped=*/true);
     subset->Print(cout);
     VERIFY((subset->GetDataSetIndices(0) == std::vector<unsigned int>{ 0, 1 }));
-    VERIFY((subset->GetDataSetIndices(14) == std::vector<unsigned int>{}));
+    VERIFY(subset->GetDataSetIndices(14).empty());
     VERIFY((subset->GetDataSetIndices(15) == std::vector<unsigned int>{ 1 }));
   }
   catch (const TestFailed&)

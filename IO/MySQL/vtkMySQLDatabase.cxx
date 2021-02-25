@@ -352,15 +352,15 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
 
   if (protocol == "mysql")
   {
-    if (username.size())
+    if (!username.empty())
     {
       this->SetUser(username.c_str());
     }
-    if (password.size())
+    if (!password.empty())
     {
       this->SetPassword(password.c_str());
     }
-    if (dataport.size())
+    if (!dataport.empty())
     {
       this->SetServerPort(atoi(dataport.c_str()));
     }
@@ -423,11 +423,11 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
       break;
   }
 
-  if (colTypeStr.size())
+  if (!colTypeStr.empty())
   {
     queryStr << " " << colTypeStr;
   }
-  else // if ( colTypeStr.size() )
+  else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
     return vtkStdString();
@@ -508,7 +508,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification(
   }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
-  if (attStr.size())
+  if (!attStr.empty())
   {
     queryStr << " " << attStr;
   }

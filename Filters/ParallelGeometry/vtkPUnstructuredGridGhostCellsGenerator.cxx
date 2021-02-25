@@ -143,8 +143,8 @@ struct vtkPUnstructuredGridGhostCellsGenerator::vtkInternals
 
 namespace
 {
-static const int UGGCG_SIZE_EXCHANGE_TAG = 9000;
-static const int UGGCG_DATA_EXCHANGE_TAG = 9001;
+const int UGGCG_SIZE_EXCHANGE_TAG = 9000;
+const int UGGCG_DATA_EXCHANGE_TAG = 9001;
 }
 
 //------------------------------------------------------------------------------

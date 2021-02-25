@@ -33,10 +33,7 @@
 vtkStandardNewMacro(vtkGenericImageInterpolator);
 
 //------------------------------------------------------------------------------
-vtkGenericImageInterpolator::vtkGenericImageInterpolator()
-  : vtkImageInterpolator()
-{
-}
+vtkGenericImageInterpolator::vtkGenericImageInterpolator() = default;
 
 //------------------------------------------------------------------------------
 vtkGenericImageInterpolator::~vtkGenericImageInterpolator() = default;

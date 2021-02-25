@@ -190,7 +190,7 @@ int TestPartitionedRenderWindowExporter(int argc, char* argv[])
     }
   }
 
-  vtksys::SystemTools::RemoveADirectory(directoryName.c_str());
+  vtksys::SystemTools::RemoveADirectory(directoryName);
 
   return EXIT_SUCCESS;
 }

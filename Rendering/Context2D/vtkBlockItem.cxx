@@ -60,7 +60,6 @@ vtkCxxSetObjectMacro(vtkBlockItem, LabelProperties, vtkTextProperty);
 //------------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()
   : Dimensions{ 0, 0, 0, 0 }
-  , Label{}
   , MouseOver(false)
   , scalarFunction(nullptr)
   , LabelProperties(vtkTextProperty::New())

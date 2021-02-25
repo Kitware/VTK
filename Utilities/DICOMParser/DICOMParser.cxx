@@ -50,14 +50,7 @@ static const int OPTIONAL_SKIP = 128;
 class DICOMParserImplementation
 {
 public:
-  DICOMParserImplementation()
-    : Groups()
-    , Elements()
-    , Datatypes()
-    , Map()
-    , TypeMap(){
-
-    };
+  DICOMParserImplementation() = default;
 
   dicom_stl::vector<doublebyte> Groups;
   dicom_stl::vector<doublebyte> Elements;
@@ -78,7 +71,6 @@ public:
 };
 
 DICOMParser::DICOMParser()
-  : ParserOutputFile()
 {
   this->Implementation = new DICOMParserImplementation();
   this->DataFile = nullptr;

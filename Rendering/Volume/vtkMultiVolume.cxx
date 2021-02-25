@@ -25,8 +25,7 @@
 #include "vtkVolumeProperty.h"
 
 vtkMultiVolume::vtkMultiVolume()
-  : Superclass()
-  , TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
+  : TexToBBox(vtkSmartPointer<vtkMatrix4x4>::New())
 {
   vtkMath::UninitializeBounds(this->Bounds);
   vtkMath::UninitializeBounds(this->DataBounds.data());
@@ -271,7 +270,7 @@ bool vtkMultiVolume::VolumesChanged()
 
 vtkMTimeType vtkMultiVolume::GetMTime()
 {
-  auto mTime = this->vtkObject::GetMTime();
+  auto mTime = this->Superclass::GetMTime();
 
   mTime = this->BoundsComputeTime > mTime ? this->BoundsComputeTime.GetMTime() : mTime;
 

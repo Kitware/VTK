@@ -43,15 +43,15 @@
 
 namespace
 {
-static constexpr int MaxExtent = 5;
-static constexpr int GridWidth = 2 * MaxExtent + 1;
-static constexpr double XCoordinates[GridWidth] = { -40.0, -25.0, -12.0, -10.0, -4.0, -3.0, 2.0,
-  10.0, 12.0, 20.0, 21.0 };
-static constexpr double YCoordinates[GridWidth] = { -13.0, -12.0, -11.0, -10.0, -6.0, -3.0, -1.0,
-  4.0, 5.0, 10.0, 11.0 };
-static constexpr double ZCoordinates[GridWidth] = { -9.0, -5.0, -3.0, 0, 2.0, 3.0, 4.0, 6.0, 15.0,
-  20.0, 21.0 };
-static constexpr char GridArrayName[] = "grid_data";
+constexpr int MaxExtent = 5;
+constexpr int GridWidth = 2 * MaxExtent + 1;
+constexpr double XCoordinates[GridWidth] = { -40.0, -25.0, -12.0, -10.0, -4.0, -3.0, 2.0, 10.0,
+  12.0, 20.0, 21.0 };
+constexpr double YCoordinates[GridWidth] = { -13.0, -12.0, -11.0, -10.0, -6.0, -3.0, -1.0, 4.0, 5.0,
+  10.0, 11.0 };
+constexpr double ZCoordinates[GridWidth] = { -9.0, -5.0, -3.0, 0, 2.0, 3.0, 4.0, 6.0, 15.0, 20.0,
+  21.0 };
+constexpr char GridArrayName[] = "grid_data";
 
 //----------------------------------------------------------------------------
 double GetGridValue(double i, double j, double k)

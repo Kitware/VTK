@@ -255,7 +255,7 @@ int vtkRenderTimings::RunTests()
   // what tests to run?
   bool useRegex = false;
   vtksys::RegularExpression re;
-  if (this->Regex.size())
+  if (!this->Regex.empty())
   {
     useRegex = true;
     re.compile(this->Regex);
@@ -374,7 +374,7 @@ int vtkRenderTimings::ParseCommandLineArguments(int argc, char* argv[])
   {
     bool useRegex = false;
     vtksys::RegularExpression re;
-    if (this->Regex.size())
+    if (!this->Regex.empty())
     {
       useRegex = true;
       re.compile(this->Regex);

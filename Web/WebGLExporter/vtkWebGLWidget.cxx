@@ -104,7 +104,7 @@ void vtkWebGLWidget::GenerateBinaryData()
 
   this->binarySize = total;
   vtkWebGLExporter::ComputeMD5(this->binaryData, total, this->MD5);
-  this->hasChanged = this->MD5.compare(oldMD5) != 0;
+  this->hasChanged = this->MD5 != oldMD5;
 }
 
 int vtkWebGLWidget::GetNumberOfParts()

@@ -111,10 +111,7 @@ struct OTPoint
 };
 struct PointListType : public std::vector<OTPoint>
 {
-  PointListType()
-    : std::vector<OTPoint>()
-  {
-  }
+  PointListType() = default;
   OTPoint* GetPointer(int ptId) { return &(*(this->begin() + ptId)); }
 };
 typedef PointListType::iterator PointListIterator;

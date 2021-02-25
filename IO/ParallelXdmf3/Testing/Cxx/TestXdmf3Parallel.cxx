@@ -142,7 +142,7 @@ int TestXdmf3Parallel(int argc, char** argv)
     }
   }
   MyProcess* p = MyProcess::New();
-  p->SetArgs(argc, argv, ifile.c_str(), ofile.c_str());
+  p->SetArgs(argc, argv, ifile, ofile);
 
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
@@ -157,7 +157,7 @@ int TestXdmf3Parallel(int argc, char** argv)
   if (retVal)
   {
     // test passed, remove the files we wrote
-    vtksys::SystemTools::RemoveADirectory(tempdir.c_str());
+    vtksys::SystemTools::RemoveADirectory(tempdir);
   }
   return !retVal;
 }

@@ -245,7 +245,6 @@ void vtkTransformFeedback::ReleaseBufferData(bool freeBuffer)
 //------------------------------------------------------------------------------
 vtkTransformFeedback::vtkTransformFeedback()
   : VaryingsBound(false)
-  , Varyings()
   , NumberOfVertices(0)
   , BufferMode(GL_INTERLEAVED_ATTRIBS)
   , PrimitiveMode(GL_POINTS)

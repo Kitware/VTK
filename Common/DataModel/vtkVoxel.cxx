@@ -369,7 +369,7 @@ namespace
 //  0       1
 //
 
-static constexpr vtkIdType edges[vtkVoxel::NumberOfEdges][2] = {
+constexpr vtkIdType edges[vtkVoxel::NumberOfEdges][2] = {
   { 0, 1 }, // 0
   { 1, 3 }, // 1
   { 2, 3 }, // 2
@@ -384,7 +384,7 @@ static constexpr vtkIdType edges[vtkVoxel::NumberOfEdges][2] = {
   { 3, 7 }, // 11
 };
 // define in terms vtkPixel understands
-static constexpr vtkIdType faces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceSize + 1] = {
+constexpr vtkIdType faces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceSize + 1] = {
   { 2, 0, 6, 4, -1 }, // 0
   { 1, 3, 5, 7, -1 }, // 1
   { 0, 1, 4, 5, -1 }, // 2
@@ -392,7 +392,7 @@ static constexpr vtkIdType faces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceS
   { 1, 0, 3, 2, -1 }, // 4
   { 4, 5, 6, 7, -1 }, // 5
 };
-static constexpr vtkIdType edgeToAdjacentFaces[vtkVoxel::NumberOfEdges][2] = {
+constexpr vtkIdType edgeToAdjacentFaces[vtkVoxel::NumberOfEdges][2] = {
   { 2, 4 }, // 0
   { 1, 4 }, // 1
   { 3, 4 }, // 2
@@ -406,48 +406,44 @@ static constexpr vtkIdType edgeToAdjacentFaces[vtkVoxel::NumberOfEdges][2] = {
   { 0, 3 }, // 10
   { 1, 3 }, // 11
 };
-static constexpr vtkIdType faceToAdjacentFaces[vtkVoxel::NumberOfFaces]
-                                              [vtkVoxel::MaximumFaceSize] = {
-                                                { 5, 3, 4, 2 }, // 0
-                                                { 4, 3, 5, 2 }, // 1
-                                                { 4, 1, 5, 0 }, // 2
-                                                { 4, 0, 5, 1 }, // 3
-                                                { 2, 0, 3, 1 }, // 4
-                                                { 2, 1, 3, 0 }, // 5
-                                              };
-static constexpr vtkIdType pointToIncidentEdges[vtkVoxel::NumberOfPoints]
-                                               [vtkVoxel::MaximumValence] = {
-                                                 { 0, 8, 3 },  // 0
-                                                 { 0, 1, 9 },  // 1
-                                                 { 2, 3, 10 }, // 2
-                                                 { 1, 2, 11 }, // 3
-                                                 { 4, 7, 8 },  // 4
-                                                 { 4, 9, 5 },  // 5
-                                                 { 6, 10, 7 }, // 6
-                                                 { 5, 11, 6 }, // 7
-                                               };
-static constexpr vtkIdType pointToIncidentFaces[vtkVoxel::NumberOfPoints]
-                                               [vtkVoxel::MaximumValence] = {
-                                                 { 2, 0, 4 }, // 0
-                                                 { 4, 1, 2 }, // 1
-                                                 { 4, 0, 3 }, // 2
-                                                 { 4, 3, 1 }, // 3
-                                                 { 5, 0, 2 }, // 4
-                                                 { 2, 1, 5 }, // 5
-                                                 { 3, 0, 5 }, // 6
-                                                 { 1, 3, 5 }, // 7
-                                               };
-static constexpr vtkIdType pointToOneRingPoints[vtkVoxel::NumberOfPoints]
-                                               [vtkVoxel::MaximumValence] = {
-                                                 { 1, 4, 2 }, // 0
-                                                 { 0, 3, 5 }, // 1
-                                                 { 3, 0, 6 }, // 2
-                                                 { 1, 2, 7 }, // 3
-                                                 { 5, 6, 0 }, // 4
-                                                 { 4, 1, 7 }, // 5
-                                                 { 7, 2, 4 }, // 6
-                                                 { 5, 3, 6 }, // 7
-                                               };
+constexpr vtkIdType faceToAdjacentFaces[vtkVoxel::NumberOfFaces][vtkVoxel::MaximumFaceSize] = {
+  { 5, 3, 4, 2 }, // 0
+  { 4, 3, 5, 2 }, // 1
+  { 4, 1, 5, 0 }, // 2
+  { 4, 0, 5, 1 }, // 3
+  { 2, 0, 3, 1 }, // 4
+  { 2, 1, 3, 0 }, // 5
+};
+constexpr vtkIdType pointToIncidentEdges[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+  { 0, 8, 3 },  // 0
+  { 0, 1, 9 },  // 1
+  { 2, 3, 10 }, // 2
+  { 1, 2, 11 }, // 3
+  { 4, 7, 8 },  // 4
+  { 4, 9, 5 },  // 5
+  { 6, 10, 7 }, // 6
+  { 5, 11, 6 }, // 7
+};
+constexpr vtkIdType pointToIncidentFaces[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+  { 2, 0, 4 }, // 0
+  { 4, 1, 2 }, // 1
+  { 4, 0, 3 }, // 2
+  { 4, 3, 1 }, // 3
+  { 5, 0, 2 }, // 4
+  { 2, 1, 5 }, // 5
+  { 3, 0, 5 }, // 6
+  { 1, 3, 5 }, // 7
+};
+constexpr vtkIdType pointToOneRingPoints[vtkVoxel::NumberOfPoints][vtkVoxel::MaximumValence] = {
+  { 1, 4, 2 }, // 0
+  { 0, 3, 5 }, // 1
+  { 3, 0, 6 }, // 2
+  { 1, 2, 7 }, // 3
+  { 5, 6, 0 }, // 4
+  { 4, 1, 7 }, // 5
+  { 7, 2, 4 }, // 6
+  { 5, 3, 6 }, // 7
+};
 }
 
 //----------------------------------------------------------------------------

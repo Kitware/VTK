@@ -22,7 +22,7 @@
 
 namespace
 {
-static void initRotateAboutLineWXYZQuaternion(
+void initRotateAboutLineWXYZQuaternion(
   const double normalizedLineVector[3], const double theta, double quaternion[4])
 {
   /* w */ quaternion[0] = theta;

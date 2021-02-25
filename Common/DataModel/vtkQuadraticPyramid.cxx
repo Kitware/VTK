@@ -169,9 +169,9 @@ vtkCell* vtkQuadraticPyramid::GetFace(int faceId)
 //------------------------------------------------------------------------------
 namespace
 {
-static const double VTK_DIVERGED = 1.e6;
-static const int VTK_PYRAMID_MAX_ITERATION = 20;
-static const double VTK_PYRAMID_CONVERGED = 1.e-03;
+const double VTK_DIVERGED = 1.e6;
+const int VTK_PYRAMID_MAX_ITERATION = 20;
+const double VTK_PYRAMID_CONVERGED = 1.e-03;
 }
 
 int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3], int& subId,

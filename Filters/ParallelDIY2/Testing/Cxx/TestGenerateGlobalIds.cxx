@@ -35,7 +35,7 @@
 
 namespace
 {
-static int whole_extent[] = { 0, 99, 0, 99, 0, 99 };
+int whole_extent[] = { 0, 99, 0, 99, 0, 99 };
 
 vtkSmartPointer<vtkMultiBlockDataSet> CreateDataSet(
   vtkMultiProcessController* contr, int ghost_level, int nblocks)

@@ -280,8 +280,7 @@ vtkStandardNewMacro(vtkPSurfaceLICComposite);
 
 //------------------------------------------------------------------------------
 vtkPSurfaceLICComposite::vtkPSurfaceLICComposite()
-  : vtkSurfaceLICComposite()
-  , PainterComm(nullptr)
+  : PainterComm(nullptr)
   , PixelOps(nullptr)
   , CommRank(0)
   , CommSize(1)
@@ -1652,7 +1651,7 @@ int vtkPSurfaceLICComposite::Scatter(
 //------------------------------------------------------------------------------
 void vtkPSurfaceLICComposite::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  Superclass::PrintSelf(os, indent);
   os << *this << endl;
 }
 

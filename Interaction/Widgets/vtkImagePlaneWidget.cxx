@@ -55,7 +55,6 @@ vtkCxxSetObjectMacro(vtkImagePlaneWidget, ColorMap, vtkImageMapToColors);
 
 //------------------------------------------------------------------------------
 vtkImagePlaneWidget::vtkImagePlaneWidget()
-  : vtkPolyDataSourceWidget()
 {
   this->State = vtkImagePlaneWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkImagePlaneWidget::ProcessEvents);

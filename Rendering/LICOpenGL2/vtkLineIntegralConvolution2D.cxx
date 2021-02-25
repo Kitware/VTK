@@ -923,38 +923,14 @@ vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
   this->SetAAHShader(nullptr);
   this->SetAAVShader(nullptr);
 
-  if (this->VTShader)
-  {
-    delete this->VTShader;
-  }
-  if (this->LIC0Shader)
-  {
-    delete this->LIC0Shader;
-  }
-  if (this->LICIShader)
-  {
-    delete this->LICIShader;
-  }
-  if (this->LICNShader)
-  {
-    delete this->LICNShader;
-  }
-  if (this->EEShader)
-  {
-    delete this->EEShader;
-  }
-  if (this->CEShader)
-  {
-    delete this->CEShader;
-  }
-  if (this->AAHShader)
-  {
-    delete this->AAHShader;
-  }
-  if (this->AAVShader)
-  {
-    delete this->AAVShader;
-  }
+  delete this->VTShader;
+  delete this->LIC0Shader;
+  delete this->LICIShader;
+  delete this->LICNShader;
+  delete this->EEShader;
+  delete this->CEShader;
+  delete this->AAHShader;
+  delete this->AAVShader;
 
   this->FBO->Delete();
 }

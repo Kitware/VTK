@@ -471,6 +471,7 @@ static vtk3DSMesh* create_mesh(char* name, int vertices, int faces)
   else
   {
     new_mesh->face = (vtk3DSFace*)malloc(faces * sizeof(*new_mesh->face));
+    // NOLINTNEXTLINE(bugprone-sizeof-expression)
     new_mesh->mtl = (vtk3DSMaterial**)malloc(faces * sizeof(*new_mesh->mtl));
   }
 
@@ -792,7 +793,8 @@ static void parse_face_array(vtk3DSImporter* importer, vtk3DSMesh* mesh, vtk3DSC
 
   mesh->faces = read_word(importer);
   mesh->face = (vtk3DSFace*)malloc(mesh->faces * sizeof(*(mesh->face)));
-  mesh->mtl = (vtk3DSMaterial**)malloc(mesh->faces * sizeof(*(mesh->mtl)));
+  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  mesh->mtl = (vtk3DSMaterial**)malloc(mesh->faces * sizeof(*mesh->mtl));
 
   for (i = 0; i < mesh->faces; i++)
   {

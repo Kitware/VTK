@@ -41,23 +41,19 @@
 namespace
 {
 
-static vtkInformationDoubleKey* TestDoubleKey =
-  vtkInformationDoubleKey::MakeKey("Double", "TestKey");
+vtkInformationDoubleKey* TestDoubleKey = vtkInformationDoubleKey::MakeKey("Double", "TestKey");
 // Test restricted keys with this one -- must be a vector of length 3, can NOT
 // be constructed using Append():
-static vtkInformationDoubleVectorKey* TestDoubleVectorKey =
+vtkInformationDoubleVectorKey* TestDoubleVectorKey =
   vtkInformationDoubleVectorKey::MakeKey("DoubleVector", "TestKey", 3);
-static vtkInformationIdTypeKey* TestIdTypeKey =
-  vtkInformationIdTypeKey::MakeKey("IdType", "TestKey");
-static vtkInformationIntegerKey* TestIntegerKey =
-  vtkInformationIntegerKey::MakeKey("Integer", "TestKey");
-static vtkInformationIntegerVectorKey* TestIntegerVectorKey =
+vtkInformationIdTypeKey* TestIdTypeKey = vtkInformationIdTypeKey::MakeKey("IdType", "TestKey");
+vtkInformationIntegerKey* TestIntegerKey = vtkInformationIntegerKey::MakeKey("Integer", "TestKey");
+vtkInformationIntegerVectorKey* TestIntegerVectorKey =
   vtkInformationIntegerVectorKey::MakeKey("IntegerVector", "TestKey");
-static vtkInformationStringKey* TestStringKey =
-  vtkInformationStringKey::MakeKey("String", "TestKey");
-static vtkInformationStringVectorKey* TestStringVectorKey =
+vtkInformationStringKey* TestStringKey = vtkInformationStringKey::MakeKey("String", "TestKey");
+vtkInformationStringVectorKey* TestStringVectorKey =
   vtkInformationStringVectorKey::MakeKey("StringVector", "TestKey");
-static vtkInformationUnsignedLongKey* TestUnsignedLongKey =
+vtkInformationUnsignedLongKey* TestUnsignedLongKey =
   vtkInformationUnsignedLongKey::MakeKey("UnsignedLong", "TestKey");
 
 bool stringEqual(const std::string& expect, const std::string& actual)

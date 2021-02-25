@@ -41,7 +41,6 @@ vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera, vtkCamera);
 // Instantiate this object.
 // *************************************************************************
 vtkCubeAxesActor::vtkCubeAxesActor()
-  : vtkActor()
 {
   this->Bounds[0] = -1.0;
   this->Bounds[1] = 1.0;

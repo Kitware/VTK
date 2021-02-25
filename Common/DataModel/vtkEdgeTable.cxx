@@ -507,7 +507,8 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
 
   size = (size < this->TableSize ? size : this->TableSize);
   newTableArray = new vtkIdList*[newSize];
-  memcpy(newTableArray, this->Table, size * sizeof(vtkIdList*));
+  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  memcpy(newTableArray, this->Table, size * sizeof(*newTableArray));
   for (i = size; i < newSize; i++)
   {
     newTableArray[i] = nullptr;
@@ -519,7 +520,8 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
   if (this->StoreAttributes == 1)
   {
     newAttributeArray = new vtkIdList*[newSize];
-    memcpy(newAttributeArray, this->Attributes, size * sizeof(vtkIdList*));
+    // NOLINTNEXTLINE(bugprone-sizeof-expression)
+    memcpy(newAttributeArray, this->Attributes, size * sizeof(*newAttributeArray));
     for (i = size; i < newSize; i++)
     {
       newAttributeArray[i] = nullptr;
@@ -530,7 +532,8 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
   else if (this->StoreAttributes == 2)
   {
     newPointerAttributeArray = new vtkVoidArray*[newSize];
-    memcpy(newPointerAttributeArray, this->Attributes, size * sizeof(vtkVoidArray*));
+    // NOLINTNEXTLINE(bugprone-sizeof-expression)
+    memcpy(newPointerAttributeArray, this->Attributes, size * sizeof(*newPointerAttributeArray));
     for (i = size; i < newSize; i++)
     {
       newPointerAttributeArray[i] = nullptr;

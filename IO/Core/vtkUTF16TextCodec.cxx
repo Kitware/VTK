@@ -113,8 +113,7 @@ private:
 } // end anonymous namespace
 
 vtkUTF16TextCodec::vtkUTF16TextCodec()
-  : vtkTextCodec()
-  , _endianExplicitlySet(false)
+  : _endianExplicitlySet(false)
   , _bigEndian(true)
 {
 }

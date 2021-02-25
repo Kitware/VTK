@@ -52,7 +52,7 @@ bool compareMask(vtkBitArray* bm, const std::vector<bool>& ref_bm)
 //------------------------------------------------------------------------------
 void displayMask(const std::string& msg, vtkHyperTreeGrid* htg)
 {
-  if (msg.compare(""))
+  if (!msg.empty())
   {
     std::cout << msg << " ";
     std::cout.flush();
@@ -172,7 +172,7 @@ void initUniformHyperTreeSeveralRootCells(
     cursor->SetGlobalIndexStart(nbElementsInHTG);
     // std::cout << "GlobalIndexStart of HT " << treeId << " : " << nbElementsInHTG << std::endl;
     cursor->SetMask(false);
-    if (sub.size())
+    if (!sub.empty())
     {
       subdivide(cursor, sub.at(treeIndex));
     }

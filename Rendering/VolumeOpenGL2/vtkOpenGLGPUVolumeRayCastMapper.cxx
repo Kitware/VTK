@@ -2061,7 +2061,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal ::ReleaseImageSampleGraphicsRe
 
 //------------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
-  : vtkGPUVolumeRayCastMapper()
 {
   this->Impl = new vtkInternal(this);
   this->ReductionFactor = 1.0;

@@ -27,7 +27,6 @@ vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 //------------------------------------------------------------------------------
 
 vtkIterativeClosestPointTransform::vtkIterativeClosestPointTransform()
-  : vtkLinearTransform()
 {
   this->Source = nullptr;
   this->Target = nullptr;

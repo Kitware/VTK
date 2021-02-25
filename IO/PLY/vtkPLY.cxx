@@ -67,15 +67,15 @@ namespace
 {
 const int LINE_LENGTH = 4096;
 // wjs: added to manage memory leak
-static vtkHeap* plyHeap = nullptr;
-static void plyInitialize()
+vtkHeap* plyHeap = nullptr;
+void plyInitialize()
 {
   if (plyHeap == nullptr)
   {
     plyHeap = vtkHeap::New();
   }
 }
-static void plyCleanUp()
+void plyCleanUp()
 {
   if (plyHeap)
   {
@@ -83,15 +83,15 @@ static void plyCleanUp()
     plyHeap = nullptr;
   }
 }
-static void* plyAllocateMemory(size_t n)
+void* plyAllocateMemory(size_t n)
 {
   return plyHeap->AllocateMemory(n);
 }
 
-static const char* type_names[] = { "invalid", "char", "short", "int", "int8", "int16", "int32",
-  "uchar", "ushort", "uint", "uint8", "uint16", "uint32", "float", "float32", "double", "float64" };
+const char* type_names[] = { "invalid", "char", "short", "int", "int8", "int16", "int32", "uchar",
+  "ushort", "uint", "uint8", "uint16", "uint32", "float", "float32", "double", "float64" };
 
-static const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 1, 2, 4, 1, 2, 4, 4, 4, 8 };
+const int ply_type_size[] = { 0, 1, 2, 4, 1, 2, 4, 1, 2, 4, 1, 2, 4, 4, 4, 8 };
 }
 
 #define NO_OTHER_PROPS (-1)
@@ -718,13 +718,13 @@ PlyFile* vtkPLY::ply_read(std::istream* is, int* nelems, char*** elem_names)
   /* read and parse the file's header */
 
   get_words(plyfile->is, &words, line_words, orig_line);
-  if (words.size() == 0 || !equal_strings(words[0], "ply"))
+  if (words.empty() || !equal_strings(words[0], "ply"))
   {
     free(plyfile);
     return (nullptr);
   }
 
-  while (words.size())
+  while (!words.empty())
   {
 
     /* parse words */
@@ -1559,7 +1559,7 @@ bool vtkPLY::ascii_get_element(PlyFile* plyfile, char* elem_ptr)
   /* read in the element */
 
   get_words(plyfile->is, &words, line_words, orig_line);
-  if (words.size() == 0)
+  if (words.empty())
   {
     fprintf(stderr, "ply_get_element: unexpected end of file\n");
     assert(0);

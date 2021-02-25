@@ -57,17 +57,17 @@ namespace
 
 // Global variables used by the glutDisplayFunc and glutIdleFunc
 vtkNew<ExternalVTKWidget> externalVTKWidget;
-static bool initialized = false;
-static int NumArgs;
+bool initialized = false;
+int NumArgs;
 char** ArgV;
-static bool tested = false;
-static int retVal = 0;
-static int windowId = -1;
-static int windowH = 301;
-static int windowW = 300;
+bool tested = false;
+int retVal = 0;
+int windowId = -1;
+int windowH = 301;
+int windowW = 300;
 
-static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
-  long unsigned int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* vtkNotUsed(callData))
+void MakeCurrentCallback(vtkObject* vtkNotUsed(caller), long unsigned int vtkNotUsed(eventId),
+  void* vtkNotUsed(clientData), void* vtkNotUsed(callData))
 {
   vtkLogScopeFunction(1);
   if (initialized)

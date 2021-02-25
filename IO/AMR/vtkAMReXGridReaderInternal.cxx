@@ -87,23 +87,12 @@ bool RealDescriptor::operator==(const RealDescriptor& rd) const
 #define AMREX_PRINT(os, indent, var) os << indent << #var << ": " << var << endl
 
 vtkAMReXGridHeader::vtkAMReXGridHeader()
-  : versionName()
-  , variableNamesSize(0)
-  , variableNames()
+  : variableNamesSize(0)
   , dim(0)
   , time(0)
   , finestLevel(0)
-  , problemDomainLoEnd()
-  , problemDomainHiEnd()
-  , refinementRatio()
-  , levelDomains()
-  , levelSteps()
   , geometryCoord(0)
   , magicZero(0)
-  , levelSize()
-  , levelCells()
-  , levelPrefix()
-  , multiFabPrefix()
   , debugHeader(false)
 {
 }
@@ -379,15 +368,7 @@ vtkAMReXGridLevelHeader::vtkAMReXGridLevelHeader()
   , levelNumberOfGhostCells(0)
   , levelBoxArraySize(0)
   , levelMagicZero(0)
-  , levelBoxArrays()
   , levelNumberOfFABOnDisk(0)
-  , levelFabOnDiskPrefix()
-  , levelFABFile()
-  , levelFileOffset()
-  , levelMinimumsFAB()
-  , levelMaximumsFAB()
-  , levelFABArrayMinimum()
-  , levelFABArrayMaximum()
   , levelRealNumberOfBytes(0)
   , levelRealOrder(0)
   , debugLevelHeader(false)
@@ -634,8 +615,6 @@ bool vtkAMReXGridLevelHeader::ParseLevelHeader(int _level, int _dim, const std::
 }
 
 vtkAMReXGridReaderInternal::vtkAMReXGridReaderInternal()
-  : FileName()
-  , LevelHeader()
 {
   this->headersAreRead = false;
   this->debugReader = false;

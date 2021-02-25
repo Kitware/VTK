@@ -32,7 +32,6 @@ vtkStandardNewMacro(vtkDistancePolyDataFilter);
 
 //------------------------------------------------------------------------------
 vtkDistancePolyDataFilter::vtkDistancePolyDataFilter()
-  : vtkPolyDataAlgorithm()
 {
   this->SignedDistance = 1;
   this->NegateDistance = 0;

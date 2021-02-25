@@ -91,14 +91,8 @@ vtkRasterReprojectionFilter::vtkRasterReprojectionFilter()
 //------------------------------------------------------------------------------
 vtkRasterReprojectionFilter::~vtkRasterReprojectionFilter()
 {
-  if (this->InputProjection)
-  {
-    delete[] this->InputProjection;
-  }
-  if (this->OutputProjection)
-  {
-    delete[] this->OutputProjection;
-  }
+  delete[] this->InputProjection;
+  delete[] this->OutputProjection;
   delete this->Internal;
 }
 

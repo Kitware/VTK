@@ -31,17 +31,17 @@
 
 namespace
 {
-static const std::vector<std::string> arrayNames = { "temperature0", "temperature1", "temperature2",
+const std::vector<std::string> arrayNames = { "temperature0", "temperature1", "temperature2",
   "temperature3" };
-static const std::vector<std::vector<size_t>> resultBins = {
+const std::vector<std::vector<size_t>> resultBins = {
   { 0, 0, 1, 1, 2, 2, 3, 3 },
   { 0, 1, 1, 2, 2, 3, 3, 4 },
   { 0, 1, 2, 2, 3, 4, 4, 5 },
   { 0, 1, 2, 3, 3, 4, 5, 6 },
 };
-static const std::vector<size_t> resultFrequency = { 2, 1, 1, 1, 1, 1, 1, 2 };
-static const int nData = 10;
-static const std::vector<size_t> bins = { 4, 5, 6, 7 };
+const std::vector<size_t> resultFrequency = { 2, 1, 1, 1, 1, 1, 1, 2 };
+const int nData = 10;
+const std::vector<size_t> bins = { 4, 5, 6, 7 };
 void AddArrayToVTKData(
   std::string scalarName, vtkDataSetAttributes* pd, double* data, vtkIdType size)
 {

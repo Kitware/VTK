@@ -782,7 +782,7 @@ bool vtkHeatmapItem::MouseMoveEvent(const vtkContextMouseEvent& event)
       this->Tooltip->SetPosition(pos[0], pos[1]);
 
       std::string tooltipText = this->GetTooltipText(pos[0], pos[1]);
-      if (tooltipText.compare("") != 0)
+      if (!tooltipText.empty())
       {
         this->Tooltip->SetText(tooltipText);
         this->Tooltip->SetVisible(true);

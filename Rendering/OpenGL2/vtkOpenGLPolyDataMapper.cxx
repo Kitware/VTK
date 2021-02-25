@@ -672,7 +672,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
     {
       std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
-      if (this->EdgeValues.size())
+      if (!this->EdgeValues.empty())
       {
         vtkShaderProgram::Substitute(
           GSSource, "//VTK::Edges::Dec", "uniform samplerBuffer edgeTexture;");
@@ -3415,7 +3415,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor* actor
   {
     this->CellNormalTexture->Activate();
   }
-  if (this->EdgeValues.size())
+  if (!this->EdgeValues.empty())
   {
     this->EdgeTexture->Activate();
   }
@@ -3546,7 +3546,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor*)
     }
   }
 
-  if (this->EdgeValues.size())
+  if (!this->EdgeValues.empty())
   {
     this->EdgeTexture->Deactivate();
   }
@@ -4063,7 +4063,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
         {
           this->Primitives[PrimitiveTris].IBO->CreateTriangleIndexBuffer(
             prims[2], poly->GetPoints(), &this->EdgeValues, ef);
-          if (this->EdgeValues.size())
+          if (!this->EdgeValues.empty())
           {
             if (!this->EdgeTexture)
             {

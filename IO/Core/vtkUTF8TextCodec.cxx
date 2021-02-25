@@ -136,10 +136,7 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
   return code_point;
 }
 
-vtkUTF8TextCodec::vtkUTF8TextCodec()
-  : vtkTextCodec()
-{
-}
+vtkUTF8TextCodec::vtkUTF8TextCodec() = default;
 
 vtkUTF8TextCodec::~vtkUTF8TextCodec() = default;
 

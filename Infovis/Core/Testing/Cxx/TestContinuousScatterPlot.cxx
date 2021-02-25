@@ -52,6 +52,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
   int cmpIndex = 0;
 
   /********************* Desired output arrays *********************/
+  // NOLINTNEXTLINE(bugprone-suspicious-missing-comma)
   std::string dataToCompare[5] = { "2,1,0,0,0,0,0,0,0,0,2,17,9,0,0,0,0,0,0,0,0,12,44,28,0,0,0,0,0,"
                                    "0,0,0,40,81,64,0,0,0,0,0,0,0,0,42,137,112,0,0,0,0,0,0,0,0,48,"
                                    "181,159,0,0,0,0,0,0,0,0,46,255,215,0,0,0,0,0,0,0,0,34,208,152,"

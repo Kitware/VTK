@@ -120,10 +120,10 @@ void DrawTriangles(double* p1, double* q1, double* r1, double* p2, double* q2, d
 
 namespace
 {
-static const double EPSILON = 1.e-6;
+const double EPSILON = 1.e-6;
 
-static const int VTK_NO_INTERSECTION = 0;
-static const int VTK_YES_INTERSECTION = 1;
+const int VTK_NO_INTERSECTION = 0;
+const int VTK_YES_INTERSECTION = 1;
 
 typedef vtkMinimalStandardRandomSequence vtkRandom;
 

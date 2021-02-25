@@ -34,7 +34,7 @@ namespace
 
 //------------------------------------------------------------------------------
 // Number ^ index: power function for integers.
-static int power(int number, int level)
+int power(int number, int level)
 {
   if (level == 0)
   {
@@ -49,7 +49,7 @@ static int power(int number, int level)
 }
 
 //------------------------------------------------------------------------------
-static int GetLevelOffset(int level, int divs[3])
+int GetLevelOffset(int level, int divs[3])
 {
   int block = divs[0] * divs[1] * divs[2];
   int offset = 0;

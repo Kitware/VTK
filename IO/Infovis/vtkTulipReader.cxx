@@ -586,7 +586,7 @@ int vtkTulipReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkSelection> selection = vtkSmartPointer<vtkSelection>::New();
     for (size_t i = 0; i < clusters.size(); ++i)
     {
-      if (clusters.at(i).name.compare(labels->c_str()) == 0)
+      if (clusters.at(i).name == labels->c_str())
       {
         vtkSelectionNode* selectionNode = vtkSelectionNode::New();
         selectionNode->SetFieldType(vtkSelectionNode::VERTEX);

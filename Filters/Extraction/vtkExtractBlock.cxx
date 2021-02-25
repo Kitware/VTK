@@ -69,7 +69,7 @@ void vtkExtractBlock::RemoveIndex(unsigned int index)
 //------------------------------------------------------------------------------
 void vtkExtractBlock::RemoveAllIndices()
 {
-  if (this->Indices->size() > 0)
+  if (!this->Indices->empty())
   {
     this->Indices->clear();
     this->Modified();

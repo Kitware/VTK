@@ -55,10 +55,7 @@ public:
   int GetNumberOfStringArrays() { return static_cast<int>(this->Container.size()); }
 
 private:
-  vtkStringArrayVector()
-    : Container()
-  {
-  }
+  vtkStringArrayVector() = default;
   ~vtkStringArrayVector() { this->Container.clear(); }
 
   VectorType Container;

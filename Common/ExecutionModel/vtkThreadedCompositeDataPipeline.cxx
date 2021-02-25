@@ -49,7 +49,7 @@ vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);
 //------------------------------------------------------------------------------
 namespace
 {
-static vtkInformationVector** Clone(vtkInformationVector** src, int n)
+vtkInformationVector** Clone(vtkInformationVector** src, int n)
 {
   vtkInformationVector** dst = new vtkInformationVector*[n];
   for (int i = 0; i < n; ++i)
@@ -59,7 +59,7 @@ static vtkInformationVector** Clone(vtkInformationVector** src, int n)
   }
   return dst;
 }
-static void DeleteAll(vtkInformationVector** dst, int n)
+void DeleteAll(vtkInformationVector** dst, int n)
 {
   for (int i = 0; i < n; ++i)
   {

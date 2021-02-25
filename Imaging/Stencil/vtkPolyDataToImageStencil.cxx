@@ -153,10 +153,7 @@ private:
   MapType EdgeMap;
 
 public:
-  EdgeLocator()
-    : EdgeMap()
-  {
-  }
+  EdgeLocator() = default;
   ~EdgeLocator() { this->Initialize(); }
 
   // Description:

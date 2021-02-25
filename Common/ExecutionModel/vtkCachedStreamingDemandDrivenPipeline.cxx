@@ -105,6 +105,7 @@ int vtkCachedStreamingDemandDrivenPipeline ::NeedToExecuteData(
 
   // Does the superclass want to execute? We must skip our direct superclass
   // because it looks at update extents but does not know about the cache
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   if (this->vtkDemandDrivenPipeline::NeedToExecuteData(outputPort, inInfoVec, outInfoVec))
   {
     return 1;

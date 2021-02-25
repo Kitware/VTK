@@ -273,7 +273,7 @@ void RandomSphere(
   value[2] = radius * cos(phi) + offset[2];
 }
 
-static int testNum = 0;
+int testNum = 0;
 
 vtkIdType IntersectWithCell(unsigned nTest, vtkMinimalStandardRandomSequence* sequence,
   bool threeDimensional, double radius, double* offset, vtkCell* cell

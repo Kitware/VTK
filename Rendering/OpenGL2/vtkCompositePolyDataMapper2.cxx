@@ -604,7 +604,7 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(vtkRenderer* ren, vtkActor* a
     }
   }
 
-  if (this->EdgeValues.size())
+  if (!this->EdgeValues.empty())
   {
     if (!this->EdgeTexture)
     {

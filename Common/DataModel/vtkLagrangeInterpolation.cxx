@@ -29,10 +29,7 @@
 
 vtkStandardNewMacro(vtkLagrangeInterpolation);
 
-vtkLagrangeInterpolation::vtkLagrangeInterpolation()
-  : vtkHigherOrderInterpolation()
-{
-}
+vtkLagrangeInterpolation::vtkLagrangeInterpolation() = default;
 
 vtkLagrangeInterpolation::~vtkLagrangeInterpolation() = default;
 

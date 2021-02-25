@@ -36,7 +36,7 @@ bool VerifyArrayValue(vtkTree* tree, vtkIdType index, const char* arrayName, con
     return false;
   }
   std::string value = array->GetVariantValue(index).ToString();
-  if (value.compare(baseline) != 0)
+  if (value != baseline)
   {
     cout << "value for " << arrayName << " is " << value << ", should be " << baseline << endl;
     return false;
@@ -63,7 +63,7 @@ bool VerifyArrayAttribute(
     if (strcmp(key->GetName(), attributeName) == 0)
     {
       std::string value = info->Get(key);
-      if (value.compare(baseline) == 0)
+      if (value == baseline)
       {
         return true;
       }
@@ -359,7 +359,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   writer2->IgnoreArray("node weight");
   writer2->Update();
   std::string phyloXML2 = writer2->GetOutputString();
-  if (phyloXML.compare(phyloXML2) != 0)
+  if (phyloXML != phyloXML2)
   {
     cout << "output strings do not match." << endl;
     return EXIT_FAILURE;

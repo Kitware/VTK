@@ -163,8 +163,7 @@ void vtkDataSetCellIterator::IncrementToNextCell()
 
 //------------------------------------------------------------------------------
 vtkDataSetCellIterator::vtkDataSetCellIterator()
-  : vtkCellIterator()
-  , DataSet(nullptr)
+  : DataSet(nullptr)
   , CellId(0)
 {
 }

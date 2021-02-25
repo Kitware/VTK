@@ -86,66 +86,63 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char* name, bool& parall
     if (cfileDataType != nullptr)
     {
       std::string fileDataType(cfileDataType);
-      if (fileDataType.compare("HierarchicalBoxDataSet") == 0 ||
-        fileDataType.compare("vtkHierarchicalBoxDataSet") == 0)
+      if (fileDataType == "HierarchicalBoxDataSet" || fileDataType == "vtkHierarchicalBoxDataSet")
       {
         return VTK_HIERARCHICAL_BOX_DATA_SET;
       }
-      if (fileDataType.compare("vtkOverlappingAMR") == 0)
+      if (fileDataType == "vtkOverlappingAMR")
       {
         return VTK_OVERLAPPING_AMR;
       }
-      if (fileDataType.compare("vtkNonOverlappingAMR") == 0)
+      if (fileDataType == "vtkNonOverlappingAMR")
       {
         return VTK_NON_OVERLAPPING_AMR;
       }
-      if (fileDataType.compare("ImageData") == 0)
+      if (fileDataType == "ImageData")
       {
         return VTK_IMAGE_DATA;
       }
-      if (fileDataType.compare("PImageData") == 0)
+      if (fileDataType == "PImageData")
       {
         parallel = true;
         return VTK_IMAGE_DATA;
       }
-      if (fileDataType.compare("vtkMultiBlockDataSet") == 0)
+      if (fileDataType == "vtkMultiBlockDataSet")
       {
         return VTK_MULTIBLOCK_DATA_SET;
       }
-      if (fileDataType.compare("PolyData") == 0)
+      if (fileDataType == "PolyData")
       {
         return VTK_POLY_DATA;
       }
-      if (fileDataType.compare("PPolyData") == 0)
+      if (fileDataType == "PPolyData")
       {
         parallel = true;
         return VTK_POLY_DATA;
       }
-      if (fileDataType.compare("RectilinearGrid") == 0)
+      if (fileDataType == "RectilinearGrid")
       {
         return VTK_RECTILINEAR_GRID;
       }
-      if (fileDataType.compare("PRectilinearGrid") == 0)
+      if (fileDataType == "PRectilinearGrid")
       {
         parallel = true;
         return VTK_RECTILINEAR_GRID;
       }
-      if (fileDataType.compare("StructuredGrid") == 0)
+      if (fileDataType == "StructuredGrid")
       {
         return VTK_STRUCTURED_GRID;
       }
-      if (fileDataType.compare("PStructuredGrid") == 0)
+      if (fileDataType == "PStructuredGrid")
       {
         parallel = true;
         return VTK_STRUCTURED_GRID;
       }
-      if (fileDataType.compare("UnstructuredGrid") == 0 ||
-        fileDataType.compare("UnstructuredGridBase") == 0)
+      if (fileDataType == "UnstructuredGrid" || fileDataType == "UnstructuredGridBase")
       {
         return VTK_UNSTRUCTURED_GRID;
       }
-      if (fileDataType.compare("PUnstructuredGrid") == 0 ||
-        fileDataType.compare("PUnstructuredGridBase") == 0)
+      if (fileDataType == "PUnstructuredGrid" || fileDataType == "PUnstructuredGridBase")
       {
         parallel = true;
         return VTK_UNSTRUCTURED_GRID;

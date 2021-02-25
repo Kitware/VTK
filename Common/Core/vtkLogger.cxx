@@ -416,27 +416,27 @@ vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
     {
       return vtkLogger::ConvertToVerbosity(ivalue);
     }
-    if (std::string("OFF").compare(text) == 0)
+    if (text == "OFF")
     {
       return vtkLogger::VERBOSITY_OFF;
     }
-    else if (std::string("ERROR").compare(text) == 0)
+    else if (text == "ERROR")
     {
       return vtkLogger::VERBOSITY_ERROR;
     }
-    else if (std::string("WARNING").compare(text) == 0)
+    else if (text == "WARNING")
     {
       return vtkLogger::VERBOSITY_WARNING;
     }
-    else if (std::string("INFO").compare(text) == 0)
+    else if (text == "INFO")
     {
       return vtkLogger::VERBOSITY_INFO;
     }
-    else if (std::string("TRACE").compare(text) == 0)
+    else if (text == "TRACE")
     {
       return vtkLogger::VERBOSITY_TRACE;
     }
-    else if (std::string("MAX").compare(text) == 0)
+    else if (text == "MAX")
     {
       return vtkLogger::VERBOSITY_MAX;
     }

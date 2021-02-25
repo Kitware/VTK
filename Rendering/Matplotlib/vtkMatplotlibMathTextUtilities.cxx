@@ -122,8 +122,7 @@ bool vtkMatplotlibMathTextUtilities::IsAvailable()
 
 //------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass()
-  , MaskParser(nullptr)
+  : MaskParser(nullptr)
   , PathParser(nullptr)
   , FontPropertiesClass(nullptr)
   , ScaleToPowerOfTwo(true)

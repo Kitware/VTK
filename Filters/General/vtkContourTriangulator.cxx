@@ -2386,7 +2386,7 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
         // Only add if innerPolyId hasn't been set already.
         // Having the same poly occur as both polyGroup and
         // innerPoly would cause an infinite loop.
-        if (polyGroups[innerPolyId].size() < 1)
+        if (polyGroups[innerPolyId].empty())
         {
           polyGroups[innerPolyId].push_back(innerPolyId);
         }
@@ -2400,7 +2400,7 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
           // Only add if innerPolyId hasn't been set already.
           // Having the same poly occur as both polyGroup and
           // innerPoly would cause an infinite loop.
-          if (polyGroups[innerPolyId].size() < 1)
+          if (polyGroups[innerPolyId].empty())
           {
             polyGroups[innerPolyId].push_back(innerPolyId);
           }

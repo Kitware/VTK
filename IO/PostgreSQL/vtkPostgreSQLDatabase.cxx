@@ -150,11 +150,11 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
       break;
   }
 
-  if (colTypeStr.size())
+  if (!colTypeStr.empty())
   {
     queryStr << " " << colTypeStr;
   }
-  else // if ( colTypeStr.size() )
+  else // if ( !colTypeStr.empty() )
   {
     vtkGenericWarningMacro("Unable to get column specification: unsupported data type " << colType);
     return vtkStdString();
@@ -223,7 +223,7 @@ vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle(tblHandle, colHandle);
-  if (attStr.size())
+  if (!attStr.empty())
   {
     queryStr << " " << attStr;
   }

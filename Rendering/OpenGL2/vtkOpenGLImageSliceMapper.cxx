@@ -258,7 +258,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   }
 
   // need to reload the texture
-  if (this->vtkImageMapper3D::GetMTime() > loadTime || propertyMTime > loadTime ||
+  if (this->Superclass::GetMTime() > loadTime || propertyMTime > loadTime ||
     input->GetMTime() > loadTime || orientationChanged || sliceChanged || recursive)
   {
     // get the data to load as a texture

@@ -330,9 +330,6 @@ public:
 
   AMReXParticleHeader()
     : DataFormatZeroFill(5)
-    , real_component_names()
-    , int_component_names()
-    , int_base_component_names()
     , int_type(0)
     , real_type(0)
     , dim(0)
@@ -347,8 +344,6 @@ public:
     , max_next_id(0)
     , finest_level(0)
     , num_levels(0)
-    , grids_per_level()
-    , grids()
   {
   }
 
@@ -596,9 +591,6 @@ vtkCxxSetObjectMacro(vtkAMReXParticlesReader, Controller, vtkMultiProcessControl
 //------------------------------------------------------------------------------
 vtkAMReXParticlesReader::vtkAMReXParticlesReader()
   : Controller(nullptr)
-  , PlotFileName()
-  , PlotFileNameMTime()
-  , MetaDataMTime()
   , ParticleType("particles")
   , Header(nullptr)
 {

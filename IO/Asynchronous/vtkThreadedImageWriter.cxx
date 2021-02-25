@@ -42,7 +42,7 @@
 //****************************************************************************
 namespace
 {
-static void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::string& fileName)
+void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::string& fileName)
 {
   vtkLogF(TRACE, "encoding: %s", fileName.c_str());
   assert(image != nullptr);

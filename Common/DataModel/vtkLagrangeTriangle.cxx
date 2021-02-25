@@ -31,10 +31,7 @@
 
 vtkStandardNewMacro(vtkLagrangeTriangle);
 //------------------------------------------------------------------------------
-vtkLagrangeTriangle::vtkLagrangeTriangle()
-  : vtkHigherOrderTriangle()
-{
-}
+vtkLagrangeTriangle::vtkLagrangeTriangle() = default;
 
 //------------------------------------------------------------------------------
 vtkLagrangeTriangle::~vtkLagrangeTriangle() = default;

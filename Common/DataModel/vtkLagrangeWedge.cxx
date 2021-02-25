@@ -37,10 +37,7 @@
 
 vtkStandardNewMacro(vtkLagrangeWedge);
 
-vtkLagrangeWedge::vtkLagrangeWedge()
-  : vtkHigherOrderWedge()
-{
-}
+vtkLagrangeWedge::vtkLagrangeWedge() = default;
 
 vtkLagrangeWedge::~vtkLagrangeWedge() = default;
 

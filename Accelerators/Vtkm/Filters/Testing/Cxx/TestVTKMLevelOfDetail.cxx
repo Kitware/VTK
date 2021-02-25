@@ -86,8 +86,8 @@
 namespace
 {
 
-const static int NUM_SAMPLES = 1;
-const static int FONT_SIZE = 30;
+const int NUM_SAMPLES = 1;
+const int FONT_SIZE = 30;
 
 struct VTKmFilterGenerator
 {

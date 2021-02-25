@@ -166,7 +166,7 @@ void vtkCompositeControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType i
     const unsigned char* rgb = this->ColorTransferFunction->MapValue(xvms[0]);
     painter->GetBrush()->SetColorF(rgb[0] / 255., rgb[1] / 255., rgb[2] / 255., 0.55);
   }
-  this->vtkControlPointsItem::DrawPoint(painter, index);
+  this->Superclass::DrawPoint(painter, index);
 }
 
 //------------------------------------------------------------------------------

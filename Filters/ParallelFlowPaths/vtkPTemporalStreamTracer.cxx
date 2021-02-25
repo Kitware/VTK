@@ -233,7 +233,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   if (TotalParticles == 0)
     return;
   // Gather the data from all procs.
-  char* sendbuf = (char*)((sending.size() > 0) ? &(sending[0]) : nullptr);
+  char* sendbuf = (char*)(!sending.empty() ? &(sending[0]) : nullptr);
   char* recvbuf = (char*)(&(received[0]));
   com->AllGatherV(sendbuf, recvbuf, OurParticles * TypeSize, &recvLengths[0], &recvOffsets[0]);
   // Now all particles from all processors are in one big array

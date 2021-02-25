@@ -31,10 +31,7 @@
 
 vtkStandardNewMacro(vtkBezierQuadrilateral);
 
-vtkBezierQuadrilateral::vtkBezierQuadrilateral()
-  : vtkHigherOrderQuadrilateral()
-{
-}
+vtkBezierQuadrilateral::vtkBezierQuadrilateral() = default;
 
 vtkBezierQuadrilateral::~vtkBezierQuadrilateral() = default;
 

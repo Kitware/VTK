@@ -25,8 +25,8 @@
 
 namespace
 {
-static int inputDim = 9;
-static int sourceDim = 4;
+int inputDim = 9;
+int sourceDim = 4;
 void populatePointAndCellArray(vtkFloatArray* pointArray, vtkFloatArray* cellArray)
 {
   pointArray->SetNumberOfValues(sourceDim * sourceDim);

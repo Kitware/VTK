@@ -334,7 +334,7 @@ int vtkXMLReader::OpenVTKString()
     return 1;
   }
 
-  if (!this->Stream && this->InputString.compare("") == 0)
+  if (!this->Stream && this->InputString.empty())
   {
     vtkErrorMacro("Input string not specified");
     return 0;

@@ -123,12 +123,14 @@ int TestNew(int, char*[])
   {
     vtkNew<vtkIntArray> testArray1;
     vtkNew<vtkIntArray> testArray2(std::move(testArray1));
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     if (testArray1 || !testArray2)
     {
       std::cerr << "Error, move construction of vtkNew failed.\n";
       error = true;
     }
     vtkNew<vtkDataArray> testArray3(std::move(testArray2));
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     if (testArray2 || !testArray3)
     {
       std::cerr << "Error, move construction of vtkNew failed.\n";

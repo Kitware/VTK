@@ -157,7 +157,7 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::~vtkGDALRasterReaderInternal()
 //------------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::string& fileName)
 {
-  if (fileName.compare(this->PrevReadFileName) == 0)
+  if (fileName == this->PrevReadFileName)
   {
     return;
   }
@@ -819,7 +819,6 @@ void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkGDALRasterReader::vtkGDALRasterReader()
-  : vtkImageReader2()
 {
   this->Impl = new vtkGDALRasterReaderInternal(this);
 

@@ -90,6 +90,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "remark #11074: Inlining inhibited by limit (max-total-size|max-size)"
   # Ignore the suggestion line for more information too.
   "remark #11076: To get full report use"
+
+  # clang-tidy ignores
+  "vtkParse.tab.c.*bugprone-sizeof-expression"
+  "vtkParse.tab.c.*bugprone-suspicious-include"
+  "mocs_compilation.cpp.*bugprone-suspicious-include"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")

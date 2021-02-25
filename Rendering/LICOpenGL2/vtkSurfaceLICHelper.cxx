@@ -107,18 +107,9 @@ vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
 {
   this->ReleaseGraphicsResources(nullptr);
 
-  if (this->ColorPass)
-  {
-    delete this->ColorPass;
-  }
-  if (this->ColorEnhancePass)
-  {
-    delete this->ColorEnhancePass;
-  }
-  if (this->CopyPass)
-  {
-    delete this->CopyPass;
-  }
+  delete this->ColorPass;
+  delete this->ColorEnhancePass;
+  delete this->CopyPass;
   this->ColorPass = nullptr;
   this->ColorEnhancePass = nullptr;
   this->CopyPass = nullptr;

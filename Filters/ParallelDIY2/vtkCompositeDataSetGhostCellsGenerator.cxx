@@ -109,7 +109,7 @@ int vtkCompositeDataSetGhostCellsGenerator::RequestData(
   std::vector<vtkStructuredGrid*> outputsSG =
     vtkDIYUtilities::GetDataSets<vtkStructuredGrid>(outputDO);
 
-  if (inputsID.size() && inputsRG.size())
+  if (!inputsID.empty() && !inputsRG.empty())
   {
     vtkWarningMacro(<< "Ghost cell generator called with mixed types."
                     << "Ghosts are not exchanged between data sets of different types.");

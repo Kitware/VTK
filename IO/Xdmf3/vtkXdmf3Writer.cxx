@@ -388,7 +388,7 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
       std::string rankGridName = "/Xdmf/Domain/Grid[1]";
 
       shared_ptr<XdmfGridController> partController =
-        XdmfGridController::New(rankFileName.c_str(), rankGridName.c_str());
+        XdmfGridController::New(rankFileName, rankGridName);
 
       // tricky part is we have to state what type we are referencing to.
       // otherwise readback fails.

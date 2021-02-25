@@ -1909,6 +1909,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
 
     // Skip the unstructured grid base implementation, as it uses a less
     // efficient method of copying cell data.
+    // NOLINTNEXTLINE(bugprone-parent-virtual-call)
     this->vtkUnstructuredGridBase::Superclass::DeepCopy(grid);
   }
   else

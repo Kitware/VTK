@@ -97,10 +97,7 @@ vtkUnicodeString::value_type vtkASCIITextCodec::NextUnicode(istream& InputStream
     return 0;
 }
 
-vtkASCIITextCodec::vtkASCIITextCodec()
-  : vtkTextCodec()
-{
-}
+vtkASCIITextCodec::vtkASCIITextCodec() = default;
 
 vtkASCIITextCodec::~vtkASCIITextCodec() = default;
 

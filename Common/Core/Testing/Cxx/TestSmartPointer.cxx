@@ -118,6 +118,7 @@ int TestSmartPointer(int, char*[])
     }
 
     vtkSmartPointer<vtkIntArray> intArrayMoved(std::move(intArrayCopy));
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     if (intArrayCopy || !intArrayMoved || intArrayMoved->GetReferenceCount() != 2)
     {
       std::cerr << "Move constructing vtkSmartPointer yielded unexpected "
@@ -134,6 +135,7 @@ int TestSmartPointer(int, char*[])
     }
 
     vtkSmartPointer<vtkDataArray> dataArrayMoved(std::move(intArrayMoved));
+    // NOLINTNEXTLINE(bugprone-use-after-move)
     if (!dataArrayMoved || intArrayMoved || dataArrayMoved->GetReferenceCount() != 3)
     {
       std::cerr << "Cast move-constructing vtkSmartPointer failed.\n";

@@ -31,7 +31,7 @@ namespace
 
 //------------------------------------------------------------------------------
 // Mark points to be extracted
-static void MaskPoints(vtkIdType numPts, vtkIdType* map, vtkIdType offset, vtkIdType numFill)
+void MaskPoints(vtkIdType numPts, vtkIdType* map, vtkIdType offset, vtkIdType numFill)
 {
   std::fill_n(map, offset, static_cast<vtkIdType>(-1));
   std::fill_n(map + offset, numFill, static_cast<vtkIdType>(1));

@@ -23,8 +23,8 @@ namespace
 // This is used to initialize the last byte of the array when allocating memory
 // to prevent the presence of uninitialized bits that are out of range for the
 // array.
-static constexpr unsigned char InitializationMaskForUnusedBitsOfLastByte[8] = { 0xff, 0x80, 0xc0,
-  0xe0, 0xf0, 0xf8, 0xfc, 0xfe };
+constexpr unsigned char InitializationMaskForUnusedBitsOfLastByte[8] = { 0xff, 0x80, 0xc0, 0xe0,
+  0xf0, 0xf8, 0xfc, 0xfe };
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
