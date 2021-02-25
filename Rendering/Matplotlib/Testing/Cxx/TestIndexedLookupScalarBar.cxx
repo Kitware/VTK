@@ -380,8 +380,8 @@ class vtkScalarKeyboardCommand : public vtkCommand
 {
 public:
   static vtkScalarKeyboardCommand* New() { return new vtkScalarKeyboardCommand; }
-  virtual void Execute(
-    vtkObject* caller, unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  void Execute(
+    vtkObject* caller, unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData)) override
   {
     vtkRenderWindowInteractor* ri = vtkRenderWindowInteractor::SafeDownCast(caller);
     if (this->Lookup && this->RenderWindow && ri)
