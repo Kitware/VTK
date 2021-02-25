@@ -127,7 +127,7 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
       std::FILE* fp;
       char* fbuffer;
 
-      fp = std::fopen(fileName.c_str(), "rb");
+      fp = vtksys::SystemTools::Fopen(fileName, "rb");
       if (fp == nullptr)
       {
         vtkErrorWithObjectMacro(nullptr, "Could not open file on disk");
