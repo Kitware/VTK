@@ -204,3 +204,15 @@ build:documentation:
         - .linux_builder_tags
         - .cmake_doxygen_artifacts
         - .run_manually
+
+upload:documentation:
+    extends:
+        - .rsync_upload
+        - .upload_only
+    dependencies:
+        - build:documentation
+    needs:
+        - build:documentation
+    variables:
+        SRC_SUBDIR: install/usr/share/doc/vtk/doxygen/html/
+        RSYNC_DESTINATION: VTKDoxygen/html
