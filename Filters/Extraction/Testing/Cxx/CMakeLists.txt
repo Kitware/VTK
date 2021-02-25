@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestExtractBlockUsingDataAssembly.cxx,NO_VALID
   TestExtractCells.cxx,NO_VALID
   TestExtractDataArraysOverTime.cxx,NO_VALID
+  TestExtractExodusGlobalTemporalVariables.cxx,NO_VALID
   TestExtraction.cxx
   TestExtractionExpression.cxx
   TestExtractRectilinearGrid.cxx,NO_VALID,NO_DATA

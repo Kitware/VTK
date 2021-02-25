@@ -15,8 +15,7 @@
 #include "vtkExtractExodusGlobalTemporalVariables.h"
 
 #include "vtkAbstractArray.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
@@ -41,28 +40,95 @@ class vtkExtractExodusGlobalTemporalVariables::vtkInternals
 {
   std::map<std::string, vtkSmartPointer<vtkAbstractArray>> Arrays;
 
+  // Returns if the array is extractable.
+  bool IsSuitableArray(vtkAbstractArray* array) const
+  {
+    if (!this->TemporalArraysOnly)
+    {
+      // we don't support multi-tuple arrays.
+      return (array != nullptr && array->GetNumberOfTuples() == 1);
+    }
+
+    vtkNew<vtkInformationIterator> iter;
+    iter->SetInformationWeak(array->GetInformation());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      auto key = iter->GetCurrentKey();
+      // ref: vtkExodusIIReader::GLOBAL_TEMPORAL_VARIABLE
+      if (key && key->GetName() && strcmp(key->GetName(), "GLOBAL_TEMPORAL_VARIABLE") == 0)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
 public:
   bool InContinueExecuting = false;
   size_t Offset = 0;
   std::vector<double> TimeSteps;
+  bool TemporalArraysOnly = false;
 
-  static vtkFieldData* Validate(vtkFieldData* fd)
+  bool HasTemporalArrays(vtkFieldData* fd) const
   {
-    vtkNew<vtkInformationIterator> iter;
-    for (int cc = 0, max = (fd ? fd->GetNumberOfArrays() : 0); cc < max; ++cc)
+    for (int cc = 0, max = fd->GetNumberOfArrays(); cc < max; ++cc)
     {
-      auto arr = fd->GetAbstractArray(cc);
-      iter->SetInformationWeak(arr->GetInformation());
+      auto array = fd->GetAbstractArray(cc);
+      vtkNew<vtkInformationIterator> iter;
+      iter->SetInformationWeak(array->GetInformation());
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         auto key = iter->GetCurrentKey();
         // ref: vtkExodusIIReader::GLOBAL_TEMPORAL_VARIABLE
         if (key && key->GetName() && strcmp(key->GetName(), "GLOBAL_TEMPORAL_VARIABLE") == 0)
         {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Returns a map of extractable arrays.
+  std::map<std::string, vtkAbstractArray*> GetSuitableArrays(vtkFieldData* fd) const
+  {
+    if (!fd)
+    {
+      return {};
+    }
+
+    const auto numArrays = fd->GetNumberOfArrays();
+    std::map<std::string, vtkAbstractArray*> arrays;
+    for (int cc = 0; cc < numArrays; ++cc)
+    {
+      auto array = fd->GetAbstractArray(cc);
+      if (this->IsSuitableArray(array))
+      {
+        arrays[array->GetName()] = array;
+      }
+    }
+    return arrays;
+  }
+
+  // Returns field data to extract arrays from.
+  vtkFieldData* GetFieldData(vtkDataObject* input) const
+  {
+    auto fd = input->GetFieldData();
+    if (fd && fd->GetNumberOfArrays() > 1)
+    {
+      return fd;
+    }
+
+    if (auto cd = vtkCompositeDataSet::SafeDownCast(input))
+    {
+      for (auto dobj : vtk::Range(cd))
+      {
+        fd = dobj ? dobj->GetFieldData() : nullptr;
+        if (fd && fd->GetNumberOfArrays() > 1)
+        {
           return fd;
         }
       }
-      iter->SetInformationWeak(nullptr);
     }
     return nullptr;
   }
@@ -75,31 +141,8 @@ public:
     this->Offset = 0;
   }
 
-  bool Accumulate(vtkFieldData* fd)
+  bool Accumulate(const std::map<std::string, vtkAbstractArray*>& arrays)
   {
-    std::map<std::string, vtkSmartPointer<vtkAbstractArray>> arrays;
-
-    for (int cc = 0, max = (fd ? fd->GetNumberOfArrays() : 0); cc < max; ++cc)
-    {
-      auto arr = fd->GetAbstractArray(cc);
-      vtkNew<vtkInformationIterator> iter;
-      iter->SetInformationWeak(arr->GetInformation());
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-        auto key = iter->GetCurrentKey();
-        // ref: vtkExodusIIReader::GLOBAL_TEMPORAL_VARIABLE
-        if (key && key->GetName() && strcmp(key->GetName(), "GLOBAL_TEMPORAL_VARIABLE") == 0 &&
-          arr->GetName())
-        {
-          if (arrays.empty() ||
-            arrays.begin()->second->GetNumberOfTuples() == arr->GetNumberOfTuples())
-          {
-            arrays[arr->GetName()] = arr;
-          }
-        }
-      }
-    }
-
     if (arrays.empty())
     {
       return false;
@@ -113,7 +156,11 @@ public:
       // we deep copy the array to avoid manipulating input values.
       if (total_number_of_tuples == this->TimeSteps.size())
       {
-        this->Arrays = std::move(arrays);
+        this->Arrays.clear();
+        for (const auto& pair : arrays)
+        {
+          this->Arrays.emplace(pair.first, pair.second);
+        }
       }
       else
       {
@@ -158,7 +205,6 @@ public:
 
   void GetResult(vtkTable* table)
   {
-    table->Initialize();
     auto rowData = table->GetRowData();
     for (const auto& pair : this->Arrays)
     {
@@ -179,6 +225,7 @@ vtkStandardNewMacro(vtkExtractExodusGlobalTemporalVariables);
 //------------------------------------------------------------------------------
 vtkExtractExodusGlobalTemporalVariables::vtkExtractExodusGlobalTemporalVariables()
   : Internals(new vtkExtractExodusGlobalTemporalVariables::vtkInternals())
+  , AutoDetectGlobalTemporalDataArrays(true)
 {
 }
 
@@ -207,8 +254,7 @@ void vtkExtractExodusGlobalTemporalVariables::SetContinuationState(
 int vtkExtractExodusGlobalTemporalVariables::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
 }
 
@@ -285,35 +331,39 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
   }
 
   vtkTable* output = vtkTable::GetData(outputVector, 0);
+  auto input = vtkDataObject::GetData(inputVector[0], 0);
 
-  vtkFieldData* fd = nullptr;
-  if (auto cd = vtkCompositeDataSet::GetData(inputVector[0], 0))
-  {
-    fd = vtkInternals::Validate(cd->GetFieldData());
-    auto iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal() && fd == nullptr; iter->GoToNextItem())
-    {
-      if (auto ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
-      {
-        fd = vtkInternals::Validate(ds->GetFieldData());
-      }
-    }
-    iter->Delete();
-  }
-  else if (auto ds = vtkDataSet::GetData(inputVector[0], 0))
-  {
-    fd = vtkInternals::Validate(ds->GetFieldData());
-  }
-
-  if (fd == nullptr)
+  auto fd = internals.GetFieldData(input);
+  if (!fd)
   {
     // nothing to do.
-    vtkLogF(TRACE, "rd: no fd, nothing to do");
+    vtkLogF(TRACE, "rd: no suitable fd, nothing to do");
     return 1;
   }
 
-  bool isFirst = (internals.Offset == 0);
-  internals.Accumulate(fd);
+  const bool isFirst = (internals.Offset == 0);
+
+  if (isFirst)
+  {
+    if (this->AutoDetectGlobalTemporalDataArrays)
+    {
+      internals.TemporalArraysOnly = internals.HasTemporalArrays(fd);
+    }
+    else
+    {
+      internals.TemporalArraysOnly = false;
+    }
+  }
+
+  const auto arrays = internals.GetSuitableArrays(fd);
+  if (arrays.empty())
+  {
+    // nothing to do.
+    vtkLogF(TRACE, "rd: no suitable arrays, nothing to do");
+    return 1;
+  }
+
+  internals.Accumulate(arrays);
   if (internals.ContinueExecuting())
   {
     // if this is the first time we're executing and we didn't get all timesteps
@@ -331,6 +381,8 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
       static_cast<int>(internals.TimeSteps.size()));
     internals.InContinueExecuting = true;
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+
+    this->UpdateProgress(static_cast<double>(internals.Offset) / internals.TimeSteps.size());
     return 1;
   }
   else
@@ -349,6 +401,8 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
     {
       vtkLogF(TRACE, "rd: empty result");
     }
+
+    this->UpdateProgress(1.0);
     return 1;
   }
 }
@@ -357,4 +411,6 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
 void vtkExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "AutoDetectGlobalTemporalDataArrays: " << this->AutoDetectGlobalTemporalDataArrays
+     << endl;
 }
