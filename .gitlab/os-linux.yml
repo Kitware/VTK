@@ -149,10 +149,32 @@
         - docker
         - linux
 
+.linux_qt_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux
+        - linux-3.17
+
 .linux_tester_tags:
     tags:
         - docker
         - linux
+        - x11
+
+.linux_qt_tester_tags:
+    tags:
+        - docker
+        - linux
+        - linux-3.17
+        - x11
+
+.linux_qt_tester_priv_tags:
+    tags:
+        - docker
+        - linux
+        - linux-3.17
+        - privileged
         - x11
 
 .linux_tester_priv_tags:
