@@ -46,6 +46,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::FiltersModelingCxx-TestQuadRotationalExtrusionMultiBlock$"
     "^VTK::FiltersModelingPython-TestCookieCutter$"
     "^VTK::FiltersModelingPython-TestCookieCutter3$"
+    "^VTK::FiltersModelingPython-TestImprintFilter2$"
+    "^VTK::FiltersModelingPython-TestImprintFilter3$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIoss$"
     "^VTK::FiltersPointsPython-TestConnectedPointsFilter$"
     "^VTK::FiltersPointsPython-TestFitImplicitFunction$"
@@ -67,6 +69,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
+    "^VTK::IOChemistryPython-TestXYZMol$"
+    "^VTK::IOChemistryPython-caffeine$"
+    "^VTK::IOChemistryPython-caffeine_notrailingwhitespaces$"
     "^VTK::IOGeometryPython-ParticleReader$"
     "^VTK::IOImageCxx-TestCompressedTIFFReader$"
     "^VTK::IOImageCxx-TestDICOMImageReader$"
@@ -97,6 +102,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CellScalars$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestRemoveVolumeNonCurrentContext$"
+    "^VTK::RenderingVolumePython-gaussian$"
     "^VTKExample-Medical/Cxx$")
 endif ()
 
