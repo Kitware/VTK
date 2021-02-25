@@ -337,14 +337,16 @@ protected:
   void AddComplexVariableType(int variableType);
   //@}
 
-  //@{
   /**
    * Replace the wildcards in the geometry file name with appropriate filename
    * numbers as specified in the time set or file set.
    */
   int ReplaceWildcards(char* fileName, int timeSet, int fileSet);
-  void ReplaceWildcardsHelper(char* fileName, int num);
-  //@}
+
+  /**
+   * Replace the *'s in the filename with the given filename number.
+   */
+  static void ReplaceWildcardsHelper(char* fileName, int num);
 
   // Callback registered with the SelectionObserver.
   static void SelectionModifiedCallback(

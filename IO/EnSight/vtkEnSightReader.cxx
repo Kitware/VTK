@@ -251,7 +251,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
             filenameNum = filenameNumbers->GetId(timeStep - 1);
             if (!this->UseFileSets)
             {
-              this->ReplaceWildcards(fileName, filenameNum);
+              vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
             }
           }
         }
@@ -285,7 +285,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
             {
               filenameNumbers = this->FileSetFileNameNumbers->GetItem(collectionNum);
               filenameNum = filenameNumbers->GetId(fileNum - 1);
-              this->ReplaceWildcards(fileName, filenameNum);
+              vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
             }
           }
         }
@@ -334,7 +334,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
             filenameNum = filenameNumbers->GetId(timeStep - 1);
             if (!this->UseFileSets)
             {
-              this->ReplaceWildcards(fileName, filenameNum);
+              vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
             }
           }
         }
@@ -368,7 +368,7 @@ int vtkEnSightReader::RequestData(vtkInformation* vtkNotUsed(request),
             {
               filenameNumbers = this->FileSetFileNameNumbers->GetItem(fileSet);
               filenameNum = filenameNumbers->GetId(fileNum - 1);
-              this->ReplaceWildcards(fileName, filenameNum);
+              vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
             }
           }
         }
@@ -1501,10 +1501,9 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
         {
           filenameNumbers = this->TimeSetFileNameNumbers->GetItem(collectionNum);
           filenameNum = filenameNumbers->GetId(timeStep - 1);
-          // this->ReplaceWildcards(fileName, filenameNum);
           if (!this->UseFileSets)
           {
-            this->ReplaceWildcards(fileName, filenameNum);
+            vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
           }
         }
       }
@@ -1540,7 +1539,7 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
           {
             filenameNumbers = this->FileSetFileNameNumbers->GetItem(collectionNum);
             filenameNum = filenameNumbers->GetId(fileNum);
-            this->ReplaceWildcards(fileName, filenameNum);
+            vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
           }
         }
       }
@@ -1650,8 +1649,8 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
         {
           filenameNumbers = this->TimeSetFileNameNumbers->GetItem(collectionNum);
           filenameNum = filenameNumbers->GetId(timeStep - 1);
-          this->ReplaceWildcards(fileName, filenameNum);
-          this->ReplaceWildcards(fileName2, filenameNum);
+          vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
+          vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName2, filenameNum);
         }
       }
 
@@ -1686,8 +1685,8 @@ int vtkEnSightReader::ReadVariableFiles(vtkMultiBlockDataSet* output)
           {
             filenameNumbers = this->FileSetFileNameNumbers->GetItem(collectionNum);
             filenameNum = filenameNumbers->GetId(timeStep - 1);
-            this->ReplaceWildcards(fileName, filenameNum);
-            this->ReplaceWildcards(fileName2, filenameNum);
+            vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, filenameNum);
+            vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName2, filenameNum);
           }
         }
       }
@@ -2049,9 +2048,10 @@ int vtkEnSightReader::GetElementType(const char* line)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 {
-  this->ReplaceWildcardsHelper(filename, num);
+  vtkGenericEnSightReader::ReplaceWildcardsHelper(filename, num);
 }
 
 //------------------------------------------------------------------------------

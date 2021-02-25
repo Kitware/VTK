@@ -1278,39 +1278,50 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
 //------------------------------------------------------------------------------
 void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
 {
-  int wildcardPos, numWildcards, i, j;
+  // TODO Rewrite using std::regex and std::string
+
+  int wildcardPos = static_cast<int>(strcspn(filename, "*"));
+  int numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
+
   char pattern[32];
-  char numStr[32];
-  char filenameTmp[2048];
-  int len, cnt, numStrLen;
-  int foundWildcard = 0;
-
-  wildcardPos = static_cast<int>(strcspn(filename, "*"));
-  numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
-
   if (numWildcards < 1)
+  {
     return;
+  }
   else if (numWildcards == 1)
+  {
     strcpy(pattern, "%d");
+  }
   else
+  {
     snprintf(pattern, sizeof(pattern), "%%0%dd", numWildcards);
+  }
+
+  char numStr[32];
   snprintf(numStr, sizeof(numStr), pattern, num);
-  numStrLen = static_cast<int>(strlen(numStr));
-  len = static_cast<int>(strlen(filename));
-  cnt = 0;
-  for (i = 0; i < len; i++)
+
+  int numStrLen = static_cast<int>(strlen(numStr));
+  int len = static_cast<int>(strlen(filename));
+  int cnt = 0;
+  int foundWildcard = 0;
+  char filenameTmp[2048];
+  for (int i = 0; i < len; i++)
   {
     if (filename[i] == '*')
     {
       if (foundWildcard == 0)
       {
-        for (j = 0; j < numStrLen; j++)
+        for (int j = 0; j < numStrLen; j++)
+        {
           filenameTmp[cnt++] = numStr[j];
+        }
         foundWildcard = 1;
       }
     }
     else
+    {
       filenameTmp[cnt++] = filename[i];
+    }
   }
   filenameTmp[cnt] = '\0';
   strcpy(filename, filenameTmp);
