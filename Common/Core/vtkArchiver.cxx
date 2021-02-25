@@ -15,6 +15,7 @@
 #include "vtkArchiver.h"
 
 #include <vtkObjectFactory.h>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <fstream>
@@ -63,7 +64,7 @@ void vtkArchiver::InsertIntoArchive(
 
   vtksys::SystemTools::MakeDirectory(vtksys::SystemTools::GetFilenamePath(path.str()));
 
-  std::ofstream out(path.str().c_str(), std::ios::out | std::ios::binary);
+  vtksys::ofstream out(path.str().c_str(), std::ios::out | std::ios::binary);
   out.write(data, static_cast<std::streamsize>(size));
   out.close();
 }
