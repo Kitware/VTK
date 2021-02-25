@@ -5,8 +5,6 @@ LIBRARY_NAME
 DESCRIPTION
   File readers used in chemistry
 IMPLEMENTABLE
-KIT
-  VTK::IO
 GROUPS
   StandAlone
 DEPENDS
