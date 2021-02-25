@@ -2,6 +2,7 @@ include:
     # Metadata shared my many jobs
     - local: .gitlab/rules.yml
     - local: .gitlab/artifacts.yml
+    - local: .gitlab/upload.yml
 
     # OS builds.
     - local: .gitlab/os-linux.yml
@@ -10,6 +11,7 @@ stages:
     - build
     - test
     - test-ext
+    - upload
 
 ################################################################################
 # Job declarations
