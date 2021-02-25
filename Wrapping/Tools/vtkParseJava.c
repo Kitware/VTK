@@ -815,7 +815,6 @@ void outputStringConversionVariables(FILE* fp)
 
 void outputFunction(FILE* fp, ClassInfo* data)
 {
-  int i;
   unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   int args_ok = checkFunctionSignature(data);
 
