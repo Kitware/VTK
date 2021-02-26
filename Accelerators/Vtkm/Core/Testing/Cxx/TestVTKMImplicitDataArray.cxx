@@ -19,9 +19,10 @@
 //------------------------------------------------------------------------------
 int TestVTKMImplicitDataArray(int, char*[])
 {
-  typedef std::function<double(const std::array<double, 3>&)> ScalarFunction;
+  // typedef std::function<double(const std::array<double, 3>&)> ScalarFunction;
+  using ScalarFunction = double(const std::array<double, 3>&);
 
-  ScalarFunction function = [](const std::array<double, 3>& p) {
+  ScalarFunction* function = [](const std::array<double, 3>& p) {
     return sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
   };
 
@@ -42,13 +43,15 @@ int TestVTKMImplicitDataArray(int, char*[])
   struct Shim
   {
     Shim() = default;
-    Shim(const ScalarFunction& f, vtkImageData* i)
+    Shim(ScalarFunction* f, vtkImageData* i)
       : function(f)
       , imageDataPtr(i)
     {
     }
-    ScalarFunction function;
-    vtkImageData* imageDataPtr;
+
+    ScalarFunction* function = nullptr;
+    vtkImageData* imageDataPtr = nullptr;
+
     double operator()(vtkm::Id i) const
     {
       std::array<double, 3> p;

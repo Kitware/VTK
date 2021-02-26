@@ -3,7 +3,7 @@
 # in cuda. We have not identified the root cause of the problem yet.
 vtk_add_test_cxx(vtkAcceleratorsVTKmCoreCxxTests tests
   TestVTKMDataArray.cxx,NO_VALID
-  TestVTKMImplicitDataArray,VALID
+  TestVTKMImplicitDataArray.cxx,VALID
   )
 
 if (TARGET vtkm::cuda)
