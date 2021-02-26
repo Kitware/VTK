@@ -253,10 +253,12 @@ protected:
 
   /**
    * Replace the *'s in the filename with the given filename number.
-   * Note: This method hides the superclass method
    */
   VTK_DEPRECATED_IN_9_1_0("Use vtkGenericEnSightReader::ReplaceWildcardsHelper instead.")
   void ReplaceWildcards(char* filename, int num);
+
+  // Remove when removing the deprecated method above.
+  using vtkGenericEnSightReader::ReplaceWildcards;
 
   /**
    * Remove leading blank spaces from a string.
