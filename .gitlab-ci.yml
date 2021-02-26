@@ -58,7 +58,7 @@ test-ext:vtk:fedora33-mpi-renderless:
     extends:
         - .fedora33_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_tidy_artifacts
         - .run_automatically
     dependencies:
@@ -70,7 +70,7 @@ test-ext:vtk:fedora33-mpi-renderless:
 #     extends:
 #         - .fedora33_java_mpi_qt_tbb
 #         - .cmake_build_linux
-#         - .linux_builder_tags
+#         - .linux_qt_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     # The Java build extends the build time considerably.
@@ -80,7 +80,7 @@ test-ext:vtk:fedora33-mpi-renderless:
 #     extends:
 #         - .fedora33_java_mpi_qt_tbb
 #         - .cmake_test_linux
-#         - .linux_tester_tags
+#         - .linux_qt_tester_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     dependencies:
@@ -92,7 +92,7 @@ build:fedora33-mpi-python-qt-tbb:
     extends:
         - .fedora33_mpi_python_qt_tbb
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_build_artifacts
         - .run_manually
 
@@ -100,7 +100,7 @@ test:fedora33-mpi-python-qt-tbb:
     extends:
         - .fedora33_mpi_python_qt_tbb
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_qt_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
@@ -112,7 +112,7 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     extends:
         - .fedora33_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_tidy_artifacts
         - .run_automatically
     dependencies:
@@ -139,7 +139,7 @@ build:fedora33-asan:
     extends:
         - .fedora33_asan
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_build_artifacts
         - .run_manually
 
@@ -147,7 +147,7 @@ test:fedora33-asan:
     extends:
         - .fedora33_asan
         - .cmake_memcheck_linux
-        - .linux_tester_priv_tags
+        - .linux_qt_tester_priv_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
@@ -159,7 +159,7 @@ build:fedora33-tsan:
     extends:
         - .fedora33_tsan
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_build_artifacts
         - .run_manually
 
@@ -167,7 +167,7 @@ test:fedora33-tsan:
     extends:
         - .fedora33_tsan
         - .cmake_memcheck_linux
-        - .linux_tester_priv_tags
+        - .linux_qt_tester_priv_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
@@ -179,7 +179,7 @@ build:fedora33-ubsan:
     extends:
         - .fedora33_ubsan
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_build_artifacts
         - .run_manually
 
@@ -187,7 +187,7 @@ test:fedora33-ubsan:
     extends:
         - .fedora33_ubsan
         - .cmake_memcheck_linux
-        - .linux_tester_priv_tags
+        - .linux_qt_tester_priv_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
@@ -201,7 +201,7 @@ build:documentation:
     extends:
         - .fedora33_doxygen_mpi_python_qt_tbb
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_doxygen_artifacts
         - .run_manually
 
