@@ -101,7 +101,7 @@ protected:
    *
    * @return Unique number for the atom type.
    */
-  static unsigned int MakeAtomType(const char* atomType);
+  unsigned int MakeAtomType(const char* atomType);
 
   /**
    * Creates molecular bonds (VTK cells) given atomic coordinates (VTK points) and atom types.
@@ -114,7 +114,7 @@ protected:
    */
   unsigned int MakeBonds(vtkPoints* points, vtkIdTypeArray* atomTypes, vtkCellArray* newBonds);
 
-  static vtkSmartPointer<vtkPeriodicTable> PeriodicTable;
+  vtkNew<vtkPeriodicTable> PeriodicTable;
   vtkSmartPointer<vtkMolecule> Molecule;
   vtkSmartPointer<vtkPoints> Points;
   vtkSmartPointer<vtkUnsignedCharArray> RGB;

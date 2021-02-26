@@ -31,9 +31,6 @@
 
 #include <cctype>
 
-vtkSmartPointer<vtkPeriodicTable> vtkMoleculeReaderBase::PeriodicTable =
-  vtkSmartPointer<vtkPeriodicTable>::New();
-
 vtkMoleculeReaderBase::vtkMoleculeReaderBase()
 {
   this->FileName = nullptr;
@@ -253,6 +250,9 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
   for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
   {
     this->PeriodicTable->GetDefaultRGBTuple(AtomType->GetValue(i), rgb);
+    rgb[0] *= 255;
+    rgb[1] *= 255;
+    rgb[2] *= 255;
     this->RGB->InsertNextTuple(rgb);
   }
   output->GetPointData()->SetScalars(this->RGB);
@@ -275,7 +275,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
   // vector in order to use Glyph3D to color AND scale at the same time.
   for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
   {
-    double radius = vtkMoleculeReaderBase::PeriodicTable->GetVDWRadius(AtomType->GetValue(i));
+    double radius = this->PeriodicTable->GetVDWRadius(AtomType->GetValue(i));
     this->Radii->InsertNextTuple3(radius, radius, radius);
   }
   output->GetPointData()->SetVectors(this->Radii);
@@ -321,8 +321,8 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
     /* Find all the atoms in the neighborhood at the max acceptable
      * bond distance
      */
-    radius = (vtkMoleculeReaderBase::PeriodicTable->GetCovalentRadius(atom1Type) + 2.0 + 0.56) *
-      std::max(BScale, HBScale);
+    radius =
+      (this->PeriodicTable->GetCovalentRadius(atom1Type) + 2.0 + 0.56) * std::max(BScale, HBScale);
     locator->FindPointsWithinRadius(radius, X, neighborAtoms);
 
     for (vtkIdType k = neighborAtoms->GetNumberOfIds() - 1; k >= 0; --k)
@@ -353,8 +353,8 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
         continue;
       }
 
-      dist = vtkMoleculeReaderBase::PeriodicTable->GetCovalentRadius(atom1Type) +
-        vtkMoleculeReaderBase::PeriodicTable->GetCovalentRadius(atom2Type) + 0.56;
+      dist = this->PeriodicTable->GetCovalentRadius(atom1Type) +
+        this->PeriodicTable->GetCovalentRadius(atom2Type) + 0.56;
       max = dist * dist;
 
       if (atom1Type == 1 || atom2Type == 1)
@@ -402,7 +402,7 @@ unsigned int vtkMoleculeReaderBase::MakeAtomType(const char* atomType)
     atomTypeName[1] = tolower(atomTypeName[1]);
   }
 
-  unsigned int atomNumber = vtkMoleculeReaderBase::PeriodicTable->GetAtomicNumber(atomTypeName);
+  unsigned int atomNumber = this->PeriodicTable->GetAtomicNumber(atomTypeName);
 
   // This check is required for atom type symbols that do not exist in the dataset, such as O1, N1.
   if (atomNumber != 0)
@@ -411,7 +411,7 @@ unsigned int vtkMoleculeReaderBase::MakeAtomType(const char* atomType)
   }
   else
   {
-    return vtkMoleculeReaderBase::PeriodicTable->GetAtomicNumber(std::string(1, atomTypeName[0]));
+    return this->PeriodicTable->GetAtomicNumber(std::string(1, atomTypeName[0]));
   }
 }
 

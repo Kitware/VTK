@@ -69,9 +69,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
-    "^VTK::IOChemistryPython-TestXYZMol$"
-    "^VTK::IOChemistryPython-caffeine$"
-    "^VTK::IOChemistryPython-caffeine_notrailingwhitespaces$"
     "^VTK::IOGeometryPython-ParticleReader$"
     "^VTK::IOImageCxx-TestCompressedTIFFReader$"
     "^VTK::IOImageCxx-TestDICOMImageReader$"
@@ -102,7 +99,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CellScalars$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestRemoveVolumeNonCurrentContext$"
-    "^VTK::RenderingVolumePython-gaussian$"
     "^VTKExample-Medical/Cxx$")
 endif ()
 
