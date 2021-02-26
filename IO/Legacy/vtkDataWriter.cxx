@@ -2238,7 +2238,7 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
   // Use cell array iterator to convert new VTK cell data array
   // into form that can be readily output in legacy format.
   auto iter = vtk::TakeSmartPointer(cells->NewIterator());
-  const vtkIdType* pts = 0;
+  const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
 
   if (this->FileType == VTK_ASCII)
