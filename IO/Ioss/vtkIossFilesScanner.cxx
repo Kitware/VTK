@@ -155,6 +155,57 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
 
   return result;
 }
+
+//----------------------------------------------------------------------------
+bool vtkIossFilesScanner::DoTestFilePatternMatching()
+{
+  auto verify = [](const std::set<std::string>& original,
+                  const std::vector<std::string>& dir_listing,
+                  const std::set<std::string>& expected) {
+    return (vtkIossFilesScanner::GetRelatedFiles(original, dir_listing) == expected);
+  };
+
+  if (!verify({ "mysimoutput.e-s.000" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "/tmp/mysimoutput.e-s.000" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
+        { "/tmp/mysimoutput.e-s.000", "/tmp/mysimoutput.e-s.001", "/tmp/mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "C:\\Directory\\mysimoutput.e-s.000" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
+        { "C:/Directory/mysimoutput.e-s.000", "C:/Directory/mysimoutput.e-s.001",
+          "C:/Directory/mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "/tmp space/mysimoutput.e-s.000" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
+        { "/tmp space/mysimoutput.e-s.000", "/tmp space/mysimoutput.e-s.001",
+          "/tmp space/mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "C:\\Directory space\\mysimoutput.e-s.000" },
+        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
+        { "C:/Directory space/mysimoutput.e-s.000", "C:/Directory space/mysimoutput.e-s.001",
+          "C:/Directory space/mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  return true;
+}
+
 //----------------------------------------------------------------------------
 void vtkIossFilesScanner::PrintSelf(ostream& os, vtkIndent indent)
 {

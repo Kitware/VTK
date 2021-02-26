@@ -345,6 +345,11 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  /**
+   * Runs a bunch of tests for file pattern matching.
+   */
+  static bool DoTestFilePatternMatching();
+
 protected:
   vtkIossReader();
   ~vtkIossReader() override;
