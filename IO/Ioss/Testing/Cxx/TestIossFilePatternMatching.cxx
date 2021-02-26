@@ -15,54 +15,10 @@
 /**
  * Test vtkIossReader::GetRelatedFiles(...).
  */
-#include "vtkIossFilesScanner.h"
+#include "vtkIossReader.h"
 #include "vtkObject.h"
-
-bool Verify(const std::set<std::string>& original, const std::vector<std::string>& dir_listing,
-  const std::set<std::string>& expected)
-{
-  return (vtkIossFilesScanner::GetRelatedFiles(original, dir_listing) == expected);
-}
 
 int TestIossFilePatternMatching(int, char*[])
 {
-  if (Verify({ "mysimoutput.e-s.000" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" }))
-  {
-    return EXIT_SUCCESS;
-  }
-
-  if (Verify({ "/tmp/mysimoutput.e-s.000" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
-        { "/tmp/mysimoutput.e-s.000", "/tmp/mysimoutput.e-s.001", "/tmp/mysimoutput.e-s.002" }))
-  {
-    return EXIT_SUCCESS;
-  }
-
-  if (Verify({ "C:\\Directory\\mysimoutput.e-s.000" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
-        { "C:/Directory/mysimoutput.e-s.000", "C:/Directory/mysimoutput.e-s.001",
-          "C:/Directory/mysimoutput.e-s.002" }))
-  {
-    return EXIT_SUCCESS;
-  }
-
-  if (Verify({ "/tmp space/mysimoutput.e-s.000" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
-        { "/tmp space/mysimoutput.e-s.000", "/tmp space/mysimoutput.e-s.001",
-          "/tmp space/mysimoutput.e-s.002" }))
-  {
-    return EXIT_SUCCESS;
-  }
-
-  if (Verify({ "C:\\Directory space\\mysimoutput.e-s.000" },
-        { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
-        { "C:/Directory space/mysimoutput.e-s.000", "C:/Directory space/mysimoutput.e-s.001",
-          "C:/Directory space/mysimoutput.e-s.002" }))
-  {
-    return EXIT_SUCCESS;
-  }
-
-  return EXIT_FAILURE;
+  return vtkIossReader::DoTestFilePatternMatching() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

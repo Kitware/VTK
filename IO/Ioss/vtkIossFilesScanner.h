@@ -60,6 +60,11 @@ public:
   static std::set<std::string> GetRelatedFiles(const std::set<std::string>& originalSet,
     const std::vector<std::string>& directoryListing = std::vector<std::string>());
 
+  /**
+   * Runs a bunch of tests for file pattern matching.
+   */
+  static bool DoTestFilePatternMatching();
+
 protected:
   vtkIossFilesScanner();
   ~vtkIossFilesScanner() override;

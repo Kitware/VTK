@@ -1890,6 +1890,12 @@ const char* vtkIossReader::GetDataAssemblyNodeNameForEntityType(int type)
 }
 
 //----------------------------------------------------------------------------
+bool vtkIossReader::DoTestFilePatternMatching()
+{
+  return vtkIossFilesScanner::DoTestFilePatternMatching();
+}
+
+//----------------------------------------------------------------------------
 void vtkIossReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
