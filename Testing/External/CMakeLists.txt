@@ -20,6 +20,10 @@ find_package(VTK REQUIRED NO_MODULE)
 # Tests use some macros only stored in VTK's source tree.
 list(APPEND CMAKE_MODULE_PATH "${VTK_TOP_DIR}/CMake")
 
+if (VTK_QT_VERSION)
+  set(vtk_qt_major_version "${VTK_QT_VERSION}")
+endif ()
+
 # Include VTK's external data settings.
 include(vtkExternalData)
 
