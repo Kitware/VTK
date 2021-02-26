@@ -122,15 +122,21 @@ int vtkGaussianCubeReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Read in number of atoms, x-origin, y-origin z-origin
-  //
-  if (fscanf(fp, "%lld %lf %lf %lf", &(this->NumberOfAtoms), &elements[3], &elements[7],
-        &elements[11]) != 4)
+
+  // Need to read number of atoms into a temp variable to avoid issues with the variable
+  // size of vtkIdType
+  long long numberOfAtoms;
+  if (fscanf(fp, "%lld %lf %lf %lf", &numberOfAtoms, &elements[3], &elements[7], &elements[11]) !=
+    4)
   {
     vtkErrorMacro("GaussianCubeReader error reading file: "
       << this->FileName << " Premature EOF while reading atoms, x-origin y-origin z-origin.");
     fclose(fp);
     return 0;
   }
+
+  this->NumberOfAtoms = numberOfAtoms;
+
   if (this->NumberOfAtoms < 0)
   {
     this->NumberOfAtoms = -this->NumberOfAtoms;
