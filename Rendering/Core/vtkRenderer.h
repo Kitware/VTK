@@ -55,6 +55,9 @@ class vtkRendererDelegate;
 class vtkRenderPass;
 class vtkTexture;
 
+class vtkRecti;
+class vtkVector3d;
+
 class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
 {
 public:
@@ -413,6 +416,19 @@ public:
    * Use a screen space bounding box to zoom closer to the data.
    */
   virtual void ResetCameraScreenSpace(const double bounds[6]);
+
+  using vtkViewport::DisplayToWorld;
+
+  /**
+   * Convert a vtkVector3d from display space to world space.
+   */
+  vtkVector3d DisplayToWorld(const vtkVector3d& display);
+
+  /**
+   * Automatically set up the camera focal point and zoom factor to
+   * observe the rect.
+   */
+  void ZoomToBoxUsingViewAngle(const vtkRecti& box);
 
   /**
    * Alternative version of ResetCameraScreenSpace(bounds[6]);
