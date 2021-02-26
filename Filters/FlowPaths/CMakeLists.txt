@@ -23,5 +23,9 @@ set(classes
   vtkVectorFieldTopology
   vtkVortexCore)
 
+set(headers
+  vtkLagrangianThreadedData.h)
+
 vtk_module_add_module(VTK::FiltersFlowPaths
-  CLASSES ${classes})
+  CLASSES ${classes}
+  HEADERS ${headers})
