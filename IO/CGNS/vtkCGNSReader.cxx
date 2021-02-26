@@ -25,6 +25,7 @@
 #include "vtkCGNSReaderInternal.h" // For parsing information request
 
 #include "vtkAssume.h"
+#include "vtkCGNSCache.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -509,6 +510,14 @@ public:
     CGNS_ENUMT(GridLocation_t) locationParam, vtkDataSet* dataset, vtkCGNSReader* self);
 
   static std::string GenerateMeshKey(const char* basename, const char* zonename);
+
+  vtkPrivate();
+  ~vtkPrivate();
+
+  CGNSRead::vtkCGNSMetaData* Internal;               // Metadata
+  CGNSRead::vtkCGNSCache<vtkPoints> MeshPointsCache; // Cache for the mesh points
+  CGNSRead::vtkCGNSCache<vtkUnstructuredGrid>
+    ConnectivitiesCache; // Cache for the mesh connectivities
 };
 
 // Helpers for FlowSolutionxxxPointers
@@ -572,8 +581,24 @@ const char* get_data_type(const CGNS_ENUMT(DataType_t) dt)
 }
 
 //----------------------------------------------------------------------------
-vtkCGNSReader::vtkCGNSReader()
+vtkCGNSReader::vtkPrivate::vtkPrivate()
   : Internal(new CGNSRead::vtkCGNSMetaData())
+{
+}
+
+//----------------------------------------------------------------------------
+vtkCGNSReader::vtkPrivate::~vtkPrivate()
+{
+  this->MeshPointsCache.ClearCache();
+  this->ConnectivitiesCache.ClearCache();
+
+  delete this->Internal;
+  this->Internal = nullptr;
+}
+
+//----------------------------------------------------------------------------
+vtkCGNSReader::vtkCGNSReader()
+  : Internals(new vtkPrivate)
 {
   this->FileName = nullptr;
   this->LoadBndPatch = false;
@@ -609,12 +634,10 @@ vtkCGNSReader::vtkCGNSReader()
 vtkCGNSReader::~vtkCGNSReader()
 {
   this->SetFileName(nullptr);
-  this->MeshPointsCache.ClearCache();
-  this->ConnectivitiesCache.ClearCache();
   this->SetController(nullptr);
 
-  delete this->Internal;
-  this->Internal = nullptr;
+  delete this->Internals;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -680,7 +703,7 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
 {
   // We encounter various ways in which solution grids are specified (standard
   // and non-standard). This code will try to handle all of them.
-  const CGNSRead::BaseInformation& baseInfo = self->Internal->GetBase(base);
+  const CGNSRead::BaseInformation& baseInfo = self->Internals->Internal->GetBase(base);
 
   //===========================================================================
   // Let's start with the easiest one, the grid coordinates.
@@ -1746,7 +1769,8 @@ int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, vtkIdType nVals
 int vtkCGNSReader::vtkPrivate::AttachReferenceValue(int base, vtkDataSet* ds, vtkCGNSReader* self)
 {
   // Handle Reference Values (Mach Number, ...)
-  const std::map<std::string, double>& arrState = self->Internal->GetBase(base).referenceState;
+  const std::map<std::string, double>& arrState =
+    self->Internals->Internal->GetBase(base).referenceState;
   std::map<std::string, double>::const_iterator iteRef = arrState.begin();
   for (iteRef = arrState.begin(); iteRef != arrState.end(); iteRef++)
   {
@@ -1802,12 +1826,12 @@ vtkSmartPointer<vtkDataObject> vtkCGNSReader::vtkPrivate::readCurvilinearZone(in
   if (caching)
   {
     // Try to get from cache
-    const char* basename = self->Internal->GetBase(base).name;
-    const char* zonename = self->Internal->GetBase(base).zones[zone].name;
+    const char* basename = self->Internals->Internal->GetBase(base).name;
+    const char* zonename = self->Internals->Internal->GetBase(base).zones[zone].name;
     // build a key /basename/zonename
     keyMesh = vtkPrivate::GenerateMeshKey(basename, zonename);
 
-    points = self->MeshPointsCache.Find(keyMesh);
+    points = self->Internals->MeshPointsCache.Find(keyMesh);
     if (points.Get() != nullptr)
     {
       // check storage data type
@@ -1912,7 +1936,7 @@ vtkSmartPointer<vtkDataObject> vtkCGNSReader::vtkPrivate::readCurvilinearZone(in
     // Add points to cache
     if (caching)
     {
-      self->MeshPointsCache.Insert(keyMesh, points);
+      self->Internals->MeshPointsCache.Insert(keyMesh, points);
     }
   }
 
@@ -1965,7 +1989,7 @@ int vtkCGNSReader::GetCurvilinearZone(
   int base, int zone, int cellDim, int physicalDim, void* v_zsize, vtkMultiBlockDataSet* mbase)
 {
   cgsize_t* zsize = reinterpret_cast<cgsize_t*>(v_zsize);
-  auto& baseInfo = this->Internal->GetBase(base);
+  auto& baseInfo = this->Internals->Internal->GetBase(base);
   auto& zoneInfo = baseInfo.zones[zone];
 
   vtkSmartPointer<vtkDataObject> zoneDO = CGNSRead::ReadGridForZone(this, baseInfo, zoneInfo)
@@ -2139,12 +2163,12 @@ int vtkCGNSReader::GetUnstructuredZone(
   if (caching)
   {
     // Try to get from cache
-    const char* basename = this->Internal->GetBase(base).name;
-    const char* zonename = this->Internal->GetBase(base).zones[zone].name;
+    const char* basename = this->Internals->Internal->GetBase(base).name;
+    const char* zonename = this->Internals->Internal->GetBase(base).zones[zone].name;
     // build a key /basename/zonename
     keyMesh = vtkPrivate::GenerateMeshKey(basename, zonename);
 
-    points = this->MeshPointsCache.Find(keyMesh);
+    points = this->Internals->MeshPointsCache.Find(keyMesh);
     if (points.Get() != nullptr)
     {
       // check storage data type
@@ -2192,7 +2216,7 @@ int vtkCGNSReader::GetUnstructuredZone(
     // Add points to cache
     if (caching)
     {
-      this->MeshPointsCache.Insert(keyMesh, points);
+      this->Internals->MeshPointsCache.Insert(keyMesh, points);
     }
   }
 
@@ -2416,14 +2440,14 @@ int vtkCGNSReader::GetUnstructuredZone(
   {
     // Try to get the Grid Connectivity from cache
     // else create new grid
-    const char* basename = this->Internal->GetBase(base).name;
-    const char* zonename = this->Internal->GetBase(base).zones[zone].name;
+    const char* basename = this->Internals->Internal->GetBase(base).name;
+    const char* zonename = this->Internals->Internal->GetBase(base).zones[zone].name;
     // build a key /basename/zonename
     std::ostringstream query;
     query << "/" << basename << "/" << zonename << "/core";
     keyConnect = query.str();
 
-    ugrid = this->ConnectivitiesCache.Find(keyConnect);
+    ugrid = this->Internals->ConnectivitiesCache.Find(keyConnect);
     if (ugrid.Get() != nullptr)
     {
       if ((ugrid->GetNumberOfCells() != numCoreCells && !hasNGon) ||
@@ -2993,11 +3017,11 @@ int vtkCGNSReader::GetUnstructuredZone(
     }
     if (caching)
     {
-      this->ConnectivitiesCache.Insert(keyConnect, ugrid);
+      this->Internals->ConnectivitiesCache.Insert(keyConnect, ugrid);
     }
   }
   //
-  auto& baseInfo = this->Internal->GetBase(base);
+  auto& baseInfo = this->Internals->Internal->GetBase(base);
   auto& zoneInfo = baseInfo.zones[zone];
   const bool requiredPatch = CGNSRead::ReadPatchesForBase(this, baseInfo);
 
@@ -4218,11 +4242,11 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     numProcessors = 1;
   }
 
-  int numBases = this->Internal->GetNumberOfBaseNodes();
+  int numBases = this->Internals->Internal->GetNumberOfBaseNodes();
   int numZones = 0;
   for (int bb = 0; bb < numBases; bb++)
   {
-    numZones += this->Internal->GetBase(bb).nzones;
+    numZones += this->Internals->Internal->GetBase(bb).nzones;
   }
 
   // Divide the files evenly between processors
@@ -4246,14 +4270,14 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
       startRange = startRange - accumulated;
       endRange = endRange - accumulated;
       int startInterZone = std::max(startRange, 0);
-      int endInterZone = std::min(endRange, this->Internal->GetBase(bb).nzones);
+      int endInterZone = std::min(endRange, this->Internals->Internal->GetBase(bb).nzones);
 
       if ((endInterZone - startInterZone) > 0)
       {
         zoneRange[0] = startInterZone;
         zoneRange[1] = endInterZone;
       }
-      accumulated = this->Internal->GetBase(bb).nzones;
+      accumulated = this->Internals->Internal->GetBase(bb).nzones;
       baseToZoneRange[bb] = zoneRange;
     }
   }
@@ -4268,13 +4292,13 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
       startRange = startRange - accumulated;
       endRange = endRange - accumulated;
       int startInterZone = std::max(startRange, 0);
-      int endInterZone = std::min(endRange, this->Internal->GetBase(bb).nzones);
+      int endInterZone = std::min(endRange, this->Internals->Internal->GetBase(bb).nzones);
       if ((endInterZone - startInterZone) > 0)
       {
         zoneRange[0] = startInterZone;
         zoneRange[1] = endInterZone;
       }
-      accumulated = this->Internal->GetBase(bb).nzones;
+      accumulated = this->Internals->Internal->GetBase(bb).nzones;
       baseToZoneRange[bb] = zoneRange;
     }
   }
@@ -4286,7 +4310,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->CreateEachSolutionAsBlock = 0;
   }
 
-  if (!this->Internal->Parse(this->FileName))
+  if (!this->Internals->Internal->Parse(this->FileName))
   {
     return 0;
   }
@@ -4305,7 +4329,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     // Adjust requested time based on available timesteps.
-    std::vector<double>& ts = this->Internal->GetTimes();
+    std::vector<double>& ts = this->Internals->Internal->GetTimes();
 
     if (!ts.empty())
     {
@@ -4345,7 +4369,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     int cellDim = 0;
     int physicalDim = 0;
-    const CGNSRead::BaseInformation& curBaseInfo = this->Internal->GetBase(numBase);
+    const CGNSRead::BaseInformation& curBaseInfo = this->Internals->Internal->GetBase(numBase);
 
     // skip unselected base
     if (!CGNSRead::ReadBase(this, curBaseInfo))
@@ -4381,7 +4405,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
         (requestedTimeValue > curBaseInfo.times.back()))
       {
         skipBase = true;
-        requestedTimeValue = this->Internal->GetTimes().front();
+        requestedTimeValue = this->Internals->Internal->GetTimes().front();
       }
 
       std::vector<double>::const_iterator iter;
@@ -4622,7 +4646,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
                   << " for fields and time steps");
 
     // Parse the file...
-    if (!this->Internal->Parse(this->FileName))
+    if (!this->Internals->Internal->Parse(this->FileName))
     {
       vtkErrorMacro(<< "Failed to parse cgns file: " << this->FileName);
       return false;
@@ -4634,13 +4658,13 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->Broadcast(this->Controller);
   }
 
-  this->NumberOfBases = this->Internal->GetNumberOfBaseNodes();
+  this->NumberOfBases = this->Internals->Internal->GetNumberOfBaseNodes();
 
   // Set up time information
-  if (!this->Internal->GetTimes().empty())
+  if (!this->Internals->Internal->GetTimes().empty())
   {
     std::vector<double> timeSteps(
-      this->Internal->GetTimes().begin(), this->Internal->GetTimes().end());
+      this->Internals->Internal->GetTimes().begin(), this->Internals->Internal->GetTimes().end());
 
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps.front(),
@@ -4651,9 +4675,9 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
 
-  for (int base = 0; base < this->Internal->GetNumberOfBaseNodes(); ++base)
+  for (int base = 0; base < this->Internals->Internal->GetNumberOfBaseNodes(); ++base)
   {
-    const CGNSRead::BaseInformation& curBase = this->Internal->GetBase(base);
+    const CGNSRead::BaseInformation& curBase = this->Internals->Internal->GetBase(base);
     this->BaseSelection->AddArray(curBase.name, base == 0 ? true : false);
 
     // add families.
@@ -4911,7 +4935,7 @@ void vtkCGNSReader::Broadcast(vtkMultiProcessController* ctrl)
   if (ctrl)
   {
     int rank = ctrl->GetLocalProcessId();
-    this->Internal->Broadcast(ctrl, rank);
+    this->Internals->Internal->Broadcast(ctrl, rank);
   }
 }
 
@@ -5005,7 +5029,7 @@ void vtkCGNSReader::SetCacheMesh(bool enable)
   this->CacheMesh = enable;
   if (!enable)
   {
-    this->MeshPointsCache.ClearCache();
+    this->Internals->MeshPointsCache.ClearCache();
   }
 }
 
@@ -5015,7 +5039,7 @@ void vtkCGNSReader::SetCacheConnectivity(bool enable)
   this->CacheConnectivity = enable;
   if (!enable)
   {
-    this->ConnectivitiesCache.ClearCache();
+    this->Internals->ConnectivitiesCache.ClearCache();
   }
 }
 

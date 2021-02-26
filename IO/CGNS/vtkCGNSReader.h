@@ -35,7 +35,6 @@
 #ifndef vtkCGNSReader_h
 #define vtkCGNSReader_h
 
-#include "vtkCGNSCache.h"          // for vtkCGNSCache, caching of mesh and connectivity
 #include "vtkIOCGNSReaderModule.h" // for export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
@@ -276,11 +275,6 @@ private:
   vtkCGNSReader(const vtkCGNSReader&) = delete;
   void operator=(const vtkCGNSReader&) = delete;
 
-  CGNSRead::vtkCGNSMetaData* Internal;               // Metadata
-  CGNSRead::vtkCGNSCache<vtkPoints> MeshPointsCache; // Cache for the mesh points
-  CGNSRead::vtkCGNSCache<vtkUnstructuredGrid>
-    ConnectivitiesCache; // Cache for the mesh connectivities
-
   char* FileName;                // cgns file name
   bool LoadBndPatch;             // option to set section loading for unstructured grid
   bool LoadMesh;                 // option to enable/disable mesh loading
@@ -301,6 +295,7 @@ private:
   int ActualTimeStep;
 
   class vtkPrivate;
+  vtkPrivate* Internals;
   friend class vtkPrivate;
 };
 
