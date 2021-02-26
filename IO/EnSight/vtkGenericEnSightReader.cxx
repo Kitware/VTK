@@ -1306,7 +1306,8 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
   int numStrLen = static_cast<int>(strlen(numStr));
   int len = static_cast<int>(strlen(filename));
   int cnt = 0;
-  bool foundWildcard = false char filenameTmp[2048];
+  bool foundWildcard = false;
+  char filenameTmp[2048];
   for (int i = 0; i < len; i++)
   {
     if (filename[i] == '*')
