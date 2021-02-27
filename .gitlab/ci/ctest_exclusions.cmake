@@ -12,6 +12,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # GPURayCast doesn't work with the CI's VNC setup.
     "TestGPURayCast"
 
+    # New baseline?
+    "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
+
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
