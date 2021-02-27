@@ -3200,6 +3200,7 @@ vtk_module_add_module(<name>
   [LIBRARY_NAME_SUFFIX      <suffix>]
   [CLASSES                  <class>...]
   [TEMPLATE_CLASSES         <template class>...]
+  [NOWRAP_CLASSES           <nowrap class>...]
   [SOURCES                  <source>...]
   [HEADERS                  <header>...]
   [NOWRAP_HEADERS           <header>...]
@@ -3234,6 +3235,9 @@ always private, so there is no `PRIVATE_` variant for that argument).
   * `SOURCES`: A list of source files which require compilation.
   * `HEADERS`: A list of header files which will be available for wrapping and
     installed.
+  * `NOWRAP_CLASSES`: A list of classes which will not be available for
+    wrapping but installed. This is a shortcut for adding `<class>.cxx` to
+    `SOURCES` and `<class>.h` to `NOWRAP_HEADERS`.
   * `NOWRAP_HEADERS`: A list of header files which will not be available for
     wrapping but installed.
   * `TEMPLATES`: A list of template files which will be installed.
@@ -3254,7 +3258,7 @@ function (vtk_module_add_module name)
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
     "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
-    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_HEADERS")
+    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_HEADERS")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3284,6 +3288,13 @@ function (vtk_module_add_module name)
       "${_vtk_add_module_template_class}.txx")
     list(APPEND _vtk_add_module_HEADERS
       "${_vtk_add_module_template_class}.h")
+  endforeach ()
+
+  foreach (_vtk_add_module_class IN LISTS _vtk_add_module_NOWRAP_CLASSES)
+    list(APPEND _vtk_add_module_SOURCES
+      "${_vtk_add_module_class}.cxx")
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
+      "${_vtk_add_module_class}.h")
   endforeach ()
 
   foreach (_vtk_add_module_class IN LISTS _vtk_add_module_PRIVATE_CLASSES)
