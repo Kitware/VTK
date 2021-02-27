@@ -38,11 +38,6 @@ set(private_impl_classes
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter)
 
-foreach (class IN LISTS impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND headers "${class}.h")
-endforeach ()
-
 foreach (class IN LISTS private_impl_classes)
   list(APPEND sources "${class}.cxx")
   list(APPEND private_headers "${class}.h")
@@ -75,6 +70,7 @@ vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   ${force_static}
   SOURCES ${sources}
   HEADERS ${headers}
+  CLASSES ${impl_classes}
   PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}

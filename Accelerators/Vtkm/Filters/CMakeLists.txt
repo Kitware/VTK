@@ -17,7 +17,7 @@
 list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
-set(impl_classes
+set(classes
   vtkmAverageToCells
   vtkmAverageToPoints
   vtkmCleanGrid
@@ -41,21 +41,16 @@ set(impl_classes
   vtkmWarpVector
   )
 
-foreach (class IN LISTS impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND headers "${class}.h")
-endforeach ()
-
-list(APPEND sources
-  "vtkmClipInstantiationsWithField.cxx"
-  "vtkmClipInstantiationsWithImplicitFunction.cxx")
+set(sources
+  vtkmClipInstantiationsWithField.cxx
+  vtkmClipInstantiationsWithImplicitFunction.cxx)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigFilters.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h"
   @ONLY)
 
-list(APPEND headers
+set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h")
 
 if (TARGET vtkm::cuda)
@@ -76,7 +71,8 @@ endif ()
 vtk_module_add_module(VTK::AcceleratorsVTKmFilters
   ${force_static}
   SOURCES ${sources}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  CLASSES ${classes})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM
