@@ -29,7 +29,7 @@ set(impl_classes
   vtkmDataSet
   )
 
-set(private_impl_classes
+set(nowrap_classes
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
   vtkmlib/DataSetConverters
@@ -37,11 +37,6 @@ set(private_impl_classes
   vtkmlib/ImplicitFunctionConverter
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter)
-
-foreach (class IN LISTS private_impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND private_headers "${class}.h")
-endforeach ()
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigDataModel.h.in"
@@ -68,9 +63,11 @@ endif ()
 
 vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   ${force_static}
+  HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
   CLASSES ${impl_classes}
+  NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}
@@ -89,12 +86,6 @@ if (TARGET vtkm::cuda)
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()
-
-# We need to install the private headers so that consumers of VTK can write
-# new VTK-m filters and do data conversions correctly.
-vtk_module_install_headers(
-    FILES   ${private_headers}
-    SUBDIR  "vtkmlib")
 
 if (MSVC)
   set(msvc_warning_flags
