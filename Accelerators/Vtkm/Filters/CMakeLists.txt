@@ -14,7 +14,7 @@
 ##
 ##=============================================================================
 
-list(INSERT 0 CMAKE_MODULE_PATH
+list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
 set(impl_classes
