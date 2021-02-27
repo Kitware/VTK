@@ -30,6 +30,9 @@ set(nowrap_classes
   vtkmlib/DataArrayConverters
   vtkmlib/Portals)
 
+set(nowrap_headers
+  vtkmlib/vtkmDataArray.hxx)
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigCore.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigCore.h"
@@ -59,6 +62,7 @@ vtk_module_add_module(VTK::AcceleratorsVTKmCore
   SOURCES ${sources}
   HEADERS ${headers}
   CLASSES ${impl_classes}
+  NOWRAP_HEADERS  ${nowrap_headers}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmCore)
