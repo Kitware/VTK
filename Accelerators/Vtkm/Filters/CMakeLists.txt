@@ -68,16 +68,15 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
-    FORCE_STATIC
-    SOURCES ${sources}
-    HEADERS ${headers})
-else()
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
-    SOURCES ${sources}
-    HEADERS ${headers})
-endif()
+set(force_static)
+if (TARGET vtkm::cude AND BUILD_SHARED_LIBS)
+  set(force_static FORCE_STATIC)
+endif ()
+
+vtk_module_add_module(VTK::AcceleratorsVTKmFilters
+  ${force_static}
+  SOURCES ${sources}
+  HEADERS ${headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM

@@ -66,19 +66,16 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  message("Cuda is enabled. All VTK-m base modules will be forced to build as static.")
-  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
-    FORCE_STATIC
-    SOURCES ${sources}
-    HEADERS ${headers}
-    PRIVATE_HEADERS ${private_headers})
-else()
-  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
-    SOURCES ${sources}
-    HEADERS ${headers}
-    PRIVATE_HEADERS ${private_headers})
-endif()
+set(force_static)
+if (TARGET vtkm::cude AND BUILD_SHARED_LIBS)
+  set(force_static FORCE_STATIC)
+endif ()
+
+vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
+  ${force_static}
+  SOURCES ${sources}
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM
