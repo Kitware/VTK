@@ -5,19 +5,15 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Test the vtkPolyDataEdgeConnectivityFilter, in particular
-# barrier edges and region growing.
-# Create different points with variable spacing.
-# Also a scalar field. Perform a combined segmentation
-# based on barrier edges (defined by edge length) and
-# scalar values.
+# barrier edges combined with sorted regions.
 
 # Construct a bounding array of points to improve the
 # tessellation process.
 plane = vtk.vtkPlaneSource()
 plane.SetResolution(10,10)
-plane.SetOrigin(-2,-2,0)
-plane.SetPoint1(2,-2,0)
-plane.SetPoint2(-2,2,0)
+plane.SetOrigin(-5,-5,0)
+plane.SetPoint1(5,-5,0)
+plane.SetPoint2(-5,5,0)
 
 # Remove interior points
 pedges = vtk.vtkFeatureEdges()
@@ -34,10 +30,19 @@ disk.SetRadialResolution(1)
 disk.SetCircumferentialResolution(32)
 disk.Update()
 
+# Create some points in concentric circles.
+disk2 = vtk.vtkDiskSource()
+disk2.SetInnerRadius(2.0)
+disk2.SetOuterRadius(3.5)
+disk2.SetRadialResolution(1)
+disk2.SetCircumferentialResolution(64)
+disk2.Update()
+
 # Append plane points and disk points.
 append = vtk.vtkAppendPolyData()
 append.AddInputData(pedges.GetOutput())
 append.AddInputData(disk.GetOutput())
+append.AddInputData(disk2.GetOutput())
 append.Update()
 
 # Tessellate
@@ -49,25 +54,25 @@ tess.Update()
 conn = vtk.vtkPolyDataEdgeConnectivityFilter()
 conn.SetInputConnection(tess.GetOutputPort());
 conn.BarrierEdgesOn()
-conn.SetBarrierEdgeLength(0.0,0.20)
-conn.GrowLargeRegionsOn()
-conn.SetExtractionModeToLargeRegions()
-conn.SetLargeRegionThreshold(0.04)
+conn.GrowSmallRegionsOn()
+conn.SetBarrierEdgeLength(0.0,0.35)
+conn.SetExtractionModeToAllRegions()
+conn.SetLargeRegionThreshold(0.25)
 conn.ColorRegionsOn()
+conn.CellRegionAreasOn()
 conn.Update()
 
 tessMapper = vtk.vtkPolyDataMapper()
 tessMapper.SetInputConnection(conn.GetOutputPort())
 tessMapper.ScalarVisibilityOn()
 tessMapper.SetScalarModeToUseCellData()
-tessMapper.SetScalarRange(0,conn.GetNumberOfExtractedRegions()-1)
+tessMapper.SetScalarRange(0,2)
 print("Num cells: ",conn.GetOutput().GetNumberOfCells())
 print("Num regions: ",conn.GetNumberOfExtractedRegions())
 
 tessActor = vtk.vtkActor()
 tessActor.SetMapper(tessMapper)
 tessActor.GetProperty().SetColor(1,1,1)
-#tessActor.GetProperty().EdgeVisibilityOn()
 tessActor.GetProperty().SetEdgeColor(0,0,0)
 
 # Define graphics objects

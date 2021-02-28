@@ -34,7 +34,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm> // for fill_n
-#include <memory>    //for unique_ptr
+#include <numeric>   //for iota
 
 vtkStandardNewMacro(vtkPolyDataEdgeConnectivityFilter);
 
@@ -74,6 +74,7 @@ vtkPolyDataEdgeConnectivityFilter::vtkPolyDataEdgeConnectivityFilter()
   this->LargeRegionThreshold = 0.10;
 
   this->ColorRegions = 1;
+  this->CellRegionAreas = 0;
 
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
@@ -105,6 +106,79 @@ vtkPolyData* vtkPolyDataEdgeConnectivityFilter::GetSource()
     return nullptr;
   }
   return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
+}
+
+//------------------------------------------------------------------------------
+// Sort regions by ascending area. Also update the largest region id.
+void vtkPolyDataEdgeConnectivityFilter::SortRegionsByArea()
+{
+  // Setup the initial map
+  std::vector<vtkIdType> areaSort(this->NumberOfRegions);
+  std::iota(areaSort.begin(), areaSort.end(), 0);
+
+  // Now sort by area to produce a sorted list of regions.
+  std::vector<double>& regAreas = this->RegionAreas;
+  sort(areaSort.begin(), areaSort.end(),
+    [&](const vtkIdType& a, const vtkIdType& b) -> bool { return (regAreas[a] > regAreas[b]); });
+
+  // Create a region map that maps old region ids into new region ids.
+  std::vector<vtkIdType> regMap(this->NumberOfRegions);
+  for (auto i = 0; i < this->NumberOfRegions; ++i)
+  {
+    vtkIdType regId = areaSort[i];
+    regMap[regId] = i;
+  }
+
+  // Need to update the related region arrays. Copy the new information into
+  // temporary arrays, and then swap them with the "global" arrays.
+  // Update region ids associated with cells.
+  std::vector<vtkIdType> regionIds(this->RegionIds.size());
+  for (std::size_t i = 0; i < regionIds.size(); ++i)
+  {
+    regionIds[i] = regMap[this->RegionIds[i]];
+  }
+
+  // Update region classification and areas
+  std::vector<char> regionClassification(this->NumberOfRegions);
+  for (auto i = 0; i < this->NumberOfRegions; ++i)
+  {
+    regionClassification[i] = this->RegionClassification[areaSort[i]];
+  }
+
+  // Update the area of each region
+  std::vector<double> regionAreas(this->NumberOfRegions);
+  for (auto i = 0; i < this->NumberOfRegions; ++i)
+  {
+    regionAreas[i] = this->RegionAreas[areaSort[i]];
+  }
+
+  // Update the size of each region.
+  vtkNew<vtkIdTypeArray> regionSizes;
+  regionSizes->SetNumberOfTuples(this->RegionSizes->GetNumberOfTuples());
+  for (auto i = 0; i < this->NumberOfRegions; ++i)
+  {
+    regionSizes->SetTuple1(i, this->RegionSizes->GetValue(areaSort[i]));
+  }
+
+  // Okay replace global arrays with the local, renumbered arrays.
+  this->RegionIds.swap(regionIds);
+  this->RegionClassification.swap(regionClassification);
+  this->RegionAreas.swap(regionAreas);
+  this->RegionSizes = regionSizes;
+}
+
+//------------------------------------------------------------------------------
+// Determine the number of non-zero-area regions. This is assumed to take place
+// after the region sort by area occurs. Whether an region is non-zero is determined
+// by a threshold against the total area.
+vtkIdType vtkPolyDataEdgeConnectivityFilter::FindNumberOfExtractedRegions()
+{
+  vtkIdType regionNum = 0, numSizes = this->RegionSizes->GetNumberOfTuples();
+  while (regionNum < numSizes && this->RegionSizes->GetValue(regionNum) > 0)
+  {
+    regionNum++;
+  }
+  return regionNum;
 }
 
 //------------------------------------------------------------------------------
@@ -203,7 +277,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   // Initialize.  Keep track of points and cells visited, and the region ids
   // of the cells.
-  this->RegionIds.reserve(numCells);
+  this->RegionIds.resize(numCells);
   std::fill_n(this->RegionIds.begin(), numCells, (-1));
 
   this->PointMap.reserve(numPts);
@@ -236,6 +310,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   this->NumberOfPoints = 0;
   this->NumberOfRegions = 0;
+  this->NumberOfExtractedRegions = 0;
   maxCellsInRegion = 0;
 
   this->CellIds = vtkSmartPointer<vtkIdList>::New();
@@ -332,19 +407,15 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
 
   vtkDebugMacro(<< "Identified " << this->NumberOfRegions << " region(s)");
 
-  // Optionally, assimilate small regions into bigger regions.
-  if (this->ExtractionMode == VTK_EXTRACT_LARGE_REGIONS || this->RegionGrowing == LargeRegions ||
-    this->RegionGrowing == SmallRegions)
+  // Sort regions based on their area.
+  this->TotalArea = this->ComputeRegionAreas();
+  if (this->RegionGrowing == LargeRegions)
   {
-    this->ComputeRegionAreas();
-    if (this->RegionGrowing == LargeRegions)
-    {
-      this->GrowLargeRegions();
-    }
-    else if (this->RegionGrowing == SmallRegions)
-    {
-      this->GrowSmallRegions();
-    }
+    this->GrowLargeRegions();
+  }
+  else if (this->RegionGrowing == SmallRegions)
+  {
+    this->GrowSmallRegions();
   }
 
   // Now that points and cells have been marked, traverse these lists pulling
@@ -363,6 +434,25 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     }
   }
 
+  // if producing region areas, create the appropriate cell data
+  vtkSmartPointer<vtkFloatArray> regionAreas;
+  if (this->CellRegionAreas)
+  {
+    regionAreas = vtkSmartPointer<vtkFloatArray>::New();
+    regionAreas->SetName("CellRegionArea");
+    regionAreas->Allocate(numCells);
+    outputCD->AddArray(regionAreas);
+  }
+
+  // Remap the region ids so that region 0 is the largest region
+  // (by area), and so on. This requires also updating additional information
+  // such as RegionAreas, RegionSizes, and RegionClassification.
+  this->SortRegionsByArea();
+  largestRegionId = 0; // due to sort
+
+  // After the sort, update the number of non-zero-area regions.
+  this->NumberOfExtractedRegions = this->FindNumberOfExtractedRegions();
+
   // if coloring regions; send down new scalar data
   vtkSmartPointer<vtkIdTypeArray> cellRegionIds;
   if (this->ColorRegions)
@@ -374,7 +464,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
     outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   }
 
-  // Set up
+  // Prepare to produce output
   output->SetPoints(newPts);
   if ((n = input->GetPolys()->GetNumberOfCells()) > 0)
   {
@@ -404,6 +494,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
         if (cellRegionIds != nullptr)
         {
           cellRegionIds->InsertValue(newCellId, this->RegionIds[cellId]);
+        }
+        if (regionAreas != nullptr)
+        {
+          regionAreas->InsertValue(newCellId, this->RegionAreas[this->RegionIds[cellId]]);
         }
       }
     }
@@ -438,6 +532,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
           {
             cellRegionIds->InsertValue(newCellId, this->RegionIds[cellId]);
           }
+          if (regionAreas != nullptr)
+          {
+            regionAreas->InsertValue(newCellId, this->RegionAreas[this->RegionIds[cellId]]);
+          }
         }
       }
     }
@@ -461,6 +559,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
         {
           cellRegionIds->InsertValue(newCellId, this->RegionIds[cellId]);
         }
+        if (regionAreas != nullptr)
+        {
+          regionAreas->InsertValue(newCellId, this->RegionAreas[this->RegionIds[cellId]]);
+        }
       }
     }
   }
@@ -483,6 +585,10 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
         if (cellRegionIds != nullptr)
         {
           cellRegionIds->InsertValue(newCellId, this->RegionIds[cellId]);
+        }
+        if (regionAreas != nullptr)
+        {
+          regionAreas->InsertValue(newCellId, this->RegionAreas[this->RegionIds[cellId]]);
         }
       }
     }
@@ -626,13 +732,6 @@ void vtkPolyDataEdgeConnectivityFilter::TraverseAndMark()
 }
 
 //------------------------------------------------------------------------------
-// Obtain the number of connected regions.
-int vtkPolyDataEdgeConnectivityFilter::GetNumberOfExtractedRegions()
-{
-  return this->RegionSizes->GetMaxId() + 1;
-}
-
-//------------------------------------------------------------------------------
 // Initialize list of point ids/cell ids used to seed regions.
 void vtkPolyDataEdgeConnectivityFilter::InitializeSeedList()
 {
@@ -709,18 +808,14 @@ int vtkPolyDataEdgeConnectivityFilter::FillInputPortInformation(int port, vtkInf
 //------------------------------------------------------------------------------
 double vtkPolyDataEdgeConnectivityFilter::ComputeRegionAreas()
 {
-  // Computer the area of each cell, and the total mesh area.
+  // Compute the area of each cell, and the total mesh area.
   // Also accumulate the area of each region.
   double totalArea = 0.0;
   const vtkIdType numCells = this->Mesh->GetPolys()->GetNumberOfCells();
 
-  this->CellAreas.reserve(numCells);
-
-  this->RegionAreas.reserve(this->NumberOfRegions);
-  std::fill_n(this->RegionAreas.begin(), this->NumberOfRegions, 0.0);
-
-  this->RegionClassification.reserve(this->NumberOfRegions);
-  std::fill_n(this->RegionClassification.begin(), this->NumberOfRegions, SmallRegion);
+  this->CellAreas.resize(numCells, 0);
+  this->RegionAreas.resize(this->NumberOfRegions, 0.0);
+  this->RegionClassification.resize(this->NumberOfRegions, SmallRegion);
 
   // Traverse polygons and compute area
   double area, normal[3];
@@ -752,6 +847,29 @@ double vtkPolyDataEdgeConnectivityFilter::ComputeRegionAreas()
   }
 
   return totalArea;
+}
+
+//------------------------------------------------------------------------------
+// This method supports region growing. Basically it takes a neighboring cell
+// that is initially assigned to one region, and assigns it to a new
+// region. This also updates the region counts (i.e., number of cells) and
+// the region areas.
+void vtkPolyDataEdgeConnectivityFilter::ExchangeRegions(
+  vtkIdType regionId, vtkIdType neiId, vtkIdType neiRegionId)
+{
+  // Exchange region counts
+  vtkIdType regionSize = this->RegionSizes->GetValue(regionId);
+  vtkIdType neiRegionSize = this->RegionSizes->GetValue(neiRegionId);
+  this->RegionSizes->SetValue(regionId, (regionSize + 1));
+  this->RegionSizes->SetValue(neiRegionId, (neiRegionSize - 1));
+
+  // Exchange area contributions
+  double neiArea = this->CellAreas[neiId];
+  this->RegionAreas[regionId] += neiArea;
+  this->RegionAreas[neiRegionId] -= neiArea;
+
+  // Finally exchange region assignments
+  this->RegionIds[neiId] = regionId;
 }
 
 //------------------------------------------------------------------------------
@@ -803,7 +921,7 @@ void vtkPolyDataEdgeConnectivityFilter::GrowLargeRegions()
           if (largeRegId >= 0)
           {
             somethingChanged = true;
-            this->RegionIds[cellId] = largeRegId;
+            this->ExchangeRegions(largeRegId, cellId, regId);
           }
         } // if in small region, or no region
       }   // for all candidates
@@ -843,7 +961,7 @@ void vtkPolyDataEdgeConnectivityFilter::GrowSmallRegions()
       for (auto i = 0; i < numIds; i++)
       {
         vtkIdType currentCellId = this->Wave[i];
-        vtkIdType currentRegionId = this->RegionIds[cellId];
+        vtkIdType currentRegionId = this->RegionIds[currentCellId];
 
         // Check all edge neighbors
         const vtkIdType* pts;
@@ -859,15 +977,13 @@ void vtkPolyDataEdgeConnectivityFilter::GrowSmallRegions()
           for (auto k = 0; k < numNeis; ++k)
           {
             vtkIdType neiId = this->CellNeighbors->GetId(k);
-            regId = this->RegionIds[neiId];
-            if (regId >= 0 && this->RegionClassification[regId] == SmallRegion &&
+            vtkIdType neiRegId = this->RegionIds[neiId];
+            if (neiRegId >= 0 && this->RegionClassification[neiRegId] == SmallRegion &&
               smallVisited[neiId] == 0)
             {
+              this->ExchangeRegions(currentRegionId, neiId, neiRegId);
               this->Wave2.push_back(neiId);
-              this->RegionIds[neiId] = currentRegionId; // Now part of a new region
               smallVisited[neiId] = 1;
-              vtkIdType regionSize = this->RegionSizes->GetValue(regId);
-              this->RegionSizes->SetValue(regId, (regionSize - 1));
             } // if cell not yet visited
           }   // for all edge neighbors
         }     // for all edges of this cell
@@ -977,6 +1093,7 @@ void vtkPolyDataEdgeConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Large Region Threshold: " << this->LargeRegionThreshold << "\n";
 
   os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
+  os << indent << "Cell Region Areas: " << (this->CellRegionAreas ? "On\n" : "Off\n");
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

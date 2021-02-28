@@ -31,7 +31,7 @@
  * region(s) are to be extracted and output.
  *
  * The filter works in one of seven ways: 1) extract the largest (in terms of
- * number of polygons) edge-connected region in the dataset; 2) extract
+ * total surface area) edge-connected region in the dataset; 2) extract
  * specified regions; 3) extract all regions containing user-specified
  * point ids; 4) extract all regions containing user-specified cell ids; 5)
  * extract the region closest to a user-specified point; 6) extract all
@@ -49,6 +49,11 @@
  * through to the output). Point and cell attribute data are copied to the
  * output; however, an additional, optional array named "RegionId" may be
  * added to the output cell attribute data by enabling ColorRegions.
+ *
+ * @warning
+ * If more than one output region is produced, regions are sorted based on
+ * their surface area. Thus region# 0 is the largest, followed by the next
+ * largest and so on.
  *
  * @warning
  * To be clear: if scalar connectivity is enabled, this filter segments data
@@ -288,18 +293,36 @@ public:
   //@}
 
   /**
-   * Obtain the number of connected regions found.
+   * Obtain the number of connected regions found. This returns valid
+   * information only after the filter has successfully executed.
    */
-  int GetNumberOfExtractedRegions();
+  int GetNumberOfExtractedRegions() { return this->NumberOfExtractedRegions; }
+
+  /**
+   * Obtain the total area of all regions combined.
+   */
+  double GetTotalArea() { return this->TotalArea; }
 
   //@{
   /**
    * Turn on/off the coloring of edge-connected regions. If enabled, then
-   * an array named "RegionId" is added to the output cell data.
+   * a array named "RegionId" is added to the output cell data. The array
+   * contains, for each cell, the id with which the cell is associated.
    */
   vtkSetMacro(ColorRegions, vtkTypeBool);
   vtkGetMacro(ColorRegions, vtkTypeBool);
   vtkBooleanMacro(ColorRegions, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Turn on/off the creation of a cell array that, for each cell, contains
+   * the area of the region to which the cell is associated. If enabled, then
+   * an array named "CellRegionArea" is added to the output cell data.
+   */
+  vtkSetMacro(CellRegionAreas, vtkTypeBool);
+  vtkGetMacro(CellRegionAreas, vtkTypeBool);
+  vtkBooleanMacro(CellRegionAreas, vtkTypeBool);
   //@}
 
   //@{
@@ -323,7 +346,9 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
   // Filter data members
-  vtkTypeBool ColorRegions;    // boolean turns on/off scalar gen for separate regions
+  vtkTypeBool ColorRegions;    // boolean turns on/off scalar generation for separate regions
+  vtkTypeBool CellRegionAreas; // for each cell, the area of the region the cell is associated with
+
   int ExtractionMode;          // how to extract regions
   vtkTypeBool BarrierEdges;    // enable barrier edges
   double BarrierEdgeLength[2]; // edges of length within this range are barrier edges
@@ -347,9 +372,13 @@ protected:
   double LargeRegionThreshold;
   int CurrentGrowPass; // region growing is a multiple-pass process
   double ComputeRegionAreas();
+  void ExchangeRegions(vtkIdType currentRegionId, vtkIdType neiId, vtkIdType neiRegId);
   void GrowLargeRegions();
   void GrowSmallRegions();
   int AssimilateCell(vtkIdType cellId, vtkIdType npts, const vtkIdType* pts);
+  void SortRegionsByArea();
+  vtkIdType FindNumberOfExtractedRegions();
+
   double TotalArea;                       // the total area of the input mesh
   std::vector<double> CellAreas;          // the area of each polygonal cell
   std::vector<double> RegionAreas;        // the total area of each region
@@ -359,6 +388,7 @@ protected:
   std::vector<vtkIdType> RegionIds;
   std::vector<vtkIdType> PointMap;
   vtkIdType NumberOfRegions;
+  vtkIdType NumberOfExtractedRegions;
   vtkIdType NumberOfPoints;
   vtkIdType NumCellsInRegion;
   vtkSmartPointer<vtkDataArray> InScalars;

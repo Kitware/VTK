@@ -47,6 +47,7 @@ vtk_add_test_python(
   TestPolyDataEdgeConnectivityFilter.py
   TestPolyDataEdgeConnectivityFilter2.py
   TestPolyDataEdgeConnectivityFilter3.py
+  TestPolyDataEdgeConnectivityFilter4.py
   TestPolyDataPlaneClipper.py
   TestPolyDataPlaneClipper2.py
   TestPolyDataPlaneCutter.py
