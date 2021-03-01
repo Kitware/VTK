@@ -120,20 +120,28 @@ setting `vtk_test_prefix`, the test name will instead be
 
 #[==[.md INTERNAL
 This function parses the name from a testspec. The calling scope has
-`test_name` and `test_file` variables set in it.
+`test_name`, `test_arg`, and `test_file` variables set in it.
 
 ~~~
 _vtk_test_parse_name(<TESTSPEC>)
 ~~~
 #]==]
-function (_vtk_test_parse_name name)
+function (_vtk_test_parse_name name ext)
   if (name AND name MATCHES "^([^,]*),(.*)$")
-    set(test_name "${CMAKE_MATCH_1}" PARENT_SCOPE)
-    set(test_file "${CMAKE_MATCH_2}" PARENT_SCOPE)
+    set(test_name "${CMAKE_MATCH_1}")
+    set(test_file "${CMAKE_MATCH_2}")
   else ()
-    set(test_name "${name}" PARENT_SCOPE)
-    set(test_file "${name}" PARENT_SCOPE)
+    # Strip the extension from the test name.
+    string(REPLACE ".${ext}" "" test_name "${name}")
+    set(test_name "${test_name}")
+    set(test_file "${name}")
   endif ()
+
+  string(REPLACE ".${ext}" "" test_arg "${test_file}")
+
+  set(test_name "${test_name}" PARENT_SCOPE)
+  set(test_file "${test_file}" PARENT_SCOPE)
+  set(test_arg "${test_arg}" PARENT_SCOPE)
 endfunction ()
 
 #[==[.md
@@ -184,7 +192,7 @@ function (_vtk_test_parse_args options source_ext)
     endforeach ()
     if (handled)
       # Do nothing.
-    elseif (source_ext AND arg MATCHES "^([^.]*)\\.${source_ext},?(.*)$")
+    elseif (source_ext AND arg MATCHES "^([^.]*\\.${source_ext}),?(.*)$")
       set(name "${CMAKE_MATCH_1}")
       string(REPLACE "," ";" "_${name}_options" "${CMAKE_MATCH_2}")
       list(APPEND names "${name}")
@@ -289,7 +297,7 @@ function (vtk_add_test_cxx exename _tests)
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
-    _vtk_test_parse_name("${name}")
+    _vtk_test_parse_name("${name}" "cxx")
 
     set(_D "")
     if (NOT local_NO_DATA)
@@ -317,10 +325,10 @@ function (vtk_add_test_cxx exename _tests)
     ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
       NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
-              "${test_file}"
+              "${test_arg}"
               ${args}
               ${${_vtk_build_test}_ARGS}
-              ${${name}_ARGS}
+              ${${test_name}_ARGS}
               ${_D} ${_T} ${_V})
     set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
       PROPERTIES
@@ -392,7 +400,7 @@ function (vtk_add_test_mpi exename _tests)
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${mpi_options}" "local_" ${_${name}_options})
-    _vtk_test_parse_name(${name})
+    _vtk_test_parse_name(${name} "cxx")
 
     set(_D "")
     set(_T "")
@@ -402,7 +410,7 @@ function (vtk_add_test_mpi exename _tests)
       set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
       set(_V "")
       if (NOT local_NO_VALID)
-        set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${name}.png,:}")
+        set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
       endif ()
     endif ()
 
@@ -417,11 +425,11 @@ function (vtk_add_test_mpi exename _tests)
               "${MPIEXEC_NUMPROC_FLAG}" "${numprocs}"
               ${MPIEXEC_PREFLAGS}
               "$<TARGET_FILE:${exename}>"
-              "${test_file}"
+              "${test_arg}"
               ${_D} ${_T} ${_V}
               ${args}
               ${${_vtk_build_test}_ARGS}
-              ${${name}_ARGS}
+              ${${test_name}_ARGS}
               ${MPIEXEC_POSTFLAGS})
     set_tests_properties("${_vtk_build_test}Cxx-MPI-${vtk_test_prefix}${test_name}"
       PROPERTIES
@@ -583,7 +591,7 @@ function (vtk_add_test_python)
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})
-    _vtk_test_parse_name(${name})
+    _vtk_test_parse_name(${name} "py")
 
     set(_D "")
     if (NOT local_NO_DATA)
@@ -636,10 +644,10 @@ function (vtk_add_test_python)
                  COMMAND ${_vtk_test_python_pre_args}
                          "${_vtk_testing_python_exe}" ${_vtk_test_python_args} --enable-bt
                          ${rtImageTest}
-                         "${_vtk_build_TEST_FILE_DIRECTORY}/${test_file}.py"
+                         "${_vtk_build_TEST_FILE_DIRECTORY}/${test_file}"
                          ${args}
                          ${${_vtk_build_test}_ARGS}
-                         ${${name}_ARGS}
+                         ${${test_name}_ARGS}
                          ${_D} ${_B} ${_T} ${_V} ${_A})
 
     if (local_DIRECT_DATA)
