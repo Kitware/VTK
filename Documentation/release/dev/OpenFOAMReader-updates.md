@@ -29,3 +29,32 @@
 
 - respect the boundary "inGroups" entry for selection of multiple
   boundary patches by group.
+
+
+2021-03-01
+
+# OpenFOAM bugfixes / improvements
+
+- support floating-point dimensions entries (fixes #18103)
+
+- respect point patch value fields (fixes #18125)
+
+- properly handle empty zones
+
+- improve zone addressing and handling. Basic support for face zones
+
+- reduced disk IO when setting up cases,
+  when scanning time directories, do cheaper string operations before
+  filestat.
+  This eliminates unnecessary checks for items that cannot be times anyhow.
+
+- avoid lagrangian and region name ambiguity.
+
+  Now prefix all non-default regions as "/regionName/...".
+  The default region has now prefix. This eliminates any
+  possible ambiguity if we happen to have slightly odd
+  region names like "patch", "lagrangian", "internalMesh", ...
+
+  - Drop old OpenFOAM 1.3 cloud naming.
+    These were simply dumped into the time directory without any region
+    qualifications. Defunct since about 2007.
