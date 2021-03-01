@@ -83,6 +83,9 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # Python notes triggered from MPI4Py Cython-generated code.
   "include/python3.*: note:"
 
+  # Warning notes from Xcode.
+  "/Applications/Xcode.*: note:"
+
   # Ignore moc-generated code (and rcc and uic).
   "\\.dir[/\\\\][^/\\\\]*_autogen"
 

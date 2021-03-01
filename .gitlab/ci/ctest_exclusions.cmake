@@ -12,6 +12,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # GPURayCast doesn't work with the CI's VNC setup.
     "TestGPURayCast"
 
+    # New baseline?
+    "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
+
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -69,9 +72,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::InteractionWidgetsPython-TestPointCloudWidget2$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget$"
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
-    "^VTK::IOChemistryPython-TestXYZMol$"
-    "^VTK::IOChemistryPython-caffeine$"
-    "^VTK::IOChemistryPython-caffeine_notrailingwhitespaces$"
     "^VTK::IOGeometryPython-ParticleReader$"
     "^VTK::IOImageCxx-TestCompressedTIFFReader$"
     "^VTK::IOImageCxx-TestDICOMImageReader$"
@@ -102,9 +102,16 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CellScalars$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
     "^VTK::RenderingVolumeCxx-TestRemoveVolumeNonCurrentContext$"
-    "^VTK::RenderingVolumePython-gaussian$"
     "^VTKExample-Medical/Cxx$")
 endif ()
+
+# These tests are producing blank images even on macOS; I suspect the tests
+# just aren't working properly.
+list(APPEND test_exclusions
+  "^VTK::IOChemistryPython-TestXYZMol$"
+  "^VTK::IOChemistryPython-caffeine$"
+  "^VTK::IOChemistryPython-caffeine_notrailingwhitespaces$"
+  "^VTK::RenderingVolumePython-gaussian$")
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)

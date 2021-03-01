@@ -14,10 +14,10 @@
 ##
 ##=============================================================================
 
-list(INSERT 0 CMAKE_MODULE_PATH
+list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
-set(impl_classes
+set(classes
   vtkmAverageToCells
   vtkmAverageToPoints
   vtkmCleanGrid
@@ -41,21 +41,16 @@ set(impl_classes
   vtkmWarpVector
   )
 
-foreach (class IN LISTS impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND headers "${class}.h")
-endforeach ()
-
-list(APPEND sources
-  "vtkmClipInstantiationsWithField.cxx"
-  "vtkmClipInstantiationsWithImplicitFunction.cxx")
+set(sources
+  vtkmClipInstantiationsWithField.cxx
+  vtkmClipInstantiationsWithImplicitFunction.cxx)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigFilters.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h"
   @ONLY)
 
-list(APPEND headers
+set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h")
 
 if (TARGET vtkm::cuda)
@@ -68,16 +63,16 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
-    FORCE_STATIC
-    SOURCES ${sources}
-    HEADERS ${headers})
-else()
-  vtk_module_add_module(VTK::AcceleratorsVTKmFilters
-    SOURCES ${sources}
-    HEADERS ${headers})
-endif()
+set(force_static)
+if (TARGET vtkm::cude AND BUILD_SHARED_LIBS)
+  set(force_static FORCE_STATIC)
+endif ()
+
+vtk_module_add_module(VTK::AcceleratorsVTKmFilters
+  ${force_static}
+  SOURCES ${sources}
+  HEADERS ${headers}
+  CLASSES ${classes})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM

@@ -14,7 +14,7 @@
 ##
 ##=============================================================================
 
-list(INSERT 0 CMAKE_MODULE_PATH
+list(INSERT CMAKE_MODULE_PATH 0
   "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
 set(sources
@@ -29,7 +29,7 @@ set(impl_classes
   vtkmDataSet
   )
 
-set(private_impl_classes
+set(nowrap_classes
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
   vtkmlib/DataSetConverters
@@ -37,16 +37,6 @@ set(private_impl_classes
   vtkmlib/ImplicitFunctionConverter
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter)
-
-foreach (class IN LISTS impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND headers "${class}.h")
-endforeach ()
-
-foreach (class IN LISTS private_impl_classes)
-  list(APPEND sources "${class}.cxx")
-  list(APPEND private_headers "${class}.h")
-endforeach ()
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfigDataModel.h.in"
@@ -66,19 +56,19 @@ if (TARGET vtkm::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 endif ()
 
-if(TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
-  message("Cuda is enabled. All VTK-m base modules will be forced to build as static.")
-  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
-    FORCE_STATIC
-    SOURCES ${sources}
-    HEADERS ${headers}
-    PRIVATE_HEADERS ${private_headers})
-else()
-  vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
-    SOURCES ${sources}
-    HEADERS ${headers}
-    PRIVATE_HEADERS ${private_headers})
-endif()
+set(force_static)
+if (TARGET vtkm::cude AND BUILD_SHARED_LIBS)
+  set(force_static FORCE_STATIC)
+endif ()
+
+vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
+  ${force_static}
+  HEADER_DIRECTORIES
+  SOURCES ${sources}
+  HEADERS ${headers}
+  CLASSES ${impl_classes}
+  NOWRAP_CLASSES  ${nowrap_classes}
+  PRIVATE_HEADERS ${private_headers})
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
 vtkm_add_target_information(${vtkm_accel_target}
                             EXTENDS_VTKM
@@ -96,12 +86,6 @@ if (TARGET vtkm::cuda)
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()
-
-# We need to install the private headers so that consumers of VTK can write
-# new VTK-m filters and do data conversions correctly.
-vtk_module_install_headers(
-    FILES   ${private_headers}
-    SUBDIR  "vtkmlib")
 
 if (MSVC)
   set(msvc_warning_flags

@@ -3194,12 +3194,13 @@ include(GenerateExportHeader)
 
 ~~~
 vtk_module_add_module(<name>
-  [FORCE_STATIC] [HEADER_ONLY]
+  [FORCE_STATIC] [HEADER_ONLY] [HEADER_DIRECTORIES]
   [EXPORT_MACRO_PREFIX      <prefix>]
   [HEADERS_SUBDIR           <subdir>]
   [LIBRARY_NAME_SUFFIX      <suffix>]
   [CLASSES                  <class>...]
   [TEMPLATE_CLASSES         <template class>...]
+  [NOWRAP_CLASSES           <nowrap class>...]
   [SOURCES                  <source>...]
   [HEADERS                  <header>...]
   [NOWRAP_HEADERS           <header>...]
@@ -3218,6 +3219,8 @@ always private, so there is no `PRIVATE_` variant for that argument).
     `BUILD_SHARED_LIBS` will control the library type.
   * `HEADER_ONLY`: The module only contains headers (or templates) and contains
     no compilation steps. Mutually exclusive with `FORCE_STATIC`.
+  * `HEADER_DIRECTORIES`: The headers for this module are in a directory
+    structure which should be preserved in the install tree.
   * `EXPORT_MACRO_PREFIX`: The prefix for the export macro definitions.
     Defaults to the library name of the module in all uppercase.
   * `HEADERS_SUBDIR`: The subdirectory to install headers into in the install
@@ -3232,6 +3235,9 @@ always private, so there is no `PRIVATE_` variant for that argument).
   * `SOURCES`: A list of source files which require compilation.
   * `HEADERS`: A list of header files which will be available for wrapping and
     installed.
+  * `NOWRAP_CLASSES`: A list of classes which will not be available for
+    wrapping but installed. This is a shortcut for adding `<class>.cxx` to
+    `SOURCES` and `<class>.h` to `NOWRAP_HEADERS`.
   * `NOWRAP_HEADERS`: A list of header files which will not be available for
     wrapping but installed.
   * `TEMPLATES`: A list of template files which will be installed.
@@ -3250,9 +3256,9 @@ function (vtk_module_add_module name)
   endforeach ()
 
   cmake_parse_arguments(PARSE_ARGV 1 _vtk_add_module
-    "FORCE_STATIC;HEADER_ONLY"
+    "FORCE_STATIC;HEADER_ONLY;HEADER_DIRECTORIES"
     "EXPORT_MACRO_PREFIX;HEADERS_SUBDIR;LIBRARY_NAME_SUFFIX"
-    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_HEADERS")
+    "${_vtk_add_module_source_keywords};SOURCES;NOWRAP_CLASSES;NOWRAP_HEADERS")
 
   if (_vtk_add_module_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -3282,6 +3288,13 @@ function (vtk_module_add_module name)
       "${_vtk_add_module_template_class}.txx")
     list(APPEND _vtk_add_module_HEADERS
       "${_vtk_add_module_template_class}.h")
+  endforeach ()
+
+  foreach (_vtk_add_module_class IN LISTS _vtk_add_module_NOWRAP_CLASSES)
+    list(APPEND _vtk_add_module_SOURCES
+      "${_vtk_add_module_class}.cxx")
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
+      "${_vtk_add_module_class}.h")
   endforeach ()
 
   foreach (_vtk_add_module_class IN LISTS _vtk_add_module_PRIVATE_CLASSES)
@@ -3317,7 +3330,14 @@ function (vtk_module_add_module name)
       "${_vtk_add_module_generated_header}")
   endif ()
 
+  set(_vtk_add_module_use_relative_paths)
+  if (_vtk_add_module_HEADER_DIRECTORIES)
+    set(_vtk_add_module_use_relative_paths
+      USE_RELATIVE_PATHS)
+  endif ()
+
   vtk_module_install_headers(
+    ${_vtk_add_module_use_relative_paths}
     FILES   ${_vtk_add_module_HEADERS}
             ${_vtk_add_module_NOWRAP_HEADERS}
             ${_vtk_add_module_TEMPLATES}
@@ -3765,6 +3785,7 @@ and `HEADERS_COMPONENT` arguments to @ref vtk_module_build.
 
 ~~~
 vtk_module_install_headers(
+  [USE_RELATIVE_PATHS]
   [DIRECTORIES  <directory>...]
   [FILES        <file>...]
   [SUBDIR       <subdir>])
@@ -3772,10 +3793,14 @@ vtk_module_install_headers(
 
 Installation of header directories follows CMake's `install` function semantics
 with respect to trailing slashes.
+
+If `USE_RELATIVE_PATHS` is given, the directory part of any listed files will
+be added to the destination. Absolute paths will be computed relative to
+`${CMAKE_CURRENT_BINARY_DIR}`.
 #]==]
 function (vtk_module_install_headers)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_install_headers
-    ""
+    "USE_RELATIVE_PATHS"
     "SUBDIR"
     "FILES;DIRECTORIES")
 
@@ -3806,16 +3831,43 @@ function (vtk_module_install_headers)
       endif ()
     endif ()
   endif ()
-  if (_vtk_install_headers_FILES)
+  if (_vtk_install_headers_USE_RELATIVE_PATHS)
+    set(_vtk_install_headers_destination_file_subdir "")
+    foreach (_vtk_install_headers_file IN LISTS _vtk_install_headers_FILES)
+      if (IS_ABSOLUTE "${_vtk_install_headers_file}")
+        file(RELATIVE_PATH _vtk_install_headers_destination_file_from_binary_dir
+          "${CMAKE_CURRENT_BINARY_DIR}"
+          "${_vtk_install_headers_file}")
+        get_filename_component(_vtk_install_headers_destination_file_subdir "${_vtk_install_headers_destination_file_from_binary_dir}" DIRECTORY)
+      else ()
+        get_filename_component(_vtk_install_headers_destination_file_subdir "${_vtk_install_headers_file}" DIRECTORY)
+      endif ()
+      install(
+        FILES       ${_vtk_install_headers_file}
+        DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_file_subdir}"
+        COMPONENT   "${_vtk_install_headers_headers_component}")
+    endforeach ()
+  elseif (_vtk_install_headers_FILES)
     install(
       FILES       ${_vtk_install_headers_FILES}
       DESTINATION "${_vtk_install_headers_destination}"
       COMPONENT   "${_vtk_install_headers_headers_component}")
   endif ()
+  set(_vtk_install_headers_destination_directory_subdir "")
   foreach (_vtk_install_headers_directory IN LISTS _vtk_install_headers_DIRECTORIES)
+    if (_vtk_install_headers_USE_RELATIVE_PATHS)
+      if (IS_ABSOLUTE "${_vtk_install_headers_directory}")
+        file(RELATIVE_PATH _vtk_install_headers_destination_directory_from_binary_dir
+          "${CMAKE_CURRENT_BINARY_DIR}"
+          "${_vtk_install_headers_directory}")
+        get_filename_component(_vtk_install_headers_destination_directory_subdir "${_vtk_install_headers_destination_directory_from_binary_dir}" DIRECTORY)
+      else ()
+        get_filename_component(_vtk_install_headers_destination_directory_subdir "${_vtk_install_headers_directory}" DIRECTORY)
+      endif ()
+    endif ()
     install(
       DIRECTORY   "${_vtk_install_headers_directory}"
-      DESTINATION "${_vtk_install_headers_destination}"
+      DESTINATION "${_vtk_install_headers_destination}/${_vtk_install_headers_destination_directory_subdir}"
       COMPONENT   "${_vtk_install_headers_headers_component}")
   endforeach ()
 endfunction ()

@@ -6,6 +6,7 @@ include:
 
     # OS builds.
     - local: .gitlab/os-linux.yml
+    - local: .gitlab/os-macos.yml
 
 stages:
     - build
@@ -112,7 +113,7 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     extends:
         - .fedora33_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
-        - .linux_qt_builder_tags
+        - .linux_qt_tester_tags
         - .cmake_tidy_artifacts
         - .run_automatically
     dependencies:
@@ -216,3 +217,47 @@ upload:documentation:
     variables:
         SRC_SUBDIR: install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
+
+# macOS
+
+build:macos-kits-python-qt:
+    extends:
+        - .macos_kits_python_qt
+        - .cmake_build_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    # Some of the macOS runners are not very powerful.
+    timeout: 2 hours
+
+test:macos-kits-python-qt:
+    extends:
+        - .macos_kits_python_qt
+        - .cmake_test_macos
+        - .macos_builder_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:macos-kits-python-qt
+    needs:
+        - build:macos-kits-python-qt
+
+# FIXME: This is not working because Qt uses @rpath/ for its library
+# references. Since we're using a `nonconcurrent` runner for this, we can't
+# bake in any paths at build time. However, to install Qt next to it, we need
+# to provide the whole thing to avoid building against one Qt and using another
+# at runtime. The external testing framework can't provide the rpath because
+# tests exists that are just Python scripts, so `vtkpython` needs to work
+# standalone.
+#
+# test-ext:vtk:macos-kits-python-qt:
+#     extends:
+#         - .macos_kits_python_qt_ext_vtk
+#         - .cmake_test_external_macos
+#         - .macos_ext_builder_tags
+#         - .cmake_tidy_artifacts
+#         - .run_automatically
+#     dependencies:
+#         - test:macos-kits-python-qt
+#     needs:
+#         - test:macos-kits-python-qt

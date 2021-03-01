@@ -1,6 +1,6 @@
 # This project builds the test directories from all VTK modules as a separate
 # project outside the main VTK build tree as if they were an application.
-cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8...3.16 FATAL_ERROR)
 
 project(VTKTestExternal)
 if(VTK_SOURCE_DIR OR VTK_BINARY_DIR)
@@ -19,6 +19,10 @@ set(VTK_SOURCE_DIR "${VTK_TOP_DIR}")
 find_package(VTK REQUIRED NO_MODULE)
 # Tests use some macros only stored in VTK's source tree.
 list(APPEND CMAKE_MODULE_PATH "${VTK_TOP_DIR}/CMake")
+
+if (VTK_QT_VERSION)
+  set(vtk_qt_major_version "${VTK_QT_VERSION}")
+endif ()
 
 # Include VTK's external data settings.
 include(vtkExternalData)

@@ -17,11 +17,13 @@ set(classes
   vtkOSPRayVolumeNode
   vtkOSPRayWindowNode)
 
-set(sources
-    RTWrapper/RTWrapper.cxx)
+set(nowrap_classes
+  RTWrapper/RTWrapper)
 
-set(headers
-    RTWrapper/RTWrapper.h)
+set(nowrap_headers
+  RTWrapper/RTWrapper.h
+  RTWrapper/Types.h
+  RTWrapper/Backend.h)
 
 vtk_object_factory_declare(
   BASE vtkOSPRayVolumeInterface
@@ -43,16 +45,12 @@ if (VTK_ENABLE_VISRTX)
 endif ()
 
 vtk_module_add_module(VTK::RenderingRayTracing
+  HEADER_DIRECTORIES
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source} ${sources}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${headers})
-
-vtk_module_install_headers(
-  FILES
-    RTWrapper/RTWrapper.h
-    RTWrapper/Types.h
-    RTWrapper/Backend.h
-  SUBDIR "RTWrapper")
+  NOWRAP_CLASSES  ${nowrap_classes}
+  NOWRA_HEADERS   ${nowrap_headers}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 
 if (VTK_ENABLE_OSPRAY)
   vtk_module_find_package(

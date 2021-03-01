@@ -1,7 +1,7 @@
 # This is an alternative  way to add a named test that uses a common executable
 # Use this if it does not require MPI
 
-set(TEMP ${VTK_BINARY_DIR}/Testing/Temporary)
+set(TEMP "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImporter-TwoTrianglesWithNegativeIndices,TestOBJImporter.cxx
