@@ -193,8 +193,8 @@ inline void InitBB(double* Bounds)
 
 inline bool InBB(const double* x, const double* bounds)
 {
-  return bounds[0] <= x[0] && x[0] <= bounds[1] && bounds[2] <= x[1] && x[1] <= bounds[3] &&
-    bounds[4] <= x[2] && x[2] <= bounds[5];
+  constexpr double delta[3] = { 1e-6, 1e-6, 1e-6 };
+  return vtkMath::PointIsWithinBounds(x, bounds, delta);
 }
 
 inline void UpdateBB(double* a, const double* b)
