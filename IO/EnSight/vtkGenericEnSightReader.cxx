@@ -1280,7 +1280,7 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
 {
   // TODO Rewrite using std::regex and std::string
 
-  int wildcardPos = static_cast<int>(strcspn(filename, "*"));
+  size_t wildcardPos = strcspn(filename, "*");
 
   // Check if no wildcard
   if (strlen(filename) == wildcardPos)
@@ -1288,7 +1288,7 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
     return;
   }
 
-  int numWildcards = static_cast<int>(strspn(filename + wildcardPos, "*"));
+  size_t numWildcards = strspn(filename + wildcardPos, "*");
 
   char pattern[32];
   if (numWildcards == 1)
