@@ -549,24 +549,17 @@ protected:
 // Const tuple iterator
 template <typename ValueType, ComponentIdType TupleSize>
 struct ConstTupleIterator<vtkAOSDataArrayTemplate<ValueType>, TupleSize>
-  : public std::iterator<std::random_access_iterator_tag,
-      ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>, TupleIdType,
-      ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>,
-      ConstTupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>>
 {
 private:
   using ArrayType = vtkAOSDataArrayTemplate<ValueType>;
   using NumCompsType = GenericTupleSize<TupleSize>;
-  using Superclass = std::iterator<std::random_access_iterator_tag,
-    ConstTupleReference<ArrayType, TupleSize>, TupleIdType,
-    ConstTupleReference<ArrayType, TupleSize>, ConstTupleReference<ArrayType, TupleSize>>;
 
 public:
-  using iterator_category = typename Superclass::iterator_category;
-  using value_type = typename Superclass::value_type;
-  using difference_type = typename Superclass::difference_type;
-  using pointer = typename Superclass::pointer;
-  using reference = typename Superclass::reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = ConstTupleReference<ArrayType, TupleSize>;
+  using difference_type = TupleIdType;
+  using pointer = ConstTupleReference<ArrayType, TupleSize>;
+  using reference = ConstTupleReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ConstTupleIterator() noexcept = default;
@@ -709,24 +702,17 @@ private:
 // Tuple iterator
 template <typename ValueType, ComponentIdType TupleSize>
 struct TupleIterator<vtkAOSDataArrayTemplate<ValueType>, TupleSize>
-  : public std::iterator<std::random_access_iterator_tag,
-      TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>, TupleIdType,
-      TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>,
-      TupleReference<vtkAOSDataArrayTemplate<ValueType>, TupleSize>>
 {
 private:
   using ArrayType = vtkAOSDataArrayTemplate<ValueType>;
   using NumCompsType = GenericTupleSize<TupleSize>;
-  using Superclass =
-    std::iterator<std::random_access_iterator_tag, TupleReference<ArrayType, TupleSize>,
-      TupleIdType, TupleReference<ArrayType, TupleSize>, TupleReference<ArrayType, TupleSize>>;
 
 public:
-  using iterator_category = typename Superclass::iterator_category;
-  using value_type = typename Superclass::value_type;
-  using difference_type = typename Superclass::difference_type;
-  using pointer = typename Superclass::pointer;
-  using reference = typename Superclass::reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = TupleReference<ArrayType, TupleSize>;
+  using difference_type = TupleIdType;
+  using pointer = TupleReference<ArrayType, TupleSize>;
+  using reference = TupleReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   TupleIterator() noexcept = default;

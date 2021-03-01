@@ -506,9 +506,6 @@ protected:
 // Const value iterator
 template <typename ArrayType, ComponentIdType TupleSize>
 struct ConstValueIterator
-  : public std::iterator<std::random_access_iterator_tag, GetAPIType<ArrayType>, ValueIdType,
-      // expected types don't have members, no op->().
-      void, ConstValueReference<ArrayType, TupleSize>>
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
@@ -516,15 +513,13 @@ private:
 
   using APIType = GetAPIType<ArrayType>;
   using IdStorageType = IdStorage<TupleSize>;
-  using Superclass = std::iterator<std::random_access_iterator_tag, APIType, ValueIdType, void,
-    ConstValueReference<ArrayType, TupleSize>>;
 
 public:
-  using iterator_category = typename Superclass::iterator_category;
-  using value_type = typename Superclass::value_type;
-  using difference_type = typename Superclass::difference_type;
-  using pointer = typename Superclass::pointer;
-  using reference = typename Superclass::reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = APIType;
+  using difference_type = ValueIdType;
+  using pointer = void;
+  using reference = ConstValueReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ConstValueIterator() noexcept
@@ -672,8 +667,6 @@ private:
 // Component iterator
 template <typename ArrayType, ComponentIdType TupleSize>
 struct ValueIterator
-  : public std::iterator<std::random_access_iterator_tag, vtk::GetAPIType<ArrayType>, ValueIdType,
-      ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize>>
 {
 private:
   static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
@@ -681,15 +674,13 @@ private:
 
   using APIType = GetAPIType<ArrayType>;
   using IdStorageType = IdStorage<TupleSize>;
-  using Superclass = std::iterator<std::random_access_iterator_tag, GetAPIType<ArrayType>,
-    ValueIdType, ValueReference<ArrayType, TupleSize>, ValueReference<ArrayType, TupleSize>>;
 
 public:
-  using iterator_category = typename Superclass::iterator_category;
-  using value_type = typename Superclass::value_type;
-  using difference_type = typename Superclass::difference_type;
-  using pointer = typename Superclass::pointer;
-  using reference = typename Superclass::reference;
+  using iterator_category = std::random_access_iterator_tag;
+  using value_type = GetAPIType<ArrayType>;
+  using difference_type = ValueIdType;
+  using pointer = ValueReference<ArrayType, TupleSize>;
+  using reference = ValueReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   ValueIterator() noexcept = default;
