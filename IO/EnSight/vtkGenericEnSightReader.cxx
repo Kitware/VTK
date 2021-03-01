@@ -1297,7 +1297,7 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* filename, int num)
   }
   else
   {
-    snprintf(pattern, sizeof(pattern), "%%0%dd", numWildcards);
+    snprintf(pattern, sizeof(pattern), "%%0%dd", static_cast<int>(numWildcards));
   }
 
   char numStr[32];
