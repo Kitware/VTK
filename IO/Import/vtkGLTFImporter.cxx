@@ -321,19 +321,21 @@ void ApplyTransformToCamera(vtkSmartPointer<vtkCamera> cam, vtkSmartPointer<vtkM
     return;
   }
 
-  double position[3] = { 0.0 };
-  double viewUp[3] = { 0.0 };
-  double focus[3] = { 0.0 };
+  // At identity, camera position is origin, +y up, -z view direction
+  double position[3] = { 0.0, 0.0, 0.0 };
+  double viewUp[3] = { 0.0, 1.0, 0.0 };
+  double focus[3] = { 0.0, 0.0, -1.0 };
 
   vtkNew<vtkTransform> t;
   t->SetMatrix(transform);
 
-  t->TransformPoint(cam->GetPosition(), position);
-  t->TransformVector(cam->GetViewUp(), viewUp);
-  t->TransformVector(cam->GetDirectionOfProjection(), focus);
-  focus[0] -= position[0];
-  focus[1] -= position[1];
-  focus[2] -= position[2];
+  t->TransformPoint(position, position);
+  t->TransformVector(viewUp, viewUp);
+  t->TransformVector(focus, focus);
+
+  focus[0] += position[0];
+  focus[1] += position[1];
+  focus[2] += position[2];
 
   cam->SetPosition(position);
   cam->SetFocalPoint(focus);
@@ -501,6 +503,13 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
+  this->Cameras.clear();
+  for (size_t i = 0; i < model->Cameras.size(); i++)
+  {
+    vtkGLTFDocumentLoader::Camera const& camera = model->Cameras[i];
+    this->Cameras[static_cast<int>(i)] = GLTFCameraToVTKCamera(camera);
+  }
+
   // Iterate over tree
   while (!nodeIdStack.empty())
   {
@@ -512,14 +521,7 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     // Import node's camera
     if (node.Camera >= 0 && node.Camera < static_cast<int>(model->Cameras.size()))
     {
-      vtkGLTFDocumentLoader::Camera const& camera = model->Cameras[node.Camera];
-      auto vtkCam = GLTFCameraToVTKCamera(camera);
-      ApplyTransformToCamera(vtkCam, node.GlobalTransform);
-      renderer->SetActiveCamera(vtkCam);
-      // Since the same glTF camera object can be used by multiple nodes (so with different
-      // transforms), multiple vtkCameras are generated for the same glTF camera object, but with
-      // different transforms.
-      this->Cameras.push_back(vtkCam);
+      ApplyTransformToCamera(this->Cameras[node.Camera], node.GlobalTransform);
     }
 
     // Add node's children to stack
@@ -528,6 +530,46 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
       nodeIdStack.push(childNodeId);
     }
   }
+
+  // update enabled camera
+  if (this->EnabledCamera >= this->GetNumberOfCameras())
+  {
+    vtkErrorMacro("Camera index " << this->EnabledCamera << "is invalid");
+    this->EnabledCamera = -1;
+    return;
+  }
+
+  if (this->EnabledCamera >= 0)
+  {
+    renderer->SetActiveCamera(this->Cameras[this->EnabledCamera]);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkGLTFImporter::GetNumberOfCameras()
+{
+  auto model = this->Loader->GetInternalModel();
+  return model->Cameras.size();
+}
+
+//------------------------------------------------------------------------------
+std::string vtkGLTFImporter::GetCameraName(vtkIdType camIndex)
+{
+  auto model = this->Loader->GetInternalModel();
+  if (camIndex < 0 || camIndex >= this->GetNumberOfCameras())
+  {
+    vtkErrorMacro("Camera index invalid");
+    return "";
+  }
+  return model->Cameras[camIndex].Name;
+}
+
+//------------------------------------------------------------------------------
+void vtkGLTFImporter::SetCamera(vtkIdType camIndex)
+{
+  // if the user sets the camera before the import, we do not know how many
+  // cameras there are, so do not check if the index if valid here
+  this->EnabledCamera = camIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -613,6 +655,8 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
     }
   }
   this->Loader->BuildGlobalTransforms();
+
+  this->ImportCameras(this->Renderer);
 
   auto model = this->Loader->GetInternalModel();
 
@@ -758,16 +802,11 @@ void vtkGLTFImporter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
 {
-  if (id >= this->Cameras.size())
+  auto it = this->Cameras.find(id);
+  if (it == this->Cameras.end())
   {
     vtkErrorMacro("Out of range camera index");
     return nullptr;
   }
-  return this->Cameras[id];
-}
-
-//------------------------------------------------------------------------------
-size_t vtkGLTFImporter::GetNumberOfCameras()
-{
-  return this->Cameras.size();
+  return it->second;
 }

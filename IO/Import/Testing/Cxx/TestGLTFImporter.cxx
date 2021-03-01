@@ -22,11 +22,13 @@
 
 int TestGLTFImporter(int argc, char* argv[])
 {
-  if (argc <= 1)
+  if (argc < 3)
   {
-    std::cout << "Usage: " << argv[0] << " <gltf file>" << std::endl;
+    std::cout << "Usage: " << argv[0] << " <gltf file> <camera index>" << std::endl;
     return EXIT_FAILURE;
   }
+
+  vtkIdType cameraIndex = atoi(argv[2]);
 
   vtkNew<vtkGLTFImporter> importer;
   importer->SetFileName(argv[1]);
@@ -41,6 +43,7 @@ int TestGLTFImporter(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
+  importer->SetCamera(cameraIndex);
   importer->Update();
   renderWindow->Render();
 
