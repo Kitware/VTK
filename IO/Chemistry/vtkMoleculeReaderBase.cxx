@@ -250,7 +250,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
   this->RGB->SetName("rgb_colors");
 
   float rgb[3];
-  for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
+  for (vtkIdType i = 0; i < this->NumberOfAtoms; ++i)
   {
     this->PeriodicTable->GetDefaultRGBTuple(AtomType->GetValue(i), rgb);
     this->RGB->InsertNextTuple(rgb);
@@ -273,7 +273,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE* fp, vtkPolyData* output)
   // Assign atom radii
   // We're obliged here to insert the scalars "radius" 3 times to make it a
   // vector in order to use Glyph3D to color AND scale at the same time.
-  for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
+  for (vtkIdType i = 0; i < this->NumberOfAtoms; ++i)
   {
     double radius = vtkMoleculeReaderBase::PeriodicTable->GetVDWRadius(AtomType->GetValue(i));
     this->Radii->InsertNextTuple3(radius, radius, radius);
@@ -297,7 +297,7 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
   // must be declared before bonds involving it.
   if (this->Molecule)
   {
-    for (unsigned int i = 0; i < this->NumberOfAtoms; ++i)
+    for (vtkIdType i = 0; i < this->NumberOfAtoms; ++i)
     {
       points->GetPoint(i, X);
       this->Molecule->AppendAtom(atomTypes->GetValue(i), X[0], X[1], X[2]);
@@ -311,7 +311,7 @@ unsigned int vtkMoleculeReaderBase::MakeBonds(
   vtkSmartPointer<vtkPointLocator> locator = vtkSmartPointer<vtkPointLocator>::New();
   locator->SetDataSet(dataset);
 
-  for (unsigned int atomId = this->NumberOfAtoms - 1; atomId > 0; --atomId)
+  for (vtkIdType atomId = this->NumberOfAtoms - 1; atomId > 0; --atomId)
   {
     bond[0] = atomId;
     points->GetPoint(atomId, X);
