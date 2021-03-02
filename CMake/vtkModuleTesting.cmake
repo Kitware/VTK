@@ -415,8 +415,8 @@ function (vtk_add_test_mpi exename _tests)
     endif ()
 
     set(numprocs ${default_numprocs})
-    if (${name}_NUMPROCS)
-      set(numprocs "${${name}_NUMPROCS}")
+    if (${test_name}_NUMPROCS)
+      set(numprocs "${${test_name}_NUMPROCS}")
     endif ()
 
     ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
