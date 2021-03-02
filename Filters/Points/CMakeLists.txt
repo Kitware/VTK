@@ -1,6 +1,7 @@
 set(classes
   vtkBoundedPointSource
   vtkConnectedPointsFilter
+  vtkConvertToPointCloud
   vtkDensifyPointCloudFilter
   vtkEllipsoidalGaussianKernel
   vtkEuclideanClusterExtraction
