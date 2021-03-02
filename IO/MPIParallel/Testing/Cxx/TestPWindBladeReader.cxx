@@ -153,7 +153,16 @@ int TestPWindBladeReader(int argc, char* argv[])
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin);
+  int retVal;
+  if (controller->GetLocalProcessId() == 0)
+  {
+    retVal = vtkRegressionTestImage(renWin);
+  }
+  else
+  {
+    // Let non-zero ranks believe they passed - rank 0 will do the regression testing
+    retVal = vtkRegressionTester::PASSED;
+  }
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
