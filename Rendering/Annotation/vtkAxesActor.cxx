@@ -31,6 +31,9 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 
+#include <algorithm>
+#include <cmath>
+
 vtkStandardNewMacro(vtkAxesActor);
 
 vtkCxxSetObjectMacro(vtkAxesActor, UserDefinedTip, vtkPolyData);
@@ -344,56 +347,27 @@ void vtkAxesActor::GetBounds(double bounds[6])
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double* vtkAxesActor::GetBounds()
 {
-  double bounds[6];
-  int i;
-
-  this->XAxisShaft->GetBounds(this->Bounds);
-
-  this->YAxisShaft->GetBounds(bounds);
-  for (i = 0; i < 3; ++i)
-  {
-    this->Bounds[2 * i + 1] = (bounds[2 * i + 1] > this->Bounds[2 * i + 1])
-      ? (bounds[2 * i + 1])
-      : (this->Bounds[2 * i + 1]);
-  }
-
-  this->ZAxisShaft->GetBounds(bounds);
-  for (i = 0; i < 3; ++i)
-  {
-    this->Bounds[2 * i + 1] = (bounds[2 * i + 1] > this->Bounds[2 * i + 1])
-      ? (bounds[2 * i + 1])
-      : (this->Bounds[2 * i + 1]);
-  }
-
-  this->XAxisTip->GetBounds(bounds);
-  for (i = 0; i < 3; ++i)
-  {
-    this->Bounds[2 * i + 1] = (bounds[2 * i + 1] > this->Bounds[2 * i + 1])
-      ? (bounds[2 * i + 1])
-      : (this->Bounds[2 * i + 1]);
-  }
-
-  this->YAxisTip->GetBounds(bounds);
-  for (i = 0; i < 3; ++i)
-  {
-    this->Bounds[2 * i + 1] = (bounds[2 * i + 1] > this->Bounds[2 * i + 1])
-      ? (bounds[2 * i + 1])
-      : (this->Bounds[2 * i + 1]);
-  }
-
-  this->ZAxisTip->GetBounds(bounds);
-  for (i = 0; i < 3; ++i)
-  {
-    this->Bounds[2 * i + 1] = (bounds[2 * i + 1] > this->Bounds[2 * i + 1])
-      ? (bounds[2 * i + 1])
-      : (this->Bounds[2 * i + 1]);
-  }
+  vtkProp3D* part[6] = { this->XAxisShaft, this->YAxisShaft, this->ZAxisShaft, this->XAxisTip,
+    this->YAxisTip, this->ZAxisTip };
 
   // We want this actor to rotate / re-center about the origin, so give it
   // the bounds it would have if the axes were symmetric.
-  for (i = 0; i < 3; ++i)
+  double maxbounds[3] = { 0.0, 0.0, 0.0 };
+  double bounds[6];
+  for (int j = 0; j < 6; ++j)
   {
-    this->Bounds[2 * i] = -this->Bounds[2 * i + 1];
+    part[j]->GetBounds(bounds);
+    for (int i = 0; i < 3; ++i)
+    {
+      maxbounds[i] = std::max(maxbounds[i], std::fabs(bounds[2 * i]));
+      maxbounds[i] = std::max(maxbounds[i], std::fabs(bounds[2 * i + 1]));
+    }
+  }
+
+  for (int i = 0; i < 3; ++i)
+  {
+    this->Bounds[2 * i + 1] = maxbounds[i];
+    this->Bounds[2 * i] = -maxbounds[i];
   }
 
   return this->Bounds;
