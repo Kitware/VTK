@@ -144,15 +144,22 @@ public:
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
   //@}
 
+  //@{
+  /**
+   * For debugging purposes: given a target candidate cell id (specified by
+   * the value of ProduceTriangulationInput), print out the cell vertices and
+   * the points in the cell prior to the triangulation process. By default,
+   * ProduceTriangulationInput < 0 so that the output is not produced.
+   */
+  vtkSetMacro(ProduceTriangulationInput, vtkIdType);
+
 protected:
   vtkImprintFilter();
   ~vtkImprintFilter() override;
 
   double Tolerance;
   int OutputType;
-
-  // Used internally to project points from imprint onto target
-  vtkSmartPointer<vtkStaticCellLocator> CellLocator;
+  vtkIdType ProduceTriangulationInput;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
