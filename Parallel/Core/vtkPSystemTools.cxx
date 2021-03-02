@@ -152,13 +152,13 @@ bool vtkPSystemTools::FindProgramPath(const char* argv0, std::string& pathOut,
 }
 
 //----------------------------------------------------------------------------
-std::string vtkPSystemTools::GetCurrentWorkingDirectory(bool collapse)
+std::string vtkPSystemTools::GetCurrentWorkingDirectory(bool /* collapse */)
 {
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   std::string returnString;
   if (controller->GetLocalProcessId() == 0)
   {
-    returnString = vtksys::SystemTools::GetCurrentWorkingDirectory(collapse);
+    returnString = vtksys::SystemTools::GetCurrentWorkingDirectory();
   }
   vtkPSystemTools::BroadcastString(returnString, 0);
   return returnString;
