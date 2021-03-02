@@ -155,8 +155,9 @@ int TestPStreamAMR(int argc, char* argv[])
   int Rank = c->GetLocalProcessId();
   if (numProcs != 4)
   {
-    cerr << "Cannot Create four MPI Processes. Success is only norminal";
-    return EXIT_SUCCESS;
+    std::cerr << "Test requires 4 processes." << std::endl;
+    c->Finalize();
+    return EXIT_FAILURE;
   }
 
   char* fname =

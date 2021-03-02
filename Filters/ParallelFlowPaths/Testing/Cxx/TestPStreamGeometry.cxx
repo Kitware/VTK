@@ -66,7 +66,11 @@ int TestPStreamGeometry(int argc, char* argv[])
   int numProcs = c->GetNumberOfProcesses();
   int myRank = c->GetLocalProcessId();
   if (numProcs != 4)
-    return EXIT_SUCCESS;
+  {
+    std::cerr << "Test requires 4 processes." << std::endl;
+    c->Finalize();
+    return EXIT_FAILURE;
+  }
 
   int size(5);
   vtkNew<TestVectorFieldSource> imageSource;
