@@ -94,11 +94,6 @@ public:
   vtkSmartPointer<vtkCamera> GetCamera(unsigned int id);
 
   /**
-   * Get the total number of cameras
-   */
-  size_t GetNumberOfCameras();
-
-  /**
    * Get a printable string describing all outputs
    */
   std::string GetOutputsDescription() override { return this->OutputsDescription; };
@@ -128,6 +123,22 @@ public:
   //@}
 
   /**
+   * Get the number of available cameras.
+   */
+  vtkIdType GetNumberOfCameras() override;
+
+  /**
+   * Get the name of a camera.
+   */
+  std::string GetCameraName(vtkIdType camIndex) override;
+
+  /**
+   * Enable a specific camera.
+   * If a negative index is provided, no camera from the importer is used.
+   */
+  void SetCamera(vtkIdType camIndex) override;
+
+  /**
    * Get temporal informations for the currently enabled animations.
    * frameRate is used to define the number of frames for one second of simulation.
    * the three return arguments are defined in this implementation.
@@ -146,12 +157,13 @@ protected:
 
   char* FileName = nullptr;
 
-  std::vector<vtkSmartPointer<vtkCamera>> Cameras;
+  std::map<int, vtkSmartPointer<vtkCamera>> Cameras;
   std::map<int, vtkSmartPointer<vtkTexture>> Textures;
   std::map<int, std::vector<vtkSmartPointer<vtkActor>>> Actors;
   vtkSmartPointer<vtkGLTFDocumentLoader> Loader;
   std::string OutputsDescription;
   std::vector<bool> EnabledAnimations;
+  vtkIdType EnabledCamera = -1;
 
 private:
   vtkGLTFImporter(const vtkGLTFImporter&) = delete;

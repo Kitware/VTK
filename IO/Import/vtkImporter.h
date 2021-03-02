@@ -95,7 +95,7 @@ public:
    * Recover a printable string that let importer implementation
    * Describe their outputs.
    */
-  virtual std::string GetOutputsDescription() { return ""; };
+  virtual std::string GetOutputsDescription() { return ""; }
 
   /**
    * Get the number of available animations.
@@ -107,16 +107,35 @@ public:
    * Get the name of an animation.
    * Return an empty if not provided by implementation.
    */
-  virtual std::string GetAnimationName(vtkIdType vtkNotUsed(animationIndex)) { return ""; };
+  virtual std::string GetAnimationName(vtkIdType vtkNotUsed(animationIndex)) { return ""; }
 
   //@{
   /**
    * Enable/Disable/Get the status of specific animations
    */
-  virtual void EnableAnimation(vtkIdType vtkNotUsed(animationIndex)){};
-  virtual void DisableAnimation(vtkIdType vtkNotUsed(animationIndex)){};
-  virtual bool IsAnimationEnabled(vtkIdType vtkNotUsed(animationIndex)) { return false; };
+  virtual void EnableAnimation(vtkIdType vtkNotUsed(animationIndex)) {}
+  virtual void DisableAnimation(vtkIdType vtkNotUsed(animationIndex)) {}
+  virtual bool IsAnimationEnabled(vtkIdType vtkNotUsed(animationIndex)) { return false; }
   //@}
+
+  /**
+   * Get the number of available cameras.
+   * Return 0 if not provided by implementation.
+   */
+  virtual vtkIdType GetNumberOfCameras() { return 0; }
+
+  /**
+   * Get the name of a camera.
+   * Return an empty string if not provided by implementation.
+   */
+  virtual std::string GetCameraName(vtkIdType vtkNotUsed(camIndex)) { return ""; }
+
+  /**
+   * Enable a specific camera.
+   * If a negative index is provided, no camera from the importer is used.
+   * Does nothing if not provided by implementation.
+   */
+  virtual void SetCamera(vtkIdType vtkNotUsed(camIndex)) {}
 
   /**
    * Get temporal informations for the currently enabled animations.
