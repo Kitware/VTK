@@ -49,7 +49,7 @@ vtk_module_add_module(VTK::RenderingRayTracing
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source} ${sources}
   NOWRAP_CLASSES  ${nowrap_classes}
-  NOWRA_HEADERS   ${nowrap_headers}
+  NOWRAP_HEADERS  ${nowrap_headers}
   PRIVATE_HEADERS ${vtk_object_factory_header})
 
 if (VTK_ENABLE_OSPRAY)
