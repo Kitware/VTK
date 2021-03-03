@@ -1589,7 +1589,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       int tcoordComps = this->VBOs->GetNumberOfComponents(it.c_str());
       if (tcoordComps == 1)
       {
-        vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,0.0,1.0);\n" + it +
+        vsimpl += "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,0.0,1.0);\n" + it +
           "VCVSOutput = " + it + "Tmp.x/" + it + "Tmp.w;\n";
         if (this->SeamlessU)
         {
@@ -1599,7 +1599,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       }
       else
       {
-        vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,1.0);\n" + it +
+        vsimpl += "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,1.0);\n" + it +
           "VCVSOutput = " + it + "Tmp.xy/" + it + "Tmp.w;\n";
         if (this->SeamlessU)
         {
@@ -1618,7 +1618,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   {
     for (const auto& it : tcoordnames)
     {
-      vsimpl = vsimpl + it + "VCVSOutput = " + it + ";\n";
+      vsimpl += it + "VCVSOutput = " + it + ";\n";
       if (this->SeamlessU)
       {
         vsimpl += it + "VCVSOutputU1 = fract(" + it + "VCVSOutput.x);\n" + it +
@@ -1651,31 +1651,31 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     {
       tCoordType = "vec2";
     }
-    vsdec = vsdec + "in " + tCoordType + " " + it + ";\n";
-    vsdec = vsdec + "out " + tCoordType + " " + it + "VCVSOutput;\n";
+    vsdec += "in " + tCoordType + " " + it + ";\n";
+    vsdec += "out " + tCoordType + " " + it + "VCVSOutput;\n";
     if (this->SeamlessU)
     {
-      vsdec = vsdec + "out float " + it + "VCVSOutputU1;\n";
-      vsdec = vsdec + "out float " + it + "VCVSOutputU2;\n";
+      vsdec += "out float " + it + "VCVSOutputU1;\n";
+      vsdec += "out float " + it + "VCVSOutputU2;\n";
     }
     if (this->SeamlessV && tcoordComps > 1)
     {
-      vsdec = vsdec + "out float " + it + "VCVSOutputV1;\n";
-      vsdec = vsdec + "out float " + it + "VCVSOutputV2;\n";
+      vsdec += "out float " + it + "VCVSOutputV1;\n";
+      vsdec += "out float " + it + "VCVSOutputV2;\n";
     }
-    gsdec = gsdec + "in " + tCoordType + " " + it + "VCVSOutput[];\n";
-    gsdec = gsdec + "out " + tCoordType + " " + it + "VCGSOutput;\n";
-    gsimpl = gsimpl + it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
-    fsdec = fsdec + "in " + tCoordType + " " + it + "VCVSOutput;\n";
+    gsdec += "in " + tCoordType + " " + it + "VCVSOutput[];\n";
+    gsdec += "out " + tCoordType + " " + it + "VCGSOutput;\n";
+    gsimpl += it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
+    fsdec += "in " + tCoordType + " " + it + "VCVSOutput;\n";
     if (this->SeamlessU)
     {
-      fsdec = fsdec + "in float " + it + "VCVSOutputU1;\n";
-      fsdec = fsdec + "in float " + it + "VCVSOutputU2;\n";
+      fsdec += "in float " + it + "VCVSOutputU1;\n";
+      fsdec += "in float " + it + "VCVSOutputU2;\n";
     }
     if (this->SeamlessV && tcoordComps > 1)
     {
-      fsdec = fsdec + "in float " + it + "VCVSOutputV1;\n";
-      fsdec = fsdec + "in float " + it + "VCVSOutputV2;\n";
+      fsdec += "in float " + it + "VCVSOutputV1;\n";
+      fsdec += "in float " + it + "VCVSOutputV2;\n";
     }
   }
 
