@@ -19,6 +19,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIOOMFModule.h" // For export macro
 
+class vtkDataArraySelection;
 class vtkStringArray;
 
 /**
@@ -57,10 +58,16 @@ public:
    * so they will be loaded.
    */
   bool GetDataElementArrayStatus(const char* name);
-  void SetDataElementArrayStatus(const char* name, bool status);
+  void SetDataElementArrayStatus(const char* name, int status);
   int GetNumberOfDataElementArrays();
   const char* GetDataElementArrayName(int index);
+  vtkDataArraySelection* GetDataElementArraySelection();
   //@}
+
+  /**
+   * Overridden to take into account mtimes for vtkDataArraySelection instances.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkOMFReader();

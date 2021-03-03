@@ -56,24 +56,9 @@ bool vtkOMFReader::GetDataElementArrayStatus(const char* name)
 }
 
 //------------------------------------------------------------------------------
-void vtkOMFReader::SetDataElementArrayStatus(const char* name, bool status)
+void vtkOMFReader::SetDataElementArrayStatus(const char* name, int status)
 {
-  if (this->Impl->DataElementSelection->ArrayExists(name) == 0)
-  {
-    vtkErrorMacro(<< name << " is not available in the file.");
-    return;
-  }
-  int enabled = this->Impl->DataElementSelection->ArrayIsEnabled(name);
-  if (status != 0 && enabled == 0)
-  {
-    this->Impl->DataElementSelection->EnableArray(name);
-    this->Modified();
-  }
-  else if (status == 0 && enabled != 0)
-  {
-    this->Impl->DataElementSelection->DisableArray(name);
-    this->Modified();
-  }
+  this->Impl->DataElementSelection->SetArraySetting(name, status);
 }
 
 //------------------------------------------------------------------------------
@@ -90,6 +75,18 @@ const char* vtkOMFReader::GetDataElementArrayName(int index)
     return nullptr;
   }
   return this->Impl->DataElementSelection->GetArrayName(index);
+}
+
+//------------------------------------------------------------------------------
+vtkDataArraySelection* vtkOMFReader::GetDataElementArraySelection()
+{
+  return this->Impl->DataElementSelection;
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkOMFReader::GetMTime()
+{
+  return std::max(this->Superclass::GetMTime(), this->Impl->DataElementSelection->GetMTime());
 }
 
 //------------------------------------------------------------------------------
