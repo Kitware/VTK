@@ -114,7 +114,7 @@ public:
   vtkFieldData* GetFieldData(vtkDataObject* input) const
   {
     auto fd = input->GetFieldData();
-    if (fd && fd->GetNumberOfArrays() > 1)
+    if (fd && fd->GetNumberOfArrays() > 0)
     {
       return fd;
     }
@@ -124,7 +124,7 @@ public:
       for (auto dobj : vtk::Range(cd))
       {
         fd = dobj ? dobj->GetFieldData() : nullptr;
-        if (fd && fd->GetNumberOfArrays() > 1)
+        if (fd && fd->GetNumberOfArrays() > 0)
         {
           return fd;
         }
