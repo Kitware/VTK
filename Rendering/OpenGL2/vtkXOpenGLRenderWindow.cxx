@@ -804,7 +804,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
 }
 
 // Initialize the window for rendering.
-void vtkXOpenGLRenderWindow::WindowInitialize(void)
+void vtkXOpenGLRenderWindow::WindowInitialize()
 {
   this->CreateAWindow();
 
@@ -822,7 +822,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize(void)
 }
 
 // Initialize the rendering window.
-void vtkXOpenGLRenderWindow::Initialize(void)
+void vtkXOpenGLRenderWindow::Initialize()
 {
   if (!this->Internal->ContextId)
   {
@@ -831,7 +831,7 @@ void vtkXOpenGLRenderWindow::Initialize(void)
   }
 }
 
-void vtkXOpenGLRenderWindow::Finalize(void)
+void vtkXOpenGLRenderWindow::Finalize()
 {
   // clean and destroy window
   this->DestroyWindow();
@@ -935,7 +935,7 @@ void vtkXOpenGLRenderWindow::WindowRemap()
 }
 
 // Begin the rendering process.
-void vtkXOpenGLRenderWindow::Start(void)
+void vtkXOpenGLRenderWindow::Start()
 {
   this->Initialize();
 
@@ -1216,7 +1216,7 @@ int* vtkXOpenGLRenderWindow::GetScreenSize()
 }
 
 // Get the position in screen coordinates (pixels) of the window.
-int* vtkXOpenGLRenderWindow::GetPosition(void)
+int* vtkXOpenGLRenderWindow::GetPosition()
 {
   XWindowAttributes attribs;
   int x, y;

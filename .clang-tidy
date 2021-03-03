@@ -55,7 +55,6 @@ modernize-*,\
 -modernize-loop-convert,\
 -modernize-pass-by-value,\
 -modernize-raw-string-literal,\
--modernize-redundant-void-arg,\
 -modernize-replace-random-shuffle,\
 -modernize-return-braced-init-list,\
 -modernize-use-auto,\

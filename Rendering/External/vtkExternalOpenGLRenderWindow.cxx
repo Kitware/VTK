@@ -36,7 +36,7 @@ vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() = default;
 
 //------------------------------------------------------------------------------
-void vtkExternalOpenGLRenderWindow::Start(void)
+void vtkExternalOpenGLRenderWindow::Start()
 {
   // Use hardware acceleration
   this->SetIsDirect(1);
@@ -86,7 +86,7 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 }
 
 //------------------------------------------------------------------------------
-bool vtkExternalOpenGLRenderWindow::IsCurrent(void)
+bool vtkExternalOpenGLRenderWindow::IsCurrent()
 {
   return true;
 }
