@@ -884,14 +884,14 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
           {
             // the current nodeName ends with a number that matches the current timestep
             // or timestep indicated at end of an existing nodeName.
-            solutionNames.push_back(nodeName);
+            solutionNames.emplace_back(nodeName);
           }
         }
         else
         {
           // is stepNumbers is empty, it means the data was not temporal at all,
           // so just read all solution nodes.
-          solutionNames.push_back(nodeName);
+          solutionNames.emplace_back(nodeName);
         }
       }
     }
@@ -934,11 +934,11 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
         if (handledCenterings.find(varCentering) == handledCenterings.end())
         {
           handledCenterings.insert(varCentering);
-          solutionNames.push_back(nodeName);
+          solutionNames.emplace_back(nodeName);
         }
         else if (self->GetCreateEachSolutionAsBlock())
         {
-          solutionNames.push_back(nodeName);
+          solutionNames.emplace_back(nodeName);
         }
       }
     }
@@ -3243,7 +3243,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
                       binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
                     {
-                      faceElemToRead.push_back(std::make_pair(binfo.BCElementList[idx], idx));
+                      faceElemToRead.emplace_back(binfo.BCElementList[idx], idx);
                       BCElementRead[idx] = true;
                     }
                   }
@@ -3850,7 +3850,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                     if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
                       binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
                     {
-                      elemToRead.push_back(std::make_pair(binfo.BCElementList[idx], idx));
+                      elemToRead.emplace_back(binfo.BCElementList[idx], idx);
                       BCElementRead[idx] = true;
                     }
                   }

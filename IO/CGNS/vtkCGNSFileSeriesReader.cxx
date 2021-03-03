@@ -416,7 +416,7 @@ private:
     }
     else
     {
-      this->Datasets.push_back(vtkDataSet::SafeDownCast(dobj));
+      this->Datasets.emplace_back(vtkDataSet::SafeDownCast(dobj));
     }
   }
 

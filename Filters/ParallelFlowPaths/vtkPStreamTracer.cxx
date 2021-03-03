@@ -1054,7 +1054,7 @@ public:
       {
         vtkNew<Task> task;
         task->Point = seeds[i];
-        NTasks.push_back(task);
+        NTasks.emplace_back(task);
       }
     }
     ALLPRINT(NTasks.size() << " initial seeds out of " << totalNumTasks);

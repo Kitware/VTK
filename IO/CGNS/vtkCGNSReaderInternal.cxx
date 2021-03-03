@@ -802,7 +802,7 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
         }
         nzones++;
 
-        this->baseList[numBase].zones.push_back(CGNSRead::ZoneInformation());
+        this->baseList[numBase].zones.emplace_back();
         if (readZoneInfo(cgioNum, baseChildId[nn], this->baseList[numBase].zones.back()) != CG_OK)
         {
           this->baseList[numBase].zones.pop_back();

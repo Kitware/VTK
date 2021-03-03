@@ -361,7 +361,7 @@ int vtkDIYAggregateDataSetFilter::MoveDataWithDIY(int inputExtent[6], int wholeE
   {
     if (proxyWithLink.incoming(in[i]))
     {
-      receivedDataSets.push_back("");
+      receivedDataSets.emplace_back("");
       proxyWithLink.dequeue(in[i], receivedDataSets.back());
       // now deserialize...
     }

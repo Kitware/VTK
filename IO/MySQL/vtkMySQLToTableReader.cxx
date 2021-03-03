@@ -88,7 +88,7 @@ int vtkMySQLToTableReader::RequestData(
       vtkSmartPointer<vtkIntArray> column = vtkSmartPointer<vtkIntArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
-      columnTypes.push_back("int");
+      columnTypes.emplace_back("int");
     }
     else if ((columnType.find("float") != std::string::npos) ||
       (columnType.find("FLOAT") != std::string::npos) ||
@@ -104,14 +104,14 @@ int vtkMySQLToTableReader::RequestData(
       vtkSmartPointer<vtkDoubleArray> column = vtkSmartPointer<vtkDoubleArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
-      columnTypes.push_back("double");
+      columnTypes.emplace_back("double");
     }
     else
     {
       vtkSmartPointer<vtkStringArray> column = vtkSmartPointer<vtkStringArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
-      columnTypes.push_back("string");
+      columnTypes.emplace_back("string");
     }
   }
 

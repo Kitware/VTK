@@ -3145,10 +3145,10 @@ void vtkLSDynaReader::ResetPartInfo()
       realMat = mat;                                                                               \
       snprintf(partLabel, sizeof(partLabel), fmt, mat);                                            \
     }                                                                                              \
-    p->PartNames.push_back(partLabel);                                                             \
-    p->PartIds.push_back(realMat);                                                                 \
-    p->PartMaterials.push_back(mat);                                                               \
-    p->PartStatus.push_back(1);                                                                    \
+    p->PartNames.emplace_back(partLabel);                                                          \
+    p->PartIds.emplace_back(realMat);                                                              \
+    p->PartMaterials.emplace_back(mat);                                                            \
+    p->PartStatus.emplace_back(1);                                                                 \
   }
 
   VTK_LSDYNA_PARTLABEL("NUMMAT8", "Part%d"); // was "PartSolid%d

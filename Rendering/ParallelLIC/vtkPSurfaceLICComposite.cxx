@@ -1040,8 +1040,8 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 
             if (!sharedExt.Empty())
             {
-              this->ScatterProgram.push_back(vtkPPixelTransfer(
-                srcRank, this->WindowExt, sharedExt, destRank, this->WindowExt, sharedExt, id));
+              this->ScatterProgram.emplace_back(
+                srcRank, this->WindowExt, sharedExt, destRank, this->WindowExt, sharedExt, id);
             }
             id += 1;
           }
@@ -1110,10 +1110,9 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
           {
             // to move vectors for the LIC decomp
             // into a contiguous recv buffer
-            this->GatherProgram.push_back(
-              vtkPPixelTransfer(srcRank, this->WindowExt, sharedExt, destRank,
-                sharedExt, // dest ext
-                sharedExt, id));
+            this->GatherProgram.emplace_back(srcRank, this->WindowExt, sharedExt, destRank,
+              sharedExt, // dest ext
+              sharedExt, id);
           }
 
           id += 1;

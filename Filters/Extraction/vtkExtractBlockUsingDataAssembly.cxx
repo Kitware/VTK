@@ -95,7 +95,7 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
     vtkNew<vtkDataAssembly> oAssembly;
     oAssembly->DeepCopy(iAssembly);
     oAssembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);
-    mapped_assemblies.push_back(oAssembly);
+    mapped_assemblies.emplace_back(oAssembly);
   }
   return true;
 }
@@ -271,7 +271,7 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
         {
           // eventually, here we'll add all data assemblies defined on the input
           // so they can be mapped to the output.
-          input_assemblies.push_back(inputPDC->GetDataAssembly());
+          input_assemblies.emplace_back(inputPDC->GetDataAssembly());
         }
       }
 

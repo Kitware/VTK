@@ -1077,7 +1077,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(
     // Missing cells are replaced by empty data
     for (std::size_t j = lineNumberOfCells; j < maxNumberOfCells; ++j)
     {
-      cellsPythonData.push_back(vtkSmartPyObject());
+      cellsPythonData.emplace_back();
       cellsPythonRowsAndCols.push_back(0);
       cellsPythonRowsAndCols.push_back(0);
     }
