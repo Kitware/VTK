@@ -87,7 +87,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  for (auto cellArrayName : cellArrays)
+  for (const auto& cellArrayName : cellArrays)
   {
     auto cellData = mesh->GetCellData();
     if (!cellData->HasArray(cellArrayName.c_str()))
@@ -121,7 +121,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     std::cerr << "Incorrect number of cell data arrays on surface" << std::endl;
     return EXIT_FAILURE;
   }
-  for (auto cellArrayName : cellArrays)
+  for (const auto& cellArrayName : cellArrays)
   {
     auto cellData = surface->GetCellData();
     if (!cellData->HasArray(cellArrayName.c_str()))
@@ -155,7 +155,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     std::cerr << "Incorrect number of parcel data arrays" << std::endl;
     return EXIT_FAILURE;
   }
-  for (auto pointArrayName : pointArrays)
+  for (const auto& pointArrayName : pointArrays)
   {
     auto pointData = parcels->GetPointData();
     if (!pointData->HasArray(pointArrayName.c_str()))

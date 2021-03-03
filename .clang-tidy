@@ -65,7 +65,6 @@ modernize-*,\
 mpi-*,\
 openmp-*,\
 performance-*,\
--performance-for-range-copy,\
 -performance-inefficient-string-concatenation,\
 -performance-inefficient-vector-operation,\
 -performance-move-const-arg,\
