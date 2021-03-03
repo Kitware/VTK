@@ -1077,8 +1077,6 @@ vtkDataSet* vtkPDistributedDataFilter::TestFixTooFewInputFiles(
 
         nextProducer->has -= transferSize;
         nextConsumer->has += transferSize;
-
-        continue;
       }
 
       delete[] procInfo;
@@ -2814,8 +2812,6 @@ void vtkPDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid* gr
     grid->ShallowCopy(inside);
     inside->Delete();
   }
-
-  return;
 }
 
 //==========================================================================

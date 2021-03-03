@@ -782,7 +782,6 @@ void ExtractWordsFromString(std::string& str, std::vector<std::string>& words)
   {
     words.push_back((*i).str());
   }
-  return;
 #else
   vtksys::RegularExpression re("([0-9A-Za-z]+)");
   size_t next = 0;
@@ -791,7 +790,6 @@ void ExtractWordsFromString(std::string& str, std::vector<std::string>& words)
     words.push_back(str.substr(next + re.start(), re.end() - re.start()));
     next += re.end();
   }
-  return;
 #endif
 }
 

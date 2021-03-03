@@ -1439,7 +1439,6 @@ void vtkGLTFDocumentLoader::BuildGlobalTransforms(
   {
     this->BuildGlobalTransforms(childId, node.GlobalTransform);
   }
-  return;
 }
 
 //------------------------------------------------------------------------------

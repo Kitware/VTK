@@ -535,7 +535,6 @@ public:
   virtual void InitializeVelocityFunction(
     PStreamTracerPoint*, vtkAbstractInterpolatedVelocityField*)
   {
-    return;
   }
 
   virtual bool PreparePoint(PStreamTracerPoint*, vtkAbstractInterpolatedVelocityField*)

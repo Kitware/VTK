@@ -244,8 +244,6 @@ void vtkImageDataToHyperTreeGrid::ProcessPixels(
       }
     }
   }
-
-  return;
 }
 
 int vtkImageDataToHyperTreeGrid::ProcessTrees(

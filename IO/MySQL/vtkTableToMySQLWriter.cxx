@@ -137,7 +137,6 @@ void vtkTableToMySQLWriter::WriteData()
 
   // cleanup and return
   query->Delete();
-  return;
 }
 
 //------------------------------------------------------------------------------

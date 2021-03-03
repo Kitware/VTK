@@ -357,6 +357,4 @@ void vtkResizingWindowToImageFilter::GetScaleFactorsAndSize(
     *approximate = (actualSize[0] * scale[0] != requestedSize[0]);
     *approximate |= (actualSize[1] * scale[1] != requestedSize[1]);
   }
-
-  return;
 }

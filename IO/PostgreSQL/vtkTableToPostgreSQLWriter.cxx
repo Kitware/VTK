@@ -138,7 +138,6 @@ void vtkTableToPostgreSQLWriter::WriteData()
 
   // cleanup and return
   query->Delete();
-  return;
 }
 
 //------------------------------------------------------------------------------
