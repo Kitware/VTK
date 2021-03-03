@@ -381,6 +381,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   const int size = static_cast<int>(outputs.size());
 
   vtkLogStartScope(TRACE, "extract cell bounding spheres");
+  pointCloudArray.reserve(size);
   for (int localId = 0; localId < size; ++localId)
   {
     pointCloudArray.emplace_back(vtkSmartPointer<vtkPointSet>::Take(
