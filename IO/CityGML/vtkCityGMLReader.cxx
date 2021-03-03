@@ -62,7 +62,6 @@ public:
     MATERIAL
   };
 
-public:
   Implementation(vtkCityGMLReader* reader, int lod, int useTransparencyAsOpacity)
   {
     this->Initialize(reader, lod, useTransparencyAsOpacity);
@@ -1012,7 +1011,6 @@ private:
     float Transparency;
   };
 
-private:
   vtkCityGMLReader* Reader;
   int LOD;
   int UseTransparencyAsOpacity;

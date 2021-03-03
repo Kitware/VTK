@@ -206,7 +206,6 @@ public:
   FileStreamReader ASCIIStream;
   std::string TokenBackup;
 
-public:
   void Init()
   {
     this->Completed = 0;

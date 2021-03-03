@@ -100,7 +100,6 @@ public:
     memcpy(this->Data, data, size);
   }
 
-public:
   char* Data; // Buffer holding actual data
   unsigned long DataLength;
   SQLLEN BufferSize; // will be at least as large as DataLength
@@ -144,7 +143,6 @@ public:
   bool SetBoundParameter(int index, vtkODBCBoundParameter* param);
   bool BindParametersToStatement();
 
-public:
   SQLHANDLE Statement;
   vtkStdString Name;
 

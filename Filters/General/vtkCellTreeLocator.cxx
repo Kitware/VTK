@@ -520,7 +520,6 @@ public:
     this->m_pc.clear();
   }
 
-public:
   unsigned int m_buckets;
   unsigned int m_leafsize;
   std::vector<PerCell> m_pc;

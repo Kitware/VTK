@@ -33,7 +33,6 @@ public:
 
   virtual ~vtkNamedColorsDataStore() = default;
 
-public:
   //-----------------------------------------------------------------------------
   // Return a pointer to the internal color map.
   // Use with caution.
@@ -266,7 +265,6 @@ public:
     return retVec;
   }
 
-public:
   //-----------------------------------------------------------------------------
   // Initialise the color map by loading the colors from a list.
   void Init()
@@ -716,7 +714,6 @@ private:
     return s;
   }
 
-private:
   vtkColor4ub Color;
   bool StateGood;
   vtkNamedColors* NamedColors;

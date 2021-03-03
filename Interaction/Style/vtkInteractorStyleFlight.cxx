@@ -41,7 +41,6 @@ public:
   int m_iVelCount;
   double m_dVelAvg;
 
-public:
   CPIDControl(double dKp, double dKd, double dKi);
   double PIDCalc(double dX, double dFinalX);
   void SetCoefficients(double dKp, double dKd, double dKi);

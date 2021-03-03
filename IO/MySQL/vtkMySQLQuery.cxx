@@ -101,7 +101,6 @@ public:
     return output;
   }
 
-public:
   my_bool IsNull;                 // Is this parameter nullptr?
   my_bool IsUnsigned;             // For integer types, is it unsigned?
   char* Data;                     // Buffer holding actual data
@@ -271,7 +270,6 @@ public:
   // the old-fashioned way.
   bool ValidPreparedStatementSQL(const char* query);
 
-public:
   MYSQL_STMT* Statement;
   MYSQL_RES* Result;
   MYSQL_BIND* BoundParameters;
