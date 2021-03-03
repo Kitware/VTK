@@ -78,7 +78,7 @@ vtkRenderTimerLog::Frame vtkRenderTimerLog::PopFirstReadyFrame()
 void vtkRenderTimerLog::ReleaseGraphicsResources() {}
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::ScopedEventLogger::ScopedEventLogger(ScopedEventLogger&& o)
+vtkRenderTimerLog::ScopedEventLogger::ScopedEventLogger(ScopedEventLogger&& o) noexcept
   : Log(nullptr)
 {
   std::swap(o.Log, this->Log);
@@ -86,7 +86,7 @@ vtkRenderTimerLog::ScopedEventLogger::ScopedEventLogger(ScopedEventLogger&& o)
 
 //------------------------------------------------------------------------------
 vtkRenderTimerLog::ScopedEventLogger& vtkRenderTimerLog::ScopedEventLogger::operator=(
-  ScopedEventLogger&& o)
+  ScopedEventLogger&& o) noexcept
 {
   std::swap(o.Log, this->Log);
   return *this;
