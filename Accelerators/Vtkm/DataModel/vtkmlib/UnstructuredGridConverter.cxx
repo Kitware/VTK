@@ -96,7 +96,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
   // vtkm to vtk
   vtkNew<vtkCellArray> cells;
   vtkNew<vtkUnsignedCharArray> types;
-  vtkm::cont::DynamicCellSet outCells = voutput.GetCellSet();
+  vtkm::cont::DynamicCellSet const& outCells = voutput.GetCellSet();
 
   const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), types.GetPointer());
 

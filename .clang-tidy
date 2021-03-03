@@ -67,7 +67,6 @@ openmp-*,\
 performance-*,\
 -performance-inefficient-string-concatenation,\
 -performance-type-promotion-in-math-fn,\
--performance-unnecessary-copy-initialization,\
 -performance-unnecessary-value-param,\
 portability-*,\
 readability-*,\

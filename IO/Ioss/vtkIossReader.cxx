@@ -1643,7 +1643,7 @@ int vtkIossReader::ReadMetaData(vtkInformation* metadata)
   else
   {
     // add timesteps to metadata
-    const auto timesteps = internals.GetTimeSteps();
+    const auto& timesteps = internals.GetTimeSteps();
     if (!timesteps.empty())
     {
       metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0],

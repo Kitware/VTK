@@ -134,6 +134,7 @@ int TestWeakPointer(int, char*[])
   {
     vtkNew<vtkIntArray> array;
     vtkWeakPointer<vtkIntArray> intArray(array);
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     vtkWeakPointer<vtkIntArray> intArray2(intArray);
     if (array != intArray || array != intArray2 || array->GetReferenceCount() != 1)
     {
