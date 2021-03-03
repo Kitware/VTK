@@ -90,6 +90,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->InternalColorTexture = nullptr;
   this->PopulateSelectionSettings = 1;
+  this->PointPicking = false;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
   this->CurrentInput = nullptr;
   this->TempMatrix4 = vtkMatrix4x4::New();
