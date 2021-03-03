@@ -362,7 +362,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
   // check to see if we are using vertex coloring
   int cellFlag = 0;
-  vtkDataArray* scalars = this->GetScalars(
+  vtkDataArray* scalars = vtkOpenGLFluidMapper::GetScalars(
     input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
 
   this->HasVertexColor = false;
@@ -889,7 +889,7 @@ void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer, vtkVolume* vol
     if (this->HasVertexColor)
     {
       int cellFlag = 0;
-      vtkDataArray* scalars = this->GetScalars(
+      vtkDataArray* scalars = vtkOpenGLFluidMapper::GetScalars(
         input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
       this->VBOs->CacheDataArray("vertexColor", scalars, renderer, VTK_FLOAT);
     }

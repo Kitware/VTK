@@ -45,7 +45,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   frame.show();
   detail::get_render_window(leftVTKWidget)->Render();
   detail::get_render_window(rightVTKWidget)->Render();
-  app.processEvents();
+  QApplication::processEvents();
 
   // Swap QVTKOpenGLStereoWidget
   rightLayout->removeWidget(rightVTKWidget.get());
@@ -58,6 +58,6 @@ int TestQtSwapWindows(int argc, char* argv[])
   // Process events again
   detail::get_render_window(leftVTKWidget)->Render();
   detail::get_render_window(rightVTKWidget)->Render();
-  app.processEvents();
+  QApplication::processEvents();
   return EXIT_SUCCESS;
 }

@@ -46,7 +46,7 @@ void vtkOBBDicer::BuildTree(vtkIdList* ptIds, vtkOBBNode* OBBptr, vtkDataSet* in
 
   // Now compute the OBB
   //
-  OBB->ComputeOBB(
+  vtkOBBTree::ComputeOBB(
     this->PointsList, OBBptr->Corner, OBBptr->Axes[0], OBBptr->Axes[1], OBBptr->Axes[2], size);
   OBB->Delete();
 

@@ -773,7 +773,7 @@ vtkIdType vtkRectilinearGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
     return -1;
   }
 
-  this->Voxel->InterpolationFunctions(pcoords, weights);
+  vtkVoxel::InterpolationFunctions(pcoords, weights);
 
   //
   //  From this location get the cell id
@@ -798,7 +798,7 @@ vtkCell* vtkRectilinearGrid::FindAndGetCell(double x[3], vtkCell* vtkNotUsed(cel
   //
   // Get the parametric coordinates and weights for interpolation
   //
-  this->Voxel->InterpolationFunctions(pcoords, weights);
+  vtkVoxel::InterpolationFunctions(pcoords, weights);
   //
   // Get the cell
   //

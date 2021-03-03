@@ -108,8 +108,8 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   for (iteration = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkHexahedron::InterpolationFunctions(pcoords, weights);
+    vtkHexahedron::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -173,7 +173,7 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkHexahedron::InterpolationFunctions(pcoords, weights);
 
   double lowerlimit = 0.0 - VTK_HEX_OUTSIDE_CELL_TOLERANCE;
   double upperlimit = 1.0 + VTK_HEX_OUTSIDE_CELL_TOLERANCE;

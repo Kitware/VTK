@@ -219,7 +219,8 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double d
     if (t != VTK_DOUBLE_MAX)
     {
       node.Plane = plane;
-      node.Distance = this->GetDistanceFromObject(node.p, this->InnerBoundingPlanes, d);
+      node.Distance =
+        vtkClosedSurfacePointPlacer::GetDistanceFromObject(node.p, this->InnerBoundingPlanes, d);
       intersections.push_back(node);
       vtkDebugMacro(<< "We aren't parallel to plane with normal: (" << plane->GetNormal()[0] << ","
                     << plane->GetNormal()[1] << "," << plane->GetNormal()[2] << ")");

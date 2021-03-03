@@ -234,7 +234,7 @@ public:
     transformFilter->SetInputDataObject(it->second);
     transformFilter->Update();
     vtkDataObject* obj = transformFilter->GetOutputDataObject(0);
-    this->SetField(obj, "element", element);
+    vtkCityGMLReader::Implementation::SetField(obj, "element", element);
     output->SetBlock(output->GetNumberOfBlocks(), obj);
   }
 
@@ -242,7 +242,7 @@ public:
     const char* gmlNamespace, const char* feature)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    this->SetField(b, "element", "grp:CityObjectGroup");
+    vtkCityGMLReader::Implementation::SetField(b, "element", "grp:CityObjectGroup");
     auto ximplicitGeometry =
       doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" + gmlNamespace +
         ":" + "lod" + std::to_string(this->LOD) + "ImplicitRepresentation/core:ImplicitGeometry")
@@ -649,21 +649,24 @@ public:
         vtkNew<vtkCellArray> cells;
         if (gmlIdAttribute)
         {
-          this->SetField(polyData, "gml_id", exteriorId);
+          vtkCityGMLReader::Implementation::SetField(polyData, "gml_id", exteriorId);
         }
         polyData->SetPoints(points);
         nodeInterior ? polyData->SetLines(cells) : polyData->SetPolys(cells);
         switch (polygonType)
         {
           case PolygonType::TEXTURE:
-            this->SetField(polyData, "texture_uri", imageURI.c_str());
+            vtkCityGMLReader::Implementation::SetField(polyData, "texture_uri", imageURI.c_str());
             break;
           case PolygonType::MATERIAL:
           {
             Material material = this->Materials[materialIndex];
-            this->SetField(polyData, "diffuse_color", &material.Diffuse[0], 3);
-            this->SetField(polyData, "specular_color", &material.Specular[0], 3);
-            this->SetField(polyData, "transparency", &material.Transparency, 1);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "diffuse_color", &material.Diffuse[0], 3);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "specular_color", &material.Specular[0], 3);
+            vtkCityGMLReader::Implementation::SetField(
+              polyData, "transparency", &material.Transparency, 1);
             break;
           }
           case PolygonType::NONE:
@@ -906,12 +909,12 @@ public:
       if (groupBlock->GetNumberOfBlocks())
       {
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
-        this->SetField(groupBlock, "element", element.c_str());
+        vtkCityGMLReader::Implementation::SetField(groupBlock, "element", element.c_str());
         pugi::xml_attribute gmlIdAttribute = featureNode.node().attribute("gml:id");
         auto gmlId = gmlIdAttribute.value();
         if (gmlId)
         {
-          this->SetField(groupBlock, "gml_id", gmlId);
+          vtkCityGMLReader::Implementation::SetField(groupBlock, "gml_id", gmlId);
         }
       }
       ++i;
@@ -966,7 +969,7 @@ public:
         vtkNew<vtkPolyData> polyData;
         polyData->SetPoints(points);
         polyData->SetPolys(polys);
-        this->SetField(polyData, "element", "dem:ReliefFeature");
+        vtkCityGMLReader::Implementation::SetField(polyData, "element", "dem:ReliefFeature");
         output->SetBlock(output->GetNumberOfBlocks(), polyData);
       }
     }
@@ -975,7 +978,7 @@ public:
   void ReadWaterBody(pugi::xml_document& doc, vtkMultiBlockDataSet* output)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    this->SetField(b, "element", "wtr:WaterBody");
+    vtkCityGMLReader::Implementation::SetField(b, "element", "wtr:WaterBody");
     auto xWaterSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterSurface/wtr:lod" +
       std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
                                             .c_str());

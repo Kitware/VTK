@@ -440,7 +440,7 @@ void vtkLabelHierarchyFrustumIterator::Next()
           if (this->Level)
           {
             this->Path.resize(this->Level);
-            this->Hierarchy->GetPathForNodalCoordinates(&this->Path[0], this->IjkG, this->Level);
+            vtkLabelHierarchy::GetPathForNodalCoordinates(&this->Path[0], this->IjkG, this->Level);
           }
           else
           {

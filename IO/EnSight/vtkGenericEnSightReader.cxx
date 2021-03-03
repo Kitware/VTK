@@ -1278,7 +1278,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
   }
 
   // So far we have got a file name index
-  this->ReplaceWildcardsHelper(fileName, fileNameNum);
+  vtkGenericEnSightReader::ReplaceWildcardsHelper(fileName, fileNameNum);
   delete this->IS;
   this->IS = nullptr;
 

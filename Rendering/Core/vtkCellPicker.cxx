@@ -296,7 +296,8 @@ double vtkCellPicker::IntersectWithLine(const double p1[3], const double p2[3], 
   // This limits the pick search to the inside of the clipped region.
   int clippingPlaneId = -1;
   if (m &&
-    !this->ClipLineWithPlanes(m, this->Transform->GetMatrix(), p1, p2, t1, t2, clippingPlaneId))
+    !vtkCellPicker::ClipLineWithPlanes(
+      m, this->Transform->GetMatrix(), p1, p2, t1, t2, clippingPlaneId))
   {
     return VTK_DOUBLE_MAX;
   }
@@ -484,10 +485,10 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3], const double p2
     {
       int cellType = data->GetCellType(minCellId);
 
-      if (this->HasSubCells(cellType))
+      if (vtkCellPicker::HasSubCells(cellType))
       {
         data->GetCellPoints(minCellId, this->PointIds);
-        this->GetSubCell(data, this->PointIds, minSubId, cellType, cell);
+        vtkCellPicker::GetSubCell(data, this->PointIds, minSubId, cellType, cell);
       }
       else
       {
@@ -541,7 +542,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3], const double p2
 
       // Use the texture coord to set the information
       double tcoord[3];
-      if (dimensionsAreValid && this->ComputeSurfaceTCoord(data, cell, weights, tcoord))
+      if (dimensionsAreValid && vtkCellPicker::ComputeSurfaceTCoord(data, cell, weights, tcoord))
       {
         // Take the border into account when computing coordinates
         double x[3];
@@ -588,7 +589,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3], const double p2
     this->MapperPosition[2] = minXYZ[2];
 
     // Compute the normal
-    if (!this->ComputeSurfaceNormal(data, cell, weights, this->MapperNormal))
+    if (!vtkCellPicker::ComputeSurfaceNormal(data, cell, weights, this->MapperNormal))
     {
       // By default, the normal points back along view ray
       this->MapperNormal[0] = p1[0] - p2[0];
@@ -658,7 +659,7 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet, const double p
       }
 
       // If cell is a strip, then replace cell with a sub-cell
-      this->SubCellFromCell(this->Cell, subId);
+      vtkCellPicker::SubCellFromCell(this->Cell, subId);
 
       if (t <= (tMin + this->Tolerance) && t >= t1 && t <= t2)
       {
@@ -691,12 +692,12 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet, const double p
 
       // If it is a strip, we need to iterate over the subIds
       int cellType = dataSet->GetCellType(cellId);
-      int useSubCells = this->HasSubCells(cellType);
+      int useSubCells = vtkCellPicker::HasSubCells(cellType);
       if (useSubCells)
       {
         // Get the pointIds for the strip and the length of the strip
         dataSet->GetCellPoints(cellId, pointIds);
-        numSubIds = this->GetNumberOfSubCells(pointIds, cellType);
+        numSubIds = vtkCellPicker::GetNumberOfSubCells(pointIds, cellType);
       }
 
       // This will only loop once unless we need to deal with a strip
@@ -705,7 +706,7 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet, const double p
         if (useSubCells)
         {
           // Get a sub-cell from a the strip
-          this->GetSubCell(dataSet, pointIds, subId, cellType, this->Cell);
+          vtkCellPicker::GetSubCell(dataSet, pointIds, subId, cellType, this->Cell);
         }
         else
         {
@@ -1019,7 +1020,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3], const double p
   // Clip the ray with the extent, results go in s1 and s2
   int planeId;
   double s1, s2;
-  if (!this->ClipLineWithExtent(extent, x1, x2, s1, s2, planeId))
+  if (!vtkCellPicker::ClipLineWithExtent(extent, x1, x2, s1, s2, planeId))
   {
     return VTK_DOUBLE_MAX;
   }

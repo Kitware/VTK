@@ -193,7 +193,7 @@ void vtkQuadraticHexahedron::Subdivide(
   this->CellScalars->Resize(27);
   for (numMidPts = 0; numMidPts < 7; numMidPts++)
   {
-    this->InterpolationFunctions(MidPoints[numMidPts], weights);
+    vtkQuadraticHexahedron::InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
@@ -250,8 +250,8 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
   for (int iteration = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
+    vtkQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -317,7 +317,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
     pcoords[2] >= -0.001 && pcoords[2] <= 1.001)
@@ -365,7 +365,7 @@ void vtkQuadraticHexahedron::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 20; i++)
@@ -729,7 +729,7 @@ void vtkQuadraticHexahedron::JacobianInverse(
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(pcoords, derivs);
+  vtkQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
 
   // create Jacobian matrix
   m[0] = m0;

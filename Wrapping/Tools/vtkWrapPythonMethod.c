@@ -590,12 +590,12 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
     }
     if (cp[l] == ':' && cp[l + 1] == ':')
     {
-      fprintf(fp, "      result = %sBuildEnumValue(tempr, \"%*.*s.%s\");\n", prefix, (int)l, (int)l,
-        cp, &cp[l + 2]);
+      fprintf(fp, "      result = vtkPythonArgs::BuildEnumValue(tempr, \"%*.*s.%s\");\n", (int)l,
+        (int)l, cp, &cp[l + 2]);
     }
     else
     {
-      fprintf(fp, "      result = %sBuildEnumValue(tempr, \"%s\");\n", prefix, cp);
+      fprintf(fp, "      result = vtkPythonArgs::BuildEnumValue(tempr, \"%s\");\n", cp);
     }
   }
   else if (vtkWrap_IsPythonObject(val))
@@ -651,9 +651,9 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
       "      }\n"
       "      else\n"
       "      {\n"
-      "        result = %sBuildTuple(tempr%sdata(), tempr%ssize());\n"
+      "        result = vtkPythonArgs::BuildTuple(tempr%sdata(), tempr%ssize());\n"
       "      }\n",
-      member, prefix, member, member);
+      member, member, member);
   }
   else
   {

@@ -993,7 +993,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   vtkAxisActor* axis = this->PolarAxis;
 
   // compute ellipse angle
-  double miniAngleEllipse = this->ComputeEllipseAngle(this->MinimumAngle, this->Ratio);
+  double miniAngleEllipse = vtkPolarAxesActor::ComputeEllipseAngle(this->MinimumAngle, this->Ratio);
 
   // Set the start point and end point (world coord system) of the Polar Axis.
   double startPt[3], endPt[3];
@@ -1366,7 +1366,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
     }
 
     // Calculate startpoint coordinates
-    double thetaEllipse = this->ComputeEllipseAngle(currentAlpha, this->Ratio);
+    double thetaEllipse = vtkPolarAxesActor::ComputeEllipseAngle(currentAlpha, this->Ratio);
     double xStart = this->Pole[0] + this->MinimumRadius * cos(thetaEllipse);
     double yStart = this->Pole[1] + this->MinimumRadius * this->Ratio * sin(thetaEllipse);
 

@@ -184,7 +184,7 @@ void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
 //------------------------------------------------------------------------------
 int vtkTextActor::SetConstrainedFontSize(vtkViewport* viewport, int targetWidth, int targetHeight)
 {
-  return this->SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
+  return vtkTextActor::SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
 }
 
 //------------------------------------------------------------------------------

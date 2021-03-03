@@ -100,7 +100,7 @@ int vtkQuadraticEdge::EvaluatePosition(const double x[3], double closestPoint[3]
     else
     {
       // Compute weights only
-      this->InterpolationFunctions(pcoords, weights);
+      vtkQuadraticEdge::InterpolationFunctions(pcoords, weights);
     }
   }
 
@@ -117,7 +117,7 @@ void vtkQuadraticEdge::EvaluateLocation(
   this->Points->GetPoint(1, a1);
   this->Points->GetPoint(2, a2); // midside node
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticEdge::InterpolationFunctions(pcoords, weights);
 
   for (i = 0; i < 3; i++)
   {

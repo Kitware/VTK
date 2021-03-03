@@ -495,7 +495,7 @@ void vtkTemporalDataSetCache::ReplaceCacheItem(
 {
   vtkTDSCMemkindRAII(this);
   vtkDataObject* cachedData = input->NewInstance();
-  if (input->GetUsingMemkind() && !this->IsASource)
+  if (vtkDataObject::GetUsingMemkind() && !this->IsASource)
   {
     cachedData->ShallowCopy(input);
   }

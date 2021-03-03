@@ -141,7 +141,7 @@ DICOMParser::~DICOMParser()
 
 bool DICOMParser::ReadHeader()
 {
-  bool dicom = this->IsDICOMFile(this->DataFile);
+  bool dicom = DICOMParser::IsDICOMFile(this->DataFile);
   if (!dicom)
   {
     return false;

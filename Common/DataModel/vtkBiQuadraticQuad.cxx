@@ -136,7 +136,7 @@ int vtkBiQuadraticQuad::EvaluatePosition(const double x[3], double* closestPoint
     else
     {
       // Compute weights only
-      this->InterpolationFunctionsPrivate(pcoords, weights);
+      vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords, weights);
     }
   }
 
@@ -150,7 +150,7 @@ void vtkBiQuadraticQuad::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctionsPrivate(pcoords, weights);
+  vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 9; i++)
@@ -314,8 +314,8 @@ void vtkBiQuadraticQuad::Derivatives(
   double *J[3], J0[3], J1[3], J2[3];
   double *JI[3], JI0[3], JI1[3], JI2[3];
 
-  this->InterpolationFunctionsPrivate(pcoords, weights);
-  this->InterpolationDerivsPrivate(pcoords, functionDerivs);
+  vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords, weights);
+  vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords, functionDerivs);
 
   // Compute transposed Jacobian and inverse Jacobian
   J[0] = J0;

@@ -324,7 +324,7 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(vtkVolume* volume, vtk
     return;
   }
 
-  this->BuildPsiTable();
+  vtkUnstructuredGridPartialPreIntegration::BuildPsiTable();
 
   int numcomponents = scalars->GetNumberOfComponents();
 

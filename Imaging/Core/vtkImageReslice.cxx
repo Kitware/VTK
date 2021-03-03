@@ -1772,7 +1772,7 @@ void vtkImageResliceClearExecute(
   for (; !iter.IsAtEnd(); iter.NextSpan())
   {
     // clear the pixels to background color and go to next row
-    outPtr = iter.GetVoidPointer(outData, iter.GetId());
+    outPtr = vtkImagePointDataIterator::GetVoidPointer(outData, iter.GetId());
     setpixels(outPtr, background, numscalars, outExt[1] - outExt[0] + 1);
   }
 
@@ -1926,7 +1926,7 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
   // create an iterator to march through the data
   vtkImagePointDataIterator iter(outData, outExt, stencil, self, threadId);
-  char* outPtr0 = static_cast<char*>(iter.GetVoidPointer(outData));
+  char* outPtr0 = static_cast<char*>(vtkImagePointDataIterator::GetVoidPointer(outData));
   for (; !iter.IsAtEnd(); iter.NextSpan())
   {
     int span = static_cast<int>(iter.SpanEndId() - iter.GetId());

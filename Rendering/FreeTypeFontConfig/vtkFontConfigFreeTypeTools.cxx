@@ -41,12 +41,12 @@ FT_Error vtkFontConfigFreeTypeToolsFaceRequester(
 
   bool faceIsSet = self->GetForceCompiledFonts() || tprop->GetFontFamily() == VTK_FONT_FILE
     ? false
-    : self->LookupFaceFontConfig(tprop, lib, face);
+    : vtkFontConfigFreeTypeTools::LookupFaceFontConfig(tprop, lib, face);
 
   // Fall back to compiled fonts if lookup fails/compiled fonts are forced:
   if (!faceIsSet)
   {
-    faceIsSet = self->Superclass::LookupFace(tprop, lib, face);
+    faceIsSet = vtkFontConfigFreeTypeTools::Superclass::LookupFace(tprop, lib, face);
   }
 
   if (!faceIsSet)

@@ -356,9 +356,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string& str, vtkTextPropert
   // Export text as either a path or a text object.
   if (!isMath && !this->TextAsPath)
   {
-    const char* fontname = this->TextPropertyToPSFontName(tprop);
+    const char* fontname = vtkOpenGLGL2PSHelperImpl::TextPropertyToPSFontName(tprop);
 
-    GLint align = static_cast<GLint>(this->TextPropertyToGL2PSAlignment(tprop));
+    GLint align = static_cast<GLint>(vtkOpenGLGL2PSHelperImpl::TextPropertyToGL2PSAlignment(tprop));
 
     GLfloat angle = static_cast<GLfloat>(tprop->GetOrientation());
 
@@ -427,7 +427,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string& str, vtkTextPropert
       static_cast<unsigned char>(tprop->GetOpacity() * 255) };
 
     double devicePos[3] = { pos[0], pos[1], pos[2] };
-    this->ProjectPoint(devicePos, ren);
+    vtkOpenGLGL2PSHelperImpl::ProjectPoint(devicePos, ren);
 
     this->DrawPath(path, pos, devicePos, rgba, nullptr, 0.0, -1.f,
       (std::string("Pathified string: ") + str).c_str());
@@ -470,7 +470,7 @@ void vtkOpenGLGL2PSHelperImpl::Draw3DPath(vtkPath* path, vtkMatrix4x4* actorMatr
   double translation[2] = { 0.0, 0.0 };
   vtkNew<vtkPath> projPath;
   projPath->DeepCopy(path);
-  this->ProjectPoints(projPath->GetPoints(), ren, actorMatrix);
+  vtkOpenGLGL2PSHelperImpl::ProjectPoints(projPath->GetPoints(), ren, actorMatrix);
   this->DrawPath(projPath, rasterPos, translation, actorColor, nullptr, 0.0, -1.f, label);
 }
 

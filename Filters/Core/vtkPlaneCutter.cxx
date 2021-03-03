@@ -1793,7 +1793,7 @@ int vtkPlaneCutter::ExecuteDataSet(
   {
     vtkDebugMacro("No input");
     // Empty/no input, we need to initialize output anyway
-    this->InitializeOutput(output);
+    vtkPlaneCutter::InitializeOutput(output);
     return 1;
   }
 
@@ -1864,7 +1864,7 @@ int vtkPlaneCutter::ExecuteDataSet(
     tree->SetBuildHierarchy(this->BuildHierarchy);
     tree->Build(input);
   }
-  this->InitializeOutput(output);
+  vtkPlaneCutter::InitializeOutput(output);
 
   // Threaded execute
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
@@ -1905,7 +1905,7 @@ int vtkPlaneCutter::ExecuteDataSet(
       vtk::Range(output, Opts::SkipEmptyNodes | Opts::TraverseSubTree | Opts::VisitOnlyLeaves))
     {
       vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(dObj);
-      this->AddNormalArray(planeNormal, hdLeafOutput);
+      vtkPlaneCutter::AddNormalArray(planeNormal, hdLeafOutput);
     }
   }
   return 1;

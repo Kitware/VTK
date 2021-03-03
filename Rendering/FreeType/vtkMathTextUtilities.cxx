@@ -161,5 +161,5 @@ void vtkMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Instance: " << this->Instance << endl;
+  os << indent << "Instance: " << vtkMathTextUtilities::Instance << endl;
 }

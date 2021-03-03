@@ -716,7 +716,7 @@ void vtkRIBExporter::WritePolygons(
   {
     if (!n)
     {
-      polygon->ComputeNormal(p, npts, pts, poly_norm);
+      vtkPolygon::ComputeNormal(p, npts, pts, poly_norm);
     }
 
     for (j = 0; j < npts; j++)
@@ -964,7 +964,7 @@ void vtkRIBExporter::WriteStrips(
 
       if (!n)
       {
-        polygon->ComputeNormal(p, 3, idx, poly_norm);
+        vtkPolygon::ComputeNormal(p, 3, idx, poly_norm);
       }
 
       // build colors, texture coordinates and normals for the triangle

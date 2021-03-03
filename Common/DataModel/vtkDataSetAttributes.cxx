@@ -1301,7 +1301,7 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
           << ". Only vtkDataArray subclasses can be set as active attributes.");
         return -1;
       }
-      if (!this->CheckNumberOfComponents(darray, attributeType))
+      if (!vtkDataSetAttributes::CheckNumberOfComponents(darray, attributeType))
       {
         vtkWarningMacro("Can not set attribute "
           << vtkDataSetAttributes::AttributeNames[attributeType]

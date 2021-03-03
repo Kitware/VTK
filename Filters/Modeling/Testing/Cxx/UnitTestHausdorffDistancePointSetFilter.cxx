@@ -115,7 +115,7 @@ int UnitTestHausdorffDistancePointSetFilter(int, char*[])
       std::cout << "ERROR: IsA should be vtkHausdorffDistancePointSetFilter, but is "
                 << newHaus->GetClassName() << std::endl;
     }
-    if (!newHaus->IsTypeOf("vtkPointSetAlgorithm"))
+    if (!vtkHausdorffDistancePointSetFilter::IsTypeOf("vtkPointSetAlgorithm"))
     {
       ++status;
       std::cout << "ERROR: " << newHaus->GetClassName()

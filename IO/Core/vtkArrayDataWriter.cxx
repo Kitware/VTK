@@ -95,7 +95,7 @@ bool vtkArrayDataWriter::Write(ostream& stream, bool WriteBinary)
     if (!array_data)
       throw std::runtime_error("vtkArrayData input required.");
 
-    this->Write(array_data, stream, WriteBinary);
+    vtkArrayDataWriter::Write(array_data, stream, WriteBinary);
     return true;
   }
   catch (std::exception& e)

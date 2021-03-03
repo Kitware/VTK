@@ -118,7 +118,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
 
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
-  this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
+  vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
 
   // Set up the initial properties

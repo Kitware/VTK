@@ -169,7 +169,7 @@ int vtkTextMapper::GetHeight(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 int vtkTextMapper::SetConstrainedFontSize(vtkViewport* viewport, int targetWidth, int targetHeight)
 {
-  return this->SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
+  return vtkTextMapper::SetConstrainedFontSize(this, viewport, targetWidth, targetHeight);
 }
 
 //------------------------------------------------------------------------------

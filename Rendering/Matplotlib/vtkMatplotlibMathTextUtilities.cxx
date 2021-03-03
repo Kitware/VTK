@@ -937,7 +937,7 @@ bool vtkMatplotlibMathTextUtilities::ParseString(
   // First, change all occurence of escaped pipe ("\|")
   // Into a special character and recover them after splitting
   std::string stdStr = std::string(str);
-  this->FindAndReplaceInString(stdStr, "\\|", this->PipeProtectString);
+  this->FindAndReplaceInString(stdStr, "\\|", vtkMatplotlibMathTextUtilities::PipeProtectString);
 
   maxNumberOfCells = 0;
   std::stringstream ss(stdStr);
@@ -956,7 +956,7 @@ bool vtkMatplotlibMathTextUtilities::ParseString(
     while (std::getline(ssCell, cell, '|'))
     {
       // Recover the escaped pipe
-      this->FindAndReplaceInString(cell, this->PipeProtectString, "\\|");
+      this->FindAndReplaceInString(cell, vtkMatplotlibMathTextUtilities::PipeProtectString, "\\|");
       lineStrVec.push_back(std::move(cell));
       numberOfCells++;
     }
@@ -1486,7 +1486,7 @@ void vtkMatplotlibMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "MPLMathTextAvailable: ";
-  switch (this->MPLMathTextAvailable)
+  switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
   {
     case vtkMatplotlibMathTextUtilities::NOT_TESTED:
       os << "Not tested\n";

@@ -208,7 +208,7 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
   {
     pcoords[0] = pcoords[1] = 0;
     pcoords[2] = 1;
-    this->InterpolationFunctions(pcoords, weights);
+    vtkQuadraticPyramid::InterpolationFunctions(pcoords, weights);
     if (closestPoint)
     {
       memcpy(closestPoint, x, 3 * sizeof(double));
@@ -246,8 +246,8 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
   for (int iteration = 0; !converged && (iteration < VTK_PYRAMID_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkQuadraticPyramid::InterpolationFunctions(pcoords, weights);
+    vtkQuadraticPyramid::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -313,7 +313,7 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticPyramid::InterpolationFunctions(pcoords, weights);
 
   // This is correct in that the XY parametric coordinate plane "shrinks"
   // while Z increases and X and Y always are between 0 and 1.
@@ -364,7 +364,7 @@ void vtkQuadraticPyramid::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticPyramid::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 13; i++)
@@ -417,7 +417,7 @@ void vtkQuadraticPyramid::Subdivide(
 
   // New midpoint is at center of the quadrilateral face
   double midPoint[3] = { 0.5, 0.5, 0.0 };
-  this->InterpolationFunctions(midPoint, weights);
+  vtkQuadraticPyramid::InterpolationFunctions(midPoint, weights);
 
   double x[3] = { 0., 0., 0. };
   double s = 0.0;
@@ -630,7 +630,7 @@ void vtkQuadraticPyramid::JacobianInverse(
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(pcoords, derivs);
+  vtkQuadraticPyramid::InterpolationDerivs(pcoords, derivs);
 
   // create Jacobian matrix
   m[0] = m0;

@@ -196,8 +196,10 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(vtkOpenGLGlyph3DHelper* 
   // not used
   mapper->SetClippingPlanes(this->ClippingPlanes);
 
-  mapper->SetResolveCoincidentTopology(this->GetResolveCoincidentTopology());
-  mapper->SetResolveCoincidentTopologyZShift(this->GetResolveCoincidentTopologyZShift());
+  vtkOpenGLGlyph3DHelper::SetResolveCoincidentTopology(
+    vtkOpenGLGlyph3DMapper::GetResolveCoincidentTopology());
+  vtkOpenGLGlyph3DHelper::SetResolveCoincidentTopologyZShift(
+    vtkOpenGLGlyph3DMapper::GetResolveCoincidentTopologyZShift());
 
   double f, u;
   this->GetRelativeCoincidentTopologyPolygonOffsetParameters(f, u);
@@ -208,8 +210,8 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(vtkOpenGLGlyph3DHelper* 
   mapper->SetRelativeCoincidentTopologyPointOffsetParameter(u);
 
   // ResolveCoincidentTopologyPolygonOffsetParameters is static
-  mapper->SetResolveCoincidentTopologyPolygonOffsetFaces(
-    this->GetResolveCoincidentTopologyPolygonOffsetFaces());
+  vtkOpenGLGlyph3DHelper::SetResolveCoincidentTopologyPolygonOffsetFaces(
+    vtkOpenGLGlyph3DMapper::GetResolveCoincidentTopologyPolygonOffsetFaces());
 
   if (static_cast<vtkIdType>(this->LODs.size()) > this->GetMaxNumberOfLOD())
   {

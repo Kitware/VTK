@@ -207,34 +207,43 @@ void vtkBlueObeliskDataParser::NewAtomFinished()
 
   vtkIdType index = static_cast<vtkIdType>(this->CurrentAtomicNumber);
 
-  this->ResizeAndSetValue(this->CurrentSymbol, this->Target->Symbols, index);
-  // this->ToLower will modify the input string, so this must follow
-  // this->Symbol
-  this->ResizeAndSetValue(this->ToLower(this->CurrentSymbol), this->Target->LowerSymbols, index);
-  this->ResizeAndSetValue(this->CurrentName, this->Target->Names, index);
-  // this->ToLower will modify the input string, so this must follow
-  // this->Name
-  this->ResizeAndSetValue(this->ToLower(this->CurrentName), this->Target->LowerNames, index);
-  this->ResizeAndSetValue(
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentSymbol, this->Target->Symbols, index);
+  // vtkBlueObeliskDataParser::ToLower will modify the input string, so this
+  // must follow this->Symbol
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    vtkBlueObeliskDataParser::ToLower(this->CurrentSymbol), this->Target->LowerSymbols, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentName, this->Target->Names, index);
+  // vtkBlueObeliskDataParser::ToLower will modify the input string, so this
+  // must follow this->Name
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    vtkBlueObeliskDataParser::ToLower(this->CurrentName), this->Target->LowerNames, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
     this->CurrentPeriodicTableBlock, this->Target->PeriodicTableBlocks, index);
-  this->ResizeAndSetValue(
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
     this->CurrentElectronicConfiguration, this->Target->ElectronicConfigurations, index);
-  this->ResizeAndSetValue(this->CurrentFamily, this->Target->Families, index);
-  this->ResizeAndSetValue(this->CurrentMass, this->Target->Masses, index);
-  this->ResizeAndSetValue(this->CurrentExactMass, this->Target->ExactMasses, index);
-  this->ResizeAndSetValue(this->CurrentIonizationEnergy, this->Target->IonizationEnergies, index);
-  this->ResizeAndSetValue(this->CurrentElectronAffinity, this->Target->ElectronAffinities, index);
-  this->ResizeAndSetValue(
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentFamily, this->Target->Families, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentMass, this->Target->Masses, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentExactMass, this->Target->ExactMasses, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentIonizationEnergy, this->Target->IonizationEnergies, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentElectronAffinity, this->Target->ElectronAffinities, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
     this->CurrentPaulingElectronegativity, this->Target->PaulingElectronegativities, index);
-  this->ResizeAndSetValue(this->CurrentCovalentRadius, this->Target->CovalentRadii, index);
-  this->ResizeAndSetValue(this->CurrentVDWRadius, this->Target->VDWRadii, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentCovalentRadius, this->Target->CovalentRadii, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentVDWRadius, this->Target->VDWRadii, index);
   // Tuple handled differently
-  this->ResizeArrayIfNeeded(this->Target->DefaultColors, index);
+  vtkBlueObeliskDataParser::ResizeArrayIfNeeded(this->Target->DefaultColors, index);
   this->Target->DefaultColors->SetTypedTuple(index, this->CurrentDefaultColor);
-  this->ResizeAndSetValue(this->CurrentBoilingPoint, this->Target->BoilingPoints, index);
-  this->ResizeAndSetValue(this->CurrentMeltingPoint, this->Target->MeltingPoints, index);
-  this->ResizeAndSetValue(this->CurrentPeriod, this->Target->Periods, index);
-  this->ResizeAndSetValue(this->CurrentGroup, this->Target->Groups, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentBoilingPoint, this->Target->BoilingPoints, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(
+    this->CurrentMeltingPoint, this->Target->MeltingPoints, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentPeriod, this->Target->Periods, index);
+  vtkBlueObeliskDataParser::ResizeAndSetValue(this->CurrentGroup, this->Target->Groups, index);
   this->IsProcessingAtom = false;
 }
 
@@ -359,7 +368,7 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char* data)
   switch (this->CurrentValueType)
   {
     case AtomicNumber:
-      this->CurrentAtomicNumber = this->parseInt(data);
+      this->CurrentAtomicNumber = vtkBlueObeliskDataParser::parseInt(data);
       return;
     case Symbol:
       this->CurrentSymbol->assign(data);
@@ -377,40 +386,40 @@ void vtkBlueObeliskDataParser::SetCurrentValue(const char* data)
       this->CurrentFamily->assign(data);
       return;
     case Mass:
-      this->CurrentMass = this->parseFloat(data);
+      this->CurrentMass = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case ExactMass:
-      this->CurrentExactMass = this->parseFloat(data);
+      this->CurrentExactMass = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case IonizationEnergy:
-      this->CurrentIonizationEnergy = this->parseFloat(data);
+      this->CurrentIonizationEnergy = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case ElectronAffinity:
-      this->CurrentElectronAffinity = this->parseFloat(data);
+      this->CurrentElectronAffinity = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case PaulingElectronegativity:
-      this->CurrentPaulingElectronegativity = this->parseFloat(data);
+      this->CurrentPaulingElectronegativity = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case CovalentRadius:
-      this->CurrentCovalentRadius = this->parseFloat(data);
+      this->CurrentCovalentRadius = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case VDWRadius:
-      this->CurrentVDWRadius = this->parseFloat(data);
+      this->CurrentVDWRadius = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case DefaultColor:
-      this->parseFloat3(data, this->CurrentDefaultColor);
+      vtkBlueObeliskDataParser::parseFloat3(data, this->CurrentDefaultColor);
       return;
     case BoilingPoint:
-      this->CurrentBoilingPoint = this->parseFloat(data);
+      this->CurrentBoilingPoint = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case MeltingPoint:
-      this->CurrentMeltingPoint = this->parseFloat(data);
+      this->CurrentMeltingPoint = vtkBlueObeliskDataParser::parseFloat(data);
       return;
     case Period:
-      this->CurrentPeriod = this->parseUnsignedShort(data);
+      this->CurrentPeriod = vtkBlueObeliskDataParser::parseUnsignedShort(data);
       return;
     case Group:
-      this->CurrentGroup = this->parseUnsignedShort(data);
+      this->CurrentGroup = vtkBlueObeliskDataParser::parseUnsignedShort(data);
       return;
     case None:
     default:

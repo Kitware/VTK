@@ -98,7 +98,7 @@ void vtkSegYTraceReader::ReadTrace(
   trace->SampleInterval =
     vtkSegYIOUtils::Instance()->readShortInteger(startPos + traceHeaderBytesPos.SampleInterval, in);
 
-  in.seekg(startPos + 240, in.beg);
+  in.seekg(startPos + 240, std::istream::beg);
   float value;
   switch (formatCode)
   {

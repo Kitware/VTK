@@ -775,7 +775,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       OutputCoordinates coordSys = static_cast<OutputCoordinates>(this->OutputCoordinateSystem);
       if (labelType == 0)
       { // label is text
-        if (this->Buckets->DumpPlaced)
+        if (vtkLabelPlacer::Internal::DumpPlaced)
         {
           if (this->UseUnicodeStrings)
           {
@@ -813,7 +813,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else
       { // label is an icon
-        if (this->Buckets->DumpPlaced)
+        if (vtkLabelPlacer::Internal::DumpPlaced)
         {
           vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": Icon "
                         << iconIndexArr->GetValue(inIter->GetLabelId()));

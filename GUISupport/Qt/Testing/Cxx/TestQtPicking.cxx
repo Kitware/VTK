@@ -115,7 +115,7 @@ int TestQtPicking(int argc, char* argv[])
     hits.emplace_back(actor);
 
     interactor->Render();
-    app.processEvents();
+    QApplication::processEvents();
   }
 
   // Pick outside of spheres
@@ -137,7 +137,7 @@ int TestQtPicking(int argc, char* argv[])
     misses.emplace_back(actor);
 
     interactor->Render();
-    app.processEvents();
+    QApplication::processEvents();
   }
 
   // Pick in center of window
@@ -154,7 +154,7 @@ int TestQtPicking(int argc, char* argv[])
     misses.emplace_back(actor);
 
     interactor->Render();
-    app.processEvents();
+    QApplication::processEvents();
   }
 
   // Check that picks on spheres hit correct actors

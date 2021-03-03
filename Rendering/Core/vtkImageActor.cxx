@@ -217,7 +217,7 @@ void vtkImageActor::SetDisplayExtent(const int extent[6])
         static_cast<vtkImageSliceMapper*>(this->Mapper)->CroppingOn();
         static_cast<vtkImageSliceMapper*>(this->Mapper)->SetCroppingRegion(this->DisplayExtent);
         static_cast<vtkImageSliceMapper*>(this->Mapper)
-          ->SetOrientation(this->GetOrientationFromExtent(this->DisplayExtent));
+          ->SetOrientation(vtkImageActor::GetOrientationFromExtent(this->DisplayExtent));
       }
       else
       {

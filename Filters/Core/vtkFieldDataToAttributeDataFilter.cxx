@@ -229,7 +229,7 @@ void vtkFieldDataToAttributeDataFilter::SetScalarComponent(
   {
     this->NumberOfScalarComponents = comp + 1;
   }
-  this->SetArrayName(this, this->ScalarArrays[comp], arrayName);
+  vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->ScalarArrays[comp], arrayName);
   if (this->ScalarArrayComponents[comp] != arrayComp)
   {
     this->ScalarArrayComponents[comp] = arrayComp;
@@ -303,7 +303,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData* 
 
   for (i = 0; i < numComp; i++)
   {
-    fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
+    fieldArray[i] = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd, arrays[i], arrayComp[i]);
 
     if (fieldArray[i] == nullptr)
     {
@@ -314,7 +314,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData* 
 
   for (normalizeAny = i = 0; i < numComp; i++)
   {
-    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |=
+      vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], componentRange[i]);
     if (num != (componentRange[i][1] - componentRange[i][0] + 1))
     {
       vtkErrorMacro(<< "Number of scalars not consistent");
@@ -341,13 +342,14 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData* 
   }
   else // have to copy data into created array
   {
-    newScalars = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp, fieldArray));
+    newScalars = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(numComp, fieldArray));
     newScalars->SetNumberOfTuples(num);
 
     for (i = 0; i < numComp; i++)
     {
-      if (this->ConstructArray(newScalars, i, fieldArray[i], arrayComp[i], componentRange[i][0],
-            componentRange[i][1], normalize[i]) == 0)
+      if (vtkFieldDataToAttributeDataFilter::ConstructArray(newScalars, i, fieldArray[i],
+            arrayComp[i], componentRange[i][0], componentRange[i][1], normalize[i]) == 0)
       {
         newScalars->Delete();
         return;
@@ -377,7 +379,7 @@ void vtkFieldDataToAttributeDataFilter::SetVectorComponent(
     return;
   }
 
-  this->SetArrayName(this, this->VectorArrays[comp], arrayName);
+  vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->VectorArrays[comp], arrayName);
   if (this->VectorArrayComponents[comp] != arrayComp)
   {
     this->VectorArrayComponents[comp] = arrayComp;
@@ -447,7 +449,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData* 
 
   for (i = 0; i < 3; i++)
   {
-    fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
+    fieldArray[i] = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd, arrays[i], arrayComp[i]);
 
     if (fieldArray[i] == nullptr)
     {
@@ -456,9 +458,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData* 
     }
   }
 
-  updated = this->UpdateComponentRange(fieldArray[0], componentRange[0]);
-  updated |= this->UpdateComponentRange(fieldArray[1], componentRange[1]);
-  updated |= this->UpdateComponentRange(fieldArray[2], componentRange[2]);
+  updated =
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], componentRange[0]);
+  updated |=
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], componentRange[1]);
+  updated |=
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[2], componentRange[2]);
 
   if (num != (componentRange[0][1] - componentRange[0][0] + 1) ||
     num != (componentRange[1][1] - componentRange[1][0] + 1) ||
@@ -478,14 +483,15 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData* 
   }
   else // have to copy data into created array
   {
-    newVectors = vtkDataArray::CreateDataArray(this->GetComponentsType(3, fieldArray));
+    newVectors = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(3, fieldArray));
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(num);
 
     for (i = 0; i < 3; i++)
     {
-      if (this->ConstructArray(newVectors, i, fieldArray[i], arrayComp[i], componentRange[i][0],
-            componentRange[i][1], normalize[i]) == 0)
+      if (vtkFieldDataToAttributeDataFilter::ConstructArray(newVectors, i, fieldArray[i],
+            arrayComp[i], componentRange[i][0], componentRange[i][1], normalize[i]) == 0)
       {
         newVectors->Delete();
         return;
@@ -515,7 +521,7 @@ void vtkFieldDataToAttributeDataFilter::SetNormalComponent(
     return;
   }
 
-  this->SetArrayName(this, this->NormalArrays[comp], arrayName);
+  vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->NormalArrays[comp], arrayName);
   if (this->NormalArrayComponents[comp] != arrayComp)
   {
     this->NormalArrayComponents[comp] = arrayComp;
@@ -585,7 +591,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData* 
 
   for (i = 0; i < 3; i++)
   {
-    fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
+    fieldArray[i] = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd, arrays[i], arrayComp[i]);
 
     if (fieldArray[i] == nullptr)
     {
@@ -594,9 +600,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData* 
     }
   }
 
-  updated = this->UpdateComponentRange(fieldArray[0], componentRange[0]);
-  updated |= this->UpdateComponentRange(fieldArray[1], componentRange[1]);
-  updated |= this->UpdateComponentRange(fieldArray[2], componentRange[2]);
+  updated =
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[0], componentRange[0]);
+  updated |=
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[1], componentRange[1]);
+  updated |=
+    vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[2], componentRange[2]);
 
   if (num != (componentRange[0][1] - componentRange[0][0] + 1) ||
     num != (componentRange[1][1] - componentRange[1][0] + 1) ||
@@ -616,14 +625,15 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData* 
   }
   else // have to copy data into created array
   {
-    newNormals = vtkDataArray::CreateDataArray(this->GetComponentsType(3, fieldArray));
+    newNormals = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(3, fieldArray));
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(num);
 
     for (i = 0; i < 3; i++)
     {
-      if (this->ConstructArray(newNormals, i, fieldArray[i], arrayComp[i], componentRange[i][0],
-            componentRange[i][1], normalize[i]) == 0)
+      if (vtkFieldDataToAttributeDataFilter::ConstructArray(newNormals, i, fieldArray[i],
+            arrayComp[i], componentRange[i][0], componentRange[i][1], normalize[i]) == 0)
       {
         newNormals->Delete();
         return;
@@ -657,7 +667,7 @@ void vtkFieldDataToAttributeDataFilter::SetTCoordComponent(
   {
     this->NumberOfTCoordComponents = comp + 1;
   }
-  this->SetArrayName(this, this->TCoordArrays[comp], arrayName);
+  vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->TCoordArrays[comp], arrayName);
   if (this->TCoordArrayComponents[comp] != arrayComp)
   {
     this->TCoordArrayComponents[comp] = arrayComp;
@@ -731,7 +741,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData* 
 
   for (normalizeAny = i = 0; i < numComp; i++)
   {
-    fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
+    fieldArray[i] = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd, arrays[i], arrayComp[i]);
 
     if (fieldArray[i] == nullptr)
     {
@@ -743,7 +753,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData* 
 
   for (i = 0; i < numComp; i++)
   {
-    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |=
+      vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], componentRange[i]);
     if (num != (componentRange[i][1] - componentRange[i][0] + 1))
     {
       vtkErrorMacro(<< "Number of texture coords not consistent");
@@ -769,14 +780,15 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData* 
   }
   else // have to copy data into created array
   {
-    newTCoords = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp, fieldArray));
+    newTCoords = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(numComp, fieldArray));
     newTCoords->SetNumberOfComponents(numComp);
     newTCoords->SetNumberOfTuples(num);
 
     for (i = 0; i < numComp; i++)
     {
-      if (this->ConstructArray(newTCoords, i, fieldArray[i], arrayComp[i], componentRange[i][0],
-            componentRange[i][1], normalize[i]) == 0)
+      if (vtkFieldDataToAttributeDataFilter::ConstructArray(newTCoords, i, fieldArray[i],
+            arrayComp[i], componentRange[i][0], componentRange[i][1], normalize[i]) == 0)
       {
         newTCoords->Delete();
         return;
@@ -806,7 +818,7 @@ void vtkFieldDataToAttributeDataFilter::SetTensorComponent(
     return;
   }
 
-  this->SetArrayName(this, this->TensorArrays[comp], arrayName);
+  vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->TensorArrays[comp], arrayName);
   if (this->TensorArrayComponents[comp] != arrayComp)
   {
     this->TensorArrayComponents[comp] = arrayComp;
@@ -883,7 +895,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData* 
 
   for (i = 0; i < numComp; i++)
   {
-    fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
+    fieldArray[i] = vtkFieldDataToAttributeDataFilter::GetFieldArray(fd, arrays[i], arrayComp[i]);
 
     if (fieldArray[i] == nullptr)
     {
@@ -894,7 +906,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData* 
 
   for (normalizeAny = i = 0; i < numComp; i++)
   {
-    updated |= this->UpdateComponentRange(fieldArray[i], componentRange[i]);
+    updated |=
+      vtkFieldDataToAttributeDataFilter::UpdateComponentRange(fieldArray[i], componentRange[i]);
     if (num != (componentRange[i][1] - componentRange[i][0] + 1))
     {
       vtkErrorMacro(<< "Number of tensors not consistent");
@@ -921,14 +934,15 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData* 
   }
   else // have to copy data into created array
   {
-    newTensors = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp, fieldArray));
+    newTensors = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(numComp, fieldArray));
     newTensors->SetNumberOfComponents(numComp);
     newTensors->SetNumberOfTuples(num);
 
     for (i = 0; i < numComp; i++)
     {
-      if (this->ConstructArray(newTensors, i, fieldArray[i], arrayComp[i], componentRange[i][0],
-            componentRange[i][1], normalize[i]) == 0)
+      if (vtkFieldDataToAttributeDataFilter::ConstructArray(newTensors, i, fieldArray[i],
+            arrayComp[i], componentRange[i][0], componentRange[i][1], normalize[i]) == 0)
       {
         newTensors->Delete();
         return;

@@ -128,7 +128,7 @@ double* vtkGraph::GetPoint(vtkIdType ptId)
   {
     return this->Points->GetPoint(ptId);
   }
-  return this->DefaultPoint;
+  return vtkGraph::DefaultPoint;
 }
 
 //------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ void vtkGraph::GetPoint(vtkIdType ptId, double x[3])
   {
     for (int i = 0; i < 3; i++)
     {
-      x[i] = this->DefaultPoint[i];
+      x[i] = vtkGraph::DefaultPoint[i];
     }
   }
 }

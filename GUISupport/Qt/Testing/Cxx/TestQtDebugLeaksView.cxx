@@ -50,7 +50,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   // Normally the model is updated asynchronously during the application event loop.
   // Since there is no event loop running during this test we'll call processEvents()
   // whenever we need the model to update.
-  app.processEvents();
+  QApplication::processEvents();
 
   std::cout << "Expect a warning message to be printed:" << std::endl;
   QList<vtkObjectBase*> cones = model->getObjects("vtkConeSource");
@@ -65,7 +65,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
 #ifdef VTK_DEBUG_LEAKS
 
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
-  app.processEvents();
+  QApplication::processEvents();
 
   cones = model->getObjects("vtkConeSource");
   if (cones.size() != 1 || cones[0] != cone)
@@ -142,7 +142,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   }
 
   newReference = vtkSmartPointer<vtkConeSource>::New();
-  app.processEvents();
+  QApplication::processEvents();
 
   if (referenceModel->rowCount() != 2)
   {
@@ -151,7 +151,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
 
   newReference = nullptr;
   cone = nullptr;
-  app.processEvents();
+  QApplication::processEvents();
   view.setFilterEnabled(true);
 
   if (classTable->model()->rowCount() != 0)

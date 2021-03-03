@@ -36,7 +36,7 @@ vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 //------------------------------------------------------------------------------
 short vtkSegYIOUtils::readShortInteger(std::streamoff pos, std::istream& in)
 {
-  in.seekg(pos, in.beg);
+  in.seekg(pos, std::istream::beg);
   return readShortInteger(in);
 }
 
@@ -59,7 +59,7 @@ short vtkSegYIOUtils::readShortInteger(std::istream& in)
 //------------------------------------------------------------------------------
 int vtkSegYIOUtils::readLongInteger(std::streamoff pos, std::istream& in)
 {
-  in.seekg(pos, in.beg);
+  in.seekg(pos, std::istream::beg);
   return readLongInteger(in);
 }
 
@@ -167,6 +167,6 @@ void vtkSegYIOUtils::swap(char* a, char* b)
 //------------------------------------------------------------------------------
 std::streamoff vtkSegYIOUtils::getFileSize(std::istream& in)
 {
-  in.seekg(0, in.end);
+  in.seekg(0, std::istream::end);
   return in.tellg();
 }

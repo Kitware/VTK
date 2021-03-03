@@ -102,7 +102,7 @@ int vtkPixel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
   pcoords[0] = vtkMath::Dot(p21, p) / (l21 * l21);
   pcoords[1] = vtkMath::Dot(p31, p) / (l31 * l31);
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkPixel::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= 0.0 && pcoords[0] <= 1.0 && pcoords[1] >= 0.0 && pcoords[1] <= 1.0)
   {
@@ -159,7 +159,7 @@ void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3]
     x[i] = pt1[i] + pcoords[0] * (pt2[i] - pt1[i]) + pcoords[1] * (pt3[i] - pt1[i]);
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkPixel::InterpolationFunctions(pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

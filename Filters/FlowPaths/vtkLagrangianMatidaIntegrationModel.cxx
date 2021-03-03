@@ -140,9 +140,10 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkLagrangianParticle* p
   // Compute function values
   for (int i = 0; i < 3; i++)
   {
-    double drag = this->GetDragCoefficient(
+    double drag = vtkLagrangianMatidaIntegrationModel::GetDragCoefficient(
       flowVelocity, particle->GetVelocity(), flowDynamicViscosity, particleDiameter, flowDensity);
-    double relax = this->GetRelaxationTime(flowDynamicViscosity, particleDiameter, particleDensity);
+    double relax = vtkLagrangianMatidaIntegrationModel::GetRelaxationTime(
+      flowDynamicViscosity, particleDiameter, particleDensity);
     // Matida Equation
     f[i + 3] = (relax == 0) ? std::numeric_limits<double>::infinity()
                             : (flowVelocity[i] - x[i + 3]) * drag / relax;

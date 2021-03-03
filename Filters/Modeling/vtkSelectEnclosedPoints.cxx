@@ -114,7 +114,7 @@ struct SelectInOutCheck
     {
       this->DataSet->GetPoint(ptId, x);
 
-      if (this->Selector->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
+      if (vtkSelectEnclosedPoints::IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
             this->Tolerance, this->Locator, cellIds, cell, counter, this->Sequence, ptId))
       {
         *hits++ = (this->InsideOut ? 0 : 1);
@@ -192,7 +192,7 @@ int vtkSelectEnclosedPoints::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro("Selecting enclosed points");
 
   // If requested, check that the surface is closed
-  if (this->CheckSurface && !this->IsSurfaceClosed(surface))
+  if (this->CheckSurface && !vtkSelectEnclosedPoints::IsSurfaceClosed(surface))
   {
     return 0;
   }
@@ -308,8 +308,8 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 {
   vtkIntersectionCounter counter(this->Tolerance, this->Length);
 
-  return this->IsInsideSurface(x, this->Surface, this->Bounds, this->Length, this->Tolerance,
-    this->CellLocator, this->CellIds, this->Cell, counter);
+  return vtkSelectEnclosedPoints::IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
+    this->Tolerance, this->CellLocator, this->CellIds, this->Cell, counter);
 }
 
 //------------------------------------------------------------------------------

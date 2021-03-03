@@ -265,7 +265,7 @@ void vtkParallelopipedWidget ::RequestResizeAlongAnAxisCallback(vtkAbstractWidge
     // We did not select any of the handles, nevertheless we are at least
     // inside the parallelopiped. We could do things like Translate etc. So
     // we will delegate responsibility to those callbacks
-    self->TranslateCallback(self);
+    vtkParallelopipedWidget::TranslateCallback(self);
   }
 
   else if (interactionState != vtkParallelopipedRepresentation::Outside)

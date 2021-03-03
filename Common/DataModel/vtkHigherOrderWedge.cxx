@@ -1138,7 +1138,7 @@ void vtkHigherOrderWedge::GetTriangularFace(vtkHigherOrderTriangle* result, int 
       bary[0] = ii;
       bary[1] = jj;
       bary[2] = rsOrder - ii - jj;
-      vtkIdType dstId = result->Index(bary, rsOrder);
+      vtkIdType dstId = vtkHigherOrderTriangle::Index(bary, rsOrder);
       set_ids_and_points(dstId, srcId);
 
       /*

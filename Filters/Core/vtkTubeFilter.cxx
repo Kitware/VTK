@@ -265,7 +265,7 @@ int vtkTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       singlePolyline->Reset(); // avoid instantiation
       singlePolyline->InsertNextCell(npts, pts);
-      lineNormalGenerator->GenerateSlidingNormals(inPts, singlePolyline, inNormals);
+      vtkPolyLine::GenerateSlidingNormals(inPts, singlePolyline, inNormals);
     }
 
     // Generate the points around the polyline. The tube is not stripped

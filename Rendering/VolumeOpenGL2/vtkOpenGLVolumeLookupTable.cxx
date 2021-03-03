@@ -68,7 +68,7 @@ inline int vtkOpenGLVolumeLookupTable::GetMaximumSupportedTextureWidth(
 
   // Try to match the next power of two.
   idealWidth = vtkMath::NearestPowerOfTwo(idealWidth);
-  int const maxWidth = this->TextureObject->GetMaximumTextureSize(renWin);
+  int const maxWidth = vtkTextureObject::GetMaximumTextureSize(renWin);
   if (maxWidth < 0)
   {
     vtkErrorMacro("Failed to query max texture size! using default 1024.");

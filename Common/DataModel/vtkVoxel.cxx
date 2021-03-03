@@ -150,7 +150,7 @@ int vtkVoxel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
       closestPoint[2] = x[2];
     }
     dist2 = 0.0; // inside voxel
-    this->InterpolationFunctions(pcoords, weights);
+    vtkVoxel::InterpolationFunctions(pcoords, weights);
     return 1;
   }
   else
@@ -198,7 +198,7 @@ void vtkVoxel::EvaluateLocation(
       pcoords[2] * (pt4[i] - pt1[i]);
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkVoxel::InterpolationFunctions(pcoords, weights);
 }
 
 //------------------------------------------------------------------------------

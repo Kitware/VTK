@@ -52,7 +52,7 @@ int vtkLine::EvaluatePosition(const double x[3], double closestPoint[3], int& su
   this->Points->GetPoint(1, a2);
 
   // DistanceToLine sets pcoords[0] to a value t
-  dist2 = this->DistanceToLine(x, a1, a2, pcoords[0], closestPoint);
+  dist2 = vtkLine::DistanceToLine(x, a1, a2, pcoords[0], closestPoint);
 
   // pcoords[0] == t, need weights to be 1-t and t
   weights[0] = 1.0 - pcoords[0];

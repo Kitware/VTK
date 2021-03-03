@@ -11,7 +11,7 @@ int PCellSizeFilter(int argc, char* argv[])
 {
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);
-  contr->SetGlobalController(contr);
+  vtkMPIController::SetGlobalController(contr);
   contr->CreateOutputWindow();
 
   vtkNew<vtkUnstructuredGridReader> reader;

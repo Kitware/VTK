@@ -263,7 +263,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
     view->setModel(model);
     view->show();
 
-    app.exec();
+    QApplication::exec();
 
     delete view;
     delete model;

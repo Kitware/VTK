@@ -295,7 +295,7 @@ int vtkVolumeOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
   // Create an array to nudge crop planes over to the bounds if they are
   // within tolerance of the bounds
   int tolPtId[3][4];
-  this->NudgeCropPlanesToBounds(tolPtId, planes, tol);
+  vtkVolumeOutlineSource::NudgeCropPlanesToBounds(tolPtId, planes, tol);
 
   // The all-important cropping flags
   int flags = this->CroppingRegionFlags;
@@ -309,7 +309,7 @@ int vtkVolumeOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Convert the colors to unsigned char for scalars
   unsigned char colors[2][3];
-  this->CreateColorValues(colors, this->Color, this->ActivePlaneColor);
+  vtkVolumeOutlineSource::CreateColorValues(colors, this->Color, this->ActivePlaneColor);
 
   // Create the scalars used to color the lines
   vtkUnsignedCharArray* scalars = nullptr;
@@ -326,7 +326,7 @@ int vtkVolumeOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->GenerateOutline)
   {
     lines = vtkCellArray::New();
-    this->GenerateLines(lines, scalars, colors, activePlane, flags, tolPtId);
+    vtkVolumeOutlineSource::GenerateLines(lines, scalars, colors, activePlane, flags, tolPtId);
   }
 
   // Generate the polys for the outline
@@ -335,12 +335,12 @@ int vtkVolumeOutlineSource::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->GenerateFaces)
   {
     polys = vtkCellArray::New();
-    this->GeneratePolys(polys, scalars, colors, activePlane, flags, tolPtId);
+    vtkVolumeOutlineSource::GeneratePolys(polys, scalars, colors, activePlane, flags, tolPtId);
   }
 
   // Generate the points that are used by the lines.
   vtkPoints* points = vtkPoints::New();
-  this->GeneratePoints(points, lines, polys, planes, tol);
+  vtkVolumeOutlineSource::GeneratePoints(points, lines, polys, planes, tol);
 
   output->SetPoints(points);
   points->Delete();

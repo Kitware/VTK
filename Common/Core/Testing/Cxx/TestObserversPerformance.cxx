@@ -52,7 +52,7 @@ public:
   static vtkSimpleCommand* New() { return new vtkSimpleCommand(); }
   vtkTypeMacro(vtkSimpleCommand, vtkCommand);
 
-  void Execute(vtkObject*, unsigned long, void*) override { this->MTime.Modified(); }
+  void Execute(vtkObject*, unsigned long, void*) override { vtkSimpleCommand::MTime.Modified(); }
 
 protected:
   static vtkTimeStamp MTime;

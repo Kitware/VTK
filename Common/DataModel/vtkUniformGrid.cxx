@@ -568,7 +568,7 @@ vtkIdType vtkUniformGrid::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
     return -1;
   }
 
-  this->Voxel->InterpolationFunctions(pcoords, weights);
+  vtkVoxel::InterpolationFunctions(pcoords, weights);
 
   //
   //  From this location get the cell id

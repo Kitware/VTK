@@ -82,7 +82,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     pdal::StageFactory factory;
-    std::string driverName = factory.inferReaderDriver(this->FileName);
+    std::string driverName = pdal::StageFactory::inferReaderDriver(this->FileName);
     if (driverName.empty())
     {
       vtkErrorMacro("Cannot infer the reader driver for " << this->FileName);

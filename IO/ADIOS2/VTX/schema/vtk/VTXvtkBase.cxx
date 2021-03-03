@@ -58,7 +58,7 @@ bool VTXvtkBase::ReadDataSets(
   {
     const std::string& variableName = dataArrayPair.first;
     types::DataArray& dataArray = dataArrayPair.second;
-    if (this->TIMENames.count(variableName) == 1)
+    if (VTXvtkBase::TIMENames.count(variableName) == 1)
     {
       continue;
     }
@@ -93,7 +93,7 @@ void VTXvtkBase::InitTimes()
 
 std::string VTXvtkBase::DataSetType(const types::DataSetType type) const noexcept
 {
-  return this->DataSetTypes.at(type);
+  return VTXvtkBase::DataSetTypes.at(type);
 }
 
 } // end namespace schema

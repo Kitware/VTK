@@ -116,7 +116,7 @@ vtkSplineWidget::vtkSplineWidget()
 
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputConnection(this->ParametricFunctionSource->GetOutputPort());
-  lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(lineMapper);

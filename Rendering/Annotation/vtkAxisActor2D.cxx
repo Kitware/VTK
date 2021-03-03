@@ -569,8 +569,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
     {
       pts->GetPoint((this->NumberOfMinorTicks + 1) * 2 * i + 1, xTick);
       this->LabelMappers[i]->GetSize(viewport, stringSize);
-      this->SetOffsetPosition(xTick, theta, this->LastMaxLabelSize[0], this->LastMaxLabelSize[1],
-        this->TickOffset, this->LabelActors[i]);
+      vtkAxisActor2D::SetOffsetPosition(xTick, theta, this->LastMaxLabelSize[0],
+        this->LastMaxLabelSize[1], this->TickOffset, this->LabelActors[i]);
     }
   } // If labels visible
 
@@ -625,11 +625,11 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
     offset = 0.0;
     if (this->LabelVisibility)
     {
-      offset =
-        this->ComputeStringOffset(this->LastMaxLabelSize[0], this->LastMaxLabelSize[1], theta);
+      offset = vtkAxisActor2D::ComputeStringOffset(
+        this->LastMaxLabelSize[0], this->LastMaxLabelSize[1], theta);
     }
 
-    this->SetOffsetPosition(
+    vtkAxisActor2D::SetOffsetPosition(
       xTick, theta, stringSize[0], stringSize[1], static_cast<int>(offset), this->TitleActor);
   } // If title visible
 
@@ -656,7 +656,7 @@ void vtkAxisActor2D::UpdateAdjustedRange()
   if (this->AdjustLabels)
   {
     double interval;
-    this->ComputeRange(this->Range, this->AdjustedRange, this->NumberOfLabels,
+    vtkAxisActor2D::ComputeRange(this->Range, this->AdjustedRange, this->NumberOfLabels,
       this->AdjustedNumberOfLabels, interval);
   }
   else

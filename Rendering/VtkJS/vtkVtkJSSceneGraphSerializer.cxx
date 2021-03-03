@@ -918,7 +918,7 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
   properties["fieldDataTupleId"] = static_cast<Json::Value::Int64>(mapper->GetFieldDataTupleId());
   properties["interpolateScalarsBeforeMapping"] = mapper->GetInterpolateScalarsBeforeMapping();
   properties["renderTime"] = mapper->GetRenderTime();
-  properties["resolveCoincidentTopology"] = mapper->GetResolveCoincidentTopology();
+  properties["resolveCoincidentTopology"] = vtkMapper::GetResolveCoincidentTopology();
   properties["scalarMode"] = mapper->GetScalarMode();
   properties["scalarVisibility"] = mapper->GetScalarVisibility();
   properties["static"] = mapper->GetStatic();

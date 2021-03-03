@@ -90,7 +90,7 @@ void vtkTransform2D::Translate(double x, double y)
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][2] = x;
   matrix[1][2] = y;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
+  vtkMatrix3x3::Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -113,7 +113,7 @@ void vtkTransform2D::Rotate(double angle)
   matrix[0][1] = s;
   matrix[1][0] = -s;
   matrix[1][1] = c;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
+  vtkMatrix3x3::Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -128,7 +128,7 @@ void vtkTransform2D::Scale(double x, double y)
   vtkMatrix3x3::Identity(*matrix);
   matrix[0][0] = x;
   matrix[1][1] = y;
-  this->Matrix->Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
+  vtkMatrix3x3::Multiply3x3(this->Matrix->GetData(), *matrix, this->Matrix->GetData());
   this->Matrix->Modified();
 }
 
@@ -235,7 +235,7 @@ void vtkTransform2D::InverseTransformPoints(const float* inPts, float* outPts, i
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
   {
-    this->Matrix->Invert(this->Matrix, this->InverseMatrix);
+    vtkMatrix3x3::Invert(this->Matrix, this->InverseMatrix);
   }
   double* M = this->InverseMatrix->GetData();
 
@@ -250,7 +250,7 @@ void vtkTransform2D::InverseTransformPoints(const double* inPts, double* outPts,
 {
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
   {
-    this->Matrix->Invert(this->Matrix, this->InverseMatrix);
+    vtkMatrix3x3::Invert(this->Matrix, this->InverseMatrix);
   }
   double* M = this->InverseMatrix->GetData();
 
@@ -267,7 +267,7 @@ void vtkTransform2D::InverseTransformPoints(vtkPoints2D* inPts, vtkPoints2D* out
   outPts->SetNumberOfPoints(n);
   if (this->Matrix->GetMTime() > this->InverseMatrix->GetMTime())
   {
-    this->Matrix->Invert(this->Matrix, this->InverseMatrix);
+    vtkMatrix3x3::Invert(this->Matrix, this->InverseMatrix);
   }
   double* M = this->InverseMatrix->GetData();
   double point[2];

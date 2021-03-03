@@ -516,7 +516,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
 
   // Split the file name and extension from the path.
   std::string::size_type pos = fileName.find_last_of("/\\");
-  if (pos != fileName.npos)
+  if (pos != std::string::npos)
   {
     // Keep the slash in the file path.
     this->Internal->FilePath = fileName.substr(0, pos + 1);
@@ -530,7 +530,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
 
   // Split the extension from the file name.
   pos = name.find_last_of('.');
-  if (pos != name.npos)
+  if (pos != std::string::npos)
   {
     this->Internal->FilePrefix = name.substr(0, pos);
   }

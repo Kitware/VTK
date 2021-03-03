@@ -100,7 +100,7 @@ struct ComputeProperties
       this->Mesh->GetCellPoints(polyId, npts, pts);
 
       // Compute area of polygon.
-      *areas++ = poly->ComputeArea(inPts, npts, pts, n);
+      *areas++ = vtkPolygon::ComputeArea(inPts, npts, pts, n);
 
       // Now need to compute volume contribution of polygon.
       poly->PointIds->SetNumberOfIds(npts);

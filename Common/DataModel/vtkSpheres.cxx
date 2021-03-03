@@ -96,7 +96,7 @@ double vtkSpheres::EvaluateFunction(double x[3])
   {
     this->Radii->GetTuple(i, radius);
     this->Centers->GetPoint(i, center);
-    val = this->Sphere->Evaluate(center, radius[0], x);
+    val = vtkSphere::Evaluate(center, radius[0], x);
     if (val < minVal)
     {
       minVal = val;
@@ -131,7 +131,7 @@ void vtkSpheres::EvaluateGradient(double x[3], double n[3])
   {
     this->Radii->GetTuple(i, rTemp);
     this->Centers->GetPoint(i, cTemp);
-    val = this->Sphere->Evaluate(cTemp, rTemp[0], x);
+    val = vtkSphere::Evaluate(cTemp, rTemp[0], x);
     if (val < minVal)
     {
       minVal = val;

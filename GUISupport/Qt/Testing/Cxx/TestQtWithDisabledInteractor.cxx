@@ -92,7 +92,7 @@ int TestQtWithDisabledInteractor(int argc, char* argv[])
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
-      return app.exec();
+      return QApplication::exec();
     case vtkTesting::FAILED:
     case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;

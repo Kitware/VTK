@@ -100,7 +100,7 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   // specified as relative paths.
   std::string filePath = this->InputFileName;
   std::string::size_type pos = filePath.find_last_of("/\\");
-  if (pos != filePath.npos)
+  if (pos != std::string::npos)
   {
     filePath = filePath.substr(0, pos);
   }

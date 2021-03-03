@@ -28,7 +28,7 @@ int vtkSphericalDirectionEncoder::DecodedGradientTableInitialized = 0;
 // sphere.
 vtkSphericalDirectionEncoder::vtkSphericalDirectionEncoder()
 {
-  this->InitializeDecodedGradientTable();
+  vtkSphericalDirectionEncoder::InitializeDecodedGradientTable();
 }
 
 // Destruct a vtkSphericalDirectionEncoder - free up any memory used

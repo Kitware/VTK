@@ -1269,7 +1269,7 @@ public:
       // need to read in chunks to skip separators.
       vtkTypeUInt64 pos = vtk_ftell(fp);
       std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64>> chunks =
-        record.GetChunksToRead(pos, sizeof(DataType) * n, separators);
+        vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(pos, sizeof(DataType) * n, separators);
 
       vtkTypeUInt64 bytesread = 0;
       for (size_t cc = 0; cc < chunks.size(); ++cc)

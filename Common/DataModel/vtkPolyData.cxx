@@ -553,7 +553,7 @@ void vtkPolyData::GetCellsBounds(double bounds[6])
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts(vtkCellArray* v)
 {
-  if (v == this->DummyContainer.Dummy)
+  if (v == vtkPolyData::DummyContainer.Dummy)
   {
     v = nullptr;
   }
@@ -576,7 +576,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 {
   if (!this->Verts)
   {
-    return this->DummyContainer.Dummy;
+    return vtkPolyData::DummyContainer.Dummy;
   }
   else
   {
@@ -588,7 +588,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 // Set the cell array defining lines.
 void vtkPolyData::SetLines(vtkCellArray* l)
 {
-  if (l == this->DummyContainer.Dummy)
+  if (l == vtkPolyData::DummyContainer.Dummy)
   {
     l = nullptr;
   }
@@ -611,7 +611,7 @@ vtkCellArray* vtkPolyData::GetLines()
 {
   if (!this->Lines)
   {
-    return this->DummyContainer.Dummy;
+    return vtkPolyData::DummyContainer.Dummy;
   }
   else
   {
@@ -623,7 +623,7 @@ vtkCellArray* vtkPolyData::GetLines()
 // Set the cell array defining polygons.
 void vtkPolyData::SetPolys(vtkCellArray* p)
 {
-  if (p == this->DummyContainer.Dummy)
+  if (p == vtkPolyData::DummyContainer.Dummy)
   {
     p = nullptr;
   }
@@ -646,7 +646,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 {
   if (!this->Polys)
   {
-    return this->DummyContainer.Dummy;
+    return vtkPolyData::DummyContainer.Dummy;
   }
   else
   {
@@ -658,7 +658,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 // Set the cell array defining triangle strips.
 void vtkPolyData::SetStrips(vtkCellArray* s)
 {
-  if (s == this->DummyContainer.Dummy)
+  if (s == vtkPolyData::DummyContainer.Dummy)
   {
     s = nullptr;
   }
@@ -682,7 +682,7 @@ vtkCellArray* vtkPolyData::GetStrips()
 {
   if (!this->Strips)
   {
-    return this->DummyContainer.Dummy;
+    return vtkPolyData::DummyContainer.Dummy;
   }
   else
   {
@@ -853,7 +853,7 @@ struct BuildCellsImpl
       return;
     }
 
-    if (!map->ValidateCellId(numCells - 1))
+    if (!vtkPolyData_detail::CellMap::ValidateCellId(numCells - 1))
     {
       throw std::runtime_error("Cell map storage capacity exceeded.");
     }

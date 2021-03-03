@@ -426,9 +426,10 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
   {
     this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
   }
-  else if (this->ClassExitMethod)
+  else if (vtkCocoaRenderWindowInteractor::ClassExitMethod)
   {
-    (*this->ClassExitMethod)(this->ClassExitMethodArg);
+    (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(
+      vtkCocoaRenderWindowInteractor::ClassExitMethodArg);
   }
   this->TerminateApp();
 }

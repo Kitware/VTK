@@ -596,7 +596,7 @@ vtkDataArray* vtkTemporalInterpolator ::InterpolateDataArray(
   //
   // Create the output
   //
-  vtkAbstractArray* aa = arrays[0]->CreateArray(arrays[0]->GetDataType());
+  vtkAbstractArray* aa = vtkDataArray::CreateArray(arrays[0]->GetDataType());
   vtkDataArray* output = vtkArrayDownCast<vtkDataArray>(aa);
 
   int numComp = arrays[0]->GetNumberOfComponents();

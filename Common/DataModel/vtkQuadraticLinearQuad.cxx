@@ -153,7 +153,7 @@ int vtkQuadraticLinearQuad::EvaluatePosition(const double x[3], double* closestP
     else
     {
       // Compute weights only
-      this->InterpolationFunctions(pcoords, weights);
+      vtkQuadraticLinearQuad::InterpolationFunctions(pcoords, weights);
     }
   }
 
@@ -167,7 +167,7 @@ void vtkQuadraticLinearQuad::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticLinearQuad::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 6; i++)
@@ -349,8 +349,8 @@ void vtkQuadraticLinearQuad::Derivatives(
   this->Points->GetPoint(1, x1);
   this->Points->GetPoint(2, x2);
 
-  this->InterpolationFunctions(pcoords, weights);
-  this->InterpolationDerivs(pcoords, functionDerivs);
+  vtkQuadraticLinearQuad::InterpolationFunctions(pcoords, weights);
+  vtkQuadraticLinearQuad::InterpolationDerivs(pcoords, functionDerivs);
 
   for (i = 0; i < 3; i++)
   {
