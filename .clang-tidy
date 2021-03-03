@@ -66,7 +66,6 @@ mpi-*,\
 openmp-*,\
 performance-*,\
 -performance-inefficient-string-concatenation,\
--performance-move-const-arg,\
 -performance-no-automatic-move,\
 -performance-noexcept-move-constructor,\
 -performance-type-promotion-in-math-fn,\

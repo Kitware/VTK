@@ -961,8 +961,8 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(
   conn->Squeeze();
   offsets->Squeeze();
 
-  this->CellPoints = std::move(conn);
-  this->CellOffsets = std::move(offsets);
+  this->CellPoints = conn;
+  this->CellOffsets = offsets;
 }
 
 namespace
@@ -1009,8 +1009,8 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
 {
   ConvertCellsVisitor visitor;
   cells->Visit(visitor);
-  this->CellPoints = std::move(visitor.Connectivity);
-  this->CellOffsets = std::move(visitor.Offsets);
+  this->CellPoints = visitor.Connectivity;
+  this->CellOffsets = visitor.Offsets;
 }
 
 //------------------------------------------------------------------------------

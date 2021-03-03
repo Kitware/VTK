@@ -264,7 +264,7 @@ struct ImageInfo
   }
 
   ImageInfo(ImageInfo&& o)
-    : Size(std::move(o.Size))
+    : Size(o.Size)
     , Id(std::move(o.Id))
     , PNGBase64(std::move(o.PNGBase64))
   {
@@ -319,8 +319,8 @@ struct PatternInfo
   }
 
   PatternInfo(PatternInfo&& o)
-    : TextureProperty(std::move(o.TextureProperty))
-    , ImageSize(std::move(o.ImageSize))
+    : TextureProperty(o.TextureProperty)
+    , ImageSize(o.ImageSize)
     , ImageId(std::move(o.ImageId))
     , PatternId(std::move(o.PatternId))
   {
@@ -363,7 +363,7 @@ struct ClipRectInfo
   }
 
   ClipRectInfo(ClipRectInfo&& o)
-    : Rect(std::move(o.Rect))
+    : Rect(o.Rect)
     , Id(std::move(o.Id))
   {
   }
