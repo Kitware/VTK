@@ -92,7 +92,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   int num_steps = 40;
 
   vtksys::CommandLineArguments arg;
-  arg.StoreUnusedArguments(1);
+  arg.StoreUnusedArguments(true);
   arg.Initialize(argc, argv);
 
   typedef vtksys::CommandLineArguments argT;

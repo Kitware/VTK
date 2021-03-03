@@ -1373,7 +1373,7 @@ vtkPStreamTracer::vtkPStreamTracer()
     this->Controller->Register(this);
   }
   this->Interpolator = nullptr;
-  this->GenerateNormalsInIntegrate = 0;
+  this->GenerateNormalsInIntegrate = false;
 
   this->EmptyData = 0;
 }
@@ -1425,9 +1425,9 @@ int vtkPStreamTracer::RequestData(
   if (!vtkMPIController::SafeDownCast(this->Controller) ||
     this->Controller->GetNumberOfProcesses() == 1)
   {
-    this->GenerateNormalsInIntegrate = 1;
+    this->GenerateNormalsInIntegrate = true;
     int result = vtkStreamTracer::RequestData(request, inputVector, outputVector);
-    this->GenerateNormalsInIntegrate = 0;
+    this->GenerateNormalsInIntegrate = false;
     return result;
   }
 
@@ -1472,7 +1472,7 @@ int vtkPStreamTracer::RequestData(
   }
   else
   {
-    func->SetCaching(0);
+    func->SetCaching(false);
     this->SetInterpolator(func);
     func->Delete();
   }

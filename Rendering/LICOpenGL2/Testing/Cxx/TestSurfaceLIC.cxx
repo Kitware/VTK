@@ -72,7 +72,7 @@ int TestSurfaceLIC(int argc, char* argv[])
   std::string vectors;
 
   vtksys::CommandLineArguments arg;
-  arg.StoreUnusedArguments(1);
+  arg.StoreUnusedArguments(true);
   arg.Initialize(argc, argv);
 
   // Fill up accepted arguments.

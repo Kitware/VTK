@@ -39,7 +39,7 @@ vtkMagnifierRepresentation::vtkMagnifierRepresentation()
   this->MagnificationRenderer = vtkRenderer::New();
   this->Coordinate = vtkCoordinate::New();
   this->Coordinate->SetCoordinateSystemToDisplay();
-  this->InsideRenderer = 0;
+  this->InsideRenderer = false;
 
   // Create the geometry in canonical coordinates
   this->BorderPoints = vtkPoints::New();

@@ -64,7 +64,7 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
   double zoom_factor = 2.8;
 
   vtksys::CommandLineArguments arg;
-  arg.StoreUnusedArguments(1);
+  arg.StoreUnusedArguments(true);
   arg.Initialize(argc, argv);
 
   typedef vtksys::CommandLineArguments argT;

@@ -530,7 +530,7 @@ int vtkPSurfaceLICComposite::DecomposeExtent(
   list<vtkPixelExtent> splitExts;
 
   int dir = 0;
-  while (1)
+  while (true)
   {
     // stop when we have enough out or all out have unit size
     int nExts = static_cast<int>(out.size());
