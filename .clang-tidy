@@ -84,7 +84,6 @@ readability-*,\
 -readability-qualified-auto,\
 -readability-redundant-declaration,\
 -readability-redundant-preprocessor,\
--readability-redundant-smartptr-get,\
 -readability-simplify-boolean-expr,\
 -readability-static-accessed-through-instance,\
 -readability-uppercase-literal-suffix,\

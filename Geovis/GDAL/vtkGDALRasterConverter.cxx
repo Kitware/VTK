@@ -254,7 +254,7 @@ struct StaticCopyToGDAL
         gdalColor.c2 = static_cast<short>(inputColor[1] * 255.0);
         gdalColor.c3 = static_cast<short>(inputColor[2] * 255.0);
         gdalColor.c4 = static_cast<short>(inputColor[3] * 255.0);
-        gdalColorTable.get()->SetColorEntry(i, &gdalColor);
+        gdalColorTable->SetColorEntry(i, &gdalColor);
       }
     }
 
