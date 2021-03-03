@@ -353,8 +353,7 @@ public:
     }
 
     const int& fileid = handle.second;
-    const auto dbasename =
-      shortname ? vtksys::SystemTools::GetFilenameName(handle.first) : handle.first;
+    auto dbasename = shortname ? vtksys::SystemTools::GetFilenameName(handle.first) : handle.first;
 
     auto& dinfo = iter->second;
     if (dinfo.ProcessCount > 0)

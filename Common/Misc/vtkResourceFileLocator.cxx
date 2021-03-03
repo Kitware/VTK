@@ -66,7 +66,7 @@ std::string vtkResourceFileLocator::Locate(const std::string& anchor,
     std::string curanchor = vtksys::SystemTools::JoinPath(path_components);
     for (const std::string& curprefix : landmark_prefixes)
     {
-      const std::string landmarkdir =
+      std::string landmarkdir =
         curprefix.empty() ? curanchor : curanchor + VTK_PATH_SEPARATOR + curprefix;
       const std::string landmarktocheck = landmarkdir + VTK_PATH_SEPARATOR + landmark;
       if (vtksys::SystemTools::FileExists(landmarktocheck))
