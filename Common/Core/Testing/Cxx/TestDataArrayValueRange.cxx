@@ -769,7 +769,9 @@ struct UnitTestValueIteratorAPI
     CHECK_TRUE(iter == iter1);
 
     {
-      std::swap(iter1, iter2);
+      // ADL swap:
+      using std::swap;
+      swap(iter1, iter2);
     }
 
     CHECK_FALSE(iter1 < iter2);
@@ -778,7 +780,9 @@ struct UnitTestValueIteratorAPI
     CHECK_TRUE(iter == iter2);
 
     {
-      std::swap(iter1, iter2);
+      // ADL swap:
+      using std::swap;
+      swap(iter1, iter2);
     }
 
     CHECK_TRUE(iter1 < iter2);
@@ -973,6 +977,7 @@ struct UnitTestValueReferenceAPI
 
     APIType val2 = val1 + 1;
 
+    // ADL swap:
     using std::swap;
     swap(ref1, val2);
 
@@ -1657,6 +1662,7 @@ struct UnitTestEdgeCases
       auto it2 = start2;
       for (auto it1 = start1; it1 < end1; ++it1)
       {
+        // ADL swap:
         using std::swap;
         swap(*it1, *it2++);
       }

@@ -762,8 +762,10 @@ struct UnitTestTupleIteratorAPI
     CHECK_EQUAL_NODUMP(iterA, iter1);
     CHECK_EQUAL_NODUMP(iterB, iter2);
 
-    { // ADL swap:
-      std::swap(iterA, iterB);
+    {
+      // ADL swap:
+      using std::swap;
+      swap(iterA, iterB);
     }
 
     CHECK_NOT_EQUAL_NODUMP(iterA, iter1);
@@ -1022,6 +1024,7 @@ struct UnitTestTupleReferenceAPI
     CHECK_FALSE(this->CompareTuple(tuple2, data1));
 
     {
+      // ADL swap:
       using std::swap;
       swap(tuple1, tuple2);
     }
@@ -1032,6 +1035,7 @@ struct UnitTestTupleReferenceAPI
     CHECK_TRUE(this->CompareTuple(tuple2, data1));
 
     {
+      // ADL swap:
       using std::swap;
       swap(tuple1, tuple2);
     }
@@ -2015,7 +2019,9 @@ struct UnitTestComponentIteratorAPI
     CHECK_TRUE(iter == iter1);
 
     {
-      std::swap(iter1, iter2);
+      // ADL swap:
+      using std::swap;
+      swap(iter1, iter2);
     }
 
     CHECK_FALSE(iter1 < iter2);
@@ -2024,7 +2030,9 @@ struct UnitTestComponentIteratorAPI
     CHECK_TRUE(iter == iter2);
 
     {
-      std::swap(iter1, iter2);
+      // ADL swap:
+      using std::swap;
+      swap(iter1, iter2);
     }
 
     CHECK_TRUE(iter1 < iter2);
@@ -2230,6 +2238,7 @@ struct UnitTestComponentReferenceAPI
 
     APIType val2 = val1 + 1;
 
+    // ADL swap:
     using std::swap;
     swap(ref1, val2);
 
@@ -2903,6 +2912,7 @@ struct UnitTestEdgeCases
     CHECK_FALSE(this->CompareTuple(ref2, data1));
 
     {
+      // ADL swap:
       using std::swap;
       swap(ref1, ref2);
     }
@@ -3021,6 +3031,7 @@ struct UnitTestEdgeCases
       auto iter2 = tref2.begin();
       for (typename decltype(tref1)::reference comp : tref1)
       {
+        // ADL swap:
         using std::swap;
         swap(comp, *iter2++);
       }
