@@ -42,7 +42,7 @@ ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   COMMAND vtkInfovisCoreCxxTests TestWordCloud
   DATA{../../../../Testing/Data/Gettysburg.txt} DATA{../../../../Testing/Data/Canterbury.ttf}
   -V DATA{../Data/Baseline/TestWordCloud.png,:}
-  -T "${VTK_TEST_OUTPUT_DIR}"
+  -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
 )
 
 set(all_tests
