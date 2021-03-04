@@ -35,7 +35,11 @@ set_tests_properties(
   PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
 )
 
-if(TARGET VTK::RenderingMatplotlib)
+# Check that matplotlib is available
+include(../../../../CMake/FindPythonModules.cmake)
+find_python_module(matplotlib MATPLOTLIB_FOUND)
+
+if(MATPLOTLIB_FOUND AND TARGET VTK::RenderingMatplotlib)
   set(TestMathTextFonts_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
