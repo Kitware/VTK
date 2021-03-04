@@ -565,18 +565,23 @@ bool vtkNetCDFReader::ComputeArraySelection()
 
   this->VariableArraySelection->DisableAllArrays();
 
+  bool found = false;
   for (vtkIdType i = 0; i < this->VariableDimensions->GetNumberOfValues(); i++)
   {
     if (this->VariableDimensions->GetValue(i) == this->CurrentDimensions)
     {
       const char* variableName = this->VariableArraySelection->GetArrayName(i);
       this->VariableArraySelection->EnableArray(variableName);
-      return true;
+      found = true;
     }
   }
 
-  vtkWarningMacro("Variable dimensions (" << this->CurrentDimensions << ") not found.");
-  return false;
+  if (!found)
+  {
+    vtkWarningMacro("Variable of dimensions (" << this->CurrentDimensions << ") not found.");
+  }
+
+  return found;
 }
 
 //------------------------------------------------------------------------------
