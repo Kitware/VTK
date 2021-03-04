@@ -57,6 +57,7 @@
 #define vtkScalarBarActor_h
 
 #include "vtkActor2D.h"
+#include "vtkDoubleArray.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkColor3ub;
@@ -151,10 +152,28 @@ public:
 
   //@{
   /**
-   * Set/Get the number of tick labels to show.
+   * Set/Get the number of automatic tick labels to show.
    */
   vtkSetClampMacro(NumberOfLabels, int, 0, 64);
   vtkGetMacro(NumberOfLabels, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the fixed locations to use.
+   */
+  virtual void SetCustomLabels(vtkDoubleArray* labels = nullptr);
+  vtkGetObjectMacro(CustomLabels, vtkDoubleArray);
+  //@}
+
+  //@{
+  /**
+   * Get/Set whether custom labels will be used.
+   * bonds. Default: Off.
+   */
+  vtkGetMacro(UseCustomLabels, bool);
+  vtkSetMacro(UseCustomLabels, bool);
+  vtkBooleanMacro(UseCustomLabels, bool);
   //@}
 
   //@{
@@ -479,8 +498,9 @@ public:
   //@{
   /**
    * Set/Get whether the font size of title and labels is unconstrained. Default is off.
-   * When it is constrained, the size of the scalar bar will constrained the font size
-   * When it is not, the size of the font will always be respected
+   * When it is constrained, the size of the scalar bar will constrain the font size.
+   * When it is not, the size of the font will always be respected.
+   * Using custom labels will force this mode to be on.
    */
   vtkSetMacro(UnconstrainedFontSize, bool);
   vtkGetMacro(UnconstrainedFontSize, bool);
@@ -623,7 +643,8 @@ protected:
    * It may depend on layout performed by ComputeScalarBarLength.
 
    * The default implementation creates exactly this->NumberOfLabels
-   * tick marks, uniformly spaced on a linear or logarithmic scale.
+   * tick marks, uniformly spaced on a linear or logarithmic scale,
+   * or creates them based on the numbers and values this->CustomLabels.
    */
   virtual void LayoutTicks();
 
@@ -721,6 +742,8 @@ protected:
   int NumberOfLabels;
   int NumberOfLabelsBuilt;
   int Orientation;
+  vtkDoubleArray* CustomLabels;
+  bool UseCustomLabels;
   vtkTypeBool DrawBackground; // off by default
   vtkTypeBool DrawFrame;      // off by default
   vtkTypeBool DrawColorBar;   // on by default
