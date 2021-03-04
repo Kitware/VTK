@@ -1380,7 +1380,6 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
   // 1) Compute the screen space bounding box
   double xmin = VTK_DOUBLE_MAX;
   double ymin = VTK_DOUBLE_MAX;
-  double zmin = VTK_DOUBLE_MAX;
   double xmax = VTK_DOUBLE_MIN;
   double ymax = VTK_DOUBLE_MIN;
   double currentPointDisplay[3];
@@ -1406,25 +1405,25 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
   }
 
   // Offset a little to make sure bounds are not clipped
-  int* size = this->GetSize();
-  int offsetX = std::max(static_cast<int>((xmax - xmin) * 0.1), 10);
-  int offsetY = std::max(static_cast<int>((ymax - ymin) * 0.1), 10);
+  int offsetX = std::max(static_cast<int>((xmax - xmin) * 0.01), 10);
+  int offsetY = std::max(static_cast<int>((ymax - ymin) * 0.01), 10);
 
   xmin -= offsetX;
   xmax += offsetX;
   ymin -= offsetY;
   ymax += offsetY;
 
-  // The focal point must be at the center of the box
-  // So construct a box with fpDisplay at the center
-  double fp[3];
-  this->ActiveCamera->GetFocalPoint(fp);
-  double fpDisplay[3];
   // Project the focal point in screen space
+  double fp[4];
+  this->ActiveCamera->GetFocalPoint(fp);
+  fp[3] = 1.0;
+  double fpDisplay[3];
   this->SetWorldPoint(fp);
   this->WorldToDisplay();
   this->GetDisplayPoint(fpDisplay);
 
+  // The focal point must be at the center of the box
+  // So construct a box with fpDisplay at the center
   int xCenterFocalPoint = static_cast<int>(fpDisplay[0]);
   int yCenterFocalPoint = static_cast<int>(fpDisplay[1]);
 
@@ -1443,6 +1442,7 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
   xmax += xMaxOffset;
   ymin += yMinOffset;
   ymax += yMaxOffset;
+  // Now the focal point is at the center of the box
 
   const vtkRecti box(xmin, ymin, xmax - xmin, ymax - ymin);
   this->ZoomToBoxUsingViewAngle(box);
