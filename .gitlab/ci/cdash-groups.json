@@ -1,0 +1,54 @@
+{
+    "latest-master": [
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_doxygen_mpi_python_qt_tbb]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_renderless]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_renderless_ext_vtk]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_python_qt_tbb]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_python_qt_tbb_ext_vtk]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_python_qt_tbb_tidy]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_asan_mpi_python_qt_tbb]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_qt_tbb_tsan]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_qt_tbb_ubsan]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[macos_kits_python_qt]"
+        }
+    ]
+}
