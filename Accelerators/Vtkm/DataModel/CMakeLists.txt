@@ -57,7 +57,7 @@ if (TARGET vtkm::cuda)
 endif ()
 
 set(force_static)
-if (TARGET vtkm::cude AND BUILD_SHARED_LIBS)
+if (TARGET vtkm::cuda AND BUILD_SHARED_LIBS)
   set(force_static FORCE_STATIC)
 endif ()
 
