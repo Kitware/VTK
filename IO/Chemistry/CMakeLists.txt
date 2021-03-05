@@ -1,6 +1,7 @@
 set(classes
   vtkCMLMoleculeReader
   vtkGaussianCubeReader
+  vtkGaussianCubeReader2
   vtkMoleculeReaderBase
   vtkPDBReader
   vtkVASPAnimationReader
