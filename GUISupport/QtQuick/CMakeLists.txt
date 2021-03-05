@@ -1,11 +1,13 @@
 set(classes
   QQuickVTKRenderWindow
   QQuickVTKInteractorAdapter
+  QQmlVTKPlugin
   )
 
 set(headers
   QQuickVTKRenderWindow.h
   QQuickVTKInteractorAdapter.h
+  QQmlVTKPlugin.h
   )
 
 set(private_headers
@@ -16,6 +18,7 @@ set(qt_components
   Gui
   OpenGL
   Quick
+  Qml
   )
 
 vtk_module_find_package(
