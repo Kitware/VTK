@@ -81,6 +81,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   NO_VALID
   TestImportGLFTExportOBJ,TestImportExportOBJ.cxx
   DATA{../Data/glTF/Avocado/Avocado.glb}
