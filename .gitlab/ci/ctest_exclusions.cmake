@@ -105,14 +105,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTKExample-Medical/Cxx$")
 endif ()
 
-# These tests are producing blank images even on macOS; I suspect the tests
-# just aren't working properly.
-list(APPEND test_exclusions
-  "^VTK::IOChemistryPython-TestXYZMol$"
-  "^VTK::IOChemistryPython-caffeine$"
-  "^VTK::IOChemistryPython-caffeine_notrailingwhitespaces$"
-  "^VTK::RenderingVolumePython-gaussian$")
-
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

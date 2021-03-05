@@ -33,6 +33,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   set(VTK_USE_X OFF CACHE BOOL "")
 endif ()
 
+# cuda
+configuration_flag(VTK_USE_CUDA "cuda")
+
 # osmesa
 configuration_flag(VTK_OPENGL_HAS_OSMESA "osmesa")
 
