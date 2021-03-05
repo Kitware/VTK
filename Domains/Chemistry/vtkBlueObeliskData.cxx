@@ -44,8 +44,6 @@ vtkBlueObeliskData::vtkBlueObeliskData()
   :
 #if !defined(VTK_LEGACY_REMOVE)
   WriteMutex(vtkSimpleMutexLock::New())
-#else
-  NewWriteMutex()
 #endif
   , Initialized(false)
   , NumberOfElements(0)
