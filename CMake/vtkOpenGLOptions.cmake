@@ -90,9 +90,24 @@ if(APPLE_IOS OR ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_CAN_DO_HEADLESS FALSE)
 endif()
 
+if (NOT VTK_CAN_DO_ONSCREEN AND NOT VTK_CAN_DO_OFFSCREEN)
+  message(FATAL_ERROR
+    "VTK current build configuration is not satisfiable as it supports neither onscreen "
+    "nor offscreen rendering. Make sure to set to ON at least one of the following to " 
+    "be able to configure: `VTK_USE_X`, `VTK_USE_COCOA`, `VTK_OPENGL_HAS_OSMESA`, "
+    "`VTK_OPENGL_HAS_EGL` or `VTK_USE_SDL2`.")
+endif()
+
+if (VTK_OPENGL_HAS_OSMESA AND VTK_OPENGL_HAS_EGL)
+  message(FATAL_ERROR
+    "`VTK_OPENGL_HAS_OSMESA` and `VTK_OPENGL_HAS_EGL` option can't be both "
+    "set to `ON`. The current build configuration is not satisfiable. "
+    "Please set to `OFF` any of these two.")
+endif ()
+
 if (VTK_OPENGL_HAS_OSMESA AND VTK_CAN_DO_ONSCREEN)
   message(FATAL_ERROR
-    "The `VTK_OPENGL_HAS_OSMESA` is ignored if any of the following is true: "
+    "The `VTK_OPENGL_HAS_OSMESA` can't be set to `ON` if any of the following is true: "
     "the target platform is Windows, `VTK_USE_COCOA` is `ON`, or `VTK_USE_X` "
     "is `ON` or `VTK_USE_SDL2` is `ON`. OSMesa does not support on-screen "
     "rendering and VTK's OpenGL selection is at build time, so the current "
