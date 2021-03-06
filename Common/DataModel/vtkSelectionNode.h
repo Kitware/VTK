@@ -190,6 +190,11 @@ public:
    */
   static const char* GetFieldTypeAsString(int type);
 
+  /**
+   * Get field type from string. Returns NUM_FIELD_TYPES if not found.
+   */
+  static int GetFieldTypeFromString(const char* type);
+
   //@{
   /**
    * Methods to convert vtkSelectionNode::SelectionField to

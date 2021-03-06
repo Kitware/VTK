@@ -245,6 +245,20 @@ const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 }
 
 //------------------------------------------------------------------------------
+int vtkSelectionNode::GetFieldTypeFromString(const char* type)
+{
+  for (int cc = 0; type != nullptr && cc < NUM_FIELD_TYPES; ++cc)
+  {
+    if (strcmp(vtkSelectionNode::FieldTypeNames[cc], type) == 0)
+    {
+      return cc;
+    }
+  }
+
+  return NUM_FIELD_TYPES;
+}
+
+//------------------------------------------------------------------------------
 bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare /*=true*/)
 {
   if (!other)
