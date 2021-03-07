@@ -26,6 +26,7 @@
 #ifndef vtkParseData_h
 #define vtkParseData_h
 
+#include "vtkParseAttributes.h"
 #include "vtkParseString.h"
 #include "vtkParseType.h"
 #include "vtkWrappingToolsModule.h"
@@ -152,6 +153,7 @@ struct _ValueInfo
   const char* Name;
   const char* Comment;
   const char* Value;       /* for vars or default parameters values */
+  unsigned int Attributes; /* as defined in vtkParseAttributes.h */
   unsigned int Type;       /* as defined in vtkParseType.h   */
   const char* Class;       /* classname for type */
   int Count;               /* total number of values, if known */

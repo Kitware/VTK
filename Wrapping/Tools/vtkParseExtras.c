@@ -336,7 +336,7 @@ void vtkParse_ExpandTypedef(ValueInfo* valinfo, ValueInfo* typedefinfo)
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
   refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
-  attributes = (valinfo->Type & VTK_PARSE_ATTRIBUTES);
+  attributes = valinfo->Attributes;
 
   /* handle const */
   if ((valinfo->Type & VTK_PARSE_CONST) != 0)
@@ -398,7 +398,8 @@ void vtkParse_ExpandTypedef(ValueInfo* valinfo, ValueInfo* typedefinfo)
   }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | refbit | qualifiers | attributes);
+  valinfo->Attributes = attributes;
+  valinfo->Type = (baseType | pointers | refbit | qualifiers);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
 }
