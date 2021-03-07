@@ -322,6 +322,9 @@ public:
     bool DoubleSided;
 
     std::string Name;
+
+    // extension KHR_materials_unlit
+    bool Unlit;
   };
 
   /**

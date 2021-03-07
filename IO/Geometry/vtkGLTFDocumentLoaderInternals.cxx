@@ -744,6 +744,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
   material.Name = "";
   vtkGLTFUtils::GetStringValue(root["name"], material.Name);
 
+  material.Unlit = false;
+
+  const auto& extRoot = root["extensions"];
+  if (!extRoot.empty())
+  {
+    material.Unlit = extRoot.isMember("KHR_materials_unlit");
+  }
+
   return true;
 }
 
