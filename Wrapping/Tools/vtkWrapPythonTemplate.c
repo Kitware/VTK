@@ -19,6 +19,7 @@
 #include "vtkWrapPythonType.h"
 
 #include "vtkParseExtras.h"
+#include "vtkWrap.h"
 #include "vtkWrapText.h"
 
 #include <ctype.h>
@@ -244,8 +245,8 @@ int vtkWrapPython_WrapTemplatedClass(
     if (entry->IsTypedef)
     {
       tdef = entry->Typedef;
-      if ((tdef->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT &&
-        entry->NumberOfTemplateParameters == 0)
+
+      if (vtkWrap_IsObject(tdef) && entry->NumberOfTemplateParameters == 0)
       {
         if (tdef->Class && tdef->Class[0] != '\0' && tdef->Class[strlen(tdef->Class) - 1] == '>')
         {

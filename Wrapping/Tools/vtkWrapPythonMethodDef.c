@@ -529,7 +529,11 @@ static int vtkWrapPython_IsValueWrappable(
       if (vtkWrap_IsSpecialType(hinfo, aClass) ||
         vtkWrapPython_HasWrappedSuperClass(hinfo, aClass, NULL))
       {
-        return 1;
+        // don't allow scoped names (can't wrap nested classes)
+        if (vtkParse_UnscopedNameLength(aClass) == strlen(aClass))
+        {
+          return 1;
+        }
       }
     }
   }

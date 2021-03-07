@@ -63,10 +63,7 @@ const char* vtkWrapPython_GetSuperClass(ClassInfo* data, HierarchyInfo* hinfo)
       supername = cp;
     }
 
-    /* Add QVTKInteractor as the sole exception: It is derived
-     * from vtkObject but does not start with "vtk".  Given its
-     * name, it would be expected to be derived from QObject. */
-    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name) || strcmp(data->Name, "QVTKInteractor") == 0)
+    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
     {
       if (vtkWrap_IsClassWrapped(hinfo, supername) && vtkWrap_IsVTKObjectBaseType(hinfo, supername))
       {
@@ -135,10 +132,6 @@ const char* vtkWrapPython_HasWrappedSuperClass(
 
     /* the order of these conditions is important */
     if (entry->IsTypedef)
-    {
-      break;
-    }
-    else if (strncmp(entry->Name, "vtk", 3) != 0)
     {
       break;
     }
