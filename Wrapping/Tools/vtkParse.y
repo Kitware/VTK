@@ -2077,10 +2077,11 @@ template_member_declaration:
   | template_head friend_declaration
 
 friend_declaration:
-    FRIEND ignored_class
-  | FRIEND template_head ignored_class
-  | FRIEND forward_declaration
-  | FRIEND method_declaration function_body { output_friend_function(); }
+    FRIEND decl_attribute_specifier_seq ignored_class
+  | FRIEND decl_attribute_specifier_seq template_head ignored_class
+  | FRIEND decl_attribute_specifier_seq forward_declaration
+  | FRIEND decl_attribute_specifier_seq method_declaration function_body
+    { output_friend_function(); }
 
 base_specifier_list:
     base_specifier
