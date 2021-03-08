@@ -89,15 +89,18 @@ int vtkWrap_IsStdVector(ValueInfo* val)
 int vtkWrap_IsVTKObject(ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  return (t == VTK_PARSE_OBJECT_PTR && !val->IsEnum && val->Class[0] == 'v' &&
-    strncmp(val->Class, "vtk", 3) == 0);
+  return ((t == VTK_PARSE_UNKNOWN_PTR || t == VTK_PARSE_OBJECT_PTR || t == VTK_PARSE_QOBJECT_PTR) &&
+    !val->IsEnum);
 }
 
 int vtkWrap_IsSpecialObject(ValueInfo* val)
 {
+  /* exclude classes in std:: space, they will have separate handlers */
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  return ((t == VTK_PARSE_OBJECT || t == VTK_PARSE_OBJECT_REF) && !val->IsEnum &&
-    val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
+  return (
+    (t == VTK_PARSE_UNKNOWN || t == VTK_PARSE_OBJECT || t == VTK_PARSE_QOBJECT ||
+      t == VTK_PARSE_UNKNOWN_REF || t == VTK_PARSE_OBJECT_REF || t == VTK_PARSE_QOBJECT_REF) &&
+    !val->IsEnum && val->Class && strncmp(val->Class, "std::", 5) != 0);
 }
 
 int vtkWrap_IsPythonObject(ValueInfo* val)
@@ -112,7 +115,7 @@ int vtkWrap_IsPythonObject(ValueInfo* val)
 int vtkWrap_IsObject(ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  return (t == VTK_PARSE_OBJECT || t == VTK_PARSE_QOBJECT);
+  return (t == VTK_PARSE_UNKNOWN || t == VTK_PARSE_OBJECT || t == VTK_PARSE_QOBJECT);
 }
 
 int vtkWrap_IsFunction(ValueInfo* val)
@@ -1029,10 +1032,12 @@ void vtkWrap_DeclareVariable(
   {
     /* objects refs and pointers are always handled via pointers,
      * other refs are passed by value */
-    if (aType == VTK_PARSE_CHAR_PTR || aType == VTK_PARSE_VOID_PTR ||
-      (!val->IsEnum &&
-        (aType == VTK_PARSE_OBJECT_PTR || aType == VTK_PARSE_OBJECT_REF ||
-          aType == VTK_PARSE_OBJECT)))
+    if (vtkWrap_IsVTKObject(val) || vtkWrap_IsSpecialObject(val))
+    {
+      fprintf(fp, "*");
+    }
+    /* handling of "char *" C strings, "void *" C buffers */
+    else if (aType == VTK_PARSE_CHAR_PTR || aType == VTK_PARSE_VOID_PTR)
     {
       fprintf(fp, "*");
     }

@@ -98,10 +98,10 @@ static void vtkWrapPython_GenerateSpecialHeaders(
   int numTypes = 0;
   FunctionInfo* currentFunction;
   int i, j, k, n, m, ii, nn;
-  unsigned int aType;
   const char* classname;
   const char* ownincfile = "";
   ClassInfo* data;
+  ValueInfo* val;
 
   types = (const char**)malloc(1000 * sizeof(const char*));
 
@@ -122,48 +122,35 @@ static void vtkWrapPython_GenerateSpecialHeaders(
       if (currentFunction->Access == VTK_ACCESS_PUBLIC && !currentFunction->IsExcluded &&
         strcmp(currentFunction->Class, data->Name) == 0)
       {
-        classname = "void";
-        aType = VTK_PARSE_VOID;
-        if (currentFunction->ReturnValue)
-        {
-          classname = currentFunction->ReturnValue->Class;
-          aType = currentFunction->ReturnValue->Type;
-        }
-
         m = vtkWrap_CountWrappedParameters(currentFunction);
 
         for (j = -1; j < m; j++)
         {
           if (j >= 0)
           {
-            classname = currentFunction->Parameters[j]->Class;
-            aType = currentFunction->Parameters[j]->Type;
-          }
-          /* we don't require the header file if it is just a pointer */
-          if ((aType & VTK_PARSE_INDIRECT) != VTK_PARSE_POINTER)
-          {
-            if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_STRING)
-            {
-              classname = "vtkStdString";
-            }
-            else if ((aType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
-            {
-              classname = "vtkUnicodeString";
-            }
-            else if ((aType & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT)
-            {
-              classname = 0;
-            }
-            else if ((aType & VTK_PARSE_REF) != 0)
-            {
-              classname = 0;
-            }
+            val = currentFunction->Parameters[j];
           }
           else
           {
-            classname = 0;
+            val = currentFunction->ReturnValue;
+          }
+          if (vtkWrap_IsVoid(val))
+          {
+            continue;
           }
 
+          classname = 0;
+          /* the IsScalar check is used because the wrappers don't need the
+             header for objects passed via a pointer (but they need the header
+             for objects passed by reference) */
+          if (vtkWrap_IsString(val) && vtkWrap_IsScalar(val))
+          {
+            classname = val->Class;
+          }
+          else if (vtkWrap_IsObject(val) && vtkWrap_IsScalar(val) && !vtkWrap_IsRef(val))
+          {
+            classname = val->Class;
+          }
           /* we already include our own header */
           if (classname && strcmp(classname, data->Name) != 0)
           {

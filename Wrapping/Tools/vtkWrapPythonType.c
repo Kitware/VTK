@@ -175,8 +175,7 @@ static void vtkWrapPython_PrintProtocol(
     {
       if (func->NumberOfParameters == 2 &&
         (func->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OSTREAM_REF &&
-        (func->Parameters[1]->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT &&
-        (func->Parameters[1]->Type & VTK_PARSE_POINTER_MASK) == 0 &&
+        vtkWrap_IsSpecialObject(func->Parameters[1]) &&
         !vtkWrap_IsNonConstRef(func->Parameters[1]) &&
         strcmp(func->Parameters[1]->Class, data->Name) == 0)
       {
@@ -224,9 +223,7 @@ static void vtkWrapPython_RichCompareProtocol(
     {
       /* member function */
       func = data->Functions[i];
-      if (func->NumberOfParameters != 1 ||
-        (func->Parameters[0]->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT ||
-        (func->Parameters[0]->Type & VTK_PARSE_POINTER_MASK) != 0 ||
+      if (func->NumberOfParameters != 1 || !vtkWrap_IsSpecialObject(func->Parameters[0]) ||
         strcmp(func->Parameters[0]->Class, data->Name) != 0)
       {
         continue;
@@ -236,12 +233,9 @@ static void vtkWrapPython_RichCompareProtocol(
     {
       /* non-member function: both args must be of our type */
       func = finfo->Contents->Functions[i - data->NumberOfFunctions];
-      if (func->NumberOfParameters != 2 ||
-        (func->Parameters[0]->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT ||
-        (func->Parameters[0]->Type & VTK_PARSE_POINTER_MASK) != 0 ||
+      if (func->NumberOfParameters != 2 || !vtkWrap_IsSpecialObject(func->Parameters[0]) ||
         strcmp(func->Parameters[0]->Class, data->Name) != 0 ||
-        (func->Parameters[1]->Type & VTK_PARSE_BASE_TYPE) != VTK_PARSE_OBJECT ||
-        (func->Parameters[1]->Type & VTK_PARSE_POINTER_MASK) != 0 ||
+        !vtkWrap_IsSpecialObject(func->Parameters[1]) ||
         strcmp(func->Parameters[1]->Class, data->Name) != 0)
       {
         continue;
