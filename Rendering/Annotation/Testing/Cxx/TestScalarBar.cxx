@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestScalarBarWidget.cxx
+  Module:    TestScalarBar.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -20,6 +20,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPolyDataMapper.h"
@@ -145,6 +146,25 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar4->GetFrameProperty()->SetColor(1., 1., 1.);
   scalarBar4->SetDrawBackground(0);
 
+  vtkSmartPointer<vtkScalarBarActor> scalarBar5 = vtkSmartPointer<vtkScalarBarActor>::New();
+  scalarBar5->SetTitle("Density");
+  scalarBar5->SetLookupTable(lut);
+  scalarBar5->DrawAnnotationsOff();
+  scalarBar5->SetOrientationToHorizontal();
+  scalarBar5->SetWidth(0.5);
+  scalarBar5->SetHeight(0.15);
+  scalarBar5->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar5->GetPositionCoordinate()->SetValue(.05, .6);
+  scalarBar5->SetDrawFrame(1);
+  scalarBar5->SetDrawBackground(0);
+  vtkDoubleArray* customLabels = scalarBar5->GetCustomLabels();
+  customLabels->SetNumberOfTuples(4);
+  customLabels->SetValue(0, -1); // invisible
+  customLabels->SetValue(1, 0.2);
+  customLabels->SetValue(2, 0.5);
+  customLabels->SetValue(3, 1.1); // invisible
+  scalarBar5->SetUseCustomLabels(true);
+
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
   camera->SetFocalPoint(8, 0, 30);
   camera->SetPosition(6, 0, 50);
@@ -155,6 +175,7 @@ int TestScalarBar(int argc, char* argv[])
   ren1->AddActor(scalarBar2);
   ren1->AddActor(scalarBar3);
   ren1->AddActor(scalarBar4);
+  ren1->AddActor(scalarBar5);
   ren1->GradientBackgroundOn();
   ren1->SetBackground(.5, .5, .5);
   ren1->SetBackground2(.0, .0, .0);

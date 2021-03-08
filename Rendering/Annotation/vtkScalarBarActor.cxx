@@ -1660,7 +1660,7 @@ void vtkScalarBarActor::ConfigureTicks()
   for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
   {
     anchor = this->P->TextActorAnchors[i];
-    this->P->TextActors[i]->SetVisibility((anchor > -1e-6 || anchor < 1 + 1e-6));
+    this->P->TextActors[i]->SetVisibility((anchor > -1e-6 && anchor < 1 + 1e-6));
     val = anchor * this->P->TickBox.Size[1] + this->P->TickBox.Posn[this->P->TL[1]];
     this->P->TextActors[i]->GetSize(this->P->Viewport, sizeTextData);
     if (this->Orientation == VTK_ORIENT_VERTICAL)
