@@ -768,8 +768,6 @@ struct UniversalTransformMotion : public Motion
   template <typename MapType>
   UniversalTransformMotion(const MapType& params)
     : Motion(params)
-    , utm()
-    , transforms()
   {
     std::string motion_type;
     set(motion_type, "motion_type", params);
