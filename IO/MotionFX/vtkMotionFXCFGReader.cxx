@@ -781,7 +781,7 @@ struct UniversalTransformMotion : public Motion
 
   bool Move(vtkPoints* pts, double time) const override
   {
-    if (this->transforms.size() < 1)
+    if (this->transforms.empty())
     {
       // at least one entry is required
       return false;
