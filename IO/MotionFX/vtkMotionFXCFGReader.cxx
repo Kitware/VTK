@@ -1124,7 +1124,7 @@ struct action<MotionFX::CFG::Value>
           vtkGenericWarningMacro("Expecting number, got '" << val << "'");
         }
       }
-      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
+      state.ActiveValue.StringValue = tupleRe.match(1);
     }
     else if (numberRe.find(content))
     {
