@@ -1,6 +1,6 @@
 set(classes
-  vtkPNrrdReader
-  vtkMPIImageReader)
+  vtkMPIImageReader
+  vtkPNrrdReader)
 
 # Now to generate our object factory.
 vtk_object_factory_declare(

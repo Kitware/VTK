@@ -2,8 +2,8 @@ vtk_module_find_package(PACKAGE GDAL)
 
 set(classes
   vtkGDAL
-  vtkGDALVectorReader
-  vtkGDALRasterReader)
+  vtkGDALRasterReader
+  vtkGDALVectorReader)
 
 vtk_module_add_module(VTK::IOGDAL
   CLASSES ${classes})

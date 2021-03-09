@@ -15,11 +15,14 @@ set(classes
   vtkHyperTreeGridGhostCellsGenerator
   vtkIntegrateAttributes
   vtkPassThroughFilter
+  vtkPeriodicFilter
   vtkPCellDataToPointData
   vtkPExtractDataArraysOverTime
   vtkPExtractExodusGlobalTemporalVariables
   vtkPExtractSelectedArraysOverTime
-  vtkPeriodicFilter
+  vtkPieceRequestFilter
+  vtkPieceScalars
+  vtkPipelineSize
   vtkPKdTree
   vtkPLinearExtrusionFilter
   vtkPMaskPoints
@@ -33,18 +36,15 @@ set(classes
   vtkPProjectSphereFilter
   vtkPReflectionFilter
   vtkPResampleFilter
-  vtkPSphereSource
-  vtkPYoungsMaterialInterface
-  vtkPieceRequestFilter
-  vtkPieceScalars
-  vtkPipelineSize
   vtkProcessIdScalars
+  vtkPSphereSource
   vtkPTextureMapToSphere
+  vtkPYoungsMaterialInterface
   vtkRectilinearGridOutlineFilter
   vtkRemoveGhosts
   vtkTransmitPolyDataPiece
-  vtkTransmitStructuredDataPiece
   vtkTransmitRectilinearGridPiece
+  vtkTransmitStructuredDataPiece
   vtkTransmitStructuredGridPiece
   vtkTransmitUnstructuredGridPiece
   vtkUnstructuredGridGhostCellsGenerator)

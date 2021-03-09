@@ -3,9 +3,9 @@ set(classes
   vtkFreeTypeLabelRenderStrategy
   vtkLabeledDataMapper
   vtkLabeledTreeMapDataMapper
+  vtkLabelHierarchy
   vtkLabelHierarchyAlgorithm
   vtkLabelHierarchyCompositeIterator
-  vtkLabelHierarchy
   vtkLabelHierarchyIterator
   vtkLabelPlacementMapper
   vtkLabelPlacer

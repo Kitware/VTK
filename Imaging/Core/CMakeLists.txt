@@ -1,5 +1,4 @@
 set(classes
-  vtkImageProbeFilter
   vtkAbstractImageInterpolator
   vtkExtractVOI
   vtkGenericImageInterpolator
@@ -28,6 +27,7 @@ set(classes
   vtkImagePermute
   vtkImagePointDataIterator
   vtkImagePointIterator
+  vtkImageProbeFilter
   vtkImageResample
   vtkImageResize
   vtkImageReslice

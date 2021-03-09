@@ -90,6 +90,7 @@ set(classes
   vtkRendererCollection
   vtkRendererDelegate
   vtkRendererSource
+  vtkResizingWindowToImageFilter
   vtkSelectVisiblePoints
   vtkShaderProperty
   vtkSkybox
@@ -110,7 +111,6 @@ set(classes
   vtkVolumeProperty
   vtkWindowLevelLookupTable
   vtkWindowToImageFilter
-  vtkResizingWindowToImageFilter
 
   # Needed by vtkAssembly
   vtkAssemblyNode

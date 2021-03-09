@@ -4,10 +4,10 @@ set(classes
   vtkAMRDataSetCache
   vtkAMREnzoParticlesReader
   vtkAMREnzoReader
+  vtkAMReXGridReader
+  vtkAMReXParticlesReader
   vtkAMRFlashParticlesReader
   vtkAMRFlashReader
-  vtkAMReXParticlesReader
-  vtkAMReXGridReader
   vtkAMRVelodyneReader)
 
 set(sources

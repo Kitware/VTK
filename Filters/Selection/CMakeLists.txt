@@ -1,7 +1,7 @@
 set(classes
+  vtkCellDistanceSelector
   vtkKdTreeSelector
-  vtkLinearSelector
-  vtkCellDistanceSelector)
+  vtkLinearSelector)
 
 vtk_module_add_module(VTK::FiltersSelection
   CLASSES ${classes})

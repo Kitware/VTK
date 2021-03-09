@@ -2,8 +2,8 @@ set(classes
   vtkAxis
   vtkAxisExtended
   vtkCategoryLegend
-  vtkChartBox
   vtkChart
+  vtkChartBox
   vtkChartHistogram2D
   vtkChartLegend
   vtkChartMatrix
@@ -24,21 +24,21 @@ set(classes
   vtkPiecewiseControlPointsItem
   vtkPiecewiseFunctionItem
   vtkPiecewisePointHandleItem
+  vtkPlot
   vtkPlot3D
   vtkPlotArea
   vtkPlotBag
   vtkPlotBar
   vtkPlotBox
-  vtkPlot
   vtkPlotFunctionalBag
   vtkPlotGrid
   vtkPlotHistogram2D
-  vtkPlotLine3D
   vtkPlotLine
+  vtkPlotLine3D
   vtkPlotParallelCoordinates # This adds a vtkInfovisCore dep for one class...
   vtkPlotPie
-  vtkPlotPoints3D
   vtkPlotPoints
+  vtkPlotPoints3D
   vtkPlotRangeHandlesItem
   vtkPlotStacked
   vtkPlotSurface

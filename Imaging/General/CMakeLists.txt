@@ -16,13 +16,13 @@ set(classes
   vtkImageNormalize
   vtkImageRange3D
   vtkImageSeparableConvolution
+  vtkImageSlab
+  vtkImageSlabReslice
   vtkImageSobel2D
   vtkImageSobel3D
   vtkImageSpatialAlgorithm
   vtkImageVariance3D
-  vtkSimpleImageFilterExample
-  vtkImageSlab
-  vtkImageSlabReslice)
+  vtkSimpleImageFilterExample)
 
 vtk_module_add_module(VTK::ImagingGeneral
   CLASSES ${classes})
