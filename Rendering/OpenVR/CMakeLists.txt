@@ -76,8 +76,8 @@ set(openvr_input_files
 
 foreach(inputfile IN LISTS openvr_input_files)
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/${inputfile}
-    ${CMAKE_BINARY_DIR}/${input_file}
+    "${CMAKE_CURRENT_SOURCE_DIR}/${inputfile}"
+    "${CMAKE_BINARY_DIR}/${input_file}"
     COPYONLY)
 endforeach()
 
