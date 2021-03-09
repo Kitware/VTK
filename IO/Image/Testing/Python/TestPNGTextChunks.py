@@ -45,6 +45,14 @@ try:
     writer.AddText(testKey, testValue);
     # this is fine
     writer.AddText(testKey, testValue);
+
+    # test clearing the text
+    writer.ClearText()
+
+    # add back the expected keys and values
+    writer.AddText(testKey, testValue);
+    writer.AddText(testKey, testValue);
+
     observerId = writer.AddObserver(vtk.vtkCommand.WarningEvent, WarningCallback)
     # this prints a warning and does not add the text chunk
     writer.AddText("", "this prints a warning")
