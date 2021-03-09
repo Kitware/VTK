@@ -176,7 +176,7 @@ void vtkAMRVelodyneReaderInternal::ReadMetaData()
   }
   stringout[total_size] = '\0';
   std::string tmp(stringout);
-  delete stringout;
+  delete[] stringout;
   stringout = nullptr;
   for (int i = 0; i < nVars; i++)
   {
