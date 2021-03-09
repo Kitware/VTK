@@ -161,7 +161,7 @@ int TestScalarBar(int argc, char* argv[])
   customLabels->SetNumberOfTuples(4);
   customLabels->SetValue(0, -1); // invisible
   customLabels->SetValue(1, 0.2);
-  customLabels->SetValue(2, 0.5);
+  customLabels->SetValue(2, 0.6);
   customLabels->SetValue(3, 1.1); // invisible
   scalarBar5->SetUseCustomLabels(true);
 
