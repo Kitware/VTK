@@ -10,19 +10,13 @@ set(classes
   vtkAMRFlashReader
   vtkAMRVelodyneReader)
 
-set(sources
-  vtkAMREnzoReaderInternal.cxx
-  vtkAMRFlashReaderInternal.cxx
-  vtkAMReXGridReaderInternal.cxx
-  vtkAMRVelodyneReaderInternal.cxx)
-
-set(private_headers
-  vtkAMREnzoReaderInternal.h
-  vtkAMRFlashReaderInternal.h
-  vtkAMReXGridReaderInternal.h
-  vtkAMRVelodyneReaderInternal.h)
+set(private_classes
+  vtkAMREnzoReaderInternal
+  vtkAMReXGridReaderInternal
+  vtkAMRFlashReaderInternal
+  vtkAMRVelodyneReaderInternal)
 
 vtk_module_add_module(VTK::IOAMR
   CLASSES ${classes}
   SOURCES ${sources}
-  PRIVATE_HEADERS ${private_headers})
+  PRIVATE_CLASSES ${private_classes})

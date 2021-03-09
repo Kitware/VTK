@@ -5,25 +5,18 @@ set(classes
   vtkPythonUtil
   vtkSmartPyObject)
 
-set(headers
-  PyVTKEnum.h
-  PyVTKMethodDescriptor.h
-  PyVTKNamespace.h
-  PyVTKObject.h
-  PyVTKReference.h
-  PyVTKSpecialObject.h
-  PyVTKTemplate.h
-  vtkPythonCompatibility.h)
+set(private_classes
+  PyVTKEnum
+  PyVTKExtras
+  PyVTKMethodDescriptor
+  PyVTKNamespace
+  PyVTKObject
+  PyVTKReference
+  PyVTKSpecialObject
+  PyVTKTemplate)
 
-set(sources
-  PyVTKEnum.cxx
-  PyVTKExtras.cxx
-  PyVTKMethodDescriptor.cxx
-  PyVTKNamespace.cxx
-  PyVTKObject.cxx
-  PyVTKReference.cxx
-  PyVTKSpecialObject.cxx
-  PyVTKTemplate.cxx)
+set(headers
+  vtkPythonCompatibility.h)
 
 set(private_headers
   PyVTKExtras.h)
@@ -35,7 +28,7 @@ get_property(vtk_python_version_minor GLOBAL
 
 vtk_module_add_module(VTK::WrappingPythonCore
   CLASSES ${classes}
-  SOURCES ${sources}
   HEADERS ${headers}
+  PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS ${private_headers}
   LIBRARY_NAME_SUFFIX "${vtk_python_version_major}.${vtk_python_version_minor}")
