@@ -35,8 +35,8 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   this->setRenderWindow(vtkGenericOpenGLRenderWindow::New());
   this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
 
-  connect(
-    this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(handleWindowChanged(QQuickWindow*)));
+  QObject::connect(
+    this, &QQuickItem::windowChanged, this, &QQuickVTKRenderWindow::handleWindowChanged);
 }
 
 //-------------------------------------------------------------------------------------------------
