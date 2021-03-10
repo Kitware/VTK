@@ -7,6 +7,7 @@ include:
     # OS builds.
     - local: .gitlab/os-linux.yml
     - local: .gitlab/os-macos.yml
+    - local: .gitlab/os-windows.yml
 
 stages:
     - build
@@ -261,3 +262,86 @@ test:macos-kits-python-qt:
 #         - test:macos-kits-python-qt
 #     needs:
 #         - test:macos-kits-python-qt
+
+# Windows
+
+build:windows-vs2019-kits-mpi-python-qt:
+    extends:
+        - .windows_vs2019_kits_mpi_python_qt
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:windows-vs2019-kits-mpi-python-qt:
+    extends:
+        - .windows_vs2019_kits_mpi_python_qt
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:windows-vs2019-kits-mpi-python-qt
+    needs:
+        - build:windows-vs2019-kits-mpi-python-qt
+
+# This is disabled because VTK-m doesn't make a relocatable installation of its
+# imported targets (cf. `vtkm::tbb` since it embeds the build-time locations
+# into the install tree. Since the build/install time path is not the same as
+# this `concurrent`-tagged job, it's just not going to work well. See
+# vtk/vtk-m#609 for tracking.
+#
+# Also, the `VTK_DLL_DIRS` ends up making a non-relocatable installation. See
+# `.gitlab/ci/configure_windows.cmake` for the relevant code.
+#
+# test-ext:vtk:windows-vs2019-kits-mpi-python-qt:
+#     extends:
+#         - .windows_vs2019_kits_mpi_python_qt_ext_vtk
+#         - .cmake_test_external_windows
+#         - .windows_ext_builder_tags
+#         - .cmake_tidy_artifacts
+#         - .run_automatically
+#     dependencies:
+#         - test:windows-vs2019-kits-mpi-python-qt
+#     needs:
+#         - test:windows-vs2019-kits-mpi-python-qt
+
+build:windows-vs2019-mpi-python-qt:
+    extends:
+        - .windows_vs2019_mpi_python_qt
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:windows-vs2019-mpi-python-qt:
+    extends:
+        - .windows_vs2019_mpi_python_qt
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:windows-vs2019-mpi-python-qt
+    needs:
+        - build:windows-vs2019-mpi-python-qt
+
+build:windows-vs2019-mpi-python-qt-static:
+    extends:
+        - .windows_vs2019_mpi_python_qt_static
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:windows-vs2019-mpi-python-qt-static:
+    extends:
+        - .windows_vs2019_mpi_python_qt_static
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:windows-vs2019-mpi-python-qt-static
+    needs:
+        - build:windows-vs2019-mpi-python-qt-static

@@ -105,6 +105,47 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTKExample-Medical/Cxx$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
+  list(APPEND test_exclusions
+    # Image size mismatches
+    "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors$"
+    "^VTK::FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter2$"
+    "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass$"
+
+    # Something is wrong. #18144
+    "^VTK::FiltersCorePython-QuadricDecimation2$"
+
+    # PATH manipulations needed
+    "^VTKExample-ImageProcessing/Cxx$"
+    "^VTKExample-IO/Cxx$"
+    "^VTKExample-Medical/Cxx$"
+    "^VTKExample-Modelling/Cxx$"
+    "^VTKExample-Modules/UsingVTK$"
+    "^VTKExample-Modules/Wrapping$"
+
+    # Blank test image
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledInteractor$"
+
+    # Image corruption
+    "^VTK::RenderingCorePython-TestWindowToImageTransparency$"
+    "^VTK::RenderingCorePython-rendererSource$"
+    "^VTK::RenderingImagePython-TestDepthImageToPointCloud$"
+    "^VTK::RenderingImagePython-TestDepthImageToPointCloud-TwoInputs$"
+    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$"
+
+    # Timeouts; need investigation.
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetPicking$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetQWidgetWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithDisabledInteractor$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetWithMSAA$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetQWidgetWidget$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithDisabledInteractor$"
+    "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithMSAA$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

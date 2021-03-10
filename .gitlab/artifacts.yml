@@ -76,6 +76,9 @@
             # Install tree (if any)
             - build/install/
 
+            # Virtual environment
+            - build/ci-venv/
+
             # Debugging logs
             - build/Testing/Temporary/Last*.log
 
