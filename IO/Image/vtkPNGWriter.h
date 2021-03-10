@@ -82,6 +82,12 @@ public:
    * for more information.
    */
   void AddText(const char* key, const char* value);
+
+  /**
+   * Clear out any key/value pairs added through the AddText() member function.
+   */
+  void ClearText();
+
   //@{
   /**
    * Standard keys
