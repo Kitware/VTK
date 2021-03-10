@@ -764,7 +764,11 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
 // Don't use it as a way to shut up the compiler while you take your
 // sweet time getting around to implementing the method.
 //
+#ifdef __VTK_WRAP__
+#define vtkNotUsed(x) x
+#else
 #define vtkNotUsed(x)
+#endif
 
 //
 // This macro is used for functions which may not be used in a translation unit

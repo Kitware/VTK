@@ -27,6 +27,8 @@
 #ifndef vtkOStrStreamWrapper_h
 #define vtkOStrStreamWrapper_h
 
+#include "vtkCommonCoreModule.h"
+
 #ifndef VTK_SYSTEM_INCLUDES_INSIDE
 Do_not_include_vtkOStrStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif

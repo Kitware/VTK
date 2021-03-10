@@ -57,7 +57,7 @@ static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunctio
 
 /* look for all signatures of the specified method */
 static int vtkWrapPython_CountAllOccurrences(
-  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static, int* all_legacy);
+  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static);
 
 /* -------------------------------------------------------------------- */
 /* Declare all local variables used by the wrapper method */
@@ -657,17 +657,16 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
 
 /* -------------------------------------------------------------------- */
 /* Look for all signatures of the specified method.  Return the number
- * found, as well as whether all signatures were static or legacy */
+ * found, as well as whether all signatures were static */
 
 static int vtkWrapPython_CountAllOccurrences(
-  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static, int* all_legacy)
+  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static)
 {
   const char* name;
   int occ;
   int numberOfOccurrences = 0;
 
   *all_static = 1;
-  *all_legacy = 1;
 
   name = wrappedFunctions[fnum]->Name;
 
@@ -683,12 +682,6 @@ static int vtkWrapPython_CountAllOccurrences(
       if (!wrappedFunctions[occ]->IsStatic)
       {
         *all_static = 0;
-      }
-
-      /* check for legacy */
-      if (!wrappedFunctions[occ]->IsLegacy)
-      {
-        *all_legacy = 0;
       }
     }
   }
@@ -1099,7 +1092,6 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   int occ, numberOfOccurrences;
   int occCounter;
   int all_static = 0;
-  int all_legacy = 0;
   char* cp;
   int* overloadMap = NULL;
   int maxArgs = 0;
@@ -1107,9 +1099,9 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
 
   theFunc = wrappedFunctions[fnum];
 
-  /* count all signatures, see if they are static methods or legacy */
+  /* count all signatures, see if they are static methods */
   numberOfOccurrences = vtkWrapPython_CountAllOccurrences(
-    wrappedFunctions, numberOfWrappedFunctions, fnum, &all_static, &all_legacy);
+    wrappedFunctions, numberOfWrappedFunctions, fnum, &all_static);
 
   /* find all occurrences of this method */
   occCounter = 0;
@@ -1126,11 +1118,6 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
       {
         /* in the future, deprecation warnings could be implemented */
         fprintf(fp, "/* deprecated: %s */\n", theOccurrence->Deprecation);
-      }
-
-      if (theOccurrence->IsLegacy)
-      {
-        fprintf(fp, "#if !defined(VTK_LEGACY_REMOVE)\n");
       }
 
       /* method suffix to distinguish between signatures */
@@ -1251,11 +1238,6 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
         "  return result;\n"
         "}\n");
 
-      if (theOccurrence->IsLegacy)
-      {
-        fprintf(fp, "#endif\n");
-      }
-
       fprintf(fp, "\n");
     }
   }
@@ -1268,18 +1250,15 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   {
     /* output the method table for the signatures */
     vtkWrapPython_OverloadMethodDef(fp, classname, data, overloadMap, wrappedFunctions,
-      numberOfWrappedFunctions, fnum, numberOfOccurrences, all_legacy);
+      numberOfWrappedFunctions, fnum, numberOfOccurrences);
   }
 
   if (numberOfOccurrences > 1)
   {
     /* declare a "master method" to choose among the overloads */
     vtkWrapPython_OverloadMasterMethod(fp, classname, overloadMap, maxArgs, wrappedFunctions,
-      numberOfWrappedFunctions, fnum, is_vtkobject, all_legacy);
+      numberOfWrappedFunctions, fnum, is_vtkobject);
   }
-
-  /* set the legacy flag */
-  theFunc->IsLegacy = all_legacy;
 
   /* clear all occurrences of this method from further consideration */
   for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)

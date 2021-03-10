@@ -9950,7 +9950,6 @@ void reject_function()
 /* a simple routine that updates a few variables */
 void output_function()
 {
-  const char* macro = getMacro();
   size_t n;
   int i, j;
   int match;
@@ -10039,12 +10038,6 @@ void output_function()
     vtkParse_FreeValue(currentFunction->Parameters[0]);
     free(currentFunction->Parameters);
     currentFunction->NumberOfParameters = 0;
-  }
-
-  /* is it defined in a legacy macro? */
-  if (macro && strcmp(macro, "VTK_LEGACY") == 0)
-  {
-    currentFunction->IsLegacy = 1;
   }
 
   /* set public, protected */

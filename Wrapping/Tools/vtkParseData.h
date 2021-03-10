@@ -189,7 +189,7 @@ struct _FunctionInfo
   const char* Deprecation; /* if not NULL, function is deprecated */
   int IsOperator;
   int IsVariadic;
-  int IsLegacy;      /* marked as a legacy method or function */
+  int IsLegacy;      /* IsLegacy is deprecated, do not use */
   int IsExcluded;    /* marked as excluded from wrapping */
   int IsStatic;      /* methods only */
   int IsVirtual;     /* methods only */
