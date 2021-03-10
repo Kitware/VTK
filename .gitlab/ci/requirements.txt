@@ -6,7 +6,7 @@
 # See https://developercommunity.visualstudio.com/content/problem/1207405/fmod-after-an-update-to-windows-2004-is-causing-a.html
 numpy==1.19.3
 
-# ParaViewWeb
+# Web modules
 Twisted==20.3.0
 autobahn==20.7.1
 wslink==0.2.0
