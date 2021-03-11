@@ -1237,9 +1237,7 @@ const char* vtkParseHierarchy_ExpandTypedefsInName(
   if (entry && entry->IsTypedef && entry->Typedef->Class)
   {
     newname = entry->Typedef->Class;
-  }
-  if (newname)
-  {
+
     cp = (char*)malloc(strlen(newname) + 1);
     strcpy(cp, newname);
     name = cp;
