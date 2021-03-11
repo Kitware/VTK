@@ -1,8 +1,8 @@
 set(classes
   vtkDIYDataExchanger
+  vtkDIYExplicitAssigner
   vtkDIYGhostUtilities
-  vtkDIYUtilities
-  vtkDIYExplicitAssigner)
+  vtkDIYUtilities)
 
 vtk_module_add_module(VTK::ParallelDIY
   CLASSES ${classes})

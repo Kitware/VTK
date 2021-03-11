@@ -26,9 +26,11 @@
 #ifndef vtkSimpleImageFilterExample_h
 #define vtkSimpleImageFilterExample_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkSimpleImageToImageFilter.h"
 
+VTK_DEPRECATED_IN_9_1_0("This class is an example and should not have been public")
 class VTKIMAGINGGENERAL_EXPORT vtkSimpleImageFilterExample : public vtkSimpleImageToImageFilter
 {
 public:

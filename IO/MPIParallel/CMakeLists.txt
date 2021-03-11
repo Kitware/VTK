@@ -1,6 +1,6 @@
 set(classes
-  vtkPWindBladeReader
-  vtkMPIMultiBlockPLOT3DReader)
+  vtkMPIMultiBlockPLOT3DReader
+  vtkPWindBladeReader)
 
 vtk_object_factory_declare(
   BASE      vtkWindBladeReader

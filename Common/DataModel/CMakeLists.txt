@@ -257,8 +257,8 @@ set(template_classes
 set(headers
   vtkCellType.h
   vtkColor.h
-  vtkCompositeDataSetRange.h
   vtkCompositeDataSetNodeReference.h
+  vtkCompositeDataSetRange.h
   vtkDataArrayDispatcher.h
   vtkDataAssemblyVisitor.h
   vtkDataObjectTreeInternals.h

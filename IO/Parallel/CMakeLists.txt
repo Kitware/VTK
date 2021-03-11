@@ -1,11 +1,11 @@
 set(classes
   vtkEnSightWriter
   vtkMultiBlockPLOT3DReader
-  vtkPlot3DMetaReader
   vtkPChacoReader
   vtkPDataSetReader
   vtkPDataSetWriter
   vtkPImageWriter
+  vtkPlot3DMetaReader
   vtkPOpenFOAMReader)
 
 set(sources

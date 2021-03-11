@@ -1,4 +1,5 @@
 set(classes
+  vtk3DLinearGridCrinkleExtractor
   vtk3DLinearGridPlaneCutter
   vtkAppendArcLength
   vtkAppendCompositeDataLeaves
@@ -11,8 +12,8 @@ set(classes
   vtkAttributeDataToFieldDataFilter
   vtkBinCellDataFilter
   vtkBinnedDecimation
-  vtkCellDataToPointData
   vtkCellCenters
+  vtkCellDataToPointData
   vtkCenterOfMass
   vtkCleanPolyData
   vtkClipPolyData
@@ -23,7 +24,6 @@ set(classes
   vtkContourFilter
   vtkContourGrid
   vtkContourHelper
-  vtk3DLinearGridCrinkleExtractor
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter
@@ -50,8 +50,8 @@ set(classes
   vtkHedgeHog
   vtkHull
   vtkIdFilter
-  vtkImageDataToExplicitStructuredGrid
   vtkImageAppend
+  vtkImageDataToExplicitStructuredGrid
   vtkImplicitPolyDataDistance
   vtkImplicitProjectOnPlaneDistance
   vtkMarchingCubes

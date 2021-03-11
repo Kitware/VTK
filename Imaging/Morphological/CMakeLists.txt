@@ -1,6 +1,6 @@
 set(classes
-  vtkImageConnector
   vtkImageConnectivityFilter
+  vtkImageConnector
   vtkImageContinuousDilate3D
   vtkImageContinuousErode3D
   vtkImageDilateErode3D

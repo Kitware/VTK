@@ -2,18 +2,15 @@ set(classes
   vtkCGNSFileSeriesReader
   vtkCGNSReader)
 
-set(sources
-  cgio_helpers.cxx
-  vtkCGNSReaderInternal.cxx
-  vtkFileSeriesHelper.cxx)
+set(private_classes
+  cgio_helpers
+  vtkCGNSReaderInternal
+  vtkFileSeriesHelper)
 
 set(private_headers
-  cgio_helpers.h
-  vtkCGNSCache.h
-  vtkCGNSReaderInternal.h
-  vtkFileSeriesHelper.h)
+  vtkCGNSCache.h)
 
 vtk_module_add_module(VTK::IOCGNSReader
   CLASSES ${classes}
-  SOURCES ${sources}
+  PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS ${private_headers})

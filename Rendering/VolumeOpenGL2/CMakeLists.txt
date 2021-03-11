@@ -1,6 +1,6 @@
 set(classes
-  vtkMultiBlockVolumeMapper
   vtkMultiBlockUnstructuredGridVolumeMapper
+  vtkMultiBlockVolumeMapper
   vtkOpenGLGPUVolumeRayCastMapper
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper
@@ -18,8 +18,8 @@ set(classes
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
-  shaders/vtkglProjectedTetrahedraVS.glsl
-  shaders/vtkglProjectedTetrahedraFS.glsl)
+  shaders/vtkglProjectedTetrahedraFS.glsl
+  shaders/vtkglProjectedTetrahedraVS.glsl)
 
 set(template_classes
   vtkOpenGLVolumeLookupTables

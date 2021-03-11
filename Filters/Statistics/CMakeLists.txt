@@ -5,10 +5,10 @@ set(classes
   vtkContingencyStatistics
   vtkCorrelativeStatistics
   vtkDescriptiveStatistics
-  vtkHighestDensityRegionsStatistics
   vtkExtractFunctionalBagPlot
-  vtkKMeansDistanceFunctorCalculator
+  vtkHighestDensityRegionsStatistics
   vtkKMeansDistanceFunctor
+  vtkKMeansDistanceFunctorCalculator
   vtkKMeansStatistics
   vtkMultiCorrelativeStatistics
   vtkOrderStatistics

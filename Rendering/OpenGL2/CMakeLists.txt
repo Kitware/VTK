@@ -69,12 +69,12 @@ set(classes
   vtkOrderIndependentTranslucentPass
   vtkOutlineGlowPass
   vtkOverlayPass
-  vtkPanoramicProjectionPass
-  vtkPixelBufferObject
-  vtkPointFillPass
   vtkPBRIrradianceTexture
   vtkPBRLUTTexture
   vtkPBRPrefilterTexture
+  vtkPanoramicProjectionPass
+  vtkPixelBufferObject
+  vtkPointFillPass
   vtkRenderPassCollection
   vtkRenderStepsPass
   vtkRenderbuffer

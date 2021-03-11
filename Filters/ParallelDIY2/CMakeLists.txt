@@ -7,10 +7,10 @@ vtk_object_factory_declare(
 
 set(classes
   vtkAdaptiveResampleToImage
-  vtkGhostCellsGenerator
-  vtkOverlappingCellsDetector
   vtkExtractSubsetWithSeed
   vtkGenerateGlobalIds
+  vtkGhostCellsGenerator
+  vtkOverlappingCellsDetector
   vtkPResampleToImage
   vtkPResampleWithDataSet
   vtkRedistributeDataSetFilter)
