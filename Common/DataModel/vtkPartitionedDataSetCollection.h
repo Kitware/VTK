@@ -57,13 +57,13 @@ public:
   /**
    * Returns the number of blocks.
    */
-  unsigned int GetNumberOfPartitionedDataSets();
+  unsigned int GetNumberOfPartitionedDataSets() const;
 
   /**
    * Returns the block at the given index. It is recommended that one uses the
    * iterators to iterate over composite datasets rather than using this API.
    */
-  vtkPartitionedDataSet* GetPartitionedDataSet(unsigned int idx);
+  vtkPartitionedDataSet* GetPartitionedDataSet(unsigned int idx) const;
 
   /**
    * Sets the data object as the given block. The total number of blocks will
@@ -90,7 +90,7 @@ public:
   /**
    * Returns the number of partitions in a partitioned dataset at the given index.
    */
-  unsigned int GetNumberOfPartitions(unsigned int idx);
+  unsigned int GetNumberOfPartitions(unsigned int idx) const;
 
   /**
    * Set number of partitions at a given index. Note, this will call
@@ -118,6 +118,16 @@ public:
    */
   vtkGetObjectMacro(DataAssembly, vtkDataAssembly);
   void SetDataAssembly(vtkDataAssembly* assembly);
+  //@}
+
+  //@{
+  /**
+   * Returns the composite index (sometimes referred to as the flat-index) for
+   * either a partitioned dataset or a specific partition in a partitioned
+   * dataset.
+   */
+  unsigned int GetCompositeIndex(unsigned int idx) const;
+  unsigned int GetCompositeIndex(unsigned int idx, unsigned int partition) const;
   //@}
 
   //@{

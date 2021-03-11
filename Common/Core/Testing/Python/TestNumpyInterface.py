@@ -99,6 +99,8 @@ compare(randomVec[dsa.VTKCompositeDataArray([(slice(None, None, None), slice(0,2
 compare(algs.cos(randomVec) - numpy.cos(npa), 1E-7)
 assert algs.cos(randomVec).DataSet is randomVec.DataSet
 
+assert algs.in1d(elev, [0,1]) == [item in [0, 1] for item in elev]
+
 # Various numerical ops implemented in VTK
 g = algs.gradient(elev)
 assert algs.all(g[0] == (1, 0, 0))

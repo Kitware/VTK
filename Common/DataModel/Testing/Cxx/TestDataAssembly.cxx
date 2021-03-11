@@ -114,6 +114,8 @@ int TestDataAssembly(int, char*[])
     VERIFY((subset->GetDataSetIndices(0) == std::vector<unsigned int>{ 0, 1 }));
     VERIFY(subset->GetDataSetIndices(14).empty());
     VERIFY((subset->GetDataSetIndices(15) == std::vector<unsigned int>{ 1 }));
+
+    VERIFY(vtkDataAssembly::IsNodeNameValid("Ying-Yang"));
   }
   catch (const TestFailed&)
   {

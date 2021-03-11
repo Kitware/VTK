@@ -22,6 +22,7 @@ vtk_add_test_cxx(vtkFiltersExtractionCxxTests tests
   TestExtractRows.cxx,NO_VALID,NO_DATA
   TestExtractSelectedArraysOverTime.cxx,NO_VALID
   TestExtractSelection.cxx
+  TestExtractSelectionUsingDataAssembly.cxx,NO_VALID
   TestExtractThresholdsMultiBlock.cxx,NO_VALID
   TestExtractTimeSteps.cxx,NO_VALID
   ${test_64bit}

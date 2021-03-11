@@ -24,6 +24,7 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -77,6 +78,8 @@ vtkInformationKeyMacro(vtkSelectionNode, PIXEL_COUNT, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INVERSE, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, INDEXED_VERTICES, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, COMPONENT_NUMBER, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, ASSEMBLY_NAME, String);
+vtkInformationKeyMacro(vtkSelectionNode, SELECTORS, StringVector);
 
 //------------------------------------------------------------------------------
 vtkSelectionNode::vtkSelectionNode()
@@ -239,6 +242,20 @@ int vtkSelectionNode::GetFieldType()
 const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 {
   return vtkSelectionNode::FieldTypeNames[type];
+}
+
+//------------------------------------------------------------------------------
+int vtkSelectionNode::GetFieldTypeFromString(const char* type)
+{
+  for (int cc = 0; type != nullptr && cc < NUM_FIELD_TYPES; ++cc)
+  {
+    if (strcmp(vtkSelectionNode::FieldTypeNames[cc], type) == 0)
+    {
+      return cc;
+    }
+  }
+
+  return NUM_FIELD_TYPES;
 }
 
 //------------------------------------------------------------------------------

@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkSmartPointer.h"
 
 #include <algorithm>
 #include <cassert>
@@ -35,7 +36,69 @@ class vtkExtractBlockUsingDataAssembly::vtkInternals
 {
 public:
   std::set<std::string> Selectors;
+
+  bool Execute(vtkPartitionedDataSetCollection* input, vtkDataAssembly* assembly,
+    const std::vector<vtkSmartPointer<vtkDataAssembly>>& assemblies_to_map,
+    vtkPartitionedDataSetCollection* output,
+    std::vector<vtkSmartPointer<vtkDataAssembly>>& mapped_assemblies,
+    vtkExtractBlockUsingDataAssembly* self) const;
 };
+
+//------------------------------------------------------------------------------
+bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataSetCollection* input,
+  vtkDataAssembly* assembly, const std::vector<vtkSmartPointer<vtkDataAssembly>>& assemblies_to_map,
+  vtkPartitionedDataSetCollection* output,
+  std::vector<vtkSmartPointer<vtkDataAssembly>>& mapped_assemblies,
+  vtkExtractBlockUsingDataAssembly* self) const
+{
+  // get the collection of nodes to extract based on the user specified Selectors
+  const std::vector<std::string> selectors(this->Selectors.begin(), this->Selectors.end());
+  const auto selected_nodes = assembly->SelectNodes(selectors);
+
+  // build the set of dataset (or partitioned dataset indices) to pass
+  std::set<unsigned int> datasets_to_copy;
+  for (auto nodeid : selected_nodes)
+  {
+    const auto datasets = assembly->GetDataSetIndices(nodeid,
+      /*traverse_subtree=*/self->GetSelectSubtrees());
+    datasets_to_copy.insert(datasets.begin(), datasets.end());
+  }
+
+  // pass the chosen datasets and build mapping from old index to new.
+  std::map<unsigned int, unsigned int> output_indices;
+  for (const auto& in_idx : datasets_to_copy)
+  {
+    const auto out_idx = output->GetNumberOfPartitionedDataSets();
+    output->SetPartitionedDataSet(out_idx, input->GetPartitionedDataSet(in_idx));
+    if (input->HasMetaData(in_idx))
+    {
+      output->GetMetaData(out_idx)->Copy(input->GetMetaData(in_idx));
+    }
+    output_indices[in_idx] = out_idx;
+  }
+
+  vtkNew<vtkDataAssembly> outAssembly;
+  if (self->GetPruneDataAssembly())
+  {
+    outAssembly->SubsetCopy(assembly, selected_nodes);
+  }
+  else
+  {
+    outAssembly->DeepCopy(assembly);
+  }
+  outAssembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);
+  output->SetDataAssembly(outAssembly);
+
+  // now map each of the other input assemblies.
+  for (auto& iAssembly : assemblies_to_map)
+  {
+    vtkNew<vtkDataAssembly> oAssembly;
+    oAssembly->DeepCopy(iAssembly);
+    oAssembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);
+    mapped_assemblies.push_back(oAssembly);
+  }
+  return true;
+}
 
 vtkStandardNewMacro(vtkExtractBlockUsingDataAssembly);
 //------------------------------------------------------------------------------
@@ -160,6 +223,8 @@ int vtkExtractBlockUsingDataAssembly::RequestDataObject(
 int vtkExtractBlockUsingDataAssembly::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  const auto& internals = (*this->Internals);
+
   if (this->AssemblyName == nullptr)
   {
     vtkErrorMacro("AssemblyName must be specified.");
@@ -169,7 +234,80 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
   auto inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
   assert(inputCD != nullptr);
 
-  if (strcmp(this->AssemblyName, vtkDataAssemblyUtilities::HierarchyName()) != 0)
+  auto outputCD = vtkCompositeDataSet::GetData(outputVector, 0);
+
+  auto assembly = vtkDataAssemblyUtilities::GetDataAssembly(this->AssemblyName, inputCD);
+  if (!assembly)
+  {
+    vtkErrorMacro("Invalid assembly name '" << this->AssemblyName
+                                            << "' for input "
+                                               "of type "
+                                            << inputCD->GetClassName());
+    return 0;
+  }
+
+  const bool useHierarchy =
+    (strcmp(this->AssemblyName, vtkDataAssemblyUtilities::HierarchyName()) == 0);
+
+  if (useHierarchy)
+  {
+    vtkNew<vtkPartitionedDataSetCollection> xformedInput;
+    vtkNew<vtkDataAssembly> tmpHierarchy;
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(inputCD, tmpHierarchy, xformedInput))
+    {
+      vtkErrorMacro("Failed to generate hierarchy for input of type " << inputCD->GetClassName());
+      return 0;
+    }
+
+    auto hierarchy = xformedInput->GetDataAssembly();
+    assert(hierarchy != nullptr);
+
+    if (auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0))
+    {
+      std::vector<vtkSmartPointer<vtkDataAssembly>> input_assemblies, output_assemblies;
+      if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputCD))
+      {
+        if (inputPDC->GetDataAssembly() != nullptr)
+        {
+          // eventually, here we'll add all data assemblies defined on the input
+          // so they can be mapped to the output.
+          input_assemblies.push_back(inputPDC->GetDataAssembly());
+        }
+      }
+
+      if (!internals.Execute(
+            xformedInput, hierarchy, input_assemblies, outputPDC, output_assemblies, this))
+      {
+        return 0;
+      }
+
+      if (output_assemblies.size() == 1)
+      {
+        outputPDC->SetDataAssembly(output_assemblies[0]);
+      }
+      return 1;
+    }
+    else
+    {
+      vtkNew<vtkPartitionedDataSetCollection> xformedOutput;
+      std::vector<vtkSmartPointer<vtkDataAssembly>> output_assemblies;
+      if (!internals.Execute(xformedInput, hierarchy, {}, xformedOutput, output_assemblies, this))
+      {
+        return 0;
+      }
+
+      // convert xformedOutput to suitable output type.
+      if (auto result = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+            xformedOutput, xformedOutput->GetDataAssembly()))
+      {
+        outputCD->ShallowCopy(result);
+        return 1;
+      }
+
+      return 0;
+    }
+  }
+  else
   {
     auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputCD);
     if (!inputPDC)
@@ -189,127 +327,9 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
     auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
     assert(outputPDC != nullptr);
 
-    // Create output assembly.
-    vtkNew<vtkDataAssembly> outAssembly;
-    outputPDC->SetDataAssembly(outAssembly);
-    return this->Execute(inputPDC, inAssembly, outputPDC, outAssembly) ? 1 : 0;
+    std::vector<vtkSmartPointer<vtkDataAssembly>> output_assemblies;
+    return internals.Execute(inputPDC, inAssembly, {}, outputPDC, output_assemblies, this) ? 1 : 0;
   }
-
-  // Generate hierarchy for input dataset.
-  vtkNew<vtkDataAssembly> hierarchy;
-  vtkNew<vtkPartitionedDataSetCollection> xInput;
-  vtkDataAssemblyUtilities::GenerateHierarchy(inputCD, hierarchy, xInput);
-  if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputCD))
-  {
-    // shortcut for vtkPartitionedDataSetCollection.
-    auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
-    assert(outputPDC != nullptr);
-
-    // if input has an assembly, we preserve (and remap) it.
-    if (auto inAssembly = inputPDC->GetDataAssembly())
-    {
-      vtkNew<vtkDataAssembly> outAssembly;
-      outAssembly->DeepCopy(inAssembly);
-      outputPDC->SetDataAssembly(outAssembly);
-    }
-
-    return this->Execute(inputPDC, hierarchy, outputPDC, nullptr) ? 1 : 0;
-  }
-  else if (auto oamr = vtkOverlappingAMR::SafeDownCast(inputCD))
-  {
-    // since blanking information is no longer valid once blocks are extracted,
-    // remove it.
-    vtkNew<vtkOverlappingAMR> stripped;
-    vtkAMRUtilities::StripGhostLayers(oamr, stripped);
-
-    auto outputPDC = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
-    assert(outputPDC != nullptr);
-
-    // Create a placeholder for the output as `vtkPartitionedDataSetCollection`.
-    vtkNew<vtkDataAssembly> outHierarchy;
-    outputPDC->SetDataAssembly(outHierarchy);
-    return this->Execute(xInput, hierarchy, outputPDC, outHierarchy);
-  }
-  else
-  {
-    auto outputCD = vtkCompositeDataSet::GetData(outputVector, 0);
-    assert(outputCD != nullptr);
-
-    // Create a placeholder for the output as `vtkPartitionedDataSetCollection`.
-    vtkNew<vtkPartitionedDataSetCollection> xOutput;
-    vtkNew<vtkDataAssembly> outHierarchy;
-    xOutput->SetDataAssembly(outHierarchy);
-    if (!this->Execute(xInput, hierarchy, xOutput, outHierarchy))
-    {
-      return 0;
-    }
-
-    // now, convert xOutput back to a appropriate type
-    if (auto result =
-          vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(xOutput, outHierarchy))
-    {
-      outputCD->ShallowCopy(result);
-      return 1;
-    }
-  }
-
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-bool vtkExtractBlockUsingDataAssembly::Execute(vtkPartitionedDataSetCollection* input,
-  vtkDataAssembly* inAssembly, vtkPartitionedDataSetCollection* output,
-  vtkDataAssembly* outAssembly) const
-{
-  const auto& internals = (*this->Internals);
-
-  // get the collection of nodes to extract based on the user specified Selectors
-  const std::vector<std::string> selectors(internals.Selectors.begin(), internals.Selectors.end());
-  const auto selected_nodes = inAssembly->SelectNodes(selectors);
-
-  // build the set of dataset (or partitioned dataset indices) to pass
-  std::set<unsigned int> datasets_to_copy;
-  for (auto nodeid : selected_nodes)
-  {
-    const auto datasets = inAssembly->GetDataSetIndices(nodeid,
-      /*traverse_subtree=*/this->SelectSubtrees);
-    datasets_to_copy.insert(datasets.begin(), datasets.end());
-  }
-
-  // pass the chosen datasets and build mapping from old index to new.
-  std::map<unsigned int, unsigned int> output_indices;
-  for (const auto& in_idx : datasets_to_copy)
-  {
-    const auto out_idx = output->GetNumberOfPartitionedDataSets();
-    output->SetPartitionedDataSet(out_idx, input->GetPartitionedDataSet(in_idx));
-    if (input->HasMetaData(in_idx))
-    {
-      output->GetMetaData(out_idx)->Copy(input->GetMetaData(in_idx));
-    }
-    output_indices[in_idx] = out_idx;
-  }
-
-  // copy/update data assembly in the output.
-  if (outAssembly)
-  {
-    if (this->PruneDataAssembly)
-    {
-      outAssembly->SubsetCopy(inAssembly, selected_nodes);
-    }
-    else
-    {
-      outAssembly->DeepCopy(inAssembly);
-    }
-  }
-
-  if (auto assembly = output->GetDataAssembly())
-  {
-    // remap dataset indices since we changed dataset indices in the output
-    // and remove all unused dataset indices.
-    assembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);
-  }
-
-  return true;
 }
 
 //------------------------------------------------------------------------------

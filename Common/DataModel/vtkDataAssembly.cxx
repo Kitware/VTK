@@ -238,10 +238,7 @@ public:
     const auto curids = this->GetCurrentDataSetIndices();
     std::copy(curids.begin(), curids.end(), std::back_inserter(this->DataSetIndices));
   }
-  bool GetTraverseSubtree(int nodeid) override
-  {
-    return this->TraverseSubtree || (nodeid == this->Root);
-  }
+  bool GetTraverseSubtree(int vtkNotUsed(nodeid)) override { return this->TraverseSubtree; }
 
 protected:
   GetDataSetIndicesVisitor() = default;
@@ -355,7 +352,7 @@ bool vtkDataAssembly::IsNodeNameValid(const char* name)
     return false;
   }
 
-  vtksys::RegularExpression regEx("[^a-zA-Z0-9\\-_.]");
+  vtksys::RegularExpression regEx("[^a-zA-Z0-9_.-]");
   if (regEx.find(name))
   {
     // found a non-acceptable character; names can contain letters,
@@ -661,7 +658,17 @@ bool vtkDataAssembly::AddDataSetIndices(int id, const std::vector<unsigned int>&
   {
     this->Modified();
   }
-  return true;
+  return modified;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataAssembly::AddDataSetIndexRange(int id, unsigned int index_start, int count)
+{
+  // for now, we're doing this easy thing..at some point we may want to add
+  // support for storing ranges compactly.
+  std::vector<unsigned int> indices(count);
+  std::iota(indices.begin(), indices.end(), index_start);
+  return this->AddDataSetIndices(id, indices);
 }
 
 //------------------------------------------------------------------------------
@@ -980,11 +987,23 @@ std::vector<int> vtkDataAssembly::GetChildNodes(
 std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
   int id, bool traverse_subtree, int traversal_order) const
 {
+  std::vector<int> ids;
+  ids.push_back(id);
+  return this->GetDataSetIndices(ids, traverse_subtree, traversal_order);
+}
+
+//------------------------------------------------------------------------------
+std::vector<unsigned int> vtkDataAssembly::GetDataSetIndices(
+  const std::vector<int>& ids, bool traverse_subtree, int traversal_order) const
+{
   vtkNew<GetDataSetIndicesVisitor> visitor;
   visitor->TraverseSubtree = traverse_subtree;
-  visitor->Root = id;
-  this->Visit(id, visitor,
-    traverse_subtree ? traversal_order : vtkDataAssembly::TraversalOrder::BreadthFirst);
+  for (const auto& nodeid : ids)
+  {
+    visitor->Root = nodeid;
+    this->Visit(nodeid, visitor,
+      traverse_subtree ? traversal_order : vtkDataAssembly::TraversalOrder::BreadthFirst);
+  }
 
   // uniquify dataset indices.
   auto& indices = visitor->DataSetIndices;
@@ -1082,23 +1101,34 @@ std::vector<int> vtkDataAssembly::SelectNodes(
   for (const auto& query : path_queries)
   {
     vtkLogF(TRACE, "query='%s'", query.c_str());
-    auto set = internals.Document.select_nodes(query.c_str());
+    if (query.empty())
+    {
+      continue;
+    }
+    try
+    {
+      auto set = internals.Document.select_nodes(query.c_str());
 
-    auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
-      [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
-        if (xnode.node() == internals.Document)
-        {
-          // note: if xpath matches the document, the xnode is the document and not the
-          // first-child and the attribute request fails.
-          result->insert(0);
-        }
-        else if (::IsAssemblyNode(xnode.node()))
-        {
-          result->insert(xnode.node().attribute("id").as_int(-1));
-        }
-        return result;
-      });
-    (void)notUsed;
+      auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
+        [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
+          if (xnode.node() == internals.Document)
+          {
+            // note: if xpath matches the document, the xnode is the document and not the
+            // first-child and the attribute request fails.
+            result->insert(0);
+          }
+          else if (::IsAssemblyNode(xnode.node()))
+          {
+            result->insert(xnode.node().attribute("id").as_int(-1));
+          }
+          return result;
+        });
+      (void)notUsed;
+    }
+    catch (pugi::xpath_exception& exp)
+    {
+      vtkLogF(TRACE, "xpath exception: %s", exp.what());
+    }
   }
 
   this->Visit(visitor, traversal_order);

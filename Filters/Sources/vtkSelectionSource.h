@@ -29,8 +29,6 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
-class vtkSelectionSourceInternals;
-
 class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {
 public:
@@ -175,6 +173,16 @@ public:
 
   //@{
   /**
+   * For selector-based block selection.
+   */
+  vtkSetStringMacro(AssemblyName);
+  vtkGetStringMacro(AssemblyName);
+  void AddSelector(const char* selector);
+  void RemoveAllSelectors();
+  //@}
+
+  //@{
+  /**
    * Set/Get the query expression string.
    */
   vtkSetStringMacro(QueryString);
@@ -190,8 +198,6 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  vtkSelectionSourceInternals* Internal;
-
   int ContentType;
   int FieldType;
   int ContainingCells;
@@ -204,10 +210,14 @@ protected:
   int ArrayComponent;
   char* QueryString;
   int NumberOfLayers;
+  char* AssemblyName;
 
 private:
   vtkSelectionSource(const vtkSelectionSource&) = delete;
   void operator=(const vtkSelectionSource&) = delete;
+
+  class vtkInternals;
+  vtkInternals* Internal;
 };
 
 #endif
