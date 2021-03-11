@@ -122,13 +122,18 @@ const char* vtkTextRepresentation::GetText()
 void vtkTextRepresentation::BuildRepresentation()
 {
   // Ask the superclass the size and set the text
-  int* pos1 = this->PositionCoordinate->GetComputedDisplayValue(this->Renderer);
-  int* pos2 = this->Position2Coordinate->GetComputedDisplayValue(this->Renderer);
+  double* pos1 = this->PositionCoordinate->GetComputedDoubleDisplayValue(this->Renderer);
+  double* pos2 = this->Position2Coordinate->GetComputedDoubleDisplayValue(this->Renderer);
 
   if (this->TextActor)
   {
-    this->TextActor->GetPositionCoordinate()->SetValue(pos1[0], pos1[1]);
-    this->TextActor->GetPosition2Coordinate()->SetValue(pos2[0], pos2[1]);
+    // Add the padding when setting the position of the Text
+    const double textPos1[] = { pos1[0] + this->PaddingLeft, pos1[1] + this->PaddingBottom };
+
+    const double textPos2[] = { pos2[0] - this->PaddingRight, pos2[1] - this->PaddingTop };
+
+    this->TextActor->GetPositionCoordinate()->SetValue(textPos1[0], textPos1[1]);
+    this->TextActor->GetPosition2Coordinate()->SetValue(textPos2[0], textPos2[1]);
   }
 
   // Note that the transform is updated by the superclass
@@ -280,9 +285,8 @@ void vtkTextRepresentation::CheckTextBoundary()
     // The bounding box was the area that is going to be filled with pixels
     // given a text origin of (0, 0). Now get the real size we need, i.e.
     // the full extent from the origin to the bounding box.
-    double text_size[2];
-    text_size[0] = (text_bbox[1] - text_bbox[0] + 1);
-    text_size[1] = (text_bbox[3] - text_bbox[2] + 1);
+    double text_size[] = { (text_bbox[1] - text_bbox[0] + 1.0),
+      (text_bbox[3] - text_bbox[2] + 1.0) };
 
     this->GetRenderer()->DisplayToNormalizedDisplay(text_size[0], text_size[1]);
     this->GetRenderer()->NormalizedDisplayToViewport(text_size[0], text_size[1]);
@@ -291,8 +295,8 @@ void vtkTextRepresentation::CheckTextBoundary()
     // Convert padding in pixels into viewport
     // Multiply by 2 to ensure an even padding
     int* size = win->GetSize();
-    double paddingX = 2 * this->RightPadding / (double)size[0];
-    double paddingY = 2 * this->TopPadding / (double)size[1];
+    double paddingX = (this->PaddingLeft + this->PaddingRight) / (double)size[0];
+    double paddingY = (this->PaddingTop + this->PaddingBottom) / (double)size[1];
 
     double posX = text_size[0] + paddingX;
     double posY = text_size[1] + paddingY;
@@ -367,6 +371,18 @@ void vtkTextRepresentation::UpdateWindowLocation()
         break;
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkTextRepresentation::SetPadding(int padding)
+{
+  padding = std::max(0, std::min(4000, padding));
+
+  // Negative padding does not make sense
+  this->PaddingLeft = padding;
+  this->PaddingRight = padding;
+  this->PaddingTop = padding;
+  this->PaddingBottom = padding;
 }
 
 //------------------------------------------------------------------------------
