@@ -27,9 +27,11 @@
 #include "vtkIOStream.h" // For streaming operators
 #include "vtkSystemIncludes.h"
 
-#include <cassert> // For inline assert for bounds checked methods.
-#include <cmath>   // for std::abs() with float overloads
-#include <cstdlib> // for std::abs() with int overloads
+#include <algorithm> // for std::copy
+#include <array>     // for std::array
+#include <cassert>   // For inline assert for bounds checked methods.
+#include <cmath>     // for std::abs() with float overloads
+#include <cstdlib>   // for std::abs() with int overloads
 
 template <typename T, int Size>
 class vtkTuple
@@ -64,6 +66,15 @@ public:
     {
       this->Data[i] = init[i];
     }
+  }
+
+  /**
+   * Initialize the tuple's elements using a `std::array` for matching type and
+   * size. Example usage: `vtkTuple<double, 2 >({0.1, 0.2})`.
+   */
+  explicit vtkTuple(const std::array<T, Size>& values)
+  {
+    std::copy(values.begin(), values.end(), this->Data);
   }
 
   /**
