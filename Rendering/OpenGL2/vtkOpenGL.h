@@ -31,8 +31,13 @@
 
 // To prevent gl.h to include glext.h provided by the system
 #define GL_GLEXT_LEGACY
-#if defined(__APPLE__) && defined(VTK_USE_COCOA)
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+#include <ES3/gl.h> // Include OpenGL API.
+#elif TARGET_OS_MAC
 #include <OpenGL/gl.h> // Include OpenGL API.
+#endif
 #else
 #include "vtkWindows.h" // Needed to include OpenGL header on Windows.
 #include <GL/gl.h>      // Include OpenGL API.
