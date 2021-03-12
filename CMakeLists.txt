@@ -39,6 +39,7 @@ option(FIDES_ENABLE_TESTING "Enable Fides Testing" ON)
 option(FIDES_ENABLE_EXAMPLES "Build Fides Examples" ON)
 
 if(ADIOS2_HAVE_MPI)
+  set(FIDES_USE_MPI TRUE)
   set(MPI_DEFS FIDES_USE_MPI)
   set(MPI_LIBS MPI::MPI_CXX)
 endif()

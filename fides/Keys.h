@@ -47,6 +47,7 @@ FIDES_EXPORT KeyType STEP_SELECTION();
 /// Uses fides::metadata::Set
 FIDES_EXPORT KeyType PLANE_SELECTION();
 
+FIDES_EXPORT KeyType READ_AS_MULTIBLOCK();
 }
 }
 

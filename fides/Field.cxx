@@ -15,8 +15,7 @@ namespace fides
 namespace datamodel
 {
 
-void Field::ProcessJSON(const rapidjson::Value& json,
-                                   DataSourcesType& sources)
+void Field::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
   this->Array.reset();
   if (json.HasMember("name") && json["name"].IsString())
@@ -33,8 +32,7 @@ void Field::ProcessJSON(const rapidjson::Value& json,
   }
   else
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide a valid name.");
+    throw std::runtime_error(this->ObjectName + " must provide a valid name.");
   }
 
   if (json.HasMember("association") && json["association"].IsString())
@@ -54,37 +52,35 @@ void Field::ProcessJSON(const rapidjson::Value& json,
     }
     else
     {
-      throw std::runtime_error(
-        this->ObjectName  + " provided unknown association: " + assoc);
+      throw std::runtime_error(this->ObjectName + " provided unknown association: " + assoc);
     }
   }
   else if (json.HasMember("variable_association_attribute_name") &&
-    json["variable_association_attribute_name"].IsString())
+           json["variable_association_attribute_name"].IsString())
   {
     this->AssociationAttributeName = json["variable_association_attribute_name"].GetString();
   }
   else
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide a valid association (points or cell_set).");
+    throw std::runtime_error(this->ObjectName +
+                             " must provide a valid association (points or cell_set).");
   }
 
   if (json.HasMember("variable_sources_attribute_name") &&
-    json["variable_sources_attribute_name"].IsString())
+      json["variable_sources_attribute_name"].IsString())
   {
     this->SourcesAttributeName = json["variable_sources_attribute_name"].GetString();
   }
 
   if (json.HasMember("variable_arrays_attribute_name") &&
-    json["variable_arrays_attribute_name"].IsString())
+      json["variable_arrays_attribute_name"].IsString())
   {
     this->ArrayTypesAttributeName = json["variable_arrays_attribute_name"].GetString();
   }
 
   if (!json.HasMember("array") || !json["array"].IsObject())
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide an array object.");
+    throw std::runtime_error(this->ObjectName + " must provide an array object.");
   }
   this->Array = std::make_shared<fides::datamodel::Array>();
   this->Array->ObjectName = "array";
@@ -98,8 +94,10 @@ void Field::ProcessJSON(const rapidjson::Value& json,
   }
 }
 
-void Field::ProcessExpandedField(const std::string& name, const std::string& assoc,
-    const rapidjson::Value& json, DataSourcesType& sources)
+void Field::ProcessExpandedField(const std::string& name,
+                                 const std::string& assoc,
+                                 const rapidjson::Value& json,
+                                 DataSourcesType& sources)
 {
   this->Name = name;
   this->WildcardField = false; // no longer a wildcard field now
@@ -117,8 +115,7 @@ void Field::ProcessExpandedField(const std::string& name, const std::string& ass
   }
   else
   {
-    throw std::runtime_error(
-      this->ObjectName  + " provided unknown association: " + assoc);
+    throw std::runtime_error(this->ObjectName + " provided unknown association: " + assoc);
   }
   this->Array.reset();
   this->Array = std::make_shared<fides::datamodel::Array>();
@@ -136,7 +133,7 @@ std::vector<vtkm::cont::Field> Field::Read(
   std::vector<vtkm::cont::Field> fields;
   size_t nFields = arrays.size();
   fields.reserve(nFields);
-  for(size_t i=0; i<nFields; i++)
+  for (size_t i = 0; i < nFields; i++)
   {
     vtkm::cont::Field fld(this->Name, ConvertToVTKmAssociation(this->Association), arrays[i]);
     fields.push_back(fld);
@@ -145,18 +142,17 @@ std::vector<vtkm::cont::Field> Field::Read(
   return fields;
 }
 
-FieldData Field::ReadFieldData(
-  const std::unordered_map<std::string, std::string>& paths,
-  DataSourcesType& sources,
-  const fides::metadata::MetaData& selections)
+FieldData Field::ReadFieldData(const std::unordered_map<std::string, std::string>& paths,
+                               DataSourcesType& sources,
+                               const fides::metadata::MetaData& selections)
 {
   std::vector<vtkm::cont::VariantArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   return FieldData(this->Name, std::move(arrays));
 }
 
-Field::WildcardFieldInfo
-  Field::GetWildcardFieldLists(std::shared_ptr<predefined::InternalMetadataSource> source)
+Field::WildcardFieldInfo Field::GetWildcardFieldLists(
+  std::shared_ptr<predefined::InternalMetadataSource> source)
 {
   if (!this->WildcardField)
   {
@@ -167,15 +163,15 @@ Field::WildcardFieldInfo
   fieldInfo.Names = source->GetAttribute<std::string>(this->VariableAttributeName);
   if (fieldInfo.Names.empty())
   {
-    throw std::runtime_error("Fides was not able to read std::string attribute "
-      + this->VariableAttributeName);
+    throw std::runtime_error("Fides was not able to read std::string attribute " +
+                             this->VariableAttributeName);
   }
 
   fieldInfo.Associations = source->GetAttribute<std::string>(this->AssociationAttributeName);
   if (fieldInfo.Associations.empty())
   {
-    throw std::runtime_error("Fides was not able to read std::string attribute "
-      + this->AssociationAttributeName);
+    throw std::runtime_error("Fides was not able to read std::string attribute " +
+                             this->AssociationAttributeName);
   }
 
   fieldInfo.Sources = source->GetAttribute<std::string>(this->SourcesAttributeName);
@@ -183,17 +179,18 @@ Field::WildcardFieldInfo
 
   if (fieldInfo.Names.size() != fieldInfo.Associations.size())
   {
-    throw std::runtime_error("The arrays read for Field Names and Associations should be the same size");
+    throw std::runtime_error(
+      "The arrays read for Field Names and Associations should be the same size");
   }
   if (!fieldInfo.Sources.empty() && fieldInfo.Sources.size() != fieldInfo.Names.size())
   {
     throw std::runtime_error("If the arrays read for Field data sources is not empty, it should be"
-      " the same size as the Names array");
+                             " the same size as the Names array");
   }
   if (!fieldInfo.ArrayTypes.empty() && fieldInfo.ArrayTypes.size() != fieldInfo.Names.size())
   {
     throw std::runtime_error("If the arrays read for Field array types is not empty, it should be"
-      " the same size as the Names array");
+                             " the same size as the Names array");
   }
   return fieldInfo;
 }

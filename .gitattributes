@@ -1,6 +1,20 @@
+# Attributes used for formatting.
+#[attr]our-c-style   whitespace=tab-in-indent  format.clang-format=9
+#
+#*.cxx   our-c-style
+#*.h     our-c-style
+#*.hxx   our-c-style
+
 data/* filter=lfs diff=lfs merge=lfs -text
 /**/data/* filter=lfs diff=lfs merge=lfs -text
 /**/data/*/* filter=lfs diff=lfs merge=lfs -text
+
+*.cmake          whitespace=tab-in-indent
+*.md             whitespace=tab-in-indent conflict-marker-size=79 -whitespace
+*.rst            whitespace=tab-in-indent conflict-marker-size=79
+*.txt            whitespace=tab-in-indent
+
+thirdparty/rapidjson/fidesrapidjson/**           -format.clang-format -whitespace
 
 # XXX(kitware): Ignore whitespace issues.
 * -whitespace

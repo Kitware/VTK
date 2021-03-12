@@ -15,14 +15,12 @@ namespace fides
 namespace datamodel
 {
 
-void CoordinateSystem::ProcessJSON(const rapidjson::Value& json,
-                                   DataSourcesType& sources)
+void CoordinateSystem::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
   this->Array.reset();
   if (!json.HasMember("array") || !json["array"].IsObject())
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide an array object.");
+    throw std::runtime_error(this->ObjectName + " must provide an array object.");
   }
   this->Array = std::make_shared<fides::datamodel::Array>();
   this->Array->ObjectName = "array";
@@ -35,8 +33,7 @@ size_t CoordinateSystem::GetNumberOfBlocks(
 {
   if (!this->NumberOfBlocksInitialized)
   {
-    this->NumberOfBlocks =
-      this->Array->GetNumberOfBlocks(paths, sources);
+    this->NumberOfBlocks = this->Array->GetNumberOfBlocks(paths, sources);
     this->NumberOfBlocksInitialized = true;
   }
   return this->NumberOfBlocks;
@@ -54,18 +51,23 @@ std::vector<vtkm::cont::CoordinateSystem> CoordinateSystem::Read(
   std::vector<vtkm::cont::VariantArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   std::vector<vtkm::cont::CoordinateSystem> coordSystems;
-   coordSystems.reserve(arrays.size());
+  coordSystems.reserve(arrays.size());
   // using CoordsHandleType = vtkm::cont::ArrayHandle<VecType>;
-  for(auto& array : arrays)
+  for (auto& array : arrays)
   {
     // auto expandedTypeArray = array.ResetStorageList(CoordinateStorageTypes{});
     // CoordsHandleType coordsHandle = array.Cast<CoordsHandleType>();
     // coordSystems.push_back(
     //   vtkm::cont::CoordinateSystem("coordinates", coordsHandle));
-    coordSystems.push_back(
-      vtkm::cont::CoordinateSystem("coordinates", array));
+    coordSystems.push_back(vtkm::cont::CoordinateSystem("coordinates", array));
   }
   return coordSystems;
+}
+
+void CoordinateSystem::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                                const fides::metadata::MetaData& selections)
+{
+  this->Array->PostRead(partitions, selections);
 }
 
 }

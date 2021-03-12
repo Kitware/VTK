@@ -56,8 +56,7 @@ private:
 };
 
 template <typename AttributeType>
-std::vector<AttributeType> InternalMetadataSource::GetAttribute(
-  const std::string& attrName)
+std::vector<AttributeType> InternalMetadataSource::GetAttribute(const std::string& attrName)
 {
   auto attr = this->Source->ReadAttribute<AttributeType>(attrName);
   return attr;

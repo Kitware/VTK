@@ -11,6 +11,7 @@
 #ifndef fides_datamodel_Array_H_
 #define fides_datamodel_Array_H_
 
+#include <vtkm/cont/PartitionedDataSet.h>
 #include <vtkm/cont/VariantArrayHandle.h>
 
 #include <fides/DataModel.h>
@@ -35,11 +36,15 @@ struct ArrayBase : public DataModelBase
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
   /// Has to be implemented by subclasses.
-  virtual size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources) = 0;
+  virtual size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                                   DataSourcesType& sources) = 0;
 
-  virtual ~ArrayBase() {};
+  /// This is called after all data is read from disk/buffers,
+  /// enabling any work that needs to access array values and other
+  /// dataset data.
+  virtual void PostRead(std::vector<vtkm::cont::DataSet>&, const fides::metadata::MetaData&) {}
+
+  virtual ~ArrayBase(){};
 };
 
 /// \brief A placeholder for setting up Wildcard Fields.
@@ -56,8 +61,7 @@ struct ArrayPlaceholder : public ArrayBase
 {
   /// Overridden to process the JSON for an array belonging
   /// to a wildcard field
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Throws error because this Array class is a placeholder for
   /// arrays belonging to wildcard fields that will eventually
@@ -70,9 +74,8 @@ struct ArrayPlaceholder : public ArrayBase
   /// Throws error because this Array class is a placeholder for
   /// arrays belonging to wildcard fields that will eventually
   /// be expanded
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>&,
-    DataSourcesType&) override;
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
+                           DataSourcesType&) override;
 
 private:
   std::string ArrayType;
@@ -90,14 +93,12 @@ struct Array : public DataModelBase
   /// Overridden to handle Array specific items.
   /// This will create an internal ArrayBase subclass
   /// depending on the array_type value.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Sets up an ArrayPlaceholder for a wildcard field.
   /// Should be used by wildcard fields instead of
   /// ProcessJSON.
-  void CreatePlaceholder(const rapidjson::Value& json,
-      DataSourcesType& sources);
+  void CreatePlaceholder(const rapidjson::Value& json, DataSourcesType& sources);
 
   /// Reads and returns array handles. Handled by the
   /// internal ArrayBase subclass.
@@ -106,12 +107,17 @@ struct Array : public DataModelBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
 
+  /// This is called after all data is read from disk/buffers,
+  /// enabling any work that needs to access array values and other
+  /// dataset data.
+  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                const fides::metadata::MetaData& selections);
+
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
   /// Handled by the internal ArrayBase subclass.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources);
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources);
 
 private:
   std::unique_ptr<ArrayBase> ArrayImpl = nullptr;
@@ -124,8 +130,7 @@ private:
 /// \c ArrayBasic reads ArrayHandle objects with basic storage.
 struct ArrayBasic : public ArrayBase
 {
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles. The heavy-lifting is
   /// handled by the \c DataModelBase \c ReadSelf() method.
@@ -138,9 +143,8 @@ struct ArrayBasic : public ArrayBase
 
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources) override;
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources) override;
 
 private:
   fides::io::IsVector IsVector = fides::io::IsVector::Auto;
@@ -156,8 +160,7 @@ private:
 struct ArrayUniformPointCoordinates : public ArrayBase
 {
   /// Overridden to handle ArrayUniformPointCoordinates specific items.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles. This class depends on
   /// a number of Value objects to obtains dimensions (per block),
@@ -169,23 +172,31 @@ struct ArrayUniformPointCoordinates : public ArrayBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
+  /// This is called after all data is read from disk/buffers,
+  /// enabling any work that needs to access array values and other
+  /// dataset data.
+  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                const fides::metadata::MetaData& selections) override;
+
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources) override;
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources) override;
 
 private:
   std::unique_ptr<Value> Dimensions = nullptr;
   std::unique_ptr<Value> Origin = nullptr;
   std::unique_ptr<Value> Spacing = nullptr;
+  std::vector<vtkm::cont::VariantArrayHandle> DimensionArrays;
+  std::vector<vtkm::cont::VariantArrayHandle> OriginArrays;
+  std::vector<vtkm::cont::VariantArrayHandle> SpacingArrays;
+  bool DefinedFromVariableShape = true;
 };
 
 struct ArrayCartesianProduct : public ArrayBase
 {
   /// Overridden to handle ArrayCartesianProduct specific items.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles. This class depends on
   /// three separate (basic) array  objects that form the
@@ -198,9 +209,8 @@ struct ArrayCartesianProduct : public ArrayBase
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
   /// Uses the number of blocks in the first (x) array.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources) override;
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources) override;
 
 private:
   std::unique_ptr<Array> XArray = nullptr;
@@ -216,9 +226,8 @@ struct ArrayXGC : public ArrayBase
 
   /// Returns the number of blocks in the underlying variable.
   /// Used by the reader to provide meta-data on blocks.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources) override;
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources) override;
 
 protected:
   std::unique_ptr<XGCCommon> CommonImpl;
@@ -227,22 +236,20 @@ protected:
 
   /// Ensures that the inline engine isn't being used since it's not
   /// supported for XGC
-  void CheckEngineType(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources, std::string& dataSourceName);
+  void CheckEngineType(const std::unordered_map<std::string, std::string>& paths,
+                       DataSourcesType& sources,
+                       std::string& dataSourceName);
 
   /// Gets the shape of the variable
-  std::vector<size_t> GetShape(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources);
+  std::vector<size_t> GetShape(const std::unordered_map<std::string, std::string>& paths,
+                               DataSourcesType& sources);
 };
 
 /// \brief Class to read \c ArrayXGCCoordinates objects.
 struct ArrayXGCCoordinates : public ArrayXGC
 {
   /// Overridden to handle ArrayXGCCoordinates specific items.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
   std::vector<vtkm::cont::VariantArrayHandle> Read(
@@ -266,7 +273,7 @@ struct ArrayXGCField : public ArrayXGC
 
   /// Special handling for reading 3D variables. Use instead of the superclass's
   /// ReadSelf()
-  std::unordered_map<size_t, vtkm::cont::VariantArrayHandle> Read3DVariable(
+  vtkm::cont::VariantArrayHandle Read3DVariable(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -278,6 +285,54 @@ private:
   bool FieldDimsChecked = false;
   struct AddToVectorFunctor;
 };
+
+/// \brief Class to read \c ArrayGTCCoordinates objects.
+struct ArrayGTCCoordinates : public ArrayBase
+{
+  /// Overridden to handle ArrayXGCCoordinates specific items.
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
+
+  /// Reads and returns array handles.
+  std::vector<vtkm::cont::VariantArrayHandle> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections) override;
+
+  /// Returns the number of blocks in the underlying variable.
+  /// Used by the reader to provide meta-data on blocks.
+  /// Uses the number of blocks in the first (x) array.
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources) override;
+
+private:
+  bool IsCached = false;
+  vtkm::cont::VariantArrayHandle CachedCoords;
+
+  std::unique_ptr<ArrayBasic> XArray = nullptr;
+  std::unique_ptr<ArrayBasic> YArray = nullptr;
+  std::unique_ptr<ArrayBasic> ZArray = nullptr;
+};
+
+/// \brief Class to read \c ArrayGTCField objects.
+struct ArrayGTCField : public ArrayBase
+{
+  /// Reads and returns array handles.
+  std::vector<vtkm::cont::VariantArrayHandle> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections) override;
+
+  /// Returns the number of blocks in the underlying variable.
+  /// Used by the reader to provide meta-data on blocks.
+  /// For GTC, there are always only 1 block.
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
+                           DataSourcesType&) override
+  {
+    return 1;
+  }
+};
+
+
 }
 }
 

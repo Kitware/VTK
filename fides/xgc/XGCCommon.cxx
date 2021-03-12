@@ -11,9 +11,7 @@
 #include <fides/DataModel.h>
 #include <fides/Value.h>
 #include <fides/xgc/XGCCommon.h>
-#include <fides/xgc/ArrayHandleXGCField.h>
 
-#include <vtkm/cont/ArrayHandleExtrudeCoords.h>
 #include <vtkm/cont/VariantArrayHandle.h>
 
 namespace fides
@@ -28,18 +26,17 @@ class XGCCommon::XGCCommonImpl
   /// This functor handles setting a scalar value
   struct SetScalarValueFunctor
   {
-    template<typename T, typename S>
-    VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array,
-      vtkm::Id& value) const
+    template <typename T, typename S>
+    VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array, vtkm::Id& value) const
     {
       value = static_cast<vtkm::Id>(array.ReadPortal().Get(0));
     }
   };
 
   vtkm::Id ReadScalar(std::string varName,
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources,
-    std::shared_ptr<Value> numPlanesValue)
+                      const std::unordered_map<std::string, std::string>& paths,
+                      DataSourcesType& sources,
+                      std::shared_ptr<Value> numPlanesValue)
   {
     // Since we're reading a scalar value from ADIOS, it should be immediately available,
     // regardless of using sync or deferred Gets.
@@ -58,8 +55,7 @@ class XGCCommon::XGCCommonImpl
     }
 
     vtkm::Id value;
-    valAH.ResetTypes(vtkm::TypeListScalarAll()).CastAndCall(
-      SetScalarValueFunctor(), value);
+    valAH.ResetTypes(vtkm::TypeListScalarAll()).CastAndCall(SetScalarValueFunctor(), value);
     return value;
   }
 
@@ -70,19 +66,17 @@ class XGCCommon::XGCCommonImpl
   }
 
   // block id -> pair(plane id start, num planes in block)
-  std::unordered_map<size_t, std::pair<vtkm::Id, vtkm::Id> > PlaneMapping;
+  std::unordered_map<size_t, std::pair<vtkm::Id, vtkm::Id>> PlaneMapping;
   size_t NumberOfBlocks = 0;
   bool PlanesMapped = false;
   vtkm::Id NumberOfPlanes = -1;
 
 public:
-  vtkm::Id GetNumberOfPlanes(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources,
-    std::shared_ptr<Value> numPlanesValue)
+  vtkm::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                             DataSourcesType& sources,
+                             std::shared_ptr<Value> numPlanesValue)
   {
-    this->NumberOfPlanes = this->ReadScalar(
-      "number_of_planes", paths, sources, numPlanesValue);
+    this->NumberOfPlanes = this->ReadScalar("number_of_planes", paths, sources, numPlanesValue);
     return this->NumberOfPlanes;
   }
 
@@ -127,8 +121,9 @@ public:
 
   // need to determine a plane to block mapping, then when the user does a block
   // selection, we use this mapping to determine which planes (adios blocks) to read
-  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t> >
-    GetXGCBlockInfo(const std::vector<size_t>& userBlocks, bool getPlaneSelection)
+  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>> GetXGCBlockInfo(
+    const std::vector<size_t>& userBlocks,
+    bool getPlaneSelection)
   {
     std::vector<XGCBlockInfo> allBlocks;
     fides::metadata::Set<size_t> planesToRead;
@@ -144,7 +139,8 @@ public:
         if (getPlaneSelection)
         {
           for (vtkm::Id i = blockInfo.PlaneStartId;
-              i < blockInfo.PlaneStartId + blockInfo.NumberOfPlanesOwned; ++i)
+               i < blockInfo.PlaneStartId + blockInfo.NumberOfPlanesOwned;
+               ++i)
           {
             vtkm::Id planeId = i;
             if (planeId == this->NumberOfPlanes)
@@ -166,21 +162,23 @@ public:
     if (!this->PlanesMapped)
     {
       throw std::runtime_error("Requesting number of blocks when XGC planes haven't"
-        " been mapped to blocks yet.");
+                               " been mapped to blocks yet.");
     }
     return this->NumberOfBlocks;
   }
 };
 
-XGCCommon::XGCCommon() : Impl(new XGCCommonImpl()) {}
+XGCCommon::XGCCommon()
+  : Impl(new XGCCommonImpl())
+{
+}
 
 XGCCommon::~XGCCommon() = default;
 
 std::shared_ptr<Value> XGCCommon::NumberOfPlanes = nullptr;
 vtkm::Id XGCCommon::PlanesPerUserBlock = 8;
 
-void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes,
-  DataSourcesType& sources)
+void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourcesType& sources)
 {
   if (!nPlanes.IsObject())
   {
@@ -197,9 +195,8 @@ void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes,
   }
 }
 
-vtkm::Id XGCCommon::GetNumberOfPlanes(
-  const std::unordered_map<std::string, std::string>& paths,
-  DataSourcesType& sources)
+vtkm::Id XGCCommon::GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                                      DataSourcesType& sources)
 {
   vtkm::Id numberOfPlanes = this->Impl->GetNumberOfPlanes(paths, sources, NumberOfPlanes);
   this->Impl->MapPlanesToBlocks(PlanesPerUserBlock);
@@ -224,8 +221,8 @@ std::vector<XGCBlockInfo> XGCCommon::GetXGCBlockInfo(const std::vector<size_t>& 
   return this->Impl->GetXGCBlockInfo(userBlocks, false).first;
 }
 
-std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t> >
-  XGCCommon::GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks)
+std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>>
+XGCCommon::GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks)
 {
   if (userBlocks.empty())
   {

@@ -15,8 +15,7 @@ namespace fides
 namespace datamodel
 {
 
-void FieldDataManager::AddField(const std::string& name,
-  FieldData array)
+void FieldDataManager::AddField(const std::string& name, FieldData array)
 {
   auto rc = this->Data.insert(std::make_pair(name, array));
   if (!rc.second)

@@ -5,6 +5,7 @@ set(srcs
   CoordinateSystem.cxx
   DataModel.cxx
   DataSetReader.cxx
+  DataSetWriter.cxx
   DataSource.cxx
   Field.cxx
   FieldData.cxx
@@ -21,6 +22,7 @@ set(headers
   CoordinateSystem.h
   DataModel.h
   DataSetReader.h
+  DataSetWriter.h
   DataSource.h
   Field.h
   FieldData.h

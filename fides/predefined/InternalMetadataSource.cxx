@@ -19,7 +19,7 @@ namespace detail
 {
 
 std::string ReadSingleValue(std::shared_ptr<fides::io::DataSource> source,
-  const std::string& attrName)
+                            const std::string& attrName)
 {
   if (source->GetAttributeType(attrName) != "string")
   {
@@ -28,8 +28,8 @@ std::string ReadSingleValue(std::shared_ptr<fides::io::DataSource> source,
   auto attr = source->ReadAttribute<std::string>(attrName);
   if (attr.size() != 1)
   {
-    throw std::runtime_error("Fides was not able to read " + attrName +
-      " from file " + source->FileName);
+    throw std::runtime_error("Fides was not able to read " + attrName + " from file " +
+                             source->FileName);
   }
   return attr[0];
 }
