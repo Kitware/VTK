@@ -858,7 +858,7 @@ void vtkScalarBarActor::DrawBoxes()
   AddBox(pts, lines, this->P->ScalarBarBox, this->P->TL);
   AddBox(pts, lines, this->P->NanBox, this->P->TL);
   AddBox(pts, lines, this->P->TitleBox, this->P->TL);
-  if (this->NumberOfLabels > 0)
+  if (this->NumberOfLabelsBuilt > 0)
   {
     AddBox(pts, lines, this->P->TickBox, this->P->TL);
   }
@@ -1222,14 +1222,14 @@ void vtkScalarBarActor::LayoutTicks()
   const double* range = this->LookupTable->GetRange();
   char string[512];
   double val, rng, offset;
-  int i, NumberOfLabels;
+  int i;
   if (this->UseCustomLabels)
   {
-    NumberOfLabels = this->CustomLabels->GetNumberOfTuples();
+    this->NumberOfLabelsBuilt = this->CustomLabels->GetNumberOfTuples();
   }
   else
   {
-    NumberOfLabels = this->NumberOfLabels;
+    this->NumberOfLabelsBuilt = this->NumberOfLabels;
   }
 
   // TODO: this should be optimized, maybe by keeping a list of
@@ -1237,8 +1237,8 @@ void vtkScalarBarActor::LayoutTicks()
   // their underlying text properties (i.e. each time a mapper is
   // created, text properties are created and shallow-assigned a font size
   // which value might be "far" from the target font size).
-  this->P->TextActors.resize(NumberOfLabels);
-  this->P->TextActorAnchors.resize(NumberOfLabels);
+  this->P->TextActors.resize(this->NumberOfLabelsBuilt);
+  this->P->TextActorAnchors.resize(this->NumberOfLabelsBuilt);
 
   // Does this map have its scale set to log?
   int isLogTable = this->LookupTable->UsingLogScale();
@@ -1252,7 +1252,7 @@ void vtkScalarBarActor::LayoutTicks()
     offset = range[0];
     rng = range[1] - offset;
   }
-  for (i = 0; i < NumberOfLabels; i++)
+  for (i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     this->P->TextActors[i].TakeReference(vtkTextActor::New());
     // Get or compute the actual data value and its normalized position
@@ -1288,9 +1288,9 @@ void vtkScalarBarActor::LayoutTicks()
     }
     else
     {
-      if (NumberOfLabels > 1)
+      if (this->NumberOfLabelsBuilt > 1)
       {
-        val = static_cast<double>(i) / (NumberOfLabels - 1);
+        val = static_cast<double>(i) / (this->NumberOfLabelsBuilt - 1);
       }
       else
       {
@@ -1320,7 +1320,7 @@ void vtkScalarBarActor::LayoutTicks()
       this->PositionCoordinate);
   }
 
-  if (NumberOfLabels)
+  if (this->NumberOfLabelsBuilt > 0)
   {
     int labelSize[2];
     labelSize[0] = labelSize[1] = 0;
@@ -1364,7 +1364,8 @@ void vtkScalarBarActor::LayoutTicks()
 
       targetWidth = this->P->TickBox.Size[0];
       targetHeight = static_cast<int>(
-        (this->P->TickBox.Size[1] - this->TextPad * (NumberOfLabels - 1)) / NumberOfLabels);
+        (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
+        this->NumberOfLabelsBuilt);
     }
     else
     { // NB. Size[1] = width, Size[0] = height
@@ -1384,14 +1385,15 @@ void vtkScalarBarActor::LayoutTicks()
         this->P->TickBox.Posn[1] += this->P->ScalarBarBox.Size[0];
       }
       targetWidth = static_cast<int>(
-        (this->P->TickBox.Size[1] - this->TextPad * (NumberOfLabels - 1)) / NumberOfLabels);
+        (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
+        this->NumberOfLabelsBuilt);
       targetHeight = this->P->TickBox.Size[0];
     }
 
     if (!this->UnconstrainedFontSize)
     {
       vtkTextActor::SetMultipleConstrainedFontSize(this->P->Viewport, targetWidth, targetHeight,
-        this->P->TextActors.PointerArray(), NumberOfLabels, labelSize);
+        this->P->TextActors.PointerArray(), this->NumberOfLabelsBuilt, labelSize);
     }
 
     // Now adjust scalar bar size by the half-size of the first and last ticks
@@ -1411,7 +1413,6 @@ void vtkScalarBarActor::LayoutTicks()
       this->P->TickBox.Size[1] -= this->TextPad;
     }
   }
-  NumberOfLabelsBuilt = NumberOfLabels;
 }
 
 //------------------------------------------------------------------------------
