@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.3 with the flags below.
+// at least on macOS with cppcheck 2.4 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -646,6 +646,12 @@ nullPointerArithmeticRedundantCheck:*/Wrapping/Tools/vtkParse.tab.c
 
 // False positive: Either the condition 'm+1>outputsize' is redundant or the array 'output[16]' is accessed at index 16, which is out of bounds.
 arrayIndexOutOfBoundsCond:*/Wrapping/Tools/vtkParsePreprocess.c
+
+// False positives
+knownConditionTrueFalse:*/Wrapping/Tools/vtkWrapJava.c
+knownConditionTrueFalse:*/Wrapping/Tools/vtkParseJava.c
+objectIndex:*/Wrapping/Tools/vtkParsePreprocess.c
+objectIndex:*/Wrapping/Tools/vtkParseMain.c
 
 // Not technically false positives, but there's no bug here and no clear way to rework the code in a better way
 constArgument:*/Wrapping/Tools/vtkParsePreprocess.c
