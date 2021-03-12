@@ -28,14 +28,9 @@
 #if VTK_MODULE_USE_EXTERNAL_vtklibproj
 # if VTK_LibPROJ_MAJOR_VERSION >= 5
 #  include <proj.h>
-# endif
-# if VTK_LibPROJ_MAJOR_VERSION < 6
+# else
 #  include <projects.h>
 # endif
-# if VTK_LibPROJ_MAJOR_VERSION >= 6
-#  define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H 1
-# endif
-# include <proj_api.h>
 # include <geodesic.h>
 #else
 # include <vtklibproj/src/projects.h>

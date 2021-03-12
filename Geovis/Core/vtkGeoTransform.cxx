@@ -163,8 +163,12 @@ void vtkGeoTransform::InternalTransformPoints(double* x, vtkIdType numPts, int s
   projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : nullptr;
   projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : nullptr;
   int delta = stride - 2;
+#if PROJ_VERSION_MAJOR >= 5
+  PJ_COORD c, c_out;
+#else
   projLP lp;
   projXY xy;
+#endif
   if (src)
   {
     // Convert from src system to lat/long using inverse of src transform
@@ -172,17 +176,15 @@ void vtkGeoTransform::InternalTransformPoints(double* x, vtkIdType numPts, int s
     for (vtkIdType i = 0; i < numPts; ++i)
     {
 #if PROJ_VERSION_MAJOR >= 5
-      xy.x = coord[0];
-      xy.y = coord[1];
+      c.xy.x = coord[0];
+      c.xy.y = coord[1];
+      c_out = proj_trans(src, PJ_INV, c);
+      coord[0] = c_out.lp.lam;
+      coord[1] = c_out.lp.phi;
 #else
       xy.u = coord[0];
       xy.v = coord[1];
-#endif
       lp = pj_inv(xy, src);
-#if PROJ_VERSION_MAJOR >= 5
-      coord[0] = lp.lam;
-      coord[1] = lp.phi;
-#else
       coord[0] = lp.u;
       coord[1] = lp.v;
 #endif
@@ -208,17 +210,15 @@ void vtkGeoTransform::InternalTransformPoints(double* x, vtkIdType numPts, int s
     for (vtkIdType i = 0; i < numPts; ++i)
     {
 #if PROJ_VERSION_MAJOR >= 5
-      lp.lam = coord[0];
-      lp.phi = coord[1];
+      c.lp.lam = coord[0];
+      c.lp.phi = coord[1];
+      c_out = proj_trans(src, PJ_FWD, c);
+      coord[0] = c_out.xy.x;
+      coord[1] = c_out.xy.y;
 #else
       lp.u = coord[0];
       lp.v = coord[1];
-#endif
       xy = pj_fwd(lp, dst);
-#if PROJ_VERSION_MAJOR >= 5
-      coord[0] = xy.x;
-      coord[1] = xy.y;
-#else
       coord[0] = xy.u;
       coord[1] = xy.v;
 #endif
