@@ -19,6 +19,7 @@
 #include "QVTKInteractor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderWindowInteractor.h"
 
 // Qt includes
@@ -34,14 +35,18 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
 
-  this->setRenderWindow(vtkGenericOpenGLRenderWindow::New());
+  vtkNew<vtkGenericOpenGLRenderWindow> renWin;
+  this->setRenderWindow(renWin);
   this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderWindow::handleWindowChanged);
 }
 
 //-------------------------------------------------------------------------------------------------
-QQuickVTKRenderWindow::~QQuickVTKRenderWindow() {}
+QQuickVTKRenderWindow::~QQuickVTKRenderWindow()
+{
+  this->m_renderWindow = nullptr;
+}
 
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderWindow::sync()
@@ -51,20 +56,13 @@ void QQuickVTKRenderWindow::sync()
     return;
   }
 
+  if (!this->m_renderWindow)
+  {
+    return;
+  }
+
   QSize windowSize = window()->size() * window()->devicePixelRatio();
   this->m_renderWindow->SetSize(windowSize.width(), windowSize.height());
-
-  //  QRectF rect(this->position().x(), this->position().y(), this->width(), this->height());
-  //  rect = mapRectToScene(rect);
-  //  this->m_renderWindow->SetPosition(rect.topRight().x(), rect.bottomLeft().y());
-  //  this->m_renderWindow->SetSize(rect.width(), rect.height());
-  // this->m_renderWindow->SetSize(this->width(), this->height());
-  // this->m_renderWindow->SetPosition(this->position().x(), this->position().y());
-
-  //// Explicitly set the viewport for each render
-  // QRectF rect(0, 0, this->width(), this->height());
-  // rect = mapRectToScene(rect);
-  // this->setViewport(rect);
 
   m_interactorAdapter->ProcessEvents(this->m_renderWindow->GetInteractor());
 }
@@ -77,11 +75,16 @@ void QQuickVTKRenderWindow::paint()
     return;
   }
 
-  // no render window set, just fill with white.
-  //    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-  //    f->glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-  //    f->glClear(GL_COLOR_BUFFER_BIT);
-  if (!m_initialized)
+  if (!this->m_renderWindow)
+  {
+    // no render window set, just fill with white.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+
+  if (!this->m_initialized)
   {
     initializeOpenGLFunctions();
     vtkRenderWindowInteractor* interactor = this->m_renderWindow->GetInteractor();
@@ -89,24 +92,40 @@ void QQuickVTKRenderWindow::paint()
     this->m_renderWindow->SetMapped(1);
     this->m_renderWindow->SetIsCurrent(1);
 
+    // Since the context is being setup, call OpenGLInitContext
+    this->m_renderWindow->SetForceMaximumHardwareLineWidth(1);
+    this->m_renderWindow->SetReadyForRendering(true);
+    this->m_renderWindow->SetOwnContext(0);
+    this->m_renderWindow->OpenGLInitContext();
+
     m_initialized = true;
   }
 
-  glUseProgram(0);
-  this->m_renderWindow->OpenGLInit();
-  //   QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
-  //    // QOpenGLExtraFunctions* f = this->Context->extraFunctions();
-  //    f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  //    const GLenum bufs[1] = { static_cast<GLenum>(GL_COLOR_ATTACHMENT0) };
-  //    f->glDrawBuffers(1, bufs);
-  //    this->m_renderWindow->BlitDisplayFramebuffer(0 ? 0 : 1, 0, 0, 200, 200,
-  //      100, 250, 200, 100, GL_COLOR_BUFFER_BIT,
-  //      GL_LINEAR);
-  this->m_renderWindow->Render();
+  auto ostate = this->m_renderWindow->GetState();
+  ostate->Reset();
+  ostate->Push();
+  // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
+  ostate->vtkglDepthFunc(GL_LEQUAL);
+
+  if (auto iren = this->m_renderWindow->GetInteractor())
+  {
+    iren->Render();
+  }
+  else
+  {
+    this->m_renderWindow->Render();
+  }
+  ostate->Pop();
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::cleanup() {}
+void QQuickVTKRenderWindow::cleanup()
+{
+  if (this->m_renderWindow)
+  {
+    this->m_renderWindow->ReleaseGraphicsResources(this->m_renderWindow);
+  }
+}
 
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
@@ -147,6 +166,8 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
 
   if (this->m_renderWindow)
   {
+    this->m_renderWindow->SetReadyForRendering(false);
+    this->m_renderWindow->SetFrameBlitModeToBlitToHardware();
     vtkNew<QVTKInteractor> iren;
     iren->SetRenderWindow(this->m_renderWindow);
 

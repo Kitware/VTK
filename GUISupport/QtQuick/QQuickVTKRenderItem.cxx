@@ -75,7 +75,7 @@ void QQuickVTKRenderItem::setRenderWindow(QQuickVTKRenderWindow* w)
   }
 
   this->m_renderWindow = w;
-  if (this->m_renderWindow)
+  if (this->m_renderWindow && this->m_renderWindow->renderWindow())
   {
     this->m_renderWindow->renderWindow()->AddRenderer(this->m_renderer);
   }
@@ -145,6 +145,7 @@ void QQuickVTKRenderItem::cleanup()
     return;
   }
 
+  this->m_renderer->ReleaseGraphicsResources(this->m_renderWindow->renderWindow());
   // Forward the cleanup call to the window
   this->m_renderWindow->cleanup();
 }
