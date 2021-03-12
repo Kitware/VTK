@@ -7880,25 +7880,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   }
   this->BoundaryPointMap = new vtkFoamLabelArrayVector;
 
-  vtkNew<vtkIdTypeArray> nBoundaryPointsList;
-  nBoundaryPointsList->SetNumberOfValues(nBoundaries);
-
-  // Count the number of points (with duplicates) on boundary patch
-  for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
-  {
-    const vtkFoamPatch& patch = patches[patchi];
-    const vtkIdType startFace = patch.startFace();
-    const vtkIdType endFace = patch.endFace();
-
-    vtkIdType nPoints = 0;
-    for (vtkIdType facei = startFace; facei < endFace; ++facei)
-    {
-      vtkIdType nFacePoints = meshFaces.GetSize(facei);
-      nPoints += nFacePoints;
-    }
-    nBoundaryPointsList->SetValue(patchi, nPoints);
-  }
-
   // Use same integer width as per faces
   const bool meshPoints64Bit = meshFaces.IsLabel64();
 
@@ -7943,7 +7924,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
 
   if (this->Parent->GetCreateCellToPoint())
   {
-    // Create global to AllBounaries point map
+    // Create global to AllBoundaries point map
     for (vtkIdType pointi = 0; pointi < this->NumPoints; ++pointi)
     {
       if (GetLabelValue(this->InternalPoints, pointi, meshPoints64Bit) == 0)
@@ -8017,34 +7998,9 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     // Create the boundary patch mesh
     vtkNew<vtkPolyData> bm;
     ::AppendBlock(boundaryMesh, bm, patch.name_);
-
     bm->AllocateEstimate(nFaces, 1);
-    const vtkIdType nBoundaryPoints = nBoundaryPointsList->GetValue(patchi);
 
-    // create global to boundary-local point map and boundary points
-
-    vtkDataArray* boundaryPointList;
-    if (meshPoints64Bit)
-    {
-      boundaryPointList = vtkTypeInt64Array::New();
-    }
-    else
-    {
-      boundaryPointList = vtkTypeInt32Array::New();
-    }
-    boundaryPointList->SetNumberOfValues(nBoundaryPoints);
-    vtkIdType pointi = 0;
-    for (vtkIdType facei = startFace; facei < endFace; ++facei)
-    {
-      const vtkIdType nFacePoints = meshFaces.GetSize(facei);
-      for (int fp = 0; fp < nFacePoints; ++fp)
-      {
-        SetLabelValue(boundaryPointList, pointi, meshFaces.GetValue(facei, fp), meshPoints64Bit);
-        ++pointi;
-      }
-    }
-    vtkSortDataArray::Sort(boundaryPointList);
-
+    // Local to global point index mapping
     vtkDataArray* bpMap;
     if (meshPoints64Bit)
     {
@@ -8055,22 +8011,43 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       bpMap = vtkTypeInt32Array::New();
     }
     this->BoundaryPointMap->push_back(bpMap);
+
+    // The point locations for the boundary
     vtkNew<vtkFloatArray> boundaryPointArray;
     boundaryPointArray->SetNumberOfComponents(3);
-    vtkIdType oldPointJ = -1;
-    for (int j = 0; j < nBoundaryPoints; j++)
+
+    // In OpenFOAM-1.5 and earlier, meshPoints were in increasing order
+    // but this gave problems in processor point synchronisation.
+    // - now uses the order in which faces are visited
+
+    // Visit order
+    // - normally with unordered_map to create a global to local map.
+    //   However, we later use LookupValue() method on a regular list,
+    //   so unordered_set is sufficient
     {
-      vtkTypeInt64 pointJ = GetLabelValue(boundaryPointList, j, meshPoints64Bit);
-      if (pointJ != oldPointJ)
+      // A global to local map for marking points
+      std::unordered_set<vtkTypeInt64> markedPoints;
+
+      vtkFoamLabelListList::CellType face;
+      for (vtkIdType facei = startFace; facei < endFace; ++facei)
       {
-        oldPointJ = pointJ;
-        boundaryPointArray->InsertNextTuple(pointArray->GetPointer(3 * pointJ));
-        AppendLabelValue(bpMap, pointJ, meshPoints64Bit);
+        meshFaces.GetCell(facei, face);
+
+        for (const auto meshPointi : face)
+        {
+          auto insertion = markedPoints.emplace(meshPointi);
+          if (insertion.second)
+          {
+            // A previously unvisited point
+            boundaryPointArray->InsertNextTuple(pointArray->GetPointer(3 * meshPointi));
+            AppendLabelValue(bpMap, meshPointi, meshPoints64Bit);
+          }
+        }
       }
     }
-    boundaryPointArray->Squeeze();
     bpMap->Squeeze();
-    boundaryPointList->Delete();
+    boundaryPointArray->Squeeze();
+
     vtkNew<vtkPoints> boundaryPoints;
     boundaryPoints->SetData(boundaryPointArray);
 
@@ -8226,7 +8203,10 @@ bool vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
   {
     if (patches.isActive(patch.index_))
     {
+      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
+      ++activeBoundaryIndex;
+
       const vtkIdType nBoundaryPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
@@ -8241,10 +8221,7 @@ bool vtkOpenFOAMReaderPrivate::MoveBoundaryMesh(
       vtkNew<vtkPoints> boundaryPoints;
       boundaryPoints->SetData(boundaryPointArray);
 
-      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       bm->SetPoints(boundaryPoints);
-
-      ++activeBoundaryIndex;
     }
   }
 
@@ -9013,6 +8990,8 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       if (patches.isActive(patch.index_))
       {
         auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
+        ++activeBoundaryIndex;
+
         ::AddArrayToFieldData(bm->GetCellData(), vData, io.GetObjectName(), dimString);
 
         if (this->Parent->GetCreateCellToPoint())
@@ -9029,8 +9008,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
           this->InterpolateCellToPoint(pData, vData, bm, nullptr, nPoints);
           ::AddArrayToFieldData(bm->GetPointData(), pData, io.GetObjectName(), dimString);
         }
-
-        ++activeBoundaryIndex;
       }
     }
 
@@ -9296,7 +9273,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   {
     if (patches.isActive(patch.index_))
     {
+      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       vtkDataArray* bpMap = this->BoundaryPointMap->operator[](activeBoundaryIndex);
+      ++activeBoundaryIndex;
+
       const vtkIdType nPoints = bpMap->GetNumberOfTuples();
       const bool meshPoints64Bit = ::Is64BitArray(bpMap);
 
@@ -9359,10 +9339,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
         }
       }
 
-      auto* bm = vtkPolyData::SafeDownCast(boundaryMesh->GetBlock(activeBoundaryIndex));
       ::AddArrayToFieldData(bm->GetPointData(), vData, io.GetObjectName(), dimString);
-
-      ++activeBoundaryIndex;
     }
   }
 
