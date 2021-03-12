@@ -40,6 +40,9 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderWindow::handleWindowChanged);
+
+  // Set a standard object name
+  this->setObjectName("QQuickVTKRenderWindow");
 }
 
 //-------------------------------------------------------------------------------------------------

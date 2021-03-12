@@ -54,6 +54,11 @@ public:
   virtual void setRenderWindow(QQuickVTKRenderWindow* w);
   //@}
 
+  /**
+   * Get access to the renderer
+   */
+  vtkRenderer* renderer() const;
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
@@ -65,13 +70,12 @@ protected Q_SLOTS:
 protected:
   // Helper members
   QQuickVTKRenderWindow* m_renderWindow = nullptr;
+  vtkNew<vtkRenderer> m_renderer;
 
   /**
    * Set the viewport for this item
    */
   virtual void setViewport(const QRectF& rect);
-
-  vtkNew<vtkRenderer> m_renderer;
 
   // Event handlers
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;

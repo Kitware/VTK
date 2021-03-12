@@ -20,10 +20,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-#include "vtkActor.h"
-#include "vtkConeSource.h"
-#include "vtkPolyDataMapper.h"
-
 // Qt includes
 #include <QQuickWindow>
 
@@ -39,17 +35,6 @@ QQuickVTKRenderItem::QQuickVTKRenderItem(QQuickItem* parent)
 
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderItem::handleWindowChanged);
-
-  vtkNew<vtkActor> actor;
-  vtkNew<vtkPolyDataMapper> mapper;
-  vtkNew<vtkConeSource> cone;
-  mapper->SetInputConnection(cone->GetOutputPort());
-  actor->SetMapper(mapper);
-  this->m_renderer->AddActor(actor);
-  this->m_renderer->ResetCamera();
-  this->m_renderer->SetBackground(0.5, 0.5, 0.7);
-  this->m_renderer->SetBackground2(0.7, 0.7, 0.7);
-  this->m_renderer->SetGradientBackground(true);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -81,6 +66,12 @@ void QQuickVTKRenderItem::setRenderWindow(QQuickVTKRenderWindow* w)
   }
 
   this->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkRenderer* QQuickVTKRenderItem::renderer() const
+{
+  return this->m_renderer;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -172,6 +163,7 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
     QObject::connect(w, &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderItem::cleanup,
       Qt::DirectConnection);
   }
+  this->update();
 }
 
 //-------------------------------------------------------------------------------------------------

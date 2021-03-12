@@ -60,6 +60,7 @@ ApplicationWindow {
   }
 
   VTKRenderItem {
+    objectName: "ConeView"
     x: 200
     y: 200
     width: 200
