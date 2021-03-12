@@ -1173,7 +1173,8 @@ private:
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
 
   void InsertFacesToGrid(vtkPolyData*, const vtkFoamLabelListList& meshFaces, vtkIdType startFace,
-    vtkIdType endFace, vtkDataArray*, vtkIdList*, vtkIdList* faceLabels, bool isLookupValue);
+    vtkIdType endFace, vtkIdList* faceLabels = nullptr, vtkDataArray* pointMap = nullptr,
+    bool isLookupValue = false);
 
   vtkMultiBlockDataSet* MakeBoundaryMesh(
     const vtkFoamLabelListList& meshFaces, vtkFloatArray* pointArray);
@@ -7789,16 +7790,18 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
 }
 
 //------------------------------------------------------------------------------
-// insert faces to grid
+// Insert faces to grid
 void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
   const vtkFoamLabelListList& meshFaces, vtkIdType startFace, vtkIdType endFace,
-  vtkDataArray* boundaryPointMap, vtkIdList* facePointsVtkId, vtkIdList* faceLabels,
-  bool isLookupValue)
+  vtkIdList* faceLabels, vtkDataArray* pointMap, bool isLookupValue)
 {
   vtkPolyData& bm = *boundaryMesh;
 
   // Limits
   const vtkIdType maxLabels = this->FaceOwner->GetNumberOfTuples(); // NumFaces
+
+  // A per-face scratch array for vtkIdType ids.
+  vtkFoamStackVector<vtkIdType, 64> facePointIds;
 
   for (vtkIdType facei = startFace; facei < endFace; ++facei)
   {
@@ -7814,52 +7817,38 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
       }
     }
 
-    const vtkIdType nFacePoints = meshFaces.GetSize(faceId);
+    const int nFacePoints = static_cast<int>(meshFaces.GetSize(faceId));
+    facePointIds.resize(nFacePoints);
 
     if (isLookupValue)
     {
-      for (vtkIdType fp = 0; fp < nFacePoints; ++fp)
+      for (int fp = 0; fp < nFacePoints; ++fp)
       {
-        const auto pointId = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
-        facePointsVtkId->SetId(fp, boundaryPointMap->LookupValue(pointId));
+        const auto meshPointi = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
+        facePointIds[fp] = pointMap->LookupValue(meshPointi);
+      }
+    }
+    else if (pointMap)
+    {
+      const bool pointMap64Bit = ::Is64BitArray(pointMap); // null-safe
+      for (int fp = 0; fp < nFacePoints; ++fp)
+      {
+        const auto meshPointi = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
+        facePointIds[fp] = GetLabelValue(pointMap, meshPointi, pointMap64Bit);
       }
     }
     else
     {
-      if (boundaryPointMap)
+      for (int fp = 0; fp < nFacePoints; ++fp)
       {
-        const bool bpMap64Bit = ::Is64BitArray(boundaryPointMap); // null-safe
-        for (vtkIdType fp = 0; fp < nFacePoints; ++fp)
-        {
-          const auto pointId = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
-          facePointsVtkId->SetId(fp, GetLabelValue(boundaryPointMap, pointId, bpMap64Bit));
-        }
-      }
-      else
-      {
-        for (vtkIdType fp = 0; fp < nFacePoints; ++fp)
-        {
-          const auto pointId = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
-          facePointsVtkId->SetId(fp, pointId);
-        }
+        const auto meshPointi = static_cast<vtkIdType>(meshFaces.GetValue(faceId, fp));
+        facePointIds[fp] = meshPointi;
       }
     }
 
-    if (nFacePoints == 3)
-    {
-      // Triangle
-      bm.InsertNextCell(VTK_TRIANGLE, 3, facePointsVtkId->GetPointer(0));
-    }
-    else if (nFacePoints == 4)
-    {
-      // Quad
-      bm.InsertNextCell(VTK_QUAD, 4, facePointsVtkId->GetPointer(0));
-    }
-    else
-    {
-      // Polygon
-      bm.InsertNextCell(VTK_POLYGON, static_cast<int>(nFacePoints), facePointsVtkId->GetPointer(0));
-    }
+    const int vtkFaceType =
+      (nFacePoints == 3 ? VTK_TRIANGLE : nFacePoints == 4 ? VTK_QUAD : VTK_POLYGON);
+    bm.InsertNextCell(vtkFaceType, nFacePoints, facePointIds.data());
   }
 }
 
@@ -7894,9 +7883,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
   vtkNew<vtkIdTypeArray> nBoundaryPointsList;
   nBoundaryPointsList->SetNumberOfValues(nBoundaries);
 
-  // count the max number of points per face and the number of points
-  // (with duplicates) in mesh
-  vtkIdType maxNFacePoints = 0;
+  // Count the number of points (with duplicates) on boundary patch
   for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
   {
     const vtkFoamPatch& patch = patches[patchi];
@@ -7908,10 +7895,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     {
       vtkIdType nFacePoints = meshFaces.GetSize(facei);
       nPoints += nFacePoints;
-      if (maxNFacePoints < nFacePoints)
-      {
-        maxNFacePoints = nFacePoints;
-      }
     }
     nBoundaryPointsList->SetValue(patchi, nPoints);
   }
@@ -7980,10 +7963,6 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     }
   }
 
-  // A per-face scratch array
-  vtkNew<vtkIdList> facePointsVtkId;
-  facePointsVtkId->SetNumberOfIds(maxNFacePoints);
-
   for (vtkIdType patchi = 0; patchi < nBoundaries; ++patchi)
   {
     const vtkFoamPatch& patch = patches[patchi];
@@ -7995,8 +7974,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       (patch.type_ == vtkFoamPatch::PHYSICAL || patch.type_ == vtkFoamPatch::PROCESSOR))
     {
       // Add faces to AllBoundaries
-      this->InsertFacesToGrid(this->AllBoundaries, meshFaces, startFace, endFace,
-        this->InternalPoints, facePointsVtkId, nullptr, false);
+      this->InsertFacesToGrid(
+        this->AllBoundaries, meshFaces, startFace, endFace, nullptr, this->InternalPoints, false);
 
       if (!this->ProcessorName.empty())
       {
@@ -8098,9 +8077,8 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     // Set points for boundary
     bm->SetPoints(boundaryPoints);
 
-    // insert faces to boundary mesh
-    this->InsertFacesToGrid(
-      bm, meshFaces, startFace, endFace, bpMap, facePointsVtkId, nullptr, true);
+    // Insert faces to boundary mesh
+    this->InsertFacesToGrid(bm, meshFaces, startFace, endFace, nullptr, bpMap, true);
     bpMap->ClearLookup();
   }
 
@@ -9822,9 +9800,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
   const bool ignoreProcNeighbour = !this->ProcessorName.empty();
   const vtkIdType nInternalFaces = this->NumInternalFaces;
 
-  // Size for per-face scratch array
-  vtkIdType maxNFacePoints = 16;
-
   for (unsigned zonei = 0; zonei < nZones; ++zonei)
   {
     const std::string& zoneName = zones[zonei]->GetKeyword();
@@ -9892,13 +9867,6 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
         {
           elemIds->SetId(nUsed, elemId);
           ++nUsed;
-
-          // For scratch array
-          const vtkIdType nFacePoints = meshFaces.GetSize(elemId);
-          if (maxNFacePoints < nFacePoints)
-          {
-            maxNFacePoints = nFacePoints;
-          }
         }
       }
     }
@@ -9918,16 +9886,12 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
       zoneMap.zones_[zoneName] = elemIds;
     }
 
-    // Per-face scratch array
-    vtkNew<vtkIdList> facePointsVtkId;
-    facePointsVtkId->SetNumberOfIds(maxNFacePoints);
-
     // Allocate new grid: we do not use resize() beforehand since it
     // could lead to undefined pointer if we return by error
     zm->AllocateEstimate(nUsed, 1);
 
     // Insert faces
-    this->InsertFacesToGrid(zm, meshFaces, 0, nUsed, nullptr, facePointsVtkId, elemIds, false);
+    this->InsertFacesToGrid(zm, meshFaces, 0, nUsed, elemIds);
 
     // Set points for zone
     zm->SetPoints(points);
@@ -10138,36 +10102,20 @@ bool vtkOpenFOAMReaderPrivate::GetAreaMesh(
     auto elemIds = vtkSmartPointer<vtkIdList>::New();
     elemIds->SetNumberOfIds(nLabels);
 
-    // Size for per-face scratch array
-    vtkIdType maxNFacePoints = 16;
-
     for (vtkIdType idx = 0; idx < nLabels; ++idx)
     {
       const vtkTypeInt64 elemId = GetLabelValue(labelArray, idx, use64BitLabels);
-
-      const vtkIdType nFacePoints = meshFaces.GetSize(elemId);
-      if (maxNFacePoints < nFacePoints)
-      {
-        maxNFacePoints = nFacePoints;
-      }
-
       elemIds->SetId(idx, elemId);
     }
 
     zoneMap.zones_[NAME_AREAMESH] = elemIds;
 
-    // Per-face scratch array
-    auto facePointsVtkId = vtkSmartPointer<vtkIdList>::New();
-    facePointsVtkId->SetNumberOfIds(maxNFacePoints);
-
     // Allocate new grid: we do not use resize() beforehand since it
     // could lead to undefined pointer if we return by error
-
     areaMesh->AllocateEstimate(nLabels, 1);
 
     // Insert faces
-    this->InsertFacesToGrid(
-      areaMesh, meshFaces, 0, nLabels, nullptr, facePointsVtkId, elemIds, false);
+    this->InsertFacesToGrid(areaMesh, meshFaces, 0, nLabels, elemIds);
 
     // Set points for zone
     areaMesh->SetPoints(points);
