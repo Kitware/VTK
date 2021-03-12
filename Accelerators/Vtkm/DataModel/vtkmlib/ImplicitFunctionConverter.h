@@ -20,7 +20,7 @@
 #include "vtkType.h"             // For vtkMTimeType
 #include "vtkmConfigDataModel.h" //required for general vtkm setup
 
-#include "vtkm/cont/ImplicitFunctionHandle.h"
+#include "vtkm/ImplicitFunction.h"
 
 class vtkImplicitFunction;
 
@@ -33,11 +33,11 @@ public:
   ImplicitFunctionConverter();
 
   void Set(vtkImplicitFunction*);
-  const vtkm::cont::ImplicitFunctionHandle& Get() const;
+  const vtkm::ImplicitFunctionGeneral& Get();
 
 private:
   vtkImplicitFunction* InFunction;
-  vtkm::cont::ImplicitFunctionHandle OutFunction;
+  vtkm::ImplicitFunctionGeneral OutFunction;
   mutable vtkMTimeType MTime;
 };
 

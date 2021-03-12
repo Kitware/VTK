@@ -274,18 +274,19 @@ vtkm::cont::testing::MakeTestDataSet Maker;
 void TestUniformDataSet()
 {
   auto dataset = Maker.Make3DUniformDataSet0();
-  auto coords =
-    dataset.GetCoordinateSystem().GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+  auto coords = dataset.GetCoordinateSystem()
+                  .GetData()
+                  .AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = coords.ReadPortal();
   auto dims = portal.GetDimensions();
   auto origin = portal.GetOrigin();
   auto spacing = portal.GetSpacing();
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(), "cellvar",
-    cellField);
+  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+    "cellvar", cellField);
 
   vtkNew<vtkImageData> imageData;
   imageData->SetDimensions(dims[0], dims[1], dims[2]);
@@ -315,10 +316,10 @@ void TestCurvilinearDataSet()
   CoordsCopy(dataset.GetCoordinateSystem(), points);
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(), "cellvar",
-    cellField);
+  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+    "cellvar", cellField);
 
   vtkNew<vtkStructuredGrid> dsVtk;
   dsVtk->SetDimensions(dims[0], dims[1], dims[2]);
@@ -357,10 +358,10 @@ void TestExplicitDataSet()
   }
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().Cast<vtkm::cont::ArrayHandle<float>>(), "cellvar",
-    cellField);
+  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+    "cellvar", cellField);
 
   vtkNew<vtkUnstructuredGrid> dsVtk;
   dsVtk->SetPoints(points);

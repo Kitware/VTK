@@ -24,12 +24,9 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(vtkm::c
   auto function = this->ClipFunctionConverter->Get();
 
   vtkm::cont::DataSet result;
-  if (function.GetValid())
-  {
-    vtkm::filter::ClipWithImplicitFunction functionFilter;
-    functionFilter.SetImplicitFunction(function);
-    result = functionFilter.Execute(in);
-  }
+  vtkm::filter::ClipWithImplicitFunction functionFilter;
+  functionFilter.SetImplicitFunction(function);
+  result = functionFilter.Execute(in);
 
   return result;
 }

@@ -121,7 +121,7 @@ bool Convert(
     return false;
   }
 
-  auto points = cs.GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+  auto points = cs.GetData().AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = points.ReadPortal();
 
   auto origin = portal.GetOrigin();
@@ -156,7 +156,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSe
     return false;
   }
 
-  auto points = cs.GetData().Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+  auto points = cs.GetData().AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = points.ReadPortal();
 
   auto dim = portal.GetDimensions();
