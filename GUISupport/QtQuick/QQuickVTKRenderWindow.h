@@ -14,8 +14,7 @@
 =========================================================================*/
 /**
  * @class QQuickVTKRenderWindow
- * @brief QQuickItem subclass to render a VTK scene ina QtQuick application.
- *
+ * @brief QQuickItem subclass to render a VTK scene in a QtQuick application.
  */
 
 #ifndef QQuickVTKRenderWindow_h
@@ -66,6 +65,16 @@ public:
   vtkRenderWindow* renderWindow() const;
   //@}
 
+  /**
+   * Map a Qt item rect to viewport coordinates
+   */
+  virtual void mapToViewport(const QRectF& rect, double viewport[4]);
+
+  /**
+   * Get access to the interactor adapter
+   */
+  QPointer<QQuickVTKInteractorAdapter> interactorAdapter() const;
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
@@ -81,17 +90,17 @@ protected:
 
   // Event handlers
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
-  void mousePressEvent(QMouseEvent* event) override;
-  void mouseMoveEvent(QMouseEvent* event) override;
-  void mouseReleaseEvent(QMouseEvent* event) override;
-  void wheelEvent(QWheelEvent*) override;
-  void hoverMoveEvent(QHoverEvent* event) override;
-
-  void keyPressEvent(QKeyEvent* event) override;
-  void keyReleaseEvent(QKeyEvent* event) override;
-
-  void focusInEvent(QFocusEvent*) override;
-  void focusOutEvent(QFocusEvent*) override;
+  //  void mousePressEvent(QMouseEvent* event) override;
+  //  void mouseMoveEvent(QMouseEvent* event) override;
+  //  void mouseReleaseEvent(QMouseEvent* event) override;
+  //  void wheelEvent(QWheelEvent*) override;
+  //  void hoverMoveEvent(QHoverEvent* event) override;
+  //
+  //  void keyPressEvent(QKeyEvent* event) override;
+  //  void keyReleaseEvent(QKeyEvent* event) override;
+  //
+  //  void focusInEvent(QFocusEvent*) override;
+  //  void focusOutEvent(QFocusEvent*) override;
 
   bool event(QEvent* e) override;
 

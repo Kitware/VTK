@@ -22,6 +22,7 @@
 #include "vtkTesting.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QUrl>
@@ -33,6 +34,7 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   QApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
+  qDebug() << engine.importPathList();
   engine.load(QUrl("qrc:///TestQQuickVTKRenderWindow.qml"));
 
   QObject* topLevel = engine.rootObjects().value(0);
@@ -43,9 +45,11 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
 
-  //  vtkNew<vtkGenericOpenGLRenderWindow> renWin;
-  //  renWin->Render();
-  //  vtktesting->SetRenderWindow(renWin);
+  return app.exec();
+
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->Render();
+  vtktesting->SetRenderWindow(renWin);
 
   int retVal = vtktesting->RegressionTest(10);
   switch (retVal)

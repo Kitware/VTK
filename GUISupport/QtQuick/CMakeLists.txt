@@ -1,13 +1,15 @@
 set(classes
-  QQuickVTKRenderWindow
-  QQuickVTKInteractorAdapter
   QQmlVTKPlugin
+  QQuickVTKInteractorAdapter
+  QQuickVTKRenderItem
+  QQuickVTKRenderWindow
   )
 
 set(headers
-  QQuickVTKRenderWindow.h
-  QQuickVTKInteractorAdapter.h
   QQmlVTKPlugin.h
+  QQuickVTKInteractorAdapter.h
+  QQuickVTKRenderItem.h
+  QQuickVTKRenderWindow.h
   )
 
 set(private_headers

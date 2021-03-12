@@ -24,6 +24,8 @@
 // Qt includes
 #include <QQuickWindow>
 
+#include "vtkRenderWindow.h"
+
 //-------------------------------------------------------------------------------------------------
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   : Superclass(parent)
@@ -34,7 +36,6 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
 
   this->setRenderWindow(vtkGenericOpenGLRenderWindow::New());
   this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
-
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderWindow::handleWindowChanged);
 }
@@ -53,10 +54,10 @@ void QQuickVTKRenderWindow::sync()
   QSize windowSize = window()->size() * window()->devicePixelRatio();
   this->m_renderWindow->SetSize(windowSize.width(), windowSize.height());
 
-  QRectF rect(this->position().x(), this->position().y(), this->width(), this->height());
-  rect = mapRectToScene(rect);
-  this->m_renderWindow->SetPosition(rect.bottomLeft().x(), rect.bottomLeft().y());
-  this->m_renderWindow->SetSize(rect.width(), rect.height());
+  //  QRectF rect(this->position().x(), this->position().y(), this->width(), this->height());
+  //  rect = mapRectToScene(rect);
+  //  this->m_renderWindow->SetPosition(rect.topRight().x(), rect.bottomLeft().y());
+  //  this->m_renderWindow->SetSize(rect.width(), rect.height());
   // this->m_renderWindow->SetSize(this->width(), this->height());
   // this->m_renderWindow->SetPosition(this->position().x(), this->position().y());
 
@@ -76,6 +77,10 @@ void QQuickVTKRenderWindow::paint()
     return;
   }
 
+  // no render window set, just fill with white.
+  //    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+  //    f->glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+  //    f->glClear(GL_COLOR_BUFFER_BIT);
   if (!m_initialized)
   {
     initializeOpenGLFunctions();
@@ -89,6 +94,14 @@ void QQuickVTKRenderWindow::paint()
 
   glUseProgram(0);
   this->m_renderWindow->OpenGLInit();
+  //   QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
+  //    // QOpenGLExtraFunctions* f = this->Context->extraFunctions();
+  //    f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  //    const GLenum bufs[1] = { static_cast<GLenum>(GL_COLOR_ATTACHMENT0) };
+  //    f->glDrawBuffers(1, bufs);
+  //    this->m_renderWindow->BlitDisplayFramebuffer(0 ? 0 : 1, 0, 0, 200, 200,
+  //      100, 250, 200, 100, GL_COLOR_BUFFER_BIT,
+  //      GL_LINEAR);
   this->m_renderWindow->Render();
 }
 
@@ -98,25 +111,9 @@ void QQuickVTKRenderWindow::cleanup() {}
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
 {
-  if (this->window())
-  {
-    QObject::disconnect(
-      this->window(), &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderWindow::sync);
-    QObject::disconnect(
-      window(), &QQuickWindow::beforeRendering, this, &QQuickVTKRenderWindow::paint);
-    QObject::disconnect(
-      window(), &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderWindow::cleanup);
-  }
-
   this->m_interactorAdapter->setQQuickWindow(w);
   if (w)
   {
-    QObject::connect(w, &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderWindow::sync,
-      Qt::DirectConnection);
-    QObject::connect(
-      w, &QQuickWindow::beforeRendering, this, &QQuickVTKRenderWindow::paint, Qt::DirectConnection);
-    QObject::connect(w, &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderWindow::cleanup,
-      Qt::DirectConnection);
     // Do not clear the scenegraph before the QML rendering
     // to preserve the VTK render
     w->setClearBeforeRendering(false);
@@ -148,17 +145,53 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
   this->m_renderWindow = renWin;
   this->m_initialized = false;
 
-  vtkNew<QVTKInteractor> iren;
-  iren->SetRenderWindow(this->m_renderWindow);
-  // now set the default style
-  vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style);
+  if (this->m_renderWindow)
+  {
+    vtkNew<QVTKInteractor> iren;
+    iren->SetRenderWindow(this->m_renderWindow);
+
+    // now set the default style
+    vtkNew<vtkInteractorStyleTrackballCamera> style;
+    iren->SetInteractorStyle(style);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
 vtkRenderWindow* QQuickVTKRenderWindow::renderWindow() const
 {
   return this->m_renderWindow;
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::mapToViewport(const QRectF& rect, double viewport[4])
+{
+  viewport[0] = rect.topLeft().x();
+  viewport[1] = rect.topLeft().y();
+  viewport[2] = rect.bottomRight().x();
+  viewport[3] = rect.bottomRight().y();
+
+  if (this->m_renderWindow)
+  {
+    int* windowSize = this->m_renderWindow->GetSize();
+    if (windowSize && windowSize[0] != 0 && windowSize[1] != 0)
+    {
+      viewport[0] = viewport[0] / (windowSize[0] - 1.0);
+      viewport[1] = viewport[1] / (windowSize[1] - 1.0);
+      viewport[2] = viewport[2] / (windowSize[0] - 1.0);
+      viewport[3] = viewport[3] / (windowSize[1] - 1.0);
+    }
+  }
+
+  // Change to quadrant I (vtk) from IV (Qt)
+  double tmp = 1.0 - viewport[1];
+  viewport[1] = 1.0 - viewport[3];
+  viewport[3] = tmp;
+
+  for (int i = 0; i < 3; ++i)
+  {
+    viewport[i] = viewport[i] > 0.0 ? viewport[i] : 0.0;
+    viewport[i] = viewport[i] > 1.0 ? 1.0 : viewport[i];
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -170,70 +203,13 @@ void QQuickVTKRenderWindow::geometryChanged(const QRectF& newGeometry, const QRe
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::mousePressEvent(QMouseEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::mouseMoveEvent(QMouseEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::mouseReleaseEvent(QMouseEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::wheelEvent(QWheelEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueWheelEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::hoverMoveEvent(QHoverEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueHoverEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::keyPressEvent(QKeyEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueKeyEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::keyReleaseEvent(QKeyEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueKeyEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::focusInEvent(QFocusEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueFocusEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::focusOutEvent(QFocusEvent* event)
-{
-  event->accept();
-  m_interactorAdapter->QueueFocusEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
 bool QQuickVTKRenderWindow::event(QEvent* e)
 {
   return Superclass::event(e);
+}
+
+//-------------------------------------------------------------------------------------------------
+QPointer<QQuickVTKInteractorAdapter> QQuickVTKRenderWindow::interactorAdapter() const
+{
+  return this->m_interactorAdapter;
 }
