@@ -89,9 +89,6 @@ void QQuickVTKInteractorAdapter::QueueFocusEvent(QFocusEvent* e)
 //-----------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueMouseEvent(QQuickItem* item, QMouseEvent* e)
 {
-  qDebug() << "Keypressevent queued: " << e->buttons();
-  // QPointF pos = mapEventPosition(item, e->localPos());
-
   QMouseEvent* newEvent = new QMouseEvent(e->type(), e->localPos(), e->windowPos(), e->screenPos(),
     e->button(), e->buttons(), e->modifiers());
   QueueEvent(newEvent);
@@ -141,7 +138,6 @@ void QQuickVTKInteractorAdapter::ProcessEvents(vtkRenderWindowInteractor* intera
   {
     for (QEvent* e : this->m_queuedEvents)
     {
-      qDebug() << "Processing " << e;
       ProcessEvent(e, interactor);
     }
     qDeleteAll(m_queuedEvents);

@@ -39,6 +39,7 @@ QQuickVTKRenderItem::QQuickVTKRenderItem(QQuickItem* parent)
 
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderItem::handleWindowChanged);
+
   vtkNew<vtkActor> actor;
   vtkNew<vtkPolyDataMapper> mapper;
   vtkNew<vtkConeSource> cone;
@@ -179,7 +180,6 @@ void QQuickVTKRenderItem::mousePressEvent(QMouseEvent* event)
   {
     return;
   }
-  qDebug() << "Mousepressevent reg: " << event->button();
   event->accept();
   this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
 }
@@ -191,7 +191,6 @@ void QQuickVTKRenderItem::mouseMoveEvent(QMouseEvent* event)
   {
     return;
   }
-  qDebug() << "Mousemoveevent reg: " << event->button();
   event->accept();
   this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
 }
@@ -203,7 +202,6 @@ void QQuickVTKRenderItem::mouseReleaseEvent(QMouseEvent* event)
   {
     return;
   }
-  qDebug() << "Mousereleaseevent reg: " << event->button();
   event->accept();
   this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
 }
