@@ -92,12 +92,15 @@ void vtkCompositeDataSet::Initialize()
 unsigned long vtkCompositeDataSet::GetActualMemorySize()
 {
   using Opts = vtk::CompositeDataSetOptions;
-  auto range = vtk::Range(this, Opts::SkipEmptyNodes);
-  auto memSize = std::accumulate(range.begin(), range.end(), static_cast<unsigned long>(0),
-    [](unsigned long result, vtkDataObject* block) {
-      assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
-      return result + block->GetActualMemorySize();
-    });
+  unsigned long memSize = 0;
+  // Note: This loop cannot be turned into `std::accumulate` because
+  // vtkCompositeDataSetRange has an issue when the `end` iterator is copied
+  // into the algorithm on MSVC. See #18150.
+  for (vtkDataObject* block : vtk::Range(this, Opts::SkipEmptyNodes))
+  {
+    assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
+    memSize += block->GetActualMemorySize();
+  }
   return memSize;
 }
 
@@ -117,12 +120,15 @@ vtkIdType vtkCompositeDataSet::GetNumberOfCells()
 vtkIdType vtkCompositeDataSet::GetNumberOfElements(int type)
 {
   using Opts = vtk::CompositeDataSetOptions;
-  auto range = vtk::Range(this, Opts::SkipEmptyNodes);
-  auto numElements = std::accumulate(range.begin(), range.end(), static_cast<vtkIdType>(0),
-    [type](unsigned long result, vtkDataObject* block) {
-      assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
-      return result + block->GetNumberOfElements(type);
-    });
+  vtkIdType numElements = 0;
+  // Note: This loop cannot be turned into `std::accumulate` because
+  // vtkCompositeDataSetRange has an issue when the `end` iterator is copied
+  // into the algorithm on MSVC. See #18150.
+  for (vtkDataObject* block : vtk::Range(this, Opts::SkipEmptyNodes))
+  {
+    assert(vtkCompositeDataSet::SafeDownCast(block) == nullptr && block != nullptr);
+    numElements += block->GetNumberOfElements(type);
+  };
 
   // Call superclass to ensure we don't miss field data tuples.
   return numElements += this->Superclass::GetNumberOfElements(type);
