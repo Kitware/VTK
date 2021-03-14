@@ -165,6 +165,7 @@ private:
       this->Iterator->SetDataSet(source->GetDataSet());
       this->Iterator->SetSkipEmptyNodes(source->GetSkipEmptyNodes());
       this->Iterator->InitTraversal();
+      assert(!source->IsDoneWithTraversal());
       this->AdvanceTo(source->GetCurrentFlatIndex());
     }
   }
