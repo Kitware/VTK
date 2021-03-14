@@ -65,19 +65,20 @@ int vtkWrap_IsVoidPointer(ValueInfo* val)
 int vtkWrap_IsCharPointer(ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  return (t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) == 0);
+  return (
+    t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val) && (val->Attributes & VTK_PARSE_ZEROCOPY) == 0);
 }
 
 int vtkWrap_IsPODPointer(ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
   return (t != VTK_PARSE_CHAR && vtkWrap_IsNumeric(val) && vtkWrap_IsPointer(val) &&
-    (val->Type & VTK_PARSE_ZEROCOPY) == 0);
+    (val->Attributes & VTK_PARSE_ZEROCOPY) == 0);
 }
 
 int vtkWrap_IsZeroCopyPointer(ValueInfo* val)
 {
-  return (vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) != 0);
+  return (vtkWrap_IsPointer(val) && (val->Attributes & VTK_PARSE_ZEROCOPY) != 0);
 }
 
 int vtkWrap_IsStdVector(ValueInfo* val)
@@ -308,7 +309,7 @@ int vtkWrap_IsEnumMember(ClassInfo* data, ValueInfo* arg)
 
 int vtkWrap_IsNewInstance(ValueInfo* val)
 {
-  return ((val->Type & VTK_PARSE_NEWINSTANCE) != 0);
+  return ((val->Attributes & VTK_PARSE_NEWINSTANCE) != 0);
 }
 
 /* -------------------------------------------------------------------- */
@@ -767,13 +768,13 @@ void vtkWrap_FindNewInstanceMethods(ClassInfo* data, HierarchyInfo* hinfo)
       if (strcmp(theFunc->Name, "NewInstance") == 0 || strcmp(theFunc->Name, "NewIterator") == 0 ||
         strcmp(theFunc->Name, "CreateInstance") == 0)
       {
-        if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)
+        if ((theFunc->ReturnValue->Attributes & VTK_PARSE_NEWINSTANCE) == 0)
         {
           /* get the command-line options */
           options = vtkParse_GetCommandLineOptions();
           fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n", theFunc->Name,
             options->InputFileName);
-          theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+          theFunc->ReturnValue->Attributes |= VTK_PARSE_NEWINSTANCE;
         }
       }
     }

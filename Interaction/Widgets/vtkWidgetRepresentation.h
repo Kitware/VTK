@@ -131,7 +131,7 @@ public:
    * Note that subclasses may ignore some of these methods and implement their own
    * depending on the specifics of the widget.
    */
-  virtual void PlaceWidget(double* vtkNotUsed(bounds[6]));
+  virtual void PlaceWidget(double vtkNotUsed(bounds)[6]);
   virtual void StartWidgetInteraction(double eventPos[2]) { (void)eventPos; }
   virtual void WidgetInteraction(double newEventPos[2]) { (void)newEventPos; }
   virtual void EndWidgetInteraction(double newEventPos[2]) { (void)newEventPos; }

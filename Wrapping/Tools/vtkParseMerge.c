@@ -303,7 +303,7 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
         arg->Count = arg2->Count;
       }
       /* attribute flags */
-      arg->Type |= (arg2->Type & VTK_PARSE_ATTRIBUTES);
+      arg->Attributes |= arg2->Attributes;
     }
   }
 

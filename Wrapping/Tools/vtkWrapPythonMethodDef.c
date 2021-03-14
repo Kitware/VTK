@@ -355,10 +355,6 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
 
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
   {
-    if (wrappedFunctions[fnum]->IsLegacy)
-    {
-      fprintf(fp, "#if !defined(VTK_LEGACY_REMOVE)\n");
-    }
     if (wrappedFunctions[fnum]->Name)
     {
       /* string literals must be under 2048 chars */
@@ -375,10 +371,6 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
         wrappedFunctions[fnum]->Name);
 
       fprintf(fp, "   \"%s\\n\\n%s\"},\n", signatures, comment);
-    }
-    if (wrappedFunctions[fnum]->IsLegacy)
-    {
-      fprintf(fp, "#endif\n");
     }
   }
 

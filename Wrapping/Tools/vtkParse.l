@@ -138,28 +138,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(STRING_LITERAL);
     }
 
-{ID}"_EXPORT"  /* ignore EXPORT macros */
-
-"vtkNotUsed" { /* let the wrappers see the parameter */
-      char *args = get_macro_arguments();
-      char *cp;
-      size_t l = 0;
-      if (args)
-      {
-        cp = args;
-        if (*cp == '(') { cp++; }
-        while (*cp == ' ' || *cp == '\t') { cp++; }
-        l = vtkParse_SkipId(cp);
-        if (l)
-        {
-          yylval.str = vtkstrndup(cp, l);
-          free(args);
-          return(ID);
-        }
-        free(args);
-      }
-    }
-
 "auto"          return(AUTO);
 
 "double"        return(DOUBLE);
@@ -352,21 +330,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "__restrict" /* MSVC extension */
 
-"VTK_LEGACY" {
-      char *args = get_macro_arguments();
-      if (args && args[0] != '\0' && args[1] != '\0')
-      {
-        size_t l = strlen(args);
-        push_macro(NULL);
-        push_buffer();
-        macroName = "VTK_LEGACY";
-        macroUsed = 0;
-        macroEnded = 0;
-        yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
-      }
-      free(args);
-    }
-
 "nullptr" {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(NULLPTR);
@@ -380,14 +343,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       {
         char *args = NULL;
         const char *emacro = NULL;
-
-        /* make sure that vtkNotUsed is never expanded */
-        MacroInfo *ex;
-        ex = vtkParsePreprocess_GetMacro(preprocessor, "vtkNotUsed");
-        if (ex)
-        {
-          ex->IsExcluded = 1;
-        }
 
         if (macro->IsFunction)
         {

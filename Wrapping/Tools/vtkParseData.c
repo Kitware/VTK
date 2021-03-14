@@ -308,6 +308,7 @@ void vtkParse_InitValue(ValueInfo* val)
   val->Name = NULL;
   val->Comment = NULL;
   val->Value = NULL;
+  val->Attributes = 0;
   val->Type = 0;
   val->Class = NULL;
   val->Count = 0;
@@ -331,6 +332,7 @@ void vtkParse_CopyValue(ValueInfo* val, const ValueInfo* orig)
   val->Name = orig->Name;
   val->Comment = orig->Comment;
   val->Value = orig->Value;
+  val->Attributes = orig->Attributes;
   val->Type = orig->Type;
   val->Class = orig->Class;
   val->Count = orig->Count;
