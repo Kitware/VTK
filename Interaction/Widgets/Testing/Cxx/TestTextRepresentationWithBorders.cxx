@@ -65,8 +65,12 @@ int TestTextRepresentationWithBorders(int argc, char* argv[])
   rep->SetCornerRadiusStrength(0.5);
   rep->SetBorderThickness(5.0);
   rep->SetShowBorder(true);
-  rep->SetRightPadding(20);
-  rep->SetTopPadding(20);
+
+  rep->SetPaddingLeft(30);
+  rep->SetPaddingRight(10);
+  rep->SetPaddingTop(20);
+  rep->SetPaddingBottom(10);
+
   widget->SetRepresentation(rep);
   widget->SetInteractor(iren);
   widget->SetTextActor(ta);

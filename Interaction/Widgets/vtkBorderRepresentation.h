@@ -305,6 +305,20 @@ public:
   vtkGetMacro(PolygonOpacity, double);
   //@}
 
+  //@{
+  /**
+   * Convenience method to set the background color and the opacity at once
+   */
+  void SetPolygonRGBA(double rgba[4]);
+  void SetPolygonRGBA(double r, double g, double b, double a);
+
+  /**
+   * Convenience method to get the background color and the opacity at once
+   */
+  void GetPolygonRGBA(double rgba[4]);
+  void GetPolygonRGBA(double& r, double& g, double& b, double& a);
+  //@}
+
 protected:
   vtkBorderRepresentation();
   ~vtkBorderRepresentation() override;

@@ -720,6 +720,32 @@ vtkTypeBool vtkBorderRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //------------------------------------------------------------------------------
+void vtkBorderRepresentation::SetPolygonRGBA(double rgba[4])
+{
+  this->SetPolygonRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkBorderRepresentation::SetPolygonRGBA(double r, double g, double b, double a)
+{
+  this->SetPolygonColor(r, g, b);
+  this->SetPolygonOpacity(a);
+}
+
+//------------------------------------------------------------------------------
+void vtkBorderRepresentation::GetPolygonRGBA(double rgba[4])
+{
+  this->GetPolygonRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkBorderRepresentation::GetPolygonRGBA(double& r, double& g, double& b, double& a)
+{
+  this->GetPolygonColor(r, g, b);
+  a = this->GetPolygonOpacity();
+}
+
+//------------------------------------------------------------------------------
 void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
