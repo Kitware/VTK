@@ -97,16 +97,16 @@ int vtkGhostCellsGenerator::RequestData(
   int inputGhostLevels =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  std::vector<vtkImageData*> inputsID = vtkDIYUtilities::GetDataSets<vtkImageData>(inputDO);
-  std::vector<vtkImageData*> outputsID = vtkDIYUtilities::GetDataSets<vtkImageData>(outputDO);
+  std::vector<vtkImageData*> inputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(inputDO);
+  std::vector<vtkImageData*> outputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(outputDO);
   std::vector<vtkRectilinearGrid*> inputsRG =
-    vtkDIYUtilities::GetDataSets<vtkRectilinearGrid>(inputDO);
+    vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(inputDO);
   std::vector<vtkRectilinearGrid*> outputsRG =
-    vtkDIYUtilities::GetDataSets<vtkRectilinearGrid>(outputDO);
+    vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(outputDO);
   std::vector<vtkStructuredGrid*> inputsSG =
-    vtkDIYUtilities::GetDataSets<vtkStructuredGrid>(inputDO);
+    vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(inputDO);
   std::vector<vtkStructuredGrid*> outputsSG =
-    vtkDIYUtilities::GetDataSets<vtkStructuredGrid>(outputDO);
+    vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(outputDO);
 
   if (!inputsID.empty() && !inputsRG.empty())
   {

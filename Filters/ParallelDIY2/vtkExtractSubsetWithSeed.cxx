@@ -405,7 +405,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 {
   auto input = vtkDataObject::GetData(inputVector[0], 0);
 
-  auto datasets = vtkDIYUtilities::GetDataSets(input);
+  auto datasets = vtkCompositeDataSet::GetDataSets(input);
   // prune non-structured grid datasets.
   auto prunePredicate = [](vtkDataObject* ds) {
     auto sg = vtkStructuredGrid::SafeDownCast(ds);

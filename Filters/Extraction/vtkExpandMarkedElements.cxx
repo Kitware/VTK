@@ -244,7 +244,7 @@ int vtkExpandMarkedElements::RequestData(
 
   vtkInformation* info = this->GetInputArrayInformation(0);
   const int assoc = info->Get(vtkDataObject::FIELD_ASSOCIATION());
-  auto datasets = vtkDIYUtilities::GetDataSets(outputDO);
+  auto datasets = vtkCompositeDataSet::GetDataSets(outputDO);
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(),
                    [](vtkDataSet* ds) { return (ds->GetNumberOfPoints() == 0); }),
     datasets.end());

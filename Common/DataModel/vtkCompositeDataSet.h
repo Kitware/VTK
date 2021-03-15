@@ -36,8 +36,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+#include <vector> // For GetDataSets
+
 class vtkCompositeDataIterator;
 class vtkCompositeDataSetInternals;
+class vtkDataSet;
 class vtkInformation;
 class vtkInformationStringKey;
 class vtkInformationIntegerKey;
@@ -153,6 +156,15 @@ public:
    */
   static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 
+  /**
+   * Extract datasets from the given data object. This method returns a vector
+   * of DataSetT* from the `dobj`. If dobj is a DataSetT, the returned
+   * vector will have just 1 DataSetT. If dobj is a vtkCompositeDataSet, then
+   * we iterate over it and add all non-null leaf nodes to the returned vector.
+   */
+  template <class DataSetT = vtkDataSet>
+  static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj);
+
 protected:
   vtkCompositeDataSet();
   ~vtkCompositeDataSet() override;
@@ -161,5 +173,7 @@ private:
   vtkCompositeDataSet(const vtkCompositeDataSet&) = delete;
   void operator=(const vtkCompositeDataSet&) = delete;
 };
+
+#include "vtkCompositeDataSet.txx"
 
 #endif

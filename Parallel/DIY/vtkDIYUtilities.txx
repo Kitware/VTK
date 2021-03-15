@@ -33,29 +33,16 @@
 #include VTK_DIY2(diy/reduce-operations.hpp)
 // clang-format on
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warning for this class
+#define VTK_DEPRECATION_LEVEL 0
+
 //------------------------------------------------------------------------------
 template <class DataSetT>
 std::vector<DataSetT*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
 {
-  std::vector<DataSetT*> datasets;
-  if (auto cd = vtkCompositeDataSet::SafeDownCast(dobj))
-  {
-    auto iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-      if (auto ds = DataSetT::SafeDownCast(iter->GetCurrentDataObject()))
-      {
-        datasets.push_back(ds);
-      }
-    }
-    iter->Delete();
-  }
-  else if (auto ds = DataSetT::SafeDownCast(dobj))
-  {
-    datasets.push_back(ds);
-  }
-
-  return datasets;
+  VTK_LEGACY_REPLACED_BODY(
+    vtkDIYUtilities::GetDataSets, "VTK 9.1", vtkCompositeDataSet::GetDataSets);
+  return vtkCompositeDataSet::GetDataSets<DataSetT>(dobj);
 }
 
 //------------------------------------------------------------------------------
