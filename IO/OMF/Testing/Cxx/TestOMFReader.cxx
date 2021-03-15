@@ -64,12 +64,10 @@ int TestOMFReader(int argc, char* argv[])
 
   auto pds = output->GetPartitionedDataSet(idx);
   auto data = vtkPolyData::SafeDownCast(pds->GetPartition(0));
-  data->GetPointData()->SetActiveScalars("Elevation");
 
   vtkNew<vtkDataSetMapper> surfaceMapper;
   surfaceMapper->SetInputDataObject(data);
   surfaceMapper->ScalarVisibilityOn();
-  surfaceMapper->SetScalarRange(0, 3600);
 
   vtkNew<vtkActor> surfaceActor;
   surfaceActor->SetMapper(surfaceMapper);
@@ -79,11 +77,9 @@ int TestOMFReader(int argc, char* argv[])
   idx = getDataElementIndex(assembly, "collar");
   pds = output->GetPartitionedDataSet(idx);
   auto pse = vtkPolyData::SafeDownCast(pds->GetPartition(0));
-  pse->GetPointData()->SetActiveScalars("holeid");
 
   vtkNew<vtkDataSetMapper> pointMapper;
   pointMapper->SetInputDataObject(pse);
-  pointMapper->SetScalarRange(0, 54);
 
   vtkNew<vtkActor> pointActor;
   pointActor->SetMapper(pointMapper);
@@ -93,11 +89,9 @@ int TestOMFReader(int argc, char* argv[])
   idx = getDataElementIndex(assembly, "wolfpass_WP_assay");
   pds = output->GetPartitionedDataSet(idx);
   auto lse = vtkPolyData::SafeDownCast(pds->GetPartition(0));
-  lse->GetCellData()->SetActiveScalars("CU_pct");
 
   vtkNew<vtkDataSetMapper> lineMapper;
   lineMapper->SetInputDataObject(lse);
-  lineMapper->SetScalarRange(0.02, 9.29);
 
   vtkNew<vtkActor> lineActor;
   lineActor->SetMapper(lineMapper);
@@ -107,36 +101,24 @@ int TestOMFReader(int argc, char* argv[])
   idx = getDataElementIndex(assembly, "Block_Model");
   pds = output->GetPartitionedDataSet(idx);
   auto vol = vtkStructuredGrid::SafeDownCast(pds->GetPartition(0));
-  vol->GetCellData()->SetActiveScalars("CU_pct");
 
   vtkNew<vtkDataSetMapper> volMapper;
   volMapper->SetInputDataObject(vol);
-  volMapper->SetScalarRange(-0.46, 5.8);
 
   vtkNew<vtkActor> volActor;
   volActor->SetMapper(volMapper);
   volActor->GetProperty()->SetRepresentationToSurface();
 
   vtkNew<vtkRenderer> ren1;
-  vtkNew<vtkRenderer> ren2;
-  vtkNew<vtkRenderer> ren3;
-  vtkNew<vtkRenderer> ren4;
   ren1->AddActor(surfaceActor);
-  ren2->AddActor(pointActor);
-  ren3->AddActor(lineActor);
-  ren4->AddActor(volActor);
+  ren1->AddActor(pointActor);
+  ren1->AddActor(lineActor);
+  ren1->AddActor(volActor);
   ren1->SetBackground(0, 0, 0);
-  ren2->SetBackground(0, 0, 0);
-  ren3->SetBackground(0, 0, 0);
-  ren4->SetBackground(0, 0, 0);
-  // ren->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(300, 300);
   renWin->AddRenderer(ren1);
-  renWin->AddRenderer(ren2);
-  renWin->AddRenderer(ren3);
-  renWin->AddRenderer(ren4);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
