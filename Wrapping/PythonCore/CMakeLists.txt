@@ -1,4 +1,10 @@
 set(classes
+  PyVTKEnum
+  PyVTKExtras
+  PyVTKNamespace
+  PyVTKObject
+  PyVTKSpecialObject
+  PyVTKTemplate
   vtkPythonArgs
   vtkPythonCommand
   vtkPythonOverload
@@ -6,14 +12,8 @@ set(classes
   vtkSmartPyObject)
 
 set(private_classes
-  PyVTKEnum
-  PyVTKExtras
   PyVTKMethodDescriptor
-  PyVTKNamespace
-  PyVTKObject
-  PyVTKReference
-  PyVTKSpecialObject
-  PyVTKTemplate)
+  PyVTKReference)
 
 set(headers
   vtkPythonCompatibility.h)
