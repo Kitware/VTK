@@ -70,6 +70,13 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
 
   window->show();
 
+  vtkNew<vtkTesting> vtktesting;
+  vtktesting->AddArguments(argc, argv);
+  if (vtktesting->IsInteractiveModeSpecified())
+  {
+    return app.exec();
+  }
+
   // Wait a little for the application and window to be set up properly
   QEventLoop loop;
   QTimer::singleShot(100, &loop, SLOT(quit()));
@@ -78,8 +85,6 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   // Capture a screenshot of the whole window
   vtkSmartPointer<vtkImageData> im = qquickvtkWindow->captureScreenshot();
 
-  vtkNew<vtkTesting> vtktesting;
-  vtktesting->AddArguments(argc, argv);
   std::string validName = std::string(vtktesting->GetValidImageFileName());
   std::string::size_type slashPos = validName.rfind('/');
   if (slashPos != std::string::npos)
@@ -97,8 +102,6 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
 
   switch (retVal)
   {
-    case vtkTesting::DO_INTERACTOR:
-      return app.exec();
     case vtkTesting::FAILED:
     case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;
