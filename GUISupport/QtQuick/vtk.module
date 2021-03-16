@@ -19,4 +19,5 @@ TEST_DEPENDS
   VTK::FiltersSources
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::IOImage
 EXCLUDE_WRAP

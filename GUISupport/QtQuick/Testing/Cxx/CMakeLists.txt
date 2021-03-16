@@ -25,6 +25,6 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Quick"
     "Qt${vtk_qt_major_version}::Qml"
     )
-  #
-  #set_tests_properties(VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
-  #  PROPERTIES ENVIRONMENT "QML2_IMPORT_PATH=C:/Projects/Qt/install/bin/;")
+
+set_tests_properties(VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
+  PROPERTIES ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}")

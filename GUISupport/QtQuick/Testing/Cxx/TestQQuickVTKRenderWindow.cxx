@@ -22,10 +22,12 @@
 #include "vtkConeSource.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkNew.h"
+#include "vtkPNGWriter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkWindowToImageFilter.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -67,26 +69,32 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   qquickvtkItem->renderer()->SetGradientBackground(true);
 
   window->show();
-  return app.exec();
 
-  //  QApplication::sendPostedEvents();
-  //  QApplication::processEvents();
-  //
-  //  QEventLoop loop;
-  //  QTimer::singleShot(1000, &loop, SLOT(quit()));
-  //  loop.exec();
-  //
-  //  QApplication::sendPostedEvents();
-  //  QApplication::processEvents();
-  //  QApplication::sendPostedEvents();
-  //  QApplication::processEvents();
+  // Wait a little for the application and window to be set up properly
+  QEventLoop loop;
+  QTimer::singleShot(100, &loop, SLOT(quit()));
+  loop.exec();
+
+  // Capture a screenshot of the whole window
+  vtkSmartPointer<vtkImageData> im = qquickvtkWindow->captureScreenshot();
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
+  std::string validName = std::string(vtktesting->GetValidImageFileName());
+  std::string::size_type slashPos = validName.rfind('/');
+  if (slashPos != std::string::npos)
+  {
+    validName = validName.substr(slashPos + 1);
+  }
+  std::string tmpDir = vtktesting->GetTempDirectory();
+  std::string vImage = tmpDir + "/" + validName;
+  vtkNew<vtkPNGWriter> w;
+  w->SetInputData(im);
+  w->SetFileName(vImage.c_str());
+  w->Write();
 
-  vtktesting->SetRenderWindow(qquickvtkWindow->renderWindow());
+  int retVal = vtktesting->RegressionTest(vImage.c_str(), 10);
 
-  int retVal = vtktesting->RegressionTest(10);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
