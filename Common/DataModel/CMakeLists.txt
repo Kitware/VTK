@@ -274,11 +274,15 @@ set(headers
   vtkVector.h
   vtkVectorOperators.h)
 
+set(templates
+  vtkCompositeDataSet.txx)
+
 set(private_templates
   vtkImageIterator.txx)
 
 vtk_module_add_module(VTK::CommonDataModel
   CLASSES           ${classes}
+  TEMPLATES         ${templates}
   TEMPLATE_CLASSES  ${template_classes}
   HEADERS           ${headers}
   PRIVATE_TEMPLATES ${private_templates})
