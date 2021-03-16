@@ -23,6 +23,7 @@
  */
 
 #include "vtkPythonOverload.h"
+#include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"

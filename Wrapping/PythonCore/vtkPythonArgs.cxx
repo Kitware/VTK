@@ -25,6 +25,7 @@ resulting in wrapper code that is faster and more compact.
 #define vtkPythonArgs_cxx
 
 #include "vtkPythonArgs.h"
+#include "PyVTKReference.h"
 #include "vtkPythonUtil.h"
 
 #include "vtkObjectBase.h"
