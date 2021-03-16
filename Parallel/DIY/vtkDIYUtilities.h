@@ -22,6 +22,7 @@
 #ifndef vtkDIYUtilities_h
 #define vtkDIYUtilities_h
 
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"
 #include "vtkParallelDIYModule.h" // for export macros
 #include "vtkSmartPointer.h"      // needed for vtkSmartPointer
@@ -115,6 +116,7 @@ public:
    * vector will have just 1 DataSetT. If dobj is a vtkCompositeDataSet, then
    * we iterate over it and add all non-null leaf nodes to the returned vector.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use vtkCompositeDataSet::GetDataSets instead")
   template <class DataSetT = vtkDataSet>
   static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj);
 

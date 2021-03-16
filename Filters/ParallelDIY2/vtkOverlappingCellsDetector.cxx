@@ -362,7 +362,7 @@ int vtkOverlappingCellsDetector::RequestData(
     return 0;
   }
 
-  std::vector<vtkPointSet*> outputs = vtkDIYUtilities::GetDataSets<vtkPointSet>(outputDO);
+  std::vector<vtkPointSet*> outputs = vtkCompositeDataSet::GetDataSets<vtkPointSet>(outputDO);
 
   return this->ExposeOverlappingCellsAmongBlocks(outputs);
 }

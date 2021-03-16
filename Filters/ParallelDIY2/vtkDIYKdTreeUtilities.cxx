@@ -117,7 +117,7 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(vtkDataObject* d
   {
     std::copy(local_bounds, local_bounds + 6, bds);
   }
-  const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+  const auto datasets = vtkCompositeDataSet::GetDataSets(dobj);
   const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
   return vtkDIYKdTreeUtilities::GenerateCuts(pts, number_of_partitions, controller, bds);
 }
@@ -140,7 +140,7 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
     {
       bbox.AddBox(vtkDIYUtilities::GetLocalBounds(dobj));
     }
-    const auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+    const auto datasets = vtkCompositeDataSet::GetDataSets(dobj);
     const auto pts = vtkDIYUtilities::ExtractPoints(datasets, use_cell_centers);
     points.insert(points.end(), pts.begin(), pts.end());
   }
