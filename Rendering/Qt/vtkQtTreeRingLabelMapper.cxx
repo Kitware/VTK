@@ -294,6 +294,13 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAc
 }
 
 void vtkQtTreeRingLabelMapper::LabelTree(vtkTree* tree, vtkDataArray* sectorInfo,
+  vtkDataArray* numericData, vtkStringArray* stringData, int activeComp, int numComps,
+  vtkViewport* viewport)
+{
+  LabelTree(tree, sectorInfo, numericData, stringData, nullptr, activeComp, numComps, viewport);
+}
+
+void vtkQtTreeRingLabelMapper::LabelTree(vtkTree* tree, vtkDataArray* sectorInfo,
   vtkDataArray* numericData, vtkStringArray* stringData, vtkUnicodeStringArray* uStringData,
   int activeComp, int numComps, vtkViewport* viewport)
 {
@@ -593,7 +600,14 @@ void vtkQtTreeRingLabelMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData,
-  vtkStringArray* stringData, vtkUnicodeStringArray* uStringData, int activeComp, int numComp,
+  vtkStringArray* stringData, int activeComp, int numComps, char* string, size_t stringSize)
+{
+  GetVertexLabel(
+    vertex, numericData, stringData, nullptr, activeComp, numComps, string, stringSize);
+}
+
+void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData,
+  vtkStringArray* stringData, vtkUnicodeStringArray* uStringData, int activeComp, int numComps,
   char* string, size_t stringSize)
 {
   char format[1024];
@@ -601,7 +615,7 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* nu
   int j;
   if (numericData)
   {
-    if (numComp == 1)
+    if (numComps == 1)
     {
       if (numericData->GetDataType() == VTK_CHAR)
       {
@@ -624,14 +638,14 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* nu
     {
       strcpy(format, "(");
       strcat(format, this->LabelFormat);
-      for (j = 0; j < (numComp - 1); j++)
+      for (j = 0; j < (numComps - 1); j++)
       {
         snprintf(string, stringSize, format, numericData->GetComponent(vertex, j));
         strcpy(format, string);
         strcat(format, ", ");
         strcat(format, this->LabelFormat);
       }
-      snprintf(string, stringSize, format, numericData->GetComponent(vertex, numComp - 1));
+      snprintf(string, stringSize, format, numericData->GetComponent(vertex, numComps - 1));
       strcat(string, ")");
     }
   }

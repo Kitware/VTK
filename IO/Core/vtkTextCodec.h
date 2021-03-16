@@ -94,8 +94,10 @@ public:
 
   /**
    * convenience method to take data from the stream and put it into a
-   * vtkUnicodeString.
+   * string.
    */
+  std::string ToString(istream& inputStream);
+  VTK_DEPRECATED_IN_9_1_0("Use std::string ToString(istream& inputStream)")
   vtkUnicodeString ToUnicode(istream& inputStream);
 
   /**
@@ -103,7 +105,9 @@ public:
    * advancing the stream through however many places needed to assemble that
    * code point.
    */
-  virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) = 0;
+  virtual vtkTypeUInt32 NextUTF32CodePoint(istream& inputStream) = 0;
+  VTK_DEPRECATED_IN_9_1_0("Use vtkTypeUInt32 NextUTF32CodePoint(istream& inputStream)")
+  vtkUnicodeString::value_type NextUnicode(istream& inputStream);
 
 protected:
   vtkTextCodec();

@@ -77,12 +77,20 @@ protected:
    * Subclasses should override GetHoverTextInternal, in which the prop and cell
    * are converted to an appropriate selection using ConvertSelection().
    */
+  std::string GetHoverString(vtkView* view, vtkProp* prop, vtkIdType cell);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void std::string GetHoverString(vtkView* view, vtkProp* prop, vtkIdType cell)")
   vtkUnicodeString GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell);
 
   /**
    * Subclasses may override this method to generate the hover text.
    */
-  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*) { return vtkUnicodeString(); }
+  virtual std::string GetHoverStringInternal(vtkSelection*) { return ""; }
+  VTK_DEPRECATED_IN_9_1_0("Use std::string GetHoverStringInternal(vtkSelection*)")
+  vtkUnicodeString GetHoverTextInternal(vtkSelection* selection)
+  {
+    return vtkUnicodeString::from_utf8(GetHoverStringInternal(selection));
+  }
 
   /**
    * The view will call this method before every render.

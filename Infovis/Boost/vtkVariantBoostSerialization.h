@@ -61,17 +61,35 @@ void serialize(Archiver& ar, vtkStdString& str, const unsigned int vtkNotUsed(ve
 //----------------------------------------------------------------------------
 
 template <typename Archiver>
-void save(Archiver& ar, const vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
+void save(Archiver& ar, const std::string& str, const unsigned int vtkNotUsed(version))
 {
-  std::string utf8(str.utf8_str());
-  ar& utf8;
+  ar& str;
 }
 
 template <typename Archiver>
-void load(Archiver& ar, vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
+VTK_DEPRECATED_IN_9_1_0(
+  "Use void save(Archiver& ar, const std::string& str, const unsigned int vtkNotUsed(version))")
+void save(Archiver& ar, const vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
+{
+  std::string utf8(str.utf8_str());
+  save(ar, utf8);
+}
+
+template <typename Archiver>
+void load(Archiver& ar, std::string& str, const unsigned int vtkNotUsed(version))
 {
   std::string utf8;
   ar& utf8;
+  str = utf8;
+}
+
+template <typename Archiver>
+VTK_DEPRECATED_IN_9_1_0(
+  "Use void load(Archiver& ar, std::string& str, const unsigned int vtkNotUsed(version))")
+void load(Archiver& ar, vtkUnicodeString& str, const unsigned int vtkNotUsed(version))
+{
+  std::string utf8;
+  load(ar, utf8);
   str = vtkUnicodeString::from_utf8(utf8);
 }
 

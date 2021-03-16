@@ -400,7 +400,7 @@ void vtkRenderedTreeAreaRepresentation::SetAreaToPolyData(vtkPolyDataAlgorithm* 
   }
 }
 
-vtkUnicodeString vtkRenderedTreeAreaRepresentation::GetHoverTextInternal(vtkSelection* sel)
+std::string vtkRenderedTreeAreaRepresentation::GetHoverStringInternal(vtkSelection* sel)
 {
   vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
   vtkSmartPointer<vtkIdTypeArray> selectedItems = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -423,15 +423,15 @@ vtkUnicodeString vtkRenderedTreeAreaRepresentation::GetHoverTextInternal(vtkSele
   }
   if (selectedItems->GetNumberOfTuples() == 0 || !hoverArrName)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkAbstractArray* arr = data->GetAbstractArray(hoverArrName);
   if (!arr)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkIdType item = selectedItems->GetValue(0);
-  return arr->GetVariantValue(item).ToUnicodeString();
+  return arr->GetVariantValue(item).ToString();
 }
 
 void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int x, int y)

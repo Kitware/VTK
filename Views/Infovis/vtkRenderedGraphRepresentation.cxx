@@ -1399,7 +1399,7 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
   }
 }
 
-vtkUnicodeString vtkRenderedGraphRepresentation::GetHoverTextInternal(vtkSelection* sel)
+std::string vtkRenderedGraphRepresentation::GetHoverStringInternal(vtkSelection* sel)
 {
   vtkGraph* input = vtkGraph::SafeDownCast(this->GetInput());
   vtkSmartPointer<vtkIdTypeArray> selectedItems = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -1414,15 +1414,15 @@ vtkUnicodeString vtkRenderedGraphRepresentation::GetHoverTextInternal(vtkSelecti
   }
   if (selectedItems->GetNumberOfTuples() == 0 || !hoverArrName)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkAbstractArray* arr = data->GetAbstractArray(hoverArrName);
   if (!arr)
   {
-    return vtkUnicodeString();
+    return "";
   }
   vtkIdType item = selectedItems->GetValue(0);
-  return arr->GetVariantValue(item).ToUnicodeString();
+  return arr->GetVariantValue(item).ToString();
 }
 
 void vtkRenderedGraphRepresentation::PrintSelf(ostream& os, vtkIndent indent)

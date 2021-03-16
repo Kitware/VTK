@@ -88,7 +88,7 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputItera
   {
     while (!InputStream.eof())
     {
-      vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream);
+      vtkTypeUInt32 CodePoint = this->NextUTF32CodePoint(InputStream);
       *Output++ = CodePoint;
     }
   }
@@ -105,14 +105,14 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputItera
   }
 }
 
-vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
+vtkTypeUInt32 vtkUTF8TextCodec::NextUTF32CodePoint(istream& inputStream)
 {
   istream::char_type c[5];
   c[4] = '\0';
 
   unsigned int getSize = 0;
-  c[getSize] = InputStream.get();
-  if (InputStream.fail())
+  c[getSize] = inputStream.get();
+  if (inputStream.fail())
   {
     throw(std::string("End of Input"));
   }
@@ -124,8 +124,8 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
 
   for (unsigned int i = 1; i < getSize; ++i)
   {
-    c[i] = InputStream.get();
-    if (InputStream.fail())
+    c[i] = inputStream.get();
+    if (inputStream.fail())
       throw(std::string("Not enough space"));
   }
 

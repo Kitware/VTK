@@ -134,7 +134,9 @@ public:
    */
   void SetUTF8RecordDelimiters(const char* delimiters);
   const char* GetUTF8RecordDelimiters();
+  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8RecordDelimiters(const char* delimiters)")
   void SetUnicodeRecordDelimiters(const vtkUnicodeString& delimiters);
+  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8RecordDelimiters()")
   vtkUnicodeString GetUnicodeRecordDelimiters();
   //@}
 
@@ -152,7 +154,9 @@ public:
 
   void SetUTF8FieldDelimiters(const char* delimiters);
   const char* GetUTF8FieldDelimiters();
+  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8FieldDelimiters(const char* delimiters)")
   void SetUnicodeFieldDelimiters(const vtkUnicodeString& delimiters);
+  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8FieldDelimiters()")
   vtkUnicodeString GetUnicodeFieldDelimiters();
 
   //@{
@@ -171,7 +175,9 @@ public:
 
   void SetUTF8StringDelimiters(const char* delimiters);
   const char* GetUTF8StringDelimiters();
+  VTK_DEPRECATED_IN_9_1_0("Use void SetUTF8StringDelimiters(const char* delimiters)")
   void SetUnicodeStringDelimiters(const vtkUnicodeString& delimiters);
+  VTK_DEPRECATED_IN_9_1_0("Use const char* GetUTF8StringDelimiters()")
   vtkUnicodeString GetUnicodeStringDelimiters();
 
   //@{

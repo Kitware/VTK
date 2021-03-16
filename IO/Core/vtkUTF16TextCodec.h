@@ -80,7 +80,7 @@ public:
    * Return the next code point from the sequence represented by the begin, end iterators
    * advancing begin through however many places needed to assemble that code point
    */
-  vtkUnicodeString::value_type NextUnicode(istream& inputStream) override;
+  vtkTypeUInt32 NextUTF32CodePoint(istream& inputStream) override;
 
 protected:
   vtkUTF16TextCodec();

@@ -288,6 +288,19 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
 }
 
 //------------------------------------------------------------------------------
+std::string vtkParallelCoordinatesRepresentation::GetHoverString(vtkView* view, int x, int y)
+{
+  std::string result;
+  const char* text = GetHoverText(view, x, y);
+  if (text != nullptr)
+  {
+    result = text;
+  }
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
 // I should fill this out.
 const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view, int x, int y)
 {

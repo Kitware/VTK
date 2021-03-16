@@ -27,6 +27,7 @@
 #ifndef vtkContext2D_h
 #define vtkContext2D_h
 
+#include "vtkDeprecation.h"
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
@@ -359,9 +360,12 @@ public:
    * supplied as bottom corner (x, y), width, height.
    */
   void DrawStringRect(vtkPoints2D* rect, const vtkStdString& string);
+  VTK_DEPRECATED_IN_9_1_0("Use void DrawStringRect(vtkPoints2D* rect, const vtkStdString& string)")
   void DrawStringRect(vtkPoints2D* rect, const vtkUnicodeString& string);
   void DrawStringRect(vtkPoints2D* rect, const char* string);
   void DrawStringRect(const float rect[4], const vtkStdString& string);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void DrawStringRect(const float rect[4], const vtkStdString& string)")
   void DrawStringRect(const float rect[4], const vtkUnicodeString& string);
   void DrawStringRect(const float rect[4], const char* string);
   //@}
@@ -372,7 +376,9 @@ public:
    */
   void DrawString(vtkPoints2D* point, const vtkStdString& string);
   void DrawString(float x, float y, const vtkStdString& string);
+  VTK_DEPRECATED_IN_9_1_0("Use void DrawString(vtkPoints2D* point, const vtkStdString& string)")
   void DrawString(vtkPoints2D* point, const vtkUnicodeString& string);
+  VTK_DEPRECATED_IN_9_1_0("Use void DrawString(float x, float y, const vtkStdString& string)")
   void DrawString(float x, float y, const vtkUnicodeString& string);
   void DrawString(vtkPoints2D* point, const char* string);
   void DrawString(float x, float y, const char* string);
@@ -390,7 +396,11 @@ public:
    */
   void ComputeStringBounds(const vtkStdString& string, vtkPoints2D* bounds);
   void ComputeStringBounds(const vtkStdString& string, float bounds[4]);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void ComputeStringBounds(const vtkStdString& string, vtkPoints2D* bounds)")
   void ComputeStringBounds(const vtkUnicodeString& string, vtkPoints2D* bounds);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void ComputeStringBounds(const vtkStdString& string, float bounds[4])")
   void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]);
   void ComputeStringBounds(const char* string, vtkPoints2D* bounds);
   void ComputeStringBounds(const char* string, float bounds[4]);

@@ -44,6 +44,7 @@
 #ifndef vtkQtTreeRingLabelMapper_h
 #define vtkQtTreeRingLabelMapper_h
 
+#include "vtkDeprecation.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingQtModule.h" // For export macro
 
@@ -132,8 +133,18 @@ protected:
   vtkQtTreeRingLabelMapper();
   ~vtkQtTreeRingLabelMapper() override;
   void LabelTree(vtkTree* tree, vtkDataArray* sectorInfo, vtkDataArray* numericData,
+    vtkStringArray* stringData, int activeComp, int numComps, vtkViewport* viewport);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void LabelTree(vtkTree* tree, vtkDataArray* sectorInfo, vtkDataArray* numericData, "
+    "vtkStringArray* stringData, int activeComp, int numComps, vtkViewport* viewport)")
+  void LabelTree(vtkTree* tree, vtkDataArray* sectorInfo, vtkDataArray* numericData,
     vtkStringArray* stringData, vtkUnicodeStringArray* uStringData, int activeComp, int numComps,
     vtkViewport* viewport);
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData, vtkStringArray* stringData,
+    int activeComp, int numComps, char* string, size_t stringSize);
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData, vtkStringArray* "
+    "stringData, int activeComp, int numComps, char* string, size_t stringSize)")
   void GetVertexLabel(vtkIdType vertex, vtkDataArray* numericData, vtkStringArray* stringData,
     vtkUnicodeStringArray* uStringData, int activeComp, int numComps, char* string,
     size_t stringSize);

@@ -89,6 +89,7 @@ public:
   /**
    * Retrieves the current label as a unicode string.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use virtual vtkStdString GetLabel()")
   virtual vtkUnicodeString GetUnicodeLabel();
 
   /**
