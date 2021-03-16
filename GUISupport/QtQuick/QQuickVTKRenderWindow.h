@@ -32,14 +32,13 @@
 
 // Forward declarations
 class QEvent;
-class QHoverEvent;
-class QKeyEvent;
-class QMouseEvent;
 class QQuickVTKInteractorAdapter;
 class QQuickWindow;
 class QWheelEvent;
 class vtkGenericOpenGLRenderWindow;
+class vtkImageData;
 class vtkRenderWindow;
+class vtkWindowToImageFilter;
 
 /**
  * \class QQuickVTKRenderWindow
@@ -75,10 +74,37 @@ public:
    */
   QPointer<QQuickVTKInteractorAdapter> interactorAdapter() const;
 
+  //@{
+  /**
+   * Capture a screenshot of the window
+   *
+   * \param[in] Viewport area to capture.
+   * \returns Image data containing the window capture.
+   * \note This triggers a scenegraph update to capture the render window view.
+   */
+  virtual vtkSmartPointer<vtkImageData> captureScreenshot();
+  virtual vtkSmartPointer<vtkImageData> captureScreenshot(double* viewport);
+  //@}
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
   virtual void cleanup();
+
+  /**
+   * Convenience method that schedules a scenegraph update and waits for the update.
+   * \sa render()
+   */
+  virtual void renderNow();
+
+  /**
+   * Schedule a scenegraph update
+   *
+   * \note Since this schedules a scenegraph update, it does not guarantee that the scene will be
+   * updated after this call.
+   * \sa renderNow()
+   */
+  virtual void render();
 
 protected Q_SLOTS:
   virtual void handleWindowChanged(QQuickWindow* w);
@@ -87,6 +113,10 @@ protected:
   QPointer<QQuickVTKInteractorAdapter> m_interactorAdapter;
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
   bool m_initialized = false;
+
+  // Screenshot stuff
+  bool m_screenshotScheduled = false;
+  vtkNew<vtkWindowToImageFilter> m_screenshotFilter;
 
   // Event handlers
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;

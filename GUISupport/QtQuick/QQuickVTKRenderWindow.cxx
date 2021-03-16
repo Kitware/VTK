@@ -18,14 +18,14 @@
 #include "QQuickVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkWindowToImageFilter.h"
 
 // Qt includes
 #include <QQuickWindow>
-
-#include "vtkRenderWindow.h"
 
 //-------------------------------------------------------------------------------------------------
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
@@ -117,6 +117,15 @@ void QQuickVTKRenderWindow::paint()
   else
   {
     this->m_renderWindow->Render();
+  }
+
+  if (this->m_screenshotScheduled)
+  {
+    this->m_screenshotFilter->SetInput(this->m_renderWindow);
+    this->m_screenshotFilter->SetReadFrontBuffer(false);
+    this->m_screenshotFilter->SetInputBufferTypeToRGB();
+    this->m_screenshotFilter->Update();
+    this->m_screenshotScheduled = false;
   }
   ostate->Pop();
 }
@@ -236,4 +245,48 @@ bool QQuickVTKRenderWindow::event(QEvent* e)
 QPointer<QQuickVTKInteractorAdapter> QQuickVTKRenderWindow::interactorAdapter() const
 {
   return this->m_interactorAdapter;
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> QQuickVTKRenderWindow::captureScreenshot()
+{
+  double viewport[4] = { 0, 0, 1, 1 };
+  return this->captureScreenshot(viewport);
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> QQuickVTKRenderWindow::captureScreenshot(double* viewport)
+{
+  if (!this->window())
+  {
+    return nullptr;
+  }
+  this->m_screenshotScheduled = true;
+  this->m_screenshotFilter->SetViewport(viewport);
+  this->renderNow();
+  return this->m_screenshotFilter->GetOutput();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::renderNow()
+{
+  if (!this->window())
+  {
+    return;
+  }
+  // Schedule a scenegraph update
+  this->window()->update();
+  // Wait for the update to complete
+  QEventLoop loop;
+  QObject::connect(this->window(), &QQuickWindow::afterRendering, &loop, &QEventLoop::quit);
+  loop.exec();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::render()
+{
+  if (this->window())
+  {
+    this->window()->update();
+  }
 }

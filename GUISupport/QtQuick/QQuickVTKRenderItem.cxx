@@ -17,6 +17,7 @@
 // vtk includes
 #include "QQuickVTKInteractorAdapter.h"
 #include "QQuickVTKRenderWindow.h"
+#include "vtkImageData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
@@ -65,7 +66,7 @@ void QQuickVTKRenderItem::setRenderWindow(QQuickVTKRenderWindow* w)
     this->m_renderWindow->renderWindow()->AddRenderer(this->m_renderer);
   }
 
-  this->update();
+  this->m_renderWindow->render();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -163,7 +164,6 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
     QObject::connect(w, &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderItem::cleanup,
       Qt::DirectConnection);
   }
-  this->update();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -281,4 +281,14 @@ void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRect
 bool QQuickVTKRenderItem::event(QEvent* e)
 {
   return Superclass::event(e);
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> QQuickVTKRenderItem::captureScreenshot()
+{
+  if (!this->renderWindow())
+  {
+    return nullptr;
+  }
+  return this->renderWindow()->captureScreenshot(this->m_renderer->GetViewport());
 }

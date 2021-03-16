@@ -30,7 +30,11 @@
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
 // Forward declarations
+class QHoverEvent;
+class QKeyEvent;
+class QMouseEvent;
 class QQuickVTKRenderWindow;
+class vtkImageData;
 class vtkRenderer;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
@@ -58,6 +62,14 @@ public:
    * Get access to the renderer
    */
   vtkRenderer* renderer() const;
+
+  /**
+   * Capture a screenshot of the view
+   *
+   * \returns Image data containing the view capture.
+   * \sa QQuickVTKRenderWindow::captureScreenshot
+   */
+  virtual vtkSmartPointer<vtkImageData> captureScreenshot();
 
 public Q_SLOTS:
   virtual void sync();
