@@ -2262,13 +2262,14 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
     int arraySize = cells->GetNumberOfConnectivityEntries();
     int* intArray = new int[arraySize];
 
+    int* intArrayPtr = intArray;
     for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
     {
       iter->GetCurrentCell(npts, pts);
-      *intArray++ = npts;
+      *intArrayPtr++ = npts;
       for (auto i = 0; i < npts; ++i)
       {
-        *intArray++ = pts[i];
+        *intArrayPtr++ = pts[i];
       }
     }
 
