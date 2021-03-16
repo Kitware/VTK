@@ -25,6 +25,8 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkOMFReader);
 
 struct vtkOMFReader::ReaderImpl
