@@ -35,5 +35,9 @@ void vtkWrapPython_GetSingleArgument(
 /* print the code to build python return value from a method */
 void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int static_call);
 
+/* print the code that generates a DeprecationWarning */
+void vtkWrapPython_DeprecationWarning(
+  FILE* fp, const char* what, const char* name, const char* reason, const char* version);
+
 #endif /* vtkWrapPythonMethod_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonMethod.h */

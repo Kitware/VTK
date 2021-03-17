@@ -16,6 +16,7 @@
 #include "vtkWrapPythonClass.h"
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrapPythonEnum.h"
+#include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonMethodDef.h"
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
@@ -382,11 +383,20 @@ static void vtkWrapPython_GenerateObjectNew(
   {
     fprintf(fp,
       "static vtkObjectBase *Py%s_StaticNew()\n"
-      "{\n"
+      "{\n",
+      classname);
+
+    if (data->IsDeprecated)
+    {
+      vtkWrapPython_DeprecationWarning(
+        fp, "class", data->Name, data->DeprecatedReason, data->DeprecatedVersion);
+    }
+
+    fprintf(fp,
       "  return %s::New();\n"
       "}\n"
       "\n",
-      classname, data->Name);
+      data->Name);
   }
 
   fprintf(fp,
