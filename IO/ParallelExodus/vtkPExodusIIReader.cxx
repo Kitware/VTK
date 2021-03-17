@@ -283,11 +283,16 @@ int vtkPExodusIIReader::RequestInformation(
       requestInformationRetVal =
         this->Superclass::RequestInformation(request, inputVector, outputVector);
 
-      if (!this->Metadata->ArrayInfo.empty())
-      {
-        // We have a file with actual data in it
-        break;
-      }
+      // This unnecessary. First file will have all necessary information.
+      // Otherwise we end up with bugs like paraview/paraview#20559
+      // and paraview/paraview#20558 when the files have no arrays at all.
+      // if (!this->Metadata->ArrayInfo.empty())
+      //{
+      //  // We have a file with actual data in it
+      //  break;
+      //}
+      break; // break immediately.
+
     } // loop over file names
   }
   this->Controller->Broadcast(&requestInformationRetVal, 1, 0);
