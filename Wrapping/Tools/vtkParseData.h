@@ -183,14 +183,15 @@ struct _FunctionInfo
   ValueInfo** Parameters;
   ValueInfo* ReturnValue; /* NULL for constructors and destructors */
   int NumberOfPreconds;
-  const char** Preconds;   /* preconditions */
-  const char* Macro;       /* the macro that defined this function */
-  const char* SizeHint;    /* hint the size e.g. for operator[] */
-  const char* Deprecation; /* if not NULL, function is deprecated */
+  const char** Preconds;         /* preconditions */
+  const char* Macro;             /* the macro that defined this function */
+  const char* SizeHint;          /* hint the size e.g. for operator[] */
+  const char* DeprecatedReason;  /* reason for deprecation, or NULL */
+  const char* DeprecatedVersion; /* version of deprecation, or NULL */
   int IsOperator;
   int IsVariadic;
-  int IsLegacy;      /* IsLegacy is deprecated, do not use */
   int IsExcluded;    /* marked as excluded from wrapping */
+  int IsDeprecated;  /* method or function has been deprecated */
   int IsStatic;      /* methods only */
   int IsVirtual;     /* methods only */
   int IsPureVirtual; /* methods only */
@@ -211,6 +212,7 @@ struct _FunctionInfo
   int ArrayFailure;                 /* legacy */
   int IsPublic;                     /* legacy */
   int IsProtected;                  /* legacy */
+  int IsLegacy;                     /* legacy */
 #endif
 };
 
@@ -258,11 +260,13 @@ typedef struct _ClassInfo
   struct _ClassInfo** Namespaces;
   int NumberOfComments;
   CommentInfo** Comments;
-  const char* Deprecation;
+  const char* DeprecatedReason;
+  const char* DeprecatedVersion;
   int IsAbstract;
   int IsFinal;
   int HasDelete;
   int IsExcluded;
+  int IsDeprecated;
 } ClassInfo;
 
 /**

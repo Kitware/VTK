@@ -1114,12 +1114,6 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
     {
       occCounter++;
 
-      if (theOccurrence->Deprecation)
-      {
-        /* in the future, deprecation warnings could be implemented */
-        fprintf(fp, "/* deprecated: %s */\n", theOccurrence->Deprecation);
-      }
-
       /* method suffix to distinguish between signatures */
       occSuffix[0] = '\0';
       if (numberOfOccurrences > 1)
@@ -1134,6 +1128,18 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
         "{\n",
         classname, theOccurrence->Name, occSuffix,
         ((theOccurrence->IsStatic | do_constructors) ? " /*unused*/" : "self"));
+
+      /* Deprecation warning */
+      if (data->IsDeprecated && (theOccurrence->IsStatic || do_constructors))
+      {
+        vtkWrapPython_DeprecationWarning(
+          fp, "class", data->Name, data->DeprecatedReason, data->DeprecatedVersion);
+      }
+      else if (theOccurrence->IsDeprecated)
+      {
+        vtkWrapPython_DeprecationWarning(fp, theOccurrence->IsStatic ? "staticmethod" : "method",
+          theOccurrence->Name, theOccurrence->DeprecatedReason, theOccurrence->DeprecatedVersion);
+      }
 
       /* Use vtkPythonArgs to convert python args to C args */
       if (is_vtkobject && !theOccurrence->IsStatic)
@@ -1279,4 +1285,22 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
       theFunc->Signature = cp;
     }
   }
+}
+
+void vtkWrapPython_DeprecationWarning(
+  FILE* fp, const char* what, const char* name, const char* reason, const char* version)
+{
+  fprintf(fp,
+    "  PyErr_WarnEx(PyExc_DeprecationWarning,\n"
+    "    \"Call to deprecated %s %s.\"",
+    what, name);
+  if (reason)
+  {
+    fprintf(fp, "\n    \" (\" %s \")\"", reason);
+  }
+  if (version)
+  {
+    fprintf(fp, "\n    \" -- Deprecated since version \" %s \".\"", version);
+  }
+  fprintf(fp, ", 1);\n\n");
 }
