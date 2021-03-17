@@ -186,7 +186,8 @@ TemplateInfo  *currentTemplate = NULL;
 const char    *currentEnumName = NULL;
 const char    *currentEnumValue = NULL;
 unsigned int   currentEnumType = 0;
-const char    *currentDeprecation = NULL;
+const char    *deprecationReason = NULL;
+const char    *deprecationVersion = NULL;
 parse_access_t access_level = VTK_ACCESS_PUBLIC;
 
 /* functions from vtkParse.l */
@@ -2626,7 +2627,9 @@ structor_declaration:
       }
       if (getAttributes() & VTK_PARSE_DEPRECATED)
       {
-        currentFunction->Deprecation = currentDeprecation;
+        currentFunction->IsDeprecated = 1;
+        currentFunction->DeprecatedReason = deprecationReason;
+        currentFunction->DeprecatedVersion = deprecationVersion;
       }
       currentFunction->Name = $<str>1;
       currentFunction->Comment = vtkstrdup(getComment());
@@ -3684,7 +3687,9 @@ void start_class(const char *classname, int is_struct_or_union)
 
   if (getAttributes() & VTK_PARSE_DEPRECATED)
   {
-    currentClass->Deprecation = currentDeprecation;
+    currentClass->IsDeprecated = 1;
+    currentClass->DeprecatedReason = deprecationReason;
+    currentClass->DeprecatedVersion = deprecationVersion;
   }
 
   if (classname && classname[0] != '\0')
@@ -4417,11 +4422,26 @@ void handle_attribute(const char *att, int pack)
       addAttribute(VTK_PARSE_ZEROCOPY);
     }
     else if (l == 15 && strncmp(att, "vtk::deprecated", l) == 0 &&
-             args && (role == VTK_PARSE_ATTRIB_DECL ||
-                      role == VTK_PARSE_ATTRIB_CLASS))
+             (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
     {
       addAttribute(VTK_PARSE_DEPRECATED);
-      currentDeprecation = vtkstrndup(args, la);
+      deprecationReason = NULL;
+      deprecationVersion = NULL;
+      if (args)
+      {
+        int lr = vtkParse_SkipQuotes(args);
+        deprecationReason = vtkstrndup(args, lr);
+        if (lr < la && args[lr] == ',')
+        {
+          /* skip spaces and get the next argument */
+          do
+          {
+            ++lr;
+          }
+          while (lr < la && args[lr] == ' ');
+          deprecationVersion = vtkstrndup(&args[lr], vtkParse_SkipQuotes(&args[lr]));
+        }
+      }
     }
     else if (l == 12 && strncmp(att, "vtk::expects", l) == 0 &&
              args && role == VTK_PARSE_ATTRIB_FUNC)
@@ -4571,7 +4591,9 @@ void output_function()
     {
       /* remove "deprecated" attrib from ReturnValue, attach it to function */
       currentFunction->ReturnValue->Attributes ^= VTK_PARSE_DEPRECATED;
-      currentFunction->Deprecation = currentDeprecation;
+      currentFunction->IsDeprecated = 1;
+      currentFunction->DeprecatedReason = deprecationReason;
+      currentFunction->DeprecatedVersion = deprecationVersion;
     }
 
     if (currentFunction->ReturnValue->Type & VTK_PARSE_FRIEND)

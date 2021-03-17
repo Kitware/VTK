@@ -1130,7 +1130,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
         ((theOccurrence->IsStatic | do_constructors) ? " /*unused*/" : "self"));
 
       /* Deprecation warning */
-      if (theOccurrence->Deprecation)
+      if (theOccurrence->DeprecatedReason)
       {
         fprintf(fp,
           "  PyErr_WarnEx(PyExc_DeprecationWarning,\n"
@@ -1138,7 +1138,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
           "               \" (\" %s \")\", 1);\n"
           "\n",
           theOccurrence->IsStatic ? "staticmethod" : "method", theOccurrence->Name,
-          theOccurrence->Deprecation);
+          theOccurrence->DeprecatedReason);
       }
 
       /* Use vtkPythonArgs to convert python args to C args */
