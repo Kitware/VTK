@@ -219,6 +219,8 @@ struct IntegratingFunctor
   }
 };
 
+static constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
+
 //------------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   : IntegrationModel(vtkLagrangianMatidaIntegrationModel::New())
@@ -1044,6 +1046,12 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
       if (stepLengthCurr2 > stepLengthMax2)
       {
         reintegrationFactor *= 2;
+        if (reintegrationFactor > MAX_REINTEGRATION_FACTOR)
+        {
+          vtkErrorMacro(<< "ReintegrationFactor is too high. Dropping particle.");
+          particle->SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_ABORTED);
+          break;
+        }
         continue;
       }
       reintegrationFactor = 1;
@@ -1228,6 +1236,9 @@ void vtkLagrangianParticleTracker::InsertInteractionOutputPoint(vtkLagrangianPar
   this->IntegrationModel->InsertInteractionData(particle, pointData);
   this->IntegrationModel->InsertParticleData(
     particle, pointData, vtkLagrangianBasicIntegrationModel::VARIABLE_STEP_NEXT);
+
+  // Let models add surface interaction data from the model
+  this->IntegrationModel->InsertSurfaceInteractionData(particle, pointData);
 
   // Finally, Insert data from seed data only on not yet written arrays
   this->IntegrationModel->InsertParticleSeedData(particle, pointData);

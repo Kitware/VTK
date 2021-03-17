@@ -31,9 +31,6 @@
  *    double * x, double * f);
  * to define how the integration works.
  *
- * Inherited classes could reimplement InitializeVariablesParticleData and
- * InsertVariablesParticleData to add new UserVariables to integrate with.
- *
  * Inherited classes could reimplement InteractWithSurface or other surface interaction methods
  * to change the way particles interact with surfaces.
  *
@@ -474,6 +471,15 @@ public:
    * This can be called with not fully initialized particle.
    */
   virtual void ParticleAboutToBeDeleted(vtkLagrangianParticle* vtkNotUsed(particle)) {}
+
+  /**
+   * Method to be reimplemented if needed in inherited classes.
+   * Allows a inherited class to add surface interaction data from the model
+   */
+  virtual void InsertSurfaceInteractionData(
+    vtkLagrangianParticle* vtkNotUsed(particle), vtkPointData* vtkNotUsed(particleData))
+  {
+  }
 
 protected:
   vtkLagrangianBasicIntegrationModel();
