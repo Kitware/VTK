@@ -31,6 +31,8 @@
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkVoxel.h"
 
 #include <vector>
@@ -283,7 +285,7 @@ public:
         case VTK_LINE:
         case VTK_POLY_LINE:
         {
-          break;
+          return this->FrustumClipPolyline(nedges, vlist, bounds);
         }
         default:
         {
@@ -468,6 +470,95 @@ public:
       overts[noverts * 3 + 2] = V1[2];
       noverts++;
     }
+  }
+
+  //--------------------------------------------------------------------------
+  // Tests edge segments against the frustum.
+  // If there is no intersection, returns 0
+  // If there is an intersection, returns 1
+  // This is accomplished using Cyrus-Beck clipping.
+  int FrustumClipPolyline(int nverts, double* ivlist, double* bounds)
+  {
+    if (nverts < 1)
+    {
+      return 0;
+    }
+    vtkVector3d p0(ivlist[0], ivlist[1], ivlist[2]);
+    if (nverts < 2)
+    {
+      return this->ComputePlaneEndpointCode(p0) == 0;
+    }
+    // Compute the L1 "diameter" of the bounding box (used to test for degeneracy)
+    // We know bounds is valid at this point, so diam >= 0
+    const double diam = bounds[1] - bounds[0] + bounds[3] - bounds[2] + bounds[5] - bounds[4];
+    const double epsilon = 1e-6 * diam;
+    const double epsilon2 = 1e-10 * diam * diam;
+    vtkVector3d normal, basePoint;
+    vtkVector3d p1;
+    bool in = false;
+    for (int ii = 1; ii < nverts; ++ii, p0 = p1)
+    {
+      p1 = vtkVector3d(ivlist[3 * ii], ivlist[3 * ii + 1], ivlist[3 * ii + 2]);
+      vtkVector3d lineVec = p1 - p0;
+      if (lineVec.SquaredNorm() < epsilon2)
+      {
+        // Skip short edges; they would make denom == 0.0 and thus have no effect.
+        continue;
+      }
+      double tmin = 0.0;
+      double tmax = 1.0;
+      bool mayOverlap = true;
+      for (int pp = 0; mayOverlap && (pp < MAXPLANE); ++pp)
+      {
+        this->Frustum->GetNormals()->GetTuple(pp, normal.GetData());
+        this->Frustum->GetPoints()->GetPoint(pp, basePoint.GetData());
+        vtkVector3d db = p0 - basePoint; // Vector from the plane's base point to p0 on the line.
+        double numer = db.Dot(normal);
+        double denom = lineVec.Dot(normal);
+        double t;
+        if (std::abs(denom) <= epsilon)
+        {
+          if (numer > 0)
+          {
+            mayOverlap = false;
+          }
+        }
+        else
+        {
+          t = -numer / denom;
+          if (denom < 0.0 && t > tmin)
+          {
+            tmin = t;
+          }
+          else if (denom > 0.0 && t < tmax)
+          {
+            tmax = t;
+          }
+        }
+      }
+      if (mayOverlap)
+      {
+        in |= (tmin <= tmax);
+        if (in)
+        {
+          break;
+        }
+      }
+    }
+    return in ? 1 : 0;
+  }
+
+  int ComputePlaneEndpointCode(const vtkVector3d& vertex)
+  {
+    int code = 0;
+    vtkVector3d normal, basePoint;
+    for (int pp = 0; pp < MAXPLANE; ++pp)
+    {
+      this->Frustum->GetNormals()->GetTuple(pp, normal.GetData());
+      this->Frustum->GetPoints()->GetPoint(pp, basePoint.GetData());
+      code |= ((vertex - basePoint).Dot(normal) >= 0.0) ? (1 << pp) : 0;
+    }
+    return code;
   }
 
   vtkPlanes* Frustum;
