@@ -5408,14 +5408,7 @@ vtkMTimeType vtkExodusIIReader::GetMetadataMTime()
   delete[] this->propName;                                                                         \
   if (fname)                                                                                       \
   {                                                                                                \
-    size_t fnl = strlen(fname) + 1;                                                                \
-    char* dst = new char[fnl];                                                                     \
-    const char* src = fname;                                                                       \
-    this->propName = dst;                                                                          \
-    do                                                                                             \
-    {                                                                                              \
-      *dst++ = *src++;                                                                             \
-    } while (--fnl);                                                                               \
+    this->propName = vtksys::SystemTools::DuplicateString(fname);                                  \
   }                                                                                                \
   else                                                                                             \
   {                                                                                                \

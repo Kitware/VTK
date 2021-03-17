@@ -276,11 +276,8 @@ int vtkPExodusIIReader::RequestInformation(
         snprintf(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern,
           this->FilePrefix, fileIndex);
       }
-      char* nm = new char[strlen(this->MultiFileName) + 1];
-      strcpy(nm, this->MultiFileName);
       delete[] this->FileName;
-      this->FileName = nm;
-      nm = nullptr;
+      this->FileName = vtksys::SystemTools::DuplicateString(this->MultiFileName);
 
       // Read in info based on this->FileName
       requestInformationRetVal =
