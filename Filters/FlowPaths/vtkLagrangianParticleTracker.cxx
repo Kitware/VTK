@@ -219,6 +219,8 @@ struct IntegratingFunctor
   }
 };
 
+constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
+
 //------------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   : IntegrationModel(vtkLagrangianMatidaIntegrationModel::New())
@@ -1044,6 +1046,12 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
       if (stepLengthCurr2 > stepLengthMax2)
       {
         reintegrationFactor *= 2;
+        if (reintegrationFactor > MAX_REINTEGRATION_FACTOR)
+        {
+          vtkErrorMacro(<< "ReintegrationFactor is too high. Dropping particle.");
+          particle->SetTermination(vtkLagrangianParticle::PARTICLE_TERMINATION_ABORTED);
+          break;
+        }
         continue;
       }
       reintegrationFactor = 1;
