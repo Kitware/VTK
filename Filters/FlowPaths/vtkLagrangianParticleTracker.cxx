@@ -219,7 +219,7 @@ struct IntegratingFunctor
   }
 };
 
-constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
+static constexpr double MAX_REINTEGRATION_FACTOR = 1.0e10;
 
 //------------------------------------------------------------------------------
 vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
@@ -1236,6 +1236,9 @@ void vtkLagrangianParticleTracker::InsertInteractionOutputPoint(vtkLagrangianPar
   this->IntegrationModel->InsertInteractionData(particle, pointData);
   this->IntegrationModel->InsertParticleData(
     particle, pointData, vtkLagrangianBasicIntegrationModel::VARIABLE_STEP_NEXT);
+
+  // Let models add surface interaction data from the model
+  this->IntegrationModel->InsertSurfaceInteractionData(particle, pointData);
 
   // Finally, Insert data from seed data only on not yet written arrays
   this->IntegrationModel->InsertParticleSeedData(particle, pointData);
