@@ -16,13 +16,14 @@
  * @class vtkPartitionedDataSetCollectionToMultiBlockDataSet
  * @brief convert vtkPartitionedDataSetCollection to vtkMultiBlockDataSet
  *
- * Converts vtkPartitionedDataSetCollection to a vtkMultiBlockDataSet. If the
- * input vtkPartitionedDataSetCollection has a vtkDataAssembly associated with
- * it, this filter will try to preserve the relationships in the hierarchical
- * representation of the output vtkMultiBlockDataSet. It's not always possible
- * to represent the relationships represented in a vtkDataAssembly as a
- * vtkMultiBlockDataSet. In that case, the output merely represents the
- * structure from the input, and vtkDataAssembly will be disregarded.
+ * Converts vtkPartitionedDataSetCollection to a vtkMultiBlockDataSet.
+ * This simply represents the vtkPartitionedDataSetCollection as a
+ * vtkMultiBlockDataSet. Any structure represented in the vtkDataAssembly, for
+ * example is lost in this conversion.
+ *
+ * The vtkPPartitionedDataSetCollectionToMultiBlockDataSet is necessary for
+ * distributed cases to ensure that the structure of the output
+ * vtkMultiBlockDataSet is consistent on all ranks.
  *
  * @sa vtkPPartitionedDataSetCollectionToMultiBlockDataSet
  */
