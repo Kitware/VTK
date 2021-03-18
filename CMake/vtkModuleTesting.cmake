@@ -298,7 +298,10 @@ function (vtk_add_test_cxx exename _tests)
     "(\n|^)ERROR: "
     "ERR\\|"
     # vtkDebugLeaks
-    "instance(s)? still around")
+    "instance(s)? still around"
+    # vtkTesting
+    "Failed Image Test"
+    "DartMeasurement name=.ImageNotFound")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
