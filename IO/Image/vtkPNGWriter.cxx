@@ -392,7 +392,7 @@ void vtkPNGWriter::AddText(const char* key, const char* value)
 void vtkPNGWriter::ClearText()
 {
   vtkInternals* impl = this->Internals;
-  if (impl->TextKeyValue.size() > 0)
+  if (!impl->TextKeyValue.empty())
   {
     impl->TextKeyValue.clear();
     this->Modified();
