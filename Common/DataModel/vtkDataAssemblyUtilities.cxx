@@ -411,6 +411,16 @@ public:
         {
           top->SetBlock(index, this->Input->GetPartitionAsDataObject(datasets[0], 0));
         }
+        else if (num_partitions > 1)
+        {
+          // if more than 1 partition, we can't really put it in the output MB
+          // without changing the structure of we only consider 1st one and warn
+          // about it.
+          vtkErrorMacro(
+            "More than 1 partition encountered. Only 1st will be copied over (num_partitions="
+            << num_partitions << ").");
+          top->SetBlock(index, this->Input->GetPartitionAsDataObject(datasets[0], 0));
+        }
         else
         {
           assert(num_partitions == 0);
