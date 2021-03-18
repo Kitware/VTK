@@ -24,24 +24,13 @@
 #define __TBB_NO_IMPLICIT_LINKAGE 1
 #endif
 
-#include <tbb/task_scheduler_init.h>
+#include <tbb/task_arena.h>
 
 #ifdef _MSC_VER
 #pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
-struct vtkSMPToolsInit
-{
-  tbb::task_scheduler_init Init;
-
-  vtkSMPToolsInit(int numThreads)
-    : Init(numThreads)
-  {
-  }
-};
-
-static bool vtkSMPToolsInitialized = 0;
-static int vtkTBBNumSpecifiedThreads = 0;
+static tbb::task_arena taskArena;
 static std::mutex vtkSMPToolsCS;
 
 //------------------------------------------------------------------------------
@@ -54,23 +43,37 @@ const char* vtkSMPTools::GetBackend()
 void vtkSMPTools::Initialize(int numThreads)
 {
   vtkSMPToolsCS.lock();
-  if (!vtkSMPToolsInitialized)
+
+  // If numThreads <= 0, don't create a task_arena
+  // and let TBB do the default thing.
+  if (numThreads > 0 && numThreads != taskArena.max_concurrency())
   {
-    // If numThreads <= 0, don't create a task_scheduler_init
-    // and let TBB do the default thing.
-    if (numThreads > 0)
+    if (taskArena.is_active())
     {
-      static vtkSMPToolsInit aInit(numThreads);
-      vtkTBBNumSpecifiedThreads = numThreads;
+      taskArena.terminate();
     }
-    vtkSMPToolsInitialized = true;
+    taskArena.initialize(numThreads);
   }
+
   vtkSMPToolsCS.unlock();
 }
 
 //------------------------------------------------------------------------------
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {
-  return vtkTBBNumSpecifiedThreads ? vtkTBBNumSpecifiedThreads
-                                   : tbb::task_scheduler_init::default_num_threads();
+  return taskArena.max_concurrency();
+}
+
+//------------------------------------------------------------------------------
+void vtk::detail::smp::vtkSMPTools_Impl_For_TBB(vtkIdType first, vtkIdType last, vtkIdType grain,
+  ExecuteFunctorPtrType functorExecuter, void* functor)
+{
+  if (taskArena.is_active())
+  {
+    taskArena.execute([&] { functorExecuter(functor, first, last, grain); });
+  }
+  else
+  {
+    functorExecuter(functor, first, last, grain);
+  }
 }
