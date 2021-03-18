@@ -15,11 +15,9 @@
  *
  * Created:		H5Bprivate.h
  *			Jul 10 1997
- *			Robb Matzke <matzke@llnl.gov>
+ *			Robb Matzke
  *
  * Purpose:		Private non-prototype header.
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */

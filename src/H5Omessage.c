@@ -15,7 +15,7 @@
  *
  * Created:		H5Omessage.c
  *			Dec  3 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Object header message routines.
  *
@@ -105,7 +105,6 @@ static herr_t H5O__copy_mesg(H5F_t *f, H5O_t *oh, size_t idx,
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  1 2006
  *
  *-------------------------------------------------------------------------
@@ -153,7 +152,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Dec 31 2002
  *
  *-------------------------------------------------------------------------
@@ -196,7 +194,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  8 2006
  *
  *-------------------------------------------------------------------------
@@ -248,7 +245,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -304,7 +300,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  6 2007
  *
  *-------------------------------------------------------------------------
@@ -352,7 +347,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -453,7 +447,6 @@ done:
  *		Failure:	NULL
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -506,7 +499,6 @@ done:
  *		Failure:	NULL
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -563,7 +555,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 12 1997
  *
  *-------------------------------------------------------------------------
@@ -600,7 +591,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 12 1997
  *
  *-------------------------------------------------------------------------
@@ -951,7 +941,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 28 1997
  *
  *-------------------------------------------------------------------------
@@ -1002,7 +991,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
  *-------------------------------------------------------------------------
@@ -1052,7 +1040,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
  *-------------------------------------------------------------------------
@@ -1118,7 +1105,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 28 1997
  *
  *-------------------------------------------------------------------------
@@ -1175,7 +1161,6 @@ done:
  *      object headers were processed.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Nov 19 2004
  *
  * Description:
@@ -1241,7 +1226,6 @@ done:
  *      object headers were processed.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
  * Description:
@@ -1340,7 +1324,6 @@ done:
  * Return:	Size of message on success, 0 on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 13 2003
  *
  *-------------------------------------------------------------------------
@@ -1383,7 +1366,6 @@ done:
  * Return:	Size of message on success, 0 on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
  *-------------------------------------------------------------------------
@@ -1447,7 +1429,6 @@ done:
  * Return:	Size of message on success, 0 on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Mar  7 2007
  *
  *-------------------------------------------------------------------------
@@ -1584,7 +1565,6 @@ H5O_msg_can_share_in_ohdr(unsigned type_id)
  *              Object is not shared:    FALSE
  *
  * Programmer:  James Laird
- *              jlaird@ncsa.uiuc.edu
  *              April 5 2006
  *
  *-------------------------------------------------------------------------
@@ -1629,7 +1609,6 @@ H5O_msg_is_shared(unsigned type_id, const void *mesg)
  *		Failure:	Negative
  *
  * Programmer:	James Laird
- *		jlaird@hdfgroup.org
  *		November 1 2006
  *
  *-------------------------------------------------------------------------
@@ -1680,13 +1659,12 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	James Laird
- *		jlaird@hdfgroup.org
  *		Oct 17 2006
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_msg_reset_share(unsigned type_id, void *mesg)
+H5O_msg_reset_share(unsigned H5_ATTR_NDEBUG_UNUSED type_id, void *mesg)
 {
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
 
@@ -1759,7 +1737,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Raymond Lu
- *		slu@ncsa.uiuc.edu
  *		July 13, 2004
  *
  *-------------------------------------------------------------------------
@@ -1799,13 +1776,7 @@ done:
  *		Failure:	NULL
  *
  * Programmer:	Raymond Lu
- *		slu@ncsa.uiuc.edu
  *		July 14, 2004
- *
- * Modifications: Neil Fortner
- *              Feb 4 2009
- *              Added open_oh parameter.  This parameter is optional and
- *              contains this message's protected object header
  *
  *-------------------------------------------------------------------------
  */
@@ -1998,7 +1969,7 @@ H5O__copy_mesg(H5F_t *f, H5O_t *oh, size_t idx, const H5O_msg_class_t *type,
 
     /* Release chunk */
     if(H5O__chunk_unprotect(f, chk_proxy, chk_dirtied) < 0)
-        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
     chk_proxy = NULL;
 
     /* Update the modification time, if requested */
@@ -2070,7 +2041,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		September 26 2003
  *
  *-------------------------------------------------------------------------
@@ -2110,7 +2080,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		May 14 2007
  *
  *-------------------------------------------------------------------------
@@ -2211,7 +2180,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Nov 21 2005
  *
  *-------------------------------------------------------------------------

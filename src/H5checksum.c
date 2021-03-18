@@ -15,7 +15,7 @@
  *
  * Created:		H5checksum.c
  *			Aug 21 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Internal code for computing fletcher32 checksums
  *
@@ -152,7 +152,7 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5_checksum_crc_make_table
+ * Function:	H5__checksum_crc_make_table
  *
  * Purpose:	Compute the CRC table for the CRC checksum algorithm
  *
@@ -164,12 +164,12 @@ H5_checksum_fletcher32(const void *_data, size_t _len)
  *-------------------------------------------------------------------------
  */
 static void
-H5_checksum_crc_make_table(void)
+H5__checksum_crc_make_table(void)
 {
     uint32_t c;         /* Checksum for each byte value */
     unsigned n, k;      /* Local index variables */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Compute the checksum for each possible byte value */
     for(n = 0; n < 256; n++) {
@@ -184,11 +184,11 @@ H5_checksum_crc_make_table(void)
     H5_crc_table_computed = TRUE;
 
     FUNC_LEAVE_NOAPI_VOID
-} /* end H5_checksum_crc_make_table() */
+} /* end H5__checksum_crc_make_table() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5_checksum_crc_make_table
+ * Function:	H5__checksum_crc_update
  *
  * Purpose:	Update a running CRC with the bytes buf[0..len-1]--the CRC
  *              should be initialized to all 1's, and the transmitted value
@@ -203,22 +203,22 @@ H5_checksum_crc_make_table(void)
  *-------------------------------------------------------------------------
  */
 static uint32_t
-H5_checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
+H5__checksum_crc_update(uint32_t crc, const uint8_t *buf, size_t len)
 {
     size_t n;           /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Initialize the CRC table if necessary */
     if(!H5_crc_table_computed)
-        H5_checksum_crc_make_table();
+        H5__checksum_crc_make_table();
 
     /* Update the CRC with the results from this buffer */
     for(n = 0; n < len; n++)
         crc = H5_crc_table[(crc ^ buf[n]) & 0xff] ^ (crc >> 8);
 
     FUNC_LEAVE_NOAPI(crc)
-} /* end H5_checksum_crc_update() */
+} /* end H5__checksum_crc_update() */
 
 
 /*-------------------------------------------------------------------------
@@ -247,7 +247,7 @@ H5_checksum_crc(const void *_data, size_t len)
     HDassert(_data);
     HDassert(len > 0);
 
-    FUNC_LEAVE_NOAPI(H5_checksum_crc_update((uint32_t)0xffffffffL, (const uint8_t *)_data, len) ^ 0xffffffffL)
+    FUNC_LEAVE_NOAPI(H5__checksum_crc_update((uint32_t)0xffffffffL, (const uint8_t *)_data, len) ^ 0xffffffffL)
 } /* end H5_checksum_crc() */
 
 /*
@@ -407,16 +407,27 @@ H5_checksum_lookup3(const void *key, size_t length, uint32_t initval)
     switch(length)                   /* all the case statements fall through */
     {
         case 12: c+=((uint32_t)k[11])<<24;
+                H5_ATTR_FALLTHROUGH
         case 11: c+=((uint32_t)k[10])<<16;
+                H5_ATTR_FALLTHROUGH
         case 10: c+=((uint32_t)k[9])<<8;
+                H5_ATTR_FALLTHROUGH
         case 9 : c+=k[8];
+                H5_ATTR_FALLTHROUGH
         case 8 : b+=((uint32_t)k[7])<<24;
+                H5_ATTR_FALLTHROUGH
         case 7 : b+=((uint32_t)k[6])<<16;
+                H5_ATTR_FALLTHROUGH
         case 6 : b+=((uint32_t)k[5])<<8;
+                H5_ATTR_FALLTHROUGH
         case 5 : b+=k[4];
+                H5_ATTR_FALLTHROUGH
         case 4 : a+=((uint32_t)k[3])<<24;
+                H5_ATTR_FALLTHROUGH
         case 3 : a+=((uint32_t)k[2])<<16;
+                H5_ATTR_FALLTHROUGH
         case 2 : a+=((uint32_t)k[1])<<8;
+                H5_ATTR_FALLTHROUGH
         case 1 : a+=k[0];
                  break;
         case 0 : goto done;

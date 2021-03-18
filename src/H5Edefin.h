@@ -20,7 +20,7 @@
 
 /* Major error IDs */
 hid_t H5E_FUNC_g           = FAIL;      /* Function entry/exit */
-hid_t H5E_FILE_g           = FAIL;      /* File accessibilty */
+hid_t H5E_FILE_g           = FAIL;      /* File accessibility */
 hid_t H5E_SOHM_g           = FAIL;      /* Shared Object Header Messages */
 hid_t H5E_SYM_g            = FAIL;      /* Symbol table */
 hid_t H5E_PLUGIN_g         = FAIL;      /* Plugin for dynamically loaded library */
@@ -135,7 +135,7 @@ hid_t H5E_NONE_MINOR_g     = FAIL;      /* No error */
 /* Plugin errors */
 hid_t H5E_OPENERROR_g      = FAIL;      /* Can't open directory or file */
 
-/* File accessibilty errors */
+/* File accessibility errors */
 hid_t H5E_FILEEXISTS_g     = FAIL;      /* File already exists */
 hid_t H5E_FILEOPEN_g       = FAIL;      /* File already open */
 hid_t H5E_CANTCREATE_g     = FAIL;      /* Unable to create file */
@@ -145,6 +145,8 @@ hid_t H5E_NOTHDF5_g        = FAIL;      /* Not an HDF5 file */
 hid_t H5E_BADFILE_g        = FAIL;      /* Bad file ID accessed */
 hid_t H5E_TRUNCATED_g      = FAIL;      /* File has been truncated */
 hid_t H5E_MOUNT_g          = FAIL;      /* File mount error */
+hid_t H5E_CANTLOCKFILE_g   = FAIL;      /* Unable to lock file */
+hid_t H5E_CANTUNLOCKFILE_g = FAIL;      /* Unable to unlock file */
 
 /* Object atom related errors */
 hid_t H5E_BADATOM_g        = FAIL;      /* Unable to find atom information (already closed?) */
@@ -205,6 +207,7 @@ hid_t H5E_CANTSELECT_g     = FAIL;      /* Can't select hyperslab */
 hid_t H5E_CANTNEXT_g       = FAIL;      /* Can't move to next iterator location */
 hid_t H5E_BADSELECT_g      = FAIL;      /* Invalid selection */
 hid_t H5E_CANTCOMPARE_g    = FAIL;      /* Can't compare objects */
+hid_t H5E_INCONSISTENTSTATE_g = FAIL;      /* Internal states are inconsistent */
 hid_t H5E_CANTAPPEND_g     = FAIL;      /* Can't append object */
 
 /* Argument errors */

@@ -313,7 +313,7 @@ H5C_get_logging_status(const H5C_t *cache, /*OUT*/ hbool_t *is_enabled,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_log_write_create_cache_msg(H5C_t *cache, herr_t fxn_ret_value) 
+H5C_log_write_create_cache_msg(H5C_t *cache, herr_t fxn_ret_value)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -348,7 +348,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_log_write_destroy_cache_msg(H5C_t *cache) 
+H5C_log_write_destroy_cache_msg(H5C_t *cache)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 

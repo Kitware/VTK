@@ -25,7 +25,7 @@
 #include "H5Tpkg.h"		/* Datatypes				*/
 
 /* Static local functions */
-static herr_t H5T_set_offset(const H5T_t *dt, size_t offset);
+static herr_t H5T__set_offset(const H5T_t *dt, size_t offset);
 
 
 
@@ -163,10 +163,6 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Moved real work to a private function.
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -191,7 +187,7 @@ H5Tset_offset(hid_t type_id, size_t offset)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for this datatype")
 
     /* Do the real work */
-    if (H5T_set_offset(dt, offset)<0)
+    if (H5T__set_offset(dt, offset)<0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset")
 
 done:
@@ -200,7 +196,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T_set_offset
+ * Function:	H5T__set_offset
  *
  * Purpose:	Sets the bit offset of the first significant bit.  The
  *		significant bits of an atomic datum can be offset from the
@@ -232,18 +228,14 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Also works for derived data types.
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5T_set_offset(const H5T_t *dt, size_t offset)
+H5T__set_offset(const H5T_t *dt, size_t offset)
 {
     herr_t      ret_value=SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_STATIC
 
     /* Check args */
     HDassert(dt);
@@ -254,7 +246,7 @@ H5T_set_offset(const H5T_t *dt, size_t offset)
     HDassert(!(H5T_ENUM==dt->shared->type && 0==dt->shared->u.enumer.nmembs));
 
     if (dt->shared->parent) {
-	if (H5T_set_offset(dt->shared->parent, offset)<0)
+	if (H5T__set_offset(dt->shared->parent, offset)<0)
 	    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset for base type")
 
         /* Adjust size of datatype appropriately */

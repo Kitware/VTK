@@ -15,7 +15,7 @@
  *
  * Created:             H5Defc.c
  *                      December 13, 2010
- *                      Neil Fortner <nfortne2@hdfgroup.org>
+ *                      Neil Fortner
  *
  * Purpose:             External file caching routines - implements a
  *                      cache of external files to minimize the number of
@@ -58,14 +58,14 @@ struct H5F_efc_t {
     unsigned            max_nfiles;     /* Maximum size of the external file cache */
     unsigned            nrefs;          /* Number of times this file appears in another file's EFC */
     int                 tag;            /* Temporary variable used by H5F__efc_try_close() */
-    H5F_file_t          *tmp_next;      /* Next file in temporary list used by H5F__efc_try_close() */
+    H5F_shared_t        *tmp_next;      /* Next file in temporary list used by H5F__efc_try_close() */
 };
 
 /* Private prototypes */
 static herr_t H5F__efc_release_real(H5F_efc_t *efc);
 static herr_t H5F__efc_remove_ent(H5F_efc_t *efc, H5F_efc_ent_t *ent);
-static void H5F__efc_try_close_tag1(H5F_file_t *sf, H5F_file_t **tail);
-static void H5F__efc_try_close_tag2(H5F_file_t *sf, H5F_file_t **tail);
+static void H5F__efc_try_close_tag1(H5F_shared_t *sf, H5F_shared_t **tail);
+static void H5F__efc_try_close_tag2(H5F_shared_t *sf, H5F_shared_t **tail);
 
 /* Free lists */
 H5FL_DEFINE_STATIC(H5F_efc_ent_t);
@@ -628,10 +628,10 @@ done:
  *-------------------------------------------------------------------------
  */
 static void
-H5F__efc_try_close_tag1(H5F_file_t *sf, H5F_file_t **tail)
+H5F__efc_try_close_tag1(H5F_shared_t *sf, H5F_shared_t **tail)
 {
     H5F_efc_ent_t       *ent = NULL;    /* EFC entry */
-    H5F_file_t          *esf;           /* Convenience pointer to ent->file->shared */
+    H5F_shared_t          *esf;           /* Convenience pointer to ent->file->shared */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -702,10 +702,10 @@ H5F__efc_try_close_tag1(H5F_file_t *sf, H5F_file_t **tail)
  *-------------------------------------------------------------------------
  */
 static void
-H5F__efc_try_close_tag2(H5F_file_t *sf, H5F_file_t **tail)
+H5F__efc_try_close_tag2(H5F_shared_t *sf, H5F_shared_t **tail)
 {
     H5F_efc_ent_t       *ent = NULL;    /* EFC entry */
-    H5F_file_t          *esf;           /* Convenience pointer to ent->file->shared */
+    H5F_shared_t        *esf;           /* Convenience pointer to ent->file->shared */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -811,11 +811,11 @@ H5F__efc_try_close_tag2(H5F_file_t *sf, H5F_file_t **tail)
 herr_t
 H5F__efc_try_close(H5F_t *f)
 {
-    H5F_file_t  *tail;                  /* Tail of linked list of found files.  Head will be f->shared. */
-    H5F_file_t  *uncloseable_head = NULL; /* Head of linked list of files found to be uncloseable by the first pass */
-    H5F_file_t  *uncloseable_tail = NULL; /* Tail of linked list of files found to be uncloseable by the first pass */
-    H5F_file_t  *sf;                    /* Temporary file pointer */
-    H5F_file_t  *next;                  /* Temporary file pointer */
+    H5F_shared_t  *tail;                /* Tail of linked list of found files.  Head will be f->shared. */
+    H5F_shared_t  *uncloseable_head = NULL; /* Head of linked list of files found to be uncloseable by the first pass */
+    H5F_shared_t  *uncloseable_tail = NULL; /* Tail of linked list of files found to be uncloseable by the first pass */
+    H5F_shared_t  *sf;                  /* Temporary file pointer */
+    H5F_shared_t  *next;                /* Temporary file pointer */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -867,7 +867,7 @@ H5F__efc_try_close(H5F_t *f)
         HGOTO_DONE(SUCCEED)
 
     /* If the file EFC were locked, that should always mean that there exists
-     * a reference to this file that is not in an EFC (it may have just been 
+     * a reference to this file that is not in an EFC (it may have just been
      * removed from an EFC), and should have been caught by the above check */
     /* If we get here then we must be beginning a new run.  Make sure that the
      * temporary variables in f->shared->efc are at the default value */

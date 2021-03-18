@@ -15,7 +15,7 @@
  *
  * Created:		H5Fsuper_cache.c
  *			Aug 15 2009
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Implement file superblock & driver info metadata cache methods.
  *
@@ -42,7 +42,6 @@
 #include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5MMprivate.h"        /* Memory management                    */
 #include "H5Pprivate.h"		/* Property lists			*/
-#include "H5SMprivate.h"        /* Shared Object Header Messages        */
 
 
 /****************/
@@ -269,8 +268,8 @@ H5F__drvrinfo_prefix_decode(H5O_drvinfo_t *drvrinfo, char *drv_name,
     UINT32DECODE(image, drvrinfo->len);
 
     /* Driver name and/or version */
-    if(drv_name) { 
-        HDmemcpy(drv_name, (const char *)image, (size_t)8);
+    if(drv_name) {
+        H5MM_memcpy(drv_name, (const char *)image, (size_t)8);
         drv_name[8] = '\0';
         image += 8; /* advance past name/version */
     } /* end if */
@@ -310,7 +309,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 17, 2013
  *
  *-------------------------------------------------------------------------
@@ -339,16 +337,15 @@ H5F__cache_superblock_get_initial_load_size(void H5_ATTR_UNUSED *_udata, size_t 
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@lbl.gov
  *              November 17, 2016
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5F__cache_superblock_get_final_load_size(const void *_image, size_t image_len,
+H5F__cache_superblock_get_final_load_size(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED image_len,
     void *_udata, size_t *actual_len)
 {
-    const uint8_t *image = (const uint8_t *)_image;   			    /* Pointer into raw data buffer */
+    const uint8_t *image = _image; /* Pointer into raw data buffer */
     H5F_superblock_cache_ud_t *udata = (H5F_superblock_cache_ud_t *)_udata; /* User data */
     H5F_super_t sblock;                 /* Temporary file superblock */
     htri_t ret_value = SUCCEED;         /* Return value */
@@ -370,7 +367,7 @@ H5F__cache_superblock_get_final_load_size(const void *_image, size_t image_len,
     udata->super_vers = sblock.super_vers;
 
     /* Set the final size for the cache image */
-    *actual_len = H5F_SUPERBLOCK_FIXED_SIZE + 
+    *actual_len = H5F_SUPERBLOCK_FIXED_SIZE +
             (size_t)H5F_SUPERBLOCK_VARLEN_SIZE(sblock.super_vers, sblock.sizeof_addr, sblock.sizeof_size);
 
 done:
@@ -381,7 +378,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5F__cache_superblock_verify_chksum
  *
- * Purpose:	Verify the computed checksum of the data structure is the 
+ * Purpose:	Verify the computed checksum of the data structure is the
  *		same as the stored chksum.
  *
  * Return:      Success:        TRUE/FALSE
@@ -394,7 +391,7 @@ done:
 static htri_t
 H5F__cache_superblock_verify_chksum(const void *_image, size_t len, void *_udata)
 {
-    const uint8_t *image = (const uint8_t *)_image;    	/* Pointer into raw data buffer */
+    const uint8_t *image = _image;    	/* Pointer into raw data buffer */
     H5F_superblock_cache_ud_t *udata = (H5F_superblock_cache_ud_t *)_udata; /* User data */
     uint32_t stored_chksum;     /* Stored metadata checksum value */
     uint32_t computed_chksum;   /* Computed metadata checksum value */
@@ -429,18 +426,17 @@ H5F__cache_superblock_verify_chksum(const void *_image, size_t len, void *_udata
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		July 18 2013
  *
  *-------------------------------------------------------------------------
  */
 static void *
-H5F__cache_superblock_deserialize(const void *_image, size_t len, void *_udata,
+H5F__cache_superblock_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len, void *_udata,
     hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5F_super_t         *sblock = NULL; /* File's superblock */
     H5F_superblock_cache_ud_t *udata = (H5F_superblock_cache_ud_t *)_udata; /* User data */
-    const uint8_t	*image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
+    const uint8_t	*image = _image; /* Pointer into raw data buffer */
     H5F_super_t         *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
@@ -585,14 +581,14 @@ H5F__cache_superblock_deserialize(const void *_image, size_t len, void *_udata,
 	H5F_addr_decode(udata->f, (const uint8_t **)&image, &udata->stored_eof/*out*/);
 	H5F_addr_decode(udata->f, (const uint8_t **)&image, &sblock->root_addr/*out*/);
 
-	/* checksum verification already done in verify_chksum cb */		
+	/* checksum verification already done in verify_chksum cb */
 
 	/* Decode checksum */
 	UINT32DECODE(image, read_chksum);
 
 	/* The Driver Information Block may not appear with the version
-	 * 2 super block.  Thus we set the driver_addr field of the in 
-         * core representation of the super block HADDR_UNDEF to prevent 
+	 * 2 super block.  Thus we set the driver_addr field of the in
+         * core representation of the super block HADDR_UNDEF to prevent
          * any attempt to load the Driver Information Block.
 	 */
 	sblock->driver_addr = HADDR_UNDEF;
@@ -622,7 +618,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 19, 2013
  *
  *-------------------------------------------------------------------------
@@ -655,7 +650,6 @@ H5F__cache_superblock_image_len(const void *_thing, size_t *image_len)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		July 19 2013
  *
  *-------------------------------------------------------------------------
@@ -665,7 +659,7 @@ H5F__cache_superblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNU
     void *_thing)
 {
     H5F_super_t *sblock = (H5F_super_t *)_thing;      /* Pointer to the object */
-    uint8_t *image = (uint8_t *)_image;         /* Pointer into raw data buffer */
+    uint8_t *image = _image;         /* Pointer into raw data buffer */
     haddr_t rel_eof;            /* Relative EOF for file */
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -676,14 +670,14 @@ H5F__cache_superblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNU
     HDassert(image);
     HDassert(sblock);
 
-    /* Assert that the superblock is marked as being flushed last (and 
+    /* Assert that the superblock is marked as being flushed last (and
        collectively in parallel) */
     /* (We'll rely on the cache to make sure it actually *is* flushed
        last (and collectively in parallel), but this check doesn't hurt) */
-    HDassert(sblock->cache_info.flush_me_last);    
+    HDassert(sblock->cache_info.flush_me_last);
 
     /* Encode the common portion of the file superblock for all versions */
-    HDmemcpy(image, H5F_SIGNATURE, (size_t)H5F_SIGNATURE_LEN);
+    H5MM_memcpy(image, H5F_SIGNATURE, (size_t)H5F_SIGNATURE_LEN);
     image += H5F_SIGNATURE_LEN;
     *image++ = (uint8_t)sblock->super_vers;
 
@@ -799,7 +793,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 20, 2013
  *
  *-------------------------------------------------------------------------
@@ -834,7 +827,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 20, 2013
  *
  *-------------------------------------------------------------------------
@@ -862,16 +854,15 @@ H5F__cache_drvrinfo_get_initial_load_size(void H5_ATTR_UNUSED *_udata, size_t *i
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@lbl.gov
  *              November 17, 2016
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5F__cache_drvrinfo_get_final_load_size(const void *_image, size_t image_len,
+H5F__cache_drvrinfo_get_final_load_size(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED image_len,
     void *_udata, size_t *actual_len)
 {
-    const uint8_t *image = (const uint8_t *)_image;   			/* Pointer into raw data buffer */
+    const uint8_t *image = _image; /* Pointer into raw data buffer */
     H5F_drvrinfo_cache_ud_t *udata = (H5F_drvrinfo_cache_ud_t *)_udata;	/* User data */
     H5O_drvinfo_t drvrinfo;     /* Driver info */
     herr_t ret_value = SUCCEED; /* Return value */
@@ -906,18 +897,17 @@ done:
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		July 20 2013
  *
  *-------------------------------------------------------------------------
  */
 static void *
-H5F__cache_drvrinfo_deserialize(const void *_image, size_t len, void *_udata,
+H5F__cache_drvrinfo_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len, void *_udata,
     hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5O_drvinfo_t       *drvinfo = NULL; /* Driver info */
     H5F_drvrinfo_cache_ud_t *udata = (H5F_drvrinfo_cache_ud_t *)_udata;     /* User data */
-    const uint8_t	*image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
+    const uint8_t	*image = _image; /* Pointer into raw data buffer */
     char                drv_name[9];    /* Name of driver */
     H5O_drvinfo_t       *ret_value = NULL;      /* Return value */
 
@@ -967,7 +957,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 20, 2013
  *
  *-------------------------------------------------------------------------
@@ -1001,17 +990,16 @@ H5F__cache_drvrinfo_image_len(const void *_thing, size_t *image_len)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		July 20 2013
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5F__cache_drvrinfo_serialize(const H5F_t *f, void *_image, size_t len,
+H5F__cache_drvrinfo_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
     void *_thing)
 {
     H5O_drvinfo_t *drvinfo = (H5O_drvinfo_t *)_thing;   /* Pointer to the object */
-    uint8_t *image = (uint8_t *)_image;         /* Pointer into raw data buffer */
+    uint8_t *image = _image;         /* Pointer into raw data buffer */
     uint8_t *dbuf;              /* Pointer to beginning of driver info */
     herr_t ret_value = SUCCEED; /* Return value */
 
@@ -1065,7 +1053,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 20, 2013
  *
  *-------------------------------------------------------------------------

@@ -59,16 +59,16 @@
 static herr_t H5SM__cache_table_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5SM__cache_table_verify_chksum(const void *image_ptr, size_t len, void *udata_ptr);
 static void *H5SM__cache_table_deserialize(const void *image, size_t len,
-    void *udata, hbool_t *dirty); 
+    void *udata, hbool_t *dirty);
 static herr_t H5SM__cache_table_image_len(const void *thing, size_t *image_len);
 static herr_t H5SM__cache_table_serialize(const H5F_t *f, void *image,
-    size_t len, void *thing); 
+    size_t len, void *thing);
 static herr_t H5SM__cache_table_free_icr(void *thing);
 
 static herr_t H5SM__cache_list_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5SM__cache_list_verify_chksum(const void *image_ptr, size_t len, void *udata_ptr);
 static void *H5SM__cache_list_deserialize(const void *image, size_t len,
-    void *udata, hbool_t *dirty); 
+    void *udata, hbool_t *dirty);
 static herr_t H5SM__cache_list_image_len(const void *thing, size_t *image_len);
 static herr_t H5SM__cache_list_serialize(const H5F_t *f, void *image,
     size_t len, void *thing);
@@ -129,7 +129,7 @@ const H5AC_class_t H5AC_SOHM_LIST[1] = {{
 /*-------------------------------------------------------------------------
  * Function:    H5SM__cache_table_get_initial_load_size()
  *
- * Purpose:	Return the size of the master table of Shared Object Header 
+ * Purpose:	Return the size of the master table of Shared Object Header
  *		Message indexes on disk.
  *
  * Return:      Success:        SUCCEED
@@ -198,9 +198,9 @@ H5SM__cache_table_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNU
 /*-------------------------------------------------------------------------
  * Function:    H5SM__cache_table_deserialize
  *
- * Purpose:	Given a buffer containing the on disk representation of the 
+ * Purpose:	Given a buffer containing the on disk representation of the
  *		master table of Shared Object Header Message indexes, deserialize
- *		the table, copy the contents into a newly allocated instance of 
+ *		the table, copy the contents into a newly allocated instance of
  *		H5SM_master_table_t, and return a pointer to the new instance.
  *
  * Return:      Success:        Pointer to in core representation
@@ -212,8 +212,8 @@ H5SM__cache_table_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNU
  *-------------------------------------------------------------------------
  */
 static void *
-H5SM__cache_table_deserialize(const void *_image, size_t len, void *_udata,
-    hbool_t H5_ATTR_UNUSED *dirty)
+H5SM__cache_table_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
+    void *_udata, hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5F_t		   *f;                  /* File pointer -- from user data */
     H5SM_master_table_t    *table = NULL;       /* Shared message table that we deserializing */
@@ -264,7 +264,7 @@ H5SM__cache_table_deserialize(const void *_image, size_t len, void *_udata,
     /* Read in the index headers */
     for(u = 0; u < table->num_indexes; ++u) {
         /* Verify correct version of index list */
-        if(H5SM_LIST_VERSION != *image++) 
+        if(H5SM_LIST_VERSION != *image++)
             HGOTO_ERROR(H5E_SOHM, H5E_VERSION, NULL, "bad shared message list version number")
 
         /* Type of the index (list or B-tree) */
@@ -364,7 +364,7 @@ H5SM__cache_table_image_len(const void *_thing, size_t *image_len)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM__cache_table_serialize(const H5F_t *f, void *_image, size_t len,
+H5SM__cache_table_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
     void *_thing)
 {
     H5SM_master_table_t *table = (H5SM_master_table_t *)_thing; /* Shared message table to encode */
@@ -388,7 +388,7 @@ H5SM__cache_table_serialize(const H5F_t *f, void *_image, size_t len,
     HDassert(H5F_SOHM_VERS(f) == HDF5_SHAREDHEADER_VERSION);
 
     /* Encode magic number */
-    HDmemcpy(image, H5SM_TABLE_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5SM_TABLE_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* Encode each index header */
@@ -397,7 +397,7 @@ H5SM__cache_table_serialize(const H5F_t *f, void *_image, size_t len,
         *image++ = H5SM_LIST_VERSION;
 
         /* Is message index a list or a B-tree? */
-        *image++ = table->indexes[u].index_type;
+        *image++ = (uint8_t)table->indexes[u].index_type;
 
         /* Type of messages in the index */
         UINT16ENCODE(image, table->indexes[u].mesg_types);
@@ -555,8 +555,8 @@ H5SM__cache_list_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
 /*-------------------------------------------------------------------------
  * Function:    H5SM__cache_list_deserialize
  *
- * Purpose:	Given a buffer containing the on disk image of a list of 
- *		SOHM message, deserialize the list, load it into a newly allocated 
+ * Purpose:	Given a buffer containing the on disk image of a list of
+ *		SOHM message, deserialize the list, load it into a newly allocated
  *		instance of H5SM_list_t, and return a pointer to same.
  *
  * Return:      Success:        Pointer to in core representation
@@ -568,8 +568,8 @@ H5SM__cache_list_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
  *-------------------------------------------------------------------------
  */
 static void *
-H5SM__cache_list_deserialize(const void *_image, size_t len, void *_udata,
-    hbool_t H5_ATTR_UNUSED *dirty)
+H5SM__cache_list_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
+    void *_udata, hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5SM_list_t          *list = NULL;     /* The SOHM list being read in */
     H5SM_list_cache_ud_t *udata = (H5SM_list_cache_ud_t *)_udata;    /* User data for callback */
@@ -687,7 +687,7 @@ H5SM__cache_list_image_len(const void *_thing, size_t *image_len)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM__cache_list_serialize(const H5F_t *f, void *_image, size_t len,
+H5SM__cache_list_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
     void *_thing)
 {
     H5SM_list_t *list = (H5SM_list_t *)_thing ;   /* Instance being serialized */
@@ -710,7 +710,7 @@ H5SM__cache_list_serialize(const H5F_t *f, void *_image, size_t len,
     HDassert(list->header->list_size == len);
 
     /* Encode magic number */
-    HDmemcpy(image, H5SM_LIST_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5SM_LIST_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* serialize messages from the messages array */

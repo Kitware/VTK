@@ -97,10 +97,4 @@ and/or accompanying materials:
 
 -----------------------------------------------------------------------------
 
-HDF5 is available with the SZIP compression library but SZIP is not part 
-of HDF5 and has separate copyright and license terms. See SZIP Compression 
-in HDF Products (www.hdfgroup.org/doc_resource/SZIP/) for further details.
-
------------------------------------------------------------------------------
-
 

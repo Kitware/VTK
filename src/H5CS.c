@@ -123,8 +123,6 @@ H5CS__get_stack(void)
  * Programmer:	Quincey Koziol
  *              Thursday, February 6, 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -145,11 +143,7 @@ H5CS_print_stack(const H5CS_t *fstack, FILE *stream)
 
     HDfprintf(stream, "HDF5-DIAG: Function stack from %s ", H5_lib_vers_info_g);
     /* try show the process or thread id in multiple processes cases*/
-#ifdef H5_HAVE_THREADSAFE
-    HDfprintf(stream, "thread %lu.", HDpthread_self_ulong());
-#else  /* H5_HAVE_THREADSAFE */
-    HDfprintf(stream, "thread 0.");
-#endif  /* H5_HAVE_THREADSAFE */
+    HDfprintf(stream, "thread %" PRIu64 ".", H5TS_thread_id());
     if(fstack && fstack->nused>0)
         HDfprintf(stream, "  Back trace follows.");
     HDfputc('\n', stream);
@@ -217,8 +211,6 @@ H5CS_push(const char *func_name)
  *
  * Programmer:	Quincey Koziol
  *		Thursday, February 6, 2003
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */

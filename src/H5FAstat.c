@@ -35,9 +35,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"      /* Generic Functions                        */
-#include "H5Eprivate.h"     /* Error handling                           */
-#include "H5FApkg.h"        /* Fixed Arrays                             */
+#include "H5private.h"          /* Generic Functions                    */
+#include "H5Eprivate.h"         /* Error handling                       */
+#include "H5FApkg.h"            /* Fixed Arrays                         */
+#include "H5MMprivate.h"	/* Memory management			*/
 
 
 /****************/
@@ -105,7 +106,7 @@ HDfprintf(stderr, "%s: Called\n", FUNC);
     HDassert(stats);
 
     /* Copy fixed array statistics */
-    HDmemcpy(stats, &fa->hdr->stats, sizeof(fa->hdr->stats));
+    H5MM_memcpy(stats, &fa->hdr->stats, sizeof(fa->hdr->stats));
 
 END_FUNC(PRIV)  /* end H5FA_get_stats() */
 

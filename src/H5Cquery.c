@@ -398,7 +398,7 @@ done:
  * Function:    H5C_get_mdc_image_info
  *
  * Purpose:	    To retrieve the address and size of the cache image in the file.
- *              
+ *
  * Return:      SUCCEED on success, and FAIL on failure.
  *
  * Programmer:  Vailin Choi; March 2017
@@ -419,7 +419,7 @@ H5C_get_mdc_image_info(H5C_t * cache_ptr, haddr_t *image_addr, hsize_t *image_le
 
     *image_addr = cache_ptr->image_addr;
     *image_len = cache_ptr->image_len;
-    
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C_get_mdc_image_info() */

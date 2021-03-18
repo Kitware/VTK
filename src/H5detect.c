@@ -49,6 +49,11 @@ static const char *FileHeader = "\n\
 #include "H5Tpublic.h"
 #include "H5Rpublic.h"
 
+/* Disable warning about cast increasing the alignment of the target type,
+ * that's _exactly_ what this code is probing.  -QAK
+ */
+H5_GCC_DIAG_OFF(cast-align)
+
 #if defined(__has_attribute)
 # if __has_attribute(no_sanitize_address)
 #  define HDF_NO_UBSAN __attribute__((no_sanitize_address))
@@ -153,7 +158,7 @@ static H5JMP_BUF jbuf_g;
 #endif
 
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    precision
  *
@@ -206,7 +211,7 @@ precision (detected_t *d)
     }
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    DETECT_I/DETECT_BYTE
  *
@@ -218,25 +223,6 @@ precision (detected_t *d)
  *              DETECT_BYTE is used for types that are exactly one byte.
  *
  * Return:      void
- *
- * Modifications:
- *
- *    Robb Matzke, 4 Nov 1996
- *    The INFO.perm now contains `-1' for bytes that aren't used and
- *    are always zero.  This happens on the Cray for `short' where
- *    sizeof(short) is 8, but only the low-order 4 bytes are ever used.
- *
- *    Robb Matzke, 4 Nov 1996
- *    Added a `padding' field to indicate how many zero bytes appear to
- *    the left (N) or right (-N) of the value.
- *
- *    Robb Matzke, 5 Nov 1996
- *    Removed HFILE and CFILE arguments.
- *
- *      Neil Fortner, 6 Sep 2013
- *      Split macro into DETECT_I and DETECT_BYTE macros, extracted
- *      common code into DETECT_I_BYTE_CORE.  This was done to remove
- *      "will never be executed" warnings.
  *
  *-------------------------------------------------------------------------
  */
@@ -280,7 +266,7 @@ precision (detected_t *d)
     DETECT_I_BYTE_CORE(TYPE,VAR,INFO,TYPE)                                    \
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    DETECT_F
  *
@@ -377,7 +363,7 @@ precision (detected_t *d)
     }                                                                         \
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    DETECT_M
  *
@@ -453,7 +439,7 @@ precision (detected_t *d)
 
 
 #if defined(H5LONGJMP) && defined(H5_HAVE_SIGNAL)
-
+
 /*-------------------------------------------------------------------------
  * Function:    sigsegv_handler
  *
@@ -486,7 +472,7 @@ sigsegv_handler(int H5_ATTR_UNUSED signo)
 
 
 #if defined(H5LONGJMP) && defined(H5_HAVE_SIGNAL)
-
+
 /*-------------------------------------------------------------------------
  * Function:    sigbus_handler
  *
@@ -519,7 +505,7 @@ sigbus_handler(int H5_ATTR_UNUSED signo)
 
 
 #if defined(H5LONGJMP) && defined(H5_HAVE_SIGNAL)
-
+
 /*-------------------------------------------------------------------------
  * Function:    sigill_handler
  *
@@ -550,7 +536,7 @@ sigill_handler(int H5_ATTR_UNUSED signo)
 }
 #endif
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    print_results
  *
@@ -829,7 +815,7 @@ done:\n\
     fprintf(rawoutstream, "/* sigill_handler called: %d times */\n", sigill_handler_called_g);
 } /* end print_results() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    iprint
  *
@@ -919,7 +905,7 @@ iprint(detected_t *d)
 
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    byte_cmp
  *
@@ -946,7 +932,7 @@ byte_cmp(int n, const void *_a, const void *_b, const unsigned char *pad_mask)
     return -1;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    bit_cmp
  *
@@ -987,7 +973,7 @@ bit_cmp(unsigned int nbytes, int *perm, void *_a, void *_b,
     return 0;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    fix_order
  *
@@ -1055,7 +1041,7 @@ fix_order(int n, int last, int *perm, const char **mesg)
     }
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    imp_bit
  *
@@ -1109,7 +1095,7 @@ imp_bit(unsigned int n, int *perm, void *_a, void *_b, const unsigned char *pad_
     return (a[perm[major]] >> minor) & 0x01 ? 0 : 1;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:  find_bias
  *
@@ -1140,7 +1126,7 @@ find_bias(unsigned int epos, unsigned int esize, int *perm, void *_a)
     return bias;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    print_header
  *
@@ -1281,7 +1267,7 @@ bit.\n";
 
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C89_integers
  *
@@ -1303,7 +1289,7 @@ detect_C89_integers(void)
     DETECT_I(unsigned long,    ULONG,        d_g[nd_g]); nd_g++;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C89_floats
  *
@@ -1319,7 +1305,7 @@ detect_C89_floats(void)
     DETECT_F(double,    DOUBLE,     d_g[nd_g]); nd_g++;
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_integers8
  *
@@ -1375,7 +1361,7 @@ detect_C99_integers8(void)
 #endif
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_integers16
  *
@@ -1407,7 +1393,7 @@ detect_C99_integers16(void)
 #endif
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_integers32
  *
@@ -1439,7 +1425,7 @@ detect_C99_integers32(void)
 #endif
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_integers64
  *
@@ -1485,7 +1471,7 @@ detect_C99_integers64(void)
 #endif
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_integers
  *
@@ -1505,7 +1491,7 @@ detect_C99_integers(void)
     detect_C99_integers64();
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_C99_floats
  *
@@ -1530,7 +1516,7 @@ detect_C99_floats(void)
 #endif
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    detect_alignments
  *
@@ -1607,19 +1593,13 @@ static int verify_signal_handlers(int signum, void (*handler)(int))
 }
 #endif
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    main
  *
  * Purpose:     Main entry point.
  *
  * Return:      Success:    EXIT_SUCCESS
- *
- * Modifications:
- *    Some compilers, e.g., Intel C v7.0, took a long time to compile
- *      with optimization when a module routine contains many code lines.
- *      Divide up all those types detections macros into subroutines, both
- *      to avoid the compiler optimization error and cleaner codes.
  *
  *-------------------------------------------------------------------------
  */
@@ -1705,3 +1685,4 @@ main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+H5_GCC_DIAG_ON(cast-align)

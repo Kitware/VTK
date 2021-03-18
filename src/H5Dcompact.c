@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Raymond Lu <slu@ncsa.uiuc.edu>
+ * Programmer:  Raymond Lu
  *              August 5, 2002
  *
  * Purpose:     Compact dataset I/O functions.  These routines are similar
@@ -529,7 +529,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_ds
         if(NULL == (buf = H5FL_BLK_MALLOC(type_conv, buf_size)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
-        HDmemcpy(buf, storage_src->buf, storage_src->size);
+        H5MM_memcpy(buf, storage_src->buf, storage_src->size);
 
         /* allocate temporary bkg buff for data conversion */
         if(NULL == (bkg = H5FL_BLK_MALLOC(type_conv, buf_size)))
@@ -540,7 +540,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_ds
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "datatype conversion failed")
 
         /* Copy into another buffer, to reclaim memory later */
-        HDmemcpy(reclaim_buf, buf, buf_size);
+        H5MM_memcpy(reclaim_buf, buf, buf_size);
 
         /* Set background buffer to all zeros */
         HDmemset(bkg, 0, buf_size);
@@ -549,7 +549,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_ds
         if(H5T_convert(tpath_mem_dst, tid_mem, tid_dst, nelmts, (size_t)0, (size_t)0, buf, bkg) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "datatype conversion failed")
 
-        HDmemcpy(storage_dst->buf, buf, storage_dst->size);
+        H5MM_memcpy(storage_dst->buf, buf, storage_dst->size);
 
         if(H5D_vlen_reclaim(tid_mem, buf_space, reclaim_buf) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_BADITER, FAIL, "unable to reclaim variable-length data")
@@ -564,8 +564,8 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_ds
                 ref_count = storage_src->size / H5T_get_size(dt_src);
 
                 /* Copy objects referenced in source buffer to destination file and set destination elements */
-                if(H5O_copy_expand_ref(f_src, storage_src->buf, f_dst,
-                        storage_dst->buf, ref_count, H5T_get_ref_type(dt_src), cpy_info) < 0)
+                if (H5O_copy_expand_ref(f_src, storage_src->buf, f_dst,
+                    storage_dst->buf, ref_count, H5T_get_ref_type(dt_src), cpy_info) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTCOPY, FAIL, "unable to copy reference attribute")
             } /* end if */
             else
@@ -574,11 +574,11 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_ds
         } /* end if */
         else
             /* Type conversion not necessary */
-            HDmemcpy(storage_dst->buf, storage_src->buf, storage_src->size);
+            H5MM_memcpy(storage_dst->buf, storage_src->buf, storage_src->size);
     } /* end if */
     else
         /* Type conversion not necessary */
-        HDmemcpy(storage_dst->buf, storage_src->buf, storage_src->size);
+        H5MM_memcpy(storage_dst->buf, storage_src->buf, storage_src->size);
 
     /* Mark destination buffer as dirty */
     storage_dst->dirty = TRUE;

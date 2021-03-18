@@ -189,7 +189,7 @@ H5O__sdspace_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
 done:
     if(!ret_value && sdim) {
-        H5S_extent_release(sdim);
+        H5S__extent_release(sdim);
         sdim = H5FL_FREE(H5S_extent_t, sdim);
     } /* end if */
 
@@ -257,7 +257,7 @@ H5O_sdspace_encode(H5F_t *f, uint8_t *p, const void *_mesg)
 
     /* Dataspace type */
     if(sdim->version > H5O_SDSPACE_VERSION_1)
-        *p++ = sdim->type;
+        *p++ = (uint8_t)sdim->type;
     else {
         *p++ = 0; /*reserved*/
         *p++ = 0; /*reserved*/
@@ -310,7 +310,7 @@ H5O_sdspace_copy(const void *_mesg, void *_dest)
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Copy extent information */
-    if(H5S_extent_copy_real(dest, mesg, TRUE) < 0)
+    if(H5S__extent_copy_real(dest, mesg, TRUE) < 0)
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCOPY, NULL, "can't copy extent")
 
     /* Set return value */
@@ -355,11 +355,11 @@ H5O_sdspace_size(const H5F_t *f, const void *_mesg)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Basic information for all dataspace messages */
-    ret_value = 1 +             /* Version */
+    ret_value = (size_t)(1 +    /* Version */
             1 +                 /* Rank */
             1 +                 /* Flags */
             1 +                 /* Dataspace type/reserved */
-            ((space->version > H5O_SDSPACE_VERSION_1) ? 0 : 4); /* Eliminated/reserved */
+            ((space->version > H5O_SDSPACE_VERSION_1) ? 0 : 4)); /* Eliminated/reserved */
 
     /* Add in the dimension sizes */
     ret_value += space->rank * H5F_SIZEOF_SIZE(f);
@@ -391,7 +391,7 @@ H5O__sdspace_reset(void *_mesg)
 
     FUNC_ENTER_STATIC_NOERR
 
-    H5S_extent_release(mesg);
+    H5S__extent_release(mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O__sdspace_reset() */
@@ -470,7 +470,7 @@ H5O_sdspace_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void *mesg_src,
             HGOTO_ERROR(H5E_DATASPACE, H5E_NOSPACE, FAIL, "dataspace extent allocation failed")
 
         /* Create a copy of the dataspace extent */
-        if(H5S_extent_copy_real(udata->src_space_extent, src_space_extent, TRUE) < 0)
+        if(H5S__extent_copy_real(udata->src_space_extent, src_space_extent, TRUE) < 0)
             HGOTO_ERROR(H5E_DATASPACE, H5E_CANTCOPY, FAIL, "can't copy extent")
     } /* end if */
 

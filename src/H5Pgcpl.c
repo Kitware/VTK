@@ -15,7 +15,7 @@
  *
  * Created:		H5Pgcpl.c
  *			August 29 2006
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Group creation property list class routines
  *
@@ -133,13 +133,13 @@ H5P__gcrt_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register group info property */
-    if(H5P_register_real(pclass, H5G_CRT_GROUP_INFO_NAME, H5G_CRT_GROUP_INFO_SIZE, &H5G_def_ginfo_g, 
+    if(H5P__register_real(pclass, H5G_CRT_GROUP_INFO_NAME, H5G_CRT_GROUP_INFO_SIZE, &H5G_def_ginfo_g,
             NULL, NULL, NULL, H5G_CRT_GROUP_INFO_ENC, H5G_CRT_GROUP_INFO_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register link info property */
-    if(H5P_register_real(pclass, H5G_CRT_LINK_INFO_NAME, H5G_CRT_LINK_INFO_SIZE, &H5G_def_linfo_g, 
+    if(H5P__register_real(pclass, H5G_CRT_LINK_INFO_NAME, H5G_CRT_LINK_INFO_SIZE, &H5G_def_linfo_g,
             NULL, NULL, NULL, H5G_CRT_LINK_INFO_ENC, H5G_CRT_LINK_INFO_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
@@ -545,7 +545,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_ginfo_t *ginfo = (const H5O_ginfo_t *)value; /* Create local aliases for values */
@@ -558,7 +558,7 @@ H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size)
         UINT16ENCODE(*pp, ginfo->max_compact)
         UINT16ENCODE(*pp, ginfo->min_dense)
         UINT16ENCODE(*pp, ginfo->est_num_entries)
-        UINT16ENCODE(*pp, ginfo->est_name_len)      
+        UINT16ENCODE(*pp, ginfo->est_name_len)
     } /* end if */
 
     *size += sizeof(uint16_t) * 4 + sizeof(uint32_t);
@@ -582,7 +582,7 @@ H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__gcrt_group_info_dec(const void **_pp, void *_value)
 {
     H5O_ginfo_t *ginfo = (H5O_ginfo_t *)_value;     /* Group info settings */
@@ -599,16 +599,16 @@ H5P__gcrt_group_info_dec(const void **_pp, void *_value)
     UINT16DECODE(*pp, ginfo->max_compact)
     UINT16DECODE(*pp, ginfo->min_dense)
     UINT16DECODE(*pp, ginfo->est_num_entries)
-    UINT16DECODE(*pp, ginfo->est_name_len)      
+    UINT16DECODE(*pp, ginfo->est_name_len)
 
     /* Update fields */
-    if(ginfo->max_compact != H5G_CRT_GINFO_MAX_COMPACT || 
+    if(ginfo->max_compact != H5G_CRT_GINFO_MAX_COMPACT ||
             ginfo->min_dense != H5G_CRT_GINFO_MIN_DENSE)
         ginfo->store_link_phase_change = TRUE;
     else
         ginfo->store_link_phase_change = FALSE;
 
-    if(ginfo->est_num_entries != H5G_CRT_GINFO_EST_NUM_ENTRIES || 
+    if(ginfo->est_num_entries != H5G_CRT_GINFO_EST_NUM_ENTRIES ||
             ginfo->est_name_len != H5G_CRT_GINFO_EST_NAME_LEN)
         ginfo->store_est_entry_info = TRUE;
     else
@@ -633,7 +633,7 @@ H5P__gcrt_group_info_dec(const void **_pp, void *_value)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size)
 {
     const H5O_linfo_t *linfo = (const H5O_linfo_t *)value; /* Create local aliases for values */
@@ -675,7 +675,7 @@ H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__gcrt_link_info_dec(const void **_pp, void *_value)
 {
     H5O_linfo_t *linfo = (H5O_linfo_t *)_value;  /* Link info settings */

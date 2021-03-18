@@ -43,7 +43,7 @@ static void *H5O__dtype_copy_file(H5F_t *file_src, const H5O_msg_class_t *mesg_t
     void *native_src, H5F_t *file_dst, hbool_t *recompute_size,
     H5O_copy_t *cpy_info, void *udata);
 static herr_t H5O__dtype_shared_post_copy_upd(const H5O_loc_t *src_oloc,
-    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst, 
+    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst,
     H5O_copy_t *cpy_info);
 static herr_t H5O__dtype_debug(H5F_t *f, const void *_mesg, FILE * stream,
     int indent, int fwidth);
@@ -250,7 +250,7 @@ H5O_dtype_decode_helper(H5F_t *f, unsigned *ioflags/*in,out*/, const uint8_t **p
             HDassert(0 == (z & 0x7)); /*must be aligned*/
             if(NULL == (dt->shared->u.opaque.tag = (char *)H5MM_malloc(z + 1)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
-            HDmemcpy(dt->shared->u.opaque.tag, *pp, z);
+            H5MM_memcpy(dt->shared->u.opaque.tag, *pp, z);
             dt->shared->u.opaque.tag[z] = '\0';
             *pp += z;
             break;
@@ -483,7 +483,7 @@ H5O_dtype_decode_helper(H5F_t *f, unsigned *ioflags/*in,out*/, const uint8_t **p
             } /* end for */
 
             /* Values */
-            HDmemcpy(dt->shared->u.enumer.value, *pp,
+            H5MM_memcpy(dt->shared->u.enumer.value, *pp,
                      dt->shared->u.enumer.nmembs * dt->shared->parent->shared->size);
             *pp += dt->shared->u.enumer.nmembs * dt->shared->parent->shared->size;
             break;
@@ -882,7 +882,7 @@ H5O_dtype_encode_helper(const H5F_t *f, uint8_t **pp, const H5T_t *dt)
                 z = HDstrlen(dt->shared->u.opaque.tag);
                 aligned = (z + 7) & (H5T_OPAQUE_TAG_MAX - 8);
                 flags = (unsigned)(flags | aligned);
-                HDmemcpy(*pp, dt->shared->u.opaque.tag, MIN(z,aligned));
+                H5MM_memcpy(*pp, dt->shared->u.opaque.tag, MIN(z,aligned));
                 for(n = MIN(z, aligned); n < aligned; n++)
                     (*pp)[n] = 0;
                 *pp += aligned;
@@ -997,7 +997,7 @@ H5O_dtype_encode_helper(const H5F_t *f, uint8_t **pp, const H5T_t *dt)
             } /* end for */
 
             /* Values */
-            HDmemcpy(*pp, dt->shared->u.enumer.value, dt->shared->u.enumer.nmembs * dt->shared->parent->shared->size);
+            H5MM_memcpy(*pp, dt->shared->u.enumer.value, dt->shared->u.enumer.nmembs * dt->shared->parent->shared->size);
             *pp += dt->shared->u.enumer.nmembs * dt->shared->parent->shared->size;
             break;
 

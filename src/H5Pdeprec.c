@@ -15,7 +15,7 @@
  *
  * Created:	H5Pdeprec.c
  *		October 11 2007
- *		Quincey Koziol <koziol@hdfgroup.org>
+ *		Quincey Koziol
  *
  * Purpose:	Deprecated functions from the H5P interface.  These
  *              functions are here for compatibility purposes and may be
@@ -242,7 +242,7 @@ H5Pregister1(hid_t cls_id, const char *name, size_t size, void *def_value,
 
     /* Create the new property list class */
     orig_pclass = pclass;
-    if((ret_value = H5P_register(&pclass, name, size, def_value, prp_create, prp_set, prp_get, NULL, NULL, prp_delete, prp_copy, NULL, prp_close)) < 0)
+    if((ret_value = H5P__register(&pclass, name, size, def_value, prp_create, prp_set, prp_get, NULL, NULL, prp_delete, prp_copy, NULL, prp_close)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTREGISTER, FAIL, "unable to register property in class");
 
     /* Check if the property class changed and needs to be substituted in the ID */
@@ -255,7 +255,7 @@ H5Pregister1(hid_t cls_id, const char *name, size_t size, void *def_value,
         HDassert(old_pclass == orig_pclass);
 
         /* Close the previous class */
-        if(H5P_close_class(orig_pclass) < 0)
+        if(H5P__close_class(orig_pclass) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTCLOSEOBJ, FAIL, "unable to close original property class after substitution")
     } /* end if */
 
@@ -514,9 +514,9 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy")
     /*
      *  For 1.10.0 H5Pset_file_space:
-     *      If strategy is zero, the property is not changed; 
+     *      If strategy is zero, the property is not changed;
      *      the existing strategy is retained.
-     *      If threshold is zero, the property is not changed; 
+     *      If threshold is zero, the property is not changed;
      *      the existing threshold is retained.
      */
     if(!in_strategy)
@@ -530,7 +530,7 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
             new_persist = TRUE;
             new_threshold = in_threshold;
             break;
-    
+
         case H5F_FILE_SPACE_ALL:
             new_strategy = H5F_FSPACE_STRATEGY_FSM_AGGR;
             new_threshold = in_threshold;
@@ -543,7 +543,7 @@ H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t thresh
         case H5F_FILE_SPACE_VFD:
             new_strategy = H5F_FSPACE_STRATEGY_NONE;
             break;
-        
+
         case H5F_FILE_SPACE_NTYPES:
         case H5F_FILE_SPACE_DEFAULT:
         default:

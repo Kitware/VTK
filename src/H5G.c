@@ -689,7 +689,7 @@ H5Gflush(hid_t group_id)
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", group_id);
-    
+
     /* Check args */
     if(NULL == (grp = (H5G_t *)H5I_object_verify(group_id, H5I_GROUP)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a group")
@@ -724,7 +724,7 @@ H5Grefresh(hid_t group_id)
 {
     H5G_t *grp;                 /* Group for this operation */
     herr_t ret_value = SUCCEED; /* Return value */
-    
+
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", group_id);
 

@@ -15,7 +15,7 @@
  *
  * Created:		H5Gobj.c
  *			Sep  5 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Functions for abstract handling of objects in groups.
  *
@@ -115,7 +115,6 @@ static herr_t H5G__obj_remove_update_linfo(const H5O_loc_t *oloc, H5O_linfo_t *l
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Sep 29 2005
  *
  *-------------------------------------------------------------------------
@@ -170,7 +169,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Sep 29 2005
  *
  *-------------------------------------------------------------------------
@@ -305,7 +303,6 @@ done:
  *              Failure:        FAIL if error occurred
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar 11 2007
  *
  *-------------------------------------------------------------------------
@@ -369,7 +366,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Aug 30 2005
  *
  *-------------------------------------------------------------------------
@@ -405,7 +401,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sept 16 2006
  *
  *-------------------------------------------------------------------------
@@ -444,7 +439,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
  *-------------------------------------------------------------------------
@@ -711,7 +705,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov 27 2006
  *
  *-------------------------------------------------------------------------
@@ -739,7 +732,7 @@ H5G__obj_info(const H5O_loc_t *oloc, H5G_info_t *grp_info)
     H5G_loc_reset(&grp_loc);
 
     /* Deep copy (duplicate) of the group location object */
-    if(H5O_loc_copy(&grp_oloc, (H5O_loc_t *)oloc, H5_COPY_DEEP) < 0)    /* (Casting away const OK - QAK) */
+    if(H5O_loc_copy_deep(&grp_oloc, (H5O_loc_t *)oloc) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTCOPY, FAIL, "can't copy object location")
 
     /* Open the group */
@@ -1103,7 +1096,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep 26 2005
  *
  *-------------------------------------------------------------------------
@@ -1156,7 +1148,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov  6 2006
  *
  *-------------------------------------------------------------------------

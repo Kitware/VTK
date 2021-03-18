@@ -102,11 +102,11 @@ static herr_t H5C__decode_cache_image_header(const H5F_t *f,
 static herr_t H5C__decode_cache_image_entry(const H5F_t *f,
     const H5C_t *cache_ptr, const uint8_t **buf, unsigned entry_num);
 #endif /* NDEBUG */ /* only used in assertions */
-static herr_t H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr, 
+static herr_t H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr,
     H5C_cache_entry_t *pf_entry_ptr, H5C_cache_entry_t **fd_children);
 static herr_t H5C__encode_cache_image_header(const H5F_t *f,
     const H5C_t *cache_ptr, uint8_t **buf);
-static herr_t H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr, 
+static herr_t H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr,
     uint8_t **buf, unsigned entry_num);
 static herr_t H5C__prep_for_file_close__compute_fd_heights(const H5C_t *cache_ptr);
 static void H5C__prep_for_file_close__compute_fd_heights_real(
@@ -146,8 +146,8 @@ H5FL_DEFINE(H5C_cache_entry_t);
  *
  * Function:    H5C_cache_image_pending()
  *
- * Purpose:     Tests to see if the load of a metadata cache image 
- *              load is pending (i.e. will be executed on the next 
+ * Purpose:     Tests to see if the load of a metadata cache image
+ *              load is pending (i.e. will be executed on the next
  *              protect or insert)
  *
  *              Returns TRUE if a cache image load is pending, and FALSE
@@ -179,16 +179,16 @@ H5C_cache_image_pending(const H5C_t *cache_ptr)
 /*-------------------------------------------------------------------------
  * Function:    H5C_cache_image_status()
  *
- * Purpose:     Examine the metadata cache associated with the supplied 
- *              instance of H5F_t to determine whether the load of a 
- *              cache image has either been queued or executed, and if 
+ * Purpose:     Examine the metadata cache associated with the supplied
+ *              instance of H5F_t to determine whether the load of a
+ *              cache image has either been queued or executed, and if
  *              construction of a cache image has been requested.
  *
  *              This done, it set *load_ci_ptr to TRUE if a cache image
  *              has either been loaded or a load has been requested, and
  *              to FALSE otherwise.
  *
- *              Similarly, set *write_ci_ptr to TRUE if construction of 
+ *              Similarly, set *write_ci_ptr to TRUE if construction of
  *              a cache image has been requested, and to FALSE otherwise.
  *
  * Return:      SUCCEED on success, and FAIL on failure.
@@ -213,7 +213,7 @@ H5C_cache_image_status(H5F_t * f, hbool_t *load_ci_ptr, hbool_t *write_ci_ptr)
     HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
     HDassert(load_ci_ptr);
     HDassert(write_ci_ptr);
- 
+
     *load_ci_ptr = cache_ptr->load_image || cache_ptr->image_loaded;
     *write_ci_ptr = cache_ptr->image_ctl.generate_image;
 
@@ -224,7 +224,7 @@ H5C_cache_image_status(H5F_t * f, hbool_t *load_ci_ptr, hbool_t *write_ci_ptr)
 /*-------------------------------------------------------------------------
  * Function:    H5C__construct_cache_image_buffer()
  *
- * Purpose:     Allocate a buffer of size cache_ptr->image_len, and 
+ * Purpose:     Allocate a buffer of size cache_ptr->image_len, and
  *		load it with an image of the metadata cache image block.
  *
  *		Note that by the time this function is called, the cache
@@ -330,7 +330,7 @@ H5C__construct_cache_image_buffer(H5F_t * f, H5C_t *cache_ptr)
 	    HDassert((cache_ptr->image_entries)[u].type_id == (fake_cache_ptr->image_entries)[u].type_id);
 	    HDassert((cache_ptr->image_entries)[u].lru_rank == (fake_cache_ptr->image_entries)[u].lru_rank);
 	    HDassert((cache_ptr->image_entries)[u].is_dirty == (fake_cache_ptr->image_entries)[u].is_dirty);
-	    /* don't check image_fd_height as it is not stored in 
+	    /* don't check image_fd_height as it is not stored in
              * the metadata cache image block.
              */
 	    HDassert((cache_ptr->image_entries)[u].fd_child_count == (fake_cache_ptr->image_entries)[u].fd_child_count);
@@ -346,7 +346,7 @@ H5C__construct_cache_image_buffer(H5F_t * f, H5C_t *cache_ptr)
 		(fake_cache_ptr->image_entries)[u].fd_parent_addrs = (haddr_t *)H5MM_xfree((fake_cache_ptr->image_entries)[u].fd_parent_addrs);
 		(fake_cache_ptr->image_entries)[u].fd_parent_count = 0;
 	    } /* end if */
-            else 
+            else
 		HDassert((fake_cache_ptr->image_entries)[u].fd_parent_count == 0);
 
 	    HDassert((cache_ptr->image_entries)[u].image_ptr);
@@ -431,35 +431,39 @@ done:
  * Function:    H5C__deserialize_prefetched_entry()
  *
  * Purpose:     Deserialize the supplied prefetched entry entry, and return
- *		a pointer to the deserialized entry in *entry_ptr_ptr. 
- *		If successful, remove the prefetched entry from the cache,
- *		and free it.  Insert the deserialized entry into the cache.
+ *              a pointer to the deserialized entry in *entry_ptr_ptr.
+ *              If successful, remove the prefetched entry from the cache,
+ *              and free it.  Insert the deserialized entry into the cache.
  *
- *		Note that the on disk image of the entry is not freed -- 
- *		a pointer to it is stored in the deserialized entries'
- *		image_ptr field, and its image_up_to_date field is set to
- *		TRUE unless the entry is dirtied by the deserialize call.
+ *              Note that the on disk image of the entry is not freed --
+ *              a pointer to it is stored in the deserialized entries'
+ *              image_ptr field, and its image_up_to_date field is set to
+ *              TRUE unless the entry is dirtied by the deserialize call.
  *
- *		If the prefetched entry is a flush dependency child,
- *		destroy that flush dependency prior to calling the 
- *		deserialize callback.  If appropriate, the flush dependency
- *		relationship will be recreated by the cache client.
+ *              If the prefetched entry is a flush dependency child,
+ *              destroy that flush dependency prior to calling the
+ *              deserialize callback.  If appropriate, the flush dependency
+ *              relationship will be recreated by the cache client.
  *
- *		If the prefetched entry is a flush dependency parent,
- *		destroy the flush dependency relationship with all its 
- *		children.  As all these children must be prefetched entries,
- *		recreate these flush dependency relationships with 
- *		deserialized entry after it is inserted in the cache.
+ *              If the prefetched entry is a flush dependency parent,
+ *              destroy the flush dependency relationship with all its
+ *              children.  As all these children must be prefetched entries,
+ *              recreate these flush dependency relationships with
+ *              deserialized entry after it is inserted in the cache.
  *
- *		Since deserializing a prefetched entry is semantically 
- *		equivalent to a load, issue an entry loaded nofification 
- *		if the notify callback is defined.
+ *              Since deserializing a prefetched entry is semantically
+ *              equivalent to a load, issue an entry loaded nofification
+ *              if the notify callback is defined.
  *
  * Return:      SUCCEED on success, and FAIL on failure.
  *
- *		Note that *entry_ptr_ptr is undefined on failure.
+ *              Note that *entry_ptr_ptr is undefined on failure.
  *
  * Programmer:  John Mainzer, 8/10/15
+ *
+ * Changes:     Updated sanity checks for possibility that the slist 
+ *              is disabled.
+ *                                            JRM -- 5/17/20
  *
  *-------------------------------------------------------------------------
  */
@@ -468,24 +472,24 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
     H5C_cache_entry_t **entry_ptr_ptr, const H5C_class_t *type,
     haddr_t addr, void *udata)
 {
-    hbool_t		dirty = FALSE;  /* Flag indicating whether thing was 
-                                         * dirtied during deserialize 
+    hbool_t             dirty = FALSE;  /* Flag indicating whether thing was
+                                         * dirtied during deserialize
                                          */
     size_t              len;            /* Size of image in file */
-    void *		thing = NULL;   /* Pointer to thing loaded */
+    void *              thing = NULL;   /* Pointer to thing loaded */
     H5C_cache_entry_t * pf_entry_ptr;   /* pointer to the prefetched entry   */
                                         /* supplied in *entry_ptr_ptr.       */
-    H5C_cache_entry_t *	ds_entry_ptr;   /* Alias for thing loaded, as cache 
-                                         * entry 
+    H5C_cache_entry_t *	ds_entry_ptr;   /* Alias for thing loaded, as cache
+                                         * entry
                                          */
     H5C_cache_entry_t** fd_children = NULL; /* Pointer to a dynamically      */
                                         /* allocated array of pointers to    */
                                         /* the flush dependency children of  */
                                         /* the prefetched entry, or NULL if  */
                                         /* that array does not exist.        */
-    unsigned            flush_flags = (H5C__FLUSH_INVALIDATE_FLAG | 
-				       H5C__FLUSH_CLEAR_ONLY_FLAG);
-    int			i;
+    unsigned            flush_flags = (H5C__FLUSH_INVALIDATE_FLAG |
+                                       H5C__FLUSH_CLEAR_ONLY_FLAG);
+    int                 i;
     herr_t      	ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -513,8 +517,8 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
 
     /* verify absence of prohibited or unsupported type flag combinations */
     HDassert(!(type->flags & H5C__CLASS_SKIP_READS));
- 
-    /* Can't see how skip reads could be usefully combined with 
+
+    /* Can't see how skip reads could be usefully combined with
      * either the speculative read flag.  Hence disallow.
      */
     HDassert(!((type->flags & H5C__CLASS_SKIP_READS) &&
@@ -535,7 +539,7 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
         HDassert(pf_entry_ptr->flush_dep_parent[i]->flush_dep_nchildren > 0);
         HDassert(pf_entry_ptr->fd_parent_addrs);
         HDassert(pf_entry_ptr->flush_dep_parent[i]->addr == pf_entry_ptr->fd_parent_addrs[i]);
-        
+
         if(H5C_destroy_flush_dependency(pf_entry_ptr->flush_dep_parent[i], pf_entry_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTUNDEPEND, FAIL, "can't destroy pf entry parent flush dependency")
 
@@ -543,11 +547,11 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
     } /* end for */
     HDassert(pf_entry_ptr->flush_dep_nparents == 0);
 
-    /* If *pf_entry_ptr is a flush dependency parent, destroy its flush 
-     * dependency relationships with all its children (which must be 
+    /* If *pf_entry_ptr is a flush dependency parent, destroy its flush
+     * dependency relationships with all its children (which must be
      * prefetched entries as well).
      *
-     * These flush dependency relationships will have to be restored 
+     * These flush dependency relationships will have to be restored
      * after the deserialized entry is inserted into the cache in order
      * to transfer these relationships to the new entry.  Hence save the
      * pointers to the flush dependency children of *pf_enty_ptr for later
@@ -561,16 +565,16 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
             HGOTO_ERROR(H5E_CACHE, H5E_CANTUNDEPEND, FAIL, "can't destroy pf entry child flush dependency(s).")
     } /* end if */
 
-    /* Since the size of the on disk image is known exactly, there is 
-     * no need for either a call to the get_initial_load_size() callback, 
+    /* Since the size of the on disk image is known exactly, there is
+     * no need for either a call to the get_initial_load_size() callback,
      * or retries if the H5C__CLASS_SPECULATIVE_LOAD_FLAG flag is set.
      * Similarly, there is no need to clamp possible reads beyond
      * EOF.
      */
     len = pf_entry_ptr->size;
 
-    /* Deserialize the prefetched on-disk image of the entry into the 
-     * native memory form 
+    /* Deserialize the prefetched on-disk image of the entry into the
+     * native memory form
      */
     if(NULL == (thing = type->deserialize(pf_entry_ptr->image_ptr, len, udata, &dirty)))
         HGOTO_ERROR(H5E_CACHE, H5E_CANTLOAD, FAIL, "Can't deserialize image")
@@ -587,14 +591,14 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
      *
      * 	HDassert( ( dirty == FALSE ) || ( type->id == 5 || type->id == 6 ) );
      *
-     * note that type ids 5 & 6 are associated with object headers in the 
+     * note that type ids 5 & 6 are associated with object headers in the
      * metadata cache.
      *
      * When we get to using H5C for other purposes, we may wish to
      * tighten up the assert so that the loophole only applies to the
      * metadata cache.
      *
-     * Note that at present, dirty can't be set to true with prefetched 
+     * Note that at present, dirty can't be set to true with prefetched
      * entries.  However this may change, so include this functionality
      * against that posibility.
      *
@@ -604,73 +608,73 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
 
     HDassert( ( dirty == FALSE ) || ( type->id == 5 || type->id == 6) );
 
-    ds_entry_ptr->magic                     	= H5C__H5C_CACHE_ENTRY_T_MAGIC;
-    ds_entry_ptr->cache_ptr                 	= f->shared->cache;
-    ds_entry_ptr->addr                      	= addr;
-    ds_entry_ptr->size                      	= len;
+    ds_entry_ptr->magic                     = H5C__H5C_CACHE_ENTRY_T_MAGIC;
+    ds_entry_ptr->cache_ptr                 = f->shared->cache;
+    ds_entry_ptr->addr                      = addr;
+    ds_entry_ptr->size                      = len;
     HDassert(ds_entry_ptr->size < H5C_MAX_ENTRY_SIZE);
-    ds_entry_ptr->image_ptr                 	= pf_entry_ptr->image_ptr;
-    ds_entry_ptr->image_up_to_date          	= !dirty;
-    ds_entry_ptr->type                      	= type;
-    ds_entry_ptr->is_dirty	            	= dirty | pf_entry_ptr->is_dirty;
-    ds_entry_ptr->dirtied                   	= FALSE;
-    ds_entry_ptr->is_protected              	= FALSE;
-    ds_entry_ptr->is_read_only              	= FALSE;
-    ds_entry_ptr->ro_ref_count              	= 0;
-    ds_entry_ptr->is_pinned                 	= FALSE;
-    ds_entry_ptr->in_slist                  	= FALSE;
-    ds_entry_ptr->flush_marker              	= FALSE;
+    ds_entry_ptr->image_ptr                 = pf_entry_ptr->image_ptr;
+    ds_entry_ptr->image_up_to_date          = !dirty;
+    ds_entry_ptr->type                      = type;
+    ds_entry_ptr->is_dirty	                = dirty | pf_entry_ptr->is_dirty;
+    ds_entry_ptr->dirtied                   = FALSE;
+    ds_entry_ptr->is_protected              = FALSE;
+    ds_entry_ptr->is_read_only              = FALSE;
+    ds_entry_ptr->ro_ref_count              = 0;
+    ds_entry_ptr->is_pinned                 = FALSE;
+    ds_entry_ptr->in_slist                  = FALSE;
+    ds_entry_ptr->flush_marker              = FALSE;
 #ifdef H5_HAVE_PARALLEL
-    ds_entry_ptr->clear_on_unprotect        	= FALSE;
-    ds_entry_ptr->flush_immediately         	= FALSE;
-    ds_entry_ptr->coll_access               	= FALSE;
+    ds_entry_ptr->clear_on_unprotect        = FALSE;
+    ds_entry_ptr->flush_immediately         = FALSE;
+    ds_entry_ptr->coll_access               = FALSE;
 #endif /* H5_HAVE_PARALLEL */
-    ds_entry_ptr->flush_in_progress         	= FALSE;
-    ds_entry_ptr->destroy_in_progress       	= FALSE;
+    ds_entry_ptr->flush_in_progress         = FALSE;
+    ds_entry_ptr->destroy_in_progress       = FALSE;
 
-    ds_entry_ptr->ring		            	= pf_entry_ptr->ring;
+    ds_entry_ptr->ring                      = pf_entry_ptr->ring;
 
     /* Initialize flush dependency height fields */
-    ds_entry_ptr->flush_dep_parent          	= NULL;
-    ds_entry_ptr->flush_dep_nparents        	= 0;
-    ds_entry_ptr->flush_dep_parent_nalloc   	= 0;
-    ds_entry_ptr->flush_dep_nchildren       	= 0;
-    ds_entry_ptr->flush_dep_ndirty_children 	= 0;
-    ds_entry_ptr->flush_dep_nunser_children 	= 0;
+    ds_entry_ptr->flush_dep_parent          = NULL;
+    ds_entry_ptr->flush_dep_nparents        = 0;
+    ds_entry_ptr->flush_dep_parent_nalloc   = 0;
+    ds_entry_ptr->flush_dep_nchildren       = 0;
+    ds_entry_ptr->flush_dep_ndirty_children = 0;
+    ds_entry_ptr->flush_dep_nunser_children = 0;
 
     /* Initialize fields supporting the hash table: */
-    ds_entry_ptr->ht_next                   	= NULL;
-    ds_entry_ptr->ht_prev                   	= NULL;
-    ds_entry_ptr->il_next                   	= NULL;
-    ds_entry_ptr->il_prev                   	= NULL;
+    ds_entry_ptr->ht_next                   = NULL;
+    ds_entry_ptr->ht_prev                   = NULL;
+    ds_entry_ptr->il_next                   = NULL;
+    ds_entry_ptr->il_prev                   = NULL;
 
     /* Initialize fields supporting replacement policies: */
-    ds_entry_ptr->next                      	= NULL;
-    ds_entry_ptr->prev                      	= NULL;
+    ds_entry_ptr->next                      = NULL;
+    ds_entry_ptr->prev                      = NULL;
 #if H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS
-    ds_entry_ptr->aux_next                  	= NULL;
-    ds_entry_ptr->aux_prev                  	= NULL;
+    ds_entry_ptr->aux_next                  = NULL;
+    ds_entry_ptr->aux_prev                  = NULL;
 #endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 #ifdef H5_HAVE_PARALLEL
-    pf_entry_ptr->coll_next                 	= NULL;
-    pf_entry_ptr->coll_prev                 	= NULL;
+    pf_entry_ptr->coll_next                 = NULL;
+    pf_entry_ptr->coll_prev                 = NULL;
 #endif /* H5_HAVE_PARALLEL */
 
     /* Initialize cache image related fields */
-    ds_entry_ptr->include_in_image          	= FALSE;
-    ds_entry_ptr->lru_rank	            	= 0;
-    ds_entry_ptr->image_dirty	            	= FALSE;
-    ds_entry_ptr->fd_parent_count           	= 0;
-    ds_entry_ptr->fd_parent_addrs           	= NULL;
-    ds_entry_ptr->fd_child_count            	= pf_entry_ptr->fd_child_count;
-    ds_entry_ptr->fd_dirty_child_count      	= 0;
-    ds_entry_ptr->image_fd_height           	= 0;
-    ds_entry_ptr->prefetched	            	= FALSE;
-    ds_entry_ptr->prefetch_type_id          	= 0;
-    ds_entry_ptr->age		          	= 0;
-    ds_entry_ptr->prefetched_dirty              = pf_entry_ptr->prefetched_dirty;
+    ds_entry_ptr->include_in_image          = FALSE;
+    ds_entry_ptr->lru_rank	                = 0;
+    ds_entry_ptr->image_dirty	             = FALSE;
+    ds_entry_ptr->fd_parent_count           = 0;
+    ds_entry_ptr->fd_parent_addrs           = NULL;
+    ds_entry_ptr->fd_child_count            = pf_entry_ptr->fd_child_count;
+    ds_entry_ptr->fd_dirty_child_count      = 0;
+    ds_entry_ptr->image_fd_height           = 0;
+    ds_entry_ptr->prefetched	              = FALSE;
+    ds_entry_ptr->prefetch_type_id          = 0;
+    ds_entry_ptr->age                       = 0;
+    ds_entry_ptr->prefetched_dirty          = pf_entry_ptr->prefetched_dirty;
 #ifndef NDEBUG  /* debugging field */
-    ds_entry_ptr->serialization_count           = 0;
+    ds_entry_ptr->serialization_count       = 0;
 #endif /* NDEBUG */
 
     H5C__RESET_CACHE_ENTRY_STATS(ds_entry_ptr);
@@ -682,8 +686,8 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
     /* We have successfully deserialized the prefetched entry.
      *
      * Before we return a pointer to the deserialized entry, we must remove
-     * the prefetched entry from the cache, discard it, and replace it with 
-     * the deserialized entry.  Note that we do not free the prefetched 
+     * the prefetched entry from the cache, discard it, and replace it with
+     * the deserialized entry.  Note that we do not free the prefetched
      * entries image, as that has been transferred to the deserialized
      * entry.
      *
@@ -694,15 +698,20 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
      *
      *  1) Set pf_entry_ptr->image_ptr to NULL.  Since we have already
      *     transferred the buffer containing the image to *ds_entry_ptr,
-     *	   this is not a memory leak.
-     * 
+     *     this is not a memory leak.
+     *
      *  2) Call H5C__flush_single_entry() with the H5C__FLUSH_INVALIDATE_FLAG
      *     and H5C__FLUSH_CLEAR_ONLY_FLAG flags set.
      */
-    pf_entry_ptr->image_ptr = NULL; 
-    if(pf_entry_ptr->is_dirty) {
-        HDassert(pf_entry_ptr->in_slist);
+    pf_entry_ptr->image_ptr = NULL;
+
+    if ( pf_entry_ptr->is_dirty ) {
+
+        HDassert(((cache_ptr->slist_enabled) && (pf_entry_ptr->in_slist)) || \
+                 ((!cache_ptr->slist_enabled) && (!pf_entry_ptr->in_slist)));
+
         flush_flags |= H5C__DEL_FROM_SLIST_ON_DESTROY_FLAG;
+
     } /* end if */
 
     if(H5C__flush_single_entry(f, pf_entry_ptr, flush_flags) < 0)
@@ -723,7 +732,7 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
 
     H5C__UPDATE_RP_FOR_INSERTION(cache_ptr, ds_entry_ptr, FAIL)
 
-    /* Deserializing a prefetched entry is the conceptual equivalent of 
+    /* Deserializing a prefetched entry is the conceptual equivalent of
      * loading it from file.  If the deserialized entry has a notify callback,
      * send an "after load" notice now that the deserialized entry is fully
      * integrated into the cache.
@@ -732,9 +741,9 @@ H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
             (ds_entry_ptr->type->notify)(H5C_NOTIFY_ACTION_AFTER_LOAD, ds_entry_ptr) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTNOTIFY, FAIL, "can't notify client about entry loaded into cache")
 
-    /* Restore flush dependencies with the flush dependency children of 
-     * of the prefetched entry.  Note that we must protect *ds_entry_ptr 
-     * before the call to avoid triggering sanity check failures, and 
+    /* Restore flush dependencies with the flush dependency children of
+     * of the prefetched entry.  Note that we must protect *ds_entry_ptr
+     * before the call to avoid triggering sanity check failures, and
      * then unprotect it afterwards.
      */
     i = 0;
@@ -798,8 +807,8 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__free_image_entries_array
  *
- * Purpose:     If the image entries array exists, free the image 
- *		associated with each entry, and then free the image 
+ * Purpose:     If the image entries array exists, free the image
+ *		associated with each entry, and then free the image
  *		entries array proper.
  *
  *		Note that by the time this function is called, the cache
@@ -834,7 +843,7 @@ H5C__free_image_entries_array(H5C_t * cache_ptr)
             /* Get pointer to image entry */
  	    ie_ptr = &((cache_ptr->image_entries)[u]);
 
-            /* Sanity checks */ 
+            /* Sanity checks */
 	    HDassert(ie_ptr);
             HDassert(ie_ptr->magic == H5C_IMAGE_ENTRY_T_MAGIC);
 	    HDassert(ie_ptr->image_ptr);
@@ -866,14 +875,14 @@ H5C__free_image_entries_array(H5C_t * cache_ptr)
 /*-------------------------------------------------------------------------
  * Function:    H5C_force_cache_image_load()
  *
- * Purpose:     On rare occasions, it is necessary to run 
+ * Purpose:     On rare occasions, it is necessary to run
  *		H5MF_tidy_self_referential_fsm_hack() prior to the first
- *              metadata cache access.  This is a problem as if there is a 
- *              cache image at the end of the file, that routine will 
+ *              metadata cache access.  This is a problem as if there is a
+ *              cache image at the end of the file, that routine will
  *              discard it.
  *
  *              We solve this issue by calling this function, which will
- *		load the cache image and then call 
+ *		load the cache image and then call
  *              H5MF_tidy_self_referential_fsm_hack() to discard it.
  *
  * Return:      SUCCEED on success, and FAIL on failure.
@@ -1053,12 +1062,12 @@ H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr)
 
     if ( ( NULL == aux_ptr ) || ( aux_ptr->mpi_rank == 0 ) ) {
 
-	HDassert((NULL == aux_ptr) || 
+	HDassert((NULL == aux_ptr) ||
                  (aux_ptr->magic == H5AC__H5AC_AUX_T_MAGIC));
 #endif /* H5_HAVE_PARALLEL */
 
 	/* Read the buffer (if serial access, or rank 0 of parallel access) */
-        if(H5F_block_read(f, H5FD_MEM_SUPER, cache_ptr->image_addr, 
+        if(H5F_block_read(f, H5FD_MEM_SUPER, cache_ptr->image_addr,
                 cache_ptr->image_len, cache_ptr->image_buffer) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_READERROR, FAIL, "Can't read metadata cache image block")
 
@@ -1068,9 +1077,9 @@ H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr)
         if ( aux_ptr ) {
 
 	        /* Broadcast cache image */
-            if ( MPI_SUCCESS != 
-                 (mpi_result = MPI_Bcast(cache_ptr->image_buffer, 
-                                         (int)cache_ptr->image_len, MPI_BYTE, 
+            if ( MPI_SUCCESS !=
+                 (mpi_result = MPI_Bcast(cache_ptr->image_buffer,
+                                         (int)cache_ptr->image_len, MPI_BYTE,
                                          0, aux_ptr->mpi_comm)) )
 
                 HMPI_GOTO_ERROR(FAIL, "MPI_Bcast failed", mpi_result)
@@ -1080,9 +1089,9 @@ H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr)
     else if ( aux_ptr ) {
 
         /* Retrieve the contents of the metadata cache image from process 0 */
-        if ( MPI_SUCCESS != 
-             (mpi_result = MPI_Bcast(cache_ptr->image_buffer, 
-                                     (int)cache_ptr->image_len, MPI_BYTE, 
+        if ( MPI_SUCCESS !=
+             (mpi_result = MPI_Bcast(cache_ptr->image_buffer,
+                                     (int)cache_ptr->image_len, MPI_BYTE,
                                      0, aux_ptr->mpi_comm)) )
 
             HMPI_GOTO_ERROR(FAIL, "can't receive cache image MPI_Bcast", \
@@ -1128,33 +1137,33 @@ H5C__load_cache_image(H5F_t *f)
     HDassert(cache_ptr);
     HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
 
-    /* If the image address is defined, load the image, decode it, 
-     * and insert its contents into the metadata cache. 
+    /* If the image address is defined, load the image, decode it,
+     * and insert its contents into the metadata cache.
      *
-     * Note that under normal operating conditions, it is an error if the 
+     * Note that under normal operating conditions, it is an error if the
      * image address is HADDR_UNDEF.  However, to facilitate testing,
      * we allow this special value of the image address which means that
-     * no image exists, and that the load operation should be skipped 
-     * silently.  
+     * no image exists, and that the load operation should be skipped
+     * silently.
      */
     if(H5F_addr_defined(cache_ptr->image_addr)) {
         /* Sanity checks */
-	HDassert(cache_ptr->image_len > 0);
+        HDassert(cache_ptr->image_len > 0);
         HDassert(cache_ptr->image_buffer == NULL);
 
-	/* Allocate space for the image */
+        /* Allocate space for the image */
         if(NULL == (cache_ptr->image_buffer = H5MM_malloc(cache_ptr->image_len + 1)))
             HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for cache image buffer")
 
-	/* Load the image from file */
-	if(H5C__read_cache_image(f, cache_ptr) < 0)
+        /* Load the image from file */
+        if(H5C__read_cache_image(f, cache_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_READERROR, FAIL, "Can't read metadata cache image block")
 
-	/* Reconstruct cache contents, from image */
-	if(H5C__reconstruct_cache_contents(f, cache_ptr) < 0)
+        /* Reconstruct cache contents, from image */
+        if(H5C__reconstruct_cache_contents(f, cache_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTDECODE, FAIL, "Can't reconstruct cache contents from image block")
 
-	/* Free the image buffer */
+        /* Free the image buffer */
         cache_ptr->image_buffer = H5MM_xfree(cache_ptr->image_buffer);
 
         /* Update stats -- must do this now, as we are about
@@ -1184,25 +1193,25 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C_load_cache_image_on_next_protect()
  *
- * Purpose:     Note the fact that a metadata cache image superblock 
+ * Purpose:     Note the fact that a metadata cache image superblock
  *		extension message exists, along with the base address
  *		and length of the metadata cache image block.
  *
- *		Once this notification is received the metadata cache 
- *		image block must be read, decoded, and loaded into the 
+ *		Once this notification is received the metadata cache
+ *		image block must be read, decoded, and loaded into the
  *		cache on the next call to H5C_protect().
  *
- *		Further, if the file is opened R/W, the metadata cache 
- *		image superblock extension message must be deleted from 
+ *		Further, if the file is opened R/W, the metadata cache
+ *		image superblock extension message must be deleted from
  *		the superblock extension and the image block freed
  *
  *		Contrawise, if the file is openened R/O, the metadata
  *		cache image superblock extension message and image block
  *		must be left as is.  Further, any dirty entries in the
- *		cache image block must be marked as clean to avoid 
+ *		cache image block must be marked as clean to avoid
  *		attempts to write them on file close.
  *
- * Return:      SUCCEED 
+ * Return:      SUCCEED
  *
  * Programmer:  John Mainzer
  *		7/6/15
@@ -1291,41 +1300,41 @@ H5C__image_entry_cmp(const void *_entry1, const void *_entry2)
 /*-------------------------------------------------------------------------
  * Function:    H5C__prep_image_for_file_close
  *
- * Purpose:     The objective of the call is to allow the metadata cache 
- *		to do any preparatory work prior to generation of a 
+ * Purpose:     The objective of the call is to allow the metadata cache
+ *		to do any preparatory work prior to generation of a
  *		cache image.
  *
- *		In particular, the cache must 
+ *		In particular, the cache must
  *
  *		1) serialize all its entries,
  *
- *		2) compute the size of the metadata cache image, 
+ *		2) compute the size of the metadata cache image,
  *
  *		3) allocate space for the metadata cache image, and
  *
  *		4) setup the metadata cache image superblock extension
- *		   message with the address and size of the metadata 
+ *		   message with the address and size of the metadata
  *		   cache image.
  *
- *		The parallel case is complicated by the fact that 
- *		while all metadata caches must contain the same set of 
- *		dirty entries, there is no such requirement for clean 
+ *		The parallel case is complicated by the fact that
+ *		while all metadata caches must contain the same set of
+ *		dirty entries, there is no such requirement for clean
  *		entries or the order that entries appear in the LRU.
  *
  *		Thus, there is no requirement that different processes
  *		will construct cache images of the same size.
  *
- *		This is not a major issue as long as all processes include 
- *		the same set of dirty entries in the cache -- as they 
- *		currently do (note that this will change when we implement 
- *		the ageout feature).  Since only the process zero cache 
- *		writes the cache image, all that is necessary is to 
- *		broadcast the process zero cache size for use in the 
- *		superblock extension messages and cache image block 
+ *		This is not a major issue as long as all processes include
+ *		the same set of dirty entries in the cache -- as they
+ *		currently do (note that this will change when we implement
+ *		the ageout feature).  Since only the process zero cache
+ *		writes the cache image, all that is necessary is to
+ *		broadcast the process zero cache size for use in the
+ *		superblock extension messages and cache image block
  *		allocations.
  *
- *		Note: At present, cache image is disabled in the 
- *		parallel case as the new collective metadata write 
+ *		Note: At present, cache image is disabled in the
+ *		parallel case as the new collective metadata write
  *		code must be modified to support cache image.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1354,8 +1363,8 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
     HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
     HDassert(image_generated);
 
-    /* If the file is opened and closed without any access to 
-     * any group or data set, it is possible that the cache image (if 
+    /* If the file is opened and closed without any access to
+     * any group or data set, it is possible that the cache image (if
      * it exists) has not been read yet.  Do this now if required.
      */
     if(cache_ptr->load_image) {
@@ -1365,15 +1374,15 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
     } /* end if */
 
     /* Before we start to generate the cache image (if requested), verify
-     * that the superblock supports superblock extension messages, and 
+     * that the superblock supports superblock extension messages, and
      * silently cancel any request for a cache image if it does not.
      *
      * Ideally, we would do this when the cache image is requested,
-     * but the necessary information is not necessary available at that 
+     * but the necessary information is not necessary available at that
      * time -- hence this last minute check.
      *
-     * Note that under some error conditions, the superblock will be 
-     * undefined in this case as well -- if so, assume that the 
+     * Note that under some error conditions, the superblock will be
+     * undefined in this case as well -- if so, assume that the
      * superblock does not support superblock extension messages.
      * Also verify that the file's high_bound is at least release
      * 1.10.x, otherwise cancel the request for a cache image
@@ -1390,17 +1399,17 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
     /* Generate the cache image, if requested */
     if(cache_ptr->image_ctl.generate_image) {
         /* Create the cache image super block extension message.
-         * 
+         *
          * Note that the base address and length of the metadata cache
          * image are undefined at this point, and thus will have to be
          * updated later.
          *
-         * Create the super block extension message now so that space 
+         * Create the super block extension message now so that space
          * is allocated for it (if necessary) before we allocate space
          * for the cache image block.
          *
-         * To simplify testing, do this only if the 
-         * H5C_CI__GEN_MDCI_SBE_MESG bit is set in 
+         * To simplify testing, do this only if the
+         * H5C_CI__GEN_MDCI_SBE_MESG bit is set in
          * cache_ptr->image_ctl.flags.
          */
         if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDCI_SBE_MESG)
@@ -1411,20 +1420,20 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
         if(H5C__serialize_cache(f) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "serialization of the cache failed")
 
-        /* Scan the cache and record data needed to construct the 
+        /* Scan the cache and record data needed to construct the
          * cache image.  In particular, for each entry we must record:
          *
          * 1) rank in LRU (if entry is in LRU)
          *
-         * 2) Whether the entry is dirty prior to flush of 
+         * 2) Whether the entry is dirty prior to flush of
          *    cache just prior to close.
          *
          * 3) Addresses of flush dependency parents (if any).
          *
-         * 4) Number of flush dependency children (if any).  
+         * 4) Number of flush dependency children (if any).
          *
-         * In passing, also compute the size of the metadata cache 
-         * image.  With the recent modifications of the free space 
+         * In passing, also compute the size of the metadata cache
+         * image.  With the recent modifications of the free space
          * manager code, this size should be correct.
          */
         if(H5C__prep_for_file_close__scan_entries(f, cache_ptr) < 0)
@@ -1432,7 +1441,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
         HDassert(HADDR_UNDEF == cache_ptr->image_addr);
 
 #ifdef H5_HAVE_PARALLEL
-        /* In the parallel case, overwrite the image_len with the 
+        /* In the parallel case, overwrite the image_len with the
          * value computed by process 0.
          */
         if(cache_ptr->aux_ptr) { /* we have multiple processes */
@@ -1453,17 +1462,17 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
             else {
                 if(MPI_SUCCESS != (mpi_result = MPI_Bcast(&p0_image_len, 1, MPI_UNSIGNED, 0, aux_ptr->mpi_comm)))
                     HMPI_GOTO_ERROR(FAIL, "MPI_Bcast failed", mpi_result)
-                
+
                 aux_ptr->p0_image_len = p0_image_len;
             } /* end else */
 
-            /* Allocate space for a cache image of size equal to that 
-             * computed by the process 0.  This may be different from 
+            /* Allocate space for a cache image of size equal to that
+             * computed by the process 0.  This may be different from
              * cache_ptr->image_data_len if mpi_rank != 0.  However, since
-             * cache image write is suppressed on all processes other than 
+             * cache image write is suppressed on all processes other than
              * process 0, this doesn't matter.
              *
-             * Note that we allocate the cache image directly from the file 
+             * Note that we allocate the cache image directly from the file
              * driver so as to avoid unsettling the free space managers.
              */
             if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, H5FD_MEM_SUPER, f,
@@ -1472,8 +1481,8 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
         } /* end if */
         else
 #endif /* H5_HAVE_PARALLEL */
-            /* Allocate the cache image block.  Note that we allocate this 
-             * this space directly from the file driver so as to avoid 
+            /* Allocate the cache image block.  Note that we allocate this
+             * this space directly from the file driver so as to avoid
              * unsettling the free space managers.
              */
             if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, H5FD_MEM_SUPER, f,
@@ -1497,25 +1506,25 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
          * image block to the next alignment boundary, and then setting
          * the image_data_len to the actual size of the cache_image.
          *
-         * On the off chance that there is some other way to get a 
+         * On the off chance that there is some other way to get a
          * a fragment on a cache image allocation, leave the following
          * assertion in the code so we will find out.
          */
         HDassert((eoa_frag_size == 0) || (f->shared->alignment != 1));
 
         /* Eventually it will be possible for the length of the cache image
-         * block on file to be greater than the size of the data it 
-         * contains.  However, for now they must be the same.  Set 
+         * block on file to be greater than the size of the data it
+         * contains.  However, for now they must be the same.  Set
          * cache_ptr->image_len accordingly.
          */
         cache_ptr->image_len = cache_ptr->image_data_len;
 
-        /* update the metadata cache image superblock extension 
-         * message with the new cache image block base address and 
+        /* update the metadata cache image superblock extension
+         * message with the new cache image block base address and
          * length.
          *
-         * to simplify testing, do this only if the 
-         * H5C_CI__GEN_MDC_IMAGE_BLK bit is set in 
+         * to simplify testing, do this only if the
+         * H5C_CI__GEN_MDC_IMAGE_BLK bit is set in
          * cache_ptr->image_ctl.flags.
          */
         if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDC_IMAGE_BLK)
@@ -1525,18 +1534,18 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
         /* At this point:
          *
          *   1) space in the file for the metadata cache image
-         *      is allocated, 
+         *      is allocated,
          *
-         *   2) the metadata cache image superblock extension 
-         *      message exists and (if so configured) contains 
+         *   2) the metadata cache image superblock extension
+         *      message exists and (if so configured) contains
          *      the correct data,
          *
-         *   3) All entries in the cache that will appear in the 
+         *   3) All entries in the cache that will appear in the
          *      cache image are serialized with up to date images.
          *
          *      Since we just updated the cache image message,
          *      the super block extension message is dirty.  However,
-         *      since the superblock and the superblock extension 
+         *      since the superblock and the superblock extension
          *      can't be included in the cache image, this is a non-
          *      issue.
          *
@@ -1544,16 +1553,16 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
          *      the cache are marked as such, and we have a count
          *      of same.
          *
-         *   5) Flush dependency heights are calculated for all 
+         *   5) Flush dependency heights are calculated for all
          *      entries that will be included in the cache image.
          *
          * If there are any entries to be included in the metadata cache
-         * image, allocate, populate, and sort the image_entries array.  
+         * image, allocate, populate, and sort the image_entries array.
          *
-         * If the metadata cache image will be empty, delete the 
-         * metadata cache image superblock extension message, set 
+         * If the metadata cache image will be empty, delete the
+         * metadata cache image superblock extension message, set
          * cache_ptr->image_ctl.generate_image to FALSE.  This will
-         * allow the file close to continue normally without the 
+         * allow the file close to continue normally without the
          * unnecessary generation of the metadata cache image.
          */
         if(cache_ptr->num_entries_in_image > 0) {
@@ -1567,9 +1576,9 @@ H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
         else { /* cancel creation of metadata cache image */
             HDassert(cache_ptr->image_entries == NULL);
 
-            /* To avoid breaking the control flow tests, only delete 
-             * the mdci superblock extension message if the 
-             * H5C_CI__GEN_MDC_IMAGE_BLK flag is set in 
+            /* To avoid breaking the control flow tests, only delete
+             * the mdci superblock extension message if the
+             * H5C_CI__GEN_MDC_IMAGE_BLK flag is set in
              * cache_ptr->image_ctl.flags.
              */
             if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDC_IMAGE_BLK)
@@ -1591,8 +1600,8 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C_set_cache_image_config
  *
- * Purpose:	If *config_ptr contains valid data, copy it into the 
- *		image_ctl field of *cache_ptr.  Make adjustments for 
+ * Purpose:	If *config_ptr contains valid data, copy it into the
+ *		image_ctl field of *cache_ptr.  Make adjustments for
  *		changes in configuration as required.
  *
  *              If the file is open read only, silently
@@ -1601,9 +1610,9 @@ done:
  *
  *              Note that in addition to being inapplicable in the
  *              read only case, cache image is also inapplicable if
- *              the superblock does not support superblock extension 
- *              messages.  Unfortunately, this information need not 
- *              be available at this point. Thus we check for this 
+ *              the superblock does not support superblock extension
+ *              messages.  Unfortunately, this information need not
+ *              be available at this point. Thus we check for this
  *              later, in H5C_prep_for_file_close() and cancel the
  *              cache image request if appropriate.
  *
@@ -1638,7 +1647,7 @@ H5C_set_cache_image_config(const H5F_t *f, H5C_t *cache_ptr,
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid cache image configuration")
 
 #ifdef H5_HAVE_PARALLEL
-    /* The collective metadata write code is not currently compatible 
+    /* The collective metadata write code is not currently compatible
      * with cache image.  Until this is fixed, suppress cache image silently
      * if there is more than one process.
      *                                         JRM -- 11/8/16
@@ -1652,15 +1661,15 @@ H5C_set_cache_image_config(const H5F_t *f, H5C_t *cache_ptr,
     else {
 #endif /* H5_HAVE_PARALLEL */
         /* A cache image can only be generated if the file is opened read / write
-         * and the superblock supports superblock extension messages.  
+         * and the superblock supports superblock extension messages.
          *
-         * However, the superblock version is not available at this point -- 
+         * However, the superblock version is not available at this point --
          * hence we can only check the former requirement now.  Do the latter
-         * check just before we construct the image..  
+         * check just before we construct the image..
          *
          * If the file is opened read / write, apply the supplied configuration.
          *
-         * If it is not, set the image configuration to the default, which has 
+         * If it is not, set the image configuration to the default, which has
          * the effect of silently disabling the cache image if it was requested.
          */
         if(H5F_INTENT(f) & H5F_ACC_RDWR)
@@ -1683,7 +1692,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C_validate_cache_image_config()
  *
- * Purpose:	Run a sanity check on the provided instance of struct 
+ * Purpose:	Run a sanity check on the provided instance of struct
  *		H5AC_cache_image_config_t.
  *
  *		Do nothing and return SUCCEED if no errors are detected,
@@ -1715,8 +1724,8 @@ H5C_validate_cache_image_config(H5C_cache_image_ctl_t * ctl_ptr)
     if(ctl_ptr->save_resize_status != FALSE)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "unexpected value in save_resize_status field")
 
-    /* At present, we do not support prefetched entry ageouts.  Thus 
-     * the entry_ageout field must be set to 
+    /* At present, we do not support prefetched entry ageouts.  Thus
+     * the entry_ageout field must be set to
      * H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE.
      */
     if(ctl_ptr->entry_ageout != H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE)
@@ -1740,7 +1749,7 @@ done:
  * Purpose:     Compute the size of the header of the metadata cache
  *		image block, and return the value.
  *
- * Return:      Size of the header section of the metadata cache image 
+ * Return:      Size of the header section of the metadata cache image
  *		block in bytes.
  *
  * Programmer:  John Mainzer
@@ -1777,7 +1786,7 @@ H5C__cache_image_block_entry_header_size(const H5F_t * f)
  * Purpose:     Compute the size of the header of the metadata cache
  *		image block, and return the value.
  *
- * Return:      Size of the header section of the metadata cache image 
+ * Return:      Size of the header section of the metadata cache image
  *		block in bytes.
  *
  * Programmer:  John Mainzer
@@ -1806,9 +1815,9 @@ H5C__cache_image_block_header_size(const H5F_t * f)
 /*-------------------------------------------------------------------------
  * Function:    H5C__decode_cache_image_header()
  *
- * Purpose:     Decode the metadata cache image buffer header from the 
+ * Purpose:     Decode the metadata cache image buffer header from the
  *		supplied buffer and load the data into the supplied instance
- *		of H5C_t.  Advances the buffer pointer to the first byte 
+ *		of H5C_t.  Advances the buffer pointer to the first byte
  *		after the header image, or unchanged on failure.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1853,7 +1862,7 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr,
 
     /* Decode flags */
     flags = *p++;
-    if(flags & H5C__MDCI_HEADER_HAVE_RESIZE_STATUS)	
+    if(flags & H5C__MDCI_HEADER_HAVE_RESIZE_STATUS)
 	have_resize_status = TRUE;
     if(have_resize_status)
 	HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "MDC resize status not yet supported")
@@ -1867,7 +1876,7 @@ H5C__decode_cache_image_header(const H5F_t *f, H5C_t *cache_ptr,
 
     /* Read num entries */
     UINT32DECODE(p, cache_ptr->num_entries_in_image);
-    if(cache_ptr->num_entries_in_image == 0) 
+    if(cache_ptr->num_entries_in_image == 0)
 	HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "Bad metadata cache entry count")
 
     /* Verify expected length of header */
@@ -1888,13 +1897,13 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__decode_cache_image_entry()
  *
- * Purpose:     Decode the metadata cache image entry from the supplied 
+ * Purpose:     Decode the metadata cache image entry from the supplied
  *		buffer into the supplied instance of H5C_image_entry_t.
  *		This includes allocating a buffer for the entry image,
- *		loading it, and seting ie_ptr->image_ptr to point to 
+ *		loading it, and seting ie_ptr->image_ptr to point to
  *		the buffer.
  *
- *		Advances the buffer pointer to the first byte 
+ *		Advances the buffer pointer to the first byte
  *		after the entry, or unchanged on failure.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -1998,8 +2007,8 @@ H5C__decode_cache_image_entry(const H5F_t *f, const H5C_t *cache_ptr,
     /* Verify expected length of entry image */
     if((size_t)(p - *buf) != H5C__cache_image_block_entry_header_size(f))
         HGOTO_ERROR(H5E_CACHE, H5E_BADSIZE, FAIL, "Bad entry image len")
-    
-    /* If parent count greater than zero, allocate array for parent 
+
+    /* If parent count greater than zero, allocate array for parent
      * addresses, and decode addresses into the array.
      */
     if(fd_parent_count > 0) {
@@ -2020,11 +2029,11 @@ H5C__decode_cache_image_entry(const H5F_t *f, const H5C_t *cache_ptr,
 	HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for on disk image buffer")
 
 #if H5C_DO_MEMORY_SANITY_CHECKS
-    HDmemcpy(((uint8_t *)image_ptr) + size, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
+    H5MM_memcpy(((uint8_t *)image_ptr) + size, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
 #endif /* H5C_DO_MEMORY_SANITY_CHECKS */
 
     /* Copy the entry image from the cache image block */
-    HDmemcpy(image_ptr, p, size);
+    H5MM_memcpy(image_ptr, p, size);
     p += size;
 
     /* Copy data into target */
@@ -2053,9 +2062,9 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__destroy_pf_entry_child_flush_deps()
  *
- * Purpose:     Destroy all flush dependencies in this the supplied 
+ * Purpose:     Destroy all flush dependencies in this the supplied
  *		prefetched entry is the parent.  Note that the children
- *		in these flush dependencies must be prefetched entries as 
+ *		in these flush dependencies must be prefetched entries as
  *		well.
  *
  *		As this action is part of the process of transferring all
@@ -2063,8 +2072,8 @@ done:
  *		prefetched entry, ensure that the data necessary to complete
  *		the transfer is retained.
  *
- *		Note: The current implementation of this function is 
- *		      quite inefficient -- mostly due to the current 
+ *		Note: The current implementation of this function is
+ *		      quite inefficient -- mostly due to the current
  *		      implementation of flush dependencies.  This should
  *		      be fixed at some point.
  *
@@ -2076,7 +2085,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr, 
+H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr,
     H5C_cache_entry_t *pf_entry_ptr, H5C_cache_entry_t **fd_children)
 {
     H5C_cache_entry_t * entry_ptr;
@@ -2103,8 +2112,8 @@ H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr,
     while(entry_ptr != NULL) {
 	HDassert(entry_ptr->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC);
 
-	/* Here we look at entry_ptr->flush_dep_nparents and not 
-         * entry_ptr->fd_parent_count as it is possible that some 
+	/* Here we look at entry_ptr->flush_dep_nparents and not
+         * entry_ptr->fd_parent_count as it is possible that some
 	 * or all of the prefetched flush dependency child relationships
 	 * have already been destroyed.
          */
@@ -2145,9 +2154,9 @@ H5C__destroy_pf_entry_child_flush_deps(H5C_t *cache_ptr,
 	            HGOTO_ERROR(H5E_CACHE, H5E_CANTUNDEPEND, FAIL, "can't destroy pf entry child flush dependency")
 
 #ifndef NDEBUG
-		/* Sanity check -- verify that the address of the parent 
+		/* Sanity check -- verify that the address of the parent
                  * appears in entry_ptr->fd_parent_addrs.  Must do a search,
-                 * as with flush dependency creates and destroys, 
+                 * as with flush dependency creates and destroys,
                  * entry_ptr->fd_parent_addrs and entry_ptr->flush_dep_parent
                  * can list parents in different order.
                  */
@@ -2181,8 +2190,8 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__encode_cache_image_header()
  *
- * Purpose:     Encode the metadata cache image buffer header in the 
- *		supplied buffer.  Updates buffer pointer to the first byte 
+ * Purpose:     Encode the metadata cache image buffer header in the
+ *		supplied buffer.  Updates buffer pointer to the first byte
  *		after the header image in the buffer, or unchanged on failure.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -2219,7 +2228,7 @@ H5C__encode_cache_image_header(const H5F_t *f, const H5C_t *cache_ptr,
     p = *buf;
 
     /* write signature */
-    HDmemcpy(p, H5C__MDCI_BLOCK_SIGNATURE, (size_t)H5C__MDCI_BLOCK_SIGNATURE_LEN);
+    H5MM_memcpy(p, H5C__MDCI_BLOCK_SIGNATURE, (size_t)H5C__MDCI_BLOCK_SIGNATURE_LEN);
     p += H5C__MDCI_BLOCK_SIGNATURE_LEN;
 
     /* write version */
@@ -2259,8 +2268,8 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__encode_cache_image_entry()
  *
- * Purpose:     Encode the metadata cache image buffer header in the 
- *		supplied buffer.  Updates buffer pointer to the first byte 
+ * Purpose:     Encode the metadata cache image buffer header in the
+ *		supplied buffer.  Updates buffer pointer to the first byte
  *		after the entry in the buffer, or unchanged on failure.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -2271,7 +2280,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr, uint8_t **buf, 
+H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr, uint8_t **buf,
     unsigned entry_num)
 {
     H5C_image_entry_t *	ie_ptr;                 /* Pointer to entry to encode */
@@ -2306,13 +2315,13 @@ H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr, uint8_t **buf,
     *p++ = (uint8_t)(ie_ptr->type_id);
 
     /* Compose and encode flags */
-    if(ie_ptr->is_dirty) 
+    if(ie_ptr->is_dirty)
 	flags |= H5C__MDCI_ENTRY_DIRTY_FLAG;
-    if(ie_ptr->lru_rank > 0) 
+    if(ie_ptr->lru_rank > 0)
 	flags |= H5C__MDCI_ENTRY_IN_LRU_FLAG;
     if(ie_ptr->fd_child_count > 0)
 	flags |= H5C__MDCI_ENTRY_IS_FD_PARENT_FLAG;
-    if(ie_ptr->fd_parent_count > 0) 
+    if(ie_ptr->fd_parent_count > 0)
 	flags |= H5C__MDCI_ENTRY_IS_FD_CHILD_FLAG;
     *p++ = flags;
 
@@ -2355,7 +2364,7 @@ H5C__encode_cache_image_entry(H5F_t *f, H5C_t *cache_ptr, uint8_t **buf,
 	H5F_addr_encode(f, &p, ie_ptr->fd_parent_addrs[u]);
 
     /* Copy entry image */
-    HDmemcpy(p, ie_ptr->image_ptr, ie_ptr->size);
+    H5MM_memcpy(p, ie_ptr->image_ptr, ie_ptr->size);
     p += ie_ptr->size;
 
     /* Update buffer pointer */
@@ -2377,51 +2386,51 @@ done:
  *		flush dependency children. (Recall that the flush dependency
  *		height of an entry in a flush dependency relationship is the
  *		length of the longest path from the entry to a leaf entry --
- *		that is an entry with flush dependency parents, but no 
- *		flush dependency children.  With the introduction of the 
+ *		that is an entry with flush dependency parents, but no
+ *		flush dependency children.  With the introduction of the
  *		possibility of multiple flush dependency parents, we have
- *		a flush partial dependency latice, not a flush dependency 
- *		tree.  But since the partial latice is acyclic, the concept 
+ *		a flush partial dependency latice, not a flush dependency
+ *		tree.  But since the partial latice is acyclic, the concept
  *		of flush dependency height still makes sense.
  *
- *		The purpose of this function is to compute the flush 
+ *		The purpose of this function is to compute the flush
  *		dependency height of all entries that appear in the cache
- *		image.  
+ *		image.
  *
- *		At present, entries are included or excluded from the 
+ *		At present, entries are included or excluded from the
  *		cache image depending upon the ring in which they reside.
  *		Thus there is no chance that one side of a flush dependency
  *		will be in the cache image, and the other side not.
  *
  *		However, once we start placing a limit on the size of the
  *		cache image, or start excluding prefetched entries from
- *		the cache image if they haven't been accessed in some 
- *		number of file close / open cycles, this will no longer 
- *		be the case.  
+ *		the cache image if they haven't been accessed in some
+ *		number of file close / open cycles, this will no longer
+ *		be the case.
  *
  *		In particular, if a flush dependency child is dirty, and
  *		one of its flush dependency parents is dirty and not in
  *		the cache image, then the flush dependency child cannot
  *		be in the cache image without violating flush ordering.
  *
- *		Observe that a clean flush dependency child can be either 
- *		in or out of the cache image without effect on flush 
+ *		Observe that a clean flush dependency child can be either
+ *		in or out of the cache image without effect on flush
  *		dependencies.
  *
- *		Similarly, a flush dependency parent can always be part 
- *		of a cache image, regardless of whether it is clean or 
+ *		Similarly, a flush dependency parent can always be part
+ *		of a cache image, regardless of whether it is clean or
  *		dirty -- but remember that a flush dependency parent can
  *		also be a flush dependency child.
- *		
+ *
  *		Finally, note that for purposes of the cache image, flush
- *		dependency height ends when a flush dependecy relation 
+ *		dependency height ends when a flush dependecy relation
  *		passes off the cache image.
  *
- *		On exit, the flush dependency height of each entry in the 
+ *		On exit, the flush dependency height of each entry in the
  *		cache image should be calculated and stored in the cache
  *		entry.  Entries will be removed from the cache image if
  *		necessary to maintain flush ordering.
- *		
+ *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  John Mainzer
@@ -2447,10 +2456,10 @@ H5C__prep_for_file_close__compute_fd_heights(const H5C_t *cache_ptr)
     HDassert(cache_ptr);
     HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
 
-    /* Remove from the cache image all dirty entries that are 
+    /* Remove from the cache image all dirty entries that are
      * flush dependency children of dirty entries that are not in the
-     * cache image.  Must do this, as if we fail to do so, the parent 
-     * will be written to file before the child.  Since it is possible 
+     * cache image.  Must do this, as if we fail to do so, the parent
+     * will be written to file before the child.  Since it is possible
      * that the child will have dirty children of its own, this may take
      * multiple passes through the index list.
      */
@@ -2484,17 +2493,17 @@ H5C__prep_for_file_close__compute_fd_heights(const H5C_t *cache_ptr)
 
 	    entry_ptr = entry_ptr->il_next;
         } /* while ( entry_ptr != NULL ) */
-    } /* while ( ! done ) */ 
+    } /* while ( ! done ) */
 
     /* at present, entries are included in the cache image if they reside
-     * in a specified set of rings.  Thus it should be impossible for 
-     * entries_removed_from_image to be positive.  Assert that this is 
-     * so.  Note that this will change when we start aging entries out 
+     * in a specified set of rings.  Thus it should be impossible for
+     * entries_removed_from_image to be positive.  Assert that this is
+     * so.  Note that this will change when we start aging entries out
      * of the cache image.
      */
     HDassert(entries_removed_from_image == 0);
 
-    /* Next, remove from entries in the cache image, references to 
+    /* Next, remove from entries in the cache image, references to
      * flush dependency parents or children that are not in the cache image.
      */
     entry_ptr = cache_ptr->il_head;
@@ -2575,14 +2584,14 @@ H5C__prep_for_file_close__compute_fd_heights(const H5C_t *cache_ptr)
         entry_ptr = entry_ptr->il_next;
     } /* while (entry_ptr != NULL) */
 
-    /* At present, no extenal parent or child flush dependency links 
+    /* At present, no extenal parent or child flush dependency links
      * should exist -- hence the following assertions.  This will change
      * if we support ageout of entries in the cache image.
      */
     HDassert(external_child_fd_refs_removed == 0);
     HDassert(external_parent_fd_refs_removed == 0);
 
-    /* At this point we should have removed all flush dependencies that 
+    /* At this point we should have removed all flush dependencies that
      * cross cache image boundaries.  Now compute the flush dependency
      * heights for all entries in the image.
      *
@@ -2600,7 +2609,7 @@ H5C__prep_for_file_close__compute_fd_heights(const H5C_t *cache_ptr)
 	        parent_ptr = entry_ptr->flush_dep_parent[u];
 
 	        HDassert(parent_ptr->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC);
-	        if(parent_ptr->include_in_image && parent_ptr->image_fd_height <= 0) 
+	        if(parent_ptr->include_in_image && parent_ptr->image_fd_height <= 0)
 		    H5C__prep_for_file_close__compute_fd_heights_real(parent_ptr, 1);
 	    } /* end for */
         } /* end if */
@@ -2623,37 +2632,37 @@ done:
  *
  *		The basic observation behind this function is as follows:
  *
- *		Suppose you have an entry E with a flush dependency 
- *		height of X.  Then the parents of E must all have 
+ *		Suppose you have an entry E with a flush dependency
+ *		height of X.  Then the parents of E must all have
  *		flush dependency X + 1 or greater.
  *
  *		Use this observation to compute flush dependency height
  *		of all entries in the cache image via the following
  *		recursive algorithm:
  *
- *		1) On entry, set the flush dependency height of the 
+ *		1) On entry, set the flush dependency height of the
  *		   supplied cache entry to the supplied value.
  *
- *		2) Examine all the flush dependency parents of the 
- *		   supplied entry.  
+ *		2) Examine all the flush dependency parents of the
+ *		   supplied entry.
  *
- *		   If the parent is in the cache image, and has flush 
+ *		   If the parent is in the cache image, and has flush
  *		   dependency height less than or equal to the flush
- *		   dependency height of the current entry, call the 
+ *		   dependency height of the current entry, call the
  *		   recursive routine on the parent with flush dependency
- *		   height equal to the flush dependency height of the 
+ *		   height equal to the flush dependency height of the
  *		   child plus 1.
  *
  *		   Otherwise do nothing.
  *
  *		Observe that if the flush dependency height of all entries
- *		in the image is initialized to zero, and if this recursive 
- *		function is called with flush dependency height 0 on all 
- *		entries in the cache image with FD parents in the image, 
- *		but without FD children in the image, the correct flush 
- *		dependency height should be set for all entries in the 
+ *		in the image is initialized to zero, and if this recursive
+ *		function is called with flush dependency height 0 on all
+ *		entries in the cache image with FD parents in the image,
+ *		but without FD children in the image, the correct flush
+ *		dependency height should be set for all entries in the
  *		cache image.
- *		
+ *
  * Return:      void
  *
  * Programmer:  John Mainzer
@@ -2698,9 +2707,9 @@ H5C__prep_for_file_close__compute_fd_heights_real(H5C_cache_entry_t  *entry_ptr,
  * Function:    H5C__prep_for_file_close__setup_image_entries_array
  *
  * Purpose:     Allocate space for the image_entries array, and load
- *		each instance of H5C_image_entry_t in the array with 
+ *		each instance of H5C_image_entry_t in the array with
  *		the data necessary to construct the metadata cache image.
- *		
+ *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  John Mainzer
@@ -2758,14 +2767,14 @@ H5C__prep_for_file_close__setup_image_entries_array(H5C_t *cache_ptr)
 	    image_entries[u].ring                 = entry_ptr->ring;
 
 	    /* When a prefetched entry is included in the image, store
-             * its underlying type id in the image entry, not 
+             * its underlying type id in the image entry, not
              * H5AC_PREFETCHED_ENTRY_ID.  In passing, also increment
 	     * the age (up to H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX).
              */
 	    if(entry_ptr->type->id == H5AC_PREFETCHED_ENTRY_ID) {
 		image_entries[u].type_id          = entry_ptr->prefetch_type_id;
 		image_entries[u].age              = entry_ptr->age + 1;
-		
+
 		if(image_entries[u].age > H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX)
 		    image_entries[u].age = H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX;
 	    } /* end if */
@@ -2780,13 +2789,13 @@ H5C__prep_for_file_close__setup_image_entries_array(H5C_t *cache_ptr)
 	    image_entries[u].fd_parent_count      = entry_ptr->fd_parent_count;
 	    image_entries[u].fd_parent_addrs      = entry_ptr->fd_parent_addrs;
 	    image_entries[u].fd_child_count       = entry_ptr->fd_child_count;
-	    image_entries[u].fd_dirty_child_count = 
+	    image_entries[u].fd_dirty_child_count =
 						entry_ptr->fd_dirty_child_count;
 	    image_entries[u].image_ptr            = entry_ptr->image_ptr;
 
-	    /* Null out entry_ptr->fd_parent_addrs and set 
+	    /* Null out entry_ptr->fd_parent_addrs and set
              * entry_ptr->fd_parent_count to zero so that ownership of the
-             * flush dependency parents address array is transferred to the 
+             * flush dependency parents address array is transferred to the
 	     * image entry.
              */
 	    entry_ptr->fd_parent_count = 0;
@@ -2819,8 +2828,8 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__prep_for_file_close__scan_entries
  *
- * Purpose:     Scan all entries in the metadata cache, and store all 
- *		entry specific data required for construction of the 
+ * Purpose:     Scan all entries in the metadata cache, and store all
+ *		entry specific data required for construction of the
  *		metadata cache image block and likely to be discarded
  *		or modified during the cache flush on file close.
  *
@@ -2838,7 +2847,7 @@ done:
  *
  *		Finally, compute the size of the metadata cache image
  *		block.
- *		
+ *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  John Mainzer
@@ -2891,7 +2900,7 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
         HDassert(entry_ptr->image_ptr);
 
 	/* Initially, we mark all entries in the rings included
-         * in the cache image as being included in the in the 
+         * in the cache image as being included in the in the
          * image.  Depending on circumstances, we may exclude some
          * of these entries later.
          */
@@ -2907,7 +2916,7 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
 	    entry_ptr->image_fd_height = 0;     /* will compute this later */
 
 	    /* Initially, include all flush dependency parents in the
-             * the list of flush dependencies to be stored in the 
+             * the list of flush dependencies to be stored in the
              * image.  We may remove some or all of these later.
              */
 	    if(entry_ptr->flush_dep_nparents > 0) {
@@ -2915,7 +2924,7 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
                  * as needed.
                  */
 		if(entry_ptr->flush_dep_nparents == entry_ptr->fd_parent_count ) {
-		    /* parent addresses array should already be allocated 
+		    /* parent addresses array should already be allocated
                      * and of the correct size.
                      */
 		    HDassert(entry_ptr->fd_parent_addrs);
@@ -2947,8 +2956,8 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
 		HDassert(entry_ptr->fd_parent_addrs == NULL);
 
 	    /* Initially, all flush dependency children are included int
-             * the count of flush dependency child relationships to be 
-             * represented in the cache image.  Some or all of these 
+             * the count of flush dependency child relationships to be
+             * represented in the cache image.  Some or all of these
              * may be dropped from the image later.
              */
 	    if(entry_ptr->flush_dep_nchildren > 0) {
@@ -2970,23 +2979,23 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
     /* Now compute the flush dependency heights of all flush dependency
      * relationships to be represented in the image.
      *
-     * If all entries in the target rings are included in the 
-     * image, the flush dependency heights are simply the heights 
+     * If all entries in the target rings are included in the
+     * image, the flush dependency heights are simply the heights
      * of all flush dependencies in the target rings.
      *
-     * However, if we restrict appearance in the cache image either 
-     * by number of entries in the image, restrictions on the number 
-     * of times a prefetched entry can appear in an image, or image 
+     * However, if we restrict appearance in the cache image either
+     * by number of entries in the image, restrictions on the number
+     * of times a prefetched entry can appear in an image, or image
      * size, it is possible that flush dependency parents or children
      * of entries that are in the image may not be included in the
-     * the image.  In this case, we must prune all flush dependency 
-     * relationships that cross the image boundary, and all exclude 
-     * from the image all dirty flush dependency children that have 
-     * a dirty flush dependency parent that is not in the image. 
+     * the image.  In this case, we must prune all flush dependency
+     * relationships that cross the image boundary, and all exclude
+     * from the image all dirty flush dependency children that have
+     * a dirty flush dependency parent that is not in the image.
      * This is necessary to preserve the required flush ordering.
-     * 
-     * These details are tended to by the following call to 
-     * H5C__prep_for_file_close__compute_fd_heights().  Because the 
+     *
+     * These details are tended to by the following call to
+     * H5C__prep_for_file_close__compute_fd_heights().  Because the
      * exact contents of the image cannot be known until after this
      * call, computation of the image size is delayed.
      */
@@ -2994,7 +3003,7 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "computation of flush dependency heights failed?!?")
 
     /* At this point, all entries that will appear in the cache
-     * image should be marked correctly.  Compute the size of the 
+     * image should be marked correctly.  Compute the size of the
      * cache image.
      */
     entries_visited = 0;
@@ -3031,11 +3040,11 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
     /* Now scan the LRU list to set the lru_rank fields of all entries
      * on the LRU.
      *
-     * Note that we start with rank 1, and increment by 1 with each 
-     * entry on the LRU.  
+     * Note that we start with rank 1, and increment by 1 with each
+     * entry on the LRU.
      *
      * Note that manually pinned entryies will have lru_rank -1,
-     * and no flush dependency.  Putting these entries at the head of 
+     * and no flush dependency.  Putting these entries at the head of
      * the reconstructed LRU should be appropriate.
      */
     entry_ptr = cache_ptr->LRU_head_ptr;
@@ -3045,11 +3054,11 @@ H5C__prep_for_file_close__scan_entries(const H5F_t *f, H5C_t *cache_ptr)
 
         /* to avoid confusion, don't set lru_rank on epoch markers.
          * Note that we still increment the lru_rank, so that the holes
-         * in the sequence of entries on the LRU will indicate the 
-         * locations of epoch markers (if any) when we reconstruct 
+         * in the sequence of entries on the LRU will indicate the
+         * locations of epoch markers (if any) when we reconstruct
          * the LRU.
          *
-         * Do not set lru_rank or increment lru_rank for entries 
+         * Do not set lru_rank or increment lru_rank for entries
          * that will not be included in the cache image.
          */
 	if(entry_ptr->type->id == H5AC_EPOCH_MARKER_ID)
@@ -3076,9 +3085,9 @@ done:
  * Function:    H5C__reconstruct_cache_contents()
  *
  * Purpose:     Scan the image buffer, and create a prefetched
- *		cache entry for every entry in the buffer.  Insert the 
- *		prefetched entries in the index and the LRU, and 
- *		reconstruct any flush dependencies.  Order the entries 
+ *		cache entry for every entry in the buffer.  Insert the
+ *		prefetched entries in the index and the LRU, and
+ *		reconstruct any flush dependencies.  Order the entries
  *		in the LRU as indicated by the stored lru_ranks.
  *
  * Return:      SUCCEED on success, and FAIL on failure.
@@ -3127,11 +3136,11 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
 	if(NULL == (pf_entry_ptr = H5C__reconstruct_cache_entry(f, cache_ptr, &p)))
             HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "reconstruction of cache entry failed")
 
-	/* Note that we make no checks on available cache space before 
+	/* Note that we make no checks on available cache space before
          * inserting the reconstructed entry into the metadata cache.
          *
          * This is OK since the cache must be almost empty at the beginning
-         * of the process, and since we check cache size at the end of the 
+         * of the process, and since we check cache size at the end of the
          * reconstruction process.
          */
 
@@ -3147,7 +3156,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
 
 	H5C__UPDATE_STATS_FOR_PREFETCH(cache_ptr, pf_entry_ptr->is_dirty)
 
-	/* If the prefetched entry is the child in one or more flush 
+	/* If the prefetched entry is the child in one or more flush
          * dependency relationships, recreate those flush dependencies.
          */
 	for(v = 0; v < pf_entry_ptr->fd_parent_count; v++) {
@@ -3171,7 +3180,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
              */
             H5C__UPDATE_RP_FOR_PROTECT(cache_ptr, parent_ptr, FAIL)
             parent_ptr->is_protected = TRUE;
-	    
+
 	    /* Setup the flush dependency */
 	    if(H5C_create_flush_dependency(parent_ptr, pf_entry_ptr) < 0)
 		HGOTO_ERROR(H5E_CACHE, H5E_CANTDEPEND, FAIL, "Can't restore flush dependency")
@@ -3211,7 +3220,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
         pf_entry_ptr = pf_entry_ptr->il_next;
     } /* end while */
 
-    /* Scan the LRU, and verify the expected ordering of the 
+    /* Scan the LRU, and verify the expected ordering of the
      * prefetched entries.
      */
     {
@@ -3233,7 +3242,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
                 HDassert((entry_ptr->lru_rank == -1) ||
                          (entry_ptr->lru_rank > i));
 
-                if ( ( entry_ptr->lru_rank > 1 ) && 
+                if ( ( entry_ptr->lru_rank > 1 ) &&
                      ( entry_ptr->lru_rank > i + 1 ) )
 
                     lru_rank_holes += entry_ptr->lru_rank - (i + 1);
@@ -3245,9 +3254,9 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
             entry_ptr = entry_ptr->next;
         } /* end while */
 
-	/* Holes in the sequences of LRU ranks can appear due to epoch 
+	/* Holes in the sequences of LRU ranks can appear due to epoch
          * markers.  They are left in to allow re-insertion of the
-         * epoch markers on reconstruction of the cache -- thus 
+         * epoch markers on reconstruction of the cache -- thus
          * the following sanity check will have to be revised when
          * we add code to store and restore adaptive resize status.
          */
@@ -3255,7 +3264,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
     } /* end block */
 #endif /* NDEBUG */
 
-    /* Check to see if the cache is oversize, and evict entries as 
+    /* Check to see if the cache is oversize, and evict entries as
      * necessary to remain within limits.
      */
     if(cache_ptr->index_size >= cache_ptr->max_cache_size) {
@@ -3289,7 +3298,7 @@ done:
  *		Return a pointer to the newly allocated cache entry,
  *		or NULL on failure.
  *
- * Return:      Pointer to the new instance of H5C_cache_entry on success, 
+ * Return:      Pointer to the new instance of H5C_cache_entry on success,
  *		or NULL on failure.
  *
  * Programmer:  John Mainzer
@@ -3347,7 +3356,7 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr,
         is_fd_child = TRUE;
 #endif /* NDEBUG */ /* only used in assertions */
 
-    /* Force dirty entries to clean if the file read only -- must do 
+    /* Force dirty entries to clean if the file read only -- must do
      * this as otherwise the cache will attempt to write them on file
      * close.  Since the file is R/O, the metadata cache image superblock
      * extension message and the cache image block will not be removed.
@@ -3355,7 +3364,7 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr,
      *
      * However, if the dirty entry (marked clean for purposes of the R/O
      * file open) is evicted and then referred to, the cache will read
-     * either invalid or obsolete data from the file.  Handle this by 
+     * either invalid or obsolete data from the file.  Handle this by
      * setting the prefetched_dirty field, and hiding such entries from
      * the eviction candidate selection algorithm.
      */
@@ -3375,7 +3384,7 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr,
 
     /* Decode dirty dependency child count */
     UINT16DECODE(p, pf_entry_ptr->fd_dirty_child_count);
-    if(!file_is_rw) 
+    if(!file_is_rw)
         pf_entry_ptr->fd_dirty_child_count      = 0;
     if(pf_entry_ptr->fd_dirty_child_count > pf_entry_ptr->fd_child_count)
         HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, NULL, "invalid dirty flush dependency child count")
@@ -3401,8 +3410,8 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr,
     /* Verify expected length of entry image */
     if((size_t)(p - *buf) != H5C__cache_image_block_entry_header_size(f))
         HGOTO_ERROR(H5E_CACHE, H5E_BADSIZE, NULL, "Bad entry image len")
-    
-    /* If parent count greater than zero, allocate array for parent 
+
+    /* If parent count greater than zero, allocate array for parent
      * addresses, and decode addresses into the array.
      */
     if(pf_entry_ptr->fd_parent_count > 0) {
@@ -3422,11 +3431,11 @@ H5C__reconstruct_cache_entry(const H5F_t *f, H5C_t *cache_ptr,
     if(NULL == (pf_entry_ptr->image_ptr = H5MM_malloc(pf_entry_ptr->size + H5C_IMAGE_EXTRA_SPACE)))
 	HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, NULL, "memory allocation failed for on disk image buffer")
 #if H5C_DO_MEMORY_SANITY_CHECKS
-    HDmemcpy(((uint8_t *)pf_entry_ptr->image_ptr) + size, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
+    H5MM_memcpy(((uint8_t *)pf_entry_ptr->image_ptr) + size, H5C_IMAGE_SANITY_VALUE, H5C_IMAGE_EXTRA_SPACE);
 #endif /* H5C_DO_MEMORY_SANITY_CHECKS */
 
     /* Copy the entry image from the cache image block */
-    HDmemcpy(pf_entry_ptr->image_ptr, p, pf_entry_ptr->size);
+    H5MM_memcpy(pf_entry_ptr->image_ptr, p, pf_entry_ptr->size);
     p += pf_entry_ptr->size;
 
     /* Initialize the rest of the fields in the prefetched entry */
@@ -3457,7 +3466,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C__write_cache_image_superblock_msg
  *
- * Purpose:     Write the cache image superblock extension message, 
+ * Purpose:     Write the cache image superblock extension message,
  *		creating if specified.
  *
  *		In general, the size and location of the cache image block
@@ -3560,7 +3569,7 @@ H5C__write_cache_image(H5F_t *f, const H5C_t *cache_ptr)
     } /* end if */
 } /* end block */
 #endif /* H5_HAVE_PARALLEL */
-	
+
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5C__write_cache_image() */

@@ -15,7 +15,7 @@
  *
  * Created:     H5FAcache.c
  *		Jul  2 2009
- *		Quincey Koziol <koziol@hdfgroup.org>
+ *		Quincey Koziol
  *
  * Purpose:     Implement fixed array metadata cache methods.
  *
@@ -41,6 +41,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FApkg.h"		/* Fixed Arrays				*/
 #include "H5MFprivate.h"	/* File memory management		*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"	/* Vectors and arrays 			*/
 #include "H5WBprivate.h"        /* Wrapped Buffers                      */
 
@@ -179,7 +180,6 @@ const H5AC_class_t H5AC_FARRAY_DBLK_PAGE[1] = {{
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              July 31, 2013
  *
  *-------------------------------------------------------------------------
@@ -245,14 +245,13 @@ END_FUNC(STATIC) 	/* end H5FA__cache_hdr_verify_chksum() */
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 12, 2013
  *
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(STATIC, ERR,
 void *, NULL, NULL,
-H5FA__cache_hdr_deserialize(const void *_image, size_t len,
+H5FA__cache_hdr_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
     void *_udata, hbool_t H5_ATTR_UNUSED *dirty))
 
     /* Local variables */
@@ -358,7 +357,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_hdr_deserialize() */
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 12, 2013
  *
  *-------------------------------------------------------------------------
@@ -388,7 +386,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_hdr_image_len() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 12, 2013
  *
  *-------------------------------------------------------------------------
@@ -409,14 +406,15 @@ H5FA__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED le
     HDassert(hdr);
 
     /* Magic number */
-    HDmemcpy(image, H5FA_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5FA_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* Version # */
     *image++ = H5FA_HDR_VERSION;
 
     /* Fixed array type */
-    *image++ = hdr->cparam.cls->id;
+    HDassert(hdr->cparam.cls->id <= 255);
+    *image++ = (uint8_t)hdr->cparam.cls->id;
 
     /* General array creation/configuration information */
     *image++ = hdr->cparam.raw_elmt_size;          /* Element size in file (in bytes) */
@@ -525,7 +523,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_hdr_notify() */
  * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 12, 2013
  *
  *-------------------------------------------------------------------------
@@ -554,7 +551,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_hdr_free_icr() */
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 12, 2013
  *
  *-------------------------------------------------------------------------
@@ -642,14 +638,13 @@ END_FUNC(STATIC) 	/* end H5FA__cache_dblock_verify_chksum() */
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(STATIC, ERR,
 void *, NULL, NULL,
-H5FA__cache_dblock_deserialize(const void *_image, size_t len,
+H5FA__cache_dblock_deserialize(const void *_image, size_t H5_ATTR_NDEBUG_UNUSED len,
     void *_udata, hbool_t H5_ATTR_UNUSED *dirty))
 
     /* Local variables */
@@ -667,7 +662,7 @@ H5FA__cache_dblock_deserialize(const void *_image, size_t len,
     if(NULL == (dblock = H5FA__dblock_alloc(udata->hdr)))
         H5E_THROW(H5E_CANTALLOC, "memory allocation failed for fixed array data block")
 
-    HDassert(((!dblock->npages) && (len == (size_t)H5FA_DBLOCK_SIZE(dblock))) 
+    HDassert(((!dblock->npages) && (len == (size_t)H5FA_DBLOCK_SIZE(dblock)))
              || (len == (size_t)H5FA_DBLOCK_PREFIX_SIZE(dblock)));
 
     /* Set the fixed array data block's information */
@@ -693,7 +688,7 @@ H5FA__cache_dblock_deserialize(const void *_image, size_t len,
 
     /* Page initialization flags */
     if(dblock->npages > 0) {
-	HDmemcpy(dblock->dblk_page_init, image, dblock->dblk_page_init_size);
+	H5MM_memcpy(dblock->dblk_page_init, image, dblock->dblk_page_init_size);
         image += dblock->dblk_page_init_size;
     } /* end if */
 
@@ -742,7 +737,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblock_deserialize() */
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -775,7 +769,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblock_image_len() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -797,14 +790,15 @@ H5FA__cache_dblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED
     HDassert(dblock->hdr);
 
     /* Magic number */
-    HDmemcpy(image, H5FA_DBLOCK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5FA_DBLOCK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* Version # */
     *image++ = H5FA_DBLOCK_VERSION;
 
     /* Fixed array type */
-    *image++ = dblock->hdr->cparam.cls->id;
+    HDassert(dblock->hdr->cparam.cls->id <= 255);
+    *image++ = (uint8_t)dblock->hdr->cparam.cls->id;
 
     /* Address of array header for array which owns this block */
     H5F_addr_encode(f, &image, dblock->hdr->addr);
@@ -812,7 +806,7 @@ H5FA__cache_dblock_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED
     /* Page init flags */
     if(dblock->npages > 0) {
         /* Store the 'page init' bitmasks */
-        HDmemcpy(image, dblock->dblk_page_init, dblock->dblk_page_init_size);
+        H5MM_memcpy(image, dblock->dblk_page_init, dblock->dblk_page_init_size);
         image += dblock->dblk_page_init_size;
     } /* end if */
 
@@ -921,7 +915,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblock_notify() */
  * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -951,21 +944,21 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblock_free_icr() */
  *		to free when a dblock entry is destroyed with the free
  *		file space block set.
  *
- *		This function is needed when the data block is paged, as 
+ *		This function is needed when the data block is paged, as
  *		the datablock header and all its pages are allocted as a
- *		single contiguous chunk of file space, and must be 
+ *		single contiguous chunk of file space, and must be
  *		deallocated the same way.
  *
  *		The size of the chunk of memory in which the dblock
  *		header and all its pages is stored in the size field,
  *		so we simply pass that value back to the cache.
  *
- *		If the datablock is not paged, then the size field of 
+ *		If the datablock is not paged, then the size field of
  *		the cache_info contains the correct size.  However this
  *		value will be the same as the size field, so we return
  *		the contents of the size field to the cache in this case
  *		as well.
- *		
+ *
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	John Mainzer
@@ -998,7 +991,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblock_fsf_size() */
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -1065,7 +1057,6 @@ END_FUNC(STATIC) 	/* end H5FA__cache_dblk_page_verify_chksum() */
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -1138,7 +1129,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblk_page_deserialize() */
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
@@ -1155,7 +1145,7 @@ H5FA__cache_dblk_page_image_len(const void *_thing, size_t *image_len))
     HDassert(image_len);
 
     /* Set the image length size */
-    *image_len = dblk_page->size; 
+    *image_len = dblk_page->size;
 
 END_FUNC(STATIC)   /* end H5FA__cache_dblk_page_image_len() */
 
@@ -1168,14 +1158,13 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblk_page_image_len() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(STATIC, ERR,
 herr_t, SUCCEED, FAIL,
-H5FA__cache_dblk_page_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED len,
+H5FA__cache_dblk_page_serialize(const H5F_t H5_ATTR_NDEBUG_UNUSED *f, void *_image, size_t H5_ATTR_UNUSED len,
     void *_thing))
 
     /* Local variables */
@@ -1220,7 +1209,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblk_page_serialize() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@lbl.gov
  *		Oct 17 2016
  *
  *-------------------------------------------------------------------------
@@ -1283,7 +1271,6 @@ END_FUNC(STATIC)   /* end H5FA__cache_dblk_page_notify() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *              koziol@hdfgroup.org
  *              August 14, 2013
  *
  *-------------------------------------------------------------------------

@@ -58,7 +58,7 @@ static herr_t H5C__epoch_marker_get_initial_load_size(void *udata_ptr,
     size_t *image_len_ptr);
 static herr_t H5C__epoch_marker_get_final_load_size(const void *image_ptr,
     size_t image_len_ptr, void *udata_ptr, size_t *actual_len);
-static htri_t H5C__epoch_marker_verify_chksum(const void *image_ptr, 
+static htri_t H5C__epoch_marker_verify_chksum(const void *image_ptr,
     size_t len, void *udata_ptr);
 static void * H5C__epoch_marker_deserialize(const void * image_ptr,
     size_t len, void * udata, hbool_t * dirty_ptr);
@@ -71,7 +71,7 @@ static herr_t H5C__epoch_marker_serialize(const H5F_t *f,
     void * image_ptr, size_t len, void * thing);
 static herr_t H5C__epoch_marker_notify(H5C_notify_action_t action, void *thing);
 static herr_t H5C__epoch_marker_free_icr(void * thing);
-static herr_t H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing, 
+static herr_t H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing,
     hsize_t H5_ATTR_UNUSED * fsf_size_ptr);
 
 
@@ -143,8 +143,8 @@ H5C__epoch_marker_get_final_load_size(const void H5_ATTR_UNUSED *image_ptr,
 } /* end H5C__epoch_marker_final_get_load_size() */
 
 
-static htri_t 
-H5C__epoch_marker_verify_chksum(const void H5_ATTR_UNUSED *image_ptr, size_t H5_ATTR_UNUSED len, 
+static htri_t
+H5C__epoch_marker_verify_chksum(const void H5_ATTR_UNUSED *image_ptr, size_t H5_ATTR_UNUSED len,
     void H5_ATTR_UNUSED *udata_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */
@@ -228,7 +228,7 @@ H5C__epoch_marker_free_icr(void H5_ATTR_UNUSED * thing)
 } /* end H5C__epoch_marker_free_icr() */
 
 
-static herr_t 
+static herr_t
 H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing, hsize_t H5_ATTR_UNUSED *fsf_size_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */

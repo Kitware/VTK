@@ -15,7 +15,7 @@
  *
  * Created:             H5Olink.c
  *                      Aug 29 2005
- *                      Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *                      Quincey Koziol
  *
  * Purpose:             Link messages.
  *
@@ -111,7 +111,6 @@ H5FL_DEFINE_STATIC(H5O_link_t);
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 29 2005
  *
  *-------------------------------------------------------------------------
@@ -119,11 +118,12 @@ H5FL_DEFINE_STATIC(H5O_link_t);
 static void *
 H5O__link_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
     unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
-    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
+    size_t p_size, const uint8_t *p)
 {
     H5O_link_t          *lnk = NULL;    /* Pointer to link message */
     size_t              len = 0;        /* Length of a string in the message */
     unsigned char       link_flags;     /* Flags for encoding link info */
+    const uint8_t       *p_end = p + p_size;  /* End of the p buffer */
     void                *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
@@ -199,10 +199,15 @@ H5O__link_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
     if(len == 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, NULL, "invalid name length")
 
+    /* Make sure that length doesn't exceed buffer size, which could occur
+       when the file is corrupted */
+    if(p + len > p_end)
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "name length causes read past end of buffer")
+
     /* Get the link's name */
     if(NULL == (lnk->name = (char *)H5MM_malloc(len + 1)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-    HDmemcpy(lnk->name, p, len);
+    H5MM_memcpy(lnk->name, p, len);
     lnk->name[len] = '\0';
     p += len;
 
@@ -218,9 +223,15 @@ H5O__link_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
             UINT16DECODE(p, len)
             if(len == 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, NULL, "invalid link length")
+
+            /* Make sure that length doesn't exceed buffer size, which could occur
+               when the file is corrupted */
+            if(p + len > p_end)
+                HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "name length causes read past end of buffer")
+
             if(NULL == (lnk->u.soft.name = (char *)H5MM_malloc((size_t)len + 1)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-            HDmemcpy(lnk->u.soft.name, p, len);
+            H5MM_memcpy(lnk->u.soft.name, p, len);
             lnk->u.soft.name[len] = '\0';
             p += len;
             break;
@@ -238,9 +249,14 @@ H5O__link_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
             lnk->u.ud.size = len;
             if(len > 0)
             {
+                /* Make sure that length doesn't exceed buffer size, which could
+                   occur when the file is corrupted */
+                if(p + len > p_end)
+                    HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "name length causes read past end of buffer")
+
                 if(NULL == (lnk->u.ud.udata = H5MM_malloc((size_t)len)))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-                HDmemcpy(lnk->u.ud.udata, p, len);
+                H5MM_memcpy(lnk->u.ud.udata, p, len);
                 p += len;
             }
             else
@@ -274,7 +290,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 29 2005
  *
  *-------------------------------------------------------------------------
@@ -316,7 +331,7 @@ H5O_link_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
 
     /* Store the type of a non-default link */
     if(link_flags & H5O_LINK_STORE_LINK_TYPE)
-        *p++ = lnk->type;
+        *p++ = (uint8_t)lnk->type;
 
     /* Store the link creation order in the file, if its valid */
     if(lnk->corder_valid)
@@ -349,7 +364,7 @@ H5O_link_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
     } /* end switch */
 
     /* Store the link's name */
-    HDmemcpy(p, lnk->name, (size_t)len);
+    H5MM_memcpy(p, lnk->name, (size_t)len);
     p += len;
 
     /* Store the appropriate information for each type of link */
@@ -364,7 +379,7 @@ H5O_link_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
             len = (uint16_t)HDstrlen(lnk->u.soft.name);
             HDassert(len > 0);
             UINT16ENCODE(p, len)
-            HDmemcpy(p, lnk->u.soft.name, (size_t)len);
+            H5MM_memcpy(p, lnk->u.soft.name, (size_t)len);
             p += len;
             break;
 
@@ -380,7 +395,7 @@ H5O_link_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
             UINT16ENCODE(p, len)
             if(len > 0)
             {
-                HDmemcpy(p, lnk->u.ud.udata, (size_t)len);
+                H5MM_memcpy(p, lnk->u.ud.udata, (size_t)len);
                 p+=len;
             }
             break;
@@ -401,7 +416,6 @@ H5O_link_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 29 2005
  *
  *-------------------------------------------------------------------------
@@ -437,7 +451,7 @@ H5O_link_copy(const void *_mesg, void *_dest)
         if(lnk->u.ud.size > 0) {
             if(NULL == (dest->u.ud.udata = H5MM_malloc(lnk->u.ud.size)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-            HDmemcpy(dest->u.ud.udata, lnk->u.ud.udata, lnk->u.ud.size);
+            H5MM_memcpy(dest->u.ud.udata, lnk->u.ud.udata, lnk->u.ud.size);
         } /* end if */
     } /* end if */
 
@@ -469,7 +483,6 @@ done:
  *              Failure:        zero
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 29 2005
  *
  *-------------------------------------------------------------------------
@@ -797,7 +810,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 29 2005
  *
  *-------------------------------------------------------------------------
@@ -809,7 +821,7 @@ H5O__link_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
     const H5O_link_t    *lnk = (const H5O_link_t *) _mesg;
     herr_t               ret_value = SUCCEED;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);

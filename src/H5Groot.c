@@ -15,7 +15,7 @@
  *
  * Created:		H5Groot.c
  *			Apr  8 2009
- *			Neil Fortner <nfortne2@hdfgroup.org>
+ *			Neil Fortner
  *
  * Purpose:		Functions for operating on the root group.
  *
@@ -137,7 +137,6 @@ H5G_rootof(H5F_t *f)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 11 1997
  *
  *-------------------------------------------------------------------------
@@ -370,7 +369,6 @@ H5G_root_free(H5G_t *grp)
  * 		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Mar  5 2007
  *
  *-------------------------------------------------------------------------

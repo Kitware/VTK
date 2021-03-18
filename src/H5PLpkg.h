@@ -94,7 +94,7 @@
 #   define H5PL_HANDLE void *
 
     /* Get a handle to a plugin library.  Windows: TEXT macro handles Unicode strings */
-#   define H5PL_OPEN_DLIB(S) dlopen(S, RTLD_LAZY)
+#   define H5PL_OPEN_DLIB(S) dlopen(S, RTLD_LAZY | RTLD_LOCAL)
 
     /* Get the address of a symbol in dynamic library */
 #   define H5PL_GET_LIB_FUNC(H,N) dlsym(H,N)
@@ -134,13 +134,15 @@ H5_DLL herr_t H5PL__get_plugin_control_mask(unsigned int *mask /*out*/);
 H5_DLL herr_t H5PL__set_plugin_control_mask(unsigned int mask);
 
 /* Plugin search and manipulation */
-H5_DLL herr_t H5PL__open(const char *libname, H5PL_type_t type, H5PL_key_t key, hbool_t *success /*out*/, const void **plugin_info /*out*/);
+H5_DLL herr_t H5PL__open(const char *libname, H5PL_type_t type, H5PL_key_t key,
+    hbool_t *success /*out*/, const void **plugin_info /*out*/);
 H5_DLL herr_t H5PL__close(H5PL_HANDLE handle);
 
 /* Plugin cache calls */
 H5_DLL herr_t H5PL__create_plugin_cache(void);
 H5_DLL herr_t H5PL__close_plugin_cache(hbool_t *already_closed /*out*/);
-H5_DLL herr_t H5PL__add_plugin(H5PL_type_t type, H5PL_key_t key, H5PL_HANDLE handle);
+H5_DLL herr_t H5PL__add_plugin(H5PL_type_t type, H5PL_key_t key,
+    H5PL_HANDLE handle);
 H5_DLL herr_t H5PL__find_plugin_in_cache(const H5PL_search_params_t *search_params, hbool_t *found /*out*/, const void **plugin_info /*out*/);
 
 /* Plugin search path calls */

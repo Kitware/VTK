@@ -15,7 +15,7 @@
  *
  * Created:             H5Ocont.c
  *                      Aug  6 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             The object header continuation message.  This
  *                      message is only generated and read from within
@@ -36,10 +36,10 @@
 
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_cont_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+static void *H5O__cont_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
     unsigned *ioflags, size_t p_size, const uint8_t *p);
-static herr_t H5O_cont_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
-static size_t H5O_cont_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
+static herr_t H5O__cont_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
+static size_t H5O__cont_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
 static herr_t H5O__cont_free(void *mesg);
 static herr_t H5O__cont_delete(H5F_t *f, H5O_t *open_oh, void *_mesg);
 static herr_t H5O__cont_debug(H5F_t *f, const void *_mesg, FILE * stream,
@@ -51,10 +51,10 @@ const H5O_msg_class_t H5O_MSG_CONT[1] = {{
     "hdr continuation",     	/*message name for debugging    */
     sizeof(H5O_cont_t),     	/*native message size           */
     0,				/* messages are sharable?       */
-    H5O_cont_decode,        	/*decode message                */
-    H5O_cont_encode,        	/*encode message                */
+    H5O__cont_decode,        	/*decode message                */
+    H5O__cont_encode,        	/*encode message                */
     NULL,                   	/*no copy method                */
-    H5O_cont_size,          	/*size of header continuation   */
+    H5O__cont_size,          	/*size of header continuation   */
     NULL,                   	/*reset method			*/
     H5O__cont_free,	        /* free method			*/
     H5O__cont_delete,		/* file delete method		*/
@@ -74,7 +74,7 @@ H5FL_DEFINE(H5O_cont_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_cont_decode
+ * Function:    H5O__cont_decode
  *
  * Purpose:     Decode the raw header continuation message.
  *
@@ -83,20 +83,19 @@ H5FL_DEFINE(H5O_cont_t);
  *              Failure:        NULL
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_cont_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
+H5O__cont_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
     unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
     size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_cont_t             *cont = NULL;
     void                   *ret_value = NULL;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -116,28 +115,27 @@ H5O_cont_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_cont_decode() */
+} /* end H5O__cont_decode() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_cont_encode
+ * Function:    H5O__cont_encode
  *
  * Purpose:     Encodes a continuation message.
  *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  7 1997
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
+H5O__cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
 {
     const H5O_cont_t       *cont = (const H5O_cont_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -151,11 +149,11 @@ H5O_cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
     H5F_ENCODE_LENGTH(f, p, cont->size);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_cont_encode() */
+} /* end H5O__cont_encode() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_cont_size
+ * Function:    H5O__cont_size
  *
  * Purpose:     Returns the size of the raw message in bytes not counting
  *              the message type or size fields, but only the data fields.
@@ -166,24 +164,23 @@ H5O_cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
  *              Failure:        zero
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Sep  6 2005
  *
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O_cont_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
+H5O__cont_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
 {
     size_t ret_value = 0;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Set return value */
     ret_value = (size_t)(H5F_SIZEOF_ADDR(f) +    /* Continuation header address */
                 H5F_SIZEOF_SIZE(f));     /* Continuation header length */
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_cont_size() */
+} /* end H5O__cont_size() */
 
 
 /*-------------------------------------------------------------------------
@@ -253,10 +250,7 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */

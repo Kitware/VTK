@@ -24,6 +24,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Opkg.h"             /* Object Headers                       */
 #include "H5SMpkg.h"            /* Shared object header messages        */
 
@@ -248,7 +249,7 @@ H5SM_bt2_convert_to_list_op(const void * record, void *op_data)
     /* Insert this message at the end of the list */
     HDassert(list->messages[mesg_idx].location == H5SM_NO_LOC);
     HDassert(message->location != H5SM_NO_LOC);
-    HDmemcpy(&(list->messages[mesg_idx]), message, sizeof(H5SM_sohm_t));
+    H5MM_memcpy(&(list->messages[mesg_idx]), message, sizeof(H5SM_sohm_t));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5SM_bt2_convert_to_list_op() */

@@ -15,7 +15,7 @@
  *
  * Created:             H5MFprivate.h
  *                      Jul 11 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             Private header file for file memory management.
  *
@@ -76,9 +76,9 @@ H5_DLL htri_t H5MF_aggrs_try_shrink_eoa(H5F_t *f);
 H5_DLL herr_t H5MF_settle_raw_data_fsm(H5F_t *f, hbool_t *fsm_settled);
 H5_DLL herr_t H5MF_settle_meta_data_fsm(H5F_t *f, hbool_t *fsm_settled);
 
-/* This function has to be declared in H5MFprivate.h as it is needed 
- * in our test code to allow us to manually start a self referential 
- * free space manager prior to the first file space allocations / 
+/* This function has to be declared in H5MFprivate.h as it is needed
+ * in our test code to allow us to manually start a self referential
+ * free space manager prior to the first file space allocations /
  * deallocation without causing assertion failures on the first
  * file space allocation / deallocation.
  */

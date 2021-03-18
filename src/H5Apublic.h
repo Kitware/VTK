@@ -22,10 +22,6 @@
 #include "H5Opublic.h"		/* Object Headers			*/
 #include "H5Tpublic.h"		/* Datatypes				*/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Information struct for attribute (for H5Aget_info/H5Aget_info_by_idx) */
 typedef struct {
     hbool_t             corder_valid;   /* Indicate if creation order is valid */
@@ -38,7 +34,19 @@ typedef struct {
 typedef herr_t (*H5A_operator2_t)(hid_t location_id/*in*/,
     const char *attr_name/*in*/, const H5A_info_t *ainfo/*in*/, void *op_data/*in,out*/);
 
-/* Public function prototypes */
+
+/********************/
+/* Public Variables */
+/********************/
+
+
+/*********************/
+/* Public Prototypes */
+/*********************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 H5_DLL hid_t   H5Acreate2(hid_t loc_id, const char *attr_name, hid_t type_id,
     hid_t space_id, hid_t acpl_id, hid_t aapl_id);
 H5_DLL hid_t   H5Acreate_by_name(hid_t loc_id, const char *obj_name, const char *attr_name,

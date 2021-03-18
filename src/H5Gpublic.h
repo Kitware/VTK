@@ -15,7 +15,7 @@
  *
  * Created:             H5Gpublic.h
  *                      Jul 11 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             Public declarations for the H5G package
  *

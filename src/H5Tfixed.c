@@ -37,9 +37,6 @@
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- *	Robb Matzke, 22 Dec 1998
- *	Also works with derived datatypes.
  *-------------------------------------------------------------------------
  */
 H5T_sign_t
@@ -74,8 +71,6 @@ done:
  *
  * Programmer:	Raymond Lu
  *		October 8, 2002
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -114,10 +109,6 @@ done:
  *
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
- *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Also works with derived datatypes.
  *
  *-------------------------------------------------------------------------
  */

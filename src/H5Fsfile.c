@@ -24,7 +24,7 @@
 
 /* Struct for tracking "shared" file structs */
 typedef struct H5F_sfile_node_t {
-    H5F_file_t *shared;                 /* Pointer to "shared" file struct */
+    H5F_shared_t *shared;               /* Pointer to "shared" file struct */
     struct H5F_sfile_node_t *next;      /* Pointer to next node */
 } H5F_sfile_node_t;
 
@@ -84,7 +84,7 @@ H5F_sfile_assert_num(unsigned n)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_sfile_add
+ * Function:    H5F__sfile_add
  *
  * Purpose:     Add a "shared" file struct to the list of open files
  *
@@ -96,12 +96,12 @@ H5F_sfile_assert_num(unsigned n)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_sfile_add(H5F_file_t *shared)
+H5F__sfile_add(H5F_shared_t *shared)
 {
     H5F_sfile_node_t *new_shared;       /* New shared file node */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(shared);
@@ -119,11 +119,11 @@ H5F_sfile_add(H5F_file_t *shared)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_sfile_add() */
+} /* end H5F__sfile_add() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_sfile_search
+ * Function:    H5F__sfile_search
  *
  * Purpose:     Search for a "shared" file with low-level file info that
  *              matches
@@ -135,13 +135,13 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-H5F_file_t *
-H5F_sfile_search(H5FD_t *lf)
+H5F_shared_t *
+H5F__sfile_search(H5FD_t *lf)
 {
     H5F_sfile_node_t *curr;             /* Current shared file node */
-    H5F_file_t *ret_value = NULL;       /* Return value */
+    H5F_shared_t *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
     HDassert(lf);
@@ -159,11 +159,11 @@ H5F_sfile_search(H5FD_t *lf)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_sfile_search() */
+} /* end H5F__sfile_search() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_sfile_remove
+ * Function:    H5F__sfile_remove
  *
  * Purpose:     Remove a "shared" file struct from the list of open files
  *
@@ -175,13 +175,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_sfile_remove(H5F_file_t *shared)
+H5F__sfile_remove(H5F_shared_t *shared)
 {
     H5F_sfile_node_t *curr;             /* Current shared file node */
     H5F_sfile_node_t *last;             /* Last shared file node */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(shared);
@@ -213,5 +213,5 @@ H5F_sfile_remove(H5F_file_t *shared)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_sfile_remove() */
+} /* end H5F__sfile_remove() */
 

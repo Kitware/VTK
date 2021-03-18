@@ -15,7 +15,7 @@
  *
  * Created:     H5HLdblk.c
  *              Summer 2012
- *              Dana Robinson <derobins@hdfgroup.org>
+ *              Dana Robinson
  *
  * Purpose:     Data block routines for local heaps.
  *
@@ -242,7 +242,7 @@ H5HL__dblk_realloc(H5F_t *f, H5HL_t *heap, size_t new_heap_size))
             /* Insert data block into cache (pinned) */
             if(FAIL == H5AC_insert_entry(f, H5AC_LHEAP_DBLK, new_addr, dblk, H5AC__PIN_ENTRY_FLAG))
                 H5E_THROW(H5E_CANTINIT, "unable to cache local heap data block");
-                
+
             dblk = NULL;
 
             /* Reset 'single cache object' flag */

@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Robb Matzke <matzke@llnl.gov>
+ * Programmer:  Robb Matzke
  *              Monday, July 26, 1999
  */
 #ifndef _H5FDpublic_H
@@ -207,7 +207,7 @@ typedef enum H5F_mem_t	H5FD_mem_t;
      * the handle for the VFD (returned with the 'get_handle' callback) is
      * of type 'int' and is compatible with POSIX I/O calls.
      */
-#define H5FD_FEAT_POSIX_COMPAT_HANDLE   0x00000080    
+#define H5FD_FEAT_POSIX_COMPAT_HANDLE   0x00000080
     /*
      * Defining H5FD_FEAT_HAS_MPI for a VFL driver means that
      * the driver makes use of MPI communication and code may retrieve
@@ -220,7 +220,7 @@ typedef enum H5F_mem_t	H5FD_mem_t;
      * instead of the default H5D_ALLOC_TIME_LATE
      */
 #define H5FD_FEAT_ALLOCATE_EARLY        0x00000200
-    /* 
+    /*
      * Defining H5FD_FEAT_ALLOW_FILE_IMAGE for a VFL driver means that
      * the driver is able to use a file image in the fapl as the initial
      * contents of a file.
@@ -255,6 +255,8 @@ typedef enum H5F_mem_t	H5FD_mem_t;
      * that creates a file which is compatible with the default VFD.
      * Generally, this means that the VFD creates a single file that follows
      * the canonical HDF5 file format.
+     * Regarding the Splitter VFD specifically, only drivers with this flag
+     * enabled may be used as the Write-Only (W/O) channel driver.
      */
 #define H5FD_FEAT_DEFAULT_VFD_COMPATIBLE        0x00008000
 
@@ -332,7 +334,7 @@ struct H5FD_t {
 /* Define enum for the source of file image callbacks */
 typedef enum {
     H5FD_FILE_IMAGE_OP_NO_OP,
-    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,     
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,
     H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY,
     H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET,
     H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE,
@@ -343,13 +345,13 @@ typedef enum {
 
 /* Define structure to hold file image callbacks */
 typedef struct {
-    void   *(*image_malloc)(size_t size, H5FD_file_image_op_t file_image_op, 
+    void   *(*image_malloc)(size_t size, H5FD_file_image_op_t file_image_op,
                             void *udata);
     void   *(*image_memcpy)(void *dest, const void *src, size_t size,
                             H5FD_file_image_op_t file_image_op, void *udata);
-    void   *(*image_realloc)(void *ptr, size_t size, 
+    void   *(*image_realloc)(void *ptr, size_t size,
                             H5FD_file_image_op_t file_image_op, void *udata);
-    herr_t  (*image_free)(void *ptr, H5FD_file_image_op_t file_image_op, 
+    herr_t  (*image_free)(void *ptr, H5FD_file_image_op_t file_image_op,
                           void *udata);
     void   *(*udata_copy)(void *udata);
     herr_t  (*udata_free)(void *udata);

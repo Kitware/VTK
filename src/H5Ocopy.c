@@ -15,7 +15,7 @@
  *
  * Created:		H5Ocopy.c
  *			Nov  6 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Object copying routines.
  *
@@ -736,7 +736,7 @@ H5O__copy_header_real(const H5O_loc_t *oloc_src, H5O_loc_t *oloc_dst /*out*/,
      * header.  This will be written when the header is flushed to disk.
      */
     if(oh_dst->version > H5O_VERSION_1)
-        HDmemcpy(current_pos, H5O_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+        H5MM_memcpy(current_pos, H5O_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     current_pos += H5O_SIZEOF_HDR(oh_dst) - H5O_SIZEOF_CHKSUM_OH(oh_dst);
 
     /* Loop through destination messages, updating their "raw" info */
@@ -759,7 +759,7 @@ H5O__copy_header_real(const H5O_loc_t *oloc_src, H5O_loc_t *oloc_dst /*out*/,
         /* Copy each message that wasn't dirtied above */
         if(!mesg_dst->dirty)
             /* Copy the message header plus the message's raw data. */
-            HDmemcpy(current_pos, mesg_src->raw - msghdr_size, msghdr_size + mesg_src->raw_size);
+            H5MM_memcpy(current_pos, mesg_src->raw - msghdr_size, msghdr_size + mesg_src->raw_size);
 
         /* Set message's raw pointer to destination chunk's new "image" */
         mesg_dst->raw = current_pos + msghdr_size;

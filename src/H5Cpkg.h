@@ -47,12 +47,21 @@
 /* Number of epoch markers active */
 #define H5C__MAX_EPOCH_MARKERS                  10
 
+
 /* Cache configuration settings */
 #define H5C__HASH_TABLE_LEN     (64 * 1024) /* must be a power of 2 */
 #define H5C__H5C_T_MAGIC	0x005CAC0E
 
+
 /* Initial allocated size of the "flush_dep_parent" array */
 #define H5C_FLUSH_DEP_PARENT_INIT 8
+
+
+/* Set to TRUE to enable the slist optimization.  If this field is TRUE,
+ * the slist is disabled whenever a flush is not in progress.
+ */
+#define H5C__SLIST_OPT_ENABLED                  TRUE
+
 
 /****************************************************************************
  *
@@ -149,8 +158,8 @@
  *
  *							JRM - 9/8/05
  *
- *  - Added macros supporting the index list -- a doubly liked list of 
- *    all entries in the index.  This list is necessary to reduce the 
+ *  - Added macros supporting the index list -- a doubly liked list of
+ *    all entries in the index.  This list is necessary to reduce the
  *    cost of visiting all entries in the cache, which was previously
  *    done via a scan of the hash table.
  *
@@ -963,16 +972,16 @@ if ( ( ( ( (head_ptr) == NULL ) || ( (tail_ptr) == NULL ) ) &&             \
  *
  *     						JRM -- 11/5/08
  *
- *   - Updated existing index macros and sanity check macros to maintain 
+ *   - Updated existing index macros and sanity check macros to maintain
  *     the index_ring_len, index_ring_size, clean_index_ring_size, and
  *     dirty_index_ring_size fields of H5C_t.
  *
  *						JRM -- 9/1/15
  *
- *   - Updated existing index macros and sanity checks macros to 
+ *   - Updated existing index macros and sanity checks macros to
  *     maintain an doubly linked list of all entries in the index.
  *     This is necessary to reduce the computational cost of visiting
- *     all entries in the index, which used to be done by scanning 
+ *     all entries in the index, which used to be done by scanning
  *     the hash table.
  *
  *                                              JRM -- 10/15/15
@@ -1561,22 +1570,45 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		flush.
  *
  *		JRM -- 12/13/14
- *		Added code to set cache_ptr->slist_changed to TRUE 
+ *		Added code to set cache_ptr->slist_changed to TRUE
  *		when an entry is inserted in the slist.
  *
  *		JRM -- 9/1/15
  *		Added code to maintain the cache_ptr->slist_ring_len
  *		and cache_ptr->slist_ring_size arrays.
  *
+ *              JRM -- 4/29/20
+ *              Reworked macro to support the slist_enabled field 
+ *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              functions as before.  Otherwise, the macro is a no-op,
+ *              and the slist must be empty.
+ *
  *-------------------------------------------------------------------------
  */
 
+/* NOTE:  The H5C__INSERT_ENTRY_IN_SLIST() macro is set up so that 
+ *        
+ *            H5C_DO_SANITY_CHECKS 
+ *
+ *        and 
+ *
+ *            H5C_DO_SLIST_SANITY_CHECKS 
+ *
+ *        can be selected independantly.  This is easy to miss as the 
+ *        two #defines are easy to confuse.
+ */
+
 #if H5C_DO_SLIST_SANITY_CHECKS
+
 #define ENTRY_IN_SLIST(cache_ptr, entry_ptr) \
     H5C_entry_in_skip_list((cache_ptr), (entry_ptr))
+
 #else /* H5C_DO_SLIST_SANITY_CHECKS */
+
 #define ENTRY_IN_SLIST(cache_ptr, entry_ptr) FALSE
+
 #endif /* H5C_DO_SLIST_SANITY_CHECKS */
+
 
 #if H5C_DO_SANITY_CHECKS
 
@@ -1584,33 +1616,43 @@ if ( ( (cache_ptr)->index_size !=                                           \
 {                                                                              \
     HDassert( (cache_ptr) );                                                   \
     HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                        \
-    HDassert( (entry_ptr) );                                                   \
-    HDassert( (entry_ptr)->size > 0 );                                         \
-    HDassert( H5F_addr_defined((entry_ptr)->addr) );                           \
-    HDassert( !((entry_ptr)->in_slist) );                                      \
-    HDassert( !ENTRY_IN_SLIST((cache_ptr), (entry_ptr)) );                     \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                        \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                           \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=                \
-              (cache_ptr)->slist_len );                                        \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=               \
-              (cache_ptr)->slist_size );                                       \
                                                                                \
-    if(H5SL_insert((cache_ptr)->slist_ptr, entry_ptr, &(entry_ptr)->addr) < 0) \
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, (fail_val), "can't insert entry in skip list") \
+    if ( (cache_ptr)->slist_enabled ) {                                        \
                                                                                \
-    (entry_ptr)->in_slist = TRUE;                                              \
-    (cache_ptr)->slist_changed = TRUE;                                         \
-    (cache_ptr)->slist_len++;                                                  \
-    (cache_ptr)->slist_size += (entry_ptr)->size;                              \
-    ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])++;                        \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (entry_ptr)->size;    \
-    (cache_ptr)->slist_len_increase++;                                         \
-    (cache_ptr)->slist_size_increase += (int64_t)((entry_ptr)->size);          \
+        HDassert( (entry_ptr) );                                               \
+        HDassert( (entry_ptr)->size > 0 );                                     \
+        HDassert( H5F_addr_defined((entry_ptr)->addr) );                       \
+        HDassert( !((entry_ptr)->in_slist) );                                  \
+        HDassert( ! ENTRY_IN_SLIST((cache_ptr), (entry_ptr)) );                \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                    \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                       \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=            \
+                  (cache_ptr)->slist_len );                                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_size );                                   \
                                                                                \
-    HDassert( (cache_ptr)->slist_len > 0 );                                    \
-    HDassert( (cache_ptr)->slist_size > 0 );                                   \
+        if ( H5SL_insert((cache_ptr)->slist_ptr, entry_ptr,                    \
+                         &((entry_ptr)->addr)) < 0)                            \
+            HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, (fail_val),                   \
+                        "can't insert entry in skip list")                     \
                                                                                \
+        (entry_ptr)->in_slist = TRUE;                                          \
+        (cache_ptr)->slist_changed = TRUE;                                     \
+        (cache_ptr)->slist_len++;                                              \
+        (cache_ptr)->slist_size += (entry_ptr)->size;                          \
+        ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])++;                    \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (entry_ptr)->size;\
+        (cache_ptr)->slist_len_increase++;                                     \
+        (cache_ptr)->slist_size_increase += (int64_t)((entry_ptr)->size);      \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len > 0 );                                \
+        HDassert( (cache_ptr)->slist_size > 0 );                               \
+                                                                               \
+    } else { /* slist disabled */                                              \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len == 0 );                               \
+        HDassert( (cache_ptr)->slist_size == 0 );                              \
+    }                                                                          \
 } /* H5C__INSERT_ENTRY_IN_SLIST */
 
 #else /* H5C_DO_SANITY_CHECKS */
@@ -1619,31 +1661,42 @@ if ( ( (cache_ptr)->index_size !=                                           \
 {                                                                              \
     HDassert( (cache_ptr) );                                                   \
     HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                        \
-    HDassert( (entry_ptr) );                                                   \
-    HDassert( (entry_ptr)->size > 0 );                                         \
-    HDassert( H5F_addr_defined((entry_ptr)->addr) );                           \
-    HDassert( !((entry_ptr)->in_slist) );                                      \
-    HDassert( !ENTRY_IN_SLIST((cache_ptr), (entry_ptr)) );                     \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                        \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                           \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=                \
-              (cache_ptr)->slist_len );                                        \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=               \
-              (cache_ptr)->slist_size );                                       \
                                                                                \
-    if(H5SL_insert((cache_ptr)->slist_ptr, entry_ptr, &(entry_ptr)->addr) < 0) \
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, (fail_val), "can't insert entry in skip list") \
+    if ( (cache_ptr)->slist_enabled ) {                                        \
                                                                                \
-    (entry_ptr)->in_slist = TRUE;                                              \
-    (cache_ptr)->slist_changed = TRUE;                                         \
-    (cache_ptr)->slist_len++;                                                  \
-    (cache_ptr)->slist_size += (entry_ptr)->size;                              \
-    ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])++;                        \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (entry_ptr)->size;    \
+        HDassert( (entry_ptr) );                                               \
+        HDassert( (entry_ptr)->size > 0 );                                     \
+        HDassert( ! ENTRY_IN_SLIST((cache_ptr), (entry_ptr)) );                \
+        HDassert( H5F_addr_defined((entry_ptr)->addr) );                       \
+        HDassert( !((entry_ptr)->in_slist) );                                  \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                    \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                       \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=            \
+                  (cache_ptr)->slist_len );                                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_size );                                   \
+        HDassert( (cache_ptr)->slist_ptr );                                    \
                                                                                \
-    HDassert( (cache_ptr)->slist_len > 0 );                                    \
-    HDassert( (cache_ptr)->slist_size > 0 );                                   \
+        if ( H5SL_insert((cache_ptr)->slist_ptr, entry_ptr,                    \
+                         &((entry_ptr)->addr)) < 0)                            \
+            HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, (fail_val),                   \
+                        "can't insert entry in skip list")                     \
                                                                                \
+        (entry_ptr)->in_slist = TRUE;                                          \
+        (cache_ptr)->slist_changed = TRUE;                                     \
+        (cache_ptr)->slist_len++;                                              \
+        (cache_ptr)->slist_size += (entry_ptr)->size;                          \
+        ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])++;                    \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (entry_ptr)->size;\
+                                                                               \
+        HDassert( (cache_ptr)->slist_len > 0 );                                \
+        HDassert( (cache_ptr)->slist_size > 0 );                               \
+                                                                               \
+    } else { /* slist disabled */                                              \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len == 0 );                               \
+        HDassert( (cache_ptr)->slist_size == 0 );                              \
+    }                                                                          \
 } /* H5C__INSERT_ENTRY_IN_SLIST */
 
 #endif /* H5C_DO_SANITY_CHECKS */
@@ -1654,87 +1707,136 @@ if ( ( (cache_ptr)->index_size !=                                           \
  * Function:    H5C__REMOVE_ENTRY_FROM_SLIST
  *
  * Purpose:     Remove the specified instance of H5C_cache_entry_t from the
- *		index skip list in the specified instance of H5C_t.  Update
- *		the associated length and size fields.
+ *              index skip list in the specified instance of H5C_t.  Update
+ *              the associated length and size fields.
  *
  * Return:      N/A
  *
  * Programmer:  John Mainzer, 5/10/04
  *
+ * Modifications:
+ *
+ *              JRM -- 7/21/04
+ *              Updated function for the addition of the hash table.
+ *
+ *              JRM - 7/27/04
+ *              Converted from the function H5C_remove_entry_from_tree()
+ *              to the macro H5C__REMOVE_ENTRY_FROM_TREE in the hopes of
+ *              wringing a little more performance out of the cache.
+ *
+ *              QAK -- 11/27/04
+ *              Switched over to using skip list routines.
+ *
+ *              JRM -- 3/28/07
+ *              Updated sanity checks for the new is_read_only and
+ *              ro_ref_count fields in H5C_cache_entry_t.
+ *
+ *              JRM -- 12/13/14
+ *              Added code to set cache_ptr->slist_changed to TRUE
+ *              when an entry is removed from the slist.
+ *
+ *              JRM -- 4/29/20
+ *              Reworked macro to support the slist_enabled field 
+ *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              functions as before.  Otherwise, the macro is a no-op,
+ *              and the slist must be empty.
+ *
  *-------------------------------------------------------------------------
  */
 
 #if H5C_DO_SANITY_CHECKS
-#define H5C__REMOVE_ENTRY_FROM_SLIST(cache_ptr, entry_ptr, during_flush)    \
-{                                                                           \
-    HDassert( (cache_ptr) );                                                \
-    HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                     \
-    HDassert( (entry_ptr) );                                                \
-    HDassert( !((entry_ptr)->is_read_only) );                               \
-    HDassert( ((entry_ptr)->ro_ref_count) == 0 );                           \
-    HDassert( (entry_ptr)->size > 0 );                                      \
-    HDassert( (entry_ptr)->in_slist );                                      \
-    HDassert( (cache_ptr)->slist_ptr );                                     \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                     \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                        \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=             \
-              (cache_ptr)->slist_len );                                     \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=            \
-              (cache_ptr)->slist_size );                                    \
-                                                                            \
-    if ( H5SL_remove((cache_ptr)->slist_ptr, &(entry_ptr)->addr)            \
-             != (entry_ptr) )                                               \
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "can't delete entry from skip list") \
-                                                                            \
-    HDassert( (cache_ptr)->slist_len > 0 );                                 \
-    if(!(during_flush))                                                     \
-        (cache_ptr)->slist_changed = TRUE;                                  \
-    (cache_ptr)->slist_len--;                                               \
-    HDassert( (cache_ptr)->slist_size >= (entry_ptr)->size );               \
-    (cache_ptr)->slist_size -= (entry_ptr)->size;                           \
-    ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])--;                     \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=            \
-              (entry_ptr)->size );                                          \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (entry_ptr)->size; \
-    (cache_ptr)->slist_len_increase--;                                      \
-    (cache_ptr)->slist_size_increase -= (int64_t)((entry_ptr)->size);       \
-    (entry_ptr)->in_slist = FALSE;                                          \
+#define H5C__REMOVE_ENTRY_FROM_SLIST(cache_ptr, entry_ptr, during_flush)       \
+{                                                                              \
+    HDassert( (cache_ptr) );                                                   \
+    HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                        \
+                                                                               \
+    if ( (cache_ptr)->slist_enabled ) {                                        \
+                                                                               \
+        HDassert( (entry_ptr) );                                               \
+        HDassert( !((entry_ptr)->is_read_only) );                              \
+        HDassert( ((entry_ptr)->ro_ref_count) == 0 );                          \
+        HDassert( (entry_ptr)->size > 0 );                                     \
+        HDassert( (entry_ptr)->in_slist );                                     \
+        HDassert( (cache_ptr)->slist_ptr );                                    \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                    \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                       \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=            \
+                  (cache_ptr)->slist_len );                                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_size );                                   \
+        HDassert( (cache_ptr)->slist_size >= (entry_ptr)->size );              \
+                                                                               \
+        if ( H5SL_remove((cache_ptr)->slist_ptr, &(entry_ptr)->addr)           \
+                 != (entry_ptr) )                                              \
+            HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL,                         \
+                        "can't delete entry from skip list")                   \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len > 0 );                                \
+        if(!(during_flush))                                                    \
+            (cache_ptr)->slist_changed = TRUE;                                 \
+        (cache_ptr)->slist_len--;                                              \
+        HDassert( (cache_ptr)->slist_size >= (entry_ptr)->size );              \
+        (cache_ptr)->slist_size -= (entry_ptr)->size;                          \
+        ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])--;                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=           \
+                  (entry_ptr)->size );                                         \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (entry_ptr)->size;\
+        (cache_ptr)->slist_len_increase--;                                     \
+        (cache_ptr)->slist_size_increase -= (int64_t)((entry_ptr)->size);      \
+        (entry_ptr)->in_slist = FALSE;                                         \
+                                                                               \
+    } else { /* slist disabled */                                              \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len == 0 );                               \
+        HDassert( (cache_ptr)->slist_size == 0 );                               \
+    }                                                                          \
 } /* H5C__REMOVE_ENTRY_FROM_SLIST */
 
 #else /* H5C_DO_SANITY_CHECKS */
 
-#define H5C__REMOVE_ENTRY_FROM_SLIST(cache_ptr, entry_ptr, during_flush)    \
-{                                                                           \
-    HDassert( (cache_ptr) );                                                \
-    HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                     \
-    HDassert( (entry_ptr) );                                                \
-    HDassert( !((entry_ptr)->is_read_only) );                               \
-    HDassert( ((entry_ptr)->ro_ref_count) == 0 );                           \
-    HDassert( (entry_ptr)->in_slist );                                      \
-    HDassert( (cache_ptr)->slist_ptr );                                     \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                     \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                        \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=             \
-              (cache_ptr)->slist_len );                                     \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=            \
-              (cache_ptr)->slist_size );                                    \
-                                                                            \
-    if ( H5SL_remove((cache_ptr)->slist_ptr, &(entry_ptr)->addr)            \
-             != (entry_ptr) )                                               \
-        HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL, "can't delete entry from skip list") \
-                                                                            \
-    HDassert( (cache_ptr)->slist_len > 0 );                                 \
-    if(!(during_flush))                                                     \
-        (cache_ptr)->slist_changed = TRUE;                                  \
-    (cache_ptr)->slist_len--;                                               \
-    HDassert( (cache_ptr)->slist_size >= (entry_ptr)->size );               \
-    (cache_ptr)->slist_size -= (entry_ptr)->size;                           \
-    ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])--;                     \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=            \
-              (entry_ptr)->size );                                          \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (entry_ptr)->size; \
-    (entry_ptr)->in_slist = FALSE;                                          \
+#define H5C__REMOVE_ENTRY_FROM_SLIST(cache_ptr, entry_ptr, during_flush)       \
+{                                                                              \
+    HDassert( (cache_ptr) );                                                   \
+    HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                        \
+                                                                               \
+    if ( (cache_ptr)->slist_enabled ) {                                        \
+                                                                               \
+        HDassert( (entry_ptr) );                                               \
+        HDassert( !((entry_ptr)->is_read_only) );                              \
+        HDassert( ((entry_ptr)->ro_ref_count) == 0 );                          \
+        HDassert( (entry_ptr)->in_slist );                                     \
+        HDassert( (cache_ptr)->slist_ptr );                                    \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                    \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                       \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=            \
+                  (cache_ptr)->slist_len );                                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_size );                                   \
+                                                                               \
+        if ( H5SL_remove((cache_ptr)->slist_ptr, &(entry_ptr)->addr)           \
+             != (entry_ptr) )                                                  \
+            HGOTO_ERROR(H5E_CACHE, H5E_BADVALUE, FAIL,                         \
+                        "can't delete entry from skip list")                   \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len > 0 );                                \
+        if(!(during_flush))                                                    \
+            (cache_ptr)->slist_changed = TRUE;                                 \
+        (cache_ptr)->slist_len--;                                              \
+        HDassert( (cache_ptr)->slist_size >= (entry_ptr)->size );              \
+        (cache_ptr)->slist_size -= (entry_ptr)->size;                          \
+        ((cache_ptr)->slist_ring_len[(entry_ptr)->ring])--;                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=           \
+                  (entry_ptr)->size );                                         \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (entry_ptr)->size;\
+        (entry_ptr)->in_slist = FALSE;                                         \
+                                                                               \
+    } else { /* slist disabled */                                              \
+                                                                               \
+        HDassert( (cache_ptr)->slist_len == 0 );                               \
+        HDassert( (cache_ptr)->slist_size == 0 );                              \
+    }                                                                          \
 } /* H5C__REMOVE_ENTRY_FROM_SLIST */
+
 #endif /* H5C_DO_SANITY_CHECKS */
 
 
@@ -1743,7 +1845,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  * Function:    H5C__UPDATE_SLIST_FOR_SIZE_CHANGE
  *
  * Purpose:     Update cache_ptr->slist_size for a change in the size of
- *		and entry in the slist.
+ *              and entry in the slist.
  *
  * Return:      N/A
  *
@@ -1751,24 +1853,30 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *
  * Modifications:
  *
- *		JRM -- 8/27/06
- *		Added the H5C_DO_SANITY_CHECKS version of the macro.
+ *              JRM -- 8/27/06
+ *              Added the H5C_DO_SANITY_CHECKS version of the macro.
  *
- *		This version maintains the slist_size_increase field
- *		that are used in sanity checks in the flush routines.
+ *              This version maintains the slist_size_increase field
+ *              that are used in sanity checks in the flush routines.
  *
- *		All this is needed as the fractal heap needs to be
- *		able to dirty, resize and/or move entries during the
- *		flush.
+ *              All this is needed as the fractal heap needs to be
+ *              able to dirty, resize and/or move entries during the
+ *              flush.
  *
- *		JRM -- 12/13/14
- *		Note that we do not set cache_ptr->slist_changed to TRUE 
- *		in this case, as the structure of the slist is not
- *		modified.
+ *              JRM -- 12/13/14
+ *              Note that we do not set cache_ptr->slist_changed to TRUE
+ *              in this case, as the structure of the slist is not
+ *              modified.
  *
- *		JRM -- 9/1/15
- *		Added code to maintain the cache_ptr->slist_ring_len
- *		and cache_ptr->slist_ring_size arrays.
+ *              JRM -- 9/1/15
+ *              Added code to maintain the cache_ptr->slist_ring_len
+ *              and cache_ptr->slist_ring_size arrays.
+ *
+ *              JRM -- 4/29/20
+ *              Reworked macro to support the slist_enabled field 
+ *              of H5C_t.  If slist_enabled == TRUE, the macro 
+ *              functions as before.  Otherwise, the macro is a no-op,
+ *              and the slist must be empty.
  *
  *-------------------------------------------------------------------------
  */
@@ -1779,32 +1887,43 @@ if ( ( (cache_ptr)->index_size !=                                           \
 {                                                                             \
     HDassert( (cache_ptr) );                                                  \
     HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                       \
-    HDassert( (old_size) > 0 );                                               \
-    HDassert( (new_size) > 0 );                                               \
-    HDassert( (old_size) <= (cache_ptr)->slist_size );                        \
-    HDassert( (cache_ptr)->slist_len > 0 );                                   \
-    HDassert( ((cache_ptr)->slist_len > 1) ||                                 \
-              ( (cache_ptr)->slist_size == (old_size) ) );                    \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                       \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                          \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=               \
-              (cache_ptr)->slist_len );                                       \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=              \
-              (cache_ptr)->slist_size );                                      \
                                                                               \
-    (cache_ptr)->slist_size -= (old_size);                                    \
-    (cache_ptr)->slist_size += (new_size);                                    \
+    if ( (cache_ptr)->slist_enabled ) {                                       \
                                                                               \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=(old_size) ); \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (old_size);          \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (new_size);          \
+        HDassert( (old_size) > 0 );                                           \
+        HDassert( (new_size) > 0 );                                           \
+        HDassert( (old_size) <= (cache_ptr)->slist_size );                    \
+        HDassert( (cache_ptr)->slist_len > 0 );                               \
+        HDassert( ((cache_ptr)->slist_len > 1) ||                             \
+                  ( (cache_ptr)->slist_size == (old_size) ) );                \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                   \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                      \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_len );                                   \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=          \
+                  (cache_ptr)->slist_size );                                  \
                                                                               \
-    (cache_ptr)->slist_size_increase -= (int64_t)(old_size);                  \
-    (cache_ptr)->slist_size_increase += (int64_t)(new_size);                  \
+        (cache_ptr)->slist_size -= (old_size);                                \
+        (cache_ptr)->slist_size += (new_size);                                \
                                                                               \
-    HDassert( (new_size) <= (cache_ptr)->slist_size );                        \
-    HDassert( ( (cache_ptr)->slist_len > 1 ) ||                               \
-              ( (cache_ptr)->slist_size == (new_size) ) );                    \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)]             \
+                  >= (old_size) );                                            \
+                                                                              \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (old_size);      \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (new_size);      \
+                                                                              \
+        (cache_ptr)->slist_size_increase -= (int64_t)(old_size);              \
+        (cache_ptr)->slist_size_increase += (int64_t)(new_size);              \
+                                                                              \
+        HDassert( (new_size) <= (cache_ptr)->slist_size );                    \
+        HDassert( ( (cache_ptr)->slist_len > 1 ) ||                           \
+                  ( (cache_ptr)->slist_size == (new_size) ) );                \
+                                                                              \
+    } else { /* slist disabled */                                             \
+                                                                              \
+        HDassert( (cache_ptr)->slist_len == 0 );                              \
+        HDassert( (cache_ptr)->slist_size == 0 );                             \
+    }                                                                         \
 } /* H5C__UPDATE_SLIST_FOR_SIZE_CHANGE */
 
 #else /* H5C_DO_SANITY_CHECKS */
@@ -1813,29 +1932,39 @@ if ( ( (cache_ptr)->index_size !=                                           \
 {                                                                             \
     HDassert( (cache_ptr) );                                                  \
     HDassert( (cache_ptr)->magic == H5C__H5C_T_MAGIC );                       \
-    HDassert( (old_size) > 0 );                                               \
-    HDassert( (new_size) > 0 );                                               \
-    HDassert( (old_size) <= (cache_ptr)->slist_size );                        \
-    HDassert( (cache_ptr)->slist_len > 0 );                                   \
-    HDassert( ((cache_ptr)->slist_len > 1) ||                                 \
-              ( (cache_ptr)->slist_size == (old_size) ) );                    \
-    HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                       \
-    HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                          \
-    HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=               \
-              (cache_ptr)->slist_len );                                       \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=              \
-              (cache_ptr)->slist_size );                                      \
                                                                               \
-    (cache_ptr)->slist_size -= (old_size);                                    \
-    (cache_ptr)->slist_size += (new_size);                                    \
+    if ( (cache_ptr)->slist_enabled ) {                                       \
                                                                               \
-    HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=(old_size) ); \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (old_size);          \
-    ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (new_size);          \
+        HDassert( (old_size) > 0 );                                           \
+        HDassert( (new_size) > 0 );                                           \
+        HDassert( (old_size) <= (cache_ptr)->slist_size );                    \
+        HDassert( (cache_ptr)->slist_len > 0 );                               \
+        HDassert( ((cache_ptr)->slist_len > 1) ||                             \
+                  ( (cache_ptr)->slist_size == (old_size) ) );                \
+        HDassert( (entry_ptr)->ring > H5C_RING_UNDEFINED );                   \
+        HDassert( (entry_ptr)->ring < H5C_RING_NTYPES );                      \
+        HDassert( (cache_ptr)->slist_ring_len[(entry_ptr)->ring] <=           \
+                  (cache_ptr)->slist_len );                                   \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr)->ring] <=          \
+                  (cache_ptr)->slist_size );                                  \
                                                                               \
-    HDassert( (new_size) <= (cache_ptr)->slist_size );                        \
-    HDassert( ( (cache_ptr)->slist_len > 1 ) ||                               \
-              ( (cache_ptr)->slist_size == (new_size) ) );                    \
+        (cache_ptr)->slist_size -= (old_size);                                \
+        (cache_ptr)->slist_size += (new_size);                                \
+                                                                              \
+        HDassert( (cache_ptr)->slist_ring_size[(entry_ptr->ring)] >=          \
+                  (old_size) );                                               \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) -= (old_size);      \
+        ((cache_ptr)->slist_ring_size[(entry_ptr)->ring]) += (new_size);      \
+                                                                              \
+        HDassert( (new_size) <= (cache_ptr)->slist_size );                    \
+        HDassert( ( (cache_ptr)->slist_len > 1 ) ||                           \
+                  ( (cache_ptr)->slist_size == (new_size) ) );                \
+                                                                              \
+    } else { /* slist disabled */                                             \
+                                                                              \
+        HDassert( (cache_ptr)->slist_len == 0 );                              \
+        HDassert( (cache_ptr)->slist_size == 0 );                             \
+    }                                                                         \
 } /* H5C__UPDATE_SLIST_FOR_SIZE_CHANGE */
 
 #endif /* H5C_DO_SANITY_CHECKS */
@@ -2243,14 +2372,14 @@ if ( ( (cache_ptr)->index_size !=                                           \
  * Macro:	H5C__UPDATE_RP_FOR_INSERT_APPEND
  *
  * Purpose:     Update the replacement policy data structures for an
- *		insertion of the specified cache entry.  
+ *		insertion of the specified cache entry.
  *
- *		Unlike H5C__UPDATE_RP_FOR_INSERTION below, mark the 
- *		new entry as the LEAST recently used entry, not the 
- *		most recently used.  
+ *		Unlike H5C__UPDATE_RP_FOR_INSERTION below, mark the
+ *		new entry as the LEAST recently used entry, not the
+ *		most recently used.
  *
- *		For now at least, this macro should only be used in 
- *		the reconstruction of the metadata cache from a cache 
+ *		For now at least, this macro should only be used in
+ *		the reconstruction of the metadata cache from a cache
  *		image block.
  *
  *		At present, we only support the modified LRU policy, so
@@ -3491,7 +3620,7 @@ typedef struct H5C_tag_info_t {
  *
  *						JRM - 9/26/05
  *
- * magic:	Unsigned 32 bit integer always set to H5C__H5C_T_MAGIC. 
+ * magic:	Unsigned 32 bit integer always set to H5C__H5C_T_MAGIC.
  * 		This field is used to validate pointers to instances of
  * 		H5C_t.
  *
@@ -3544,7 +3673,7 @@ typedef struct H5C_tag_info_t {
  *              clean data so as to avoid case b) above.  Again, this is
  *              a soft limit.
  *
- * close_warning_received: Boolean flag indicating that a file closing 
+ * close_warning_received: Boolean flag indicating that a file closing
  *		warning has been received.
  *
  *
@@ -3576,7 +3705,7 @@ typedef struct H5C_tag_info_t {
  * 		this flag is set to FALSE, the metadata cache will not
  * 		attempt to evict entries to make space for newly protected
  * 		entries, and instead the will grow without limit.
- * 		
+ *
  * 		Needless to say, this feature must be used with care.
  *
  *
@@ -3586,12 +3715,12 @@ typedef struct H5C_tag_info_t {
  * Addendum:  JRM -- 10/14/15
  *
  * We sometimes need to visit all entries in the cache.  In the past, this
- * was done by scanning the hash table.  However, this is expensive, and 
- * we have come to scan the hash table often enough that it has become a 
- * performance issue.  To repair this, I have added code to maintain a 
- * list of all entries in the index -- call this list the index list.  
+ * was done by scanning the hash table.  However, this is expensive, and
+ * we have come to scan the hash table often enough that it has become a
+ * performance issue.  To repair this, I have added code to maintain a
+ * list of all entries in the index -- call this list the index list.
  *
- * The index list is maintained by the same macros that maintain the 
+ * The index list is maintained by the same macros that maintain the
  * index, and must have the same length and size as the index proper.
  *
  * index_len:   Number of entries currently in the hash table used to index
@@ -3606,12 +3735,12 @@ typedef struct H5C_tag_info_t {
  *              index_size by three should yield a conservative estimate
  *              of the cache's memory footprint.
  *
- * index_ring_len: Array of integer of length H5C_RING_NTYPES used to 
- *		maintain a count of entries in the index by ring.  Note 
- *		that the sum of all the cells in this array must equal 
+ * index_ring_len: Array of integer of length H5C_RING_NTYPES used to
+ *		maintain a count of entries in the index by ring.  Note
+ *		that the sum of all the cells in this array must equal
  *		the value stored in index_len above.
  *
- * index_ring_size: Array of size_t of length H5C_RING_NTYPES used to 
+ * index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
  *		maintain the sum of the sizes of all entries in the index
  *		by ring.  Note that the sum of all cells in this array must
  *		equal the value stored in index_size above.
@@ -3631,8 +3760,8 @@ typedef struct H5C_tag_info_t {
  *                 in the cache.
  *
  * clean_index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *		maintain the sum of the sizes of all clean entries in the 
- *		index by ring.  Note that the sum of all cells in this array 
+ *		maintain the sum of the sizes of all clean entries in the
+ *		index by ring.  Note that the sum of all cells in this array
  *		must equal the value stored in clean_index_size above.
  *
  * dirty_index_size: Number of bytes of dirty entries currently stored in
@@ -3642,8 +3771,8 @@ typedef struct H5C_tag_info_t {
  *		dirty_index_size == index_size.
  *
  * dirty_index_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *		maintain the sum of the sizes of all dirty entries in the 
- *		index by ring.  Note that the sum of all cells in this array 
+ *		maintain the sum of the sizes of all dirty entries in the
+ *		index by ring.  Note that the sum of all cells in this array
  *		must equal the value stored in dirty_index_size above.
  *
  * index:	Array of pointer to H5C_cache_entry_t of size
@@ -3661,52 +3790,52 @@ typedef struct H5C_tag_info_t {
  *		changing the H5C__HASH_FCN macro and the deletion of the
  *		H5C__HASH_MASK #define.  No other changes should be required.
  *
- * il_len:	Number of entries on the index list.  
+ * il_len:	Number of entries on the index list.
  *
- *		This must always be equal to index_len.  As such, this 
- *		field is redundant.  However, the existing linked list 
- *		management macros expect to maintain a length field, so 
+ *		This must always be equal to index_len.  As such, this
+ *		field is redundant.  However, the existing linked list
+ *		management macros expect to maintain a length field, so
  *		this field exists primarily to avoid adding complexity to
  *		these macros.
  *
  * il_size: 	Number of bytes of cache entries currently stored in the
  *		index list.
  *
- *		This must always be equal to index_size.  As such, this 
- *		field is redundant.  However, the existing linked list 
- *		management macros expect to maintain a size field, so 
+ *		This must always be equal to index_size.  As such, this
+ *		field is redundant.  However, the existing linked list
+ *		management macros expect to maintain a size field, so
  *		this field exists primarily to avoid adding complexity to
  *		these macros.
  *
  * il_head:	Pointer to the head of the doubly linked list of entries in
- *              the index list.  Note that cache entries on this list are 
+ *              the index list.  Note that cache entries on this list are
  *		linked by their il_next and il_prev fields.
  *
  *              This field is NULL if the index is empty.
  *
  * il_tail:	Pointer to the tail of the doubly linked list of entries in
- *              the index list.  Note that cache entries on this list are 
+ *              the index list.  Note that cache entries on this list are
  *              linked by their il_next and il_prev fields.
  *
  *              This field is NULL if the index is empty.
  *
  *
- * With the addition of the take ownership flag, it is possible that 
- * an entry may be removed from the cache as the result of the flush of 
- * a second entry.  In general, this causes little trouble, but it is 
- * possible that the entry removed may be the next entry in the scan of 
- * a list.  In this case, we must be able to detect the fact that the 
+ * With the addition of the take ownership flag, it is possible that
+ * an entry may be removed from the cache as the result of the flush of
+ * a second entry.  In general, this causes little trouble, but it is
+ * possible that the entry removed may be the next entry in the scan of
+ * a list.  In this case, we must be able to detect the fact that the
  * entry has been removed, so that the scan doesn't attempt to proceed with
  * an entry that is no longer in the cache.
  *
  * The following fields are maintained to facilitate this.
  *
  * entries_removed_counter:	Counter that is incremented each time an
- *		entry is removed from the cache by any means (eviction, 
+ *		entry is removed from the cache by any means (eviction,
  *		expungement, or take ownership at this point in time).
  *		Functions that perform scans on lists may set this field
- *		to zero prior to calling H5C__flush_single_entry().  
- *		Unexpected changes to the counter indicate that an entry 
+ *		to zero prior to calling H5C__flush_single_entry().
+ *		Unexpected changes to the counter indicate that an entry
  *		was removed from the cache as a side effect of the flush.
  *
  * last_entry_removed_ptr:	Pointer to the instance of H5C_cache_entry_t
@@ -3715,18 +3844,19 @@ typedef struct H5C_tag_info_t {
  *		performing a scan of a list has set this field to NULL prior
  *		to calling H5C__flush_single_entry().
  *
- *		WARNING!!! This field must NEVER be dereferenced.  It is 
+ *		WARNING!!! This field must NEVER be dereferenced.  It is
  *		maintained to allow functions that perform scans of lists
  *		to compare this pointer with their pointers to next, thus
  *		allowing them to avoid unnecessary restarts of scans if the
- *		pointers don't match, and if entries_removed_counter is 
+ *		pointers don't match, and if entries_removed_counter is
  *		one.
  *
  * entry_watched_for_removal:	Pointer to an instance of H5C_cache_entry_t
- *		which contains the 'next' entry for an iteration.  Removing
+ *              which contains the 'next' entry for an iteration.  Removing
  *              this entry must trigger a rescan of the iteration, so each
  *              entry removed from the cache is compared against this pointer
- *              and the pointer is reset to NULL if the watched entry is removed.
+ *              and the pointer is reset to NULL if the watched entry is 
+ *              removed.
  *              (This functions similarly to a "dead man's switch")
  *
  *
@@ -3740,11 +3870,41 @@ typedef struct H5C_tag_info_t {
  * are flushed. (this has been changed -- dirty entries are now removed from
  * the skip list as they are flushed.  JRM - 10/25/05)
  *
- * slist_changed: Boolean flag used to indicate whether the contents of 
+ * Update 4/21/20: 
+ *
+ * Profiling indicates that the cost of maintaining the skip list is 
+ * significant.  As it is only used on flush and close, maintaining it
+ * only when needed is an obvious optimization.
+ *
+ * To do this, we add a flag to control maintenanace of the skip list.
+ * This flag is initially set to FALSE, which disables all operations 
+ * on the skip list.
+ *
+ * At the beginning of either flush or close, we scan the index list,
+ * insert all dirtly entries in the skip list, and enable operations
+ * on skip list by setting above control flag to true.
+ *
+ * At the end of a complete flush, we verify that the skip list is empty,
+ * and set the control flag back to false, so as to avoid skip list 
+ * maintenance overhead until the next flush or close.  
+ *
+ * In the case of a partial flush (i.e. flush marked entries), we remove
+ * all remaining entries from the skip list, and then set the control flag
+ * back to false -- again avoiding skip list maintenance overhead until 
+ * the next flush or close.
+ *
+ * slist_enabled: Boolean flag used to control operation of the skip
+ *              list.  If this filed is FALSE, operations on the 
+ *              slist are no-ops, and the slist must be empty.  If
+ *              it is TRUE, operations on the slist proceed as usual,
+ *              and all dirty entries in the metadata cache must be
+ *              listed in the slist.
+ *
+ * slist_changed: Boolean flag used to indicate whether the contents of
  *		the slist has changed since the last time this flag was
- *		reset.  This is used in the cache flush code to detect 
+ *		reset.  This is used in the cache flush code to detect
  *		conditions in which pre-serialize or serialize callbacks
- *		have modified the slist -- which obliges us to restart 
+ *		have modified the slist -- which obliges us to restart
  *		the scan of the slist from the beginning.
  *
  * slist_len:   Number of entries currently in the skip list
@@ -3755,14 +3915,14 @@ typedef struct H5C_tag_info_t {
  *              skip list used to maintain a sorted list of
  *              dirty entries in the cache.
  *
- * slist_ring_len: Array of integer of length H5C_RING_NTYPES used to 
- *		maintain a count of entries in the slist by ring.  Note 
- *		that the sum of all the cells in this array must equal 
+ * slist_ring_len: Array of integer of length H5C_RING_NTYPES used to
+ *		maintain a count of entries in the slist by ring.  Note
+ *		that the sum of all the cells in this array must equal
  *		the value stored in slist_len above.
  *
  * slist_ring_size: Array of size_t of length H5C_RING_NTYPES used to
- *              maintain the sum of the sizes of all entries in the 
- *		slist by ring.  Note that the sum of all cells in this 
+ *              maintain the sum of the sizes of all entries in the
+ *		slist by ring.  Note that the sum of all cells in this
  *		array must equal the value stored in slist_size above.
  *
  * slist_ptr:   pointer to the instance of H5SL_t used maintain a sorted
@@ -3826,7 +3986,7 @@ typedef struct H5C_tag_info_t {
  * num_objs_corked: Unsigned integer field containing the number of objects
  *                  that are "corked".  The "corked" status of an object is
  *                  found by searching the "tag_list".  This field is added
- *                  for optimization so that the skip list search on "tag_list" 
+ *                  for optimization so that the skip list search on "tag_list"
  *                  can be skipped if this field is zero, i.e. no "corked"
  *                  objects.
  *
@@ -3867,7 +4027,7 @@ typedef struct H5C_tag_info_t {
  *
  *      2) A pinned entry can be accessed or modified at any time.
  *         This places an additional burden on the associated pre-serialize
- *	   and serialize callbacks, which must ensure the the entry is in 
+ *	   and serialize callbacks, which must ensure the the entry is in
  *	   a consistent state before creating an image of it.
  *
  *      3) A pinned entry can be marked as dirty (and possibly
@@ -3878,7 +4038,7 @@ typedef struct H5C_tag_info_t {
  *         flush.
  *
  * Since pinned entries cannot be evicted, they must be kept on a pinned
- * entry list (pel), instead of being entrusted to the replacement policy 
+ * entry list (pel), instead of being entrusted to the replacement policy
  * code.
  *
  * Maintaining the pinned entry list requires the following fields:
@@ -3907,7 +4067,7 @@ typedef struct H5C_tag_info_t {
  *
  * While there has been interest in several replacement policies for
  * this cache, the initial development schedule is tight.  Thus I have
- * elected to support only a modified LRU (least recently used) policy 
+ * elected to support only a modified LRU (least recently used) policy
  * for the first cut.
  *
  * To further simplify matters, I have simply included the fields needed
@@ -3926,7 +4086,7 @@ typedef struct H5C_tag_info_t {
  * be collective and the other processes will not know to participate.
  *
  * To deal with this issue, I have modified the usual LRU policy by adding
- * clean and dirty LRU lists to the usual LRU list.  In general, these 
+ * clean and dirty LRU lists to the usual LRU list.  In general, these
  * lists are only exist in parallel builds.
  *
  * The clean LRU list is simply the regular LRU list with all dirty cache
@@ -3954,13 +4114,13 @@ typedef struct H5C_tag_info_t {
  *
  * LRU_list_len:  Number of cache entries currently on the LRU list.
  *
- *              Observe that LRU_list_len + pl_len + pel_len must always 
+ *              Observe that LRU_list_len + pl_len + pel_len must always
  *		equal index_len.
  *
  * LRU_list_size:  Number of bytes of cache entries currently residing on the
  *              LRU list.
  *
- *              Observe that LRU_list_size + pl_size + pel_size must always 
+ *              Observe that LRU_list_size + pl_size + pel_size must always
  *		equal index_size.
  *
  * LRU_head_ptr:  Pointer to the head of the doubly linked LRU list.  Cache
@@ -4071,25 +4231,25 @@ typedef struct H5C_tag_info_t {
  *		size is decreased.  The flag triggers a call to
  *		H5C__make_space_in_cache() on the next call to H5C_protect().
  *
- * resize_in_progress: As the metadata cache has become re-entrant, it is 
- *		possible that a protect may trigger a call to 
+ * resize_in_progress: As the metadata cache has become re-entrant, it is
+ *		possible that a protect may trigger a call to
  *		H5C__auto_adjust_cache_size(), which may trigger a flush,
- *		which may trigger a protect, which will result in another 
- *		call to H5C__auto_adjust_cache_size().  
+ *		which may trigger a protect, which will result in another
+ *		call to H5C__auto_adjust_cache_size().
  *
  *		The resize_in_progress boolean flag is used to detect this,
  *		and to prevent the infinite recursion that would otherwise
  *		occur.
  *
- *		Note that this issue is not hypothetical -- this field 
- *		was added 12/29/15 to fix a bug exposed in the testing 
+ *		Note that this issue is not hypothetical -- this field
+ *		was added 12/29/15 to fix a bug exposed in the testing
  *		of changes to the file driver info superblock extension
  *		management code needed to support rings.
  *
  * msic_in_progress: As the metadata cache has become re-entrant, and as
- *              the free space manager code has become more tightly 
- *              integrated with the metadata cache, it is possible that 
- *              a call to H5C_insert_entry() may trigger a call to 
+ *              the free space manager code has become more tightly
+ *              integrated with the metadata cache, it is possible that
+ *              a call to H5C_insert_entry() may trigger a call to
  *              H5C_make_space_in_cache(), which, via H5C__flush_single_entry()
  *              and client callbacks, may trigger an infinite regression
  *              of calls to H5C_make_space_in_cache().
@@ -4098,9 +4258,9 @@ typedef struct H5C_tag_info_t {
  *              and prevent the infinite regression that would otherwise
  *              occur.
  *
- *              Note that this is issue is not hypothetical -- this field 
- *              was added 2/16/17 to address this issue when it was 
- *              exposed by modifications to test/fheap.c to cause it to 
+ *              Note that this is issue is not hypothetical -- this field
+ *              was added 2/16/17 to address this issue when it was
+ *              exposed by modifications to test/fheap.c to cause it to
  *              use paged allocation.
  *
  * resize_ctl:	Instance of H5C_auto_size_ctl_t containing configuration
@@ -4184,45 +4344,45 @@ typedef struct H5C_tag_info_t {
  * 		data for generation of a cache image on file close.
  *
  * serialization_in_progress:  Boolean field that is set to TRUE iff
- *		the cache is in the process of being serialized.  This 
+ *		the cache is in the process of being serialized.  This
  *		field is needed to support the H5C_serialization_in_progress()
  *		call, which is in turn required for sanity checks in some
  *		cache clients.
  *
- * load_image:	Boolean flag indicating that the metadata cache image 
- *		superblock extension message exists and should be 
+ * load_image:	Boolean flag indicating that the metadata cache image
+ *		superblock extension message exists and should be
  *		read, and the image block read and decoded on the next
- *		call to H5C_protect().  
+ *		call to H5C_protect().
  *
- * image_loaded:  Boolean flag indicating that the metadata cache has 
- *              loaded the metadata cache image as directed by the 
+ * image_loaded:  Boolean flag indicating that the metadata cache has
+ *              loaded the metadata cache image as directed by the
  *              MDC cache image superblock extension message.
  *
  * delete_image: Boolean flag indicating whether the metadata cache image
  *		superblock message should be deleted and the cache image
  *		file space freed after they have been read and decoded.
  *
- *		This flag should be set to TRUE iff the file is opened 
+ *		This flag should be set to TRUE iff the file is opened
  *		R/W and there is a cache image to be read.
  *
- * image_addr:  haddr_t containing the base address of the on disk 
- *		metadata cache image, or HADDR_UNDEF if that value is 
- *		undefined.  Note that this field is used both in the 
- *		construction and write, and the read and decode of 
+ * image_addr:  haddr_t containing the base address of the on disk
+ *		metadata cache image, or HADDR_UNDEF if that value is
+ *		undefined.  Note that this field is used both in the
+ *		construction and write, and the read and decode of
  *		metadata cache image blocks.
  *
- * image_len:	hsize_t containing the size of the on disk metadata cache 
- *		image, or zero if that value is undefined.  Note that this 
- *		field is used both in the construction and write, and the 
+ * image_len:	hsize_t containing the size of the on disk metadata cache
+ *		image, or zero if that value is undefined.  Note that this
+ *		field is used both in the construction and write, and the
  *		read and decode of metadata cache image blocks.
  *
- * image_data_len:  size_t containing the number of bytes of data in the 
- *		on disk metadata cache image, or zero if that value is 
+ * image_data_len:  size_t containing the number of bytes of data in the
+ *		on disk metadata cache image, or zero if that value is
  *		undefined.
  *
  *		In most cases, this value is the same as the image_len
  *		above.  It exists to allow for metadata cache image blocks
- *		that are larger than the actual image.  Thus in all 
+ *		that are larger than the actual image.  Thus in all
  *		cases image_data_len <= image_len.
  *
  * To create the metadata cache image, we must first serialize all the
@@ -4232,27 +4392,27 @@ typedef struct H5C_tag_info_t {
  * height in increasing order.
  *
  * This operation is complicated by the fact that entries other the the
- * target may be inserted, loaded, relocated, or removed from the cache 
- * (either by eviction or the take ownership flag) as the result of a 
- * pre_serialize or serialize callback.  While entry removals are not 
+ * target may be inserted, loaded, relocated, or removed from the cache
+ * (either by eviction or the take ownership flag) as the result of a
+ * pre_serialize or serialize callback.  While entry removals are not
  * a problem for the scan of the index, insertions, loads, and relocations
- * are.  Hence the entries loaded, inserted, and relocated counters 
- * listed below have been implemented to allow these conditions to be 
+ * are.  Hence the entries loaded, inserted, and relocated counters
+ * listed below have been implemented to allow these conditions to be
  * detected and dealt with by restarting the scan.
  *
- * The serialization operation is further complicated by the fact that 
- * the flush dependency height of a given entry may increase (as the 
- * result of an entry load or insert) or decrease (as the result of an 
+ * The serialization operation is further complicated by the fact that
+ * the flush dependency height of a given entry may increase (as the
+ * result of an entry load or insert) or decrease (as the result of an
  * entry removal -- via either eviction or the take ownership flag).  The
  * entry_fd_height_change_counter field is maintained to allow detection
  * of this condition, and a restart of the scan when it occurs.
  *
  * Note that all these new fields would work just as well as booleans.
  *
- * entries_loaded_counter: Number of entries loaded into the cache 
+ * entries_loaded_counter: Number of entries loaded into the cache
  *		since the last time this field was reset.
  *
- * entries_inserted_counter: Number of entries inserted into the cache 
+ * entries_inserted_counter: Number of entries inserted into the cache
  *		since the last time this field was reset.
  *
  * entries relocated_counter: Number of entries whose base address has
@@ -4261,32 +4421,32 @@ typedef struct H5C_tag_info_t {
  * entry_fd_height_change_counter: Number of entries whose flush dependency
  *		height has changed since the last time this field was reset.
  *
- * The following fields are used assemble the cache image prior to 
+ * The following fields are used assemble the cache image prior to
  * writing it to disk.
  *
  * num_entries_in_image: Unsigned integer field containing the number of entries
- *		to be copied into the metadata cache image.  Note that 
- *		this value will be less than the number of entries in 
- *		the cache, and the superblock and its related entries 
+ *		to be copied into the metadata cache image.  Note that
+ *		this value will be less than the number of entries in
+ *		the cache, and the superblock and its related entries
  *		are not written to the metadata cache image.
  *
  * image_entries: Pointer to a dynamically allocated array of instance of
  *		H5C_image_entry_t of length num_entries_in_image, or NULL
  *		if that array does not exist.  This array is used to
- *		assemble entry data to be included in the image, and to 
+ *		assemble entry data to be included in the image, and to
  *		sort them by flush dependency height and LRU rank.
- * 
+ *
  * image_buffer: Pointer to the dynamically allocated buffer of length
- *		image_len in which the metadata cache image is assembled, 
+ *		image_len in which the metadata cache image is assembled,
  *		or NULL if that	buffer does not exist.
  *
  *
  * Free Space Manager Related fields:
  *
- * The free space managers must be informed when we are about to close 
+ * The free space managers must be informed when we are about to close
  * or flush the file so that they order themselves accordingly.  This used
- * to be done much later in the close process, but with cache image and 
- * page buffering, this is no longer viable, as we must finalize the on 
+ * to be done much later in the close process, but with cache image and
+ * page buffering, this is no longer viable, as we must finalize the on
  * disk image of all metadata much sooner.
  *
  * This is handled by the H5MF_settle_raw_data_fsm() and
@@ -4300,11 +4460,11 @@ typedef struct H5C_tag_info_t {
  * flush is complete.
  *
  * rdfsm_settled:  Boolean flag indicating whether the raw data free space
- *		manager is settled -- i.e. whether the correct space has 
+ *		manager is settled -- i.e. whether the correct space has
  *		been allocated for it in the file.
  *
- *		Note that the name of this field is deceptive.  In the 
- *		multi file case, the flag applies to all free space 
+ *		Note that the name of this field is deceptive.  In the
+ *		multi file case, the flag applies to all free space
  *		managers that are not involved in allocating space for
  *		free space manager metadata.
  *
@@ -4312,9 +4472,9 @@ typedef struct H5C_tag_info_t {
  *              manager is settled -- i.e. whether the correct space has
  *              been allocated for it in the file.
  *
- *              Note that the name of this field is deceptive.  In the 
- *              multi file case, the flag applies only to free space 
- *		managers that are involved in allocating space for free 
+ *              Note that the name of this field is deceptive.  In the
+ *              multi file case, the flag applies only to free space
+ *		managers that are involved in allocating space for free
  *		space managers.
  *
  *
@@ -4358,7 +4518,7 @@ typedef struct H5C_tag_info_t {
  *		id equal to the array index has been inserted into the
  *		cache in the current epoch.
  *
- * pinned_insertions:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1. 
+ * pinned_insertions:  Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
  * 		The cells are used to record the number of times an entry
  * 		with type id equal to the array index has been inserted
  * 		pinned into the cache in the current epoch.
@@ -4378,9 +4538,9 @@ typedef struct H5C_tag_info_t {
  *		equal to the array index has been evicted from the cache in
  *		the current epoch.
  *
- * take_ownerships: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The 
- *		cells are used to record the number of times an entry with 
- *		type id equal to the array index has been removed from the 
+ * take_ownerships: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The
+ *		cells are used to record the number of times an entry with
+ *		type id equal to the array index has been removed from the
  *		cache via the H5C__TAKE_OWNERSHIP_FLAG in the current epoch.
  *
  * moves:       Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.  The cells
@@ -4388,12 +4548,12 @@ typedef struct H5C_tag_info_t {
  *		id equal to the array index has been moved in the current
  *		epoch.
  *
- * entry_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1. 
+ * entry_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
  * 		The cells are used to record the number of times an entry
  * 		with type id equal to the array index has been moved
  * 		during its pre-serialize callback in the current epoch.
  *
- * cache_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1. 
+ * cache_flush_moves: Array of int64 of length H5C__MAX_NUM_TYPE_IDS + 1.
  * 		The cells are used to record the number of times an entry
  * 		with type id equal to the array index has been moved
  * 		during a cache flush in the current epoch.
@@ -4436,7 +4596,7 @@ typedef struct H5C_tag_info_t {
  * entry_flush_size_changes:  Array of int64 of length
  * 		H5C__MAX_NUM_TYPE_IDS + 1.  The cells are used to record
  * 		the number of times an entry with type id equal to the
- * 		array index has changed size while in its pre-serialize 
+ * 		array index has changed size while in its pre-serialize
  *		callback.
  *
  * cache_flush_size_changes:  Array of int64 of length
@@ -4500,7 +4660,7 @@ typedef struct H5C_tag_info_t {
  *              enforcing the min_clean_fraction in H5C__make_space_in_cache().
  *
  * total_dirty_pf_entries_skipped_in_msic: Number of dirty prefetched entries
- *              skipped in H5C__make_space_in_cache().  Note that this can 
+ *              skipped in H5C__make_space_in_cache().  Note that this can
  *              only occur when a file is opened R/O with a cache image
  *              containing dirty entries.
  *
@@ -4512,7 +4672,7 @@ typedef struct H5C_tag_info_t {
  *
  * max_dirty_pf_entries_skipped_in_msic: Maximum number of dirty prefetched
  *              entries skipped in any one call to H5C__make_space_in_cache().
- *              Note that this can only occur when the file is opened 
+ *              Note that this can only occur when the file is opened
  *              R/O with a cache image containing dirty entries.
  *
  * max_entries_scanned_in_msic: Maximum number of entries scanned over
@@ -4522,24 +4682,24 @@ typedef struct H5C_tag_info_t {
  *              for entries to evict in order to make space in cache.
  *
  *
- * The following fields track statistics on cache images.  
+ * The following fields track statistics on cache images.
  *
  * images_created:  Integer field containing the number of cache images
- *		created since the last time statistics were reset.  
+ *		created since the last time statistics were reset.
  *
  *		At present, this field must always be either 0 or 1.
- *		Further, since cache images are only created at file 
+ *		Further, since cache images are only created at file
  *		close, this field should only be set at that time.
  *
- * images_read: Integer field containing the number of cache images 
+ * images_read: Integer field containing the number of cache images
  *              read from file.  Note that reading an image is different
  *              from loading it -- reading the image means just that,
  *              while loading the image refers to decoding it and loading
  *              it into the metadata cache.
  *
- *              In the serial case, image_read should always equal 
- *              images_loaded.  However, in the parallel case, the 
- *              image should only be read by process 0.  All other 
+ *              In the serial case, image_read should always equal
+ *              images_loaded.  However, in the parallel case, the
+ *              image should only be read by process 0.  All other
  *              processes should receive the cache image via a broadcast
  *              from process 0.
  *
@@ -4547,25 +4707,25 @@ typedef struct H5C_tag_info_t {
  *		loaded since the last time statistics were reset.
  *
  *		At present, this field must always be either 0 or 1.
- *		Further, since cache images are only loaded at the 
+ *		Further, since cache images are only loaded at the
  *		time of the first protect or on file close, this value
  *		should only change on those events.
  *
  * last_image_size:  Size of the most recently loaded metadata cache image
  *             loaded into the cache, or zero if no image has been
- *             loaded.  
+ *             loaded.
  *
- *             At present, at most one cache image can be loaded into 
+ *             At present, at most one cache image can be loaded into
  *             the metadata cache for any given file, and this image
  *             will be loaded either on the first protect, or on file
  *             close if no entry is protected before then.
  *
  *
  * Fields for tracking prefetched entries.  Note that flushes and evictions
- * of prefetched entries are tracked in the flushes and evictions arrays 
+ * of prefetched entries are tracked in the flushes and evictions arrays
  * discused above.
  *
- * prefetches:	Number of prefetched entries that are loaded to the 
+ * prefetches:	Number of prefetched entries that are loaded to the
  *		cache.
  *
  * dirty_prefetches:  Number of dirty prefetched entries that are loaded
@@ -4573,30 +4733,30 @@ typedef struct H5C_tag_info_t {
  *
  * prefetch_hits:  Number of prefetched entries that are actually used.
  *
- * 
- * As entries are now capable of moving, loading, dirtying, and deleting 
- * other entries in their pre_serialize and serialize callbacks, it has 
- * been necessary to insert code to restart scans of lists so as to avoid 
- * improper behavior if the next entry in the list is the target of one on 
+ *
+ * As entries are now capable of moving, loading, dirtying, and deleting
+ * other entries in their pre_serialize and serialize callbacks, it has
+ * been necessary to insert code to restart scans of lists so as to avoid
+ * improper behavior if the next entry in the list is the target of one on
  * these operations.
  *
- * The following fields are use to count such occurrences.  They are used 
- * both in tests (to verify that the scan has been restarted), and to 
+ * The following fields are use to count such occurrences.  They are used
+ * both in tests (to verify that the scan has been restarted), and to
  * obtain estimates of how frequently these restarts occur.
  *
  * slist_scan_restarts: Number of times a scan of the slist (that contains
- *		calls to H5C__flush_single_entry()) has been restarted to 
- *		avoid potential issues with change of status of the next 
+ *		calls to H5C__flush_single_entry()) has been restarted to
+ *		avoid potential issues with change of status of the next
  *		entry in the scan.
  *
  * LRU_scan_restarts: Number of times a scan of the LRU list (that contains
- *              calls to H5C__flush_single_entry()) has been restarted to 
- *              avoid potential issues with change of status of the next 
+ *              calls to H5C__flush_single_entry()) has been restarted to
+ *              avoid potential issues with change of status of the next
  *              entry in the scan.
  *
- * index_scan_restarts: Number of times a scan of the index has been 
+ * index_scan_restarts: Number of times a scan of the index has been
  *		restarted to avoid potential issues with load, insertion
- *		or change in flush dependency height of an entry other 
+ *		or change in flush dependency height of an entry other
  *		than the target entry as the result of call(s) to the
  *		pre_serialize or serialize callbacks.
  *
@@ -4649,6 +4809,7 @@ typedef struct H5C_tag_info_t {
  *              NDEBUG is not #defined.
  *
  ****************************************************************************/
+
 struct H5C_t {
     uint32_t			magic;
     hbool_t			flush_in_progress;
@@ -4664,7 +4825,7 @@ struct H5C_t {
     hbool_t			evictions_enabled;
     hbool_t			close_warning_received;
 
-    /* Fields for maintaining [hash table] index of entries */
+    /* Fields for maintaining the [hash table] index of entries */
     uint32_t                    index_len;
     size_t                      index_size;
     uint32_t			index_ring_len[H5C_RING_NTYPES];
@@ -4685,6 +4846,7 @@ struct H5C_t {
     H5C_cache_entry_t *		entry_watched_for_removal;
 
     /* Fields for maintaining list of in-order entries, for flushing */
+    hbool_t                     slist_enabled;
     hbool_t			slist_changed;
     uint32_t                    slist_len;
     size_t                      slist_size;
@@ -4694,7 +4856,7 @@ struct H5C_t {
     uint32_t                    num_last_entries;
 #if H5C_DO_SANITY_CHECKS
     int32_t			slist_len_increase;
-    ssize_t			slist_size_increase;
+    int64_t			slist_size_increase;
 #endif /* H5C_DO_SANITY_CHECKS */
 
     /* Fields for maintaining list of tagged entries */
@@ -4850,7 +5012,7 @@ struct H5C_t {
     int32_t                     max_dirty_pf_entries_skipped_in_msic;
     int32_t                     max_entries_scanned_in_msic;
     int64_t                     entries_scanned_to_make_space;
- 
+
     /* Fields for tracking skip list scan restarts */
     int64_t			slist_scan_restarts;
     int64_t			LRU_scan_restarts;
@@ -4882,7 +5044,8 @@ struct H5C_t {
 #ifndef NDEBUG
     int64_t                     get_entry_ptr_from_addr_counter;
 #endif /* NDEBUG */
-};
+
+}; /* H5C_t */
 
 /* Define typedef for tagged cache entry iteration callbacks */
 typedef int (*H5C_tag_iter_cb_t)(H5C_cache_entry_t *entry, void *ctx);

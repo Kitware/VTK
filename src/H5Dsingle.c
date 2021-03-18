@@ -11,10 +11,10 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer: 	Vailin Choi <vchoi@hdfgroup.org>
+/* Programmer: 	Vailin Choi
  *	       	May 2011; updated 10/2015
  *
- * Purpose:	Single Chunk I/O functions.  
+ * Purpose:	Single Chunk I/O functions.
  *		This is used when the dataset has only 1 chunk (with or without filter):
  *			cur_dims[] is equal to max_dims[] is equal to the chunk dims[]
  *		non-filter chunk record: [address of the chunk]
@@ -150,8 +150,8 @@ H5D__single_idx_init(const H5D_chk_idx_info_t *idx_info,
  * Function:	H5D__single_idx_create
  *
  * Purpose:	Set up Single Chunk Index: filtered or non-filtered
- *		
- * Return:	Non-negative on success 
+ *
+ * Return:	Non-negative on success
  *		Negative on failure.
  *
  * Programmer:	Vailin Choi; July 2011
@@ -244,10 +244,10 @@ H5D__single_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata
     } /* end if */
 
     if(dset)
-	if(dset->shared->dcpl_cache.fill.alloc_time != H5D_ALLOC_TIME_EARLY || idx_info->pline->nused > 0)
-	    /* Mark the layout dirty so that the address of the single chunk will be flushed later */
-	    if(H5D__mark(dset, H5D_MARK_LAYOUT) < 0)
-		HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to mark layout as dirty")
+        if(dset->shared->dcpl_cache.fill.alloc_time != H5D_ALLOC_TIME_EARLY || idx_info->pline->nused > 0)
+            /* Mark the layout dirty so that the address of the single chunk will be flushed later */
+            if(H5D__mark(dset, H5D_MARK_LAYOUT) < 0)
+                HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to mark layout as dirty")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -437,7 +437,7 @@ H5D__single_idx_delete(const H5D_chk_idx_info_t *idx_info)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__single_idx_copy_setup(const H5D_chk_idx_info_t *idx_info_src,
+H5D__single_idx_copy_setup(const H5D_chk_idx_info_t H5_ATTR_NDEBUG_UNUSED *idx_info_src,
     const H5D_chk_idx_info_t *idx_info_dst)
 {
     herr_t      ret_value = SUCCEED;    /* Return value */

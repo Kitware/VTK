@@ -15,7 +15,7 @@
  *
  * Created:             H5Oname.c
  *                      Aug 12 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             Object name message.
  *
@@ -77,7 +77,6 @@ const H5O_msg_class_t H5O_MSG_NAME[1] = {{
  *              Failure:        NULL
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
  *
  *-------------------------------------------------------------------------
@@ -98,9 +97,9 @@ H5O__name_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
     /* decode */
     if(NULL == (mesg = (H5O_name_t *)H5MM_calloc(sizeof(H5O_name_t))))
-    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
     if(NULL == (mesg->s = (char *)H5MM_strdup((const char *)p)))
-    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Set return value */
     ret_value = mesg;
@@ -113,7 +112,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__name_decode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_encode
  *
@@ -122,10 +121,7 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -147,7 +143,7 @@ H5O_name_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared, 
     FUNC_LEAVE_NOAPI(SUCCEED)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_copy
  *
@@ -159,10 +155,7 @@ H5O_name_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared, 
  *              Failure:        NULL
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -179,7 +172,7 @@ H5O_name_copy(const void *_mesg, void *_dest)
     HDassert(mesg);
 
     if(!dest && NULL == (dest = (H5O_name_t *)H5MM_calloc(sizeof(H5O_name_t))))
-    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* copy */
     *dest = *mesg;
@@ -197,7 +190,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_name_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O_name_size
  *
@@ -211,10 +204,7 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -235,7 +225,7 @@ H5O_name_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shar
     FUNC_LEAVE_NOAPI(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O__name_reset
  *
@@ -245,7 +235,6 @@ H5O_name_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shar
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
  *
  *-------------------------------------------------------------------------
@@ -266,7 +255,7 @@ H5O__name_reset(void *_mesg)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O__name_reset() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5O__name_debug
  *
@@ -275,10 +264,7 @@ H5O__name_reset(void *_mesg)
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 12 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */

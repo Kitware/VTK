@@ -77,6 +77,39 @@ if (HDF5_ENABLE_CODESTACK)
 endif ()
 MARK_AS_ADVANCED (HDF5_ENABLE_CODESTACK)
 
+# ----------------------------------------------------------------------
+# Check if they would like to use file locking by default
+#-----------------------------------------------------------------------------
+if (FALSE) # XXX(kitware): Hardcode settings.
+option (HDF5_USE_FILE_LOCKING "Use file locking by default (mainly for SWMR)" ON)
+else ()
+set(HDF5_USE_FILE_LOCKING ON)
+endif ()
+if (HDF5_USE_FILE_LOCKING)
+  set (${HDF_PREFIX}_USE_FILE_LOCKING 1)
+endif ()
+
+# ----------------------------------------------------------------------
+# Check if they would like to ignore file locks when disabled on a file system
+#-----------------------------------------------------------------------------
+if (FALSE) # XXX(kitware): Hardcode settings.
+option (HDF5_IGNORE_DISABLED_FILE_LOCKS "Ignore file locks when disabled on file system" ON)
+else ()
+set(HDF5_IGNORE_DISABLED_FILE_LOCKS ON)
+endif ()
+if (HDF5_IGNORE_DISABLED_FILE_LOCKS)
+  set (${HDF_PREFIX}_IGNORE_DISABLED_FILE_LOCKS 1)
+endif ()
+
+# Set the libhdf5.settings file variable
+if (HDF5_IGNORE_DISABLED_FILE_LOCKS AND HDF5_USE_FILE_LOCKING)
+  set (HDF5_FILE_LOCKING_SETTING "best-effort")
+elseif (HDF5_IGNORE_DISABLED_FILE_LOCKS)
+  set (HDF5_FILE_LOCKING_SETTING "yes")
+else ()
+  set (HDF5_FILE_LOCKING_SETTING "no")
+endif ()
+
 #-----------------------------------------------------------------------------
 #  Are we going to use HSIZE_T
 #-----------------------------------------------------------------------------
@@ -167,10 +200,6 @@ endif ()
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_ROS3_VFD "Build the ROS3 Virtual File Driver" OFF)
   if (HDF5_ENABLE_ROS3_VFD)
-    # CMake version 3.13 fixed FindCURL module
-    if(CMAKE_VERSION VERSION_LESS "3.13.0" AND WIN32)
-        MESSAGE(FATAL_ERROR "Windows builds for this option requires a minimum of CMake 3.13")
-    endif ()
     find_package(CURL REQUIRED)
     find_package(OpenSSL REQUIRED)
     if (${CURL_FOUND} AND ${OPENSSL_FOUND})
@@ -181,6 +210,23 @@ option (HDF5_ENABLE_ROS3_VFD "Build the ROS3 Virtual File Driver" OFF)
       message (STATUS "The Read-Only S3 VFD was requested but cannot be built.\nPlease check that openssl and cURL are available on your\nsystem, and/or re-configure without option HDF5_ENABLE_ROS3_VFD.")
     endif ()
 endif ()
+
+# ----------------------------------------------------------------------
+# Check whether we can build the Mirror VFD
+# Header-check flags set in config/cmake_ext_mod/ConfigureChecks.cmake
+# ----------------------------------------------------------------------
+option (HDF5_ENABLE_MIRROR_VFD "Build the Mirror Virtual File Driver" OFF)
+if (H5FD_ENABLE_MIRROR_VFD)
+  if ( ${HDF_PREFIX}_HAVE_NETINET_IN_H AND
+       ${HDF_PREFIX}_HAVE_NETDB_H      AND
+       ${HDF_PREFIX}_HAVE_ARPA_INET_H  AND
+       ${HDF_PREFIX}_HAVE_SYS_SOCKET_H AND
+       ${HDF_PREFIX}_HAVE_FORK)
+      set (${HDF_PREFIX}_HAVE_MIRROR_VFD 1)
+  else()
+    message(STATUS "The socket-based Mirror VFD was requested but cannot be built. System prerequisites are not met.")
+  endif()
+endif()
 
 #-----------------------------------------------------------------------------
 # Check if C has __float128 extension

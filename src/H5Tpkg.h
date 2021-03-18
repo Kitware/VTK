@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Robb Matzke <matzke@llnl.gov>
+ * Programmer:	Robb Matzke
  *		Monday, December  8, 1997
  *
  * Purpose:	This file contains declarations which are visible only within
@@ -146,7 +146,7 @@
 struct H5T_stats_t {
     unsigned	ncalls;			/*num calls to conversion function   */
     hsize_t	nelmts;			/*total data points converted	     */
-    H5_timer_t	timer;			/*total time for conversion	     */
+    H5_timevals_t times;		/*total time for conversion	     */
 };
 
 /* Library internal datatype conversion functions are... */
@@ -176,36 +176,36 @@ struct H5T_path_t {
 };
 
 typedef struct H5T_atomic_t {
-    H5T_order_t		order;	/*byte order				     */
-    size_t		prec;	/*precision in bits			     */
-    size_t		offset; /*bit position of lsb of value		     */
-    H5T_pad_t	        lsb_pad;/*type of lsb padding			     */
-    H5T_pad_t		msb_pad;/*type of msb padding			     */
+    H5T_order_t order;              /* byte order                           */
+    size_t      prec;               /* precision in bits                    */
+    size_t      offset;             /* bit position of lsb of value         */
+    H5T_pad_t   lsb_pad;            /* type of lsb padding                  */
+    H5T_pad_t   msb_pad;            /* type of msb padding                  */
     union {
-	struct {
-	    H5T_sign_t	sign;	/*type of integer sign			     */
-	} i;			/*integer; integer types		     */
+        struct {
+            H5T_sign_t  sign;       /* type of integer sign                 */
+        } i;    /* integer; integer types */
 
-	struct {
-	    size_t	sign;	/*bit position of sign bit		     */
-	    size_t	epos;	/*position of lsb of exponent		     */
-	    size_t	esize;	/*size of exponent in bits		     */
-	    uint64_t	ebias;	/*exponent bias				     */
-	    size_t	mpos;	/*position of lsb of mantissa		     */
-	    size_t	msize;	/*size of mantissa			     */
-	    H5T_norm_t	norm;	/*normalization				     */
-	    H5T_pad_t	pad;	/*type of padding for internal bits	     */
-	} f;			/*floating-point types			     */
+        struct {
+            size_t      sign;       /* bit position of sign bit             */
+            size_t      epos;       /* position of lsb of exponent          */
+            size_t      esize;      /* size of exponent in bits             */
+            uint64_t    ebias;      /* exponent bias                        */
+            size_t      mpos;       /* position of lsb of mantissa          */
+            size_t      msize;      /* size of mantissa                     */
+            H5T_norm_t  norm;       /* normalization                        */
+            H5T_pad_t   pad;        /* type of padding for internal bits    */
+        } f;    /* floating-point types */
 
-	struct {
-	    H5T_cset_t	cset;	/*character set				     */
-	    H5T_str_t	pad;	/*space or null padding of extra bytes	     */
-	} s;			/*string types				     */
+        struct {
+            H5T_cset_t  cset;       /* character set                        */
+            H5T_str_t   pad;        /* space or null padding of extra bytes */
+        } s;    /* string types */
 
-	struct {
-	    H5R_type_t	rtype;	/*type of reference stored		     */
-            H5T_loc_t   loc;    /* Location of data in buffer		     */
-	} r;			/*reference types			     */
+        struct {
+            H5R_type_t  rtype;      /* type of reference stored             */
+            H5T_loc_t   loc;        /* location of data in buffer           */
+        } r;    /* reference types */
     } u;
 } H5T_atomic_t;
 
@@ -263,8 +263,8 @@ typedef enum {
 typedef struct H5T_vlen_t {
     H5T_vlen_type_t     type;   /* Type of VL data in buffer */
     H5T_loc_t		loc;    /* Location of VL data in buffer */
-    H5T_cset_t          cset;   /* For VL string. character set */
-    H5T_str_t           pad;    /* For VL string.  space or null padding of
+    H5T_cset_t          cset;   /* For VL string: character set */
+    H5T_str_t           pad;    /* For VL string:  space or null padding of
                                  * extra bytes */
     H5F_t *f;                   /* File ID (if VL data is on disk) */
     H5T_vlen_getptrfunc_t getptr;   /* Function to get VL sequence pointer */

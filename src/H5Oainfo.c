@@ -15,7 +15,7 @@
  *
  * Created:             H5Oainfo.c
  *                      Mar  6 2007
- *                      Quincey Koziol <koziol@hdfgroup.org>
+ *                      Quincey Koziol
  *
  * Purpose:             Attribute Information messages.
  *
@@ -97,7 +97,6 @@ H5FL_DEFINE_STATIC(H5O_ainfo_t);
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  6 2007
  *
  *-------------------------------------------------------------------------
@@ -172,7 +171,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  6 2007
  *
  *-------------------------------------------------------------------------
@@ -194,7 +192,7 @@ H5O_ainfo_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, co
     *p++ = H5O_AINFO_VERSION;
 
     /* The flags for the attribute indices */
-    flags = ainfo->track_corder ? H5O_AINFO_TRACK_CORDER : 0;
+    flags = (unsigned char)(ainfo->track_corder ? H5O_AINFO_TRACK_CORDER : 0);
     flags = (unsigned char)(flags | (ainfo->index_corder ? H5O_AINFO_INDEX_CORDER : 0));
     *p++ = flags;
 
@@ -228,7 +226,6 @@ H5O_ainfo_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, co
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  6 2007
  *
  *-------------------------------------------------------------------------
@@ -269,7 +266,6 @@ done:
  *              Failure:        zero
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  6 2007
  *
  *-------------------------------------------------------------------------
@@ -499,7 +495,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  6 2007
  *
  *-------------------------------------------------------------------------

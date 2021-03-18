@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Raymond Lu <slu@ncsa.uiuc.edu>
+ * Programmer:  Raymond Lu
  *              Jan 3, 2003
  */
 
@@ -26,26 +26,26 @@
 #include "H5Zpkg.h"		/* Data filters				*/
 
 /* Local function prototypes */
-static size_t H5Z_filter_fletcher32 (unsigned flags, size_t cd_nelmts,
+static size_t H5Z__filter_fletcher32(unsigned flags, size_t cd_nelmts,
     const unsigned cd_values[], size_t nbytes, size_t *buf_size, void **buf);
 
 /* This message derives from H5Z */
 const H5Z_class2_t H5Z_FLETCHER32[1] = {{
-    H5Z_CLASS_T_VERS,       /* H5Z_class_t version */
+    H5Z_CLASS_T_VERS,           /* H5Z_class_t version */
     H5Z_FILTER_FLETCHER32,	/* Filter id number		*/
-    1,              /* encoder_present flag (set to true) */
-    1,              /* decoder_present flag (set to true) */
+    1,                          /* encoder_present flag (set to true) */
+    1,                          /* decoder_present flag (set to true) */
     "fletcher32",		/* Filter name for debugging	*/
     NULL,                       /* The "can apply" callback     */
     NULL,                       /* The "set local" callback     */
-    H5Z_filter_fletcher32,	/* The actual filter function	*/
+    H5Z__filter_fletcher32,	/* The actual filter function	*/
 }};
 
 #define FLETCHER_LEN       4
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Z_filter_fletcher32
+ * Function:	H5Z__filter_fletcher32
  *
  * Purpose:	Implement an I/O filter of Fletcher32 Checksum
  *
@@ -55,21 +55,10 @@ const H5Z_class2_t H5Z_FLETCHER32[1] = {{
  * Programmer:	Raymond Lu
  *              Jan 3, 2003
  *
- * Modifications:
- *              Raymond Lu
- *              July 8, 2005
- *              There was a bug in the calculating code of the Fletcher32
- *              checksum in the library before v1.6.3.  The checksum
- *              value wasn't consistent between big-endian and little-endian
- *              systems.  This bug was fixed in Release 1.6.3.  However,
- *              after fixing the bug, the checksum value is no longer the
- *              same as before on little-endian system.  We'll check both
- *              the correct checksum and the wrong checksum to be consistent
- *              with Release 1.6.2 and before.
  *-------------------------------------------------------------------------
  */
 static size_t
-H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const unsigned H5_ATTR_UNUSED cd_values[],
+H5Z__filter_fletcher32(unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const unsigned H5_ATTR_UNUSED cd_values[],
                      size_t nbytes, size_t *buf_size, void **buf)
 {
     void    *outbuf = NULL;     /* Pointer to new buffer */
@@ -80,7 +69,7 @@ H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const un
     uint8_t  tmp;
     size_t   ret_value = 0;     /* Return value */
 
-    FUNC_ENTER_NOAPI(0)
+    FUNC_ENTER_STATIC
 
     HDassert(sizeof(uint32_t)>=4);
 
@@ -108,7 +97,7 @@ H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const un
              * system.  We'll check both the correct checksum and the wrong
              * checksum to be consistent with Release 1.6.2 and before.
              */
-            HDmemcpy(c, &fletcher, (size_t)4);
+            H5MM_memcpy(c, &fletcher, (size_t)4);
 
             tmp  = c[1];
             c[1] = c[0];
@@ -118,7 +107,7 @@ H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const un
             c[3] = c[2];
             c[2] = tmp;
 
-            HDmemcpy(&reversed_fletcher, c, (size_t)4);
+            H5MM_memcpy(&reversed_fletcher, c, (size_t)4);
 
             /* Verify computed checksum matches stored checksum */
             if(stored_fletcher != fletcher && stored_fletcher != reversed_fletcher)
@@ -140,7 +129,7 @@ H5Z_filter_fletcher32 (unsigned flags, size_t H5_ATTR_UNUSED cd_nelmts, const un
         dst = (unsigned char *) outbuf;
 
         /* Copy raw data */
-        HDmemcpy((void*)dst, (void*)(*buf), nbytes);
+        H5MM_memcpy((void*)dst, (void*)(*buf), nbytes);
 
         /* Append checksum to raw data for storage */
         dst += nbytes;
