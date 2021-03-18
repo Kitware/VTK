@@ -15,7 +15,7 @@
  *
  * Created:		H5B2dbg.c
  *			Feb  2 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Dump debugging information about a v2 B-tree.
  *
@@ -80,14 +80,13 @@
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb  2 2005
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5B2__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type, haddr_t obj_addr)
+    const H5B2_class_t H5_ATTR_NDEBUG_UNUSED *type, haddr_t H5_ATTR_NDEBUG_UNUSED obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header info */
     unsigned    u;                      /* Local index variable */
@@ -175,14 +174,13 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb  4 2005
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5B2__int_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, unsigned depth, haddr_t obj_addr)
+    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, unsigned depth, haddr_t H5_ATTR_NDEBUG_UNUSED obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header */
     H5B2_internal_t	*internal = NULL;   /* B-tree internal node */
@@ -287,14 +285,13 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb  7 2005
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5B2__leaf_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
-    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, haddr_t obj_addr)
+    const H5B2_class_t *type, haddr_t hdr_addr, unsigned nrec, haddr_t H5_ATTR_NDEBUG_UNUSED obj_addr)
 {
     H5B2_hdr_t	*hdr = NULL;            /* B-tree header */
     H5B2_leaf_t	*leaf = NULL;           /* B-tree leaf node */

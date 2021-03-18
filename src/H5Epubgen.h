@@ -62,7 +62,7 @@ extern "C" {
 #define H5E_ERROR            (H5OPEN H5E_ERROR_g)
 #define H5E_CACHE            (H5OPEN H5E_CACHE_g)
 H5_DLLVAR hid_t H5E_FUNC_g;          /* Function entry/exit */
-H5_DLLVAR hid_t H5E_FILE_g;          /* File accessibilty */
+H5_DLLVAR hid_t H5E_FILE_g;          /* File accessibility */
 H5_DLLVAR hid_t H5E_SOHM_g;          /* Shared Object Header Messages */
 H5_DLLVAR hid_t H5E_SYM_g;           /* Symbol table */
 H5_DLLVAR hid_t H5E_PLUGIN_g;        /* Plugin for dynamically loaded library */
@@ -233,7 +233,7 @@ H5_DLLVAR hid_t H5E_NONE_MINOR_g;    /* No error */
 #define H5E_OPENERROR        (H5OPEN H5E_OPENERROR_g)
 H5_DLLVAR hid_t H5E_OPENERROR_g;     /* Can't open directory or file */
 
-/* File accessibilty errors */
+/* File accessibility errors */
 #define H5E_FILEEXISTS       (H5OPEN H5E_FILEEXISTS_g)
 #define H5E_FILEOPEN         (H5OPEN H5E_FILEOPEN_g)
 #define H5E_CANTCREATE       (H5OPEN H5E_CANTCREATE_g)
@@ -243,6 +243,8 @@ H5_DLLVAR hid_t H5E_OPENERROR_g;     /* Can't open directory or file */
 #define H5E_BADFILE          (H5OPEN H5E_BADFILE_g)
 #define H5E_TRUNCATED        (H5OPEN H5E_TRUNCATED_g)
 #define H5E_MOUNT            (H5OPEN H5E_MOUNT_g)
+#define H5E_CANTLOCKFILE     (H5OPEN H5E_CANTLOCKFILE_g)
+#define H5E_CANTUNLOCKFILE   (H5OPEN H5E_CANTUNLOCKFILE_g)
 H5_DLLVAR hid_t H5E_FILEEXISTS_g;    /* File already exists */
 H5_DLLVAR hid_t H5E_FILEOPEN_g;      /* File already open */
 H5_DLLVAR hid_t H5E_CANTCREATE_g;    /* Unable to create file */
@@ -252,6 +254,8 @@ H5_DLLVAR hid_t H5E_NOTHDF5_g;       /* Not an HDF5 file */
 H5_DLLVAR hid_t H5E_BADFILE_g;       /* Bad file ID accessed */
 H5_DLLVAR hid_t H5E_TRUNCATED_g;     /* File has been truncated */
 H5_DLLVAR hid_t H5E_MOUNT_g;         /* File mount error */
+H5_DLLVAR hid_t H5E_CANTLOCKFILE_g;  /* Unable to lock file */
+H5_DLLVAR hid_t H5E_CANTUNLOCKFILE_g; /* Unable to unlock file */
 
 /* Object atom related errors */
 #define H5E_BADATOM          (H5OPEN H5E_BADATOM_g)
@@ -356,6 +360,7 @@ H5_DLLVAR hid_t H5E_NO_INDEPENDENT_g; /* Can't perform independent IO */
 #define H5E_CANTNEXT         (H5OPEN H5E_CANTNEXT_g)
 #define H5E_BADSELECT        (H5OPEN H5E_BADSELECT_g)
 #define H5E_CANTCOMPARE      (H5OPEN H5E_CANTCOMPARE_g)
+#define H5E_INCONSISTENTSTATE (H5OPEN H5E_INCONSISTENTSTATE_g)
 #define H5E_CANTAPPEND       (H5OPEN H5E_CANTAPPEND_g)
 H5_DLLVAR hid_t H5E_CANTCLIP_g;      /* Can't clip hyperslab region */
 H5_DLLVAR hid_t H5E_CANTCOUNT_g;     /* Can't count elements */
@@ -363,6 +368,7 @@ H5_DLLVAR hid_t H5E_CANTSELECT_g;    /* Can't select hyperslab */
 H5_DLLVAR hid_t H5E_CANTNEXT_g;      /* Can't move to next iterator location */
 H5_DLLVAR hid_t H5E_BADSELECT_g;     /* Invalid selection */
 H5_DLLVAR hid_t H5E_CANTCOMPARE_g;   /* Can't compare objects */
+H5_DLLVAR hid_t H5E_INCONSISTENTSTATE_g; /* Internal states are inconsistent */
 H5_DLLVAR hid_t H5E_CANTAPPEND_g;    /* Can't append object */
 
 /* Argument errors */

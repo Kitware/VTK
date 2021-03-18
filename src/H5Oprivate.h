@@ -15,7 +15,7 @@
  *
  * Created:		H5Oprivate.h
  *			Aug  5 1997
- *			Robb Matzke <matzke@llnl.gov>
+ *			Robb Matzke
  *
  * Purpose:		Object header private include file.
  *
@@ -120,7 +120,7 @@ typedef struct H5O_mesg_t H5O_mesg_t;
 /* If the module using this macro is allowed access to the private variables, access them directly */
 #ifdef H5O_MODULE
 #define H5O_OH_GET_ADDR(O)    ((O)->chunk[0].addr)
-#define H5O_OH_GET_VERSION ((O)->version)
+#define H5O_OH_GET_VERSION(O) ((O)->version)
 #define H5O_OH_GET_FLAGS(O)   ((O)->flags)
 #define H5O_OH_GET_MTIME(O)   ((O)->mtime)
 #else /* H5O_MODULE */
@@ -222,7 +222,7 @@ typedef struct H5O_copy_t {
 #define H5O_MDCI_MSG_ID 0x0018		/* Metadata Cache Image Message */
 #define H5O_UNKNOWN_ID  0x0019          /* Placeholder message ID for unknown message.  */
                                         /* (this should never exist in a file) */
-/* 
+/*
  * Note: Must increment H5O_MSG_TYPES in H5Opkg.h and update H5O_msg_class_g
  *      in H5O.c when creating a new message type.  Also bump the value of
  *      H5O_BOGUS_INVALID_ID, below, to be one greater than the value of
@@ -481,7 +481,7 @@ typedef struct H5O_storage_chunk_t {
     const struct H5D_chunk_ops_t *ops;  /* Pointer to chunked storage operations */
     union {
         H5O_storage_chunk_btree_t btree;   /* Information for v1 B-tree index   */
-        H5O_storage_chunk_bt2_t btree2;    /* Information for v2 B-tree index */	
+        H5O_storage_chunk_bt2_t btree2;    /* Information for v2 B-tree index */
         H5O_storage_chunk_earray_t earray; /* Information for extensible array index   */
         H5O_storage_chunk_farray_t farray; /* Information for fixed array index   */
         H5O_storage_chunk_single_filt_t single; /* Information for single chunk w/ filters index */
@@ -582,8 +582,8 @@ typedef struct H5O_storage_t {
 typedef struct H5O_layout_chunk_farray_t {
     /* Creation parameters for fixed array data structure */
     struct {
-        uint8_t max_dblk_page_nelmts_bits;  /* Log2(Max. # of elements in a data block page) - 
-                                               i.e. # of bits needed to store max. # of elements 
+        uint8_t max_dblk_page_nelmts_bits;  /* Log2(Max. # of elements in a data block page) -
+                                               i.e. # of bits needed to store max. # of elements
                                                in a data block page */
     } cparam;
 } H5O_layout_chunk_farray_t;
@@ -869,13 +869,13 @@ typedef struct {
     } u;
 } H5O_mesg_operator_t;
 
-
 /* Typedef for abstract object creation */
 typedef struct {
     H5O_type_t obj_type;        /* Type of object to create */
     void *crt_info;             /* Information for object creation callback */
     void *new_obj;              /* Pointer to new object created */
 } H5O_obj_create_t;
+
 
 /* Forward declarations for prototype arguments */
 struct H5P_genplist_t;
@@ -970,7 +970,7 @@ H5_DLL herr_t H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t
 H5_DLL herr_t H5O_copy_header_map(const H5O_loc_t *oloc_src, H5O_loc_t *oloc_dst /*out */,
     H5O_copy_t *cpy_info, hbool_t inc_depth,
     H5O_type_t *obj_type, void **udata);
-H5_DLL herr_t H5O_copy_expand_ref(H5F_t *file_src, void *_src_ref, 
+H5_DLL herr_t H5O_copy_expand_ref(H5F_t *file_src, void *_src_ref,
     H5F_t *file_dst, void *_dst_ref, size_t ref_count, H5R_type_t ref_type,
     H5O_copy_t *cpy_info);
 
@@ -982,6 +982,8 @@ H5_DLL herr_t H5O_debug(H5F_t *f, haddr_t addr, FILE * stream, int indent,
 /* These functions operate on object locations */
 H5_DLL herr_t H5O_loc_reset(H5O_loc_t *loc);
 H5_DLL herr_t H5O_loc_copy(H5O_loc_t *dst, H5O_loc_t *src, H5_copy_depth_t depth);
+H5_DLL herr_t H5O_loc_copy_shallow(H5O_loc_t *dst, H5O_loc_t *src);
+H5_DLL herr_t H5O_loc_copy_deep(H5O_loc_t *dst, const H5O_loc_t *src);
 H5_DLL herr_t H5O_loc_hold_file(H5O_loc_t *loc);
 H5_DLL herr_t H5O_loc_free(H5O_loc_t *loc);
 H5_DLL H5O_loc_t *H5O_get_loc(hid_t id);

@@ -32,11 +32,11 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"        /* Generic Functions            */
-#include "H5Eprivate.h"        /* Error handling              */
-#include "H5FApkg.h"        /* Fixed Arrays                */
-#include "H5FLprivate.h"    /* Free Lists                           */
-#include "H5VMprivate.h"         /* Vector functions            */
+#include "H5private.h"		/* Generic Functions			*/
+#include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5FApkg.h"		/* Fixed Arrays				*/
+#include "H5FLprivate.h"	/* Free Lists                           */
+#include "H5VMprivate.h"        /* Vector functions			*/
 
 
 /****************/
@@ -70,12 +70,9 @@ typedef struct H5FA__test_ctx_t {
 static void *H5FA__test_crt_context(void *udata);
 static herr_t H5FA__test_dst_context(void *ctx);
 static herr_t H5FA__test_fill(void *nat_blk, size_t nelmts);
-static herr_t H5FA__test_encode(void *raw, const void *elmt, size_t nelmts,
-    void *ctx);
-static herr_t H5FA__test_decode(const void *raw, void *elmt, size_t nelmts,
-    void *ctx);
-static herr_t H5FA__test_debug(FILE *stream, int indent, int fwidth,
-    hsize_t idx, const void *elmt);
+static herr_t H5FA__test_encode(void *raw, const void *elmt, size_t nelmts, void *ctx);
+static herr_t H5FA__test_decode(const void *raw, void *elmt, size_t nelmts, void *ctx);
+static herr_t H5FA__test_debug(FILE *stream, int indent, int fwidth, hsize_t idx, const void *elmt);
 static void *H5FA__test_crt_dbg_context(H5F_t *f, haddr_t obj_addr);
 
 
@@ -112,7 +109,7 @@ const H5FA_class_t H5FA_CLS_TEST[1]={{
 H5FL_DEFINE_STATIC(H5FA__test_ctx_t);
 
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_crt_context
  *
@@ -147,7 +144,7 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5FA__test_crt_context() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_dst_context
  *
@@ -175,7 +172,7 @@ H5FA__test_dst_context(void *_ctx))
 
 END_FUNC(STATIC)  /* end H5FA__test_dst_context() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_fill
  *
@@ -203,7 +200,7 @@ H5FA__test_fill(void *nat_blk, size_t nelmts))
 
 END_FUNC(STATIC)  /* end H5FA__test_fill() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_encode
  *
@@ -247,7 +244,7 @@ H5FA__test_encode(void *raw, const void *_elmt, size_t nelmts, void H5_ATTR_UNUS
 
 END_FUNC(STATIC)  /* end H5FA__test_encode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_decode
  *
@@ -292,7 +289,7 @@ H5FA__test_decode(const void *_raw, void *_elmt, size_t nelmts, void H5_ATTR_UNU
 
 END_FUNC(STATIC)  /* end H5FA__test_decode() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_debug
  *
@@ -324,7 +321,7 @@ H5FA__test_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
 
 END_FUNC(STATIC)  /* end H5FA__test_debug() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5FA__test_crt_dbg_context
  *
@@ -359,9 +356,9 @@ CATCH
 
 END_FUNC(STATIC)  /* end H5FA__test_crt_dbg_context() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5FA_get_cparam_test
+ * Function:    H5FA__get_cparam_test
  *
  * Purpose:     Retrieve the parameters used to create the fixed array
  *
@@ -372,9 +369,9 @@ END_FUNC(STATIC)  /* end H5FA__test_crt_dbg_context() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PRIV, NOERR,
+BEGIN_FUNC(PKG, NOERR,
 herr_t, SUCCEED, -,
-H5FA_get_cparam_test(const H5FA_t *fa, H5FA_create_t *cparam))
+H5FA__get_cparam_test(const H5FA_t *fa, H5FA_create_t *cparam))
 
     /* Check arguments. */
     HDassert(fa);
@@ -384,11 +381,11 @@ H5FA_get_cparam_test(const H5FA_t *fa, H5FA_create_t *cparam))
     cparam->raw_elmt_size = fa->hdr->cparam.raw_elmt_size;
     cparam->nelmts = fa->hdr->cparam.nelmts;
 
-END_FUNC(PRIV)  /* end H5FA_get_cparam_test() */
+END_FUNC(PKG)  /* end H5FA__get_cparam_test() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5FA_cmp_cparam_test
+ * Function:    H5FA__cmp_cparam_test
  *
  * Purpose:     Compare the parameters used to create the fixed array
  *
@@ -399,9 +396,9 @@ END_FUNC(PRIV)  /* end H5FA_get_cparam_test() */
  *
  *-------------------------------------------------------------------------
  */
-BEGIN_FUNC(PRIV, ERRCATCH,
+BEGIN_FUNC(PKG, ERRCATCH,
 int, 0, -,
-H5FA_cmp_cparam_test(const H5FA_create_t *cparam1, const H5FA_create_t *cparam2))
+H5FA__cmp_cparam_test(const H5FA_create_t *cparam1, const H5FA_create_t *cparam2))
 
     /* Check arguments. */
     HDassert(cparam1);
@@ -415,5 +412,5 @@ H5FA_cmp_cparam_test(const H5FA_create_t *cparam1, const H5FA_create_t *cparam2)
 
 CATCH
 
-END_FUNC(PRIV)  /* end H5FA_cmp_cparam_test() */
+END_FUNC(PKG)  /* end H5FA__cmp_cparam_test() */
 

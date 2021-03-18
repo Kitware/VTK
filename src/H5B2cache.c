@@ -15,7 +15,7 @@
  *
  * Created:     H5B2cache.c
  *              Jan 31 2005
- *              Quincey Koziol <koziol@hdfgroup.org>
+ *              Quincey Koziol
  *
  * Purpose:     Implement v2 B-tree metadata cache methods.
  *
@@ -171,7 +171,6 @@ const H5AC_class_t H5AC_BT2_LEAF[1] = {{
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 18, 2010
  *
  *-------------------------------------------------------------------------
@@ -240,7 +239,6 @@ H5B2__cache_hdr_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNUSE
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 1 2005
  *
  *-------------------------------------------------------------------------
@@ -339,7 +337,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 20, 2010
  *
  *-------------------------------------------------------------------------
@@ -370,7 +367,6 @@ H5B2__cache_hdr_image_len(const void *_thing, size_t *image_len)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 1 2005
  *
  *-------------------------------------------------------------------------
@@ -391,14 +387,15 @@ H5B2__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED le
     HDassert(hdr);
 
     /* Magic number */
-    HDmemcpy(image, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* Version # */
     *image++ = H5B2_HDR_VERSION;
 
     /* B-tree type */
-    *image++ = hdr->cls->id;
+    HDassert(hdr->cls->id <= 255);
+    *image++ = (uint8_t)hdr->cls->id;
 
     /* Node size (in bytes) */
     UINT32ENCODE(image, hdr->node_size);
@@ -441,7 +438,6 @@ H5B2__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED le
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Neil Fortner
- *              nfortne2@hdfgroup.org
  *              Apr 24 2012
  *
  *-------------------------------------------------------------------------
@@ -529,7 +525,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Mike McGreevy
- *              mcgreevy@hdfgroup.org
  *              June 18, 2008
  *
  *-------------------------------------------------------------------------
@@ -561,7 +556,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 18, 2010
  *
  *-------------------------------------------------------------------------
@@ -636,7 +630,6 @@ H5B2__cache_int_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, voi
  *              Failure:        NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 2 2005
  *
  *-------------------------------------------------------------------------
@@ -653,6 +646,7 @@ H5B2__cache_int_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
     uint32_t            stored_chksum;  /* Stored metadata checksum value */
     unsigned		u;              /* Local index variable */
     H5B2_internal_t	*ret_value = NULL;      /* Return value */
+    int node_nrec = 0;
 
     FUNC_ENTER_STATIC
 
@@ -715,11 +709,8 @@ H5B2__cache_int_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
     for(u = 0; u < (unsigned)(internal->nrec + 1); u++) {
         /* Decode node pointer */
         H5F_addr_decode(udata->f, (const uint8_t **)&image, &(int_node_ptr->addr));
-        uint64_t nrec;
-        UINT64DECODE_VAR(image, nrec, udata->hdr->max_nrec_size);
-        if (nrec >= UINT16_MAX)
-            nrec = UINT16_MAX;
-        int_node_ptr->node_nrec = (uint16_t)nrec;
+        UINT64DECODE_VAR(image, node_nrec, udata->hdr->max_nrec_size);
+        H5_CHECKED_ASSIGN(int_node_ptr->node_nrec, uint16_t, node_nrec, int);
         if(udata->depth > 1)
             UINT64DECODE_VAR(image, int_node_ptr->all_nrec, udata->hdr->node_info[udata->depth - 1].cum_max_nrec_size)
         else
@@ -757,7 +748,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 20, 2010
  *
  *-------------------------------------------------------------------------
@@ -789,7 +779,6 @@ H5B2__cache_int_image_len(const void *_thing, size_t *image_len)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 3 2005
  *
  *-------------------------------------------------------------------------
@@ -815,14 +804,15 @@ H5B2__cache_int_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED le
     HDassert(internal->hdr);
 
     /* Magic number */
-    HDmemcpy(image, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* Version # */
     *image++ = H5B2_INT_VERSION;
 
     /* B-tree type */
-    *image++ = internal->hdr->cls->id;
+    HDassert(internal->hdr->cls->id <= 255);
+    *image++ = (uint8_t)internal->hdr->cls->id;
     HDassert((size_t)(image - (uint8_t *)_image) == (H5B2_INT_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
 
     /* Serialize records for internal node */
@@ -875,7 +865,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Neil Fortner
- *              nfortne2@hdfgroup.org
  *              Apr 25 2012
  *
  *-------------------------------------------------------------------------
@@ -886,7 +875,7 @@ H5B2__cache_int_notify(H5AC_notify_action_t action, void *_thing)
     H5B2_internal_t 	*internal = (H5B2_internal_t *)_thing;
     herr_t   		ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -952,7 +941,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Mike McGreevy
- *              mcgreevy@hdfgroup.org
  *              June 18, 2008
  *
  *-------------------------------------------------------------------------
@@ -985,7 +973,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 18, 2010
  *
  *-------------------------------------------------------------------------
@@ -1060,7 +1047,6 @@ H5B2__cache_leaf_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, vo
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 2 2005
  *
  *-------------------------------------------------------------------------
@@ -1159,7 +1145,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May 20, 2010
  *
  *-------------------------------------------------------------------------
@@ -1191,7 +1176,6 @@ H5B2__cache_leaf_image_len(const void *_thing, size_t *image_len)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 2 2005
  *
  *-------------------------------------------------------------------------
@@ -1216,14 +1200,15 @@ H5B2__cache_leaf_serialize(const H5F_t H5_ATTR_UNUSED *f, void *_image, size_t H
     HDassert(leaf->hdr);
 
     /* magic number */
-    HDmemcpy(image, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    H5MM_memcpy(image, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC);
     image += H5_SIZEOF_MAGIC;
 
     /* version # */
     *image++ = H5B2_LEAF_VERSION;
 
     /* B-tree type */
-    *image++ = leaf->hdr->cls->id;
+    HDassert(leaf->hdr->cls->id <= 255);
+    *image++ = (uint8_t)leaf->hdr->cls->id;
     HDassert((size_t)(image - (uint8_t *)_image) == (H5B2_LEAF_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
 
     /* Serialize records for leaf node */
@@ -1263,7 +1248,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Neil Fortner
- *              nfortne2@hdfgroup.org
  *              Apr 25 2012
  *
  *-------------------------------------------------------------------------
@@ -1274,7 +1258,7 @@ H5B2__cache_leaf_notify(H5AC_notify_action_t action, void *_thing)
     H5B2_leaf_t 	*leaf = (H5B2_leaf_t *)_thing;
     herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -1340,7 +1324,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Mike McGreevy
- *              mcgreevy@hdfgroup.org
  *              June 18, 2008
  *
  *-------------------------------------------------------------------------

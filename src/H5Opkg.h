@@ -63,7 +63,7 @@
     )
 #define H5O_ALIGN_OH(O, X)						      \
      H5O_ALIGN_VERS((O)->version, X)
-#define H5O_ALIGN_F(F, X)                             \
+#define H5O_ALIGN_F(F, X)                               \
      H5O_ALIGN_VERS(MAX(H5O_VERSION_1, (uint8_t)H5O_obj_ver_bounds[H5F_LOW_BOUND(F)]), X)
 
 /* Size of checksum (on disk) */
@@ -134,9 +134,9 @@
                 ) : 0))							      \
     )
 #define H5O_SIZEOF_MSGHDR_OH(O)						      \
-    H5O_SIZEOF_MSGHDR_VERS((O)->version, (O)->flags & H5O_HDR_ATTR_CRT_ORDER_TRACKED)
+    (unsigned)H5O_SIZEOF_MSGHDR_VERS((O)->version, (O)->flags & H5O_HDR_ATTR_CRT_ORDER_TRACKED)
 #define H5O_SIZEOF_MSGHDR_F(F, C)						      \
-    H5O_SIZEOF_MSGHDR_VERS(MAX((H5F_STORE_MSG_CRT_IDX(F) ? H5O_VERSION_LATEST : H5O_VERSION_1), (uint8_t)H5O_obj_ver_bounds[H5F_LOW_BOUND(F)]), (C))
+    (unsigned)H5O_SIZEOF_MSGHDR_VERS(MAX((H5F_STORE_MSG_CRT_IDX(F) ? H5O_VERSION_LATEST : H5O_VERSION_1), (uint8_t)H5O_obj_ver_bounds[H5F_LOW_BOUND(F)]), (C))
 
 /*
  * Size of chunk "header" for each chunk
@@ -391,15 +391,15 @@ typedef struct H5O_chunk_proxy_t {
     H5O_t       *oh;                    /* Object header for this chunk */
     unsigned    chunkno;                /* Chunk number for this chunk */
 
-    /* Flush depencency parent information (not stored) 
+    /* Flush depencency parent information (not stored)
      *
-     * The following field is used to store a pointer 
+     * The following field is used to store a pointer
      * to the in-core representation of a new chunk proxy's flush dependency
      * parent -- if it exists.  If it does not exist, this field will
      * contain NULL.
      *
-     * If the file is opened in SWMR write mode, the flush dependency 
-     * parent of the chunk proxy will be either its object header 
+     * If the file is opened in SWMR write mode, the flush dependency
+     * parent of the chunk proxy will be either its object header
      * or the chunk with the continuation message that references this chunk.
      */
     void *fd_parent;                    /* Pointer to flush dependency parent */
@@ -413,7 +413,6 @@ typedef struct H5O_chk_cache_ud_t {
     size_t size;                        /* Size of chunk in the file */
     H5O_common_cache_ud_t common;       /* Common object header cache callback info */
 } H5O_chk_cache_ud_t;
-
 
 /* Header message ID to class mapping */
 H5_DLLVAR const H5O_msg_class_t *const H5O_msg_class_g[H5O_MSG_TYPES];
@@ -593,10 +592,9 @@ H5_DLL herr_t H5O__delete_mesg(H5F_t *f, H5O_t *open_oh, H5O_mesg_t *mesg);
 /* Object header chunk routines */
 H5_DLL herr_t H5O__chunk_add(H5F_t *f, H5O_t *oh, unsigned idx, unsigned cont_chunkno);
 H5_DLL H5O_chunk_proxy_t *H5O__chunk_protect(H5F_t *f, H5O_t *oh, unsigned idx);
-H5_DLL herr_t H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy,
-    hbool_t chk_dirtied);
+H5_DLL herr_t H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy, hbool_t chk_dirtied);
 H5_DLL herr_t H5O__chunk_update_idx(H5F_t *f, H5O_t *oh, unsigned idx);
-H5_DLL herr_t H5O_chunk_resize(H5O_t *oh, H5O_chunk_proxy_t *chk_proxy);
+H5_DLL herr_t H5O__chunk_resize(H5O_t *oh, H5O_chunk_proxy_t *chk_proxy);
 H5_DLL herr_t H5O__chunk_delete(H5F_t *f, H5O_t *oh, unsigned idx);
 H5_DLL herr_t H5O__chunk_dest(H5O_chunk_proxy_t *chunk_proxy);
 
@@ -639,7 +637,8 @@ H5_DLL herr_t H5O__attr_link(H5F_t *f, H5O_t *open_oh, void *_mesg);
 H5_DLL herr_t H5O_attr_count_real(H5F_t *f, H5O_t *oh, hsize_t *nattrs);
 
 /* Arrays of versions for:
-   Object header, Attribute/Fill value/Filter pipeline messages */
+ * Object header, Attribute/Fill value/Filter pipeline messages
+ */
 /* Layout/Datatype/Dataspace arrays of versions are in H5Dpkg.h, H5Tpkg.h and H5Spkg.h */
 H5_DLLVAR const unsigned H5O_obj_ver_bounds[H5F_LIBVER_NBOUNDS];
 H5_DLLVAR const unsigned H5O_attr_ver_bounds[H5F_LIBVER_NBOUNDS];
@@ -648,24 +647,22 @@ H5_DLLVAR const unsigned H5O_pline_ver_bounds[H5F_LIBVER_NBOUNDS];
 
 /* Testing functions */
 #ifdef H5O_TESTING
-H5_DLL htri_t H5O_is_attr_empty_test(hid_t oid);
-H5_DLL htri_t H5O_is_attr_dense_test(hid_t oid);
-H5_DLL herr_t H5O_num_attrs_test(hid_t oid, hsize_t *nattrs);
-H5_DLL herr_t H5O_attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count);
-H5_DLL herr_t H5O_check_msg_marked_test(hid_t oid, hbool_t flag_val);
-H5_DLL herr_t H5O_expunge_chunks_test(const H5O_loc_t *oloc);
-H5_DLL herr_t H5O_get_rc(const H5O_loc_t *oloc, unsigned *rc);
-H5_DLL herr_t H5O_msg_get_chunkno_test(hid_t oid, unsigned msg_type,
-    unsigned *chunk_num);
-H5_DLL herr_t H5O_msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type);
+H5_DLL htri_t H5O__is_attr_empty_test(hid_t oid);
+H5_DLL htri_t H5O__is_attr_dense_test(hid_t oid);
+H5_DLL herr_t H5O__num_attrs_test(hid_t oid, hsize_t *nattrs);
+H5_DLL herr_t H5O__attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count);
+H5_DLL herr_t H5O__check_msg_marked_test(hid_t oid, hbool_t flag_val);
+H5_DLL herr_t H5O__expunge_chunks_test(const H5O_loc_t *oloc);
+H5_DLL herr_t H5O__get_rc_test(const H5O_loc_t *oloc, unsigned *rc);
+H5_DLL herr_t H5O__msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num);
+H5_DLL herr_t H5O__msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type);
 #endif /* H5O_TESTING */
 
 /* Object header debugging routines */
 #ifdef H5O_DEBUG
 H5_DLL herr_t H5O_assert(const H5O_t *oh);
 #endif /* H5O_DEBUG */
-H5_DLL herr_t H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream,
-    int indent, int fwidth);
+H5_DLL herr_t H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int fwidth);
 
 #endif /* _H5Opkg_H */
 

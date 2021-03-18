@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Tdbg.c
- *			Jul 19 2007
- *			Quincey Koziol <koziol@hdfgroup.org>
+ * Created:         H5Tdbg.c
+ *                  Jul 19 2007
+ *                  Quincey Koziol
  *
- * Purpose:		Dump debugging information about a datatype
+ * Purpose:         Dump debugging information about a datatype
  *
  *-------------------------------------------------------------------------
  */
@@ -95,25 +95,24 @@
 herr_t
 H5T__print_stats(H5T_path_t H5_ATTR_UNUSED * path, int H5_ATTR_UNUSED * nprint/*in,out*/)
 {
-#ifdef H5T_DEBUG
-    hsize_t	nbytes;
-    char	bandwidth[32];
-#endif
-
     FUNC_ENTER_PACKAGE_NOERR
 
 #ifdef H5T_DEBUG
-    if (H5DEBUG(T) && path->stats.ncalls > 0) {
-        if (nprint && 0 == (*nprint)++) {
-            HDfprintf(H5DEBUG(T), "H5T: type conversion statistics:\n");
-            HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
-                "Conversion", "Elmts", "Calls", "User",
-                "System", "Elapsed", "Bandwidth");
-            HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
-                "----------", "-----", "-----", "----",
-                "------", "-------", "---------");
-        }
-        if (path->src && path->dst)
+    if(H5DEBUG(T) && path->stats.ncalls > 0) {
+        hsize_t    nbytes;
+        char    bandwidth[32];
+
+    if(nprint && 0 == (*nprint)++) {
+        HDfprintf(H5DEBUG(T), "H5T: type conversion statistics:\n");
+        HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
+            "Conversion", "Elmts", "Calls", "User",
+            "System", "Elapsed", "Bandwidth");
+        HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
+            "----------", "-----", "-----", "----",
+            "------", "-------", "---------");
+    } /* end if */
+
+        if(path->src && path->dst)
             nbytes = MAX(H5T_get_size(path->src), H5T_get_size(path->dst));
         else if (path->src)
             nbytes = H5T_get_size(path->src);
@@ -121,18 +120,20 @@ H5T__print_stats(H5T_path_t H5_ATTR_UNUSED * path, int H5_ATTR_UNUSED * nprint/*
             nbytes = H5T_get_size(path->dst);
         else
             nbytes = 0;
-        nbytes *= path->stats.nelmts;
-        H5_bandwidth(bandwidth, (double)nbytes, path->stats.timer.etime);
-        HDfprintf(H5DEBUG(T), "   %-16s %10Hd %10d %8.2f %8.2f %8.2f %10s\n",
-            path->name,
-            path->stats.nelmts,
-            path->stats.ncalls,
-            path->stats.timer.utime,
-            path->stats.timer.stime,
-            path->stats.timer.etime,
-            bandwidth);
-    }
+
+    nbytes *= path->stats.nelmts;
+        H5_bandwidth(bandwidth, (double)nbytes, path->stats.times.elapsed);
+        HDfprintf(H5DEBUG(T), "   %-16s %10Hd %10d %8T %8T %8T %10s\n",
+        path->name,
+        path->stats.nelmts,
+        path->stats.ncalls,
+                   path->stats.times.user,
+                   path->stats.times.system,
+                   path->stats.times.elapsed,
+        bandwidth);
+    } /* end if */
 #endif
+
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5T__print_stats() */
 
@@ -405,18 +406,18 @@ H5T_debug(const H5T_t *dt, FILE *stream)
         } /* end else */
     }
     else if (H5T_ENUM == dt->shared->type) {
-        size_t	base_size;
+        size_t    base_size;
 
         /* Enumeration data type */
         HDfprintf(stream, " ");
         H5T_debug(dt->shared->parent, stream);
         base_size = dt->shared->parent->shared->size;
         for (i = 0; i < dt->shared->u.enumer.nmembs; i++) {
-            size_t	k;
+            size_t    k;
 
             HDfprintf(stream, "\n\"%s\" = 0x", dt->shared->u.enumer.name[i]);
             for (k = 0; k < base_size; k++)
-                HDfprintf(stream, "%02lx", (unsigned long)(dt->shared->u.enumer.value + (i * base_size) + k));
+                HDfprintf(stream, "%02p", ((uint8_t *)dt->shared->u.enumer.value + (i * base_size) + k));
         } /* end for */
         HDfprintf(stream, "\n");
     }

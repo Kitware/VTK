@@ -15,7 +15,7 @@
  *
  * Created:		H5Gtraverse.c
  *			Sep 13 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Functions for traversing group hierarchy
  *
@@ -32,18 +32,17 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Dprivate.h"         /* Datasets                             */
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fprivate.h"		/* File access				*/
-#include "H5Gpkg.h"		/* Groups		  		*/
-#include "H5HLprivate.h"	/* Local Heaps				*/
-#include "H5Iprivate.h"		/* IDs					*/
-#include "H5Lprivate.h"		/* Links				*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Ppublic.h"		/* Property Lists			*/
-#include "H5WBprivate.h"        /* Wrapped Buffers                      */
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Dprivate.h"         /* Datasets                                 */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Fprivate.h"         /* File access                              */
+#include "H5Gpkg.h"             /* Groups                                   */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5Lprivate.h"         /* Links                                    */
+#include "H5MMprivate.h"        /* Memory management                        */
+#include "H5Ppublic.h"          /* Property Lists                           */
+#include "H5WBprivate.h"        /* Wrapped Buffers                          */
 
 
 /****************/
@@ -133,7 +132,7 @@ H5G__traverse_slink_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc, const char H5_ATTR_UNU
     } /* end if */
     else {
         /* Copy new location information for resolved object */
-        H5O_loc_copy(udata->obj_loc->oloc, obj_loc->oloc, H5_COPY_DEEP);
+        H5O_loc_copy_deep(udata->obj_loc->oloc, obj_loc->oloc);
 
         /* Indicate that the object exists */
         udata->exists = TRUE;
@@ -324,7 +323,7 @@ H5G__traverse_slink(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
 
     /* Traverse the link */
     if(H5G__traverse_real(&tmp_grp_loc, lnk->u.soft.name, target, H5G__traverse_slink_cb, &udata) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to follow symbolic link")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to follow symbolic link")
 
     /* Pass back information about whether the object exists */
     *obj_exists = udata.exists;
@@ -352,15 +351,13 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov 20 2006
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5G__traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
-    unsigned target, hbool_t last_comp, H5G_loc_t *obj_loc,
-    hbool_t *obj_exists)
+    unsigned target, hbool_t last_comp, H5G_loc_t *obj_loc, hbool_t *obj_exists)
 {
     size_t nlinks;                      /* # of soft / UD links left to traverse */
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -372,13 +369,13 @@ H5G__traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     HDassert(lnk);
     HDassert(obj_loc);
 
-    /*
-     * If we found a symbolic link then we should follow it.  But if this
+    /* If we found a symbolic link then we should follow it.  But if this
      * is the last component of the name and the H5G_TARGET_SLINK bit of
      * TARGET is set then we don't follow it.
      */
     if(H5L_TYPE_SOFT == lnk->type &&
             (0 == (target & H5G_TARGET_SLINK) || !last_comp)) {
+
         /* Get the # of soft / UD links left to traverse */
         if(H5CX_get_nlinks(&nlinks) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve # of soft / UD links to traverse")
@@ -403,6 +400,7 @@ H5G__traverse_special(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
      */
     if(lnk->type >= H5L_TYPE_UD_MIN &&
             (0 == (target & H5G_TARGET_UDLINK) || !last_comp) ) {
+
         /* Get the # of soft / UD links left to traverse */
         if(H5CX_get_nlinks(&nlinks) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve # of soft / UD links to traverse")
@@ -461,7 +459,6 @@ done:
  *				resolved.
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 11 1997
  *
  *-------------------------------------------------------------------------
@@ -556,7 +553,7 @@ H5G__traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 	 * Copy the component name into a null-terminated buffer so
 	 * we can pass it down to the other symbol table functions.
 	 */
-	HDmemcpy(comp, name, nchars);
+	H5MM_memcpy(comp, name, nchars);
 	comp[nchars] = '\0';
 
 	/*
@@ -671,7 +668,7 @@ H5G__traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
                     /* Only keep the creation order information from the parent
                      *  group's link info
                      */
-                    HDmemcpy(&tmp_linfo, &def_linfo, sizeof(H5O_linfo_t));
+                    H5MM_memcpy(&tmp_linfo, &def_linfo, sizeof(H5O_linfo_t));
                     tmp_linfo.track_corder = par_linfo.track_corder;
                     tmp_linfo.index_corder = par_linfo.index_corder;
                     linfo = &tmp_linfo;
@@ -808,7 +805,6 @@ done:
  *				traversed.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep 13 2005
  *
  *-------------------------------------------------------------------------
@@ -830,20 +826,21 @@ H5G_traverse(const H5G_loc_t *loc, const char *name, unsigned target, H5G_traver
     if(!op)
         HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "no operation provided")
 
-    /* Retrieve the original # of soft / UD links that are able to be traversed */
-    /* (So that multiple calls to H5G_traverse don't incorrectly look
-     *  like they've traversed too many.  Nested calls, like in H5L__move(),
+    /* Retrieve the original # of soft / UD links that are able to be traversed
+     * (So that multiple calls to H5G_traverse don't incorrectly look
+     *  like they've traversed too many.  Nested calls, like in H5L_move(),
      *  may need their own mechanism to set & reset the # of links to traverse)
      */
     if(H5CX_get_nlinks(&orig_nlinks) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to retrieve # of soft / UD links to traverse")
 
     /* Set up invalid tag. This is a precautionary step only. Setting an invalid
-       tag here will ensure that no metadata accessed while doing the traversal
-       is given an improper tag, unless another one is specifically set up 
-       first. This will ensure we're not accidentally tagging something we 
-       shouldn't be during the traversal. Note that for best tagging assertion 
-       coverage, setting H5C_DO_TAGGING_SANITY_CHECKS is advised. */
+     * tag here will ensure that no metadata accessed while doing the traversal
+     * is given an improper tag, unless another one is specifically set up
+     * first. This will ensure we're not accidentally tagging something we
+     * shouldn't be during the traversal. Note that for best tagging assertion
+     * coverage, setting H5C_DO_TAGGING_SANITY_CHECKS is advised.
+     */
     H5_BEGIN_TAG(H5AC__INVALID_TAG);
 
     /* Go perform "real" traversal */

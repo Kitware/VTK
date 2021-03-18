@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+/* Programmer:  Quincey Koziol
  *
  * Purpose:	Generic Property Functions
  */
@@ -428,7 +428,7 @@ H5P__encode(const H5P_genplist_t *plist, hbool_t enc_all_prop, void *buf,
 
     /* Iterate over all properties in property list, encoding them */
     idx = 0;
-    if(H5P_iterate_plist(plist, enc_all_prop, &idx, H5P__encode_cb, &udata) < 0)
+    if(H5P__iterate_plist(plist, enc_all_prop, &idx, H5P__encode_cb, &udata) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_BADITER, FAIL, "can't iterate over properties")
 
     /* Encode a terminator for list of properties */
@@ -687,7 +687,7 @@ done:
         on failure.
  DESCRIPTION
      Decodes a property list from a binary buffer. The contents of the buffer
-     contain the values for the correponding properties of the plist. The decode 
+     contain the values for the correponding properties of the plist. The decode
      callback of a certain property decodes its value from the buffer and sets it
      in the property list.
  GLOBAL VARIABLES
@@ -722,7 +722,7 @@ H5P__decode(const void *buf)
 
     /* Get the type of the property list */
     type = (H5P_plist_type_t)*p++;
-    if(type <= H5P_TYPE_USER || type > H5P_TYPE_LINK_ACCESS)
+    if(type <= H5P_TYPE_USER || type >= H5P_TYPE_MAX_TYPE)
         HGOTO_ERROR(H5E_PLIST, H5E_BADRANGE, FAIL, "bad type of encoded information: %u", (unsigned)type)
 
     /* Create new property list of the specified type */

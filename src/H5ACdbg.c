@@ -253,8 +253,8 @@ H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
  *              type field contains the expected value.
  *
  *              If the specified entry is in cache, *in_cache_ptr is set
- *              to TRUE, and *type_ok_ptr is set to TRUE or FALSE depending 
- *		on whether the entries type field matches the 
+ *              to TRUE, and *type_ok_ptr is set to TRUE or FALSE depending
+ *		on whether the entries type field matches the
  *		expected_type parameter
  *
  *              If the target entry is not in cache, *in_cache_ptr is
@@ -270,16 +270,12 @@ H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
  *
  * Programmer:  John Mainzer, 5/30/14
  *
- * Changes:	None.
- *
- *						JRM -- 9/17/16
- *
  *-------------------------------------------------------------------------
  */
 #ifndef NDEBUG
 herr_t
-H5AC_verify_entry_type(const H5F_t *f, haddr_t addr, 
-    const H5AC_class_t *expected_type, hbool_t *in_cache_ptr, 
+H5AC_verify_entry_type(const H5F_t *f, haddr_t addr,
+    const H5AC_class_t *expected_type, hbool_t *in_cache_ptr,
     hbool_t *type_ok_ptr)
 {
     H5C_t             * cache_ptr;
@@ -304,7 +300,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5AC_get_serialization_in_progress
  *
- * Purpose:     Return the current value of 
+ * Purpose:     Return the current value of
  *              cache_ptr->serialization_in_progress.
  *
  * Return:      Current value of cache_ptr->serialization_in_progress.
@@ -350,8 +346,6 @@ H5AC_get_serialization_in_progress(H5F_t *f)
  * Return:      TRUE if the indicated ring(s) are clean, and FALSE otherwise.
  *
  * Programmer:  John Mainzer, 6/18/16
- *
- * Changes:     None.
  *
  *-------------------------------------------------------------------------
  */

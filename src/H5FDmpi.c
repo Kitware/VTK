@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+ * Programmer:  Quincey Koziol
  *              Friday, January 30, 2004
  *
  * Purpose:	Common routines for all MPI-based VFL drivers.
@@ -42,8 +42,6 @@
  *
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -82,8 +80,6 @@ done:
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -120,8 +116,6 @@ done:
  * Programmer:	Quincey Koziol
  *              Friday, January 30, 2004
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 MPI_Comm
@@ -147,44 +141,6 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FD_get_mpi_info
- *
- * Purpose:	Retrieves the file's mpi info
- *
- * Return:	Success:	SUCCEED
- *
- *		Failure:	Negative
- *
- * Programmer:	John Mainzer
- *              4/4/17
- *
- * Modifications:
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5FD_get_mpi_info(H5FD_t *file, void** mpi_info)
-{
-    const H5FD_class_mpi_t *cls;
-    herr_t  ret_value = SUCCEED;
-
-    FUNC_ENTER_NOAPI_NOINIT
-
-    HDassert(file);
-    cls = (const H5FD_class_mpi_t *)(file->cls);
-    HDassert(cls);
-    HDassert(cls->get_mpi_info);    /* All MPI drivers must implement this */
-
-    /* Dispatch to driver */
-    if((ret_value = (cls->get_mpi_info)(file, mpi_info)) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "driver get_mpi_info request failed")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_get_mpi_info() */
-
-
-/*-------------------------------------------------------------------------
  * Function:    H5FD_mpi_MPIOff_to_haddr
  *
  * Purpose:     Convert an MPI_Offset value to haddr_t.
@@ -197,13 +153,6 @@ done:
  * Programmer:  Unknown
  *              January 30, 1998
  *
- * Modifications:
- * 		Robb Matzke, 1999-04-23
- *		An error is reported for address overflows. The ADDR output
- *		argument is optional.
- *
- * 		Robb Matzke, 1999-08-06
- *		Modified to work with the virtual file layer.
  *-------------------------------------------------------------------------
  */
 haddr_t
@@ -235,16 +184,6 @@ H5FD_mpi_MPIOff_to_haddr(MPI_Offset mpi_off)
  * Programmer:  Unknown
  *              January 30, 1998
  *
- * Modifications:
- * 		Robb Matzke, 1999-04-23
- *		An error is reported for address overflows. The ADDR output
- *		argument is optional.
- *
- * 		Robb Matzke, 1999-07-28
- *		The ADDR argument is passed by value.
- *
- * 		Robb Matzke, 1999-08-06
- *		Modified to work with the virtual file layer.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -284,8 +223,6 @@ H5FD_mpi_haddr_to_MPIOff(haddr_t addr, MPI_Offset *mpi_off/*out*/)
  *
  * Programmer:  Albert Cheng
  *              Jan  8, 2003
- *
- * Modifications:
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -315,11 +252,11 @@ H5FD_mpi_comm_info_dup(MPI_Comm comm, MPI_Info info, MPI_Comm *comm_new, MPI_Inf
 	info_dup = info;
     }
 
-    /* Set MPI_ERRORS_RETURN on comm_dup so that MPI failures are not fatal, 
+    /* Set MPI_ERRORS_RETURN on comm_dup so that MPI failures are not fatal,
        and return codes can be checked and handled. May 23, 2017 FTW */
     if (MPI_SUCCESS != (mpi_code = MPI_Comm_set_errhandler(comm_dup, MPI_ERRORS_RETURN)))
         HMPI_GOTO_ERROR(FAIL, "MPI_Errhandler_set failed", mpi_code)
- 
+
     /* copy them to the return arguments */
     *comm_new = comm_dup;
     *info_new = info_dup;
@@ -352,8 +289,6 @@ done:
  *
  * Programmer:  Albert Cheng
  *              Jan  8, 2003
- *
- * Modifications:
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -399,9 +334,6 @@ done:
  * Programmer:	rky
  *              19981207
  *
- * Modifications:
- *		Robb Matzke, 1999-08-09
- *		Modified to work with the virtual file layer.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -454,9 +386,6 @@ done:
  * Programmer:	rky
  *              19981207
  *
- * Modifications:
- *		Robb Matzke, 1999-08-09
- *		Modified to work with the virtual file layer.
  *-------------------------------------------------------------------------
  */
 herr_t

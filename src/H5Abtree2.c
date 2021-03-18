@@ -15,7 +15,7 @@
  *
  * Created:		H5Abtree2.c
  *			Dec  4 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		v2 B-tree callbacks for indexing attributes on objects
  *
@@ -35,6 +35,7 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Apkg.h"		/* Attributes	  			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5SMprivate.h"	/* Shared object header messages        */
 
 
@@ -151,7 +152,6 @@ const H5B2_class_t H5A_BT2_CORDER[1]={{ /* B-tree class information */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  4 2006
  *
  *-------------------------------------------------------------------------
@@ -318,7 +318,7 @@ H5A__dense_btree2_name_encode(uint8_t *raw, const void *_nrecord, void H5_ATTR_U
     FUNC_ENTER_STATIC_NOERR
 
     /* Encode the record's fields */
-    HDmemcpy(raw, nrecord->id.id, (size_t)H5O_FHEAP_ID_LEN);
+    H5MM_memcpy(raw, nrecord->id.id, (size_t)H5O_FHEAP_ID_LEN);
     raw += H5O_FHEAP_ID_LEN;
     *raw++ = nrecord->flags;
     UINT32ENCODE(raw, nrecord->corder)
@@ -349,7 +349,7 @@ H5A__dense_btree2_name_decode(const uint8_t *raw, void *_nrecord, void H5_ATTR_U
     FUNC_ENTER_STATIC_NOERR
 
     /* Decode the record's fields */
-    HDmemcpy(nrecord->id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
+    H5MM_memcpy(nrecord->id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
     raw += H5O_FHEAP_ID_LEN;
     nrecord->flags = *raw++;
     UINT32DECODE(raw, nrecord->corder)
@@ -477,7 +477,7 @@ H5A__dense_btree2_corder_encode(uint8_t *raw, const void *_nrecord, void H5_ATTR
     FUNC_ENTER_STATIC_NOERR
 
     /* Encode the record's fields */
-    HDmemcpy(raw, nrecord->id.id, (size_t)H5O_FHEAP_ID_LEN);
+    H5MM_memcpy(raw, nrecord->id.id, (size_t)H5O_FHEAP_ID_LEN);
     raw += H5O_FHEAP_ID_LEN;
     *raw++ = nrecord->flags;
     UINT32ENCODE(raw, nrecord->corder)
@@ -507,7 +507,7 @@ H5A__dense_btree2_corder_decode(const uint8_t *raw, void *_nrecord, void H5_ATTR
     FUNC_ENTER_STATIC_NOERR
 
     /* Decode the record's fields */
-    HDmemcpy(nrecord->id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
+    H5MM_memcpy(nrecord->id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
     raw += H5O_FHEAP_ID_LEN;
     nrecord->flags = *raw++;
     UINT32DECODE(raw, nrecord->corder)

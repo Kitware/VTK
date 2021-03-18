@@ -30,8 +30,8 @@
  * When adding types here, add a section to the 'misc19' test in test/tmisc.c
  * to verify that the H5I{inc|dec|get}_ref() routines work correctly with it.
  *
- * NOTE: H5I_REFERENCE is not used by the library and has been deprecated
- *       with a tentative removal version of 1.12.0. (DER, July 2017)
+ * NOTE: H5I_REFERENCE is not used by the library and was removed
+ *       in HDF5 1.12.0.
  */
 typedef enum H5I_type_t {
     H5I_UNINIT      = (-2),     /* uninitialized type                           */
@@ -66,7 +66,7 @@ typedef int64_t hid_t;
  * can be removed from the ID type. If the function returns negative
  * (failure) then the object will remain in the ID type.
  */
-typedef herr_t (*H5I_free_t)(void*);
+typedef herr_t (*H5I_free_t)(void *);
 
 /* Type of the function to compare objects & keys */
 typedef int (*H5I_search_func_t)(void *obj, hid_t id, void *key);

@@ -15,7 +15,6 @@
  *
  * Created:             H5Onull.c
  *                      Aug  6 1997
- *                      Robb Matzke <matzke@llnl.gov>
  *
  * Purpose:             The null message.
  *

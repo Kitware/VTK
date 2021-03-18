@@ -15,7 +15,7 @@
  *
  * Created:		H5Pstrcpl.c
  *			October 26 2005
- *			James Laird <jlaird@ncsa.uiuc.edu>
+ *			James Laird
  *
  * Purpose:		String creation property list class routines
  *
@@ -130,7 +130,7 @@ H5P__strcrt_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register character encoding */
-    if(H5P_register_real(pclass, H5P_STRCRT_CHAR_ENCODING_NAME, H5P_STRCRT_CHAR_ENCODING_SIZE, &H5P_def_char_encoding_g, 
+    if(H5P__register_real(pclass, H5P_STRCRT_CHAR_ENCODING_NAME, H5P_STRCRT_CHAR_ENCODING_SIZE, &H5P_def_char_encoding_g,
             NULL, NULL, NULL, H5P_STRCRT_CHAR_ENCODING_ENC, H5P_STRCRT_CHAR_ENCODING_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")

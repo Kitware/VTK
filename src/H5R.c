@@ -323,7 +323,7 @@ done:
     M. Scot Breitenfeld
     22 January 2014
     Changed the behavior for the returned value of the function when name is NULL.
-    If name is NULL then size is ignored and the function returns the size 
+    If name is NULL then size is ignored and the function returns the size
     of the name buffer (not including the NULL terminator), it still returns
     negative on failure.
 --------------------------------------------------------------------------*/

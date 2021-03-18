@@ -54,8 +54,7 @@ typedef struct H5T_path_t H5T_path_t;
 /* How to copy a datatype */
 typedef enum H5T_copy_t {
     H5T_COPY_TRANSIENT,
-    H5T_COPY_ALL,
-    H5T_COPY_REOPEN
+    H5T_COPY_ALL
 } H5T_copy_t;
 
 /* Location of datatype information */
@@ -105,7 +104,8 @@ H5_DLLVAR H5T_order_t H5T_native_order_g;
 
 /* Private functions */
 H5_DLL herr_t H5T_init(void);
-H5_DLL H5T_t *H5T_copy(H5T_t *old_dt, H5T_copy_t method);
+H5_DLL H5T_t *H5T_copy(const H5T_t *old_dt, H5T_copy_t method);
+H5_DLL H5T_t *H5T_copy_reopen(H5T_t *old_dt);
 H5_DLL herr_t H5T_lock(H5T_t *dt, hbool_t immutable);
 H5_DLL herr_t H5T_close(H5T_t *dt);
 H5_DLL herr_t H5T_close_real(H5T_t *dt);
@@ -118,7 +118,7 @@ H5_DLL herr_t H5T_encode(H5T_t *obj, unsigned char *buf, size_t *nalloc);
 H5_DLL H5T_t *H5T_decode(size_t buf_size, const unsigned char *buf);
 H5_DLL herr_t H5T_debug(const H5T_t *dt, FILE * stream);
 H5_DLL struct H5O_loc_t *H5T_oloc(H5T_t *dt);
-H5_DLL H5G_name_t *H5T_nameof(H5T_t *dt);
+H5_DLL H5G_name_t *H5T_nameof(const H5T_t *dt);
 H5_DLL htri_t H5T_is_immutable(const H5T_t *dt);
 H5_DLL htri_t H5T_is_named(const H5T_t *dt);
 H5_DLL herr_t H5T_convert_committed_datatype(H5T_t *dt, H5F_t *f);
@@ -151,7 +151,7 @@ H5_DLL herr_t H5T_update_shared(H5T_t *type);
 
 /* Field functions (for both compound & enumerated types) */
 H5_DLL int H5T_get_nmembers(const H5T_t *dt);
-H5_DLL H5T_t *H5T_get_member_type(const H5T_t *dt, unsigned membno, H5T_copy_t method);
+H5_DLL H5T_t *H5T_get_member_type(const H5T_t *dt, unsigned membno);
 H5_DLL size_t H5T_get_member_offset(const H5T_t *dt, unsigned membno);
 
 /* Atomic functions */

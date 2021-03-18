@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Robb Matzke <matzke@llnl.gov>
+ * Programmer:	Robb Matzke
  *		Wednesday, April  1, 1998
  *
  * Purpose:	Functions that operate on a shared message.  The shared
@@ -39,6 +39,7 @@
 #include "H5Fprivate.h"		/* File access				*/
 #include "H5Gprivate.h"		/* Groups				*/
 #include "H5HFprivate.h"        /* Fractal heap				*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Opkg.h"             /* Object headers			*/
 #include "H5SMprivate.h"        /* Shared object header messages        */
 #include "H5WBprivate.h"        /* Wrapped Buffers                      */
@@ -98,7 +99,6 @@
  *		Failure:	NULL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep 24 2003
  *
  *-------------------------------------------------------------------------
@@ -213,7 +213,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep 26 2003
  *
  *-------------------------------------------------------------------------
@@ -354,7 +353,7 @@ H5O_shared_decode(H5F_t *f, H5O_t *open_oh, unsigned *ioflags, const uint8_t *bu
          */
         if(sh_mesg.type == H5O_SHARE_TYPE_SOHM) {
             HDassert(version >= H5O_SHARED_VERSION_3);
-            HDmemcpy(&sh_mesg.u.heap_id, buf, sizeof(sh_mesg.u.heap_id));
+            H5MM_memcpy(&sh_mesg.u.heap_id, buf, sizeof(sh_mesg.u.heap_id));
         } /* end if */
         else {
             /* The H5O_COMMITTED_FLAG should be set if this message
@@ -422,7 +421,7 @@ H5O_shared_encode(const H5F_t *f, uint8_t *buf/*out*/, const H5O_shared_t *sh_me
      * object header that holds it.
      */
     if(sh_mesg->type == H5O_SHARE_TYPE_SOHM)
-        HDmemcpy(buf, &(sh_mesg->u.heap_id), sizeof(sh_mesg->u.heap_id));
+        H5MM_memcpy(buf, &(sh_mesg->u.heap_id), sizeof(sh_mesg->u.heap_id));
     else
         H5F_addr_encode(f, &buf, sh_mesg->u.loc.oh_addr);
 
@@ -438,7 +437,6 @@ H5O_shared_encode(const H5F_t *f, uint8_t *buf/*out*/, const H5O_shared_t *sh_me
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Sep 26 2003
  *
  *-------------------------------------------------------------------------
@@ -576,8 +574,7 @@ done:
  *
  * Purpose:     Copies a message from _MESG to _DEST in file
  *
- * Return:      Success:        Non-negative
- *              Failure:        Negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
  *              January 22, 2007
@@ -649,10 +646,9 @@ done:
  *              to complish that is to delete the old message and write the
  *              new message with the correct values.
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:  Peter Cao
- *              xcao@hdfgroup.org
  *              May 24 2007
  *
  *-------------------------------------------------------------------------

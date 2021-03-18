@@ -13,11 +13,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Oattribute.c
- *			Dec 11 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ * Created:     H5Oattribute.c
  *
- * Purpose:		Object header attribute routines.
+ * Purpose:     Object header attribute routines.
  *
  *-------------------------------------------------------------------------
  */
@@ -157,7 +155,6 @@ static htri_t H5O_attr_find_opened_attr(const H5O_loc_t *loc, H5A_t **attr,
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  4 2006
  *
  *-------------------------------------------------------------------------
@@ -400,7 +397,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
  *-------------------------------------------------------------------------
@@ -549,7 +545,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 18 2006
  *
  *-------------------------------------------------------------------------
@@ -735,7 +730,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan  2 2007
  *
  *-------------------------------------------------------------------------
@@ -810,7 +804,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  4 2006
  *
  * Modification:Raymond Lu
@@ -842,7 +835,7 @@ H5O_attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
             HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, H5_ITER_ERROR, "unable to load object header chunk")
 
         /* Because the attribute structure is shared now. The only situation that requires
-         * copying the data is when the metadata cache evicts and reloads this attribute. 
+         * copying the data is when the metadata cache evicts and reloads this attribute.
          * The shared attribute structure will be different in that situation. SLU-2010/7/29 */
         if(((H5A_t *)mesg->native)->shared != udata->attr->shared) {
             /* Sanity check */
@@ -852,7 +845,7 @@ H5O_attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
 
             /* (Needs to occur before updating the shared message, or the hash
              *      value on the old & new messages will be the same) */
-            HDmemcpy(((H5A_t *)mesg->native)->shared->data, udata->attr->shared->data, udata->attr->shared->data_size);
+            H5MM_memcpy(((H5A_t *)mesg->native)->shared->data, udata->attr->shared->data, udata->attr->shared->data_size);
         } /* end if */
 
         /* Mark the message as modified */
@@ -972,7 +965,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  5 2006
  *
  *-------------------------------------------------------------------------
@@ -1018,7 +1010,6 @@ H5O_attr_rename_chk_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec  5 2006
  *
  *-------------------------------------------------------------------------
@@ -1480,7 +1471,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
  *-------------------------------------------------------------------------
@@ -1757,7 +1747,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
  *-------------------------------------------------------------------------

@@ -15,7 +15,7 @@
  *
  * Created:		H5HFprivate.h
  *			Feb 24 2006
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Private header for library accessible fractal heap routines.
  *

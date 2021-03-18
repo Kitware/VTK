@@ -39,10 +39,10 @@
 /* Callbacks for message class */
 static void *H5O__mdci_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
     unsigned *ioflags, size_t p_size, const uint8_t *p);
-static herr_t H5O__mdci_encode(H5F_t *f, hbool_t disable_shared, 
+static herr_t H5O__mdci_encode(H5F_t *f, hbool_t disable_shared,
     uint8_t *p, const void *_mesg);
 static void *H5O__mdci_copy(const void *_mesg, void *_dest);
-static size_t H5O__mdci_size(const H5F_t *f, hbool_t disable_shared, 
+static size_t H5O__mdci_size(const H5F_t *f, hbool_t disable_shared,
     const void *_mesg);
 static herr_t H5O__mdci_free(void *mesg);
 static herr_t H5O__mdci_delete(H5F_t *f, H5O_t *open_oh, void *_mesg);
@@ -142,7 +142,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__mdci_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, 
+H5O__mdci_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared,
     uint8_t *p, const void *_mesg)
 {
     const H5O_mdci_t *mesg = (const H5O_mdci_t *)_mesg;
@@ -219,7 +219,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O__mdci_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, 
+H5O__mdci_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared,
     const void H5_ATTR_UNUSED *_mesg)
 {
     size_t ret_value = 0;       /* Return value */
@@ -227,7 +227,7 @@ H5O__mdci_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared,
     FUNC_ENTER_STATIC_NOERR
 
     /* Set return value */
-    ret_value = (size_t)( 1 +                   /* Version number           */ 
+    ret_value = (size_t)( 1 +                   /* Version number           */
                           H5F_SIZEOF_ADDR(f) +  /* addr of metadata cache   */
                                                 /* image block              */
                           H5F_SIZEOF_SIZE(f) ); /* length of metadata cache */

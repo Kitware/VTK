@@ -15,7 +15,7 @@
  *
  * Created:   H5Pocpl.c
  *            Nov 28 2006
- *            Quincey Koziol <koziol@hdfgroup.org>
+ *            Quincey Koziol
  *
  * Purpose:   Object creation property list class routines
  *
@@ -165,25 +165,25 @@ H5P__ocrt_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register max. compact attribute storage property */
-    if(H5P_register_real(pclass, H5O_CRT_ATTR_MAX_COMPACT_NAME, H5O_CRT_ATTR_MAX_COMPACT_SIZE, &H5O_def_attr_max_compact_g,
+    if(H5P__register_real(pclass, H5O_CRT_ATTR_MAX_COMPACT_NAME, H5O_CRT_ATTR_MAX_COMPACT_SIZE, &H5O_def_attr_max_compact_g,
             NULL, NULL, NULL, H5O_CRT_ATTR_MAX_COMPACT_ENC, H5O_CRT_ATTR_MAX_COMPACT_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register min. dense attribute storage property */
-    if(H5P_register_real(pclass, H5O_CRT_ATTR_MIN_DENSE_NAME, H5O_CRT_ATTR_MIN_DENSE_SIZE, &H5O_def_attr_min_dense_g,
+    if(H5P__register_real(pclass, H5O_CRT_ATTR_MIN_DENSE_NAME, H5O_CRT_ATTR_MIN_DENSE_SIZE, &H5O_def_attr_min_dense_g,
             NULL, NULL, NULL, H5O_CRT_ATTR_MIN_DENSE_ENC, H5O_CRT_ATTR_MIN_DENSE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register object header flags property */
-    if(H5P_register_real(pclass, H5O_CRT_OHDR_FLAGS_NAME, H5O_CRT_OHDR_FLAGS_SIZE, &H5O_def_ohdr_flags_g,
+    if(H5P__register_real(pclass, H5O_CRT_OHDR_FLAGS_NAME, H5O_CRT_OHDR_FLAGS_SIZE, &H5O_def_ohdr_flags_g,
             NULL, NULL, NULL, H5O_CRT_OHDR_FLAGS_ENC, H5O_CRT_OHDR_FLAGS_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the pipeline property */
-    if(H5P_register_real(pclass, H5O_CRT_PIPELINE_NAME, H5O_CRT_PIPELINE_SIZE, &H5O_def_pline_g,
+    if(H5P__register_real(pclass, H5O_CRT_PIPELINE_NAME, H5O_CRT_PIPELINE_SIZE, &H5O_def_pline_g,
             NULL, H5O_CRT_PIPELINE_SET, H5O_CRT_PIPELINE_GET, H5O_CRT_PIPELINE_ENC, H5O_CRT_PIPELINE_DEC,
             H5O_CRT_PIPELINE_DEL, H5O_CRT_PIPELINE_COPY, H5O_CRT_PIPELINE_CMP, H5O_CRT_PIPELINE_CLOSE) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
@@ -581,13 +581,6 @@ done:
  * Programmer:  Quincey Koziol
  *              Friday, April  5, 2003
  *
- * Modifications:
- *
- *              Neil Fortner
- *              Thursday, March 26, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -651,18 +644,6 @@ done:
  *
  * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
- *
- * Modifications:
- *
- *              Raymond Lu
- *              Tuesday, October 2, 2001
- *              Changed the way to check parameter and set property for
- *              generic property list.
- *
- *              Neil Fortner
- *              Wednesday, May 20, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
  *
  *-------------------------------------------------------------------------
  */
@@ -781,13 +762,6 @@ done:
  * Programmer:    Robb Matzke
  *              Tuesday, August  4, 1998
  *
- * Modifications:
- *
- *              Neil Fortner
- *              Wednesday, May 20, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -837,13 +811,6 @@ done:
  *
  * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
- *
- * Modifications:
- *
- *              Neil Fortner
- *              Wednesday, May 20, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
  *
  *-------------------------------------------------------------------------
  */
@@ -899,7 +866,7 @@ H5Pget_filter2(hid_t plist_id, unsigned idx, unsigned int *flags/*out*/,
     filter = &pline.filter[idx];
 
     /* Get filter information */
-    if(H5P_get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, filter_config) < 0)
+    if(H5P__get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, filter_config) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, H5Z_FILTER_ERROR, "can't get filter info")
 
     /* Set return value */
@@ -952,7 +919,7 @@ H5P_get_filter_by_id(H5P_genplist_t *plist, H5Z_filter_t id, unsigned int *flags
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "filter ID is invalid")
 
     /* Get filter information */
-    if(H5P_get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, filter_config) < 0)
+    if(H5P__get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, filter_config) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get filter info")
 
 done:
@@ -979,13 +946,6 @@ done:
  *
  * Programmer:    Quincey Koziol
  *              Friday, April  5, 2003
- *
- * Modifications:
- *
- *              Neil Fortner
- *              Thursday, May 21, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
  *
  *-------------------------------------------------------------------------
  */
@@ -1049,13 +1009,6 @@ done:
  * Programmer:    Quincey Koziol
  *              Tuesday, April  8, 2003
  *
- * Modifications:
- *
- *              Neil Fortner
- *              Thursday, May 21, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
- *
  *-------------------------------------------------------------------------
  */
 htri_t
@@ -1118,7 +1071,7 @@ H5P_filter_in_pline(H5P_genplist_t *plist, H5Z_filter_t id)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5P_get_filter_by_id() */
+} /* end H5P_filter_in_pline() */
 
 
 /*-------------------------------------------------------------------------
@@ -1131,13 +1084,6 @@ done:
  *
  * Programmer:  Pedro Vicente
  *              January 26, 2004
- *
- * Modifications:
- *
- *              Neil Fortner
- *              Thursday, May 21, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
  *
  *-------------------------------------------------------------------------
  */
@@ -1191,18 +1137,6 @@ done:
  * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
- * Modifications:
- *
- *              Raymond Lu
- *              Tuesday, October 2, 2001
- *              Changed the way to check parameter and set property for
- *              generic property list.
- *
- *              Neil Fortner
- *              Thursday, March 26, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1251,13 +1185,6 @@ done:
  * Programmer:    Raymond Lu
  *              Dec 19, 2002
  *
- * Modifications:
- *
- *              Neil Fortner
- *              Wednesday, May 6, 2009
- *              Overloaded to accept gcpl's as well as dcpl's and moved to
- *              H5Pocpl.c
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1292,7 +1219,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5P_get_filter
+ * Function:    H5P__get_filter
  *
  * Purpose:    Internal component of H5Pget_filter & H5Pget_filter_id
  *
@@ -1304,12 +1231,12 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P_get_filter(const H5Z_filter_info_t *filter, unsigned int *flags/*out*/,
+H5P__get_filter(const H5Z_filter_info_t *filter, unsigned int *flags/*out*/,
     size_t *cd_nelmts/*in_out*/, unsigned cd_values[]/*out*/,
     size_t namelen, char name[]/*out*/,
     unsigned *filter_config /*out*/)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments */
     HDassert(filter);
@@ -1364,7 +1291,7 @@ H5P_get_filter(const H5Z_filter_info_t *filter, unsigned int *flags/*out*/,
         H5Z_get_filter_info(filter->id, filter_config);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5P_get_filter() */
+} /* end H5P__get_filter() */
 
 
 /*-------------------------------------------------------------------------
@@ -1501,7 +1428,7 @@ H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size)
                 *(*pp)++ = (uint8_t)TRUE;
 
                 /* encode filter name */
-                HDmemcpy(*pp, (uint8_t *)(pline->filter[u].name), H5Z_COMMON_NAME_LEN);
+                H5MM_memcpy(*pp, (uint8_t *)(pline->filter[u].name), H5Z_COMMON_NAME_LEN);
                 *pp += H5Z_COMMON_NAME_LEN;
             } /* end if */
             else
@@ -1893,7 +1820,7 @@ H5Pget_filter1(hid_t plist_id, unsigned idx, unsigned int *flags/*out*/,
     filter = &pline.filter[idx];
 
     /* Get filter information */
-    if(H5P_get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, NULL) < 0)
+    if(H5P__get_filter(filter, flags, cd_nelmts, cd_values, namelen, name, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, H5Z_FILTER_ERROR, "can't get filter info")
 
     /* Set return value */

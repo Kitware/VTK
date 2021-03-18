@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@ncsa.uiuc.edu>
+ * Programmer:	Quincey Koziol
  *		Friday, November 16, 2001
  *
  * Purpose:	This file contains declarations which are visible only within
@@ -129,48 +129,48 @@ struct H5Z_filter_info_t;
 /******************************/
 
 /* Private functions, not part of the publicly documented API */
-H5_DLL H5P_genclass_t *H5P_create_class(H5P_genclass_t *par_class,
+H5_DLL H5P_genclass_t *H5P__create_class(H5P_genclass_t *par_class,
     const char *name, H5P_plist_type_t type,
     H5P_cls_create_func_t cls_create, void *create_data,
     H5P_cls_copy_func_t cls_copy, void *copy_data,
     H5P_cls_close_func_t cls_close, void *close_data);
-H5_DLL H5P_genclass_t *H5P_copy_pclass(H5P_genclass_t *pclass);
-H5_DLL herr_t H5P_register_real(H5P_genclass_t *pclass, const char *name, size_t size,
+H5_DLL H5P_genclass_t *H5P__copy_pclass(H5P_genclass_t *pclass);
+H5_DLL herr_t H5P__register_real(H5P_genclass_t *pclass, const char *name, size_t size,
     const void *def_value, H5P_prp_create_func_t prp_create,
     H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
     H5P_prp_encode_func_t prp_encode, H5P_prp_decode_func_t prp_decode,
     H5P_prp_delete_func_t prp_delete,
     H5P_prp_copy_func_t prp_copy, H5P_prp_compare_func_t prp_cmp,
     H5P_prp_close_func_t prp_close);
-H5_DLL herr_t H5P_register(H5P_genclass_t **pclass, const char *name, size_t size,
+H5_DLL herr_t H5P__register(H5P_genclass_t **pclass, const char *name, size_t size,
     const void *def_value, H5P_prp_create_func_t prp_create,
     H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
     H5P_prp_encode_func_t prp_encode, H5P_prp_decode_func_t prp_decode,
     H5P_prp_delete_func_t prp_delete,
     H5P_prp_copy_func_t prp_copy, H5P_prp_compare_func_t prp_cmp,
     H5P_prp_close_func_t prp_close);
-H5_DLL herr_t H5P_add_prop(H5SL_t *props, H5P_genprop_t *prop);
-H5_DLL herr_t H5P_access_class(H5P_genclass_t *pclass, H5P_class_mod_t mod);
-H5_DLL htri_t H5P_exist_pclass(H5P_genclass_t *pclass, const char *name);
-H5_DLL herr_t H5P_get_size_plist(const H5P_genplist_t *plist, const char *name,
+H5_DLL herr_t H5P__add_prop(H5SL_t *props, H5P_genprop_t *prop);
+H5_DLL herr_t H5P__access_class(H5P_genclass_t *pclass, H5P_class_mod_t mod);
+H5_DLL htri_t H5P__exist_pclass(H5P_genclass_t *pclass, const char *name);
+H5_DLL herr_t H5P__get_size_plist(const H5P_genplist_t *plist, const char *name,
     size_t *size);
-H5_DLL herr_t H5P_get_size_pclass(H5P_genclass_t *pclass, const char *name,
+H5_DLL herr_t H5P__get_size_pclass(H5P_genclass_t *pclass, const char *name,
     size_t *size);
-H5_DLL herr_t H5P_get_nprops_plist(const H5P_genplist_t *plist, size_t *nprops);
-H5_DLL int H5P_cmp_class(const H5P_genclass_t *pclass1, const H5P_genclass_t *pclass2);
-H5_DLL herr_t H5P_cmp_plist(const H5P_genplist_t *plist1, const H5P_genplist_t *plist2,
+H5_DLL herr_t H5P__get_nprops_plist(const H5P_genplist_t *plist, size_t *nprops);
+H5_DLL int H5P__cmp_class(const H5P_genclass_t *pclass1, const H5P_genclass_t *pclass2);
+H5_DLL herr_t H5P__cmp_plist(const H5P_genplist_t *plist1, const H5P_genplist_t *plist2,
     int *cmp_ret);
-H5_DLL int H5P_iterate_plist(const H5P_genplist_t *plist, hbool_t iter_all_prop,
+H5_DLL int H5P__iterate_plist(const H5P_genplist_t *plist, hbool_t iter_all_prop,
     int *idx, H5P_iterate_int_t iter_func, void *iter_data);
-H5_DLL int H5P_iterate_pclass(const H5P_genclass_t *pclass, int *idx,
+H5_DLL int H5P__iterate_pclass(const H5P_genclass_t *pclass, int *idx,
     H5P_iterate_int_t iter_func, void *iter_data);
-H5_DLL herr_t H5P_copy_prop_plist(hid_t dst_id, hid_t src_id, const char *name);
-H5_DLL herr_t H5P_copy_prop_pclass(hid_t dst_id, hid_t src_id, const char *name);
-H5_DLL herr_t H5P_unregister(H5P_genclass_t *pclass, const char *name);
-H5_DLL char *H5P_get_class_path(H5P_genclass_t *pclass);
-H5_DLL H5P_genclass_t *H5P_open_class_path(const char *path);
-H5_DLL H5P_genclass_t *H5P_get_class_parent(const H5P_genclass_t *pclass);
-H5_DLL herr_t H5P_close_class(void *_pclass);
+H5_DLL herr_t H5P__copy_prop_plist(hid_t dst_id, hid_t src_id, const char *name);
+H5_DLL herr_t H5P__copy_prop_pclass(hid_t dst_id, hid_t src_id, const char *name);
+H5_DLL herr_t H5P__unregister(H5P_genclass_t *pclass, const char *name);
+H5_DLL char *H5P__get_class_path(H5P_genclass_t *pclass);
+H5_DLL H5P_genclass_t *H5P__open_class_path(const char *path);
+H5_DLL H5P_genclass_t *H5P__get_class_parent(const H5P_genclass_t *pclass);
+H5_DLL herr_t H5P__close_class(void *_pclass);
 H5_DLL H5P_genprop_t *H5P__find_prop_plist(const H5P_genplist_t *plist, const char *name);
 H5_DLL hid_t H5P__new_plist_of_type(H5P_plist_type_t type);
 
@@ -194,14 +194,14 @@ H5_DLL herr_t H5P__encode_coll_md_read_flag_t(const void *value, void **_pp, siz
 H5_DLL herr_t H5P__decode_coll_md_read_flag_t(const void **_pp, void *value);
 
 /* Private OCPL routines */
-H5_DLL herr_t H5P_get_filter(const struct H5Z_filter_info_t *filter,
+H5_DLL herr_t H5P__get_filter(const struct H5Z_filter_info_t *filter,
     unsigned int *flags, size_t *cd_nelmts, unsigned cd_values[],
     size_t namelen, char name[], unsigned *filter_config);
 
 /* Testing functions */
 #ifdef H5P_TESTING
-H5_DLL char *H5P_get_class_path_test(hid_t pclass_id);
-H5_DLL hid_t H5P_open_class_path_test(const char *path);
+H5_DLL char *H5P__get_class_path_test(hid_t pclass_id);
+H5_DLL hid_t H5P__open_class_path_test(const char *path);
 #endif /* H5P_TESTING */
 
 #endif /* _H5Ppkg_H */

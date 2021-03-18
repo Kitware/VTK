@@ -157,10 +157,10 @@ typedef struct H5FA_hdr_t {
                                          * of the fixed array header.
  					 *
  					 * The field is used to avoid duplicate
-					 * setups of the flush dependency 
-					 * relationship, and to allow the 
+					 * setups of the flush dependency
+					 * relationship, and to allow the
 					 * fixed array header to destroy
-					 * the flush dependency on receipt of 
+					 * the flush dependency on receipt of
 					 * an eviction notification from the
 					 * metadata cache.
 					 */
@@ -275,8 +275,7 @@ H5_DLL herr_t H5FA__hdr_decr(H5FA_hdr_t *hdr);
 H5_DLL herr_t H5FA__hdr_fuse_incr(H5FA_hdr_t *hdr);
 H5_DLL size_t H5FA__hdr_fuse_decr(H5FA_hdr_t *hdr);
 H5_DLL herr_t H5FA__hdr_modified(H5FA_hdr_t *hdr);
-H5_DLL H5FA_hdr_t *H5FA__hdr_protect(H5F_t *f, haddr_t fa_addr, void *ctx_udata,
-    unsigned flags);
+H5_DLL H5FA_hdr_t *H5FA__hdr_protect(H5F_t *f, haddr_t fa_addr, void *ctx_udata, unsigned flags);
 H5_DLL herr_t H5FA__hdr_unprotect(H5FA_hdr_t *hdr, unsigned cache_flags);
 H5_DLL herr_t H5FA__hdr_delete(H5FA_hdr_t *hdr);
 H5_DLL herr_t H5FA__hdr_dest(H5FA_hdr_t *hdr);
@@ -285,8 +284,7 @@ H5_DLL herr_t H5FA__hdr_dest(H5FA_hdr_t *hdr);
 H5_DLL H5FA_dblock_t *H5FA__dblock_alloc(H5FA_hdr_t *hdr);
 H5_DLL haddr_t H5FA__dblock_create(H5FA_hdr_t *hdr, hbool_t *hdr_dirty);
 H5_DLL unsigned H5FA__dblock_sblk_idx(const H5FA_hdr_t *hdr, hsize_t idx);
-H5_DLL H5FA_dblock_t *H5FA__dblock_protect(H5FA_hdr_t *hdr, haddr_t dblk_addr,
-    unsigned flags);
+H5_DLL H5FA_dblock_t *H5FA__dblock_protect(H5FA_hdr_t *hdr, haddr_t dblk_addr, unsigned flags);
 H5_DLL herr_t H5FA__dblock_unprotect(H5FA_dblock_t *dblock, unsigned cache_flags);
 H5_DLL herr_t H5FA__dblock_delete(H5FA_hdr_t *hdr, haddr_t dblk_addr);
 H5_DLL herr_t H5FA__dblock_dest(H5FA_dblock_t *dblock);
@@ -294,21 +292,18 @@ H5_DLL herr_t H5FA__dblock_dest(H5FA_dblock_t *dblock);
 /* Data block page routines */
 H5_DLL herr_t H5FA__dblk_page_create(H5FA_hdr_t *hdr, haddr_t addr, size_t nelmts);
 H5_DLL H5FA_dblk_page_t *H5FA__dblk_page_alloc(H5FA_hdr_t *hdr, size_t nelmts);
-H5_DLL H5FA_dblk_page_t *H5FA__dblk_page_protect(H5FA_hdr_t *hdr, haddr_t dblk_page_addr,
-    size_t dblk_page_nelmts, unsigned flags);
+H5_DLL H5FA_dblk_page_t *H5FA__dblk_page_protect(H5FA_hdr_t *hdr, haddr_t dblk_page_addr, size_t dblk_page_nelmts, unsigned flags);
 H5_DLL herr_t H5FA__dblk_page_unprotect(H5FA_dblk_page_t *dblk_page, unsigned cache_flags);
 H5_DLL herr_t H5FA__dblk_page_dest(H5FA_dblk_page_t *dblk_page);
 
 /* Debugging routines for dumping file structures */
-H5_DLL herr_t H5FA__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent,
-    int fwidth, const H5FA_class_t *cls, haddr_t obj_addr);
-H5_DLL herr_t H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream,
-    int indent, int fwidth, const H5FA_class_t *cls, haddr_t hdr_addr, haddr_t obj_addr);
+H5_DLL herr_t H5FA__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth, const H5FA_class_t *cls, haddr_t obj_addr);
+H5_DLL herr_t H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth, const H5FA_class_t *cls, haddr_t hdr_addr, haddr_t obj_addr);
 
 /* Testing routines */
 #ifdef H5FA_TESTING
-H5_DLL herr_t H5FA_get_cparam_test(const H5FA_t *ea, H5FA_create_t *cparam);
-H5_DLL int H5FA_cmp_cparam_test(const H5FA_create_t *cparam1, const H5FA_create_t *cparam2);
+H5_DLL herr_t H5FA__get_cparam_test(const H5FA_t *ea, H5FA_create_t *cparam);
+H5_DLL int H5FA__cmp_cparam_test(const H5FA_create_t *cparam1, const H5FA_create_t *cparam2);
 #endif /* H5FA_TESTING */
 
 #endif /* _H5FApkg_H */

@@ -20,6 +20,7 @@ include (CheckSymbolExists)
 include (CheckTypeSize)
 include (CheckVariableExists)
 include (TestBigEndian)
+include (CheckStructHasMember)
 
 # Check for Darwin (not just Apple - we also want to catch OpenDarwin)
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -120,9 +121,6 @@ CHECK_INCLUDE_FILE_CONCAT ("stddef.h"        ${HDF_PREFIX}_HAVE_STDDEF_H)
 CHECK_INCLUDE_FILE_CONCAT ("stdint.h"        ${HDF_PREFIX}_HAVE_STDINT_H)
 CHECK_INCLUDE_FILE_CONCAT ("unistd.h"        ${HDF_PREFIX}_HAVE_UNISTD_H)
 
-# Darwin
-CHECK_INCLUDE_FILE_CONCAT ("mach/mach_time.h" ${HDF_PREFIX}_HAVE_MACH_MACH_TIME_H)
-
 # Windows
 CHECK_INCLUDE_FILE_CONCAT ("io.h"            ${HDF_PREFIX}_HAVE_IO_H)
 if (NOT CYGWIN)
@@ -132,6 +130,8 @@ endif ()
 CHECK_INCLUDE_FILE_CONCAT ("pthread.h"       ${HDF_PREFIX}_HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE_CONCAT ("dlfcn.h"         ${HDF_PREFIX}_HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE_CONCAT ("inttypes.h"      ${HDF_PREFIX}_HAVE_INTTYPES_H)
+CHECK_INCLUDE_FILE_CONCAT ("netdb.h"         ${HDF_PREFIX}_HAVE_NETDB_H)
+CHECK_INCLUDE_FILE_CONCAT ("arpa/inet.h"     ${HDF_PREFIX}_HAVE_ARPA_INET_H)
 # _Bool type support
 CHECK_INCLUDE_FILE_CONCAT (stdbool.h    ${HDF_PREFIX}_HAVE_STDBOOL_H)
 
@@ -226,11 +226,11 @@ if (MINGW OR NOT WINDOWS)
   # systems.
   # POSIX feature information can be found in the gcc manual at:
   # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200112L)
+  set (HDF_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=200809L)
 
   # Need to add this so that O_DIRECT is visible for the direct
   # VFD on Linux systems.
-  set (HDF_EXTRA_C_FLAGS -D_GNU_SOURCE)
+  set (HDF_EXTRA_C_FLAGS ${HDF_EXTRA_C_FLAGS} -D_GNU_SOURCE)
 
   if (FALSE) # XXX(kitware): Hardcode settings.
   option (HDF_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
@@ -285,7 +285,7 @@ if (MINGW OR NOT WINDOWS)
 
   CHECK_FUNCTION_EXISTS (fseeko               ${HDF_PREFIX}_HAVE_FSEEKO)
 
-  HDF_FUNCTION_TEST (HAVE_STAT64_STRUCT)
+  CHECK_STRUCT_HAS_MEMBER("struct stat64" st_blocks "sys/types.h;sys/stat.h" HAVE_STAT64_STRUCT)
   if (HAVE_STAT64_STRUCT)
     CHECK_FUNCTION_EXISTS (stat64             ${HDF_PREFIX}_HAVE_STAT64)
   endif ()
@@ -389,14 +389,18 @@ if (MINGW OR NOT WINDOWS)
   #-----------------------------------------------------------------------------
   # Check a bunch of time functions
   #-----------------------------------------------------------------------------
+  CHECK_STRUCT_HAS_MEMBER("struct tm" tm_gmtoff "time.h" ${HDF_PREFIX}_HAVE_TM_GMTOFF)
+  CHECK_STRUCT_HAS_MEMBER("struct tm" __tm_gmtoff "time.h" ${HDF_PREFIX}_HAVE___TM_GMTOFF)
+  CHECK_STRUCT_HAS_MEMBER("struct tm" tm_sec "sys/types.h;sys/time.h;time.h" ${HDF_PREFIX}_TIME_WITH_SYS_TIME)
+  if (${HDF_PREFIX}_HAVE_SYS_TIME_H)
+    CHECK_STRUCT_HAS_MEMBER("struct tm" tz_minuteswest "sys/types.h;sys/time.h;time.h" ${HDF_PREFIX}_HAVE_STRUCT_TIMEZONE)
+  else ()
+    CHECK_STRUCT_HAS_MEMBER("struct tm" tz_minuteswest "sys/types.h;time.h" ${HDF_PREFIX}_HAVE_STRUCT_TIMEZONE)
+  endif ()
   CHECK_FUNCTION_EXISTS (gettimeofday      ${HDF_PREFIX}_HAVE_GETTIMEOFDAY)
   foreach (time_test
-      HAVE_TM_GMTOFF
-      HAVE___TM_GMTOFF
 #      HAVE_TIMEZONE
-      HAVE_STRUCT_TIMEZONE
       GETTIMEOFDAY_GIVES_TZ
-      TIME_WITH_SYS_TIME
       HAVE_TM_ZONE
       HAVE_STRUCT_TM_TM_ZONE
   )
@@ -404,20 +408,19 @@ if (MINGW OR NOT WINDOWS)
   endforeach ()
   if (NOT CYGWIN AND NOT MINGW)
       HDF_FUNCTION_TEST (HAVE_TIMEZONE)
-#      HDF_FUNCTION_TEST (HAVE_STAT_ST_BLOCKS)
   endif ()
 
   # ----------------------------------------------------------------------
   # Does the struct stat have the st_blocks field?  This field is not Posix.
   #
-  HDF_FUNCTION_TEST (HAVE_STAT_ST_BLOCKS)
+  CHECK_STRUCT_HAS_MEMBER("struct stat" st_blocks "sys/types.h;sys/stat.h" ${HDF_PREFIX}_HAVE_STAT_ST_BLOCKS)
 
   # ----------------------------------------------------------------------
   # How do we figure out the width of a tty in characters?
   #
   CHECK_FUNCTION_EXISTS (ioctl             ${HDF_PREFIX}_HAVE_IOCTL)
-  HDF_FUNCTION_TEST (HAVE_STRUCT_VIDEOCONFIG)
-  HDF_FUNCTION_TEST (HAVE_STRUCT_TEXT_INFO)
+  CHECK_STRUCT_HAS_MEMBER ("struct videoconfig" numtextcols "" ${HDF_PREFIX}_HAVE_STRUCT_VIDEOCONFIG)
+  CHECK_STRUCT_HAS_MEMBER ("struct text_info" screenwidth "" ${HDF_PREFIX}_HAVE_STRUCT_TEXT_INFO)
   CHECK_FUNCTION_EXISTS (_getvideoconfig   ${HDF_PREFIX}_HAVE__GETVIDEOCONFIG)
   CHECK_FUNCTION_EXISTS (gettextinfo       ${HDF_PREFIX}_HAVE_GETTEXTINFO)
   CHECK_FUNCTION_EXISTS (_scrsize          ${HDF_PREFIX}_HAVE__SCRSIZE)

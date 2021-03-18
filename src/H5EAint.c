@@ -15,7 +15,7 @@
  *
  * Created:		H5EAint.c
  *			Jun 17 2008
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Internal routines for extnsible arrays.
  *
@@ -86,7 +86,6 @@
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Mar 26 2009
  *
  *-------------------------------------------------------------------------
@@ -116,7 +115,6 @@ END_FUNC(PKG)   /* end H5EA__create_flush_depend() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Mar 26 2009
  *
  *-------------------------------------------------------------------------

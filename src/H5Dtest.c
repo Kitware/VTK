@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+/* Programmer:  Quincey Koziol
  *              Thursday, May 27, 2004
  *
  * Purpose:	Dataset testing functions.
@@ -28,10 +28,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Dpkg.h"		/* Datasets 				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Iprivate.h"		/* IDs			  		*/
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5Dpkg.h"             /* Datasets                                 */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Iprivate.h"         /* IDs                                      */
 
 
 /****************/

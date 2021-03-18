@@ -39,6 +39,7 @@
 #include "H5Eprivate.h"     /* Error handling                               */
 #include "H5FApkg.h"        /* Fixed Arrays                                 */
 #include "H5MFprivate.h"    /* File memory management                       */
+#include "H5MMprivate.h"    /* Memory management                            */
 
 
 /****************/
@@ -207,7 +208,7 @@ H5FA__hdr_create(H5F_t *f, const H5FA_create_t *cparam, void *ctx_udata))
     hdr->dblk_addr = HADDR_UNDEF;
 
     /* Set the creation parameters for the array */
-    HDmemcpy(&hdr->cparam, cparam, sizeof(hdr->cparam));
+    H5MM_memcpy(&hdr->cparam, cparam, sizeof(hdr->cparam));
 
     /* Finish initializing fixed array header */
     if(H5FA__hdr_init(hdr, ctx_udata) < 0)
@@ -413,7 +414,6 @@ END_FUNC(PKG)   /* end H5FA__hdr_modified() */
  * Return:	Non-NULL pointer to header on success/NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 12 2013
  *
  *-------------------------------------------------------------------------
@@ -470,7 +470,6 @@ END_FUNC(PKG)   /* end H5FA__hdr_protect() */
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 12 2013
  *
  *-------------------------------------------------------------------------
@@ -490,7 +489,7 @@ H5FA__hdr_unprotect(H5FA_hdr_t *hdr, unsigned cache_flags))
 
 CATCH
 
-END_FUNC(PKG)   /* end H5EA__hdr_unprotect() */
+END_FUNC(PKG)   /* end H5FA__hdr_unprotect() */
 
 
 /*-------------------------------------------------------------------------

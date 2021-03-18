@@ -41,9 +41,6 @@
  * Programmer:	Robb Matzke
  *		Monday, December  8, 1997
  *
- * Modifications:
- *	Robb Matzke, 22 Dec 1998
- *	Also works with enumeration datatypes.
  *-------------------------------------------------------------------------
  */
 int
@@ -82,8 +79,6 @@ done:
  *
  * Programmer:  Raymond Lu
  *	        October 8, 2002
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -124,9 +119,6 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- *	Robb Matzke, 22 Dec 1998
- *	Also works with enumeration datatypes.
  *-------------------------------------------------------------------------
  */
 char *
@@ -166,7 +158,6 @@ done:
  * Programmer:	Raymond Lu
  *              October 9, 2002
  *
- * Modifications:
  *-------------------------------------------------------------------------
  */
 char *
@@ -224,8 +215,6 @@ done:
  *
  * Programmer:  Raymond Lu
  *              Thursday, April 4, 2002
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -344,17 +333,17 @@ H5T__sort_value(const H5T_t *dt, int *map)
 	    HDassert(size <= sizeof(tbuf));
 	    for(i = (nmembs - 1), swapped = TRUE; i > 0 && swapped; --i) {
 		for(j = 0, swapped = FALSE; j < i; j++) {
-		    if(HDmemcmp(dt->shared->u.enumer.value + (j * size), dt->shared->u.enumer.value + ((j + 1) * size), size) > 0) {
+		    if(HDmemcmp((uint8_t *)dt->shared->u.enumer.value + (j * size), (uint8_t *)dt->shared->u.enumer.value + ((j + 1) * size), size) > 0) {
 			/* Swap names */
 			char *tmp = dt->shared->u.enumer.name[j];
 			dt->shared->u.enumer.name[j] = dt->shared->u.enumer.name[j + 1];
 			dt->shared->u.enumer.name[j + 1] = tmp;
 
 			/* Swap values */
-			HDmemcpy(tbuf, dt->shared->u.enumer.value + (j * size), size);
-			HDmemcpy(dt->shared->u.enumer.value + (j * size),
-				 dt->shared->u.enumer.value + ((j + 1) * size), size);
-			HDmemcpy(dt->shared->u.enumer.value + ((j + 1) * size), tbuf, size);
+			H5MM_memcpy(tbuf, (uint8_t *)dt->shared->u.enumer.value + (j * size), size);
+			H5MM_memcpy((uint8_t *)dt->shared->u.enumer.value + (j * size),
+				 (uint8_t *)dt->shared->u.enumer.value + ((j + 1) * size), size);
+			H5MM_memcpy((uint8_t *)dt->shared->u.enumer.value + ((j + 1) * size), tbuf, size);
 
 			/* Swap map */
 			if(map) {
@@ -371,7 +360,7 @@ H5T__sort_value(const H5T_t *dt, int *map)
 #ifndef NDEBUG
 	    /* I never trust a sort :-) -RPM */
 	    for(i = 0; i < (nmembs - 1); i++)
-		HDassert(HDmemcmp(dt->shared->u.enumer.value + (i * size), dt->shared->u.enumer.value + ((i + 1) * size), size) < 0);
+		HDassert(HDmemcmp((uint8_t *)dt->shared->u.enumer.value + (i * size), (uint8_t *)dt->shared->u.enumer.value + ((i + 1) * size), size) < 0);
 #endif
 	} /* end if */
     } /* end else */
@@ -393,8 +382,6 @@ H5T__sort_value(const H5T_t *dt, int *map)
  *
  * Programmer:	Robb Matzke
  *              Monday, January  4, 1999
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -457,10 +444,10 @@ H5T__sort_name(const H5T_t *dt, int *map)
 			dt->shared->u.enumer.name[j+1] = tmp;
 
 			/* Swap values */
-			HDmemcpy(tbuf, dt->shared->u.enumer.value+j*size, size);
-			HDmemcpy(dt->shared->u.enumer.value+j*size,
-				 dt->shared->u.enumer.value+(j+1)*size, size);
-			HDmemcpy(dt->shared->u.enumer.value+(j+1)*size, tbuf, size);
+			H5MM_memcpy(tbuf, (uint8_t *)dt->shared->u.enumer.value + (j * size), size);
+			H5MM_memcpy((uint8_t *)dt->shared->u.enumer.value + (j * size),
+				 (uint8_t *)dt->shared->u.enumer.value + ((j + 1) * size), size);
+			H5MM_memcpy((uint8_t *)dt->shared->u.enumer.value + ((j + 1) * size), tbuf, size);
 
 			/* Swap map */
 			if (map) {

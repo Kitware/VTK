@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:    H5system.c
- *      Aug 21 2006
- *      Quincey Koziol <koziol@hdfgroup.org>
+ * Created:     H5system.c
+ *              Aug 21 2006
+ *              Quincey Koziol
  *
- * Purpose:    System call wrapper implementations.
+ * Purpose:     System call wrapper implementations.
  *
  *-------------------------------------------------------------------------
  */
@@ -30,10 +30,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"        /* Generic Functions            */
-#include "H5Eprivate.h"        /* Error handling              */
-#include "H5Fprivate.h"        /* File access                */
-#include "H5MMprivate.h"    /* Memory management            */
+#include "H5private.h"      /* Generic Functions        */
+#include "H5Eprivate.h"     /* Error handling           */
+#include "H5Fprivate.h"     /* File access              */
+#include "H5MMprivate.h"    /* Memory management        */
 
 
 /****************/
@@ -86,7 +86,9 @@ static hbool_t H5_ntzset = FALSE;
  *    prints an `hsize_t' value as a hex number right justified and
  *    zero filled in an 18-character field.
  *
- *    The conversion `a' refers to an `haddr_t' type.
+ *    The conversion 'a' refers to an haddr_t type.
+ *
+ *    The conversion 't' refers to an htri_t type.
  *
  * Return:  Success:  Number of characters printed
  *
@@ -103,8 +105,7 @@ static hbool_t H5_ntzset = FALSE;
  *      format_templ in the code below, but early (4.4.7, at least) gcc only
  *      allows diagnostic pragmas to be toggled outside of functions.
  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+H5_GCC_DIAG_OFF(format-nonliteral)
 int
 HDfprintf(FILE *stream, const char *fmt, ...)
 {
@@ -376,7 +377,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                             if(fwidth)
                                 len += HDsnprintf(format_templ + len, (sizeof(format_templ) - (size_t)(len + 1)),  "%d", fwidth);
                             HDstrncat(format_templ, "s", (sizeof(format_templ) - (size_t)(len + 1)));
-                            fprintf(stream, format_templ, "UNDEF");
+                            n = fprintf(stream, format_templ, "UNDEF");
                         }
                     }
                     break;
@@ -406,11 +407,25 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                         htri_t tri_var = HDva_arg(ap, htri_t);
 
                         if(tri_var > 0)
-                            fprintf(stream, "TRUE");
+                            n = fprintf(stream, "TRUE");
                         else if(!tri_var)
-                            fprintf(stream, "FALSE");
+                            n = fprintf(stream, "FALSE");
                         else
-                            fprintf(stream, "FAIL(%d)", (int)tri_var);
+                            n = fprintf(stream, "FAIL(%d)", (int)tri_var);
+                    }
+                    break;
+
+                case 'T':       /* Elapsed time, in seconds */
+                    {
+                        double seconds = HDva_arg(ap, double);
+                        char *time_string = H5_timer_get_time_string(seconds);
+
+                        if(time_string) {
+                            n = fprintf(stream, format_templ, time_string);
+                            HDfree(time_string);
+                        } /* end if */
+                        else
+                            n = fprintf(stream, format_templ, "(error)");
                     }
                     break;
 
@@ -430,7 +445,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
     HDva_end(ap);
     return nout;
 } /* end HDfprintf() */
-#pragma GCC diagnostic pop
+H5_GCC_DIAG_ON(format-nonliteral)
 
 
 /*-------------------------------------------------------------------------
@@ -472,8 +487,6 @@ HDfprintf(FILE *stream, const char *fmt, ...)
  *
  * Programmer:  Robb Matzke
  *              Thursday, April  9, 1998
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -646,14 +659,14 @@ Pflock(int fd, int operation) {
  * Purpose:     Wrapper function for systems where no file locking is
  *              available.
  *
- * Return:      Failure:    -1 (always fails)
+ * Return:      0 (success)
  *
  *-------------------------------------------------------------------------
  */
 int H5_ATTR_CONST
 Nflock(int H5_ATTR_UNUSED fd, int H5_ATTR_UNUSED operation) {
-    /* just fail */
-    return -1;
+    /* just succeed */
+    return 0;
 } /* end Nflock() */
 
 
@@ -832,11 +845,88 @@ Wsetenv(const char *name, const char *value, int overwrite)
 #pragma comment(lib, "advapi32.lib")
 #endif
 
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_get_win32_times
+ *
+ * Purpose:     Gets the elapsed, system and user times on Windows platforms.
+ *              All time values are in seconds.
+ *
+ * Return:      Success:  0
+ *              Failure:  -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+#ifdef H5_HAVE_WIN32_API
+int
+H5_get_win32_times(H5_timevals_t *tvs /*in,out*/)
+{
+    static HANDLE process_handle;
+    ULARGE_INTEGER kernel_start;
+    ULARGE_INTEGER user_start;
+    FILETIME KernelTime;
+    FILETIME UserTime;
+    FILETIME CreationTime;
+    FILETIME ExitTime;
+    LARGE_INTEGER counts_start;
+    static LARGE_INTEGER counts_freq;
+    static hbool_t is_initialized = FALSE;
+    BOOL err;
+
+    HDassert(tvs);
+
+    if(!is_initialized) {
+        /* NOTE: This is just a pseudo handle and does not need to be closed. */
+        process_handle = GetCurrentProcess();
+        err = QueryPerformanceFrequency(&counts_freq);
+        if(0 == err)
+            return -1;
+        is_initialized = TRUE;
+    } /* end if */
+
+    /*************************
+     * System and user times *
+     *************************/
+
+    err = GetProcessTimes(process_handle, &CreationTime, &ExitTime, &KernelTime,
+            &UserTime);
+    if(0 == err)
+        return -1;
+
+    /* The 1.0E7 factor seems strange but it's due to the clock
+     * ticking in 100 ns increments.
+     */
+    kernel_start.HighPart = KernelTime.dwHighDateTime;
+    kernel_start.LowPart = KernelTime.dwLowDateTime;
+    tvs->system = (double)(kernel_start.QuadPart / 1.0E7F);
+
+    user_start.HighPart = UserTime.dwHighDateTime;
+    user_start.LowPart = UserTime.dwLowDateTime;
+    tvs->user = (double)(user_start.QuadPart / 1.0E7F);
+
+    /****************
+     * Elapsed time *
+     ****************/
+
+    err = QueryPerformanceCounter(&counts_start);
+    if(0 == err)
+        return -1;
+
+    tvs->elapsed = (double)(counts_start.QuadPart) / (double)counts_freq.QuadPart;
+
+    return 0;
+} /* end H5_get_win32_times() */
+#endif
+
 #define WloginBuffer_count 256
 static char Wlogin_buffer[WloginBuffer_count];
 
+
 char*
-Wgetlogin()
+Wgetlogin(void)
 {
 
 #ifdef H5_HAVE_WINSOCK2_H
@@ -1340,38 +1430,6 @@ H5_nanosleep(uint64_t nanosec)
 
     FUNC_LEAVE_NOAPI_VOID
 } /* end H5_nanosleep() */
-
-
-/*--------------------------------------------------------------------------
- * Function:    H5_get_time
- *
- * Purpose:     Get the current time, as the time of seconds after the UNIX epoch
- *
- * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              October 05, 2016
- *--------------------------------------------------------------------------
- */
-double
-H5_get_time(void)
-{
-#ifdef H5_HAVE_GETTIMEOFDAY
-    struct timeval curr_time;
-#endif /* H5_HAVE_GETTIMEOFDAY */
-    double ret_value = (double)0.0f;
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-#ifdef H5_HAVE_GETTIMEOFDAY
-    HDgettimeofday(&curr_time, NULL);
-
-    ret_value = (double)curr_time.tv_sec + ((double)curr_time.tv_usec / (double)1000000.0f);
-#endif /* H5_HAVE_GETTIMEOFDAY */
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5_get_time() */
-
 
 #ifdef H5_HAVE_WIN32_API
 

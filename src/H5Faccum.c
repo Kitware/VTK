@@ -15,7 +15,7 @@
  *
  * Created:             H5Faccum.c
  *                      Jan 10 2008
- *                      Quincey Koziol <koziol@hdfgroup.org>
+ *                      Quincey Koziol
  *
  * Purpose:             File metadata "accumulator" routines.  (Used to
  *                      cache small metadata I/Os and group them into a
@@ -38,6 +38,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"             /* File access				*/
 #include "H5FDprivate.h"	/* File drivers				*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"	/* Vectors and arrays 			*/
 
 
@@ -104,13 +105,12 @@ H5FL_BLK_DEFINE_STATIC(meta_accum);
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan 10 2008
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__accum_read(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
+H5F__accum_read(H5F_shared_t *f_sh, H5FD_mem_t map_type, haddr_t addr,
     size_t size, void *buf/*out*/)
 {
     H5FD_t *file;                       /* File driver pointer */
@@ -119,18 +119,18 @@ H5F__accum_read(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
     FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(f);
+    HDassert(f_sh);
     HDassert(buf);
 
     /* Translate to file driver I/O info object */
-    file = f->shared->lf;
+    file = f_sh->lf;
 
     /* Check if this information is in the metadata accumulator */
-    if((f->shared->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && map_type != H5FD_MEM_DRAW) {
+    if((f_sh->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && map_type != H5FD_MEM_DRAW) {
         H5F_meta_accum_t *accum;     /* Alias for file's metadata accumulator */
 
         /* Set up alias for file's metadata accumulator info */
-        accum = &f->shared->accum;
+        accum = &f_sh->accum;
 
         if(size < H5F_ACCUM_MAX_SIZE) {
             /* Sanity check */
@@ -198,7 +198,7 @@ H5F__accum_read(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                 } /* end if */
 
                 /* Copy the data out of the buffer */
-                HDmemcpy(buf, accum->buf + (addr - new_addr), size);
+                H5MM_memcpy(buf, accum->buf + (addr - new_addr), size);
 
                 /* Adjust the accumulator address & size */
                 accum->loc = new_addr;
@@ -250,7 +250,7 @@ H5F__accum_read(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                 } /* end else */
 
                 /* Copy the dirty region to buffer */
-                HDmemcpy((unsigned char *)buf + buf_off, (unsigned char *)accum->buf + accum->dirty_off + dirty_off, overlap_size);
+                H5MM_memcpy((unsigned char *)buf + buf_off, (unsigned char *)accum->buf + accum->dirty_off + dirty_off, overlap_size);
             } /* end if */
         } /* end else */
     } /* end if */
@@ -273,7 +273,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jun 11 2009
  *
  *-------------------------------------------------------------------------
@@ -412,13 +411,12 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan 10 2008
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
+H5F__accum_write(H5F_shared_t *f_sh, H5FD_mem_t map_type, haddr_t addr,
     size_t size, const void *buf)
 {
     H5FD_t *file;                       /* File driver pointer */
@@ -427,19 +425,19 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    HDassert(f);
-    HDassert(H5F_INTENT(f) & H5F_ACC_RDWR);
+    HDassert(f_sh);
+    HDassert(H5F_SHARED_INTENT(f_sh) & H5F_ACC_RDWR);
     HDassert(buf);
 
     /* Translate to file driver pointer */
-    file = f->shared->lf;
+    file = f_sh->lf;
 
     /* Check for accumulating metadata */
-    if((f->shared->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && map_type != H5FD_MEM_DRAW) {
+    if((f_sh->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && map_type != H5FD_MEM_DRAW) {
         H5F_meta_accum_t *accum;     /* Alias for file's metadata accumulator */
 
         /* Set up alias for file's metadata accumulator info */
-        accum = &f->shared->accum;
+        accum = &f_sh->accum;
 
         if(size < H5F_ACCUM_MAX_SIZE) {
             /* Sanity check */
@@ -457,7 +455,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                     HDmemmove(accum->buf + size, accum->buf, accum->size);
 
                     /* Copy the new metadata at the front */
-                    HDmemcpy(accum->buf, buf, size);
+                    H5MM_memcpy(accum->buf, buf, size);
 
                     /* Set the new size & location of the metadata accumulator */
                     accum->loc = addr;
@@ -479,7 +477,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                         HGOTO_ERROR(H5E_IO, H5E_CANTRESIZE, FAIL, "can't adjust metadata accumulator")
 
                     /* Copy the new metadata to the end */
-                    HDmemcpy(accum->buf + accum->size, buf, size);
+                    H5MM_memcpy(accum->buf + accum->size, buf, size);
 
                     /* Adjust the dirty region and mark accumulator dirty */
                     if(accum->dirty)
@@ -502,7 +500,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                         size_t dirty_off = (size_t)(addr - accum->loc);
 
                         /* Copy the new metadata to the proper location within the accumulator */
-                        HDmemcpy(accum->buf + dirty_off, buf, size);
+                        H5MM_memcpy(accum->buf + dirty_off, buf, size);
 
                         /* Adjust the dirty region and mark accumulator dirty */
                         if(accum->dirty) {
@@ -545,7 +543,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                         HDmemmove(accum->buf + size, accum->buf + old_offset, (accum->size - old_offset));
 
                         /* Copy the new metadata at the front */
-                        HDmemcpy(accum->buf, buf, size);
+                        H5MM_memcpy(accum->buf, buf, size);
 
                         /* Set the new size & location of the metadata accumulator */
                         accum->loc = addr;
@@ -582,7 +580,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                         dirty_off = (size_t)(addr - accum->loc);
 
                         /* Copy the new metadata to the end */
-                        HDmemcpy(accum->buf + dirty_off, buf, size);
+                        H5MM_memcpy(accum->buf + dirty_off, buf, size);
 
                         /* Set the new size of the metadata accumulator */
                         accum->size += add_size;
@@ -625,7 +623,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                         } /* end if */
 
                         /* Copy the new metadata to the buffer */
-                        HDmemcpy(accum->buf, buf, size);
+                        H5MM_memcpy(accum->buf, buf, size);
 
                         /* Set the new size & location of the metadata accumulator */
                         accum->loc = addr;
@@ -688,7 +686,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                     accum->size = size;
 
                     /* Store the piece of metadata in the accumulator */
-                    HDmemcpy(accum->buf, buf, size);
+                    H5MM_memcpy(accum->buf, buf, size);
 
                     /* Adjust the dirty region and mark accumulator dirty */
                     accum->dirty_off = 0;
@@ -721,7 +719,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                 accum->size = size;
 
                 /* Store the piece of metadata in the accumulator */
-                HDmemcpy(accum->buf, buf, size);
+                H5MM_memcpy(accum->buf, buf, size);
 
                 /* Adjust the dirty region and mark accumulator dirty */
                 accum->dirty_off = 0;
@@ -731,9 +729,9 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
         } /* end if */
         else {
             /* Make certain that data in accumulator is visible before new write */
-	    if((H5F_INTENT(f) & H5F_ACC_SWMR_WRITE) > 0)
+	    if((H5F_SHARED_INTENT(f_sh) & H5F_ACC_SWMR_WRITE) > 0)
                 /* Flush if dirty and reset accumulator */
-                if(H5F__accum_reset(f, TRUE) < 0)
+                if(H5F__accum_reset(f_sh, TRUE) < 0)
                     HGOTO_ERROR(H5E_IO, H5E_CANTRESET, FAIL, "can't reset accumulator")
 
             /* Write the data */
@@ -782,7 +780,7 @@ H5F__accum_write(H5F_t *f, H5FD_mem_t map_type, haddr_t addr,
                     } /* end if */
                     else {        /* Access covers whole accumulator */
                         /* Reset accumulator, but don't flush */
-                        if(H5F__accum_reset(f, FALSE) < 0)
+                        if(H5F__accum_reset(f_sh, FALSE) < 0)
                             HGOTO_ERROR(H5E_IO, H5E_CANTRESET, FAIL, "can't reset accumulator")
                     } /* end else */
                 } /* end if */
@@ -840,13 +838,12 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Jan 10 2008
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__accum_free(H5F_t *f, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr,
+H5F__accum_free(H5F_shared_t *f_sh, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr,
     hsize_t size)
 {
     H5F_meta_accum_t *accum;            /* Alias for file's metadata accumulator */
@@ -856,16 +853,16 @@ H5F__accum_free(H5F_t *f, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr,
     FUNC_ENTER_PACKAGE
 
     /* check arguments */
-    HDassert(f);
+    HDassert(f_sh);
 
     /* Set up alias for file's metadata accumulator info */
-    accum = &f->shared->accum;
+    accum = &f_sh->accum;
 
     /* Translate to file driver pointer */
-    file = f->shared->lf;
+    file = f_sh->lf;
 
     /* Adjust the metadata accumulator to remove the freed block, if it overlaps */
-    if((f->shared->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA)
+    if((f_sh->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA)
             && H5F_addr_overlap(addr, size, accum->loc, accum->size)) {
         size_t overlap_size;        /* Size of overlap with accumulator */
 
@@ -1006,34 +1003,33 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan 10 2008
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__accum_flush(H5F_t *f)
+H5F__accum_flush(H5F_shared_t *f_sh)
 {
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity checks */
-    HDassert(f);
+    HDassert(f_sh);
 
     /* Check if we need to flush out the metadata accumulator */
-    if((f->shared->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && f->shared->accum.dirty) {
+    if((f_sh->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) && f_sh->accum.dirty) {
         H5FD_t *file;                       /* File driver pointer */
 
         /* Translate to file driver pointer */
-        file = f->shared->lf;
+        file = f_sh->lf;
 
         /* Flush the metadata contents */
-        if(H5FD_write(file, H5FD_MEM_DEFAULT, f->shared->accum.loc + f->shared->accum.dirty_off, f->shared->accum.dirty_len, f->shared->accum.buf + f->shared->accum.dirty_off) < 0)
+        if(H5FD_write(file, H5FD_MEM_DEFAULT, f_sh->accum.loc + f_sh->accum.dirty_off, f_sh->accum.dirty_len, f_sh->accum.buf + f_sh->accum.dirty_off) < 0)
             HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "file write failed")
 
         /* Reset the dirty flag */
-        f->shared->accum.dirty = FALSE;
+        f_sh->accum.dirty = FALSE;
     } /* end if */
 
 done:
@@ -1049,40 +1045,36 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan 10 2008
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__accum_reset(H5F_t *f, hbool_t flush)
+H5F__accum_reset(H5F_shared_t *f_sh, hbool_t flush)
 {
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(f);
+    HDassert(f_sh);
 
     /* Flush any dirty data in accumulator, if requested */
     if(flush)
-        if(H5F__accum_flush(f) < 0)
+        if(H5F__accum_flush(f_sh) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "can't flush metadata accumulator")
 
     /* Check if we need to reset the metadata accumulator information */
-    if(f->shared->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) {
-        /* Sanity check */
-        HDassert(!f->closing || FALSE == f->shared->accum.dirty);
-
+    if(f_sh->feature_flags & H5FD_FEAT_ACCUMULATE_METADATA) {
         /* Free the buffer */
-        if(f->shared->accum.buf)
-            f->shared->accum.buf = H5FL_BLK_FREE(meta_accum, f->shared->accum.buf);
+        if(f_sh->accum.buf)
+            f_sh->accum.buf = H5FL_BLK_FREE(meta_accum, f_sh->accum.buf);
 
         /* Reset the buffer sizes & location */
-        f->shared->accum.alloc_size = f->shared->accum.size = 0;
-        f->shared->accum.loc = HADDR_UNDEF;
-        f->shared->accum.dirty = FALSE;
-        f->shared->accum.dirty_len = 0;
+        f_sh->accum.alloc_size = f_sh->accum.size = 0;
+        f_sh->accum.loc = HADDR_UNDEF;
+        f_sh->accum.dirty = FALSE;
+        f_sh->accum.dirty_len = 0;
     } /* end if */
 
 done:

@@ -19,6 +19,9 @@
    values correctly. */
 #undef DISABLE_SOME_LDOUBLE_CONV
 
+/* Define the examples directory */
+#undef EXAMPLESDIR
+
 /* Define to dummy `main' function (if any) required to link to the Fortran
    libraries. */
 #undef FC_DUMMY_MAIN
@@ -71,6 +74,9 @@
 
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#undef HAVE_ARPA_INET_H
 
 /* Define to 1 if you have the `asprintf' function. */
 #undef HAVE_ASPRINTF
@@ -227,6 +233,9 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define whether the Mirror virtual file driver (VFD) will be compiled */
+#undef HAVE_MIRROR_VFD
+
 /* Define if we have MPE support */
 #undef HAVE_MPE
 
@@ -238,6 +247,12 @@
 
 /* Define if MPI_Info_c2f and MPI_Info_f2c exist */
 #undef HAVE_MPI_MULTI_LANG_Info
+
+/* Define to 1 if you have the <netdb.h> header file. */
+#undef HAVE_NETDB_H
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#undef HAVE_NETINET_IN_H
 
 /* Define to 1 if you have the <openssl/evp.h> header file. */
 #undef HAVE_OPENSSL_EVP_H
@@ -410,6 +425,9 @@
 
 /* Define if the compiler understands __inline__ */
 #undef HAVE___INLINE__
+
+/* Define if the library will ignore file locks when disabled */
+#undef IGNORE_DISABLED_FILE_LOCKS
 
 /* Define if the high-level library headers should be included in hdf5.h */
 #undef INCLUDE_HL
@@ -620,6 +638,9 @@
 /* Define using v1.8 public API symbols by default */
 #undef USE_18_API_DEFAULT
 
+/* Define if the library will use file locking */
+#undef USE_FILE_LOCKING
+
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the
    internal free list manager code. */
@@ -636,7 +657,7 @@
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
-#if defined __APPLE__
+#if defined AC_APPLE_UNIVERSAL_BUILD
 # if defined __BIG_ENDIAN__
 #  define WORDS_BIGENDIAN 1
 # endif

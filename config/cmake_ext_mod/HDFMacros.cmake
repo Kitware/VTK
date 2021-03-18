@@ -82,10 +82,8 @@ macro (INSTALL_TARGET_PDB libtarget targetdestination targetcomponent)
       set (targetfilename $<TARGET_FILE_DIR:${libtarget}>/${target_name}.pdb)
     endif ()
     install (
-      FILES
-          ${targetfilename}
-      DESTINATION
-          ${targetdestination}
+      FILES ${targetfilename}
+      DESTINATION ${targetdestination}
       CONFIGURATIONS Debug RelWithDebInfo
       COMPONENT ${targetcomponent}
       OPTIONAL
@@ -97,10 +95,8 @@ endmacro ()
 macro (INSTALL_PROGRAM_PDB progtarget targetdestination targetcomponent)
   if (WIN32 AND MSVC)
     install (
-      FILES
-          $<TARGET_PDB_FILE:${progtarget}>
-      DESTINATION
-          ${targetdestination}
+      FILES $<TARGET_PDB_FILE:${progtarget}>
+      DESTINATION ${targetdestination}
       CONFIGURATIONS Debug RelWithDebInfo
       COMPONENT ${targetcomponent}
       OPTIONAL
@@ -124,18 +120,12 @@ macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
     endif ()
   endif ()
 
-  set_target_properties (${libtarget}
-      PROPERTIES
-         OUTPUT_NAME
-               ${LIB_RELEASE_NAME}
-#         OUTPUT_NAME_DEBUG
-#               ${LIB_DEBUG_NAME}
-         OUTPUT_NAME_RELEASE
-               ${LIB_RELEASE_NAME}
-         OUTPUT_NAME_MINSIZEREL
-               ${LIB_RELEASE_NAME}
-         OUTPUT_NAME_RELWITHDEBINFO
-               ${LIB_RELEASE_NAME}
+  set_target_properties (${libtarget} PROPERTIES
+      OUTPUT_NAME                ${LIB_RELEASE_NAME}
+#      OUTPUT_NAME_DEBUG          ${LIB_DEBUG_NAME}
+      OUTPUT_NAME_RELEASE        ${LIB_RELEASE_NAME}
+      OUTPUT_NAME_MINSIZEREL     ${LIB_RELEASE_NAME}
+      OUTPUT_NAME_RELWITHDEBINFO ${LIB_RELEASE_NAME}
   )
   #get_property (target_name TARGET ${libtarget} PROPERTY OUTPUT_NAME)
   #get_property (target_name_debug TARGET ${libtarget} PROPERTY OUTPUT_NAME_DEBUG)
@@ -144,8 +134,7 @@ macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
 
   if (${libtype} MATCHES "STATIC")
     if (WIN32)
-      set_target_properties (${libtarget}
-          PROPERTIES
+      set_target_properties (${libtarget} PROPERTIES
           COMPILE_PDB_NAME_DEBUG          ${LIB_DEBUG_NAME}
           COMPILE_PDB_NAME_RELEASE        ${LIB_RELEASE_NAME}
           COMPILE_PDB_NAME_MINSIZEREL     ${LIB_RELEASE_NAME}
@@ -157,8 +146,7 @@ macro (HDF_SET_LIB_OPTIONS libtarget libname libtype)
 
   #----- Use MSVC Naming conventions for Shared Libraries
   if (MINGW AND ${libtype} MATCHES "SHARED")
-    set_target_properties (${libtarget}
-        PROPERTIES
+    set_target_properties (${libtarget} PROPERTIES
         IMPORT_SUFFIX ".lib"
         IMPORT_PREFIX ""
         PREFIX ""
@@ -446,5 +434,23 @@ macro (HDF_DIR_PATHS package_prefix)
       set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
     endif ()
   endif ()
+endmacro ()
+
+macro (ADD_H5_FLAGS h5_flag_var infile)
+  file (STRINGS ${infile} TEST_FLAG_STREAM)
+  #message (STATUS "TEST_FLAG_STREAM=${TEST_FLAG_STREAM}")
+  list (LENGTH TEST_FLAG_STREAM len_flag)
+  if (len_flag GREATER 0)
+    math (EXPR _FP_LEN "${len_flag} - 1")
+    foreach (line RANGE 0 ${_FP_LEN})
+      list (GET TEST_FLAG_STREAM ${line} str_flag)
+      string (REGEX REPLACE "^#.*" "" str_flag "${str_flag}")
+      #message (STATUS "str_flag=${str_flag}")
+      if (str_flag)
+        list (APPEND ${h5_flag_var} "${str_flag}")
+      endif ()
+    endforeach ()
+  endif ()
+  #message (STATUS "h5_flag_var=${${h5_flag_var}}")
 endmacro ()
 

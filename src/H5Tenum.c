@@ -26,9 +26,9 @@
 #include "H5Tpkg.h"		/*data-type functions			  */
 
 /* Static local functions */
-static char *H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/,
+static char *H5T__enum_nameof(H5T_t *dt, const void *value, char *name/*out*/,
 			      size_t size);
-static herr_t H5T_enum_valueof(H5T_t *dt, const char *name,
+static herr_t H5T__enum_valueof(H5T_t *dt, const char *name,
 				void *value/*out*/);
 
 
@@ -45,8 +45,6 @@ static herr_t H5T_enum_valueof(H5T_t *dt, const char *name,
  *
  * Programmer:	Robb Matzke
  *              Tuesday, December 22, 1998
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -91,8 +89,6 @@ done:
  * Programmer:	Raymond Lu
  *              October 9, 2002
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 H5T_t *
@@ -133,8 +129,6 @@ done:
  *
  * Programmer:	Robb Matzke
  *              Wednesday, December 23, 1998
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -181,17 +175,13 @@ done:
  * Programmer:	Robb Matzke
  *              Wednesday, December 23, 1998
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5T__enum_insert(const H5T_t *dt, const char *name, const void *value)
 {
     unsigned	i;
-    char	**names=NULL;
-    uint8_t	*values=NULL;
-    herr_t      ret_value=SUCCEED;       /* Return value */
+    herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -200,16 +190,18 @@ H5T__enum_insert(const H5T_t *dt, const char *name, const void *value)
     HDassert(value);
 
     /* The name and value had better not already exist */
-    for (i=0; i<dt->shared->u.enumer.nmembs; i++) {
-	if (!HDstrcmp(dt->shared->u.enumer.name[i], name))
+    for(i = 0; i < dt->shared->u.enumer.nmembs; i++) {
+        if(!HDstrcmp(dt->shared->u.enumer.name[i], name))
 	    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "name redefinition")
-	if (!HDmemcmp(dt->shared->u.enumer.value+i*dt->shared->size, value, dt->shared->size))
+        if(!HDmemcmp((uint8_t *)dt->shared->u.enumer.value + (i * dt->shared->size), value, dt->shared->size))
 	    HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "value redefinition")
     }
 
     /* Increase table sizes */
     if(dt->shared->u.enumer.nmembs >= dt->shared->u.enumer.nalloc) {
-	unsigned n = MAX(32, 2*dt->shared->u.enumer.nalloc);
+        char	**names;
+        uint8_t	*values;
+        unsigned n = MAX(32, 2*dt->shared->u.enumer.nalloc);
 
 	if(NULL == (names = (char **)H5MM_realloc(dt->shared->u.enumer.name, n * sizeof(char *))))
 	    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
@@ -225,7 +217,7 @@ H5T__enum_insert(const H5T_t *dt, const char *name, const void *value)
     dt->shared->u.enumer.sorted = H5T_SORT_NONE;
     i = dt->shared->u.enumer.nmembs++;
     dt->shared->u.enumer.name[i] = H5MM_xstrdup(name);
-    HDmemcpy(dt->shared->u.enumer.value+i*dt->shared->size, value, dt->shared->size);
+    H5MM_memcpy((uint8_t *)dt->shared->u.enumer.value + (i * dt->shared->size), value, dt->shared->size);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -244,8 +236,6 @@ done:
  *
  * Programmer:	Robb Matzke
  *              Wednesday, December 23, 1998
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -288,8 +278,6 @@ done:
  * Programmer:	Raymond Lu
  *              October 9, 2002
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -300,7 +288,7 @@ H5T__get_member_value(const H5T_t *dt, unsigned membno, void *value/*out*/)
     HDassert(dt);
     HDassert(value);
 
-    HDmemcpy(value, dt->shared->u.enumer.value + membno*dt->shared->size, dt->shared->size);
+    H5MM_memcpy(value, (uint8_t *)dt->shared->u.enumer.value + (membno * dt->shared->size), dt->shared->size);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 }
@@ -325,8 +313,6 @@ H5T__get_member_value(const H5T_t *dt, unsigned membno, void *value/*out*/)
  * Programmer:	Robb Matzke
  *              Monday, January  4, 1999
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -348,7 +334,7 @@ H5Tenum_nameof(hid_t type, const void *value, char *name/*out*/, size_t size)
     if (!name)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name buffer supplied")
 
-    if (NULL==H5T_enum_nameof(dt, value, name, size))
+    if (NULL==H5T__enum_nameof(dt, value, name, size))
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "nameof query failed")
 
 done:
@@ -357,7 +343,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T_enum_nameof
+ * Function:	H5T__enum_nameof
  *
  * Purpose:	Finds the symbol name that corresponds the the specified
  *		VALUE of an enumeration data type DT. At most SIZE characters
@@ -377,15 +363,10 @@ done:
  * Programmer:	Robb Matzke
  *              Monday, January  4, 1999
  *
- * Modifications:
- *              Raymond Lu
- *              Wednesday, Febuary 9, 2005
- *              Made a copy of original datatype and do sorting and search
- *              on that copy, to protect the original order of members.
  *-------------------------------------------------------------------------
  */
 static char *
-H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
+H5T__enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
 {
     H5T_t       *copied_dt = NULL;      /* Do sorting in copied datatype */
     unsigned	lt, md = 0, rt;		/* Indices for binary search	*/
@@ -393,7 +374,7 @@ H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
     hbool_t     alloc_name = FALSE;     /* Whether name has been allocated */
     char        *ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Check args */
     HDassert(dt && H5T_ENUM == dt->shared->type);
@@ -418,7 +399,7 @@ H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
     rt = copied_dt->shared->u.enumer.nmembs;
     while(lt < rt) {
 	md = (lt + rt) / 2;
-	cmp = HDmemcmp(value, copied_dt->shared->u.enumer.value + md * copied_dt->shared->size, copied_dt->shared->size);
+	cmp = HDmemcmp(value, (uint8_t *)copied_dt->shared->u.enumer.value + (md * copied_dt->shared->size), copied_dt->shared->size);
 	if(cmp < 0)
 	    rt = md;
 	else if(cmp > 0)
@@ -433,8 +414,7 @@ H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
 
     /* Save result name */
     if(!name) {
-        if(NULL == (name = (char *)H5MM_malloc(
-                HDstrlen(copied_dt->shared->u.enumer.name[md]) + 1)))
+        if(NULL == (name = (char *)H5MM_malloc(HDstrlen(copied_dt->shared->u.enumer.name[md]) + 1)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
         alloc_name = TRUE;
     } /* end if */
@@ -453,7 +433,7 @@ done:
         H5MM_free(name);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5T_enum_nameof() */
+} /* end H5T__enum_nameof() */
 
 
 /*-------------------------------------------------------------------------
@@ -471,11 +451,6 @@ done:
  * Programmer:	Robb Matzke
  *              Monday, January  4, 1999
  *
- * Modifications:
- *              Raymond Lu
- *              Wednesday, Febuary 9, 2005
- *              Made a copy of original datatype and do sorting and search
- *              on that copy, to protect the original order of members.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -497,7 +472,7 @@ H5Tenum_valueof(hid_t type, const char *name, void *value/*out*/)
     if(!value)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no value buffer")
 
-    if(H5T_enum_valueof(dt, name, value) < 0)
+    if(H5T__enum_valueof(dt, name, value) < 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "valueof query failed")
 
 done:
@@ -506,7 +481,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T_enum_valueof
+ * Function:	H5T__enum_valueof
  *
  * Purpose:	Finds the value that corresponds the the specified symbol
  *		NAME of an enumeration data type DT and copy it to the VALUE
@@ -520,22 +495,17 @@ done:
  * Programmer:	Robb Matzke
  *              Monday, January  4, 1999
  *
- * Modifications:
- *              Raymond Lu
- *              Wednesday, Febuary 9, 2005
- *              Made a copy of original datatype and do sorting and search
- *              on that copy, to protect the original order of members.
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5T_enum_valueof(H5T_t *dt, const char *name, void *value/*out*/)
+H5T__enum_valueof(H5T_t *dt, const char *name, void *value/*out*/)
 {
     unsigned	lt, md=0, rt;		/*indices for binary search	*/
     int	        cmp=(-1);		/*comparison result		*/
     H5T_t       *copied_dt = NULL;      /*do sorting in copied datatype */
     herr_t      ret_value=SUCCEED;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Check args */
     HDassert(dt && H5T_ENUM==dt->shared->type);
@@ -571,7 +541,7 @@ H5T_enum_valueof(H5T_t *dt, const char *name, void *value/*out*/)
     if (cmp!=0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_NOTFOUND, FAIL, "string doesn't exist in the enumeration type")
 
-    HDmemcpy(value, copied_dt->shared->u.enumer.value+md*copied_dt->shared->size, copied_dt->shared->size);
+    H5MM_memcpy(value, (uint8_t *)copied_dt->shared->u.enumer.value + (md * copied_dt->shared->size), copied_dt->shared->size);
 
 done:
     if(copied_dt)

@@ -69,7 +69,7 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_get_cparam_test
+ * Function:    H5FS__get_cparam_test
  *
  * Purpose:     Retrieve the parameters used to create the free-space manager
  *              similar to H5HF_get_cparam_test()
@@ -82,9 +82,9 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
+H5FS__get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments. */
     HDassert(frsp);
@@ -97,16 +97,16 @@ H5FS_get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
     cparam->max_sect_size = frsp->max_sect_size;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5FS_get_cparam_test() */
+} /* H5FS__get_cparam_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_cmp_cparam_test
+ * Function:    H5FS__cmp_cparam_test
  *
  * Purpose:     Compare the parameters used to create the free space manager
  *              similar to H5HF_cmp_cparam_test()
  *
- * Return:      SUCCEED/FAIL
+ * Return:      A value like strcmp()
  *
  * Programmer:  Vailin Choi
  *              August 25th, 2008
@@ -114,11 +114,11 @@ H5FS_get_cparam_test(const H5FS_t *frsp, H5FS_create_t *cparam)
  *-------------------------------------------------------------------------
  */
 int
-H5FS_cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2)
+H5FS__cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2)
 {
-    int ret_value = SUCCEED;         /* Return value */
+    int ret_value = 0;          /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments. */
     HDassert(cparam1);
@@ -151,5 +151,5 @@ H5FS_cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5FS_cmp_cparam_test */
+} /* H5FS__cmp_cparam_test */
 

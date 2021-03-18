@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@hdfgoup.org>
+/* Programmer:  Quincey Koziol
  *              Tuesday, July 27, 2010
  *
  * Purpose:	ID testing functions.

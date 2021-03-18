@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Robb Matzke <matzke@llnl.gov>
+/* Programmer:  Robb Matzke
  *              Thursday, April 16, 1998
  */
 
@@ -26,6 +26,9 @@ typedef struct H5Z_filter_info_t H5Z_filter_info_t;
 
 /* Private headers needed by this file */
 #include "H5Tprivate.h"		/* Datatypes				*/
+
+/* Forward declarations (for prototype) */
+struct H5S_t;
 
 /**************************/
 /* Library Private Macros */
@@ -89,6 +92,7 @@ H5_DLL herr_t H5Z_can_apply(hid_t dcpl_id, hid_t type_id);
 H5_DLL herr_t H5Z_set_local(hid_t dcpl_id, hid_t type_id);
 H5_DLL herr_t H5Z_can_apply_direct(const struct H5O_pline_t *pline);
 H5_DLL herr_t H5Z_set_local_direct(const struct H5O_pline_t *pline);
+H5_DLL htri_t H5Z_ignore_filters(hid_t dcpl_id, const H5T_t *type, const struct H5S_t *space);
 H5_DLL H5Z_filter_info_t *H5Z_filter_info(const struct H5O_pline_t *pline,
         H5Z_filter_t filter);
 H5_DLL htri_t H5Z_filter_in_pline(const struct H5O_pline_t *pline, H5Z_filter_t filter);

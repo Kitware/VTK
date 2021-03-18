@@ -15,7 +15,7 @@
  *
  * Created:             H5Fio.c
  *                      Jan 10 2008
- *                      Quincey Koziol <koziol@hdfgroup.org>
+ *                      Quincey Koziol
  *
  * Purpose:             File I/O routines.
  *
@@ -86,14 +86,12 @@
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Jul 10 1997
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_block_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
-    void *buf/*out*/)
+H5F_block_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, void *buf/*out*/)
 {
     H5FD_mem_t  map_type;               /* Mapped memory type */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -114,7 +112,7 @@ H5F_block_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     map_type = (type == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : type;
 
     /* Pass through page buffer layer */
-    if(H5PB_read(f, map_type, addr, size, buf) < 0)
+    if(H5PB_read(f->shared, map_type, addr, size, buf) < 0)
         HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "read through page buffer failed")
 
 done:
@@ -132,14 +130,12 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Jul 10 1997
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_block_write(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
-    const void *buf)
+H5F_block_write(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size, const void *buf)
 {
     H5FD_mem_t  map_type;               /* Mapped memory type */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -161,7 +157,7 @@ H5F_block_write(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     map_type = (type == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : type;
 
     /* Pass through page buffer layer */
-    if(H5PB_write(f, map_type, addr, size, buf) < 0)
+    if(H5PB_write(f->shared, map_type, addr, size, buf) < 0)
         HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "write through page buffer failed")
 
 done:
@@ -172,7 +168,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5F_flush_tagged_metadata
  *
- * Purpose:     Flushes metadata with specified tag in the metadata cache 
+ * Purpose:     Flushes metadata with specified tag in the metadata cache
  *              to disk.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -194,7 +190,7 @@ H5F_flush_tagged_metadata(H5F_t *f, haddr_t tag)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
 
     /* Flush and reset the accumulator */
-    if(H5F__accum_reset(f, TRUE) < 0)
+    if(H5F__accum_reset(f->shared, TRUE) < 0)
         HGOTO_ERROR(H5E_IO, H5E_CANTRESET, FAIL, "can't reset accumulator")
 
     /* Flush file buffers to disk. */

@@ -66,7 +66,7 @@ static herr_t H5C__prefetched_entry_pre_serialize(H5F_t *f, void *thing,
     unsigned *flags_ptr);
 static herr_t H5C__prefetched_entry_serialize(const H5F_t *f, void *image_ptr,
     size_t len, void *thing);
-static herr_t H5C__prefetched_entry_notify(H5C_notify_action_t action, 
+static herr_t H5C__prefetched_entry_notify(H5C_notify_action_t action,
     void *thing);
 static herr_t H5C__prefetched_entry_free_icr(void *thing);
 static herr_t H5C__prefetched_entry_fsf_size(const void *thing,
@@ -111,12 +111,12 @@ const H5AC_class_t H5AC_PREFETCHED_ENTRY[1] = {{
 
 
 /***************************************************************************
- * With two exceptions, these functions should never be called, and thus 
+ * With two exceptions, these functions should never be called, and thus
  * there is little point in documenting them separately as they all simply
  * throw an error.
  *
  * See header comments for the two exceptions (free_icr and notify).
- * 
+ *
  *                                                     JRM - 8/13/15
  *
  ***************************************************************************/
@@ -157,8 +157,8 @@ H5C__prefetched_entry_verify_chksum(const void H5_ATTR_UNUSED *image_ptr,
 
 
 static void *
-H5C__prefetched_entry_deserialize(const void H5_ATTR_UNUSED * image_ptr, 
-    size_t H5_ATTR_UNUSED len, void H5_ATTR_UNUSED * udata, 
+H5C__prefetched_entry_deserialize(const void H5_ATTR_UNUSED * image_ptr,
+    size_t H5_ATTR_UNUSED len, void H5_ATTR_UNUSED * udata,
     hbool_t H5_ATTR_UNUSED * dirty_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */
@@ -182,9 +182,9 @@ H5C__prefetched_entry_image_len(const void H5_ATTR_UNUSED *thing,
 
 
 static herr_t
-H5C__prefetched_entry_pre_serialize(H5F_t H5_ATTR_UNUSED *f, void H5_ATTR_UNUSED *thing, 
+H5C__prefetched_entry_pre_serialize(H5F_t H5_ATTR_UNUSED *f, void H5_ATTR_UNUSED *thing,
     haddr_t H5_ATTR_UNUSED addr, size_t H5_ATTR_UNUSED len,
-    haddr_t H5_ATTR_UNUSED *new_addr_ptr, size_t H5_ATTR_UNUSED *new_len_ptr, 
+    haddr_t H5_ATTR_UNUSED *new_addr_ptr, size_t H5_ATTR_UNUSED *new_len_ptr,
     unsigned H5_ATTR_UNUSED *flags_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */
@@ -196,7 +196,7 @@ H5C__prefetched_entry_pre_serialize(H5F_t H5_ATTR_UNUSED *f, void H5_ATTR_UNUSED
 
 
 static herr_t
-H5C__prefetched_entry_serialize(const H5F_t H5_ATTR_UNUSED *f, 
+H5C__prefetched_entry_serialize(const H5F_t H5_ATTR_UNUSED *f,
     void H5_ATTR_UNUSED *image_ptr,
     size_t H5_ATTR_UNUSED len, void H5_ATTR_UNUSED *thing)
 {
@@ -211,7 +211,7 @@ H5C__prefetched_entry_serialize(const H5F_t H5_ATTR_UNUSED *f,
 /*-------------------------------------------------------------------------
  * Function:    H5C__prefetched_entry_notify
  *
- * Purpose:     On H5AC_NOTIFY_ACTION_BEFORE_EVICT, check to see if the 
+ * Purpose:     On H5AC_NOTIFY_ACTION_BEFORE_EVICT, check to see if the
  *		target entry is a child in a flush dependency relationship.
  *		If it is, destroy that flush dependency relationship.
  *
@@ -243,18 +243,18 @@ H5C__prefetched_entry_notify(H5C_notify_action_t action, void *_thing)
         case H5C_NOTIFY_ACTION_AFTER_INSERT:
         case H5C_NOTIFY_ACTION_AFTER_LOAD:
         case H5C_NOTIFY_ACTION_AFTER_FLUSH:
-        case H5C_NOTIFY_ACTION_ENTRY_DIRTIED: 
-        case H5C_NOTIFY_ACTION_ENTRY_CLEANED: 
-        case H5C_NOTIFY_ACTION_CHILD_DIRTIED: 
-        case H5C_NOTIFY_ACTION_CHILD_CLEANED: 
-        case H5C_NOTIFY_ACTION_CHILD_UNSERIALIZED: 
-        case H5C_NOTIFY_ACTION_CHILD_SERIALIZED: 
+        case H5C_NOTIFY_ACTION_ENTRY_DIRTIED:
+        case H5C_NOTIFY_ACTION_ENTRY_CLEANED:
+        case H5C_NOTIFY_ACTION_CHILD_DIRTIED:
+        case H5C_NOTIFY_ACTION_CHILD_CLEANED:
+        case H5C_NOTIFY_ACTION_CHILD_UNSERIALIZED:
+        case H5C_NOTIFY_ACTION_CHILD_SERIALIZED:
             /* do nothing */
             break;
 
         case H5C_NOTIFY_ACTION_BEFORE_EVICT:
             for(u = 0; u < entry_ptr->flush_dep_nparents; u++) {
-                H5C_cache_entry_t * parent_ptr; 
+                H5C_cache_entry_t * parent_ptr;
 
                 /* Sanity checks */
                 HDassert(entry_ptr->flush_dep_parent);
@@ -268,9 +268,9 @@ H5C__prefetched_entry_notify(H5C_notify_action_t action, void *_thing)
                     HGOTO_ERROR(H5E_CACHE, H5E_CANTUNDEPEND, FAIL, "unable to destroy prefetched entry flush dependency")
 
                 if(parent_ptr->prefetched) {
-                    /* In prefetched entries, the fd_child_count field is 
-                     * used in sanity checks elsewhere.  Thus update this 
-                     * field to reflect the destruction of the flush 
+                    /* In prefetched entries, the fd_child_count field is
+                     * used in sanity checks elsewhere.  Thus update this
+                     * field to reflect the destruction of the flush
                      * dependency relationship.
                      */
                     HDassert(parent_ptr->fd_child_count > 0);
@@ -335,8 +335,8 @@ done:
 } /* end H5C__prefetched_entry_free_icr() */
 
 
-static herr_t 
-H5C__prefetched_entry_fsf_size(const void H5_ATTR_UNUSED *thing, 
+static herr_t
+H5C__prefetched_entry_fsf_size(const void H5_ATTR_UNUSED *thing,
     hsize_t H5_ATTR_UNUSED *fsf_size_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */
