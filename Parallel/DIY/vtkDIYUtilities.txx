@@ -33,9 +33,6 @@
 #include VTK_DIY2(diy/reduce-operations.hpp)
 // clang-format on
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warning for this class
-#define VTK_DEPRECATION_LEVEL 0
-
 //------------------------------------------------------------------------------
 template <class DataSetT>
 std::vector<DataSetT*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
