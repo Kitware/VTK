@@ -29,6 +29,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
@@ -275,21 +276,23 @@ int vtkPExodusIIReader::RequestInformation(
         snprintf(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern,
           this->FilePrefix, fileIndex);
       }
-      char* nm = new char[strlen(this->MultiFileName) + 1];
-      strcpy(nm, this->MultiFileName);
       delete[] this->FileName;
-      this->FileName = nm;
-      nm = nullptr;
+      this->FileName = vtksys::SystemTools::DuplicateString(this->MultiFileName);
 
       // Read in info based on this->FileName
       requestInformationRetVal =
         this->Superclass::RequestInformation(request, inputVector, outputVector);
 
-      if (!this->Metadata->ArrayInfo.empty())
-      {
-        // We have a file with actual data in it
-        break;
-      }
+      // This unnecessary. First file will have all necessary information.
+      // Otherwise we end up with bugs like paraview/paraview#20559
+      // and paraview/paraview#20558 when the files have no arrays at all.
+      // if (!this->Metadata->ArrayInfo.empty())
+      //{
+      //  // We have a file with actual data in it
+      //  break;
+      //}
+      break; // break immediately.
+
     } // loop over file names
   }
   this->Controller->Broadcast(&requestInformationRetVal, 1, 0);
@@ -726,11 +729,14 @@ void vtkPExodusIIReader::SetFileRange(int min, int max)
 //------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFileName(const char* name)
 {
+  vtkLogScopeF(TRACE, "%s: SetFileName(%s)", vtkLogIdentifier(this), name);
   this->SetFileNames(1, &name);
 }
 
 void vtkPExodusIIReader::SetFileNames(int nfiles, const char** names)
 {
+  vtkLogScopeF(TRACE, "%s: SetFileNames(%d, %s)", vtkLogIdentifier(this), nfiles,
+    nfiles > 0 ? names[0] : "nullptr");
   // If I have an old list of filename delete them
   if (this->FileNames)
   {
