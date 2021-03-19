@@ -293,7 +293,15 @@ function (vtk_add_test_cxx exename _tests)
   _vtk_test_parse_args("${cxx_options}" "cxx" ${ARGN})
   _vtk_test_set_options("${cxx_options}" "" ${options})
 
-  set(_vtk_fail_regex "(\n|^)ERROR: " "ERR\\|" "instance(s)? still around")
+  set(_vtk_fail_regex
+    # vtkLogger
+    "(\n|^)ERROR: "
+    "ERR\\|"
+    # vtkDebugLeaks
+    "instance(s)? still around"
+    # vtkTesting
+    "Failed Image Test"
+    "DartMeasurement name=.ImageNotFound")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
