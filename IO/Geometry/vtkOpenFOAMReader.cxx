@@ -1797,6 +1797,9 @@ public:
   }
 };
 
+//------------------------------------------------------------------------------
+// Specializations for vtkFoamToken
+
 template <>
 inline bool vtkFoamToken::Is<vtkTypeInt8>() const
 {
@@ -3420,38 +3423,13 @@ inline double vtkFoamReadValue<double>::ReadValue(vtkFoamIOobject& io)
 }
 
 //------------------------------------------------------------------------------
-// class vtkFoamEntryValue
-// a class that represents a value of a dictionary entry that corresponds to
-// its keyword. note that an entry can have more than one value.
-struct vtkFoamEntryValue : public vtkFoamToken
+// struct vtkFoamRead for reading primitives, lists etc.
+
+struct vtkFoamRead
 {
-private:
-  typedef vtkFoamToken Superclass;
+  // --------------------------------------------------------------------------
+  // Reading lists of primitives (int/float/...)
 
-  bool IsUniformEntry;
-  bool Managed;
-  const vtkFoamEntry* UpperEntryPtr;
-
-  vtkFoamEntryValue() = delete;
-  vtkObjectBase* ToVTKObject() { return this->Superclass::VtkObjectPtr; }
-  void Clear();
-  void ReadList(vtkFoamIOobject& io);
-
-public:
-  // Construct empty value with given parent
-  explicit vtkFoamEntryValue(const vtkFoamEntry* parent)
-    : IsUniformEntry(false)
-    , Managed(true)
-    , UpperEntryPtr(parent)
-  {
-  }
-  // Copy construct
-  vtkFoamEntryValue(vtkFoamEntryValue& val, const vtkFoamEntry* parent);
-  ~vtkFoamEntryValue() { this->Clear(); }
-
-  // Helper Classes
-
-  // Reads primitive int/float lists
   template <typename listT, typename primitiveT>
   class listTraits
   {
@@ -3468,8 +3446,17 @@ public:
     // Get the contained pointer
     listT* GetPointer() const noexcept { return this->Ptr; }
 
-    // Deference pointer for operation
+    // De-reference pointer for operation
     listT* operator->() const noexcept { return this->Ptr; }
+
+    void ReadValue(vtkFoamIOobject&, const vtkFoamToken& currToken)
+    {
+      if (!currToken.Is<primitiveT>())
+      {
+        throw vtkFoamError() << "Expected an integer or a (, found " << currToken;
+      }
+      this->Ptr->InsertNextValue(currToken.To<primitiveT>());
+    }
 
     void ReadUniformValues(vtkFoamIOobject& io)
     {
@@ -3506,17 +3493,9 @@ public:
         fileData->Delete();
       }
     }
-
-    void ReadValue(vtkFoamIOobject&, vtkFoamToken& currToken)
-    {
-      if (!currToken.Is<primitiveT>())
-      {
-        throw vtkFoamError() << "Expected an integer or a (, found " << currToken;
-      }
-      this->Ptr->InsertNextValue(currToken.To<primitiveT>());
-    }
   };
 
+  // --------------------------------------------------------------------------
   // Reads rank 1 lists of types vector, sphericalTensor, symmTensor and tensor.
   // If isPositions is true it reads Cloud type of data as
   // particle positions. cf. (the positions format)
@@ -3525,6 +3504,20 @@ public:
   class vectorListTraits
   {
     listT* Ptr;
+
+    // Items to skip for lagrangian/positions (class Cloud) after the x/y/z values.
+    // xyz (3*scalar) + celli (label)
+    // in OpenFOAM 1.4 -> 2.4 also had facei (label) and stepFraction (scalar)
+    // ASCII only
+    static void LagrangianPositionsSkip(vtkFoamIOobject& io)
+    {
+      (void)io.ReadIntegerValue(); // Skip celli (label)
+      if (io.GetLagrangianPositionsExtraData())
+      {
+        (void)io.ReadIntegerValue(); // Skip facei (label)
+        (void)io.ReadDoubleValue();  // Skip stepFraction (scalar)
+      }
+    }
 
   public:
     using ValueType = typename listT::ValueType;
@@ -3538,8 +3531,24 @@ public:
     // Get the contained pointer
     listT* GetPointer() const noexcept { return this->Ptr; }
 
-    // Deference pointer for operation
+    // De-reference pointer for operation
     listT* operator->() const noexcept { return this->Ptr; }
+
+    void ReadValue(vtkFoamIOobject& io, const vtkFoamToken& currToken)
+    {
+      if (currToken != '(')
+      {
+        throw vtkFoamError() << "Expected '(', found " << currToken;
+      }
+      primitiveT tuple[nComponents];
+      for (int cmpt = 0; cmpt < nComponents; ++cmpt)
+      {
+        tuple[cmpt] = vtkFoamReadValue<primitiveT>::ReadValue(io);
+      }
+      ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
+      io.ReadExpecting(')');
+      this->Ptr->InsertNextTuple(tuple);
+    }
 
     void ReadUniformValues(vtkFoamIOobject& io)
     {
@@ -3555,9 +3564,8 @@ public:
       io.ReadExpecting(')');
       if (isPositions)
       {
-        (void)io.ReadIntegerValue(); // Skip label celli
+        this->LagrangianPositionsSkip(io);
       }
-
       for (vtkIdType i = 0; i < nTuples; ++i)
       {
         this->Ptr->SetTuple(i, tuple);
@@ -3580,7 +3588,7 @@ public:
         io.ReadExpecting(')');
         if (isPositions)
         {
-          (void)io.ReadIntegerValue(); // Skip label celli
+          this->LagrangianPositionsSkip(io);
         }
       }
     }
@@ -3635,23 +3643,40 @@ public:
         }
       }
     }
-
-    void ReadValue(vtkFoamIOobject& io, vtkFoamToken& currToken)
-    {
-      if (currToken != '(')
-      {
-        throw vtkFoamError() << "Expected '(', found " << currToken;
-      }
-      primitiveT tuple[nComponents];
-      for (int cmpt = 0; cmpt < nComponents; ++cmpt)
-      {
-        tuple[cmpt] = vtkFoamReadValue<primitiveT>::ReadValue(io);
-      }
-      ::remapFoamTuple<nComponents == 6>(tuple); // For symmTensor
-      io.ReadExpecting(')');
-      this->Ptr->InsertNextTuple(tuple);
-    }
   };
+};
+
+//------------------------------------------------------------------------------
+// class vtkFoamEntryValue
+// a class that represents a value of a dictionary entry that corresponds to
+// its keyword. note that an entry can have more than one value.
+struct vtkFoamEntryValue : public vtkFoamToken
+{
+private:
+  typedef vtkFoamToken Superclass;
+
+  bool IsUniformEntry;
+  bool Managed;
+  const vtkFoamEntry* UpperEntryPtr;
+
+  vtkFoamEntryValue() = delete;
+  vtkObjectBase* ToVTKObject() { return this->Superclass::VtkObjectPtr; }
+
+  // Delete if managed
+  void Clear();
+  void ReadList(vtkFoamIOobject& io);
+
+public:
+  // Construct empty value with given parent
+  explicit vtkFoamEntryValue(const vtkFoamEntry* parent)
+    : IsUniformEntry(false)
+    , Managed(true)
+    , UpperEntryPtr(parent)
+  {
+  }
+  // Copy construct
+  vtkFoamEntryValue(vtkFoamEntryValue& val, const vtkFoamEntry* parent);
+  ~vtkFoamEntryValue() { this->Clear(); }
 
   // Member Functions
 
@@ -3736,70 +3761,6 @@ public:
     this->Superclass::ScalarListPtr->FillValue(val);
   }
 
-  // Read dimensions set (always ASCII). The leading '[' has already been removed before calling.
-  // - can be integer or floating point
-  // - user-generated files may have only the first five dimensions.
-  // Note
-  // - may even have "human-readable" values such as [kg m^-1 s^-2] but they are very rare
-  //   and we silently skip these
-  void ReadDimensionSet(vtkFoamIOobject& io)
-  {
-    const int nDimensions = 7; // There are 7 base dimensions
-    this->MakeScalarList(nDimensions, 0.0);
-    vtkFloatArray& dims = *(this->Superclass::ScalarListPtr);
-
-    // Read using tokenizer to handle scalar/label, variable lengths, and ignore human-readable
-    vtkFoamToken tok;
-    char expectEnding = ']';
-    bool goodInput = true;
-
-    for (int ndims = 0; ndims < nDimensions && goodInput && expectEnding; ++ndims)
-    {
-      if (!io.Read(tok))
-      {
-        goodInput = false;
-      }
-      else if (tok.IsNumeric())
-      {
-        dims.SetValue(ndims, tok.ToFloat());
-      }
-      else if (tok.IsPunctuation())
-      {
-        if (tok == expectEnding)
-        {
-          expectEnding = '\0'; // Already got the closing ']'
-        }
-        else
-        {
-          goodInput = false;
-        }
-      }
-      else
-      {
-        // Some unknown token type (eg, encountered human-readable units)
-        // - skip until ']'
-        while ((goodInput = io.Read(tok)) == true)
-        {
-          if (tok.IsPunctuation() && (tok == expectEnding))
-          {
-            expectEnding = '\0'; // Already got the closing ']'
-            break;
-          }
-        }
-        break;
-      }
-    }
-
-    if (!goodInput)
-    {
-      io.ThrowStackTrace("Unexpected input while parsing dimensions array");
-    }
-    else if (expectEnding)
-    {
-      io.ReadExpecting(expectEnding);
-    }
-  }
-
   template <vtkFoamToken::tokenType listType, typename traitsT>
   void ReadNonUniformList(vtkFoamIOobject& io);
 
@@ -3807,201 +3768,23 @@ public:
   // Return false if could not be dispatched
   bool ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::dataType fieldDataType);
 
-  // reads a list of labelLists. requires size prefix of the listList
+  bool ReadField(vtkFoamIOobject& io);
+
+  // Read a list of labelLists. requires size prefix of the listList
   // to be present. size of each sublist must also be present in the
   // stream if the format is binary.
-  void ReadLabelListList(vtkFoamIOobject& io)
-  {
-    // NOTE:
-    // when OpenFOAM writes a "faceCompactList" it automatically switches to ASCII
-    // if it detects that the offsets will overflow 32bits.
-    //
-    // We risk the same overflow potential when constructing a compact labelListList.
-    // Thus assume the worst and use 64bit sizing when reading ASCII.
-
-    const bool use64BitLabels = (io.IsLabel64() || io.IsAsciiFormat());
-
-    vtkFoamToken currToken;
-    currToken.SetStreamOption(io);
-    if (!io.Read(currToken))
-    {
-      throw vtkFoamError() << "Unexpected EOF";
-    }
-    if (currToken.IsLabel())
-    {
-      const vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
-      if (listLen < 0)
-      {
-        throw vtkFoamError() << "Illegal negative list length: " << listLen;
-      }
-      if (use64BitLabels)
-      {
-        this->LabelListListPtr = new vtkFoamLabelListList64;
-      }
-      else
-      {
-        this->LabelListListPtr = new vtkFoamLabelListList32;
-      }
-      // Initial guess for list length
-      this->LabelListListPtr->ResizeExact(listLen, 4 * listLen);
-
-      this->Superclass::Type = vtkFoamToken::LABELLISTLIST;
-      io.ReadExpecting('(');
-      vtkIdType nTotalElems = 0;
-      for (vtkTypeInt64 idx = 0; idx < listLen; ++idx)
-      {
-        if (!io.Read(currToken))
-        {
-          throw vtkFoamError() << "Unexpected EOF";
-        }
-        if (currToken.IsLabel())
-        {
-          const vtkTypeInt64 sublistLen = currToken.To<vtkTypeInt64>();
-          if (sublistLen < 0)
-          {
-            throw vtkFoamError() << "Illegal negative list length: " << sublistLen;
-          }
-
-          // LabelListListPtr->SetOffset(idx, nTotalElems);
-          void* sublist = this->LabelListListPtr->WritePointer(idx, nTotalElems, sublistLen);
-
-          if (io.IsAsciiFormat())
-          {
-            io.ReadExpecting('(');
-            for (vtkTypeInt64 subIdx = 0; subIdx < sublistLen; ++subIdx)
-            {
-              vtkTypeInt64 value(vtkFoamReadValue<vtkTypeInt64>::ReadValue(io));
-              this->LabelListListPtr->SetValue(idx, subIdx, value);
-            }
-            io.ReadExpecting(')');
-          }
-          else if (sublistLen > 0)
-          {
-            // Non-empty (binary) list - only read parentheses only when size > 0
-            const size_t nbytes =
-              static_cast<size_t>(sublistLen * this->LabelListListPtr->GetLabelSize());
-
-            io.ReadExpecting('(');
-            io.Read(reinterpret_cast<unsigned char*>(sublist), nbytes);
-            io.ReadExpecting(')');
-          }
-          nTotalElems += sublistLen;
-        }
-        else if (currToken == '(')
-        {
-          this->Superclass::LabelListListPtr->SetOffset(idx, nTotalElems);
-          while (io.Read(currToken) && currToken != ')')
-          {
-            if (!currToken.IsLabel())
-            {
-              throw vtkFoamError() << "Expected an integer, found " << currToken;
-            }
-            this->Superclass::LabelListListPtr->InsertValue(nTotalElems++, currToken.To<int>());
-            ++nTotalElems;
-          }
-        }
-        else
-        {
-          throw vtkFoamError() << "Expected integer or '(', found " << currToken;
-        }
-      }
-
-      // Set the final offset
-      this->Superclass::LabelListListPtr->SetOffset(listLen, nTotalElems);
-
-      // Shrink to the actually used size
-      this->Superclass::LabelListListPtr->ResizeData(nTotalElems);
-      io.ReadExpecting(')');
-    }
-    else
-    {
-      throw vtkFoamError() << "Expected integer, found " << currToken;
-    }
-  }
+  void ReadLabelListList(vtkFoamIOobject& io);
 
   // Read compact labelListList which has offsets and data
-  void ReadCompactLabelListList(vtkFoamIOobject& io)
-  {
-    if (io.IsAsciiFormat())
-    {
-      this->ReadLabelListList(io);
-      return;
-    }
+  void ReadCompactLabelListList(vtkFoamIOobject& io);
 
-    this->SetStreamOption(io);
-    const bool use64BitLabels = io.IsLabel64();
-
-    if (use64BitLabels)
-    {
-      this->LabelListListPtr = new vtkFoamLabelListList64;
-    }
-    else
-    {
-      this->LabelListListPtr = new vtkFoamLabelListList32;
-    }
-    this->Superclass::Type = vtkFoamToken::LABELLISTLIST;
-    for (int arrayI = 0; arrayI < 2; arrayI++)
-    {
-      vtkFoamToken currToken;
-      currToken.SetStreamOption(io);
-      if (!io.Read(currToken))
-      {
-        throw vtkFoamError() << "Unexpected EOF";
-      }
-      if (currToken.IsLabel())
-      {
-        vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
-        if (listLen < 0)
-        {
-          throw vtkFoamError() << "Illegal negative list length: " << listLen;
-        }
-
-        vtkDataArray* array = (arrayI == 0 ? this->Superclass::LabelListListPtr->GetOffsetsArray()
-                                           : this->Superclass::LabelListListPtr->GetDataArray());
-        array->SetNumberOfValues(static_cast<vtkIdType>(listLen));
-
-        if (listLen > 0)
-        {
-          // Non-empty (binary) list - only read parentheses only when size > 0
-
-          io.ReadExpecting('('); // Begin list
-          io.Read(reinterpret_cast<unsigned char*>(array->GetVoidPointer(0)),
-            static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
-          io.ReadExpecting(')'); // End list
-        }
-      }
-      else
-      {
-        throw vtkFoamError() << "Expected integer, found " << currToken;
-      }
-    }
-  }
-
-  bool ReadField(vtkFoamIOobject& io)
-  {
-    this->SetStreamOption(io);
-
-    // Basic field types: "boolField", "labelField", "scalarField" ...
-    vtkFoamTypes::dataType listDataType(vtkFoamTypes::FieldToEnum(io.GetClassName()));
-
-    try
-    {
-      if (vtkFoamTypes::IsGood(listDataType))
-      {
-        this->ReadNonUniformList(io, listDataType);
-      }
-      else
-      {
-        throw vtkFoamError() << "Unsupported field type " << io.GetClassName();
-      }
-    }
-    catch (const vtkFoamError& err)
-    {
-      io.SetError(err);
-      return false;
-    }
-    return true;
-  }
+  // Read dimensions set (always ASCII). The leading '[' has already been removed before calling.
+  // - can be integer or floating point
+  // - user-generated files may have only the first five dimensions.
+  // Note
+  // - may even have "human-readable" values such as [kg m^-1 s^-2] but they are very rare
+  //   and we silently skip these
+  void ReadDimensionSet(vtkFoamIOobject& io);
 };
 
 //------------------------------------------------------------------------------
@@ -4087,7 +3870,9 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       // List<bool> is read as a list of bytes (binary) or ints (ascii)
       // - primary location is the flipMap entry in faceZones
-      this->ReadNonUniformList<BOOLLIST, listTraits<vtkTypeInt8Array, vtkTypeInt8>>(io);
+
+      this->ReadNonUniformList<BOOLLIST, //
+        vtkFoamRead::listTraits<vtkTypeInt8Array, vtkTypeInt8>>(io);
       break;
     }
 
@@ -4095,11 +3880,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsLabel64())
       {
-        this->ReadNonUniformList<LABELLIST, listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+        this->ReadNonUniformList<LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        this->ReadNonUniformList<LABELLIST, listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+        this->ReadNonUniformList<LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
       break;
     }
@@ -4108,11 +3895,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsFloat64())
       {
-        this->ReadNonUniformList<SCALARLIST, listTraits<vtkFloatArray, double>>(io);
+        this->ReadNonUniformList<SCALARLIST, //
+          vtkFoamRead::listTraits<vtkFloatArray, double>>(io);
       }
       else
       {
-        this->ReadNonUniformList<SCALARLIST, listTraits<vtkFloatArray, float>>(io);
+        this->ReadNonUniformList<SCALARLIST, //
+          vtkFoamRead::listTraits<vtkFloatArray, float>>(io);
       }
       break;
     }
@@ -4121,11 +3910,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsFloat64())
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 1>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, double, 1>>(io);
       }
       else
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 1>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, float, 1>>(io);
       }
       break;
     }
@@ -4134,11 +3925,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsFloat64())
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 3>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, double, 3>>(io);
       }
       else
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 3>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, float, 3>>(io);
       }
       break;
     }
@@ -4147,11 +3940,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsFloat64())
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 6>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, double, 6>>(io);
       }
       else
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 6>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, float, 6>>(io);
       }
       break;
     }
@@ -4160,11 +3955,13 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     {
       if (io.IsFloat64())
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, double, 9>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, double, 9>>(io);
       }
       else
       {
-        this->ReadNonUniformList<VECTORLIST, vectorListTraits<vtkFloatArray, float, 9>>(io);
+        this->ReadNonUniformList<VECTORLIST, //
+          vtkFoamRead::vectorListTraits<vtkFloatArray, float, 9>>(io);
       }
       break;
     }
@@ -4176,6 +3973,266 @@ bool vtkFoamEntryValue::ReadNonUniformList(vtkFoamIOobject& io, vtkFoamTypes::da
     }
   }
   return handled;
+}
+
+bool vtkFoamEntryValue::ReadField(vtkFoamIOobject& io)
+{
+  this->SetStreamOption(io);
+
+  // Basic field types: "boolField", "labelField", "scalarField" ...
+  vtkFoamTypes::dataType listDataType(vtkFoamTypes::FieldToEnum(io.GetClassName()));
+
+  try
+  {
+    if (vtkFoamTypes::IsGood(listDataType))
+    {
+      this->ReadNonUniformList(io, listDataType);
+    }
+    else
+    {
+      throw vtkFoamError() << "Unsupported field type " << io.GetClassName();
+    }
+  }
+  catch (const vtkFoamError& err)
+  {
+    io.SetError(err);
+    return false;
+  }
+  return true;
+}
+
+// Read a list of labelLists. requires size prefix of the listList
+// to be present. size of each sublist must also be present in the
+// stream if the format is binary.
+void vtkFoamEntryValue::ReadLabelListList(vtkFoamIOobject& io)
+{
+  // NOTE:
+  // when OpenFOAM writes a "faceCompactList" it automatically switches to ASCII
+  // if it detects that the offsets will overflow 32bits.
+  //
+  // We risk the same overflow potential when constructing a compact labelListList.
+  // Thus assume the worst and use 64bit sizing when reading ASCII.
+
+  const bool use64BitLabels = (io.IsLabel64() || io.IsAsciiFormat());
+
+  vtkFoamToken currToken;
+  currToken.SetStreamOption(io);
+  if (!io.Read(currToken))
+  {
+    throw vtkFoamError() << "Unexpected EOF";
+  }
+  if (currToken.IsLabel())
+  {
+    const vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
+    if (listLen < 0)
+    {
+      throw vtkFoamError() << "Illegal negative list length: " << listLen;
+    }
+    if (use64BitLabels)
+    {
+      this->LabelListListPtr = new vtkFoamLabelListList64;
+    }
+    else
+    {
+      this->LabelListListPtr = new vtkFoamLabelListList32;
+    }
+    // Initial guess for list length
+    this->LabelListListPtr->ResizeExact(listLen, 4 * listLen);
+
+    this->Superclass::Type = vtkFoamToken::LABELLISTLIST;
+    io.ReadExpecting('(');
+    vtkIdType nTotalElems = 0;
+    for (vtkTypeInt64 idx = 0; idx < listLen; ++idx)
+    {
+      if (!io.Read(currToken))
+      {
+        throw vtkFoamError() << "Unexpected EOF";
+      }
+      if (currToken.IsLabel())
+      {
+        const vtkTypeInt64 sublistLen = currToken.To<vtkTypeInt64>();
+        if (sublistLen < 0)
+        {
+          throw vtkFoamError() << "Illegal negative list length: " << sublistLen;
+        }
+
+        // LabelListListPtr->SetOffset(idx, nTotalElems);
+        void* sublist = this->LabelListListPtr->WritePointer(idx, nTotalElems, sublistLen);
+
+        if (io.IsAsciiFormat())
+        {
+          io.ReadExpecting('(');
+          for (vtkTypeInt64 subIdx = 0; subIdx < sublistLen; ++subIdx)
+          {
+            vtkTypeInt64 value(vtkFoamReadValue<vtkTypeInt64>::ReadValue(io));
+            this->LabelListListPtr->SetValue(idx, subIdx, value);
+          }
+          io.ReadExpecting(')');
+        }
+        else if (sublistLen > 0)
+        {
+          // Non-empty (binary) list - only read parentheses only when size > 0
+          const size_t nbytes =
+            static_cast<size_t>(sublistLen * this->LabelListListPtr->GetLabelSize());
+
+          io.ReadExpecting('(');
+          io.Read(reinterpret_cast<unsigned char*>(sublist), nbytes);
+          io.ReadExpecting(')');
+        }
+        nTotalElems += sublistLen;
+      }
+      else if (currToken == '(')
+      {
+        this->Superclass::LabelListListPtr->SetOffset(idx, nTotalElems);
+        while (io.Read(currToken) && currToken != ')')
+        {
+          if (!currToken.IsLabel())
+          {
+            throw vtkFoamError() << "Expected an integer, found " << currToken;
+          }
+          this->Superclass::LabelListListPtr->InsertValue(nTotalElems++, currToken.To<int>());
+          ++nTotalElems;
+        }
+      }
+      else
+      {
+        throw vtkFoamError() << "Expected integer or '(', found " << currToken;
+      }
+    }
+
+    // Set the final offset
+    this->Superclass::LabelListListPtr->SetOffset(listLen, nTotalElems);
+
+    // Shrink to the actually used size
+    this->Superclass::LabelListListPtr->ResizeData(nTotalElems);
+    io.ReadExpecting(')');
+  }
+  else
+  {
+    throw vtkFoamError() << "Expected integer, found " << currToken;
+  }
+}
+
+// Read compact labelListList which has offsets and data
+void vtkFoamEntryValue::ReadCompactLabelListList(vtkFoamIOobject& io)
+{
+  if (io.IsAsciiFormat())
+  {
+    this->ReadLabelListList(io);
+    return;
+  }
+
+  this->SetStreamOption(io);
+  const bool use64BitLabels = io.IsLabel64();
+
+  if (use64BitLabels)
+  {
+    this->LabelListListPtr = new vtkFoamLabelListList64;
+  }
+  else
+  {
+    this->LabelListListPtr = new vtkFoamLabelListList32;
+  }
+  this->Superclass::Type = vtkFoamToken::LABELLISTLIST;
+  for (int arrayI = 0; arrayI < 2; arrayI++)
+  {
+    vtkFoamToken currToken;
+    currToken.SetStreamOption(io);
+    if (!io.Read(currToken))
+    {
+      throw vtkFoamError() << "Unexpected EOF";
+    }
+    if (currToken.IsLabel())
+    {
+      vtkTypeInt64 listLen = currToken.To<vtkTypeInt64>();
+      if (listLen < 0)
+      {
+        throw vtkFoamError() << "Illegal negative list length: " << listLen;
+      }
+
+      vtkDataArray* array = (arrayI == 0 ? this->Superclass::LabelListListPtr->GetOffsetsArray()
+                                         : this->Superclass::LabelListListPtr->GetDataArray());
+      array->SetNumberOfValues(static_cast<vtkIdType>(listLen));
+
+      if (listLen > 0)
+      {
+        // Non-empty (binary) list - only read parentheses only when size > 0
+
+        io.ReadExpecting('('); // Begin list
+        io.Read(reinterpret_cast<unsigned char*>(array->GetVoidPointer(0)),
+          static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
+        io.ReadExpecting(')'); // End list
+      }
+    }
+    else
+    {
+      throw vtkFoamError() << "Expected integer, found " << currToken;
+    }
+  }
+}
+
+// Read dimensions set (always ASCII). The leading '[' has already been removed before calling.
+// - can be integer or floating point
+// - user-generated files may have only the first five dimensions.
+// Note
+// - may even have "human-readable" values such as [kg m^-1 s^-2] but they are very rare
+//   and we silently skip these
+void vtkFoamEntryValue::ReadDimensionSet(vtkFoamIOobject& io)
+{
+  const int nDimensions = 7; // There are 7 base dimensions
+  this->MakeScalarList(nDimensions, 0.0);
+  vtkFloatArray& dims = *(this->Superclass::ScalarListPtr);
+
+  // Read using tokenizer to handle scalar/label, variable lengths, and ignore human-readable
+  vtkFoamToken tok;
+  char expectEnding = ']';
+  bool goodInput = true;
+
+  for (int ndims = 0; ndims < nDimensions && goodInput && expectEnding; ++ndims)
+  {
+    if (!io.Read(tok))
+    {
+      goodInput = false;
+    }
+    else if (tok.IsNumeric())
+    {
+      dims.SetValue(ndims, tok.ToFloat());
+    }
+    else if (tok.IsPunctuation())
+    {
+      if (tok == expectEnding)
+      {
+        expectEnding = '\0'; // Already got the closing ']'
+      }
+      else
+      {
+        goodInput = false;
+      }
+    }
+    else
+    {
+      // Some unknown token type (eg, encountered human-readable units)
+      // - skip until ']'
+      while ((goodInput = io.Read(tok)) == true)
+      {
+        if (tok.IsPunctuation() && (tok == expectEnding))
+        {
+          expectEnding = '\0'; // Already got the closing ']'
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  if (!goodInput)
+  {
+    io.ThrowStackTrace("Unexpected input while parsing dimensions array");
+  }
+  else if (expectEnding)
+  {
+    io.ReadExpecting(expectEnding);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -6547,13 +6604,13 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(
 
     if (io.IsFloat64())
     {
-      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3>>(io);
+      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+        vtkFoamRead::vectorListTraits<vtkFloatArray, double, 3>>(io);
     }
     else
     {
-      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
-        vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3>>(io);
+      dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+        vtkFoamRead::vectorListTraits<vtkFloatArray, float, 3>>(io);
     }
 
     // Capture content as smart pointer
@@ -6660,13 +6717,13 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
     {
       if (use64BitLabels)
       {
-        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+        ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
     catch (const vtkFoamError& err)
@@ -6721,13 +6778,13 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
     {
       if (use64BitLabels)
       {
-        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+        neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
     }
     catch (const vtkFoamError& err)
@@ -9554,13 +9611,13 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       {
         if (io.IsFloat64())
         {
-          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
-            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
+          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+            vtkFoamRead::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
         }
         else
         {
-          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST,
-            vtkFoamEntryValue::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
+          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+            vtkFoamRead::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
         }
 
         // Transfer float tuples to points
@@ -10118,13 +10175,13 @@ bool vtkOpenFOAMReaderPrivate::GetAreaMesh(
     {
       if (use64BitLabels)
       {
-        dict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
+        dict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt64Array, vtkTypeInt64>>(io);
       }
       else
       {
-        dict.ReadNonUniformList<vtkFoamToken::LABELLIST,
-          vtkFoamEntryValue::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
+        dict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
+          vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
 
       // Capture content as smart pointer
