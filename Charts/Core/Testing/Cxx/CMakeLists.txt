@@ -90,6 +90,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestLinePlotInteraction.cxx
   TestLinePlotSelection.cxx
   TestLinePlotSelection2.cxx
+  TestLinePlotSelectionMultiBlock.cxx
   TestMultipleChartRenderers.cxx
   TestMultipleRenderers.cxx
   TestMultipleScalarsToColors.cxx

@@ -2792,7 +2792,7 @@ void vtkChartXY::BuildSelection(vtkAnnotationLink* link, int selectionMode,
 void vtkChartXY::BuildSelection(
   int selectionMode, MapIndexToIds& selection, const MapIndexToIds& oldSelection)
 {
-  // Some set of keys usefull for processing our selections
+  // Some set of keys useful for processing our selections
   // Having a map of indices here is kind of overkill since we don't really need the values
   // but it is necessary for doing the intersection of keys in a cross-plateform way
   MapIndexToIds intersection;
