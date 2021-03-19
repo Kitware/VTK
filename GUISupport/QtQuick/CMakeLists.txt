@@ -5,16 +5,6 @@ set(classes
   QQuickVTKRenderWindow
   )
 
-set(headers
-  QQmlVTKPlugin.h
-  QQuickVTKInteractorAdapter.h
-  QQuickVTKRenderItem.h
-  QQuickVTKRenderWindow.h
-  )
-
-set(private_headers
-  )
-
 include(vtkQt)
 set(qt_components
   Gui
@@ -34,8 +24,7 @@ set(CMAKE_AUTOMOC 1)
 
 vtk_module_add_module(VTK::GUISupportQtQuick
   CLASSES ${classes}
-  HEADERS ${headers}
-  PRIVATE_HEADERS ${private_headers})
+  )
 
 foreach(_qt_comp IN LISTS qt_components)
   list(APPEND qt_modules "Qt${vtk_qt_major_version}::${_qt_comp}")
@@ -51,7 +40,7 @@ _vtk_module_real_target(vtk_guisupportqtquick_target VTK::GUISupportQtQuick)
 # QML plugin qmldir and qmltypes for build tree
 # Set VTK_MODULE_PLUGIN_NAME and VTK_MODULE_PLUGIN_DIR for the qmldir configuration
 set(vtk_qml_module_dir
-  ${PROJECT_NAME}.${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+  ${_vtk_build_PACKAGE}.${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
 set(vtk_qml_module_path
   ${CMAKE_BINARY_DIR}/${vtk_qml_module_dir})
 
@@ -88,41 +77,40 @@ add_custom_command(TARGET ${vtk_guisupportqtquick_target}
 
 # Generate the qmltypes file for the VTK Qml plugin
 # First, find the qmlplugindump executable
-if(Qt${vtk_qt_major_version}_FOUND)
-  get_target_property(qt_core_location Qt${vtk_qt_major_version}::Core LOCATION)
-  get_filename_component(qt_bin_dir "${qt_core_location}" PATH)
-  if(APPLE)
-    get_filename_component(qt_bin_dir "${qt_bin_dir}" PATH)
-  endif()
-  find_program(qmlplugindump_executable qmlplugindump
-    HINTS "${qt_bin_dir}" 
-    DOC "QmlPlugindump executable location"
-    )
-  if(NOT qmlplugindump_executable)
-    message(STATUS "qmlplugindump executable not found.\n"
-                    "It is required to generate the qmltypes file"
-                    " for VTK Qml plugin.")
-  endif()
+get_target_property(qt_core_location Qt${vtk_qt_major_version}::Core LOCATION)
+get_filename_component(qt_bin_dir "${qt_core_location}" PATH)
+if(APPLE)
+  get_filename_component(qt_bin_dir "${qt_bin_dir}" PATH)
+endif()
+find_program(QMLPLUGINDUMP_EXECUTABLE qmlplugindump
+  HINTS "${qt_bin_dir}" 
+  DOC "QmlPlugindump executable location"
+  )
+mark_as_advanced(QMLPLUGINDUMP_EXECUTABLE)
+if(NOT QMLPLUGINDUMP_EXECUTABLE)
+  message(STATUS "qmlplugindump executable not found.\n"
+                  "It is required to generate the qmltypes file"
+                  " for VTK Qml plugin.")
 endif()
 
 set(qmltypes_file
-  "${vtk_qml_module_path}/${PROJECT_NAME}.qmltypes"
+  "${vtk_qml_module_path}/${_vtk_build_PACKAGE}.qmltypes"
   )
-if(qmlplugindump_executable)
+if(QMLPLUGINDUMP_EXECUTABLE)
   get_target_property(qt_config Qt${vtk_qt_major_version}::Core IMPORTED_CONFIGURATIONS)
   if(("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
     MESSAGE (WARNING "Qt5 is configured in both Debug and Release modes."
       " Due to Qt issue 47774 (https://bugreports.qt.io/browse/QTBUG-47774),"
       " skipping generation of qmltypes file."
       " Using the one provided with the source tree instead.")
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.qmltypes
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
       DESTINATION ${vtk_qml_module_path}
       )
   else()
     add_custom_command(TARGET ${vtk_guisupportqtquick_target}
       POST_BUILD
       COMMAND
-        ${qmlplugindump_executable} ${PROJECT_NAME}
+        ${QMLPLUGINDUMP_EXECUTABLE} ${_vtk_build_PACKAGE}
         ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
         ${CMAKE_BINARY_DIR} > ${qmltypes_file}
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}

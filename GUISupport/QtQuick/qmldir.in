@@ -1,4 +1,4 @@
-module @PROJECT_NAME@
+module @_vtk_build_PACKAGE@
 plugin @VTK_MODULE_PLUGIN_NAME@ @VTK_MODULE_PLUGIN_DIR@
 classname QQmlVTKPlugin
-typeinfo @PROJECT_NAME@.qmltypes
+typeinfo @_vtk_build_PACKAGE@.qmltypes
