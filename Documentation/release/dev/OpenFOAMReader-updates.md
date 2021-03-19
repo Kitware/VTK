@@ -37,8 +37,6 @@
 
 - support floating-point dimensions entries (fixes #18103)
 
-- respect point patch value fields (fixes #18125)
-
 - properly handle empty zones
 
 - improve zone addressing and handling. Basic support for face zones
@@ -58,3 +56,19 @@
   - Drop old OpenFOAM 1.3 cloud naming.
     These were simply dumped into the time directory without any region
     qualifications. Defunct since about 2007.
+
+2021-03-19
+
+# OpenFOAM bugfixes / improvements
+
+- respect point patch value fields (fixes #18125),
+  use the correct "visit" order for the points
+
+- remove hard-coded limits on polyhedral size
+
+  For some systems, can have a so-called "single-cell" OpenFOAM mesh
+  with a single polyhedral cell that has LOTS of faces.
+
+  This can be used for mapping surface noise data to retain most of
+  the geometry but entirely discarding the internal field. It can also
+  potentially arise from finiteArea situations.
