@@ -231,6 +231,8 @@ list(APPEND headers
 
   vtk_ioss_mangle.h)
 
+vtk_module_find_package(PACKAGE Threads)
+
 vtk_module_add_module(VTK::ioss
   SOURCES ${sources}
   PRIVATE_HEADERS ${headers})
@@ -238,3 +240,11 @@ vtk_module_definitions(VTK::ioss
   PRIVATE
     NO_ZOLTAN_SUPPORT
     NO_PARMETIS_SUPPORT)
+vtk_module_link(VTK::ioss
+  PRIVATE
+    Threads::Threads)
+
+# for GetProcessMemoryInfo
+if (MINGW)
+  vtk_module_link(VTK::ioss PRIVATE psapi)
+endif ()
