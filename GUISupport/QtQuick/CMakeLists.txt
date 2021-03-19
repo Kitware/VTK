@@ -62,7 +62,7 @@ configure_file(
   @ONLY
   )
 set(qmldir_gen_file
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir$<CONFIG>")
+  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir$<CONFIG>.gen")
 file(GENERATE OUTPUT ${qmldir_gen_file}
   INPUT ${qmldir_pregen_file})
 add_custom_command(TARGET ${vtk_guisupportqtquick_target}
@@ -120,3 +120,44 @@ if(QMLPLUGINDUMP_EXECUTABLE)
       )
   endif()
 endif()
+
+# QML plugin qmldir and qmltypes for install tree
+set(vtk_qml_module_path
+  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${vtk_qml_module_dir})
+if(WIN32 AND NOT CYGWIN)
+  # Set VTK_MODULE_PLUGIN_DIR for the qmldir configuration
+  # Use the runtime (dll) path for plugin on Windows
+  file(RELATIVE_PATH VTK_MODULE_PLUGIN_DIR
+    ${CMAKE_INSTALL_PREFIX}/${_vtk_build_PACKAGE}
+    ${CMAKE_INSTALL_PREFIX}/${_vtk_build_RUNTIME_DESTINATION}
+    )
+else()
+  # Set VTK_MODULE_PLUGIN_DIR for the qmldir configuration
+  file(RELATIVE_PATH VTK_MODULE_PLUGIN_DIR
+    ${CMAKE_INSTALL_PREFIX}/${_vtk_build_PACKAGE}
+    ${CMAKE_INSTALL_PREFIX}/${_vtk_build_LIBRARY_DESTINATION}
+    )
+endif()
+set(qmldir_install_pregen_file
+  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir.install.pregen")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
+  "${qmldir_install_pregen_file}"
+  @ONLY
+  )
+set(qmldir_install_gen_file
+  "${vtk_qml_module_path}/qmldir")
+file(GENERATE OUTPUT ${qmldir_install_gen_file}
+  INPUT ${qmldir_install_pregen_file})
+
+install(FILES ${qmltypes_file}
+  DESTINATION ${vtk_qml_module_path}
+  COMPONENT ${_vtk_build_TARGETS_COMPONENT}
+  )
+
+# Install the QML plugin module
+install(DIRECTORY
+  ${vtk_qml_module_path}
+  DESTINATION "${CMAKE_INSTALL_PREFIX}"
+  COMPONENT ${_vtk_build_TARGETS_COMPONENT}
+  )
