@@ -23,9 +23,10 @@ TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::IOExodus
-  VTK::IOIoss
   VTK::IOLegacy
   VTK::IOXML
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::IOIoss
