@@ -25,7 +25,7 @@
 //-------------------------------------------------------------------------------------------------
 void QQmlVTKPlugin::registerTypes(const char* uri)
 {
-  Q_ASSERT(uri == QLatin1String("VTK"));
+  Q_ASSERT(QString::compare(uri, "VTK") == 0);
 
   int major = vtkVersion::GetVTKMajorVersion();
   int minor = vtkVersion::GetVTKMinorVersion();
@@ -38,7 +38,7 @@ void QQmlVTKPlugin::registerTypes(const char* uri)
 //-------------------------------------------------------------------------------------------------
 void QQmlVTKPlugin::initializeEngine(QQmlEngine* engine, const char* uri)
 {
-  Q_ASSERT(uri == QLatin1String("VTK"));
+  Q_ASSERT(QString::compare(uri, "VTK") == 0);
 
   QObject::connect(
     engine, &QQmlEngine::destroyed, this, &QQmlVTKPlugin::cleanup, Qt::DirectConnection);

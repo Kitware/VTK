@@ -20,10 +20,10 @@
 #include <QQuickWindow>
 
 // VTK includes
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkRendererCollection.h>
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
 //-----------------------------------------------------------------------------
 QQuickVTKInteractorAdapter::QQuickVTKInteractorAdapter(QObject* parent)
@@ -52,7 +52,7 @@ QPointF QQuickVTKInteractorAdapter::mapEventPosition(QQuickItem* item, const QPo
   // Account for the difference in coordinate reference systems.
   // Qt uses quadrant IV and VTK uses quadrant I. So the point should be
   // translated to the right position along Y axis.
-  QPointF itemOriginInScene = item->mapToItem(NULL, QPointF());
+  QPointF itemOriginInScene = item->mapToItem(nullptr, QPointF());
   QPointF itemHeightInScene = item->mapToScene(QPointF(0, item->height()));
   QPointF eventPos = item->mapToScene(localPos);
   eventPos.ry() -= (item->window()->height() - itemHeightInScene.y()) + itemOriginInScene.y();

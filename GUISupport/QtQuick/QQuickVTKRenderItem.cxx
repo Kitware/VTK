@@ -19,7 +19,6 @@
 #include "QQuickVTKRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 
 // Qt includes
 #include <QQuickWindow>
@@ -37,9 +36,6 @@ QQuickVTKRenderItem::QQuickVTKRenderItem(QQuickItem* parent)
   QObject::connect(
     this, &QQuickItem::windowChanged, this, &QQuickVTKRenderItem::handleWindowChanged);
 }
-
-//-------------------------------------------------------------------------------------------------
-QQuickVTKRenderItem::~QQuickVTKRenderItem() {}
 
 //-------------------------------------------------------------------------------------------------
 QQuickVTKRenderWindow* QQuickVTKRenderItem::renderWindow() const
@@ -275,12 +271,6 @@ void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRect
   this->renderWindow()->interactorAdapter()->QueueGeometryChanged(newGeometry, oldGeometry);
 
   Superclass::geometryChanged(newGeometry, oldGeometry);
-}
-
-//-------------------------------------------------------------------------------------------------
-bool QQuickVTKRenderItem::event(QEvent* e)
-{
-  return Superclass::event(e);
 }
 
 //-------------------------------------------------------------------------------------------------

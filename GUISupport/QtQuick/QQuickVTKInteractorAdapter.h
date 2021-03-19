@@ -46,7 +46,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKInteractorAdapter : public QVTKIntera
   typedef QVTKInteractorAdapter Superclass;
 
 public:
-  QQuickVTKInteractorAdapter(QObject* parent = 0);
+  QQuickVTKInteractorAdapter(QObject* parent = nullptr);
 
   void setQQuickWindow(QQuickWindow* win);
 

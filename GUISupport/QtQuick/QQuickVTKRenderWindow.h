@@ -52,7 +52,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
   typedef QQuickItem Superclass;
 
 public:
-  QQuickVTKRenderWindow(QQuickItem* parent = 0);
+  QQuickVTKRenderWindow(QQuickItem* parent = nullptr);
   ~QQuickVTKRenderWindow();
 
   //@{
@@ -120,7 +120,6 @@ protected:
 
   // Event handlers
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
-  bool event(QEvent* e) override;
 
 private:
   Q_DISABLE_COPY(QQuickVTKRenderWindow)

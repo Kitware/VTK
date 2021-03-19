@@ -236,12 +236,6 @@ void QQuickVTKRenderWindow::geometryChanged(const QRectF& newGeometry, const QRe
 }
 
 //-------------------------------------------------------------------------------------------------
-bool QQuickVTKRenderWindow::event(QEvent* e)
-{
-  return Superclass::event(e);
-}
-
-//-------------------------------------------------------------------------------------------------
 QPointer<QQuickVTKInteractorAdapter> QQuickVTKRenderWindow::interactorAdapter() const
 {
   return this->m_interactorAdapter;

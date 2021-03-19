@@ -25,7 +25,8 @@
 #include <QQuickItem>
 
 // vtk includes
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"      // For vtkNew
+#include "vtkRenderer.h" // For vtkRenderer
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
@@ -35,7 +36,6 @@ class QKeyEvent;
 class QMouseEvent;
 class QQuickVTKRenderWindow;
 class vtkImageData;
-class vtkRenderer;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
   : public QQuickItem
@@ -47,8 +47,8 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
   Q_PROPERTY(QQuickVTKRenderWindow* renderWindow READ renderWindow WRITE setRenderWindow)
 
 public:
-  QQuickVTKRenderItem(QQuickItem* parent = 0);
-  ~QQuickVTKRenderItem();
+  QQuickVTKRenderItem(QQuickItem* parent = nullptr);
+  ~QQuickVTKRenderItem() = default;
 
   //@{
   /**
@@ -102,8 +102,6 @@ protected:
 
   void focusInEvent(QFocusEvent*) override;
   void focusOutEvent(QFocusEvent*) override;
-
-  bool event(QEvent* e) override;
 
 private:
   QQuickVTKRenderItem(const QQuickVTKRenderItem&) = delete;
