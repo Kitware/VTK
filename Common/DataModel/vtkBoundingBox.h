@@ -184,6 +184,12 @@ public:
   bool IntersectsSphere(double center[3], double squaredRadius) const;
 
   /**
+   * Returns true if any part of segment [p1,p2] lies inside the bounding box, as well as on its
+   * boundaries. It returns false otherwise.
+   */
+  bool IntersectsLine(const double p1[3], const double p2[3]) const;
+
+  /**
    * Returns the inner dimension of the bounding box.
    */
   int ComputeInnerDimension() const;
@@ -236,7 +242,7 @@ public:
   /**
    * Returns 1 if the point is contained in the box else 0.
    */
-  vtkTypeBool ContainsPoint(double p[3]) const;
+  vtkTypeBool ContainsPoint(const double p[3]) const;
   vtkTypeBool ContainsPoint(double px, double py, double pz) const;
   //@}
 
@@ -521,7 +527,7 @@ inline vtkTypeBool vtkBoundingBox::ContainsPoint(double px, double py, double pz
   return 1;
 }
 
-inline vtkTypeBool vtkBoundingBox::ContainsPoint(double p[3]) const
+inline vtkTypeBool vtkBoundingBox::ContainsPoint(const double p[3]) const
 {
   return this->ContainsPoint(p[0], p[1], p[2]);
 }
