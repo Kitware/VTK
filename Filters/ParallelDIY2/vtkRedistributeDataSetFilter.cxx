@@ -22,7 +22,8 @@
 #include "vtkCellData.h"
 #include "vtkDIYKdTreeUtilities.h"
 #include "vtkDIYUtilities.h"
-#include "vtkDataObjectToPartitionedDataSetCollection.h"
+#include "vtkDataAssembly.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkExtractCells.h"
 #include "vtkFieldData.h"
@@ -36,7 +37,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPPartitionedDataSetCollectionToMultiBlockDataSet.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPlane.h"
@@ -198,6 +198,47 @@ vtkSmartPointer<vtkUnstructuredGrid> ClipPlane(vtkDataSet* dataset, vtkSmartPoin
   return nullptr;
 }
 
+/** Set partitions in vtkPartitionedDataSet to the exact count, merging if
+ * needed.
+ */
+void SetPartitionCount(vtkPartitionedDataSet* pdc, unsigned int target)
+{
+  const auto count = pdc->GetNumberOfPartitions();
+  if (count <= target)
+  {
+    pdc->SetNumberOfPartitions(target);
+    return;
+  }
+
+  // we need to merge `count` partitions into `target`. This is done in
+  // a contiguous fashion.
+  vtkNew<vtkAppendFilter> appender;
+  const diy::ContiguousAssigner assigner(static_cast<int>(target), static_cast<int>(count));
+  for (unsigned int cc = 0; cc < target; ++cc)
+  {
+    std::vector<int> lids;
+    assigner.local_gids(cc, lids);
+    for (const auto& lid : lids)
+    {
+      if (auto ptd = pdc->GetPartition(lid))
+      {
+        appender->AddInputDataObject(ptd);
+      }
+    }
+
+    if (appender->GetNumberOfInputConnections(0) > 0)
+    {
+      appender->Update();
+      appender->RemoveAllInputs();
+
+      vtkNew<vtkUnstructuredGrid> clone;
+      clone->ShallowCopy(appender->GetOutputDataObject(0));
+      pdc->SetPartition(cc, clone);
+    }
+  }
+  pdc->SetNumberOfPartitions(target);
+}
+
 }
 
 vtkStandardNewMacro(vtkRedistributeDataSetFilter);
@@ -303,20 +344,21 @@ int vtkRedistributeDataSetFilter::RequestDataObject(vtkInformation* vtkNotUsed(r
   auto outputDO = vtkDataObject::GetData(outputVector, 0);
   auto outInfo = outputVector->GetInformationObject(0);
 
-  if (vtkMultiBlockDataSet::SafeDownCast(inputDO))
-  {
-    if (!vtkMultiBlockDataSet::SafeDownCast(outputDO))
-    {
-      auto output = vtkMultiBlockDataSet::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
-      output->FastDelete();
-    }
-  }
-  else if (vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
+  if (vtkPartitionedDataSetCollection::SafeDownCast(inputDO) ||
+    (vtkMultiBlockDataSet::SafeDownCast(inputDO) != nullptr && this->PreservePartitionsInOutput))
   {
     if (!vtkPartitionedDataSetCollection::SafeDownCast(outputDO))
     {
       auto output = vtkPartitionedDataSetCollection::New();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
+      output->FastDelete();
+    }
+  }
+  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  {
+    if (!vtkMultiBlockDataSet::SafeDownCast(outputDO))
+    {
+      auto output = vtkMultiBlockDataSet::New();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
       output->FastDelete();
     }
@@ -346,17 +388,28 @@ int vtkRedistributeDataSetFilter::RequestData(
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
   auto outputDO = vtkDataObject::GetData(outputVector, 0);
 
+  // a flag used to avoid changing input structure.
+  // this is primarily used for multiblock inputs so that we don't
+  // accidentally change the input structure.
+  bool preserve_input_hierarchy = false;
+
   // ******************************************************
   // Step 1: Convert input to vtkPartitionedDataSetCollection
   // ******************************************************
   vtkSmartPointer<vtkPartitionedDataSetCollection> inputCollection;
   if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputDO))
   {
-    // convert MB to PDC
-    vtkNew<vtkDataObjectToPartitionedDataSetCollection> converter;
-    converter->SetInputDataObject(inputMB);
-    converter->Update();
-    inputCollection = converter->GetOutput();
+    // convert MB to PDC.
+    vtkNew<vtkDataAssembly> hierarchyUnused;
+    inputCollection = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(inputMB, hierarchyUnused, inputCollection))
+    {
+      vtkErrorMacro("Failed to generate hierarchy for input!");
+      return 0;
+    }
+
+    // if this->PreservePartitionsInOutput, we need to preserve input hierarchy.
+    preserve_input_hierarchy = (this->PreservePartitionsInOutput == false);
   }
   else if (auto inputPTD = vtkPartitionedDataSet::SafeDownCast(inputDO))
   {
@@ -422,6 +475,13 @@ int vtkRedistributeDataSetFilter::RequestData(
       // on each rank.
       outputPTD->RemoveNullPartitions();
     }
+
+    const auto inCount = inputPTD->GetNumberOfPartitions();
+    const auto outCount = outputPTD->GetNumberOfPartitions();
+    if (preserve_input_hierarchy && inCount != outCount)
+    {
+      detail::SetPartitionCount(outputPTD, inCount);
+    }
   }
 
   // ******************************************************
@@ -441,11 +501,16 @@ int vtkRedistributeDataSetFilter::RequestData(
   }
   else if (vtkMultiBlockDataSet::SafeDownCast(outputDO))
   {
-    vtkNew<vtkPPartitionedDataSetCollectionToMultiBlockDataSet> converter;
-    converter->SetController(this->Controller);
-    converter->SetInputDataObject(result);
-    converter->Update();
-    outputDO->ShallowCopy(converter->GetOutputDataObject(0));
+    // convert result (vtkPartitionedDataSetCollection) to vtkMultiBlockDataSet.
+    if (auto mbresult = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
+          result, result->GetDataAssembly()))
+    {
+      outputDO->ShallowCopy(mbresult);
+    }
+    else
+    {
+      vtkErrorMacro("Failed to convert back to vtkMultiBlockDataSet.");
+    }
   }
   else
   {

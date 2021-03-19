@@ -17,6 +17,7 @@
 #include "vtkExodusIIReader.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionToMultiBlockDataSet.h"
@@ -91,6 +92,8 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
 
   //-------------------------------------------------------------
   // Test vtkPartitionedDataSetCollection to vtkMultiBlockDataSet.
+  // Note, the output vtkMultiBlockDataSet is not same as the original
+  // vtkMultiBlockDataSet by design.
   //-------------------------------------------------------------
   vtkNew<vtkPartitionedDataSetCollectionToMultiBlockDataSet> p2m;
   p2m->SetInputConnection(m2p->GetOutputPort());
@@ -99,10 +102,12 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   auto mb = p2m->GetOutput();
   // mb->Print(cout);
   VERIFY(mb != nullptr);
-  VERIFY(mb->GetNumberOfBlocks() == 8);
-  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(0))->GetNumberOfBlocks() == 2);
-  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(4))->GetNumberOfBlocks() == 1);
-  VERIFY(vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(7))->GetNumberOfBlocks() == 2);
+  VERIFY(mb->GetNumberOfBlocks() == 5);
+  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(0))->GetNumberOfPieces() == 1);
+  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(1))->GetNumberOfPieces() == 1);
+  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(2))->GetNumberOfPieces() == 1);
+  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(3))->GetNumberOfPieces() == 1);
+  VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(4))->GetNumberOfPieces() == 1);
 
   return EXIT_SUCCESS;
 }
