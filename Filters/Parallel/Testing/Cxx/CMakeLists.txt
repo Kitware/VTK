@@ -19,6 +19,7 @@ if (TARGET VTK::ParallelMPI)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests
     ParallelResampling.cxx
     PCellDataToPointData.cxx
+    TestProbeLineFilter.cxx
     UnitTestPMaskPoints.cxx
     )
 
