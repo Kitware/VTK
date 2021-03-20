@@ -42,7 +42,9 @@ _vtk_module_real_target(vtk_guisupportqtquick_target VTK::GUISupportQtQuick)
 set(vtk_qml_module_dir
   ${_vtk_build_PACKAGE}.${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
 set(vtk_qml_module_path
-  ${CMAKE_BINARY_DIR}/${vtk_qml_module_dir})
+  ${CMAKE_BINARY_DIR}/$<CONFIG>/${vtk_qml_module_dir})
+# set(vtk_qml_module_path
+#   ${CMAKE_BINARY_DIR}/${vtk_qml_module_dir})
 
 # We use a three step approach to resolving the QML plugin path for qmldir file
 # during compilation of this module.
@@ -54,15 +56,18 @@ set(vtk_qml_module_path
 # location at build time. This is done as a custom command.
 set(VTK_MODULE_PLUGIN_NAME "$<TARGET_FILE_BASE_NAME:${vtk_guisupportqtquick_target}>")
 set(VTK_MODULE_PLUGIN_DIR "$<TARGET_FILE_DIR:${vtk_guisupportqtquick_target}>")
+set(vtk_qml_module_tmp_build_path
+  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldirBuild
+  )
 set(qmldir_pregen_file
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir.pregen")
+  "${vtk_qml_module_tmp_build_path}/qmldir.pregen")
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in
   ${qmldir_pregen_file}
   @ONLY
   )
 set(qmldir_gen_file
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir$<CONFIG>.gen")
+  "${vtk_qml_module_tmp_build_path}/qmldir$<CONFIG>.gen")
 file(GENERATE OUTPUT ${qmldir_gen_file}
   INPUT ${qmldir_pregen_file})
 add_custom_command(TARGET ${vtk_guisupportqtquick_target}
@@ -70,7 +75,8 @@ add_custom_command(TARGET ${vtk_guisupportqtquick_target}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${qmldir_gen_file} ${vtk_qml_module_path}/qmldir
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  BYPRODUCTS ${vtk_qml_module_path}/qmldir
+  # Commented out because generator expreesions not supported in CMake < 3.20 for byproducts
+  # BYPRODUCTS ${vtk_qml_module_path}/qmldir
   COMMENT "Generating qmldir file"
   VERBATIM
   )
@@ -83,7 +89,7 @@ if(APPLE)
   get_filename_component(qt_bin_dir "${qt_bin_dir}" PATH)
 endif()
 find_program(QMLPLUGINDUMP_EXECUTABLE qmlplugindump
-  HINTS "${qt_bin_dir}" 
+  HINTS "${qt_bin_dir}"
   DOC "QmlPlugindump executable location"
   )
 mark_as_advanced(QMLPLUGINDUMP_EXECUTABLE)
@@ -103,9 +109,15 @@ if(QMLPLUGINDUMP_EXECUTABLE)
       " Due to Qt issue 47774 (https://bugreports.qt.io/browse/QTBUG-47774),"
       " skipping generation of qmltypes file."
       " Using the one provided with the source tree instead.")
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
-      DESTINATION ${vtk_qml_module_path}
+    add_custom_command(TARGET ${vtk_guisupportqtquick_target}
+      POST_BUILD
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
+          ${vtk_qml_module_path}
       )
+    # file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
+    #   DESTINATION ${vtk_qml_module_path}
+    #   )
   else()
     add_custom_command(TARGET ${vtk_guisupportqtquick_target}
       POST_BUILD
@@ -114,7 +126,7 @@ if(QMLPLUGINDUMP_EXECUTABLE)
         ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
         ${CMAKE_BINARY_DIR} > ${qmltypes_file}
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-      BYPRODUCTS ${qmltypes_file}
+      # BYPRODUCTS ${qmltypes_file}
       COMMENT "Generating qmltypes file using qmlplugindump"
       VERBATIM
       )
@@ -122,8 +134,11 @@ if(QMLPLUGINDUMP_EXECUTABLE)
 endif()
 
 # QML plugin qmldir and qmltypes for install tree
-set(vtk_qml_module_path
-  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${vtk_qml_module_dir})
+set(vtk_qml_module_tmp_install_path
+  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldirInstall
+  )
+set(vtk_qml_module_install_path
+  ${vtk_qml_module_tmp_install_path}/$<CONFIG>/${vtk_qml_module_dir})
 if(WIN32 AND NOT CYGWIN)
   # Set VTK_MODULE_PLUGIN_DIR for the qmldir configuration
   # Use the runtime (dll) path for plugin on Windows
@@ -139,25 +154,25 @@ else()
     )
 endif()
 set(qmldir_install_pregen_file
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir.install.pregen")
+  "${vtk_qml_module_tmp_install_path}/qmldir.install.pregen")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
   "${qmldir_install_pregen_file}"
   @ONLY
   )
 set(qmldir_install_gen_file
-  "${vtk_qml_module_path}/qmldir")
+  "${vtk_qml_module_install_path}/qmldir")
 file(GENERATE OUTPUT ${qmldir_install_gen_file}
   INPUT ${qmldir_install_pregen_file})
 
 install(FILES ${qmltypes_file}
-  DESTINATION ${vtk_qml_module_path}
+  DESTINATION ${vtk_qml_module_install_path}
   COMPONENT ${_vtk_build_TARGETS_COMPONENT}
   )
 
 # Install the QML plugin module
 install(DIRECTORY
-  ${vtk_qml_module_path}
+  ${vtk_qml_module_install_path}
   DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT ${_vtk_build_TARGETS_COMPONENT}
   )
