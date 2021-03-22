@@ -57,6 +57,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPlaneSource, vtkPolyDataAlgorithm);
 
+  const double EPSILON = 1.0E-6;
+
   /**
    * Construct plane perpendicular to z-axis, resolution 1x1, width
    * and height 1.0, and centered at the origin.
@@ -155,6 +157,13 @@ public:
    * opposite direction.
    */
   void Push(double distance);
+
+  /**
+   * Rotate plane at center around a given axis
+   * If the absolute value of the angle is inferior to the defined EPSILON, then don't
+   * rotate
+   */
+  void Rotate(double angle, double rotationAxis[3]);
 
   //@{
   /**

@@ -240,25 +240,7 @@ void vtkPlaneSource::SetNormal(double N[3])
     theta = vtkMath::DegreesFromRadians(acos(dp));
   }
 
-  // create rotation matrix
-  vtkTransform* transform = vtkTransform::New();
-  transform->PostMultiply();
-
-  transform->Translate(-this->Center[0], -this->Center[1], -this->Center[2]);
-  transform->RotateWXYZ(theta, rotVector[0], rotVector[1], rotVector[2]);
-  transform->Translate(this->Center[0], this->Center[1], this->Center[2]);
-
-  // transform the three defining points
-  transform->TransformPoint(this->Origin, this->Origin);
-  transform->TransformPoint(this->Point1, this->Point1);
-  transform->TransformPoint(this->Point2, this->Point2);
-
-  this->Normal[0] = n[0];
-  this->Normal[1] = n[1];
-  this->Normal[2] = n[2];
-
-  this->Modified();
-  transform->Delete();
+  this->Rotate(theta, rotVector);
 }
 
 //------------------------------------------------------------------------------
@@ -411,6 +393,31 @@ void vtkPlaneSource::Push(double distance)
   {
     this->Center[i] = 0.5 * (this->Point1[i] + this->Point2[i]);
   }
+
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlaneSource::Rotate(double angle, double rotationAxis[3])
+{
+  if (abs(angle) < EPSILON)
+  {
+    return;
+  }
+
+  // create rotation matrix
+  vtkNew<vtkTransform> transform;
+  transform->PostMultiply();
+
+  transform->Translate(-this->Center[0], -this->Center[1], -this->Center[2]);
+  transform->RotateWXYZ(angle, rotationAxis[0], rotationAxis[1], rotationAxis[2]);
+  transform->Translate(this->Center[0], this->Center[1], this->Center[2]);
+
+  // transform the three defining points
+  transform->TransformPoint(this->Origin, this->Origin);
+  transform->TransformPoint(this->Point1, this->Point1);
+  transform->TransformPoint(this->Point2, this->Point2);
+  transform->TransformNormal(this->Normal, this->Normal);
 
   this->Modified();
 }

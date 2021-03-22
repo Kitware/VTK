@@ -268,6 +268,14 @@ public:
    * return 1 if the bounds is intersected, else 0
    */
   static int BoundPlane(double bounds[6], double origin[3], double p1[3], double p2[3]);
+  /**
+   * First rotate planeToTransform to match targetPlane normal.
+   * Then rotate around targetNormal to enforce targetViewUp "up" vector (i.e. Origin->p2 ).
+   * There is an infinite number of options to rotate a plane normal to another. Here we attempt to
+   * preserve Origin, P1 and P2 when rotating around targetPlane.
+   */
+  static void TransformPlane(vtkPlaneSource* planeToTransform, double targetCenter[3],
+    double targetNormal[3], double targetViewUp[3]);
 
 protected:
   vtkResliceCursorRepresentation();

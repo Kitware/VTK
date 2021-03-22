@@ -624,6 +624,12 @@ public:
   static double AngleBetweenVectors(const double v1[3], const double v2[3]);
 
   /**
+   * Compute signed angle in radians between two vectors with regard to a third orthogonal vector
+   */
+  static double SignedAngleBetweenVectors(
+    const double v1[3], const double v2[3], const double vn[3]);
+
+  /**
    * Compute the amplitude of a Gaussian function with mean=0 and specified variance.
    * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
    */

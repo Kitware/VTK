@@ -121,6 +121,17 @@ public:
   virtual double* GetAxis(int i);
   //@}
 
+  /**
+   * Get/Set the view up
+   */
+  vtkGetVector3Macro(XViewUp, double);
+  vtkGetVector3Macro(YViewUp, double);
+  vtkGetVector3Macro(ZViewUp, double);
+  vtkSetVector3Macro(XViewUp, double);
+  vtkSetVector3Macro(YViewUp, double);
+  vtkSetVector3Macro(ZViewUp, double);
+  double* GetViewUp(int i);
+
   //@{
   /**
    * Show a hole in the center of the cursor, so its easy to see the pixels
@@ -181,6 +192,9 @@ protected:
   double XAxis[3];
   double YAxis[3];
   double ZAxis[3];
+  double XViewUp[3];
+  double YViewUp[3];
+  double ZViewUp[3];
   vtkImageData* Image;
   vtkPolyData* PolyData;
 
