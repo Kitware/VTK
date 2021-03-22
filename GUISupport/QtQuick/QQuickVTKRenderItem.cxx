@@ -91,11 +91,6 @@ void QQuickVTKRenderItem::sync()
     return;
   }
 
-  // Explicitly set the viewport for each render window
-  QRectF rect(0, 0, this->width(), this->height());
-  rect = this->mapRectToScene(rect);
-  this->setViewport(rect);
-
   if (!this->m_renderWindow)
   {
     return;
@@ -103,6 +98,12 @@ void QQuickVTKRenderItem::sync()
 
   // Forward the synchronize call to the window
   this->m_renderWindow->sync();
+
+  // Explicitly set the viewport for each render window
+  // This is done after the window sync to ensure that the window size is set up.
+  QRectF rect(0, 0, this->width(), this->height());
+  rect = this->mapRectToScene(rect);
+  this->setViewport(rect);
 }
 
 //-------------------------------------------------------------------------------------------------
