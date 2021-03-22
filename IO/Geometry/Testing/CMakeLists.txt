@@ -33,6 +33,18 @@ vtk_module_test_data(
   Data/OpenFOAM/regex/constant/,REGEX:.*
   Data/OpenFOAM/regex/constant/polyMesh/,REGEX:.*
   Data/OpenFOAM/regex/system/,REGEX:.*
+  Data/OpenFOAM/simplifiedSiwek-serial/constant/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/constant/polyMesh/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.01/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.01/lagrangian/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.01/lagrangian/coalCloud1/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.01/lagrangian/limestoneCloud1/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/system/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.005/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.005/lagrangian/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.005/lagrangian/coalCloud1/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0.005/lagrangian/limestoneCloud1/,REGEX:.*$
+  Data/OpenFOAM/simplifiedSiwek-serial/0/,REGEX:.*$
   Data/TecPlot/,REGEX:.*
   Data/Viewpoint/cow.obj
   Data/absolute_indices.obj
