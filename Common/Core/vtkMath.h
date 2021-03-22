@@ -364,6 +364,19 @@ public:
   }
 
   /**
+   * Subtraction of two 3-vectors (templated version). Result is stored in c according to c = a - b.
+   *
+   * Each paramameter needs to implement `operator[]`.
+   */
+  template <class VectorT1, class VectorT2, class VectorT3>
+  static void Subtract(const VectorT1& a, const VectorT2& b, VectorT3&& c)
+  {
+    c[0] = a[0] - b[0];
+    c[1] = a[1] - b[1];
+    c[2] = a[2] - b[2];
+  }
+
+  /**
    * Multiplies a 3-vector by a scalar (float version).
    * This modifies the input 3-vector.
    */

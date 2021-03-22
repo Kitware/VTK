@@ -16,6 +16,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkSMPThreadLocal.h"
@@ -655,6 +656,57 @@ bool vtkBoundingBox::IntersectsSphere(double center[3], double radius) const
   return center[0] >= this->MinPnt[0] - radius && center[0] <= this->MaxPnt[0] + radius &&
     center[1] >= this->MinPnt[1] - radius && center[1] <= this->MaxPnt[1] + radius &&
     center[2] >= this->MinPnt[2] - radius && center[2] <= this->MaxPnt[2] + radius;
+}
+
+// ---------------------------------------------------------------------------
+bool vtkBoundingBox::IntersectsLine(const double p1[3], const double p2[3]) const
+{
+  if (this->ContainsPoint(p1) || this->ContainsPoint(p2))
+  {
+    return true;
+  }
+
+  if (vtkMathUtilities::NearlyEqual(p1[0], p2[0]) && vtkMathUtilities::NearlyEqual(p1[1], p2[1]) &&
+    vtkMathUtilities::NearlyEqual(p1[2], p2[2]))
+  {
+    return false;
+  }
+
+  double line[3];
+  vtkMath::Subtract(p2, p1, line);
+  vtkMath::Normalize(line);
+
+  const double* points[2] = { p1, p2 };
+  const double* bbPoints[2] = { this->MinPnt, this->MaxPnt };
+
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    if (std::abs(line[dim]) > VTK_DBL_EPSILON)
+    {
+      for (int pointId = 0; pointId < 2; ++pointId)
+      {
+        const double* p = points[pointId];
+        const double* bbp = bbPoints[pointId];
+        double t = (bbp[dim] - p[dim]) / line[dim];
+        int orthdimx = (dim + 1) % 3;
+        int orthdimy = (dim + 2) % 3;
+        double x = p[orthdimx] + t * line[orthdimx];
+        double y = p[orthdimy] + t * line[orthdimy];
+        if (x - this->MinPnt[orthdimx] >=
+            -VTK_DBL_EPSILON * std::max(std::abs(x), std::abs(this->MinPnt[orthdimx])) &&
+          x - this->MaxPnt[orthdimx] <=
+            VTK_DBL_EPSILON * std::max(std::abs(x), std::abs(this->MaxPnt[orthdimx])) &&
+          y - this->MinPnt[orthdimy] >=
+            -VTK_DBL_EPSILON * std::max(std::abs(x), std::abs(this->MinPnt[orthdimy])) &&
+          y - this->MaxPnt[orthdimy] <=
+            VTK_DBL_EPSILON * std::max(std::abs(x), std::abs(this->MaxPnt[orthdimy])))
+        {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
