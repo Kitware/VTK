@@ -77,7 +77,5 @@ else ()
 
   if (WIN32)
     #add_example(GUI/Win32/SimpleCxx)
-    #add_example(GUI/Win32/SampleMFC)
-    #add_example(GUI/Win32/vtkMFC)
   endif ()
 endif ()
