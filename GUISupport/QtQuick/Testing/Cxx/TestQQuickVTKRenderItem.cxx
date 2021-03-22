@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQQuickVTKRenderWindow.cxx
+  Module:    TestQQuickVTKRenderItem.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -35,21 +35,19 @@
 #include <QTimer>
 #include <QUrl>
 
-int TestQQuickVTKRenderWindow(int argc, char* argv[])
+int TestQQuickVTKRenderItem(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   QApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
-  engine.load(QUrl("qrc:///TestQQuickVTKRenderWindow.qml"));
+  engine.load(QUrl("qrc:///TestQQuickVTKRenderItem.qml"));
 
   QObject* topLevel = engine.rootObjects().value(0);
   QQuickWindow* window = qobject_cast<QQuickWindow*>(topLevel);
 
-  // Fetch the QQuick window using the standard object name set up in the constructor
-  QQuickVTKRenderWindow* qquickvtkWindow =
-    topLevel->findChild<QQuickVTKRenderWindow*>("QQuickVTKRenderWindow");
+  window->show();
 
   // Fetch the QQuick window using the standard object name set up in the constructor
   QQuickVTKRenderItem* qquickvtkItem = topLevel->findChild<QQuickVTKRenderItem*>("ConeView");
@@ -65,8 +63,7 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   qquickvtkItem->renderer()->SetBackground(0.5, 0.5, 0.7);
   qquickvtkItem->renderer()->SetBackground2(0.7, 0.7, 0.7);
   qquickvtkItem->renderer()->SetGradientBackground(true);
-
-  window->show();
+  qquickvtkItem->update();
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
@@ -80,8 +77,8 @@ int TestQQuickVTKRenderWindow(int argc, char* argv[])
   QTimer::singleShot(100, &loop, SLOT(quit()));
   loop.exec();
 
-  // Capture a screenshot of the whole window
-  vtkSmartPointer<vtkImageData> im = qquickvtkWindow->captureScreenshot();
+  // Capture a screenshot of the item
+  vtkSmartPointer<vtkImageData> im = qquickvtkItem->captureScreenshot();
 
   std::string validName = std::string(vtktesting->GetValidImageFileName());
   std::string::size_type slashPos = validName.rfind('/');

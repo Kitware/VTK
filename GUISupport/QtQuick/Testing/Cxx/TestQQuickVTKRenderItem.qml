@@ -57,6 +57,8 @@ ApplicationWindow {
 
   VTKRenderWindow {
     id: vtkwindow
+    width: 400
+    height: 400
   }
 
   VTKRenderItem {

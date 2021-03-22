@@ -8,11 +8,11 @@ set (CMAKE_AUTOUIC ON)
 set (CMAKE_AUTORCC ON)
 
 vtk_add_test_cxx (vtkGUISupportQtQuickCxxTests tests
-  TestQQuickVTKRenderWindow.cxx
+  TestQQuickVTKRenderItem.cxx
   )
 
 vtk_test_cxx_executable(vtkGUISupportQtQuickCxxTests tests
-  TestQQuickVTKRenderWindow.qrc
+  TestQQuickVTK.qrc
   )
 
 target_link_libraries(vtkGUISupportQtQuickCxxTests
@@ -21,5 +21,5 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Qml"
     )
 
-set_tests_properties(VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
+set_tests_properties(VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
   PROPERTIES ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/$<CONFIG>")

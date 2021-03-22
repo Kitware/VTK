@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource prefix="/">
-    <file>TestQQuickVTKRenderWindow.qml</file>
+    <file>TestQQuickVTKRenderItem.qml</file>
   </qresource>
 </RCC>
