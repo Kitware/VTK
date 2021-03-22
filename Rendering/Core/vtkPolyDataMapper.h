@@ -55,7 +55,7 @@ public:
    * Specify the input data to map.
    */
   void SetInputData(vtkPolyData* in);
-  vtkPolyData* GetInput();
+  virtual vtkPolyData* GetInput();
   ///@}
 
   ///@{

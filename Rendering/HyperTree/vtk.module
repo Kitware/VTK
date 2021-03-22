@@ -1,0 +1,17 @@
+NAME
+  VTK::RenderingHyperTree
+LIBRARY_NAME
+  vtkRenderingHyperTree
+IMPLEMENTABLE
+KIT
+  VTK::Rendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+  VTK::FiltersHybrid
+  VTK::FiltersHyperTree
+  VTK::RenderingOpenGL2
