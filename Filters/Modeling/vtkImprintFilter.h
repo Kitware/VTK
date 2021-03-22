@@ -38,6 +38,13 @@
  * fragments associated with that cell are used to triangulate the cell.
  * 7) Finally, the triangulated target cells are appended to the output.
  *
+ * Several options exist toSpecify whether to produce an output cell data array that indicates
+ * whether the output cells are in the imprinted area. If enabled, this
+ * output vtkCharArray will have a value=1 for cells that are in the
+ * imprinted area. Otherwise, the value=0 is indicating the cell is not
+ * in contact with the imprinted area. The name of this cell data array is
+ * "ImprintedCells".
+ *
  * Some notes:
  * -- The algorithm assumes that the input target and imprint cells are convex.
  * -- The number of output points is (numTargetPts + numImprintPts + numEdgeIntPts).
@@ -52,9 +59,16 @@
  * -- Triangulation requires combining the points and edge fragments associated
  *    with each target candidate cell, as well as the candidate cell's defining
  *    points and edges, to produce the final triangulation.
- * -- Portions of the algorithm are threaded. For example, steps #1 and #2 (candidate
- *    segregation); point projection step #3; cell triangulation step #6. Future
- *    implementations may further parallelize the algorithm.
+ * -- Portions of the algorithm are SMP threaded. For example, steps #1 and #2
+ *    (candidate segregation); point projection step #3; cell triangulation
+ *    step #6. Future implementations may further parallelize the algorithm.
+ * -- The algorithm produces an output cell data array that indicates
+ *    which output cells are in the imprinted area. This vtkCharArray has a
+ *    value=0 for cells that were originally target cells; a value=2 for
+ *    output cells that are in the imprinted region; and a value=1 for cells
+ *    that are in the transition region (between target and imprinted
+ *    cells). The name of this cell data array is "ImprintedCells".
+ *
  */
 
 #ifndef vtkImprintFilter_h
@@ -144,14 +158,38 @@ public:
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
   //@}
 
+  enum DebugOutput
+  {
+    NO_DEBUG_OUTPUT = 0,
+    INPUT_POINTS = 1,
+    OUTPUT_TRIANGULATION = 2
+  };
+
   //@{
   /**
-   * For debugging purposes: given a target candidate cell id (specified by
-   * the value of ProduceTriangulationInput), print out the cell vertices and
-   * the points in the cell prior to the triangulation process. By default,
-   * ProduceTriangulationInput < 0 so that the output is not produced.
+   * The following methods support debugging. By default, NO_DEBUG_OUTPUT is
+   * produced and the second output of this filter is empty. If INPUT_POINTS
+   * is set, then the input points specified by the target DebugCellId are
+   * output to the second output to this filter.  If OUTPUT_TRIANGULATION is
+   * set, then the output triangulation for the specified DebugCellId is
+   * placed in a second output to this filter.
    */
-  vtkSetMacro(ProduceTriangulationInput, vtkIdType);
+  vtkSetClampMacro(DebugOutputType, int, NO_DEBUG_OUTPUT, OUTPUT_TRIANGULATION);
+  vtkGetMacro(DebugOutputType, int);
+  void SetDebugOutputTypeToNoDebugOutput() { this->SetDebugOutputType(NO_DEBUG_OUTPUT); }
+  void SetDebugOutputTypeToInputPoints() { this->SetDebugOutputType(INPUT_POINTS); }
+  void SetDebugOutputTypeToOutputTriangulation() { this->SetDebugOutputType(OUTPUT_TRIANGULATION); }
+  vtkSetMacro(DebugCellId, vtkIdType);
+  vtkGetMacro(DebugCellId, vtkIdType);
+  //@{
+
+  //@{
+  /**
+   * Get the output data (in the second output, if the DebugOutput !=
+   * NO_DEBUG_OUTPUT).
+   */
+  vtkPolyData* GetDebugOutput();
+  //@}
 
 protected:
   vtkImprintFilter();
@@ -159,7 +197,9 @@ protected:
 
   double Tolerance;
   int OutputType;
-  vtkIdType ProduceTriangulationInput;
+
+  int DebugOutputType;
+  vtkIdType DebugCellId;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
