@@ -159,6 +159,7 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar5->SetDrawBackground(0);
   vtkDoubleArray* customLabels = scalarBar5->GetCustomLabels();
   customLabels->SetNumberOfTuples(4);
+  customLabels->SetNumberOfComponents(1);
   customLabels->SetValue(0, -1); // invisible
   customLabels->SetValue(1, 0.2);
   customLabels->SetValue(2, 0.6);
