@@ -250,7 +250,7 @@ bool vtkSEPReader::ReadHeader()
 
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
-  std::ifstream file;
+  vtksys::ifstream file;
   vtksys::SystemTools::Stat_t fs;
   if (!vtksys::SystemTools::Stat(this->FileName, &fs))
   {
