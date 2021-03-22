@@ -162,7 +162,7 @@ public:
   /**
    * Set/Get the fixed locations to use.
    */
-  virtual void SetCustomLabels(vtkDoubleArray* labels = nullptr);
+  virtual void SetCustomLabels(vtkDoubleArray* labels);
   vtkGetObjectMacro(CustomLabels, vtkDoubleArray);
   //@}
 
@@ -171,9 +171,9 @@ public:
    * Get/Set whether custom labels will be used.
    * bonds. Default: Off.
    */
-  vtkGetMacro(UseCustomLabels, bool);
-  vtkSetMacro(UseCustomLabels, bool);
-  vtkBooleanMacro(UseCustomLabels, bool);
+  vtkGetMacro(UseCustomLabels, vtkTypeBool);
+  vtkSetMacro(UseCustomLabels, vtkTypeBool);
+  vtkBooleanMacro(UseCustomLabels, vtkTypeBool);
   //@}
 
   //@{
@@ -644,7 +644,8 @@ protected:
 
    * The default implementation creates exactly this->NumberOfLabels
    * tick marks, uniformly spaced on a linear or logarithmic scale,
-   * or creates them based on the numbers and values this->CustomLabels.
+   * or creates them based on the numbers and values this->CustomLabels
+   * when this->UseCustomLabels is true.
    */
   virtual void LayoutTicks();
 
@@ -743,7 +744,7 @@ protected:
   int NumberOfLabelsBuilt;
   int Orientation;
   vtkDoubleArray* CustomLabels;
-  bool UseCustomLabels;
+  vtkTypeBool UseCustomLabels;
   vtkTypeBool DrawBackground; // off by default
   vtkTypeBool DrawFrame;      // off by default
   vtkTypeBool DrawColorBar;   // on by default

@@ -58,6 +58,7 @@ vtkCxxSetObjectMacro(vtkScalarBarActor, LabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkScalarBarActor, TitleTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkScalarBarActor, BackgroundProperty, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkScalarBarActor, FrameProperty, vtkProperty2D);
+vtkCxxSetObjectMacro(vtkScalarBarActor, CustomLabels, vtkDoubleArray);
 
 //------------------------------------------------------------------------------
 // Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
@@ -78,8 +79,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->MaximumNumberOfColors = 64;
   this->NumberOfLabels = 5;
   this->NumberOfLabelsBuilt = 0;
-  this->CustomLabels = vtkSmartPointer<vtkDoubleArray>::New();
-  this->UseCustomLabels = false;
+  this->CustomLabels = vtkDoubleArray::New();
+  this->UseCustomLabels = 0;
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = nullptr;
   this->ComponentTitle = nullptr;
@@ -355,6 +356,7 @@ vtkScalarBarActor::~vtkScalarBarActor()
 
   this->SetLookupTable(nullptr);
   this->SetAnnotationTextProperty(nullptr);
+  this->CustomLabels->Delete();
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
   this->Texture->Delete();
@@ -721,18 +723,6 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawFrame: " << this->DrawFrame << "\n";
   os << indent << "Frame Property:\n";
   this->FrameProperty->PrintSelf(os, indent.GetNextIndent());
-}
-
-void vtkScalarBarActor::SetCustomLabels(vtkDoubleArray* labels)
-{
-  if (!labels)
-  {
-    this->CustomLabels->SetNumberOfTuples(0);
-  }
-  else
-  {
-    this->CustomLabels->DeepCopy(labels);
-  }
 }
 
 //------------------------------------------------------------------------------
