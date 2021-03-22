@@ -49,7 +49,7 @@ if (TARGET VTK::ViewsContext2D)
             VTK::ViewsContext2D)
 endif ()
 
-if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsContext2D AND TARGET VTK::ViewsQt)
+if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsContext2D AND TARGET VTK::ViewsQt AND TARGET VTK::RenderingOpenGL2)
   add_executable(QChartTable
     QChartTable.cxx)
   target_link_libraries(QChartTable
@@ -57,6 +57,7 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
       VTK::ChartsCore
       VTK::CommonSystem
       VTK::GUISupportQt
+      VTK::RenderingOpenGL2
       VTK::ViewsContext2D
       VTK::ViewsQt)
 
@@ -67,6 +68,7 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
       VTK::ChartsCore
       VTK::CommonSystem
       VTK::GUISupportQt
+      VTK::RenderingOpenGL2
       VTK::ViewsContext2D
       VTK::ViewsQt)
 
@@ -76,6 +78,7 @@ if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsC
     MODULES VTK::ChartsCore
             VTK::CommonSystem
             VTK::GUISupportQt
+            VTK::RenderingOpenGL2
             VTK::ViewsContext2D
             VTK::ViewsQt)
 endif ()
