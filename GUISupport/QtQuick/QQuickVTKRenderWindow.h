@@ -86,6 +86,13 @@ public:
   virtual vtkSmartPointer<vtkImageData> captureScreenshot(double* viewport);
   //@}
 
+  /**
+   * Get whether the render window is initialized
+   * Used internally to determine if the OpenGL context, QQuickWindow, children items and viewports
+   * have been initialized.
+   */
+  virtual bool isInitialized() const;
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();

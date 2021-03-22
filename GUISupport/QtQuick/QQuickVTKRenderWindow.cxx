@@ -284,3 +284,9 @@ void QQuickVTKRenderWindow::render()
     this->window()->update();
   }
 }
+
+//-------------------------------------------------------------------------------------------------
+bool QQuickVTKRenderWindow::isInitialized() const
+{
+  return this->m_initialized;
+}
