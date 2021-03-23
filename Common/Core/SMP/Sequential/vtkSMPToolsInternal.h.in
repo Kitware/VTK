@@ -21,9 +21,7 @@ namespace detail
 namespace smp
 {
 template <typename FunctorInternal>
-void vtkSMPTools_Impl_For(
-  vtkIdType first, vtkIdType last, vtkIdType grain,
-  FunctorInternal& fi)
+void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
   vtkIdType n = last - first;
   if (!n)
@@ -52,22 +50,19 @@ void vtkSMPTools_Impl_For(
 }
 
 //--------------------------------------------------------------------------------
-template<typename RandomAccessIterator>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
-                                  RandomAccessIterator end)
+template <typename RandomAccessIterator>
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
 {
   std::sort(begin, end);
 }
 
 //--------------------------------------------------------------------------------
-template<typename RandomAccessIterator, typename Compare>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
-                                  RandomAccessIterator end,
-                                  Compare comp)
+template <typename RandomAccessIterator, typename Compare>
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
 {
   std::sort(begin, end, comp);
 }
 
-}//namespace smp
-}//namespace detail
-}//namespace vtk
+} // namespace smp
+} // namespace detail
+} // namespace vtk

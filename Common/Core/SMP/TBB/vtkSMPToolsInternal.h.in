@@ -48,7 +48,8 @@ class FuncCall
   void operator=(const FuncCall&) = delete;
 
 public:
-  void operator()(const tbb::blocked_range<vtkIdType>& r) const {
+  void operator()(const tbb::blocked_range<vtkIdType>& r) const
+  {
     o.Execute(r.begin(), r.end());
   }
 
