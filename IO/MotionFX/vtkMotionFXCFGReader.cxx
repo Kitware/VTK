@@ -768,8 +768,6 @@ struct UniversalTransformMotion : public Motion
   template <typename MapType>
   UniversalTransformMotion(const MapType& params)
     : Motion(params)
-    , utm()
-    , transforms()
   {
     std::string motion_type;
     set(motion_type, "motion_type", params);
@@ -783,7 +781,7 @@ struct UniversalTransformMotion : public Motion
 
   bool Move(vtkPoints* pts, double time) const override
   {
-    if (this->transforms.size() < 1)
+    if (this->transforms.empty())
     {
       // at least one entry is required
       return false;
@@ -1126,7 +1124,7 @@ struct action<MotionFX::CFG::Value>
           vtkGenericWarningMacro("Expecting number, got '" << val << "'");
         }
       }
-      state.ActiveValue.StringValue = std::string(tupleRe.match(1).c_str());
+      state.ActiveValue.StringValue = tupleRe.match(1);
     }
     else if (numberRe.find(content))
     {

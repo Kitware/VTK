@@ -147,7 +147,7 @@ int vtkExtractSelection::RequestDataObject(
     return 1;
   }
 
-  if (!outputDO || !outputDO->IsTypeOf(inputDO->GetClassName()))
+  if (!outputDO || !outputDO->IsA(inputDO->GetClassName()))
   {
     outputDO = inputDO->NewInstance();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
