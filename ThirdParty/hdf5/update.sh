@@ -52,6 +52,8 @@ extract_source () {
     find . -name Makefile.in -delete
     find . -name "*.lnt" -delete
     rm -v src/.indent.pro
+    # Add missing newline at EOF.
+    echo >> config/intel-warnings/general
     popd
 }
 
