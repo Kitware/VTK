@@ -164,105 +164,6 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::mousePressEvent(QMouseEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::mouseMoveEvent(QMouseEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::mouseReleaseEvent(QMouseEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueMouseEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::wheelEvent(QWheelEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueWheelEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::hoverMoveEvent(QHoverEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueHoverEvent(this, event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::keyPressEvent(QKeyEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueKeyEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::keyReleaseEvent(QKeyEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueKeyEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::focusInEvent(QFocusEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueFocusEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderItem::focusOutEvent(QFocusEvent* event)
-{
-  if (!this->renderWindow())
-  {
-    return;
-  }
-  event->accept();
-  this->renderWindow()->interactorAdapter()->QueueFocusEvent(event);
-}
-
-//-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
 {
   if (!this->renderWindow())
@@ -272,6 +173,64 @@ void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRect
   this->renderWindow()->interactorAdapter()->QueueGeometryChanged(newGeometry, oldGeometry);
 
   Superclass::geometryChanged(newGeometry, oldGeometry);
+}
+
+//-------------------------------------------------------------------------------------------------
+bool QQuickVTKRenderItem::event(QEvent* ev)
+{
+  if (!ev)
+  {
+    return false;
+  }
+
+  switch (ev->type())
+  {
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    {
+      this->renderWindow()->interactorAdapter()->QueueHoverEvent(
+        this, static_cast<QHoverEvent*>(ev));
+      break;
+    }
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    {
+      this->renderWindow()->interactorAdapter()->QueueKeyEvent(this, static_cast<QKeyEvent*>(ev));
+      break;
+    }
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
+    {
+      this->renderWindow()->interactorAdapter()->QueueFocusEvent(
+        this, static_cast<QFocusEvent*>(ev));
+      break;
+    }
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    {
+      this->renderWindow()->interactorAdapter()->QueueMouseEvent(
+        this, static_cast<QMouseEvent*>(ev));
+      break;
+    }
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+    {
+      this->renderWindow()->interactorAdapter()->QueueWheelEvent(
+        this, static_cast<QWheelEvent*>(ev));
+      break;
+    }
+#endif
+    default:
+    {
+      return this->Superclass::event(ev);
+    }
+  }
+
+  ev->accept();
+  return true;
 }
 
 //-------------------------------------------------------------------------------------------------
