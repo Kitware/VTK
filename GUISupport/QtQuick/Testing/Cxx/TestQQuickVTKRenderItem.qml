@@ -3,6 +3,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 
+// import the VTK module
 import VTK 9.0
 
 // window containing the application

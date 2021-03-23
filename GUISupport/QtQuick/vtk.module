@@ -17,7 +17,9 @@ PRIVATE_DEPENDS
   VTK::opengl
 TEST_DEPENDS
   VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOXML
+  VTK::RenderingVolumeOpenGL2
   VTK::TestingCore
   VTK::TestingRendering
-  VTK::IOImage
 EXCLUDE_WRAP

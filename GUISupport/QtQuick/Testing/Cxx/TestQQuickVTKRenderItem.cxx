@@ -14,7 +14,7 @@
 =========================================================================*/
 
 // Description
-// Tests QQuickVTKWindowItem
+// Tests QQuickVTKRenderItem
 
 #include "QQuickVTKRenderItem.h"
 #include "QQuickVTKRenderWindow.h"
