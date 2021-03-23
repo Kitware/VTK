@@ -31,10 +31,6 @@
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   : Superclass(parent)
 {
-  // Accept mouse events
-  setAcceptHoverEvents(true);
-  setAcceptedMouseButtons(Qt::AllButtons);
-
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
   this->setRenderWindow(renWin);
   this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
@@ -66,8 +62,11 @@ void QQuickVTKRenderWindow::sync()
 
   QSize windowSize = window()->size() * window()->devicePixelRatio();
   this->m_renderWindow->SetSize(windowSize.width(), windowSize.height());
-
-  m_interactorAdapter->ProcessEvents(this->m_renderWindow->GetInteractor());
+  if (auto iren = this->m_renderWindow->GetInteractor())
+  {
+    iren->SetSize(windowSize.width(), windowSize.height());
+    m_interactorAdapter->ProcessEvents(iren);
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -87,11 +86,14 @@ void QQuickVTKRenderWindow::paint()
     return;
   }
 
+  auto iren = this->m_renderWindow->GetInteractor();
   if (!this->m_initialized)
   {
     initializeOpenGLFunctions();
-    vtkRenderWindowInteractor* interactor = this->m_renderWindow->GetInteractor();
-    interactor->Initialize();
+    if (iren)
+    {
+      iren->Initialize();
+    }
     this->m_renderWindow->SetMapped(1);
     this->m_renderWindow->SetIsCurrent(1);
 
@@ -110,7 +112,7 @@ void QQuickVTKRenderWindow::paint()
   // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
   ostate->vtkglDepthFunc(GL_LEQUAL);
 
-  if (auto iren = this->m_renderWindow->GetInteractor())
+  if (iren)
   {
     iren->Render();
   }

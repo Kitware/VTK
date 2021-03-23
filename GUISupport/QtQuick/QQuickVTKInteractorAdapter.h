@@ -51,28 +51,36 @@ public:
   void setQQuickWindow(QQuickWindow* win);
 
   void QueueHoverEvent(QQuickItem* item, QHoverEvent* e);
-  void QueueKeyEvent(QKeyEvent* e);
-  void QueueFocusEvent(QFocusEvent* e);
+  void QueueKeyEvent(QQuickItem* item, QKeyEvent* e);
+  void QueueFocusEvent(QQuickItem* item, QFocusEvent* e);
   void QueueMouseEvent(QQuickItem* item, QMouseEvent* e);
   void QueueGeometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry);
   void QueueWheelEvent(QQuickItem* item, QWheelEvent* e);
-  void QueueEnterEvent(QEnterEvent* e);
 
   void ProcessEvents(vtkRenderWindowInteractor* interactor);
 
-  /// Map the event position to VTK display coordinates.
-  static QPointF mapAndFlipEventPosition(
-    QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPointF& localPos);
+  /*
+   * Map the event position to VTK display coordinates
+   * The mapping considers the following:
+   *  - VTK widgets expect display coordinates, not viewport/local coordinates
+   *  - vtkRenderWindowInteractor flips Y before processing the event.
+   * Because of the inherent flip in the superclass, the mapping does not flip Y implicitly.
+   * To map and flip Y, use mapEventPositionFlipY.
+   *
+   * \sa mapEventPositionFlipY
+   */
+  static QPointF mapEventPosition(QQuickItem* item, const QPointF& localPos);
+
+  /*
+   * Map the event position to VTK display coordinates and flip the Y axis to switch the point from
+   * the Qt coordinate reference system to VTK's.
+   *
+   * \sa mapEventPosition
+   */
+  static QPointF mapEventPositionFlipY(QQuickItem* item, const QPointF& localPos);
 
 protected:
   void QueueEvent(QEvent* e);
-
-  /// Map event position into space that
-  /// QVTKInteractorAdapter::ProcessEvent() expects.
-  /// The mapping considers the following:
-  /// - VTK widgets expect display coordinates, not viewport/local coordinates
-  /// - QVTKInteractorAdapter inverts y
-  static QPointF mapEventPosition(QQuickItem* item, const QPointF& localPos);
 
 private:
   QPointer<QQuickWindow> m_qwindow;

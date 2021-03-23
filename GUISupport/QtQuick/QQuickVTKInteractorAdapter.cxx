@@ -20,81 +20,72 @@
 #include <QQuickWindow>
 
 // VTK includes
-#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 QQuickVTKInteractorAdapter::QQuickVTKInteractorAdapter(QObject* parent)
   : Superclass(parent)
 {
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::setQQuickWindow(QQuickWindow* win)
 {
   m_qwindow = win;
 }
 
-//-----------------------------------------------------------------------------
-QPointF QQuickVTKInteractorAdapter::mapAndFlipEventPosition(
-  QQuickItem* item, vtkRenderWindowInteractor* interactor, const QPointF& localPos)
-{
-  QPointF eventPos = QQuickVTKInteractorAdapter::mapEventPosition(item, localPos);
-  eventPos.setY(interactor->GetSize()[1] - eventPos.y() - 1);
-  return eventPos;
-}
-
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 QPointF QQuickVTKInteractorAdapter::mapEventPosition(QQuickItem* item, const QPointF& localPos)
 {
   // Account for the difference in coordinate reference systems.
   // Qt uses quadrant IV and VTK uses quadrant I. So the point should be
   // translated to the right position along Y axis.
-  QPointF itemOriginInScene = item->mapToItem(nullptr, QPointF());
-  QPointF itemHeightInScene = item->mapToScene(QPointF(0, item->height()));
-  QPointF eventPos = item->mapToScene(localPos);
-  eventPos.ry() -= (item->window()->height() - itemHeightInScene.y()) + itemOriginInScene.y();
-  return eventPos;
+  return item->mapToScene(localPos);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+QPointF QQuickVTKInteractorAdapter::mapEventPositionFlipY(QQuickItem* item, const QPointF& localPos)
+{
+  QPointF mappedPos = QQuickVTKInteractorAdapter::mapEventPosition(item, localPos);
+  mappedPos.setY(item->window()->height() - mappedPos.y() + 1);
+  return mappedPos;
+}
+
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueHoverEvent(QQuickItem* item, QHoverEvent* e)
 {
-  // Treat Qt hover event as mouse move event. Actual Qt mouse move events occur
-  // only when the mouse button is pressed.
-  QPointF pos = mapEventPosition(item, e->posF());
-  QPointF oldPos = mapEventPosition(item, e->oldPosF());
-
-  QHoverEvent* newEvent = new QHoverEvent(e->type(), pos, oldPos, e->modifiers());
+  QHoverEvent* newEvent = new QHoverEvent(e->type(), this->mapEventPosition(item, e->posF()),
+    this->mapEventPosition(item, e->oldPosF()), e->modifiers());
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
-void QQuickVTKInteractorAdapter::QueueKeyEvent(QKeyEvent* e)
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKInteractorAdapter::QueueKeyEvent(QQuickItem* item, QKeyEvent* e)
 {
+  Q_UNUSED(item);
   QKeyEvent* newEvent = new QKeyEvent(e->type(), e->key(), e->modifiers(), e->nativeScanCode(),
     e->nativeVirtualKey(), e->nativeModifiers(), e->text(), e->isAutoRepeat(), e->count());
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
-void QQuickVTKInteractorAdapter::QueueFocusEvent(QFocusEvent* e)
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKInteractorAdapter::QueueFocusEvent(QQuickItem* item, QFocusEvent* e)
 {
+  Q_UNUSED(item);
   QFocusEvent* newEvent = new QFocusEvent(e->type(), e->reason());
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueMouseEvent(QQuickItem* item, QMouseEvent* e)
 {
-  QMouseEvent* newEvent = new QMouseEvent(e->type(), e->localPos(), e->windowPos(), e->screenPos(),
+  QMouseEvent* newEvent = new QMouseEvent(e->type(), this->mapEventPosition(item, e->localPos()),
+    this->mapEventPosition(item, e->windowPos()), this->mapEventPosition(item, e->screenPos()),
     e->button(), e->buttons(), e->modifiers());
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueGeometryChanged(
   const QRectF& newGeometry, const QRectF& oldGeometry)
 {
@@ -103,25 +94,16 @@ void QQuickVTKInteractorAdapter::QueueGeometryChanged(
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueWheelEvent(QQuickItem* item, QWheelEvent* e)
 {
-  QPointF pos = mapEventPosition(item, e->position());
-  QPointF globalPos = mapEventPosition(item, e->globalPosition());
-
-  QWheelEvent* newEvent = new QWheelEvent(pos, globalPos, e->pixelDelta(), e->angleDelta(),
+  QWheelEvent* newEvent = new QWheelEvent(this->mapEventPosition(item, e->position()),
+    this->mapEventPosition(item, e->globalPosition()), e->pixelDelta(), e->angleDelta(),
     e->buttons(), e->modifiers(), e->phase(), e->inverted(), e->source());
   QueueEvent(newEvent);
 }
 
-//-----------------------------------------------------------------------------
-void QQuickVTKInteractorAdapter::QueueEnterEvent(QEnterEvent* e)
-{
-  QEnterEvent* newEvent = new QEnterEvent(e->localPos(), e->windowPos(), e->screenPos());
-  QueueEvent(newEvent);
-}
-
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueEvent(QEvent* e)
 {
   m_queuedEvents << e;
@@ -131,7 +113,7 @@ void QQuickVTKInteractorAdapter::QueueEvent(QEvent* e)
   }
 }
 
-//-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::ProcessEvents(vtkRenderWindowInteractor* interactor)
 {
   if (interactor)
