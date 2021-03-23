@@ -776,6 +776,12 @@ unsigned int vtkHyperTreeGrid::GetNumberOfLevels()
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkHyperTreeGrid::GetNumberOfNonEmptyTrees()
+{
+  return this->HyperTrees.size();
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfVertices()
 {
   vtkIdType nVertices = 0;

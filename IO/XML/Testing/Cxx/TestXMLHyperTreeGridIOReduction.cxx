@@ -16,6 +16,7 @@
 // .SECTION Description
 
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisClip.h"
