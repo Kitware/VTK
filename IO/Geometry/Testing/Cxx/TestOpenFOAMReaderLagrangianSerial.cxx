@@ -28,20 +28,34 @@
 namespace
 {
 
-// Get named block
+// Get named block of specified type
 template <class Type>
 static Type* findBlock(vtkMultiBlockDataSet* mb, const char* blockName)
 {
   const unsigned int nblocks = mb->GetNumberOfBlocks();
   for (unsigned int blocki = 0; blocki < nblocks; ++blocki)
   {
-    if (strcmp(mb->GetMetaData(blocki)->Get(vtkCompositeDataSet::NAME()), blockName) == 0)
+    vtkDataObject* obj = mb->GetBlock(blocki);
+    auto* subblock = vtkMultiBlockDataSet::SafeDownCast(obj);
+
+    Type* dataset;
+    if (subblock)
     {
-      return Type::SafeDownCast(mb->GetBlock(blocki));
+      dataset = findBlock<Type>(subblock, blockName);
+    }
+    else if (strcmp(mb->GetMetaData(blocki)->Get(vtkCompositeDataSet::NAME()), blockName) == 0)
+    {
+      dataset = Type::SafeDownCast(obj);
+    }
+    if (dataset)
+    {
+      return dataset;
     }
   }
+
   return nullptr;
 }
+
 } // End anonymous namespace
 
 int TestOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
