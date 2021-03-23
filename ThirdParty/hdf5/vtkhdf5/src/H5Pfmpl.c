@@ -15,7 +15,7 @@
  *
  * Created:		H5Pmtpl.c
  *			November  1 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		File mount property list class routines
  *
@@ -64,7 +64,7 @@
 /********************/
 
 /* Property class callbacks */
-static herr_t H5P_fmnt_reg_prop(H5P_genclass_t *pclass);
+static herr_t H5P__fmnt_reg_prop(H5P_genclass_t *pclass);
 
 
 /*********************/
@@ -80,7 +80,7 @@ const H5P_libclass_t H5P_CLS_FMNT[1] = {{
     &H5P_CLS_FILE_MOUNT_g,	/* Pointer to class             */
     &H5P_CLS_FILE_MOUNT_ID_g,	/* Pointer to class ID          */
     &H5P_LST_FILE_MOUNT_ID_g,	/* Pointer to default property list ID */
-    H5P_fmnt_reg_prop,		/* Default property registration routine */
+    H5P__fmnt_reg_prop,		/* Default property registration routine */
 
     NULL,		        /* Class creation callback      */
     NULL,		        /* Class creation callback info */
@@ -106,7 +106,7 @@ static const hbool_t H5F_def_local_g = H5F_MNT_SYM_LOCAL_DEF;      /* Whether sy
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5P_fmnt_reg_prop
+ * Function:    H5P__fmnt_reg_prop
  *
  * Purpose:     Register the file mount property list class's properties
  *
@@ -117,18 +117,18 @@ static const hbool_t H5F_def_local_g = H5F_MNT_SYM_LOCAL_DEF;      /* Whether sy
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P_fmnt_reg_prop(H5P_genclass_t *pclass)
+H5P__fmnt_reg_prop(H5P_genclass_t *pclass)
 {
     herr_t ret_value = SUCCEED;                 /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Register property of whether symlinks is local to file */
-    if(H5P_register_real(pclass, H5F_MNT_SYM_LOCAL_NAME, H5F_MNT_SYM_LOCAL_SIZE, &H5F_def_local_g, 
+    if(H5P__register_real(pclass, H5F_MNT_SYM_LOCAL_NAME, H5F_MNT_SYM_LOCAL_SIZE, &H5F_def_local_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5P_fmnt_reg_prop() */
+} /* end H5P__fmnt_reg_prop() */
 

@@ -828,7 +828,7 @@ done:                                                                         \
 
 /* Macro defining action on source data which needs to be aligned (before main action) */
 #define H5T_CONV_LOOP_PRE_SALIGN(ST) {                          \
-    HDmemcpy(&src_aligned, src, sizeof(ST));                      \
+    H5MM_memcpy(&src_aligned, src, sizeof(ST));                      \
 }
 
 /* Macro defining action on source data which doesn't need to be aligned (before main action) */
@@ -854,7 +854,7 @@ done:                                                                         \
 
 /* Macro defining action on destination data which needs to be aligned (after main action) */
 #define H5T_CONV_LOOP_POST_DALIGN(DT) {                          \
-    HDmemcpy(dst, &dst_aligned, sizeof(DT));                      \
+    H5MM_memcpy(dst, &dst_aligned, sizeof(DT));                      \
 }
 
 /* Macro defining action on destination data which doesn't need to be aligned (after main action) */
@@ -1797,7 +1797,7 @@ H5T__conv_b_b(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  * should copy the value to the true destination buffer.
                  */
                 if(d == dbuf)
-                    HDmemcpy(dp, d, dst->shared->size);
+                    H5MM_memcpy(dp, d, dst->shared->size);
                 if(buf_stride) {
                     sp += direction * (ssize_t)buf_stride; /* Note that cast is checked with H5_CHECK_OVERFLOW, above */
                     dp += direction * (ssize_t)buf_stride; /* Note that cast is checked with H5_CHECK_OVERFLOW, above */
@@ -2852,7 +2852,7 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                         else if(except_ret == H5T_CONV_ABORT)
                             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTCONVERT, FAIL, "can't handle conversion exception")
                     } else
-                        HDmemcpy(d,
+                        H5MM_memcpy(d,
                                  dst->shared->u.enumer.value + (unsigned)priv->src2dst[n] * dst->shared->size,
                                  dst->shared->size);
                 } /* end if */
@@ -2888,7 +2888,7 @@ H5T__conv_enum(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                     } /* end if */
                     else {
                         HDassert(priv->src2dst[md] >= 0);
-                        HDmemcpy(d,
+                        H5MM_memcpy(d,
                                  dst->shared->u.enumer.value + (unsigned)priv->src2dst[md] * dst->shared->size,
                                  dst->shared->size);
                     } /* end else */
@@ -3846,7 +3846,7 @@ H5T__conv_i_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  * should copy the value to the true destination buffer.
                  */
                 if(d==dbuf)
-                    HDmemcpy(dp, d, dst->shared->size);
+                    H5MM_memcpy(dp, d, dst->shared->size);
 
                 /* Advance source & destination pointers by delta amounts */
                 sp += src_delta;
@@ -4432,7 +4432,7 @@ H5T__conv_f_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  */
             next:
                 if(d == dbuf)
-                    HDmemcpy(dp, d, dst_p->shared->size);
+                    H5MM_memcpy(dp, d, dst_p->shared->size);
 
                 /* Advance source & destination pointers by delta amounts */
                 sp += src_delta;
@@ -4604,7 +4604,7 @@ H5T__conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                             --nchars;
                         nchars = MIN(dst->shared->size, nchars);
                         if(d != s)
-                            HDmemcpy(d, s, nchars);
+                            H5MM_memcpy(d, s, nchars);
                         break;
 
                     case H5T_STR_RESERVED_3:
@@ -4666,7 +4666,7 @@ H5T__conv_s_s(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  * should copy the value to the true destination buffer.
                  */
                 if(d == dbuf)
-                    HDmemcpy(dp, d, dst->shared->size);
+                    H5MM_memcpy(dp, d, dst->shared->size);
 
                 /* Advance source & destination pointers by delta amounts */
                 sp += src_delta;
@@ -8833,7 +8833,7 @@ H5T__conv_f_i(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  * should copy the value to the true destination buffer.
                  */
                 if (d==dbuf)
-                    HDmemcpy (dp, d, dst_p->shared->size);
+                    H5MM_memcpy (dp, d, dst_p->shared->size);
                 if (buf_stride) {
                     sp += direction * (ssize_t) buf_stride;
                     dp += direction * (ssize_t) buf_stride;
@@ -9246,7 +9246,7 @@ H5T__conv_i_f(hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata, size_t nelmts,
                  * should copy the value to the true destination buffer.
                  */
                 if (d==dbuf)
-                    HDmemcpy (dp, d, dst_p->shared->size);
+                    H5MM_memcpy (dp, d, dst_p->shared->size);
                 if (buf_stride) {
                     sp += direction * (ssize_t) buf_stride;
                     dp += direction * (ssize_t) buf_stride;

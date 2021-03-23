@@ -15,7 +15,7 @@
  *
  * Created:         H5HLprivate.h
  *                  Jul 16 1997
- *                  Robb Matzke <matzke@llnl.gov>
+ *                  Robb Matzke
  *
  * Purpose:         Private declarations for the H5HL (local heap) package.
  *

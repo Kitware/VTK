@@ -46,7 +46,7 @@
 MAJOR, H5E_ARGS, Invalid arguments to routine
 MAJOR, H5E_RESOURCE, Resource unavailable
 MAJOR, H5E_INTERNAL, Internal error (too specific to document in detail)
-MAJOR, H5E_FILE, File accessibilty
+MAJOR, H5E_FILE, File accessibility
 MAJOR, H5E_IO, Low-level I/O
 MAJOR, H5E_FUNC, Function entry/exit
 MAJOR, H5E_ATOM, Object atom
@@ -82,7 +82,7 @@ MAJOR, H5E_NONE_MAJOR, No error
 # Sections (for grouping minor errors)
 SECTION, ARGS, Argument errors
 SECTION, RESOURCE, Resource errors
-SECTION, FILEACC, File accessibilty errors
+SECTION, FILEACC, File accessibility errors
 SECTION, FILE, Generic low-level file I/O errors
 SECTION, FUNC, Function entry/exit interface errors
 SECTION, ATOM, Object atom related errors
@@ -123,7 +123,7 @@ MINOR, RESOURCE, H5E_CANTGC, Unable to garbage collect
 MINOR, RESOURCE, H5E_CANTGETSIZE, Unable to compute size
 MINOR, RESOURCE, H5E_OBJOPEN, Object is already open
 
-# File accessibilty errors
+# File accessibility errors
 MINOR, FILEACC, H5E_FILEEXISTS, File already exists
 MINOR, FILEACC, H5E_FILEOPEN, File already open
 MINOR, FILEACC, H5E_CANTCREATE, Unable to create file
@@ -133,6 +133,8 @@ MINOR, FILEACC, H5E_NOTHDF5, Not an HDF5 file
 MINOR, FILEACC, H5E_BADFILE, Bad file ID accessed
 MINOR, FILEACC, H5E_TRUNCATED, File has been truncated
 MINOR, FILEACC, H5E_MOUNT, File mount error
+MINOR, FILEACC, H5E_CANTLOCKFILE, Unable to lock file
+MINOR, FILEACC, H5E_CANTUNLOCKFILE, Unable to unlock file
 
 # Generic low-level file I/O errors
 MINOR, FILE, H5E_SEEKERROR, Seek failed
@@ -226,6 +228,7 @@ MINOR, DSPACE, H5E_CANTSELECT, Can't select hyperslab
 MINOR, DSPACE, H5E_CANTNEXT, Can't move to next iterator location
 MINOR, DSPACE, H5E_BADSELECT, Invalid selection
 MINOR, DSPACE, H5E_CANTCOMPARE, Can't compare objects
+MINOR, DSPACE, H5E_INCONSISTENTSTATE, Internal states are inconsistent
 MINOR, DSPACE, H5E_CANTAPPEND, Can't append object
 
 # Property list errors

@@ -223,7 +223,7 @@ H5T__get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_ali
                 int    not_equal;
 
                 if(NULL == (ret_value = H5T_copy(dtype, H5T_COPY_TRANSIENT)))
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot retrieve float type")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot copy reference type")
 
                 /* Decide if the data type is object or dataset region reference. */
                 if(NULL == (dt = (H5T_t *)H5I_object(H5T_STD_REF_OBJ_g)))
@@ -263,7 +263,7 @@ H5T__get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_ali
 
                 /* Construct child compound type and retrieve a list of their IDs, offsets, total size, and alignment for compound type. */
                 for(u = 0; u < nmemb; u++) {
-                    if(NULL == (memb_type = H5T_get_member_type(dtype, u, H5T_COPY_TRANSIENT)))
+                    if(NULL == (memb_type = H5T_get_member_type(dtype, u)))
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "member type retrieval failed")
 
                     if(NULL == (comp_mname[u] = H5T__get_member_name(dtype, u)))
@@ -369,7 +369,7 @@ H5T__get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_ali
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member name")
                     if(H5T__get_member_value(dtype, u, tmp_memb_value) < 0)
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member value")
-                    HDmemcpy(memb_value, tmp_memb_value, H5T_get_size(super_type));
+                    H5MM_memcpy(memb_value, tmp_memb_value, H5T_get_size(super_type));
 
                     if(H5T_convert(tpath, super_type_id, nat_super_type_id, (size_t)1, (size_t)0, (size_t)0, memb_value, NULL) < 0)
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member value")
@@ -515,6 +515,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__get_native_type() */
 
+/* Disable warning for intentional identical branches here -QAK */
+/*
+ *       This pragma only needs to surround the "duplicated branches" in
+ *       the code below, but early (4.4.7, at least) gcc only allows
+ *       diagnostic pragmas to be toggled outside of functions.
+ */
+H5_GCC_DIAG_OFF(duplicated-branches)
 
 /*-------------------------------------------------------------------------
  * Function:    H5T__get_native_integer
@@ -655,7 +662,15 @@ H5T__get_native_integer(size_t prec, H5T_sign_t sign, H5T_direction_t direction,
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__get_native_integer() */
+H5_GCC_DIAG_ON(duplicated-branches)
 
+/* Disable warning for intentional identical branches here -QAK */
+/*
+ *       This pragma only needs to surround the "duplicated branches" in
+ *       the code below, but early (4.4.7, at least) gcc only allows
+ *       diagnostic pragmas to be toggled outside of functions.
+ */
+H5_GCC_DIAG_OFF(duplicated-branches)
 
 /*-------------------------------------------------------------------------
  * Function:    H5T__get_native_float
@@ -780,7 +795,15 @@ H5T__get_native_float(size_t size, H5T_direction_t direction, size_t *struct_ali
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__get_native_float() */
+H5_GCC_DIAG_ON(duplicated-branches)
 
+/* Disable warning for intentional identical branches here -QAK */
+/*
+ *       This pragma only needs to surround the "duplicated branches" in
+ *       the code below, but early (4.4.7, at least) gcc only allows
+ *       diagnostic pragmas to be toggled outside of functions.
+ */
+H5_GCC_DIAG_OFF(duplicated-branches)
 
 /*-------------------------------------------------------------------------
  * Function:    H5T__get_native_bitfield
@@ -866,6 +889,7 @@ H5T__get_native_bitfield(size_t prec, H5T_direction_t direction,
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T__get_native_bitfield() */
+H5_GCC_DIAG_ON(duplicated-branches)
 
 
 /*-------------------------------------------------------------------------

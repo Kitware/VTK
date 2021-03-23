@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  James Laird <jlaird@ncsa.uiuc.edu>
+ * Programmer:  James Laird
  *              Thursday, March 30, 2006
  *
  * Purpose:     This file contains declarations which are visible only within

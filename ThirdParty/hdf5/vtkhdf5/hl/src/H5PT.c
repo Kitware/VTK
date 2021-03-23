@@ -11,8 +11,6 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <stdlib.h>
-
 #include "H5PTprivate.h"
 #include "H5TBprivate.h"
 
@@ -53,8 +51,8 @@ static herr_t H5PT_get_index(htbl_t *table_id, hsize_t *pt_index);
  *
  * Return: Success: table ID, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu (Author of H5PTcreate_fl)
- *             James Laird, jlaird@ncsa.uiuc.edu (Author of H5PTcreate_fl)
+ * Programmer: Nat Furrer (Author of H5PTcreate_fl)
+ *             James Laird (Author of H5PTcreate_fl)
  *
  * Date: March 12, 2004
  *
@@ -182,8 +180,8 @@ error:
  *
  * Return: Success: table ID, Failure: Negative
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 12, 2004
  *
@@ -301,8 +299,8 @@ error:
  *
  * Return: Success: table ID, Failure: Negative
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 10, 2004
  *
@@ -426,8 +424,8 @@ H5PT_free_id(void *id)
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 10, 2004
  *
@@ -475,8 +473,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: April 21, 2004
  *
@@ -530,8 +528,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 12, 2004
  *
@@ -583,8 +581,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 10, 2004
  *
@@ -628,8 +626,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 12, 2004
  *
@@ -680,8 +678,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *  		   James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *  		   James Laird
  *
  * Date: March 12, 2004
  *
@@ -737,8 +735,8 @@ H5PT_get_index(htbl_t *table, hsize_t *pt_index)
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: April 23, 2004
  *
@@ -795,8 +793,8 @@ herr_t H5PTget_index(hid_t table_id, hsize_t *pt_index)
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 12, 2004
  *
@@ -832,8 +830,8 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: March 12, 2004
  *
@@ -861,8 +859,8 @@ herr_t H5PTis_valid(hid_t table_id)
  *
  * Return: True: 1, False: 0, Failure: FAIL
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: April 14, 2004
  *
@@ -910,8 +908,8 @@ error:
  * Return: Success: SUCCEED, Failure: FAIL
  *          -2 if memory was reclaimed but another error occurred
  *
- * Programmer: Nat Furrer, nfurrer@ncsa.uiuc.edu
- *             James Laird, jlaird@ncsa.uiuc.edu
+ * Programmer: Nat Furrer
+ *             James Laird
  *
  * Date: April 12, 2004
  *

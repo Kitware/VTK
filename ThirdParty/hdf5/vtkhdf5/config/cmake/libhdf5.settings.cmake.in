@@ -38,7 +38,7 @@ Languages:
                     H5_CPPFLAGS: @H5_CPPFLAGS@
                     AM_CPPFLAGS: @AM_CPPFLAGS@
                          CFLAGS: @CMAKE_C_FLAGS@
-                      H5_CFLAGS: @H5_CFLAGS@
+                      H5_CFLAGS: @HDF5_CMAKE_C_FLAGS@
                       AM_CFLAGS: @AM_CFLAGS@
                Shared C Library: @H5_ENABLE_SHARED_LIB@
                Static C Library: @H5_ENABLE_STATIC_LIB@
@@ -46,7 +46,7 @@ Languages:
                         Fortran: @HDF5_BUILD_FORTRAN@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@               Fortran Compiler: @CMAKE_Fortran_COMPILER@ @CMAKE_Fortran_COMPILER_VERSION@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@                  Fortran Flags: @CMAKE_Fortran_FLAGS@
-@BUILD_FORTRAN_CONDITIONAL_TRUE@               H5 Fortran Flags: @H5_FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               H5 Fortran Flags: @HDF5_CMAKE_Fortran_FLAGS@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@               AM Fortran Flags: @AM_FCFLAGS@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@         Shared Fortran Library: @H5_ENABLE_SHARED_LIB@
 @BUILD_FORTRAN_CONDITIONAL_TRUE@         Static Fortran Library: @H5_ENABLE_STATIC_LIB@
@@ -54,7 +54,7 @@ Languages:
                             C++: @HDF5_BUILD_CPP_LIB@
 @BUILD_CXX_CONDITIONAL_TRUE@                   C++ Compiler: @CMAKE_CXX_COMPILER@ @CMAKE_CXX_COMPILER_VERSION@
 @BUILD_CXX_CONDITIONAL_TRUE@                      C++ Flags: @CMAKE_CXX_FLAGS@
-@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @HDF5_CMAKE_CXX_FLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@                   AM C++ Flags: @AM_CXXFLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@             Shared C++ Library: @H5_ENABLE_SHARED_LIB@
 @BUILD_CXX_CONDITIONAL_TRUE@             Static C++ Library: @H5_ENABLE_STATIC_LIB@
@@ -76,6 +76,7 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
           I/O filters (external): @EXTERNAL_FILTERS@
                              MPE: @H5_HAVE_LIBLMPE@
                       Direct VFD: @H5_HAVE_DIRECT@
+                      Mirror VFD: @H5_HAVE_MIRROR_VFD@
               (Read-Only) S3 VFD: @H5_HAVE_ROS3_VFD@
             (Read-Only) HDFS VFD: @H5_HAVE_LIBHDFS@
                          dmalloc: @H5_HAVE_LIBDMALLOC@
@@ -84,5 +85,6 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
             Using memory checker: @HDF5_ENABLE_USING_MEMCHECKER@
  Memory allocation sanity checks: @HDF5_MEMORY_ALLOC_SANITY_CHECK@
           Function Stack Tracing: @HDF5_ENABLE_CODESTACK@
+                Use file locking: @HDF5_FILE_LOCKING_SETTING@
        Strict File Format Checks: @HDF5_STRICT_FORMAT_CHECKS@
     Optimization Instrumentation: @HDF5_Enable_Instrument@

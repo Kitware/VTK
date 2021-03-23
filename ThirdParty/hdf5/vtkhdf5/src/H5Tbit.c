@@ -363,7 +363,7 @@ H5T__bit_set(uint8_t *buf, size_t offset, size_t size, hbool_t value)
 
     /* The middle bytes */
     while (size >= 8) {
-        buf[idx++] = value ? 0xff : 0x00;
+        buf[idx++] = (uint8_t)(value ? 0xff : 0x00);
         size -= 8;
     }
 
@@ -532,7 +532,7 @@ H5T__bit_inc(uint8_t *buf, size_t start, size_t size)
         acc = buf[idx];
         acc++;
         carry = acc & 0x100;
-        buf[idx] = acc & 0xff;
+        buf[idx] = (uint8_t)(acc & 0xff);
         idx++;
         size -= 8;
     }

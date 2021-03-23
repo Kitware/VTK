@@ -153,23 +153,23 @@ H5FL_EXTERN(H5AC_aux_t);
  *
  * Update: When the above was written, I planned to allow the process
  *	0 metadata cache to write dirty metadata between sync points.
- *	However, testing indicated that this allowed occasional 
+ *	However, testing indicated that this allowed occasional
  *	messages from the future to reach the caches on other processes.
  *
  *	To resolve this, the code was altered to require that all metadata
  *	writes take place during sync points -- which solved the problem.
- *	Initially all writes were performed by the process 0 cache.  This 
+ *	Initially all writes were performed by the process 0 cache.  This
  *	approach was later replaced with a distributed write approach
- *	in which each process writes a subset of the metadata to be 
- *	written.  
+ *	in which each process writes a subset of the metadata to be
+ *	written.
  *
- *	After thinking on the matter for a while, I arrived at the 
- *	conclusion that the process 0 cache could be allowed to write 
- *	dirty metadata between sync points if it restricted itself to 
- *	entries that had been dirty at the time of the previous sync point.  
- *	
+ *	After thinking on the matter for a while, I arrived at the
+ *	conclusion that the process 0 cache could be allowed to write
+ *	dirty metadata between sync points if it restricted itself to
+ *	entries that had been dirty at the time of the previous sync point.
+ *
  *	To date, there has been no attempt to implement this optimization.
- *	However, should it be attempted, much of the supporting code 
+ *	However, should it be attempted, much of the supporting code
  *	should still be around.
  *
  *						JRM -- 1/6/15
@@ -206,14 +206,14 @@ H5FL_EXTERN(H5AC_aux_t);
  *		broadcast.  This field is reset to zero after each such
  *		broadcast.
  *
- * metadata_write_strategy: Integer code indicating how we will be 
- *		writing the metadata.  In the first incarnation of 
+ * metadata_write_strategy: Integer code indicating how we will be
+ *		writing the metadata.  In the first incarnation of
  *		this code, all writes were done from process 0.  This
- *		field exists to facilitate experiments with other 
+ *		field exists to facilitate experiments with other
  *		strategies.
  *
  *		At present, this field must be set to either
- *		H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY or 
+ *		H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY or
  *		H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED.
  *
  * dirty_bytes_propagations: This field only exists when the
@@ -267,7 +267,7 @@ H5FL_EXTERN(H5AC_aux_t);
  *
  * Things have changed a bit since the following four fields were defined.
  * If metadata_write_strategy is H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY,
- * all comments hold as before -- with the caviate that pending further 
+ * all comments hold as before -- with the caviate that pending further
  * coding, the process 0 metadata cache is forbidden to flush entries outside
  * of a sync point.
  *
@@ -337,16 +337,16 @@ H5FL_EXTERN(H5AC_aux_t);
  *              needed.
  *
  *		Note: This field has been extended for use by all processes
- *		      with the addition of support for the distributed 
- *		      metadata write strategy.        
+ *		      with the addition of support for the distributed
+ *		      metadata write strategy.
  *                                                     JRM -- 5/9/10
  *
  * sync_point_done:  In the parallel test bed, it is necessary to verify
  *		that the expected writes, and only the expected writes,
  *		have taken place at the end of each sync point.
  *
- *		The sync_point_done callback allows t_cache to perform 
- *		this verification.  The field is set to NULL when the 
+ *		The sync_point_done callback allows t_cache to perform
+ *		this verification.  The field is set to NULL when the
  *		callback is not needed.
  *
  * The following field supports the metadata cache image feature.
@@ -402,7 +402,7 @@ typedef struct H5AC_aux_t
 
     void	(* write_done)(void);
 
-    void	(* sync_point_done)(unsigned num_writes, 
+    void	(* sync_point_done)(unsigned num_writes,
                                     haddr_t * written_entries_tbl);
 
     unsigned    p0_image_len;

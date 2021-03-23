@@ -15,7 +15,7 @@
  *
  * Created:		H5EA.c
  *			Jun 17 2008
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Implements an "extensible array" for storing elements
  *                      in an array whose high bounds can extend and shrink.
@@ -46,6 +46,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5EApkg.h"		/* Extensible Arrays			*/
 #include "H5FLprivate.h"	/* Free Lists                           */
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"        /* Vector functions			*/
 
 
@@ -123,7 +124,6 @@ H5FL_BLK_DEFINE(ea_native_elmt);
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@lbl.gov
  *		Oct 10 2016
  *
  *-------------------------------------------------------------------------
@@ -189,7 +189,6 @@ END_FUNC(STATIC)  /* end H5EA__new() */
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jun 17 2008
  *
  *-------------------------------------------------------------------------
@@ -240,7 +239,6 @@ END_FUNC(PRIV)  /* end H5EA_create() */
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 28 2008
  *
  *-------------------------------------------------------------------------
@@ -282,7 +280,6 @@ END_FUNC(PRIV)  /* end H5EA_open() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 21 2008
  *
  *-------------------------------------------------------------------------
@@ -313,7 +310,6 @@ END_FUNC(PRIV)  /* end H5EA_get_nelmts() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 21 2008
  *
  *-------------------------------------------------------------------------
@@ -346,7 +342,6 @@ END_FUNC(PRIV)  /* end H5EA_get_addr() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sep  9 2008
  *
  *-------------------------------------------------------------------------
@@ -655,7 +650,6 @@ END_FUNC(STATIC)  /* end H5EA__lookup_elmt() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sep  9 2008
  *
  *-------------------------------------------------------------------------
@@ -693,7 +687,7 @@ H5EA_set(const H5EA_t *ea, hsize_t idx, const void *elmt))
     HDassert(thing_unprot_func);
 
     /* Set element in thing's element buffer */
-    HDmemcpy(thing_elmt_buf + (hdr->cparam.cls->nat_elmt_size * thing_elmt_idx), elmt, hdr->cparam.cls->nat_elmt_size);
+    H5MM_memcpy(thing_elmt_buf + (hdr->cparam.cls->nat_elmt_size * thing_elmt_idx), elmt, hdr->cparam.cls->nat_elmt_size);
     thing_cache_flags |= H5AC__DIRTIED_FLAG;
 
     /* Update max. element set in array, if appropriate */
@@ -720,7 +714,6 @@ END_FUNC(PRIV)  /* end H5EA_set() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sep 11 2008
  *
  *-------------------------------------------------------------------------
@@ -765,7 +758,7 @@ H5EA_get(const H5EA_t *ea, hsize_t idx, void *elmt))
         } /* end if */
         else
             /* Get element from thing's element buffer */
-            HDmemcpy(elmt, thing_elmt_buf + (hdr->cparam.cls->nat_elmt_size * thing_elmt_idx), hdr->cparam.cls->nat_elmt_size);
+            H5MM_memcpy(elmt, thing_elmt_buf + (hdr->cparam.cls->nat_elmt_size * thing_elmt_idx), hdr->cparam.cls->nat_elmt_size);
     } /* end else */
 
 CATCH
@@ -785,7 +778,6 @@ END_FUNC(PRIV)  /* end H5EA_get() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		May 27 2009
  *
  *-------------------------------------------------------------------------
@@ -835,7 +827,6 @@ END_FUNC(PRIV)  /* end H5EA_depend() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 21 2008
  *
  *-------------------------------------------------------------------------
@@ -936,7 +927,6 @@ END_FUNC(PRIV)  /* end H5EA_close() */
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 28 2008
  *
  *-------------------------------------------------------------------------
@@ -990,11 +980,6 @@ END_FUNC(PRIV)  /* end H5EA_delete() */
  *
  * Programmer:  Vailin Choi; Feb 2015
  *
- * Modification:
- *              Prototype changed (HDFFV-10661)
- *              - herr_t to int
- *              - SUCCEED/FAIL to H5_ITER_CONT/H5_ITER_ERROR
- *              December 24, 2018 -BMR
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(PRIV, ERR,

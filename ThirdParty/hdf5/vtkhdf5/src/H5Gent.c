@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer: Robb Matzke <matzke@llnl.gov>
+ * Programmer: Robb Matzke
  *             Friday, September 19, 1997
  */
 
@@ -32,6 +32,7 @@
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5Gpkg.h"		/* Groups		  		*/
 #include "H5HLprivate.h"	/* Local Heaps				*/
+#include "H5MMprivate.h"	/* Memory management			*/
 
 
 /****************/
@@ -85,7 +86,6 @@ H5FL_BLK_EXTERN(str_buf);
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul 18 1997
  *
  *-------------------------------------------------------------------------
@@ -127,7 +127,6 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul 18 1997
  *
  *-------------------------------------------------------------------------
@@ -193,7 +192,6 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul 18 1997
  *
  *-------------------------------------------------------------------------
@@ -233,7 +231,6 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul 18 1997
  *
  *-------------------------------------------------------------------------
@@ -305,7 +302,6 @@ done:
  *		Failure:	Negative
  *
  * Programmer:	Pedro Vicente
- *              pvn@ncsa.uiuc.edu
  *              ???day, August ??, 2002
  *
  * Notes:       'depth' parameter determines how much of the group entry
@@ -331,7 +327,7 @@ H5G__ent_copy(H5G_entry_t *dst, const H5G_entry_t *src, H5_copy_depth_t depth)
     HDassert(depth == H5_COPY_SHALLOW || depth == H5_COPY_DEEP);
 
     /* Copy the top level information */
-    HDmemcpy(dst, src, sizeof(H5G_entry_t));
+    H5MM_memcpy(dst, src, sizeof(H5G_entry_t));
 
     /* Deep copy the names */
     if(depth == H5_COPY_DEEP) {
@@ -384,7 +380,6 @@ H5G__ent_reset(H5G_entry_t *ent)
  *		Failure:	Negative
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Sep 20 2005
  *
  *-------------------------------------------------------------------------
@@ -529,7 +524,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug 29 1997
  *
  *-------------------------------------------------------------------------

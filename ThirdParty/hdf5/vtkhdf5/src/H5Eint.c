@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:    H5Eint.c
- *        April 11 2007
- *        Quincey Koziol <koziol@hdfgroup.org>
+ * Created:	H5Eint.c
+ *		April 11 2007
+ *		Quincey Koziol
  *
- * Purpose:    General use, "internal" routines for error handling.
+ * Purpose:	General use, "internal" routines for error handling.
  *
  *-------------------------------------------------------------------------
  */
@@ -32,11 +32,11 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"        /* Generic Functions            */
-#include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Epkg.h"        /* Error handling              */
-#include "H5Iprivate.h"        /* IDs                                  */
-#include "H5MMprivate.h"    /* Memory management            */
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5Epkg.h"             /* Error handling                           */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5MMprivate.h"        /* Memory management                        */
+#include "H5TSprivate.h"        /* Thread stuff                             */
 
 
 /****************/
@@ -64,12 +64,12 @@ typedef struct H5E_print_t {
 /* Local Prototypes */
 /********************/
 #ifndef H5_NO_DEPRECATED_SYMBOLS
-static herr_t H5E_walk1_cb(int n, H5E_error1_t *err_desc,
+static herr_t H5E__walk1_cb(int n, H5E_error1_t *err_desc,
     void *client_data);
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
-static herr_t H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc,
+static herr_t H5E__walk2_cb(unsigned n, const H5E_error2_t *err_desc,
     void *client_data);
-static herr_t  H5E_clear_entries(H5E_t *estack, size_t nentries);
+static herr_t H5E__clear_entries(H5E_t *estack, size_t nentries);
 
 
 /*********************/
@@ -107,31 +107,31 @@ hid_t H5E_ERR_CLS_g = FAIL;
 /*
  * variables used for MPI error reporting
  */
-char    H5E_mpi_error_str[MPI_MAX_ERROR_STRING];
-int    H5E_mpi_error_str_len;
+char	H5E_mpi_error_str[MPI_MAX_ERROR_STRING];
+int     H5E_mpi_error_str_len;
 #endif /* H5_HAVE_PARALLEL */
 
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_get_msg
+ * Function:    H5E__get_msg
  *
- * Purpose:    Private function to retrieve an error message.
+ * Purpose:     Private function to retrieve an error message.
  *
- * Return:      Non-negative for name length if succeeds(zero means no name);
- *              otherwise returns negative value.
+ * Return:      Success:    Message length (zero means no message)
+ *              Failure:    -1
  *
- * Programmer:    Raymond Lu
+ * Programmer:	Raymond Lu
  *              Friday, July 14, 2003
  *
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5E_get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
+H5E__get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
 {
     ssize_t       len = -1;     /* Length of error message */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments */
     HDassert(msg);
@@ -151,57 +151,57 @@ H5E_get_msg(const H5E_msg_t *msg, H5E_type_t *type, char *msg_str, size_t size)
 
     /* Set the return value to the full length of the message */
     FUNC_LEAVE_NOAPI(len)
-} /* end H5E_get_msg() */
+} /* end H5E__get_msg() */
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_walk1_cb
+ * Function:    H5E__walk1_cb
  *
- * Purpose:    This function is for backward compatibility.
+ * Purpose:     This function is for backward compatibility.
  *              This is a default error stack traversal callback function
- *        that prints error messages to the specified output stream.
- *        This function is for backward compatibility with v1.6.
- *        It is not meant to be called directly but rather as an
- *        argument to the H5Ewalk() function.  This function is called
- *        also by H5Eprint().  Application writers are encouraged to
- *        use this function as a model for their own error stack
- *        walking functions.
+ *              that prints error messages to the specified output stream.
+ *              This function is for backward compatibility with v1.6.
+ *              It is not meant to be called directly but rather as an
+ *              argument to the H5Ewalk() function.  This function is called
+ *              also by H5Eprint().  Application writers are encouraged to
+ *              use this function as a model for their own error stack
+ *              walking functions.
  *
- *        N is a counter for how many times this function has been
- *        called for this particular traversal of the stack.  It always
- *        begins at zero for the first error on the stack (either the
- *        top or bottom error, or even both, depending on the traversal
- *        direction and the size of the stack).
+ *              N is a counter for how many times this function has been
+ *              called for this particular traversal of the stack.  It always
+ *              begins at zero for the first error on the stack (either the
+ *              top or bottom error, or even both, depending on the traversal
+ *              direction and the size of the stack).
  *
- *        ERR_DESC is an error description.  It contains all the
- *        information about a particular error.
+ *              ERR_DESC is an error description.  It contains all the
+ *              information about a particular error.
  *
- *        CLIENT_DATA is the same pointer that was passed as the
- *        CLIENT_DATA argument of H5Ewalk().  It is expected to be a
- *        file pointer (or stderr if null).
+ *              CLIENT_DATA is the same pointer that was passed as the
+ *              CLIENT_DATA argument of H5Ewalk().  It is expected to be a
+ *              file pointer (or stderr if null).
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:  Raymond Lu
- *        Thursday, May 11, 2006
+ *		Thursday, May 11, 2006
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
+H5E__walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
 {
     H5E_print_t         *eprint  = (H5E_print_t *)client_data;
-    FILE        *stream;        /* I/O stream to print output to */
+    FILE		*stream;        /* I/O stream to print output to */
     H5E_cls_t           *cls_ptr;       /* Pointer to error class */
     H5E_msg_t           *maj_ptr;       /* Pointer to major error info */
     H5E_msg_t           *min_ptr;       /* Pointer to minor error info */
-    const char        *maj_str = "No major description";      /* Major error description */
-    const char        *min_str = "No minor description";      /* Minor error description */
+    const char		*maj_str = "No major description";      /* Major error description */
+    const char		*min_str = "No minor description";      /* Minor error description */
     unsigned            have_desc = 1;  /* Flag to indicate whether the error has a "real" description */
     herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Check arguments */
     HDassert(err_desc);
@@ -248,20 +248,18 @@ H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
         {
             int mpi_rank, mpi_initialized, mpi_finalized;
 
-        MPI_Initialized(&mpi_initialized);
+            MPI_Initialized(&mpi_initialized);
             MPI_Finalized(&mpi_finalized);
 
             if(mpi_initialized && !mpi_finalized) {
-            MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-            HDfprintf(stream, "MPI-process %d", mpi_rank);
-        } /* end if */
+                MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+                HDfprintf(stream, "MPI-process %d", mpi_rank);
+            } /* end if */
             else
-            HDfprintf(stream, "thread 0");
+                HDfprintf(stream, "thread 0");
         } /* end block */
-#elif defined(H5_HAVE_THREADSAFE)
-        HDfprintf(stream, "thread %lu", (unsigned long)HDpthread_self_ulong());
 #else
-        HDfprintf(stream, "thread 0");
+        HDfprintf(stream, "thread %" PRIu64, H5TS_thread_id());
 #endif
         HDfprintf(stream, ":\n");
     } /* end if */
@@ -272,63 +270,63 @@ H5E_walk1_cb(int n, H5E_error1_t *err_desc, void *client_data)
 
     /* Print error message */
     HDfprintf(stream, "%*s#%03d: %s line %u in %s()%s%s\n",
-        H5E_INDENT, "", n, err_desc->file_name, err_desc->line,
-        err_desc->func_name, (have_desc ? ": " : ""),
+	     H5E_INDENT, "", n, err_desc->file_name, err_desc->line,
+	     err_desc->func_name, (have_desc ? ": " : ""),
              (have_desc ? err_desc->desc : ""));
     HDfprintf(stream, "%*smajor: %s\n", (H5E_INDENT * 2), "", maj_str);
     HDfprintf(stream, "%*sminor: %s\n", (H5E_INDENT * 2), "", min_str);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_walk1_cb() */
+} /* end H5E__walk1_cb() */
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_walk2_cb
+ * Function:    H5E__walk2_cb
  *
- * Purpose:    This is a default error stack traversal callback function
- *        that prints error messages to the specified output stream.
- *        It is not meant to be called directly but rather as an
- *        argument to the H5Ewalk2() function.  This function is
- *        called also by H5Eprint2().  Application writers are
- *        encouraged to use this function as a model for their own
- *        error stack walking functions.
+ * Purpose:     This is a default error stack traversal callback function
+ *              that prints error messages to the specified output stream.
+ *              It is not meant to be called directly but rather as an
+ *              argument to the H5Ewalk2() function.  This function is
+ *              called also by H5Eprint2().  Application writers are
+ *              encouraged to use this function as a model for their own
+ *              error stack walking functions.
  *
- *        N is a counter for how many times this function has been
- *        called for this particular traversal of the stack.  It always
- *        begins at zero for the first error on the stack (either the
- *        top or bottom error, or even both, depending on the traversal
- *        direction and the size of the stack).
+ *              N is a counter for how many times this function has been
+ *              called for this particular traversal of the stack.  It always
+ *              begins at zero for the first error on the stack (either the
+ *              top or bottom error, or even both, depending on the traversal
+ *              direction and the size of the stack).
  *
- *        ERR_DESC is an error description.  It contains all the
- *        information about a particular error.
+ *              ERR_DESC is an error description.  It contains all the
+ *              information about a particular error.
  *
- *        CLIENT_DATA is the same pointer that was passed as the
- *        CLIENT_DATA argument of H5Ewalk().  It is expected to be a
- *        file pointer (or stderr if null).
+ *              CLIENT_DATA is the same pointer that was passed as the
+ *              CLIENT_DATA argument of H5Ewalk().  It is expected to be a
+ *              file pointer (or stderr if null).
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Robb Matzke
- *        Friday, December 12, 1997
+ * Programmer:	Robb Matzke
+ *		Friday, December 12, 1997
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
+H5E__walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
 {
     H5E_print_t         *eprint  = (H5E_print_t *)client_data;
-    FILE        *stream;        /* I/O stream to print output to */
+    FILE		*stream;        /* I/O stream to print output to */
     H5E_cls_t           *cls_ptr;       /* Pointer to error class */
     H5E_msg_t           *maj_ptr;       /* Pointer to major error info */
     H5E_msg_t           *min_ptr;       /* Pointer to minor error info */
-    const char        *maj_str = "No major description";      /* Major error description */
-    const char        *min_str = "No minor description";      /* Minor error description */
+    const char		*maj_str = "No major description";      /* Major error description */
+    const char		*min_str = "No minor description";      /* Minor error description */
     unsigned            have_desc = 1;  /* Flag to indicate whether the error has a "real" description */
     herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Check arguments */
     HDassert(err_desc);
@@ -380,20 +378,18 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
         {
             int mpi_rank, mpi_initialized, mpi_finalized;
 
-        MPI_Initialized(&mpi_initialized);
+            MPI_Initialized(&mpi_initialized);
             MPI_Finalized(&mpi_finalized);
 
             if(mpi_initialized && !mpi_finalized) {
-            MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-            HDfprintf(stream, "MPI-process %d", mpi_rank);
-        } /* end if */
+                MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+                HDfprintf(stream, "MPI-process %d", mpi_rank);
+            } /* end if */
             else
-            HDfprintf(stream, "thread 0");
+                HDfprintf(stream, "thread 0");
         } /* end block */
-#elif defined(H5_HAVE_THREADSAFE)
-        HDfprintf(stream, "thread %lu", (unsigned long)HDpthread_self_ulong());
 #else
-        HDfprintf(stream, "thread 0");
+        HDfprintf(stream, "thread %" PRIu64, H5TS_thread_id());
 #endif
         HDfprintf(stream, ":\n");
     } /* end if */
@@ -404,19 +400,19 @@ H5E_walk2_cb(unsigned n, const H5E_error2_t *err_desc, void *client_data)
 
     /* Print error message */
     HDfprintf(stream, "%*s#%03u: %s line %u in %s()%s%s\n",
-        H5E_INDENT, "", n, err_desc->file_name, err_desc->line,
-        err_desc->func_name, (have_desc ? ": " : ""),
+	     H5E_INDENT, "", n, err_desc->file_name, err_desc->line,
+	     err_desc->func_name, (have_desc ? ": " : ""),
              (have_desc ? err_desc->desc : ""));
     HDfprintf(stream, "%*smajor: %s\n", (H5E_INDENT * 2), "", maj_str);
     HDfprintf(stream, "%*sminor: %s\n", (H5E_INDENT * 2), "", min_str);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_walk2_cb() */
+} /* end H5E__walk2_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_print
+ * Function:    H5E__print
  *
  * Purpose:     Private function to print the error stack in some default
  *              way.  This is just a convenience function for H5Ewalk() and
@@ -424,21 +420,21 @@ done:
  *              Users are encouraged to write their own more specific error
  *              handlers.
  *
- * Return:      Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Robb Matzke
+ * Programmer:	Robb Matzke
  *              Friday, February 27, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compatible)
+H5E__print(const H5E_t *estack, FILE *stream, hbool_t bk_compatible)
 {
     H5E_print_t eprint;         /* Callback information to pass to H5E_walk() */
     H5E_walk_op_t walk_op;      /* Error stack walking callback */
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(estack);
@@ -456,8 +452,8 @@ H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compatible)
     if(bk_compatible) {
 #ifndef H5_NO_DEPRECATED_SYMBOLS
         walk_op.vers = 1;
-        walk_op.u.func1 = H5E_walk1_cb;
-        if(H5E_walk(estack, H5E_WALK_DOWNWARD, &walk_op, (void*)&eprint) < 0)
+        walk_op.u.func1 = H5E__walk1_cb;
+        if(H5E__walk(estack, H5E_WALK_DOWNWARD, &walk_op, (void*)&eprint) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTLIST, FAIL, "can't walk error stack")
 #else /* H5_NO_DEPRECATED_SYMBOLS */
         HDassert(0 && "version 1 error stack print without deprecated symbols!");
@@ -465,54 +461,54 @@ H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compatible)
     } /* end if */
     else {
         walk_op.vers = 2;
-        walk_op.u.func2 = H5E_walk2_cb;
-        if(H5E_walk(estack, H5E_WALK_DOWNWARD, &walk_op, (void*)&eprint) < 0)
+        walk_op.u.func2 = H5E__walk2_cb;
+        if(H5E__walk(estack, H5E_WALK_DOWNWARD, &walk_op, (void*)&eprint) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTLIST, FAIL, "can't walk error stack")
     } /* end else */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_print() */
+} /* end H5E__print() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_walk
+ * Function:    H5E__walk
  *
- * Purpose:    Private function for H5Ewalk.
+ * Purpose:     Private function for H5Ewalk.
  *              Walks the error stack, calling the specified function for
- *        each error on the stack.  The DIRECTION argument determines
- *        whether the stack is walked from the inside out or the
- *        outside in.  The value H5E_WALK_UPWARD means begin with the
- *        most specific error and end at the API; H5E_WALK_DOWNWARD
- *        means to start at the API and end at the inner-most function
- *        where the error was first detected.
+ *              each error on the stack.  The DIRECTION argument determines
+ *              whether the stack is walked from the inside out or the
+ *              outside in.  The value H5E_WALK_UPWARD means begin with the
+ *              most specific error and end at the API; H5E_WALK_DOWNWARD
+ *              means to start at the API and end at the inner-most function
+ *              where the error was first detected.
  *
- *        The function pointed to by STACK_FUNC will be called for
- *        each error record in the error stack. It's arguments will
- *        include an index number (beginning at zero regardless of
- *        stack traversal    direction), an error stack entry, and the
- *        CLIENT_DATA pointer passed to H5E_print.
+ *              The function pointed to by STACK_FUNC will be called for
+ *              each error record in the error stack. It's arguments will
+ *              include an index number (beginning at zero regardless of
+ *              stack traversal	direction), an error stack entry, and the
+ *              CLIENT_DATA pointer passed to H5E_print.
  *
- *        The function FUNC is also provided for backward compatibility.
- *        When BK_COMPATIBLE is set to be TRUE, FUNC is used to be
- *        compatible with older library.  If BK_COMPATIBLE is FALSE,
- *        STACK_FUNC is used.
+ *              The function FUNC is also provided for backward compatibility.
+ *              When BK_COMPATIBLE is set to be TRUE, FUNC is used to be
+ *              compatible with older library.  If BK_COMPATIBLE is FALSE,
+ *              STACK_FUNC is used.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Robb Matzke
- *        Friday, December 12, 1997
+ * Programmer:	Robb Matzke
+ *		Friday, December 12, 1997
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op,
+H5E__walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op,
     void *client_data)
 {
-    int       i;                          /* Local index variable */
+    int		i;              /* Local index variable */
     herr_t ret_value = H5_ITER_CONT;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
     HDassert(estack);
@@ -520,7 +516,7 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
 
     /* check args, but rather than failing use some default value */
     if(direction != H5E_WALK_UPWARD && direction != H5E_WALK_DOWNWARD)
-    direction = H5E_WALK_UPWARD;
+	direction = H5E_WALK_UPWARD;
 
     /* Walk the stack if a callback function was given */
     if(op->vers == 1) {
@@ -528,6 +524,7 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
         if(op->u.func1) {
             H5E_error1_t old_err;
 
+            ret_value = SUCCEED;
             if(H5E_WALK_UPWARD == direction) {
                 for(i = 0; i < (int)estack->nused && ret_value == H5_ITER_CONT; i++) {
                     /* Point to each error record on the stack and pass it to callback function.*/
@@ -566,6 +563,7 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
     else {
         HDassert(op->vers == 2);
         if(op->u.func2) {
+            ret_value = SUCCEED;
             if(H5E_WALK_UPWARD == direction) {
                 for(i = 0; i < (int)estack->nused && ret_value == H5_ITER_CONT; i++)
                     ret_value = (op->u.func2)((unsigned)i, estack->slot + i, client_data);
@@ -581,30 +579,29 @@ H5E_walk(const H5E_t *estack, H5E_direction_t direction, const H5E_walk_op_t *op
         } /* end if */
     } /* end else */
 
-done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_walk() */
+} /* end H5E__walk() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_get_auto
+ * Function:    H5E__get_auto
  *
- * Purpose:    Private function to return the current settings for the
+ * Purpose:     Private function to return the current settings for the
  *              automatic error stack traversal function and its data
  *              for specific error stack. Either (or both) arguments may
  *              be null in which case the value is not returned.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Raymond Lu
+ * Programmer:	Raymond Lu
  *              July 18, 2003
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_get_auto(const H5E_t *estack, H5E_auto_op_t *op, void **client_data)
+H5E__get_auto(const H5E_t *estack, H5E_auto_op_t *op, void **client_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     HDassert(estack);
 
@@ -615,36 +612,36 @@ H5E_get_auto(const H5E_t *estack, H5E_auto_op_t *op, void **client_data)
         *client_data = estack->auto_data;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5E_get_auto2() */
+} /* end H5E__get_auto() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_set_auto
+ * Function:    H5E__set_auto
  *
- * Purpose:    Private function to turn on or off automatic printing of
+ * Purpose:     Private function to turn on or off automatic printing of
  *              errors for certain error stack.  When turned on (non-null
  *              FUNC pointer) any API function which returns an error
  *              indication will first call FUNC passing it CLIENT_DATA
  *              as an argument.
  *
- *        The default values before this function is called are
- *        H5Eprint2() with client data being the standard error stream,
- *        stderr.
+ *              The default values before this function is called are
+ *              H5Eprint2() with client data being the standard error stream,
+ *              stderr.
  *
- *        Automatic stack traversal is always in the H5E_WALK_DOWNWARD
- *        direction.
+ *              Automatic stack traversal is always in the H5E_WALK_DOWNWARD
+ *              direction.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Robb Matzke
+ * Programmer:	Robb Matzke
  *              Friday, February 27, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op, void *client_data)
+H5E__set_auto(H5E_t *estack, const H5E_auto_op_t *op, void *client_data)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     HDassert(estack);
 
@@ -653,18 +650,18 @@ H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op, void *client_data)
     estack->auto_data = client_data;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5E_set_auto() */
+} /* end H5E__set_auto() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5E_printf_stack
  *
- * Purpose:    Printf-like wrapper around H5E__push_stack.
+ * Purpose:     Printf-like wrapper around H5E__push_stack.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Quincey Koziol
- *        Tuesday, August 12, 2008
+ * Programmer:	Quincey Koziol
+ *		Tuesday, August 12, 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -679,14 +676,14 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
 #endif /* H5_HAVE_VASPRINTF */
     char        *tmp = NULL;      /* Buffer to place formatted description in */
     hbool_t     va_started = FALSE; /* Whether the variable argument list is open */
-    herr_t    ret_value = SUCCEED;    /* Return value */
+    herr_t	ret_value = SUCCEED;    /* Return value */
 
     /*
      * WARNING: We cannot call HERROR() from within this function or else we
-     *        could enter infinite recursion.  Furthermore, we also cannot
-     *        call any other HDF5 macro or function which might call
-     *        HERROR().  HERROR() is called by HRETURN_ERROR() which could
-     *        be called by FUNC_ENTER().
+     *		could enter infinite recursion.  Furthermore, we also cannot
+     *		call any other HDF5 macro or function which might call
+     *		HERROR().  HERROR() is called by HRETURN_ERROR() which could
+     *		be called by FUNC_ENTER().
      */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -702,7 +699,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
  */
 
     /* Start the variable-argument parsing */
-    va_start(ap, fmt);
+    HDva_start(ap, fmt);
     va_started = TRUE;
 
 #ifdef H5_HAVE_VASPRINTF
@@ -718,8 +715,8 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
     /* If the description doesn't fit into the initial buffer size, allocate more space and try again */
     while((desc_len = HDvsnprintf(tmp, (size_t)tmp_len, fmt, ap)) > (tmp_len - 1)) {
         /* shutdown & restart the va_list */
-        va_end(ap);
-        va_start(ap, fmt);
+        HDva_end(ap);
+        HDva_start(ap, fmt);
 
         /* Release the previous description, it's too small */
         H5MM_xfree(tmp);
@@ -737,7 +734,7 @@ H5E_printf_stack(H5E_t *estack, const char *file, const char *func, unsigned lin
 
 done:
     if(va_started)
-        va_end(ap);
+        HDva_end(ap);
 #ifdef H5_HAVE_VASPRINTF
     /* Memory was allocated with HDvasprintf so it needs to be freed
      * with HDfree
@@ -752,24 +749,24 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_printf_stack() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5E__push_stack
  *
- * Purpose:    Pushes a new error record onto error stack for the current
- *        thread.  The error has major and minor IDs MAJ_ID and
- *        MIN_ID, the name of a function where the error was detected,
- *        the name of the file where the error was detected, the
- *        line within that file, and an error description string.  The
- *        function name, file name, and error description strings must
- *        be statically allocated (the FUNC_ENTER() macro takes care of
- *        the function name and file name automatically, but the
- *        programmer is responsible for the description string).
+ * Purpose:     Pushes a new error record onto error stack for the current
+ *              thread.  The error has major and minor IDs MAJ_ID and
+ *              MIN_ID, the name of a function where the error was detected,
+ *              the name of the file where the error was detected, the
+ *              line within that file, and an error description string.  The
+ *              function name, file name, and error description strings must
+ *              be statically allocated (the FUNC_ENTER() macro takes care of
+ *              the function name and file name automatically, but the
+ *              programmer is responsible for the description string).
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Robb Matzke
- *        Friday, December 12, 1997
+ * Programmer:	Robb Matzke
+ *		Friday, December 12, 1997
  *
  *-------------------------------------------------------------------------
  */
@@ -777,14 +774,14 @@ herr_t
 H5E__push_stack(H5E_t *estack, const char *file, const char *func, unsigned line,
     hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc)
 {
-    herr_t    ret_value = SUCCEED;      /* Return value */
+    herr_t	ret_value = SUCCEED;      /* Return value */
 
     /*
      * WARNING: We cannot call HERROR() from within this function or else we
-     *        could enter infinite recursion.  Furthermore, we also cannot
-     *        call any other HDF5 macro or function which might call
-     *        HERROR().  HERROR() is called by HRETURN_ERROR() which could
-     *        be called by FUNC_ENTER().
+     *		could enter infinite recursion.  Furthermore, we also cannot
+     *		call any other HDF5 macro or function which might call
+     *		HERROR().  HERROR() is called by HRETURN_ERROR() which could
+     *		be called by FUNC_ENTER().
      */
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -795,7 +792,7 @@ H5E__push_stack(H5E_t *estack, const char *file, const char *func, unsigned line
 
     /* Check for 'default' error stack */
     if(estack == NULL)
-        if(NULL == (estack = H5E_get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
+    	if(NULL == (estack = H5E__get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
             HGOTO_DONE(FAIL)
 
     /*
@@ -818,49 +815,49 @@ H5E__push_stack(H5E_t *estack, const char *file, const char *func, unsigned line
         /* Increment the IDs to indicate that they are used in this stack */
         if(H5I_inc_ref(cls_id, FALSE) < 0)
             HGOTO_DONE(FAIL)
-    estack->slot[estack->nused].cls_id = cls_id;
+	estack->slot[estack->nused].cls_id = cls_id;
         if(H5I_inc_ref(maj_id, FALSE) < 0)
             HGOTO_DONE(FAIL)
-    estack->slot[estack->nused].maj_num = maj_id;
+	estack->slot[estack->nused].maj_num = maj_id;
         if(H5I_inc_ref(min_id, FALSE) < 0)
             HGOTO_DONE(FAIL)
-    estack->slot[estack->nused].min_num = min_id;
-    if(NULL == (estack->slot[estack->nused].func_name = H5MM_xstrdup(func)))
+	estack->slot[estack->nused].min_num = min_id;
+	if(NULL == (estack->slot[estack->nused].func_name = H5MM_xstrdup(func)))
             HGOTO_DONE(FAIL)
-    if(NULL == (estack->slot[estack->nused].file_name = H5MM_xstrdup(file)))
+	if(NULL == (estack->slot[estack->nused].file_name = H5MM_xstrdup(file)))
             HGOTO_DONE(FAIL)
-    estack->slot[estack->nused].line = line;
-    if(NULL == (estack->slot[estack->nused].desc = H5MM_xstrdup(desc)))
+	estack->slot[estack->nused].line = line;
+	if(NULL == (estack->slot[estack->nused].desc = H5MM_xstrdup(desc)))
             HGOTO_DONE(FAIL)
-    estack->nused++;
+	estack->nused++;
     } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E__push_stack() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_clear_entries
+ * Function:    H5E__clear_entries
  *
- * Purpose:    Private function to clear the error stack entries for the
+ * Purpose:     Private function to clear the error stack entries for the
  *              specified error stack.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Quincey Koziol
+ * Programmer:	Quincey Koziol
  *              Wednesday, August 6, 2003
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5E_clear_entries(H5E_t *estack, size_t nentries)
+H5E__clear_entries(H5E_t *estack, size_t nentries)
 {
     H5E_error2_t *error;        /* Pointer to error stack entry to clear */
     unsigned u;                 /* Local index variable */
-    herr_t ret_value=SUCCEED;   /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(estack);
@@ -881,30 +878,30 @@ H5E_clear_entries(H5E_t *estack, size_t nentries)
 
         /* Release strings */
         if(error->func_name)
-            H5MM_xfree((void *)error->func_name);        /* Casting away const OK - QAK */
+            error->func_name = (const char *) H5MM_xfree_const(error->func_name);
         if(error->file_name)
-            H5MM_xfree((void *)error->file_name);        /* Casting away const OK - QAK */
+            error->file_name = (const char *) H5MM_xfree_const(error->file_name);
         if(error->desc)
-            H5MM_xfree((void *)error->desc);     /* Casting away const OK - QAK */
-    } /* end for */
+            error->desc = (const char *) H5MM_xfree_const(error->desc);
+    }
 
     /* Decrement number of errors on stack */
     estack->nused -= u;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_clear_entries() */
+} /* end H5E__clear_entries() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5E_clear_stack
  *
- * Purpose:    Private function to clear the error stack for the
+ * Purpose:     Private function to clear the error stack for the
  *              specified error stack.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Raymond Lu
+ * Programmer:	Raymond Lu
  *              Wednesday, July 16, 2003
  *
  *-------------------------------------------------------------------------
@@ -918,63 +915,63 @@ H5E_clear_stack(H5E_t *estack)
 
     /* Check for 'default' error stack */
     if(estack == NULL)
-        if(NULL == (estack = H5E_get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
+    	if(NULL == (estack = H5E__get_my_stack())) /*lint !e506 !e774 Make lint 'constant value Boolean' in non-threaded case */
             HGOTO_ERROR(H5E_ERROR, H5E_CANTGET, FAIL, "can't get current error stack")
 
     /* Empty the error stack */
     HDassert(estack);
     if(estack->nused)
-        if(H5E_clear_entries(estack, estack->nused) < 0)
+        if(H5E__clear_entries(estack, estack->nused) < 0)
             HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't clear error stack")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_clear_stack() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5E_pop
+ * Function:    H5E__pop
  *
- * Purpose:    Private function to delete some error messages from the top
+ * Purpose:     Private function to delete some error messages from the top
  *              of error stack.
  *
- * Return:    Non-negative value on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Raymond Lu
+ * Programmer:	Raymond Lu
  *              Friday, July 16, 2003
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5E_pop(H5E_t *estack, size_t count)
+H5E__pop(H5E_t *estack, size_t count)
 {
     herr_t      ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(estack);
     HDassert(estack->nused >= count);
 
     /* Remove the entries from the error stack */
-    if(H5E_clear_entries(estack, count) < 0)
+    if(H5E__clear_entries(estack, count) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTRELEASE, FAIL, "can't remove errors from stack")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_pop() */
+} /* end H5E__pop() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5E_dump_api_stack
  *
- * Purpose:    Private function to dump the error stack during an error in
+ * Purpose:     Private function to dump the error stack during an error in
  *              an API function if a callback function is defined for the
  *              current error stack.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:    Quincey Koziol
+ * Programmer:	Quincey Koziol
  *              Wednesday, August 6, 2003
  *
  *-------------------------------------------------------------------------
@@ -988,7 +985,7 @@ H5E_dump_api_stack(hbool_t is_api)
 
     /* Only dump the error stack during an API call */
     if(is_api) {
-        H5E_t *estack = H5E_get_my_stack();
+        H5E_t *estack = H5E__get_my_stack();
 
         HDassert(estack);
 

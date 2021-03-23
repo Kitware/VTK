@@ -209,13 +209,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PLreplace(const char *search_path, unsigned int index)
+H5PLreplace(const char *search_path, unsigned int idx)
 {
     unsigned    num_paths;              /* Current number of stored paths */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "*sIu", search_path, index);
+    H5TRACE2("e", "*sIu", search_path, idx);
 
     /* Check args */
     if (NULL == search_path)
@@ -227,11 +227,11 @@ H5PLreplace(const char *search_path, unsigned int index)
     num_paths = H5PL__get_num_paths();
     if (0 == num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "path table is empty")
-    else if (index >= num_paths)
+    else if (idx >= num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "index path out of bounds for table - can't be more than %u", (num_paths - 1))
 
     /* Insert the search path into the path table */
-    if (H5PL__replace_path(search_path, index) < 0)
+    if (H5PL__replace_path(search_path, idx) < 0)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTINSERT, FAIL, "unable to replace search path")
 
 done:
@@ -251,13 +251,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PLinsert(const char *search_path, unsigned int index)
+H5PLinsert(const char *search_path, unsigned int idx)
 {
     unsigned    num_paths;              /* Current number of stored paths */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "*sIu", search_path, index);
+    H5TRACE2("e", "*sIu", search_path, idx);
 
     /* Check args */
     if (NULL == search_path)
@@ -267,11 +267,11 @@ H5PLinsert(const char *search_path, unsigned int index)
 
     /* Check index */
     num_paths = H5PL__get_num_paths();
-    if ((0 != num_paths) && (index >= num_paths))
+    if ((0 != num_paths) && (idx >= num_paths))
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "index path out of bounds for table - can't be more than %u", (num_paths - 1))
 
     /* Insert the search path into the path table */
-    if (H5PL__insert_path(search_path, index) < 0)
+    if (H5PL__insert_path(search_path, idx) < 0)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTINSERT, FAIL, "unable to insert search path")
 
 done:
@@ -293,23 +293,23 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PLremove(unsigned int index)
+H5PLremove(unsigned int idx)
 {
     unsigned    num_paths;              /* Current number of stored paths */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE1("e", "Iu", index);
+    H5TRACE1("e", "Iu", idx);
 
     /* Check index */
     num_paths = H5PL__get_num_paths();
     if (0 == num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "path table is empty")
-    else if (index >= num_paths)
+    else if (idx >= num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "index path out of bounds for table - can't be more than %u", (num_paths - 1))
 
     /* Delete the search path from the path table */
-    if (H5PL__remove_path(index) < 0)
+    if (H5PL__remove_path(idx) < 0)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTDELETE, FAIL, "unable to remove search path")
 
 done:
@@ -342,7 +342,7 @@ done:
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5PLget(unsigned int index, char *path_buf, size_t buf_size)
+H5PLget(unsigned int idx, char *path_buf, size_t buf_size)
 {
     unsigned    num_paths;              /* Current number of stored paths */
     const char *path = NULL;            /* path from table */
@@ -350,13 +350,13 @@ H5PLget(unsigned int index, char *path_buf, size_t buf_size)
     ssize_t     ret_value = 0;          /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("Zs", "Iu*sz", index, path_buf, buf_size);
+    H5TRACE3("Zs", "Iu*sz", idx, path_buf, buf_size);
 
     /* Check index */
     num_paths = H5PL__get_num_paths();
     if (0 == num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "path table is empty")
-    else if (index >= num_paths)
+    else if (idx >= num_paths)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "index path out of bounds for table - can't be more than %u", (num_paths - 1))
 
     /* Check if the search table is empty */
@@ -364,7 +364,7 @@ H5PLget(unsigned int index, char *path_buf, size_t buf_size)
         HGOTO_ERROR(H5E_PLUGIN, H5E_NOSPACE, (-1), "plugin search path table is empty")
 
     /* Get the path at the specified index and its length */
-    if (NULL == (path = H5PL__get_path(index)))
+    if (NULL == (path = H5PL__get_path(idx)))
         HGOTO_ERROR(H5E_PLUGIN, H5E_BADVALUE, (-1), "no path stored at that index")
     path_len = HDstrlen(path);
 

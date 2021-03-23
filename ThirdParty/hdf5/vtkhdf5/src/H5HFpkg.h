@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@ncsa.uiuc.edu>
+ * Programmer:	Quincey Koziol
  *		Friday, February 24, 2006
  *
  * Purpose:	This file contains declarations which are visible only within
@@ -646,9 +646,9 @@ H5_DLL herr_t H5HF_hdr_dest(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF_iblock_incr(H5HF_indirect_t *iblock);
 H5_DLL herr_t H5HF__iblock_decr(H5HF_indirect_t *iblock);
 H5_DLL herr_t H5HF_iblock_dirty(H5HF_indirect_t *iblock);
-H5_DLL herr_t H5HF__man_iblock_root_create(H5HF_hdr_t *hdr, 
+H5_DLL herr_t H5HF__man_iblock_root_create(H5HF_hdr_t *hdr,
     size_t min_dblock_size);
-H5_DLL herr_t H5HF__man_iblock_root_double(H5HF_hdr_t *hdr, 
+H5_DLL herr_t H5HF__man_iblock_root_double(H5HF_hdr_t *hdr,
     size_t min_dblock_size);
 H5_DLL herr_t H5HF__man_iblock_alloc_row(H5HF_hdr_t *hdr,
     H5HF_free_section_t **sec_node);
@@ -779,13 +779,13 @@ H5_DLL herr_t H5HF__space_add(H5HF_hdr_t *hdr, H5HF_free_section_t *node,
 H5_DLL htri_t H5HF__space_find(H5HF_hdr_t *hdr, hsize_t request,
     H5HF_free_section_t **node);
 H5_DLL herr_t H5HF__space_revert_root(const H5HF_hdr_t *hdr);
-H5_DLL herr_t H5HF__space_create_root(const H5HF_hdr_t *hdr, 
+H5_DLL herr_t H5HF__space_create_root(const H5HF_hdr_t *hdr,
     H5HF_indirect_t *root_iblock);
 H5_DLL herr_t H5HF__space_size(H5HF_hdr_t *hdr, hsize_t *fs_size);
 H5_DLL herr_t H5HF__space_remove(H5HF_hdr_t *hdr, H5HF_free_section_t *node);
 H5_DLL herr_t H5HF__space_close(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF__space_delete(H5HF_hdr_t *hdr);
-H5_DLL herr_t H5HF__space_sect_change_class(H5HF_hdr_t *hdr, 
+H5_DLL herr_t H5HF__space_sect_change_class(H5HF_hdr_t *hdr,
     H5HF_free_section_t *sect, uint16_t new_class);
 
 /* Free space section routines */

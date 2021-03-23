@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer: 	Robb Matzke <matzke@llnl.gov>
+/* Programmer: 	Robb Matzke
  *	       	Wednesday, October  8, 1997
  *
  * Purpose:	v1 B-tree indexed (chunked) I/O functions.  The chunks are
@@ -39,6 +39,7 @@
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5MFprivate.h"	/* File space management		*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Oprivate.h"		/* Object headers		  	*/
 #include "H5Sprivate.h"         /* Dataspaces                           */
 #include "H5VMprivate.h"		/* Vector and array functions		*/
@@ -252,7 +253,7 @@ H5D__btree_get_shared(const H5F_t H5_ATTR_UNUSED *f, const void *_udata)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__btree_new_node(H5F_t *f, H5B_ins_t op, void *_lt_key, void *_udata,
+H5D__btree_new_node(H5F_t H5_ATTR_NDEBUG_UNUSED *f, H5B_ins_t op, void *_lt_key, void *_udata,
     void *_rt_key, haddr_t *addr_p/*out*/)
 {
     H5D_btree_key_t	*lt_key = (H5D_btree_key_t *) _lt_key;
@@ -535,7 +536,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static H5B_ins_t
-H5D__btree_insert(H5F_t *f, haddr_t addr, void *_lt_key, hbool_t *lt_key_changed,
+H5D__btree_insert(H5F_t H5_ATTR_NDEBUG_UNUSED *f, haddr_t H5_ATTR_NDEBUG_UNUSED addr, void *_lt_key, hbool_t *lt_key_changed,
     void *_md_key, void *_udata, void *_rt_key, hbool_t H5_ATTR_UNUSED *rt_key_changed,
     haddr_t *new_node_p/*out*/)
 {
@@ -619,8 +620,7 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer: Robb Matzke
- *             Pedro Vicente, pvn@ncsa.uiuc.edu
+ * Programmer:  Pedro Vicente
  * 		March 28, 2002
  *
  *-------------------------------------------------------------------------
@@ -685,13 +685,12 @@ H5D__btree_decode_key(const H5B_shared_t *shared, const uint8_t *raw, void *_key
     /* decode */
     UINT32DECODE(raw, key->nbytes);
     UINT32DECODE(raw, key->filter_mask);
-    for(u = 0; u < layout->ndims; u++)
-    {
-        if (layout->dim[u] == 0)
+    for(u = 0; u < layout->ndims; u++) {
+        if(layout->dim[u] == 0)
             HGOTO_ERROR(H5E_DATASET, H5E_BADVALUE, FAIL, "chunk size must be > 0, dim = %u ", u)
 
         /* Retrieve coordinate offset */
-	    UINT64DECODE(raw, tmp_offset);
+        UINT64DECODE(raw, tmp_offset);
         HDassert(0 == (tmp_offset % layout->dim[u]));
 
         /* Convert to a scaled offset */
@@ -848,7 +847,7 @@ H5D__btree_shared_create(const H5F_t *f, H5O_storage_chunk_t *store,
     /* Set up the "local" information for this dataset's chunks */
     if(NULL == (my_layout = H5FL_MALLOC(H5O_layout_chunk_t)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "can't allocate chunk layout")
-    HDmemcpy(my_layout, layout, sizeof(H5O_layout_chunk_t));
+    H5MM_memcpy(my_layout, layout, sizeof(H5O_layout_chunk_t));
     shared->udata = my_layout;
 
     /* Make shared B-tree info reference counted */
@@ -943,7 +942,7 @@ H5D__btree_idx_create(const H5D_chk_idx_info_t *idx_info)
 
     /* Create the v1 B-tree for the chunk index */
     if(H5B_create(idx_info->f, H5B_BTREE, &udata, &(idx_info->storage->idx_addr)/*out*/) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create B-tree")
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create B-tree")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1088,7 +1087,7 @@ H5D__btree_idx_iterate_cb(H5F_t H5_ATTR_UNUSED *f, const void *_lt_key,
     HDcompile_assert(sizeof(chunk_rec.filter_mask) == sizeof(lt_key->filter_mask));
 
     /* Compose generic chunk record for callback */
-    HDmemcpy(&chunk_rec, lt_key, sizeof(*lt_key));
+    H5MM_memcpy(&chunk_rec, lt_key, sizeof(*lt_key));
     chunk_rec.chunk_addr = addr;
 
     /* Make "generic chunk" callback */

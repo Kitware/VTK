@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* 
+/*
  *
  * Purpose: v2 B-tree indexing for chunked datasets with > 1 unlimited dimensions.
  *   Each dataset chunk in the b-tree is identified by its dimensional offset.
@@ -32,6 +32,7 @@
 #include "H5Dpkg.h"		/* Datasets				*/
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5MFprivate.h"     	/* File space management                */
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"	/* Vector and array functions		*/
 
 
@@ -105,13 +106,13 @@ static int H5D__bt2_idx_iterate_cb(const void *_record, void *_udata);
 /* Callback for H5B2_find() which is called in H5D__bt2_idx_get_addr() */
 static herr_t H5D__bt2_found_cb(const void *nrecord, void *op_data);
 
-/*  
+/*
  * Callback for H5B2_remove() and H5B2_delete() which is called
  * in H5D__bt2_idx_remove() and H5D__bt2_idx_delete().
  */
 static herr_t H5D__bt2_remove_cb(const void *nrecord, void *_udata);
 
-/* Callback for H5B2_modify() which is called in H5D__bt2_idx_insert() */
+/* Callback for H5B2_update() which is called in H5D__bt2_idx_insert() */
 static herr_t H5D__bt2_mod_cb(void *_record, void *_op_data, hbool_t *changed);
 
 /* Chunked layout indexing callbacks for v2 B-tree indexing */
@@ -203,9 +204,9 @@ const H5B2_class_t H5D_BT2_FILT[1] = {{	/* B-tree class information */
 
 /* Declare a free list to manage the H5D_bt2_ctx_t struct */
 H5FL_DEFINE_STATIC(H5D_bt2_ctx_t);
-/* Declare a free list to manage the page elements */
-H5FL_BLK_DEFINE(chunk_dim);
 
+/* Declare a free list to manage the page elements */
+H5FL_ARR_DEFINE_STATIC(uint32_t, H5O_LAYOUT_NDIMS);
 
 
 
@@ -246,12 +247,12 @@ H5D__bt2_crt_context(void *_udata)
     ctx->ndims = udata->ndims;
 
     /* Set up the "local" information for this dataset's chunk dimension sizes */
-    if(NULL == (my_dim = (uint32_t *)H5FL_BLK_MALLOC(chunk_dim, H5O_LAYOUT_NDIMS * sizeof(uint32_t))))
+    if(NULL == (my_dim = (uint32_t *)H5FL_ARR_MALLOC(uint32_t, H5O_LAYOUT_NDIMS)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, NULL, "can't allocate chunk dims")
-    HDmemcpy(my_dim, udata->dim, H5O_LAYOUT_NDIMS * sizeof(uint32_t));
+    H5MM_memcpy(my_dim, udata->dim, H5O_LAYOUT_NDIMS * sizeof(uint32_t));
     ctx->dim = my_dim;
 
-    /* 
+    /*
      * Compute the size required for encoding the size of a chunk,
      * allowing for an extra byte, in case the filter makes the chunk larger.
      */
@@ -291,7 +292,7 @@ H5D__bt2_dst_context(void *_ctx)
 
     /* Free array for chunk dimension sizes */
     if(ctx->dim)
-	(void)H5FL_BLK_FREE(chunk_dim, ctx->dim); 
+        H5FL_ARR_FREE(uint32_t, ctx->dim);
     /* Release callback context */
     ctx = H5FL_FREE(H5D_bt2_ctx_t, ctx);
 
@@ -568,7 +569,7 @@ H5D__bt2_filt_debug(FILE *stream, int indent, int fwidth,
     const H5D_chunk_rec_t *record = (const H5D_chunk_rec_t *)_record;   /* The native record */
     const H5D_bt2_ctx_t *ctx = (const H5D_bt2_ctx_t *)_ctx; 	/* Callback context */
     unsigned u;		/* Local index variable */
- 
+
     FUNC_ENTER_STATIC_NOERR
 
     /* Sanity checks */
@@ -734,9 +735,9 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5D__bt2_idx_create 
+ * Function:	H5D__bt2_idx_create
  *
- * Purpose:	Create the v2 B-tree for tracking dataset chunks 
+ * Purpose:	Create the v2 B-tree for tracking dataset chunks
  *
  * Return:      SUCCEED/FAIL
  *
@@ -768,7 +769,7 @@ H5D__bt2_idx_create(const H5D_chk_idx_info_t *idx_info)
     if(idx_info->pline->nused > 0) {
 	unsigned chunk_size_len;        /* Size of encoded chunk size */
 
-        /* 
+        /*
 	 * Compute the size required for encoding the size of a chunk,
          * allowing for an extra byte, in case the filter makes the chunk larger.
          */
@@ -836,7 +837,7 @@ H5D__bt2_idx_is_space_alloc(const H5O_storage_chunk_t *storage)
  * Function:	H5D__bt2_mod_cb
  *
  * Purpose:	Modify record for dataset chunk when it is found in a v2 B-tree.
- * 		This is the callback for H5B2_modify() which is called in 
+ * 		This is the callback for H5B2_update() which is called in
  *		H5D__bt2_idx_insert().
  *
  * Return:	Success:	non-negative
@@ -878,7 +879,7 @@ H5D__bt2_mod_cb(void *_record, void *_op_data, hbool_t *changed)
  * Function:	H5D__bt2_idx_insert
  *
  * Purpose:	Insert chunk address into the indexing structure.
- *		A non-filtered chunk: 
+ *		A non-filtered chunk:
  *		  Should not exist
  *		  Allocate the chunk and pass chunk address back up
  *		A filtered chunk:
@@ -953,7 +954,7 @@ done:
  * Function:	H5D__bt2_found_cb
  *
  * Purpose:	Retrieve record for dataset chunk when it is found in a v2 B-tree.
- * 		This is the callback for H5B2_find() which is called in 
+ * 		This is the callback for H5B2_find() which is called in
  *		H5D__bt2_idx_get_addr() and H5D__bt2_idx_insert().
  *
  * Return:	Success:	non-negative
@@ -1072,7 +1073,7 @@ done:
  * Purpose:	Translate the B-tree specific chunk record into a generic
  *              form and make the callback to the generic chunk callback
  *              routine.
- * 		This is the callback for H5B2_iterate() which is called in 
+ * 		This is the callback for H5B2_iterate() which is called in
  *		H5D__bt2_idx_iterate().
  *
  * Return:	Success:	Non-negative
@@ -1162,7 +1163,7 @@ done:
  *
  * Purpose:	Free space for 'dataset chunk' object as v2 B-tree
  *             	is being deleted or v2 B-tree node is removed.
- * 		This is the callback for H5B2_remove() and H5B2_delete() which 
+ * 		This is the callback for H5B2_remove() and H5B2_delete() which
  *		which are called in H5D__bt2_idx_remove() and H5D__bt2_idx_delete().
  *
  * Return:	Success:	non-negative
@@ -1264,13 +1265,6 @@ done:
  *		Failure:	negative
  *
  * Programmer:	Vailin Choi; June 2010
- *
- * Modifications:
- *	Vailin Choi; March 2011
- *	Initialize size of an unfiltered chunk.
- *	This is a fix for for the assertion failure in:
- *	[src/H5FSsection.c:968: H5FS_sect_link_size: Assertion `bin < sinfo->nbins' failed.]
- *	which is uncovered by test_unlink_chunked_dataset() in test/unlink.c
  *
  *-------------------------------------------------------------------------
  */
@@ -1547,7 +1541,7 @@ H5D__bt2_idx_dest(const H5D_chk_idx_info_t *idx_info)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't patch v2 B-tree file pointer")
 
         /* Close v2 B-tree */
-	if(H5B2_close(idx_info->storage->u.btree2.bt2) < 0)
+        if(H5B2_close(idx_info->storage->u.btree2.bt2) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree")
         idx_info->storage->u.btree2.bt2 = NULL;
     } /* end if */

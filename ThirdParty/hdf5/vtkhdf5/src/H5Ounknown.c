@@ -15,7 +15,7 @@
  *
  * Created:             H5Ounknown.c
  *                      Apr 19 2007
- *                      Quincey Koziol <koziol@hdfgroup.org>
+ *                      Quincey Koziol
  *
  * Purpose:             Handle unknown message classes in a minimal way.
  *

@@ -22,7 +22,7 @@
  *
  * Created:		H5Tvisit.c
  *			Jul 19 2007
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Visit all the components of a datatype
  *

@@ -137,7 +137,7 @@ H5E_NONE_MINOR_g=
 /* Plugin errors */    
 H5E_OPENERROR_g=
 
-/* File accessibilty errors */    
+/* File accessibility errors */    
 H5E_FILEEXISTS_g=    
 H5E_FILEOPEN_g=    
 H5E_CANTCREATE_g=    
@@ -146,7 +146,9 @@ H5E_CANTCLOSEFILE_g=
 H5E_NOTHDF5_g=    
 H5E_BADFILE_g=    
 H5E_TRUNCATED_g=    
-H5E_MOUNT_g=
+H5E_MOUNT_g=    
+H5E_CANTLOCKFILE_g=    
+H5E_CANTUNLOCKFILE_g=
 
 /* Object atom related errors */    
 H5E_BADATOM_g=    
@@ -207,6 +209,7 @@ H5E_CANTSELECT_g=
 H5E_CANTNEXT_g=    
 H5E_BADSELECT_g=    
 H5E_CANTCOMPARE_g=    
+H5E_INCONSISTENTSTATE_g=    
 H5E_CANTAPPEND_g=
 
 /* Argument errors */    

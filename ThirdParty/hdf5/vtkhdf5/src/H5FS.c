@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:  Quincey Koziol
  *              Tuesday, May  2, 2006
  *
  * Purpose:     Free space tracking functions.
@@ -36,6 +36,7 @@
 #include "H5Eprivate.h"     /* Error handling                           */
 #include "H5FSpkg.h"        /* File free space                          */
 #include "H5MFprivate.h"    /* File memory management                   */
+#include "H5MMprivate.h"    /* Memory management                        */
 
 
 /****************/
@@ -58,8 +59,8 @@
 /********************/
 
 /* Section info routines */
-static herr_t H5FS_sinfo_free_sect_cb(void *item, void *key, void *op_data);
-static herr_t H5FS_sinfo_free_node_cb(void *item, void *key, void *op_data);
+static herr_t H5FS__sinfo_free_sect_cb(void *item, void *key, void *op_data);
+static herr_t H5FS__sinfo_free_node_cb(void *item, void *key, void *op_data);
 
 
 /*********************/
@@ -221,7 +222,7 @@ HDfprintf(stderr, "%s: fspace->rc = %u\n", FUNC, fspace->rc);
 
     /* Increment the reference count on the free space manager header */
     HDassert(fspace->rc <= 1);
-    if(H5FS_incr(fspace) < 0)
+    if(H5FS__incr(fspace) < 0)
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTINC, NULL, "unable to increment ref. count on free space header")
 
     fspace->alignment = alignment;
@@ -545,7 +546,7 @@ HDfprintf(stderr, "%s: Section info is NOT for file free space\n", FUNC);
             } /* end if */
 
             /* Destroy section info */
-            if(H5FS_sinfo_dest(fspace->sinfo) < 0)
+            if(H5FS__sinfo_dest(fspace->sinfo) < 0)
                 HGOTO_ERROR(H5E_FSPACE, H5E_CANTCLOSEOBJ, FAIL, "unable to destroy free space section info")
         } /* end else */
 
@@ -560,7 +561,7 @@ HDfprintf(stderr, "%s: Section info is NOT for file free space\n", FUNC);
     } /* end else */
 
     /* Decrement the reference count on the free space manager header */
-    if(H5FS_decr(fspace) < 0)
+    if(H5FS__decr(fspace) < 0)
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTDEC, FAIL, "unable to decrement ref. count on free space header")
 
 done:
@@ -615,7 +616,7 @@ H5FS__new(const H5F_t *f, uint16_t nclasses, const H5FS_section_class_t *classes
             HDassert(u == classes[u]->type);
 
             /* Copy the class information into the free space manager */
-            HDmemcpy(&fspace->sect_cls[u], classes[u], sizeof(H5FS_section_class_t));
+            H5MM_memcpy(&fspace->sect_cls[u], classes[u], sizeof(H5FS_section_class_t));
 
             /* Call the class initialization routine, if there is one */
             if(fspace->sect_cls[u].init_cls)
@@ -664,14 +665,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_size(const H5F_t *f, const H5FS_t *fspace, hsize_t *meta_size)
+H5FS_size(const H5FS_t *fspace, hsize_t *meta_size)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /*
      * Check arguments.
      */
-    HDassert(f);
     HDassert(fspace);
     HDassert(meta_size);
 
@@ -683,7 +683,7 @@ H5FS_size(const H5F_t *f, const H5FS_t *fspace, hsize_t *meta_size)
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_incr
+ * Function:    H5FS__incr
  *
  * Purpose:     Increment reference count on free space header
  *
@@ -695,11 +695,11 @@ H5FS_size(const H5F_t *f, const H5FS_t *fspace, hsize_t *meta_size)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_incr(H5FS_t *fspace)
+H5FS__incr(H5FS_t *fspace)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 #ifdef H5FS_DEBUG
 HDfprintf(stderr, "%s: Entering, fpace->addr = %a, fspace->rc = %u\n", FUNC, fspace->addr, fspace->rc);
 #endif /* H5FS_DEBUG */
@@ -719,11 +719,11 @@ HDfprintf(stderr, "%s: Entering, fpace->addr = %a, fspace->rc = %u\n", FUNC, fsp
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FS_incr() */
+} /* end H5FS__incr() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_decr
+ * Function:    H5FS__decr
  *
  * Purpose:     Decrement reference count on free space header
  *
@@ -735,11 +735,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_decr(H5FS_t *fspace)
+H5FS__decr(H5FS_t *fspace)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 #ifdef H5FS_DEBUG
 HDfprintf(stderr, "%s: Entering, fpace->addr = %a, fspace->rc = %u\n", FUNC, fspace->addr, fspace->rc);
 #endif /* H5FS_DEBUG */
@@ -766,11 +766,11 @@ HDfprintf(stderr, "%s: Entering, fpace->addr = %a, fspace->rc = %u\n", FUNC, fsp
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FS_decr() */
+} /* end H5FS__decr() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_dirty
+ * Function:    H5FS__dirty
  *
  * Purpose:     Mark free space header as dirty
  *
@@ -782,14 +782,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_dirty(H5FS_t *fspace)
+H5FS__dirty(H5FS_t *fspace)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
-#ifdef QAK
-HDfprintf(stderr, "%s: Marking free space header as dirty\n", FUNC);
-#endif /* QAK */
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(fspace);
@@ -802,7 +799,7 @@ HDfprintf(stderr, "%s: Marking free space header as dirty\n", FUNC);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FS_dirty() */
+} /* end H5FS__dirty() */
 
 
 /*-------------------------------------------------------------------------
@@ -875,7 +872,7 @@ H5FS_alloc_sect(H5F_t *f, H5FS_t *fspace)
         fspace->alloc_sect_size = fspace->sect_size;
 
         /* Mark free-space header as dirty */
-        if(H5FS_dirty(fspace) < 0)
+        if(H5FS__dirty(fspace) < 0)
             HGOTO_ERROR(H5E_FSPACE, H5E_CANTMARKDIRTY, FAIL, "unable to mark free space header as dirty")
 
         /* Cache the free-space section info */
@@ -959,7 +956,7 @@ H5FS_free(H5F_t *f, H5FS_t *fspace, hbool_t free_file_space)
         } /* end if */
 
         /* Mark free-space manager header as dirty */
-        if(H5FS_dirty(fspace) < 0)
+        if(H5FS__dirty(fspace) < 0)
             HGOTO_ERROR(H5E_FSPACE, H5E_CANTMARKDIRTY, FAIL, "unable to mark free space header as dirty")
     } /* end if */
 
@@ -1052,7 +1049,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_sinfo_free_sect_cb
+ * Function:    H5FS__sinfo_free_sect_cb
  *
  * Purpose:     Free a size-tracking node for a bin
  *
@@ -1064,12 +1061,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FS_sinfo_free_sect_cb(void *_sect, void H5_ATTR_UNUSED *key, void *op_data)
+H5FS__sinfo_free_sect_cb(void *_sect, void H5_ATTR_UNUSED *key, void *op_data)
 {
     H5FS_section_info_t *sect = (H5FS_section_info_t *)_sect;   /* Section to free */
     const H5FS_sinfo_t *sinfo = (const H5FS_sinfo_t *)op_data;     /* Free space manager for section */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(sect);
     HDassert(sinfo);
@@ -1078,11 +1075,11 @@ H5FS_sinfo_free_sect_cb(void *_sect, void H5_ATTR_UNUSED *key, void *op_data)
     (*sinfo->fspace->sect_cls[sect->type].free)(sect);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}   /* H5FS_sinfo_free_sect_cb() */
+}   /* H5FS__sinfo_free_sect_cb() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_sinfo_free_node_cb
+ * Function:    H5FS__sinfo_free_node_cb
  *
  * Purpose:     Free a size-tracking node for a bin
  *
@@ -1094,27 +1091,27 @@ H5FS_sinfo_free_sect_cb(void *_sect, void H5_ATTR_UNUSED *key, void *op_data)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FS_sinfo_free_node_cb(void *item, void H5_ATTR_UNUSED *key, void *op_data)
+H5FS__sinfo_free_node_cb(void *item, void H5_ATTR_UNUSED *key, void *op_data)
 {
     H5FS_node_t *fspace_node = (H5FS_node_t *)item;       /* Temporary pointer to free space list node */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(fspace_node);
     HDassert(op_data);
 
     /* Release the skip list for sections of this size */
-    H5SL_destroy(fspace_node->sect_list, H5FS_sinfo_free_sect_cb, op_data);
+    H5SL_destroy(fspace_node->sect_list, H5FS__sinfo_free_sect_cb, op_data);
 
     /* Release free space list node */
     fspace_node = H5FL_FREE(H5FS_node_t, fspace_node);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}   /* H5FS_sinfo_free_node_cb() */
+}   /* H5FS__sinfo_free_node_cb() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FS_sinfo_dest
+ * Function:    H5FS__sinfo_dest
  *
  * Purpose:     Destroys a free space section info in memory.
  *
@@ -1126,12 +1123,12 @@ H5FS_sinfo_free_node_cb(void *item, void H5_ATTR_UNUSED *key, void *op_data)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_sinfo_dest(H5FS_sinfo_t *sinfo)
+H5FS__sinfo_dest(H5FS_sinfo_t *sinfo)
 {
     unsigned u;                 /* Local index variable */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /*
      * Check arguments.
@@ -1143,7 +1140,7 @@ H5FS_sinfo_dest(H5FS_sinfo_t *sinfo)
     /* Clear out lists of nodes */
     for(u = 0; u < sinfo->nbins; u++)
         if(sinfo->bins[u].bin_list) {
-            H5SL_destroy(sinfo->bins[u].bin_list, H5FS_sinfo_free_node_cb, sinfo);
+            H5SL_destroy(sinfo->bins[u].bin_list, H5FS__sinfo_free_node_cb, sinfo);
             sinfo->bins[u].bin_list = NULL;
         } /* end if */
 
@@ -1160,7 +1157,7 @@ H5FS_sinfo_dest(H5FS_sinfo_t *sinfo)
      *  disappearing immediately)
      */
     sinfo->fspace->sinfo = NULL;
-    if(H5FS_decr(sinfo->fspace) < 0)
+    if(H5FS__decr(sinfo->fspace) < 0)
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTDEC, FAIL, "unable to decrement ref. count on free space header")
     sinfo->fspace = NULL;
 
@@ -1169,9 +1166,9 @@ H5FS_sinfo_dest(H5FS_sinfo_t *sinfo)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FS_sinfo_dest() */
+} /* end H5FS__sinfo_dest() */
 
-herr_t 
+herr_t
 H5FS_get_sect_count(const H5FS_t *frsp, hsize_t *tot_sect_count)
 {
     herr_t ret_value = SUCCEED; /* Return value */
@@ -1206,9 +1203,6 @@ void
 H5FS__assert(const H5FS_t *fspace)
 {
     FUNC_ENTER_PACKAGE_NOERR
-#ifdef QAK
-HDfprintf(stderr, "%s: fspace->tot_sect_count = %Hu\n", "H5FS__assert", fspace->tot_sect_count);
-#endif /* QAK */
 
     /* Checks for section info, if it's available */
     if(fspace->sinfo) {
@@ -1224,9 +1218,6 @@ HDfprintf(stderr, "%s: fspace->tot_sect_count = %Hu\n", "H5FS__assert", fspace->
     HDassert(fspace->tot_sect_count >= fspace->serial_sect_count);
     HDassert(fspace->tot_sect_count >= fspace->ghost_sect_count);
     HDassert(fspace->tot_sect_count == (fspace->serial_sect_count + fspace->ghost_sect_count));
-#ifdef QAK
-    HDassert(fspace->serial_sect_count > 0 || fspace->ghost_sect_count == 0);
-#endif /* QAK */
 
     FUNC_LEAVE_NOAPI_VOID
 } /* end H5FS__assert() */

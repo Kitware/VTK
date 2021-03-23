@@ -104,17 +104,6 @@ typedef enum H5D_vds_view_t {
 /* Callback for H5Pset_append_flush() in a dataset access property list */
 typedef herr_t (*H5D_append_cb_t)(hid_t dataset_id, hsize_t *cur_dims, void *op_data);
 
-/********************/
-/* Public Variables */
-/********************/
-
-/*********************/
-/* Public Prototypes */
-/*********************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Define the operator function pointer for H5Diterate() */
 typedef herr_t (*H5D_operator_t)(void *elem, hid_t type_id, unsigned ndim,
 				 const hsize_t *point, void *operator_data);
@@ -127,6 +116,18 @@ typedef herr_t (*H5D_scatter_func_t)(const void **src_buf/*out*/,
 /* Define the operator function pointer for H5Dgather() */
 typedef herr_t (*H5D_gather_func_t)(const void *dst_buf,
                                     size_t dst_buf_bytes_used, void *op_data);
+
+
+/********************/
+/* Public Variables */
+/********************/
+
+/*********************/
+/* Public Prototypes */
+/*********************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 H5_DLL hid_t H5Dcreate2(hid_t loc_id, const char *name, hid_t type_id,
     hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id);
@@ -149,7 +150,7 @@ H5_DLL herr_t H5Dread(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id,
 			hid_t file_space_id, hid_t plist_id, void *buf/*out*/);
 H5_DLL herr_t H5Dwrite(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id,
 			 hid_t file_space_id, hid_t plist_id, const void *buf);
-H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, 
+H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters,
             const hsize_t *offset, size_t data_size, const void *buf);
 H5_DLL herr_t H5Dread_chunk(hid_t dset_id, hid_t dxpl_id,
             const hsize_t *offset, uint32_t *filters, void *buf);
@@ -193,7 +194,7 @@ H5_DLL herr_t H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type);
 #define H5D_XFER_DIRECT_CHUNK_READ_FLAG_NAME        "direct_chunk_read_flag"
 #define H5D_XFER_DIRECT_CHUNK_READ_OFFSET_NAME      "direct_chunk_read_offset"
 #define H5D_XFER_DIRECT_CHUNK_READ_FILTERS_NAME     "direct_chunk_read_filters"
- 
+
 /* Typedefs */
 
 

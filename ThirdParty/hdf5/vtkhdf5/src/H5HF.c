@@ -15,7 +15,7 @@
  *
  * Created:		H5HF.c
  *			Feb 24 2006
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Implements a "fractal heap" for storing variable-
  *                      length objects in a file.
@@ -42,6 +42,8 @@
 #include "H5FOprivate.h"        /* File objects                         */
 #include "H5HFpkg.h"		/* Fractal heaps			*/
 #include "H5MFprivate.h"	/* File memory management		*/
+#include "H5MMprivate.h"	/* Memory management			*/
+
 
 /****************/
 /* Local Macros */
@@ -93,7 +95,6 @@ H5FL_DEFINE_STATIC(H5HF_t);
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sep 11 2006
  *
  *-------------------------------------------------------------------------
@@ -104,7 +105,7 @@ H5HF_op_read(const void *obj, size_t obj_len, void *op_data)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Perform "read", using memcpy() */
-    HDmemcpy(op_data, obj, obj_len);
+    H5MM_memcpy(op_data, obj, obj_len);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF_op_read() */
@@ -118,7 +119,6 @@ H5HF_op_read(const void *obj, size_t obj_len, void *op_data)
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 18 2006
  *
  *-------------------------------------------------------------------------
@@ -129,7 +129,7 @@ H5HF_op_write(const void *obj, size_t obj_len, void *op_data)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Perform "write", using memcpy() */
-    HDmemcpy((void *)obj, op_data, obj_len);    /* Casting away const OK -QAK */
+    H5MM_memcpy((void *)obj, op_data, obj_len);    /* Casting away const OK -QAK */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF_op_write() */
@@ -144,7 +144,6 @@ H5HF_op_write(const void *obj, size_t obj_len, void *op_data)
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 24 2006
  *
  *-------------------------------------------------------------------------
@@ -167,7 +166,7 @@ H5HF_create(H5F_t *f, const H5HF_create_t *cparam)
 
     /* Create shared fractal heap header */
     if(HADDR_UNDEF == (fh_addr = H5HF_hdr_create(f, cparam)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't create fractal heap header")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't create fractal heap header")
 
     /* Allocate fractal heap wrapper */
     if(NULL == (fh = H5FL_MALLOC(H5HF_t)))
@@ -212,7 +211,6 @@ done:
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Apr 18 2006
  *
  *-------------------------------------------------------------------------
@@ -278,7 +276,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Apr 17 2006
  *
  *-------------------------------------------------------------------------
@@ -309,7 +306,6 @@ H5HF_get_id_len(H5HF_t *fh, size_t *id_len_p)
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Apr 18 2006
  *
  *-------------------------------------------------------------------------
@@ -341,7 +337,6 @@ H5HF_get_heap_addr(const H5HF_t *fh, haddr_t *heap_addr_p)
  *              filled in), negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 24 2006
  *
  *-------------------------------------------------------------------------
@@ -407,7 +402,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		May  9 2006
  *
  *-------------------------------------------------------------------------
@@ -469,7 +463,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 20 2015
  *
  *-------------------------------------------------------------------------
@@ -531,7 +524,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar 18 2006
  *
  *-------------------------------------------------------------------------
@@ -608,7 +600,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 18 2006
  *
  *-------------------------------------------------------------------------
@@ -679,7 +670,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Sept 11 2006
  *
  *-------------------------------------------------------------------------
@@ -744,7 +734,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		May 15 2006
  *
  *-------------------------------------------------------------------------
@@ -809,7 +798,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Apr 17 2006
  *
  *-------------------------------------------------------------------------
@@ -906,7 +894,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Aug  4 2006
  *
  *-------------------------------------------------------------------------

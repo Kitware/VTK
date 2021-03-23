@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer: Robb Matzke <matzke@llnl.gov>
+ * Programmer: Robb Matzke
  *	       Tuesday, November 25, 1997
  */
 
@@ -461,7 +461,7 @@ H5O__efl_copy_file(H5F_t H5_ATTR_UNUSED *file_src, void *mesg_src, H5F_t *file_d
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Copy the "top level" information */
-    HDmemcpy(efl_dst, efl_src, sizeof(H5O_efl_t));
+    H5MM_memcpy(efl_dst, efl_src, sizeof(H5O_efl_t));
 
     /* Determine size needed for destination heap */
     heap_size = H5HL_ALIGN(1);  /* "empty" name */
@@ -488,7 +488,7 @@ H5O__efl_copy_file(H5F_t H5_ATTR_UNUSED *file_src, void *mesg_src, H5F_t *file_d
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
         /* copy content from the source. Need to update later */
-        HDmemcpy(efl_dst->slot, efl_src->slot, size);
+        H5MM_memcpy(efl_dst->slot, efl_src->slot, size);
     } /* end if */
 
     /* copy the name from the source */

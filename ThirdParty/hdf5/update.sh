@@ -8,7 +8,7 @@ readonly name="hdf5"
 readonly ownership="HDF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/hdf5.git"
-readonly tag="for/vtk-20210205-1.10.6"
+readonly tag="for/vtk-20210318-1.10.7"
 readonly paths="
 CMakeFilters.cmake
 CMakeInstallation.cmake
@@ -22,6 +22,9 @@ hl/src/
 
 config/lt_vers.am
 config/COPYING
+config/clang-warnings
+config/gnu-warnings
+config/intel-warnings
 config/cmake/ConfigureChecks.cmake
 config/cmake/ConversionTests.c
 config/cmake/H5pubconf.h.in
@@ -49,6 +52,8 @@ extract_source () {
     find . -name Makefile.in -delete
     find . -name "*.lnt" -delete
     rm -v src/.indent.pro
+    # Add missing newline at EOF.
+    echo >> config/intel-warnings/general
     popd
 }
 

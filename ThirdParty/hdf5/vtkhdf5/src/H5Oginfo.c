@@ -15,7 +15,7 @@
  *
  * Created:             H5Oginfo.c
  *                      Aug 23 2005
- *                      Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *                      Quincey Koziol
  *
  * Purpose:             Group Information messages.
  *
@@ -88,7 +88,6 @@ H5FL_DEFINE_STATIC(H5O_ginfo_t);
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 30 2005
  *
  *-------------------------------------------------------------------------
@@ -162,7 +161,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 30 2005
  *
  *-------------------------------------------------------------------------
@@ -171,7 +169,7 @@ static herr_t
 H5O_ginfo_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
 {
     const H5O_ginfo_t  *ginfo = (const H5O_ginfo_t *) _mesg;
-    unsigned char       flags;          /* Flags for encoding group info */
+    unsigned char       flags = 0;          /* Flags for encoding group info */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -183,7 +181,7 @@ H5O_ginfo_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared,
     *p++ = H5O_GINFO_VERSION;
 
     /* The flags for the group info */
-    flags = ginfo->store_link_phase_change ?  H5O_GINFO_STORE_PHASE_CHANGE : 0;
+    flags = (unsigned char)(ginfo->store_link_phase_change ?  H5O_GINFO_STORE_PHASE_CHANGE : 0);
     flags = (unsigned char)(flags | (ginfo->store_est_entry_info ?  H5O_GINFO_STORE_EST_ENTRY_INFO : 0));
     *p++ = flags;
 
@@ -214,7 +212,6 @@ H5O_ginfo_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared,
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 30 2005
  *
  *-------------------------------------------------------------------------
@@ -256,7 +253,6 @@ done:
  *              Failure:        zero
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 30 2005
  *
  *-------------------------------------------------------------------------
@@ -318,7 +314,6 @@ H5O__ginfo_free(void *mesg)
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Aug 30 2005
  *
  *-------------------------------------------------------------------------

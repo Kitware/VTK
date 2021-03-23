@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:  Quincey Koziol
  *              Monday, May  1, 2006
  *
  * Purpose:     Free space section routines for fractal heaps
@@ -156,7 +156,7 @@ static hbool_t H5HF_sect_indirect_is_first(H5HF_free_section_t *sect);
 static H5HF_indirect_t * H5HF_sect_indirect_get_iblock(H5HF_free_section_t *sect);
 static hsize_t H5HF_sect_indirect_iblock_off(const H5HF_free_section_t *sect);
 static H5HF_free_section_t * H5HF_sect_indirect_top(H5HF_free_section_t *sect);
-static herr_t H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr, 
+static herr_t H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr,
     H5HF_free_section_t *sect1, H5HF_free_section_t *sect2);
 static herr_t H5HF__sect_indirect_build_parent(H5HF_hdr_t *hdr, H5HF_free_section_t *sect);
 static herr_t H5HF__sect_indirect_shrink(H5HF_hdr_t *hdr,
@@ -476,7 +476,6 @@ done:
  * Return:	Pointer to new section on success/NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		May 30 2006
  *
  *-------------------------------------------------------------------------
@@ -528,7 +527,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		October 24 2006
  *
  *-------------------------------------------------------------------------
@@ -590,7 +588,6 @@ done:
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              May  8 2006
  *
  *-------------------------------------------------------------------------
@@ -638,7 +635,6 @@ done:
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              October 24 2006
  *
  *-------------------------------------------------------------------------
@@ -686,7 +682,6 @@ H5HF_sect_single_dblock_info(H5HF_hdr_t *hdr, const H5HF_free_section_t *sect,
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		May 31 2006
  *
  *-------------------------------------------------------------------------
@@ -1140,11 +1135,10 @@ H5HF__sect_single_free(H5FS_section_info_t *_sect)
     HDassert(sect);
 
     /* Check for live reference to an indirect block */
-    if(sect->sect_info.state == H5FS_SECT_LIVE) {
+    if(sect->sect_info.state == H5FS_SECT_LIVE)
         /* Get parent indirect block, if there was one */
         if(sect->u.single.parent)
             parent = sect->u.single.parent;
-    } /* end if */
 
     /* Release the section */
     if(H5HF_sect_node_free(sect, parent) < 0)
@@ -1185,9 +1179,9 @@ H5HF__sect_single_valid(const H5FS_section_class_t H5_ATTR_UNUSED *cls, const H5
             H5HF_indirect_t *iblock;    /* Indirect block that section's direct block resides in */
             haddr_t dblock_addr;        /* Direct block address */
             size_t dblock_size;         /* Direct block size */
-            size_t dblock_overhead;     /* Direct block's overhead */
             unsigned dblock_status = 0; /* Direct block's status in the metadata cache */
-            herr_t status;              /* Generic status value */
+            size_t H5_ATTR_NDEBUG_UNUSED dblock_overhead;     /* Direct block's overhead */
+            herr_t H5_ATTR_NDEBUG_UNUSED status;              /* Generic status value */
 
             /* Sanity check settings for section's direct block's parent */
             iblock = sect->u.single.parent;
@@ -1294,7 +1288,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -1343,7 +1336,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -1391,7 +1383,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -1467,7 +1458,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 10 2006
  *
  *-------------------------------------------------------------------------
@@ -1508,7 +1498,6 @@ done:
  * Return:	Pointer to indirect block on success/NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  9 2006
  *
  *-------------------------------------------------------------------------
@@ -1543,7 +1532,6 @@ H5HF_sect_row_get_iblock(H5HF_free_section_t *sect)
  * Return:	Non-negative on success / Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@lbl.gov
  *		February 4 2018
  *
  *-------------------------------------------------------------------------
@@ -1794,13 +1782,11 @@ H5HF__sect_row_can_merge(const H5FS_section_info_t *_sect1,
      *  the first section, but doesn't already have same underlying indirect
      *  section.
      */
-    if(top_indir_sect1 != top_indir_sect2) {
-        if(H5HF_sect_indirect_iblock_off(sect1->u.row.under) == H5HF_sect_indirect_iblock_off(sect2->u.row.under)) {
+    if(top_indir_sect1 != top_indir_sect2)
+        if(H5HF_sect_indirect_iblock_off(sect1->u.row.under) == H5HF_sect_indirect_iblock_off(sect2->u.row.under))
             /* Check if second section adjoins first section */
             if(H5F_addr_eq((top_indir_sect1->sect_info.addr + top_indir_sect1->u.indirect.span_size), top_indir_sect2->sect_info.addr))
                 HGOTO_DONE(TRUE)
-        } /* end if */
-    } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2038,7 +2024,7 @@ H5HF__sect_row_valid(const H5FS_section_class_t *cls, const H5FS_section_info_t 
     const H5HF_hdr_t *hdr;      /* Fractal heap header */
     const H5HF_free_section_t *sect = (const H5HF_free_section_t *)_sect;   /* Pointer to section to check */
     const H5HF_free_section_t *indir_sect;   /* Pointer to underlying indirect section */
-    unsigned indir_idx;         /* Index of row in underlying indirect section's row array */
+    unsigned H5_ATTR_NDEBUG_UNUSED indir_idx; /* Index of row in underlying indirect section's row array */
 
     FUNC_ENTER_STATIC_NOERR
 
@@ -2134,7 +2120,6 @@ H5HF__sect_row_debug(const H5FS_section_info_t *_sect, FILE *stream, int indent,
  * Return:	Offset of indirect block in "heap space" (can't fail)
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2165,7 +2150,6 @@ H5HF_sect_indirect_iblock_off(const H5HF_free_section_t *sect)
  * Return:	Pointer to the top indirect section (can't fail)
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2271,7 +2255,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2343,7 +2326,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2407,7 +2389,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2658,7 +2639,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  3 2006
  *
  *-------------------------------------------------------------------------
@@ -2735,7 +2715,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  6 2006
  *
  *-------------------------------------------------------------------------
@@ -2786,7 +2765,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  3 2006
  *
  *-------------------------------------------------------------------------
@@ -2832,7 +2810,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 10 2006
  *
  *-------------------------------------------------------------------------
@@ -2891,7 +2868,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 10 2006
  *
  *-------------------------------------------------------------------------
@@ -3082,7 +3058,7 @@ H5HF__sect_indirect_reduce_row(H5HF_hdr_t *hdr, H5HF_free_section_t *row_sect,
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "allocation failed for row section pointer array")
 
             /* Transfer row sections between current & peer sections */
-            HDmemcpy(&peer_sect->u.indirect.dir_rows[0],
+            H5MM_memcpy(&peer_sect->u.indirect.dir_rows[0],
                 &sect->u.indirect.dir_rows[0],
                 (sizeof(H5HF_free_section_t *) * peer_dir_nrows));
             HDmemmove(&sect->u.indirect.dir_rows[0],
@@ -3162,7 +3138,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 10 2006
  *
  *-------------------------------------------------------------------------
@@ -3321,7 +3296,7 @@ H5HF__sect_indirect_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect,
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "allocation failed for indirect section pointer array")
 
             /* Transfer child indirect sections between current & peer sections */
-            HDmemcpy(&peer_sect->u.indirect.indir_ents[0],
+            H5MM_memcpy(&peer_sect->u.indirect.indir_ents[0],
                 &sect->u.indirect.indir_ents[sect->u.indirect.indir_nents - peer_nentries],
                 (sizeof(H5HF_free_section_t *) * peer_nentries));
             sect->u.indirect.indir_nents -= (peer_nentries + 1); /* Transferred blocks, plus child entry */
@@ -3396,7 +3371,6 @@ done:
  * Return:	Non-negative (TRUE/FALSE) on success/<can't fail>
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 17 2006
  *
  *-------------------------------------------------------------------------
@@ -3431,7 +3405,6 @@ H5HF_sect_indirect_is_first(H5HF_free_section_t *sect)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July 10 2006
  *
  *-------------------------------------------------------------------------
@@ -3483,7 +3456,6 @@ done:
  * Return:	Pointer to indirect block on success/NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		July  9 2006
  *
  *-------------------------------------------------------------------------
@@ -3636,7 +3608,7 @@ H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr, H5HF_free_section_t *row_sect1,
             sect1->u.indirect.dir_rows = new_dir_rows;
 
             /* Transfer the second section's rows to first section */
-            HDmemcpy(&sect1->u.indirect.dir_rows[sect1->u.indirect.dir_nrows],
+            H5MM_memcpy(&sect1->u.indirect.dir_rows[sect1->u.indirect.dir_nrows],
                 &sect2->u.indirect.dir_rows[src_row2],
                 (sizeof(H5HF_free_section_t *) * nrows_moved2));
 
@@ -3682,7 +3654,7 @@ H5HF__sect_indirect_merge_row(H5HF_hdr_t *hdr, H5HF_free_section_t *row_sect1,
             sect1->u.indirect.indir_ents = new_indir_ents;
 
             /* Transfer the second section's entries to first section */
-            HDmemcpy(&sect1->u.indirect.indir_ents[sect1->u.indirect.indir_nents],
+            H5MM_memcpy(&sect1->u.indirect.indir_ents[sect1->u.indirect.indir_nents],
                 &sect2->u.indirect.indir_ents[0],
                 (sizeof(H5HF_free_section_t *) * sect2->u.indirect.indir_nents));
         } /* end else */
@@ -4057,11 +4029,10 @@ H5HF_sect_indirect_free(H5HF_free_section_t *sect)
     sect->u.indirect.indir_ents = (H5HF_free_section_t **)H5MM_xfree(sect->u.indirect.indir_ents);
 
     /* Check for live reference to an indirect block */
-    if(sect->sect_info.state == H5FS_SECT_LIVE) {
+    if(sect->sect_info.state == H5FS_SECT_LIVE)
         /* Get indirect block, if there was one */
         if(sect->u.indirect.u.iblock)
             iblock = sect->u.indirect.u.iblock;
-    } /* end if */
 
     /* Release the sections */
     if(H5HF_sect_node_free(sect, iblock) < 0)
@@ -4125,7 +4096,7 @@ H5HF_sect_indirect_valid(const H5HF_hdr_t *hdr, const H5HF_free_section_t *sect)
         dir_nrows = (max_dir_row - start_row) + 1;
         HDassert(dir_nrows == sect->u.indirect.dir_nrows);
         for(u = 0; u < dir_nrows; u++) {
-            const H5HF_free_section_t *tmp_row_sect;    /* Pointer to row section */
+            const H5HF_free_section_t H5_ATTR_NDEBUG_UNUSED *tmp_row_sect;    /* Pointer to row section */
 
             tmp_row_sect = sect->u.indirect.dir_rows[u];
             HDassert(tmp_row_sect->sect_info.type == H5HF_FSPACE_SECT_FIRST_ROW
@@ -4133,7 +4104,7 @@ H5HF_sect_indirect_valid(const H5HF_hdr_t *hdr, const H5HF_free_section_t *sect)
             HDassert(tmp_row_sect->u.row.under == sect);
             HDassert(tmp_row_sect->u.row.row == (start_row + u));
             if(u > 0) {
-                const H5HF_free_section_t *tmp_row_sect2;    /* Pointer to row section */
+                const H5HF_free_section_t H5_ATTR_NDEBUG_UNUSED *tmp_row_sect2;    /* Pointer to row section */
 
                 tmp_row_sect2 = sect->u.indirect.dir_rows[u - 1];
                 HDassert(tmp_row_sect2->u.row.row < tmp_row_sect->u.row.row);
@@ -4160,7 +4131,7 @@ H5HF_sect_indirect_valid(const H5HF_hdr_t *hdr, const H5HF_free_section_t *sect)
             HDassert(tmp_child_sect->sect_info.type == H5HF_FSPACE_SECT_INDIRECT);
             HDassert(tmp_child_sect->u.indirect.parent == sect);
             if(u > 0) {
-                const H5HF_free_section_t *tmp_child_sect2;    /* Pointer to child indirect section */
+                const H5HF_free_section_t H5_ATTR_NDEBUG_UNUSED *tmp_child_sect2;    /* Pointer to child indirect section */
 
                 tmp_child_sect2 = sect->u.indirect.indir_ents[u - 1];
                 HDassert(H5F_addr_lt(tmp_child_sect2->sect_info.addr, tmp_child_sect->sect_info.addr));

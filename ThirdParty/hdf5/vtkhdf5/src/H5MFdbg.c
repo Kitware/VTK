@@ -15,7 +15,7 @@
  *
  * Created:             H5MFdbg.c
  *                      Jan 31 2008
- *                      Quincey Koziol <koziol@hdfgroup.org>
+ *                      Quincey Koziol
  *
  * Purpose:             File memory management debugging functions.
  *
@@ -92,7 +92,6 @@ static herr_t H5MF__sects_debug_cb(H5FS_section_info_t *_sect, void *_udata);
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		January 31 2008
  *
  *-------------------------------------------------------------------------
@@ -115,8 +114,8 @@ H5MF__sects_debug_cb(H5FS_section_info_t *_sect, void *_udata)
     /* Print generic section information */
     HDfprintf(udata->stream, "%*s%-*s %s\n", udata->indent, "", udata->fwidth,
 	      "Section type:",
-          (sect->sect_info.type == H5MF_FSPACE_SECT_SIMPLE ? "simple" : 
-          (sect->sect_info.type == H5MF_FSPACE_SECT_SMALL ? "small" : 
+          (sect->sect_info.type == H5MF_FSPACE_SECT_SIMPLE ? "simple" :
+          (sect->sect_info.type == H5MF_FSPACE_SECT_SMALL ? "small" :
           (sect->sect_info.type == H5MF_FSPACE_SECT_LARGE ? "large" : "unknown"))));
     HDfprintf(udata->stream, "%*s%-*s %a\n", udata->indent, "", udata->fwidth,
 	      "Section address:",
@@ -148,7 +147,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		January 31 2008
  *
  *-------------------------------------------------------------------------
@@ -169,7 +167,7 @@ H5MF_sects_debug(H5F_t *f, haddr_t fs_addr, FILE *stream, int indent, int fwidth
     HDassert(indent >= 0);
     HDassert(fwidth >= 0);
 
-    for(type = H5F_MEM_PAGE_DEFAULT; type < H5F_MEM_PAGE_NTYPES; H5_INC_ENUM(H5F_mem_page_t, type))
+    for(type = H5F_MEM_PAGE_DEFAULT; type < H5F_MEM_PAGE_NTYPES; type++)
         if(H5F_addr_eq(f->shared->fs_addr[type], fs_addr)) {
             if(!f->shared->fs_man[type])
                 if(H5MF__open_fstype(f, type) < 0)
@@ -209,7 +207,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Jan 31 2008
  *
  *-------------------------------------------------------------------------
@@ -243,7 +240,7 @@ HDfprintf(stderr, "%s: for type = H5FD_MEM_DEFAULT, eoa = %a\n", FUNC, eoa);
     if(H5F_PAGED_AGGR(f)) { /* File space paging */
         H5F_mem_page_t ptype;		/* Memory type for iteration -- page fs */
 
-        for(ptype = H5F_MEM_PAGE_META; ptype < H5F_MEM_PAGE_NTYPES; H5_INC_ENUM(H5F_mem_page_t, ptype)) {
+        for(ptype = H5F_MEM_PAGE_META; ptype < H5F_MEM_PAGE_NTYPES; ptype++) {
             /* Print header for type */
             HDfprintf(stream, "%*sFile Free Space Info for type = %u:\n", indent, "", (unsigned)ptype);
 
@@ -289,7 +286,7 @@ HDfprintf(stderr, "%s: sda_addr = %a, sda_size = %Hu, end of sda = %a\n", FUNC, 
 #endif /* H5MF_ALLOC_DEBUG */
 
         /* Iterate over all the free space types that have managers and dump each free list's space */
-        for(atype = H5FD_MEM_DEFAULT; atype < H5FD_MEM_NTYPES; H5_INC_ENUM(H5FD_mem_t, atype)) {
+        for(atype = H5FD_MEM_DEFAULT; atype < H5FD_MEM_NTYPES; atype++) {
             /* Print header for type */
             HDfprintf(stream, "%*sFile Free Space Info for type = %u:\n", indent, "", (unsigned)atype);
 

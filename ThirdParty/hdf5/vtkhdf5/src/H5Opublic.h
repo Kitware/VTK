@@ -15,7 +15,7 @@
  *
  * Created:             H5Opublic.h
  *                      Aug  5 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             Public declarations for the H5O (object header)
  *                      package.

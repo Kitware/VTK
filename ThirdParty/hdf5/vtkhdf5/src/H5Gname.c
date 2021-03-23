@@ -15,7 +15,7 @@
  *
  * Created:		H5Gname.c
  *			Sep 12 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Functions for handling group hierarchy paths.
  *
@@ -121,7 +121,6 @@ H5FL_BLK_EXTERN(str_buf);
  *		Failure:	Ptr to the null terminator of NAME.
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug 11 1997
  *
  *-------------------------------------------------------------------------
@@ -214,7 +213,7 @@ done:
  * Return: TRUE for valid prefix, FALSE for not a valid prefix, FAIL
  *              on error
  *
- * Programmer: Quincey Koziol, koziol@ncsa.uiuc.edu
+ * Programmer: Quincey Koziol
  *
  * Date: September 24, 2002
  *
@@ -279,7 +278,7 @@ done:
  *
  * Return: Pointer to reference counted string on success, NULL on error
  *
- * Programmer: Quincey Koziol, koziol@ncsa.uiuc.edu
+ * Programmer: Quincey Koziol
  *
  * Date: August 19, 2005
  *
@@ -341,7 +340,7 @@ done:
  * Return:	Success:	Non-NULL, combined path
  *		Failure:	NULL
  *
- * Programmer:	Quincey Koziol, koziol@ncsa.uiuc.edu
+ * Programmer:	Quincey Koziol
  *              Tuesday, October 11, 2005
  *
  *-------------------------------------------------------------------------
@@ -377,7 +376,7 @@ H5G_build_fullpath_refstr_str(H5RS_str_t *prefix_r, const char *name)
  *
  * Return: Pointer to reference counted string on success, NULL on error
  *
- * Programmer: Quincey Koziol, koziol@ncsa.uiuc.edu
+ * Programmer: Quincey Koziol
  *
  * Date: August 19, 2005
  *
@@ -446,7 +445,7 @@ H5G__name_init(H5G_name_t *name, const char *path)
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Pedro Vicente, pvn@ncsa.uiuc.edu
+ * Programmer:	Pedro Vicente
  *              Thursday, August 22, 2002
  *
  *-------------------------------------------------------------------------
@@ -522,7 +521,7 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
     HDassert(depth == H5_COPY_SHALLOW || depth == H5_COPY_DEEP);
 
     /* Copy the top level information */
-    HDmemcpy(dst, src, sizeof(H5G_name_t));
+    H5MM_memcpy(dst, src, sizeof(H5G_name_t));
 
     /* Deep copy the names */
     if(depth == H5_COPY_DEEP) {
@@ -549,10 +548,6 @@ H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth)
  *
  * Programmer:	Quincey Koziol
  *              Tuesday, December 13, 2005
- *
- * Modifications: Leon Arber
- * 		  Oct. 18, 2006
- * 		  Added functionality to get the name for a reference.
  *
  *-------------------------------------------------------------------------
  */
@@ -649,7 +644,7 @@ H5G_name_reset(H5G_name_t *name)
  *
  * Return:	Success
  *
- * Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+ * Programmer: Pedro Vicente
  *
  * Date: August 22, 2002
  *
@@ -787,7 +782,7 @@ done:
  *
  * Return: Success: 0, Failure: -1
  *
- * Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+ * Programmer: Pedro Vicente
  *
  * Date: June 5, 2002
  *
@@ -1066,7 +1061,7 @@ done:
  *
  * Return: Success: 0, Failure: -1
  *
- * Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+ * Programmer: Pedro Vicente
  *
  * Date: June 11, 2002
  *
@@ -1155,7 +1150,7 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
         else {
             /* We pass NULL as link pointer when we need to search all IDs */
             search_group = search_dataset = search_datatype = TRUE;
-        } /* end else */
+        }
 
         /* Check if we need to operate on the objects affected */
         if(search_group || search_dataset || search_datatype) {
@@ -1166,26 +1161,26 @@ H5G_name_replace(const H5O_link_t *lnk, H5G_names_op_t op, H5F_t *src_file,
                 src_file = H5F_PARENT(src_file);
 
             /* Set up common information for callback */
-            names.src_file = src_file;
-            names.src_full_path_r = src_full_path_r;
-            names.dst_file = dst_file;
-            names.dst_full_path_r = dst_full_path_r;
-            names.op = op;
+            names.src_file          = src_file;
+            names.src_full_path_r   = src_full_path_r;
+            names.dst_file          = dst_file;
+            names.dst_full_path_r   = dst_full_path_r;
+            names.op                = op;
 
             /* Search through group IDs */
             if(search_group)
                 if(H5I_iterate(H5I_GROUP, H5G_name_replace_cb, &names, FALSE) < 0)
-		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over groups")
+                    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over groups")
 
             /* Search through dataset IDs */
             if(search_dataset)
                 if(H5I_iterate(H5I_DATASET, H5G_name_replace_cb, &names, FALSE) < 0)
-		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datasets")
+                    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datasets")
 
             /* Search through datatype IDs */
             if(search_datatype)
                 if(H5I_iterate(H5I_DATATYPE, H5G_name_replace_cb, &names, FALSE) < 0)
-		    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datatypes")
+                    HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "can't iterate over datatypes")
         } /* end if */
     } /* end if */
 
@@ -1200,11 +1195,11 @@ done:
  * Purpose:     Callback for retrieving object's name by address
  *
  * Return:      Positive if path is for object desired
- * 		0 if not correct object
- * 		negative on failure.
+ * 	            0 if not correct object
+ * 	            negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		November 4 2007
+ *              November 4 2007
  *
  *-------------------------------------------------------------------------
  */
@@ -1217,7 +1212,7 @@ H5G_get_name_by_addr_cb(hid_t gid, const char *path, const H5L_info_t *linfo,
     H5G_name_t  obj_path;            	/* Object's group hier. path */
     H5O_loc_t   obj_oloc;            	/* Object's object location */
     hbool_t     obj_found = FALSE;      /* Object at 'path' found */
-    herr_t ret_value = H5_ITER_CONT;    /* Return value */
+    herr_t      ret_value = H5_ITER_CONT;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -1269,10 +1264,11 @@ done:
  *
  * Purpose:     Tries to figure out the path to an object from it's address
  *
- * Return:      returns size of path name, and copies it into buffer
- * 		pointed to by name if that buffer is big enough.
- * 		0 if it cannot find the path
- * 		negative on failure.
+ * Return:      Success:    Returns size of path name, and copies it into buffer
+ *                          pointed to by name if that buffer is big enough.
+ *                          0 if it cannot find the path
+ *
+ *              Failure:    -1
  *
  * Programmer:	Quincey Koziol
  *		November 4 2007
@@ -1280,28 +1276,27 @@ done:
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5G_get_name_by_addr(hid_t file, const H5O_loc_t *loc,
-    char *name, size_t size)
+H5G_get_name_by_addr(hid_t file, const H5O_loc_t *loc, char *name, size_t size)
 {
-    H5G_gnba_iter_t udata;      /* User data for iteration */
-    H5G_loc_t root_loc;         /* Root group's location */
-    hbool_t found_obj = FALSE;  /* If we found the object */
-    herr_t status;              /* Status from iteration */
-    ssize_t ret_value = -1;     /* Return value */
+    H5G_gnba_iter_t udata;                  /* User data for iteration  */
+    H5G_loc_t       root_loc;               /* Root group's location    */
+    hbool_t         found_obj = FALSE;      /* If we found the object   */
+    herr_t          status;                 /* Status from iteration    */
+    ssize_t         ret_value = -1;         /* Return value             */
 
     /* Portably clear udata struct (before FUNC_ENTER) */
     HDmemset(&udata, 0, sizeof(udata));
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI((-1))
 
-    /* Construct the link info for the file's root group */
+    /* Construct a group location for root group of the file */
     if(H5G_loc(file, &root_loc) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get root group's location")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, (-1), "can't get root group's location")
 
     /* Check for root group being the object looked for */
     if(root_loc.oloc->addr == loc->addr && root_loc.oloc->file == loc->file) {
         if(NULL == (udata.path = H5MM_strdup("")))
-            HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, FAIL, "can't duplicate path string")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, (-1), "can't duplicate path string")
         found_obj = TRUE;
     } /* end if */
     else {
@@ -1311,7 +1306,7 @@ H5G_get_name_by_addr(hid_t file, const H5O_loc_t *loc,
 
         /* Visit all the links in the file */
         if((status = H5G_visit(file, "/", H5_INDEX_NAME, H5_ITER_NATIVE, H5G_get_name_by_addr_cb, &udata)) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_BADITER, FAIL, "group traversal failed while looking for object name")
+            HGOTO_ERROR(H5E_SYM, H5E_BADITER, (-1), "group traversal failed while looking for object name")
         else if(status > 0)
             found_obj = TRUE;
     } /* end else */
@@ -1342,3 +1337,4 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_get_name_by_addr() */
+

@@ -39,7 +39,7 @@ Languages:
                     H5_CPPFLAGS: @H5_CPPFLAGS@
                     AM_CPPFLAGS: @AM_CPPFLAGS@
                         C Flags: @CFLAGS@
-                     H5 C Flags: @H5_CFLAGS@
+                     H5 C Flags: @H5_CFLAGS@ @H5_ECFLAGS@
                      AM C Flags: @AM_CFLAGS@
                Shared C Library: @enable_shared@
                Static C Library: @enable_static@
@@ -56,7 +56,7 @@ Languages:
                             C++: @HDF_CXX@
 @BUILD_CXX_CONDITIONAL_TRUE@                   C++ Compiler: @CXX_VERSION@
 @BUILD_CXX_CONDITIONAL_TRUE@                      C++ Flags: @CXXFLAGS@
-@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@ @H5_ECXXFLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@                   AM C++ Flags: @AM_CXXFLAGS@
 @BUILD_CXX_CONDITIONAL_TRUE@             Shared C++ Library: @enable_shared@
 @BUILD_CXX_CONDITIONAL_TRUE@             Static C++ Library: @enable_static@
@@ -79,6 +79,7 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
           I/O filters (external): @EXTERNAL_FILTERS@
                              MPE: @MPE@
                       Direct VFD: @DIRECT_VFD@
+                      Mirror VFD: @MIRROR_VFD@
               (Read-Only) S3 VFD: @ROS3_VFD@
             (Read-Only) HDFS VFD: @HAVE_LIBHDFS@
                          dmalloc: @HAVE_DMALLOC@
@@ -87,5 +88,6 @@ Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
             Using memory checker: @USINGMEMCHECKER@
  Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
           Function stack tracing: @CODESTACK@
+                Use file locking: @DESIRED_FILE_LOCKING@
        Strict file format checks: @STRICT_FORMAT_CHECKS@
     Optimization instrumentation: @INSTRUMENT_LIBRARY@
