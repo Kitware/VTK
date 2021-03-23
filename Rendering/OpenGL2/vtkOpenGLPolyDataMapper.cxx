@@ -3747,7 +3747,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(vtkRenderer* /*ren*/, vtkActor*
     if (this->HaveCellNormals)
     {
       // create the cell scalar array adjusted for ogl Cells
-      vtkDataArray* n = this->CurrentInput->GetCellData()->GetNormals();
+      vtkDataArray* n = poly->GetCellData()->GetNormals();
       // Allocate memory to allow for faster direct access methods instead of using push_back to
       // populate the array.
       size_t nnSize = newNorms.size(); // Composite mappers can already have values in the array
