@@ -13,7 +13,7 @@
 
 /*-------------------------------------------------------------------------
  *
- * Purpose:    Deprecated functions from the H5O interface.  These
+ * Purpose:     Deprecated functions from the H5O interface.  These
  *              functions are here for compatibility purposes and may be
  *              removed in the future.  Applications should switch to the
  *              newer APIs.
@@ -31,10 +31,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"      /* Generic Functions    */
-#include "H5Eprivate.h"     /* Error handling       */
-#include "H5CXprivate.h"    /* Property list handling       */
-#include "H5Opkg.h"         /* Object headers       */
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Opkg.h"             /* Object headers                           */
 
 
 /****************/

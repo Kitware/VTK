@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:	Quincey Koziol
  *		Wednesday, April 11, 2007
  *
  * Purpose:	This file contains declarations which are visible only within
@@ -49,15 +49,15 @@
  * each thread individually. The association of stacks to threads will
  * be handled by the pthread library.
  *
- * In order for this macro to work, H5E_get_my_stack() must be preceeded
+ * In order for this macro to work, H5E__get_my_stack() must be preceeded
  * by "H5E_t *estack =".
  */
-#define H5E_get_my_stack()  H5E_get_stack()
+#define H5E__get_my_stack()  H5E__get_stack()
 #else /* H5_HAVE_THREADSAFE */
 /*
  * The current error stack.
  */
-#define H5E_get_my_stack() (H5E_stack_g + 0)
+#define H5E__get_my_stack() (H5E_stack_g + 0)
 #endif /* H5_HAVE_THREADSAFE */
 
 
@@ -77,9 +77,9 @@ typedef struct {
 } H5E_auto_op_t;
 #else /* H5_NO_DEPRECATED_SYMBOLS */
 typedef struct {
-    H5E_auto_t  func2;      /* Only the new style callback function is available. */
+    H5E_auto2_t func2;      /* Only the new style callback function is available. */
 } H5E_auto_op_t;
-#endif /* H5_NO_DEPRECATED_SYMBOLS */ 
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
 
 /* Some syntactic sugar to make the compiler happy with two different kinds of callbacks */
 typedef struct {
@@ -132,20 +132,20 @@ H5_DLLVAR H5E_t	H5E_stack_g[1];
 /******************************/
 H5_DLL herr_t H5E__term_deprec_interface(void);
 #ifdef H5_HAVE_THREADSAFE
-H5_DLL H5E_t *H5E_get_stack(void);
+H5_DLL H5E_t *H5E__get_stack(void);
 #endif /* H5_HAVE_THREADSAFE */
 H5_DLL herr_t H5E__push_stack(H5E_t *estack, const char *file, const char *func,
     unsigned line, hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc);
-H5_DLL ssize_t H5E_get_msg(const H5E_msg_t *msg_ptr, H5E_type_t *type,
+H5_DLL ssize_t H5E__get_msg(const H5E_msg_t *msg_ptr, H5E_type_t *type,
     char *msg, size_t size);
-H5_DLL herr_t H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compat);
-H5_DLL herr_t H5E_walk(const H5E_t *estack, H5E_direction_t direction,
+H5_DLL herr_t H5E__print(const H5E_t *estack, FILE *stream, hbool_t bk_compat);
+H5_DLL herr_t H5E__walk(const H5E_t *estack, H5E_direction_t direction,
     const H5E_walk_op_t *op, void *client_data);
-H5_DLL herr_t H5E_get_auto(const H5E_t *estack, H5E_auto_op_t *op,
+H5_DLL herr_t H5E__get_auto(const H5E_t *estack, H5E_auto_op_t *op,
     void **client_data);
-H5_DLL herr_t H5E_set_auto(H5E_t *estack, const H5E_auto_op_t *op,
+H5_DLL herr_t H5E__set_auto(H5E_t *estack, const H5E_auto_op_t *op,
     void *client_data);
-H5_DLL herr_t H5E_pop(H5E_t *err_stack, size_t count);
+H5_DLL herr_t H5E__pop(H5E_t *err_stack, size_t count);
 
 #endif /* _H5Epkg_H */
 

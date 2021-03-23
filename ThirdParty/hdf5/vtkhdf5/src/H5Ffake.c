@@ -18,8 +18,6 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"             /* File access				*/
-#include "H5Iprivate.h"        /* IDs */
-#include "H5Pprivate.h"        /* Property lists */
 
 /* PRIVATE PROTOTYPES */
 
@@ -36,7 +34,6 @@
  *              Failure:        NULL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Oct  2, 2006
  *
  *-------------------------------------------------------------------------
@@ -52,7 +49,7 @@ H5F_fake_alloc(uint8_t sizeof_size)
     /* Allocate faked file struct */
     if(NULL == (f = H5FL_CALLOC(H5F_t)))
 	HGOTO_ERROR(H5E_FILE, H5E_NOSPACE, NULL, "can't allocate top file structure")
-    if(NULL == (f->shared = H5FL_CALLOC(H5F_file_t)))
+    if(NULL == (f->shared = H5FL_CALLOC(H5F_shared_t)))
 	HGOTO_ERROR(H5E_FILE, H5E_NOSPACE, NULL, "can't allocate shared file structure")
 
     /* Only set fields necessary for clients */
@@ -61,6 +58,7 @@ H5F_fake_alloc(uint8_t sizeof_size)
     else
         f->shared->sizeof_size = sizeof_size;
 
+    /* Set return value */
     ret_value = f;
 
 done:
@@ -80,7 +78,6 @@ done:
  *		Failure:	negative
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Oct  2, 2006
  *
  *-------------------------------------------------------------------------
@@ -94,7 +91,7 @@ H5F_fake_free(H5F_t *f)
     if(f) {
         /* Destroy shared file struct */
         if(f->shared)
-            f->shared = H5FL_FREE(H5F_file_t, f->shared);
+            f->shared = H5FL_FREE(H5F_shared_t, f->shared);
         f = H5FL_FREE(H5F_t, f);
     } /* end if */
 

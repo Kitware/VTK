@@ -62,9 +62,9 @@
 /* Local Prototypes */
 /********************/
 
-static herr_t H5PL__insert_at(const char *path, unsigned int index);
-static herr_t H5PL__make_space_at(unsigned int index);
-static herr_t H5PL__replace_at(const char *path, unsigned int index);
+static herr_t H5PL__insert_at(const char *path, unsigned int idx);
+static herr_t H5PL__make_space_at(unsigned int idx);
+static herr_t H5PL__replace_at(const char *path, unsigned int idx);
 static herr_t H5PL__expand_path_table(void);
 static herr_t H5PL__find_plugin_in_path(const H5PL_search_params_t *search_params, hbool_t *found, const char *dir, const void **plugin_info);
 
@@ -105,7 +105,7 @@ static unsigned     H5PL_path_capacity_g = H5PL_INITIAL_PATH_CAPACITY;
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5PL__insert_at(const char *path, unsigned int index)
+H5PL__insert_at(const char *path, unsigned int idx)
 {
     char    *path_copy = NULL;      /* copy of path string (for storing) */
     herr_t  ret_value = SUCCEED;    /* Return value */
@@ -132,12 +132,12 @@ H5PL__insert_at(const char *path, unsigned int index)
 #endif /* H5_HAVE_WIN32_API */
 
     /* If the table entry is in use, make some space */
-    if (H5PL_paths_g[index])
-        if (H5PL__make_space_at(index) < 0)
+    if (H5PL_paths_g[idx])
+        if (H5PL__make_space_at(idx) < 0)
             HGOTO_ERROR(H5E_PLUGIN, H5E_NOSPACE, FAIL, "unable to make space in the table for the new entry")
 
     /* Insert the copy of the search path into the table at the specified index */
-    H5PL_paths_g[index] = path_copy;
+    H5PL_paths_g[idx] = path_copy;
     H5PL_num_paths_g++;
 
 done:
@@ -156,7 +156,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5PL__make_space_at(unsigned int index)
+H5PL__make_space_at(unsigned int idx)
 {
     unsigned    u;                      /* iterator */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -164,13 +164,13 @@ H5PL__make_space_at(unsigned int index)
     FUNC_ENTER_STATIC_NOERR
 
     /* Check args - Just assert on package functions */
-    HDassert(index < H5PL_path_capacity_g);
+    HDassert(idx < H5PL_path_capacity_g);
 
     /* Copy the paths back to make a space  */
-    for (u = H5PL_num_paths_g; u > index; u--)
+    for (u = H5PL_num_paths_g; u > idx; u--)
         H5PL_paths_g[u] = H5PL_paths_g[u-1];
 
-    H5PL_paths_g[index] = NULL;
+    H5PL_paths_g[idx] = NULL;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL__make_space_at() */
@@ -188,7 +188,7 @@ H5PL__make_space_at(unsigned int index)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5PL__replace_at(const char *path, unsigned int index)
+H5PL__replace_at(const char *path, unsigned int idx)
 {
     char    *path_copy = NULL;      /* copy of path string (for storing) */
     herr_t  ret_value = SUCCEED;    /* Return value */
@@ -200,8 +200,8 @@ H5PL__replace_at(const char *path, unsigned int index)
     HDassert(HDstrlen(path));
 
     /* Check that the table entry is in use */
-    if (!H5PL_paths_g[index])
-        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, FAIL, "path entry at index %u in the table is NULL", index)
+    if (!H5PL_paths_g[idx])
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTFREE, FAIL, "path entry at index %u in the table is NULL", idx)
 
     /* Copy the path for storage so the caller can dispose of theirs */
     if (NULL == (path_copy = H5MM_strdup(path)))
@@ -214,10 +214,10 @@ H5PL__replace_at(const char *path, unsigned int index)
 #endif /* H5_HAVE_WIN32_API */
 
     /* Free the existing path entry */
-    H5PL_paths_g[index] = (char *)H5MM_xfree(H5PL_paths_g[index]);
+    H5PL_paths_g[idx] = (char *)H5MM_xfree(H5PL_paths_g[idx]);
 
     /* Copy the search path into the table at the specified index */
-    H5PL_paths_g[index] = path_copy;
+    H5PL_paths_g[idx] = path_copy;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -242,6 +242,7 @@ H5PL__create_path_table(void)
                                          * environment variable or the default.
                                          */
     char        *next_path = NULL;      /* A path tokenized from the paths string */
+    char        *lasts = NULL;          /* Context pointer for strtok_r() call */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -265,8 +266,7 @@ H5PL__create_path_table(void)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTALLOC, FAIL, "can't allocate memory for path copy")
 
     /* Separate the paths and store them */
-    /* XXX: strtok() is not thread-safe */
-    next_path = HDstrtok(paths, H5PL_PATH_SEPARATOR);
+    next_path = HDstrtok_r(paths, H5PL_PATH_SEPARATOR, &lasts);
     while (next_path) {
 
         /* Insert the path into the table */
@@ -274,7 +274,7 @@ H5PL__create_path_table(void)
             HGOTO_ERROR(H5E_PLUGIN, H5E_CANTALLOC, FAIL, "can't insert path: %s", next_path)
 
         /* Get the next path from the environment string */
-        next_path = HDstrtok(NULL, H5PL_PATH_SEPARATOR);
+        next_path = HDstrtok_r(NULL, H5PL_PATH_SEPARATOR, &lasts);
     } /* end while */
 
 done:
@@ -448,7 +448,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PL__replace_path(const char *path, unsigned int index)
+H5PL__replace_path(const char *path, unsigned int idx)
 {
     herr_t  ret_value = SUCCEED;    /* Return value */
 
@@ -457,10 +457,10 @@ H5PL__replace_path(const char *path, unsigned int index)
     /* Check args - Just assert on package functions */
     HDassert(path);
     HDassert(HDstrlen(path));
-    HDassert(index < H5PL_path_capacity_g);
+    HDassert(idx < H5PL_path_capacity_g);
 
     /* Insert the path at the requested index */
-    if (H5PL__replace_at(path, index) < 0)
+    if (H5PL__replace_at(path, idx) < 0)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTINSERT, FAIL, "unable to replace search path")
 
 done:
@@ -479,7 +479,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PL__insert_path(const char *path, unsigned int index)
+H5PL__insert_path(const char *path, unsigned int idx)
 {
     herr_t  ret_value = SUCCEED;    /* Return value */
 
@@ -488,10 +488,10 @@ H5PL__insert_path(const char *path, unsigned int index)
     /* Check args - Just assert on package functions */
     HDassert(path);
     HDassert(HDstrlen(path));
-    HDassert(index < H5PL_path_capacity_g);
+    HDassert(idx < H5PL_path_capacity_g);
 
     /* Insert the path at the requested index */
-    if (H5PL__insert_at(path, index) < 0)
+    if (H5PL__insert_at(path, idx) < 0)
         HGOTO_ERROR(H5E_PLUGIN, H5E_CANTINSERT, FAIL, "unable to insert search path")
 
 done:
@@ -510,7 +510,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5PL__remove_path(unsigned int index)
+H5PL__remove_path(unsigned int idx)
 {
     unsigned    u;                      /* iterator */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -518,18 +518,18 @@ H5PL__remove_path(unsigned int index)
     FUNC_ENTER_PACKAGE
 
     /* Check args - Just assert on package functions */
-    HDassert(index < H5PL_path_capacity_g);
+    HDassert(idx < H5PL_path_capacity_g);
 
     /* Check if the path at that index is set */
-    if (!H5PL_paths_g[index])
-        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTDELETE, FAIL, "search path at index %u is NULL", index)
+    if (!H5PL_paths_g[idx])
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTDELETE, FAIL, "search path at index %u is NULL", idx)
 
     /* Delete the path */
     H5PL_num_paths_g--;
-    H5PL_paths_g[index] = (char *)H5MM_xfree(H5PL_paths_g[index]);
+    H5PL_paths_g[idx] = (char *)H5MM_xfree(H5PL_paths_g[idx]);
 
     /* Shift the paths down to close the gap */
-    for (u = index; u < H5PL_num_paths_g; u++)
+    for (u = idx; u < H5PL_num_paths_g; u++)
         H5PL_paths_g[u] = H5PL_paths_g[u+1];
 
     /* Set the (former) last path to NULL */
@@ -551,17 +551,17 @@ done:
  *-------------------------------------------------------------------------
  */
 const char *
-H5PL__get_path(unsigned int index)
+H5PL__get_path(unsigned int idx)
 {
     char    *ret_value = NULL;    /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Get the path at the requested index */
-    if (index >= H5PL_num_paths_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "path index %u is out of range in table", index)
+    if (idx >= H5PL_num_paths_g)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "path index %u is out of range in table", idx)
 
-    return H5PL_paths_g[index];
+    return H5PL_paths_g[idx];
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5PL__replace_path() */
@@ -673,7 +673,7 @@ H5PL__find_plugin_in_path(const H5PL_search_params_t *search_params, hbool_t *fo
             size_t      len;
 
             /* Allocate & initialize the path name */
-            len = HDstrlen(dir) + HDstrlen(H5PL_PATH_SEPARATOR) + HDstrlen(dp->d_name) + 1 /*\0*/;
+            len = HDstrlen(dir) + HDstrlen(H5PL_PATH_SEPARATOR) + HDstrlen(dp->d_name) + 1 /*\0*/ + 4; /* Extra "+4" to quiet GCC warning - 2019/07/05, QAK */
 
             if (NULL == (path = (char *)H5MM_calloc(len)))
                 HGOTO_ERROR(H5E_PLUGIN, H5E_CANTALLOC, FAIL, "can't allocate memory for path")

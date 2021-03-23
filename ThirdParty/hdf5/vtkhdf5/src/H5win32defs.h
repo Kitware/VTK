@@ -20,6 +20,45 @@
  *          inside H5private.h
  *
  */
+#ifndef H5_HAVE_INTTYPES_H
+/* The following definitions should be suitable for 64-bit Windows, which is
+ * LLP64, and for 32-bit Windows, which is ILP32.  Those are the only
+ * platforms where <inttypes.h> is likely to be missing.  VS2015 and later
+ * *may* provide these definitions.
+ */
+#ifdef _WIN64
+#       define PRIdPTR "lld"
+#       define PRIoPTR "llo"
+#       define PRIuPTR "llu"
+#       define PRIxPTR "llx"
+#else /* _WIN64 */
+#       define PRIdPTR "ld"
+#       define PRIoPTR "lo"
+#       define PRIuPTR "lu"
+#       define PRIxPTR "lx"
+#endif /* _WIN64 */
+
+#   define PRId8 "d"
+#   define PRIo8 "o"
+#   define PRIu8 "u"
+#   define PRIx8 "x"
+#   define PRId16 "d"
+#   define PRIo16 "o"
+#   define PRIu16 "u"
+#   define PRIx16 "x"
+#   define PRId32 "d"
+#   define PRIo32 "o"
+#   define PRIu32 "u"
+#   define PRIx32 "x"
+#   define PRId64 "lld"
+#   define PRIo64 "llo"
+#   define PRIu64 "llu"
+#   define PRIx64 "llx"
+#   define PRIdMAX "lld"
+#   define PRIoMAX "llo"
+#   define PRIuMAX "llu"
+#   define PRIxMAX "llx"
+#endif
 
 /*
  * _MSC_VER = 1900 VS2015
@@ -40,6 +79,7 @@ typedef __int64             h5_stat_size_t;
 #define HDfileno(F)         _fileno(F)
 #define HDfstat(F,B)        _fstati64(F,B)
 #define HDisatty(F)         _isatty(F)
+
 #define HDgetcwd(S,Z)       _getcwd(S,Z)
 #define HDgetdcwd(D,S,Z)    _getdcwd(D,S,Z)
 #define HDgetdrive()        _getdrive()
@@ -105,8 +145,10 @@ struct timespec
 };
 #endif /* MSC_VER < 1900 */
 
-/* The round functions do not exist in VS2012 and earlier */
 #if (_MSC_VER <= 1700)
+/* The isnan function needs underscore in VS2012 and earlier */
+#define HDisnan(X)         _isnan(X)
+/* The round functions do not exist in VS2012 and earlier */
 #define HDllround(V)        Wllround(V)
 #define HDllroundf(V)       Wllroundf(V)
 #define HDlround(V)         Wlround(V)
@@ -156,10 +198,6 @@ extern "C" {
 #define HDvsnprintf         c99_vsnprintf /*varargs*/
 
 /* Non-POSIX functions */
-
-/* Don't use actual pthread_self on Windows because the return
- * type cannot be cast as a ulong like other systems. */
-#define HDpthread_self_ulong() ((unsigned long)GetCurrentThreadId())
 
 #ifndef H5_HAVE_MINGW
 #define HDftruncate(F,L)    _chsize_s(F,L)

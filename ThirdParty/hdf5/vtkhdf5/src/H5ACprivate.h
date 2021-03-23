@@ -15,7 +15,7 @@
  *
  * Created:		H5ACprivate.h
  *			Jul  9 1997
- *			Robb Matzke <matzke@llnl.gov>
+ *			Robb Matzke
  *
  * Purpose:		Constants and typedefs available to the rest of the
  *			library.
@@ -88,18 +88,18 @@ typedef enum {
  *
  * Hence the following, somewhat odd set of #defines.
  *
- * NOTE: test/cache plays games with the f->shared->cache, and thus 
- *       setting H5AC_DUMP_STATS_ON_CLOSE will generate constant, 
- *	 irrelevant data when run with that test program.  See 
+ * NOTE: test/cache plays games with the f->shared->cache, and thus
+ *       setting H5AC_DUMP_STATS_ON_CLOSE will generate constant,
+ *	 irrelevant data when run with that test program.  See
  * 	 comments on setup_cache() / takedown_cache() in test/cache_common.c.
  *       for details.
  *
  *	 If you need to dump stats at file close in test/cache.c,
- *	 use the dump_stats parameter to takedown_cache(), or call 
+ *	 use the dump_stats parameter to takedown_cache(), or call
  *	 H5C_stats() directly.
  *					JRM -- 4/12/15
  *
- * Added the H5AC_DUMP_IMAGE_STATS_ON_CLOSE #define, which works much 
+ * Added the H5AC_DUMP_IMAGE_STATS_ON_CLOSE #define, which works much
  * the same way as H5AC_DUMP_STATS_ON_CLOSE.  However, the set of stats
  * displayed is much smaller, and directed purely at the cache image feature.
  *
@@ -387,6 +387,8 @@ H5_DLL herr_t H5AC_insert_entry(H5F_t *f, const H5AC_class_t *type,
     haddr_t addr, void *thing, unsigned int flags);
 H5_DLL herr_t H5AC_pin_protected_entry(void *thing);
 H5_DLL herr_t H5AC_prep_for_file_close(H5F_t *f);
+H5_DLL herr_t H5AC_prep_for_file_flush(H5F_t *f);
+H5_DLL herr_t H5AC_secure_from_file_flush(H5F_t *f);
 H5_DLL herr_t H5AC_create_flush_dependency(void *parent_thing, void *child_thing);
 H5_DLL void * H5AC_protect(H5F_t *f, const H5AC_class_t *type, haddr_t addr,
     void *udata, unsigned flags);
@@ -418,7 +420,7 @@ H5_DLL herr_t H5AC_set_cache_auto_resize_config(H5AC_t *cache_ptr,
 H5_DLL herr_t H5AC_validate_config(H5AC_cache_config_t *config_ptr);
 
 /* Cache image routines */
-H5_DLL herr_t H5AC_load_cache_image_on_next_protect(H5F_t *f, haddr_t addr, 
+H5_DLL herr_t H5AC_load_cache_image_on_next_protect(H5F_t *f, haddr_t addr,
     hsize_t len, hbool_t rw);
 H5_DLL herr_t H5AC_validate_cache_image_config(H5AC_cache_image_config_t *config_ptr);
 H5_DLL hbool_t H5AC_cache_image_pending(const H5F_t *f);
@@ -429,7 +431,7 @@ H5_DLL herr_t H5AC_get_mdc_image_info(H5AC_t *cache_ptr, haddr_t *image_addr,
 /* Tag & Ring routines */
 H5_DLL void H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag);
 H5_DLL herr_t H5AC_flush_tagged_metadata(H5F_t *f, haddr_t metadata_tag);
-H5_DLL herr_t H5AC_evict_tagged_metadata(H5F_t * f, haddr_t metadata_tag, hbool_t match_global);
+H5_DLL herr_t H5AC_evict_tagged_metadata(H5F_t *f, haddr_t metadata_tag, hbool_t match_global);
 H5_DLL herr_t H5AC_retag_copied_metadata(const H5F_t *f, haddr_t metadata_tag);
 H5_DLL herr_t H5AC_ignore_tags(const H5F_t *f);
 H5_DLL herr_t H5AC_cork(H5F_t *f, haddr_t obj_addr, unsigned action, hbool_t *corked);

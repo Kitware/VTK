@@ -1,13 +1,6 @@
 #ifndef VTK_HDF5_HL_MANGLE_H
 #define VTK_HDF5_HL_MANGLE_H
 
-#define arr_stack vtkhdf5_hl_arr_stack
-#define asindex vtkhdf5_hl_asindex
-#define cmpd_stack vtkhdf5_hl_cmpd_stack
-#define csindex vtkhdf5_hl_csindex
-#define enum_id vtkhdf5_hl_enum_id
-#define enum_memb_symbol vtkhdf5_hl_enum_memb_symbol
-#define first_quote vtkhdf5_hl_first_quote
 #define H5DOappend vtkhdf5_hl_H5DOappend
 #define H5DOread_chunk vtkhdf5_hl_H5DOread_chunk
 #define H5DOwrite_chunk vtkhdf5_hl_H5DOwrite_chunk
@@ -40,13 +33,15 @@
 #define H5LDget_dset_elmts vtkhdf5_hl_H5LDget_dset_elmts
 #define H5LDget_dset_type_size vtkhdf5_hl_H5LDget_dset_type_size
 #define H5LT_dtype_to_text vtkhdf5_hl_H5LT_dtype_to_text
-#define H5LTdtype_to_text vtkhdf5_hl_H5LTdtype_to_text
 #define H5LT_find_attribute vtkhdf5_hl_H5LT_find_attribute
+#define H5LT_get_attribute_disk vtkhdf5_hl_H5LT_get_attribute_disk
+#define H5LT_set_attribute_numerical vtkhdf5_hl_H5LT_set_attribute_numerical
+#define H5LT_set_attribute_string vtkhdf5_hl_H5LT_set_attribute_string
+#define H5LTdtype_to_text vtkhdf5_hl_H5LTdtype_to_text
 #define H5LTfind_attribute vtkhdf5_hl_H5LTfind_attribute
 #define H5LTfind_dataset vtkhdf5_hl_H5LTfind_dataset
 #define H5LTget_attribute vtkhdf5_hl_H5LTget_attribute
 #define H5LTget_attribute_char vtkhdf5_hl_H5LTget_attribute_char
-#define H5LT_get_attribute_disk vtkhdf5_hl_H5LT_get_attribute_disk
 #define H5LTget_attribute_double vtkhdf5_hl_H5LTget_attribute_double
 #define H5LTget_attribute_float vtkhdf5_hl_H5LTget_attribute_float
 #define H5LTget_attribute_info vtkhdf5_hl_H5LTget_attribute_info
@@ -86,22 +81,24 @@
 #define H5LTset_attribute_int vtkhdf5_hl_H5LTset_attribute_int
 #define H5LTset_attribute_long vtkhdf5_hl_H5LTset_attribute_long
 #define H5LTset_attribute_long_long vtkhdf5_hl_H5LTset_attribute_long_long
-#define H5LT_set_attribute_numerical vtkhdf5_hl_H5LT_set_attribute_numerical
 #define H5LTset_attribute_short vtkhdf5_hl_H5LTset_attribute_short
-#define H5LT_set_attribute_string vtkhdf5_hl_H5LT_set_attribute_string
 #define H5LTset_attribute_string vtkhdf5_hl_H5LTset_attribute_string
 #define H5LTset_attribute_uchar vtkhdf5_hl_H5LTset_attribute_uchar
 #define H5LTset_attribute_uint vtkhdf5_hl_H5LTset_attribute_uint
 #define H5LTset_attribute_ulong vtkhdf5_hl_H5LTset_attribute_ulong
 #define H5LTset_attribute_ushort vtkhdf5_hl_H5LTset_attribute_ushort
 #define H5LTtext_to_dtype vtkhdf5_hl_H5LTtext_to_dtype
-#define H5LTyyalloc vtkhdf5_hl_H5LTyyalloc
-#define H5LTyychar vtkhdf5_hl_H5LTyychar
 #define H5LTyy_create_buffer vtkhdf5_hl_H5LTyy_create_buffer
 #define H5LTyy_delete_buffer vtkhdf5_hl_H5LTyy_delete_buffer
-#define H5LTyyerror vtkhdf5_hl_H5LTyyerror
 #define H5LTyy_flex_debug vtkhdf5_hl_H5LTyy_flex_debug
 #define H5LTyy_flush_buffer vtkhdf5_hl_H5LTyy_flush_buffer
+#define H5LTyy_scan_buffer vtkhdf5_hl_H5LTyy_scan_buffer
+#define H5LTyy_scan_bytes vtkhdf5_hl_H5LTyy_scan_bytes
+#define H5LTyy_scan_string vtkhdf5_hl_H5LTyy_scan_string
+#define H5LTyy_switch_to_buffer vtkhdf5_hl_H5LTyy_switch_to_buffer
+#define H5LTyyalloc vtkhdf5_hl_H5LTyyalloc
+#define H5LTyychar vtkhdf5_hl_H5LTyychar
+#define H5LTyyerror vtkhdf5_hl_H5LTyyerror
 #define H5LTyyfree vtkhdf5_hl_H5LTyyfree
 #define H5LTyyget_debug vtkhdf5_hl_H5LTyyget_debug
 #define H5LTyyget_in vtkhdf5_hl_H5LTyyget_in
@@ -122,14 +119,10 @@
 #define H5LTyypush_buffer_state vtkhdf5_hl_H5LTyypush_buffer_state
 #define H5LTyyrealloc vtkhdf5_hl_H5LTyyrealloc
 #define H5LTyyrestart vtkhdf5_hl_H5LTyyrestart
-#define H5LTyy_scan_buffer vtkhdf5_hl_H5LTyy_scan_buffer
-#define H5LTyy_scan_bytes vtkhdf5_hl_H5LTyy_scan_bytes
-#define H5LTyy_scan_string vtkhdf5_hl_H5LTyy_scan_string
 #define H5LTyyset_debug vtkhdf5_hl_H5LTyyset_debug
 #define H5LTyyset_in vtkhdf5_hl_H5LTyyset_in
 #define H5LTyyset_lineno vtkhdf5_hl_H5LTyyset_lineno
 #define H5LTyyset_out vtkhdf5_hl_H5LTyyset_out
-#define H5LTyy_switch_to_buffer vtkhdf5_hl_H5LTyy_switch_to_buffer
 #define H5LTyytext vtkhdf5_hl_H5LTyytext
 #define H5LTyywrap vtkhdf5_hl_H5LTyywrap
 #define H5PTappend vtkhdf5_hl_H5PTappend
@@ -148,13 +141,13 @@
 #define H5PTopen vtkhdf5_hl_H5PTopen
 #define H5PTread_packets vtkhdf5_hl_H5PTread_packets
 #define H5PTset_index vtkhdf5_hl_H5PTset_index
-#define H5TBadd_records_from vtkhdf5_hl_H5TBadd_records_from
 #define H5TBAget_fill vtkhdf5_hl_H5TBAget_fill
 #define H5TBAget_title vtkhdf5_hl_H5TBAget_title
-#define H5TBappend_records vtkhdf5_hl_H5TBappend_records
-#define H5TBcombine_tables vtkhdf5_hl_H5TBcombine_tables
 #define H5TB_common_append_records vtkhdf5_hl_H5TB_common_append_records
 #define H5TB_common_read_records vtkhdf5_hl_H5TB_common_read_records
+#define H5TBadd_records_from vtkhdf5_hl_H5TBadd_records_from
+#define H5TBappend_records vtkhdf5_hl_H5TBappend_records
+#define H5TBcombine_tables vtkhdf5_hl_H5TBcombine_tables
 #define H5TBdelete_field vtkhdf5_hl_H5TBdelete_field
 #define H5TBdelete_record vtkhdf5_hl_H5TBdelete_record
 #define H5TBget_field_info vtkhdf5_hl_H5TBget_field_info
@@ -171,16 +164,7 @@
 #define H5TBwrite_records vtkhdf5_hl_H5TBwrite_records
 #define indent vtkhdf5_hl_indent
 #define input_len vtkhdf5_hl_input_len
-#define is_enum_memb vtkhdf5_hl_is_enum_memb
-#define is_opq_size vtkhdf5_hl_is_opq_size
-#define is_opq_tag vtkhdf5_hl_is_opq_tag
-#define is_str_pad vtkhdf5_hl_is_str_pad
-#define is_str_size vtkhdf5_hl_is_str_size
-#define is_variable vtkhdf5_hl_is_variable
-#define myinput vtkhdf5_hl_myinput
 #define my_yyinput vtkhdf5_hl_my_yyinput
-#define str_cset vtkhdf5_hl_str_cset
-#define str_pad vtkhdf5_hl_str_pad
-#define str_size vtkhdf5_hl_str_size
+#define myinput vtkhdf5_hl_myinput
 
 #endif

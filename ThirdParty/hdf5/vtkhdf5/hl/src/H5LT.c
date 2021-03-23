@@ -11,11 +11,6 @@
  * help@hdfgroup.org.                                                        *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "H5LTprivate.h"
 
 /* For Lex and Yacc */
@@ -29,19 +24,19 @@ char *myinput;
 size_t  indent = 0;
 
 
-/* File Image operations					
-	
-   A file image is a representation of an HDF5 file in a memory	 
-   buffer. In order to perform operations on an image in a similar way	
+/* File Image operations
+
+   A file image is a representation of an HDF5 file in a memory
+   buffer. In order to perform operations on an image in a similar way
    to a  file, the application buffer is copied to a FAPL buffer, which
-   in turn is copied to a VFD buffer. Buffer copying can decrease	
-   performance, especially when using large file images. A solution to	
-   this issue is to simulate the copying of the application buffer,	
-   when actually the same buffer is used for the FAPL and the VFD.	
-   This is implemented by using callbacks that simulate the standard	
-   functions for memory management (additional callbacks are used for	
-   the management of associated data structures). From the application	
-   standpoint, a file handle can be obtained from a file image by using	
+   in turn is copied to a VFD buffer. Buffer copying can decrease
+   performance, especially when using large file images. A solution to
+   this issue is to simulate the copying of the application buffer,
+   when actually the same buffer is used for the FAPL and the VFD.
+   This is implemented by using callbacks that simulate the standard
+   functions for memory management (additional callbacks are used for
+   the management of associated data structures). From the application
+   standpoint, a file handle can be obtained from a file image by using
    the API routine H5LTopen_file_image(). This function takes a flag
    argument that indicates the HDF5 library how to handle the given image;
    several flag values can be combined by using the bitwise OR operator.
@@ -61,9 +56,9 @@ size_t  indent = 0;
    well. The application is responsible to release the image buffer.
 */
 
-/* Data structure to pass application data to callbacks. */ 
+/* Data structure to pass application data to callbacks. */
 typedef struct {
-    void *app_image_ptr;	/* Pointer to application buffer */ 
+    void *app_image_ptr;	/* Pointer to application buffer */
     size_t app_image_size;	/* Size of application buffer */
     void *fapl_image_ptr;	/* Pointer to FAPL buffer */
     size_t fapl_image_size;	/* Size of FAPL buffer */
@@ -88,17 +83,17 @@ static herr_t udata_free(void *udata);
 
 
 /*-------------------------------------------------------------------------
-* Function: image_malloc 
+* Function: image_malloc
 *
 * Purpose: Simulates malloc() function to avoid copying file images.
 *          The application buffer is set to the buffer on only one FAPL.
 *          Then the FAPL buffer can be copied to other FAPL buffers or
-*          to only one VFD buffer. 
+*          to only one VFD buffer.
 *
 * Return: Address of "allocated" buffer, if successful. Otherwise, it returns
 *         NULL.
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -109,23 +104,23 @@ image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *_udata)
 {
     H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
     void * return_value = NULL;
-    
+
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
 
     switch ( file_image_op ) {
         /* the app buffer is "copied" to only one FAPL. Afterwards, FAPLs can be "copied" */
         case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET:
-            if (udata->app_image_ptr == NULL) 
+            if (udata->app_image_ptr == NULL)
                 goto out;
-            if (udata->app_image_size != size) 
+            if (udata->app_image_size != size)
                 goto out;
-            if (udata->fapl_image_ptr != NULL) 
+            if (udata->fapl_image_ptr != NULL)
                 goto out;
-            if (udata->fapl_image_size != 0) 
+            if (udata->fapl_image_size != 0)
                 goto out;
-            if (udata->fapl_ref_count != 0) 
+            if (udata->fapl_ref_count != 0)
                 goto out;
 
             udata->fapl_image_ptr = udata->app_image_ptr;
@@ -135,11 +130,11 @@ image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *_udata)
 	    break;
 
 	case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY:
-            if (udata->fapl_image_ptr == NULL) 
+            if (udata->fapl_image_ptr == NULL)
                 goto out;
-            if (udata->fapl_image_size != size) 
+            if (udata->fapl_image_size != size)
                 goto out;
-            if (udata->fapl_ref_count == 0) 
+            if (udata->fapl_ref_count == 0)
                 goto out;
 
             return_value = udata->fapl_image_ptr;
@@ -151,17 +146,17 @@ image_malloc(size_t size, H5FD_file_image_op_t file_image_op, void *_udata)
 
         case H5FD_FILE_IMAGE_OP_FILE_OPEN:
             /* FAPL buffer is "copied" to only one VFD buffer */
-            if (udata->vfd_image_ptr != NULL) 
+            if (udata->vfd_image_ptr != NULL)
                 goto out;
-            if (udata->vfd_image_size != 0) 
+            if (udata->vfd_image_size != 0)
                 goto out;
-            if (udata->vfd_ref_count != 0) 
+            if (udata->vfd_ref_count != 0)
                 goto out;
-            if (udata->fapl_image_ptr == NULL) 
+            if (udata->fapl_image_ptr == NULL)
                 goto out;
-            if (udata->fapl_image_size != size) 
+            if (udata->fapl_image_size != size)
                 goto out;
-            if (udata->fapl_ref_count == 0) 
+            if (udata->fapl_ref_count == 0)
                 goto out;
 
             udata->vfd_image_ptr = udata->fapl_image_ptr;
@@ -189,15 +184,15 @@ out:
 /*-------------------------------------------------------------------------
 * Function: image_memcpy
 *
-* Purpose:  Simulates memcpy() function to avoid copying file images. 
+* Purpose:  Simulates memcpy() function to avoid copying file images.
 *           The image buffer can be set to only one FAPL buffer, and
 *           "copied" to only one VFD buffer. The FAPL buffer can be
-*           "copied" to other FAPLs buffers. 
+*           "copied" to other FAPLs buffers.
 *
 * Return: The address of the destination buffer, if successful. Otherwise, it
 *         returns NULL.
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -210,31 +205,31 @@ image_memcpy(void *dest, const void *src, size_t size, H5FD_file_image_op_t file
     H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
 
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
 
     switch(file_image_op) {
         case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET:
-            if (dest != udata->fapl_image_ptr) 
+            if (dest != udata->fapl_image_ptr)
                 goto out;
-            if (src != udata->app_image_ptr) 
+            if (src != udata->app_image_ptr)
                 goto out;
-            if (size != udata->fapl_image_size) 
+            if (size != udata->fapl_image_size)
                 goto out;
-            if (size != udata->app_image_size) 
+            if (size != udata->app_image_size)
                 goto out;
-            if (udata->fapl_ref_count == 0) 
+            if (udata->fapl_ref_count == 0)
                 goto out;
             break;
 
         case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY:
-            if (dest != udata->fapl_image_ptr) 
+            if (dest != udata->fapl_image_ptr)
                 goto out;
-            if (src != udata->fapl_image_ptr) 
+            if (src != udata->fapl_image_ptr)
                 goto out;
-            if (size != udata->fapl_image_size) 
+            if (size != udata->fapl_image_size)
                 goto out;
-            if (udata->fapl_ref_count < 2) 
+            if (udata->fapl_ref_count < 2)
                 goto out;
             break;
 
@@ -242,17 +237,17 @@ image_memcpy(void *dest, const void *src, size_t size, H5FD_file_image_op_t file
             goto out;
 
         case H5FD_FILE_IMAGE_OP_FILE_OPEN:
-            if (dest != udata->vfd_image_ptr) 
+            if (dest != udata->vfd_image_ptr)
                 goto out;
-            if (src != udata->fapl_image_ptr) 
+            if (src != udata->fapl_image_ptr)
                 goto out;
-            if (size != udata->vfd_image_size) 
+            if (size != udata->vfd_image_size)
                 goto out;
-            if (size != udata->fapl_image_size) 
+            if (size != udata->fapl_image_size)
                 goto out;
-            if (udata->fapl_ref_count == 0) 
+            if (udata->fapl_ref_count == 0)
                 goto out;
-            if (udata->vfd_ref_count != 1) 
+            if (udata->vfd_ref_count != 1)
                 goto out;
             break;
 
@@ -273,15 +268,15 @@ out:
 
 
 /*-------------------------------------------------------------------------
-* Function: image_realloc 
+* Function: image_realloc
 *
 * Purpose: Reallocates the shared application image buffer and updates data
-*          structures that manage buffer "copying". 
-*           
-* Return: Address of reallocated buffer, if successful. Otherwise, it returns
-*         NULL.  
+*          structures that manage buffer "copying".
 *
-* Programmer: Christian Chilan 
+* Return: Address of reallocated buffer, if successful. Otherwise, it returns
+*         NULL.
+*
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -294,29 +289,29 @@ image_realloc(void *ptr, size_t size, H5FD_file_image_op_t file_image_op, void *
     void * return_value = NULL;
 
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
 
-    /* realloc() is not allowed when the HDF5 library won't release the image 
+    /* realloc() is not allowed when the HDF5 library won't release the image
        buffer because reallocation may change the address of the buffer. The
        new address cannot be communicated to the application to release it. */
-    if (udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE) 
-        goto out; 
+    if (udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE)
+        goto out;
 
     /* realloc() is not allowed if the image is open in read-only mode */
-    if (!(udata->flags & H5LT_FILE_IMAGE_OPEN_RW)) 
-        goto out; 
+    if (!(udata->flags & H5LT_FILE_IMAGE_OPEN_RW))
+        goto out;
 
     if (file_image_op == H5FD_FILE_IMAGE_OP_FILE_RESIZE) {
-        if (udata->vfd_image_ptr != ptr) 
-            goto out; 
+        if (udata->vfd_image_ptr != ptr)
+            goto out;
 
-        if (udata->vfd_ref_count != 1) 
+        if (udata->vfd_ref_count != 1)
             goto out;
 
         if (NULL == (udata->vfd_image_ptr = HDrealloc(ptr, size)))
-            goto out; 
-            
+            goto out;
+
         udata->vfd_image_size = size;
         return_value = udata->vfd_image_ptr;
     } /* end if */
@@ -337,9 +332,9 @@ out:
 *          reference counters. Shared application buffer is actually
 *          deallocated if there are no outstanding references.
 *
-* Return: SUCCEED or FAIL 
+* Return: SUCCEED or FAIL
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -351,19 +346,19 @@ image_free(void *ptr, H5FD_file_image_op_t file_image_op, void *_udata)
     H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
 
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
 
     switch(file_image_op) {
         case H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE:
-	    if (udata->fapl_image_ptr != ptr) 
+	    if (udata->fapl_image_ptr != ptr)
                 goto out;
-            if (udata->fapl_ref_count == 0) 
+            if (udata->fapl_ref_count == 0)
                 goto out;
 
             udata->fapl_ref_count--;
 
-            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */ 
+            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */
             if (udata->fapl_ref_count == 0 && udata->vfd_ref_count == 0 &&
                     !(udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE)) {
                 HDfree(udata->fapl_image_ptr);
@@ -374,14 +369,14 @@ image_free(void *ptr, H5FD_file_image_op_t file_image_op, void *_udata)
             break;
 
         case H5FD_FILE_IMAGE_OP_FILE_CLOSE:
-            if (udata->vfd_image_ptr != ptr) 
+            if (udata->vfd_image_ptr != ptr)
                 goto out;
-            if (udata->vfd_ref_count != 1) 
+            if (udata->vfd_ref_count != 1)
                 goto out;
 
             udata->vfd_ref_count--;
 
-            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */ 
+            /* release the shared buffer only if indicated by the respective flag and there are no outstanding references */
             if (udata->fapl_ref_count == 0 && udata->vfd_ref_count == 0 &&
                     !(udata->flags & H5LT_FILE_IMAGE_DONT_RELEASE)) {
                 HDfree(udata->vfd_image_ptr);
@@ -410,7 +405,7 @@ out:
 
 
 /*-------------------------------------------------------------------------
-* Function: udata_copy 
+* Function: udata_copy
 *
 * Purpose: Simulates the copying of the user data structure utilized in the
 *          management of the "copying" of file images.
@@ -418,7 +413,7 @@ out:
 * Return: Address of "newly allocated" structure, if successful. Otherwise, it
 *         returns NULL.
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -430,9 +425,9 @@ udata_copy(void *_udata)
     H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
 
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
-    if (udata->ref_count == 0) 
+    if (udata->ref_count == 0)
         goto out;
 
     udata->ref_count++;
@@ -449,11 +444,11 @@ out:
 *
 * Purpose: Simulates deallocation of the user data structure utilized in the
 *          management of the "copying" of file images. The data structure is
-*          actually deallocated when there are no outstanding references. 
+*          actually deallocated when there are no outstanding references.
 *
-* Return: SUCCEED or FAIL 
+* Return: SUCCEED or FAIL
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -465,9 +460,9 @@ udata_free(void *_udata)
     H5LT_file_image_ud_t *udata = (H5LT_file_image_ud_t *)_udata;
 
     /* callback is only used if the application buffer is not actually copied */
-    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY)) 
+    if (!(udata->flags & H5LT_FILE_IMAGE_DONT_COPY))
         goto out;
-    if (udata->ref_count == 0) 
+    if (udata->ref_count == 0)
         goto out;
 
     udata->ref_count--;
@@ -479,7 +474,7 @@ udata_free(void *_udata)
 
     return(SUCCEED);
 
-out:        
+out:
     return(FAIL);
 } /* end udata_free */
 
@@ -504,7 +499,7 @@ static herr_t H5LT_get_attribute_mem(hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Quincey Koziol, koziol@hdfgroup.org
+* Programmer: Quincey Koziol
 *
 * Date: October 10, 2007
 *
@@ -522,7 +517,7 @@ H5LT_make_dataset_numerical( hid_t loc_id,
     hid_t   did = -1, sid = -1;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* Create the data space for the dataset. */
@@ -570,7 +565,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 19, 2001
 *
@@ -599,7 +594,7 @@ herr_t H5LTmake_dataset( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -628,7 +623,7 @@ herr_t H5LTmake_dataset_char( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -657,7 +652,7 @@ herr_t H5LTmake_dataset_short( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -688,7 +683,7 @@ herr_t H5LTmake_dataset_int( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -717,7 +712,7 @@ herr_t H5LTmake_dataset_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -748,7 +743,7 @@ herr_t H5LTmake_dataset_float( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 14, 2001
 *
@@ -778,7 +773,7 @@ herr_t H5LTmake_dataset_double( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: October 05, 2004
 *
@@ -801,7 +796,7 @@ herr_t H5LTmake_dataset_string(hid_t loc_id,
     size_t  size;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* create a string data type */
@@ -852,11 +847,11 @@ out:
 /*-------------------------------------------------------------------------
 * Function: H5LTopen_file_image
 *
-* Purpose: Open a user supplied file image using the core file driver. 
+* Purpose: Open a user supplied file image using the core file driver.
 *
 * Return: File identifier, Failure: -1
 *
-* Programmer: Christian Chilan 
+* Programmer: Christian Chilan
 *
 * Date: October 3, 2011
 *
@@ -871,22 +866,22 @@ hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags)
     size_t              min_incr = 65536;       /* Minimum buffer increment */
     double              buf_prcnt = 0.1f;       /* Percentage of buffer size to set
                                                     as increment */
-    static long         file_name_counter; 
-    H5FD_file_image_callbacks_t callbacks = {&image_malloc, &image_memcpy, 
-                                           &image_realloc, &image_free, 
-                                           &udata_copy, &udata_free, 
+    static long         file_name_counter;
+    H5FD_file_image_callbacks_t callbacks = {&image_malloc, &image_memcpy,
+                                           &image_realloc, &image_free,
+                                           &udata_copy, &udata_free,
                                            (void *)NULL};
 
     /* check arguments */
-    if (buf_ptr == NULL) 
+    if (buf_ptr == NULL)
         goto out;
-    if (buf_size == 0) 
+    if (buf_size == 0)
         goto out;
     if (flags & (unsigned)~(H5LT_FILE_IMAGE_ALL))
         goto out;
 
     /* Create FAPL to transmit file image */
-    if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) < 0) 
+    if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) < 0)
         goto out;
 
     /* set allocation increment to a percentage of the supplied buffer size, or
@@ -898,7 +893,7 @@ hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags)
         alloc_incr = min_incr;
 
     /* Configure FAPL to use the core file driver */
-    if (H5Pset_fapl_core(fapl, alloc_incr, FALSE) < 0) 
+    if (H5Pset_fapl_core(fapl, alloc_incr, FALSE) < 0)
         goto out;
 
     /* Set callbacks for file image ops ONLY if the file image is NOT copied */
@@ -932,10 +927,10 @@ hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags)
     } /* end if */
 
     /* Assign file image in user buffer to FAPL */
-    if (H5Pset_file_image(fapl, buf_ptr, buf_size) < 0) 
+    if (H5Pset_file_image(fapl, buf_ptr, buf_size) < 0)
         goto out;
 
-    /* set file open flags */  
+    /* set file open flags */
     if (flags & H5LT_FILE_IMAGE_OPEN_RW)
         file_open_flags = H5F_ACC_RDWR;
     else
@@ -943,17 +938,17 @@ hid_t H5LTopen_file_image(void *buf_ptr, size_t buf_size, unsigned flags)
 
     /* define a unique file name */
     HDsnprintf(file_name, (sizeof(file_name) - 1), "file_image_%ld", file_name_counter++);
-   
-    /* Assign file image in FAPL to the core file driver */ 
-    if ((file_id = H5Fopen(file_name, file_open_flags, fapl)) < 0) 
+
+    /* Assign file image in FAPL to the core file driver */
+    if ((file_id = H5Fopen(file_name, file_open_flags, fapl)) < 0)
         goto out;
 
     /* Close FAPL */
-    if (H5Pclose(fapl) < 0) 
+    if (H5Pclose(fapl) < 0)
         goto out;
 
-    /* Return file identifier */ 
-    return file_id; 
+    /* Return file identifier */
+    return file_id;
 
 out:
     H5E_BEGIN_TRY {
@@ -970,7 +965,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Quincey Koziol, koziol@hdfgroup.org
+* Programmer: Quincey Koziol
 *
 * Date: October 8, 2007
 *
@@ -983,7 +978,7 @@ H5LT_read_dataset_numerical(hid_t loc_id, const char *dset_name, hid_t tid, void
     hid_t   did;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* Open the dataset. */
@@ -1012,7 +1007,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: June 13, 2001
 *
@@ -1035,7 +1030,7 @@ herr_t H5LTread_dataset(hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1056,7 +1051,7 @@ herr_t H5LTread_dataset_char( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1077,7 +1072,7 @@ herr_t H5LTread_dataset_short( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1098,7 +1093,7 @@ herr_t H5LTread_dataset_int( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1119,7 +1114,7 @@ herr_t H5LTread_dataset_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1141,7 +1136,7 @@ herr_t H5LTread_dataset_float( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 5, 2001
 *
@@ -1163,7 +1158,7 @@ herr_t H5LTread_dataset_double( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: October 05, 2004
 *
@@ -1178,7 +1173,7 @@ herr_t H5LTread_dataset_string( hid_t loc_id,
     hid_t   tid = -1;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* Open the dataset. */
@@ -1216,7 +1211,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 4, 2001
 *
@@ -1231,7 +1226,7 @@ herr_t H5LTget_dataset_ndims( hid_t loc_id,
     hid_t       sid = -1;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* Open the dataset. */
@@ -1272,7 +1267,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 4, 2001
 *  Modified: February 28, 2006: checked for NULL parameters
@@ -1291,7 +1286,7 @@ herr_t H5LTget_dataset_info( hid_t loc_id,
     hid_t       sid = -1;
 
     /* check the arguments */
-    if (dset_name == NULL) 
+    if (dset_name == NULL)
       return -1;
 
     /* open the dataset. */
@@ -1348,7 +1343,7 @@ out:
 *
 * Purpose: operator function used by H5LTfind_dataset
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: June 21, 2001
 *
@@ -1368,9 +1363,9 @@ find_dataset(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *op_d
     int ret = 0;
 
     /* check the arguments */
-    if (name == NULL) 
+    if (name == NULL)
       return ret;
-    
+
     /* Shut the compiler up */
     loc_id = loc_id;
     linfo = linfo;
@@ -1392,7 +1387,7 @@ find_dataset(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *op_d
 * Purpose:  Inquires if a dataset named dset_name exists attached
 *           to the object loc_id.
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: July 15, 2001
 *
@@ -1407,13 +1402,18 @@ find_dataset(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *op_d
 *
 *-------------------------------------------------------------------------
 */
-
+/* H5Literate wants a non-const pointer but we have a const pointer in the API
+ * call. It's safe to ignore this because we control the callback, don't
+ * modify the op_data buffer (i.e.: dset_name) during the traversal, and the
+ * library never modifies that buffer.
+ */
+H5_GCC_DIAG_OFF(cast-qual)
 herr_t
 H5LTfind_dataset( hid_t loc_id, const char *dset_name )
 {
     return H5Literate(loc_id, H5_INDEX_NAME, H5_ITER_INC, 0, find_dataset, (void *)dset_name);
 }
-
+H5_GCC_DIAG_ON(cast-qual)
 
 /*-------------------------------------------------------------------------
 *
@@ -1431,7 +1431,7 @@ H5LTfind_dataset( hid_t loc_id, const char *dset_name )
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: July 23, 2001
 *
@@ -1455,11 +1455,11 @@ herr_t H5LTset_attribute_string( hid_t loc_id,
     size_t     attr_size;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
-    if (attr_data == NULL) 
+    if (attr_data == NULL)
       return -1;
 
     /* Open the object */
@@ -1529,7 +1529,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: July 25, 2001
 *
@@ -1552,9 +1552,9 @@ herr_t H5LT_set_attribute_numerical( hid_t loc_id,
     int        has_attr;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
 
     /* Open the object */
@@ -1608,7 +1608,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 7, 2001
 *
@@ -1638,7 +1638,7 @@ herr_t H5LTset_attribute_char( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -1669,7 +1669,7 @@ herr_t H5LTset_attribute_uchar( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 7, 2001
 *
@@ -1700,7 +1700,7 @@ herr_t H5LTset_attribute_short( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -1731,7 +1731,7 @@ herr_t H5LTset_attribute_ushort( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 7, 2001
 *
@@ -1762,7 +1762,7 @@ herr_t H5LTset_attribute_int( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -1794,7 +1794,7 @@ herr_t H5LTset_attribute_uint( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 7, 2001
 *
@@ -1824,7 +1824,7 @@ herr_t H5LTset_attribute_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Elena Pourmal, epourmal@ncsa.uiuc.edu
+* Programmer: Elena Pourmal
 *
 * Date: June 17, 2005
 *
@@ -1856,7 +1856,7 @@ herr_t H5LTset_attribute_long_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -1888,7 +1888,7 @@ herr_t H5LTset_attribute_ulong( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: July 25, 2001
 *
@@ -1921,7 +1921,7 @@ herr_t H5LTset_attribute_float( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: November 7, 2001
 *
@@ -1952,7 +1952,7 @@ herr_t H5LTset_attribute_double( hid_t loc_id,
 *
 * Purpose: operator function used by H5LT_find_attribute
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: June 21, 2001
 *
@@ -1969,7 +1969,7 @@ find_attr(hid_t loc_id, const char *name, const H5A_info_t *ainfo,
     int ret = H5_ITER_CONT;
 
     /* check the arguments */
-    if (name == NULL) 
+    if (name == NULL)
       return H5_ITER_CONT;
 
     /* Shut compiler up */
@@ -1993,7 +1993,7 @@ find_attr(hid_t loc_id, const char *name, const H5A_info_t *ainfo,
 * Purpose: Inquires if an attribute named attr_name exists attached to
 *          the object loc_id.
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: May 17, 2006
 *
@@ -2015,7 +2015,7 @@ herr_t H5LTfind_attribute( hid_t loc_id, const char* attr_name )
 *
 * Purpose: Inquires if an attribute named attr_name exists attached to the object loc_id.
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: June 21, 2001
 *
@@ -2033,13 +2033,18 @@ herr_t H5LTfind_attribute( hid_t loc_id, const char* attr_name )
 *
 *-------------------------------------------------------------------------
 */
-
+/* H5Aiterate wants a non-const pointer but we have a const pointer in the API
+ * call. It's safe to ignore this because we control the callback, don't
+ * modify the op_data buffer (i.e.: attr_name) during the traversal, and the
+ * library never modifies that buffer.
+ */
+H5_GCC_DIAG_OFF(cast-qual)
 herr_t
 H5LT_find_attribute( hid_t loc_id, const char* attr_name )
 {
     return H5Aiterate2(loc_id, H5_INDEX_NAME, H5_ITER_INC, NULL, find_attr, (void *)attr_name);
 }
-
+H5_GCC_DIAG_ON(cast-qual)
 
 
 /*-------------------------------------------------------------------------
@@ -2049,7 +2054,7 @@ H5LT_find_attribute( hid_t loc_id, const char* attr_name )
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 4, 2001
 *
@@ -2066,9 +2071,9 @@ herr_t H5LTget_attribute_ndims( hid_t loc_id,
     hid_t       obj_id;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
 
     /* Open the object */
@@ -2119,7 +2124,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 4, 2001
 *
@@ -2139,9 +2144,9 @@ herr_t H5LTget_attribute_info( hid_t loc_id,
     hid_t       obj_id;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
 
     /* Open the object */
@@ -2205,7 +2210,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Raymond Lu, slu@ncsa.uiuc.edu
+* Programmer: Raymond Lu
 *
 * Date: October 6, 2004
 *
@@ -2220,7 +2225,7 @@ hid_t H5LTtext_to_dtype(const char *text, H5LT_lang_t lang_type)
     hid_t   type_id;
 
     /* check the arguments */
-    if (text == NULL) 
+    if (text == NULL)
       return -1;
 
     if(lang_type <= H5LT_LANG_ERR || lang_type >= H5LT_NO_LANG)
@@ -2255,7 +2260,7 @@ out:
 *
 * Return:      void
 *
-* Programmer:  Raymond Lu, songyulu@hdfgroup.org
+* Programmer:  Raymond Lu
 *
 * Date:        29 September 2011
 *
@@ -2263,8 +2268,8 @@ out:
 *
 *-------------------------------------------------------------------------
 */
-static char* 
-realloc_and_append(hbool_t _no_user_buf, size_t *len, char *buf, char *str_to_add)
+static char*
+realloc_and_append(hbool_t _no_user_buf, size_t *len, char *buf, const char *str_to_add)
 {
     size_t size_str_to_add, size_str;
 
@@ -2288,7 +2293,7 @@ realloc_and_append(hbool_t _no_user_buf, size_t *len, char *buf, char *str_to_ad
       /* find the size of the current buffer */
       size_str = HDstrlen(buf);
 
-      /* Check to make sure the appended string does not 
+      /* Check to make sure the appended string does not
        * extend past the allocated buffer; if it does then truncate the string
        */
       if(size_str < *len - 1) {
@@ -2315,7 +2320,7 @@ out:
 *
 * Return:      void
 *
-* Programmer:  Raymond Lu, slu@ncsa.uiuc.edu
+* Programmer:  Raymond Lu
 *
 * Date:        December 6, 2005
 *
@@ -2360,7 +2365,6 @@ print_enum(hid_t type, char* str, size_t *str_len, hbool_t no_ubuf, size_t indt)
 {
     char           **name = NULL;   /*member names                   */
     unsigned char   *value = NULL;  /*value array                    */
-    unsigned char   *copy = NULL;   /*a pointer to value array       */
     int              nmembs;        /*number of members              */
     char             tmp_str[TMP_LEN];
     int              nchars;        /*number of output characters    */
@@ -2418,17 +2422,15 @@ print_enum(hid_t type, char* str, size_t *str_len, hbool_t no_ubuf, size_t indt)
         nchars = HDsnprintf(tmp_str, TMP_LEN, "\"%s\"", name[i]);
         if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
             goto out;
-        HDsnprintf(tmp_str, TMP_LEN, "%*s   ", MAX(0, 16 - nchars), "");
+        HDmemset(tmp_str, ' ', (size_t)MAX(3, 19 - nchars) + 1);
+        tmp_str[MAX(3, 19 - nchars)] = '\0';
         if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
             goto out;
 
-        /*On SGI Altix(cobalt), wrong values were printed out with "value+i*dst_size"
-         *strangely, unless use another pointer "copy".*/
-        copy = value + (size_t)i * dst_size;
         if (H5T_SGN_NONE == H5Tget_sign(native))
-            HDsnprintf(tmp_str, TMP_LEN, "%u", *((unsigned int*)((void *)copy)));
+            HDsnprintf(tmp_str, TMP_LEN, "%u", *((unsigned int *)((void *)(value + (size_t)i * dst_size))));
         else
-            HDsnprintf(tmp_str, TMP_LEN, "%d", *((int*)((void *)copy)));
+            HDsnprintf(tmp_str, TMP_LEN, "%d", *((int *)((void *)(value + (size_t)i * dst_size))));
         if(!(str = realloc_and_append(no_ubuf, str_len, str, tmp_str)))
             goto out;
 
@@ -2450,8 +2452,12 @@ print_enum(hid_t type, char* str, size_t *str_len, hbool_t no_ubuf, size_t indt)
 out:
 
     if(0 == nmembs) {
-        HDsnprintf(tmp_str, TMP_LEN, "\n%*s <empty>", (int)(indt + 4), "");
+        str = realloc_and_append(no_ubuf, str_len, str, "\n");
+        HDassert((indt + 4) < TMP_LEN);
+        HDmemset(tmp_str, ' ', (indt + 4) + 1);
+        tmp_str[(indt + 4)] = '\0';
         str = realloc_and_append(no_ubuf, str_len, str, tmp_str);
+        str = realloc_and_append(no_ubuf, str_len, str, " <empty>");
     } /* end if */
 
     /* Release resources */
@@ -2478,7 +2484,7 @@ out:
 *
 * Return:      Success: 0, Failure: -1
 *
-* Programmer:  Raymond Lu, slu@ncsa.uiuc.edu
+* Programmer:  Raymond Lu
 *
 * Date:        December 6, 2005
 *
@@ -2525,7 +2531,7 @@ out:
 *
 * Return:      Success: 0, Failure: -1
 *
-* Programmer:  Raymond Lu, slu@ncsa.uiuc.edu
+* Programmer:  Raymond Lu
 *
 * Date:        December 20, 2005
 *
@@ -2544,7 +2550,7 @@ char* H5LT_dtype_to_text(hid_t dtype, char *dt_str, H5LT_lang_t lang, size_t *sl
 
     if(!(dt_str = realloc_and_append(no_user_buf, slen, dt_str, NULL)))
         goto out;
-    
+
     if(lang != H5LT_DDL) {
         HDsnprintf(dt_str, *slen, "only DDL is supported for now");
         goto out;
@@ -3090,7 +3096,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3111,9 +3117,9 @@ herr_t H5LTget_attribute_string( hid_t loc_id,
     hid_t      obj_id;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
 
     /* Open the object */
@@ -3121,9 +3127,9 @@ herr_t H5LTget_attribute_string( hid_t loc_id,
         return -1;
 
     /* Get the attribute */
-    if ( H5LT_get_attribute_disk( obj_id, attr_name, data ) < 0 ) 
+    if ( H5LT_get_attribute_disk( obj_id, attr_name, data ) < 0 )
     {
-      H5Oclose(obj_id); 
+      H5Oclose(obj_id);
       return -1;
     }
 
@@ -3142,7 +3148,7 @@ herr_t H5LTget_attribute_string( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3171,7 +3177,7 @@ herr_t H5LTget_attribute_char( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -3202,7 +3208,7 @@ herr_t H5LTget_attribute_uchar( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3231,7 +3237,7 @@ herr_t H5LTget_attribute_short( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -3262,7 +3268,7 @@ herr_t H5LTget_attribute_ushort( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3291,7 +3297,7 @@ herr_t H5LTget_attribute_int( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -3322,7 +3328,7 @@ herr_t H5LTget_attribute_uint( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3351,7 +3357,7 @@ herr_t H5LTget_attribute_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Elena Pourmal, epourmal@ncsa.uiuc.edu
+* Programmer: Elena Pourmal
 *
 * Date: June 17, 2005
 *
@@ -3381,7 +3387,7 @@ herr_t H5LTget_attribute_long_long( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: March 8, 2004
 *
@@ -3411,7 +3417,7 @@ herr_t H5LTget_attribute_ulong( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3443,7 +3449,7 @@ herr_t H5LTget_attribute_float( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3475,7 +3481,7 @@ herr_t H5LTget_attribute_double( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3514,7 +3520,7 @@ herr_t H5LTget_attribute( hid_t loc_id,
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3537,9 +3543,9 @@ static herr_t H5LT_get_attribute_mem(hid_t loc_id,
     hid_t attr_id = -1;
 
     /* check the arguments */
-    if (obj_name == NULL) 
+    if (obj_name == NULL)
       return -1;
-    if (attr_name == NULL) 
+    if (attr_name == NULL)
       return -1;
 
     /* Open the object */
@@ -3578,7 +3584,7 @@ out:
 *
 * Return: Success: 0, Failure: -1
 *
-* Programmer: Pedro Vicente, pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: September 19, 2002
 *
@@ -3628,7 +3634,7 @@ out:
 *
 * Return: FAIL on error, SUCCESS on success
 *
-* Programmer: pvn@ncsa.uiuc.edu
+* Programmer: Pedro Vicente
 *
 * Date: January 04, 2005
 *
@@ -3779,7 +3785,7 @@ H5LTpath_valid(hid_t loc_id, const char *path, hbool_t check_object_valid)
 	 ret_value = FALSE;
 	 goto done;
        }
-       
+
        /* Determine if link resolves to an actual object */
        if((obj_exists = H5Oexists_by_name(loc_id, tmp_path, H5P_DEFAULT)) < 0) {
 	 ret_value = FAIL;

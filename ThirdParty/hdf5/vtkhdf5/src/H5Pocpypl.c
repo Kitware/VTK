@@ -15,7 +15,7 @@
  *
  * Created:		H5Pocpypl.c
  *			Mar 13 2006
- *			Peter Cao <xcao@ncsa.uiuc.edu>
+ *			Peter Cao
  *
  * Purpose:		Object copying property list class routines
  *
@@ -64,7 +64,7 @@
 #define H5O_CPY_MERGE_COMM_DT_LIST_CLOSE       H5P__ocpy_merge_comm_dt_list_close
 /* Definitions for callback function when completing the search for a matching committed datatype from the committed dtype list */
 #define H5O_CPY_MCDT_SEARCH_CB_SIZE           sizeof(H5O_mcdt_cb_info_t)
-#define H5O_CPY_MCDT_SEARCH_CB_DEF            {NULL,NULL} 
+#define H5O_CPY_MCDT_SEARCH_CB_DEF            {NULL,NULL}
 
 
 /******************/
@@ -161,20 +161,20 @@ H5P__ocpy_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register copy options property */
-    if(H5P_register_real(pclass, H5O_CPY_OPTION_NAME, H5O_CPY_OPTION_SIZE, &H5O_def_ocpy_option_g, 
+    if(H5P__register_real(pclass, H5O_CPY_OPTION_NAME, H5O_CPY_OPTION_SIZE, &H5O_def_ocpy_option_g,
             NULL, NULL, NULL, H5O_CPY_OPTION_ENC, H5O_CPY_OPTION_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register merge named dtype list property */
-    if(H5P_register_real(pclass, H5O_CPY_MERGE_COMM_DT_LIST_NAME, H5O_CPY_MERGE_COMM_DT_LIST_SIZE, &H5O_def_merge_comm_dtype_list_g, 
+    if(H5P__register_real(pclass, H5O_CPY_MERGE_COMM_DT_LIST_NAME, H5O_CPY_MERGE_COMM_DT_LIST_SIZE, &H5O_def_merge_comm_dtype_list_g,
             NULL, H5O_CPY_MERGE_COMM_DT_LIST_SET, H5O_CPY_MERGE_COMM_DT_LIST_GET, H5O_CPY_MERGE_COMM_DT_LIST_ENC, H5O_CPY_MERGE_COMM_DT_LIST_DEC,
             H5O_CPY_MERGE_COMM_DT_LIST_DEL, H5O_CPY_MERGE_COMM_DT_LIST_COPY, H5O_CPY_MERGE_COMM_DT_LIST_CMP, H5O_CPY_MERGE_COMM_DT_LIST_CLOSE) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register property for callback when completing the search for a matching named datatype from the named dtype list */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5O_CPY_MCDT_SEARCH_CB_NAME, H5O_CPY_MCDT_SEARCH_CB_SIZE, &H5O_def_mcdt_cb_g, 
+    if(H5P__register_real(pclass, H5O_CPY_MCDT_SEARCH_CB_NAME, H5O_CPY_MCDT_SEARCH_CB_SIZE, &H5O_def_mcdt_cb_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
@@ -385,7 +385,7 @@ H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size, vo
 
         /* Encode merge committed dtype list */
         if(*pp) {
-            HDmemcpy(*(char **)pp, dt_list->path, len);
+            H5MM_memcpy(*(char **)pp, dt_list->path, len);
             *pp += len;
         } /* end if */
 
@@ -422,7 +422,7 @@ H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size, vo
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__ocpy_merge_comm_dt_list_dec(const void **_pp, void *_value)
 {
     H5O_copy_dtype_merge_list_t **dt_list = (H5O_copy_dtype_merge_list_t **)_value;        /* Pointer to merge named datatype list */
@@ -440,7 +440,7 @@ H5P__ocpy_merge_comm_dt_list_dec(const void **_pp, void *_value)
 
     /* Start off with NULL (default value) */
     *dt_list = NULL;
-    
+
     /* Decode the string sequence */
     len = HDstrlen(*(const char **)pp);
     while(len > 0) {
@@ -470,7 +470,7 @@ H5P__ocpy_merge_comm_dt_list_dec(const void **_pp, void *_value)
     /* Advance past terminator for string sequence */
     *pp += 1;
 
-done: 
+done:
     if(ret_value < 0) {
         *dt_list = H5P__free_merge_comm_dtype_list(*dt_list);
         if(tmp_dt_list) {
@@ -875,7 +875,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_mcdt_search_cb
  *
- * Purpose:     Retrieves the callback function and user data from the specified 
+ * Purpose:     Retrieves the callback function and user data from the specified
  *		object copy property list.
  *
  * Usage:       H5Pget_mcdt_search_cb(plist_id, H5O_mcdt_search_cb_t *func, void **op_data)
@@ -906,7 +906,7 @@ H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func, void **op_data
     /* Get callback info */
     if(H5P_get(plist, H5O_CPY_MCDT_SEARCH_CB_NAME, &cb_info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get callback info")
-    
+
     if(func)
 	*func = cb_info.func;
 

@@ -50,7 +50,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static herr_t H5T_set_order(H5T_t *dtype, H5T_order_t order);
+static herr_t H5T__set_order(H5T_t *dtype, H5T_order_t order);
 
 
 /*********************/
@@ -86,7 +86,7 @@ static herr_t H5T_set_order(H5T_t *dtype, H5T_order_t order);
  *
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
- * 
+ *
  *-------------------------------------------------------------------------
  */
 H5T_order_t
@@ -159,7 +159,7 @@ H5T_get_order(const H5T_t *dtype)
                 if(memb_order != H5T_ORDER_NONE && ret_value == H5T_ORDER_NONE)
                     ret_value = memb_order;
 
-                /* If the orders are mixed, stop the loop and report it.  
+                /* If the orders are mixed, stop the loop and report it.
                  * (H5T_ORDER_NONE is ignored)
                  */
                 if(memb_order != H5T_ORDER_NONE && ret_value != H5T_ORDER_NONE
@@ -186,7 +186,7 @@ done:
  *		2. H5T_ORDER_NONE only works for reference and fixed-length
  *			string.
  *		3. For opaque type, the order will be ignored.
- *		4. For compound type, all restrictions above apply to the 
+ *		4. For compound type, all restrictions above apply to the
  *			members.
  *
  * Return:	Non-negative on success/Negative on failure
@@ -214,7 +214,7 @@ H5Tset_order(hid_t type_id, H5T_order_t order)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "datatype is read-only")
 
     /* Call internal routine to set the order */
-    if(H5T_set_order(dt, order) < 0)
+    if(H5T__set_order(dt, order) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "can't set order")
 
 done:
@@ -223,7 +223,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T_set_order
+ * Function:	H5T__set_order
  *
  * Purpose:	Private function to set the byte order for a datatype.
  *
@@ -235,21 +235,21 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5T_set_order(H5T_t *dtype, H5T_order_t order)
+H5T__set_order(H5T_t *dtype, H5T_order_t order)
 {
     herr_t      ret_value = SUCCEED;  /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_STATIC
 
     if(H5T_ENUM == dtype->shared->type && dtype->shared->u.enumer.nmembs > 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "operation not allowed after enum members are defined")
 
-    /* For derived data type, defer to parent */ 
+    /* For derived data type, defer to parent */
     while(dtype->shared->parent)
         dtype = dtype->shared->parent;
 
     /* Check for setting order on inappropriate datatype */
-    if(order == H5T_ORDER_NONE && !(H5T_REFERENCE == dtype->shared->type || 
+    if(order == H5T_ORDER_NONE && !(H5T_REFERENCE == dtype->shared->type ||
             H5T_OPAQUE == dtype->shared->type || H5T_IS_FIXED_STRING(dtype->shared)))
 	HGOTO_ERROR(H5E_DATATYPE, H5E_BADVALUE, FAIL, "illegal byte order for type")
 
@@ -272,12 +272,12 @@ H5T_set_order(H5T_t *dtype, H5T_order_t order)
 
             /* Loop through all fields of compound type, setting the order */
             for(i = 0; i < nmemb; i++)
-                if(H5T_set_order(dtype->shared->u.compnd.memb[i].type, order) < 0)
+                if(H5T__set_order(dtype->shared->u.compnd.memb[i].type, order) < 0)
                     HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set order for compound member")
         } /* end if */
     } /* end else */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5T_set_order() */
+} /* end H5T__set_order() */
 

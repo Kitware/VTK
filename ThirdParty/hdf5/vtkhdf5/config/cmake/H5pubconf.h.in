@@ -26,9 +26,6 @@
 /* Define if using a Windows compiler (i.e. Visual Studio) */
 #cmakedefine H5_HAVE_VISUAL_STUDIO @H5_HAVE_VISUAL_STUDIO@
 
-/* Define if building universal (internal helper macro) */
-#cmakedefine H5_AC_APPLE_UNIVERSAL_BUILD @H5_AC_APPLE_UNIVERSAL_BUILD@
-
 /* Define if C++ compiler recognizes offsetof */
 #cmakedefine H5_CXX_HAVE_OFFSETOF @CXX_HAVE_OFFSETOF@
 
@@ -103,6 +100,9 @@
 
 /* Define if the compiler understands the __func__ keyword */
 #cmakedefine H5_HAVE_C99_FUNC @H5_HAVE_C99_FUNC@
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#cmakedefine H5_HAVE_ARPA_INET_H @H5_HAVE_ARPA_INET_H@
 
 /* Define if the function stack tracing code is to be compiled in */
 #cmakedefine H5_HAVE_CODESTACK @H5_HAVE_CODESTACK@
@@ -234,6 +234,9 @@
 /* Define to 1 if you have the `lseek64' function. */
 #cmakedefine H5_HAVE_LSEEK64 @H5_HAVE_LSEEK64@
 
+/* Define if we can build the Mirror VFD */
+#cmakedefine H5_HAVE_MIRROR_VFD @H5_HAVE_MIRROR_VFD@
+
 /* Define if we have MPE support */
 #cmakedefine H5_HAVE_MPE @H5_HAVE_MPE@
 
@@ -245,6 +248,12 @@
 
 /* Define if MPI_Info_c2f and MPI_Info_f2c exists */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Info @H5_HAVE_MPI_MULTI_LANG_Info@
+
+/* Define to 1 if you have the <netdb.h> header file. */
+#cmakedefine H5_HAVE_NETDB_H @H5_HAVE_NETDB_H@
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#cmakedefine H5_HAVE_NETINET_IN_H @H5_HAVE_NETINET_IN_H@
 
 /* Define to 1 if you have the <openssl/evp.h> header file. */
 #cmakedefine H5_HAVE_OPENSSL_EVP_H @H5_HAVE_OPENSSL_EVP_H@
@@ -414,6 +423,9 @@
 /* Define if the compiler understands __inline__ */
 #cmakedefine H5_HAVE___INLINE__ @H5_HAVE___INLINE__@
 
+/* Define if the library will ignore file locks when disabled */                 
+#cmakedefine H5_IGNORE_DISABLED_FILE_LOCKS @H5_IGNORE_DISABLED_FILE_LOCKS@
+
 /* Define if the high-level library headers should be included in hdf5.h */
 #cmakedefine H5_INCLUDE_HL @H5_INCLUDE_HL@
 
@@ -530,6 +542,7 @@
 #cmakedefine H5_SIZEOF_INT_LEAST8_T @H5_SIZEOF_INT_LEAST8_T@
 
 #if !defined(__APPLE__)
+
 /* The size of `size_t', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_SIZE_T @H5_SIZEOF_SIZE_T@
 
@@ -539,8 +552,17 @@
 /* The size of `long', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_LONG @H5_SIZEOF_LONG@
 
+/* The size of `long double', as computed by sizeof. */
+#cmakedefine H5_SIZEOF_LONG_DOUBLE @H5_SIZEOF_LONG_DOUBLE@
+
 #else
-   # if defined(__LP64__) && __LP64__
+
+  /* On Apple, to support Universal Binaries (where multiple CPU
+     architectures exist in one library/executable), we can't assume
+     the machine doing the compiling has the same endianness or type
+     sizes as all the various architectures (PowerPC, Intel, ARM). */
+
+  # if defined(__LP64__) && __LP64__
   #define H5_SIZEOF_LONG 8
   #define H5_SIZEOF_SIZE_T 8
   #define H5_SIZEOF_SSIZE_T 8
@@ -550,10 +572,15 @@
   #define H5_SIZEOF_SSIZE_T 4
   # endif
 
-#endif
+  # if defined(__i386__) || defined(__x86_64__)
+  #define H5_SIZEOF_LONG_DOUBLE 16
+  # elif defined(__aarch64__)
+  #define H5_SIZEOF_LONG_DOUBLE 8
+  # else
+  #cmakedefine H5_SIZEOF_LONG_DOUBLE @H5_SIZEOF_LONG_DOUBLE@
+  # endif
 
-/* The size of `long double', as computed by sizeof. */
-#cmakedefine H5_SIZEOF_LONG_DOUBLE @H5_SIZEOF_LONG_DOUBLE@
+#endif
 
 /* Define size of long long and/or __int64 bit integer type only if the type
    exists.  */
@@ -647,6 +674,9 @@
 
 /* Define using v1.10 public API symbols by default */
 #cmakedefine H5_USE_110_API_DEFAULT @H5_USE_110_API_DEFAULT@
+
+/* Define if the library will use file locking */
+#cmakedefine H5_USE_FILE_LOCKING @H5_USE_FILE_LOCKING@
 
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the

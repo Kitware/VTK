@@ -15,7 +15,7 @@
  *
  * Created:		H5Oalloc.c
  *			Nov 17 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Object header allocation routines.
  *
@@ -36,6 +36,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free lists                           */
 #include "H5MFprivate.h"	/* File memory management		*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Opkg.h"             /* Object headers			*/
 
 /****************/
@@ -104,7 +105,6 @@ H5FL_EXTERN(H5O_cont_t);
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Oct 17 2006
  *
  *-------------------------------------------------------------------------
@@ -232,7 +232,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Oct 17 2006
  *
  *-------------------------------------------------------------------------
@@ -333,7 +332,6 @@ H5O_eliminate_gap(H5O_t *oh, hbool_t *chk_dirtied, H5O_mesg_t *mesg,
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Oct 22 2006
  *
  *-------------------------------------------------------------------------
@@ -441,7 +439,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Nov 21 2005
  *
  *-------------------------------------------------------------------------
@@ -692,7 +689,7 @@ H5O__alloc_extend_chunk(H5F_t *f, H5O_t *oh, unsigned chunkno, size_t size,
     } /* end for */
 
     /* Resize the chunk in the cache */
-    if(H5O_chunk_resize(oh, chk_proxy) < 0)
+    if(H5O__chunk_resize(oh, chk_proxy) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize object header chunk")
 
     /* Set new message index */
@@ -730,7 +727,6 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Quincey Koziol
- *              koziol@lbl.gov
  *              Oct 21 2016
  *
  *-------------------------------------------------------------------------
@@ -879,7 +875,6 @@ H5O__alloc_find_best_nonnull(const H5F_t *f, const H5O_t *oh, size_t *size,
  *              Failure:        Negative
  *
  * Programmer:  Quincey Koziol
- *              koziol@lbl.gov
  *              Oct 21 2016
  *
  *-------------------------------------------------------------------------
@@ -951,7 +946,7 @@ H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null,
      *  # at the beginning of the chunk image.
      */
     if(oh->version > H5O_VERSION_1) {
-        HDmemcpy(p, H5O_CHK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+        H5MM_memcpy(p, H5O_CHK_MAGIC, (size_t)H5_SIZEOF_MAGIC);
         p += H5_SIZEOF_MAGIC;
     } /* end if */
 
@@ -990,7 +985,7 @@ H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null,
                         HDassert(curr_msg->type->id != H5O_CONT_ID);
 
                         /* Copy the raw data */
-                        HDmemcpy(p, curr_msg->raw - (size_t)H5O_SIZEOF_MSGHDR_OH(oh),
+                        H5MM_memcpy(p, curr_msg->raw - (size_t)H5O_SIZEOF_MSGHDR_OH(oh),
                             curr_msg->raw_size + (size_t)H5O_SIZEOF_MSGHDR_OH(oh));
 
                         /* Update the message info */
@@ -1046,7 +1041,7 @@ H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null,
             null_msg->chunkno = oh->mesg[found_msg->msgno].chunkno;
 
             /* Copy the message to move (& its prefix) to its new location */
-            HDmemcpy(p, oh->mesg[found_msg->msgno].raw - H5O_SIZEOF_MSGHDR_OH(oh),
+            H5MM_memcpy(p, oh->mesg[found_msg->msgno].raw - H5O_SIZEOF_MSGHDR_OH(oh),
                      oh->mesg[found_msg->msgno].raw_size + (size_t)H5O_SIZEOF_MSGHDR_OH(oh));
 
             /* Switch moved message to point to new location */
@@ -1158,7 +1153,6 @@ done:
  *              Failure:        Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  7 1997
  *
  *-------------------------------------------------------------------------
@@ -1209,7 +1203,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@lbl.gov
  *              Oct 21 2016
  *
  *-------------------------------------------------------------------------
@@ -1284,7 +1277,6 @@ H5O__alloc_find_best_null(const H5O_t *oh, size_t size, size_t *mesg_idx)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -1370,7 +1362,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Oct 22 2006
  *
  *-------------------------------------------------------------------------
@@ -1521,7 +1512,7 @@ H5O_move_cont(H5F_t *f, H5O_t *oh, unsigned cont_u)
                         move_size = curr_msg->raw_size + (size_t)H5O_SIZEOF_MSGHDR_OH(oh);
 
                         /* Move message out of deleted chunk */
-                        HDmemcpy(move_start, curr_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), move_size);
+                        H5MM_memcpy(move_start, curr_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), move_size);
                         curr_msg->raw = move_start + H5O_SIZEOF_MSGHDR_OH(oh);
                         curr_msg->chunkno = cont_chunkno;
                         chk_dirtied = TRUE;
@@ -1608,7 +1599,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Oct 17 2005
  *
  *-------------------------------------------------------------------------
@@ -1793,7 +1783,7 @@ H5O_move_msgs_forward(H5F_t *f, H5O_t *oh)
                         } /* end if */
 
                         /* Copy raw data for non-null message to new chunk */
-                        HDmemcpy(null_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), curr_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), curr_msg->raw_size + (size_t)H5O_SIZEOF_MSGHDR_OH(oh));
+                        H5MM_memcpy(null_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), curr_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh), curr_msg->raw_size + (size_t)H5O_SIZEOF_MSGHDR_OH(oh));
 
                         /* Point non-null message at null message's space */
                         curr_msg->chunkno = null_msg->chunkno;
@@ -1959,7 +1949,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Oct 10 2005
  *
  *-------------------------------------------------------------------------
@@ -2102,7 +2091,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Oct 17 2005
  *
  *-------------------------------------------------------------------------
@@ -2287,7 +2275,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Oct  4 2005
  *
  *-------------------------------------------------------------------------
@@ -2348,7 +2335,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Neil Fortner
- *		nfortne2@hdfgroup.org
  *		Oct 20 2008
  *
  *-------------------------------------------------------------------------
@@ -2525,7 +2511,7 @@ H5O__alloc_shrink_chunk(H5F_t *f, H5O_t *oh, unsigned chunkno)
     HDassert(new_size <= old_size);
 
     /* Resize the chunk in the cache */
-    if(H5O_chunk_resize(oh, chk_proxy) < 0)
+    if(H5O__chunk_resize(oh, chk_proxy) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize object header chunk")
 
     /* Free the unused space in the file */

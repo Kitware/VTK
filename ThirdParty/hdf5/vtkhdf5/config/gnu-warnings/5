@@ -1,0 +1,2 @@
+-Warray-bounds=2
+-Wc99-c11-compat

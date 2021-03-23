@@ -15,7 +15,7 @@
  *
  * Created:		H5HFbtree2.c
  *			Aug  7 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		v2 B-tree callbacks for "huge" object tracker
  *
@@ -360,7 +360,7 @@ H5HF__huge_bt2_indir_compare(const void *_rec1, const void *_rec2, int *result)
 {
     FUNC_ENTER_STATIC_NOERR
 
-    *result = (int)(((const H5HF_huge_bt2_indir_rec_t *)_rec1)->id - 
+    *result = (int)(((const H5HF_huge_bt2_indir_rec_t *)_rec1)->id -
                     ((const H5HF_huge_bt2_indir_rec_t *)_rec2)->id);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -563,7 +563,7 @@ H5HF__huge_bt2_filt_indir_compare(const void *_rec1, const void *_rec2, int *res
 {
     FUNC_ENTER_STATIC_NOERR
 
-    *result = (int)(((const H5HF_huge_bt2_filt_indir_rec_t *)_rec1)->id - 
+    *result = (int)(((const H5HF_huge_bt2_filt_indir_rec_t *)_rec1)->id -
                     ((const H5HF_huge_bt2_filt_indir_rec_t *)_rec2)->id);
 
     FUNC_LEAVE_NOAPI(SUCCEED)

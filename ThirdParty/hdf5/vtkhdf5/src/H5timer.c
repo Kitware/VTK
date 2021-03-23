@@ -12,12 +12,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
+ * Created:		H5timer.c
+ *			Aug 21 2006
+ *			Quincey Koziol
  *
- * Created:        H5timer.c
- *            Aug 21 2006
- *            Quincey Koziol <koziol@hdfgroup.org>
- *
- * Purpose:        Internal 'timer' routines & support routines.
+ * Purpose:             Internal, platform-independent 'timer' support routines.
  *
  *-------------------------------------------------------------------------
  */
@@ -30,21 +29,23 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"        /* Generic Functions            */
-
-/* We need this for the struct rusage declaration */
-#if defined(H5_HAVE_GETRUSAGE) && defined(H5_HAVE_SYS_RESOURCE_H)
-#   include <sys/resource.h>
-#endif
-
-#if defined(H5_HAVE_GETTIMEOFDAY) && defined(H5_HAVE_SYS_TIME_H)
-#include <sys/time.h>
-#endif
+#include "H5private.h"		/* Generic Functions			*/
 
 
 /****************/
 /* Local Macros */
 /****************/
+
+/* Size of a generated time string.
+ * Most time strings should be < 20 or so characters (max!) so this should be a
+ * safe size.  Dynamically allocating the correct size would be painful.
+ */
+#define H5TIMER_TIME_STRING_LEN 1536
+
+/* Conversion factors */
+#define H5_SEC_PER_DAY  (double)(24.0F * 60.0F * 60.0F)
+#define H5_SEC_PER_HOUR (double)(60.0F * 60.0F)
+#define H5_SEC_PER_MIN  (double)(60.0F)
 
 
 /******************/
@@ -77,126 +78,28 @@
 /*******************/
 
 
+
 /*-------------------------------------------------------------------------
- * Function:    H5_timer_reset
+ * Function:	H5_bandwidth
  *
- * Purpose:    Resets the timer struct to zero.  Use this to reset a timer
- *        that's being used as an accumulator for summing times.
+ * Purpose:	Prints the bandwidth (bytes per second) in a field 10
+ *		characters wide widh four digits of precision like this:
  *
- * Return:    void
+ * 			       NaN	If <=0 seconds
+ *			1234. TB/s
+ * 			123.4 TB/s
+ *			12.34 GB/s
+ *			1.234 MB/s
+ *			4.000 kB/s
+ *			1.000  B/s
+ *			0.000  B/s	If NBYTES==0
+ *			1.2345e-10	For bandwidth less than 1
+ *			6.7893e+94	For exceptionally large values
+ *			6.678e+106	For really big values
  *
- * Programmer:    Robb Matzke
- *              Thursday, April 16, 1998
+ * Return:	void
  *
- *-------------------------------------------------------------------------
- */
-void
-H5_timer_reset (H5_timer_t *timer)
-{
-    HDassert(timer);
-    HDmemset(timer, 0, sizeof *timer);
-} /* end H5_timer_reset() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5_timer_begin
- *
- * Purpose:    Initialize a timer to time something.
- *
- * Return:    void
- *
- * Programmer:    Robb Matzke
- *              Thursday, April 16, 1998
- *
- *-------------------------------------------------------------------------
- */
-void
-H5_timer_begin (H5_timer_t *timer)
-{
-#ifdef H5_HAVE_GETRUSAGE
-    struct rusage    rusage;
-#endif
-#ifdef H5_HAVE_GETTIMEOFDAY
-    struct timeval    etime;
-#endif
-
-    HDassert(timer);
-
-#ifdef H5_HAVE_GETRUSAGE
-    HDgetrusage (RUSAGE_SELF, &rusage);
-    timer->utime = (double)rusage.ru_utime.tv_sec +
-                   ((double)rusage.ru_utime.tv_usec / (double)1e6F);
-    timer->stime = (double)rusage.ru_stime.tv_sec +
-                   ((double)rusage.ru_stime.tv_usec / (double)1e6F);
-#else
-    timer->utime = 0.0F;
-    timer->stime = 0.0F;
-#endif
-#ifdef H5_HAVE_GETTIMEOFDAY
-    HDgettimeofday (&etime, NULL);
-    timer->etime = (double)etime.tv_sec + ((double)etime.tv_usec / (double)1e6F);
-#else
-    timer->etime = 0.0F;
-#endif
-} /* end H5_timer_begin() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5_timer_end
- *
- * Purpose:    This function should be called at the end of a timed region.
- *        The SUM is an optional pointer which will accumulate times.
- *        TMS is the same struct that was passed to H5_timer_start().
- *        On return, TMS will contain total times for the timed region.
- *
- * Return:    void
- *
- * Programmer:    Robb Matzke
- *              Thursday, April 16, 1998
- *
- *-------------------------------------------------------------------------
- */
-void
-H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
-{
-    H5_timer_t        now;
-
-    HDassert(timer);
-    H5_timer_begin(&now);
-
-    timer->utime = MAX((double)0.0F, now.utime - timer->utime);
-    timer->stime = MAX((double)0.0F, now.stime - timer->stime);
-    timer->etime = MAX((double)0.0F, now.etime - timer->etime);
-
-    if (sum) {
-        sum->utime += timer->utime;
-        sum->stime += timer->stime;
-        sum->etime += timer->etime;
-    }
-} /* end H5_timer_end() */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5_bandwidth
- *
- * Purpose:    Prints the bandwidth (bytes per second) in a field 10
- *        characters wide widh four digits of precision like this:
- *
- *                    NaN    If <=0 seconds
- *            1234. TB/s
- *             123.4 TB/s
- *            12.34 GB/s
- *            1.234 MB/s
- *            4.000 kB/s
- *            1.000  B/s
- *            0.000  B/s    If NBYTES==0
- *            1.2345e-10    For bandwidth less than 1
- *            6.7893e+94    For exceptionally large values
- *            6.678e+106    For really big values
- *
- * Return:    void
- *
- * Programmer:    Robb Matzke
+ * Programmer:	Robb Matzke
  *              Wednesday, August  5, 1998
  *
  *-------------------------------------------------------------------------
@@ -204,48 +107,51 @@ H5_timer_end (H5_timer_t *sum/*in,out*/, H5_timer_t *timer/*in,out*/)
 void
 H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
 {
-    double    bw;
+    double	bw;
 
     if(nseconds <= (double)0.0F)
         HDstrcpy(buf, "       NaN");
     else {
-        bw = nbytes/nseconds;
+        bw = nbytes / nseconds;
         if(H5_DBL_ABS_EQUAL(bw, (double)0.0F))
             HDstrcpy(buf, "0.000  B/s");
         else if(bw < (double)1.0F)
             HDsprintf(buf, "%10.4e", bw);
         else if(bw < (double)H5_KB) {
             HDsprintf(buf, "%05.4f", bw);
-            HDstrcpy(buf+5, "  B/s");
+            HDstrcpy(buf + 5, "  B/s");
         } else if(bw < (double)H5_MB) {
             HDsprintf(buf, "%05.4f", bw / (double)H5_KB);
-            HDstrcpy(buf+5, " kB/s");
+            HDstrcpy(buf + 5, " kB/s");
         } else if(bw < (double)H5_GB) {
             HDsprintf(buf, "%05.4f", bw / (double)H5_MB);
-            HDstrcpy(buf+5, " MB/s");
+            HDstrcpy(buf + 5, " MB/s");
         } else if(bw < (double)H5_TB) {
             HDsprintf(buf, "%05.4f", bw / (double)H5_GB);
-            HDstrcpy(buf+5, " GB/s");
+            HDstrcpy(buf + 5, " GB/s");
         } else if(bw < (double)H5_PB) {
             HDsprintf(buf, "%05.4f", bw / (double)H5_TB);
-            HDstrcpy(buf+5, " TB/s");
+            HDstrcpy(buf + 5, " TB/s");
+        } else if(bw < (double)H5_EB) {
+            HDsprintf(buf, "%05.4f", bw / (double)H5_PB);
+            HDstrcpy(buf + 5, " PB/s");
         } else {
             HDsprintf(buf, "%10.4e", bw);
             if(HDstrlen(buf) > 10)
                 HDsprintf(buf, "%10.3e", bw);
-        }
-    }
+        } /* end else-if */
+    } /* end else */
 } /* end H5_bandwidth() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:    H5_now
+ * Function:	H5_now
  *
- * Purpose:    Retrieves the current time, as seconds after the UNIX epoch.
+ * Purpose:	Retrieves the current time, as seconds after the UNIX epoch.
  *
- * Return:    # of seconds from the epoch (can't fail)
+ * Return:	# of seconds from the epoch (can't fail)
  *
- * Programmer:    Quincey Koziol
+ * Programmer:	Quincey Koziol
  *              Tuesday, November 28, 2006
  *
  *-------------------------------------------------------------------------
@@ -253,7 +159,7 @@ H5_bandwidth(char *buf/*out*/, double nbytes, double nseconds)
 time_t
 H5_now(void)
 {
-    time_t    now;                    /* Current time */
+    time_t	now;                    /* Current time */
 
 #ifdef H5_HAVE_GETTIMEOFDAY
     {
@@ -268,4 +174,489 @@ H5_now(void)
 
     return(now);
 } /* end H5_now() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5_now_usec
+ *
+ * Purpose:	Retrieves the current time, as microseconds after the UNIX epoch.
+ *
+ * Return:	# of microseconds from the epoch (can't fail)
+ *
+ * Programmer:	Quincey Koziol
+ *              Tuesday, November 28, 2006
+ *
+ *-------------------------------------------------------------------------
+ */
+uint64_t
+H5_now_usec(void)
+{
+    uint64_t	now;                    /* Current time, in microseconds */
+
+#if defined(H5_HAVE_CLOCK_GETTIME)
+    {
+        struct timespec ts;
+
+        HDclock_gettime(CLOCK_MONOTONIC, &ts);
+        now = (uint64_t)(ts.tv_sec * (1000 * 1000)) + (uint64_t)(ts.tv_nsec / 1000);
+    }
+#elif defined(H5_HAVE_GETTIMEOFDAY)
+    {
+        struct timeval now_tv;
+
+        HDgettimeofday(&now_tv, NULL);
+        now = (uint64_t)(now_tv.tv_sec * (1000 * 1000)) + (uint64_t)now_tv.tv_usec;
+    }
+#else /* H5_HAVE_GETTIMEOFDAY */
+    now = (uint64_t)(HDtime(NULL) * (1000 * 1000));
+#endif /* H5_HAVE_GETTIMEOFDAY */
+
+    return(now);
+} /* end H5_now_usec() */
+
+
+/*--------------------------------------------------------------------------
+ * Function:    H5_get_time
+ *
+ * Purpose:     Get the current time, as the time of seconds after the UNIX epoch
+ *
+ * Return:      Success:    A non-negative time value
+ *              Failure:    -1.0 (in theory, can't currently fail)
+ *
+ * Programmer:  Quincey Koziol
+ *              October 05, 2016
+ *--------------------------------------------------------------------------
+ */
+double
+H5_get_time(void)
+{
+    double ret_value = (double)0.0f;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+#if defined(H5_HAVE_CLOCK_GETTIME)
+    {
+        struct timespec ts;
+
+        HDclock_gettime(CLOCK_MONOTONIC, &ts);
+        ret_value = (double)ts.tv_sec + ((double)ts.tv_nsec / (double)1000000000.0f);
+    }
+#elif defined(H5_HAVE_GETTIMEOFDAY)
+    {
+        struct timeval now_tv;
+
+        HDgettimeofday(&now_tv, NULL);
+        ret_value = (double)now_tv.tv_sec + ((double)now_tv.tv_usec / (double)1000000.0f);
+    }
+#else
+    ret_value = (double)HDtime(NULL);
+#endif
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5_get_time() */
+
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5__timer_get_timevals
+ *
+ * Purpose:     Internal platform-specific function to get time system,
+ *              user and elapsed time values.
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5__timer_get_timevals(H5_timevals_t *times /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(times);
+
+    /* Windows call handles both system/user and elapsed times */
+#ifdef H5_HAVE_WIN32_API
+    if(H5_get_win32_times(times) < 0) {
+        times->elapsed   = -1.0;
+        times->system    = -1.0;
+        times->user      = -1.0;
+
+        return -1;
+    } /* end if */
+#else /* H5_HAVE_WIN32_API */
+
+    /*************************
+     * System and user times *
+     *************************/
+#if defined(H5_HAVE_GETRUSAGE)
+{
+    struct rusage res;
+
+    if(HDgetrusage(RUSAGE_SELF, &res) < 0)
+        return -1;
+    times->system = (double)res.ru_stime.tv_sec + ((double)res.ru_stime.tv_usec / (double)1.0E6F);
+    times->user   = (double)res.ru_utime.tv_sec + ((double)res.ru_utime.tv_usec / (double)1.0E6F);
+}
+#else
+    /* No suitable way to get system/user times */
+    /* This is not an error condition, they just won't be available */
+    times->system = -1.0;
+    times->user   = -1.0;
+#endif
+
+    /****************
+     * Elapsed time *
+     ****************/
+
+    times->elapsed = H5_get_time();
+
+#endif /* H5_HAVE_WIN32_API */
+
+    return 0;
+} /* end H5__timer_get_timevals() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_init
+ *
+ * Purpose:     Initialize a platform-independent timer.
+ *
+ *              Timer usage is as follows:
+ *
+ *              1) Call H5_timer_init(), passing in a timer struct, to set
+ *                 up the timer.
+ *
+ *              2) Wrap any code you'd like to time with calls to
+ *                 H5_timer_start/stop().  For accurate timing, place these
+ *                 calls as close to the code of interest as possible.  You
+ *                 can call start/stop multiple times on the same timer -
+ *                 when you do this, H5_timer_get_times() will return time
+ *                 values for the current/last session and
+ *                 H5_timer_get_total_times() will return the summed times
+ *                 of all sessions (see #3 and #4, below).
+ *
+ *              3) Use H5_timer_get_times() to get the current system, user
+ *                 and elapsed times from a running timer.  If called on a
+ *                 stopped timer, this will return the time recorded at the
+ *                 stop point.
+ *
+ *              4) Call H5_timer_get_total_times() to get the total system,
+ *                 user and elapsed times recorded across multiple start/stop
+ *                 sessions.  If called on a running timer, it will return the
+ *                 time recorded up to that point.  On a stopped timer, it
+ *                 will return the time recorded at the stop point.
+ *
+ *              NOTE: Obtaining a time point is not free!  Keep in mind that
+ *                    the time functions make system calls and can have
+ *                    non-trivial overhead.  If you call one of the get_time
+ *                    functions on a running timer, that overhead will be
+ *                    added to the reported times.
+ *
+ *              5) All times recorded will be in seconds.  These can be
+ *                 converted into human-readable strings with the
+ *                 H5_timer_get_time_string() function.
+ *
+ *              6) A timer can be reset using by calling H5_timer_init() on
+ *                 it.  This will set its state to 'stopped' and reset all
+ *                 accumulated times to zero.
+ *
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_timer_init(H5_timer_t *timer /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(timer);
+
+    /* Initialize everything */
+    HDmemset(timer, 0, sizeof(H5_timer_t));
+
+    return 0;
+} /* end H5_timer_init() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_start
+ *
+ * Purpose:     Start tracking time in a platform-independent timer.
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_timer_start(H5_timer_t *timer /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(timer);
+
+    /* Start the timer
+     * This sets the "initial" times to the system-defined start times.
+     */
+    if(H5__timer_get_timevals(&(timer->initial)) < 0)
+        return -1;
+
+    timer->is_running = TRUE;
+
+    return 0;
+} /* end H5_timer_start() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_stop
+ *
+ * Purpose:     Stop tracking time in a platform-independent timer.
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_timer_stop(H5_timer_t *timer /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(timer);
+
+    /* Stop the timer */
+    if(H5__timer_get_timevals(&(timer->final_interval)) < 0)
+        return -1;
+
+    /* The "final" times are stored as intervals (final - initial)
+     * for more useful reporting to the user.
+     */
+    timer->final_interval.elapsed = timer->final_interval.elapsed - timer->initial.elapsed;
+    timer->final_interval.system  = timer->final_interval.system  - timer->initial.system;
+    timer->final_interval.user    = timer->final_interval.user    - timer->initial.user;
+
+    /* Add the intervals to the elapsed time */
+    timer->total.elapsed += timer->final_interval.elapsed;
+    timer->total.system  += timer->final_interval.system;
+    timer->total.user    += timer->final_interval.user;
+
+    timer->is_running = FALSE;
+
+    return 0;
+} /* end H5_timer_stop() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_get_times
+ *
+ * Purpose:     Get the system, user and elapsed times from a timer.  These
+ *              are the times since the timer was last started and will be
+ *              0.0 in a timer that has not been started since it was
+ *              initialized.
+ *
+ *              This function can be called either before or after
+ *              H5_timer_stop() has been called.  If it is called before the
+ *              stop function, the timer will continue to run.
+ *
+ *              The system and user times will be -1.0 if those times cannot
+ *              be computed on a particular platform.  The elapsed time will
+ *              always be present.
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_timer_get_times(H5_timer_t timer, H5_timevals_t *times /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(times);
+
+    if(timer.is_running) {
+        H5_timevals_t   now;
+
+        /* Get the current times and report the current intervals without
+         * stopping the timer.
+         */
+        if(H5__timer_get_timevals(&now) < 0)
+            return -1;
+
+        times->elapsed = now.elapsed - timer.initial.elapsed;
+        times->system  = now.system  - timer.initial.system;
+        times->user    = now.user    - timer.initial.user;
+    } /* end if */
+    else {
+        times->elapsed = timer.final_interval.elapsed;
+        times->system  = timer.final_interval.system;
+        times->user    = timer.final_interval.user;
+    } /* end else */
+
+    return 0;
+} /* end H5_timer_get_times() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_get_total_times
+ *
+ * Purpose:     Get the TOTAL system, user and elapsed times recorded by
+ *              the timer since its initialization.  This is the sum of all
+ *              times recorded while the timer was running.
+ *
+ *              These will be 0.0 in a timer that has not been started
+ *              since it was initialized.  Calling H5_timer_init() on a
+ *              timer will reset these values to 0.0.
+ *
+ *              This function can be called either before or after
+ *              H5_timer_stop() has been called.  If it is called before the
+ *              stop function, the timer will continue to run.
+ *
+ *              The system and user times will be -1.0 if those times cannot
+ *              be computed on a particular platform.  The elapsed time will
+ *              always be present.
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_timer_get_total_times(H5_timer_t timer, H5_timevals_t *times /*in,out*/)
+{
+    /* Sanity check */
+    HDassert(times);
+
+    if(timer.is_running) {
+        H5_timevals_t   now;
+
+        /* Get the current times and report the current totals without
+         * stopping the timer.
+         */
+        if(H5__timer_get_timevals(&now) < 0)
+            return -1;
+
+        times->elapsed = timer.total.elapsed + (now.elapsed - timer.initial.elapsed);
+        times->system  = timer.total.system  + (now.system  - timer.initial.system);
+        times->user    = timer.total.user    + (now.user    - timer.initial.user);
+    } /* end if */
+    else {
+        times->elapsed = timer.total.elapsed;
+        times->system  = timer.total.system;
+        times->user    = timer.total.user;
+    } /* end else */
+
+    return 0;
+} /* end H5_timer_get_total_times() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_timer_get_time_string
+ *
+ * Purpose:     Converts a time (in seconds) into a human-readable string
+ *              suitable for log messages.
+ *
+ * Return:      Success:  The time string.
+ *
+ *                        The general format of the time string is:
+ *
+ *                        "N/A"                 time < 0 (invalid time)
+ *                        "%.f ns"              time < 1 microsecond
+ *                        "%.1f us"             time < 1 millisecond
+ *                        "%.1f ms"             time < 1 second
+ *                        "%.2f s"              time < 1 minute
+ *                        "%.f m %.f s"         time < 1 hour
+ *                        "%.f h %.f m %.f s"   longer times
+ *
+ *              Failure:  NULL
+ *
+ * Programmer:  Dana Robinson
+ *              May 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+char *
+H5_timer_get_time_string(double seconds)
+{
+    char *s;                /* output string */
+
+    /* Used when the time is greater than 59 seconds */
+    double days;
+    double hours;
+    double minutes;
+    double remainder_sec;
+
+    /* Extract larger time units from count of seconds */
+    if(seconds > (double)60.0F) {
+        /* Set initial # of seconds */
+        remainder_sec = seconds;
+
+        /* Extract days */
+        days = HDfloor(remainder_sec / H5_SEC_PER_DAY);
+        remainder_sec -= (days * H5_SEC_PER_DAY);
+
+        /* Extract hours */
+        hours = HDfloor(remainder_sec / H5_SEC_PER_HOUR);
+        remainder_sec -= (hours * H5_SEC_PER_HOUR);
+
+        /* Extract minutes */
+        minutes = HDfloor(remainder_sec / H5_SEC_PER_MIN);
+        remainder_sec -= (minutes * H5_SEC_PER_MIN);
+
+        /* The # of seconds left is in remainder_sec */
+    } /* end if */
+
+    /* Allocate */
+    if(NULL == (s = (char *)HDcalloc(H5TIMER_TIME_STRING_LEN, sizeof(char))))
+        return NULL;
+
+    /* Do we need a format string? Some people might like a certain
+     * number of milliseconds or s before spilling to the next highest
+     * time unit.  Perhaps this could be passed as an integer.
+     * (name? round_up_size? ?)
+     */
+    if(seconds < (double)0.0F)
+        HDsprintf(s, "N/A");
+    else if(H5_DBL_ABS_EQUAL((double)0.0F, seconds))
+        HDsprintf(s, "0.0 s");
+    else if(seconds < (double)1.0E-6F)
+        /* t < 1 us, Print time in ns */
+        HDsprintf(s, "%.f ns", seconds * (double)1.0E9F);
+    else if(seconds < (double)1.0E-3F)
+        /* t < 1 ms, Print time in us */
+        HDsprintf(s, "%.1f us", seconds * (double)1.0E6F);
+    else if(seconds < (double)1.0F)
+        /* t < 1 s, Print time in ms */
+        HDsprintf(s, "%.1f ms", seconds * (double)1.0E3F);
+    else if(seconds < H5_SEC_PER_MIN)
+        /* t < 1 m, Print time in s */
+        HDsprintf(s, "%.2f s", seconds);
+    else if(seconds < H5_SEC_PER_HOUR)
+        /* t < 1 h, Print time in m and s */
+        HDsprintf(s, "%.f m %.f s", minutes, remainder_sec);
+    else if(seconds < H5_SEC_PER_DAY)
+        /* t < 1 d, Print time in h, m and s */
+        HDsprintf(s, "%.f h %.f m %.f s", hours, minutes, remainder_sec);
+    else
+        /* Print time in d, h, m and s */
+        HDsprintf(s, "%.f d %.f h %.f m %.f s", days, hours, minutes, remainder_sec);
+
+    return s;
+} /* end H5_timer_get_time_string() */
 

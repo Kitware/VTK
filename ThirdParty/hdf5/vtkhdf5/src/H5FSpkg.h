@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:  Quincey Koziol
  *              Tuesday, May  2, 2006
  *
  * Purpose:     This file contains declarations which are visible only within
@@ -221,16 +221,16 @@ H5_DLL herr_t H5FS__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t 
 /* Free space manager header routines */
 H5_DLL H5FS_t *H5FS__new(const H5F_t *f, uint16_t nclasses,
     const H5FS_section_class_t *classes[], void *cls_init_udata);
-H5_DLL herr_t H5FS_incr(H5FS_t *fspace);
-H5_DLL herr_t H5FS_decr(H5FS_t *fspace);
-H5_DLL herr_t H5FS_dirty(H5FS_t *fspace);
+H5_DLL herr_t H5FS__incr(H5FS_t *fspace);
+H5_DLL herr_t H5FS__decr(H5FS_t *fspace);
+H5_DLL herr_t H5FS__dirty(H5FS_t *fspace);
 
 /* Free space section routines */
-H5_DLL H5FS_sinfo_t *H5FS_sinfo_new(H5F_t *f, H5FS_t *fspace);
+H5_DLL H5FS_sinfo_t *H5FS__sinfo_new(H5F_t *f, H5FS_t *fspace);
 
 /* Routines for destroying structures */
 H5_DLL herr_t H5FS__hdr_dest(H5FS_t *hdr);
-H5_DLL herr_t H5FS_sinfo_dest(H5FS_sinfo_t *sinfo);
+H5_DLL herr_t H5FS__sinfo_dest(H5FS_sinfo_t *sinfo);
 
 /* Sanity check routines */
 #ifdef H5FS_DEBUG_ASSERT
@@ -240,8 +240,8 @@ H5_DLL void H5FS__sect_assert(const H5FS_t *fspace);
 
 /* Testing routines */
 #ifdef H5FS_TESTING
-H5_DLL herr_t H5FS_get_cparam_test(const H5FS_t *fh, H5FS_create_t *cparam);
-H5_DLL int H5FS_cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2);
+H5_DLL herr_t H5FS__get_cparam_test(const H5FS_t *fh, H5FS_create_t *cparam);
+H5_DLL int H5FS__cmp_cparam_test(const H5FS_create_t *cparam1, const H5FS_create_t *cparam2);
 #endif /* H5FS_TESTING */
 
 #endif /* _H5FSpkg_H */

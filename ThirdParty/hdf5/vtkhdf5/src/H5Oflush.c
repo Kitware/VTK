@@ -15,7 +15,7 @@
  *
  * Created:     H5Oflush.c
  *              Aug 19, 2010
- *              Mike McGreevy <mamcgree@hdfgroup.org>
+ *              Mike McGreevy
  *
  * Purpose:     Object flush/refresh routines.
  *
@@ -58,11 +58,11 @@ static herr_t H5O__refresh_metadata_close(hid_t oid, H5O_loc_t oloc,
 
 
 /*-------------------------------------------------------------------------
- * Function:   H5Oflush
+ * Function:    H5Oflush
  *
- * Purpose:    Flushes all buffers associated with an object to disk.
+ * Purpose:     Flushes all buffers associated with an object to disk.
  *
- * Return:    Non-negative on success, negative on failure
+ * Return:      Non-negative on success, negative on failure
  *
  * Programmer:  Mike McGreevy
  *              May 19, 2010
@@ -72,16 +72,16 @@ static herr_t H5O__refresh_metadata_close(hid_t oid, H5O_loc_t oloc,
 herr_t
 H5Oflush(hid_t obj_id)
 {
-    herr_t ret_value = SUCCEED;         /* Return value */
+    herr_t              ret_value   = SUCCEED;  /* Return value     */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", obj_id);
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(obj_id) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access property list info")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
-    /* Call internal routine */
+    /* Flush the object */
     if(H5O__flush(obj_id) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to flush object")
 
@@ -116,11 +116,11 @@ H5O_flush_common(H5O_loc_t *oloc, hid_t obj_id)
 
     /* Flush metadata based on tag value of the object */
     if(H5F_flush_tagged_metadata(oloc->file, tag) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
 
     /* Check to invoke callback */
     if(H5F_object_flush_cb(oloc->file, obj_id) < 0)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to do object flush callback")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to do object flush callback")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -219,9 +219,9 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5Orefresh
  *
- * Purpose:    Refreshes all buffers associated with an object.
+ * Purpose:     Refreshes all buffers associated with an object.
  *
- * Return:    Non-negative on success, negative on failure
+ * Return:      Non-negative on success, negative on failure
  *
  * Programmer:  Mike McGreevy
  *              July 28, 2010
@@ -231,9 +231,9 @@ done:
 herr_t
 H5Orefresh(hid_t oid)
 {
-    H5O_loc_t *oloc;            /* object location */
-    herr_t ret_value = SUCCEED; /* return value */
-    
+    H5O_loc_t          *oloc;                   /* Object location  */
+    herr_t              ret_value   = SUCCEED;  /* Return value     */
+
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", oid);
 
@@ -243,9 +243,9 @@ H5Orefresh(hid_t oid)
 
     /* Set up collective metadata if appropriate */
     if(H5CX_set_loc(oid) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access property list info")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "can't set access property list info")
 
-    /* Call internal routine */
+    /* Refresh the object */
     if(H5O_refresh_metadata(oid, *oloc) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTLOAD, FAIL, "unable to refresh object")
 
@@ -260,11 +260,11 @@ done:
  * Purpose:     Refreshes all buffers associated with an object.
  *
  * Note:	This is based on the original H5O_refresh_metadata() but
- *	        is split into 2 routines.  
+ *	        is split into 2 routines.
  *	        This is done so that H5Fstart_swmr_write() can use these
- *	        2 routines to refresh opened objects.  This may be 
+ *	        2 routines to refresh opened objects.  This may be
  *	        restored back to the original code when H5Fstart_swmr_write()
- *	        uses a different approach to handle issues with opened objects.	
+ *	        uses a different approach to handle issues with opened objects.
  *	 	H5Fstart_swmr_write() no longer calls the 1st routine.	(12/24/15)
  *
  * Return:    	Non-negative on success, negative on failure
@@ -343,7 +343,7 @@ H5O__refresh_metadata_close(hid_t oid, H5O_loc_t oloc, H5G_loc_t *obj_loc)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC
-    
+
     /* Make deep local copy of object's location information */
     if(obj_loc) {
         H5G_loc_t tmp_loc;
@@ -352,35 +352,35 @@ H5O__refresh_metadata_close(hid_t oid, H5O_loc_t oloc, H5G_loc_t *obj_loc)
         H5G_loc_copy(obj_loc, &tmp_loc, H5_COPY_DEEP);
     } /* end if */
 
-    /* Get object's type */
+    /* Handle close for multiple dataset opens */
     if(H5I_get_type(oid) == H5I_DATASET)
-	if(H5D_mult_refresh_close(oid) < 0)
-	    HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to prepare refresh for dataset")
+        if(H5D_mult_refresh_close(oid) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTOPENOBJ, FAIL, "unable to prepare refresh for dataset")
 
     /* Retrieve tag for object */
     if(H5O__oh_tag(&oloc, &tag) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTFLUSH, FAIL, "unable to get object header address")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to get object header address")
 
     /* Get cork status of the object with tag */
     if(H5AC_cork(oloc.file, tag, H5AC__GET_CORKED, &corked) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_SYSTEM, FAIL, "unable to retrieve an object's cork status")
+        HGOTO_ERROR(H5E_OHDR, H5E_SYSTEM, FAIL, "unable to retrieve an object's cork status")
 
     /* Close the object */
     if(H5I_dec_ref(oid) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to close object")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, FAIL, "unable to close object")
 
     /* Flush metadata based on tag value of the object */
     if(H5F_flush_tagged_metadata(oloc.file, tag) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
 
     /* Evict the object's tagged metadata */
     if(H5F_evict_tagged_metadata(oloc.file, tag) < 0)
-        HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to evict metadata")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTFLUSH, FAIL, "unable to evict metadata")
 
     /* Re-cork object with tag */
     if(corked)
-	if(H5AC_cork(oloc.file, tag, H5AC__SET_CORK, &corked) < 0)
-	    HGOTO_ERROR(H5E_ATOM, H5E_SYSTEM, FAIL, "unable to cork the object")
+        if(H5AC_cork(oloc.file, tag, H5AC__SET_CORK, &corked) < 0)
+            HGOTO_ERROR(H5E_OHDR, H5E_SYSTEM, FAIL, "unable to cork the object")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value);
@@ -404,11 +404,14 @@ done:
 herr_t
 H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t start_swmr)
 {
-    void *object = NULL;        /* Dataset for this operation */
+    void *object = NULL;        /* Object for this operation */
     H5I_type_t type;            /* Type of object for the ID */
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
+
+    /* Sanity check */
+    HDassert(obj_loc);
 
     /* Get object's type */
     type = H5I_get_type(oid);
@@ -417,13 +420,13 @@ H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t start_swmr)
         case H5I_GROUP:
             /* Re-open the group */
             if(NULL == (object = H5G_open(obj_loc)))
-                HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open group")
+                HGOTO_ERROR(H5E_OHDR, H5E_CANTOPENOBJ, FAIL, "unable to open group")
             break;
 
         case H5I_DATATYPE:
             /* Re-open the named datatype */
             if(NULL == (object = H5T_open(obj_loc)))
-                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTOPENOBJ, FAIL, "unable to open named datatype")
+                HGOTO_ERROR(H5E_OHDR, H5E_CANTOPENOBJ, FAIL, "unable to open named datatype")
             break;
 
         case H5I_DATASET:
@@ -432,7 +435,7 @@ H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t start_swmr)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to open dataset")
             if(!start_swmr) /* No need to handle multiple opens when H5Fstart_swmr_write() */
                 if(H5D_mult_refresh_reopen((H5D_t *)object) < 0)
-                    HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to finish refresh for dataset")
+                    HGOTO_ERROR(H5E_OHDR, H5E_CANTOPENOBJ, FAIL, "unable to finish refresh for dataset")
             break;
 
         case H5I_UNINIT:
@@ -449,13 +452,13 @@ H5O_refresh_metadata_reopen(hid_t oid, H5G_loc_t *obj_loc, hbool_t start_swmr)
         case H5I_ERROR_STACK:
         case H5I_NTYPES:
         default:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a valid file object ID (dataset, group, or datatype)")
+            HGOTO_ERROR(H5E_OHDR, H5E_BADTYPE, FAIL, "not a valid file object ID (dataset, group, or datatype)")
         break;
     } /* end switch */
 
     /* Re-register ID for the object */
-    if((H5I_register_with_id(type, object, TRUE, oid)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to re-register object atom")
+    if((H5I_register_using_existing_id(type, object, TRUE, oid)) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTREGISTER, FAIL, "unable to re-register object ID after refresh")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value);

@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:    Quincey Koziol <koziol@ncsa.uiuc.edu>
+ * Programmer:    Quincey Koziol
  *        Monday, April 14, 2003
  *
  * Purpose:    This file contains declarations which are visible only within
@@ -563,18 +563,15 @@ H5_DLL H5D_t *H5D__open_name(const H5G_loc_t *loc, const char *name, hid_t dapl_
 H5_DLL hid_t H5D__get_space(const H5D_t *dset);
 H5_DLL hid_t H5D__get_type(const H5D_t *dset);
 H5_DLL herr_t H5D__get_space_status(const H5D_t *dset, H5D_space_status_t *allocation);
-H5_DLL herr_t H5D__alloc_storage(const H5D_io_info_t *io_info, H5D_time_alloc_t time_alloc,
-    hbool_t full_overwrite, hsize_t old_dim[]);
+H5_DLL herr_t H5D__alloc_storage(const H5D_io_info_t *io_info, H5D_time_alloc_t time_alloc, hbool_t full_overwrite, hsize_t old_dim[]);
 H5_DLL herr_t H5D__get_storage_size(const H5D_t *dset, hsize_t *storage_size);
-H5_DLL herr_t H5D__get_chunk_storage_size(H5D_t *dset, const hsize_t *offset,
-    hsize_t *storage_size);
+H5_DLL herr_t H5D__get_chunk_storage_size(H5D_t *dset, const hsize_t *offset, hsize_t *storage_size);
 H5_DLL herr_t H5D__get_num_chunks(const H5D_t *dset, const H5S_t *space, hsize_t *nchunks);
 H5_DLL herr_t H5D__get_chunk_info(const H5D_t *dset, const H5S_t *space, hsize_t chk_idx, hsize_t *coord, unsigned *filter_mask, haddr_t *offset, hsize_t *size);
 H5_DLL herr_t H5D__get_chunk_info_by_coord(const H5D_t *dset, const hsize_t *coord, unsigned *filter_mask, haddr_t *addr, hsize_t *size);
 H5_DLL haddr_t H5D__get_offset(const H5D_t *dset);
 H5_DLL void *H5D__vlen_get_buf_size_alloc(size_t size, void *info);
-H5_DLL herr_t H5D__vlen_get_buf_size(void *elem, hid_t type_id, unsigned ndim,
-    const hsize_t *point, void *op_data);
+H5_DLL herr_t H5D__vlen_get_buf_size(void *elem, hid_t type_id, unsigned ndim, const hsize_t *point, void *op_data);
 H5_DLL herr_t H5D__check_filters(H5D_t *dataset);
 H5_DLL herr_t H5D__set_extent(H5D_t *dataset, const hsize_t *size);
 H5_DLL herr_t H5D__flush_sieve_buf(H5D_t *dataset);
@@ -601,10 +598,10 @@ H5_DLL herr_t H5D__select_write(const H5D_io_info_t *io_info,
     hsize_t nelmts, const H5S_t *file_space, const H5S_t *mem_space);
 
 /* Functions that perform scatter-gather serial I/O operations */
-H5_DLL herr_t H5D__scatter_mem(const void *_tscat_buf, const H5S_t *space,
-    H5S_sel_iter_t *iter, size_t nelmts, void *_buf);
-H5_DLL size_t H5D__gather_mem(const void *_buf, const H5S_t *space,
-    H5S_sel_iter_t *iter, size_t nelmts, void *_tgath_buf/*out*/);
+H5_DLL herr_t H5D__scatter_mem(const void *_tscat_buf, H5S_sel_iter_t *iter,
+    size_t nelmts, void *_buf);
+H5_DLL size_t H5D__gather_mem(const void *_buf, H5S_sel_iter_t *iter,
+    size_t nelmts, void *_tgath_buf/*out*/);
 H5_DLL herr_t H5D__scatgath_read(const H5D_io_info_t *io_info,
     const H5D_type_info_t *type_info,
     hsize_t nelmts, const H5S_t *file_space, const H5S_t *mem_space);

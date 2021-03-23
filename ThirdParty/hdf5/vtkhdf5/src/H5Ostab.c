@@ -15,7 +15,7 @@
  *
  * Created:             H5Ostab.c
  *                      Aug  6 1997
- *                      Robb Matzke <matzke@llnl.gov>
+ *                      Robb Matzke
  *
  * Purpose:             Symbol table messages.
  *
@@ -37,9 +37,9 @@
 /* PRIVATE PROTOTYPES */
 static void *H5O__stab_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
     unsigned *ioflags, size_t p_size, const uint8_t *p);
-static herr_t H5O_stab_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
-static void *H5O_stab_copy(const void *_mesg, void *_dest);
-static size_t H5O_stab_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
+static herr_t H5O__stab_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
+static void *H5O__stab_copy(const void *_mesg, void *_dest);
+static size_t H5O__stab_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
 static herr_t H5O__stab_free(void *_mesg);
 static herr_t H5O__stab_delete(H5F_t *f, H5O_t *open_oh, void *_mesg);
 static void *H5O__stab_copy_file(H5F_t *file_src, void *native_src,
@@ -58,9 +58,9 @@ const H5O_msg_class_t H5O_MSG_STAB[1] = {{
     sizeof(H5O_stab_t),     	/*native message size           */
     0,				/* messages are sharable?       */
     H5O__stab_decode,        	/*decode message                */
-    H5O_stab_encode,        	/*encode message                */
-    H5O_stab_copy,          	/*copy the native value         */
-    H5O_stab_size,          	/*size of symbol table entry    */
+    H5O__stab_encode,        	/*encode message                */
+    H5O__stab_copy,          	/*copy the native value         */
+    H5O__stab_size,          	/*size of symbol table entry    */
     NULL,                   	/*default reset method          */
     H5O__stab_free,	        /* free method			*/
     H5O__stab_delete,	        /* file delete method		*/
@@ -90,7 +90,6 @@ H5FL_DEFINE_STATIC(H5O_stab_t);
  *              Failure:        NULL
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -103,7 +102,7 @@ H5O__stab_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
     H5O_stab_t          *stab = NULL;
     void                *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -111,7 +110,7 @@ H5O__stab_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
 
     /* decode */
     if(NULL == (stab = H5FL_CALLOC(H5O_stab_t)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
     H5F_addr_decode(f, &p, &(stab->btree_addr));
     H5F_addr_decode(f, &p, &(stab->heap_addr));
 
@@ -119,34 +118,32 @@ H5O__stab_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
     ret_value = stab;
 
 done:
-    if(ret_value == NULL) {
+    if(ret_value == NULL)
         if(stab != NULL)
             stab = H5FL_FREE(H5O_stab_t, stab);
-    } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__stab_decode() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_stab_encode
+ * Function:    H5O__stab_encode
  *
  * Purpose:     Encodes a symbol table message.
  *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_stab_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
+H5O__stab_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
 {
     const H5O_stab_t       *stab = (const H5O_stab_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -158,11 +155,11 @@ H5O_stab_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
     H5F_addr_encode(f, &p, stab->heap_addr);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}
+} /* end H5O__stab_encode() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_stab_copy
+ * Function:    H5O__stab_copy
  *
  * Purpose:     Copies a message from _MESG to _DEST, allocating _DEST if
  *              necessary.
@@ -172,24 +169,23 @@ H5O_stab_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, con
  *              Failure:        NULL
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_stab_copy(const void *_mesg, void *_dest)
+H5O__stab_copy(const void *_mesg, void *_dest)
 {
     const H5O_stab_t    *stab = (const H5O_stab_t *) _mesg;
     H5O_stab_t          *dest = (H5O_stab_t *) _dest;
     void                *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(stab);
     if(!dest && NULL == (dest = H5FL_MALLOC(H5O_stab_t)))
-	HGOTO_ERROR (H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
 
     /* copy */
     *dest = *stab;
@@ -199,11 +195,11 @@ H5O_stab_copy(const void *_mesg, void *_dest)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_stab_copy() */
+} /* end H5O__stab_copy() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_stab_size
+ * Function:    H5O__stab_size
  *
  * Purpose:     Returns the size of the raw message in bytes not counting
  *              the message type or size fields, but only the data fields.
@@ -214,23 +210,22 @@ done:
  *              Failure:        zero
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
  *
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O_stab_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
+H5O__stab_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
 {
     size_t ret_value = 0;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Set return value */
     ret_value = (size_t)(2 * H5F_SIZEOF_ADDR(f));
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_stab_size() */
+} /* end H5O__stab_size() */
 
 
 /*-------------------------------------------------------------------------
@@ -327,14 +322,14 @@ H5O__stab_copy_file(H5F_t *file_src, void *native_src, H5F_t *file_dst,
 
     /* Get the old local heap's size and use that as the hint for the new heap */
     if(H5HL_get_size(file_src, stab_src->heap_addr, &size_hint) < 0)
-	HGOTO_ERROR(H5E_SYM, H5E_CANTGETSIZE, NULL, "can't query local heap size")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGETSIZE, NULL, "can't query local heap size")
 
     /* Set copy metadata tag */
     H5_BEGIN_TAG(H5AC__COPIED_TAG);
 
     /* Create components of symbol table message */
     if(H5G__stab_create_components(file_dst, stab_dst, size_hint) < 0)
-	HGOTO_ERROR_TAG(H5E_SYM, H5E_CANTINIT, NULL, "can't create symbol table components")
+        HGOTO_ERROR_TAG(H5E_SYM, H5E_CANTINIT, NULL, "can't create symbol table components")
 
     /* Reset metadata tag */
     H5_END_TAG
@@ -415,10 +410,7 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  6 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */

@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+/* Programmer:  Quincey Koziol
  *              Monday, December 4, 2006
  *
  * Purpose:	Object header testing functions.
@@ -75,11 +75,11 @@
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_is_attr_dense_test
+    H5O__is_attr_dense_test
  PURPOSE
     Determine whether attributes for an object are stored "densely"
  USAGE
-    htri_t H5O_is_attr_dense_test(oid)
+    htri_t H5O__is_attr_dense_test(oid)
         hid_t oid;              IN: object to check
  RETURNS
     Non-negative TRUE/FALSE on success, negative on failure
@@ -93,7 +93,7 @@
  REVISION LOG
 --------------------------------------------------------------------------*/
 htri_t
-H5O_is_attr_dense_test(hid_t oid)
+H5O__is_attr_dense_test(hid_t oid)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5O_ainfo_t ainfo;          /* Attribute information for object */
@@ -101,7 +101,7 @@ H5O_is_attr_dense_test(hid_t oid)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     htri_t ret_value = FAIL;    /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -114,7 +114,7 @@ H5O_is_attr_dense_test(hid_t oid)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
     ainfo.fheap_addr = HADDR_UNDEF;
@@ -136,21 +136,21 @@ H5O_is_attr_dense_test(hid_t oid)
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_is_attr_dense_test() */
+}   /* H5O__is_attr_dense_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_is_attr_empty_test
+    H5O__is_attr_empty_test
  PURPOSE
     Determine whether there are any attributes for an object
  USAGE
-    htri_t H5O_is_attr_empty_test(oid)
+    htri_t H5O__is_attr_empty_test(oid)
         hid_t oid;              IN: object to check
  RETURNS
     Non-negative TRUE/FALSE on success, negative on failure
@@ -163,7 +163,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 htri_t
-H5O_is_attr_empty_test(hid_t oid)
+H5O__is_attr_empty_test(hid_t oid)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5B2_t *bt2_name = NULL;    /* v2 B-tree handle for name index */
@@ -174,7 +174,7 @@ H5O_is_attr_empty_test(hid_t oid)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     htri_t ret_value = FAIL;    /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -187,7 +187,7 @@ H5O_is_attr_empty_test(hid_t oid)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
     if(oh->version > H5O_VERSION_1) {
@@ -237,21 +237,21 @@ done:
     if(bt2_name && H5B2_close(bt2_name) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for name index")
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_is_attr_empty_test() */
+}   /* H5O__is_attr_empty_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_num_attrs_test
+    H5O__num_attrs_test
  PURPOSE
     Determine whether there are any attributes for an object
  USAGE
-    herr_t H5O_num_attrs_test(oid, nattrs)
+    herr_t H5O__num_attrs_test(oid, nattrs)
         hid_t oid;              IN: object to check
         hsize_t *nattrs;        OUT: Number of attributes on object
  RETURNS
@@ -265,7 +265,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_num_attrs_test(hid_t oid, hsize_t *nattrs)
+H5O__num_attrs_test(hid_t oid, hsize_t *nattrs)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5B2_t *bt2_name = NULL;    /* v2 B-tree handle for name index */
@@ -275,7 +275,7 @@ H5O_num_attrs_test(hid_t oid, hsize_t *nattrs)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -288,7 +288,7 @@ H5O_num_attrs_test(hid_t oid, hsize_t *nattrs)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
     ainfo.fheap_addr = HADDR_UNDEF;
@@ -335,21 +335,21 @@ done:
     if(bt2_name && H5B2_close(bt2_name) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for name index")
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_num_attrs_test() */
+}   /* H5O__num_attrs_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_attr_dense_info_test
+    H5O__attr_dense_info_test
  PURPOSE
     Retrieve information about the state of the "dense" storage for attributes
  USAGE
-    herr_t H5O_attr_dense_info_test(oid, name_count, corder_count)
+    herr_t H5O__attr_dense_info_test(oid, name_count, corder_count)
         hid_t oid;              IN: Object to check
         hsize_t *name_count;    OUT: Number of attributes in name index
         hsize_t *corder_count;  OUT: Number of attributes in creation order index
@@ -365,7 +365,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count)
+H5O__attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5B2_t *bt2_name = NULL;    /* v2 B-tree handle for name index */
@@ -375,7 +375,7 @@ H5O_attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -391,7 +391,7 @@ H5O_attr_dense_info_test(hid_t oid, hsize_t *name_count, hsize_t *corder_count)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR_TAG(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR_TAG(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
     ainfo.fheap_addr = HADDR_UNDEF;
@@ -438,22 +438,22 @@ done:
     if(bt2_corder && H5B2_close(bt2_corder) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for creation order index")
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_attr_dense_info_test() */
+}   /* H5O__attr_dense_info_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_check_msg_marked_test
+    H5O__check_msg_marked_test
  PURPOSE
     Check if an unknown message with the "mark if unknown" flag actually gets
     marked.
  USAGE
-    herr_t H5O_check_msg_marked_test(oid, flag_val)
+    herr_t H5O__check_msg_marked_test(oid, flag_val)
         hid_t oid;              IN: Object to check
         hbool_t flag_val;       IN: Desired flag value
  RETURNS
@@ -468,7 +468,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_check_msg_marked_test(hid_t oid, hbool_t flag_val)
+H5O__check_msg_marked_test(hid_t oid, hbool_t flag_val)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5O_loc_t *loc;            /* Pointer to object's location */
@@ -476,7 +476,7 @@ H5O_check_msg_marked_test(hid_t oid, hbool_t flag_val)
     unsigned idx;               /* Index of message */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -484,11 +484,11 @@ H5O_check_msg_marked_test(hid_t oid, hbool_t flag_val)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Locate "unknown" message  */
     for(idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, idx_msg++)
-	if(idx_msg->type->id == H5O_UNKNOWN_ID) {
+        if(idx_msg->type->id == H5O_UNKNOWN_ID) {
             /* Check for "unknown" message having the correct flags */
             if(((idx_msg->flags & H5O_MSG_FLAG_WAS_UNKNOWN) > 0) != flag_val)
                 HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, FAIL, "'unknown' message has incorrect 'was unknown' flag value")
@@ -503,15 +503,15 @@ H5O_check_msg_marked_test(hid_t oid, hbool_t flag_val)
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_check_msg_marked_test() */
+}   /* H5O__check_msg_marked_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_expunge_chunks_test
+    H5O__expunge_chunks_test
  PURPOSE
     Expunge all the chunks for an object header from the cache.
  USAGE
@@ -529,7 +529,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_expunge_chunks_test(const H5O_loc_t *loc)
+H5O__expunge_chunks_test(const H5O_loc_t *loc)
 {
     H5O_t *oh = NULL;           /* Object header */
     haddr_t chk_addr[16];       /* Array of chunk addresses */
@@ -537,11 +537,11 @@ H5O_expunge_chunks_test(const H5O_loc_t *loc)
     size_t u;                   /* Local index variable */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__NO_FLAGS_SET, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Safety check */
     nchunks = oh->nchunks;
@@ -553,7 +553,7 @@ H5O_expunge_chunks_test(const H5O_loc_t *loc)
 
     /* Release the object header */
     if(H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header")
 
     /* Iterate over all the saved chunk addresses, evicting them from the cache */
     /* (in reverse order, so that chunk #0 is unpinned) */
@@ -563,16 +563,16 @@ H5O_expunge_chunks_test(const H5O_loc_t *loc)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_expunge_chunks_test() */
+}   /* H5O__expunge_chunks_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_get_rc
+    H5O__get_rc_test
  PURPOSE
     Retrieve the refcount for the object header
  USAGE
-    herr_t H5O_expunge_chunks_test(loc, rc)
+    herr_t H5O__get_rc_test(loc, rc)
         const H5O_loc_t *loc;   IN: Object location for object header to query
         unsigned *rc;           OUT: Pointer to refcount for object header
  RETURNS
@@ -587,12 +587,12 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_get_rc(const H5O_loc_t *loc, unsigned *rc)
+H5O__get_rc_test(const H5O_loc_t *loc, unsigned *rc)
 {
     H5O_t *oh = NULL;           /* Object header */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(loc);
@@ -600,7 +600,7 @@ H5O_get_rc(const H5O_loc_t *loc, unsigned *rc)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Save the refcount for the object header */
     *rc = oh->nlink;
@@ -608,19 +608,19 @@ H5O_get_rc(const H5O_loc_t *loc, unsigned *rc)
 done:
     /* Release the object header */
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_expunge_chunks_test() */
+}   /* H5O__get_rc_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_msg_get_chunkno_test
+    H5O__msg_get_chunkno_test
  PURPOSE
     Retrieve the chunk number for an object header message of a given type.
  USAGE
-    herr_t H5O_check_msg_marked_test(oid, chunk_num)
+    herr_t H5O__msg_get_chunkno_test(oid, msg_type, chunk_num)
         hid_t oid;              IN: Object to check
         unsigned msg_type;      IN: Object header message type to check
         unsigned *chunk_num;    OUT: Object header chunk that the message is in
@@ -636,7 +636,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num)
+H5O__msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5O_loc_t *loc;            /* Pointer to object's location */
@@ -645,7 +645,7 @@ H5O_msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -658,11 +658,11 @@ H5O_msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Locate first message of given type */
     for(idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, idx_msg++)
-	if(idx_msg->type->id == msg_type) {
+        if(idx_msg->type->id == msg_type) {
             /* Set the chunk number for the message */
             *chunk_num = idx_msg->chunkno;
 
@@ -676,21 +676,21 @@ H5O_msg_get_chunkno_test(hid_t oid, unsigned msg_type, unsigned *chunk_num)
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_msg_get_chunkno_test() */
+}   /* H5O__msg_get_chunkno_test() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_msg_move_to_new_chunk_test
+    H5O__msg_move_to_new_chunk_test
  PURPOSE
     Move a message into a new chunk
  USAGE
-    herr_t H5O_msg_move_to_new_chunk_test(oid, msg_type)
+    herr_t H5O__msg_move_to_new_chunk_test(oid, msg_type)
         hid_t oid;              IN: Object to check
         unsigned msg_type;      IN: Object header message type to check
  RETURNS
@@ -704,7 +704,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5O_msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type)
+H5O__msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type)
 {
     H5O_t *oh = NULL;           /* Object header */
     H5O_loc_t *loc;             /* Pointer to object's location */
@@ -713,7 +713,7 @@ H5O_msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type)
     hbool_t     api_ctx_pushed = FALSE;             /* Whether API context pushed */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Get object location for object */
     if(NULL == (loc = H5O_get_loc(oid)))
@@ -726,11 +726,11 @@ H5O_msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type)
 
     /* Get the object header */
     if(NULL == (oh = H5O_protect(loc, H5AC__NO_FLAGS_SET, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Locate first message of given type */
     for(idx = 0, curr_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, curr_msg++)
-	if(curr_msg->type->id == msg_type) {
+        if(curr_msg->type->id == msg_type) {
             H5O_msg_alloc_info_t found_msg;     /* Information about message to move */
             unsigned msg_chunkno = curr_msg->chunkno;         /* Chunk that the message is in */
             uint8_t *end_chunk_data = (oh->chunk[msg_chunkno].image + oh->chunk[msg_chunkno].size) - (H5O_SIZEOF_CHKSUM_OH(oh) + oh->chunk[msg_chunkno].gap);     /* End of message data in chunk */
@@ -784,10 +784,10 @@ H5O_msg_move_to_new_chunk_test(hid_t oid, unsigned msg_type)
 
 done:
     if(oh && H5O_unprotect(loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
     if(api_ctx_pushed && H5CX_pop() < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* H5O_msg_get_chunkno_test() */
+}   /* H5O__msg_get_chunkno_test() */
 

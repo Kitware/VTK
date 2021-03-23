@@ -28,16 +28,12 @@
 
 #include "H5Cmodule.h"          /* This source code file is part of the H5C module */
 
-#define H5AC_FRIEND
-
-
-
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"      /* Generic Functions            */
-#include "H5ACpkg.h"        /* Metadata Cache               */
+#include "H5ACprivate.h"    /* Metadata Cache               */
 #include "H5Cpkg.h"         /* Cache                        */
 #include "H5Eprivate.h"     /* Error Handling               */
 
@@ -185,7 +181,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C_dump_cache_LRU
  *
- * Purpose:     Print a summary of the contents of the metadata cache 
+ * Purpose:     Print a summary of the contents of the metadata cache
  *              LRU for debugging purposes.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -209,9 +205,9 @@ H5C_dump_cache_LRU(H5C_t *cache_ptr, const char *cache_name)
     HDassert(cache_name != NULL );
 
     HDfprintf(stdout, "\n\nDump of metadata cache LRU \"%s\"\n", cache_name);
-    HDfprintf(stdout, "LRU len = %d, LRU size = %d\n", 
+    HDfprintf(stdout, "LRU len = %d, LRU size = %d\n",
               cache_ptr->LRU_list_len, (int)(cache_ptr->LRU_list_size));
-    HDfprintf(stdout, "index_size = %d, max_cache_size = %d, delta = %d\n\n", 
+    HDfprintf(stdout, "index_size = %d, max_cache_size = %d, delta = %d\n\n",
               (int)(cache_ptr->index_size), (int)(cache_ptr->max_cache_size),
               (int)(cache_ptr->max_cache_size) - (int)(cache_ptr->index_size));
 
@@ -238,12 +234,12 @@ H5C_dump_cache_LRU(H5C_t *cache_ptr, const char *cache_name)
         if(NULL == entry_ptr->tag_info)
             HDfprintf(stdout, "    %16s ", "N/A");
         else
-            HDfprintf(stdout, "  0x%16llx ", 
+            HDfprintf(stdout, "  0x%16llx ",
                       (long long)(entry_ptr->tag_info->tag));
 
         HDfprintf(stdout, "  %5lld ", (long long)(entry_ptr->size));
         HDfprintf(stdout, "    %d  ", (int)(entry_ptr->ring));
-        HDfprintf(stdout, "  %2d %-32s ", (int)(entry_ptr->type->id), 
+        HDfprintf(stdout, "  %2d %-32s ", (int)(entry_ptr->type->id),
                   (entry_ptr->type->name));
         HDfprintf(stdout, " %d", (int)(entry_ptr->is_dirty));
         HDfprintf(stdout, "\n");
@@ -260,16 +256,23 @@ H5C_dump_cache_LRU(H5C_t *cache_ptr, const char *cache_name)
 
 
 /*-------------------------------------------------------------------------
+ *
  * Function:    H5C_dump_cache_skip_list
  *
- * Purpose:     Debugging routine that prints a summary of the contents of 
- *		the skip list used by the metadata cache metadata cache to 
- *		maintain an address sorted list of dirty entries.
+ * Purpose:     Debugging routine that prints a summary of the contents of
+ *              the skip list used by the metadata cache metadata cache to
+ *              maintain an address sorted list of dirty entries.
  *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  John Mainzer
  *              11/15/14
+ *
+ * Changes:     Updated function for the slist_enabled field in H5C_t.
+ *              Recall that to minimize slist overhead, the slist is 
+ *              empty and not maintained if cache_ptr->slist_enabled is
+ *              false.
+ *                                             JRM -- 5/6/20
  *
  *-------------------------------------------------------------------------
  */
@@ -288,11 +291,16 @@ H5C_dump_cache_skip_list(H5C_t * cache_ptr, char * calling_fcn)
     HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
     HDassert(calling_fcn != NULL);
 
-    HDfprintf(stdout, "\n\nDumping metadata cache skip list from %s.\n", calling_fcn);
+    HDfprintf(stdout, "\n\nDumping metadata cache skip list from %s.\n", 
+              calling_fcn);
+    HDfprintf(stdout, " slist enabled = %d.\n", 
+              (int)(cache_ptr->slist_enabled));
     HDfprintf(stdout, "	slist len = %u.\n", cache_ptr->slist_len);
-    HDfprintf(stdout, "	slist size = %lld.\n", (long long)(cache_ptr->slist_size));
+    HDfprintf(stdout, "	slist size = %lld.\n", 
+              (long long)(cache_ptr->slist_size));
 
     if(cache_ptr->slist_len > 0) {
+
         /* If we get this far, all entries in the cache are listed in the
          * skip list -- scan the skip list generating the desired output.
          */
@@ -300,13 +308,20 @@ H5C_dump_cache_skip_list(H5C_t * cache_ptr, char * calling_fcn)
                   "Num:    Addr:               Len: Prot/Pind: Dirty: Type:\n");
 
         i = 0;
-        node_ptr = H5SL_first(cache_ptr->slist_ptr);
-        if(node_ptr != NULL)
-            entry_ptr = (H5C_cache_entry_t *)H5SL_item(node_ptr);
-        else
-            entry_ptr = NULL;
 
-        while(entry_ptr != NULL) {
+        node_ptr = H5SL_first(cache_ptr->slist_ptr);
+
+        if ( node_ptr != NULL ) {
+
+            entry_ptr = (H5C_cache_entry_t *)H5SL_item(node_ptr);
+
+        } else {
+
+            entry_ptr = NULL;
+        }
+
+        while ( entry_ptr != NULL ) {
+
             HDassert( entry_ptr->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC );
 
             HDfprintf(stdout,
@@ -319,127 +334,33 @@ H5C_dump_cache_skip_list(H5C_t * cache_ptr, char * calling_fcn)
                (int)(entry_ptr->is_dirty),
                entry_ptr->type->name);
 
-            HDfprintf(stdout, "		node_ptr = 0x%llx, item = %p\n",
-                      (unsigned long long)node_ptr,
-                      H5SL_item(node_ptr));
+            HDfprintf(stdout, "		node_ptr = %p, item = %p\n",
+                      node_ptr, H5SL_item(node_ptr));
 
             /* increment node_ptr before we delete its target */
+
             node_ptr = H5SL_next(node_ptr);
-            if(node_ptr != NULL)
+
+            if ( node_ptr != NULL ) {
+
                 entry_ptr = (H5C_cache_entry_t *)H5SL_item(node_ptr);
-            else
+
+            } else {
+
                 entry_ptr = NULL;
+            }
 
             i++;
+
         } /* end while */
     } /* end if */
 
     HDfprintf(stdout, "\n\n");
 
     FUNC_LEAVE_NOAPI(ret_value)
+
 } /* H5C_dump_cache_skip_list() */
 #endif /* NDEBUG */
-
-
-/*-------------------------------------------------------------------------
- * Function:    H5C_dump_coll_write_list
- *
- * Purpose:     Debugging routine that prints a summary of the contents of 
- *		the collective write skip list used by the metadata cache 
- *              in the parallel case to maintain a list of entries to write 
- *              collectively at a sync point.
- *
- * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  John Mainzer
- *              4/1/17
- *
- *-------------------------------------------------------------------------
- */
-#ifdef H5_HAVE_PARALLEL
-#ifndef NDEBUG
-herr_t
-H5C_dump_coll_write_list(H5C_t * cache_ptr, char * calling_fcn)
-{
-    herr_t              ret_value = SUCCEED;   /* Return value */
-    int                 i;
-    int                 list_len;
-    H5AC_aux_t *        aux_ptr = NULL;
-    H5C_cache_entry_t * entry_ptr = NULL;
-    H5SL_node_t *       node_ptr = NULL;
-
-    FUNC_ENTER_NOAPI_NOERR
-
-    HDassert(cache_ptr != NULL);
-    HDassert(cache_ptr->magic == H5C__H5C_T_MAGIC);
-    HDassert(cache_ptr->aux_ptr);
-
-    aux_ptr = (H5AC_aux_t *)cache_ptr->aux_ptr;
-
-    HDassert(aux_ptr->magic == H5AC__H5AC_AUX_T_MAGIC);
-
-    HDassert(calling_fcn != NULL);
-
-    list_len = (int)H5SL_count(cache_ptr->coll_write_list);
-
-    HDfprintf(stdout, "\n\nDumping MDC coll write list from %d:%s.\n", 
-              aux_ptr->mpi_rank, calling_fcn);
-    HDfprintf(stdout, "	slist len = %u.\n", cache_ptr->slist_len);
-
-    if ( list_len > 0 ) {
-
-        /* scan the collective write list generating the desired output */
-        HDfprintf(stdout,
-                  "Num:    Addr:               Len: Prot/Pind: Dirty: Type:\n");
-
-        i = 0;
-
-        node_ptr = H5SL_first(cache_ptr->coll_write_list);
-
-        if ( node_ptr != NULL )
-
-            entry_ptr = (H5C_cache_entry_t *)H5SL_item(node_ptr);
-
-        else
-
-            entry_ptr = NULL;
-
-        while ( entry_ptr != NULL ) {
-
-            HDassert(entry_ptr->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC);
-
-            HDfprintf(stdout,
-               "%s%d       0x%016llx  %4lld    %d/%d       %d    %s\n",
-               cache_ptr->prefix, i,
-               (long long)(entry_ptr->addr),
-               (long long)(entry_ptr->size),
-               (int)(entry_ptr->is_protected),
-               (int)(entry_ptr->is_pinned),
-               (int)(entry_ptr->is_dirty),
-               entry_ptr->type->name);
-
-            node_ptr = H5SL_next(node_ptr);
-
-            if ( node_ptr != NULL )
-
-                entry_ptr = (H5C_cache_entry_t *)H5SL_item(node_ptr);
-
-            else
-
-                entry_ptr = NULL;
-
-            i++;
-
-        } /* end while */
-    } /* end if */
-
-    HDfprintf(stdout, "\n\n");
-
-    FUNC_LEAVE_NOAPI(ret_value)
-
-} /* H5C_dump_coll_write_list() */
-#endif /* NDEBUG */
-#endif /* H5_HAVE_PARALLEL */
 
 
 /*-------------------------------------------------------------------------
@@ -774,7 +695,7 @@ H5C_stats(H5C_t * cache_ptr,
             (((double)(cache_ptr->total_dirty_pf_entries_skipped_in_msic)) /
             ((double)(cache_ptr->calls_to_msic)));
 
-    HDfprintf(stdout, 
+    HDfprintf(stdout,
               "%s  MSIC: Average/max dirty pf entries skipped  = %lf / %ld\n",
               cache_ptr->prefix,
               average_dirty_pf_entries_skipped_per_call_to_msic,
@@ -799,9 +720,9 @@ H5C_stats(H5C_t * cache_ptr,
               (long long)(cache_ptr->total_entries_scanned_in_msic -
                             cache_ptr->entries_scanned_to_make_space));
 
-    HDfprintf(stdout, 
+    HDfprintf(stdout,
               "%s  slist/LRU/index scan restarts   = %lld / %lld / %lld.\n",
-              cache_ptr->prefix, 
+              cache_ptr->prefix,
               (long long)(cache_ptr->slist_scan_restarts),
               (long long)(cache_ptr->LRU_scan_restarts),
               (long long)(cache_ptr->index_scan_restarts));
@@ -828,7 +749,7 @@ H5C_stats(H5C_t * cache_ptr,
               (long long)(cache_ptr->evictions[H5AC_PREFETCHED_ENTRY_ID]));
 
     if(cache_ptr->prefetches > 0)
-        prefetch_use_rate = 
+        prefetch_use_rate =
                    (double)100.0f * ((double)(cache_ptr->prefetch_hits)) /
                    ((double)(cache_ptr->prefetches));
     else
@@ -887,7 +808,7 @@ H5C_stats(H5C_t * cache_ptr,
                       (int)(cache_ptr->max_read_protects[i]));
 
             HDfprintf(stdout,
-                      "%s    clears / flushes               = %ld / %ld\n", 
+                      "%s    clears / flushes               = %ld / %ld\n",
                       cache_ptr->prefix,
                       (long)(cache_ptr->clears[i]),
                       (long)(cache_ptr->flushes[i]));
@@ -1159,21 +1080,21 @@ H5C__dump_entry(H5C_t *cache_ptr, const H5C_cache_entry_t *entry_ptr,
 /*-------------------------------------------------------------------------
  * Function:    H5C_flush_dependency_exists()
  *
- * Purpose:	Test to see if a flush dependency relationship exists 
- *          between the supplied parent and child.  Both parties 
+ * Purpose:	Test to see if a flush dependency relationship exists
+ *          between the supplied parent and child.  Both parties
  *          are indicated by addresses so as to avoid the necessity
- *          of protect / unprotect calls prior to this call. 
+ *          of protect / unprotect calls prior to this call.
  *
- *          If either the parent or the child is not in the metadata 
+ *          If either the parent or the child is not in the metadata
  *          cache, the function sets *fd_exists_ptr to FALSE.
  *
- *          If both are in the cache, the childs list of parents is 
+ *          If both are in the cache, the childs list of parents is
  *          searched for the proposed parent.  If the proposed parent
  *          is found in the childs parent list, the function sets
- *          *fd_exists_ptr to TRUE.  In all other non-error cases, 
+ *          *fd_exists_ptr to TRUE.  In all other non-error cases,
  *          the function sets *fd_exists_ptr FALSE.
  *
- * Return:      SUCCEED on success/FAIL on failure.  Note that 
+ * Return:      SUCCEED on success/FAIL on failure.  Note that
  *              *fd_exists_ptr is undefined on failure.
  *
  * Programmer:  John Mainzer
@@ -1356,30 +1277,30 @@ done:
  *
  * Function:    H5C_get_entry_ptr_from_addr()
  *
- * Purpose:     Debugging function that attempts to look up an entry in the 
- *              cache by its file address, and if found, returns a pointer 
- *              to the entry in *entry_ptr_ptr.  If the entry is not in the 
+ * Purpose:     Debugging function that attempts to look up an entry in the
+ *              cache by its file address, and if found, returns a pointer
+ *              to the entry in *entry_ptr_ptr.  If the entry is not in the
  *              cache, *entry_ptr_ptr is set to NULL.
  *
- *              WARNING: This call should be used only in debugging  
- *                       routines, and it should be avoided when 
+ *              WARNING: This call should be used only in debugging
+ *                       routines, and it should be avoided when
  *                       possible.
  *
- *                       Further, if we ever multi-thread the cache, 
- *                       this routine will have to be either discarded 
+ *                       Further, if we ever multi-thread the cache,
+ *                       this routine will have to be either discarded
  *                       or heavily re-worked.
  *
- *                       Finally, keep in mind that the entry whose 
- *                       pointer is obtained in this fashion may not 
- *                       be in a stable state.  
+ *                       Finally, keep in mind that the entry whose
+ *                       pointer is obtained in this fashion may not
+ *                       be in a stable state.
  *
  *              Note that this function is only defined if NDEBUG
  *              is not defined.
  *
- *              As heavy use of this function is almost certainly a 
- *              bad idea, the metadata cache tracks the number of 
- *              successful calls to this function, and (if 
- *              H5C_DO_SANITY_CHECKS is defined) displays any 
+ *              As heavy use of this function is almost certainly a
+ *              bad idea, the metadata cache tracks the number of
+ *              successful calls to this function, and (if
+ *              H5C_DO_SANITY_CHECKS is defined) displays any
  *              non-zero count on cache shutdown.
  *
  * Return:      FAIL if error is detected, SUCCEED otherwise.
@@ -1426,7 +1347,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5C_get_serialization_in_progress
  *
- * Purpose:     Return the current value of 
+ * Purpose:     Return the current value of
  *              cache_ptr->serialization_in_progress.
  *
  * Return:      Current value of cache_ptr->serialization_in_progress.
@@ -1455,7 +1376,7 @@ H5C_get_serialization_in_progress(const H5C_t *cache_ptr)
  *
  * Function:    H5C_cache_is_clean()
  *
- * Purpose:     Debugging function that verifies that all rings in the 
+ * Purpose:     Debugging function that verifies that all rings in the
  *		metadata cache are clean from the outermost ring, inwards
  *		to the inner ring specified.
  *
@@ -1500,16 +1421,16 @@ done:
  *
  * Function:    H5C_verify_entry_type()
  *
- * Purpose:     Debugging function that attempts to look up an entry in the 
+ * Purpose:     Debugging function that attempts to look up an entry in the
  *		cache by its file address, and if found, test to see if its
  *		type field contains the expted value.
  *
  *		If the specified entry is in cache, *in_cache_ptr is set
- *		to TRUE, and *type_ok_ptr is set to TRUE or FALSE depending 
- *		on whether the entries type field matches the expected_type 
+ *		to TRUE, and *type_ok_ptr is set to TRUE or FALSE depending
+ *		on whether the entries type field matches the expected_type
  *		parameter.
  *
- *		If the target entry is not in cache, *in_cache_ptr is 
+ *		If the target entry is not in cache, *in_cache_ptr is
  *		set to FALSE, and *type_ok_ptr is undefined.
  *
  *		Note that this function is only defined if NDEBUG

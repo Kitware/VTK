@@ -25,7 +25,6 @@
 #include "H5Dpkg.h"             /* Datasets                                 */
 #include "H5Eprivate.h"         /* Error handling                           */
 #include "H5HLprivate.h"        /* Local heaps                              */
-#include "H5MMprivate.h"        /* Memory management                        */
 
 
 /****************/
@@ -82,7 +81,7 @@ const unsigned H5O_layout_ver_bounds[] = {
 herr_t
 H5D__layout_set_io_ops(const H5D_t *dataset)
 {
-    herr_t ret_value = SUCCEED;		/* Return value */
+    herr_t ret_value = SUCCEED;        /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -335,7 +334,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__layout_set_latest_indexing(H5O_layout_t *layout, const H5S_t *space, 
+H5D__layout_set_latest_indexing(H5O_layout_t *layout, const H5S_t *space,
     const H5D_dcpl_cache_t *dcpl_cache)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -361,9 +360,9 @@ H5D__layout_set_latest_indexing(H5O_layout_t *layout, const H5S_t *space,
         if(ndims > 0) {
             hsize_t max_dims[H5O_LAYOUT_NDIMS]; /* Maximum dimension sizes */
             hsize_t cur_dims[H5O_LAYOUT_NDIMS]; /* Current dimension sizes */
-            unsigned unlim_count = 0;          	/* Count of unlimited max. dimensions */
+            unsigned unlim_count = 0;           /* Count of unlimited max. dimensions */
             hbool_t single = TRUE;              /* Fulfill single chunk indexing */
-            unsigned u;                     	/* Local index variable */
+            unsigned u;                         /* Local index variable */
 
             /* Query the dataspace's dimensions */
             if(H5S_get_simple_extent_dims(space, cur_dims, max_dims) < 0)
@@ -417,7 +416,7 @@ H5D__layout_set_latest_indexing(H5O_layout_t *layout, const H5S_t *space,
                     layout->storage.u.chunk.idx_type = H5D_CHUNK_IDX_SINGLE;
                     layout->storage.u.chunk.ops = H5D_COPS_SINGLE;
                 } /* end if */
-                else if(!dcpl_cache->pline.nused && 
+                else if(!dcpl_cache->pline.nused &&
                         dcpl_cache->fill.alloc_time == H5D_ALLOC_TIME_EARLY) {
 
                     /* Set the chunk index type to "none" Index */
@@ -506,7 +505,7 @@ H5D__layout_oh_create(H5F_t *file, H5O_t *oh, H5D_t *dset, hid_t dapl_id)
 
         if(H5D__alloc_storage(&io_info, H5D_ALLOC_CREATE, FALSE, NULL) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize storage")
-    } /* end if */
+    }
 
     /* Update external storage message, if it's used */
     if(dset->shared->dcpl_cache.efl.nused > 0) {
@@ -557,10 +556,13 @@ H5D__layout_oh_create(H5F_t *file, H5O_t *oh, H5D_t *dset, hid_t dapl_id)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to update external file list message")
     } /* end if */
 
-    /* (Don't make layout message constant unless allocation time is early and non-filtered, since space may not be allocated) */
+    /* Create layout message */
+    /* (Don't make layout message constant unless allocation time is early and
+     *  non-filtered and has >0 elements, since space may not be allocated -QAK) */
     /* (Note: this is relying on H5D__alloc_storage not calling H5O_msg_write during dataset creation) */
     if(fill_prop->alloc_time == H5D_ALLOC_TIME_EARLY && H5D_COMPACT != layout->type
-            && !dset->shared->dcpl_cache.pline.nused)
+            && !dset->shared->dcpl_cache.pline.nused
+            && (0 != H5S_GET_EXTENT_NPOINTS(dset->shared->space)))
         layout_mesg_flags = H5O_MSG_FLAG_CONSTANT;
     else
         layout_mesg_flags =  0;
@@ -587,15 +589,15 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5D__layout_oh_read
+ * Function:    H5D__layout_oh_read
  *
- * Purpose:	Read layout/pline/efl information for dataset
+ * Purpose:     Read layout/pline/efl information for dataset
  *
- * Return:	Success:    SUCCEED
- *		Failure:    FAIL
+ * Return:      Success:    SUCCEED
+ *              Failure:    FAIL
  *
- * Programmer:	Quincey Koziol
- *		Monday, July 27, 2009
+ * Programmer:  Quincey Koziol
+ *              Monday, July 27, 2009
  *
  *-------------------------------------------------------------------------
  */
@@ -681,15 +683,15 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5D__layout_oh_write
+ * Function:    H5D__layout_oh_write
  *
- * Purpose:	Write layout information for dataset
+ * Purpose:     Write layout information for dataset
  *
- * Return:	Success:    SUCCEED
- *		Failure:    FAIL
+ * Return:      Success:    SUCCEED
+ *              Failure:    FAIL
  *
- * Programmer:	Quincey Koziol
- *		Monday, July 27, 2009
+ * Programmer:  Quincey Koziol
+ *              Monday, July 27, 2009
  *
  *-------------------------------------------------------------------------
  */

@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Raymond Lu <slu@hdfgroup.uiuc.edu>
+ * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
  *
  * Purpose:  The Direct I/O file driver forces the data to be written to
@@ -37,6 +37,9 @@
 
 /* The driver identification number, initialized at runtime */
 static hid_t H5FD_DIRECT_g = 0;
+
+/* Whether to ignore file locks when disabled (env var value) */
+static htri_t ignore_disabled_file_locks_s = FAIL;
 
 /* File operations */
 #define OP_UNKNOWN  0
@@ -71,6 +74,7 @@ typedef struct H5FD_direct_t {
     haddr_t  pos;      /*current file I/O position  */
     int    op;      /*last operation    */
     H5FD_direct_fapl_t  fa;    /*file access properties  */
+    hbool_t         ignore_disabled_file_locks;
 #ifndef H5_HAVE_WIN32_API
     /*
      * On most systems the combination of device and i-node number uniquely
@@ -193,9 +197,19 @@ DESCRIPTION
 static herr_t
 H5FD__init_package(void)
 {
+    char    *lock_env_var   = NULL;     /* Environment variable pointer */
     herr_t ret_value = SUCCEED;
 
     FUNC_ENTER_STATIC
+
+    /* Check the use disabled file locks environment variable */
+    lock_env_var = HDgetenv("HDF5_USE_FILE_LOCKING");
+    if(lock_env_var && !HDstrcmp(lock_env_var, "BEST_EFFORT"))
+        ignore_disabled_file_locks_s = TRUE;    /* Override: Ignore disabled locks */
+    else if(lock_env_var && (!HDstrcmp(lock_env_var, "TRUE") || !HDstrcmp(lock_env_var, "1")))
+        ignore_disabled_file_locks_s = FALSE;   /* Override: Don't ignore disabled locks */
+    else
+        ignore_disabled_file_locks_s = FAIL;    /* Environment variable not set, or not set correctly */
 
     if(H5FD_direct_init() < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to initialize direct VFD")
@@ -206,30 +220,27 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:  H5FD_direct_init
+ * Function:    H5FD_direct_init
  *
- * Purpose:  Initialize this driver by registering the driver with the
- *    library.
+ * Purpose:     Initialize this driver by registering the driver with the
+ *              library.
  *
- * Return:  Success:  The driver ID for the direct driver.
- *
- *    Failure:  Negative.
+ * Return:      Success:    The driver ID for the direct driver
+ *              Failure:    H5I_INVALID_HID
  *
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
 hid_t
 H5FD_direct_init(void)
 {
-    hid_t ret_value;        /* Return value */
+    hid_t ret_value = H5I_INVALID_HID;        /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI(H5I_INVALID_HID)
 
-    if (H5I_VFL!=H5I_get_type(H5FD_DIRECT_g))
+    if (H5I_VFL != H5I_get_type(H5FD_DIRECT_g))
         H5FD_DIRECT_g = H5FD_register(&H5FD_direct_g,sizeof(H5FD_class_t),FALSE);
 
     /* Set return value */
@@ -237,7 +248,7 @@ H5FD_direct_init(void)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}
+} /* end H5FD_direct_init() */
 
 
 /*---------------------------------------------------------------------------
@@ -291,6 +302,7 @@ H5Pset_fapl_direct(hid_t fapl_id, size_t boundary, size_t block_size, size_t cbu
     if(NULL == (plist = H5P_object_verify(fapl_id,H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
 
+    HDmemset(&fa, 0, sizeof(H5FD_direct_fapl_t));
     if(boundary != 0)
         fa.mboundary = boundary;
     else
@@ -377,8 +389,6 @@ done:
  * Programmer:  Raymond Lu
  *              Wednesday, 18 October 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static void *
@@ -409,22 +419,20 @@ done:
  * Programmer:  Raymond Lu
  *              Wednesday, 18 October 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5FD_direct_fapl_copy(const void *_old_fa)
 {
     const H5FD_direct_fapl_t *old_fa = (const H5FD_direct_fapl_t*)_old_fa;
-    H5FD_direct_fapl_t *new_fa = H5MM_malloc(sizeof(H5FD_direct_fapl_t));
+    H5FD_direct_fapl_t *new_fa = H5MM_calloc(sizeof(H5FD_direct_fapl_t));
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(new_fa);
 
     /* Copy the general information */
-    HDmemcpy(new_fa, old_fa, sizeof(H5FD_direct_fapl_t));
+    H5MM_memcpy(new_fa, old_fa, sizeof(H5FD_direct_fapl_t));
 
     FUNC_LEAVE_NOAPI(new_fa)
 } /* end H5FD_direct_fapl_copy() */
@@ -444,8 +452,6 @@ H5FD_direct_fapl_copy(const void *_old_fa)
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static H5FD_t *
@@ -461,8 +467,8 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
 #endif
     h5_stat_t    sb;
     H5P_genplist_t   *plist;      /* Property list */
-    int                 *buf1, *buf2;
-    H5FD_t    *ret_value;
+    void                 *buf1, *buf2;
+    H5FD_t    *ret_value = NULL;
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -520,6 +526,16 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
     file->fa.fbsize = fa->fbsize;
     file->fa.cbsize = fa->cbsize;
 
+    /* Check the file locking flags in the fapl */
+    if(ignore_disabled_file_locks_s != FAIL)
+        /* The environment variable was set, so use that preferentially */
+        file->ignore_disabled_file_locks = ignore_disabled_file_locks_s;
+    else {
+        /* Use the value in the property list */
+        if(H5P_get(plist, H5F_ACS_IGNORE_DISABLED_FILE_LOCKS_NAME, &file->ignore_disabled_file_locks) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get ignore disabled file locks property")
+    }
+
     /* Try to decide if data alignment is required.  The reason to check it here
      * is to handle correctly the case that the file is in a different file system
      * than the one where the program is running.
@@ -527,13 +543,13 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
     /* NOTE: Use HDmalloc and HDfree here to ensure compatibility with
      *       HDposix_memalign.
      */
-    buf1 = (int *)HDmalloc(sizeof(int));
+    buf1 = HDmalloc(sizeof(int));
     if(HDposix_memalign(&buf2, file->fa.mboundary, file->fa.fbsize) != 0)
         HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, NULL, "HDposix_memalign failed")
 
     if(o_flags & O_CREAT) {
-        if(HDwrite(file->fd, (void*)buf1, sizeof(int))<0) {
-            if(HDwrite(file->fd, (void*)buf2, file->fa.fbsize)<0)
+        if(HDwrite(file->fd, buf1, sizeof(int))<0) {
+            if(HDwrite(file->fd, buf2, file->fa.fbsize)<0)
                 HGOTO_ERROR(H5E_FILE, H5E_WRITEERROR, NULL, "file system may not support Direct I/O")
             else
                 file->fa.must_align = TRUE;
@@ -542,8 +558,8 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
             HDftruncate(file->fd, (HDoff_t)0);
         }
     } else {
-        if(HDread(file->fd, (void*)buf1, sizeof(int))<0) {
-            if(HDread(file->fd, (void*)buf2, file->fa.fbsize)<0)
+        if(HDread(file->fd, buf1, sizeof(int))<0) {
+            if(HDread(file->fd, buf2, file->fa.fbsize)<0)
                 HGOTO_ERROR(H5E_FILE, H5E_READERROR, NULL, "file system may not support Direct I/O")
             else
                 file->fa.must_align = TRUE;
@@ -551,7 +567,7 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
             if(o_flags & O_RDWR) {
                 if(HDlseek(file->fd, (HDoff_t)0, SEEK_SET) < 0)
                     HSYS_GOTO_ERROR(H5E_IO, H5E_SEEKERROR, NULL, "unable to seek to proper position")
-                if(HDwrite(file->fd, (void *)buf1, sizeof(int))<0)
+                if(HDwrite(file->fd, buf1, sizeof(int))<0)
                     file->fa.must_align = TRUE;
                 else
                     file->fa.must_align = FALSE;
@@ -590,8 +606,6 @@ done:
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -625,8 +639,6 @@ done:
  *
  * Programmer:  Raymond Lu
  *              Thursday, 21 September 2006
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -682,8 +694,6 @@ done:
  * Programmer:  Raymond Lu
  *              Thursday, 21 September 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -719,11 +729,6 @@ H5FD_direct_query(const H5FD_t H5_ATTR_UNUSED * _f, unsigned long *flags /* out 
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
  *
- * Modifications:
- *              Raymond Lu
- *              21 Dec. 2006
- *              Added the parameter TYPE.  It's only used for MULTI driver.
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -750,11 +755,6 @@ H5FD_direct_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
  *
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
- *
- * Modifications:
- *              Raymond Lu
- *              21 Dec. 2006
- *              Added the parameter TYPE.  It's only used for MULTI driver.
  *
  *-------------------------------------------------------------------------
  */
@@ -787,8 +787,6 @@ H5FD_direct_set_eoa(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, haddr_t addr)
  * Programmer:  Raymond Lu
  *              Wednesday, 20 September 2006
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -811,8 +809,6 @@ H5FD_direct_get_eof(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
  *
  * Programmer:     Raymond Lu
  *                 21 September 2006
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -847,8 +843,6 @@ done:
  *
  * Programmer:  Raymond Lu
  *              Thursday, 21 September 2006
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -978,12 +972,12 @@ H5FD_direct_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UN
                  * next section of data. */
         p2 = (unsigned char*)copy_buf + copy_offset;
         if((copy_size + copy_offset) <= alloc_size) {
-            HDmemcpy(buf, p2, copy_size);
+            H5MM_memcpy(buf, p2, copy_size);
             buf = (unsigned char *)buf + copy_size;
             copy_size = 0;
                 } /* end if */
                 else {
-                    HDmemcpy(buf, p2, alloc_size - copy_offset);
+                    H5MM_memcpy(buf, p2, alloc_size - copy_offset);
                     buf = (unsigned char*)buf + alloc_size - copy_offset;
                     copy_size -= alloc_size - copy_offset;
                     copy_offset = 0;
@@ -1032,8 +1026,6 @@ done:
  *
  * Programmer:  Raymond Lu
  *              Thursday, 21 September 2006
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1191,11 +1183,11 @@ H5FD_direct_write(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_U
          */
         p1 = (unsigned char *)copy_buf + copy_offset;
         if((copy_size + copy_offset) <= alloc_size) {
-                    HDmemcpy(p1, p3, copy_size);
+                    H5MM_memcpy(p1, p3, copy_size);
                     copy_size = 0;
                 } /* end if */
                 else {
-                    HDmemcpy(p1, p3, alloc_size - copy_offset);
+                    H5MM_memcpy(p1, p3, alloc_size - copy_offset);
                     p3 = (const unsigned char *)p3 + (alloc_size - copy_offset);
                     copy_size -= alloc_size - copy_offset;
                     copy_offset = 0;
@@ -1337,19 +1329,27 @@ static herr_t
 H5FD_direct_lock(H5FD_t *_file, hbool_t rw)
 {
     H5FD_direct_t  *file = (H5FD_direct_t*)_file;	/* VFD file struct */
-    int lock;						/* The type of lock */
+    int lock_flags;                                 /* file locking flags   */
     herr_t ret_value = SUCCEED;                 	/* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(file);
 
-    /* Determine the type of lock */
-    int lock = rw ? LOCK_EX : LOCK_SH;
-    
-    /* Place the lock with non-blocking */
-    if(HDflock(file->fd, lock | LOCK_NB) < 0)
-        HSYS_GOTO_ERROR(H5E_FILE, H5E_BADFILE, FAIL, "unable to flock file")
+    /* Set exclusive or shared lock based on rw status */
+    lock_flags = rw ? LOCK_EX : LOCK_SH;
+
+    /* Place a non-blocking lock on the file */
+    if(HDflock(file->fd, lock_flags | LOCK_NB) < 0) {
+        if(file->ignore_disabled_file_locks && ENOSYS == errno) {
+            /* When errno is set to ENOSYS, the file system does not support
+             * locking, so ignore it.
+             */
+            errno = 0;
+        }
+        else
+            HSYS_GOTO_ERROR(H5E_VFL, H5E_CANTLOCKFILE, FAIL, "unable to lock file")
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1377,8 +1377,16 @@ H5FD_direct_unlock(H5FD_t *_file)
 
     HDassert(file);
 
-    if(HDflock(file->fd, LOCK_UN) < 0)
-        HSYS_GOTO_ERROR(H5E_FILE, H5E_BADFILE, FAIL, "unable to flock (unlock) file")
+    if(HDflock(file->fd, LOCK_UN) < 0) {
+        if(file->ignore_disabled_file_locks && ENOSYS == errno) {
+            /* When errno is set to ENOSYS, the file system does not support
+             * locking, so ignore it.
+             */
+            errno = 0;
+        }
+        else
+            HSYS_GOTO_ERROR(H5E_VFL, H5E_CANTUNLOCKFILE, FAIL, "unable to unlock file")
+    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

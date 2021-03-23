@@ -11,7 +11,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+/* Programmer:  Quincey Koziol
  *              Thursday, February  3, 2006
  *
  * Purpose:	Fractal heap testing functions.
@@ -32,6 +32,8 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5HFpkg.h"		/* Fractal heaps			*/
+#include "H5MMprivate.h"	/* Memory management			*/
+
 
 /****************/
 /* Local Macros */
@@ -100,7 +102,7 @@ H5HF_get_cparam_test(const H5HF_t *fh, H5HF_create_t *cparam)
     else
         H5_CHECKED_ASSIGN(cparam->id_len, uint16_t, fh->hdr->id_len, unsigned);
     cparam->max_man_size = fh->hdr->max_man_size;
-    HDmemcpy(&(cparam->managed), &(fh->hdr->man_dtable.cparam), sizeof(H5HF_dtable_cparam_t));
+    H5MM_memcpy(&(cparam->managed), &(fh->hdr->man_dtable.cparam), sizeof(H5HF_dtable_cparam_t));
     H5O_msg_copy(H5O_PLINE_ID, &(fh->hdr->pline), &(cparam->pline));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -187,13 +189,10 @@ H5HF_cmp_cparam_test(const H5HF_create_t *cparam1, const H5HF_create_t *cparam2)
 
 /* Don't worry about comparing the filter names right now... */
 /* (they are expanded during the encode/decode process, but aren't copied
- *      during the H5Z_append operation, generating false positive failures)
+ *      during the H5Z_append operation, generating false positive failures -QAK)
  */
-#ifdef QAK
+#if 0
             /* Check filter name */
-HDfprintf(stderr, "%s: Check 1.0\n", "H5HF_cmp_cparam_test");
-HDfprintf(stderr, "%s: cparam1->pline.filter[%Zu].name = %s\n", "H5HF_cmp_cparam_test", u, (cparam1->pline.filter[u].name ? cparam1->pline.filter[u].name : "<nil>"));
-HDfprintf(stderr, "%s: cparam2->pline.filter[%Zu].name = %s\n", "H5HF_cmp_cparam_test", u, (cparam2->pline.filter[u].name ? cparam2->pline.filter[u].name : "<nil>"));
             if(!cparam1->pline.filter[u].name && cparam2->pline.filter[u].name)
                 HGOTO_DONE(-1)
             else if(cparam1->pline.filter[u].name && !cparam2->pline.filter[u].name)
@@ -202,7 +201,7 @@ HDfprintf(stderr, "%s: cparam2->pline.filter[%Zu].name = %s\n", "H5HF_cmp_cparam
                 if((ret_value = HDstrcmp(cparam1->pline.filter[u].name, cparam2->pline.filter[u].name)))
                     HGOTO_DONE(ret_value)
             } /* end if */
-#endif /* QAK */
+#endif
 
             /* Check # of filter parameters */
             if(cparam1->pline.filter[u].cd_nelmts < cparam2->pline.filter[u].cd_nelmts)
@@ -479,7 +478,7 @@ H5HF_get_id_type_test(const void *_id, unsigned char *obj_type)
     HDassert(obj_type);
 
     /* Get the type for a heap ID */
-    *obj_type = *id & H5HF_ID_TYPE_MASK;
+    *obj_type = (uint8_t)(*id & H5HF_ID_TYPE_MASK);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* H5HF_get_id_type_test() */

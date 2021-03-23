@@ -24,6 +24,7 @@
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Opkg.h"             /* Object Headers                       */
 #include "H5SMpkg.h"            /* Shared object header messages        */
 
@@ -297,12 +298,12 @@ H5SM__message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
     /* Sanity check */
     HDassert(ctx);
 
-    *raw++ = message->location;
+    *raw++ = (uint8_t)message->location;
     UINT32ENCODE(raw, message->hash);
 
     if(message->location == H5SM_IN_HEAP) {
         UINT32ENCODE(raw, message->u.heap_loc.ref_count);
-        HDmemcpy(raw, message->u.heap_loc.fheap_id.id, (size_t)H5O_FHEAP_ID_LEN);
+        H5MM_memcpy(raw, message->u.heap_loc.fheap_id.id, (size_t)H5O_FHEAP_ID_LEN);
     } /* end if */
     else {
         HDassert(message->location == H5SM_IN_OH);
@@ -343,7 +344,7 @@ H5SM__message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
 
     if(message->location == H5SM_IN_HEAP) {
         UINT32DECODE(raw, message->u.heap_loc.ref_count);
-        HDmemcpy(message->u.heap_loc.fheap_id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
+        H5MM_memcpy(message->u.heap_loc.fheap_id.id, raw, (size_t)H5O_FHEAP_ID_LEN);
     } /* end if */
     else {
         HDassert(message->location == H5SM_IN_OH);

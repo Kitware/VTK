@@ -59,7 +59,7 @@ extern "C" {
  * Values 64 to 255 are for "user-defined" link class types; these types are
  * defined by HDF5 but their behavior can be overridden by users.
  * Users who want to create new classes of links should contact the HDF5
- * development team at hdfhelp@ncsa.uiuc.edu .
+ * development team at help@hdfgroup.org.
  * These values can never change because they appear in HDF5 files.
  */
 typedef enum {

@@ -56,16 +56,16 @@
 /* Typedef for tagged entry iterator callback context - evict tagged entries */
 typedef struct {
     H5F_t *f;                           /* File pointer for evicting entry */
-    hbool_t evicted_entries_last_pass;  /* Flag to indicate that an entry 
-                                         * was evicted when iterating over 
-                                         * cache 
+    hbool_t evicted_entries_last_pass;  /* Flag to indicate that an entry
+                                         * was evicted when iterating over
+                                         * cache
                                          */
-    hbool_t pinned_entries_need_evicted;/* Flag to indicate that a pinned 
-                                         * entry was attempted to be evicted 
+    hbool_t pinned_entries_need_evicted;/* Flag to indicate that a pinned
+                                         * entry was attempted to be evicted
                                          */
-    hbool_t skipped_pf_dirty_entries;   /* Flag indicating that one or more 
+    hbool_t skipped_pf_dirty_entries;   /* Flag indicating that one or more
                                          * entries marked prefetched_dirty
-                                         * were encountered and not 
+                                         * were encountered and not
                                          * evicted.
                                          */
 } H5C_tag_iter_evict_ctx_t;
@@ -113,10 +113,10 @@ H5FL_EXTERN(H5C_tag_info_t);
  * Function:    H5C_ignore_tags
  *
  * Purpose:     Override all assertion frameworks associated with making
- *              sure proper tags are applied to cache entries. 
+ *              sure proper tags are applied to cache entries.
  *
- *              NOTE: This should really only be used in tests that need 
- *              to access internal functions without going through 
+ *              NOTE: This should really only be used in tests that need
+ *              to access internal functions without going through
  *              standard API paths. Since tags are set inside dxpl_id's
  *              before coming into the cache, any external functions that
  *              use the internal library functions (i.e., tests) should
@@ -204,8 +204,8 @@ H5C_get_num_objs_corked(const H5C_t *cache_ptr)
  * Function:    H5C__tag_entry
  *
  * Purpose:     Tags an entry with the provided tag (contained in the API context).
- *              If sanity checking is enabled, this function will perform 
- *              validation that a proper tag is contained within the provided 
+ *              If sanity checking is enabled, this function will perform
+ *              validation that a proper tag is contained within the provided
  *              data access property list id before application.
  *
  * Return:      FAIL if error is detected, SUCCEED otherwise.
@@ -234,10 +234,10 @@ H5C__tag_entry(H5C_t *cache, H5C_cache_entry_t *entry)
 
     if(cache->ignore_tags) {
         /* if we're ignoring tags, it's because we're running
-           tests on internal functions and may not have inserted a tag 
+           tests on internal functions and may not have inserted a tag
            value into a given API context before creating some metadata. Thus,
            in this case only, if a tag value has not been set, we can
-           arbitrarily set it to something for the sake of passing the tests. 
+           arbitrarily set it to something for the sake of passing the tests.
            If the tag value is set, then we'll just let it get assigned without
            additional checking for correctness. */
         if(!H5F_addr_defined(tag))
@@ -399,7 +399,7 @@ H5C__iter_tagged_entries_real(H5C_t *cache, haddr_t tag, H5C_tag_iter_cb_t cb,
             /* Make callback for entry */
             if((cb)(entry, cb_ctx) != H5_ITER_CONT)
                 HGOTO_ERROR(H5E_CACHE, H5E_BADITER, FAIL, "tagged entry iteration callback failed")
-            
+
             /* Advance to next entry */
             entry = next_entry;
         } /* end while */
@@ -441,11 +441,11 @@ H5C__iter_tagged_entries(H5C_t *cache, haddr_t tag, hbool_t match_global,
         HGOTO_ERROR(H5E_CACHE, H5E_BADITER, FAIL, "iteration of tagged entries failed")
 
     /* Check for iterating over global metadata */
-    if(match_global) { 
+    if(match_global) {
         /* Iterate over the entries for SOHM entries */
         if(H5C__iter_tagged_entries_real(cache, H5AC__SOHM_TAG, cb, cb_ctx) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_BADITER, FAIL, "iteration of tagged entries failed")
-    
+
         /* Iterate over the entries for global heap entries */
         if(H5C__iter_tagged_entries_real(cache, H5AC__GLOBALHEAP_TAG, cb, cb_ctx) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_BADITER, FAIL, "iteration of tagged entries failed")
@@ -497,7 +497,7 @@ H5C__evict_tagged_entries_cb(H5C_cache_entry_t *entry, void *_ctx)
         if(H5C__flush_single_entry(ctx->f, entry, H5C__FLUSH_INVALIDATE_FLAG | H5C__FLUSH_CLEAR_ONLY_FLAG | H5C__DEL_FROM_SLIST_ON_DESTROY_FLAG) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, H5_ITER_ERROR, "Entry eviction failed.")
         ctx->evicted_entries_last_pass = TRUE;
-    } /* end else-if */
+    }
     else
         ctx->skipped_pf_dirty_entries = TRUE;
 
@@ -553,29 +553,29 @@ H5C_evict_tagged_entries(H5F_t * f, haddr_t tag, hbool_t match_global)
         /* Keep doing this until we have stopped evicted entries */
     } while(TRUE == ctx.evicted_entries_last_pass);
 
-    /* In most cases, fail if we have finished evicting entries and pinned 
-     * entries still need evicted 
+    /* In most cases, fail if we have finished evicting entries and pinned
+     * entries still need evicted
      *
-     * However, things can get strange if the file was opened R/O and 
-     * the file contains a cache image and the cache image contains dirty 
-     * entries.  
+     * However, things can get strange if the file was opened R/O and
+     * the file contains a cache image and the cache image contains dirty
+     * entries.
      *
-     * Since the file was opened read only, dirty entries in the cache 
+     * Since the file was opened read only, dirty entries in the cache
      * image were marked as clean when they were inserted into the metadata
      * cache.  This is necessary, as if they are marked dirty, the metadata
-     * cache will attempt to write them on file close, which is frowned 
+     * cache will attempt to write them on file close, which is frowned
      * upon when the file is opened R/O.
      *
-     * On the other hand, such entries (marked prefetched_dirty) must not 
+     * On the other hand, such entries (marked prefetched_dirty) must not
      * be evicted, as should the cache be asked to re-load them, the cache
      * will attempt to read them from the file, and at best load an outdated
      * version.
-     * 
-     * To avoid this, H5C__evict_tagged_entries_cb has been modified to 
-     * skip such entries.  However, by doing so, it may prevent pinned 
+     *
+     * To avoid this, H5C__evict_tagged_entries_cb has been modified to
+     * skip such entries.  However, by doing so, it may prevent pinned
      * entries from becoming unpinned.
      *
-     * Thus we must ignore ctx.pinned_entries_need_evicted if 
+     * Thus we must ignore ctx.pinned_entries_need_evicted if
      * ctx.skipped_pf_dirty_entries is TRUE.
      */
     if((!ctx.skipped_pf_dirty_entries) && (ctx.pinned_entries_need_evicted))
@@ -631,7 +631,7 @@ H5C__mark_tagged_entries_cb(H5C_cache_entry_t *entry, void H5_ATTR_UNUSED *_ctx)
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5C__mark_tagged_entries(H5C_t *cache, haddr_t tag)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -698,16 +698,16 @@ H5C_verify_tag(int id, haddr_t tag)
             if(tag == H5AC__SUPERBLOCK_TAG)
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, FAIL, "H5AC__SUPERBLOCK_TAG applied to non-superblock entry")
         } /* end else */
-    
+
         /* Free Space Manager */
         if(tag == H5AC__FREESPACE_TAG && ((id != H5AC_FSPACE_HDR_ID) && (id != H5AC_FSPACE_SINFO_ID)))
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, FAIL, "H5AC__FREESPACE_TAG applied to non-freespace entry")
-    
+
         /* SOHM */
         if((id == H5AC_SOHM_TABLE_ID) || (id == H5AC_SOHM_LIST_ID))
             if(tag != H5AC__SOHM_TAG)
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, FAIL, "sohm entry not tagged with H5AC__SOHM_TAG")
-    
+
         /* Global Heap */
         if(id == H5AC_GHEAP_ID) {
             if(tag != H5AC__GLOBALHEAP_TAG)
@@ -783,7 +783,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_retag_entries(H5C_t *cache, haddr_t src_tag, haddr_t dest_tag) 
+H5C_retag_entries(H5C_t *cache, haddr_t src_tag, haddr_t dest_tag)
 {
     H5C_tag_info_t *tag_info;	        /* Points to a tag info struct */
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -860,7 +860,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5C_expunge_tag_type_metadata(H5F_t *f, haddr_t tag, int type_id, unsigned flags)
 {
     H5C_t *cache;                       /* Pointer to cache structure */
@@ -904,7 +904,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t 
+herr_t
 H5C_get_tag(const void *thing, haddr_t *tag /*OUT*/)
 {
     const H5C_cache_entry_t *entry = (const H5C_cache_entry_t *)thing;  /* Pointer to cache entry */

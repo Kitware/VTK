@@ -194,10 +194,6 @@ done:
  * Programmer:	Robb Matzke
  *		Wednesday, January  7, 1998
  *
- * Modifications:
- * 	Robb Matzke, 22 Dec 1998
- *	Also works with derived datatypes.
- *
  *-------------------------------------------------------------------------
  */
 herr_t

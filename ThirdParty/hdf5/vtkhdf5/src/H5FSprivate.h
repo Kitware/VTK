@@ -15,7 +15,7 @@
  *
  * Created:     H5FSprivate.h
  *              May  2 2006
- *              Quincey Koziol <koziol@hdfgroup.org>
+ *              Quincey Koziol
  *
  * Purpose:     Private header for library accessible file free space routines.
  *
@@ -182,7 +182,7 @@ H5_DLL H5FS_t *H5FS_create(H5F_t *f, haddr_t *fs_addr, const H5FS_create_t *fs_c
 H5_DLL H5FS_t *H5FS_open(H5F_t *f, haddr_t fs_addr, uint16_t nclasses,
     const H5FS_section_class_t *classes[], void *cls_init_udata, hsize_t alignment,
     hsize_t threshold);
-H5_DLL herr_t H5FS_size(const H5F_t *f, const H5FS_t *fspace, hsize_t *meta_size);
+H5_DLL herr_t H5FS_size(const H5FS_t *fspace, hsize_t *meta_size);
 H5_DLL herr_t H5FS_delete(H5F_t *f, haddr_t fs_addr);
 H5_DLL herr_t H5FS_close(H5F_t *f, H5FS_t *fspace);
 H5_DLL herr_t H5FS_alloc_hdr(H5F_t *f, H5FS_t *fspace, haddr_t *fs_addr);

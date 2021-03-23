@@ -15,7 +15,7 @@
  *
  * Created:		H5B2private.h
  *			Jan 31 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Private header for library accessible B-tree routines.
  *

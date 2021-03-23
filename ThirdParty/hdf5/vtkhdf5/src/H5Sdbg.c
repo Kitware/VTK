@@ -13,11 +13,12 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:        H5Sdbg.c
- *            Jul 24 2007
- *            Quincey Koziol <koziol@hdfgroup.org>
+ * Created:         H5Sdbg.c
+ *                  Quincey Koziol
+ *                  Jul 24 2007
+ *                  
  *
- * Purpose:        Dump debugging information about a dataspace
+ * Purpose:         Dump debugging information about a dataspace
  *
  *-------------------------------------------------------------------------
  */
@@ -57,14 +58,14 @@
 /********************/
 
 
-/*********************/
-/* Package Variables */
-/*********************/
-
-
 /*****************************/
 /* Library Private Variables */
 /*****************************/
+
+
+/*********************/
+/* Package Variables */
+/*********************/
 
 
 /*******************/
@@ -72,15 +73,15 @@
 /*******************/
 
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5S_debug
  *
- * Purpose:    Prints debugging information about a dataspace.
+ * Purpose:     Prints debugging information about a dataspace.
  *
- * Return:    Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:    Robb Matzke
+ * Programmer:  Robb Matzke
  *              Tuesday, July 21, 1998
  *
  *-------------------------------------------------------------------------
@@ -88,7 +89,7 @@
 herr_t
 H5S_debug(H5F_t *f, const void *_mesg, FILE *stream, int indent, int fwidth)
 {
-    const H5S_t    *mesg = (const H5S_t*)_mesg;
+    const H5S_t *mesg = (const H5S_t*)_mesg;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 

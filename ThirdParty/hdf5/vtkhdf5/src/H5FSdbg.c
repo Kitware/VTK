@@ -15,7 +15,7 @@
  *
  * Created:     H5FSdbg.c
  *              May  9 2006
- *              Quincey Koziol <koziol@hdfgroup.org>
+ *              Quincey Koziol
  *
  * Purpose:     Dump debugging information about a free space manager
  *

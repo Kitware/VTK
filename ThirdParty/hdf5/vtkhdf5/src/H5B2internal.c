@@ -15,7 +15,7 @@
  *
  * Created:		H5B2internal.c
  *			Dec 01 2016
- *			Quincey Koziol <koziol@lbl.gov>
+ *			Quincey Koziol
  *
  * Purpose:		Routines for managing v2 B-tree internal ndoes.
  *
@@ -87,7 +87,6 @@ H5FL_DEFINE(H5B2_internal_t);
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb  3 2005
  *
  *-------------------------------------------------------------------------
@@ -183,7 +182,6 @@ done:
  * Return:	Pointer to internal node on success/NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Aug 25 2006
  *
  *-------------------------------------------------------------------------
@@ -277,7 +275,6 @@ done:
  * Return:	Non-negative on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar  9 2005
  *
  *-------------------------------------------------------------------------
@@ -350,7 +347,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar  2 2005
  *
  *-------------------------------------------------------------------------
@@ -388,7 +384,7 @@ H5B2__insert_internal(H5B2_hdr_t *hdr, uint16_t depth, unsigned *parent_cache_in
         size_t      split_nrec; /* Number of records to split node at */
 
         /* Locate node pointer for child */
-        if(H5B2__locate_record(hdr->cls, internal->nrec, hdr->nat_off, internal->int_native, 
+        if(H5B2__locate_record(hdr->cls, internal->nrec, hdr->nat_off, internal->int_native,
                                udata, &idx, &cmp) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
         if(cmp == 0)
@@ -444,7 +440,7 @@ H5B2__insert_internal(H5B2_hdr_t *hdr, uint16_t depth, unsigned *parent_cache_in
 
             /* Locate node pointer for child (after split/redistribute) */
             /* Actually, this can be easily updated (for 2-node redistrib.) and shouldn't require re-searching */
-            if(H5B2__locate_record(hdr->cls, internal->nrec, hdr->nat_off, internal->int_native, 
+            if(H5B2__locate_record(hdr->cls, internal->nrec, hdr->nat_off, internal->int_native,
                                    udata, &idx, &cmp) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
             if(cmp == 0)
@@ -513,7 +509,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 24 2015
  *
  *-------------------------------------------------------------------------
@@ -782,7 +777,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar  3 2005
  *
  *-------------------------------------------------------------------------
@@ -1015,7 +1009,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov 14 2006
  *
  *-------------------------------------------------------------------------
@@ -1300,7 +1293,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 2 2005
  *
  *-------------------------------------------------------------------------
@@ -1349,13 +1341,12 @@ done:
  * Return:	Non-negative on success, negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 19 2005
  *
  *-------------------------------------------------------------------------
  */
 H5_ATTR_PURE herr_t
-H5B2__assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal)
+H5B2__assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t H5_ATTR_NDEBUG_UNUSED *hdr, const H5B2_internal_t *internal)
 {
     hsize_t tot_all_nrec;       /* Total number of records at or below this node */
     uint16_t u, v;               /* Local index variables */
@@ -1390,13 +1381,12 @@ H5B2__assert_internal(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2
  * Return:	Non-negative on success, negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 19 2005
  *
  *-------------------------------------------------------------------------
  */
 H5_ATTR_PURE herr_t
-H5B2__assert_internal2(hsize_t parent_all_nrec, const H5B2_hdr_t *hdr, const H5B2_internal_t *internal, const H5B2_internal_t *internal2)
+H5B2__assert_internal2(hsize_t parent_all_nrec, const H5B2_hdr_t H5_ATTR_NDEBUG_UNUSED *hdr, const H5B2_internal_t *internal, const H5B2_internal_t *internal2)
 {
     hsize_t tot_all_nrec;       /* Total number of records at or below this node */
     uint16_t u, v;       /* Local index variables */

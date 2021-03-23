@@ -15,7 +15,7 @@
  *
  * Created:     H5FA.c
  *              April 2009
- *              Vailin Choi <vchoi@hdfgroup.org>
+ *              Vailin Choi
  *
  * Purpose:     Implements a Fixed Array for storing elements
  *              of datasets with fixed dimensions.
@@ -41,6 +41,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FApkg.h"		/* Fixed Arrays				*/
 #include "H5FLprivate.h"	/* Free Lists                           */
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"         /* Vector functions			*/
 
 
@@ -111,7 +112,6 @@ H5FL_BLK_DEFINE(fa_native_elmt);
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@lbl.gov
  *		Oct 17 2016
  *
  *-------------------------------------------------------------------------
@@ -371,7 +371,7 @@ H5FA_set(const H5FA_t *fa, hsize_t idx, const void *elmt))
     /* Check for paging data block */
     if(!dblock->npages) {
         /* Set element in data block */
-        HDmemcpy(((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * idx), elmt, hdr->cparam.cls->nat_elmt_size);
+        H5MM_memcpy(((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * idx), elmt, hdr->cparam.cls->nat_elmt_size);
         dblock_cache_flags |= H5AC__DIRTIED_FLAG;
     } /* end if */
     else { /* paging */
@@ -410,7 +410,7 @@ H5FA_set(const H5FA_t *fa, hsize_t idx, const void *elmt))
 	    H5E_THROW(H5E_CANTPROTECT, "unable to protect fixed array data block page, address = %llu", (unsigned long long)dblk_page_addr)
 
         /* Set the element in the data block page */
-        HDmemcpy(((uint8_t *)dblk_page->elmts) + (hdr->cparam.cls->nat_elmt_size * elmt_idx), elmt, hdr->cparam.cls->nat_elmt_size);
+        H5MM_memcpy(((uint8_t *)dblk_page->elmts) + (hdr->cparam.cls->nat_elmt_size * elmt_idx), elmt, hdr->cparam.cls->nat_elmt_size);
         dblk_page_cache_flags |= H5AC__DIRTIED_FLAG;
     } /* end else */
 
@@ -474,7 +474,7 @@ H5FA_get(const H5FA_t *fa, hsize_t idx, void *elmt))
         /* Check for paged data block */
         if(!dblock->npages)
             /* Retrieve element from data block */
-            HDmemcpy(elmt, ((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * idx), hdr->cparam.cls->nat_elmt_size);
+            H5MM_memcpy(elmt, ((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * idx), hdr->cparam.cls->nat_elmt_size);
         else { /* paging */
             size_t  page_idx;           /* Index of page within data block */
 
@@ -512,7 +512,7 @@ H5FA_get(const H5FA_t *fa, hsize_t idx, void *elmt))
                     H5E_THROW(H5E_CANTPROTECT, "unable to protect fixed array data block page, address = %llu", (unsigned long long)dblk_page_addr)
 
                 /* Retrieve element from data block */
-                HDmemcpy(elmt, ((uint8_t *)dblk_page->elmts) + (hdr->cparam.cls->nat_elmt_size * elmt_idx), hdr->cparam.cls->nat_elmt_size);
+                H5MM_memcpy(elmt, ((uint8_t *)dblk_page->elmts) + (hdr->cparam.cls->nat_elmt_size * elmt_idx), hdr->cparam.cls->nat_elmt_size);
             } /* end else */
         } /* end else */
     } /* end else */
@@ -690,11 +690,6 @@ END_FUNC(PRIV)  /* end H5FA_delete() */
  * Programmer:  Vailin Choi
  *              Thursday, April 30, 2009
  *
- * Modification:
- *              Prototype changed (HDFFV-10661)
- *              - herr_t to int
- *              - SUCCEED/FAIL to H5_ITER_CONT/H5_ITER_ERROR
- *              December 24, 2018 -BMR
  *-------------------------------------------------------------------------
  */
 BEGIN_FUNC(PRIV, ERR,

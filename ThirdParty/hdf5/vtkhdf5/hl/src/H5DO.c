@@ -90,7 +90,7 @@ H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fi
  * 	This routine is copied from the fast forward feature branch: features/hdf5_ff
  *	src/H5FF.c:H5DOappend() with the following modifications:
  * 	1) Remove and replace macro calls such as
- *		FUNC_ENTER_API, H5TRACE, HGOTO_ERROR 
+ *		FUNC_ENTER_API, H5TRACE, HGOTO_ERROR
  * 	   accordingly because hl does not have these macros
  *	2) Replace H5I_get_type() by H5Iget_type()
  *	3) Replace H5P_isa_class() by H5Pisa_class()
@@ -103,10 +103,9 @@ H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fi
  *-------------------------------------------------------------------------
  */
 herr_t
-H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, 
+H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension,
            hid_t memtype, const void *buf)
 {
-    hbool_t created_dxpl = FALSE;       /* Whether we created a DXPL */
     hsize_t size[H5S_MAX_RANK];		/* The new size (after extension */
     hsize_t old_size = 0; 		/* The size of the dimension to be extended */
     int sndims; 			/* Number of dimensions in dataspace (signed) */
@@ -135,14 +134,10 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension,
     if(H5I_DATASET != H5Iget_type(dset_id))
         goto done;
 
-    /* If the user passed in a default DXPL, create one to pass to H5Dwrite() */
-    if(H5P_DEFAULT == dxpl_id) {
-        if((dxpl_id = H5Pcreate(H5P_DATASET_XFER)) < 0)
+    /* If the user passed in a default DXPL, sanity check it */
+    if(H5P_DEFAULT != dxpl_id)
+        if(TRUE != H5Pisa_class(dxpl_id, H5P_DATASET_XFER))
             goto done;
-        created_dxpl = TRUE;
-    } /* end if */
-    else if(TRUE != H5Pisa_class(dxpl_id, H5P_DATASET_XFER))
-        goto done;
 
     /* Get the dataspace of the dataset */
     if(FAIL == (space_id = H5Dget_space(dset_id)))
@@ -161,7 +156,7 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension,
     if(H5Sget_simple_extent_dims(space_id, size, NULL) < 0)
         goto done;
 
-    /* Adjust the dimension size of the requested dimension, 
+    /* Adjust the dimension size of the requested dimension,
      * but first record the old dimension size
      */
     old_size = size[axis];
@@ -240,12 +235,6 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension,
     ret_value = SUCCEED;
 
 done:
-    /* Close dxpl if we created it vs. one was passed in */
-    if(created_dxpl) {
-        if(H5Pclose(dxpl_id) < 0)
-            ret_value = FAIL;
-    } /* end if */
-
     /* Close old dataspace */
     if(space_id != FAIL && H5Sclose(space_id) < 0)
         ret_value = FAIL;

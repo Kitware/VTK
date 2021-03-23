@@ -113,8 +113,8 @@ H5_DLL herr_t H5CX_get_dset_min_ohdr_flag(hbool_t *dset_min_ohdr_flag);
 H5_DLL herr_t H5CX_get_ohdr_flags(uint8_t *ohdr_flags);
 
 /* "Getter" routines for DAPL properties cached in API context */
-H5_DLL herr_t H5CX_get_ext_file_prefix(char **prefix_extfile);
-H5_DLL herr_t H5CX_get_vds_prefix(char **prefix_vds);
+H5_DLL herr_t H5CX_get_ext_file_prefix(const char **prefix_extfile);
+H5_DLL herr_t H5CX_get_vds_prefix(const char **prefix_vds);
 
 /* "Getter" routines for FAPL properties cached in API context */
 H5_DLL herr_t H5CX_get_libver_bounds(H5F_libver_t *low_bound, H5F_libver_t *high_bound);

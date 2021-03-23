@@ -15,7 +15,7 @@
  *
  * Created:	    H5Gnode.c
  *              Jun 26 1997
- *              Robb Matzke <matzke@llnl.gov>
+ *              Robb Matzke
  *
  * Purpose:     Functions for handling symbol table nodes.  A
  *              symbol table node is a small collection of symbol
@@ -145,8 +145,6 @@ H5FL_SEQ_DEFINE(H5G_entry_t);
  * Programmer:  Robb Matzke
  *              Wednesday, October  8, 1997
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static H5UC_t *
@@ -169,7 +167,6 @@ H5G_node_get_shared(const H5F_t *f, const void H5_ATTR_UNUSED *_udata)
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul  8 1997
  *
  *-------------------------------------------------------------------------
@@ -199,7 +196,6 @@ H5G_node_decode_key(const H5B_shared_t *shared, const uint8_t *raw, void *_key)
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jul  8 1997
  *
  *-------------------------------------------------------------------------
@@ -270,7 +266,6 @@ H5G_node_debug_key(FILE *stream, int indent, int fwidth, const void *_key,
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@ncsa.uiuc.edu
  *              Jan 15 2003
  *
  *-------------------------------------------------------------------------
@@ -310,7 +305,6 @@ H5G__node_free(H5G_node_t *sym)
  *          Failure:    Negative
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 23 1997
  *
  *-------------------------------------------------------------------------
@@ -382,10 +376,7 @@ done:
  *          Failure:    FAIL (same as LT_KEY<RT_KEY)
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 23 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -439,10 +430,7 @@ done:
  *          Failure:    FAIL (same as UDATA < LT_KEY)
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 23 1997
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -501,7 +489,6 @@ done:
  *              Failure:    Negative if not found.
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 23 1997
  *
  *-------------------------------------------------------------------------
@@ -538,7 +525,7 @@ H5G_node_found(H5F_t *f, haddr_t addr, const void H5_ATTR_UNUSED *_lt_key,
     rt = sn->nsyms;
     while(lt < rt && cmp) {
         idx = (lt + rt) / 2;
-        
+
         if((s = (const char *)H5HL_offset_into(udata->common.heap, sn->entry[idx].name_off)) == NULL)
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get symbol table name")
         cmp = HDstrcmp(udata->common.name, s);
@@ -591,7 +578,6 @@ done:
  *              Failure:    H5B_INS_ERROR, NEW_NODE_P might not be initialized.
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 24 1997
  *
  *-------------------------------------------------------------------------
@@ -672,7 +658,7 @@ H5G__node_insert(H5F_t *f, haddr_t addr, void H5_ATTR_UNUSED *_lt_key,
         if(NULL == (snrt = (H5G_node_t *)H5AC_protect(f, H5AC_SNODE, *new_node_p, f, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_SYM, H5E_CANTLOAD, H5B_INS_ERROR, "unable to split symbol table node")
 
-        HDmemcpy(snrt->entry, sn->entry + H5F_SYM_LEAF_K(f),
+        H5MM_memcpy(snrt->entry, sn->entry + H5F_SYM_LEAF_K(f),
             H5F_SYM_LEAF_K(f) * sizeof(H5G_entry_t));
         snrt->nsyms = H5F_SYM_LEAF_K(f);
         snrt_flags |= H5AC__DIRTIED_FLAG;
@@ -952,7 +938,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Jun 24 1997
  *
  *-------------------------------------------------------------------------
@@ -1262,7 +1247,7 @@ H5G__node_copy(H5F_t *f, const void H5_ATTR_UNUSED *_lt_key, haddr_t addr,
             char *link_name;            /* Pointer to value of soft link */
 
             /* Make a temporary copy, so that it will not change the info in the cache */
-            HDmemcpy(&tmp_src_ent, src_ent, sizeof(H5G_entry_t));
+            H5MM_memcpy(&tmp_src_ent, src_ent, sizeof(H5G_entry_t));
 
             /* Set up group location for soft link to start in */
             H5G_name_reset(&grp_path);
@@ -1370,7 +1355,6 @@ done:
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Nov 19 2006
  *
  *-------------------------------------------------------------------------
@@ -1451,7 +1435,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__node_iterate_size(H5F_t *f, const void H5_ATTR_UNUSED *_lt_key, 
+H5G__node_iterate_size(H5F_t *f, const void H5_ATTR_UNUSED *_lt_key,
     haddr_t H5_ATTR_UNUSED addr, const void H5_ATTR_UNUSED *_rt_key, void *_udata)
 {
     hsize_t     *stab_size = (hsize_t *)_udata;         /* User data */
@@ -1477,7 +1461,6 @@ H5G__node_iterate_size(H5F_t *f, const void H5_ATTR_UNUSED *_lt_key,
  * Return:      0(zero) on success/Negative on failure
  *
  * Programmer:  Robb Matzke
- *              matzke@llnl.gov
  *              Aug  4 1997
  *
  *-------------------------------------------------------------------------

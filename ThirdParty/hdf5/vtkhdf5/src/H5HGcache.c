@@ -15,7 +15,7 @@
  *
  * Created:		H5HGcache.c
  *			Feb  5 2008
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Implement global heap metadata cache methods.
  *
@@ -64,10 +64,10 @@ static herr_t H5HG__cache_heap_get_initial_load_size(void *udata, size_t *image_
 static herr_t H5HG__cache_heap_get_final_load_size(const void *_image,
     size_t image_len, void *udata, size_t *actual_len);
 static void *H5HG__cache_heap_deserialize(const void *image, size_t len,
-    void *udata, hbool_t *dirty); 
+    void *udata, hbool_t *dirty);
 static herr_t H5HG__cache_heap_image_len(const void *thing, size_t *image_len);
 static herr_t H5HG__cache_heap_serialize(const H5F_t *f, void *image,
-    size_t len, void *thing); 
+    size_t len, void *thing);
 static herr_t H5HG__cache_heap_free_icr(void *thing);
 
 /* Prefix deserialization */
@@ -158,10 +158,10 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5HG__cache_heap_get_initial_load_size()
  *
- * Purpose:	Return the initial speculative read size to the metadata 
- *		cache.  This size will be used in the initial attempt to read 
- *		the global heap.  If this read is too small, the cache will 
- *		try again with the correct value obtained from 
+ * Purpose:	Return the initial speculative read size to the metadata
+ *		cache.  This size will be used in the initial attempt to read
+ *		the global heap.  If this read is too small, the cache will
+ *		try again with the correct value obtained from
  *		H5HG__cache_get_final_load_size().
  *
  * Return:      Success:        SUCCEED
@@ -202,7 +202,7 @@ H5HG__cache_heap_get_initial_load_size(void H5_ATTR_UNUSED *_udata, size_t *imag
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HG__cache_heap_get_final_load_size(const void *image, size_t image_len,
+H5HG__cache_heap_get_final_load_size(const void *image, size_t H5_ATTR_NDEBUG_UNUSED image_len,
     void *udata, size_t *actual_len)
 {
     H5HG_heap_t heap;                   /* Global heap */
@@ -232,7 +232,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5HG__cache_heap_deserialize
  *
- * Purpose:	Given a buffer containing the on disk image of the global 
+ * Purpose:	Given a buffer containing the on disk image of the global
  *		heap, deserialize it, load its contents into a newly allocated
  *		instance of H5HG_heap_t, and return a pointer to the new instance.
  *
@@ -271,7 +271,7 @@ H5HG__cache_heap_deserialize(const void *_image, size_t len, void *_udata,
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Copy the image buffer into the newly allocate chunk */
-    HDmemcpy(heap->chunk, _image, len);
+    H5MM_memcpy(heap->chunk, _image, len);
 
     /* Deserialize the heap's header */
     if(H5HG__hdr_deserialize(heap, (const uint8_t *)heap->chunk, f) < 0)
@@ -334,11 +334,11 @@ H5HG__cache_heap_deserialize(const void *_image, size_t len, void *_udata,
             heap->obj[idx].begin = begin;
 
             /*
-             * The total storage size includes the size of the object 
-             * header and is zero padded so the next object header is 
-             * properly aligned. The entire obj array was calloc'ed, 
-             * so no need to zero the space here. The last bit of space 
-             * is the free space object whose size is never padded and 
+             * The total storage size includes the size of the object
+             * header and is zero padded so the next object header is
+             * properly aligned. The entire obj array was calloc'ed,
+             * so no need to zero the space here. The last bit of space
+             * is the free space object whose size is never padded and
              * already includes the object header.
              */
             if(idx > 0) {
@@ -374,7 +374,7 @@ H5HG__cache_heap_deserialize(const void *_image, size_t len, void *_udata,
 
 done:
     if(!ret_value && heap)
-        if(H5HG_free(heap) < 0)
+        if(H5HG__free(heap) < 0)
             HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, NULL, "unable to destroy global heap collection")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -384,7 +384,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5HG__cache_heap_image_len
  *
- * Purpose:	Return the on disk image size of the global heap to the 
+ * Purpose:	Return the on disk image size of the global heap to the
  *		metadata cache via the image_len.
  *
  * Return:      Success:        SUCCEED
@@ -418,7 +418,7 @@ H5HG__cache_heap_image_len(const void *_thing, size_t *image_len)
 /*-------------------------------------------------------------------------
  * Function:    H5HG__cache_heap_serialize
  *
- * Purpose:	Given an appropriately sized buffer and an instance of 
+ * Purpose:	Given an appropriately sized buffer and an instance of
  *		H5HG_heap_t, serialize the global heap for writing to file,
  *		and copy the serialized version into the buffer.
  *
@@ -432,7 +432,7 @@ H5HG__cache_heap_image_len(const void *_thing, size_t *image_len)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HG__cache_heap_serialize(const H5F_t *f, void *image, size_t len,
+H5HG__cache_heap_serialize(const H5F_t H5_ATTR_NDEBUG_UNUSED *f, void *image, size_t len,
     void *_thing)
 {
     H5HG_heap_t *heap = (H5HG_heap_t *)_thing;
@@ -448,7 +448,7 @@ H5HG__cache_heap_serialize(const H5F_t *f, void *image, size_t len,
     HDassert(heap->chunk);
 
     /* copy the image into the buffer */
-    HDmemcpy(image, heap->chunk, len);
+    H5MM_memcpy(image, heap->chunk, len);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HG__cache_heap_serialize() */
@@ -485,7 +485,7 @@ H5HG__cache_heap_free_icr(void *_thing)
     HDassert(heap->cache_info.type == H5AC_GHEAP);
 
     /* Destroy global heap collection */
-    if(H5HG_free(heap) < 0)
+    if(H5HG__free(heap) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to destroy global heap collection")
 
 done:

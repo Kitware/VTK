@@ -16,20 +16,44 @@
  *      datatypes in the H5T interface.
  */
 
+/****************/
+/* Module Setup */
+/****************/
+
 #include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
+/***********/
+/* Headers */
+/***********/
+#include "H5private.h"          /* Generic Functions    */
+#include "H5CXprivate.h"        /* API Contexts         */
+#include "H5Eprivate.h"         /* Error handling       */
+#include "H5HGprivate.h"        /* Global Heaps         */
+#include "H5Iprivate.h"         /* IDs                  */
+#include "H5MMprivate.h"        /* Memory management    */
+#include "H5Tpkg.h"             /* Datatypes            */
 
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5CXprivate.h"        /* API Contexts                         */
-#include "H5Dprivate.h"		/* Dataset functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5HGprivate.h"	/* Global Heaps				*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Pprivate.h"		/* Property lists			*/
-#include "H5Tpkg.h"		/* Datatypes				*/
 
-/* Local functions */
+/****************/
+/* Local Macros */
+/****************/
+
+
+/******************/
+/* Local Typedefs */
+/******************/
+
+
+/********************/
+/* Package Typedefs */
+/********************/
+
+
+/********************/
+/* Local Prototypes */
+/********************/
+
+/* Memory-based VL sequence callbacks */
 static herr_t H5T_vlen_reclaim_recurse(void *elem, const H5T_t *dt, H5MM_free_t free_func, void *free_info);
 static ssize_t H5T_vlen_seq_mem_getlen(const void *_vl);
 static void * H5T_vlen_seq_mem_getptr(void *_vl);
@@ -37,12 +61,16 @@ static htri_t H5T_vlen_seq_mem_isnull(const H5F_t *f, void *_vl);
 static herr_t H5T_vlen_seq_mem_read(H5F_t *f, void *_vl, void *_buf, size_t len);
 static herr_t H5T_vlen_seq_mem_write(H5F_t *f, const H5T_vlen_alloc_info_t *vl_alloc_info, void *_vl, void *_buf, void *_bg, size_t seq_len, size_t base_size);
 static herr_t H5T_vlen_seq_mem_setnull(H5F_t *f, void *_vl, void *_bg);
+
+/* Memory-based VL string callbacks */
 static ssize_t H5T_vlen_str_mem_getlen(const void *_vl);
 static void * H5T_vlen_str_mem_getptr(void *_vl);
 static htri_t H5T_vlen_str_mem_isnull(const H5F_t *f, void *_vl);
 static herr_t H5T_vlen_str_mem_read(H5F_t *f, void *_vl, void *_buf, size_t len);
 static herr_t H5T_vlen_str_mem_write(H5F_t *f, const H5T_vlen_alloc_info_t *vl_alloc_info, void *_vl, void *_buf, void *_bg, size_t seq_len, size_t base_size);
 static herr_t H5T_vlen_str_mem_setnull(H5F_t *f, void *_vl, void *_bg);
+
+/* Disk-based VL sequence (and string) callbacks */
 static ssize_t H5T_vlen_disk_getlen(const void *_vl);
 static void * H5T_vlen_disk_getptr(void *_vl);
 static htri_t H5T_vlen_disk_isnull(const H5F_t *f, void *_vl);
@@ -50,7 +78,24 @@ static herr_t H5T_vlen_disk_read(H5F_t *f, void *_vl, void *_buf, size_t len);
 static herr_t H5T_vlen_disk_write(H5F_t *f, const H5T_vlen_alloc_info_t *vl_alloc_info, void *_vl, void *_buf, void *_bg, size_t seq_len, size_t base_size);
 static herr_t H5T_vlen_disk_setnull(H5F_t *f, void *_vl, void *_bg);
 
-/* Local variables */
+/*********************/
+/* Public Variables */
+/*********************/
+
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/*******************/
+/* Local Variables */
+/*******************/
 
 
 
@@ -194,7 +239,7 @@ H5T__vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc)
                 dt->shared->u.vlen.loc = H5T_LOC_MEMORY;
 
                 if(dt->shared->u.vlen.type == H5T_VLEN_SEQUENCE) {
-                    /* size in memory, disk size is different */
+                    /* Size in memory, disk size is different */
                     dt->shared->size = sizeof(hvl_t);
 
                     /* Set up the function pointers to access the VL sequence in memory */
@@ -206,7 +251,7 @@ H5T__vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc)
                     dt->shared->u.vlen.setnull = H5T_vlen_seq_mem_setnull;
                 } /* end if */
                 else if(dt->shared->u.vlen.type == H5T_VLEN_STRING) {
-                    /* size in memory, disk size is different */
+                    /* Size in memory, disk size is different */
                     dt->shared->size = sizeof(char *);
 
                     /* Set up the function pointers to access the VL string in memory */
@@ -220,7 +265,7 @@ H5T__vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc)
                 else
                     HDassert(0 && "Invalid VL type");
 
-                /* Reset file ID (since this VL is in memory) */
+                /* Reset file pointer (since this VL is in memory) */
                 dt->shared->u.vlen.f = NULL;
                 break;
 
@@ -268,7 +313,7 @@ H5T__vlen_set_loc(const H5T_t *dt, H5F_t *f, H5T_loc_t loc)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T__vlen_set_loc() */
+} /* end H5T__vlen_set_loc() */
 
 
 /*-------------------------------------------------------------------------
@@ -294,14 +339,14 @@ H5T_vlen_seq_mem_getlen(const void *_vl)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* check parameters, return result */
+    /* Check parameters, return result */
 #ifdef H5_NO_ALIGNMENT_RESTRICTIONS
     HDassert(vl);
 
     FUNC_LEAVE_NOAPI((ssize_t)vl->len)
 #else
     HDassert(_vl);
-    HDmemcpy(&vl, _vl, sizeof(hvl_t));
+    H5MM_memcpy(&vl, _vl, sizeof(hvl_t));
 
     FUNC_LEAVE_NOAPI((ssize_t)vl.len)
 #endif
@@ -338,7 +383,7 @@ H5T_vlen_seq_mem_getptr(void *_vl)
     FUNC_LEAVE_NOAPI(vl->p)
 #else
     HDassert(_vl);
-    HDmemcpy(&vl, _vl, sizeof(hvl_t));
+    H5MM_memcpy(&vl, _vl, sizeof(hvl_t));
 
     FUNC_LEAVE_NOAPI(vl.p)
 #endif
@@ -375,11 +420,11 @@ H5T_vlen_seq_mem_isnull(const H5F_t H5_ATTR_UNUSED *f, void *_vl)
     FUNC_LEAVE_NOAPI((vl->len==0 || vl->p==NULL) ? TRUE : FALSE)
 #else
     HDassert(_vl);
-    HDmemcpy(&vl, _vl, sizeof(hvl_t));
+    H5MM_memcpy(&vl, _vl, sizeof(hvl_t));
 
     FUNC_LEAVE_NOAPI((vl.len==0 || vl.p==NULL) ? TRUE : FALSE)
 #endif
-}   /* end H5T_vlen_seq_mem_isnull() */
+} /* end H5T_vlen_seq_mem_isnull() */
 
 
 /*-------------------------------------------------------------------------
@@ -398,7 +443,7 @@ static herr_t
 H5T_vlen_seq_mem_read(H5F_t H5_ATTR_UNUSED *f, void *_vl, void *buf, size_t len)
 {
 #ifdef H5_NO_ALIGNMENT_RESTRICTIONS
-    const hvl_t *vl=(const hvl_t *)_vl;   /* Pointer to the user's hvl_t information */
+    const hvl_t *vl = (const hvl_t *)_vl;   /* Pointer to the user's hvl_t information */
 #else
     hvl_t vl;             /* User's hvl_t information */
 #endif
@@ -410,17 +455,17 @@ H5T_vlen_seq_mem_read(H5F_t H5_ATTR_UNUSED *f, void *_vl, void *buf, size_t len)
 #ifdef H5_NO_ALIGNMENT_RESTRICTIONS
     HDassert(vl && vl->p);
 
-    HDmemcpy(buf,vl->p,len);
+    H5MM_memcpy(buf, vl->p, len);
 #else
     HDassert(_vl);
-    HDmemcpy(&vl, _vl, sizeof(hvl_t));
+    H5MM_memcpy(&vl, _vl, sizeof(hvl_t));
     HDassert(vl.p);
 
-    HDmemcpy(buf,vl.p,len);
+    H5MM_memcpy(buf, vl.p, len);
 #endif
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}   /* end H5T_vlen_seq_mem_read() */
+} /* end H5T_vlen_seq_mem_read() */
 
 
 /*-------------------------------------------------------------------------
@@ -439,8 +484,7 @@ static herr_t
 H5T_vlen_seq_mem_write(H5F_t H5_ATTR_UNUSED *f, const H5T_vlen_alloc_info_t *vl_alloc_info, void *_vl, void *buf, void H5_ATTR_UNUSED *_bg, size_t seq_len, size_t base_size)
 {
     hvl_t vl;                       /* Temporary hvl_t to use during operation */
-    size_t len;
-    herr_t      ret_value=SUCCEED;       /* Return value */
+    herr_t ret_value = SUCCEED;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -448,35 +492,33 @@ H5T_vlen_seq_mem_write(H5F_t H5_ATTR_UNUSED *f, const H5T_vlen_alloc_info_t *vl_
     HDassert(_vl);
     HDassert(buf);
 
-    if(seq_len!=0) {
-        len=seq_len*base_size;
+    if(seq_len) {
+        size_t len = seq_len * base_size;       /* Sequence size */
 
         /* Use the user's memory allocation routine is one is defined */
-        if(vl_alloc_info->alloc_func!=NULL) {
-            if(NULL==(vl.p=(vl_alloc_info->alloc_func)(len,vl_alloc_info->alloc_info)))
-                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for VL data")
+        if(vl_alloc_info->alloc_func != NULL) {
+            if(NULL == (vl.p = (vl_alloc_info->alloc_func)(len, vl_alloc_info->alloc_info)))
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "application memory allocation routine failed for VL data")
           } /* end if */
-        else {  /* Default to system malloc */
+        else    /* Default to system malloc */
             if(NULL == (vl.p = HDmalloc(len)))
-                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for VL data")
-          } /* end else */
+                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "memory allocation failed for VL data")
 
         /* Copy the data into the newly allocated buffer */
-        HDmemcpy(vl.p,buf,len);
-
+        H5MM_memcpy(vl.p, buf, len);
     } /* end if */
     else
-        vl.p=NULL;
+        vl.p = NULL;
 
     /* Set the sequence length */
-    vl.len=seq_len;
+    vl.len = seq_len;
 
     /* Set pointer in user's buffer with memcpy, to avoid alignment issues */
-    HDmemcpy(_vl,&vl,sizeof(hvl_t));
+    H5MM_memcpy(_vl, &vl, sizeof(hvl_t));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T_vlen_seq_mem_write() */
+} /* end H5T_vlen_seq_mem_write() */
 
 
 /*-------------------------------------------------------------------------
@@ -502,14 +544,14 @@ H5T_vlen_seq_mem_setnull(H5F_t H5_ATTR_UNUSED *f, void *_vl, void H5_ATTR_UNUSED
     HDassert(_vl);
 
     /* Set the "nil" hvl_t */
-    vl.len=0;
-    vl.p=NULL;
+    vl.len = 0;
+    vl.p = NULL;
 
     /* Set pointer in user's buffer with memcpy, to avoid alignment issues */
-    HDmemcpy(_vl,&vl,sizeof(hvl_t));
+    H5MM_memcpy(_vl, &vl, sizeof(hvl_t));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}   /* end H5T_vlen_seq_mem_setnull() */
+} /* end H5T_vlen_seq_mem_setnull() */
 
 
 /*-------------------------------------------------------------------------
@@ -528,7 +570,7 @@ static ssize_t
 H5T_vlen_str_mem_getlen(const void *_vl)
 {
 #ifdef H5_NO_ALIGNMENT_RESTRICTIONS
-    const char *s=*(const char * const *)_vl;   /* Pointer to the user's string information */
+    const char *s = *(const char * const *)_vl;   /* Pointer to the user's string information */
 #else
     const char *s;      /* Pointer to the user's string information */
 #endif
@@ -540,11 +582,11 @@ H5T_vlen_str_mem_getlen(const void *_vl)
     HDassert(s);
 #else
     HDassert(_vl);
-    HDmemcpy(&s, _vl, sizeof(char *));
+    H5MM_memcpy(&s, _vl, sizeof(char *));
 #endif
 
     FUNC_LEAVE_NOAPI((ssize_t)HDstrlen(s))
-}   /* end H5T_vlen_str_mem_getlen() */
+} /* end H5T_vlen_str_mem_getlen() */
 
 
 /*-------------------------------------------------------------------------
@@ -575,11 +617,11 @@ H5T_vlen_str_mem_getptr(void *_vl)
     HDassert(s);
 #else
     HDassert(_vl);
-    HDmemcpy(&s, _vl, sizeof(char *));
+    H5MM_memcpy(&s, _vl, sizeof(char *));
 #endif
 
     FUNC_LEAVE_NOAPI(s)
-}   /* end H5T_vlen_str_mem_getptr() */
+} /* end H5T_vlen_str_mem_getptr() */
 
 
 /*-------------------------------------------------------------------------
@@ -606,7 +648,7 @@ H5T_vlen_str_mem_isnull(const H5F_t H5_ATTR_UNUSED *f, void *_vl)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
 #ifndef H5_NO_ALIGNMENT_RESTRICTIONS
-    HDmemcpy(&s, _vl, sizeof(char *));
+    H5MM_memcpy(&s, _vl, sizeof(char *));
 #endif
 
     FUNC_LEAVE_NOAPI(s==NULL ? TRUE : FALSE)
@@ -636,17 +678,17 @@ H5T_vlen_str_mem_read(H5F_t H5_ATTR_UNUSED *f, void *_vl, void *buf, size_t len)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(len>0) {
+    if(len > 0) {
         /* check parameters */
         HDassert(buf);
 #ifdef H5_NO_ALIGNMENT_RESTRICTIONS
         HDassert(s);
 #else
         HDassert(_vl);
-        HDmemcpy(&s, _vl, sizeof(char *));
+        H5MM_memcpy(&s, _vl, sizeof(char *));
 #endif
 
-        HDmemcpy(buf,s,len);
+        H5MM_memcpy(buf, s, len);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -680,25 +722,25 @@ H5T_vlen_str_mem_write(H5F_t H5_ATTR_UNUSED *f, const H5T_vlen_alloc_info_t *vl_
     HDassert(buf);
 
     /* Use the user's memory allocation routine if one is defined */
-    if(vl_alloc_info->alloc_func!=NULL) {
-        if(NULL==(t = (char *)(vl_alloc_info->alloc_func)((seq_len+1)*base_size,vl_alloc_info->alloc_info)))
-            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for VL data")
-      } /* end if */
-    else {  /* Default to system malloc */
+    if(vl_alloc_info->alloc_func != NULL) {
+        if(NULL == (t = (char *)(vl_alloc_info->alloc_func)((seq_len + 1) * base_size, vl_alloc_info->alloc_info)))
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "application memory allocation routine failed for VL data")
+    } /* end if */
+    else        /* Default to system malloc */
         if(NULL == (t = (char *)HDmalloc((seq_len + 1) * base_size)))
-            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for VL data")
-      } /* end else */
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTALLOC, FAIL, "memory allocation failed for VL data")
 
-    len=(seq_len*base_size);
-    HDmemcpy(t,buf,len);
-    t[len]='\0';
+    /* 'write' the string into the buffer, with memcpy() */
+    len = (seq_len * base_size);
+    H5MM_memcpy(t, buf, len);
+    t[len] = '\0';
 
     /* Set pointer in user's buffer with memcpy, to avoid alignment issues */
-    HDmemcpy(_vl,&t,sizeof(char *));
+    H5MM_memcpy(_vl, &t, sizeof(char *));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value) /*lint !e429 The pointer in 't' has been copied */
-}   /* end H5T_vlen_str_mem_write() */
+} /* end H5T_vlen_str_mem_write() */
 
 
 /*-------------------------------------------------------------------------
@@ -721,10 +763,10 @@ H5T_vlen_str_mem_setnull(H5F_t H5_ATTR_UNUSED *f, void *_vl, void H5_ATTR_UNUSED
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Set pointer in user's buffer with memcpy, to avoid alignment issues */
-    HDmemcpy(_vl,&t,sizeof(char *));
+    H5MM_memcpy(_vl,&t,sizeof(char *));
 
-    FUNC_LEAVE_NOAPI(SUCCEED) /*lint !e429 The pointer in 't' has been copied */
-}   /* end H5T_vlen_str_mem_setnull() */
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5T_vlen_str_mem_setnull() */
 
 
 /*-------------------------------------------------------------------------
@@ -747,13 +789,13 @@ H5T_vlen_disk_getlen(const void *_vl)
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* check parameters */
+    /* Check parameters */
     HDassert(vl);
 
     UINT32DECODE(vl, seq_len);
 
     FUNC_LEAVE_NOAPI((ssize_t)seq_len)
-}   /* end H5T_vlen_disk_getlen() */
+} /* end H5T_vlen_disk_getlen() */
 
 
 /*-------------------------------------------------------------------------
@@ -773,11 +815,11 @@ H5T_vlen_disk_getptr(void H5_ATTR_UNUSED *vl)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    /* check parameters */
+    /* Check parameters */
     HDassert(vl);
 
     FUNC_LEAVE_NOAPI(NULL)
-}   /* end H5T_vlen_disk_getptr() */
+} /* end H5T_vlen_disk_getptr() */
 
 
 /*-------------------------------------------------------------------------
@@ -810,7 +852,7 @@ H5T_vlen_disk_isnull(const H5F_t *f, void *_vl)
     H5F_addr_decode(f, (const uint8_t **)&vl, &addr);
 
     FUNC_LEAVE_NOAPI(addr == 0 ? TRUE : FALSE)
-}   /* end H5T_vlen_disk_isnull() */
+} /* end H5T_vlen_disk_isnull() */
 
 
 /*-------------------------------------------------------------------------
@@ -834,7 +876,7 @@ H5T_vlen_disk_read(H5F_t *f, void *_vl, void *buf, size_t H5_ATTR_UNUSED len)
 
     FUNC_ENTER_NOAPI_NOINIT
 
-    /* check parameters */
+    /* Check parameters */
     HDassert(vl);
     HDassert(buf);
     HDassert(f);
@@ -854,7 +896,7 @@ H5T_vlen_disk_read(H5F_t *f, void *_vl, void *buf, size_t H5_ATTR_UNUSED len)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T_vlen_disk_read() */
+} /* end H5T_vlen_disk_read() */
 
 
 /*-------------------------------------------------------------------------
@@ -918,7 +960,7 @@ H5T_vlen_disk_write(H5F_t *f, const H5T_vlen_alloc_info_t H5_ATTR_UNUSED *vl_all
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T_vlen_disk_write() */
+} /* end H5T_vlen_disk_write() */
 
 
 /*-------------------------------------------------------------------------
@@ -943,7 +985,7 @@ H5T_vlen_disk_setnull(H5F_t *f, void *_vl, void *_bg)
 
     FUNC_ENTER_NOAPI_NOINIT
 
-    /* check parameters */
+    /* Check parameters */
     HDassert(f);
     HDassert(vl);
 
@@ -975,7 +1017,7 @@ H5T_vlen_disk_setnull(H5F_t *f, void *_vl, void *_bg)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T_vlen_disk_setnull() */
+} /* end H5T_vlen_disk_setnull() */
 
 
 /*--------------------------------------------------------------------------
@@ -1021,7 +1063,7 @@ H5T_vlen_reclaim_recurse(void *elem, const H5T_t *dt, H5MM_free_t free_func, voi
                 for(u = 0; u < dt->shared->u.array.nelem; u++) {
                     off = ((uint8_t *)elem) + u * (dt->shared->parent->shared->size);
                     if(H5T_vlen_reclaim_recurse(off, dt->shared->parent, free_func, free_info) < 0)
-                        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "Unable to free array element")
+                        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "unable to free array element")
                 } /* end for */
             } /* end if */
             break;
@@ -1036,7 +1078,7 @@ H5T_vlen_reclaim_recurse(void *elem, const H5T_t *dt, H5MM_free_t free_func, voi
                     /* Calculate the offset member and recurse on it */
                     off = ((uint8_t *)elem) + dt->shared->u.compnd.memb[u].offset;
                     if(H5T_vlen_reclaim_recurse(off, dt->shared->u.compnd.memb[u].type, free_func, free_info) < 0)
-                        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "Unable to free compound field")
+                        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "unable to free compound field")
                 } /* end if */
             } /* end for */
             break;
@@ -1056,7 +1098,7 @@ H5T_vlen_reclaim_recurse(void *elem, const H5T_t *dt, H5MM_free_t free_func, voi
                         while(vl->len > 0) {
                             off = ((uint8_t *)vl->p) + (vl->len - 1) * dt->shared->parent->shared->size;
                             if(H5T_vlen_reclaim_recurse(off, dt->shared->parent, free_func, free_info) < 0)
-                                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "Unable to free VL element")
+                                HGOTO_ERROR(H5E_DATATYPE, H5E_CANTFREE, FAIL, "unable to free VL element")
                             vl->len--;
                         } /* end while */
                     } /* end if */
@@ -1151,14 +1193,14 @@ H5T_vlen_reclaim(void *elem, hid_t type_id, unsigned H5_ATTR_UNUSED ndim,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-}   /* end H5T_vlen_reclaim() */
+} /* end H5T_vlen_reclaim() */
 
 
 /*-------------------------------------------------------------------------
  * Function:	H5T_vlen_reclaim_elmt
  *
  * Purpose: Alternative method to reclaim any VL data for a buffer element.
- * 
+ *
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Mike McGreevy
@@ -1169,8 +1211,8 @@ done:
 herr_t
 H5T_vlen_reclaim_elmt(void *elem, H5T_t *dt)
 {
-    H5T_vlen_alloc_info_t vl_alloc_info;   /* VL allocation info */
-    herr_t ret_value = SUCCEED;            /* return value */
+    H5T_vlen_alloc_info_t   vl_alloc_info;              /* VL allocation info */
+    herr_t                  ret_value = SUCCEED;        /* return value */
 
     HDassert(dt);
     HDassert(elem);

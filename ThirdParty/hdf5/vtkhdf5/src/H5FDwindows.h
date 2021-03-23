@@ -12,8 +12,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Scott Wegner <swegner@hdfgroup.org>
- *				Based on code by Robb Matzke
+ * Programmer:  Scott Wegner
+ *		Based on code by Robb Matzke
  *              Thursday, May 24 2007
  *
  * Purpose:	The public header file for the windows driver.

@@ -13,7 +13,7 @@
 
 /*
  * This file contains private information about the H5UC module
- * The module used to be H5RC, but changed to H5UC because of 
+ * The module used to be H5RC, but changed to H5UC because of
  * conflicting requirement for the use of H5RC.
  */
 

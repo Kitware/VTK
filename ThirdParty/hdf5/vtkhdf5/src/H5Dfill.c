@@ -15,7 +15,7 @@
  *
  * Created:		H5Dfill.c
  *			Jun 19 2007
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Fill value operations for datasets
  *
@@ -38,6 +38,7 @@
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free Lists                           */
 #include "H5Iprivate.h"		/* IDs			  		*/
+#include "H5MMprivate.h"	/* Memory management			*/
 #include "H5VMprivate.h"	/* Vector and array functions		*/
 #include "H5WBprivate.h"        /* Wrapped Buffers                      */
 
@@ -248,12 +249,11 @@ H5D__fill(const void *fill, H5T_t *fill_type, void *buf,
          * of the VL data.
          */
         if(TRUE == H5T_detect_class(fill_type, H5T_VLEN, FALSE)) {
-            hssize_t nelmts;                    /* Number of data elements */
+            hsize_t nelmts;                    /* Number of data elements */
 
             /* Get the number of elements in the selection */
             nelmts = H5S_GET_SELECT_NPOINTS(space);
-            HDassert(nelmts >= 0);
-            H5_CHECK_OVERFLOW(nelmts, hssize_t, size_t);
+            H5_CHECK_OVERFLOW(nelmts, hsize_t, size_t);
 
             /* Allocate a temporary buffer */
             if(NULL == (tmp_buf = H5FL_BLK_MALLOC(type_conv, (size_t)nelmts * buf_size)))
@@ -275,12 +275,12 @@ H5D__fill(const void *fill, H5T_t *fill_type, void *buf,
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "can't allocate memory selection iterator")
 
             /* Create a selection iterator for scattering the elements to memory buffer */
-            if(H5S_select_iter_init(mem_iter, space, dst_type_size) < 0)
+            if(H5S_select_iter_init(mem_iter, space, dst_type_size, 0) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
             mem_iter_init = TRUE;
 
             /* Scatter the data into memory */
-            if(H5D__scatter_mem(tmp_buf, space, mem_iter, (size_t)nelmts, buf/*out*/) < 0)
+            if(H5D__scatter_mem(tmp_buf, mem_iter, (size_t)nelmts, buf/*out*/) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "scatter failed")
         } /* end if */
         else {
@@ -300,7 +300,7 @@ H5D__fill(const void *fill, H5T_t *fill_type, void *buf,
                     HGOTO_ERROR(H5E_DATASET, H5E_NOSPACE, FAIL, "can't get actual buffer")
 
                 /* Copy the user's data into the buffer for conversion */
-                HDmemcpy(elem_ptr, fill, src_type_size);
+                H5MM_memcpy(elem_ptr, fill, src_type_size);
 
                 /* If there's no VL type of data, do conversion first then fill the data into
                  * the memory buffer. */
@@ -565,7 +565,7 @@ done:
  */
 herr_t
 H5D__fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts)
-{    
+{
     herr_t	ret_value = SUCCEED;	/* Return value */
     void * buf = NULL;              /* Temporary fill buffer */
 
@@ -577,7 +577,7 @@ H5D__fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts)
     HDassert(fb_info->fill_buf);
 
     /* Make a copy of the (disk-based) fill value into the buffer */
-    HDmemcpy(fb_info->fill_buf, fb_info->fill->buf, fb_info->file_elmt_size);
+    H5MM_memcpy(fb_info->fill_buf, fb_info->fill->buf, fb_info->file_elmt_size);
 
     /* Reset first element of background buffer, if necessary */
     if(H5T_path_bkg(fb_info->fill_to_mem_tpath))
@@ -603,7 +603,7 @@ H5D__fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts)
     if(!buf)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "memory allocation failed for temporary fill buffer")
 
-    HDmemcpy(buf, fb_info->fill_buf, fb_info->fill_buf_size);
+    H5MM_memcpy(buf, fb_info->fill_buf, fb_info->fill_buf_size);
 
     /* Type convert the dataset buffer, to copy any VL components */
     if(H5T_convert(fb_info->mem_to_dset_tpath, fb_info->mem_tid, fb_info->file_tid, nelmts, (size_t)0, (size_t)0, fb_info->fill_buf, fb_info->bkg_buf) < 0)
@@ -647,7 +647,7 @@ done:
 static herr_t
 H5D__fill_release(H5D_fill_buf_info_t *fb_info)
 {
-    FUNC_ENTER_PACKAGE_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Check args */
     HDassert(fb_info);

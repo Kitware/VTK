@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-/* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+/* Programmer:  Quincey Koziol
  *              Thursday, March  1, 2007
  *
  * Purpose:	A message holding driver info settings
@@ -101,7 +101,7 @@ H5O_drvinfo_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed for driver info message")
 
     /* Retrieve driver name */
-    HDmemcpy(mesg->name, p, 8);
+    H5MM_memcpy(mesg->name, p, 8);
     mesg->name[8] = '\0';
     p += 8;
 
@@ -116,7 +116,7 @@ H5O_drvinfo_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
     } /* end if */
 
     /* Copy encoded driver info into buffer */
-    HDmemcpy(mesg->buf, p, mesg->len);
+    H5MM_memcpy(mesg->buf, p, mesg->len);
 
     /* Set return value */
     ret_value = (void *)mesg;
@@ -152,11 +152,11 @@ H5O_drvinfo_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_share
 
     /* Store version, driver name, buffer length, & encoded buffer */
     *p++ = H5O_DRVINFO_VERSION;
-    HDmemcpy(p, mesg->name, 8);
+    H5MM_memcpy(p, mesg->name, 8);
     p += 8;
     HDassert(mesg->len <= 65535);
     UINT16ENCODE(p, mesg->len);
-    HDmemcpy(p, mesg->buf, mesg->len);
+    H5MM_memcpy(p, mesg->buf, mesg->len);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O_drvinfo_encode() */
@@ -200,7 +200,7 @@ H5O_drvinfo_copy(const void *_mesg, void *_dest)
             dest = (H5O_drvinfo_t *)H5MM_xfree(dest);
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
     } /* end if */
-    HDmemcpy(dest->buf, mesg->buf, mesg->len);
+    H5MM_memcpy(dest->buf, mesg->buf, mesg->len);
 
     /* Set return value */
     ret_value = dest;
@@ -254,7 +254,6 @@ H5O_drvinfo_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_s
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Mar  1 2007
  *
  *-------------------------------------------------------------------------

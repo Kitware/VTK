@@ -15,7 +15,7 @@
  *
  * Created:     H5HLint.c
  *              Oct 12 2008
- *              Quincey Koziol <koziol@hdfgroup.org>
+ *              Quincey Koziol
  *
  * Purpose:     Local heap internal routines.
  *
@@ -213,7 +213,7 @@ CATCH
         if(NULL != (fl = H5FL_FREE(H5HL_free_t, fl)))
             H5E_THROW(H5E_CANTFREE, "unable to free local heap free list");
     } /* end while */
-    
+
     if(NULL != (heap = H5FL_FREE(H5HL_t, heap)))
         H5E_THROW(H5E_CANTFREE, "unable to free local heap");
 

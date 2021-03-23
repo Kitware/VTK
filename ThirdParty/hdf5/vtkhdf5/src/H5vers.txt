@@ -20,7 +20,7 @@
 # Blank lines and lines beginning with '#' are ignored
 #
 # The format of this file is as follows:
-#  <type>: <base routine name>; <list of parameter types for function>; <version introduced>, <list of revised versions>
+#  <type>: <base routine name>; <list of versioned parameter types for function>; <version introduced>, <list of revised versions>
 #
 # Where <type> is either 'FUNCTION' or 'TYPEDEF'
 #

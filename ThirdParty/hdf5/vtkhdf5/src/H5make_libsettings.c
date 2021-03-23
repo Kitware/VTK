@@ -32,16 +32,15 @@ static const char *FileHeader = "\n\
  *-------------------------------------------------------------------------
  */
 
-#include <stdio.h>
-#include <time.h>
 #include "H5private.h"
+
 /* Do NOT use HDfprintf in this file as it is not linked with the library,
  * which contains the H5system.c file in which the function is defined.
  */
 
 #define LIBSETTINGSFNAME "libhdf5.settings"
 
-FILE       *rawoutstream = NULL;
+FILE *rawoutstream = NULL;
 
 
 /*-------------------------------------------------------------------------
@@ -66,7 +65,7 @@ insert_libhdf5_settings(FILE *flibinfo)
     if(NULL == (fsettings = HDfopen(LIBSETTINGSFNAME, "r"))) {
         HDperror(LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
-    } /* end if */
+    }
 
     /* print variable definition and the string */
     /* Do not use const else AIX strings does not show it. */
@@ -77,30 +76,31 @@ insert_libhdf5_settings(FILE *flibinfo)
             /* Start a new line */
             fprintf(flibinfo, "\t\"");
             bol = 0;
-        } /* end if */
+        }
         if(inchar == '\n') {
             /* end of a line */
             fprintf(flibinfo, "\\n\"\n");
             bol++;
-        } /* end if */
+        }
         else
             HDputc(inchar, flibinfo);
-    } /* end while */
+    }
+
     if(HDfeof(fsettings)) {
         /* wrap up */
         if(!bol)
             /* EOF found without a new line */
             fprintf(flibinfo, "\\n\"\n");
         fprintf(flibinfo, ";\n\n");
-    } /* end if */
+    }
     else {
         fprintf(stderr, "Read errors encountered with %s\n", LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
-    } /* end else */
+    }
     if(0 != HDfclose(fsettings)) {
         HDperror(LIBSETTINGSFNAME);
         HDexit(EXIT_FAILURE);
-    } /* end if */
+    }
 #else
     /* print variable definition and an empty string */
     /* Do not use const else AIX strings does not show it. */
@@ -170,12 +170,12 @@ information about the library build configuration\n";
                 n = MIN(sizeof(real_name) - 1, (unsigned)(comma - pwd->pw_gecos));
                 HDstrncpy(real_name, pwd->pw_gecos, n);
                 real_name[n] = '\0';
-            } /* end if */
+            }
             else {
                 HDstrncpy(real_name, pwd->pw_gecos, sizeof(real_name));
                 real_name[sizeof(real_name) - 1] = '\0';
-            } /* end else */
-        } /* end if */
+            }
+        }
         else
             real_name[0] = '\0';
     }
@@ -214,13 +214,15 @@ information about the library build configuration\n";
         if(real_name[0])
             fprintf(rawoutstream, ">");
         HDfputc('\n', rawoutstream);
-    } /* end if */
+    }
+
     fprintf(rawoutstream, " *\n * Purpose:\t\t");
+
     for(s = purpose; *s; s++) {
         HDfputc(*s, rawoutstream);
         if('\n' == *s && s[1])
             fprintf(rawoutstream, " *\t\t\t");
-    } /* end for */
+    }
 
     fprintf(rawoutstream, " *\n * Modifications:\n *\n");
     fprintf(rawoutstream, " *\tDO NOT MAKE MODIFICATIONS TO THIS FILE!\n");

@@ -82,6 +82,7 @@
 /* Macros to represent the regularity of the selection for multiple chunk IO case. */
 #define H5D_CHUNK_SELECT_REG          1
 
+
 /******************/
 /* Local Typedefs */
 /******************/
@@ -363,13 +364,13 @@ H5D__mpio_opt_possible(const H5D_io_info_t *io_info, const H5S_t *file_space,
 
     /* Check to see if the process is reading the entire dataset */
     if(H5S_GET_SELECT_TYPE(file_space) != H5S_SEL_ALL)
-        local_cause[1] |= H5D_MPIO_RANK0_NOT_H5S_ALL; 
+        local_cause[1] |= H5D_MPIO_RANK0_NOT_H5S_ALL;
     /* Only perform this optimization for contigous datasets, currently */
     else if(H5D_CONTIGUOUS != io_info->dset->shared->layout.type)
-        /* Flag to do a MPI_Bcast of the data from one proc instead of 
+        /* Flag to do a MPI_Bcast of the data from one proc instead of
          * having all the processes involved in the collective I/O.
          */
-        local_cause[1] |= H5D_MPIO_RANK0_NOT_CONTIGUOUS; 
+        local_cause[1] |= H5D_MPIO_RANK0_NOT_CONTIGUOUS;
     else if((is_vl_storage = H5T_is_vl_storage(type_info->dset_type)) < 0)
         local_cause[0] |= H5D_MPIO_ERROR_WHILE_CHECKING_COLLECTIVE_POSSIBLE;
     else if(is_vl_storage)
@@ -393,7 +394,7 @@ H5D__mpio_opt_possible(const H5D_io_info_t *io_info, const H5S_t *file_space,
                 dset_size = ((hsize_t)snelmts) * type_size;
 
                /* If the size of the dataset is less than 2GB then do an MPI_Bcast
-                * of the data from one process instead of having all the processes 
+                * of the data from one process instead of having all the processes
                 * involved in the collective I/O.
                 */
                 if(dset_size > ((hsize_t)(2.0F * H5_GB) - 1))
@@ -401,7 +402,7 @@ H5D__mpio_opt_possible(const H5D_io_info_t *io_info, const H5S_t *file_space,
             } /* end else */
         } /* end else */
     } /* end else */
-    
+
     /* Check for independent I/O */
     if(local_cause[0] & H5D_MPIO_SET_INDEPENDENT)
         global_cause[0] = local_cause[0];
@@ -543,8 +544,7 @@ H5D__mpio_array_gatherv(void *local_array, size_t local_array_num_entries,
     MPI_Comm_size(comm, &mpi_size);
     MPI_Comm_rank(comm, &mpi_rank);
 
-    /*
-     * Determine the size of the end result array by collecting the number
+    /* Determine the size of the end result array by collecting the number
      * of entries contributed by each processor into a single total.
      */
     if (MPI_SUCCESS != (mpi_code = MPI_Allreduce(&local_array_num_entries, &gathered_array_num_entries, 1, MPI_INT, MPI_SUM, comm)))
@@ -812,7 +812,7 @@ H5D__chunk_collective_io(H5D_io_info_t *io_info, const H5D_type_info_t *type_inf
         io_option = H5D_ONE_LINK_CHUNK_IO;      /*no opt*/
     /* direct request to multi-chunk-io */
     else if(H5FD_MPIO_CHUNK_MULTI_IO == chunk_opt_mode)
-        io_option = H5D_MULTI_CHUNK_IO;         
+        io_option = H5D_MULTI_CHUNK_IO;
     /* via default path. branch by num threshold */
     else {
         unsigned one_link_chunk_io_threshold;   /* Threshold to use single collective I/O for all chunks */
@@ -1123,9 +1123,9 @@ if(H5DEBUG(D))
 
             /* Obtain MPI derived datatype from all individual chunks */
             for(u = 0; u < num_chunk; u++) {
-                hsize_t *permute_map = NULL; /* array that holds the mapping from the old, 
-                                                out-of-order displacements to the in-order 
-                                                displacements of the MPI datatypes of the 
+                hsize_t *permute_map = NULL; /* array that holds the mapping from the old,
+                                                out-of-order displacements to the in-order
+                                                displacements of the MPI datatypes of the
                                                 point selection of the file space */
                 hbool_t is_permuted = FALSE;
 
@@ -1135,8 +1135,8 @@ if(H5DEBUG(D))
                  *              where it will be freed.
                  */
                 if(H5S_mpio_space_type(chunk_addr_info_array[u].chunk_info.fspace,
-                                       type_info->src_type_size, 
-                                       &chunk_ftype[u], /* OUT: datatype created */ 
+                                       type_info->src_type_size,
+                                       &chunk_ftype[u], /* OUT: datatype created */
                                        &chunk_mpi_file_counts[u], /* OUT */
                                        &(chunk_mft_is_derived_array[u]), /* OUT */
                                        TRUE, /* this is a file space,
@@ -1154,9 +1154,9 @@ if(H5DEBUG(D))
                 if(is_permuted)
                     HDassert(permute_map);
                 if(H5S_mpio_space_type(chunk_addr_info_array[u].chunk_info.mspace,
-                                       type_info->dst_type_size, &chunk_mtype[u], 
-                                       &chunk_mpi_mem_counts[u], 
-                                       &(chunk_mbt_is_derived_array[u]), 
+                                       type_info->dst_type_size, &chunk_mtype[u],
+                                       &chunk_mpi_mem_counts[u],
+                                       &(chunk_mbt_is_derived_array[u]),
                                        FALSE, /* this is a memory
                                                  space, so if the file
                                                  space is not
@@ -1427,7 +1427,7 @@ H5D__link_chunk_filtered_collective_io(H5D_io_info_t *io_info, const H5D_type_in
             for (i = 0, offset = 0; i < (size_t) mpi_rank; i++)
                 offset += num_chunks_selected_array[i];
 
-            HDmemcpy(chunk_list, &collective_chunk_list[offset], num_chunks_selected_array[mpi_rank] * sizeof(H5D_filtered_collective_io_info_t));
+            H5MM_memcpy(chunk_list, &collective_chunk_list[offset], num_chunks_selected_array[mpi_rank] * sizeof(H5D_filtered_collective_io_info_t));
 
             /* Create single MPI type encompassing each selection in the dataspace */
             if (H5D__mpio_filtered_collective_write_type(chunk_list, chunk_list_num_entries,
@@ -1553,7 +1553,7 @@ if(H5DEBUG(D))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTRECV, FAIL, "unable to obtain MPIO mode")
 
     /* Set up contiguous I/O info object */
-    HDmemcpy(&ctg_io_info, io_info, sizeof(ctg_io_info));
+    H5MM_memcpy(&ctg_io_info, io_info, sizeof(ctg_io_info));
     ctg_io_info.store = &ctg_store;
     ctg_io_info.layout_ops = *H5D_LOPS_CONTIG;
 
@@ -1561,7 +1561,7 @@ if(H5DEBUG(D))
     ctg_store.contig.dset_size = (hsize_t)io_info->dset->shared->layout.u.chunk.size;
 
     /* Set up compact I/O info object */
-    HDmemcpy(&cpt_io_info, io_info, sizeof(cpt_io_info));
+    H5MM_memcpy(&cpt_io_info, io_info, sizeof(cpt_io_info));
     cpt_io_info.store = &cpt_store;
     cpt_io_info.layout_ops = *H5D_LOPS_COMPACT;
 
@@ -1788,7 +1788,7 @@ H5D__multi_chunk_filtered_collective_io(H5D_io_info_t *io_info, const H5D_type_i
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "couldn't construct filtered I/O info list")
 
     /* Set up contiguous I/O info object */
-    HDmemcpy(&ctg_io_info, io_info, sizeof(ctg_io_info));
+    H5MM_memcpy(&ctg_io_info, io_info, sizeof(ctg_io_info));
     ctg_io_info.store = &ctg_store;
     ctg_io_info.layout_ops = *H5D_LOPS_CONTIG;
 
@@ -1893,7 +1893,7 @@ H5D__multi_chunk_filtered_collective_io(H5D_io_info_t *io_info, const H5D_type_i
 
                 /* Collect the new chunk info back to the local copy, since only the record in the
                  * collective array gets updated by the chunk re-allocation */
-                HDmemcpy(&chunk_list[i].chunk_states.new_chunk, &collective_chunk_list[offset].chunk_states.new_chunk, sizeof(chunk_list[i].chunk_states.new_chunk));
+                H5MM_memcpy(&chunk_list[i].chunk_states.new_chunk, &collective_chunk_list[offset].chunk_states.new_chunk, sizeof(chunk_list[i].chunk_states.new_chunk));
 
                 H5_CHECKED_ASSIGN(mpi_type_count, int, chunk_list[i].chunk_states.new_chunk.length, hsize_t);
 
@@ -2016,9 +2016,9 @@ H5D__inter_collective_io(H5D_io_info_t *io_info, const H5D_type_info_t *type_inf
 
     if((file_space != NULL) && (mem_space != NULL)) {
         int  mpi_file_count;         /* Number of file "objects" to transfer */
-        hsize_t *permute_map = NULL; /* array that holds the mapping from the old, 
-                                        out-of-order displacements to the in-order 
-                                        displacements of the MPI datatypes of the 
+        hsize_t *permute_map = NULL; /* array that holds the mapping from the old,
+                                        out-of-order displacements to the in-order
+                                        displacements of the MPI datatypes of the
                                         point selection of the file space */
         hbool_t is_permuted = FALSE;
 
@@ -2027,8 +2027,8 @@ H5D__inter_collective_io(H5D_io_info_t *io_info, const H5D_type_info_t *type_inf
          *              and will be fed into the next call to H5S_mpio_space_type
          *              where it will be freed.
          */
-        if(H5S_mpio_space_type(file_space, type_info->src_type_size, 
-                               &mpi_file_type, &mpi_file_count, &mft_is_derived, /* OUT: datatype created */  
+        if(H5S_mpio_space_type(file_space, type_info->src_type_size,
+                               &mpi_file_type, &mpi_file_count, &mft_is_derived, /* OUT: datatype created */
                                TRUE, /* this is a file space, so
                                         permute the datatype if the
                                         point selection is out of
@@ -2037,13 +2037,13 @@ H5D__inter_collective_io(H5D_io_info_t *io_info, const H5D_type_info_t *type_inf
                                                 the permutation of
                                                 points selected in
                                                 case they are out of
-                                                order */ 
+                                                order */
                                &is_permuted /* OUT */) < 0)
             HGOTO_ERROR(H5E_DATASPACE, H5E_BADTYPE, FAIL, "couldn't create MPI file type")
         /* Sanity check */
         if(is_permuted)
             HDassert(permute_map);
-        if(H5S_mpio_space_type(mem_space, type_info->src_type_size, 
+        if(H5S_mpio_space_type(mem_space, type_info->src_type_size,
                                &mpi_buf_type, &mpi_buf_count, &mbt_is_derived, /* OUT: datatype created */
                                FALSE, /* this is a memory space, so if
                                          the file space is not
@@ -2055,7 +2055,7 @@ H5D__inter_collective_io(H5D_io_info_t *io_info, const H5D_type_info_t *type_inf
                                                generated by the
                                                file_space selection
                                                and applied to the
-                                               memory selection */, 
+                                               memory selection */,
                                &is_permuted /* IN */) < 0)
             HGOTO_ERROR(H5E_DATASPACE, H5E_BADTYPE, FAIL, "couldn't create MPI buffer type")
         /* Sanity check */
@@ -2517,18 +2517,20 @@ H5D__obtain_mpio_mode(H5D_io_info_t* io_info, H5D_chunk_map_t *fm,
 
 
         /* merge buffer io_mode info and chunk addr into one */
-        HDmemcpy(mergebuf, assign_io_mode, total_chunks);
-        HDmemcpy(tempbuf, chunk_addr, sizeof(haddr_t) * total_chunks);
+        H5MM_memcpy(mergebuf, assign_io_mode, total_chunks);
+        H5MM_memcpy(tempbuf, chunk_addr, sizeof(haddr_t) * total_chunks);
 
         H5MM_free(nproc_per_chunk);
     } /* end if */
 
     /* Broadcasting the MPI_IO option info. and chunk address info. */
-    if(MPI_SUCCESS != (mpi_code = MPI_Bcast(mergebuf, ((sizeof(haddr_t) + 1) * total_chunks), MPI_BYTE, root, comm)))
+    if((sizeof(haddr_t) + 1) * total_chunks > INT_MAX)
+        HGOTO_ERROR(H5E_DATASET, H5E_BADVALUE, FAIL, "result overflow")
+    if(MPI_SUCCESS != (mpi_code = MPI_Bcast(mergebuf, (int)((sizeof(haddr_t) + 1) * total_chunks), MPI_BYTE, root, comm)))
         HMPI_GOTO_ERROR(FAIL, "MPI_BCast failed", mpi_code)
 
-    HDmemcpy(assign_io_mode, mergebuf, total_chunks);
-    HDmemcpy(chunk_addr, tempbuf, sizeof(haddr_t) * total_chunks);
+    H5MM_memcpy(assign_io_mode, mergebuf, total_chunks);
+    H5MM_memcpy(chunk_addr, tempbuf, sizeof(haddr_t) * total_chunks);
 
 #ifdef H5_HAVE_INSTRUMENTED_LIBRARY
 {
@@ -2606,7 +2608,7 @@ H5D__construct_filtered_io_info_list(const H5D_io_info_t *io_info, const H5D_typ
         H5D_chunk_info_t *chunk_info;
         H5D_chunk_ud_t    udata;
         H5SL_node_t      *chunk_node;
-        hssize_t          select_npoints;
+        hsize_t           select_npoints;
         hssize_t          chunk_npoints;
 
         if(NULL == (local_info_array = (H5D_filtered_collective_io_info_t *) H5MM_malloc(num_chunks_selected * sizeof(H5D_filtered_collective_io_info_t))))
@@ -2625,15 +2627,14 @@ H5D__construct_filtered_io_info_list(const H5D_io_info_t *io_info, const H5D_typ
             local_info_array[i].num_writers = 0;
             local_info_array[i].owners.original_owner = local_info_array[i].owners.new_owner = mpi_rank;
             local_info_array[i].buf = NULL;
-            
+
             local_info_array[i].async_info.num_receive_requests = 0;
             local_info_array[i].async_info.receive_buffer_array = NULL;
             local_info_array[i].async_info.receive_requests_array = NULL;
 
-            HDmemcpy(local_info_array[i].scaled, chunk_info->scaled, sizeof(chunk_info->scaled));
+            H5MM_memcpy(local_info_array[i].scaled, chunk_info->scaled, sizeof(chunk_info->scaled));
 
-            if ((select_npoints = H5S_GET_SELECT_NPOINTS(chunk_info->mspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            select_npoints = H5S_GET_SELECT_NPOINTS(chunk_info->mspace);
             local_info_array[i].io_size = (size_t) select_npoints * type_info->src_type_size;
 
             /* Currently the full overwrite status of a chunk is only obtained on a per-process
@@ -2741,7 +2742,7 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
         HGOTO_ERROR(H5E_IO, H5E_MPI, FAIL, "unable to obtain mpi rank")
     if ((mpi_size = H5F_mpi_get_size(io_info->dset->oloc.file)) < 0)
         HGOTO_ERROR(H5E_IO, H5E_MPI, FAIL, "unable to obtain mpi size")
-    
+
     /* Set to latest format for encoding dataspace */
     H5CX_set_libver_bounds(NULL);
 
@@ -2806,8 +2807,9 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
         /* Sort the new list in order of previous owner so that each original owner of a chunk
          * entry gets that entry back, with the possibly newly-modified "new_owner" field
          */
-        HDqsort(shared_chunks_info_array, shared_chunks_info_array_num_entries,
-                sizeof(H5D_filtered_collective_io_info_t), H5D__cmp_filtered_collective_io_info_entry_owner);
+        if(shared_chunks_info_array_num_entries > 1)
+            HDqsort(shared_chunks_info_array, shared_chunks_info_array_num_entries,
+                    sizeof(H5D_filtered_collective_io_info_t), H5D__cmp_filtered_collective_io_info_entry_owner);
 
         send_displacements[0] = 0;
         for (i = 1; i < (size_t) mpi_size; i++)
@@ -2840,49 +2842,49 @@ H5D__chunk_redistribute_shared_chunks(const H5D_io_info_t *io_info, const H5D_ty
         if (mpi_rank != chunk_entry->owners.new_owner) {
             H5D_chunk_info_t *chunk_info = NULL;
             unsigned char    *mod_data_p = NULL;
-            hssize_t          iter_nelmts;
+            hsize_t           iter_nelmts;
             size_t            mod_data_size;
 
             /* Look up the chunk and get its file and memory dataspaces */
-            if (NULL == (chunk_info = (H5D_chunk_info_t *) H5SL_search(fm->sel_chunks, &chunk_entry->index)))
+            if(NULL == (chunk_info = (H5D_chunk_info_t *) H5SL_search(fm->sel_chunks, &chunk_entry->index)))
                 HGOTO_ERROR(H5E_DATASPACE, H5E_NOTFOUND, FAIL, "can't locate chunk in skip list")
 
             /* Determine size of serialized chunk file dataspace, plus the size of
              * the data being written
              */
-            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
+            if(H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTENCODE, FAIL, "unable to get encoded dataspace size")
 
-            if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace);
 
+            H5_CHECK_OVERFLOW(iter_nelmts, hsize_t, size_t);
             mod_data_size += (size_t) iter_nelmts * type_info->src_type_size;
 
-            if (NULL == (mod_data[num_send_requests] = (unsigned char *) H5MM_malloc(mod_data_size)))
+            if(NULL == (mod_data[num_send_requests] = (unsigned char *) H5MM_malloc(mod_data_size)))
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "couldn't allocate chunk modification send buffer")
 
             /* Serialize the chunk's file dataspace into the buffer */
             mod_data_p = mod_data[num_send_requests];
-            if (H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
+            if(H5S_encode(chunk_info->fspace, &mod_data_p, &mod_data_size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTENCODE, FAIL, "unable to encode dataspace")
 
             /* Initialize iterator for memory selection */
-            if (H5S_select_iter_init(mem_iter, chunk_info->mspace, type_info->src_type_size) < 0)
+            if(H5S_select_iter_init(mem_iter, chunk_info->mspace, type_info->src_type_size, 0) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
             mem_iter_init = TRUE;
 
             /* Collect the modification data into the buffer */
-            if(!H5D__gather_mem(io_info->u.wbuf, chunk_info->mspace, mem_iter, (size_t)iter_nelmts, mod_data_p))
+            if(0 == H5D__gather_mem(io_info->u.wbuf, mem_iter, (size_t)iter_nelmts, mod_data_p))
                 HGOTO_ERROR(H5E_IO, H5E_CANTGATHER, FAIL, "couldn't gather from write buffer")
 
             /* Send modification data to new owner */
             H5_CHECK_OVERFLOW(mod_data_size, size_t, int)
             H5_CHECK_OVERFLOW(chunk_entry->index, hsize_t, int)
-            if (MPI_SUCCESS != (mpi_code = MPI_Isend(mod_data[num_send_requests], (int) mod_data_size, MPI_BYTE,
+            if(MPI_SUCCESS != (mpi_code = MPI_Isend(mod_data[num_send_requests], (int) mod_data_size, MPI_BYTE,
                     chunk_entry->owners.new_owner, (int) chunk_entry->index, io_info->comm, &send_requests[num_send_requests])))
                 HMPI_GOTO_ERROR(FAIL, "MPI_Isend failed", mpi_code)
 
-            if (mem_iter_init && H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
+            if(mem_iter_init && H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "couldn't release memory selection iterator")
             mem_iter_init = FALSE;
 
@@ -3051,11 +3053,11 @@ H5D__mpio_filtered_collective_write_type(H5D_filtered_collective_io_info_t *chun
     } /* end if */
 
 done:
-    if (write_buf_array)
+    if(write_buf_array)
         H5MM_free(write_buf_array);
-    if (file_offset_array)
+    if(file_offset_array)
         H5MM_free(file_offset_array);
-    if (length_array)
+    if(length_array)
         H5MM_free(length_array);
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -3087,7 +3089,7 @@ H5D__filtered_collective_chunk_entry_io(H5D_filtered_collective_io_info_t *chunk
     H5Z_EDC_t         err_detect;       /* Error detection info */
     H5Z_cb_t          filter_cb;        /* I/O filter callback function */
     unsigned          filter_mask = 0;
-    hssize_t          iter_nelmts;     /* Number of points to iterate over for the chunk IO operation */
+    hsize_t           iter_nelmts;      /* Number of points to iterate over for the chunk IO operation */
     hssize_t          extent_npoints;
     hsize_t           true_chunk_size;
     hbool_t           mem_iter_init = FALSE;
@@ -3173,7 +3175,7 @@ H5D__filtered_collective_chunk_entry_io(H5D_filtered_collective_io_info_t *chunk
     if (NULL == (mem_iter = (H5S_sel_iter_t *) H5MM_malloc(sizeof(H5S_sel_iter_t))))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "couldn't allocate memory iterator")
 
-    if (H5S_select_iter_init(mem_iter, chunk_info->mspace, type_info->src_type_size) < 0)
+    if(H5S_select_iter_init(mem_iter, chunk_info->mspace, type_info->src_type_size, 0) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
     mem_iter_init = TRUE;
 
@@ -3183,96 +3185,91 @@ H5D__filtered_collective_chunk_entry_io(H5D_filtered_collective_io_info_t *chunk
      * from the current process, then apply any modifications from other processes. Finally,
      * filter the newly-updated chunk.
      */
-    switch (io_info->op_type) {
+    switch(io_info->op_type) {
         case H5D_IO_OP_READ:
-            if (NULL == (file_iter = (H5S_sel_iter_t *) H5MM_malloc(sizeof(H5S_sel_iter_t))))
+            if(NULL == (file_iter = (H5S_sel_iter_t *) H5MM_malloc(sizeof(H5S_sel_iter_t))))
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "couldn't allocate file iterator")
 
-            if (H5S_select_iter_init(file_iter, chunk_info->fspace, type_info->src_type_size) < 0)
+            if(H5S_select_iter_init(file_iter, chunk_info->fspace, type_info->src_type_size, 0) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
             file_iter_init = TRUE;
 
-            if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->fspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->fspace);
 
-            if (NULL == (tmp_gath_buf = H5MM_malloc((hsize_t) iter_nelmts * type_info->src_type_size)))
+            if(NULL == (tmp_gath_buf = H5MM_malloc(iter_nelmts * type_info->src_type_size)))
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "couldn't allocate temporary gather buffer")
 
-            if (!H5D__gather_mem(chunk_entry->buf, chunk_info->fspace, file_iter, (size_t) iter_nelmts, tmp_gath_buf))
+            if(!H5D__gather_mem(chunk_entry->buf, file_iter, (size_t) iter_nelmts, tmp_gath_buf))
                 HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "couldn't gather from chunk buffer")
 
-            if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace);
 
-            if (H5D__scatter_mem(tmp_gath_buf, chunk_info->mspace, mem_iter, (size_t) iter_nelmts, io_info->u.rbuf) < 0)
-                   HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "couldn't scatter to read buffer")
+            if(H5D__scatter_mem(tmp_gath_buf, mem_iter, (size_t) iter_nelmts, io_info->u.rbuf) < 0)
+                HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "couldn't scatter to read buffer")
 
             break;
 
         case H5D_IO_OP_WRITE:
-            if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->mspace);
 
-            if (NULL == (tmp_gath_buf = H5MM_malloc((hsize_t) iter_nelmts * type_info->src_type_size)))
+            if(NULL == (tmp_gath_buf = H5MM_malloc(iter_nelmts * type_info->src_type_size)))
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "couldn't allocate temporary gather buffer")
 
             /* Gather modification data from the application write buffer into a temporary buffer */
-            if(!H5D__gather_mem(io_info->u.wbuf, chunk_info->mspace, mem_iter, (size_t) iter_nelmts, tmp_gath_buf))
+            if(0 == H5D__gather_mem(io_info->u.wbuf, mem_iter, (size_t) iter_nelmts, tmp_gath_buf))
                 HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "couldn't gather from write buffer")
 
-            if (H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
+            if(H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "couldn't release selection iterator")
             mem_iter_init = FALSE;
 
             /* Initialize iterator for file selection */
-            if (H5S_select_iter_init(mem_iter, chunk_info->fspace, type_info->dst_type_size) < 0)
+            if(H5S_select_iter_init(mem_iter, chunk_info->fspace, type_info->dst_type_size, 0) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize file selection information")
             mem_iter_init = TRUE;
 
-            if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->fspace)) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+            iter_nelmts = H5S_GET_SELECT_NPOINTS(chunk_info->fspace);
 
             /* Scatter the owner's modification data into the chunk data buffer according to
              * the file space.
              */
-            if(H5D__scatter_mem(tmp_gath_buf, chunk_info->fspace, mem_iter, (size_t) iter_nelmts, chunk_entry->buf) < 0)
+            if(H5D__scatter_mem(tmp_gath_buf, mem_iter, (size_t) iter_nelmts, chunk_entry->buf) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "couldn't scatter to chunk data buffer")
 
-            if (H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
+            if(H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "couldn't release selection iterator")
             mem_iter_init = FALSE;
 
-            if (MPI_SUCCESS != (mpi_code = MPI_Waitall(chunk_entry->async_info.num_receive_requests,
+            if(MPI_SUCCESS != (mpi_code = MPI_Waitall(chunk_entry->async_info.num_receive_requests,
                     chunk_entry->async_info.receive_requests_array, MPI_STATUSES_IGNORE)))
                 HMPI_GOTO_ERROR(FAIL, "MPI_Waitall failed", mpi_code)
 
             /* For each asynchronous receive call previously posted, receive the chunk modification
              * buffer from another rank and update the chunk data
              */
-            for (i = 0; i < (size_t) chunk_entry->async_info.num_receive_requests; i++) {
+            for(i = 0; i < (size_t) chunk_entry->async_info.num_receive_requests; i++) {
                 const unsigned char *mod_data_p;
 
                 /* Decode the process' chunk file dataspace */
                 mod_data_p = chunk_entry->async_info.receive_buffer_array[i];
-                if (NULL == (dataspace = H5S_decode(&mod_data_p)))
+                if(NULL == (dataspace = H5S_decode(&mod_data_p)))
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTDECODE, FAIL, "unable to decode dataspace")
 
-                if (H5S_select_iter_init(mem_iter, dataspace, type_info->dst_type_size) < 0)
+                if(H5S_select_iter_init(mem_iter, dataspace, type_info->dst_type_size, 0) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
                 mem_iter_init = TRUE;
 
-                if ((iter_nelmts = H5S_GET_SELECT_NPOINTS(dataspace)) < 0)
-                    HGOTO_ERROR(H5E_DATASET, H5E_CANTCOUNT, FAIL, "dataspace is invalid")
+                iter_nelmts = H5S_GET_SELECT_NPOINTS(dataspace);
 
                 /* Update the chunk data with the received modification data */
-                if(H5D__scatter_mem(mod_data_p, dataspace, mem_iter, (size_t) iter_nelmts, chunk_entry->buf) < 0)
+                if(H5D__scatter_mem(mod_data_p, mem_iter, (size_t) iter_nelmts, chunk_entry->buf) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "couldn't scatter to write buffer")
 
-                if (H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
+                if(H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "couldn't release selection iterator")
                 mem_iter_init = FALSE;
-                if (dataspace) {
-                    if (H5S_close(dataspace) < 0)
+                if(dataspace) {
+                    if(H5S_close(dataspace) < 0)
                         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTFREE, FAIL, "can't close dataspace")
                     dataspace = NULL;
                 }

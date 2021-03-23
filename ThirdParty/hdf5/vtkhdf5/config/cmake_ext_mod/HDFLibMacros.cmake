@@ -20,7 +20,7 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
         GIT_TAG ${JPEG_BRANCH}
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DJPEG_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DJPEG_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -39,7 +39,7 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
         URL_MD5 ""
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DJPEG_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DJPEG_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -62,14 +62,6 @@ macro (EXTERNAL_JPEG_LIBRARY compress_type jpeg_pic)
   add_dependencies (${HDF_PACKAGE_NAMESPACE}jpeg-static JPEG)
   set (JPEG_STATIC_LIBRARY "${HDF_PACKAGE_NAMESPACE}jpeg-static")
   set (JPEG_LIBRARIES ${JPEG_STATIC_LIBRARY})
-  if (BUILD_SHARED_LIBS)
-    # Create imported target jpeg-shared
-    add_library(${HDF_PACKAGE_NAMESPACE}jpeg-shared SHARED IMPORTED)
-    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}jpeg-shared "jpeg" SHARED "")
-    add_dependencies (${HDF_PACKAGE_NAMESPACE}jpeg-shared JPEG)
-    set (JPEG_SHARED_LIBRARY "${HDF_PACKAGE_NAMESPACE}jpeg-shared")
-    set (JPEG_LIBRARIES ${JPEG_LIBRARIES} ${JPEG_SHARED_LIBRARY})
-  endif ()
 
   set (JPEG_INCLUDE_DIR_GEN "${BINARY_DIR}")
   set (JPEG_INCLUDE_DIR "${SOURCE_DIR}/src")
@@ -97,7 +89,7 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
         GIT_TAG ${SZIP_BRANCH}
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DSZIP_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DSZIP_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -117,7 +109,7 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
         URL_MD5 ""
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DSZIP_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DSZIP_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -134,21 +126,23 @@ macro (EXTERNAL_SZIP_LIBRARY compress_type encoding)
   endif ()
   externalproject_get_property (SZIP BINARY_DIR SOURCE_DIR)
 
-##include (${BINARY_DIR}/${SZIP_PACKAGE_NAME}${HDF_PACKAGE_EXT}-targets.cmake)
+##include (${BINARY_DIR}/${SZ_PACKAGE_NAME}${HDF_PACKAGE_EXT}-targets.cmake)
 # Create imported target szip-static
-  add_library(${HDF_PACKAGE_NAMESPACE}szip-static STATIC IMPORTED)
-  HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}szip-static "szip" STATIC "")
-  add_dependencies (${HDF_PACKAGE_NAMESPACE}szip-static SZIP)
-  set (SZIP_STATIC_LIBRARY "${HDF_PACKAGE_NAMESPACE}szip-static")
-  set (SZIP_LIBRARIES ${SZIP_STATIC_LIBRARY})
-  if (BUILD_SHARED_LIBS)
-    # Create imported target szip-shared
-    add_library(${HDF_PACKAGE_NAMESPACE}szip-shared SHARED IMPORTED)
-    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}szip-shared "szip" SHARED "")
-    add_dependencies (${HDF_PACKAGE_NAMESPACE}szip-shared SZIP)
-    set (SZIP_SHARED_LIBRARY "${HDF_PACKAGE_NAMESPACE}szip-shared")
-    set (SZIP_LIBRARIES ${SZIP_LIBRARIES} ${SZIP_SHARED_LIBRARY})
+  if (USE_LIBAEC)
+    add_library(${HDF_PACKAGE_NAMESPACE}sz-static STATIC IMPORTED)
+    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}sz-static "sz" STATIC "")
+    add_dependencies (${HDF_PACKAGE_NAMESPACE}sz-static SZIP)
+    add_library(${HDF_PACKAGE_NAMESPACE}aec-static STATIC IMPORTED)
+    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}aec-static "aec" STATIC "")
+    add_dependencies (${HDF_PACKAGE_NAMESPACE}aec-static SZIP)
+    set (SZIP_STATIC_LIBRARY "${HDF_PACKAGE_NAMESPACE}sz-static;${HDF_PACKAGE_NAMESPACE}aec-static")
+  else ()
+    add_library(${HDF_PACKAGE_NAMESPACE}szip-static STATIC IMPORTED)
+    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}szip-static "szip" STATIC "")
+    add_dependencies (${HDF_PACKAGE_NAMESPACE}szip-static SZIP)
+    set (SZIP_STATIC_LIBRARY "${HDF_PACKAGE_NAMESPACE}szip-static")
   endif ()
+  set (SZIP_LIBRARIES ${SZIP_STATIC_LIBRARY})
 
   set (SZIP_INCLUDE_DIR_GEN "${BINARY_DIR}")
   set (SZIP_INCLUDE_DIR "${SOURCE_DIR}/src")
@@ -158,11 +152,15 @@ endmacro ()
 
 #-------------------------------------------------------------------------------
 macro (PACKAGE_SZIP_LIBRARY compress_type)
+  set (SZIP_HDR "SZconfig")
+  if (USE_LIBAEC)
+    set (SZIP_HDR "libaec_Export")
+  endif ()
   add_custom_target (SZIP-GenHeader-Copy ALL
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SZIP_INCLUDE_DIR_GEN}/SZconfig.h ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
-      COMMENT "Copying ${SZIP_INCLUDE_DIR_GEN}/SZconfig.h to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SZIP_INCLUDE_DIR_GEN}/${SZIP_HDR}.h ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/
+      COMMENT "Copying ${SZIP_INCLUDE_DIR_GEN}/${SZIP_HDR}.h to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/"
   )
-  set (EXTERNAL_HEADER_LIST ${EXTERNAL_HEADER_LIST} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/SZconfig.h)
+  set (EXTERNAL_HEADER_LIST ${EXTERNAL_HEADER_LIST} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${SZIP_HDR}.h)
   if (${compress_type} MATCHES "GIT" OR ${compress_type} MATCHES "TGZ")
     add_dependencies (SZIP-GenHeader-Copy SZIP)
   endif ()
@@ -176,7 +174,7 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
         GIT_TAG ${ZLIB_BRANCH}
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DZLIB_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DZLIB_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -195,7 +193,7 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
         URL_MD5 ""
         INSTALL_COMMAND ""
         CMAKE_ARGS
-            -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+            -DBUILD_SHARED_LIBS:BOOL=OFF
             -DZLIB_PACKAGE_EXT:STRING=${HDF_PACKAGE_EXT}
             -DZLIB_EXTERNALLY_CONFIGURED:BOOL=OFF
             -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
@@ -224,14 +222,6 @@ macro (EXTERNAL_ZLIB_LIBRARY compress_type)
   add_dependencies (${HDF_PACKAGE_NAMESPACE}zlib-static ZLIB)
   set (ZLIB_STATIC_LIBRARY "${HDF_PACKAGE_NAMESPACE}zlib-static")
   set (ZLIB_LIBRARIES ${ZLIB_STATIC_LIBRARY})
-  if (BUILD_SHARED_LIBS)
-    # Create imported target zlib-shared
-    add_library(${HDF_PACKAGE_NAMESPACE}zlib-shared SHARED IMPORTED)
-    HDF_IMPORT_SET_LIB_OPTIONS (${HDF_PACKAGE_NAMESPACE}zlib-shared ${ZLIB_LIB_NAME} SHARED "")
-    add_dependencies (${HDF_PACKAGE_NAMESPACE}zlib-shared ZLIB)
-    set (ZLIB_SHARED_LIBRARY "${HDF_PACKAGE_NAMESPACE}zlib-shared")
-    set (ZLIB_LIBRARIES ${ZLIB_LIBRARIES} ${ZLIB_SHARED_LIBRARY})
-  endif ()
 
   set (ZLIB_INCLUDE_DIR_GEN "${BINARY_DIR}")
   set (ZLIB_INCLUDE_DIR "${SOURCE_DIR}")

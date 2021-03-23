@@ -15,7 +15,7 @@
  *
  * Created:		H5Ftest.c
  *			Jan  3 2007
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		File testing routines.
  *
@@ -82,7 +82,7 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_get_sohm_mesg_count_test
+ * Function:    H5F__get_sohm_mesg_count_test
  *
  * Purpose:     Retrieve the number of shared messages of a given type in a file
  *
@@ -94,13 +94,13 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_get_sohm_mesg_count_test(hid_t file_id, unsigned type_id, size_t *mesg_count)
+H5F__get_sohm_mesg_count_test(hid_t file_id, unsigned type_id, size_t *mesg_count)
 {
     H5F_t      *file;                       /* File info */
     hbool_t     api_ctx_pushed = FALSE;     /* Whether API context pushed */
     herr_t      ret_value = SUCCEED;        /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
@@ -120,11 +120,11 @@ done:
         HDONE_ERROR(H5E_FILE, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_get_sohm_mesg_count_test() */
+} /* end H5F__get_sohm_mesg_count_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_check_cached_stab_test
+ * Function:    H5F__check_cached_stab_test
  *
  * Purpose:     Check that a file's superblock contains a cached symbol
  *              table entry, that the entry matches that in the root
@@ -139,13 +139,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_check_cached_stab_test(hid_t file_id)
+H5F__check_cached_stab_test(hid_t file_id)
 {
     H5F_t      *file;                       /* File info */
     hbool_t     api_ctx_pushed = FALSE;     /* Whether API context pushed */
     herr_t      ret_value = SUCCEED;        /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
@@ -165,11 +165,11 @@ done:
         HDONE_ERROR(H5E_FILE, H5E_CANTRESET, FAIL, "can't reset API context")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_check_cached_stab_test() */
+} /* end H5F__check_cached_stab_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_get_maxaddr_test
+ * Function:    H5F__get_maxaddr_test
  *
  * Purpose:     Retrieve the maximum address for a file
  *
@@ -181,12 +181,12 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_get_maxaddr_test(hid_t file_id, haddr_t *maxaddr)
+H5F__get_maxaddr_test(hid_t file_id, haddr_t *maxaddr)
 {
     H5F_t      *file;                       /* File info */
     herr_t      ret_value = SUCCEED;        /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
@@ -197,11 +197,11 @@ H5F_get_maxaddr_test(hid_t file_id, haddr_t *maxaddr)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_get_maxaddr_test() */
+} /* end H5F__get_maxaddr_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5F_get_sbe_addr_test
+ * Function:    H5F__get_sbe_addr_test
  *
  * Purpose:     Retrieve the address of a superblock extension's object header
  *              for a file
@@ -214,21 +214,54 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_get_sbe_addr_test(hid_t file_id, haddr_t *sbe_addr)
+H5F__get_sbe_addr_test(hid_t file_id, haddr_t *sbe_addr)
 {
     H5F_t      *file;                       /* File info */
     herr_t      ret_value = SUCCEED;        /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if(NULL == (file = (H5F_t *)H5I_object_verify(file_id, H5I_FILE)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file")
 
     /* Retrieve maxaddr for file */
     *sbe_addr = file->shared->sblock->ext_addr;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_get_sbe_addr_test() */
+} /* end H5F__get_sbe_addr_test() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5F__reparse_file_lock_variable_test
+ *
+ * Purpose:     Re-parse the file locking environment variable.
+ *
+ *              Since getenv(3) is fairly expensive, we only parse it once,
+ *              when the library opens. This test function is used to
+ *              re-parse the environment variable after we've changed it
+ *              with setnev(3).
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:	Dana Robinson
+ *              Summer 2020
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F__reparse_file_lock_variable_test(void)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check the file locking environment variable */
+    if(H5F__parse_file_lock_env_var(&use_locks_env_g) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "unable to parse file locking environment variable")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F__reparse_file_lock_variable_test() */
 

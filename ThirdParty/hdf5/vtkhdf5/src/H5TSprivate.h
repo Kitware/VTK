@@ -19,13 +19,12 @@
  *
  * Purpose:		Private non-prototype header.
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 #ifndef H5TSprivate_H_
 #define H5TSprivate_H_
 
+#ifdef H5_HAVE_THREADSAFE
 /* Public headers needed by this file */
 #ifdef LATER
 #include "H5TSpublic.h"		/*Public API prototypes */
@@ -68,7 +67,7 @@ H5_DLL void H5TS_win32_process_exit(void);
 H5_DLL herr_t H5TS_win32_thread_enter(void);
 H5_DLL herr_t H5TS_win32_thread_exit(void);
 
-
+#define H5TS_thread_id() ((uint64_t)GetCurrentThreadId())
 
 #else /* H5_HAVE_WIN_THREADS */
 
@@ -102,6 +101,7 @@ typedef pthread_once_t H5TS_once_t;
 #define H5TS_mutex_init(mutex) pthread_mutex_init(mutex, NULL)
 #define H5TS_mutex_lock_simple(mutex) pthread_mutex_lock(mutex)
 #define H5TS_mutex_unlock_simple(mutex) pthread_mutex_unlock(mutex)
+H5_DLL uint64_t H5TS_thread_id(void);
 
 #endif /* H5_HAVE_WIN_THREADS */
 
@@ -126,6 +126,12 @@ H5_DLL H5TS_thread_t H5TS_create_thread(void *(*func)(void *), H5TS_attr_t * att
 #if defined c_plusplus || defined __cplusplus
 }
 #endif	/* c_plusplus || __cplusplus */
+
+#else /* H5_HAVE_THREADSAFE */
+
+#define H5TS_thread_id() ((uint64_t)0)
+
+#endif /* H5_HAVE_THREADSAFE */
 
 #endif	/* H5TSprivate_H_ */
 

@@ -15,7 +15,7 @@
  *
  * Created:		H5Odbg.c
  *			Nov 17 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Object header debugging routines.
  *
@@ -84,7 +84,6 @@
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Oct 17 2006
  *
  *-------------------------------------------------------------------------
@@ -153,7 +152,7 @@ H5O_assert(const H5O_t *oh)
 
     /* Loop over all messages in object header */
     for(u = 0, curr_msg = &oh->mesg[0]; u < oh->nmesgs; u++, curr_msg++) {
-        uint8_t *curr_hdr;      /* Start of current message header */
+        uint8_t H5_ATTR_NDEBUG_UNUSED *curr_hdr;      /* Start of current message header */
         size_t  curr_tot_size;  /* Total size of current message (including header) */
 
         curr_hdr = curr_msg->raw - H5O_SIZEOF_MSGHDR_OH(oh);
@@ -164,7 +163,7 @@ H5O_assert(const H5O_t *oh)
             free_space += curr_tot_size;
         else if(H5O_CONT_ID == curr_msg->type->id) {
             H5O_cont_t *cont = (H5O_cont_t *)curr_msg->native;
-            hbool_t found_chunk = FALSE;        /* Found a chunk that matches */
+            hbool_t H5_ATTR_NDEBUG_UNUSED found_chunk = FALSE;        /* Found a chunk that matches */
 
             HDassert(cont);
 
@@ -236,7 +235,6 @@ H5O_assert(const H5O_t *oh)
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 13 2003
  *
  *-------------------------------------------------------------------------
@@ -277,13 +275,8 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
- * Modifications:
- *   Feb. 2009: Vailin Choi
- *	Fixed bug in the accumulation of chunk_total
- *	Used the appropriate flag when printing creation order tracked/indexed
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -323,16 +316,16 @@ H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int 
     /* Extra information for later versions */
     if(oh->version > H5O_VERSION_1) {
         /* Display object's status flags */
-	HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+        HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
 		   "Attribute creation order tracked:",
 		   (oh->flags & H5O_HDR_ATTR_CRT_ORDER_TRACKED) ? "Yes" : "No");
-	HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+        HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
 		   "Attribute creation order indexed:",
 		   (oh->flags & H5O_HDR_ATTR_CRT_ORDER_INDEXED) ? "Yes" : "No");
-	HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+        HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
 		   "Attribute storage phase change values:",
 		   (oh->flags & H5O_HDR_ATTR_STORE_PHASE_CHANGE) ? "Non-default" : "Default");
-	HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
+        HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth,
 		   "Timestamps:",
 		   (oh->flags & H5O_HDR_STORE_TIMES) ? "Enabled" : "Disabled");
         if(oh->flags & ~H5O_HDR_ALL_FLAGS)
@@ -385,14 +378,14 @@ H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int 
     for(i = 0, chunk_total = 0; i < oh->nchunks; i++) {
         size_t chunk_size;
 
-	HDfprintf(stream, "%*sChunk %d...\n", indent, "", i);
+        HDfprintf(stream, "%*sChunk %d...\n", indent, "", i);
 
-	HDfprintf(stream, "%*s%-*s %a\n", indent + 3, "", MAX(0, fwidth - 3),
+        HDfprintf(stream, "%*s%-*s %a\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Address:",
                   oh->chunk[i].addr);
 
         /* Decrement chunk 0's size by the object header prefix size */
-	if(0 == i) {
+        if(0 == i) {
             if(H5F_addr_ne(oh->chunk[i].addr, addr))
                 HDfprintf(stream, "*** WRONG ADDRESS FOR CHUNK #0!\n");
             chunk_size = oh->chunk[i].size - (size_t)H5O_SIZEOF_HDR(oh);
@@ -401,54 +394,53 @@ H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int 
             chunk_size = oh->chunk[i].size;
 
         /* Accumulate chunk's size to total */
-	chunk_total += chunk_size;
-	gap_total += oh->chunk[i].gap;
+        chunk_total += chunk_size;
+        gap_total += oh->chunk[i].gap;
 
-	HDfprintf(stream, "%*s%-*s %Zu\n", indent + 3, "", MAX(0, fwidth - 3),
+        HDfprintf(stream, "%*s%-*s %Zu\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Size in bytes:",
 		  chunk_size);
 
-	HDfprintf(stream, "%*s%-*s %Zu\n", indent + 3, "", MAX(0, fwidth - 3),
+        HDfprintf(stream, "%*s%-*s %Zu\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Gap:",
                   oh->chunk[i].gap);
     } /* end for */
 
     /* debug each message */
     if(NULL == (sequence = (unsigned *)H5MM_calloc(NELMTS(H5O_msg_class_g) * sizeof(unsigned))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
     for(i = 0, mesg_total = 0; i < oh->nmesgs; i++) {
         const H5O_msg_class_t  *debug_type;              /* Type of message to use for callbacks */
         unsigned chunkno;                       /* Chunk for message */
 
         /* Accumulate message's size to total */
-	mesg_total += (size_t)H5O_SIZEOF_MSGHDR_OH(oh) + oh->mesg[i].raw_size;
+        mesg_total += (size_t)H5O_SIZEOF_MSGHDR_OH(oh) + oh->mesg[i].raw_size;
 
-	/* For version 2 object header, add size of "OCHK" for continuation chunk */
-	if (oh->mesg[i].type->id == H5O_CONT_ID)
-	    mesg_total += H5O_SIZEOF_CHKHDR_OH(oh);
+        /* For version 2 object header, add size of "OCHK" for continuation chunk */
+        if(oh->mesg[i].type->id == H5O_CONT_ID)
+            mesg_total += H5O_SIZEOF_CHKHDR_OH(oh);
 
-	HDfprintf(stream, "%*sMessage %d...\n", indent, "", i);
+        HDfprintf(stream, "%*sMessage %d...\n", indent, "", i);
 
-	/* check for bad message id */
-	if(oh->mesg[i].type->id >= (int)NELMTS(H5O_msg_class_g)) {
-	    HDfprintf(stream, "*** BAD MESSAGE ID 0x%04x\n",
-		      oh->mesg[i].type->id);
-	    continue;
-	} /* end if */
+        /* check for bad message id */
+        if(oh->mesg[i].type->id >= (int)NELMTS(H5O_msg_class_g)) {
+            HDfprintf(stream, "*** BAD MESSAGE ID 0x%04x\n", oh->mesg[i].type->id);
+            continue;
+        } /* end if */
 
-	/* message name and size */
-	HDfprintf(stream, "%*s%-*s 0x%04x `%s' (%d)\n",
+        /* message name and size */
+        HDfprintf(stream, "%*s%-*s 0x%04x `%s' (%d)\n",
 		  indent + 3, "", MAX(0, fwidth - 3),
 		  "Message ID (sequence number):",
 		  (unsigned) (oh->mesg[i].type->id),
 		  oh->mesg[i].type->name,
 		  sequence[oh->mesg[i].type->id]++);
-	HDfprintf(stream, "%*s%-*s %t\n", indent + 3, "", MAX (0, fwidth - 3),
+        HDfprintf(stream, "%*s%-*s %t\n", indent + 3, "", MAX (0, fwidth - 3),
 		   "Dirty:",
 		   oh->mesg[i].dirty);
         HDfprintf(stream, "%*s%-*s ", indent + 3, "", MAX (0, fwidth - 3),
                    "Message flags:");
-	if(oh->mesg[i].flags) {
+        if(oh->mesg[i].flags) {
             hbool_t flag_printed = FALSE;
 
             /* Sanity check that all flags in format are covered below */
@@ -497,39 +489,40 @@ H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int 
         } /* end if */
         else
             HDfprintf(stream, "<none>\n");
-	HDfprintf(stream, "%*s%-*s %u\n", indent + 3, "", MAX(0, fwidth - 3),
+
+        HDfprintf(stream, "%*s%-*s %u\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Chunk number:",
 		  oh->mesg[i].chunkno);
-	chunkno = oh->mesg[i].chunkno;
-	if(chunkno >= oh->nchunks)
-	    HDfprintf(stream, "*** BAD CHUNK NUMBER\n");
-	HDfprintf(stream, "%*s%-*s (%Zu, %Zu) bytes\n", indent + 3, "", MAX(0, fwidth - 3),
+        chunkno = oh->mesg[i].chunkno;
+        if(chunkno >= oh->nchunks)
+            HDfprintf(stream, "*** BAD CHUNK NUMBER\n");
+        HDfprintf(stream, "%*s%-*s (%Zu, %Zu) bytes\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Raw message data (offset, size) in chunk:",
 		  (size_t)(oh->mesg[i].raw - oh->chunk[chunkno].image),
 		  oh->mesg[i].raw_size);
 
-	/* check the size */
-	if((oh->mesg[i].raw + oh->mesg[i].raw_size >
+        /* check the size */
+        if((oh->mesg[i].raw + oh->mesg[i].raw_size >
                  oh->chunk[chunkno].image + oh->chunk[chunkno].size) ||
                 (oh->mesg[i].raw < oh->chunk[chunkno].image))
-	    HDfprintf(stream, "*** BAD MESSAGE RAW ADDRESS\n");
+            HDfprintf(stream, "*** BAD MESSAGE RAW ADDRESS\n");
 
-	/* decode the message */
-	debug_type = oh->mesg[i].type;
-	if(NULL == oh->mesg[i].native && debug_type->decode)
+        /* decode the message */
+        debug_type = oh->mesg[i].type;
+        if(NULL == oh->mesg[i].native && debug_type->decode)
             H5O_LOAD_NATIVE(f, H5O_DECODEIO_NOCHANGE, oh, &oh->mesg[i], FAIL)
 
-	/* print the message */
-	HDfprintf(stream, "%*s%-*s\n", indent + 3, "", MAX(0, fwidth - 3),
+        /* print the message */
+        HDfprintf(stream, "%*s%-*s\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Message Information:");
-	if(debug_type->debug && oh->mesg[i].native != NULL)
-	    (debug_type->debug)(f, oh->mesg[i].native, stream, indent + 6, MAX(0, fwidth - 6));
-	else
-	    HDfprintf(stream, "%*s<No info for this message>\n", indent + 6, "");
+        if(debug_type->debug && oh->mesg[i].native != NULL)
+            (debug_type->debug)(f, oh->mesg[i].native, stream, indent + 6, MAX(0, fwidth - 6));
+        else
+            HDfprintf(stream, "%*s<No info for this message>\n", indent + 6, "");
     } /* end for */
 
     if((mesg_total + gap_total) != chunk_total)
-	HDfprintf(stream, "*** TOTAL SIZE DOES NOT MATCH ALLOCATED SIZE!\n");
+        HDfprintf(stream, "*** TOTAL SIZE DOES NOT MATCH ALLOCATED SIZE!\n");
 
 done:
     /* Release resources */
@@ -548,7 +541,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Robb Matzke
- *		matzke@llnl.gov
  *		Aug  6 1997
  *
  *-------------------------------------------------------------------------
@@ -575,14 +567,15 @@ H5O_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth)
     loc.holding_file = FALSE;
 
     if(NULL == (oh = H5O_protect(&loc, H5AC__READ_ONLY_FLAG, FALSE)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* debug */
-    H5O_debug_real(f, oh, addr, stream, indent, fwidth);
+    if(H5O_debug_real(f, oh, addr, stream, indent, fwidth) < 0)
+        HGOTO_ERROR(H5E_OHDR, H5E_SYSTEM, FAIL, "debug dump call failed")
 
 done:
     if(oh && H5O_unprotect(&loc, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O_debug() */

@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:      Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:      Quincey Koziol
  *                  Tuesday, June 17, 2008
  *
  * Purpose:         This file contains declarations which are visible only
@@ -219,10 +219,10 @@ typedef struct H5EA_hdr_t {
                                          * of the extensible array header.
  					 *
  					 * The field is used to avoid duplicate
-					 * setups of the flush dependency 
-					 * relationship, and to allow the 
+					 * setups of the flush dependency
+					 * relationship, and to allow the
 					 * extensible array header to destroy
-					 * the flush dependency on receipt of 
+					 * the flush dependency on receipt of
 					 * an eviction notification from the
 					 * metadata cache.
 					 */
@@ -448,7 +448,7 @@ H5_DLL herr_t H5EA__dblock_dest(H5EA_dblock_t *dblock);
 H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_alloc(H5EA_hdr_t *hdr, H5EA_sblock_t *parent);
 H5_DLL herr_t H5EA__dblk_page_create(H5EA_hdr_t *hdr, H5EA_sblock_t *parent,
     haddr_t addr);
-H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_protect(H5EA_hdr_t *hdr, 
+H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_protect(H5EA_hdr_t *hdr,
     H5EA_sblock_t *parent, haddr_t dblk_page_addr, unsigned flags);
 H5_DLL herr_t H5EA__dblk_page_unprotect(H5EA_dblk_page_t *dblk_page,
     unsigned cache_flags);
@@ -469,8 +469,8 @@ H5_DLL herr_t H5EA__dblock_debug(H5F_t *f, haddr_t addr,
 
 /* Testing routines */
 #ifdef H5EA_TESTING
-H5_DLL herr_t H5EA_get_cparam_test(const H5EA_t *ea, H5EA_create_t *cparam);
-H5_DLL int H5EA_cmp_cparam_test(const H5EA_create_t *cparam1, const H5EA_create_t *cparam2);
+H5_DLL herr_t H5EA__get_cparam_test(const H5EA_t *ea, H5EA_create_t *cparam);
+H5_DLL int H5EA__cmp_cparam_test(const H5EA_create_t *cparam1, const H5EA_create_t *cparam2);
 #endif /* H5EA_TESTING */
 
 #endif /* _H5EApkg_H */

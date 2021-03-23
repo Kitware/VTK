@@ -15,7 +15,7 @@
  *
  * Created:     H5HFtiny.c
  *              Aug 14 2006
- *              Quincey Koziol <koziol@hdfgroup.org>
+ *              Quincey Koziol
  *
  * Purpose:     Routines for "tiny" objects in fractal heap
  *
@@ -35,6 +35,7 @@
 #include "H5private.h"      /* Generic Functions        */
 #include "H5Eprivate.h"     /* Error handling           */
 #include "H5HFpkg.h"        /* Fractal heaps            */
+#include "H5MMprivate.h"	/* Memory management			*/
 
 
 /****************/
@@ -62,7 +63,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static herr_t H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id,
+static herr_t H5HF__tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id,
     H5HF_operator_t op, void *op_data);
 
 
@@ -89,7 +90,6 @@ static herr_t H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id,
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
@@ -136,7 +136,6 @@ H5HF_tiny_init(H5HF_hdr_t *hdr)
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
@@ -149,9 +148,6 @@ H5HF_tiny_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
-#ifdef QAK
-HDfprintf(stderr, "%s: obj_size = %Zu\n", FUNC, obj_size);
-#endif /* QAK */
 
     /*
      * Check arguments.
@@ -176,7 +172,7 @@ HDfprintf(stderr, "%s: obj_size = %Zu\n", FUNC, obj_size);
         *id++ = enc_obj_size & H5HF_TINY_MASK_EXT_2;
     } /* end else */
 
-    HDmemcpy(id, obj, obj_size);
+    H5MM_memcpy(id, obj, obj_size);
     HDmemset(id + obj_size, 0, (hdr->id_len - ((size_t)1 + (size_t)hdr->tiny_len_extended + obj_size)));
 
     /* Update statistics about heap */
@@ -200,7 +196,6 @@ done:
  * Return:      SUCCEED (Can't fail)
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
@@ -236,26 +231,25 @@ H5HF_tiny_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5HF_tiny_op_real
+ * Function:    H5HF__tiny_op_real
  *
  * Purpose:     Internal routine to perform operation on 'tiny' object
  *
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Sep 11 2006
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
+H5HF__tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
     void *op_data)
 {
     size_t enc_obj_size;                /* Encoded object size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /*
      * Check arguments.
@@ -263,11 +257,11 @@ H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
     HDassert(hdr);
     HDassert(id);
     HDassert(op);
-    
+
     /* Get the object's encoded length */
     /* H5HF_tiny_obj_len can't fail */
     ret_value = H5HF_tiny_get_obj_len(hdr, id, &enc_obj_size);
-    
+
     /* Advance past flag byte(s) */
     if(!hdr->tiny_len_extended)
         id++;
@@ -284,7 +278,7 @@ H5HF_tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5HF_tiny_op_real() */
+} /* end H5HF__tiny_op_real() */
 
 
 /*-------------------------------------------------------------------------
@@ -295,7 +289,6 @@ done:
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Aug  8 2006
  *
  *-------------------------------------------------------------------------
@@ -315,7 +308,7 @@ H5HF_tiny_read(H5HF_hdr_t *hdr, const uint8_t *id, void *obj)
     HDassert(obj);
 
     /* Call the internal 'op' routine */
-    if(H5HF_tiny_op_real(hdr, id, H5HF_op_read, obj) < 0)
+    if(H5HF__tiny_op_real(hdr, id, H5HF_op_read, obj) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
 
 done:
@@ -331,7 +324,6 @@ done:
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Sept 11 2006
  *
  *-------------------------------------------------------------------------
@@ -352,7 +344,7 @@ H5HF_tiny_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
     HDassert(op);
 
     /* Call the internal 'op' routine routine */
-    if(H5HF_tiny_op_real(hdr, id, op, op_data) < 0)
+    if(H5HF__tiny_op_real(hdr, id, op, op_data) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
 
 done:
@@ -368,7 +360,6 @@ done:
  * Return:      SUCCEED/FAIL
  *
  * Programmer:  Quincey Koziol
- *              koziol@hdfgroup.org
  *              Aug 14 2006
  *
  *-------------------------------------------------------------------------

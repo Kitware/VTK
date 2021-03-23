@@ -15,7 +15,7 @@
  *
  * Created:		H5B2.c
  *			Jan 31 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ *			Quincey Koziol
  *
  * Purpose:		Implements a B-tree, with several modifications from
  *                      the "standard" methods.
@@ -129,7 +129,6 @@ H5FL_DEFINE_STATIC(H5B2_t);
  *              filled in), negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Jan 31 2005
  *
  *-------------------------------------------------------------------------
@@ -200,7 +199,6 @@ done:
  *              NULL on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Oct 15 2009
  *
  *-------------------------------------------------------------------------
@@ -220,7 +218,7 @@ H5B2_open(H5F_t *f, haddr_t addr, void *ctx_udata)
 
     /* Look up the B-tree header */
     if(NULL == (hdr = H5B2__hdr_protect(f, addr, ctx_udata, H5AC__READ_ONLY_FLAG)))
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, NULL, "unable to protect v2 B-tree header")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, NULL, "unable to protect v2 B-tree header")
 
     /* Check for pending heap deletion */
     if(hdr->pending_delete)
@@ -264,7 +262,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb  2 2005
  *
  *-------------------------------------------------------------------------
@@ -307,7 +304,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Dec 23 2015
  *
  *-------------------------------------------------------------------------
@@ -379,7 +375,6 @@ done:
  * Return:	SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov  5 2009
  *
  *-------------------------------------------------------------------------
@@ -414,7 +409,6 @@ H5B2_get_addr(const H5B2_t *bt2, haddr_t *addr_p)
  * Return:	Value from callback: non-negative on success, negative on error
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 11 2005
  *
  *-------------------------------------------------------------------------
@@ -465,7 +459,6 @@ H5B2_iterate(H5B2_t *bt2, H5B2_operator_t op, void *op_data)
  * Return:	Non-negative (TRUE/FALSE) on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 23 2005
  *
  *-------------------------------------------------------------------------
@@ -507,7 +500,7 @@ H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data)
         if((hdr->cls->compare)(udata, hdr->min_native_rec, &cmp) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
         if(cmp < 0)
-            HGOTO_DONE(FALSE) 	/* Less than the least record--not found */ 
+            HGOTO_DONE(FALSE) 	/* Less than the least record--not found */
 	else if(cmp == 0) { /* Record is found */
 	    if(op && (op)(hdr->min_native_rec, op_data) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "'found' callback failed for B-tree find operation")
@@ -518,7 +511,7 @@ H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data)
 	if((hdr->cls->compare)(udata, hdr->max_native_rec, &cmp) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
         if(cmp > 0)
-            HGOTO_DONE(FALSE) 	/* Less than the least record--not found */ 
+            HGOTO_DONE(FALSE) 	/* Less than the least record--not found */
 	else if(cmp == 0) { /* Record is found */
 	    if(op && (op)(hdr->max_native_rec, op_data) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "'found' callback failed for B-tree find operation")
@@ -662,7 +655,7 @@ H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data)
                         if(hdr->min_native_rec == NULL)
                             if(NULL == (hdr->min_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                                 HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "memory allocation failed for v2 B-tree min record info")
-                        HDmemcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
+                        H5MM_memcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
                     } /* end if */
                 } /* end if */
                 if(idx == (unsigned)(leaf->nrec - 1)) {
@@ -670,7 +663,7 @@ H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data)
                         if(hdr->max_native_rec == NULL)
                             if(NULL == (hdr->max_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                                 HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "memory allocation failed for v2 B-tree max record info")
-                        HDmemcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
+                        H5MM_memcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
                     } /* end if */
                 } /* end if */
             } /* end if */
@@ -705,7 +698,6 @@ done:
  * Return:	Non-negative on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 23 2005
  *
  *-------------------------------------------------------------------------
@@ -894,7 +886,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 25 2005
  *
  *-------------------------------------------------------------------------
@@ -968,7 +959,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Nov 14 2006
  *
  *-------------------------------------------------------------------------
@@ -1051,7 +1041,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Feb 25 2005
  *
  *-------------------------------------------------------------------------
@@ -1092,7 +1081,6 @@ H5B2_get_nrec(const H5B2_t *bt2, hsize_t *nrec)
  * Return:	Non-negative on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar  8 2005
  *
  *-------------------------------------------------------------------------
@@ -1150,7 +1138,6 @@ done:
  * Return:	Non-negative on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar 10 2005
  *
  *-------------------------------------------------------------------------
@@ -1343,7 +1330,7 @@ H5B2_modify(H5B2_t *bt2, void *udata, H5B2_modify_t op, void *op_data)
                         if(hdr->min_native_rec == NULL)
                             if(NULL == (hdr->min_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                                 HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "memory allocation failed for v2 B-tree min record info")
-                        HDmemcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
+                        H5MM_memcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
                     } /* end if */
                 } /* end if */
                 if(idx == (unsigned)(leaf->nrec - 1)) {
@@ -1351,7 +1338,7 @@ H5B2_modify(H5B2_t *bt2, void *udata, H5B2_modify_t op, void *op_data)
                         if(hdr->max_native_rec == NULL)
                             if(NULL == (hdr->max_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                                 HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "memory allocation failed for v2 B-tree max record info")
-                        HDmemcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
+                        H5MM_memcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
                     } /* end if */
                 } /* end if */
             } /* end if */
@@ -1384,7 +1371,6 @@ done:
  * Return:	Non-negative on success/Negative on failure
  *
  * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
  *		Oct 15 2009
  *
  *-------------------------------------------------------------------------
@@ -1493,7 +1479,6 @@ done:
  * Return:	Non-negative on success, negative on failure.
  *
  * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
  *		Mar  9 2005
  *
  *-------------------------------------------------------------------------
@@ -1512,9 +1497,6 @@ H5B2_delete(H5F_t *f, haddr_t addr, void *ctx_udata, H5B2_remove_t op,
     HDassert(H5F_addr_defined(addr));
 
     /* Lock the v2 B-tree header into memory */
-#ifdef QAK
-HDfprintf(stderr, "%s: addr = %a\n", FUNC, addr);
-#endif /* QAK */
     if(NULL == (hdr = H5B2__hdr_protect(f, addr, ctx_udata, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect v2 B-tree header")
 
@@ -1601,7 +1583,7 @@ done:
  * Function:    H5B2_patch_file
  *
  * Purpose:     Patch the top-level file pointer contained in bt2
- *              to point to idx_info->f if they are different.  
+ *              to point to idx_info->f if they are different.
  *		This is possible because the file pointer in bt2 can be
  *		closed out if bt2 remains open.
  *

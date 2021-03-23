@@ -15,7 +15,7 @@
  *
  * Created:		H5FDspace.c
  *			Jan  3 2008
- *			Quincey Koziol <koziol@hdfgroup.org>
+ *			Quincey Koziol
  *
  * Purpose:		Space allocation routines for the file driver code.
  *
@@ -38,6 +38,7 @@
 #include "H5Fprivate.h"         /* File access				*/
 #include "H5FDpkg.h"		/* File Drivers				*/
 #include "H5FDmulti.h"		/* Usage-partitioned file family	*/
+#include "H5FLprivate.h"        /* Free lists                               */
 
 
 /****************/
@@ -273,7 +274,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_free_real
+ * Function:    H5FD__free_real
  *
  * Purpose:     Release space back to the VFD
  *
@@ -286,11 +287,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
+H5FD__free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     HDassert(file);
@@ -348,13 +349,13 @@ HDfprintf(stderr, "%s: LEAKED MEMORY!!! type = %u, addr = %a, size = %Hu\n", FUN
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_free_real() */
+} /* end H5FD__free_real() */
 
 
 /*-------------------------------------------------------------------------
  * Function:    H5FD_free
  *
- * Purpose:     Wrapper for H5FD_free_real, to make certain EOA changes are
+ * Purpose:     Wrapper for H5FD__free_real, to make certain EOA changes are
  *		reflected in superblock.
  *
  * Note:	When the metadata cache routines are updated to allow
@@ -383,7 +384,7 @@ H5FD_free(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t addr, hsize_t size)
     HDassert(size > 0);
 
     /* Call the real 'free' routine */
-    if(H5FD_free_real(file, type, addr, size) < 0)
+    if(H5FD__free_real(file, type, addr, size) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "real 'free' request failed")
 
     /* Mark EOA info dirty in cache, so change will get encoded */
@@ -414,8 +415,7 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end,
-    hsize_t extra_requested)
+H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end, hsize_t extra_requested)
 {
     haddr_t eoa;                /* End of allocated space in file */
     htri_t ret_value = FALSE;   /* Return value */

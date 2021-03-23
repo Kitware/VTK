@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@hdfgroup.org>
+ * Programmer:	Quincey Koziol
  *		Thursday, January  3, 2008
  *
  * Purpose:	This file contains declarations which are visible only within
@@ -30,7 +30,6 @@
 #include "H5FDprivate.h"	/* File drivers				*/
 
 /* Other private headers needed by this file */
-#include "H5FLprivate.h"	/* Free lists                           */
 
 /**************************/
 /* Package Private Macros */
@@ -50,14 +49,12 @@
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL haddr_t H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size,
-    haddr_t *align_addr, hsize_t *align_size);
-H5_DLL herr_t H5FD_free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr,
-    hsize_t size);
+H5_DLL haddr_t H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size, haddr_t *align_addr, hsize_t *align_size);
+H5_DLL herr_t H5FD__free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size);
 
 /* Testing functions */
 #ifdef H5FD_TESTING
-H5_DLL hbool_t H5FD_supports_swmr_test(const char *vfd_name);
+H5_DLL hbool_t H5FD__supports_swmr_test(const char *vfd_name);
 #endif /* H5FD_TESTING */
 
 #endif /* _H5FDpkg_H */

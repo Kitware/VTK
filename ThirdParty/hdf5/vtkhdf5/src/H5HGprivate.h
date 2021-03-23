@@ -12,7 +12,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Robb Matzke <matzke@llnl.gov>
+ * Programmer:  Robb Matzke
  *              Friday, March 27, 1998
  */
 #ifndef _H5HGprivate_H
@@ -51,7 +51,7 @@ typedef struct H5HG_heap_t H5HG_heap_t;
 
 
 /* Main global heap routines */
-H5_DLL herr_t H5HG_insert(H5F_t *f, size_t size, void *obj, H5HG_t *hobj/*out*/);
+H5_DLL herr_t H5HG_insert(H5F_t *f, size_t size, const void *obj, H5HG_t *hobj/*out*/);
 H5_DLL void *H5HG_read(H5F_t *f, H5HG_t *hobj, void *object, size_t *buf_size/*out*/);
 H5_DLL int H5HG_link(H5F_t *f, const H5HG_t *hobj, int adjust);
 H5_DLL herr_t H5HG_get_obj_size(H5F_t *f, H5HG_t *hobj, size_t *obj_size);

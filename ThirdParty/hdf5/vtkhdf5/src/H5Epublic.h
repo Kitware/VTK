@@ -100,14 +100,14 @@ H5_DLLVAR hid_t H5E_ERR_CLS_g;
 }
 #else /* H5_NO_DEPRECATED_SYMBOLS */
 #define H5E_BEGIN_TRY {							      \
-    H5E_auto_t saved_efunc;						      \
+    H5E_auto2_t saved_efunc;						      \
     void *H5E_saved_edata;						      \
 								    	      \
-    (void)H5Eget_auto(H5E_DEFAULT, &saved_efunc, &H5E_saved_edata);	      \
-    (void)H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+    (void)H5Eget_auto2(H5E_DEFAULT, &saved_efunc, &H5E_saved_edata);	      \
+    (void)H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
 #define H5E_END_TRY							      \
-    (void)H5Eset_auto(H5E_DEFAULT, saved_efunc, H5E_saved_edata);	      \
+    (void)H5Eset_auto2(H5E_DEFAULT, saved_efunc, H5E_saved_edata);	      \
 }
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

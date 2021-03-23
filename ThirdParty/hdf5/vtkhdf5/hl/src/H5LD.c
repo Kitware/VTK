@@ -11,10 +11,6 @@
  * help@hdfgroup.org.                                                        *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
 #include "H5LDprivate.h"
 
 /*-------------------------------------------------------------------------
@@ -209,7 +205,7 @@ H5LD_construct_vector(char *fields, H5LD_memb_t *listv[]/*OUT*/, hid_t par_tid)
                         valid = FALSE;
                     end_of_fields = TRUE;
                     break;
-	
+
                 case '\\': /* escape character */
                     ++fields_ptr; /* skip it */
                     if(*fields_ptr == '\0')
@@ -241,7 +237,7 @@ H5LD_construct_vector(char *fields, H5LD_memb_t *listv[]/*OUT*/, hid_t par_tid)
                     gotcomma = TRUE;
                     break;
 
-                default: 
+                default:
                     *cur++ = *fields_ptr++;
                     gotmember = TRUE;
                     break;
@@ -438,7 +434,7 @@ H5LD_get_dset_elmts(hid_t did, const hsize_t *prev_dims, const hsize_t *cur_dims
     /* Get dataset's dataspace */
     if((sid = H5Dget_space(did)) < 0)
 	goto done;
-    
+
     /* Get the number of dimensions */
     if((ndims = H5Sget_simple_extent_ndims(sid)) < 0)
 	goto done;
@@ -508,7 +504,7 @@ H5LD_get_dset_elmts(hid_t did, const hsize_t *prev_dims, const hsize_t *cur_dims
 	/* Get the total size of the dataset's datatypes */
 	if(0 == (tot_tsize = H5LD_get_dset_type_size(did, NULL)))
 	    goto done;
-	
+
 	/* Allocate memory for reading in the elements in the dataset selection */
 	if(NULL == (sav_buf = tmp_buf = (char *)HDcalloc((size_t)num_elmts, tot_tsize)))
 	    goto done;
