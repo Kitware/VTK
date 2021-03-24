@@ -44,8 +44,9 @@ vtkBlueObeliskData::vtkBlueObeliskData()
   :
 #if !defined(VTK_LEGACY_REMOVE)
   WriteMutex(vtkSimpleMutexLock::New())
+  ,
 #endif
-  , Initialized(false)
+  Initialized(false)
   , NumberOfElements(0)
   , Arrays(new MyStdVectorOfVtkAbstractArrays)
 {
