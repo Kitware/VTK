@@ -14,6 +14,8 @@
 =========================================================================*/
 #include <algorithm> //for std::sort()
 
+#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
+
 namespace vtk
 {
 namespace detail
@@ -47,6 +49,13 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
       b = e;
     }
   }
+}
+
+//--------------------------------------------------------------------------------
+template <typename InputIt, typename OutputIt, typename Functor>
+void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor& transform)
+{
+  std::transform(inBegin, inEnd, outBegin, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------

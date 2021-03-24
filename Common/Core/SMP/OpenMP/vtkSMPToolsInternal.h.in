@@ -16,7 +16,8 @@
 #ifndef vtkSMPToolsInternal_h
 #define vtkSMPToolsInternal_h
 
-#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkCommonCoreModule.h"       // For export macro
+#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
 
 #include <algorithm> //for std::sort()
 
@@ -64,6 +65,16 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
   {
     vtkSMPTools_Impl_For_OpenMP(first, last, grain, ExecuteFunctor<FunctorInternal>, &fi);
   }
+}
+
+//--------------------------------------------------------------------------------
+template <typename InputIt, typename OutputIt, typename Functor>
+void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
+{
+  auto size = std::distance(inBegin, inEnd);
+
+  TransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
+  vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
