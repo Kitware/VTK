@@ -34,6 +34,7 @@ vtkStandardNewMacro(vtkExtractEdges);
 vtkExtractEdges::vtkExtractEdges()
 {
   this->Locator = nullptr;
+  this->UseAllPoints = false;
 }
 
 //------------------------------------------------------------------------------
@@ -81,6 +82,13 @@ int vtkExtractEdges::RequestData(vtkInformation* vtkNotUsed(request),
   if ((numCells = input->GetNumberOfCells()) < 1 || numPts < 1)
   {
     return 1;
+  }
+
+  // If we are using all of the points use a
+  // non-locator based approach
+  if (this->UseAllPoints)
+  {
+    return this->NonLocatorExtraction(input, output);
   }
 
   // Set up processing
@@ -205,6 +213,146 @@ int vtkExtractEdges::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+// Generate feature edges for mesh without a locator - meaning all of the
+// original points exist in the output
+int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output)
+{
+  vtkCellArray* newLines;
+  vtkIdType numCells, cellNum, numPts, newId;
+  int edgeNum, numEdgePts, numCellEdges;
+  int i, abort = 0;
+  vtkIdType pts[2];
+  double x[3];
+  vtkEdgeTable* edgeTable;
+  vtkGenericCell* cell;
+  vtkCell* edge;
+  vtkCellData *cd, *outCD;
+
+  vtkDebugMacro(<< "Executing edge extractor");
+
+  //  Check input
+  //
+  numPts = input->GetNumberOfPoints();
+  if ((numCells = input->GetNumberOfCells()) < 1 || numPts < 1)
+  {
+    return 1;
+  }
+
+  // Set up processing
+  //
+  edgeTable = vtkEdgeTable::New();
+  edgeTable->InitEdgeInsertion(numPts);
+  newLines = vtkCellArray::New();
+  newLines->AllocateEstimate(numPts * 4, 2);
+
+  // Since we are using all of the points, we can
+  // simply pass through the Point Data
+  output->GetPointData()->PassData(input->GetPointData());
+
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
+  outCD->CopyAllocate(cd, numCells);
+
+  cell = vtkGenericCell::New();
+  vtkIdList *edgeIds, *HEedgeIds = vtkIdList::New();
+  vtkPoints *edgePts, *HEedgePts = vtkPoints::New();
+
+  // Is the input a pointset?  In that case we can just
+  // reuse the input's points
+  vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
+  if (ps)
+  {
+    output->SetPoints(ps->GetPoints());
+  }
+  else
+  {
+    // We need to copy the points
+    vtkPoints* newPts;
+    double pnt[3];
+    newPts = vtkPoints::New();
+    newPts->Allocate(numPts);
+    for (vtkIdType pid = 0; pid < numPts; ++pid)
+    {
+      input->GetPoint(pid, pnt);
+      newPts->InsertNextPoint(pnt);
+    }
+  }
+
+  // Loop over all cells, extracting non-visited edges.
+  //
+  vtkIdType tenth = numCells / 10 + 1;
+  for (cellNum = 0; cellNum < numCells && !abort; cellNum++)
+  {
+    if (!(cellNum % tenth)) // manage progress reports / early abort
+    {
+      this->UpdateProgress(static_cast<double>(cellNum) / numCells);
+      abort = this->GetAbortExecute();
+    }
+
+    input->GetCell(cellNum, cell);
+    numCellEdges = cell->GetNumberOfEdges();
+    for (edgeNum = 0; edgeNum < numCellEdges; edgeNum++)
+    {
+      edge = cell->GetEdge(edgeNum);
+      numEdgePts = edge->GetNumberOfPoints();
+
+      // Tessellate higher-order edges
+      if (!edge->IsLinear())
+      {
+        edge->Triangulate(0, HEedgeIds, HEedgePts);
+        edgeIds = HEedgeIds;
+        edgePts = HEedgePts;
+
+        for (i = 0; i < (edgeIds->GetNumberOfIds() / 2); i++)
+        {
+          pts[0] = edgeIds->GetId(2 * i);
+          pts[1] = edgeIds->GetId(2 * i + 1);
+          if (edgeTable->IsEdge(pts[0], pts[1]) == -1)
+          {
+            edgeTable->InsertEdge(pts[0], pts[1]);
+            newId = newLines->InsertNextCell(2, pts);
+            outCD->CopyData(cd, cellNum, newId);
+          }
+        }
+      } // if non-linear edge
+
+      else // linear edges
+      {
+        edgeIds = edge->PointIds;
+        edgePts = edge->Points;
+
+        for (i = 0; i < numEdgePts; i++, pts[0] = pts[1])
+        {
+          pts[1] = edgeIds->GetId(i);
+          if (i > 0 && edgeTable->IsEdge(pts[0], pts[1]) == -1)
+          {
+            edgeTable->InsertEdge(pts[0], pts[1]);
+            newId = newLines->InsertNextCell(2, pts);
+            outCD->CopyData(cd, cellNum, newId);
+          }
+        } // if linear edge
+      }
+    } // for all edges of cell
+  }   // for all cells
+
+  vtkDebugMacro(<< "Created " << newLines->GetNumberOfCells() << " edges");
+
+  //  Update ourselves.
+  //
+  HEedgeIds->Delete();
+  HEedgePts->Delete();
+  edgeTable->Delete();
+  cell->Delete();
+
+  output->SetLines(newLines);
+  newLines->Delete();
+
+  output->Squeeze();
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator* locator)
@@ -251,11 +399,11 @@ void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->Locator)
   {
-    os << indent << "Locator: " << this->Locator << "\n";
+    os << indent << "Locator: " << this->Locator << " UseAllPoints:" << this->UseAllPoints << "\n";
   }
   else
   {
-    os << indent << "Locator: (none)\n";
+    os << indent << "Locator: (none) UseAllPoints:" << this->UseAllPoints << "\n";
   }
 }
 

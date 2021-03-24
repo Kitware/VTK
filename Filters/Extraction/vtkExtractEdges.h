@@ -52,6 +52,15 @@ public:
    */
   void CreateDefaultLocator();
 
+  //@{
+  /**
+   * Indicates that all of the points of the input mesh should exist in the output.
+   */
+  vtkSetMacro(UseAllPoints, bool);
+  vtkGetMacro(UseAllPoints, bool);
+  vtkBooleanMacro(UseAllPoints, bool);
+  //@}
+
   /**
    * Return MTime also considering the locator.
    */
@@ -64,9 +73,13 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  int NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output);
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkIncrementalPointLocator* Locator;
+
+  bool UseAllPoints;
 
 private:
   vtkExtractEdges(const vtkExtractEdges&) = delete;
