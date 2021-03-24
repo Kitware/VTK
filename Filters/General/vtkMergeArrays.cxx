@@ -84,38 +84,34 @@ void vtkMergeArrays::MergeArrays(int inputIndex, vtkFieldData* inputFD, vtkField
 //------------------------------------------------------------------------------
 int vtkMergeArrays::MergeDataObjectFields(vtkDataObject* input, int idx, vtkDataObject* output)
 {
-  int returnCode = 1;
   if (!input || !output)
   {
-    returnCode = 0;
+    return 0;
   }
 
-  if (returnCode)
+  int checks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];
+  for (int attr = 0; attr < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; attr++)
   {
-    int checks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];
-    for (int attr = 0; attr < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; attr++)
-    {
-      checks[attr] = output->GetNumberOfElements(attr) == input->GetNumberOfElements(attr) ? 0 : 1;
-    }
-    int globalChecks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];
+    checks[attr] = output->GetNumberOfElements(attr) == input->GetNumberOfElements(attr) ? 0 : 1;
+  }
+  int globalChecks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];
 
-    for (int i = 0; i < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; ++i)
-    {
-      globalChecks[i] = checks[i];
-    }
+  for (int i = 0; i < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; ++i)
+  {
+    globalChecks[i] = checks[i];
+  }
 
-    for (int attr = 0; attr < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; attr++)
+  for (int attr = 0; attr < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; attr++)
+  {
+    if (globalChecks[attr] == 0)
     {
-      if (globalChecks[attr] == 0)
-      {
-        // only merge arrays when the number of elements in the input and output are the same
-        this->MergeArrays(
-          idx, input->GetAttributesAsFieldData(attr), output->GetAttributesAsFieldData(attr));
-      }
+      // only merge arrays when the number of elements in the input and output are the same
+      this->MergeArrays(
+        idx, input->GetAttributesAsFieldData(attr), output->GetAttributesAsFieldData(attr));
     }
   }
 
-  return returnCode;
+  return 1;
 }
 
 //------------------------------------------------------------------------------
