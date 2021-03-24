@@ -31,9 +31,11 @@
 #include <vector> // For C++ vector
 
 // Forward declarations
+class vtkDataArray;
 class vtkFieldData;
 class vtkOverlappingAMR;
 class vtkUniformGrid;
+class vtkUnsignedCharArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 {
@@ -99,6 +101,8 @@ protected:
 private:
   vtkAMRUtilities(const vtkAMRUtilities&) = delete;
   void operator=(const vtkAMRUtilities&) = delete;
+
+  static void MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedCharArray* ghosts);
 };
 
 #endif /* vtkAMRUtilities_h */

@@ -434,7 +434,30 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
       } // Processing all higher boxes for a specific coarse grid
     }
 
+    if (grid->GetCellData()->HasArray(vtkDataSetAttributes::GhostArrayName()))
+    {
+      MergeGhostArrays(
+        grid->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()), ghosts);
+    }
+
     grid->GetCellData()->AddArray(ghosts);
+
     ghosts->Delete();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::MergeGhostArrays(vtkDataArray* existingArray, vtkUnsignedCharArray* ghosts)
+{
+  vtkUnsignedCharArray* existingGhostArray = vtkUnsignedCharArray::SafeDownCast(existingArray);
+  if (existingGhostArray != nullptr)
+  {
+    for (int valueIndex = 0; valueIndex < ghosts->GetNumberOfValues(); valueIndex++)
+    {
+      unsigned char ghostValue = ghosts->GetValue(valueIndex);
+      unsigned char existingGhostValue = existingGhostArray->GetValue(valueIndex);
+      unsigned char mergedValue = ghostValue | existingGhostValue;
+      ghosts->SetValue(valueIndex, mergedValue);
+    }
   }
 }
