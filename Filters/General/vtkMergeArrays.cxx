@@ -84,6 +84,11 @@ void vtkMergeArrays::MergeArrays(int inputIndex, vtkFieldData* inputFD, vtkField
 //------------------------------------------------------------------------------
 int vtkMergeArrays::MergeDataObjectFields(vtkDataObject* input, int idx, vtkDataObject* output)
 {
+  if (!input || !output)
+  {
+    return 0;
+  }
+
   int checks[vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES];
   for (int attr = 0; attr < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; attr++)
   {
