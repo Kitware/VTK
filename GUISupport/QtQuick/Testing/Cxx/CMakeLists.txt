@@ -9,6 +9,7 @@ set (CMAKE_AUTORCC ON)
 
 vtk_add_test_cxx (vtkGUISupportQtQuickCxxTests tests
   TestQQuickVTKRenderItem.cxx
+  TestQQuickVTKRenderItemWidget.cxx
   TestQQuickVTKRenderWindow.cxx
   )
 
@@ -24,5 +25,6 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
 
 set_tests_properties(
   VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
+  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
   VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
   PROPERTIES ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/$<CONFIG>")
