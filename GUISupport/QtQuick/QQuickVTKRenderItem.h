@@ -34,6 +34,7 @@
 class QHoverEvent;
 class QKeyEvent;
 class QMouseEvent;
+class QQuickVTKInteractiveWidget;
 class QQuickVTKRenderWindow;
 class vtkImageData;
 
@@ -71,6 +72,22 @@ public:
    */
   virtual vtkSmartPointer<vtkImageData> captureScreenshot();
 
+  //@{
+  /**
+   * Add/Remove widgets to/from the view
+   */
+  virtual void addWidget(QQuickVTKInteractiveWidget* w);
+  virtual void removeWidget(QQuickVTKInteractiveWidget* w);
+  //@}
+
+  //@{
+  /**
+   * Get/Remove widgets from the view by their object name
+   */
+  virtual QQuickVTKInteractiveWidget* widgetByName(QString name) const;
+  virtual void removeWidgetByName(QString name);
+  //@}
+
 public Q_SLOTS:
   virtual void sync();
   virtual void paint();
@@ -83,6 +100,8 @@ protected:
   // Helper members
   QQuickVTKRenderWindow* m_renderWindow = nullptr;
   vtkNew<vtkRenderer> m_renderer;
+
+  QVector<QQuickVTKInteractiveWidget*> m_widgets;
 
   /**
    * Set the viewport for this item

@@ -1,5 +1,6 @@
 set(classes
   QQmlVTKPlugin
+  QQuickVTKInteractiveWidget
   QQuickVTKInteractorAdapter
   QQuickVTKRenderItem
   QQuickVTKRenderWindow

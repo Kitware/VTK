@@ -14,7 +14,8 @@
 =========================================================================*/
 /**
  * @class QQuickVTKRenderWindow
- * @brief QQuickItem subclass to render a VTK scene in a QtQuick application.
+ * @brief QQuickItem subclass that manages the vtkRenderWindow and, in turn, the OpenGL context of
+ * the QML application
  */
 
 #ifndef QQuickVTKRenderWindow_h
@@ -40,10 +41,6 @@ class vtkImageData;
 class vtkRenderWindow;
 class vtkWindowToImageFilter;
 
-/**
- * \class QQuickVTKRenderWindow
- * \brief
- */
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
   : public QQuickItem
   , protected QOpenGLFunctions
@@ -129,7 +126,8 @@ protected:
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
 
 private:
-  Q_DISABLE_COPY(QQuickVTKRenderWindow)
+  QQuickVTKRenderWindow(const QQuickVTKRenderWindow&) = delete;
+  void operator=(const QQuickVTKRenderWindow) = delete;
 };
 
 #endif // QQuickVTKRenderWindow_h

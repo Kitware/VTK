@@ -15,6 +15,7 @@
 #include "QQuickVTKRenderItem.h"
 
 // vtk includes
+#include "QQuickVTKInteractiveWidget.h"
 #include "QQuickVTKInteractorAdapter.h"
 #include "QQuickVTKRenderWindow.h"
 #include "vtkImageData.h"
@@ -104,6 +105,12 @@ void QQuickVTKRenderItem::sync()
   QRectF rect(0, 0, this->width(), this->height());
   rect = this->mapRectToScene(rect);
   this->setViewport(rect);
+
+  // Now synchronize all the widgets
+  for (auto it = this->m_widgets.constBegin(); it < this->m_widgets.constEnd(); ++it)
+  {
+    (*it)->sync(this->renderer());
+  }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -241,4 +248,43 @@ vtkSmartPointer<vtkImageData> QQuickVTKRenderItem::captureScreenshot()
     return nullptr;
   }
   return this->renderWindow()->captureScreenshot(this->m_renderer->GetViewport());
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderItem::addWidget(QQuickVTKInteractiveWidget* w)
+{
+  this->m_widgets.push_back(w);
+  this->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderItem::removeWidget(QQuickVTKInteractiveWidget* w)
+{
+  this->m_widgets.removeOne(w);
+  this->update();
+}
+
+//-------------------------------------------------------------------------------------------------
+QQuickVTKInteractiveWidget* QQuickVTKRenderItem::widgetByName(QString name) const
+{
+  for (auto it = this->m_widgets.constBegin(); it < this->m_widgets.constEnd(); ++it)
+  {
+    if ((*it)->objectName().compare(name) == 0)
+    {
+      return (*it);
+    }
+  }
+  return nullptr;
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderItem::removeWidgetByName(QString name)
+{
+  auto w = this->widgetByName(name);
+  if (!w)
+  {
+    return;
+  }
+
+  this->removeWidget(w);
 }
