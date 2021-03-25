@@ -2003,10 +2003,9 @@ inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
     double min = static_cast<double>(vtkTypeTraits<float>::Min());
     double max = static_cast<double>(vtkTypeTraits<float>::Max());
     val = vtkMath::ClampValue(val, min, max);
-    *retVal = static_cast<float>(val);
   }
-  else
-    *retVal = val;
+
+  *retVal = static_cast<float>(val);
 }
 } // end namespace vtk_detail
 
