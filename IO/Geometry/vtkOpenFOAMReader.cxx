@@ -6710,6 +6710,9 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
   }
   const bool use64BitLabels = io.IsLabel64();
 
+  // Count cells by tracking the max cell id seen
+  vtkTypeInt64 nCells = -1;
+
   {
     vtkFoamEntryValue ownerDict(nullptr);
     ownerDict.SetStreamOption(io);
@@ -6738,8 +6741,7 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
     this->FaceOwner = ownerDict.ReleasePtr<vtkDataArray>();
     const vtkIdType nFaces = this->FaceOwner->GetNumberOfTuples();
 
-    // Count cells, check validity
-    vtkTypeInt64 nCells = -1;
+    // Check for max cell, check validity
     for (vtkIdType facei = 0; facei < nFaces; ++facei)
     {
       const vtkTypeInt64 celli = GetLabelValue(this->FaceOwner, facei, use64BitLabels);
@@ -6753,8 +6755,6 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
         nCells = celli; // <- max(nCells, celli)
       }
     }
-
-    this->NumCells = static_cast<vtkIdType>(++nCells);
   }
 
   // Read polyMesh/neighbour
@@ -6816,22 +6816,26 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
       }
       this->FaceNeigh->Resize(nInternalFaces);
     }
-    else
-    {
-      // Check validity
-      const vtkIdType nInternalFaces = this->FaceNeigh->GetNumberOfTuples();
 
-      for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
+    const vtkIdType nInternalFaces = this->FaceNeigh->GetNumberOfTuples();
+
+    // Check for max cell, check validity
+    for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
+    {
+      const vtkTypeInt64 celli = GetLabelValue(this->FaceNeigh, facei, use64BitLabels);
+      if (celli < 0)
       {
-        const vtkTypeInt64 celli = GetLabelValue(this->FaceNeigh, facei, use64BitLabels);
-        if (celli < 0)
-        {
-          vtkErrorMacro(<< "Illegal cell label in neighbour addressing. Face " << facei);
-          return false;
-        }
+        vtkErrorMacro(<< "Illegal cell label in neighbour addressing. Face " << facei);
+        return false;
+      }
+      if (nCells < celli)
+      {
+        nCells = celli; // <- max(nCells, celli)
       }
     }
   }
+
+  this->NumCells = static_cast<vtkIdType>(++nCells);
 
   // Size checks
   if (this->NumCells == 0)
@@ -6901,6 +6905,14 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces(
     for (vtkIdType facei = 0; facei < nFaces; ++facei)
     {
       const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
+      if (nCells < celli)
+      {
+        nCells = celli; // <- max(nCells, celli)
+      }
+    }
+    for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
+    {
+      const vtkTypeInt64 celli = GetLabelValue(&faceNeigh, facei, use64BitLabels);
       if (nCells < celli)
       {
         nCells = celli; // <- max(nCells, celli)
@@ -7168,6 +7180,9 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // Jordan, with lots of improvements. Not as elegant as the one in
     // OpenFOAM but it's simple and works reasonably fast.
 
+    // Note: faces are flipped around their 0 point (as per OpenFOAM)
+    // to keep predicable face point ordering
+
     // OpenFOAM "hex" | vtkHexahedron
     if (cellType == VTK_HEXAHEDRON)
     {
@@ -7180,16 +7195,17 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         meshFaces.GetCell(cellFacei, facePoints);
 
         // Add face0 to cell points - flip owner to point inwards
+        cellPoints[nCellPoints++] = facePoints[0];
         if (isOwner)
         {
-          for (int fp = 3; fp >= 0; --fp)
+          for (int fp = 3; fp > 0; --fp)
           {
             cellPoints[nCellPoints++] = facePoints[fp];
           }
         }
         else
         {
-          for (int fp = 0; fp < 4; ++fp)
+          for (int fp = 1; fp < 4; ++fp)
           {
             cellPoints[nCellPoints++] = facePoints[fp];
           }
@@ -7346,16 +7362,17 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         // Add face0 to cell points - flip neighbour to point outwards
         // - OpenFOAM face0 points inwards
         // - VTK face0 points outwards
+        cellPoints[nCellPoints++] = facePoints[0];
         if (isOwner)
         {
-          for (int fp = 0; fp < 3; ++fp)
+          for (int fp = 1; fp < 3; ++fp)
           {
             cellPoints[nCellPoints++] = facePoints[fp];
           }
         }
         else
         {
-          for (int fp = 2; fp >= 0; --fp)
+          for (int fp = 2; fp > 0; --fp)
           {
             cellPoints[nCellPoints++] = facePoints[fp];
           }
@@ -7508,8 +7525,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // OpenFOAM "pyr" | vtkPyramid || OpenFOAM "tet" | vtkTetrahedron
     else if (cellType == VTK_PYRAMID || cellType == VTK_TETRA)
     {
-      const vtkIdType nCellPoints = (cellType == VTK_PYRAMID ? 5 : 4);
-
+      int nCellPoints = 0;
       int baseFaceId = 0;
       if (cellType == VTK_PYRAMID)
       {
@@ -7531,18 +7547,19 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         meshFaces.GetCell(cellFacei, facePoints);
         const size_t nFacePoints = facePoints.size();
 
+        cellPoints[nCellPoints++] = facePoints[0];
         if (isOwner)
         {
-          for (size_t fp = 0, endp = nFacePoints - 1; fp < nFacePoints; ++fp, --endp)
+          for (size_t fp = nFacePoints - 1; fp > 0; --fp)
           {
-            cellPoints[fp] = facePoints[endp];
+            cellPoints[nCellPoints++] = facePoints[fp];
           }
         }
         else
         {
-          for (size_t fp = 0; fp < nFacePoints; ++fp)
+          for (size_t fp = 1; fp < nFacePoints; ++fp)
           {
-            cellPoints[fp] = facePoints[fp];
+            cellPoints[nCellPoints++] = facePoints[fp];
           }
         }
       }
@@ -7570,7 +7587,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
 
       // ... and add the apex-point
-      cellPoints[nCellPoints - 1] = apexMeshPointi;
+      cellPoints[nCellPoints++] = apexMeshPointi;
 
       // Add tetra or pyramid to the mesh
       internalMesh->InsertNextCell(cellType, nCellPoints, cellPoints.data());
@@ -7653,9 +7670,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         pointArray->InsertNextTuple(centroid);
 
         // polyhedron decomposition.
-        // a tweaked algorithm based on applications/utilities/postProcessing/
-        // graphics/PVFoamReader/vtkFoam/vtkFoamAddInternalMesh.C
-        bool insertDecomposedCell = true;
+        // a tweaked algorithm based on OpenFOAM
+        // src/fileFormats/vtk/part/foamVtuSizingTemplates.C
+
+        // TODO: improve consistency of face point ordering.
+        // - currently just flips the faces without preserving the face point 0 order.
+        bool firstCell = true;
         int nAdditionalCells = 0;
         for (size_t facei = 0; facei < cellFaces.size(); ++facei)
         {
@@ -7699,10 +7719,9 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
           cellPoints[0] = facePoints[(vertI == 2) ? static_cast<vtkIdType>(0)
                                                   : static_cast<vtkIdType>(nFacePoints - 1)];
-          cellPoints[4] = static_cast<vtkIdType>(this->NumPoints + nAdditionalPoints);
+          cellPoints[4] = static_cast<vtkIdType>(this->NumPoints + nAdditionalPoints); // apex
 
-          // decompose a face into quads in order (flipping the
-          // decomposed face if owner)
+          // Decompose a face into quads in order (flipping decomposed face if owner)
           const size_t nQuadVerts = nFacePoints - 1 - nTris;
           for (; vertI < nQuadVerts; vertI += 2)
           {
@@ -7710,13 +7729,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             cellPoints[2] = facePoints[vertI];
             cellPoints[3] = facePoints[vertI + flipNeighbor];
 
-            // if the decomposed cell is the first one insert it to
-            // the original position; or append to the decomposed cell
-            // list otherwise
-            if (insertDecomposedCell)
+            // Insert first decomposed cell into the original position,
+            // subsequent ones are appended to the decomposed cell list
+            if (firstCell)
             {
+              firstCell = false;
               internalMesh->InsertNextCell(VTK_PYRAMID, 5, cellPoints.data());
-              insertDecomposedCell = false;
             }
             else
             {
@@ -7728,7 +7746,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           // if the number of vertices is odd there's a triangle
           if (nTris)
           {
-            if (flipNeighbor == -1)
+            if (flipNeighbor == -1) // isOwner
             {
               cellPoints[1] = facePoints[vertI];
               cellPoints[2] = facePoints[vertI - 1];
@@ -7740,10 +7758,12 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
             cellPoints[3] = static_cast<vtkIdType>(this->NumPoints + nAdditionalPoints);
 
-            if (insertDecomposedCell)
+            // Insert first decomposed cell into the original position,
+            // subsequent ones are appended to the decomposed cell list
+            if (firstCell)
             {
+              firstCell = false;
               internalMesh->InsertNextCell(VTK_TETRA, 4, cellPoints.data());
-              insertDecomposedCell = false;
             }
             else
             {
@@ -7770,8 +7790,10 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         // - use nPolyPoints to estimate unique cell points
         //   (assume a point connects at least three faces)
 
-        cellPoints.fast_reserve(nPolyPoints / 3);
-        polyPoints.fast_reserve(nPolyPoints + cellFaces.size());
+        cellPoints.copy_resize(0);
+        polyPoints.copy_resize(0);
+        cellPoints.copy_reserve(nPolyPoints / 3);
+        polyPoints.copy_reserve(nPolyPoints + cellFaces.size());
 
         size_t nCellPoints = 0;
         nPolyPoints = 0; // Reset
@@ -7783,46 +7805,51 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             (cellId == GetLabelValue(this->FaceOwner, cellFacei, faceOwner64Bit));
           meshFaces.GetCell(cellFacei, facePoints);
           const size_t nFacePoints = facePoints.size();
+          size_t nUnique = 0;
 
-          // Local face point indexing - must be signed
-          // Flip direction for neighbour face
-          int facePointi = (isOwner ? 0 : static_cast<int>(nFacePoints) - 1);
-          const int faceDirn = (isOwner ? 1 : -1);
+          // Pass 1: add face points, and mark up duplicates on the way
 
-          if (!nCellPoints && !nPolyPoints)
+          polyPoints.copy_resize(nPolyPoints + nFacePoints + 1);
+          polyPoints[nPolyPoints++] = static_cast<vtkIdType>(nFacePoints);
+
+          if (!nFacePoints)
           {
-            // First face - add directly (no duplicate points)
-            cellPoints.copy_resize(nCellPoints + nFacePoints);
-            polyPoints.copy_resize(nPolyPoints + nFacePoints + 1);
+            continue;
+          }
 
-            // Add face to cell points, and to polyPoints
-            polyPoints[nPolyPoints++] = static_cast<vtkIdType>(nFacePoints);
-            for (size_t fp = 0; fp < nFacePoints; ++fp, facePointi += faceDirn)
+          // Add face point 0
+          {
+            const auto meshPointi = static_cast<vtkIdType>(facePoints[0]);
+            polyPoints[nPolyPoints++] = meshPointi;
+            bool isUnique = true;
+            for (size_t cp = 0; isUnique && cp < nCellPoints; ++cp)
             {
-              const auto meshPointi = static_cast<vtkIdType>(facePoints[facePointi]);
-              cellPoints[nCellPoints++] = meshPointi;
-              polyPoints[nPolyPoints++] = meshPointi;
+              isUnique = (meshPointi != cellPoints[cp]);
+            }
+            if (isUnique)
+            {
+              ++nUnique;
+            }
+            else
+            {
+              facePoints[0] = -1; // Duplicate
             }
           }
-          else
+
+          // Add other face points
           {
-            // Subsequent faces - avoid duplicate points
+            // Local face point indexing - must be signed
+            const int faceDirn = (isOwner ? 1 : -1); // Flip direction for neighbour face
+            int facePointi = (isOwner ? 1 : static_cast<int>(nFacePoints) - 1);
 
-            // Pass 1: add face points, and mark up any duplicates too
-            // Grow if needed, preserve content
-            polyPoints.copy_resize(nPolyPoints + nFacePoints + 1);
-
-            // Add face to poly (face) points
-            polyPoints[nPolyPoints++] = static_cast<vtkIdType>(nFacePoints);
-            size_t nUnique = 0;
-            for (size_t fp = 0; fp < nFacePoints; ++fp, facePointi += faceDirn)
+            for (size_t fp = 1; fp < nFacePoints; ++fp, facePointi += faceDirn)
             {
               const auto meshPointi = static_cast<vtkIdType>(facePoints[facePointi]);
               polyPoints[nPolyPoints++] = meshPointi;
               bool isUnique = true;
               for (size_t cp = 0; isUnique && cp < nCellPoints; ++cp)
               {
-                isUnique = (cellPoints[cp] != meshPointi);
+                isUnique = (meshPointi != cellPoints[cp]);
               }
               if (isUnique)
               {
@@ -7833,18 +7860,17 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
                 facePoints[facePointi] = -1; // Duplicate
               }
             }
+          }
 
-            // Grow if needed, preserve content
-            cellPoints.copy_resize(nCellPoints + nUnique);
+          cellPoints.copy_resize(nCellPoints + nUnique);
 
-            // Pass 2: add unique cell points - order is arbitrary
-            for (size_t fp = 0; fp < nFacePoints; ++fp)
+          // Pass 2: add unique cell points - order is arbitrary
+          for (size_t fp = 0; fp < nFacePoints; ++fp)
+          {
+            const auto meshPointi = static_cast<vtkIdType>(facePoints[fp]);
+            if (meshPointi != -1) // isUnique
             {
-              const auto meshPointi = static_cast<vtkIdType>(facePoints[fp]);
-              if (meshPointi != -1) // isUnique
-              {
-                cellPoints[nCellPoints++] = meshPointi;
-              }
+              cellPoints[nCellPoints++] = meshPointi;
             }
           }
         }
@@ -8550,7 +8576,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
       }
       else
       {
-        vtkErrorMacro(<< "Wrong list type for uniform field");
+        vtkErrorMacro(<< "Wrong list type for uniform field: " << io.GetObjectName());
         return nullptr;
       }
 
@@ -8567,7 +8593,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
       }
       else
       {
-        vtkErrorMacro(<< "Number of components and field class doesn't match "
+        vtkErrorMacro(<< "Number of components and field class do not match "
                       << "for " << io.GetFileName() << ". class = " << className
                       << ", nComponents = " << nComponents);
         return nullptr;
@@ -8584,8 +8610,9 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
       const vtkIdType nTuples = entry.ScalarList().GetNumberOfTuples();
       if (nTuples != nElements)
       {
-        vtkErrorMacro(<< "Number of cells/points in mesh and field don't match: "
-                      << "mesh = " << nElements << ", field = " << nTuples);
+        vtkErrorMacro(<< "Number of cells/points in mesh and field do not match: "
+                      << "mesh = " << nElements << ", field = " << nTuples << " in "
+                      << io.GetObjectName());
         return nullptr;
       }
 
