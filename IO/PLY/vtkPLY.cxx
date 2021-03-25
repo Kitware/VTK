@@ -55,6 +55,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 #include <limits>
@@ -2759,7 +2760,14 @@ Entry:
 
 void* vtkPLY::my_alloc(size_t size, int lnum, const char* fname)
 {
-  void* ptr = malloc(size);
+  // sometimes a alloc-size-larger-than warning is tripped on gcc.
+  // this check is based on discussion found at
+  // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85783
+  void* ptr = nullptr;
+  if (size <= PTRDIFF_MAX)
+  {
+    ptr = malloc(size);
+  }
 
   if (ptr == nullptr)
   {
