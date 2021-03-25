@@ -228,11 +228,8 @@ public:
    * Initialize the underlying libraries for execution. This is
    * not required as it is automatically called before the first
    * execution of any parallel code. However, it can be used to
-   * control the maximum number of threads used when the back-end
-   * supports it (currently Simple and TBB only). Make sure to call
-   * it before any other parallel operation.
-   * When using Kaapi, use the KAAPI_CPUCOUNT env. variable to control
-   * the number of threads used in the thread pool.
+   * control the maximum number of threads used. Make sure to call
+   * it before the parallel operation.
    */
   static void Initialize(int numThreads = 0);
 
