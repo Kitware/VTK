@@ -506,6 +506,51 @@ inline bool vtkPythonGetValue(PyObject* o, unsigned long long& a)
 }
 
 //------------------------------------------------------------------------------
+// Methods for getting file system paths
+inline bool vtkPythonGetFilePath(PyObject* o, const char*& a)
+{
+  const char* exctext = "string, None, or pathlike object required";
+  a = nullptr;
+
+  if (o == Py_None)
+  {
+    // accept Py_None as equivalent to nullptr
+    return true;
+  }
+
+#if PY_VERSION_HEX >= 0x03060000
+  bool rval = false;
+  PyObject* s = PyOS_FSPath(o);
+  if (s != nullptr)
+  {
+    rval = vtkPythonGetStringValue(s, a, exctext);
+    Py_DECREF(s);
+  }
+  return rval;
+#else
+  return vtkPythonGetStringValue(o, a, exctext);
+#endif
+}
+
+inline bool vtkPythonGetFilePath(PyObject* o, std::string& a)
+{
+  const char* exctext = "string or pathlike object required";
+
+#if PY_VERSION_HEX >= 0x03060000
+  bool rval = false;
+  PyObject* s = PyOS_FSPath(o);
+  if (s != nullptr)
+  {
+    rval = vtkPythonGetStdStringValue(s, a, exctext);
+    Py_DECREF(s);
+  }
+  return rval;
+#else
+  return vtkPythonGetStdStringValue(o, a, exctext);
+#endif
+}
+
+//------------------------------------------------------------------------------
 // Method for setting a C++ array from a Python sequence.
 
 static bool vtkPythonSequenceError(PyObject* o, size_t n, size_t m);
@@ -1093,6 +1138,30 @@ VTK_PYTHON_GET_ARG(long)
 VTK_PYTHON_GET_ARG(unsigned long)
 VTK_PYTHON_GET_ARG(long long)
 VTK_PYTHON_GET_ARG(unsigned long long)
+
+//------------------------------------------------------------------------------
+// Define all the "GetFilePath" methods in the class.
+
+#define VTK_PYTHON_GET_FILEPATH_ARG(T)                                                             \
+  bool vtkPythonArgs::GetFilePath(T& a)                                                            \
+  {                                                                                                \
+    PyObject* o = PyTuple_GET_ITEM(this->Args, this->I++);                                         \
+    if (PyVTKReference_Check(o))                                                                   \
+    {                                                                                              \
+      o = PyVTKReference_GetValue(o);                                                              \
+    }                                                                                              \
+    if (vtkPythonGetFilePath(o, a))                                                                \
+    {                                                                                              \
+      return true;                                                                                 \
+    }                                                                                              \
+    this->RefineArgTypeError(this->I - this->M - 1);                                               \
+    return false;                                                                                  \
+  }                                                                                                \
+                                                                                                   \
+  bool vtkPythonArgs::GetFilePath(PyObject* o, T& a) { return vtkPythonGetFilePath(o, a); }
+
+VTK_PYTHON_GET_FILEPATH_ARG(const char*)
+VTK_PYTHON_GET_FILEPATH_ARG(std::string)
 
 //------------------------------------------------------------------------------
 // Define all the GetArray methods in the class.

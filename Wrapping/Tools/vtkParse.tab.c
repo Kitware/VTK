@@ -9842,6 +9842,11 @@ void handle_attribute(const char* att, int pack)
     {
       addAttribute(VTK_PARSE_ZEROCOPY);
     }
+    else if (l == 13 && strncmp(att, "vtk::filepath", l) == 0 && !args &&
+      role == VTK_PARSE_ATTRIB_DECL)
+    {
+      addAttribute(VTK_PARSE_FILEPATH);
+    }
     else if (l == 15 && strncmp(att, "vtk::deprecated", l) == 0 &&
       (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS ||
         role == VTK_PARSE_ATTRIB_ID))
