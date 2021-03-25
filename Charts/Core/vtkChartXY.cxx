@@ -2798,10 +2798,12 @@ void vtkChartXY::BuildSelection(
   MapIndexToIds intersection;
   MapIndexToIds uniqueOldSelection;
   MapIndexToIds uniqueSelection;
+  using MapPair = std::pair<unsigned int, vtkSmartPointer<vtkIdTypeArray>>;
+  const auto compKey = [](const MapPair& p1, const MapPair& p2) { return p1.first < p2.first; };
   std::set_intersection(selection.begin(), selection.end(), oldSelection.begin(),
-    oldSelection.end(), std::inserter(intersection, intersection.begin()));
+    oldSelection.end(), std::inserter(intersection, intersection.begin()), compKey);
   std::set_difference(oldSelection.begin(), oldSelection.end(), selection.begin(), selection.end(),
-    std::inserter(uniqueOldSelection, uniqueOldSelection.begin()));
+    std::inserter(uniqueOldSelection, uniqueOldSelection.begin()), compKey);
 
   switch (selectionMode)
   {
@@ -2827,7 +2829,7 @@ void vtkChartXY::BuildSelection(
       }
       // Remove selection not affecting old selected blocks because we're substracting
       std::set_difference(selection.begin(), selection.end(), oldSelection.begin(),
-        oldSelection.end(), std::inserter(uniqueSelection, uniqueSelection.begin()));
+        oldSelection.end(), std::inserter(uniqueSelection, uniqueSelection.begin()), compKey);
       for (const auto& pair : uniqueSelection)
       {
         selection.erase(pair.first);
