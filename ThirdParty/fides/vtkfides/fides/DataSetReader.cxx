@@ -20,17 +20,19 @@
 #include <vector>
 
 #include <fides_rapidjson.h>
+// clang-format off
 #include FIDES_RAPIDJSON(rapidjson/document.h)
-#include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
 #include FIDES_RAPIDJSON(rapidjson/error/en.h)
+#include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
+// clang-format on
 
 #include <vtkm/cont/CoordinateSystem.h>
 #include <vtkm/cont/DataSet.h>
 #include <vtkm/cont/DynamicCellSet.h>
 
-#include <fides/DataSource.h>
 #include <fides/CellSet.h>
 #include <fides/CoordinateSystem.h>
+#include <fides/DataSource.h>
 #include <fides/Field.h>
 #include <fides/Keys.h>
 
@@ -40,14 +42,12 @@ namespace io
 {
 
 using DataSourceType = fides::io::DataSource;
-using DataSourcesType =
-  std::unordered_map<std::string, std::shared_ptr<DataSourceType> >;
+using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSourceType>>;
 
 class DataSetReader::DataSetReaderImpl
 {
 public:
-  DataSetReaderImpl(const std::string dataModel,
-    DataModelInput inputType, const Params& params)
+  DataSetReaderImpl(const std::string dataModel, DataModelInput inputType, const Params& params)
     : FDManager(new fides::datamodel::FieldDataManager())
   {
     this->Cleanup();
@@ -56,8 +56,7 @@ public:
       // in this case the bp file passed in becomes our MetadataSource
       // which is used to select a predefined data model
       this->MetadataSource.reset(new fides::predefined::InternalMetadataSource(dataModel));
-      auto dm =
-        predefined::DataModelFactory::GetInstance().CreateDataModel(this->MetadataSource);
+      auto dm = predefined::DataModelFactory::GetInstance().CreateDataModel(this->MetadataSource);
       this->ReadJSON(dm->GetDOM());
     }
     else
@@ -70,10 +69,7 @@ public:
     this->SetDataSourceParameters(params);
   }
 
-  virtual ~DataSetReaderImpl()
-  {
-    this->Cleanup();
-  }
+  virtual ~DataSetReaderImpl() { this->Cleanup(); }
 
   void Cleanup()
   {
@@ -87,10 +83,11 @@ public:
     rapidjson::Document d;
     if (inputType == DataModelInput::JSONFile)
     {
-      FILE *fp = std::fopen(dataModel.c_str(), "rb");
-      if(!fp)
+      FILE* fp = std::fopen(dataModel.c_str(), "rb");
+      if (!fp)
       {
-        throw std::ios_base::failure("Unable to open metadata file; does '" + dataModel + "' exist?");
+        throw std::ios_base::failure("Unable to open metadata file; does '" + dataModel +
+                                     "' exist?");
       }
       std::vector<char> buffer(65536);
       rapidjson::FileReadStream is(fp, buffer.data(), buffer.size());
@@ -104,7 +101,8 @@ public:
     }
     else
     {
-      throw std::runtime_error("DataModelInput should be either Filename or String containing JSON");
+      throw std::runtime_error(
+        "DataModelInput should be either Filename or String containing JSON");
     }
     return d;
   }
@@ -117,8 +115,7 @@ public:
     }
   }
 
-  void SetDataSourceParameters(const std::string source,
-    const DataSourceParams& params)
+  void SetDataSourceParameters(const std::string source, const DataSourceParams& params)
   {
     auto it = this->DataSources.find(source);
     if (it == this->DataSources.end())
@@ -143,7 +140,7 @@ public:
   template <typename ValueType>
   void ProcessDataSources(const ValueType& dataSources)
   {
-    for(auto& dataSource: dataSources)
+    for (auto& dataSource : dataSources)
     {
       if (!dataSource.IsObject())
       {
@@ -154,7 +151,7 @@ public:
         throw std::runtime_error("data_source objects must have name.");
       }
       std::string name = dataSource.GetObject()["name"].GetString();
-      if(name.empty())
+      if (name.empty())
       {
         throw std::runtime_error("data_source name must be a non-empty string.");
       }
@@ -163,16 +160,16 @@ public:
         throw std::runtime_error("data_source objects must have filename_mode.");
       }
       std::string filename_mode = dataSource.GetObject()["filename_mode"].GetString();
-      if(filename_mode.empty())
+      if (filename_mode.empty())
       {
         throw std::runtime_error("data_source filename_mode must be a non-empty string.");
       }
       auto source = std::make_shared<DataSourceType>();
-      if(filename_mode == "input")
+      if (filename_mode == "input")
       {
         source->Mode = fides::io::FileNameMode::Input;
       }
-      else if(filename_mode == "relative")
+      else if (filename_mode == "relative")
       {
         source->Mode = fides::io::FileNameMode::Relative;
         if (!dataSource.GetObject().HasMember("filename"))
@@ -192,8 +189,7 @@ public:
 
   void ProcessCoordinateSystem(const rapidjson::Value& coordSys)
   {
-    this->CoordinateSystem =
-      std::make_shared<fides::datamodel::CoordinateSystem>();
+    this->CoordinateSystem = std::make_shared<fides::datamodel::CoordinateSystem>();
     this->CoordinateSystem->ObjectName = "coordinate_system";
 
     this->CoordinateSystem->ProcessJSON(coordSys, this->DataSources);
@@ -201,17 +197,15 @@ public:
 
   void ProcessCellSet(const rapidjson::Value& cellSet)
   {
-    this->CellSet =
-      std::make_shared<fides::datamodel::CellSet>();
+    this->CellSet = std::make_shared<fides::datamodel::CellSet>();
     this->CellSet->ObjectName = "cell_set";
 
     this->CellSet->ProcessJSON(cellSet, this->DataSources);
   }
 
-  std::shared_ptr<fides::datamodel::Field>
-    ProcessField(const rapidjson::Value& fieldJson)
+  std::shared_ptr<fides::datamodel::Field> ProcessField(const rapidjson::Value& fieldJson)
   {
-    if(!fieldJson.IsObject())
+    if (!fieldJson.IsObject())
     {
       throw std::runtime_error("field needs to be an object.");
     }
@@ -224,22 +218,21 @@ public:
   void ProcessFields(const rapidjson::Value& fields)
   {
     this->Fields.clear();
-    if(!fields.IsArray())
+    if (!fields.IsArray())
     {
       throw std::runtime_error("fields is not an array.");
     }
     auto fieldsArray = fields.GetArray();
-    for(auto& field : fieldsArray)
+    for (auto& field : fieldsArray)
     {
       auto fieldPtr = this->ProcessField(field);
-      this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] =
-        fieldPtr;
+      this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] = fieldPtr;
     }
   }
 
   size_t GetNumberOfSteps()
   {
-    if(this->StepSource.empty())
+    if (this->StepSource.empty())
     {
       return 0;
     }
@@ -253,12 +246,12 @@ public:
 
   void ProcessStepInformation(const rapidjson::Value& sinf)
   {
-    if(!sinf.IsObject())
+    if (!sinf.IsObject())
     {
       throw std::runtime_error("step_information needs to be an object.");
     }
     auto sInf = sinf.GetObject();
-    if(!sInf.HasMember("data_source"))
+    if (!sInf.HasMember("data_source"))
     {
       throw std::runtime_error("step_information needs a data_source.");
     }
@@ -266,8 +259,7 @@ public:
   }
 
   template <typename ValueType>
-  const rapidjson::Value& FindAndReturnObject(ValueType& root,
-    const std::string name)
+  const rapidjson::Value& FindAndReturnObject(ValueType& root, const std::string name)
   {
     if (!root.HasMember(name.c_str()))
     {
@@ -282,7 +274,8 @@ public:
   }
 
   void ParsingChecks(rapidjson::Document& document,
-    const std::string& fileName, DataModelInput inputType)
+                     const std::string& fileName,
+                     DataModelInput inputType)
   {
     std::string nameStr;
     if (inputType == DataModelInput::JSONFile)
@@ -294,24 +287,26 @@ public:
       nameStr = "the passed string";
     }
 
-    if (document.HasParseError()) {
-      throw std::logic_error("Unable to parse " + nameStr +
-        " as a json file. Error: " + rapidjson::GetParseError_En(document.GetParseError()));
-
+    if (document.HasParseError())
+    {
+      throw std::logic_error("Unable to parse " + nameStr + " as a json file. Error: " +
+                             rapidjson::GetParseError_En(document.GetParseError()));
     }
-    if (!document.IsObject()) {
-        throw std::logic_error("Unable to parse '" + nameStr + "' as a json file; is it valid json?");
+    if (!document.IsObject())
+    {
+      throw std::logic_error("Unable to parse '" + nameStr + "' as a json file; is it valid json?");
     }
 
     auto m = document.GetObject().begin();
-    if(m == document.GetObject().end())
+    if (m == document.GetObject().end())
     {
       throw std::logic_error("There is no data in '" + nameStr +
-          "'; there is nothing that can be achieved with this file/string.");
+                             "'; there is nothing that can be achieved with this file/string.");
     }
-    if(!m->value.IsObject())
+    if (!m->value.IsObject())
     {
-      throw std::logic_error("Unable to create a sensible object from '" + nameStr + "'; aborting.");
+      throw std::logic_error("Unable to create a sensible object from '" + nameStr +
+                             "'; aborting.");
     }
   }
 
@@ -362,24 +357,22 @@ public:
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections)
   {
-    if(!this->CoordinateSystem)
+    if (!this->CoordinateSystem)
     {
       throw std::runtime_error("Cannot read missing coordinate system.");
     }
-    return this->CoordinateSystem->Read(
-      paths, this->DataSources, selections);
+    return this->CoordinateSystem->Read(paths, this->DataSources, selections);
   }
 
   std::vector<vtkm::cont::DynamicCellSet> ReadCellSet(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections)
   {
-    if(!this->CellSet)
+    if (!this->CellSet)
     {
       throw std::runtime_error("Cannot read missing cell set.");
     }
-    return this->CellSet->Read(
-      paths, this->DataSources, selections);
+    return this->CellSet->Read(paths, this->DataSources, selections);
   }
 
   // updates this->Fields if we have any wildcard fields. Should be used
@@ -426,8 +419,7 @@ public:
           auto fieldPtr = std::make_shared<fides::datamodel::Field>();
           fieldPtr->ProcessExpandedField(names[i], associations[i], arrayObj, this->DataSources);
           fieldPtr->ObjectName = "field";
-          this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] =
-            fieldPtr;
+          this->Fields[std::make_pair(fieldPtr->Name, fieldPtr->Association)] = fieldPtr;
         }
 
         // remove the wildcard field now that we're done expanding it
@@ -440,15 +432,13 @@ public:
     }
   }
 
-  fides::metadata::MetaData ReadMetaData(
-    const std::unordered_map<std::string, std::string>& paths)
+  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths)
   {
-    if(!this->CoordinateSystem)
+    if (!this->CoordinateSystem)
     {
       throw std::runtime_error("Cannot read missing coordinate system.");
     }
-    size_t nBlocks = this->CoordinateSystem->GetNumberOfBlocks(
-      paths, this->DataSources);
+    size_t nBlocks = this->CoordinateSystem->GetNumberOfBlocks(paths, this->DataSources);
     fides::metadata::MetaData metaData;
     fides::metadata::Size nBlocksM(nBlocks);
     metaData.Set(fides::keys::NUMBER_OF_BLOCKS(), nBlocksM);
@@ -458,7 +448,7 @@ public:
       // updates this->Fields if necessary
       this->ExpandWildcardFields();
       fides::metadata::Vector<fides::metadata::FieldInformation> fields;
-      for(auto& item : this->Fields)
+      for (auto& item : this->Fields)
       {
         auto& field = item.second;
         fides::metadata::FieldInformation afield(field->Name, field->Association);
@@ -476,15 +466,15 @@ public:
     return metaData;
   }
 
-  void PostRead(vtkm::cont::PartitionedDataSet& pds,
-                const fides::metadata::MetaData& selections)
+  void PostRead(std::vector<vtkm::cont::DataSet>& pds, const fides::metadata::MetaData& selections)
   {
     this->CellSet->PostRead(pds, selections);
+    this->CoordinateSystem->PostRead(pds, selections);
   }
 
   void DoAllReads()
   {
-    for(const auto& source : this->DataSources)
+    for (const auto& source : this->DataSources)
     {
       source.second->DoAllReads();
     }
@@ -503,19 +493,18 @@ public:
   // (e.g., having the variables making up a mesh marked as static and only reading initially).
   // So the user should only care about PrepareNextStep returning EndOfStream when all
   // DataSources are at the end of their Streams.
-  StepStatus BeginStep(
-    const std::unordered_map<std::string, std::string>& paths)
+  StepStatus BeginStep(const std::unordered_map<std::string, std::string>& paths)
   {
     StepStatus retVal = StepStatus::EndOfStream;
-    for(const auto& source : this->DataSources)
+    for (const auto& source : this->DataSources)
     {
       auto& ds = *(source.second);
       std::string name = source.first;
       auto itr = paths.find(name);
       if (itr == paths.end())
       {
-        throw std::runtime_error("Could not find data_source with name "
-          + name + " among the input paths.");
+        throw std::runtime_error("Could not find data_source with name " + name +
+                                 " among the input paths.");
       }
       std::string path = itr->second + ds.FileName;
       ds.OpenSource(path);
@@ -534,7 +523,7 @@ public:
 
   void EndStep()
   {
-    for(const auto& source : this->DataSources)
+    for (const auto& source : this->DataSources)
     {
       source.second->EndStep();
     }
@@ -542,19 +531,16 @@ public:
 
   DataSourcesType DataSources;
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
-  std::shared_ptr<fides::datamodel::CoordinateSystem>
-    CoordinateSystem = nullptr;
+  std::shared_ptr<fides::datamodel::CoordinateSystem> CoordinateSystem = nullptr;
   std::shared_ptr<fides::datamodel::CellSet> CellSet = nullptr;
-  using FieldsKeyType =
-    std::pair<std::string, fides::Association>;
-  std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field> > Fields;
+  using FieldsKeyType = std::pair<std::string, fides::Association>;
+  std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
   std::string StepSource;
   std::shared_ptr<fides::datamodel::FieldDataManager> FDManager = nullptr;
 };
 
-bool DataSetReader::CheckForDataModelAttribute(
-  const std::string& filename,
-  const std::string& attrName/*="Fides_Data_Model"*/)
+bool DataSetReader::CheckForDataModelAttribute(const std::string& filename,
+                                               const std::string& attrName /*="Fides_Data_Model"*/)
 {
   auto source = std::make_shared<DataSourceType>();
   source->Mode = fides::io::FileNameMode::Relative;
@@ -573,9 +559,39 @@ bool DataSetReader::CheckForDataModelAttribute(
 }
 
 DataSetReader::DataSetReader(const std::string dataModel,
-  DataModelInput inputType/*=DataModelInput::JSONFile*/, const Params& params)
-: Impl(new DataSetReaderImpl(dataModel, inputType, params))
+                             DataModelInput inputType /*=DataModelInput::JSONFile*/,
+                             const Params& params)
+  : Impl(new DataSetReaderImpl(dataModel, inputType, params))
 {
+}
+
+DataSetReader::DataSetReader(const std::string bpFileName,
+                             const std::string attrName,
+                             const Params& params)
+  : Impl(nullptr)
+{
+  auto source = std::make_shared<DataSourceType>();
+  source->Mode = fides::io::FileNameMode::Relative;
+  source->FileName = bpFileName;
+  source->OpenSource(bpFileName);
+
+  std::string attType = source->GetAttributeType(attrName);
+  if (attType.empty())
+  {
+    throw std::runtime_error("Attribute " + attrName + " is not present in file " + bpFileName);
+  }
+
+  if (attType != "string")
+  {
+    throw std::runtime_error("Attribute " + attrName +
+                             " should have type string; however, its type is " + attType);
+  }
+  std::vector<std::string> schema = source->ReadAttribute<std::string>(attrName);
+  if (schema.empty())
+  {
+    throw std::runtime_error("Attribute " + attrName + " not found");
+  }
+  this->Impl.reset(new DataSetReaderImpl(schema[0], DataModelInput::JSONString, params));
 }
 
 DataSetReader::~DataSetReader() = default;
@@ -590,8 +606,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
-  vtkm::cont::PartitionedDataSet ds = this->ReadDataSetInternal(
-    paths, selections);
+  auto ds = this->ReadDataSetInternal(paths, selections);
   this->Impl->DoAllReads();
   this->Impl->PostRead(ds, selections);
 
@@ -602,11 +617,10 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   //   writer.WriteDataSet(ds.GetPartition(i));
   // }
 
-  return ds;
+  return vtkm::cont::PartitionedDataSet(ds);
 }
 
-StepStatus DataSetReader::PrepareNextStep(
-  const std::unordered_map<std::string, std::string>& paths)
+StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, std::string>& paths)
 {
   return this->Impl->BeginStep(paths);
 }
@@ -615,25 +629,26 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadStep(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
-  vtkm::cont::PartitionedDataSet ds = this->ReadDataSetInternal(
-    paths, selections);
+  auto ds = this->ReadDataSetInternal(paths, selections);
   this->Impl->EndStep();
   this->Impl->PostRead(ds, selections);
 
-  return ds;
+  return vtkm::cont::PartitionedDataSet(ds);
 }
 
-vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
+// Returning vector of DataSets instead of PartitionedDataSet because
+// PartitionedDataSet::GetPartition always returns a const DataSet, but
+// we may need to update the DataSet in the PostRead call
+std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
   std::vector<vtkm::cont::CoordinateSystem> coordSystems =
     this->Impl->ReadCoordinateSystem(paths, selections);
-  size_t nPartitions = coordSystems.size();
+  std::vector<vtkm::cont::DynamicCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
+  size_t nPartitions = cellSets.size();
   std::vector<vtkm::cont::DataSet> dataSets(nPartitions);
-  std::vector<vtkm::cont::DynamicCellSet> cellSets =
-    this->Impl->ReadCellSet(paths, selections);
-  for(size_t i=0; i<nPartitions; i++)
+  for (size_t i = 0; i < nPartitions; i++)
   {
     if (i < coordSystems.size())
     {
@@ -648,13 +663,11 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
   this->Impl->FDManager->Clear();
   if (selections.Has(fides::keys::FIELDS()))
   {
-    using FieldInfoType =
-      fides::metadata::Vector<fides::metadata::FieldInformation>;
+    using FieldInfoType = fides::metadata::Vector<fides::metadata::FieldInformation>;
     auto& fields = selections.Get<FieldInfoType>(fides::keys::FIELDS());
-    for(auto& field : fields.Data)
+    for (auto& field : fields.Data)
     {
-      auto itr = this->Impl->Fields.find(
-        std::make_pair(field.Name, field.Association));
+      auto itr = this->Impl->Fields.find(std::make_pair(field.Name, field.Association));
       if (itr != this->Impl->Fields.end())
       {
         if (field.Association == fides::Association::FIELD_DATA)
@@ -667,7 +680,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
         }
         std::vector<vtkm::cont::Field> fieldVec =
           itr->second->Read(paths, this->Impl->DataSources, selections);
-        for(size_t i=0; i<nPartitions; i++)
+        for (size_t i = 0; i < nPartitions; i++)
         {
           if (i < fieldVec.size())
           {
@@ -679,7 +692,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
   }
   else
   {
-    for(auto& field : this->Impl->Fields)
+    for (auto& field : this->Impl->Fields)
     {
       if (field.second->Association == fides::Association::FIELD_DATA)
       {
@@ -691,7 +704,7 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
       }
       std::vector<vtkm::cont::Field> fields =
         field.second->Read(paths, this->Impl->DataSources, selections);
-      for(size_t i=0; i<nPartitions; i++)
+      for (size_t i = 0; i < nPartitions; i++)
       {
         if (i < fields.size())
         {
@@ -701,11 +714,11 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSetInternal(
     }
   }
 
-  return vtkm::cont::PartitionedDataSet(dataSets);
+  return dataSets;
 }
 
 void DataSetReader::SetDataSourceParameters(const std::string source,
-  const DataSourceParams& params)
+                                            const DataSourceParams& params)
 {
   this->Impl->SetDataSourceParameters(source, params);
 }

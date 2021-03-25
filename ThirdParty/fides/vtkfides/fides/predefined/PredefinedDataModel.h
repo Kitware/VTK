@@ -12,7 +12,11 @@
 #define fides_datamodel_PredefinedDataModel_H
 
 #include <fides_rapidjson.h>
+// clang-format off
 #include FIDES_RAPIDJSON(rapidjson/document.h)
+// clang-format on
+
+#include <vtkm/cont/DataSet.h>
 
 #include <memory>
 #include <string>
@@ -32,6 +36,7 @@ class PredefinedDataModel
 {
 public:
   PredefinedDataModel(std::shared_ptr<InternalMetadataSource> source);
+  PredefinedDataModel(const vtkm::cont::DataSet& dataSet);
   virtual ~PredefinedDataModel() = default;
 
   /// Generate and return the DOM. The optional print argument
@@ -39,6 +44,12 @@ public:
   /// override this if they need to add additional objects to the DOM
   /// (e.g., XGC adds a 'number_of_planes' object).
   virtual rapidjson::Document& GetDOM(bool print = false);
+
+  void SetFieldsToWrite(const std::set<std::string>& fieldsToWrite)
+  {
+    this->FieldsToWriteSet = true;
+    this->FieldsToWrite = fieldsToWrite;
+  }
 
   /// prints the JSON
   void PrintJSON();
@@ -73,6 +84,10 @@ protected:
   rapidjson::Document Doc;
   std::string DataSourceName = "source";
   std::shared_ptr<InternalMetadataSource> MetadataSource;
+
+  vtkm::cont::DataSet DataSetSource;
+  bool FieldsToWriteSet;
+  std::set<std::string> FieldsToWrite;
 };
 
 /// Creates a uniform data model with uniform point coordinates for the
@@ -83,13 +98,20 @@ protected:
 /// Fides_Spacing.
 class UniformDataModel : public PredefinedDataModel
 {
+  using UniformCoordType = vtkm::cont::ArrayHandleUniformPointCoordinates;
+  using StructuredCell3DType = vtkm::cont::CellSetStructured<3>;
+  using StructuredCell2DType = vtkm::cont::CellSetStructured<2>;
+  using StructuredCell1DType = vtkm::cont::CellSetStructured<1>;
+
 public:
   UniformDataModel(std::shared_ptr<InternalMetadataSource> source);
+  UniformDataModel(const vtkm::cont::DataSet& dataSet);
 
 protected:
   void CreateCoordinateSystem(rapidjson::Value& parent);
   void CreateCellSet(rapidjson::Value& parent);
   void AddRootToDocument(rapidjson::Value& root);
+  bool GetDimensionFieldName(std::string& varName) const;
 };
 
 /// Creates a rectilinear data model using a cartesian product for the
@@ -98,8 +120,17 @@ protected:
 /// Fides_Data_Model should be set to 'rectilinear'.
 class RectilinearDataModel : public PredefinedDataModel
 {
+  using RectilinearCoordType =
+    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
+                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
+                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
+  using StructuredCell3DType = vtkm::cont::CellSetStructured<3>;
+  using StructuredCell2DType = vtkm::cont::CellSetStructured<2>;
+  using StructuredCell1DType = vtkm::cont::CellSetStructured<1>;
+
 public:
   RectilinearDataModel(std::shared_ptr<InternalMetadataSource> source);
+  RectilinearDataModel(const vtkm::cont::DataSet& dataSet);
 
 protected:
   void CreateCoordinateSystem(rapidjson::Value& parent);
@@ -113,8 +144,13 @@ protected:
 /// Fides_Data_Model should be set to 'unstructured'.
 class UnstructuredDataModel : public PredefinedDataModel
 {
+  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
+  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
+  using UnstructuredType = vtkm::cont::CellSetExplicit<>;
+
 public:
   UnstructuredDataModel(std::shared_ptr<InternalMetadataSource> source);
+  UnstructuredDataModel(const vtkm::cont::DataSet& dataSet);
 
 protected:
   void CreateCoordinateSystem(rapidjson::Value& parent);
@@ -130,8 +166,13 @@ protected:
 /// attribute with the name Fides_Cell_Type to specify the  cell type.
 class UnstructuredSingleTypeDataModel : public UnstructuredDataModel
 {
+  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
+  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
+  using UnstructuredType = vtkm::cont::CellSetExplicit<>;
+
 public:
   UnstructuredSingleTypeDataModel(std::shared_ptr<InternalMetadataSource> source);
+  UnstructuredSingleTypeDataModel(const vtkm::cont::DataSet& dataSet);
 
 protected:
   void CreateCellSet(rapidjson::Value& parent) override;

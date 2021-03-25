@@ -16,7 +16,7 @@ Documentation is hosted at [Read The Docs](https://fides.readthedocs.io/en/lates
 
 Fides depends of VTK-m and ADIOS2.
 
-A commit of VTK-m which is known to work is 4d010fee (from Aug 6, 2020).
+A commit of VTK-m which is known to work is d8dc8f98 (from Feb 11, 2021).
 
 Due to recent fixes in ADIOS, use commit 3324c77f95 (from Apr 13, 2020) or later.
 Run the unit tests if doubt arises.

@@ -22,8 +22,8 @@ namespace fides
 
 namespace io
 {
-  // fwd declaration needed for friend class
-  class DataSetReader;
+// fwd declaration needed for friend class
+class DataSetReader;
 }
 
 namespace datamodel

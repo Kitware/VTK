@@ -53,10 +53,60 @@ bool DataModelFactory::RegisterDataModel(DataModelTypes modelId, CreateDataModel
   return this->Callbacks.insert(CallbackMap::value_type(modelId, createFn)).second;
 }
 
+bool DataModelFactory::RegisterDataModelFromDS(DataModelTypes modelId,
+                                               CreateDataModelCallbackFromDS createFn)
+{
+  return this->CallbacksFromDS.insert(CallbackMapFromDS::value_type(modelId, createFn)).second;
+}
+
 bool DataModelFactory::UnregisterDataModel(DataModelTypes modelId)
 {
   return this->Callbacks.erase(modelId) == 1;
 }
+
+std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
+  const vtkm::cont::DataSet& ds)
+{
+  using UniformCoordType = vtkm::cont::ArrayHandleUniformPointCoordinates;
+  using RectilinearCoordType =
+    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
+                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
+                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
+  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
+  using UnstructuredExplicitType = vtkm::cont::CellSetExplicit<>;
+
+  DataModelTypes modelId;
+  if (ds.GetCoordinateSystem().GetData().IsType<UniformCoordType>())
+  {
+    modelId = DataModelTypes::UNIFORM_FROM_DATASET;
+  }
+  else if (ds.GetCoordinateSystem().GetData().IsType<RectilinearCoordType>())
+  {
+    modelId = DataModelTypes::RECTILINEAR_FROM_DATASET;
+  }
+  else if (ds.GetCellSet().IsType<UnstructuredSingleType>())
+  {
+    modelId = DataModelTypes::UNSTRUCTURED_SINGLE_FROM_DATASET;
+  }
+  else if (ds.GetCellSet().IsType<UnstructuredExplicitType>())
+  {
+    modelId = DataModelTypes::UNSTRUCTURED_FROM_DATASET;
+  }
+  else
+  {
+    throw std::runtime_error("Unsupported data set type");
+  }
+
+  auto it = this->CallbacksFromDS.find(modelId);
+  if (it == this->CallbacksFromDS.end())
+  {
+    throw std::runtime_error(
+      "Unknown data model ID provided to Fides for selecting predefined data model");
+  }
+
+  return (it->second)(ds);
+}
+
 
 std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
   std::shared_ptr<InternalMetadataSource> source)
@@ -65,7 +115,8 @@ std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
   auto it = this->Callbacks.find(modelId);
   if (it == this->Callbacks.end())
   {
-    throw std::runtime_error("Unknown data model ID provided to Fides for selecting predefined data model");
+    throw std::runtime_error(
+      "Unknown data model ID provided to Fides for selecting predefined data model");
   }
   return (it->second)(source);
 }

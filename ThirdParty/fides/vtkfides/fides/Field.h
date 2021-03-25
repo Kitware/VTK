@@ -32,35 +32,34 @@ struct Field : public DataModelBase
 {
   /// Overridden to handle the underlying Array as well as the
   /// association.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Used when a wildcard field has been expanded. The new field object should use
   /// this function instead of ProcessJSON in order to be setup correctly and
   /// create the underlying Array.
   /// The json passed should contain the correct DOM for the underlying array, as
   /// that will be passed to Array::ProcessJSON
-  void ProcessExpandedField(const std::string& name, const std::string& assoc,
-    const rapidjson::Value& json, DataSourcesType& sources);
+  void ProcessExpandedField(const std::string& name,
+                            const std::string& assoc,
+                            const rapidjson::Value& json,
+                            DataSourcesType& sources);
 
   /// Reads and returns fields. The heavy-lifting is
   /// handled by the underlying Array object.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::Field> Read(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources,
-    const fides::metadata::MetaData& selections);
+  std::vector<vtkm::cont::Field> Read(const std::unordered_map<std::string, std::string>& paths,
+                                      DataSourcesType& sources,
+                                      const fides::metadata::MetaData& selections);
 
   /// Similar to Read() but to be used when reading field data instead of regular
   /// fields. The heavy-lifting is
   /// handled by the underlying Array object.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  FieldData ReadFieldData(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources,
-    const fides::metadata::MetaData& selections);
+  FieldData ReadFieldData(const std::unordered_map<std::string, std::string>& paths,
+                          DataSourcesType& sources,
+                          const fides::metadata::MetaData& selections);
 
   /// Returns true if this is a wildcard field
   bool IsWildcardField() { return this->WildcardField; }
@@ -77,8 +76,8 @@ struct Field : public DataModelBase
   /// Reads attributes containing wildcard field info from the metadata source.
   /// The attributes contain info on the variable names, associations, data sources,
   /// and the underlying array type.
-  WildcardFieldInfo
-    GetWildcardFieldLists(std::shared_ptr<predefined::InternalMetadataSource> source);
+  WildcardFieldInfo GetWildcardFieldLists(
+    std::shared_ptr<predefined::InternalMetadataSource> source);
 
   /// Name of the array.
   std::string Name;

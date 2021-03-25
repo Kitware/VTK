@@ -15,10 +15,12 @@ namespace fides
 namespace datamodel
 {
 
-FieldData::FieldData(const std::string& name, const std::vector<vtkm::cont::VariantArrayHandle>&& data)
+FieldData::FieldData(const std::string& name,
+                     const std::vector<vtkm::cont::VariantArrayHandle>&& data)
   : Name(name)
   , Data(std::move(data))
-{}
+{
+}
 
 std::string FieldData::GetName() const
 {
