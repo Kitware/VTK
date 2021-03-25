@@ -743,8 +743,8 @@ protected:
   int NumberOfLabels;
   int NumberOfLabelsBuilt;
   int Orientation;
-  vtkDoubleArray* CustomLabels;
-  vtkTypeBool UseCustomLabels;
+  vtkDoubleArray* CustomLabels = nullptr;
+  vtkTypeBool UseCustomLabels = 0;
   vtkTypeBool DrawBackground; // off by default
   vtkTypeBool DrawFrame;      // off by default
   vtkTypeBool DrawColorBar;   // on by default

@@ -79,8 +79,6 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->MaximumNumberOfColors = 64;
   this->NumberOfLabels = 5;
   this->NumberOfLabelsBuilt = 0;
-  this->CustomLabels = vtkDoubleArray::New();
-  this->UseCustomLabels = 0;
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = nullptr;
   this->ComponentTitle = nullptr;
@@ -356,7 +354,10 @@ vtkScalarBarActor::~vtkScalarBarActor()
 
   this->SetLookupTable(nullptr);
   this->SetAnnotationTextProperty(nullptr);
-  this->CustomLabels->Delete();
+  if (this->CustomLabels != nullptr)
+  {
+    this->CustomLabels->Delete();
+  }
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
   this->Texture->Delete();
@@ -667,7 +668,8 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "Maximum Number Of Colors: " << this->MaximumNumberOfColors << "\n";
   os << indent << "Number Of Automatic Labels: " << this->NumberOfLabels << "\n";
-  os << indent << "Number Of Custom Labels: " << this->CustomLabels->GetNumberOfTuples() << "\n";
+  os << indent << "Number Of Custom Labels: "
+     << (this->CustomLabels != nullptr ? this->CustomLabels->GetNumberOfTuples() : 0) << "\n";
   os << indent << "Using Custom Labels: " << (this->UseCustomLabels ? "On" : "Off") << "\n";
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
 
@@ -1215,7 +1217,8 @@ void vtkScalarBarActor::LayoutTicks()
   int i;
   if (this->UseCustomLabels)
   {
-    this->NumberOfLabelsBuilt = this->CustomLabels->GetNumberOfTuples();
+    this->NumberOfLabelsBuilt =
+      this->CustomLabels != nullptr ? this->CustomLabels->GetNumberOfTuples() : 0;
   }
   else
   {
@@ -1248,7 +1251,10 @@ void vtkScalarBarActor::LayoutTicks()
     // Get or compute the actual data value and its normalized position
     if (this->UseCustomLabels)
     {
-      val = this->CustomLabels->GetValue(i);
+      // We should be guaranteed above that this->CustomLabels is not null
+      // at this point (otherwise NumberOfLabelsBuilt == 0), but let's be extra
+      // careful
+      val = this->CustomLabels != nullptr ? this->CustomLabels->GetValue(i) : 1.0;
       if (rng > 0)
       {
         if (isLogTable)
