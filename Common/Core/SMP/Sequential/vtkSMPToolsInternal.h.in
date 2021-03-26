@@ -59,6 +59,13 @@ void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegi
 }
 
 //--------------------------------------------------------------------------------
+template <typename Iterator, typename T>
+void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+{
+  std::fill(begin, end, value);
+}
+
+//--------------------------------------------------------------------------------
 template <typename RandomAccessIterator>
 void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
 {

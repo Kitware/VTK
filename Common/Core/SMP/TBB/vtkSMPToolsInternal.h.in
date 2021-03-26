@@ -121,6 +121,17 @@ void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegi
 }
 
 //--------------------------------------------------------------------------------
+template <typename Iterator, typename T>
+void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+{
+  auto size = std::distance(begin, end);
+
+  FillFunctor<T> fill(value);
+  TransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
+  vtkSMPTools_Impl_For(0, size, 0, exec);
+}
+
+//--------------------------------------------------------------------------------
 template <typename RandomAccessIterator>
 void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
 {

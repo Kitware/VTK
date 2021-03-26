@@ -55,6 +55,20 @@ public:
   }
 };
 
+template <typename T>
+struct FillFunctor
+{
+  const T& Value;
+
+public:
+  FillFunctor(const T& _value)
+    : Value(_value)
+  {
+  }
+
+  T operator()(T vtkNotUsed(inValue), T vtkNotUsed(outValue)) { return Value; }
+};
+
 } // namespace smp
 } // namespace detail
 } // namespace vtk

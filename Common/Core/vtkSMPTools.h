@@ -263,6 +263,26 @@ public:
   }
 
   /**
+   * A convenience method for filling data. It is a drop in replacement for std::fill(),
+   * it assign the given value to the element in ranges.
+   *
+   * Usage example with vtkDataArray:
+   * \code
+   * // Fill range with its first tuple value
+   * auto range = vtk::DataArrayTupleRange<1>(array);
+   * const auto value = *range.begin();
+   * vtkSMPTools::Fill(range.begin(), range.end(), value);
+   * \endcode
+   *
+   * Please visit vtkDataArrayRange.h documentation for more information and optimisation.
+   */
+  template <typename Iterator, typename T>
+  static void Fill(Iterator begin, Iterator end, const T& value)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Fill(begin, end, value);
+  }
+
+  /**
    * A convenience method for sorting data. It is a drop in replacement for
    * std::sort(). Under the hood different methods are used. For example,
    * tbb::parallel_sort is used in TBB.
