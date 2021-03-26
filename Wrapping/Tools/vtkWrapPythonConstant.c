@@ -300,8 +300,9 @@ void vtkWrapPython_AddPublicConstants(
       val = data->Constants[j++];
       if (val->Access == VTK_ACCESS_PUBLIC)
       {
-        fprintf(fp, "%s      { \"%s\", %s%s%s },\n", indent, val->Name, (scopeValue ? scope : ""),
-          (scopeValue ? "::" : ""), (val->IsEnum ? val->Name : val->Value));
+        fprintf(fp, "%s      { \"%s\", %s%s%s },%s\n", indent, val->Name, (scopeValue ? scope : ""),
+          (scopeValue ? "::" : ""), (val->IsEnum ? val->Name : val->Value),
+          ((val->Attributes & VTK_PARSE_DEPRECATED) ? " /* deprecated */" : ""));
       }
     }
 

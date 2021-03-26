@@ -91,6 +91,11 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
   ValueInfo* val;
   int j;
 
+  if (cls->IsDeprecated)
+  {
+    fprintf(fp, "  /* Deprecated %s */\n", (cls->DeprecatedReason ? cls->DeprecatedReason : ""));
+  }
+
   fprintf(fp, "%sPyType_Ready(&Py%s%s%s_Type);\n", indent, (scope ? scope : ""), (scope ? "_" : ""),
     cls->Name);
 
@@ -117,7 +122,8 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
     for (j = 0; j < cls->NumberOfConstants; j++)
     {
       val = cls->Constants[j];
-      fprintf(fp, "%s    { \"%s\", cxx_enum_type::%s },\n", indent, val->Name, val->Name);
+      fprintf(fp, "%s    { \"%s\", cxx_enum_type::%s },%s\n", indent, val->Name, val->Name,
+        ((val->Attributes & VTK_PARSE_DEPRECATED) ? " /* deprecated */" : ""));
     }
 
     fprintf(fp,
