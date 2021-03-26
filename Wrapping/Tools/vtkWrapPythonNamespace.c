@@ -33,7 +33,10 @@ int vtkWrapPython_WrapNamespace(FILE* fp, const char* module, NamespaceInfo* dat
   /* create any enum types defined in the namespace */
   for (i = 0; i < data->NumberOfEnums; i++)
   {
-    vtkWrapPython_GenerateEnumType(fp, module, data->Name, data->Enums[i]);
+    if (!data->Enums[i]->IsExcluded)
+    {
+      vtkWrapPython_GenerateEnumType(fp, module, data->Name, data->Enums[i]);
+    }
   }
 
   fprintf(fp,

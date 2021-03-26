@@ -393,7 +393,10 @@ int main(int argc, char* argv[])
   /* Wrap any enum types defined in the global namespace */
   for (i = 0; i < contents->NumberOfEnums; i++)
   {
-    vtkWrapPython_GenerateEnumType(fp, module, NULL, contents->Enums[i]);
+    if (!contents->Enums[i]->IsExcluded)
+    {
+      vtkWrapPython_GenerateEnumType(fp, module, NULL, contents->Enums[i]);
+    }
   }
 
   /* Wrap any namespaces */

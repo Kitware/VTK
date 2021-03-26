@@ -3822,6 +3822,11 @@ void start_enum(const char *name, int is_scoped,
     item->Comment = vtkstrdup(getComment());
     item->Access = access_level;
 
+    if (getAttributes() & VTK_PARSE_WRAPEXCLUDE)
+    {
+      item->IsExcluded = 1;
+    }
+
     if (getAttributes() & VTK_PARSE_DEPRECATED)
     {
       item->IsDeprecated = 1;

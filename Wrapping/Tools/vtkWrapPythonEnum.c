@@ -33,7 +33,7 @@ int vtkWrapPython_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
   if (hinfo && enumname)
   {
     entry = vtkParseHierarchy_FindEntry(hinfo, enumname);
-    if (entry && entry->IsEnum)
+    if (entry && entry->IsEnum && !vtkParseHierarchy_GetProperty(entry, "WRAPEXCLUDE"))
     {
       rval = 1;
     }
