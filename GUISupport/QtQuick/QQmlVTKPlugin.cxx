@@ -15,6 +15,7 @@
 // vtk includes
 #include "QQmlVTKPlugin.h"
 
+#include "QQuickVTKInteractiveWidget.h"
 #include "QQuickVTKRenderItem.h"
 #include "QQuickVTKRenderWindow.h"
 #include "vtkVersion.h"
@@ -33,6 +34,7 @@ void QQmlVTKPlugin::registerTypes(const char* uri)
   // Register QML metatypes
   qmlRegisterType<QQuickVTKRenderWindow>(uri, major, minor, "VTKRenderWindow");
   qmlRegisterType<QQuickVTKRenderItem>(uri, major, minor, "VTKRenderItem");
+  qmlRegisterType<QQuickVTKInteractiveWidget>(uri, major, minor, "VTKWidget");
 }
 
 //-------------------------------------------------------------------------------------------------

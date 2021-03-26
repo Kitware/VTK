@@ -16,6 +16,8 @@
  * @class QQuickVTKInteractiveWidget
  * @brief QObject that manages a VTK interactive widget to ensure that it behaves as per the QtQuick
  * threaded render loop.
+ *
+ * QQuickVTKInteractiveWidget holds a weak reference to the vtk widget it manages.
  */
 
 #ifndef QQuickVTKInteractiveWidget_h
@@ -44,21 +46,21 @@ public:
   QQuickVTKInteractiveWidget(QObject* parent = nullptr);
   ~QQuickVTKInteractiveWidget() = default;
 
-  //@{
+  ///@{
   /**
    * Set/Get the widget reference
    */
   void setWidget(vtkAbstractWidget* w);
   vtkAbstractWidget* widget() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the widget is enabled.
    */
   void setEnabled(bool e);
   bool enabled() const;
-  //@}
+  ///@}
 
 public Q_SLOTS:
   virtual void sync(vtkRenderer* ren);
