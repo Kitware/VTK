@@ -163,6 +163,7 @@ public:
   /**
    * Create a Unicode string variant
    */
+  VTK_DEPRECATED_IN_9_1_0("Use vtkVariant(vtkStdString value)")
   vtkVariant(const vtkUnicodeString& value);
 
   /**
@@ -320,6 +321,8 @@ public:
    * variant is not a floating-point value or an array of floating-point values.
    * See the std doc for more information.
    */
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use vtkStdString ToString(int formatting = DEFAULT_FORMATTING, int precision = 6)")
   vtkUnicodeString ToUnicodeString(int formatting = DEFAULT_FORMATTING, int precision = 6) const;
 
   //@{

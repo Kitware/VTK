@@ -235,9 +235,9 @@ void vtkUTF16TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIter
   utf16_to_unicode(_bigEndian, InputStream, output);
 }
 
-vtkUnicodeString::value_type vtkUTF16TextCodec::NextUnicode(istream& InputStream)
+vtkTypeUInt32 vtkUTF16TextCodec::NextUTF32CodePoint(istream& inputStream)
 {
-  return utf16_to_unicode_next(_bigEndian, InputStream);
+  return utf16_to_unicode_next(_bigEndian, inputStream);
 }
 
 void vtkUTF16TextCodec::PrintSelf(ostream& os, vtkIndent indent)

@@ -26,6 +26,7 @@
 #ifndef vtkContextDevice2D_h
 #define vtkContextDevice2D_h
 
+#include "vtkDeprecation.h"
 #include "vtkObject.h"
 #include "vtkRect.h"                     // For vtkRecti ivar
 #include "vtkRenderingContext2DModule.h" // For export macro
@@ -163,6 +164,7 @@ public:
   /**
    * Draw some text to the screen.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use void DrawString(float* point, const vtkStdString& string)")
   virtual void DrawString(float* point, const vtkUnicodeString& string) = 0;
 
   /**
@@ -172,6 +174,8 @@ public:
    * bounding box.
    * NOTE: This function does not take account of the text rotation or justification.
    */
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use void ComputeStringBounds(const vtkStdString& string, float bounds[4])")
   virtual void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]) = 0;
 
   /**

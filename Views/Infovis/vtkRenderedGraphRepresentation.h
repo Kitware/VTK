@@ -396,7 +396,7 @@ protected:
 
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) override;
 
-  vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) override;
+  std::string GetHoverStringInternal(vtkSelection* sel) override;
 
   /**
    * Connect inputs to internal pipeline.

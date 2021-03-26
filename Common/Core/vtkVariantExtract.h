@@ -35,6 +35,7 @@
 #ifndef vtkVariantExtract_h
 #define vtkVariantExtract_h
 
+#include "vtkVariant.h"
 #include <typeinfo> // for typeid
 
 template <typename T>
@@ -144,6 +145,8 @@ inline vtkStdString vtkVariantExtract<vtkStdString>(const vtkVariant& value, boo
 }
 
 template <>
+VTK_DEPRECATED_IN_9_1_0(
+  "Use vtkStdString vtkVariantExtract<vtkStdString>(const vtkVariant& value, bool& valid)")
 inline vtkUnicodeString vtkVariantExtract<vtkUnicodeString>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnicodeString();

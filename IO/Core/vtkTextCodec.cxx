@@ -35,6 +35,11 @@ bool vtkTextCodec::IsValid(istream&)
   return false;
 }
 
+vtkUnicodeString::value_type vtkTextCodec::NextUnicode(istream& inputStream)
+{
+  return NextUTF32CodePoint(inputStream);
+}
+
 vtkTextCodec::~vtkTextCodec() = default;
 
 vtkTextCodec::vtkTextCodec() = default;
@@ -84,6 +89,11 @@ vtkUnicodeStringOutputIterator::vtkUnicodeStringOutputIterator(vtkUnicodeString&
 }
 
 vtkUnicodeStringOutputIterator::~vtkUnicodeStringOutputIterator() = default;
+}
+
+std::string vtkTextCodec::ToString(istream& inputStream)
+{
+  return ToUnicode(inputStream).utf8_str();
 }
 
 vtkUnicodeString vtkTextCodec::ToUnicode(istream& InputStream)

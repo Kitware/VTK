@@ -48,6 +48,7 @@
 #define vtkUnicodeString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"
 #include "vtkSystemIncludes.h"
 #include <string>
 #include <vector>
@@ -66,6 +67,7 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
   vtkExtraExtendedTemplateMacro(call);                                                             \
   vtkTemplateMacroCase(VTK_UNICODE_STRING, vtkUnicodeString, call)
 
+VTK_DEPRECATED_IN_9_1_0("Use std::string instead.")
 class VTKCOMMONCORE_EXPORT vtkUnicodeString
 {
 public:
