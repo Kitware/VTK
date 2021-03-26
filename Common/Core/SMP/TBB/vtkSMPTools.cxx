@@ -44,8 +44,14 @@ void vtkSMPTools::Initialize(int numThreads)
 {
   vtkSMPToolsCS.lock();
 
-  // If numThreads <= 0, don't create a task_arena
-  // and let TBB do the default thing.
+  if (numThreads == 0)
+  {
+    const char* vtkSmpNumThreads = std::getenv("VTK_SMP_MAX_THREADS");
+    if (vtkSmpNumThreads)
+    {
+      numThreads = std::atoi(vtkSmpNumThreads);
+    }
+  }
   if (numThreads > 0 && numThreads != taskArena.max_concurrency())
   {
     if (taskArena.is_active())
