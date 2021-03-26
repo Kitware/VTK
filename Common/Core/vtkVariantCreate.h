@@ -123,8 +123,8 @@ inline vtkVariant vtkVariantCreate<vtkStdString>(const vtkStdString& value)
   return value;
 }
 
-template <>
 VTK_DEPRECATED_IN_9_1_0("Use vtkVariant vtkVariantCreate<vtkStdString>(const vtkStdString& value)")
+template <>
 inline vtkVariant vtkVariantCreate<vtkUnicodeString>(const vtkUnicodeString& value)
 {
   return value;
