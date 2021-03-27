@@ -9,6 +9,7 @@ vtk_add_test_python(
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py
   TestExpects.py
+  TestFilePath.py
   TestGhost.py
   TestIterateCollection.py
   TestPassByReference.py
