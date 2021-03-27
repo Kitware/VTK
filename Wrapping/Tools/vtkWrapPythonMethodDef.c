@@ -297,6 +297,9 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
   /* identify methods that create new instances of objects */
   vtkWrap_FindNewInstanceMethods(data, hinfo);
 
+  /* identify methods that should support __fspath__ protocol */
+  vtkWrap_FindFilePathMethods(data);
+
   /* go through all functions and see which are wrappable */
   for (i = 0; i < data->NumberOfFunctions; i++)
   {
