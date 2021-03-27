@@ -2351,6 +2351,7 @@ alias_declaration:
 template_head:
     TEMPLATE '<' right_angle_bracket
     { postSig("template<> "); clearTypeId(); }
+    decl_attribute_specifier_seq
   | TEMPLATE '<'
     {
       postSig("template<");
@@ -2367,6 +2368,7 @@ template_head:
       clearTypeId();
       popType();
     }
+    decl_attribute_specifier_seq
 
 template_parameter_list:
     template_parameter
