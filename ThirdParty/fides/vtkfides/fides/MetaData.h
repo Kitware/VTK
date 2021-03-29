@@ -11,8 +11,8 @@
 #ifndef fides_metadata_MetaData_H_
 #define fides_metadata_MetaData_H_
 
-#include <fides/Keys.h>
 #include <fides/FidesTypes.h>
+#include <fides/Keys.h>
 
 #include <vtkm/cont/Field.h>
 
@@ -41,52 +41,68 @@ protected:
 
 public:
   virtual ~MetaDataItem() {}
-  std::unique_ptr<MetaDataItem> Clone() const
-  {
-    return std::unique_ptr<MetaDataItem>(CloneImpl());
-  }
+  std::unique_ptr<MetaDataItem> Clone() const { return std::unique_ptr<MetaDataItem>(CloneImpl()); }
 };
 
 /// \brief Meta-data item to store size of things such as number of blocks.
 struct FIDES_EXPORT Size : public MetaDataItem
 {
   /// constructor
-  Size(size_t nItems) : NumberOfItems(nItems) {}
+  Size(size_t nItems)
+    : NumberOfItems(nItems)
+  {
+  }
 
   /// Number of items (e.g., blocks)
   size_t NumberOfItems;
 
 protected:
-  virtual Size* CloneImpl() const override
+  virtual Size* CloneImpl() const override { return new Size(*this); }
+};
+
+/// \brief Meta-data item to store a flag.
+struct FIDES_EXPORT Bool : public MetaDataItem
+{
+  /// constructor
+  Bool(bool val)
+    : Value(val)
   {
-    return new Size(*this);
   }
+
+  /// Boolean value.
+  bool Value;
+
+protected:
+  virtual Bool* CloneImpl() const override { return new Bool(*this); }
 };
 
 /// \brief Meta-data item to store an index to a container.
 struct FIDES_EXPORT Index : public MetaDataItem
 {
-  Index(size_t idx) : Data(idx) {}
+  Index(size_t idx)
+    : Data(idx)
+  {
+  }
   size_t Data;
 
 protected:
-  virtual Index* CloneImpl() const override
-  {
-    return new Index(*this);
-  }
+  virtual Index* CloneImpl() const override { return new Index(*this); }
 };
 
 /// \brief Simple struct representing field information.
 struct FIDES_EXPORT FieldInformation
 {
-  FieldInformation(std::string name, vtkm::cont::Field::Association assoc) :
-    Name(name)
+  FieldInformation(std::string name, vtkm::cont::Field::Association assoc)
+    : Name(name)
   {
     this->Association = ConvertVTKmAssociationToFides(assoc);
   }
 
-  FieldInformation(std::string name, fides::Association assoc) :
-    Name(name), Association(assoc) {}
+  FieldInformation(std::string name, fides::Association assoc)
+    : Name(name)
+    , Association(assoc)
+  {
+  }
 
   /// Name of the field.
   std::string Name;
@@ -95,33 +111,33 @@ struct FIDES_EXPORT FieldInformation
 };
 
 /// \brief Meta-data item to store a vector.
-template<typename T>
+template <typename T>
 struct FIDES_EXPORT Vector : public MetaDataItem
 {
-  Vector(std::vector<T> vec) : Data(vec) {}
+  Vector(std::vector<T> vec)
+    : Data(vec)
+  {
+  }
   Vector() {}
   std::vector<T> Data;
 
 protected:
-  virtual Vector* CloneImpl() const override
-  {
-    return new Vector(*this);
-  }
+  virtual Vector* CloneImpl() const override { return new Vector(*this); }
 };
 
 /// \brief Meta-data item to store a set.
-template<typename T>
+template <typename T>
 struct FIDES_EXPORT Set : public MetaDataItem
 {
-  Set(std::set<T> data) : Data(data) {}
+  Set(std::set<T> data)
+    : Data(data)
+  {
+  }
   Set() {}
   std::set<T> Data;
 
 protected:
-  virtual Set* CloneImpl() const override
-  {
-    return new Set(*this);
-  }
+  virtual Set* CloneImpl() const override { return new Set(*this); }
 };
 
 /// \brief Container of meta-data items.
@@ -156,10 +172,11 @@ public:
 
   /// Add a meta-data item to the map. Supports subclasses
   /// of \c MetaDataItem only.
-  template<typename T>
+  template <typename T>
   void Set(fides::keys::KeyType key, const T& item)
   {
-    static_assert( !std::is_same<T, fides::metadata::MetaDataItem>::value, "it is not allowed to pass base type (MetaDataItem) to Set()." );
+    static_assert(!std::is_same<T, fides::metadata::MetaDataItem>::value,
+                  "it is not allowed to pass base type (MetaDataItem) to Set().");
     std::unique_ptr<T> it(new T(item));
     this->Data[key] = std::move(it);
   }
@@ -167,11 +184,11 @@ public:
   /// Given a type, returns an object if it exists.
   /// Raises an exception if the item does not exist
   /// or if the provided template argument is incorrect.
-  template<typename T>
+  template <typename T>
   const T& Get(fides::keys::KeyType key) const
   {
     auto itr = this->Data.find(key);
-    if(itr == this->Data.end())
+    if (itr == this->Data.end())
     {
       throw std::runtime_error("Item not found.");
     }
@@ -184,16 +201,13 @@ public:
   }
 
   /// Given a key, removes the item from the map
-  void Remove(fides::keys::KeyType key)
-  {
-    this->Data.erase(key);
-  }
+  void Remove(fides::keys::KeyType key) { this->Data.erase(key); }
 
   /// Given a key, checks whether an item exists.
   bool Has(fides::keys::KeyType key) const
   {
     auto itr = this->Data.find(key);
-    if(itr == this->Data.end())
+    if (itr == this->Data.end())
     {
       return false;
     }
@@ -201,8 +215,7 @@ public:
   }
 
 private:
-  using MetaDataType = std::unordered_map<fides::keys::KeyType,
-    std::unique_ptr<MetaDataItem> >;
+  using MetaDataType = std::unordered_map<fides::keys::KeyType, std::unique_ptr<MetaDataItem>>;
   MetaDataType Data;
 };
 }

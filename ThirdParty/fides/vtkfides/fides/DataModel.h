@@ -16,7 +16,9 @@
 #include <vtkm/cont/VariantArrayHandle.h>
 
 #include <fides_rapidjson.h>
+// clang-format off
 #include FIDES_RAPIDJSON(rapidjson/document.h)
+// clang-format on
 
 #include <string>
 #include <unordered_map>
@@ -28,8 +30,7 @@ namespace datamodel
 {
 
 using DataSourceType = fides::io::DataSource;
-using DataSourcesType =
-  std::unordered_map<std::string, std::shared_ptr<DataSourceType> >;
+using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSourceType>>;
 
 /// \brief Superclass for all data model classes.
 ///
@@ -40,9 +41,9 @@ using DataSourcesType =
 struct DataModelBase
 {
   DataModelBase() = default;
-  DataModelBase(const DataModelBase &other)
+  DataModelBase(const DataModelBase& other)
   {
-    if(this != &other)
+    if (this != &other)
     {
       this->ObjectName = other.ObjectName;
       this->DataSourceName = other.DataSourceName;
@@ -56,8 +57,7 @@ struct DataModelBase
   /// Perform basic parsing of the JSON object, filling in
   /// common data members such as the data source and variable
   /// name.
-  virtual void ProcessJSON(const rapidjson::Value& json,
-                           DataSourcesType& sources);
+  virtual void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources);
 
   std::string ObjectName = "";
   std::string DataSourceName = "";
@@ -66,9 +66,7 @@ struct DataModelBase
   bool IsStatic = false;
 
 protected:
-
-  std::string FindDataSource(
-    const rapidjson::Value& dataModel, DataSourcesType& sources) const;
+  std::string FindDataSource(const rapidjson::Value& dataModel, DataSourcesType& sources) const;
 
   // Data reading usually happens through this method, which works
   // with the data source. This also handles data caching for static
@@ -77,7 +75,7 @@ protected:
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections,
-    fides::io::IsVector isItVector=fides::io::IsVector::Auto);
+    fides::io::IsVector isItVector = fides::io::IsVector::Auto);
 
   std::vector<vtkm::cont::VariantArrayHandle> Cache;
 };

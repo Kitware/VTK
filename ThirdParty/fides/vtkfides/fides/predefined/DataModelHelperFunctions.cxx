@@ -12,11 +12,13 @@
 #include <fides/predefined/DataModelHelperFunctions.h>
 
 #include <fides_rapidjson.h>
+// clang-format off
 #include FIDES_RAPIDJSON(rapidjson/document.h)
-#include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
 #include FIDES_RAPIDJSON(rapidjson/error/en.h)
-#include FIDES_RAPIDJSON(rapidjson/stringbuffer.h)
+#include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
 #include FIDES_RAPIDJSON(rapidjson/prettywriter.h)
+#include FIDES_RAPIDJSON(rapidjson/stringbuffer.h)
+// clang-format on
 
 #include <iostream>
 
@@ -28,39 +30,19 @@ namespace predefined
 namespace detail
 {
 template <typename ValueType>
-void CreateValueArrayDOM(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& memberName,
-  std::vector<ValueType> values)
-{
-  rapidjson::Value obj(rapidjson::kObjectType);
-  obj.AddMember("source", "array", allocator);
-  rapidjson::Value vals(rapidjson::kArrayType);
-  for (size_t i = 0; i < values.size(); ++i)
-  {
-    vals.PushBack(values[i], allocator);
-  }
-  obj.AddMember("values", vals, allocator);
-  auto name = SetString(allocator, memberName);
-  parent.AddMember(name, obj, allocator);
-}
-
-template <typename ValueType>
-void SetValueArray(
-  std::shared_ptr<InternalMetadataSource> source,
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& attrName,
-  const std::string& memberName)
+void SetValueArray(std::shared_ptr<InternalMetadataSource> source,
+                   rapidjson::Document::AllocatorType& allocator,
+                   rapidjson::Value& parent,
+                   const std::string& attrName,
+                   const std::string& memberName)
 {
   auto vec = source->GetAttribute<ValueType>(attrName);
   if (vec.empty())
   {
-    throw std::runtime_error(memberName + " vector should not be empty. Check "
-      + attrName + " attribute.");
+    throw std::runtime_error(memberName + " vector should not be empty. Check " + attrName +
+                             " attribute.");
   }
-  CreateValueArrayDOM(allocator, parent, memberName, vec);
+  CreateValueArray(allocator, parent, memberName, vec);
 }
 
 
@@ -69,18 +51,16 @@ void SetValueArray(
 rapidjson::Value SetString(rapidjson::Document::AllocatorType& allocator, const std::string& str)
 {
   rapidjson::Value s;
-  s.SetString(str.c_str(),
-    static_cast<rapidjson::SizeType>(str.length()), allocator);
+  s.SetString(str.c_str(), static_cast<rapidjson::SizeType>(str.length()), allocator);
   return s;
 }
 
-void CreateArrayBasic(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& dataSource,
-  const std::string& variable,
-  bool isStatic/* = false*/,
-  const std::string& arrayType/* = "basic"*/)
+void CreateArrayBasic(rapidjson::Document::AllocatorType& allocator,
+                      rapidjson::Value& parent,
+                      const std::string& dataSource,
+                      const std::string& variable,
+                      bool isStatic /* = false*/,
+                      const std::string& arrayType /* = "basic"*/)
 {
   rapidjson::Value at = SetString(allocator, arrayType);
   parent.AddMember("array_type", at, allocator);
@@ -97,11 +77,10 @@ void CreateArrayBasic(
   }
 }
 
-void CreateArrayCartesianProduct(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  std::shared_ptr<InternalMetadataSource> source,
-  const std::string& dataSource)
+void CreateArrayCartesianProduct(rapidjson::Document::AllocatorType& allocator,
+                                 rapidjson::Value& parent,
+                                 std::shared_ptr<InternalMetadataSource> source,
+                                 const std::string& dataSource)
 {
   parent.AddMember("array_type", "cartesian_product", allocator);
 
@@ -136,11 +115,10 @@ void CreateArrayCartesianProduct(
   parent.AddMember("z_array", zArr, allocator);
 }
 
-void CreateArrayXGCCoordinates(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& dataSource,
-  const std::string& variable)
+void CreateArrayXGCCoordinates(rapidjson::Document::AllocatorType& allocator,
+                               rapidjson::Value& parent,
+                               const std::string& dataSource,
+                               const std::string& variable)
 {
   parent.AddMember("array_type", "xgc_coordinates", allocator);
 
@@ -154,11 +132,10 @@ void CreateArrayXGCCoordinates(
   parent.AddMember("is_cylindrical", false, allocator);
 }
 
-void CreateArrayXGCField(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& dataSource,
-  const std::string& variable)
+void CreateArrayXGCField(rapidjson::Document::AllocatorType& allocator,
+                         rapidjson::Value& parent,
+                         const std::string& dataSource,
+                         const std::string& variable)
 {
   parent.AddMember("array_type", "xgc_field", allocator);
 
@@ -169,24 +146,22 @@ void CreateArrayXGCField(
   parent.AddMember("variable", var, allocator);
 }
 
-void CreateValueVariableDimensions(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& source,
-  const std::string& dataSource,
-  const std::string& variable)
+void CreateValueVariableDimensions(rapidjson::Document::AllocatorType& allocator,
+                                   rapidjson::Value& parent,
+                                   const std::string& source,
+                                   const std::string& dataSource,
+                                   const std::string& variable)
 {
   // ValueScalar and ValueVariableDimensions basically look the same in JSON
   CreateValueScalar(allocator, parent, "dimensions", source, dataSource, variable);
 }
 
-void CreateValueScalar(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  const std::string& memberName,
-  const std::string& source,
-  const std::string& dataSource,
-  const std::string& variable)
+void CreateValueScalar(rapidjson::Document::AllocatorType& allocator,
+                       rapidjson::Value& parent,
+                       const std::string& memberName,
+                       const std::string& source,
+                       const std::string& dataSource,
+                       const std::string& variable)
 {
   rapidjson::Value obj(rapidjson::kObjectType);
 
@@ -202,32 +177,42 @@ void CreateValueScalar(
   parent.AddMember(name, obj, allocator);
 }
 
-void CreateValueArray(
-  rapidjson::Document::AllocatorType& allocator,
-  rapidjson::Value& parent,
-  std::shared_ptr<InternalMetadataSource> source,
-  const std::string& attrName,
-  const std::string& memberName)
+void CreateValueArray(rapidjson::Document::AllocatorType& allocator,
+                      rapidjson::Value& parent,
+                      std::shared_ptr<InternalMetadataSource> source,
+                      const std::string& attrName,
+                      const std::string& memberName)
 {
   auto typeStr = source->GetAttributeType(attrName);
   if (typeStr.empty())
   {
     throw std::runtime_error(attrName + " could not be found.");
   }
-#define declare_type(T)                                                          \
-  if (typeStr == GetType<T>())                                                   \
-  {                                                                              \
-    detail::SetValueArray<T>(source, allocator,                                  \
-      parent, attrName, memberName);                                             \
+#define declare_type(T)                                                        \
+  if (typeStr == GetType<T>())                                                 \
+  {                                                                            \
+    detail::SetValueArray<T>(source, allocator, parent, attrName, memberName); \
   }
   FIDES_FOREACH_ATTRIBUTE_PRIMITIVE_STDTYPE_1ARG(declare_type)
 #undef declare_type
 }
 
-rapidjson::Document CreateFieldArrayDoc(
-  const std::string& variable,
-  const std::string& source,
-  const std::string& arrayType)
+void CreateValueArrayVariable(rapidjson::Document::AllocatorType& allocator,
+                              rapidjson::Value& parent,
+                              const std::string& variableName,
+                              const std::string& dataSourceName,
+                              const std::string& memberName)
+{
+  rapidjson::Value obj(rapidjson::kObjectType);
+  obj.AddMember("source", "array_variable", allocator);
+  obj.AddMember("data_source", SetString(allocator, dataSourceName), allocator);
+  obj.AddMember("variable", SetString(allocator, variableName), allocator);
+  parent.AddMember(SetString(allocator, memberName), obj, allocator);
+}
+
+rapidjson::Document CreateFieldArrayDoc(const std::string& variable,
+                                        const std::string& source,
+                                        const std::string& arrayType)
 {
   rapidjson::Document d;
   d.SetObject();

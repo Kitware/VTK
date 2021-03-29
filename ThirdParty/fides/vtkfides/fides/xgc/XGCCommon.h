@@ -41,13 +41,11 @@ struct XGCCommon
   ~XGCCommon();
 
   /// processes the JSON for the number_of_planes object
-  static void ProcessNumberOfPlanes(const rapidjson::Value& nPlanes,
-    DataSourcesType& sources);
+  static void ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourcesType& sources);
 
   /// Reads number of planes from data and returns it immediately
-  vtkm::Id GetNumberOfPlanes(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources);
+  vtkm::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                             DataSourcesType& sources);
 
   /// Gets the number of Fides blocks. Will throw an error if the
   /// planes have not been mapped to blocks yet.
@@ -56,17 +54,15 @@ struct XGCCommon
   /// Gets the XGCBlock info for the blocks requested by the user.
   /// If userBlocks is not provided/empty, then it is assumed that all
   /// blocks are being requested.
-  std::vector<XGCBlockInfo> GetXGCBlockInfo(
-    const std::vector<size_t>& userBlocks);
+  std::vector<XGCBlockInfo> GetXGCBlockInfo(const std::vector<size_t>& userBlocks);
 
   /// Gets the XGCBlock info for the blocks requested by the user, but
   /// also returns a set of plane selections to be used for reading 3D
   /// variables.
   /// If userBlocks is not provided/empty, then it is assumed that all
   /// blocks are being requested.
-  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t> >
-    GetXGCBlockInfoWithPlaneSelection(
-      const std::vector<size_t>& userBlocks);
+  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>>
+  GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks);
 
 private:
   class XGCCommonImpl;

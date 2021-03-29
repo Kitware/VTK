@@ -16,6 +16,7 @@
 #include <fides/MetaData.h>
 
 #include <vtkm/cont/CoordinateSystem.h>
+#include <vtkm/cont/PartitionedDataSet.h>
 
 namespace fides
 {
@@ -31,8 +32,7 @@ struct CoordinateSystem : public DataModelBase
 {
   /// Overridden to handle the undelying Array. The Array
   /// object determines the actual type of the coordinate system.
-  void ProcessJSON(const rapidjson::Value& json,
-                   DataSourcesType& sources) override;
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns coordinate systems. The heavy-lifting is
   /// handled by the underlying Array object.
@@ -43,11 +43,16 @@ struct CoordinateSystem : public DataModelBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
 
+  /// This is called after all data is read from disk/buffers,
+  /// enabling any work that needs to access array values and other
+  /// dataset data.
+  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                const fides::metadata::MetaData& selections);
+
   /// Returns the number of blocks in the underlying Array variable.
   /// Used by the reader to provide meta-data on blocks.
-  size_t GetNumberOfBlocks(
-    const std::unordered_map<std::string, std::string>& paths,
-    DataSourcesType& sources);
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources);
 
 private:
   std::shared_ptr<fides::datamodel::Array> Array;

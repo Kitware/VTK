@@ -1,7 +1,4 @@
 set(xgc_headers
-  ArrayHandleXGCField.h
-  ArrayHandleXGCCoords.h
-  StorageXGC.h
   XGCCommon.h
 )
 

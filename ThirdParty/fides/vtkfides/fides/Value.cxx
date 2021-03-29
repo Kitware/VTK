@@ -15,18 +15,20 @@ namespace fides
 namespace datamodel
 {
 
-void Value::ProcessJSON(const rapidjson::Value& json,
-                        DataSourcesType& sources)
+void Value::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
   if (!json.HasMember("source") || !json["source"].IsString())
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide a valid source.");
+    throw std::runtime_error(this->ObjectName + " must provide a valid source.");
   }
   const std::string& source = json["source"].GetString();
   if (source == "variable_dimensions")
   {
     this->ValueImpl.reset(new ValueVariableDimensions());
+  }
+  else if (source == "array_variable")
+  {
+    this->ValueImpl.reset(new ValueArrayVariable());
   }
   else if (source == "array")
   {
@@ -51,9 +53,8 @@ std::vector<vtkm::cont::VariantArrayHandle> Value::Read(
   return this->ValueImpl->Read(paths, sources, selections);
 }
 
-size_t Value::GetNumberOfBlocks(
-  const std::unordered_map<std::string, std::string>& paths,
-  DataSourcesType& sources)
+size_t Value::GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                                DataSourcesType& sources)
 {
   return this->ValueImpl->GetNumberOfBlocks(paths, sources);
 }
@@ -66,8 +67,8 @@ std::vector<vtkm::cont::VariantArrayHandle> ValueVariableDimensions::Read(
   auto itr = paths.find(this->DataSourceName);
   if (itr == paths.end())
   {
-    throw std::runtime_error("Could not find data_source with name "
-      + this->DataSourceName + " among the input paths.");
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
   }
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
@@ -82,8 +83,8 @@ size_t ValueVariableDimensions::GetNumberOfBlocks(
   auto itr = paths.find(this->DataSourceName);
   if (itr == paths.end())
   {
-    throw std::runtime_error("Could not find data_source with name "
-      + this->DataSourceName + " among the input paths.");
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
   }
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
@@ -91,13 +92,11 @@ size_t ValueVariableDimensions::GetNumberOfBlocks(
   return ds->GetNumberOfBlocks(this->VariableName);
 }
 
-void ValueArray::ProcessJSON(const rapidjson::Value& json,
-                             DataSourcesType& fidesNotUsed(sources))
+void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fidesNotUsed(sources))
 {
   if (!json.HasMember("values") || !json["values"].IsArray())
   {
-    throw std::runtime_error(
-      this->ObjectName  + " must provide a valid values array.");
+    throw std::runtime_error(this->ObjectName + " must provide a valid values array.");
   }
   this->Values.clear();
   this->Values.reserve(json["values"].GetArray().Capacity());
@@ -113,8 +112,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ValueArray::Read(
   const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   std::vector<vtkm::cont::VariantArrayHandle> retVal;
-  retVal.push_back(
-    vtkm::cont::make_ArrayHandle(this->Values, vtkm::CopyFlag::On));
+  retVal.push_back(vtkm::cont::make_ArrayHandle(this->Values, vtkm::CopyFlag::On));
   return retVal;
 }
 
@@ -126,13 +124,48 @@ std::vector<vtkm::cont::VariantArrayHandle> ValueScalar::Read(
   auto itr = paths.find(this->DataSourceName);
   if (itr == paths.end())
   {
-    throw std::runtime_error("Could not find data_source with name "
-      + this->DataSourceName + " among the input paths.");
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
   }
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
   return ds->GetScalarVariable(this->VariableName, selections);
+}
+
+std::vector<vtkm::cont::VariantArrayHandle> ValueArrayVariable::Read(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const fides::metadata::MetaData& selections)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+
+  auto arrays = ds->ReadVariable(this->VariableName, selections);
+  return arrays;
+}
+
+size_t ValueArrayVariable::GetNumberOfBlocks(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources)
+{
+  auto itr = paths.find(this->DataSourceName);
+  if (itr == paths.end())
+  {
+    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
+                             " among the input paths.");
+  }
+  const auto& ds = sources[this->DataSourceName];
+  std::string path = itr->second + ds->FileName;
+  ds->OpenSource(path);
+  return ds->GetNumberOfBlocks(this->VariableName);
 }
 
 }

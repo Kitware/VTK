@@ -35,8 +35,7 @@
 #include <vtkm/cont/CellLocatorGeneral.h>
 #include <vtkm/cont/DataSet.h>
 #include <vtkm/cont/Invoker.h>
-#include <vtkm/cont/PointLocator.h>
-#include <vtkm/cont/PointLocatorUniformGrid.h>
+#include <vtkm/cont/PointLocatorSparseGrid.h>
 #include <vtkm/worklet/ScatterPermutation.h>
 
 #include <mutex>
@@ -62,8 +61,8 @@ struct vtkmDataSet::DataMembers
   vtkm::cont::CoordinateSystem Coordinates;
   vtkNew<vtkGenericCell> Cell;
 
-  VtkmLocator<vtkm::cont::PointLocator> PointLocator;
-  VtkmLocator<vtkm::cont::CellLocator> CellLocator;
+  VtkmLocator<vtkm::cont::PointLocatorSparseGrid> PointLocator;
+  VtkmLocator<vtkm::cont::CellLocatorGeneral> CellLocator;
 };
 
 //------------------------------------------------------------------------------
@@ -172,7 +171,7 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
     this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3>>())
   {
     auto portal = this->Internals->Coordinates.GetData()
-                    .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>()
+                    .AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>()
                     .ReadPortal();
 
     vtkm::internal::ConnectivityStructuredInternals<3> helper;
@@ -279,7 +278,7 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
   vtkm::Id pointId = -1;
   vtkm::FloatDefault d2 = 0;
   // exec object created for the Serial device can be called directly
-  execLocator->FindNearestNeighbor(point, pointId, d2);
+  execLocator.FindNearestNeighbor(point, pointId, d2);
   return pointId;
 }
 
@@ -316,7 +315,7 @@ vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdTyp
   vtkm::Vec<vtkm::FloatDefault, 3> pc;
   vtkm::Id cellId = -1;
   // exec object created for the Serial device can be called directly
-  execLocator->FindCell(point, cellId, pc);
+  execLocator.FindCell(point, cellId, pc);
 
   if (cellId >= 0)
   {

@@ -15,8 +15,8 @@
 #include <fides/MetaData.h>
 
 #include <adios2.h>
-#include <vector>
 #include <map>
+#include <vector>
 #include <vtkm/cont/VariantArrayHandle.h>
 
 namespace fides
@@ -65,7 +65,7 @@ struct DataSource
   DataSource() = default;
   DataSource& operator=(const DataSource& other)
   {
-    if(this != &other)
+    if (this != &other)
     {
       this->Mode = other.Mode;
       this->FileName = other.FileName;
@@ -74,9 +74,9 @@ struct DataSource
     return *this;
   }
 
-  DataSource(const DataSource &other)
+  DataSource(const DataSource& other)
   {
-    if(this != &other)
+    if (this != &other)
     {
       this->Mode = other.Mode;
       this->FileName = other.FileName;
@@ -110,29 +110,29 @@ struct DataSource
   std::vector<vtkm::cont::VariantArrayHandle> ReadVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections,
-    IsVector isit=IsVector::Auto);
+    IsVector isit = IsVector::Auto);
 
-  /// Similar to\c ReadVariable() but for XGC 3D variables.
-  /// fides::keys::PLANE_SELECTION to determine which ADIOS blocks to read and returns a
-  /// map of plane ids to the associated ArrayHandle.
+  /// Similar to\c ReadVariable() but for variables where multiple blocks
+  /// should be written to a single ArrayHandle (useful for XGC, GTC).
   /// As with \c ReadVariable(), actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
-  std::unordered_map<size_t, vtkm::cont::VariantArrayHandle> ReadXGC3DVariable(
+  /// Inline engine is not supported with this type of read
+  std::vector<vtkm::cont::VariantArrayHandle> ReadMultiBlockVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
   /// Reads a scalar variable and can be used when when an
   /// actual value is needed immediately.
   std::vector<vtkm::cont::VariantArrayHandle> GetScalarVariable(
-      const std::string& varName,
-      const fides::metadata::MetaData& selections);
+    const std::string& varName,
+    const fides::metadata::MetaData& selections);
 
   /// Returns the dimensions and start of an n-dimensional variable.
   /// The first n values are the dimensions and the last n the start.
   /// Unlike ReadVariable(), the values are accessible immediately.
   std::vector<vtkm::cont::VariantArrayHandle> GetVariableDimensions(
-      const std::string& varName,
-      const fides::metadata::MetaData& selections);
+    const std::string& varName,
+    const fides::metadata::MetaData& selections);
 
   /// Returns the total number of steps available to the data source.
   size_t GetNumberOfSteps();
@@ -170,7 +170,6 @@ struct DataSource
   std::vector<AttributeType> ReadAttribute(const std::string& attrName);
 
 private:
-
   std::unique_ptr<adios2::ADIOS> Adios = nullptr;
   adios2::IO AdiosIO;
   adios2::Engine Reader;
@@ -192,7 +191,7 @@ private:
 template <typename AttributeType>
 std::vector<AttributeType> DataSource::ReadAttribute(const std::string& attrName)
 {
-  if(!this->AdiosIO)
+  if (!this->AdiosIO)
   {
     throw std::runtime_error("Cannot read attribute without setting the adios engine.");
   }

@@ -44,5 +44,10 @@ KeyType PLANE_SELECTION()
   return reinterpret_cast<KeyType>(&PLANE_SELECTION);
 }
 
+KeyType READ_AS_MULTIBLOCK()
+{
+  return reinterpret_cast<KeyType>(&READ_AS_MULTIBLOCK);
+}
+
 }
 }

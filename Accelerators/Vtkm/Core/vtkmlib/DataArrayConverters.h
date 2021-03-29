@@ -25,6 +25,7 @@
 
 #include <vtkm/cont/ArrayHandleSOA.h>
 #include <vtkm/cont/Field.h>
+#include <vtkm/cont/VariantArrayHandle.h>
 
 #include <type_traits> // for std::underlying_type
 
