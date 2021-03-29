@@ -260,18 +260,31 @@ void vtkWrapPython_AddPublicConstants(
       continue;
     }
 
-    /* check to make sure there won't be a name conflict between an
-       enum type and some other class member, it happens specifically
-       for vtkImplicitBoolean which has a variable and enum type both
-       with the name OperationType */
     if (scopeType)
     {
-      int conflict = 0;
-      for (i = 0; i < data->NumberOfVariables && !conflict; i++)
+      int found = 0;
+
+      /* check to make sure that the enum type is wrapped */
+      for (i = 0; i < data->NumberOfEnums && !found; i++)
       {
-        conflict = (strcmp(data->Variables[i]->Name, typeName) == 0);
+        EnumInfo* info = data->Enums[i];
+        found = (info->IsExcluded && info->Name && strcmp(typeName, info->Name) == 0);
       }
-      if (conflict)
+      if (found)
+      {
+        j = k;
+        continue;
+      }
+
+      /* check to make sure there won't be a name conflict between an
+         enum type and some other class member, it happens specifically
+         for vtkImplicitBoolean which has a variable and enum type both
+         with the name OperationType */
+      for (i = 0; i < data->NumberOfVariables && !found; i++)
+      {
+        found = (strcmp(data->Variables[i]->Name, typeName) == 0);
+      }
+      if (found)
       {
         valtype = VTK_PARSE_INT;
         typeName = "int";
@@ -300,8 +313,9 @@ void vtkWrapPython_AddPublicConstants(
       val = data->Constants[j++];
       if (val->Access == VTK_ACCESS_PUBLIC)
       {
-        fprintf(fp, "%s      { \"%s\", %s%s%s },\n", indent, val->Name, (scopeValue ? scope : ""),
-          (scopeValue ? "::" : ""), (val->IsEnum ? val->Name : val->Value));
+        fprintf(fp, "%s      { \"%s\", %s%s%s },%s\n", indent, val->Name, (scopeValue ? scope : ""),
+          (scopeValue ? "::" : ""), (val->IsEnum ? val->Name : val->Value),
+          ((val->Attributes & VTK_PARSE_DEPRECATED) ? " /* deprecated */" : ""));
       }
     }
 

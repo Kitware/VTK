@@ -213,7 +213,8 @@ void add_enum(const char *name, const char *value);
 void end_enum(void);
 unsigned int guess_constant_type(const char *valstring);
 void add_constant(const char *name, const char *value,
-                  unsigned int type, const char *typeclass, int flag);
+                  unsigned int attributes, unsigned int type,
+                  const char *typeclass, int flag);
 void prepend_scope(char *cp, const char *arg);
 unsigned int guess_id_type(const char *cp);
 unsigned int add_indirection(unsigned int type1, unsigned int type2);
@@ -2164,12 +2165,14 @@ enum_head:
     enum_key class_attribute_specifier_seq id_expression opt_enum_base
     {
       start_enum($<str>3, $<integer>1, $<integer>4, getTypeId());
+      clearType();
       clearTypeId();
       $<str>$ = $<str>3;
     }
   | enum_key class_attribute_specifier_seq opt_enum_base
     {
       start_enum(NULL, $<integer>1, $<integer>3, getTypeId());
+      clearType();
       clearTypeId();
       $<str>$ = NULL;
     }
@@ -2189,9 +2192,9 @@ enumerator_list:
   | enumerator_list ',' enumerator_definition
 
 enumerator_definition:
-  | simple_id { closeComment(); add_enum($<str>1, NULL); }
-  | simple_id '=' { postSig("="); markSig(); closeComment(); }
-    constant_expression { chopSig(); add_enum($<str>1, copySig()); }
+  | simple_id id_attribute_specifier_seq { closeComment(); add_enum($<str>1, NULL); clearType(); }
+  | simple_id id_attribute_specifier_seq '=' { postSig("="); markSig(); closeComment(); }
+    constant_expression { chopSig(); add_enum($<str>1, copySig()); clearType(); }
 
 /*
  * currently ignored items
@@ -2351,6 +2354,7 @@ alias_declaration:
 template_head:
     TEMPLATE '<' right_angle_bracket
     { postSig("template<> "); clearTypeId(); }
+    decl_attribute_specifier_seq
   | TEMPLATE '<'
     {
       postSig("template<");
@@ -2367,6 +2371,7 @@ template_head:
       clearTypeId();
       popType();
     }
+    decl_attribute_specifier_seq
 
 template_parameter_list:
     template_parameter
@@ -3817,6 +3822,18 @@ void start_enum(const char *name, int is_scoped,
     item->Comment = vtkstrdup(getComment());
     item->Access = access_level;
 
+    if (getAttributes() & VTK_PARSE_WRAPEXCLUDE)
+    {
+      item->IsExcluded = 1;
+    }
+
+    if (getAttributes() & VTK_PARSE_DEPRECATED)
+    {
+      item->IsDeprecated = 1;
+      item->DeprecatedReason = deprecationReason;
+      item->DeprecatedVersion = deprecationVersion;
+    }
+
     if (currentClass)
     {
       vtkParse_AddEnumToClass(currentClass, item);
@@ -3857,6 +3874,7 @@ void end_enum(void)
 void add_enum(const char *name, const char *value)
 {
   static char text[2048];
+  unsigned int attribs = getAttributes();
   int i;
   long j;
 
@@ -3895,7 +3913,7 @@ void add_enum(const char *name, const char *value)
     currentEnumValue = "0";
   }
 
-  add_constant(name, currentEnumValue, currentEnumType, currentEnumName, 2);
+  add_constant(name, currentEnumValue, attribs, currentEnumType, currentEnumName, 2);
 }
 
 /* for a macro constant, guess the constant type, doesn't do any math */
@@ -4080,7 +4098,8 @@ unsigned int guess_constant_type(const char *valstring)
 
 /* add a constant to the current class or namespace */
 void add_constant(const char *name, const char *value,
-                  unsigned int type, const char *typeclass, int flag)
+                  unsigned int attributes, unsigned int type,
+                  const char *typeclass, int flag)
 {
   ValueInfo *con = (ValueInfo *)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(con);
@@ -4088,6 +4107,7 @@ void add_constant(const char *name, const char *value,
   con->Name = name;
   con->Comment = vtkstrdup(getComment());
   con->Value = value;
+  con->Attributes = attributes;
   con->Type = type;
   con->Class = type_class(type, typeclass);
 
@@ -4422,7 +4442,8 @@ void handle_attribute(const char *att, int pack)
       addAttribute(VTK_PARSE_ZEROCOPY);
     }
     else if (l == 15 && strncmp(att, "vtk::deprecated", l) == 0 &&
-             (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
+             (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS ||
+              role == VTK_PARSE_ATTRIB_ID))
     {
       addAttribute(VTK_PARSE_DEPRECATED);
       deprecationReason = NULL;

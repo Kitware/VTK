@@ -1713,7 +1713,7 @@ void preprocessor_directive(const char *text, size_t l)
         {
           add_constant(
             vtkstrdup(macro->Name), vtkstrdup(macro->Definition),
-            0, NULL, 1);
+            0, 0, NULL, 1);
         }
       }
     }
