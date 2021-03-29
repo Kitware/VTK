@@ -1068,9 +1068,13 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(
-  double value, vtkOpenGLRenderWindow* window)
+void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(double, vtkOpenGLRenderWindow*)
 {
+  // Turns out firing progress event during rendering is not only opens up the
+  // potential corrupting buffers, but also slows the mapper down considerably!
+  // turning off progress events entirely. just not worth the hassle at this
+  // point.
+#if 0
   scoped_annotate annotator("GLSafeUpdateProgress");
   window->GetState()->PushFramebufferBindings();
   // since UpdateProgress may causes GL context changes, we save and restore
@@ -1078,4 +1082,6 @@ void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(
   this->UpdateProgress(value);
   window->MakeCurrent();
   window->GetState()->PopFramebufferBindings();
+  vtkOpenGLCheckErrorMacro("failed after GLSafeUpdateProgress");
+#endif
 }
