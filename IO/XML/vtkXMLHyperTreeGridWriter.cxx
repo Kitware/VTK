@@ -676,9 +676,9 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     {
       this->Masks.emplace_back(vtkSmartPointer<vtkBitArray>::New());
       auto& mask = this->Masks.back();
-      mask->SetNumberOfValues(ids->GetNumberOfIds());
       mask->SetNumberOfComponents(1);
-      mask->GetTuples(ids, mask);
+      mask->SetNumberOfValues(ids->GetNumberOfIds());
+      input->GetMask()->GetTuples(ids, mask);
       // squeezing last zeros of last row out of mask
       if (vtkIdType lastNonZeroId = mask->GetNumberOfValues())
       {
