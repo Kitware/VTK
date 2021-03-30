@@ -222,7 +222,6 @@ int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output
   int edgeNum, numEdgePts, numCellEdges;
   int i, abort = 0;
   vtkIdType pts[2];
-  double x[3];
   vtkEdgeTable* edgeTable;
   vtkGenericCell* cell;
   vtkCell* edge;
