@@ -309,6 +309,11 @@ protected:
    */
   int ReadBinaryLine(char result[80]);
 
+  /**
+   * Skip certain non-comment lines that are not needed.
+   */
+  bool SkipDataLine(char line[256]);
+
   // Internal function that skips blank lines and reads the 1st
   // non-blank line it finds (up to 256 characters).
   // Returns 0 is there was an error.
