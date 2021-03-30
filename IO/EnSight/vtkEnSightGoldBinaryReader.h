@@ -233,6 +233,7 @@ protected:
   int NodeIdsListed;
   int ElementIdsListed;
   int Fortran;
+  int FortranSkipBytes; // Number of bytes to skip when seeking within a fortran-written file
 
   istream* GoldIFile;
   // The size of the file could be used to choose byte order.
