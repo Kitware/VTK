@@ -997,7 +997,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
     // --- to obtain a sequence of filenameNum(s) which might span multiple lines
     if (this->ReadNextDataLine(line) == 0)
     {
-      vtkErrorMacro("Error with vtkEnSightReader: 'filename ......' not found!!!");
+      vtkErrorMacro("Error with vtkEnSightReader: 'filename ......' entry not found!!!");
       return 0;
     }
 
