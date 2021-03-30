@@ -120,7 +120,7 @@ void vtkBorderRepresentation::ComputeRoundCorners()
   vtkPolyData* pd = this->BWTransformFilter->GetOutput();
   vtkPoints* pdPoints = pd->GetPoints();
 
-  if (lines->GetNumberOfCells() != 1 || this->CornerResolution == 0 || this->BorderThickness == 0)
+  if (lines->GetNumberOfCells() != 1 || this->CornerResolution == 0)
   {
     // All borders are not shown, we cannot compute
     // round corners
