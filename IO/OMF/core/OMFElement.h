@@ -21,6 +21,7 @@
 #include "vtk_jsoncpp_fwd.h"
 
 #include <memory>
+#include <string>
 
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
@@ -48,11 +49,8 @@ protected:
     vtkPartitionedDataSet* output) = 0;
   virtual void ProcessDataFields(
     std::shared_ptr<OMFFile>& file, const Json::Value& dataJSON, vtkPartitionedDataSet* output);
-  virtual void ProcessTextures(
-    std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON, vtkPartitionedDataSet* output);
-
-private:
-  vtkSmartPointer<vtkTexture> Texture;
+  virtual void ProcessTextures(std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON,
+    vtkPartitionedDataSet* output, const std::string& elementName);
 };
 
 class PointSetElement : public ProjectElement

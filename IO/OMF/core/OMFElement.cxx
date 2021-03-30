@@ -27,6 +27,7 @@
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkPNGReader.h"
+#include "vtkPNGWriter.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -39,83 +40,16 @@
 #include "vtkTextureMapToPlane.h"
 
 #include "vtk_jsoncpp.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <numeric>
 #include <string>
 #include <vector>
 
-namespace
-{
-
-enum class GeometryType
-{
-  PointSetGeometry,
-  LineSetGeometry
-};
-
-}
-
 namespace omf
 {
 namespace
 {
-
-// only used during dev/debugging to quickly check what type a Json::Value is.
-// just keeping around until development is complete
-/*
-void checkJSONType(const Json::Value& json)
-{
-  vtkLogScopeFunction(INFO);
-  if (json.isNull())
-  {
-    vtkLog(INFO, "json is null");
-  }
-  if (json.isBool())
-  {
-    vtkLog(INFO, "json is bool with value " << json.asBool());
-  }
-  if (json.isInt())
-  {
-    vtkLog(INFO, "json is int with value " << json.asInt());
-  }
-  if (json.isInt64())
-  {
-    vtkLog(INFO, "json is int64 with value " << json.asInt64());
-  }
-  if (json.isUInt())
-  {
-    vtkLog(INFO, "json is unsigned int with value " << json.asUInt());
-  }
-  if (json.isUInt64())
-  {
-    vtkLog(INFO, "json is unsigned int64 with value " << json.asUInt64());
-  }
-  if (json.isIntegral())
-  {
-    vtkLog(INFO, "json is integral");
-  }
-  if (json.isDouble())
-  {
-    vtkLog(INFO, "json is double with value " << json.asDouble());
-  }
-  if (json.isNumeric())
-  {
-    vtkLog(INFO, "json is numeric");
-  }
-  if (json.isString())
-  {
-    vtkLog(INFO, "json is string '" << json.asString() << "'");
-  }
-  if (json.isArray())
-  {
-    vtkLog(INFO, "json is array of size " << json.size());
-  }
-  if (json.isObject())
-  {
-    vtkLog(INFO, "json is object");
-  }
-}
-*/
 
 void createCoordinatesArray(double origin, std::vector<double> spacing, vtkDoubleArray* coords)
 {
@@ -180,7 +114,6 @@ ProjectElement::ProjectElement(const std::string& uid, double globalOrigin[3])
   : UID(uid)
 {
   memcpy(this->GlobalOrigin, globalOrigin, sizeof(double) * 3);
-  this->Texture = vtkSmartPointer<vtkTexture>::New();
 }
 
 //------------------------------------------------------------------------------
@@ -199,11 +132,10 @@ void ProjectElement::ProcessJSON(
   // optional properties: data and textures
   this->ProcessDataFields(file, element["data"], output);
 
-  // TODO finish implementing texture support and reenable
-  // if (element.isMember("textures"))
-  //{
-  //  this->ProcessTextures(file, element["textures"], output);
-  //}
+  if (element.isMember("textures") && element["textures"].size() > 0)
+  {
+    this->ProcessTextures(file, element["textures"], output, element["name"].asString());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -242,8 +174,8 @@ void ProjectElement::ProcessDataFields(
 }
 
 //------------------------------------------------------------------------------
-void ProjectElement::ProcessTextures(
-  std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON, vtkPartitionedDataSet* output)
+void ProjectElement::ProcessTextures(std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON,
+  vtkPartitionedDataSet* output, const std::string& elementName)
 {
   auto* dataset = output->GetPartition(0);
   for (Json::Value::ArrayIndex tex = 0; tex < textureJSON.size(); ++tex)
@@ -287,15 +219,27 @@ void ProjectElement::ProcessTextures(
       continue;
     }
 
-    this->Texture->SetInputDataObject(image);
-    this->Texture->Update();
+    // Write out texture images to the directory containing the
+    // OMF file being read.
+    auto filePath = file->GetFileName();
+    auto dir = vtksys::SystemTools::GetParentDirectory(filePath);
 
-    // TODO still needs to be finished
-    vtkNew<vtkPolyDataMapper> mapper;
-    mapper->SetInputDataObject(dataset);
-    vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper);
-    actor->SetTexture(this->Texture);
+    std::vector<std::string> pathComponents;
+    vtksys::SystemTools::SplitPath(dir, pathComponents);
+    pathComponents.push_back("textures");
+    auto texDir = vtksys::SystemTools::JoinPath(pathComponents);
+    vtksys::SystemTools::MakeDirectory(texDir);
+
+    auto fileNoExt = vtksys::SystemTools::GetFilenameWithoutLastExtension(filePath);
+    std::string texFileName = fileNoExt + "-" + elementName + "-texture.png";
+
+    pathComponents.push_back(texFileName);
+    auto texFilePath = vtksys::SystemTools::JoinPath(pathComponents);
+
+    vtkNew<vtkPNGWriter> writer;
+    writer->SetFileName(texFilePath.c_str());
+    writer->SetInputData(image);
+    writer->Write();
   }
 }
 
@@ -458,7 +402,6 @@ void SurfaceElement::ProcessGeometry(
             offsetWIdx++;
           }
           // apply rotation
-          // TODO better way of doing this?
           double rotCol1[3] = { axis_u[0], axis_v[0], axis_w[0] };
           double rotCol2[3] = { axis_u[1], axis_v[1], axis_w[1] };
           double rotCol3[3] = { axis_u[2], axis_v[2], axis_w[2] };
@@ -528,7 +471,6 @@ void VolumeElement::ProcessGeometry(
       {
         pt[0] = x->GetValue(i);
         // apply rotation
-        // TODO better way of doing this?
         double rotCol1[3] = { axis_u[0], axis_v[0], axis_w[0] };
         double rotCol2[3] = { axis_u[1], axis_v[1], axis_w[1] };
         double rotCol3[3] = { axis_u[2], axis_v[2], axis_w[2] };
