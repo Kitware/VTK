@@ -147,7 +147,9 @@ int vtkExtractSelection::RequestDataObject(
     return 1;
   }
 
-  if (!outputDO || !outputDO->IsTypeOf(inputDO->GetClassName()))
+  // XXX: This code is very fishy. Investigation is needed as to whether this
+  // static call is actually what is intended.
+  if (!outputDO || !vtkDataObject::IsTypeOf(inputDO->GetClassName()))
   {
     outputDO = inputDO->NewInstance();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
