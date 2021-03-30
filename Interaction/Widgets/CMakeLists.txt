@@ -53,6 +53,7 @@ set(classes
   vtkDistanceRepresentation3D
   vtkDistanceWidget
   vtkEllipsoidTensorProbeRepresentation
+  vtkEqualizerContextItem
   vtkEvent
   vtkFinitePlaneRepresentation
   vtkFinitePlaneWidget

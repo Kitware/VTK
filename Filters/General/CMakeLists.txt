@@ -40,6 +40,7 @@ set(classes
   vtkDiscreteMarchingCubes
   vtkDistancePolyDataFilter
   vtkEdgePoints
+  vtkEqualizerFilter
   vtkExtractArray
   vtkExtractSelectedFrustum
   vtkExtractSelectionBase

@@ -12,6 +12,7 @@ DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::RenderingCore
+  VTK::RenderingContext2D
 PRIVATE_DEPENDS
   VTK::CommonComputationalGeometry
   VTK::CommonDataModel
@@ -55,3 +56,5 @@ TEST_DEPENDS
   VTK::RenderingOpenGL2
   VTK::RenderingVolumeOpenGL2
   VTK::TestingRendering
+  VTK::ViewsContext2D
+  VTK::RenderingContextOpenGL2
