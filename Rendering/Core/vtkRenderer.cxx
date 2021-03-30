@@ -34,6 +34,7 @@
 #include "vtkPicker.h"
 #include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"
+#include "vtkRect.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindow.h"
@@ -42,6 +43,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
+#include "vtkVectorOperators.h"
 #include "vtkVolume.h"
 
 #include <sstream>
@@ -1350,189 +1352,6 @@ void vtkRenderer::ResetCameraScreenSpace()
   this->InvokeEvent(vtkCommand::ResetCameraEvent, this);
 }
 
-// Use a screen space bounding box to zoom closer to the data.
-void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
-{
-  // Make sure all bounds are visible to project into screen space
-  this->ResetCamera(bounds);
-
-  double center[3];
-  double vn[3];
-
-  vtkCamera* activeCamera = this->GetActiveCamera();
-  if (activeCamera != nullptr)
-  {
-    activeCamera->GetViewPlaneNormal(vn);
-  }
-  else
-  {
-    vtkErrorMacro(<< "Trying to reset non-existent camera");
-    return;
-  }
-
-  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
-  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
-
-  center[0] = (expandedBounds[0] + expandedBounds[1]) / 2.0;
-  center[1] = (expandedBounds[2] + expandedBounds[3]) / 2.0;
-  center[2] = (expandedBounds[4] + expandedBounds[5]) / 2.0;
-
-  // Compute the vertical and horizontal angle
-  double angle = vtkMath::RadiansFromDegrees(activeCamera->GetViewAngle());
-
-  this->ComputeAspect();
-  double aspect[2];
-  this->GetAspect(aspect);
-
-  double verticalAngle = angle, horizontalAngle = angle;
-
-  if (activeCamera->GetUseHorizontalViewAngle())
-  {
-    verticalAngle = 2.0 * atan(tan(angle * 0.5) / aspect[0]);
-  }
-  else
-  {
-    horizontalAngle = 2.0 * atan(tan(angle * 0.5) * aspect[0]);
-  }
-
-  // 1) Project all bounding box points into screen space and
-  //    look for the xmin, xmax. Then, reproject these points with
-  //    a Z value set as the closest of the camera. We have now a bounding
-  //    plane defined by a normal collinear with the view plane normal
-  // 2) Get the intersection point of the view plane normal and the
-  //    bounding plane (this is the focal point projected on the bounding plane).
-  //    Compute the distance between this point and the world focal point to know
-  //    the distance at which the camera will lay IN the bounding plane.
-  // 3) Compute the vertical and horizontal size of the bounding plane to know what
-  //    is the camera distance that permit to view all of the bounding plane, depending on
-  //    the vertical and horizontal fov.
-  // 4) The resulting camera distance is the distance from the focal point to the
-  //    bounding plane added with the maximum distance between the distance to watch
-  //    'verticalDistance' with the verticalAngle and the distance to watch
-  //    'horizontalDistance' with the horizontalAngle.
-
-  // 1) Compute the screen space bounding box
-  double xmin = VTK_DOUBLE_MAX;
-  double ymin = VTK_DOUBLE_MAX;
-  double zmin = VTK_DOUBLE_MAX;
-  double xmax = VTK_DOUBLE_MIN;
-  double ymax = VTK_DOUBLE_MIN;
-  double currentPointDisplay[3];
-  for (int i = 0; i < 2; ++i)
-  {
-    for (int j = 0; j < 2; ++j)
-    {
-      for (int k = 0; k < 2; ++k)
-      {
-        double currentPoint[3] = { expandedBounds[i], expandedBounds[j + 2],
-          expandedBounds[k + 4] };
-
-        this->SetWorldPoint(currentPoint);
-        this->WorldToDisplay();
-        this->GetDisplayPoint(currentPointDisplay);
-
-        xmin = std::min(currentPointDisplay[0], xmin);
-        xmax = std::max(currentPointDisplay[0], xmax);
-        ymin = std::min(currentPointDisplay[1], ymin);
-        ymax = std::max(currentPointDisplay[1], ymax);
-
-        // Look for the minimum depth of the bounding box
-        zmin = std::min(currentPointDisplay[2], zmin);
-      }
-    }
-  }
-
-  // Reproject these points in world space, with the computed
-  // minimum Z value. We only need 3 corners of the bounding
-  // box to compute vetical and horizontal distance
-
-  // Bottom left
-  double pBL[4];
-  this->SetDisplayPoint(xmin, ymin, zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(pBL);
-  // Top right
-  double pTR[4];
-  this->SetDisplayPoint(xmax, ymax, zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(pTR);
-  // Top left
-  double pTL[4];
-  this->SetDisplayPoint(xmin, ymax, zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(pTL);
-
-  for (int i = 0; i < 3; i++)
-  {
-    pBL[i] = pBL[i] / pBL[3];
-    pTR[i] = pTR[i] / pTR[3];
-    pTL[i] = pTL[i] / pTL[3];
-  }
-
-  double displayFocalPoint[3];
-  this->SetWorldPoint(center);
-  this->WorldToDisplay();
-  this->GetDisplayPoint(displayFocalPoint);
-  // This is the position of the focal point projected on the
-  // bounding plane
-  double worldFocalPointOnPlane[4];
-  this->SetDisplayPoint(displayFocalPoint[0], displayFocalPoint[1], zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(worldFocalPointOnPlane);
-
-  // As the focal point projected is not always at the center of the screen space
-  // bounding box, we project the focal point on the top side of the bounding box
-  // and the left side to compute vertical / horizontal distance
-  double worldFocalPointProjectedOnLeftSide[4];
-  this->SetDisplayPoint(xmin, displayFocalPoint[1], zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(worldFocalPointProjectedOnLeftSide);
-
-  double worldFocalPointProjectedOnTopSide[4];
-  this->SetDisplayPoint(displayFocalPoint[0], ymax, zmin);
-  this->DisplayToWorld();
-  this->GetWorldPoint(worldFocalPointProjectedOnTopSide);
-
-  for (int i = 0; i < 3; i++)
-  {
-    worldFocalPointOnPlane[i] = worldFocalPointOnPlane[i] / worldFocalPointOnPlane[3];
-    worldFocalPointProjectedOnLeftSide[i] =
-      worldFocalPointProjectedOnLeftSide[i] / worldFocalPointProjectedOnLeftSide[3];
-    worldFocalPointProjectedOnTopSide[i] =
-      worldFocalPointProjectedOnTopSide[i] / worldFocalPointProjectedOnTopSide[3];
-  }
-
-  // 2) Compute the distance between world focal point and projected
-  //    focal point on the bounding plane (ie. the intersection between
-  //    the bounding plane and the view plane normal)
-  double distanceFocalPoint_BoundingPlane =
-    std::sqrt(vtkMath::Distance2BetweenPoints(center, worldFocalPointOnPlane));
-
-  // 3) Compute the horizontal and vertical distance that need to fill
-  //    the screen.
-  //    Horizontal distance is the maximum distance between the two top corners and the
-  //    focal point projected on the top side
-  //    Vertical distance is the maximum distance between the two left corners and the
-  //    focal point projected on the left side
-  double horizontalDistance =
-    std::max(vtkMath::Distance2BetweenPoints(pTL, worldFocalPointProjectedOnTopSide),
-      vtkMath::Distance2BetweenPoints(pTR, worldFocalPointProjectedOnTopSide));
-
-  double verticalDistance =
-    std::max(vtkMath::Distance2BetweenPoints(pTL, worldFocalPointProjectedOnLeftSide),
-      vtkMath::Distance2BetweenPoints(pBL, worldFocalPointProjectedOnLeftSide));
-
-  // 4) Resulting distance
-  double distance = distanceFocalPoint_BoundingPlane +
-    std::max(std::sqrt(horizontalDistance) / tan(horizontalAngle * 0.5),
-      std::sqrt(verticalDistance) / tan(verticalAngle * 0.5));
-
-  activeCamera->SetPosition(
-    center[0] + distance * vn[0], center[1] + distance * vn[1], center[2] + distance * vn[2]);
-
-  this->ResetCameraClippingRange(expandedBounds);
-}
-
 // Alternative version of ResetCameraScreenSpace(bounds[6]);
 void vtkRenderer::ResetCameraScreenSpace(
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
@@ -1547,6 +1366,117 @@ void vtkRenderer::ResetCameraScreenSpace(
   bounds[5] = zmax;
 
   this->ResetCameraScreenSpace(bounds);
+}
+
+// Use a screen space bounding box to zoom closer to the data.
+void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
+{
+  // Make sure all bounds are visible to project into screen space
+  this->ResetCamera(bounds);
+
+  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
+  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
+
+  // 1) Compute the screen space bounding box
+  double xmin = VTK_DOUBLE_MAX;
+  double ymin = VTK_DOUBLE_MAX;
+  double xmax = VTK_DOUBLE_MIN;
+  double ymax = VTK_DOUBLE_MIN;
+  double currentPointDisplay[3];
+  for (int i = 0; i < 2; ++i)
+  {
+    for (int j = 0; j < 2; ++j)
+    {
+      for (int k = 0; k < 2; ++k)
+      {
+        double currentPoint[4] = { expandedBounds[i], expandedBounds[j + 2], expandedBounds[k + 4],
+          1.0 };
+
+        this->SetWorldPoint(currentPoint);
+        this->WorldToDisplay();
+        this->GetDisplayPoint(currentPointDisplay);
+
+        xmin = std::min(currentPointDisplay[0], xmin);
+        xmax = std::max(currentPointDisplay[0], xmax);
+        ymin = std::min(currentPointDisplay[1], ymin);
+        ymax = std::max(currentPointDisplay[1], ymax);
+      }
+    }
+  }
+
+  // Offset a little to make sure bounds are not clipped
+  int offsetX = std::max(static_cast<int>((xmax - xmin) * 0.01), 10);
+  int offsetY = std::max(static_cast<int>((ymax - ymin) * 0.01), 10);
+
+  xmin -= offsetX;
+  xmax += offsetX;
+  ymin -= offsetY;
+  ymax += offsetY;
+
+  // Project the focal point in screen space
+  double fp[4];
+  this->ActiveCamera->GetFocalPoint(fp);
+  fp[3] = 1.0;
+  double fpDisplay[3];
+  this->SetWorldPoint(fp);
+  this->WorldToDisplay();
+  this->GetDisplayPoint(fpDisplay);
+
+  // The focal point must be at the center of the box
+  // So construct a box with fpDisplay at the center
+  int xCenterFocalPoint = static_cast<int>(fpDisplay[0]);
+  int yCenterFocalPoint = static_cast<int>(fpDisplay[1]);
+
+  int xCenterBox = static_cast<int>((xmin + xmax) / 2);
+  int yCenterBox = static_cast<int>((ymin + ymax) / 2);
+
+  int xDiff = 2 * (xCenterFocalPoint - xCenterBox);
+  int yDiff = 2 * (yCenterFocalPoint - yCenterBox);
+
+  int xMaxOffset = std::max(xDiff, 0);
+  int xMinOffset = std::min(xDiff, 0);
+  int yMaxOffset = std::max(yDiff, 0);
+  int yMinOffset = std::min(yDiff, 0);
+
+  xmin += xMinOffset;
+  xmax += xMaxOffset;
+  ymin += yMinOffset;
+  ymax += yMaxOffset;
+  // Now the focal point is at the center of the box
+
+  const vtkRecti box(xmin, ymin, xmax - xmin, ymax - ymin);
+  this->ZoomToBoxUsingViewAngle(box);
+}
+
+// Display to world using vtkVector3d
+vtkVector3d vtkRenderer::DisplayToWorld(const vtkVector3d& display)
+{
+  this->SetDisplayPoint(display[0], display[1], display[2]);
+  this->DisplayToView();
+  this->ViewToWorld();
+
+  vtkVector<double, 4> world4;
+  this->GetWorldPoint(world4.GetData());
+  double invw = 1.0 * world4[3];
+  world4 = world4 * invw;
+  return vtkVector3d(world4.GetData());
+}
+
+void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box)
+{
+  const int* size = this->GetSize();
+  double zoomFactor;
+  if (box.GetWidth() > box.GetHeight())
+  {
+    zoomFactor = size[0] / static_cast<double>(box.GetWidth());
+  }
+  else
+  {
+    zoomFactor = size[1] / static_cast<double>(box.GetHeight());
+  }
+
+  vtkCamera* cam = this->GetActiveCamera();
+  cam->Zoom(zoomFactor);
 }
 
 // Specify the rendering window in which to draw. This is automatically set

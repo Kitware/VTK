@@ -307,6 +307,15 @@ public:
     }
     return false;
   }
+
+  /**
+   * Returns the center of the rect as a vtkVector2d.
+   */
+  vtkVector2d GetCenter() const
+  {
+    return vtkVector2d(
+      this->GetX() + 0.5 * this->GetWidth(), this->GetY() + 0.5 * this->GetHeight());
+  }
 };
 
 class vtkRecti : public vtkRect<int>
