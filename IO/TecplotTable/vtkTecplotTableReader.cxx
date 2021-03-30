@@ -111,10 +111,6 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator++(int) override { return *this; }
-
-  DelimitedTextIterator& operator*() override { return *this; }
-
   // Handle windows files that do not have a carriage return line feed on the last line of the file
   // ...
   void ReachedEndOfInput()
@@ -131,7 +127,7 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) override
+  DelimitedTextIterator& operator=(const vtkTypeUInt32& value) override
   {
     // If we've already read our maximum number of records, we're done ...
     if (this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)

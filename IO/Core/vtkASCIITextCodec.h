@@ -56,18 +56,6 @@ public:
   ///@}
 
   /**
-   * is the given sample valid for this codec?
-   */
-  bool IsValid(istream& InputStream) override;
-
-  /**
-   * Iterate through the sequence represented by the stream assigning the result
-   * to the output iterator.  The stream will be advanced to its end so subsequent use
-   * would need to reset it.
-   */
-  void ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output) override;
-
-  /**
    * Return the next code point from the sequence represented by the begin, end iterators
    * advancing begin through however many places needed to assemble that code point
    */

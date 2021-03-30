@@ -76,40 +76,6 @@ vtkTypeUInt32 utf16_to_unicode_next(const bool big_endian, istream& InputStream)
   return returnCode;
 }
 
-void utf16_to_unicode(
-  const bool big_endian, istream& InputStream, vtkTextCodec::OutputIterator& output)
-{
-  try
-  {
-    while (!InputStream.eof())
-    {
-      const vtkTypeUInt32 code_unit = utf16_to_unicode_next(big_endian, InputStream);
-      *output++ = code_unit;
-    }
-  }
-  catch (...)
-  {
-    if (!InputStream.eof())
-      throw;
-  }
-}
-
-// iterator to use in testing validity - throws all input away.
-class testIterator : public vtkTextCodec::OutputIterator
-{
-public:
-  testIterator& operator++(int) override { return *this; }
-  testIterator& operator*() override { return *this; }
-  testIterator& operator=(const vtkUnicodeString::value_type) override { return *this; }
-
-  testIterator() = default;
-  ~testIterator() override = default;
-
-private:
-  testIterator(const testIterator&) = delete;
-  testIterator& operator=(const testIterator&) = delete;
-};
-
 } // end anonymous namespace
 
 vtkUTF16TextCodec::vtkUTF16TextCodec()
@@ -127,7 +93,7 @@ const char* vtkUTF16TextCodec::Name()
 
 bool vtkUTF16TextCodec::CanHandle(const char* NameString)
 {
-  if (0 == strcmp(NameString, "UTF-16"))
+  if (vtkTextCodec::CanHandle(NameString))
   {
     _endianExplicitlySet = false;
     return true;
@@ -196,35 +162,6 @@ void vtkUTF16TextCodec::FindEndianness(istream& InputStream)
   }
 }
 
-bool vtkUTF16TextCodec::IsValid(istream& InputStream)
-{
-  bool returnBool = true;
-  // get the position of the stream so we can restore it when we are
-  // done
-  istream::pos_type StreamPos = InputStream.tellg();
-
-  try
-  {
-    if (!_endianExplicitlySet)
-    {
-      FindEndianness(InputStream);
-    }
-
-    testIterator junk;
-    utf16_to_unicode(_bigEndian, InputStream, junk);
-  }
-  catch (...)
-  {
-    returnBool = false;
-  }
-
-  // reset the stream
-  InputStream.clear();
-  InputStream.seekg(StreamPos);
-
-  return returnBool;
-}
-
 void vtkUTF16TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output)
 {
   if (!_endianExplicitlySet)
@@ -232,7 +169,7 @@ void vtkUTF16TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIter
     FindEndianness(InputStream);
   }
 
-  utf16_to_unicode(_bigEndian, InputStream, output);
+  vtkTextCodec::ToUnicode(InputStream, output);
 }
 
 vtkTypeUInt32 vtkUTF16TextCodec::NextUTF32CodePoint(istream& inputStream)

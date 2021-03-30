@@ -34,52 +34,7 @@ const char* vtkASCIITextCodec::Name()
 
 bool vtkASCIITextCodec::CanHandle(const char* NameStr)
 {
-  if (0 == strcmp(NameStr, "US-ASCII") || 0 == strcmp(NameStr, "ASCII"))
-    return true;
-  else
-    return false;
-}
-
-bool vtkASCIITextCodec::IsValid(istream& InputStream)
-{
-  bool returnBool = true;
-
-  // get the position of the stream so we can restore it when we are done
-  istream::pos_type StreamPos = InputStream.tellg();
-
-  // check the code points for non-ascii characters
-  while (!InputStream.eof())
-  {
-    vtkTypeUInt32 CodePoint = InputStream.get();
-
-    if (!InputStream.eof() && CodePoint > 0x7f)
-    {
-      returnBool = false;
-      break;
-    }
-  }
-
-  // reset the stream
-  InputStream.clear();
-  InputStream.seekg(StreamPos);
-
-  return returnBool;
-}
-
-void vtkASCIITextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output)
-{
-  while (!InputStream.eof())
-  {
-    vtkTypeUInt32 CodePoint = InputStream.get();
-
-    if (!InputStream.eof())
-    {
-      if (CodePoint > 0x7f)
-        throw std::runtime_error("Detected a character that isn't valid US-ASCII.");
-
-      *output++ = CodePoint;
-    }
-  }
+  return vtkTextCodec::CanHandle(NameStr) || (0 == strcmp(NameStr, "ASCII"));
 }
 
 vtkTypeUInt32 vtkASCIITextCodec::NextUTF32CodePoint(istream& InputStream)
@@ -94,7 +49,9 @@ vtkTypeUInt32 vtkASCIITextCodec::NextUTF32CodePoint(istream& InputStream)
     return CodePoint;
   }
   else
-    return 0;
+  {
+    throw std::runtime_error("End of Input");
+  }
 }
 
 vtkASCIITextCodec::vtkASCIITextCodec() = default;

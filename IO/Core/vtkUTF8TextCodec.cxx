@@ -27,70 +27,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkUTF8TextCodec);
 
-bool vtkUTF8TextCodec::CanHandle(const char* testStr)
-{
-  if (0 == strcmp(testStr, "UTF-8"))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-namespace
-{
-// iterator to use in testing validity - throws all input away.
-class testIterator : public vtkTextCodec::OutputIterator
-{
-public:
-  testIterator& operator++(int) override { return *this; }
-  testIterator& operator*() override { return *this; }
-  testIterator& operator=(const vtkUnicodeString::value_type) override { return *this; }
-
-  testIterator() = default;
-  ~testIterator() override = default;
-
-private:
-  testIterator(const testIterator&) = delete;
-  testIterator& operator=(const testIterator&) = delete;
-};
-
-} // end anonymous namespace
-
-bool vtkUTF8TextCodec::IsValid(istream& InputStream)
-{
-  bool returnBool = true;
-  // get the position of the stream so we can restore it when we are done
-  istream::pos_type StreamPos = InputStream.tellg();
-
-  try
-  {
-    testIterator junk;
-    this->ToUnicode(InputStream, junk);
-  }
-  catch (...)
-  {
-    returnBool = false;
-  }
-
-  // reset the stream
-  InputStream.clear();
-  InputStream.seekg(StreamPos);
-
-  return returnBool;
-}
-
 void vtkUTF8TextCodec::ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& Output)
 {
   try
   {
-    while (!InputStream.eof())
-    {
-      vtkTypeUInt32 CodePoint = this->NextUTF32CodePoint(InputStream);
-      *Output++ = CodePoint;
-    }
+    vtkTextCodec::ToUnicode(InputStream, Output);
   }
   catch (std::string& ef)
   {

@@ -20,19 +20,67 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkTextCodec.h"
 
+namespace
+{
+// iterator to throw away input.
+class bucketIterator : public vtkTextCodec::OutputIterator
+{
+public:
+  bucketIterator& operator=(const vtkTypeUInt32&) override { return *this; }
+};
+
+} // end anonymous namespace
+
 const char* vtkTextCodec::Name()
 {
   return "";
 }
 
-bool vtkTextCodec::CanHandle(const char*)
+bool vtkTextCodec::CanHandle(const char* NameStr)
 {
-  return false;
+  return (0 == strcmp(NameStr, Name()));
 }
 
-bool vtkTextCodec::IsValid(istream&)
+bool vtkTextCodec::IsValid(istream& InputStream)
 {
-  return false;
+  bool returnBool = true;
+  // get the position of the stream so we can restore it when we are done
+  istream::pos_type StreamPos = InputStream.tellg();
+
+  try
+  {
+    bucketIterator bucket;
+    this->ToUnicode(InputStream, bucket);
+  }
+  catch (...)
+  {
+    returnBool = false;
+  }
+
+  // reset the stream
+  InputStream.clear();
+  InputStream.seekg(StreamPos);
+
+  return returnBool;
+}
+
+void vtkTextCodec::ToUnicode(istream& inputStream, vtkTextCodec::OutputIterator& output)
+{
+  try
+  {
+    while (!inputStream.eof())
+    {
+      const vtkTypeUInt32 CodePoint = NextUTF32CodePoint(inputStream);
+      *output++ = CodePoint;
+    }
+  }
+  catch (...)
+  {
+    if (!inputStream.eof())
+    {
+      throw;
+    }
+  }
 }
 
 vtkUnicodeString::value_type vtkTextCodec::NextUnicode(istream& inputStream)
@@ -51,7 +99,7 @@ class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
 public:
   vtkUnicodeStringOutputIterator& operator++(int) override;
   vtkUnicodeStringOutputIterator& operator*() override;
-  vtkUnicodeStringOutputIterator& operator=(vtkUnicodeString::value_type value) override;
+  vtkUnicodeStringOutputIterator& operator=(const vtkTypeUInt32& value) override;
 
   vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
   ~vtkUnicodeStringOutputIterator() override;
@@ -76,7 +124,7 @@ vtkUnicodeStringOutputIterator& vtkUnicodeStringOutputIterator::operator*()
 }
 
 vtkUnicodeStringOutputIterator& vtkUnicodeStringOutputIterator::operator=(
-  const vtkUnicodeString::value_type value)
+  const vtkTypeUInt32& value)
 {
   this->OutputString += value;
   return *this;
