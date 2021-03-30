@@ -5,6 +5,7 @@ LIBRARY_NAME
 IMPLEMENTS
   VTK::RenderingVolume
 DEPENDS
+  VTK::CommonCore
   VTK::CommonDataModel
   VTK::DomainsChemistry
   VTK::RenderingCore
@@ -12,7 +13,6 @@ DEPENDS
   VTK::RenderingSceneGraph
   VTK::RenderingVolume
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::IOImage
   VTK::IOLegacy
   VTK::IOXML
