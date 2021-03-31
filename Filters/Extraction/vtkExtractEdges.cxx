@@ -222,7 +222,6 @@ int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output
   int edgeNum, numEdgePts, numCellEdges;
   int i, abort = 0;
   vtkIdType pts[2];
-  double x[3];
   vtkEdgeTable* edgeTable;
   vtkGenericCell* cell;
   vtkCell* edge;
@@ -255,7 +254,7 @@ int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output
 
   cell = vtkGenericCell::New();
   vtkIdList *edgeIds, *HEedgeIds = vtkIdList::New();
-  vtkPoints *edgePts, *HEedgePts = vtkPoints::New();
+  vtkPoints* HEedgePts = vtkPoints::New();
 
   // Is the input a pointset?  In that case we can just
   // reuse the input's points
@@ -301,7 +300,6 @@ int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output
       {
         edge->Triangulate(0, HEedgeIds, HEedgePts);
         edgeIds = HEedgeIds;
-        edgePts = HEedgePts;
 
         for (i = 0; i < (edgeIds->GetNumberOfIds() / 2); i++)
         {
@@ -319,7 +317,6 @@ int vtkExtractEdges::NonLocatorExtraction(vtkDataSet* input, vtkPolyData* output
       else // linear edges
       {
         edgeIds = edge->PointIds;
-        edgePts = edge->Points;
 
         for (i = 0; i < numEdgePts; i++, pts[0] = pts[1])
         {
