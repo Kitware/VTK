@@ -36,7 +36,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -mthreads")
   endif()
   if(CMAKE_SYSTEM MATCHES "SunOS.*")
-# Disable warnings that occur in X11 headers.
+    # Disable warnings that occur in X11 headers.
     if(DART_ROOT AND BUILD_TESTING)
       set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-unknown-pragmas")
       set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")
