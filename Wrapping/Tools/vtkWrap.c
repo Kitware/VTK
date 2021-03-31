@@ -782,6 +782,48 @@ void vtkWrap_FindNewInstanceMethods(ClassInfo* data, HierarchyInfo* hinfo)
 }
 
 /* -------------------------------------------------------------------- */
+/* This sets the FilePath hint for method parameters. */
+void vtkWrap_FindFilePathMethods(ClassInfo* data)
+{
+  int i, n;
+  size_t l;
+  FunctionInfo* theFunc;
+  const char* name;
+  ValueInfo* arg;
+
+  for (i = 0; i < data->NumberOfFunctions; i++)
+  {
+    theFunc = data->Functions[i];
+    arg = NULL;
+    name = theFunc->Name;
+    if (name)
+    {
+      /* check if method ends in "FileName" or "DirectoryName" */
+      l = strlen(name);
+      if ((l >= 8 && strcmp(&name[l - 8], "FileName") == 0) ||
+        (l >= 13 && strcmp(&name[l - 13], "DirectoryName") == 0))
+      {
+        n = theFunc->NumberOfParameters;
+        /* look for Set and Get methods */
+        if (n == 0 && strncmp(name, "Get", 3) == 0)
+        {
+          arg = theFunc->ReturnValue;
+        }
+        else if (n == 1 && strncmp(name, "Set", 3) == 0)
+        {
+          arg = theFunc->Parameters[0];
+        }
+        /* check the parameter type (must be string) */
+        if (arg && (vtkWrap_IsCharPointer(arg) || vtkWrap_IsString(arg)))
+        {
+          arg->Attributes |= VTK_PARSE_FILEPATH;
+        }
+      }
+    }
+  }
+}
+
+/* -------------------------------------------------------------------- */
 /* Expand all typedef types that are used in function arguments */
 void vtkWrap_ExpandTypedefs(ClassInfo* data, FileInfo* finfo, HierarchyInfo* hinfo)
 {

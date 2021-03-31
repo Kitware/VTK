@@ -381,6 +381,16 @@ public:
 
   //@{
   /**
+   * Get the next argument as file system path.
+   */
+  bool GetFilePath(const char*& a);
+  static bool GetFilePath(PyObject* o, const char*& a);
+  bool GetFilePath(std::string& a);
+  static bool GetFilePath(PyObject* o, std::string& a);
+  //@}
+
+  //@{
+  /**
    * Get the next argument as an array.
    */
   bool GetArray(float* a, size_t n);

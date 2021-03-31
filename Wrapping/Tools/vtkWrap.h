@@ -200,6 +200,12 @@ extern "C"
     ClassInfo* data, HierarchyInfo* hinfo);
 
   /**
+   * Apply hints about methods that take file names or other
+   * file paths as arguments
+   */
+  VTKWRAPPINGTOOLS_EXPORT void vtkWrap_FindFilePathMethods(ClassInfo* data);
+
+  /**
    * Get the name of a type.  The name will not include "const".
    */
   VTKWRAPPINGTOOLS_EXPORT const char* vtkWrap_GetTypeName(ValueInfo* val);
