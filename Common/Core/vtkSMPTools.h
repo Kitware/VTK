@@ -242,6 +242,47 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
+   * A convenience method for transforming data. It is a drop in replacement for
+   * std::transform(), it does a binary operation on the input ranges. The data array must have the
+   * same length. The performed transformation is defined by operator() of the functor object.
+   *
+   * Usage example with vtkDataArray:
+   * \code
+   * const auto range0 = vtk::DataArrayValueRange<1>(array0);
+   * auto range1 = vtk::DataArrayValueRange<1>(array1);
+   * vtkSMPTools::Transform(
+   *   range0.cbegin(), range0.cend(), range1.begin(), [](double x, double y) { return x * y; });
+   * \endcode
+   *
+   * Please visit vtkDataArrayRange.h documentation for more information and optimisation.
+   */
+  template <typename InputIt, typename OutputIt, typename Functor>
+  static void Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Transform(inBegin, inEnd, outBegin, transform);
+  }
+
+  /**
+   * A convenience method for filling data. It is a drop in replacement for std::fill(),
+   * it assign the given value to the element in ranges.
+   *
+   * Usage example with vtkDataArray:
+   * \code
+   * // Fill range with its first tuple value
+   * auto range = vtk::DataArrayTupleRange<1>(array);
+   * const auto value = *range.begin();
+   * vtkSMPTools::Fill(range.begin(), range.end(), value);
+   * \endcode
+   *
+   * Please visit vtkDataArrayRange.h documentation for more information and optimisation.
+   */
+  template <typename Iterator, typename T>
+  static void Fill(Iterator begin, Iterator end, const T& value)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Fill(begin, end, value);
+  }
+
+  /**
    * A convenience method for sorting data. It is a drop in replacement for
    * std::sort(). Under the hood different methods are used. For example,
    * tbb::parallel_sort is used in TBB.

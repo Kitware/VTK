@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
 
 #ifdef _MSC_VER
 #  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
@@ -48,7 +49,8 @@ class FuncCall
   void operator=(const FuncCall&) = delete;
 
 public:
-  void operator()(const tbb::blocked_range<vtkIdType>& r) const {
+  void operator()(const tbb::blocked_range<vtkIdType>& r) const
+  {
     o.Execute(r.begin(), r.end());
   }
 
@@ -106,6 +108,27 @@ template <typename FunctorInternal>
 void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
   vtkSMPTools_Impl_For_TBB(first, last, grain, ExecuteFunctor<FunctorInternal>, &fi);
+}
+
+//--------------------------------------------------------------------------------
+template <typename InputIt, typename OutputIt, typename Functor>
+void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
+{
+  auto size = std::distance(inBegin, inEnd);
+
+  TransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
+  vtkSMPTools_Impl_For(0, size, 0, exec);
+}
+
+//--------------------------------------------------------------------------------
+template <typename Iterator, typename T>
+void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+{
+  auto size = std::distance(begin, end);
+
+  FillFunctor<T> fill(value);
+  TransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
+  vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
