@@ -266,6 +266,6 @@ install(
   DESTINATION "${vtk_cmake_destination}"
   COMPONENT "development")
 
-if (BUILD_TESTING AND TARGET VTK::TestingRendering)
+if (VTK_BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
 endif ()

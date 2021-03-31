@@ -99,17 +99,6 @@ option(VTK_USE_MPI "Support MPI" OFF)
 option(VTK_SERIAL_TESTS_USE_MPIEXEC "Used on HPC to run serial tests on compute nodes" OFF)
 mark_as_advanced(VTK_SERIAL_TESTS_USE_MPIEXEC)
 
-
-set(VTK_BUILD_TESTING "OFF"
-  CACHE STRING "Build module testing directories")
-set_property(CACHE VTK_BUILD_TESTING
-  PROPERTY
-    STRINGS "ON;OFF;WANT")
-set(BUILD_TESTING OFF)
-if (VTK_BUILD_TESTING)
-  set(BUILD_TESTING ON)
-endif ()
-
 #-----------------------------------------------------------------------------
 # Add an option to enable memkind
 if (UNIX AND NOT APPLE)
@@ -417,7 +406,7 @@ ExternalData_Add_Target(VTKData)
 # all tests have been added that reference the group, so we put it last.
 if (VTK_DATA_EXCLUDE_FROM_ALL)
   set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
-  if (BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
+  if (VTK_BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
     message(WARNING
       "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data (needed because "
       "BUILD_TESTING is ON) may not be available without manually building "
@@ -450,7 +439,7 @@ if (VTK_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif ()
 
-if (BUILD_TESTING)
+if (VTK_BUILD_TESTING)
   add_subdirectory(Testing/Install)
 endif ()
 
@@ -463,7 +452,7 @@ endif ()
 # If python wrapping and testing is enabled then add driver scripts to run
 # tests.  Note: Many python tests used to be automatically converted from TCL
 # scripts. Hence the name vtkTclTest2Py
-if (BUILD_TESTING AND VTK_WRAP_PYTHON)
+if (VTK_BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif ()
 
