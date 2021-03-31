@@ -117,8 +117,8 @@ ProjectElement::ProjectElement(const std::string& uid, double globalOrigin[3])
 }
 
 //------------------------------------------------------------------------------
-void ProjectElement::ProcessJSON(
-  std::shared_ptr<OMFFile>& file, const Json::Value& element, vtkPartitionedDataSet* output)
+void ProjectElement::ProcessJSON(std::shared_ptr<OMFFile>& file, const Json::Value& element,
+  vtkPartitionedDataSet* output, bool writeOutTextures)
 {
   if (!element.isMember("geometry"))
   {
@@ -132,7 +132,7 @@ void ProjectElement::ProcessJSON(
   // optional properties: data and textures
   this->ProcessDataFields(file, element["data"], output);
 
-  if (element.isMember("textures") && element["textures"].size() > 0)
+  if (writeOutTextures && element.isMember("textures") && !element["textures"].empty())
   {
     this->ProcessTextures(file, element["textures"], output, element["name"].asString());
   }

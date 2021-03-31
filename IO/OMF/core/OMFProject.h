@@ -42,7 +42,8 @@ public:
    * This actually processes the JSON, storing the created
    * datasets in output.
    */
-  bool ProcessJSON(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection);
+  bool ProcessJSON(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
+    bool writeOutTextures);
 
 private:
   struct ProjectImpl;

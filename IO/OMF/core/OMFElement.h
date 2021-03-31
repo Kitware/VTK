@@ -38,8 +38,8 @@ public:
   ProjectElement(const std::string& uid, double globalOrigin[3]);
   virtual ~ProjectElement() = default;
 
-  virtual void ProcessJSON(
-    std::shared_ptr<OMFFile>& file, const Json::Value& element, vtkPartitionedDataSet* output);
+  virtual void ProcessJSON(std::shared_ptr<OMFFile>& file, const Json::Value& element,
+    vtkPartitionedDataSet* output, bool writeOutTextures);
 
 protected:
   std::string UID;
