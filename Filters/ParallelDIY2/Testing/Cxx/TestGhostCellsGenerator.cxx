@@ -873,8 +873,14 @@ bool Test3DGrids(int myrank)
   FillImage(image3);
 
   {
+    // This preGenerator is testing if the peeling ghosts layers from input is done correctly
+    // for grid data sets
+    vtkNew<vtkGhostCellsGenerator> preGenerator;
+    preGenerator->SetInputDataObject(image0);
+    preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+
     vtkNew<vtkPointDataToCellData> point2cell0;
-    point2cell0->SetInputData(image0);
+    point2cell0->SetInputConnection(preGenerator->GetOutputPort());
     point2cell0->Update();
 
     vtkNew<vtkPointDataToCellData> point2cell1;

@@ -32,13 +32,15 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkGhostCellsGenerator);
 vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
   : Controller(nullptr)
-  , NumberOfGhostLayers(2)
+  , NumberOfGhostLayers(1)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -53,6 +55,7 @@ vtkGhostCellsGenerator::~vtkGhostCellsGenerator()
 int vtkGhostCellsGenerator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
@@ -74,7 +77,8 @@ int vtkGhostCellsGenerator::RequestData(
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         auto subInputDO = iter->GetCurrentDataObject();
-        outputCDS->SetDataSet(iter, subInputDO->NewInstance());
+        outputCDS->SetDataSet(
+          iter, vtkSmartPointer<vtkDataObject>::Take(subInputDO->NewInstance()));
       }
       iter->Delete();
     }
@@ -94,36 +98,31 @@ int vtkGhostCellsGenerator::RequestData(
     return 0;
   }
 
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-
-  // FIXME This should be rethought.
-  // See https://gitlab.kitware.com/vtk/vtk/-/merge_requests/7507#note_886095
-  int inputGhostLevels =
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
   std::vector<vtkImageData*> inputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(inputDO);
   std::vector<vtkImageData*> outputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(outputDO);
+
   std::vector<vtkRectilinearGrid*> inputsRG =
     vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(inputDO);
   std::vector<vtkRectilinearGrid*> outputsRG =
     vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(outputDO);
+
   std::vector<vtkStructuredGrid*> inputsSG =
     vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(inputDO);
   std::vector<vtkStructuredGrid*> outputsSG =
     vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(outputDO);
 
-  if (!inputsID.empty() && !inputsRG.empty())
+  if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty())
   {
     vtkWarningMacro(<< "Ghost cell generator called with mixed types."
                     << "Ghosts are not exchanged between data sets of different types.");
   }
 
   return vtkDIYGhostUtilities::GenerateGhostCells(
-           inputsID, outputsID, inputGhostLevels, this->NumberOfGhostLayers, this->Controller) &&
+           inputsID, outputsID, this->NumberOfGhostLayers, this->Controller) &&
     vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsRG, outputsRG, inputGhostLevels, this->NumberOfGhostLayers, this->Controller) &&
+      inputsRG, outputsRG, this->NumberOfGhostLayers, this->Controller) &&
     vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsSG, outputsSG, inputGhostLevels, this->NumberOfGhostLayers, this->Controller);
+      inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller);
 }
 
 //----------------------------------------------------------------------------
