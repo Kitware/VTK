@@ -79,4 +79,5 @@ endforeach()
 
 list(APPEND vtk_smp_headers
   vtkSMPTools.h
+  vtkSMPToolsInternalCommon.h
   vtkSMPThreadLocalObject.h)
