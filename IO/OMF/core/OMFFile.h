@@ -22,6 +22,7 @@
 
 #include <memory> // for std::unique_ptr
 #include <string>
+#include <vector>
 
 class vtkDataArray;
 class vtkImageData;
@@ -47,6 +48,8 @@ struct OMFFile
   vtkSmartPointer<vtkDataArray> ReadArrayFromStream(const std::string& uid, int numComponents = -1);
 
   vtkSmartPointer<vtkImageData> ReadPNGFromStream(const Json::Value& json);
+
+  std::vector<std::string> ReadStringArrayFromStream(const std::string& uid);
 
 private:
   struct FileImpl;
