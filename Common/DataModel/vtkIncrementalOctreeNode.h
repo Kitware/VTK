@@ -184,7 +184,7 @@ public:
    * are added to the tree.
    */
   int InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId,
-    int ptMode, int* numberOfNodes);
+    int ptMode, int& numberOfNodes);
 
   /**
    * Given a point inside this node, get the minimum squared distance to all
@@ -224,15 +224,17 @@ public:
   void ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, vtkIdList* idList);
   //@}
   /**
-   * Returns the maximum level of the tree. If a tree has one node it returns 1
-   * else it returns the maximum level of its children plus 1.
+   * Computes and returns the maximum level of the tree. If a tree has
+   * one node it returns 1 else it returns the maximum level of its
+   * children plus 1.
    */
-  int ComputeNumberOfLevels() const;
+  int GetNumberOfLevels() const;
   /**
-   * Returns the index of this node in the octree. The index of the node
-   * enables users of this class to associate additional information with each node.
+   * Returns the ID of this node which is the index of the node in the
+   * octree. The index of the node enables users of this class to
+   * associate additional information with each node.
    */
-  int GetIndex() const { return this->Index; }
+  int GetID() const { return this->ID; }
   vtkIdList* GetPointIds() const { return this->PointIdSet; }
 
 protected:
@@ -280,7 +282,7 @@ private:
    * Nodes are assigned an index from 0 to number of nodes - 1. Root node
    * has index 0.
    */
-  int Index;
+  int ID;
 
   /**
    * The parent of this node, nullptr for the root node of an octree.
@@ -321,7 +323,7 @@ private:
    * numberOfNodes in the tree is updated with new created nodes
    */
   int CreateChildNodes(vtkPoints* points, vtkIdList* pntIds, const double newPnt[3],
-    vtkIdType* pntIdx, int maxPts, int ptMode, int* numberOfNodes);
+    vtkIdType* pntIdx, int maxPts, int ptMode, int& numberOfNodes);
 
   /**
    * Create a vtkIdList object for storing point indices. Two arguments

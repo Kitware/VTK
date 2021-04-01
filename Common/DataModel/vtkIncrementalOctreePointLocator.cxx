@@ -378,7 +378,7 @@ void vtkIncrementalOctreePointLocator::AddPolys(vtkIncrementalOctreeNode* node, 
       pntIds[i] = points->InsertNextPoint(ptCord);
     }
 
-    int nodeIndex = node->GetIndex();
+    int nodeIndex = node->GetID();
     for (i = 0; i < 6; i++)
     {
       idList[0] = pntIds[NODE_FACE_LUT[i][0]];
@@ -1262,7 +1262,7 @@ int vtkIncrementalOctreePointLocator::InsertUniquePoint(const double point[3], v
   pntId = this->IsInsertedPoint(point, &leafContainer);
   return ((pntId > -1) ? 0
                        : leafContainer->InsertPoint(this->LocatorPoints, point,
-                           this->MaxPointsPerLeaf, &pntId, 2, &this->NumberOfNodes));
+                           this->MaxPointsPerLeaf, &pntId, 2, this->NumberOfNodes));
 }
 
 //------------------------------------------------------------------------------
@@ -1271,14 +1271,14 @@ void vtkIncrementalOctreePointLocator::InsertPointWithoutChecking(
 {
   this->GetLeafContainer(this->OctreeRootNode, point)
     ->InsertPoint(this->LocatorPoints, point, this->MaxPointsPerLeaf, &pntId, (insert << 1),
-      &this->NumberOfNodes);
+      this->NumberOfNodes);
 }
 
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::InsertPoint(vtkIdType ptId, const double x[3])
 {
   this->GetLeafContainer(this->OctreeRootNode, x)
-    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &ptId, 1, &this->NumberOfNodes);
+    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &ptId, 1, this->NumberOfNodes);
 }
 
 //------------------------------------------------------------------------------
@@ -1286,12 +1286,12 @@ vtkIdType vtkIncrementalOctreePointLocator::InsertNextPoint(const double x[3])
 {
   vtkIdType pntId = -1;
   this->GetLeafContainer(this->OctreeRootNode, x)
-    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &pntId, 2, &this->NumberOfNodes);
+    ->InsertPoint(this->LocatorPoints, x, this->MaxPointsPerLeaf, &pntId, 2, this->NumberOfNodes);
   return pntId;
 }
 
 //------------------------------------------------------------------------------
-int vtkIncrementalOctreePointLocator::ComputeNumberOfLevels()
+int vtkIncrementalOctreePointLocator::GetNumberOfLevels()
 {
-  return this->Level = this->OctreeRootNode->ComputeNumberOfLevels();
+  return this->Level = this->OctreeRootNode->GetNumberOfLevels();
 }

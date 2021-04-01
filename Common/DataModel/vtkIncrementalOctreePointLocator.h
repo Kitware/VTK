@@ -331,7 +331,7 @@ public:
    * Returns the maximum level of the tree. If a tree has one node it returns 1
    * else it returns the maximum level of its children plus 1.
    */
-  int ComputeNumberOfLevels();
+  int GetNumberOfLevels();
 
 protected:
   vtkIncrementalOctreePointLocator();

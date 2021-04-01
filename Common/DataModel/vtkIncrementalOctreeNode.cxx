@@ -73,7 +73,7 @@ vtkIncrementalOctreeNode::vtkIncrementalOctreeNode()
   this->Children = nullptr;
   this->PointIdSet = nullptr;
   this->NumberOfPoints = 0;
-  this->Index = 0;
+  this->ID = 0;
 
   // unnecessary to initialize spatial and data bounding boxes here as
   // SetBounds() are always called by the user for the root node of an
@@ -318,7 +318,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion(vt
 
 //------------------------------------------------------------------------------
 int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pntIds,
-  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode, int* numberOfNodes)
+  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode, int& numberOfNodes)
 {
   // There are two scenarios for which this function is invoked.
   //
@@ -380,14 +380,13 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 
     // This call internally sets the cener and default data bounding box, too.
     this->Children[i] = vtkIncrementalOctreeNode::New();
-    this->Children[i]->Index = *numberOfNodes + i;
+    this->Children[i]->ID = numberOfNodes++;
     this->Children[i]->SetParent(this);
     this->Children[i]->SetBounds(octMin[0], octMax[0], octMin[1], octMax[1], octMin[2], octMax[2]);
 
     // allocate a list of point-indices (size = 2^n) for index registration
     this->Children[i]->CreatePointIdSet((maxPts >> 2), (maxPts >> 1));
   }
-  *numberOfNodes += 8;
   boxPtr[0] = nullptr;
   boxPtr[1] = nullptr;
   boxPtr[2] = nullptr;
@@ -456,7 +455,7 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 
 //------------------------------------------------------------------------------
 int vtkIncrementalOctreeNode::InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts,
-  vtkIdType* pntId, int ptMode, int* numberOfNodes)
+  vtkIdType* pntId, int ptMode, int& numberOfNodes)
 {
   if (this->PointIdSet)
   {
@@ -801,7 +800,7 @@ void vtkIncrementalOctreeNode::ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, v
 void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Index: " << this->Index << endl;
+  os << indent << "Index: " << this->ID << endl;
   os << indent << "Parent: " << this->Parent << endl;
   os << indent << "Children: " << this->Children << endl;
   os << indent << "PointIdSet: " << this->PointIdSet << endl;
@@ -817,14 +816,14 @@ void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkIncrementalOctreeNode::ComputeNumberOfLevels() const
+int vtkIncrementalOctreeNode::GetNumberOfLevels() const
 {
   if (this->Children)
   {
     int maxLevel = 0;
     for (int i = 0; i < 8; i++)
     {
-      maxLevel = std::max(maxLevel, this->Children[i]->ComputeNumberOfLevels());
+      maxLevel = std::max(maxLevel, this->Children[i]->GetNumberOfLevels());
     }
     return maxLevel + 1;
   }
