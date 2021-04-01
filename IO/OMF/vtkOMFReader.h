@@ -54,8 +54,8 @@ public:
   //@{
   /**
    * Data element selection to determine which data elements in the OMF
-   * file should be loaded. By default all elements' status are set to true/enabled,
-   * so they will be loaded.
+   * file should be loaded. By default all elements' status are set to false/disabled,
+   * so they will not be loaded.
    */
   bool GetDataElementArrayStatus(const char* name);
   void SetDataElementArrayStatus(const char* name, int status);
