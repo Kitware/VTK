@@ -496,12 +496,14 @@ public:
   /**
    * Main pipeline generating ghosts. It takes as parameters a list of `DataSetT` for the `inputs`
    * and the `outputs`.
+   * Please see `vtkGhostCellsGenerator` for a finer description of what this method does, as it is
+   * being used as a backend for this filter.
    *
    * `outputs` need to be already allocated and be of same size as `inputs`.
    */
   template <class DataSetT>
   static int GenerateGhostCells(std::vector<DataSetT*>& inputsDS, std::vector<DataSetT*>& outputsDS,
-    int inputGhostLevels, int outputGhostLevels, vtkMultiProcessController* controller);
+    int outputGhostLevels, vtkMultiProcessController* controller);
 
 protected:
   vtkDIYGhostUtilities();
@@ -642,11 +644,11 @@ protected:
    * in order to be able to set link connections.
    */
   static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkImageData*>& inputs, int inputGhostLevels);
+    std::vector<vtkImageData*>& inputs);
   static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkRectilinearGrid*>& inputs, int inputGhostLevels);
+    std::vector<vtkRectilinearGrid*>& inputs);
   static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkStructuredGrid*>& inputs, int inputGhostLevels);
+    std::vector<vtkStructuredGrid*>& inputs);
   //@}
 
   //@{

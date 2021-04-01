@@ -228,12 +228,8 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 }
 
 //----------------------------------------------------------------------------
-/**
- * This function computes the extent of an input `grid` if ghosts are removed.
- * `ghostLevel` is the ghost level of input `grid`.
- */
 template <class GridDataSetT>
-ExtentType PeelOffGhostLayers(GridDataSetT* grid, int ghostLevel)
+ExtentType PeelOffGhostLayers(GridDataSetT* grid)
 {
   ExtentType extent;
   vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
@@ -245,79 +241,96 @@ ExtentType PeelOffGhostLayers(GridDataSetT* grid, int ghostLevel)
   }
   int* gridExtent = grid->GetExtent();
 
+  int ijkmin[3] = { gridExtent[0], gridExtent[2], gridExtent[4] };
   // We use `std::max` here to work for grids of dimension 2 and 1.
   // This gives "thickness" to the degenerate dimension
-  int imin = gridExtent[0];
-  int imax = std::max(gridExtent[1], gridExtent[0] + 1);
-  int jmin = gridExtent[2];
-  int jmax = std::max(gridExtent[3], gridExtent[2] + 1);
-  int kmin = gridExtent[4];
-  int kmax = std::max(gridExtent[5], gridExtent[4] + 1);
+  int ijkmax[3] = { std::max(gridExtent[1], gridExtent[0] + 1), std::max(gridExtent[3], gridExtent[2] + 1),
+    std::max(gridExtent[5], gridExtent[4] + 1) };
+
+  // We lock degenerate dimensions
+  bool lock[3] = { gridExtent[0] == gridExtent[1], gridExtent[2] == gridExtent[3],
+    gridExtent[4] == gridExtent[5] };
 
   {
     // Strategy:
     // We create a cursor `ijk` that is at the bottom left front corner of the grid.
-    // From there, we iterate each cursor dimension until the targetted brick is not a ghost.
-    // When this happens on a dimension, we lock it.
-    // As a result, the when this loop is over, `ijk` points to the last raws of ghosts in the input
-    // `grid`.
-    //
-    // We use `std::min` to acknowledge that a ghost level can be bigger than a dimension's width.
-    int ijk[3] = { std::min(imin + ghostLevel, imax - 1), std::min(jmin + ghostLevel, jmax - 1),
-      std::min(kmin + ghostLevel, kmax - 1) };
+    // From there, we iterate each cursor dimension until the targetted brick is not a duplicate ghost.
+    // When this happens, we stop the loop, and look in each non degenerate dimension
+    // if consecutive shift backs land on a ghost or not. If it lands on a ghost, then the
+    // corresponding dimension needs to be peeled up to the current position of the cursor.
+    // If not, it doesn't.
+    int ijk[3] = { ijkmin[0], ijkmin[1], ijkmin[2] };
 
-    // We lock degenerate dimensions at start
-    bool lock[3] = { gridExtent[0] == gridExtent[1], gridExtent[2] == gridExtent[3],
-      gridExtent[4] == gridExtent[5] };
-
-    while ((!lock[0] || !lock[1] || !lock[2]) && (lock[0] || ijk[0] > imin) &&
-      (lock[1] || ijk[1] > jmin) && (lock[2] || ijk[2] > kmin) &&
-      !ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk)))
-    {
-      for (int dim = 0; dim < 3; ++dim)
-      {
-        if (!lock[dim])
-        {
-          --ijk[dim];
-          if (ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk)))
-          {
-            ++ijk[dim];
-            lock[dim] = true;
-          }
-        }
-      }
-    }
-    extent[0] = ijk[0];
-    extent[2] = ijk[1];
-    extent[4] = ijk[2];
-  }
-  {
-    // This part follows the same process as the previous one, but on the top right back corner.
-    int ijk[3] = { std::max(imax - 1 - ghostLevel, imin), std::max(jmax - 1 - ghostLevel, jmin),
-      std::max(kmax - 1 - ghostLevel, kmin) };
-    bool lock[3] = { gridExtent[0] == gridExtent[1], gridExtent[2] == gridExtent[3],
-      gridExtent[4] == gridExtent[5] };
-    while ((!lock[0] || !lock[1] || !lock[2]) && (lock[0] || ijk[0] < imax - 1) &&
-      (lock[1] || ijk[1] < jmax - 1) && (lock[2] || ijk[2] < kmax - 1) &&
-      !ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk)))
+    while (ijk[0] < ijkmax[0] && ijk[1] < ijkmax[1] && ijk[2] < ijkmax[2] &&
+        (ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk))
+          & vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL))
     {
       for (int dim = 0; dim < 3; ++dim)
       {
         if (!lock[dim])
         {
           ++ijk[dim];
-          if (ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk)))
-          {
-            --ijk[dim];
-            lock[dim] = true;
-          }
         }
       }
     }
-    extent[1] = ijk[0] + (gridExtent[0] != gridExtent[1]);
-    extent[3] = ijk[1] + (gridExtent[2] != gridExtent[3]);
-    extent[5] = ijk[2] + (gridExtent[4] != gridExtent[5]);
+
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      if (!lock[dim] && ijk[dim] != ijkmin[dim])
+      {
+        int tmp = ijk[dim];
+        for (--ijk[dim]; ijk[dim] >= ijkmin[dim] &&
+            !(ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk))
+              & vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL); --ijk[dim])
+        {
+        }
+        extent[2 * dim] = ijk[dim] + 1;
+        ijk[dim] = tmp;
+      }
+      else
+      {
+        extent[2 * dim] = gridExtent[2 * dim];
+      }
+    }
   }
+
+  {
+    // Same pipeline than previous block, but starting from the top back right corner.
+    int ijk[3] = { ijkmax[0] - 1, ijkmax[1] - 1, ijkmax[2] - 1 };
+
+    while (ijk[0] >= ijkmin[0] && ijk[1] >= ijkmin[1] && ijk[2] >= ijkmin[2] &&
+        (ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk))
+          & vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL))
+    {
+      for (int dim = 0; dim < 3; ++dim)
+      {
+        if (!lock[dim])
+        {
+          --ijk[dim];
+        }
+      }
+    }
+
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      if (!lock[dim] && ijk[dim] != ijkmax[dim])
+      {
+        int tmp = ijk[dim];
+        for (++ijk[dim]; ijk[dim] < ijkmax[dim] &&
+            !(ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk))
+              & vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL); ++ijk[dim])
+        {
+        }
+        extent[2 * dim + 1] = ijk[dim];
+        ijk[dim] = tmp;
+      }
+      else
+      {
+        extent[2 * dim + 1] = gridExtent[2 * dim + 1];
+      }
+    }
+  }
+  
   return extent;
 }
 
@@ -1585,6 +1598,12 @@ template <class GridDataSetT>
 void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  static constexpr unsigned char CELL_GHOST_VALUE =
+    vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL
+    | vtkDataSetAttributes::CellGhostTypes::HIDDENCELL;
+  static constexpr unsigned char POINT_GHOST_VALUE =
+    vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT
+    | vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT;
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
     auto& output = outputs[localId];
@@ -1610,61 +1629,57 @@ void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>&
     {
       FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       FillGridCellArray(ghostCellArray, output, localExtentWithNoGhosts[1],
         localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
-        localExtent[5] + isDimensionDegenerate[2],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtent[0],
         localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
-        localExtent[5], vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        localExtent[5], POINT_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
         localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
-        vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[1])
     {
       FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
-        localExtent[4], localExtent[5] + isDimensionDegenerate[2],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
-        vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        POINT_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
-        vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[2])
     {
       FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        CELL_GHOST_VALUE);
 
       FillGridCellArray(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
-        vtkDataSetAttributes::CellGhostTypes::HIDDENCELL);
+        CELL_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
-        vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        POINT_GHOST_VALUE);
 
       FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
-        vtkDataSetAttributes::PointGhostTypes::HIDDENPOINT);
+        POINT_GHOST_VALUE);
     }
   }
 }
@@ -1780,13 +1795,13 @@ void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-  const vtkDIYExplicitAssigner& assigner, std::vector<vtkImageData*>& inputs, int inputGhostLevels)
+  const vtkDIYExplicitAssigner& assigner, std::vector<vtkImageData*>& inputs)
 {
   using BlockType = ImageDataBlock;
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     BlockType* block = master.block<BlockType>(localId);
-    block->Information.Extent = PeelOffGhostLayers(inputs[localId], inputGhostLevels);
+    block->Information.Extent = PeelOffGhostLayers(inputs[localId]);
   }
 
   // Share Block Structures of everyone
@@ -1845,8 +1860,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-  const vtkDIYExplicitAssigner& assigner, std::vector<vtkRectilinearGrid*>& inputs,
-  int inputGhostLevels)
+  const vtkDIYExplicitAssigner& assigner, std::vector<vtkRectilinearGrid*>& inputs)
 {
   using BlockType = RectilinearGridBlock;
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
@@ -1860,7 +1874,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
     BlockType* block = master.block<BlockType>(localId);
     auto& info = block->Information;
     ExtentType& extent = info.Extent;
-    extent = PeelOffGhostLayers(input, inputGhostLevels);
+    extent = PeelOffGhostLayers(input);
 
     vtkDataArray* inputXCoordinates = input->GetXCoordinates();
     vtkDataArray* inputYCoordinates = input->GetYCoordinates();
@@ -1970,8 +1984,7 @@ void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoint
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-    const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkStructuredGrid*>& inputs, int inputGhostLevels)
+    const vtkDIYExplicitAssigner& assigner, std::vector<vtkStructuredGrid*>& inputs)
 {
   using BlockType = StructuredGridBlock;
 
@@ -1990,7 +2003,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
     BlockType* block = master.block<BlockType>(localId);
     StructuredGridInformation& info = block->Information;
     ExtentType& extent = info.Extent;
-    extent = PeelOffGhostLayers(input, inputGhostLevels);
+    extent = PeelOffGhostLayers(input);
 
     for (int i = 0; i < 6; ++i)
     {
