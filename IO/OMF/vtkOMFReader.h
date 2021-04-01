@@ -69,6 +69,14 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  //@{
+  /**
+   * Get/Set for determining to write out textures from OMF file
+   */
+  vtkSetMacro(WriteOutTextures, bool);
+  vtkGetMacro(WriteOutTextures, bool);
+  //@}
+
 protected:
   vtkOMFReader();
   ~vtkOMFReader() override;
@@ -83,6 +91,7 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;
+  bool WriteOutTextures = true;
 
 private:
   vtkOMFReader(const vtkOMFReader&) = delete;

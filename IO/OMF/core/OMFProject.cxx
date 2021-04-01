@@ -70,7 +70,7 @@ struct OMFProject::ProjectImpl
   using ElementMapType = std::unordered_map<std::string, std::shared_ptr<ProjectElement>>;
 
   void ProcessElement(const std::string& elementUID, vtkPartitionedDataSetCollection* output,
-    vtkDataArraySelection* selection)
+    vtkDataArraySelection* selection, bool writeOutTextures)
   {
     const auto& element = this->ProjectFile->JSONRoot()[elementUID];
     if (element.isNull() || !element.isObject())
@@ -120,7 +120,8 @@ struct OMFProject::ProjectImpl
 
       vtkSmartPointer<vtkPartitionedDataSet> partitionedDS =
         vtkSmartPointer<vtkPartitionedDataSet>::New();
-      elementResult.first->second->ProcessJSON(this->ProjectFile, element, partitionedDS);
+      elementResult.first->second->ProcessJSON(
+        this->ProjectFile, element, partitionedDS, writeOutTextures);
       // names in vtkDataAssembly CANNOT contain spaces or parenthesis
       vtksys::SystemTools::ReplaceString(name, " ", "_");
       vtksys::SystemTools::ReplaceString(name, "(", "_");
@@ -228,7 +229,7 @@ bool OMFProject::CanParseFile(const char* filename, vtkDataArraySelection* selec
 
 //------------------------------------------------------------------------------
 bool OMFProject::ProcessJSON(
-  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection)
+  vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection, bool writeOutTextures)
 {
   // loop thru elements and add processed elements to output
 
@@ -270,7 +271,7 @@ bool OMFProject::ProcessJSON(
     }
     std::string uid;
     helper::GetStringValue(elements[i], uid);
-    this->Impl->ProcessElement(uid, output, selection);
+    this->Impl->ProcessElement(uid, output, selection, writeOutTextures);
   }
   return true;
 }

@@ -23,6 +23,7 @@
 #include "vtkImageData.h"
 #include "vtkPNGReader.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtk_jsoncpp.h"
 #include "vtk_zlib.h"
@@ -51,7 +52,6 @@ struct DecompressToDataArrayWorker
 
     using ValueType = typename ArrayT::ValueType;
 
-    // TODO is this a reasonable starting size for numTuples?
     vtkIdType numTuplesStart = 4096;
     vtkIdType numTuples = numTuplesStart;
     vtkIdType numValues = numTuples * numComponents;
@@ -120,6 +120,7 @@ std::string convertToUIDString(const char* buffer)
 
 struct OMFFile::FileImpl
 {
+  std::string FileName;
   vtksys::ifstream* Stream;
   z_stream ZStream;
   unsigned long long FileLength;
@@ -142,12 +143,18 @@ OMFFile::~OMFFile()
 
 bool OMFFile::OpenStream(const char* filename)
 {
+  this->Impl->FileName = filename;
   this->Impl->Stream = new vtksys::ifstream(filename, std::ios::binary);
   if (!this->Impl->Stream)
   {
     return false;
   }
   return true;
+}
+
+std::string OMFFile::GetFileName()
+{
+  return this->Impl->FileName;
 }
 
 // read 60 byte OMF header that consists of:
@@ -310,6 +317,11 @@ vtkSmartPointer<vtkDataArray> OMFFile::ReadArrayFromStream(
 
 vtkSmartPointer<vtkImageData> OMFFile::ReadPNGFromStream(const Json::Value& json)
 {
+  if (json.isNull() || !json.isObject())
+  {
+    return nullptr;
+  }
+
   std::string dtype;
   helper::GetStringValue(json["dtype"], dtype);
   unsigned int length, pos;
@@ -335,28 +347,23 @@ vtkSmartPointer<vtkImageData> OMFFile::ReadPNGFromStream(const Json::Value& json
   this->Impl->ZStream.next_in = reinterpret_cast<unsigned char*>(compressedData);
   this->Impl->ZStream.avail_in = length;
 
-  // TODO check that we've read the whole thing
-  // This function only used for textures, so will make improvements
-  // when finishing texture functionality in future MR
-  unsigned int outputSize = length * 4;
-  char* decompressed = new char[outputSize];
-  this->Impl->ZStream.next_out = reinterpret_cast<unsigned char*>(decompressed);
-  this->Impl->ZStream.avail_out = outputSize;
+  vtkNew<vtkUnsignedCharArray> array;
+  detail::DecompressToDataArrayWorker worker;
+  using arrayTypeList = vtkTypeList::Create<unsigned char>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<arrayTypeList>;
 
-  auto err = inflate(&this->Impl->ZStream, Z_NO_FLUSH);
-  if (err != Z_OK && err != Z_STREAM_END)
+  if (!Dispatcher::Execute(array, worker, &this->Impl->ZStream, 1))
   {
-    vtkGenericWarningMacro(<< "error (" << err << ") decompressing data");
-    return nullptr;
+    vtkGenericWarningMacro(<< "ArrayDispatch failed");
   }
-  unsigned int decompLength = this->Impl->ZStream.total_out;
 
   vtkNew<vtkPNGReader> reader;
-  reader->SetMemoryBuffer(decompressed);
-  reader->SetMemoryBufferLength(static_cast<vtkIdType>(decompLength));
+  reader->SetMemoryBuffer(array->GetVoidPointer(0));
+  reader->SetMemoryBufferLength(array->GetSize());
   reader->Update();
   vtkNew<vtkImageData> data;
   data->ShallowCopy(reader->GetOutput());
+  delete[] compressedData;
   return data;
 }
 

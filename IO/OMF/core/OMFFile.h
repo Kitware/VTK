@@ -21,6 +21,7 @@
 #include "vtk_jsoncpp_fwd.h"
 
 #include <memory> // for std::unique_ptr
+#include <string>
 
 class vtkDataArray;
 class vtkImageData;
@@ -34,6 +35,8 @@ struct OMFFile
   ~OMFFile();
 
   bool OpenStream(const char* filename);
+
+  std::string GetFileName();
 
   bool ReadHeader(std::string& uid);
 
