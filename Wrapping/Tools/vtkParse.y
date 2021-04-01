@@ -4455,7 +4455,7 @@ void handle_attribute(const char *att, int pack)
       deprecationVersion = NULL;
       if (args)
       {
-        int lr = vtkParse_SkipQuotes(args);
+        size_t lr = vtkParse_SkipQuotes(args);
         deprecationReason = vtkstrndup(args, lr);
         if (lr < la && args[lr] == ',')
         {
