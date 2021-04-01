@@ -190,7 +190,7 @@ struct ProbingPointGeneratorWorker
 //------------------------------------------------------------------------------
 void RemoveDuplicate(std::vector<std::pair<double, vtkIdType>>& lineProjection)
 {
-  if (lineProjection.size())
+  if (!lineProjection.empty())
   {
     for (std::size_t id = 0; id < lineProjection.size() - 1; ++id)
     {
