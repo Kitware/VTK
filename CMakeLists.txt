@@ -400,17 +400,19 @@ if (VTK_WRAP_JAVA)
   add_subdirectory(Wrapping/Java)
 endif ()
 
-ExternalData_Add_Target(VTKData)
+if (VTK_BUILD_TESTING)
+  # Create target to download data from the VTKData group.  This must come after
+  # all tests have been added that reference the group, so we put it last.
+  ExternalData_Add_Target(VTKData)
 
-# Create target to download data from the VTKData group.  This must come after
-# all tests have been added that reference the group, so we put it last.
-if (VTK_DATA_EXCLUDE_FROM_ALL)
-  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
-  if (VTK_BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
-    message(WARNING
-      "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data (needed because "
-      "BUILD_TESTING is ON) may not be available without manually building "
-      "the 'VTKData' target.")
+  if (VTK_DATA_EXCLUDE_FROM_ALL)
+    set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
+    if (NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
+      message(WARNING
+        "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data (needed because "
+        "VTK_BUILD_TESTING is ON) may not be available without manually "
+        "building the 'VTKData' target.")
+    endif ()
   endif ()
 endif ()
 
