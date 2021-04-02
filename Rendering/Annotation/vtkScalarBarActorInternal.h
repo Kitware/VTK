@@ -166,6 +166,7 @@ public:
   /// Cache of classes holding geometry assembled and ready for rendering.
   //@{
   ActorVector TextActors;
+  DoubleVector TextActorAnchors;
   vtkPolyData* AnnotationBoxes;
   vtkPolyDataMapper2D* AnnotationBoxesMapper;
   vtkActor2D* AnnotationBoxesActor;
