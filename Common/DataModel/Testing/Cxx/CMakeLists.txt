@@ -41,7 +41,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestImageDataInterpolation.cxx
   TestImageDataOrientation.cxx
   TestImageIterator.cxx
-  TestSimpleIncrementalOctreePointLocator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestMappedGridDeepCopy.cxx
@@ -64,6 +63,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestRect.cxx
   TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
+  TestSimpleIncrementalOctreePointLocator.cxx
   TestSortFieldData.cxx
   TestStaticCellLocator.cxx
   TestTable.cxx
@@ -105,6 +105,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   quadraticIntersection.cxx
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT
   TestCellLocator.cxx,NO_DATA
+  TestIncrementalOctreePointLocator.cxx,NO_VALID
   TestMeanValueCoordinatesInterpolation1.cxx
   TestMeanValueCoordinatesInterpolation2.cxx
   TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT

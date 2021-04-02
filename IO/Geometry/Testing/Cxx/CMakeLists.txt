@@ -1,6 +1,5 @@
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestDataObjectIO.cxx,NO_VALID
-  TestIncrementalOctreePointLocator.cxx,NO_VALID
   UnstructuredGridCellGradients.cxx
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
