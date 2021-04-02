@@ -57,8 +57,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPlaneSource, vtkPolyDataAlgorithm);
 
-  const double EPSILON = 1.0E-6;
-
   /**
    * Construct plane perpendicular to z-axis, resolution 1x1, width
    * and height 1.0, and centered at the origin.
