@@ -28,6 +28,7 @@ ctest_submit(PARTS Update)
 ctest_submit(PARTS Configure)
 
 if (configure_result)
+  ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to configure")
 endif ()
@@ -57,6 +58,7 @@ if (build_result)
 endif ()
 
 if (build_result)
+  ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to build")
 endif ()
@@ -73,6 +75,9 @@ ctest_test(APPEND
 ctest_submit(PARTS Test)
 
 if (test_result)
+  ctest_submit(PARTS Done)
   message(FATAL_ERROR
     "Failed to test")
 endif ()
+
+ctest_submit(PARTS Done)
