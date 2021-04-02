@@ -155,7 +155,7 @@ public:
    */
   void GenerateRepresentation(int level, vtkPolyData* polysData) override;
   void GenerateRepresentation(int level, vtkPolyData* polysData,
-    bool (*GetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data);
+    bool (*UserGetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data);
   //@}
 
   // -------------------------------------------------------------------------

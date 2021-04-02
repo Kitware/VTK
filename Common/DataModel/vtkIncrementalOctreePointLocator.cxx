@@ -287,7 +287,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
 
 //------------------------------------------------------------------------------
 void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtkPolyData* polysData,
-  bool (*GetBounds)(void*, vtkIncrementalOctreeNode*, double*), void* data)
+  bool (*UserGetBounds)(void*, vtkIncrementalOctreeNode*, double*), void* data)
 {
   if (this->OctreeRootNode == nullptr)
   {
@@ -335,7 +335,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation(int nodeLevel, vtk
        lit != nodesList.end(); ++lit)
   {
     vtkIncrementalOctreePointLocator::AddPolys(
-      *lit, thePoints, nodeQuads, nodeIndexes, cellIndex, GetBounds, data);
+      *lit, thePoints, nodeQuads, nodeIndexes, cellIndex, UserGetBounds, data);
   }
 
   // attach points and quads

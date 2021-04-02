@@ -3,13 +3,13 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
-int TestSimpleIncrementalOctreePointLocator(int argc, char* argv[])
+int TestSimpleIncrementalOctreePointLocator(int, char**)
 {
   std::array<double, 6> bb = { 0, 1, 0, 1, 0, 1 };
   std::array<std::array<double, 3>, 18> pointsInput;
-  for (int i = 0; i < pointsInput.size(); ++i)
+  for (size_t i = 0; i < pointsInput.size(); ++i)
   {
-    for (int j = 0; j < pointsInput[i].size(); ++j)
+    for (size_t j = 0; j < pointsInput[i].size(); ++j)
       pointsInput[i][j] = (static_cast<double>(i + 1)) / (pointsInput.size() + 1);
   }
   vtkNew<vtkPoints> points;
