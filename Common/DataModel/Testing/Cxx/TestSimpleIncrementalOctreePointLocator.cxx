@@ -3,7 +3,7 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
-int TestIncrementalOctreePointLocator(int argc, char* argv[])
+int TestSimpleIncrementalOctreePointLocator(int argc, char* argv[])
 {
   std::array<double, 6> bb = { 0, 1, 0, 1, 0, 1 };
   std::array<std::array<double, 3>, 18> pointsInput;
