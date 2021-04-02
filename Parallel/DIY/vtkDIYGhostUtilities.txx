@@ -32,6 +32,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <limits>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -43,14 +44,6 @@
 #include VTK_DIY2(diy/mpi.hpp)
 #include VTK_DIY2(diy/reduce-operations.hpp)
 // clang-format on
-
-namespace
-{
-// Convenient typedef
-template <class DataSetT>
-using DataSetTypeToBlockTypeConverter =
-  vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
-} // anonymous namespace
 
 //============================================================================
 template <>
@@ -234,16 +227,36 @@ template <class DataSetT>
 void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::FillReceivedGhostPoints(
   BlockType* block, DataSetT* output, vtkIdList* pointIds) const
 {
-  vtkPointData* outputPointData = output->GetPointData();
   vtkUnsignedCharArray* ghostPointArray = block->GhostPointArray;
-
-  outputPointData->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
 
   for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
   {
     vtkIdType pointId = pointIds->GetId(i);
-    outputPointData->SetTuple(pointId, i, this->PointData);
     ghostPointArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+  }
+
+  if (!this->PointData)
+  {
+    return;
+  }
+
+  vtkPointData* outputPointData = output->GetPointData();
+
+  vtkNew<vtkIdList> sourcePointIds;
+  sourcePointIds->SetNumberOfIds(this->PointData->GetNumberOfTuples());
+  std::iota(sourcePointIds->begin(), sourcePointIds->end(), 0);
+
+  for (int arrayId = 0; arrayId < this->PointData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* array = this->PointData->GetArray(arrayId);
+    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    {
+      vtkAbstractArray* outputArray = outputPointData->GetAbstractArray(array->GetName());
+      if (outputArray)
+      {
+        outputArray->InsertTuples(pointIds, sourcePointIds, array);
+      }
+    }
   }
 }
 
@@ -253,6 +266,11 @@ void vtkDIYGhostUtilities::ExplicitPointGeometryGhosts<DataSetT>::FillReceivedGh
   BlockType* block, DataSetT* output, vtkIdList* pointIds) const
 {
   this->Superclass::FillReceivedGhostPoints(block, output, pointIds);
+
+  if (!this->Points)
+  {
+    return;
+  }
 
   vtkPoints* outputPoints = output->GetPoints();
 
@@ -268,16 +286,36 @@ template <class DataSetT>
 void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::FillReceivedGhostCells(
   BlockType* block, DataSetT* output, vtkIdList* cellIds) const
 {
-  vtkCellData* outputCellData = output->GetCellData();
   vtkUnsignedCharArray* ghostCellArray = block->GhostCellArray;
-
-  outputCellData->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
 
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
   {
     vtkIdType cellId = cellIds->GetId(i);
-    outputCellData->SetTuple(cellId, i, this->CellData);
     ghostCellArray->SetValue(cellId, vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+  }
+
+  if (!this->CellData)
+  {
+    return;
+  }
+
+  vtkCellData* outputCellData = output->GetCellData();
+
+  vtkNew<vtkIdList> sourceCellIds;
+  sourceCellIds->SetNumberOfIds(this->CellData->GetNumberOfTuples());
+  std::iota(sourceCellIds->begin(), sourceCellIds->end(), 0);
+
+  for (int arrayId = 0; arrayId < this->CellData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* array = this->CellData->GetArray(arrayId);
+    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    {
+      vtkAbstractArray* outputArray = outputCellData->GetAbstractArray(array->GetName());
+      if (outputArray)
+      {
+        outputArray->InsertTuples(cellIds, sourceCellIds, array);
+      }
+    }
   }
 }
 
@@ -388,8 +426,7 @@ void vtkDIYGhostUtilities::FillReceivedGhosts(
  */
 template <class DataSetT>
 int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
-  std::vector<DataSetT*>& outputs, int inputGhostLevels, int outputGhostLevels,
-  vtkMultiProcessController* controller)
+  std::vector<DataSetT*>& outputs, int outputGhostLevels, vtkMultiProcessController* controller)
 {
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
@@ -448,7 +485,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogEndScope("Setup block self information.");
 
   vtkLogStartScope(TRACE, "Exchanging block structures");
-  vtkDIYGhostUtilities::ExchangeBlockStructures(master, assigner, inputs, inputGhostLevels);
+  vtkDIYGhostUtilities::ExchangeBlockStructures(master, assigner, inputs);
   vtkLogEndScope("Exchanging block structures");
 
   vtkLogStartScope(TRACE, "Creating link map between connected blocks");
@@ -483,11 +520,6 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogStartScope(TRACE, "Adding ghost arrays to point and / or cell data");
   vtkDIYGhostUtilities::AddGhostArrays(master, outputs);
   vtkLogEndScope("Adding ghost arrays to point and / or cell data");
-
-  for (DataSetT* output : outputs)
-  {
-    output->FastDelete();
-  }
 
   vtkLogEndScope(logMessage.c_str());
 

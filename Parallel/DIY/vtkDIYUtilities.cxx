@@ -281,19 +281,17 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkFieldData*& fd)
   }
   else
   {
-    vtkNew<vtkFieldData> tmp;
+    fd = vtkFieldData::New();
     for (int id = 0; id < numberOfArrays; ++id)
     {
       vtkDataArray* array = nullptr;
       vtkDIYUtilities::Load(bb, array);
       if (array)
       {
-        tmp->AddArray(array);
+        fd->AddArray(array);
         array->FastDelete();
       }
     }
-    tmp->Register(nullptr);
-    fd = tmp.GetPointer();
   }
 }
 

@@ -22,6 +22,12 @@
  *
  * If the input is composed of some data sets already owning ghosts, those ghosts are removed from
  * the output and are recomputed. Ghosts in the input are as if they didn't exist.
+ * A ghost cell is to be peeled off if it holds the `CELLDUPLICATE` flag in its ghost bit mask.
+ * Similarly, each generated ghost cells from this filter is tagged with `CELLDUPLICATE`, in
+ * addition of other tags that could be set (`HIDDENCELL` for instance).
+ *
+ * @warning If an input already holds ghosts, the input ghost cells should be tagged as
+ * `CELLDUPLICATE` in order for this filter to work properly.
  *
  * @note Currently, only `vtkImageData`, `vtkRectilinearGrid` and `vtkStructuredGrid` are
  * implemented.
@@ -32,14 +38,8 @@
 
 #include "vtkFiltersParallelDIY2Module.h" // for export macros
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkSmartPointer.h"
 
-#include <vector>
-
-class vtkDataSet;
-class vtkImageData;
 class vtkMultiProcessController;
-class vtkPointSet;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGhostCellsGenerator : public vtkPassInputTypeAlgorithm
 {
