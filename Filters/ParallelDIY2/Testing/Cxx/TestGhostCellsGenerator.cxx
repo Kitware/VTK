@@ -244,6 +244,32 @@ bool TestExtent(const int* extent1, const int* extent2)
 }
 
 //----------------------------------------------------------------------------
+bool TestMixedTypes(int myrank)
+{
+  vtkLog(INFO, "Testing mixed types");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  pds->SetNumberOfPartitions(myrank == 1);
+  if (myrank == 1)
+  {
+    vtkNew<vtkImageData> ds;
+    pds->SetPartition(0, ds);
+  }
+  else if (myrank == 0)
+  {
+    vtkNew<vtkRectilinearGrid> ds;
+    pds->SetPartition(0, ds);
+  }
+
+  // If mixed types are mishandled, this will crash.
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->Update();
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool Test1DGrids(int myrank)
 {
   bool retVal = true;
@@ -1227,6 +1253,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
 
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
+
+  if (!TestMixedTypes(myrank))
+  {
+    retVal = EXIT_FAILURE;
+  }
 
   if (!Test1DGrids(myrank))
   {
