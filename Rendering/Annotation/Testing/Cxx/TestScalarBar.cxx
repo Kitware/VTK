@@ -16,13 +16,12 @@
 // This test was written by Philippe Pebay, Kitware 2011-12
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkNew.h"
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
+#include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRegressionTestImage.h"
