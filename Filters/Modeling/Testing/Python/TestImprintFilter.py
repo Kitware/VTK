@@ -37,7 +37,7 @@ plane2 = vtk.vtkPlaneSource()
 plane2.SetXResolution(res)
 plane2.SetYResolution(res)
 plane2.SetOrigin(-0.25,0.25,0)
-plane2.SetPoint1(1.5,0.25,0)
+plane2.SetPoint1(1.75,0.25,0)
 plane2.SetPoint2(-0.25,0.75,0)
 
 p2Mapper = vtk.vtkPolyDataMapper()

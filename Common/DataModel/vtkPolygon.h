@@ -230,6 +230,19 @@ public:
   vtkSetMacro(UseMVCInterpolation, bool);
   ///@}
 
+  //@{
+  /**
+   * Specify an internal tolerance for operations requiring polygon
+   * triangulation.  (For example, clipping and contouring operations proceed
+   * by first triangulating the polygon, and then clipping/contouring the
+   * resulting triangles.)  This is a normalized tolerance value multiplied
+   * by the diagonal length of the polygon bounding box. Is it used to
+   * determine whether potential triangulation edges intersect one another.
+   */
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
+  vtkGetMacro(Tolerance, double);
+  //@}
+
 protected:
   vtkPolygon();
   ~vtkPolygon() override;
@@ -238,7 +251,8 @@ protected:
   void InterpolateFunctionsUsingMVC(const double x[3], double* weights);
 
   // variables used by instances of this class
-  double Tolerance;            // Intersection tolerance
+  double Tolerance; // Intersection tolerance
+  double Tol;
   int SuccessfulTriangulation; // Stops recursive tri. if necessary
   double Normal[3];            // polygon normal
   vtkIdList* Tris;
