@@ -29,7 +29,8 @@
 #define vtkGraphInternals_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkGraph.h"
+#include "vtkGraph.h"                 // For edge types
+#include "vtkObject.h"
 
 #include <map>    // STL Header
 #include <vector> // STL Header

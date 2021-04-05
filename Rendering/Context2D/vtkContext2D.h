@@ -27,7 +27,7 @@
 #ifndef vtkContext2D_h
 #define vtkContext2D_h
 
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 

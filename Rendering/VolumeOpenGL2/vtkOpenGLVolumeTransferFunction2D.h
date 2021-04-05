@@ -17,13 +17,13 @@
 #define vtkOpenGLTransferFunction2D_h
 #ifndef __VTK_WRAP__
 
+#include "vtkImageResize.h" // for vtkImageResize
 #include "vtkOpenGLVolumeLookupTable.h"
 
-#include "vtkNew.h"
+#include "vtkNew.h" // for vtkNew
 
 // Forward declarations
 class vtkOpenGLRenderWindow;
-class vtkImageResize;
 
 /**
  * \brief 2D Transfer function container.

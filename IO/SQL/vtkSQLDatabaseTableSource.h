@@ -31,7 +31,7 @@
 #define vtkSQLDatabaseTableSource_h
 
 #include "vtkIOSQLModule.h" // For export macro
-#include "vtkStdString.h"
+#include "vtkStdString.h"   // for vtkStdString
 #include "vtkTableAlgorithm.h"
 
 class vtkEventForwarderCommand;

@@ -29,7 +29,6 @@
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
 #include <string> // for std::string
-#include <vector>
 
 class vtkAbstractArray;
 class vtkCallbackCommand;

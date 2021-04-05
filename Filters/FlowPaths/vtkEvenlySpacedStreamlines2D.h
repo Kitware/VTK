@@ -93,8 +93,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#include <array>
-#include <vector>
+#include <array>  // for std::array
+#include <vector> // for std::vector
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;

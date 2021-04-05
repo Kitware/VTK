@@ -43,7 +43,7 @@
 #include "vtkNew.h"                    // For vtkNew
 #include "vtkObject.h"
 
-#include <mutex>
+#include <mutex> // for std::mutex
 
 class vtkAbstractArray;
 class vtkFloatArray;

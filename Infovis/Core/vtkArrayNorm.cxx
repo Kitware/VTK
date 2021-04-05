@@ -20,6 +20,7 @@
 =========================================================================*/
 
 #include "vtkArrayNorm.h"
+#include "vtkArrayData.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"

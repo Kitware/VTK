@@ -19,8 +19,6 @@
 
 #include "vtkOpenGLVolumeLookupTable.h"
 
-#include "vtkNew.h"
-
 // Forward declarations
 class vtkOpenGLRenderWindow;
 

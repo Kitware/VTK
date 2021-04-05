@@ -68,7 +68,7 @@ private:
   vtkIdType NumberOfCells;
 };
 
-#include "vtkMappedUnstructuredGridCellIterator.txx"
+#include "vtkMappedUnstructuredGridCellIterator.txx" // template implementations
 
 #endif // vtkMappedUnstructuredGridCellIterator_h
 

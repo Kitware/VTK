@@ -43,7 +43,7 @@ class vtkTooltipItem;
 
 class vtkChartXYPrivate; // Private class to keep my STL vector in...
 
-#include <map>
+#include <map> // for std::map
 
 class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {

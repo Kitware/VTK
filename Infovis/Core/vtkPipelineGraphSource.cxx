@@ -17,6 +17,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
+#include "vtkArray.h"
 #include "vtkArrayData.h"
 #include "vtkCollection.h"
 #include "vtkDataSetAttributes.h"

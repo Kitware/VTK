@@ -18,6 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkArrayData.h"
 #include "vtkArrayPrint.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"

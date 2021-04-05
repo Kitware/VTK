@@ -31,9 +31,9 @@
 #include "vtkMultiThreader.h"  // for ivar
 #include "vtkNew.h"            // for ivar
 #include "vtkVideoSource.h"
-#include <condition_variable>
-#include <functional> // for audio callback
-#include <mutex>
+#include <condition_variable> // for std::condition_variable_any
+#include <functional>         // for audio callback
+#include <mutex>              // for std::mutex
 
 class vtkFFMPEGVideoSourceInternal;
 class vtkFFMPEGVideoSource;

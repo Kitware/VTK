@@ -46,10 +46,10 @@
 #include "vtkIOCONVERGECFDModule.h" // For export macro
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkNew.h"
+#include "vtkNew.h" // for vtkNew
 
-#include <string>
-#include <vector>
+#include <string> // for std::string
+#include <vector> // for std::vector
 
 class vtkDataArraySelection;
 

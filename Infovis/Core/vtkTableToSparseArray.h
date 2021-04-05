@@ -52,6 +52,8 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
 
+class vtkArrayExtents;
+
 class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 {
 public:

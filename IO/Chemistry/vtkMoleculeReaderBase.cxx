@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <cctype>

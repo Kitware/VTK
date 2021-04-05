@@ -20,6 +20,7 @@
 
 #include "vtkArrayReader.h"
 
+#include "vtkArrayData.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkObjectFactory.h"

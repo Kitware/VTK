@@ -27,7 +27,6 @@
 #define vtkStreamSurface_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
 #include "vtkStreamTracer.h"
 
 class vtkAppendPolyData;

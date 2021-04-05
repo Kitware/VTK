@@ -21,6 +21,7 @@
 
 #include "vtkTableToArray.h"
 #include "vtkAbstractArray.h"
+#include "vtkArrayData.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

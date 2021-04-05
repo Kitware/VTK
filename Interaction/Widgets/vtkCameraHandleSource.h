@@ -28,7 +28,7 @@
 #ifndef vtkCameraHandleSource_h
 #define vtkCameraHandleSource_h
 
-#include "vtkCamera.h"
+#include "vtkCamera.h" // for vtkCamera
 #include "vtkHandleSource.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 

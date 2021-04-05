@@ -24,11 +24,11 @@
 #define vtkAMRVelodyneReader_h
 #include "vtkAMRBaseReader.h"
 #include "vtkIOAMRModule.h" // For export macro
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include <unordered_map>
-#include <vector>
+#include <unordered_map>    // for std::unordered_map
+#include <vector>           // for std::vector
 
+class vtkInformation;
+class vtkInformationVector;
 class vtkOverlappingAMR;
 class vtkAMRVelodyneReaderInternal;
 

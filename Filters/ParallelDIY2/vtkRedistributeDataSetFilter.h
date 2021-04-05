@@ -80,7 +80,7 @@
 #include <vector> // for std::vector
 
 // clang-format off
-#include "vtk_diy2.h"
+#include "vtk_diy2.h" // for DIY2 APIs
 #include VTK_DIY2(diy/assigner.hpp)
 // clang-format on
 

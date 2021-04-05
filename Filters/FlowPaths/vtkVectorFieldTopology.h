@@ -27,9 +27,9 @@
 #ifndef vtkVectorFieldTopology_h
 #define vtkVectorFieldTopology_h
 
-#include <vtkFiltersFlowPathsModule.h> // For export macro
-#include <vtkPolyDataAlgorithm.h>
-#include <vtkStreamTracer.h>
+#include "vtkFiltersFlowPathsModule.h" // For export macro
+#include "vtkPolyDataAlgorithm.h"
+#include "vtkStreamTracer.h" // for vtkStreamSurface::CELL_LENGTH_UNIT
 
 class vtkGradientFilter;
 class vtkImageData;

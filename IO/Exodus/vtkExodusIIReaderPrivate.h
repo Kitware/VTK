@@ -6,17 +6,19 @@
 // Do not include this file directly. It is only for use
 // from inside the ExodusII reader and its descendants.
 
-#include "vtkExodusIICache.h"
-#include "vtkExodusIIReader.h"
-#include "vtkStdString.h"
-#include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
-#include "vtksys/RegularExpression.hxx"
+#include "vtkExodusIICache.h"  // for vtkExodusIICacheKey
+#include "vtkExodusIIReader.h" // for vtkExodusIIReader
+#include "vtkObject.h"
+#include "vtkStdString.h"               // for vtkStdString
+#include "vtkToolkits.h"                // make sure VTK_USE_PARALLEL is properly set
+#include "vtksys/RegularExpression.hxx" // for vtksys::RegularExpression
 
-#include <map>
-#include <vector>
+#include <map>    // for std::map
+#include <vector> // for std::vector
 
 #include "vtkIOExodusModule.h" // For export macro
-#include "vtk_exodusII.h"
+#include "vtk_exodusII.h"      // for exodus APIs
+class vtkDataArray;
 class vtkExodusIIReaderParser;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;

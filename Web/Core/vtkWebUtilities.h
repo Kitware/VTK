@@ -25,7 +25,7 @@
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports
-#include <string>
+#include <string>             // for std::string
 
 class vtkDataSet;
 

@@ -20,6 +20,7 @@
 =========================================================================*/
 
 #include "vtkBoostRandomSparseArraySource.h"
+#include "vtkArrayData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

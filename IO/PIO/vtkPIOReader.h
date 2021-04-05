@@ -28,7 +28,7 @@
 
 #include "vtkIOPIOModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkStdString.h"
+#include "vtkStdString.h" // for vtkStdString
 
 class vtkCallbackCommand;
 class vtkDataArraySelection;
@@ -37,7 +37,6 @@ class vtkInformation;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 class vtkStringArray;
-class vtkStdString;
 
 class PIOAdaptor;
 class PIO_DATA;

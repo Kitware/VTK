@@ -26,7 +26,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include "RTWrapper/RTWrapper.h" // for handle types
-#include <vector>
+#include <vector>                // for std::vector
 
 class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayMoleculeMapperNode : public vtkPolyDataMapperNode
 {

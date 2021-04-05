@@ -44,7 +44,7 @@
 #ifndef vtkQtTreeRingLabelMapper_h
 #define vtkQtTreeRingLabelMapper_h
 
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingQtModule.h" // For export macro
 

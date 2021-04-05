@@ -71,7 +71,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For smart pointer
 
-#include <vector>
+#include <vector> // for std::vector
 
 class vtkOpenGLIndexBufferObject;
 class vtkOpenGLBufferObject;

@@ -198,7 +198,7 @@ private:
 };
 static vtkDIYUtilitiesCleanup vtkDIYUtilitiesCleanupInstance;
 
-#include "vtkDIYUtilities.txx"
+#include "vtkDIYUtilities.txx" // for template implementations
 
 #endif
 // VTK-HeaderTest-Exclude: vtkDIYUtilities.h

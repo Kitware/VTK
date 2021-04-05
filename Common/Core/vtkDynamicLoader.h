@@ -27,7 +27,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <vtksys/DynamicLoader.hxx>
+#include <vtksys/DynamicLoader.hxx> // Implementation
 
 typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
 typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;

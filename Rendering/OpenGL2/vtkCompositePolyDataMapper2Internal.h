@@ -17,9 +17,8 @@
 
 #ifndef __VTK_WRAP__
 
-#include "vtkColor.h"
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkRenderingOpenGL2Module.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 class vtkPolyData;
 class vtkCompositePolyDataMapper2;

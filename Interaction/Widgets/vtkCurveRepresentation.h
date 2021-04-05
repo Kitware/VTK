@@ -29,8 +29,7 @@
 #define vtkCurveRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkLegacy.h"
-#include "vtkPolyDataAlgorithm.h" // needed for vtkPolyDataAlgorithm
+#include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;

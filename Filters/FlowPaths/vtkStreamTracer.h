@@ -102,7 +102,7 @@ class vtkIdList;
 class vtkIntArray;
 class vtkPoints;
 
-#include <vector>
+#include <vector> // for std::vector
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {

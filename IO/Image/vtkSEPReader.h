@@ -19,15 +19,14 @@
 #ifndef vtkSEPReader_h
 #define vtkSEPReader_h
 
-#include <vtkIOImageModule.h>
+#include "vtkIOImageModule.h" // For export macro
 
-#include <vtkExtentTranslator.h>
-#include <vtkImageAlgorithm.h>
-#include <vtkNew.h>
+#include "vtkExtentTranslator.h" // for vtkExtentTranslator
+#include "vtkImageAlgorithm.h"
+#include "vtkNew.h" // for ivars
 
-#include <array>
-#include <memory>
-#include <string>
+#include <array>  // for std::array
+#include <string> // for std::string
 
 namespace details
 {

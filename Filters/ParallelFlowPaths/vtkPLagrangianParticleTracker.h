@@ -41,7 +41,7 @@
 #include "vtkLagrangianParticleTracker.h"
 #include "vtkNew.h" // for ivars
 
-#include <map>
+#include <map> // for std::map
 
 class ParticleFeedManager;
 class ParticleIdManager;
