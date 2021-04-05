@@ -53,5 +53,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageWrapPad.h

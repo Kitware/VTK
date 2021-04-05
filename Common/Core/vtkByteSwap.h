@@ -143,4 +143,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkByteSwap.h

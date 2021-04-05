@@ -93,4 +93,3 @@ private:
 };
 
 #endif // vtkmLevelOfDetail_h
-// VTK-HeaderTest-Exclude: vtkmLevelOfDetail.h

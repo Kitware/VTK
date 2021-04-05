@@ -61,4 +61,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkmPointTransform.h

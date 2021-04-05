@@ -103,3 +103,4 @@ private:
   std::unordered_map<std::string, int> arrayMap;
 };
 #endif
+// VTK-HeaderTest-Exclude: vtkAMRVelodyneReaderInternal.h

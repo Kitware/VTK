@@ -48,4 +48,3 @@ private:
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeRGBTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeRGBTable.h

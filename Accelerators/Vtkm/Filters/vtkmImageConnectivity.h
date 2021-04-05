@@ -59,4 +59,3 @@ private:
 };
 
 #endif // vtkmImageConnectivity_h
-// VTK-HeaderTest-Exclude: vtkmImageConnectivity.h

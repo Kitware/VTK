@@ -50,4 +50,3 @@ private:
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeGradientOpacityTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeGradientOpacityTable.h

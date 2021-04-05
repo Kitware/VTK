@@ -75,4 +75,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkObjectFactoryCollection.h

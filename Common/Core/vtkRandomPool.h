@@ -164,4 +164,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkRandomPool.h

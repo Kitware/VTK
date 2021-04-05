@@ -47,4 +47,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkStructuredGridOutlineFilter.h

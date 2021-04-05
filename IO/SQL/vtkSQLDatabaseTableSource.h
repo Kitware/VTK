@@ -94,5 +94,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkSQLDatabaseTableSource.h

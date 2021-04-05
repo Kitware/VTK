@@ -67,4 +67,3 @@ private:
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeMaskTransferFunction2D.h

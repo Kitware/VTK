@@ -51,4 +51,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkImageHybridMedian2D.h

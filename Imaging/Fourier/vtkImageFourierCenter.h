@@ -52,5 +52,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageFourierCenter.h

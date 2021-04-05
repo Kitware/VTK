@@ -158,4 +158,3 @@ void bindTexturedPolydataToRenderWindow(
 
 #endif
 #endif
-// VTK-HeaderTest-Exclude: vtkOBJImporterInternals.h

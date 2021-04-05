@@ -97,5 +97,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkRungeKutta2.h

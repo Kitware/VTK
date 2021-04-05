@@ -56,5 +56,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageFFT.h

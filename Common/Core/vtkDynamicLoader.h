@@ -83,4 +83,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkDynamicLoader.h

@@ -60,4 +60,3 @@ private:
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeOpacityTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeOpacityTable.h

@@ -108,4 +108,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkArrayDataAlgorithm.h

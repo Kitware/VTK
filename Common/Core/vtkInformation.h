@@ -465,4 +465,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkInformation.h

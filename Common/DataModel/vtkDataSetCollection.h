@@ -79,4 +79,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkDataSetCollection.h

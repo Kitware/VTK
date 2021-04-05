@@ -76,4 +76,3 @@ private:
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLTransferFunction2D_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeTransferFunction2D.h

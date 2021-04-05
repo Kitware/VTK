@@ -51,5 +51,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageDivergence.h

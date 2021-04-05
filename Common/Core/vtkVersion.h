@@ -65,5 +65,3 @@ extern "C"
 }
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkVersion.h

@@ -60,4 +60,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkWebUtilities.h

@@ -85,5 +85,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkButterflySubdivisionFilter.h

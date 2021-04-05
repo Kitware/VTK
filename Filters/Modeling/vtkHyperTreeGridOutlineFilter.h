@@ -71,4 +71,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkHyperTreeGridOutlineFilter.h

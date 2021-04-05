@@ -355,3 +355,5 @@ public:
 };
 } // namespace vtkMatrixUtilities
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMatrixUtilities.h

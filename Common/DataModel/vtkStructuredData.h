@@ -433,5 +433,3 @@ inline void vtkStructuredData::ComputePointStructuredCoordsForExtent(
 }
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkStructuredData.h

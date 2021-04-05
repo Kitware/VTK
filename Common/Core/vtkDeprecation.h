@@ -136,3 +136,5 @@
 #endif
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkDeprecation.h

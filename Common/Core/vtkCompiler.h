@@ -53,3 +53,5 @@
 #endif
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkCompiler.h

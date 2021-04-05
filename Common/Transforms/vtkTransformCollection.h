@@ -85,4 +85,3 @@ inline vtkTransform* vtkTransformCollection::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkTransformCollection.h

@@ -115,5 +115,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkBoostRandomSparseArraySource.h

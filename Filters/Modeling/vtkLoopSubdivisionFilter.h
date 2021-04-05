@@ -84,4 +84,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkLoopSubdivisionFilter.h

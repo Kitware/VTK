@@ -46,4 +46,3 @@ private:
 };
 
 #endif // vtkGDAL_h
-// VTK-HeaderTest-Exclude: vtkGDAL.h

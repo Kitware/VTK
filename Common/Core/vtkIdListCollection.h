@@ -73,4 +73,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkIdListCollection.h

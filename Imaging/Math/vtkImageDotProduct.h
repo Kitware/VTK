@@ -55,5 +55,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageDotProduct.h

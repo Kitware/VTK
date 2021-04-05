@@ -144,4 +144,3 @@ public:
 };
 
 #endif // vtkDebugLeaks_h
-// VTK-HeaderTest-Exclude: vtkDebugLeaks.h

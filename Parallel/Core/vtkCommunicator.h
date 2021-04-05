@@ -1331,4 +1331,3 @@ private:
 };
 
 #endif // vtkCommunicator_h
-// VTK-HeaderTest-Exclude: vtkCommunicator.h

@@ -48,3 +48,5 @@
 #endif
 
 #endif // vtkConfigure_h
+
+// VTK-HeaderTest-Exclude: vtkConfigure.h

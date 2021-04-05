@@ -496,5 +496,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkOpenGLState.h

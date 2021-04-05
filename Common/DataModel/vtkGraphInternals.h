@@ -102,5 +102,3 @@ private:
 };
 
 #endif // vtkGraphInternals_h
-
-// VTK-HeaderTest-Exclude: vtkGraphInternals.h

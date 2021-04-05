@@ -107,5 +107,3 @@ inline vtkProp* vtkPropCollection::GetLastProp()
 }
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkPropCollection.h

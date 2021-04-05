@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// VTK-HeaderTest-Exclude: vtkXdmfHeavyData.h
-
 #ifndef vtkXdmfHeavyData_h
 #define vtkXdmfHeavyData_h
 #ifndef __VTK_WRAP__
@@ -162,3 +160,5 @@ private:
 #endif
 #endif
 #endif
+
+// VTK-HeaderTest-Exclude: vtkXdmfHeavyData.h

@@ -114,4 +114,3 @@ inline vtkAssemblyPath* vtkAssemblyPaths::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkAssemblyPaths.h

@@ -201,4 +201,3 @@ static vtkDIYUtilitiesCleanup vtkDIYUtilitiesCleanupInstance;
 #include "vtkDIYUtilities.txx" // for template implementations
 
 #endif
-// VTK-HeaderTest-Exclude: vtkDIYUtilities.h

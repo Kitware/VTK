@@ -77,5 +77,3 @@ private:
 };
 
 #endif // vtkmNDHistogram_h
-
-// VTK-HeaderTest-Exclude: vtkmNDHistogram.h

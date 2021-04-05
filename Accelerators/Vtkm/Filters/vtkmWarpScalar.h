@@ -63,5 +63,3 @@ private:
 };
 
 #endif // vtkmWarpScalar_h
-
-// VTK-HeaderTest-Exclude: vtkmWarpScalar.h

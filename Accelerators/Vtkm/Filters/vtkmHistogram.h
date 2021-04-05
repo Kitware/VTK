@@ -112,4 +112,3 @@ private:
 };
 
 #endif // vtkmHistogram_h
-// VTK-HeaderTest-Exclude: vtkmHistogram.h

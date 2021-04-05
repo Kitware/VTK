@@ -173,4 +173,3 @@ private:
 #endif
 
 #endif
-// VTK-HeaderTest-Exclude: vtkCompositePolyDataMapper2Internal.h

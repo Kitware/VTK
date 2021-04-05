@@ -118,5 +118,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkProgrammableFilter.h

@@ -99,5 +99,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkArrayNorm.h

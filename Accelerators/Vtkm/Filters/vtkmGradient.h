@@ -69,4 +69,3 @@ private:
 };
 
 #endif // vtkmGradient_h
-// VTK-HeaderTest-Exclude: vtkmGradient.h

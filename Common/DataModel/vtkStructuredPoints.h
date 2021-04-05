@@ -54,5 +54,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkStructuredPoints.h

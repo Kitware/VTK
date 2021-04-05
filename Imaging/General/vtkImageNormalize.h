@@ -48,5 +48,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageNormalize.h

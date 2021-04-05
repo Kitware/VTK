@@ -58,5 +58,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageCityBlockDistance.h

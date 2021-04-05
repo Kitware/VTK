@@ -69,5 +69,3 @@ private:
 };
 
 #endif // vtkmCoordinateSystemTransform_h
-
-// VTK-HeaderTest-Exclude: vtkmCoordinateSystemTransform.h

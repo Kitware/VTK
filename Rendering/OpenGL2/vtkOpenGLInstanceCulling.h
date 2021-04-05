@@ -169,5 +169,3 @@ private:
 };
 
 #endif // vtkOpenGLInstanceCulling_h
-
-// VTK-HeaderTest-Exclude: vtkOpenGLInstanceCulling.h
