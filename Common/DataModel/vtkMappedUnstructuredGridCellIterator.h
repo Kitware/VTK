@@ -37,8 +37,8 @@ template <class Implementation>
 class vtkMappedUnstructuredGridCellIterator : public vtkCellIterator
 {
 public:
-  vtkTemplateTypeMacro(vtkMappedUnstructuredGridCellIterator<Implementation>,
-    vtkCellIterator) typedef Implementation ImplementationType;
+  vtkTemplateTypeMacro(vtkMappedUnstructuredGridCellIterator<Implementation>, vtkCellIterator);
+  typedef Implementation ImplementationType;
   typedef vtkMappedUnstructuredGridCellIterator<ImplementationType> ThisType;
   static vtkMappedUnstructuredGridCellIterator<ImplementationType>* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
