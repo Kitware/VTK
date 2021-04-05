@@ -71,9 +71,9 @@ protected:
 
   double Radius;
 
-private:
-  vtkTubeBender(const vtkTubeBender&);  // Not implemented.
-  void operator=(const vtkTubeBender&); // Not implemented.
+public:
+  vtkTubeBender(const vtkTubeBender&) = delete;  // Not implemented.
+  void operator=(const vtkTubeBender&) = delete; // Not implemented.
 
 protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

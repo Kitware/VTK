@@ -63,6 +63,9 @@ public:
   double* GetDirection() override;
   //@}
 
+  vtkPointHandleSource(const vtkPointHandleSource&) = delete;
+  void operator=(const vtkPointHandleSource&) = delete;
+
 protected:
   vtkPointHandleSource() = default;
   ~vtkPointHandleSource() override = default;

@@ -74,6 +74,9 @@ public:
   double* GetDirection() override;
   //@}
 
+  vtkCameraHandleSource(const vtkCameraHandleSource&) = delete;
+  void operator=(const vtkCameraHandleSource&) = delete;
+
 protected:
   vtkCameraHandleSource();
   ~vtkCameraHandleSource() override;

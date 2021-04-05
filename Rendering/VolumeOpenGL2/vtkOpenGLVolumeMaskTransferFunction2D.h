@@ -59,9 +59,8 @@ protected:
     vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin) override;
 
 private:
-  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) = delete;
-  vtkOpenGLVolumeMaskTransferFunction2D& operator=(
-    const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  void operator=(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
 };
 
 #endif // __VTK_WRAP__

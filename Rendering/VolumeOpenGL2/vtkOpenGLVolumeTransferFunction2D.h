@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkOpenGLVolumeTransferFunction2D(const vtkOpenGLVolumeTransferFunction2D&) = delete;
-  vtkOpenGLVolumeTransferFunction2D& operator=(const vtkOpenGLVolumeTransferFunction2D&) = delete;
+  void operator=(const vtkOpenGLVolumeTransferFunction2D&) = delete;
 };
 
 #endif // __VTK_WRAP__

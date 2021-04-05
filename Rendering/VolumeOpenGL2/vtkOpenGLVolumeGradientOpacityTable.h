@@ -43,8 +43,7 @@ protected:
 
 private:
   vtkOpenGLVolumeGradientOpacityTable(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
-  vtkOpenGLVolumeGradientOpacityTable& operator=(
-    const vtkOpenGLVolumeGradientOpacityTable&) = delete;
+  void operator=(const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };
 
 #endif // __VTK_WRAP__

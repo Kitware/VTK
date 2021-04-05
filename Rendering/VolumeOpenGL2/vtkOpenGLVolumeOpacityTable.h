@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&) = delete;
-  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
+  void operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
 };
 
 #endif // __VTK_WRAP__

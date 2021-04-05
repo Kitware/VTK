@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkOpenGLVolumeRGBTable(const vtkOpenGLVolumeRGBTable&) = delete;
-  vtkOpenGLVolumeRGBTable& operator=(const vtkOpenGLVolumeRGBTable&) = delete;
+  void operator=(const vtkOpenGLVolumeRGBTable&) = delete;
 };
 
 #endif // __VTK_WRAP__
