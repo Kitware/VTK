@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLTransferFunction2D_h
-#define vtkOpenGLTransferFunction2D_h
+#ifndef vtkOpenGLVolumeTransferFunction2D_h
+#define vtkOpenGLVolumeTransferFunction2D_h
 #ifndef __VTK_WRAP__
 
 #include "vtkImageResize.h" // for vtkImageResize

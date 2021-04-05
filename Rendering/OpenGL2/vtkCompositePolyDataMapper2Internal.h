@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#ifndef vtkCompositeMapperHelper2_h
-#define vtkCompositeMapperHelper2_h
+#ifndef vtkCompositePolyDataMapper2Internal_h
+#define vtkCompositePolyDataMapper2Internal_h
 
 #ifndef __VTK_WRAP__
 

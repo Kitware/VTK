@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef vtkDeprecated_h
-#define vtkDeprecated_h
+#ifndef vtkDeprecation_h
+#define vtkDeprecation_h
 
 #include "vtkVersion.h"
 
