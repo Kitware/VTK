@@ -30,6 +30,7 @@ class VTKMYCOMMON_EXPORT vtkBar : public vtkObject
 public:
   static vtkBar* New();
   vtkTypeMacro(vtkBar, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBar() {}

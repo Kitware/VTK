@@ -23,6 +23,12 @@
 vtkStandardNewMacro(vtkMoleculeToLinesFilter);
 
 //------------------------------------------------------------------------------
+void vtkMoleculeToLinesFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 int vtkMoleculeToLinesFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

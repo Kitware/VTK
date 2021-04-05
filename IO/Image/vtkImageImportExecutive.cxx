@@ -27,6 +27,12 @@
 vtkStandardNewMacro(vtkImageImportExecutive);
 
 //------------------------------------------------------------------------------
+void vtkImageImportExecutive::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkTypeBool vtkImageImportExecutive::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {

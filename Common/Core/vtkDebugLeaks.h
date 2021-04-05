@@ -66,6 +66,7 @@ class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
 public:
   static vtkDebugLeaks* New();
   vtkTypeMacro(vtkDebugLeaks, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Call this when creating a class.

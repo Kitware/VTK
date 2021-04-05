@@ -40,6 +40,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSynchronizeTimeFilter : public vtkPassInputTyp
 public:
   static vtkSynchronizeTimeFilter* New();
   vtkTypeMacro(vtkSynchronizeTimeFilter, vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the input that we may potentially replace time

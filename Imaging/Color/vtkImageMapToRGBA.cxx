@@ -16,3 +16,8 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageMapToRGBA);
+
+void vtkImageMapToRGBA::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

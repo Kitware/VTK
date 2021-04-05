@@ -48,7 +48,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisClip : public vtkHyperTreeG
 public:
   static vtkHyperTreeGridAxisClip* New();
   vtkTypeMacro(vtkHyperTreeGridAxisClip, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Methods by which the hyper tree grid input may be clipped:

@@ -39,6 +39,7 @@ class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLDataObjectWriter
 public:
   vtkTypeMacro(vtkXMLDataSetWriter, vtkXMLDataObjectWriter);
   static vtkXMLDataSetWriter* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLDataSetWriter();

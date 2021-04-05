@@ -63,6 +63,7 @@ public:
    */
   static vtkLoopSubdivisionFilter* New();
   vtkTypeMacro(vtkLoopSubdivisionFilter, vtkApproximatingSubdivisionFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
 protected:

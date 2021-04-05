@@ -36,6 +36,7 @@ class VTKCOMMONMATH_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeMacro(vtkRungeKutta2, vtkInitialValueProblemSolver);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkRungeKutta2 with no initial FunctionSet.

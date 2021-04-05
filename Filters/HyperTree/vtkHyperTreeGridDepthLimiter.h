@@ -53,7 +53,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridDepthLimiter : public vtkHyperT
 public:
   static vtkHyperTreeGridDepthLimiter* New();
   vtkTypeMacro(vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

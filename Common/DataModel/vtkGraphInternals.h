@@ -55,6 +55,8 @@ public:
   static vtkGraphInternals* New();
 
   vtkTypeMacro(vtkGraphInternals, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   std::vector<vtkVertexAdjacencyList> Adjacency;
 
   vtkIdType NumberOfEdges;

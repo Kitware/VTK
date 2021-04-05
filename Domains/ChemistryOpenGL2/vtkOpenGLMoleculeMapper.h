@@ -34,6 +34,7 @@ class VTKDOMAINSCHEMISTRYOPENGL2_EXPORT vtkOpenGLMoleculeMapper : public vtkMole
 public:
   static vtkOpenGLMoleculeMapper* New();
   vtkTypeMacro(vtkOpenGLMoleculeMapper, vtkMoleculeMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

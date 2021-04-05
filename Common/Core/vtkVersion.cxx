@@ -16,6 +16,12 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkVersion);
+
+void vtkVersion::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 const char* GetVTKVersion()
 {
   return vtkVersion::GetVTKVersion();

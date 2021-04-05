@@ -52,7 +52,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
 public:
   static vtkHyperTreeGridAxisCut* New();
   vtkTypeMacro(vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

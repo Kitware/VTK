@@ -46,7 +46,7 @@ class VTKIOADIOS2_EXPORT vtkADIOS2VTXReader : public vtkMultiBlockDataSetAlgorit
 public:
   static vtkADIOS2VTXReader* New();
   vtkTypeMacro(vtkADIOS2VTXReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent index) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);

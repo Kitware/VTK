@@ -34,6 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageAppendComponents : public vtkThreadedImageAl
 public:
   static vtkImageAppendComponents* New();
   vtkTypeMacro(vtkImageAppendComponents, vtkThreadedImageAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Replace one of the input connections with a new input.  You can

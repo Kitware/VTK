@@ -25,6 +25,11 @@
 
 vtkStandardNewMacro(vtkImageDivergence);
 
+void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 vtkImageDivergence::vtkImageDivergence()
 {
   this->SetNumberOfInputPorts(1);

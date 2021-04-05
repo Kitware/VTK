@@ -28,6 +28,12 @@
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //------------------------------------------------------------------------------
+void vtkImageMagnitude::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkImageMagnitude::vtkImageMagnitude()
 {
   this->SetNumberOfInputPorts(1);

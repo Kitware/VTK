@@ -19,6 +19,11 @@
 
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
+void vtkXMLFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 void vtkXMLFileOutputWindow::Initialize()
 {
   if (!this->OStream)

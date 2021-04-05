@@ -37,6 +37,7 @@ class VTKCOMMONCORE_EXPORT vtkDynamicLoader : public vtkObject
 public:
   static vtkDynamicLoader* New();
   vtkTypeMacro(vtkDynamicLoader, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Load a dynamic library into the current process.

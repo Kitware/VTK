@@ -25,6 +25,12 @@
 vtkStandardNewMacro(vtkImageFFT);
 
 //------------------------------------------------------------------------------
+void vtkImageFFT::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
 int vtkImageFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)

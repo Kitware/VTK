@@ -178,7 +178,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 public:
   vtkTypeMacro(vtkHyperTree, vtkObject);
 
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Restore the initial state: only one vertice is then a leaf:

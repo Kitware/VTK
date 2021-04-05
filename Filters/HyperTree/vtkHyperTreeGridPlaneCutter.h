@@ -55,7 +55,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridPlaneCutter : public vtkHyperTr
 public:
   static vtkHyperTreeGridPlaneCutter* New();
   vtkTypeMacro(vtkHyperTreeGridPlaneCutter, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

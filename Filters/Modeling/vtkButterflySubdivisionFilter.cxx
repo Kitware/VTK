@@ -25,6 +25,11 @@
 
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
+void vtkButterflySubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 static const double butterflyWeights[8] = { .5, .5, .125, .125, -.0625, -.0625, -.0625, -.0625 };
 
 //------------------------------------------------------------------------------

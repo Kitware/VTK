@@ -33,6 +33,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayCollection : public vtkCollection
 public:
   static vtkDataArrayCollection* New();
   vtkTypeMacro(vtkDataArrayCollection, vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a dataarray to the bottom of the list.

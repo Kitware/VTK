@@ -18,6 +18,11 @@
 
 vtkStandardNewMacro(vtkActor2DCollection);
 
+void vtkActor2DCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 // protected function to delete an element. Internal use only.
 void vtkActor2DCollection::DeleteElement(vtkCollectionElement* e)
 {

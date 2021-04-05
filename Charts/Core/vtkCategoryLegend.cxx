@@ -276,3 +276,24 @@ vtkStdString vtkCategoryLegend::GetTitle()
 {
   return this->Title;
 }
+
+//------------------------------------------------------------------------------
+void vtkCategoryLegend::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "HasOutliers: " << this->HasOutliers << endl;
+  os << indent << "TitleWidthOffset: " << this->TitleWidthOffset << endl;
+  os << indent << "ScalarsToColors: \n";
+  if (this->ScalarsToColors)
+  {
+    this->ScalarsToColors->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent.GetNextIndent() << "(null)" << endl;
+  }
+  os << indent << "OutlierLabel: " << this->OutlierLabel << endl;
+  os << indent << "Title: " << this->Title << endl;
+  os << indent << "TitleProperties: \n";
+  this->TitleProperties->PrintSelf(os, indent.GetNextIndent());
+}

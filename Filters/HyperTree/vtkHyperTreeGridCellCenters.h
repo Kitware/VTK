@@ -58,7 +58,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCen
 public:
   static vtkHyperTreeGridCellCenters* New();
   vtkTypeMacro(vtkHyperTreeGridCellCenters, vtkCellCenters);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHyperTreeGridCellCenters();

@@ -1836,6 +1836,17 @@ void vtkOpenGLState::VerifyNoActiveTextures()
 
 vtkStandardNewMacro(vtkOpenGLState);
 
+void vtkOpenGLState::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MajorVersion: " << this->MajorVersion << endl;
+  os << indent << "MinorVersion: " << this->MinorVersion << endl;
+  os << indent << "MaxTextureSize: " << this->MaxTextureSize << endl;
+  os << indent << "Vendor: " << this->Vendor << endl;
+  os << indent << "Renderer: " << this->Renderer << endl;
+  os << indent << "Version: " << this->Version << endl;
+}
+
 vtkCxxSetObjectMacro(vtkOpenGLState, VBOCache, vtkOpenGLVertexBufferObjectCache);
 
 // initialize all state values. This is important so that in

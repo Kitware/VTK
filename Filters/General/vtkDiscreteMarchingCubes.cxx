@@ -41,6 +41,12 @@
 
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
+void vtkDiscreteMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "ComputeAdjacentScalars: " << this->ComputeAdjacentScalars << endl;
+}
+
 // Description:
 // Construct object with initial range (0,1) and single contour value
 // of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and

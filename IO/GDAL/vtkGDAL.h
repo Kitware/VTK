@@ -31,6 +31,7 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGDAL, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   // Key used to put GDAL map projection string in the output information
   // by readers.
   static vtkInformationStringKey* MAP_PROJECTION();

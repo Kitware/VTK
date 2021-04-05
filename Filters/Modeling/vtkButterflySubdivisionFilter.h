@@ -62,6 +62,7 @@ public:
    */
   static vtkButterflySubdivisionFilter* New();
   vtkTypeMacro(vtkButterflySubdivisionFilter, vtkInterpolatingSubdivisionFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
 protected:

@@ -25,6 +25,12 @@
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //------------------------------------------------------------------------------
+void vtkStructuredGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // ComputeDivisionExtents has done most of the work for us.
 // Now just connect the points.
 int vtkStructuredGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),

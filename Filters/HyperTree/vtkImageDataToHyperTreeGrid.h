@@ -44,7 +44,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkImageDataToHyperTreeGrid : public vtkHyperTr
 public:
   static vtkImageDataToHyperTreeGrid* New();
   vtkTypeMacro(vtkImageDataToHyperTreeGrid, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetMacro(DepthMax, int);
   vtkGetMacro(DepthMax, int);

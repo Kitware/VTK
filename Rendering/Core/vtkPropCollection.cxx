@@ -17,6 +17,11 @@
 
 vtkStandardNewMacro(vtkPropCollection);
 
+void vtkPropCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 int vtkPropCollection::GetNumberOfPaths()
 {
   int numPaths = 0;

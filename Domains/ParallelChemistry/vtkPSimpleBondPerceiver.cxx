@@ -31,6 +31,12 @@
 vtkStandardNewMacro(vtkPSimpleBondPerceiver);
 
 //------------------------------------------------------------------------------
+void vtkPSimpleBondPerceiver::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 static inline bool InBounds(const double* bounds, const double* p)
 {
   return p[0] >= bounds[0] && p[0] <= bounds[1] && p[1] >= bounds[2] && p[1] <= bounds[3] &&

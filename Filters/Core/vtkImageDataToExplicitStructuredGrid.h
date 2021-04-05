@@ -29,6 +29,7 @@ class VTKFILTERSCORE_EXPORT vtkImageDataToExplicitStructuredGrid
 public:
   static vtkImageDataToExplicitStructuredGrid* New();
   vtkTypeMacro(vtkImageDataToExplicitStructuredGrid, vtkExplicitStructuredGridAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageDataToExplicitStructuredGrid() = default;

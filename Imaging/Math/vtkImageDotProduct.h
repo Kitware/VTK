@@ -31,6 +31,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageDotProduct : public vtkThreadedImageAlgorith
 public:
   static vtkImageDotProduct* New();
   vtkTypeMacro(vtkImageDotProduct, vtkThreadedImageAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the two inputs to this filter

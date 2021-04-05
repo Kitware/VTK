@@ -83,6 +83,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLInstanceCulling : public vtkObject
 public:
   static vtkOpenGLInstanceCulling* New();
   vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   struct InstanceLOD
   {

@@ -39,6 +39,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericOutlineFilter : public vtkPolyDataAlgor
 public:
   static vtkGenericOutlineFilter* New();
   vtkTypeMacro(vtkGenericOutlineFilter, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkGenericOutlineFilter();

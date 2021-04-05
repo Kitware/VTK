@@ -23,6 +23,11 @@
 
 vtkStandardNewMacro(vtkSimpleImageFilterExample);
 
+void vtkSimpleImageFilterExample::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 // The switch statement in Execute will call this method with
 // the appropriate input type (IT). Note that this example assumes
 // that the output data type is the same as the input data type.

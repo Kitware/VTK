@@ -33,6 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCollection : public vtkCollection
 public:
   static vtkDataSetCollection* New();
   vtkTypeMacro(vtkDataSetCollection, vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a dataset to the bottom of the list.

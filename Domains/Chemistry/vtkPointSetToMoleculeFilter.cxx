@@ -26,6 +26,13 @@
 vtkStandardNewMacro(vtkPointSetToMoleculeFilter);
 
 //------------------------------------------------------------------------------
+void vtkPointSetToMoleculeFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "ConvertLinesIntoBonds: " << this->ConvertLinesIntoBonds << endl;
+}
+
+//------------------------------------------------------------------------------
 vtkPointSetToMoleculeFilter::vtkPointSetToMoleculeFilter()
   : ConvertLinesIntoBonds(true)
 {

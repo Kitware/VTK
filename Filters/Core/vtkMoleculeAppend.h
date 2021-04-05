@@ -38,6 +38,7 @@ class VTKFILTERSCORE_EXPORT vtkMoleculeAppend : public vtkMoleculeAlgorithm
 public:
   static vtkMoleculeAppend* New();
   vtkTypeMacro(vtkMoleculeAppend, vtkMoleculeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

@@ -60,6 +60,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2 : public vtkOpenGLPol
 public:
   static vtkCompositeMapperHelper2* New();
   vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapper);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetParent(vtkCompositePolyDataMapper2* p) { this->Parent = p; }
 

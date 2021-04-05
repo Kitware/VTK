@@ -49,6 +49,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredData : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStructuredData, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

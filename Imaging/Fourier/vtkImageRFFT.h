@@ -43,6 +43,7 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 public:
   static vtkImageRFFT* New();
   vtkTypeMacro(vtkImageRFFT, vtkImageFourierFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageRFFT() = default;

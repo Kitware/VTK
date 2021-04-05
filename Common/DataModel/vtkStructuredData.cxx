@@ -21,6 +21,12 @@
 #include <algorithm>
 #include <cassert>
 
+//------------------------------------------------------------------------------
+void vtkStructuredData::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
 {

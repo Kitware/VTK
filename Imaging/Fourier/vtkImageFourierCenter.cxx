@@ -25,6 +25,12 @@
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //------------------------------------------------------------------------------
+void vtkImageFourierCenter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // Construct an instance of vtkImageFourierCenter filter.
 vtkImageFourierCenter::vtkImageFourierCenter() = default;
 

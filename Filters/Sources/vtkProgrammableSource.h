@@ -55,6 +55,7 @@ class VTKFILTERSSOURCES_EXPORT vtkProgrammableSource : public vtkDataObjectAlgor
 public:
   static vtkProgrammableSource* New();
   vtkTypeMacro(vtkProgrammableSource, vtkDataObjectAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Signature definition for programmable method callbacks. Methods passed

@@ -30,6 +30,12 @@
 vtkStandardNewMacro(vtkQWidgetTexture);
 
 //------------------------------------------------------------------------------
+void vtkQWidgetTexture::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkQWidgetTexture::vtkQWidgetTexture()
 {
   this->Framebuffer = nullptr;

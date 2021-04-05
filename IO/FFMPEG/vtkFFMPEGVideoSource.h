@@ -69,6 +69,7 @@ class VTKIOFFMPEG_EXPORT vtkFFMPEGVideoSource : public vtkVideoSource
 public:
   static vtkFFMPEGVideoSource* New();
   vtkTypeMacro(vtkFFMPEGVideoSource, vtkVideoSource);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Standard VCR functionality: Record incoming video.

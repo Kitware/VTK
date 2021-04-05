@@ -80,7 +80,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
   };
 
 public:
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
   static vtkCellQuality* New();
 

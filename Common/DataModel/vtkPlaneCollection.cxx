@@ -17,6 +17,11 @@
 
 vtkStandardNewMacro(vtkPlaneCollection);
 
+void vtkPlaneCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 vtkPlane* vtkPlaneCollection::GetNextPlane(vtkCollectionSimpleIterator& cookie)
 {
   return static_cast<vtkPlane*>(this->GetNextItemAsObject(cookie));

@@ -35,6 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkOverrideInformationCollection : public vtkCollecti
 public:
   vtkTypeMacro(vtkOverrideInformationCollection, vtkCollection);
   static vtkOverrideInformationCollection* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a OverrideInformation to the list.

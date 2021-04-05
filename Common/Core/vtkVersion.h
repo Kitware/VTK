@@ -36,6 +36,7 @@ class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 public:
   static vtkVersion* New();
   vtkTypeMacro(vtkVersion, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the version of vtk this object is a part of.

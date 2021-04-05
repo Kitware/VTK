@@ -12,7 +12,7 @@ class VTKWRAPPABLE_EXPORT vtkWrappable : public vtkObject
 public:
   static vtkWrappable* New();
   vtkTypeMacro(vtkWrappable, vtkObject);
-  void PrintSelf(std::ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   std::string GetString() const;
 

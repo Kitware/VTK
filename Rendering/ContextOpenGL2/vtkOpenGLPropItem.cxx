@@ -27,6 +27,11 @@
 
 vtkStandardNewMacro(vtkOpenGLPropItem);
 
+void vtkOpenGLPropItem::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 vtkOpenGLPropItem::vtkOpenGLPropItem() = default;
 
 vtkOpenGLPropItem::~vtkOpenGLPropItem() = default;

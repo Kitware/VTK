@@ -49,7 +49,7 @@ class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkGeomet
 public:
   static vtkAdaptiveDataSetSurfaceFilter* New();
   vtkTypeMacro(vtkAdaptiveDataSetSurfaceFilter, vtkGeometryFilter);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

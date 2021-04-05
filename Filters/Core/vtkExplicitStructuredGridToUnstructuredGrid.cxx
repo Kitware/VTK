@@ -30,6 +30,12 @@
 vtkStandardNewMacro(vtkExplicitStructuredGridToUnstructuredGrid);
 
 //------------------------------------------------------------------------------
+void vtkExplicitStructuredGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {

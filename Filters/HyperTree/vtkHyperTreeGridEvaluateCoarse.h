@@ -103,7 +103,7 @@ public:
 
   static vtkHyperTreeGridEvaluateCoarse* New();
   vtkTypeMacro(vtkHyperTreeGridEvaluateCoarse, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

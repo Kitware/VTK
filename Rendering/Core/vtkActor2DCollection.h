@@ -45,6 +45,7 @@ public:
   static vtkActor2DCollection* New();
 
   vtkTypeMacro(vtkActor2DCollection, vtkPropCollection);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Sorts the vtkActor2DCollection by layer number.  Smaller layer

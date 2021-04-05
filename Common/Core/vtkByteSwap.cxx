@@ -22,6 +22,12 @@
 vtkStandardNewMacro(vtkByteSwap);
 
 //------------------------------------------------------------------------------
+void vtkByteSwap::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkByteSwap::vtkByteSwap() = default;
 
 //------------------------------------------------------------------------------

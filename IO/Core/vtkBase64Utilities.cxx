@@ -20,6 +20,12 @@
 vtkStandardNewMacro(vtkBase64Utilities);
 
 //------------------------------------------------------------------------------
+void vtkBase64Utilities::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 static const unsigned char vtkBase64UtilitiesEncodeTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                                                "abcdefghijklmnopqrstuvwxyz"
                                                                "0123456789+/";

@@ -28,6 +28,16 @@
 vtkStandardNewMacro(vtkOpenGLMoleculeMapper);
 
 //------------------------------------------------------------------------------
+void vtkOpenGLMoleculeMapper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FastAtomMapper:\n";
+  this->FastAtomMapper->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "FastBondMapper:\n";
+  this->FastBondMapper->PrintSelf(os, indent.GetNextIndent());
+}
+
+//------------------------------------------------------------------------------
 vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
 {
   // Setup glyph mappers

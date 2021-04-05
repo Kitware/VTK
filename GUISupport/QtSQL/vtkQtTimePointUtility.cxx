@@ -22,6 +22,11 @@
 
 #include "vtkObjectFactory.h"
 
+void vtkQtTimePointUtility::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 QDateTime vtkQtTimePointUtility::TimePointToQDateTime(vtkTypeUInt64 time)
 {
   int julianDay = time / 86400000;

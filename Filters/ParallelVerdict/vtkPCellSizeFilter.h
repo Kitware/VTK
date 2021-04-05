@@ -46,6 +46,7 @@ class VTKFILTERSPARALLELVERDICT_EXPORT vtkPCellSizeFilter : public vtkCellSizeFi
 public:
   vtkTypeMacro(vtkPCellSizeFilter, vtkCellSizeFilter);
   static vtkPCellSizeFilter* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPCellSizeFilter();

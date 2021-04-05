@@ -119,6 +119,19 @@ public:
 vtkStandardNewMacro(vtkFFMPEGVideoSource);
 
 //------------------------------------------------------------------------------
+void vtkFFMPEGVideoSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "DecodingThreads: " << this->DecodingThreads << endl;
+  os << indent << "DrainAudioThreadId: " << this->DrainAudioThreadId << endl;
+  os << indent << "DrainThreadId: " << this->DrainThreadId << endl;
+  os << indent << "EndOfFile: " << this->EndOfFile << endl;
+  os << indent << "FeedThreadId: " << this->FeedThreadId << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(null)") << endl;
+  os << indent << "Stereo3D: " << this->Stereo3D << endl;
+}
+
+//------------------------------------------------------------------------------
 vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   : AudioCallback(nullptr)
   , AudioCallbackClientData(nullptr)

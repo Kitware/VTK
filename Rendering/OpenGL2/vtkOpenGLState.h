@@ -83,6 +83,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState : public vtkObject
 public:
   static vtkOpenGLState* New();
   vtkTypeMacro(vtkOpenGLState, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   // cached OpenGL methods. By calling these the context will check

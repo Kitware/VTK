@@ -44,6 +44,7 @@ class VTKCOMMONCORE_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
 {
 public:
   vtkTypeMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkXMLFileOutputWindow* New();
 

@@ -37,6 +37,7 @@ class VTKIOAMR_EXPORT vtkAMRVelodyneReader : public vtkAMRBaseReader
 public:
   static vtkAMRVelodyneReader* New();
   vtkTypeMacro(vtkAMRVelodyneReader, vtkAMRBaseReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   int GetNumberOfBlocks() override;
   int GetNumberOfLevels() override;
@@ -90,8 +91,6 @@ protected:
    * See vtkAMRBaseReader::SetUpDataArraySelections
    */
   void SetUpDataArraySelections() override;
-
-  void PrintSelf(std::ostream& os, vtkIndent indent) override;
 
   bool IsReady;
 

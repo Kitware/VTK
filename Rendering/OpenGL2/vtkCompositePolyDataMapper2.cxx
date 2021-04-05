@@ -63,6 +63,14 @@ typedef std::map<const std::string, vtkCompositeMapperHelper2*>::iterator helpIt
 
 vtkStandardNewMacro(vtkCompositeMapperHelper2);
 
+void vtkCompositeMapperHelper2::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Marked: " << this->Marked << endl;
+  os << indent << "Primary ID Used: " << this->PrimIDUsed << endl;
+  os << indent << "Override Color Used: " << this->OverideColorUsed << endl;
+}
+
 vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
 {
   for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)

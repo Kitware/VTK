@@ -23,6 +23,11 @@
 
 vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
+void vtkLinearSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts, vtkPointData* outputPD)
 {

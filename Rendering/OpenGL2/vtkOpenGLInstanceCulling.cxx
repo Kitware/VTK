@@ -35,6 +35,12 @@
 
 vtkStandardNewMacro(vtkOpenGLInstanceCulling);
 
+void vtkOpenGLInstanceCulling::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "ColorLOD: " << this->ColorLOD << endl;
+}
+
 //------------------------------------------------------------------------------
 vtkOpenGLInstanceCulling::~vtkOpenGLInstanceCulling()
 {

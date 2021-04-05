@@ -55,6 +55,7 @@ public:
   static vtkTubeBender* New();
   // Generating VTK hierarchical class relationship
   vtkTypeMacro(vtkTubeBender, vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -77,7 +78,6 @@ private:
 protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 };
 
 #endif // vtkTubeBender_h
