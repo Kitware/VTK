@@ -28,10 +28,6 @@
 #ifndef vtkQtSQLQuery_h
 #define vtkQtSQLQuery_h
 
-// Check for Qt SQL module before defining this class.
-#include <qglobal.h> // Needed to check if SQL is available
-#if (QT_EDITION & QT_MODULE_SQL)
-
 #include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
 
@@ -104,5 +100,4 @@ private:
   void operator=(const vtkQtSQLQuery&) = delete;
 };
 
-#endif // (QT_EDITION & QT_MODULE_SQL)
 #endif // vtkQtSQLQuery_h

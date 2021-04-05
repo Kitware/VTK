@@ -18,10 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Check for Qt SQL module before defining this class.
-#include <qglobal.h>
-#if (QT_EDITION & QT_MODULE_SQL)
-
 #include "vtkQtSQLDatabase.h"
 
 #include "vtkObjectFactory.h"
@@ -332,5 +328,3 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += this->GetDatabaseName();
   return url;
 }
-
-#endif // (QT_EDITION & QT_MODULE_SQL)

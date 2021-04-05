@@ -28,10 +28,6 @@
 #ifndef vtkQtSQLDatabase_h
 #define vtkQtSQLDatabase_h
 
-// Check for Qt SQL module before defining this class.
-#include <qglobal.h> // Needed to check if SQL is available
-#if (QT_EDITION & QT_MODULE_SQL)
-
 #include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
@@ -207,6 +203,5 @@ private:
   void operator=(const vtkQtSQLDatabase&) = delete;
 };
 
-#endif // (QT_EDITION & QT_MODULE_SQL)
 #endif // vtkQtSQLDatabase_h
 // VTK-HeaderTest-Exclude: vtkQtSQLDatabase.h
