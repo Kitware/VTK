@@ -18,6 +18,7 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
 class vtkOpenGLRenderWindow;
@@ -32,7 +33,8 @@ class vtkOpenGLRenderWindow;
  *
  * \sa vtkVolumeProperty::SetLabelGradientOpacity
  */
-class vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D, vtkOpenGLVolumeLookupTable);

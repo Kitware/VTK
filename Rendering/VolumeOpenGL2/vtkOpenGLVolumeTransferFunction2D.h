@@ -19,6 +19,7 @@
 
 #include "vtkImageResize.h" // for vtkImageResize
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 #include "vtkNew.h" // for vtkNew
 
@@ -35,7 +36,8 @@ class vtkOpenGLRenderWindow;
  *
  * \sa vtkVolumeProperty::SetTransferFunction2D
  */
-class vtkOpenGLVolumeTransferFunction2D : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeTransferFunction2D
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTransferFunction2D, vtkOpenGLVolumeLookupTable);
