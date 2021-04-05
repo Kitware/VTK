@@ -1442,6 +1442,8 @@ void vtkOpenGLState::Reset()
 
   ::glGetIntegerv(GL_CURRENT_PROGRAM, &cs.BoundProgram);
   ::glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &cs.BoundVAO);
+  ::glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &cs.BoundArrayBuffer);
+  ::glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &cs.BoundElementArrayBuffer);
   vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Resetting OpenGL State");
 }
 
@@ -1529,6 +1531,8 @@ void vtkOpenGLState::Pop()
   ::glActiveTexture(cs.ActiveTexture);
 
   ::glBindVertexArray(cs.BoundVAO);
+  ::glBindBuffer(GL_ARRAY_BUFFER, cs.BoundArrayBuffer);
+  ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cs.BoundElementArrayBuffer);
   vtkOpenGLRenderUtilities::MarkDebugEvent("Finished Popping OpenGL State");
 }
 

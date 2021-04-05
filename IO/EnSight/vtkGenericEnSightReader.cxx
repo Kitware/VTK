@@ -680,6 +680,16 @@ int vtkGenericEnSightReader::ReadBinaryLine(char result[80])
 }
 
 //------------------------------------------------------------------------------
+// Determines whether a non-comment line should be skipped.
+// Currently skips:
+//  'maximum time steps:'
+//
+bool vtkGenericEnSightReader::SkipDataLine(char line[256])
+{
+  return (strncmp(line, "maximum time steps:", 19) == 0);
+}
+
+//------------------------------------------------------------------------------
 // Internal function that skips blank lines and comment lines
 // and reads the next line it finds (up to 256 characters).
 // Returns 0 is there was an error.
@@ -691,7 +701,7 @@ int vtkGenericEnSightReader::ReadNextDataLine(char result[256])
   while (isComment && value)
   {
     value = this->ReadLine(result);
-    if (*result && result[0] != '#')
+    if (*result && result[0] != '#' && !this->SkipDataLine(result))
     {
       size_t len = strlen(result);
       unsigned int i = 0;
