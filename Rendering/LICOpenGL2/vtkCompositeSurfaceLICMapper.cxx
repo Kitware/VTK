@@ -53,7 +53,7 @@
 
 #include "vtkSurfaceLICInterface.h"
 
-#include "vtkCompositePolyDataMapper2Internal.h"
+#include "vtkCompositeMapperHelper2.h"
 
 typedef std::map<vtkPolyData*, vtkCompositeMapperHelperData*>::iterator dataIter;
 

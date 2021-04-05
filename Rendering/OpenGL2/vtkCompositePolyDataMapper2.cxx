@@ -56,7 +56,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "vtkCompositePolyDataMapper2Internal.h"
+#include "vtkCompositeMapperHelper2.h"
 
 typedef std::map<vtkPolyData*, vtkCompositeMapperHelperData*>::iterator dataIter;
 typedef std::map<const std::string, vtkCompositeMapperHelper2*>::iterator helpIter;
