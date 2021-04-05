@@ -99,7 +99,6 @@ void QQuickVTKRenderWindow::paint()
 
     // Since the context is being setup, call OpenGLInitContext
     this->m_renderWindow->SetForceMaximumHardwareLineWidth(1);
-    this->m_renderWindow->SetReadyForRendering(true);
     this->m_renderWindow->SetOwnContext(0);
     this->m_renderWindow->OpenGLInitContext();
 
@@ -112,6 +111,7 @@ void QQuickVTKRenderWindow::paint()
   // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
   ostate->vtkglDepthFunc(GL_LEQUAL);
 
+  this->m_renderWindow->SetReadyForRendering(true);
   if (iren)
   {
     iren->Render();
@@ -129,6 +129,8 @@ void QQuickVTKRenderWindow::paint()
     this->m_screenshotFilter->Update();
     this->m_screenshotScheduled = false;
   }
+  this->m_renderWindow->SetReadyForRendering(false);
+
   ostate->Pop();
 }
 
@@ -188,6 +190,8 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
     // now set the default style
     vtkNew<vtkInteractorStyleTrackballCamera> style;
     iren->SetInteractorStyle(style);
+
+    this->m_renderWindow->SetReadyForRendering(false);
   }
 }
 
