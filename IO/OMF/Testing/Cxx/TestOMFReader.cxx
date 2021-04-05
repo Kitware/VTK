@@ -19,6 +19,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
@@ -54,6 +55,10 @@ int TestOMFReader(int argc, char* argv[])
 
   reader->UpdateInformation();
   assert(reader->GetNumberOfDataElementArrays() == 9);
+
+  // OMF Reader defaults to data elements being disabled
+  auto selection = reader->GetDataElementArraySelection();
+  selection->EnableAllArrays();
 
   reader->Update();
   vtkSmartPointer<vtkPartitionedDataSetCollection> output =

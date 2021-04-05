@@ -33,6 +33,7 @@ struct vtkOMFReader::ReaderImpl
 {
   omf::OMFProject Project;
   vtkNew<vtkDataArraySelection> DataElementSelection;
+  bool FileParsed = false;
 };
 
 //------------------------------------------------------------------------------
@@ -110,10 +111,14 @@ int vtkOMFReader::RequestDataObject(
 //------------------------------------------------------------------------------
 int vtkOMFReader::RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
 {
-  if (!this->Impl->Project.CanParseFile(this->FileName, this->Impl->DataElementSelection))
+  if (!this->Impl->FileParsed)
   {
-    vtkErrorMacro(<< "Can't read file " << this->FileName << " with vtkOMFReader");
-    return VTK_ERROR;
+    if (!this->Impl->Project.CanParseFile(this->FileName, this->Impl->DataElementSelection))
+    {
+      vtkErrorMacro(<< "Can't read file " << this->FileName << " with vtkOMFReader");
+      return VTK_ERROR;
+    }
+    this->Impl->FileParsed = true;
   }
   if (!this->Impl->DataElementSelection->GetNumberOfArrays())
   {

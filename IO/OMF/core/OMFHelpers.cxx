@@ -31,6 +31,7 @@ void PrintMemberNames(const Json::Value& root)
   vtkLogStartScope(INFO, "print-member-names");
   if (!root.isObject())
   {
+    vtkLogEndScope("print-member-names");
     return;
   }
   auto members = root.getMemberNames();

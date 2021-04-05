@@ -35,6 +35,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToPlane.h"
@@ -107,6 +108,26 @@ bool setPoints(std::shared_ptr<OMFFile>& file, const Json::Value& geometry,
   return true;
 }
 
+bool setFieldDataArray(vtkAbstractArray* array, vtkPartitionedDataSet* output,
+  const std::string& location, const std::string& name)
+{
+  if (location == "vertices")
+  {
+    output->GetPartition(0)->GetPointData()->AddArray(array);
+    return true;
+  }
+  else if (location == "cells" || location == "faces" || location == "segments")
+  {
+    output->GetPartition(0)->GetCellData()->AddArray(array);
+    return true;
+  }
+  else
+  {
+    vtkGenericWarningMacro(<< "location " << location << " is not valid for field " << name);
+    return false;
+  }
+}
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -157,17 +178,45 @@ void ProjectElement::ProcessDataFields(
 
       auto dataArray = file->ReadArrayFromStream(arrayUID);
       dataArray->SetName(name.c_str());
-      if (location == "vertices")
+
+      auto dataArrayCasted = vtkTypeInt64Array::SafeDownCast(dataArray);
+      if (!data["legends"].isNull() && dataArrayCasted)
       {
-        output->GetPartition(0)->GetPointData()->AddArray(dataArray);
-      }
-      else if (location == "cells" || location == "faces" || location == "segments")
-      {
-        output->GetPartition(0)->GetCellData()->AddArray(dataArray);
+        // if there's a string array in the legend data, we need to
+        // create an array using that data
+        for (Json::Value::ArrayIndex l = 0; l < data["legends"].size(); ++l)
+        {
+          std::string legUID;
+          helper::GetStringValue(data["legends"][l], legUID);
+          const auto& legend = file->JSONRoot()[legUID];
+          std::string valuesUID;
+          helper::GetStringValue(legend["values"], valuesUID);
+          const auto& values = file->JSONRoot()[valuesUID];
+          if (values["__class__"] == "StringArray")
+          {
+            auto stringArray = file->ReadStringArrayFromStream(valuesUID);
+            vtkNew<vtkStringArray> stringData;
+            stringData->SetName(name.c_str());
+            stringData->Resize(dataArrayCasted->GetNumberOfValues());
+            for (int idx = 0; idx < dataArrayCasted->GetNumberOfValues(); ++idx)
+            {
+              auto val = dataArrayCasted->GetValue(idx);
+              if (0 <= val && val < static_cast<int>(stringArray.size()))
+              {
+                stringData->InsertNextValue(stringArray[val]);
+              }
+              else
+              {
+                stringData->InsertNextValue(std::to_string(val));
+              }
+            }
+            setFieldDataArray(stringData, output, location, name);
+          }
+        }
       }
       else
       {
-        vtkGenericWarningMacro(<< "location " << location << " is not valid for field " << name);
+        setFieldDataArray(dataArray, output, location, name);
       }
     }
   }

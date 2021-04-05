@@ -367,4 +367,29 @@ vtkSmartPointer<vtkImageData> OMFFile::ReadPNGFromStream(const Json::Value& json
   return data;
 }
 
+std::vector<std::string> OMFFile::ReadStringArrayFromStream(const std::string& uid)
+{
+  // strings are stored directly in json so no need to worry about decompression or anything
+  const auto& json = this->Impl->JSONRoot[uid];
+  std::vector<std::string> retVal;
+  if (json.isNull() || !json.isObject() || !json.isMember("array") || !json.isMember("__class__") ||
+    json["__class__"] != "StringArray")
+  {
+    return retVal;
+  }
+
+  const auto& arrayJSON = json["array"];
+  if (!arrayJSON.isArray())
+  {
+    return retVal;
+  }
+  retVal.resize(arrayJSON.size());
+  for (Json::Value::ArrayIndex i = 0, vecIdx = 0; i < arrayJSON.size(); ++i, ++vecIdx)
+  {
+    const auto& element = arrayJSON[i];
+    helper::GetStringValue(element, retVal[vecIdx]);
+  }
+  return retVal;
+}
+
 } // end namespace omf
