@@ -436,8 +436,6 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
   const int size = static_cast<int>(inputs.size());
-  int maxSize;
-  controller->AllReduce(&size, &maxSize, 1, vtkCommunicator::MAX_OP);
 
   if (size != static_cast<int>(outputs.size()))
   {
