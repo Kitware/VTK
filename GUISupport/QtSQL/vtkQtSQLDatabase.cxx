@@ -61,7 +61,7 @@ vtkQtSQLDatabase::vtkQtSQLDatabase()
   this->HostName = nullptr;
   this->UserName = nullptr;
   this->DatabaseName = nullptr;
-  this->Port = -1;
+  this->DbPort = -1;
   this->ConnectOptions = nullptr;
   this->myTables = vtkStringArray::New();
   this->currentRecord = vtkStringArray::New();
@@ -110,9 +110,9 @@ bool vtkQtSQLDatabase::Open(const char* password)
   {
     this->QtDatabase.setConnectOptions(this->ConnectOptions);
   }
-  if (this->Port >= 0)
+  if (this->DbPort >= 0)
   {
-    this->QtDatabase.setPort(this->Port);
+    this->QtDatabase.setPort(this->DbPort);
   }
   if (this->QtDatabase.open(this->UserName, password))
   {
@@ -251,7 +251,7 @@ void vtkQtSQLDatabase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HostName: " << (this->HostName ? this->HostName : "nullptr") << endl;
   os << indent << "UserName: " << (this->UserName ? this->UserName : "nullptr") << endl;
   os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "nullptr") << endl;
-  os << indent << "Port: " << this->Port << endl;
+  os << indent << "DbPort: " << this->DbPort << endl;
   os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "nullptr")
      << endl;
 }
@@ -296,7 +296,7 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
   this->SetDatabaseType(qtType.toLatin1());
   this->SetUserName(username.c_str());
   this->SetHostName(hostname.c_str());
-  this->SetPort(atoi(dataport.c_str()));
+  this->SetDbPort(atoi(dataport.c_str()));
   this->SetDatabaseName(database.c_str());
   return true;
 }
@@ -323,7 +323,7 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += this->GetPort();
+  url += this->GetDbPort();
   url += "/";
   url += this->GetDatabaseName();
   return url;
