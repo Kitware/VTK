@@ -15,6 +15,7 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkActor.h"
+#include "vtkIOImportModule.h" // For export macro
 #include "vtkOBJImporter.h"
 #include "vtkPolyDataAlgorithm.h"
 #include <map>
