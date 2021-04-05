@@ -438,11 +438,6 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   const int size = static_cast<int>(inputs.size());
   int maxSize;
   controller->AllReduce(&size, &maxSize, 1, vtkCommunicator::MAX_OP);
-  if (!maxSize)
-  {
-    // Nothing to communicate over
-    return 1;
-  }
 
   if (size != static_cast<int>(outputs.size()))
   {
@@ -474,9 +469,17 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkDIYExplicitAssigner assigner(comm, size);
   vtkLogEndScope("Instantiating assigner");
 
+  if (!size)
+  {
+    // In such instance, we can just terminate. We are empty an finished communicating with other
+    // ranks.
+    vtkLogEndScope(logMessage.c_str());
+    return 1;
+  }
+
   vtkLogStartScope(TRACE, "Decomposing master");
   diy::RegularDecomposer<diy::DiscreteBounds> decomposer(
-    /*dim*/ 1, diy::interval(0, comm.size() - 1), comm.size());
+    /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
   decomposer.decompose(comm.rank(), assigner, master);
   vtkLogEndScope("Decomposing master");
 
@@ -500,14 +503,6 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogStartScope(TRACE, "Exchanging ghost data between blocks");
   vtkDIYGhostUtilities::ExchangeGhosts(master, inputs);
   vtkLogEndScope("Exchanging ghost data between blocks");
-
-  if (!size)
-  {
-    // In such instance, we can just terminate. We are empty an finished communicating with other
-    // block.
-    vtkLogEndScope(logMessage.c_str());
-    return 1;
-  }
 
   vtkLogStartScope(TRACE, "Initializing ghost arrays in outputs");
   vtkDIYGhostUtilities::InitializeGhostArrays(master, outputs);
