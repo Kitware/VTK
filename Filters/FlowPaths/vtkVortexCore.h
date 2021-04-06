@@ -45,8 +45,10 @@
  *
  * is computed. The Q-criterion and delta-criterion are used to prefilter cells
  * prior to the execution of the parallel lines algorithm, and all criteria
- * values are stored as point values on the output
- * polylines.
+ * values are stored as point values on the output polylines.
+ *
+ * The FasterApproximation option uses a faster approximate gradient calculation
+ * to accelerate the vortex core calculation.
  *
  * @sa
  * vtkParallelVectors
@@ -75,6 +77,17 @@ public:
   vtkBooleanMacro(HigherOrderMethod, vtkTypeBool);
   //@}
 
+  //@{
+  /**
+   * When this flag is on (default is off), the gradient filter will provide a
+   * less accurate (but close) algorithm that performs fewer derivative
+   * calculations (and is therefore faster).
+   */
+  vtkGetMacro(FasterApproximation, bool);
+  vtkSetMacro(FasterApproximation, bool);
+  vtkBooleanMacro(FasterApproximation, bool);
+  //@}
+
 protected:
   vtkVortexCore();
   ~vtkVortexCore() override;
@@ -83,6 +96,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
   vtkTypeBool HigherOrderMethod;
+
+  bool FasterApproximation = false;
 
 private:
   vtkVortexCore(const vtkVortexCore&) = delete;
