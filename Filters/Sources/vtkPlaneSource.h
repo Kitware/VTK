@@ -156,6 +156,13 @@ public:
    */
   void Push(double distance);
 
+  /**
+   * Rotate plane at center around a given axis
+   * If the absolute value of the angle is inferior to the defined EPSILON, then don't
+   * rotate
+   */
+  void Rotate(double angle, double rotationAxis[3]);
+
   //@{
   /**
    * Set/get the desired precision for the output points.

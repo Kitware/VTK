@@ -324,6 +324,7 @@ void vtkResliceCursorLineRepresentation ::RotateAxis(int axis, double angle)
 {
   vtkResliceCursor* rc = this->GetResliceCursor();
   vtkPlane* planeToBeRotated = rc->GetPlane(axis);
+  double* viewUp = rc->GetViewUp(axis);
 
   const int rcPlaneIdx = this->ResliceCursorActor->GetCursorAlgorithm()->GetReslicePlaneNormal();
 
@@ -334,6 +335,7 @@ void vtkResliceCursorLineRepresentation ::RotateAxis(int axis, double angle)
   normalPlane->GetNormal(aboutAxis);
 
   this->RotateVectorAboutVector(vectorToBeRotated, aboutAxis, angle, rotatedVector);
+  this->RotateVectorAboutVector(viewUp, aboutAxis, angle, viewUp);
   planeToBeRotated->SetNormal(rotatedVector);
 }
 

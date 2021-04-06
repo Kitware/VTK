@@ -44,6 +44,18 @@ vtkResliceCursor::vtkResliceCursor()
   this->ZAxis[1] = 0.0;
   this->ZAxis[2] = 1.0;
 
+  this->XViewUp[0] = 0.0;
+  this->XViewUp[1] = 0.0;
+  this->XViewUp[2] = 1.0;
+
+  this->YViewUp[0] = 0.0;
+  this->YViewUp[1] = 0.0;
+  this->YViewUp[2] = 1.0;
+
+  this->ZViewUp[0] = 0.0;
+  this->ZViewUp[1] = -1.0;
+  this->ZViewUp[2] = 0.0;
+
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
@@ -173,6 +185,18 @@ void vtkResliceCursor::Reset()
   this->ZAxis[0] = 0.0;
   this->ZAxis[1] = 0.0;
   this->ZAxis[2] = 1.0;
+
+  this->XViewUp[0] = 0.0;
+  this->XViewUp[1] = 0.0;
+  this->XViewUp[2] = 1.0;
+
+  this->YViewUp[0] = 0.0;
+  this->YViewUp[1] = 0.0;
+  this->YViewUp[2] = 1.0;
+
+  this->ZViewUp[0] = 0.0;
+  this->ZViewUp[1] = -1.0;
+  this->ZViewUp[2] = 0.0;
 
   if (this->GetImage())
   {
@@ -513,6 +537,23 @@ double* vtkResliceCursor::GetAxis(int i)
 }
 
 //------------------------------------------------------------------------------
+double* vtkResliceCursor::GetViewUp(int i)
+{
+  if (i == 0)
+  {
+    return this->XViewUp;
+  }
+  else if (i == 1)
+  {
+    return this->YViewUp;
+  }
+  else
+  {
+    return this->ZViewUp;
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkResliceCursor::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -564,6 +605,12 @@ void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XAxis: (" << this->XAxis[0] << "," << this->XAxis[1] << this->XAxis[2] << endl;
   os << indent << "YAxis: (" << this->YAxis[0] << "," << this->YAxis[1] << this->YAxis[2] << endl;
   os << indent << "ZAxis: (" << this->ZAxis[0] << "," << this->ZAxis[1] << this->ZAxis[2] << endl;
+  os << indent << "XViewUp: (" << this->XViewUp[0] << "," << this->XViewUp[1] << this->XViewUp[2]
+     << endl;
+  os << indent << "YViewUp: (" << this->YViewUp[0] << "," << this->YViewUp[1] << this->YViewUp[2]
+     << endl;
+  os << indent << "ZViewUp: (" << this->ZViewUp[0] << "," << this->ZViewUp[1] << this->ZViewUp[2]
+     << endl;
   os << indent << "Center: (" << this->Center[0] << "," << this->Center[1] << this->Center[2]
      << endl;
   os << indent << "Image: " << this->Image << "\n";

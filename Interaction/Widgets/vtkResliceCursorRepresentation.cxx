@@ -269,18 +269,21 @@ void vtkResliceCursorRepresentation::ResetCamera()
 
   if (this->Renderer)
   {
-    double center[3], camPos[3], n[3];
+    const int planeOrientation = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+    double* normal = this->GetResliceCursor()->GetPlane(planeOrientation)->GetNormal();
+    double* viewUp = this->GetResliceCursor()->GetViewUp(planeOrientation);
+
+    double center[3], focalPoint[3], cameraPosition[3];
     this->GetResliceCursor()->GetCenter(center);
-    this->Renderer->GetActiveCamera()->SetFocalPoint(center);
+    this->Renderer->GetActiveCamera()->GetFocalPoint(focalPoint);
+    this->Renderer->GetActiveCamera()->GetPosition(cameraPosition);
 
-    const int normalAxis = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
-    this->GetResliceCursor()->GetPlane(normalAxis)->GetNormal(n);
-    vtkMath::Add(center, n, camPos);
-    this->Renderer->GetActiveCamera()->SetPosition(camPos);
+    double distance = sqrt(vtkMath::Distance2BetweenPoints(cameraPosition, focalPoint));
 
-    // Reset the camera in response to changes.
-    this->Renderer->ResetCamera();
-    this->Renderer->ResetCameraClippingRange();
+    double newCameraPosition[3] = { focalPoint[0] + normal[0] * distance,
+      focalPoint[1] + normal[1] * distance, focalPoint[2] + normal[2] * distance };
+    this->Renderer->GetActiveCamera()->SetPosition(newCameraPosition);
+    this->Renderer->GetActiveCamera()->SetViewUp(viewUp);
   }
 }
 
@@ -424,8 +427,11 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
 
   this->ComputeReslicePlaneOrigin();
 
-  this->PlaneSource->SetNormal(planeNormal);
-  this->PlaneSource->SetCenter(plane->GetOrigin());
+  double* viewUp = this->GetResliceCursor()->GetViewUp(planeOrientation);
+  double center[3];
+  this->GetResliceCursor()->GetCenter(center);
+
+  vtkResliceCursorRepresentation::TransformPlane(this->PlaneSource, center, planeNormal, viewUp);
 
   // Clip to bounds
   double* imageBounds = this->GetResliceCursor()->GetImage()->GetBounds();
@@ -553,6 +559,7 @@ void vtkResliceCursorRepresentation::UpdateReslicePlane()
   }
 
   this->SetResliceParameters(outputSpacingX, outputSpacingY, extentX, extentY);
+  this->ResetCamera();
 }
 
 //------------------------------------------------------------------------------
@@ -742,19 +749,19 @@ int vtkResliceCursorRepresentation::BoundPlane(
 {
   double v1[3];
   vtkMath::Subtract(p1, origin, v1);
+  vtkMath::Normalize(v1);
 
   double v2[3];
   vtkMath::Subtract(p2, origin, v2);
+  vtkMath::Normalize(v2);
 
   double n[3] = { 0, 0, 1 };
   vtkMath::Cross(v1, v2, n);
+  vtkMath::Normalize(n);
 
   vtkNew<vtkPlane> plane;
   plane->SetOrigin(origin);
   plane->SetNormal(n);
-  vtkMath::Normalize(v1);
-  vtkMath::Normalize(v2);
-  vtkMath::Normalize(n);
 
   vtkNew<vtkCubeSource> cubeSource;
   cubeSource->SetBounds(bounds);
@@ -780,6 +787,18 @@ int vtkResliceCursorRepresentation::BoundPlane(
     p2[i] = localBounds[0] * v1[i] + localBounds[3] * v2[i] + localBounds[4] * n[i];
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::TransformPlane(vtkPlaneSource* planeToTransform,
+  double targetCenter[3], double targetNormal[3], double targetViewUp[3])
+{
+  planeToTransform->SetNormal(targetNormal);
+  double currentViewUp[3];
+  vtkMath::Subtract(planeToTransform->GetPoint2(), planeToTransform->GetOrigin(), currentViewUp);
+  double angle = vtkMath::SignedAngleBetweenVectors(currentViewUp, targetViewUp, targetNormal);
+  planeToTransform->Rotate(vtkMath::DegreesFromRadians(angle), targetNormal);
+  planeToTransform->SetCenter(targetCenter);
 }
 
 //----------------------------------------------------------------------------

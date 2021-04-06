@@ -3060,6 +3060,16 @@ double vtkMath::AngleBetweenVectors(const double v1[3], const double v2[3])
 }
 
 //------------------------------------------------------------------------------
+double vtkMath::SignedAngleBetweenVectors(
+  const double v1[3], const double v2[3], const double vn[3])
+{
+  double cross[3];
+  vtkMath::Cross(v1, v2, cross);
+  double angle = atan2(vtkMath::Norm(cross), vtkMath::Dot(v1, v2));
+  return vtkMath::Dot(cross, vn) >= 0 ? angle : -angle;
+}
+
+//------------------------------------------------------------------------------
 double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
 {
   return 1. / (std::sqrt(2. * vtkMath::Pi() * variance)) *
