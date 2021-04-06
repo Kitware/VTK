@@ -3752,7 +3752,7 @@ function (_vtk_module_add_header_tests)
   # public headers have their includes satisfied by a public dependency.
 
   # Bad...
-  if (NOT "Python${VTK_PYTHON_VERSION}_EXECUTABLE")
+  if (NOT Python${VTK_PYTHON_VERSION}_EXECUTABLE)
     return ()
   endif ()
 
