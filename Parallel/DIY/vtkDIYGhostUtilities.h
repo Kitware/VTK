@@ -65,8 +65,6 @@
 #include VTK_DIY2(diy/master.hpp)
 // clang-format on
 
-#include "vtkDataArray.h"
-
 class vtkDataArray;
 class vtkDataSet;
 class vtkFieldData;
@@ -472,7 +470,7 @@ public:
     InformationType Information;
 
     /**
-     * `GhostsT` holds buffers used to receive data sent by other blocks.
+     * `GhostsBuffersType` holds buffers used to receive data sent by other blocks.
      */
     BlockMapType<GhostBuffersType> GhostBuffers;
     //@}
