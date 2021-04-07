@@ -19,6 +19,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObject.h"
 
+#include <map>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -44,4 +45,22 @@ std::vector<DataSetT*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
   }
 
   return datasets;
+}
+
+//------------------------------------------------------------------------------
+template <class DummyT>
+void vtkDIYUtilities::Link(diy::Master& master, const diy::Assigner& assigner,
+  const std::vector<std::map<int, DummyT>>& linksMap)
+{
+  for (int localId = 0; localId < static_cast<int>(linksMap.size()); ++localId)
+  {
+    const auto& links = linksMap[localId];
+    auto l = new diy::Link();
+    for (const auto& pair : links)
+    {
+      int nid = pair.first;
+      l->add_neighbor(diy::BlockID(nid, assigner.rank(nid)));
+    }
+    master.replace_link(localId, l);
+  }
 }

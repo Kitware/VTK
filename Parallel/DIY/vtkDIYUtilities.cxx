@@ -309,6 +309,22 @@ vtkBoundingBox vtkDIYUtilities::GetLocalBounds(vtkDataObject* dobj)
 }
 
 //------------------------------------------------------------------------------
+void vtkDIYUtilities::Link(
+  diy::Master& master, const diy::Assigner& assigner, const std::vector<std::set<int>>& linksMap)
+{
+  for (int localId = 0; localId < static_cast<int>(linksMap.size()); ++localId)
+  {
+    const auto& links = linksMap[localId];
+    auto l = new diy::Link();
+    for (const auto& nid : links)
+    {
+      l->add_neighbor(diy::BlockID(nid, assigner.rank(nid)));
+    }
+    master.replace_link(localId, l);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkDIYUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
