@@ -583,7 +583,10 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint(
 //------------------------------------------------------------------------------
 vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint(const double x[3], double* miniDist2)
 {
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
 
   // init miniDist2 for early exit
   *miniDist2 = this->OctreeMaxDimSize * this->OctreeMaxDimSize * 4.0;
@@ -673,7 +676,10 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint(const double x[3], 
 vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointWithinRadius(
   double radius, const double x[3], double& dist2)
 {
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
   return this->FindClosestPointInSphereWithoutTolerance(x, radius * radius, nullptr, &dist2);
 }
 
@@ -681,7 +687,10 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointWithinRadius(
 vtkIdType vtkIncrementalOctreePointLocator::FindClosestPointWithinSquaredRadius(
   double radius2, const double x[3], double& dist2)
 {
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
   return this->FindClosestPointInSphereWithoutTolerance(x, radius2, nullptr, &dist2);
 }
 
@@ -777,7 +786,10 @@ void vtkIncrementalOctreePointLocator::FindPointsWithinSquaredRadius(
   double R2, const double x[3], vtkIdList* result)
 {
   result->Reset();
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
   this->FindPointsWithinSquaredRadius(this->OctreeRootNode, R2, x, result);
 }
 
@@ -786,7 +798,10 @@ void vtkIncrementalOctreePointLocator::FindPointsWithinRadius(
   double R, const double x[3], vtkIdList* result)
 {
   result->Reset();
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
   this->FindPointsWithinSquaredRadius(this->OctreeRootNode, R * R, x, result);
 }
 
@@ -795,7 +810,10 @@ void vtkIncrementalOctreePointLocator::FindClosestNPoints(
   int N, const double x[3], vtkIdList* result)
 {
   result->Reset();
-  this->BuildLocator();
+  if (this->DataSet)
+  {
+    this->BuildLocator();
+  }
 
   int totalPnts = this->OctreeRootNode->GetNumberOfPoints(); // possibly 0
 
