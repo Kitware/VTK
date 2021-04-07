@@ -174,8 +174,8 @@ int TestSMP(int, char*[])
 
   const auto transformRange0 = vtk::DataArrayValueRange<1>(transformArray0);
   auto transformRange1 = vtk::DataArrayValueRange<1>(transformArray1);
-  vtkSMPTools::Transform(transformRange0.cbegin(), transformRange0.cend(), transformRange1.begin(),
-    [](double x, double y) { return x * y; });
+  vtkSMPTools::Transform(transformRange0.cbegin(), transformRange0.cend(), transformRange1.cbegin(),
+    transformRange1.begin(), [](double x, double y) { return x * y; });
   auto it0 = transformRange0.begin();
   auto it1 = transformRange1.begin();
   for (vtkIdType i = 0; i < 11; ++i, it0++, it1++)
@@ -188,11 +188,11 @@ int TestSMP(int, char*[])
   }
 
   vtkSMPTools::Transform(transformData2.cbegin(), transformData2.cend(), transformData3.begin(),
-    [](double x, double y) { return x * y; });
+    [](double x) { return x - 1; });
   auto it2 = transformData2.begin();
   for (const auto& it3 : transformData3)
   {
-    if (it3 != *it2 * -1)
+    if (it3 != *it2 - 1)
     {
       cerr << "Error: Bad comparison transform!" << endl;
       return 1;

@@ -16,6 +16,8 @@
 #ifndef vtkSMPToolsInternalCommon_h
 #define vtkSMPToolsInternalCommon_h
 
+#include <iterator> // For std::advance
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef __VTK_WRAP__
 namespace vtk
@@ -26,14 +28,15 @@ namespace smp
 {
 
 template <typename InputIt, typename OutputIt, typename Functor>
-class TransformCall
+class UnaryTransformCall
 {
+protected:
   InputIt In;
   OutputIt Out;
   Functor& Transform;
 
 public:
-  TransformCall(InputIt _in, OutputIt _out, Functor& _transform)
+  UnaryTransformCall(InputIt _in, OutputIt _out, Functor& _transform)
     : In(_in)
     , Out(_out)
     , Transform(_transform)
@@ -48,8 +51,38 @@ public:
     std::advance(itOut, begin);
     for (vtkIdType it = begin; it < end; it++)
     {
-      *itOut = Transform(*itIn, *itOut);
+      *itOut = Transform(*itIn);
       ++itIn;
+      ++itOut;
+    }
+  }
+};
+
+template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
+class BinaryTransformCall : public UnaryTransformCall<InputIt1, OutputIt, Functor>
+{
+  InputIt2 In2;
+
+public:
+  BinaryTransformCall(InputIt1 _in1, InputIt2 _in2, OutputIt _out, Functor& _transform)
+    : UnaryTransformCall<InputIt1, OutputIt, Functor>(_in1, _out, _transform)
+    , In2(_in2)
+  {
+  }
+
+  void Execute(vtkIdType begin, vtkIdType end)
+  {
+    InputIt1 itIn1(this->In);
+    InputIt2 itIn2(In2);
+    OutputIt itOut(this->Out);
+    std::advance(itIn1, begin);
+    std::advance(itIn2, begin);
+    std::advance(itOut, begin);
+    for (vtkIdType it = begin; it < end; it++)
+    {
+      *itOut = this->Transform(*itIn1, *itIn2);
+      ++itIn1;
+      ++itIn2;
       ++itOut;
     }
   }
@@ -66,7 +99,7 @@ public:
   {
   }
 
-  T operator()(T vtkNotUsed(inValue), T vtkNotUsed(outValue)) { return Value; }
+  T operator()(T vtkNotUsed(inValue)) { return Value; }
 };
 
 } // namespace smp
