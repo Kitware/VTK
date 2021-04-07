@@ -60,6 +60,7 @@
 #define vtkIncrementalOctreeNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"
 #include "vtkObject.h"
 
 class vtkPoints;
@@ -166,6 +167,7 @@ public:
    */
   vtkTypeBool ContainsPointByData(const double pnt[3]);
 
+  //@{
   /**
    * This function is called after a successful point-insertion check and
    * only applies to a leaf node. Prior to a call to this function, the
@@ -179,12 +181,16 @@ public:
    * actual point index is returned via pntId. Note that this function always
    * returns 1 to indicate the success of point insertion.
    * numberOfNodes is the number of nodes present in the tree at this time.
-   * it is used to assign an index to each node which can be used to associate
+   * it is used to assign an ID to each node which can be used to associate
    * application specifc information with each node. It is updated if new nodes
    * are added to the tree.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use the version with numberOfNodes parameter instead.")
+  int InsertPoint(
+    vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode);
   int InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId,
     int ptMode, int& numberOfNodes);
+  //@}
 
   /**
    * Given a point inside this node, get the minimum squared distance to all
