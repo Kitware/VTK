@@ -151,7 +151,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
 }
 
 //----------------------------------------------------------------------------
-bool WriteMtl(std::ostream& f, const std::string& baseName, const char* textureFileName)
+bool WriteMtl(const std::string& baseName, const char* textureFileName)
 {
   std::string mtlFileName = baseName + ".mtl";
   vtksys::ofstream fmtl(mtlFileName.c_str(), vtksys::ofstream::out);
@@ -273,7 +273,7 @@ void vtkOBJWriter::WriteData()
   if (texture || this->TextureFileName)
   {
     std::string textureFileName = texture ? baseName + ".png" : this->TextureFileName;
-    if (!::WriteMtl(f, baseName, textureFileName.c_str()))
+    if (!::WriteMtl(baseName, textureFileName.c_str()))
     {
       vtkErrorMacro("Unable to create material file");
     }
@@ -326,10 +326,10 @@ void vtkOBJWriter::WriteData()
   }
   if (matNames)
   {
-    vtkIdType npts;
+    vtkIdType cellNpts;
     const vtkIdType* indx;
     polys->InitTraversal();
-    int validCell = polys->GetNextCell(npts, indx);
+    int validCell = polys->GetNextCell(cellNpts, indx);
     vtkIdType faceIndex = 0;
     vtkIntArray* materialIds =
       vtkIntArray::SafeDownCast(input->GetCellData()->GetArray("MaterialIds"));
@@ -348,7 +348,7 @@ void vtkOBJWriter::WriteData()
       while (materialIds->GetValue(faceIndex) == matIndex && validCell)
       {
         f << "f";
-        for (vtkIdType i = 0; i < npts; i++)
+        for (vtkIdType i = 0; i < cellNpts; i++)
         {
           f << " " << indx[i] + 1;
           if (tcoords)
@@ -360,7 +360,7 @@ void vtkOBJWriter::WriteData()
         }
         f << "\n";
         ++faceIndex;
-        validCell = polys->GetNextCell(npts, indx);
+        validCell = polys->GetNextCell(cellNpts, indx);
       }
     }
   }
