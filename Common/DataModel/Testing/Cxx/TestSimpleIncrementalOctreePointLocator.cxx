@@ -5,7 +5,7 @@
 
 #include <array>
 
-int TestSimpleIncrementalOctreePointLocator(int, char**)
+int TestSimpleIncrementalOctreePointLocator(int, char** const)
 {
   std::array<double, 6> bb = { 0, 1, 0, 1, 0, 1 };
   std::array<std::array<double, 3>, 18> pointsInput;
