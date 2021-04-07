@@ -25,7 +25,7 @@ int TestSimpleIncrementalOctreePointLocator(int, char** const)
     octree->InsertNextPoint(&point[0]);
   }
   // we expect the same number points
-  if (points->GetNumberOfPoints() != pointsInput.size())
+  if (static_cast<size_t>(points->GetNumberOfPoints()) != pointsInput.size())
   {
     std::cerr << "Wrong number of points: " << points->GetNumberOfPoints()
               << " expected: " << pointsInput.size() << std::endl;
