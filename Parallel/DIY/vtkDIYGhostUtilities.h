@@ -48,6 +48,7 @@
 #ifndef vtkDIYGhostUtilities_h
 #define vtkDIYGhostUtilities_h
 
+#include "vtkBoundingBox.h"         // For BlockStructureBase
 #include "vtkDIYExplicitAssigner.h" // For DIY assigner
 #include "vtkDIYUtilities.h"        // For Block
 #include "vtkObject.h"
@@ -556,10 +557,18 @@ protected:
     static void AddGhostArrays(BlockType* block, DataSetT* output);
   };
 
+  /**
+   * This method will set all ghosts points in `output` to zero. It will also
+   * allocate a new ghost array if none is already present.
+   */
   template <class DataSetT>
   static void InitializeGhostPointArray(
     typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType* block, DataSetT* output);
 
+  /**
+   * This method will set all ghosts cells in `output` to zero. It will also
+   * allocate a new ghost array if none is already present.
+   */
   template <class DataSetT>
   static void InitializeGhostCellArray(
     typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType* block, DataSetT* output);
@@ -577,6 +586,13 @@ protected:
   static void SetupBlockSelfInformation(
     diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
   //@}
+
+  /**
+   * This method exchanges the bounding boxes among blocks.
+   */
+  template <class DataSetT>
+  static std::vector<BlockMapType<vtkBoundingBox>> ExchangeBoundingBoxes(
+    diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs);
 
   //@{
   /**
@@ -641,28 +657,38 @@ protected:
    * has been set up. It exchanges between every information needed for the data set type `DataSetT`
    * in order to be able to set link connections.
    */
-  static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkImageData*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkRectilinearGrid*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
-    std::vector<vtkStructuredGrid*>& inputs);
+  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkImageData*>& inputs);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
+  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
   //@}
 
   //@{
   /**
-   * Method to be overloaded for each supported input data saet type,
+   * Method to be overloaded for each supported input data set type,
    * that computes the minimal link map being necessary to exchange ghosts.
    * This method is called after `master` has been relinked.
    */
-  static LinkMap ComputeLinkMapAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMapAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs,
-    int outputGhostLevels);
-  static LinkMap ComputeLinkMapAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs,
-    int outputGhostLevels);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkImageData*>& inputs,
+    std::vector<vtkImageData*>& outputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
+    std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
+    std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels);
+  //@}
+
+  //@{
+  /**
+   * Method to be overloaded for each supported input data set type,
+   * This method allocates ghosts in the output. At the point of calling this method,
+   * ghosts should have already been exchanged (see `ExchangeGhosts`).
+   */
+  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs);
+  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs);
+  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
   //@}
 
   /**

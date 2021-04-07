@@ -17,6 +17,7 @@
 
 #include "vtkDIYGhostUtilities.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
 #include "vtkDIYExplicitAssigner.h"
@@ -65,6 +66,70 @@ struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkStructuredGrid>
 {
   typedef StructuredGridBlock BlockType;
 };
+
+//----------------------------------------------------------------------------
+template <class DataSetT>
+std::vector<vtkDIYGhostUtilities::BlockMapType<vtkBoundingBox>>
+vtkDIYGhostUtilities::ExchangeBoundingBoxes(
+  diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
+
+  std::vector<vtkBoundingBox> localbbs(inputs.size());
+  std::vector<BlockMapType<vtkBoundingBox>> bbs(inputs.size());
+
+  diy::all_to_all(
+    master, assigner, [&master, &inputs, &bbs, &localbbs](BlockType*, const diy::ReduceProxy& srp) {
+      int myBlockId = srp.gid();
+      int localId = master.lid(myBlockId);
+      auto& input = inputs[localId];
+      if (srp.round() == 0)
+      {
+        const double* bounds = input->GetBounds();
+        localbbs[localId] = vtkBoundingBox(bounds);
+        for (int i = 0; i < srp.out_link().size(); ++i)
+        {
+          const diy::BlockID& blockId = srp.out_link().target(i);
+          if (blockId.gid != myBlockId)
+          {
+            srp.enqueue(blockId, bounds, 6);
+          }
+        }
+      }
+      else
+      {
+        double bounds[6];
+        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        {
+          const diy::BlockID& blockId = srp.in_link().target(i);
+          if (blockId.gid != myBlockId)
+          {
+            srp.dequeue(blockId, bounds, 6);
+            bbs[localId][blockId.gid] = vtkBoundingBox(bounds);
+          }
+        }
+      }
+    });
+
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    vtkBoundingBox& localbb = localbbs[localId];
+    BlockMapType<vtkBoundingBox>& bb = bbs[localId];
+    for (auto it = bb.begin(); it != bb.end();)
+    {
+      if (localbb.Intersects(it->second))
+      {
+        ++it;
+      }
+      else
+      {
+        it = bb.erase(it);
+      }
+    }
+  }
+
+  return bbs;
+}
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
@@ -481,26 +546,47 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   decomposer.decompose(comm.rank(), assigner, master);
   vtkLogEndScope("Decomposing master");
 
+  // At this step, we gather data from the inputs and store it inside the local blocks
+  // so we don't have to carry extra parameters later.
   vtkLogStartScope(TRACE, "Setup block self information.");
   vtkDIYGhostUtilities::SetupBlockSelfInformation(master, inputs);
   vtkLogEndScope("Setup block self information.");
 
+  // We compute a temporary link map that weeds out data sets that do not have
+  // overlapping bounding boxes.
+  vtkLogStartScope(TRACE, "Exchanging bounding boxes");
+  auto temporaryLinkMap = vtkDIYGhostUtilities::ExchangeBoundingBoxes(master, assigner, inputs);
+  vtkLogEndScope("Exchanging bounding boxes");
+
+  // We link our blocks using the temporary link map
+  vtkLogStartScope(TRACE, "Relinking blocks using temporary link map");
+  vtkDIYUtilities::Link(master, assigner, temporaryLinkMap);
+  vtkLogEndScope("Relinking blocks using temporary link map");
+
+  // Here, we exchange structural information between blocks that will be used to
+  // determine if blocks are actually adjacent or not.
   vtkLogStartScope(TRACE, "Exchanging block structures");
-  vtkDIYGhostUtilities::ExchangeBlockStructures(master, assigner, inputs);
+  vtkDIYGhostUtilities::ExchangeBlockStructures(master, inputs);
   vtkLogEndScope("Exchanging block structures");
 
+  // The structural information that has been exchanged is used to compute
+  // the final link map, mapping blocks that will actually exchange ghosts.
   vtkLogStartScope(TRACE, "Creating link map between connected blocks");
-  LinkMap linkMap = vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
-    master, inputs, outputs, outputGhostLevels);
+  LinkMap linkMap =
+    vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputs, outputGhostLevels);
   vtkLogEndScope("Creating link map between connected blocks");
 
   vtkLogStartScope(TRACE, "Relinking blocks using link map");
-  vtkDIYUtilities::Link<BlockType>(master, assigner, linkMap);
+  vtkDIYUtilities::Link(master, assigner, linkMap);
   vtkLogEndScope("Relinking blocks using link map");
 
   vtkLogStartScope(TRACE, "Exchanging ghost data between blocks");
   vtkDIYGhostUtilities::ExchangeGhosts(master, inputs);
   vtkLogEndScope("Exchanging ghost data between blocks");
+
+  vtkLogStartScope(TRACE, "Allocating ghosts in outputs");
+  vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(master, inputs, outputs);
+  vtkLogEndScope("Allocating ghosts in outputs");
 
   vtkLogStartScope(TRACE, "Initializing ghost arrays in outputs");
   vtkDIYGhostUtilities::InitializeGhostArrays(master, outputs);
