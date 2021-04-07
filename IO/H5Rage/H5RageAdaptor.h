@@ -16,14 +16,16 @@
 #define H5RageAdaptor_h
 
 #include "vtkDataArraySelection.h"
+#include "vtkIOH5RageModule.h" // For export macro
 
-#include <vector>
+#include <string> // for std::string
+#include <vector> // for std::vector
 
 class vtkDataArraySelection;
 class vtkImageData;
 class vtkMultiProcessController;
 
-class H5RageAdaptor
+class VTKIOH5RAGE_EXPORT H5RageAdaptor
 {
 public:
   H5RageAdaptor(vtkMultiProcessController* ctrl);
@@ -84,3 +86,5 @@ protected:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: H5RageAdaptor.h
