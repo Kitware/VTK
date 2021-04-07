@@ -393,6 +393,7 @@ int vtkVortexCore::RequestData(
   {
     vtkNew<vtkGradientFilter> gradient;
     gradient->SetInputData(input);
+    gradient->SetFasterApproximation(this->FasterApproximation);
     gradient->SetResultArrayName("jacobian");
     gradient->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, velocity->GetName());
@@ -440,6 +441,7 @@ int vtkVortexCore::RequestData(
     {
       vtkNew<vtkGradientFilter> gradientPrime;
       gradientPrime->SetInputData(dataset);
+      gradientPrime->SetFasterApproximation(this->FasterApproximation);
       gradientPrime->SetResultArrayName("jacobian_prime");
       gradientPrime->SetInputArrayToProcess(
         0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "jacobian");

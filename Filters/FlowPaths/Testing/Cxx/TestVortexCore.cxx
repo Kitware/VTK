@@ -234,6 +234,7 @@ int TestVortexCore(int argc, char* argv[])
     constructVelocityProfile(unstructuredGrid);
 
     vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->FasterApproximationOn();
     vortexCore->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
     vortexCore->SetInputData(unstructuredGrid);
