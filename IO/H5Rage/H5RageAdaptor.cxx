@@ -49,9 +49,9 @@ const static char* Slash = "/";
 namespace
 {
 // mpi tag
-static const int mpiTag = 1758978;
+const int mpiTag = 1758978;
 
-static void BroadcastString(vtkMultiProcessController* controller, std::string& str, int rank)
+void BroadcastString(vtkMultiProcessController* controller, std::string& str, int rank)
 {
   unsigned long len = static_cast<unsigned long>(str.size()) + 1;
   controller->Broadcast(&len, 1, 0);
@@ -73,7 +73,7 @@ static void BroadcastString(vtkMultiProcessController* controller, std::string& 
   }
 }
 
-static void BroadcastStringVector(
+void BroadcastStringVector(
   vtkMultiProcessController* controller, std::vector<std::string>& svec, int rank)
 {
   unsigned long len = static_cast<unsigned long>(svec.size());
@@ -312,7 +312,7 @@ int H5RageAdaptor::CollectMetaData(const char* H5RageFileName)
   }
 
   // Data is stored column major order so dimensions must be reversed
-  hid_t dataset_id = H5Dopen(file_id, "data", hid_t(NULL));
+  hid_t dataset_id = H5Dopen(file_id, "data", hid_t(0));
   hid_t datatype_id = H5Dget_type(dataset_id);
   hid_t dataspace_id = H5Dget_space(dataset_id);
   size_t size = H5Tget_size(datatype_id);
@@ -324,22 +324,24 @@ int H5RageAdaptor::CollectMetaData(const char* H5RageFileName)
   // Read coordinates for physical extents and record which plane
   // Dimension of each coordinate array gives dimensions for render
   std::string coordName[3] = { "x", "y", "z" };
-  hid_t memspace_id = hid_t(NULL);
+  hid_t memspace_id = hid_t(0);
   for (int dim = 0; dim < 3; dim++)
   {
     if (H5Lexists(file_id, coordName[dim].c_str(), H5P_DEFAULT))
     {
-      dataset_id = H5Dopen(file_id, coordName[dim].c_str(), hid_t(NULL));
+      dataset_id = H5Dopen(file_id, coordName[dim].c_str(), hid_t(0));
       dataspace_id = H5Dget_space(dataset_id);
       hsize_t ndims = H5Sget_simple_extent_ndims(dataspace_id);
-      hsize_t coordSize[ndims];
-      H5Sget_simple_extent_dims(dataspace_id, coordSize, NULL);
-      memspace_id = H5Screate_simple(ndims, coordSize, NULL);
-      float coordinates[coordSize[0]];
+      hsize_t* coordSize = new hsize_t[ndims];
+      H5Sget_simple_extent_dims(dataspace_id, coordSize, nullptr);
+      memspace_id = H5Screate_simple(ndims, coordSize, nullptr);
+      float* coordinates = new float[coordSize[0]];
       H5Dread(dataset_id, H5T_NATIVE_FLOAT, memspace_id, dataspace_id, H5P_DEFAULT, coordinates);
       this->Origin[dim] = coordinates[0];
       this->Spacing[dim] = coordinates[1] - coordinates[0];
       this->Dimension[dim] = coordSize[0];
+      delete[] coordinates;
+      delete[] coordSize;
     }
   }
 
@@ -431,7 +433,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
         std::string::size_type keyPos = localline.find(' ');
         keyword = TrimString(localline.substr(0, keyPos));
         rest = TrimString(localline.substr(keyPos + 1));
-        std::istringstream line(rest.c_str());
+        std::istringstream line(rest);
 
         if (keyword == "HDF_DIRECTORY")
         {
@@ -460,7 +462,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
       }
     }
   }
-  if (hdfDirectory.size() == 0)
+  if (hdfDirectory.empty())
   {
     hdfDirectory.push_back(dirName);
   }
@@ -494,7 +496,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
         if (found != std::string::npos)
         {
           // check if there is only one "-" in the filename
-          std::size_t dashPos = fileStr.find("-");
+          std::size_t dashPos = fileStr.find('-');
           if (dashPos != std::string::npos)
           {
             std::string postDash = fileStr.substr(dashPos + 1);
@@ -529,8 +531,8 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
     return 0;
   }
 
-  this->NumberOfVariables = varToFileMap.size();
-  this->NumberOfTimeSteps = cycleSet.size();
+  this->NumberOfVariables = static_cast<int>(varToFileMap.size());
+  this->NumberOfTimeSteps = static_cast<int>(cycleSet.size());
 
   std::map<std::string, std::vector<std::string>>::iterator miter;
   std::vector<std::string>::iterator viter;
@@ -588,8 +590,8 @@ void H5RageAdaptor::LoadVariableData(
   {
     if (pointDataArraySelection->ArrayIsEnabled(this->VariableName[var].c_str()))
     {
-      float* fData = NULL;
-      double* dData = NULL;
+      float* fData = nullptr;
+      double* dData = nullptr;
 
       // Proc 0 reads the HDF file verifying and getting data
       // HDF data was written as column major and must be reversed
@@ -597,12 +599,12 @@ void H5RageAdaptor::LoadVariableData(
       {
         int offset = var * this->NumberOfTimeSteps + timeStep;
         hid_t file_id = H5Fopen(this->HdfFileName[offset].c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-        hid_t dataset_id = H5Dopen(file_id, "data", hid_t(NULL));
+        hid_t dataset_id = H5Dopen(file_id, "data", hid_t(0));
         hid_t dataspace_id = H5Dget_space(dataset_id);
         hid_t datatype_id = H5Dget_type(dataset_id);
         hid_t ndims = H5Sget_simple_extent_ndims(dataspace_id);
-        hsize_t dims_out[ndims];
-        H5Sget_simple_extent_dims(dataspace_id, dims_out, NULL);
+        hsize_t* dims_out = new hsize_t[ndims];
+        H5Sget_simple_extent_dims(dataspace_id, dims_out, nullptr);
         int* dimensions = new int[ndims];
         for (int dim = 0; dim < ndims; dim++)
         {
@@ -613,14 +615,14 @@ void H5RageAdaptor::LoadVariableData(
         if (this->UseFloat64)
         {
           dData = new double[this->TotalTuples];
-          memspace_id = H5Screate_simple(ndims, dims_out, NULL);
+          memspace_id = H5Screate_simple(ndims, dims_out, nullptr);
           H5Dread(dataset_id, H5T_NATIVE_DOUBLE, memspace_id, dataspace_id, H5P_DEFAULT, dData);
           ConvertHDFData(ndims, dimensions, dData);
         }
         else
         {
           fData = new float[this->TotalTuples];
-          memspace_id = H5Screate_simple(ndims, dims_out, NULL);
+          memspace_id = H5Screate_simple(ndims, dims_out, nullptr);
           H5Dread(dataset_id, H5T_NATIVE_FLOAT, memspace_id, dataspace_id, H5P_DEFAULT, fData);
           ConvertHDFData(ndims, dimensions, fData);
         }
@@ -631,6 +633,7 @@ void H5RageAdaptor::LoadVariableData(
         H5Sclose(dataspace_id);
         H5Fclose(file_id);
         delete[] dimensions;
+        delete[] dims_out;
       }
 
       // Share the hdf data read among processors according to schedule
