@@ -531,8 +531,8 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
     return 0;
   }
 
-  this->NumberOfVariables = varToFileMap.size();
-  this->NumberOfTimeSteps = cycleSet.size();
+  this->NumberOfVariables = static_cast<int>(varToFileMap.size());
+  this->NumberOfTimeSteps = static_cast<int>(cycleSet.size());
 
   std::map<std::string, std::vector<std::string>>::iterator miter;
   std::vector<std::string>::iterator viter;
