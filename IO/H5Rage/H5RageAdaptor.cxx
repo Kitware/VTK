@@ -332,14 +332,16 @@ int H5RageAdaptor::CollectMetaData(const char* H5RageFileName)
       dataset_id = H5Dopen(file_id, coordName[dim].c_str(), hid_t(0));
       dataspace_id = H5Dget_space(dataset_id);
       hsize_t ndims = H5Sget_simple_extent_ndims(dataspace_id);
-      hsize_t coordSize[ndims];
+      hsize_t* coordSize = new hsize_t[ndims];
       H5Sget_simple_extent_dims(dataspace_id, coordSize, nullptr);
       memspace_id = H5Screate_simple(ndims, coordSize, nullptr);
-      float coordinates[coordSize[0]];
+      float* coordinates = new float[coordSize[0]];
       H5Dread(dataset_id, H5T_NATIVE_FLOAT, memspace_id, dataspace_id, H5P_DEFAULT, coordinates);
       this->Origin[dim] = coordinates[0];
       this->Spacing[dim] = coordinates[1] - coordinates[0];
       this->Dimension[dim] = coordSize[0];
+      delete[] coordinates;
+      delete[] coordSize;
     }
   }
 
@@ -601,7 +603,7 @@ void H5RageAdaptor::LoadVariableData(
         hid_t dataspace_id = H5Dget_space(dataset_id);
         hid_t datatype_id = H5Dget_type(dataset_id);
         hid_t ndims = H5Sget_simple_extent_ndims(dataspace_id);
-        hsize_t dims_out[ndims];
+        hsize_t* dims_out = new hsize_t[ndims];
         H5Sget_simple_extent_dims(dataspace_id, dims_out, nullptr);
         int* dimensions = new int[ndims];
         for (int dim = 0; dim < ndims; dim++)
@@ -631,6 +633,7 @@ void H5RageAdaptor::LoadVariableData(
         H5Sclose(dataspace_id);
         H5Fclose(file_id);
         delete[] dimensions;
+        delete[] dims_out;
       }
 
       // Share the hdf data read among processors according to schedule
