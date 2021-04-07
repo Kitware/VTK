@@ -171,9 +171,9 @@ public:
    * Get/Set whether custom labels will be used.
    * bonds. Default: Off.
    */
-  vtkGetMacro(UseCustomLabels, vtkTypeBool);
-  vtkSetMacro(UseCustomLabels, vtkTypeBool);
-  vtkBooleanMacro(UseCustomLabels, vtkTypeBool);
+  vtkGetMacro(UseCustomLabels, bool);
+  vtkSetMacro(UseCustomLabels, bool);
+  vtkBooleanMacro(UseCustomLabels, bool);
   //@}
 
   //@{
@@ -744,7 +744,7 @@ protected:
   int NumberOfLabelsBuilt;
   int Orientation;
   vtkDoubleArray* CustomLabels = nullptr;
-  vtkTypeBool UseCustomLabels = 0;
+  bool UseCustomLabels = false;
   vtkTypeBool DrawBackground; // off by default
   vtkTypeBool DrawFrame;      // off by default
   vtkTypeBool DrawColorBar;   // on by default
