@@ -651,7 +651,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
   // here, we only traverse the subtree if not a hierarchy. Otherwise, the
   // dataset indices are directly composite ids so we don't need to traverse
   // substree.
-  const auto dsIndices = hierarchyOrAssembly->GetDataSetIndices(
+  auto dsIndices = hierarchyOrAssembly->GetDataSetIndices(
     hierarchyOrAssembly->SelectNodes(selectors), /*traverse_subtree=*/!isHierarchy);
 
   if (isHierarchy)

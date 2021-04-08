@@ -304,7 +304,7 @@ bool vtkFileSeriesHelper::UpdateInformation(
     {
       for (size_t cc = 0; cc < this->FileNames.size(); ++cc)
       {
-        this->Information.push_back(vtkTimeInformation(static_cast<double>(cc)));
+        this->Information.emplace_back(static_cast<double>(cc));
       }
     }
     else

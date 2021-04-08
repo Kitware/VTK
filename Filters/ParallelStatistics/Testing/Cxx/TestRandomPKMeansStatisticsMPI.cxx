@@ -81,7 +81,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
   {
     std::ostringstream columnName;
     columnName << "Variable " << v;
-    columnNames.push_back(columnName.str());
+    columnNames.emplace_back(columnName.str());
   }
 
   // Generate an input table that contains samples of mutually independent Gaussian random variables

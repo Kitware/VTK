@@ -648,7 +648,7 @@ int vtkCONVERGECFDReader::RequestData(
 
     // Create polyhedra from their faces
     vtkNew<vtkIdList> faces;
-    for (auto cellIdAndPolys : cellToPoly)
+    for (const auto& cellIdAndPolys : cellToPoly)
     {
       faces->Reset();
       // Number of faces
@@ -964,7 +964,7 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
 
   std::vector<double> times;
   double timeRange[2] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
-  for (auto file : this->FileNames)
+  for (const auto& file : this->FileNames)
   {
     double time = 0.0;
     bool timeRead = this->ReadOutputTime(file, time);

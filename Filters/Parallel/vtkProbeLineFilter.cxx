@@ -246,10 +246,10 @@ int vtkProbeLineFilter::RequestData(
   {
     case SAMPLE_LINE_AT_CELL_BOUNDARIES:
     case SAMPLE_LINE_AT_SEGMENT_CENTERS:
-      sampledLine = std::move(this->SampleLineAtEachCell(vtkCompositeDataSet::GetDataSets(input)));
+      sampledLine = this->SampleLineAtEachCell(vtkCompositeDataSet::GetDataSets(input));
       break;
     case SAMPLE_LINE_UNIFORMLY:
-      sampledLine = std::move(this->SampleLineUniformly());
+      sampledLine = this->SampleLineUniformly();
       break;
     default:
       vtkErrorMacro("Sampling heuristic wrongly set... Aborting");

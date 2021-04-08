@@ -230,7 +230,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
           {
             prefix += "/";
           }
-          file = prefix + file;
+          file.insert(0, prefix);
         }
         filenames[level].insert(file);
       }

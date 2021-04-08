@@ -553,7 +553,7 @@ EDGE_COUNT_TYPE inline BuildO1Stencil(
 
   // Group edges, and counting the number of duplicates, and rearrange
   // into smoothing stencil.
-  while (1)
+  while (true)
   {
     // Find group of identical edges
     while (eEnd < nedges && edges[eEnd] == edges[eStart])
@@ -643,7 +643,7 @@ EDGE_COUNT_TYPE inline BuildO0Stencil(vtkIdType ptId, TIds* edges, TIds nedges,
   double* normals = ptConn->Normals->GetPointer(0);
 
   // Group edges, and count number of duplicates
-  while (1)
+  while (true)
   {
     // Find group of identical edges
     while (eEnd < nedges && edges[eEnd] == edges[eStart])

@@ -264,6 +264,7 @@ int TestDispatch()
 
     int lval{ 42 };
     int rval{ 20 };
+    // NOLINTNEXTLINE(performance-move-const-arg)
     testAssert(Dispatcher::Execute(array, paramTester, lval, std::move(rval)),
       "Parameter forwarding dispatch failed.");
     testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -296,6 +297,7 @@ int TestDispatchByArray()
 
     int lval{ 42 };
     int rval{ 20 };
+    // NOLINTNEXTLINE(performance-move-const-arg)
     testAssert(Dispatcher::Execute(array, paramTester, lval, std::move(rval)),
       "Parameter forwarding dispatch failed.");
     testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -341,6 +343,7 @@ int TestDispatchByValueType()
 
       int lval{ 42 };
       int rval{ 20 };
+      // NOLINTNEXTLINE(performance-move-const-arg)
       testAssert(Dispatcher::Execute(array, paramTester, lval, std::move(rval)),
         "Parameter forwarding dispatch failed.");
       testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -391,6 +394,7 @@ int TestDispatch2ByArray()
 
         int lval{ 42 };
         int rval{ 20 };
+        // NOLINTNEXTLINE(performance-move-const-arg)
         testAssert(Dispatcher::Execute(array1, array2, paramTester, lval, std::move(rval)),
           "Parameter forwarding dispatch failed.");
         testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -444,6 +448,7 @@ int TestDispatch2ByValueType()
 
         int lval{ 42 };
         int rval{ 20 };
+        // NOLINTNEXTLINE(performance-move-const-arg)
         testAssert(Dispatcher::Execute(array1, array2, paramTester, lval, std::move(rval)),
           "Parameter forwarding dispatch failed.");
         testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -497,6 +502,7 @@ int TestDispatch2ByArrayWithSameValueType()
 
         int lval{ 42 };
         int rval{ 20 };
+        // NOLINTNEXTLINE(performance-move-const-arg)
         testAssert(Dispatcher::Execute(array1, array2, paramTester, lval, std::move(rval)),
           "Parameter forwarding dispatch failed.");
         testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -549,6 +555,7 @@ int TestDispatch2BySameValueType()
 
         int lval{ 42 };
         int rval{ 20 };
+        // NOLINTNEXTLINE(performance-move-const-arg)
         testAssert(Dispatcher::Execute(array1, array2, paramTester, lval, std::move(rval)),
           "Parameter forwarding dispatch failed.");
         testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -609,6 +616,7 @@ int TestDispatch3ByArray()
           int lval{ 42 };
           int rval{ 20 };
           testAssert(
+            // NOLINTNEXTLINE(performance-move-const-arg)
             Dispatcher::Execute(array1, array2, array3, paramTester, lval, std::move(rval)),
             "Parameter forwarding dispatch failed.");
           testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -672,6 +680,7 @@ int TestDispatch3ByValueType()
           int lval{ 42 };
           int rval{ 20 };
           testAssert(
+            // NOLINTNEXTLINE(performance-move-const-arg)
             Dispatcher::Execute(array1, array2, array3, paramTester, lval, std::move(rval)),
             "Parameter forwarding dispatch failed.");
           testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -737,6 +746,7 @@ int TestDispatch3ByArrayWithSameValueType()
           int lval{ 42 };
           int rval{ 20 };
           testAssert(
+            // NOLINTNEXTLINE(performance-move-const-arg)
             Dispatcher::Execute(array1, array2, array3, paramTester, lval, std::move(rval)),
             "Parameter forwarding dispatch failed.");
           testAssert(paramTester.Success, "Parameter forwarding failed.");
@@ -800,6 +810,7 @@ int TestDispatch3BySameValueType()
           int lval{ 42 };
           int rval{ 20 };
           testAssert(
+            // NOLINTNEXTLINE(performance-move-const-arg)
             Dispatcher::Execute(array1, array2, array3, paramTester, lval, std::move(rval)),
             "Parameter forwarding dispatch failed.");
           testAssert(paramTester.Success, "Parameter forwarding failed.");

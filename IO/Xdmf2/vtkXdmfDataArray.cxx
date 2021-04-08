@@ -414,13 +414,13 @@ char* vtkXdmfDataArray::ToXdmfArray(vtkDataArray* DataArray, int CopyShape)
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkXdmfDataArray::FromArray(void)
+vtkDataArray* vtkXdmfDataArray::FromArray()
 {
   return (this->FromXdmfArray());
 }
 
 //------------------------------------------------------------------------------
-char* vtkXdmfDataArray::ToArray(void)
+char* vtkXdmfDataArray::ToArray()
 {
   return (this->ToXdmfArray());
 }
@@ -436,7 +436,7 @@ void vtkXdmfDataArray::SetArray(char* TagName)
 }
 
 //------------------------------------------------------------------------------
-char* vtkXdmfDataArray::GetArray(void)
+char* vtkXdmfDataArray::GetArray()
 {
   if (this->Array != nullptr)
   {
@@ -453,7 +453,7 @@ void vtkXdmfDataArray::SetVtkArray(vtkDataArray* array)
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkXdmfDataArray::GetVtkArray(void)
+vtkDataArray* vtkXdmfDataArray::GetVtkArray()
 {
   return (this->vtkArray);
 }

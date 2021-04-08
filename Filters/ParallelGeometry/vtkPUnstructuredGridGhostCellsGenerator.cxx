@@ -1230,7 +1230,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::AddGlobalCellIds()
   while (celldata->GetArray(this->GlobalCellIdsArrayName) != nullptr)
   {
     std::string s = this->GlobalCellIdsArrayName;
-    s = s + "1";
+    s += '1';
     this->SetGlobalCellIdsArrayName(s.c_str());
   }
 

@@ -346,12 +346,12 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
       if (valueMatrix->Determinant() != 0 && lambda[0] >= -epsilon && lambda[1] >= -epsilon &&
         lambda[0] + lambda[1] <= 1.0 + epsilon)
       {
-        bool isNewPoint = 1;
+        bool isNewPoint = true;
         for (int i = 0; i < criticalPoints->GetNumberOfPoints(); ++i)
         {
           if (vtkMath::Distance2BetweenPoints(zeroPos, criticalPoints->GetPoint(i)) < epsilon)
           {
-            isNewPoint = 0;
+            isNewPoint = false;
           }
         }
         if (isNewPoint)
@@ -435,12 +435,12 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
       if (valueMatrix->Determinant() != 0 && lambda[0] >= -epsilon && lambda[1] >= -epsilon &&
         lambda[2] >= -epsilon && lambda[0] + lambda[1] + lambda[2] <= 1.0 + epsilon)
       {
-        bool isNewPoint = 1;
+        bool isNewPoint = true;
         for (int i = 0; i < criticalPoints->GetNumberOfPoints(); ++i)
         {
           if (vtkMath::Distance2BetweenPoints(zeroPos, criticalPoints->GetPoint(i)) < epsilon)
           {
-            isNewPoint = 0;
+            isNewPoint = false;
           }
         }
         if (isNewPoint)
@@ -502,7 +502,7 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   this->StreamSurface->SetIntegrationStepUnit(this->IntegrationStepUnit);
   this->StreamSurface->SetInitialIntegrationStep(this->IntegrationStepSize);
   this->StreamSurface->SetIntegrationDirection(isBackward);
-  this->StreamSurface->SetComputeVorticity(0);
+  this->StreamSurface->SetComputeVorticity(false);
   this->StreamSurface->SetMaximumNumberOfSteps(maxNumSteps);
   this->StreamSurface->SetSourceData(currentCircle);
   this->StreamSurface->SetMaximumPropagation(dist * maxNumSteps);
@@ -555,7 +555,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
-  streamTracer->SetComputeVorticity(0);
+  streamTracer->SetComputeVorticity(false);
   streamTracer->SetMaximumNumberOfSteps(maxNumSteps);
   streamTracer->SetMaximumPropagation(dist * maxNumSteps);
   streamTracer->SetTerminalSpeed(epsilon);
@@ -1006,7 +1006,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
     default:
     {
       vtkErrorMacro("The input field must be vtkImageData or vtkUnstructuredGrid.");
-      success = 0;
+      success = false;
     }
   }
 

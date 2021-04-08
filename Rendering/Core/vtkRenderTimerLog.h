@@ -140,8 +140,8 @@ public:
       : Log(nullptr)
     {
     }
-    ScopedEventLogger(ScopedEventLogger&& other);
-    ScopedEventLogger& operator=(ScopedEventLogger&& other);
+    ScopedEventLogger(ScopedEventLogger&& other) noexcept;
+    ScopedEventLogger& operator=(ScopedEventLogger&& other) noexcept;
     ~ScopedEventLogger() { this->Stop(); }
     void Stop();
     friend class vtkRenderTimerLog;

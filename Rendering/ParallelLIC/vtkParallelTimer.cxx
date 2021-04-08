@@ -506,7 +506,7 @@ void vtkParallelTimer::StartEvent(const char* event)
   double walls = static_cast<double>(wallt.tv_sec) + static_cast<double>(wallt.tv_usec) / 1.0E6;
 
 #if vtkParallelTimerDEBUG < 0
-  this->EventId.push_back(event);
+  this->EventId.emplace_back(event);
 #endif
 
   this->StartTime.push_back(walls);

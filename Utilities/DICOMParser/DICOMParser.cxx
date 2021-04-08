@@ -586,8 +586,6 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
   out << dicom_stream::dec << dicom_stream::endl;
   out.fill(prev);
   out << dicom_stream::dec;
-
-  return;
 }
 
 void DICOMParser::ModalityTag(doublebyte, doublebyte, VRTypes, unsigned char* tempdata, quadbyte)

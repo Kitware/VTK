@@ -53,7 +53,7 @@ vtkExternalOpenGLRenderer::~vtkExternalOpenGLRenderer()
 }
 
 //------------------------------------------------------------------------------
-void vtkExternalOpenGLRenderer::Render(void)
+void vtkExternalOpenGLRenderer::Render()
 {
   // Copy GL camera matrices
   if (this->PreserveGLCameraMatrices)

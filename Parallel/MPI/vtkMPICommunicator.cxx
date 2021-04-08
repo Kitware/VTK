@@ -432,7 +432,6 @@ void vtkMPICommunicator::PrintSelf(ostream& os, vtkIndent indent)
     }
     os << endl;
   }
-  return;
 }
 
 //------------------------------------------------------------------------------

@@ -50,8 +50,8 @@ int TestVectorFieldTopology(int argc, char* argv[])
   topology->SetSeparatrixDistance(1);
   topology->SetIntegrationStepSize(1);
   topology->SetMaxNumSteps(1000);
-  topology->SetComputeSurfaces(1);
-  topology->SetUseIterativeSeeding(1);
+  topology->SetComputeSurfaces(true);
+  topology->SetUseIterativeSeeding(true);
 
   // the bounding box
   vtkNew<vtkDataSetMapper> waveletMapper;
@@ -71,7 +71,7 @@ int TestVectorFieldTopology(int argc, char* argv[])
   pointActor->SetMapper(pointMapper);
   pointActor->GetProperty()->SetColor(0.1, 0.1, 0.1);
   pointActor->GetProperty()->SetPointSize(20.);
-  pointActor->GetProperty()->SetRenderPointsAsSpheres(1);
+  pointActor->GetProperty()->SetRenderPointsAsSpheres(true);
 
   // the separating lines
   vtkNew<vtkDataSetMapper> lineMapper;
@@ -81,7 +81,7 @@ int TestVectorFieldTopology(int argc, char* argv[])
   lineActor->SetMapper(lineMapper);
   lineActor->GetProperty()->SetColor(0.2, 0.2, 0.2);
   lineActor->GetProperty()->SetLineWidth(10.);
-  lineActor->GetProperty()->SetRenderLinesAsTubes(1);
+  lineActor->GetProperty()->SetRenderLinesAsTubes(true);
 
   // the separating surfaces
   vtkNew<vtkDataSetMapper> surfaceMapper;

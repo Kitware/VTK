@@ -101,12 +101,10 @@ inline void vtkMPIImageReaderMaskBits(T* data, vtkIdType length, vtkTypeUInt64 _
 template <>
 void vtkMPIImageReaderMaskBits(float*, vtkIdType, vtkTypeUInt64)
 {
-  return;
 }
 template <>
 void vtkMPIImageReaderMaskBits(double*, vtkIdType, vtkTypeUInt64)
 {
-  return;
 }
 #endif // VTK_USE_MPI_IO
 

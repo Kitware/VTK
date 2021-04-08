@@ -198,7 +198,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(const std::s
     {
       for (int i = 0; papszMetaData[i] != nullptr; ++i)
       {
-        this->Reader->MetaData.push_back(papszMetaData[i]);
+        this->Reader->MetaData.emplace_back(papszMetaData[i]);
       }
     }
   }
@@ -895,7 +895,7 @@ std::vector<std::string> vtkGDALRasterReader::GetDomainMetaData(const std::strin
   {
     for (int i = 0; papszMetadata[i] != nullptr; ++i)
     {
-      domainMetaData.push_back(papszMetadata[i]);
+      domainMetaData.emplace_back(papszMetadata[i]);
     }
   }
 

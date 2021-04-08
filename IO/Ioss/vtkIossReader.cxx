@@ -353,8 +353,7 @@ public:
     }
 
     const int& fileid = handle.second;
-    const auto dbasename =
-      shortname ? vtksys::SystemTools::GetFilenameName(handle.first) : handle.first;
+    auto dbasename = shortname ? vtksys::SystemTools::GetFilenameName(handle.first) : handle.first;
 
     auto& dinfo = iter->second;
     if (dinfo.ProcessCount > 0)
@@ -1071,7 +1070,7 @@ bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
       if (cellarray != nullptr && cell_type != VTK_EMPTY_CELL)
       {
         numCells += cellarray->GetNumberOfCells();
-        sideblock_cells.push_back(std::make_pair(cell_type, cellarray));
+        sideblock_cells.emplace_back(cell_type, cellarray);
       }
     }
     if (sideblock_cells.size() == 1)
@@ -1286,14 +1285,14 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
       case vtkIossReader::FACEBLOCK:
       case vtkIossReader::ELEMENTBLOCK:
       case vtkIossReader::NODESET:
-        fieldnames.push_back("ids");
+        fieldnames.emplace_back("ids");
         break;
 
       case vtkIossReader::EDGESET:
       case vtkIossReader::FACESET:
       case vtkIossReader::ELEMENTSET:
       case vtkIossReader::SIDESET:
-        fieldnames.push_back("element_side");
+        fieldnames.emplace_back("element_side");
         break;
 
       default:
@@ -1304,7 +1303,7 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
   {
     if (selection->GetArraySetting(cc))
     {
-      fieldnames.push_back(selection->GetArrayName(cc));
+      fieldnames.emplace_back(selection->GetArrayName(cc));
     }
   }
   for (const auto& fieldname : fieldnames)
@@ -1644,7 +1643,7 @@ int vtkIossReader::ReadMetaData(vtkInformation* metadata)
   else
   {
     // add timesteps to metadata
-    const auto timesteps = internals.GetTimeSteps();
+    const auto& timesteps = internals.GetTimeSteps();
     if (!timesteps.empty())
     {
       metadata->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timesteps[0],

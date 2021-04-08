@@ -120,7 +120,7 @@ static void StringBufferToStringVector(
     {
       if (!*finish)
       {
-        strings.push_back(vtkStdString(start));
+        strings.emplace_back(start);
         start = finish;
         break;
       }

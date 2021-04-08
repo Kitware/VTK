@@ -26,7 +26,6 @@ public:
   static std::map<int, int> EventCounts;
   static int VoidEventCounts;
 
-public:
   static vtkHandler* New();
   vtkTypeMacro(vtkHandler, vtkObject);
 
@@ -44,7 +43,6 @@ public:
   static std::map<int, int> EventCounts;
   static int VoidEventCounts;
 
-public:
   void VoidCallback() { this->VoidEventCounts++; }
   void CallbackWithArguments(vtkObject*, unsigned long event, void*) { this->EventCounts[event]++; }
 };

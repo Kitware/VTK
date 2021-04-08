@@ -114,12 +114,10 @@ inline void vtkPNrrdReaderMaskBits(T* data, vtkIdType length, vtkTypeUInt64 _mas
 template <>
 void vtkPNrrdReaderMaskBits(float*, vtkIdType, vtkTypeUInt64)
 {
-  return;
 }
 template <>
 void vtkPNrrdReaderMaskBits(double*, vtkIdType, vtkTypeUInt64)
 {
-  return;
 }
 #endif // VTK_USE_MPI_IO
 

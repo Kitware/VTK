@@ -263,8 +263,8 @@ struct ImageInfo
     this->PNGBase64 = base64Stream.str();
   }
 
-  ImageInfo(ImageInfo&& o)
-    : Size(std::move(o.Size))
+  ImageInfo(ImageInfo&& o) noexcept
+    : Size(o.Size)
     , Id(std::move(o.Id))
     , PNGBase64(std::move(o.PNGBase64))
   {
@@ -318,9 +318,9 @@ struct PatternInfo
   {
   }
 
-  PatternInfo(PatternInfo&& o)
-    : TextureProperty(std::move(o.TextureProperty))
-    , ImageSize(std::move(o.ImageSize))
+  PatternInfo(PatternInfo&& o) noexcept
+    : TextureProperty(o.TextureProperty)
+    , ImageSize(o.ImageSize)
     , ImageId(std::move(o.ImageId))
     , PatternId(std::move(o.PatternId))
   {
@@ -362,8 +362,8 @@ struct ClipRectInfo
   {
   }
 
-  ClipRectInfo(ClipRectInfo&& o)
-    : Rect(std::move(o.Rect))
+  ClipRectInfo(ClipRectInfo&& o) noexcept
+    : Rect(o.Rect)
     , Id(std::move(o.Id))
   {
   }

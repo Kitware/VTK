@@ -191,7 +191,7 @@ void vtkSelectionSource::AddSelector(const char* selector)
 {
   if (selector)
   {
-    this->Internal->Selectors.push_back(selector);
+    this->Internal->Selectors.emplace_back(selector);
     this->Modified();
   }
 }

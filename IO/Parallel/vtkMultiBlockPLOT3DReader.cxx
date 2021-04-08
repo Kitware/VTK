@@ -148,7 +148,7 @@ protected:
         (val != "Points" && !pd->GetArray(val.c_str()) && !fd->GetArray(val.c_str())))
       {
         message = "Cannot compute ";
-        message = message + target;
+        message += target;
         vtkErrorWithObjectMacro(nullptr, << message);
         return nullptr;
       }

@@ -71,7 +71,7 @@ int TestGDALRasterReader(int argc, char** argv)
   }
 
   // test if we read all 3 bands with CollateBands=0 (default is 1)
-  reader->SetCollateBands(0);
+  reader->SetCollateBands(false);
   reader->Update();
   vtkUniformGrid* data = vtkUniformGrid::SafeDownCast(reader->GetOutput());
   if (data->GetCellData()->GetNumberOfArrays() != 3)
@@ -91,7 +91,7 @@ int TestGDALRasterReader(int argc, char** argv)
   }
 
   // collate bands
-  reader->SetCollateBands(1);
+  reader->SetCollateBands(true);
   reader->SetCellArrayStatus(reader->GetCellArrayName(0), 1);
   reader->Update();
   delete[] rasterFileName;

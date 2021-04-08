@@ -557,7 +557,7 @@ protected:
     std::vector<std::vector<vtkIdType>>& breadthFirstOrderIdMapPerDepth)
   {
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
-    bool mask = inputMask ? inputMask->GetValue(idg) : 0;
+    bool mask = inputMask ? inputMask->GetValue(idg) : false;
     breadthFirstOrderIdMapPerDepth[depth].emplace_back(idg);
     if (!this->IsLeaf(index) && !mask)
     {

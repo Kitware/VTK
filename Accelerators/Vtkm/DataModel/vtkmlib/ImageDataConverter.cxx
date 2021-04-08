@@ -115,7 +115,7 @@ namespace fromvtkm
 bool Convert(
   const vtkm::cont::DataSet& voutput, int extents[6], vtkImageData* output, vtkDataSet* input)
 {
-  vtkm::cont::CoordinateSystem cs = voutput.GetCoordinateSystem();
+  vtkm::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
   if (!cs.GetData().IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>())
   {
     return false;
@@ -150,7 +150,7 @@ bool Convert(
 
 bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSet* input)
 {
-  vtkm::cont::CoordinateSystem cs = voutput.GetCoordinateSystem();
+  vtkm::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
   if (!cs.GetData().IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>())
   {
     return false;

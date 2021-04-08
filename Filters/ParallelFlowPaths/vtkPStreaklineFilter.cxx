@@ -80,8 +80,6 @@ void vtkPStreaklineFilter::Finalize()
     this->Controller->Send(this->Output, leader, tag);
     this->Output->Initialize();
   }
-
-  return;
 }
 
 void vtkPStreaklineFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -44,7 +44,7 @@ vtkExternalOpenGLRenderWindow* ExternalVTKWidget::GetRenderWindow()
 }
 
 //------------------------------------------------------------------------------
-vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer(void)
+vtkExternalOpenGLRenderer* ExternalVTKWidget::AddRenderer()
 {
   vtkExternalOpenGLRenderer* ren = vtkExternalOpenGLRenderer::New();
   this->GetRenderWindow()->AddRenderer(ren);

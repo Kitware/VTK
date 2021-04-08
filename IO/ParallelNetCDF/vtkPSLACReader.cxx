@@ -609,7 +609,7 @@ int vtkPSLACReader::ReadConnectivity(
       {
         for (vtkIdType i = 0; i < npts; i++)
         {
-          edgesNeeded.push_back(vtkSLACReader::EdgeEndpoints(pts[i], pts[(i + 1) % npts]));
+          edgesNeeded.emplace_back(pts[i], pts[(i + 1) % npts]);
         }
       }
     }

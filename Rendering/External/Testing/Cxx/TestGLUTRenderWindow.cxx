@@ -178,7 +178,7 @@ void handleResize(int w, int h)
   glutPostRedisplay();
 }
 
-void onexit(void)
+void onexit()
 {
   initialized = false;
 }

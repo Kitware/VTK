@@ -2272,7 +2272,6 @@ void vtkXdmf3DataSet::XdmfSubsetToVTK(XdmfGrid* grid, unsigned int setnum, vtkDa
   }
 
   vtkXdmf3DataSet_ReleaseIfNeeded(set.get(), releaseMe);
-  return;
 }
 //------------------------------------------------------------------------------
 void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,

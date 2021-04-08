@@ -262,7 +262,7 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   std::vector<double> nodeX0;
   herr_t status;
   status = H5Eset_auto(nullptr, nullptr);
-  status = H5Gget_objinfo(grp_amr, "NonLeafNodes", 0, nullptr);
+  status = H5Gget_objinfo(grp_amr, "NonLeafNodes", false, nullptr);
   if (status == 0)
   {
     grp_sub = H5Gopen(grp_amr, nodeName.c_str());
@@ -273,7 +273,7 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   std::vector<int> leafLevels;
   std::vector<double> leafX0;
   status = H5Eset_auto(nullptr, nullptr);
-  status = H5Gget_objinfo(grp_amr, "Leaves", 0, nullptr);
+  status = H5Gget_objinfo(grp_amr, "Leaves", false, nullptr);
   if (status == 0)
   {
     grp_sub = H5Gopen(grp_amr, leafName.c_str());
@@ -284,7 +284,7 @@ void vtkAMRVelodyneReaderInternal::ReadBlocks()
   std::vector<int> fullLeafLevels;
   std::vector<double> fullLeafX0;
   status = H5Eset_auto(nullptr, nullptr);
-  status = H5Gget_objinfo(grp_amr, "FullLeaves", 0, nullptr);
+  status = H5Gget_objinfo(grp_amr, "FullLeaves", false, nullptr);
   if (status == 0)
   {
     grp_sub = H5Gopen(grp_amr, fullLeafName.c_str());

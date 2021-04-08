@@ -137,7 +137,7 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
     }
     for (unsigned long cc = 0, max = directory.GetNumberOfFiles(); cc < max; ++cc)
     {
-      dirlist.push_back(directory.GetFile(cc));
+      dirlist.emplace_back(directory.GetFile(cc));
     }
   }
   else

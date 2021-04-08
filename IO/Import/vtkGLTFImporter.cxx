@@ -698,7 +698,7 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
       vtkGLTFDocumentLoader::ComputeJointMatrices(*model, model->Skins[node.Skin], node, jointMats);
     }
 
-    for (auto actor : this->Actors[nodeId])
+    for (const auto& actor : this->Actors[nodeId])
     {
       actor->SetUserMatrix(node.GlobalTransform);
 

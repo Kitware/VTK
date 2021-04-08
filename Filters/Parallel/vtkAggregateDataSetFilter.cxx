@@ -151,7 +151,7 @@ int vtkAggregateDataSetFilter::RequestData(
   // by default, we don't use gather to avoid paraview/paraview#19937.
   if (subRank == receiveProc)
   {
-    recvBuffer.push_back(input);
+    recvBuffer.emplace_back(input);
     for (int cc = 0; cc < (subNumProcs - 1); ++cc)
     {
       recvBuffer.push_back(vtkSmartPointer<vtkDataObject>::Take(

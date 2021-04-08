@@ -267,7 +267,7 @@ int vtkDIYAggregateDataSetFilter::RequestData(
   // int retVal = this->MoveDataWithDIY(inputExtent, wholeExtent, outputExtent, serializedDataSets,
   // output);
 
-  for (auto it : receivedDataSets)
+  for (const auto& it : receivedDataSets)
   {
     vtkSmartPointer<vtkDataSet> tempDataSet = nullptr;
 
@@ -327,7 +327,7 @@ int vtkDIYAggregateDataSetFilter::MoveDataWithDIY(int inputExtent[6], int wholeE
 
   diy::Link* link = new diy::Link; // master will delete this automatically
 
-  for (auto it : serializedDataSets)
+  for (const auto& it : serializedDataSets)
   { // processes I send data to
     diy::BlockID neighbor;
     neighbor.gid = it.first;
@@ -345,7 +345,7 @@ int vtkDIYAggregateDataSetFilter::MoveDataWithDIY(int inputExtent[6], int wholeE
   master.add(myRank, &block, link);
 
   int counter = 0;
-  for (auto it : serializedDataSets)
+  for (const auto& it : serializedDataSets)
   { // processes I send data to
     master.proxy(0).enqueue(master.proxy(0).link()->target(counter), it.second);
     counter++;
@@ -361,7 +361,7 @@ int vtkDIYAggregateDataSetFilter::MoveDataWithDIY(int inputExtent[6], int wholeE
   {
     if (proxyWithLink.incoming(in[i]))
     {
-      receivedDataSets.push_back("");
+      receivedDataSets.emplace_back("");
       proxyWithLink.dequeue(in[i], receivedDataSets.back());
       // now deserialize...
     }
@@ -392,7 +392,7 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
 
   std::vector<vtkMPICommunicator::Request> sizeSendRequests(serializedDataSets.size());
   int counter = 0;
-  for (auto it : serializedDataSets)
+  for (const auto& it : serializedDataSets)
   {
     int size = static_cast<int>(it.second.size());
     controller->NoBlockSend(&size, 1, it.first, 9318, sizeSendRequests[counter]);

@@ -59,7 +59,7 @@ int TestStreamSurface(int argc, char* argv[])
   stream->SetInitialIntegrationStep(1);
   stream->SetIntegrationStepUnit(1);
   stream->SetIntegratorTypeToRungeKutta4();
-  stream->SetUseIterativeSeeding(1);
+  stream->SetUseIterativeSeeding(true);
 
   vtkNew<vtkDataSetMapper> streamMapper;
   streamMapper->SetInputConnection(stream->GetOutputPort());

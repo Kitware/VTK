@@ -1438,7 +1438,7 @@ void vtkUnstructuredGrid::BuildLinks()
   {
     vtkNew<vtkCellLinks> links;
     links->Allocate(numPts);
-    this->Links = std::move(links);
+    this->Links = links;
   }
 
   this->Links->BuildLinks(this);

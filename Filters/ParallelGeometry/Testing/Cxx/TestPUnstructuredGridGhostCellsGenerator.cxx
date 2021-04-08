@@ -170,7 +170,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->SetInputData(myRank == 0 ? initialGrid : emptyGrid);
   for (int step = 0; step < 2; ++step)
   {
-    ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
+    ghostGenerator->SetUseGlobalPointIds(step == 0 ? true : false);
     ghostGenerator->UpdatePiece(myRank, nbRanks, 1);
   }
   ghostGenerator->SetInputData(initialGrid);
@@ -184,7 +184,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   {
     for (int step = 0; step < 2; ++step)
     {
-      ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
+      ghostGenerator->SetUseGlobalPointIds(step == 0 ? true : false);
       ghostGenerator->Modified();
       vtkNew<vtkTimerLog> timer;
       timer->StartTimer();

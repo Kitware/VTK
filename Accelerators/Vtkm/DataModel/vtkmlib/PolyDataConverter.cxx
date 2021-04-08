@@ -194,7 +194,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet
   // this should be fairly easy as the cells are all a single cell type
   // so we just need to determine what cell type it is and copy the results
   // into a new array
-  vtkm::cont::DynamicCellSet outCells = voutput.GetCellSet();
+  vtkm::cont::DynamicCellSet const& outCells = voutput.GetCellSet();
   vtkNew<vtkCellArray> cells;
   const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer());
   if (!cellsConverted)
