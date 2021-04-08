@@ -84,4 +84,3 @@ private:
 };
 
 #endif // vtkmTriangleMeshPointNormals_h
-// VTK-HeaderTest-Exclude: vtkmTriangleMeshPointNormals.h

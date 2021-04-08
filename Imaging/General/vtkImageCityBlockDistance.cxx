@@ -23,6 +23,12 @@
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //------------------------------------------------------------------------------
+void vtkImageCityBlockDistance::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkImageCityBlockDistance::vtkImageCityBlockDistance() = default;
 
 //------------------------------------------------------------------------------

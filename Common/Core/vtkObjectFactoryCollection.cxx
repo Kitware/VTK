@@ -25,3 +25,8 @@ vtkObjectFactoryCollection* vtkObjectFactoryCollection::New()
   ret->InitializeObjectBase();
   return ret;
 }
+
+void vtkObjectFactoryCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

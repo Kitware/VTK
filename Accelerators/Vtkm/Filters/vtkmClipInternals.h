@@ -35,3 +35,4 @@ struct vtkmClip::internals
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkmClipInternals.h

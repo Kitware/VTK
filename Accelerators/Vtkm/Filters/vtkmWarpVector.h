@@ -50,5 +50,3 @@ private:
 };
 
 #endif // vtkmWarpVector_h
-
-// VTK-HeaderTest-Exclude: vtkmWarpVector.h

@@ -33,8 +33,9 @@
 #include <map>
 
 #include "vtkOpenGLVolumeLookupTables.h"
-#include "vtkSmartPointer.h" // For SmartPointer
-#include "vtkTimeStamp.h"    // For TimeStamp
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"                 // For SmartPointer
+#include "vtkTimeStamp.h"                    // For TimeStamp
 
 class vtkOpenGLVolumeGradientOpacityTable;
 class vtkOpenGLVolumeOpacityTable;
@@ -46,7 +47,7 @@ class vtkVolume;
 class vtkVolumeTexture;
 class vtkWindow;
 
-class vtkVolumeInputHelper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeInputHelper
 {
 public:
   vtkVolumeInputHelper() = default;

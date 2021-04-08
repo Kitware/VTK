@@ -26,7 +26,7 @@
 #ifndef vtkContextDevice2D_h
 #define vtkContextDevice2D_h
 
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkObject.h"
 #include "vtkRect.h"                     // For vtkRecti ivar
 #include "vtkRenderingContext2DModule.h" // For export macro

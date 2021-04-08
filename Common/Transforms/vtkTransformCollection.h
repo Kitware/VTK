@@ -37,6 +37,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransformCollection : public vtkCollection
 public:
   vtkTypeMacro(vtkTransformCollection, vtkCollection);
   static vtkTransformCollection* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a Transform to the list.
@@ -84,4 +85,3 @@ inline vtkTransform* vtkTransformCollection::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkTransformCollection.h

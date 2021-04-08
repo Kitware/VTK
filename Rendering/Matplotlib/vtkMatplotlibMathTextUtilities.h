@@ -50,7 +50,7 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkRenderingMatplotlibModule.h" // For export macro
 
-#include <vector>
+#include <vector> // for std::vector
 
 struct _object;
 typedef struct _object PyObject;

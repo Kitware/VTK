@@ -25,8 +25,8 @@
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
-#include <string>
-#include <vector>
+#include <string> // for std::string
+#include <vector> // for std::vector
 
 class VTKIOIMAGE_EXPORT vtkHDRReader : public vtkImageReader
 {

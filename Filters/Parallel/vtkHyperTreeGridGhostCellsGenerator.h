@@ -49,7 +49,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkHyperTreeGridGhostCellsGenerator
 public:
   static vtkHyperTreeGridGhostCellsGenerator* New();
   vtkTypeMacro(vtkHyperTreeGridGhostCellsGenerator, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHyperTreeGridGhostCellsGenerator();

@@ -56,7 +56,7 @@
 #ifndef vtkSurfaceLICInterface_h
 #define vtkSurfaceLICInterface_h
 
-#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkObject.h"
 #include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
 class vtkRenderWindow;
@@ -67,6 +67,7 @@ class vtkDataObject;
 class vtkDataArray;
 class vtkPainterCommunicator;
 class vtkSurfaceLICHelper;
+class vtkWindow;
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICInterface : public vtkObject
 {
@@ -599,4 +600,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkSurfaceLICInterface.h

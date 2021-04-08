@@ -33,6 +33,11 @@ typedef std::vector<vtkXMLDataElement*> vtkXMLUtilitiesDataElementContainer;
 
 vtkStandardNewMacro(vtkXMLUtilities);
 
+void vtkXMLUtilities::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 #define VTK_XML_UTILITIES_FACTORED_POOL_NAME "FactoredPool"
 #define VTK_XML_UTILITIES_FACTORED_NAME "Factored"
 #define VTK_XML_UTILITIES_FACTORED_REF_NAME "FactoredRef"

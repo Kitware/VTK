@@ -62,7 +62,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGr
 public:
   static vtkHyperTreeGridContour* New();
   vtkTypeMacro(vtkHyperTreeGridContour, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

@@ -24,14 +24,13 @@
 #define vtkExodusIIReaderParser_h
 
 #include "vtkIOExodusModule.h" // For export macro
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h"   // for ivars
 #include "vtkXMLParser.h"
 
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <map>    // for std::map
+#include <set>    // for std::set
+#include <string> // for std::string
+#include <vector> // for std::vector
 
 class vtkMutableDirectedGraph;
 class vtkStringArray;
@@ -174,5 +173,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkExodusIIReaderParser.h

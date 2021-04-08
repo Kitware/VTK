@@ -3710,7 +3710,7 @@ void vtkExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Metadata)
   {
     os << indent << "Metadata:\n";
-    this->Metadata->PrintData(os, indent.GetNextIndent());
+    this->Metadata->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -3718,7 +3718,7 @@ void vtkExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-void vtkExodusIIReaderPrivate::PrintData(ostream& os, vtkIndent indent)
+void vtkExodusIIReaderPrivate::PrintSelf(ostream& os, vtkIndent indent)
 {
   // this->Superclass::Print Self( os, indent );
   os << indent << "Exoid: " << this->Exoid << "\n";

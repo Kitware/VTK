@@ -29,13 +29,13 @@
 
 #include "vtkIOChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkUnsignedIntArray.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
+class vtkUnsignedIntArray;
 class vtkPoints;
 class vtkStringArray;
 class vtkMolecule;

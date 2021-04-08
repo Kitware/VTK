@@ -36,6 +36,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkSimpleImageFilterExample : public vtkSimpleIma
 public:
   static vtkSimpleImageFilterExample* New();
   vtkTypeMacro(vtkSimpleImageFilterExample, vtkSimpleImageToImageFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkSimpleImageFilterExample() = default;
@@ -49,5 +50,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkSimpleImageFilterExample.h

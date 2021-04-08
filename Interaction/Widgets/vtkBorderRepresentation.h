@@ -43,7 +43,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
-#include "vtkNew.h"
+#include "vtkNew.h" // for ivars
 
 class vtkPoints;
 class vtkPolyData;

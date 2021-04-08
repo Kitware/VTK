@@ -50,6 +50,12 @@ static int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //------------------------------------------------------------------------------
+void vtkDebugLeaks::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 class vtkDebugLeaksHashTable
 {
 public:

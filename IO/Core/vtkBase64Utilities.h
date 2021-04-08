@@ -30,6 +30,7 @@ class VTKIOCORE_EXPORT vtkBase64Utilities : public vtkObject
 public:
   static vtkBase64Utilities* New();
   vtkTypeMacro(vtkBase64Utilities, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Encode 3 bytes into 4 bytes
@@ -94,4 +95,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkBase64Utilities.h

@@ -193,4 +193,3 @@ private:
 };
 
 #endif // vtkmDataSet_h
-// VTK-HeaderTest-Exclude: vtkmDataSet.h

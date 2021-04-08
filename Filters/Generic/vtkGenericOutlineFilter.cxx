@@ -24,6 +24,14 @@
 vtkStandardNewMacro(vtkGenericOutlineFilter);
 
 //------------------------------------------------------------------------------
+void vtkGenericOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "OutlineSource:\n";
+  this->OutlineSource->PrintSelf(os, indent.GetNextIndent());
+}
+
+//------------------------------------------------------------------------------
 vtkGenericOutlineFilter::vtkGenericOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();

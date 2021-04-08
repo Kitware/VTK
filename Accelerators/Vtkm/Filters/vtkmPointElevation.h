@@ -65,5 +65,3 @@ private:
 };
 
 #endif // vtkmPointElevation_h
-
-// VTK-HeaderTest-Exclude: vtkmPointElevation.h

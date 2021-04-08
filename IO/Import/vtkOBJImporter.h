@@ -102,4 +102,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkOBJImporter.h

@@ -45,7 +45,7 @@
 #ifndef vtkMergeCells_h
 #define vtkMergeCells_h
 
-#include "vtkAlgorithm.h"
+#include "vtkAlgorithm.h"            // for vtkAlgorithm::DEFAULT_PRECISION
 #include "vtkDataSetAttributes.h"    // Needed for FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"

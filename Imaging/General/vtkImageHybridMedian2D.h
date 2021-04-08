@@ -35,6 +35,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialAl
 public:
   static vtkImageHybridMedian2D* New();
   vtkTypeMacro(vtkImageHybridMedian2D, vtkImageSpatialAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageHybridMedian2D();
@@ -50,4 +51,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkImageHybridMedian2D.h

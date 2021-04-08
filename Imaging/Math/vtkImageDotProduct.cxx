@@ -24,6 +24,12 @@
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //------------------------------------------------------------------------------
+void vtkImageDotProduct::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkImageDotProduct::vtkImageDotProduct()
 {
   this->SetNumberOfInputPorts(2);

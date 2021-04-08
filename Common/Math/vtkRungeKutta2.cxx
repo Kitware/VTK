@@ -23,6 +23,11 @@ vtkRungeKutta2::vtkRungeKutta2() = default;
 
 vtkRungeKutta2::~vtkRungeKutta2() = default;
 
+void vtkRungeKutta2::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 // Calculate next time step
 int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t,
   double& delT, double& delTActual, double, double, double, double& error, void* userData)

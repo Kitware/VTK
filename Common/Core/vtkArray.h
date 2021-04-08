@@ -54,12 +54,12 @@
 #ifndef vtkArray_h
 #define vtkArray_h
 
-#include "vtkArrayCoordinates.h"
-#include "vtkArrayExtents.h"
+#include "vtkArrayCoordinates.h" // for vtkArrayCoordinates
+#include "vtkArrayExtents.h"     // for vtkArrayExtents
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkStdString.h"
-#include "vtkVariant.h"
+#include "vtkStdString.h" // for vtkStdString
+#include "vtkVariant.h"   // for vtkVariant
 
 class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
@@ -304,5 +304,3 @@ void vtkArray::SetVariantValue(CoordinateT i, CoordinateT j, CoordinateT k, cons
 }
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkArray.h

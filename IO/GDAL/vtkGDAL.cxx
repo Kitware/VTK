@@ -21,5 +21,10 @@ vtkGDAL::vtkGDAL() = default;
 
 vtkGDAL::~vtkGDAL() = default;
 
+void vtkGDAL::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 vtkInformationKeyMacro(vtkGDAL, MAP_PROJECTION, String);
 vtkInformationKeyRestrictedMacro(vtkGDAL, FLIP_AXIS, IntegerVector, 3);

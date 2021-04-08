@@ -31,7 +31,7 @@
 #define vtkBoostRandomSparseArraySource_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkArrayExtents.h"
+#include "vtkArrayExtents.h"                      // for extents
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource
@@ -115,5 +115,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkBoostRandomSparseArraySource.h

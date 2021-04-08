@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 
 #include <algorithm>
 

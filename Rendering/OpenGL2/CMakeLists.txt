@@ -100,6 +100,7 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 set(nowrap_headers
+  vtkCompositeMapperHelper2.h
   vtkCompositePolyDataMapper2Internal.h
 )
 

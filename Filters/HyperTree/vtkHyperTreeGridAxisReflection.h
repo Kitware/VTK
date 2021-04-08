@@ -42,7 +42,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisReflection : public vtkHype
 public:
   static vtkHyperTreeGridAxisReflection* New();
   vtkTypeMacro(vtkHyperTreeGridAxisReflection, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify unique identifiers of available reflection planes.

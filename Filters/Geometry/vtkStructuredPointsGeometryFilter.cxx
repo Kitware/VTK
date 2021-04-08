@@ -17,6 +17,11 @@
 
 vtkStandardNewMacro(vtkStructuredPointsGeometryFilter);
 
+void vtkStructuredPointsGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 {
   vtkErrorMacro("vtkStructuredPointsGeometryFilter will be deprecated in"

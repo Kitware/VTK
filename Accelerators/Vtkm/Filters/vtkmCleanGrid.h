@@ -66,4 +66,3 @@ private:
 };
 
 #endif // vtkmCleanGrid_h
-// VTK-HeaderTest-Exclude: vtkmCleanGrid.h

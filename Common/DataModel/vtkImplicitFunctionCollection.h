@@ -35,6 +35,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunctionCollection : public vtkCollec
 public:
   vtkTypeMacro(vtkImplicitFunctionCollection, vtkCollection);
   static vtkImplicitFunctionCollection* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an implicit function to the list.
@@ -81,4 +82,3 @@ inline vtkImplicitFunction* vtkImplicitFunctionCollection::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkImplicitFunctionCollection.h

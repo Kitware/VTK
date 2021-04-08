@@ -24,6 +24,12 @@
 vtkStandardNewMacro(vtkExplicitStructuredGridAlgorithm);
 
 //------------------------------------------------------------------------------
+void vtkExplicitStructuredGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkExplicitStructuredGridAlgorithm::vtkExplicitStructuredGridAlgorithm()
 {
   // by default assume filters have one input and one output

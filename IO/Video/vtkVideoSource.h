@@ -35,7 +35,7 @@
 #include "vtkIOVideoModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-#include <mutex>
+#include <mutex> // for std::mutex
 
 class vtkTimerLog;
 class vtkMultiThreader;

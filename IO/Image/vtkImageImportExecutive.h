@@ -29,6 +29,7 @@ class VTKIOIMAGE_EXPORT vtkImageImportExecutive : public vtkStreamingDemandDrive
 public:
   static vtkImageImportExecutive* New();
   vtkTypeMacro(vtkImageImportExecutive, vtkStreamingDemandDrivenPipeline);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Override to implement some requests with callbacks.

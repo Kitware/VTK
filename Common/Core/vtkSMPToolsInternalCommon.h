@@ -75,4 +75,5 @@ public:
 #endif // __VTK_WRAP__
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#endif // VTK-HeaderTest-Exclude: vtkSMPToolsInternalCommon_h.h
+#endif
+// VTK-HeaderTest-Exclude: vtkSMPToolsInternalCommon.h

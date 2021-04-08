@@ -87,6 +87,7 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeF
 {
 public:
   vtkTypeMacro(vtkImageFourierFilter, vtkImageDecomposeFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // public for templated functions of this object
 
@@ -125,5 +126,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageFourierFilter.h

@@ -28,7 +28,7 @@
 
 #include "vtkAbstractWidget.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkNew.h"
+#include "vtkNew.h"                      // for vtkNew
 
 class vtkCameraPathRepresentation;
 

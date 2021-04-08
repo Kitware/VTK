@@ -45,9 +45,9 @@
 #define vtkArrayDataAlgorithm_h
 
 #include "vtkAlgorithm.h"
-#include "vtkArrayData.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 
+class vtkArrayData;
 class vtkDataSet;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkArrayDataAlgorithm : public vtkAlgorithm
@@ -108,4 +108,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkArrayDataAlgorithm.h

@@ -24,6 +24,12 @@ vtkDynamicLoader* vtkDynamicLoader::New()
 }
 
 //------------------------------------------------------------------------------
+void vtkDynamicLoader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname)
 {
   return vtksys::DynamicLoader::OpenLibrary(libname);

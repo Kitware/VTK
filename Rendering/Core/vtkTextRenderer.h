@@ -43,7 +43,7 @@
 #ifndef vtkTextRenderer_h
 #define vtkTextRenderer_h
 
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTuple.h"               // For metrics struct

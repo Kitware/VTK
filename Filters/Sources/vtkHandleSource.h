@@ -92,6 +92,9 @@ public:
   vtkGetMacro(Size, double);
   //@}
 
+  vtkHandleSource(const vtkHandleSource&) = delete;
+  void operator=(const vtkHandleSource&) = delete;
+
 protected:
   vtkHandleSource();
   virtual ~vtkHandleSource() override = default;

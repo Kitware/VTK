@@ -34,6 +34,12 @@
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //------------------------------------------------------------------------------
+void vtkXMLDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkXMLDataSetWriter::vtkXMLDataSetWriter() = default;
 
 //------------------------------------------------------------------------------

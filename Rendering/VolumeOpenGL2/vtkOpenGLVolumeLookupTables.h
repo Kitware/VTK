@@ -28,8 +28,7 @@ Copyright and License information
 
 #include "vtkObject.h"
 
-// STL includes
-#include <vector>
+#include <vector> // for std::vector
 
 // Forward declarations
 class vtkWindow;
@@ -74,7 +73,7 @@ private:
   void operator=(const vtkOpenGLVolumeLookupTables&) = delete;
 };
 
-#include "vtkOpenGLVolumeLookupTables.txx"
+#include "vtkOpenGLVolumeLookupTables.txx" // template implementations
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeLookupTables_h

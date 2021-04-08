@@ -32,7 +32,7 @@
 
 #include "vtkGraphAlgorithm.h"
 #include "vtkIOSQLModule.h" // For export macro
-#include "vtkStdString.h"
+#include "vtkStdString.h"   // for vtkStdString
 
 class vtkEventForwarderCommand;
 
@@ -115,5 +115,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkSQLDatabaseGraphSource.h

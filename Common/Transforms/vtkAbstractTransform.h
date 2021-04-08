@@ -42,7 +42,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <mutex>
+#include <mutex> // for std::mutex
 
 class vtkDataArray;
 class vtkMatrix4x4;

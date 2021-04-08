@@ -71,4 +71,3 @@ private:
 };
 
 #endif // vtkmExtractVOI_h
-// VTK-HeaderTest-Exclude: vtkmExtractVOI.h

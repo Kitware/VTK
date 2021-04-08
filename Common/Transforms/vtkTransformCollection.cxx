@@ -16,3 +16,8 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkTransformCollection);
+
+void vtkTransformCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

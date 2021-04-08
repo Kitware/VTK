@@ -55,4 +55,3 @@ private:
 };
 
 #endif // vtkmContour_h
-// VTK-HeaderTest-Exclude: vtkmContour.h

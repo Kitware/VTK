@@ -35,6 +35,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlaneCollection : public vtkCollection
 public:
   vtkTypeMacro(vtkPlaneCollection, vtkCollection);
   static vtkPlaneCollection* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a plane to the list.
@@ -81,4 +82,3 @@ inline vtkPlane* vtkPlaneCollection::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkPlaneCollection.h

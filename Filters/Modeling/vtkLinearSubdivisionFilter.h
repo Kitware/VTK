@@ -49,6 +49,7 @@ public:
    */
   static vtkLinearSubdivisionFilter* New();
   vtkTypeMacro(vtkLinearSubdivisionFilter, vtkInterpolatingSubdivisionFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
 protected:
@@ -64,5 +65,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkLinearSubdivisionFilter.h

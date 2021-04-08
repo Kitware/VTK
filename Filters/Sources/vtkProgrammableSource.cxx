@@ -30,6 +30,11 @@
 
 vtkStandardNewMacro(vtkProgrammableSource);
 
+void vtkProgrammableSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 // Construct programmable filter with empty execute method.
 vtkProgrammableSource::vtkProgrammableSource()
 {

@@ -34,6 +34,7 @@ class VTKIOXMLPARSER_EXPORT vtkXMLUtilities : public vtkObject
 public:
   static vtkXMLUtilities* New();
   vtkTypeMacro(vtkXMLUtilities, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Encode a string from one format to another
@@ -139,5 +140,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkXMLUtilities.h

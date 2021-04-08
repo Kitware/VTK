@@ -32,6 +32,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExplicitStructuredGridAlgorithm : public
 public:
   static vtkExplicitStructuredGridAlgorithm* New();
   vtkTypeMacro(vtkExplicitStructuredGridAlgorithm, vtkAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

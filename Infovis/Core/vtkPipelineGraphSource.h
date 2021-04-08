@@ -24,7 +24,7 @@
 
 #include "vtkDirectedGraphAlgorithm.h"
 #include "vtkInfovisCoreModule.h" // For export macro
-#include "vtkStdString.h"
+#include "vtkStdString.h"         // for vtkStdString
 
 class vtkCollection;
 
@@ -65,5 +65,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkPipelineGraphSource.h

@@ -36,7 +36,7 @@ public:
   static vtkMRCReader* New();
   vtkTypeMacro(vtkMRCReader, vtkImageAlgorithm);
 
-  void PrintSelf(ostream& stream, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // .Description
   // Get/Set the file to read

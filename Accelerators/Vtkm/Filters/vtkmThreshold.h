@@ -68,4 +68,3 @@ private:
 };
 
 #endif // vtkmThreshold_h
-// VTK-HeaderTest-Exclude: vtkmThreshold.h

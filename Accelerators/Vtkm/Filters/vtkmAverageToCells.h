@@ -50,4 +50,3 @@ private:
 };
 
 #endif // vtkmAverageToCells_h
-// VTK-HeaderTest-Exclude: vtkmAverageToCells.h

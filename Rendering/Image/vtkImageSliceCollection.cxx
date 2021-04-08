@@ -21,6 +21,12 @@
 vtkStandardNewMacro(vtkImageSliceCollection);
 
 //------------------------------------------------------------------------------
+void vtkImageSliceCollection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // protected function to delete an element. Internal use only.
 void vtkImageSliceCollection::DeleteElement(vtkCollectionElement* e)
 {

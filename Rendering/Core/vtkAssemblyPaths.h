@@ -39,6 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkAssemblyPaths : public vtkCollection
 public:
   static vtkAssemblyPaths* New();
   vtkTypeMacro(vtkAssemblyPaths, vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a path to the list.
@@ -113,4 +114,3 @@ inline vtkAssemblyPath* vtkAssemblyPaths::GetNextItem()
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkAssemblyPaths.h

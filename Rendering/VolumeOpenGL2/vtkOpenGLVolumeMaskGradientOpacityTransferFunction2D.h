@@ -18,8 +18,7 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
-
-#include "vtkNew.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 // Forward declarations
 class vtkOpenGLRenderWindow;
@@ -34,7 +33,8 @@ class vtkOpenGLRenderWindow;
  *
  * \sa vtkVolumeProperty::SetLabelGradientOpacity
  */
-class vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D, vtkOpenGLVolumeLookupTable);
@@ -59,11 +59,10 @@ protected:
     vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin) override;
 
 private:
-  vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D(const vtkOpenGLVolumeLookupTable&) = delete;
-  vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D& operator=(
+  vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D(
     const vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D&) = delete;
+  void operator=(const vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D&) = delete;
 };
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h

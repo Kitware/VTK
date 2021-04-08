@@ -18,8 +18,9 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkNew.h"
+#include "vtkNew.h" // for vtkNew
 
 // Forward declarations
 class vtkOpenGLRenderWindow;
@@ -34,7 +35,8 @@ class vtkOpenGLRenderWindow;
  *
  * \sa vtkVolumeProperty::SetTransferFunction2D
  */
-class vtkOpenGLVolumeMaskTransferFunction2D : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeMaskTransferFunction2D
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeMaskTransferFunction2D, vtkOpenGLVolumeLookupTable);
@@ -59,11 +61,9 @@ protected:
     vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin) override;
 
 private:
-  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) = delete;
-  vtkOpenGLVolumeMaskTransferFunction2D& operator=(
-    const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
+  void operator=(const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
 };
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeMaskTransferFunction2D_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeMaskTransferFunction2D.h

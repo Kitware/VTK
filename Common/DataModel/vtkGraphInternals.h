@@ -29,7 +29,8 @@
 #define vtkGraphInternals_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkGraph.h"
+#include "vtkGraph.h"                 // For edge types
+#include "vtkObject.h"
 
 #include <map>    // STL Header
 #include <vector> // STL Header
@@ -54,6 +55,8 @@ public:
   static vtkGraphInternals* New();
 
   vtkTypeMacro(vtkGraphInternals, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   std::vector<vtkVertexAdjacencyList> Adjacency;
 
   vtkIdType NumberOfEdges;
@@ -99,5 +102,3 @@ private:
 };
 
 #endif // vtkGraphInternals_h
-
-// VTK-HeaderTest-Exclude: vtkGraphInternals.h

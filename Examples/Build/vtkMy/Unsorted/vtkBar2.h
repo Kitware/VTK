@@ -30,6 +30,7 @@ class VTKMYUNSORTED_EXPORT vtkBar2 : public vtkObject
 public:
   static vtkBar2* New();
   vtkTypeMacro(vtkBar2, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBar2() {}

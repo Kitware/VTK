@@ -34,7 +34,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter : public vtkMultiTi
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream& OS, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OperatorType
   {

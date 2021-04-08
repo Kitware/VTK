@@ -31,6 +31,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter
 {
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter, vtkImageDataGeometryFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with initial extent of all the data
@@ -47,4 +48,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkStructuredPointsGeometryFilter.h

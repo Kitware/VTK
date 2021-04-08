@@ -18,14 +18,16 @@
 #ifndef __VTK_WRAP__
 
 #include "vtkOpenGLVolumeLookupTable.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkVolumeMapper.h"
+#include "vtkVolumeMapper.h" // for vtkVolumeMapper
 
 // Forward declarations
 class vtkOpenGLRenderWindow;
 
 //----------------------------------------------------------------------------
-class vtkOpenGLVolumeOpacityTable : public vtkOpenGLVolumeLookupTable
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLVolumeOpacityTable
+  : public vtkOpenGLVolumeLookupTable
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeOpacityTable, vtkOpenGLVolumeLookupTable);
@@ -53,9 +55,8 @@ protected:
 
 private:
   vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&) = delete;
-  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
+  void operator=(const vtkOpenGLVolumeOpacityTable&) = delete;
 };
 
 #endif // __VTK_WRAP__
 #endif // vtkOpenGLVolumeOpacityTable_h
-// VTK-HeaderTest-Exclude: vtkOpenGLVolumeOpacityTable.h

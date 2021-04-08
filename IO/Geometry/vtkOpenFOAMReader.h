@@ -64,7 +64,7 @@ class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgori
 public:
   static vtkOpenFOAMReader* New();
   vtkTypeMacro(vtkOpenFOAMReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Determine if the file can be read with this reader.

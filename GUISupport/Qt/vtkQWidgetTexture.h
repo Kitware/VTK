@@ -36,6 +36,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQWidgetTexture : public vtkTextureObject
 public:
   static vtkQWidgetTexture* New();
   vtkTypeMacro(vtkQWidgetTexture, vtkTextureObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

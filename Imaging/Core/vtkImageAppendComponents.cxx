@@ -26,6 +26,12 @@
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //------------------------------------------------------------------------------
+void vtkImageAppendComponents::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkImageAppendComponents::ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input)
 {
   if (idx < 0 || idx >= this->GetNumberOfInputConnections(0))

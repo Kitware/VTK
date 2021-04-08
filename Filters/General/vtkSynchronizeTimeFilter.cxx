@@ -27,6 +27,13 @@
 vtkStandardNewMacro(vtkSynchronizeTimeFilter);
 
 //------------------------------------------------------------------------------
+void vtkSynchronizeTimeFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "RelativeTolerance: " << this->RelativeTolerance << endl;
+}
+
+//------------------------------------------------------------------------------
 vtkSynchronizeTimeFilter::vtkSynchronizeTimeFilter()
 {
   this->SetNumberOfInputPorts(2);

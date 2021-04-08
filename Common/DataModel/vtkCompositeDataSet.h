@@ -174,6 +174,6 @@ private:
   void operator=(const vtkCompositeDataSet&) = delete;
 };
 
-#include "vtkCompositeDataSet.txx"
+#include "vtkCompositeDataSet.txx" // for template implementations
 
 #endif

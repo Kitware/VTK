@@ -32,6 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkByteSwap : public vtkObject
 public:
   static vtkByteSwap* New();
   vtkTypeMacro(vtkByteSwap, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -142,4 +143,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkByteSwap.h

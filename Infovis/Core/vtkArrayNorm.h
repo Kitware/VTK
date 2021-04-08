@@ -38,7 +38,7 @@
 #define vtkArrayNorm_h
 
 #include "vtkArrayDataAlgorithm.h"
-#include "vtkArrayRange.h"
+#include "vtkArrayRange.h"        // for vtkArrayRange
 #include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
@@ -99,5 +99,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkArrayNorm.h

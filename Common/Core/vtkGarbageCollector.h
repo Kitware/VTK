@@ -207,4 +207,3 @@ void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr, const ch
 }
 
 #endif
-// VTK-HeaderTest-Exclude: vtkGarbageCollector.h

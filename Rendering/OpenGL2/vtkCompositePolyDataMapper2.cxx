@@ -56,12 +56,20 @@
 #include <algorithm>
 #include <sstream>
 
-#include "vtkCompositePolyDataMapper2Internal.h"
+#include "vtkCompositeMapperHelper2.h"
 
 typedef std::map<vtkPolyData*, vtkCompositeMapperHelperData*>::iterator dataIter;
 typedef std::map<const std::string, vtkCompositeMapperHelper2*>::iterator helpIter;
 
 vtkStandardNewMacro(vtkCompositeMapperHelper2);
+
+void vtkCompositeMapperHelper2::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Marked: " << this->Marked << endl;
+  os << indent << "Primary ID Used: " << this->PrimIDUsed << endl;
+  os << indent << "Override Color Used: " << this->OverideColorUsed << endl;
+}
 
 vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
 {

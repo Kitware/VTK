@@ -34,6 +34,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkPointSetToMoleculeFilter : public vtkMolecul
 public:
   static vtkPointSetToMoleculeFilter* New();
   vtkTypeMacro(vtkPointSetToMoleculeFilter, vtkMoleculeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

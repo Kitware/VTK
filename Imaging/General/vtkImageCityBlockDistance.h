@@ -40,6 +40,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomp
 public:
   static vtkImageCityBlockDistance* New();
   vtkTypeMacro(vtkImageCityBlockDistance, vtkImageDecomposeFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageCityBlockDistance();
@@ -57,5 +58,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageCityBlockDistance.h

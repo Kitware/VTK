@@ -154,4 +154,3 @@ private:
 };
 
 #endif // vtkmProbe_h
-// VTK-HeaderTest-Exclude: vtkmProbe.h

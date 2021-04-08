@@ -36,6 +36,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 public:
   static vtkImageWrapPad* New();
   vtkTypeMacro(vtkImageWrapPad, vtkImagePadFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageWrapPad() = default;
@@ -52,5 +53,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageWrapPad.h

@@ -25,7 +25,7 @@
 #ifndef vtkStringToImage_h
 #define vtkStringToImage_h
 
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 

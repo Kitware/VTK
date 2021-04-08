@@ -80,4 +80,3 @@ private:
 };
 
 #endif // vtkmExternalFaces_h
-// VTK-HeaderTest-Exclude: vtkmExternalFaces.h

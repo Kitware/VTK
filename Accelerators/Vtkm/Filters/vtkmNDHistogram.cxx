@@ -16,6 +16,7 @@
 #include "vtkmNDHistogram.h"
 #include "vtkmConfigFilters.h"
 
+#include "vtkArrayData.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"

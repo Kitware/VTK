@@ -34,6 +34,7 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageFourierCenter : public vtkImageDecomposeF
 public:
   static vtkImageFourierCenter* New();
   vtkTypeMacro(vtkImageFourierCenter, vtkImageDecomposeFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageFourierCenter();
@@ -51,5 +52,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageFourierCenter.h

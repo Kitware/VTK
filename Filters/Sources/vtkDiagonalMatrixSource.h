@@ -34,6 +34,8 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
 
+class vtkArray;
+
 class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgorithm
 {
 public:

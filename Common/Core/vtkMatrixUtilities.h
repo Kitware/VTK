@@ -24,8 +24,8 @@
  * vtkMathPrivate
  */
 
-#ifndef vtkMatrixUtilities_hxx
-#define vtkMatrixUtilities_hxx
+#ifndef vtkMatrixUtilities_h
+#define vtkMatrixUtilities_h
 
 #include <type_traits> // for type traits
 
@@ -355,3 +355,5 @@ public:
 };
 } // namespace vtkMatrixUtilities
 #endif
+
+// VTK-HeaderTest-Exclude: vtkMatrixUtilities.h

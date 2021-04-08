@@ -32,6 +32,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageNormalize : public vtkThreadedImageAlgori
 public:
   static vtkImageNormalize* New();
   vtkTypeMacro(vtkImageNormalize, vtkThreadedImageAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageNormalize();
@@ -47,5 +48,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageNormalize.h

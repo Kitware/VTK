@@ -30,6 +30,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageMagnitude : public vtkThreadedImageAlgorithm
 public:
   static vtkImageMagnitude* New();
   vtkTypeMacro(vtkImageMagnitude, vtkThreadedImageAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageMagnitude();
@@ -45,5 +46,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageMagnitude.h

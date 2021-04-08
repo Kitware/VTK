@@ -18,10 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Check for Qt SQL module before defining this class.
-#include <qglobal.h>
-#if (QT_EDITION & QT_MODULE_SQL)
-
 #include "vtkQtSQLQuery.h"
 
 #include "vtkCharArray.h"
@@ -228,5 +224,3 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
       return vtkVariant(v.toString().toLatin1().data());
   }
 }
-
-#endif // (QT_EDITION & QT_MODULE_SQL)

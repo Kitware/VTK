@@ -93,4 +93,3 @@ private:
 };
 
 #endif // vtkmClip_h
-// VTK-HeaderTest-Exclude: vtkmClip.h

@@ -23,6 +23,12 @@
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //------------------------------------------------------------------------------
+void vtkImageWrapPad::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6], int outExt[6], int wholeExtent[6])
 {

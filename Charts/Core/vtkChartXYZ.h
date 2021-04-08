@@ -29,7 +29,7 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
-#include "vtkStdString.h"
+#include "vtkStdString.h"    // For vtkStdString
 #include "vtkTextProperty.h" // For axes text properties
 #include <vector>            // For ivars
 

@@ -78,4 +78,3 @@ private:
 };
 
 #endif // vtkmPolyDataNormals_h
-// VTK-HeaderTest-Exclude: vtkmPolyDataNormals.h

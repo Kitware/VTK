@@ -30,6 +30,11 @@
 
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
+void vtkLoopSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
 static const double LoopWeights[4] = { .375, .375, .125, .125 };
 
 //------------------------------------------------------------------------------

@@ -33,6 +33,13 @@
 vtkStandardNewMacro(vtkMoleculeAppend);
 
 //------------------------------------------------------------------------------
+void vtkMoleculeAppend::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "MergeCoincidentAtoms: " << this->MergeCoincidentAtoms << endl;
+}
+
+//------------------------------------------------------------------------------
 vtkMoleculeAppend::vtkMoleculeAppend()
   : MergeCoincidentAtoms(true)
 {

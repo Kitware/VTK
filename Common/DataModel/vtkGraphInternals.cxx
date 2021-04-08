@@ -35,6 +35,17 @@ vtkGraphInternals::vtkGraphInternals()
 vtkGraphInternals::~vtkGraphInternals() = default;
 
 //------------------------------------------------------------------------------
+void vtkGraphInternals::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "NumberOfEdges: " << this->NumberOfEdges << endl;
+  os << indent << "LastRemoteEdgeId: " << this->LastRemoteEdgeId << endl;
+  os << indent << "LastRemoteEdgeSource: " << this->LastRemoteEdgeSource << endl;
+  os << indent << "LastRemoteEdgeTarget: " << this->LastRemoteEdgeTarget << endl;
+  os << indent << "UsingPedigreeIds: " << this->UsingPedigreeIds << endl;
+}
+
+//------------------------------------------------------------------------------
 void vtkGraphInternals::RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges)
 {
   size_t outSize = outEdges.size();

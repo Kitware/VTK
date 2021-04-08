@@ -55,7 +55,7 @@
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 #include "vtkToolkits.h"          // Needed for VTK_DEBUG_LEAKS macro setting.
 
-#include <mutex>
+#include <mutex> // for std::mutex
 
 class vtkDebugLeaksHashTable;
 class vtkDebugLeaksTraceManager;
@@ -66,6 +66,7 @@ class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
 public:
   static vtkDebugLeaks* New();
   vtkTypeMacro(vtkDebugLeaks, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Call this when creating a class.
@@ -143,4 +144,3 @@ public:
 };
 
 #endif // vtkDebugLeaks_h
-// VTK-HeaderTest-Exclude: vtkDebugLeaks.h

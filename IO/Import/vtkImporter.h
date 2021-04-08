@@ -48,7 +48,7 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <string>
+#include <string> // for std::string
 
 class vtkAbstractArray;
 class vtkDataSet;

@@ -39,6 +39,7 @@ class VTKDOMAINSPARALLELCHEMISTRY_EXPORT vtkPSimpleBondPerceiver : public vtkSim
 public:
   static vtkPSimpleBondPerceiver* New();
   vtkTypeMacro(vtkPSimpleBondPerceiver, vtkSimpleBondPerceiver);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPSimpleBondPerceiver() = default;

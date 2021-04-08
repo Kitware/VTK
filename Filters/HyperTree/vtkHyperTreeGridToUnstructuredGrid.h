@@ -56,7 +56,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
   vtkTypeMacro(vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();

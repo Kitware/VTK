@@ -36,6 +36,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToLinesFilter : public vtkMoleculeTo
 public:
   static vtkMoleculeToLinesFilter* New();
   vtkTypeMacro(vtkMoleculeToLinesFilter, vtkMoleculeToPolyDataFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkMoleculeToLinesFilter() = default;

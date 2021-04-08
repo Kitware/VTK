@@ -42,6 +42,8 @@ class VTKCHARTSCORE_EXPORT vtkCategoryLegend : public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkCategoryLegend, vtkChartLegend);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   static vtkCategoryLegend* New();
 
   /**

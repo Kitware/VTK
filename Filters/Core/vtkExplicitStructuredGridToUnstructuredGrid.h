@@ -29,6 +29,7 @@ class VTKFILTERSCORE_EXPORT vtkExplicitStructuredGridToUnstructuredGrid
 public:
   static vtkExplicitStructuredGridToUnstructuredGrid* New();
   vtkTypeMacro(vtkExplicitStructuredGridToUnstructuredGrid, vtkUnstructuredGridAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExplicitStructuredGridToUnstructuredGrid() = default;

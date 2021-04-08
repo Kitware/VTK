@@ -30,6 +30,7 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageLuminance : public vtkThreadedImageAlgorith
 public:
   static vtkImageLuminance* New();
   vtkTypeMacro(vtkImageLuminance, vtkThreadedImageAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageLuminance();
@@ -45,5 +46,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageLuminance.h

@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include <vtkArrayData.h>
 #include <vtkArrayReader.h>
 #include <vtkArrayWriter.h>
 #include <vtkDenseArray.h>

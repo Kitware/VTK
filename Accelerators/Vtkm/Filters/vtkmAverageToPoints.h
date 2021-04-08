@@ -49,4 +49,3 @@ private:
 };
 
 #endif // vtkmAverageToPoints_h
-// VTK-HeaderTest-Exclude: vtkmAverageToPoints.h

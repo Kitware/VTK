@@ -16,5 +16,10 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
-
 vtkStandardNewMacro(vtkBar);
+
+//------------------------------------------------------------------------------
+void vtkBar::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

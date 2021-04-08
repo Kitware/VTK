@@ -21,6 +21,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>
+#include <sstream>
 
 vtkStandardNewMacro(vtkExodusIIReaderParser);
 //------------------------------------------------------------------------------

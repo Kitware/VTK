@@ -31,6 +31,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 public:
   static vtkImageMirrorPad* New();
   vtkTypeMacro(vtkImageMirrorPad, vtkImagePadFilter);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageMirrorPad() = default;
@@ -47,5 +48,3 @@ private:
 };
 
 #endif
-
-// VTK-HeaderTest-Exclude: vtkImageMirrorPad.h

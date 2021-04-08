@@ -38,6 +38,9 @@
 
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkIOCoreModule.h" // For export macro
+#include "vtkStdString.h"    // for vtkStdString
+
+class vtkArrayData;
 
 class VTKIOCORE_EXPORT vtkArrayDataReader : public vtkArrayDataAlgorithm
 {

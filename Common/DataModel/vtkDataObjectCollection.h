@@ -33,6 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectCollection : public vtkCollection
 public:
   static vtkDataObjectCollection* New();
   vtkTypeMacro(vtkDataObjectCollection, vtkCollection);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a data object to the bottom of the list.
@@ -72,4 +73,3 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkDataObjectCollection.h

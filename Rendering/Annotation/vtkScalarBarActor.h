@@ -57,7 +57,7 @@
 #define vtkScalarBarActor_h
 
 #include "vtkActor2D.h"
-#include "vtkDoubleArray.h"
+#include "vtkDoubleArray.h"               // for ivars
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkColor3ub;

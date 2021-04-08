@@ -22,6 +22,12 @@
 =========================================================================*/
 
 //------------------------------------------------------------------------------
+void vtkImageFourierFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 // This function calculates one step of a FFT.
 // It is specialized for a factor of 2.
 // It is engineered for no decimation.

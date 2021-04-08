@@ -26,6 +26,12 @@
 vtkStandardNewMacro(vtkImageNormalize);
 
 //------------------------------------------------------------------------------
+void vtkImageNormalize::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkImageNormalize::vtkImageNormalize()
 {
   this->SetNumberOfInputPorts(1);

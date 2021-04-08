@@ -26,6 +26,12 @@
 vtkStandardNewMacro(vtkImageLuminance);
 
 //------------------------------------------------------------------------------
+void vtkImageLuminance::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkImageLuminance::vtkImageLuminance()
 {
   this->SetNumberOfInputPorts(1);

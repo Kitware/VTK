@@ -39,7 +39,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToDualGrid : public vtkHyperTre
 public:
   static vtkHyperTreeGridToDualGrid* New();
   vtkTypeMacro(vtkHyperTreeGridToDualGrid, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream&, vtkIndent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHyperTreeGridToDualGrid();
