@@ -24,6 +24,7 @@
 #define vtkAMRVelodyneReader_h
 #include "vtkAMRBaseReader.h"
 #include "vtkIOAMRModule.h" // For export macro
+#include <string>           // for std::string
 #include <unordered_map>    // for std::unordered_map
 #include <vector>           // for std::vector
 
