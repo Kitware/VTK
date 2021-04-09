@@ -36,6 +36,7 @@ mark_as_advanced(VTK_ALL_NEW_OBJECT_FACTORY)
 
 set(vtk_smp_sources)
 set(vtk_smp_headers)
+set(vtk_smp_templates)
 set(vtk_smp_defines)
 set(vtk_smp_libraries)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
@@ -289,7 +290,8 @@ set(private_headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
 
 set(templates
-  vtkArrayIteratorTemplateImplicit.txx)
+  vtkArrayIteratorTemplateImplicit.txx
+  ${vtk_smp_templates})
 
 set(private_templates
   vtkDataArrayPrivate.txx)

@@ -32,6 +32,8 @@
 #include "vtkSMPThreadLocal.h" // For Initialized
 #include "vtkSMPToolsInternal.h"
 
+#include <functional> // For std::function
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef __VTK_WRAP__
 namespace vtk
@@ -244,6 +246,33 @@ public:
   static int GetEstimatedNumberOfThreads();
 
   /**
+   * Change the number of threads locally within this scope and call a functor which
+   * should contains a vtkSMPTools method.
+   *
+   * Usage example:
+   * \code
+   * vtkSMPTools::ScopeWithMaxThread(4, [&]() { vtkSMPTools::For(0, size, worker); });
+   * \endcode
+   */
+  template <typename T>
+  static void ScopeWithMaxThread(int numThreads, T&& lambda);
+
+  /**
+   * Change the number of threads locally within this scope and call a functor which
+   * should contains a vtkSMPTools method.
+   *
+   * This version of Scope doesn't take a number of threads as parameter and will
+   * use the VTK_SMP_MAX_THREADS env variable.
+   *
+   * Usage example:
+   * \code
+   * vtkSMPTools::ScopeWithMaxThread([&]() { vtkSMPTools::For(0, size, worker); });
+   * \endcode
+   */
+  template <typename T>
+  static void ScopeWithMaxThread(T&& lambda);
+
+  /**
    * A convenience method for transforming data. It is a drop in replacement for
    * std::transform(), it does a unary operation on the input ranges. The data array must have the
    * same length. The performed transformation is defined by operator() of the functor object.
@@ -330,6 +359,8 @@ public:
     vtk::detail::smp::vtkSMPTools_Impl_Sort(begin, end, comp);
   }
 };
+
+#include "vtkSMPTools.txx"
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPTools.h

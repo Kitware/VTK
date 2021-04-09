@@ -132,6 +132,18 @@ int TestSMP(int, char*[])
     return 1;
   }
 
+  // Test Scope
+  const int targetThreadNb = 2;
+  int scopeThreadNb = 0;
+
+  auto lambda = [&]() { scopeThreadNb = vtkSMPTools::GetEstimatedNumberOfThreads(); };
+  vtkSMPTools::ScopeWithMaxThread(targetThreadNb, lambda);
+  if (scopeThreadNb <= 0 || scopeThreadNb > targetThreadNb)
+  {
+    cerr << "Error: on vtkSMPTools::Scope bad number of threads!" << endl;
+    return 1;
+  }
+
   // Test sorting
   double data0[] = { 2, 1, 0, 3, 9, 6, 7, 3, 8, 4, 5 };
   std::vector<double> myvector(data0, data0 + 11);
