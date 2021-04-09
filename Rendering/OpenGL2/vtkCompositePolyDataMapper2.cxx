@@ -70,7 +70,6 @@ vtkCompositeMapperHelper2::~vtkCompositeMapperHelper2()
     delete it->second;
   }
   this->Data.clear();
-  this->RenderedList.clear();
 }
 
 void vtkCompositeMapperHelper2::SetShaderValues(
@@ -227,6 +226,16 @@ void vtkCompositeMapperHelper2::RemoveUnused()
       ++it;
     }
   }
+}
+
+std::vector<vtkPolyData*> vtkCompositeMapperHelper2::GetRenderedList() const
+{
+  std::vector<vtkPolyData*> result;
+  for (const auto& pair : this->Data)
+  {
+    result.push_back(pair.first);
+  }
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -481,7 +490,6 @@ vtkCompositeMapperHelperData* vtkCompositeMapperHelper2::AddData(
     hdata->Marked = true;
     this->Data.insert(std::make_pair(pd, hdata));
     this->Modified();
-    this->RenderedList.push_back(pd);
     return hdata;
   }
   found->second->FlatIndex = flatIndex;
