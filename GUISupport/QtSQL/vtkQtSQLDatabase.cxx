@@ -141,7 +141,7 @@ vtkSQLQuery* vtkQtSQLDatabase::GetQueryInstance()
 
 bool vtkQtSQLDatabase::HasError()
 {
-  return (this->QtDatabase.lastError().number() != QSqlError::NoError);
+  return this->QtDatabase.lastError().isValid();
 }
 
 const char* vtkQtSQLDatabase::GetLastErrorText()
