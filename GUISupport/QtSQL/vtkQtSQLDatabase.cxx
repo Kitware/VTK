@@ -141,7 +141,7 @@ vtkSQLQuery* vtkQtSQLDatabase::GetQueryInstance()
 
 bool vtkQtSQLDatabase::HasError()
 {
-  return (this->QtDatabase.lastError().number() != QSqlError::NoError);
+  return this->QtDatabase.lastError().isValid();
 }
 
 const char* vtkQtSQLDatabase::GetLastErrorText()
@@ -323,7 +323,7 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += this->GetDbPort();
+  url += std::to_string(this->GetDbPort());
   url += "/";
   url += this->GetDatabaseName();
   return url;

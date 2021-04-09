@@ -500,7 +500,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
           if (dashPos != std::string::npos)
           {
             std::string postDash = fileStr.substr(dashPos + 1);
-            dashPos = postDash.find("-");
+            dashPos = postDash.find('-');
             if (dashPos != std::string::npos)
             {
               // more than one dash was found
