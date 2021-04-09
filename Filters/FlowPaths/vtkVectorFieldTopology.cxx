@@ -34,6 +34,7 @@
 #include <vtkMath.h>
 #include <vtkMatrix3x3.h>
 #include <vtkNew.h>
+#include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
@@ -550,6 +551,8 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   criticalPointsTypesDetailed->SetName("typeDetailed");
   criticalPoints->GetPointData()->AddArray(criticalPointsTypesDetailed);
 
+  // this prevents that vtkPStreamTracer is called, which is necessary to prevent deadlocks
+  vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer");
   vtkNew<vtkStreamTracer> streamTracer;
   streamTracer->SetInputData(dataset);
   streamTracer->SetIntegratorTypeToRungeKutta4();
