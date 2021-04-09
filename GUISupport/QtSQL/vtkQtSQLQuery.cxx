@@ -88,9 +88,9 @@ bool vtkQtSQLQuery::Execute()
   QSqlError error = this->Internals->QtQuery.lastError();
   if (error.isValid())
   {
-    QString errorString;
-    errorString.sprintf(
-      "Query execute error: %s (type:%d)\n", error.text().toLatin1().data(), error.type());
+    QString errorString = QString("Query execute error: %1 (type:%2)\n")
+                            .arg(error.text().toLatin1().data())
+                            .arg(error.type());
     vtkErrorMacro(<< errorString.toLatin1().data());
     return false;
   }
