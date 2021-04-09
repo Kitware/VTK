@@ -113,7 +113,7 @@ public:
   vtkTypeMacro(vtkBrokenLineWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -125,9 +125,9 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the broken line widget to be projected onto one of the orthogonal planes.
    * Remember that when the state changes, a ModifiedEvent is invoked.
@@ -139,7 +139,7 @@ public:
   vtkSetMacro(ProjectToPlane, vtkTypeBool);
   vtkGetMacro(ProjectToPlane, vtkTypeBool);
   vtkBooleanMacro(ProjectToPlane, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set up a reference to a vtkPlaneSource that could be from another widget
@@ -154,7 +154,7 @@ public:
   void SetProjectionNormalToZAxes() { this->SetProjectionNormal(2); }
   void SetProjectionNormalToOblique() { this->SetProjectionNormal(3); }
 
-  //@{
+  ///@{
   /**
    * Set the position of broken line handles and points in terms of a plane's
    * position. i.e., if ProjectionNormal is 0, all of the x-coordinate
@@ -164,7 +164,7 @@ public:
    */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the broken line.  The
@@ -175,7 +175,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties (the spheres are the handles). The
    * properties of the handles when selected and unselected can be manipulated.
@@ -184,9 +184,9 @@ public:
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   virtual void SetSelectedHandleProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the line properties. The properties of the line when selected
    * and unselected can be manipulated.
@@ -195,17 +195,17 @@ public:
   vtkGetObjectMacro(LineProperty, vtkProperty);
   virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of handles for this widget.
    */
   virtual void SetNumberOfHandles(int npts);
   vtkGetMacro(NumberOfHandles, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the broken line handles. Call GetNumberOfHandles
    * to determine the valid range of handle indices.
@@ -214,7 +214,7 @@ public:
   void SetHandlePosition(int handle, double xyz[3]);
   void GetHandlePosition(int handle, double xyz[3]);
   double* GetHandlePosition(int handle);
-  //@}
+  ///@}
 
   /**
    * Get the summed lengths of the individual straight line segments.
@@ -227,7 +227,7 @@ public:
    */
   void InitializeHandles(vtkPoints* points);
 
-  //@{
+  ///@{
   /**
    * Turn on / off event processing for this widget. If off, the widget will
    * not respond to user interaction
@@ -235,16 +235,16 @@ public:
   vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
   vtkGetMacro(ProcessEvents, vtkTypeBool);
   vtkBooleanMacro(ProcessEvents, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size factor to be applied to the handle radii.
    * Default: 1.
    */
   vtkSetClampMacro(HandleSizeFactor, double, 0., 100.);
   vtkGetMacro(HandleSizeFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkBrokenLineWidget();

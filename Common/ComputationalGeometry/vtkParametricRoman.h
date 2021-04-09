@@ -58,13 +58,13 @@ public:
    */
   static vtkParametricRoman* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius. Default is 1.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
   /**
    * Steiner's Roman Surface

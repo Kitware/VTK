@@ -75,7 +75,7 @@ public:
    */
   double GetStandardDeviation() { return this->StandardDeviation; }
 
-  //@{
+  ///@{
   /**
    * Set the percentiles to use for automatic view range computation.
    * This allows one to compute a range that does not include outliers
@@ -85,9 +85,9 @@ public:
    */
   vtkSetVector2Macro(AutoRangePercentiles, double);
   vtkGetVector2Macro(AutoRangePercentiles, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set lower and upper expansion factors to apply to the auto range
    * that was computed from the AutoRangePercentiles.  Any outliers that
@@ -100,9 +100,9 @@ public:
    */
   vtkSetVector2Macro(AutoRangeExpansionFactors, double);
   vtkGetVector2Macro(AutoRangeExpansionFactors, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get an automatically computed view range for the image, for use
    * with the lookup table or image property that is used when viewing
@@ -111,7 +111,7 @@ public:
    * than the rest.
    */
   vtkGetVector2Macro(AutoRange, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageHistogramStatistics();

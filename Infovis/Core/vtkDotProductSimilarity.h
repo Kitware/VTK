@@ -68,84 +68,84 @@ public:
   vtkTypeMacro(vtkDotProductSimilarity, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls whether to compute similarities for row-vectors or column-vectors.
    * 0 = rows, 1 = columns.
    */
   vtkGetMacro(VectorDimension, vtkIdType);
   vtkSetMacro(VectorDimension, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the upper diagonal of the similarity matrix.  Default: true.
    */
   vtkGetMacro(UpperDiagonal, int);
   vtkSetMacro(UpperDiagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the diagonal of the similarity matrix.  Default: false.
    */
   vtkGetMacro(Diagonal, int);
   vtkSetMacro(Diagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for a single input matrix, controls whether the
    * results will include the lower diagonal of the similarity matrix.  Default: false.
    */
   vtkGetMacro(LowerDiagonal, int);
   vtkSetMacro(LowerDiagonal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for two input matrices, controls whether the results
    * will include comparisons from the first matrix to the second matrix.
    */
   vtkGetMacro(FirstSecond, int);
   vtkSetMacro(FirstSecond, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When computing similarities for two input matrices, controls whether the results
    * will include comparisons from the second matrix to the first matrix.
    */
   vtkGetMacro(SecondFirst, int);
   vtkSetMacro(SecondFirst, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a minimum threshold that a similarity must exceed to be included in
    * the output.
    */
   vtkGetMacro(MinimumThreshold, double);
   vtkSetMacro(MinimumThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a minimum number of edges to include for each vector.
    */
   vtkGetMacro(MinimumCount, vtkIdType);
   vtkSetMacro(MinimumCount, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specifies a maximum number of edges to include for each vector.
    */
   vtkGetMacro(MaximumCount, vtkIdType);
   vtkSetMacro(MaximumCount, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkDotProductSimilarity();

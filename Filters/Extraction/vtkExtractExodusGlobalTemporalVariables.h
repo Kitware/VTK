@@ -58,7 +58,7 @@ public:
   vtkTypeMacro(vtkExtractExodusGlobalTemporalVariables, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * When set to true (default) this filter will check if any of the arrays in
    * the input field data has a key named `GLOBAL_TEMPORAL_VARIABLE`. If so,
@@ -71,7 +71,7 @@ public:
   vtkSetMacro(AutoDetectGlobalTemporalDataArrays, bool);
   vtkGetMacro(AutoDetectGlobalTemporalDataArrays, bool);
   vtkBooleanMacro(AutoDetectGlobalTemporalDataArrays, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractExodusGlobalTemporalVariables();
@@ -85,14 +85,14 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * These methods are used by vtkPExtractExodusGlobalTemporalVariables to
    * synchronize internal state between ranks.
    */
   void GetContinuationState(bool& continue_executing_flag, size_t& offset) const;
   void SetContinuationState(bool continue_executing_flag, size_t offset);
-  //@}
+  ///@}
 
 private:
   vtkExtractExodusGlobalTemporalVariables(const vtkExtractExodusGlobalTemporalVariables&) = delete;

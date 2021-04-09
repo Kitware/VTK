@@ -83,14 +83,14 @@ public:
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b);
 
-  //@{
+  ///@{
   /**
    * Set the color of the brush with four component unsigned chars (RGBA),
    * ranging from 0 to 255.
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
   void SetColor(const vtkColor4ub& color);
-  //@}
+  ///@}
 
   /**
    * Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
@@ -131,12 +131,12 @@ public:
    */
   void SetTexture(vtkImageData* image);
 
-  //@{
+  ///@{
   /**
    * Get the texture that is used to fill polygons
    */
   vtkGetObjectMacro(Texture, vtkImageData);
-  //@}
+  ///@}
 
   /**
    * Texture properties
@@ -149,7 +149,7 @@ public:
     Repeat = 0x08
   };
 
-  //@{
+  ///@{
   /**
    * Set properties to the texture
    * By default, the texture is linearly stretched.
@@ -158,14 +158,14 @@ public:
    * The behavior is undefined if TextureProperties is 0
    */
   vtkSetMacro(TextureProperties, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the properties associated to the texture
    */
   vtkGetMacro(TextureProperties, int);
-  //@}
+  ///@}
 
   /**
    * Make a deep copy of the supplied brush.

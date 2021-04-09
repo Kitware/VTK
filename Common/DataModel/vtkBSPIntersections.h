@@ -85,16 +85,16 @@ public:
 
   int GetRegionDataBounds(int regionID, double bounds[6]);
 
-  //@{
+  ///@{
   /**
    * Determine whether a region of the spatial decomposition
    * intersects an axis aligned box.
    */
   int IntersectsBox(int regionId, double* x);
   int IntersectsBox(int regionId, double x0, double x1, double y0, double y1, double z0, double z1);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute a list of the Ids of all regions that
    * intersect the specified axis aligned box.
@@ -103,7 +103,7 @@ public:
   int IntersectsBox(int* ids, int len, double* x);
   int IntersectsBox(
     int* ids, int len, double x0, double x1, double y0, double y1, double z0, double z1);
-  //@}
+  ///@}
 
   /**
    * Determine whether a region of the spatial decomposition

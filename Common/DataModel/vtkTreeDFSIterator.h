@@ -57,7 +57,7 @@ public:
     FINISH
   };
 
-  //@{
+  ///@{
   /**
    * Set the visit mode of the iterator.  Mode can be
    * DISCOVER (0): Order by discovery time
@@ -68,7 +68,7 @@ public:
    */
   void SetMode(int mode);
   vtkGetMacro(Mode, int);
-  //@}
+  ///@}
 
 protected:
   vtkTreeDFSIterator();

@@ -138,15 +138,15 @@ public:
    */
   virtual ~vtkLagrangianParticle();
 
-  //@{
+  ///@{
   /**
    * Get a pointer to Particle variables at its previous position
    * See GetEquationVariables for content description
    */
   inline double* GetPrevEquationVariables() { return this->PrevEquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the particle variables array.
    * To be used with vtkInitialValueProblemSolver::ComputeNextStep.
@@ -160,107 +160,107 @@ public:
    * but it is always NumberOfVariables - 7.
    */
   inline double* GetEquationVariables() { return this->EquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the particle variables array at its next position.
    * To be used with vtkInitialValueProblemSolver::ComputeNextStep.
    * See GetEquationVariables for content description
    */
   inline double* GetNextEquationVariables() { return this->NextEquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the previous particle position.
    * Convenience method, giving the same
    * results as GetPrevEquationVariables().
    */
   inline double* GetPrevPosition() { return this->PrevEquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the particle position.
    * Convenience method, giving the same
    * results as GetEquationVariables().
    */
   inline double* GetPosition() { return this->EquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the next particle position.
    * Convenience method, giving the same
    * results as GetNextEquationVariables();
    */
   inline double* GetNextPosition() { return this->NextEquationVariables.data(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the previous particle velocity.
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 3;
    */
   inline double* GetPrevVelocity() { return this->PrevVelocity; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the particle velocity.
    * Convenience method, giving the result:
    * GetEquationVariables() + 3;
    */
   inline double* GetVelocity() { return this->Velocity; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the next particle velocity.
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 3;
    */
   inline double* GetNextVelocity() { return this->NextVelocity; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the previous user variables.
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 6;
    */
   inline double* GetPrevUserVariables() { return this->PrevUserVariables; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the user variables.
    * Convenience method, giving the result:
    * GetEquationVariables() + 6;
    */
   inline double* GetUserVariables() { return this->UserVariables; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the next user variables.
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 6;
    */
   inline double* GetNextUserVariables() { return this->NextUserVariables; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a reference to PrevTrackedUserData
    * See GetTrackedUserData for an explanation on how to use it.
    */
   inline std::vector<double>& GetPrevTrackedUserData() { return this->PrevTrackedUserData; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a reference to TrackedUserData.
    * The tracked user data is a vector of double associated with each position of the particle,
@@ -272,17 +272,17 @@ public:
    * your implementation of FunctionValues in your model.
    */
   inline std::vector<double>& GetTrackedUserData() { return this->TrackedUserData; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a reference to NextTrackedUserData
    * See GetTrackedUserData for an explanation on how to use it.
    */
   inline std::vector<double>& GetNextTrackedUserData() { return this->NextTrackedUserData; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a pointer to a vtkLagrangianThreadedData that is considered to be local to the thread.
    * This structure contains multiple objects to be used by the tracker and the model, it also
@@ -295,7 +295,7 @@ public:
   {
     this->ThreadedData = threadedData;
   }
-  //@}
+  ///@}
 
   /**
    * Move the particle to its next position by putting next equation
@@ -310,14 +310,14 @@ public:
    */
   virtual vtkIdType GetId();
 
-  //@{
+  ///@{
   /**
    * Set/Get parent particle id.
    * Allow to find the seed particle of any particle.
    */
   virtual void SetParentId(vtkIdType parentId);
   virtual vtkIdType GetParentId();
-  //@}
+  ///@}
 
   /**
    * Get the particle original seed index in the seed dataset.
@@ -366,7 +366,7 @@ public:
    */
   virtual vtkIdType GetNumberOfSteps();
 
-  //@{
+  ///@{
   /**
    * Set/Get particle termination.
    * Values out of enum range are accepted
@@ -374,9 +374,9 @@ public:
    */
   virtual void SetTermination(int termination);
   virtual int GetTermination();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get particle interaction.
    * Values out of enum range are accepted
@@ -384,17 +384,17 @@ public:
    */
   virtual void SetInteraction(int interaction);
   virtual int GetInteraction();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get user flag.
    */
   virtual void SetUserFlag(int flag);
   virtual int GetUserFlag();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get parallel specific flag, indication to insert or not
    * the previous position after streaming.
@@ -402,9 +402,9 @@ public:
    */
   virtual void SetPInsertPreviousPosition(bool val);
   virtual bool GetPInsertPreviousPosition();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get parallel specific flag, indication that the particle
    * may be manually shifted after streaming.
@@ -412,7 +412,7 @@ public:
    */
   virtual void SetPManualShift(bool val);
   virtual bool GetPManualShift();
-  //@}
+  ///@}
 
   /**
    * Get reference to step time of this particle

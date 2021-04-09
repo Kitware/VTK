@@ -119,88 +119,88 @@ struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
 class VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkGeometryFilter* New();
   vtkTypeMacro(vtkGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry by point id.
    */
   vtkSetMacro(PointClipping, bool);
   vtkGetMacro(PointClipping, bool);
   vtkBooleanMacro(PointClipping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry by cell id.
    */
   vtkSetMacro(CellClipping, bool);
   vtkGetMacro(CellClipping, bool);
   vtkBooleanMacro(CellClipping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry via bounding box.
    */
   vtkSetMacro(ExtentClipping, bool);
   vtkGetMacro(ExtentClipping, bool);
   vtkBooleanMacro(ExtentClipping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the minimum point id for point id selection.
    */
   vtkSetClampMacro(PointMinimum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(PointMinimum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum point id for point id selection.
    */
   vtkSetClampMacro(PointMaximum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(PointMaximum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the minimum cell id for point id selection.
    */
   vtkSetClampMacro(CellMinimum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(CellMinimum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum cell id for point id selection.
    */
   vtkSetClampMacro(CellMaximum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(CellMaximum, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
    */
   void SetExtent(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
 
-  //@{
+  ///@{
   /**
    * Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
    */
   void SetExtent(double extent[6]);
   double* GetExtent() VTK_SIZEHINT(6) { return this->Extent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off merging of points. This will reduce the number of output
    * points, at some cost to performance. If Merging is off, then if possible
@@ -212,9 +212,9 @@ public:
   vtkSetMacro(Merging, bool);
   vtkGetMacro(Merging, bool);
   vtkBooleanMacro(Merging, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the
    * documentation for the vtkAlgorithm::DesiredOutputPrecision enum for an
@@ -224,9 +224,9 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off fast mode execution. If enabled, fast mode typically runs
    * much faster (2-3x) than the standard algorithm, however the output is an
@@ -236,9 +236,9 @@ public:
   vtkSetMacro(FastMode, bool);
   vtkGetMacro(FastMode, bool);
   vtkBooleanMacro(FastMode, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If fast mode is enabled, then Degree controls which cells are
    * visited. Basically, any cell connected to a point with connectivity
@@ -248,9 +248,9 @@ public:
    */
   vtkSetClampMacro(Degree, unsigned int, 1, VTK_INT_MAX);
   vtkGetMacro(Degree, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default an instance
    * of vtkMergePoints is used. (This method is now deprecated and has no
@@ -258,7 +258,7 @@ public:
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.
@@ -268,7 +268,7 @@ public:
 
   // The following are methods compatible with vtkDataSetSurfaceFilter.
 
-  //@{
+  ///@{
   /**
    * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
    * 1 ghost level from input in order to remove internal surface
@@ -276,9 +276,9 @@ public:
    */
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
@@ -293,9 +293,9 @@ public:
   vtkSetMacro(PassThroughPointIds, vtkTypeBool);
   vtkGetMacro(PassThroughPointIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
@@ -312,9 +312,9 @@ public:
   {
     return (this->OriginalPointIdsName ? this->OriginalPointIdsName : "vtkOriginalPointIds");
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If a second, vtkPolyData input is provided, this second input specifies
    * a list of faces to be excluded from the output (in the
@@ -329,9 +329,9 @@ public:
   void SetExcludedFacesData(vtkPolyData*);
   void SetExcludedFacesConnection(vtkAlgorithmOutput* algOutput);
   vtkPolyData* GetExcludedFaces();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the input is an unstructured grid with nonlinear faces, this parameter
    * determines how many times the face is subdivided into linear faces.  If 0,
@@ -345,18 +345,18 @@ public:
    */
   vtkSetMacro(NonlinearSubdivisionLevel, int);
   vtkGetMacro(NonlinearSubdivisionLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Disable delegation to an internal vtkDataSetSurfaceFilter.
    */
   vtkSetMacro(Delegation, vtkTypeBool);
   vtkGetMacro(Delegation, vtkTypeBool);
   vtkBooleanMacro(Delegation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Direct access methods so that this class can be used as an
    * algorithm without using it as a filter (i.e., no pipeline updates).
@@ -375,7 +375,7 @@ public:
 
   int DataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkExcludedFaces* exc);
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
-  //@}
+  ///@}
 
 protected:
   vtkGeometryFilter();

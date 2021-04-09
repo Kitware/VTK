@@ -58,13 +58,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the selection frustum. The planes object must contain six planes.
    */
   virtual void SetFrustum(vtkPlanes*);
   vtkGetObjectMacro(Frustum, vtkPlanes);
-  //@}
+  ///@}
 
   /**
    * Given eight vertices, creates a frustum.
@@ -77,37 +77,37 @@ public:
    */
   void CreateFrustum(double vertices[32]);
 
-  //@{
+  ///@{
   /**
    * Return eight points that define the selection frustum. Valid if
    * create Frustum was used, invalid if SetFrustum was.
    */
   vtkGetObjectMacro(ClipPoints, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/gets the intersection test type.
    */
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/gets the intersection test type. Only meaningful when fieldType is
    * vtkSelection::POINT
    */
   vtkSetMacro(ContainingCells, int);
   vtkGetMacro(ContainingCells, int);
-  //@}
+  ///@}
 
   /**
    * Does a quick test on the AABBox defined by the bounds.
    */
   int OverallBoundsTest(double* bounds);
 
-  //@{
+  ///@{
   /**
    * When On, this returns an unstructured grid that outlines selection area.
    * Off is the default.
@@ -115,16 +115,16 @@ public:
   vtkSetMacro(ShowBounds, vtkTypeBool);
   vtkGetMacro(ShowBounds, vtkTypeBool);
   vtkBooleanMacro(ShowBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When on, extracts cells outside the frustum instead of inside.
    */
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelectedFrustum(vtkPlanes* f = nullptr);

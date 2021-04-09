@@ -55,21 +55,21 @@ public:
   vtkTypeMacro(vtkHyperTreeGridDepthLimiter, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get True, create a new mask ; false, create a new HTG.
    */
   vtkSetMacro(JustCreateNewMask, bool);
   vtkGetMacro(JustCreateNewMask, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get maximum depth to which output grid should be limited
    */
   vtkSetMacro(Depth, unsigned int);
   vtkGetMacro(Depth, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridDepthLimiter();

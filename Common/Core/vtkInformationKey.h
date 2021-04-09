@@ -63,7 +63,7 @@ public:
    */
   const char* GetLocation();
 
-  //@{
+  ///@{
   /**
    * Key instances are static data that need to be created and
    * destroyed.  The constructor and destructor must be public.  The
@@ -73,7 +73,7 @@ public:
    */
   vtkInformationKey(const char* name, const char* location);
   ~vtkInformationKey() override;
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -105,13 +105,13 @@ public:
    */
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
-  //@{
+  ///@{
   /**
    * Print the key's value in an information object to a stream.
    */
   void Print(vtkInformation* info);
   virtual void Print(ostream& os, vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * This function is only relevant when the pertaining key

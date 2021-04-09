@@ -46,7 +46,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of line segments representing the spline for
    * this widget.
@@ -54,9 +54,9 @@ public:
    */
   void SetResolution(int resolution);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the parametric spline object.
    * Can be redefined in the child classes for further updates
@@ -65,7 +65,7 @@ public:
    */
   vtkGetObjectMacro(ParametricSpline, vtkParametricSpline);
   virtual void SetParametricSpline(vtkParametricSpline* spline);
-  //@}
+  ///@}
 
   /**
    * Get the position of the spline handles.

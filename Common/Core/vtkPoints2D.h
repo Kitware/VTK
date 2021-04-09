@@ -99,7 +99,7 @@ public:
    */
   virtual void Reset();
 
-  //@{
+  ///@{
   /**
    * Different ways to copy data. Shallow copy does reference count (i.e.,
    * assigns pointers and updates reference count); deep copy runs through
@@ -107,7 +107,7 @@ public:
    */
   virtual void DeepCopy(vtkPoints2D* ad);
   virtual void ShallowCopy(vtkPoints2D* ad);
-  //@}
+  ///@}
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this attribute data.

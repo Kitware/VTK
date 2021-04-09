@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkStreamGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Whether to use an edge window array. The default is to
    * not use a window array.
@@ -61,17 +61,17 @@ public:
   vtkSetMacro(UseEdgeWindow, bool);
   vtkGetMacro(UseEdgeWindow, bool);
   vtkBooleanMacro(UseEdgeWindow, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge window array. The default array name is "time".
    */
   vtkSetStringMacro(EdgeWindowArrayName);
   vtkGetStringMacro(EdgeWindowArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The time window amount. Edges with values lower
    * than the maximum value minus this window will be
@@ -80,7 +80,7 @@ public:
    */
   vtkSetMacro(EdgeWindow, double);
   vtkGetMacro(EdgeWindow, double);
-  //@}
+  ///@}
 
 protected:
   vtkStreamGraph();

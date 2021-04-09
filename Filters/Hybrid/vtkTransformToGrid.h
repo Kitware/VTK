@@ -40,39 +40,39 @@ public:
   vtkTypeMacro(vtkTransformToGrid, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the transform which will be converted into a grid.
    */
   virtual void SetInput(vtkAbstractTransform*);
   vtkGetObjectMacro(Input, vtkAbstractTransform);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the extent of the grid.
    */
   vtkSetVector6Macro(GridExtent, int);
   vtkGetVector6Macro(GridExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the origin of the grid.
    */
   vtkSetVector3Macro(GridOrigin, double);
   vtkGetVector3Macro(GridOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the spacing between samples in the grid.
    */
   vtkSetVector3Macro(GridSpacing, double);
   vtkGetVector3Macro(GridSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the scalar type of the grid.  The default is float.
    */
@@ -84,9 +84,9 @@ public:
   void SetGridScalarTypeToUnsignedShort() { this->SetGridScalarType(VTK_UNSIGNED_SHORT); }
   void SetGridScalarTypeToUnsignedChar() { this->SetGridScalarType(VTK_UNSIGNED_CHAR); }
   void SetGridScalarTypeToChar() { this->SetGridScalarType(VTK_CHAR); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the scale and shift to convert integer grid elements into
    * real values:  dx = scale*di + shift.  If the grid is of double type,
@@ -102,7 +102,7 @@ public:
     this->UpdateShiftScale();
     return this->DisplacementShift;
   }
-  //@}
+  ///@}
 
   /**
    * Get the output data object for a port on this algorithm.

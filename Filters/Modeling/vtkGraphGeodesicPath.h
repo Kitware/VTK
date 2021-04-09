@@ -32,29 +32,29 @@ class vtkIdList;
 class VTKFILTERSMODELING_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkGraphGeodesicPath, vtkGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The vertex at the start of the shortest path
    */
   vtkGetMacro(StartVertex, vtkIdType);
   vtkSetMacro(StartVertex, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The vertex at the end of the shortest path
    */
   vtkGetMacro(EndVertex, vtkIdType);
   vtkSetMacro(EndVertex, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkGraphGeodesicPath();

@@ -132,7 +132,7 @@ protected:
   vtkValuePass();
   ~vtkValuePass() override;
 
-  ///@{
+  ////@{
   /**
    * \brief vtkOpenGLRenderPass API.
    */
@@ -158,7 +158,7 @@ protected:
    * is single-stage.
    */
   vtkMTimeType GetShaderStageMTime() override;
-  ///@}
+  ////@}
 
   /**
    * Manages graphics resources depending on the rendering mode.  Binds internal
@@ -211,14 +211,14 @@ protected:
   void BindAttributes(vtkShaderProgram* prog, vtkOpenGLVertexArrayObject* VAO);
   void BindUniforms(vtkShaderProgram* prog);
 
-  //@{
+  ///@{
   /**
    * Methods managing graphics resources required during FLOATING_POINT mode.
    */
   bool HasWindowSizeChanged(vtkRenderer* ren);
   bool InitializeFBO(vtkRenderer* ren);
   void ReleaseFBO(vtkWindow* win);
-  //@}
+  ///@}
 
   class vtkInternalsFloat;
   vtkInternalsFloat* ImplFloat;

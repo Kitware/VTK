@@ -50,7 +50,7 @@ public:
     return new vtkInformationExecutivePortKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -59,7 +59,7 @@ public:
   vtkExecutive* GetExecutive(vtkInformation* info);
   int GetPort(vtkInformation* info);
   void Get(vtkInformation* info, vtkExecutive*& executive, int& port);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

@@ -66,7 +66,7 @@ public:
 
   static vtkIncrementalOctreePointLocator* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of points that a leaf node may maintain.
    * Note that the actual number of points maintained by a leaf node might
@@ -79,24 +79,24 @@ public:
    */
   vtkSetClampMacro(MaxPointsPerLeaf, int, 16, 256);
   vtkGetMacro(MaxPointsPerLeaf, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the search octree is built as a cubic shape or not.
    */
   vtkSetMacro(BuildCubicOctree, vtkTypeBool);
   vtkGetMacro(BuildCubicOctree, vtkTypeBool);
   vtkBooleanMacro(BuildCubicOctree, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get access to the vtkPoints object in which point coordinates are stored
    * for either point location or point insertion.
    */
   vtkGetObjectMacro(LocatorPoints, vtkPoints);
-  //@}
+  ///@}
 
   /**
    * Delete the octree search structure.

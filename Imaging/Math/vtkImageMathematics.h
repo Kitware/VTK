@@ -58,13 +58,13 @@ public:
   vtkTypeMacro(vtkImageMathematics, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the Operation to perform.
    */
   vtkSetMacro(Operation, int);
   vtkGetMacro(Operation, int);
-  //@}
+  ///@}
 
   /**
    * Set each pixel in the output image to the sum of the corresponding pixels
@@ -180,30 +180,30 @@ public:
    */
   void SetOperationToReplaceCByK() { this->SetOperation(VTK_REPLACECBYK); }
 
-  //@{
+  ///@{
   /**
    * A constant used by some operations (typically multiplicative). Default is 1.
    */
   vtkSetMacro(ConstantK, double);
   vtkGetMacro(ConstantK, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A constant used by some operations (typically additive). Default is 0.
    */
   vtkSetMacro(ConstantC, double);
   vtkGetMacro(ConstantC, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * How to handle divide by zero. Default is 0.
    */
   vtkSetMacro(DivideByZeroToC, vtkTypeBool);
   vtkGetMacro(DivideByZeroToC, vtkTypeBool);
   vtkBooleanMacro(DivideByZeroToC, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set the two inputs to this filter. For some operations, the second input

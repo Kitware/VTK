@@ -38,13 +38,13 @@ public:
   vtkTypeMacro(vtkParametricBohemianDome, vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Construct a Bohemian dome surface with the following parameters:
    */
   vtkGetMacro(A, double);
   vtkSetMacro(A, double);
-  //@}
+  ///@}
 
   vtkGetMacro(B, double);
   vtkSetMacro(B, double);

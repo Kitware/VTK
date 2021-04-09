@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkGPUVolumeRayCastMapper, vtkVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If AutoAdjustSampleDistances is on, the ImageSampleDistance
    * will be varied to achieve the allocated render time of this
@@ -56,9 +56,9 @@ public:
   vtkSetClampMacro(AutoAdjustSampleDistances, vtkTypeBool, 0, 1);
   vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the sample distance from the data spacing.  When the number of
    * voxels is 8, the sample distance will be roughly 1/200 the average voxel
@@ -67,9 +67,9 @@ public:
   vtkSetClampMacro(LockSampleDistanceToInputSpacing, vtkTypeBool, 0, 1);
   vtkGetMacro(LockSampleDistanceToInputSpacing, vtkTypeBool);
   vtkBooleanMacro(LockSampleDistanceToInputSpacing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseJittering is on, each ray traversal direction will be
    * perturbed slightly using a noise-texture to get rid of wood-grain
@@ -78,9 +78,9 @@ public:
   vtkSetClampMacro(UseJittering, vtkTypeBool, 0, 1);
   vtkGetMacro(UseJittering, vtkTypeBool);
   vtkBooleanMacro(UseJittering, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseDepthPass is on, the mapper will use two passes. In the first
    * pass, an isocontour depth buffer will be utilized as starting point
@@ -92,7 +92,7 @@ public:
   vtkSetClampMacro(UseDepthPass, vtkTypeBool, 0, 1);
   vtkGetMacro(UseDepthPass, vtkTypeBool);
   vtkBooleanMacro(UseDepthPass, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return handle to contour values container so
@@ -101,7 +101,7 @@ public:
    */
   vtkContourValues* GetDepthPassContourValues();
 
-  //@{
+  ///@{
   /**
    * Set/Get the distance between samples used for rendering
    * when AutoAdjustSampleDistances is off, or when this mapper
@@ -110,9 +110,9 @@ public:
    */
   vtkSetMacro(SampleDistance, float);
   vtkGetMacro(SampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sampling distance in the XY image dimensions. Default value of 1 meaning
    * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
@@ -122,27 +122,27 @@ public:
    */
   vtkSetClampMacro(ImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(ImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the minimum image sample distance allow when the image
    * sample distance is being automatically adjusted.
    */
   vtkSetClampMacro(MinimumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MinimumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the maximum image sample distance allow when the image
    * sample distance is being automatically adjusted.
    */
   vtkSetClampMacro(MaximumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MaximumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the window / level applied to the final color.
    * This allows brightness / contrast adjustments on the
@@ -160,9 +160,9 @@ public:
   vtkGetMacro(FinalColorWindow, float);
   vtkSetMacro(FinalColorLevel, float);
   vtkGetMacro(FinalColorLevel, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum size of the 3D texture in GPU memory.
    * Will default to the size computed from the graphics
@@ -170,9 +170,9 @@ public:
    */
   vtkSetMacro(MaxMemoryInBytes, vtkIdType);
   vtkGetMacro(MaxMemoryInBytes, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum fraction of the MaxMemoryInBytes that should
    * be used to hold the texture. Valid values are 0.1 to
@@ -180,9 +180,9 @@ public:
    */
   vtkSetClampMacro(MaxMemoryFraction, float, 0.1f, 1.0f);
   vtkGetMacro(MaxMemoryFraction, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells if the mapper will report intermediate progress.
    * Initial value is true. As the progress works with a GL blocking
@@ -193,7 +193,7 @@ public:
    */
   vtkSetMacro(ReportProgress, bool);
   vtkGetMacro(ReportProgress, bool);
-  //@}
+  ///@}
 
   /**
    * Based on hardware and properties, we may or may not be able to
@@ -210,7 +210,7 @@ public:
   void CreateCanonicalView(vtkRenderer* ren, vtkVolume* volume, vtkImageData* image, int blend_mode,
     double viewDirection[3], double viewUp[3]);
 
-  //@{
+  ///@{
   /**
    * Optionally, set a mask input. This mask may be a binary mask or a label
    * map. This must be specified via SetMaskType.
@@ -233,7 +233,7 @@ public:
    */
   void SetMaskInput(vtkImageData* mask);
   vtkGetObjectMacro(MaskInput, vtkImageData);
-  //@}
+  ///@}
 
   enum
   {
@@ -241,7 +241,7 @@ public:
     LabelMapMaskType
   };
 
-  //@{
+  ///@{
   /**
    * Set the mask type, if mask is to be used. See documentation for
    * SetMaskInput(). The default is a LabelMapMaskType.
@@ -250,9 +250,9 @@ public:
   vtkGetMacro(MaskType, int);
   void SetMaskTypeToBinary();
   void SetMaskTypeToLabelMap();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells how much mask color transfer function is used compared to the
    * standard color transfer function when the mask is true. This is relevant
@@ -263,9 +263,9 @@ public:
    */
   vtkSetClampMacro(MaskBlendFactor, float, 0.0f, 1.0f);
   vtkGetMacro(MaskBlendFactor, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable or disable setting output of volume rendering to be
    * color and depth textures. By default this is set to 0 (off).
@@ -283,9 +283,9 @@ public:
   vtkSetMacro(RenderToImage, vtkTypeBool);
   vtkGetMacro(RenderToImage, vtkTypeBool);
   vtkBooleanMacro(RenderToImage, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scalar type of the depth texture in RenderToImage mode.
    * By default, the type if VTK_FLOAT.
@@ -296,9 +296,9 @@ public:
   void SetDepthImageScalarTypeToUnsignedChar();
   void SetDepthImageScalarTypeToUnsignedShort();
   void SetDepthImageScalarTypeToFloat();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable or disable clamping the depth value of the fully
    * transparent voxel to the depth of the back-face of the
@@ -313,7 +313,7 @@ public:
   vtkSetMacro(ClampDepthToBackface, vtkTypeBool);
   vtkGetMacro(ClampDepthToBackface, vtkTypeBool);
   vtkBooleanMacro(ClampDepthToBackface, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Low level API to export the depth texture as vtkImageData in
@@ -371,7 +371,7 @@ public:
     NATIVE
   };
 
-  //@{
+  ///@{
   /**
    * Set whether to use the scalar range or the native transfer function range
    * when looking up transfer functions for color and opacity values. When the
@@ -394,11 +394,11 @@ public:
   vtkGetMacro(ScalarOpacityRangeType, int);
   vtkSetMacro(GradientOpacityRangeType, int);
   vtkGetMacro(GradientOpacityRangeType, int);
-  //@}
+  ///@}
 
   vtkDataSet* GetInput() override { return this->GetInput(0); };
 
-  //@{
+  ///@{
   /**
    * Add/Remove input connections. Active and removed ports are cached in
    * Ports and RemovedPorts respectively.
@@ -410,7 +410,7 @@ public:
   {
     this->SetInputConnection(0, input);
   }
-  //@}
+  ///@}
 
   /**
    * Number of currently active ports.
@@ -448,7 +448,7 @@ protected:
    */
   void TransformInput(const int port);
 
-  //@{
+  ///@{
   /**
    * This method is used by the Render() method to validate everything before
    * attempting to render. This method returns 0 if something is not right -
@@ -461,16 +461,16 @@ protected:
   int ValidateRender(vtkRenderer*, vtkVolume*);
   int ValidateInputs();
   int ValidateInput(vtkVolumeProperty* property, const int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow-copy the inputs into a transform-adjusted clone.
    * \sa vtkGPUVolumeRayCastMapper::TransformInput
    */
   void CloneInputs();
   void CloneInput(vtkDataSet* input, const int port);
-  //@}
+  ///@}
 
   // Special version of render called during the creation
   // of a canonical view.
@@ -531,7 +531,7 @@ protected:
   int GeneratingCanonicalView;
   vtkImageData* CanonicalViewImageData;
 
-  //@{
+  ///@{
   /**
    * Set the mapper in AMR Mode or not. Initial value is false.
    * Called only by the vtkKWAMRVolumeMapper
@@ -539,7 +539,7 @@ protected:
   vtkSetClampMacro(AMRMode, vtkTypeBool, 0, 1);
   vtkGetMacro(AMRMode, vtkTypeBool);
   vtkBooleanMacro(AMRMode, vtkTypeBool);
-  //@}
+  ///@}
 
   vtkImageData* MaskInput;
   float MaskBlendFactor;

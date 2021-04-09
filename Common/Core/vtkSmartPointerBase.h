@@ -62,14 +62,14 @@ public:
    */
   ~vtkSmartPointerBase();
 
-  //@{
+  ///@{
   /**
    * Assign object to reference.  This removes any reference to an old
    * object.
    */
   vtkSmartPointerBase& operator=(vtkObjectBase* r);
   vtkSmartPointerBase& operator=(const vtkSmartPointerBase& r);
-  //@}
+  ///@}
 
   /**
    * Get the contained pointer.

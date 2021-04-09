@@ -88,14 +88,14 @@ public:
    */
   static vtkScalarBarActor* New();
 
-  //@{
+  ///@{
   /**
    * Draw the scalar bar and annotation text to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -116,7 +116,7 @@ public:
    */
   virtual void GetScalarBarRect(int rect[4], vtkViewport* viewport);
 
-  //@{
+  ///@{
   /**
    * Set/Get the lookup table to use. The lookup table specifies the number
    * of colors to use in the table (if not overridden), the scalar range,
@@ -125,9 +125,9 @@ public:
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should be display the opacity as well. This is displayed by changing
    * the opacity of the scalar bar in accordance with the opacity of the
@@ -138,9 +138,9 @@ public:
   vtkSetMacro(UseOpacity, vtkTypeBool);
   vtkGetMacro(UseOpacity, vtkTypeBool);
   vtkBooleanMacro(UseOpacity, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of scalar bar segments to show. This may
    * differ from the number of colors in the lookup table, in which case
@@ -148,25 +148,25 @@ public:
    */
   vtkSetClampMacro(MaximumNumberOfColors, int, 2, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfColors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of automatic tick labels to show.
    */
   vtkSetClampMacro(NumberOfLabels, int, 0, 64);
   vtkGetMacro(NumberOfLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the fixed locations to use.
    */
   virtual void SetCustomLabels(vtkDoubleArray* labels);
   vtkGetObjectMacro(CustomLabels, vtkDoubleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether custom labels will be used.
    * bonds. Default: Off.
@@ -174,9 +174,9 @@ public:
   vtkGetMacro(UseCustomLabels, bool);
   vtkSetMacro(UseCustomLabels, bool);
   vtkBooleanMacro(UseCustomLabels, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the orientation of the scalar bar.
    */
@@ -184,76 +184,76 @@ public:
   vtkGetMacro(Orientation, int);
   void SetOrientationToHorizontal() { this->SetOrientation(VTK_ORIENT_HORIZONTAL); }
   void SetOrientationToVertical() { this->SetOrientation(VTK_ORIENT_VERTICAL); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title text property.
    */
   virtual void SetTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text property.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the annotation text property.
    */
   virtual void SetAnnotationTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(AnnotationTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels on the scalar
    * bar.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title of the scalar bar actor,
    */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title for the component that is selected,
    */
   vtkSetStringMacro(ComponentTitle);
   vtkGetStringMacro(ComponentTitle);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
    */
   void ShallowCopy(vtkProp* prop) override;
 
-  //@{
+  ///@{
   /**
    * Set the width of the texture grid. Used only if UseOpacity is ON.
    */
   vtkSetMacro(TextureGridWidth, double);
   vtkGetMacro(TextureGridWidth, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the texture actor.. you may want to change some properties on it
    */
   vtkGetObjectMacro(TextureActor, vtkTexturedActor2D);
-  //@}
+  ///@}
 
   enum
   {
@@ -261,7 +261,7 @@ public:
     SucceedScalarBar
   };
 
-  //@{
+  ///@{
   /**
    * Should the title and tick marks precede the scalar bar or succeed it?
    * This is measured along the viewport coordinate direction perpendicular
@@ -280,9 +280,9 @@ public:
   {
     this->SetTextPosition(vtkScalarBarActor::SucceedScalarBar);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum width and height in pixels. Specifying the size as
    * a relative fraction of the viewport can sometimes undesirably stretch
@@ -294,9 +294,9 @@ public:
   vtkGetMacro(MaximumWidthInPixels, int);
   vtkSetMacro(MaximumHeightInPixels, int);
   vtkGetMacro(MaximumHeightInPixels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the padding between the scalar bar and the text annotations.
    * This space is used to draw leader lines.
@@ -304,9 +304,9 @@ public:
    */
   vtkSetMacro(AnnotationLeaderPadding, double);
   vtkGetMacro(AnnotationLeaderPadding, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether text annotations should be rendered or not.
    * Currently, this only affects rendering when \a IndexedLookup is true.
@@ -315,9 +315,9 @@ public:
   vtkSetMacro(DrawAnnotations, vtkTypeBool);
   vtkGetMacro(DrawAnnotations, vtkTypeBool);
   vtkBooleanMacro(DrawAnnotations, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the NaN annotation should be rendered or not.
    * This only affects rendering when \a DrawAnnotations is true.
@@ -326,9 +326,9 @@ public:
   vtkSetMacro(DrawNanAnnotation, vtkTypeBool);
   vtkGetMacro(DrawNanAnnotation, vtkTypeBool);
   vtkBooleanMacro(DrawNanAnnotation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the Below range swatch should be rendered or not.
    * This only affects rendering when \a DrawAnnotations is true.
@@ -337,17 +337,17 @@ public:
   vtkSetMacro(DrawBelowRangeSwatch, bool);
   vtkGetMacro(DrawBelowRangeSwatch, bool);
   vtkBooleanMacro(DrawBelowRangeSwatch, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the annotation text for "Below Range" values.
    */
   vtkSetStringMacro(BelowRangeAnnotation);
   vtkGetStringMacro(BelowRangeAnnotation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the Above range swatch should be rendered or not.
    * This only affects rendering when \a DrawAnnotations is true.
@@ -356,16 +356,16 @@ public:
   vtkSetMacro(DrawAboveRangeSwatch, bool);
   vtkGetMacro(DrawAboveRangeSwatch, bool);
   vtkBooleanMacro(DrawAboveRangeSwatch, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the annotation text for "Above Range Swatch" values.
    */
   vtkSetStringMacro(AboveRangeAnnotation);
   vtkGetStringMacro(AboveRangeAnnotation);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set/get how leader lines connecting annotations to values should be colored.
 
@@ -377,17 +377,17 @@ public:
   vtkSetMacro(FixedAnnotationLeaderLineColor, vtkTypeBool);
   vtkGetMacro(FixedAnnotationLeaderLineColor, vtkTypeBool);
   vtkBooleanMacro(FixedAnnotationLeaderLineColor, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the annotation text for "NaN" values.
    */
   vtkSetStringMacro(NanAnnotation);
   vtkGetStringMacro(NanAnnotation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether annotation labels should be scaled with the viewport.
 
@@ -399,9 +399,9 @@ public:
   vtkSetMacro(AnnotationTextScaling, vtkTypeBool);
   vtkGetMacro(AnnotationTextScaling, vtkTypeBool);
   vtkBooleanMacro(AnnotationTextScaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether a background should be drawn around the scalar bar.
    * Default is off.
@@ -409,9 +409,9 @@ public:
   vtkSetMacro(DrawBackground, vtkTypeBool);
   vtkGetMacro(DrawBackground, vtkTypeBool);
   vtkBooleanMacro(DrawBackground, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether a frame should be drawn around the scalar bar.
    * Default is off.
@@ -419,9 +419,9 @@ public:
   vtkSetMacro(DrawFrame, vtkTypeBool);
   vtkGetMacro(DrawFrame, vtkTypeBool);
   vtkBooleanMacro(DrawFrame, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the color bar should be drawn. If off, only the tickmarks
    * and text will be drawn. Default is on.
@@ -429,43 +429,43 @@ public:
   vtkSetMacro(DrawColorBar, vtkTypeBool);
   vtkGetMacro(DrawColorBar, vtkTypeBool);
   vtkBooleanMacro(DrawColorBar, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the tick labels should be drawn. Default is on.
    */
   vtkSetMacro(DrawTickLabels, vtkTypeBool);
   vtkGetMacro(DrawTickLabels, vtkTypeBool);
   vtkBooleanMacro(DrawTickLabels, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the background property.
    */
   virtual void SetBackgroundProperty(vtkProperty2D* p);
   vtkGetObjectMacro(BackgroundProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the frame property.
    */
   virtual void SetFrameProperty(vtkProperty2D* p);
   vtkGetObjectMacro(FrameProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the amount of padding around text boxes.
    * The default is 1 pixel.
    */
   vtkGetMacro(TextPad, int);
   vtkSetMacro(TextPad, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the margin in pixels, between the title and the bar,
    * when the \a Orientation is vertical.
@@ -473,18 +473,18 @@ public:
    */
   vtkGetMacro(VerticalTitleSeparation, int);
   vtkSetMacro(VerticalTitleSeparation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the thickness of the color bar relative to the widget frame.
    * The default is 0.375 and must always be in the range ]0, 1[.
    */
   vtkGetMacro(BarRatio, double);
   vtkSetClampMacro(BarRatio, double, 0., 1.);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the ratio of the title height to the tick label height
    * (used only when the \a Orientation is horizontal).
@@ -493,9 +493,9 @@ public:
    */
   vtkGetMacro(TitleRatio, double);
   vtkSetClampMacro(TitleRatio, double, 0., 1.);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the font size of title and labels is unconstrained. Default is off.
    * When it is constrained, the size of the scalar bar will constrain the font size.
@@ -505,7 +505,7 @@ public:
   vtkSetMacro(UnconstrainedFontSize, bool);
   vtkGetMacro(UnconstrainedFontSize, bool);
   vtkBooleanMacro(UnconstrainedFontSize, bool);
-  //@}
+  ///@}
 
 protected:
   vtkScalarBarActor();
@@ -738,7 +738,7 @@ protected:
     double barX, double barY, double barWidth, double barHeight, double delta, double pad);
 
   /// User-changeable settings
-  //@{
+  ///@{
   int MaximumNumberOfColors;
   int NumberOfLabels;
   int NumberOfLabelsBuilt;
@@ -775,10 +775,10 @@ protected:
 
   bool DrawBelowRangeSwatch;
   bool DrawAboveRangeSwatch;
-  //@}
+  ///@}
 
   /// Internal state used for rendering
-  //@{
+  ///@{
   vtkTimeStamp BuildTime; //!< Last time internal state changed.
   int LastSize[2];        //!< Projected size in viewport coordinates of last build.
   int LastOrigin[2];      //!< Projected origin (viewport coordinates) of last build.
@@ -806,7 +806,7 @@ protected:
   vtkPolyData* Frame;               //!< Polyline used to highlight frame.
   vtkPolyDataMapper2D* FrameMapper; //!< Mapper for \a Frame.
   vtkActor2D* FrameActor;           //!< Actor for \a Frame.
-  //@}
+  ///@}
 
 private:
   vtkScalarBarActor(const vtkScalarBarActor&) = delete;

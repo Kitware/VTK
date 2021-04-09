@@ -42,22 +42,22 @@ public:
    */
   static vtkGeometricErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkGeometricErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the squared absolute geometric accuracy. See
    * SetAbsoluteGeometricTolerance() for details.
    * \post positive_result: result>0
    */
   vtkGetMacro(AbsoluteGeometricTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Set the geometric accuracy with a squared absolute value.

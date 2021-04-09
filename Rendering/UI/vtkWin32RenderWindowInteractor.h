@@ -55,7 +55,7 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
@@ -67,7 +67,7 @@ public:
    */
   void Enable() override;
   void Disable() override;
-  //@}
+  ///@}
 
   /**
    * Run the event loop and return. This is provided so that you can
@@ -76,7 +76,7 @@ public:
    */
   void ProcessEvents() override;
 
-  //@{
+  ///@{
   /**
    * By default the interactor installs a MessageProc callback which
    * intercepts windows messages to the window and controls interactions.
@@ -86,7 +86,7 @@ public:
   vtkSetMacro(InstallMessageProc, int);
   vtkGetMacro(InstallMessageProc, int);
   vtkBooleanMacro(InstallMessageProc, int);
-  //@}
+  ///@}
 
   /**
    * Win32 specific application terminate, calls ClassExitMethod then
@@ -100,7 +100,7 @@ public:
   friend VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage2(
     HWND hwnd, UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor* me);
 
-  //@{
+  ///@{
   /**
    * Various methods that a Win32 window can redirect to this class to be
    * handled.
@@ -124,9 +124,9 @@ public:
   virtual int OnKillFocus(HWND wnd, UINT nFlags);
   virtual int OnTouch(HWND wnd, UINT wParam, UINT lParam);
   virtual int OnDropFiles(HWND wnd, WPARAM wParam);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
@@ -135,7 +135,7 @@ public:
    */
   static void SetClassExitMethod(void (*f)(void*), void* arg);
   static void SetClassExitMethodArgDelete(void (*f)(void*));
-  //@}
+  ///@}
 
   /**
    * These methods correspond to the Exit, User and Pick
@@ -153,7 +153,7 @@ protected:
   int MouseInWindow;
   int StartedMessageLoop;
 
-  //@{
+  ///@{
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
@@ -162,16 +162,16 @@ protected:
   static void (*ClassExitMethod)(void*);
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Win32-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
   int InternalDestroyTimer(int platformTimerId) override;
-  //@}
+  ///@}
 
   /**
    * This will start up the event loop and never return. If you

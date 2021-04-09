@@ -75,13 +75,13 @@ public:
   vtkTypeMacro(vtkTulipReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The Tulip file name.
    */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkTulipReader();

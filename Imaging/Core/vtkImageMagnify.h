@@ -36,16 +36,16 @@ public:
   vtkTypeMacro(vtkImageMagnify, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the integer magnification factors in the i-j-k directions.
    * Initially, factors are set to 1 in all directions.
    */
   vtkSetVector3Macro(MagnificationFactors, int);
   vtkGetVector3Macro(MagnificationFactors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn interpolation on and off (pixel replication is used when off).
    * Initially, interpolation is off.
@@ -53,7 +53,7 @@ public:
   vtkSetMacro(Interpolate, vtkTypeBool);
   vtkGetMacro(Interpolate, vtkTypeBool);
   vtkBooleanMacro(Interpolate, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageMagnify();

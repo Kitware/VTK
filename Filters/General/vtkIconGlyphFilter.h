@@ -58,32 +58,32 @@
 class VTKFILTERSGENERAL_EXPORT vtkIconGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   static vtkIconGlyphFilter* New();
   vtkTypeMacro(vtkIconGlyphFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of an icon in the icon sheet.
    */
   vtkSetVector2Macro(IconSize, int);
   vtkGetVectorMacro(IconSize, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of an icon in the icon sheet.
    */
   vtkSetVector2Macro(IconSheetSize, int);
   vtkGetVectorMacro(IconSheetSize, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Width and Height, in pixels, of the size of the icon when it
    * is rendered. By default, the IconSize is used to set the display size
@@ -93,9 +93,9 @@ public:
    */
   vtkSetVector2Macro(DisplaySize, int);
   vtkGetVectorMacro(DisplaySize, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the Quad generated to place the icon on will be either
    * the dimensions specified by IconSize or the DisplaySize.
@@ -103,9 +103,9 @@ public:
   vtkSetMacro(UseIconSize, bool);
   vtkGetMacro(UseIconSize, bool);
   vtkBooleanMacro(UseIconSize, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify how to specify individual icons. By default, icon scaling
    * is off, but if it is on, then the filter looks for an array named
@@ -115,9 +115,9 @@ public:
   vtkGetMacro(IconScaling, int);
   void SetIconScalingToScalingOff() { this->SetIconScaling(VTK_ICON_SCALING_OFF); }
   void SetIconScalingToScalingArray() { this->SetIconScaling(VTK_ICON_SCALING_USE_SCALING_ARRAY); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to pass the scalar icon index to the output. By
    * default this is not passed since it can affect color during the
@@ -127,9 +127,9 @@ public:
   vtkSetMacro(PassScalars, bool);
   vtkGetMacro(PassScalars, bool);
   vtkBooleanMacro(PassScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if the input points define the center of the icon quad or one of
    * top right corner, top center, top left corner, center right, center, center
@@ -146,16 +146,16 @@ public:
   void SetGravityToBottomRight() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT); }
   void SetGravityToBottomCenter() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER); }
   void SetGravityToBottomLeft() { this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an offset (in pixels or display coordinates) that offsets the icons
    * from their generating points.
    */
   vtkSetVector2Macro(Offset, int);
   vtkGetVectorMacro(Offset, int, 2);
-  //@}
+  ///@}
 
 protected:
   vtkIconGlyphFilter();

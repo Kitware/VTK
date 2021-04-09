@@ -44,7 +44,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set a lookup table to apply to the data.  Use the Range,
    * VectorMode, and VectorComponents of the table to control
@@ -54,9 +54,9 @@ public:
    */
   virtual void SetLookupTable(vtkScalarsToColors* table);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output format, the default is RGBA.
    */
@@ -66,7 +66,7 @@ public:
   void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; }
   void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; }
   void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; }
-  //@}
+  ///@}
 
   /**
    * Bypass the color mapping operation and output the scalar

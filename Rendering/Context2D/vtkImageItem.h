@@ -49,26 +49,26 @@ public:
    */
   void SetImage(vtkImageData* image);
 
-  //@{
+  ///@{
   /**
    * Get the image of the item.
    */
   vtkGetObjectMacro(Image, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the bottom corner of the image.
    */
   vtkSetVector2Macro(Position, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position of the bottom corner of the image.
    */
   vtkGetVector2Macro(Position, float);
-  //@}
+  ///@}
 
 protected:
   vtkImageItem();

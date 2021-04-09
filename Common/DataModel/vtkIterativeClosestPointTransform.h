@@ -56,7 +56,7 @@ public:
   vtkTypeMacro(vtkIterativeClosestPointTransform, vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the source and target data sets.
    */
@@ -64,33 +64,33 @@ public:
   void SetTarget(vtkDataSet* target);
   vtkGetObjectMacro(Source, vtkDataSet);
   vtkGetObjectMacro(Target, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a spatial locator for speeding up the search process.
    * An instance of vtkCellLocator is used by default.
    */
   void SetLocator(vtkCellLocator* locator);
   vtkGetObjectMacro(Locator, vtkCellLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of iterations. Default is 50.
    */
   vtkSetMacro(MaximumNumberOfIterations, int);
   vtkGetMacro(MaximumNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of iterations since the last update
    */
   vtkGetMacro(NumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the algorithm to check the mean distance between two iterations.
    * Default is Off.
@@ -98,9 +98,9 @@ public:
   vtkSetMacro(CheckMeanDistance, vtkTypeBool);
   vtkGetMacro(CheckMeanDistance, vtkTypeBool);
   vtkBooleanMacro(CheckMeanDistance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mean distance mode. This mode expresses how the mean
    * distance is computed. The RMS mode is the square root of the average
@@ -113,9 +113,9 @@ public:
   void SetMeanDistanceModeToRMS() { this->SetMeanDistanceMode(VTK_ICP_MODE_RMS); }
   void SetMeanDistanceModeToAbsoluteValue() { this->SetMeanDistanceMode(VTK_ICP_MODE_AV); }
   const char* GetMeanDistanceModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum mean distance between two iteration. If the mean
    * distance is lower than this, the convergence stops. The default
@@ -123,16 +123,16 @@ public:
    */
   vtkSetMacro(MaximumMeanDistance, double);
   vtkGetMacro(MaximumMeanDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the mean distance between the last two iterations.
    */
   vtkGetMacro(MeanDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of landmarks sampled in your dataset.
    * If your dataset is dense, then you will typically not need all the
@@ -140,9 +140,9 @@ public:
    */
   vtkSetMacro(MaximumNumberOfLandmarks, int);
   vtkGetMacro(MaximumNumberOfLandmarks, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Starts the process by translating source centroid to target centroid.
    * The default is Off.
@@ -150,15 +150,15 @@ public:
   vtkSetMacro(StartByMatchingCentroids, vtkTypeBool);
   vtkGetMacro(StartByMatchingCentroids, vtkTypeBool);
   vtkBooleanMacro(StartByMatchingCentroids, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the internal landmark transform. Use it to constrain the number of
    * degrees of freedom of the solution (i.e. rigid body, similarity, etc.).
    */
   vtkGetObjectMacro(LandmarkTransform, vtkLandmarkTransform);
-  //@}
+  ///@}
 
   /**
    * Invert the transformation.  This is done by switching the
@@ -172,13 +172,13 @@ public:
   vtkAbstractTransform* MakeTransform() override;
 
 protected:
-  //@{
+  ///@{
   /**
    * Release source and target
    */
   void ReleaseSource(void);
   void ReleaseTarget(void);
-  //@}
+  ///@}
 
   /**
    * Release locator

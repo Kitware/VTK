@@ -68,13 +68,13 @@ public:
    */
   void GetActors(vtkPropCollection*) override;
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -93,29 +93,29 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   void GetBounds(double bounds[6]);
   double* GetBounds() VTK_SIZEHINT(6) override;
-  //@}
+  ///@}
 
   /**
    * Get the actors mtime plus consider its properties and texture if set.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale factor for the face text
    */
   void SetFaceTextScale(double);
   vtkGetMacro(FaceTextScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the individual face text properties.
    */
@@ -125,7 +125,7 @@ public:
   vtkProperty* GetYMinusFaceProperty();
   vtkProperty* GetZPlusFaceProperty();
   vtkProperty* GetZMinusFaceProperty();
-  //@}
+  ///@}
 
   /**
    * Get the cube properties.
@@ -137,7 +137,7 @@ public:
    */
   vtkProperty* GetTextEdgesProperty();
 
-  //@{
+  ///@{
   /**
    * Set/get the face text.
    */
@@ -153,33 +153,33 @@ public:
   vtkGetStringMacro(ZPlusFaceText);
   vtkSetStringMacro(ZMinusFaceText);
   vtkGetStringMacro(ZMinusFaceText);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable drawing the vector text edges.
    */
   void SetTextEdgesVisibility(int);
   int GetTextEdgesVisibility();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable drawing the cube.
    */
   void SetCubeVisibility(int);
   int GetCubeVisibility();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable drawing the vector text.
    */
   void SetFaceTextVisibility(int);
   int GetFaceTextVisibility();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Augment individual face text orientations.
    */
@@ -189,7 +189,7 @@ public:
   vtkGetMacro(YFaceTextRotation, double);
   vtkSetMacro(ZFaceTextRotation, double);
   vtkGetMacro(ZFaceTextRotation, double);
-  //@}
+  ///@}
 
   /**
    * Get the assembly so that user supplied transforms can be applied

@@ -284,7 +284,7 @@ public:
   virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId) = 0;
 
-  //@{
+  ///@{
   /**
    * Intersects with an other cell. Returns 1 if cells intersect, 0 otherwise.
    * If an exact intersection detection with regards to floating point precision is wanted,
@@ -295,7 +295,7 @@ public:
   virtual int IntersectWithCell(vtkCell* other, double tol = 0.0);
   virtual int IntersectWithCell(vtkCell* other, const vtkBoundingBox& boudingBox,
     const vtkBoundingBox& otherBoundingBox, double tol = 0.0);
-  //@}
+  ///@}
 
   /**
    * Generate simplices of proper dimension. If cell is 3D, tetrahedron are

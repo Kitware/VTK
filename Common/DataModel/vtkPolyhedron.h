@@ -57,16 +57,16 @@ class vtkPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard new methods.
    */
   static vtkPolyhedron* New();
   vtkTypeMacro(vtkPolyhedron, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * See vtkCell3D API for description of these methods.
    * @warning These method are unimplemented in vtkPolyhedron
@@ -125,7 +125,7 @@ public:
     vtkWarningMacro(<< "vtkPolyhedron::GetCentroid Not Implemented");
     return false;
   }
-  //@}
+  ///@}
 
   /**
    * See vtkCell3D API for description of this method.
@@ -143,7 +143,7 @@ public:
   int RequiresInitialization() override { return 1; }
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * A polyhedron is represented internally by a set of polygonal faces.
    * These faces can be processed to explicitly determine edges.
@@ -152,7 +152,7 @@ public:
   vtkCell* GetEdge(int) override;
   int GetNumberOfFaces() override;
   vtkCell* GetFace(int faceId) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the vtkCell API. This method contours the input polyhedron and outputs
@@ -245,7 +245,7 @@ public:
    */
   int IsPrimaryCell() override { return 1; }
 
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives). Here we use the MVC calculation
@@ -253,9 +253,9 @@ public:
    */
   void InterpolateFunctions(const double x[3], double* sf) override;
   void InterpolateDerivs(const double x[3], double* derivs) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the definition of faces. Note that the GetFaces()
    * returns a list of faces in vtkCellArray form; use the method
@@ -267,7 +267,7 @@ public:
   int RequiresExplicitFaceRepresentation() override { return 1; }
   void SetFaces(vtkIdType* faces) override;
   vtkIdType* GetFaces() override;
-  //@}
+  ///@}
 
   /**
    * A method particular to vtkPolyhedron. It determines whether a point x[3]

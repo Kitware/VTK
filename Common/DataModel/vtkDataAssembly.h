@@ -141,21 +141,21 @@ public:
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Initializes a data-assembly using an XML representation of the assembly.
    * Returns true if the initialization was successful, otherwise the assembly
    * is set a clean state and returns false.
    */
   bool InitializeFromXML(const char* xmlcontents);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Saves the data-assembly as a XML.
    */
   std::string SerializeToXML(vtkIndent indent) const;
-  //@}
+  ///@}
 
   /**
    * Returns the ID for the root node.
@@ -163,13 +163,13 @@ public:
    */
   static int GetRootNode() { return 0; }
 
-  //@{
+  ///@{
   /**
    * Get/Set root node name. Defaults to DataAssembly.
    */
   void SetRootNodeName(const char* name) { this->SetNodeName(this->GetRootNode(), name); }
   const char* GetRootNodeName() const { return this->GetNodeName(this->GetRootNode()); }
-  //@}
+  ///@}
 
   /**
    * Adds a node to the assembly with the given name and returns its id. `parent` is the id for
@@ -201,7 +201,7 @@ public:
    */
   bool RemoveNode(int id);
 
-  //@{
+  ///@{
   /**
    * Get/Set a node's name. If node id is invalid, `SetNodeName` will raise an
    * error; `GetNodeName` will also raise an error and return nullptr.
@@ -211,7 +211,7 @@ public:
    */
   void SetNodeName(int id, const char* name);
   const char* GetNodeName(int id) const;
-  //@}
+  ///@}
 
   /**
    * Returns the path for a node.
@@ -333,7 +333,7 @@ public:
    */
   bool HasAttribute(int id, const char* name) const;
 
-  //@{
+  ///@{
   /**
    * Set an attribute. Will replace an existing attribute with the same name if
    * present.
@@ -344,9 +344,9 @@ public:
 #if VTK_ID_TYPE_IMPL != VTK_INT
   void SetAttribute(int id, const char* name, vtkIdType value);
 #endif
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get an attribute value. Returns true if a value was provided else false.
    */
@@ -356,9 +356,9 @@ public:
 #if VTK_ID_TYPE_IMPL != VTK_INT
   bool GetAttribute(int id, const char* name, vtkIdType& value) const;
 #endif
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get an attribute value. Returns the value associated with the node or the
    * provided default value.
@@ -369,9 +369,9 @@ public:
 #if VTK_ID_TYPE_IMPL != VTK_INT
   vtkIdType GetAttributeOrDefault(int id, const char* name, vtkIdType default_value) const;
 #endif
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Visit each node in the assembly for processing. The traversal order can be
    * specified using `traversal_order` which defaults to depth-first.
@@ -383,9 +383,9 @@ public:
   }
   void Visit(int id, vtkDataAssemblyVisitor* visitor,
     int traversal_order = vtkDataAssembly::TraversalOrder::DepthFirst) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the dataset indices associated with the node.
    *
@@ -403,7 +403,7 @@ public:
   std::vector<unsigned int> GetDataSetIndices(const std::vector<int>& ids,
     bool traverse_subtree = true,
     int traversal_order = vtkDataAssembly::TraversalOrder::DepthFirst) const;
-  //@}
+  ///@}
 
   /**
    * Returns ids for nodes matching the path_queries. See Section

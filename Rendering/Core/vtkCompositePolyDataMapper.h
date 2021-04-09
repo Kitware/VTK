@@ -51,20 +51,20 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* a) override;
 
-  //@{
+  ///@{
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override { this->Superclass::GetBounds(bounds); }
-  //@}
+  ///@}
 
   /**
    * Release the underlying resources associated with this mapper
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Some introspection on the type of data the mapper will render
    * used by props to determine if they should invoke the mapper
@@ -72,7 +72,7 @@ public:
    */
   bool HasOpaqueGeometry() override;
   bool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkCompositePolyDataMapper();

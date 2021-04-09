@@ -65,7 +65,7 @@ public:
   vtkTypeMacro(vtkDataReader, vtkSimpleReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk data file to read. This is just
    * a convenience method that calls the superclass' AddFileName
@@ -74,9 +74,9 @@ public:
   void SetFileName(const char* fname);
   const char* GetFileName() const;
   const char* GetFileName(int i) const { return this->vtkSimpleReader::GetFileName(i); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the version of the file read; for example, VTK legacy readers
    * will return the version of the VTK legacy file. (In the case of VTK
@@ -91,9 +91,9 @@ public:
   vtkGetMacro(FileVersion, int);
   vtkGetMacro(FileMajorVersion, int);
   vtkGetMacro(FileMinorVersion, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is the file a valid vtk file of the passed dataset type ?
    * The dataset type is passed as a lower case string.
@@ -104,9 +104,9 @@ public:
   int IsFileStructuredGrid() { return this->IsFileValid("structured_grid"); }
   int IsFileUnstructuredGrid() { return this->IsFileValid("unstructured_grid"); }
   int IsFileRectilinearGrid() { return this->IsFileValid("rectilinear_grid"); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the InputString for use when reading from a character array.
    * Optionally include the length for binary strings. Note that a copy
@@ -122,9 +122,9 @@ public:
   {
     this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length()));
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkCharArray to be used  when reading from a string.
    * If set, this array has precedence over InputString.
@@ -135,16 +135,16 @@ public:
    */
   virtual void SetInputArray(vtkCharArray*);
   vtkGetObjectMacro(InputArray, vtkCharArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the header from the vtk data file.
    */
   vtkGetStringMacro(Header);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
@@ -152,15 +152,15 @@ public:
   vtkSetMacro(ReadFromInputString, vtkTypeBool);
   vtkGetMacro(ReadFromInputString, vtkTypeBool);
   vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the type of file (ASCII or BINARY). Returned value only valid
    * after file has been read.
    */
   vtkGetMacro(FileType, int);
-  //@}
+  ///@}
 
   /**
    * How many attributes of various types are in this file? This
@@ -200,7 +200,7 @@ public:
     return this->NumberOfFieldDataInFile;
   }
 
-  //@{
+  ///@{
   /**
    * What is the name of the ith attribute of a certain type
    * in this file? This requires reading the file, so the filename
@@ -212,133 +212,133 @@ public:
   const char* GetNormalsNameInFile(int i);
   const char* GetTCoordsNameInFile(int i);
   const char* GetFieldDataNameInFile(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the scalar data to extract. If not specified, first
    * scalar data encountered is extracted.
    */
   vtkSetStringMacro(ScalarsName);
   vtkGetStringMacro(ScalarsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the vector data to extract. If not specified, first
    * vector data encountered is extracted.
    */
   vtkSetStringMacro(VectorsName);
   vtkGetStringMacro(VectorsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the tensor data to extract. If not specified, first
    * tensor data encountered is extracted.
    */
   vtkSetStringMacro(TensorsName);
   vtkGetStringMacro(TensorsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the normal data to extract. If not specified, first
    * normal data encountered is extracted.
    */
   vtkSetStringMacro(NormalsName);
   vtkGetStringMacro(NormalsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the texture coordinate data to extract. If not specified,
    * first texture coordinate data encountered is extracted.
    */
   vtkSetStringMacro(TCoordsName);
   vtkGetStringMacro(TCoordsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the lookup table data to extract. If not specified, uses
    * lookup table named by scalar. Otherwise, this specification supersedes.
    */
   vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the field data to extract. If not specified, uses
    * first field data encountered in file.
    */
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all scalars.
    */
   vtkSetMacro(ReadAllScalars, vtkTypeBool);
   vtkGetMacro(ReadAllScalars, vtkTypeBool);
   vtkBooleanMacro(ReadAllScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all vectors.
    */
   vtkSetMacro(ReadAllVectors, vtkTypeBool);
   vtkGetMacro(ReadAllVectors, vtkTypeBool);
   vtkBooleanMacro(ReadAllVectors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all normals.
    */
   vtkSetMacro(ReadAllNormals, vtkTypeBool);
   vtkGetMacro(ReadAllNormals, vtkTypeBool);
   vtkBooleanMacro(ReadAllNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all tensors.
    */
   vtkSetMacro(ReadAllTensors, vtkTypeBool);
   vtkGetMacro(ReadAllTensors, vtkTypeBool);
   vtkBooleanMacro(ReadAllTensors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all color scalars.
    */
   vtkSetMacro(ReadAllColorScalars, vtkTypeBool);
   vtkGetMacro(ReadAllColorScalars, vtkTypeBool);
   vtkBooleanMacro(ReadAllColorScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all tcoords.
    */
   vtkSetMacro(ReadAllTCoords, vtkTypeBool);
   vtkGetMacro(ReadAllTCoords, vtkTypeBool);
   vtkBooleanMacro(ReadAllTCoords, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable reading all fields.
    */
   vtkSetMacro(ReadAllFields, vtkTypeBool);
   vtkGetMacro(ReadAllFields, vtkTypeBool);
   vtkBooleanMacro(ReadAllFields, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Open a vtk data file. Returns zero if error.
@@ -417,15 +417,15 @@ public:
    */
   int ReadCoordinates(vtkRectilinearGrid* rg, int axes, int numCoords);
 
-  //@{
+  ///@{
   /**
    * Helper functions for reading data.
    */
   vtkAbstractArray* ReadArray(const char* dataType, vtkIdType numTuples, vtkIdType numComp);
   vtkFieldData* ReadFieldData(FieldType fieldType = FIELD_DATA);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internal function to read in a value.  Returns zero if there was an
    * error.
@@ -442,7 +442,7 @@ public:
   int Read(unsigned long long* result);
   int Read(float*);
   int Read(double*);
-  //@}
+  ///@}
 
   /**
    * Read @a n character from the stream into @a str, then reset the stream
@@ -477,7 +477,7 @@ public:
    */
   istream* GetIStream() { return this->IS; }
 
-  //@{
+  ///@{
   /**
    * Overridden to handle reading from a string. The
    * superclass only knows about files.
@@ -494,9 +494,9 @@ public:
   {
     return 1;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden with default implementation of doing nothing
    * so that subclasses only override what is needed (usually
@@ -511,7 +511,7 @@ public:
   {
     return 1;
   }
-  //@}
+  ///@}
 
 protected:
   vtkDataReader();

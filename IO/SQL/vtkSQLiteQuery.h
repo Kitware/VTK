@@ -99,14 +99,14 @@ public:
    */
   bool HasError() override;
 
-  //@{
+  ///@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
   bool BeginTransaction() override;
   bool RollbackTransaction() override;
   bool CommitTransaction() override;
-  //@}
+  ///@}
 
   /**
    * Return data in current row, field c
@@ -154,7 +154,7 @@ public:
   bool BindParameter(int index, const vtkStdString& string) override;
 
   bool BindParameter(int index, vtkVariant value) override;
-  //@{
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
@@ -162,7 +162,7 @@ public:
    */
   bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
 protected:
   vtkSQLiteQuery();
@@ -181,7 +181,7 @@ private:
   char* LastErrorText;
   bool TransactionInProgress;
 
-  //@{
+  ///@{
   /**
    * All of the BindParameter calls fall through to these methods
    * where we actually talk to sqlite.  You don't need to call them directly.
@@ -191,7 +191,7 @@ private:
   bool BindInt64Parameter(int index, vtkTypeInt64 value);
   bool BindStringParameter(int index, const char* data, int length);
   bool BindBlobParameter(int index, const void* data, int length);
-  //@}
+  ///@}
 };
 
 #endif // vtkSQLiteQuery_h

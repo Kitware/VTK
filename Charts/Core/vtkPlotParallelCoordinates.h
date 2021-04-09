@@ -82,7 +82,7 @@ public:
    */
   bool ResetSelectionRange();
 
-  //@{
+  ///@{
   /**
    * This is a convenience function to set the input table.
    */
@@ -91,15 +91,15 @@ public:
   {
     this->SetInputData(table);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -107,16 +107,16 @@ public:
    */
   virtual void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, vtkTypeBool);
   vtkGetMacro(ScalarVisibility, vtkTypeBool);
   vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which array to use for coloring using these methods.
@@ -124,7 +124,7 @@ public:
    */
   void SelectColorArray(vtkIdType arrayNum);
   void SelectColorArray(const vtkStdString& arrayName);
-  //@}
+  ///@}
 
   /**
    * Get the array name to color by.
@@ -140,20 +140,20 @@ protected:
    */
   bool UpdateTableCache(vtkTable* table);
 
-  //@{
+  ///@{
   /**
    * Store a well packed set of XY coordinates for this data series.
    */
   class Private;
   Private* Storage;
-  //@}
+  ///@}
 
   /**
    * The point cache is marked dirty until it has been initialized.
    */
   vtkTimeStamp BuildTime;
 
-  //@{
+  ///@{
   /**
    * Lookup Table for coloring points by scalar value
    */
@@ -161,7 +161,7 @@ protected:
   vtkUnsignedCharArray* Colors;
   vtkTypeBool ScalarVisibility;
   vtkStdString ColorArrayName;
-  //@}
+  ///@}
 
 private:
   vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates&) = delete;

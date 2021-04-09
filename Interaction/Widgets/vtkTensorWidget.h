@@ -97,14 +97,14 @@ class vtkTensorRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkTensorWidget : public vtkAbstractWidget
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkTensorWidget* New();
   vtkTypeMacro(vtkTensorWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -116,7 +116,7 @@ public:
     this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
-  //@{
+  ///@{
   /**
    * Control the behavior of the widget (i.e., how it processes
    * events). Translation, rotation, scaling and face movement can all be
@@ -137,7 +137,7 @@ public:
   vtkSetMacro(MoveFacesEnabled, vtkTypeBool);
   vtkGetMacro(MoveFacesEnabled, vtkTypeBool);
   vtkBooleanMacro(MoveFacesEnabled, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set. By default,

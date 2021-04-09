@@ -76,23 +76,23 @@ public:
   vtkTypeMacro(vtkSurfaceLICInterface, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of integration steps in each direction.
    */
   void SetNumberOfSteps(int val);
   vtkGetMacro(NumberOfSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the step size (in pixels).
    */
   void SetStepSize(double val);
   vtkGetMacro(StepSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Normalize vectors during integration. When set(the default) the
    * input vector field is normalized during integration, and each
@@ -107,9 +107,9 @@ public:
   void SetNormalizeVectors(int val);
   vtkBooleanMacro(NormalizeVectors, int);
   vtkGetMacro(NormalizeVectors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set MaskOnSurface computes |V| for use in the fragment masking
    * tests on the surface. When not set the original un-projected
@@ -118,9 +118,9 @@ public:
   void SetMaskOnSurface(int val);
   vtkBooleanMacro(MaskOnSurface, int);
   vtkGetMacro(MaskOnSurface, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaskThreshold controls the rendering of fragments in stagnant
    * regions of flow.  // In these regions LIC noise texture will be masked,
@@ -139,9 +139,9 @@ public:
    */
   void SetMaskThreshold(double val);
   vtkGetMacro(MaskThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaskColor is used on masked fragments. The default of (0.5, 0.5, 0.5)
    * makes the masked fragments look similar to the LIC'd fragments. The mask
@@ -154,9 +154,9 @@ public:
     this->SetMaskColor(rgb);
   }
   vtkGetVector3Macro(MaskColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaskIntensity controls the blending of the mask color and the geometry
    * color. The color of masked fragments is given by:
@@ -167,9 +167,9 @@ public:
    */
   void SetMaskIntensity(double val);
   vtkGetMacro(MaskIntensity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * EnhancedLIC mean compute the LIC twice with the second pass using
    * the edge-enhanced result of the first pass as a noise texture. Edge
@@ -178,9 +178,9 @@ public:
   void SetEnhancedLIC(int val);
   vtkGetMacro(EnhancedLIC, int);
   vtkBooleanMacro(EnhancedLIC, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable contrast and dynamic range correction stages. Contrast
    * enhancement can be enabled during LIC computations (See
@@ -223,9 +223,9 @@ public:
   };
   void SetEnhanceContrast(int val);
   vtkGetMacro(EnhanceContrast, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This feature is used to fine tune the contrast enhancement. There are two
    * modes AUTOMATIC and MANUAL.In AUTOMATIC mode values are provided indicating
@@ -251,9 +251,9 @@ public:
   vtkGetMacro(HighColorContrastEnhancementFactor, double);
   void SetLowColorContrastEnhancementFactor(double val);
   void SetHighColorContrastEnhancementFactor(double val);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the anti-aliasing pass. This optional pass (disabled by
    * default) can be enabled to reduce jagged patterns in the final LIC image.
@@ -263,9 +263,9 @@ public:
   void SetAntiAlias(int val);
   vtkBooleanMacro(AntiAlias, int);
   vtkGetMacro(AntiAlias, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the color mode. The color mode controls how scalar colors are
    * combined with the LIC in the final image. The BLEND mode combines scalar
@@ -282,9 +282,9 @@ public:
   };
   void SetColorMode(int val);
   vtkGetMacro(ColorMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Factor used when blend mode is set to COLOR_MODE_BLEND. This controls the
    * contribution of the LIC in the final output image as follows:
@@ -296,9 +296,9 @@ public:
    */
   void SetLICIntensity(double val);
   vtkGetMacro(LICIntensity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Factor used when blend mode is set to COLOR_MODE_MAP. This adds a bias to
    * the LIC image. The purpose of this is to adjust the brightness when a
@@ -308,9 +308,9 @@ public:
    */
   void SetMapModeBias(double val);
   vtkGetMacro(MapModeBias, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the data containing a noise array as active scalars. Active scalars
    * array will be converted into a texture for use as noise in the LIC process.
@@ -318,9 +318,9 @@ public:
    */
   void SetNoiseDataSet(vtkImageData* data);
   vtkImageData* GetNoiseDataSet();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the noise texture source. When not set the default 200x200 white
    * noise texture is used (see VTKData/Data/Data/noise.png). When set a noise
@@ -342,9 +342,9 @@ public:
    */
   void SetGenerateNoiseTexture(int shouldGenerate);
   vtkGetMacro(GenerateNoiseTexture, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Select the statistical distribution of randomly generated noise values.
    * With uniform noise there is greater control over the range of values
@@ -358,26 +358,26 @@ public:
   };
   void SetNoiseType(int type);
   vtkGetMacro(NoiseType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the side length in pixels of the noise texture. The texture will
    * be length^2 pixels in area.
    */
   void SetNoiseTextureSize(int length);
   vtkGetMacro(NoiseTextureSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Each noise value will be length^2 pixels in area.
    */
   void SetNoiseGrainSize(int val);
   vtkGetMacro(NoiseGrainSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum and mximum  gray scale values that the generated noise
    * can take on. The generated noise will be in the range of MinNoiseValue to
@@ -388,43 +388,43 @@ public:
   void SetMaxNoiseValue(double val);
   vtkGetMacro(MinNoiseValue, double);
   vtkGetMacro(MaxNoiseValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of discrete values a noise pixel may take on. Default
    * 1024.
    */
   void SetNumberOfNoiseLevels(int val);
   vtkGetMacro(NumberOfNoiseLevels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the density of the noise. A value of 1.0 produces uniform random
    * noise while values < 1.0 produce impulse noise with the given probability.
    */
   void SetImpulseNoiseProbability(double val);
   vtkGetMacro(ImpulseNoiseProbability, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The color to use for untouched pixels when impulse noise probability < 1.
    */
   void SetImpulseNoiseBackgroundValue(double val);
   vtkGetMacro(ImpulseNoiseBackgroundValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the seed value used by the random number generator.
    */
   void SetNoiseGeneratorSeed(int val);
   vtkGetMacro(NoiseGeneratorSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the screen space decomposition where LIC is computed.
    */
@@ -437,7 +437,7 @@ public:
   };
   void SetCompositeStrategy(int val);
   vtkGetMacro(CompositeStrategy, int);
-  //@}
+  ///@}
 
   /**
    * Returns true if the rendering context supports extensions needed by this
@@ -497,13 +497,13 @@ public:
    */
   void UpdateCommunicator(vtkRenderer* renderer, vtkActor* actor, vtkDataObject* data);
 
-  //@{
+  ///@{
   /**
    * Does the data have vectors which we require
    */
   void SetHasVectors(bool val);
   bool GetHasVectors();
-  //@}
+  ///@}
 
   /**
    * resoucre allocators
@@ -524,14 +524,14 @@ public:
    */
   virtual void GetGlobalMinMax(vtkPainterCommunicator*, float&, float&) {}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable LIC.
    */
   vtkSetMacro(Enable, int);
   vtkGetMacro(Enable, int);
   vtkBooleanMacro(Enable, int);
-  //@}
+  ///@}
 
 protected:
   vtkSurfaceLICInterface();
@@ -542,7 +542,7 @@ protected:
    */
   void UpdateNoiseImage(vtkRenderWindow* renWin);
 
-  //@{
+  ///@{
   /**
    * Return false if stage can be skipped
    */
@@ -552,7 +552,7 @@ protected:
   bool NeedToComputeLIC();
   bool NeedToColorLIC();
   void SetUpdateAll();
-  //@}
+  ///@}
 
   int Enable;
 

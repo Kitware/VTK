@@ -94,7 +94,7 @@ public:
    */
   virtual void Reset();
 
-  //@{
+  ///@{
   /**
    * Get the name of the image, not including the path or
    * the extension.  This is only needed for printing the
@@ -102,9 +102,9 @@ public:
    */
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the image data type, as stored on disk.  This information
    * is useful if the file was converted to floating-point when it
@@ -113,9 +113,9 @@ public:
    */
   vtkSetMacro(DataType, int);
   vtkGetMacro(DataType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add the names of up to five dimensions. The ordering of these
    * dimensions will determine the dimension order of the file.  If
@@ -124,7 +124,7 @@ public:
    */
   virtual void AddDimension(const char* dimension) { this->AddDimension(dimension, 0); }
   virtual void AddDimension(const char* dimension, vtkIdType length);
-  //@}
+  ///@}
 
   /**
    * Get the dimension names.  The dimension names are same order
@@ -153,7 +153,7 @@ public:
    */
   virtual vtkStringArray* GetAttributeNames(const char* variable);
 
-  //@{
+  ///@{
   /**
    * Get the image min and max arrays. These are set by the reader,
    * but they aren't used by the writer except to compute the full
@@ -163,22 +163,22 @@ public:
   virtual void SetImageMax(vtkDoubleArray* imageMax);
   virtual vtkDoubleArray* GetImageMin() { return this->ImageMin; }
   virtual vtkDoubleArray* GetImageMax() { return this->ImageMax; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of ImageMinMax dimensions.
    */
   vtkGetMacro(NumberOfImageMinMaxDimensions, int);
   vtkSetMacro(NumberOfImageMinMaxDimensions, int);
-  //@}
+  ///@}
 
   /**
    * Check to see if a particular attribute exists.
    */
   virtual int HasAttribute(const char* variable, const char* attribute);
 
-  //@{
+  ///@{
   /**
    * Set attribute values for a variable as a vtkDataArray.
    * Set the variable to the empty string to access global attributes.
@@ -186,9 +186,9 @@ public:
   virtual void SetAttributeValueAsArray(
     const char* variable, const char* attribute, vtkDataArray* array);
   virtual vtkDataArray* GetAttributeValueAsArray(const char* variable, const char* attribute);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an attribute value as a string.  Set the variable
    * to the empty string to access global attributes.
@@ -198,9 +198,9 @@ public:
   virtual void SetAttributeValueAsString(
     const char* variable, const char* attribute, const char* value);
   virtual const char* GetAttributeValueAsString(const char* variable, const char* attribute);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an attribute value as an int. Set the variable
    * to the empty string to access global attributes.
@@ -209,9 +209,9 @@ public:
    */
   virtual void SetAttributeValueAsInt(const char* variable, const char* attribute, int value);
   virtual int GetAttributeValueAsInt(const char* variable, const char* attribute);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an attribute value as a double.  Set the variable
    * to the empty string to access global attributes.
@@ -220,7 +220,7 @@ public:
    */
   virtual void SetAttributeValueAsDouble(const char* variable, const char* attribute, double value);
   virtual double GetAttributeValueAsDouble(const char* variable, const char* attribute);
-  //@}
+  ///@}
 
   /**
    * Validate a particular attribute.  This involves checking
@@ -233,7 +233,7 @@ public:
    */
   virtual int ValidateAttribute(const char* varname, const char* attname, vtkDataArray* array);
 
-  //@{
+  ///@{
   /**
    * Set this to Off if you do not want to automatically validate
    * every attribute that is set.
@@ -241,7 +241,7 @@ public:
   vtkSetMacro(ValidateAttributes, vtkTypeBool);
   vtkBooleanMacro(ValidateAttributes, vtkTypeBool);
   vtkGetMacro(ValidateAttributes, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Do a shallow copy.  This will copy all the attributes
@@ -265,14 +265,14 @@ public:
    */
   virtual void FindImageRange(double range[2]);
 
-  //@{
+  ///@{
   /**
    * A diagnostic function.  Print the header of the file in
    * the same format as ncdump or mincheader.
    */
   virtual void PrintFileHeader();
   virtual void PrintFileHeader(ostream& os);
-  //@}
+  ///@}
 
 protected:
   vtkMINCImageAttributes();

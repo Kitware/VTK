@@ -41,13 +41,13 @@ public:
    */
   static vtkCellLocatorStrategy* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkCellLocatorStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Provide necessary initialization method (see superclass for more
@@ -61,7 +61,7 @@ public:
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
 
-  //@{
+  ///@{
   /**
    * Set / get an instance of vtkAbstractCellLocator which is used to
    * implement the strategy for FindCell(). The locator is required to
@@ -69,7 +69,7 @@ public:
    */
   virtual void SetCellLocator(vtkAbstractCellLocator*);
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
 protected:
   vtkCellLocatorStrategy();

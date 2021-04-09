@@ -46,13 +46,13 @@ public:
    */
   void Layout() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of subdivisions on each edge.
    */
   vtkGetMacro(NumberOfSubdivisions, int);
   vtkSetMacro(NumberOfSubdivisions, int);
-  //@}
+  ///@}
 
 protected:
   vtkArcParallelEdgeStrategy();

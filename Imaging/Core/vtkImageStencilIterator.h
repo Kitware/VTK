@@ -32,7 +32,7 @@ template <class DType>
 class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator : public vtkImagePointDataIterator
 {
 public:
-  //@{
+  ///@{
   /**
    * Default constructor, its use must be followed by Initialize().
    */
@@ -43,9 +43,9 @@ public:
     this->Pointer = nullptr;
     this->SpanEndPointer = nullptr;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create an iterator for the given image, with several options.
    * If a stencil is provided, then the iterator's IsInStencil() method
@@ -63,9 +63,9 @@ public:
       static_cast<DType*>(vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
     this->UpdatePointer();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Initialize an iterator.  See constructor for more details.
    */
@@ -77,9 +77,9 @@ public:
       static_cast<DType*>(vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
     this->UpdatePointer();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Move the iterator to the beginning of the next span.
    * A span is a contiguous region of the image over which nothing but
@@ -90,7 +90,7 @@ public:
     this->vtkImagePointDataIterator::NextSpan();
     this->UpdatePointer();
   }
-  //@}
+  ///@}
 
   /**
    * Test if the iterator has completed iterating over the entire extent.
@@ -108,7 +108,7 @@ public:
   DType* EndSpan() { return this->SpanEndPointer; }
 
 protected:
-  //@{
+  ///@{
   /**
    * Update the pointer (called automatically when a new span begins).
    */
@@ -117,7 +117,7 @@ protected:
     this->Pointer = this->BasePointer + this->Id * this->Increment;
     this->SpanEndPointer = this->BasePointer + this->SpanEnd * this->Increment;
   }
-  //@}
+  ///@}
 
   // The pointer must be incremented by this amount for each pixel.
   int Increment;

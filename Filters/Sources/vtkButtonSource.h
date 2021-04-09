@@ -56,15 +56,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkButtonSource, vtkPolyDataAlgorithm);
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin (center) of the button.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the style of the texture region: whether to size it
    * according to the x-y dimensions of the texture, or whether to make
@@ -74,26 +74,26 @@ public:
   vtkGetMacro(TextureStyle, int);
   void SetTextureStyleToFitImage() { this->SetTextureStyle(VTK_TEXTURE_STYLE_FIT_IMAGE); }
   void SetTextureStyleToProportional() { this->SetTextureStyle(VTK_TEXTURE_STYLE_PROPORTIONAL); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the texture dimension. This needs to be set if the texture
    * style is set to fit the image.
    */
   vtkSetVector2Macro(TextureDimensions, int);
   vtkGetVector2Macro(TextureDimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the default texture coordinate to set the shoulder region to.
    */
   vtkSetVector2Macro(ShoulderTextureCoordinate, double);
   vtkGetVector2Macro(ShoulderTextureCoordinate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether the button is single or double sided. A double sided
    * button can be viewed from two sides...it looks sort of like a "pill."
@@ -103,7 +103,7 @@ public:
   vtkSetMacro(TwoSided, vtkTypeBool);
   vtkGetMacro(TwoSided, vtkTypeBool);
   vtkBooleanMacro(TwoSided, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkButtonSource();

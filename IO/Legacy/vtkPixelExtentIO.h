@@ -52,14 +52,14 @@ public:
    */
   static void Write(int commRank, const char* fileName, const std::deque<vtkPixelExtent>& exts);
 
-  //@{
+  ///@{
   /**
    * Write an extent per MPI rank to disk. All ranks
    * write. It's assumed that each rank passes a unique
    * filename.
    */
   static void Write(int commRank, const char* fileName, const vtkPixelExtent& ext);
-  //@}
+  ///@}
 };
 
 /**

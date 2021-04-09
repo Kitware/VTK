@@ -72,31 +72,31 @@ public:
    */
   static vtkMCubesReader* New();
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the file name of the marching cubes limits file.
    */
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a header size if one exists. The header is skipped and not used at this time.
    */
   vtkSetClampMacro(HeaderSize, int, 0, VTK_INT_MAX);
   vtkGetMacro(HeaderSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to flip normals in opposite direction. Flipping ONLY
    * changes the direction of the normal vector. Contrast this with flipping
@@ -106,18 +106,18 @@ public:
   vtkSetMacro(FlipNormals, vtkTypeBool);
   vtkGetMacro(FlipNormals, vtkTypeBool);
   vtkBooleanMacro(FlipNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to read normals.
    */
   vtkSetMacro(Normals, vtkTypeBool);
   vtkGetMacro(Normals, vtkTypeBool);
   vtkBooleanMacro(Normals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -136,25 +136,25 @@ public:
   int GetDataByteOrder();
   void SetDataByteOrder(int);
   const char* GetDataByteOrderAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off byte swapping.
    */
   vtkSetMacro(SwapBytes, vtkTypeBool);
   vtkGetMacro(SwapBytes, vtkTypeBool);
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.

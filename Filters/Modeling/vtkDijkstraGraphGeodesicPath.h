@@ -53,22 +53,22 @@ public:
    */
   static vtkDijkstraGraphGeodesicPath* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkDijkstraGraphGeodesicPath, vtkGraphGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The vertex ids (of the input polydata) on the shortest path
    */
   vtkGetObjectMacro(IdList, vtkIdList);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Stop when the end vertex is reached
    * or calculate shortest path to all vertices
@@ -76,33 +76,33 @@ public:
   vtkSetMacro(StopWhenEndReached, vtkTypeBool);
   vtkGetMacro(StopWhenEndReached, vtkTypeBool);
   vtkBooleanMacro(StopWhenEndReached, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use scalar values in the edge weight (experimental)
    */
   vtkSetMacro(UseScalarWeights, vtkTypeBool);
   vtkGetMacro(UseScalarWeights, vtkTypeBool);
   vtkBooleanMacro(UseScalarWeights, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the input point to repel the path by assigning high costs.
    */
   vtkSetMacro(RepelPathFromVertices, vtkTypeBool);
   vtkGetMacro(RepelPathFromVertices, vtkTypeBool);
   vtkBooleanMacro(RepelPathFromVertices, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify vtkPoints to use to repel the path from.
    */
   virtual void SetRepelVertices(vtkPoints*);
   vtkGetObjectMacro(RepelVertices, vtkPoints);
-  //@}
+  ///@}
 
   /**
    * Fill the array with the cumulative weights.

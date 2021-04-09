@@ -50,14 +50,14 @@ public:
    */
   void Execute(vtkObject* invoker, unsigned long eid, void* calldata) override;
 
-  //@{
+  ///@{
   /**
    * Methods to set and get client and callback information.
    */
   void SetClientData(void* cd) { this->ClientData = cd; }
   void SetCallback(void (*f)(void* clientdata)) { this->Callback = f; }
   void SetClientDataDeleteCallback(void (*f)(void*)) { this->ClientDataDeleteCallback = f; }
-  //@}
+  ///@}
 
   void* ClientData;
   void (*Callback)(void*);

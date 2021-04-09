@@ -85,7 +85,7 @@ public:
   vtkTypeMacro(vtkPointWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -97,7 +97,7 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the point. A
@@ -161,7 +161,7 @@ public:
   void TranslationModeOn() { this->SetTranslationMode(1); }
   void TranslationModeOff() { this->SetTranslationMode(0); }
 
-  //@{
+  ///@{
   /**
    * Convenience methods to turn outline and shadows on and off.
    */
@@ -179,9 +179,9 @@ public:
     this->YShadowsOff();
     this->ZShadowsOff();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles when selected and normal can be
@@ -189,9 +189,9 @@ public:
    */
   vtkGetObjectMacro(Property, vtkProperty);
   vtkGetObjectMacro(SelectedProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the "hot spot" size; i.e., the region around the focus, in which the
    * motion vector is used to control the constrained sliding action. Note the
@@ -200,7 +200,7 @@ public:
    */
   vtkSetClampMacro(HotSpotSize, double, 0.0, 1.0);
   vtkGetMacro(HotSpotSize, double);
-  //@}
+  ///@}
 
 protected:
   vtkPointWidget();

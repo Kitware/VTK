@@ -51,13 +51,13 @@ public:
   vtkTypeMacro(vtkPhyloXMLTreeReader, vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
   vtkTree* GetOutput();
   vtkTree* GetOutput(int idx);
-  //@}
+  ///@}
 
 protected:
   vtkPhyloXMLTreeReader();

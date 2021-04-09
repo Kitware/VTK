@@ -58,16 +58,16 @@ public:
    */
   int GetDimension() override { return 2; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale factor.
    * Default = 0.2
    */
   vtkSetMacro(A, double);
   vtkGetMacro(A, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the A function coefficient.
    * See the definition in Parametric surfaces referred to above.
@@ -75,9 +75,9 @@ public:
    */
   vtkSetMacro(B, double);
   vtkGetMacro(B, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the B function coefficient.
    * See the definition in Parametric surfaces referred to above.
@@ -85,9 +85,9 @@ public:
    */
   vtkSetMacro(C, double);
   vtkGetMacro(C, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the C function coefficient.
    * See the definition in Parametric surfaces referred to above.
@@ -95,7 +95,7 @@ public:
    */
   vtkSetMacro(N, double);
   vtkGetMacro(N, double);
-  //@}
+  ///@}
 
   /**
    * A conic spiral surface.

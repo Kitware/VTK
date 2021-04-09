@@ -75,7 +75,7 @@ public:
    */
   static vtkBoxClipDataSet* New();
 
-  //@{
+  ///@{
   /**
    * Specify the Box with which to perform the clipping.
    * If the box is not parallel to axis, you need to especify
@@ -85,9 +85,9 @@ public:
   void SetBoxClip(const double* n0, const double* o0, const double* n1, const double* o1,
     const double* n2, const double* o2, const double* n3, const double* o3, const double* n4,
     const double* o4, const double* n5, const double* o5);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated, and not the input scalar data.
@@ -95,9 +95,9 @@ public:
   vtkSetMacro(GenerateClipScalars, vtkTypeBool);
   vtkGetMacro(GenerateClipScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
@@ -105,7 +105,7 @@ public:
   vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set the tolerance for merging clip intersection points that are near
@@ -116,22 +116,22 @@ public:
    * vtkGetMacro(MergeTolerance,double);
    */
 
-  //@{
+  ///@{
   /**
    * Return the Clipped output.
    */
   vtkUnstructuredGrid* GetClippedOutput();
   virtual int GetNumberOfOutputs();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -144,14 +144,14 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Tells if clipping happens with a box parallel with coordinate axis
    * (0) or with an hexahedral box (1). Initial value is 1.
    */
   vtkGetMacro(Orientation, unsigned int);
   vtkSetMacro(Orientation, unsigned int);
-  //@}
+  ///@}
 
   static void InterpolateEdge(vtkDataSetAttributes* attributes, vtkIdType toId, vtkIdType fromId1,
     vtkIdType fromId2, double t);

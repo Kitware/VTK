@@ -59,15 +59,15 @@ class vtkTransform;
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetRepresentation : public vtkProp
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkWidgetRepresentation, vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the use of a manager to process the picking.
    * Enabled by default.
@@ -75,9 +75,9 @@ public:
   vtkBooleanMacro(PickingManaged, bool);
   void SetPickingManaged(bool managed);
   vtkGetMacro(PickingManaged, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkWidgetRepresentation must implement these methods. This is
    * considered the minimum API for a widget representation.
@@ -97,7 +97,7 @@ public:
   virtual void SetRenderer(vtkRenderer* ren);
   virtual vtkRenderer* GetRenderer();
   virtual void BuildRepresentation() = 0;
-  //@}
+  ///@}
 
   /**
    * The following is a suggested API for widget representations. These methods
@@ -139,7 +139,7 @@ public:
   virtual int GetInteractionState() { return this->InteractionState; }
   virtual void Highlight(int vtkNotUsed(highlightOn)) {}
 
-  //@{
+  ///@{
   // Widgets were originally designed to be driven by 2D mouse events
   // With Virtual Reality and multitouch we get mnore complex events
   // that may involve multiple pointers as well as 3D pointers and
@@ -160,9 +160,9 @@ public:
   }
   virtual int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren,
     vtkAbstractWidget* widget, unsigned long event, void* callData, int modify = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a factor representing the scaling of the widget upon placement
    * (via the PlaceWidget() method). Normally the widget is placed so that
@@ -172,9 +172,9 @@ public:
    */
   vtkSetClampMacro(PlaceFactor, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(PlaceFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the size of the handles that appear as
    * part of the widget (if any). These handles (like spheres, etc.)  are
@@ -186,9 +186,9 @@ public:
    */
   vtkSetClampMacro(HandleSize, double, 0.001, 1000);
   vtkGetMacro(HandleSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Some subclasses use this data member to keep track of whether to render
    * or not (i.e., to minimize the total number of renders).
@@ -196,7 +196,7 @@ public:
   vtkGetMacro(NeedToRender, vtkTypeBool);
   vtkSetClampMacro(NeedToRender, vtkTypeBool, 0, 1);
   vtkBooleanMacro(NeedToRender, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Methods to make this class behave as a vtkProp. They are repeated here (from the
@@ -229,7 +229,7 @@ public:
    */
   virtual void UnRegisterPickers();
 
-  //@{
+  ///@{
   /**
    * Axis labels
    */
@@ -240,7 +240,7 @@ public:
     YAxis = 1,
     ZAxis = 2
   };
-  //@}
+  ///@}
 
 protected:
   vtkWidgetRepresentation();

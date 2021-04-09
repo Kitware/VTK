@@ -97,7 +97,7 @@ public:
      */
     vtkTuple<int, 4> BoundingBox;
 
-    //@{
+    ///@{
     /**
      * The corners of the rendered text (or background, if applicable), in pixels.
      * Uses the same origin as BoundingBox.
@@ -106,7 +106,7 @@ public:
     vtkVector2i TopRight;
     vtkVector2i BottomLeft;
     vtkVector2i BottomRight;
-    //@}
+    ///@}
 
     /**
      * Vectors representing the rotated ascent and descent of the text. This is
@@ -154,21 +154,21 @@ public:
     UserBackend = 16
   };
 
-  //@{
+  ///@{
   /**
    * The backend to use when none is specified. Default: Detect
    */
   vtkSetMacro(DefaultBackend, int);
   vtkGetMacro(DefaultBackend, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determine the appropriate back end needed to render the given string.
    */
   virtual int DetectBackend(const vtkStdString& str);
   virtual int DetectBackend(const vtkUnicodeString& str);
-  //@}
+  ///@}
 
   /**
    * Test for availability of various backends
@@ -176,7 +176,7 @@ public:
   virtual bool FreeTypeIsSupported() { return false; }
   virtual bool MathTextIsSupported() { return false; }
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the bounding box {xmin, xmax,
    * ymin, ymax} of the rendered string in pixels. The origin of the bounding
@@ -196,9 +196,9 @@ public:
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get some metrics for the rendered
    * string.
@@ -216,9 +216,9 @@ public:
   {
     return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function initializes the
    * vtkImageData *data and renders it in a vtkImageData.
@@ -245,9 +245,9 @@ public:
   {
     return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This function returns the font size (in points) and sets the size in @a
    * tprop that is required to fit the string in the target rectangle. The
@@ -269,9 +269,9 @@ public:
     return this->GetConstrainedFontSizeInternal(
       str, tprop, targetWidth, targetHeight, dpi, backend);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function populates the vtkPath
    * path with the outline of the rendered string. The origin of the path
@@ -291,7 +291,7 @@ public:
   {
     return this->StringToPathInternal(tprop, str, path, dpi, backend);
   }
-  //@}
+  ///@}
 
   /**
    * Set to true if the graphics implementation requires texture image dimensions
@@ -307,7 +307,7 @@ protected:
   vtkTextRenderer();
   ~vtkTextRenderer() override;
 
-  //@{
+  ///@{
   /**
    * Virtual methods for concrete implementations of the public methods.
    */
@@ -344,7 +344,7 @@ protected:
   virtual bool StringToPathInternal(
     vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path, int dpi, int backend) = 0;
   virtual void SetScaleToPowerOfTwoInternal(bool scale) = 0;
-  //@}
+  ///@}
 
   /**
    * Set the singleton instance. Call Delete() on the supplied
@@ -352,26 +352,26 @@ protected:
    */
   static void SetInstance(vtkTextRenderer* instance);
 
-  //@{
+  ///@{
   /**
    * The singleton instance and the singleton cleanup instance.
    */
   static vtkTextRenderer* Instance;
   static vtkTextRendererCleanup Cleanup;
-  //@}
+  ///@}
 
   vtksys::RegularExpression* MathTextRegExp;
   vtksys::RegularExpression* MathTextRegExp2;
   vtksys::RegularExpression* MathTextRegExpColumn;
 
-  //@{
+  ///@{
   /**
    * Replace all instances of "\$" with "$".
    */
   virtual void CleanUpFreeTypeEscapes(vtkStdString& str);
   VTK_DEPRECATED_IN_9_1_0("Use void CleanUpFreeTypeEscapes(vtkStdString& str)")
   virtual void CleanUpFreeTypeEscapes(vtkUnicodeString& str);
-  //@}
+  ///@}
 
   /**
    * The backend to use when none is specified. Default: Detect

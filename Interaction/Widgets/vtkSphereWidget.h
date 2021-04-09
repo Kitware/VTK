@@ -81,7 +81,7 @@ public:
   vtkTypeMacro(vtkSphereWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -93,9 +93,9 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the representation of the sphere. Different representations are
    * useful depending on the application. The default is
@@ -106,7 +106,7 @@ public:
   void SetRepresentationToOff() { this->SetRepresentation(VTK_SPHERE_OFF); }
   void SetRepresentationToWireframe() { this->SetRepresentation(VTK_SPHERE_WIREFRAME); }
   void SetRepresentationToSurface() { this->SetRepresentation(VTK_SPHERE_SURFACE); }
-  //@}
+  ///@}
 
   /**
    * Set/Get the resolution of the sphere in the Theta direction.
@@ -122,7 +122,7 @@ public:
   void SetPhiResolution(int r) { this->SphereSource->SetPhiResolution(r); }
   int GetPhiResolution() { return this->SphereSource->GetPhiResolution(); }
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of sphere. Default is .5.
    */
@@ -135,9 +135,9 @@ public:
     this->SphereSource->SetRadius(r);
   }
   double GetRadius() { return this->SphereSource->GetRadius(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the center of the sphere.
    */
@@ -145,9 +145,9 @@ public:
   void SetCenter(double x[3]) { this->SetCenter(x[0], x[1], x[2]); }
   double* GetCenter() VTK_SIZEHINT(3) { return this->SphereSource->GetCenter(); }
   void GetCenter(double xyz[3]) { this->SphereSource->GetCenter(xyz); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable translation and scaling of the widget. By default, the widget
    * can be translated and rotated.
@@ -158,9 +158,9 @@ public:
   vtkSetMacro(Scale, vtkTypeBool);
   vtkGetMacro(Scale, vtkTypeBool);
   vtkBooleanMacro(Scale, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The handle sits on the surface of the sphere and may be moved around
    * the surface by picking (left mouse) and then moving. The position
@@ -170,9 +170,9 @@ public:
   vtkSetMacro(HandleVisibility, vtkTypeBool);
   vtkGetMacro(HandleVisibility, vtkTypeBool);
   vtkBooleanMacro(HandleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction vector of the handle relative to the center of
    * the sphere. The direction of the handle is from the sphere center to
@@ -180,14 +180,14 @@ public:
    */
   vtkSetVector3Macro(HandleDirection, double);
   vtkGetVector3Macro(HandleDirection, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position of the handle.
    */
   vtkGetVector3Macro(HandlePosition, double);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the sphere.  The
@@ -206,16 +206,16 @@ public:
    */
   void GetSphere(vtkSphere* sphere);
 
-  //@{
+  ///@{
   /**
    * Get the sphere properties. The properties of the sphere when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(SphereProperty, vtkProperty);
   vtkGetObjectMacro(SelectedSphereProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little ball on the sphere is the
    * handle). The properties of the handle when selected and unselected
@@ -223,7 +223,7 @@ public:
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
 protected:
   vtkSphereWidget();

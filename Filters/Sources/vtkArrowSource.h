@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkArrowSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the length, and radius of the tip.  They default to 0.35 and 0.1
    */
@@ -50,34 +50,34 @@ public:
   vtkGetMacro(TipLength, double);
   vtkSetClampMacro(TipRadius, double, 0.0, 10.0);
   vtkGetMacro(TipRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the resolution of the tip.  The tip behaves the same as a cone.
    * Resoultion 1 gives a single triangle, 2 gives two crossed triangles.
    */
   vtkSetClampMacro(TipResolution, int, 1, 128);
   vtkGetMacro(TipResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radius of the shaft.  Defaults to 0.03.
    */
   vtkSetClampMacro(ShaftRadius, double, 0.0, 5.0);
   vtkGetMacro(ShaftRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the resolution of the shaft. Minimum is 3 for a triangular shaft.
    */
   vtkSetClampMacro(ShaftResolution, int, 3, 128);
   vtkGetMacro(ShaftResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Inverts the arrow direction. When set to true, base is at (1, 0, 0) while the
    * tip is at (0, 0, 0). The default is false, i.e. base at (0, 0, 0) and the tip
@@ -86,7 +86,7 @@ public:
   vtkBooleanMacro(Invert, bool);
   vtkSetMacro(Invert, bool);
   vtkGetMacro(Invert, bool);
-  //@}
+  ///@}
 
   enum class ArrowOrigins
   {
@@ -94,14 +94,14 @@ public:
     Center = 1
   };
 
-  //@{
+  ///@{
   /**
    * Sets and Gets the location used for orienting and scaling the arrow.
    * Default is set to Default.
    */
   vtkSetEnumMacro(ArrowOrigin, ArrowOrigins);
   vtkGetEnumMacro(ArrowOrigin, ArrowOrigins);
-  //@}
+  ///@}
 
   void SetArrowOriginToDefault() { this->SetArrowOrigin(ArrowOrigins::Default); }
   void SetArrowOriginToCenter() { this->SetArrowOrigin(ArrowOrigins::Center); }

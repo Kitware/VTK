@@ -102,14 +102,14 @@ public:
   vtkTypeMacro(vtkPlot3DMetaReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the meta PLOT3D filename. See the class documentation for
    * format details.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkPlot3DMetaReader();

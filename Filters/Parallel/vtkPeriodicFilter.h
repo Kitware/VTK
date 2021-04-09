@@ -55,7 +55,7 @@ public:
   vtkTypeMacro(vtkPeriodicFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get Iteration mode.
    * VTK_ITERATION_MODE_DIRECT_NB to specify the number of periods,
@@ -65,16 +65,16 @@ public:
   vtkGetMacro(IterationMode, int);
   void SetIterationModeToDirectNb() { this->SetIterationMode(VTK_ITERATION_MODE_DIRECT_NB); }
   void SetIterationModeToMax() { this->SetIterationMode(VTK_ITERATION_MODE_MAX); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Number of periods.
    * Used only with ITERATION_MODE_DIRECT_NB.
    */
   vtkSetMacro(NumberOfPeriods, int);
   vtkGetMacro(NumberOfPeriods, int);
-  //@}
+  ///@}
 
   /**
    * Select the periodic pieces indices.

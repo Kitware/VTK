@@ -36,13 +36,13 @@
 class VTKIMAGINGHYBRID_EXPORT vtkPointLoad : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for obtaining type information and printing.
    */
   vtkTypeMacro(vtkPointLoad, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -50,15 +50,15 @@ public:
    */
   static vtkPointLoad* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get value of applied load.
    */
   vtkSetMacro(LoadValue, double);
   vtkGetMacro(LoadValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions of the volume. A stress tensor will be computed for
    * each point in the volume.
@@ -66,26 +66,26 @@ public:
   void SetSampleDimensions(int dim[3]);
   void SetSampleDimensions(int i, int j, int k);
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the region in space over which the tensors are computed. The point
    * load is assumed to be applied at top center of the volume.
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Poisson's ratio.
    */
   vtkSetMacro(PoissonsRatio, double);
   vtkGetMacro(PoissonsRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off computation of effective stress scalar. These methods do
    * nothing. The effective stress is always computed.
@@ -94,7 +94,7 @@ public:
   int GetComputeEffectiveStress() { return 1; }
   void ComputeEffectiveStressOn() {}
   void ComputeEffectiveStressOff() {}
-  //@}
+  ///@}
 
 protected:
   vtkPointLoad();

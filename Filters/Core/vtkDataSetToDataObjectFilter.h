@@ -63,25 +63,25 @@ public:
    */
   static vtkDataSetToDataObjectFilter* New();
 
-  //@{
+  ///@{
   /**
    * Turn on/off the conversion of dataset geometry to a data object.
    */
   vtkSetMacro(Geometry, vtkTypeBool);
   vtkGetMacro(Geometry, vtkTypeBool);
   vtkBooleanMacro(Geometry, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the conversion of dataset topology to a data object.
    */
   vtkSetMacro(Topology, vtkTypeBool);
   vtkGetMacro(Topology, vtkTypeBool);
   vtkBooleanMacro(Topology, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If LegacyTopology and Topology are both true, print out the legacy topology
    * arrays. Default is true.
@@ -89,9 +89,9 @@ public:
   vtkSetMacro(LegacyTopology, vtkTypeBool);
   vtkGetMacro(LegacyTopology, vtkTypeBool);
   vtkBooleanMacro(LegacyTopology, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If ModernTopology and Topology are both true, print out the modern topology
    * arrays. Default is true.
@@ -99,34 +99,34 @@ public:
   vtkSetMacro(ModernTopology, vtkTypeBool);
   vtkGetMacro(ModernTopology, vtkTypeBool);
   vtkBooleanMacro(ModernTopology, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the conversion of dataset field data to a data object.
    */
   vtkSetMacro(FieldData, vtkTypeBool);
   vtkGetMacro(FieldData, vtkTypeBool);
   vtkBooleanMacro(FieldData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the conversion of dataset point data to a data object.
    */
   vtkSetMacro(PointData, vtkTypeBool);
   vtkGetMacro(PointData, vtkTypeBool);
   vtkBooleanMacro(PointData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the conversion of dataset cell data to a data object.
    */
   vtkSetMacro(CellData, vtkTypeBool);
   vtkGetMacro(CellData, vtkTypeBool);
   vtkBooleanMacro(CellData, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDataSetToDataObjectFilter();

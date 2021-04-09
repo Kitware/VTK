@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkImageResample, vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set desired spacing.
    * Zero is a reserved value indicating spacing has not been set.
@@ -46,9 +46,9 @@ public:
     this->SetOutputSpacing(spacing[0], spacing[1], spacing[2]);
   }
   void SetAxisOutputSpacing(int axis, double spacing);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Magnification factors.
    * Zero is a reserved value indicating values have not been computed.
@@ -60,7 +60,7 @@ public:
   }
   vtkGetVector3Macro(MagnificationFactors, double);
   void SetAxisMagnificationFactor(int axis, double factor);
-  //@}
+  ///@}
 
   /**
    * Get the computed magnification factor for a specific axis.
@@ -68,7 +68,7 @@ public:
    */
   double GetAxisMagnificationFactor(int axis, vtkInformation* inInfo = nullptr);
 
-  //@{
+  ///@{
   /**
    * Dimensionality is the number of axes which are considered during
    * execution. To process images dimensionality would be set to 2.
@@ -77,7 +77,7 @@ public:
    */
   vtkSetMacro(Dimensionality, int);
   vtkGetMacro(Dimensionality, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageResample();

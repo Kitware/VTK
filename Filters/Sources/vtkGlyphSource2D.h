@@ -65,41 +65,41 @@ public:
    */
   static vtkGlyphSource2D* New();
 
-  //@{
+  ///@{
   /**
    * Set the center of the glyph. By default the center is (0,0,0).
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale of the glyph. Note that the glyphs are designed
    * to fit in the (1,1) rectangle.
    */
   vtkSetClampMacro(Scale, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Scale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale of optional portions of the glyph (e.g., the
    * dash and cross is DashOn() and CrossOn()).
    */
   vtkSetClampMacro(Scale2, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Scale2, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color of the glyph. The default color is white.
    */
   vtkSetVector3Macro(Color, double);
   vtkGetVectorMacro(Color, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the glyph is filled (a polygon) or not (a
    * closed polygon defined by line segments). This only applies
@@ -108,9 +108,9 @@ public:
   vtkSetMacro(Filled, vtkTypeBool);
   vtkGetMacro(Filled, vtkTypeBool);
   vtkBooleanMacro(Filled, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether a short line segment is drawn through the
    * glyph. (This is in addition to the glyph. If the glyph type
@@ -119,9 +119,9 @@ public:
   vtkSetMacro(Dash, vtkTypeBool);
   vtkGetMacro(Dash, vtkTypeBool);
   vtkBooleanMacro(Dash, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether a cross is drawn as part of the glyph. (This
    * is in addition to the glyph. If the glyph type is set to
@@ -130,9 +130,9 @@ public:
   vtkSetMacro(Cross, vtkTypeBool);
   vtkGetMacro(Cross, vtkTypeBool);
   vtkBooleanMacro(Cross, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an angle (in degrees) to rotate the glyph around
    * the z-axis. Using this ivar, it is possible to generate
@@ -140,17 +140,17 @@ public:
    */
   vtkSetMacro(RotationAngle, double);
   vtkGetMacro(RotationAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of points that form the circular glyph.
    */
   vtkSetClampMacro(Resolution, int, 3, VTK_MAX_CIRCLE_RESOLUTION);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the type of glyph to generate.
    */
@@ -169,9 +169,9 @@ public:
   void SetGlyphTypeToThickArrow() { this->SetGlyphType(VTK_THICKARROW_GLYPH); }
   void SetGlyphTypeToHookedArrow() { this->SetGlyphType(VTK_HOOKEDARROW_GLYPH); }
   void SetGlyphTypeToEdgeArrow() { this->SetGlyphType(VTK_EDGEARROW_GLYPH); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -179,7 +179,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkGlyphSource2D();

@@ -32,14 +32,14 @@ public:
   vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the array to scale with.
    */
   vtkSetStringMacro(ScaleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This value will be used for the radius is the scale
    * array is not provided.

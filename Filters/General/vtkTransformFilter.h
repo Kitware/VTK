@@ -55,17 +55,17 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the transform object used to transform points.
    */
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -73,9 +73,9 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If off (the default), only Vectors and Normals will be transformed.
    * If on, all 3-component data arrays ( considered as 3D vectors) will be transformed
@@ -84,7 +84,7 @@ public:
   vtkSetMacro(TransformAllInputVectors, bool);
   vtkGetMacro(TransformAllInputVectors, bool);
   vtkBooleanMacro(TransformAllInputVectors, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTransformFilter();

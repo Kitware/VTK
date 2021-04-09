@@ -47,14 +47,14 @@ public:
     return new vtkInformationInformationKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, vtkInformation*);
   vtkInformation* Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

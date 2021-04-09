@@ -50,15 +50,15 @@ public:
   vtkTypeMacro(vtkSubPixelPositionEdgels, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the gradient data for doing the position adjustments.
    */
   void SetGradMapsData(vtkStructuredPoints* gm);
   vtkStructuredPoints* GetGradMaps();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods can make the positioning look for a target scalar value
    * instead of looking for a maximum.
@@ -68,7 +68,7 @@ public:
   vtkBooleanMacro(TargetFlag, vtkTypeBool);
   vtkSetMacro(TargetValue, double);
   vtkGetMacro(TargetValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkSubPixelPositionEdgels();

@@ -62,43 +62,43 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Evaluate the implicit function. This returns the interpolated scalar value
    * at x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate implicit function gradient.
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the dataset used for the implicit function evaluation.
    */
   virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the function value to use for points outside of the dataset.
    */
   vtkSetMacro(OutValue, double);
   vtkGetMacro(OutValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the function gradient to use for points outside of the dataset.
    */
   vtkSetVector3Macro(OutGradient, double);
   vtkGetVector3Macro(OutGradient, double);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitDataSet();

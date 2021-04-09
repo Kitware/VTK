@@ -76,15 +76,15 @@ public:
   vtkTypeMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to convert into a stencil.
    */
   virtual void SetInputData(vtkPolyData*);
   vtkPolyData* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance for including a voxel inside the stencil.
    * This is in fractions of a voxel, and must be between 0 and 1.
@@ -94,7 +94,7 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataToImageStencil();

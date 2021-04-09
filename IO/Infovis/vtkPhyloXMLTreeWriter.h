@@ -39,20 +39,20 @@ public:
   vtkTypeMacro(vtkPhyloXMLTreeWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkTree* GetInput();
   vtkTree* GetInput(int port);
-  //@}
+  ///@}
 
   /**
    * Get the default file extension for files written by this writer.
    */
   const char* GetDefaultFileExtension() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the input's tree edge weight array.
    * This array must be part of the input tree's EdgeData.
@@ -62,9 +62,9 @@ public:
    */
   vtkGetMacro(EdgeWeightArrayName, vtkStdString);
   vtkSetMacro(EdgeWeightArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the input's tree node name array.
    * This array must be part of the input tree's VertexData.
@@ -74,7 +74,7 @@ public:
    */
   vtkGetMacro(NodeNameArrayName, vtkStdString);
   vtkSetMacro(NodeNameArrayName, vtkStdString);
-  //@}
+  ///@}
 
   /**
    * Do not include name the VertexData array in the PhyloXML output

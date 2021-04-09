@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkImageMapToWindowLevelColors, vtkImageMapToColors);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the Window to use -> modulation will be performed on the
    * color based on (S - (L - W/2))/W where S is the scalar value, L is
@@ -60,9 +60,9 @@ public:
    */
   vtkSetMacro(Window, double);
   vtkGetMacro(Window, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the Level to use -> modulation will be performed on the
    * color based on (S - (L - W/2))/W where S is the scalar value, L is
@@ -70,7 +70,7 @@ public:
    */
   vtkSetMacro(Level, double);
   vtkGetMacro(Level, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageMapToWindowLevelColors();

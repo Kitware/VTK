@@ -49,23 +49,23 @@ public:
    */
   void DeepCopy(vtkImageProperty* p);
 
-  //@{
+  ///@{
   /**
    * The window value for window/level.
    */
   vtkSetMacro(ColorWindow, double);
   vtkGetMacro(ColorWindow, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The level value for window/level.
    */
   vtkSetMacro(ColorLevel, double);
   vtkGetMacro(ColorLevel, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the data.  If the data is
    * to be displayed as greyscale, or if the input data is
@@ -73,9 +73,9 @@ public:
    */
   virtual void SetLookupTable(vtkScalarsToColors* lut);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the range that is set in the lookup table, instead
    * of setting the range from the Window/Level settings.
@@ -84,9 +84,9 @@ public:
   vtkSetMacro(UseLookupTableScalarRange, vtkTypeBool);
   vtkGetMacro(UseLookupTableScalarRange, vtkTypeBool);
   vtkBooleanMacro(UseLookupTableScalarRange, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The opacity of the image, where 1.0 is opaque and 0.0 is
    * transparent.  If the image has an alpha component, then
@@ -95,25 +95,25 @@ public:
    */
   vtkSetClampMacro(Opacity, double, 0.0, 1.0);
   vtkGetMacro(Opacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The ambient lighting coefficient.  The default is 1.0.
    */
   vtkSetClampMacro(Ambient, double, 0.0, 1.0);
   vtkGetMacro(Ambient, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The diffuse lighting coefficient.  The default is 0.0.
    */
   vtkSetClampMacro(Diffuse, double, 0.0, 1.0);
   vtkGetMacro(Diffuse, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The interpolation type (default: VTK_LINEAR_INTERPOLATION).
    */
@@ -123,18 +123,18 @@ public:
   void SetInterpolationTypeToLinear() { this->SetInterpolationType(VTK_LINEAR_INTERPOLATION); }
   void SetInterpolationTypeToCubic() { this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); }
   virtual const char* GetInterpolationTypeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the layer number.  This is ignored unless the image is part
    * of a vtkImageStack.  The default layer number is zero.
    */
   vtkSetMacro(LayerNumber, int);
   int GetLayerNumber() { return this->LayerNumber; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Make a checkerboard pattern where the black squares are transparent.
    * The pattern is aligned with the camera, and centered by default.
@@ -142,26 +142,26 @@ public:
   vtkSetMacro(Checkerboard, vtkTypeBool);
   vtkBooleanMacro(Checkerboard, vtkTypeBool);
   vtkGetMacro(Checkerboard, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing for checkerboarding.  This is in real units, not pixels.
    */
   vtkSetVector2Macro(CheckerboardSpacing, double);
   vtkGetVector2Macro(CheckerboardSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The phase offset for checkerboarding, in units of spacing.  Use a
    * value between -1 and +1, where 1 is an offset of one squares.
    */
   vtkSetVector2Macro(CheckerboardOffset, double);
   vtkGetVector2Macro(CheckerboardOffset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use an opaque backing polygon, which will be visible where the image
    * is translucent.  When images are in a stack, the backing polygons
@@ -171,15 +171,15 @@ public:
   vtkSetMacro(Backing, vtkTypeBool);
   vtkBooleanMacro(Backing, vtkTypeBool);
   vtkGetMacro(Backing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color of the backing polygon.  The default color is black.
    */
   vtkSetVector3Macro(BackingColor, double);
   vtkGetVector3Macro(BackingColor, double);
-  //@}
+  ///@}
 
   /**
    * Get the MTime for this property.  If the lookup table is set,

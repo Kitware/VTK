@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkHyperTreeGridOutlineFilter, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Generate solid faces for the box. This is off by default.
    */
   vtkSetMacro(GenerateFaces, vtkTypeBool);
   vtkBooleanMacro(GenerateFaces, vtkTypeBool);
   vtkGetMacro(GenerateFaces, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridOutlineFilter();

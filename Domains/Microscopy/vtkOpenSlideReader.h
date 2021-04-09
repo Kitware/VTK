@@ -58,7 +58,7 @@ public:
     return ".ndpi .svs"; // TODO: Get exaustive list of formats
   }
 
-  //@{
+  ///@{
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
@@ -67,7 +67,7 @@ public:
 protected:
   vtkOpenSlideReader() {}
   ~vtkOpenSlideReader() override;
-  //@}
+  ///@}
 
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;

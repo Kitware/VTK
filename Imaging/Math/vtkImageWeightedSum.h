@@ -39,21 +39,21 @@ public:
   vtkTypeMacro(vtkImageWeightedSum, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The weights control the contribution of each input to the sum.
    * They will be normalized to sum to 1 before filter execution.
    */
   virtual void SetWeights(vtkDoubleArray*);
   vtkGetObjectMacro(Weights, vtkDoubleArray);
-  //@}
+  ///@}
 
   /**
    * Change a specific weight. Reallocation is done
    */
   virtual void SetWeight(vtkIdType id, double weight);
 
-  //@{
+  ///@{
   /**
    * Setting NormalizeByWeight on will divide the
    * final result by the total weight of the component functions.
@@ -63,7 +63,7 @@ public:
   vtkGetMacro(NormalizeByWeight, vtkTypeBool);
   vtkSetClampMacro(NormalizeByWeight, vtkTypeBool, 0, 1);
   vtkBooleanMacro(NormalizeByWeight, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Compute the total value of all the weight

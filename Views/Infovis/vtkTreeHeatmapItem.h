@@ -95,21 +95,21 @@ public:
    */
   vtkTable* GetTable();
 
-  //@{
+  ///@{
   /**
    * Get/Set the dendrogram contained by this item.
    */
   vtkDendrogramItem* GetDendrogram();
   void SetDendrogram(vtkDendrogramItem* dendrogram);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the heatmap contained by this item.
    */
   vtkHeatmapItem* GetHeatmap();
   void SetHeatmap(vtkHeatmapItem* heatmap);
-  //@}
+  ///@}
 
   /**
    * Reorder the rows in the table so they match the order of the leaf
@@ -168,13 +168,13 @@ public:
    */
   void CollapseToNumberOfLeafNodes(unsigned int n);
 
-  //@{
+  ///@{
   /**
    * Get/Set how wide the edges of the trees should be.  Default is one pixel.
    */
   float GetTreeLineWidth();
   void SetTreeLineWidth(float width);
-  //@}
+  ///@}
 
   /**
    * Deprecated.  Use this->GetDendrogram()->GetPrunedTree() instead.

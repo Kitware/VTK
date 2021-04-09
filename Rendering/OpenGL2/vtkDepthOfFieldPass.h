@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkDepthOfFieldPass, vtkDepthImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Use automatic focal distance calculation, this is on by default
    * When on the center of the viewport will always be in focus
@@ -62,7 +62,7 @@ public:
   vtkSetMacro(AutomaticFocalDistance, bool);
   vtkGetMacro(AutomaticFocalDistance, bool);
   vtkBooleanMacro(AutomaticFocalDistance, bool);
-  //@}
+  ///@}
 
   /**
    * Perform rendering according to a render state \p s.

@@ -63,15 +63,15 @@ public:
   vtkTypeMacro(vtkAssemblyNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the prop that this assembly node refers to.
    */
   virtual void SetViewProp(vtkProp* prop);
   vtkGetObjectMacro(ViewProp, vtkProp);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a transformation matrix associated with the prop.
    * Note: if the prop is not a type of vtkProp3D, then the
@@ -81,7 +81,7 @@ public:
    */
   void SetMatrix(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(Matrix, vtkMatrix4x4);
-  //@}
+  ///@}
 
   /**
    * Override the standard GetMTime() to check for the modified times

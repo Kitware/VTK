@@ -39,7 +39,7 @@ public:
   using Superclass::GetBounds;
   double* GetBounds() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the projection to be used
    */
@@ -56,9 +56,9 @@ public:
   void SetProjectionToSphere() { this->SetProjection(vtkSkybox::Sphere); }
   void SetProjectionToStereoSphere() { this->SetProjection(vtkSkybox::StereoSphere); }
   void SetProjectionToFloor() { this->SetProjection(vtkSkybox::Floor); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane equation for the floor.
    */
@@ -66,9 +66,9 @@ public:
   vtkGetVector4Macro(FloorPlane, float);
   vtkSetVector3Macro(FloorRight, float);
   vtkGetVector3Macro(FloorRight, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define if the colors should be gamma corrected.
    * This is generally required if the input texture is in linear color space.
@@ -77,7 +77,7 @@ public:
   vtkGetMacro(GammaCorrect, bool);
   vtkSetMacro(GammaCorrect, bool);
   vtkBooleanMacro(GammaCorrect, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSkybox();

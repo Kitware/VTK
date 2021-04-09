@@ -95,7 +95,7 @@ public:
   vtkTypeMacro(vtkLineWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -107,7 +107,7 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
   /**
    * Set/Get the resolution (number of subdivisions) of the line.
@@ -131,7 +131,7 @@ public:
   double* GetPoint2() VTK_SIZEHINT(3) { return this->LineSource->GetPoint2(); }
   void GetPoint2(double xyz[3]) { this->LineSource->GetPoint2(xyz); }
 
-  //@{
+  ///@{
   /**
    * Force the line widget to be aligned with one of the x-y-z axes.
    * Remember that when the state changes, a ModifiedEvent is invoked.
@@ -144,9 +144,9 @@ public:
   void SetAlignToYAxis() { this->SetAlign(YAxis); }
   void SetAlignToZAxis() { this->SetAlign(ZAxis); }
   void SetAlignToNone() { this->SetAlign(None); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable clamping of the point end points to the bounding box
    * of the data. The bounding box is defined from the last PlaceWidget()
@@ -156,7 +156,7 @@ public:
   vtkSetMacro(ClampToBounds, vtkTypeBool);
   vtkGetMacro(ClampToBounds, vtkTypeBool);
   vtkBooleanMacro(ClampToBounds, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the line.  The
@@ -167,7 +167,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles when selected and normal can be
@@ -175,16 +175,16 @@ public:
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the line properties. The properties of the line when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(LineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
-  //@}
+  ///@}
 
 protected:
   vtkLineWidget();

@@ -53,7 +53,7 @@ public:
    */
   void DisplayText(const char*) override;
 
-  //@{
+  ///@{
   /**
    * Set or get whether the vtkWin32OutputWindow should also send its output
    * to stderr / cerr.
@@ -68,7 +68,7 @@ public:
   void SendToStdErrOn();
   VTK_DEPRECATED_IN_9_0_0("Use vtkWin32OutputWindow::SetDisplayMode")
   void SendToStdErrOff();
-  //@}
+  ///@}
 
   /**
    * Returns the window title.

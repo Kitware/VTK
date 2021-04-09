@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkMP4Writer, vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * These methods start writing an MP4 file, write a frame to the file
    * and then end the writing process.
@@ -46,24 +46,24 @@ public:
   void Start() override;
   void Write() override;
   void End() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the frame rate, in frame/s.
    */
   vtkSetClampMacro(Rate, int, 1, 5000);
   vtkGetMacro(Rate, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the average bit rate of the video.
    * Higher produces better quality, but a larger file size.
    */
   vtkSetMacro(BitRate, int);
   vtkGetMacro(BitRate, int);
-  //@}
+  ///@}
 
 protected:
   vtkMP4Writer();

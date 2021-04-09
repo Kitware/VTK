@@ -132,15 +132,15 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the input scalar
@@ -149,9 +149,9 @@ public:
   vtkSetMacro(GenerateCutScalars, vtkTypeBool);
   vtkGetMacro(GenerateCutScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateCutScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this is enabled (by default), the output will be triangles
    * otherwise, the output will be the intersection polygons
@@ -162,18 +162,18 @@ public:
   vtkSetMacro(GenerateTriangles, vtkTypeBool);
   vtkGetMacro(GenerateTriangles, vtkTypeBool);
   vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the sorting order for the generated polydata. There are two
    * possibilities:
@@ -194,7 +194,7 @@ public:
   void SetSortByToSortByValue() { this->SetSortBy(VTK_SORT_BY_VALUE); }
   void SetSortByToSortByCell() { this->SetSortBy(VTK_SORT_BY_CELL); }
   const char* GetSortByAsString();
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -209,7 +209,7 @@ public:
    */
   static void GetCellTypeDimensions(unsigned char* cellTypeDimensions);
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -217,7 +217,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkCutter(vtkImplicitFunction* cf = nullptr);
@@ -251,7 +251,7 @@ private:
   void operator=(const vtkCutter&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the sorting procedure as a descriptive character string.
  */
@@ -266,6 +266,6 @@ inline const char* vtkCutter::GetSortByAsString(void)
     return "SortByCell";
   }
 }
-//@}
+///@}
 
 #endif

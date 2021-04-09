@@ -84,16 +84,16 @@
 class VTKFILTERSMODELING_EXPORT vtkContourLoopExtraction : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print and provide type information.
    */
   static vtkContourLoopExtraction* New();
   vtkTypeMacro(vtkContourLoopExtraction, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to close loops or not. All non-closed loops can be
    * rejected; boundary loops (end points lie on vertical or horizontal
@@ -106,9 +106,9 @@ public:
   void SetLoopClosureToBoundary() { this->SetLoopClosure(VTK_LOOP_CLOSURE_BOUNDARY); }
   void SetLoopClosureToAll() { this->SetLoopClosure(VTK_LOOP_CLOSURE_ALL); }
   const char* GetLoopClosureAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the extraction of loops based on scalar thresholding.  Loops
    * with scalar values in a specified range can be extracted. If no scalars
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(ScalarThresholding, bool);
   vtkGetMacro(ScalarThresholding, bool);
   vtkBooleanMacro(ScalarThresholding, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar range to use to extract loop based on scalar
    * thresholding.  If any scalar, point data, in the loop falls into the
@@ -127,18 +127,18 @@ public:
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVector2Macro(ScalarRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the normal vector used to orient the algorithm (controlling turns
    * around the loop). By default the normal points in the +z direction.
    */
   vtkSetVector3Macro(Normal, double);
   vtkGetVector3Macro(Normal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the form of the output. Polygons can be output (default);
    * polylines can be output (the first and last point is repeated); or both
@@ -150,7 +150,7 @@ public:
   void SetOutputModeToPolylines() { this->SetOutputMode(VTK_OUTPUT_POLYLINES); }
   void SetOutputModeToBoth() { this->SetOutputMode(VTK_OUTPUT_BOTH); }
   const char* GetOutputModeAsString();
-  //@}
+  ///@}
 
 protected:
   vtkContourLoopExtraction();

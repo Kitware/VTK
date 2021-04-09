@@ -49,14 +49,14 @@ public:
    */
   static vtkPlotStacked* New();
 
-  //@{
+  ///@{
   /**
    * Set the plot color
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
   void SetColor(double r, double g, double b) override;
   void GetColor(double rgb[3]) override;
-  //@}
+  ///@}
 
   /**
    * Perform any updates to the item that may be necessary before rendering.

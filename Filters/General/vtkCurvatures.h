@@ -83,7 +83,7 @@ public:
    */
   static vtkCurvatures* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get Curvature type
    * VTK_CURVATURE_GAUSS: Gaussian curvature, stored as
@@ -97,9 +97,9 @@ public:
   void SetCurvatureTypeToMean() { this->SetCurvatureType(VTK_CURVATURE_MEAN); }
   void SetCurvatureTypeToMaximum() { this->SetCurvatureType(VTK_CURVATURE_MAXIMUM); }
   void SetCurvatureTypeToMinimum() { this->SetCurvatureType(VTK_CURVATURE_MINIMUM); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which inverts the mean curvature calculation for
    * meshes with inward pointing normals (default false)
@@ -107,7 +107,7 @@ public:
   vtkSetMacro(InvertMeanCurvature, vtkTypeBool);
   vtkGetMacro(InvertMeanCurvature, vtkTypeBool);
   vtkBooleanMacro(InvertMeanCurvature, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkCurvatures();

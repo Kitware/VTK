@@ -103,7 +103,7 @@ public:
    */
   vtkDataObjectTree* GetSourceTableTree();
 
-  //@{
+  ///@{
   /**
    * Turn on/off scaling of source geometry. When turned on, ScaleFactor
    * controls the scale applied. To scale with some data array, ScaleMode should
@@ -112,9 +112,9 @@ public:
   vtkSetMacro(Scaling, bool);
   vtkBooleanMacro(Scaling, bool);
   vtkGetMacro(Scaling, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Either scale by individual components (SCALE_BY_COMPONENTS) or magnitude
    * (SCALE_BY_MAGNITUDE) of the chosen array to SCALE with or disable scaling
@@ -123,16 +123,16 @@ public:
    */
   vtkSetMacro(ScaleMode, int);
   vtkGetMacro(ScaleMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify scale factor to scale object by. This is used only when Scaling is
    * On.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
   enum ScaleModes
   {
@@ -146,15 +146,15 @@ public:
   void SetScaleModeToNoDataScaling() { this->SetScaleMode(NO_DATA_SCALING); }
   const char* GetScaleModeAsString();
 
-  //@{
+  ///@{
   /**
    * Specify range to map scalar values into.
    */
   vtkSetVector2Macro(Range, double);
   vtkGetVectorMacro(Range, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off orienting of input geometry.
    * When turned on, the orientation array specified
@@ -163,9 +163,9 @@ public:
   vtkSetMacro(Orient, bool);
   vtkGetMacro(Orient, bool);
   vtkBooleanMacro(Orient, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Orientation mode indicates if the OrientationArray provides the direction
    * vector for the orientation or the rotations around each axes. Default is
@@ -177,7 +177,7 @@ public:
   void SetOrientationModeToRotation() { this->SetOrientationMode(vtkGlyph3DMapper::ROTATION); }
   void SetOrientationModeToQuaternion() { this->SetOrientationMode(vtkGlyph3DMapper::QUATERNION); }
   const char* GetOrientationModeAsString();
-  //@}
+  ///@}
 
   enum OrientationModes
   {
@@ -186,16 +186,16 @@ public:
     QUATERNION = 2
   };
 
-  //@{
+  ///@{
   /**
    * Turn on/off clamping of data values to scale with to the specified range.
    */
   vtkSetMacro(Clamping, bool);
   vtkGetMacro(Clamping, bool);
   vtkBooleanMacro(Clamping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable indexing into table of the glyph sources. When disabled,
    * only the 1st source input will be used to generate the glyph. Otherwise the
@@ -205,9 +205,9 @@ public:
   vtkSetMacro(SourceIndexing, bool);
   vtkGetMacro(SourceIndexing, bool);
   vtkBooleanMacro(SourceIndexing, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, and the glyph source dataset is a subclass of vtkDataObjectTree,
    * the top-level members of the tree will be mapped to the glyph source table
@@ -217,7 +217,7 @@ public:
   vtkGetMacro(UseSourceTableTree, bool);
   vtkBooleanMacro(UseSourceTableTree, bool);
 
-  //@{
+  ///@{
   /**
    * Turn on/off custom selection ids. If enabled, the id values set with
    * SetSelectionIdArray are returned from pick events.
@@ -225,7 +225,7 @@ public:
   vtkSetMacro(UseSelectionIds, bool);
   vtkBooleanMacro(UseSelectionIds, bool);
   vtkGetMacro(UseSelectionIds, bool);
-  //@}
+  ///@}
 
   /**
    * Redefined to take into account the bounds of the scaled glyphs.
@@ -242,7 +242,7 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Tells the mapper to skip glyphing input points that haves false values
    * in the mask array. If there is no mask array (id access mode is set
@@ -254,7 +254,7 @@ public:
   vtkSetMacro(Masking, bool);
   vtkGetMacro(Masking, bool);
   vtkBooleanMacro(Masking, bool);
-  //@}
+  ///@}
 
   /**
    * Set the name of the point array to use as a mask for generating the glyphs.
@@ -370,7 +370,7 @@ public:
    */
   void SetSelectionIdArray(int fieldAttributeType);
 
-  //@{
+  ///@{
   /**
    * For selection by color id mode (not for end-user, called by
    * vtkGlyphSelectionRenderMode). 0 is reserved for miss. it has to
@@ -378,9 +378,9 @@ public:
    */
   vtkSetMacro(SelectionColorId, unsigned int);
   vtkGetMacro(SelectionColorId, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When the input data object (not the source) is composite data,
    * it is possible to control visibility and pickability on a per-block
@@ -392,9 +392,9 @@ public:
    */
   virtual void SetBlockAttributes(vtkCompositeDataDisplayAttributes* attr);
   vtkGetObjectMacro(BlockAttributes, vtkCompositeDataDisplayAttributes);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable or disable frustum culling and LOD of the instances.
    * When enabled, an OpenGL driver supporting GL_ARB_gpu_shader5 extension is mandatory.
@@ -438,7 +438,7 @@ public:
    */
   vtkSetMacro(LODColoring, bool);
   vtkGetMacro(LODColoring, bool);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -460,7 +460,7 @@ protected:
   vtkPolyData* GetSource(int idx, vtkInformationVector* sourceInfo);
   vtkPolyData* GetSourceTable(int idx, vtkInformationVector* sourceInfo);
 
-  //@{
+  ///@{
   /**
    * Convenience methods to get each of the arrays.
    */
@@ -470,7 +470,7 @@ protected:
   vtkDataArray* GetScaleArray(vtkDataSet* input);
   vtkDataArray* GetSelectionIdArray(vtkDataSet* input);
   vtkUnsignedCharArray* GetColors(vtkDataSet* input);
-  //@}
+  ///@}
 
   vtkCompositeDataDisplayAttributes* BlockAttributes;
   bool Scaling;       // Determine whether scaling of geometry is performed

@@ -48,7 +48,7 @@ public:
    */
   void SetFileName(const char* filename);
 
-  //@{
+  ///@{
   /**
    * Add and remove give the reader a list of top level xml files to read.
    * Whether the set is treated as a spatial or temporal collection depends
@@ -56,9 +56,9 @@ public:
    */
   virtual void AddFileName(const char* filename);
   virtual void RemoveAllFileNames();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When true (the default) the reader treats a series of files as a temporal
    * collection. When false it treats it as a spatial partition and uses
@@ -66,7 +66,7 @@ public:
    */
   vtkSetMacro(FileSeriesAsTime, bool);
   vtkGetMacro(FileSeriesAsTime, bool);
-  //@}
+  ///@}
 
   /**
    * Determine if the file can be read with this reader.
@@ -86,15 +86,15 @@ public:
    */
   const char* GetPointArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set the point array status.
    */
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about cell-based arrays.  As is typical with readers this
    * in only valid after the filename is set and UpdateInformation() has been
@@ -104,9 +104,9 @@ public:
   const char* GetCellArrayName(int index);
   void SetCellArrayStatus(const char* name, int status);
   int GetCellArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about unaligned arrays.  As is typical with readers this
    * in only valid after the filename is set and UpdateInformation() has been
@@ -116,9 +116,9 @@ public:
   const char* GetFieldArrayName(int index);
   void SetFieldArrayStatus(const char* name, int status);
   int GetFieldArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about grids. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -128,9 +128,9 @@ public:
   const char* GetGridName(int index);
   void SetGridStatus(const char* gridname, int status);
   int GetGridStatus(const char* gridname);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about sets. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -141,7 +141,7 @@ public:
   const char* GetSetName(int index);
   void SetSetStatus(const char* gridname, int status);
   int GetSetStatus(const char* gridname);
-  //@}
+  ///@}
 
   /**
    * These methods are provided to make it easier to use the Sets in ParaView.

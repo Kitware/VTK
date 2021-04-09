@@ -52,13 +52,13 @@ public:
    */
   static vtkParametricMobius* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of the Mobius strip. Default is 1.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
   /**
    * Return the parametric dimension of the class.

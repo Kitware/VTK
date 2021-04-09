@@ -41,23 +41,23 @@ class vtkDataSet;
 class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkPointPicker* New();
   vtkTypeMacro(vtkPointPicker, vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the id of the picked point. If PointId = -1, nothing was picked.
    */
   vtkGetMacro(PointId, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the point search should be based on cell points or
    * directly on the point list.
@@ -65,7 +65,7 @@ public:
   vtkSetMacro(UseCells, vtkTypeBool);
   vtkGetMacro(UseCells, vtkTypeBool);
   vtkBooleanMacro(UseCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkPointPicker();

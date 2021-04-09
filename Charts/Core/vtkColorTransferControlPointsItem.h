@@ -49,12 +49,12 @@ public:
    */
   void SetColorTransferFunction(vtkColorTransferFunction* function);
 
-  //@{
+  ///@{
   /**
    * Get the piecewise function
    */
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
-  //@}
+  ///@}
 
   /**
    * Return the number of points in the color transfer function.
@@ -91,7 +91,7 @@ public:
    */
   vtkIdType RemovePoint(double* pos) override;
 
-  //@{
+  ///@{
   /**
    * If ColorFill is true, the control point brush color is set with the
    * matching color in the color transfer function.
@@ -99,7 +99,7 @@ public:
    */
   vtkSetMacro(ColorFill, bool);
   vtkGetMacro(ColorFill, bool);
-  //@}
+  ///@}
 
 protected:
   vtkColorTransferControlPointsItem() = default;

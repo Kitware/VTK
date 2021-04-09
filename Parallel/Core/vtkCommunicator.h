@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkCommunicator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of processes you will be using.  This defaults
    * to the maximum number available.  If you set this to a value
@@ -62,14 +62,14 @@ public:
    */
   virtual void SetNumberOfProcesses(int num);
   vtkGetMacro(NumberOfProcesses, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells you which process [0, NumProcess) you are in.
    */
   vtkGetMacro(LocalProcessId, int);
-  //@}
+  ///@}
 
   enum Tags
   {
@@ -147,7 +147,7 @@ public:
   virtual int SendVoidArray(
     const void* data, vtkIdType length, int type, int remoteHandle, int tag) = 0;
 
-  //@{
+  ///@{
   /**
    * Convenience methods for sending data arrays.
    */
@@ -203,7 +203,7 @@ public:
   {
     return this->SendVoidArray(data, length, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
-  //@}
+  ///@}
 
   int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
 
@@ -238,7 +238,7 @@ public:
   virtual int ReceiveVoidArray(
     void* data, vtkIdType maxlength, int type, int remoteHandle, int tag) = 0;
 
-  //@{
+  ///@{
   /**
    * Convenience methods for receiving data arrays.
    */
@@ -294,11 +294,11 @@ public:
   {
     return this->ReceiveVoidArray(data, maxlength, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
-  //@}
+  ///@}
 
   int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
 
-  //@{
+  ///@{
   /**
    * Returns the number of words received by the most recent Receive().
    * Note that this is not the number of bytes received, but the number of items
@@ -308,7 +308,7 @@ public:
    * received etc. The return value is valid only after a successful Receive().
    */
   vtkGetMacro(Count, vtkIdType);
-  //@}
+  ///@}
 
   //---------------------- Collective Operations ----------------------
 
@@ -318,7 +318,7 @@ public:
    */
   virtual void Barrier();
 
-  //@{
+  ///@{
   /**
    * Broadcast sends the array in the process with id \c srcProcessId to all of
    * the other processes.  All processes must call these method with the same
@@ -378,11 +378,11 @@ public:
   }
   int Broadcast(vtkDataObject* data, int srcProcessId);
   int Broadcast(vtkDataArray* data, int srcProcessId);
-  //@}
+  ///@}
 
   int Broadcast(vtkMultiProcessStream& stream, int srcProcessId);
 
-  //@{
+  ///@{
   /**
    * Gather collects arrays in the process with id \c destProcessId.  Each
    * process (including the destination) sends the contents of its send buffer
@@ -453,7 +453,7 @@ public:
       sendBuffer, recvBuffer, length, VTK_UNSIGNED_LONG_LONG, destProcessId);
   }
   int Gather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId);
-  //@}
+  ///@}
 
   /**
    * Gathers vtkDataObject (\c sendBuffer) from all ranks to the \c destProcessId.
@@ -482,7 +482,7 @@ public:
   int Gather(const vtkMultiProcessStream& sendBuffer,
     std::vector<vtkMultiProcessStream>& recvBuffer, int destProcessId);
 
-  //@{
+  ///@{
   /**
    * GatherV is the vector variant of Gather.  It extends the functionality of
    * Gather by allowing a varying count of data from each process.
@@ -572,8 +572,8 @@ public:
     return this->GatherVVoidArray(sendBuffer, recvBuffer, sendLength, recvLengths, offsets,
       VTK_UNSIGNED_LONG_LONG, destProcessId);
   }
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * For the first GatherV variant, \c recvLengths and \c offsets known on
    * \c destProcessId and are passed in as parameters
@@ -589,7 +589,7 @@ public:
   int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdTypeArray* recvLengths,
     vtkIdTypeArray* offsets, int destProcessId);
   int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId);
-  //@}
+  ///@}
   /**
    * Collects data objects in the process with id \c
    * destProcessId.  Each process (including the destination) marshals
@@ -600,7 +600,7 @@ public:
    */
   int GatherV(vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* recvData, int destProcessId);
 
-  //@{
+  ///@{
   /**
    * Scatter takes an array in the process with id \c srcProcessId and
    * distributes it.  Each process (including the source) receives a portion of
@@ -669,9 +669,9 @@ public:
       sendBuffer, recvBuffer, length, VTK_UNSIGNED_LONG_LONG, srcProcessId);
   }
   int Scatter(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int srcProcessId);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ScatterV is the vector variant of Scatter.  It extends the functionality of
    * Scatter by allowing a varying count of data to each process.
@@ -757,9 +757,9 @@ public:
     return this->ScatterVVoidArray(sendBuffer, recvBuffer, sendLengths, offsets, recvLength,
       VTK_UNSIGNED_LONG_LONG, srcProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as gather except that the result ends up on all processes.
    */
@@ -819,9 +819,9 @@ public:
   int AllGather(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer);
   int AllGather(
     const vtkMultiProcessStream& sendBuffer, std::vector<vtkMultiProcessStream>& recvBuffer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as GatherV except that the result is placed in all processes.
    */
@@ -906,9 +906,9 @@ public:
   int AllGatherV(
     vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdType* recvLengths, vtkIdType* offsets);
   int AllGatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes an identifier defined in the
@@ -992,9 +992,9 @@ public:
       sendBuffer, recvBuffer, length, VTK_UNSIGNED_LONG_LONG, operation, destProcessId);
   }
   int Reduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int operation, int destProcessId);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes a custom operation as a subclass of vtkCommunicator::Operation.
@@ -1078,9 +1078,9 @@ public:
   }
   int Reduce(
     vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, Operation* operation, int destProcessId);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as Reduce except that the result is placed in all of the processes.
    */
@@ -1206,9 +1206,9 @@ public:
       sendBuffer, recvBuffer, length, VTK_UNSIGNED_LONG_LONG, operation);
   }
   int AllReduce(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, Operation* operation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses should reimplement these if they have a more efficient
    * implementation.
@@ -1234,7 +1234,7 @@ public:
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation);
   virtual int AllReduceVoidArray(
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, Operation* operation);
-  //@}
+  ///@}
 
   static void SetUseCopy(int useCopy);
 
@@ -1253,7 +1253,7 @@ public:
     int* rightHasBounds = nullptr, int* leftHasBounds = nullptr, int hasBoundsTag = 288402,
     int localBoundsTag = 288403, int globalBoundsTag = 288404);
 
-  //@{
+  ///@{
   /**
    * Some helper functions when dealing with heap tree - based
    * algorithms - we don't need a function for getting the right
@@ -1261,9 +1261,9 @@ public:
    */
   static int GetParentProcessor(int pid);
   static int GetLeftChildProcessor(int pid);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convert a data object into a string that can be transmitted and vice versa.
    * Returns 1 for success and 0 for failure.
@@ -1271,7 +1271,7 @@ public:
    */
   static int MarshalDataObject(vtkDataObject* object, vtkCharArray* buffer);
   static int UnMarshalDataObject(vtkCharArray* buffer, vtkDataObject* object);
-  //@}
+  ///@}
 
   /**
    * Same as UnMarshalDataObject(vtkCharArray*, vtkDataObject*) except that this
@@ -1290,7 +1290,7 @@ protected:
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
-  //@{
+  ///@{
   /**
    * GatherV collects arrays in the process with id \c destProcessId.
    * Each process (including the destination) sends its sendArray to
@@ -1303,14 +1303,14 @@ protected:
     vtkSmartPointer<vtkDataArray>* recvArrays, int destProcessId);
   int GatherVElementalDataObject(
     vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* receiveData, int destProcessId);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   int AllGatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
     vtkIdTypeArray* recvLengthsArray, vtkIdTypeArray* offsetsArray);
   int AllGatherV(
     vtkDataArray* sendArray, vtkDataArray* recvArray, vtkSmartPointer<vtkDataArray>* recvArrays);
-  //@}
+  ///@}
 
   int ReceiveDataObject(vtkDataObject* data, int remoteHandle, int tag, int type = -1);
   int ReceiveElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);

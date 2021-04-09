@@ -108,7 +108,7 @@ public:
    */
   virtual void Finalize(int finalizedExternally) = 0;
 
-  //@{
+  ///@{
   /**
    * Set the number of processes you will be using.  This defaults
    * to the maximum number available.  If you set this to a value
@@ -116,7 +116,7 @@ public:
    */
   void SetNumberOfProcesses(int num);
   int GetNumberOfProcesses();
-  //@}
+  ///@}
 
   /**
    * Set the SingleMethod to f() and the UserData of the
@@ -284,7 +284,7 @@ public:
     this->TriggerRMI(remoteProcessId, nullptr, 0, tag);
   }
 
-  //@{
+  ///@{
   /**
    * This is a convenicence method to trigger an RMI call on all the "children"
    * of the current node. The children of the current node can be determined by
@@ -300,9 +300,9 @@ public:
   }
   void TriggerRMIOnAllChildren(int tag) { this->TriggerRMIOnAllChildren(nullptr, 0, tag); }
   void BroadcastTriggerRMIOnAllChildren(void* arg, int argLength, int tag);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Calling this method gives control to the controller to start
    * processing RMIs. Possible return values are:
@@ -317,9 +317,9 @@ public:
   int ProcessRMIs(int reportErrors, int dont_loop = 0);
   int ProcessRMIs();
   int BroadcastProcessRMIs(int reportErrors, int dont_loop = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting this flag to 1 will cause the ProcessRMIs loop to return.
    * This also causes vtkUpStreamPorts to return from
@@ -327,9 +327,9 @@ public:
    */
   vtkSetMacro(BreakFlag, int);
   vtkGetMacro(BreakFlag, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting this flag to 1 will cause the TriggerRMIOnAllChildren to use
    * a collective broadcast operation to communicate the RMI tag to the
@@ -338,15 +338,15 @@ public:
   vtkSetMacro(BroadcastTriggerRMI, bool);
   vtkGetMacro(BroadcastTriggerRMI, bool);
   vtkBooleanMacro(BroadcastTriggerRMI, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the communicator associated with this controller.
    * A default communicator is created in constructor.
    */
   vtkGetObjectMacro(Communicator, vtkCommunicator);
-  //@}
+  ///@}
 
   /**
    * Accessor to some default tags.
@@ -385,7 +385,7 @@ public:
 
   //------------------ Communication --------------------
 
-  //@{
+  ///@{
   /**
    * This method sends data to another process.  Tag eliminates ambiguity
    * when multiple sends or receives exist in the same process.
@@ -408,7 +408,7 @@ public:
   int Send(const unsigned long long* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(vtkDataObject* data, int remoteId, int tag);
   int Send(vtkDataArray* data, int remoteId, int tag);
-  //@}
+  ///@}
 
   /**
    * Send a stream to another process. vtkMultiProcessStream makes it possible
@@ -419,7 +419,7 @@ public:
    */
   int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
 
-  //@{
+  ///@{
   /**
    * This method receives data from a corresponding send. It blocks
    * until the receive is finished.  It calls methods in "data"
@@ -444,7 +444,7 @@ public:
   int Receive(unsigned long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
-  //@}
+  ///@}
 
   /**
    * Receive a stream from the other processes.
@@ -465,7 +465,7 @@ public:
 
   //---------------------- Collective Operations ----------------------
 
-  //@{
+  ///@{
   /**
    * Broadcast sends the array in the process with id \c srcProcessId to all of
    * the other processes.  All processes must call these method with the same
@@ -531,14 +531,14 @@ public:
   {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
-  //@}
+  ///@}
 
   int Broadcast(vtkMultiProcessStream& stream, int srcProcessId)
   {
     return this->Communicator->Broadcast(stream, srcProcessId);
   }
 
-  //@{
+  ///@{
   /**
    * Gather collects arrays in the process with id \c destProcessId.  Each
    * process (including the destination) sends the contents of its send buffer
@@ -611,7 +611,7 @@ public:
   {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
   }
-  //@}
+  ///@}
 
   /**
    * Gathers vtkDataObject (\c sendBuffer) from all ranks to the \c destProcessId.
@@ -646,7 +646,7 @@ public:
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
   }
 
-  //@{
+  ///@{
   /**
    * GatherV is the vector variant of Gather.  It extends the functionality of
    * Gather by allowing a varying count of data from each process.
@@ -736,7 +736,7 @@ public:
     return this->Communicator->GatherV(
       sendBuffer, recvBuffer, sendLength, recvLengths, offsets, destProcessId);
   }
-  //@}
+  ///@}
 
   int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdType* recvLengths,
     vtkIdType* offsets, int destProcessId)
@@ -749,7 +749,7 @@ public:
     return this->Communicator->GatherV(sendBuffer, recvBuffer, recvLengths, offsets, destProcessId);
   }
 
-  //@{
+  ///@{
   /**
    * This special form of GatherV will automatically determine \c recvLengths
    * and \c offsets to tightly pack the data in the \c recvBuffer in process
@@ -764,9 +764,9 @@ public:
   {
     return this->Communicator->GatherV(sendData, recvData, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scatter takes an array in the process with id \c srcProcessId and
    * distributes it.  Each process (including the source) receives a portion of
@@ -837,9 +837,9 @@ public:
   {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, srcProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ScatterV is the vector variant of Scatter.  It extends the functionality of
    * Scatter by allowing a varying count of data to each process.
@@ -925,9 +925,9 @@ public:
     return this->Communicator->ScatterV(
       sendBuffer, recvBuffer, sendLengths, offsets, recvLength, srcProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as gather except that the result ends up on all processes.
    */
@@ -988,7 +988,7 @@ public:
   {
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
-  //@}
+  ///@}
 
   /**
    * Gathers vtkMultiProcessStream (\c sendBuffer) from all ranks to the \c
@@ -1003,7 +1003,7 @@ public:
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
 
-  //@{
+  ///@{
   /**
    * Same as GatherV except that the result is placed in all processes.
    */
@@ -1077,7 +1077,7 @@ public:
   {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer, recvLengths, offsets);
   }
-  //@}
+  ///@}
 
   /**
    * This special form of AllGatherV will automatically determine \c recvLengths
@@ -1090,7 +1090,7 @@ public:
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer);
   }
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes an identifier defined in the
@@ -1165,9 +1165,9 @@ public:
   {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, operation, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reduce an array to the given destination process.  This version of Reduce
    * takes a custom operation as a subclass of vtkCommunicator::Operation.
@@ -1242,9 +1242,9 @@ public:
   {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, operation, destProcessId);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as Reduce except that the result is placed in all of the processes.
    */
@@ -1310,7 +1310,7 @@ public:
   {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-  //@}
+  ///@}
 
   int AllReduce(
     const int* sendBuffer, int* recvBuffer, vtkIdType length, vtkCommunicator::Operation* operation)
@@ -1383,22 +1383,22 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
 
-  //@{
+  ///@{
   /**
    * Convenience methods to reduce bounds.
    */
   int Reduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer, int destProcessId);
   int AllReduce(const vtkBoundingBox& sendBuffer, vtkBoundingBox& recvBuffer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience methods to reduce vtkDataArraySelection.
    */
   int Reduce(
     vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer, int destProcessId);
   int AllReduce(vtkDataArraySelection* sendBuffer, vtkDataArraySelection* recvBuffer);
-  //@}
+  ///@}
 
   // Internally implemented RMI to break the process loop.
 

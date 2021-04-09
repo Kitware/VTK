@@ -89,14 +89,14 @@ public:
    */
   virtual void Render(void);
 
-  //@{
+  ///@{
   /**
    * Set/Get the input image to the viewer.
    */
   virtual void SetInputData(vtkImageData* in);
   virtual vtkImageData* GetInput();
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
-  //@}
+  ///@}
 
   /**
    * Set/get the slice orientation
@@ -124,14 +124,14 @@ public:
     this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XZ);
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the current slice to display (depending on the orientation
    * this can be in X, Y or Z).
    */
   vtkGetMacro(Slice, int);
   virtual void SetSlice(int s);
-  //@}
+  ///@}
 
   /**
    * Update the display extent manually so that the proper slice for the
@@ -147,7 +147,7 @@ public:
    */
   virtual void UpdateDisplayExtent();
 
-  //@{
+  ///@{
   /**
    * Return the minimum and maximum slice values (depending on the orientation
    * this can be in X, Y or Z).
@@ -157,9 +157,9 @@ public:
   virtual void GetSliceRange(int range[2]) { this->GetSliceRange(range[0], range[1]); }
   virtual void GetSliceRange(int& min, int& max);
   virtual int* GetSliceRange();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set window and level for mapping pixels to colors.
    */
@@ -167,18 +167,18 @@ public:
   virtual double GetColorLevel();
   virtual void SetColorWindow(double s);
   virtual void SetColorLevel(double s);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are here when using a Tk window.
    */
   virtual void SetDisplayId(void* a);
   virtual void SetWindowId(void* a);
   virtual void SetParentId(void* a);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position (x and y) of the rendering window in
    * screen coordinates (in pixels).
@@ -192,9 +192,9 @@ public:
    */
   virtual void SetPosition(int x, int y);
   virtual void SetPosition(int a[2]) { this->SetPosition(a[0], a[1]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the size (width and height) of the rendering window in
    * screen coordinates (in pixels).
@@ -211,9 +211,9 @@ public:
    */
   virtual void SetSize(int width, int height);
   virtual void SetSize(int a[2]) { this->SetSize(a[0], a[1]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the internal render window, renderer, image actor, and
    * image map instances.
@@ -223,22 +223,22 @@ public:
   vtkGetObjectMacro(ImageActor, vtkImageActor);
   vtkGetObjectMacro(WindowLevel, vtkImageMapToWindowLevelColors);
   vtkGetObjectMacro(InteractorStyle, vtkInteractorStyleImage);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set your own renderwindow and renderer
    */
   virtual void SetRenderWindow(vtkRenderWindow* arg);
   virtual void SetRenderer(vtkRenderer* arg);
-  //@}
+  ///@}
 
   /**
    * Attach an interactor for the internal render window.
    */
   virtual void SetupInteractor(vtkRenderWindowInteractor*);
 
-  //@{
+  ///@{
   /**
    * Create a window in memory instead of on the screen. This may not
    * be supported for every type of window and on some windows you may
@@ -247,7 +247,7 @@ public:
   virtual void SetOffScreenRendering(vtkTypeBool);
   virtual vtkTypeBool GetOffScreenRendering();
   vtkBooleanMacro(OffScreenRendering, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageViewer2();

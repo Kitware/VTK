@@ -38,13 +38,13 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the pad value.
    */
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageConstantPad();

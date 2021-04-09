@@ -55,13 +55,13 @@ public:
 
   vtkSQLDatabase* GetDatabase() { return this->Database; }
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkTableToDatabaseWriter();

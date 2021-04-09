@@ -81,13 +81,13 @@ public:
   static vtkMNITransformWriter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the file name.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * Get the extension for this file format.
@@ -99,13 +99,13 @@ public:
    */
   virtual const char* GetDescriptiveName() { return "MNI Transform"; }
 
-  //@{
+  ///@{
   /**
    * Set the transform.
    */
   virtual void SetTransform(vtkAbstractTransform* transform);
   virtual vtkAbstractTransform* GetTransform() { return this->Transform; }
-  //@}
+  ///@}
 
   /**
    * Add another transform to the file.  The next time that
@@ -119,13 +119,13 @@ public:
    */
   virtual int GetNumberOfTransforms();
 
-  //@{
+  ///@{
   /**
    * Set comments to be added to the file.
    */
   vtkSetStringMacro(Comments);
   vtkGetStringMacro(Comments);
-  //@}
+  ///@}
 
   /**
    * Write the file.

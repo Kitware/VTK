@@ -60,13 +60,13 @@ public:
    */
   static vtkCheckerboardWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkCheckerboardWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method

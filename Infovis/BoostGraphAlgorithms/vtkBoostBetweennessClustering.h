@@ -44,43 +44,43 @@ public:
   vtkBoostBetweennessClustering();
   ~vtkBoostBetweennessClustering() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the threshold value. Algorithm terminats when the maximum edge
    * centrality is below this threshold.
    */
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the flag that sets the rule whether or not to use the
    * edge weight array as set using \c SetEdgeWeightArrayName.
    */
   vtkSetMacro(UseEdgeWeightArray, bool);
   vtkBooleanMacro(UseEdgeWeightArray, bool);
-  //@}
+  ///@}
 
   vtkSetMacro(InvertEdgeWeightArray, bool);
   vtkBooleanMacro(InvertEdgeWeightArray, bool);
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the array that needs to be used as the edge weight.
    * The array should be a vtkDataArray.
    */
   vtkGetStringMacro(EdgeWeightArrayName);
   vtkSetStringMacro(EdgeWeightArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the edge centrality array name. If no output array name is
    * set then the name "edge_centrality" is used.
    */
   vtkSetStringMacro(EdgeCentralityArrayName);
-  //@}
+  ///@}
 
 protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

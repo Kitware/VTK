@@ -41,7 +41,7 @@ public:
   vtkTypeMacro(vtkXMLPUniformGridAMRWriter, vtkXMLUniformGridAMRWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controller used to communicate data type of blocks.
    * By default, the global controller is used. If you want another
@@ -51,7 +51,7 @@ public:
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Set whether this instance will write the meta-file. WriteMetaFile

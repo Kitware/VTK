@@ -36,13 +36,13 @@ public:
   vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name of the new output array containing the vertex counts.
    */
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkCountVertices();

@@ -41,7 +41,7 @@ public:
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  //@{
+  ///@{
   /**
    * Whether or not to deep copy the input. This can be useful if you
    * want to create a copy of a data object. You can then disconnect
@@ -51,7 +51,7 @@ public:
   vtkSetMacro(DeepCopyInput, vtkTypeBool);
   vtkGetMacro(DeepCopyInput, vtkTypeBool);
   vtkBooleanMacro(DeepCopyInput, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Allow the filter to execute without error when no input connection is

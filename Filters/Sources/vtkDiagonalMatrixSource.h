@@ -53,55 +53,55 @@ public:
   vtkGetMacro(ArrayType, int);
   vtkSetMacro(ArrayType, int);
 
-  //@{
+  ///@{
   /**
    * Stores the extents of the output matrix (which is square)
    */
   vtkGetMacro(Extents, vtkIdType);
   vtkSetMacro(Extents, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Stores the value that will be assigned to diagonal elements (default: 1)
    */
   vtkGetMacro(Diagonal, double);
   vtkSetMacro(Diagonal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Stores the value that will be assigned to superdiagonal elements (default: 0)
    */
   vtkGetMacro(SuperDiagonal, double);
   vtkSetMacro(SuperDiagonal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Stores the value that will be assigned to subdiagonal elements (default: 0)
    */
   vtkGetMacro(SubDiagonal, double);
   vtkSetMacro(SubDiagonal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the output matrix row dimension label.
    * Default: "rows"
    */
   vtkGetStringMacro(RowLabel);
   vtkSetStringMacro(RowLabel);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the output matrix column dimension label.
    * Default: "columns"
    */
   vtkGetStringMacro(ColumnLabel);
   vtkSetStringMacro(ColumnLabel);
-  //@}
+  ///@}
 
 protected:
   vtkDiagonalMatrixSource();

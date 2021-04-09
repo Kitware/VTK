@@ -53,13 +53,13 @@ public:
    */
   vtkMTimeType GetMTime() const { return this->ModifiedTime; }
 
-  //@{
+  ///@{
   /**
    * Support comparisons of time stamp objects directly.
    */
   bool operator>(vtkTimeStamp& ts) { return (this->ModifiedTime > ts.ModifiedTime); }
   bool operator<(vtkTimeStamp& ts) { return (this->ModifiedTime < ts.ModifiedTime); }
-  //@}
+  ///@}
 
   /**
    * Allow for typecasting to unsigned long.

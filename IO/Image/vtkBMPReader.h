@@ -53,12 +53,12 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Returns the depth of the BMP, either 8 or 24.
    */
   vtkGetMacro(Depth, int);
-  //@}
+  ///@}
 
   /**
    * Is the given file a BMP file?
@@ -77,7 +77,7 @@ public:
    */
   const char* GetDescriptiveName() override { return "Windows BMP"; }
 
-  //@{
+  ///@{
   /**
    * If this flag is set and the BMP reader encounters an 8bit file,
    * the data will be kept as unsigned chars and a lookuptable will be
@@ -86,16 +86,16 @@ public:
   vtkSetMacro(Allow8BitBMP, vtkTypeBool);
   vtkGetMacro(Allow8BitBMP, vtkTypeBool);
   vtkBooleanMacro(Allow8BitBMP, vtkTypeBool);
-  //@}
+  ///@}
 
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
-  //@{
+  ///@{
   /**
    * Returns the color lut.
    */
   vtkGetMacro(Colors, unsigned char*);
-  //@}
+  ///@}
 
 protected:
   vtkBMPReader();

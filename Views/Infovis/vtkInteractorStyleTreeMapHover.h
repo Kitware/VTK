@@ -52,48 +52,48 @@ public:
   vtkTypeMacro(vtkInteractorStyleTreeMapHover, vtkInteractorStyleImage);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Must be set to the vtkTreeMapLayout used to compute the bounds of each vertex
    * for the tree map.
    */
   void SetLayout(vtkTreeMapLayout* layout);
   vtkGetObjectMacro(Layout, vtkTreeMapLayout);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Must be set to the vtkTreeMapToPolyData used to convert the tree map
    * into polydata.
    */
   void SetTreeMapToPolyData(vtkTreeMapToPolyData* filter);
   vtkGetObjectMacro(TreeMapToPolyData, vtkTreeMapToPolyData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field to use when displaying text in the hover balloon.
    */
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden from vtkInteractorStyleImage to provide the desired
    * interaction behavior.
    */
   void OnMouseMove() override;
   void OnLeftButtonUp() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Highlights a specific vertex.
    */
   void HighLightItem(vtkIdType id);
   void HighLightCurrentSelectedItem();
-  //@}
+  ///@}
 
   void SetInteractor(vtkRenderWindowInteractor* rwi) override;
 
@@ -107,21 +107,21 @@ public:
    */
   void SetSelectionLightColor(double r, double g, double b);
 
-  //@{
+  ///@{
   /**
    * The width of the line around the hovered vertex.
    */
   void SetHighLightWidth(double lw);
   double GetHighLightWidth();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The width of the line around the selected vertex.
    */
   void SetSelectionWidth(double lw);
   double GetSelectionWidth();
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleTreeMapHover();

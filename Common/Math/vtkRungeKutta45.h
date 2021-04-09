@@ -50,7 +50,7 @@ public:
   static vtkRungeKutta45* New();
 
   using Superclass::ComputeNextStep;
-  //@{
+  ///@{
   /**
    * Given initial values, xprev , initial time, t and a requested time
    * interval, delT calculate values of x at t+delTActual (xnext).
@@ -100,7 +100,7 @@ public:
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t, double& delT,
     double& delTActual, double minStep, double maxStep, double maxError, double& estErr,
     void* userData) override;
-  //@}
+  ///@}
 
 protected:
   vtkRungeKutta45();

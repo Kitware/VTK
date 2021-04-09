@@ -47,7 +47,7 @@ public:
    */
   vtkImplicitFunction* GetNextItem();
 
-  //@{
+  ///@{
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
@@ -56,7 +56,7 @@ public:
   {
     return static_cast<vtkImplicitFunction*>(this->GetNextItemAsObject(cookie));
   }
-  //@}
+  ///@}
 
 protected:
   vtkImplicitFunctionCollection() = default;

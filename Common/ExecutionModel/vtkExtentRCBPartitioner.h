@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkExtentRCBPartitioner, vtkObject);
   void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of requested partitions
    */
@@ -44,9 +44,9 @@ public:
     this->Reset();
     this->NumberOfPartitions = N;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the global extent array to be partitioned.
    * The global extent is packed as follows:
@@ -66,31 +66,31 @@ public:
   {
     this->SetGlobalExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * On/Off DuplicateNodes between partitions. Default is On.
    */
   vtkSetMacro(DuplicateNodes, vtkTypeBool);
   vtkGetMacro(DuplicateNodes, vtkTypeBool);
   vtkBooleanMacro(DuplicateNodes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get macro for the number of ghost layers.
    */
   vtkSetMacro(NumberOfGhostLayers, int);
   vtkGetMacro(NumberOfGhostLayers, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the number of extents.
    */
   vtkGetMacro(NumExtents, int);
-  //@}
+  ///@}
 
   /**
    * Partitions the extent
@@ -106,7 +106,7 @@ protected:
   vtkExtentRCBPartitioner();
   ~vtkExtentRCBPartitioner() override;
 
-  //@{
+  ///@{
   /**
    * Resets the partitioner to the initial state, all previous partition
    * extents are cleared.
@@ -117,7 +117,7 @@ protected:
     this->NumExtents = 0;
     this->ExtentIsPartitioned = false;
   }
-  //@}
+  ///@}
 
   /**
    * Given an extent, this method will create ghost layers on each side of
@@ -126,7 +126,7 @@ protected:
    */
   void ExtendGhostLayers(int ext[6]);
 
-  //@{
+  ///@{
   /**
    * Givent an extent and the min/max of the dimension we are looking at, this
    * method will produce a ghosted extent which is clamped within the given
@@ -141,7 +141,7 @@ protected:
     ext[maxIdx] =
       (ext[maxIdx] > this->GlobalExtent[maxIdx]) ? this->GlobalExtent[maxIdx] : ext[maxIdx];
   }
-  //@}
+  ///@}
 
   /**
    * Gets the structured data-description based on the givenn global extent

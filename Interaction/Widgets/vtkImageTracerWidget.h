@@ -88,7 +88,7 @@ public:
   vtkTypeMacro(vtkImageTracerWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -100,9 +100,9 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties (the 2D glyphs are the handles). The
    * properties of the handles when selected and normal can be manipulated.
@@ -111,9 +111,9 @@ public:
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   virtual void SetSelectedHandleProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the line properties. The properties of the line when selected
    * and unselected can be manipulated.
@@ -122,23 +122,23 @@ public:
   vtkGetObjectMacro(LineProperty, vtkProperty);
   virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
-  //@}
+  ///@}
 
   /**
    * Set the prop, usually a vtkImageActor, to trace over.
    */
   void SetViewProp(vtkProp* prop);
 
-  //@{
+  ///@{
   /**
    * Force handles to be on a specific ortho plane. Default is Off.
    */
   vtkSetMacro(ProjectToPlane, vtkTypeBool);
   vtkGetMacro(ProjectToPlane, vtkTypeBool);
   vtkBooleanMacro(ProjectToPlane, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the projection normal.  The normal in SetProjectionNormal is 0,1,2
    * for YZ,XZ,XY planes respectively.  Since the handles are 2D glyphs, it is
@@ -150,9 +150,9 @@ public:
   void SetProjectionNormalToXAxes() { this->SetProjectionNormal(0); }
   void SetProjectionNormalToYAxes() { this->SetProjectionNormal(1); }
   void SetProjectionNormalToZAxes() { this->SetProjectionNormal(2); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the widgets' handles in terms of a plane's position.
    * e.g., if ProjectionNormal is 0, all of the x-coordinate values of the
@@ -162,18 +162,18 @@ public:
    */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force snapping to image data while tracing. Default is Off.
    */
   void SetSnapToImage(vtkTypeBool snap);
   vtkGetMacro(SnapToImage, vtkTypeBool);
   vtkBooleanMacro(SnapToImage, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In concert with a CaptureRadius value, automatically
    * form a closed path by connecting first to last path points.
@@ -182,9 +182,9 @@ public:
   vtkSetMacro(AutoClose, vtkTypeBool);
   vtkGetMacro(AutoClose, vtkTypeBool);
   vtkBooleanMacro(AutoClose, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the capture radius for automatic path closing.  For image
    * data, capture radius should be half the distance between voxel/pixel
@@ -193,7 +193,7 @@ public:
    */
   vtkSetMacro(CaptureRadius, double);
   vtkGetMacro(CaptureRadius, double);
-  //@}
+  ///@}
 
   /**
    * Grab the points and lines that define the traced path. These point values
@@ -208,16 +208,16 @@ public:
    */
   vtkGlyphSource2D* GetGlyphSource() { return this->HandleGenerator; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the type of snapping to image data: center of a pixel/voxel or
    * nearest point defining a pixel/voxel.
    */
   vtkSetClampMacro(ImageSnapType, int, VTK_ITW_SNAP_CELLS, VTK_ITW_SNAP_POINTS);
   vtkGetMacro(ImageSnapType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle position in terms of a zero-based array of handles.
    */
@@ -225,23 +225,23 @@ public:
   void SetHandlePosition(int handle, double x, double y, double z);
   void GetHandlePosition(int handle, double xyz[3]);
   double* GetHandlePosition(int handle) VTK_SIZEHINT(3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of handles.
    */
   vtkGetMacro(NumberOfHandles, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable mouse interaction when the widget is visible.
    */
   void SetInteraction(vtkTypeBool interact);
   vtkGetMacro(Interaction, vtkTypeBool);
   vtkBooleanMacro(Interaction, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Initialize the widget with a set of points and generate
@@ -255,7 +255,7 @@ public:
    */
   int IsClosed();
 
-  //@{
+  ///@{
   /**
    * Enable/Disable mouse button events
    */
@@ -268,7 +268,7 @@ public:
   vtkSetMacro(HandleRightMouseButton, vtkTypeBool);
   vtkGetMacro(HandleRightMouseButton, vtkTypeBool);
   vtkBooleanMacro(HandleRightMouseButton, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageTracerWidget();

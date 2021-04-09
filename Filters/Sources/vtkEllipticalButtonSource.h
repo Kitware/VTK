@@ -58,57 +58,57 @@ public:
    */
   static vtkEllipticalButtonSource* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the width of the button (the x-ellipsoid axis length * 2).
    */
   vtkSetClampMacro(Width, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Width, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the height of the button (the y-ellipsoid axis length * 2).
    */
   vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Height, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the depth of the button (the z-eliipsoid axis length).
    */
   vtkSetClampMacro(Depth, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Depth, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the button in the circumferential direction.
    */
   vtkSetClampMacro(CircumferentialResolution, int, 4, VTK_INT_MAX);
   vtkGetMacro(CircumferentialResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the texture in the radial direction in the
    * texture region.
    */
   vtkSetClampMacro(TextureResolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(TextureResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the texture in the radial direction in the
    * shoulder region.
    */
   vtkSetClampMacro(ShoulderResolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(ShoulderResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the radial ratio. This is the measure of the radius of the
    * outer ellipsoid to the inner ellipsoid of the button. The outer
@@ -120,9 +120,9 @@ public:
    */
   vtkSetClampMacro(RadialRatio, double, 1.0, VTK_DOUBLE_MAX);
   vtkGetMacro(RadialRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -130,7 +130,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkEllipticalButtonSource();

@@ -59,7 +59,7 @@ class vtkPointSet;
 class VTKFILTERSPOINTS_EXPORT vtkMaskPointsFilter : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -67,22 +67,22 @@ public:
   static vtkMaskPointsFilter* New();
   vtkTypeMacro(vtkMaskPointsFilter, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the masking image. It must be of type vtkImageData.
    */
   void SetMaskData(vtkDataObject* source);
   vtkDataObject* GetMask();
-  //@}
+  ///@}
 
   /**
    * Specify the masking image. It is vtkImageData output from an algorithm.
    */
   void SetMaskConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Set / get the values indicating whether a voxel is empty. By default, an
    * empty voxel is marked with a zero value. Any point inside a voxel marked
@@ -91,7 +91,7 @@ public:
    */
   vtkSetMacro(EmptyValue, unsigned char);
   vtkGetMacro(EmptyValue, unsigned char);
-  //@}
+  ///@}
 
 protected:
   vtkMaskPointsFilter();

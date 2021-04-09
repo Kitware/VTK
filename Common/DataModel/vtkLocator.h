@@ -69,23 +69,23 @@ class vtkPolyData;
 class VTKCOMMONDATAMODEL_EXPORT vtkLocator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkLocator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Build the locator from the points/cells defining this dataset.
    */
   virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum allowable level for the tree. If the Automatic ivar is
    * off, this will be the target depth of the locator.
@@ -93,18 +93,18 @@ public:
    */
   vtkSetClampMacro(MaxLevel, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the level of the locator (determined automatically if Automatic is
    * true). The value of this ivar may change each time the locator is built.
    * Initial value is 8.
    */
   vtkGetMacro(Level, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether locator depth/resolution of locator is computed
    * automatically from average number of entities in bucket. If not set,
@@ -114,16 +114,16 @@ public:
   vtkSetMacro(Automatic, vtkTypeBool);
   vtkGetMacro(Automatic, vtkTypeBool);
   vtkBooleanMacro(Automatic, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify absolute tolerance (in world coordinates) for performing
    * geometric operations.
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
   /**
    * Cause the locator to rebuild itself if it or its input dataset has
@@ -154,20 +154,20 @@ public:
    */
   virtual void GenerateRepresentation(int level, vtkPolyData* pd) = 0;
 
-  //@{
+  ///@{
   /**
    * Return the time of the last data structure build.
    */
   vtkGetMacro(BuildTime, vtkMTimeType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Handle the PointSet <-> Locator loop.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
 protected:
   vtkLocator();

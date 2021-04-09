@@ -53,14 +53,14 @@ class vtkCellArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLinks : public vtkAbstractCellLinks
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type manipulation and printing.
    */
   static vtkStaticCellLinks* New();
   vtkTypeMacro(vtkStaticCellLinks, vtkAbstractCellLinks);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Build the link list array. Satisfy the superclass API.
@@ -87,7 +87,7 @@ public:
    */
   vtkIdType* GetCells(vtkIdType ptId) { return this->Impl->GetCells(ptId); }
 
-  //@{
+  ///@{
   /**
    * Select all cells with a point degree in the range [minDegree,maxDegree).
    * The degree is the number of cells using a point. The selection is
@@ -99,7 +99,7 @@ public:
   {
     return this->Impl->SelectCells(minMaxDegree, cellSelection);
   }
-  //@}
+  ///@}
 
   /**
    * Make sure any previously created links are cleaned up.

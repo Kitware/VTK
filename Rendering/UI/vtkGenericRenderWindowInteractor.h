@@ -43,7 +43,7 @@ public:
    */
   virtual void TimerEvent();
 
-  //@{
+  ///@{
   /**
    * Flag that indicates whether the TimerEvent method should call ResetTimer
    * to simulate repeating timers with an endless stream of one shot timers.
@@ -59,20 +59,20 @@ public:
   vtkSetMacro(TimerEventResetsTimer, vtkTypeBool);
   vtkGetMacro(TimerEventResetsTimer, vtkTypeBool);
   vtkBooleanMacro(TimerEventResetsTimer, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkGenericRenderWindowInteractor();
   ~vtkGenericRenderWindowInteractor() override;
 
-  //@{
+  ///@{
   /**
    * Generic internal timer methods. See the superclass for detailed
    * documentation.
    */
   int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
   int InternalDestroyTimer(int platformTimerId) override;
-  //@}
+  ///@}
 
   vtkTypeBool TimerEventResetsTimer;
 

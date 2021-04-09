@@ -34,13 +34,13 @@ public:
   vtkTypeMacro(vtkPartitionedDataSetCollectionAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for the specified output port.
    */
   vtkPartitionedDataSetCollection* GetOutput();
   vtkPartitionedDataSetCollection* GetOutput(int);
-  //@}
+  ///@}
 
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
@@ -49,7 +49,7 @@ protected:
   vtkPartitionedDataSetCollectionAlgorithm();
   ~vtkPartitionedDataSetCollectionAlgorithm() override;
 
-  //@{
+  ///@{
   /**
    * Methods for subclasses to override to handle different pipeline requests.
    */
@@ -69,7 +69,7 @@ protected:
   {
     return 1;
   }
-  //@}
+  ///@}
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

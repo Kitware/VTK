@@ -102,16 +102,16 @@ class vtkSpheres;
 class VTKFILTERSCORE_EXPORT vtkVoronoi2D : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkVoronoi2D* New();
   vtkTypeMacro(vtkVoronoi2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a padding for the bounding box of the points. A >0 padding is
    * necessary in order to create valid Voronoi tiles on the boundary of the
@@ -120,7 +120,7 @@ public:
    */
   vtkSetClampMacro(Padding, double, 0.001, 0.25);
   vtkGetMacro(Padding, double);
-  //@}
+  ///@}
 
   enum GenerateScalarsStrategy
   {
@@ -129,7 +129,7 @@ public:
     THREAD_IDS = 2
   };
 
-  //@{
+  ///@{
   /**
    * Indicate whether to create a scalar array as part of the output. No
    * scalars; point ids, or execution thread ids may be output. By default no
@@ -140,9 +140,9 @@ public:
   void SetGenerateScalarsToNone() { this->SetGenerateScalars(NONE); }
   void SetGenerateScalarsToPointIds() { this->SetGenerateScalars(POINT_IDS); }
   void SetGenerateScalarsToThreadIds() { this->SetGenerateScalars(THREAD_IDS); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the transform which is applied to points to generate a 2D
    * problem.  This maps a 3D dataset into a 2D dataset where triangulation
@@ -154,7 +154,7 @@ public:
    */
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
-  //@}
+  ///@}
 
   enum ProjectionPlaneStrategy
   {
@@ -163,7 +163,7 @@ public:
     BEST_FITTING_PLANE = 2
   };
 
-  //@{
+  ///@{
   /**
    * Define the method to project the input 3D points into a 2D plane for
    * tessellation. When the VTK_XY_PLANE is set, the z-coordinate is simply
@@ -183,9 +183,9 @@ public:
   {
     this->SetProjectionPlaneMode(BEST_FITTING_PLANE);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are for debugging or instructional purposes. When the
    * point of interest is specified (i.e., to a non-negative number) then the
@@ -203,18 +203,18 @@ public:
   vtkGetMacro(PointOfInterest, vtkIdType);
   vtkSetClampMacro(MaximumNumberOfTileClips, vtkIdType, 1, VTK_ID_MAX);
   vtkGetMacro(MaximumNumberOfTileClips, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the internal locator to manually configure it, for example
    * specifying the number of points per bucket. This method is generally
    * used for debugging or testing purposes.
    */
   vtkStaticPointLocator2D* GetLocator() { return this->Locator; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are for debugging or instructional purposes. If
    * GenerateVoronoiFlower is on, and the PointOfIntersect is specified, then
@@ -227,9 +227,9 @@ public:
   vtkSetMacro(GenerateVoronoiFlower, vtkTypeBool);
   vtkGetMacro(GenerateVoronoiFlower, vtkTypeBool);
   vtkBooleanMacro(GenerateVoronoiFlower, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the Voronoi flower (a collection of spheres) for the point of
    * interest in the form of a vtkSpheres implicit function. This is valid
@@ -238,7 +238,7 @@ public:
    * purposes.
    */
   vtkGetObjectMacro(Spheres, vtkSpheres);
-  //@}
+  ///@}
 
   /**
    *  Return the number of threads actually used during execution. This is

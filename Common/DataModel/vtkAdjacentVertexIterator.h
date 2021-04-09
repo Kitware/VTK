@@ -53,15 +53,15 @@ public:
    */
   void Initialize(vtkGraph* g, vtkIdType v);
 
-  //@{
+  ///@{
   /**
    * Get the graph and vertex associated with this iterator.
    */
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the next edge in the graph.
    */
@@ -71,7 +71,7 @@ public:
     ++this->Current;
     return e.Target;
   }
-  //@}
+  ///@}
 
   /**
    * Whether this iterator has more edges.

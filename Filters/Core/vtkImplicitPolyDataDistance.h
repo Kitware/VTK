@@ -83,40 +83,40 @@ public:
    */
   void SetInput(vtkPolyData* input);
 
-  //@{
+  ///@{
   /**
    * Set/get the function value to use if no input vtkPolyData
    * specified.
    */
   vtkSetMacro(NoValue, double);
   vtkGetMacro(NoValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the function gradient to use if no input vtkPolyData
    * specified.
    */
   vtkSetVector3Macro(NoGradient, double);
   vtkGetVector3Macro(NoGradient, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the closest point to use if no input vtkPolyData
    * specified.
    */
   vtkSetVector3Macro(NoClosestPoint, double);
   vtkGetVector3Macro(NoClosestPoint, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance usued for the locator.
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitPolyDataDistance();

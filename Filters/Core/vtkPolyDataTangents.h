@@ -39,7 +39,7 @@ public:
 
   static vtkPolyDataTangents* New();
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of point tangents.
    * Default is true.
@@ -47,9 +47,9 @@ public:
   vtkSetMacro(ComputePointTangents, bool);
   vtkGetMacro(ComputePointTangents, bool);
   vtkBooleanMacro(ComputePointTangents, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of cell tangents.
    * Default is false.
@@ -57,7 +57,7 @@ public:
   vtkSetMacro(ComputeCellTangents, bool);
   vtkGetMacro(ComputeCellTangents, bool);
   vtkBooleanMacro(ComputeCellTangents, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataTangents() = default;

@@ -50,21 +50,21 @@ public:
    * Get/Set the number of pieces into which the inputs are split.
    */
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of ghost levels to be written.
    */
   vtkGetMacro(GhostLevel, int);
   vtkSetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether this instance will write the meta-file.
    */
   vtkGetMacro(WriteMetaFile, int);
   virtual void SetWriteMetaFile(int flag);
-  //@}
+  ///@}
 
   /**
    * See the vtkAlgorithm for a description of what these do

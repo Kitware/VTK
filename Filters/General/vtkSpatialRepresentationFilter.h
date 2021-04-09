@@ -61,21 +61,21 @@ public:
   vtkTypeMacro(vtkSpatialRepresentationFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the locator that will be used to generate the representation.
    */
   virtual void SetSpatialRepresentation(vtkLocator*);
   vtkGetObjectMacro(SpatialRepresentation, vtkLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the maximum level that is available. Populated during
    * RequestData().
    */
   vtkGetMacro(MaximumLevel, int);
-  //@}
+  ///@}
 
   /**
    * Add a level to be computed.
@@ -87,14 +87,14 @@ public:
    */
   void ResetLevels();
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of leaf nodes. Off by default.
    */
   vtkSetMacro(GenerateLeaves, bool);
   vtkGetMacro(GenerateLeaves, bool);
   vtkBooleanMacro(GenerateLeaves, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSpatialRepresentationFilter();

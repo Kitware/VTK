@@ -87,7 +87,7 @@ public:
     return reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);
   }
 
-  //@{
+  ///@{
   /**
    * Enable/disable the creation of a chair on this widget. If off,
    * chairs cannot be created.
@@ -95,7 +95,7 @@ public:
   vtkSetMacro(EnableChairCreation, vtkTypeBool);
   vtkGetMacro(EnableChairCreation, vtkTypeBool);
   vtkBooleanMacro(EnableChairCreation, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.
@@ -122,10 +122,10 @@ protected:
   // Control whether chairs can be created
   vtkTypeBool EnableChairCreation;
 
-  //@{
+  ///@{
   void BeginTranslateAction(vtkParallelopipedWidget* dispatcher);
   void TranslateAction(vtkParallelopipedWidget* dispatcher);
-  //@}
+  ///@}
 
   // helper methods for cursor management
   void SetCursor(int state) override;

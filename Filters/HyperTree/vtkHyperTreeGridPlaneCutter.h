@@ -57,24 +57,24 @@ public:
   vtkTypeMacro(vtkHyperTreeGridPlaneCutter, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the plane with its [a,b,c,d] Cartesian coefficients:
    * a*x + b*y + c*z = d
    */
   void SetPlane(double a, double b, double c, double d);
   vtkGetVector4Macro(Plane, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns 0 if plane's normal is aligned with X axis, 1 if it is aligned with Y axis, 2 if it
    * is aligned with Z axis. Returns -1 if not aligned with any principal axis.
    */
   vtkGetMacro(AxisAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if plane's normal is aligned with the corresponding axis, false elsewise.
    */
@@ -83,14 +83,14 @@ public:
   bool IsPlaneOrthogonalToZAxis() { return this->AxisAlignment == 2; }
   //}@
 
-  //@{
+  ///@{
   /**
    * Set/Get whether output mesh should be computed on dual grid
    */
   vtkSetMacro(Dual, int);
   vtkGetMacro(Dual, int);
   vtkBooleanMacro(Dual, int);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridPlaneCutter();

@@ -35,33 +35,33 @@
 class VTKFILTERSPOINTS_EXPORT vtkBoundedPointSource : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information and printing.
    */
   static vtkBoundedPointSource* New();
   vtkTypeMacro(vtkBoundedPointSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of points to generate.
    */
   vtkSetClampMacro(NumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
   vtkGetMacro(NumberOfPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the bounding box for the point distribution. By default the bounds is
    * (-1,1,-1,1,-1,1).
    */
   vtkSetVector6Macro(Bounds, double);
   vtkGetVectorMacro(Bounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -69,9 +69,9 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to produce a vtkPolyVertex cell to go along with the
    * output vtkPoints generated. By default a cell is NOT produced. Some filters
@@ -80,9 +80,9 @@ public:
   vtkSetMacro(ProduceCellOutput, bool);
   vtkGetMacro(ProduceCellOutput, bool);
   vtkBooleanMacro(ProduceCellOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to produce random point scalars in the output. By default
    * this is off.
@@ -90,16 +90,16 @@ public:
   vtkSetMacro(ProduceRandomScalars, bool);
   vtkGetMacro(ProduceRandomScalars, bool);
   vtkBooleanMacro(ProduceRandomScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the range in which the random scalars should be produced. By default the
    * scalar range is (0,1).
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVectorMacro(ScalarRange, double, 2);
-  //@}
+  ///@}
 
 protected:
   vtkBoundedPointSource();

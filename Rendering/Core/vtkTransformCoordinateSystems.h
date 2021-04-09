@@ -35,13 +35,13 @@
 class VTKRENDERINGCORE_EXPORT vtkTransformCoordinateSystems : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkTransformCoordinateSystems, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Instantiate this class. By default no transformation is specified and
@@ -49,7 +49,7 @@ public:
    */
   static vtkTransformCoordinateSystems* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system in which the input is specified.
    * The current options are World, Viewport, and Display. By default the
@@ -60,9 +60,9 @@ public:
   void SetInputCoordinateSystemToDisplay() { this->SetInputCoordinateSystem(VTK_DISPLAY); }
   void SetInputCoordinateSystemToViewport() { this->SetInputCoordinateSystem(VTK_VIEWPORT); }
   void SetInputCoordinateSystemToWorld() { this->SetInputCoordinateSystem(VTK_WORLD); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system to which to transform the output.
    * The current options are World, Viewport, and Display. By default the
@@ -73,14 +73,14 @@ public:
   void SetOutputCoordinateSystemToDisplay() { this->SetOutputCoordinateSystem(VTK_DISPLAY); }
   void SetOutputCoordinateSystemToViewport() { this->SetOutputCoordinateSystem(VTK_VIEWPORT); }
   void SetOutputCoordinateSystemToWorld() { this->SetOutputCoordinateSystem(VTK_WORLD); }
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the instance of vtkCoordinate.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * In order for a successful coordinate transformation to occur, an
    * instance of vtkViewport (e.g., a VTK renderer) must be specified.
@@ -90,7 +90,7 @@ public:
    */
   void SetViewport(vtkViewport* viewport);
   vtkGetObjectMacro(Viewport, vtkViewport);
-  //@}
+  ///@}
 
 protected:
   vtkTransformCoordinateSystems();

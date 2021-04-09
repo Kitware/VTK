@@ -45,13 +45,13 @@ public:
    */
   static vtkQWidgetRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkQWidgetRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfies superclass API.  This returns a pointer to the underlying
@@ -65,7 +65,7 @@ public:
    */
   void UpdatePlacement(void);
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkImplicitPlaneWidget2.
    */
@@ -73,9 +73,9 @@ public:
   void BuildRepresentation() override;
   int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -85,7 +85,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   // Manage the state of the widget
   enum _InteractionState
@@ -94,7 +94,7 @@ public:
     Inside
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g.,
    * vtkQWidgetWidget) or other object. This controls how the
@@ -105,7 +105,7 @@ public:
    * based on events, the widget may modify this further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, Inside);
-  //@}
+  ///@}
 
   /**
    * Set the QWidget this representation will render

@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkVoxelContoursToSurfaceFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the memory limit in bytes for this filter. This is the limit
    * of the size of the structured points data set that is created for
@@ -62,7 +62,7 @@ public:
    */
   vtkSetMacro(MemoryLimitInBytes, int);
   vtkGetMacro(MemoryLimitInBytes, int);
-  //@}
+  ///@}
 
   vtkSetVector3Macro(Spacing, double);
   vtkGetVectorMacro(Spacing, double, 3);

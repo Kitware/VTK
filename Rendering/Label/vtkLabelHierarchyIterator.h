@@ -102,12 +102,12 @@ public:
    */
   virtual vtkIdType GetLabelId() { return -1; }
 
-  //@{
+  ///@{
   /**
    * Get the label hierarchy associated with the current label.
    */
   vtkGetObjectMacro(Hierarchy, vtkLabelHierarchy);
-  //@}
+  ///@}
 
   /**
    * Sets a polydata to fill with geometry representing
@@ -137,7 +137,7 @@ public:
    */
   virtual void BoxAllNodes(vtkPolyData*);
 
-  //@{
+  ///@{
   /**
    * Set/get whether all nodes in the hierarchy should be added to the TraversedBounds
    * polydata or only those traversed.
@@ -146,7 +146,7 @@ public:
    */
   vtkSetMacro(AllBounds, int);
   vtkGetMacro(AllBounds, int);
-  //@}
+  ///@}
 
 protected:
   vtkLabelHierarchyIterator();

@@ -43,13 +43,13 @@ public:
    */
   static vtkProgressBarWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkProgressBarWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

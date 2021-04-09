@@ -46,14 +46,14 @@ class VTKIOCORE_EXPORT vtkTextCodec : public vtkObject
 public:
   vtkTypeMacro(vtkTextCodec, vtkObject);
 
-  //@{
+  ///@{
   /**
    * The name this codec goes by - should match the string the factory will take
    * to create it
    */
   virtual const char* Name();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   virtual bool CanHandle(const char* NameString);
 
@@ -62,7 +62,7 @@ public:
    */
   virtual bool IsValid(istream& InputStream);
 
-  //@{
+  ///@{
   /**
    * a base class that any output iterators need to derive from to use the first
    * signature of to_unicode.  Templates will not allow the vtable to
@@ -75,7 +75,7 @@ public:
     virtual OutputIterator& operator++(int) = 0;
     virtual OutputIterator& operator*() = 0;
     virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
-    //@}
+    ///@}
 
     OutputIterator() = default;
     virtual ~OutputIterator() = default;

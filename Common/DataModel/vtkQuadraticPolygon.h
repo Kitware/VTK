@@ -59,7 +59,7 @@ public:
   vtkCell* GetFace(int) override { return nullptr; }
   int IsPrimaryCell() override { return 0; }
 
-  //@{
+  ///@{
   /**
    * These methods are based on the vtkPolygon ones :
    * the vtkQuadraticPolygon (with n edges and 2*n points)
@@ -92,13 +92,13 @@ public:
     double* pts2, double bounds2[6], double tol, double x[3]);
   static int IntersectConvex2DCells(
     vtkCell* cell1, vtkCell* cell2, double tol, double p0[3], double p1[3]);
-  //@}
+  ///@}
 
   // Not implemented
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag indicating whether to use Mean Value Coordinate for the
    * interpolation. If true, InterpolateFunctions() uses the Mean Value
@@ -107,7 +107,7 @@ public:
    */
   vtkGetMacro(UseMVCInterpolation, bool);
   vtkSetMacro(UseMVCInterpolation, bool);
-  //@}
+  ///@}
 
 protected:
   vtkQuadraticPolygon();
@@ -121,7 +121,7 @@ protected:
   // for interpolation. The parameter is true by default.
   bool UseMVCInterpolation;
 
-  //@{
+  ///@{
   /**
    * Methods to transform a vtkQuadraticPolygon variable into a vtkPolygon
    * variable.
@@ -133,9 +133,9 @@ protected:
   static void PermuteToPolygon(vtkIdTypeArray* inIds, vtkIdTypeArray* outIds);
   static void PermuteToPolygon(vtkDataArray* inDataArray, vtkDataArray* outDataArray);
   void InitializePolygon();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to transform a vtkPolygon variable into a vtkQuadraticPolygon
    * variable.
@@ -143,7 +143,7 @@ protected:
   static void GetPermutationToPolygon(vtkIdType nb, vtkIdList* permutation);
   static void PermuteFromPolygon(vtkIdType nb, double* values);
   static void ConvertFromPolygon(vtkIdList* ids);
-  //@}
+  ///@}
 
 private:
   vtkQuadraticPolygon(const vtkQuadraticPolygon&) = delete;

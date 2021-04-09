@@ -42,36 +42,36 @@ public:
     FORMAT_32BIT_RLE_XYZE
   };
 
-  //@{
+  ///@{
   /**
    * Format is either 32-bit_rle_rgbe or 32-bit_rle_xyze.
    */
   vtkGetMacro(Format, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get gamma correction.
    * Default value is 1.0.
    */
   vtkGetMacro(Gamma, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get exposure.
    * Default value is 1.0.
    */
   vtkGetMacro(Exposure, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get pixel aspect, the ratio of height by the width of a pixel.
    * Default value is 1.0.
    */
   vtkGetMacro(PixelAspect, double);
-  //@}
+  ///@}
 
   /**
    * Is the given file a HDR file?

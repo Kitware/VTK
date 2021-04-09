@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkPolygon, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -69,7 +69,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int IsPrimaryCell() override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Compute the area of a polygon. This is a convenience function
@@ -90,7 +90,7 @@ public:
    */
   void InterpolateFunctions(const double x[3], double* sf) override;
 
-  //@{
+  ///@{
   /**
    * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
    * assumed to be {0, 1, ..., numPts-1}.
@@ -98,7 +98,7 @@ public:
   static void ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double n[3]);
   static void ComputeNormal(vtkPoints* p, double n[3]);
   static void ComputeNormal(vtkIdTypeArray* ids, vtkPoints* pts, double n[3]);
-  //@}
+  ///@}
 
   /**
    * Compute the polygon normal from an array of points. This version assumes
@@ -114,7 +114,7 @@ public:
    */
   bool IsConvex();
 
-  //@{
+  ///@{
   /**
    * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
    * is assumed to be {0, 1, ..., numPts-1}.
@@ -122,16 +122,16 @@ public:
   static bool IsConvex(vtkPoints* p, int numPts, vtkIdType* pts);
   static bool IsConvex(vtkIdTypeArray* ids, vtkPoints* p);
   static bool IsConvex(vtkPoints* p);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the centroid of a set of points. Returns false if the computation
    * is invalid (this occurs when numPts=0 or when ids is empty).
    */
   static bool ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3]);
   static bool ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* pts, double centroid[3]);
-  //@}
+  ///@}
 
   /**
    * Compute the area of a polygon in 3D. The area is returned, as well as
@@ -219,7 +219,7 @@ public:
   static int IntersectConvex2DCells(
     vtkCell* cell1, vtkCell* cell2, double tol, double p0[3], double p1[3]);
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag indicating whether to use Mean Value Coordinate for the
    * interpolation. If true, InterpolateFunctions() uses the Mean Value
@@ -228,7 +228,7 @@ public:
    */
   vtkGetMacro(UseMVCInterpolation, bool);
   vtkSetMacro(UseMVCInterpolation, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPolygon();

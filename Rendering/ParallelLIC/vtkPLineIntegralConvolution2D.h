@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkPLineIntegralConvolution2D, vtkLineIntegralConvolution2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the communicator to use during parallel operation
    * The communicator will not be duplicated or reference
@@ -52,7 +52,7 @@ public:
    */
   void SetCommunicator(vtkPainterCommunicator*) override;
   vtkPainterCommunicator* GetCommunicator() override;
-  //@}
+  ///@}
 
   /**
    * For parallel operation, find global min/max
@@ -72,7 +72,7 @@ protected:
   vtkPLineIntegralConvolution2D();
   ~vtkPLineIntegralConvolution2D() override;
 
-  //@{
+  ///@{
   /**
    * Methods used for parallel benchmarks. Use cmake to define
    * vtkSurfaceLICPainterTIME to enable benchmarks. During each
@@ -82,7 +82,7 @@ protected:
    */
   void StartTimerEvent(const char* name) override;
   void EndTimerEvent(const char* name) override;
-  //@}
+  ///@}
 
 private:
   std::string LogFileName;

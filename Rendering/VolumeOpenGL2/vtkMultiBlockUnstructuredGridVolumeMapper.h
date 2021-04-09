@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkMultiBlockUnstructuredGridVolumeMapper, vtkUnstructuredGridVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    *  \brief API Superclass
    *  \sa vtkAbstractVolumeMapper
@@ -66,9 +66,9 @@ public:
    * NOT use this method outside of the rendering process.
    */
   void ReleaseGraphicsResources(vtkWindow* window) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether to use floating-point rendering buffers rather
    * than the default.
@@ -77,13 +77,13 @@ public:
   void SetUseFloatingPointFrameBuffer(bool use);
   vtkGetMacro(UseFloatingPointFrameBuffer, bool);
 
-  //@{
+  ///@{
   /**
    * blending mode api from vtkUnstructuredGridVolumemapper
    * \sa vtkvolumemapper::setblendmode
    */
   void SetBlendMode(int mode) override;
-  //@}
+  ///@}
 
 protected:
   vtkMultiBlockUnstructuredGridVolumeMapper();

@@ -48,32 +48,32 @@ public:
    */
   static vtkConeSource* New();
 
-  //@{
+  ///@{
   /**
    * Set the height of the cone. This is the height along the cone in
    * its specified direction.
    */
   vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Height, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the base radius of the cone.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of facets used to represent the cone.
    */
   vtkSetClampMacro(Resolution, int, 0, VTK_CELL_SIZE);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the center of the cone. It is located at the middle of the axis of
    * the cone. Warning: this is not the center of the base of the cone!
@@ -81,9 +81,9 @@ public:
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the orientation vector of the cone. The vector does not have
    * to be normalized. The direction goes from the center of the base toward
@@ -91,9 +91,9 @@ public:
    */
   vtkSetVector3Macro(Direction, double);
   vtkGetVectorMacro(Direction, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the angle of the cone. This is the angle between the axis of the cone
    * and a generatrix. Warning: this is not the aperture! The aperture is
@@ -103,18 +103,18 @@ public:
    */
   void SetAngle(double angle);
   double GetAngle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether to cap the base of the cone with a polygon.
    */
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -122,7 +122,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkConeSource(int res = 6);

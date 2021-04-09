@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkMarchingSquares, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the i-j-k index range which define a plane on which to generate
    * contour lines. Using this ivar it is possible to input a 3D volume
@@ -64,9 +64,9 @@ public:
   vtkSetVectorMacro(ImageRange, int, 6);
   vtkGetVectorMacro(ImageRange, int, 6);
   void SetImageRange(int imin, int imax, int jmin, int jmax, int kmin, int kmax);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set contour values
    */
@@ -78,7 +78,7 @@ public:
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
-  //@}
+  ///@}
 
   /**
    * Because we delegate to vtkContourValues

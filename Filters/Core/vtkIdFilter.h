@@ -46,25 +46,25 @@ public:
    */
   static vtkIdFilter* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of point ids. Default is on.
    */
   vtkSetMacro(PointIds, vtkTypeBool);
   vtkGetMacro(PointIds, vtkTypeBool);
   vtkBooleanMacro(PointIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of point ids. Default is on.
    */
   vtkSetMacro(CellIds, vtkTypeBool);
   vtkGetMacro(CellIds, vtkTypeBool);
   vtkBooleanMacro(CellIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which controls whether to generate scalar data
    * or field data. If this flag is off, scalar data is generated.
@@ -73,9 +73,9 @@ public:
   vtkSetMacro(FieldData, vtkTypeBool);
   vtkGetMacro(FieldData, vtkTypeBool);
   vtkBooleanMacro(FieldData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @deprecated use SetPointIdsArrayName/GetPointIdsArrayName or
    * SetCellIdsArrayName/GetCellIdsArrayName.
@@ -84,25 +84,25 @@ public:
   void SetIdsArrayName(const char*);
   VTK_DEPRECATED_IN_9_0_0("Use vtkIdFilter::GetCellIdsArrayName")
   const char* GetIdsArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the Ids array for points, if generated. By default,
    * set to "vtkIdFilter_Ids" for backwards compatibility.
    */
   vtkSetStringMacro(PointIdsArrayName);
   vtkGetStringMacro(PointIdsArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the Ids array for points, if generated. By default,
    * set to "vtkIdFilter_Ids" for backwards compatibility.
    */
   vtkSetStringMacro(CellIdsArrayName);
   vtkGetStringMacro(CellIdsArrayName);
-  //@}
+  ///@}
 protected:
   vtkIdFilter();
   ~vtkIdFilter() override;

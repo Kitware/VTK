@@ -38,7 +38,7 @@ public:
   static vtkInteractiveArea* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ///@{
+  ////@{
   /**
    * \brief vtkAbstractContextItem API
    */
@@ -47,13 +47,13 @@ public:
   bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
   bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
-  ///@}
+  ////@}
 
 protected:
   vtkInteractiveArea();
   ~vtkInteractiveArea() override;
 
-  ///@{
+  ////@{
   /**
    * \brief vtkContextArea API
    */

@@ -66,31 +66,31 @@ public:
    */
   static vtkImplicitTextureCoords* New();
 
-  //@{
+  ///@{
   /**
    * Specify an implicit function to compute the r texture coordinate.
    */
   virtual void SetRFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(RFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an implicit function to compute the s texture coordinate.
    */
   virtual void SetSFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(SFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an implicit function to compute the t texture coordinate.
    */
   virtual void SetTFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(TFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If enabled, this will flip the sense of inside and outside the implicit
    * function (i.e., a rotation around the r-s-t=0.5 axis).
@@ -98,7 +98,7 @@ public:
   vtkSetMacro(FlipTexture, vtkTypeBool);
   vtkGetMacro(FlipTexture, vtkTypeBool);
   vtkBooleanMacro(FlipTexture, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitTextureCoords();

@@ -38,23 +38,23 @@ public:
   vtkTypeMacro(vtkImageStencilToImage, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The value to use outside the stencil.  The default is 0.
    */
   vtkSetMacro(OutsideValue, double);
   vtkGetMacro(OutsideValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The value to use inside the stencil.  The default is 1.
    */
   vtkSetMacro(InsideValue, double);
   vtkGetMacro(InsideValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired output scalar type.  The default is unsigned char.
    */
@@ -70,7 +70,7 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
-  //@}
+  ///@}
 
 protected:
   vtkImageStencilToImage();

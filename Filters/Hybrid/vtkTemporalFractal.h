@@ -44,25 +44,25 @@ class TemporalFractalOutputUtil;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal : public vtkAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkTemporalFractal* New();
   vtkTypeMacro(vtkTemporalFractal, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Essentially the iso surface value.  The fractal array is scaled to map
    * this value to 0.5 for use as a volume fraction.
    */
   vtkSetMacro(FractalValue, float);
   vtkGetMacro(FractalValue, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Any blocks touching a predefined line will be subdivided to this level.
    * Other blocks are subdivided so that neighboring blocks only differ
@@ -70,26 +70,26 @@ public:
    */
   vtkSetMacro(MaximumLevel, int);
   vtkGetMacro(MaximumLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * XYZ dimensions of cells.
    */
   vtkSetMacro(Dimensions, int);
   vtkGetMacro(Dimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For testing ghost levels.
    */
   vtkSetMacro(GhostLevels, vtkTypeBool);
   vtkGetMacro(GhostLevels, vtkTypeBool);
   vtkBooleanMacro(GhostLevels, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate either rectilinear grids either uniform grids.
    * Default is false.
@@ -97,9 +97,9 @@ public:
   vtkSetMacro(GenerateRectilinearGrids, vtkTypeBool);
   vtkGetMacro(GenerateRectilinearGrids, vtkTypeBool);
   vtkBooleanMacro(GenerateRectilinearGrids, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Limit this source to discrete integer time steps
    * Default is off (continuous)
@@ -107,34 +107,34 @@ public:
   vtkSetMacro(DiscreteTimeSteps, vtkTypeBool);
   vtkGetMacro(DiscreteTimeSteps, vtkTypeBool);
   vtkBooleanMacro(DiscreteTimeSteps, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Make a 2D data set to test.
    */
   vtkSetMacro(TwoDimensional, vtkTypeBool);
   vtkGetMacro(TwoDimensional, vtkTypeBool);
   vtkBooleanMacro(TwoDimensional, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Test the case when the blocks do not have the same sizes.
    * Adds 2 to the x extent of the far x blocks (level 1).
    */
   vtkSetMacro(Asymmetric, int);
   vtkGetMacro(Asymmetric, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Make the division adaptive or not, defaults to Adaptive
    */
   vtkSetMacro(AdaptiveSubdivision, vtkTypeBool);
   vtkGetMacro(AdaptiveSubdivision, vtkTypeBool);
   vtkBooleanMacro(AdaptiveSubdivision, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalFractal();
@@ -165,7 +165,7 @@ protected:
   virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -174,7 +174,7 @@ protected:
     vtkInformationVector* outputVector);
   virtual int RequestOneTimeStep(vtkCompositeDataSet* output, vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector);
-  //@}
+  ///@}
 
   void Traverse(int& blockId, int level, vtkDataObject* output, int x0, int x1, int y0, int y1,
     int z0, int z1, int onFace[6]);

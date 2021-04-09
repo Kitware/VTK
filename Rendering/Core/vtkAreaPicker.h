@@ -95,20 +95,20 @@ public:
     return this->AreaPick(x0, y0, x0 + 1.0, y0 + 1.0, renderer);
   }
 
-  //@{
+  ///@{
   /**
    * Return mapper that was picked (if any).
    */
   vtkGetObjectMacro(Mapper, vtkAbstractMapper3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the dataset that was picked (if any). If nothing
    * was picked then NULL is returned.
    */
   vtkGetObjectMacro(DataSet, vtkDataSet);
-  //@}
+  ///@}
 
   /**
    * Return a collection of all the prop 3D's that were intersected
@@ -116,21 +116,21 @@ public:
    */
   vtkProp3DCollection* GetProp3Ds() { return this->Prop3Ds; }
 
-  //@{
+  ///@{
   /**
    * Return the six planes that define the selection frustum. The implicit
    * function defined by the planes evaluates to negative inside and positive
    * outside.
    */
   vtkGetObjectMacro(Frustum, vtkPlanes);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return eight points that define the selection frustum.
    */
   vtkGetObjectMacro(ClipPoints, vtkPoints);
-  //@}
+  ///@}
 
 protected:
   vtkAreaPicker();

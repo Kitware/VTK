@@ -103,16 +103,16 @@ class vtkEdgeTable;
 class VTKFILTERSCORE_EXPORT vtkPolyDataEdgeConnectivityFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, get type information, and print the object.
    */
   static vtkPolyDataEdgeConnectivityFilter* New();
   vtkTypeMacro(vtkPolyDataEdgeConnectivityFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the extraction of connected surfaces.
    */
@@ -139,9 +139,9 @@ public:
   void SetExtractionModeToLargeRegions() { this->SetExtractionMode(VTK_EXTRACT_LARGE_REGIONS); }
   void SetExtractionModeToAllRegions() { this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS); }
   const char* GetExtractionModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control connectivity traversal based on barrier edges. If enabled, then
    * either the length of edges, or a explicit specification of barrier
@@ -150,9 +150,9 @@ public:
   vtkSetMacro(BarrierEdges, vtkTypeBool);
   vtkGetMacro(BarrierEdges, vtkTypeBool);
   vtkBooleanMacro(BarrierEdges, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the source vtkPolyData object used to specify barrier edges
    * (this is an optional connection.) If specified, the connected traversal
@@ -163,9 +163,9 @@ public:
   void SetSourceData(vtkPolyData*);
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
   vtkPolyData* GetSource();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Edges E of length edgeLen (BarrierEdgeLength[0]<=edgeLen<=BarrierEdgeLength[1])
    * define barrier edges. If edgeLen falls within this range, then polygon
@@ -176,9 +176,9 @@ public:
    */
   vtkSetVector2Macro(BarrierEdgeLength, double);
   vtkGetVector2Macro(BarrierEdgeLength, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off connectivity based on scalar value. If on, cells are
    * connected only if they share a non-barrier edge AND and cell's scalar
@@ -187,23 +187,23 @@ public:
   vtkSetMacro(ScalarConnectivity, vtkTypeBool);
   vtkGetMacro(ScalarConnectivity, vtkTypeBool);
   vtkBooleanMacro(ScalarConnectivity, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar range to extract cells based on scalar connectivity.
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVector2Macro(ScalarRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Obtain the array containing the region sizes of the extracted
    * regions.
    */
   vtkGetObjectMacro(RegionSizes, vtkIdTypeArray);
-  //@}
+  ///@}
 
   /**
    * Initialize list of point ids/cell ids used to seed regions.
@@ -240,14 +240,14 @@ public:
    */
   int GetNumberOfSpecifiedRegions();
 
-  //@{
+  ///@{
   /**
    * Use to specify x-y-z point coordinates when extracting the region
    * closest to a specified point.
    */
   vtkSetVector3Macro(ClosestPoint, double);
   vtkGetVectorMacro(ClosestPoint, double, 3);
-  //@}
+  ///@}
 
   // Control the region growing process.
   enum RegionGrowingType
@@ -257,7 +257,7 @@ public:
     SmallRegions = 2
   };
 
-  //@{
+  ///@{
   /**
    * Specify a strategy for region growing. Regions growing is a
    * postprocessing step which assimilates small regions into larger regions;
@@ -277,9 +277,9 @@ public:
   void GrowLargeRegionsOn() { this->SetRegionGrowing(LargeRegions); }
   void SetRegionGrowingToSmallRegions() { this->SetRegionGrowing(SmallRegions); }
   void GrowSmallRegionsOn() { this->SetRegionGrowing(SmallRegions); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define what a large region is by specifying the fraction of total input
    * mesh area a region must be in order to be considered large. So for
@@ -290,7 +290,7 @@ public:
    */
   vtkSetClampMacro(LargeRegionThreshold, double, 0.0, 1.0);
   vtkGetMacro(LargeRegionThreshold, double);
-  //@}
+  ///@}
 
   /**
    * Obtain the number of connected regions found. This returns valid
@@ -303,7 +303,7 @@ public:
    */
   double GetTotalArea() { return this->TotalArea; }
 
-  //@{
+  ///@{
   /**
    * Turn on/off the coloring of edge-connected regions. If enabled, then
    * a array named "RegionId" is added to the output cell data. The array
@@ -312,9 +312,9 @@ public:
   vtkSetMacro(ColorRegions, vtkTypeBool);
   vtkGetMacro(ColorRegions, vtkTypeBool);
   vtkBooleanMacro(ColorRegions, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the creation of a cell array that, for each cell, contains
    * the area of the region to which the cell is associated. If enabled, then
@@ -323,9 +323,9 @@ public:
   vtkSetMacro(CellRegionAreas, vtkTypeBool);
   vtkGetMacro(CellRegionAreas, vtkTypeBool);
   vtkBooleanMacro(CellRegionAreas, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -333,7 +333,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataEdgeConnectivityFilter();
@@ -407,7 +407,7 @@ private:
   void operator=(const vtkPolyDataEdgeConnectivityFilter&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the method of extraction as a string.
  */
@@ -442,6 +442,6 @@ inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString(
     return "ExtractLargestRegion";
   }
 }
-//@}
+///@}
 
 #endif

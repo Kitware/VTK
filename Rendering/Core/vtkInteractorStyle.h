@@ -163,7 +163,7 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * If AutoAdjustCameraClippingRange is on, then before each render the
    * camera clipping range will be adjusted to "fit" the whole scene. Clipping
@@ -175,7 +175,7 @@ public:
   vtkSetClampMacro(AutoAdjustCameraClippingRange, vtkTypeBool, 0, 1);
   vtkGetMacro(AutoAdjustCameraClippingRange, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustCameraClippingRange, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * When an event occurs, we must determine which Renderer the event
@@ -184,23 +184,23 @@ public:
    */
   void FindPokedRenderer(int, int);
 
-  //@{
+  ///@{
   /**
    * Some useful information for interaction
    */
   vtkGetMacro(State, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get timer hint
    */
   vtkGetMacro(UseTimers, vtkTypeBool);
   vtkSetMacro(UseTimers, vtkTypeBool);
   vtkBooleanMacro(UseTimers, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If using timers, specify the default timer interval (in
    * milliseconds). Care must be taken when adjusting the timer interval from
@@ -209,16 +209,16 @@ public:
    */
   vtkSetClampMacro(TimerDuration, unsigned long, 1, 100000);
   vtkGetMacro(TimerDuration, unsigned long);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Does ProcessEvents handle observers on this class or not
    */
   vtkSetMacro(HandleObservers, vtkTypeBool);
   vtkGetMacro(HandleObservers, vtkTypeBool);
   vtkBooleanMacro(HandleObservers, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Generic event bindings can be overridden in subclasses
@@ -327,15 +327,15 @@ public:
   virtual void OnTap() {}
   virtual void OnLongTap() {}
 
-  //@{
+  ///@{
   /**
    * utility routines used by state changes
    */
   virtual void StartState(int newstate);
   virtual void StopState();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Interaction mode entry points used internally.
    */
@@ -361,7 +361,7 @@ public:
   virtual void EndGesture();
   virtual void StartEnvRotate();
   virtual void EndEnvRotate();
-  //@}
+  ///@}
 
   /**
    * When the mouse location is updated while dragging files.
@@ -378,7 +378,7 @@ public:
    */
   virtual void OnDropFiles(vtkStringArray* vtkNotUsed(filePaths)) {}
 
-  //@{
+  ///@{
   /**
    * When picking successfully selects an actor, this method highlights the
    * picked prop appropriately. Currently this is done by placing a bounding
@@ -388,18 +388,18 @@ public:
   virtual void HighlightProp(vtkProp* prop);
   virtual void HighlightActor2D(vtkActor2D* actor2D);
   virtual void HighlightProp3D(vtkProp3D* prop3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pick color (used by default to color vtkActor2D's).
    * The color is expressed as red/green/blue values between (0.0,1.0).
    */
   vtkSetVector3Macro(PickColor, double);
   vtkGetVectorMacro(PickColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the mouse wheel motion factor. Default to 1.0. Set it to a
    * different value to emphasize or de-emphasize the action triggered by
@@ -407,16 +407,16 @@ public:
    */
   vtkSetMacro(MouseWheelMotionFactor, double);
   vtkGetMacro(MouseWheelMotionFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * 3Dconnexion device interactor style. Initial value is a pointer to an
    * object of class vtkTdxInteractorStyleCamera.
    */
   vtkGetObjectMacro(TDxStyle, vtkTDxInteractorStyle);
   virtual void SetTDxStyle(vtkTDxInteractorStyle* tdxStyle);
-  //@}
+  ///@}
 
   /**
    * Called by the callback to process 3DConnexion device events.

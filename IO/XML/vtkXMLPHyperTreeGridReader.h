@@ -43,13 +43,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPHyperTreeGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkHyperTreeGrid* GetOutput();
   vtkHyperTreeGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
   /**
    * For the specified port, copy the information this reader sets up in

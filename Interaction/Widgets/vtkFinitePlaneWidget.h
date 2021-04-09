@@ -83,13 +83,13 @@ public:
    */
   static vtkFinitePlaneWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkFinitePlaneWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

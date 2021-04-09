@@ -44,13 +44,13 @@ public:
    */
   static vtkGenericEdgeTable* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and print macros.
    */
   vtkTypeMacro(vtkGenericEdgeTable, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Split the edge with the indicated point id.
@@ -114,14 +114,14 @@ public:
    */
   int CheckPoint(vtkIdType ptId, double point[3], double* scalar);
 
-  //@{
+  ///@{
   /**
    * Insert point associated with an edge.
    */
   void InsertPoint(vtkIdType ptId, double point[3]);
   // \pre: sizeof(s)==GetNumberOfComponents()
   void InsertPointAndScalar(vtkIdType ptId, double pt[3], double* s);
-  //@}
+  ///@}
 
   /**
    * Remove a point from the point table.
@@ -133,7 +133,7 @@ public:
    */
   void IncrementPointReferenceCount(vtkIdType ptId);
 
-  //@{
+  ///@{
   /**
    * For debugging purposes. It is particularly useful to dump the table
    * and check that nothing is left after a complete iteration. LoadFactor
@@ -141,7 +141,7 @@ public:
    */
   void DumpTable();
   void LoadFactor();
-  //@}
+  ///@}
 
   class PointEntry
   {

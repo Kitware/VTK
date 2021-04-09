@@ -55,32 +55,32 @@ public:
   virtual void ThreadedExecute(
     vtkImageData* inData, vtkImageData* outData, int extent[6], int threadId);
 
-  //@{
+  ///@{
   /**
    * Enable/Disable SMP for threading.
    */
   vtkGetMacro(EnableSMP, bool);
   vtkSetMacro(EnableSMP, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Global Disable SMP for all derived Imaging filters.
    */
   static void SetGlobalDefaultEnableSMP(bool enable);
   static bool GetGlobalDefaultEnableSMP();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The minimum piece size when volume is split for execution.
    * By default, the minimum size is (16,1,1).
    */
   vtkSetVector3Macro(MinimumPieceSize, int);
   vtkGetVector3Macro(MinimumPieceSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired bytes per piece when volume is split for execution.
    * When SMP is enabled, this is used to subdivide the volume into pieces.
@@ -89,9 +89,9 @@ public:
    */
   vtkSetMacro(DesiredBytesPerPiece, vtkIdType);
   vtkGetMacro(DesiredBytesPerPiece, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the method used to divide the volume into pieces.
    * Slab mode splits the volume along the Z direction first,
@@ -104,16 +104,16 @@ public:
   void SetSplitModeToBeam() { this->SetSplitMode(BEAM); }
   void SetSplitModeToBlock() { this->SetSplitMode(BLOCK); }
   vtkGetMacro(SplitMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of threads to create when rendering.
    * This is ignored if EnableSMP is On.
    */
   vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
   vtkGetMacro(NumberOfThreads, int);
-  //@}
+  ///@}
 
   /**
    * Putting this here until I merge graphics and imaging streaming.

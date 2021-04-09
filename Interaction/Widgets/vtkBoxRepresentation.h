@@ -64,13 +64,13 @@ public:
    */
   static vtkBoxRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkBoxRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Get the planes describing the implicit function defined by the box
@@ -86,7 +86,7 @@ public:
   // this can be used as a cropping planes in vtkMapper
   vtkPlane* GetUnderlyingPlane(int i) { return this->Planes[i]; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. This data member is used in conjunction
    * with the GetPlanes() method. When off, the normals point out of the
@@ -96,7 +96,7 @@ public:
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Retrieve a linear transform characterizing the transformation of the
@@ -127,7 +127,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles, when selected or normal, can be
@@ -135,9 +135,9 @@ public:
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the face properties (the faces of the box). The
    * properties of the face when selected and normal can be
@@ -145,9 +145,9 @@ public:
    */
   vtkGetObjectMacro(FaceProperty, vtkProperty);
   vtkGetObjectMacro(SelectedFaceProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the outline properties (the outline of the box). The
    * properties of the outline when selected and normal can be
@@ -155,9 +155,9 @@ public:
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the representation of the outline. This flag enables
    * face wires. By default face wires are off.
@@ -166,9 +166,9 @@ public:
   vtkGetMacro(OutlineFaceWires, int);
   void OutlineFaceWiresOn() { this->SetOutlineFaceWires(1); }
   void OutlineFaceWiresOff() { this->SetOutlineFaceWires(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the representation of the outline. This flag enables
    * the cursor lines running between the handles. By default cursor
@@ -178,18 +178,18 @@ public:
   vtkGetMacro(OutlineCursorWires, int);
   void OutlineCursorWiresOn() { this->SetOutlineCursorWires(1); }
   void OutlineCursorWiresOff() { this->SetOutlineCursorWires(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Switches handles (the spheres) on or off by manipulating the underlying
    * actor visibility.
    */
   virtual void HandlesOn();
   virtual void HandlesOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -207,9 +207,9 @@ public:
     unsigned long event, void* calldata, int modify = 0) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
@@ -217,7 +217,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   // Used to manage the state of the widget
   enum
@@ -245,48 +245,48 @@ public:
    */
   void SetInteractionState(int state);
 
-  //@{
+  ///@{
   /**
    * In two plane mode only the X planes are shown
    * this is useful for defining thick slabs
    */
   vtkGetMacro(TwoPlaneMode, bool);
   void SetTwoPlaneMode(bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For complex events should we snap orientations to
    * be aligned with the x y z axes
    */
   vtkGetMacro(SnapToAxes, bool);
   vtkSetMacro(SnapToAxes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For complex events should we snap orientations to
    * be aligned with the x y z axes
    */
   void StepForward();
   void StepBackward();
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager
    */
   void RegisterPickers() override;
 
-  //@{
+  ///@{
   /**
    * Gets/Sets the constraint axis for translations. Returns Axis::NONE
    * if none.
    **/
   vtkGetMacro(TranslationAxis, int);
   vtkSetClampMacro(TranslationAxis, int, -1, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggles constraint translation axis on/off.
    */
@@ -294,14 +294,14 @@ public:
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if ContrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  //@}
+  ///@}
 
 protected:
   vtkBoxRepresentation();

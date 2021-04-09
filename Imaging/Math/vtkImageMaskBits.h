@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkImageMaskBits, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the bit-masks. Default is 0xffffffff.
    */
@@ -50,9 +50,9 @@ public:
     this->SetMasks(mask1, mask2, mask3, 0xffffffff);
   }
   vtkGetVector4Macro(Masks, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the boolean operator. Default is AND.
    */
@@ -63,7 +63,7 @@ public:
   void SetOperationToXor() { this->SetOperation(VTK_XOR); }
   void SetOperationToNand() { this->SetOperation(VTK_NAND); }
   void SetOperationToNor() { this->SetOperation(VTK_NOR); }
-  //@}
+  ///@}
 
 protected:
   vtkImageMaskBits();

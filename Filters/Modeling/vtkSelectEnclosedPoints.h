@@ -63,20 +63,20 @@ class vtkRandomPool;
 class VTKFILTERSMODELING_EXPORT vtkSelectEnclosedPoints : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkSelectEnclosedPoints, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Instantiate this class.
    */
   static vtkSelectEnclosedPoints* New();
 
-  //@{
+  ///@{
   /**
    * Set the surface to be used to test for containment. Two methods are
    * provided: one directly for vtkPolyData, and one for the output of a
@@ -84,17 +84,17 @@ public:
    */
   void SetSurfaceData(vtkPolyData* pd);
   void SetSurfaceConnection(vtkAlgorithmOutput* algOutput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a pointer to the enclosing surface.
    */
   vtkPolyData* GetSurface();
   vtkPolyData* GetSurface(vtkInformationVector* sourceInfo);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default, points inside the surface are marked inside or sent to
    * the output. If InsideOut is on, then the points outside the surface
@@ -103,9 +103,9 @@ public:
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to check the surface for closure. If on, then the
    * algorithm first checks to see if the surface is closed and manifold.
@@ -113,7 +113,7 @@ public:
   vtkSetMacro(CheckSurface, vtkTypeBool);
   vtkBooleanMacro(CheckSurface, vtkTypeBool);
   vtkGetMacro(CheckSurface, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Query an input point id as to whether it is inside or outside. Note that
@@ -121,16 +121,16 @@ public:
    */
   int IsInside(vtkIdType inputPtId);
 
-  //@{
+  ///@{
   /**
    * Specify the tolerance on the intersection. The tolerance is expressed as
    * a fraction of the diagonal of the bounding box of the enclosing surface.
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is a backdoor that can be used to test many points for containment.
    * First initialize the instance, then repeated calls to IsInsideSurface()
@@ -141,7 +141,7 @@ public:
   int IsInsideSurface(double x[3]);
   int IsInsideSurface(double x, double y, double z);
   void Complete();
-  //@}
+  ///@}
 
   /**
    * A static method for determining whether a point is inside a

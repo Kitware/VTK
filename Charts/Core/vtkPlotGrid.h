@@ -65,14 +65,14 @@ protected:
   vtkPlotGrid();
   ~vtkPlotGrid() override;
 
-  //@{
+  ///@{
   /**
    * The vtkAxis objects are used to figure out where the grid lines should be
    * drawn.
    */
   vtkAxis* XAxis;
   vtkAxis* YAxis;
-  //@}
+  ///@}
 
 private:
   vtkPlotGrid(const vtkPlotGrid&) = delete;

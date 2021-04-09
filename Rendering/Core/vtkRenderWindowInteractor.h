@@ -80,7 +80,7 @@ public:
   vtkTypeMacro(vtkRenderWindowInteractor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Prepare for handling events and set the Enabled flag to true.
    * This will be called automatically by Start() if the interactor
@@ -95,7 +95,7 @@ public:
     this->Enabled = 0;
     this->Initialize();
   }
-  //@}
+  ///@}
 
   /**
    * This Method detects loops of RenderWindow-Interactor,
@@ -144,7 +144,7 @@ public:
   }
   vtkGetMacro(Enabled, int);
 
-  //@{
+  ///@{
   /**
    * Enable/Disable whether vtkRenderWindowInteractor::Render() calls
    * this->RenderWindow->Render().
@@ -152,17 +152,17 @@ public:
   vtkBooleanMacro(EnableRender, bool);
   vtkSetMacro(EnableRender, bool);
   vtkGetMacro(EnableRender, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the rendering window being controlled by this object.
    */
   void SetRenderWindow(vtkRenderWindow* aren);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the hardware window being controlled by this object.
    * For opengl the hardware window is not used as the opengl
@@ -170,7 +170,7 @@ public:
    */
   void SetHardwareWindow(vtkHardwareWindow* aren);
   vtkGetObjectMacro(HardwareWindow, vtkHardwareWindow);
-  //@}
+  ///@}
 
   /**
    * Event loop notification member for window size change.
@@ -247,7 +247,7 @@ public:
     RepeatingTimer
   };
 
-  //@{
+  ///@{
   /**
    * Specify the default timer interval (in milliseconds). (This is used in
    * conjunction with the timer methods described previously, e.g.,
@@ -259,9 +259,9 @@ public:
    */
   vtkSetClampMacro(TimerDuration, unsigned long, 1, 100000);
   vtkGetMacro(TimerDuration, unsigned long);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are used to communicate information about the currently
    * firing CreateTimerEvent or DestroyTimerEvent. The caller of
@@ -282,7 +282,7 @@ public:
   vtkGetMacro(TimerEventDuration, int);
   vtkSetMacro(TimerEventPlatformId, int);
   vtkGetMacro(TimerEventPlatformId, int);
-  //@}
+  ///@}
 
   /**
    * This function is called on 'q','e' keypress if exitmethod is not
@@ -291,16 +291,16 @@ public:
    */
   virtual void TerminateApp(void) { this->Done = true; }
 
-  //@{
+  ///@{
   /**
    * External switching between joystick/trackball/new? modes. Initial value
    * is a vtkInteractorStyleSwitch object.
    */
   virtual void SetInteractorStyle(vtkInteractorObserver*);
   vtkGetObjectMacro(InteractorStyle, vtkInteractorObserver);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the automatic repositioning of lights as the camera moves.
    * Default is On.
@@ -308,9 +308,9 @@ public:
   vtkSetMacro(LightFollowCamera, vtkTypeBool);
   vtkGetMacro(LightFollowCamera, vtkTypeBool);
   vtkBooleanMacro(LightFollowCamera, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired update rate. This is used by vtkLODActor's to tell
    * them how quickly they need to render.  This update is in effect only
@@ -320,9 +320,9 @@ public:
    */
   vtkSetClampMacro(DesiredUpdateRate, double, 0.0001, VTK_FLOAT_MAX);
   vtkGetMacro(DesiredUpdateRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired update rate when movement has stopped.
    * For the non-still update rate, see the SetDesiredUpdateRate method.
@@ -330,17 +330,17 @@ public:
    */
   vtkSetClampMacro(StillUpdateRate, double, 0.0001, VTK_FLOAT_MAX);
   vtkGetMacro(StillUpdateRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * See whether interactor has been initialized yet.
    * Default is 0.
    */
   vtkGetMacro(Initialized, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the object used to perform pick operations. In order to
    * pick instances of vtkProp, the picker must be a subclass of
@@ -349,7 +349,7 @@ public:
    */
   virtual void SetPicker(vtkAbstractPicker*);
   vtkGetObjectMacro(Picker, vtkAbstractPicker);
-  //@}
+  ///@}
 
   /**
    * Create default picker. Used to create one when none is specified.
@@ -357,7 +357,7 @@ public:
    */
   virtual vtkAbstractPropPicker* CreateDefaultPicker();
 
-  //@{
+  ///@{
   /**
    * Set the picking manager.
    * Set/Get the object used to perform operations through the interactor
@@ -365,9 +365,9 @@ public:
    */
   virtual void SetPickingManager(vtkPickingManager*);
   vtkGetObjectMacro(PickingManager, vtkPickingManager);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods correspond to the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
@@ -376,7 +376,7 @@ public:
   virtual void UserCallback();
   virtual void StartPickCallback();
   virtual void EndPickCallback();
-  //@}
+  ///@}
 
   /**
    * Get the current position of the mouse.
@@ -387,14 +387,14 @@ public:
     *y = 0;
   }
 
-  //@{
+  ///@{
   /**
    * Hide or show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
   void HideCursor();
   void ShowCursor();
-  //@}
+  ///@}
 
   /**
    * Render the scene. Just pass the render call on to the
@@ -402,7 +402,7 @@ public:
    */
   virtual void Render();
 
-  //@{
+  ///@{
   /**
    * Given a position x, move the current camera's focal point to x.
    * The movement is animated over the number of frames specified in
@@ -412,26 +412,26 @@ public:
   void FlyTo(vtkRenderer* ren, double* x) { this->FlyTo(ren, x[0], x[1], x[2]); }
   void FlyToImage(vtkRenderer* ren, double x, double y);
   void FlyToImage(vtkRenderer* ren, double* x) { this->FlyToImage(ren, x[0], x[1]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of frames to fly to when FlyTo is invoked.
    */
   vtkSetClampMacro(NumberOfFlyFrames, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfFlyFrames, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the total Dolly value to use when flying to (FlyTo()) a
    * specified point. Negative values fly away from the point.
    */
   vtkSetMacro(Dolly, double);
   vtkGetMacro(Dolly, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get information about the current event.
    * The current x,y position is in the EventPosition, and the previous
@@ -463,7 +463,7 @@ public:
     this->SetEventPosition(x, this->Size[1] - y - 1);
   }
   virtual void SetEventPositionFlipY(int pos[2]) { this->SetEventPositionFlipY(pos[0], pos[1]); }
-  //@}
+  ///@}
 
   virtual int* GetEventPositions(int pointerIndex)
   {
@@ -520,48 +520,48 @@ public:
     this->SetEventPositionFlipY(pos[0], pos[1], pointerIndex);
   }
 
-  //@{
+  ///@{
   /**
    * Set/get whether alt modifier key was pressed.
    */
   vtkSetMacro(AltKey, int);
   vtkGetMacro(AltKey, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether control modifier key was pressed.
    */
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether shift modifier key was pressed.
    */
   vtkSetMacro(ShiftKey, int);
   vtkGetMacro(ShiftKey, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the key code for the key that was pressed.
    */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the repear count for the key or mouse event. This specifies how
    * many times a key has been pressed.
    */
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the key symbol for the key that was pressed. This is the key
    * symbol as defined by the relevant X headers. On X based platforms this
@@ -570,44 +570,44 @@ public:
    */
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the index of the most recent pointer to have an event
    */
   vtkSetMacro(PointerIndex, int);
   vtkGetMacro(PointerIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the rotation for the gesture in degrees, update LastRotation
    */
   void SetRotation(double rotation);
   vtkGetMacro(Rotation, double);
   vtkGetMacro(LastRotation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the scale for the gesture, updates LastScale
    */
   void SetScale(double scale);
   vtkGetMacro(Scale, double);
   vtkGetMacro(LastScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the translation for pan/swipe gestures, update LastTranslation
    */
   void SetTranslation(double val[2]);
   vtkGetVector2Macro(Translation, double);
   vtkGetVector2Macro(LastTranslation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set all the event information in one call.
    */
@@ -631,9 +631,9 @@ public:
   {
     this->SetEventInformation(x, y, ctrl, shift, keycode, repeatcount, keysym, 0);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Calls SetEventInformation, but flips the Y based on the current Size[1]
    * value (i.e. y = this->Size[1] - y - 1).
@@ -649,9 +649,9 @@ public:
   {
     this->SetEventInformationFlipY(x, y, ctrl, shift, keycode, repeatcount, keysym, 0);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set all the keyboard-related event information in one call.
    */
@@ -668,9 +668,9 @@ public:
     }
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This methods sets the Size ivar of the interactor without
    * actually changing the size of the window. Normally
@@ -686,7 +686,7 @@ public:
   vtkGetVector2Macro(Size, int);
   vtkSetVector2Macro(EventSize, int);
   vtkGetVector2Macro(EventSize, int);
-  //@}
+  ///@}
 
   /**
    * When an event occurs, we must determine which Renderer the event
@@ -704,7 +704,7 @@ public:
    */
   vtkObserverMediator* GetObserverMediator();
 
-  //@{
+  ///@{
   /**
    * Use a 3DConnexion device. Initial value is false.
    * If VTK is not build with the TDx option, this is no-op.
@@ -715,9 +715,9 @@ public:
    */
   vtkSetMacro(UseTDx, bool);
   vtkGetMacro(UseTDx, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Fire various events. SetEventInformation should be called just prior
    * to calling any of these methods. These methods will Invoke the
@@ -746,9 +746,9 @@ public:
   virtual void FourthButtonReleaseEvent();
   virtual void FifthButtonPressEvent();
   virtual void FifthButtonReleaseEvent();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Fire various gesture based events.  These methods will Invoke the
    * corresponding vtk event.
@@ -765,9 +765,9 @@ public:
   virtual void TapEvent();
   virtual void LongTapEvent();
   virtual void SwipeEvent();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convert multitouch events into gestures. When this is on
    * (its default) multitouch events received by this interactor
@@ -776,18 +776,18 @@ public:
    */
   vtkSetMacro(RecognizeGestures, bool);
   vtkGetMacro(RecognizeGestures, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When handling gestures you can query this value to
    * determine how many pointers are down for the gesture
    * this is useful for pan gestures for example
    */
   vtkGetMacro(PointersDownCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Most multitouch systems use persistent contact/pointer ids to
    * track events/motion during multitouch events. We keep an array
@@ -800,7 +800,7 @@ public:
   int GetPointerIndexForExistingContact(size_t contactID);
   bool IsPointerIndexSet(int i);
   void ClearPointerIndex(int i);
-  //@}
+  ///@}
 
 protected:
   vtkRenderWindowInteractor();
@@ -887,7 +887,7 @@ protected:
   friend struct vtkTimerStruct;
   vtkTimerIdMap* TimerMap;     // An internal, PIMPLd map of timers and associated attributes
   unsigned long TimerDuration; // in milliseconds
-  //@{
+  ///@{
   /**
    * Internal methods for creating and destroying timers that must be
    * implemented by subclasses. InternalCreateTimer() returns a
@@ -897,7 +897,7 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
   int GetCurrentTimerId();
-  //@}
+  ///@}
 
   // Force the interactor to handle the Start() event loop, ignoring any
   // overrides. (Overrides are registered by observing StartEvent on the

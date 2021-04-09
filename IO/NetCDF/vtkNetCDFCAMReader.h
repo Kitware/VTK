@@ -55,7 +55,7 @@ public:
   void SetConnectivityFileName(const char* fileName);
   vtkGetStringMacro(ConnectivityFileName);
 
-  //@{
+  ///@{
   /**
    * Set whether to read a single layer, midpoint layers or interface layers.
    * VERTICAL_DIMENSION_SINGLE_LAYER (0) indicates that only a single
@@ -77,9 +77,9 @@ public:
   };
   vtkSetClampMacro(VerticalDimension, int, 0, 2);
   vtkGetMacro(VerticalDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If SingleXXXLayer is 1, we'll load only the layer specified by
    * XXXLayerIndex.  Otherwise, we load all layers. We do that for
@@ -99,9 +99,9 @@ public:
   vtkSetMacro(InterfaceLayerIndex, int);
   vtkGetMacro(InterfaceLayerIndex, int);
   vtkGetVector2Macro(InterfaceLayersRange, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of variables.
    * By default, ALL data variables on the nodes are read.
@@ -112,7 +112,7 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
 protected:
   vtkNetCDFCAMReader();
@@ -141,7 +141,7 @@ private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) = delete;
   void operator=(const vtkNetCDFCAMReader&) = delete;
 
-  //@{
+  ///@{
   /**
    * The file name of the file that contains all of the point
    * data (coordinates and fields).
@@ -149,16 +149,16 @@ private:
   char* FileName;
   char* CurrentFileName;
   vtkSetStringMacro(CurrentFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The file name that contains the cell connectivity information.
    */
   char* ConnectivityFileName;
   char* CurrentConnectivityFileName;
   vtkSetStringMacro(CurrentConnectivityFileName);
-  //@}
+  ///@}
 
   int VerticalDimension;
   double* TimeSteps;

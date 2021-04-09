@@ -97,7 +97,7 @@ public:
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the context. This does not increase the reference count of the
    * context to avoid reference loops.
@@ -109,9 +109,9 @@ public:
    */
   void SetContext(vtkOpenGLRenderWindow*);
   vtkOpenGLRenderWindow* GetContext();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the texture dimensions.
    * These are the properties of the OpenGL texture this instance represents.
@@ -122,40 +122,40 @@ public:
   vtkGetMacro(Samples, unsigned int);
   vtkGetMacro(Components, int);
   unsigned int GetTuples() { return this->Width * this->Height * this->Depth; }
-  //@}
+  ///@}
 
   vtkGetMacro(NumberOfDimensions, int);
 
   // for MSAA textures set the number of samples
   vtkSetMacro(Samples, unsigned int);
 
-  //@{
+  ///@{
   /**
    * Returns OpenGL texture target to which the texture is/can be bound.
    */
   vtkGetMacro(Target, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the OpenGL handle.
    */
   vtkGetMacro(Handle, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Return the texture unit used for this texture
    */
   int GetTextureUnit();
 
-  //@{
+  ///@{
   /**
    * Bind the texture, must have been created using Create().
    * A side affect is that tex parameters are sent.
    * RenderWindow must be set before calling this.
    */
   void Bind();
-  //@}
+  ///@}
 
   /**
    * Activate and Bind the texture
@@ -186,7 +186,7 @@ public:
    */
   void SendParameters();
 
-  //@{
+  ///@{
   /**
    * Get/Set AutoParameters flag.
    * When enabled, SendParameters method is called automatically when the texture is bound.
@@ -194,7 +194,7 @@ public:
   vtkSetMacro(AutoParameters, int);
   vtkGetMacro(AutoParameters, int);
   vtkBooleanMacro(AutoParameters, int);
-  //@}
+  ///@}
 
   /**
    * Create a 2D texture from client memory
@@ -323,7 +323,7 @@ public:
   bool Allocate3D(
     unsigned int width, unsigned int height, unsigned int depth, int numComps, int vtkType);
 
-  //@{
+  ///@{
   /**
    * Create texture without uploading any data.
    */
@@ -336,23 +336,23 @@ public:
   {
     return this->Allocate3D(width, height, depth, numComps, vtktype);
   }
-  //@}
+  ///@}
 
   /**
    * Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
    */
   int GetVTKDataType();
 
-  //@{
+  ///@{
   /**
    * Get the data type for the texture as GLenum type.
    */
   int GetDataType(int vtk_scalar_type);
   void SetDataType(unsigned int glType);
   int GetDefaultDataType(int vtk_scalar_type);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set internal format (OpenGL internal format) that should
    * be used.
@@ -361,9 +361,9 @@ public:
   unsigned int GetInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
   void SetInternalFormat(unsigned int glInternalFormat);
   unsigned int GetDefaultInternalFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set format (OpenGL internal format) that should
    * be used.
@@ -372,7 +372,7 @@ public:
   unsigned int GetFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
   void SetFormat(unsigned int glFormat);
   unsigned int GetDefaultFormat(int vtktype, int numComps, bool shaderSupportsTextureInt);
-  //@}
+  ///@}
 
   /**
    * Reset format, internal format, and type of the texture.
@@ -390,7 +390,7 @@ public:
   unsigned int GetWrapTMode(int vtktype);
   unsigned int GetWrapRMode(int vtktype);
 
-  //@{
+  ///@{
   /**
    * Optional, require support for floating point depth buffer
    * formats. If supported extensions will be loaded, however
@@ -400,9 +400,9 @@ public:
   vtkSetMacro(RequireDepthBufferFloat, bool);
   vtkGetMacro(RequireDepthBufferFloat, bool);
   vtkGetMacro(SupportsDepthBufferFloat, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Optional, require support for floating point texture
    * formats. If supported extensions will be loaded, however
@@ -412,9 +412,9 @@ public:
   vtkSetMacro(RequireTextureFloat, bool);
   vtkGetMacro(RequireTextureFloat, bool);
   vtkGetMacro(SupportsTextureFloat, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Optional, require support for integer texture
    * formats. If supported extensions will be loaded, however
@@ -424,9 +424,9 @@ public:
   vtkSetMacro(RequireTextureInteger, bool);
   vtkGetMacro(RequireTextureInteger, bool);
   vtkGetMacro(SupportsTextureInteger, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Wrap mode for the first texture coordinate "s"
    * Valid values are:
@@ -439,9 +439,9 @@ public:
    */
   vtkGetMacro(WrapS, int);
   vtkSetMacro(WrapS, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Wrap mode for the first texture coordinate "t"
    * Valid values are:
@@ -454,9 +454,9 @@ public:
    */
   vtkGetMacro(WrapT, int);
   vtkSetMacro(WrapT, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Wrap mode for the first texture coordinate "r"
    * Valid values are:
@@ -469,9 +469,9 @@ public:
    */
   vtkGetMacro(WrapR, int);
   vtkSetMacro(WrapR, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Minification filter mode.
    * Valid values are:
@@ -487,9 +487,9 @@ public:
    */
   vtkGetMacro(MinificationFilter, int);
   vtkSetMacro(MinificationFilter, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Magnification filter mode.
    * Valid values are:
@@ -499,7 +499,7 @@ public:
    */
   vtkGetMacro(MagnificationFilter, int);
   vtkSetMacro(MagnificationFilter, int);
-  //@}
+  ///@}
 
   /**
    * Tells if the magnification mode is linear (true) or nearest (false).
@@ -509,7 +509,7 @@ public:
 
   bool GetLinearMagnification() { return this->MagnificationFilter == Linear; }
 
-  //@{
+  ///@{
   /**
    * Border Color (RGBA). The values can be any valid float value,
    * if the gpu supports it. Initial value is (0.0f, 0.0f, 0.0f, 0.0f),
@@ -517,27 +517,27 @@ public:
    */
   vtkSetVector4Macro(BorderColor, float);
   vtkGetVector4Macro(BorderColor, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Lower-clamp the computed LOD against this value. Any float value is valid.
    * Initial value is -1000.0f, as in OpenGL spec.
    */
   vtkSetMacro(MinLOD, float);
   vtkGetMacro(MinLOD, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Upper-clamp the computed LOD against this value. Any float value is valid.
    * Initial value is 1000.0f, as in OpenGL spec.
    */
   vtkSetMacro(MaxLOD, float);
   vtkGetMacro(MaxLOD, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Level of detail of the first texture image. A texture object is a list of
    * texture images. It is a non-negative integer value.
@@ -545,9 +545,9 @@ public:
    */
   vtkSetMacro(BaseLevel, int);
   vtkGetMacro(BaseLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Level of detail of the first texture image. A texture object is a list of
    * texture images. It is a non-negative integer value.
@@ -555,9 +555,9 @@ public:
    */
   vtkSetMacro(MaxLevel, int);
   vtkGetMacro(MaxLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells if the output of a texture unit with a depth texture uses
    * comparison or not.
@@ -570,9 +570,9 @@ public:
    */
   vtkGetMacro(DepthTextureCompare, bool);
   vtkSetMacro(DepthTextureCompare, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In case DepthTextureCompare is true, specify the comparison function in
    * use. The result of the comparison is noted `r'.
@@ -595,9 +595,9 @@ public:
    */
   vtkGetMacro(DepthTextureCompareFunction, int);
   vtkSetMacro(DepthTextureCompareFunction, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells the hardware to generate mipmap textures from the first texture
    * image at BaseLevel.
@@ -605,9 +605,9 @@ public:
    */
   vtkGetMacro(GenerateMipmap, bool);
   vtkSetMacro(GenerateMipmap, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum anisotropic filtering to use. 1.0 means use no
    * anisotropic filtering. The default value is 1.0 and a high value would
@@ -615,9 +615,9 @@ public:
    */
   vtkSetMacro(MaximumAnisotropicFiltering, float);
   vtkGetMacro(MaximumAnisotropicFiltering, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Query and return maximum texture size (dimension) supported by the
    * OpenGL driver for a particular context. It should be noted that this
@@ -636,7 +636,7 @@ public:
    * anything fails.
    */
   int GetMaximumTextureSize3D();
-  //@}
+  ///@}
 
   /**
    * Returns if the context supports the required extensions. If flags
@@ -654,7 +654,7 @@ public:
    */
   static bool IsSupported(vtkOpenGLRenderWindow*) { return true; }
 
-  //@{
+  ///@{
   /**
    * Copy the texture (src) in the current framebuffer.  A variety of
    * signatures based on what you want to do
@@ -672,7 +672,7 @@ public:
   // copy a texture to a quad using the provided tcoords and verts
   void CopyToFrameBuffer(
     float* tcoords, float* verts, vtkShaderProgram* program, vtkOpenGLVertexArrayObject* vao);
-  //@}
+  ///@}
 
   /**
    * Copy a sub-part of a logical buffer of the framebuffer (color or depth)
@@ -706,7 +706,7 @@ public:
   // data values are lost
   void Resize(unsigned int width, unsigned int height);
 
-  //@{
+  ///@{
   /**
    * Is this texture using the sRGB color space. If you are using a
    * sRGB framebuffer or window then you probably also want to be
@@ -716,7 +716,7 @@ public:
   vtkGetMacro(UseSRGBColorSpace, bool);
   vtkSetMacro(UseSRGBColorSpace, bool);
   vtkBooleanMacro(UseSRGBColorSpace, bool);
-  //@}
+  ///@}
 
   /**
    * Assign the TextureObject to a externally provided

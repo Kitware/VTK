@@ -42,7 +42,7 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * This flag tells the extraction filter not to convert the selected
    * output into an unstructured grid, but instead to produce a vtkInsidedness
@@ -51,7 +51,7 @@ public:
   vtkSetMacro(PreserveTopology, vtkTypeBool);
   vtkGetMacro(PreserveTopology, vtkTypeBool);
   vtkBooleanMacro(PreserveTopology, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelectionBase();

@@ -53,22 +53,22 @@ public:
    */
   static vtkParametricTorus* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius from the center to the middle of the ring of the
    * torus. Default is 1.0.
    */
   vtkSetMacro(RingRadius, double);
   vtkGetMacro(RingRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of the cross section of ring of the torus. Default is 0.5.
    */
   vtkSetMacro(CrossSectionRadius, double);
   vtkGetMacro(CrossSectionRadius, double);
-  //@}
+  ///@}
 
   /**
    * Return the parametric dimension of the class.

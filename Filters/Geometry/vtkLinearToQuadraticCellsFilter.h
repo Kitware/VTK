@@ -40,14 +40,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLinearToQuadraticCellsFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -55,7 +55,7 @@ public:
    */
   void CreateDefaultLocator();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -64,7 +64,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
   /**
    * Return the mtime also considering the locator.

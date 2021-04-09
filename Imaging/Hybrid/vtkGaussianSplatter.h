@@ -99,7 +99,7 @@ public:
    */
   static vtkGaussianSplatter* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the dimensions of the sampling structured point set. Higher
    * values produce better results but are much slower.
@@ -107,9 +107,9 @@ public:
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which
    * the sampling is performed. If any of the (min,max) bounds values are
@@ -118,9 +118,9 @@ public:
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the radius of propagation of the splat. This value is expressed
    * as a percentage of the length of the longest side of the sampling
@@ -128,9 +128,9 @@ public:
    */
   vtkSetClampMacro(Radius, double, 0.0, 1.0);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Multiply Gaussian splat distribution by this value. If ScalarWarping
    * is on, then the Scalar value will be multiplied by the ScaleFactor
@@ -138,9 +138,9 @@ public:
    */
   vtkSetClampMacro(ScaleFactor, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the sharpness of decay of the splats. This is the
    * exponent constant in the Gaussian equation. Normally this is
@@ -148,9 +148,9 @@ public:
    */
   vtkSetMacro(ExponentFactor, double);
   vtkGetMacro(ExponentFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of elliptical splats. If normal warping is
    * on, then the input normals affect the distribution of the splat. This
@@ -159,9 +159,9 @@ public:
   vtkSetMacro(NormalWarping, vtkTypeBool);
   vtkGetMacro(NormalWarping, vtkTypeBool);
   vtkBooleanMacro(NormalWarping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the shape of elliptical splatting. Eccentricity is the ratio
    * of the major axis (aligned along normal) to the minor (axes) aligned
@@ -171,18 +171,18 @@ public:
    */
   vtkSetClampMacro(Eccentricity, double, 0.001, VTK_DOUBLE_MAX);
   vtkGetMacro(Eccentricity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the scaling of splats by scalar value.
    */
   vtkSetMacro(ScalarWarping, vtkTypeBool);
   vtkGetMacro(ScalarWarping, vtkTypeBool);
   vtkBooleanMacro(ScalarWarping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the outer boundary of the volume
    * to a specified cap value. This can be used to close surfaces
@@ -191,18 +191,18 @@ public:
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cap value to use. (This instance variable only has effect
    * if the ivar Capping is on.)
    */
   vtkSetMacro(CapValue, double);
   vtkGetMacro(CapValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the scalar accumulation mode. This mode expresses how scalar
    * values are combined when splats are overlapped. The Max mode acts
@@ -215,18 +215,18 @@ public:
   void SetAccumulationModeToMax() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MAX); }
   void SetAccumulationModeToSum() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_SUM); }
   const char* GetAccumulationModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Null value for output points not receiving a contribution from the
    * input points. (This is the initial value of the voxel samples.)
    */
   vtkSetMacro(NullValue, double);
   vtkGetMacro(NullValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the size of the sample bounding box automatically from the
    * input data. This is an internal helper function.
@@ -234,9 +234,9 @@ public:
   void ComputeModelBounds(vtkDataSet* input, vtkImageData* output, vtkInformation* outInfo);
   void ComputeModelBounds(
     vtkCompositeDataSet* input, vtkImageData* output, vtkInformation* outInfo);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Provide access to templated helper class. Note that SamplePoint() method
    * is public here because some compilers don't handle friend functions
@@ -251,7 +251,7 @@ public:
   {
     double v = (this->*SampleFactor)(this->S) *
       std::exp(static_cast<double>(this->ExponentFactor * (dist2) / (this->Radius2)));
-    //@}
+    ///@}
 
     if (!this->Visited[idx])
     {

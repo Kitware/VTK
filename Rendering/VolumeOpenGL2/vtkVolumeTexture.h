@@ -267,7 +267,7 @@ private:
    */
   void ComputeCellToPointMatrix(int extents[6]);
 
-  //@{
+  ///@{
   /**
    * @brief Helper functions to catch potential issues when doing GPU
    * texture allocations.
@@ -281,7 +281,7 @@ private:
 
   bool SafeLoadTexture(vtkTextureObject* texture, int const width, int const height,
     int const depth, int numComps, int dataType, void* dataPtr);
-  //@}
+  ///@}
 
   void UpdateInterpolationType(int const interpolation);
   void SetInterpolation(int const interpolation);

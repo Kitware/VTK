@@ -62,7 +62,7 @@ public:
    */
   unsigned int GetNumberOfPieces() { return this->GetNumberOfPartitions(); }
 
-  //@{
+  ///@{
   /**
    * Returns the piece at the given index.
    */
@@ -71,7 +71,7 @@ public:
   {
     return this->GetPartitionAsDataObject(pieceno);
   }
-  //@}
+  ///@}
 
   /**
    * Sets the data object as the given piece. The total number of pieces will
@@ -79,13 +79,13 @@ public:
    */
   void SetPiece(unsigned int pieceno, vtkDataObject* piece) { this->SetPartition(pieceno, piece); }
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkMultiPieceDataSet* GetData(vtkInformation* info);
   static vtkMultiPieceDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkMultiPieceDataSet();

@@ -33,23 +33,23 @@ public:
   vtkTypeMacro(vtkImageShrink3D, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the shrink factors
    */
   vtkSetVector3Macro(ShrinkFactors, int);
   vtkGetVector3Macro(ShrinkFactors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel to use as origin.
    */
   vtkSetVector3Macro(Shift, int);
   vtkGetVector3Macro(Shift, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose Mean, Minimum, Maximum, Median or sub sampling.
    * The neighborhood operations are not centered on the sampled pixel.
@@ -60,7 +60,7 @@ public:
   void SetAveraging(vtkTypeBool);
   vtkTypeBool GetAveraging() { return this->GetMean(); }
   vtkBooleanMacro(Averaging, vtkTypeBool);
-  //@}
+  ///@}
 
   void SetMean(vtkTypeBool);
   vtkGetMacro(Mean, vtkTypeBool);

@@ -56,32 +56,32 @@ public:
   vtkTypeMacro(vtkReebGraphSurfaceSkeletonFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of samples along each arc of the Reeb graph
    * Default value: 5
    */
   vtkSetMacro(NumberOfSamples, int);
   vtkGetMacro(NumberOfSamples, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of optional smoothing iterations
    * Default value: 30
    */
   vtkSetMacro(NumberOfSmoothingIterations, int);
   vtkGetMacro(NumberOfSmoothingIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar field Id
    * Default value: 0
    */
   vtkSetMacro(FieldId, vtkIdType);
   vtkGetMacro(FieldId, vtkIdType);
-  //@}
+  ///@}
 
   vtkTable* GetOutput();
 

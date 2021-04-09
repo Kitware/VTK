@@ -52,38 +52,38 @@ public:
   vtkTypeMacro(vtkGenericEnSightReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the Case file name.
    */
   void SetCaseFileName(const char* fileName);
   vtkGetStringMacro(CaseFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the file path.
    */
   vtkSetStringMacro(FilePath);
   vtkGetStringMacro(FilePath);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the EnSight file version being read.
    */
   vtkGetMacro(EnSightVersion, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of variables listed in the case file.
    */
   vtkGetMacro(NumberOfVariables, int);
   vtkGetMacro(NumberOfComplexVariables, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of variables of a particular type.
    */
@@ -102,7 +102,7 @@ public:
   vtkGetMacro(NumberOfComplexVectorsPerNode, int);
   vtkGetMacro(NumberOfComplexScalarsPerElement, int);
   vtkGetMacro(NumberOfComplexVectorsPerElement, int);
-  //@}
+  ///@}
 
   /**
    * Get the nth description for a non-complex variable.
@@ -127,36 +127,36 @@ public:
    */
   const char* GetDescription(int n, int type);
 
-  //@{
+  ///@{
   /**
    * Get the variable type of variable n.
    */
   int GetVariableType(int n);
   int GetComplexVariableType(int n);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the time value at which to get the value.
    */
   virtual void SetTimeValue(float value);
   vtkGetMacro(TimeValue, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the minimum or maximum time value for this data set.
    */
   vtkGetMacro(MinimumTimeValue, float);
   vtkGetMacro(MaximumTimeValue, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the time values per time set
    */
   vtkGetObjectMacro(TimeSets, vtkDataArrayCollection);
-  //@}
+  ///@}
 
   /**
    * Reads the FORMAT part of the case file to determine whether this is an
@@ -166,42 +166,42 @@ public:
    */
   int DetermineEnSightVersion(int quiet = 0);
 
-  //@{
+  ///@{
   /**
    * Set/get the flag for whether to read all the variables
    */
   vtkBooleanMacro(ReadAllVariables, vtkTypeBool);
   vtkSetMacro(ReadAllVariables, vtkTypeBool);
   vtkGetMacro(ReadAllVariables, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the data array selection tables used to configure which data
    * arrays are loaded by the reader.
    */
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of point or cell arrays available in the input.
    */
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the name of the point or cell array with the given index in
    * the input.
    */
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the point or cell array with the given name is to
    * be read.
@@ -210,7 +210,7 @@ public:
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   enum FileTypes
   {
@@ -221,7 +221,7 @@ public:
     ENSIGHT_MASTER_SERVER = 4
   };
 
-  //@{
+  ///@{
   /**
    * Set the byte order of the file (remember, more Unix workstations
    * write big endian whereas PCs write little endian). Default is
@@ -233,7 +233,7 @@ public:
   vtkSetMacro(ByteOrder, int);
   vtkGetMacro(ByteOrder, int);
   const char* GetByteOrderAsString();
-  //@}
+  ///@}
 
   enum
   {
@@ -242,15 +242,15 @@ public:
     FILE_UNKNOWN_ENDIAN = 2
   };
 
-  //@{
+  ///@{
   /**
    * Get the Geometry file name. Made public to allow access from
    * apps requiring detailed info about the Data contents
    */
   vtkGetStringMacro(GeometryFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MeasuredGeometryFile should list particle coordinates
    * from 0->N-1.
@@ -266,7 +266,7 @@ public:
   vtkSetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
   vtkGetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
   vtkBooleanMacro(ParticleCoordinatesByIndex, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Returns true if the file pointed to by casefilename appears to be a
@@ -319,28 +319,28 @@ protected:
   // Returns 0 is there was an error.
   int ReadNextDataLine(char result[256]);
 
-  //@{
+  ///@{
   /**
    * Set the geometry file name.
    */
   vtkSetStringMacro(GeometryFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a variable description to the appropriate array.
    */
   void AddVariableDescription(const char* description);
   void AddComplexVariableDescription(const char* description);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a variable type to the appropriate array.
    */
   void AddVariableType(int variableType);
   void AddComplexVariableType(int variableType);
-  //@}
+  ///@}
 
   /**
    * Replace the wildcards in the geometry file name with appropriate filename

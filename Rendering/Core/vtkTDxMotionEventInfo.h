@@ -32,14 +32,14 @@
 class VTKRENDERINGCORE_EXPORT vtkTDxMotionEventInfo
 {
 public:
-  //@{
+  ///@{
   /**
    * Translation coordinates
    */
   double X;
   double Y;
   double Z;
-  //@}
+  ///@}
 
   /**
    * Rotation angle.
@@ -51,14 +51,14 @@ public:
    */
   double Angle;
 
-  //@{
+  ///@{
   /**
    * Rotation axis expressed as a unit vector.
    */
   double AxisX;
   double AxisY;
   double AxisZ;
-  //@}
+  ///@}
 };
 
 #endif

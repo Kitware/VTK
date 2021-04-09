@@ -45,21 +45,21 @@ public:
   vtkTypeMacro(vtkParallelVectors, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of first vector field.
    */
   vtkSetStringMacro(FirstVectorFieldName);
   vtkGetStringMacro(FirstVectorFieldName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of second vector field.
    */
   vtkSetStringMacro(SecondVectorFieldName);
   vtkGetStringMacro(SecondVectorFieldName);
-  //@}
+  ///@}
 
 protected:
   vtkParallelVectors();

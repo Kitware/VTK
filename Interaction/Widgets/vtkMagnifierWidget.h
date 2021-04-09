@@ -55,13 +55,13 @@ public:
    */
   static vtkMagnifierWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for class.
    */
   vtkTypeMacro(vtkMagnifierWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkMagnifierRepresentation used to represent this
@@ -92,7 +92,7 @@ public:
    */
   void SetEnabled(int enabling) override;
 
-  //@{
+  ///@{
   /**
    * By default, the keypress "+" increases magnification, and the keypress
    * "-" decreases magnification. These can be changed to other key press
@@ -103,7 +103,7 @@ public:
   vtkGetMacro(KeyPressIncreaseValue, char);
   vtkSetMacro(KeyPressDecreaseValue, char);
   vtkGetMacro(KeyPressDecreaseValue, char);
-  //@}
+  ///@}
 
 protected:
   vtkMagnifierWidget();

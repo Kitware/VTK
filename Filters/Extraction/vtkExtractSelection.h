@@ -64,7 +64,7 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * This flag tells the extraction filter not to extract a subset of the
    * data, but instead to produce a vtkInsidedness array and add it to the
@@ -73,7 +73,7 @@ public:
   vtkSetMacro(PreserveTopology, bool);
   vtkGetMacro(PreserveTopology, bool);
   vtkBooleanMacro(PreserveTopology, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelection();

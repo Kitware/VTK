@@ -46,14 +46,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkGaussianKernel* New();
   vtkTypeMacro(vtkGaussianKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the kernel. Overload the superclass to set up internal
@@ -81,7 +81,7 @@ public:
   vtkIdType ComputeWeights(
     double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
    * Sharpness=2. As the sharpness increases the effects of distant points
@@ -89,7 +89,7 @@ public:
    */
   vtkSetClampMacro(Sharpness, double, 1, VTK_FLOAT_MAX);
   vtkGetMacro(Sharpness, double);
-  //@}
+  ///@}
 
 protected:
   vtkGaussianKernel();

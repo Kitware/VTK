@@ -41,13 +41,13 @@ public:
   vtkTypeMacro(vtkParametricPluckerConoid, vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This is the number of folds in the conoid.
    */
   vtkGetMacro(N, int);
   vtkSetMacro(N, int);
-  //@}
+  ///@}
 
   /**
    * Construct Plucker's conoid surface with the following parameters:

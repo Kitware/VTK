@@ -79,14 +79,14 @@ public:
   static vtkTemporalInterpolatedVelocityField* New();
 
   using Superclass::FunctionValues;
-  //@{
+  ///@{
   /**
    * Evaluate the velocity field, f, at (x, y, z, t).
    * For now, t is ignored.
    */
   int FunctionValues(double* x, double* u) override;
   int FunctionValuesAtT(int T, double* x, double* u);
-  //@}
+  ///@}
 
   /**
    * If you want to work with an arbitrary vector array, then set its name
@@ -102,7 +102,7 @@ public:
    */
   void SetDataSetAtTime(int I, int N, double T, vtkDataSet* dataset, bool staticdataset);
 
-  //@{
+  ///@{
   /**
    * Between iterations of the Particle Tracer, Id's of the Cell
    * are stored and then at the start of the next particle the
@@ -110,7 +110,7 @@ public:
    */
   bool GetCachedCellIds(vtkIdType id[2], int ds[2]);
   void SetCachedCellIds(vtkIdType id[2], int ds[2]);
-  //@}
+  ///@}
 
   /**
    * Set the last cell id to -1 so that the next search does not
@@ -118,29 +118,29 @@ public:
    */
   void ClearCache();
 
-  //@{
+  ///@{
   /**
    * A utility function which evaluates the point at T1, T2 to see
    * if it is inside the data at both times or only one.
    */
   int TestPoint(double* x);
   int QuickTestPoint(double* x);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If an interpolation was successful, we can retrieve the last computed
    * value from here. Initial value is (0.0,0.0,0.0)
    */
   vtkGetVector3Macro(LastGoodVelocity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the most recent weight between 0->1 from T1->T2. Initial value is 0.
    */
   vtkGetMacro(CurrentWeight, double);
-  //@}
+  ///@}
 
   bool InterpolatePoint(vtkPointData* outPD1, vtkPointData* outPD2, vtkIdType outIndex);
 

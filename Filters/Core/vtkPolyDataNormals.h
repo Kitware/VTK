@@ -77,7 +77,7 @@ public:
    */
   static vtkPolyDataNormals* New();
 
-  //@{
+  ///@{
   /**
    * Specify the angle that defines a sharp edge. If the difference in
    * angle across neighboring polygons is greater than this value, the
@@ -85,27 +85,27 @@ public:
    */
   vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
   vtkGetMacro(FeatureAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the splitting of sharp edges.
    */
   vtkSetMacro(Splitting, vtkTypeBool);
   vtkGetMacro(Splitting, vtkTypeBool);
   vtkBooleanMacro(Splitting, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the enforcement of consistent polygon ordering.
    */
   vtkSetMacro(Consistency, vtkTypeBool);
   vtkGetMacro(Consistency, vtkTypeBool);
   vtkBooleanMacro(Consistency, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the automatic determination of correct normal
    * orientation. NOTE: This assumes a completely closed surface
@@ -120,27 +120,27 @@ public:
   vtkSetMacro(AutoOrientNormals, vtkTypeBool);
   vtkGetMacro(AutoOrientNormals, vtkTypeBool);
   vtkBooleanMacro(AutoOrientNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of point normals.
    */
   vtkSetMacro(ComputePointNormals, vtkTypeBool);
   vtkGetMacro(ComputePointNormals, vtkTypeBool);
   vtkBooleanMacro(ComputePointNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of cell normals.
    */
   vtkSetMacro(ComputeCellNormals, vtkTypeBool);
   vtkGetMacro(ComputeCellNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeCellNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the global flipping of normal orientation. Flipping
    * reverves the meaning of front and back for Frontface and Backface
@@ -150,9 +150,9 @@ public:
   vtkSetMacro(FlipNormals, vtkTypeBool);
   vtkGetMacro(FlipNormals, vtkTypeBool);
   vtkBooleanMacro(FlipNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off traversal across non-manifold edges. This will prevent
    * problems where the consistency of polygonal ordering is corrupted due
@@ -161,9 +161,9 @@ public:
   vtkSetMacro(NonManifoldTraversal, vtkTypeBool);
   vtkGetMacro(NonManifoldTraversal, vtkTypeBool);
   vtkBooleanMacro(NonManifoldTraversal, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -171,7 +171,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataNormals();

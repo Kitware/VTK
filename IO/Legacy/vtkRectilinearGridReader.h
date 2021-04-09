@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkRectilinearGridReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get and set the output of this reader.
    */
   vtkRectilinearGrid* GetOutput();
   vtkRectilinearGrid* GetOutput(int idx);
   void SetOutput(vtkRectilinearGrid* output);
-  //@}
+  ///@}
 
   /**
    * Read the meta information from the file (WHOLE_EXTENT).

@@ -71,15 +71,15 @@ public:
    */
   static vtkStaticPointLocator2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkStaticPointLocator2D, vtkAbstractPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the average number of points in each bucket. This data member is
    * used in conjunction with the Automatic data member (if enabled) to
@@ -87,9 +87,9 @@ public:
    */
   vtkSetClampMacro(NumberOfPointsPerBucket, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBucket, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of divisions in x-y directions. If the Automatic data
    * member is enabled, the Divisions are set according to the
@@ -98,7 +98,7 @@ public:
    */
   vtkSetVector2Macro(Divisions, int);
   vtkGetVectorMacro(Divisions, int, 2);
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkAbstractPointLocator::FindClosestNPoints;
@@ -115,7 +115,7 @@ public:
    */
   vtkIdType FindClosestPoint(const double x[3]) override;
 
-  //@{
+  ///@{
   /**
    * Given a position x and a radius r, return the id of the point closest to
    * the point within that radius.  These methods are thread safe if
@@ -127,7 +127,7 @@ public:
   vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
   virtual vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double inputDataLength, double& dist2);
-  //@}
+  ///@}
 
   /**
    * Find the closest N points to a position. This returns the closest N
@@ -159,7 +159,7 @@ public:
   int IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double lineX[3],
     double ptX[3], vtkIdType& ptId);
 
-  //@{
+  ///@{
   /**
    * Special method for 2D operations (e.g., vtkVoronoi2D). The method
    * returns the approximate number of points requested, returning the radius
@@ -167,7 +167,7 @@ public:
    * that are closer than <=R.
    */
   double FindCloseNBoundedPoints(int N, const double x[3], vtkIdList* result);
-  //@}
+  ///@}
 
   /**
    * Merge points in the locator given a tolerance. Return a merge map which
@@ -178,7 +178,7 @@ public:
    */
   void MergePoints(double tol, vtkIdType* mergeMap);
 
-  //@{
+  ///@{
   /**
    * See vtkLocator and vtkAbstractPointLocator interface documentation.
    * These methods are not thread safe.
@@ -186,7 +186,7 @@ public:
   void Initialize() override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  //@}
+  ///@}
 
   /**
    * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
@@ -203,7 +203,7 @@ public:
    */
   void GetBucketIds(vtkIdType bNum, vtkIdList* bList);
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of buckets in the locator. By default the value
    * is set to VTK_INT_MAX. Note that there are significant performance
@@ -220,7 +220,7 @@ public:
    */
   vtkSetClampMacro(MaxNumberOfBuckets, vtkIdType, 1000, VTK_ID_MAX);
   vtkGetMacro(MaxNumberOfBuckets, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Inform the user as to whether large ids are being used. This flag only
@@ -231,7 +231,7 @@ public:
    */
   bool GetLargeIds() { return this->LargeIds; }
 
-  //@{
+  ///@{
   /**
    * Provide an accessor to the bounds. Valid after the locator is built.
    */
@@ -242,9 +242,9 @@ public:
     bounds[2] = this->Bounds[2];
     bounds[3] = this->Bounds[3];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Provide an accessor to the bucket spacing. Valid after the locator is
    * built.
@@ -256,9 +256,9 @@ public:
     spacing[1] = this->H[1];
     spacing[2] = 0.0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a point x[3], return the locator index (i,j) which contains the
    * point. This method is meant to be fast, so error checking is not
@@ -266,7 +266,7 @@ public:
    */
   void GetBucketIndices(const double* x, int ij[2]) const;
   vtkIdType GetBucketIndex(const double* x) const;
-  //@}
+  ///@}
 
   /**
    * Populate a polydata with the faces of the bins that potentially contain cells.

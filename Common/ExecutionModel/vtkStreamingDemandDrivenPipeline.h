@@ -58,14 +58,14 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  //@{
+  ///@{
   /**
    * Bring the outputs up-to-date.
    */
   vtkTypeBool Update() override;
   vtkTypeBool Update(int port) override;
   virtual vtkTypeBool UpdateWholeExtent();
-  //@}
+  ///@}
 
   /**
    * This method enables the passing of data requests to the algorithm
@@ -98,16 +98,16 @@ public:
    */
   int PropagateUpdateExtent(int outputPort);
 
-  //@{
+  ///@{
   /**
    * Propagate time through the pipeline. this is a special pass
    * only necessary if there is temporal meta data that must be updated
    */
   int PropagateTime(int outputPort);
   int UpdateTimeDependentInformation(int outputPort);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the whole extent of an output port.  The whole extent is
    * meta data for structured data sets.  It gets set by the algorithm
@@ -116,9 +116,9 @@ public:
   static int SetWholeExtent(vtkInformation*, int extent[6]);
   static void GetWholeExtent(vtkInformation*, int extent[6]);
   static int* GetWholeExtent(vtkInformation*) VTK_SIZEHINT(6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This request flag indicates whether the requester can handle more
    * data than requested for the given port.  Right now it is used in
@@ -129,7 +129,7 @@ public:
    */
   int SetRequestExactExtent(int port, int flag);
   int GetRequestExactExtent(int port);
-  //@}
+  ///@}
 
   /**
    * Key defining a request to propagate the update extent upstream.
@@ -236,14 +236,14 @@ public:
    */
   static vtkInformationDoubleVectorKey* BOUNDS();
 
-  //@{
+  ///@{
   /**
    * Get/Set the update extent for output ports that use 3D extents.
    */
   static void GetUpdateExtent(vtkInformation*, int extent[6]);
   static int* GetUpdateExtent(vtkInformation*);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set/Get the update piece, update number of pieces, and update
    * number of ghost levels for an output port.  Similar to update
@@ -252,7 +252,7 @@ public:
   static int GetUpdatePiece(vtkInformation*);
   static int GetUpdateNumberOfPieces(vtkInformation*);
   static int GetUpdateGhostLevel(vtkInformation*);
-  //@}
+  ///@}
 
 protected:
   vtkStreamingDemandDrivenPipeline();

@@ -57,24 +57,24 @@ public:
   vtkTypeMacro(vtkCityGMLReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of the CityGML data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the level of detail (LOD) to read. Valid values are from 0 (least detailed)
    * through 4 (most detailed), default value is 3.
    */
   vtkSetClampMacro(LOD, int, 0, 4);
   vtkGetMacro(LOD, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Certain input files use app:transparency as opacity. Set this field true
    * to show that correctly. The default is false.
@@ -82,16 +82,16 @@ public:
   vtkSetMacro(UseTransparencyAsOpacity, int);
   vtkGetMacro(UseTransparencyAsOpacity, int);
   vtkBooleanMacro(UseTransparencyAsOpacity, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of buildings read from the file.
    * Default is numeric_limits<int>::max().
    */
   vtkSetMacro(NumberOfBuildings, int);
   vtkGetMacro(NumberOfBuildings, int);
-  //@}
+  ///@}
 
 protected:
   vtkCityGMLReader();

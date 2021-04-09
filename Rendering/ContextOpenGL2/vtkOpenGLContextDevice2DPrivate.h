@@ -69,7 +69,7 @@ public:
     vtkTextRenderer::Metrics Metrics;
   };
 
-  //@{
+  ///@{
   /**
    * CacheElement associates a unique key to some cache.
    */
@@ -101,7 +101,7 @@ public:
       return this->first == other.first;
     }
   };
-  //@}
+  ///@}
 
   /**
    * Construct a texture image cache with a maximum number of texture of 50.
@@ -125,7 +125,7 @@ public:
    */
   CacheData& GetCacheData(const Key& key);
 
-  //@{
+  ///@{
   /**
    * Release all the OpenGL Pixel Buffer Object(PBO) associated with the
    * textures of the cache list.
@@ -138,10 +138,10 @@ public:
       it->second.Texture->ReleaseGraphicsResources(window);
     }
   }
-  //@}
+  ///@}
 
 protected:
-  //@{
+  ///@{
   /**
    * Add a new cache entry into the cache list. Enforce the MaxSize size of the
    * list by removing the least used cache if needed.
@@ -156,18 +156,18 @@ protected:
     this->Cache.push_front(CacheElement(key, cacheData));
     return this->Cache.begin()->second;
   }
-  //@}
+  ///@}
 
   /**
    * List of a pair of key and cache data.
    */
   std::list<CacheElement> Cache;
-  //@{
+  ///@{
   /**
    * Maximum size the cache list can be.
    */
   size_t MaxSize;
-  //@}
+  ///@}
 };
 
 template <class Key>
@@ -193,7 +193,7 @@ typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>::GetCac
 template <class StringType>
 struct TextPropertyKey
 {
-  //@{
+  ///@{
   /**
    * Transform a text property into an unsigned long
    */
@@ -223,9 +223,9 @@ struct TextPropertyKey
 
     return hash;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Creates a TextPropertyKey.
    */
@@ -241,7 +241,7 @@ struct TextPropertyKey
     this->Text = text;
     this->DPI = dpi;
   }
-  //@}
+  ///@}
 
   /**
    * Compares two TextPropertyKeys with each other. Returns true if they are
@@ -494,14 +494,14 @@ public:
   bool GLSL;
   bool PowerOfTwoTextures;
 
-  //@{
+  ///@{
   /**
    * Cache for text images. Generating texture for strings is expensive,
    * we cache the textures here for a faster reuse.
    */
   mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
   mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
-  //@}
+  ///@}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -876,14 +876,14 @@ private:
   vtkIdType* PointIds;
   vtkUnsignedCharArray* Colors;
 
-  //@{
+  ///@{
   /**
    *  Current vtkPolyData cell.
    */
   vtkIdType NumPointsCell;
   std::vector<float> CellPoints;
   vtkNew<vtkUnsignedCharArray> CellColors;
-  //@}
+  ///@}
 
   PolyDataCache* cache;
 };

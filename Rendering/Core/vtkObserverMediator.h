@@ -46,22 +46,22 @@ public:
    */
   static vtkObserverMediator* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkObserverMediator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the instance of vtkRenderWindow whose cursor shape is
    * to be managed.
    */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-  //@}
+  ///@}
 
   /**
    * Method used to request a cursor shape. Note that the shape is specified

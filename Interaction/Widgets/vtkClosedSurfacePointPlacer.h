@@ -44,15 +44,15 @@ public:
    */
   static vtkClosedSurfacePointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkClosedSurfacePointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A collection of plane equations used to bound the position of the point.
    * This is in addition to confining the point to a plane - these constraints
@@ -67,7 +67,7 @@ public:
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes, vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes* planes);
-  //@}
+  ///@}
 
   /**
    * Given a renderer and a display position, compute the

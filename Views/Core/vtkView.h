@@ -153,7 +153,7 @@ public:
    */
   vtkCommand* GetObserver();
 
-  //@{
+  ///@{
   /**
    * A ptr to an instance of ViewProgressEventCallData is provided in the call
    * data when vtkCommand::ViewProgressEvent is fired.
@@ -162,7 +162,7 @@ public:
   {
     const char* Message;
     double Progress;
-    //@}
+    ///@}
 
   public:
     ViewProgressEventCallData(const char* msg, double progress)
@@ -225,7 +225,7 @@ protected:
   virtual void AddRepresentationInternal(vtkDataRepresentation* vtkNotUsed(rep)) {}
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* vtkNotUsed(rep)) {}
 
-  //@{
+  ///@{
   /**
    * True if the view takes a single representation that should be reused on
    * Add/SetRepresentationFromInput(Connection) calls. Default is off.
@@ -234,7 +234,7 @@ protected:
   vtkGetMacro(ReuseSingleRepresentation, bool);
   vtkBooleanMacro(ReuseSingleRepresentation, bool);
   bool ReuseSingleRepresentation;
-  //@}
+  ///@}
 
 private:
   vtkView(const vtkView&) = delete;

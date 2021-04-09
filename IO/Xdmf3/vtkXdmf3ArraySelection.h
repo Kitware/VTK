@@ -60,13 +60,13 @@ public:
    */
   bool HasArray(const char* name);
 
-  //@{
+  ///@{
   /**
    * get/set user choice of whether a particular array is to be loaded
    */
   void SetArrayStatus(const char* name, bool status);
   int GetArraySetting(const char* name);
-  //@}
+  ///@}
 
   /**
    * get string name of a particular array

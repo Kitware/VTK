@@ -64,47 +64,47 @@ public:
    */
   static vtkTexturedButtonRepresentation2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkTexturedButtonRepresentation2D, vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when the button is to appear "normal"
    * i.e., the mouse pointer is not hovering or selecting the button.
    */
   virtual void SetProperty(vtkProperty2D* p);
   vtkGetObjectMacro(Property, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when the hovering over the button.
    */
   virtual void SetHoveringProperty(vtkProperty2D* p);
   vtkGetObjectMacro(HoveringProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when selecting the button.
    */
   virtual void SetSelectingProperty(vtkProperty2D* p);
   vtkGetObjectMacro(SelectingProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add the ith texture corresponding to the ith button state.
    * The parameter i should be 0<=i<NumberOfStates.
    */
   void SetButtonTexture(int i, vtkImageData* image);
   vtkImageData* GetButtonTexture(int i);
-  //@}
+  ///@}
 
   /**
    * Grab the underlying vtkBalloonRepresentation used to position and display
@@ -112,14 +112,14 @@ public:
    */
   vtkBalloonRepresentation* GetBalloon() { return this->Balloon; }
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void BuildRepresentation() override;
   void Highlight(int state) override;
-  //@}
+  ///@}
 
   /**
    * Conventional PlaceWidget() method to satisfy the vtkWidgetRepresentation API.
@@ -142,7 +142,7 @@ public:
    */
   virtual void PlaceWidget(double anchor[3], int size[2]);
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
@@ -152,7 +152,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkTexturedButtonRepresentation2D();

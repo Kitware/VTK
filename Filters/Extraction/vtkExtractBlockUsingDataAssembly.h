@@ -55,7 +55,7 @@ public:
   vtkTypeMacro(vtkExtractBlockUsingDataAssembly, vtkCompositeDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * API to set selectors. Multiple selectors can be added using `AddSelector`.
    * The order in which selectors are specified is not preserved and has no
@@ -68,7 +68,7 @@ public:
    */
   bool AddSelector(const char* selector);
   void ClearSelectors();
-  //@}
+  ///@}
 
   /**
    * Convenience method to set a single selector.
@@ -76,15 +76,15 @@ public:
    */
   void SetSelector(const char* selector);
 
-  //@{
+  ///@{
   /**
    * API to access selectors.
    */
   int GetNumberOfSelectors() const;
   const char* GetSelector(int index) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the active assembly to use. The chosen assembly is used
    * in combination with the selectors specified to determine which blocks
@@ -95,9 +95,9 @@ public:
    */
   vtkSetStringMacro(AssemblyName);
   vtkGetStringMacro(AssemblyName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default) subtrees for chosen paths are treated as
    * selected.
@@ -105,9 +105,9 @@ public:
   vtkSetMacro(SelectSubtrees, bool);
   vtkGetMacro(SelectSubtrees, bool);
   vtkBooleanMacro(SelectSubtrees, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), the data assembly is pruned to remove
    * branches that were not selected.
@@ -115,7 +115,7 @@ public:
   vtkSetMacro(PruneDataAssembly, bool);
   vtkGetMacro(PruneDataAssembly, bool);
   vtkBooleanMacro(PruneDataAssembly, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractBlockUsingDataAssembly();

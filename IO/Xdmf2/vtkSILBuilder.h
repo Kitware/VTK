@@ -41,34 +41,34 @@ public:
   vtkTypeMacro(vtkSILBuilder, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the graph to populate.
    */
   void SetSIL(vtkMutableDirectedGraph*);
   vtkGetObjectMacro(SIL, vtkMutableDirectedGraph);
-  //@}
+  ///@}
 
   /**
    * Initializes the data-structures.
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Add vertex, child-edge or cross-edge to the graph.
    */
   vtkIdType AddVertex(const char* name);
   vtkIdType AddChildEdge(vtkIdType parent, vtkIdType child);
   vtkIdType AddCrossEdge(vtkIdType src, vtkIdType dst);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the vertex id for the root vertex.
    */
   vtkGetMacro(RootVertex, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkSILBuilder();

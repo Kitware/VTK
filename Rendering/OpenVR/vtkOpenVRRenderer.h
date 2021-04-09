@@ -61,12 +61,12 @@ public:
 
   using vtkRenderer::ResetCameraClippingRange;
 
-  //@{
+  ///@{
   /**
    * Reset the camera clipping range based on a bounding box.
    */
   void ResetCameraClippingRange(const double bounds[6]) override;
-  //@}
+  ///@}
 
   /**
    * Create a new Camera suitable for use with this type of Renderer.

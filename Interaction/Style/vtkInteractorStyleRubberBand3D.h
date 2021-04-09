@@ -61,14 +61,14 @@ public:
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
 
-  //@{
+  ///@{
   /**
    * Whether to invoke a render when the mouse moves.
    */
   vtkSetMacro(RenderOnMouseMove, bool);
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
-  //@}
+  ///@}
 
   /**
    * Selection types
@@ -79,12 +79,12 @@ public:
     SELECT_UNION = 1
   };
 
-  //@{
+  ///@{
   /**
    * Current interaction state
    */
   vtkGetMacro(Interaction, int);
-  //@}
+  ///@}
 
   enum
   {
@@ -95,7 +95,7 @@ public:
     SELECTING
   };
 
-  //@{
+  ///@{
   /**
    * Access to the start and end positions (display coordinates) of the rubber
    * band pick area. This is a convenience method for the wrapped languages
@@ -103,7 +103,7 @@ public:
    */
   vtkGetVector2Macro(StartPosition, int);
   vtkGetVector2Macro(EndPosition, int);
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleRubberBand3D();

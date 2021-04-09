@@ -36,13 +36,13 @@ public:
   vtkTypeMacro(vtkPMaskPoints, vtkMaskPoints);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the communicator object for interprocess communication
    */
   virtual vtkMultiProcessController* GetController();
   virtual void SetController(vtkMultiProcessController*);
-  //@}
+  ///@}
 
 protected:
   vtkPMaskPoints();

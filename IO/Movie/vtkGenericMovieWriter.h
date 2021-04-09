@@ -39,15 +39,15 @@ public:
   vtkTypeMacro(vtkGenericMovieWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of avi file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods start writing an Movie file, write a frame to the file
    * and then end the writing process.
@@ -55,14 +55,14 @@ public:
   virtual void Start() = 0;
   virtual void Write() = 0;
   virtual void End() = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Was there an error on the last write performed?
    */
   vtkGetMacro(Error, int);
-  //@}
+  ///@}
 
   /**
    * Converts vtkErrorCodes and vtkGenericMovieWriter errors to strings.

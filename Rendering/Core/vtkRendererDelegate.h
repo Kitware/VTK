@@ -45,7 +45,7 @@ public:
    */
   virtual void Render(vtkRenderer* r) = 0;
 
-  //@{
+  ///@{
   /**
    * Tells if the delegate has to be used by the renderer or not.
    * Initial value is off.
@@ -53,7 +53,7 @@ public:
   vtkSetMacro(Used, bool);
   vtkGetMacro(Used, bool);
   vtkBooleanMacro(Used, bool);
-  //@}
+  ///@}
 
 protected:
   vtkRendererDelegate();

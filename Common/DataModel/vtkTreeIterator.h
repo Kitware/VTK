@@ -42,15 +42,15 @@ public:
   vtkTypeMacro(vtkTreeIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the graph to iterate over.
    */
   void SetTree(vtkTree* tree);
   vtkGetMacro(Tree, vtkTree*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The start vertex of the traversal.
    * The tree iterator will only iterate over the subtree rooted at vertex.
@@ -58,7 +58,7 @@ public:
    */
   void SetStartVertex(vtkIdType vertex);
   vtkGetMacro(StartVertex, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * The next vertex visited in the graph.

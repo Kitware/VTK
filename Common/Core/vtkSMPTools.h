@@ -153,7 +153,7 @@ public:
 class VTKCOMMONCORE_EXPORT vtkSMPTools
 {
 public:
-  //@{
+  ///@{
   /**
    * Execute a for operation in parallel. First and last
    * define the range over which to operate (which is defined
@@ -169,9 +169,9 @@ public:
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor>::type fi(f);
     fi.For(first, last, grain);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Execute a for operation in parallel. First and last
    * define the range over which to operate (which is defined
@@ -187,7 +187,7 @@ public:
     typename vtk::detail::smp::vtkSMPTools_Lookup_For<Functor const>::type fi(f);
     fi.For(first, last, grain);
   }
-  //@}
+  ///@}
 
   /**
    * Execute a for operation in parallel. First and last

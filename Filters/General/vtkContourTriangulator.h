@@ -47,14 +47,14 @@ public:
   vtkTypeMacro(vtkContourTriangulator, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Check if there was a triangulation failure in the last update.
    */
   vtkGetMacro(TriangulationError, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate errors when the triangulation fails.
    * Note that triangulation failures are often minor, because they involve
@@ -63,7 +63,7 @@ public:
   vtkSetMacro(TriangulationErrorDisplay, vtkTypeBool);
   vtkBooleanMacro(TriangulationErrorDisplay, vtkTypeBool);
   vtkGetMacro(TriangulationErrorDisplay, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * A robust method for triangulating a polygon.

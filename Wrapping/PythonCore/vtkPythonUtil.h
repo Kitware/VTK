@@ -225,7 +225,7 @@ public:
    */
   static Py_hash_t VariantHash(const vtkVariant* variant);
 
-  //@{
+  ///@{
   /**
    * Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
    * that when the interpreter is destroyed (and Py_AtExit() gets called), the
@@ -234,7 +234,7 @@ public:
    */
   static void RegisterPythonCommand(vtkPythonCommand*);
   static void UnRegisterPythonCommand(vtkPythonCommand*);
-  //@}
+  ///@}
 
 private:
   vtkPythonUtil();

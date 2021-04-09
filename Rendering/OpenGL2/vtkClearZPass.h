@@ -43,13 +43,13 @@ public:
    */
   void Render(const vtkRenderState* s) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the depth value. Initial value is 1.0 (farest).
    */
   vtkSetClampMacro(Depth, double, 0.0, 1.0);
   vtkGetMacro(Depth, double);
-  //@}
+  ///@}
 
 protected:
   /**

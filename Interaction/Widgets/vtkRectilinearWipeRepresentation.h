@@ -59,31 +59,31 @@ public:
    */
   static vtkRectilinearWipeRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkRectilinearWipeRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageRectilinearWipe to manipulate.
    */
   void SetRectilinearWipe(vtkImageRectilinearWipe* wipe);
   vtkGetObjectMacro(RectilinearWipe, vtkImageRectilinearWipe);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageActor to decorate.
    */
   void SetImageActor(vtkImageActor* imageActor);
   vtkGetObjectMacro(ImageActor, vtkImageActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels)
    * in which the cursor is considered to be on the widget, or on a
@@ -91,17 +91,17 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 10);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the properties for the widget. This can be manipulated to set
    * different colors, line widths, etc.
    */
   vtkGetObjectMacro(Property, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkRectilinearWipeRepresentation must implement these methods. These
    * are the methods that the widget and its representation use to
@@ -111,7 +111,7 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
   // Enums define the state of the prop relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
@@ -124,7 +124,7 @@ public:
     MovingCenter
   };
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -134,7 +134,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkRectilinearWipeRepresentation();

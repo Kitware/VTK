@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkDEMReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of Digital Elevation Model (DEM) file
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   enum
   {
@@ -53,7 +53,7 @@ public:
     REFERENCE_ELEVATION_BOUNDS
   };
 
-  //@{
+  ///@{
   /**
    * Specify the elevation origin to use. By default, the elevation origin
    * is equal to ElevationBounds[0]. A more convenient origin is to use sea
@@ -67,112 +67,112 @@ public:
     this->SetElevationReference(REFERENCE_ELEVATION_BOUNDS);
   }
   const char* GetElevationReferenceAsString(void);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * An ASCII description of the map
    */
   vtkGetStringMacro(MapLabel);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Code 1=DEM-1, 2=DEM_2, ...
    */
   vtkGetMacro(DEMLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Code 1=regular, 2=random, reserved for future use
    */
   vtkGetMacro(ElevationPattern, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ground planimetric reference system
    */
   vtkGetMacro(GroundSystem, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Zone in ground planimetric reference system
    */
   vtkGetMacro(GroundZone, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Map Projection parameters. All are zero.
    */
   vtkGetVectorMacro(ProjectionParameters, float, 15);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Defining unit of measure for ground planimetric coordinates throughout
    * the file. 0 = radians, 1 = feet, 2 = meters, 3 = arc-seconds.
    */
   vtkGetMacro(PlaneUnitOfMeasure, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Defining unit of measure for elevation coordinates throughout
    * the file. 1 = feet, 2 = meters
    */
   vtkGetMacro(ElevationUnitOfMeasure, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of sides in the polygon which defines the coverage of
    * the DEM file. Set to 4.
    */
   vtkGetMacro(PolygonSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Minimum and maximum elevation for the DEM. The units in the file
    * are in ElevationUnitOfMeasure. This class converts them to meters.
    */
   vtkGetVectorMacro(ElevationBounds, float, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Counterclockwise angle (in radians) from the primary axis of the planimetric
    * reference to the primary axis of the DEM local reference system.
    * IGNORED BY THIS IMPLEMENTATION.
    */
   vtkGetMacro(LocalRotation, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Accuracy code for elevations. 0=unknown accuracy
    */
   vtkGetMacro(AccuracyCode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * DEM spatial resolution for x,y,z. Values are expressed in units of resolution.
    * Since elevations are read as integers, this permits fractional elevations.
    */
   vtkGetVectorMacro(SpatialResolution, float, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of rows and columns in the DEM.
    */
   vtkGetVectorMacro(ProfileDimension, int, 2);
-  //@}
+  ///@}
 
   /**
    * Reads the DEM Type A record to compute the extent, origin and

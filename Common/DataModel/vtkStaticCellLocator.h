@@ -53,16 +53,16 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLocator : public vtkAbstractCellLoc
   friend struct vtkCellProcessor;
 
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print and obtain type-related information.
    */
   static vtkStaticCellLocator* New();
   vtkTypeMacro(vtkStaticCellLocator, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of divisions in x-y-z directions. If the Automatic data
    * member is enabled, the Divisions are set according to the
@@ -71,7 +71,7 @@ public:
    */
   vtkSetVector3Macro(Divisions, int);
   vtkGetVectorMacro(Divisions, int, 3);
-  //@}
+  ///@}
 
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;
@@ -105,7 +105,7 @@ public:
   void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tolerance, vtkIdList* cells) override;
 
-  //@{
+  ///@{
   /**
    * Given an unbounded plane defined by an origin o[3] and unit normal n[3],
    * return the list of unique cell ids in the buckets containing the
@@ -115,7 +115,7 @@ public:
    */
   void FindCellsAlongPlane(
     const double o[3], const double n[3], double tolerance, vtkIdList* cells);
-  //@}
+  ///@}
 
   /**
    * Return the closest point and the cell which is closest to the point x.
@@ -184,16 +184,16 @@ public:
     return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
   }
 
-  //@{
+  ///@{
   /**
    * Satisfy vtkLocator abstract interface.
    */
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of buckets in the locator. By default the value
    * is set to VTK_INT_MAX. Note that there are significant performance
@@ -210,7 +210,7 @@ public:
    */
   vtkSetClampMacro(MaxNumberOfBuckets, vtkIdType, 1000, VTK_ID_MAX);
   vtkGetMacro(MaxNumberOfBuckets, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Inform the user as to whether large ids are being used. This flag only
@@ -221,7 +221,7 @@ public:
    */
   bool GetLargeIds() { return this->LargeIds; }
 
-  //@{
+  ///@{
   /**
    * When set to true, the CellBinner will multiply the locator tolerance by the diagonal length
    * of the dataset to compute its own tolerance. When not, it uses the locator tolerance
@@ -230,7 +230,7 @@ public:
   vtkSetMacro(UseDiagonalLengthTolerance, bool);
   vtkGetMacro(UseDiagonalLengthTolerance, bool);
   vtkBooleanMacro(UseDiagonalLengthTolerance, bool);
-  //@}
+  ///@}
 
 protected:
   vtkStaticCellLocator();

@@ -122,15 +122,15 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the input scalar
@@ -139,16 +139,16 @@ public:
   vtkSetMacro(GenerateCutScalars, vtkTypeBool);
   vtkGetMacro(GenerateCutScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateCutScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -160,13 +160,13 @@ protected:
   vtkGenericCutter(vtkImplicitFunction* cf = nullptr);
   ~vtkGenericCutter() override;
 
-  //@{
+  ///@{
   /**
    * Actual implementation of the cutter operation.
    */
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int, vtkInformation*) override;
-  //@}
+  ///@}
 
   vtkImplicitFunction* CutFunction;
   vtkIncrementalPointLocator* Locator;

@@ -54,21 +54,21 @@ public:
   vtkTypeMacro(vtkCGNSFileSeriesReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller.
    */
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the reader.
    */
   virtual void SetReader(vtkCGNSReader* reader);
   vtkGetObjectMacro(Reader, vtkCGNSReader);
-  //@}
+  ///@}
 
   /**
    * Test a file for readability. Ensure that vtkCGNSFileSeriesReader::SetReader
@@ -76,15 +76,15 @@ public:
    */
   int CanReadFile(const char* filename);
 
-  //@{
+  ///@{
   /**
    * Add/remove files names in the file series.
    */
   void AddFileName(const char* fname);
   void RemoveAllFileNames();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, then treat file series like it does not contain any time step
    * values. False by default.
@@ -92,7 +92,7 @@ public:
   vtkGetMacro(IgnoreReaderTime, bool);
   vtkSetMacro(IgnoreReaderTime, bool);
   vtkBooleanMacro(IgnoreReaderTime, bool);
-  //@}
+  ///@}
 
   /**
    * Returns the filename being used for current timesteps.

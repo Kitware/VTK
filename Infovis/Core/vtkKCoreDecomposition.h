@@ -54,15 +54,15 @@ public:
   vtkTypeMacro(vtkKCoreDecomposition, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the output array name. If no output array name is
    * set then the name 'KCoreDecompositionNumbers' is used.
    */
   vtkSetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Directed graphs only.  Use only the in edges to
    * compute the vertex degree of a vertex.  The default
@@ -72,9 +72,9 @@ public:
   vtkSetMacro(UseInDegreeNeighbors, bool);
   vtkGetMacro(UseInDegreeNeighbors, bool);
   vtkBooleanMacro(UseInDegreeNeighbors, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Directed graphs only.  Use only the out edges to
    * compute the vertex degree of a vertex.  The default
@@ -84,9 +84,9 @@ public:
   vtkSetMacro(UseOutDegreeNeighbors, bool);
   vtkGetMacro(UseOutDegreeNeighbors, bool);
   vtkBooleanMacro(UseOutDegreeNeighbors, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check the input graph for self loops and parallel
    * edges.  The k-core is not defined for graphs that
@@ -95,7 +95,7 @@ public:
   vtkSetMacro(CheckInputGraph, bool);
   vtkGetMacro(CheckInputGraph, bool);
   vtkBooleanMacro(CheckInputGraph, bool);
-  //@}
+  ///@}
 
 protected:
   vtkKCoreDecomposition();

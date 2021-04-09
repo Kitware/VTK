@@ -43,13 +43,13 @@ public:
   vtkTypeMacro(vtkVtkJSViewNodeFactory, vtkViewNodeFactory);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the Serializer object
    */
   void SetSerializer(vtkVtkJSSceneGraphSerializer*);
   vtkGetObjectMacro(Serializer, vtkVtkJSSceneGraphSerializer);
-  //@}
+  ///@}
 
 protected:
   vtkVtkJSViewNodeFactory();

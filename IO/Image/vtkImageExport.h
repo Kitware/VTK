@@ -47,7 +47,7 @@ public:
    */
   vtkIdType GetDataMemorySize();
 
-  //@{
+  ///@{
   /**
    * Get the (x,y,z) index dimensions of the data.  Please note
    * that C arrays are indexed in decreasing order, i.e. array[z][y][x].
@@ -58,7 +58,7 @@ public:
     this->GetDataDimensions(this->DataDimensions);
     return this->DataDimensions;
   }
-  //@}
+  ///@}
 
   /**
    * Get the number of scalar components of the data.  Please note that
@@ -77,7 +77,7 @@ public:
     return vtkImageScalarTypeNameMacro(this->GetDataScalarType());
   }
 
-  //@{
+  ///@{
   /**
    * Get miscellaneous additional information about the data.
    */
@@ -89,14 +89,14 @@ public:
   void GetDataOrigin(double* ptr);
   double* GetDataDirection() VTK_SIZEHINT(9);
   void GetDataDirection(double* ptr);
-  //@}
+  ///@}
 
   /**
    * Get the input object from the image pipeline.
    */
   vtkImageData* GetInput();
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the data goes to the exported memory starting
    * in the lower left corner or upper left corner.  Default: On.
@@ -108,9 +108,9 @@ public:
   vtkBooleanMacro(ImageLowerLeft, vtkTypeBool);
   vtkGetMacro(ImageLowerLeft, vtkTypeBool);
   vtkSetMacro(ImageLowerLeft, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the void pointer of the C array to export the data to.
    * From python, you can specify a pointer to a string that is
@@ -118,9 +118,9 @@ public:
    */
   void SetExportVoidPointer(void*);
   void* GetExportVoidPointer() { return this->ExportVoidPointer; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The main interface: update the pipeline and export the image
    * to the memory pointed to by SetExportVoidPointer().  You can
@@ -128,7 +128,7 @@ public:
    */
   void Export() { this->Export(this->ExportVoidPointer); }
   virtual void Export(void*);
-  //@}
+  ///@}
 
   /**
    * An alternative to Export(): Use with caution.   Update the
@@ -144,7 +144,7 @@ public:
    */
   void* GetCallbackUserData();
 
-  //@{
+  ///@{
   /**
    * These are function pointer types for the pipeline connection
    * callbacks.  See further documentation in vtkImageImport.h.
@@ -161,9 +161,9 @@ public:
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get pointers to the pipeline interface callbacks.
    */
@@ -179,7 +179,7 @@ public:
   UpdateDataCallbackType GetUpdateDataCallback() const;
   DataExtentCallbackType GetDataExtentCallback() const;
   BufferPointerCallbackType GetBufferPointerCallback() const;
-  //@}
+  ///@}
 
 protected:
   vtkImageExport();

@@ -72,14 +72,14 @@ public:
    */
   virtual void ProcessEvent(vtkRenderer* renderer, unsigned long event, void* calldata);
 
-  //@{
+  ///@{
   /**
    * 3Dconnexion device settings. (sensitivity, individual axis filters).
    * Initial object is not null.
    */
   vtkGetObjectMacro(Settings, vtkTDxInteractorStyleSettings);
   virtual void SetSettings(vtkTDxInteractorStyleSettings* settings);
-  //@}
+  ///@}
 
 protected:
   vtkTDxInteractorStyle();

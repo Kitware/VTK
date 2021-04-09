@@ -40,13 +40,13 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get or set the output for this source.
    */
   void SetOutput(vtkImageStencilData* output);
   vtkImageStencilData* GetOutput();
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

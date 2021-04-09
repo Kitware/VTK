@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkLandmarkTransform, vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the source and target landmark sets. The two sets must have
    * the same number of points.  If you add or change points in these objects,
@@ -57,9 +57,9 @@ public:
   void SetTargetLandmarks(vtkPoints* target);
   vtkGetObjectMacro(SourceLandmarks, vtkPoints);
   vtkGetObjectMacro(TargetLandmarks, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of degrees of freedom to constrain the solution to.
    * Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.
@@ -73,15 +73,15 @@ public:
   void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); }
   void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); }
   void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current transformation mode.
    */
   vtkGetMacro(Mode, int);
   const char* GetModeAsString();
-  //@}
+  ///@}
 
   /**
    * Invert the transformation.  This is done by switching the

@@ -115,7 +115,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintParticleHistories();
 
-  //@{
+  ///@{
   /**
    * Turn on/off vorticity computation at streamline points
    * (necessary for generating proper stream-ribbons using the
@@ -123,26 +123,26 @@ public:
    */
   vtkGetMacro(ComputeVorticity, bool);
   void SetComputeVorticity(bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the terminal speed value, below which integration is terminated.
    */
   vtkGetMacro(TerminalSpeed, double);
   void SetTerminalSpeed(double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This can be used to scale the rate with which the streamribbons
    * twist. The default is 1.
    */
   vtkGetMacro(RotationScale, double);
   void SetRotationScale(double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To get around problems with the Paraview Animation controls
    * we can just animate the time step and ignore the TIME_ requests
@@ -150,9 +150,9 @@ public:
   vtkSetMacro(IgnorePipelineTime, vtkTypeBool);
   vtkGetMacro(IgnorePipelineTime, vtkTypeBool);
   vtkBooleanMacro(IgnorePipelineTime, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When animating particles, it is nice to inject new ones every Nth step
    * to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
@@ -164,9 +164,9 @@ public:
    */
   vtkGetMacro(ForceReinjectionEveryNSteps, int);
   void SetForceReinjectionEveryNSteps(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting TerminationTime to a positive value will cause particles
    * to terminate when the time is reached. Use a vlue of zero to
@@ -175,7 +175,7 @@ public:
    */
   void SetTerminationTime(double t);
   vtkGetMacro(TerminationTime, double);
-  //@}
+  ///@}
 
   void SetIntegrator(vtkInitialValueProblemSolver*);
   vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
@@ -183,16 +183,16 @@ public:
   void SetIntegratorType(int type);
   int GetIntegratorType();
 
-  //@{
+  ///@{
   /**
    * Set the time value for particle tracing to begin. The units of time should
    * be consistent with the primary time variable.
    */
   vtkGetMacro(StartTime, double);
   void SetStartTime(double t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * if StaticSeeds is set and the mesh is static,
    * then every time particles are injected we can re-use the same
@@ -204,9 +204,9 @@ public:
    */
   vtkSetMacro(StaticSeeds, int);
   vtkGetMacro(StaticSeeds, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * if StaticMesh is set, many optimizations for cell caching
    * can be assumed. if StaticMesh is not set, the algorithm
@@ -218,9 +218,9 @@ public:
    */
   vtkSetMacro(StaticMesh, int);
   vtkGetMacro(StaticMesh, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Writer associated with this Particle Tracer
    * Ideally a parallel IO capable vtkH5PartWriter should be used
@@ -229,18 +229,18 @@ public:
    */
   virtual void SetParticleWriter(vtkAbstractParticleWriter* pw);
   vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
    */
   vtkSetStringMacro(ParticleFileName);
   vtkGetStringMacro(ParticleFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
@@ -248,9 +248,9 @@ public:
   vtkSetMacro(EnableParticleWriting, vtkTypeBool);
   vtkGetMacro(EnableParticleWriting, vtkTypeBool);
   vtkBooleanMacro(EnableParticleWriting, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag to disable cache
    * This is off by default and turned on in special circumstances
@@ -259,19 +259,19 @@ public:
   vtkSetMacro(DisableResetCache, vtkTypeBool);
   vtkGetMacro(DisableResetCache, vtkTypeBool);
   vtkBooleanMacro(DisableResetCache, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Provide support for multiple seed sources
    */
   void AddSourceConnection(vtkAlgorithmOutput* input);
   void RemoveAllSources();
-  //@}
+  ///@}
 
 protected:
   vtkSmartPointer<vtkPolyData> Output; // managed by child classes
-  //@{
+  ///@{
   /**
    * ProtoPD is used just to keep track of the input array names and number of components
    * for copy allocating from other vtkPointDatas where the data is really stored
@@ -284,7 +284,7 @@ protected:
   // Everything related to time
   vtkTypeBool IgnorePipelineTime; // whether to use the pipeline time for termination
   vtkTypeBool DisableResetCache;  // whether to enable ResetCache() method
-  //@}
+  ///@}
 
   vtkParticleTracerBase();
   ~vtkParticleTracerBase() override;
@@ -440,7 +440,7 @@ protected:
   virtual void ResetCache();
   void AddParticle(vtkParticleTracerBaseNamespace::ParticleInformation& info, double* velocity);
 
-  //@{
+  ///@{
   /**
    * Methods that check that the input arrays are ordered the
    * same on all data sets. This needs to be true for all
@@ -449,7 +449,7 @@ protected:
   virtual bool IsPointDataValid(vtkDataObject* input);
   bool IsPointDataValid(vtkCompositeDataSet* input, std::vector<std::string>& arrayNames);
   void GetPointDataArrayNames(vtkDataSet* input, std::vector<std::string>& names);
-  //@}
+  ///@}
 
   vtkGetMacro(ReinjectionCounter, int);
   vtkGetMacro(CurrentTimeValue, double);

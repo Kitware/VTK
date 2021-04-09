@@ -33,7 +33,7 @@
 class VTKFILTERSGENERAL_EXPORT vtkPointConnectivityFilter : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information and
    * printing.
@@ -41,7 +41,7 @@ public:
   static vtkPointConnectivityFilter* New();
   vtkTypeMacro(vtkPointConnectivityFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
 protected:
   vtkPointConnectivityFilter();

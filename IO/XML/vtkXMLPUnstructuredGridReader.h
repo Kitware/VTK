@@ -42,13 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPUnstructuredGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkUnstructuredGrid* GetOutput();
   vtkUnstructuredGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
 protected:
   vtkXMLPUnstructuredGridReader();

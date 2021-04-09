@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkMergeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify object from which to extract geometry information.
    * Note that this method does not connect the pipeline. The algorithm will
@@ -46,7 +46,7 @@ public:
    */
   void SetGeometryInputData(vtkDataSet* input) { this->SetInputData(input); }
   vtkDataSet* GetGeometry();
-  //@}
+  ///@}
 
   /**
    * Specify object from which to extract geometry information.
@@ -54,7 +54,7 @@ public:
    */
   void SetGeometryConnection(vtkAlgorithmOutput* algOutput) { this->SetInputConnection(algOutput); }
 
-  //@{
+  ///@{
   /**
    * Specify object from which to extract scalar information.
    * Note that this method does not connect the pipeline. The algorithm will
@@ -63,7 +63,7 @@ public:
    */
   void SetScalarsData(vtkDataSet*);
   vtkDataSet* GetScalars();
-  //@}
+  ///@}
 
   /**
    * Specify object from which to extract scalar information.
@@ -74,7 +74,7 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set / get the object from which to extract vector information.
    * Note that this method does not connect the pipeline. The algorithm will
@@ -83,7 +83,7 @@ public:
    */
   void SetVectorsData(vtkDataSet*);
   vtkDataSet* GetVectors();
-  //@}
+  ///@}
 
   /**
    * Set the connection from which to extract vector information.
@@ -94,7 +94,7 @@ public:
     this->SetInputConnection(2, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set / get the object from which to extract normal information.
    * Note that this method does not connect the pipeline. The algorithm will
@@ -103,7 +103,7 @@ public:
    */
   void SetNormalsData(vtkDataSet*);
   vtkDataSet* GetNormals();
-  //@}
+  ///@}
 
   /**
    * Set  the connection from which to extract normal information.
@@ -114,7 +114,7 @@ public:
     this->SetInputConnection(3, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set / get the object from which to extract texture coordinates
    * information.
@@ -124,7 +124,7 @@ public:
    */
   void SetTCoordsData(vtkDataSet*);
   vtkDataSet* GetTCoords();
-  //@}
+  ///@}
 
   /**
    * Set the connection from which to extract texture coordinates
@@ -136,7 +136,7 @@ public:
     this->SetInputConnection(4, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set / get the object from which to extract tensor data.
    * Note that this method does not connect the pipeline. The algorithm will
@@ -145,7 +145,7 @@ public:
    */
   void SetTensorsData(vtkDataSet*);
   vtkDataSet* GetTensors();
-  //@}
+  ///@}
 
   /**
    * Set the connection from which to extract tensor data.

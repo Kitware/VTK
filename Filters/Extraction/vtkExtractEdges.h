@@ -38,28 +38,28 @@ public:
   vtkTypeMacro(vtkExtractEdges, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.
    */
   void CreateDefaultLocator();
 
-  //@{
+  ///@{
   /**
    * Indicates that all of the points of the input mesh should exist in the output.
    */
   vtkSetMacro(UseAllPoints, bool);
   vtkGetMacro(UseAllPoints, bool);
   vtkBooleanMacro(UseAllPoints, bool);
-  //@}
+  ///@}
 
   /**
    * Return MTime also considering the locator.

@@ -44,13 +44,13 @@ public:
    */
   static vtkBoostExtractLargestComponent* New();
 
-  //@{
+  ///@{
   /**
    * Set the flag to determine if the selection should be inverted.
    */
   vtkSetMacro(InvertSelection, bool);
   vtkGetMacro(InvertSelection, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostExtractLargestComponent();

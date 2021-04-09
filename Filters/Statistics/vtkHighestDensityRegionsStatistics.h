@@ -117,7 +117,7 @@ protected:
     return;
   }
 
-  //@{
+  ///@{
   /**
    * Store the smooth matrix parameter H. Specify a smooth direction
    * for the Gaussian kernel.
@@ -127,7 +127,7 @@ protected:
   double InvSigmaC1[2];
   double InvSigmaC2[2];
   double Determinant;
-  //@}
+  ///@}
 
   /**
    * Store the number of requested columns pair computed by learn method.

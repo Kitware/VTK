@@ -54,40 +54,40 @@ public:
    */
   void SetRootAngles(double start, double end);
 
-  //@{
+  ///@{
   /**
    * Sets whether the root is at the center or around the outside.
    */
   virtual void SetRootAtCenter(bool center);
   virtual bool GetRootAtCenter();
   vtkBooleanMacro(RootAtCenter, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the thickness of each layer.
    */
   virtual void SetLayerThickness(double thickness);
   virtual double GetLayerThickness();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the interior radius of the tree
    * (i.e. the size of the "hole" in the center).
    */
   virtual void SetInteriorRadius(double rad);
   virtual double GetInteriorRadius();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the log spacing factor for the invisible interior tree
    * used for routing edges of the overlaid graph.
    */
   virtual void SetInteriorLogSpacingValue(double value);
   virtual double GetInteriorLogSpacingValue();
-  //@}
+  ///@}
 
 protected:
   vtkTreeRingView();

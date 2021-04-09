@@ -125,7 +125,7 @@ public:
    */
   static vtkEvenlySpacedStreamlines2D* New();
 
-  //@{
+  ///@{
   /**
    * Specify the starting point (seed) of the first streamline in the global
    * coordinate system. Search must be performed to find the initial cell
@@ -134,9 +134,9 @@ public:
    */
   vtkSetVector3Macro(StartPosition, double);
   vtkGetVector3Macro(StartPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the integrator type to be used for streamline generation.
    * The object passed is not actually used but is cloned with
@@ -152,7 +152,7 @@ public:
   int GetIntegratorType();
   void SetIntegratorTypeToRungeKutta2();
   void SetIntegratorTypeToRungeKutta4();
-  //@}
+  ///@}
 
   /**
    * Set the velocity field interpolator type to the one involving
@@ -175,24 +175,24 @@ public:
   void SetIntegrationStepUnit(int unit);
   int GetIntegrationStepUnit() { return this->IntegrationStepUnit; }
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of steps for integrating a streamline.
    */
   vtkSetMacro(MaximumNumberOfSteps, vtkIdType);
   vtkGetMacro(MaximumNumberOfSteps, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * We don't try to eliminate loops with fewer points than this. Default value
    * is 4.
    */
   vtkSetMacro(MinimumNumberOfLoopPoints, vtkIdType);
   vtkGetMacro(MinimumNumberOfLoopPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Initial step size used for line integration, expressed in
    * IntegrationStepUnit
@@ -202,36 +202,36 @@ public:
    */
   vtkSetMacro(InitialIntegrationStep, double);
   vtkGetMacro(InitialIntegrationStep, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the separation distance between streamlines expressed in
    * IntegrationStepUnit.
    */
   vtkSetMacro(SeparatingDistance, double);
   vtkGetMacro(SeparatingDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Streamline integration is stopped if streamlines are closer than
    * SeparatingDistance*SeparatingDistanceRatio to other streamlines.
    */
   vtkSetMacro(SeparatingDistanceRatio, double);
   vtkGetMacro(SeparatingDistanceRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Loops are considered closed if the have two points at distance less than this.
    * This is expressed in IntegrationStepUnit.
    */
   vtkSetMacro(ClosedLoopMaximumDistance, double);
   vtkGetMacro(ClosedLoopMaximumDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The angle (in radians) between the vector created by p0p1 and the
    * velocity in the point closing the loop. p0 is the current point
@@ -239,17 +239,17 @@ public:
    */
   vtkSetMacro(LoopAngle, double);
   vtkGetMacro(LoopAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the terminal speed value, below which integration is terminated.
    */
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off vorticity computation at streamline points
    * (necessary for generating proper stream-ribbons using the
@@ -257,7 +257,7 @@ public:
    */
   vtkSetMacro(ComputeVorticity, bool);
   vtkGetMacro(ComputeVorticity, bool);
-  //@}
+  ///@}
 
   /**
    * The object used to interpolate the velocity field during

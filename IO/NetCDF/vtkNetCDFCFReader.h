@@ -51,7 +51,7 @@ public:
   static vtkNetCDFCFReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If on (the default), then 3D data with latitude/longitude dimensions
    * will be read in as curvilinear data shaped like spherical coordinates.
@@ -60,9 +60,9 @@ public:
   vtkGetMacro(SphericalCoordinates, vtkTypeBool);
   vtkSetMacro(SphericalCoordinates, vtkTypeBool);
   vtkBooleanMacro(SphericalCoordinates, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The scale and bias of the vertical component of spherical coordinates.  It
    * is common to write the vertical component with respect to something other
@@ -78,9 +78,9 @@ public:
   vtkSetMacro(VerticalScale, double);
   vtkGetMacro(VerticalBias, double);
   vtkSetMacro(VerticalBias, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the data type of the output.  The index used is taken from the list
    * of VTK data types in vtkType.h.  Valid types are VTK_IMAGE_DATA,
@@ -95,7 +95,7 @@ public:
   void SetOutputTypeToRectilinear() { this->SetOutputType(VTK_RECTILINEAR_GRID); }
   void SetOutputTypeToStructured() { this->SetOutputType(VTK_STRUCTURED_GRID); }
   void SetOutputTypeToUnstructured() { this->SetOutputType(VTK_UNSTRUCTURED_GRID); }
-  //@}
+  ///@}
 
   /**
    * Returns true if the given file can be read.
@@ -122,14 +122,14 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Interprets the special conventions of COARDS.
    */
   int ReadMetaData(int ncFD) override;
   int IsTimeDimension(int ncFD, int dimId) override;
   vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId) override;
-  //@}
+  ///@}
 
   class vtkDimensionInfo
   {
@@ -259,7 +259,7 @@ protected:
    */
   void GetUpdateExtentForOutput(vtkDataSet* output, int extent[6]) override;
 
-  //@{
+  ///@{
   /**
    * Internal methods for setting rectilinear coordinates.
    */
@@ -273,9 +273,9 @@ protected:
   void FakeStructuredCoordinates(vtkStructuredGrid* structuredOutput);
   void Add1DRectilinearCoordinates(vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
   void Add2DRectilinearCoordinates(vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internal methods for setting spherical coordinates.
    */
@@ -285,14 +285,14 @@ protected:
   void Add2DSphericalCoordinates(vtkStructuredGrid* structuredOutput);
   void Add1DSphericalCoordinates(vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
   void Add2DSphericalCoordinates(vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
-  //@}
+  ///@}
 
   /**
    * Internal method for building unstructred cells that match structured cells.
    */
   void AddStructuredCells(vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
 
-  //@{
+  ///@{
   /**
    * Internal methods for creating unstructured cells.
    */
@@ -300,7 +300,7 @@ protected:
     vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
   void AddUnstructuredSphericalCoordinates(
     vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
-  //@}
+  ///@}
 
 private:
   vtkNetCDFCFReader(const vtkNetCDFCFReader&) = delete;

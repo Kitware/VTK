@@ -59,7 +59,7 @@ public:
    */
   virtual void AddDataSet(vtkDataSet* dataset) = 0;
 
-  //@{
+  ///@{
   /**
    * Get the most recently visited dataset and its id. The dataset is used
    * for a guess regarding where the next point will be, without searching
@@ -68,7 +68,7 @@ public:
    * for custom interpolators only that cache datasets independently.
    */
   vtkGetMacro(LastDataSetIndex, int);
-  //@}
+  ///@}
 
 protected:
   vtkCompositeInterpolatedVelocityField();

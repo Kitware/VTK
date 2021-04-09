@@ -55,16 +55,16 @@ class vtkPointSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkImageTransform : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type information, printing.
    */
   static vtkImageTransform* New();
   vtkTypeMacro(vtkImageTransform, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a vtkImageData (and hence its associated orientation
    * matrix), and an instance of vtkPointSet, transform its points, as
@@ -79,7 +79,7 @@ public:
   static void TransformPointSet(vtkImageData* im, vtkPointSet* ps);
   static void TransformPointSet(
     vtkImageData* im, vtkPointSet* ps, bool transNormals, bool transVectors);
-  //@}
+  ///@}
 
   /**
    * Given x-y-z points represented by a vtkDataArray,

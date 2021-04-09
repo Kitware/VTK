@@ -51,45 +51,45 @@ public:
   vtkTypeMacro(vtkAMRCutPlane, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sets the center
    */
   vtkSetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the normal
    */
   vtkSetVector3Macro(Normal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the level of resolution
    */
   vtkSetMacro(LevelOfResolution, int);
   vtkGetMacro(LevelOfResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
 
    */
   vtkSetMacro(UseNativeCutter, bool);
   vtkGetMacro(UseNativeCutter, bool);
   vtkBooleanMacro(UseNativeCutter, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
   // Standard pipeline routines
 
@@ -151,13 +151,13 @@ protected:
   // Initializes the cut-plane center given the min/max bounds.
   void InitializeCenter(double min[3], double max[3]);
 
-  //@{
+  ///@{
   /**
    * Determines if a plane intersects with an AMR box
    */
   bool PlaneIntersectsAMRBox(vtkPlane* pl, double bounds[6]);
   bool PlaneIntersectsAMRBox(double plane[4], double bounds[6]);
-  //@}
+  ///@}
 
   /**
    * Determines if a plane intersects with a grid cell

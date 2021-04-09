@@ -51,33 +51,33 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractPolygonalHandleRepresentation3D
   : public vtkHandleRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAbstractPolygonalHandleRepresentation3D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   using vtkHandleRepresentation::Translate;
 
-  //@{
+  ///@{
   /**
    * Set the position of the point in world and display coordinates.
    */
   void SetWorldPosition(double p[3]) override;
   void SetDisplayPosition(double p[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the handle polydata.
    */
   void SetHandle(vtkPolyData*);
   vtkPolyData* GetHandle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties when unselected and selected.
    */
@@ -85,7 +85,7 @@ public:
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property, vtkProperty);
   vtkGetObjectMacro(SelectedProperty, vtkProperty);
-  //@}
+  ///@}
 
   /**
    * Get the transform used to transform the generic handle polydata before
@@ -93,7 +93,7 @@ public:
    */
   virtual vtkAbstractTransform* GetTransform();
 
-  //@{
+  ///@{
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
@@ -101,9 +101,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -115,9 +115,9 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A label may be associated with the seed. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
@@ -127,9 +127,9 @@ public:
   vtkBooleanMacro(LabelVisibility, vtkTypeBool);
   virtual void SetLabelText(const char* label);
   virtual char* GetLabelText();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text (font size along each dimension).
    */
@@ -140,14 +140,14 @@ public:
     this->SetLabelTextScale(scale);
   }
   virtual double* GetLabelTextScale();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the label text actor
    */
   vtkGetObjectMacro(LabelTextActor, vtkFollower);
-  //@}
+  ///@}
 
   /**
    * The handle may be scaled uniformly in all three dimensions using this
@@ -156,18 +156,18 @@ public:
    */
   virtual void SetUniformScale(double scale);
 
-  //@{
+  ///@{
   /**
    * Toggle the visibility of the handle on and off
    */
   vtkSetMacro(HandleVisibility, vtkTypeBool);
   vtkGetMacro(HandleVisibility, vtkTypeBool);
   vtkBooleanMacro(HandleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
   void Highlight(int highlight) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off smooth motion of the handle. See the documentation of
    * MoveFocusRequest for details. By default, SmoothMotion is ON. However,
@@ -182,7 +182,7 @@ public:
   vtkSetMacro(SmoothMotion, vtkTypeBool);
   vtkGetMacro(SmoothMotion, vtkTypeBool);
   vtkBooleanMacro(SmoothMotion, vtkTypeBool);
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

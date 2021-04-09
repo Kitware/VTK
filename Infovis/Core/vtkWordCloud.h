@@ -200,11 +200,11 @@ public:
   using StopWordsContainer = std::set<std::string>;
   using StringContainer = std::vector<std::string>;
 
-  //@{
+  ///@{
   /**
    * Return the AdjustedSizes of the resized mask file.
    */
-  //@}
+  ///@}
   virtual SizesContainer GetAdjustedSizes() { return AdjustedSizes; }
 
 #define SetStdContainerMacro(name, container)                                                      \
@@ -234,11 +234,11 @@ public:
     }                                                                                              \
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the vtkNamedColors name for the background(MidNightBlue).
    */
-  //@}
+  ///@}
   virtual void SetBackgroundColorName(std::string arg)
   {
     if (arg != BackgroundColorName)
@@ -249,12 +249,12 @@ public:
   }
   virtual std::string GetBackgroundColorName() { return BackgroundColorName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get boolean that indicates the mask image is a single
    * channel(false).
    */
-  //@}
+  ///@}
   virtual void SetBWMask(bool arg)
   {
     if (BWMask != arg)
@@ -265,14 +265,14 @@ public:
   }
   virtual bool GetBWMask() { return BWMask; }
 
-  //@{
+  ///@{
   /**
    * Set/Get ColorSchemeName, the name of a color scheme from
    * vtkColorScheme to be used to select colors for the words (), if
    * WordColorName is empty. See https://tinyurl.com/y3j6c27o for a
    * visual representation of the color schemes.
    */
-  //@}
+  ///@}
   virtual void SetColorSchemeName(std::string arg)
   {
     if (ColorSchemeName != arg)
@@ -283,23 +283,23 @@ public:
   }
   virtual std::string GetColorSchemeName() { return ColorSchemeName; }
 
-  //@{
+  ///@{
   /**
    * Set/GetDPI - Dots per inch(200) of the rendered text. DPI is
    * used as a scaling mechanism for the words. As DPI increases,
    * the word size increases. If there are too, few skipped words,
    * increase this value, too many, decrease it.
    */
-  //@}
+  ///@}
   vtkSetMacro(DPI, int);
   vtkGetMacro(DPI, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get FileName, the name of the file that contains the text to
    * be processed.
    */
-  //@}
+  ///@}
   virtual void SetFileName(std::string arg)
   {
     if (FileName != arg)
@@ -310,13 +310,13 @@ public:
   }
   virtual std::string GetFileName() { return FileName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get FontFileName, If empty, the built-in Arial font is
    * used(). The FontFileName is the name of a file that contains a
    * TrueType font.
    */
-  //@}
+  ///@}
   virtual void SetFontFileName(std::string arg)
   {
     if (FontFileName != arg)
@@ -327,22 +327,22 @@ public:
   }
   virtual std::string GetFontFileName() { return FontFileName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get Gap, the space gap of words (2). The gap is the number
    * of spaces added to the beginning and end of each word.
    */
-  //@}
+  ///@}
   vtkSetMacro(Gap, int);
   vtkGetMacro(Gap, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get MaskColorName, the name of the color for the mask
    * (black). This is the name of the vtkNamedColors that defines
    * the foreground of the mask. Usually black or white.
    */
-  //@}
+  ///@}
   virtual void SetMaskColorName(std::string arg)
   {
     if (MaskColorName != arg)
@@ -353,7 +353,7 @@ public:
   }
   virtual std::string GetMaskColorName() { return MaskColorName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get MaskFileName, the mask file name(). If a mask file is
    * specified, it will be used as the mask. Otherwise, a black
@@ -363,7 +363,7 @@ public:
    * BWmask is on, the class will create a three channel image using
    * vtkImageAppendComponents.
    */
-  //@}
+  ///@}
   virtual void SetMaskFileName(std::string arg)
   {
     if (MaskFileName != arg)
@@ -374,80 +374,80 @@ public:
   }
   virtual std::string GetMaskFileName() { return MaskFileName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get MaxFontSize, the maximum font size(48).
    */
-  //@}
+  ///@}
   vtkSetMacro(MaxFontSize, int);
   vtkGetMacro(MaxFontSize, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get MinFontSize, the minimum font size(8).
    */
-  //@}
+  ///@}
   vtkSetMacro(MinFontSize, int);
   vtkGetMacro(MinFontSize, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get MinFrequency, the minimum word frequency
    * accepted(2). Words with frequencies less than this will be
    * ignored.
    */
-  //@}
+  ///@}
   vtkSetMacro(MinFrequency, int);
   vtkGetMacro(MinFrequency, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get FontMultiplier, the font multiplier(6). The final
    * FontSize is this value the word frequency.
    */
-  //@}
+  ///@}
   vtkSetMacro(FontMultiplier, int);
   vtkGetMacro(FontMultiplier, int);
 
-  //@{
+  ///@{
   /**
    * Set/Get ColorDistribution, the distribution of random colors(.6
    * 1.0), if WordColorName is empty.
    */
-  //@}
+  ///@}
   SetStdContainerMacro(ColorDistribution, ColorDistributionContainer);
   virtual ColorDistributionContainer GetColorDistribution() { return ColorDistribution; }
 
-  //@{
+  ///@{
   /**
    * Set/Get OffsetDistribution, the range of uniform random
    * offsets(-size[0]/100.0 -size{1]/100.0)(-20 20). These offsets
    * are offsets from the generated path for word layout.
    */
-  //@}
+  ///@}
   SetStdContainerMacro(OffsetDistribution, OffsetDistributionContainer);
   virtual OffsetDistributionContainer GetOffsetDistribution() { return OffsetDistribution; }
 
-  //@{
+  ///@{
   /**
    * Set/Get OrientationDistribution, ranges of random
    * orientations(-20 20). If discrete orientations are not defined,
    * these orientations will be generated.
    */
-  //@}
+  ///@}
   SetStdContainerMacro(OrientationDistribution, OrientationDistributionContainer);
   virtual OrientationDistributionContainer GetOrientationDistribution()
   {
     return OrientationDistribution;
   }
 
-  //@{
+  ///@{
   /**
    * Set/Add/Get Orientations, a vector of discrete orientations (). If
    * non-empty, these will be used instead of the orientations
    * distribution").
    */
-  //@}
+  ///@}
   SetStdContainerMacro(Orientations, OrientationsContainer);
   void AddOrientation(double arg)
   {
@@ -456,13 +456,13 @@ public:
   }
   virtual OrientationsContainer GetOrientations() { return Orientations; }
 
-  //@{
+  ///@{
   /**
    * Set/Add/Get ReplacementPairs, a vector of words that replace the
    * first word with another second word (). The first word is also
    * added to the StopList.
    */
-  //@}
+  ///@}
   SetStdContainerMacro(ReplacementPairs, ReplacementPairsContainer);
   void AddReplacementPair(PairType arg)
   {
@@ -472,21 +472,21 @@ public:
 
   virtual ReplacementPairsContainer GetReplacementPairs() { return ReplacementPairs; }
 
-  //@{
+  ///@{
   /**
    * Set/Get Sizes, the size of the output image(640 480).
    */
-  //@}
+  ///@}
   SetStdContainerMacro(Sizes, SizesContainer);
   virtual SizesContainer GetSizes() { return Sizes; }
 
-  //@{
+  ///@{
   /**
    * Set/Add/Get StopWords, a set of user provided stop
    * words(). vtkWordClass has built-in stop words. The user-provided
    * stop words are added to the built-in list.
    */
-  //@}
+  ///@}
   SetStdContainerMacro(StopWords, StopWordsContainer);
   void AddStopWord(std::string word)
   {
@@ -500,12 +500,12 @@ public:
   }
   virtual StopWordsContainer GetStopWords() { return StopWords; }
 
-  //@{
+  ///@{
   /**
    * Set/Get StopListFileName, the name of the file that contains the
    * stop words, one per line.
    */
-  //@}
+  ///@}
   virtual void SetStopListFileName(std::string arg)
   {
     if (StopListFileName != arg)
@@ -516,12 +516,12 @@ public:
   }
   virtual std::string GetStopListFileName() { return StopListFileName; }
 
-  //@{
+  ///@{
   /**
    * Set/Get Title, add this word to the document's words and set a
    * high frequency, so that is will be rendered first.
    */
-  //@}
+  ///@}
   virtual void SetTitle(std::string arg)
   {
     if (Title != arg)
@@ -532,13 +532,13 @@ public:
   }
   virtual std::string GetTitle() { return Title; }
 
-  //@{
+  ///@{
   /**
    * Set/Get WordColorName, the name of the color for the
    * words(). The name is selected from vtkNamedColors. If the name
    * is empty, the ColorDistribution will generate random colors.
    */
-  //@}
+  ///@}
   virtual void SetWordColorName(std::string arg)
   {
     if (WordColorName != arg)
@@ -548,26 +548,26 @@ public:
     }
   }
   virtual std::string GetWordColorName() { return WordColorName; }
-  //@{
+  ///@{
   /**
    * Get a vector of words that are kept in the final image.
    */
-  //@}
+  ///@}
   virtual std::vector<std::string>& GetKeptWords() { return KeptWords; }
 
-  //@{
+  ///@{
   /**
    * Get a vector of words that are skipped. Skipped wors do not fit
    * in the final image.
    */
-  //@}
+  ///@}
   virtual std::vector<std::string>& GetSkippedWords() { return SkippedWords; }
 
-  //@{
+  ///@{
   /**
    * Get a vector of words that were stopped in the final image.
    */
-  //@}
+  ///@}
   virtual std::vector<std::string>& GetStoppedWords() { return StoppedWords; }
 
 protected:

@@ -51,13 +51,13 @@ public:
    */
   static vtkClosestPointStrategy* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkClosestPointStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Provide the necessary initialization method (see superclass for more
@@ -74,7 +74,7 @@ public:
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
 
-  //@{
+  ///@{
   /**
    * Set / get an instance of vtkAbstractPointLocator which is used to
    * implement the strategy for FindCell(). Note if a locator is not
@@ -83,7 +83,7 @@ public:
    */
   virtual void SetPointLocator(vtkAbstractPointLocator*);
   vtkGetObjectMacro(PointLocator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
   /**
    * Subclasses use this method to select the current cell.

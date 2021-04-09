@@ -54,21 +54,21 @@ public:
    */
   static vtkVolume* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the volume mapper.
    */
   void SetMapper(vtkAbstractVolumeMapper* mapper);
   vtkGetObjectMacro(Mapper, vtkAbstractVolumeMapper);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the volume property.
    */
   virtual void SetProperty(vtkVolumeProperty* property);
   virtual vtkVolumeProperty* GetProperty();
-  //@}
+  ///@}
 
   /**
    * For some exporters and other other operations we must be
@@ -82,7 +82,7 @@ public:
    */
   void Update();
 
-  //@{
+  ///@{
   /**
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
@@ -95,7 +95,7 @@ public:
   double GetMaxYBound();
   double GetMinZBound();
   double GetMaxZBound();
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the property etc.

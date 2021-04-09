@@ -41,13 +41,13 @@ public:
    */
   static vtkPlaybackWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkPlaybackWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkPlaybackRepresentation used to represent this

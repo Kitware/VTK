@@ -71,15 +71,15 @@ public:
    */
   static vtkImplicitCylinderRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitCylinderRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the center of the cylinder. The center is located along the
    * cylinder axis.
@@ -88,9 +88,9 @@ public:
   void SetCenter(double x[3]);
   double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the axis of rotation for the cylinder. If the axis is not
    * specified as a unit vector, it will be normalized.
@@ -99,18 +99,18 @@ public:
   void SetAxis(double a[3]);
   double* GetAxis() VTK_SIZEHINT(3);
   void GetAxis(double a[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of the cylinder. Note that if the radius is
    * too big the cylinder will be outside of the bounding box.
    */
   void SetRadius(double r);
   double GetRadius();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum and maximum radius of the cylinder. This
    * helps prevent the cylinder from "disappearing" during
@@ -122,9 +122,9 @@ public:
   vtkGetMacro(MinRadius, double);
   vtkSetClampMacro(MaxRadius, double, 0.25, VTK_FLOAT_MAX);
   vtkGetMacro(MaxRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the cylinder widget to be aligned with one of the x-y-z axes.
    * If one axis is set on, the other two will be set off.
@@ -141,9 +141,9 @@ public:
   void SetAlongZAxis(vtkTypeBool);
   vtkGetMacro(AlongZAxis, vtkTypeBool);
   vtkBooleanMacro(AlongZAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the cylinder. In some cases the cylinder
    * interferes with the object that it is operating on (e.g., the
@@ -153,9 +153,9 @@ public:
   void SetDrawCylinder(vtkTypeBool drawCyl);
   vtkGetMacro(DrawCylinder, vtkTypeBool);
   vtkBooleanMacro(DrawCylinder, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the resolution of the cylinder. This is the number of
    * polygonal facets used to approximate the curved cylindrical
@@ -164,9 +164,9 @@ public:
    */
   vtkSetClampMacro(Resolution, int, 8, VTK_MAX_CYL_RESOLUTION);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tubing of the wire outline of the cylinder
    * intersection (against the bounding box). The tube thickens the
@@ -175,9 +175,9 @@ public:
   vtkSetMacro(Tubing, vtkTypeBool);
   vtkGetMacro(Tubing, vtkTypeBool);
   vtkBooleanMacro(Tubing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the bounding box by moving it
    * with the mouse.
@@ -185,9 +185,9 @@ public:
   vtkSetMacro(OutlineTranslation, vtkTypeBool);
   vtkGetMacro(OutlineTranslation, vtkTypeBool);
   vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to move the widget outside of the bounds
    * specified in the PlaceWidget() invocation.
@@ -195,9 +195,9 @@ public:
   vtkSetMacro(OutsideBounds, vtkTypeBool);
   vtkGetMacro(OutsideBounds, vtkTypeBool);
   vtkBooleanMacro(OutsideBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the bounds of the widget representation. PlaceWidget can also be
    * used to set the bounds of the widget but it may also have other effects
@@ -206,9 +206,9 @@ public:
    */
   vtkSetVector6Macro(WidgetBounds, double);
   vtkGetVector6Macro(WidgetBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether the cylinder should be constrained to the widget bounds.
    * If on, the center will not be allowed to move outside the set widget bounds
@@ -220,16 +220,16 @@ public:
   vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
   vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
   vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
   vtkGetMacro(ScaleEnabled, vtkTypeBool);
   vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the implicit function for the cylinder. The user must provide the
@@ -251,48 +251,48 @@ public:
    */
   void UpdatePlacement(void);
 
-  //@{
+  ///@{
   /**
    * Get the properties on the axis (line and cone).
    */
   vtkGetObjectMacro(AxisProperty, vtkProperty);
   vtkGetObjectMacro(SelectedAxisProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the cylinder properties. The properties of the cylinder when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(CylinderProperty, vtkProperty);
   vtkGetObjectMacro(SelectedCylinderProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the outline.
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the intersection edges. (This property also
    * applies to the edges when tubed.)
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set color to the edge
    */
   void SetEdgeColor(vtkLookupTable*);
   void SetEdgeColor(double, double, double);
   void SetEdgeColor(double c[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkImplicitCylinderWidget.
    */
@@ -302,9 +302,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double newEventPos[2]) override;
   void EndWidgetInteraction(double newEventPos[2]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -314,9 +314,9 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a translation distance used by the BumpCylinder() method. Note that the
    * distance is normalized; it is the fraction of the length of the bounding
@@ -324,7 +324,7 @@ public:
    */
   vtkSetClampMacro(BumpDistance, double, 0.000001, 1);
   vtkGetMacro(BumpDistance, double);
-  //@}
+  ///@}
 
   /**
    * Translate the cylinder in the direction of the view vector by the
@@ -356,7 +356,7 @@ public:
     TranslatingCenter
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g.,
    * vtkImplicitCylinderWidget) or other object. This controls how the
@@ -367,32 +367,32 @@ public:
    * based on events, the widget may modify this further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, TranslatingCenter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the visual appearance of the representation based on the
    * state it is in. This state is usually the same as InteractionState.
    */
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager
    */
   void RegisterPickers() override;
 
-  //@{
+  ///@{
   /**
    * Gets/Sets the constraint axis for translations. Returns Axis::NONE
    * if none.
    **/
   vtkGetMacro(TranslationAxis, int);
   vtkSetClampMacro(TranslationAxis, int, -1, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggles constraint translation axis on/off.
    */
@@ -400,14 +400,14 @@ public:
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if ContrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  //@}
+  ///@}
 
 protected:
   vtkImplicitCylinderRepresentation();

@@ -78,14 +78,14 @@ public:
    */
   void RemovePartitionedDataSet(unsigned int idx);
 
-  //@{
+  ///@{
   /**
    * API to get/set partitions using a tuple index.
    */
   void SetPartition(unsigned int idx, unsigned int partition, vtkDataObject* object);
   vtkDataSet* GetPartition(unsigned int idx, unsigned int partition);
   vtkDataObject* GetPartitionAsDataObject(unsigned int idx, unsigned int partition);
-  //@}
+  ///@}
 
   /**
    * Returns the number of partitions in a partitioned dataset at the given index.
@@ -110,7 +110,7 @@ public:
    */
   vtkInformation* GetMetaData(unsigned int idx) { return this->Superclass::GetChildMetaData(idx); }
 
-  //@{
+  ///@{
   /**
    * DataAssembly provides a way to define hierarchical organization of
    * partitioned-datasets. These methods provide access to the data assembly
@@ -118,9 +118,9 @@ public:
    */
   vtkGetObjectMacro(DataAssembly, vtkDataAssembly);
   void SetDataAssembly(vtkDataAssembly* assembly);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the composite index (sometimes referred to as the flat-index) for
    * either a partitioned dataset or a specific partition in a partitioned
@@ -128,15 +128,15 @@ public:
    */
   unsigned int GetCompositeIndex(unsigned int idx) const;
   unsigned int GetCompositeIndex(unsigned int idx, unsigned int partition) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPartitionedDataSetCollection* GetData(vtkInformation* info);
   static vtkPartitionedDataSetCollection* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Unhiding superclass method.
@@ -159,7 +159,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Overridden to handle vtkDataAssembly.
    */
@@ -167,7 +167,7 @@ public:
   void DeepCopy(vtkDataObject* src) override;
   void CopyStructure(vtkCompositeDataSet* input) override;
   void Initialize() override;
-  //@}
+  ///@}
 protected:
   vtkPartitionedDataSetCollection();
   ~vtkPartitionedDataSetCollection() override;

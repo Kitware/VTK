@@ -302,13 +302,13 @@ public:
    */
   vtkIdType GetDataSize() const override;
 
-  //@{
+  ///@{
   /**
    * Return the indices where a specific value appears.
    */
   vtkIdType LookupValue(vtkVariant value) override;
   void LookupValue(vtkVariant value, vtkIdList* ids) override;
-  //@}
+  ///@}
 
   vtkIdType LookupValue(const vtkStdString& value);
   void LookupValue(const vtkStdString& value, vtkIdList* ids);

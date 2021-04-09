@@ -50,7 +50,7 @@ public:
    */
   static vtkExecutionTimer* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the filter to be monitored.  The only real constraint
    * here is that the vtkExecutive associated with the filter must
@@ -59,25 +59,25 @@ public:
    */
   void SetFilter(vtkAlgorithm* filter);
   vtkGetObjectMacro(Filter, vtkAlgorithm);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total CPU time (in seconds) that elapsed between
    * StartEvent and EndEvent.  This is undefined before the filter has
    * finished executing.
    */
   vtkGetMacro(ElapsedCPUTime, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total wall clock time (in seconds) that elapsed between
    * StartEvent and EndEvent.  This is undefined before the filter has
    * finished executing.
    */
   vtkGetMacro(ElapsedWallClockTime, double);
-  //@}
+  ///@}
 
 protected:
   vtkExecutionTimer();
@@ -100,7 +100,7 @@ protected:
   double ElapsedCPUTime;
   double ElapsedWallClockTime;
 
-  //@{
+  ///@{
   /**
    * Convenience functions -- StartTimer clears out the elapsed times
    * and records start times; StopTimer records end times and computes
@@ -108,7 +108,7 @@ protected:
    */
   void StartTimer();
   void StopTimer();
-  //@}
+  ///@}
 
   /**
    * This is where you can do anything you want with the progress

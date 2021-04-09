@@ -88,7 +88,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* output);
 
-  //@{
+  ///@{
   /**
    * Set/Get the source to use for this glyph.
    * Note that SetSourceData() does not set a pipeline connection but
@@ -96,7 +96,7 @@ public:
    */
   void SetSourceData(vtkPolyData* source);
   vtkPolyData* GetSource();
-  //@}
+  ///@}
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -119,32 +119,32 @@ public:
    */
   void SetGlyphMethodArgDelete(void (*f)(void*));
 
-  //@{
+  ///@{
   /**
    * Get the current point id during processing. Value only valid during the
    * Execute() method of this filter. (Meant to be called by the GlyphMethod().)
    */
   vtkGetMacro(PointId, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current point coordinates during processing. Value only valid during the
    * Execute() method of this filter. (Meant to be called by the GlyphMethod().)
    */
   vtkGetVector3Macro(Point, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the set of point data attributes for the input. A convenience to the
    * programmer to be used in the GlyphMethod(). Only valid during the Execute()
    * method of this filter.
    */
   vtkGetObjectMacro(PointData, vtkPointData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Either color by the input or source scalar data.
    */
@@ -153,7 +153,7 @@ public:
   void SetColorModeToColorByInput() { this->SetColorMode(VTK_COLOR_BY_INPUT); }
   void SetColorModeToColorBySource() { this->SetColorMode(VTK_COLOR_BY_SOURCE); }
   const char* GetColorModeAsString();
-  //@}
+  ///@}
 
 protected:
   vtkProgrammableGlyphFilter();

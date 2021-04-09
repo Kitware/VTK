@@ -43,25 +43,25 @@ public:
   vtkTypeMacro(vtkBlankStructuredGrid, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the lower data value in the data array specified which will be
    * converted into a "blank" (or off) value in the blanking array.
    */
   vtkSetMacro(MinBlankingValue, double);
   vtkGetMacro(MinBlankingValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the upper data value in the data array specified which will be
    * converted into a "blank" (or off) value in the blanking array.
    */
   vtkSetMacro(MaxBlankingValue, double);
   vtkGetMacro(MaxBlankingValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the data array name to use to generate the blanking
    * field. Alternatively, you can specify the array id. (If both are set,
@@ -69,9 +69,9 @@ public:
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the data array id to use to generate the blanking
    * field. Alternatively, you can specify the array name. (If both are set,
@@ -79,16 +79,16 @@ public:
    */
   vtkSetMacro(ArrayId, int);
   vtkGetMacro(ArrayId, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the component in the data array to use to generate the blanking
    * field.
    */
   vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
   vtkGetMacro(Component, int);
-  //@}
+  ///@}
 
 protected:
   vtkBlankStructuredGrid();

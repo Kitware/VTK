@@ -35,24 +35,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkGeoJSONWriter, vtkWriter);
 
-  //@{
+  ///@{
   /**
    * Accessor for name of the file that will be opened on WriteData
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When WriteToOutputString in on, then a string is allocated, written to,
    * and can be retrieved with these methods.  The string is deleted during
@@ -64,9 +64,9 @@ public:
   {
     return reinterpret_cast<unsigned char*>(this->OutputString);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls how data attributes are written out.
    * When 0, data attributes are ignored and not written at all.
@@ -75,15 +75,15 @@ public:
    */
   vtkSetMacro(ScalarFormat, int);
   vtkGetMacro(ScalarFormat, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the lookup table to use when ValueMode is set to map colors;
    */
   void SetLookupTable(vtkLookupTable* lut);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
-  //@}
+  ///@}
 
   /**
    * When WriteToOutputString is on, this method returns a copy of the

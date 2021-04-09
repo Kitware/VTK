@@ -82,7 +82,7 @@ public:
   vtkStdString GetTooltipLabel(
     const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex) override;
 
-  //@{
+  ///@{
   /**
    * Set the input, we are expecting a vtkTable with three columns. The first
    * column and the second represent the x,y position . The five others
@@ -95,27 +95,27 @@ public:
     vtkTable* table, const vtkStdString& yColumn, const vtkStdString& densityColumn) override;
   virtual void SetInputData(vtkTable* table, const vtkStdString& xColumn,
     const vtkStdString& yColumn, const vtkStdString& densityColumn);
-  //@}
+  ///@}
 
   virtual void SetInputData(
     vtkTable* table, vtkIdType xColumn, vtkIdType yColumn, vtkIdType densityColumn);
 
-  //@{
+  ///@{
   /**
    * Set/get the visibility of the bags.
    * True by default.
    */
   vtkSetMacro(BagVisible, bool);
   vtkGetMacro(BagVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkPen object that controls how this plot draws boundary lines.
    */
   void SetLinePen(vtkPen* pen);
   vtkGetObjectMacro(LinePen, vtkPen);
-  //@}
+  ///@}
 
   /**
    * Set/get the vtkPen object that controls how this plot draws points.

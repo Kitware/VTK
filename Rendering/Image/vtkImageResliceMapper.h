@@ -58,7 +58,7 @@ public:
    */
   virtual void SetSlicePlane(vtkPlane* plane);
 
-  //@{
+  ///@{
   /**
    * When using SliceAtFocalPoint, this causes the slicing to occur at
    * the closest slice to the focal point, instead of the default behavior
@@ -68,17 +68,17 @@ public:
   vtkSetMacro(JumpToNearestSlice, vtkTypeBool);
   vtkBooleanMacro(JumpToNearestSlice, vtkTypeBool);
   vtkGetMacro(JumpToNearestSlice, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The slab thickness, for thick slicing (default: zero)
    */
   vtkSetMacro(SlabThickness, double);
   vtkGetMacro(SlabThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The slab type, for thick slicing (default: Mean).
    * The resulting view is a parallel projection through the volume.  This
@@ -95,9 +95,9 @@ public:
   void SetSlabTypeToMean() { this->SetSlabType(VTK_IMAGE_SLAB_MEAN); }
   void SetSlabTypeToSum() { this->SetSlabType(VTK_IMAGE_SLAB_SUM); }
   virtual const char* GetSlabTypeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of slab samples to use as a factor of the number
    * of input slices within the slab thickness.  The default value
@@ -105,9 +105,9 @@ public:
    */
   vtkSetClampMacro(SlabSampleFactor, int, 1, 2);
   vtkGetMacro(SlabSampleFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the reslice sample frequency as in relation to the input image
    * sample frequency.  The default value is 1, but higher values can be
@@ -116,9 +116,9 @@ public:
    */
   vtkSetClampMacro(ImageSampleFactor, int, 1, 16);
   vtkGetMacro(ImageSampleFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Automatically reduce the rendering quality for greater speed
    * when doing an interactive render.  This is on by default.
@@ -126,9 +126,9 @@ public:
   vtkSetMacro(AutoAdjustImageQuality, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustImageQuality, vtkTypeBool);
   vtkGetMacro(AutoAdjustImageQuality, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Resample the image directly to the screen pixels, instead of
    * using a texture to scale the image after resampling.  This is
@@ -138,9 +138,9 @@ public:
   vtkSetMacro(ResampleToScreenPixels, vtkTypeBool);
   vtkBooleanMacro(ResampleToScreenPixels, vtkTypeBool);
   vtkGetMacro(ResampleToScreenPixels, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Keep the color mapping stage distinct from the reslicing stage.
    * This will improve the quality and possibly the speed of interactive
@@ -150,16 +150,16 @@ public:
   vtkSetMacro(SeparateWindowLevelOperation, vtkTypeBool);
   vtkBooleanMacro(SeparateWindowLevelOperation, vtkTypeBool);
   vtkGetMacro(SeparateWindowLevelOperation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a custom interpolator.  This will only be used if the
    * ResampleToScreenPixels option is on.
    */
   virtual void SetInterpolator(vtkAbstractImageInterpolator* interpolator);
   virtual vtkAbstractImageInterpolator* GetInterpolator();
-  //@}
+  ///@}
 
   /**
    * This should only be called by the renderer.
@@ -178,14 +178,14 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * The bounding box (array of six doubles) of the data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) override { this->vtkAbstractMapper3D::GetBounds(bounds); }
-  //@}
+  ///@}
 
   /**
    * Handle requests from the pipeline executive.
@@ -242,7 +242,7 @@ protected:
    */
   void UpdatePolygonCoords(vtkRenderer* ren);
 
-  //@{
+  ///@{
   /**
    * Override Update to handle some tricky details.
    */
@@ -250,7 +250,7 @@ protected:
   void Update() override;
   vtkTypeBool Update(int port, vtkInformationVector* requests) override;
   vtkTypeBool Update(vtkInformation* requests) override;
-  //@}
+  ///@}
 
   /**
    * Garbage collection for reference loops.

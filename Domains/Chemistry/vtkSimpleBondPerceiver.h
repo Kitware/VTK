@@ -48,22 +48,22 @@ public:
   vtkTypeMacro(vtkSimpleBondPerceiver, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the tolerance used in the comparisons. (Default: 0.45)
    */
   vtkSetMacro(Tolerance, float);
   vtkGetMacro(Tolerance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if the tolerance is absolute (i.e. added to radius)
    * or not (i.e. multiplied with radius). Default is true.
    */
   vtkGetMacro(IsToleranceAbsolute, bool);
   vtkSetMacro(IsToleranceAbsolute, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSimpleBondPerceiver();

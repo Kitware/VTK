@@ -50,7 +50,7 @@ public:
    */
   void SetInputData(vtkTable* input) override;
 
-  //@{
+  ///@{
   /**
    * Set the input to the surface plot.
    * Do not use these versions of SetInputData, as all the parameters
@@ -62,7 +62,7 @@ public:
     const vtkStdString& zName, const vtkStdString& colorName) override;
   void SetInputData(
     vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn) override;
-  //@}
+  ///@}
 
   /**
    * Set the range of the input data for the X dimension.  By default it is
@@ -144,7 +144,7 @@ protected:
    */
   vtkNew<vtkLookupTable> LookupTable;
 
-  //@{
+  ///@{
   /**
    * user-defined data ranges
    */
@@ -152,7 +152,7 @@ protected:
   float XMaximum;
   float YMinimum;
   float YMaximum;
-  //@}
+  ///@}
 
   /**
    * true if user-defined data scaling has already been applied,

@@ -110,7 +110,7 @@ public:
    */
   void Append(vtkInformation* from, int deep = 0);
 
-  //@{
+  ///@{
   /**
    * Copy the key/value pair associated with the given key in the
    * given information object.  If deep=1, a deep copy of the information
@@ -131,7 +131,7 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep = 0);
   void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep = 0);
   void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep = 0);
-  //@}
+  ///@}
 
   /**
    * Use the given key to lookup a list of other keys in the given
@@ -151,16 +151,16 @@ public:
    */
   void Remove(vtkInformationKey* key);
 
-  //@{
+  ///@{
   /**
    * Get/Set a request-valued entry.
    */
   void Set(vtkInformationRequestKey* key);
   void Remove(vtkInformationRequestKey* key);
   int Has(vtkInformationRequestKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an integer-valued entry.
    */
@@ -168,9 +168,9 @@ public:
   int Get(vtkInformationIntegerKey* key);
   void Remove(vtkInformationIntegerKey* key);
   int Has(vtkInformationIntegerKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a vtkIdType-valued entry.
    */
@@ -178,9 +178,9 @@ public:
   vtkIdType Get(vtkInformationIdTypeKey* key);
   void Remove(vtkInformationIdTypeKey* key);
   int Has(vtkInformationIdTypeKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an double-valued entry.
    */
@@ -188,9 +188,9 @@ public:
   double Get(vtkInformationDoubleKey* key);
   void Remove(vtkInformationDoubleKey* key);
   int Has(vtkInformationDoubleKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an variant-valued entry.
    */
@@ -198,9 +198,9 @@ public:
   const vtkVariant& Get(vtkInformationVariantKey* key);
   void Remove(vtkInformationVariantKey* key);
   int Has(vtkInformationVariantKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an integer-vector-valued entry.
    */
@@ -215,9 +215,9 @@ public:
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
   int Has(vtkInformationIntegerVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a string-vector-valued entry.
    */
@@ -229,9 +229,9 @@ public:
   int Length(vtkInformationStringVectorKey* key);
   void Remove(vtkInformationStringVectorKey* key);
   int Has(vtkInformationStringVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an integer-pointer-valued entry.
    */
@@ -241,9 +241,9 @@ public:
   int Length(vtkInformationIntegerPointerKey* key);
   void Remove(vtkInformationIntegerPointerKey* key);
   int Has(vtkInformationIntegerPointerKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an unsigned-long-valued entry.
    */
@@ -251,9 +251,9 @@ public:
   unsigned long Get(vtkInformationUnsignedLongKey* key);
   void Remove(vtkInformationUnsignedLongKey* key);
   int Has(vtkInformationUnsignedLongKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an double-vector-valued entry.
    */
@@ -268,9 +268,9 @@ public:
   int Length(vtkInformationDoubleVectorKey* key);
   void Remove(vtkInformationDoubleVectorKey* key);
   int Has(vtkInformationDoubleVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an variant-vector-valued entry.
    */
@@ -287,9 +287,9 @@ public:
   int Length(vtkInformationVariantVectorKey* key);
   void Remove(vtkInformationVariantVectorKey* key);
   int Has(vtkInformationVariantVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an InformationKey-vector-valued entry.
    */
@@ -303,7 +303,7 @@ public:
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);
   int Has(vtkInformationKeyVectorKey* key);
-  //@}
+  ///@}
 
   // Provide extra overloads of this method to avoid requiring user
   // code to include the headers for these key types.  Avoid wrapping
@@ -334,7 +334,7 @@ public:
   void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationObjectBaseKey* value);
   void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationUnsignedLongKey* value);
 
-  //@{
+  ///@{
   /**
    * Get/Set a string-valued entry.
    */
@@ -343,9 +343,9 @@ public:
   const char* Get(vtkInformationStringKey* key);
   void Remove(vtkInformationStringKey* key);
   int Has(vtkInformationStringKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an entry storing another vtkInformation instance.
    */
@@ -353,9 +353,9 @@ public:
   vtkInformation* Get(vtkInformationInformationKey* key);
   void Remove(vtkInformationInformationKey* key);
   int Has(vtkInformationInformationKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an entry storing a vtkInformationVector instance.
    */
@@ -363,9 +363,9 @@ public:
   vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
   void Remove(vtkInformationInformationVectorKey* key);
   int Has(vtkInformationInformationVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an entry storing a vtkObjectBase instance.
    */
@@ -373,9 +373,9 @@ public:
   vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
   void Remove(vtkInformationObjectBaseKey* key);
   int Has(vtkInformationObjectBaseKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manipulate a ObjectBaseVector entry.
    */
@@ -387,9 +387,9 @@ public:
   void Remove(vtkInformationObjectBaseVectorKey* key, vtkObjectBase* objectToRemove);
   void Remove(vtkInformationObjectBaseVectorKey* key, int indexToRemove);
   int Has(vtkInformationObjectBaseVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set an entry storing a vtkDataObject instance.
    */
@@ -397,9 +397,9 @@ public:
   vtkDataObject VTK_WRAP_EXTERN* Get(vtkInformationDataObjectKey* key);
   void Remove(vtkInformationDataObjectKey* key);
   int Has(vtkInformationDataObjectKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Upcast the given key instance.
    */
@@ -417,23 +417,23 @@ public:
   static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
   static vtkInformationKey* GetKey(vtkInformationVariantKey* key);
   static vtkInformationKey* GetKey(vtkInformationVariantVectorKey* key);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Initiate garbage collection when a reference is removed.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the Request ivar
    */
   void SetRequest(vtkInformationRequestKey* request);
   vtkInformationRequestKey* GetRequest();
-  //@}
+  ///@}
 
 protected:
   vtkInformation();

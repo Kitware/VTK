@@ -45,15 +45,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLGenericDataObjectReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as various concrete types. This method is typically used
    * when you know exactly what type of data is being read.  Otherwise, use
@@ -68,7 +68,7 @@ public:
   vtkRectilinearGrid* GetRectilinearGridOutput();
   vtkStructuredGrid* GetStructuredGridOutput();
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
-  //@}
+  ///@}
 
   /**
    * Overridden method.

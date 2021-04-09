@@ -46,15 +46,15 @@ public:
   vtkTypeMacro(vtkPolyDataStreamer, vtkStreamerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of pieces to divide the problem into.
    */
   void SetNumberOfStreamDivisions(int num);
   int GetNumberOfStreamDivisions() { return this->NumberOfPasses; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default, this option is off.  When it is on, cell scalars are generated
    * based on which piece they are in.
@@ -62,7 +62,7 @@ public:
   vtkSetMacro(ColorByPiece, vtkTypeBool);
   vtkGetMacro(ColorByPiece, vtkTypeBool);
   vtkBooleanMacro(ColorByPiece, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataStreamer();

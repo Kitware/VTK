@@ -140,12 +140,12 @@ public:
    */
   void CaptureGL2PSSpecialProps(vtkCollection* specialProps);
 
-  //@{
+  ///@{
   /**
    * Returns true if the render process is capturing text actors.
    */
   vtkGetMacro(CapturingGL2PSSpecialProps, int);
-  //@}
+  ///@}
 
   /**
    * Ask each renderer owned by this RenderWindow to render its image and
@@ -193,7 +193,7 @@ public:
    */
   virtual vtkRenderWindowInteractor* MakeRenderWindowInteractor();
 
-  //@{
+  ///@{
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
@@ -203,35 +203,35 @@ public:
   virtual void HideCursor() {}
   virtual void ShowCursor() {}
   virtual void SetCursorPosition(int, int) {}
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Change the shape of the cursor.
    */
   vtkSetMacro(CurrentCursor, int);
   vtkGetMacro(CurrentCursor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the full path to the custom cursor.
    * This is used when the current cursor is set to VTK_CURSOR_CUSTOM.
    */
   vtkSetStringMacro(CursorFileName);
   vtkGetStringMacro(CursorFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off rendering full screen window size.
    */
   virtual void SetFullScreen(vtkTypeBool) {}
   vtkGetMacro(FullScreen, vtkTypeBool);
   vtkBooleanMacro(FullScreen, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off window manager borders. Typically, you shouldn't turn the
    * borders off, because that bypasses the window manager and can cause
@@ -240,9 +240,9 @@ public:
   vtkSetMacro(Borders, vtkTypeBool);
   vtkGetMacro(Borders, vtkTypeBool);
   vtkBooleanMacro(Borders, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
    * method must be called before the window is realized. Default is off.
@@ -250,27 +250,27 @@ public:
   vtkGetMacro(StereoCapableWindow, vtkTypeBool);
   vtkBooleanMacro(StereoCapableWindow, vtkTypeBool);
   virtual void SetStereoCapableWindow(vtkTypeBool capable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off stereo rendering.
    */
   vtkGetMacro(StereoRender, vtkTypeBool);
   void SetStereoRender(vtkTypeBool stereo);
   vtkBooleanMacro(StereoRender, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the use of alpha bitplanes.
    */
   vtkSetMacro(AlphaBitPlanes, vtkTypeBool);
   vtkGetMacro(AlphaBitPlanes, vtkTypeBool);
   vtkBooleanMacro(AlphaBitPlanes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off point smoothing. Default is off.
    * This must be applied before the first Render.
@@ -278,9 +278,9 @@ public:
   vtkSetMacro(PointSmoothing, vtkTypeBool);
   vtkGetMacro(PointSmoothing, vtkTypeBool);
   vtkBooleanMacro(PointSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off line smoothing. Default is off.
    * This must be applied before the first Render.
@@ -288,9 +288,9 @@ public:
   vtkSetMacro(LineSmoothing, vtkTypeBool);
   vtkGetMacro(LineSmoothing, vtkTypeBool);
   vtkBooleanMacro(LineSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off polygon smoothing. Default is off.
    * This must be applied before the first Render.
@@ -298,9 +298,9 @@ public:
   vtkSetMacro(PolygonSmoothing, vtkTypeBool);
   vtkGetMacro(PolygonSmoothing, vtkTypeBool);
   vtkBooleanMacro(PolygonSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get what type of stereo rendering to use.  CrystalEyes
    * mode uses frame-sequential capabilities available in OpenGL
@@ -338,15 +338,15 @@ public:
   }
   void SetStereoTypeToFake() { this->SetStereoType(VTK_STEREO_FAKE); }
   void SetStereoTypeToEmulate() { this->SetStereoType(VTK_STEREO_EMULATE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the stereo type as a string.
    */
   const char* GetStereoTypeAsString();
   static const char* GetStereoTypeAsString(int type);
-  //@}
+  ///@}
 
   /**
    * Update the system, if needed, due to stereo rendering. For some stereo
@@ -366,7 +366,7 @@ public:
    */
   virtual void StereoRenderComplete();
 
-  //@{
+  ///@{
   /**
    * Set/get the anaglyph color saturation factor.  This number ranges from
    * 0.0 to 1.0:  0.0 means that no color from the original object is
@@ -376,9 +376,9 @@ public:
    */
   vtkSetClampMacro(AnaglyphColorSaturation, float, 0.0f, 1.0f);
   vtkGetMacro(AnaglyphColorSaturation, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the anaglyph color mask values.  These two numbers are bits
    * mask that control which color channels of the original stereo
@@ -395,7 +395,7 @@ public:
    */
   vtkSetVector2Macro(AnaglyphColorMask, int);
   vtkGetVectorMacro(AnaglyphColorMask, int, 2);
-  //@}
+  ///@}
 
   /**
    * Remap the rendering window. This probably only works on UNIX right now.
@@ -404,16 +404,16 @@ public:
    */
   virtual void WindowRemap() {}
 
-  //@{
+  ///@{
   /**
    * Turn on/off buffer swapping between images.
    */
   vtkSetMacro(SwapBuffers, vtkTypeBool);
   vtkGetMacro(SwapBuffers, vtkTypeBool);
   vtkBooleanMacro(SwapBuffers, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
    * front argument indicates if the front buffer should be used or the back
@@ -436,9 +436,9 @@ public:
   {
     return 0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as Get/SetPixelData except that the image also contains an alpha
    * component. The image is transmitted as RGBARGBARGBA... each of which is a
@@ -487,9 +487,9 @@ public:
   {
     return 0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the zbuffer data from the frame buffer.
    * (x,y) is any corner of the rectangle. (x2,y2) is its opposite corner on
@@ -518,16 +518,16 @@ public:
     this->GetZbufferData(x, y, x, y, &value);
     return value;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag is set if the window hasn't rendered since it was created
    */
   vtkGetMacro(NeverRendered, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is a flag that can be set to interrupt a rendering that is in
    * progress.
@@ -537,9 +537,9 @@ public:
   vtkGetMacro(InAbortCheck, int);
   vtkSetMacro(InAbortCheck, int);
   virtual int CheckAbortStatus();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @deprecated in VTK 9.0
    */
@@ -551,7 +551,7 @@ public:
   void IsPickingOn();
   VTK_DEPRECATED_IN_9_0_0("Removed in 9.0")
   void IsPickingOff();
-  //@}
+  ///@}
 
   /**
    * Check to see if a mouse button has been pressed.  All other events
@@ -571,7 +571,7 @@ public:
    */
   virtual void ClearInRenderStatus() { this->InRender = 0; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired update rate. This is used with
    * the vtkLODActor class. When using level of detail actors you
@@ -582,9 +582,9 @@ public:
    */
   virtual void SetDesiredUpdateRate(double);
   vtkGetMacro(DesiredUpdateRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of layers for renderers.  Each renderer should have
    * its layer set individually.  Some algorithms iterate through all layers,
@@ -593,14 +593,14 @@ public:
    */
   vtkGetMacro(NumberOfLayers, int);
   vtkSetClampMacro(NumberOfLayers, int, 1, VTK_INT_MAX);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the interactor associated with this render window
    */
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-  //@}
+  ///@}
 
   /**
    * Set the interactor to the render window
@@ -613,7 +613,7 @@ public:
    */
   void UnRegister(vtkObjectBase* o) override;
 
-  //@{
+  ///@{
   /**
    * Dummy stubs for vtkWindow API.
    */
@@ -629,7 +629,7 @@ public:
   void SetWindowInfo(const char*) override {}
   virtual void SetNextWindowInfo(const char*) {}
   void SetParentInfo(const char*) override {}
-  //@}
+  ///@}
 
   /**
    * Initialize the render window from the information associated
@@ -637,7 +637,7 @@ public:
    */
   virtual bool InitializeFromCurrentContext() { return false; }
 
-  //@{
+  ///@{
   /**
    * Set/Get an already existing window that this window should
    * share data with if possible. This must be set
@@ -648,7 +648,7 @@ public:
   virtual void SetSharedRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(SharedRenderWindow, vtkRenderWindow);
   virtual bool GetPlatformSupportsRenderWindowSharing() { return false; }
-  //@}
+  ///@}
 
   /**
    * Attempt to make this window the current graphics context for the calling
@@ -706,25 +706,25 @@ public:
    */
   virtual int GetColorBufferSizes(int* /*rgba*/) { return 0; }
 
-  //@{
+  ///@{
   /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
    * A value of 1 will be set to 0.
    */
   virtual void SetMultiSamples(int);
   vtkGetMacro(MultiSamples, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the availability of the stencil buffer.
    */
   vtkSetMacro(StencilCapable, vtkTypeBool);
   vtkGetMacro(StencilCapable, vtkTypeBool);
   vtkBooleanMacro(StencilCapable, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If there are several graphics card installed on a system,
    * this index can be used to specify which card you want to render to.
@@ -733,14 +733,14 @@ public:
    */
   vtkSetMacro(DeviceIndex, int);
   vtkGetMacro(DeviceIndex, int);
-  //@}
+  ///@}
   /**
    * Returns the number of devices (graphics cards) on a system.
    * This may not work on all derived render windows.
    */
   virtual int GetNumberOfDevices() { return 0; }
 
-  //@{
+  ///@{
   /**
    * Set/Get if we want this window to use the sRGB color space.
    * Some hardware/drivers do not fully support this.
@@ -748,7 +748,7 @@ public:
   vtkGetMacro(UseSRGBColorSpace, bool);
   vtkSetMacro(UseSRGBColorSpace, bool);
   vtkBooleanMacro(UseSRGBColorSpace, bool);
-  //@}
+  ///@}
 
 protected:
   vtkRenderWindow();

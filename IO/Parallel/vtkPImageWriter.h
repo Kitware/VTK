@@ -37,14 +37,14 @@ public:
   vtkTypeMacro(vtkPImageWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the memory limit in kibibytes (1024 bytes). The writer will
    * stream to attempt to keep the pipeline size within this limit
    */
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
-  //@}
+  ///@}
 
 protected:
   vtkPImageWriter();

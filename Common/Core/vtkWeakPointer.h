@@ -134,9 +134,9 @@ public:
   { // Create a new reference on copy
     vtkWeakPointer::CheckTypes<U>();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign object to reference.
    */
@@ -154,9 +154,9 @@ public:
     this->vtkWeakPointerBase::operator=(r);
     return *this;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Move r's object into this weak pointer, setting r to nullptr.
    */
@@ -174,9 +174,9 @@ public:
     this->vtkWeakPointerBase::operator=(std::move(r));
     return *this;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign object to reference.
    */
@@ -195,9 +195,9 @@ public:
     this->vtkWeakPointerBase::operator=(r.Object);
     return *this;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the contained pointer.
    */

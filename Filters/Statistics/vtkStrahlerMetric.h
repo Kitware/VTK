@@ -56,16 +56,16 @@ public:
   vtkTypeMacro(vtkStrahlerMetric, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the name of the array in which the Strahler values will
    * be stored within the output vertex data.
    * Default is "Strahler"
    */
   vtkSetStringMacro(MetricArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get setting of normalize flag.  If this is set, the
    * Strahler values are scaled into the range [0..1].
@@ -74,14 +74,14 @@ public:
   vtkSetMacro(Normalize, vtkTypeBool);
   vtkGetMacro(Normalize, vtkTypeBool);
   vtkBooleanMacro(Normalize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the maximum strahler value for the tree.
    */
   vtkGetMacro(MaxStrahler, float);
-  //@}
+  ///@}
 
 protected:
   vtkStrahlerMetric();

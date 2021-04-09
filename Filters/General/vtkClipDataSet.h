@@ -79,7 +79,7 @@ public:
    */
   static vtkClipDataSet* New();
 
-  //@{
+  ///@{
   /**
    * Set the clipping value of the implicit function (if clipping with
    * implicit function) or scalar value (if clipping with
@@ -88,9 +88,9 @@ public:
    */
   vtkSetMacro(Value, double);
   vtkGetMacro(Value, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseValueAsOffset is true, Value is used as an offset parameter to
    * the implicit function. Otherwise, Value is used only when clipping
@@ -99,9 +99,9 @@ public:
   vtkSetMacro(UseValueAsOffset, bool);
   vtkGetMacro(UseValueAsOffset, bool);
   vtkBooleanMacro(UseValueAsOffset, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, a vertex is considered
    * inside the implicit function if its value is greater than the
@@ -113,9 +113,9 @@ public:
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function with which to perform the
    * clipping. If you do not define an implicit function,
@@ -123,9 +123,9 @@ public:
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is enabled, then the output scalar values will be
    * interpolated from the implicit function values, and not the
@@ -135,9 +135,9 @@ public:
   vtkSetMacro(GenerateClipScalars, vtkTypeBool);
   vtkGetMacro(GenerateClipScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
@@ -145,9 +145,9 @@ public:
   vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for merging clip intersection points that are near
    * the vertices of cells. This tolerance is used to prevent the generation
@@ -156,21 +156,21 @@ public:
    */
   vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
   vtkGetMacro(MergeTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Return the Clipped output.
    */
   vtkUnstructuredGrid* GetClippedOutput();
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The
@@ -183,7 +183,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -191,7 +191,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkClipDataSet(vtkImplicitFunction* cf = nullptr);

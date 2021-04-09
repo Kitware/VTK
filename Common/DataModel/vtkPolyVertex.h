@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkPolyVertex, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -62,7 +62,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int IsPrimaryCell() override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Return the center of the point cloud in parametric coordinates.

@@ -55,7 +55,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the translucent polygonal geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -64,7 +64,7 @@ public:
    */
   vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
   virtual void SetTranslucentPass(vtkRenderPass* translucentPass);
-  //@}
+  ///@}
 
   // vtkOpenGLRenderPass virtuals:
   bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
@@ -83,7 +83,7 @@ protected:
 
   vtkRenderPass* TranslucentPass;
 
-  //@{
+  ///@{
   /**
    * Cache viewport values for depth peeling.
    */
@@ -91,7 +91,7 @@ protected:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-  //@}
+  ///@}
 
   vtkOpenGLFramebufferObject* Framebuffer;
   vtkOpenGLQuadHelper* FinalBlend;

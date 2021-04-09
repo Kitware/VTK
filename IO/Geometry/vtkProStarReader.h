@@ -37,23 +37,23 @@ public:
   vtkTypeMacro(vtkProStarReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the file name prefix of the cel/vrt files to read.
    * The reader will try to open FileName.cel and FileName.vrt files.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The proSTAR files are often in millimeters.
    * Specify an alternative scaling factor.
    */
   vtkSetClampMacro(ScaleFactor, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
   /**
    * The type of material represented by the cell

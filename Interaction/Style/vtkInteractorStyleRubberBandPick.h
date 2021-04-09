@@ -48,7 +48,7 @@ public:
 
   void StartSelect();
 
-  //@{
+  ///@{
   /**
    * Event bindings
    */
@@ -56,7 +56,7 @@ public:
   void OnLeftButtonDown() override;
   void OnLeftButtonUp() override;
   void OnChar() override;
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleRubberBandPick();

@@ -36,33 +36,33 @@ public:
   vtkTypeMacro(vtkXMLStructuredDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of pieces used to stream the image through the
    * pipeline while writing to the file.
    */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the piece to write to the file.  If this is
    * negative, all pieces will be written.
    */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the ghost level used to pad each piece.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the extent of the input that should be treated as the
    * WholeExtent in the output file.  The default is the WholeExtent
@@ -70,7 +70,7 @@ public:
    */
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
-  //@}
+  ///@}
 
 protected:
   vtkXMLStructuredDataWriter();

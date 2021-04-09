@@ -84,14 +84,14 @@ public:
     ROW_DATA = 5,
   };
 
-  //@{
+  ///@{
   /**
    * The field type to copy into the output table.
    * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
    */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
-  //@}
+  ///@}
 
   /**
    * Enable drag and drop on this widget
@@ -104,7 +104,7 @@ public:
    */
   void SetSortingEnabled(bool);
 
-  //@{
+  ///@{
   /**
    * Whether or not to display all columns from the input table or to use the
    * ColumnName provided.
@@ -112,16 +112,16 @@ public:
    */
   void SetShowAll(bool);
   vtkGetMacro(ShowAll, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of a single column to display.
    * FIXME: This should be replaced with an Add/Remove column API.
    */
   vtkSetStringMacro(ColumnName);
   vtkGetStringMacro(ColumnName);
-  //@}
+  ///@}
 
   void SetColumnVisibility(const QString& name, bool status);
 
@@ -137,44 +137,44 @@ public:
    */
   bool GetSplitMultiComponentColumns();
 
-  //@{
+  ///@{
   /**
    * Whether or not to sort selections that the view receives to the top
    */
   void SetSortSelectionToTop(bool value);
   vtkGetMacro(SortSelectionToTop, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether or not to add an icon to the row header denoting the color
    * of an annotated row.
    */
   void SetApplyRowColors(bool value);
   vtkGetMacro(ApplyRowColors, bool);
-  //@}
+  ///@}
 
   /**
    * Updates the view.
    */
   void Update() override;
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring items in view.  Default is "color".
    */
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color vertices.  Default is off.
    */
   void SetColorByArray(bool vis);
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
-  //@}
+  ///@}
 
   /**
    * Apply a view theme to this view.
@@ -188,7 +188,7 @@ public:
     SELECT_COLUMNS
   };
 
-  //@{
+  ///@{
   /**
    * The selection mode for this view.
    * SELECT_ITEMS (0) selects single items.
@@ -200,7 +200,7 @@ public:
    */
   virtual void SetSelectionBehavior(int type);
   virtual int GetSelectionBehavior();
-  //@}
+  ///@}
 
   /**
    * Fills the array with the selected items of the view.

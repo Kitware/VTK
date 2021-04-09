@@ -125,7 +125,7 @@ public:
     KHRatio
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the intensity of the key light.  The key light is the
    * brightest light in the scene.  The intensities of the other two
@@ -133,9 +133,9 @@ public:
    */
   vtkSetMacro(KeyLightIntensity, double);
   vtkGetMacro(KeyLightIntensity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-fill ratio.  This ratio controls
    * how bright the fill light is compared to the key light: larger
@@ -149,9 +149,9 @@ public:
    */
   vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToFillRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-headlight ratio.  Similar to the key-to-fill
    * ratio, this ratio controls how bright the headlight light is
@@ -165,9 +165,9 @@ public:
    */
   vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToHeadRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the key-to-back light ratio.  This ratio controls
    * how bright the back lights are compared to the key light: larger
@@ -177,9 +177,9 @@ public:
    */
   vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToBackRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the warmth of each the lights.  Warmth is a parameter that
    * varies from 0 to 1, where 0 is "cold" (looks icy or lit by a very
@@ -194,7 +194,7 @@ public:
    */
   vtkSetMacro(KeyLightWarmth, double);
   vtkGetMacro(KeyLightWarmth, double);
-  //@}
+  ///@}
 
   vtkSetMacro(FillLightWarmth, double);
   vtkGetMacro(FillLightWarmth, double);
@@ -205,7 +205,7 @@ public:
   vtkSetMacro(BackLightWarmth, double);
   vtkGetMacro(BackLightWarmth, double);
 
-  //@{
+  ///@{
   /**
    * Returns the floating-point RGB values of each of the light's color.
    */
@@ -213,9 +213,9 @@ public:
   vtkGetVectorMacro(FillLightColor, double, 3);
   vtkGetVectorMacro(HeadLightColor, double, 3);
   vtkGetVectorMacro(BackLightColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If MaintainLuminance is set, the LightKit will attempt to maintain
    * the apparent intensity of lights based on their perceptual brightnesses.
@@ -224,7 +224,7 @@ public:
   vtkBooleanMacro(MaintainLuminance, vtkTypeBool);
   vtkGetMacro(MaintainLuminance, vtkTypeBool);
   vtkSetMacro(MaintainLuminance, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get/Set the position of the key, fill, and back lights
@@ -305,14 +305,14 @@ public:
     return ang[1];
   }
 
-  //@{
+  ///@{
   /**
    * Add lights to, or remove lights from, a renderer.
    * Lights may be added to more than one renderer, if desired.
    */
   void AddLightsToRenderer(vtkRenderer* renderer);
   void RemoveLightsFromRenderer(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   void DeepCopy(vtkLightKit* kit);
 

@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkPixel, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -58,7 +58,7 @@ public:
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
-  //@}
+  ///@}
 
   /**
    * Inflates this pixel by a distance of dist by moving the edges of the pixel
@@ -93,7 +93,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[4]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[8]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -106,7 +106,7 @@ public:
   {
     vtkPixel::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
   /**
    * vtkPixel's normal cannot be computed using vtkPolygon::ComputeNormal because

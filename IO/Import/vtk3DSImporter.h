@@ -39,15 +39,15 @@ public:
   vtkTypeMacro(vtk3DSImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. If on, imported geometry will
    * be run through vtkPolyDataNormals.
@@ -55,7 +55,7 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get a printable string describing the outputs

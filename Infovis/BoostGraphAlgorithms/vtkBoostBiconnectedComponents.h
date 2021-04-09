@@ -56,13 +56,13 @@ public:
   vtkTypeMacro(vtkBoostBiconnectedComponents, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the output array name. If no output array name is
    * set then the name "biconnected component" is used.
    */
   vtkSetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkBoostBiconnectedComponents();

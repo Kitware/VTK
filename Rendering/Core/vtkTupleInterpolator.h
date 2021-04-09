@@ -61,14 +61,14 @@ public:
    */
   static vtkTupleInterpolator* New();
 
-  //@{
+  ///@{
   /**
    * Specify the number of tuple components to interpolate. Note that setting
    * this value discards any previously inserted data.
    */
   void SetNumberOfComponents(int numComp);
   vtkGetMacro(NumberOfComponents, int);
-  //@}
+  ///@}
 
   /**
    * Return the number of tuples in the list of tuples to be
@@ -76,7 +76,7 @@ public:
    */
   int GetNumberOfTuples();
 
-  //@{
+  ///@{
   /**
    * Obtain some information about the interpolation range. The numbers
    * returned (corresponding to parameter t, usually thought of as time)
@@ -85,7 +85,7 @@ public:
    */
   double GetMinimumT();
   double GetMaximumT();
-  //@}
+  ///@}
 
   /**
    * Reset the class so that it contains no (t,tuple) information.
@@ -123,7 +123,7 @@ public:
     INTERPOLATION_TYPE_SPLINE
   };
 
-  //@{
+  ///@{
   /**
    * Specify which type of function to use for interpolation. By default
    * spline interpolation (SetInterpolationFunctionToSpline()) is used
@@ -138,9 +138,9 @@ public:
   vtkGetMacro(InterpolationType, int);
   void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
   void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the InterpolationType is set to spline, then this method applies. By
    * default Kochanek interpolation is used, but you can specify any instance
@@ -151,7 +151,7 @@ public:
    */
   void SetInterpolatingSpline(vtkSpline*);
   vtkGetObjectMacro(InterpolatingSpline, vtkSpline);
-  //@}
+  ///@}
 
 protected:
   vtkTupleInterpolator();

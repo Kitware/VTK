@@ -56,7 +56,7 @@ public:
   vtkTypeMacro(vtkTreeMapLayout, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The field name to use for storing the rectangles for each vertex.
    * The rectangles are stored in a quadruple float array
@@ -64,7 +64,7 @@ public:
    */
   vtkGetStringMacro(RectanglesFieldName);
   vtkSetStringMacro(RectanglesFieldName);
-  //@}
+  ///@}
 
   /**
    * The array to use for the size of each vertex.
@@ -74,13 +74,13 @@ public:
     this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * The strategy to use when laying out the tree map.
    */
   vtkGetObjectMacro(LayoutStrategy, vtkTreeMapLayoutStrategy);
   void SetLayoutStrategy(vtkTreeMapLayoutStrategy* strategy);
-  //@}
+  ///@}
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)

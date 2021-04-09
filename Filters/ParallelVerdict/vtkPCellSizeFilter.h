@@ -52,12 +52,12 @@ protected:
   vtkPCellSizeFilter();
   ~vtkPCellSizeFilter() override;
 
-  //@{
+  ///@{
   /**
    * Method to compute the global sum information.
    */
   void ComputeGlobalSum(double sum[4]) override;
-  //@}
+  ///@}
 
 private:
   vtkPCellSizeFilter(const vtkPCellSizeFilter&) = delete;

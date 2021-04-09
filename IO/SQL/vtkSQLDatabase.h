@@ -214,7 +214,7 @@ public:
    */
   typedef vtkSQLDatabase* (*CreateFunction)(const char* URL);
 
-  //@{
+  ///@{
   /**
    * Provides mechanism to register/unregister additional callbacks to create
    * concrete subclasses of vtkSQLDatabase to handle different protocols.
@@ -223,7 +223,7 @@ public:
   static void RegisterCreateFromURLCallback(CreateFunction callback);
   static void UnRegisterCreateFromURLCallback(CreateFunction callback);
   static void UnRegisterAllCreateFromURLCallbacks();
-  //@}
+  ///@}
 
   /**
    * Stores the database class pointer as an information key. This is currently
@@ -250,13 +250,13 @@ private:
   vtkSQLDatabase(const vtkSQLDatabase&) = delete;
   void operator=(const vtkSQLDatabase&) = delete;
 
-  //@{
+  ///@{
   /**
    * Datastructure used to store registered callbacks.
    */
   class vtkCallbackVector;
   static vtkCallbackVector* Callbacks;
-  //@}
+  ///@}
 };
 
 #endif // vtkSQLDatabase_h

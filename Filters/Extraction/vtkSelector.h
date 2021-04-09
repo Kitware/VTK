@@ -70,14 +70,14 @@ public:
    */
   virtual void Execute(vtkDataObject* input, vtkDataObject* output);
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the array to use for the insidedness array to add to
    * the output in `Execute` call.
    */
   vtkSetMacro(InsidednessArrayName, std::string);
   vtkGetMacro(InsidednessArrayName, std::string);
-  //@}
+  ///@}
 protected:
   vtkSelector();
   ~vtkSelector() override;

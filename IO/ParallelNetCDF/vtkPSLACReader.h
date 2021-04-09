@@ -47,7 +47,7 @@ public:
   static vtkPSLACReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The controller used to communicate partition data.  The number of pieces
    * requested must agree with the number of processes, the piece requested must
@@ -56,7 +56,7 @@ public:
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController*);
-  //@}
+  ///@}
 
 protected:
   vtkPSLACReader();
@@ -94,14 +94,14 @@ protected:
   class vtkInternal;
   vtkInternal* PInternal;
 
-  //@{
+  ///@{
   /**
    * The number of pieces and the requested piece to load.  Synonymous with
    * the number of processes and the local process id.
    */
   int NumberOfPieces;
   int RequestedPiece;
-  //@}
+  ///@}
 
   /**
    * The number of points defined in the mesh file.
@@ -113,7 +113,7 @@ protected:
    */
   vtkIdType NumberOfGlobalMidpoints;
 
-  //@{
+  ///@{
   /**
    * The start/end points read by the given process.
    */
@@ -128,15 +128,15 @@ protected:
       result = this->NumberOfGlobalPoints;
     return result;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Piece information from the last call.
    */
   int NumberOfPiecesCache;
   int RequestedPieceCache;
-  //@}
+  ///@}
 
 private:
   vtkPSLACReader(const vtkPSLACReader&) = delete;

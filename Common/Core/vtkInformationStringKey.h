@@ -49,7 +49,7 @@ public:
     return new vtkInformationStringKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -57,7 +57,7 @@ public:
   void Set(vtkInformation* info, const char*);
   void Set(vtkInformation* info, const std::string& str);
   const char* Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

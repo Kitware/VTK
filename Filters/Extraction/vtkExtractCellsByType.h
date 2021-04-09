@@ -56,16 +56,16 @@ class vtkIdTypeArray;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractCellsByType : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
   static vtkExtractCellsByType* New();
   vtkTypeMacro(vtkExtractCellsByType, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cell types to extract. Any cells of the type specified are
    * extracted. Methods for clearing the set of cells, adding all cells, and
@@ -76,7 +76,7 @@ public:
   void RemoveCellType(unsigned int type);
   void RemoveAllCellTypes();
   bool ExtractCellType(unsigned int type);
-  //@}
+  ///@}
 
 protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

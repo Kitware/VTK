@@ -46,15 +46,15 @@ public:
    */
   void ThreadedExecute(vtkImageData* data, vtkInformation* outInfo, int);
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -62,7 +62,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkSynchronizedTemplatesCutter3D();

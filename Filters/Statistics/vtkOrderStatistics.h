@@ -68,38 +68,38 @@ public:
     NearestObservation = 2       // Identical to method 3 of R
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of quantiles (with uniform spacing).
    */
   vtkSetMacro(NumberOfIntervals, vtkIdType);
   vtkGetMacro(NumberOfIntervals, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the quantile definition.
    */
   vtkSetMacro(QuantileDefinition, QuantileDefinitionType);
   void SetQuantileDefinition(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether quantization will be allowed to enforce maximum histogram size.
    */
   vtkSetMacro(Quantize, bool);
   vtkGetMacro(Quantize, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum histogram size.
    * This maximum size is enforced only when Quantize is TRUE.
    */
   vtkSetMacro(MaximumHistogramSize, vtkIdType);
   vtkGetMacro(MaximumHistogramSize, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Get the quantile definition.

@@ -44,21 +44,21 @@ public:
    */
   using Superclass::SetInputArray;
 
-  //@{
+  ///@{
   /**
    * Overridden to set the brush color.
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
   void SetColor(double r, double g, double b) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the valid point mask array name.
    */
   vtkGetMacro(ValidPointMaskName, vtkStdString);
   vtkSetMacro(ValidPointMaskName, vtkStdString);
-  //@}
+  ///@}
 
   /**
    * Perform any updates to the item that may be necessary before rendering.

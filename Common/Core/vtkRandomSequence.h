@@ -37,13 +37,13 @@
 class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkRandomSequence, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the sequence with a seed.

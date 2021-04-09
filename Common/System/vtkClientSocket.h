@@ -36,7 +36,7 @@ public:
    */
   int ConnectToServer(const char* hostname, int port);
 
-  //@{
+  ///@{
   /**
    * Returns if the socket is on the connecting side (the side that requests a
    * ConnectToServer() or on the connected side (the side that was waiting for
@@ -44,7 +44,7 @@ public:
    * connection.
    */
   vtkGetMacro(ConnectingSide, bool);
-  //@}
+  ///@}
 
 protected:
   vtkClientSocket();

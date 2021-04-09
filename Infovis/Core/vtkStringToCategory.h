@@ -49,13 +49,13 @@ public:
   vtkTypeMacro(vtkStringToCategory, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name to give to the output vtkIntArray of category values.
    */
   vtkSetStringMacro(CategoryArrayName);
   vtkGetStringMacro(CategoryArrayName);
-  //@}
+  ///@}
 
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.

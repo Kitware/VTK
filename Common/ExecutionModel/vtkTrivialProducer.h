@@ -58,7 +58,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the whole extent to use for the data this producer is producing.
    * This may be different than the extent of the output data when
@@ -66,7 +66,7 @@ public:
    */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
   /**
    * This method can be used to copy meta-data from an existing data

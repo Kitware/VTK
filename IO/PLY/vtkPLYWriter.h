@@ -69,7 +69,7 @@ public:
   vtkTypeMacro(vtkPLYWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If the file type is binary, then the user can specify which
    * byte order to use (little versus big endian).
@@ -78,9 +78,9 @@ public:
   vtkGetMacro(DataByteOrder, int);
   void SetDataByteOrderToBigEndian() { this->SetDataByteOrder(VTK_BIG_ENDIAN); }
   void SetDataByteOrderToLittleEndian() { this->SetDataByteOrder(VTK_LITTLE_ENDIAN); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    * Note that writing to an output stream would be more flexible (enabling
@@ -93,9 +93,9 @@ public:
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
   const std::string& GetOutputString() const { return this->OutputString; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods enable the user to control how to add color into the PLY
    * output file. The default behavior is as follows. The user provides the
@@ -126,9 +126,9 @@ public:
   {
     this->SetColorMode(VTK_COLOR_MODE_OFF);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable alpha output. Default is off, i.e. only color values will be saved
    * based on ColorMode.
@@ -136,34 +136,34 @@ public:
   vtkSetMacro(EnableAlpha, bool);
   vtkGetMacro(EnableAlpha, bool);
   vtkBooleanMacro(EnableAlpha, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the array name to use to color the data.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the array component to use to color the data.
    */
   vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
   vtkGetMacro(Component, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A lookup table can be specified in order to convert data arrays to
    * RGBA colors.
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color to use when using a uniform color (either point or cells,
    * or both). The color is specified as a triplet of three unsigned chars
@@ -172,33 +172,33 @@ public:
    */
   vtkSetVector3Macro(Color, unsigned char);
   vtkGetVector3Macro(Color, unsigned char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /** Set the alpha to use when using a uniform color (effect point or cells, or
    *  both) and EnableAlpha is ON.
    */
   vtkSetMacro(Alpha, unsigned char);
   vtkGetMacro(Alpha, unsigned char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
@@ -206,9 +206,9 @@ public:
   vtkGetMacro(FileType, int);
   void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
   void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose the name used for the texture coordinates.
    * (u, v) or (texture_u, texture_v)
@@ -220,7 +220,7 @@ public:
   {
     this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);
   }
-  //@}
+  ///@}
 
   /**
    * Add a comment in the header part.

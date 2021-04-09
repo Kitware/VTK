@@ -45,15 +45,15 @@ public:
   vtkTypeMacro(vtkTessellatedBoxSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the bounds of the box. See GetBounds() for a detail description.
    * \pre xmin<=xmax && ymin<=ymax && zmin<zmax
    */
   vtkSetVector6Macro(Bounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bounds of the box in world coordinates. This a 6-uple of xmin,xmax,ymin,
    * ymax,zmin and zmax. Initial value is (-0.5,0.5,-0.5,0.5,-0.5,0.5), bounds
@@ -62,25 +62,25 @@ public:
    * \post xmin<=xmax && ymin<=ymax && zmin<zmax
    */
   vtkGetVector6Macro(Bounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the level of subdivision of the faces.
    * \pre positive_level: level>=0
    */
   vtkSetMacro(Level, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Level of subdivision of the faces. Initial value is 0.
    * \post positive_level: level>=0
    */
   vtkGetMacro(Level, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Flag to tell the source to duplicate points shared between faces
    * (vertices of the box and internal edge points). Initial value is false.
@@ -90,9 +90,9 @@ public:
   vtkSetMacro(DuplicateSharedPoints, vtkTypeBool);
   vtkGetMacro(DuplicateSharedPoints, vtkTypeBool);
   vtkBooleanMacro(DuplicateSharedPoints, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Flag to tell the source to generate either a quad or two triangle for a
    * set of four points. Initial value is false (generate triangles).
@@ -100,9 +100,9 @@ public:
   vtkSetMacro(Quads, vtkTypeBool);
   vtkGetMacro(Quads, vtkTypeBool);
   vtkBooleanMacro(Quads, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -110,7 +110,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkTessellatedBoxSource();

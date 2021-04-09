@@ -61,7 +61,7 @@ public:
 
   void RemoveAllSeeds();
 
-  //@{
+  ///@{
   /**
    * Values used by the MarkRegion method
    */
@@ -69,7 +69,7 @@ public:
   vtkGetMacro(ConnectedValue, unsigned char);
   vtkSetMacro(UnconnectedValue, unsigned char);
   vtkGetMacro(UnconnectedValue, unsigned char);
-  //@}
+  ///@}
 
   /**
    * Input a data of 0's and "UnconnectedValue"s. Seeds of this object are

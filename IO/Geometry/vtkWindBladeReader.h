@@ -68,7 +68,7 @@ public:
   vtkUnstructuredGrid* GetBladeOutput(); // Output port 1
   vtkStructuredGrid* GetGroundOutput();  // Output port 2
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of solutions fields.
    * By default, ALL data fields on the nodes are read, but this can
@@ -76,7 +76,7 @@ public:
    */
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
-  //@}
+  ///@}
 
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);

@@ -43,7 +43,7 @@ public:
    */
   static vtkAndroidOutputWindow* New();
 
-  //@{
+  ///@{
   /**
    * New lines are converted to carriage return new lines.
    */
@@ -51,7 +51,7 @@ public:
   virtual void DisplayErrorText(const char*);
   virtual void DisplayWarningText(const char*);
   virtual void DisplayGenericWarningText(const char*);
-  //@}
+  ///@}
 
   virtual void DisplayDebugText(const char*);
 

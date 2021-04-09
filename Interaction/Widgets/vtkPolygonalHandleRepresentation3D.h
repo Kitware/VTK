@@ -40,27 +40,27 @@ public:
    */
   static vtkPolygonalHandleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolygonalHandleRepresentation3D, vtkAbstractPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Set the position of the point in world and display coordinates.
    */
   void SetWorldPosition(double p[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the offset of the handle position with respect to the handle
    * center, assumed to be the origin.
    */
   vtkSetVector3Macro(Offset, double);
   vtkGetVector3Macro(Offset, double);
-  //@}
+  ///@}
 
 protected:
   vtkPolygonalHandleRepresentation3D();

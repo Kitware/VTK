@@ -34,13 +34,13 @@ public:
   vtkTypeMacro(vtkMemoryLimitImageDataStreamer, vtkImageDataStreamer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the memory limit in kibibytes (1024 bytes).
    */
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);
-  //@}
+  ///@}
 
   // See the vtkAlgorithm for a description of what these do
   vtkTypeBool ProcessRequest(

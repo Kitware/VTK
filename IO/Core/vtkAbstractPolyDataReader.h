@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkAbstractPolyDataReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of AbstractPolyData file (obj / ply / stl).
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractPolyDataReader();

@@ -59,16 +59,16 @@ class vtkCompositeDataSet;
 class VTKFILTERSGENERAL_EXPORT vtkRandomAttributeGenerator : public vtkPassInputTypeAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
   static vtkRandomAttributeGenerator* New();
   vtkTypeMacro(vtkRandomAttributeGenerator, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the type of array to create (all components of this array are of this
    * type). This holds true for all arrays that are created.
@@ -89,9 +89,9 @@ public:
   void SetDataTypeToFloat() { this->SetDataType(VTK_FLOAT); }
   void SetDataTypeToDouble() { this->SetDataType(VTK_DOUBLE); }
   vtkGetMacro(DataType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of components to generate. This value only applies to those
    * attribute types that take a variable number of components. For example, a vector
@@ -100,9 +100,9 @@ public:
    */
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfComponents, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the minimum component value. This applies to all data that is generated,
    * although normals and tensors have internal constraints that must be
@@ -115,9 +115,9 @@ public:
     this->SetMinimumComponentValue(minimumValue);
     this->SetMaximumComponentValue(maximumValue);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum component value. This applies to all data that is generated,
    * although normals and tensors have internal constraints that must be
@@ -125,9 +125,9 @@ public:
    */
   vtkSetMacro(MaximumComponentValue, double);
   vtkGetMacro(MaximumComponentValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of tuples to generate. This value only applies when creating
    * general field data. In all other cases (i.e., point data or cell data), the number
@@ -135,9 +135,9 @@ public:
    */
   vtkSetClampMacro(NumberOfTuples, vtkIdType, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfTuples, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that point scalars are to be generated. Note that the specified
    * number of components is used to create the scalar.
@@ -145,9 +145,9 @@ public:
   vtkSetMacro(GeneratePointScalars, vtkTypeBool);
   vtkGetMacro(GeneratePointScalars, vtkTypeBool);
   vtkBooleanMacro(GeneratePointScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that point vectors are to be generated. Note that the
    * number of components is always equal to three.
@@ -155,9 +155,9 @@ public:
   vtkSetMacro(GeneratePointVectors, vtkTypeBool);
   vtkGetMacro(GeneratePointVectors, vtkTypeBool);
   vtkBooleanMacro(GeneratePointVectors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that point normals are to be generated. Note that the
    * number of components is always equal to three.
@@ -165,9 +165,9 @@ public:
   vtkSetMacro(GeneratePointNormals, vtkTypeBool);
   vtkGetMacro(GeneratePointNormals, vtkTypeBool);
   vtkBooleanMacro(GeneratePointNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that point tensors are to be generated. Note that the
    * number of components is always equal to nine.
@@ -175,9 +175,9 @@ public:
   vtkSetMacro(GeneratePointTensors, vtkTypeBool);
   vtkGetMacro(GeneratePointTensors, vtkTypeBool);
   vtkBooleanMacro(GeneratePointTensors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that point texture coordinates are to be generated. Note that
    * the specified number of components is used to create the texture
@@ -186,9 +186,9 @@ public:
   vtkSetMacro(GeneratePointTCoords, vtkTypeBool);
   vtkGetMacro(GeneratePointTCoords, vtkTypeBool);
   vtkBooleanMacro(GeneratePointTCoords, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that an arbitrary point array is to be generated. The array is
    * added to the points data but is not labeled as one of scalars, vectors,
@@ -199,9 +199,9 @@ public:
   vtkSetMacro(GeneratePointArray, vtkTypeBool);
   vtkGetMacro(GeneratePointArray, vtkTypeBool);
   vtkBooleanMacro(GeneratePointArray, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that cell scalars are to be generated. Note that the specified
    * number of components is used to create the scalar.
@@ -209,9 +209,9 @@ public:
   vtkSetMacro(GenerateCellScalars, vtkTypeBool);
   vtkGetMacro(GenerateCellScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateCellScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that cell vectors are to be generated. Note that the
    * number of components is always equal to three.
@@ -219,9 +219,9 @@ public:
   vtkSetMacro(GenerateCellVectors, vtkTypeBool);
   vtkGetMacro(GenerateCellVectors, vtkTypeBool);
   vtkBooleanMacro(GenerateCellVectors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that cell normals are to be generated. Note that the
    * number of components is always equal to three.
@@ -229,9 +229,9 @@ public:
   vtkSetMacro(GenerateCellNormals, vtkTypeBool);
   vtkGetMacro(GenerateCellNormals, vtkTypeBool);
   vtkBooleanMacro(GenerateCellNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that cell tensors are to be generated. Note that the
    * number of components is always equal to nine.
@@ -239,9 +239,9 @@ public:
   vtkSetMacro(GenerateCellTensors, vtkTypeBool);
   vtkGetMacro(GenerateCellTensors, vtkTypeBool);
   vtkBooleanMacro(GenerateCellTensors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that cell texture coordinates are to be generated. Note that
    * the specified number of components is used to create the texture
@@ -250,9 +250,9 @@ public:
   vtkSetMacro(GenerateCellTCoords, vtkTypeBool);
   vtkGetMacro(GenerateCellTCoords, vtkTypeBool);
   vtkBooleanMacro(GenerateCellTCoords, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that an arbitrary cell array is to be generated. The array is
    * added to the cell data but is not labeled as one of scalars, vectors,
@@ -263,9 +263,9 @@ public:
   vtkSetMacro(GenerateCellArray, vtkTypeBool);
   vtkGetMacro(GenerateCellArray, vtkTypeBool);
   vtkBooleanMacro(GenerateCellArray, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that an arbitrary field data array is to be generated. Note
    * that the specified number of components is used to create the scalar.
@@ -273,9 +273,9 @@ public:
   vtkSetMacro(GenerateFieldArray, vtkTypeBool);
   vtkGetMacro(GenerateFieldArray, vtkTypeBool);
   vtkBooleanMacro(GenerateFieldArray, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate that the generated attributes are
    * constant within a block. This can be used to highlight
@@ -284,9 +284,9 @@ public:
   vtkSetMacro(AttributesConstantPerBlock, bool);
   vtkGetMacro(AttributesConstantPerBlock, bool);
   vtkBooleanMacro(AttributesConstantPerBlock, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience methods for generating data: all data, all point data, or all cell data.
    * For example, if all data is enabled, then all point, cell and field data is generated.
@@ -341,7 +341,7 @@ public:
     this->GenerateAllCellDataOff();
     this->GenerateFieldArrayOff();
   }
-  //@}
+  ///@}
 
 protected:
   vtkRandomAttributeGenerator();

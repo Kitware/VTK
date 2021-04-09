@@ -55,15 +55,15 @@ public:
   vtkTypeMacro(vtkPassInputTypeAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as a concrete type.
    */
@@ -76,7 +76,7 @@ public:
   vtkGraph* GetGraphOutput();
   vtkMolecule* GetMoleculeOutput();
   vtkTable* GetTableOutput();
-  //@}
+  ///@}
 
   /**
    * Get the input data object. This method is not recommended for use, but
@@ -84,7 +84,7 @@ public:
    */
   vtkDataObject* GetInput();
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -92,9 +92,9 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -102,7 +102,7 @@ public:
    */
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

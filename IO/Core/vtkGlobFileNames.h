@@ -44,12 +44,12 @@ class vtkStringArray;
 class VTKIOCORE_EXPORT vtkGlobFileNames : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Return the class name as a string.
    */
   vtkTypeMacro(vtkGlobFileNames, vtkObject);
-  //@}
+  ///@}
 
   /**
    * Create a new vtkGlobFileNames object.
@@ -66,7 +66,7 @@ public:
    */
   void Reset();
 
-  //@{
+  ///@{
   /**
    * Set the directory in which to perform the glob.  If this is
    * not set, then the current directory will be used.  Also, if
@@ -76,7 +76,7 @@ public:
    */
   vtkSetStringMacro(Directory);
   vtkGetStringMacro(Directory);
-  //@}
+  ///@}
 
   /**
    * Search for all files that match the given expression,
@@ -86,14 +86,14 @@ public:
    */
   int AddFileNames(const char* pattern);
 
-  //@{
+  ///@{
   /**
    * Recurse into subdirectories.
    */
   vtkSetMacro(Recurse, vtkTypeBool);
   vtkBooleanMacro(Recurse, vtkTypeBool);
   vtkGetMacro(Recurse, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the number of files found.
@@ -105,21 +105,21 @@ public:
    */
   const char* GetNthFileName(int index);
 
-  //@{
+  ///@{
   /**
    * Get an array that contains all the file names.
    */
   vtkGetObjectMacro(FileNames, vtkStringArray);
-  //@}
+  ///@}
 
 protected:
-  //@{
+  ///@{
   /**
    * Set the wildcard pattern.
    */
   vtkSetStringMacro(Pattern);
   vtkGetStringMacro(Pattern);
-  //@}
+  ///@}
 
   vtkGlobFileNames();
   ~vtkGlobFileNames() override;

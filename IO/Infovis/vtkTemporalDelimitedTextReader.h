@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkTemporalDelimitedTextReader, vtkDelimitedTextReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the column to use as time indicator.
    * Ignored if TimeColumnId is not equal to -1.
@@ -63,9 +63,9 @@ public:
    */
   vtkGetMacro(TimeColumnName, std::string);
   void SetTimeColumnName(const std::string name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the column to use as time indicator.
    * It the TimeColumnId is equal to -1, the TimeColumnName will be used
@@ -76,9 +76,9 @@ public:
    */
   vtkGetMacro(TimeColumnId, int);
   void SetTimeColumnId(const int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the RemoveTimeStepColumn flag
    * If this boolean is true, the output will not contain the Time step column.
@@ -86,7 +86,7 @@ public:
    */
   vtkGetMacro(RemoveTimeStepColumn, bool);
   void SetRemoveTimeStepColumn(bool rts);
-  //@}
+  ///@}
 
   /** Internal fields of this reader use a specific MTime (InternalMTime).
    * This mechamism ensure the actual data is only re-read when necessary.

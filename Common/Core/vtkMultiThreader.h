@@ -103,7 +103,7 @@ public:
     void* UserData;
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of threads to create. It will be clamped to the range
    * 1 - VTK_MAX_THREADS, so the caller of this method should check that the
@@ -111,16 +111,16 @@ public:
    */
   vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
   virtual int GetNumberOfThreads();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of threads VTK was allocated to support.
    */
   static int GetGlobalStaticMaximumNumberOfThreads();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of threads to use when multithreading.
    * This limits and overrides any other settings for multithreading.
@@ -128,9 +128,9 @@ public:
    */
   static void SetGlobalMaximumNumberOfThreads(int val);
   static int GetGlobalMaximumNumberOfThreads();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value which is used to initialize the NumberOfThreads
    * in the constructor.  Initially this default is set to the number of
@@ -138,7 +138,7 @@ public:
    */
   static void SetGlobalDefaultNumberOfThreads(int val);
   static int GetGlobalDefaultNumberOfThreads();
-  //@}
+  ///@}
 
   // These methods are excluded from wrapping 1) because the
   // wrapper gives up on them and 2) because they really shouldn't be

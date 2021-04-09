@@ -53,7 +53,7 @@ public:
    */
   int GetDimension() override { return 2; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to use when V == 0.
    * Default is 0.05, giving the best appearance with the default settings.
@@ -63,7 +63,7 @@ public:
    */
   vtkSetMacro(DeltaV0, double);
   vtkGetMacro(DeltaV0, double);
-  //@}
+  ///@}
 
   /**
    * Kuen's surface.

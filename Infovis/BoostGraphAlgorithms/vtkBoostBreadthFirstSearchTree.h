@@ -64,7 +64,7 @@ public:
    */
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
 
-  //@{
+  ///@{
   /**
    * Stores the graph vertex ids for the tree vertices in an array
    * named "GraphVertexId".  Default is off.
@@ -72,16 +72,16 @@ public:
   vtkSetMacro(CreateGraphVertexIdArray, bool);
   vtkGetMacro(CreateGraphVertexIdArray, bool);
   vtkBooleanMacro(CreateGraphVertexIdArray, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on this option to reverse the edges in the graph.
    */
   vtkSetMacro(ReverseEdges, bool);
   vtkGetMacro(ReverseEdges, bool);
   vtkBooleanMacro(ReverseEdges, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostBreadthFirstSearchTree();
@@ -99,12 +99,12 @@ private:
   bool CreateGraphVertexIdArray;
   bool ReverseEdges;
 
-  //@{
+  ///@{
   /**
    * Using the convenience function for set strings internally
    */
   vtkSetStringMacro(ArrayName);
-  //@}
+  ///@}
 
   /**
    * This method is basically a helper function to find

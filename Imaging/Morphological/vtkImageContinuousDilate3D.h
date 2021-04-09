@@ -32,7 +32,7 @@ class vtkImageEllipsoidSource;
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Construct an instance of vtkImageContinuousDilate3D filter.
    * By default zero values are dilated.
@@ -40,7 +40,7 @@ public:
   static vtkImageContinuousDilate3D* New();
   vtkTypeMacro(vtkImageContinuousDilate3D, vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This method sets the size of the neighborhood.  It also sets the

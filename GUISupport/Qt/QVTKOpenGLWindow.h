@@ -79,7 +79,7 @@ public:
     QOpenGLWindow::UpdateBehavior updateBehavior = NoPartialUpdate, QWindow* parent = nullptr);
   ~QVTKOpenGLWindow() override;
 
-  //@{
+  ///@{
   /**
    * Set a render window to use. It a render window was already set, it will be
    * finalized and all of its OpenGL resource released. If the \c win is
@@ -88,7 +88,7 @@ public:
    */
   void setRenderWindow(vtkGenericOpenGLRenderWindow* win);
   void setRenderWindow(vtkRenderWindow* win);
-  //@}
+  ///@}
 
   /**
    * Returns the render window that is being shown in this widget.
@@ -105,7 +105,7 @@ public:
    */
   static QSurfaceFormat defaultFormat(bool stereo_capable = false);
 
-  //@{
+  ///@{
   /**
    * Enable or disable support for HiDPI displays. When enabled, this enabled
    * DPI scaling i.e. `vtkWindow::SetDPI` will be called with a DPI value scaled
@@ -114,18 +114,18 @@ public:
    */
   void setEnableHiDPI(bool enable);
   bool enableHiDPI() const { return this->EnableHiDPI; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get unscaled DPI value. Defaults to 72, which is also the default value
    * in vtkWindow.
    */
   void setUnscaledDPI(int);
   int unscaledDPI() const { return this->UnscaledDPI; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a custom device pixel ratio to use to map Qt sizes to VTK (or
    * OpenGL) sizes. Thus, when the QWidget is resized, it called
@@ -142,17 +142,17 @@ public:
   void setCustomDevicePixelRatio(double cdpr);
   double customDevicePixelRatio() const { return this->CustomDevicePixelRatio; }
   double effectiveDevicePixelRatio() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the default cursor to use for this widget.
    */
   void setDefaultCursor(const QCursor& cursor);
   const QCursor& defaultCursor() const { return this->DefaultCursor; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @deprecated in VTK 9.0. Use `setRenderWindow` instead.
    */
@@ -160,9 +160,9 @@ public:
   void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
   VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLWindow::setRenderWindow")
   void SetRenderWindow(vtkRenderWindow* win);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods have be deprecated to fix naming style. Since
    * QVTKOpenGLWindow is QObject subclass, we follow Qt naming conventions
@@ -172,7 +172,7 @@ public:
   vtkRenderWindow* GetRenderWindow();
   VTK_DEPRECATED_IN_9_0_0("Use QVTKOpenGLWindow::interactor")
   QVTKInteractor* GetInteractor();
-  //@}
+  ///@}
 
   /**
    * @deprecated in VTK 9.0

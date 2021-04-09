@@ -95,45 +95,45 @@ public:
   vtkTypeMacro(vtkMPASReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of MPAS data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data cells
    */
   vtkGetMacro(MaximumCells, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of points
    */
   vtkGetMacro(MaximumPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data variables at the cell centers and points
    */
   virtual int GetNumberOfCellVars();
   virtual int GetNumberOfPointVars();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the reader's output
    */
   vtkUnstructuredGrid* GetOutput();
   vtkUnstructuredGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, dimension info is included in the array name. For instance,
    * "tracers" will become "tracers(Time, nCells, nVertLevels, nTracers)".
@@ -143,9 +143,9 @@ public:
   vtkSetMacro(UseDimensionedArrayNames, bool);
   vtkGetMacro(UseDimensionedArrayNames, bool);
   vtkBooleanMacro(UseDimensionedArrayNames, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of solutions fields.
    * By default, ALL data fields on the nodes are read, but this can
@@ -157,7 +157,7 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
   int GetNumberOfCellArrays();
   const char* GetCellArrayName(int index);
@@ -166,7 +166,7 @@ public:
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
-  //@{
+  ///@{
   /**
    * If the point/cell arrays contain dimensions other than Time, nCells, or
    * nVertices, they are configured here. Use GetNumberOfDimensions to get the
@@ -181,25 +181,25 @@ public:
   int GetDimensionCurrentIndex(const std::string& dim);
   void SetDimensionCurrentIndex(const std::string& dim, int idx);
   int GetDimensionSize(const std::string& dim);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name to the dimension that identifies the vertical dimension.
    * Defaults to "nVertLevels".
    */
   vtkSetMacro(VerticalDimension, std::string);
   vtkGetMacro(VerticalDimension, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience function for setting/querying [GS]etDimensionCurrentIndex
    * for the dimension returned by GetVerticalDimension.
    */
   void SetVerticalLevel(int level);
   int GetVerticalLevel();
-  //@}
+  ///@}
 
   vtkGetVector2Macro(VerticalLevelRange, int);
 

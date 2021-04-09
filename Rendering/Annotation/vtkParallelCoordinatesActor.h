@@ -89,7 +89,7 @@ public:
    */
   static vtkParallelCoordinatesActor* New();
 
-  //@{
+  ///@{
   /**
    * Specify whether to use the rows or columns as independent variables.
    * If columns, then each row represents a separate point. If rows, then
@@ -99,17 +99,17 @@ public:
   vtkGetMacro(IndependentVariables, int);
   void SetIndependentVariablesToColumns() { this->SetIndependentVariables(VTK_IV_COLUMN); }
   void SetIndependentVariablesToRows() { this->SetIndependentVariables(VTK_IV_ROW); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title of the parallel coordinates plot.
    */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of annotation labels to show along each axis.
    * This values is a suggestion: the number of labels may vary depending
@@ -117,40 +117,40 @@ public:
    */
   vtkSetClampMacro(NumberOfLabels, int, 0, 50);
   vtkGetMacro(NumberOfLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels on the axes.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title text property.
    */
   virtual void SetTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text property.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw the parallel coordinates plot.
    */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

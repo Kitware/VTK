@@ -80,22 +80,22 @@ public:
 
   static vtkKdTree* New();
 
-  //@{
+  ///@{
   /**
    * Turn on timing of the k-d tree build
    */
   vtkBooleanMacro(Timing, vtkTypeBool);
   vtkSetMacro(Timing, vtkTypeBool);
   vtkGetMacro(Timing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Minimum number of cells per spatial region.  Default is 100.
    */
   vtkSetMacro(MinCells, int);
   vtkGetMacro(MinCells, int);
-  //@}
+  ///@}
 
   /**
    * Set/Get the number of spatial regions you want to get close
@@ -199,14 +199,14 @@ public:
    */
   virtual void AddDataSet(vtkDataSet* set);
 
-  //@{
+  ///@{
   /**
    * Remove the given data set.
    */
   virtual void RemoveDataSet(int index);
   virtual void RemoveDataSet(vtkDataSet* set);
   virtual void RemoveAllDataSets();
-  //@}
+  ///@}
 
   /**
    * Get the number of data sets included in spatial partitioning
@@ -230,12 +230,12 @@ public:
    */
   vtkDataSet* GetDataSet() override { return this->GetDataSet(0); }
 
-  //@{
+  ///@{
   /**
    * Return a collection of all the data sets.
    */
   vtkGetObjectMacro(DataSets, vtkDataSetCollection);
-  //@}
+  ///@}
 
   /**
    * Return the index of the given data set.  Returns -1 if that data
@@ -259,12 +259,12 @@ public:
 
   void SetNewBounds(double* bounds);
 
-  //@{
+  ///@{
   /**
    * The number of leaf nodes of the tree, the spatial regions
    */
   vtkGetMacro(NumberOfRegions, int);
-  //@}
+  ///@}
 
   /**
    * Get the spatial bounds of k-d tree region
@@ -276,13 +276,13 @@ public:
    */
   void GetRegionDataBounds(int regionID, double bounds[6]);
 
-  //@{
+  ///@{
   /**
    * Print out nodes of kd tree
    */
   void PrintTree();
   void PrintVerboseTree();
-  //@}
+  ///@}
 
   /**
    * Print out leaf node data for given id
@@ -306,7 +306,7 @@ public:
   void CreateCellLists(int* regionReqList, int listSize);
   void CreateCellLists();
 
-  //@{
+  ///@{
   /**
    * If IncludeRegionBoundaryCells is ON,
    * CreateCellLists() will also create a list of cells which
@@ -317,7 +317,7 @@ public:
   vtkSetMacro(IncludeRegionBoundaryCells, vtkTypeBool);
   vtkGetMacro(IncludeRegionBoundaryCells, vtkTypeBool);
   vtkBooleanMacro(IncludeRegionBoundaryCells, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Free the memory used by the cell lists.
@@ -342,7 +342,7 @@ public:
    */
   vtkIdList* GetBoundaryCellList(int regionID);
 
-  //@{
+  ///@{
   /**
 
    * For a list of regions, get two cell lists.  The first lists
@@ -369,9 +369,9 @@ public:
     vtkIntArray* regions, vtkDataSet* set, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells);
   vtkIdType GetCellLists(
     vtkIntArray* regions, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the id of the region containing the cell centroid.  If
    * no DataSet is specified, assume DataSet 0.  If you need the
@@ -381,7 +381,7 @@ public:
   int GetRegionContainingCell(vtkDataSet* set, vtkIdType cellID);
   int GetRegionContainingCell(int set, vtkIdType cellID);
   int GetRegionContainingCell(vtkIdType cellID);
-  //@}
+  ///@}
 
   /**
    * Get a list (in order by data set by cell id) of the
@@ -461,7 +461,7 @@ public:
   int ViewOrderRegionsFromPosition(
     vtkIntArray* regionIds, const double directionOfProjection[3], vtkIntArray* orderedList);
 
-  //@{
+  ///@{
   /**
    * This is a special purpose locator that builds a k-d tree to
    * find duplicate and near-by points.  It builds the tree from
@@ -478,7 +478,7 @@ public:
   void BuildLocatorFromPoints(vtkPointSet* pointset);
   void BuildLocatorFromPoints(vtkPoints* ptArray);
   void BuildLocatorFromPoints(vtkPoints** ptArray, int numPtArrays);
-  //@}
+  ///@}
 
   /**
    * This call returns a mapping from the original point IDs supplied
@@ -496,7 +496,7 @@ public:
    */
   vtkIdTypeArray* BuildMapForDuplicatePoints(float tolerance);
 
-  //@{
+  ///@{
   /**
    * Find the Id of the point that was previously supplied
    * to BuildLocatorFromPoints().  Returns -1 if the point
@@ -504,9 +504,9 @@ public:
    */
   vtkIdType FindPoint(double* x);
   vtkIdType FindPoint(double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Find the Id of the point that was previously supplied
    * to BuildLocatorFromPoints() which is closest to the given point.
@@ -514,7 +514,7 @@ public:
    */
   vtkIdType FindClosestPoint(double* x, double& dist2);
   vtkIdType FindClosestPoint(double x, double y, double z, double& dist2);
-  //@}
+  ///@}
 
   /**
    * Given a position x and a radius r, return the id of the point
@@ -523,7 +523,7 @@ public:
    */
   vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2);
 
-  //@{
+  ///@{
   /**
    * Find the Id of the point in the given region which is
    * closest to the given point.  Return the ID of the point,
@@ -531,7 +531,7 @@ public:
    */
   vtkIdType FindClosestPointInRegion(int regionId, double* x, double& dist2);
   vtkIdType FindClosestPointInRegion(int regionId, double x, double y, double z, double& dist2);
-  //@}
+  ///@}
 
   /**
    * Find all points within a specified radius R of position x.
@@ -576,7 +576,7 @@ public:
    */
   void GenerateRepresentation(int* regionList, int len, vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * The polydata representation of the k-d tree shows the boundaries
    * of the k-d tree decomposition spatial regions.  The data inside
@@ -586,7 +586,7 @@ public:
   vtkBooleanMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
   vtkSetMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
   vtkGetMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Print timing of k-d tree build
@@ -735,13 +735,13 @@ protected:
    */
   void UpdateProgress(double amount);
 
-  //@{
+  ///@{
   /**
    * Set/Get the execution progress of a process object.
    */
   vtkSetClampMacro(Progress, double, 0.0, 1.0);
   vtkGetMacro(Progress, double);
-  //@}
+  ///@}
 
 protected:
   // So that each suboperation can report progress

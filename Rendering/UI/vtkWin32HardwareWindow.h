@@ -38,7 +38,7 @@ public:
   void Create() override;
   void Destroy() override;
 
-  //@{
+  ///@{
   /**
    * These are window system independent methods that are used
    * to help interface vtkWindow to native windowing systems.
@@ -49,23 +49,23 @@ public:
   void* GetGenericDisplayId() override;
   void* GetGenericWindowId() override;
   void* GetGenericParentId() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the size of the window in pixels.
    */
   void SetSize(int, int) override;
   using vtkHardwareWindow::SetSize;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the window.
    */
   void SetPosition(int, int) override;
   using vtkHardwareWindow::SetPosition;
-  //@}
+  ///@}
 
 protected:
   vtkWin32HardwareWindow();

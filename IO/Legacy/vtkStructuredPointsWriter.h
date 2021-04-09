@@ -37,15 +37,15 @@ public:
   vtkTypeMacro(vtkStructuredPointsWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkImageData* GetInput();
   vtkImageData* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When WriteExtent is on, vtkStructuredPointsWriter writes
    * data extent in the output file. Otherwise, it writes dimensions.
@@ -56,7 +56,7 @@ public:
   vtkSetMacro(WriteExtent, bool);
   vtkGetMacro(WriteExtent, bool);
   vtkBooleanMacro(WriteExtent, bool);
-  //@}
+  ///@}
 
 protected:
   vtkStructuredPointsWriter()

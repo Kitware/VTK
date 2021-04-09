@@ -110,7 +110,7 @@ class vtkImageData;
 class VTKFILTERSPOINTS_EXPORT vtkExtractSurface : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating the class, providing type information,
    * and printing.
@@ -118,9 +118,9 @@ public:
   static vtkExtractSurface* New();
   vtkTypeMacro(vtkExtractSurface, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the radius of influence of the signed distance function. Data
    * values (which are distances) that are greater than the radius (i.e., d >
@@ -129,9 +129,9 @@ public:
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable hole filling. This generates separating surfaces between the
    * empty and unseen portions of the volume.
@@ -139,9 +139,9 @@ public:
   vtkSetMacro(HoleFilling, bool);
   vtkGetMacro(HoleFilling, bool);
   vtkBooleanMacro(HoleFilling, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly
    * expensive in both time and storage. If the output data will be processed
@@ -151,9 +151,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of gradients. Gradient computation is fairly
    * expensive in both time and storage. Note that if ComputeNormals is on,
@@ -165,7 +165,7 @@ public:
   vtkSetMacro(ComputeGradients, vtkTypeBool);
   vtkGetMacro(ComputeGradients, vtkTypeBool);
   vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSurface();

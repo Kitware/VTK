@@ -84,7 +84,7 @@ public:
    */
   void SetRequestInformationMethod(void (*f)(void*));
 
-  //@{
+  ///@{
   /**
    * Get the output as a concrete type. This method is typically used by the
    * writer of the source function to get the output as a particular type
@@ -99,7 +99,7 @@ public:
   vtkGraph* GetGraphOutput();
   vtkMolecule* GetMoleculeOutput();
   vtkTable* GetTableOutput();
-  //@}
+  ///@}
 
 protected:
   vtkProgrammableSource();

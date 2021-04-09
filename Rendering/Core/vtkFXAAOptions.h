@@ -50,7 +50,7 @@ public:
   vtkTypeMacro(vtkFXAAOptions, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Threshold for applying FXAA to a pixel, relative to the maximum luminosity
    * of its 4 immediate neighbors.
@@ -68,9 +68,9 @@ public:
    */
   vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f);
   vtkGetMacro(RelativeContrastThreshold, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Similar to RelativeContrastThreshold, but not scaled by the maximum
    * luminosity.
@@ -86,9 +86,9 @@ public:
    */
   vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f);
   vtkGetMacro(HardContrastThreshold, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subpixel aliasing is corrected by applying a lowpass filter to the current
    * pixel. This is implemented by blending an average of the 3x3 neighborhood
@@ -109,9 +109,9 @@ public:
    */
   vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f);
   vtkGetMacro(SubpixelBlendLimit, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Minimum amount of subpixel aliasing required for subpixel antialiasing to
    * be applied.
@@ -136,9 +136,9 @@ public:
    */
   vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f);
   vtkGetMacro(SubpixelContrastThreshold, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use an improved edge endpoint detection algorithm.
 
@@ -154,9 +154,9 @@ public:
   vtkSetMacro(UseHighQualityEndpoints, bool);
   vtkGetMacro(UseHighQualityEndpoints, bool);
   vtkBooleanMacro(UseHighQualityEndpoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of iterations for the endpoint search algorithm. Increasing
    * this value will increase runtime, but also properly detect longer edges.
@@ -166,16 +166,16 @@ public:
    */
   vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(EndpointSearchIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Debugging options that affect the output color buffer. See
    * vtkFXAAFilterFS.glsl for details. Only one may be active at a time.
    */
   vtkSetMacro(DebugOptionValue, DebugOption);
   vtkGetMacro(DebugOptionValue, DebugOption);
-  //@}
+  ///@}
 
 protected:
   vtkFXAAOptions();

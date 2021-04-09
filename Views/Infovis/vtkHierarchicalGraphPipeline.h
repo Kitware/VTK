@@ -57,78 +57,78 @@ public:
   vtkTypeMacro(vtkHierarchicalGraphPipeline, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The actor associated with the hierarchical graph.
    */
   vtkGetObjectMacro(Actor, vtkActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The actor associated with the hierarchical graph.
    */
   vtkGetObjectMacro(LabelActor, vtkActor2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The bundling strength for the bundled edges.
    */
   virtual void SetBundlingStrength(double strength);
   virtual double GetBundlingStrength();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge label array name.
    */
   virtual void SetLabelArrayName(const char* name);
   virtual const char* GetLabelArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge label visibility.
    */
   virtual void SetLabelVisibility(bool vis);
   virtual bool GetLabelVisibility();
   vtkBooleanMacro(LabelVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge label text property.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* prop);
   virtual vtkTextProperty* GetLabelTextProperty();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The edge color array.
    */
   virtual void SetColorArrayName(const char* name);
   virtual const char* GetColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color the edges by an array.
    */
   virtual void SetColorEdgesByArray(bool vis);
   virtual bool GetColorEdgesByArray();
   vtkBooleanMacro(ColorEdgesByArray, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The visibility of this graph.
    */
   virtual void SetVisibility(bool vis);
   virtual bool GetVisibility();
   vtkBooleanMacro(Visibility, bool);
-  //@}
+  ///@}
 
   /**
    * Returns a new selection relevant to this graph based on an input
@@ -150,15 +150,15 @@ public:
    */
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  //@{
+  ///@{
   /**
    * The array to use while hovering over an edge.
    */
   vtkSetStringMacro(HoverArrayName);
   vtkGetStringMacro(HoverArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spline mode to use in vtkSplineGraphEdges.
    * vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
@@ -167,7 +167,7 @@ public:
    */
   virtual void SetSplineType(int type);
   virtual int GetSplineType();
-  //@}
+  ///@}
 
   /**
    * Register progress with a view.

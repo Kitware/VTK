@@ -50,7 +50,7 @@ public:
     return new vtkInformationExecutivePortVectorKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -62,7 +62,7 @@ public:
   int* GetPorts(vtkInformation* info);
   void Get(vtkInformation* info, vtkExecutive** executives, int* ports);
   int Length(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information
@@ -87,7 +87,7 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
 protected:
-  //@{
+  ///@{
   /**
    * Get the address at which the actual value is stored.  This is
    * meant for use from a debugger to add watches and is therefore not
@@ -95,7 +95,7 @@ protected:
    */
   vtkExecutive** GetExecutivesWatchAddress(vtkInformation* info);
   int* GetPortsWatchAddress(vtkInformation* info);
-  //@}
+  ///@}
 
 private:
   vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) = delete;

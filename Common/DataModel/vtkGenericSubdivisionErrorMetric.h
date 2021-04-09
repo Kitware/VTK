@@ -48,13 +48,13 @@ class vtkGenericDataSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericSubdivisionErrorMetric : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkGenericSubdivisionErrorMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Does the edge need to be subdivided according to the implemented
@@ -93,21 +93,21 @@ public:
   virtual double GetError(
     double* leftPoint, double* midPoint, double* rightPoint, double alpha) = 0;
 
-  //@{
+  ///@{
   /**
    * The cell that the edge belongs to.
    */
   void SetGenericCell(vtkGenericAdaptorCell* cell);
   vtkGetObjectMacro(GenericCell, vtkGenericAdaptorCell);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the dataset to be tessellated.
    */
   void SetDataSet(vtkGenericDataSet* ds);
   vtkGetObjectMacro(DataSet, vtkGenericDataSet);
-  //@}
+  ///@}
 
 protected:
   vtkGenericSubdivisionErrorMetric();

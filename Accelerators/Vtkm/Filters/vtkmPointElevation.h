@@ -39,7 +39,7 @@ public:
 
   static vtkmPointElevation* New();
 
-  //@{
+  ///@{
   /**
    * When this flag is off (the default), then the computation will fall back
    * to the serial VTK version if VTK-m fails to run. When the flag is on,
@@ -49,7 +49,7 @@ public:
   vtkGetMacro(ForceVTKm, vtkTypeBool);
   vtkSetMacro(ForceVTKm, vtkTypeBool);
   vtkBooleanMacro(ForceVTKm, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkmPointElevation();

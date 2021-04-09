@@ -112,7 +112,7 @@ protected:
    */
   bool EDLCompose(const vtkRenderState* s, vtkOpenGLRenderWindow*);
 
-  //@{
+  ///@{
   /**
    * Framebuffer object and textures for initial projection
    */
@@ -122,7 +122,7 @@ protected:
   // color render target for projection pass
   vtkTextureObject* ProjectionDepthTexture;
   // depth render target for projection pass
-  //@}
+  ///@}
 
   // Framebuffer objects and textures for EDL
   vtkOpenGLFramebufferObject* EDLHighFBO;

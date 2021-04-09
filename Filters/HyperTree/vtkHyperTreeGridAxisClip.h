@@ -63,7 +63,7 @@ public:
     QUADRIC,
   };
 
-  //@{
+  ///@{
   /**
    * Set/get type of clip.
    * Default value is 0 (plane clip).
@@ -73,27 +73,27 @@ public:
   void SetClipTypeToPlane() { this->SetClipType(vtkHyperTreeGridAxisClip::PLANE); }
   void SetClipTypeToBox() { this->SetClipType(vtkHyperTreeGridAxisClip::BOX); }
   void SetClipTypeToQuadric() { this->SetClipType(vtkHyperTreeGridAxisClip::QUADRIC); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get normal axis of clipping plane: 0=X, 1=Y, 2=Z.
    * Default value is 0 (X-axis normal).
    */
   vtkSetClampMacro(PlaneNormalAxis, int, 0, 2);
   vtkGetMacro(PlaneNormalAxis, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get position of clipping plane: intercept along normal axis.
    * Default value is 0.0.
    */
   vtkSetMacro(PlanePosition, double);
   vtkGetMacro(PlanePosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get bounds of clipping box.
    */
@@ -101,9 +101,9 @@ public:
   vtkGetVectorMacro(Bounds, double, 6);
   void GetMinimumBounds(double[3]);
   void GetMaximumBounds(double[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag, in the case of clip by hyperplane.
    * When off, a cell is clipped out when its origin is above said plane
@@ -114,17 +114,17 @@ public:
   vtkSetMacro(InsideOut, bool);
   vtkGetMacro(InsideOut, bool);
   vtkBooleanMacro(InsideOut, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the clipping quadric function.
    */
   virtual void SetQuadric(vtkQuadric*);
   vtkGetObjectMacro(Quadric, vtkQuadric);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Helpers to set/get the 10 coefficients of the quadric function
    */
@@ -137,7 +137,7 @@ public:
   void SetQuadricCoefficients(double[10]);
   void GetQuadricCoefficients(double[10]);
   double* GetQuadricCoefficients();
-  //@}
+  ///@}
 
   /**
    * Override GetMTime because we delegate to a vtkQuadric.

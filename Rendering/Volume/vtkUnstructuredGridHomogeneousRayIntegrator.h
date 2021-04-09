@@ -55,7 +55,7 @@ public:
   void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
     vtkDataArray* farIntersections, float color[4]) override;
 
-  //@{
+  ///@{
   /**
    * For quick lookup, the transfer function is sampled into a table.
    * This parameter sets how big of a table to use.  By default, 1024
@@ -63,7 +63,7 @@ public:
    */
   vtkSetMacro(TransferFunctionTableSize, int);
   vtkGetMacro(TransferFunctionTableSize, int);
-  //@}
+  ///@}
 
 protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();

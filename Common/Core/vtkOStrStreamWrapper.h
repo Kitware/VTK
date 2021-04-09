@@ -59,14 +59,14 @@ public:
    */
   vtkOStrStreamWrapper* rdbuf();
 
-  //@{
+  ///@{
   /**
    * Set whether the memory is frozen.  The vtkOStrStreamWrapper will free
    * the memory returned by str() only if it is not frozen.
    */
   void freeze();
   void freeze(int);
-  //@}
+  ///@}
 
 protected:
   // The pointer returned by str().

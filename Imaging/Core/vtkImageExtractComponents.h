@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkImageExtractComponents, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the components to extract.
    */
@@ -44,15 +44,15 @@ public:
   void SetComponents(int c1, int c2);
   void SetComponents(int c1, int c2, int c3);
   vtkGetVector3Macro(Components, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of components to extract. This is set implicitly by the
    * SetComponents() method.
    */
   vtkGetMacro(NumberOfComponents, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageExtractComponents();

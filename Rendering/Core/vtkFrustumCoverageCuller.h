@@ -52,25 +52,25 @@ public:
   vtkTypeMacro(vtkFrustumCoverageCuller, vtkCuller);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum coverage - props with less coverage than this
    * are given no time to render (they are culled)
    */
   vtkSetMacro(MinimumCoverage, double);
   vtkGetMacro(MinimumCoverage, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum coverage - props with more coverage than this are
    * given an allocated render time of 1.0 (the maximum)
    */
   vtkSetMacro(MaximumCoverage, double);
   vtkGetMacro(MaximumCoverage, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the sorting style - none, front-to-back or back-to-front
    * The default is none
@@ -81,7 +81,7 @@ public:
   void SetSortingStyleToBackToFront() { this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT); }
   void SetSortingStyleToFrontToBack() { this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK); }
   const char* GetSortingStyleAsString(void);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

@@ -153,13 +153,13 @@ protected:
   vtkChartParallelCoordinates();
   ~vtkChartParallelCoordinates() override;
 
-  //@{
+  ///@{
   /**
    * Private storage object - where we hide all of our STL objects...
    */
   class Private;
   Private* Storage;
-  //@}
+  ///@}
 
   bool GeometryValid;
 

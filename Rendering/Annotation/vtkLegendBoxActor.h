@@ -73,7 +73,7 @@ public:
   void SetNumberOfEntries(int num);
   int GetNumberOfEntries() { return this->NumberOfEntries; }
 
-  //@{
+  ///@{
   /**
    * Add an entry to the legend box. You must supply a vtkPolyData to be
    * used as a symbol (it can be NULL) and a text string (which also can
@@ -88,7 +88,7 @@ public:
   void SetEntry(int i, vtkImageData* symbol, const char* string, double color[3]);
   void SetEntry(
     int i, vtkPolyData* symbol, vtkImageData* icon, const char* string, double color[3]);
-  //@}
+  ///@}
 
   void SetEntrySymbol(int i, vtkPolyData* symbol);
   void SetEntryIcon(int i, vtkImageData* icon);
@@ -101,15 +101,15 @@ public:
   const char* GetEntryString(int i);
   double* GetEntryColor(int i) VTK_SIZEHINT(3);
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    */
   virtual void SetEntryTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(EntryTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag that controls whether a border will be drawn
    * around the legend box.
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(Border, vtkTypeBool);
   vtkGetMacro(Border, vtkTypeBool);
   vtkBooleanMacro(Border, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag that controls whether the border and legend
    * placement is locked into the rectangle defined by (Position,Position2).
@@ -131,9 +131,9 @@ public:
   vtkSetMacro(LockBorder, vtkTypeBool);
   vtkGetMacro(LockBorder, vtkTypeBool);
   vtkBooleanMacro(LockBorder, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag that controls whether a box will be drawn/filled
    * corresponding to the legend box.
@@ -141,23 +141,23 @@ public:
   vtkSetMacro(Box, vtkTypeBool);
   vtkGetMacro(Box, vtkTypeBool);
   vtkBooleanMacro(Box, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the box vtkProperty2D.
    */
   vtkProperty2D* GetBoxProperty() { return this->BoxActor->GetProperty(); }
 
-  //@{
+  ///@{
   /**
    * Set/Get the padding between the legend entries and the border. The value
    * is specified in pixels.
    */
   vtkSetClampMacro(Padding, int, 0, 50);
   vtkGetMacro(Padding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether the symbol's scalar data
    * is used to color the symbol. If off, the color of the
@@ -166,34 +166,34 @@ public:
   vtkSetMacro(ScalarVisibility, vtkTypeBool);
   vtkGetMacro(ScalarVisibility, vtkTypeBool);
   vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off background.
    */
   vtkSetMacro(UseBackground, vtkTypeBool);
   vtkGetMacro(UseBackground, vtkTypeBool);
   vtkBooleanMacro(UseBackground, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get background color.
    * Default is: (0.3, 0.3, 0.3).
    */
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVector3Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get background opacity.
    * Default is: 1.0
    */
   vtkSetClampMacro(BackgroundOpacity, double, 0.0, 1.0);
   vtkGetMacro(BackgroundOpacity, double);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of this scaled text actor. Overloads the virtual
@@ -210,7 +210,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -219,7 +219,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

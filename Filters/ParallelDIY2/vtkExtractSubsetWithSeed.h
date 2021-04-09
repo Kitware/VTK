@@ -45,14 +45,14 @@ public:
   vtkTypeMacro(vtkExtractSubsetWithSeed, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the extraction seed point. This is specified in world coordinates
    * i.e. x-y-z space.
    */
   vtkSetVector3Macro(Seed, double);
   vtkGetVector3Macro(Seed, double);
-  //@}
+  ///@}
 
   enum
   {
@@ -63,7 +63,7 @@ public:
     PLANE_JK,
     PLANE_KI,
   };
-  //@{
+  ///@{
   /**
    * Get/Set the directions in the ijk spaced to extract starting with the
    * seed.
@@ -76,16 +76,16 @@ public:
   void SetDirectionToPlaneIJ() { this->SetDirection(PLANE_IJ); }
   void SetDirectionToPlaneJK() { this->SetDirection(PLANE_JK); }
   void SetDirectionToPlaneKI() { this->SetDirection(PLANE_KI); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GlobalController will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 protected:
   vtkExtractSubsetWithSeed();
   ~vtkExtractSubsetWithSeed() override;

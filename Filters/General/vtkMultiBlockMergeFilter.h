@@ -42,7 +42,7 @@ public:
    */
   static vtkMultiBlockMergeFilter* New();
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
@@ -50,7 +50,7 @@ public:
    */
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
 protected:
   vtkMultiBlockMergeFilter();

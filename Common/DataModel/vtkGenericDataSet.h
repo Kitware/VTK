@@ -69,13 +69,13 @@ class vtkGenericPointIterator;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericDataSet : public vtkDataObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK type and print macros.
    */
   vtkTypeMacro(vtkGenericDataSet, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the number of points composing the dataset. See NewPointIterator()
@@ -218,12 +218,12 @@ public:
    */
   virtual double GetLength();
 
-  //@{
+  ///@{
   /**
    * Get the collection of attributes associated with this dataset.
    */
   vtkGetObjectMacro(Attributes, vtkGenericAttributeCollection);
-  //@}
+  ///@}
 
   /**
    * Returns the attributes of the data object of the specified
@@ -245,7 +245,7 @@ public:
     return this->Superclass::GetAttributes(type);
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get a cell tessellator if cells must be tessellated during
    * processing.
@@ -253,7 +253,7 @@ public:
    */
   virtual void SetTessellator(vtkGenericCellTessellator* tessellator);
   vtkGetObjectMacro(Tessellator, vtkGenericCellTessellator);
-  //@}
+  ///@}
 
   /**
    * Actual size of the data in kibibytes (1024 bytes); only valid after the pipeline has
@@ -272,13 +272,13 @@ public:
    */
   virtual vtkIdType GetEstimatedSize() = 0;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkGenericDataSet* GetData(vtkInformation* info);
   static vtkGenericDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   /**

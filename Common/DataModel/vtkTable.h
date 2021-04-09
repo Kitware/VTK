@@ -89,13 +89,13 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the main data (columns) of the table.
    */
   vtkGetObjectMacro(RowData, vtkDataSetAttributes);
   virtual void SetRowData(vtkDataSetAttributes* data);
-  //@}
+  ///@}
 
   //
   // Row functions
@@ -213,21 +213,21 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Retrieve the table from vtkInformation.
    */
   static vtkTable* GetData(vtkInformation* info);
   static vtkTable* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow/deep copy the data from src into this object.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
   /**
    * Returns the attributes of the data object as a vtkFieldData.

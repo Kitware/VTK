@@ -66,12 +66,12 @@ public:
    */
   virtual void Render(const vtkRenderState* s) = 0;
 
-  //@{
+  ///@{
   /**
    * Number of props rendered at the last Render call.
    */
   vtkGetMacro(NumberOfRenderedProps, int);
-  //@}
+  ///@}
 
   /**
    * Release graphics resources and ask components to release their own

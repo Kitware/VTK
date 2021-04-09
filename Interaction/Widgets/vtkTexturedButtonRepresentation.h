@@ -69,24 +69,24 @@ public:
    */
   static vtkTexturedButtonRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of the class.
    */
   vtkTypeMacro(vtkTexturedButtonRepresentation, vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the polydata which defines the button geometry.
    */
   void SetButtonGeometry(vtkPolyData* pd);
   void SetButtonGeometryConnection(vtkAlgorithmOutput* algOutput);
   vtkPolyData* GetButtonGeometry();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the button should always face the camera. If enabled,
    * the button rotates as the camera moves.
@@ -94,41 +94,41 @@ public:
   vtkSetMacro(FollowCamera, vtkTypeBool);
   vtkGetMacro(FollowCamera, vtkTypeBool);
   vtkBooleanMacro(FollowCamera, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when the button is to appear "normal"
    * i.e., the mouse pointer is not hovering or selecting the button.
    */
   virtual void SetProperty(vtkProperty* p);
   vtkGetObjectMacro(Property, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when the hovering over the button.
    */
   virtual void SetHoveringProperty(vtkProperty* p);
   vtkGetObjectMacro(HoveringProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the property to use when selecting the button.
    */
   virtual void SetSelectingProperty(vtkProperty* p);
   vtkGetObjectMacro(SelectingProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add the ith texture corresponding to the ith button state.
    * The parameter i should be (0 <= i < NumberOfStates).
    */
   void SetButtonTexture(int i, vtkImageData* image);
   vtkImageData* GetButtonTexture(int i);
-  //@}
+  ///@}
 
   /**
    * Alternative method for placing a button at a given position (defined by
@@ -140,7 +140,7 @@ public:
    */
   virtual void PlaceWidget(double scale, double point[3], double normal[3]);
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
@@ -148,9 +148,9 @@ public:
   void PlaceWidget(double bounds[6]) override;
   void BuildRepresentation() override;
   void Highlight(int state) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
@@ -161,7 +161,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

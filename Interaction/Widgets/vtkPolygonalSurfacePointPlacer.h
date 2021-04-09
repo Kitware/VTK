@@ -61,13 +61,13 @@ public:
    */
   static vtkPolygonalSurfacePointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolygonalSurfacePointPlacer, vtkPolyDataPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Descuription:
   // Add /remove a prop, to place points on
@@ -117,22 +117,22 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  //@{
+  ///@{
   /**
    * Get the Prop picker.
    */
   vtkGetObjectMacro(CellPicker, vtkCellPicker);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Be sure to add polydata on which you wish to place points to this list
    * or they will not be considered for placement.
    */
   vtkGetObjectMacro(Polys, vtkPolyDataCollection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Height offset at which points may be placed on the polygonal surface.
    * If you specify a non-zero value here, be sure to compute cell normals
@@ -140,9 +140,9 @@ public:
    */
   vtkSetMacro(DistanceOffset, double);
   vtkGetMacro(DistanceOffset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Snap to the closest point on the surface ?
    * This is useful for the vtkPolygonalSurfaceContourLineInterpolator, when
@@ -152,15 +152,15 @@ public:
   vtkSetMacro(SnapToClosestPoint, vtkTypeBool);
   vtkGetMacro(SnapToClosestPoint, vtkTypeBool);
   vtkBooleanMacro(SnapToClosestPoint, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internally used by the interpolator.
    */
   typedef vtkPolygonalSurfacePointPlacerNode Node;
   Node* GetNodeAtWorldPosition(double worldPos[3]);
-  //@}
+  ///@}
 
 protected:
   vtkPolygonalSurfacePointPlacer();

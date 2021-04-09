@@ -50,13 +50,13 @@ public:
    */
   static vtkPolyDataPointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolyDataPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Descuription:
   // Add an actor (that represents a terrain in a rendererd scene) to the
@@ -104,12 +104,12 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  //@{
+  ///@{
   /**
    * Get the Prop picker.
    */
   vtkGetObjectMacro(PropPicker, vtkPropPicker);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataPointPlacer();

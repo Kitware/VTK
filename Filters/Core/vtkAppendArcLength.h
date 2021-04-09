@@ -43,7 +43,7 @@ protected:
   vtkAppendArcLength();
   ~vtkAppendArcLength() override;
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -54,7 +54,7 @@ protected:
 private:
   vtkAppendArcLength(const vtkAppendArcLength&) = delete;
   void operator=(const vtkAppendArcLength&) = delete;
-  //@}
+  ///@}
 };
 
 #endif

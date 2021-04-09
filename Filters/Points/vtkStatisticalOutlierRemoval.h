@@ -59,7 +59,7 @@ class vtkPointSet;
 class VTKFILTERSPOINTS_EXPORT vtkStatisticalOutlierRemoval : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -67,9 +67,9 @@ public:
   static vtkStatisticalOutlierRemoval* New();
   vtkTypeMacro(vtkStatisticalOutlierRemoval, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For each point sampled, specify the number of the closest, surrounding
    * points used to compute statistics. By default 25 points are used. Smaller
@@ -77,9 +77,9 @@ public:
    */
   vtkSetClampMacro(SampleSize, int, 1, VTK_INT_MAX);
   vtkGetMacro(SampleSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The filter uses this specified standard deviation factor to extract
    * points. By default, points within 1.0 standard deviations (i.e., a
@@ -88,9 +88,9 @@ public:
    */
   vtkSetClampMacro(StandardDeviationFactor, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(StandardDeviationFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate points
@@ -98,25 +98,25 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * After execution, return the value of the computed mean. Before execution
    * the value returned is invalid.
    */
   vtkSetClampMacro(ComputedMean, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(ComputedMean, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * After execution, return the value of the computed sigma (standard
    * deviation). Before execution the value returned is invalid.
    */
   vtkSetClampMacro(ComputedStandardDeviation, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(ComputedStandardDeviation, double);
-  //@}
+  ///@}
 
 protected:
   vtkStatisticalOutlierRemoval();

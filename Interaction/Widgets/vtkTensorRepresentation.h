@@ -66,16 +66,16 @@ class vtkDoubleArray;
 class VTKINTERACTIONWIDGETS_EXPORT vtkTensorRepresentation : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkTensorRepresentation* New();
   vtkTypeMacro(vtkTensorRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are the basic methods used to define the tensor (these methods
    * coordinate with the overloaded PlaceWidget() method). The methods enable
@@ -102,9 +102,9 @@ public:
     symTensor[4] = this->Tensor[2];
     symTensor[5] = this->Tensor[5];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods used to retrieve derived information about the tensor.
    * Specify (0<=i<3) to retrieve the ith eigenvector. The eigenvalues and
@@ -119,9 +119,9 @@ public:
     n = (n < 0 ? 0 : (n > 2 ? 2 : n));
     std::copy(this->Eigenvectors[n], this->Eigenvectors[n] + 3, ev);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a position for the location of the tensor. Of course a tensor
    * inherently has no position, but this is for the purpose of placing
@@ -132,7 +132,7 @@ public:
   {
     std::copy(this->TensorPosition, this->TensorPosition + 3, pos);
   }
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that define the representation. The
@@ -146,7 +146,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles, when selected or normal, can be
@@ -154,9 +154,9 @@ public:
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the face properties (the faces of the box). The
    * properties of the face when selected and normal can be
@@ -164,9 +164,9 @@ public:
    */
   vtkGetObjectMacro(FaceProperty, vtkProperty);
   vtkGetObjectMacro(SelectedFaceProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the outline properties (the outline of the box). The
    * properties of the outline when selected and normal can be
@@ -174,17 +174,17 @@ public:
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the tensor ellipsoid properties. If visibility is enabled,
    * the ellipsoid will be rendered with this property.
    */
   vtkGetObjectMacro(EllipsoidProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the representation of the outline. This flag enables
    * face wires. By default face wires are off.
@@ -193,9 +193,9 @@ public:
   vtkGetMacro(OutlineFaceWires, bool);
   void OutlineFaceWiresOn() { this->SetOutlineFaceWires(true); }
   void OutlineFaceWiresOff() { this->SetOutlineFaceWires(false); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the representation of the outline. This flag enables
    * the cursor lines running between the handles. By default cursor
@@ -205,18 +205,18 @@ public:
   vtkGetMacro(OutlineCursorWires, bool);
   void OutlineCursorWiresOn() { this->SetOutlineCursorWires(true); }
   void OutlineCursorWiresOff() { this->SetOutlineCursorWires(false); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Switches handles (the spheres) on or off by manipulating the underlying
    * actor visibility.
    */
   virtual void HandlesOn();
   virtual void HandlesOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to show the tensor ellipsoid. By default it is on.
    */
@@ -224,7 +224,7 @@ public:
   vtkGetMacro(TensorEllipsoid, bool);
   void TensorEllipsoidOn() { this->SetTensorEllipsoid(true); }
   void TensorEllipsoidOff() { this->SetTensorEllipsoid(false); }
-  //@}
+  ///@}
 
   /**
    * This is a specialized place widget method for a tensor. Specify the
@@ -234,7 +234,7 @@ public:
    */
   void PlaceTensor(double tensor[9], double position[3]);
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -252,9 +252,9 @@ public:
     unsigned long event, void* calldata, int modify = 0) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
@@ -262,7 +262,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   // Used to manage the state of the widget
   enum
@@ -290,39 +290,39 @@ public:
    */
   void SetInteractionState(int state);
 
-  //@{
+  ///@{
   /**
    * For complex events should we snap orientations to
    * be aligned with the x y z axes
    */
   vtkGetMacro(SnapToAxes, bool);
   vtkSetMacro(SnapToAxes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For complex events should we snap orientations to
    * be aligned with the x y z axes
    */
   void StepForward();
   void StepBackward();
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager
    */
   void RegisterPickers() override;
 
-  //@{
+  ///@{
   /**
    * Gets/Sets the constraint axis for translations. Returns Axis::NONE
    * if none.
    **/
   vtkGetMacro(TranslationAxis, int);
   vtkSetClampMacro(TranslationAxis, int, -1, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggles constraint translation axis on/off.
    */
@@ -330,14 +330,14 @@ public:
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if ContrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  //@}
+  ///@}
 
 protected:
   vtkTensorRepresentation();

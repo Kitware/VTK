@@ -67,16 +67,16 @@
 class VTKFILTERSGEOMETRY_EXPORT vtkMarkBoundaryFilter : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkMarkBoundaryFilter* New();
   vtkTypeMacro(vtkMarkBoundaryFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable the creation of the boundary faces array. This array encodes
    * which faces are on the boundary of the ith cell. By default, this array
@@ -86,9 +86,9 @@ public:
   vtkSetMacro(GenerateBoundaryFaces, bool);
   vtkGetMacro(GenerateBoundaryFaces, bool);
   vtkBooleanMacro(GenerateBoundaryFaces, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the names of the two data arrays which indicate which cells and points
    * are on the boundary. By default, "BoundaryPoints", "BoundaryCells", and
@@ -100,7 +100,7 @@ public:
   vtkGetStringMacro(BoundaryCellsName);
   vtkSetStringMacro(BoundaryFacesName);
   vtkGetStringMacro(BoundaryFacesName);
-  //@}
+  ///@}
 
 protected:
   vtkMarkBoundaryFilter();

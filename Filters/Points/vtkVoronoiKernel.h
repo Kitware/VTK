@@ -41,14 +41,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkVoronoiKernel : public vtkInterpolationKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkVoronoiKernel* New();
   vtkTypeMacro(vtkVoronoiKernel, vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given a point x (and optional associated ptId), determine the points

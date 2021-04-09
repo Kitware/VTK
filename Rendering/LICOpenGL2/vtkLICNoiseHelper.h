@@ -73,7 +73,7 @@ class vtkLICRandomNoise2D
 public:
   vtkLICRandomNoise2D() = default;
 
-  //@{
+  ///@{
   /**
    * Generate a patch of random gray scale values along with an
    * alpha channel (in vtk array format). The data should be
@@ -99,7 +99,7 @@ public:
   };
   float* Generate(int type, int& sideLen, int& grainLize, float minNoiseVal, float maxNoiseVal,
     int nLevels, double impulseProb, float impulseBgNoiseVal, int seed);
-  //@}
+  ///@}
 
   /**
    * Delete the passed in array of values.

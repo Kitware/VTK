@@ -81,21 +81,21 @@ class vtkUnstructuredGrid;
 class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard construction and print methods.
    */
   static vtkPlaneCutter* New();
   vtkTypeMacro(vtkPlaneCutter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The modified time depends on the delegated cut plane.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the plane (an implicit function) to perform the cutting. The
    * definition of the plane (its origin and normal) is controlled via this
@@ -103,9 +103,9 @@ public:
    */
   virtual void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. The normal, if generated, is defined by cell data
@@ -115,9 +115,9 @@ public:
   vtkSetMacro(ComputeNormals, bool);
   vtkGetMacro(ComputeNormals, bool);
   vtkBooleanMacro(ComputeNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to interpolate attribute data. By default this is
    * enabled. Note that both cell data and point data is interpolated and
@@ -126,9 +126,9 @@ public:
   vtkSetMacro(InterpolateAttributes, bool);
   vtkGetMacro(InterpolateAttributes, bool);
   vtkBooleanMacro(InterpolateAttributes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to generate polygons instead of triangles when cutting
    * structured and rectilinear grid.
@@ -137,9 +137,9 @@ public:
   vtkSetMacro(GeneratePolygons, bool);
   vtkGetMacro(GeneratePolygons, bool);
   vtkBooleanMacro(GeneratePolygons, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to build the sphere tree. Computing the sphere
    * will take some time on the first computation
@@ -149,9 +149,9 @@ public:
   vtkSetMacro(BuildTree, bool);
   vtkGetMacro(BuildTree, bool);
   vtkBooleanMacro(BuildTree, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to build tree hierarchy. Computing the tree
    * hierarchy can take some time on the first computation but if
@@ -161,7 +161,7 @@ public:
   vtkSetMacro(BuildHierarchy, bool);
   vtkGetMacro(BuildHierarchy, bool);
   vtkBooleanMacro(BuildHierarchy, bool);
-  //@}
+  ///@}
 
   /**
    * See vtkAlgorithm for details.

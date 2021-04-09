@@ -45,13 +45,13 @@ public:
   vtkTypeMacro(vtkVectorText, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the text to be drawn.
    */
   vtkSetStringMacro(Text);
   vtkGetStringMacro(Text);
-  //@}
+  ///@}
 
 protected:
   vtkVectorText();

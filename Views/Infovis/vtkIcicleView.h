@@ -41,39 +41,39 @@ public:
   vtkTypeMacro(vtkIcicleView, vtkTreeAreaView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sets whether the stacks go from top to bottom or bottom to top.
    */
   virtual void SetTopToBottom(bool reversed);
   virtual bool GetTopToBottom();
   vtkBooleanMacro(TopToBottom, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width of the root node
    */
   virtual void SetRootWidth(double width);
   virtual double GetRootWidth();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the thickness of each layer
    */
   virtual void SetLayerThickness(double thickness);
   virtual double GetLayerThickness();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off gradient coloring.
    */
   virtual void SetUseGradientColoring(bool value);
   virtual bool GetUseGradientColoring();
   vtkBooleanMacro(UseGradientColoring, bool);
-  //@}
+  ///@}
 
 protected:
   vtkIcicleView();

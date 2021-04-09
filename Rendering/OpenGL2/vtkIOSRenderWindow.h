@@ -91,7 +91,7 @@ public:
    */
   virtual void PrefFullScreen();
 
-  //@{
+  ///@{
   /**
    * Set the size (width and height) of the rendering window in
    * screen coordinates (in pixels). This resizes the operating
@@ -102,7 +102,7 @@ public:
    */
   void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  //@}
+  ///@}
 
   /**
    * Get the size (width and height) of the rendering window in
@@ -110,7 +110,7 @@ public:
    */
   int* GetSize() VTK_SIZEHINT(2) override;
 
-  //@{
+  ///@{
   /**
    * Set the position (x and y) of the rendering window in
    * screen coordinates (in pixels). This resizes the operating
@@ -118,7 +118,7 @@ public:
    */
   void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
-  //@}
+  ///@}
 
   /**
    * Get the current size of the screen in pixels.
@@ -240,13 +240,13 @@ public:
    */
   vtkTypeBool GetEventPending() override;
 
-  //@{
+  ///@{
   /**
    * Initialize OpenGL for this window.
    */
   virtual void SetupPalette(void* hDC);
   virtual void SetupPixelFormat(void* hDC, void* dwFlags, int debug, int bpp = 16, int zbpp = 16);
-  //@}
+  ///@}
 
   /**
    * Clean up device contexts, rendering contexts, etc.
@@ -258,7 +258,7 @@ public:
    */
   int GetDepthBufferSize() override;
 
-  //@{
+  ///@{
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
@@ -268,7 +268,7 @@ public:
   void HideCursor() override;
   void ShowCursor() override;
   void SetCursorPosition(int x, int y) override;
-  //@}
+  ///@}
 
   /**
    * Change the shape of the cursor.
@@ -281,14 +281,14 @@ public:
    */
   virtual int GetWindowCreated();
 
-  //@{
+  ///@{
   /**
    * Accessors for the OpenGL context (Really an NSOpenGLContext*).
    */
   void SetContextId(void*);
   void* GetContextId();
   void* GetGenericContext() override { return this->GetContextId(); }
-  //@}
+  ///@}
 
   /**
    * Sets the NSWindow* associated with this vtkRenderWindow.
@@ -341,13 +341,13 @@ public:
   virtual void* GetParentId();
   void* GetGenericParentId() override { return this->GetParentId(); }
 
-  //@{
+  ///@{
   /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
    */
   void SetPixelFormat(void* pixelFormat);
   void* GetPixelFormat();
-  //@}
+  ///@}
 
 protected:
   vtkIOSRenderWindow();

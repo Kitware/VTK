@@ -48,7 +48,7 @@
 class VTKFILTERSPOINTS_EXPORT vtkPointOccupancyFilter : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -56,9 +56,9 @@ public:
   static vtkPointOccupancyFilter* New();
   vtkTypeMacro(vtkPointOccupancyFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the dimensions of the occupancy volume. Higher values generally
    * produce better results but may be much slower.
@@ -66,9 +66,9 @@ public:
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which
    * the sampling is performed. If any of the (min,max) bounds values are
@@ -77,9 +77,9 @@ public:
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the values indicating whether a voxel is empty (i.e., does not
    * contain any points) or occupied. By default, an empty voxel has a zero
@@ -89,7 +89,7 @@ public:
   vtkGetMacro(EmptyValue, unsigned char);
   vtkSetMacro(OccupiedValue, unsigned char);
   vtkGetMacro(OccupiedValue, unsigned char);
-  //@}
+  ///@}
 
 protected:
   vtkPointOccupancyFilter();

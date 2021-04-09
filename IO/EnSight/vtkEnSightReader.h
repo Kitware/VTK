@@ -82,21 +82,21 @@ public:
     ELEMENT = 2
   };
 
-  //@{
+  ///@{
   /**
    * Get the Measured file name. Made public to allow access from
    * apps requiring detailed info about the Data contents
    */
   vtkGetStringMacro(MeasuredFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the Match file name. Made public to allow access from
    * apps requiring detailed info about the Data contents
    */
   vtkGetStringMacro(MatchFileName);
-  //@}
+  ///@}
 
 protected:
   vtkEnSightReader();
@@ -107,21 +107,21 @@ protected:
 
   void ClearForNewCaseFileName() override;
 
-  //@{
+  ///@{
   /**
    * Set the Measured file name.
    */
   vtkSetStringMacro(MeasuredFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Match file name.
    */
   vtkSetStringMacro(MatchFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Read the case file.  If an error occurred, 0 is returned; otherwise 1.
    */
@@ -130,7 +130,7 @@ protected:
   int ReadCaseFileVariable(char* line);
   int ReadCaseFileTime(char* line);
   int ReadCaseFileFile(char* line);
-  //@}
+  ///@}
 
   // set in UpdateInformation to value returned from ReadCaseFile
   int CaseFileRead;

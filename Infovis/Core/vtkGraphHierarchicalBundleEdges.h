@@ -66,7 +66,7 @@ public:
   vtkTypeMacro(vtkGraphHierarchicalBundleEdges, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The level of arc bundling in the graph.
    * A strength of 0 creates straight lines, while a strength of 1
@@ -75,9 +75,9 @@ public:
    */
   vtkSetClampMacro(BundlingStrength, double, 0.0, 1.0);
   vtkGetMacro(BundlingStrength, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses direct mapping from tree to graph vertices.
    * If off, both the graph and tree must contain PedigreeId arrays
@@ -87,7 +87,7 @@ public:
   vtkSetMacro(DirectMapping, bool);
   vtkGetMacro(DirectMapping, bool);
   vtkBooleanMacro(DirectMapping, bool);
-  //@}
+  ///@}
 
   /**
    * Set the input type of the algorithm to vtkGraph.

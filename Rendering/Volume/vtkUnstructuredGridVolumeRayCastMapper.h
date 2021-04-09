@@ -48,7 +48,7 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper, vtkUnstructuredGridVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sampling distance in the XY image dimensions. Default value of 1 meaning
    * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
@@ -56,27 +56,27 @@ public:
    */
   vtkSetClampMacro(ImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(ImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the minimum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
   vtkSetClampMacro(MinimumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MinimumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the maximum image sample distance allow when the image
    * sample distance is being automatically adjusted
    */
   vtkSetClampMacro(MaximumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MaximumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If AutoAdjustSampleDistances is on, the ImageSampleDistance
    * will be varied to achieve the allocated render time of this
@@ -86,18 +86,18 @@ public:
   vtkSetClampMacro(AutoAdjustSampleDistances, vtkTypeBool, 0, 1);
   vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of threads to use. This by default is equal to
    * the number of available processors detected.
    */
   vtkSetMacro(NumberOfThreads, int);
   vtkGetMacro(NumberOfThreads, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
@@ -105,24 +105,24 @@ public:
   vtkSetClampMacro(IntermixIntersectingGeometry, vtkTypeBool, 0, 1);
   vtkGetMacro(IntermixIntersectingGeometry, vtkTypeBool);
   vtkBooleanMacro(IntermixIntersectingGeometry, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the helper class for casting rays.
    */
   virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction* f);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridVolumeRayCastFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the helper class for integrating rays.  If set to NULL, a
    * default integrator will be assigned.
    */
   virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator* ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

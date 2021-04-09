@@ -50,31 +50,31 @@ public:
    */
   static vtkFixedSizeHandleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtk methods
    */
   vtkTypeMacro(vtkFixedSizeHandleRepresentation3D, vtkPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the object used to render the spherical handle marker
    */
   vtkGetObjectMacro(SphereSource, vtkSphereSource);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the required handle size in pixels. Defaults to a width of
    * 10 pixels.
    */
   vtkSetMacro(HandleSizeInPixels, double);
   vtkGetMacro(HandleSizeInPixels, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the acceptable handle size tolerance. During each render, the
    * handle 3D source will be updated to automatically match a display size
@@ -84,7 +84,7 @@ public:
    */
   vtkSetMacro(HandleSizeToleranceInPixels, double);
   vtkGetMacro(HandleSizeToleranceInPixels, double);
-  //@}
+  ///@}
 
 protected:
   vtkFixedSizeHandleRepresentation3D();

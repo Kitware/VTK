@@ -49,7 +49,7 @@ public:
    */
   void CopyImportVoidPointer(void* ptr, vtkIdType size);
 
-  //@{
+  ///@{
   /**
    * Set the pointer from which the image data is imported.  VTK will
    * not make its own copy of the data, it will access the data directly
@@ -58,7 +58,7 @@ public:
    */
   void SetImportVoidPointer(void* ptr);
   void* GetImportVoidPointer() { return this->ImportVoidPointer; }
-  //@}
+  ///@}
 
   /**
    * Set the pointer from which the image data is imported.  Set save to 1
@@ -69,7 +69,7 @@ public:
    */
   void SetImportVoidPointer(void* ptr, int save);
 
-  //@{
+  ///@{
   /**
    * Set/Get the data type of pixels in the imported data.  This is used
    * as the scalar type of the Output.  Default: Short.
@@ -86,18 +86,18 @@ public:
   {
     return vtkImageScalarTypeNameMacro(this->DataScalarType);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of scalar components, for RGB images this must be 3.
    * Default: 1.
    */
   vtkSetMacro(NumberOfScalarComponents, int);
   vtkGetMacro(NumberOfScalarComponents, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the extent of the data buffer.  The dimensions of your data
    * must be equal to (extent[1]-extent[0]+1) * (extent[3]-extent[2]+1) *
@@ -107,27 +107,27 @@ public:
   vtkSetVector6Macro(DataExtent, int);
   vtkGetVector6Macro(DataExtent, int);
   void SetDataExtentToWholeExtent() { this->SetDataExtent(this->GetWholeExtent()); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the spacing (typically in mm) between image voxels.
    * Default: (1.0, 1.0, 1.0).
    */
   vtkSetVector3Macro(DataSpacing, double);
   vtkGetVector3Macro(DataSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the data, i.e. the coordinates (usually in mm)
    * of voxel (0,0,0).  Default: (0.0, 0.0, 0.0).
    */
   vtkSetVector3Macro(DataOrigin, double);
   vtkGetVector3Macro(DataOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction of the data, i.e. the 3x3 matrix to rotate
    * the coordinates from index space (ijk) to physical space (xyz).
@@ -135,9 +135,9 @@ public:
    */
   vtkSetVectorMacro(DataDirection, double, 9);
   vtkGetVectorMacro(DataDirection, double, 9);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the whole extent of the image.  This is the largest possible
    * extent.  Set the DataExtent to the extent of the image in the buffer
@@ -145,7 +145,7 @@ public:
    */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
   /**
    * Propagates the update extent through the callback if it is set.
@@ -158,16 +158,16 @@ public:
   int ComputePipelineMTime(vtkInformation* request, vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec, int requestFromOutputPort, vtkMTimeType* mtime) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the scalar array name for this data set. Initial value is
    * "scalars".
    */
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are function pointer types for the pipeline connection
    * callbacks.  See further documentation on each individual callback.
@@ -184,9 +184,9 @@ public:
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for propagating UpdateInformation calls to a
    * third-party pipeline.  The callback should make sure that the
@@ -194,9 +194,9 @@ public:
    */
   vtkSetMacro(UpdateInformationCallback, UpdateInformationCallbackType);
   vtkGetMacro(UpdateInformationCallback, UpdateInformationCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for checking whether the third-party
    * pipeline has been modified since the last invocation of the
@@ -205,9 +205,9 @@ public:
    */
   vtkSetMacro(PipelineModifiedCallback, PipelineModifiedCallbackType);
   vtkGetMacro(PipelineModifiedCallback, PipelineModifiedCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the whole extent of the input
    * image from a third-party pipeline.  The callback should return a
@@ -216,9 +216,9 @@ public:
    */
   vtkSetMacro(WholeExtentCallback, WholeExtentCallbackType);
   vtkGetMacro(WholeExtentCallback, WholeExtentCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the spacing of the input image
    * from a third-party pipeline.  The callback should return a vector
@@ -226,9 +226,9 @@ public:
    */
   vtkSetMacro(SpacingCallback, SpacingCallbackType);
   vtkGetMacro(SpacingCallback, SpacingCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the origin of the input image
    * from a third-party pipeline.  The callback should return a vector
@@ -236,9 +236,9 @@ public:
    */
   vtkSetMacro(OriginCallback, OriginCallbackType);
   vtkGetMacro(OriginCallback, OriginCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the direction of the input image
    * from a third-party pipeline.  The callback should return a vector
@@ -246,9 +246,9 @@ public:
    */
   vtkSetMacro(DirectionCallback, DirectionCallbackType);
   vtkGetMacro(DirectionCallback, DirectionCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the scalar value type of the
    * input image from a third-party pipeline.  The callback should
@@ -256,9 +256,9 @@ public:
    */
   vtkSetMacro(ScalarTypeCallback, ScalarTypeCallbackType);
   vtkGetMacro(ScalarTypeCallback, ScalarTypeCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the number of components of the
    * input image from a third-party pipeline.  The callback should
@@ -266,9 +266,9 @@ public:
    */
   vtkSetMacro(NumberOfComponentsCallback, NumberOfComponentsCallbackType);
   vtkGetMacro(NumberOfComponentsCallback, NumberOfComponentsCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for propagating the pipeline update extent
    * to a third-party pipeline.  The callback should take a vector of
@@ -278,9 +278,9 @@ public:
    */
   vtkSetMacro(PropagateUpdateExtentCallback, PropagateUpdateExtentCallbackType);
   vtkGetMacro(PropagateUpdateExtentCallback, PropagateUpdateExtentCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for propagating UpdateData calls to a
    * third-party pipeline.  The callback should make sure the
@@ -288,9 +288,9 @@ public:
    */
   vtkSetMacro(UpdateDataCallback, UpdateDataCallbackType);
   vtkGetMacro(UpdateDataCallback, UpdateDataCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting the data extent of the input
    * image from a third-party pipeline.  The callback should return a
@@ -300,9 +300,9 @@ public:
    */
   vtkSetMacro(DataExtentCallback, DataExtentCallbackType);
   vtkGetMacro(DataExtentCallback, DataExtentCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the callback for getting a pointer to the data buffer of
    * an image from a third-party pipeline.  The callback should return
@@ -311,18 +311,18 @@ public:
    */
   vtkSetMacro(BufferPointerCallback, BufferPointerCallbackType);
   vtkGetMacro(BufferPointerCallback, BufferPointerCallbackType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the user data which will be passed as the first argument
    * to all of the third-party pipeline callbacks.
    */
   vtkSetMacro(CallbackUserData, void*);
   vtkGetMacro(CallbackUserData, void*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Invoke the appropriate callbacks
    */
@@ -331,7 +331,7 @@ public:
   void InvokeExecuteInformationCallbacks();
   void InvokeExecuteDataCallbacks();
   void LegacyCheckWholeExtent();
-  //@}
+  ///@}
 
 protected:
   vtkImageImport();

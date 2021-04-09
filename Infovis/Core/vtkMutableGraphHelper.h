@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkMutableGraphHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the underlying graph that you want to modify with this helper.
    * The graph must be an instance of vtkMutableDirectedGraph or
@@ -59,7 +59,7 @@ public:
    */
   void SetGraph(vtkGraph* g);
   vtkGraph* GetGraph();
-  //@}
+  ///@}
 
   /**
    * Add an edge to the underlying mutable graph.

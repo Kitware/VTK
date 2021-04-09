@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the stencil to use.  The stencil can be created
    * from a vtkImplicitFunction or a vtkPolyData. This
@@ -43,7 +43,7 @@ public:
    */
   virtual void SetStencilData(vtkImageStencilData* stencil);
   vtkImageStencilData* GetStencil();
-  //@}
+  ///@}
 
   /**
    * Specify the stencil to use. This sets up a pipeline connection.
@@ -53,16 +53,16 @@ public:
     this->SetInputConnection(2, outputPort);
   }
 
-  //@{
+  ///@{
   /**
    * Reverse the stencil.
    */
   vtkSetMacro(ReverseStencil, vtkTypeBool);
   vtkBooleanMacro(ReverseStencil, vtkTypeBool);
   vtkGetMacro(ReverseStencil, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the second input.  This image will be used for the 'outside' of the
    * stencil.  If not set, the output voxels will be filled with
@@ -70,24 +70,24 @@ public:
    */
   virtual void SetBackgroundInputData(vtkImageData* input);
   vtkImageData* GetBackgroundInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default output value to use when the second input is not set.
    */
   void SetBackgroundValue(double val) { this->SetBackgroundColor(val, val, val, val); }
   double GetBackgroundValue() { return this->BackgroundColor[0]; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default color to use when the second input is not set.
    * This is like SetBackgroundValue, but for multi-component images.
    */
   vtkSetVector4Macro(BackgroundColor, double);
   vtkGetVector4Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageStencil();

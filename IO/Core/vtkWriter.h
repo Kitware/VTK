@@ -69,13 +69,13 @@ public:
    */
   void EncodeWriteString(ostream* out, const char* name, bool doublePercent);
 
-  //@{
+  ///@{
   /**
    * Set/get the input to this writer.
    */
   void SetInputData(vtkDataObject* input);
   void SetInputData(int index, vtkDataObject* input);
-  //@}
+  ///@}
 
   vtkDataObject* GetInput();
   vtkDataObject* GetInput(int port);

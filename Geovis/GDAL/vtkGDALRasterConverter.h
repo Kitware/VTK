@@ -40,14 +40,14 @@ public:
   vtkTypeMacro(vtkGDALRasterConverter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * No-data value for pixels in the source image
    * Default is NaN (not used).
    */
   vtkSetMacro(NoDataValue, double);
   vtkGetMacro(NoDataValue, double);
-  //@}
+  ///@}
 
   /**
    * Create GDAL dataset in memory.

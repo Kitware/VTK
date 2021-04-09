@@ -39,14 +39,14 @@ public:
   vtkInformationInformationVectorKey(const char* name, const char* location);
   ~vtkInformationInformationVectorKey() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, vtkInformationVector*);
   vtkInformationVector* Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

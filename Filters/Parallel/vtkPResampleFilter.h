@@ -34,15 +34,15 @@ public:
 
   static vtkPResampleFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if the filter should use Input bounds to sub-sample the data.
    * By default it is set to 1.
@@ -50,24 +50,24 @@ public:
   vtkSetMacro(UseInputBounds, vtkTypeBool);
   vtkGetMacro(UseInputBounds, vtkTypeBool);
   vtkBooleanMacro(UseInputBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get sampling bounds. If (UseInputBounds == 1) then the sampling
    * bounds won't be used.
    */
   vtkSetVector6Macro(CustomSamplingBounds, double);
   vtkGetVector6Macro(CustomSamplingBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get sampling dimension along each axis. Default will be [10,10,10]
    */
   vtkSetVector3Macro(SamplingDimension, int);
   vtkGetVector3Macro(SamplingDimension, int);
-  //@}
+  ///@}
 
 protected:
   vtkPResampleFilter();

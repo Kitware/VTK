@@ -48,13 +48,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkDijkstraImageContourLineInterpolator
   : public vtkContourLineInterpolator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkDijkstraImageContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   static vtkDijkstraImageContourLineInterpolator* New();
 
@@ -65,7 +65,7 @@ public:
    */
   int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
-  //@{
+  ///@{
   /**
    * Set the image data for the vtkDijkstraImageGeodesicPath.
    * If not set, the interpolator uses the image data input to the image actor.
@@ -73,14 +73,14 @@ public:
    */
   virtual void SetCostImage(vtkImageData*);
   vtkGetObjectMacro(CostImage, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * access to the internal dijkstra path
    */
   vtkGetObjectMacro(DijkstraImageGeodesicPath, vtkDijkstraImageGeodesicPath);
-  //@}
+  ///@}
 
 protected:
   vtkDijkstraImageContourLineInterpolator();

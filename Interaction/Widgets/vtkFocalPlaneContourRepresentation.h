@@ -42,13 +42,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlaneContourRepresentation
   : public vtkContourRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkFocalPlaneContourRepresentation, vtkContourRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Get the world position of the intermediate point at

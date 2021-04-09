@@ -284,7 +284,7 @@ public:
 
 //==============================================================================
 
-//@{
+///@{
 /**
  * Helpers to encapsulate all logic to read various nodes (zones, bc patches
  * etc.).
@@ -295,7 +295,7 @@ bool ReadGridForZone(
 bool ReadPatchesForBase(vtkCGNSReader* reader, const BaseInformation&);
 bool ReadPatch(vtkCGNSReader* reader, const BaseInformation&, const ZoneInformation& zoneInfo,
   const std::string& patchFamilyname);
-//@}
+///@}
 
 //==============================================================================
 class vtkCGNSMetaData
@@ -329,13 +329,13 @@ public:
 
   void Broadcast(vtkMultiProcessController* controller, int rank);
 
-  //@{
+  ///@{
   /**
    * Constructor/Destructor
    */
   vtkCGNSMetaData() = default;
   ~vtkCGNSMetaData() = default;
-  //@}
+  ///@}
 
 private:
   vtkCGNSMetaData(const vtkCGNSMetaData&) = delete;

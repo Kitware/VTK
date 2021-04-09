@@ -89,7 +89,7 @@ public:
    */
   virtual ~vtkStructuredNeighbor();
 
-  //@{
+  ///@{
   /**
    * Overload assignment operator
    */
@@ -110,9 +110,9 @@ public:
     }   // END if
     return *this;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Computes the SendExtent and the RcvExtent for this neighbor. The method
    * assumes that the overlap extent and orientation are already computed.
@@ -121,7 +121,7 @@ public:
    */
   virtual void ComputeSendAndReceiveExtent(int gridRealExtent[6], int gridGhostedExtent[6],
     int neiRealExtent[6], int WholeExtent[6], const int N);
-  //@}
+  ///@}
 };
 
 #endif /* vtkStructuredNeighbor_h */

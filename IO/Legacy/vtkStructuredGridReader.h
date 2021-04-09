@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkStructuredGridReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
   vtkStructuredGrid* GetOutput();
   vtkStructuredGrid* GetOutput(int idx);
   void SetOutput(vtkStructuredGrid* output);
-  //@}
+  ///@}
 
   /**
    * Read the meta information from the file (WHOLE_EXTENT).

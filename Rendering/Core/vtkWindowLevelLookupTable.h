@@ -52,7 +52,7 @@ public:
    */
   void ForceBuild() override;
 
-  //@{
+  ///@{
   /**
    * Set the window for the lookup table.  The window is the difference
    * between TableRange[0] and TableRange[1].
@@ -67,9 +67,9 @@ public:
     this->SetTableRange(this->Level - this->Window / 2.0, this->Level + this->Window / 2.0);
   }
   vtkGetMacro(Window, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Level for the lookup table.  The level is the average of
    * TableRange[0] and TableRange[1].
@@ -80,9 +80,9 @@ public:
     this->SetTableRange(this->Level - this->Window / 2.0, this->Level + this->Window / 2.0);
   }
   vtkGetMacro(Level, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set inverse video on or off.  You can achieve the same effect by
    * switching the MinimumTableValue and the MaximumTableValue.
@@ -90,9 +90,9 @@ public:
   void SetInverseVideo(vtkTypeBool iv);
   vtkGetMacro(InverseVideo, vtkTypeBool);
   vtkBooleanMacro(InverseVideo, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the minimum table value.  All lookup table entries below the
    * start of the ramp will be set to this color.  After you change
@@ -100,9 +100,9 @@ public:
    */
   vtkSetVector4Macro(MinimumTableValue, double);
   vtkGetVector4Macro(MinimumTableValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum table value. All lookup table entries above the
    * end of the ramp will be set to this color.  After you change
@@ -110,7 +110,7 @@ public:
    */
   vtkSetVector4Macro(MaximumTableValue, double);
   vtkGetVector4Macro(MaximumTableValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkWindowLevelLookupTable(int sze = 256, int ext = 256);

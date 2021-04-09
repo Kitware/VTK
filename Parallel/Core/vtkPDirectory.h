@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkPDirectory, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Open/Load the specified directory and load the names of the files
    * in that directory. false/0 is returned if the directory can not be
@@ -48,7 +48,7 @@ public:
    */
   bool Load(const std::string&);
   int Open(const char* dir);
-  //@}
+  ///@}
 
   /**
    * Return the number of files in the current directory.
@@ -68,12 +68,12 @@ public:
    */
   int FileIsDirectory(const char* name);
 
-  //@{
+  ///@{
   /**
    * Get an array that contains all the file names.
    */
   vtkGetObjectMacro(Files, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Return the path to Open'ed directory

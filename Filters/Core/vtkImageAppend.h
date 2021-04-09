@@ -47,7 +47,7 @@ public:
    */
   virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -55,9 +55,9 @@ public:
    */
   void SetInputData(int idx, vtkDataObject* input);
   void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get one input to this filter. This method is only for support of
    * old-style pipeline connections.  When writing new code you should
@@ -65,7 +65,7 @@ public:
    */
   vtkDataObject* GetInput(int idx);
   vtkDataObject* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
   /**
    * Get the number of inputs to this filter. This method is only for
@@ -74,7 +74,7 @@ public:
    */
   int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
 
-  //@{
+  ///@{
   /**
    * This axis is expanded to hold the multiple images.
    * The default AppendAxis is the X axis.
@@ -83,9 +83,9 @@ public:
    */
   vtkSetMacro(AppendAxis, int);
   vtkGetMacro(AppendAxis, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default "PreserveExtents" is off and the append axis is used.
    * When "PreseveExtents" is on, the extent of the inputs is used to
@@ -97,7 +97,7 @@ public:
   vtkSetMacro(PreserveExtents, vtkTypeBool);
   vtkGetMacro(PreserveExtents, vtkTypeBool);
   vtkBooleanMacro(PreserveExtents, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageAppend();

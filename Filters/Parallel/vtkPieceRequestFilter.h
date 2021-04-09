@@ -35,37 +35,37 @@ public:
   vtkTypeMacro(vtkPieceRequestFilter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The total number of pieces.
    */
   vtkSetClampMacro(NumberOfPieces, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The piece to extract.
    */
   vtkSetClampMacro(Piece, int, 0, VTK_INT_MAX);
   vtkGetMacro(Piece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an input of this algorithm.
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

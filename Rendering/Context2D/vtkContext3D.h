@@ -133,16 +133,16 @@ public:
    */
   void AppendTransform(vtkTransform* transform);
 
-  //@{
+  ///@{
   /**
    * Push/pop the transformation matrix for the painter (sets the underlying
    * matrix for the device when available).
    */
   void PushMatrix();
   void PopMatrix();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the specified clipping plane.
    * i is the index of the clipping plane being enabled or disabled (0 - 5).
@@ -152,7 +152,7 @@ public:
    */
   void EnableClippingPlane(int i, double* planeEquation);
   void DisableClippingPlane(int i);
-  //@}
+  ///@}
 
 protected:
   vtkContext3D();

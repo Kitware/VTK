@@ -45,13 +45,13 @@ public:
   vtkTypeMacro(vtkPerturbCoincidentVertices, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the perturbation factor (defaults to 1.0)
    */
   vtkSetMacro(PerturbFactor, double);
   vtkGetMacro(PerturbFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkPerturbCoincidentVertices();

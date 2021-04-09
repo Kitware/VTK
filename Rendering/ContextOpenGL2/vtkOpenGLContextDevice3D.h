@@ -118,7 +118,7 @@ public:
    */
   void EnableClipping(bool enable) override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the specified clipping plane.
    * i is the index of the clipping plane being enabled or disabled (0 - 5).
@@ -128,7 +128,7 @@ public:
    */
   void EnableClippingPlane(int i, double* planeEquation) override;
   void DisableClippingPlane(int i) override;
-  //@}
+  ///@}
 
   /**
    * This must be set during initialization
@@ -186,13 +186,13 @@ private:
   vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D&) = delete;
   void operator=(const vtkOpenGLContextDevice3D&) = delete;
 
-  //@{
+  ///@{
   /**
    * Private data pointer of the class
    */
   class Private;
   Private* Storage;
-  //@}
+  ///@}
 
   // we need a pointer to this because only
   // the 2D device gets a Begin and sets up

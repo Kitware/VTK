@@ -41,21 +41,21 @@ public:
   vtkTypeMacro(vtkCenterOfMass, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of the center of mass computation.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a flag to determine if the points are weighted.
    */
   vtkSetMacro(UseScalarsAsWeights, bool);
   vtkGetMacro(UseScalarsAsWeights, bool);
-  //@}
+  ///@}
 
   /**
    * This function is called by RequestData. It exists so that

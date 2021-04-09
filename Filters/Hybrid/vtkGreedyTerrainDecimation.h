@@ -97,7 +97,7 @@ public:
    */
   static vtkGreedyTerrainDecimation* New();
 
-  //@{
+  ///@{
   /**
    * Specify how to terminate the algorithm: either as an absolute number of
    * triangles, a relative number of triangles (normalized by the full
@@ -116,9 +116,9 @@ public:
   }
   void SetErrorMeasureToAbsoluteError() { this->SetErrorMeasure(VTK_ERROR_ABSOLUTE); }
   void SetErrorMeasureToRelativeError() { this->SetErrorMeasure(VTK_ERROR_RELATIVE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of triangles to produce on output. (It is a
    * good idea to make sure this is less than a tessellated mesh
@@ -127,9 +127,9 @@ public:
    */
   vtkSetClampMacro(NumberOfTriangles, vtkIdType, 2, VTK_ID_MAX);
   vtkGetMacro(NumberOfTriangles, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the reduction of the mesh (represented as a fraction).  Note
    * that a value of 0.10 means a 10% reduction.  You need to set this value
@@ -137,9 +137,9 @@ public:
    */
   vtkSetClampMacro(Reduction, double, 0.0, 1.0);
   vtkGetMacro(Reduction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the absolute error of the mesh; that is, the error in height
    * between the decimated mesh and the original height field.  You need to
@@ -147,9 +147,9 @@ public:
    */
   vtkSetClampMacro(AbsoluteError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(AbsoluteError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the relative error of the mesh; that is, the error in height
    * between the decimated mesh and the original height field normalized by
@@ -158,9 +158,9 @@ public:
    */
   vtkSetClampMacro(RelativeError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(RelativeError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the deletion of vertices on the boundary of a mesh. This
    * may limit the maximum reduction that may be achieved.
@@ -168,16 +168,16 @@ public:
   vtkSetMacro(BoundaryVertexDeletion, vtkTypeBool);
   vtkGetMacro(BoundaryVertexDeletion, vtkTypeBool);
   vtkBooleanMacro(BoundaryVertexDeletion, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute normals based on the input image. Off by default.
    */
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkGreedyTerrainDecimation();

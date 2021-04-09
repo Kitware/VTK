@@ -59,13 +59,13 @@ public:
   vtkTypeMacro(vtkDIMACSGraphWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkGraph* GetInput();
   vtkGraph* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkDIMACSGraphWriter() = default;

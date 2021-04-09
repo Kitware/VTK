@@ -37,13 +37,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArrayCollectionIterator* New();
 
-  //@{
+  ///@{
   /**
    * Set the collection over which to iterate.
    */
   void SetCollection(vtkCollection*) override;
   void SetCollection(vtkDataArrayCollection*);
-  //@}
+  ///@}
 
   /**
    * Get the item at the current iterator position.  Valid only when

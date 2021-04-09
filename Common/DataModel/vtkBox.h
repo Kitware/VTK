@@ -57,7 +57,7 @@ public:
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the bounding box using various methods.
    */
@@ -65,7 +65,7 @@ public:
   void SetXMin(double x, double y, double z);
   void GetXMin(double p[3]);
   void GetXMin(double& x, double& y, double& z);
-  //@}
+  ///@}
 
   void SetXMax(double p[3]);
   void SetXMax(double x, double y, double z);

@@ -131,12 +131,12 @@ public:
    */
   int InsertUniquePoint(vtkIdType p1, vtkIdType p2, double x[3], vtkIdType& ptId);
 
-  //@{
+  ///@{
   /**
    * Return the number of edges that have been inserted thus far.
    */
   vtkGetMacro(NumberOfEdges, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Initialize traversal of edges in table.

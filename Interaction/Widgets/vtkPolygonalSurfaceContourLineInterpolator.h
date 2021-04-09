@@ -50,13 +50,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolygonalSurfaceContourLineInterpolator
   : public vtkPolyDataContourLineInterpolator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolygonalSurfaceContourLineInterpolator, vtkPolyDataContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   static vtkPolygonalSurfaceContourLineInterpolator* New();
 
@@ -77,7 +77,7 @@ public:
   int UpdateNode(vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node),
     int vtkNotUsed(idx)) override;
 
-  //@{
+  ///@{
   /**
    * Height offset at which points may be placed on the polygonal surface.
    * If you specify a non-zero value here, be sure to have computed vertex
@@ -86,7 +86,7 @@ public:
    */
   vtkSetMacro(DistanceOffset, double);
   vtkGetMacro(DistanceOffset, double);
-  //@}
+  ///@}
 
   /**
    * Get the contour point ids. These point ids correspond to those on the

@@ -64,14 +64,14 @@ public:
   vtkTypeMacro(vtkHyperTreeGridContour, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator*);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is
@@ -84,7 +84,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Methods (inlined) to set / get contour values.
    */
@@ -96,7 +96,7 @@ public:
   vtkIdType GetNumberOfContours();
   void GenerateValues(int, double[2]);
   void GenerateValues(int, double, double);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridContour();
@@ -142,7 +142,7 @@ protected:
    */
   vtkIncrementalPointLocator* Locator;
 
-  //@{
+  ///@{
   /**
    * Pointers needed to perform isocontouring
    */
@@ -152,7 +152,7 @@ protected:
   vtkPixel* Pixel;
   vtkVoxel* Voxel;
   vtkIdList* Leaves;
-  //@}
+  ///@}
 
   /**
    * Storage for signs relative to current contour value

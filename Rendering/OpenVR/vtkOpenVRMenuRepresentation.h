@@ -48,15 +48,15 @@ public:
    */
   static vtkOpenVRMenuRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkOpenVRMenuRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkOpenVRPanelWidget.
    */
@@ -68,18 +68,18 @@ public:
     unsigned long event, void* calldata) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   int RenderOverlay(vtkViewport*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to add/remove items to the menu, called by the menu widget
    */
@@ -87,7 +87,7 @@ public:
   void RenameMenuItem(const char* name, const char* text);
   void RemoveMenuItem(const char* name);
   void RemoveAllMenuItems();
-  //@}
+  ///@}
 
   vtkGetMacro(CurrentOption, double);
 

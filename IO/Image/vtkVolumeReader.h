@@ -54,45 +54,45 @@ public:
   vtkTypeMacro(vtkVolumeReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file prefix for the image file(s).
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The snprintf format used to build filename from FilePrefix and number.
    */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the range of files to read.
    */
   vtkSetVector2Macro(ImageRange, int);
   vtkGetVectorMacro(ImageRange, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the spacing for the data.
    */
   vtkSetVector3Macro(DataSpacing, double);
   vtkGetVectorMacro(DataSpacing, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin for the data.
    */
   vtkSetVector3Macro(DataOrigin, double);
   vtkGetVectorMacro(DataOrigin, double, 3);
-  //@}
+  ///@}
 
   /**
    * Other objects make use of this method.

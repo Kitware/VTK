@@ -68,32 +68,32 @@ public:
   void SetOrientationType(unsigned int orientationType);
   vtkGetMacro(OrientationType, unsigned int);
 
-  //@{
+  ///@{
   /**
    * Get method to check if orientation type is specified.
    */
   vtkGetMacro(OrientationTypeSpecifiedFlag, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get methods to see if manual origin has been set.
    */
   vtkSetMacro(OriginSpecifiedFlag, bool);
   vtkGetMacro(OriginSpecifiedFlag, bool);
   vtkBooleanMacro(OriginSpecifiedFlag, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get if the spacing flag has been specified.
    */
   vtkSetMacro(SpacingSpecifiedFlag, bool);
   vtkGetMacro(SpacingSpecifiedFlag, bool);
   vtkBooleanMacro(SpacingSpecifiedFlag, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default false), TIFFTAG_COLORMAP, if any, will be
    * ignored.
@@ -101,7 +101,7 @@ public:
   vtkSetMacro(IgnoreColorMap, bool);
   vtkGetMacro(IgnoreColorMap, bool);
   vtkBooleanMacro(IgnoreColorMap, bool);
-  //@}
+  ///@}
 protected:
   vtkTIFFReader();
   ~vtkTIFFReader() override;

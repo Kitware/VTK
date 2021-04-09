@@ -49,15 +49,15 @@ public:
    */
   static vtkBinCellDataFilter* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for type and printing.
    */
   vtkTypeMacro(vtkBinCellDataFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get bin values.
    */
@@ -69,9 +69,9 @@ public:
   vtkIdType GetNumberOfBins();
   void GenerateValues(int numBins, double range[2]);
   void GenerateValues(int numBins, double rangeStart, double rangeEnd);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the data set whose cells will be counted.
    * The Input gives the geometry (the points and cells) for the output,
@@ -80,7 +80,7 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the data set whose cells will be counted.
@@ -90,7 +90,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * This flag is used only when a piece is requested to update.  By default
    * the flag is off.  Because no spatial correspondence between input pieces
@@ -104,9 +104,9 @@ public:
   vtkSetMacro(SpatialMatch, vtkTypeBool);
   vtkGetMacro(SpatialMatch, vtkTypeBool);
   vtkBooleanMacro(SpatialMatch, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to store the number of nonzero bins for each cell.
    * On by default.
@@ -114,9 +114,9 @@ public:
   vtkSetMacro(StoreNumberOfNonzeroBins, bool);
   vtkBooleanMacro(StoreNumberOfNonzeroBins, bool);
   vtkGetMacro(StoreNumberOfNonzeroBins, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the name of the id array added to the output that holds the number
    * of nonzero bins per cell.
@@ -124,9 +124,9 @@ public:
    */
   vtkSetStringMacro(NumberOfNonzeroBinsArrayName);
   vtkGetStringMacro(NumberOfNonzeroBinsArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance used to compute whether a cell centroid in the
    * source is in a cell of the input.  This value is only used
@@ -134,9 +134,9 @@ public:
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field value is ignored.
@@ -145,15 +145,15 @@ public:
   vtkSetMacro(ComputeTolerance, bool);
   vtkBooleanMacro(ComputeTolerance, bool);
   vtkGetMacro(ComputeTolerance, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of the scalar array to bin; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
   enum CellOverlapCriterion
   {
@@ -161,7 +161,7 @@ public:
     CELL_POINTS = 1,
   };
 
-  //@{
+  ///@{
   /**
    * Set whether cell overlap is determined by source cell centroid or by source
    * cell points.
@@ -169,16 +169,16 @@ public:
    */
   vtkSetClampMacro(CellOverlapMethod, int, CELL_CENTROID, CELL_POINTS);
   vtkGetMacro(CellOverlapMethod, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a spatial locator for speeding the search process. By
    * default an instance of vtkStaticCellLocator is used.
    */
   virtual void SetCellLocator(vtkAbstractCellLocator* cellLocator);
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
 protected:
   vtkBinCellDataFilter();

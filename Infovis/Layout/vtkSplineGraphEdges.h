@@ -43,13 +43,13 @@ public:
   vtkTypeMacro(vtkSplineGraphEdges, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If SplineType is CUSTOM, uses this spline.
    */
   virtual void SetSpline(vtkSpline* s);
   vtkGetObjectMacro(Spline, vtkSpline);
-  //@}
+  ///@}
 
   enum
   {
@@ -57,7 +57,7 @@ public:
     CUSTOM
   };
 
-  //@{
+  ///@{
   /**
    * Spline type used by the filter.
    * BSPLINE (0) - Use optimized b-spline (default).
@@ -65,15 +65,15 @@ public:
    */
   vtkSetMacro(SplineType, int);
   vtkGetMacro(SplineType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of subdivisions in the spline.
    */
   vtkSetMacro(NumberOfSubdivisions, vtkIdType);
   vtkGetMacro(NumberOfSubdivisions, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkSplineGraphEdges();

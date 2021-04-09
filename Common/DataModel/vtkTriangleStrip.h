@@ -41,7 +41,7 @@ public:
   vtkTypeMacro(vtkTriangleStrip, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -58,7 +58,7 @@ public:
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
-  //@}
+  ///@}
 
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;

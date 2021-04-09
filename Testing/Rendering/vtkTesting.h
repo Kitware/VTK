@@ -156,7 +156,7 @@ public:
   static int InteractorEventLoop(
     int argc, char* argv[], vtkRenderWindowInteractor* iren, const char* stream = nullptr);
 
-  //@{
+  ///@{
   /**
    * Use the front buffer first for regression test comparisons. By
    * default use back buffer first, then try the front buffer if the
@@ -165,7 +165,7 @@ public:
   vtkBooleanMacro(FrontBuffer, vtkTypeBool);
   vtkGetMacro(FrontBuffer, vtkTypeBool);
   void SetFrontBuffer(vtkTypeBool frontBuffer);
-  //@}
+  ///@}
 
   /**
    * Perform the test and return the result. Delegates to
@@ -188,22 +188,22 @@ public:
    */
   virtual int RegressionTest(double thresh, ostream& os);
 
-  //@{
+  ///@{
   /**
    * Perform the test and return result. The test image will be read from the
    * png file at pngFileName.
    */
   virtual int RegressionTest(const std::string& pngFileName, double thresh);
   virtual int RegressionTest(const std::string& pngFileName, double thresh, ostream& os);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compare the image with the valid image.
    */
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh);
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);
-  //@}
+  ///@}
 
   /**
    * Compute the average L2 norm between all point data data arrays
@@ -219,30 +219,30 @@ public:
    */
   int CompareAverageOfL2Norm(vtkDataArray* daA, vtkDataArray* daB, double tol);
 
-  //@{
+  ///@{
   /**
    * Set and get the render window that will be used for regression testing.
    */
   virtual void SetRenderWindow(vtkRenderWindow* rw);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the valid image file
    */
   vtkSetStringMacro(ValidImageFileName);
   const char* GetValidImageFileName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the image difference.
    */
   vtkGetMacro(ImageDifference, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Pass the command line arguments into this class to be processed. Many of
    * the Get methods such as GetValidImage and GetBaselineRoot rely on the
@@ -252,7 +252,7 @@ public:
   void AddArgument(const char* argv);
   void AddArguments(int argc, const char** argv);
   void AddArguments(int argc, char** argv);
-  //@}
+  ///@}
 
   /**
    * Search for a specific argument by name and return its value
@@ -267,21 +267,21 @@ public:
    */
   void CleanArguments();
 
-  //@{
+  ///@{
   /**
    * Get some parameters from the command line arguments, env, or defaults
    */
   const char* GetDataRoot();
   vtkSetStringMacro(DataRoot);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get some parameters from the command line arguments, env, or defaults
    */
   const char* GetTempDirectory();
   vtkSetStringMacro(TempDirectory);
-  //@}
+  ///@}
 
   /**
    * Is a valid image specified on the command line areguments?
@@ -298,22 +298,22 @@ public:
    */
   int IsFlagSpecified(const char* flag);
 
-  //@{
+  ///@{
   /**
    * Number of pixels added as borders to avoid problems with
    * window decorations added by some window managers.
    */
   vtkSetMacro(BorderOffset, int);
   vtkGetMacro(BorderOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set verbosity level. A level of 0 is quiet.
    */
   vtkSetMacro(Verbose, int);
   vtkGetMacro(Verbose, int);
-  //@}
+  ///@}
 
 protected:
   vtkTesting();

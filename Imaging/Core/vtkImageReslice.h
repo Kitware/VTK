@@ -75,7 +75,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This method is used to set up the axes for the output voxels.
    * The output Spacing, Origin, and Extent specify the locations
@@ -93,9 +93,9 @@ public:
    */
   virtual void SetResliceAxes(vtkMatrix4x4*);
   vtkGetObjectMacro(ResliceAxes, vtkMatrix4x4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the direction cosines for the ResliceAxes (i.e. the
    * first three elements of each of the first three columns of
@@ -123,9 +123,9 @@ public:
     this->GetResliceAxesDirectionCosines(this->ResliceAxesDirectionCosines);
     return this->ResliceAxesDirectionCosines;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin for the ResliceAxes (i.e. the first three
    * elements of the final column of the ResliceAxes matrix).
@@ -143,9 +143,9 @@ public:
     this->GetResliceAxesOrigin(this->ResliceAxesOrigin);
     return this->ResliceAxesOrigin;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a transform to be applied to the resampling grid that has
    * been defined via the ResliceAxes and the output Origin, Spacing
@@ -157,9 +157,9 @@ public:
    */
   virtual void SetResliceTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(ResliceTransform, vtkAbstractTransform);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a vtkImageData from which the default Spacing, Origin,
    * and WholeExtent of the output will be copied.  The spacing,
@@ -171,9 +171,9 @@ public:
    */
   virtual void SetInformationInput(vtkImageData*);
   vtkGetObjectMacro(InformationInput, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to transform the spacing, origin and extent
    * of the Input (or the InformationInput) according to the
@@ -184,9 +184,9 @@ public:
   vtkSetMacro(TransformInputSampling, vtkTypeBool);
   vtkBooleanMacro(TransformInputSampling, vtkTypeBool);
   vtkGetMacro(TransformInputSampling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn this on if you want to guarantee that the extent of the
    * output will be large enough to ensure that none of the
@@ -195,18 +195,18 @@ public:
   vtkSetMacro(AutoCropOutput, vtkTypeBool);
   vtkBooleanMacro(AutoCropOutput, vtkTypeBool);
   vtkGetMacro(AutoCropOutput, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on wrap-pad feature (default: Off).
    */
   vtkSetMacro(Wrap, vtkTypeBool);
   vtkGetMacro(Wrap, vtkTypeBool);
   vtkBooleanMacro(Wrap, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on mirror-pad feature (default: Off).
    * This will override the wrap-pad.
@@ -214,9 +214,9 @@ public:
   vtkSetMacro(Mirror, vtkTypeBool);
   vtkGetMacro(Mirror, vtkTypeBool);
   vtkBooleanMacro(Mirror, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Extend the apparent input border by a half voxel (default: On).
    * This changes how interpolation is handled at the borders of the
@@ -230,17 +230,17 @@ public:
   vtkSetMacro(Border, vtkTypeBool);
   vtkGetMacro(Border, vtkTypeBool);
   vtkBooleanMacro(Border, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the border thickness for BorderOn() (default: 0.5).
    * See SetBorder() for more information.
    */
-  //@{
+  ///@{
   vtkSetMacro(BorderThickness, double);
   vtkGetMacro(BorderThickness, double);
-  //@}
+  ///@}
 
   /**
    * Set interpolation mode (default: nearest neighbor).
@@ -251,18 +251,18 @@ public:
   void SetInterpolationModeToLinear() { this->SetInterpolationMode(VTK_RESLICE_LINEAR); }
   void SetInterpolationModeToCubic() { this->SetInterpolationMode(VTK_RESLICE_CUBIC); }
   virtual const char* GetInterpolationModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the interpolator to use.  The default interpolator
    * supports the Nearest, Linear, and Cubic interpolation modes.
    */
   virtual void SetInterpolator(vtkAbstractImageInterpolator* sampler);
   virtual vtkAbstractImageInterpolator* GetInterpolator();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the slab mode, for generating thick slices. The default is Mean.
    * If SetSlabNumberOfSlices(N) is called with N greater than one, then
@@ -276,17 +276,17 @@ public:
   void SetSlabModeToMean() { this->SetSlabMode(VTK_IMAGE_SLAB_MEAN); }
   void SetSlabModeToSum() { this->SetSlabMode(VTK_IMAGE_SLAB_SUM); }
   virtual const char* GetSlabModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of slices that will be combined to create the slab.
    */
   vtkSetMacro(SlabNumberOfSlices, int);
   vtkGetMacro(SlabNumberOfSlices, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use trapezoid integration for slab computation.  All this does is
    * weigh the first and last slices by half when doing sum and mean.
@@ -295,9 +295,9 @@ public:
   vtkSetMacro(SlabTrapezoidIntegration, vtkTypeBool);
   vtkBooleanMacro(SlabTrapezoidIntegration, vtkTypeBool);
   vtkGetMacro(SlabTrapezoidIntegration, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The slab spacing as a fraction of the output slice spacing.
    * When one of the various slab modes is chosen, each output slice is
@@ -309,9 +309,9 @@ public:
    */
   vtkSetMacro(SlabSliceSpacingFraction, double);
   vtkGetMacro(SlabSliceSpacingFraction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off optimizations (default on, they should only be
    * turned off for testing purposes).
@@ -319,9 +319,9 @@ public:
   vtkSetMacro(Optimization, vtkTypeBool);
   vtkGetMacro(Optimization, vtkTypeBool);
   vtkBooleanMacro(Optimization, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a value to add to all the output voxels.
    * After a sample value has been interpolated from the input image, the
@@ -331,9 +331,9 @@ public:
    */
   vtkSetMacro(ScalarShift, double);
   vtkGetMacro(ScalarShift, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set multiplication factor to apply to all the output voxels.
    * After a sample value has been interpolated from the input image, the
@@ -343,9 +343,9 @@ public:
    */
   vtkSetMacro(ScalarScale, double);
   vtkGetMacro(ScalarScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar type of the output to be different from the input.
    * The default value is -1, which means that the input scalar type will be
@@ -358,25 +358,25 @@ public:
    */
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the background color (for multi-component images).
    */
   vtkSetVector4Macro(BackgroundColor, double);
   vtkGetVector4Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set background grey level (for single-component images).
    */
   void SetBackgroundLevel(double v) { this->SetBackgroundColor(v, v, v, v); }
   double GetBackgroundLevel() { return this->GetBackgroundColor()[0]; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the voxel spacing for the output data.  The default output
    * spacing is the input spacing permuted through the ResliceAxes.
@@ -385,9 +385,9 @@ public:
   virtual void SetOutputSpacing(const double a[3]) { this->SetOutputSpacing(a[0], a[1], a[2]); }
   vtkGetVector3Macro(OutputSpacing, double);
   void SetOutputSpacingToDefault();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the origin for the output data.  The default output origin
    * is the input origin permuted through the ResliceAxes.
@@ -396,9 +396,9 @@ public:
   virtual void SetOutputOrigin(const double a[3]) { this->SetOutputOrigin(a[0], a[1], a[2]); }
   vtkGetVector3Macro(OutputOrigin, double);
   void SetOutputOriginToDefault();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the extent for the output data.  The default output extent
    * is the input extent permuted through the ResliceAxes.
@@ -410,9 +410,9 @@ public:
   }
   vtkGetVector6Macro(OutputExtent, int);
   void SetOutputExtentToDefault();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the dimensionality of the output to either 1, 2,
    * 3 or 0 (default: 3).  If the dimensionality is 2D, then
@@ -425,7 +425,7 @@ public:
    */
   vtkSetMacro(OutputDimensionality, int);
   vtkGetMacro(OutputDimensionality, int);
-  //@}
+  ///@}
 
   /**
    * When determining the modified time of the filter,
@@ -438,7 +438,7 @@ public:
    */
   void ReportReferences(vtkGarbageCollector*) override;
 
-  //@{
+  ///@{
   /**
    * Convenient methods for switching between nearest-neighbor and linear
    * interpolation.
@@ -461,9 +461,9 @@ public:
   void InterpolateOn() { this->SetInterpolate(1); }
   void InterpolateOff() { this->SetInterpolate(0); }
   int GetInterpolate() { return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use a stencil to limit the calculations to a specific region of
    * the output.  Portions of the output that are 'outside' the stencil
@@ -471,9 +471,9 @@ public:
    */
   void SetStencilData(vtkImageStencilData* stencil);
   vtkImageStencilData* GetStencil();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate an output stencil that defines which pixels were
    * interpolated and which pixels were out-of-bounds of the input.
@@ -481,16 +481,16 @@ public:
   vtkSetMacro(GenerateStencilOutput, vtkTypeBool);
   vtkGetMacro(GenerateStencilOutput, vtkTypeBool);
   vtkBooleanMacro(GenerateStencilOutput, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output stencil.
    */
   vtkAlgorithmOutput* GetStencilOutputPort() { return this->GetOutputPort(1); }
   vtkImageStencilData* GetStencilOutput();
   void SetStencilOutput(vtkImageStencilData* stencil);
-  //@}
+  ///@}
 
 protected:
   vtkImageReslice();

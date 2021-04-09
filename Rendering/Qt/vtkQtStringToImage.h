@@ -38,7 +38,7 @@ public:
 
   static vtkQtStringToImage* New();
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the bounding box [xmin, xmax] x
    * [ymin, ymax]. Note that this is the bounding box of the area
@@ -55,9 +55,9 @@ public:
   vtkVector2i GetBounds(
     vtkTextProperty* property, const vtkUnicodeString& string, int dpi) override;
   vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function initializes the
    * vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
@@ -67,7 +67,7 @@ public:
     vtkImageData* data, int textDims[2] = nullptr) override;
   int RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
     vtkImageData* data, int textDims[2] = nullptr) override;
-  //@}
+  ///@}
 
   /**
    * Make a deep copy of the supplied utility class.

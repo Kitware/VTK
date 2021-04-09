@@ -55,13 +55,13 @@ public:
     this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * Define a shrink percentage for each of the sectors.
    */
   vtkSetMacro(ShrinkPercentage, double);
   vtkGetMacro(ShrinkPercentage, double);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

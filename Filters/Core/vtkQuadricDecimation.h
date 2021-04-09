@@ -72,7 +72,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkQuadricDecimation* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired reduction (expressed as a fraction of the original
    * number of triangles). The actual reduction may be less depending on
@@ -80,9 +80,9 @@ public:
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Decide whether to include data attributes in the error metric. If off,
    * then only geometric error is used to control the decimation. By default
@@ -91,9 +91,9 @@ public:
   vtkSetMacro(AttributeErrorMetric, vtkTypeBool);
   vtkGetMacro(AttributeErrorMetric, vtkTypeBool);
   vtkBooleanMacro(AttributeErrorMetric, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Decide whether to activate volume preservation which greatly reduces errors
    * in triangle normal direction. If off, volume preservation is disabled and
@@ -104,9 +104,9 @@ public:
   vtkSetMacro(VolumePreservation, vtkTypeBool);
   vtkGetMacro(VolumePreservation, vtkTypeBool);
   vtkBooleanMacro(VolumePreservation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If attribute errors are to be included in the metric (i.e.,
    * AttributeErrorMetric is on), then the following flags control which
@@ -128,9 +128,9 @@ public:
   vtkSetMacro(TensorsAttribute, vtkTypeBool);
   vtkGetMacro(TensorsAttribute, vtkTypeBool);
   vtkBooleanMacro(TensorsAttribute, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scaling weight contribution of the attribute. These
    * values are used to weight the contribution of the attributes
@@ -146,15 +146,15 @@ public:
   vtkGetMacro(NormalsWeight, double);
   vtkGetMacro(TCoordsWeight, double);
   vtkGetMacro(TensorsWeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the actual reduction. This value is only valid after the
    * filter has executed.
    */
   vtkGetMacro(ActualReduction, double);
-  //@}
+  ///@}
 
 protected:
   vtkQuadricDecimation();
@@ -189,14 +189,14 @@ protected:
    */
   void AddQuadric(vtkIdType oldPtId, vtkIdType newPtId);
 
-  //@{
+  ///@{
   /**
    * Compute cost for contracting this edge and the point that gives us this
    * cost.
    */
   double ComputeCost(vtkIdType edgeId, double* x);
   double ComputeCost2(vtkIdType edgeId, double* x);
-  //@}
+  ///@}
 
   /**
    * Find all edges that will have an endpoint change ids because of an edge
@@ -216,13 +216,13 @@ protected:
   void ComputeNumberOfComponents(void);
   void UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id);
 
-  //@{
+  ///@{
   /**
    * Helper function to set and get the point and it's attributes as an array
    */
   void SetPointAttributeArray(vtkIdType ptId, const double* x);
   void GetPointAttributeArray(vtkIdType ptId, double* x);
-  //@}
+  ///@}
 
   /**
    * Find out how many components there are for each attribute for this

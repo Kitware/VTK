@@ -57,7 +57,7 @@ public:
   vtkGetVector3Macro(UpVector, double);
   vtkSetVector3Macro(UpVector, double);
 
-  //@{
+  ///@{
   /**
    * Normally, hand position/orientation is set explicitly.
    * If set to false, hand and arm will follow the torso
@@ -69,16 +69,16 @@ public:
   vtkSetMacro(UseRightHand, bool);
   vtkGetMacro(UseRightHand, bool);
   vtkBooleanMacro(UseRightHand, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Show just the hands. Default false.
    */
   vtkSetMacro(ShowHandsOnly, bool);
   vtkGetMacro(ShowHandsOnly, bool);
   vtkBooleanMacro(ShowHandsOnly, bool);
-  //@}
+  ///@}
 
 protected:
   vtkAvatar();

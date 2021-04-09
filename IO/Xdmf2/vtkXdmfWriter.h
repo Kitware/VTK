@@ -66,31 +66,31 @@ public:
    */
   virtual void SetInputData(vtkDataObject* dobj);
 
-  //@{
+  ///@{
   /**
    * Set or get the file name of the xdmf file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the file name of the hdf5 file.
    * Note that if the File name is not specified, then the group name is ignore
    */
   vtkSetStringMacro(HeavyDataFileName);
   vtkGetStringMacro(HeavyDataFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the group name into which data will be written
    * it may contain nested groups as in "/Proc0/Block0"
    */
   vtkSetStringMacro(HeavyDataGroupName);
   vtkGetStringMacro(HeavyDataGroupName);
-  //@}
+  ///@}
 
   /**
    * Write data to output. Method executes subclasses WriteData() method, as
@@ -99,7 +99,7 @@ public:
    */
   virtual int Write();
 
-  //@{
+  ///@{
   /**
    * Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
    * Default is 100.
@@ -107,9 +107,9 @@ public:
    */
   vtkSetMacro(LightDataLimit, int);
   vtkGetMacro(LightDataLimit, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether writer automatically writes all input time steps, or
    * just the timestep that is currently on the input.
@@ -118,9 +118,9 @@ public:
   vtkSetMacro(WriteAllTimeSteps, int);
   vtkGetMacro(WriteAllTimeSteps, int);
   vtkBooleanMacro(WriteAllTimeSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set of get the flag that specify if input mesh is static over time.
    * If so, the mesh topology and geometry heavy data will be written only once.
@@ -130,16 +130,16 @@ public:
   vtkSetMacro(MeshStaticOverTime, bool);
   vtkGetMacro(MeshStaticOverTime, bool);
   vtkBooleanMacro(MeshStaticOverTime, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Called in parallel runs to identify the portion this process is responsible for
    * TODO: respect this
    */
   vtkSetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
   // TODO: control choice of heavy data format (xml, hdf5, sql, raw)
 

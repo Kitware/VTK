@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkInitialValueProblemSolver, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Given initial values, xprev , initial time, t and a requested time
    * interval, delT calculate values of x at t+delTActual (xnext).
@@ -125,15 +125,15 @@ public:
   {
     return 0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the dataset used for the implicit function evaluation.
    */
   virtual void SetFunctionSet(vtkFunctionSet* fset);
   vtkGetObjectMacro(FunctionSet, vtkFunctionSet);
-  //@}
+  ///@}
 
   /**
    * Returns 1 if the solver uses adaptive stepsize control,

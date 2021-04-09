@@ -42,13 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPTableReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkTable* GetOutput();
   vtkTable* GetOutput(int idx);
-  //@}
+  ///@}
 
   /**
    * For the specified port, copy the information this reader sets up in
@@ -67,14 +67,14 @@ public:
    */
   const char* GetColumnArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the column array with the given name is to
    * be read.
    */
   int GetColumnArrayStatus(const char* name);
   void SetColumnArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   /**
    * Get the data array selection tables used to configure which data

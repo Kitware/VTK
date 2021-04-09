@@ -63,22 +63,22 @@ public:
    */
   virtual void Duplicate(const vtkPainterCommunicator* other);
 
-  //@{
+  ///@{
   /**
    * Querry MPI for information about the communicator.
    */
   virtual int GetRank();
   virtual int GetSize();
   virtual bool GetIsNull();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Querry MPI for information about the world communicator.
    */
   virtual int GetWorldRank();
   virtual int GetWorldSize();
-  //@}
+  ///@}
 
   /**
    * Querry MPI state.
@@ -89,7 +89,7 @@ public:
   static bool MPIInitialized();
   static bool MPIFinalized();
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator. Ownership is not assumed
    * thus caller must keep the commuicator alive while
@@ -99,7 +99,7 @@ public:
   void SetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
   void GetCommunicator(vtkMPICommunicatorOpaqueComm* comm);
   void* GetCommunicator();
-  //@}
+  ///@}
 
   /**
    * Creates a new communicator with/without the calling processes

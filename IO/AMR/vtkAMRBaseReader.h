@@ -48,7 +48,7 @@ public:
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Set/Get Reader caching property
    */
@@ -56,51 +56,51 @@ public:
   vtkGetMacro(EnableCaching, vtkTypeBool);
   vtkBooleanMacro(EnableCaching, vtkTypeBool);
   bool IsCachingEnabled() const { return ((this->EnableCaching) ? true : false); };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a multiprocess-controller for reading in parallel.
    * By default this parameter is set to nullptr by the constructor.
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the level, up to which the blocks are loaded.
    */
   vtkSetMacro(MaxLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the data array selection tables used to configure which data
    * arrays are loaded by the reader.
    */
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of point or cell arrays available in the input.
    */
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the name of the point or cell array with the given index in
    * the input.
    */
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the point or cell array with the given name is to
    * be read.
@@ -109,16 +109,16 @@ public:
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename. Concrete instances of this class must implement
    * the SetFileName method accordingly.
    */
   vtkGetStringMacro(FileName);
   virtual void SetFileName(const char* fileName) = 0;
-  //@}
+  ///@}
 
   /**
    * Returns the total number of blocks. Implemented by concrete instances.
@@ -244,7 +244,7 @@ protected:
   virtual void GetAMRGridPointData(
     const int blockIdx, vtkUniformGrid* block, const char* field) = 0;
 
-  //@{
+  ///@{
   /**
    * Standard Pipeline methods, subclasses may override this method if needed.
    */
@@ -253,7 +253,7 @@ protected:
   int RequestInformation(vtkInformation* rqst, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
   // Array selection member variables and methods
   vtkDataArraySelection* PointDataArraySelection;

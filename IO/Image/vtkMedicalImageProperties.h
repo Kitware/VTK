@@ -44,25 +44,25 @@ public:
    */
   virtual void Clear();
 
-  //@{
+  ///@{
   /**
    * Patient name
    * For ex: DICOM (0010,0010) = DOE,JOHN
    */
   vtkSetStringMacro(PatientName);
   vtkGetStringMacro(PatientName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Patient ID
    * For ex: DICOM (0010,0020) = 1933197
    */
   vtkSetStringMacro(PatientID);
   vtkGetStringMacro(PatientID);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Patient age
    * Format: nnnD, nnW, nnnM or nnnY (eventually nnD, nnW, nnY)
@@ -71,7 +71,7 @@ public:
    */
   vtkSetStringMacro(PatientAge);
   vtkGetStringMacro(PatientAge);
-  //@}
+  ///@}
 
   /**
    * Take as input a string in VR=AS (DICOM PS3.5) and extract either
@@ -92,16 +92,16 @@ public:
   int GetPatientAgeWeek();
   int GetPatientAgeDay();
 
-  //@{
+  ///@{
   /**
    * Patient sex
    * For ex: DICOM (0010,0040) = M
    */
   vtkSetStringMacro(PatientSex);
   vtkGetStringMacro(PatientSex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Patient birth date
    * Format: yyyymmdd
@@ -109,7 +109,7 @@ public:
    */
   vtkSetStringMacro(PatientBirthDate);
   vtkGetStringMacro(PatientBirthDate);
-  //@}
+  ///@}
 
   // For Tcl:
   // From C++ use GetPatientBirthDate + GetDateAsFields
@@ -117,7 +117,7 @@ public:
   int GetPatientBirthDateMonth();
   int GetPatientBirthDateDay();
 
-  //@{
+  ///@{
   /**
    * Study Date
    * Format: yyyymmdd
@@ -125,9 +125,9 @@ public:
    */
   vtkSetStringMacro(StudyDate);
   vtkGetStringMacro(StudyDate);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Acquisition Date
    * Format: yyyymmdd
@@ -135,7 +135,7 @@ public:
    */
   vtkSetStringMacro(AcquisitionDate);
   vtkGetStringMacro(AcquisitionDate);
-  //@}
+  ///@}
 
   // For Tcl:
   // From C++ use GetAcquisitionDate + GetDateAsFields
@@ -143,7 +143,7 @@ public:
   int GetAcquisitionDateMonth();
   int GetAcquisitionDateDay();
 
-  //@{
+  ///@{
   /**
    * Study Time
    * Format: hhmmss.frac (any trailing component(s) can be omitted)
@@ -151,9 +151,9 @@ public:
    */
   vtkSetStringMacro(StudyTime);
   vtkGetStringMacro(StudyTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Acquisition time
    * Format: hhmmss.frac (any trailing component(s) can be omitted)
@@ -161,9 +161,9 @@ public:
    */
   vtkSetStringMacro(AcquisitionTime);
   vtkGetStringMacro(AcquisitionTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Image Date aka Content Date
    * Format: yyyymmdd
@@ -171,7 +171,7 @@ public:
    */
   vtkSetStringMacro(ImageDate);
   vtkGetStringMacro(ImageDate);
-  //@}
+  ///@}
 
   // For Tcl:
   // From C++ use GetImageDate + GetDateAsFields
@@ -202,7 +202,7 @@ public:
    */
   static int GetDateAsLocale(const char* date, char* locale);
 
-  //@{
+  ///@{
   /**
    * Image Time
    * Format: hhmmss.frac (any trailing component(s) can be omitted)
@@ -210,27 +210,27 @@ public:
    */
   vtkSetStringMacro(ImageTime);
   vtkGetStringMacro(ImageTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Image number
    * For ex: DICOM (0020,0013) = 1
    */
   vtkSetStringMacro(ImageNumber);
   vtkGetStringMacro(ImageNumber);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Series number
    * For ex: DICOM (0020,0011) = 902
    */
   vtkSetStringMacro(SeriesNumber);
   vtkGetStringMacro(SeriesNumber);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Series Description
    * User provided description of the Series
@@ -238,81 +238,81 @@ public:
    */
   vtkSetStringMacro(SeriesDescription);
   vtkGetStringMacro(SeriesDescription);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Study ID
    * For ex: DICOM (0020,0010) = 37481
    */
   vtkSetStringMacro(StudyID);
   vtkGetStringMacro(StudyID);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Study description
    * For ex: DICOM (0008,1030) = BRAIN/C-SP/FACIAL
    */
   vtkSetStringMacro(StudyDescription);
   vtkGetStringMacro(StudyDescription);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Modality
    * For ex: DICOM (0008,0060)= CT
    */
   vtkSetStringMacro(Modality);
   vtkGetStringMacro(Modality);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manufacturer
    * For ex: DICOM (0008,0070) = Siemens
    */
   vtkSetStringMacro(Manufacturer);
   vtkGetStringMacro(Manufacturer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manufacturer's Model Name
    * For ex: DICOM (0008,1090) = LightSpeed QX/i
    */
   vtkSetStringMacro(ManufacturerModelName);
   vtkGetStringMacro(ManufacturerModelName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Station Name
    * For ex: DICOM (0008,1010) = LSPD_OC8
    */
   vtkSetStringMacro(StationName);
   vtkGetStringMacro(StationName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Institution Name
    * For ex: DICOM (0008,0080) = FooCity Medical Center
    */
   vtkSetStringMacro(InstitutionName);
   vtkGetStringMacro(InstitutionName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convolution Kernel (or algorithm used to reconstruct the data)
    * For ex: DICOM (0018,1210) = Bone
    */
   vtkSetStringMacro(ConvolutionKernel);
   vtkGetStringMacro(ConvolutionKernel);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Slice Thickness (Nominal reconstructed slice thickness, in mm)
    * For ex: DICOM (0018,0050) = 0.273438
@@ -320,18 +320,18 @@ public:
   vtkSetStringMacro(SliceThickness);
   vtkGetStringMacro(SliceThickness);
   virtual double GetSliceThicknessAsDouble();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Peak kilo voltage output of the (x-ray) generator used
    * For ex: DICOM (0018,0060) = 120
    */
   vtkSetStringMacro(KVP);
   vtkGetStringMacro(KVP);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Gantry/Detector tilt (Nominal angle of tilt in degrees of the scanning
    * gantry.)
@@ -340,9 +340,9 @@ public:
   vtkSetStringMacro(GantryTilt);
   vtkGetStringMacro(GantryTilt);
   virtual double GetGantryTiltAsDouble();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Echo Time
    * (Time in ms between the middle of the excitation pulse and the peak of
@@ -351,9 +351,9 @@ public:
    */
   vtkSetStringMacro(EchoTime);
   vtkGetStringMacro(EchoTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Echo Train Length
    * (Number of lines in k-space acquired per excitation per image)
@@ -361,9 +361,9 @@ public:
    */
   vtkSetStringMacro(EchoTrainLength);
   vtkGetStringMacro(EchoTrainLength);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Repetition Time
    * The period of time in msec between the beginning of a pulse sequence and
@@ -372,27 +372,27 @@ public:
    */
   vtkSetStringMacro(RepetitionTime);
   vtkGetStringMacro(RepetitionTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Exposure time (time of x-ray exposure in msec)
    * For ex: DICOM (0018,1150) = 5
    */
   vtkSetStringMacro(ExposureTime);
   vtkGetStringMacro(ExposureTime);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * X-ray tube current (in mA)
    * For ex: DICOM (0018,1151) = 400
    */
   vtkSetStringMacro(XRayTubeCurrent);
   vtkGetStringMacro(XRayTubeCurrent);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Exposure (The exposure expressed in mAs, for example calculated
    * from Exposure Time and X-ray Tube Current)
@@ -400,15 +400,15 @@ public:
    */
   vtkSetStringMacro(Exposure);
   vtkGetStringMacro(Exposure);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the direction cosine (default to 1,0,0,0,1,0)
    */
   vtkSetVector6Macro(DirectionCosine, double);
   vtkGetVector6Macro(DirectionCosine, double);
-  //@}
+  ///@}
 
   // Interface to allow insertion of user define values, for instance in DICOM
   // one would want to
@@ -421,7 +421,7 @@ public:
   virtual const char* GetUserDefinedValueByIndex(unsigned int idx);
   virtual void RemoveAllUserDefinedValues();
 
-  //@{
+  ///@{
   /**
    * Add/Remove/Query the window/level presets that may have been associated
    * to a medical image. Window is also known as 'width', level is also known
@@ -445,9 +445,9 @@ public:
   virtual double* GetNthWindowLevelPreset(int idx) VTK_SIZEHINT(2);
   virtual void SetNthWindowLevelPresetComment(int idx, const char* comment);
   virtual const char* GetNthWindowLevelPresetComment(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Mapping from a sliceidx within a volumeidx into a DICOM Instance UID
    * Some DICOM reader can populate this structure so that later on from
@@ -456,7 +456,7 @@ public:
    */
   const char* GetInstanceUIDFromSliceID(int volumeidx, int sliceid);
   void SetInstanceUIDFromSliceID(int volumeidx, int sliceid, const char* uid);
-  //@}
+  ///@}
 
   /**
    * Provides the inverse mapping. Returns -1 if a slice for this uid is

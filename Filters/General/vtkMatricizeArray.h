@@ -46,19 +46,19 @@ public:
   vtkTypeMacro(vtkMatricizeArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Returns the 0-numbered dimension that will be mapped to columns in the output
    */
   vtkGetMacro(SliceDimension, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the 0-numbered dimension that will be mapped to columns in the output
    */
   vtkSetMacro(SliceDimension, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkMatricizeArray();

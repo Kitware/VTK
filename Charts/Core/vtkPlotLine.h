@@ -52,7 +52,7 @@ public:
    */
   bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether the points define a poly line
    * (true) or multiple line segments (false).
@@ -63,7 +63,7 @@ public:
   vtkSetMacro(PolyLine, bool);
   vtkGetMacro(PolyLine, bool);
   vtkBooleanMacro(PolyLine, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPlotLine();

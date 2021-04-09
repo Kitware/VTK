@@ -41,13 +41,13 @@ public:
    */
   static vtkImageActorPointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkImageActorPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given and renderer and a display position in pixels,
@@ -100,7 +100,7 @@ public:
    */
   int UpdateInternalState() override;
 
-  //@{
+  ///@{
   /**
    * Set / get the reference vtkImageActor used to place the points.
    * An image actor must be set for this placer to work. An internal
@@ -109,9 +109,9 @@ public:
    */
   void SetImageActor(vtkImageActor*);
   vtkGetObjectMacro(ImageActor, vtkImageActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Optionally, you may set bounds to restrict the placement of the points.
    * The placement of points will then be constrained to lie not only on
@@ -120,7 +120,7 @@ public:
    */
   vtkSetVector6Macro(Bounds, double);
   vtkGetVector6Macro(Bounds, double);
-  //@}
+  ///@}
 
   /**
    * Set the world tolerance. This propagates it to the internal

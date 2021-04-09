@@ -49,7 +49,7 @@ public:
     ACCEPT_OUTSIDE = 3
   };
 
-  //@{
+  ///@{
   /**
    * The mode of the threshold filter.  Options are:
    * ACCEPT_LESS_THAN (0) accepts rows with values < MaxValue;
@@ -59,9 +59,9 @@ public:
    */
   vtkSetClampMacro(Mode, int, 0, 3);
   vtkGetMacro(Mode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The minimum value for the threshold.
    * This may be any data type stored in a vtkVariant.
@@ -72,9 +72,9 @@ public:
     this->Modified();
   }
   virtual vtkVariant GetMinValue() { return this->MinValue; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum value for the threshold.
    * This may be any data type stored in a vtkVariant.
@@ -85,7 +85,7 @@ public:
     this->Modified();
   }
   virtual vtkVariant GetMaxValue() { return this->MaxValue; }
-  //@}
+  ///@}
 
   /**
    * Criterion is rows whose scalars are between lower and upper thresholds

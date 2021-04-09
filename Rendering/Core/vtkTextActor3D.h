@@ -48,21 +48,21 @@ public:
   vtkTypeMacro(vtkTextActor3D, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the text string to be displayed.
    */
   vtkSetStringMacro(Input);
   vtkGetStringMacro(Input);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    */
   virtual void SetTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Since a 3D text actor is not pixel-aligned and positioned in 3D space,
@@ -114,7 +114,7 @@ public:
   virtual void ForceTranslucentOff();
   /**@}*/
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -123,7 +123,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

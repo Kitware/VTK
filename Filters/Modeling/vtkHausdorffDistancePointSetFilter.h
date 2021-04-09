@@ -70,28 +70,28 @@
 class VTKFILTERSMODELING_EXPORT vtkHausdorffDistancePointSetFilter : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type and printing.
    */
   static vtkHausdorffDistancePointSetFilter* New();
   vtkTypeMacro(vtkHausdorffDistancePointSetFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the Relative Distance from A to B and B to A.
    */
   vtkGetVector2Macro(RelativeDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the Hausdorff Distance.
    */
   vtkGetMacro(HausdorffDistance, double);
-  //@}
+  ///@}
 
   enum DistanceMethod
   {
@@ -99,7 +99,7 @@ public:
     POINT_TO_CELL
   };
 
-  //@{
+  ///@{
   /**
    * Specify the strategy for computing the distance. If no topology is specified (ie.
    * vtkPointSet or vtkPolyData without vtkPolys), the distances are
@@ -113,7 +113,7 @@ public:
   void SetTargetDistanceMethodToPointToPoint() { this->SetTargetDistanceMethod(POINT_TO_POINT); }
   void SetTargetDistanceMethodToPointToCell() { this->SetTargetDistanceMethod(POINT_TO_CELL); }
   const char* GetTargetDistanceMethodAsString();
-  //@}
+  ///@}
 
 protected:
   vtkHausdorffDistancePointSetFilter();

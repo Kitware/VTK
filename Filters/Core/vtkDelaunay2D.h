@@ -175,7 +175,7 @@ public:
    */
   vtkPolyData* GetSource();
 
-  //@{
+  ///@{
   /**
    * Specify alpha (or distance) value to control output of this filter.
    * For a non-zero alpha value, only edges or triangles contained within
@@ -184,9 +184,9 @@ public:
    */
   vtkSetClampMacro(Alpha, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Alpha, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a tolerance to control discarding of closely spaced points.
    * This tolerance is specified as a fraction of the diagonal length of
@@ -194,18 +194,18 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a multiplier to control the size of the initial, bounding
    * Delaunay triangulation.
    */
   vtkSetClampMacro(Offset, double, 0.75, VTK_DOUBLE_MAX);
   vtkGetMacro(Offset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether bounding triangulation points (and associated
    * triangles) are included in the output. (These are introduced as an
@@ -215,9 +215,9 @@ public:
   vtkSetMacro(BoundingTriangulation, vtkTypeBool);
   vtkGetMacro(BoundingTriangulation, vtkTypeBool);
   vtkBooleanMacro(BoundingTriangulation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the transform which is applied to points to generate a
    * 2D problem.  This maps a 3D dataset into a 2D dataset where
@@ -230,9 +230,9 @@ public:
    */
   virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the method to project the input 3D points into a 2D plane for
    * triangulation. When the VTK_DELAUNAY_XY_PLANE is set, the z-coordinate
@@ -243,7 +243,7 @@ public:
    */
   vtkSetClampMacro(ProjectionPlaneMode, int, VTK_DELAUNAY_XY_PLANE, VTK_BEST_FITTING_PLANE);
   vtkGetMacro(ProjectionPlaneMode, int);
-  //@}
+  ///@}
 
   /**
    * This method computes the best fit plane to a set of points represented

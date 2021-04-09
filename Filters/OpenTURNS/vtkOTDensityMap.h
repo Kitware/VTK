@@ -49,7 +49,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Methods to set / get density lines values.
    * Values are expected to be between 0 and 1.
@@ -92,9 +92,9 @@ public:
    * Get the number of contours in the list of contour values.
    */
   int GetNumberOfContours();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get grid subdivisions,
    * aka the number of point in each dimensions of the grid
@@ -104,9 +104,9 @@ public:
    */
   void SetGridSubdivisions(int gridSubdivisions);
   vtkGetMacro(GridSubdivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get number of points to compute
    * the contour values approximations using a LogPDF.
@@ -116,7 +116,7 @@ public:
    */
   vtkGetMacro(ContourApproximationNumberOfPoints, int);
   virtual void SetContourApproximationNumberOfPoints(int val);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;

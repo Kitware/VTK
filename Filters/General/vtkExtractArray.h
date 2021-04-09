@@ -42,13 +42,13 @@ public:
   vtkTypeMacro(vtkExtractArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls which array will be extracted.
    */
   vtkGetMacro(Index, vtkIdType);
   vtkSetMacro(Index, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkExtractArray();

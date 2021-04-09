@@ -112,13 +112,13 @@ public:
    */
   bool operator==(const vtkArrayCoordinates& rhs) const;
 
-  //@{
+  ///@{
   /**
    * Inequality comparison
    */
   bool operator!=(const vtkArrayCoordinates& rhs) const;
   VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs);
-  //@}
+  ///@}
 
 private:
   std::vector<CoordinateT> Storage;

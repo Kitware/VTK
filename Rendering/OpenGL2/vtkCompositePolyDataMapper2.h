@@ -45,7 +45,7 @@ public:
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Some introspection on the type of data the mapper will render
    * used by props to determine if they should invoke the mapper
@@ -53,17 +53,17 @@ public:
    */
   bool HasOpaqueGeometry() override;
   bool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the composite data set attributes.
    */
   void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes* attributes);
   vtkCompositeDataDisplayAttributes* GetCompositeDataDisplayAttributes();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the visibility for a block given its flat index.
    */
@@ -71,9 +71,9 @@ public:
   bool GetBlockVisibility(unsigned int index);
   void RemoveBlockVisibility(unsigned int index);
   void RemoveBlockVisibilities();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the color for a block given its flat index.
    */
@@ -86,9 +86,9 @@ public:
   double* GetBlockColor(unsigned int index);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the opacity for a block given its flat index.
    */
@@ -96,7 +96,7 @@ public:
   double GetBlockOpacity(unsigned int index);
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
-  //@}
+  ///@}
 
   /**
    * If the current 'color by' array is missing on some datasets, color these
@@ -126,7 +126,7 @@ public:
    */
   void SetVBOShiftScaleMethod(int m) override;
 
-  //@{
+  ///@{
   /**
    * Call SetInputArrayToProcess on helpers.
    */
@@ -136,7 +136,7 @@ public:
   void SetInputArrayToProcess(
     int idx, int port, int connection, int fieldAssociation, int fieldAttributeType) override;
   void SetInputArrayToProcess(int idx, vtkInformation* info) override;
-  //@}
+  ///@}
 
   /**
    * Accessor to the ordered list of PolyData that we end last drew.

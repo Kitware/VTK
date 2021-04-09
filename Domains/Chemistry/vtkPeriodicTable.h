@@ -42,13 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPeriodicTable* New();
 
-  //@{
+  ///@{
   /**
    * Access the static vtkBlueObeliskData object for raw access to
    * BODR data.
    */
   vtkGetNewMacro(BlueObeliskData, vtkBlueObeliskData);
-  //@}
+  ///@}
 
   /**
    * Returns the number of elements in the periodic table.
@@ -66,14 +66,14 @@ public:
    */
   const char* GetElementName(unsigned short atomicNum);
 
-  //@{
+  ///@{
   /**
    * Given a case-insensitive string that contains the symbol or name
    * of an element, return the corresponding atomic number.
    */
   unsigned short GetAtomicNumber(const vtkStdString& str);
   unsigned short GetAtomicNumber(const char* str);
-  //@}
+  ///@}
 
   /**
    * Given an atomic number, return the covalent radius of the atom

@@ -32,31 +32,31 @@
 class VTKIMAGINGCORE_EXPORT vtkImageDecomposeFilter : public vtkImageIterateFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Construct an instance of vtkImageDecomposeFilter filter with default
    * dimensionality 3.
    */
   vtkTypeMacro(vtkImageDecomposeFilter, vtkImageIterateFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Dimensionality is the number of axes which are considered during
    * execution. To process images dimensionality would be set to 2.
    */
   void SetDimensionality(int dim);
   vtkGetMacro(Dimensionality, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Private methods kept public for template execute functions.
    */
   void PermuteIncrements(vtkIdType* increments, vtkIdType& inc0, vtkIdType& inc1, vtkIdType& inc2);
   void PermuteExtent(int* extent, int& min0, int& max0, int& min1, int& max1, int& min2, int& max2);
-  //@}
+  ///@}
 
 protected:
   vtkImageDecomposeFilter();

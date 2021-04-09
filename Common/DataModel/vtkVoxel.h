@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkVoxel, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See vtkCell3D API for description of these methods.
    * @warning Face points of vtkVoxel are not sorted properly.
@@ -64,7 +64,7 @@ public:
   double* GetParametricCoords() override;
   bool GetCentroid(double centroid[3]) const override;
   bool IsInsideOut() override;
-  //@}
+  ///@}
 
   /**
    * Computes exact bounding sphere of this voxel.
@@ -99,7 +99,7 @@ public:
    */
   static constexpr vtkIdType MaximumValence = 3;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -121,7 +121,7 @@ public:
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
-  //@}
+  ///@}
 
   /**
    * Inflates voxel by moving every faces by dist. Since normals are not
@@ -134,7 +134,7 @@ public:
   int Inflate(double dist) override;
 
   static void InterpolationDerivs(const double pcoords[3], double derivs[24]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -147,7 +147,7 @@ public:
   {
     vtkVoxel::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
   /**
    * Compute the interpolation functions.
@@ -165,7 +165,7 @@ public:
    */
   static int* GetTriangleCases(int caseId);
 
-  //@{
+  ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
@@ -176,7 +176,7 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId) VTK_SIZEHINT(2);
   static const vtkIdType* GetFaceArray(vtkIdType faceId) VTK_SIZEHINT(4);
-  //@}
+  ///@}
 
   /**
    * Static method version of GetEdgeToAdjacentFaces.

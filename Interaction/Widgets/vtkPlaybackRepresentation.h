@@ -47,21 +47,21 @@ public:
    */
   static vtkPlaybackRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkPlaybackRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By obtaining this property you can specify the properties of the
    * representation.
    */
   vtkGetObjectMacro(Property, vtkProperty2D);
-  //@}
+  ///@}
 
   /**
    * Virtual callbacks that subclasses should implement.
@@ -83,7 +83,7 @@ public:
     size[1] = 2.0;
   }
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -94,7 +94,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkPlaybackRepresentation();

@@ -55,16 +55,16 @@ public:
   static void ConvertToInterpolationCoefficients(double data[], long size, long border,
     double poles[4], long numPoles, double tol) VTK_SIZEHINT(data, size);
 
-  //@{
+  ///@{
   /**
    * Internal method.  Get interpolation weights for offset w, where
    * w is between 0 and 1.  You must provide the degree of the spline.
    */
   static int GetInterpolationWeights(double weights[10], double w, long degree);
   static int GetInterpolationWeights(float weights[10], double w, long degree);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internal method.  Interpolate a value from the supplied 3D array
    * of coefficients with dimensions width x height x slices.
@@ -73,7 +73,7 @@ public:
     long slices, long depth, double x, double y, double z, long degree, long border);
   static int InterpolatedValue(const float* coeffs, float* value, long width, long height,
     long slices, long depth, double x, double y, double z, long degree, long border);
-  //@}
+  ///@}
 
 protected:
   vtkImageBSplineInternals() = default;

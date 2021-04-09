@@ -72,25 +72,25 @@ protected:
   vtkRTXMLPolyDataReader();
   ~vtkRTXMLPolyDataReader() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the location of the input data files.
    */
   vtkSetStringMacro(DataLocation);
-  //@}
+  ///@}
 
   void InitializeToCurrentDir();
   int IsProcessed(const char*);
   char* GetDataFileFullPathName(const char*);
 
-  //@{
+  ///@{
   /**
    * the DataLocation should be set and ResetReader()
    * should be called after SetDataLocation
    */
   char* DataLocation;
   vtkRTXMLPolyDataReaderInternals* Internal;
-  //@}
+  ///@}
 
 private:
   vtkRTXMLPolyDataReader(const vtkRTXMLPolyDataReader&) = delete;

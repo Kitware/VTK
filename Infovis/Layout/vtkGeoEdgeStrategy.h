@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkGeoEdgeStrategy, vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The base radius used to determine the earth's surface.
    * Default is the earth's radius in meters.
@@ -48,9 +48,9 @@ public:
    */
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Factor on which to "explode" the arcs away from the surface.
    * A value of 0.0 keeps the values on the surface.
@@ -60,16 +60,16 @@ public:
    */
   vtkSetMacro(ExplodeFactor, double);
   vtkGetMacro(ExplodeFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of subdivisions in the arc.
    * The default is 20.
    */
   vtkSetMacro(NumberOfSubdivisions, int);
   vtkGetMacro(NumberOfSubdivisions, int);
-  //@}
+  ///@}
 
   /**
    * Perform the layout.

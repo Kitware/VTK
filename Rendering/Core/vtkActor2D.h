@@ -49,35 +49,35 @@ public:
    */
   static vtkActor2D* New();
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the vtkMapper2D which defines the data to be drawn.
    */
   virtual void SetMapper(vtkMapper2D* mapper);
   vtkGetObjectMacro(Mapper, vtkMapper2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the layer number in the overlay planes into which to render.
    */
   vtkSetMacro(LayerNumber, int);
   vtkGetMacro(LayerNumber, int);
-  //@}
+  ///@}
 
   /**
    * Returns this actor's vtkProperty2D.  Creates a property if one
@@ -90,21 +90,21 @@ public:
    */
   virtual void SetProperty(vtkProperty2D*);
 
-  //@{
+  ///@{
   /**
    * Get the PositionCoordinate instance of vtkCoordinate.
    * This is used for for complicated or relative positioning.
    * The position variable controls the lower left corner of the Actor2D
    */
   vtkViewportCoordinateMacro(Position);
-  //@}
+  ///@}
 
   /**
    * Set the Prop2D's position in display coordinates.
    */
   void SetDisplayPosition(int, int);
 
-  //@{
+  ///@{
   /**
    * Access the Position2 instance variable. This variable controls
    * the upper right corner of the Actor2D. It is by default
@@ -112,9 +112,9 @@ public:
    * Some 2D actor subclasses ignore the position2 variable
    */
   vtkViewportCoordinateMacro(Position2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the height and width of the Actor2D. The value is expressed
    * as a fraction of the viewport. This really is just another way of
@@ -124,7 +124,7 @@ public:
   double GetWidth();
   void SetHeight(double h);
   double GetHeight();
-  //@}
+  ///@}
 
   /**
    * Return this objects MTime.

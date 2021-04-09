@@ -61,7 +61,7 @@ public:
   vtkTypeMacro(vtkCirclePackLayout, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The field name to use for storing the circles for each vertex.
    * The rectangles are stored in a triple float array
@@ -70,7 +70,7 @@ public:
    */
   vtkGetStringMacro(CirclesFieldName);
   vtkSetStringMacro(CirclesFieldName);
-  //@}
+  ///@}
 
   /**
    * The array to use for the size of each vertex.
@@ -81,13 +81,13 @@ public:
     this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * The strategy to use when laying out the tree map.
    */
   vtkGetObjectMacro(LayoutStrategy, vtkCirclePackLayoutStrategy);
   void SetLayoutStrategy(vtkCirclePackLayoutStrategy* strategy);
-  //@}
+  ///@}
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)

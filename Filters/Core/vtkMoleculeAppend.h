@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkMoleculeAppend, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get one input to this filter. This method is only for support of
    * old-style pipeline connections.  When writing new code you should
@@ -48,9 +48,9 @@ public:
    */
   vtkDataObject* GetInput(int idx);
   vtkDataObject* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if coincident atoms (atom with exactly the same position)
    * should be merged into one.

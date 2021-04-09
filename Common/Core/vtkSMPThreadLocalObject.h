@@ -116,7 +116,7 @@ public:
     }
   }
 
-  //@{
+  ///@{
   /**
    * Returns an object local to the current thread.
    * This object is allocated with ::New() and will
@@ -138,14 +138,14 @@ public:
     }
     return vtkobject;
   }
-  //@}
+  ///@}
 
   /**
    * Return the number of thread local objects that have been initialized
    */
   size_t size() const { return this->Internal.size(); }
 
-  //@{
+  ///@{
   /**
    * Subset of the standard iterator API.
    * The most common design pattern is to use iterators in a sequential
@@ -160,7 +160,7 @@ public:
       ++this->Iter;
       return *this;
     }
-    //@}
+    ///@}
 
     iterator operator++(int)
     {

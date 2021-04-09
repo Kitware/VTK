@@ -39,23 +39,23 @@ class vtkGenericCell;
 class VTKINTERACTIONWIDGETS_EXPORT vtkTensorProbeRepresentation : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkTensorProbeRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * See vtkWidgetRepresentation for details.
    */
   void BuildRepresentation() override;
   int RenderOpaqueGeometry(vtkViewport*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the Tensor probe.
    */
@@ -63,7 +63,7 @@ public:
   vtkGetVector3Macro(ProbePosition, double);
   vtkSetMacro(ProbeCellId, vtkIdType);
   vtkGetMacro(ProbeCellId, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Set the trajectory that we are trying to probe tensors on
@@ -88,13 +88,13 @@ public:
    */
   virtual int Move(double motionVector[2]);
 
-  //@{
+  ///@{
   /**
    * See vtkProp for details.
    */
   void GetActors(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
-  //@}
+  ///@}
 
 protected:
   vtkTensorProbeRepresentation();

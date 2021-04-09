@@ -86,14 +86,14 @@ public:
    */
   bool HasError() override;
 
-  //@{
+  ///@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
   bool BeginTransaction() override;
   bool RollbackTransaction() override;
   bool CommitTransaction() override;
-  //@}
+  ///@}
 
   /**
    * Return data in current row, field c

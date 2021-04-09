@@ -133,7 +133,7 @@ public:
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
-  //@{
+  ///@{
   /**
    * Dummy stubs for vtkWindow API.
    */
@@ -149,11 +149,11 @@ public:
   void SetWindowInfo(const char*) override;
   void SetNextWindowInfo(const char*) override {}
   void SetParentInfo(const char*) override {}
-  //@}
+  ///@}
 
   void SetWindowName(const char*) override;
 
-  //@{
+  ///@{
   /**
    * Set the position (x and y) of the rendering window in
    * screen coordinates (in pixels). This resizes the operating
@@ -161,16 +161,16 @@ public:
    */
   void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
   void HideCursor() override;
   void ShowCursor() override;
-  //@}
+  ///@}
 
   /**
    * This computes the size of the render window

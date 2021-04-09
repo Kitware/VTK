@@ -63,23 +63,23 @@ public:
    */
   static vtkPlaneSource* New();
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the plane along the first axes.
    */
   vtkSetMacro(XResolution, int);
   vtkGetMacro(XResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the plane along the second axes.
    */
   vtkSetMacro(YResolution, int);
   vtkGetMacro(YResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of x-y subdivisions in the plane.
    */
@@ -89,35 +89,35 @@ public:
     xR = this->XResolution;
     yR = this->YResolution;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin of the plane.
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVectorMacro(Origin, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the first axis of the plane.
    */
   void SetPoint1(double x, double y, double z);
   void SetPoint1(double pnt[3]);
   vtkGetVectorMacro(Point1, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the second axis of the plane.
    */
   void SetPoint2(double x, double y, double z);
   void SetPoint2(double pnt[3]);
   vtkGetVectorMacro(Point2, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience methods to retrieve the axes of the plane; that is
    * axis a1 is the vector (Point1-Origin), and axis a2 is the vector
@@ -125,9 +125,9 @@ public:
    */
   void GetAxis1(double a1[3]);
   void GetAxis2(double a2[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the center of the plane. Works in conjunction with the plane
    * normal to position the plane. Don't use this method to define the plane.
@@ -136,9 +136,9 @@ public:
   void SetCenter(double x, double y, double z);
   void SetCenter(double center[3]);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane normal. Works in conjunction with the plane center to
    * orient the plane. Don't use this method to define the plane. Instead, use
@@ -147,7 +147,7 @@ public:
   void SetNormal(double nx, double ny, double nz);
   void SetNormal(double n[3]);
   vtkGetVectorMacro(Normal, double, 3);
-  //@}
+  ///@}
 
   /**
    * Translate the plane in the direction of the normal by the
@@ -163,7 +163,7 @@ public:
    */
   void Rotate(double angle, double rotationAxis[3]);
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -171,7 +171,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkPlaneSource();

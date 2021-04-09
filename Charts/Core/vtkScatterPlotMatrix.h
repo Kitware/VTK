@@ -181,32 +181,32 @@ public:
    */
   bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
-  //@{
+  ///@{
   /**
    * Returns the type of the plot at the given position. The return
    * value is one of: SCATTERPLOT, HISTOGRAM, ACTIVEPLOT, or NOPLOT.
    */
   int GetPlotType(const vtkVector2i& pos);
   int GetPlotType(int row, int column);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the scatter plot title.
    */
   void SetTitle(const vtkStdString& title);
   vtkStdString GetTitle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the text properties for the chart title, i.e. color, font, size.
    */
   void SetTitleProperties(vtkTextProperty* prop);
   vtkTextProperty* GetTitleProperties();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets whether or not the grid for the given axis is visible given a plot
    * type, which refers to
@@ -214,36 +214,36 @@ public:
    */
   void SetGridVisibility(int plotType, bool visible);
   bool GetGridVisibility(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the background color for the chart given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetBackgroundColor(int plotType, const vtkColor4ub& color);
   vtkColor4ub GetBackgroundColor(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the color for the axes given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetAxisColor(int plotType, const vtkColor4ub& color);
   vtkColor4ub GetAxisColor(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the color for the axes given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetGridColor(int plotType, const vtkColor4ub& color);
   vtkColor4ub GetGridColor(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets whether or not the labels for the axes are visible, given a plot type,
    * which refers to
@@ -251,36 +251,36 @@ public:
    */
   void SetAxisLabelVisibility(int plotType, bool visible);
   bool GetAxisLabelVisibility(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the text property for the axis labels of the given plot type,
    * possible types are vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetAxisLabelProperties(int plotType, vtkTextProperty* prop);
   vtkTextProperty* GetAxisLabelProperties(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the axis label notation for the axes given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetAxisLabelNotation(int plotType, int notation);
   int GetAxisLabelNotation(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the axis label precision for the axes given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
    */
   void SetAxisLabelPrecision(int plotType, int precision);
   int GetAxisLabelPrecision(int plotType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set chart's tooltip notation and precision, given a plot type, which refers to
    * vtkScatterPlotMatrix::{SCATTERPLOT, HISTOGRAM, ACTIVEPLOT}.
@@ -289,7 +289,7 @@ public:
   void SetTooltipPrecision(int plotType, int precision);
   int GetTooltipNotation(int plotType);
   int GetTooltipPrecision(int plotType);
-  //@}
+  ///@}
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the active chart.
@@ -311,21 +311,21 @@ public:
    */
   vtkStringArray* GetIndexedLabels() const;
 
-  //@{
+  ///@{
   /**
    * Set the scatter plot selected row/column charts' background color.
    */
   void SetScatterPlotSelectedRowColumnColor(const vtkColor4ub& color);
   vtkColor4ub GetScatterPlotSelectedRowColumnColor();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scatter plot selected active chart background color.
    */
   void SetScatterPlotSelectedActiveColor(const vtkColor4ub& color);
   vtkColor4ub GetScatterPlotSelectedActiveColor();
-  //@}
+  ///@}
 
   /**
    * Convenient method to update all the chart settings
@@ -337,7 +337,7 @@ public:
    */
   void UpdateChartSettings(int plotType);
 
-  //@{
+  ///@{
   /**
    * Set/get the Selection Mode that will be used by the chart while doing
    * selection. The only valid enums are vtkContextScene::SELECTION_NONE,
@@ -345,7 +345,7 @@ public:
    */
   virtual void SetSelectionMode(int);
   vtkGetMacro(SelectionMode, int);
-  //@}
+  ///@}
 
   /**
    * Get the column name for the supplied index.
@@ -421,13 +421,13 @@ protected:
    */
   void ResizeBigChart();
 
-  //@{
+  ///@{
   /**
    * Attach axis range listener so we can forward to dependent axes in matrix.
    */
   void AttachAxisRangeListener(vtkAxis*);
   void AxisRangeForwarderCallback(vtkObject*, unsigned long, void*);
-  //@}
+  ///@}
 
   /**
    * The callback function when SelectionChangedEvent is invoked from

@@ -82,15 +82,15 @@ public:
   vtkTypeMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Some useful information for handling window level
    */
   vtkGetVector2Macro(WindowLevelStartPosition, int);
   vtkGetVector2Macro(WindowLevelCurrentPosition, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -102,7 +102,7 @@ public:
   void OnMiddleButtonUp() override;
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
-  //@}
+  ///@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
@@ -125,7 +125,7 @@ public:
   virtual void StartSlice();
   virtual void EndSlice();
 
-  //@{
+  ///@{
   /**
    * Set/Get current mode to 2D or 3D.  The default is 2D.  In 3D mode,
    * it is possible to rotate the camera to view oblique slices.  In Slicing
@@ -137,9 +137,9 @@ public:
   void SetInteractionModeToImage2D() { this->SetInteractionMode(VTKIS_IMAGE2D); }
   void SetInteractionModeToImage3D() { this->SetInteractionMode(VTKIS_IMAGE3D); }
   void SetInteractionModeToImageSlicing() { this->SetInteractionMode(VTKIS_IMAGE_SLICING); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the orientations that will be used when the X, Y, or Z
    * keys are pressed.  See SetImageOrientation for more information.
@@ -156,7 +156,7 @@ public:
   vtkGetVector3Macro(ZViewRightVector, double);
   vtkSetVector3Macro(ZViewUpVector, double);
   vtkGetVector3Macro(ZViewUpVector, double);
-  //@}
+  ///@}
 
   /**
    * Set the view orientation, in terms of the horizontal and

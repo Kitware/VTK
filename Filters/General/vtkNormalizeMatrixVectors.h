@@ -42,21 +42,21 @@ public:
   vtkTypeMacro(vtkNormalizeMatrixVectors, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls whether to normalize row-vectors or column-vectors.  0 = rows, 1 = columns.
    */
   vtkGetMacro(VectorDimension, int);
   vtkSetMacro(VectorDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Value of p in p-norm normalization, subject to p >= 1.  Default is p=2 (Euclidean norm).
    */
   vtkGetMacro(PValue, double);
   vtkSetMacro(PValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkNormalizeMatrixVectors();

@@ -39,31 +39,31 @@ public:
   vtkTypeMacro(vtkH5RageReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of H5Rage data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the timestep to be loaded
    */
   vtkSetMacro(CurrentTimeStep, int);
   vtkGetMacro(CurrentTimeStep, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the reader's output
    */
   vtkImageData* GetOutput();
   vtkImageData* GetOutput(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of solutions fields.
    * By default, ALL data fields on the nodes are read, but this can
@@ -75,7 +75,7 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
 protected:
   vtkH5RageReader();

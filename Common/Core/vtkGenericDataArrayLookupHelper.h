@@ -100,7 +100,7 @@ public:
     }
   }
 
-  //@{
+  ///@{
   /**
    * Release any allocated memory for internal data-structures.
    */
@@ -109,7 +109,7 @@ public:
     this->ValueMap.clear();
     this->NanIndices.clear();
   }
-  //@}
+  ///@}
 
 private:
   vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&) = delete;

@@ -65,38 +65,38 @@ public:
   void Write() { this->Update(); }
   void Update();
 
-  //@{
+  ///@{
   /**
    * Set/get object to read slices.
    */
   virtual void SetReader(vtkVolumeReader*);
   vtkGetObjectMacro(Reader, vtkVolumeReader);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes output file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get isosurface contour value.
    */
   vtkSetMacro(Value, double);
   vtkGetMacro(Value, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of marching cubes limits file. The limits file
    * speeds up subsequent reading of output triangle file.
    */
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
-  //@}
+  ///@}
 
 protected:
   vtkSliceCubes();

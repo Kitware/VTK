@@ -43,15 +43,15 @@ public:
    */
   static vtkOMFReader* New();
 
-  //@{
+  ///@{
   /**
    * Accessor for name of the OMF file to read
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Data element selection to determine which data elements in the OMF
    * file should be loaded. By default all elements' status are set to false/disabled,
@@ -62,20 +62,20 @@ public:
   int GetNumberOfDataElementArrays();
   const char* GetDataElementArrayName(int index);
   vtkDataArraySelection* GetDataElementArraySelection();
-  //@}
+  ///@}
 
   /**
    * Overridden to take into account mtimes for vtkDataArraySelection instances.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set for determining to write out textures from OMF file
    */
   vtkSetMacro(WriteOutTextures, bool);
   vtkGetMacro(WriteOutTextures, bool);
-  //@}
+  ///@}
 
 protected:
   vtkOMFReader();

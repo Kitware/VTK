@@ -44,27 +44,27 @@ public:
   vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get macro for the number of subdivisions.
    */
   vtkGetMacro(NumberOfPartitions, int);
   vtkSetMacro(NumberOfPartitions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get macro for the number of ghost layers.
    */
   vtkGetMacro(NumberOfGhostLayers, int);
   vtkSetMacro(NumberOfGhostLayers, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   vtkGetMacro(DuplicateNodes, vtkTypeBool);
   vtkSetMacro(DuplicateNodes, vtkTypeBool);
   vtkBooleanMacro(DuplicateNodes, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkRectilinearGridPartitioner();

@@ -101,13 +101,13 @@ public:
    */
   static vtkSphereWidget2* New();
 
-  //@{
+  ///@{
   /**
    * Standard class methods for type information and printing.
    */
   vtkTypeMacro(vtkSphereWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -119,7 +119,7 @@ public:
     this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
-  //@{
+  ///@{
   /**
    * Control the behavior of the widget (i.e., how it processes
    * events). Translation, and scaling can all be enabled and disabled.
@@ -130,7 +130,7 @@ public:
   vtkSetMacro(ScalingEnabled, vtkTypeBool);
   vtkGetMacro(ScalingEnabled, vtkTypeBool);
   vtkBooleanMacro(ScalingEnabled, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set. By default,

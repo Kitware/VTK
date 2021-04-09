@@ -42,13 +42,13 @@ public:
   vtkTypeMacro(vtkEdgeLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use during graph layout.
    */
   void SetLayoutStrategy(vtkEdgeLayoutStrategy* strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkEdgeLayoutStrategy);
-  //@}
+  ///@}
 
   /**
    * Get the modification time of the layout algorithm.
@@ -61,14 +61,14 @@ protected:
 
   vtkEdgeLayoutStrategy* LayoutStrategy;
 
-  //@{
+  ///@{
   /**
    * This intercepts events from the strategy object and re-emits them
    * as if they came from the layout engine itself.
    */
   vtkEventForwarderCommand* EventForwarder;
   unsigned long ObserverTag;
-  //@}
+  ///@}
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

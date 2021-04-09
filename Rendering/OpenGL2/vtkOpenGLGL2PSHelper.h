@@ -47,20 +47,20 @@ public:
   vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The global instance. Only set during export.
    */
   static vtkOpenGLGL2PSHelper* GetInstance();
   static void SetInstance(vtkOpenGLGL2PSHelper*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the renderwindow that's being exported.
    */
   vtkGetMacro(RenderWindow, vtkRenderWindow*);
-  //@}
+  ///@}
 
   enum State
   {
@@ -69,7 +69,7 @@ public:
     Capture       //! Capturing vectorized objects.
   };
 
-  //@{
+  ///@{
   /**
    * Get the current export state. Vector images are rendered in two passes:
    * First, all non-vectorizable props are rendered, and the resulting image
@@ -81,34 +81,34 @@ public:
    * pass.
    */
   vtkGetMacro(ActiveState, State);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current point size.
    */
   vtkSetMacro(PointSize, float);
   vtkGetMacro(PointSize, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current line width.
    */
   vtkSetMacro(LineWidth, float);
   vtkGetMacro(LineWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current line stipple pattern per OpenGL convention. Default is
    * 0xffff.
    */
   vtkSetMacro(LineStipple, unsigned short);
   vtkGetMacro(LineStipple, unsigned short);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Parse the vertex information in tfc and inject primitives into GL2PS.
    * ren is used to obtain viewport information to complete the vertex
@@ -121,7 +121,7 @@ public:
     vtkTransformFeedback* tfc, vtkRenderer* ren, unsigned char col[4]) = 0;
   virtual void ProcessTransformFeedback(
     vtkTransformFeedback* tfc, vtkRenderer* ren, float col[4]) = 0;
-  //@}
+  ///@}
 
   /**
    * Format the text in str according to tprop and instruct GL2PS to draw it at

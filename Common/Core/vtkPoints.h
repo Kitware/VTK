@@ -100,7 +100,7 @@ public:
    */
   virtual void Reset();
 
-  //@{
+  ///@{
   /**
    * Different ways to copy data. Shallow copy does reference count (i.e.,
    * assigns pointers and updates reference count); deep copy runs through
@@ -108,7 +108,7 @@ public:
    */
   virtual void DeepCopy(vtkPoints* ad);
   virtual void ShallowCopy(vtkPoints* ad);
-  //@}
+  ///@}
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this attribute data.
@@ -163,7 +163,7 @@ public:
   void SetPoint(vtkIdType id, double x, double y, double z)
     VTK_EXPECTS(0 <= id && id < GetNumberOfPoints());
 
-  //@{
+  ///@{
   /**
    * Insert point into object. Range checking performed and memory
    * allocated as necessary.
@@ -177,7 +177,7 @@ public:
     this->Data->InsertTuple(id, x);
   }
   void InsertPoint(vtkIdType id, double x, double y, double z) VTK_EXPECTS(0 <= id);
-  //@}
+  ///@}
 
   /**
    * Copy the points indexed in srcIds from the source array to the tuple

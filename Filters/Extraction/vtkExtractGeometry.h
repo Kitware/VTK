@@ -60,15 +60,15 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function for inside/outside checks.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether to extract cells that are inside of implicit
    * function (ExtractInside == 1) or outside of implicit function
@@ -77,9 +77,9 @@ public:
   vtkSetMacro(ExtractInside, vtkTypeBool);
   vtkGetMacro(ExtractInside, vtkTypeBool);
   vtkBooleanMacro(ExtractInside, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether to extract cells that are partially inside.
    * By default, ExtractBoundaryCells is off.
@@ -90,7 +90,7 @@ public:
   vtkSetMacro(ExtractOnlyBoundaryCells, vtkTypeBool);
   vtkGetMacro(ExtractOnlyBoundaryCells, vtkTypeBool);
   vtkBooleanMacro(ExtractOnlyBoundaryCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractGeometry(vtkImplicitFunction* f = nullptr);

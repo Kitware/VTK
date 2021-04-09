@@ -52,14 +52,14 @@
 class VTKFILTERSGENERAL_EXPORT vtkGradientFilter : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkGradientFilter* New();
   vtkTypeMacro(vtkGradientFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /// Options to choose what cells contribute to the gradient calculation
   enum ContributingCellEnum
@@ -79,7 +79,7 @@ public:
     DataTypeMax = 3  //!< The maximum possible value of the input array data type
   };
 
-  //@{
+  ///@{
   /**
    * These are basically a convenience method that calls SetInputArrayToProcess
    * to set the array used as the input scalars.  The fieldAssociation comes
@@ -88,9 +88,9 @@ public:
    */
   virtual void SetInputScalars(int fieldAssociation, const char* name);
   virtual void SetInputScalars(int fieldAssociation, int fieldAttributeType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the gradient array to create.  This is only
    * used if ComputeGradient is non-zero. If nullptr (the
@@ -98,9 +98,9 @@ public:
    */
   vtkGetStringMacro(ResultArrayName);
   vtkSetStringMacro(ResultArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the divergence array to create. This is only
    * used if ComputeDivergence is non-zero. If nullptr (the
@@ -108,9 +108,9 @@ public:
    */
   vtkGetStringMacro(DivergenceArrayName);
   vtkSetStringMacro(DivergenceArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the vorticity array to create. This is only
    * used if ComputeVorticity is non-zero. If nullptr (the
@@ -118,9 +118,9 @@ public:
    */
   vtkGetStringMacro(VorticityArrayName);
   vtkSetStringMacro(VorticityArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the Q criterion array to create. This is only
    * used if ComputeQCriterion is non-zero. If nullptr (the
@@ -128,9 +128,9 @@ public:
    */
   vtkGetStringMacro(QCriterionArrayName);
   vtkSetStringMacro(QCriterionArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this flag is on (default is off), the gradient filter will provide a
    * less accurate (but close) algorithm that performs fewer derivative
@@ -143,9 +143,9 @@ public:
   vtkGetMacro(FasterApproximation, vtkTypeBool);
   vtkSetMacro(FasterApproximation, vtkTypeBool);
   vtkBooleanMacro(FasterApproximation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add the gradient to the output field data.  The name of the array
    * will be ResultArrayName and will be the same type as the input
@@ -154,9 +154,9 @@ public:
   vtkSetMacro(ComputeGradient, vtkTypeBool);
   vtkGetMacro(ComputeGradient, vtkTypeBool);
   vtkBooleanMacro(ComputeGradient, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add divergence to the output field data.  The name of the array
    * will be DivergenceArrayName and will be the same type as the input
@@ -166,9 +166,9 @@ public:
   vtkSetMacro(ComputeDivergence, vtkTypeBool);
   vtkGetMacro(ComputeDivergence, vtkTypeBool);
   vtkBooleanMacro(ComputeDivergence, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add voriticity/curl to the output field data.  The name of the array
    * will be VorticityArrayName and will be the same type as the input
@@ -178,9 +178,9 @@ public:
   vtkSetMacro(ComputeVorticity, vtkTypeBool);
   vtkGetMacro(ComputeVorticity, vtkTypeBool);
   vtkBooleanMacro(ComputeVorticity, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add Q-criterion to the output field data.  The name of the array
    * will be QCriterionArrayName and will be the same type as the input
@@ -191,18 +191,18 @@ public:
   vtkSetMacro(ComputeQCriterion, vtkTypeBool);
   vtkGetMacro(ComputeQCriterion, vtkTypeBool);
   vtkBooleanMacro(ComputeQCriterion, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to specify what cells to include in the gradient computation.
    * Options are all cells (All, Patch and DataSetMax). The default is All.
    */
   vtkSetClampMacro(ContributingCellOption, int, 0, 2);
   vtkGetMacro(ContributingCellOption, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to specify what replacement value or entities that don't have any gradient computed
    * over them based on the ContributingCellOption. Options are (Zero, NaN, DataTypeMin,
@@ -210,7 +210,7 @@ public:
    */
   vtkSetClampMacro(ReplacementValueOption, int, 0, 3);
   vtkGetMacro(ReplacementValueOption, int);
-  //@}
+  ///@}
 
 protected:
   vtkGradientFilter();

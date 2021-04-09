@@ -43,13 +43,13 @@ public:
   vtkTypeMacro(vtkExodusIIReaderParser, vtkXMLParser);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Returns the SIL.
    * This is valid only after Go().
    */
   vtkGetObjectMacro(SIL, vtkMutableDirectedGraph);
-  //@}
+  ///@}
 
   /**
    * Trigger parsing of the XML file.
@@ -69,7 +69,7 @@ public:
    */
   std::string GetBlockName(int id);
 
-  //@{
+  ///@{
   /**
    * Fills up the blockIdsSet with the block ids referred to by the XML.
    * This is valid only after Go().
@@ -82,7 +82,7 @@ public:
       blockIdsSet.insert(iter->first);
     }
   }
-  //@}
+  ///@}
 
 protected:
   vtkExodusIIReaderParser();

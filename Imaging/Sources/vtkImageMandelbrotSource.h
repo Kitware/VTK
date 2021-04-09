@@ -40,16 +40,16 @@ public:
   vtkTypeMacro(vtkImageMandelbrotSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the extent of the whole output Volume.
    */
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag determines whether the Size or spacing of
    * a data set remain constant (when extent is changed).
@@ -58,9 +58,9 @@ public:
   vtkSetMacro(ConstantSize, vtkTypeBool);
   vtkGetMacro(ConstantSize, vtkTypeBool);
   vtkBooleanMacro(ConstantSize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the projection from the 4D space (4 parameters / 2 imaginary numbers)
    * to the axes of the 3D Volume.
@@ -69,9 +69,9 @@ public:
   void SetProjectionAxes(int x, int y, int z);
   void SetProjectionAxes(int a[3]) { this->SetProjectionAxes(a[0], a[1], a[2]); }
   vtkGetVector3Macro(ProjectionAxes, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Imaginary and real value for C (constant in equation)
    * and X (initial value).
@@ -79,9 +79,9 @@ public:
   vtkSetVector4Macro(OriginCX, double);
   // void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
   vtkGetVector4Macro(OriginCX, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Imaginary and real value for C (constant in equation)
    * and X (initial value).
@@ -89,9 +89,9 @@ public:
   vtkSetVector4Macro(SampleCX, double);
   // void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
   vtkGetVector4Macro(SampleCX, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Just a different way of setting the sample.
    * This sets the size of the 4D volume.
@@ -101,25 +101,25 @@ public:
   void SetSizeCX(double cReal, double cImag, double xReal, double xImag);
   double* GetSizeCX() VTK_SIZEHINT(4);
   void GetSizeCX(double s[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum number of cycles run to see if the value goes over 2
    */
   vtkSetClampMacro(MaximumNumberOfIterations, unsigned short, static_cast<unsigned short>(1),
     static_cast<unsigned short>(5000));
   vtkGetMacro(MaximumNumberOfIterations, unsigned short);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience for Viewer.  Pan 3D volume relative to spacing.
    * Zoom constant factor.
    */
   void Zoom(double factor);
   void Pan(double x, double y, double z);
-  //@}
+  ///@}
 
   /**
    * Convenience for Viewer.  Copy the OriginCX and the SpacingCX.
@@ -127,13 +127,13 @@ public:
    */
   void CopyOriginAndSample(vtkImageMandelbrotSource* source);
 
-  //@{
+  ///@{
   /**
    * Set/Get a subsample rate.
    */
   vtkSetClampMacro(SubsampleRate, int, 1, VTK_INT_MAX);
   vtkGetMacro(SubsampleRate, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageMandelbrotSource();

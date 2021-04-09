@@ -87,7 +87,7 @@ public:
     return this->TransformPoint(point[0], point[1], point[2]);
   }
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to an (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
@@ -104,9 +104,9 @@ public:
   {
     return this->TransformFloatPoint(point[0], point[1], point[2]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a double-precision (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
@@ -123,9 +123,9 @@ public:
   {
     return this->TransformDoublePoint(point[0], point[1], point[2]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a normal at the specified vertex.  If the
    * transformation is a vtkLinearTransform, you can use TransformNormal()
@@ -133,7 +133,7 @@ public:
    */
   void TransformNormalAtPoint(const float point[3], const float in[3], float out[3]);
   void TransformNormalAtPoint(const double point[3], const double in[3], double out[3]);
-  //@}
+  ///@}
 
   double* TransformNormalAtPoint(const double point[3], const double normal[3]) VTK_SIZEHINT(3)
   {
@@ -141,7 +141,7 @@ public:
     return this->InternalDoublePoint;
   }
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a double-precision normal at the specified
    * vertex.  If the transformation is a vtkLinearTransform, you can use
@@ -153,9 +153,9 @@ public:
     this->TransformNormalAtPoint(point, normal, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a single-precision normal at the specified
    * vertex.  If the transformation is a vtkLinearTransform, you can use
@@ -166,9 +166,9 @@ public:
     this->TransformNormalAtPoint(point, normal, this->InternalFloatPoint);
     return this->InternalFloatPoint;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a vector at the specified vertex.  If the
    * transformation is a vtkLinearTransform, you can use TransformVector()
@@ -176,7 +176,7 @@ public:
    */
   void TransformVectorAtPoint(const float point[3], const float in[3], float out[3]);
   void TransformVectorAtPoint(const double point[3], const double in[3], double out[3]);
-  //@}
+  ///@}
 
   double* TransformVectorAtPoint(const double point[3], const double vector[3]) VTK_SIZEHINT(3)
   {
@@ -184,7 +184,7 @@ public:
     return this->InternalDoublePoint;
   }
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a double-precision vector at the specified
    * vertex.  If the transformation is a vtkLinearTransform, you can use
@@ -196,9 +196,9 @@ public:
     this->TransformVectorAtPoint(point, vector, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Apply the transformation to a single-precision vector at the specified
    * vertex.  If the transformation is a vtkLinearTransform, you can use
@@ -209,7 +209,7 @@ public:
     this->TransformVectorAtPoint(point, vector, this->InternalFloatPoint);
     return this->InternalFloatPoint;
   }
-  //@}
+  ///@}
 
   /**
    * Apply the transformation to a series of points, and append the
@@ -260,16 +260,16 @@ public:
    */
   void Update();
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
   virtual void InternalTransformPoint(const float in[3], float out[3]) = 0;
   virtual void InternalTransformPoint(const double in[3], double out[3]) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This will transform a point and, at the same time, calculate a
    * 3x3 Jacobian matrix that provides the partial derivatives of the
@@ -280,7 +280,7 @@ public:
     const float in[3], float out[3], float derivative[3][3]) = 0;
   virtual void InternalTransformDerivative(
     const double in[3], double out[3], double derivative[3][3]) = 0;
-  //@}
+  ///@}
 
   /**
    * Make another transform of the same type.
@@ -389,22 +389,22 @@ public:
    */
   void Concatenate(const double elements[16]);
 
-  //@{
+  ///@{
   /**
    * set/get the PreMultiply flag
    */
   void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; }
   int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * the three basic linear transformations
    */
   void Translate(double x, double y, double z);
   void Rotate(double angle, double x, double y, double z);
   void Scale(double x, double y, double z);
-  //@}
+  ///@}
 
   /**
    * invert the concatenation

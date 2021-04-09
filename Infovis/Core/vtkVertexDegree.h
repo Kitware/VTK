@@ -41,13 +41,13 @@ public:
   vtkTypeMacro(vtkVertexDegree, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the output array name. If no output array name is
    * set then the name 'VertexDegree' is used.
    */
   vtkSetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkVertexDegree();

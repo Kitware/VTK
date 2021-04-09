@@ -34,7 +34,7 @@ public:
     const vtkVector3d& Pt10, const vtkVector3d& Pt11);
   vtkBilinearQuadIntersection() = default;
 
-  //@{
+  ///@{
   /**
    * Get direct access to the underlying point data
    */

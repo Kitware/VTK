@@ -74,7 +74,7 @@ public:
   vtkTypeMacro(vtkApplyIcons, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Edits the lookup table to use for point icons. This is only used if
    * input array 0 is set and UsePointLookupTable is on.
@@ -83,9 +83,9 @@ public:
   void SetIconType(double v, int icon) { this->SetIconType(vtkVariant(v), icon); }
   void SetIconType(const char* v, int icon) { this->SetIconType(vtkVariant(v), icon); }
   void ClearAllIconTypes();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, uses the point lookup table to set the colors of unannotated,
    * unselected elements of the data.
@@ -93,34 +93,34 @@ public:
   vtkSetMacro(UseLookupTable, bool);
   vtkGetMacro(UseLookupTable, bool);
   vtkBooleanMacro(UseLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The default point icon for all unannotated, unselected elements
    * of the data. This is used if UsePointLookupTable is off.
    */
   vtkSetMacro(DefaultIcon, int);
   vtkGetMacro(DefaultIcon, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The point icon for all selected elements of the data.
    * This is used if the annotation input has a current selection.
    */
   vtkSetMacro(SelectedIcon, int);
   vtkGetMacro(SelectedIcon, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The output array name for the point icon index array.
    * Default is "vtkApplyIcons icon".
    */
   vtkSetStringMacro(IconOutputArrayName);
   vtkGetStringMacro(IconOutputArrayName);
-  //@}
+  ///@}
 
   enum
   {
@@ -130,7 +130,7 @@ public:
     IGNORE_SELECTION
   };
 
-  //@{
+  ///@{
   /**
    * Changes the behavior of the icon to use for selected items.
    * <ul>
@@ -147,9 +147,9 @@ public:
   virtual void SetSelectionModeToSelectedOffset() { this->SetSelectionMode(SELECTED_OFFSET); }
   virtual void SetSelectionModeToAnnotationIcon() { this->SetSelectionMode(ANNOTATION_ICON); }
   virtual void SetSelectionModeToIgnoreSelection() { this->SetSelectionMode(IGNORE_SELECTION); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The attribute type to append the icon array to, used only if the
    * input array is not specified or does not exist. This is set to one
@@ -158,7 +158,7 @@ public:
    */
   vtkSetMacro(AttributeType, int);
   vtkGetMacro(AttributeType, int);
-  //@}
+  ///@}
 
 protected:
   vtkApplyIcons();

@@ -51,28 +51,28 @@ public:
   vtkTypeMacro(vtkAdaptiveDataSetSurfaceFilter, vtkGeometryFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the renderer attached to this adaptive surface extractor
    */
   void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
   /**
    * Get the mtime of this object.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get for active the circle selection viewport (defaut true)
    */
   vtkSetMacro(CircleSelection, bool);
   vtkGetMacro(CircleSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get for active the bounding box selection viewport (defaut false)
    * JB C'est un facteur supplementaire d'acceleration possible
@@ -80,25 +80,25 @@ public:
    */
   vtkSetMacro(BBSelection, bool);
   vtkGetMacro(BBSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * JB Activation de la dependance au point de vue. Par defaut a True.
    */
   vtkSetMacro(ViewPointDepend, bool);
   vtkGetMacro(ViewPointDepend, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get for forced a fixed the level max (lost dynamicity) (defaut -1)
    */
   vtkSetMacro(FixedLevelMax, int);
   vtkGetMacro(FixedLevelMax, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * JB Set/Get the scale factor influence le calcul de l'adaptive view.
    * JB Pour un raffinement de 2, donner Scale=2*X revient a faire un
@@ -106,9 +106,9 @@ public:
    */
   vtkSetMacro(Scale, double);
   vtkGetMacro(Scale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * JB Set/Get reduit de autant le niveau max de profondeur, calcule
    * JB dynamiquement a parcourir dans la
@@ -116,7 +116,7 @@ public:
    */
   vtkSetMacro(DynamicDecimateLevelMax, int);
   vtkGetMacro(DynamicDecimateLevelMax, int);
-  //@}
+  ///@}
 
 protected:
   vtkAdaptiveDataSetSurfaceFilter();

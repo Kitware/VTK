@@ -41,13 +41,13 @@ public:
    */
   static vtkTestingInteractor* New();
 
-  //@{
+  ///@{
   /**
    * Type and printing information.
    */
   vtkTypeMacro(vtkTestingInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   void Start() override;
 

@@ -53,7 +53,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKRenderWindowAdapter : public QObject
   using Superclass = QObject;
 
 public:
-  //@{
+  ///@{
   /**
    * Constructor that makes vtkGenericOpenGLRenderWindow ready for subsequent
    * render requests i.e. calls
@@ -65,7 +65,7 @@ public:
     QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* window, QWindow* parent);
   QVTKRenderWindowAdapter(
     QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* window, QWidget* parent);
-  //@}
+  ///@}
 
   ~QVTKRenderWindowAdapter() override;
 
@@ -118,7 +118,7 @@ public:
    */
   void resize(int width, int height);
 
-  //@{
+  ///@{
   /**
    * Convenience methods to blit the results rendered in the internal FBO to a
    * target
@@ -133,7 +133,7 @@ public:
   {
     return this->blit(targetId, targetAttachement, targetRect, false);
   }
-  //@}
+  ///@}
 
   /**
    * Process the event and return true if the event have been processed
@@ -141,15 +141,15 @@ public:
    */
   bool handleEvent(QEvent* evt);
 
-  //@{
+  ///@{
   /**
    * Get/set the default cursor.
    */
   void setDefaultCursor(const QCursor& cursor) { this->DefaultCursor = cursor; }
   const QCursor& defaultCursor() const { return this->DefaultCursor; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable DPI scaling. When enabled call to `resize` (which must
    * happen any time the `devicePixelRatio`, in addition to the size may
@@ -161,23 +161,23 @@ public:
    * the changed value will linger until the next `resize` happens.
    */
   void setEnableHiDPI(bool value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the unscaled DPI to use when scaling DPI. It defaults to 72, which is
    * same as the hard-coded default in `vtkWindow`.
    */
   void setUnscaledDPI(int value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the custom device pixel ratio to use. If 0 or negative, it is
    * treated as unset and DPR from Qt will be used instead.
    */
   void setCustomDevicePixelRatio(double dpr);
-  //@}
+  ///@}
 
 private Q_SLOTS:
   void contextAboutToBeDestroyed();

@@ -151,12 +151,12 @@ template <typename IDType, typename EdgeData>
 class vtkStaticEdgeLocatorTemplate
 {
 public:
-  //@{
+  ///@{
   /**
    * Some convenient typedefs.
    */
   typedef EdgeTuple<IDType, EdgeData> EdgeTupleType;
-  //@)
+  ///@)
 
   /**
    * Construct an empty edge locator.

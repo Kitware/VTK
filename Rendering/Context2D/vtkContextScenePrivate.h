@@ -55,7 +55,7 @@ public:
    */
   ~vtkContextScenePrivate() { this->Clear(); }
 
-  //@{
+  ///@{
   /**
    * A few standard defines
    */
@@ -63,7 +63,7 @@ public:
   typedef std::vector<vtkAbstractContextItem*>::iterator iterator;
   typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator const_reverse_iterator;
   typedef std::vector<vtkAbstractContextItem*>::reverse_iterator reverse_iterator;
-  //@}
+  ///@}
 
   /**
    * Paint all items in the list.
@@ -79,7 +79,7 @@ public:
     }
   }
 
-  //@{
+  ///@{
   /**
    * Add an item to the list - ensure it is not already in the list.
    */
@@ -88,13 +88,13 @@ public:
     item->Register(this->Scene);
     item->SetScene(this->Scene);
     item->SetParent(this->Item);
-    //@}
+    ///@}
 
     this->push_back(item);
     return static_cast<unsigned int>(this->size() - 1);
   }
 
-  //@{
+  ///@{
   /**
    * Remove an item from the list.
    */
@@ -113,9 +113,9 @@ public:
     }
     return false;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Remove an item from the list.
    */
@@ -127,9 +127,9 @@ public:
     }
     return false;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Clear all items from the list - unregister.
    */
@@ -143,9 +143,9 @@ public:
     }
     this->clear();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scene for the instance (and its items).
    */
@@ -161,20 +161,20 @@ public:
       (*it)->SetScene(scene);
     }
   }
-  //@}
+  ///@}
 
   /**
    * Store a reference to the scene.
    */
   vtkContextScene* Scene;
 
-  //@{
+  ///@{
   /**
    * Store a reference to the item that these children are part of.
    * May be NULL for items in the scene itself.
    */
   vtkAbstractContextItem* Item;
-  //@}
+  ///@}
 };
 
 #endif // vtkContextScenePrivate_h

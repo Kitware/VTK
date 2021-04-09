@@ -110,9 +110,9 @@ public:
 
     o.Object = nullptr;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Deletes reference to instance of T.
    */
@@ -127,7 +127,7 @@ public:
       obj->Delete();
     }
   }
-  //@}
+  ///@}
 
   /**
    * Enable pointer-like dereference syntax. Returns a pointer to the contained
@@ -135,7 +135,7 @@ public:
    */
   T* operator->() const noexcept { return this->Object; }
 
-  //@{
+  ///@{
   /**
    * Get a raw pointer to the contained object. When using this function be
    * careful that the reference count does not drop to 0 when using the pointer
@@ -145,7 +145,7 @@ public:
   T* GetPointer() const noexcept { return this->Object; }
   T* Get() const noexcept { return this->Object; }
   operator T*() const noexcept { return static_cast<T*>(this->Object); }
-  //@}
+  ///@}
   /**
    * Dereference the pointer and return a reference to the contained object.
    * When using this function be careful that the reference count does not

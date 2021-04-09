@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkImageCast, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the desired output scalar type to cast to.
    */
@@ -59,9 +59,9 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When the ClampOverflow flag is on, the data is thresholded so that
    * the output value does not exceed the max or min of the data type.
@@ -73,7 +73,7 @@ public:
   vtkSetMacro(ClampOverflow, vtkTypeBool);
   vtkGetMacro(ClampOverflow, vtkTypeBool);
   vtkBooleanMacro(ClampOverflow, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageCast();

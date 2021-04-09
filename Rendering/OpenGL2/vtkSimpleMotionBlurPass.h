@@ -57,7 +57,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of sub frames for doing motion blur.
    * Once this is set greater than one, you will no longer see a new frame
@@ -68,7 +68,7 @@ public:
    */
   vtkGetMacro(SubFrames, int);
   virtual void SetSubFrames(int subFrames);
-  //@}
+  ///@}
 
   /**
    *  Set the format to use for the depth texture
@@ -109,7 +109,7 @@ protected:
   vtkTextureObject* AccumulationTexture[2]; // where we add the colors
   vtkTextureObject* DepthTexture;           // render target for the depth
 
-  //@{
+  ///@{
   /**
    * Cache viewport values for depth peeling.
    */
@@ -117,7 +117,7 @@ protected:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-  //@}
+  ///@}
 
   int DepthFormat;
   int ColorFormat;

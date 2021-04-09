@@ -56,32 +56,32 @@ public:
    */
   static vtkImplicitImageRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitImageRepresentation, vtkImplicitPlaneRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Various ways to specify the vtkImageData* input for the
    * vtkImageReslice; and perform PlaceWidget().
    */
   void PlaceImage(vtkImageData* img);
   void PlaceImage(vtkAlgorithmOutput* aout);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkImplicitPlaneWidget2. Most of the required
    * methods are implemented by this class's superclass.
    */
   void BuildRepresentation() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Let the user control the lookup table. NOTE: apply this method BEFORE
    * applying the SetLookupTable method. The default is Off.
@@ -89,9 +89,9 @@ public:
   vtkSetMacro(UserControlledLookupTable, bool);
   vtkGetMacro(UserControlledLookupTable, bool);
   vtkBooleanMacro(UserControlledLookupTable, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the internal lookuptable (lut) to one defined by the user, or,
    * alternatively, to the lut of another representation or widget.  In this way,
@@ -101,9 +101,9 @@ public:
    */
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to interpolate the texture or not. When off, the
    * reslice interpolation is nearest neighbour regardless of how the
@@ -113,9 +113,9 @@ public:
   vtkSetMacro(TextureInterpolate, bool);
   vtkGetMacro(TextureInterpolate, bool);
   vtkBooleanMacro(TextureInterpolate, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the interpolation to use when texturing the plane.
    */
@@ -127,9 +127,9 @@ public:
   }
   void SetResliceInterpolateToLinear() { this->SetResliceInterpolate(VTK_LINEAR_RESLICE); }
   void SetResliceInterpolateToCubic() { this->SetResliceInterpolate(VTK_CUBIC_RESLICE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to get the vtkImageMapToColors filter used by this
    * widget.  The user can properly render other transparent actors in a
@@ -138,7 +138,7 @@ public:
    */
   virtual void SetColorMap(vtkImageMapToColors*);
   vtkGetObjectMacro(ColorMap, vtkImageMapToColors);
-  //@}
+  ///@}
 
   /**
    * Convenience method to get the vtkImageReslice filter used by this

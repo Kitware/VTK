@@ -36,23 +36,23 @@ public:
   vtkTypeMacro(vtkGeoJSONReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Accessor for name of the file that will be opened on WriteData
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * String used as data input (instead of file) when StringInputMode is enabled
    */
   vtkSetStringMacro(StringInput);
   vtkGetStringMacro(StringInput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether to use StringInput instead of reading input from file
    * The default is off
@@ -60,9 +60,9 @@ public:
   vtkSetMacro(StringInputMode, bool);
   vtkGetMacro(StringInputMode, bool);
   vtkBooleanMacro(StringInputMode, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether to convert all output polygons to triangles.
    * Note that if OutinePolygons mode is on, then no output polygons
@@ -72,9 +72,9 @@ public:
   vtkSetMacro(TriangulatePolygons, bool);
   vtkGetMacro(TriangulatePolygons, bool);
   vtkBooleanMacro(TriangulatePolygons, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get option to generate the border outlining each polygon,
    * so that the output cells for polygons are vtkPolyLine instances.
@@ -83,16 +83,16 @@ public:
   vtkSetMacro(OutlinePolygons, bool);
   vtkGetMacro(OutlinePolygons, bool);
   vtkBooleanMacro(OutlinePolygons, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get name of data array for serialized GeoJSON "properties" node.
    * If specified, data will be stored as vtkCellData/vtkStringArray.
    */
   vtkSetStringMacro(SerializedPropertiesArrayName);
   vtkGetStringMacro(SerializedPropertiesArrayName);
-  //@}
+  ///@}
 
   /**
    * Specify feature property to read in with geometry objects
@@ -104,7 +104,7 @@ protected:
   vtkGeoJSONReader();
   ~vtkGeoJSONReader() override;
 
-  //@{
+  ///@{
   /**
    * Core implementation of the
    */
@@ -116,7 +116,7 @@ protected:
   bool TriangulatePolygons;
   bool OutlinePolygons;
   char* SerializedPropertiesArrayName;
-  //@}
+  ///@}
 
 private:
   class GeoJSONReaderInternal;

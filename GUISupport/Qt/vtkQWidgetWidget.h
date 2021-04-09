@@ -41,13 +41,13 @@ public:
    */
   static vtkQWidgetWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkQWidgetWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkQWidgetRepresentation used to represent this

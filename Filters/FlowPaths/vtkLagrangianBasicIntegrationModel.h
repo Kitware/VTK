@@ -119,7 +119,7 @@ public:
    */
   int FunctionValues(double* x, double* f, void* userData) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the locator used to locate cells in the datasets.
    * Only the locator class matter here, as it is used only to
@@ -128,22 +128,22 @@ public:
    */
   virtual void SetLocator(vtkAbstractCellLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the state of the current locators
    */
   vtkGetMacro(LocatorsBuilt, bool);
   vtkSetMacro(LocatorsBuilt, bool);
-  //@}
+  ///@}
 
   /**
    * Set the parent tracker.
    */
   virtual void SetTracker(vtkLagrangianParticleTracker* Tracker);
 
-  //@{
+  ///@{
   /**
    * Add a dataset to locate cells in
    * This create a specific locator for the provided dataset
@@ -156,30 +156,30 @@ public:
   virtual void AddDataSet(
     vtkDataSet* dataset, bool surface = false, unsigned int surfaceFlatIndex = 0);
   virtual void ClearDataSets(bool surface = false);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Use of initial integration input array to process
    */
   vtkSetMacro(UseInitialIntegrationTime, bool);
   vtkGetMacro(UseInitialIntegrationTime, bool);
   vtkBooleanMacro(UseInitialIntegrationTime, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the tolerance to use with this model.
    */
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the specific tolerance to use with the locators.
    */
   vtkGetMacro(LocatorTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Interact the current particle with a surfaces
@@ -222,7 +222,7 @@ public:
   virtual bool FindInLocators(double* x, vtkLagrangianParticle* particle, vtkDataSet*& dataset,
     vtkIdType& cellId, vtkAbstractCellLocator*& loc, double*& weights);
 
-  //@{
+  ///@{
   /**
    * Convienience methods to call FindInLocators with less arguments
    * THESE METHODS ARE NOT THREAD-SAFE
@@ -230,7 +230,7 @@ public:
   virtual bool FindInLocators(
     double* x, vtkLagrangianParticle* particle, vtkDataSet*& dataset, vtkIdType& cellId);
   virtual bool FindInLocators(double* x, vtkLagrangianParticle* particle);
-  //@}
+  ///@}
 
   /**
    * Initialize a particle by setting user variables and perform any user
@@ -264,14 +264,14 @@ public:
     return false;
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get Non Planar Quad Support
    */
   vtkSetMacro(NonPlanarQuadSupport, bool);
   vtkGetMacro(NonPlanarQuadSupport, bool);
   vtkBooleanMacro(NonPlanarQuadSupport, bool);
-  //@}
+  ///@}
 
   /**
    * Get the seed arrays expected name
@@ -321,13 +321,13 @@ public:
    */
   virtual vtkIntArray* GetSurfaceArrayComps();
 
-  //@{
+  ///@{
   /**
    * Get the maximum weights size necessary for calling
    * FindInLocators with weights
    */
   virtual int GetWeightsSize();
-  //@}
+  ///@}
 
   /**
    * Let the model define it's own way to integrate

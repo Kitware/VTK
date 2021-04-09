@@ -89,13 +89,13 @@ public:
    */
   static vtkBalloonWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkBalloonWidget, vtkHoverWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -126,7 +126,7 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Add and remove text and/or an image to be associated with a vtkProp. You
    * may add one or both of them.
@@ -138,9 +138,9 @@ public:
     this->AddBalloon(prop, str, nullptr);
   }
   void RemoveBalloon(vtkProp* prop);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to retrieve the information associated with each vtkProp (i.e.,
    * the information that makes up each balloon). A nullptr will be returned if
@@ -149,16 +149,16 @@ public:
    */
   const char* GetBalloonString(vtkProp* prop);
   vtkImageData* GetBalloonImage(vtkProp* prop);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Update the balloon string or image. If the specified prop does not exist,
    * then nothing is added not changed.
    */
   void UpdateBalloonString(vtkProp* prop, const char* str);
   void UpdateBalloonImage(vtkProp* prop, vtkImageData* image);
-  //@}
+  ///@}
 
   /**
    * Return the current vtkProp that is being hovered over. Note that the
@@ -166,7 +166,7 @@ public:
    */
   virtual vtkProp* GetCurrentProp() { return this->CurrentProp; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the object used to perform pick operations. Since the
    * vtkBalloonWidget operates on vtkProps, the picker must be a subclass of
@@ -175,7 +175,7 @@ public:
    */
   void SetPicker(vtkAbstractPropPicker*);
   vtkGetObjectMacro(Picker, vtkAbstractPropPicker);
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

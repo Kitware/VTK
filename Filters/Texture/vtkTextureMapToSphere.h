@@ -61,15 +61,15 @@ public:
    */
   static vtkTextureMapToSphere* New();
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the center of the sphere.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off automatic sphere generation. This means it automatically
    * finds the sphere center.
@@ -77,9 +77,9 @@ public:
   vtkSetMacro(AutomaticSphereGeneration, vtkTypeBool);
   vtkGetMacro(AutomaticSphereGeneration, vtkTypeBool);
   vtkBooleanMacro(AutomaticSphereGeneration, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the texture coordinates are generated. If PreventSeam is
    * set, the s-coordinate ranges from 0->1 and 1->0 corresponding to the
@@ -89,7 +89,7 @@ public:
   vtkSetMacro(PreventSeam, vtkTypeBool);
   vtkGetMacro(PreventSeam, vtkTypeBool);
   vtkBooleanMacro(PreventSeam, vtkTypeBool);
-  //@}
+  ///@}
 
   /*
    * Computes the center point of the data set if AutomaticSphereGeneration is set to true.

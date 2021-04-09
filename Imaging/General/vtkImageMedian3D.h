@@ -42,12 +42,12 @@ public:
    */
   void SetKernelSize(int size0, int size1, int size2);
 
-  //@{
+  ///@{
   /**
    * Return the number of elements in the median mask
    */
   vtkGetMacro(NumberOfElements, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageMedian3D();

@@ -50,15 +50,15 @@ public:
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Specify the input data to map.
    */
   void SetInputData(vtkPolyData* in);
   vtkPolyData* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bring this algorithm's outputs up-to-date.
    */
@@ -66,9 +66,9 @@ public:
   void Update() override;
   vtkTypeBool Update(int port, vtkInformationVector* requests) override;
   vtkTypeBool Update(vtkInformation* requests) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want only a part of the data, specify by setting the piece.
    */
@@ -78,17 +78,17 @@ public:
   vtkGetMacro(NumberOfPieces, int);
   vtkSetMacro(NumberOfSubPieces, int);
   vtkGetMacro(NumberOfSubPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of ghost cells to return.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Accessors / Mutators for handling seams on wrapping surfaces. Letters U and V stand for
    * texture coordinates (u,v).
@@ -103,7 +103,7 @@ public:
   vtkSetMacro(SeamlessV, bool);
   vtkGetMacro(SeamlessV, bool);
   vtkBooleanMacro(SeamlessV, bool);
-  //@}
+  ///@}
 
   /**
    * Return bounding box (array of six doubles) of data expressed as

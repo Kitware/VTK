@@ -53,13 +53,13 @@ public:
 
   static vtkDistributedDataFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Get a pointer to the parallel k-d tree object.  Required for changing
@@ -126,7 +126,7 @@ public:
     SPLIT_BOUNDARY_CELLS = 2
   };
 
-  //@{
+  ///@{
   /**
    * Handling of ClipCells and IncludeAllIntersectingCells.
    */
@@ -144,7 +144,7 @@ public:
     this->SetBoundaryMode(vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS);
   }
   int GetBoundaryMode();
-  //@}
+  ///@}
 
   /**
    * Ensure previous filters don't send up ghost cells

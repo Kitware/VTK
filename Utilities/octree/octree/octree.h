@@ -84,7 +84,7 @@ public:
    * children of \a A may not be dereferenced but may be incremented or
    * decremented safely.
    */
-  //@{
+  ///@{
   iterator begin(bool only_leaves = true) { return iterator(_M_root, _M_root, only_leaves); }
   iterator end(bool only_leaves = true) { return iterator(_M_root, nullptr, only_leaves); }
 
@@ -96,7 +96,7 @@ public:
   {
     return const_iterator(_M_root, 0, only_leaves);
   }
-  //@}
+  ///@}
 
   octree_node_pointer root() { return this->_M_root; }
 
@@ -108,10 +108,10 @@ public:
    * by the constructor but may be queried at any time. They may not be modified as that would
    * require a re-partitioning of the objects (typically stored at nodes or leaf-nodes).
    */
-  //@{
+  ///@{
   const double* center() const { return this->_M_center; }
   double size() const { return this->_M_size; }
-  //@}
+  ///@}
 
 protected:
   octree_node_pointer _M_root;

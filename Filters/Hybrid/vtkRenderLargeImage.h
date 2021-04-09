@@ -38,25 +38,25 @@ public:
   vtkTypeMacro(vtkRenderLargeImage, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The magnification of the current render window
    */
   vtkSetMacro(Magnification, int);
   vtkGetMacro(Magnification, int);
-  //@}
+  ///@}
 
   /**
    * Indicates what renderer to get the pixel data from.
    */
   virtual void SetInput(vtkRenderer*);
 
-  //@{
+  ///@{
   /**
    * Returns which renderer is being used as the source for the pixel data.
    */
   vtkGetObjectMacro(Input, vtkRenderer);
-  //@}
+  ///@}
 
   /**
    * Get the output data object for a port on this algorithm.

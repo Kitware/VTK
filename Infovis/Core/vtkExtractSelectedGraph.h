@@ -60,7 +60,7 @@ public:
    */
   void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
 
-  //@{
+  ///@{
   /**
    * If set, removes vertices with no adjacent edges in an edge selection.
    * A vertex selection ignores this flag and always returns the full set
@@ -69,7 +69,7 @@ public:
   vtkSetMacro(RemoveIsolatedVertices, bool);
   vtkGetMacro(RemoveIsolatedVertices, bool);
   vtkBooleanMacro(RemoveIsolatedVertices, bool);
-  //@}
+  ///@}
 
   /**
    * Specify the first vtkGraph input and the second vtkSelection input.

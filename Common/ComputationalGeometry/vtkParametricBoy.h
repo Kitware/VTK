@@ -59,14 +59,14 @@ public:
    */
   int GetDimension() override { return 2; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale factor for the z-coordinate.
    * Default is 1/8, giving a nice shape.
    */
   vtkSetMacro(ZScale, double);
   vtkGetMacro(ZScale, double);
-  //@}
+  ///@}
 
   /**
    * Boy's surface.

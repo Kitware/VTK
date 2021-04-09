@@ -90,7 +90,7 @@
 class VTKFILTERSCORE_EXPORT vtkTensorGlyph : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and
    * printing.Construct object with scaling on and scale factor
@@ -100,7 +100,7 @@ public:
   static vtkTensorGlyph* New();
   vtkTypeMacro(vtkTensorGlyph, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify the geometry to copy to each point.
@@ -110,9 +110,9 @@ public:
    */
   void SetSourceData(vtkPolyData* source);
   vtkPolyData* GetSource();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a source object at a specified table location. New style.
    * Source connection is stored in port 1. This method is equivalent
@@ -123,63 +123,63 @@ public:
   {
     this->SetSourceConnection(0, algOutput);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off scaling of glyph with eigenvalues.
    */
   vtkSetMacro(Scaling, vtkTypeBool);
   vtkGetMacro(Scaling, vtkTypeBool);
   vtkBooleanMacro(Scaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify scale factor to scale object by. (Scale factor always affects
    * output even if scaling is off.)
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off drawing three glyphs
    */
   vtkSetMacro(ThreeGlyphs, vtkTypeBool);
   vtkGetMacro(ThreeGlyphs, vtkTypeBool);
   vtkBooleanMacro(ThreeGlyphs, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off drawing a mirror of each glyph
    */
   vtkSetMacro(Symmetric, vtkTypeBool);
   vtkGetMacro(Symmetric, vtkTypeBool);
   vtkBooleanMacro(Symmetric, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the distance, along x, from the origin to the end of the
    * source glyph. It is used to draw the symmetric glyphs.
    */
   vtkSetMacro(Length, double);
   vtkGetMacro(Length, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off extraction of eigenvalues from tensor.
    */
   vtkSetMacro(ExtractEigenvalues, vtkTypeBool);
   vtkBooleanMacro(ExtractEigenvalues, vtkTypeBool);
   vtkGetMacro(ExtractEigenvalues, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off coloring of glyph with input scalar data or
    * eigenvalues. If false, or input scalar data not present, then the
@@ -188,7 +188,7 @@ public:
   vtkSetMacro(ColorGlyphs, vtkTypeBool);
   vtkGetMacro(ColorGlyphs, vtkTypeBool);
   vtkBooleanMacro(ColorGlyphs, vtkTypeBool);
-  //@}
+  ///@}
 
   enum
   {
@@ -196,7 +196,7 @@ public:
     COLOR_BY_EIGENVALUES
   };
 
-  //@{
+  ///@{
   /**
    * Set the color mode to be used for the glyphs.  This can be set to
    * use the input scalars (default) or to use the eigenvalues at the
@@ -211,9 +211,9 @@ public:
   vtkGetMacro(ColorMode, int);
   void SetColorModeToScalars() { this->SetColorMode(COLOR_BY_SCALARS); }
   void SetColorModeToEigenvalues() { this->SetColorMode(COLOR_BY_EIGENVALUES); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off scalar clamping. If scalar clamping is on, the ivar
    * MaxScaleFactor is used to control the maximum scale factor. (This is
@@ -222,9 +222,9 @@ public:
   vtkSetMacro(ClampScaling, vtkTypeBool);
   vtkGetMacro(ClampScaling, vtkTypeBool);
   vtkBooleanMacro(ClampScaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum allowable scale factor. This value is compared to the
    * combination of the scale factor times the eigenvalue. If less, the scale
@@ -233,7 +233,7 @@ public:
    */
   vtkSetMacro(MaxScaleFactor, double);
   vtkGetMacro(MaxScaleFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkTensorGlyph();

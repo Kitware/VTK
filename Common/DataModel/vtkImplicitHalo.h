@@ -46,42 +46,42 @@ public:
   vtkTypeMacro(vtkImplicitHalo, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate the equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate normal. Not implemented.
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Radius of the sphere.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Center of the sphere.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * FadeOut ratio. Valid values are between 0.0 and 1.0.
    */
   vtkSetMacro(FadeOut, double);
   vtkGetMacro(FadeOut, double);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitHalo();

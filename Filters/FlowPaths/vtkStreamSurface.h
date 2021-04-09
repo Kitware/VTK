@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkStreamSurface, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify/see if the simple (fast) or iterative (correct) version is called
    */
   vtkSetMacro(UseIterativeSeeding, bool);
   vtkGetMacro(UseIterativeSeeding, bool);
-  //@}
+  ///@}
 
 protected:
   vtkStreamSurface();

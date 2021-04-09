@@ -75,7 +75,7 @@ public:
    */
   void RemoveAllViewProps(void);
 
-  //@{
+  ///@{
   /**
    * Add/Remove different types of props to the renderer.
    * These methods are all synonyms to AddViewProp and RemoveViewProp.
@@ -84,37 +84,37 @@ public:
   void AddActor2D(vtkProp* p);
   void RemoveActor2D(vtkProp* p);
   vtkActor2DCollection* GetActors2D();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the background color of the rendering screen using an rgb color
    * specification.
    */
   vtkSetVector3Macro(Background, double);
   vtkGetVector3Macro(Background, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the second background color of the rendering screen
    * for gradient backgrounds using an rgb color specification.
    */
   vtkSetVector3Macro(Background2, double);
   vtkGetVector3Macro(Background2, double);
-  //@}
+  ///@}
   //
 
-  //@{
+  ///@{
   /**
    * Set/Get the alpha value used to fill the background with.
    * By default, this is set to 0.0.
    */
   vtkSetClampMacro(BackgroundAlpha, double, 0.0, 1.0);
   vtkGetMacro(BackgroundAlpha, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether this viewport should have a gradient background
    * using the Background (bottom) and Background2 (top) colors.
@@ -123,9 +123,9 @@ public:
   vtkSetMacro(GradientBackground, bool);
   vtkGetMacro(GradientBackground, bool);
   vtkBooleanMacro(GradientBackground, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the aspect ratio of the rendered image. This is computed
    * automatically and should not be set by the user.
@@ -133,9 +133,9 @@ public:
   vtkSetVector2Macro(Aspect, double);
   vtkGetVectorMacro(Aspect, double, 2);
   virtual void ComputeAspect();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the aspect ratio of a pixel in the rendered image.
    * This factor permits the image to rendered anisotropically
@@ -143,9 +143,9 @@ public:
    */
   vtkSetVector2Macro(PixelAspect, double);
   vtkGetVectorMacro(PixelAspect, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the viewport for the Viewport to draw in the rendering window.
    * Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
@@ -153,9 +153,9 @@ public:
    */
   vtkSetVector4Macro(Viewport, double);
   vtkGetVectorMacro(Viewport, double, 4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get a point location in display (or screen) coordinates.
    * The lower left corner of the window is the origin and y increases
@@ -163,9 +163,9 @@ public:
    */
   vtkSetVector3Macro(DisplayPoint, double);
   vtkGetVectorMacro(DisplayPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point location in view coordinates. The origin is in the
    * middle of the viewport and it extends from -1 to 1 in all three
@@ -173,16 +173,16 @@ public:
    */
   vtkSetVector3Macro(ViewPoint, double);
   vtkGetVectorMacro(ViewPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point location in world coordinates. This method takes
    * homogeneous coordinates.
    */
   vtkSetVector4Macro(WorldPoint, double);
   vtkGetVectorMacro(WorldPoint, double, 4);
-  //@}
+  ///@}
 
   /**
    * Return the center of this viewport in display coordinates.
@@ -237,7 +237,7 @@ public:
     this->ViewToDisplay();
   }
 
-  //@{
+  ///@{
   /**
    * These methods map from one coordinate system to another.
    * They are primarily used by the vtkCoordinate object and
@@ -261,9 +261,9 @@ public:
   virtual void WorldToPose(double&, double&, double&) {}
   virtual void ViewToWorld(double&, double&, double&) {}
   virtual void WorldToView(double&, double&, double&) {}
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the size and origin of the viewport in display coordinates. Note:
    * if the window has not yet been realized, GetSize() and GetOrigin()
@@ -273,7 +273,7 @@ public:
   virtual int* GetOrigin() VTK_SIZEHINT(2);
   void GetTiledSize(int* width, int* height);
   virtual void GetTiledSizeAndOrigin(int* width, int* height, int* lowerLeftX, int* lowerLeftY);
-  //@}
+  ///@}
 
   // The following methods describe the public pick interface for picking
   // Props in a viewport.
@@ -311,7 +311,7 @@ public:
   vtkAssemblyPath* PickPropFrom(double selectionX1, double selectionY1, double selectionX2,
     double selectionY2, vtkPropCollection*);
 
-  //@{
+  ///@{
   /**
    * Methods used to return the pick (x,y) in local display coordinates (i.e.,
    * it's that same as selectionX and selectionY).
@@ -325,31 +325,31 @@ public:
   double GetPickX2() const { return this->PickX2; }
   double GetPickY2() const { return this->PickY2; }
   vtkGetObjectMacro(PickResultProps, vtkPropCollection);
-  //@}
+  ///@}
 
   /**
    * Return the Z value for the last picked Prop.
    */
   virtual double GetPickedZ() { return this->PickedZ; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the constant environmental color using an rgb color specification.
    * Note this is currently ignored outside of RayTracing.
    */
   vtkSetVector3Macro(EnvironmentalBG, double);
   vtkGetVector3Macro(EnvironmentalBG, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the second environmental gradient color using an rgb color specification.
    * Note this is currently ignored outside of RayTracing.
    */
   vtkSetVector3Macro(EnvironmentalBG2, double);
   vtkGetVector3Macro(EnvironmentalBG2, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set/Get whether this viewport should enable the gradient environment
    * using the EnvironmentalBG (bottom) and EnvironmentalBG2 (top) colors.
@@ -359,7 +359,7 @@ public:
   vtkSetMacro(GradientEnvironmentalBG, bool);
   vtkGetMacro(GradientEnvironmentalBG, bool);
   vtkBooleanMacro(GradientEnvironmentalBG, bool);
-  //@}
+  ///@}
 
 protected:
   // Create a vtkViewport with a black background, a white ambient light,

@@ -105,20 +105,20 @@ public:
   vtkTypeMacro(vtkHyperTreeGridEvaluateCoarse, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get operator
    */
   vtkSetMacro(Operator, unsigned int);
   vtkGetMacro(Operator, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get operator
    */
   vtkSetMacro(Default, double);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridEvaluateCoarse();
@@ -129,12 +129,12 @@ protected:
    */
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
-  //@{
+  ///@{
   /**
    * Define default input and output port types
    */
   int FillOutputPortInformation(int, vtkInformation*) override;
-  //@}
+  ///@}
 
   /**
    * Recursively descend into tree down to leaves
@@ -145,7 +145,7 @@ private:
   vtkHyperTreeGridEvaluateCoarse(const vtkHyperTreeGridEvaluateCoarse&) = delete;
   void operator=(const vtkHyperTreeGridEvaluateCoarse&) = delete;
 
-  //@{
+  ///@{
   /**
    * Define operator
    */
@@ -158,7 +158,7 @@ private:
   virtual double UnmaskedAverage(const std::vector<double>&);
   virtual double ElderChild(const std::vector<double>&);
   virtual double SplattingAverage(const std::vector<double>&);
-  //@}
+  ///@}
 
   int NbChilds;
   unsigned int Operator;

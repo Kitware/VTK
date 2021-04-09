@@ -35,22 +35,22 @@ class vtkPoints;
 class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator : public vtkCellIterator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkUnstructuredGridCellIterator* New();
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Override superclass methods.
    */
   bool IsDoneWithTraversal() override;
   vtkIdType GetCellId() override;
-  //@}
+  ///@}
 
   /**
    * A method used to provide random access into cells. The iterator is

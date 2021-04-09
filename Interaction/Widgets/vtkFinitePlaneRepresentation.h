@@ -55,13 +55,13 @@ public:
    */
   static vtkFinitePlaneRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkFinitePlaneRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Grab the polydata that defines the plane. The polydata contains a single
@@ -69,7 +69,7 @@ public:
    */
   void GetPolyData(vtkPolyData* pd);
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles, when selected or normal, can be
@@ -78,9 +78,9 @@ public:
   vtkGetObjectMacro(V1HandleProperty, vtkProperty);
   vtkGetObjectMacro(V2HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the plane properties. The
    * properties of the plane when selected and normal can be
@@ -88,9 +88,9 @@ public:
    */
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
@@ -98,9 +98,9 @@ public:
   vtkSetMacro(Tubing, bool);
   vtkGetMacro(Tubing, bool);
   vtkBooleanMacro(Tubing, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
@@ -110,9 +110,9 @@ public:
   void SetDrawPlane(bool plane);
   vtkGetMacro(DrawPlane, bool);
   vtkBooleanMacro(DrawPlane, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Switches handles (the spheres) on or off by manipulating the underlying
    * actor visibility.
@@ -120,9 +120,9 @@ public:
   void SetHandles(bool handles);
   virtual void HandlesOn();
   virtual void HandlesOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -132,9 +132,9 @@ public:
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
@@ -142,62 +142,62 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   vtkSetClampMacro(InteractionState, int, Outside, Pushing);
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the plane.
    */
   void SetOrigin(double x, double y, double z);
   void SetOrigin(double x[3]);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the normal to the plane.
    */
   void SetNormal(double x, double y, double z);
   void SetNormal(double n[3]);
   vtkGetVector3Macro(Normal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the v1 vector of the plane.
    */
   void SetV1(double x, double y);
   void SetV1(double x[2]);
   vtkGetVector2Macro(V1, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the v2 vector of the plane.
    */
   void SetV2(double x, double y);
   void SetV2(double x[2]);
   vtkGetVector2Macro(V2, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the visual appearance of the representation based on the
    * state it is in. This state is usually the same as InteractionState.
    */
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the properties on the normal (line and cone).
    */
   vtkGetObjectMacro(NormalProperty, vtkProperty);
   vtkGetObjectMacro(SelectedNormalProperty, vtkProperty);
-  //@}
+  ///@}
 
   // Methods to manipulate the plane
   void TranslateOrigin(double* p1, double* p2);

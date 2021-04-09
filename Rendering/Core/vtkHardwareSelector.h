@@ -123,7 +123,7 @@ class vtkTextureObject;
 class VTKRENDERINGCORE_EXPORT vtkHardwareSelector : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Struct used to return information about a pixel location.
    */
@@ -145,30 +145,30 @@ public:
     {
     }
   };
-  //@}
+  ///@}
 
 public:
   static vtkHardwareSelector* New();
   vtkTypeMacro(vtkHardwareSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the renderer to perform the selection on.
    */
   virtual void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the area to select as (xmin, ymin, xmax, ymax).
    */
   vtkSetVector4Macro(Area, unsigned int);
   vtkGetVector4Macro(Area, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the field type to select. Valid values are
    * \li vtkDataObject::FIELD_ASSOCIATION_POINTS
@@ -181,9 +181,9 @@ public:
    */
   vtkSetMacro(FieldAssociation, int);
   vtkGetMacro(FieldAssociation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In some parallel rendering setups, the process id for elements must be
    * obtained from the data itself, rather than the rendering process' id. In
@@ -191,7 +191,7 @@ public:
    */
   vtkSetMacro(UseProcessIdFromData, bool);
   vtkGetMacro(UseProcessIdFromData, bool);
-  //@}
+  ///@}
 
   /**
    * Perform the selection. Returns a new instance of vtkSelection containing
@@ -199,7 +199,7 @@ public:
    */
   vtkSelection* Select();
 
-  //@{
+  ///@{
   /**
    * It is possible to use the vtkHardwareSelector for a custom picking. (Look
    * at vtkScenePicker). In that case instead of Select() on can use
@@ -229,7 +229,7 @@ public:
   // raw is before processing
   unsigned char* GetRawPixelBuffer(int passNo) { return this->RawPixBuffer[passNo]; }
   unsigned char* GetPixelBuffer(int passNo) { return this->PixBuffer[passNo]; }
-  //@}
+  ///@}
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
@@ -237,7 +237,7 @@ public:
    */
   virtual void RenderCompositeIndex(unsigned int index);
 
-  //@{
+  ///@{
   /**
    * Called by any vtkMapper or vtkProp subclass to indicate the
    * maximum cell or point attribute ID it uses. These values are
@@ -246,7 +246,7 @@ public:
    */
   virtual void UpdateMaximumCellId(vtkIdType attribid);
   virtual void UpdateMaximumPointId(vtkIdType attribid);
-  //@}
+  ///@}
 
   /**
    * Called by any vtkMapper or subclass to render process id. This has any
@@ -260,16 +260,16 @@ public:
    */
   int Render(vtkRenderer* renderer, vtkProp** propArray, int propArrayCount);
 
-  //@{
+  ///@{
   /**
    * Get/Set to only do the actor pass. If true all other passes will be
    * skipped resulting in a faster pick.
    */
   vtkGetMacro(ActorPassOnly, bool);
   vtkSetMacro(ActorPassOnly, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set to capture the zvalue. If true the closest zvalue is
    * stored for each prop that is in the selection. ZValue in this
@@ -278,40 +278,40 @@ public:
    */
   vtkGetMacro(CaptureZValues, bool);
   vtkSetMacro(CaptureZValues, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Called by the mapper before and after rendering each prop.
    */
   virtual void BeginRenderProp();
   virtual void EndRenderProp();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the process id. If process id < 0 (default -1), then the
    * PROCESS_PASS is not rendered.
    */
   vtkSetMacro(ProcessID, int);
   vtkGetMacro(ProcessID, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the color to be used by the prop when drawing
    */
   vtkGetVector3Macro(PropColorValue, float);
   vtkSetVector3Macro(PropColorValue, float);
   void SetPropColorValue(vtkIdType val);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current pass number.
    */
   vtkGetMacro(CurrentPass, int);
-  //@}
+  ///@}
 
   /**
    * Generates the vtkSelection from pixel buffers.
@@ -432,7 +432,7 @@ protected:
     return val;
   }
 
-  //@{
+  ///@{
   /**
    * \c pos must be relative to the lower-left corner of this->Area.
    */
@@ -456,7 +456,7 @@ protected:
     val |= rgb[0];
     return val;
   }
-  //@}
+  ///@}
 
   vtkIdType GetID(int low24, int mid24, int high16)
   {
@@ -492,7 +492,7 @@ protected:
   virtual void ProcessPixelBuffers();
   void BuildPropHitList(unsigned char* rgbData);
 
-  //@{
+  ///@{
   /**
    * Clears all pixel buffers.
    */
@@ -503,7 +503,7 @@ protected:
   bool UseProcessIdFromData;
   vtkIdType MaximumPointId;
   vtkIdType MaximumCellId;
-  //@}
+  ///@}
 
   // At most 10 passes.
   unsigned char* PixBuffer[10];

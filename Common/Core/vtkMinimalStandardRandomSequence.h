@@ -41,14 +41,14 @@
 class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence : public vtkRandomSequence
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkMinimalStandardRandomSequence* New();
   vtkTypeMacro(vtkMinimalStandardRandomSequence, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy general API of vtkRandomSequence superclass. Initialize the

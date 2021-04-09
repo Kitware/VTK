@@ -51,22 +51,22 @@ public:
    */
   int GetDataObjectType() override { return VTK_ANNOTATION_LAYERS; }
 
-  //@{
+  ///@{
   /**
    * The current annotation associated with this annotation link.
    */
   virtual void SetCurrentAnnotation(vtkAnnotation* ann);
   vtkGetObjectMacro(CurrentAnnotation, vtkAnnotation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The current selection associated with this annotation link.
    * This is simply the selection contained in the current annotation.
    */
   virtual void SetCurrentSelection(vtkSelection* sel);
   virtual vtkSelection* GetCurrentSelection();
-  //@}
+  ///@}
 
   /**
    * The number of annotations in a specific layer.
@@ -105,13 +105,13 @@ public:
    */
   void DeepCopy(vtkDataObject* other) override;
 
-  //@{
+  ///@{
   /**
    * Retrieve a vtkAnnotationLayers stored inside an information object.
    */
   static vtkAnnotationLayers* GetData(vtkInformation* info);
   static vtkAnnotationLayers* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * The modified time for this object.

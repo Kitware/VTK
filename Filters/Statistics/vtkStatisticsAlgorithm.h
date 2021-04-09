@@ -130,55 +130,55 @@ public:
     this->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, model);
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the Learn operation.
    */
   vtkSetMacro(LearnOption, bool);
   vtkGetMacro(LearnOption, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Derive operation.
    */
   vtkSetMacro(DeriveOption, bool);
   vtkGetMacro(DeriveOption, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Assess operation.
    */
   vtkSetMacro(AssessOption, bool);
   vtkGetMacro(AssessOption, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Test operation.
    */
   vtkSetMacro(TestOption, bool);
   vtkGetMacro(TestOption, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of tables in the primary model.
    */
   vtkSetMacro(NumberOfPrimaryTables, vtkIdType);
   vtkGetMacro(NumberOfPrimaryTables, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get assessment names.
    */
   virtual void SetAssessNames(vtkStringArray*);
   vtkGetObjectMacro(AssessNames, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A base class for a functor that assesses data.
    */
@@ -188,7 +188,7 @@ public:
     virtual void operator()(vtkDoubleArray*, vtkIdType) = 0;
     virtual ~AssessFunctor() = default;
   };
-  //@}
+  ///@}
 
   /**
    * Add or remove a column from the current analysis request.

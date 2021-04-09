@@ -81,20 +81,20 @@ public:
   vtkGetMacro(CollateBands, bool);
   vtkBooleanMacro(CollateBands, bool);
 
-  //@{
+  ///@{
   /**
    * Set desired width and height of the image
    */
   vtkSetVector2Macro(TargetDimensions, int);
   vtkGetVector2Macro(TargetDimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get raster width and height in number of pixels (cells)
    */
   int* GetRasterDimensions();
-  //@}
+  ///@}
 
   /**
    * Return metadata as reported by GDAL
@@ -114,20 +114,20 @@ public:
    */
   std::vector<std::string> GetDomainMetaData(const std::string& domain);
 
-  //@{
+  ///@{
   /**
    * Return driver name which was used to read the current data
    */
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
-  //@}
+  ///@}
 
   /**
    * Return the number of cells that are not set to GDAL NODATA
    */
   vtkIdType GetNumberOfCells();
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of bands.
    * By default, ALL bands are read.
@@ -138,7 +138,7 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
-  //@}
+  ///@}
 
 protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

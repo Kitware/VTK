@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkExtentSplitter* New();
 
-  //@{
+  ///@{
   /**
    * Add/Remove a source providing the given extent.  Sources with
    * higher priority numbers are favored.  Source id numbers and
@@ -51,16 +51,16 @@ public:
   void AddExtentSource(int id, int priority, int* extent);
   void RemoveExtentSource(int id);
   void RemoveAllExtentSources();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add an extent to the queue of extents to be split among the
    * available sources.
    */
   void AddExtent(int x0, int x1, int y0, int y1, int z0, int z1);
   void AddExtent(int* extent);
-  //@}
+  ///@}
 
   /**
    * Split the extents currently in the queue among the available
@@ -77,7 +77,7 @@ public:
    */
   int GetNumberOfSubExtents();
 
-  //@{
+  ///@{
   /**
    * Get the sub-extent associated with the given index.  Use
    * GetSubExtentSource to get the id of the source from which this
@@ -86,7 +86,7 @@ public:
    */
   int* GetSubExtent(int index) VTK_SIZEHINT(6);
   void GetSubExtent(int index, int* extent);
-  //@}
+  ///@}
 
   /**
    * Get the id of the source from which the sub-extent associated
@@ -95,7 +95,7 @@ public:
    */
   int GetSubExtentSource(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether "point mode" is on.  In point mode, sub-extents
    * are generated to ensure every point in the update request is
@@ -106,7 +106,7 @@ public:
   vtkGetMacro(PointMode, vtkTypeBool);
   vtkSetMacro(PointMode, vtkTypeBool);
   vtkBooleanMacro(PointMode, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtentSplitter();

@@ -77,13 +77,13 @@ public:
    */
   static vtkHandleWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkHandleWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -109,7 +109,7 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Enable / disable axis constrained motion of the handles. By default the
    * widget responds to the shift modifier to constrain the handle along the
@@ -118,18 +118,18 @@ public:
   vtkSetMacro(EnableAxisConstraint, vtkTypeBool);
   vtkGetMacro(EnableAxisConstraint, vtkTypeBool);
   vtkBooleanMacro(EnableAxisConstraint, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable moving of handles. By default, the handle can be moved.
    */
   vtkSetMacro(EnableTranslation, vtkTypeBool);
   vtkGetMacro(EnableTranslation, vtkTypeBool);
   vtkBooleanMacro(EnableTranslation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allow resizing of handles ? By default the right mouse button scales
    * the handle size.
@@ -137,16 +137,16 @@ public:
   vtkSetMacro(AllowHandleResize, vtkTypeBool);
   vtkGetMacro(AllowHandleResize, vtkTypeBool);
   vtkBooleanMacro(AllowHandleResize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the widget state.
    */
   vtkGetMacro(WidgetState, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allow the widget to be visible as an inactive representation when disabled.
    * By default, this is false i.e. the representation is not visible when the
@@ -155,7 +155,7 @@ public:
   vtkSetMacro(ShowInactive, vtkTypeBool);
   vtkGetMacro(ShowInactive, vtkTypeBool);
   vtkBooleanMacro(ShowInactive, vtkTypeBool);
-  //@}
+  ///@}
 
   // Manage the state of the widget
   enum _WidgetState

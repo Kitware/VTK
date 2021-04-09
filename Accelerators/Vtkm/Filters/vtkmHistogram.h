@@ -38,24 +38,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmHistogram* New();
 
-  //@{
+  ///@{
   /**
    * Specify number of bins.  Default is 10.
    */
   vtkSetMacro(NumberOfBins, size_t);
   vtkGetMacro(NumberOfBins, size_t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the range to use to generate the histogram. They are only used when
    * UseCustomBinRanges is set to true.
    */
   vtkSetVector2Macro(CustomBinRange, double);
   vtkGetVector2Macro(CustomBinRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true, CustomBinRanges will  be used instead of using the full
    * range for the selected array. By default, set to false.
@@ -63,9 +63,9 @@ public:
   vtkSetMacro(UseCustomBinRanges, bool);
   vtkGetMacro(UseCustomBinRanges, bool);
   vtkBooleanMacro(UseCustomBinRanges, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set if first and last bins must be centered around the min and max
    * data. This is only used when UseCustomBinRanges is set to false.
@@ -74,21 +74,21 @@ public:
   vtkSetMacro(CenterBinsAroundMinAndMax, bool);
   vtkGetMacro(CenterBinsAroundMinAndMax, bool);
   vtkBooleanMacro(CenterBinsAroundMinAndMax, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the range used to generate the histogram.
    */
   vtkGetVectorMacro(ComputedRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the bin delta of the computed field.
    */
   vtkGetMacro(BinDelta, double);
-  //@}
+  ///@}
 
 protected:
   vtkmHistogram();

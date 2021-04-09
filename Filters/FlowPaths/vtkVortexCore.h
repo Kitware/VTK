@@ -67,7 +67,7 @@ public:
   vtkTypeMacro(vtkVortexCore, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Use the flow field's jerk instead of acceleration as the second vector field
    * during the parallel vector operation. Disabled by default.
@@ -75,9 +75,9 @@ public:
   vtkSetMacro(HigherOrderMethod, vtkTypeBool);
   vtkGetMacro(HigherOrderMethod, vtkTypeBool);
   vtkBooleanMacro(HigherOrderMethod, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this flag is on (default is off), the gradient filter will provide a
    * less accurate (but close) algorithm that performs fewer derivative
@@ -86,7 +86,7 @@ public:
   vtkGetMacro(FasterApproximation, bool);
   vtkSetMacro(FasterApproximation, bool);
   vtkBooleanMacro(FasterApproximation, bool);
-  //@}
+  ///@}
 
 protected:
   vtkVortexCore();

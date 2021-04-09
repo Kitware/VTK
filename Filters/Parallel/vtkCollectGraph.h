@@ -40,16 +40,16 @@ public:
   vtkTypeMacro(vtkCollectGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this filter is being used in client-server mode,
    * this is the controller used to communicate between
@@ -57,16 +57,16 @@ public:
    */
   virtual void SetSocketController(vtkSocketController*);
   vtkGetObjectMacro(SocketController, vtkSocketController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To collect or just copy input to output. Off (collect) by default.
    */
   vtkSetMacro(PassThrough, vtkTypeBool);
   vtkGetMacro(PassThrough, vtkTypeBool);
   vtkBooleanMacro(PassThrough, vtkTypeBool);
-  //@}
+  ///@}
 
   enum
   {
@@ -75,7 +75,7 @@ public:
     USE_INPUT_TYPE
   };
 
-  //@{
+  ///@{
   /**
    * Directedness flag, used to signal whether the output graph is directed or undirected.
    * DIRECTED_OUTPUT expects that this filter is generating a directed graph.
@@ -86,7 +86,7 @@ public:
    */
   vtkSetMacro(OutputType, int);
   vtkGetMacro(OutputType, int);
-  //@}
+  ///@}
 
 protected:
   vtkCollectGraph();

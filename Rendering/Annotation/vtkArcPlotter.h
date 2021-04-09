@@ -68,16 +68,16 @@ public:
   vtkTypeMacro(vtkArcPlotter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify a camera used to orient the plot along the arc. If no camera
    * is specified, then the orientation of the plot is arbitrary.
    */
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify which data to plot: scalars, vectors, normals, texture coords,
    * tensors, or field data. If the data has more than one component, use
@@ -91,9 +91,9 @@ public:
   void SetPlotModeToPlotTCoords() { this->SetPlotMode(VTK_PLOT_TCOORDS); }
   void SetPlotModeToPlotTensors() { this->SetPlotMode(VTK_PLOT_TENSORS); }
   void SetPlotModeToPlotFieldData() { this->SetPlotMode(VTK_PLOT_FIELD_DATA); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the component number to plot if the data has more than one
    * component. If the value of the plot component is == (-1), then all
@@ -101,35 +101,35 @@ public:
    */
   vtkSetMacro(PlotComponent, int);
   vtkGetMacro(PlotComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radius of the "median" value of the first plotted component.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the height of the plot. (The radius combined with the height
    * define the location of the plot relative to the generating polyline.)
    */
   vtkSetClampMacro(Height, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Height, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an offset that translates each subsequent plot (if there is
    * more than one component plotted) from the defining arc (i.e., polyline).
    */
   vtkSetClampMacro(Offset, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Offset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a boolean to control whether to use default normals.
    * By default, normals are automatically computed from the generating
@@ -138,25 +138,25 @@ public:
   vtkSetMacro(UseDefaultNormal, vtkTypeBool);
   vtkGetMacro(UseDefaultNormal, vtkTypeBool);
   vtkBooleanMacro(UseDefaultNormal, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default normal to use if you do not wish automatic normal
    * calculation. The arc plot will be generated using this normal.
    */
   vtkSetVector3Macro(DefaultNormal, float);
   vtkGetVectorMacro(DefaultNormal, float, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the field data array to plot. This instance variable is
    * only applicable if field data is plotted.
    */
   vtkSetClampMacro(FieldDataArray, int, 0, VTK_INT_MAX);
   vtkGetMacro(FieldDataArray, int);
-  //@}
+  ///@}
 
   /**
    * New GetMTime because of camera dependency.

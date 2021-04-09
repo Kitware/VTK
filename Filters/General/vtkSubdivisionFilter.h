@@ -40,16 +40,16 @@ public:
   vtkTypeMacro(vtkSubdivisionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the number of subdivisions.
    * Default is 1.
    */
   vtkSetMacro(NumberOfSubdivisions, int);
   vtkGetMacro(NumberOfSubdivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get CheckForTriangles
    * Should subdivision check that the dataset only contains triangles?
@@ -58,7 +58,7 @@ public:
   vtkSetClampMacro(CheckForTriangles, vtkTypeBool, 0, 1);
   vtkGetMacro(CheckForTriangles, vtkTypeBool);
   vtkBooleanMacro(CheckForTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkSubdivisionFilter();

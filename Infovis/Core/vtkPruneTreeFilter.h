@@ -42,22 +42,22 @@ public:
   vtkTypeMacro(vtkPruneTreeFilter, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the parent vertex of the subtree to remove.
    */
   vtkGetMacro(ParentVertex, vtkIdType);
   vtkSetMacro(ParentVertex, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should we remove the parent vertex, or just its descendants?
    * Default behavior is to remove the parent vertex.
    */
   vtkGetMacro(ShouldPruneParentVertex, bool);
   vtkSetMacro(ShouldPruneParentVertex, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPruneTreeFilter();

@@ -40,21 +40,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataElement* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the element.  This is its XML tag.
    */
   vtkGetStringMacro(Name);
   virtual void SetName(const char* _arg);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value of the id attribute of the element, if any.
    */
   vtkGetStringMacro(Id);
   vtkSetStringMacro(Id);
-  //@}
+  ///@}
 
   /**
    * Get the attribute with the given name.  If it doesn't exist,
@@ -68,16 +68,16 @@ public:
    */
   void SetAttribute(const char* name, const char* value);
 
-  //@{
+  ///@{
   /**
    * Set/Get the character data between XML start/end tags.
    */
   void SetCharacterData(const char* data, int length);
   void AddCharacterData(const char* c, size_t length);
   vtkGetStringMacro(CharacterData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the attribute with the given name and converted to a scalar
    * value.  Returns whether value was extracted.
@@ -87,9 +87,9 @@ public:
   int GetScalarAttribute(const char* name, double& value);
   int GetScalarAttribute(const char* name, long& value);
   int GetScalarAttribute(const char* name, unsigned long& value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the attribute with the given name.
    * We can not use the same GetScalarAttribute() construct since
@@ -100,9 +100,9 @@ public:
   void SetFloatAttribute(const char* name, float value);
   void SetDoubleAttribute(const char* name, double value);
   void SetUnsignedLongAttribute(const char* name, unsigned long value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the attribute with the given name and converted to a scalar
    * value.  Returns length of vector read.
@@ -112,9 +112,9 @@ public:
   int GetVectorAttribute(const char* name, int length, double* value);
   int GetVectorAttribute(const char* name, int length, long* value);
   int GetVectorAttribute(const char* name, int length, unsigned long* value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the attribute with the given name.
    */
@@ -122,7 +122,7 @@ public:
   void SetVectorAttribute(const char* name, int length, const float* value);
   void SetVectorAttribute(const char* name, int length, const double* value);
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
-  //@}
+  ///@}
 
   int GetScalarAttribute(const char* name, long long& value);
   int GetVectorAttribute(const char* name, int length, long long* value);
@@ -139,12 +139,12 @@ public:
    */
   int GetWordTypeAttribute(const char* name, int& value);
 
-  //@{
+  ///@{
   /**
    * Get the number of attributes.
    */
   vtkGetMacro(NumberOfAttributes, int);
-  //@}
+  ///@}
 
   /**
    * Get the n-th attribute name.
@@ -158,21 +158,21 @@ public:
    */
   const char* GetAttributeValue(int idx);
 
-  //@{
+  ///@{
   /**
    * Remove one or all attributes.
    */
   virtual void RemoveAttribute(const char* name);
   virtual void RemoveAllAttributes();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the parent of this element.
    */
   vtkXMLDataElement* GetParent();
   void SetParent(vtkXMLDataElement* parent);
-  //@}
+  ///@}
 
   /**
    * Get root of the XML tree this element is part of.
@@ -204,7 +204,7 @@ public:
    */
   virtual void RemoveAllNestedElements();
 
-  //@{
+  ///@{
   /**
    * Find the first nested element with the given id, given name, or given
    * name and id.
@@ -216,7 +216,7 @@ public:
   vtkXMLDataElement* FindNestedElementWithNameAndId(const char* name, const char* id);
   vtkXMLDataElement* FindNestedElementWithNameAndAttribute(
     const char* name, const char* att_name, const char* att_value);
-  //@}
+  ///@}
 
   /**
    * Find the first nested element with given name.
@@ -229,13 +229,13 @@ public:
    */
   vtkXMLDataElement* LookupElement(const char* id);
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset from the beginning of the XML document to this element.
    */
   vtkGetMacro(XMLByteIndex, vtkTypeInt64);
   vtkSetMacro(XMLByteIndex, vtkTypeInt64);
-  //@}
+  ///@}
 
   /**
    * Check if the instance has the same name, attributes, character data
@@ -254,7 +254,7 @@ public:
    */
   virtual void DeepCopy(vtkXMLDataElement* elem);
 
-  //@{
+  ///@{
   /**
    * Get/Set the internal character encoding of the attributes.
    * Default type is VTK_ENCODING_UTF_8.
@@ -265,17 +265,17 @@ public:
    */
   vtkSetClampMacro(AttributeEncoding, int, VTK_ENCODING_NONE, VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Prints element tree as XML.
    */
   void PrintXML(ostream& os, vtkIndent indent);
   void PrintXML(const char* fname);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the width (in number of fields) that character
    * data (that between open and closing tags ie. <X> ... </X>)
@@ -286,7 +286,7 @@ public:
    */
   vtkGetMacro(CharacterDataWidth, int);
   vtkSetMacro(CharacterDataWidth, int);
-  //@}
+  ///@}
 
 protected:
   vtkXMLDataElement();

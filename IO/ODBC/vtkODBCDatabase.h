@@ -132,7 +132,7 @@ public:
    */
   bool IsSupported(int feature) override;
 
-  //@{
+  ///@{
   /**
    * Set the data source name.  For ODBC connections this will be
    * something listed in odbc.ini.  The location of that file varies wildly
@@ -140,7 +140,7 @@ public:
    */
   vtkSetStringMacro(DataSourceName);
   vtkGetStringMacro(DataSourceName);
-  //@}
+  ///@}
 
   vtkSetMacro(ServerPort, int);
   vtkSetStringMacro(HostName);
@@ -151,12 +151,12 @@ public:
 
   bool HasError() override;
 
-  //@{
+  ///@{
   /**
    * String representing database type (e.g. "ODBC").
    */
   const char* GetDatabaseType() override { return this->DatabaseType; }
-  //@}
+  ///@}
 
   vtkStdString GetURL() override;
 

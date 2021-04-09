@@ -86,14 +86,14 @@ public:
    */
   vr::IVRSystem* GetHMD() { return this->HMD; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the visibility of the base stations. Defaults to false
    */
   vtkGetMacro(BaseStationVisibility, bool);
   vtkSetMacro(BaseStationVisibility, bool);
   vtkBooleanMacro(BaseStationVisibility, bool);
-  //@}
+  ///@}
 
   /**
    * Create an interactor to control renderers in this window.
@@ -106,13 +106,13 @@ public:
    */
   void RenderOverlay();
 
-  //@{
+  ///@{
   /**
    * Set/Get the overlay to use on the VR dashboard
    */
   vtkGetObjectMacro(DashboardOverlay, vtkOpenVROverlay);
   void SetDashboardOverlay(vtkOpenVROverlay*);
-  //@}
+  ///@}
 
   /**
    * Update the HMD pose based on hardware pose and physical to world transform.
@@ -121,7 +121,7 @@ public:
    */
   void UpdateHMDMatrixPose();
 
-  //@{
+  ///@{
   /**
    * Get the frame buffers used for rendering
    */
@@ -132,7 +132,7 @@ public:
     width = this->Size[0];
     height = this->Size[1];
   }
-  //@}
+  ///@}
 
   /**
    * Get the VRModel corresponding to the tracked device
@@ -185,7 +185,7 @@ public:
    */
   void InitializeViewFromCamera(vtkCamera* cam);
 
-  //@{
+  ///@{
   /**
    * Set/get physical coordinate system in world coordinate system.
    *
@@ -197,9 +197,9 @@ public:
   virtual void SetPhysicalViewDirection(double, double, double);
   virtual void SetPhysicalViewDirection(double[3]);
   vtkGetVector3Macro(PhysicalViewDirection, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get physical coordinate system in world coordinate system.
    *
@@ -211,9 +211,9 @@ public:
   virtual void SetPhysicalViewUp(double, double, double);
   virtual void SetPhysicalViewUp(double[3]);
   vtkGetVector3Macro(PhysicalViewUp, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get physical coordinate system in world coordinate system.
    *
@@ -225,9 +225,9 @@ public:
   virtual void SetPhysicalTranslation(double, double, double);
   virtual void SetPhysicalTranslation(double[3]);
   vtkGetVector3Macro(PhysicalTranslation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get physical coordinate system in world coordinate system.
    *
@@ -239,7 +239,7 @@ public:
    */
   virtual void SetPhysicalScale(double);
   vtkGetMacro(PhysicalScale, double);
-  //@}
+  ///@}
 
   /**
    * Set physical to world transform matrix. Members calculated and set from the matrix:
@@ -253,14 +253,14 @@ public:
    */
   void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
-  //@{
+  ///@{
   /**
    * When on the camera will track the HMD position.
    * On is the default.
    */
   vtkSetMacro(TrackHMD, bool);
   vtkGetMacro(TrackHMD, bool);
-  //@}
+  ///@}
 
   /**
    * Add a renderer to the list of renderers.
@@ -337,7 +337,7 @@ public:
    */
   virtual int* GetScreenSize();
 
-  //@{
+  ///@{
   /**
    * Set the size of the window in screen coordinates in pixels.
    * This resizes the operating system's window and redraws it.
@@ -347,9 +347,9 @@ public:
    */
   void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position (x and y) of the rendering window in
    * screen coordinates (in pixels). This resizes the operating
@@ -357,7 +357,7 @@ public:
    */
   void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
-  //@}
+  ///@}
 
   // implement required virtual functions
   virtual void* GetGenericDisplayId() { return (void*)this->HelperWindow->GetGenericDisplayId(); }

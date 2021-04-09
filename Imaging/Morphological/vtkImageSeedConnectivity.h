@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkImageSeedConnectivity, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods for manipulating the seed pixels.
    */
@@ -52,46 +52,46 @@ public:
   void AddSeed(int num, int* index);
   void AddSeed(int i0, int i1, int i2);
   void AddSeed(int i0, int i1);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get what value is considered as connecting pixels.
    */
   vtkSetMacro(InputConnectValue, unsigned char);
   vtkGetMacro(InputConnectValue, unsigned char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to set connected pixels to.
    */
   vtkSetMacro(OutputConnectedValue, unsigned char);
   vtkGetMacro(OutputConnectedValue, unsigned char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to set unconnected pixels to.
    */
   vtkSetMacro(OutputUnconnectedValue, unsigned char);
   vtkGetMacro(OutputUnconnectedValue, unsigned char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkImageCOnnector used by this filter.
    */
   vtkGetObjectMacro(Connector, vtkImageConnector);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of axes to use in connectivity.
    */
   vtkSetMacro(Dimensionality, int);
   vtkGetMacro(Dimensionality, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageSeedConnectivity();

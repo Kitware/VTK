@@ -64,21 +64,21 @@ public:
   {
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
   virtual void SetVTKDataObject(vtkDataObject* data) = 0;
   virtual vtkDataObject* GetVTKDataObject() const = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Selection conversion from VTK land to Qt land
    */
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const = 0;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const = 0;
-  //@}
+  ///@}
 
   /**
    * Set/Get the view type.

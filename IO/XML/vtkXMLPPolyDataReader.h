@@ -42,13 +42,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPPolyDataReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkPolyData* GetOutput();
   vtkPolyData* GetOutput(int idx);
-  //@}
+  ///@}
 
 protected:
   vtkXMLPPolyDataReader();

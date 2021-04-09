@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkAppendSelection, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * UserManagedInputs allows the user to set inputs by number instead of
    * using the AddInput/RemoveInput functions. Calls to
@@ -52,7 +52,7 @@ public:
   vtkSetMacro(UserManagedInputs, vtkTypeBool);
   vtkGetMacro(UserManagedInputs, vtkTypeBool);
   vtkBooleanMacro(UserManagedInputs, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Add a dataset to the list of data to append. Should not be
@@ -66,13 +66,13 @@ public:
    */
   void RemoveInputData(vtkSelection*);
 
-  //@{
+  ///@{
   /**
    * Get any input of this filter.
    */
   vtkSelection* GetInput(int idx);
   vtkSelection* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
   /**
    * Directly set(allocate) number of inputs, should only be used
@@ -83,7 +83,7 @@ public:
   // Set Nth input, should only be used when UserManagedInputs is true.
   void SetInputConnectionByNumber(int num, vtkAlgorithmOutput* input);
 
-  //@{
+  ///@{
   /**
    * When set to true, all the selections are combined together to form a single
    * vtkSelection output.
@@ -95,7 +95,7 @@ public:
   vtkSetMacro(AppendByUnion, vtkTypeBool);
   vtkGetMacro(AppendByUnion, vtkTypeBool);
   vtkBooleanMacro(AppendByUnion, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkAppendSelection();

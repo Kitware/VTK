@@ -49,16 +49,16 @@
 class VTKFILTERSCORE_EXPORT vtkPointDataToCellData : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkPointDataToCellData* New();
   vtkTypeMacro(vtkPointDataToCellData, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the input point data is to be passed to the output. If
    * on, then the input point data is passed through to the output; otherwise,
@@ -67,9 +67,9 @@ public:
   vtkSetMacro(PassPointData, bool);
   vtkGetMacro(PassPointData, bool);
   vtkBooleanMacro(PassPointData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the input point data is to be treated as categorical. If
    * the data is categorical, then the resultant cell data will be determined
@@ -79,9 +79,9 @@ public:
   vtkSetMacro(CategoricalData, bool);
   vtkGetMacro(CategoricalData, bool);
   vtkBooleanMacro(CategoricalData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Activate selective processing of arrays. If inactive, only arrays selected
    * by the user will be considered by this filter. The default is true.
@@ -89,7 +89,7 @@ public:
   vtkSetMacro(ProcessAllArrays, bool);
   vtkGetMacro(ProcessAllArrays, bool);
   vtkBooleanMacro(ProcessAllArrays, bool);
-  //@}
+  ///@}
 
   /**
    * Adds an array to be processed. This only has an effect if the

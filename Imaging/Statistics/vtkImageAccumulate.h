@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkImageAccumulate, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get - The component spacing is the dimension of each bin.
    * This ends up being the spacing of the output "image".
@@ -61,9 +61,9 @@ public:
    */
   vtkSetVector3Macro(ComponentSpacing, double);
   vtkGetVector3Macro(ComponentSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get - The component origin is the location of bin (0, 0, 0).
    * Note that if the Component extent does not include the value (0,0,0),
@@ -75,9 +75,9 @@ public:
    */
   vtkSetVector3Macro(ComponentOrigin, double);
   vtkGetVector3Macro(ComponentOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get - The component extent sets the number/extent of the bins.
    * For a 1D histogram with 10 bins spanning the values 1000 to 2000,
@@ -90,9 +90,9 @@ public:
   void SetComponentExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetComponentExtent(int extent[6]);
   int* GetComponentExtent() VTK_SIZEHINT(6) { return this->ComponentExtent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use a stencil to specify which voxels to accumulate.
    * Backcompatible methods.
@@ -101,18 +101,18 @@ public:
    */
   void SetStencilData(vtkImageStencilData* stencil);
   vtkImageStencilData* GetStencil();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reverse the stencil. Initial value is false.
    */
   vtkSetClampMacro(ReverseStencil, vtkTypeBool, 0, 1);
   vtkBooleanMacro(ReverseStencil, vtkTypeBool);
   vtkGetMacro(ReverseStencil, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the statistics information for the data.
    * The values only make sense after the execution of the filter.
@@ -123,16 +123,16 @@ public:
   vtkGetVector3Macro(Mean, double);
   vtkGetVector3Macro(StandardDeviation, double);
   vtkGetMacro(VoxelCount, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should the data with value 0 be ignored? Initial value is false.
    */
   vtkSetClampMacro(IgnoreZero, vtkTypeBool, 0, 1);
   vtkGetMacro(IgnoreZero, vtkTypeBool);
   vtkBooleanMacro(IgnoreZero, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageAccumulate();

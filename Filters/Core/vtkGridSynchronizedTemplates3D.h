@@ -48,7 +48,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly
    * expensive in both time and storage. If the output data will be
@@ -58,9 +58,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of gradients. Gradient computation is
    * fairly expensive in both time and storage. Note that if
@@ -72,18 +72,18 @@ public:
   vtkSetMacro(ComputeGradients, vtkTypeBool);
   vtkGetMacro(ComputeGradients, vtkTypeBool);
   vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of scalars.
    */
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this is enabled (by default), the output will be triangles
    * otherwise, the output will be the intersection polygons
@@ -91,7 +91,7 @@ public:
   vtkSetMacro(GenerateTriangles, vtkTypeBool);
   vtkGetMacro(GenerateTriangles, vtkTypeBool);
   vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set a particular contour value at contour number i. The index i ranges
@@ -159,7 +159,7 @@ public:
    */
   void SetInputMemoryLimit(long limit);
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -167,7 +167,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkGridSynchronizedTemplates3D();

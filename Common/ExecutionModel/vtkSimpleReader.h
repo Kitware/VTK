@@ -63,7 +63,7 @@ public:
    */
   const char* GetCurrentFileName() const;
 
-  //@{
+  ///@{
   /**
    * This is the superclass API overridden by this class
    * to provide time support internally. Subclasses should
@@ -74,7 +74,7 @@ public:
   int ReadMesh(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
   int ReadPoints(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
   int ReadArrays(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
-  //@}
+  ///@}
 
   /**
    * A subclass can override this method to provide an actual

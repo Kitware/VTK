@@ -59,7 +59,7 @@ public:
   vtkTypeMacro(vtkPicker, vtkAbstractPropPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify tolerance for performing pick operation. Tolerance is specified
    * as fraction of rendering window size. (Rendering window size is measured
@@ -67,47 +67,47 @@ public:
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return position in mapper (i.e., non-transformed) coordinates of
    * pick point.
    */
   vtkGetVectorMacro(MapperPosition, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return mapper that was picked (if any).
    */
   vtkGetObjectMacro(Mapper, vtkAbstractMapper3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the dataset that was picked (if any). If nothing
    * was picked then NULL is returned.
    */
   vtkGetObjectMacro(DataSet, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the composite dataset that was picked (if any). If nothing
    * was picked or a non-composite data object was picked then NULL is returned.
    */
   vtkGetObjectMacro(CompositeDataSet, vtkCompositeDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the flat block index of the vtkDataSet in the composite dataset
    * that was picked (if any). If nothing
    * was picked or a non-composite data object was picked then -1 is returned.
    */
   vtkGetMacro(FlatBlockIndex, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Return a collection of all the prop 3D's that were intersected

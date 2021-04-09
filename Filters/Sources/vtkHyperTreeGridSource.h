@@ -91,33 +91,33 @@ public:
    */
   void SetMaxDepth(unsigned int levels);
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the grid
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale to be applied to root cells in each dimension of the grid
    */
   vtkSetVector3Macro(GridScale, double);
   vtkGetVector3Macro(GridScale, double);
   void SetGridScale(double scale) { this->SetGridScale(scale, scale, scale); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of root cells + 1 in each dimension of the grid
    */
   void SetDimensions(const unsigned int* dims);
   void SetDimensions(unsigned int, unsigned int, unsigned int);
   vtkGetVector3Macro(Dimensions, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether indexing mode of grid root cells must be transposed to
    * x-axis first, z-axis last, instead of the default z-axis first, k-axis last
@@ -126,24 +126,24 @@ public:
   vtkGetMacro(TransposedRootIndexing, bool);
   void SetIndexingModeToKJI();
   void SetIndexingModeToIJK();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the orientation of the grid (in 1D and 2D)
    */
   vtkGetMacro(Orientation, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the subdivision factor in the grid refinement scheme
    */
   vtkSetClampMacro(BranchFactor, unsigned int, 2, 3);
   vtkGetMacro(BranchFactor, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the descriptor string should be used.
    * NB: Otherwise a quadric definition is expected.
@@ -152,9 +152,9 @@ public:
   vtkSetMacro(UseDescriptor, bool);
   vtkGetMacro(UseDescriptor, bool);
   vtkBooleanMacro(UseDescriptor, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the material mask should be used.
    * NB: This is only used when UseDescriptor is ON
@@ -163,9 +163,9 @@ public:
   vtkSetMacro(UseMask, bool);
   vtkGetMacro(UseMask, bool);
   vtkBooleanMacro(UseMask, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether cell-centered interface fields
    * should be generated.
@@ -174,74 +174,74 @@ public:
   vtkSetMacro(GenerateInterfaceFields, bool);
   vtkGetMacro(GenerateInterfaceFields, bool);
   vtkBooleanMacro(GenerateInterfaceFields, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the string used to describe the grid.
    */
   vtkSetStringMacro(Descriptor);
   vtkGetStringMacro(Descriptor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the string used to as a material mask.
    */
   vtkSetStringMacro(Mask);
   vtkGetStringMacro(Mask);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the bitarray used to describe the grid.
    */
   virtual void SetDescriptorBits(vtkBitArray*);
   vtkGetObjectMacro(DescriptorBits, vtkBitArray);
-  //@}
+  ///@}
 
   /**
    * Set the index array used to as a material mask.
    */
   virtual void SetLevelZeroMaterialIndex(vtkIdTypeArray*);
 
-  //@{
+  ///@{
   /**
    * Set/Get the bitarray used as a material mask.
    */
   virtual void SetMaskBits(vtkBitArray*);
   vtkGetObjectMacro(MaskBits, vtkBitArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the quadric function.
    */
   virtual void SetQuadric(vtkQuadric*);
   vtkGetObjectMacro(Quadric, vtkQuadric);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Helpers to set/get the 10 coefficients of the quadric function
    */
   void SetQuadricCoefficients(double[10]);
   void GetQuadricCoefficients(double[10]);
   double* GetQuadricCoefficients();
-  //@}
+  ///@}
 
   /**
    * Override GetMTime because we delegate to a vtkQuadric.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Helpers to convert string descriptors & mask to bit arrays
    */
   vtkBitArray* ConvertDescriptorStringToBitArray(const std::string&);
   vtkBitArray* ConvertMaskStringToBitArray(const std::string&);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridSource();

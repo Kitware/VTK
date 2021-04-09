@@ -58,7 +58,7 @@ public:
   static vtkProcessGroup* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Initialize the group to the given controller or communicator.  The group
    * will be set to contain all of the processes in the controller/communicator
@@ -66,14 +66,14 @@ public:
    */
   void Initialize(vtkMultiProcessController* controller);
   void Initialize(vtkCommunicator* communicator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the communicator on which this group is based on.
    */
   vtkGetObjectMacro(Communicator, vtkCommunicator);
-  //@}
+  ///@}
 
   /**
    * Set the communicator.  This has the same effect as Initialize except that
@@ -84,12 +84,12 @@ public:
    */
   void SetCommunicator(vtkCommunicator* communicator);
 
-  //@{
+  ///@{
   /**
    * Returns the size of this group (the number of processes defined in it).
    */
   vtkGetMacro(NumberOfProcessIds, int);
-  //@}
+  ///@}
 
   /**
    * Given a position in the group, returns the id of the process in the

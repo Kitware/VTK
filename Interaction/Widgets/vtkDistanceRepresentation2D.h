@@ -45,20 +45,20 @@ public:
    */
   static vtkDistanceRepresentation2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation2D, vtkDistanceRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API.
    */
   double GetDistance() override { return this->Distance; }
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -70,14 +70,14 @@ public:
   void GetPoint2WorldPosition(double pos[3]) override;
   void SetPoint1WorldPosition(double pos[3]) override;
   void SetPoint2WorldPosition(double pos[3]) override;
-  //@}
+  ///@}
 
   void SetPoint1DisplayPosition(double pos[3]) override;
   void SetPoint2DisplayPosition(double pos[3]) override;
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
 
-  //@{
+  ///@{
   /**
    * Retrieve the vtkAxisActor2D used to draw the measurement axis. With this
    * properties can be set and so on. There is also a convenience method to
@@ -85,21 +85,21 @@ public:
    */
   vtkAxisActor2D* GetAxis();
   vtkProperty2D* GetAxisProperty();
-  //@}
+  ///@}
 
   /**
    * Method to satisfy superclasses' API.
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
 protected:
   vtkDistanceRepresentation2D();

@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkAnimateModes, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the filter should animate the vibrations.
    * Defaults to true. When set, the requested time is used compute
@@ -57,9 +57,9 @@ public:
   vtkSetMacro(AnimateVibrations, bool);
   vtkGetMacro(AnimateVibrations, bool);
   vtkBooleanMacro(AnimateVibrations, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the range for available mode shapes in the input. One must call
    * `UpdateInformation` before check the range since the range is determined
@@ -67,17 +67,17 @@ public:
    * timesteps>]`.
    */
   vtkGetVector2Macro(ModeShapesRange, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the mode shape to animate. Defaults to 1.
    */
   vtkSetClampMacro(ModeShape, int, 1, VTK_INT_MAX);
   vtkGetMacro(ModeShape, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether displacements are pre-applied.
    * Default is false.
@@ -85,24 +85,24 @@ public:
   vtkSetMacro(DisplacementPreapplied, bool);
   vtkGetMacro(DisplacementPreapplied, bool);
   vtkBooleanMacro(DisplacementPreapplied, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a scale factor to apply the displacements.
    * Defaults to 1.
    */
   vtkSetMacro(DisplacementMagnitude, double);
   vtkGetMacro(DisplacementMagnitude, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This returns (0, 1.0) as the range that can be used when animating a mode
    * shape.
    */
   vtkGetVector2Macro(TimeRange, double);
-  //@}
+  ///@}
 
 protected:
   vtkAnimateModes();

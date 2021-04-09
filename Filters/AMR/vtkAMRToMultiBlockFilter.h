@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get a multiprocess controller for paralle processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
   // Standard pipeline routines
 
@@ -62,13 +62,13 @@ protected:
   vtkAMRToMultiBlockFilter();
   ~vtkAMRToMultiBlockFilter() override;
 
-  //@{
+  ///@{
   /**
    * Copies the AMR data to the output multi-block datastructure.
    */
   void CopyAMRToMultiBlock(vtkOverlappingAMR* amr, vtkMultiBlockDataSet* mbds);
   vtkMultiProcessController* Controller;
-  //@}
+  ///@}
 
 private:
   vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter&) = delete;

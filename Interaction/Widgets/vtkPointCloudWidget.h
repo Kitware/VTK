@@ -52,14 +52,14 @@ class vtkPointCloudRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkPointCloudWidget : public vtkAbstractWidget
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkPointCloudWidget* New();
   vtkTypeMacro(vtkPointCloudWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

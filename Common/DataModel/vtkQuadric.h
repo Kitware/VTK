@@ -38,20 +38,20 @@ public:
    */
   static vtkQuadric* New();
 
-  //@{
+  ///@{
   /**
    * Evaluate quadric equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate the gradient to the quadric equation.
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the 10 coefficients of the quadric equation.
    */
@@ -59,7 +59,7 @@ public:
   void SetCoefficients(double a0, double a1, double a2, double a3, double a4, double a5, double a6,
     double a7, double a8, double a9);
   vtkGetVectorMacro(Coefficients, double, 10);
-  //@}
+  ///@}
 
 protected:
   vtkQuadric();

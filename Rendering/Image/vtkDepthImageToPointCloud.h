@@ -76,14 +76,14 @@ class vtkCamera;
 class VTKRENDERINGIMAGE_EXPORT vtkDepthImageToPointCloud : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard instantiation, type and print methods.
    */
   static vtkDepthImageToPointCloud* New();
   vtkTypeMacro(vtkDepthImageToPointCloud, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the camera.
@@ -97,15 +97,15 @@ public:
    */
   void SetCamera(vtkCamera*);
 
-  //@{
+  ///@{
   /**
    * Returns the camera being used to generate the point cloud from the
    * depth image.
    */
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to cull points that are located on the near clipping
    * plane. These typically are points that are part of the clipped foreground. By
@@ -114,9 +114,9 @@ public:
   vtkSetMacro(CullNearPoints, bool);
   vtkGetMacro(CullNearPoints, bool);
   vtkBooleanMacro(CullNearPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to cull points that are located on the far clipping
    * plane. These typically are points that are part of the background. By
@@ -125,9 +125,9 @@ public:
   vtkSetMacro(CullFarPoints, bool);
   vtkGetMacro(CullFarPoints, bool);
   vtkBooleanMacro(CullFarPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to output color scalar values along with the
    * point cloud (assuming that the scalar values are available on
@@ -136,9 +136,9 @@ public:
   vtkSetMacro(ProduceColorScalars, bool);
   vtkGetMacro(ProduceColorScalars, bool);
   vtkBooleanMacro(ProduceColorScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to output a vertex cell array (i.e., Verts) in the
    * output point cloud. Some filters require this vertex cells to be
@@ -148,9 +148,9 @@ public:
   vtkSetMacro(ProduceVertexCellArray, bool);
   vtkGetMacro(ProduceVertexCellArray, bool);
   vtkBooleanMacro(ProduceVertexCellArray, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired precision for the output points.
    * See vtkAlgorithm::DesiredOutputPrecision for the available choices.
@@ -158,7 +158,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkDepthImageToPointCloud();

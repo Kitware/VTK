@@ -48,23 +48,23 @@ public:
   vtkTypeMacro(vtkReebGraphToJoinSplitTreeFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify if you want to get a join or a split tree.
    * Default value: false (join tree)
    */
   vtkSetMacro(IsSplitTree, bool);
   vtkGetMacro(IsSplitTree, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar field Id
    * Default value: 0;
    */
   vtkSetMacro(FieldId, vtkIdType);
   vtkGetMacro(FieldId, vtkIdType);
-  //@}
+  ///@}
 
   vtkReebGraph* GetOutput();
 

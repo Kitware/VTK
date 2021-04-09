@@ -78,16 +78,16 @@ public:
    */
   void SetInput(vtkPolyData* input);
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance usued for the locator.
    * Default is 0.01.
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the norm to use:
    * L0: 0 when the projection is inside the input polygon, 1 otherwise
@@ -108,9 +108,9 @@ public:
     Modified();
   }
 #endif
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the Locator used by to compute the distance.
    * A vtkStaticCellLocator is provided by default if
@@ -118,7 +118,7 @@ public:
    */
   vtkGetSmartPointerMacro(Locator, vtkAbstractCellLocator);
   vtkSetSmartPointerMacro(Locator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitProjectOnPlaneDistance();

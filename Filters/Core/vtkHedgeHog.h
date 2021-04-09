@@ -38,15 +38,15 @@ public:
   vtkTypeMacro(vtkHedgeHog, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set scale factor to control size of oriented lines.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to use vector or normal to perform vector operations.
    */
@@ -55,9 +55,9 @@ public:
   void SetVectorModeToUseVector() { this->SetVectorMode(VTK_USE_VECTOR); }
   void SetVectorModeToUseNormal() { this->SetVectorMode(VTK_USE_NORMAL); }
   const char* GetVectorModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -65,7 +65,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkHedgeHog();
@@ -82,7 +82,7 @@ private:
   void operator=(const vtkHedgeHog&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the vector mode as a character string.
  */
@@ -102,4 +102,4 @@ inline const char* vtkHedgeHog::GetVectorModeAsString(void)
   }
 }
 #endif
-//@}
+///@}

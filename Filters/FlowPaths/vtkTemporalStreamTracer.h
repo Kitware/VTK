@@ -107,7 +107,7 @@ public:
    */
   static vtkTemporalStreamTracer* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the TimeStep. This is the primary means of advancing
    * the particles. The TimeStep should be animated and this will drive
@@ -115,9 +115,9 @@ public:
    */
   vtkSetMacro(TimeStep, unsigned int);
   vtkGetMacro(TimeStep, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To get around problems with the Paraview Animation controls
    * we can just animate the time step and ignore the TIME_ requests
@@ -125,9 +125,9 @@ public:
   vtkSetMacro(IgnorePipelineTime, vtkTypeBool);
   vtkGetMacro(IgnorePipelineTime, vtkTypeBool);
   vtkBooleanMacro(IgnorePipelineTime, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the data source does not have the correct time values
    * present on each time step - setting this value to non unity can
@@ -137,9 +137,9 @@ public:
    */
   vtkSetMacro(TimeStepResolution, double);
   vtkGetMacro(TimeStepResolution, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When animating particles, it is nice to inject new ones every Nth step
    * to produce a continuous flow. Setting ForceReinjectionEveryNSteps to a
@@ -151,7 +151,7 @@ public:
    */
   vtkSetMacro(ForceReinjectionEveryNSteps, int);
   vtkGetMacro(ForceReinjectionEveryNSteps, int);
-  //@}
+  ///@}
 
   enum Units
   {
@@ -159,7 +159,7 @@ public:
     TERMINATION_STEP_UNIT
   };
 
-  //@{
+  ///@{
   /**
    * Setting TerminationTime to a positive value will cause particles
    * to terminate when the time is reached. Use a vlue of zero to
@@ -168,9 +168,9 @@ public:
    */
   vtkSetMacro(TerminationTime, double);
   vtkGetMacro(TerminationTime, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The units of TerminationTime may be actual 'Time' units as described
    * by the data, or just TimeSteps of iteration.
@@ -179,9 +179,9 @@ public:
   vtkGetMacro(TerminationTimeUnit, int);
   void SetTerminationTimeUnitToTimeUnit() { this->SetTerminationTimeUnit(TERMINATION_TIME_UNIT); }
   void SetTerminationTimeUnitToStepUnit() { this->SetTerminationTimeUnit(TERMINATION_STEP_UNIT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * if StaticSeeds is set and the mesh is static,
    * then every time particles are injected we can re-use the same
@@ -193,9 +193,9 @@ public:
   vtkSetMacro(StaticSeeds, vtkTypeBool);
   vtkGetMacro(StaticSeeds, vtkTypeBool);
   vtkBooleanMacro(StaticSeeds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * if StaticMesh is set, many optimizations for cell caching
    * can be assumed. if StaticMesh is not set, the algorithm
@@ -207,9 +207,9 @@ public:
   vtkSetMacro(StaticMesh, vtkTypeBool);
   vtkGetMacro(StaticMesh, vtkTypeBool);
   vtkBooleanMacro(StaticMesh, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Writer associated with this Particle Tracer
    * Ideally a parallel IO capable vtkH5PartWriter should be used
@@ -218,18 +218,18 @@ public:
    */
   virtual void SetParticleWriter(vtkAbstractParticleWriter* pw);
   vtkGetObjectMacro(ParticleWriter, vtkAbstractParticleWriter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
    */
   vtkSetStringMacro(ParticleFileName);
   vtkGetStringMacro(ParticleFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
@@ -237,15 +237,15 @@ public:
   vtkSetMacro(EnableParticleWriting, vtkTypeBool);
   vtkGetMacro(EnableParticleWriting, vtkTypeBool);
   vtkBooleanMacro(EnableParticleWriting, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Provide support for multiple see sources
    */
   void AddSourceConnection(vtkAlgorithmOutput* input);
   void RemoveAllSources();
-  //@}
+  ///@}
 
 protected:
   vtkTemporalStreamTracer();

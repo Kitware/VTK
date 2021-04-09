@@ -63,45 +63,45 @@ public:
    */
   static vtkDijkstraImageGeodesicPath* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkDijkstraImageGeodesicPath, vtkDijkstraGraphGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the image object which is used as a cost function.
    */
   void SetInputData(vtkDataObject*);
   vtkImageData* GetInputAsImageData();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Image cost weight.
    */
   void SetImageWeight(double);
   vtkGetMacro(ImageWeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Edge length cost weight.
    */
   void SetEdgeLengthWeight(double);
   vtkGetMacro(EdgeLengthWeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Curvature cost weight.
    */
   vtkSetClampMacro(CurvatureWeight, double, 0.0, 1.0);
   vtkGetMacro(CurvatureWeight, double);
-  //@}
+  ///@}
 
 protected:
   vtkDijkstraImageGeodesicPath();

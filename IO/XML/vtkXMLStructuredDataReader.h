@@ -46,7 +46,7 @@ public:
    */
   vtkIdType GetNumberOfCells() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the reader gets a whole slice from disk when only
    * a rectangle inside it is needed.  This mode reads more data than
@@ -56,7 +56,7 @@ public:
   vtkSetMacro(WholeSlices, vtkTypeBool);
   vtkGetMacro(WholeSlices, vtkTypeBool);
   vtkBooleanMacro(WholeSlices, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * For the specified port, copy the information this reader sets up in

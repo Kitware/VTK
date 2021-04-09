@@ -57,7 +57,7 @@ public:
    */
   virtual void SetTree2(vtkTree* tree);
 
-  //@{
+  ///@{
   /**
    * Get/Set the table that describes the correspondences between the
    * two trees.  The first column should contain the names of the leaf
@@ -69,23 +69,23 @@ public:
    */
   vtkTable* GetTable();
   void SetTable(vtkTable* table);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the label for tree #1.
    */
   vtkGetStringMacro(Tree1Label);
   vtkSetStringMacro(Tree1Label);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the label for tree #2.
    */
   vtkGetStringMacro(Tree2Label);
   vtkSetStringMacro(Tree2Label);
-  //@}
+  ///@}
 
   /**
    * Set which way the tanglegram should face within the visualization.
@@ -98,7 +98,7 @@ public:
    */
   int GetOrientation();
 
-  //@{
+  ///@{
   /**
    * Get/Set the smallest font size that is still considered legible.
    * If the current zoom level requires our vertex labels to be smaller
@@ -107,9 +107,9 @@ public:
    */
   vtkGetMacro(MinimumVisibleFontSize, int);
   vtkSetMacro(MinimumVisibleFontSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how much larger the dendrogram labels should be compared to the
    * vertex labels.  Because the vertex labels automatically resize based
@@ -118,23 +118,23 @@ public:
    */
   vtkGetMacro(LabelSizeDifference, int);
   vtkSetMacro(LabelSizeDifference, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how wide the correspondence lines should be.  Default is two pixels.
    */
   vtkGetMacro(CorrespondenceLineWidth, float);
   vtkSetMacro(CorrespondenceLineWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set how wide the edges of the trees should be.  Default is one pixel.
    */
   float GetTreeLineWidth();
   void SetTreeLineWidth(float width);
-  //@}
+  ///@}
 
   /**
    * Returns true if the transform is interactive, false otherwise.

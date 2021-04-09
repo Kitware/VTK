@@ -93,19 +93,19 @@ public:
    */
   void Initialize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor);
 
-  //@{
+  ///@{
   /**
    * Return if a Tree pointing exist
    */
   bool HasTree() const { return vtk::hypertreegrid::HasTree(*this); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the hyper tree to which the cursor is pointing.
    */
   vtkHyperTree* GetTree() const { return this->Tree; }
-  //@}
+  ///@}
 
   /**
    * Return the index of the current vertex in the tree.

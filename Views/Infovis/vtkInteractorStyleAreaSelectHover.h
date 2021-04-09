@@ -53,24 +53,24 @@ public:
   vtkTypeMacro(vtkInteractorStyleAreaSelectHover, vtkInteractorStyleRubberBand2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Must be set to the vtkAreaLayout used to compute the bounds of
    * each vertex.
    */
   void SetLayout(vtkAreaLayout* layout);
   vtkGetObjectMacro(Layout, vtkAreaLayout);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field to use when displaying text in the hover balloon.
    */
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determine whether or not to use rectangular coordinates instead of
    * polar coordinates.
@@ -78,7 +78,7 @@ public:
   vtkSetMacro(UseRectangularCoordinates, bool);
   vtkGetMacro(UseRectangularCoordinates, bool);
   vtkBooleanMacro(UseRectangularCoordinates, bool);
-  //@}
+  ///@}
 
   /**
    * Overridden from vtkInteractorStyleImage to provide the desired
@@ -96,13 +96,13 @@ public:
    */
   void SetHighLightColor(double r, double g, double b);
 
-  //@{
+  ///@{
   /**
    * The width of the line around the hovered vertex.
    */
   void SetHighLightWidth(double lw);
   double GetHighLightWidth();
-  //@}
+  ///@}
 
   /**
    * Obtain the tree vertex id at the position specified.

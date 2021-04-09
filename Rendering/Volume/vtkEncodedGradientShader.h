@@ -53,7 +53,7 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the intensity diffuse / specular light used for the
    * zero normals.
@@ -62,14 +62,14 @@ public:
   vtkGetMacro(ZeroNormalDiffuseIntensity, float);
   vtkSetClampMacro(ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
   vtkGetMacro(ZeroNormalSpecularIntensity, float);
-  //@}
+  ///@}
 
   /**
    * Cause the shading table to be updated
    */
   void UpdateShadingTable(vtkRenderer* ren, vtkVolume* vol, vtkEncodedGradientEstimator* gradest);
 
-  //@{
+  ///@{
   /**
    * Get the red/green/blue shading table.
    */
@@ -79,9 +79,9 @@ public:
   float* GetRedSpecularShadingTable(vtkVolume* vol);
   float* GetGreenSpecularShadingTable(vtkVolume* vol);
   float* GetBlueSpecularShadingTable(vtkVolume* vol);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the active component for shading. This component's
    * ambient / diffuse / specular / specular power values will
@@ -89,7 +89,7 @@ public:
    */
   vtkSetClampMacro(ActiveComponent, int, 0, 3);
   vtkGetMacro(ActiveComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkEncodedGradientShader();

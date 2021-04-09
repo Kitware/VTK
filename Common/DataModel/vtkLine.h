@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkLine, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -55,7 +55,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
-  //@}
+  ///@}
 
   /**
    * Inflates this line by extending both end by dist. A degenerate line remains
@@ -178,7 +178,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[2]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[2]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -191,7 +191,7 @@ public:
   {
     vtkLine::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
 protected:
   vtkLine();

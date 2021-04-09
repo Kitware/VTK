@@ -40,13 +40,13 @@ public:
    */
   static vtkOpenVRMenuWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkOpenVRMenuWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -60,12 +60,12 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Get the widget state.
    */
   vtkGetMacro(WidgetState, int);
-  //@}
+  ///@}
 
   // Manage the state of the widget
   enum _WidgetState
@@ -74,7 +74,7 @@ public:
     Active
   };
 
-  //@{
+  ///@{
   /**
    * Methods to add/remove items to the menu, called by the menu widget
    */
@@ -82,7 +82,7 @@ public:
   void RenameMenuItem(const char* name, const char* text);
   void RemoveMenuItem(const char* name);
   void RemoveAllMenuItems();
-  //@}
+  ///@}
 
   void Show(vtkEventData* ed);
   void ShowSubMenu(vtkOpenVRMenuWidget*);

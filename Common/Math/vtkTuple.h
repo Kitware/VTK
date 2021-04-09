@@ -96,7 +96,7 @@ public:
   T& operator[](int i) { return this->Data[i]; }
   const T& operator[](int i) const { return this->Data[i]; }
 
-  //@{
+  ///@{
   /**
    * Get the value of the tuple at the index specified. Does bounds
    * checking, similar to the at(i) method of C++ STL containers, but
@@ -107,9 +107,9 @@ public:
     assert("pre: index_in_bounds" && i >= 0 && i < Size);
     return this->Data[i];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Equality operator with a tolerance to allow fuzzy comparisons.
    */
@@ -128,9 +128,9 @@ public:
     }
     return true;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Cast the tuple to the specified type, returning the result.
    */
@@ -144,18 +144,18 @@ public:
     }
     return result;
   }
-  //@}
+  ///@}
 
 protected:
-  //@{
+  ///@{
   /**
    * The only thing stored in memory!
    */
   T Data[Size];
-  //@}
+  ///@}
 };
 
-//@{
+///@{
 /**
  * Output the contents of a tuple, mainly useful for debugging.
  */
@@ -200,9 +200,9 @@ ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
   out << ")";
   return out;
 }
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Equality operator performs an equality check on each component.
  */
@@ -218,7 +218,7 @@ bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
   }
   return true;
 }
-//@}
+///@}
 
 /**
  * Inequality for vector type.

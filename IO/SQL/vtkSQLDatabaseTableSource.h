@@ -51,16 +51,16 @@ public:
   vtkStdString GetQuery();
   void SetQuery(const vtkStdString& query);
 
-  //@{
+  ///@{
   /**
    * The name of the array for generating or assigning pedigree ids
    * (default "id").
    */
   vtkSetStringMacro(PedigreeIdArrayName);
   vtkGetStringMacro(PedigreeIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on (default), generates pedigree ids automatically.
    * If off, assign one of the arrays to be the pedigree id.
@@ -68,7 +68,7 @@ public:
   vtkSetMacro(GeneratePedigreeIds, bool);
   vtkGetMacro(GeneratePedigreeIds, bool);
   vtkBooleanMacro(GeneratePedigreeIds, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSQLDatabaseTableSource();

@@ -59,7 +59,7 @@ public:
     this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * The name for the array created for the area for each vertex.
    * The rectangles are stored in a quadruple float array
@@ -68,9 +68,9 @@ public:
    */
   vtkGetStringMacro(AreaArrayName);
   vtkSetStringMacro(AreaArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to output a second output tree with vertex locations
    * appropriate for routing bundled edges. Default is on.
@@ -78,15 +78,15 @@ public:
   vtkGetMacro(EdgeRoutingPoints, bool);
   vtkSetMacro(EdgeRoutingPoints, bool);
   vtkBooleanMacro(EdgeRoutingPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The strategy to use when laying out the tree map.
    */
   vtkGetObjectMacro(LayoutStrategy, vtkAreaLayoutStrategy);
   void SetLayoutStrategy(vtkAreaLayoutStrategy* strategy);
-  //@}
+  ///@}
 
   /**
    * Get the modification time of the layout algorithm.

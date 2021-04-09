@@ -44,19 +44,19 @@ public:
   vtkTypeMacro(vtkAMRGaussianPulseSource, vtkOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sets the dimension of the AMR dataset to generate
    */
   vtkSetMacro(Dimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the number of levels to generate
    */
   vtkSetMacro(NumberOfLevels, int);
-  //@}
+  ///@}
 
   /**
    * Set the refinement ratio
@@ -67,7 +67,7 @@ public:
     this->Modified();
   }
 
-  //@{
+  ///@{
   /**
    * Set the root spacing
    */
@@ -76,9 +76,9 @@ public:
     this->RootSpacing[0] = this->RootSpacing[1] = this->RootSpacing[2] = h0;
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the pulse origin
    */
@@ -99,9 +99,9 @@ public:
     this->PulseOrigin[2] = f;
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the pulse width
    */
@@ -122,15 +122,15 @@ public:
     this->PulseWidth[2] = f;
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the pulse amplitude
    */
   vtkSetMacro(PulseAmplitude, double);
   vtkGetMacro(PulseAmplitude, double);
-  //@}
+  ///@}
 
 protected:
   vtkAMRGaussianPulseSource();
@@ -143,7 +143,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Computes the gaussian pulse at the given location based on the user
    * supplied parameters for pulse width and origin.
@@ -170,7 +170,7 @@ protected:
     pulse = this->PulseAmplitude * std::exp(-r);
     return (pulse);
   }
-  //@}
+  ///@}
 
   /**
    * Given the cell index w.r.t. to a uniform grid, this method computes the
@@ -194,13 +194,13 @@ protected:
    */
   vtkUniformGrid* RefinePatch(vtkUniformGrid* parent, int patchExtent[6]);
 
-  //@{
+  ///@{
   /**
    * Generate 2-D or 3-D DataSet
    */
   void Generate2DDataSet(vtkOverlappingAMR* amr);
   void Generate3DDataSet(vtkOverlappingAMR* amr);
-  //@}
+  ///@}
 
   double RootSpacing[3];
   double PulseOrigin[3];

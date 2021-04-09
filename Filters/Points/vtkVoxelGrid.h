@@ -56,7 +56,7 @@ class vtkInterpolationKernel;
 class VTKFILTERSPOINTS_EXPORT vtkVoxelGrid : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -64,7 +64,7 @@ public:
   static vtkVoxelGrid* New();
   vtkTypeMacro(vtkVoxelGrid, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This enum is used to configure the operation of the filter.
@@ -76,7 +76,7 @@ public:
     AUTOMATIC = 2
   };
 
-  //@{
+  ///@{
   /**
    * Configure how the filter is to operate. The user can choose to manually
    * specify the binning volume (by setting its dimensions via MANUAL style); or
@@ -90,9 +90,9 @@ public:
   void SetConfigurationStyleToManual() { this->SetConfigurationStyle(MANUAL); }
   void SetConfigurationStyleToLeafSize() { this->SetConfigurationStyle(SPECIFY_LEAF_SIZE); }
   void SetConfigurationStyleToAutomatic() { this->SetConfigurationStyle(AUTOMATIC); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of divisions in x-y-z directions (the binning volume
    * dimensions). This data member is used when the configuration style is
@@ -101,9 +101,9 @@ public:
    */
   vtkSetVector3Macro(Divisions, int);
   vtkGetVectorMacro(Divisions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the bin size in the x-y-z directions. This data member is
    * used when the configuration style is set to SPECIFY_LEAF_SIZE. The class will
@@ -112,9 +112,9 @@ public:
    */
   vtkSetVector3Macro(LeafSize, double);
   vtkGetVectorMacro(LeafSize, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the average number of points in each bin. Larger values
    * result in higher rates of subsampling. This data member is used when the
@@ -123,9 +123,9 @@ public:
    */
   vtkSetClampMacro(NumberOfPointsPerBin, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBin, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an interpolation kernel to combine the point attributes. By
    * default a vtkLinearKernel is used (i.e., average values). The
@@ -133,7 +133,7 @@ public:
    */
   void SetKernel(vtkInterpolationKernel* kernel);
   vtkGetObjectMacro(Kernel, vtkInterpolationKernel);
-  //@}
+  ///@}
 
 protected:
   vtkVoxelGrid();

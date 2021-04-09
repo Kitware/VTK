@@ -50,20 +50,20 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set and get case type. 0 = decomposed case, 1 = reconstructed case.
    */
   void SetCaseType(const int t);
   vtkGetMacro(CaseType, caseType);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPOpenFOAMReader();

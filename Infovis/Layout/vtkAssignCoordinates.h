@@ -42,36 +42,36 @@ public:
   vtkTypeMacro(vtkAssignCoordinates, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the x coordinate array name.
    */
   vtkSetStringMacro(XCoordArrayName);
   vtkGetStringMacro(XCoordArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the y coordinate array name.
    */
   vtkSetStringMacro(YCoordArrayName);
   vtkGetStringMacro(YCoordArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the z coordinate array name.
    */
   vtkSetStringMacro(ZCoordArrayName);
   vtkGetStringMacro(ZCoordArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set if you want a random jitter
    */
   vtkSetMacro(Jitter, bool);
-  //@}
+  ///@}
 
 protected:
   vtkAssignCoordinates();

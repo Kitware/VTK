@@ -100,7 +100,7 @@ public:
    */
   static void SetInstance(vtkFreeTypeTools* instance);
 
-  //@{
+  ///@{
   /**
    * If true, images produced by RenderString will have a transparent grey
    * background and set the justification anchor texel to bright yellow.
@@ -108,7 +108,7 @@ public:
   vtkSetMacro(DebugTextures, bool);
   vtkGetMacro(DebugTextures, bool);
   vtkBooleanMacro(DebugTextures, bool);
-  //@}
+  ///@}
 
   /**
    * Get the FreeType library singleton.
@@ -138,7 +138,7 @@ public:
   std::array<int, 2> GetUnscaledKerning(vtkTextProperty* tprop, vtkUnicodeStringValueType leftChar,
     vtkUnicodeStringValueType rightChar);
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of faces (FT_Face), sizes (FT_Size) and
    * bytes used by the cache. These settings can be changed as long as
@@ -150,9 +150,9 @@ public:
   vtkGetMacro(MaximumNumberOfSizes, unsigned int);
   vtkSetClampMacro(MaximumNumberOfBytes, unsigned long, 1, VTK_UNSIGNED_LONG_MAX);
   vtkGetMacro(MaximumNumberOfBytes, unsigned long);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the bounding box {xmin, xmax,
    * ymin, ymax} of the rendered string in pixels. The origin of the bounding
@@ -165,9 +165,9 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool GetBoundingBox(vtkTextProperty* tprop, const vtkStdString& "
                           "str, int dpi, int bbox[4])")
   bool GetBoundingBox(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, int bbox[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, get the metrics of the rendered string.
    * Returns true on success, false otherwise.
@@ -178,9 +178,9 @@ public:
                           "int dpi, vtkTextRenderer::Metrics& metrics)")
   bool GetMetrics(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi,
     vtkTextRenderer::Metrics& metrics);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function initializes the
    * vtkImageData *data and renders it in a vtkImageData. textDims, if provided,
@@ -197,9 +197,9 @@ public:
                           "int dpi, vtkImageData* data, int textDims[2])")
   bool RenderString(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi,
     vtkImageData* data, int textDims[2] = nullptr);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a text property and a string, this function populates the vtkPath
    * path with the outline of the rendered string. The origin of the path
@@ -210,9 +210,9 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use bool StringToPath(vtkTextProperty* tprop, const vtkStdString& str, "
                           "int dpi, vtkPath* path)")
   bool StringToPath(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, vtkPath* path);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This function returns the font size (in points) required to fit the string
    * in the target rectangle. The font size of tprop is updated to the computed
@@ -224,7 +224,7 @@ public:
                           "vtkTextProperty* tprop, int dpi, int targetWidth, int targetHeight)")
   int GetConstrainedFontSize(const vtkUnicodeString& str, vtkTextProperty* tprop, int dpi,
     int targetWidth, int targetHeight);
-  //@}
+  ///@}
 
   /**
    * Turn a string into a hash. This is not a general purpose hash
@@ -238,7 +238,7 @@ public:
    */
   static vtkTypeUInt32 HashBuffer(const void* buffer, size_t n, vtkTypeUInt32 hash = 0);
 
-  //@{
+  ///@{
   /**
    * Given a text property 'tprop', get its unique ID in our cache framework.
    * In the same way, given a unique ID in our cache, retrieve the
@@ -251,9 +251,9 @@ public:
    */
   void MapTextPropertyToId(vtkTextProperty* tprop, size_t* tprop_cache_id);
   void MapIdToTextProperty(size_t tprop_cache_id, vtkTextProperty* tprop);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether the image produced should be scaled up to the nearest power of
    * 2. This is normally required for older graphics cards where all textures
@@ -263,9 +263,9 @@ public:
   vtkSetMacro(ScaleToPowerTwo, bool);
   vtkGetMacro(ScaleToPowerTwo, bool);
   vtkBooleanMacro(ScaleToPowerTwo, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force use of the fonts compiled into VTK, ignoring any FontConfig or
    * embedded fonts. Useful for generating test images consistently across
@@ -274,7 +274,7 @@ public:
   vtkSetMacro(ForceCompiledFonts, bool);
   vtkGetMacro(ForceCompiledFonts, bool);
   vtkBooleanMacro(ForceCompiledFonts, bool);
-  //@}
+  ///@}
 
   /**
    * Lookup and set the FreeType font face @a face best matching the text
@@ -290,7 +290,7 @@ protected:
    */
   virtual FT_Error CreateFTCManager();
 
-  //@{
+  ///@{
   /**
    * Used to store state about a particular rendering and cache constant values
    */
@@ -298,7 +298,7 @@ protected:
   class ImageMetaData;
   bool PrepareMetaData(vtkTextProperty* tprop, int dpi, MetaData& metaData);
   bool PrepareImageMetaData(vtkTextProperty* tprop, vtkImageData* image, ImageMetaData& metaData);
-  //@}
+  ///@}
 
   /**
    * This function initializes the extent of the ImageData to eventually
@@ -335,7 +335,7 @@ protected:
    */
   bool GetGlyphIndex(vtkTextProperty* tprop, FT_UInt32 c, FT_UInt* gindex);
 
-  //@{
+  ///@{
   /**
    * Given a text property and a character, get the corresponding FreeType
    * glyph. The 'request' parameter can be used to request the glyph to be
@@ -364,7 +364,7 @@ protected:
     int request = GLYPH_REQUEST_DEFAULT);
   bool GetGlyph(
     FTC_Scaler scaler, FT_UInt gindex, FT_Glyph* glyph, int request = GLYPH_REQUEST_DEFAULT);
-  //@}
+  ///@}
 
   /**
    * Should the image be scaled to the next highest power of 2?
@@ -379,7 +379,7 @@ protected:
    */
   bool GetFace(vtkTextProperty* prop, size_t& prop_cache_id, FT_Face& face, bool& face_has_kerning);
 
-  //@{
+  ///@{
   /**
    * Now attempt to get the bitmap for the specified character.
    */
@@ -387,9 +387,9 @@ protected:
     FT_BitmapGlyph& bitmap_glyph);
   FT_Bitmap* GetBitmap(
     FT_UInt32 c, FTC_Scaler scaler, FT_UInt& gindex, FT_BitmapGlyph& bitmap_glyph);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Attempt to get the outline for the specified character.
    */
@@ -397,7 +397,7 @@ protected:
     FT_OutlineGlyph& outline_glyph);
   FT_Outline* GetOutline(
     FT_UInt32 c, FTC_Scaler scaler, FT_UInt& gindex, FT_OutlineGlyph& outline_glyph);
-  //@}
+  ///@}
 
   /**
    * The singleton instance
@@ -414,23 +414,23 @@ protected:
    */
   FT_Library* Library;
 
-  //@{
+  ///@{
   /**
    * The cache manager, image cache and charmap cache
    */
   FTC_Manager* CacheManager;
   FTC_ImageCache* ImageCache;
   FTC_CMapCache* CMapCache;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the FreeType cache manager, image cache and charmap cache
    */
   FTC_Manager* GetCacheManager();
   FTC_ImageCache* GetImageCache();
   FTC_CMapCache* GetCMapCache();
-  //@}
+  ///@}
 
   unsigned int MaximumNumberOfFaces;
   unsigned int MaximumNumberOfSizes;
@@ -459,7 +459,7 @@ private:
   template <typename StringType>
   bool StringToPathInternal(vtkTextProperty* tprop, const StringType& str, int dpi, vtkPath* path);
 
-  //@{
+  ///@{
   /**
    * This function initializes calculates the size of the required bounding box
    * and stores it in the MetaData provided.
@@ -470,7 +470,7 @@ private:
   bool CalculateBoundingBox(const vtkUnicodeString& str, MetaData& metaData);
   template <typename T>
   bool CalculateBoundingBox(const T& str, MetaData& metaData, const T& defaultHeightString);
-  //@}
+  ///@}
 
   /**
    * Internal helper method called by RenderString.
@@ -487,7 +487,7 @@ private:
   bool RenderLine(
     IteratorType begin, IteratorType end, int lineIndex, DataType data, MetaData& metaData);
 
-  //@{
+  ///@{
   /**
    * Implementations for rendering a single character to a specific target.
    */
@@ -497,7 +497,7 @@ private:
   template <typename CharType>
   bool RenderCharacter(CharType character, int& x, int& y, FT_UInt& previousGlyphIndex,
     vtkPath* path, MetaData& metaData);
-  //@}
+  ///@}
 
   void OutlineToPath(int x, int y, FT_Outline* outline, vtkPath* path);
 
@@ -509,7 +509,7 @@ private:
   template <typename T>
   int FitStringToBBox(const T& str, MetaData& metaData, int targetWidth, int targetHeight);
 
-  //@{
+  ///@{
   /**
    * Get the width of the rendered string between iterators
    * begin and end. Width is calculated as the sum of advances and kernings
@@ -519,7 +519,7 @@ private:
    */
   template <typename T>
   void GetLineMetrics(T begin, T end, MetaData& metaData, int& width, int bbox[4]);
-  //@}
+  ///@}
 };
 
 // This is here to implement the Schwarz counter idiom.

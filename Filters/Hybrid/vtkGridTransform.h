@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkGridTransform, vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid transform (the grid transform must have three
    * components for displacement in x, y, and z respectively).
@@ -57,9 +57,9 @@ public:
   virtual void SetDisplacementGridConnection(vtkAlgorithmOutput*);
   virtual void SetDisplacementGridData(vtkImageData*);
   virtual vtkImageData* GetDisplacementGrid();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set scale factor to be applied to the displacements.
    * This is used primarily for grids which contain integer
@@ -67,9 +67,9 @@ public:
    */
   vtkSetMacro(DisplacementScale, double);
   vtkGetMacro(DisplacementScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a shift to be applied to the displacements.  The shift
    * is applied after the scale, i.e. x = scale*y + shift.
@@ -77,9 +77,9 @@ public:
    */
   vtkSetMacro(DisplacementShift, double);
   vtkGetMacro(DisplacementShift, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set interpolation mode for sampling the grid.  Higher-order
    * interpolation allows you to use a sparser grid.
@@ -94,7 +94,7 @@ public:
   void SetInterpolationModeToLinear() { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); }
   void SetInterpolationModeToCubic() { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); }
   const char* GetInterpolationModeAsString();
-  //@}
+  ///@}
 
   /**
    * Make another transform of the same type.
@@ -120,13 +120,13 @@ protected:
    */
   void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
-  //@{
+  ///@{
   /**
    * Internal functions for calculating the transformation.
    */
   void ForwardTransformPoint(const float in[3], float out[3]) override;
   void ForwardTransformPoint(const double in[3], double out[3]) override;
-  //@}
+  ///@}
 
   void ForwardTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
   void ForwardTransformDerivative(

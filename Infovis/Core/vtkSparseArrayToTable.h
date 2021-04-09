@@ -51,14 +51,14 @@ public:
   vtkTypeMacro(vtkSparseArrayToTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the output table column that contains array values.
    * Default: "value"
    */
   vtkGetStringMacro(ValueColumn);
   vtkSetStringMacro(ValueColumn);
-  //@}
+  ///@}
 
 protected:
   vtkSparseArrayToTable();

@@ -77,7 +77,7 @@ public:
    */
   vtkDataSet* GetVzComponent();
 
-  //@{
+  ///@{
   /**
    * Determines whether the vector components will be put
    * in separate outputs or in the first output's field data
@@ -85,7 +85,7 @@ public:
   vtkSetMacro(ExtractToFieldData, vtkTypeBool);
   vtkGetMacro(ExtractToFieldData, vtkTypeBool);
   vtkBooleanMacro(ExtractToFieldData, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractVectorComponents();

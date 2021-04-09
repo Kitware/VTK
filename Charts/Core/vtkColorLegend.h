@@ -71,14 +71,14 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the transfer function that is used to draw the scalar bar
    * within this legend.
    */
   virtual void SetTransferFunction(vtkScalarsToColors* transfer);
   virtual vtkScalarsToColors* GetTransferFunction();
-  //@}
+  ///@}
 
   /**
    * Set the point this legend is anchored to.
@@ -112,24 +112,24 @@ public:
    */
   vtkRectf GetBoundingRect(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the orientation of the legend.
    * Valid orientations are VERTICAL (default) and HORIZONTAL.
    */
   virtual void SetOrientation(int orientation);
   vtkGetMacro(Orientation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the title text of the legend.
    */
   virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggle whether or not a border should be drawn around this legend.
    * The default behavior is to not draw a border.
@@ -137,7 +137,7 @@ public:
   vtkSetMacro(DrawBorder, bool);
   vtkGetMacro(DrawBorder, bool);
   vtkBooleanMacro(DrawBorder, bool);
-  //@}
+  ///@}
 
   /**
    * Mouse move event.
@@ -154,7 +154,7 @@ protected:
    */
   virtual void ComputeTexture();
 
-  //@{
+  ///@{
   /**
    * Called whenever the ScalarsToColors function(s) is modified. It internally
    * calls Modified(). Can be reimplemented by subclasses.
@@ -162,7 +162,7 @@ protected:
   virtual void ScalarsToColorsModified(vtkObject* caller, unsigned long eid, void* calldata);
   static void OnScalarsToColorsModified(
     vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
-  //@}
+  ///@}
 
   /**
    * Moves the axis whenever the position of this legend changes.

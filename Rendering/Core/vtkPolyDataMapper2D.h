@@ -48,21 +48,21 @@ public:
   static vtkPolyDataMapper2D* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the input to the mapper.
    */
   void SetInputData(vtkPolyData* in);
   vtkPolyData* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -70,16 +70,16 @@ public:
    */
   virtual void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, vtkTypeBool);
   vtkGetMacro(ScalarVisibility, vtkTypeBool);
   vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the scalar data is mapped to colors.  By default
    * (ColorModeToDefault), unsigned char scalars are treated as
@@ -98,14 +98,14 @@ public:
   void SetColorModeToDefault();
   void SetColorModeToMapScalars();
   void SetColorModeToDirectScalars();
-  //@}
+  ///@}
 
   /**
    * Return the method of coloring scalar data.
    */
   const char* GetColorModeAsString();
 
-  //@{
+  ///@{
   /**
    * Control whether the mapper sets the lookuptable range based on its
    * own ScalarRange, or whether it will use the LookupTable ScalarRange
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(UseLookupTableScalarRange, vtkTypeBool);
   vtkGetMacro(UseLookupTableScalarRange, vtkTypeBool);
   vtkBooleanMacro(UseLookupTableScalarRange, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify range in terms of scalar minimum and maximum (smin,smax). These
    * values are used to map scalars into lookup table. Has no effect when
@@ -127,9 +127,9 @@ public:
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVectorMacro(ScalarRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the filter works with scalar point data and cell attribute
    * data.  By default (ScalarModeToDefault), the filter will use point data,
@@ -155,15 +155,15 @@ public:
   {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose which component of which field data array to color by.
    */
   void ColorByArrayComponent(int arrayNum, int component);
   void ColorByArrayComponent(const char* arrayName, int component);
-  //@}
+  ///@}
 
   /**
    * Get the array name or number and component to color by.
@@ -179,7 +179,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify a vtkCoordinate object to be used to transform the vtkPolyData
    * point coordinates. By default (no vtkCoordinate specified), the point
@@ -188,9 +188,9 @@ public:
    */
   virtual void SetTransformCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether or not rounding to integers the transformed points when
    * TransformCoordinate is set. By default, it does not use double precision.
@@ -198,7 +198,7 @@ public:
   vtkGetMacro(TransformCoordinateUseDouble, bool);
   vtkSetMacro(TransformCoordinateUseDouble, bool);
   vtkBooleanMacro(TransformCoordinateUseDouble, bool);
-  //@}
+  ///@}
 
   /**
    * Map the scalars (if there are any scalars and ScalarVisibility is on)

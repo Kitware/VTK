@@ -103,50 +103,50 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use std::string GetHoverString(vtkView* view, int x, int y)")
   virtual const char* GetHoverText(vtkView* view, int x, int y);
 
-  //@{
+  ///@{
   /**
    * Change the position of the plot
    */
   int SetPositionAndSize(double* position, double* size);
   int GetPositionAndSize(double* position, double* size);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the axis titles
    */
   void SetAxisTitles(vtkStringArray*);
   void SetAxisTitles(vtkAlgorithmOutput*);
-  //@}
+  ///@}
 
   /**
    * Set the title for the entire plot
    */
   void SetPlotTitle(const char*);
 
-  //@{
+  ///@{
   /**
    * Get the number of axes in the plot
    */
   vtkGetMacro(NumberOfAxes, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of samples in the plot
    */
   vtkGetMacro(NumberOfSamples, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of labels to display on each axis
    */
   void SetNumberOfAxisLabels(int num);
   vtkGetMacro(NumberOfAxisLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Move an axis to a particular screen position.  Using these
    * methods requires an Update() before they will work properly.
@@ -156,26 +156,26 @@ public:
   double GetXCoordinateOfPosition(int axis);
   void GetXCoordinatesOfPositions(double* coords);
   int GetPositionNearXCoordinate(double xcoord);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether or not to display using curves
    */
   vtkSetMacro(UseCurves, vtkTypeBool);
   vtkGetMacro(UseCurves, vtkTypeBool);
   vtkBooleanMacro(UseCurves, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Resolution of the curves displayed, enabled by setting UseCurves
    */
   vtkSetMacro(CurveResolution, int);
   vtkGetMacro(CurveResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access plot properties
    */
@@ -189,38 +189,38 @@ public:
   vtkSetVector3Macro(LineColor, double);
   vtkSetVector3Macro(AxisColor, double);
   vtkSetVector3Macro(AxisLabelColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
   vtkSetMacro(AngleBrushThreshold, double);
   vtkGetMacro(AngleBrushThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum angle difference (in degrees) of selection using angle/function brushes
    */
   vtkSetMacro(FunctionBrushThreshold, double);
   vtkGetMacro(FunctionBrushThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the value range of the axis at a particular screen position
    */
   int GetRangeAtPosition(int position, double range[2]);
   virtual int SetRangeAtPosition(int position, double range[2]);
-  //@}
+  ///@}
 
   /**
    * Reset the axes to their default positions and orders
    */
   void ResetAxes();
 
-  //@{
+  ///@{
   /**
    * Do a selection of the lines.  See the main description for how to use these functions.
    * RangeSelect is currently stubbed out.
@@ -230,7 +230,7 @@ public:
   virtual void FunctionSelect(
     int brushClass, int brushOperator, double* p1, double* p2, double* q1, double* q2);
   virtual void RangeSelect(int brushClass, int brushOperator, double* p1, double* p2);
-  //@}
+  ///@}
 
   enum InputPorts
   {
@@ -247,14 +247,14 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * Add/remove the props and actors to/from a view
    */
   bool AddToView(vtkView* view) override;
   bool RemoveFromView(vtkView* view) override;
   void PrepareForRendering(vtkRenderView* view) override;
-  //@}
+  ///@}
 
   /**
    * This function is not actually used, but as left as a stub in case
@@ -274,7 +274,7 @@ protected:
    */
   int PlaceAxes();
 
-  //@{
+  ///@{
   /**
    * Place line primitives into a vtkPolyData from the input data.  idsToPlot
    * is a list of which rows/samples should be plotted.  If nullptr, all
@@ -282,7 +282,7 @@ protected:
    */
   virtual int PlaceLines(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);
   virtual int PlaceCurves(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);
-  //@}
+  ///@}
 
   /**
    * Takes the selection list (assumed to be a vtkIdTypeArray) from a vtkSelectionNode
@@ -306,15 +306,15 @@ protected:
    */
   virtual int ReallocateInternals();
 
-  //@{
+  ///@{
   /**
    * Compute which screen position a point belongs to (returns the left position)
    */
   int ComputePointPosition(double* p);
   int ComputeLinePosition(double* p1, double* p2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Select a set of points using the prescribed operator (add, subtract, etc.) and class
    */
@@ -323,7 +323,7 @@ protected:
   virtual void BuildInverseSelection();
   virtual vtkPolyDataMapper2D* InitializePlotMapper(
     vtkPolyData* input, vtkActor2D* actor, bool forceStandard = false);
-  //@}
+  ///@}
 
   /**
    * Build an s-curve passing through (0,0) and (1,1) with a specified number of

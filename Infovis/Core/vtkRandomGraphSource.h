@@ -45,33 +45,33 @@ public:
   vtkTypeMacro(vtkRandomGraphSource, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The number of vertices in the graph.
    */
   vtkGetMacro(NumberOfVertices, int);
   vtkSetClampMacro(NumberOfVertices, int, 0, VTK_INT_MAX);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseEdgeProbability is off, creates a graph with the specified number
    * of edges.  Duplicate (parallel) edges are allowed.
    */
   vtkGetMacro(NumberOfEdges, int);
   vtkSetClampMacro(NumberOfEdges, int, 0, VTK_INT_MAX);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If UseEdgeProbability is on, adds an edge with this probability between 0 and 1
    * for each pair of vertices in the graph.
    */
   vtkGetMacro(EdgeProbability, double);
   vtkSetClampMacro(EdgeProbability, double, 0.0, 1.0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, includes edge weights in an array named "edge_weights".
    * Defaults to off.  Weights are random between 0 and 1.
@@ -79,26 +79,26 @@ public:
   vtkSetMacro(IncludeEdgeWeights, bool);
   vtkGetMacro(IncludeEdgeWeights, bool);
   vtkBooleanMacro(IncludeEdgeWeights, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the edge weight array. Default "edge weight".
    */
   vtkSetStringMacro(EdgeWeightArrayName);
   vtkGetStringMacro(EdgeWeightArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, creates a directed graph, as opposed to an undirected graph.
    */
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, uses the EdgeProbability parameter to determine the density
    * of edges.  Otherwise, NumberOfEdges is used.
@@ -106,9 +106,9 @@ public:
   vtkSetMacro(UseEdgeProbability, bool);
   vtkGetMacro(UseEdgeProbability, bool);
   vtkBooleanMacro(UseEdgeProbability, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, builds a random tree structure first, then adds additional
    * random edges.
@@ -116,9 +116,9 @@ public:
   vtkSetMacro(StartWithTree, bool);
   vtkGetMacro(StartWithTree, bool);
   vtkBooleanMacro(StartWithTree, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is set to true, edges where the source and target
    * vertex are the same can be generated.  The default is to forbid
@@ -127,9 +127,9 @@ public:
   vtkSetMacro(AllowSelfLoops, bool);
   vtkGetMacro(AllowSelfLoops, bool);
   vtkBooleanMacro(AllowSelfLoops, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, multiple edges from a source to a target vertex are
    * allowed. The default is to forbid such loops.
@@ -137,34 +137,34 @@ public:
   vtkSetMacro(AllowParallelEdges, bool);
   vtkGetMacro(AllowParallelEdges, bool);
   vtkBooleanMacro(AllowParallelEdges, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add pedigree ids to vertex and edge data.
    */
   vtkSetMacro(GeneratePedigreeIds, bool);
   vtkGetMacro(GeneratePedigreeIds, bool);
   vtkBooleanMacro(GeneratePedigreeIds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the vertex pedigree id array. Default "vertex id".
    */
   vtkSetStringMacro(VertexPedigreeIdArrayName);
   vtkGetStringMacro(VertexPedigreeIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the edge pedigree id array. Default "edge id".
    */
   vtkSetStringMacro(EdgePedigreeIdArrayName);
   vtkGetStringMacro(EdgePedigreeIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the seed used for pseudo-random-number generation.
    * This ensures that vtkRandomGraphSource can produce repeatable
@@ -172,7 +172,7 @@ public:
    */
   vtkSetMacro(Seed, int);
   vtkGetMacro(Seed, int);
-  //@}
+  ///@}
 
 protected:
   vtkRandomGraphSource();

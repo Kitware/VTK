@@ -76,15 +76,15 @@ public:
 
   static vtkArrayCalculator* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the function to be evaluated.
    */
   virtual void SetFunction(const char* function);
   vtkGetStringMacro(Function);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add an array name to the list of arrays used in the function and specify
    * which components of the array to use in evaluating the function.  The
@@ -94,9 +94,9 @@ public:
   void AddScalarArrayName(const char* arrayName, int component = 0);
   void AddVectorArrayName(
     const char* arrayName, int component0 = 0, int component1 = 1, int component2 = 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a variable name, a corresponding array name, and which components of
    * the array to use.
@@ -104,9 +104,9 @@ public:
   void AddScalarVariable(const char* variableName, const char* arrayName, int component = 0);
   void AddVectorVariable(const char* variableName, const char* arrayName, int component0 = 0,
     int component1 = 1, int component2 = 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a variable name, a corresponding array name, and which components of
    * the array to use.
@@ -114,9 +114,9 @@ public:
   void AddCoordinateScalarVariable(const char* variableName, int component = 0);
   void AddCoordinateVectorVariable(
     const char* variableName, int component0 = 0, int component1 = 1, int component2 = 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the name of the array in which to store the result of
    * evaluating this function.  If this is the name of an existing array,
@@ -125,18 +125,18 @@ public:
    */
   void SetResultArrayName(const char* name);
   vtkGetStringMacro(ResultArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Type of the result array. It is ignored if CoordinateResults is true.
    * Initial value is VTK_DOUBLE.
    */
   vtkGetMacro(ResultArrayType, int);
   vtkSetMacro(ResultArrayType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to output results as coordinates.  ResultArrayName will be
    * ignored.  Outputting as coordinates is only valid with vector results and
@@ -146,9 +146,9 @@ public:
   vtkGetMacro(CoordinateResults, vtkTypeBool);
   vtkSetMacro(CoordinateResults, vtkTypeBool);
   vtkBooleanMacro(CoordinateResults, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to output results as point/cell normals. Outputting as
    * normals is only valid with vector results. Point or cell normals are
@@ -157,9 +157,9 @@ public:
   vtkGetMacro(ResultNormals, bool);
   vtkSetMacro(ResultNormals, bool);
   vtkBooleanMacro(ResultNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to output results as point/cell texture coordinates.
    * Point or cell texture coordinates are selected using AttributeMode.
@@ -168,7 +168,7 @@ public:
   vtkGetMacro(ResultTCoords, bool);
   vtkSetMacro(ResultTCoords, bool);
   vtkBooleanMacro(ResultTCoords, bool);
-  //@}
+  ///@}
 
   /**
    * Returns a string representation of the calculator's AttributeType
@@ -176,7 +176,7 @@ public:
   const char* GetAttributeTypeAsString();
 
   static const int DEFAULT_ATTRIBUTE_TYPE = -1;
-  //@{
+  ///@{
   /**
    * Control which AttributeType the filter operates on (point data or cell data
    * for vtkDataSets).  By default the filter uses Point/Vertex/Row data depending
@@ -191,7 +191,7 @@ public:
   void SetAttributeTypeToEdgeData() { this->SetAttributeType(vtkDataObject::EDGE); }
   void SetAttributeTypeToVertexData() { this->SetAttributeType(vtkDataObject::VERTEX); }
   void SetAttributeTypeToRowData() { this->SetAttributeType(vtkDataObject::ROW); }
-  //@}
+  ///@}
 
   /**
    * Remove all the variable names and their associated array names.
@@ -218,7 +218,7 @@ public:
    */
   virtual void RemoveCoordinateVectorVariables();
 
-  //@{
+  ///@{
   /**
    * Methods to get information about the current variables.
    */
@@ -236,9 +236,9 @@ public:
   int* GetSelectedVectorComponents(int i);
   vtkGetMacro(NumberOfScalarArrays, int);
   vtkGetMacro(NumberOfVectorArrays, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ReplaceInvalidValues is on, all invalid values (such as
    * sqrt(-2), note that function parser does not handle complex
@@ -250,15 +250,15 @@ public:
   vtkBooleanMacro(ReplaceInvalidValues, vtkTypeBool);
   vtkSetMacro(ReplacementValue, double);
   vtkGetMacro(ReplacementValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this option is set, silently ignore datasets where the requested field
    * data array is not present. When an input array is not present, the result array
    * will not be generated nor added to the output.
    */
-  //@}
+  ///@}
   vtkSetMacro(IgnoreMissingArrays, bool);
   vtkGetMacro(IgnoreMissingArrays, bool);
   vtkBooleanMacro(IgnoreMissingArrays, bool);

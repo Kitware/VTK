@@ -34,20 +34,20 @@ public:
   vtkTypeMacro(vtkContextItem, vtkAbstractContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the opacity of the item.
    */
   vtkGetMacro(Opacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the opacity of the item.
    * 1.0 by default.
    */
   vtkSetMacro(Opacity, double);
-  //@}
+  ///@}
 
 protected:
   vtkContextItem();

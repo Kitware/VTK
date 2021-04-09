@@ -50,14 +50,14 @@ public:
    */
   void Aggregate(int, int*) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the multiprocess controller. If no controller is set,
    * single process is assumed.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPYoungsMaterialInterface();

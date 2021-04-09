@@ -142,13 +142,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get input string to evaluate.
    */
   void SetFunction(const char* function);
   vtkGetStringMacro(Function);
-  //@}
+  ///@}
 
   /**
    * Check whether the result is a scalar result.  If it isn't, then
@@ -167,7 +167,7 @@ public:
    */
   double GetScalarResult();
 
-  //@{
+  ///@{
   /**
    * Get a vector result from evaluating the input function.
    */
@@ -179,9 +179,9 @@ public:
     result[1] = r[1];
     result[2] = r[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value of a scalar variable.  If a variable with this name
    * exists, then its value will be set to the new value.  If there is not
@@ -190,17 +190,17 @@ public:
    */
   void SetScalarVariableValue(const char* variableName, double value);
   void SetScalarVariableValue(int i, double value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the value of a scalar variable.
    */
   double GetScalarVariableValue(const char* variableName);
   double GetScalarVariableValue(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value of a vector variable.  If a variable with this name
    * exists, then its value will be set to the new value.  If there is not
@@ -218,9 +218,9 @@ public:
   {
     this->SetVectorVariableValue(i, values[0], values[1], values[2]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the value of a vector variable.
    */
@@ -240,7 +240,7 @@ public:
     value[1] = r[1];
     value[2] = r[2];
   }
-  //@}
+  ///@}
 
   /**
    * Get the number of scalar variables.
@@ -272,7 +272,7 @@ public:
    */
   const char* GetVectorVariableName(int i);
 
-  //@{
+  ///@{
   /**
    * Returns whether a scalar variable is needed for the function evaluation.
    * This is only valid after a successful Parse(). Thus, call GetScalarResult()
@@ -280,9 +280,9 @@ public:
    */
   bool GetScalarVariableNeeded(int i);
   bool GetScalarVariableNeeded(const char* variableName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns whether a vector variable is needed for the function evaluation.
    * This is only valid after a successful Parse(). Thus, call GetVectorResult()
@@ -290,7 +290,7 @@ public:
    */
   bool GetVectorVariableNeeded(int i);
   bool GetVectorVariableNeeded(const char* variableName);
-  //@}
+  ///@}
 
   /**
    * Remove all the current variables.
@@ -307,7 +307,7 @@ public:
    */
   void RemoveVectorVariables();
 
-  //@{
+  ///@{
   /**
    * When ReplaceInvalidValues is on, all invalid values (such as
    * sqrt(-2), note that function parser does not handle complex
@@ -319,7 +319,7 @@ public:
   vtkBooleanMacro(ReplaceInvalidValues, vtkTypeBool);
   vtkSetMacro(ReplacementValue, double);
   vtkGetMacro(ReplacementValue, double);
-  //@}
+  ///@}
 
   /**
    * Check the validity of the function expression.

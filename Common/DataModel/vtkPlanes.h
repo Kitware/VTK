@@ -49,45 +49,45 @@ class vtkDataArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkPlanes* New();
   vtkTypeMacro(vtkPlanes, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Evaluate plane equations. Return largest value (i.e., an intersection
    * operation between all planes).
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate planes gradient.
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Specify a list of points defining points through which the planes pass.
    */
   virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a list of normal vectors for the planes. There is a one-to-one
    * correspondence between plane points and plane normals.
    */
   void SetNormals(vtkDataArray* normals);
   vtkGetObjectMacro(Normals, vtkDataArray);
-  //@}
+  ///@}
 
   /**
    * An alternative method to specify six planes defined by the camera view
@@ -95,7 +95,7 @@ public:
    */
   void SetFrustumPlanes(double planes[24]);
 
-  //@{
+  ///@{
   /**
    * An alternative method to specify six planes defined by a bounding box.
    * The bounding box is a six-vector defined as (xmin,xmax,ymin,ymax,zmin,zmax).
@@ -103,7 +103,7 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  //@}
+  ///@}
 
   /**
    * Return the number of planes in the set of planes.

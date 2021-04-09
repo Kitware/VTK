@@ -45,7 +45,7 @@ public:
    */
   vtkCell* GetEdge(int edgeId) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -65,7 +65,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
-  //@}
+  ///@}
 
   /**
    * A convenience function to compute the area of a vtkTriangle.
@@ -82,7 +82,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double sf[3]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[6]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -95,7 +95,7 @@ public:
   {
     vtkTriangle::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
   /**
    * Return the ids of the vertices defining edge (`edgeId`).
    * Ids are related to the cell, not to the dataset.
@@ -203,7 +203,7 @@ public:
   static int PointInTriangle(const double x[3], const double x1[3], const double x2[3],
     const double x3[3], const double tol2);
 
-  //@{
+  ///@{
   /**
    * Calculate the error quadric for this triangle.  Return the
    * quadric as a 4x4 matrix or a vtkQuadric.  (from Peter
@@ -214,7 +214,7 @@ public:
     const double x1[3], const double x2[3], const double x3[3], double quadric[4][4]);
   static void ComputeQuadric(
     const double x1[3], const double x2[3], const double x3[3], vtkQuadric* quadric);
-  //@}
+  ///@}
 
   /**
    * Get the centroid of the triangle.

@@ -173,7 +173,7 @@ public:
     static_cast<DerivedT*>(this)->SetTypedComponent(tupleIdx, compIdx, value);
   }
 
-  //@{
+  ///@{
   /**
    * Default implementation raises a runtime error. If subclasses keep on
    * supporting this API, they should override this method.
@@ -185,7 +185,7 @@ public:
   void SetArrayFreeFunction(void (*callback)(void*)) override;
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
-  //@}
+  ///@}
 
   /**
    * Removes a tuple at the given index. Default implementation
@@ -221,14 +221,14 @@ public:
    */
   void InsertTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType val);
 
-  //@{
+  ///@{
   /**
    * Get the range of array values for the given component in the
    * native data type.
    */
   void GetValueRange(ValueType range[2], int comp);
   ValueType* GetValueRange(int comp) VTK_SIZEHINT(2);
-  //@}
+  ///@}
 
   /**
    * Get the range of array values for the 0th component in the

@@ -79,13 +79,13 @@ public:
    */
   static vtkSliderWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkSliderWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -105,7 +105,7 @@ public:
     return reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);
   }
 
-  //@{
+  ///@{
   /**
    * Control the behavior of the slider when selecting the tube or caps. If
    * Jump, then selecting the tube, left cap, or right cap causes the slider to
@@ -118,16 +118,16 @@ public:
   void SetAnimationModeToOff() { this->SetAnimationMode(AnimateOff); }
   void SetAnimationModeToJump() { this->SetAnimationMode(Jump); }
   void SetAnimationModeToAnimate() { this->SetAnimationMode(Animate); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of animation steps to take if the animation mode
    * is set to animate.
    */
   vtkSetClampMacro(NumberOfAnimationSteps, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfAnimationSteps, int);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.

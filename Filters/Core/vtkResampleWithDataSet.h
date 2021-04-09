@@ -62,7 +62,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Control whether the source point data is to be treated as categorical. If
    * the data is categorical, then the resultant data will be determined by
@@ -70,9 +70,9 @@ public:
    */
   void SetCategoricalData(bool arg);
   bool GetCategoricalData();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
@@ -80,9 +80,9 @@ public:
   void SetPassCellArrays(bool arg);
   bool GetPassCellArrays();
   vtkBooleanMacro(PassCellArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow copy the input point data arrays to the output
    * Off by default.
@@ -90,9 +90,9 @@ public:
   void SetPassPointArrays(bool arg);
   bool GetPassPointArrays();
   vtkBooleanMacro(PassPointArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
@@ -100,9 +100,9 @@ public:
   void SetPassFieldArrays(bool arg);
   bool GetPassFieldArrays();
   vtkBooleanMacro(PassFieldArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance used to compute whether a point in the
    * source is in a cell of the input.  This value is only used
@@ -110,9 +110,9 @@ public:
    */
   void SetTolerance(double arg);
   double GetTolerance();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
@@ -121,9 +121,9 @@ public:
   void SetComputeTolerance(bool arg);
   bool GetComputeTolerance();
   vtkBooleanMacro(ComputeTolerance, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether points without resampled values, and their corresponding cells,
    * should be marked as Blank. Default is On.
@@ -131,16 +131,16 @@ public:
   vtkSetMacro(MarkBlankPointsAndCells, bool);
   vtkGetMacro(MarkBlankPointsAndCells, bool);
   vtkBooleanMacro(MarkBlankPointsAndCells, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Set/Get the prototype cell locator to use for probing the source dataset.
    * The value is forwarded to the underlying probe filter.
    */
   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
   virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const;
-  //@}
+  ///@}
 
   vtkMTimeType GetMTime() override;
 

@@ -86,13 +86,13 @@ public:
    */
   static vtkAngleWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkAngleWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -149,7 +149,7 @@ public:
     Manipulate
   };
 
-  //@{
+  ///@{
   /**
    * Set the state of the widget. If the state is set to "Manipulate" then it
    * is assumed that the widget and its representation will be initialized
@@ -162,7 +162,7 @@ public:
    */
   virtual void SetWidgetStateToStart();
   virtual void SetWidgetStateToManipulate();
-  //@}
+  ///@}
 
   /**
    * Return the current widget state.

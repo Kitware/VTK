@@ -66,13 +66,13 @@ class vtkPolyData;
 class VTKFILTERSPOINTS_EXPORT vtkPointCloudFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to obtain type information, and print information.
    */
   vtkTypeMacro(vtkPointCloudFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Retrieve a map which indicates, on a point-by-point basis, where each
@@ -90,7 +90,7 @@ public:
    */
   vtkIdType GetNumberOfPointsRemoved();
 
-  //@{
+  ///@{
   /**
    * If this method is enabled (true), then a second output will be created
    * that contains the outlier points. By default this is off (false).  Note
@@ -101,9 +101,9 @@ public:
   vtkSetMacro(GenerateOutliers, bool);
   vtkGetMacro(GenerateOutliers, bool);
   vtkBooleanMacro(GenerateOutliers, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this method is enabled (true), then the outputs will contain a vertex
    * cells (i.e., a vtkPolyVertex for each output). This takes a lot more
@@ -113,7 +113,7 @@ public:
   vtkSetMacro(GenerateVertices, bool);
   vtkGetMacro(GenerateVertices, bool);
   vtkBooleanMacro(GenerateVertices, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPointCloudFilter();

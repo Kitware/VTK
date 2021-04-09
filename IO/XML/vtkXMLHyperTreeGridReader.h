@@ -60,24 +60,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperTreeGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkHyperTreeGrid* GetOutput();
   vtkHyperTreeGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the fixed level to read.
    * Option avaiblable in 1.0
    */
   vtkSetMacro(FixedLevel, unsigned int);
   vtkGetMacro(FixedLevel, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the selected HyperTrees (HTs) to read :
    * by default, all Hts, or
@@ -95,7 +95,7 @@ public:
 
   void ClearAndAddSelectedHT(unsigned int idg, unsigned int fixedLevel = UINT_MAX);
   void AddSelectedHT(unsigned int idg, unsigned int fixedLevel = UINT_MAX);
-  //@}
+  ///@}
 
   // These defer to the HyperTreeGrid output.
   vtkIdType GetNumberOfPoints() const;

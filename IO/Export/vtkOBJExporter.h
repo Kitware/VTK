@@ -44,30 +44,30 @@ public:
   vtkTypeMacro(vtkOBJExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .obj and .mtl appended to them.
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify comment string that will be written to the obj file header.
    */
   vtkSetStringMacro(OBJFileComment);
   vtkGetStringMacro(OBJFileComment);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify comment string that will be written to the mtl file header.
    */
   vtkSetStringMacro(MTLFileComment);
   vtkGetStringMacro(MTLFileComment);
-  //@}
+  ///@}
 
 protected:
   vtkOBJExporter();

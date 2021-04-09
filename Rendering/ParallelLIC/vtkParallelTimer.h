@@ -59,7 +59,7 @@ public:
   vtkTypeMacro(vtkParallelTimer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Type used to direct an output stream into the log's header. The header
    * is a buffer used only by the root rank.
@@ -70,9 +70,9 @@ public:
     template <typename T>
     LogHeaderType& operator<<(const T& s);
   };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Type used to direct an output stream into the log's body. The body is a
    * buffer that all ranks write to.
@@ -83,17 +83,17 @@ public:
     template <typename T>
     LogBodyType& operator<<(const T& s);
   };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the rank who writes.
    */
   vtkSetMacro(WriterRank, int);
   vtkGetMacro(WriterRank, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the filename that is used during write when the object
    * is used as a singleton. If nothing is set the default is
@@ -101,11 +101,11 @@ public:
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   void SetFileName(const std::string& fileName) { this->SetFileName(fileName.c_str()); }
 
-  //@{
+  ///@{
   /**
    * The log works as an event stack. EventStart pushes the
    * event identifier and its start time onto the stack. EventEnd
@@ -120,7 +120,7 @@ public:
   void EndEvent(int rank, const char* event);
   void EndEventSynch(const char* event);
   void EndEventSynch(int rank, const char* event);
-  //@}
+  ///@}
 
   /**
    * Insert text into the log header on the writer rank.
@@ -172,23 +172,23 @@ public:
    */
   static void DeleteGlobalInstance();
 
-  //@{
+  ///@{
   /**
    * If enabled and used as a singleton the log will write
    * it's contents to disk during program termination.
    */
   vtkSetMacro(WriteOnClose, int);
   vtkGetMacro(WriteOnClose, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the global log level. Applications can set this to the
    * desired level so that all pipeline objects will log data.
    */
   vtkSetMacro(GlobalLevel, int);
   vtkGetMacro(GlobalLevel, int);
-  //@}
+  ///@}
 
 protected:
   vtkParallelTimer();

@@ -53,7 +53,7 @@ public:
   }
   void ComputeLabelBounds(vtkTextProperty* tprop, vtkUnicodeString label, double bds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Render a label at a location in world coordinates.
    * Must be performed between StartFrame() and EndFrame() calls.
@@ -68,7 +68,7 @@ public:
   }
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label) override;
   void RenderLabel(int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int maxWidth) override;
-  //@}
+  ///@}
 
   /**
    * Start a rendering frame. Renderer must be set.

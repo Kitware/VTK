@@ -51,7 +51,7 @@ public:
    */
   void GetBounds(double bounds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Set custom bounds, except if bounds are invalid, bounds will be
    * automatically computed based on the range of the control points
@@ -59,7 +59,7 @@ public:
    */
   vtkSetVector4Macro(UserBounds, double);
   vtkGetVector4Macro(UserBounds, double);
-  //@}
+  ///@}
 
   /**
    * Paint the texture into a rectangle defined by the bounds. If
@@ -68,24 +68,24 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the vtkPen object that controls the drawing of the edge
    * of the shape if any.
    * PolyLinePen type is vtkPen::NO_PEN by default.
    */
   vtkGetObjectMacro(PolyLinePen, vtkPen);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the vtkTable displayed as an histogram using a vtkPlotBar
    */
   void SetHistogramTable(vtkTable* histogramTable);
   vtkGetObjectMacro(HistogramTable, vtkTable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Don't fill in the part above the transfer function.
    * If true texture is not visible above the shape provided by subclasses,
@@ -95,7 +95,7 @@ public:
    */
   vtkSetMacro(MaskAboveCurve, bool);
   vtkGetMacro(MaskAboveCurve, bool);
-  //@}
+  ///@}
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -142,7 +142,7 @@ protected:
    */
   virtual bool ConfigurePlotBar();
 
-  //@{
+  ///@{
   /**
    * Called whenever the ScalarsToColors function(s) is modified. It internally
    * calls Modified(). Can be reimplemented by subclasses
@@ -150,7 +150,7 @@ protected:
   virtual void ScalarsToColorsModified(vtkObject* caller, unsigned long eid, void* calldata);
   static void OnScalarsToColorsModified(
     vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
-  //@}
+  ///@}
 
   double UserBounds[4];
 

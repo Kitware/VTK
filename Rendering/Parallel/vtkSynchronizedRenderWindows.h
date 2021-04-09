@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkSynchronizedRenderWindows, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the render window to be synchronized by this
    * vtkSynchronizedRenderWindows instance. A vtkSynchronizedRenderWindows can
@@ -47,18 +47,18 @@ public:
    */
   void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the parallel message communicator. This is used to communicate among
    * processes.
    */
   void SetParallelController(vtkMultiProcessController*);
   vtkGetObjectMacro(ParallelController, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * It's acceptable to have multiple instances on vtkSynchronizedRenderWindows
    * on each processes to synchronize different render windows. In that case
@@ -71,9 +71,9 @@ public:
    */
   void SetIdentifier(unsigned int id);
   vtkGetMacro(Identifier, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable parallel rendering. Unless ParallelRendering is ON, no
    * synchronization of vtkRenderWindow::Render() calls between processes
@@ -82,7 +82,7 @@ public:
   vtkSetMacro(ParallelRendering, bool);
   vtkGetMacro(ParallelRendering, bool);
   vtkBooleanMacro(ParallelRendering, bool);
-  //@}
+  ///@}
 
   // Turns on/off render event propagation.  When on (the default) and
   // ParallelRendering is on, process 0 will send an RMI call to all remote
@@ -98,7 +98,7 @@ public:
    */
   virtual void AbortRender();
 
-  //@{
+  ///@{
   /**
    * Get/Set the root-process id. This is required when the ParallelController
    * is a vtkSocketController. Set to 0 by default (which will not work when
@@ -106,7 +106,7 @@ public:
    */
   vtkSetMacro(RootProcessId, int);
   vtkGetMacro(RootProcessId, int);
-  //@}
+  ///@}
 
   enum
   {

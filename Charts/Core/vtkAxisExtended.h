@@ -92,13 +92,13 @@ public:
    */
   vtkVector3d GenerateExtendedTickLabels(double dmin, double dmax, double m, double scaling);
 
-  //@{
+  ///@{
   /**
    * Set/Get methods for variables
    */
   vtkGetMacro(FontSize, int);
   vtkSetMacro(FontSize, int);
-  //@}
+  ///@}
 
   vtkGetMacro(DesiredFontSize, int);
   vtkSetMacro(DesiredFontSize, int);

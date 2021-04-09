@@ -63,7 +63,7 @@ public:
   double* GetMaskedOutputValue() { return this->MaskedOutputValue; }
   int GetMaskedOutputValueLength() { return this->MaskedOutputValueLength; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the alpha blending value for the mask
    * The input image is assumed to be at alpha = 1.0
@@ -72,7 +72,7 @@ public:
    */
   vtkSetClampMacro(MaskAlpha, double, 0.0, 1.0);
   vtkGetMacro(MaskAlpha, double);
-  //@}
+  ///@}
 
   /**
    * Set the input to be masked.
@@ -84,7 +84,7 @@ public:
    */
   void SetMaskInputData(vtkImageData* in);
 
-  //@{
+  ///@{
   /**
    * When Not Mask is on, the mask is passed through a boolean not
    * before it is used to mask the image.  The effect is to pass the
@@ -94,7 +94,7 @@ public:
   vtkSetMacro(NotMask, vtkTypeBool);
   vtkGetMacro(NotMask, vtkTypeBool);
   vtkBooleanMacro(NotMask, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set the two inputs to this filter

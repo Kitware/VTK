@@ -159,7 +159,7 @@ public:
   void SetupCamera(double p0, double p1, double p2, double fp0, double fp1, double fp2, double vup0,
     double vup1, double vup2);
 
-  //@{
+  ///@{
   /**
    * Create a translation matrix and concatenate it with the current
    * transformation according to PreMultiply or PostMultiply semantics.
@@ -167,9 +167,9 @@ public:
   void Translate(double x, double y, double z) { this->Concatenation->Translate(x, y, z); }
   void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); }
   void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a rotation matrix and concatenate it with the current
    * transformation according to PreMultiply or PostMultiply semantics.
@@ -188,9 +188,9 @@ public:
   {
     this->RotateWXYZ(angle, axis[0], axis[1], axis[2]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a rotation matrix about the X, Y, or Z axis and concatenate
    * it with the current transformation according to PreMultiply or
@@ -199,9 +199,9 @@ public:
   void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); }
   void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); }
   void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a scale matrix (i.e. set the diagonal elements to x, y, z)
    * and concatenate it with the current transformation according to
@@ -210,9 +210,9 @@ public:
   void Scale(double x, double y, double z) { this->Concatenation->Scale(x, y, z); }
   void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); }
   void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the current matrix directly.  This actually calls Identity(),
    * followed by Concatenate(matrix).
@@ -223,16 +223,16 @@ public:
     this->Identity();
     this->Concatenate(elements);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Concatenates the matrix with the current transformation according
    * to PreMultiply or PostMultiply semantics.
    */
   void Concatenate(vtkMatrix4x4* matrix) { this->Concatenate(*matrix->Element); }
   void Concatenate(const double elements[16]) { this->Concatenation->Concatenate(elements); }
-  //@}
+  ///@}
 
   /**
    * Concatenate the specified transform with the current transformation
@@ -286,7 +286,7 @@ public:
     return this->Concatenation->GetNumberOfTransforms() + (this->Input == nullptr ? 0 : 1);
   }
 
-  //@{
+  ///@{
   /**
    * Get one of the concatenated transformations as a vtkAbstractTransform.
    * These transformations are applied, in series, every time the
@@ -319,9 +319,9 @@ public:
     }
     return static_cast<vtkHomogeneousTransform*>(t);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the input for this transformation.  This will be used as the
    * base transformation if it is set.  This method allows you to build
@@ -332,7 +332,7 @@ public:
    */
   void SetInput(vtkHomogeneousTransform* input);
   vtkHomogeneousTransform* GetInput() { return this->Input; }
-  //@}
+  ///@}
 
   /**
    * Get the inverse flag of the transformation.  This controls
@@ -343,7 +343,7 @@ public:
    */
   int GetInverseFlag() { return this->Concatenation->GetInverseFlag(); }
 
-  //@{
+  ///@{
   /**
    * Pushes the current transformation onto the transformation stack.
    */
@@ -356,9 +356,9 @@ public:
     this->Stack->Push(&this->Concatenation);
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
@@ -372,7 +372,7 @@ public:
     this->Stack->Pop(&this->Concatenation);
     this->Modified();
   }
-  //@}
+  ///@}
 
   /**
    * Make a new transform of the same type -- you are responsible for

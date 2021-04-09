@@ -35,13 +35,13 @@ public:
   vtkTypeMacro(vtkPolyPointSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of points in the poly line.
    */
   void SetNumberOfPoints(vtkIdType numPoints);
   vtkIdType GetNumberOfPoints();
-  //@}
+  ///@}
 
   /**
    * Resize while preserving data.
@@ -53,13 +53,13 @@ public:
    */
   void SetPoint(vtkIdType id, double x, double y, double z);
 
-  //@{
+  ///@{
   /**
    * Get the points.
    */
   void SetPoints(vtkPoints* points);
   vtkGetObjectMacro(Points, vtkPoints);
-  //@}
+  ///@}
 
   /**
    * Get the mtime plus consider its Points

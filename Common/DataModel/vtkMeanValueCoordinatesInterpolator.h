@@ -57,14 +57,14 @@ class vtkMVCPolyIterator;
 class VTKCOMMONDATAMODEL_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard instantiable class methods.
    */
   static vtkMeanValueCoordinatesInterpolator* New();
   vtkTypeMacro(vtkMeanValueCoordinatesInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Method to generate interpolation weights for a point x[3] from a list of

@@ -56,7 +56,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmProbe* New();
 
-  //@{
+  ///@{
   /**
    * Specify the data set that will be probed at the input points.
    * The Input gives the geometry (the points and cells) for the output,
@@ -65,9 +65,9 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
-  //@}
+  ///@}
   /**
    * Specify the data set that will be probed at the input points.
    * The Input gives the geometry (the points and cells) for the output,
@@ -75,9 +75,9 @@ public:
    * vectors, etc. for the output points based on the point locations.
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
@@ -85,8 +85,8 @@ public:
   vtkSetMacro(PassCellArrays, vtkTypeBool);
   vtkBooleanMacro(PassCellArrays, vtkTypeBool);
   vtkGetMacro(PassCellArrays, vtkTypeBool);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Shallow copy the input point data arrays to the output.
    * Off by default.
@@ -94,9 +94,9 @@ public:
   vtkSetMacro(PassPointArrays, vtkTypeBool);
   vtkBooleanMacro(PassPointArrays, vtkTypeBool);
   vtkGetMacro(PassPointArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
@@ -104,9 +104,9 @@ public:
   vtkSetMacro(PassFieldArrays, vtkTypeBool);
   vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
   vtkGetMacro(PassFieldArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the name of the valid point array added to the output with values 2 for
    * hidden points and 0 for valid points.
@@ -114,9 +114,9 @@ public:
    */
   vtkSetMacro(ValidPointMaskArrayName, std::string);
   vtkGetMacro(ValidPointMaskArrayName, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the name of the valid cell array added to the output with values 2 for
    * hidden points and 0 for valid points.
@@ -124,7 +124,7 @@ public:
    */
   vtkSetMacro(ValidCellMaskArrayName, std::string);
   vtkGetMacro(ValidCellMaskArrayName, std::string);
-  //@}
+  ///@}
 
 protected:
   vtkmProbe();

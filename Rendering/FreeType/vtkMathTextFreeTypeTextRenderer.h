@@ -45,19 +45,19 @@ public:
 
   static vtkMathTextFreeTypeTextRenderer* New();
 
-  //@{
+  ///@{
   /**
    * Test for availability of various backends
    */
   bool FreeTypeIsSupported() override;
   bool MathTextIsSupported() override;
-  //@}
+  ///@}
 
 protected:
   vtkMathTextFreeTypeTextRenderer();
   ~vtkMathTextFreeTypeTextRenderer() override;
 
-  //@{
+  ///@{
   /**
    * Reimplemented from vtkTextRenderer.
    */
@@ -82,7 +82,7 @@ protected:
   bool StringToPathInternal(vtkTextProperty* tprop, const vtkUnicodeString& str, vtkPath* path,
     int dpi, int backend) override;
   void SetScaleToPowerOfTwoInternal(bool scale) override;
-  //@}
+  ///@}
 
 private:
   vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer&) = delete;

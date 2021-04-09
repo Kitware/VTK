@@ -60,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static ostream& PrintPolynomial(ostream& os, double* P, int degP);
 
-  //@{
+  ///@{
   /**
    * Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial
    * \f[
@@ -105,9 +105,9 @@ public:
     double* P, int d, double* a, double* upperBnds, double tol, int intervalType);
   static int HabichtBisectionSolve(
     double* P, int d, double* a, double* upperBnds, double tol, int intervalType, bool divideGCD);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Finds all REAL roots (within tolerance \a tol) of the \a d -th degree polynomial
    * P[0] X^d + ... + P[d-1] X + P[d]
@@ -143,7 +143,7 @@ public:
     double* P, int d, double* a, double* upperBnds, double tol, int intervalType);
   static int SturmBisectionSolve(
     double* P, int d, double* a, double* upperBnds, double tol, int intervalType, bool divideGCD);
-  //@}
+  ///@}
 
   /**
    * This uses the derivative sequence to filter possible roots of a polynomial.
@@ -266,7 +266,7 @@ public:
    */
   static int SolveLinear(double c0, double c1, double* r1, int* num_roots);
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance used when performing polynomial Euclidean division
    * to find polynomial roots. This tolerance is used to decide whether the
@@ -275,7 +275,7 @@ public:
    */
   static void SetDivisionTolerance(double tol);
   static double GetDivisionTolerance();
-  //@}
+  ///@}
 
 protected:
   vtkPolynomialSolversUnivariate() = default;

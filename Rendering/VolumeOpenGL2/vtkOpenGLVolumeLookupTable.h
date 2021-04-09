@@ -49,10 +49,10 @@ public:
   /**
    * Activate / deactivate the internal texture object
    */
-  //@{
+  ///@{
   void Activate();
   void Deactivate();
-  //@}
+  ///@}
 
   /**
    * Get the maximum supported texture width for the target OpenGL environment.

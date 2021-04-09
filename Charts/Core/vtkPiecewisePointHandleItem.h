@@ -55,21 +55,21 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * The current point id in the piecewise function being handled.
    */
   vtkSetMacro(CurrentPointIndex, vtkIdType);
   vtkGetMacro(CurrentPointIndex, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the PieceWiseFunction the handles will manipulate
    */
   virtual void SetPiecewiseFunction(vtkPiecewiseFunction* piecewiseFunc);
   vtkWeakPointer<vtkPiecewiseFunction> GetPiecewiseFunction();
-  //@}
+  ///@}
 
   /**
    * Returns the index of the handle if pos is over any of the handles,

@@ -49,23 +49,23 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of texture.
    * Default is 1024.
    */
   vtkGetMacro(LUTSize, unsigned int);
   vtkSetMacro(LUTSize, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of samples used during Monte-Carlo integration.
    * Default is 512.
    */
   vtkGetMacro(LUTSamples, unsigned int);
   vtkSetMacro(LUTSamples, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkPBRLUTTexture() = default;

@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkBoostBreadthFirstSearch, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Convenience methods for setting the origin selection input.
    */
@@ -58,7 +58,7 @@ public:
   {
     this->SetInputConnection(1, algOutput);
   }
-  //@}
+  ///@}
 
   /**
    * Set the index (into the vertex array) of the
@@ -84,15 +84,15 @@ public:
    */
   void SetOriginVertexString(char* arrayName, char* value);
 
-  //@{
+  ///@{
   /**
    * Set the output array name. If no output array name is
    * set then the name 'BFS' is used.
    */
   vtkSetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the vtkSelection from input port 1 as the origin vertex.
    * The selection should be a IDS selection with field type POINTS.
@@ -102,9 +102,9 @@ public:
   vtkSetMacro(OriginFromSelection, bool);
   vtkGetMacro(OriginFromSelection, bool);
   vtkBooleanMacro(OriginFromSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create an output selection containing the ID of a vertex based
    * on the output selection type. The default is to use the
@@ -113,16 +113,16 @@ public:
   vtkGetMacro(OutputSelection, bool);
   vtkSetMacro(OutputSelection, bool);
   vtkBooleanMacro(OutputSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output selection type. The default is to use the
    * the maximum distance from the starting vertex "MAX_DIST_FROM_ROOT".
    * But you can also specify other things like "ROOT","2D_MAX", etc
    */
   vtkSetStringMacro(OutputSelectionType);
-  //@}
+  ///@}
 
 protected:
   vtkBoostBreadthFirstSearch();
@@ -143,12 +143,12 @@ private:
   bool OriginFromSelection;
   char* OutputSelectionType;
 
-  //@{
+  ///@{
   /**
    * Using the convenience function internally
    */
   vtkSetStringMacro(InputArrayName);
-  //@}
+  ///@}
 
   /**
    * This method is basically a helper function to find

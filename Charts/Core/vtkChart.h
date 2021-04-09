@@ -173,7 +173,7 @@ public:
     SELECTION_COLUMNS
   };
 
-  //@{
+  ///@{
   /**
    * Set the selection method, which controls how selections are handled by the
    * chart. The default is SELECTION_ROWS which selects all points in all plots
@@ -184,51 +184,51 @@ public:
    */
   virtual void SetSelectionMethod(int method);
   virtual int GetSelectionMethod();
-  //@}
+  ///@}
 
   /**
    * Set the vtkAnnotationLink for the chart.
    */
   virtual void SetAnnotationLink(vtkAnnotationLink* link);
 
-  //@{
+  ///@{
   /**
    * Get the vtkAnnotationLink for the chart.
    */
   vtkGetObjectMacro(AnnotationLink, vtkAnnotationLink);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the width and the height of the chart.
    */
   vtkSetVector2Macro(Geometry, int);
   vtkGetVector2Macro(Geometry, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the first point in the chart (the bottom left).
    */
   vtkSetVector2Macro(Point1, int);
   vtkGetVector2Macro(Point1, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the second point in the chart (the top right).
    */
   vtkSetVector2Macro(Point2, int);
   vtkGetVector2Macro(Point2, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should draw a legend.
    */
   virtual void SetShowLegend(bool visible);
   virtual bool GetShowLegend();
-  //@}
+  ///@}
 
   /**
    * Get the legend for the chart, if available. Can return null if there is no
@@ -236,22 +236,22 @@ public:
    */
   virtual vtkChartLegend* GetLegend();
 
-  //@{
+  ///@{
   /**
    * Get/set the title text of the chart.
    */
   virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkTextProperty that governs how the chart title is displayed.
    */
   vtkGetObjectMacro(TitleProperties, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the borders of the chart (space in pixels around the chart).
    */
@@ -259,7 +259,7 @@ public:
   void SetTopBorder(int border);
   void SetLeftBorder(int border);
   void SetRightBorder(int border);
-  //@}
+  ///@}
 
   /**
    * Set/get the borders of the chart (space in pixels around the chart).
@@ -288,7 +288,7 @@ public:
     AXES_TO_RECT // Put the corners of the axes on the vtkRectf in Size.
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the layout strategy that should be used by the chart. As we don't
    * support enums this can take any value in the integer range, but the only
@@ -296,9 +296,9 @@ public:
    */
   vtkSetMacro(LayoutStrategy, int);
   vtkGetMacro(LayoutStrategy, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should automatically resize to fill the current
    * render window. Default is true.
@@ -308,9 +308,9 @@ public:
     this->LayoutStrategy = isAutoSized ? vtkChart::FILL_SCENE : vtkChart::FILL_RECT;
   }
   virtual bool GetAutoSize() { return this->LayoutStrategy == vtkChart::FILL_SCENE ? true : false; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the chart should still render its axes and decorations
    * even if the chart has no visible plots. Default is false (do not render
@@ -321,7 +321,7 @@ public:
    */
   vtkSetMacro(RenderEmpty, bool);
   vtkGetMacro(RenderEmpty, bool);
-  //@}
+  ///@}
 
   /**
    * Assign action types to mouse buttons. Available action types are PAN, ZOOM
@@ -355,15 +355,15 @@ public:
    */
   virtual int GetClickActionToButton(int action);
 
-  //@{
+  ///@{
   /**
    * Set/Get the brush to use for the background color.
    */
   void SetBackgroundBrush(vtkBrush* brush);
   vtkBrush* GetBackgroundBrush();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the Selection Mode that will be used by the chart while doing
    * selection. The only valid enums are vtkContextScene::SELECTION_NONE,
@@ -371,7 +371,7 @@ public:
    */
   virtual void SetSelectionMode(int);
   vtkGetMacro(SelectionMode, int);
-  //@}
+  ///@}
 
 protected:
   vtkChart();
@@ -449,7 +449,7 @@ protected:
   // SELECTION_PLOTS - based on the plot that created the selection.
   int SelectionMethod;
 
-  //@{
+  ///@{
   /**
    * Hold mouse action mappings.
    */
@@ -479,7 +479,7 @@ protected:
     short& operator[](int index) { return Data[index]; }
     short Data[2];
   };
-  //@}
+  ///@}
 
   MouseActions Actions;
   MouseClickActions ActionsClick;

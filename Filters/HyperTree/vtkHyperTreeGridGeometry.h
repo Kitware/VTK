@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off merging of coincident points. Note that is merging is
    * on, points with different point attributes (e.g., normals) are merged,
@@ -61,7 +61,7 @@ public:
    */
   vtkSetMacro(Merging, bool);
   vtkGetMacro(Merging, bool);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridGeometry();

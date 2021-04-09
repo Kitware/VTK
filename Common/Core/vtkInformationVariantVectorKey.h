@@ -50,7 +50,7 @@ public:
     return new vtkInformationVariantVectorKey(name, location, length);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -61,7 +61,7 @@ public:
   const vtkVariant& Get(vtkInformation* info, int idx) const;
   void Get(vtkInformation* info, vtkVariant* value) const;
   int Length(vtkInformation* info) const;
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

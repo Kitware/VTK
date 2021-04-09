@@ -67,7 +67,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfDocument
 {
 public:
   //---------------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Parse an xmf file (or string). Both these methods use caching hence calling
    * these methods repeatedly with the same argument will NOT result in
@@ -75,7 +75,7 @@ public:
    */
   bool Parse(const char* xmffilename);
   bool ParseString(const char* xmfdata, size_t length);
-  //@}
+  ///@}
 
   //---------------------------------------------------------------------------
   /**
@@ -84,14 +84,14 @@ public:
   const std::vector<std::string>& GetDomains() { return this->Domains; }
 
   //---------------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Set the active domain. This will result in processing of the domain xmf if
    * the selected domain is different from the active one.
    */
   bool SetActiveDomain(const char* domainname);
   bool SetActiveDomain(int index);
-  //@}
+  ///@}
 
   //---------------------------------------------------------------------------
   /**
@@ -100,13 +100,13 @@ public:
   vtkXdmfDomain* GetActiveDomain() { return this->ActiveDomain; }
 
   //---------------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Constructor/Destructor
    */
   vtkXdmfDocument();
   ~vtkXdmfDocument();
-  //@}
+  ///@}
 
 private:
   // Populates the list of domains.
@@ -256,7 +256,7 @@ public:
   int GetIndexForTime(double time);
 
   //---------------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Returns the time value at the given index.
    */
@@ -265,7 +265,7 @@ public:
     std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
     return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
   }
-  //@}
+  ///@}
 
   //---------------------------------------------------------------------------
   /**
@@ -334,13 +334,13 @@ private:
   // Used by CollectMetaData().
   void CollectLeafMetaData(xdmf2::XdmfGrid* xmfGrid, vtkIdType silParent);
 
-  //@{
+  ///@{
   /**
    * Use this to add an association with the grid attribute with the node for
    * the grid in the SIL if applicable. Returns true if the attribute was added.
    */
   bool UpdateGridAttributeInSIL(xdmf2::XdmfAttribute* xmfAttribute, vtkIdType gridSILId);
-  //@}
+  ///@}
 };
 
 #endif

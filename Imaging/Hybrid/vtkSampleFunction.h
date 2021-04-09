@@ -48,15 +48,15 @@ public:
    */
   static vtkSampleFunction* New();
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to use to generate data.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set what type of scalar data this source should generate.
    */
@@ -72,22 +72,22 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
-  //@}
+  ///@}
 
   /**
    * Specify the dimensions of the data on which to sample.
    */
   void SetSampleDimensions(int i, int j, int k);
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions of the data on which to sample.
    */
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the region in space over which the sampling occurs. The
    * bounds is specified as (xMin,xMax, yMin,yMax, zMin,zMax).
@@ -95,9 +95,9 @@ public:
   void SetModelBounds(const double bounds[6]);
   void SetModelBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off capping. If capping is on, then the outer boundaries of the
    * structured point set are set to cap value. This can be used to ensure
@@ -106,42 +106,42 @@ public:
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the cap value.
    */
   vtkSetMacro(CapValue, double);
   vtkGetMacro(CapValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of normals (normals are float values).
    */
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the scalar array name for this data set. Initial value is
    * "scalars".
    */
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the normal array name for this data set. Initial value is
    * "normals".
    */
   vtkSetStringMacro(NormalArrayName);
   vtkGetStringMacro(NormalArrayName);
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the implicit function.

@@ -47,7 +47,7 @@ public:
     return new vtkInformationRequestKey(name, location);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -55,7 +55,7 @@ public:
   void Set(vtkInformation* info);
   void Remove(vtkInformation* info) override;
   int Has(vtkInformation* info) override;
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

@@ -56,32 +56,32 @@ public:
   vtkTypeMacro(vtkAreaContourSpectrumFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the arc Id for which the contour signature has to be computed.
    * Default value: 0
    */
   vtkSetMacro(ArcId, vtkIdType);
   vtkGetMacro(ArcId, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of samples in the output signature
    * Default value: 100
    */
   vtkSetMacro(NumberOfSamples, int);
   vtkGetMacro(NumberOfSamples, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar field Id
    * Default value: 0
    */
   vtkSetMacro(FieldId, vtkIdType);
   vtkGetMacro(FieldId, vtkIdType);
-  //@}
+  ///@}
 
   vtkTable* GetOutput();
 

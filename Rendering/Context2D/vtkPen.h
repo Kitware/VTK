@@ -101,14 +101,14 @@ public:
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b);
 
-  //@{
+  ///@{
   /**
    * Set the color of the brush with four component unsigned chars (RGBA),
    * ranging from 0 to 255.
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
   void SetColor(const vtkColor4ub& color);
-  //@}
+  ///@}
 
   /**
    * Set the opacity with an unsigned char, ranging from 0 (transparent) to 255
@@ -142,13 +142,13 @@ public:
    */
   unsigned char* GetColor() { return this->Color; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the width of the pen.
    */
   vtkSetMacro(Width, float);
   vtkGetMacro(Width, float);
-  //@}
+  ///@}
 
   /**
    * Make a deep copy of the supplied pen.
@@ -159,13 +159,13 @@ protected:
   vtkPen();
   ~vtkPen() override;
 
-  //@{
+  ///@{
   /**
    * Storage of the color in RGBA format (0-255 per channel).
    */
   unsigned char* Color;
   vtkColor4ub PenColor;
-  //@}
+  ///@}
 
   /**
    * Store the width of the pen in pixels.

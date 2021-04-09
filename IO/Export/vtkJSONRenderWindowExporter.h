@@ -50,37 +50,37 @@ public:
   vtkTypeMacro(vtkJSONRenderWindowExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the Serializer object
    */
   virtual void SetSerializer(vtkVtkJSSceneGraphSerializer*);
   vtkGetObjectMacro(Serializer, vtkVtkJSSceneGraphSerializer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Archiver object
    */
   virtual void SetArchiver(vtkArchiver*);
   vtkGetObjectMacro(Archiver, vtkArchiver);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Write scene data.
    */
   void WriteData() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Write scene in compact form (default is true).
    */
   vtkSetMacro(CompactOutput, bool);
   vtkGetMacro(CompactOutput, bool);
   vtkBooleanMacro(CompactOutput, bool);
-  //@}
+  ///@}
 
 protected:
   vtkJSONRenderWindowExporter();

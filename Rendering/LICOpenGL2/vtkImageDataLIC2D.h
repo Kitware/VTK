@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the context. Context must be a vtkOpenGLRenderWindow.
    * This does not increase the reference count of the
@@ -61,9 +61,9 @@ public:
    */
   int SetContext(vtkRenderWindow* context);
   vtkRenderWindow* GetContext();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of steps. Initial value is 20.
    * class invariant: Steps>0.
@@ -71,9 +71,9 @@ public:
    */
   vtkSetMacro(Steps, int);
   vtkGetMacro(Steps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Step size.
    * Specify the step size as a unit of the cell length of the input vector
@@ -87,22 +87,22 @@ public:
    */
   vtkSetMacro(StepSize, double);
   vtkGetMacro(StepSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The magnification factor. Default is 1
    */
   vtkSetMacro(Magnification, int);
   vtkGetMacro(Magnification, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check if the required OpenGL extensions / GPU are supported.
    */
   vtkGetMacro(OpenGLExtensionsSupported, int);
-  //@}
+  ///@}
 
   void TranslateInputExtent(const int* inExt, const int* inWholeExtent, int* outExt);
 

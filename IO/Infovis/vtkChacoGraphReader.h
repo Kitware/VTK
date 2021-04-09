@@ -58,13 +58,13 @@ public:
   vtkTypeMacro(vtkChacoGraphReader, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The Chaco file name.
    */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkChacoGraphReader();

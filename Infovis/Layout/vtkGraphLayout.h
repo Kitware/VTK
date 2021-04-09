@@ -48,13 +48,13 @@ public:
   vtkTypeMacro(vtkGraphLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use during graph layout.
    */
   void SetLayoutStrategy(vtkGraphLayoutStrategy* strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkGraphLayoutStrategy);
-  //@}
+  ///@}
 
   /**
    * Ask the layout algorithm if the layout is complete
@@ -66,7 +66,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the ZRange for the output data.
    * If the initial layout is planar (i.e. all z coordinates are zero),
@@ -75,24 +75,24 @@ public:
    */
   vtkGetMacro(ZRange, double);
   vtkSetMacro(ZRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Transform the graph vertices after the layout.
    */
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
   virtual void SetTransform(vtkAbstractTransform* t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to use the specified transform after layout.
    */
   vtkSetMacro(UseTransform, bool);
   vtkGetMacro(UseTransform, bool);
   vtkBooleanMacro(UseTransform, bool);
-  //@}
+  ///@}
 
 protected:
   vtkGraphLayout();

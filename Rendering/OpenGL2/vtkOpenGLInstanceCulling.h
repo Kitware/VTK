@@ -143,13 +143,13 @@ public:
   void RunCullingShaders(vtkIdType numInstances, vtkOpenGLBufferObject* matrixBuffer,
     vtkOpenGLBufferObject* colorBuffer, vtkOpenGLBufferObject* normalBuffer);
 
-  //@{
+  ///@{
   /**
    * Overload color with unique color per LOD.
    */
   vtkSetMacro(ColorLOD, bool);
   vtkGetMacro(ColorLOD, bool);
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLInstanceCulling() = default;

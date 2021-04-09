@@ -54,15 +54,15 @@ public:
    */
   static vtkPointCloudRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods for obtaining type information and printing.
    */
   vtkTypeMacro(vtkPointCloudRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify and place either an actor (vtkActor) or a point set
    * (vtkPointSet) that represents the point cloud. If placing with an
@@ -73,15 +73,15 @@ public:
    */
   void PlacePointCloud(vtkActor* a);
   void PlacePointCloud(vtkPointSet* ps);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the associated actor and mapper used to render the point cloud.
    */
   vtkGetObjectMacro(PointCloudActor, vtkActor);
   vtkGetObjectMacro(PointCloudMapper, vtkPolyDataMapper);
-  //@}
+  ///@}
 
   /**
    * Retrieve the point id from the selected point. Note that this can
@@ -89,7 +89,7 @@ public:
    */
   vtkIdType GetPointId() { return this->PointId; }
 
-  //@{
+  ///@{
   /**
    * Retrieve the point coordinates of the selected point. Note that if the
    * point id is invalid (<0) then the coordinates are undefined.
@@ -101,9 +101,9 @@ public:
     x[1] = this->PointCoordinates[1];
     x[2] = this->PointCoordinates[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Flag controls whether highlighting of points occurs as the mouse
    * moves over them. This can cause extra rendering operations.
@@ -111,7 +111,7 @@ public:
   vtkSetMacro(Highlighting, bool);
   vtkGetMacro(Highlighting, bool);
   vtkBooleanMacro(Highlighting, bool);
-  //@}
+  ///@}
 
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
@@ -124,7 +124,7 @@ public:
     Selecting    // user has selected the point
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g., PointCloudWidget)
    * or other object. This controls how the interaction with the widget
@@ -134,18 +134,18 @@ public:
    * feature), then based on events, the widget may modify this further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, Selecting);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Some methods required to satisfy the vtkWidgetRepresentation API.
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
   void BuildRepresentation() override {}
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp (i.e., support rendering).
@@ -156,9 +156,9 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Because point clouds can be very large, alternative point picking
    * approaches can be used to select points: either hardware picking (via
@@ -186,9 +186,9 @@ public:
   vtkGetMacro(PickingMode, int);
   void SetPickingModeToHardware() { this->SetPickingMode(HARDWARE_PICKING); }
   void SetPickingModeToSoftware() { this->SetPickingMode(SOFTWARE_PICKING); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to a point expressed in pixels.
    * A tolerance of 0 selects from the pixel precisely under the cursor. A
@@ -201,9 +201,9 @@ public:
    */
   vtkSetMacro(HardwarePickingTolerance, unsigned int);
   vtkGetMacro(HardwarePickingTolerance, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to a point (as a fraction of the
    * bounding box of the point cloud). This specifies when the cursor is
@@ -214,7 +214,7 @@ public:
    */
   vtkSetClampMacro(SoftwarePickingTolerance, double, 0.0, 100.0);
   vtkGetMacro(SoftwarePickingTolerance, double);
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

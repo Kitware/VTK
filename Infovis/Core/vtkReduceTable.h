@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkReduceTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the column that will be used to reduce the input table.
    * Any rows sharing a value in this column will be collapsed into
@@ -60,25 +60,25 @@ public:
    */
   vtkGetMacro(IndexColumn, vtkIdType);
   vtkSetMacro(IndexColumn, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the method that should be used to combine numerical
    * values.
    */
   vtkGetMacro(NumericalReductionMethod, int);
   vtkSetMacro(NumericalReductionMethod, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the method that should be used to combine non-numerical
    * values.
    */
   vtkGetMacro(NonNumericalReductionMethod, int);
   vtkSetMacro(NonNumericalReductionMethod, int);
-  //@}
+  ///@}
 
   /**
    * Get the method that should be used to combine the values within

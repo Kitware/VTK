@@ -85,7 +85,7 @@ public:
   vtkTypeMacro(vtkAbstractInterpolatedVelocityField, vtkFunctionSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the caching flag. If this flag is turned ON, there are two levels
    * of caching for derived concrete class vtkInterpolatedVelocityField and one
@@ -95,40 +95,40 @@ public:
    */
   vtkSetMacro(Caching, bool);
   vtkGetMacro(Caching, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the caching statistics. CacheHit refers to the number of level #0 cache
    * hits while CacheMiss is the number of level #0 cache misses.
    */
   vtkGetMacro(CacheHit, int);
   vtkGetMacro(CacheMiss, int);
-  //@}
+  ///@}
 
   vtkGetObjectMacro(LastDataSet, vtkDataSet);
 
-  //@{
+  ///@{
   /**
    * Get/Set the id of the cell cached from last evaluation.
    */
   vtkGetMacro(LastCellId, vtkIdType);
   virtual void SetLastCellId(vtkIdType c) { this->LastCellId = c; }
-  //@}
+  ///@}
 
   /**
    * Set the id of the most recently visited cell of a dataset.
    */
   virtual void SetLastCellId(vtkIdType c, int dataindex) = 0;
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of a spcified vector array. By default it is nullptr, with
    * the active vector array for use.
    */
   vtkGetStringMacro(VectorsSelection);
   vtkGetMacro(VectorsType, int);
-  //@}
+  ///@}
 
   /**
    * the association type (see vtkDataObject::FieldAssociations)
@@ -136,7 +136,7 @@ public:
    */
   void SelectVectors(int fieldAssociation, const char* fieldName);
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag indicating vector post-normalization (following vector
    * interpolation). Vector post-normalization is required to avoid the
@@ -156,9 +156,9 @@ public:
    */
   vtkSetMacro(NormalizeVector, bool);
   vtkGetMacro(NormalizeVector, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set to true, the first three point of the cell will be used to compute a normal to the cell,
    * this normal will then be removed from the vorticity so the resulting vector in tangent to the
@@ -166,15 +166,15 @@ public:
    */
   vtkSetMacro(ForceSurfaceTangentVector, bool);
   vtkGetMacro(ForceSurfaceTangentVector, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set to true, cell within tolerance factor will always be found, except for edges.
    */
   vtkSetMacro(SurfaceDataset, bool);
   vtkGetMacro(SurfaceDataset, bool);
-  //@}
+  ///@}
 
   /**
    * Import parameters. Sub-classes can add more after chaining.
@@ -192,16 +192,16 @@ public:
    */
   void ClearLastCellId() { this->LastCellId = -1; }
 
-  //@{
+  ///@{
   /**
    * Get the interpolation weights cached from last evaluation. Return 1 if the
    * cached cell is valid and 0 otherwise.
    */
   int GetLastWeights(double* w);
   int GetLastLocalCoordinates(double pcoords[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the strategy used to perform the FindCell() operation. This
    * strategy is used when operating on vtkPointSet subclasses. Note if the
@@ -210,7 +210,7 @@ public:
    */
   virtual void SetFindCellStrategy(vtkFindCellStrategy*);
   vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractInterpolatedVelocityField();
@@ -241,12 +241,12 @@ protected:
   vtkFindCellStrategy* FindCellStrategy;
   vtkStrategyMap* StrategyMap;
 
-  //@{
+  ///@{
   /**
    * Set the name of a specific vector to be interpolated.
    */
   vtkSetStringMacro(VectorsSelection);
-  //@}
+  ///@}
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -276,7 +276,7 @@ protected:
   virtual bool FindAndUpdateCell(vtkDataSet* ds, double* x);
 
   friend class vtkTemporalInterpolatedVelocityField;
-  //@{
+  ///@{
   /**
    * If all weights have been computed (parametric coords etc all valid), a
    * scalar/vector can be quickly interpolated using the known weights and
@@ -286,7 +286,7 @@ protected:
   void FastCompute(vtkDataArray* vectors, double f[3]);
   bool InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex);
   vtkGenericCell* GetLastCell() { return (this->LastCellId != -1) ? this->GenCell : nullptr; }
-  //@}
+  ///@}
 
 private:
   vtkAbstractInterpolatedVelocityField(const vtkAbstractInterpolatedVelocityField&) = delete;

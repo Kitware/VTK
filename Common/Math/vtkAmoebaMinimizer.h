@@ -55,7 +55,7 @@ public:
    */
   void SetFunctionArgDelete(void (*f)(void*));
 
-  //@{
+  ///@{
   /**
    * Set the initial value for the specified parameter.  Calling
    * this function for any parameter will reset the Iterations
@@ -67,9 +67,9 @@ public:
    */
   void SetParameterValue(const char* name, double value);
   void SetParameterValue(int i, double value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale to use when modifying a parameter, i.e. the
    * initial amount by which the parameter will be modified
@@ -80,9 +80,9 @@ public:
   double GetParameterScale(const char* name);
   void SetParameterScale(int i, double scale);
   double GetParameterScale(int i) { return this->ParameterScales[i]; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the value of a parameter at the current stage of the minimization.
    * Call this method within the function that you are minimizing in order
@@ -91,7 +91,7 @@ public:
    */
   double GetParameterValue(const char* name);
   double GetParameterValue(int i) { return this->ParameterValues[i]; }
-  //@}
+  ///@}
 
   /**
    * For completeness, an unchecked method to get the name for particular
@@ -122,15 +122,15 @@ public:
    */
   virtual int Iterate();
 
-  //@{
+  ///@{
   /**
    * Get the function value resulting from the minimization.
    */
   vtkSetMacro(FunctionValue, double);
   double GetFunctionValue() { return this->FunctionValue; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the amoeba contraction ratio.  The default value of 0.5 gives
    * fast convergence, but larger values such as 0.6 or 0.7 provide
@@ -138,55 +138,55 @@ public:
    */
   vtkSetClampMacro(ContractionRatio, double, 0.5, 1.0);
   vtkGetMacro(ContractionRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the amoeba expansion ratio.  The default value is 2.0, which
    * provides rapid expansion.  Values between 1.1 and 2.0 are valid.
    */
   vtkSetClampMacro(ExpansionRatio, double, 1.0, 2.0);
   vtkGetMacro(ExpansionRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the value tolerance to aim for during the minimization.
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the parameter tolerance to aim for during the minimization.
    */
   vtkSetMacro(ParameterTolerance, double);
   vtkGetMacro(ParameterTolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of iterations to try before giving up.
    */
   vtkSetMacro(MaxIterations, int);
   vtkGetMacro(MaxIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the number of iterations that have been performed.  This
    * is not necessarily the same as the number of function evaluations.
    */
   vtkGetMacro(Iterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the number of times that the function has been evaluated.
    */
   vtkGetMacro(FunctionEvaluations, int);
-  //@}
+  ///@}
 
   /**
    * Evaluate the function.  This is usually called internally by the

@@ -52,14 +52,14 @@ public:
     vtkIdType* cells;
   };
 
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print, and obtain type information.
    */
   static vtkCellLinks* New();
   vtkTypeMacro(vtkCellLinks, vtkAbstractCellLinks);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Build the link list array. All subclasses of vtkAbstractCellLinks
@@ -93,7 +93,7 @@ public:
    */
   vtkIdType* GetCells(vtkIdType ptId) { return this->Array[ptId].cells; }
 
-  //@{
+  ///@{
   /**
    * Select all cells with a point degree in the range [minDegree,maxDegree).
    * The degree is the number of cells using a point. The selection is
@@ -102,7 +102,7 @@ public:
    * be the maximum cell id referenced in the links.
    */
   void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) override;
-  //@}
+  ///@}
 
   /**
    * Insert a new point into the cell-links data structure. The size parameter

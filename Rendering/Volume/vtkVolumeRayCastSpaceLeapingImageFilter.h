@@ -46,41 +46,41 @@ public:
 
   static vtkVolumeRayCastSpaceLeapingImageFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set the scalars.
    */
   virtual void SetCurrentScalars(vtkDataArray*);
   vtkGetObjectMacro(CurrentScalars, vtkDataArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Do we use independent components, or dependent components ?
    */
   vtkSetMacro(IndependentComponents, int);
   vtkGetMacro(IndependentComponents, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute gradient opacity ?
    */
   vtkSetMacro(ComputeGradientOpacity, vtkTypeBool);
   vtkGetMacro(ComputeGradientOpacity, vtkTypeBool);
   vtkBooleanMacro(ComputeGradientOpacity, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the min max structure ?.
    */
   vtkSetMacro(ComputeMinMax, vtkTypeBool);
   vtkGetMacro(ComputeMinMax, vtkTypeBool);
   vtkBooleanMacro(ComputeMinMax, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Update the gradient opacity flags. (The scalar opacity flags are always
    * updated upon execution of this filter.)
@@ -88,7 +88,7 @@ public:
   vtkSetMacro(UpdateGradientOpacityFlags, vtkTypeBool);
   vtkGetMacro(UpdateGradientOpacityFlags, vtkTypeBool);
   vtkBooleanMacro(UpdateGradientOpacityFlags, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the last execution time. This is updated every
@@ -102,7 +102,7 @@ public:
    */
   vtkMTimeType GetLastMinMaxFlagTime() { return LastMinMaxFlagTime.GetMTime(); }
 
-  //@{
+  ///@{
   /**
    * Is the difference between max and min of the data less than 32768? If so,
    * and if the data is not of float/double type, use a simple offset mapping.
@@ -117,7 +117,7 @@ public:
   vtkGetVector4Macro(TableScale, float);
   vtkSetVector4Macro(TableSize, int);
   vtkGetVector4Macro(TableSize, int);
-  //@}
+  ///@}
 
   /**
    * Get the number of independent components for which we need to keep track
@@ -150,7 +150,7 @@ public:
   static void ComputeInputExtentsForOutput(
     int inExt[6], int inDim[3], int outExt[6], vtkImageData* inData);
 
-  //@{
+  ///@{
   /**
    * Get the first non-zero scalar opacity and gradient opacity indices for
    * each independent component
@@ -158,9 +158,9 @@ public:
    */
   unsigned short* GetMinNonZeroScalarIndex();
   unsigned char* GetMinNonZeroGradientMagnitudeIndex();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Pointer to the pre-computed gradient magnitude structure. This is pre-
    * computed by the vtkFixedPointVolumeRayCastMapper class. This should be
@@ -168,16 +168,16 @@ public:
    */
   void SetGradientMagnitude(unsigned char** gradientMagnitude);
   unsigned char** GetGradientMagnitude();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar opacity and gradient opacity tables computed for each
    * component by the vtkFixedPointVolumeRayCastMapper
    */
   void SetScalarOpacityTable(int c, unsigned short* t);
   void SetGradientOpacityTable(int c, unsigned short* t);
-  //@}
+  ///@}
 
   /**
    * INTERNAL - Do not use
@@ -214,7 +214,7 @@ protected:
 
   void InternalRequestUpdateExtent(int*, int*);
 
-  //@{
+  ///@{
   /**
    * See superclass for details
    */
@@ -225,7 +225,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  //@}
+  ///@}
 
   /**
    * Compute the first non-zero scalar opacity and gradient opacity values
@@ -247,7 +247,7 @@ protected:
    */
   void FillScalarAndGradientOpacityFlags(vtkImageData* minMaxVolume, int outExt[6]);
 
-  //@{
+  ///@{
   /**
    * Allocate the output data. If we have a cache with the same metadata as
    * the output we are going to generate, re-use the cache as we may not be
@@ -255,7 +255,7 @@ protected:
    */
   void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;
   vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo) override;
-  //@}
+  ///@}
 
 private:
   vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&) = delete;

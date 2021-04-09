@@ -62,7 +62,7 @@ public:
    */
   void* AllocateMemory(size_t n);
 
-  //@{
+  ///@{
   /**
    * Set/Get the size at which blocks are allocated. If a memory
    * request is bigger than the block size, then that size
@@ -70,15 +70,15 @@ public:
    */
   virtual void SetBlockSize(size_t);
   virtual size_t GetBlockSize() { return this->BlockSize; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of allocations thus far.
    */
   vtkGetMacro(NumberOfBlocks, int);
   vtkGetMacro(NumberOfAllocations, int);
-  //@}
+  ///@}
 
   /**
    * This methods resets the current allocation location

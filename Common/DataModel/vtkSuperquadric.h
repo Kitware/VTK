@@ -64,65 +64,65 @@ public:
   double EvaluateFunction(double x[3]) override;
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set the center of the superquadric. Default is 0,0,0.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale factors of the superquadric. Default is 1,1,1.
    */
   vtkSetVector3Macro(Scale, double);
   vtkGetVectorMacro(Scale, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric ring thickness (toroids only).
    * Changing thickness maintains the outside diameter of the toroid.
    */
   vtkGetMacro(Thickness, double);
   vtkSetClampMacro(Thickness, double, VTK_MIN_SUPERQUADRIC_THICKNESS, 1.0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric north/south roundness.
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
    */
   vtkGetMacro(PhiRoundness, double);
   void SetPhiRoundness(double e);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric east/west roundness.
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
    */
   vtkGetMacro(ThetaRoundness, double);
   void SetThetaRoundness(double e);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric isotropic size.
    */
   vtkSetMacro(Size, double);
   vtkGetMacro(Size, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
    */
   vtkBooleanMacro(Toroidal, vtkTypeBool);
   vtkGetMacro(Toroidal, vtkTypeBool);
   vtkSetMacro(Toroidal, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkSuperquadric();

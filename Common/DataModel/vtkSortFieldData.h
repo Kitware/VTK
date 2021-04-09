@@ -52,7 +52,7 @@ class vtkFieldData;
 class VTKCOMMONDATAMODEL_EXPORT vtkSortFieldData : public vtkSortDataArray
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods for instantiating, managing type, and printing
    * information about this class.
@@ -60,7 +60,7 @@ public:
   static vtkSortFieldData* New();
   vtkTypeMacro(vtkSortFieldData, vtkSortDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given field data (and derived classes such as point data and cell data),

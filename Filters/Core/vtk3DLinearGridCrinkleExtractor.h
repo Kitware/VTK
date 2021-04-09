@@ -79,16 +79,16 @@ class vtkImplicitFunction;
 class VTKFILTERSCORE_EXPORT vtk3DLinearGridCrinkleExtractor : public vtkDataObjectAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
   static vtk3DLinearGridCrinkleExtractor* New();
   vtkTypeMacro(vtk3DLinearGridCrinkleExtractor, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function which is used to select the output cell
    * faces. Note that the implicit function invocation must be thread
@@ -96,9 +96,9 @@ public:
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to copy input point data/attributes onto the output
    * points. By default this option is on.
@@ -106,9 +106,9 @@ public:
   vtkSetMacro(CopyPointData, bool);
   vtkGetMacro(CopyPointData, bool);
   vtkBooleanMacro(CopyPointData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to copy input cell data/attributes onto the output
    * cells. By default this option is off.
@@ -116,9 +116,9 @@ public:
   vtkSetMacro(CopyCellData, bool);
   vtkGetMacro(CopyCellData, bool);
   vtkBooleanMacro(CopyCellData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to eliminate unused output points. When this flag is
    * disabled, the input points and associated point data are simply shallow
@@ -130,7 +130,7 @@ public:
   vtkSetMacro(RemoveUnusedPoints, bool);
   vtkGetMacro(RemoveUnusedPoints, bool);
   vtkBooleanMacro(RemoveUnusedPoints, bool);
-  //@}
+  ///@}
 
   /**
    * Overloaded GetMTime() because of delegation to the helper
@@ -138,7 +138,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points. See the
    * documentation for the vtkAlgorithm::Precision enum for an explanation of
@@ -146,9 +146,9 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force sequential processing (i.e. single thread) of the crinkle cut
    * process. By default, sequential processing is off. Note this flag only
@@ -160,7 +160,7 @@ public:
   vtkSetMacro(SequentialProcessing, bool);
   vtkGetMacro(SequentialProcessing, bool);
   vtkBooleanMacro(SequentialProcessing, bool);
-  //@}
+  ///@}
 
   /**
    *  Return the number of threads actually used during execution. This is

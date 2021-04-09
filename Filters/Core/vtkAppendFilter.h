@@ -49,15 +49,15 @@ public:
   vtkTypeMacro(vtkAppendFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get any input of this filter.
    */
   vtkDataSet* GetInput(int idx);
   vtkDataSet* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set if the filter should merge coincidental points
    * Note: The filter will only merge points if the ghost cell array doesn't exist
@@ -66,9 +66,9 @@ public:
   vtkGetMacro(MergePoints, vtkTypeBool);
   vtkSetMacro(MergePoints, vtkTypeBool);
   vtkBooleanMacro(MergePoints, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the tolerance to use to find coincident points when `MergePoints`
    * is `true`. Default is 0.0.
@@ -78,9 +78,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether Tolerance is treated as an absolute or relative tolerance.
    * The default is to treat it as an absolute tolerance. When off, the
@@ -89,7 +89,7 @@ public:
   vtkSetMacro(ToleranceIsAbsolute, bool);
   vtkGetMacro(ToleranceIsAbsolute, bool);
   vtkBooleanMacro(ToleranceIsAbsolute, bool);
-  //@}
+  ///@}
 
   /**
    * Remove a dataset from the list of data to append.
@@ -102,7 +102,7 @@ public:
    */
   vtkDataSetCollection* GetInputList();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::Precision enum for an explanation of the available
@@ -110,7 +110,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkAppendFilter();

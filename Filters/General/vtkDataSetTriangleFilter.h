@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkDataSetTriangleFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * When On this filter will cull all 1D and 2D cells from the output.
    * The default is Off.
@@ -54,7 +54,7 @@ public:
   vtkSetMacro(TetrahedraOnly, vtkTypeBool);
   vtkGetMacro(TetrahedraOnly, vtkTypeBool);
   vtkBooleanMacro(TetrahedraOnly, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDataSetTriangleFilter();

@@ -49,13 +49,13 @@ public:
    */
   static vtkResliceCursorWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkResliceCursorWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -87,14 +87,14 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * Also perform window level ?
    */
   vtkSetMacro(ManageWindowLevel, vtkTypeBool);
   vtkGetMacro(ManageWindowLevel, vtkTypeBool);
   vtkBooleanMacro(ManageWindowLevel, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Events

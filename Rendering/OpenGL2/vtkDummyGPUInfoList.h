@@ -43,13 +43,13 @@ public:
   void Probe() override;
 
 protected:
-  //@{
+  ///@{
   /**
    * Default constructor.
    */
   vtkDummyGPUInfoList();
   ~vtkDummyGPUInfoList() override;
-  //@}
+  ///@}
 
 private:
   vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) = delete;

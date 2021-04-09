@@ -61,7 +61,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Controller
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -69,15 +69,15 @@ public:
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController* controller);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * kd tree that gives processes ordering. Initial value is a NULL pointer.
    */
   vtkGetObjectMacro(Kdtree, vtkPKdTree);
   virtual void SetKdtree(vtkPKdTree* kdtree);
-  //@}
+  ///@}
 
   /**
    * Is the pass supported by the OpenGL context?

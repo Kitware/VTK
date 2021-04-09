@@ -83,16 +83,16 @@ public:
    */
   virtual void GetHandlesRange(double range[2]);
 
-  //@{
+  ///@{
   /**
    * Set/Get the handles width in pixels.
    * Default is 2.
    */
   vtkSetMacro(HandleWidth, float);
   vtkGetMacro(HandleWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handles orientation in the plot.
    */
@@ -100,9 +100,9 @@ public:
   vtkGetMacro(HandleOrientation, int);
   void SetHandleOrientationToVertical() { this->SetHandleOrientation(VERTICAL); }
   void SetHandleOrientationToHorizontal() { this->SetHandleOrientation(HORIZONTAL); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the extent of the handles in data space (axis unscaled range).
    * The first two parameters define the left and right handles positions on
@@ -113,25 +113,25 @@ public:
    */
   vtkSetVector4Macro(Extent, double);
   vtkGetVector4Macro(Extent, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether handles span the range of the axis. Default is On.
    */
   vtkSetMacro(ExtentToAxisRange, vtkTypeBool);
   vtkGetMacro(ExtentToAxisRange, vtkTypeBool);
   vtkBooleanMacro(ExtentToAxisRange, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether handles move together when one of them is update. Default is Off.
    */
   vtkSetMacro(SynchronizeRangeHandles, vtkTypeBool);
   vtkGetMacro(SynchronizeRangeHandles, vtkTypeBool);
   vtkBooleanMacro(SynchronizeRangeHandles, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the brush used to paint handles being hovered
@@ -147,7 +147,7 @@ protected:
   vtkPlotRangeHandlesItem();
   ~vtkPlotRangeHandlesItem() override;
 
-  //@{
+  ///@{
   /**
    * Get the logical range of abcissa or ordinate axis based on the handle
    * orientation, in plot coordinates.
@@ -158,7 +158,7 @@ protected:
    */
   void GetAxesRange(double* abcissaRange, double* ordinateRange);
   void GetAxesUnscaledRange(double* abcissaRange, double* ordinateRange);
-  //@}
+  ///@}
 
   /**
    * Compute the range used for the handles.
@@ -170,7 +170,7 @@ protected:
    */
   void ComputeHandleDelta(double screenBounds[4]);
 
-  //@{
+  ///@{
   /**
    * Transform the mouse event in the control-points space. This is needed when
    * using logScale or shiftscale.
@@ -181,14 +181,14 @@ protected:
     const double inX, const double inY, double& outX, double& outY) override;
   void TransformDataToScreen(
     const double inX, const double inY, double& outX, double& outY) override;
-  //@}
+  ///@}
 
   /**
    * Returns true if the supplied x, y coordinate is around a handle
    */
   bool Hit(const vtkContextMouseEvent& mouse) override;
 
-  //@{
+  ///@{
   /**
    * Interaction methods to interact with the handles.
    */
@@ -198,7 +198,7 @@ protected:
   bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override;
-  //@}
+  ///@}
 
   /**
    * Returns the handle the provided point is over with a provided tolerance,

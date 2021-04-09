@@ -78,16 +78,16 @@ class vtkStaticPointLocator;
 class VTKFILTERSCORE_EXPORT vtkStaticCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print, and provide type information.
    */
   static vtkStaticCleanPolyData* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkStaticCleanPolyData, vtkPolyDataAlgorithm);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default ToleranceIsAbsolute is false and Tolerance is
    * a fraction of Bounding box diagonal, if true, AbsoluteTolerance is
@@ -96,51 +96,51 @@ public:
   vtkSetMacro(ToleranceIsAbsolute, vtkTypeBool);
   vtkBooleanMacro(ToleranceIsAbsolute, vtkTypeBool);
   vtkGetMacro(ToleranceIsAbsolute, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify tolerance in terms of fraction of bounding box length.  Default
    * is 0.0. This takes effect only if ToleranceIsAbsolute is false.
    */
   vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify tolerance in absolute terms. Default is 1.0.
    */
   vtkSetClampMacro(AbsoluteTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(AbsoluteTolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off conversion of degenerate lines to points. Default is On.
    */
   vtkSetMacro(ConvertLinesToPoints, vtkTypeBool);
   vtkBooleanMacro(ConvertLinesToPoints, vtkTypeBool);
   vtkGetMacro(ConvertLinesToPoints, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off conversion of degenerate polys to lines. Default is On.
    */
   vtkSetMacro(ConvertPolysToLines, vtkTypeBool);
   vtkBooleanMacro(ConvertPolysToLines, vtkTypeBool);
   vtkGetMacro(ConvertPolysToLines, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off conversion of degenerate strips to polys. Default is On.
    */
   vtkSetMacro(ConvertStripsToPolys, vtkTypeBool);
   vtkBooleanMacro(ConvertStripsToPolys, vtkTypeBool);
   vtkGetMacro(ConvertStripsToPolys, vtkTypeBool);
-  //@}
+  ///@}
 
   // This filter is difficult to stream.
   // To get invariant results, the whole input must be processed at once.
@@ -151,7 +151,7 @@ public:
   vtkGetMacro(PieceInvariant, vtkTypeBool);
   vtkBooleanMacro(PieceInvariant, vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -159,16 +159,16 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the internal locator to manually configure it, for example
    * specifying the number of points per bucket. This method is generally
    * used for debugging or testing purposes.
    */
   vtkStaticPointLocator* GetLocator() { return this->Locator; }
-  //@}
+  ///@}
 
   /**
    * Get the MTime of this object also considering the locator.

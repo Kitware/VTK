@@ -61,14 +61,14 @@ public:
    */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
   virtual void RenderPieceStart(vtkRenderer* ren, vtkActor* act);
   virtual void RenderPieceDraw(vtkRenderer* ren, vtkActor* act);
   virtual void RenderPieceFinish(vtkRenderer* ren, vtkActor* act);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -93,7 +93,7 @@ public:
   // other polydata (not the input)
   vtkPolyData* CurrentInput;
 
-  //@{
+  ///@{
   /**
    * By default, this class uses the dataset's point and cell ids during
    * rendering. However, one can override those by specifying cell and point
@@ -104,9 +104,9 @@ public:
   vtkGetStringMacro(PointIdArrayName);
   vtkSetStringMacro(CellIdArrayName);
   vtkGetStringMacro(CellIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this class should override the process id using a data-array,
    * set this variable to the name of the array to use. It must be a
@@ -114,9 +114,9 @@ public:
    */
   vtkSetStringMacro(ProcessIdArrayName);
   vtkGetStringMacro(ProcessIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generally, this class can render the composite id when iterating
    * over composite datasets. However in some cases (as in AMR), the rendered
@@ -128,9 +128,9 @@ public:
    */
   vtkSetStringMacro(CompositeIdArrayName);
   vtkGetStringMacro(CompositeIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This function enables you to apply your own substitutions
    * to the shader creation process. The shader code in this class
@@ -153,9 +153,9 @@ public:
   void ClearAllShaderReplacements(vtkShader::Type shaderType);
   VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::ClearAllShaderReplacements")
   void ClearAllShaderReplacements();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allow the program to set the shader codes used directly
    * instead of using the built in templates. Be aware, if
@@ -176,7 +176,7 @@ public:
   virtual void SetGeometryShaderCode(const char* code);
   VTK_DEPRECATED_IN_9_0_0("Use vtkOpenGLShaderProperty::GetGeometryShaderCode")
   virtual char* GetGeometryShaderCode();
-  //@}
+  ///@}
 
   /**
    * Make a shallow copy of this mapper.
@@ -298,7 +298,7 @@ protected:
   virtual void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
 
-  //@{
+  ///@{
   /**
    * Perform string replacements on the shader templates, called from
    * ReplaceShaderValues
@@ -329,7 +329,7 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   virtual void ReplaceShaderDepth(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
-  //@}
+  ///@}
 
   /**
    * Set the value of user-defined uniform variables, called by UpdateShader

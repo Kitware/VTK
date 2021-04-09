@@ -99,7 +99,7 @@ public:
    */
   virtual int GetDataType() const = 0;
 
-  //@{
+  ///@{
   /**
    * Return the size of the underlying data type.  For a bit, 0 is
    * returned.  For string 0 is returned. Arrays with variable length
@@ -107,7 +107,7 @@ public:
    */
   virtual int GetDataTypeSize() const = 0;
   static int GetDataTypeSize(int type);
-  //@}
+  ///@}
 
   /**
    * Return the size, in bytes, of the lowest-level element of an
@@ -118,14 +118,14 @@ public:
    */
   virtual int GetElementComponentSize() const = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get the dimension (n) of the components. Must be >= 1. Make sure that
    * this is set before allocation.
    */
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_INT_MAX);
   int GetNumberOfComponents() const { return this->NumberOfComponents; }
-  //@}
+  ///@}
 
   /**
    * Set the name for a component. `component` must be >= 0.
@@ -297,7 +297,7 @@ public:
    */
   virtual vtkTypeBool Resize(vtkIdType numTuples) = 0;
 
-  //@{
+  ///@{
   /**
    * Reset to an empty state, without freeing any memory.
    */
@@ -306,7 +306,7 @@ public:
     this->MaxId = -1;
     this->DataChanged();
   }
-  //@}
+  ///@}
 
   /**
    * Return the size of the data.
@@ -326,7 +326,7 @@ public:
     VTK_DATA_ARRAY_USER_DEFINED
   };
 
-  //@{
+  ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
    * array argument is a pointer to the data.  size is the size of the array
@@ -350,7 +350,7 @@ public:
   {
     this->SetVoidArray(array, size, save);
   }
-  //@}
+  ///@}
 
   /**
    * This method allows the user to specify a custom free function to be
@@ -377,13 +377,13 @@ public:
    */
   virtual unsigned long GetActualMemorySize() const = 0;
 
-  //@{
+  ///@{
   /**
    * Set/get array's name
    */
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
-  //@}
+  ///@}
 
   /**
    * Get the name of a data type as a string.
@@ -429,13 +429,13 @@ public:
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
   }
 
-  //@{
+  ///@{
   /**
    * Return the value indices where a specific value appears.
    */
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
   virtual void LookupValue(vtkVariant value, vtkIdList* valueIds) = 0;
-  //@}
+  ///@}
 
   /**
    * Retrieve value from the array as a variant.
@@ -621,14 +621,14 @@ public:
     MAX_DISCRETE_VALUES = 32
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the maximum number of prominent values this array may contain
    * before it is considered continuous.  Default value is 32.
    */
   vtkGetMacro(MaxDiscreteValues, unsigned int);
   vtkSetMacro(MaxDiscreteValues, unsigned int);
-  //@}
+  ///@}
 
   enum
   {
@@ -695,7 +695,7 @@ private:
   void operator=(const vtkAbstractArray&) = delete;
 };
 
-//@{
+///@{
 /**
  * Implementation of vtkArrayDownCast. The templating/etc is moved to this
  * worker struct to get around limitations of template functions (no partial
@@ -706,7 +706,7 @@ struct vtkArrayDownCast_impl
 {
   inline ArrayT* operator()(vtkAbstractArray* array) { return ArrayT::SafeDownCast(array); }
 };
-//@}
+///@}
 
 /**
  * vtkArrayDownCast is to be used by generic (e.g. templated) code for quickly
@@ -733,7 +733,7 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
   return vtkArrayDownCast_impl<ArrayT>()(array);
 }
 
-//@{
+///@{
 /**
  * This macro is used to tell vtkArrayDownCast to use FastDownCast instead of
  * SafeDownCast.
@@ -744,9 +744,9 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
   {                                                                                                \
     inline ArrayT* operator()(vtkAbstractArray* array) { return ArrayT::FastDownCast(array); }     \
   }
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Same as vtkArrayDownCast_FastCastMacro, but treats ArrayT as a
  * single-parameter template (the parameter is the value type). Defines a
@@ -762,6 +762,6 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
       return ArrayT<ValueT>::FastDownCast(array);                                                  \
     }                                                                                              \
   }
-//@}
+///@}
 
 #endif

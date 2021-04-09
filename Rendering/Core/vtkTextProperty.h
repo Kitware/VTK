@@ -42,41 +42,41 @@ public:
    */
   static vtkTextProperty* New();
 
-  //@{
+  ///@{
   /**
    * Set the color of the text.
    */
   vtkSetVector3Macro(Color, double);
   vtkGetVector3Macro(Color, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text's opacity. 1.0 is totally opaque and 0.0 is completely
    * transparent.
    */
   vtkSetClampMacro(Opacity, double, 0., 1.);
   vtkGetMacro(Opacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The background color.
    */
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVector3Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The background opacity. 1.0 is totally opaque and 0.0 is completely
    * transparent.
    */
   vtkSetClampMacro(BackgroundOpacity, double, 0., 1.);
   vtkGetMacro(BackgroundOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the background color and the opacity at once
    */
@@ -88,35 +88,35 @@ public:
    */
   void GetBackgroundRGBA(double rgba[4]);
   void GetBackgroundRGBA(double& r, double& g, double& b, double& a);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The frame color.
    */
   vtkSetVector3Macro(FrameColor, double);
   vtkGetVector3Macro(FrameColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable text frame.
    */
   vtkSetMacro(Frame, vtkTypeBool);
   vtkGetMacro(Frame, vtkTypeBool);
   vtkBooleanMacro(Frame, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the width of the frame. The width is expressed in pixels.
    * The default is 1 pixel.
    */
   vtkSetClampMacro(FrameWidth, int, 0, VTK_INT_MAX);
   vtkGetMacro(FrameWidth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the font family. Supports legacy three font family system.
    * If the symbolic constant VTK_FONT_FILE is returned by GetFontFamily(), the
@@ -133,9 +133,9 @@ public:
   void SetFontFamilyToTimes();
   static int GetFontFamilyFromString(const char* f);
   static const char* GetFontFamilyAsString(int f);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The absolute filepath to a local file containing a freetype-readable font
    * if GetFontFamily() return VTK_FONT_FILE. The result is undefined for other
@@ -143,58 +143,58 @@ public:
    */
   vtkGetStringMacro(FontFile);
   vtkSetStringMacro(FontFile);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the font size (in points).
    */
   vtkSetClampMacro(FontSize, int, 0, VTK_INT_MAX);
   vtkGetMacro(FontSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable text bolding.
    */
   vtkSetMacro(Bold, vtkTypeBool);
   vtkGetMacro(Bold, vtkTypeBool);
   vtkBooleanMacro(Bold, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable text italic.
    */
   vtkSetMacro(Italic, vtkTypeBool);
   vtkGetMacro(Italic, vtkTypeBool);
   vtkBooleanMacro(Italic, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable text shadow.
    */
   vtkSetMacro(Shadow, vtkTypeBool);
   vtkGetMacro(Shadow, vtkTypeBool);
   vtkBooleanMacro(Shadow, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the shadow offset, i.e. the distance from the text to
    * its shadow, in the same unit as FontSize.
    */
   vtkSetVector2Macro(ShadowOffset, int);
   vtkGetVectorMacro(ShadowOffset, int, 2);
-  //@}
+  ///@}
 
   /**
    * Get the shadow color. It is computed from the Color ivar
    */
   void GetShadowColor(double color[3]);
 
-  //@{
+  ///@{
   /**
    * Set/Get the horizontal justification to left (default), centered,
    * or right.
@@ -205,9 +205,9 @@ public:
   void SetJustificationToCentered() { this->SetJustification(VTK_TEXT_CENTERED); }
   void SetJustificationToRight() { this->SetJustification(VTK_TEXT_RIGHT); }
   const char* GetJustificationAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the vertical justification to bottom (default), middle,
    * or top.
@@ -218,9 +218,9 @@ public:
   void SetVerticalJustificationToCentered() { this->SetVerticalJustification(VTK_TEXT_CENTERED); }
   void SetVerticalJustificationToTop() { this->SetVerticalJustification(VTK_TEXT_TOP); }
   const char* GetVerticalJustificationAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this property is on, text is aligned to drawn pixels not to font metrix.
    * If the text does not include descents, the bounding box will not extend below
@@ -230,41 +230,41 @@ public:
   vtkSetMacro(UseTightBoundingBox, vtkTypeBool);
   vtkGetMacro(UseTightBoundingBox, vtkTypeBool);
   vtkBooleanMacro(UseTightBoundingBox, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text's orientation (in degrees).
    */
   vtkSetMacro(Orientation, double);
   vtkGetMacro(Orientation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the (extra) spacing between lines,
    * expressed as a text height multiplication factor.
    */
   vtkSetMacro(LineSpacing, double);
   vtkGetMacro(LineSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the vertical offset (measured in pixels).
    */
   vtkSetMacro(LineOffset, double);
   vtkGetMacro(LineOffset, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the horizontal offset between cells.
    * Only used by MatplotlibMathTextUtilities
    */
   vtkSetMacro(CellOffset, double);
   vtkGetMacro(CellOffset, double);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of a text property.

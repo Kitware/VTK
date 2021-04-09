@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkQuadraticTriangle, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
@@ -58,7 +58,7 @@ public:
   int GetNumberOfFaces() override { return 0; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int) override { return nullptr; }
-  //@}
+  ///@}
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
@@ -101,7 +101,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[6]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[12]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -114,7 +114,7 @@ public:
   {
     vtkQuadraticTriangle::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
 protected:
   vtkQuadraticTriangle();

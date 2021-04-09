@@ -59,16 +59,16 @@ public:
   vtkTypeMacro(vtkAdaptiveResampleToImage, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a hint to use to indicate how many different refinements to split
    * the dataset into. This is just a hint. The actual number of images used to
@@ -77,16 +77,16 @@ public:
    */
   vtkSetClampMacro(NumberOfImages, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfImages, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get sampling dimensions along each axis. Each partition will be
    * resampled using these dimensions.
    */
   vtkSetVector3Macro(SamplingDimensions, int);
   vtkGetVector3Macro(SamplingDimensions, int);
-  //@}
+  ///@}
 protected:
   vtkAdaptiveResampleToImage();
   ~vtkAdaptiveResampleToImage() override;

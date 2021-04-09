@@ -61,41 +61,41 @@ public:
   vtkTypeMacro(vtkRIBExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the size of the image for RenderMan. If none is specified, the
    * size of the render window will be used.
    */
   vtkSetVector2Macro(Size, int);
   vtkGetVectorMacro(Size, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the sampling rate for the rendering. Default is 2 2.
    */
   vtkSetVector2Macro(PixelSamples, int);
   vtkGetVectorMacro(PixelSamples, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of the files to write out. The resulting file names
    * will have .rib appended to them.
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of any generated texture files.
    */
   vtkSetStringMacro(TexturePrefix);
   vtkGetStringMacro(TexturePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the background flag. Default is 0 (off).
    * If set, the rib file will contain an
@@ -116,9 +116,9 @@ public:
   vtkSetMacro(Background, vtkTypeBool);
   vtkGetMacro(Background, vtkTypeBool);
   vtkBooleanMacro(Background, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the ExportArrays. If ExportArrays is set, then
    * all point data, field data, and cell data arrays will get
@@ -127,7 +127,7 @@ public:
   vtkSetClampMacro(ExportArrays, vtkTypeBool, 0, 1);
   vtkBooleanMacro(ExportArrays, vtkTypeBool);
   vtkGetMacro(ExportArrays, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkRIBExporter();
@@ -142,7 +142,7 @@ protected:
    */
   vtkTypeBool ExportArrays;
 
-  //@{
+  ///@{
   /**
    * Write the RIB header.
    */
@@ -156,7 +156,7 @@ protected:
   void WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture);
   void WritePolygons(vtkPolyData* pd, vtkUnsignedCharArray* colors, vtkProperty* aProperty);
   void WriteStrips(vtkPolyData* pd, vtkUnsignedCharArray* colors, vtkProperty* aProperty);
-  //@}
+  ///@}
 
   void WriteData() override;
   void WriteActor(vtkActor* anActor);

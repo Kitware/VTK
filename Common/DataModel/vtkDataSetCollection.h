@@ -40,21 +40,21 @@ public:
    */
   void AddItem(vtkDataSet* ds) { this->vtkCollection::AddItem(ds); }
 
-  //@{
+  ///@{
   /**
    * Get the next dataset in the list.
    */
   vtkDataSet* GetNextItem() { return static_cast<vtkDataSet*>(this->GetNextItemAsObject()); }
   vtkDataSet* GetNextDataSet() { return static_cast<vtkDataSet*>(this->GetNextItemAsObject()); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the ith dataset in the list.
    */
   vtkDataSet* GetItem(int i) { return static_cast<vtkDataSet*>(this->GetItemAsObject(i)); }
   vtkDataSet* GetDataSet(int i) { return static_cast<vtkDataSet*>(this->GetItemAsObject(i)); }
-  //@}
+  ///@}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the

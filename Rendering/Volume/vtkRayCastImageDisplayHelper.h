@@ -58,7 +58,7 @@ public:
   vtkGetMacro(PreMultipliedColors, vtkTypeBool);
   vtkBooleanMacro(PreMultipliedColors, vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * Set / Get the pixel scale to be applied to the image before display.
    * Can be set to scale the incoming pixel values - for example the
@@ -67,7 +67,7 @@ public:
    */
   vtkSetMacro(PixelScale, float);
   vtkGetMacro(PixelScale, float);
-  //@}
+  ///@}
 
   /**
    * Derived class should implement this if needed

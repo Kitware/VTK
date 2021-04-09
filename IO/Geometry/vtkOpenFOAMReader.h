@@ -71,13 +71,13 @@ public:
    */
   int CanReadFile(const char*);
 
-  //@{
+  ///@{
   /**
    * Set/Get the filename.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * Get the number of cell arrays available in the input.
@@ -229,35 +229,35 @@ public:
   void DisableAllPatchArrays() { this->DisableAllSelectionArrays(this->PatchDataArraySelection); }
   void EnableAllPatchArrays() { this->EnableAllSelectionArrays(this->PatchDataArraySelection); }
 
-  //@{
+  ///@{
   /**
    * Set/Get whether to create cell-to-point translated data for cell-type data
    */
   vtkSetMacro(CreateCellToPoint, vtkTypeBool);
   vtkGetMacro(CreateCellToPoint, vtkTypeBool);
   vtkBooleanMacro(CreateCellToPoint, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether mesh is to be cached.
    */
   vtkSetMacro(CacheMesh, vtkTypeBool);
   vtkGetMacro(CacheMesh, vtkTypeBool);
   vtkBooleanMacro(CacheMesh, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether polyhedra are to be decomposed.
    */
   vtkSetMacro(DecomposePolyhedra, vtkTypeBool);
   vtkGetMacro(DecomposePolyhedra, vtkTypeBool);
   vtkBooleanMacro(DecomposePolyhedra, vtkTypeBool);
-  //@}
+  ///@}
 
   // Option for reading old binary lagrangian/positions format
-  //@{
+  ///@{
   /**
    * Set/Get whether the lagrangian/positions have additional data or not.
    * For historical reasons, PositionsIsIn13Format is used to denote that
@@ -267,9 +267,9 @@ public:
   vtkSetMacro(PositionsIsIn13Format, vtkTypeBool);
   vtkGetMacro(PositionsIsIn13Format, vtkTypeBool);
   vtkBooleanMacro(PositionsIsIn13Format, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ignore 0/ time directory, which is normally missing Lagrangian fields
    * and may have many dictionary functionality that we cannot easily handle.
@@ -277,45 +277,45 @@ public:
   vtkSetMacro(SkipZeroTime, bool);
   vtkGetMacro(SkipZeroTime, bool);
   vtkBooleanMacro(SkipZeroTime, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determine if time directories are to be listed according to controlDict
    */
   vtkSetMacro(ListTimeStepsByControlDict, vtkTypeBool);
   vtkGetMacro(ListTimeStepsByControlDict, vtkTypeBool);
   vtkBooleanMacro(ListTimeStepsByControlDict, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add dimensions to array names
    */
   vtkSetMacro(AddDimensionsToArrayNames, vtkTypeBool);
   vtkGetMacro(AddDimensionsToArrayNames, vtkTypeBool);
   vtkBooleanMacro(AddDimensionsToArrayNames, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether zones will be read.
    */
   vtkSetMacro(ReadZones, vtkTypeBool);
   vtkGetMacro(ReadZones, vtkTypeBool);
   vtkBooleanMacro(ReadZones, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, labels are expected to be 64-bit, rather than 32.
    */
   virtual void SetUse64BitLabels(bool val);
   vtkGetMacro(Use64BitLabels, bool);
   vtkBooleanMacro(Use64BitLabels, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, data of the internal mesh are copied to the cell zones.
    * Default is false.
@@ -323,9 +323,9 @@ public:
   vtkGetMacro(CopyDataToCellZones, bool);
   vtkSetMacro(CopyDataToCellZones, bool);
   vtkBooleanMacro(CopyDataToCellZones, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, floats are expected to be 64-bit, rather than 32. Note that
    * vtkFloatArrays may still be used in the output if this is true. This flag
@@ -334,7 +334,7 @@ public:
   virtual void SetUse64BitFloats(bool val);
   vtkGetMacro(Use64BitFloats, bool);
   vtkBooleanMacro(Use64BitFloats, bool);
-  //@}
+  ///@}
 
   void SetRefresh()
   {

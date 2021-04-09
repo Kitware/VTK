@@ -58,7 +58,7 @@ public:
   vtkTypeMacro(vtkImageEuclideanDistance, vtkImageDecomposeFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Used to set all non-zero voxels to MaximumDistance before starting
    * the distance transformation. Setting Initialize off keeps the current
@@ -68,9 +68,9 @@ public:
   vtkSetMacro(Initialize, vtkTypeBool);
   vtkGetMacro(Initialize, vtkTypeBool);
   vtkBooleanMacro(Initialize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Used to define whether Spacing should be used in the computation of the
    * distances
@@ -78,18 +78,18 @@ public:
   vtkSetMacro(ConsiderAnisotropy, vtkTypeBool);
   vtkGetMacro(ConsiderAnisotropy, vtkTypeBool);
   vtkBooleanMacro(ConsiderAnisotropy, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Any distance bigger than this->MaximumDistance will not ne computed but
    * set to this->MaximumDistance instead.
    */
   vtkSetMacro(MaximumDistance, double);
   vtkGetMacro(MaximumDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Selects a Euclidean DT algorithm.
    * 1. Saito
@@ -100,7 +100,7 @@ public:
   vtkGetMacro(Algorithm, int);
   void SetAlgorithmToSaito() { this->SetAlgorithm(VTK_EDT_SAITO); }
   void SetAlgorithmToSaitoCached() { this->SetAlgorithm(VTK_EDT_SAITO_CACHED); }
-  //@}
+  ///@}
 
   int IterativeRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 

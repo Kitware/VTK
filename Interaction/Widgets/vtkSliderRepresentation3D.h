@@ -53,15 +53,15 @@ public:
    */
   static vtkSliderRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkSliderRepresentation3D, vtkSliderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Position the first end point of the slider. Note that this point is an
    * instance of vtkCoordinate, meaning that Point 1 can be specified in a
@@ -72,9 +72,9 @@ public:
    */
   vtkCoordinate* GetPoint1Coordinate();
   void SetPoint1InWorldCoordinates(double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Position the second end point of the slider. Note that this point is an
    * instance of vtkCoordinate, meaning that Point 1 can be specified in a
@@ -85,18 +85,18 @@ public:
    */
   vtkCoordinate* GetPoint2Coordinate();
   void SetPoint2InWorldCoordinates(double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the title text for this widget. If the value is not set, or set
    * to the empty string "", then the title text is not displayed.
    */
   void SetTitleText(const char*) override;
   const char* GetTitleText() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to use a sphere or cylinder slider shape. By default, a
    * sphere shape is used.
@@ -105,9 +105,9 @@ public:
   vtkGetMacro(SliderShape, int);
   void SetSliderShapeToSphere() { this->SetSliderShape(SphereShape); }
   void SetSliderShapeToCylinder() { this->SetSliderShape(CylinderShape); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the rotation of the slider widget around the axis of the widget. This is
    * used to control which way the widget is initially oriented. (This is especially
@@ -115,33 +115,33 @@ public:
    */
   vtkSetMacro(Rotation, double);
   vtkGetMacro(Rotation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the slider properties. The properties of the slider when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(SliderProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the properties for the tube and end caps.
    */
   vtkGetObjectMacro(TubeProperty, vtkProperty);
   vtkGetObjectMacro(CapProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the selection property. This property is used to modify the appearance of
    * selected objects (e.g., the slider).
    */
   vtkGetObjectMacro(SelectedProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkSliderWidget.
    */
@@ -150,9 +150,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double newEventPos[2]) override;
   void Highlight(int) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -162,7 +162,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Override GetMTime to include point coordinates

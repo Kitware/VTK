@@ -77,7 +77,7 @@ public:
   void On() { this->SetEnabled(1); }
   void Off() { this->SetEnabled(0); }
 
-  //@{
+  ///@{
   /**
    * This method is used to associate the widget with the render window
    * interactor.  Observers of the appropriate events invoked in the render
@@ -88,9 +88,9 @@ public:
    */
   virtual void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the priority at which events are processed. This is used when
    * multiple interactor observers are used simultaneously. The default value
@@ -103,9 +103,9 @@ public:
    */
   vtkSetClampMacro(Priority, float, 0.0f, 1.0f);
   vtkGetMacro(Priority, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the use of a manager to process the picking.
    * Enabled by default.
@@ -113,9 +113,9 @@ public:
   vtkBooleanMacro(PickingManaged, bool);
   virtual void SetPickingManaged(bool managed);
   vtkGetMacro(PickingManaged, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable of the use of a keypress to turn on and off the
    * interactor observer. (By default, the keypress is 'i' for "interactor
@@ -125,9 +125,9 @@ public:
   vtkSetMacro(KeyPressActivation, vtkTypeBool);
   vtkGetMacro(KeyPressActivation, vtkTypeBool);
   vtkBooleanMacro(KeyPressActivation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify which key press value to use to activate the interactor observer
    * (if key press activation is enabled). By default, the key press
@@ -137,9 +137,9 @@ public:
    */
   vtkSetMacro(KeyPressActivationValue, char);
   vtkGetMacro(KeyPressActivationValue, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the default renderer to use when activating the interactor
    * observer. Normally when the widget is activated (SetEnabled(1) or when
@@ -150,9 +150,9 @@ public:
    */
   vtkGetObjectMacro(DefaultRenderer, vtkRenderer);
   virtual void SetDefaultRenderer(vtkRenderer*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current renderer. Normally when the widget is activated
    * (SetEnabled(1) or when keypress activation takes place), the renderer
@@ -166,14 +166,14 @@ public:
    */
   vtkGetObjectMacro(CurrentRenderer, vtkRenderer);
   virtual void SetCurrentRenderer(vtkRenderer*);
-  //@}
+  ///@}
 
   /**
    * Sets up the keypress-i event.
    */
   virtual void OnChar();
 
-  //@{
+  ///@{
   /**
    * Convenience methods for outside classes. Make sure that the
    * parameter "ren" is not-null.
@@ -182,9 +182,9 @@ public:
     vtkRenderer* ren, double x, double y, double z, double worldPt[4]);
   static void ComputeWorldToDisplay(
     vtkRenderer* ren, double x, double y, double z, double displayPt[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods enable an interactor observer to exclusively grab all
    * events invoked by its associated vtkRenderWindowInteractor. (This method
@@ -197,13 +197,13 @@ public:
    */
   void GrabFocus(vtkCommand* mouseEvents, vtkCommand* keypressEvents = nullptr);
   void ReleaseFocus();
-  //@}
+  ///@}
 
 protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver() override;
 
-  //@{
+  ///@{
   /**
    * Utility routines used to start and end interaction.
    * For example, it switches the display update rate. It does not invoke
@@ -211,7 +211,7 @@ protected:
    */
   virtual void StartInteraction();
   virtual void EndInteraction();
-  //@}
+  ///@}
 
   /**
    * Handles the char widget activation event. Also handles the delete event.
@@ -219,13 +219,13 @@ protected:
   static void ProcessEvents(
     vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
-  //@{
+  ///@{
   /**
    * Helper method for subclasses.
    */
   void ComputeDisplayToWorld(double x, double y, double z, double worldPt[4]);
   void ComputeWorldToDisplay(double x, double y, double z, double displayPt[3]);
-  //@}
+  ///@}
 
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;

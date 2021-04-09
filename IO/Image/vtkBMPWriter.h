@@ -38,23 +38,23 @@ public:
   vtkTypeMacro(vtkBMPWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Write the image to memory (a vtkUnsignedCharArray)
    */
   vtkSetMacro(WriteToMemory, vtkTypeUBool);
   vtkGetMacro(WriteToMemory, vtkTypeUBool);
   vtkBooleanMacro(WriteToMemory, vtkTypeUBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When writing to memory this is the result, it will be NULL until the
    * data is written the first time
    */
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
-  //@}
+  ///@}
 
 protected:
   vtkBMPWriter();

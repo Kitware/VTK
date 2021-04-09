@@ -91,15 +91,15 @@ protected:
    */
   virtual bool GetTraverseSubtree(int vtkNotUsed(nodeid)) { return true; }
 
-  //@{
+  ///@{
   /**
    * Methods called at the start and end of a subtree traversal.
    */
   virtual void BeginSubTree(int vtkNotUsed(nodeid)) {}
   virtual void EndSubTree(int vtkNotUsed(nodeid)) {}
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API to access information from the current node being processed.
    * It's preferred to use this API rather than API on vtkDataAssembly when
@@ -107,7 +107,7 @@ protected:
    */
   const char* GetCurrentNodeName() const;
   std::vector<unsigned int> GetCurrentDataSetIndices() const;
-  //@}
+  ///@}
 
 private:
   vtkDataAssemblyVisitor(const vtkDataAssemblyVisitor&) = delete;

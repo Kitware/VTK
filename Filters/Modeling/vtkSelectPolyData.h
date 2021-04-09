@@ -102,7 +102,7 @@ public:
   vtkTypeMacro(vtkSelectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag to control behavior of the filter. If
    * GenerateSelectionScalars is on, then the output of the filter
@@ -113,9 +113,9 @@ public:
   vtkSetMacro(GenerateSelectionScalars, vtkTypeBool);
   vtkGetMacro(GenerateSelectionScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateSelectionScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. When off, the mesh within the loop is
    * extracted. When on, the mesh outside the loop is extracted.
@@ -123,26 +123,26 @@ public:
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the array of point coordinates defining the loop. There must
    * be at least three points used to define a loop.
    */
   virtual void SetLoop(vtkPoints*);
   vtkGetObjectMacro(Loop, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the point used in SelectionModeToClosestPointRegion.
    */
   vtkSetVector3Macro(ClosestPoint, double);
   vtkGetVector3Macro(ClosestPoint, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how inside/outside of loop is defined.
    */
@@ -155,9 +155,9 @@ public:
     this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);
   }
   const char* GetSelectionModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's not been selected.
@@ -165,7 +165,7 @@ public:
   vtkSetMacro(GenerateUnselectedOutput, vtkTypeBool);
   vtkGetMacro(GenerateUnselectedOutput, vtkTypeBool);
   vtkBooleanMacro(GenerateUnselectedOutput, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return output that hasn't been selected (if GenreateUnselectedOutput is
@@ -203,7 +203,7 @@ private:
   void operator=(const vtkSelectPolyData&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the method of determining in/out of loop as a string.
  */
@@ -222,6 +222,6 @@ inline const char* vtkSelectPolyData::GetSelectionModeAsString(void)
     return "InsideClosestPointRegion";
   }
 }
-//@}
+///@}
 
 #endif

@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkCompositeDataProbeFilter, vtkProbeFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * When dealing with composite datasets, partial arrays are common i.e.
    * data-arrays that are not available in all of the blocks. By default, this
@@ -65,7 +65,7 @@ public:
   vtkSetMacro(PassPartialArrays, bool);
   vtkGetMacro(PassPartialArrays, bool);
   vtkBooleanMacro(PassPartialArrays, bool);
-  //@}
+  ///@}
 
 protected:
   vtkCompositeDataProbeFilter();

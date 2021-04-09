@@ -53,13 +53,13 @@ public:
   vtkTypeMacro(vtkPStructuredGridConnectivity, vtkStructuredGridConnectivity);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set & Get the process controller
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
   /**
    * Sets the total number of domains distributed among processors

@@ -77,14 +77,14 @@ public:
   static vtkCachingInterpolatedVelocityField* New();
 
   using Superclass::FunctionValues;
-  //@{
+  ///@{
   /**
    * Evaluate the velocity field, f={u,v,w}, at {x, y, z}.
    * returns 1 if valid, 0 if test failed
    */
   int FunctionValues(double* x, double* f) override;
   virtual int InsideTest(double* x);
-  //@}
+  ///@}
 
   /**
    * Add a dataset used by the interpolation function evaluation.
@@ -92,7 +92,7 @@ public:
   virtual void SetDataSet(
     int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator* locator);
 
-  //@{
+  ///@{
   /**
    * If you want to work with an arbitrary vector array, then set its name
    * here. By default this in nullptr and the filter will use the active vector
@@ -100,7 +100,7 @@ public:
    */
   vtkGetStringMacro(VectorsSelection);
   void SelectVectors(const char* fieldName) { this->SetVectorsSelection(fieldName); }
-  //@}
+  ///@}
 
   /**
    * Set LastCellId to c and LastCacheIndex datasetindex, cached from last evaluation.
@@ -115,7 +115,7 @@ public:
    */
   void ClearLastCellInfo();
 
-  //@{
+  ///@{
   /**
    * Returns the interpolation weights/pcoords cached from last evaluation
    * if the cached cell is valid (returns 1). Otherwise, it does not
@@ -123,16 +123,16 @@ public:
    */
   int GetLastWeights(double* w);
   int GetLastLocalCoordinates(double pcoords[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Caching statistics.
    */
   vtkGetMacro(CellCacheHit, int);
   vtkGetMacro(DataSetCacheHit, int);
   vtkGetMacro(CacheMiss, int);
-  //@}
+  ///@}
 
 protected:
   vtkCachingInterpolatedVelocityField();
@@ -158,7 +158,7 @@ protected:
   int InsideTest(IVFDataSetInfo* cache, double* x);
 
   friend class vtkTemporalInterpolatedVelocityField;
-  //@{
+  ///@{
   /**
    * If all weights have been computed (parametric coords etc all valid)
    * then we can quickly interpolate a scalar/vector using the known weights
@@ -171,7 +171,7 @@ protected:
   bool InterpolatePoint(
     vtkCachingInterpolatedVelocityField* inCIVF, vtkPointData* outPD, vtkIdType outIndex);
   vtkGenericCell* GetLastCell();
-  //@}
+  ///@}
 
 private:
   vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) = delete;

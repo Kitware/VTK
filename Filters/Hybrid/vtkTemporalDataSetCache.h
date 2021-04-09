@@ -44,16 +44,16 @@ public:
   vtkTypeMacro(vtkTemporalDataSetCache, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This is the maximum number of time steps that can be retained in memory.
    * it defaults to 10.
    */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells the filter that it should store the dataobjects it holds in memkind
    * extended memory space rather than in normal memory space.
@@ -61,9 +61,9 @@ public:
   vtkSetMacro(CacheInMemkind, bool);
   vtkGetMacro(CacheInMemkind, bool);
   vtkBooleanMacro(CacheInMemkind, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells the filter that needs to act as a pipeline source rather than a midpipline filter. In
    * that situation it needs to react differently in a few cases.
@@ -71,7 +71,7 @@ public:
   vtkSetMacro(IsASource, bool);
   vtkGetMacro(IsASource, bool);
   vtkBooleanMacro(IsASource, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalDataSetCache();

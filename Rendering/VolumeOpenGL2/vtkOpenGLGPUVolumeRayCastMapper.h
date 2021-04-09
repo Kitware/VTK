@@ -220,7 +220,7 @@ protected:
     return 1;
   }
 
-  //@{
+  ///@{
   /**
    *  \brief vtkOpenGLRenderPass API
    */
@@ -276,7 +276,7 @@ protected:
    *  guarantee that they are still valid!
    */
   vtkNew<vtkInformation> LastRenderPassInfo;
-  //@}
+  ///@}
 
   double ReductionFactor;
   int CurrentPass;

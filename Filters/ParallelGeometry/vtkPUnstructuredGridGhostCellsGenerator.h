@@ -94,13 +94,13 @@ public:
 
   static vtkPUnstructuredGridGhostCellsGenerator* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the MPI multi process controller object.
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();

@@ -71,7 +71,7 @@ public:
   vtkGetMacro(FaceTextureTolerance, float);
   vtkSetMacro(FaceTextureTolerance, float);
 
-  //@{
+  ///@{
   /**
    * Enable reading from an InputString instead of the default, a file.
    * Note that reading from an input stream would be more flexible (enabling
@@ -84,7 +84,7 @@ public:
   vtkGetMacro(ReadFromInputString, bool);
   vtkBooleanMacro(ReadFromInputString, bool);
   void SetInputString(const std::string& s) { this->InputString = s; }
-  //@}
+  ///@}
 
   /**
    * If true (default) and the "face" element has the property "texcoord" duplicate

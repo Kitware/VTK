@@ -125,7 +125,7 @@ public:
    */
   static void Collect(vtkObjectBase* root);
 
-  //@{
+  ///@{
   /**
    * Push/Pop whether to do deferred collection.  Whenever the total
    * number of pushes exceeds the total number of pops collection will
@@ -134,16 +134,16 @@ public:
    */
   static void DeferredCollectionPush();
   static void DeferredCollectionPop();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get global garbage collection debugging flag.  When set to true,
    * all garbage collection checks will produce debugging information.
    */
   static void SetGlobalDebugFlag(bool flag);
   static bool GetGlobalDebugFlag();
-  //@}
+  ///@}
 
 protected:
   vtkGarbageCollector();

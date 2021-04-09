@@ -48,29 +48,29 @@ public:
   vtkTypeMacro(vtkISIReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the file to load
    */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the delimiter to be used for concatenating field data (default: ";")
    */
   vtkGetStringMacro(Delimiter);
   vtkSetStringMacro(Delimiter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the maximum number of records to read from the file (zero = unlimited)
    */
   vtkGetMacro(MaxRecords, int);
   vtkSetMacro(MaxRecords, int);
-  //@}
+  ///@}
 
 protected:
   vtkISIReader();

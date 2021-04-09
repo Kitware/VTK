@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkInformationVector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of information objects in the vector.  Setting
    * the number to larger than the current number will create empty
@@ -48,9 +48,9 @@ public:
    */
   int GetNumberOfInformationObjects() { return this->NumberOfInformationObjects; }
   void SetNumberOfInformationObjects(int n);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the vtkInformation instance stored at the given index in
    * the vector.  The vector will automatically expand to include the
@@ -59,24 +59,24 @@ public:
    */
   void SetInformationObject(int index, vtkInformation* info);
   vtkInformation* GetInformationObject(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Append/Remove an information object.
    */
   void Append(vtkInformation* info);
   void Remove(vtkInformation* info);
   void Remove(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Initiate garbage collection when a reference is removed.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
   /**
    * Copy all information entries from the given vtkInformation

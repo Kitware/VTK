@@ -91,7 +91,7 @@ public:
    */
   size_t GetBytesPerVertex() const;
 
-  //@{
+  ///@{
   /**
    * The number of vertices expected to be captured. If the drawMode setter is
    * used, PrimitiveMode will also be set appropriately.
@@ -105,7 +105,7 @@ public:
   vtkSetMacro(NumberOfVertices, size_t);
   void SetNumberOfVertices(int drawMode, size_t inputVerts);
   vtkGetMacro(NumberOfVertices, size_t);
-  //@}
+  ///@}
 
   /**
    * The size (in bytes) of the capture buffer. Available after adding all
@@ -138,7 +138,7 @@ public:
    */
   int GetBufferHandle(int index = 0);
 
-  //@{
+  ///@{
   /**
    * The type of primitive to capture. Must be one of GL_POINTS, GL_LINES, or
    * GL_TRIANGLES. Default is GL_POINTS. Must be set prior to calling
@@ -146,7 +146,7 @@ public:
    */
   vtkSetMacro(PrimitiveMode, int);
   vtkGetMacro(PrimitiveMode, int);
-  //@}
+  ///@}
 
   /**
    * Generates and allocates the transform feedback buffers.
@@ -173,13 +173,13 @@ public:
    */
   void ReadBuffer(int index = 0);
 
-  //@{
+  ///@{
   /**
    * Get the transform buffer data as a void pointer. Only valid after calling
    * ReadBuffer.
    */
   vtkGetMacro(BufferData, void*);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources used by this object.

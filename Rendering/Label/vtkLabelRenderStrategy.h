@@ -55,21 +55,21 @@ public:
    */
   virtual bool SupportsBoundedSize() { return true; }
 
-  //@{
+  ///@{
   /**
    * Set the renderer associated with this strategy.
    */
   virtual void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default text property for the strategy.
    */
   virtual void SetDefaultTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(DefaultTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Compute the bounds of a label. Must be performed after the renderer is set.

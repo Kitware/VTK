@@ -79,13 +79,13 @@ public:
    */
   static vtkInformationIntegerKey* SAMPLES_PER_PIXEL();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get SAMPLES_PER_PIXEL on a vtkRenderer.
    */
   static void SetSamplesPerPixel(int, vtkRenderer* renderer);
   static int GetSamplesPerPixel(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, samples are clamped to this value before they
@@ -94,13 +94,13 @@ public:
    */
   static vtkInformationDoubleKey* MAX_CONTRIBUTION();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get MAX_CONTRIBUTION on a vtkRenderer.
    */
   static void SetMaxContribution(double, vtkRenderer* renderer);
   static double GetMaxContribution(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, controls the maximum ray recursion depth
@@ -108,13 +108,13 @@ public:
    */
   static vtkInformationIntegerKey* MAX_DEPTH();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get MAX_DEPTH on a vtkRenderer.
    */
   static void SetMaxDepth(int, vtkRenderer* renderer);
   static int GetMaxDepth(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, sample contributions below this value will be
@@ -123,13 +123,13 @@ public:
    */
   static vtkInformationDoubleKey* MIN_CONTRIBUTION();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get MIN_CONTRIBUTION on a vtkRenderer.
    */
   static void SetMinContribution(double, vtkRenderer* renderer);
   static double GetMinContribution(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, controls the ray recursion depth at which to
@@ -138,13 +138,13 @@ public:
    */
   static vtkInformationIntegerKey* ROULETTE_DEPTH();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get ROULETTE_DEPTH on a vtkRenderer.
    */
   static void SetRouletteDepth(int, vtkRenderer* renderer);
   static int GetRouletteDepth(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, affects path traced rendering phase function.
@@ -153,13 +153,13 @@ public:
    */
   static vtkInformationDoubleKey* VOLUME_ANISOTROPY();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get VOLUME_ANISOTROPY on a vtkRenderer.
    */
   static void SetVolumeAnisotropy(double, vtkRenderer* renderer);
   static double GetVolumeAnisotropy(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, controls the threshold for adaptive accumulation
@@ -167,15 +167,15 @@ public:
    */
   static vtkInformationDoubleKey* VARIANCE_THRESHOLD();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get VARIANCE_THRESHOLD on a vtkRenderer.
    */
   static void SetVarianceThreshold(double, vtkRenderer* renderer);
   static double GetVarianceThreshold(vtkRenderer* renderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When present on renderer, controls the number of ospray render calls
    * for each refresh.
@@ -184,9 +184,9 @@ public:
   static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer* renderer);
   static int GetMaxFrames(vtkRenderer* renderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
    * default is scivis
@@ -194,7 +194,7 @@ public:
   static vtkInformationStringKey* RENDERER_TYPE();
   static void SetRendererType(std::string name, vtkRenderer* renderer);
   static std::string GetRendererType(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * When present on renderer, controls the number of ambient occlusion
@@ -202,87 +202,87 @@ public:
    * default is 4
    */
   static vtkInformationIntegerKey* AMBIENT_SAMPLES();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get AMBIENT_SAMPLES on a vtkRenderer.
    */
   static void SetAmbientSamples(int, vtkRenderer* renderer);
   static int GetAmbientSamples(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * used to make the renderer add ospray's content onto GL rendered
    * content on the window
    */
   static vtkInformationIntegerKey* COMPOSITE_ON_GL();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
    */
   static void SetCompositeOnGL(int, vtkRenderer* renderer);
   static int GetCompositeOnGL(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * World space direction of north pole for gradient and texture background.
    */
   static vtkInformationDoubleVectorKey* NORTH_POLE();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get NORTH_POLE on a vtkRenderer.
    */
   static void SetNorthPole(double*, vtkRenderer* renderer);
   static double* GetNorthPole(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * World space direction of east pole for texture background.
    */
   static vtkInformationDoubleVectorKey* EAST_POLE();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get EAST_POLE on a vtkRenderer.
    */
   static void SetEastPole(double*, vtkRenderer* renderer);
   static double* GetEastPole(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * Material Library attached to the renderer.
    */
   static vtkInformationObjectBaseKey* MATERIAL_LIBRARY();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get Material library on a renderer.
    */
   static void SetMaterialLibrary(vtkOSPRayMaterialLibrary*, vtkRenderer* renderer);
   static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * Requested time to show in a renderer and to lookup in a temporal cache.
    */
   static vtkInformationDoubleKey* VIEW_TIME();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get VIEW_TIME on a vtkRenderer.
    */
   static void SetViewTime(double, vtkRenderer* renderer);
   static double GetViewTime(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * Temporal cache size..
    */
   static vtkInformationIntegerKey* TIME_CACHE_SIZE();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get TIME_CACHE_SIZE on a vtkRenderer.
    */
   static void SetTimeCacheSize(int, vtkRenderer* renderer);
   static int GetTimeCacheSize(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   /**
    * Methods for other nodes to access
@@ -321,15 +321,15 @@ public:
    * Accumulation threshold when above which denoising kicks in.
    */
   static vtkInformationIntegerKey* DENOISER_THRESHOLD();
-  //@{
+  ///@{
   /**
    * Convenience method to set/get DENOISER_THRESHOLD on a vtkRenderer.
    */
   static void SetDenoiserThreshold(int, vtkRenderer* renderer);
   static int GetDenoiserThreshold(vtkRenderer* renderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable denoising (if supported).
    */
@@ -339,7 +339,7 @@ public:
    */
   static void SetEnableDenoiser(int, vtkRenderer* renderer);
   static int GetEnableDenoiser(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   enum BackgroundMode
   {
@@ -350,7 +350,7 @@ public:
     NumberOfMode
   };
 
-  //@{
+  ///@{
   /**
    * Control use of the path tracer backplate and environmental background.
    * 0 means neither is shown, 1 means only backplate is shown,
@@ -361,7 +361,7 @@ public:
   static vtkInformationIntegerKey* BACKGROUND_MODE();
   static void SetBackgroundMode(BackgroundMode, vtkRenderer* renderer);
   static BackgroundMode GetBackgroundMode(vtkRenderer* renderer);
-  //@}
+  ///@}
 
   std::vector<OSPGeometricModel> GeometricModels;
   std::vector<OSPVolumetricModel> VolumetricModels;

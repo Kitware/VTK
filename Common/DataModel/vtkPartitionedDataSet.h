@@ -68,13 +68,13 @@ public:
    */
   unsigned int GetNumberOfPartitions();
 
-  //@{
+  ///@{
   /**
    * Returns the partition at the given index.
    */
   vtkDataSet* GetPartition(unsigned int idx);
   vtkDataObject* GetPartitionAsDataObject(unsigned int idx);
-  //@}
+  ///@}
 
   /**
    * Sets the data object as the given partition. The total number of partitions will
@@ -94,13 +94,13 @@ public:
    */
   vtkInformation* GetMetaData(unsigned int idx) { return this->Superclass::GetChildMetaData(idx); }
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPartitionedDataSet* GetData(vtkInformation* info);
   static vtkPartitionedDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Unhiding superclass method.

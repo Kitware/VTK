@@ -238,14 +238,14 @@ public:
    */
   virtual void ApplyPen(vtkPen* pen);
 
-  //@{
+  ///@{
   /**
    * Get the pen which controls the outlines of shapes, as well as lines,
    * points and related primitives. This object can be modified and the changes
    * will be reflected in subsequent drawing operations.
    */
   vtkGetObjectMacro(Pen, vtkPen);
-  //@}
+  ///@}
 
   /**
    * Apply the supplied brush which controls the outlines of shapes, as well as
@@ -254,13 +254,13 @@ public:
    */
   virtual void ApplyBrush(vtkBrush* brush);
 
-  //@{
+  ///@{
   /**
    * Get the pen which controls the outlines of shapes as well as lines, points
    * and related primitives.
    */
   vtkGetObjectMacro(Brush, vtkBrush);
-  //@}
+  ///@}
 
   /**
    * Apply the supplied text property which controls how text is rendered.
@@ -269,12 +269,12 @@ public:
    */
   virtual void ApplyTextProp(vtkTextProperty* prop);
 
-  //@{
+  ///@{
   /**
    * Get the text properties object for the vtkContext2D.
    */
   vtkGetObjectMacro(TextProp, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Set the color for the device using unsigned char of length 4, RGBA.

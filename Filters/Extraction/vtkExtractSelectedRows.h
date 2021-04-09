@@ -57,7 +57,7 @@ public:
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  //@{
+  ///@{
   /**
    * When set, a column named vtkOriginalRowIds will be added to the output.
    * False by default.
@@ -65,7 +65,7 @@ public:
   vtkSetMacro(AddOriginalRowIdsArray, bool);
   vtkGetMacro(AddOriginalRowIdsArray, bool);
   vtkBooleanMacro(AddOriginalRowIdsArray, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelectedRows();

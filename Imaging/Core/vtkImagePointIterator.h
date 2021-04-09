@@ -59,7 +59,7 @@ public:
   void Initialize(vtkImageData* image, const int extent[6] = nullptr,
     vtkImageStencilData* stencil = nullptr, vtkAlgorithm* algorithm = nullptr, int threadId = 0);
 
-  //@{
+  ///@{
   /**
    * Move the iterator to the beginning of the next span.
    * A span is a contiguous region of the image over which nothing but
@@ -70,9 +70,9 @@ public:
     this->vtkImagePointDataIterator::NextSpan();
     this->UpdatePosition();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Move to the next position (rather than directly to the next span).
    * This will automatically advance to the next span if the end of the
@@ -90,7 +90,7 @@ public:
       this->Position[0] = this->Origin[0] + this->Index[0] * this->Spacing[0];
     }
   }
-  //@}
+  ///@}
 
   /**
    * Test if the iterator has completed iterating over the entire extent.
@@ -102,7 +102,7 @@ public:
    */
   double* GetPosition() VTK_SIZEHINT(3) { return this->Position; }
 
-  //@{
+  ///@{
   /**
    * Get the current position and place it in the provided array.
    */
@@ -112,9 +112,9 @@ public:
     x[1] = this->Position[1];
     x[2] = this->Position[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current position and place it in the provided array.
    */
@@ -124,10 +124,10 @@ public:
     x[1] = this->Position[1];
     x[2] = this->Position[2];
   }
-  //@}
+  ///@}
 
 protected:
-  //@{
+  ///@{
   /**
    * Helper method to update the position coordinate from the index.
    */
@@ -137,7 +137,7 @@ protected:
     this->Position[1] = this->Origin[1] + this->Index[1] * this->Spacing[1];
     this->Position[2] = this->Origin[2] + this->Index[2] * this->Spacing[2];
   }
-  //@}
+  ///@}
 
   double Origin[3];
   double Spacing[3];

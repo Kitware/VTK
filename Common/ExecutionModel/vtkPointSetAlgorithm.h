@@ -47,13 +47,13 @@ public:
   vtkTypeMacro(vtkPointSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkPointSet* GetOutput();
   vtkPointSet* GetOutput(int);
-  //@}
+  ///@}
 
   /**
    * Get the output as vtkPolyData.
@@ -70,7 +70,7 @@ public:
    */
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -80,9 +80,9 @@ public:
   void SetInputData(int, vtkDataObject*);
   void SetInputData(vtkPointSet*);
   void SetInputData(int, vtkPointSet*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
@@ -92,7 +92,7 @@ public:
   void AddInputData(vtkPointSet*);
   void AddInputData(int, vtkPointSet*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -133,7 +133,7 @@ protected:
     return 1;
   }
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -143,7 +143,7 @@ protected:
   {
     return 1;
   }
-  //@}
+  ///@}
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;

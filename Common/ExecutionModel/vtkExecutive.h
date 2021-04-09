@@ -81,23 +81,23 @@ public:
    */
   virtual int UpdateInformation() { return 1; }
 
-  //@{
+  ///@{
   /**
    * Bring the algorithm's outputs up-to-date.  Returns 1 for success
    * and 0 for failure.
    */
   virtual vtkTypeBool Update();
   virtual vtkTypeBool Update(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of input/output ports for the algorithm associated
    * with this executive.  Returns 0 if no algorithm is set.
    */
   int GetNumberOfInputPorts();
   int GetNumberOfOutputPorts();
-  //@}
+  ///@}
 
   /**
    * Get the number of input connections on the given port.
@@ -134,22 +134,22 @@ public:
    */
   vtkExecutive* GetInputExecutive(int port, int connection);
 
-  //@{
+  ///@{
   /**
    * Get/Set the data object for an output port of the algorithm.
    */
   virtual vtkDataObject* GetOutputData(int port);
   virtual void SetOutputData(int port, vtkDataObject*, vtkInformation* info);
   virtual void SetOutputData(int port, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the data object for an input port of the algorithm.
    */
   virtual vtkDataObject* GetInputData(int port, int connection);
   virtual vtkDataObject* GetInputData(int port, int connection, vtkInformationVector** inInfoVec);
-  //@}
+  ///@}
 
   /**
    * Get the output port that produces the given data object.
@@ -158,7 +158,7 @@ public:
    * virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*);
    */
 
-  //@{
+  ///@{
   /**
    * Set a pointer to an outside instance of input or output
    * information vectors.  No references are held to the given
@@ -169,15 +169,15 @@ public:
    */
   void SetSharedInputInformation(vtkInformationVector** inInfoVec);
   void SetSharedOutputInformation(vtkInformationVector* outInfoVec);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Participate in garbage collection.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
   /**
    * Information key to store the executive/port number producing an
@@ -197,7 +197,7 @@ public:
    */
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
 
-  //@{
+  ///@{
   /**
    * Keys to program vtkExecutive::ProcessRequest with the default
    * behavior for unknown requests.
@@ -207,7 +207,7 @@ public:
   static vtkInformationIntegerKey* ALGORITHM_DIRECTION();
   static vtkInformationIntegerKey* FORWARD_DIRECTION();
   static vtkInformationKeyVectorKey* KEYS_TO_COPY();
-  //@}
+  ///@}
 
   enum
   {

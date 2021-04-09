@@ -67,41 +67,41 @@ public:
   vtkTypeMacro(vtkQtTableRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the lookup table that will be used to determine colors
    * for each series.  The table's range should be [0, 1).
    */
   void SetColorTable(vtkLookupTable* t);
   vtkGetObjectMacro(ColorTable, vtkLookupTable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the column that contains series names.  This
    * must be called BEFORE the representation is added to a view.
    */
   void SetKeyColumn(const char* col);
   char* GetKeyColumn();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the first data column.  This must be called
    * BEFORE the representation is added to a view.
    */
   vtkSetStringMacro(FirstDataColumn);
   vtkGetStringMacro(FirstDataColumn);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the name of the last data column.  This must be called
    * BEFORE the representation is added to a view.
    */
   vtkSetStringMacro(LastDataColumn);
   vtkGetStringMacro(LastDataColumn);
-  //@}
+  ///@}
 
 protected:
   vtkQtTableRepresentation();

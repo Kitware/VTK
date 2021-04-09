@@ -48,7 +48,7 @@ public:
 
   static vtkXMLFileOutputWindow* New();
 
-  //@{
+  ///@{
   /**
    * Put the text into the log file. The text is processed to
    * replace &, <, > with &amp, &lt, and &gt.
@@ -59,7 +59,7 @@ public:
   void DisplayWarningText(const char*) override;
   void DisplayGenericWarningText(const char*) override;
   void DisplayDebugText(const char*) override;
-  //@}
+  ///@}
 
   /**
    * Put the text into the log file without processing it.

@@ -62,14 +62,14 @@ public:
   vtkTypeMacro(vtkSocketCommunicator, vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Wait for connection on a given port.
    * These methods return 1 on success, 0 on error.
    */
   virtual int WaitForConnection(int port);
   virtual int WaitForConnection(vtkServerSocket* socket, unsigned long msec = 0);
-  //@}
+  ///@}
 
   /**
    * Close a connection.
@@ -81,12 +81,12 @@ public:
    */
   virtual int ConnectTo(const char* hostName, int port);
 
-  //@{
+  ///@{
   /**
    * Returns 1 if bytes must be swapped in received ints, floats, etc
    */
   vtkGetMacro(SwapBytesInReceivedData, int);
-  //@}
+  ///@}
 
   /**
    * Is the communicator connected?.
@@ -100,7 +100,7 @@ public:
 
   //------------------ Communication --------------------
 
-  //@{
+  ///@{
   /**
    * Performs the actual communication.  You will usually use the convenience
    * Send functions defined in the superclass.
@@ -108,7 +108,7 @@ public:
   int SendVoidArray(
     const void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
   int ReceiveVoidArray(void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
-  //@}
+  ///@}
 
   /**
    * This class foolishly breaks the conventions of the superclass, so this
@@ -116,7 +116,7 @@ public:
    */
   void Barrier() override;
 
-  //@{
+  ///@{
   /**
    * This class foolishly breaks the conventions of the superclass, so the
    * default implementations of these methods do not work.  These just give
@@ -143,9 +143,9 @@ public:
     const void* sendBuffer, void* recvBuffer, vtkIdType length, int type, int operation) override;
   int AllReduceVoidArray(const void* sendBuffer, void* recvBuffer, vtkIdType length, int type,
     Operation* operation) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the PerformHandshake ivar. If it is on, the communicator
    * will try to perform a handshake when connected.
@@ -154,18 +154,18 @@ public:
   vtkSetClampMacro(PerformHandshake, vtkTypeBool, 0, 1);
   vtkBooleanMacro(PerformHandshake, vtkTypeBool);
   vtkGetMacro(PerformHandshake, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the output stream to which communications should be
    * logged.  This is intended as a debugging feature.
    */
   virtual void SetLogStream(ostream* stream);
   virtual ostream* GetLogStream();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Log messages to the given file.  The file is truncated unless the
    * second argument is non-zero (default is to truncate).  If the
@@ -174,23 +174,23 @@ public:
    */
   virtual int LogToFile(const char* name);
   virtual int LogToFile(const char* name, int append);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If ReportErrors if false, all vtkErrorMacros are suppressed.
    */
   vtkSetMacro(ReportErrors, int);
   vtkGetMacro(ReportErrors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the actual socket used for communication.
    */
   vtkGetObjectMacro(Socket, vtkClientSocket);
   void SetSocket(vtkClientSocket*);
-  //@}
+  ///@}
 
   /**
    * Performs handshake. This uses vtkClientSocket::ConnectingSide to decide
@@ -212,13 +212,13 @@ public:
    */
   int ClientSideHandshake();
 
-  //@{
+  ///@{
   /**
    * Returns true if this side of the socket is the server.  The result
    * is invalid if the socket is not connected.
    */
   vtkGetMacro(IsServer, int);
-  //@}
+  ///@}
 
   /**
    * Uniquely identifies the version of this class.  If the versions match,

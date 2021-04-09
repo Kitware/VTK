@@ -85,7 +85,7 @@ public:
    */
   int GetNumberOfQuaternions();
 
-  //@{
+  ///@{
   /**
    * Obtain some information about the interpolation range. The numbers
    * returned (corresponding to parameter t, usually thought of as time)
@@ -94,7 +94,7 @@ public:
    */
   double GetMinimumT();
   double GetMaximumT();
-  //@}
+  ///@}
 
   /**
    * Reset the class so that it contains no data; i.e., the array of (t,q[4])
@@ -102,7 +102,7 @@ public:
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Add another quaternion to the list of quaternions to be interpolated.
    * Note that using the same time t value more than once replaces the
@@ -111,7 +111,7 @@ public:
    */
   void AddQuaternion(double t, const vtkQuaterniond& q);
   void AddQuaternion(double t, double q[4]);
-  //@}
+  ///@}
 
   /**
    * Delete the quaternion at a particular parameter t. If there is no
@@ -119,7 +119,7 @@ public:
    */
   void RemoveQuaternion(double t);
 
-  //@{
+  ///@{
   /**
    * Interpolate the list of quaternions and determine a new quaternion
    * (i.e., fill in the quaternion provided). If t is outside the range of
@@ -127,9 +127,9 @@ public:
    */
   void InterpolateQuaternion(double t, vtkQuaterniond& q);
   void InterpolateQuaternion(double t, double q[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the search type method. 0 is a binary search method O(log(N))
    * 1 is a linear search method O(N). Linear search method is kept because
@@ -137,7 +137,7 @@ public:
    */
   int GetSearchMethod();
   void SetSearchMethod(int type);
-  //@}
+  ///@}
 
   /**
    * Enums to control the type of interpolation to use.
@@ -148,7 +148,7 @@ public:
     INTERPOLATION_TYPE_SPLINE
   };
 
-  //@{
+  ///@{
   /**
    * Specify which type of function to use for interpolation. By default
    * (SetInterpolationFunctionToSpline()), cubic spline interpolation using a
@@ -161,7 +161,7 @@ public:
   vtkGetMacro(InterpolationType, int);
   void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
   void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
-  //@}
+  ///@}
 
 protected:
   vtkQuaternionInterpolator();

@@ -63,7 +63,7 @@ public:
 
   static vtkScaledSOADataArrayTemplate* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the Scale value for the object. The default is 1.
    */
@@ -83,9 +83,9 @@ public:
     }
   }
   ValueType GetScale() const { return this->Scale; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
    */
@@ -96,9 +96,9 @@ public:
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
     return this->GetTypedComponent(tupleIdx, comp);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
    */
@@ -109,7 +109,7 @@ public:
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
     this->SetTypedComponent(tupleIdx, comp, value);
   }
-  //@}
+  ///@}
 
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
@@ -207,7 +207,7 @@ public:
   void ExportToVoidPointer(void* ptr) override;
 
 #ifndef __VTK_WRAP__
-  //@{
+  ///@{
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
    * This method checks if source->GetArrayType() returns DataArray
@@ -230,7 +230,7 @@ public:
     }
     return nullptr;
   }
-  //@}
+  ///@}
 #endif
 
   int GetArrayType() const override { return vtkAbstractArray::ScaleSoADataArrayTemplate; }

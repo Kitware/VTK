@@ -40,12 +40,12 @@ public:
   vtkTypeMacro(vtkCompositeSurfaceLICMapper, vtkCompositePolyDataMapper2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the vtkSurfaceLICInterface used by this mapper
    */
   vtkSurfaceLICInterface* GetLICInterface() { return this->LICInterface.Get(); }
-  //@}
+  ///@}
 
   /**
    * Lots of LIC setup code

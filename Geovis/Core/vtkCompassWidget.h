@@ -77,13 +77,13 @@ public:
    */
   static vtkCompassWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkCompassWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -100,7 +100,7 @@ public:
    */
   void CreateDefaultRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Get the value for this widget.
    */
@@ -110,7 +110,7 @@ public:
   void SetTilt(double value);
   double GetDistance();
   void SetDistance(double value);
-  //@}
+  ///@}
 
 protected:
   vtkCompassWidget();

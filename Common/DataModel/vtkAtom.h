@@ -43,15 +43,15 @@ public:
    */
   vtkMolecule* GetMolecule();
 
-  //@{
+  ///@{
   /**
    * Get/Set the atomic number of this atom
    */
   unsigned short GetAtomicNumber() const;
   void SetAtomicNumber(unsigned short atomicNum);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the position of this atom
    */
@@ -61,7 +61,7 @@ public:
   void SetPosition(float x, float y, float z);
   vtkVector3f GetPosition() const;
   void SetPosition(const vtkVector3f& pos);
-  //@}
+  ///@}
 
 protected:
   friend class vtkMolecule;

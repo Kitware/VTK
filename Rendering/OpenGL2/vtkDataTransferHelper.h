@@ -48,7 +48,7 @@ public:
   vtkTypeMacro(vtkDataTransferHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the context. Context must be a vtkOpenGLRenderWindow.
    * This does not increase the reference count of the
@@ -58,9 +58,9 @@ public:
    */
   void SetContext(vtkRenderWindow* context);
   vtkRenderWindow* GetContext();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the CPU data extent. The extent matches the vtkDataArray size.
    * If the vtkDataArray comes from an vtkImageData and it is part of the
@@ -73,9 +73,9 @@ public:
    */
   vtkSetVector6Macro(CPUExtent, int);
   vtkGetVector6Macro(CPUExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the GPU data extent. This is the sub-extent to copy from or to the GPU.
    * This extent matches the size of the data to transfer.
@@ -85,9 +85,9 @@ public:
    */
   vtkSetVector6Macro(GPUExtent, int);
   vtkGetVector6Macro(GPUExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the texture data extent. This is the extent of the texture image that
    * will receive the data. This extent matches the size of the data to
@@ -97,7 +97,7 @@ public:
    */
   vtkSetVector6Macro(TextureExtent, int);
   vtkGetVector6Macro(TextureExtent, int);
-  //@}
+  ///@}
 
   /**
    * Tells if the given extent (6 int) is valid. True if min
@@ -121,7 +121,7 @@ public:
    */
   bool GetTextureExtentIsValid();
 
-  //@{
+  ///@{
   /**
    * Define the minimal dimension of the texture regardless of the dimensions
    * of the TextureExtent. Initial value is 1.
@@ -137,23 +137,23 @@ public:
    */
   vtkSetMacro(MinTextureDimension, int);
   vtkGetMacro(MinTextureDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the CPU data buffer. Initial value is 0.
    */
   vtkGetObjectMacro(Array, vtkDataArray);
   void SetArray(vtkDataArray* array);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the GPU data buffer. Initial value is 0.
    */
   vtkGetObjectMacro(Texture, vtkTextureObject);
   void SetTexture(vtkTextureObject* texture);
-  //@}
+  ///@}
 
   /**
    * Old comment.
@@ -210,7 +210,7 @@ public:
    */
   bool Download();
 
-  //@{
+  ///@{
   /**
    * Splits the download in two operations
    * * Asynchronously download from texture memory to PBO (DownloadAsync1()).
@@ -218,7 +218,7 @@ public:
    */
   bool DownloadAsync1();
   bool DownloadAsync2();
-  //@}
+  ///@}
 
   bool GetShaderSupportsTextureInt();
   void SetShaderSupportsTextureInt(bool value);

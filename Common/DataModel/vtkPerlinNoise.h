@@ -46,13 +46,13 @@ public:
    */
   static vtkPerlinNoise* New();
 
-  //@{
+  ///@{
   /**
    * Evaluate PerlinNoise function.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate PerlinNoise gradient.  Currently, the method returns a 0
@@ -60,7 +60,7 @@ public:
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the frequency, or physical scale,  of the noise function
    * (higher is finer scale).  The frequency can be adjusted per axis, or
@@ -68,9 +68,9 @@ public:
    */
   vtkSetVector3Macro(Frequency, double);
   vtkGetVectorMacro(Frequency, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the phase of the noise function.  This parameter can be used to
    * shift the noise function within space (perhaps to avoid a beat with a
@@ -79,9 +79,9 @@ public:
    */
   vtkSetVector3Macro(Phase, double);
   vtkGetVectorMacro(Phase, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the amplitude of the noise function. Amplitude can be negative.
    * The noise function varies randomly between -|Amplitude| and |Amplitude|.
@@ -90,7 +90,7 @@ public:
    */
   vtkSetMacro(Amplitude, double);
   vtkGetMacro(Amplitude, double);
-  //@}
+  ///@}
 
 protected:
   vtkPerlinNoise();

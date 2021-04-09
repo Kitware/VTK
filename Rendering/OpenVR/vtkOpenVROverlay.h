@@ -64,14 +64,14 @@ public:
    */
   vtkTextureObject* GetOverlayTexture() { return this->OverlayTexture.Get(); }
 
-  //@{
+  ///@{
   /**
    * methods to support events on the overlay
    */
   virtual void MouseMoved(int x, int y);
   virtual void MouseButtonPress(int x, int y);
   virtual void MouseButtonRelease(int x, int y);
-  //@}
+  ///@}
 
   vtkOpenVROverlaySpot* GetLastSpot() { return this->LastSpot; }
 
@@ -82,21 +82,21 @@ public:
    */
   virtual void UpdateSpot(vtkOpenVROverlaySpot* spot);
 
-  //@{
+  ///@{
   /**
    * Set/Get a prefix for saving camera poses
    */
   void SetSessionName(const std::string& name) { this->SessionName = name; }
   std::string GetSessionName() { return this->SessionName; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a file for the dashboard image
    */
   void SetDashboardImageFileName(const std::string& name) { this->DashboardImageFileName = name; }
   std::string GetDashboardImageFileName() { return this->DashboardImageFileName; }
-  //@}
+  ///@}
 
   vtkOpenVRCameraPose* GetSavedCameraPose(int i);
   virtual void SetSavedCameraPose(int i, vtkOpenVRCameraPose*);

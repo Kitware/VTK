@@ -103,14 +103,14 @@ public:
   virtual void Triangulate(vtkGenericAdaptorCell* cell, vtkGenericAttributeCollection* att,
     vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) = 0;
 
-  //@{
+  ///@{
   /**
    * Specify the list of error metrics used to decide if an edge has to be
    * split or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
    */
   virtual void SetErrorMetrics(vtkCollection* someErrorMetrics);
   vtkGetObjectMacro(ErrorMetrics, vtkCollection);
-  //@}
+  ///@}
 
   /**
    * Initialize the tessellator with a data set `ds'.
@@ -123,13 +123,13 @@ public:
    */
   void InitErrorMetrics(vtkGenericDataSet* ds);
 
-  //@{
+  ///@{
   /**
    * If true, measure the quality of the fixed subdivision.
    */
   vtkGetMacro(Measurement, int);
   vtkSetMacro(Measurement, int);
-  //@}
+  ///@}
 
   /**
    * Get the maximum error measured after the fixed subdivision.

@@ -35,13 +35,13 @@ public:
   vtkTypeMacro(vtkTableToMySQLWriter, vtkTableToDatabaseWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkTable* GetInput();
   vtkTable* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkTableToMySQLWriter();

@@ -110,7 +110,7 @@ public:
    */
   void Write() override;
 
-  //@{
+  ///@{
   /**
    * Set a matrix that describes the orientation of the data.  The
    * three columns of this matrix should give the unit-vector
@@ -124,9 +124,9 @@ public:
    */
   virtual void SetDirectionCosines(vtkMatrix4x4* matrix);
   vtkGetObjectMacro(DirectionCosines, vtkMatrix4x4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the slope and intercept for rescaling the intensities.  The
    * default values are zero, which indicates to the reader that no
@@ -136,18 +136,18 @@ public:
   vtkGetMacro(RescaleSlope, double);
   vtkSetMacro(RescaleIntercept, double);
   vtkGetMacro(RescaleIntercept, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the image attributes, which contain patient information and
    * other useful metadata.
    */
   virtual void SetImageAttributes(vtkMINCImageAttributes* attributes);
   virtual vtkMINCImageAttributes* GetImageAttributes() { return this->ImageAttributes; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to validate that all variable attributes that
    * have been set are ones that are listed in the MINC standard.
@@ -155,16 +155,16 @@ public:
   vtkSetMacro(StrictValidation, vtkTypeBool);
   vtkBooleanMacro(StrictValidation, vtkTypeBool);
   vtkGetMacro(StrictValidation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a string value to append to the history of the file.  This
    * string should describe, briefly, how the file was processed.
    */
   vtkSetStringMacro(HistoryAddition);
   vtkGetStringMacro(HistoryAddition);
-  //@}
+  ///@}
 
 protected:
   vtkMINCImageWriter();

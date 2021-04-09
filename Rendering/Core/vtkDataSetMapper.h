@@ -41,12 +41,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Get the internal poly data mapper used to map data set to graphics system.
    */
   vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -60,13 +60,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the Input of this mapper.
    */
   void SetInputData(vtkDataSet* input);
   vtkDataSet* GetInput();
-  //@}
+  ///@}
 
 protected:
   vtkDataSetMapper();

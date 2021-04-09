@@ -79,7 +79,7 @@ public:
   vtkTypeMacro(vtkGLTFReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Materials are not directly applied to this reader's output.
    * Use GetGLTFTexture to access a specific texture's image data, and the indices present in the
@@ -96,17 +96,17 @@ public:
 
   vtkIdType GetNumberOfTextures();
   GLTFTexture GetGLTFTexture(vtkIdType textureIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the file from which to read points.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The model's skinning transforms are computed and added to the different vtkPolyData objects'
    * field data.
@@ -116,9 +116,9 @@ public:
   void SetApplyDeformationsToGeometry(bool flag);
   vtkGetMacro(ApplyDeformationsToGeometry, bool);
   vtkBooleanMacro(ApplyDeformationsToGeometry, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * glTF models can contain multiple animations, with various names and duration. glTF does not
    * specify however any runtime behavior (order of playing, auto-start, loops, mapping of
@@ -128,9 +128,9 @@ public:
   vtkGetMacro(NumberOfAnimations, vtkIdType);
   std::string GetAnimationName(vtkIdType animationIndex);
   float GetAnimationDuration(vtkIdType animationIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable an animation. The reader will apply all enabled animations to the model's
    * transformations, at the specified time step. Use UPDATE_TIME_STEP to select which frame should
@@ -139,27 +139,27 @@ public:
   void EnableAnimation(vtkIdType animationIndex);
   void DisableAnimation(vtkIdType animationIndex);
   bool IsAnimationEnabled(vtkIdType animationIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * glTF models can contain multiple scene descriptions.
    * These accessors expose metadata information about a model's available scenes.
    */
   std::string GetSceneName(vtkIdType sceneIndex);
   vtkGetMacro(NumberOfScenes, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the scene to be used by the reader
    */
   vtkGetMacro(CurrentScene, vtkIdType);
   vtkSetMacro(CurrentScene, vtkIdType);
   void SetScene(const std::string& scene);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the rate at which animations will be sampled:
    * the glTF format does not have the concept of static timesteps.
@@ -170,7 +170,7 @@ public:
    */
   vtkGetMacro(FrameRate, unsigned int);
   vtkSetMacro(FrameRate, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Get a list all scenes names as a vtkStringArray, with duplicate names numbered and empty names

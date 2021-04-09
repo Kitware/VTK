@@ -47,7 +47,7 @@ public:
    */
   int GetNumberOfTimeSteps();
 
-  //@{
+  ///@{
   /**
    * When set to true (default), if the input is a vtkCompositeDataSet, then
    * each block in the input dataset in processed separately. If false, then the first
@@ -56,7 +56,7 @@ public:
   vtkSetMacro(HandleCompositeDataBlocksIndividually, bool);
   vtkGetMacro(HandleCompositeDataBlocksIndividually, bool);
   vtkBooleanMacro(HandleCompositeDataBlocksIndividually, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractTemporalFieldData();

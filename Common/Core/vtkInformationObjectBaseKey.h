@@ -52,14 +52,14 @@ public:
     return new vtkInformationObjectBaseKey(name, location, requiredClass);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
    */
   void Set(vtkInformation* info, vtkObjectBase*);
   vtkObjectBase* Get(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

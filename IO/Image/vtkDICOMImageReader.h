@@ -47,20 +47,20 @@ class DICOMAppHelper;
 class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
 {
 public:
-  //@{
+  ///@{
   /**
    * Static method for construction.
    */
   static vtkDICOMImageReader* New();
   vtkTypeMacro(vtkDICOMImageReader, vtkImageReader2);
-  //@}
+  ///@}
 
   /**
    * Prints the ivars.
    */
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the filename for the file to read. If this method is used,
    * the reader will only read a single file.
@@ -73,7 +73,7 @@ public:
     this->FileName = nullptr;
     this->vtkImageReader2::SetFileName(fn);
   }
-  //@}
+  ///@}
 
   /**
    * Set the directory name for the reader to look in for DICOM
@@ -86,12 +86,12 @@ public:
    */
   void SetDirectoryName(const char* dn);
 
-  //@{
+  ///@{
   /**
    * Returns the directory name.
    */
   vtkGetStringMacro(DirectoryName);
-  //@}
+  ///@}
 
   /**
    * Returns the pixel spacing (in X, Y, Z).

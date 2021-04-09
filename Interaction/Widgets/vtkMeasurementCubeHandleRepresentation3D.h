@@ -47,30 +47,30 @@ public:
    */
   static vtkMeasurementCubeHandleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkMeasurementCubeHandleRepresentation3D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the point in world and display coordinates.
    */
   void SetWorldPosition(double p[3]) override;
   void SetDisplayPosition(double p[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the handle polydata.
    */
   vtkPolyData* GetHandle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties when unselected and selected.
    */
@@ -78,7 +78,7 @@ public:
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property, vtkProperty);
   vtkGetObjectMacro(SelectedProperty, vtkProperty);
-  //@}
+  ///@}
 
   /**
    * Get the transform used to transform the generic handle polydata before
@@ -86,7 +86,7 @@ public:
    */
   virtual vtkAbstractTransform* GetTransform();
 
-  //@{
+  ///@{
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
@@ -94,9 +94,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -108,9 +108,9 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A label may be associated with the cube. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
@@ -124,32 +124,32 @@ public:
 
   virtual void SetLabelTextInput(const char* label);
   virtual char* GetLabelTextInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the label text actor
    */
   vtkGetObjectMacro(LabelText, vtkBillboardTextActor3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggle the visibility of the handle on and off
    */
   vtkSetMacro(HandleVisibility, vtkTypeBool);
   vtkGetMacro(HandleVisibility, vtkTypeBool);
   vtkBooleanMacro(HandleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggle highlighting (used when the cube is selected).
    */
   void Highlight(int highlight) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off smooth motion of the handle. See the documentation of
    * MoveFocusRequest for details. By default, SmoothMotion is ON. However,
@@ -163,35 +163,35 @@ public:
   vtkSetMacro(SmoothMotion, vtkTypeBool);
   vtkGetMacro(SmoothMotion, vtkTypeBool);
   vtkBooleanMacro(SmoothMotion, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the length of a side of the cube (default is 1).
    */
   void SetSideLength(double);
   vtkGetMacro(SideLength, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off adaptive scaling for the cube.
    */
   vtkSetMacro(AdaptiveScaling, vtkTypeBool);
   vtkGetMacro(AdaptiveScaling, vtkTypeBool);
   vtkBooleanMacro(AdaptiveScaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the rescaling increment for the cube. This value is applied to
    * each dimension, so volume scaling = std::pow(RescaleFactor, 3).
    */
   vtkSetClampMacro(RescaleFactor, double, 1., VTK_DOUBLE_MAX);
   vtkGetMacro(RescaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the min/max cube representational area relative to the render window
    * area. If adaptive scaling is on and the cube's image is outside of these
@@ -203,15 +203,15 @@ public:
   vtkGetMacro(MinRelativeCubeScreenArea, double);
   void SetMaxRelativeCubeScreenArea(double);
   vtkGetMacro(MaxRelativeCubeScreenArea, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the label for the unit of length of a side of the cube.
    */
   vtkSetStringMacro(LengthUnit);
   vtkGetStringMacro(LengthUnit);
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

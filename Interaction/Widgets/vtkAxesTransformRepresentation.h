@@ -54,15 +54,15 @@ public:
    */
   static vtkAxesTransformRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAxesTransformRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the two handle representations used for the
    * vtkAxesTransformWidget. (Note: properties can be set by grabbing these
@@ -70,9 +70,9 @@ public:
    */
   vtkGetObjectMacro(OriginRepresentation, vtkHandleRepresentation);
   vtkGetObjectMacro(SelectionRepresentation, vtkHandleRepresentation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -83,14 +83,14 @@ public:
   void SetOriginWorldPosition(double pos[3]);
   void SetOriginDisplayPosition(double pos[3]);
   void GetOriginDisplayPosition(double pos[3]);
-  //@}
+  ///@}
 
   /**
    * Specify a scale to control the size of the widget. Large values make the
    * the widget larger.
    */
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels) in
    * which the cursor is considered near enough to the end points of
@@ -98,9 +98,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 100);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format to use for labelling information during
    * transformation. Note that an empty string results in no label, or a
@@ -108,7 +108,7 @@ public:
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
   /**
    * Enum used to communicate interaction state.
@@ -125,7 +125,7 @@ public:
     OnZEnd
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g., vtkLineWidget2) or
    * other object. This controls how the interaction with the widget
@@ -136,9 +136,9 @@ public:
    * further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, OnZEnd);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to satisfy superclasses' API.
    */
@@ -147,18 +147,18 @@ public:
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text (font size along each dimension). This helps control
    * the appearance of the 3D text.
@@ -173,7 +173,7 @@ public:
   }
   virtual void SetLabelScale(double scale[3]);
   virtual double* GetLabelScale();
-  //@}
+  ///@}
 
   /**
    * Get the distance annotation property

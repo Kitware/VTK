@@ -67,31 +67,31 @@ public:
   vtkTypeMacro(vtkOverlappingCellsDetector, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GlobalController will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Getter / Setter for the Tolerance parameter.
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Getter / Setter for the name of the output array counting cell collisions.
    * This array is a cell array.
    */
   vtkGetStringMacro(NumberOfOverlapsPerCellArrayName);
   vtkSetStringMacro(NumberOfOverlapsPerCellArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkOverlappingCellsDetector();

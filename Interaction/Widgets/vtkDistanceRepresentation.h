@@ -35,13 +35,13 @@ class vtkHandleRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This representation and all subclasses must keep a distance
@@ -49,7 +49,7 @@ public:
    */
   virtual double GetDistance() = 0;
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -65,9 +65,9 @@ public:
   virtual void GetPoint2DisplayPosition(double pos[3]) = 0;
   virtual void SetPoint1WorldPosition(double pos[3]) = 0;
   virtual void SetPoint2WorldPosition(double pos[3]) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This method is used to specify the type of handle representation to
    * use for the two internal vtkHandleWidgets within vtkDistanceWidget.
@@ -80,9 +80,9 @@ public:
    */
   void SetHandleRepresentation(vtkHandleRepresentation* handle);
   void InstantiateHandleRepresentation();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the two handle representations used for the vtkDistanceWidget. (Note:
    * properties can be set by grabbing these representations and setting the
@@ -90,9 +90,9 @@ public:
    */
   vtkGetObjectMacro(Point1Representation, vtkHandleRepresentation);
   vtkGetObjectMacro(Point2Representation, vtkHandleRepresentation);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels) in
    * which the cursor is considered near enough to the end points of
@@ -100,9 +100,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 100);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format to use for labelling the distance. Note that an empty
    * string results in no label, or a format string without a "%" character
@@ -110,9 +110,9 @@ public:
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale factor from VTK world coordinates. The ruler marks and label
    * will be defined in terms of the scaled space. For example, if the VTK world
@@ -123,9 +123,9 @@ public:
    */
   vtkSetMacro(Scale, double);
   vtkGetMacro(Scale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable or disable ruler mode. When enabled, the ticks on the distance widget
    * are separated by the amount specified by RulerDistance. Otherwise, the ivar
@@ -134,18 +134,18 @@ public:
   vtkSetMacro(RulerMode, vtkTypeBool);
   vtkGetMacro(RulerMode, vtkTypeBool);
   vtkBooleanMacro(RulerMode, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the RulerDistance which indicates the spacing of the major ticks.
    * This ivar only has effect when the RulerMode is on.
    */
   vtkSetClampMacro(RulerDistance, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of major ruler ticks. This overrides any subclasses
    * (e.g., vtkDistanceRepresentation2D) that have alternative methods to
@@ -155,7 +155,7 @@ public:
    */
   vtkSetClampMacro(NumberOfRulerTicks, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfRulerTicks, int);
-  //@}
+  ///@}
 
   // Used to communicate about the state of the representation
   enum
@@ -165,7 +165,7 @@ public:
     NearP2
   };
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -179,7 +179,7 @@ public:
     unsigned long event, void* calldata) override;
   int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata, int modify = 0) override;
-  //@}
+  ///@}
 
 protected:
   vtkDistanceRepresentation();

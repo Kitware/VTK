@@ -45,16 +45,16 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSGENERIC_EXPORT vtkGenericDataSetTessellator : public vtkUnstructuredGridAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   static vtkGenericDataSetTessellator* New();
   vtkTypeMacro(vtkGenericDataSetTessellator, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off generation of a cell centered attribute with ids of the
    * original cells (as an input cell is tessellated into several linear
@@ -64,9 +64,9 @@ public:
   vtkSetMacro(KeepCellIds, vtkTypeBool);
   vtkGetMacro(KeepCellIds, vtkTypeBool);
   vtkBooleanMacro(KeepCellIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off merging of coincident points. Note that is merging is
    * on, points with different point attributes (e.g., normals) are merged,
@@ -75,16 +75,16 @@ public:
   vtkSetMacro(Merging, vtkTypeBool);
   vtkGetMacro(Merging, vtkTypeBool);
   vtkBooleanMacro(Merging, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.

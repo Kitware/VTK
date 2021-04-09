@@ -41,14 +41,14 @@ class vtkImageDilateErode3D;
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageOpenClose3D : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Default open value is 0, and default close value is 255.
    */
   static vtkImageOpenClose3D* New();
   vtkTypeMacro(vtkImageOpenClose3D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This method considers the sub filters MTimes when computing this objects
@@ -56,13 +56,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Turn debugging output on. (in sub filters also)
    */
   void DebugOn() override;
   void DebugOff() override;
-  //@}
+  ///@}
 
   /**
    * Pass modified message to sub filters.
@@ -76,31 +76,31 @@ public:
    */
   void SetKernelSize(int size0, int size1, int size2);
 
-  //@{
+  ///@{
   /**
    * Determines the value that will opened.
    * Open value is first eroded, and then dilated.
    */
   void SetOpenValue(double value);
   double GetOpenValue();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determines the value that will closed.
    * Close value is first dilated, and then eroded
    */
   void SetCloseValue(double value);
   double GetCloseValue();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Needed for Progress functions
    */
   vtkGetObjectMacro(Filter0, vtkImageDilateErode3D);
   vtkGetObjectMacro(Filter1, vtkImageDilateErode3D);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

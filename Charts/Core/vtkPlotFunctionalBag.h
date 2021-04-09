@@ -95,13 +95,13 @@ public:
    */
   void GetUnscaledInputBounds(double bounds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none

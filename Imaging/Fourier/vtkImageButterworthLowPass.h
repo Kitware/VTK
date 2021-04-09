@@ -41,7 +41,7 @@ public:
   vtkTypeMacro(vtkImageButterworthLowPass, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the cutoff frequency for each axis.
    * The values are specified in the order X, Y, Z, Time.
@@ -56,15 +56,15 @@ public:
   double GetXCutOff() { return this->CutOff[0]; }
   double GetYCutOff() { return this->CutOff[1]; }
   double GetZCutOff() { return this->CutOff[2]; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The order determines sharpness of the cutoff curve.
    */
   vtkSetMacro(Order, int);
   vtkGetMacro(Order, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageButterworthLowPass();

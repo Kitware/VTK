@@ -36,15 +36,15 @@ public:
   vtkTypeMacro(vtkNewickTreeWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkTree* GetInput();
   vtkTree* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the input's tree edge weight array.
    * This array must be part of the input tree's EdgeData.
@@ -54,9 +54,9 @@ public:
    */
   vtkGetMacro(EdgeWeightArrayName, vtkStdString);
   vtkSetMacro(EdgeWeightArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the input's tree node name array.
    * This array must be part of the input tree's VertexData.
@@ -66,7 +66,7 @@ public:
    */
   vtkGetMacro(NodeNameArrayName, vtkStdString);
   vtkSetMacro(NodeNameArrayName, vtkStdString);
-  //@}
+  ///@}
 
 protected:
   vtkNewickTreeWriter();

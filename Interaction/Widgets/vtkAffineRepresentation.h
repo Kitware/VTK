@@ -47,13 +47,13 @@ class vtkTransform;
 class VTKINTERACTIONWIDGETS_EXPORT vtkAffineRepresentation : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAffineRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Retrieve a linear transform characterizing the affine transformation
@@ -63,7 +63,7 @@ public:
    */
   virtual void GetTransform(vtkTransform* t) = 0;
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels)
    * in which the cursor is considered near enough to the widget to
@@ -71,7 +71,7 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 100);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the

@@ -42,13 +42,13 @@ public:
   vtkTypeMacro(vtkImageOrthoPlanes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * You must set three planes for the widget.
    */
   void SetPlane(int i, vtkImagePlaneWidget* imagePlaneWidget);
   vtkImagePlaneWidget* GetPlane(int i);
-  //@}
+  ///@}
 
   /**
    * Reset the planes to original scale, rotation, and location.

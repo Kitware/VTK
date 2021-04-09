@@ -73,7 +73,7 @@ public:
    */
   vtkPropCollection* GetParts();
 
-  //@{
+  ///@{
   /**
    * Render this assembly and all its parts.  The rendering process is
    * recursive. The parts of each assembly are rendered only if the
@@ -83,7 +83,7 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport* ren) override;
   int RenderVolumetricGeometry(vtkViewport* ren) override;
   int RenderOverlay(vtkViewport* ren) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -114,7 +114,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Methods to traverse the paths (i.e., leaf nodes) of a prop
    * assembly. These methods should be contrasted to those that traverse the
@@ -128,7 +128,7 @@ public:
   void InitPathTraversal() override;
   vtkAssemblyPath* GetNextPath() override;
   int GetNumberOfPaths() override;
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

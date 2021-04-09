@@ -72,15 +72,15 @@ public:
    */
   const char* GetRenderingBackend() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of multisamples
    */
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
   static int GetGlobalMaximumNumberOfMultiSamples();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...
    * front in this context indicates that the read should come from the
@@ -93,9 +93,9 @@ public:
     int x, int y, int x2, int y2, unsigned char* data, int front, int right) override;
   int SetPixelData(
     int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front, int right) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBARGBA...
    */
@@ -115,9 +115,9 @@ public:
     int blend = 0, int right = 0) override;
   int SetRGBACharPixelData(int x, int y, int x2, int y2, vtkUnsignedCharArray* data, int front,
     int blend = 0, int right = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the zbuffer data from an image
    */
@@ -126,7 +126,7 @@ public:
   int GetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
   int SetZbufferData(int x1, int y1, int x2, int y2, float* buffer) override;
   int SetZbufferData(int x1, int y1, int x2, int y2, vtkFloatArray* buffer) override;
-  //@}
+  ///@}
 
   /**
    * Activate a texture unit for this texture
@@ -184,7 +184,7 @@ public:
    */
   void GetOpenGLVersion(int& major, int& minor);
 
-  //@{
+  ///@{
   VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetBackLeftBuffer();
   VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
@@ -197,7 +197,7 @@ public:
   unsigned int GetBackBuffer();
   VTK_DEPRECATED_IN_9_1_0("Removed in 9.1, now always returns 0")
   unsigned int GetFrontBuffer();
-  //@}
+  ///@}
 
   /**
    * Get the time when the OpenGL context was created.
@@ -214,14 +214,14 @@ public:
    */
   vtkOpenGLVertexBufferObjectCache* GetVBOCache();
 
-  //@{
+  ///@{
   /**
    * Returns the render framebuffer object.
    */
   vtkGetObjectMacro(RenderFramebuffer, vtkOpenGLFramebufferObject);
   VTK_DEPRECATED_IN_9_1_0("Removed in 9.1")
   vtkOpenGLFramebufferObject* GetOffScreenFramebuffer() { return this->RenderFramebuffer; }
-  //@}
+  ///@}
 
   /**
    * Returns the display framebuffer object.
@@ -406,7 +406,7 @@ public:
   void BlitDisplayFramebuffer(int right, int srcX, int srcY, int srcWidth, int srcHeight, int destX,
     int destY, int destWidth, int destHeight, int bufferMode, int interpolation);
 
-  //@{
+  ///@{
   /**
    * Blit the currently bound read buffer to the renderbuffer. This is useful for
    * taking rendering from an external system and then having VTK draw on top of it.
@@ -414,7 +414,7 @@ public:
   void BlitToRenderFramebuffer(bool includeDepth);
   void BlitToRenderFramebuffer(int srcX, int srcY, int srcWidth, int srcHeight, int destX,
     int destY, int destWidth, int destHeight, int bufferMode, int interpolation);
-  //@}
+  ///@}
 
   /**
    * Define how the resulting image should be blitted when at the end of the Frame() call if
@@ -427,7 +427,7 @@ public:
     NoBlit          // no blit, GUI or external code will handle the blit
   };
 
-  //@{
+  ///@{
   /**
    * SetGet how to handle blits at the end of a Frame() call.
    * Only happens when SwapBuffers is true.
@@ -437,7 +437,7 @@ public:
   void SetFrameBlitModeToBlitToHardware() { this->SetFrameBlitMode(BlitToHardware); }
   void SetFrameBlitModeToBlitToCurrent() { this->SetFrameBlitMode(BlitToCurrent); }
   void SetFrameBlitModeToNoBlit() { this->SetFrameBlitMode(NoBlit); }
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLRenderWindow();

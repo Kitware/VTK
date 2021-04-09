@@ -41,15 +41,15 @@ public:
    */
   void operator()(double&, vtkVariantArray*, vtkVariantArray*) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the distance function expression.
    */
   vtkSetStringMacro(DistanceExpression);
   vtkGetStringMacro(DistanceExpression);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the string containing an expression which evaluates to the
    * distance metric used for k-means computation. The scalar variables
@@ -58,7 +58,7 @@ public:
    */
   virtual void SetFunctionParser(vtkFunctionParser*);
   vtkGetObjectMacro(FunctionParser, vtkFunctionParser);
-  //@}
+  ///@}
 
 protected:
   vtkKMeansDistanceFunctorCalculator();

@@ -46,12 +46,12 @@ public:
    */
   virtual void UpdateProgress(double amount);
 
-  //@{
+  ///@{
   /**
    * Returns the progress reported by the algorithm.
    */
   vtkGetMacro(Progress, double);
-  //@}
+  ///@}
 
 protected:
   vtkProgressObserver();

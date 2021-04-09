@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCollectionIterator* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the collection over which to iterate.
    */
   virtual void SetCollection(vtkCollection*);
   vtkGetObjectMacro(Collection, vtkCollection);
-  //@}
+  ///@}
 
   /**
    * Position the iterator at the first item in the collection.

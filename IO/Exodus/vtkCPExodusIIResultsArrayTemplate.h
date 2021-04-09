@@ -43,7 +43,7 @@ public:
 
   typedef typename Superclass::ValueType ValueType;
 
-  //@{
+  ///@{
   /**
    * Set the arrays to be used and the number of tuples in each array.
    * The save option can be set to true to indicate that this class
@@ -52,7 +52,7 @@ public:
    */
   void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples);
   void SetExodusScalarArrays(std::vector<Scalar*> arrays, vtkIdType numTuples, bool save);
-  //@}
+  ///@}
 
   // Reimplemented virtuals -- see superclasses for descriptions:
   void Initialize() override;
@@ -72,7 +72,7 @@ public:
   ValueType& GetValueReference(vtkIdType idx) override;
   void GetTypedTuple(vtkIdType idx, Scalar* t) const override;
 
-  //@{
+  ///@{
   /**
    * This container is read only -- this method does nothing but print a
    * warning.
@@ -109,7 +109,7 @@ public:
   void SetValue(vtkIdType idx, Scalar value) override;
   vtkIdType InsertNextValue(Scalar v) override;
   void InsertValue(vtkIdType idx, Scalar v) override;
-  //@}
+  ///@}
 
 protected:
   vtkCPExodusIIResultsArrayTemplate();
@@ -123,12 +123,12 @@ private:
 
   vtkIdType Lookup(const Scalar& val, vtkIdType startIndex);
   double* TempDoubleArray;
-  //@{
+  ///@{
   /**
    * By default Save is false.
    */
   bool Save;
-  //@}
+  ///@}
 };
 
 #include "vtkCPExodusIIResultsArrayTemplate.txx"

@@ -63,12 +63,12 @@ public:
    */
   int GetDataObjectType() override { return VTK_TREE; }
 
-  //@{
+  ///@{
   /**
    * Get the root vertex of the tree.
    */
   vtkGetMacro(Root, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Get the number of children of a vertex.
@@ -109,13 +109,13 @@ public:
    */
   bool IsLeaf(vtkIdType vertex);
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
   static vtkTree* GetData(vtkInformation* info);
   static vtkTree* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Reorder the children of a parent vertex.

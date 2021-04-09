@@ -35,14 +35,14 @@ public:
   vtkTypeMacro(vtkPolyLineSource, vtkPolyPointSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set whether to close the poly line by connecting the last and first points.
    */
   vtkSetMacro(Closed, vtkTypeBool);
   vtkGetMacro(Closed, vtkTypeBool);
   vtkBooleanMacro(Closed, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkPolyLineSource();

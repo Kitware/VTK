@@ -61,15 +61,15 @@ public:
    */
   void Update();
 
-  //@{
+  ///@{
   /**
    * Set/Get the rendering window that contains the scene to be written.
    */
   virtual void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the renderer that contains actors to be written.
    * If it is set to nullptr (by default), then in most subclasses
@@ -82,16 +82,16 @@ public:
    */
   virtual void SetActiveRenderer(vtkRenderer*);
   vtkGetObjectMacro(ActiveRenderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are provided for backward compatibility. Will disappear
    * soon.
    */
   void SetInput(vtkRenderWindow* renWin) { this->SetRenderWindow(renWin); }
   vtkRenderWindow* GetInput() { return this->GetRenderWindow(); }
-  //@}
+  ///@}
 
   /**
    * Specify a function to be called before data is written.  Function will

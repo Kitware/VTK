@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkMPIMultiBlockPLOT3DReader, vtkMultiBlockPLOT3DReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Use this to override using MPI-IO. When set to false (default is true),
    * this class will simply forward all method calls to the superclass.
@@ -43,7 +43,7 @@ public:
   vtkSetMacro(UseMPIIO, bool);
   vtkGetMacro(UseMPIIO, bool);
   vtkBooleanMacro(UseMPIIO, bool);
-  //@}
+  ///@}
 
 protected:
   vtkMPIMultiBlockPLOT3DReader();

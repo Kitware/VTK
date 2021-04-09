@@ -47,50 +47,50 @@ public:
   vtkTypeMacro(vtkX3DExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the output file name.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Speed of navigation. Default is 4.
    */
   vtkSetMacro(Speed, double);
   vtkGetMacro(Speed, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on binary mode
    */
   vtkSetClampMacro(Binary, vtkTypeBool, 0, 1);
   vtkBooleanMacro(Binary, vtkTypeBool);
   vtkGetMacro(Binary, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In binary mode use fastest instead of best compression
    */
   vtkSetClampMacro(Fastest, vtkTypeBool, 0, 1);
   vtkBooleanMacro(Fastest, vtkTypeBool);
   vtkGetMacro(Fastest, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
   vtkSetMacro(WriteToOutputString, vtkTypeBool);
   vtkGetMacro(WriteToOutputString, vtkTypeBool);
   vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When WriteToOutputString in on, then a string is allocated, written to,
    * and can be retrieved with these methods.  The string is deleted during
@@ -102,7 +102,7 @@ public:
   {
     return reinterpret_cast<unsigned char*>(this->OutputString);
   }
-  //@}
+  ///@}
 
   /**
    * This convenience method returns the string, sets the IVAR to nullptr,

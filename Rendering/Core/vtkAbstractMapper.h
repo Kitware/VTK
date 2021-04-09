@@ -67,14 +67,14 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
-  //@{
+  ///@{
   /**
    * Get the time required to draw the geometry last time it was rendered
    */
   vtkGetMacro(TimeToDraw, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify clipping planes to be applied when the data is mapped
    * (at most 6 clipping planes can be specified).
@@ -82,16 +82,16 @@ public:
   void AddClippingPlane(vtkPlane* plane);
   void RemoveClippingPlane(vtkPlane* plane);
   void RemoveAllClippingPlanes();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the vtkPlaneCollection which specifies the
    * clipping planes.
    */
   virtual void SetClippingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(ClippingPlanes, vtkPlaneCollection);
-  //@}
+  ///@}
 
   /**
    * An alternative way to set clipping planes: use up to six planes found

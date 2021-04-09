@@ -40,13 +40,13 @@ public:
    */
   static vtkClosestNPointsStrategy* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkClosestNPointsStrategy, vtkClosestPointStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkClosestPointStrategy::Initialize;
@@ -57,13 +57,13 @@ public:
   vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3], double* weights) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the value for the N closest points.
    */
   vtkSetClampMacro(ClosestNPoints, int, 1, 100);
   vtkGetMacro(ClosestNPoints, int);
-  //@}
+  ///@}
 
 protected:
   vtkClosestNPointsStrategy();

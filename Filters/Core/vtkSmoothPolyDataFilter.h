@@ -113,24 +113,24 @@ public:
    */
   static vtkSmoothPolyDataFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify a convergence criterion for the iteration
    * process. Smaller numbers result in more smoothing iterations.
    */
   vtkSetClampMacro(Convergence, double, 0.0, 1.0);
   vtkGetMacro(Convergence, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of iterations for Laplacian smoothing,
    */
   vtkSetClampMacro(NumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the relaxation factor for Laplacian smoothing. As in all
    * iterative methods, the stability of the process is sensitive to
@@ -140,62 +140,62 @@ public:
    */
   vtkSetMacro(RelaxationFactor, double);
   vtkGetMacro(RelaxationFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off smoothing along sharp interior edges.
    */
   vtkSetMacro(FeatureEdgeSmoothing, vtkTypeBool);
   vtkGetMacro(FeatureEdgeSmoothing, vtkTypeBool);
   vtkBooleanMacro(FeatureEdgeSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the feature angle for sharp edge identification.
    */
   vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
   vtkGetMacro(FeatureAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the edge angle to control smoothing along edges (either interior
    * or boundary).
    */
   vtkSetClampMacro(EdgeAngle, double, 0.0, 180.0);
   vtkGetMacro(EdgeAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the smoothing of vertices on the boundary of the mesh.
    */
   vtkSetMacro(BoundarySmoothing, vtkTypeBool);
   vtkGetMacro(BoundarySmoothing, vtkTypeBool);
   vtkBooleanMacro(BoundarySmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of scalar distance values.
    */
   vtkSetMacro(GenerateErrorScalars, vtkTypeBool);
   vtkGetMacro(GenerateErrorScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateErrorScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of error vectors.
    */
   vtkSetMacro(GenerateErrorVectors, vtkTypeBool);
   vtkGetMacro(GenerateErrorVectors, vtkTypeBool);
   vtkBooleanMacro(GenerateErrorVectors, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the source object which is used to constrain smoothing. The
    * source defines a surface that the input (as it is smoothed) is
@@ -203,9 +203,9 @@ public:
    */
   void SetSourceData(vtkPolyData* source);
   vtkPolyData* GetSource();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -213,7 +213,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkSmoothPolyDataFilter();

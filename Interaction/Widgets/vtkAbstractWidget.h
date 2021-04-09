@@ -62,13 +62,13 @@ class vtkWidgetRepresentation;
 class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard macros implementing standard VTK methods.
    */
   vtkTypeMacro(vtkAbstractWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Methods for activating this widget. Note that the widget representation
@@ -79,7 +79,7 @@ public:
    */
   void SetEnabled(int) override;
 
-  //@{
+  ///@{
   /**
    * Methods to change whether the widget responds to interaction.
    * Set this to Off to disable interaction. On by default.
@@ -89,7 +89,7 @@ public:
   vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
   vtkGetMacro(ProcessEvents, vtkTypeBool);
   vtkBooleanMacro(ProcessEvents, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the event translator. Careful manipulation of this class enables
@@ -122,7 +122,7 @@ public:
   void SetParent(vtkAbstractWidget* parent) { this->Parent = parent; }
   vtkGetObjectMacro(Parent, vtkAbstractWidget);
 
-  //@{
+  ///@{
   /**
    * Return an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of
@@ -134,9 +134,9 @@ public:
     this->CreateDefaultRepresentation();
     return this->WidgetRep;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on or off the management of the cursor. Cursor management is
    * typically disabled for subclasses when composite widgets are
@@ -147,7 +147,7 @@ public:
   vtkSetMacro(ManagesCursor, vtkTypeBool);
   vtkGetMacro(ManagesCursor, vtkTypeBool);
   vtkBooleanMacro(ManagesCursor, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Override the superclass method. This will automatically change the

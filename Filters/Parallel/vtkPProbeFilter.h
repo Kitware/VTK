@@ -37,13 +37,13 @@ public:
 
   static vtkPProbeFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPProbeFilter();

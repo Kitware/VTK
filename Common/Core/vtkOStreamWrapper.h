@@ -44,14 +44,14 @@ class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
   class std_string;
 
 public:
-  //@{
+  ///@{
   /**
    * Construct class to reference a real ostream.  All methods and
    * operators will be forwarded.
    */
   vtkOStreamWrapper(ostream& os);
   vtkOStreamWrapper(vtkOStreamWrapper& r);
-  //@}
+  ///@}
 
   virtual ~vtkOStreamWrapper();
 
@@ -62,7 +62,7 @@ public:
   {
   };
 
-  //@{
+  ///@{
   /**
    * Forward this output operator to the real ostream.
    */
@@ -87,7 +87,7 @@ public:
   vtkOStreamWrapper& operator<<(float);
   vtkOStreamWrapper& operator<<(double);
   vtkOStreamWrapper& operator<<(bool);
-  //@}
+  ///@}
 
   // Work-around for IBM Visual Age bug in overload resolution.
 #if defined(__IBMCPP__)
@@ -142,13 +142,13 @@ public:
    */
   void flush();
 
-  //@{
+  ///@{
   /**
    * Implementation detail to allow macros to provide an endl that may
    * or may not be used.
    */
   static void UseEndl(const EndlType&) {}
-  //@}
+  ///@}
 protected:
   // Reference to the real ostream.
   ostream& ostr;

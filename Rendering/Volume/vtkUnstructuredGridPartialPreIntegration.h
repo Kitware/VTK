@@ -62,7 +62,7 @@ public:
   void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
     vtkDataArray* farIntersections, float color[4]) override;
 
-  //@{
+  ///@{
   /**
    * Integrates a single ray segment.  \c color is blended with the result
    * (with \c color in front).  The result is written back into \c color.
@@ -71,9 +71,9 @@ public:
     double intensity_back, double attenuation_back, float color[4]);
   static void IntegrateRay(double length, const double color_front[3], double attenuation_front,
     const double color_back[3], double attenuation_back, float color[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Looks up Psi (as defined by Moreland and Angel, "A Fast High Accuracy
    * Volume Renderer for Unstructured Data") in a table.  The table must be
@@ -83,7 +83,7 @@ public:
   static float Psi(float taufD, float taubD);
   static float* GetPsiTable(int& size);
   static void BuildPsiTable();
-  //@}
+  ///@}
 
 protected:
   vtkUnstructuredGridPartialPreIntegration();

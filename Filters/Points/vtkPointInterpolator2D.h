@@ -67,7 +67,7 @@
 class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator2D : public vtkPointInterpolator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing.
@@ -75,9 +75,9 @@ public:
   static vtkPointInterpolator2D* New();
   vtkTypeMacro(vtkPointInterpolator2D, vtkPointInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to take the z-coordinate values of the source points as
    * attributes to be interpolated. This is in addition to any other point
@@ -86,9 +86,9 @@ public:
   vtkSetMacro(InterpolateZ, bool);
   vtkGetMacro(InterpolateZ, bool);
   vtkBooleanMacro(InterpolateZ, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the output array containing z values. This method is
    * only applicable when InterpolateZ is enabled. By default the output
@@ -96,7 +96,7 @@ public:
    */
   vtkSetMacro(ZArrayName, vtkStdString);
   vtkGetMacro(ZArrayName, vtkStdString);
-  //@}
+  ///@}
 
 protected:
   vtkPointInterpolator2D();

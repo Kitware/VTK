@@ -53,25 +53,25 @@ typedef vtkSmartPointer<ParticleTrail> TrailPointer;
 class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard Type-Macro
    */
   static vtkTemporalPathLineFilter* New();
   vtkTypeMacro(vtkTemporalPathLineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of particles to track as a ratio of the input
    * example: setting MaskPoints to 10 will track every 10th point
    */
   vtkSetMacro(MaskPoints, int);
   vtkGetMacro(MaskPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the Particles being traced animate for a long time, the
    * trails or traces will become long and stringy. Setting
@@ -82,9 +82,9 @@ public:
    */
   vtkSetMacro(MaxTrackLength, unsigned int);
   vtkGetMacro(MaxTrackLength, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of a scalar array which will be used to fetch
    * the index of each point. This is necessary only if the particles
@@ -95,9 +95,9 @@ public:
    */
   vtkSetStringMacro(IdChannelArray);
   vtkGetStringMacro(IdChannelArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If a particle disappears from one end of a simulation and reappears
    * on the other side, the track left will be unrepresentative.
@@ -108,9 +108,9 @@ public:
    */
   vtkSetVector3Macro(MaxStepDistance, double);
   vtkGetVector3Macro(MaxStepDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When a particle 'disappears', the trail belonging to it is removed from
    * the list. When this flag is enabled, dead trails will persist
@@ -119,7 +119,7 @@ public:
    */
   vtkSetMacro(KeepDeadTrails, int);
   vtkGetMacro(KeepDeadTrails, int);
-  //@}
+  ///@}
 
   /**
    * Flush will wipe any existing data so that traces can be restarted from
@@ -151,7 +151,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  //@{
+  ///@{
   /**
    * The necessary parts of the standard pipeline update mechanism
    */
@@ -159,7 +159,7 @@ protected:
   //
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  //@}
+  ///@}
 
   TrailPointer GetTrail(vtkIdType i);
   void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);

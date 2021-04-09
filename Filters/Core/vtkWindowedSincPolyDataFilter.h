@@ -173,7 +173,7 @@ public:
    */
   static vtkWindowedSincPolyDataFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify the number of iterations (i.e., the degree of the polynomial
    * approximating the windowed sinc function). Typically values around 20
@@ -181,17 +181,17 @@ public:
    */
   vtkSetClampMacro(NumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the passband value for the windowed sinc filter.
    */
   vtkSetClampMacro(PassBand, double, 0.0, 2.0);
   vtkGetMacro(PassBand, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off coordinate normalization.  The positions can be translated
    * and scaled such that they fit within a [-1, 1] prior to the smoothing
@@ -203,9 +203,9 @@ public:
   vtkSetMacro(NormalizeCoordinates, vtkTypeBool);
   vtkGetMacro(NormalizeCoordinates, vtkTypeBool);
   vtkBooleanMacro(NormalizeCoordinates, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off smoothing points along sharp interior edges. Enabling this
    * option has a performance impact on the algorithm since neihborhood
@@ -214,27 +214,27 @@ public:
   vtkSetMacro(FeatureEdgeSmoothing, vtkTypeBool);
   vtkGetMacro(FeatureEdgeSmoothing, vtkTypeBool);
   vtkBooleanMacro(FeatureEdgeSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the feature angle for sharp edge identification. It only affects
    * the filter when FeatureEdgeSmoothing is enabled.
    */
   vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
   vtkGetMacro(FeatureAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the edge angle to control smoothing along edges (either interior
    * or boundary).
    */
   vtkSetClampMacro(EdgeAngle, double, 0.0, 180.0);
   vtkGetMacro(EdgeAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the smoothing of points on the boundary of the mesh.
    * Enabled this option has a modest impact on performance.
@@ -242,9 +242,9 @@ public:
   vtkSetMacro(BoundarySmoothing, vtkTypeBool);
   vtkGetMacro(BoundarySmoothing, vtkTypeBool);
   vtkBooleanMacro(BoundarySmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Smooth non-manifold points. Enabling this option has a modest
    * impact on performance.
@@ -252,25 +252,25 @@ public:
   vtkSetMacro(NonManifoldSmoothing, vtkTypeBool);
   vtkGetMacro(NonManifoldSmoothing, vtkTypeBool);
   vtkBooleanMacro(NonManifoldSmoothing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of scalar distance values.
    */
   vtkSetMacro(GenerateErrorScalars, vtkTypeBool);
   vtkGetMacro(GenerateErrorScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateErrorScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of error vectors.
    */
   vtkSetMacro(GenerateErrorVectors, vtkTypeBool);
   vtkGetMacro(GenerateErrorVectors, vtkTypeBool);
   vtkBooleanMacro(GenerateErrorVectors, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkWindowedSincPolyDataFilter();

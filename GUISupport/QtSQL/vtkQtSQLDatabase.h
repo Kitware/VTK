@@ -105,61 +105,61 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * String representing Qt database type (e.g. "mysql").
    */
   const char* GetDatabaseType() override { return this->DatabaseType; }
   vtkSetStringMacro(DatabaseType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The database server host name.
    */
   vtkSetStringMacro(HostName);
   vtkGetStringMacro(HostName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The user name for connecting to the database server.
    */
   vtkSetStringMacro(UserName);
   vtkGetStringMacro(UserName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the database to connect to.
    */
   vtkSetStringMacro(DatabaseName);
   vtkGetStringMacro(DatabaseName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Additional options for the database.
    */
   vtkSetStringMacro(ConnectOptions);
   vtkGetStringMacro(ConnectOptions);
-  //@}
+  ///@}
 
   // VTK_DEPRECATED_IN_9_1_0: Remove header test exclusion when this is removed.
-  //@{
+  ///@{
   VTK_DEPRECATED_IN_9_1_0("Renamed to DbPort to avoid Windows macro collisions")
   void SetPort(int port) { this->SetDbPort(port); }
   VTK_DEPRECATED_IN_9_1_0("Renamed to DbPort to avoid Windows macro collisions")
   int GetPort() { return this->GetDbPort(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The port used for connecting to the database.
    */
   vtkSetClampMacro(DbPort, int, 0, 65535);
   vtkGetMacro(DbPort, int);
-  //@}
+  ///@}
 
   /**
    * Create a the proper subclass given a URL.

@@ -78,14 +78,14 @@ public:
   vtkTypeMacro(vtkExtractDataArraysOverTime, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the number of time steps
    */
   vtkGetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * FieldAssociation indicates which attributes to extract over time. This filter
    * can extract only one type of attribute arrays. Currently, vtkDataObject::FIELD
@@ -94,9 +94,9 @@ public:
   vtkSetClampMacro(
     FieldAssociation, int, vtkDataObject::POINT, vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES - 1);
   vtkGetMacro(FieldAssociation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of breaking a data into a separate time-history
    * table for each (block,ID)-tuple, you may call
@@ -110,16 +110,16 @@ public:
   vtkSetMacro(ReportStatisticsOnly, bool);
   vtkGetMacro(ReportStatisticsOnly, bool);
   vtkBooleanMacro(ReportStatisticsOnly, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ReportStatisticsOnly is false, if UseGlobalIDs is true, then the filter will track
    * elements using their global ids, if present. Default is true.
    */
   vtkSetMacro(UseGlobalIDs, bool);
   vtkGetMacro(UseGlobalIDs, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractDataArraysOverTime();

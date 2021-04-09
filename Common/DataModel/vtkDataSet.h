@@ -190,7 +190,7 @@ public:
    */
   virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds);
 
-  //@{
+  ///@{
   /**
    * Locate the closest point to the global coordinate x. Return the
    * point id. If point id < 0; then no point found. (This may arise
@@ -207,7 +207,7 @@ public:
     return this->FindPoint(xyz);
   }
   virtual vtkIdType FindPoint(double x[3]) = 0;
-  //@}
+  ///@}
 
   /**
    * Locate cell based on global coordinate x and tolerance
@@ -360,13 +360,13 @@ public:
    */
   int GetDataObjectType() override { return VTK_DATA_SET; }
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
   enum FieldDataType
   {
@@ -385,7 +385,7 @@ public:
    */
   int CheckAttributes();
 
-  //@{
+  ///@{
   /**
    * Normally called by pipeline executives or algorithms only. This method
    * computes the ghost arrays for a given dataset. The zeroExt argument
@@ -393,15 +393,15 @@ public:
    */
   virtual void GenerateGhostArray(int zeroExt[6]) { this->GenerateGhostArray(zeroExt, false); }
   virtual void GenerateGhostArray(int zeroExt[6], bool cellOnly);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkDataSet* GetData(vtkInformation* info);
   static vtkDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Returns the attributes of the data object as a vtkFieldData.
@@ -499,7 +499,7 @@ protected:
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
 
-  //@{
+  ///@{
   /**
    * These arrays pointers are caches used to avoid a string comparison (when
    * getting ghost arrays using GetArray(name))
@@ -508,7 +508,7 @@ protected:
   vtkUnsignedCharArray* CellGhostArray;
   bool PointGhostArrayCached;
   bool CellGhostArrayCached;
-  //@}
+  ///@}
 
 private:
   void InternalDataSetCopy(vtkDataSet* src);

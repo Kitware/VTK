@@ -57,13 +57,13 @@ template <typename TIds>
 class vtkStaticCellLinksTemplate
 {
 public:
-  //@{
+  ///@{
   /**
    * Instantiate and destructor methods.
    */
   vtkStaticCellLinksTemplate();
   ~vtkStaticCellLinksTemplate();
-  //@}
+  ///@}
 
   /**
    * Make sure any previously created links are cleaned up.
@@ -98,13 +98,13 @@ public:
   void ThreadedBuildLinks(
     const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray);
 
-  //@{
+  ///@{
   /**
    * Get the number of cells using the point specified by ptId.
    */
   TIds GetNumberOfCells(vtkIdType ptId) { return (this->Offsets[ptId + 1] - this->Offsets[ptId]); }
   vtkIdType GetNcells(vtkIdType ptId) { return (this->Offsets[ptId + 1] - this->Offsets[ptId]); }
-  //@}
+  ///@}
 
   /**
    * Indicate whether the point ids provided defines at least one cell, or a
@@ -123,22 +123,22 @@ public:
    */
   void GetCells(vtkIdType npts, const vtkIdType* pts, vtkIdList* cells);
 
-  //@{
+  ///@{
   /**
    * Support vtkAbstractCellLinks API.
    */
   unsigned long GetActualMemorySize();
   void DeepCopy(vtkAbstractCellLinks* src);
   void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether to thread or serial process.
    */
   void SetSequentialProcessing(vtkTypeBool seq) { this->SequentialProcessing = seq; }
   vtkTypeBool GetSequentialProcessing() { return this->SequentialProcessing; }
-  //@}
+  ///@}
 
 protected:
   // The various templated data members

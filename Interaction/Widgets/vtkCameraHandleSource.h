@@ -52,7 +52,7 @@ public:
    */
   void SetCamera(vtkCamera* cam);
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the camera handle.
    */
@@ -60,9 +60,9 @@ public:
   void SetPosition(double xPos, double yPos, double zPos) override;
   using vtkHandleSource::GetPosition;
   double* GetPosition() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction of the camera handle.
    * The direction is used in case the camera handle is
@@ -72,7 +72,7 @@ public:
   void SetDirection(double xTarget, double yTarget, double zTarget) override;
   using vtkHandleSource::GetDirection;
   double* GetDirection() override;
-  //@}
+  ///@}
 
   vtkCameraHandleSource(const vtkCameraHandleSource&) = delete;
   void operator=(const vtkCameraHandleSource&) = delete;

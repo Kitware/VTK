@@ -33,16 +33,16 @@ public:
   vtkTypeMacro(vtkGDALRasterReprojection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The maximum error measured in input pixels that is allowed
    * in approximating the reprojection transformation
    * (0.0 for exact calculations).
    */
   vtkSetClampMacro(MaxError, double, 0.0, VTK_DOUBLE_MAX);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Pixel resampling algorithm, between 0 and 6
    * 0 = Nearest Neighbor (default)
@@ -54,7 +54,7 @@ public:
    * 6 = Mode    (GDAL 1.10)
    */
   vtkSetClampMacro(ResamplingAlgorithm, int, 0, 6);
-  //@}
+  ///@}
 
   /**
    * Suggest image dimensions for specified projection

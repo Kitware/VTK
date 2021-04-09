@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkWindow, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * These are window system independent methods that are used
    * to help interface vtkWindow to native windowing systems.
@@ -53,9 +53,9 @@ public:
   virtual void* GetGenericDrawable() { return nullptr; }
   virtual void SetWindowInfo(const char*) {}
   virtual void SetParentInfo(const char*) {}
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position (x and y) of the rendering window in
    * screen coordinates (in pixels).
@@ -69,9 +69,9 @@ public:
    */
   virtual void SetPosition(int x, int y);
   virtual void SetPosition(int a[2]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the size (width and height) of the rendering window in
    * screen coordinates (in pixels).
@@ -88,7 +88,7 @@ public:
    */
   virtual void SetSize(int width, int height);
   virtual void SetSize(int a[2]);
-  //@}
+  ///@}
 
   /**
    * GetSize() returns the size * this->TileScale, whereas this method returns
@@ -101,23 +101,23 @@ public:
    */
   virtual int* GetScreenSize() VTK_SIZEHINT(2) { return nullptr; }
 
-  //@{
+  ///@{
   /**
    * Keep track of whether the rendering window has been mapped to screen.
    */
   vtkGetMacro(Mapped, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Show or not Show the window
    */
   vtkGetMacro(ShowWindow, bool);
   vtkSetMacro(ShowWindow, bool);
   vtkBooleanMacro(ShowWindow, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Render to an offscreen destination such as a framebuffer.
    * All four combinations of ShowWindow and UseOffScreenBuffers
@@ -126,9 +126,9 @@ public:
   vtkSetMacro(UseOffScreenBuffers, bool);
   vtkGetMacro(UseOffScreenBuffers, bool);
   vtkBooleanMacro(UseOffScreenBuffers, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off erasing the screen between images. This allows multiple
    * exposure sequences if turned on. You will need to turn double
@@ -138,24 +138,24 @@ public:
   vtkSetMacro(Erase, vtkTypeBool);
   vtkGetMacro(Erase, vtkTypeBool);
   vtkBooleanMacro(Erase, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Keep track of whether double buffering is on or off
    */
   vtkSetMacro(DoubleBuffer, vtkTypeBool);
   vtkGetMacro(DoubleBuffer, vtkTypeBool);
   vtkBooleanMacro(DoubleBuffer, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get name of rendering window
    */
   vtkGetStringMacro(WindowName);
   vtkSetStringMacro(WindowName);
-  //@}
+  ///@}
 
   /**
    * Set the icon used in title bar and task bar.
@@ -176,7 +176,7 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow*) {}
 
-  //@{
+  ///@{
   /**
    * Get the pixel data of an image, transmitted as RGBRGBRGB. The
    * front argument indicates if the front buffer should be used or the back
@@ -199,16 +199,16 @@ public:
   {
     return 0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a best estimate to the dots per inch of the display
    * device being rendered (or printed).
    */
   vtkGetMacro(DPI, int);
   vtkSetClampMacro(DPI, int, 1, VTK_INT_MAX);
-  //@}
+  ///@}
 
   /**
    * Attempt to detect and set the DPI of the display device by querying the
@@ -218,7 +218,7 @@ public:
    */
   virtual bool DetectDPI() { return false; }
 
-  //@{
+  ///@{
   /**
    * Convenience to set SHowWindow and UseOffScreenBuffers in one call
    */
@@ -228,7 +228,7 @@ public:
     this->SetUseOffScreenBuffers(val != 0);
   }
   vtkBooleanMacro(OffScreenRendering, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Deprecated, directly use GetShowWindow and GetOffScreenBuffers
@@ -242,7 +242,7 @@ public:
    */
   virtual void MakeCurrent() {}
 
-  //@{
+  ///@{
   /**
    * These methods are used by vtkWindowToImageFilter to tell a VTK window
    * to simulate a larger window by tiling. For 3D geometry these methods
@@ -254,7 +254,7 @@ public:
   void SetTileScale(int s) { this->SetTileScale(s, s); }
   vtkSetVector4Macro(TileViewport, double);
   vtkGetVector4Macro(TileViewport, double);
-  //@}
+  ///@}
 
 protected:
   vtkWindow();

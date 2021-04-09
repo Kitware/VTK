@@ -71,14 +71,14 @@ class vtkImageData;
 class VTKFILTERSMODELING_EXPORT vtkFitToHeightMapFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type and printing.
    */
   static vtkFitToHeightMapFilter* New();
   vtkTypeMacro(vtkFitToHeightMapFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Set the height map for the filter.  Note that this method does not
@@ -88,20 +88,20 @@ public:
    */
   void SetHeightMapData(vtkImageData* idata);
 
-  //@{
+  ///@{
   /**
    * Specify the pipeline connection to the height map.
    */
   void SetHeightMapConnection(vtkAlgorithmOutput* algOutput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the height map.
    */
   vtkImageData* GetHeightMap();
   vtkImageData* GetHeightMap(vtkInformationVector* sourceInfo);
-  //@}
+  ///@}
 
   // Strategies to fit the polydata.
   enum FittingStrategy
@@ -115,7 +115,7 @@ public:
     CELL_AVERAGE_HEIGHT = 6,
   };
 
-  //@{
+  ///@{
   /**
    * Specify a strategy for fitting, or projecting, the polydata to the
    * height field.  By default the points of the polydata are projected onto
@@ -137,9 +137,9 @@ public:
   void SetFittingStrategyToCellMinimumHeight() { this->SetFittingStrategy(CELL_MINIMUM_HEIGHT); }
   void SetFittingStrategyToCellMaximumHeight() { this->SetFittingStrategy(CELL_MAXIMUM_HEIGHT); }
   void SetFittingStrategyToCellAverageHeight() { this->SetFittingStrategy(CELL_AVERAGE_HEIGHT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether the z-offset from the image height map should be added
    * to the final result. Some height map images are offset in z-coordinate
@@ -149,7 +149,7 @@ public:
   vtkSetMacro(UseHeightMapOffset, vtkTypeBool);
   vtkGetMacro(UseHeightMapOffset, vtkTypeBool);
   vtkBooleanMacro(UseHeightMapOffset, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkFitToHeightMapFilter();

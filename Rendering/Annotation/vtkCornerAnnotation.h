@@ -56,21 +56,21 @@ public:
    */
   static vtkCornerAnnotation* New();
 
-  //@{
+  ///@{
   /**
    * Draw the scalar bar and annotation text to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum height of a line of text as a
    * percentage of the vertical area allocated to this
@@ -78,9 +78,9 @@ public:
    */
   vtkSetMacro(MaximumLineHeight, double);
   vtkGetMacro(MaximumLineHeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum/maximum size font that will be shown.
    * If the font drops below the minimum size it will not be rendered.
@@ -89,9 +89,9 @@ public:
   vtkGetMacro(MinimumFontSize, int);
   vtkSetMacro(MaximumFontSize, int);
   vtkGetMacro(MaximumFontSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get font scaling factors
    * The font size, f, is calculated as the largest possible value
@@ -105,7 +105,7 @@ public:
   vtkGetMacro(LinearFontScaleFactor, double);
   vtkSetMacro(NonlinearFontScaleFactor, double);
   vtkGetMacro(NonlinearFontScaleFactor, double);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -114,7 +114,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Position used to get or set the corner annotation text.
    * \sa GetText(), SetText()
@@ -131,9 +131,9 @@ public:
     UpperEdge      ///< Uses the upper edge center.
   };
   static const int NumTextPositions = 8;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text to be displayed for each corner
    * \sa TextPosition
@@ -142,57 +142,57 @@ public:
   const char* GetText(int i);
   void ClearAllTexts();
   void CopyAllTextsFrom(vtkCornerAnnotation* ca);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an image actor to look at for slice information
    */
   void SetImageActor(vtkImageActor*);
   vtkGetObjectMacro(ImageActor, vtkImageActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an instance of vtkImageMapToWindowLevelColors to use for
    * looking at window level changes
    */
   void SetWindowLevel(vtkImageMapToWindowLevelColors*);
   vtkGetObjectMacro(WindowLevel, vtkImageMapToWindowLevelColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value to shift the level by.
    */
   vtkSetMacro(LevelShift, double);
   vtkGetMacro(LevelShift, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value to scale the level by.
    */
   vtkSetMacro(LevelScale, double);
   vtkGetMacro(LevelScale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property of all corners.
    */
   virtual void SetTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Even if there is an image actor, should `slice' and `image' be displayed?
    */
   vtkBooleanMacro(ShowSliceAndImage, vtkTypeBool);
   vtkSetMacro(ShowSliceAndImage, vtkTypeBool);
   vtkGetMacro(ShowSliceAndImage, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkCornerAnnotation();
@@ -229,13 +229,13 @@ protected:
    */
   virtual void TextReplace(vtkImageActor* ia, vtkImageMapToWindowLevelColors* wl);
 
-  //@{
+  ///@{
   /**
    * Set text actor positions given a viewport size and justification
    */
   virtual void SetTextActorsPosition(const int vsize[2]);
   virtual void SetTextActorsJustification();
-  //@}
+  ///@}
 
 private:
   vtkCornerAnnotation(const vtkCornerAnnotation&) = delete;

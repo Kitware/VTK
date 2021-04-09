@@ -71,16 +71,16 @@ public:
    */
   static vtkStripper* New();
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of triangles in a triangle strip,
    * and/or the maximum number of lines in a poly-line.
    */
   vtkSetClampMacro(MaximumLength, int, 4, 100000);
   vtkGetMacro(MaximumLength, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable passing of the CellData in the input to
    * the output as FieldData. Note the field data is transformed.
@@ -88,9 +88,9 @@ public:
   vtkBooleanMacro(PassCellDataAsFieldData, vtkTypeBool);
   vtkSetMacro(PassCellDataAsFieldData, vtkTypeBool);
   vtkGetMacro(PassCellDataAsFieldData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
@@ -100,9 +100,9 @@ public:
   vtkSetMacro(PassThroughCellIds, vtkTypeBool);
   vtkGetMacro(PassThroughCellIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughCellIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a pointdata array that
    * holds the point index of the original vertex that produced each output
@@ -112,9 +112,9 @@ public:
   vtkSetMacro(PassThroughPointIds, vtkTypeBool);
   vtkGetMacro(PassThroughPointIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal segments will be joined if they are
    * contiguous. This is useful after slicing a surface. The default
@@ -123,7 +123,7 @@ public:
   vtkSetMacro(JoinContiguousSegments, vtkTypeBool);
   vtkGetMacro(JoinContiguousSegments, vtkTypeBool);
   vtkBooleanMacro(JoinContiguousSegments, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkStripper();

@@ -71,32 +71,32 @@ public:
    */
   static vtkVolume16Reader* New();
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions for the data.
    */
   vtkSetVector2Macro(DataDimensions, int);
   vtkGetVectorMacro(DataDimensions, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a mask used to eliminate data in the data file (e.g.,
    * connectivity bits).
    */
   vtkSetMacro(DataMask, unsigned short);
   vtkGetMacro(DataMask, unsigned short);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of bytes to seek over at start of image.
    */
   vtkSetMacro(HeaderSize, int);
   vtkGetMacro(HeaderSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -115,18 +115,18 @@ public:
   int GetDataByteOrder();
   void SetDataByteOrder(int);
   const char* GetDataByteOrderAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off byte swapping.
    */
   vtkSetMacro(SwapBytes, vtkTypeBool);
   vtkGetMacro(SwapBytes, vtkTypeBool);
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get transformation matrix to transform the data from slice space
    * into world space. This matrix must be a permutation matrix. To qualify,
@@ -134,7 +134,7 @@ public:
    */
   virtual void SetTransform(vtkTransform*);
   vtkGetObjectMacro(Transform, vtkTransform);
-  //@}
+  ///@}
 
   /**
    * Other objects make use of these methods

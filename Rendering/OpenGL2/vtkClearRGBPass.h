@@ -42,14 +42,14 @@ public:
    */
   void Render(const vtkRenderState* s) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the background color of the rendering screen using an rgb color
    * specification.
    */
   vtkSetVector3Macro(Background, double);
   vtkGetVector3Macro(Background, double);
-  //@}
+  ///@}
 
 protected:
   /**

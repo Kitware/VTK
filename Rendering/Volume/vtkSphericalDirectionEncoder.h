@@ -71,13 +71,13 @@ protected:
 
   static float DecodedGradientTable[65536 * 3];
 
-  //@{
+  ///@{
   /**
    * Initialize the table at startup
    */
   static void InitializeDecodedGradientTable();
   static int DecodedGradientTableInitialized;
-  //@}
+  ///@}
 
 private:
   vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&) = delete;

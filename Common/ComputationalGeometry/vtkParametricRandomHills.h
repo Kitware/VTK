@@ -71,43 +71,43 @@ public:
    */
   static vtkParametricRandomHills* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of hills.
    * Default is 30.
    */
   vtkSetMacro(NumberOfHills, int);
   vtkGetMacro(NumberOfHills, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the hill variance in the x-direction.
    * Default is 2.5.
    */
   vtkSetMacro(HillXVariance, double);
   vtkGetMacro(HillXVariance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the hill variance in the y-direction.
    * Default is 2.5.
    */
   vtkSetMacro(HillYVariance, double);
   vtkGetMacro(HillYVariance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the hill amplitude (height).
    * Default is 2.
    */
   vtkSetMacro(HillAmplitude, double);
   vtkGetMacro(HillAmplitude, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Seed for the random number generator,
    * a value of 1 will initialize the random number generator,
@@ -116,9 +116,9 @@ public:
    */
   vtkSetMacro(RandomSeed, int);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the random generation flag.
    * A value of 0 will disable the generation of random hills on the surface
@@ -135,34 +135,34 @@ public:
   vtkSetClampMacro(AllowRandomGeneration, vtkTypeBool, 0, 1);
   vtkGetMacro(AllowRandomGeneration, vtkTypeBool);
   vtkBooleanMacro(AllowRandomGeneration, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scaling factor for the variance in the x-direction.
    * Default is 1/3.
    */
   vtkSetMacro(XVarianceScaleFactor, double);
   vtkGetMacro(XVarianceScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scaling factor for the variance in the y-direction.
    * Default is 1/3.
    */
   vtkSetMacro(YVarianceScaleFactor, double);
   vtkGetMacro(YVarianceScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scaling factor for the amplitude.
    * Default is 1/3.
    */
   vtkSetMacro(AmplitudeScaleFactor, double);
   vtkGetMacro(AmplitudeScaleFactor, double);
-  //@}
+  ///@}
 
   /**
    * Construct a terrain consisting of hills on a surface.
@@ -252,12 +252,12 @@ private:
    */
   void CopyParameters();
 
-  //@{
+  ///@{
   /**
    * Centers (x,y), variances (x,y) and amplitudes of the hills.
    */
   vtkDoubleArray* hillData;
 };
-//@}
+///@}
 
 #endif

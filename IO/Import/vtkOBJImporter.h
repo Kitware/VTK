@@ -64,7 +64,7 @@ public:
   vtkTypeMacro(vtkOBJImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
@@ -74,7 +74,7 @@ public:
   const char* GetFileName() const;
   const char* GetFileNameMTL() const;
   const char* GetTexturePath() const;
-  //@}
+  ///@}
 
   /**
    * Get a printable string describing all outputs

@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkWorldPointPicker, vtkAbstractPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Perform the pick. (This method overload's the superclass.)
    */
@@ -51,7 +51,7 @@ public:
   {
     return this->vtkAbstractPicker::Pick(selectionPt, renderer);
   }
-  //@}
+  ///@}
 
 protected:
   vtkWorldPointPicker();

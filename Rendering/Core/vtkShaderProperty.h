@@ -64,7 +64,7 @@ public:
    */
   vtkMTimeType GetShaderMTime();
 
-  //@{
+  ///@{
   /**
    * Allow the program to set the shader codes used directly
    * instead of using the built in templates. Be aware, if
@@ -80,9 +80,9 @@ public:
   vtkGetStringMacro(FragmentShaderCode);
   vtkSetStringMacro(GeometryShaderCode);
   vtkGetStringMacro(GeometryShaderCode);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The Uniforms object allows to set custom uniform variables
    * that are used in replacement shader code.
@@ -90,9 +90,9 @@ public:
   vtkGetObjectMacro(FragmentCustomUniforms, vtkUniforms);
   vtkGetObjectMacro(VertexCustomUniforms, vtkUniforms);
   vtkGetObjectMacro(GeometryCustomUniforms, vtkUniforms);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This function enables you to apply your own substitutions
    * to the shader creation process. The shader code in this class
@@ -123,7 +123,7 @@ public:
   virtual void ClearAllFragmentShaderReplacements() = 0;
   virtual void ClearAllGeometryShaderReplacements() = 0;
   virtual void ClearAllShaderReplacements() = 0;
-  //@}
+  ///@}
 
 protected:
   vtkShaderProperty();

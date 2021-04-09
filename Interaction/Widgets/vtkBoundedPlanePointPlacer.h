@@ -42,15 +42,15 @@ public:
    */
   static vtkBoundedPlanePointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkBoundedPlanePointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the projection normal to lie along the x, y, or z axis,
    * or to be oblique. If it is oblique, then the plane is
@@ -75,18 +75,18 @@ public:
   {
     this->SetProjectionNormal(vtkBoundedPlanePointPlacer::Oblique);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the ProjectionNormal is set to Oblique, then this is the
    * oblique plane used to constrain the handle position.
    */
   void SetObliquePlane(vtkPlane*);
   vtkGetObjectMacro(ObliquePlane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The position of the bounding plane from the origin along the
    * normal. The origin and normal are defined in the oblique plane
@@ -96,9 +96,9 @@ public:
    */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A collection of plane equations used to bound the position of the point.
    * This is in addition to confining the point to a plane - these constraints
@@ -113,7 +113,7 @@ public:
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes, vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes* planes);
-  //@}
+  ///@}
 
   enum
   {

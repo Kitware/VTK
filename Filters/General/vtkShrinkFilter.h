@@ -43,13 +43,13 @@ public:
   vtkTypeMacro(vtkShrinkFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the fraction of shrink for each cell. The default is 0.5.
    */
   vtkSetClampMacro(ShrinkFactor, double, 0.0, 1.0);
   vtkGetMacro(ShrinkFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkShrinkFilter();

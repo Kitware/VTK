@@ -108,7 +108,7 @@ public:
     UInt64 = 64
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the byte order of data written to the file.  The default
    * is the machine's hardware byte order.
@@ -117,9 +117,9 @@ public:
   vtkGetMacro(ByteOrder, int);
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the binary data header word type.  The default is UInt32.
    * Set to UInt64 when storing arrays requiring 64-bit indexing.
@@ -128,9 +128,9 @@ public:
   vtkGetMacro(HeaderType, int);
   void SetHeaderTypeToUInt32();
   void SetHeaderTypeToUInt64();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the size of the vtkIdType values stored in the file.  The
    * default is the real size of vtkIdType.
@@ -139,17 +139,17 @@ public:
   vtkGetMacro(IdType, int);
   void SetIdTypeToInt32();
   void SetIdTypeToInt64();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the output file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
@@ -157,16 +157,16 @@ public:
   vtkGetMacro(WriteToOutputString, vtkTypeBool);
   vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   std::string GetOutputString() { return this->OutputString; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the compressor used to compress binary and appended data
    * before writing to the file.  Default is a vtkZLibDataCompressor.
    */
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
-  //@}
+  ///@}
 
   enum CompressorType
   {
@@ -176,7 +176,7 @@ public:
     LZMA
   };
 
-  //@{
+  ///@{
   /**
    * Convenience functions to set the compressor to certain known types.
    */
@@ -188,9 +188,9 @@ public:
 
   void SetCompressionLevel(int compressorLevel);
   vtkGetMacro(CompressionLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the block size used in compression.  When reading, this
    * controls the granularity of how much extra information must be
@@ -199,9 +199,9 @@ public:
    */
   virtual void SetBlockSize(size_t blockSize);
   vtkGetMacro(BlockSize, size_t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the data mode used for the file's data.  The options are
    * vtkXMLWriter::Ascii, vtkXMLWriter::Binary, and
@@ -212,9 +212,9 @@ public:
   void SetDataModeToAscii();
   void SetDataModeToBinary();
   void SetDataModeToAppended();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the appended data section is base64 encoded.  If
    * encoded, reading and writing will be slower, but the file will be
@@ -225,9 +225,9 @@ public:
   vtkSetMacro(EncodeAppendedData, vtkTypeBool);
   vtkGetMacro(EncodeAppendedData, vtkTypeBool);
   vtkBooleanMacro(EncodeAppendedData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -237,7 +237,7 @@ public:
   void SetInputData(int, vtkDataObject*);
   vtkDataObject* GetInput(int port);
   vtkDataObject* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
   /**
    * Get the default file extension for files written by this writer.
@@ -253,22 +253,22 @@ public:
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of time steps
    */
   vtkGetMacro(NumberOfTimeSteps, int);
   vtkSetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API to interface an outside the VTK pipeline control
    */
   void Start();
   void Stop();
   void WriteNextTime(double time);
-  //@}
+  ///@}
 
 protected:
   vtkXMLWriter();

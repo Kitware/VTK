@@ -60,15 +60,15 @@ public:
 
   static vtkProbeLineFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and get for `Point1` and `Point2`, which are the points describing the input line
    * on which to probe from.
@@ -77,9 +77,9 @@ public:
   vtkGetVector3Macro(Point1, double);
   vtkSetVector3Macro(Point2, double);
   vtkGetVector3Macro(Point2, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
@@ -87,8 +87,8 @@ public:
   vtkSetMacro(PassCellArrays, bool);
   vtkBooleanMacro(PassCellArrays, bool);
   vtkGetMacro(PassCellArrays, bool);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Shallow copy the input point data arrays to the output
    * Off by default.
@@ -96,9 +96,9 @@ public:
   vtkSetMacro(PassPointArrays, bool);
   vtkBooleanMacro(PassPointArrays, bool);
   vtkGetMacro(PassPointArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
@@ -106,9 +106,9 @@ public:
   vtkSetMacro(PassFieldArrays, bool);
   vtkBooleanMacro(PassFieldArrays, bool);
   vtkGetMacro(PassFieldArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance used to compute whether a point in the
    * source is in a cell of the input.  This value is only used
@@ -116,9 +116,9 @@ public:
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
@@ -127,9 +127,9 @@ public:
   vtkSetMacro(ComputeTolerance, bool);
   vtkBooleanMacro(ComputeTolerance, bool);
   vtkGetMacro(ComputeTolerance, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When dealing with composite datasets, partial arrays are common i.e.
    * data-arrays that are not available in all of the blocks. By default, this
@@ -145,7 +145,7 @@ public:
   vtkSetMacro(PassPartialArrays, bool);
   vtkGetMacro(PassPartialArrays, bool);
   vtkBooleanMacro(PassPartialArrays, bool);
-  //@}
+  ///@}
 
   /**
    * Sampling pattern enumeration. Please refer to class description.
@@ -157,16 +157,16 @@ public:
     SAMPLE_LINE_UNIFORMLY = 2
   };
 
-  //@{
+  ///@{
   /**
    * Setter and getter for `SamplingPattern` (values to be taken from the enumeration
    * of the same name).
    */
   vtkGetMacro(SamplingPattern, int);
   vtkSetClampMacro(SamplingPattern, int, 0, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setter and getter for `LineResolution`. This attribute is only used if sampling
    * using `SamplingPattern::SAMPLE_LINE_UNIFORMLY`. It sets the number of points
@@ -174,7 +174,7 @@ public:
    */
   vtkGetMacro(LineResolution, int);
   vtkSetMacro(LineResolution, int);
-  //@}
+  ///@}
 
 protected:
   vtkProbeLineFilter();

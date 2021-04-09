@@ -61,26 +61,26 @@ public:
    */
   void SetShowWindow(bool val) override;
 
-  //@{
+  ///@{
   /**
    * Set the size of the window in pixels.
    */
   void SetSize(int, int) override;
   void SetSize(int a[2]) override { vtkOpenGLRenderWindow::SetSize(a); }
-  //@}
+  ///@}
 
   /**
    * Get the current size of the window in pixels.
    */
   int* GetSize() VTK_SIZEHINT(2) override;
 
-  //@{
+  ///@{
   /**
    * Set the position of the window.
    */
   void SetPosition(int, int) override;
   void SetPosition(int a[2]) override { vtkOpenGLRenderWindow::SetPosition(a); }
-  //@}
+  ///@}
 
   /**
    * Get the current size of the screen in pixels.
@@ -123,7 +123,7 @@ public:
    */
   void Frame() override;
 
-  //@{
+  ///@{
   /**
    * Ability to push and pop this window's context
    * as the current context. The idea being to
@@ -133,7 +133,7 @@ public:
    */
   void PushContext() override;
   void PopContext() override;
-  //@}
+  ///@}
 
   /**
    * Set the number of vertical syncs required between frames.
@@ -152,14 +152,14 @@ public:
    */
   int GetColorBufferSizes(int* rgba) override;
 
-  //@{
+  ///@{
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
   void HideCursor() override;
   void ShowCursor() override;
-  //@}
+  ///@}
 
 protected:
   vtkSDL2OpenGLRenderWindow();

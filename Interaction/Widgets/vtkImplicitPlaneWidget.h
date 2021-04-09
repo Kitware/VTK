@@ -94,7 +94,7 @@ public:
   vtkTypeMacro(vtkImplicitPlaneWidget, vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -106,9 +106,9 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the origin of the plane.
    */
@@ -116,9 +116,9 @@ public:
   virtual void SetOrigin(double x[3]);
   double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the normal to the plane.
    */
@@ -126,9 +126,9 @@ public:
   void SetNormal(double n[3]);
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the plane widget to be aligned with one of the x-y-z axes.
    * If one axis is set on, the other two will be set off.
@@ -145,9 +145,9 @@ public:
   void SetNormalToZAxis(vtkTypeBool);
   vtkGetMacro(NormalToZAxis, vtkTypeBool);
   vtkBooleanMacro(NormalToZAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
@@ -155,9 +155,9 @@ public:
   vtkSetMacro(Tubing, vtkTypeBool);
   vtkGetMacro(Tubing, vtkTypeBool);
   vtkBooleanMacro(Tubing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
@@ -167,9 +167,9 @@ public:
   void SetDrawPlane(vtkTypeBool plane);
   vtkGetMacro(DrawPlane, vtkTypeBool);
   vtkBooleanMacro(DrawPlane, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the bounding box by grabbing it
    * with the left mouse button.
@@ -177,27 +177,27 @@ public:
   vtkSetMacro(OutlineTranslation, vtkTypeBool);
   vtkGetMacro(OutlineTranslation, vtkTypeBool);
   vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to move the widget outside of the input's bound
    */
   vtkSetMacro(OutsideBounds, vtkTypeBool);
   vtkGetMacro(OutsideBounds, vtkTypeBool);
   vtkBooleanMacro(OutsideBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to scale with the mouse
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
   vtkGetMacro(ScaleEnabled, vtkTypeBool);
   vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the origin (sphere)
    * with the left mouse button.
@@ -205,16 +205,16 @@ public:
   vtkSetMacro(OriginTranslation, vtkTypeBool);
   vtkGetMacro(OriginTranslation, vtkTypeBool);
   vtkBooleanMacro(OriginTranslation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default the arrow is 30% of the diagonal length. DiagonalRatio control
    * this ratio in the interval [0-2]
    */
   vtkSetClampMacro(DiagonalRatio, double, 0, 2);
   vtkGetMacro(DiagonalRatio, double);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata that defines the plane. The polydata contains a single
@@ -247,38 +247,38 @@ public:
    */
   void SizeHandles() override;
 
-  //@{
+  ///@{
   /**
    * Get the properties on the normal (line and cone).
    */
   vtkGetObjectMacro(NormalProperty, vtkProperty);
   vtkGetObjectMacro(SelectedNormalProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the plane properties. The properties of the plane when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the outline.
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the intersection edges. (This property also
    * applies to the edges when tubed.)
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitPlaneWidget();

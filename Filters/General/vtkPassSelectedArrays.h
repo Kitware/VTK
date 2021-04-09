@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkPassSelectedArrays, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/disable this filter. When disabled, this filter passes all input arrays
    * irrespective of the array selections. Default is `true`.
@@ -54,7 +54,7 @@ public:
   vtkSetMacro(Enabled, bool);
   vtkGetMacro(Enabled, bool);
   vtkBooleanMacro(Enabled, bool);
-  //@}
+  ///@}
 
   /**
    * Returns the vtkDataArraySelection instance associated with a particular
@@ -64,7 +64,7 @@ public:
    */
   vtkDataArraySelection* GetArraySelection(int association);
 
-  //@{
+  ///@{
   /**
    * Convenience methods that call `GetArraySelection` with corresponding
    * association type.
@@ -93,7 +93,7 @@ public:
   {
     return this->GetArraySelection(vtkDataObject::FIELD_ASSOCIATION_ROWS);
   }
-  //@}
+  ///@}
 
 protected:
   vtkPassSelectedArrays();

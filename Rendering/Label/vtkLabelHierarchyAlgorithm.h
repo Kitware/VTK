@@ -47,14 +47,14 @@ public:
   vtkTypeMacro(vtkLabelHierarchyAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkLabelHierarchy* GetOutput();
   vtkLabelHierarchy* GetOutput(int);
   virtual void SetOutput(vtkDataObject* d);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details
@@ -67,7 +67,7 @@ public:
   vtkDataObject* GetInput(int port);
   vtkLabelHierarchy* GetLabelHierarchyInput(int port);
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -75,9 +75,9 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
@@ -85,7 +85,7 @@ public:
    */
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
 protected:
   vtkLabelHierarchyAlgorithm();

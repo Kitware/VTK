@@ -164,7 +164,7 @@ public:
     return this->DoublePoint;
   }
 
-  //@{
+  ///@{
   /**
    * Multiplies matrices a and b and stores the result in c.
    */
@@ -172,7 +172,7 @@ public:
   static void Multiply4x4(const double a[16], const double b[16], double c[16]);
   static void Multiply4x4(const double a[16], const double b[16], float c[16]);
   static void MultiplyAndTranspose4x4(const double a[16], const double b[16], float c[16]);
-  //@}
+  ///@}
 
   /**
    * Compute adjoint of the matrix and put it into out.

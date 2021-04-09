@@ -92,15 +92,15 @@ public:
   {
   public:
     virtual ~MemoryBlock();
-    //@{
+    ///@{
     /**
      * Returns a pointer to the block of memory to be used for storage.
      */
     virtual T* GetAddress() = 0;
-    //@}
+    ///@}
   };
 
-  //@{
+  ///@{
   /**
    * MemoryBlock implementation that manages internally-allocated memory using
    * new[] and delete[].  Note: HeapMemoryBlock is the default used by vtkDenseArray
@@ -112,13 +112,13 @@ public:
     HeapMemoryBlock(const vtkArrayExtents& extents);
     ~HeapMemoryBlock() override;
     T* GetAddress() override;
-    //@}
+    ///@}
 
   private:
     T* Storage;
   };
 
-  //@{
+  ///@{
   /**
    * MemoryBlock implementation that manages a static (will not be freed) memory block.
    */
@@ -127,7 +127,7 @@ public:
   public:
     StaticMemoryBlock(T* const storage);
     T* GetAddress() override;
-    //@}
+    ///@}
 
   private:
     T* Storage;
@@ -208,25 +208,25 @@ private:
    */
   MemoryBlock* Storage;
 
-  //@{
+  ///@{
   /**
    * Stores array values using a contiguous range of memory
    * with constant-time value lookup.
    */
   T* Begin;
   T* End;
-  //@}
+  ///@}
 
   /**
    * Stores the offset along each array dimension (used for fast lookups).
    */
   std::vector<vtkIdType> Offsets;
-  //@{
+  ///@{
   /**
    * Stores the stride along each array dimension (used for fast lookups).
    */
   std::vector<vtkIdType> Strides;
-  //@}
+  ///@}
 };
 
 #include "vtkDenseArray.txx"

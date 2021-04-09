@@ -58,21 +58,21 @@ class vtkPlane;
 class VTKFILTERSCORE_EXPORT vtkFlyingEdgesPlaneCutter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard construction and print methods.
    */
   static vtkFlyingEdgesPlaneCutter* New();
   vtkTypeMacro(vtkFlyingEdgesPlaneCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The modified time depends on the delegated cut plane.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the plane (an implicit function) to perform the cutting. The
    * definition of the plane (its origin and normal) is controlled via this
@@ -80,9 +80,9 @@ public:
    */
   virtual void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. By default this is disabled.
@@ -90,9 +90,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to interpolate other attribute data besides the input
    * scalars (which are required). That is, as the isosurface is generated,
@@ -101,15 +101,15 @@ public:
   vtkSetMacro(InterpolateAttributes, vtkTypeBool);
   vtkGetMacro(InterpolateAttributes, vtkTypeBool);
   vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of the scalar array to contour on; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkFlyingEdgesPlaneCutter();

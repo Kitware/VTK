@@ -34,14 +34,14 @@ public:
   vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off creating ghost cells (on by default).
    */
   vtkSetMacro(CreateGhostCells, vtkTypeBool);
   vtkGetMacro(CreateGhostCells, vtkTypeBool);
   vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractPolyDataPiece();

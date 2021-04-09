@@ -84,7 +84,7 @@ public:
   vtkTypeMacro(vtkProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the data set that will be probed at the input points.
    * The Input gives the geometry (the points and cells) for the output,
@@ -93,7 +93,7 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the data set that will be probed at the input points.
@@ -103,7 +103,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Control whether the source point data is to be treated as categorical. If
    * the data is categorical, then the resultant data will be determined by
@@ -112,9 +112,9 @@ public:
   vtkSetMacro(CategoricalData, vtkTypeBool);
   vtkGetMacro(CategoricalData, vtkTypeBool);
   vtkBooleanMacro(CategoricalData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag is used only when a piece is requested to update.  By default
    * the flag is off.  Because no spatial correspondence between input pieces
@@ -128,17 +128,17 @@ public:
   vtkSetMacro(SpatialMatch, vtkTypeBool);
   vtkGetMacro(SpatialMatch, vtkTypeBool);
   vtkBooleanMacro(SpatialMatch, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the list of point ids in the output that contain attribute data
    * interpolated from the source.
    */
   vtkIdTypeArray* GetValidPoints();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the name of the char array added to the output with values 1 for
    * valid points and 0 for invalid points.
@@ -146,9 +146,9 @@ public:
    */
   vtkSetStringMacro(ValidPointMaskArrayName);
   vtkGetStringMacro(ValidPointMaskArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
@@ -156,8 +156,8 @@ public:
   vtkSetMacro(PassCellArrays, vtkTypeBool);
   vtkBooleanMacro(PassCellArrays, vtkTypeBool);
   vtkGetMacro(PassCellArrays, vtkTypeBool);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Shallow copy the input point data arrays to the output
    * Off by default.
@@ -165,9 +165,9 @@ public:
   vtkSetMacro(PassPointArrays, vtkTypeBool);
   vtkBooleanMacro(PassPointArrays, vtkTypeBool);
   vtkGetMacro(PassPointArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
@@ -175,9 +175,9 @@ public:
   vtkSetMacro(PassFieldArrays, vtkTypeBool);
   vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
   vtkGetMacro(PassFieldArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance used to compute whether a point in the
    * source is in a cell of the input.  This value is only used
@@ -185,9 +185,9 @@ public:
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
@@ -196,9 +196,9 @@ public:
   vtkSetMacro(ComputeTolerance, bool);
   vtkBooleanMacro(ComputeTolerance, bool);
   vtkGetMacro(ComputeTolerance, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the strategy used to perform the FindCell() operation. When
    * specified, the strategy is used in preference to a cell locator
@@ -207,9 +207,9 @@ public:
    */
   virtual void SetFindCellStrategy(vtkFindCellStrategy*);
   vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the prototype cell locator to perform the FindCell() operation.
    * (A prototype is used as an object factory to instantiate an instance of
@@ -220,7 +220,7 @@ public:
    */
   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
   vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
 protected:
   vtkProbeFilter();

@@ -45,14 +45,14 @@ public:
   vtkTypeMacro(vtkSingleVTPExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .vtp and .png appended to them.
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
   // computes the file prefix from a filename by removing
   // the .vtp extension if present. Useful for APIs that
