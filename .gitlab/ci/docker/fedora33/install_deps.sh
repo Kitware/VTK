@@ -2,7 +2,7 @@
 
 # Install extra dependencies for VTK
 dnf install -y --setopt=install_weak_deps=False \
-   bzip2 patch git-core git-lfs
+    bzip2 patch git-core git-lfs
 
 # Documentation tools
 dnf install -y --setopt=install_weak_deps=False \
@@ -14,15 +14,15 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   openmpi-devel mpich-devel
+    openmpi-devel mpich-devel
 
 # Qt dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   qt5-qtbase-devel qt5-qttools-devel
+    qt5-qtbase-devel qt5-qttools-devel
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   mesa-libOSMesa-devel mesa-libOSMesa mesa-dri-drivers mesa-libGL* glx-utils
+    mesa-libOSMesa-devel mesa-libOSMesa mesa-dri-drivers mesa-libGL* glx-utils
 
 # External dependencies
 dnf install -y --setopt=install_weak_deps=False \
