@@ -316,7 +316,8 @@ protected:
   vtkEdgeInterpolationMap* EdgeMap;
   vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input,
     vtkCell* cell, double pcoords[3], vtkPoints* outPts, vtkPointData* outPD);
-
+  vtkIdType GetInterpolatedPointId(
+    vtkDataSet* input, vtkCell* cell, double pcoords[3], vtkPoints* outPts, vtkPointData* outPD);
   vtkIdType NumberOfNewCells;
 
   // Better memory allocation for faces (hash)
