@@ -27,6 +27,8 @@
 #include "vtkParallelDIYModule.h" // for export macros
 #include "vtkSmartPointer.h"      // needed for vtkSmartPointer
 
+#include <map>    // For Link
+#include <set>    // For Link
 #include <vector> // For GetDataSets
 
 // clang-format off
@@ -139,18 +141,17 @@ public:
   /**
    * Links master such that there is communication between ranks as given
    * in `linksMap`.
-   *
-   * LinksMapT needs to have `Links& LinksMapT::operator[](int)` implemented, and each
-   * `Links` needs to have `Links::count(int)` implemented. A fitting class could
-   * be `std::vector<std::set<int>>`. Given an integer `localId` mapping to the
-   * the relative block position in the current rank, and given `globalId`
-   * the id of a block uniquely identified in all rank,
-   * block of local id `localId` in the current
-   * rank is to be linked to block of global id `globalId` if and
-   * only if `linksMap[localId].count(globalId) != 0`.
+   * `linksMap` is a vector of a list of global ids. The size of this vector should be the same as
+   * the number of blocks in the current rank and should map to the block of same local id.
+   * The associated list of global ids will tell which block is to be connected with the local
+   * block.
    */
-  template <class BlockT, class AssignerT, class LinksMapT>
-  static void Link(diy::Master& master, const AssignerT& assigner, const LinksMapT& linksMap);
+  template <class DummyT>
+  static void Link(diy::Master& master, const diy::Assigner& assigner,
+    const std::vector<std::map<int, DummyT>>& linksMap);
+
+  static void Link(
+    diy::Master& master, const diy::Assigner& assigner, const std::vector<std::set<int>>& linksMap);
 
 protected:
   vtkDIYUtilities();

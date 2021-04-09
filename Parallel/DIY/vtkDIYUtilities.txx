@@ -23,6 +23,7 @@
 #include "vtkDataSet.h"
 
 #include <map>
+#include <set>
 #include <vector>
 
 // clang-format off
@@ -43,64 +44,20 @@ std::vector<DataSetT*> vtkDIYUtilities::GetDataSets(vtkDataObject* dobj)
 }
 
 //------------------------------------------------------------------------------
-template <class BlockT, class AssignerT, class LinksMapT>
-void vtkDIYUtilities::Link(
-  diy::Master& master, const AssignerT& assigner, const LinksMapT& linksMap)
+template <class DummyT>
+void vtkDIYUtilities::Link(diy::Master& master, const diy::Assigner& assigner,
+  const std::vector<std::map<int, DummyT>>& linksMap)
 {
-  struct Functor
+  for (int localId = 0; localId < static_cast<int>(linksMap.size()); ++localId)
   {
-    Functor(const diy::Master& inMaster, const LinksMapT& inLinksMap)
-      : Master(inMaster)
-      , LinksMap(inLinksMap)
-    {
-    }
-
-    void operator()(BlockT*, const diy::ReduceProxy& rp) const
-    {
-      int myBlockId = rp.gid();
-      if (rp.round() == 0)
-      {
-        int localId = this->Master.lid(myBlockId);
-        const auto& links = this->LinksMap[localId];
-        for (int i = 0; i < rp.out_link().size(); ++i)
-        {
-          const diy::BlockID& blockId = rp.out_link().target(i);
-          int connected = links.count(blockId.gid) != 0;
-          const auto& dest = rp.out_link().target(i);
-          rp.enqueue(dest, &connected, 1);
-        };
-      }
-      else
-      {
-        std::vector<int>& myNeighbors = this->Neighbors[myBlockId];
-        for (int i = 0; i < rp.in_link().size(); ++i)
-        {
-          const auto& src = rp.in_link().target(i);
-          int connected;
-          rp.dequeue(src, &connected, 1);
-          if (connected)
-          {
-            myNeighbors.push_back(src.gid);
-          }
-        }
-      }
-    }
-    const diy::Master& Master;
-    const LinksMapT& LinksMap;
-    mutable std::map<int, std::vector<int>> Neighbors;
-  } functor(master, linksMap);
-
-  diy::all_to_all(master, assigner, functor);
-
-  // Update local links.
-  for (auto& pair : functor.Neighbors)
-  {
+    const auto& links = linksMap[localId];
     auto l = new diy::Link();
-    for (const auto& nid : pair.second)
+    for (const auto& pair : links)
     {
+      int nid = pair.first;
       l->add_neighbor(diy::BlockID(nid, assigner.rank(nid)));
     }
-    master.replace_link(master.lid(pair.first), l);
+    master.replace_link(localId, l);
   }
 }
 

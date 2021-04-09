@@ -118,7 +118,7 @@ bool IsExtentValid(const int* extent)
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
-void FillGridCellArray(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
+void FillCellArrayForGrids(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
   int kmin, int kmax, typename ArrayT::ValueType val)
 {
   const int* gridExtent = grid->GetExtent();
@@ -141,7 +141,7 @@ void FillGridCellArray(ArrayT* array, GridDataSetT* grid, int imin, int imax, in
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
-void FillGridPointArray(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
+void FillPointArrayForGrids(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
   int kmin, int kmax, typename ArrayT::ValueType val)
 {
   const int* gridExtent = grid->GetExtent();
@@ -156,75 +156,6 @@ void FillGridPointArray(ArrayT* array, GridDataSetT* grid, int imin, int imax, i
       }
     }
   }
-}
-
-//----------------------------------------------------------------------------
-/**
- * Clone a `grid` into a `clone`. clone should have wider extents than grid.
- * This function does a deep copy of every scalar fields.
- */
-template <class GridDataSetT>
-void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
-{
-  vtkCellData* cloneCellData = clone->GetCellData();
-  vtkCellData* gridCellData = grid->GetCellData();
-  cloneCellData->CopyStructure(gridCellData);
-  for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
-  {
-    cloneCellData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfCells());
-  }
-
-  const int* cloneExtent = clone->GetExtent();
-  const int* gridExtent = grid->GetExtent();
-
-  // We use `std::max` here to work for grids of dimension 2 and 1.
-  // This gives "thickness" to the degenerate dimension
-  int imin = gridExtent[0];
-  int imax = std::max(gridExtent[1], gridExtent[0] + 1);
-  int jmin = gridExtent[2];
-  int jmax = std::max(gridExtent[3], gridExtent[2] + 1);
-  int kmin = gridExtent[4];
-  int kmax = std::max(gridExtent[5], gridExtent[4] + 1);
-
-  int ijk[3];
-
-  for (ijk[2] = kmin; ijk[2] < kmax; ++ijk[2])
-  {
-    for (ijk[1] = jmin; ijk[1] < jmax; ++ijk[1])
-    {
-      for (ijk[0] = imin; ijk[0] < imax; ++ijk[0])
-      {
-        cloneCellData->SetTuple(vtkStructuredData::ComputeCellIdForExtent(cloneExtent, ijk),
-          vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk), gridCellData);
-      }
-    }
-  }
-
-  vtkPointData* clonePointData = clone->GetPointData();
-  vtkPointData* gridPointData = grid->GetPointData();
-  clonePointData->CopyStructure(gridPointData);
-  for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
-  {
-    clonePointData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfPoints());
-  }
-
-  imax = gridExtent[1];
-  jmax = gridExtent[3];
-  kmax = gridExtent[5];
-
-  for (ijk[2] = kmin; ijk[2] <= kmax; ++ijk[2])
-  {
-    for (ijk[1] = jmin; ijk[1] <= jmax; ++ijk[1])
-    {
-      for (ijk[0] = imin; ijk[0] <= imax; ++ijk[0])
-      {
-        clonePointData->SetTuple(vtkStructuredData::ComputePointIdForExtent(cloneExtent, ijk),
-          vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk), gridPointData);
-      }
-    }
-  }
-
-  clone->GetFieldData()->ShallowCopy(grid->GetFieldData());
 }
 
 //----------------------------------------------------------------------------
@@ -1229,6 +1160,256 @@ bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
 }
 
 //----------------------------------------------------------------------------
+template <class GridDataSetT>
+LinkMap ComputeLinkMapForGrids(const diy::Master& master,
+  std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs, int outputGhostLevels)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  LinkMap linkMap(inputs.size());
+
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    // Getting block structures sent by other blocks
+    BlockType* block = master.block<BlockType>(localId);
+    BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
+
+    auto& input = inputs[localId];
+    const ExtentType& localExtent = block->Information.Extent;
+
+    // If I am myself empty, I get rid of everything and skip.
+    if (localExtent[0] > localExtent[1] || localExtent[2] > localExtent[3] ||
+      localExtent[4] > localExtent[5])
+    {
+      blockStructures.clear();
+      continue;
+    }
+
+    auto& output = outputs[localId];
+    int dim = output->GetDataDimension();
+
+    auto& localLinks = linkMap[localId];
+
+    BlockStructureType localBlockStructure(input, block->Information);
+
+    for (auto it = blockStructures.begin(); it != blockStructures.end();)
+    {
+      BlockStructureType& blockStructure = it->second;
+
+      // We synchronize extents, i.e. we shift the extent of current block neighbor
+      // so it is described relative to current block.
+      ExtentType shiftedExtent;
+      if (!SynchronizeGridExtents(localBlockStructure, blockStructure, shiftedExtent))
+      {
+        // We end up here if extents cannot be fitted together
+        it = blockStructures.erase(it);
+        continue;
+      }
+
+      unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
+      unsigned char overlapMask;
+
+      // We compute the adjacency mask and the extent.
+      ComputeAdjacencyAndOverlapMasks(localExtent, shiftedExtent, adjacencyMask, overlapMask);
+
+      ExtentType& neighborExtentWithNewGhosts = blockStructure.ExtentWithNewGhosts;
+      neighborExtentWithNewGhosts = blockStructure.Extent;
+
+      // We compute the adjacency mask and the extent.
+      // We update our neighbor's block extent with ghost layers given spatial adjacency.
+      LinkGrid<BlockType>(blockStructures, it, block->Information, localLinks,
+        adjacencyMask, overlapMask, outputGhostLevels, dim);
+    }
+  }
+
+  return linkMap;
+}
+
+//----------------------------------------------------------------------------
+/**
+ * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
+ * such that the cells lie in the intersection of the 2 input extents.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeInterfaceCellIdsForGrids(
+  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
+{
+  int imin, imax, jmin, jmax, kmin, kmax;
+  // We shift imax, jmax and kmax in case of degenerate dimension.
+  imin = std::max(extent[0], localExtent[0]);
+  imax = std::min(extent[1], localExtent[1]) + (localExtent[0] == localExtent[1]);
+  jmin = std::max(extent[2], localExtent[2]);
+  jmax = std::min(extent[3], localExtent[3]) + (localExtent[2] == localExtent[3]);
+  kmin = std::max(extent[4], localExtent[4]);
+  kmax = std::min(extent[5], localExtent[5]) + (localExtent[4] == localExtent[5]);
+
+  const int* gridExtent = grid->GetExtent();
+
+  vtkNew<vtkIdList> ids;
+  ids->SetNumberOfIds((imax - imin) * (jmax - jmin) * (kmax - kmin));
+  vtkIdType count = 0;
+  int ijk[3];
+  for (int k = kmin; k < kmax; ++k)
+  {
+    ijk[2] = k;
+    for (int j = jmin; j < jmax; ++j)
+    {
+      ijk[1] = j;
+      for (int i = imin; i < imax; ++i, ++count)
+      {
+        ijk[0] = i;
+        ids->SetId(count, vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk));
+      }
+    }
+  }
+  return ids;
+}
+
+//----------------------------------------------------------------------------
+/**
+ * This function returns the ids in input `grid` of the cells such that `grid`'s extent overlaps the
+ * block of global id gid's extent when ghosts are added.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForGrids(
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
+  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
+  const ExtentType& localExtent = block->Information.Extent;
+
+  return ComputeInterfaceCellIdsForGrids(localExtent, extent, grid);
+}
+
+//----------------------------------------------------------------------------
+/**
+ * This function returns the ids in output `grid` of the cells such that `grid`'s extent overlaps
+ * the block of global id gid's extent when ghosts are added.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForGrids(
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
+  const ExtentType& extent = blockStructure.Extent;
+  int* gridExtent = grid->GetExtent();
+  ExtentType localExtent{
+    gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
+
+  return ComputeInterfaceCellIdsForGrids(localExtent, extent, grid);
+}
+
+//----------------------------------------------------------------------------
+/**
+ * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
+ * such that the points lie in the intersection of the 2 input extents.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForGrids(unsigned char adjacencyMask,
+  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
+{
+  int imin, imax, jmin, jmax, kmin, kmax;
+  imin = std::max(extent[0], localExtent[0]);
+  imax = std::min(extent[1], localExtent[1]);
+  jmin = std::max(extent[2], localExtent[2]);
+  jmax = std::min(extent[3], localExtent[3]);
+  kmin = std::max(extent[4], localExtent[4]);
+  kmax = std::min(extent[5], localExtent[5]);
+
+  // We give ownership of the non ghost version of a point to the most right / back / top grid.
+  // We do that by removing the most right / back / top layer of points of the intersection between
+  // the 2 input extents.
+  if (adjacencyMask & Adjacency::Right)
+  {
+    --imax;
+  }
+  if (adjacencyMask & Adjacency::Back)
+  {
+    --jmax;
+  }
+  if (adjacencyMask & Adjacency::Top)
+  {
+    --kmax;
+  }
+
+  const int* gridExtent = grid->GetExtent();
+
+  vtkNew<vtkIdList> ids;
+  ids->SetNumberOfIds((imax - imin + 1) * (jmax - jmin + 1) * (kmax - kmin + 1));
+  vtkIdType count = 0;
+  int ijk[3];
+  for (int k = kmin; k <= kmax; ++k)
+  {
+    ijk[2] = k;
+    for (int j = jmin; j <= jmax; ++j)
+    {
+      ijk[1] = j;
+      for (int i = imin; i <= imax; ++i, ++count)
+      {
+        ijk[0] = i;
+        ids->SetId(count, vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk));
+      }
+    }
+  }
+  return ids;
+}
+
+//----------------------------------------------------------------------------
+/**
+ * This function returns the ids in input `grid` of the pointss such that `grid`'s extent overlaps
+ * the block of global id gid's extent when ghosts are added.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForGrids(
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
+  const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
+  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
+  const ExtentType& localExtent = block->Information.Extent;
+
+  return ComputeInterfacePointIdsForGrids(adjacencyMask, localExtent, extent, grid);
+}
+
+//----------------------------------------------------------------------------
+/**
+ * This function returns the ids in output `grid` of the points such that `grid`'s extent overlaps
+ * the block of global id gid's extent when ghosts are added.
+ */
+template <class GridDataSetT>
+vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForGrids(
+  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
+  int gid, GridDataSetT* grid)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
+  const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
+  const ExtentType& extent = blockStructure.Extent;
+  int* gridExtent = grid->GetExtent();
+  ExtentType localExtent
+    { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
+
+  // We do a bit shift on adjacencyMask to have the same adjacency mask as in the Input version of
+  // this function. It produces an axial symmetry on each dimension having an adjacency.
+  return ComputeInterfacePointIdsForGrids(adjacencyMask << 1, localExtent, extent, grid);
+}
+
+//----------------------------------------------------------------------------
 void UpdateOutputGridPoints(
   vtkImageData* vtkNotUsed(output), ImageDataInformation& vtkNotUsed(blockInformation))
 {
@@ -1330,261 +1511,91 @@ void UpdateOutputGridStructure(GridDataSetT* output,
 
 //----------------------------------------------------------------------------
 /**
- * Function computing the link map and allocating ghosts for grids.
- * See `ComputeLinkMapAndAllocateGhosts`.
+ * Clone a `grid` into a `clone`. clone should have wider extents than grid.
+ * This function does a deep copy of every scalar fields.
  */
 template <class GridDataSetT>
-LinkMap ComputeGridLinkMapAndAllocateGhosts(const diy::Master& master,
-  std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs, int outputGhostLevels)
+void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
+{
+  vtkCellData* cloneCellData = clone->GetCellData();
+  vtkCellData* gridCellData = grid->GetCellData();
+  cloneCellData->CopyStructure(gridCellData);
+  for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
+  {
+    cloneCellData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfCells());
+  }
+
+  const int* cloneExtent = clone->GetExtent();
+  const int* gridExtent = grid->GetExtent();
+
+  // We use `std::max` here to work for grids of dimension 2 and 1.
+  // This gives "thickness" to the degenerate dimension
+  int imin = gridExtent[0];
+  int imax = std::max(gridExtent[1], gridExtent[0] + 1);
+  int jmin = gridExtent[2];
+  int jmax = std::max(gridExtent[3], gridExtent[2] + 1);
+  int kmin = gridExtent[4];
+  int kmax = std::max(gridExtent[5], gridExtent[4] + 1);
+
+  int ijk[3];
+
+  for (ijk[2] = kmin; ijk[2] < kmax; ++ijk[2])
+  {
+    for (ijk[1] = jmin; ijk[1] < jmax; ++ijk[1])
+    {
+      for (ijk[0] = imin; ijk[0] < imax; ++ijk[0])
+      {
+        cloneCellData->SetTuple(vtkStructuredData::ComputeCellIdForExtent(cloneExtent, ijk),
+          vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk), gridCellData);
+      }
+    }
+  }
+
+  vtkPointData* clonePointData = clone->GetPointData();
+  vtkPointData* gridPointData = grid->GetPointData();
+  clonePointData->CopyStructure(gridPointData);
+  for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
+  {
+    clonePointData->GetAbstractArray(arrayId)->SetNumberOfTuples(clone->GetNumberOfPoints());
+  }
+
+  imax = gridExtent[1];
+  jmax = gridExtent[3];
+  kmax = gridExtent[5];
+
+  for (ijk[2] = kmin; ijk[2] <= kmax; ++ijk[2])
+  {
+    for (ijk[1] = jmin; ijk[1] <= jmax; ++ijk[1])
+    {
+      for (ijk[0] = imin; ijk[0] <= imax; ++ijk[0])
+      {
+        clonePointData->SetTuple(vtkStructuredData::ComputePointIdForExtent(cloneExtent, ijk),
+          vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk), gridPointData);
+      }
+    }
+  }
+
+  clone->GetFieldData()->ShallowCopy(grid->GetFieldData());
+}
+
+//----------------------------------------------------------------------------
+template<class GridDataSetT>
+void DeepCopyInputsAndAllocateGhostsForGrids(const diy::Master& master,
+    std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
+  using BlockInformationType = typename BlockType::InformationType;
 
-  LinkMap linkMap(inputs.size());
-
-  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
-    // Getting block structures sent by other blocks
-    BlockType* block = master.block<BlockType>(localId);
-    BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
+    GridDataSetT* input = inputs[localId];
+    GridDataSetT* output = outputs[localId];
 
-    auto& input = inputs[localId];
-    const ExtentType& localExtent = block->Information.Extent;
+    BlockInformationType& info = master.block<BlockType>(localId)->Information;
+    UpdateOutputGridStructure(output, info);
 
-    // If I am myself empty, I get rid of everything and skip.
-    if (localExtent[0] > localExtent[1] || localExtent[2] > localExtent[3] ||
-      localExtent[4] > localExtent[5])
-    {
-      blockStructures.clear();
-      continue;
-    }
-
-    auto& output = outputs[localId];
-    int dim = output->GetDataDimension();
-
-    auto& localLinks = linkMap[localId];
-
-    BlockStructureType localBlockStructure(input, block->Information);
-
-    for (auto it = blockStructures.begin(); it != blockStructures.end();)
-    {
-      BlockStructureType& blockStructure = it->second;
-
-      // We synchronize extents, i.e. we shift the extent of current block neighbor
-      // so it is described relative to current block.
-      ExtentType shiftedExtent;
-      if (!SynchronizeGridExtents(localBlockStructure, blockStructure, shiftedExtent))
-      {
-        // We end up here if extents cannot be fitted together
-        it = blockStructures.erase(it);
-        continue;
-      }
-
-      unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
-      unsigned char overlapMask;
-
-      // We compute the adjacency mask and the extent.
-      ComputeAdjacencyAndOverlapMasks(localExtent, shiftedExtent, adjacencyMask, overlapMask);
-
-      ExtentType& neighborExtentWithNewGhosts = blockStructure.ExtentWithNewGhosts;
-      neighborExtentWithNewGhosts = blockStructure.Extent;
-
-      // We compute the adjacency mask and the extent.
-      // We update our neighbor's block extent with ghost layers given spatial adjacency.
-      LinkGrid<BlockType>(blockStructures, it, block->Information, localLinks,
-        adjacencyMask, overlapMask, outputGhostLevels, dim);
-    }
-
-    UpdateOutputGridStructure(output, block->Information);
-
-    // Now that output is allocated and spatially defined, we clone the input into the output.
     CloneGrid(input, output);
   }
-
-  return linkMap;
-}
-
-//----------------------------------------------------------------------------
-/**
- * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
- * such that the cells lie in the intersection of the 2 input extents.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeGridInterfaceCellIds(
-  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
-{
-  int imin, imax, jmin, jmax, kmin, kmax;
-  // We shift imax, jmax and kmax in case of degenerate dimension.
-  imin = std::max(extent[0], localExtent[0]);
-  imax = std::min(extent[1], localExtent[1]) + (localExtent[0] == localExtent[1]);
-  jmin = std::max(extent[2], localExtent[2]);
-  jmax = std::min(extent[3], localExtent[3]) + (localExtent[2] == localExtent[3]);
-  kmin = std::max(extent[4], localExtent[4]);
-  kmax = std::min(extent[5], localExtent[5]) + (localExtent[4] == localExtent[5]);
-
-  const int* gridExtent = grid->GetExtent();
-
-  vtkNew<vtkIdList> ids;
-  ids->SetNumberOfIds((imax - imin) * (jmax - jmin) * (kmax - kmin));
-  vtkIdType count = 0;
-  int ijk[3];
-  for (int k = kmin; k < kmax; ++k)
-  {
-    ijk[2] = k;
-    for (int j = jmin; j < jmax; ++j)
-    {
-      ijk[1] = j;
-      for (int i = imin; i < imax; ++i, ++count)
-      {
-        ijk[0] = i;
-        ids->SetId(count, vtkStructuredData::ComputeCellIdForExtent(gridExtent, ijk));
-      }
-    }
-  }
-  return ids;
-}
-
-//----------------------------------------------------------------------------
-/**
- * This function returns the ids in input `grid` of the cells such that `grid`'s extent overlaps the
- * block of global id gid's extent when ghosts are added.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInputGridInterfaceCellIds(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
-{
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
-  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
-  const ExtentType& localExtent = block->Information.Extent;
-
-  return ComputeGridInterfaceCellIds(localExtent, extent, grid);
-}
-
-//----------------------------------------------------------------------------
-/**
- * This function returns the ids in output `grid` of the cells such that `grid`'s extent overlaps
- * the block of global id gid's extent when ghosts are added.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeOutputGridInterfaceCellIds(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
-{
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
-  const ExtentType& extent = blockStructure.Extent;
-  int* gridExtent = grid->GetExtent();
-  ExtentType localExtent{
-    gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
-
-  return ComputeGridInterfaceCellIds(localExtent, extent, grid);
-}
-
-//----------------------------------------------------------------------------
-/**
- * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
- * such that the points lie in the intersection of the 2 input extents.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeGridInterfacePointIds(unsigned char adjacencyMask,
-  const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
-{
-  int imin, imax, jmin, jmax, kmin, kmax;
-  imin = std::max(extent[0], localExtent[0]);
-  imax = std::min(extent[1], localExtent[1]);
-  jmin = std::max(extent[2], localExtent[2]);
-  jmax = std::min(extent[3], localExtent[3]);
-  kmin = std::max(extent[4], localExtent[4]);
-  kmax = std::min(extent[5], localExtent[5]);
-
-  // We give ownership of the non ghost version of a point to the most right / back / top grid.
-  // We do that by removing the most right / back / top layer of points of the intersection between
-  // the 2 input extents.
-  if (adjacencyMask & Adjacency::Right)
-  {
-    --imax;
-  }
-  if (adjacencyMask & Adjacency::Back)
-  {
-    --jmax;
-  }
-  if (adjacencyMask & Adjacency::Top)
-  {
-    --kmax;
-  }
-
-  const int* gridExtent = grid->GetExtent();
-
-  vtkNew<vtkIdList> ids;
-  ids->SetNumberOfIds((imax - imin + 1) * (jmax - jmin + 1) * (kmax - kmin + 1));
-  vtkIdType count = 0;
-  int ijk[3];
-  for (int k = kmin; k <= kmax; ++k)
-  {
-    ijk[2] = k;
-    for (int j = jmin; j <= jmax; ++j)
-    {
-      ijk[1] = j;
-      for (int i = imin; i <= imax; ++i, ++count)
-      {
-        ijk[0] = i;
-        ids->SetId(count, vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk));
-      }
-    }
-  }
-  return ids;
-}
-
-//----------------------------------------------------------------------------
-/**
- * This function returns the ids in input `grid` of the pointss such that `grid`'s extent overlaps
- * the block of global id gid's extent when ghosts are added.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInputGridInterfacePointIds(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
-{
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
-  const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
-  const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
-  const ExtentType& localExtent = block->Information.Extent;
-
-  return ComputeGridInterfacePointIds(adjacencyMask, localExtent, extent, grid);
-}
-
-//----------------------------------------------------------------------------
-/**
- * This function returns the ids in output `grid` of the points such that `grid`'s extent overlaps
- * the block of global id gid's extent when ghosts are added.
- */
-template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeOutputGridInterfacePointIds(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
-{
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
-  const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
-  const ExtentType& extent = blockStructure.Extent;
-  int* gridExtent = grid->GetExtent();
-  ExtentType localExtent
-    { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
-
-  // We do a bit shift on adjacencyMask to have the same adjacency mask as in the Input version of
-  // this function. It produces an axial symmetry on each dimension having an adjacency.
-  return ComputeGridInterfacePointIds(adjacencyMask << 1, localExtent, extent, grid);
 }
 
 //----------------------------------------------------------------------------
@@ -1595,7 +1606,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputGridInterfacePointIds(
  * different size.
  */
 template <class GridDataSetT>
-void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
+void FillHiddenGhostsForGrids(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
   static constexpr unsigned char CELL_GHOST_VALUE =
@@ -1627,59 +1638,93 @@ void FillGridHiddenGhosts(const diy::Master& master, std::vector<GridDataSetT*>&
     // This is repeated for each dimension.
     if (!isDimensionDegenerate[0])
     {
-      FillGridCellArray(ghostCellArray, output, localExtent[0],
+      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
         localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillGridCellArray(ghostCellArray, output, localExtentWithNoGhosts[1],
+      FillCellArrayForGrids(ghostCellArray, output, localExtentWithNoGhosts[1],
         localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
         localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtent[0],
+      FillPointArrayForGrids(ghostPointArray, output, localExtent[0],
         localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
         localExtent[5], POINT_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
+      FillPointArrayForGrids(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
         localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[1])
     {
-      FillGridCellArray(ghostCellArray, output, localExtent[0],
+      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillGridCellArray(ghostCellArray, output, localExtent[0],
+      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[2])
     {
-      FillGridCellArray(ghostCellArray, output, localExtent[0],
+      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
         CELL_GHOST_VALUE);
 
-      FillGridCellArray(ghostCellArray, output, localExtent[0],
+      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
         CELL_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
         POINT_GHOST_VALUE);
 
-      FillGridPointArray(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
         POINT_GHOST_VALUE);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoints>& outputPoints,
+    ExtentType extent, int i)
+{
+  int j = (i + 2) % 6;
+  j -= j % 2;
+  int k = (i + 4) % 6;
+  k -= k % 2;
+
+  vtkPoints* inputPoints = input->GetPoints();
+  int* inputExtent = input->GetExtent();
+
+  outputPoints = vtkSmartPointer<vtkPoints>::New();
+  outputPoints->SetDataType(inputPoints->GetDataType());
+  outputPoints->SetNumberOfPoints(
+      (extent[j + 1] - extent[j] + 1) * (extent[k + 1] - extent[k] + 1));
+
+  // We collapse one dimension
+  extent[i + (i % 2 ? -1 : 1)] = extent[i];
+
+  int ijk[3];
+  ijk[i / 2] = extent[i];
+  for (int y = extent[k]; y <= extent[k + 1]; ++y)
+  {
+    ijk[k / 2] = y;
+    for (int x = extent[j]; x <= extent[j + 1]; ++x)
+    {
+      ijk[j / 2] = x;
+      outputPoints->SetPoint(vtkStructuredData::ComputePointIdForExtent(extent.data(), ijk),
+          inputPoints->GetPoint(vtkStructuredData::ComputePointIdForExtent(inputExtent, ijk)));
     }
   }
 }
@@ -1795,72 +1840,72 @@ void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-  const vtkDIYExplicitAssigner& assigner, std::vector<vtkImageData*>& inputs)
+  std::vector<vtkImageData*>& inputs)
 {
   using BlockType = ImageDataBlock;
+
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
     BlockType* block = master.block<BlockType>(localId);
     block->Information.Extent = PeelOffGhostLayers(inputs[localId]);
   }
 
-  // Share Block Structures of everyone
-  diy::all_to_all(
-    master, assigner, [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp) {
-      int myBlockId = srp.gid();
-      int localId = master.lid(myBlockId);
-      auto& input = inputs[localId];
-      if (srp.round() == 0)
-      {
-        const ExtentType& extent = block->Information.Extent;
-        double* origin = input->GetOrigin();
-        double* spacing = input->GetSpacing();
-        int dimension = input->GetDataDimension();
-        QuaternionType q;
-        vtkMath::Matrix3x3ToQuaternion(input->GetDirectionMatrix()->GetData(), q.GetData());
-        double* qBuffer = q.GetData();
-        for (int i = 0; i < srp.out_link().size(); ++i)
-        {
-          const diy::BlockID& blockId = srp.out_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            srp.enqueue(blockId, &dimension, 1);
-            srp.enqueue(blockId, origin, 3);
-            srp.enqueue(blockId, spacing, 3);
-            srp.enqueue(blockId, qBuffer, 4);
-            srp.enqueue(blockId, extent.data(), 6);
-          }
-        }
-      }
-      else
-      {
-        int dimension;
-        int extent[6];
-        double origin[3];
-        double spacing[3];
-        double q[4];
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
-        {
-          const diy::BlockID& blockId = srp.in_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            srp.dequeue(blockId, &dimension, 1);
-            srp.dequeue(blockId, origin, 3);
-            srp.dequeue(blockId, spacing, 3);
-            srp.dequeue(blockId, q, 4);
-            srp.dequeue(blockId, extent, 6);
+  master.foreach ([&master, &inputs](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    int myBlockId = cp.gid();
+    int localId = master.lid(myBlockId);
+    auto& input = inputs[localId];
 
-            block->BlockStructures.emplace(
-              blockId.gid, ImageDataBlockStructure(extent, dimension, origin, spacing, q));
-          }
-        }
+    const ExtentType& extent = block->Information.Extent;
+    double* origin = input->GetOrigin();
+    double* spacing = input->GetSpacing();
+    int dimension = input->GetDataDimension();
+    QuaternionType q;
+    vtkMath::Matrix3x3ToQuaternion(input->GetDirectionMatrix()->GetData(), q.GetData());
+    double* qBuffer = q.GetData();
+    for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+    {
+      const diy::BlockID& blockId = cp.link()->target(id);
+      cp.enqueue(blockId, &dimension, 1);
+      cp.enqueue(blockId, origin, 3);
+      cp.enqueue(blockId, spacing, 3);
+      cp.enqueue(blockId, qBuffer, 4);
+      cp.enqueue(blockId, extent.data(), 6);
+    }
+  });
+
+  master.exchange();
+
+  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+
+    int dimension;
+    int extent[6];
+    double origin[3];
+    double spacing[3];
+    double q[4];
+
+    for (const int& gid : incoming)
+    {
+      // we need this extra check because incoming is not empty when using only one block
+      if (!cp.incoming(gid).empty())
+      {
+        cp.dequeue(gid, &dimension, 1);
+        cp.dequeue(gid, origin, 3);
+        cp.dequeue(gid, spacing, 3);
+        cp.dequeue(gid, q, 4);
+        cp.dequeue(gid, extent, 6);
+
+        block->BlockStructures.emplace(gid,
+            ImageDataBlockStructure(extent, dimension, origin, spacing, q));
       }
-    });
+    }
+  });
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-  const vtkDIYExplicitAssigner& assigner, std::vector<vtkRectilinearGrid*>& inputs)
+  std::vector<vtkRectilinearGrid*>& inputs)
 {
   using BlockType = RectilinearGridBlock;
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
@@ -1893,98 +1938,64 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
       0, extent[5] - extent[4] + 1, extent[4] - inputExtent[4], inputZCoordinates);
   }
 
-  // Share Block Structures of everyone
-  diy::all_to_all(
-    master, assigner, [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp) {
-      int myBlockId = srp.gid();
-      int localId = master.lid(myBlockId);
-      auto& input = inputs[localId];
-      if (srp.round() == 0)
-      {
-        auto& info = block->Information;
-        int dimension = input->GetDataDimension();
-        const ExtentType& extent = info.Extent;
-        vtkDataArray* xCoordinates = info.XCoordinates;
-        vtkDataArray* yCoordinates = info.YCoordinates;
-        vtkDataArray* zCoordinates = info.ZCoordinates;
-        for (int i = 0; i < srp.out_link().size(); ++i)
-        {
-          const diy::BlockID& blockId = srp.out_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            srp.enqueue(blockId, &dimension, 1);
-            srp.enqueue(blockId, extent.data(), 6);
-            srp.enqueue<vtkDataArray*>(blockId, xCoordinates);
-            srp.enqueue<vtkDataArray*>(blockId, yCoordinates);
-            srp.enqueue<vtkDataArray*>(blockId, zCoordinates);
-          }
-        }
-      }
-      else
-      {
-        int extent[6];
-        int dimension;
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
-        {
-          const diy::BlockID& blockId = srp.in_link().target(i);
-          if (blockId.gid != myBlockId)
-          {
-            vtkDataArray* xCoordinates = nullptr;
-            vtkDataArray* yCoordinates = nullptr;
-            vtkDataArray* zCoordinates = nullptr;
+  master.foreach ([&master, &inputs](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    int myBlockId = cp.gid();
+    int localId = master.lid(myBlockId);
+    auto& input = inputs[localId];
 
-            srp.dequeue(blockId, &dimension, 1);
-            srp.dequeue(blockId, extent, 6);
-            srp.dequeue<vtkDataArray*>(blockId, xCoordinates);
-            srp.dequeue<vtkDataArray*>(blockId, yCoordinates);
-            srp.dequeue<vtkDataArray*>(blockId, zCoordinates);
+    auto& info = block->Information;
+    int dimension = input->GetDataDimension();
+    const ExtentType& extent = info.Extent;
+    vtkDataArray* xCoordinates = info.XCoordinates;
+    vtkDataArray* yCoordinates = info.YCoordinates;
+    vtkDataArray* zCoordinates = info.ZCoordinates;
 
-            block->BlockStructures.emplace(blockId.gid,
-              RectilinearGridBlockStructure(extent, dimension, xCoordinates, yCoordinates,
-                zCoordinates));
-          }
-        }
-      }
-    });
-}
-
-//----------------------------------------------------------------------------
-void CopyOuterLayerGridPoints(vtkStructuredGrid* input, vtkSmartPointer<vtkPoints>& outputPoints,
-    ExtentType extent, int i)
-{
-  int j = (i + 2) % 6;
-  j -= j % 2;
-  int k = (i + 4) % 6;
-  k -= k % 2;
-
-  vtkPoints* inputPoints = input->GetPoints();
-  int* inputExtent = input->GetExtent();
-
-  outputPoints = vtkSmartPointer<vtkPoints>::New();
-  outputPoints->SetDataType(inputPoints->GetDataType());
-  outputPoints->SetNumberOfPoints(
-      (extent[j + 1] - extent[j] + 1) * (extent[k + 1] - extent[k] + 1));
-
-  // We collapse one dimension
-  extent[i + (i % 2 ? -1 : 1)] = extent[i];
-
-  int ijk[3];
-  ijk[i / 2] = extent[i];
-  for (int y = extent[k]; y <= extent[k + 1]; ++y)
-  {
-    ijk[k / 2] = y;
-    for (int x = extent[j]; x <= extent[j + 1]; ++x)
+    for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
     {
-      ijk[j / 2] = x;
-      outputPoints->SetPoint(vtkStructuredData::ComputePointIdForExtent(extent.data(), ijk),
-          inputPoints->GetPoint(vtkStructuredData::ComputePointIdForExtent(inputExtent, ijk)));
+      const diy::BlockID& blockId = cp.link()->target(id);
+      cp.enqueue(blockId, &dimension, 1);
+      cp.enqueue(blockId, extent.data(), 6);
+      cp.enqueue<vtkDataArray*>(blockId, xCoordinates);
+      cp.enqueue<vtkDataArray*>(blockId, yCoordinates);
+      cp.enqueue<vtkDataArray*>(blockId, zCoordinates);
     }
-  }
+  });
+
+  master.exchange();
+
+  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+
+    int dimension;
+    int extent[6];
+
+    for (const int& gid : incoming)
+    {
+      // we need this extra check because incoming is not empty when using only one block
+      if (!cp.incoming(gid).empty())
+      {
+        vtkDataArray* xCoordinates = nullptr;
+        vtkDataArray* yCoordinates = nullptr;
+        vtkDataArray* zCoordinates = nullptr;
+
+        cp.dequeue(gid, &dimension, 1);
+        cp.dequeue(gid, extent, 6);
+        cp.dequeue(gid, xCoordinates);
+        cp.dequeue(gid, yCoordinates);
+        cp.dequeue(gid, zCoordinates);
+
+        block->BlockStructures.emplace(gid,
+            RectilinearGridBlockStructure(extent, dimension, xCoordinates, yCoordinates,
+            zCoordinates));
+      }
+    }
+  });
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
-    const vtkDIYExplicitAssigner& assigner, std::vector<vtkStructuredGrid*>& inputs)
+    std::vector<vtkStructuredGrid*>& inputs)
 {
   using BlockType = StructuredGridBlock;
 
@@ -2011,89 +2022,110 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
     }
   }
 
-  // Share Block Structures of everyone
-  diy::all_to_all(master, assigner, [&master, &inputs](
-        BlockType* block, const diy::ReduceProxy& srp) {
-    int myBlockId = srp.gid();
+  master.foreach ([&master, &inputs](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    int myBlockId = cp.gid();
     int localId = master.lid(myBlockId);
     auto& input = inputs[localId];
-    if (srp.round() == 0)
+
+    auto& info = block->Information;
+    int dimension = input->GetDataDimension();
+    const ExtentType& extent = info.Extent;
+
+    for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
     {
-      auto& info = block->Information;
-      int dimension = input->GetDataDimension();
-      const ExtentType& extent = info.Extent;
-      for (int i = 0; i < srp.out_link().size(); ++i)
+      const diy::BlockID& blockId = cp.link()->target(id);
+      cp.enqueue(blockId, &dimension, 1);
+      cp.enqueue(blockId, extent.data(), 6);
+      for (int extentId = 0; extentId < 6; ++extentId)
       {
-        const diy::BlockID& blockId = srp.out_link().target(i);
-        if (blockId.gid != myBlockId)
-        {
-          srp.enqueue(blockId, &dimension, 1);
-          srp.enqueue(blockId, extent.data(), 6);
-          for (int extentId = 0; extentId < 6; ++extentId)
-          {
-            srp.enqueue<vtkDataArray*>(blockId, info.OuterPointLayers[extentId].Points->GetData());
-          }
-        }
+        cp.enqueue<vtkDataArray*>(blockId, info.OuterPointLayers[extentId].Points->GetData());
       }
     }
-    else
+  });
+
+  master.exchange();
+
+  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+
+    int dimension;
+    int extent[6];
+
+    for (const int& gid : incoming)
     {
-      int extent[6];
-      int dimension;
-      for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+      // we need this extra check because incoming is not empty when using only one block
+      if (!cp.incoming(gid).empty())
       {
-        const diy::BlockID& blockId = srp.in_link().target(i);
-        if (blockId.gid != myBlockId)
+        vtkDataArray* points[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+
+        cp.dequeue(gid, &dimension, 1);
+        cp.dequeue(gid, extent, 6);
+        for (int extentId = 0; extentId < 6; ++extentId)
         {
-          vtkDataArray* points[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-
-          srp.dequeue(blockId, &dimension, 1);
-          srp.dequeue(blockId, extent, 6);
-          for (int extentId = 0; extentId < 6; ++extentId)
-          {
-            vtkDataArray* tmp = points[extentId];
-            srp.dequeue<vtkDataArray*>(blockId, tmp);
-            points[extentId] = tmp;
-          }
-
-          block->BlockStructures.emplace(blockId.gid,
-              StructuredGridBlockStructure(extent, dimension, points));
+          vtkDataArray* tmp = points[extentId];
+          cp.dequeue<vtkDataArray*>(gid, tmp);
+          points[extentId] = tmp;
         }
+
+        block->BlockStructures.emplace(gid,
+            StructuredGridBlockStructure(extent, dimension, points));
       }
     }
   });
 }
 
 //----------------------------------------------------------------------------
-LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
   const diy::Master& master, std::vector<vtkImageData*>& inputs,
   std::vector<vtkImageData*>& outputs, int outputGhostLevels)
 {
-  return ComputeGridLinkMapAndAllocateGhosts(master, inputs, outputs, outputGhostLevels);
+  return ComputeLinkMapForGrids(master, inputs, outputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
-LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
   const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
   std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels)
 {
-  return ComputeGridLinkMapAndAllocateGhosts(master, inputs, outputs, outputGhostLevels);
+  return ComputeLinkMapForGrids(master, inputs, outputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
-LinkMap vtkDIYGhostUtilities::ComputeLinkMapAndAllocateGhosts(
+LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
     const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
     std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels)
 {
-  return ComputeGridLinkMapAndAllocateGhosts(master, inputs, outputs,
+  return ComputeLinkMapForGrids(master, inputs, outputs,
       outputGhostLevels);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
   std::vector<vtkImageData*>& outputs)
 {
-  FillGridHiddenGhosts(master, outputs);
+  FillHiddenGhostsForGrids(master, outputs);
   vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
 }
 
@@ -2101,7 +2133,7 @@ void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
   std::vector<vtkRectilinearGrid*>& outputs)
 {
-  FillGridHiddenGhosts(master, outputs);
+  FillHiddenGhostsForGrids(master, outputs);
   vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
 }
 
@@ -2109,7 +2141,7 @@ void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
     std::vector<vtkStructuredGrid*>& outputs)
 {
-  FillGridHiddenGhosts(master, outputs);
+  FillHiddenGhostsForGrids(master, outputs);
   vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
 }
 
@@ -2117,82 +2149,82 @@ void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
   const ImageDataBlock* block, int gid, vtkImageData* input)
 {
-  return ComputeInputGridInterfaceCellIds(block, gid, input);
+  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
 {
-  return ComputeInputGridInterfaceCellIds(block, gid, input);
+  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
     const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
-  return ComputeInputGridInterfaceCellIds(block, gid, input);
+  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
   const ImageDataBlock* block, int gid, vtkImageData* input)
 {
-  return ComputeOutputGridInterfaceCellIds(block, gid, input);
+  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
 {
-  return ComputeOutputGridInterfaceCellIds(block, gid, input);
+  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
     const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
-  return ComputeOutputGridInterfaceCellIds(block, gid, input);
+  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
   const ImageDataBlock* block, int gid, vtkImageData* input)
 {
-  return ComputeInputGridInterfacePointIds(block, gid, input);
+  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
 {
-  return ComputeInputGridInterfacePointIds(block, gid, input);
+  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
     const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
-  return ComputeInputGridInterfacePointIds(block, gid, input);
+  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
   const ImageDataBlock* block, int gid, vtkImageData* input)
 {
-  return ComputeOutputGridInterfacePointIds(block, gid, input);
+  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
   const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
 {
-  return ComputeOutputGridInterfacePointIds(block, gid, input);
+  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
     const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
 {
-  return ComputeOutputGridInterfacePointIds(block, gid, input);
+  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
 }
