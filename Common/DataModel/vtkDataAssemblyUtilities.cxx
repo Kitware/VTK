@@ -32,6 +32,28 @@
 #include <iterator>
 #include <set>
 #include <sstream>
+#include <tuple>
+
+namespace
+{
+
+std::pair<std::string, std::string> GetBlockNameAndLabel(
+  vtkInformation* metadata, const std::string& defaultName)
+{
+  if (metadata && metadata->Has(vtkCompositeDataSet::NAME()) &&
+    metadata->Get(vtkCompositeDataSet::NAME()))
+  {
+    std::string label = metadata->Get(vtkCompositeDataSet::NAME());
+    std::string name = vtkDataAssembly::MakeValidNodeName(label.c_str());
+    return std::make_pair(name, label);
+  }
+  else
+  {
+    return std::make_pair(defaultName, std::string());
+  }
+}
+
+}
 
 vtkStandardNewMacro(vtkDataAssemblyUtilities);
 //----------------------------------------------------------------------------
@@ -120,8 +142,10 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   for (unsigned int level = 0, numLevels = amr->GetNumberOfLevels(); level < numLevels; ++level)
   {
-    auto node = hierarchy->AddNode(("Block" + std::to_string(level)).c_str());
-    hierarchy->SetAttribute(node, "label", ("Level " + std::to_string(level)).c_str());
+    const auto label = "Level " + std::to_string(level);
+    const auto name = vtkDataAssembly::MakeValidNodeName(label.c_str());
+    auto node = hierarchy->AddNode(name.c_str());
+    hierarchy->SetAttribute(node, "label", label.c_str());
     hierarchy->SetAttribute(node, "amr_level", level);
 
     const auto numDataSets = amr->GetNumberOfDataSets(level);
@@ -217,10 +241,14 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
       for (unsigned int bidx = 0, numBlocks = mb->GetNumberOfBlocks(); bidx < numBlocks; ++bidx)
       {
         auto metadata = mb->HasMetaData(bidx) ? mb->GetMetaData(bidx) : nullptr;
-        auto child = hierarchy->AddNode(("Block" + std::to_string(bidx)).c_str(), nodeid);
-        if (metadata && metadata->Has(vtkCompositeDataSet::NAME()))
+
+        std::string label, name;
+        std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(bidx));
+
+        auto child = hierarchy->AddNode(name.c_str(), nodeid);
+        if (!label.empty())
         {
-          hierarchy->SetAttribute(child, "label", metadata->Get(vtkCompositeDataSet::NAME()));
+          hierarchy->SetAttribute(child, "label", label.c_str());
         }
 
         auto block = mb->GetBlock(bidx);
@@ -287,15 +315,18 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
 
   for (unsigned int p = 0; p < input->GetNumberOfPartitionedDataSets(); ++p)
   {
-    auto node = hierarchy->AddNode(("Block" + std::to_string(p)).c_str());
+    auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
+    std::string name, label;
+    std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(p));
+
+    auto node = hierarchy->AddNode(name.c_str());
 
     // dataset index in a hierarchy represents the composite index.
     hierarchy->AddDataSetIndex(node, cid++);
 
-    auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
-    if (metadata && metadata->Has(vtkCompositeDataSet::NAME()))
+    if (!label.empty())
     {
-      hierarchy->SetAttribute(node, "label", metadata->Get(vtkCompositeDataSet::NAME()));
+      hierarchy->SetAttribute(node, "label", label.c_str());
     }
 
     if (output)
