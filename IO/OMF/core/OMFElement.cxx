@@ -275,7 +275,7 @@ void ProjectElement::ProcessTextures(std::shared_ptr<OMFFile>& file, const Json:
 
     std::vector<std::string> pathComponents;
     vtksys::SystemTools::SplitPath(dir, pathComponents);
-    pathComponents.push_back("textures");
+    pathComponents.emplace_back("textures");
     auto texDir = vtksys::SystemTools::JoinPath(pathComponents);
     vtksys::SystemTools::MakeDirectory(texDir);
 

@@ -99,7 +99,7 @@ bool vtkQtSQLQuery::Execute()
   this->Internals->FieldNames.clear();
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
   {
-    this->Internals->FieldNames.push_back(
+    this->Internals->FieldNames.emplace_back(
       this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
   }
   return true;
