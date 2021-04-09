@@ -53,6 +53,7 @@
 
 class vtkPoints;
 class vtkIdList;
+class vtkIntArray;
 class vtkPolyData;
 class vtkCellArray;
 class vtkIncrementalOctreeNode;
@@ -125,6 +126,10 @@ public:
    * Get the number of points maintained by the octree.
    */
   int GetNumberOfPoints();
+  /**
+   * Get number of nodes in the tree.
+   */
+  vtkGetMacro(NumberOfNodes, int);
 
   /**
    * Given a point x assumed to be covered by the octree, return the index of
@@ -135,11 +140,23 @@ public:
    */
   vtkIdType FindClosestInsertedPoint(const double x[3]) override;
 
+  //@{
   /**
-   * Create a polygonal representation of the octree boundary (from the root
-   * node to a specified level).
+   * Create a polygonal representation of the octree 'level': for each node
+   * on the specified level we generate six faces for the bounding box of the node.
+   * We also include a cell attribute that specifies the Index of the node.
+   * The second version of this function, generates user defined boundaries
+   * provided by 'GetBounds'. This function takes as parameters a user defined
+   * opaque 'data', the current node, and a pointer to where to write the 'bounds'.
+   * The function returns true if we want to generate the representation for this node,
+   * and false otherwise. A user can store data associated with a node using
+   * the node index.
+   * @see vtkIncrementalOctreeNode::GetIndex
    */
-  void GenerateRepresentation(int nodeLevel, vtkPolyData* polysData) override;
+  void GenerateRepresentation(int level, vtkPolyData* polysData) override;
+  void GenerateRepresentation(int level, vtkPolyData* polysData,
+    bool (*UserGetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data);
+  //@}
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------
@@ -305,7 +322,16 @@ public:
    * specified via pntId. For case 1, the actual point index is returned via
    * pntId. InitPointInsertion() should have been called.
    */
+
   void InsertPointWithoutChecking(const double point[3], vtkIdType& pntId, int insert);
+
+  vtkIncrementalOctreeNode* GetRoot() const { return OctreeRootNode; }
+
+  /**
+   * Returns the maximum level of the tree. If a tree has one node it returns 1
+   * else it returns the maximum level of its children plus 1.
+   */
+  int GetNumberOfLevels();
 
 protected:
   vtkIncrementalOctreePointLocator();
@@ -319,6 +345,7 @@ private:
   double FudgeFactor;
   vtkPoints* LocatorPoints;
   vtkIncrementalOctreeNode* OctreeRootNode;
+  int NumberOfNodes;
 
   /**
    * Delete all descendants of a node.
@@ -329,7 +356,9 @@ private:
    * Add the polygonal representation of a given node to the allocated vtkPoints
    * and vtkCellArray objects.
    */
-  static void AddPolys(vtkIncrementalOctreeNode* node, vtkPoints* points, vtkCellArray* polygs);
+  static void AddPolys(vtkIncrementalOctreeNode* node, vtkPoints* points, vtkCellArray* polygs,
+    vtkIntArray* nodeIndexes, vtkIdType& cellIndex,
+    bool (*GetBounds)(void* data, vtkIncrementalOctreeNode* node, double* bounds), void* data);
 
   /**
    * Given a point and a reference node, find the leaf containing the point.

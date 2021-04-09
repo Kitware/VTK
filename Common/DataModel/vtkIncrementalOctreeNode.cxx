@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkIncrementalOctreeNode.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
@@ -73,6 +76,7 @@ vtkIncrementalOctreeNode::vtkIncrementalOctreeNode()
   this->Children = nullptr;
   this->PointIdSet = nullptr;
   this->NumberOfPoints = 0;
+  this->ID = 0;
 
   // unnecessary to initialize spatial and data bounding boxes here as
   // SetBounds() are always called by the user for the root node of an
@@ -317,7 +321,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion(vt
 
 //------------------------------------------------------------------------------
 int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pntIds,
-  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode)
+  const double newPnt[3], vtkIdType* pntIdx, int maxPts, int ptMode, int& numberOfNodes)
 {
   // There are two scenarios for which this function is invoked.
   //
@@ -379,6 +383,7 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 
     // This call internally sets the cener and default data bounding box, too.
     this->Children[i] = vtkIncrementalOctreeNode::New();
+    this->Children[i]->ID = numberOfNodes++;
     this->Children[i]->SetParent(this);
     this->Children[i]->SetBounds(octMin[0], octMax[0], octMin[1], octMax[1], octMin[2], octMax[2]);
 
@@ -416,7 +421,8 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
     // The fact is that we are going to insert the new point to an already
     // full octant (child node). Thus we need to further divide this child
     // to avoid the overflow problem.
-    this->Children[target]->CreateChildNodes(points, pntIds, newPnt, pntIdx, maxPts, ptMode);
+    this->Children[target]->CreateChildNodes(
+      points, pntIds, newPnt, pntIdx, maxPts, ptMode, numberOfNodes);
     dvidId = fullId;
   }
   else
@@ -454,6 +460,19 @@ int vtkIncrementalOctreeNode::CreateChildNodes(vtkPoints* points, vtkIdList* pnt
 int vtkIncrementalOctreeNode::InsertPoint(
   vtkPoints* points, const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode)
 {
+  VTK_LEGACY_REPLACED_BODY(vtkIncrementalOctreeNode::InsertPoint(vtkPoints * points,
+                             const double newPnt[3], int maxPts, vtkIdType* pntId, int ptMode),
+    "VTK 9.1",
+    vtkIncrementalOctreeNode::InsertPoint(vtkPoints * points, const double newPnt[3], int maxPts,
+      vtkIdType* pntId, int ptMode, int& numberOfNodes));
+  int numberOfNodes = 0;
+  return InsertPoint(points, newPnt, maxPts, pntId, ptMode, numberOfNodes);
+}
+
+//------------------------------------------------------------------------------
+int vtkIncrementalOctreeNode::InsertPoint(vtkPoints* points, const double newPnt[3], int maxPts,
+  vtkIdType* pntId, int ptMode, int& numberOfNodes)
+{
   if (this->PointIdSet)
   {
     // there has been at least one point index
@@ -472,7 +491,8 @@ int vtkIncrementalOctreeNode::InsertPoint(
       // overflow: divide this node and delete the list of point-indices.
       // Note that the number of exactly duplicate points might be greater
       // than or equal to maxPts.
-      if (this->CreateChildNodes(points, this->PointIdSet, newPnt, pntId, maxPts, ptMode))
+      if (this->CreateChildNodes(
+            points, this->PointIdSet, newPnt, pntId, maxPts, ptMode, numberOfNodes))
       {
         this->PointIdSet->Delete();
       }
@@ -796,7 +816,7 @@ void vtkIncrementalOctreeNode::ExportAllPointIdsByDirectSet(vtkIdType* pntIdx, v
 void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
+  os << indent << "Index: " << this->ID << endl;
   os << indent << "Parent: " << this->Parent << endl;
   os << indent << "Children: " << this->Children << endl;
   os << indent << "PointIdSet: " << this->PointIdSet << endl;
@@ -809,4 +829,22 @@ void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->MinDataBounds[2] << endl;
   os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " " << this->MaxDataBounds[1]
      << " " << this->MaxDataBounds[2] << endl;
+}
+
+//------------------------------------------------------------------------------
+int vtkIncrementalOctreeNode::GetNumberOfLevels() const
+{
+  if (this->Children)
+  {
+    int maxLevel = 0;
+    for (int i = 0; i < 8; i++)
+    {
+      maxLevel = std::max(maxLevel, this->Children[i]->GetNumberOfLevels());
+    }
+    return maxLevel + 1;
+  }
+  else
+  {
+    return 1;
+  }
 }
