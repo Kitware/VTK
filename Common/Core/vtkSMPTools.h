@@ -226,10 +226,12 @@ public:
 
   /**
    * Initialize the underlying libraries for execution. This is
-   * not required as it is automatically called before the first
-   * execution of any parallel code. However, it can be used to
-   * control the maximum number of threads used. Make sure to call
-   * it before the parallel operation.
+   * not required as it is automatically defined by the libaries.
+   * However, it can be used to control the maximum number of thread used.
+   * Make sure to call it before the parallel operation.
+   *
+   * If Initialize is called without argument it will try to use the
+   * VTK_SMP_MAX_THREADS env variable to set the maximum number of threads.
    */
   static void Initialize(int numThreads = 0);
 
