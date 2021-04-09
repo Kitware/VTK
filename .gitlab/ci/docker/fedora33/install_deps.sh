@@ -56,4 +56,13 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     ffmpeg-devel
 
+# External repository support
+dnf install -y --setopt=install_weak_deps=False \
+    dnf-plugins-core
+
+# Openturns dependencies
+dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_33/science:openturns.repo
+dnf install -y --setopt=install_weak_deps=False \
+    openturns-libs openturns-devel
+
 dnf clean all
