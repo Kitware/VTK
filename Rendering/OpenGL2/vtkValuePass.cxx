@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <cassert>
+#include "vtkValuePass.h"
 
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
@@ -43,7 +43,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextureObject.h"
 #include "vtkTimeStamp.h"
-#include "vtkValuePass.h"
+
+#include <cassert>
 #include <vector>
 
 struct vtkValuePass::Parameters

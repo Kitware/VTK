@@ -81,7 +81,7 @@ public:
   /**
    * Accessor to the ordered list of PolyData that we last drew.
    */
-  std::vector<vtkPolyData*> GetRenderedList() { return this->RenderedList; }
+  std::vector<vtkPolyData*> GetRenderedList() const;
 
   /**
    * allows a mapper to update a selections color buffers
@@ -156,9 +156,6 @@ protected:
   bool OverideColorUsed;
 
   vtkHardwareSelector* CurrentSelector;
-
-  // bookkeeping required by vtkValuePass
-  std::vector<vtkPolyData*> RenderedList;
 
   // used by the hardware selector
   std::vector<std::vector<unsigned int>> PickPixels;
