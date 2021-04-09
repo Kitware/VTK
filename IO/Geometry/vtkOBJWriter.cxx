@@ -299,12 +299,6 @@ void vtkOBJWriter::WriteData()
 
   std::vector<EndIndex> endIndexes;
   ::WritePoints(f, pts, normals, tcoordsArray, &endIndexes);
-  // std::cout << "-- nbPts=" << pts->GetNumberOfPoints() << " --\n";
-  // for (size_t i = 0; i < endIndexes.size(); ++i)
-  // {
-  //   std::cout << endIndexes[i].VtEndIndex << ", "
-  //             << endIndexes[i].PointEndIndex << std::endl;
-  // }
 
   // Decompose any triangle strips into triangles
   vtkNew<vtkCellArray> polyStrips;
@@ -340,10 +334,6 @@ void vtkOBJWriter::WriteData()
       if (tcoords)
       {
         f << "usemtl " << matName << "\n";
-      }
-      else
-      {
-        f << "# no usemtl\n";
       }
       while (materialIds->GetValue(faceIndex) == matIndex && validCell)
       {

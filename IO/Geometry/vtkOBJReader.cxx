@@ -183,7 +183,6 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     const int MAX_LINE = 1024 * 256;
     char rawLine[MAX_LINE];
     char tcoordsName[100];
-    char libName[256];
     float xyz[3];
     int numPoints = 0;
     int numTCoords = 0;
@@ -396,7 +395,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else if (strcmp(cmd, "mtllib") == 0)
       {
-        if (sscanf(pLine, "%s", libName) != 1)
+        std::istringstream istr;
+        std::string libName;
+        istr.str(pLine);
+        istr >> libName;
+        if (istr.bad())
         {
           vtkErrorMacro(<< "Error reading 'mtllib' at line " << lineNr);
           everything_ok = false;
