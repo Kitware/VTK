@@ -110,6 +110,16 @@ bool vtkResampleWithDataSet::GetPassFieldArrays()
   return this->Prober->GetPassFieldArrays() ? true : false;
 }
 
+void vtkResampleWithDataSet::SetPassPartialArrays(bool arg)
+{
+  this->Prober->SetPassPartialArrays(arg);
+}
+
+bool vtkResampleWithDataSet::GetPassPartialArrays()
+{
+  return this->Prober->GetPassPartialArrays();
+}
+
 void vtkResampleWithDataSet::SetCellLocatorPrototype(vtkAbstractCellLocator* locator)
 {
   this->Prober->SetCellLocatorPrototype(locator);

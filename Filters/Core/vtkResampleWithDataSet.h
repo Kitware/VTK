@@ -104,6 +104,24 @@ public:
 
   //@{
   /**
+   * When sampling from composite datasets, partial arrays are common i.e.
+   * data-arrays that are not available in all of the blocks. By default, this
+   * filter only passes those point and cell data-arrays that are available in
+   * all the blocks i.e. partial arrays are removed.  When PassPartialArrays is
+   * turned on, this behavior is changed to take a union of all arrays present
+   * thus partial arrays are passed as well. However, for composite dataset
+   * input, this filter still produces a non-composite output. For all those
+   * locations in a block of where a particular data array is missing, this
+   * filter uses vtkMath::Nan() for double and float arrays, and 0 for all
+   * other types of arrays e.g. int, char, etc. Off by default.
+   */
+  void SetPassPartialArrays(bool arg);
+  bool GetPassPartialArrays();
+  vtkBooleanMacro(PassPartialArrays, bool);
+  //@}
+
+  //@{
+  /**
    * Set the tolerance used to compute whether a point in the
    * source is in a cell of the input.  This value is only used
    * if ComputeTolerance is off.
