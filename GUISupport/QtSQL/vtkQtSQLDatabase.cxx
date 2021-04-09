@@ -323,7 +323,7 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += this->GetDbPort();
+  url += std::to_string(this->GetDbPort());
   url += "/";
   url += this->GetDatabaseName();
   return url;
