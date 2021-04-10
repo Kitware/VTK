@@ -331,7 +331,7 @@ int* vtkSDL2OpenGLRenderWindow::GetPosition(void)
   }
 
   //  Find the current window position
-  //  x,y,&this->Position[0],&this->Position[1],&child);
+  SDL_GetWindowPosition(this->WindowId, &this->Position[0], &this->Position[1]);
 
   return this->Position;
 }
