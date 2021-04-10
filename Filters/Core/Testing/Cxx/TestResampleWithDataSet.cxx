@@ -22,6 +22,7 @@
 #include "vtkCylinder.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -167,7 +168,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 1 ||
     block->GetPointData()->GetNumberOfArrays() != 3)
   {
-    std::cout << "Unexpected number of arrays in default output" << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in default output");
     return !vtkTesting::FAILED;
   }
 
@@ -181,8 +182,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 6 ||
     block->GetPointData()->GetNumberOfArrays() != 8)
   {
-    std::cout << "Unexpected number of arrays in output with pass cell and point arrays"
-              << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass cell and point arrays");
     return !vtkTesting::FAILED;
   }
 
@@ -195,7 +195,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 6 ||
     block->GetPointData()->GetNumberOfArrays() != 8)
   {
-    std::cout << "Unexpected number of arrays in output with pass field arrays off" << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass field arrays off");
     return !vtkTesting::FAILED;
   }
 
@@ -207,7 +207,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 6 ||
     block->GetPointData()->GetNumberOfArrays() != 9)
   {
-    std::cout << "Unexpected number of arrays in output with pass partial arrays on" << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass partial arrays on");
     return !vtkTesting::FAILED;
   }
 
