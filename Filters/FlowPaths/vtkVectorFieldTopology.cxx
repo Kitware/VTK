@@ -552,7 +552,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkSmartPointer<vtkPolyData> cri
   criticalPoints->GetPointData()->AddArray(criticalPointsTypesDetailed);
 
   // this prevents that vtkPStreamTracer is called, which is necessary to prevent deadlocks
-  vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer");
+  vtkObjectFactory::SetAllEnableFlags(false, "vtkStreamTracer"); // this will need to be discussed
   vtkNew<vtkStreamTracer> streamTracer;
   streamTracer->SetInputData(dataset);
   streamTracer->SetIntegratorTypeToRungeKutta4();
