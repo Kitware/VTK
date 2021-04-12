@@ -60,7 +60,7 @@
 #define vtkIncrementalOctreeNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkObject.h"
 
 class vtkPoints;
