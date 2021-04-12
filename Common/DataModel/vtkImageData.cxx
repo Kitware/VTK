@@ -33,6 +33,7 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
@@ -189,6 +190,110 @@ void vtkImageData::PrepareForNewData()
     this->GetPointData()->SetScalars(scalars);
     scalars->UnRegister(this);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellDims(int cellDims[3])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    cellDims[i] = ((this->Dimensions[i] - 1) < 1) ? 1 : this->Dimensions[i] - 1;
+  }
+}
+
+namespace
+{
+class CellVisibility
+{
+public:
+  CellVisibility(vtkImageData* input)
+    : Input(input)
+  {
+  }
+  bool operator()(const vtkIdType id) { return !Input->IsCellVisible(id); }
+
+private:
+  vtkImageData* Input;
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds)
+{
+  int numPtIds = ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+  {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1:
+    case 2:
+    case 4: // vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions());
+      break;
+
+    default:
+      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+  }
+
+  // If blanking, remove blanked cells.
+  if (this->GetPointGhostArray() || this->GetCellGhostArray())
+  {
+    vtkIdType* pCellIds = cellIds->GetPointer(0);
+    vtkIdType* end =
+      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds, end));
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::GetCellNeighbors(
+  vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc)
+{
+  int numPtIds = ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+  {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1:
+    case 2:
+    case 4: // vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds, cellIds, this->GetDimensions(), seedLoc);
+      break;
+
+    default:
+      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+  }
+
+  // If blanking, remove blanked cells.
+  if (this->GetPointGhostArray() || this->GetCellGhostArray())
+  {
+    vtkIdType* pCellIds = cellIds->GetPointer(0);
+    vtkIdType* end =
+      std::remove_if(pCellIds, pCellIds + cellIds->GetNumberOfIds(), CellVisibility(this));
+    cellIds->Resize(std::distance(pCellIds, end));
+  }
+}
+
+//------------------------------------------------------------------------------
+unsigned char vtkImageData::IsPointVisible(vtkIdType pointId)
+{
+  return vtkStructuredData::IsPointVisible(pointId, this->GetPointGhostArray());
+}
+
+//------------------------------------------------------------------------------
+// Return non-zero if the specified cell is visible (i.e., not blanked)
+unsigned char vtkImageData::IsCellVisible(vtkIdType cellId)
+{
+  return vtkStructuredData::IsCellVisible(cellId, this->Dimensions, this->DataDescription,
+    this->GetCellGhostArray(), this->GetPointGhostArray());
 }
 
 //------------------------------------------------------------------------------
@@ -1974,6 +2079,10 @@ void vtkImageData::SetExtent(int* extent)
     return;
   }
 
+  this->Dimensions[0] = extent[1] - extent[0] + 1;
+  this->Dimensions[1] = extent[3] - extent[2] + 1;
+  this->Dimensions[2] = extent[5] - extent[4] + 1;
+
   this->SetDataDescription(description);
 
   this->Modified();
@@ -2482,4 +2591,17 @@ void vtkImageData::ComputeIndexToPhysicalMatrix(
   result[13] = 0;
   result[14] = 0;
   result[15] = 1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkImageData::HasAnyBlankPoints()
+{
+  return this->IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+}
+
+//------------------------------------------------------------------------------
+bool vtkImageData::HasAnyBlankCells()
+{
+  int cellBlanking = this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  return cellBlanking || this->HasAnyBlankPoints();
 }
