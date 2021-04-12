@@ -88,11 +88,25 @@ int vtkReaderExecutive::CallAlgorithm(vtkInformation* request, int direction,
   }
   else if (request->Has(REQUEST_INFORMATION()))
   {
-    result = reader->ReadMetaData(outInfo->GetInformationObject(0));
+    try
+    {
+      result = reader->ReadMetaData(outInfo->GetInformationObject(0));
+    }
+    catch (const std::exception&)
+    {
+      result = 0;
+    }
   }
   else if (request->Has(REQUEST_TIME_DEPENDENT_INFORMATION()))
   {
-    result = reader->ReadTimeDependentMetaData(timeIndex, outInfo->GetInformationObject(0));
+    try
+    {
+      result = reader->ReadTimeDependentMetaData(timeIndex, outInfo->GetInformationObject(0));
+    }
+    catch (const std::exception&)
+    {
+      result = 0;
+    }
   }
   else if (request->Has(REQUEST_DATA()))
   {
@@ -103,14 +117,22 @@ int vtkReaderExecutive::CallAlgorithm(vtkInformation* request, int direction,
       : 1;
     int nghosts = reqs->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
     vtkDataObject* output = vtkDataObject::GetData(outInfo);
-    result = reader->ReadMesh(piece, npieces, nghosts, timeIndex, output);
-    if (result)
+
+    try
     {
-      result = reader->ReadPoints(piece, npieces, nghosts, timeIndex, output);
+      result = reader->ReadMesh(piece, npieces, nghosts, timeIndex, output);
+      if (result)
+      {
+        result = reader->ReadPoints(piece, npieces, nghosts, timeIndex, output);
+      }
+      if (result)
+      {
+        result = reader->ReadArrays(piece, npieces, nghosts, timeIndex, output);
+      }
     }
-    if (result)
+    catch (const std::exception&)
     {
-      result = reader->ReadArrays(piece, npieces, nghosts, timeIndex, output);
+      result = 0;
     }
 
     if (!result && output != nullptr)
