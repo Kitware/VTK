@@ -42,25 +42,25 @@ public:
    */
   void Inverse() override;
 
-  //@{
+  ///@{
   /**
    * Get the inverse flag of the transformation.  This flag is
    * set to zero when the transformation is first created, and
    * is flipped each time Inverse() is called.
    */
   vtkGetMacro(InverseFlag, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for inverse transformation.
    * The default is 0.001.
    */
   vtkSetMacro(InverseTolerance, double);
   vtkGetMacro(InverseTolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of iterations for the inverse
    * transformation.  The default is 500, but usually only
@@ -70,18 +70,18 @@ public:
    */
   vtkSetMacro(InverseIterations, int);
   vtkGetMacro(InverseIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
   void InternalTransformPoint(const float in[3], float out[3]) override;
   void InternalTransformPoint(const double in[3], double out[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation, as well as its derivative
    * without calling Update.  Meant for use only within other VTK
@@ -91,9 +91,9 @@ public:
     const float in[3], float out[3], float derivative[3][3]) override;
   void InternalTransformDerivative(
     const double in[3], double out[3], double derivative[3][3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Do not use these methods.  They exists only as a work-around for
    * internal templated functions (I really didn't want to make the
@@ -132,22 +132,22 @@ public:
   {
     this->InverseTransformDerivative(in, out, derivative);
   }
-  //@}
+  ///@}
 
 protected:
   vtkWarpTransform();
   ~vtkWarpTransform() override;
 
-  //@{
+  ///@{
   /**
    * If the InverseFlag is set to 0, then a call to InternalTransformPoint
    * results in a call to ForwardTransformPoint.
    */
   virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
   virtual void ForwardTransformPoint(const double in[3], double out[3]) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Calculate the forward transform as well as the derivative.
    */
@@ -155,9 +155,9 @@ protected:
     const float in[3], float out[3], float derivative[3][3]) = 0;
   virtual void ForwardTransformDerivative(
     const double in[3], double out[3], double derivative[3][3]) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the InverseFlag is set to 1, then a call to InternalTransformPoint
    * results in a call to InverseTransformPoint.  The inverse transformation
@@ -165,9 +165,9 @@ protected:
    */
   virtual void InverseTransformPoint(const float in[3], float out[3]);
   virtual void InverseTransformPoint(const double in[3], double out[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Calculate the inverse transform as well as the derivative of the
    * forward transform (that's correct: the derivative of the
@@ -176,7 +176,7 @@ protected:
   virtual void InverseTransformDerivative(const float in[3], float out[3], float derivative[3][3]);
   virtual void InverseTransformDerivative(
     const double in[3], double out[3], double derivative[3][3]);
-  //@}
+  ///@}
 
   int InverseFlag;
   int InverseIterations;

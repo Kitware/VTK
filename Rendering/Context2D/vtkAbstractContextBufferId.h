@@ -51,41 +51,41 @@ public:
 
   static vtkAbstractContextBufferId* New();
 
-  //@{
+  ///@{
   /**
    * Number of columns. Initial value is 0.
    */
   vtkGetMacro(Width, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of columns. Initial value is 0.
    */
   vtkSetMacro(Width, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of rows. Initial value is 0.
    */
   vtkGetMacro(Height, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of rows. Initial value is 0.
    */
   vtkSetMacro(Height, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
   virtual void SetContext(vtkRenderWindow* context) = 0;
   virtual vtkRenderWindow* GetContext() = 0;
-  //@}
+  ///@}
 
   /**
    * Returns if the context supports the required extensions.

@@ -40,16 +40,16 @@ public:
   vtkTypeMacro(vtkCollectTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this filter is being used in client-server mode,
    * this is the controller used to communicate between
@@ -57,16 +57,16 @@ public:
    */
   virtual void SetSocketController(vtkSocketController*);
   vtkGetObjectMacro(SocketController, vtkSocketController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To collect or just copy input to output. Off (collect) by default.
    */
   vtkSetMacro(PassThrough, vtkTypeBool);
   vtkGetMacro(PassThrough, vtkTypeBool);
   vtkBooleanMacro(PassThrough, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkCollectTable();

@@ -45,13 +45,13 @@ public:
    */
   static vtkSmoothErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkSmoothErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the flatness threshold.

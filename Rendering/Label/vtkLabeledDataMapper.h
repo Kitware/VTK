@@ -79,7 +79,7 @@ public:
   vtkTypeMacro(vtkLabeledDataMapper, vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels.  This should
    * be a printf-style format string.
@@ -94,9 +94,9 @@ public:
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the component number to label if the data to print has
    * more than one component. For example, all the components of
@@ -106,17 +106,17 @@ public:
    */
   vtkSetMacro(LabeledComponent, int);
   vtkGetMacro(LabeledComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the separator between components.
    */
   vtkSetMacro(ComponentSeparator, char);
   vtkGetMacro(ComponentSeparator, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the field data array to label. This instance variable is
    * only applicable if field data is labeled.  This will clear
@@ -124,9 +124,9 @@ public:
    */
   void SetFieldDataArray(int arrayIndex);
   vtkGetMacro(FieldDataArray, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the field data array to label.  This instance
    * variable is only applicable if field data is labeled.  This will
@@ -134,7 +134,7 @@ public:
    */
   void SetFieldDataName(const char* arrayName);
   vtkGetStringMacro(FieldDataName);
-  //@}
+  ///@}
 
   /**
    * Set the input dataset to the mapper. This mapper handles any type of data.
@@ -147,7 +147,7 @@ public:
    */
   vtkDataSet* GetInput();
 
-  //@{
+  ///@{
   /**
    * Specify which data to plot: IDs, scalars, vectors, normals, texture coords,
    * tensors, or field data. If the data has more than one component, use
@@ -163,9 +163,9 @@ public:
   void SetLabelModeToLabelTCoords() { this->SetLabelMode(VTK_LABEL_TCOORDS); }
   void SetLabelModeToLabelTensors() { this->SetLabelMode(VTK_LABEL_TENSORS); }
   void SetLabelModeToLabelFieldData() { this->SetLabelMode(VTK_LABEL_FIELD_DATA); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    * If an integer argument is provided, you may provide different text
@@ -176,28 +176,28 @@ public:
   virtual vtkTextProperty* GetLabelTextProperty() { return this->GetLabelTextProperty(0); }
   virtual void SetLabelTextProperty(vtkTextProperty* p, int type);
   virtual vtkTextProperty* GetLabelTextProperty(int type);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw the text to the screen at each input point.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * The transform to apply to the labels before mapping to 2D.
    */
   vtkGetObjectMacro(Transform, vtkTransform);
   void SetTransform(vtkTransform* t);
-  //@}
+  ///@}
 
   /// Coordinate systems that output dataset may use.
   enum Coordinates
@@ -207,7 +207,7 @@ public:
                 //!< are significant).
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system used for output labels.
    * The output datasets may have point coordinates reported in the world space or display space.
@@ -216,21 +216,21 @@ public:
   vtkSetClampMacro(CoordinateSystem, int, WORLD, DISPLAY);
   void CoordinateSystemWorld() { this->SetCoordinateSystem(vtkLabeledDataMapper::WORLD); }
   void CoordinateSystemDisplay() { this->SetCoordinateSystem(vtkLabeledDataMapper::DISPLAY); }
-  //@}
+  ///@}
 
   /**
    * Return the modified time for this object.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Return the number of labels rendered by the mapper.
    */
   vtkGetMacro(NumberOfLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the position of the requested label.
    */
@@ -241,7 +241,7 @@ public:
     pos[1] = this->LabelPositions[3 * label + 1];
     pos[2] = this->LabelPositions[3 * label + 2];
   }
-  //@}
+  ///@}
 
   /**
    * Return the text for the requested label.

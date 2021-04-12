@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkPStreamTracer, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the controller use in compositing (set to the global controller
    * by default) If not using the default, this must be called before any
@@ -52,7 +52,7 @@ public:
    */
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   static vtkPStreamTracer* New();
 

@@ -33,23 +33,23 @@ public:
   vtkTypeMacro(vtkWarpTo, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to scale displacement.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position to warp towards.
    */
   vtkGetVectorMacro(Position, double, 3);
   vtkSetVector3Macro(Position, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Absolute ivar. Turning Absolute on causes scale factor
    * of the new position to be one unit away from Position.
@@ -57,7 +57,7 @@ public:
   vtkSetMacro(Absolute, vtkTypeBool);
   vtkGetMacro(Absolute, vtkTypeBool);
   vtkBooleanMacro(Absolute, vtkTypeBool);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

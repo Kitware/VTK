@@ -39,14 +39,14 @@
 class VTKFILTERSMODELING_EXPORT vtkCookieCutter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print and provide type information.
    */
   static vtkCookieCutter* New();
   vtkTypeMacro(vtkCookieCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify the a second vtkPolyData input which defines loops used to cut
@@ -57,7 +57,7 @@ public:
   void SetLoopsConnection(vtkAlgorithmOutput* algOutput);
   vtkAlgorithmOutput* GetLoopsConnection();
 
-  //@{
+  ///@{
   /**
    * Specify the a second vtkPolyData input which defines loops used to cut
    * the input polygonal data. These loops must be manifold, i.e., do not
@@ -66,16 +66,16 @@ public:
    */
   void SetLoopsData(vtkDataObject* loops);
   vtkDataObject* GetLoops();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The

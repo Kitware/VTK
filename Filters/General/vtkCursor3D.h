@@ -45,16 +45,16 @@ public:
    */
   static vtkCursor3D* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the boundary of the 3D cursor.
    */
   void SetModelBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   void SetModelBounds(const double bounds[6]);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of cursor focus. If translation mode is on,
    * then the entire cursor (including bounding box, cursor, and shadows)
@@ -72,54 +72,54 @@ public:
     this->SetFocalPoint(xyz);
   }
   vtkGetVectorMacro(FocalPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe bounding box.
    */
   vtkSetMacro(Outline, vtkTypeBool);
   vtkGetMacro(Outline, vtkTypeBool);
   vtkBooleanMacro(Outline, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe axes.
    */
   vtkSetMacro(Axes, vtkTypeBool);
   vtkGetMacro(Axes, vtkTypeBool);
   vtkBooleanMacro(Axes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe x-shadows.
    */
   vtkSetMacro(XShadows, vtkTypeBool);
   vtkGetMacro(XShadows, vtkTypeBool);
   vtkBooleanMacro(XShadows, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe y-shadows.
    */
   vtkSetMacro(YShadows, vtkTypeBool);
   vtkGetMacro(YShadows, vtkTypeBool);
   vtkBooleanMacro(YShadows, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe z-shadows.
    */
   vtkSetMacro(ZShadows, vtkTypeBool);
   vtkGetMacro(ZShadows, vtkTypeBool);
   vtkBooleanMacro(ZShadows, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the translation mode. If on, changes in cursor position
    * cause the entire widget to translate along with the cursor.
@@ -128,9 +128,9 @@ public:
   vtkSetMacro(TranslationMode, vtkTypeBool);
   vtkGetMacro(TranslationMode, vtkTypeBool);
   vtkBooleanMacro(TranslationMode, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off cursor wrapping. If the cursor focus moves outside the
    * specified bounds, the cursor will either be restrained against the
@@ -139,20 +139,20 @@ public:
   vtkSetMacro(Wrap, vtkTypeBool);
   vtkGetMacro(Wrap, vtkTypeBool);
   vtkBooleanMacro(Wrap, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the focus for this filter.
    */
   vtkPolyData* GetFocus() { return this->Focus; }
 
-  //@{
+  ///@{
   /**
    * Turn every part of the 3D cursor on or off.
    */
   void AllOn();
   void AllOff();
-  //@}
+  ///@}
 
 protected:
   vtkCursor3D();

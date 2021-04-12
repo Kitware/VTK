@@ -105,7 +105,7 @@ class vtkPlane;
 class VTKFILTERSPOINTS_EXPORT vtkPointSmoothingFilter : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and
    * printing information.
@@ -113,16 +113,16 @@ public:
   static vtkPointSmoothingFilter* New();
   vtkTypeMacro(vtkPointSmoothingFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the neighborhood size. This controls the number of surrounding
    * points that can affect a point to be smoothed.
    */
   vtkSetClampMacro(NeighborhoodSize, int, 4, 128);
   vtkGetMacro(NeighborhoodSize, int);
-  //@}
+  ///@}
 
   /**
    * Specify how smoothing is to be controlled.
@@ -137,7 +137,7 @@ public:
     FRAME_FIELD_SMOOTHING
   };
 
-  //@{
+  ///@{
   /**
    * Control how smoothing is to be performed. By default, if a point frame
    * field is available then frame field smoothing will be performed; then if
@@ -156,35 +156,35 @@ public:
   void SetSmoothingModeToScalars() { this->SetSmoothingMode(SCALAR_SMOOTHING); }
   void SetSmoothingModeToTensors() { this->SetSmoothingMode(TENSOR_SMOOTHING); }
   void SetSmoothingModeToFrameField() { this->SetSmoothingMode(FRAME_FIELD_SMOOTHING); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the frame field to use for smoothing. This
    * information is only necessary if a frame field smoothing is enabled.
    */
   virtual void SetFrameFieldArray(vtkDataArray*);
   vtkGetObjectMacro(FrameFieldArray, vtkDataArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of smoothing iterations.
    */
   vtkSetClampMacro(NumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of smoothing subiterations. This specifies the
    * frequency of connectivity and data attribute updates.
    */
   vtkSetClampMacro(NumberOfSubIterations, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfSubIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum smoothing step size for each smoothing iteration. This
    * step size limits the the distance over which a point can move in each
@@ -195,18 +195,18 @@ public:
    */
   vtkSetClampMacro(MaximumStepSize, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumStepSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a convergence criterion for the iteration
    * process. Smaller numbers result in more smoothing iterations.
    */
   vtkSetClampMacro(Convergence, double, 0.0, 1.0);
   vtkGetMacro(Convergence, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable or disable constraints on points. Point constraints are used to
    * prevent points from moving, or to move only on a plane. This can prevent
@@ -226,9 +226,9 @@ public:
   vtkGetMacro(FixedAngle, double);
   vtkSetClampMacro(BoundaryAngle, double, 0, 120);
   vtkGetMacro(BoundaryAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If point constraints are enabled, an output scalar indicating the
    * classification of points can be generated.
@@ -236,9 +236,9 @@ public:
   vtkSetMacro(GenerateConstraintScalars, bool);
   vtkGetMacro(GenerateConstraintScalars, bool);
   vtkBooleanMacro(GenerateConstraintScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If point constraints are enabled, an output vector indicating the
    * average normal at each point can be generated.
@@ -246,9 +246,9 @@ public:
   vtkSetMacro(GenerateConstraintNormals, bool);
   vtkGetMacro(GenerateConstraintNormals, bool);
   vtkBooleanMacro(GenerateConstraintNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable / disable the computation of a packing radius. By default,
    * a packing radius is computed as one half of the average distance
@@ -258,9 +258,9 @@ public:
   vtkSetMacro(ComputePackingRadius, bool);
   vtkGetMacro(ComputePackingRadius, bool);
   vtkBooleanMacro(ComputePackingRadius, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the packing radius R. This only takes effect if
    * ComputePackingRadius is off. Note that the for two points separated by
@@ -273,9 +273,9 @@ public:
    */
   vtkSetClampMacro(PackingRadius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(PackingRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the packing factor. Larger numbers tend to loosen the overall
    * packing of points. Note however that if the point density in a region is
@@ -287,9 +287,9 @@ public:
    */
   vtkSetClampMacro(PackingFactor, double, 0.1, 10.0);
   vtkGetMacro(PackingFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the relative distance of inter-particle attraction. A value of
    * 1.0 means that the radius of the attraction region is the same as the
@@ -299,7 +299,7 @@ public:
    */
   vtkSetClampMacro(AttractionFactor, double, 0.1, 10.0);
   vtkGetMacro(AttractionFactor, double);
-  //@}
+  ///@}
 
   /**
    * Specify how point motion is to be constrained.
@@ -310,7 +310,7 @@ public:
     PLANE_MOTION
   };
 
-  //@{
+  ///@{
   /**
    * Specify how to constrain the motion of points. By default, point motion is
    * unconstrained. Points can also be constrained to a plane. If constrained to
@@ -320,18 +320,18 @@ public:
   vtkGetMacro(MotionConstraint, int);
   void SetMotionConstraintToUnconstrained() { this->SetMotionConstraint(UNCONSTRAINED_MOTION); }
   void SetMotionConstraintToPlane() { this->SetMotionConstraint(PLANE_MOTION); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the plane to which point motion is constrained. Only required if
    * MotionConstraint is set to UNCONSTRAINED_MOTION.
    */
   void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate points
@@ -339,7 +339,7 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
 protected:
   vtkPointSmoothingFilter();

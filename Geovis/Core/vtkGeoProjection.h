@@ -61,7 +61,7 @@ public:
    */
   static const char* GetProjectionDescription(int projection);
 
-  //@{
+  ///@{
   /**
    * Set/get the short name describing the projection you wish to use.
    * This defaults to "latlong".
@@ -70,7 +70,7 @@ public:
    */
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
-  //@}
+  ///@}
 
   /**
    * Return the index of the current projection's type in the list of all projection types.
@@ -84,14 +84,14 @@ public:
    */
   const char* GetDescription();
 
-  //@{
+  ///@{
   /**
    * Set/get the longitude which corresponds to the central meridian of the projection.
    * This defaults to 0, the Greenwich Meridian.
    */
   vtkSetMacro(CentralMeridian, double);
   vtkGetMacro(CentralMeridian, double);
-  //@}
+  ///@}
 
   /**
    * Return a pointer to the PROJ.4 data structure describing this projection.
@@ -134,7 +134,7 @@ public:
    */
   void ClearOptionalParameters();
 
-  //@{
+  ///@{
   /**
    * Set/Get/Clear projection string in PROJ.4 format.
    * This is a special case alternative to setting the projection name and
@@ -145,7 +145,7 @@ public:
    */
   vtkSetStringMacro(PROJ4String);
   vtkGetStringMacro(PROJ4String);
-  //@}
+  ///@}
 
 protected:
   vtkGeoProjection();

@@ -104,7 +104,7 @@ public:
   void DrawMarkers(int shape, bool highlight, float* points, int n, unsigned char* colors = nullptr,
     int nc_comps = 0) override;
 
-  //@{
+  ///@{
   /**
    * Adjust the size of the MarkerCache. This implementation generates point
    * sprites for each mark size/shape and uses DrawPointSprites to render them.
@@ -112,7 +112,7 @@ public:
    */
   vtkSetMacro(MaximumMarkerCacheSize, int);
   vtkGetMacro(MaximumMarkerCacheSize, int);
-  //@}
+  ///@}
 
   /**
    * Draws a rectangle
@@ -329,12 +329,12 @@ public:
    */
   bool HasGLSL();
 
-  //@{
+  ///@{
   /**
    * Get the active RenderWindow of the device. Will return null if not active.
    */
   vtkGetObjectMacro(RenderWindow, vtkOpenGLRenderWindow);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this device.
@@ -343,13 +343,13 @@ public:
    */
   virtual void ReleaseGraphicsResources(vtkWindow* window);
 
-  //@{
+  ///@{
   /**
    * Get the projection matrix this is needed
    */
   vtkMatrix4x4* GetProjectionMatrix();
   vtkMatrix4x4* GetModelMatrix();
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLContextDevice2D();
@@ -374,7 +374,7 @@ protected:
    */
   bool InRender;
 
-  //@{
+  ///@{
   /**
    * Private data pointer of the class
    */
@@ -383,7 +383,7 @@ protected:
 
   class CellArrayHelper;
   CellArrayHelper* PolyDataImpl;
-  //@}
+  ///@}
 
   /**
    * The OpenGL render window being used by the device
@@ -413,7 +413,7 @@ protected:
   // used for stipples
   unsigned short LinePattern;
 
-  //@{
+  ///@{
   /**
    * Draw the markers as paths/polydata instead of sprites for detailed GL2PS
    * capture.
@@ -430,24 +430,24 @@ protected:
     bool highlight, float* points, int n, unsigned char* colors, int nc_comps);
   void DrawDiamondMarkersGL2PS(
     bool highlight, float* points, int n, unsigned char* colors, int nc_comps);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Embed an RGBA image in the GL2PS output at the supplied point.
    */
   void DrawImageGL2PS(float p[2], vtkImageData* image);
   void DrawImageGL2PS(float p[2], float scale, vtkImageData* image);
   void DrawImageGL2PS(const vtkRectf& rect, vtkImageData* image);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Inject smooth primitives into the GL2PS stream.
    */
   void DrawCircleGL2PS(float x, float y, float rX, float rY);
   void DrawWedgeGL2PS(float x, float y, float outRx, float outRy, float inRx, float inRy);
-  //@}
+  ///@}
 
   /**
    * Add an ellipse to a vtkPath. Used during GL2PS export.

@@ -37,21 +37,21 @@ public:
   vtkTypeMacro(vtkXMLHierarchicalBoxDataFileConverter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the input filename.
    */
   vtkSetStringMacro(InputFileName);
   vtkGetStringMacro(InputFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output filename.
    */
   vtkSetStringMacro(OutputFileName);
   vtkGetStringMacro(OutputFileName);
-  //@}
+  ///@}
 
   /**
    * Converts the input file to new format and writes out the output file.

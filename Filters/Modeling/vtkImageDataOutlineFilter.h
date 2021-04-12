@@ -35,25 +35,25 @@
 class VTKFILTERSMODELING_EXPORT vtkImageDataOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation. type information, and printing.
    */
   static vtkImageDataOutlineFilter* New();
   vtkTypeMacro(vtkImageDataOutlineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate the six boundary faces of the image data. This is off by default.
    */
   vtkSetMacro(GenerateFaces, vtkTypeBool);
   vtkBooleanMacro(GenerateFaces, vtkTypeBool);
   vtkGetMacro(GenerateFaces, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -61,7 +61,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageDataOutlineFilter();

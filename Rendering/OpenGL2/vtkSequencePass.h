@@ -55,7 +55,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * The ordered list of render passes to execute sequentially.
    * If the pointer is NULL or the list is empty, it is silently ignored.
@@ -64,7 +64,7 @@ public:
    */
   vtkGetObjectMacro(Passes, vtkRenderPassCollection);
   virtual void SetPasses(vtkRenderPassCollection* passes);
-  //@}
+  ///@}
 
 protected:
   vtkRenderPassCollection* Passes;

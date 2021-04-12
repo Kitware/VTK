@@ -35,23 +35,23 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set lower threshold. This would be the value against which
    * edge or vertex data array value will be compared.
    */
   vtkGetMacro(LowerThreshold, double);
   vtkSetMacro(LowerThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set upper threshold. This would be the value against which
    * edge or vertex data array value will be compared.
    */
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(UpperThreshold, double);
-  //@}
+  ///@}
 
 protected:
   vtkThresholdGraph();

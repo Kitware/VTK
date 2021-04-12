@@ -183,7 +183,7 @@ public:
   using ArrayType32 = vtkTypeInt32Array;
   using ArrayType64 = vtkTypeInt64Array;
 
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and
    * printing.
@@ -192,7 +192,7 @@ public:
   vtkTypeMacro(vtkCellArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintDebug(ostream& os);
-  //@}
+  ///@}
 
   /**
    * List of possible array types used for storage. May be used with

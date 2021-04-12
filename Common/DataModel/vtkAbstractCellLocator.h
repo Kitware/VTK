@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkAbstractCellLocator, vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the preferred/maximum number of cells in each node/bucket.
    * Default 32. Locators generally operate by subdividing space into
@@ -60,9 +60,9 @@ public:
    */
   vtkSetClampMacro(NumberOfCellsPerNode, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfCellsPerNode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether the bounds of each cell are computed only
    * once and then saved.  Should be 10 to 20% faster if repeatedly
@@ -73,9 +73,9 @@ public:
   vtkSetMacro(CacheCellBounds, vtkTypeBool);
   vtkGetMacro(CacheCellBounds, vtkTypeBool);
   vtkBooleanMacro(CacheCellBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether to maintain list of cells in each node.
    * not applicable to all implementations, but if the locator is being used
@@ -84,9 +84,9 @@ public:
   vtkSetMacro(RetainCellLists, vtkTypeBool);
   vtkGetMacro(RetainCellLists, vtkTypeBool);
   vtkBooleanMacro(RetainCellLists, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Most Locators build their search structures during BuildLocator
    * but some may delay construction until it is actually needed.
@@ -96,9 +96,9 @@ public:
   vtkSetMacro(LazyEvaluation, vtkTypeBool);
   vtkGetMacro(LazyEvaluation, vtkTypeBool);
   vtkBooleanMacro(LazyEvaluation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Some locators support querying a new dataset without rebuilding
    * the search structure (typically this may occur when a dataset
@@ -109,7 +109,7 @@ public:
   vtkSetMacro(UseExistingSearchStructure, vtkTypeBool);
   vtkGetMacro(UseExistingSearchStructure, vtkTypeBool);
   vtkBooleanMacro(UseExistingSearchStructure, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return intersection point (if any) of finite line with cells contained
@@ -259,7 +259,7 @@ protected:
   vtkAbstractCellLocator();
   ~vtkAbstractCellLocator() override;
 
-  //@{
+  ///@{
   /**
    * This command is used internally by the locator to copy
    * all cell Bounds into the internal CellBounds array. Subsequent
@@ -269,7 +269,7 @@ protected:
    */
   virtual bool StoreCellBounds();
   virtual void FreeCellBounds();
-  //@}
+  ///@}
 
   int NumberOfCellsPerNode;
   vtkTypeBool RetainCellLists;

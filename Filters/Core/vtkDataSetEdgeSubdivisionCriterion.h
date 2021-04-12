@@ -105,7 +105,7 @@ public:
    */
   double* EvaluateFields(double* vertex, double* weights, int field_start);
 
-  //@{
+  ///@{
   /**
    * Evaluate either a cell or nodal field.
    * This exists because of the funky way that Exodus data will be handled.
@@ -113,18 +113,18 @@ public:
    */
   void EvaluatePointDataField(double* result, double* weights, int field);
   void EvaluateCellDataField(double* result, double* weights, int field);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the square of the allowable chord error at any edge's midpoint.
    * This value is used by EvaluateLocationAndFields.
    */
   vtkSetMacro(ChordError2, double);
   vtkGetMacro(ChordError2, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the square of the allowable error magnitude for the
    * scalar field \a s at any edge's midpoint.
@@ -133,7 +133,7 @@ public:
    */
   virtual void SetFieldError2(int s, double err);
   double GetFieldError2(int s) const;
-  //@}
+  ///@}
 
   /**
    * Tell the subdivider not to use any field values as subdivision criteria.
@@ -141,7 +141,7 @@ public:
    */
   virtual void ResetFieldError2();
 
-  //@{
+  ///@{
   /**
    * Return a bitfield specifying which FieldError2 criteria are positive (i.e., actively
    * used to decide edge subdivisions).
@@ -149,7 +149,7 @@ public:
    */
   vtkGetMacro(ActiveFieldCriteria, int);
   int GetActiveFieldCriteria() const { return this->ActiveFieldCriteria; }
-  //@}
+  ///@}
 
 protected:
   vtkDataSetEdgeSubdivisionCriterion();

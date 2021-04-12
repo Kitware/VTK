@@ -45,16 +45,16 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractBlock : public vtkPassInputTypeAlgor
   class vtkSet;
 
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkExtractBlock* New();
   vtkTypeMacro(vtkExtractBlock, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@{
+  ///@{
 
-  //@{
+  ///@{
   /**
    * Select the block indices to extract.  Each node in the multi-block tree
    * is identified by an \c index. The index can be obtained by performing a
@@ -66,9 +66,9 @@ public:
   void AddIndex(unsigned int index);
   void RemoveIndex(unsigned int index);
   void RemoveAllIndices();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set, the output multiblock dataset will be pruned to remove empty
    * nodes. On by default.
@@ -78,9 +78,9 @@ public:
   vtkSetMacro(PruneOutput, vtkTypeBool);
   vtkGetMacro(PruneOutput, vtkTypeBool);
   vtkBooleanMacro(PruneOutput, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is used only when PruneOutput is ON. By default, when pruning the
    * output i.e. remove empty blocks, if node has only 1 non-null child block,
@@ -92,7 +92,7 @@ public:
   vtkSetMacro(MaintainStructure, vtkTypeBool);
   vtkGetMacro(MaintainStructure, vtkTypeBool);
   vtkBooleanMacro(MaintainStructure, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractBlock();

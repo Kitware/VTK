@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkRenderedRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the label render mode.
    * vtkRenderView::QT - Use Qt-based labeler with fitted labeling
@@ -55,13 +55,13 @@ public:
    */
   vtkSetMacro(LabelRenderMode, int);
   vtkGetMacro(LabelRenderMode, int);
-  //@}
+  ///@}
 
 protected:
   vtkRenderedRepresentation();
   ~vtkRenderedRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Subclasses may call these methods to add or remove props from the representation.
    * Use these if the number of props/actors changes as the result of input connection
@@ -69,7 +69,7 @@ protected:
    */
   void AddPropOnNextRender(vtkProp* p);
   void RemovePropOnNextRender(vtkProp* p);
-  //@}
+  ///@}
 
   /**
    * Obtains the hover text for a particular prop and cell.

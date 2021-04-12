@@ -41,45 +41,45 @@ public:
 
   static vtkProteinRibbonFilter* New();
 
-  //@{
+  ///@{
   /**
    * Width of the ribbon coil. Default is 0.3.
    */
   vtkGetMacro(CoilWidth, float);
   vtkSetMacro(CoilWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Width of the helix part of the ribbon. Default is 1.3.
    */
   vtkGetMacro(HelixWidth, float);
   vtkSetMacro(HelixWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Smoothing factor of the ribbon. Default is 20.
    */
   vtkGetMacro(SubdivideFactor, int);
   vtkSetMacro(SubdivideFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If enabled, small molecules (HETATMs) are drawn as spheres. Default is true.
    */
   vtkGetMacro(DrawSmallMoleculesAsSpheres, bool);
   vtkSetMacro(DrawSmallMoleculesAsSpheres, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Resolution of the spheres for small molecules. Default is 20.
    */
   vtkGetMacro(SphereResolution, int);
   vtkSetMacro(SphereResolution, int);
-  //@}
+  ///@}
 
 protected:
   vtkProteinRibbonFilter();

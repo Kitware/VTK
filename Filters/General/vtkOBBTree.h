@@ -169,13 +169,13 @@ public:
     int (*function)(vtkOBBNode* nodeA, vtkOBBNode* nodeB, vtkMatrix4x4* Xform, void* arg),
     void* data_arg);
 
-  //@{
+  ///@{
   /**
    * Satisfy locator's abstract interface, see vtkLocator.
    */
   void FreeSearchStructure() override;
   void BuildLocator() override;
-  //@}
+  ///@}
 
   /**
    * Create polygonal representation for OBB tree at specified level. If

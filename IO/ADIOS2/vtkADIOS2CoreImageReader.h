@@ -77,35 +77,35 @@ public:
 
   virtual int CanReadFile(const char* filename);
 
-  //@{
+  ///@{
   /**
    * Get/Set the input filename
    */
   vtkSetMacro(FileName, std::string);
   vtkGetMacro(FileName, std::string);
-  //@}
+  ///@}
 
   void SetFileName(const char* filename);
 
-  //@{
+  ///@{
   /**
    * Get/Set the origin of output vtkImageData.
    * Default to be the origin point.
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the spacing of output vtkImageData
    * Default to be 1.0, 1.0, 1.0.
    */
   vtkSetVector3Macro(Spacing, double);
   vtkGetVector3Macro(Spacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the array to deduce the dimension
    * of vtkImageData. You can toggle the DimensionArrayAsCell
@@ -114,9 +114,9 @@ public:
   vtkStringArray* GetAllDimensionArrays();
   vtkSetMacro(DimensionArray, std::string);
   vtkGetMacro(DimensionArray, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the assumption that the dimension array is cell data.
    * On by default.
@@ -124,19 +124,19 @@ public:
   vtkSetMacro(DimensionArrayAsCell, bool);
   vtkGetMacro(DimensionArrayAsCell, bool);
   vtkBooleanMacro(DimensionArrayAsCell, bool);
-  //@}
+  ///@}
 
   vtkStringArray* GetAllTimeStepArrays();
-  //@{
+  ///@{
   /**
    * Get/Set the name of the time step array. Once it's set, vtk will try to populate the
    * time step info from this array.
    */
   vtkSetMacro(TimeStepArray, std::string);
   vtkGetMacro(TimeStepArray, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about arrays. As is typical with readers this
    * is only valid after the filename is set and UpdateInformation() has been
@@ -149,16 +149,16 @@ public:
   int GetNumberOfArrays();
   const char* GetArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Set the array that should be read in. Based on the dimension info,
    * proper adios2 arrays will be read in as point or cell dota.
    */
   void SetArrayStatus(const char* name, int status);
   int GetArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the assumption that the order of input data is column major.
    * Off by default.
@@ -169,9 +169,9 @@ public:
   vtkSetMacro(IsColumnMajor, bool);
   vtkGetMacro(IsColumnMajor, bool);
   vtkBooleanMacro(IsColumnMajor, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the active scalar on each image block
    */
@@ -179,26 +179,26 @@ public:
   std::pair<std::string, VarType>& GetActiveScalar();
   const std::pair<std::string, VarType>& GetActiveScalar() const;
 
-  //@{
+  ///@{
   /**
    * Get the available variables. Call this function after calling RequestInformation
    */
   StringToParams& GetAvilableVariables();
   const StringToParams& GetAvilableVariables() const;
 
-  //@{
+  ///@{
   /**
    * Get the available attributes. Call this function after calling RequestInformation
    */
   StringToParams& GetAvailableAttributes();
   const StringToParams& GetAvailableAttributes() const;
 
-  //@{
+  ///@{
   /**
    * Set the MPI controller
    */
   void SetController(vtkMultiProcessController*);
-  //@}
+  ///@}
 
   /**
    * The main interface which triggers the reader to start

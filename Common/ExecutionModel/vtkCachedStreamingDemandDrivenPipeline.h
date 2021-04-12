@@ -35,14 +35,14 @@ public:
   vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline, vtkStreamingDemandDrivenPipeline);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This is the maximum number of images that can be retained in memory.
    * it defaults to 10.
    */
   void SetCacheSize(int size);
   vtkGetMacro(CacheSize, int);
-  //@}
+  ///@}
 
 protected:
   vtkCachedStreamingDemandDrivenPipeline();

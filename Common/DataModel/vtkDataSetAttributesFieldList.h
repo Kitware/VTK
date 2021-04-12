@@ -102,7 +102,7 @@ public:
    */
   void UnionFieldList(vtkDataSetAttributes* dsa);
 
-  //@{
+  ///@{
   /**
    * These methods can called to generate and update the output
    * vtkDataSetAttributes. These match corresponding API on vtkDataSetAttributes
@@ -116,7 +116,7 @@ public:
     vtkIdType numValues, vtkDataSetAttributes* output, vtkIdType outStart) const;
   void InterpolatePoint(int inputIndex, vtkDataSetAttributes* input, vtkIdList* inputIds,
     double* weights, vtkDataSetAttributes* output, vtkIdType toId) const;
-  //@}
+  ///@}
 
   /**
    * Use this method to provide a custom callback function to invoke for each

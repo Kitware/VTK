@@ -32,30 +32,30 @@ public:
   vtkTypeMacro(vtkImageCursor3D, vtkImageInPlaceFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sets/Gets the center point of the 3d cursor.
    */
   vtkSetVector3Macro(CursorPosition, double);
   vtkGetVector3Macro(CursorPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/Gets what pixel value to draw the cursor in.
    */
   vtkSetMacro(CursorValue, double);
   vtkGetMacro(CursorValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets/Gets the radius of the cursor. The radius determines
    * how far the axis lines project out from the cursors center.
    */
   vtkSetMacro(CursorRadius, int);
   vtkGetMacro(CursorRadius, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageCursor3D();

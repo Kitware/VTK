@@ -77,7 +77,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Pass that generates the shadow maps.
    * the vtkShadowMapPass will use the Resolution ivar of
@@ -86,16 +86,16 @@ public:
    */
   vtkGetObjectMacro(ShadowMapBakerPass, vtkShadowMapBakerPass);
   virtual void SetShadowMapBakerPass(vtkShadowMapBakerPass* shadowMapBakerPass);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Pass that render the lights and opaque geometry
    * Typically a sequence pass with a light pass and opaque pass.
    */
   vtkGetObjectMacro(OpaqueSequence, vtkRenderPass);
   virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence);
-  //@}
+  ///@}
 
   /**
    * get the matricies for all the

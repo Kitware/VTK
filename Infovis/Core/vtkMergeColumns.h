@@ -52,13 +52,13 @@ public:
   vtkTypeMacro(vtkMergeColumns, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name to give the merged column created by this filter.
    */
   vtkSetStringMacro(MergedColumnName);
   vtkGetStringMacro(MergedColumnName);
-  //@}
+  ///@}
 
 protected:
   vtkMergeColumns();

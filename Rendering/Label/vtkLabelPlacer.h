@@ -106,44 +106,44 @@ public:
                 //!< are significant).
   };
 
-  //@{
+  ///@{
   /**
    * The placement of the label relative to the anchor point.
    */
   virtual void SetGravity(int gravity);
   vtkGetMacro(Gravity, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum amount of screen space labels can take up before placement
    * terminates.
    */
   vtkSetClampMacro(MaximumLabelFraction, double, 0., 1.);
   vtkGetMacro(MaximumLabelFraction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The type of iterator used when traversing the labels.
    * May be vtkLabelHierarchy::FRUSTUM or vtkLabelHierarchy::FULL_SORT.
    */
   vtkSetMacro(IteratorType, int);
   vtkGetMacro(IteratorType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether, or not, to use unicode strings.
    */
   vtkSetMacro(UseUnicodeStrings, bool);
   vtkGetMacro(UseUnicodeStrings, bool);
   vtkBooleanMacro(UseUnicodeStrings, bool);
-  //@}
+  ///@}
 
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Use label anchor point coordinates as normal vectors and eliminate those
    * pointing away from the camera. Valid only when points are on a sphere
@@ -152,9 +152,9 @@ public:
   vtkGetMacro(PositionsAsNormals, bool);
   vtkSetMacro(PositionsAsNormals, bool);
   vtkBooleanMacro(PositionsAsNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable drawing spokes (lines) to anchor point coordinates that were perturbed
    * for being coincident with other anchor point coordinates.
@@ -162,9 +162,9 @@ public:
   vtkGetMacro(GeneratePerturbedLabelSpokes, bool);
   vtkSetMacro(GeneratePerturbedLabelSpokes, bool);
   vtkBooleanMacro(GeneratePerturbedLabelSpokes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the depth buffer to test each label to see if it should not be displayed if
    * it would be occluded by other objects in the scene. Off by default.
@@ -172,18 +172,18 @@ public:
   vtkGetMacro(UseDepthBuffer, bool);
   vtkSetMacro(UseDepthBuffer, bool);
   vtkBooleanMacro(UseDepthBuffer, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In the second output, output the geometry of the traversed octree nodes.
    */
   vtkGetMacro(OutputTraversedBounds, bool);
   vtkSetMacro(OutputTraversedBounds, bool);
   vtkBooleanMacro(OutputTraversedBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system used for output labels.
    * The output datasets may have point coordinates reported in the world space or display space.
@@ -192,7 +192,7 @@ public:
   vtkSetClampMacro(OutputCoordinateSystem, int, WORLD, DISPLAY);
   void OutputCoordinateSystemWorld() { this->SetOutputCoordinateSystem(vtkLabelPlacer::WORLD); }
   void OutputCoordinateSystemDisplay() { this->SetOutputCoordinateSystem(vtkLabelPlacer::DISPLAY); }
-  //@}
+  ///@}
 
 protected:
   vtkLabelPlacer();

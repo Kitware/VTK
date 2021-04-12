@@ -42,14 +42,14 @@ public:
   vtkTypeMacro(vtkPExtractExodusGlobalTemporalVariables, vtkExtractExodusGlobalTemporalVariables);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * `vtkMultiProcessController::GlobalController` will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 protected:
   vtkPExtractExodusGlobalTemporalVariables();
   ~vtkPExtractExodusGlobalTemporalVariables() override;

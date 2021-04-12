@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkStereoCompositor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods for compositing left and right eye images based on various
    * supported modes. See vtkRenderWindow::SetStereoType for explanation of each
@@ -62,7 +62,7 @@ public:
 
   bool SplitViewportHorizontal(
     vtkUnsignedCharArray* rgbLeftNResult, vtkUnsignedCharArray* rgbRight, const int size[2]);
-  //@}
+  ///@}
 
 protected:
   vtkStereoCompositor();

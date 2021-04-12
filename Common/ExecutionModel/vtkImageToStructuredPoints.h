@@ -40,13 +40,13 @@ public:
   vtkTypeMacro(vtkImageToStructuredPoints, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the input object from the image pipeline.
    */
   void SetVectorInputData(vtkImageData* input);
   vtkImageData* GetVectorInput();
-  //@}
+  ///@}
 
   /**
    * Get the output of the filter.

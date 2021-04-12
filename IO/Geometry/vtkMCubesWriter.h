@@ -49,29 +49,29 @@ public:
   vtkTypeMacro(vtkMCubesWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get file name of marching cubes limits file.
    */
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkMCubesWriter();

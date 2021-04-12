@@ -49,23 +49,23 @@ public:
   vtkTypeMacro(vtkRecursiveDividingCubes, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set isosurface value.
    */
   vtkSetMacro(Value, double);
   vtkGetMacro(Value, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify sub-voxel size at which to generate point.
    */
   vtkSetClampMacro(Distance, double, 1.0e-06, VTK_DOUBLE_MAX);
   vtkGetMacro(Distance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Every "Increment" point is added to the list of points. This parameter, if
    * set to a large value, can be used to limit the number of points while
@@ -73,7 +73,7 @@ public:
    */
   vtkSetClampMacro(Increment, int, 1, VTK_INT_MAX);
   vtkGetMacro(Increment, int);
-  //@}
+  ///@}
 
 protected:
   vtkRecursiveDividingCubes();

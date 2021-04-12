@@ -55,14 +55,14 @@ public:
   vtkTypeMacro(vtkImageQuantizeRGBToIndex, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the number of color index values to produce - must be
    * a number between 2 and 65536.
    */
   vtkSetClampMacro(NumberOfColors, int, 2, 65536);
   vtkGetMacro(NumberOfColors, int);
-  //@}
+  ///@}
 
   vtkSetVector3Macro(SamplingRate, int);
   vtkGetVector3Macro(SamplingRate, int);
@@ -71,33 +71,33 @@ public:
   vtkGetMacro(SortIndexByLuminance, bool);
   vtkBooleanMacro(SortIndexByLuminance, bool);
 
-  //@{
+  ///@{
   /**
    * Get the resulting lookup table that contains the color definitions
    * corresponding to the index values in the output image.
    */
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
-  //@}
+  ///@}
 
   vtkGetMacro(InitializeExecuteTime, double);
   vtkGetMacro(BuildTreeExecuteTime, double);
   vtkGetMacro(LookupIndexExecuteTime, double);
 
-  //@{
+  ///@{
   /**
    * For internal use only - get the type of the image
    */
   vtkGetMacro(InputType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For internal use only - set the times for execution
    */
   vtkSetMacro(InitializeExecuteTime, double);
   vtkSetMacro(BuildTreeExecuteTime, double);
   vtkSetMacro(LookupIndexExecuteTime, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageQuantizeRGBToIndex();

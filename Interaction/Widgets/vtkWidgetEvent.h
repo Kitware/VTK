@@ -34,13 +34,13 @@ public:
    */
   static vtkWidgetEvent* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetEvent, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * All the widget events are defined here.
@@ -79,13 +79,13 @@ public:
     HoverLeave
   };
 
-  //@{
+  ///@{
   /**
    * Convenience methods for translating between event names and event ids.
    */
   static const char* GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char* event);
-  //@}
+  ///@}
 
 protected:
   vtkWidgetEvent() = default;

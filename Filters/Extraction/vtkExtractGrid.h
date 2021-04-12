@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkExtractGrid, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify i-j-k (min,max) pairs to extract. The resulting structured grid
    * dataset can be of any topological dimension (i.e., point, line, plane,
@@ -61,9 +61,9 @@ public:
    */
   vtkSetVector6Macro(VOI, int);
   vtkGetVectorMacro(VOI, int, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the sampling rate in the i, j, and k directions. If the rate is > 1,
    * then the resulting VOI will be subsampled representation of the input.
@@ -73,9 +73,9 @@ public:
    */
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether to enforce that the "boundary" of the grid is output in
    * the subsampling process. (This ivar only has effect when the SampleRate
@@ -87,7 +87,7 @@ public:
   vtkSetMacro(IncludeBoundary, vtkTypeBool);
   vtkGetMacro(IncludeBoundary, vtkTypeBool);
   vtkBooleanMacro(IncludeBoundary, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractGrid();

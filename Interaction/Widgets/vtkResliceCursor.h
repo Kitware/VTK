@@ -47,39 +47,39 @@ public:
 
   static vtkResliceCursor* New();
 
-  //@{
+  ///@{
   /**
    * Set the image (3D) that we are slicing
    */
   virtual void SetImage(vtkImageData*);
   vtkGetObjectMacro(Image, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the cente of the reslice cursor.
    */
   virtual void SetCenter(double, double, double);
   virtual void SetCenter(double center[3]);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the thickness of the cursor
    */
   vtkSetVector3Macro(Thickness, double);
   vtkGetVector3Macro(Thickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable disable thick mode. Default is to enable it.
    */
   vtkSetMacro(ThickMode, vtkTypeBool);
   vtkGetMacro(ThickMode, vtkTypeBool);
   vtkBooleanMacro(ThickMode, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the 3D PolyData representation
@@ -108,7 +108,7 @@ public:
    */
   virtual void Update();
 
-  //@{
+  ///@{
   /**
    * Get the computed axes directions
    */
@@ -119,7 +119,7 @@ public:
   vtkSetVector3Macro(YAxis, double);
   vtkSetVector3Macro(ZAxis, double);
   virtual double* GetAxis(int i);
-  //@}
+  ///@}
 
   /**
    * Get/Set the view up
@@ -132,31 +132,31 @@ public:
   vtkSetVector3Macro(ZViewUp, double);
   double* GetViewUp(int i);
 
-  //@{
+  ///@{
   /**
    * Show a hole in the center of the cursor, so its easy to see the pixels
    * within the hole. ON by default
    */
   vtkSetMacro(Hole, int);
   vtkGetMacro(Hole, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width of the hole in mm
    */
   vtkSetMacro(HoleWidth, double);
   vtkGetMacro(HoleWidth, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width of the hole in pixels. If set, this will override the
    * hole with in mm.
    */
   vtkSetMacro(HoleWidthInPixels, double);
   vtkGetMacro(HoleWidthInPixels, double);
-  //@}
+  ///@}
 
   /**
    * Get the MTime. Check the MTime of the internal planes as well.

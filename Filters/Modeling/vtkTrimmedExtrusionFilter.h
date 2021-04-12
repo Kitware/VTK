@@ -80,15 +80,15 @@ public:
    */
   static vtkTrimmedExtrusionFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the extrusion direction.
    */
   vtkSetVector3Macro(ExtrusionDirection, double);
   vtkGetVectorMacro(ExtrusionDirection, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the surface which trims the surface.  Note that the method
    * SetTrimSurfaceData does not connect the pipeline. The algorithm will
@@ -97,24 +97,24 @@ public:
    */
   void SetTrimSurfaceData(vtkPolyData* pd);
   void SetTrimSurfaceConnection(vtkAlgorithmOutput* algOutput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a pointer to the enclosing surface.
    */
   vtkPolyData* GetTrimSurface();
   vtkPolyData* GetTrimSurface(vtkInformationVector* sourceInfo);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the extruded skirt.
    */
   vtkSetMacro(Capping, int);
   vtkGetMacro(Capping, int);
   vtkBooleanMacro(Capping, int);
-  //@}
+  ///@}
 
   // How to extrude data. Either determine boundary edges and sweep them; or
   // sweep all edges.
@@ -124,7 +124,7 @@ public:
     ALL_EDGES = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify a strategy for extrusion. If the strategy is set to
    * "BOUNDARY_EDGES" then the boundary edges of the input polygons and
@@ -138,7 +138,7 @@ public:
   vtkGetMacro(ExtrusionStrategy, int);
   void SetExtrusionStrategyToBoundaryEdges() { this->SetExtrusionStrategy(BOUNDARY_EDGES); }
   void SetExtrusionStrategyToAllEdges() { this->SetExtrusionStrategy(ALL_EDGES); }
-  //@}
+  ///@}
 
   // How to cap data.
   enum CappingStrategy
@@ -149,7 +149,7 @@ public:
     AVERAGE_DISTANCE = 3,
   };
 
-  //@{
+  ///@{
   /**
    * Specify a strategy for capping. By default the points of the cap
    * polygons are located where the extrusion intersects the capping surface.
@@ -177,16 +177,16 @@ public:
   void SetCappingStrategyToMinimumDistance() { this->SetCappingStrategy(MINIMUM_DISTANCE); }
   void SetCappingStrategyToMaximumDistance() { this->SetCappingStrategy(MAXIMUM_DISTANCE); }
   void SetCappingStrategyToAverageDistance() { this->SetCappingStrategy(AVERAGE_DISTANCE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a cell locator. By default a vtkStaticCellLocator is
    * used. The locator performs efficient searches to intersect cells.
    */
   void SetLocator(vtkAbstractCellLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
 protected:
   vtkTrimmedExtrusionFilter();

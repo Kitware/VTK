@@ -89,7 +89,7 @@ public:
     NUM_BASIS_SCHEMES   //!< The number of schemes (not a valid scheme).
   };
 
-  //@{
+  ///@{
   /**
    * This determines how (or if) the covariance matrix \a cov is normalized before PCA.
 
@@ -116,9 +116,9 @@ public:
   vtkGetMacro(NormalizationScheme, int);
   virtual void SetNormalizationSchemeByName(const char* schemeName);
   virtual const char* GetNormalizationSchemeName(int scheme);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods allow you to set/get values used to normalize the covariance matrix before PCA.
    * The normalization values apply to all requests, so you do not specify a single
@@ -145,9 +145,9 @@ public:
    */
   virtual vtkTable* GetSpecifiedNormalization();
   virtual void SetSpecifiedNormalization(vtkTable*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the eigenvalues. The eigenvalues are ordered according from largest to smallest.
    * This function:
@@ -160,9 +160,9 @@ public:
   void GetEigenvalues(vtkDoubleArray*);
   double GetEigenvalue(int request, int i);
   double GetEigenvalue(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the eigenvectors. The eigenvectors are ordered according to the magnitude of their
    * associated eigenvalues, sorted from largest to smallest. That is, eigenvector 0 corresponds
@@ -177,9 +177,9 @@ public:
   void GetEigenvectors(vtkDoubleArray* eigenvectors);
   void GetEigenvector(int i, vtkDoubleArray* eigenvector);
   void GetEigenvector(int request, int i, vtkDoubleArray* eigenvector);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This variable controls the dimensionality of output tuples in Assess operation.
    * Consider the case where you have requested a PCA on D columns.
@@ -211,9 +211,9 @@ public:
   vtkGetMacro(BasisScheme, int);
   virtual const char* GetBasisSchemeName(int schemeIndex);
   virtual void SetBasisSchemeByName(const char* schemeName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of basis vectors to use. See SetBasisScheme() for more information.
    * When FixedBasisSize <= 0 (the default), the fixed basis size scheme is equivalent to the full
@@ -221,9 +221,9 @@ public:
    */
   vtkSetMacro(FixedBasisSize, int);
   vtkGetMacro(FixedBasisSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The minimum energy the new basis should use, as a fraction. See SetBasisScheme() for more
    * information. When FixedBasisEnergy >= 1 (the default), the fixed basis energy scheme is
@@ -231,7 +231,7 @@ public:
    */
   vtkSetClampMacro(FixedBasisEnergy, double, 0., 1.);
   vtkGetMacro(FixedBasisEnergy, double);
-  //@}
+  ///@}
 
   /**
    * A convenience method (in particular for access from other applications) to

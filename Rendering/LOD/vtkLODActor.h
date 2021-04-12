@@ -105,7 +105,7 @@ public:
    */
   void AddLODMapper(vtkMapper* mapper);
 
-  //@{
+  ///@{
   /**
    * You may plug in your own filters to decimate/subsample the input.
    * The default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
@@ -115,23 +115,23 @@ public:
   virtual void SetMediumResFilter(vtkPolyDataAlgorithm*);
   vtkGetObjectMacro(LowResFilter, vtkPolyDataAlgorithm);
   vtkGetObjectMacro(MediumResFilter, vtkPolyDataAlgorithm);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of random points for the point cloud.
    */
   vtkGetMacro(NumberOfCloudPoints, int);
   vtkSetMacro(NumberOfCloudPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * All the mappers for different LODs are stored here.
    * The order is not important.
    */
   vtkGetObjectMacro(LODMappers, vtkMapperCollection);
-  //@}
+  ///@}
 
   /**
    * When this objects gets modified, this method also modifies the object.

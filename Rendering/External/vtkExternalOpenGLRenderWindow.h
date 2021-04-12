@@ -63,7 +63,7 @@ public:
    */
   bool IsCurrent() override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off a flag which enables/disables automatic positioning and
    * resizing of the render window. By default, vtkExternalOpenGLRenderWindow
@@ -78,9 +78,9 @@ public:
   vtkGetMacro(AutomaticWindowPositionAndResize, int);
   vtkSetMacro(AutomaticWindowPositionAndResize, int);
   vtkBooleanMacro(AutomaticWindowPositionAndResize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off a flag which enables/disables using the content from an
    * outside applicaiton.  When on the active read buffer is first blitted
@@ -89,7 +89,7 @@ public:
   vtkGetMacro(UseExternalContent, bool);
   vtkSetMacro(UseExternalContent, bool);
   vtkBooleanMacro(UseExternalContent, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExternalOpenGLRenderWindow();

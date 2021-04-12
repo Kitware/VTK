@@ -51,7 +51,7 @@ public:
    */
   virtual void Initialize();
 
-  //@{
+  ///@{
   /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
@@ -63,7 +63,7 @@ public:
    */
   virtual void Enable();
   virtual void Disable();
-  //@}
+  ///@}
 
   /**
    * Android specific application terminate, calls ClassExitMethod then
@@ -72,7 +72,7 @@ public:
    */
   void TerminateApp(void);
 
-  //@{
+  ///@{
   /**
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
@@ -81,7 +81,7 @@ public:
    */
   static void SetClassExitMethod(void (*f)(void*), void* arg);
   static void SetClassExitMethodArgDelete(void (*f)(void*));
-  //@}
+  ///@}
 
   /**
    * These methods correspond to the Exit, User and Pick
@@ -122,7 +122,7 @@ protected:
 
   bool Done; // is the event loop done running
 
-  //@{
+  ///@{
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
@@ -131,16 +131,16 @@ protected:
   static void (*ClassExitMethod)(void*);
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Win32-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
-  //@}
+  ///@}
 
   /**
    * This will start up the event loop and never return. If you

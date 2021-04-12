@@ -41,14 +41,14 @@ public:
   vtkTypeMacro(vtkMatrixToLinearTransform, vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the input matrix.  Any modifications to the matrix will be
    * reflected in the transformation.
    */
   virtual void SetInput(vtkMatrix4x4*);
   vtkGetObjectMacro(Input, vtkMatrix4x4);
-  //@}
+  ///@}
 
   /**
    * The input matrix is left as-is, but the transformation matrix

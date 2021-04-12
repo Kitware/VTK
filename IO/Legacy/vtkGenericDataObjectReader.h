@@ -56,15 +56,15 @@ public:
   vtkTypeMacro(vtkGenericDataObjectReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this filter
    */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as various concrete types. This method is typically used
    * when you know exactly what type of data is being read.  Otherwise, use
@@ -81,7 +81,7 @@ public:
   vtkTable* GetTableOutput();
   vtkTree* GetTreeOutput();
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
-  //@}
+  ///@}
 
   /**
    * This method can be used to find out the type of output expected without

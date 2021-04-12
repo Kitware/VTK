@@ -48,46 +48,46 @@ public:
   vtkTypeMacro(vtkShaderProgram, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the vertex shader for this program
    */
   vtkGetObjectMacro(VertexShader, vtkShader);
   void SetVertexShader(vtkShader*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the fragment shader for this program
    */
   vtkGetObjectMacro(FragmentShader, vtkShader);
   void SetFragmentShader(vtkShader*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the geometry shader for this program
    */
   vtkGetObjectMacro(GeometryShader, vtkShader);
   void SetGeometryShader(vtkShader*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set a TransformFeedbackCapture object on this shader program.
    */
   vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
   void SetTransformFeedback(vtkTransformFeedback* tfc);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get flag for if this program is compiled
    */
   vtkGetMacro(Compiled, bool);
   vtkSetMacro(Compiled, bool);
   vtkBooleanMacro(Compiled, bool);
-  //@}
+  ///@}
 
   /**
    * Set/Get the md5 hash of this program
@@ -261,7 +261,7 @@ public:
     bool operator()(const char* a, const char* b) const { return strcmp(a, b) < 0; }
   };
 
-  //@{
+  ///@{
   /**
    * When developing shaders, it's often convenient to tweak the shader and
    * re-render incrementally. This provides a mechanism to do the same. To debug
@@ -281,9 +281,9 @@ public:
    */
   vtkSetStringMacro(FileNamePrefixForDebugging);
   vtkGetStringMacro(FileNamePrefixForDebugging);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get times that can be used to track when a set of
    * uniforms was last updated. This can be used to reduce
@@ -297,7 +297,7 @@ public:
   };
   void SetUniformGroupUpdateTime(int, vtkMTimeType tm);
   vtkMTimeType GetUniformGroupUpdateTime(int);
-  //@}
+  ///@}
 
   // returns the location for a uniform or attribute in
   // this program. Is cached for performance.

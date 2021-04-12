@@ -136,7 +136,7 @@ public:
    */
   virtual vtkDistributedGraphHelper* Clone() = 0;
 
-  //@{
+  ///@{
   /**
    * Information Keys that distributed graphs can append to attribute arrays
    * to flag them as containing distributed IDs.  These can be used to let
@@ -146,7 +146,7 @@ public:
    */
   static vtkInformationIntegerKey* DISTRIBUTEDVERTEXIDS();
   static vtkInformationIntegerKey* DISTRIBUTEDEDGEIDS();
-  //@}
+  ///@}
 
 protected:
   vtkDistributedGraphHelper();

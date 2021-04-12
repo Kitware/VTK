@@ -72,40 +72,40 @@ public:
   vtkTypeMacro(vtkVtkJSSceneGraphSerializer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Empty the contents of the scene and the reset the unique id generator.
    */
   void Reset();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the Json description of the constructed scene. The returned object
    * is valid for the lifetime of this class.
    */
   const Json::Value& GetRoot() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the data objects referenced in the constructed scene.
    */
   vtkIdType GetNumberOfDataObjects() const;
   Json::ArrayIndex GetDataObjectId(vtkIdType) const;
   vtkDataObject* GetDataObject(vtkIdType) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the data arrays referenced in the constructed scene.
    */
   vtkIdType GetNumberOfDataArrays() const;
   std::string GetDataArrayId(vtkIdType) const;
   vtkDataArray* GetDataArray(vtkIdType) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a scene graph node and its corresponding renderable to the scene.
    */
@@ -116,13 +116,13 @@ public:
   virtual void Add(vtkViewNode*, vtkMapper*);
   virtual void Add(vtkViewNode*, vtkRenderer*);
   virtual void Add(vtkViewNode*, vtkRenderWindow*);
-  //@}
+  ///@}
 
 protected:
   vtkVtkJSSceneGraphSerializer();
   ~vtkVtkJSSceneGraphSerializer() override;
 
-  //@{
+  ///@{
   /**
    * Translate from a VTK renderable to a vtk-js renderable.
    */
@@ -141,15 +141,15 @@ protected:
   virtual Json::Value ToJson(Json::Value&, vtkTexture*);
   virtual Json::Value ToJson(Json::Value&, vtkTransform*);
   virtual Json::Value ToJson(vtkRenderWindow*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Associate a unique id with a given object. Subsequent calls to this method
    * with the same object will return the same unique id.
    */
   Json::ArrayIndex UniqueId(void* ptr = nullptr);
-  //@}
+  ///@}
 
   struct Internal;
   Internal* Internals;

@@ -52,7 +52,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkLabelSizeCalculator, vtkPassInputTypeAlgorithm);
 
-  //@{
+  ///@{
   /**
    * Get/Set the font used compute label sizes.
    * This defaults to "Arial" at 12 points.
@@ -61,25 +61,25 @@ public:
    */
   virtual void SetFontProperty(vtkTextProperty* fontProp, int type = 0);
   virtual vtkTextProperty* GetFontProperty(int type = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the output array containing text label sizes
    * This defaults to "LabelSize"
    */
   vtkSetStringMacro(LabelSizeArrayName);
   vtkGetStringMacro(LabelSizeArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the DPI at which the labels are to be rendered. Defaults to 72.
    * @sa vtkWindow::GetDPI()
    */
   vtkSetMacro(DPI, int);
   vtkGetMacro(DPI, int);
-  //@}
+  ///@}
 
 protected:
   vtkLabelSizeCalculator();

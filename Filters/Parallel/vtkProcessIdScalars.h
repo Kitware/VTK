@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkProcessIdScalars, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Option to centerate cell scalars of points scalars.  Default is point
    * scalars (0).
@@ -52,9 +52,9 @@ public:
   void SetScalarModeToPointData() { this->SetCellScalarsFlag(0); }
   vtkSetMacro(CellScalarsFlag, int);
   int GetScalarMode() { return this->CellScalarsFlag; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This option uses a random mapping between pieces and scalar values.
    * The scalar values are chosen between 0 and 1.  By default, random
@@ -63,16 +63,16 @@ public:
   vtkSetMacro(RandomMode, vtkTypeBool);
   vtkGetMacro(RandomMode, vtkTypeBool);
   vtkBooleanMacro(RandomMode, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkProcessIdScalars();

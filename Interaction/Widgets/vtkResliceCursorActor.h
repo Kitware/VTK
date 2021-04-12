@@ -41,21 +41,21 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorActor : public vtkProp3D
 {
 
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods
    */
   static vtkResliceCursorActor* New();
   vtkTypeMacro(vtkResliceCursorActor, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the cursor algorithm. The cursor must be set on the algorithm
    */
   vtkGetObjectMacro(CursorAlgorithm, vtkResliceCursorPolyDataAlgorithm);
-  //@}
+  ///@}
 
   /**
    * Support the standard render methods.
@@ -84,13 +84,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Get property of the internal actor.
    */
   vtkProperty* GetCenterlineProperty(int i);
   vtkProperty* GetThickSlabProperty(int i);
-  //@}
+  ///@}
 
   /**
    * Get the centerline actor along a particular axis

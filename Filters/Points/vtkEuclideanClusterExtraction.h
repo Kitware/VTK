@@ -77,15 +77,15 @@ public:
    */
   static vtkEuclideanClusterExtraction* New();
 
-  //@{
+  ///@{
   /**
    * Specify the local search radius.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off connectivity based on scalar value. If on, points are
    * connected only if the are proximal AND the scalar value of a candidate
@@ -95,17 +95,17 @@ public:
   vtkSetMacro(ScalarConnectivity, bool);
   vtkGetMacro(ScalarConnectivity, bool);
   vtkBooleanMacro(ScalarConnectivity, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar range used to extract points based on scalar connectivity.
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVector2Macro(ScalarRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the extraction of connected surfaces.
    */
@@ -127,7 +127,7 @@ public:
   }
   void SetExtractionModeToAllClusters() { this->SetExtractionMode(VTK_EXTRACT_ALL_CLUSTERS); }
   const char* GetExtractionModeAsString();
-  //@}
+  ///@}
 
   /**
    * Initialize the list of point ids used to seed clusters.
@@ -159,30 +159,30 @@ public:
    */
   void DeleteSpecifiedCluster(int id);
 
-  //@{
+  ///@{
   /**
    * Used to specify the x-y-z point coordinates when extracting the cluster
    * closest to a specified point.
    */
   vtkSetVector3Macro(ClosestPoint, double);
   vtkGetVectorMacro(ClosestPoint, double, 3);
-  //@}
+  ///@}
 
   /**
    * Obtain the number of connected clusters. This value is valid only after filter execution.
    */
   int GetNumberOfExtractedClusters();
 
-  //@{
+  ///@{
   /**
    * Turn on/off the coloring of connected clusters.
    */
   vtkSetMacro(ColorClusters, bool);
   vtkGetMacro(ColorClusters, bool);
   vtkBooleanMacro(ColorClusters, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient proximity searches near a
@@ -190,7 +190,7 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
 protected:
   vtkEuclideanClusterExtraction();
@@ -237,7 +237,7 @@ private:
   vtkIdList* PointIds;
 };
 
-//@{
+///@{
 /**
  * Return the method of extraction as a string.
  */
@@ -264,6 +264,6 @@ inline const char* vtkEuclideanClusterExtraction::GetExtractionModeAsString(void
     return "ExtractLargestCluster";
   }
 }
-//@}
+///@}
 
 #endif

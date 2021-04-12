@@ -91,26 +91,26 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkCompositeDataSet* GetData(vtkInformation* info);
   static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Restore data object to initial state,
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
   /**
    * Returns the total number of points of all blocks. This will

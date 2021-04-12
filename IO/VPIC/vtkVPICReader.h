@@ -49,45 +49,45 @@ public:
   vtkTypeMacro(vtkVPICReader, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of VPIC data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the stride in each dimension
    */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the simulation file decomposition in each dimension
    */
   vtkSetVector2Macro(XExtent, int);
   vtkSetVector2Macro(YExtent, int);
   vtkSetVector2Macro(ZExtent, int);
-  //@}
+  ///@}
 
   // Get the full layout size in files for setting the range in GUI
   vtkGetVector2Macro(XLayout, int);
   vtkGetVector2Macro(YLayout, int);
   vtkGetVector2Macro(ZLayout, int);
 
-  //@{
+  ///@{
   /**
    * Get the reader's output
    */
   vtkImageData* GetOutput();
   vtkImageData* GetOutput(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of solutions fields.
    * By default, ALL data fields on the nodes are read, but this can
@@ -99,7 +99,7 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
 protected:
   vtkVPICReader();

@@ -58,14 +58,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkEllipsoidalGaussianKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkEllipsoidalGaussianKernel* New();
   vtkTypeMacro(vtkEllipsoidalGaussianKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Initialize the kernel. Overload the superclass to set up scalars and
@@ -93,7 +93,7 @@ public:
   vtkIdType ComputeWeights(
     double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
-  //@{
+  ///@{
   /**
    * Specify whether vector values should be used to affect the shape
    * of the Gaussian distribution. By default this is on.
@@ -101,9 +101,9 @@ public:
   vtkSetMacro(UseNormals, bool);
   vtkGetMacro(UseNormals, bool);
   vtkBooleanMacro(UseNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the normals array name. Used to orient the ellipsoid. Note that
    * by default the input normals are used (i.e. the input to
@@ -112,9 +112,9 @@ public:
    */
   vtkSetMacro(NormalsArrayName, vtkStdString);
   vtkGetMacro(NormalsArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether scalar values should be used to scale the weights.
    * By default this is off.
@@ -122,9 +122,9 @@ public:
   vtkSetMacro(UseScalars, bool);
   vtkGetMacro(UseScalars, bool);
   vtkBooleanMacro(UseScalars, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the scalars array name. Used to scale the ellipsoid. Note that
    * by default the input scalars are used (i.e. the input to
@@ -133,9 +133,9 @@ public:
    */
   vtkSetMacro(ScalarsArrayName, vtkStdString);
   vtkGetMacro(ScalarsArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Multiply the Gaussian splat distribution by this value. If UseScalars is
    * on and a scalar array is provided, then the scalar value will be
@@ -143,9 +143,9 @@ public:
    */
   vtkSetClampMacro(ScaleFactor, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
    * Sharpness=2. As the sharpness increases the effects of distant points
@@ -153,9 +153,9 @@ public:
    */
   vtkSetClampMacro(Sharpness, double, 1, VTK_FLOAT_MAX);
   vtkGetMacro(Sharpness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the eccentricity of the ellipsoidal Gaussian. A value=1.0
    * produces a spherical distribution. Values < 1 produce a needle like
@@ -164,7 +164,7 @@ public:
    */
   vtkSetClampMacro(Eccentricity, double, 0.000001, VTK_FLOAT_MAX);
   vtkGetMacro(Eccentricity, double);
-  //@}
+  ///@}
 
 protected:
   vtkEllipsoidalGaussianKernel();

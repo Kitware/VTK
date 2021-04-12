@@ -79,22 +79,22 @@ public:
   vtkTypeMacro(vtkVRMLImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution for Sphere, Cone and Cylinder shape sources.
    * Default is 12.
    */
   vtkSetMacro(ShapeResolution, int);
   vtkGetMacro(ShapeResolution, int);
-  //@}
+  ///@}
 
   /**
    * In the VRML spec you can DEF and USE nodes (name them),
@@ -123,7 +123,7 @@ protected:
   void ImportLights(vtkRenderer*) override {}
   void ImportProperties(vtkRenderer*) override {}
 
-  //@{
+  ///@{
   /**
    * Needed by the yacc/lex grammar used
    */
@@ -132,7 +132,7 @@ protected:
   virtual void enterField(const char*);
   virtual void exitField();
   virtual void useNode(const char*);
-  //@}
+  ///@}
 
   /**
    * Return the file pointer to the open file.

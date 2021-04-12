@@ -46,24 +46,24 @@ public:
    */
   int Write() override;
 
-  //@{
+  ///@{
   /**
    * This is how many pieces the whole data set will be divided into.
    */
   void SetNumberOfPieces(int num);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Extra ghost cells will be written out to each piece file
    * if this value is larger than 0.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the range of pieces that that this writer is
    * responsible for writing.  All pieces must be written
@@ -74,18 +74,18 @@ public:
   vtkGetMacro(StartPiece, int);
   vtkSetMacro(EndPiece, int);
   vtkGetMacro(EndPiece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This file pattern uses the file name and piece number
    * to construct a file name for the piece file.
    */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag determines whether to use absolute paths for the piece files.
    * By default the pieces are put in the main directory, and the piece file
@@ -95,9 +95,9 @@ public:
   vtkSetMacro(UseRelativeFileNames, vtkTypeBool);
   vtkGetMacro(UseRelativeFileNames, vtkTypeBool);
   vtkBooleanMacro(UseRelativeFileNames, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controller used to communicate data type of blocks.
    * By default, the global controller is used. If you want another
@@ -105,7 +105,7 @@ public:
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPDataSetWriter();

@@ -80,7 +80,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the translucent polygonal geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -89,9 +89,9 @@ public:
    */
   vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
   virtual void SetTranslucentPass(vtkRenderPass* translucentPass);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In case of use of depth peeling technique for rendering translucent
    * material, define the threshold under which the algorithm stops to
@@ -103,9 +103,9 @@ public:
    */
   vtkSetClampMacro(OcclusionRatio, double, 0.0, 0.5);
   vtkGetMacro(OcclusionRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In case of depth peeling, define the maximum number of peeling layers.
    * Initial value is 4. A special value of 0 means no maximum limit.
@@ -113,7 +113,7 @@ public:
    */
   vtkSetMacro(MaximumNumberOfPeels, int);
   vtkGetMacro(MaximumNumberOfPeels, int);
-  //@}
+  ///@}
 
   // vtkOpenGLRenderPass virtuals:
   bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
@@ -147,7 +147,7 @@ protected:
   vtkRenderPass* TranslucentPass;
   vtkTimeStamp CheckTime;
 
-  //@{
+  ///@{
   /**
    * Cache viewport values for depth peeling.
    */
@@ -155,7 +155,7 @@ protected:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-  //@}
+  ///@}
 
   /**
    * In case of use of depth peeling technique for rendering translucent

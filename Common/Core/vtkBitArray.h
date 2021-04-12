@@ -118,32 +118,32 @@ public:
    */
   void GetTuple(vtkIdType i, double* tuple) override;
 
-  //@{
+  ///@{
   /**
    * Set the tuple value at the ith location in the array.
    */
   void SetTuple(vtkIdType i, const float* tuple) override;
   void SetTuple(vtkIdType i, const double* tuple) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert (memory allocation performed) the tuple into the ith location
    * in the array.
    */
   void InsertTuple(vtkIdType i, const float* tuple) override;
   void InsertTuple(vtkIdType i, const double* tuple) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert (memory allocation performed) the tuple onto the end of the array.
    */
   vtkIdType InsertNextTuple(const float* tuple) override;
   vtkIdType InsertNextTuple(const double* tuple) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods remove tuples from the data array. They shift data and
    * resize array, so the data array is still valid after this operation. Note,
@@ -152,7 +152,7 @@ public:
   void RemoveTuple(vtkIdType id) override;
   void RemoveFirstTuple() override;
   void RemoveLastTuple() override;
-  //@}
+  ///@}
 
   /**
    * Set the data component at the ith tuple and jth component location.
@@ -231,7 +231,7 @@ public:
   void DeepCopy(vtkDataArray* da) override;
   void DeepCopy(vtkAbstractArray* aa) override { this->Superclass::DeepCopy(aa); }
 
-  //@{
+  ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
    * array argument is a pointer to the data.  size is the size of
@@ -255,7 +255,7 @@ public:
   {
     this->SetArray(static_cast<unsigned char*>(array), size, save, deleteMethod);
   }
-  //@}
+  ///@}
 
   /**
    * This method allows the user to specify a custom free function to be
@@ -270,7 +270,7 @@ public:
    */
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
-  //@{
+  ///@{
   /**
    * Return the indices where a specific value appears.
    */
@@ -278,7 +278,7 @@ public:
   void LookupValue(vtkVariant value, vtkIdList* ids) override;
   vtkIdType LookupValue(int value);
   void LookupValue(int value, vtkIdList* ids);
-  //@}
+  ///@}
 
   /**
    * Tell the array explicitly that the data has changed.

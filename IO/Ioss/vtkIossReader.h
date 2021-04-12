@@ -159,7 +159,7 @@ public:
   vtkTypeMacro(vtkIossReader, vtkReaderAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * API to set the filenames.
    */
@@ -167,14 +167,14 @@ public:
   void ClearFileNames();
   const char* GetFileName(int index) const;
   int GetNumberOfFileNames() const;
-  //@}
+  ///@}
 
   /**
    * Set a single filename. Note, this will clear all existing filenames.
    */
   void SetFileName(const char* fname);
 
-  //@{
+  ///@{
   /**
    * When set to true, the reader can automatically locate and load additional
    * files that are part of the collection.
@@ -182,9 +182,9 @@ public:
   void SetScanForRelatedFiles(bool value);
   vtkGetMacro(ScanForRelatedFiles, bool);
   vtkBooleanMacro(ScanForRelatedFiles, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true, the reader will add a cell-data array for cells named
    * 'file_id' which identifies the file number when reading spatially
@@ -195,9 +195,9 @@ public:
   vtkSetMacro(GenerateFileId, bool);
   vtkGetMacro(GenerateFileId, bool);
   vtkBooleanMacro(GenerateFileId, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), the reader will read ids associated with
    * elements.
@@ -205,9 +205,9 @@ public:
   vtkSetMacro(ReadIds, bool);
   vtkGetMacro(ReadIds, bool);
   vtkBooleanMacro(ReadIds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Node related data, including point coordinates, point field data etc. is
    * typically shared between all blocks and sets. By default, the reader will
@@ -219,9 +219,9 @@ public:
   void SetRemoveUnusedPoints(bool);
   vtkGetMacro(RemoveUnusedPoints, bool);
   vtkBooleanMacro(RemoveUnusedPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), if an array named 'displacement' is present in
    * the node field arrays, it will be used to transform the point coordinates.
@@ -229,18 +229,18 @@ public:
   vtkSetMacro(ApplyDisplacements, bool);
   vtkGetMacro(ApplyDisplacements, bool);
   vtkBooleanMacro(ApplyDisplacements, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), the reader will read global fields.
    */
   vtkSetMacro(ReadGlobalFields, bool);
   vtkGetMacro(ReadGlobalFields, bool);
   vtkBooleanMacro(ReadGlobalFields, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), the reader will read quality assurance and
    * information fields.
@@ -248,9 +248,9 @@ public:
   vtkSetMacro(ReadQAAndInformationRecords, bool);
   vtkGetMacro(ReadQAAndInformationRecords, bool);
   vtkBooleanMacro(ReadQAAndInformationRecords, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use when working in parallel. Initialized to
    * `vtkMultiProcessController::GetGlobalController` in the constructor.
@@ -264,7 +264,7 @@ public:
    */
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   enum EntityType
   {
@@ -330,7 +330,7 @@ public:
     this->RemoveAllFieldSelections();
   }
 
-  //@{
+  ///@{
   /**
    * Implementation for vtkReaderAlgorithm API
    */
@@ -338,7 +338,7 @@ public:
   int ReadMesh(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
   int ReadPoints(int, int, int, int, vtkDataObject*) override { return 1; }
   int ReadArrays(int, int, int, int, vtkDataObject*) override { return 1; }
-  //@}
+  ///@}
 
   /**
    * Overridden to take into account mtimes for vtkDataArraySelection instances.

@@ -37,7 +37,7 @@ public:
 
   static vtkSpherePuzzleArrows* New();
 
-  //@{
+  ///@{
   /**
    * Permutation is an array of puzzle piece ids.
    * Arrows will be generated for any id that does not contain itself.
@@ -48,7 +48,7 @@ public:
   vtkGetVectorMacro(Permutation, int, 32);
   void SetPermutationComponent(int comp, int val);
   void SetPermutation(vtkSpherePuzzle* puz);
-  //@}
+  ///@}
 
 protected:
   vtkSpherePuzzleArrows();

@@ -50,13 +50,13 @@ public:
    */
   vtkDataSetCollection* GetInputList();
 
-  //@{
+  ///@{
   /**
    * Specify interpolation parameter t.
    */
   vtkSetClampMacro(T, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(T, double);
-  //@}
+  ///@}
 
 protected:
   vtkInterpolateDataSetAttributes();

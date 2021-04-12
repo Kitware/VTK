@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkQuad, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -62,7 +62,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
-  //@}
+  ///@}
 
   /**
    * Return the center of the triangle in parametric coordinates.
@@ -79,7 +79,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double sf[4]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[8]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -92,7 +92,7 @@ public:
   {
     vtkQuad::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
   /**
    * Return the ids of the vertices defining edge (`edgeId`).

@@ -62,15 +62,15 @@ public:
   vtkTypeMacro(vtkImporter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the renderer that contains the imported actors, cameras and
    * lights.
    */
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the vtkRenderWindow to contain the imported actors, cameras and
    * lights, If no vtkRenderWindow is set, one will be created and can be
@@ -81,15 +81,15 @@ public:
    */
   virtual void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Import the actors, cameras, lights and properties into a vtkRenderWindow.
    */
   void Read();
   void Update() { this->Read(); }
-  //@}
+  ///@}
 
   /**
    * Recover a printable string that let importer implementation
@@ -109,14 +109,14 @@ public:
    */
   virtual std::string GetAnimationName(vtkIdType vtkNotUsed(animationIndex)) { return ""; }
 
-  //@{
+  ///@{
   /**
    * Enable/Disable/Get the status of specific animations
    */
   virtual void EnableAnimation(vtkIdType vtkNotUsed(animationIndex)) {}
   virtual void DisableAnimation(vtkIdType vtkNotUsed(animationIndex)) {}
   virtual bool IsAnimationEnabled(vtkIdType vtkNotUsed(animationIndex)) { return false; }
-  //@}
+  ///@}
 
   /**
    * Get the number of available cameras.

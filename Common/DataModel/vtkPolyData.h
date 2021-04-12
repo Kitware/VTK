@@ -101,7 +101,7 @@ public:
    */
   void CopyStructure(vtkDataSet* ds) override;
 
-  //@{
+  ///@{
   /**
    * Standard vtkDataSet interface.
    */
@@ -112,7 +112,7 @@ public:
   int GetCellType(vtkIdType cellId) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
-  //@}
+  ///@}
 
   /**
    * Copy cells listed in idList from pd, including points, point data,
@@ -219,7 +219,7 @@ public:
    */
   vtkCellArray* GetStrips();
 
-  //@{
+  ///@{
   /**
    * Return the number of primitives of a particular type held.
    */
@@ -227,7 +227,7 @@ public:
   vtkIdType GetNumberOfLines() { return (this->Lines ? this->Lines->GetNumberOfCells() : 0); }
   vtkIdType GetNumberOfPolys() { return (this->Polys ? this->Polys->GetNumberOfCells() : 0); }
   vtkIdType GetNumberOfStrips() { return (this->Strips ? this->Strips->GetNumberOfCells() : 0); }
-  //@}
+  ///@}
 
   /**
    * Preallocate memory for the internal cell arrays. Each of the internal
@@ -384,7 +384,7 @@ public:
    */
   void DeleteLinks();
 
-  //@{
+  ///@{
   /**
    * Special (efficient) operations on poly data. Use carefully (i.e., make
    * sure that BuildLinks() has been called).
@@ -394,7 +394,7 @@ public:
   VTK_DEPRECATED_IN_9_0_0("Use vtkPolyData::GetPointCells::vtkIdType, vtkIdType&, vtkIdType*&)")
   void GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
     VTK_SIZEHINT(cells, ncells);
-  //@}
+  ///@}
 
   /**
    * Get the neighbors at an edge. More efficient than the general
@@ -460,14 +460,14 @@ public:
    */
   void ReverseCell(vtkIdType cellId);
 
-  //@{
+  ///@{
   /**
    * Mark a point/cell as deleted from this vtkPolyData. Use this
    * method only when the dataset is set as Editable.
    */
   void DeletePoint(vtkIdType ptId);
   void DeleteCell(vtkIdType cellId);
-  //@}
+  ///@}
 
   /**
    * The cells marked by calls to DeleteCell are stored in the Cell Array
@@ -479,7 +479,7 @@ public:
    */
   void RemoveDeletedCells();
 
-  //@{
+  ///@{
   /**
    * Add a point to the cell data structure (after cell pointers have been
    * built). This method adds the point and then allocates memory for the
@@ -490,7 +490,7 @@ public:
    */
   vtkIdType InsertNextLinkedPoint(int numLinks);
   vtkIdType InsertNextLinkedPoint(double x[3], int numLinks);
-  //@}
+  ///@}
 
   /**
    * Add a new cell to the cell data structure (after cell pointers have been
@@ -559,13 +559,13 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Get the piece and the number of pieces. Similar to extent in 3D.
    */
   virtual int GetPiece();
   virtual int GetNumberOfPieces();
-  //@}
+  ///@}
 
   /**
    * Get the ghost level.
@@ -582,13 +582,13 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
   /**
    * This method will remove any cell that is marked as ghost
@@ -598,13 +598,13 @@ public:
    */
   void RemoveGhostCells();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPolyData* GetData(vtkInformation* info);
   static vtkPolyData* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Scalar field critical point classification (for manifold 2D meshes).

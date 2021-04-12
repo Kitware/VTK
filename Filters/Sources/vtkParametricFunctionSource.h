@@ -64,15 +64,15 @@ public:
    */
   static vtkParametricFunctionSource* New();
 
-  //@{
+  ///@{
   /**
    * Specify the parametric function to use to generate the tessellation.
    */
   virtual void SetParametricFunction(vtkParametricFunction*);
   vtkGetObjectMacro(ParametricFunction, vtkParametricFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of subdivisions / tessellations in the u parametric
    * direction. Note that the number of tessellant points in the u
@@ -80,9 +80,9 @@ public:
    */
   vtkSetClampMacro(UResolution, int, 2, VTK_INT_MAX);
   vtkGetMacro(UResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of subdivisions / tessellations in the v parametric
    * direction. Note that the number of tessellant points in the v
@@ -90,9 +90,9 @@ public:
    */
   vtkSetClampMacro(VResolution, int, 2, VTK_INT_MAX);
   vtkGetMacro(VResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of subdivisions / tessellations in the w parametric
    * direction. Note that the number of tessellant points in the w
@@ -100,9 +100,9 @@ public:
    */
   vtkSetClampMacro(WResolution, int, 2, VTK_INT_MAX);
   vtkGetMacro(WResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the generation of texture coordinates. This is off by
    * default.
@@ -113,9 +113,9 @@ public:
   vtkBooleanMacro(GenerateTextureCoordinates, vtkTypeBool);
   vtkSetClampMacro(GenerateTextureCoordinates, vtkTypeBool, 0, 1);
   vtkGetMacro(GenerateTextureCoordinates, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the generation of normals. This is on by
    * default.
@@ -125,7 +125,7 @@ public:
   vtkBooleanMacro(GenerateNormals, vtkTypeBool);
   vtkSetClampMacro(GenerateNormals, vtkTypeBool, 0, 1);
   vtkGetMacro(GenerateNormals, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Enumerate the supported scalar generation modes.<br>
@@ -172,7 +172,7 @@ public:
     SCALAR_FUNCTION_DEFINED
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the mode used for the scalar data.
    * See SCALAR_MODE for a description of the types of scalars generated.
@@ -193,14 +193,14 @@ public:
   void SetScalarModeToZ(void) { this->SetScalarMode(SCALAR_Z); }
   void SetScalarModeToDistance(void) { this->SetScalarMode(SCALAR_DISTANCE); }
   void SetScalarModeToFunctionDefined(void) { this->SetScalarMode(SCALAR_FUNCTION_DEFINED); }
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the parametric function.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * See the documentation for the vtkAlgorithm::Precision enum for an
@@ -208,7 +208,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkParametricFunctionSource();

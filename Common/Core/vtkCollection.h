@@ -147,13 +147,13 @@ public:
    */
   VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
-  //@{
+  ///@{
   /**
    * Participate in garbage collection.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
 protected:
   vtkCollection();

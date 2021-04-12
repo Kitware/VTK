@@ -108,13 +108,13 @@ public:
    */
   static vtkImplicitPlaneWidget2* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkImplicitPlaneWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -178,13 +178,13 @@ protected:
    */
   int UpdateCursorShape(int interactionState);
 
-  //@{
+  ///@{
   /**
    * Handle the interaction callback that may come from the representation.
    */
   vtkInteractionCallback* InteractionCallback;
   void InvokeInteractionCallback();
-  //@}
+  ///@}
 
 private:
   vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) = delete;

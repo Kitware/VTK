@@ -49,19 +49,19 @@ public:
   vtkTypeMacro(vtkShrinkPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the fraction of shrink for each cell.
    */
   vtkSetClampMacro(ShrinkFactor, double, 0.0, 1.0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the fraction of shrink for each cell.
    */
   vtkGetMacro(ShrinkFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkShrinkPolyData(double sf = 0.5);

@@ -46,14 +46,14 @@ public:
     vtkPartitionedDataSetCollectionToMultiBlockDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default, initialized to
    * `vtkMultiProcessController::GetGlobalController` in the constructor.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPPartitionedDataSetCollectionToMultiBlockDataSet();

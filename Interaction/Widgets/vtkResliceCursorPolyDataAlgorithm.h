@@ -50,13 +50,13 @@ public:
 
   static vtkResliceCursorPolyDataAlgorithm* New();
 
-  //@{
+  ///@{
   /**
    * Which of the 3 axes defines the reslice plane normal ?
    */
   vtkSetMacro(ReslicePlaneNormal, int);
   vtkGetMacro(ReslicePlaneNormal, int);
-  //@}
+  ///@}
 
   enum
   {
@@ -72,24 +72,24 @@ public:
   void SetReslicePlaneNormalToYAxis() { this->SetReslicePlaneNormal(YAxis); }
   void SetReslicePlaneNormalToZAxis() { this->SetReslicePlaneNormal(ZAxis); }
 
-  //@{
+  ///@{
   /**
    * Set the Reslice cursor from which to generate the polydata representation
    */
   virtual void SetResliceCursor(vtkResliceCursor*);
   vtkGetObjectMacro(ResliceCursor, vtkResliceCursor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the slice bounds, ie the slice of this view on which to display
    * the reslice cursor.
    */
   vtkSetVector6Macro(SliceBounds, double);
   vtkGetVector6Macro(SliceBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get either one of the axes that this object produces. Depending on
    * the mode, one renders either the centerline axes or both the
@@ -99,9 +99,9 @@ public:
   virtual vtkPolyData* GetCenterlineAxis2();
   virtual vtkPolyData* GetThickSlabAxis1();
   virtual vtkPolyData* GetThickSlabAxis2();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the index of the axes and the planes that they represent
    */
@@ -109,7 +109,7 @@ public:
   virtual int GetAxis2();
   virtual int GetPlaneAxis1();
   virtual int GetPlaneAxis2();
-  //@}
+  ///@}
 
   /**
    * Convenience method that, given one plane, returns the other plane

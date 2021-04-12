@@ -34,12 +34,12 @@ class vtkStringArray;
 class VTKCOMMONSYSTEM_EXPORT vtkDirectory : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Return the class name as a string.
    */
   vtkTypeMacro(vtkDirectory, vtkObject);
-  //@}
+  ///@}
 
   /**
    * Create a new vtkDirectory object.
@@ -76,12 +76,12 @@ public:
    */
   int FileIsDirectory(VTK_FILEPATH const char* name);
 
-  //@{
+  ///@{
   /**
    * Get an array that contains all the file names.
    */
   vtkGetObjectMacro(Files, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Get the current working directory.

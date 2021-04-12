@@ -71,14 +71,14 @@ public:
   void SetField(int attributeID, int type, vtkCellArray* a);
   void SetField(int attributeID, const int* values, size_t size, bool image = false) override;
 
-  //@{
+  ///@{
   /**
    * Use fastest instead of best compression
    */
   vtkSetClampMacro(Fastest, vtkTypeBool, 0, 1);
   vtkBooleanMacro(Fastest, vtkTypeBool);
   vtkGetMacro(Fastest, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkX3DExporterFIWriter();

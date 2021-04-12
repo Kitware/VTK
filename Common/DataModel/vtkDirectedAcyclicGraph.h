@@ -63,13 +63,13 @@ public:
    */
   int GetDataObjectType() override { return VTK_DIRECTED_ACYCLIC_GRAPH; }
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
   static vtkDirectedAcyclicGraph* GetData(vtkInformation* info);
   static vtkDirectedAcyclicGraph* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkDirectedAcyclicGraph();

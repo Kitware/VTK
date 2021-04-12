@@ -50,89 +50,89 @@ public:
    */
   static vtkEnSightWriter* New();
 
-  //@{
+  ///@{
   /**
    * Specify which process this writer is
    */
   vtkSetMacro(ProcessNumber, int);
   vtkGetMacro(ProcessNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify path of EnSight data files to write.
    */
   vtkSetStringMacro(Path);
   vtkGetStringMacro(Path);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify base name of EnSight data files to write.
    */
   vtkSetStringMacro(BaseName);
   vtkGetStringMacro(BaseName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the path and base name of the output files.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Timestep that this data is for
    */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of ghost levels to include in output files
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the geometry changes each timestep
    * if false, geometry is only written at timestep 0
    */
   vtkSetMacro(TransientGeometry, bool);
   vtkGetMacro(TransientGeometry, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * set the number of block ID's
    */
   vtkSetMacro(NumberOfBlocks, int);
   vtkGetMacro(NumberOfBlocks, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * set the array of Block ID's
    * this class keeps a reference to the array and will not delete it
    */
   virtual void SetBlockIDs(int* val) { BlockIDs = val; }
   virtual int* GetBlockIDs() { return BlockIDs; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the input data or filter.
    */
   virtual void SetInputData(vtkUnstructuredGrid* input);
   virtual vtkUnstructuredGrid* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Writes the case file that EnSight is capable of reading
    * The other data files must be written before the case file
@@ -142,7 +142,7 @@ public:
    */
   virtual void WriteCaseFile(int TotalTimeSteps);
   virtual void WriteSOSCaseFile(int NumProcs);
-  //@}
+  ///@}
 
 protected:
   vtkEnSightWriter();

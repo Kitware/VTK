@@ -85,13 +85,13 @@ public:
    */
   bool Contains(const CoordinateT coordinate) const;
 
-  //@{
+  ///@{
   /**
    * Equality comparisons.
    */
   VTKCOMMONCORE_EXPORT friend bool operator==(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
   VTKCOMMONCORE_EXPORT friend bool operator!=(const vtkArrayRange& lhs, const vtkArrayRange& rhs);
-  //@}
+  ///@}
 
   /**
    * Serialization.
@@ -104,12 +104,12 @@ private:
    */
   CoordinateT Begin;
 
-  //@{
+  ///@{
   /**
    * Stores one-past-the-end of the range.
    */
   CoordinateT End;
-  //@}
+  ///@}
 };
 
 #endif

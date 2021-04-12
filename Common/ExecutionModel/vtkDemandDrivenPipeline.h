@@ -65,21 +65,21 @@ public:
   int ComputePipelineMTime(vtkInformation* request, vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec, int requestFromOutputPort, vtkMTimeType* mtime) override;
 
-  //@{
+  ///@{
   /**
    * Bring the algorithm's outputs up-to-date.  Returns 1 for success
    * and 0 for failure.
    */
   vtkTypeBool Update() override;
   vtkTypeBool Update(int port) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the PipelineMTime for this exective.
    */
   vtkGetMacro(PipelineMTime, vtkMTimeType);
-  //@}
+  ///@}
 
   /**
    * Set whether the given output port releases data when it is

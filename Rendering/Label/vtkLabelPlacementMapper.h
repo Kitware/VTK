@@ -54,42 +54,42 @@ public:
    */
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
 
-  //@{
+  ///@{
   /**
    * Set the label rendering strategy.
    */
   virtual void SetRenderStrategy(vtkLabelRenderStrategy* s);
   vtkGetObjectMacro(RenderStrategy, vtkLabelRenderStrategy);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum fraction of the screen that the labels may cover.
    * Label placement stops when this fraction is reached.
    */
   vtkSetClampMacro(MaximumLabelFraction, double, 0., 1.);
   vtkGetMacro(MaximumLabelFraction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The type of iterator used when traversing the labels.
    * May be vtkLabelHierarchy::FRUSTUM or vtkLabelHierarchy::FULL_SORT
    */
   vtkSetMacro(IteratorType, int);
   vtkGetMacro(IteratorType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether, or not, to use unicode strings.
    */
   vtkSetMacro(UseUnicodeStrings, bool);
   vtkGetMacro(UseUnicodeStrings, bool);
   vtkBooleanMacro(UseUnicodeStrings, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use label anchor point coordinates as normal vectors and eliminate those
    * pointing away from the camera. Valid only when points are on a sphere
@@ -98,9 +98,9 @@ public:
   vtkGetMacro(PositionsAsNormals, bool);
   vtkSetMacro(PositionsAsNormals, bool);
   vtkBooleanMacro(PositionsAsNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable drawing spokes (lines) to anchor point coordinates that were perturbed
    * for being coincident with other anchor point coordinates.
@@ -108,9 +108,9 @@ public:
   vtkGetMacro(GeneratePerturbedLabelSpokes, bool);
   vtkSetMacro(GeneratePerturbedLabelSpokes, bool);
   vtkBooleanMacro(GeneratePerturbedLabelSpokes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the depth buffer to test each label to see if it should not be displayed if
    * it would be occluded by other objects in the scene. Off by default.
@@ -118,9 +118,9 @@ public:
   vtkGetMacro(UseDepthBuffer, bool);
   vtkSetMacro(UseDepthBuffer, bool);
   vtkBooleanMacro(UseDepthBuffer, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Tells the placer to place every label regardless of overlap.
    * Off by default.
@@ -128,16 +128,16 @@ public:
   vtkSetMacro(PlaceAllLabels, bool);
   vtkGetMacro(PlaceAllLabels, bool);
   vtkBooleanMacro(PlaceAllLabels, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to render traversed bounds. Off by default.
    */
   vtkSetMacro(OutputTraversedBounds, bool);
   vtkGetMacro(OutputTraversedBounds, bool);
   vtkBooleanMacro(OutputTraversedBounds, bool);
-  //@}
+  ///@}
 
   enum LabelShape
   {
@@ -147,7 +147,7 @@ public:
     NUMBER_OF_LABEL_SHAPES
   };
 
-  //@{
+  ///@{
   /**
    * The shape of the label background, should be one of the
    * values in the LabelShape enumeration.
@@ -157,7 +157,7 @@ public:
   virtual void SetShapeToNone() { this->SetShape(NONE); }
   virtual void SetShapeToRect() { this->SetShape(RECT); }
   virtual void SetShapeToRoundedRect() { this->SetShape(ROUNDED_RECT); }
-  //@}
+  ///@}
 
   enum LabelStyle
   {
@@ -166,7 +166,7 @@ public:
     NUMBER_OF_LABEL_STYLES
   };
 
-  //@{
+  ///@{
   /**
    * The style of the label background shape, should be one of the
    * values in the LabelStyle enumeration.
@@ -175,39 +175,39 @@ public:
   vtkGetMacro(Style, int);
   virtual void SetStyleToFilled() { this->SetStyle(FILLED); }
   virtual void SetStyleToOutline() { this->SetStyle(OUTLINE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the margin on the label background shape.
    * Default is 5.
    */
   vtkSetMacro(Margin, double);
   vtkGetMacro(Margin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The color of the background shape.
    */
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVector3Macro(BackgroundColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The opacity of the background shape.
    */
   vtkSetClampMacro(BackgroundOpacity, double, 0.0, 1.0);
   vtkGetMacro(BackgroundOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the transform for the anchor points.
    */
   vtkGetObjectMacro(AnchorTransform, vtkCoordinate);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this mapper.

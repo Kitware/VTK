@@ -53,7 +53,7 @@ protected:
    */
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -62,9 +62,9 @@ protected:
   {
     return 1;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -73,7 +73,7 @@ protected:
   {
     return 1;
   }
-  //@}
+  ///@}
 
   /**
    * This is called by the superclass.

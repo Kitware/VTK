@@ -214,16 +214,16 @@ public:
    */
   void RemovePlotSelections();
 
-  //@{
+  ///@{
   /**
    * If true then the axes will be drawn at the origin (scientific style).
    */
   vtkSetMacro(DrawAxesAtOrigin, bool);
   vtkGetMacro(DrawAxesAtOrigin, bool);
   vtkBooleanMacro(DrawAxesAtOrigin, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true then the axes will be turned on and off depending upon whether
    * any plots are in that corner. Defaults to true.
@@ -231,17 +231,17 @@ public:
   vtkSetMacro(AutoAxes, bool);
   vtkGetMacro(AutoAxes, bool);
   vtkBooleanMacro(AutoAxes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Border size of the axes that are hidden (vtkAxis::GetVisible())
    */
   vtkSetMacro(HiddenAxisBorder, int);
   vtkGetMacro(HiddenAxisBorder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the axes to have their Minimum and Maximum properties inside the
    * plot boundaries. It constrains pan and zoom interaction.
@@ -250,9 +250,9 @@ public:
   vtkSetMacro(ForceAxesToBounds, bool);
   vtkGetMacro(ForceAxesToBounds, bool);
   vtkBooleanMacro(ForceAxesToBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ignore NaN in RecalculateBounds().
    * Prevents the final bounds to contain NaN if one of the plots contains NaN
@@ -262,9 +262,9 @@ public:
   vtkSetMacro(IgnoreNanInBounds, bool);
   vtkGetMacro(IgnoreNanInBounds, bool);
   vtkBooleanMacro(IgnoreNanInBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width fraction for any bar charts drawn in this chart. It is
    * assumed that all bar plots will use the same array for the X axis, and that
@@ -274,9 +274,9 @@ public:
    */
   vtkSetMacro(BarWidthFraction, float);
   vtkGetMacro(BarWidthFraction, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the behavior of the mouse wheel.  If true, the mouse wheel zooms in/out
    * on the chart.  Otherwise, unless MouseWheelEvent is overridden by a subclass
@@ -286,9 +286,9 @@ public:
   vtkSetMacro(ZoomWithMouseWheel, bool);
   vtkGetMacro(ZoomWithMouseWheel, bool);
   vtkBooleanMacro(ZoomWithMouseWheel, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Adjust the minimum of a logarithmic axis to be greater than 0, regardless
    * of the minimum data value.
@@ -297,9 +297,9 @@ public:
   vtkSetMacro(AdjustLowerBoundForLogPlot, bool);
   vtkGetMacro(AdjustLowerBoundForLogPlot, bool);
   vtkBooleanMacro(AdjustLowerBoundForLogPlot, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set if the point can be dragged along X
    * by the ClickAndDrag Action
@@ -308,9 +308,9 @@ public:
   vtkSetMacro(DragPointAlongX, bool);
   vtkGetMacro(DragPointAlongX, bool);
   vtkBooleanMacro(DragPointAlongX, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set if the point can be dragged along Y
    * by the ClickAndDrag Action
@@ -319,7 +319,7 @@ public:
   vtkSetMacro(DragPointAlongY, bool);
   vtkGetMacro(DragPointAlongY, bool);
   vtkBooleanMacro(DragPointAlongY, bool);
-  //@}
+  ///@}
 
   /**
    * Set the information passed to the tooltip.
@@ -600,7 +600,7 @@ private:
     vtkContextPolygon& polygon);
 };
 
-//@{
+///@{
 /**
  * Small struct used by InvokeEvent to send some information about the point
  * that was clicked on. This is an experimental part of the API, subject to
@@ -613,6 +613,6 @@ struct vtkChartPlotData
   vtkVector2i ScreenPosition;
   int Index;
 };
-//@}
+///@}
 
 #endif // vtkChartXY_h

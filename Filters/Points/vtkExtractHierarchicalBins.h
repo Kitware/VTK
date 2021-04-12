@@ -49,7 +49,7 @@ class vtkPointSet;
 class VTKFILTERSPOINTS_EXPORT vtkExtractHierarchicalBins : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -57,9 +57,9 @@ public:
   static vtkExtractHierarchicalBins* New();
   vtkTypeMacro(vtkExtractHierarchicalBins, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the level to extract. If non-negative, with a negative bin
    * number, then all points at this level are extracted and sent to the
@@ -72,9 +72,9 @@ public:
    */
   vtkSetMacro(Level, int);
   vtkGetMacro(Level, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the bin number to extract. If a non-negative value, then the
    * points from the bin number specified are extracted. If negative, then
@@ -86,9 +86,9 @@ public:
    */
   vtkSetMacro(Bin, int);
   vtkGetMacro(Bin, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkHierarchicalBinningFilter to query for relevant
    * information. Make sure that this filter has executed prior to the execution of
@@ -96,7 +96,7 @@ public:
    */
   virtual void SetBinningFilter(vtkHierarchicalBinningFilter*);
   vtkGetObjectMacro(BinningFilter, vtkHierarchicalBinningFilter);
-  //@}
+  ///@}
 
 protected:
   vtkExtractHierarchicalBins();

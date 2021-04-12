@@ -90,7 +90,7 @@ public:
    */
   vtkDataObject* GetInput();
 
-  //@{
+  ///@{
   /**
    * Control what type of data is generated for output.
    */
@@ -101,9 +101,9 @@ public:
   void SetDataSetTypeToStructuredGrid() { this->SetDataSetType(VTK_STRUCTURED_GRID); }
   void SetDataSetTypeToRectilinearGrid() { this->SetDataSetType(VTK_RECTILINEAR_GRID); }
   void SetDataSetTypeToUnstructuredGrid() { this->SetDataSetType(VTK_UNSTRUCTURED_GRID); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output in different forms. The particular method invoked
    * should be consistent with the SetDataSetType() method. (Note:
@@ -118,9 +118,9 @@ public:
   vtkStructuredGrid* GetStructuredGridOutput();
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
   vtkRectilinearGrid* GetRectilinearGridOutput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the component of the field to be used for the x, y, and z values
    * of the points. Note that the parameter comp must lie between (0,2) and
@@ -144,9 +144,9 @@ public:
   int GetPointComponentMinRange(int comp);
   int GetPointComponentMaxRange(int comp);
   int GetPointComponentNormailzeFlag(int comp);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define cell connectivity when creating vtkPolyData. You can define
    * vertices, lines, polygons, and/or triangle strips via these methods.
@@ -192,9 +192,9 @@ public:
   int GetStripsComponentArrayComponent();
   int GetStripsComponentMinRange();
   int GetStripsComponentMaxRange();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define cell types and cell connectivity when creating unstructured grid
    * data.  These methods are similar to those for defining points, except
@@ -222,9 +222,9 @@ public:
   int GetCellConnectivityComponentArrayComponent();
   int GetCellConnectivityComponentMinRange();
   int GetCellConnectivityComponentMaxRange();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default Normalize() flag for those methods setting a default
    * Normalize value (e.g., SetPointComponent).
@@ -232,9 +232,9 @@ public:
   vtkSetMacro(DefaultNormalize, vtkTypeBool);
   vtkGetMacro(DefaultNormalize, vtkTypeBool);
   vtkBooleanMacro(DefaultNormalize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the dimensions to use if generating a dataset that requires
    * dimensions specification (vtkStructuredPoints, vtkStructuredGrid,
@@ -242,27 +242,27 @@ public:
    */
   vtkSetVector3Macro(Dimensions, int);
   vtkGetVectorMacro(Dimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin to use if generating a dataset whose origin
    * can be set (i.e., a vtkStructuredPoints dataset).
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVectorMacro(Origin, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the spacing to use if generating a dataset whose spacing
    * can be set (i.e., a vtkStructuredPoints dataset).
    */
   vtkSetVector3Macro(Spacing, double);
   vtkGetVectorMacro(Spacing, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Alternative methods to specify the dimensions, spacing, and origin for those
    * datasets requiring this information. You need to specify the name of an array;
@@ -284,7 +284,7 @@ public:
   {
     this->SetOriginComponent(arrayName, arrayComp, -1, -1);
   }
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectToDataSetFilter();

@@ -65,38 +65,38 @@ public:
     FixedDistanceMethod = 1
   };
 
-  //@{
+  ///@{
   /**
    * Set or get circle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is
    * FixedRadiusMethod.
    */
   vtkSetMacro(Method, int);
   vtkGetMacro(Method, int);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * If Method is FixedRadiusMethod: Set or get the radius of the circles.
    * If Method is FixedDistanceMethod: Set or get the distance of the points in the circle.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get the vertical (local z) distance between the circles. If AutoHeight is on, this is
    * the minimal height between the circle layers
    */
   vtkSetMacro(Height, double);
   vtkGetMacro(Height, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get the origin of the geometry. This is the center of the first circle. SetOrigin(x,y,z)
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get the normal vector of the circles plain. The height is growing in this direction. The
    * direction must not be zero vector. The default vector is (0.0,0.0,1.0)
@@ -104,8 +104,8 @@ public:
   virtual void SetDirection(double dx, double dy, double dz);
   virtual void SetDirection(double d[3]);
   vtkGetVector3Macro(Direction, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get initial vertices. If MarkedStartVertices is added, loop is accepted in the graph.
    * (If all of the loop start vertices are marked in MarkedStartVertices array.)
@@ -115,15 +115,15 @@ public:
    */
   virtual void SetMarkedStartVertices(vtkAbstractArray* _arg);
   vtkGetObjectMacro(MarkedStartVertices, vtkAbstractArray);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get MarkedValue. See: MarkedStartVertices.
    */
   virtual void SetMarkedValue(vtkVariant _arg);
   virtual vtkVariant GetMarkedValue(void);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get ForceToUseUniversalStartPointsFinder. If ForceToUseUniversalStartPointsFinder is
    * true, MarkedStartVertices won't be used. In this case the input graph must be
@@ -132,8 +132,8 @@ public:
   vtkSetMacro(ForceToUseUniversalStartPointsFinder, vtkTypeBool);
   vtkGetMacro(ForceToUseUniversalStartPointsFinder, vtkTypeBool);
   vtkBooleanMacro(ForceToUseUniversalStartPointsFinder, vtkTypeBool);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get auto height (Default: false). If AutoHeight is true, (r(i+1) - r(i-1))/Height will
    * be smaller than tan(MinimumRadian). If you want equal distances and parallel circles, you
@@ -142,23 +142,23 @@ public:
   vtkSetMacro(AutoHeight, vtkTypeBool);
   vtkGetMacro(AutoHeight, vtkTypeBool);
   vtkBooleanMacro(AutoHeight, vtkTypeBool);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get minimum radian (used by auto height).
    */
   vtkSetMacro(MinimumRadian, double);
   vtkGetMacro(MinimumRadian, double);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get minimum degree (used by auto height). There is no separated minimum degree, so
    * minimum radian will be changed.
    */
   virtual void SetMinimumDegree(double degree);
   virtual double GetMinimumDegree(void);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get hierarchical layers id by vertices (An usual vertex's layer id is greater or equal
    * to zero. If a vertex is standalone, its layer id is -2.) If no HierarchicalLayers array is
@@ -166,8 +166,8 @@ public:
    */
   virtual void SetHierarchicalLayers(vtkIntArray* _arg);
   vtkGetObjectMacro(HierarchicalLayers, vtkIntArray);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set or get hierarchical ordering of vertices (The array starts from the first vertex's id. All
    * id must be greater or equal to zero!) If no HierarchicalOrder is defined,
@@ -175,7 +175,7 @@ public:
    */
   virtual void SetHierarchicalOrder(vtkIdTypeArray* _arg);
   vtkGetObjectMacro(HierarchicalOrder, vtkIdTypeArray);
-  //@}
+  ///@}
   /**
    * Standard layout method
    */

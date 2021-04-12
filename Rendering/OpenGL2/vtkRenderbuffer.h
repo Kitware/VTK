@@ -42,14 +42,14 @@ public:
    */
   static bool IsSupported(vtkRenderWindow* renWin);
 
-  //@{
+  ///@{
   /**
    * Get the name of the buffer for use opengl code.
    */
   vtkGetMacro(Handle, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting the context has the side affect of initializing OpenGL
    * required extensions and allocates an OpenGL name(handle) that is
@@ -59,7 +59,7 @@ public:
    */
   void SetContext(vtkRenderWindow* win);
   vtkRenderWindow* GetContext();
-  //@}
+  ///@}
 
   /**
    * Sets up an RGBAF renderbufffer for use as a color attachment. Use mode
@@ -85,7 +85,7 @@ public:
   // resizes an existing renderbuffer
   void Resize(unsigned int width, unsigned int height);
 
-  //@{
+  ///@{
   /**
    * Get the buffer dimensions.
    * These are the properties of the OpenGL renderbuffer this instance represents.
@@ -93,7 +93,7 @@ public:
   vtkGetMacro(Width, unsigned int);
   vtkGetMacro(Height, unsigned int);
   vtkGetMacro(Samples, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkRenderbuffer();

@@ -61,7 +61,7 @@ public:
 
   void Render(vtkRenderer* renderer, vtkVolume* volume) override;
 
-  //@{
+  ///@{
   /**
    * Set/get whether to use floating-point rendering buffers rather
    * than the default.
@@ -69,7 +69,7 @@ public:
   vtkSetMacro(UseFloatingPointFrameBuffer, bool);
   vtkGetMacro(UseFloatingPointFrameBuffer, bool);
   vtkBooleanMacro(UseFloatingPointFrameBuffer, bool);
-  //@}
+  ///@}
 
   /**
    * Return true if the rendering context provides

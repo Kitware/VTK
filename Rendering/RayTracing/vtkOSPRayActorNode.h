@@ -75,13 +75,13 @@ public:
    */
   static vtkInformationIntegerKey* ENABLE_SCALING();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set enable_scaling on my renderable.
    */
   static void SetEnableScaling(int value, vtkActor*);
   static int GetEnableScaling(vtkActor*);
-  //@}
+  ///@}
 
   /**
    * Name of a point aligned, single component wide, double valued array that,
@@ -113,13 +113,13 @@ public:
    */
   static vtkInformationDoubleKey* LUMINOSITY();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set luminosity on my renderable.
    */
   static void SetLuminosity(double value, vtkProperty*);
   static double GetLuminosity(vtkProperty*);
-  //@}
+  ///@}
 
 protected:
   vtkOSPRayActorNode();

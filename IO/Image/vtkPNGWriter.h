@@ -44,7 +44,7 @@ public:
    */
   void Write() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the zlib compression level.
    * The range is 0-9, with 0 meaning no compression
@@ -54,25 +54,25 @@ public:
    */
   vtkSetClampMacro(CompressionLevel, int, 0, 9);
   vtkGetMacro(CompressionLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Write the image to memory (a vtkUnsignedCharArray)
    */
   vtkSetMacro(WriteToMemory, vtkTypeUBool);
   vtkGetMacro(WriteToMemory, vtkTypeUBool);
   vtkBooleanMacro(WriteToMemory, vtkTypeUBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When writing to memory this is the result, it will be nullptr until the
    * data is written the first time
    */
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
-  //@}
+  ///@}
 
   /**
    * Adds a text chunk to the PNG. More than one text chunk with the same key is permissible.
@@ -88,7 +88,7 @@ public:
    */
   void ClearText();
 
-  //@{
+  ///@{
   /**
    * Standard keys
    */
@@ -102,7 +102,7 @@ public:
   static const char* WARNING;
   static const char* SOURCE;
   static const char* COMMENT;
-  //@}
+  ///@}
 
 protected:
   vtkPNGWriter();

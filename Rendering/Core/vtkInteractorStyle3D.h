@@ -81,7 +81,7 @@ public:
   // pose. We use Dolly as the state to mean moving the camera forward
   virtual void Dolly3D(vtkEventData*);
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum dolly speed used when flying in 3D, in meters per second.
    * Default is 1.6666, corresponding to walking speed (= 6 km/h).
@@ -89,7 +89,7 @@ public:
    */
   vtkSetMacro(DollyPhysicalSpeed, double);
   vtkGetMacro(DollyPhysicalSpeed, double);
-  //@}
+  ///@}
 
   /**
    * Set the scaling factor from world to physical space.
@@ -98,7 +98,7 @@ public:
    */
   virtual void SetScale(vtkCamera* cam, double newScale);
 
-  //@{
+  ///@{
   /**
    * Get/Set the interaction picker.
    * By default, a vtkPropPicker is instancied.

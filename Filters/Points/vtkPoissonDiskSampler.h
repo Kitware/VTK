@@ -43,7 +43,7 @@ class vtkIdList;
 class VTKFILTERSPOINTS_EXPORT vtkPoissonDiskSampler : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -51,18 +51,18 @@ public:
   static vtkPoissonDiskSampler* New();
   vtkTypeMacro(vtkPoissonDiskSampler, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setter / Getter for `Radius`. It is used to determinate the minimum distance that there should
    * be between 2 nearest points in the output.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkKdTreePointLocator is
    * used. The locator performs efficient searches to locate points
@@ -70,7 +70,7 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
 protected:
   vtkPoissonDiskSampler();

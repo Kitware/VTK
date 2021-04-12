@@ -47,15 +47,15 @@ public:
    */
   static vtkOrientedGlyphContourRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkOrientedGlyphContourRepresentation, vtkContourRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cursor shape. Keep in mind that the shape will be
    * aligned with the constraining plane by orienting it such that
@@ -63,9 +63,9 @@ public:
    */
   void SetCursorShape(vtkPolyData* cursorShape);
   vtkPolyData* GetCursorShape();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the shape of the cursor (handle) when it is active.
    * This is the geometry that will be used when the mouse is
@@ -73,32 +73,32 @@ public:
    */
   void SetActiveCursorShape(vtkPolyData* activeShape);
   vtkPolyData* GetActiveCursorShape();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used when the handle is not active
    * (the mouse is not near the handle)
    */
   vtkGetObjectMacro(Property, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used when the user is interacting
    * with the handle.
    */
   vtkGetObjectMacro(ActiveProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used by the lines.
    */
   vtkGetObjectMacro(LinesProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkOrientedGlyphContourRepresentation must implement these methods. These
    * are the methods that the widget and its representation use to
@@ -109,9 +109,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modified = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -121,14 +121,14 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Get the points in this contour as a vtkPolyData.
    */
   vtkPolyData* GetContourRepresentationAsPolyData() override;
 
-  //@{
+  ///@{
   /**
    * Controls whether the contour widget should always appear on top
    * of other actors in the scene. (In effect, this will disable OpenGL
@@ -138,7 +138,7 @@ public:
   vtkSetMacro(AlwaysOnTop, vtkTypeBool);
   vtkGetMacro(AlwaysOnTop, vtkTypeBool);
   vtkBooleanMacro(AlwaysOnTop, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Convenience method to set the line color.

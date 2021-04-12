@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
 
    */
@@ -48,7 +48,7 @@ public:
   virtual void SetGraphEdgeLabelArrayName(const char* name, int idx);
   virtual const char* GetGraphEdgeLabelArrayName() { return this->GetGraphEdgeLabelArrayName(0); }
   virtual const char* GetGraphEdgeLabelArrayName(int idx);
-  //@}
+  ///@}
 
   virtual void SetGraphEdgeLabelVisibility(bool vis) { this->SetGraphEdgeLabelVisibility(vis, 0); }
   virtual void SetGraphEdgeLabelVisibility(bool vis, int idx);
@@ -90,7 +90,7 @@ public:
   virtual double GetBundlingStrength() { return this->GetBundlingStrength(0); }
   virtual double GetBundlingStrength(int idx);
 
-  //@{
+  ///@{
   /**
    * Sets the spline type for the graph edges.
    * vtkSplineGraphEdges::CUSTOM uses a vtkCardinalSpline.
@@ -99,7 +99,7 @@ public:
    */
   virtual void SetGraphSplineType(int type, int idx);
   virtual int GetGraphSplineType(int idx);
-  //@}
+  ///@}
 
   virtual void SetGraphEdgeLabelFontSize(int size) { this->SetGraphEdgeLabelFontSize(size, 0); }
   virtual void SetGraphEdgeLabelFontSize(int size, int idx);
@@ -110,13 +110,13 @@ protected:
   vtkRenderedHierarchyRepresentation();
   ~vtkRenderedHierarchyRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Called by the view to add/remove this representation.
    */
   bool AddToView(vtkView* view) override;
   bool RemoveFromView(vtkView* view) override;
-  //@}
+  ///@}
 
   /**
    * Whether idx is a valid graph index.

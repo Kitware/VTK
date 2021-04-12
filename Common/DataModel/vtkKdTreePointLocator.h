@@ -72,7 +72,7 @@ public:
    */
   void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
-  //@{
+  ///@{
   /**
    * See vtkLocator interface documentation.
    * These methods are not thread safe.
@@ -80,7 +80,7 @@ public:
   void FreeSearchStructure() override;
   void BuildLocator() override;
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
-  //@}
+  ///@}
 
 protected:
   vtkKdTreePointLocator();

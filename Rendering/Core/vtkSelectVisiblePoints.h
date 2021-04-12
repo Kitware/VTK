@@ -63,7 +63,7 @@ public:
    */
   static vtkSelectVisiblePoints* New();
 
-  //@{
+  ///@{
   /**
    * Specify the renderer in which the visibility computation is to be
    * performed.
@@ -77,9 +77,9 @@ public:
     }
   }
   vtkRenderer* GetRenderer() { return this->Renderer; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which enables selection in a rectangular display
    * region.
@@ -87,18 +87,18 @@ public:
   vtkSetMacro(SelectionWindow, vtkTypeBool);
   vtkGetMacro(SelectionWindow, vtkTypeBool);
   vtkBooleanMacro(SelectionWindow, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the selection window in display coordinates. You must specify
    * a rectangular region using (xmin,xmax,ymin,ymax).
    */
   vtkSetVector4Macro(Selection, int);
   vtkGetVectorMacro(Selection, int, 4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which enables inverse selection; i.e., invisible points
    * are selected.
@@ -106,9 +106,9 @@ public:
   vtkSetMacro(SelectInvisible, vtkTypeBool);
   vtkGetMacro(SelectInvisible, vtkTypeBool);
   vtkBooleanMacro(SelectInvisible, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a tolerance in normalized display coordinate system
    * to use to determine whether a point is visible. A
@@ -117,9 +117,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a tolerance in world coordinate system
    * to use to determine whether a point is visible.
@@ -129,7 +129,7 @@ public:
    */
   vtkSetClampMacro(ToleranceWorld, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(ToleranceWorld, double);
-  //@}
+  ///@}
 
   /**
    * Requires the renderer to be set. Populates the composite perspective transform

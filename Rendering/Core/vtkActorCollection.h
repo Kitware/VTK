@@ -55,7 +55,7 @@ public:
    */
   vtkActor* GetLastActor();
 
-  //@{
+  ///@{
   /**
    * Access routines that are provided for compatibility with previous
    * version of VTK.  Please use the GetNextActor(), GetLastActor() variants
@@ -63,7 +63,7 @@ public:
    */
   vtkActor* GetNextItem();
   vtkActor* GetLastItem();
-  //@}
+  ///@}
 
   /**
    * Apply properties to all actors in this collection.

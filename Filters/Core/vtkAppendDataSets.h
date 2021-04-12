@@ -55,7 +55,7 @@ public:
   vtkTypeMacro(vtkAppendDataSets, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set if the filter should merge coincidental points
    * Note: The filter will only merge points if the ghost cell array doesn't exist
@@ -64,9 +64,9 @@ public:
   vtkGetMacro(MergePoints, bool);
   vtkSetMacro(MergePoints, bool);
   vtkBooleanMacro(MergePoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the tolerance to use to find coincident points when `MergePoints`
    * is `true`. Default is 0.0.
@@ -76,9 +76,9 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether Tolerance is treated as an absolute or relative tolerance.
    * The default is to treat it as an absolute tolerance. When off, the
@@ -87,9 +87,9 @@ public:
   vtkSetMacro(ToleranceIsAbsolute, bool);
   vtkGetMacro(ToleranceIsAbsolute, bool);
   vtkBooleanMacro(ToleranceIsAbsolute, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the output type produced by this filter. Only input datasets compatible with the
    * output type will be merged in the output. For example, if the output type is vtkPolyData, then
@@ -101,9 +101,9 @@ public:
    */
   vtkSetMacro(OutputDataSetType, int);
   vtkGetMacro(OutputDataSetType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::Precision enum for an explanation of the available
@@ -111,7 +111,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

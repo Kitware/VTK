@@ -71,7 +71,7 @@ public:
    */
   int GetActiveLayerFeatureCount();
 
-  //@{
+  ///@{
   /**
    * Set and Get the active layer.
    * If ActiveLayer is less than 0 (the default is -1), then all
@@ -79,9 +79,9 @@ public:
    */
   vtkSetMacro(ActiveLayer, int);
   vtkGetMacro(ActiveLayer, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and Get whether features are appended to a single
    * vtkPolyData. Turning the option on is useful when a shapefile has
@@ -91,7 +91,7 @@ public:
   vtkSetMacro(AppendFeatures, int);
   vtkGetMacro(AppendFeatures, int);
   vtkBooleanMacro(AppendFeatures, int);
-  //@}
+  ///@}
 
   /**
    * Return projection string belonging to each layer in WKT format.
@@ -111,7 +111,7 @@ public:
    */
   const char* GetLayerProjectionAsProj4(int layerIndex);
 
-  //@{
+  ///@{
   /**
    * Set/get whether feature IDs should be generated.
    * Some GDAL primitives (e.g., a polygon with a hole
@@ -125,7 +125,7 @@ public:
   vtkSetMacro(AddFeatureIds, int);
   vtkGetMacro(AddFeatureIds, int);
   vtkBooleanMacro(AddFeatureIds, int);
-  //@}
+  ///@}
 
 protected:
   vtkGDALVectorReader();

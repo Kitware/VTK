@@ -43,13 +43,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDensifyPolyData* New();
 
-  //@{
+  ///@{
   /**
    * Number of recursive subdivisions. Initial value is 1.
    */
   vtkSetMacro(NumberOfSubdivisions, unsigned int);
   vtkGetMacro(NumberOfSubdivisions, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkDensifyPolyData();

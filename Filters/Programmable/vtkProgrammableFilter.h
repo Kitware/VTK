@@ -72,7 +72,7 @@ public:
    */
   void SetExecuteMethodArgDelete(void (*f)(void*));
 
-  //@{
+  ///@{
   /**
    * Get the input as a concrete type. This method is typically used by the
    * writer of the filter function to get the input as a particular type (i.e.,
@@ -87,9 +87,9 @@ public:
   vtkGraph* GetGraphInput();
   vtkMolecule* GetMoleculeInput();
   vtkTable* GetTableInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When CopyArrays is true, all arrays are copied to the output
    * iff input and output are of the same type. False by default.
@@ -97,7 +97,7 @@ public:
   vtkSetMacro(CopyArrays, bool);
   vtkGetMacro(CopyArrays, bool);
   vtkBooleanMacro(CopyArrays, bool);
-  //@}
+  ///@}
 
 protected:
   vtkProgrammableFilter();

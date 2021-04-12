@@ -36,13 +36,13 @@ public:
   vtkTypeMacro(vtkOpenGLMoleculeMapper, vtkMoleculeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Reimplemented from base class
    */
   void Render(vtkRenderer*, vtkActor*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
-  //@}
+  ///@}
 
   /**
    * provide access to the underlying mappers
@@ -68,13 +68,13 @@ protected:
   void UpdateAtomGlyphPolyData() override;
   void UpdateBondGlyphPolyData() override;
 
-  //@{
+  ///@{
   /**
    * Internal mappers
    */
   vtkNew<vtkOpenGLSphereMapper> FastAtomMapper;
   vtkNew<vtkOpenGLStickMapper> FastBondMapper;
-  //@}
+  ///@}
 
 private:
   vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) = delete;

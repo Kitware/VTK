@@ -79,13 +79,13 @@ public:
     this->Superclass::GetInEdge(v, i, e);
   }
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
   static vtkUndirectedGraph* GetData(vtkInformation* info);
   static vtkUndirectedGraph* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Initialize the iterator to get the incoming edges to a vertex.

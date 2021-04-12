@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkHandleSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get if the handle should take account on this->Direction.
    * The meaning of this direction varies on
@@ -46,43 +46,43 @@ public:
   vtkSetMacro(Directional, bool);
   vtkGetMacro(Directional, bool);
   vtkBooleanMacro(Directional, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the position of the handle.
    */
   void SetPosition(const double pos[3]) { this->SetPosition(pos[0], pos[1], pos[2]); }
   virtual void SetPosition(double xPos, double yPos, double zPos) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position of the handle.
    */
   void GetPosition(double pos[3]);
   virtual double* GetPosition() = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the direction of the handle.
    * The direction meaning depends on subclasses implementations.
    */
   void SetDirection(const double dir[3]) { this->SetDirection(dir[0], dir[1], dir[2]); }
   virtual void SetDirection(double xDir, double yDir, double zDir) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the direction of the handle.
    * The direction meaning depends on subclasses implementations.
    */
   void GetDirection(double dir[3]);
   virtual double* GetDirection() = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the handle.
    * The size use depends on subclasses implementations.
@@ -90,7 +90,7 @@ public:
    */
   vtkSetMacro(Size, double);
   vtkGetMacro(Size, double);
-  //@}
+  ///@}
 
   vtkHandleSource(const vtkHandleSource&) = delete;
   void operator=(const vtkHandleSource&) = delete;

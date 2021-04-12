@@ -47,23 +47,23 @@ public:
   vtkTypeMacro(vtkPlot3D, vtkContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkPen object that controls how this plot draws (out)lines.
    */
   void SetPen(vtkPen* pen);
   vtkPen* GetPen();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkPen object that controls how this plot draws (out)lines.
    */
   void SetSelectionPen(vtkPen* pen);
   vtkPen* GetSelectionPen();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the input to the plot.
    */
@@ -74,7 +74,7 @@ public:
     const vtkStdString& zName, const vtkStdString& colorName);
   virtual void SetInputData(
     vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn);
-  //@}
+  ///@}
 
   /**
    * Set the color of each point in the plot.  The input is a single component
@@ -88,13 +88,13 @@ public:
    */
   std::vector<vtkVector3f> GetPoints();
 
-  //@{
+  ///@{
   /**
    * Get/set the chart for this plot.
    */
   vtkGetObjectMacro(Chart, vtkChartXYZ);
   virtual void SetChart(vtkChartXYZ* chart);
-  //@}
+  ///@}
 
   /**
    * Get the label for the X axis.
@@ -116,13 +116,13 @@ public:
    */
   std::vector<vtkVector3f> GetDataBounds() { return this->DataBounds; }
 
-  //@{
+  ///@{
   /**
    * Set/get the selection array for the plot.
    */
   virtual void SetSelection(vtkIdTypeArray* id);
   virtual vtkIdTypeArray* GetSelection();
-  //@}
+  ///@}
 
 protected:
   vtkPlot3D();

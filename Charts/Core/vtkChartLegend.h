@@ -47,19 +47,19 @@ public:
    */
   static vtkChartLegend* New();
 
-  //@{
+  ///@{
   /**
    * Set point the legend box is anchored to.
    */
   vtkSetVector2Macro(Point, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get point the legend box is anchored to.
    */
   vtkGetVector2Macro(Point, float);
-  //@}
+  ///@}
 
   enum
   {
@@ -81,63 +81,63 @@ public:
    */
   const vtkVector2f& GetPointVector();
 
-  //@{
+  ///@{
   /**
    * Set the horizontal alignment of the legend to the point specified.
    * Valid values are LEFT, CENTER and RIGHT.
    */
   vtkSetMacro(HorizontalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the horizontal alignment of the legend to the point specified.
    */
   vtkGetMacro(HorizontalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the vertical alignment of the legend to the point specified.
    * Valid values are TOP, CENTER and BOTTOM.
    */
   vtkSetMacro(VerticalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vertical alignment of the legend to the point specified.
    */
   vtkGetMacro(VerticalAlignment, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the padding between legend marks, default is 5.
    */
   vtkSetMacro(Padding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the padding between legend marks.
    */
   vtkGetMacro(Padding, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the symbol width, default is 15.
    */
   vtkSetMacro(SymbolWidth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the legend symbol width.
    */
   vtkGetMacro(SymbolWidth, int);
-  //@}
+  ///@}
 
   /**
    * Set the point size of the label text.
@@ -149,7 +149,7 @@ public:
    */
   virtual int GetLabelSize();
 
-  //@{
+  ///@{
   /**
    * Get/set if the legend should be drawn inline (inside the chart), or not.
    * True would generally request that the chart draws it inside the chart,
@@ -157,9 +157,9 @@ public:
    */
   vtkSetMacro(Inline, bool);
   vtkGetMacro(Inline, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set if the legend can be dragged with the mouse button, or not.
    * True results in left click and drag causing the legend to move around the
@@ -168,7 +168,7 @@ public:
    */
   vtkSetMacro(DragEnabled, bool);
   vtkGetMacro(DragEnabled, bool);
-  //@}
+  ///@}
 
   /**
    * Set the chart that the legend belongs to and will draw the legend for.
@@ -214,7 +214,7 @@ public:
    */
   vtkTextProperty* GetLabelProperties();
 
-  //@{
+  ///@{
   /**
    * Toggle whether or not this legend should attempt to cache its position
    * and size.  The default value is true.  If this value is set to false,
@@ -226,7 +226,7 @@ public:
   vtkSetMacro(CacheBounds, bool);
   vtkGetMacro(CacheBounds, bool);
   vtkBooleanMacro(CacheBounds, bool);
-  //@}
+  ///@}
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.

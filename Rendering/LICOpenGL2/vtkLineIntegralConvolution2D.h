@@ -118,16 +118,16 @@ public:
    */
   static bool IsSupported(vtkRenderWindow* renWin);
 
-  //@{
+  ///@{
   /**
    * Set/Get the rendering context. A reference is not explicitly held,
    * thus reference to the context must be held externally.
    */
   void SetContext(vtkOpenGLRenderWindow* context);
   vtkOpenGLRenderWindow* GetContext();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * EnhancedLIC mean compute the LIC twice with the second pass using
    * the edge-enhanced result of the first pass as a noise texture. Edge
@@ -136,9 +136,9 @@ public:
   vtkSetClampMacro(EnhancedLIC, int, 0, 1);
   vtkGetMacro(EnhancedLIC, int);
   vtkBooleanMacro(EnhancedLIC, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable contrast and dynamic range correction stages. Stage 1 is applied
    * on the input to the high-pass filter when the high-pass filter is enabled and
@@ -168,9 +168,9 @@ public:
   vtkSetClampMacro(EnhanceContrast, int, 0, 2);
   vtkGetMacro(EnhanceContrast, int);
   vtkBooleanMacro(EnhanceContrast, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This feature is used to fine tune the contrast enhancement. Values are provided
    * indicating the fraction of the range to adjust m and M by during contrast enahncement
@@ -192,9 +192,9 @@ public:
   vtkGetMacro(LowContrastEnhancementFactor, double);
   vtkSetClampMacro(HighContrastEnhancementFactor, double, 0.0, 1.0);
   vtkGetMacro(HighContrastEnhancementFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the anti-aliasing pass. This optional pass (disabled by
    * default) can be enabled to reduce jagged patterns in the final LIC image.
@@ -204,18 +204,18 @@ public:
   vtkSetClampMacro(AntiAlias, int, 0, VTK_INT_MAX);
   vtkGetMacro(AntiAlias, int);
   vtkBooleanMacro(AntiAlias, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of streamline integration steps (initial value is 1).
    * In term of visual quality, the greater (within some range) the better.
    */
   vtkSetClampMacro(NumberOfSteps, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the streamline integration step size (0.01 by default). This is
    * the length of each step in normalized image space i.e. in range [0, FLOAT_MAX].
@@ -225,9 +225,9 @@ public:
    */
   vtkSetClampMacro(StepSize, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(StepSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If VectorField has >= 3 components, we must choose which 2 components
    * form the (X, Y) components for the vector field. Must be in the range
@@ -236,9 +236,9 @@ public:
   void SetComponentIds(int c0, int c1);
   void SetComponentIds(int c[2]) { this->SetComponentIds(c[0], c[1]); }
   vtkGetVector2Macro(ComponentIds, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the max noise value for use during LIC integration normalization.
    * The integration normalization factor is the max noise value times the
@@ -246,9 +246,9 @@ public:
    */
   vtkSetClampMacro(MaxNoiseValue, double, 0.0, 1.0);
   vtkGetMacro(MaxNoiseValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This class performs LIC in the normalized image space. Hence, by default
    * it transforms the input vectors to the normalized image space (using the
@@ -257,7 +257,7 @@ public:
    */
   void SetTransformVectors(int val);
   vtkGetMacro(TransformVectors, int);
-  //@}
+  ///@}
 
   /**
    * Set/Get the spacing in each dimension of the plane on which the vector
@@ -270,7 +270,7 @@ public:
    * vtkGetVector2Macro(GridSpacings, double);
    */
 
-  //@{
+  ///@{
   /**
    * Normalize vectors during integration. When set(the default) the input vector field
    * is normalized during integration, and each integration occurs over the same arclength.
@@ -282,9 +282,9 @@ public:
    */
   void SetNormalizeVectors(int val);
   vtkGetMacro(NormalizeVectors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaskThreshold controls blanking of the LIC texture. For fragments with
    * |V|<threshold the LIC fragment is not rendered. The default value is 0.0.
@@ -296,7 +296,7 @@ public:
    */
   vtkSetClampMacro(MaskThreshold, double, -1.0, VTK_FLOAT_MAX);
   vtkGetMacro(MaskThreshold, double);
-  //@}
+  ///@}
 
   /**
    * Compute the lic on the entire vector field texture.

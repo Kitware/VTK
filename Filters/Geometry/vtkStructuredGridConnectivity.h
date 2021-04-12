@@ -61,20 +61,20 @@ public:
   vtkTypeMacro(vtkStructuredGridConnectivity, vtkAbstractGridConnectivity);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the whole extent of the grid
    */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the data dimension based on the whole extent
    */
   vtkGetMacro(DataDimension, int);
-  //@}
+  ///@}
 
   /**
    * Set/Get the total number of domains distributed among processors
@@ -177,7 +177,7 @@ protected:
    */
   int Cardinality(int S[2]) { return (S[1] - S[0] + 1); }
 
-  //@{
+  ///@{
   /**
    * Returns the number of nodes per cell according to the given dimension.
    */
@@ -200,7 +200,7 @@ protected:
     } // END switch
     return (numNodes);
   }
-  //@}
+  ///@}
 
   /**
    * Fills the ghost array for the nodes

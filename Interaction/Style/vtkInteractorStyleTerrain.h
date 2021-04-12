@@ -67,7 +67,7 @@ public:
   vtkTypeMacro(vtkInteractorStyleTerrain, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -79,7 +79,7 @@ public:
   void OnMiddleButtonUp() override;
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
-  //@}
+  ///@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
@@ -92,14 +92,14 @@ public:
   void Pan() override;
   void Dolly() override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off the latitude/longitude lines.
    */
   vtkSetMacro(LatLongLines, vtkTypeBool);
   vtkGetMacro(LatLongLines, vtkTypeBool);
   vtkBooleanMacro(LatLongLines, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleTerrain();

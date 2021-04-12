@@ -100,13 +100,13 @@ public:
    */
   void DeepCopy(vtkDataObject* obj) override;
 
-  //@{
+  ///@{
   /**
    * Get the padding between the molecule and the cube boundaries. This is
    * used to determine the dataset's bounds.
    */
   vtkGetMacro(Padding, double);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractElectronicData();

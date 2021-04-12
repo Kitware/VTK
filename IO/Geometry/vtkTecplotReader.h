@@ -98,12 +98,12 @@ public:
   vtkTypeMacro(vtkTecplotReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the number of all variables (including 3D coordinates).
    */
   vtkGetMacro(NumberOfVariables, int);
-  //@}
+  ///@}
 
   /**
    * Specify a Tecplot ASCII file for data loading.

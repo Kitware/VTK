@@ -55,15 +55,15 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Integer describing the number of intersection points and lines
    */
   vtkGetMacro(NumberOfIntersectionPoints, int);
   vtkGetMacro(NumberOfIntersectionLines, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ONLY USED IF NO INTERSECTION BETWEEN SURFACES
    * Variable to determine what is output if no intersection occurs.
@@ -72,7 +72,7 @@ public:
   vtkGetMacro(NoIntersectionOutput, int);
   vtkSetMacro(NoIntersectionOutput, int);
   vtkBooleanMacro(NoIntersectionOutput, int);
-  //@}
+  ///@}
 
   // Union intersection, or difference
   enum OperationType
@@ -90,7 +90,7 @@ public:
     VTK_BOTH,
   };
 
-  //@{
+  ///@{
   /**
    * Set the boolean operation to perform. Defaults to union.
    */
@@ -99,24 +99,24 @@ public:
   void SetOperationToUnion() { this->SetOperation(VTK_UNION); }
   void SetOperationToIntersection() { this->SetOperation(VTK_INTERSECTION); }
   void SetOperationToDifference() { this->SetOperation(VTK_DIFFERENCE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check the status of the filter after update. If the status is zero,
    * there was an error in the operation. If status is one, everything
    * went smoothly
    */
   vtkGetMacro(Status, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for geometric tests
    */
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkLoopBooleanPolyDataFilter();
@@ -129,7 +129,7 @@ private:
   vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) = delete;
   void operator=(const vtkLoopBooleanPolyDataFilter&) = delete;
 
-  //@{
+  ///@{
   /**
    * Which operation to perform.
    * Can be VTK_UNION, VTK_INTERSECTION, or VTK_DIFFERENCE.
@@ -138,7 +138,7 @@ private:
   int NoIntersectionOutput;
   int NumberOfIntersectionPoints;
   int NumberOfIntersectionLines;
-  //@}
+  ///@}
 
   int Status;
   double Tolerance;

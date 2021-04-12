@@ -59,7 +59,7 @@ public:
    */
   int GetDimension() override { return 2; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale factor.
    * See the definition in Parametric surfaces referred to above.
@@ -67,9 +67,9 @@ public:
    */
   vtkSetMacro(A, double);
   vtkGetMacro(A, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale factor.
    * See the definition in Parametric surfaces referred to above.
@@ -77,7 +77,7 @@ public:
    */
   vtkSetMacro(B, double);
   vtkGetMacro(B, double);
-  //@}
+  ///@}
 
   /**
    * Dini's surface.

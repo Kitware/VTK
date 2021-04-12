@@ -57,7 +57,7 @@ public:
   vtkTypeMacro(vtkDicer, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which controls whether to generate point scalar
    * data or point field data. If this flag is off, scalar data is
@@ -68,9 +68,9 @@ public:
   vtkSetMacro(FieldData, vtkTypeBool);
   vtkGetMacro(FieldData, vtkTypeBool);
   vtkBooleanMacro(FieldData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the method to determine how many pieces the data should be
    * broken into. By default, the number of points per piece is used.
@@ -80,18 +80,18 @@ public:
   void SetDiceModeToNumberOfPointsPerPiece() { this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS); }
   void SetDiceModeToSpecifiedNumberOfPieces() { this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER); }
   void SetDiceModeToMemoryLimitPerPiece() { this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the following method after the filter has updated to
    * determine the actual number of pieces the data was separated
    * into.
    */
   vtkGetMacro(NumberOfActualPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control piece size based on the maximum number of points per piece.
    * (This ivar has effect only when the DiceMode is set to
@@ -99,9 +99,9 @@ public:
    */
   vtkSetClampMacro(NumberOfPointsPerPiece, int, 1000, VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerPiece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of pieces the object is to be separated into.
    * (This ivar has effect only when the DiceMode is set to
@@ -112,9 +112,9 @@ public:
    */
   vtkSetClampMacro(NumberOfPieces, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control piece size based on a memory limit.  (This ivar has
    * effect only when the DiceMode is set to
@@ -123,7 +123,7 @@ public:
    */
   vtkSetClampMacro(MemoryLimit, unsigned long, 100, VTK_INT_MAX);
   vtkGetMacro(MemoryLimit, unsigned long);
-  //@}
+  ///@}
 
 protected:
   vtkDicer();

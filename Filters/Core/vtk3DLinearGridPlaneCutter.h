@@ -83,16 +83,16 @@ class vtkPolyData;
 class VTKFILTERSCORE_EXPORT vtk3DLinearGridPlaneCutter : public vtkDataObjectAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type info, and printing.
    */
   static vtk3DLinearGridPlaneCutter* New();
   vtkTypeMacro(vtk3DLinearGridPlaneCutter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the plane (an implicit function) to perform the cutting. The
    * definition of the plane (its origin and normal) is controlled via this
@@ -100,9 +100,9 @@ public:
    */
   virtual void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to merge coincident points. Merging can take extra time
    * and produces fewer output points, creating a "watertight" output
@@ -112,9 +112,9 @@ public:
   vtkSetMacro(MergePoints, bool);
   vtkGetMacro(MergePoints, bool);
   vtkBooleanMacro(MergePoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to interpolate input attributes onto the cut
    * plane. By default this option is on.
@@ -122,9 +122,9 @@ public:
   vtkSetMacro(InterpolateAttributes, bool);
   vtkGetMacro(InterpolateAttributes, bool);
   vtkBooleanMacro(InterpolateAttributes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. The normal, if generated, is defined by cell data
@@ -134,7 +134,7 @@ public:
   vtkSetMacro(ComputeNormals, bool);
   vtkGetMacro(ComputeNormals, bool);
   vtkBooleanMacro(ComputeNormals, bool);
-  //@}
+  ///@}
 
   /**
    * Overloaded GetMTime() because of delegation to the helper
@@ -142,7 +142,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points. See the
    * documentation for the vtkAlgorithm::Precision enum for an explanation of
@@ -150,9 +150,9 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force sequential processing (i.e. single thread) of the contouring
    * process. By default, sequential processing is off. Note this flag only
@@ -164,7 +164,7 @@ public:
   vtkSetMacro(SequentialProcessing, bool);
   vtkGetMacro(SequentialProcessing, bool);
   vtkBooleanMacro(SequentialProcessing, bool);
-  //@}
+  ///@}
 
   /**
    *  Return the number of threads actually used during execution. This is

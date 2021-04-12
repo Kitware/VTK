@@ -65,13 +65,13 @@ public:
    */
   void GetHandlesRange(double range[2]) override;
 
-  //@{
+  ///@{
   /**
    * Get/set the color transfer function to interact with.
    */
   void SetColorTransferFunction(vtkColorTransferFunction* ctf);
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
-  //@}
+  ///@}
 
   /**
    * Compute the handles draw range by using the handle width and the transfer
@@ -79,7 +79,7 @@ public:
    */
   void ComputeHandlesDrawRange() override;
 
-  //@{
+  ///@{
   /**
    * Overridden to force using desynchronized vertical handles.
    * Desynchronized handles means that handles are always moved independently,
@@ -97,7 +97,7 @@ public:
   {
     this->Superclass::SetHandleOrientation(Orientation::VERTICAL);
   }
-  //@}
+  ///@}
 
 protected:
   vtkRangeHandlesItem();

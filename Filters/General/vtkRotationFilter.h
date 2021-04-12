@@ -46,7 +46,7 @@ public:
     USE_Z = 2
   };
 
-  //@{
+  ///@{
   /**
    * Set the axis of rotation to use. It is set by default to Z.
    */
@@ -55,25 +55,25 @@ public:
   void SetAxisToX() { this->SetAxis(USE_X); }
   void SetAxisToY() { this->SetAxis(USE_Y); }
   void SetAxisToZ() { this->SetAxis(USE_Z); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the rotation angle to use.
    */
   vtkSetMacro(Angle, double);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the rotation center coordinates.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of copies to create. The source will be rotated N times
    * and a new polydata copy of the original created at each angular position
@@ -81,9 +81,9 @@ public:
    */
   vtkSetMacro(NumberOfCopies, int);
   vtkGetMacro(NumberOfCopies, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on (the default), copy the input geometry to the output. If off,
    * the output will only contain the rotation.
@@ -91,7 +91,7 @@ public:
   vtkSetMacro(CopyInput, vtkTypeBool);
   vtkGetMacro(CopyInput, vtkTypeBool);
   vtkBooleanMacro(CopyInput, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkRotationFilter();

@@ -51,23 +51,23 @@ public:
    */
   void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
-  //@{
+  ///@{
   /**
    * Set/Get the rotation angle in degrees. Default is 0.
    */
   void SetAngle(double angle);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the rotation center. Default is 0,0,0.
    */
   void SetCenter(double* center);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the rotation axis. Default is VTK_PERIODIC_ARRAY_AXIS_X axis.
    */
@@ -76,7 +76,7 @@ public:
   void SetAxisToX(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_X); }
   void SetAxisToY(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Y); }
   void SetAxisToZ(void) { this->SetAxisType(VTK_PERIODIC_ARRAY_AXIS_Z); }
-  //@}
+  ///@}
 
 protected:
   vtkAngularPeriodicDataArray();

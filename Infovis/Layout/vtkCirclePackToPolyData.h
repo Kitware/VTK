@@ -53,14 +53,14 @@ public:
     this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * Define the number of sides used in output circles.
    * Default is 100.
    */
   vtkSetMacro(Resolution, unsigned int);
   vtkGetMacro(Resolution, unsigned int);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

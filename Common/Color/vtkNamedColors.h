@@ -388,13 +388,13 @@ protected:
   ~vtkNamedColors() override;
 
 private:
-  //@{
+  ///@{
   /**
    * The implementation of the color map and other required methods.
    */
   vtkNamedColorsDataStore* Colors;
   vtkColorStringParser* Parser;
-  //@}
+  ///@}
 
   vtkNamedColors(const vtkNamedColors&) = delete;
   void operator=(const vtkNamedColors&) = delete;

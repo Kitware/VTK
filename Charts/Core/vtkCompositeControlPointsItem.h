@@ -52,13 +52,13 @@ public:
    */
   virtual void SetColorTransferFunction(vtkColorTransferFunction* function);
 
-  //@{
+  ///@{
   /**
    * Utility function that calls SetPiecewiseFunction()
    */
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
-  //@}
+  ///@}
 
   enum PointsFunctionType
   {
@@ -67,7 +67,7 @@ public:
     ColorAndOpacityPointsFunction = 3
   };
 
-  //@{
+  ///@{
   /**
    * PointsFunction controls whether the points represent the
    * ColorTransferFunction, OpacityTransferFunction or both.
@@ -82,7 +82,7 @@ public:
    */
   vtkSetMacro(PointsFunction, int);
   vtkGetMacro(PointsFunction, int);
-  //@}
+  ///@}
 
   /**
    * Add a point to the function. Returns the index of the point (0 based),
@@ -99,7 +99,7 @@ public:
    */
   vtkIdType RemovePoint(double* pos) override;
 
-  //@{
+  ///@{
   /**
    * If UseOpacityPointHandles is true, when the current point is
    * double clicked, a vtkPiecewisePointHandleItem will show up so
@@ -109,16 +109,16 @@ public:
    */
   vtkSetMacro(UseOpacityPointHandles, bool);
   vtkGetMacro(UseOpacityPointHandles, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Mouse move event. To take care of some special Key stroke
    */
   bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
-  //@}
+  ///@}
 
   /**
    * Returns the total number of points, either from

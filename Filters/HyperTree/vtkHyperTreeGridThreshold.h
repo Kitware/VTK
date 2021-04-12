@@ -55,29 +55,29 @@ public:
   vtkTypeMacro(vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get True, create a new mask ; false, create a new HTG.
    */
   vtkSetMacro(JustCreateNewMask, bool);
   vtkGetMacro(JustCreateNewMask, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get minimum scalar value of threshold
    */
   vtkSetMacro(LowerThreshold, double);
   vtkGetMacro(LowerThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get maximum scalar value of threshold
    */
   vtkSetMacro(UpperThreshold, double);
   vtkGetMacro(UpperThreshold, double);
-  //@}
+  ///@}
 
   /**
    * Convenience method to set both threshold values at once

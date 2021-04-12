@@ -39,13 +39,13 @@ public:
   static vtkCompositeRenderManager* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the composite algorithm.
    */
   void SetCompositer(vtkCompositer* c);
   vtkGetObjectMacro(Compositer, vtkCompositer);
-  //@}
+  ///@}
 
 protected:
   vtkCompositeRenderManager();

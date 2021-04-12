@@ -56,28 +56,28 @@ public:
    */
   static vtkImageSlice* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the mapper.
    */
   void SetMapper(vtkImageMapper3D* mapper);
   vtkGetObjectMacro(Mapper, vtkImageMapper3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the image display properties.
    */
   void SetProperty(vtkImageProperty* property);
   virtual vtkImageProperty* GetProperty();
-  //@}
+  ///@}
 
   /**
    * Update the rendering pipeline by updating the ImageMapper
    */
   void Update();
 
-  //@{
+  ///@{
   /**
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
@@ -90,7 +90,7 @@ public:
   double GetMaxYBound();
   double GetMinZBound();
   double GetMaxZBound();
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the property etc.
@@ -105,14 +105,14 @@ public:
    */
   vtkMTimeType GetRedrawMTime() override;
 
-  //@{
+  ///@{
   /**
    * Force the actor to be treated as translucent.
    */
   vtkGetMacro(ForceTranslucent, bool);
   vtkSetMacro(ForceTranslucent, bool);
   vtkBooleanMacro(ForceTranslucent, bool);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of this vtkImageSlice. Overloads the virtual vtkProp method.
@@ -126,14 +126,14 @@ public:
    */
   void GetImages(vtkPropCollection*);
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Internal method, should only be used by rendering.

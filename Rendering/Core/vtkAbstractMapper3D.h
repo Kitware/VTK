@@ -57,7 +57,7 @@ public:
    */
   virtual void GetBounds(double bounds[6]);
 
-  //@{
+  ///@{
   /**
    * Return the Center of this mapper's data.
    */
@@ -69,7 +69,7 @@ public:
     center[1] = rc[1];
     center[2] = rc[2];
   }
-  //@}
+  ///@}
 
   /**
    * Return the diagonal length of this mappers bounding box.

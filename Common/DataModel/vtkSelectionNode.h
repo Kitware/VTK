@@ -72,28 +72,28 @@ public:
    */
   virtual void Initialize();
 
-  //@{
+  ///@{
   /**
    * Sets the selection list.
    */
   virtual void SetSelectionList(vtkAbstractArray*);
   virtual vtkAbstractArray* GetSelectionList();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the selection table.
    */
   virtual void SetSelectionData(vtkDataSetAttributes* data);
   vtkGetObjectMacro(SelectionData, vtkDataSetAttributes);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the property map.
    */
   vtkGetObjectMacro(Properties, vtkInformation);
-  //@}
+  ///@}
 
   /**
    * Copy properties, selection list and children of the input.
@@ -142,14 +142,14 @@ public:
     NUM_CONTENT_TYPES
   };
 
-  //@{
+  ///@{
   /**
    * Get or set the content type of the selection.
    * This is the same as setting the CONTENT_TYPE() key on the property.
    */
   virtual void SetContentType(int type);
   virtual int GetContentType();
-  //@}
+  ///@}
 
   /**
    * Get the content type as a string.
@@ -176,14 +176,14 @@ public:
     NUM_FIELD_TYPES
   };
 
-  //@{
+  ///@{
   /**
    * Get or set the field type of the selection.
    * This is the same as setting the FIELD_TYPE() key on the property.
    */
   virtual void SetFieldType(int type);
   virtual int GetFieldType();
-  //@}
+  ///@}
 
   /**
    * Get the field type as a string.
@@ -195,22 +195,22 @@ public:
    */
   static int GetFieldTypeFromString(const char* type);
 
-  //@{
+  ///@{
   /**
    * Methods to convert vtkSelectionNode::SelectionField to
    * vtkDataSetAttribute::AttributeTypes and vice-versa.
    */
   static int ConvertSelectionFieldToAttributeType(int val);
   static int ConvertAttributeTypeToSelectionField(int val);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the query expression string.
    */
   vtkSetStringMacro(QueryString);
   vtkGetStringMacro(QueryString);
-  //@}
+  ///@}
 
   /**
    * For location selection of points, if distance is greater than this reject.
@@ -282,7 +282,7 @@ public:
    */
   static vtkInformationIntegerKey* PROCESS_ID();
 
-  //@{
+  ///@{
   /**
    * Keys for selector-based identification of
    * blocks to choose from a composite dataset. `ASSEMBLY_NAME` identifies the
@@ -294,20 +294,20 @@ public:
    */
   static vtkInformationStringKey* ASSEMBLY_NAME();
   static vtkInformationStringVectorKey* SELECTORS();
-  //@}
+  ///@}
 
   /**
    * Used to identify a node in composite datasets.
    */
   static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
-  //@{
+  ///@{
   /**
    * Used to identify a dataset in a hiererchical box dataset.
    */
   static vtkInformationIntegerKey* HIERARCHICAL_LEVEL();
   static vtkInformationIntegerKey* HIERARCHICAL_INDEX();
-  //@}
+  ///@}
 
   /**
    * This key is used when making visible vertex selection. It means

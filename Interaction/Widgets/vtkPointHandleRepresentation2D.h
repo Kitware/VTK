@@ -48,17 +48,17 @@ public:
    */
   static vtkPointHandleRepresentation2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPointHandleRepresentation2D, vtkHandleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   using vtkHandleRepresentation::Translate;
 
-  //@{
+  ///@{
   /**
    * Specify the cursor shape with an instance of vtkPolyData. Note that
    * shape is assumed to be defined in the display coordinate system. By
@@ -66,7 +66,7 @@ public:
    */
   void SetCursorShape(vtkPolyData* cursorShape);
   vtkPolyData* GetCursorShape();
-  //@}
+  ///@}
 
   /**
    * Set/Get the position of the point in display coordinates.  This overloads
@@ -75,7 +75,7 @@ public:
    */
   void SetDisplayPosition(double xyz[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties when unselected and selected.
    */
@@ -83,9 +83,9 @@ public:
   void SetSelectedProperty(vtkProperty2D*);
   vtkGetObjectMacro(Property, vtkProperty2D);
   vtkGetObjectMacro(SelectedProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkPointHandleRepresentation2D must implement these
    * methods. These are the methods that the widget and its representation
@@ -96,9 +96,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -107,7 +107,7 @@ public:
   void GetActors2D(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   void Highlight(int highlight) override;
 

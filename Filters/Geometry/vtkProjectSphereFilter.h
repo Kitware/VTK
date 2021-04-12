@@ -41,15 +41,15 @@ public:
 
   static vtkProjectSphereFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set the center of the sphere to be split. Default is 0,0,0.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether or not to keep the cells using a point at
    * a pole. The default is false.
@@ -57,9 +57,9 @@ public:
   vtkGetMacro(KeepPolePoints, bool);
   vtkSetMacro(KeepPolePoints, bool);
   vtkBooleanMacro(KeepPolePoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether (true) or not to translate the points in the projected
    * transformation such that the input point with the smallest
@@ -68,7 +68,7 @@ public:
   vtkGetMacro(TranslateZ, bool);
   vtkSetMacro(TranslateZ, bool);
   vtkBooleanMacro(TranslateZ, bool);
-  //@}
+  ///@}
 
 protected:
   vtkProjectSphereFilter();

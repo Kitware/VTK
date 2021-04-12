@@ -82,7 +82,7 @@ public:
     ALL_PARAMS = 1
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get light index
    * This should be the OpenGL light identifier. (e.g.: GL_LIGHT0)
@@ -90,9 +90,9 @@ public:
    */
   vtkSetMacro(LightIndex, int);
   vtkGetMacro(LightIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get replace mode
    * This determines how this ExternalLight will be used to tweak parameters on
@@ -108,7 +108,7 @@ public:
    */
   vtkSetMacro(ReplaceMode, int);
   vtkGetMacro(ReplaceMode, int);
-  //@}
+  ///@}
 
   /**
    * Override Set method to keep a record of changed value
@@ -166,75 +166,75 @@ public:
    */
   void SetPositional(vtkTypeBool) override;
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(PositionSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(FocalPointSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(AmbientColorSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(DiffuseColorSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(SpecularColorSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(IntensitySet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(ConeAngleSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(AttenuationValuesSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(ExponentSet, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Check whether value set by user
    */
   vtkGetMacro(PositionalSet, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExternalLight();

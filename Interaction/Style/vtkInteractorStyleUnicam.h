@@ -127,7 +127,7 @@ public:
   void SetWorldUpVector(double x, double y, double z);
   vtkGetVectorMacro(WorldUpVector, double, 3);
 
-  //@{
+  ///@{
   /**
    * Concrete implementation of event bindings
    */
@@ -135,7 +135,7 @@ public:
   void OnLeftButtonDown() override;
   void OnLeftButtonUp() override;
   virtual void OnLeftButtonMove();
-  //@}
+  ///@}
 
   /**
    * OnTimer calls RotateCamera, RotateActor etc which should be overridden by

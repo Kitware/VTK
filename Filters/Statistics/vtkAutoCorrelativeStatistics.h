@@ -56,7 +56,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAutoCorrelativeStatistics* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the cardinality of the data set at given time, i.e., of
    * any given time slice. It cannot be negative.
@@ -67,7 +67,7 @@ public:
    */
   vtkSetClampMacro(SliceCardinality, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(SliceCardinality, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Given a collection of models, calculate aggregate model

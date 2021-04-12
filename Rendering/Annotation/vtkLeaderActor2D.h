@@ -64,7 +64,7 @@ public:
    */
   static vtkLeaderActor2D* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get a radius which can be used to curve the leader.  If a radius is
    * specified whose absolute value is greater than one half the distance
@@ -79,33 +79,33 @@ public:
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the label for the leader. If the label is an empty string, then
    * it will not be drawn.
    */
   vtkSetStringMacro(Label);
   vtkGetStringMacro(Label);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property of the label.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts used
    * to label the leader.
    */
   vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
   vtkGetMacro(LabelFactor, double);
-  //@}
+  ///@}
 
   // Enums defined to support methods for control of arrow placement and
   // and appearance of arrow heads.
@@ -123,7 +123,7 @@ public:
     VTK_ARROW_HOLLOW
   };
 
-  //@{
+  ///@{
   /**
    * Control whether arrow heads are drawn on the leader. Arrows may be
    * drawn on one end, both ends, or not at all.
@@ -134,9 +134,9 @@ public:
   void SetArrowPlacementToPoint1() { this->SetArrowPlacement(VTK_ARROW_POINT1); }
   void SetArrowPlacementToPoint2() { this->SetArrowPlacement(VTK_ARROW_POINT2); }
   void SetArrowPlacementToBoth() { this->SetArrowPlacement(VTK_ARROW_BOTH); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the appearance of the arrow heads. A solid arrow head is a filled
    * triangle; a open arrow looks like a "V"; and a hollow arrow looks like a
@@ -147,9 +147,9 @@ public:
   void SetArrowStyleToFilled() { this->SetArrowStyle(VTK_ARROW_FILLED); }
   void SetArrowStyleToOpen() { this->SetArrowStyle(VTK_ARROW_OPEN); }
   void SetArrowStyleToHollow() { this->SetArrowStyle(VTK_ARROW_HOLLOW); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the arrow length and base width (in normalized viewport
    * coordinates).
@@ -158,9 +158,9 @@ public:
   vtkGetMacro(ArrowLength, double);
   vtkSetClampMacro(ArrowWidth, double, 0.0, 1.0);
   vtkGetMacro(ArrowWidth, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Limit the minimum and maximum size of the arrows. These values are
    * expressed in pixels and clamp the minimum/maximum possible size for the
@@ -171,9 +171,9 @@ public:
   vtkGetMacro(MinimumArrowSize, double);
   vtkSetClampMacro(MaximumArrowSize, double, 1.0, VTK_FLOAT_MAX);
   vtkGetMacro(MaximumArrowSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable auto-labelling. In this mode, the label is automatically updated
    * based on distance (in world coordinates) between the two end points; or
@@ -183,33 +183,33 @@ public:
   vtkSetMacro(AutoLabel, vtkTypeBool);
   vtkGetMacro(AutoLabel, vtkTypeBool);
   vtkBooleanMacro(AutoLabel, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format to use for auto-labelling.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Obtain the length of the leader if the leader is not curved,
    * otherwise obtain the angle that the leader circumscribes.
    */
   vtkGetMacro(Length, double);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp and vtkActor2D superclasses.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

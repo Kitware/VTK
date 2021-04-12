@@ -212,7 +212,7 @@ public:
    */
   virtual void GetBoundaryIterator(vtkGenericCellIterator* boundaries, int dim = -1) = 0;
 
-  //@{
+  ///@{
   /**
    * Number of cells (dimension>boundary->GetDimension()) of the dataset
    * that share the boundary `boundary' of `this'.
@@ -225,7 +225,7 @@ public:
    */
   virtual int CountNeighbors(vtkGenericAdaptorCell* boundary) = 0;
   virtual void CountEdgeNeighbors(int* sharing) = 0;
-  //@}
+  ///@}
 
   /**
    * Put into `neighbors' the cells (dimension>boundary->GetDimension())

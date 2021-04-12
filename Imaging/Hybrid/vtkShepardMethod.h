@@ -83,13 +83,13 @@
 class VTKIMAGINGHYBRID_EXPORT vtkShepardMethod : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkShepardMethod, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -108,14 +108,14 @@ public:
    */
   void SetSampleDimensions(int dim[3]);
 
-  //@{
+  ///@{
   /**
    * Retrieve the i-j-k dimensions on which to interpolate the input points.
    */
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum influence distance of each input point. This
    * distance is a fraction of the length of the diagonal of the sample
@@ -125,9 +125,9 @@ public:
    */
   vtkSetClampMacro(MaximumDistance, double, 0.0, 1.0);
   vtkGetMacro(MaximumDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value for output points not receiving a contribution from any
    * input point(s). Output points may not receive a contribution when the
@@ -135,9 +135,9 @@ public:
    */
   vtkSetMacro(NullValue, double);
   vtkGetMacro(NullValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the position in space to perform the sampling. The ModelBounds
    * and SampleDimensions together define the output volume. (Note: if the
@@ -146,16 +146,16 @@ public:
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the power parameter p. By default p=2. Values (which must be
    * a positive, real value) != 2 may affect performance significantly.
    */
   vtkSetClampMacro(PowerParameter, double, 0.001, 100);
   vtkGetMacro(PowerParameter, double);
-  //@}
+  ///@}
 
   /**
    * Compute ModelBounds from the input geometry.

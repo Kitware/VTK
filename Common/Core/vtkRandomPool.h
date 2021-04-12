@@ -48,25 +48,25 @@ class vtkDataArray;
 class VTKCOMMONCORE_EXPORT vtkRandomPool : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkRandomPool* New();
   vtkTypeMacro(vtkRandomPool, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the random sequence generator used to produce the random pool.
    * By default vtkMersenneTwister is used.
    */
   virtual void SetSequence(vtkRandomSequence* seq);
   vtkGetObjectMacro(Sequence, vtkRandomSequence);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set and get the size of the pool. The size must be specified
    * before invoking GeneratePool(). Note the number of components will
@@ -74,9 +74,9 @@ public:
    */
   vtkSetClampMacro(Size, vtkIdType, 1, VTK_ID_MAX);
   vtkGetMacro(Size, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set and get the number of components in the pool. This is a
    * convenience capability and can be used to interface with
@@ -84,7 +84,7 @@ public:
    */
   vtkSetClampMacro(NumberOfComponents, vtkIdType, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfComponents, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * This convenience method returns the total size of the memory pool, i.e.,
@@ -92,7 +92,7 @@ public:
    */
   vtkIdType GetTotalSize() { return (this->Size * this->NumberOfComponents); }
 
-  //@{
+  ///@{
   /**
    * These methods provide access to the raw random pool as a double
    * array. The size of the array is Size*NumberOfComponents. Each x value
@@ -112,9 +112,9 @@ public:
   {
     return this->Pool[(compNum + this->NumberOfComponents * i) % this->TotalSize];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to populate data arrays of various types with values within a
    * specified (min,max) range. Note that compNumber is used to specify the
@@ -129,9 +129,9 @@ public:
    */
   void PopulateDataArray(vtkDataArray* da, double minRange, double maxRange);
   void PopulateDataArray(vtkDataArray* da, int compNumber, double minRange, double maxRange);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the work chunk size at which point multithreading kicks in. For small
    * memory pools < ChunkSize, no threading is used. Larger pools are computed using
@@ -139,7 +139,7 @@ public:
    */
   vtkSetClampMacro(ChunkSize, vtkIdType, 1000, VTK_INT_MAX);
   vtkGetMacro(ChunkSize, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkRandomPool();

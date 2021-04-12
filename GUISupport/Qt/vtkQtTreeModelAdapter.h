@@ -53,13 +53,13 @@ public:
   vtkQtTreeModelAdapter(QObject* parent = nullptr, vtkTree* tree = nullptr);
   ~vtkQtTreeModelAdapter() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
   void SetVTKDataObject(vtkDataObject* data) override;
   vtkDataObject* GetVTKDataObject() const override;
-  //@}
+  ///@}
 
   /**
    * Get the stored VTK data object modification time of when the
@@ -71,13 +71,13 @@ public:
    */
   vtkMTimeType GetVTKDataObjectMTime() const;
 
-  //@{
+  ///@{
   /**
    * Selection conversion from VTK land to Qt land
    */
   vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
   QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
-  //@}
+  ///@}
 
   void SetKeyColumnName(const char* name) override;
 
@@ -99,7 +99,7 @@ public:
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-  //@{
+  ///@{
   /**
    * If drag/drop is enabled in the view, the model will package up the current
    * pedigreeid vtkSelection into a QMimeData when items are dragged.
@@ -108,7 +108,7 @@ public:
   Qt::DropActions supportedDragActions() const override;
   QMimeData* mimeData(const QModelIndexList& indexes) const override;
   QStringList mimeTypes() const override;
-  //@}
+  ///@}
 
 protected:
   void treeModified();

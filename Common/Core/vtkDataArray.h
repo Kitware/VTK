@@ -104,7 +104,7 @@ public:
   virtual void GetTuple(vtkIdType tupleIdx, double* tuple)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) = 0;
 
-  //@{
+  ///@{
   /**
    * These methods are included as convenience for the wrappers.
    * GetTuple() and SetTuple() which return/take arrays can not be
@@ -121,11 +121,11 @@ public:
     VTK_SIZEHINT(6);
   double* GetTuple9(vtkIdType tupleIdx) VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
     VTK_SIZEHINT(9);
-  //@}
+  ///@}
 
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;
 
-  //@{
+  ///@{
   /**
    * Set the data tuple at tupleIdx. Note that range checking or
    * memory allocation is not performed; use this method in conjunction
@@ -135,9 +135,9 @@ public:
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   virtual void SetTuple(vtkIdType tupleIdx, const double* tuple)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are included as convenience for the wrappers.
    * GetTuple() and SetTuple() which return/take arrays can not be
@@ -156,18 +156,18 @@ public:
   void SetTuple9(vtkIdType tupleIdx, double val0, double val1, double val2, double val3,
     double val4, double val5, double val6, double val7, double val8)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert the data tuple at tupleIdx. Note that memory allocation
    * is performed as necessary to hold the data.
    */
   virtual void InsertTuple(vtkIdType tupleIdx, const float* tuple) VTK_EXPECTS(0 <= tupleIdx) = 0;
   virtual void InsertTuple(vtkIdType tupleIdx, const double* tuple) VTK_EXPECTS(0 <= tupleIdx) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are included as convenience for the wrappers.
    * InsertTuple() which takes arrays can not be
@@ -183,9 +183,9 @@ public:
     double val4, double val5) VTK_EXPECTS(0 <= tupleIdx);
   void InsertTuple9(vtkIdType tupleIdx, double val0, double val1, double val2, double val3,
     double val4, double val5, double val6, double val7, double val8) VTK_EXPECTS(0 <= tupleIdx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert the data tuple at the end of the array and return the tuple index at
    * which the data was inserted. Memory is allocated as necessary to hold
@@ -193,9 +193,9 @@ public:
    */
   virtual vtkIdType InsertNextTuple(const float* tuple) = 0;
   virtual vtkIdType InsertNextTuple(const double* tuple) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are included as convenience for the wrappers.
    * InsertTuple() which takes arrays can not be
@@ -209,9 +209,9 @@ public:
     double val0, double val1, double val2, double val3, double val4, double val5);
   void InsertNextTuple9(double val0, double val1, double val2, double val3, double val4,
     double val5, double val6, double val7, double val8);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods remove tuples from the data array. They shift data and
    * resize array, so the data array is still valid after this operation. Note,
@@ -221,7 +221,7 @@ public:
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) = 0;
   virtual void RemoveFirstTuple() { this->RemoveTuple(0); }
   virtual void RemoveLastTuple();
-  //@}
+  ///@}
 
   /**
    * Return the data component at the location specified by tupleIdx and
@@ -259,14 +259,14 @@ public:
   virtual void GetData(
     vtkIdType tupleMin, vtkIdType tupleMax, int compMin, int compMax, vtkDoubleArray* data);
 
-  //@{
+  ///@{
   /**
    * Deep copy of data. Copies data from different data arrays even if
    * they are different types (using doubleing-point exchange).
    */
   void DeepCopy(vtkAbstractArray* aa) override;
   virtual void DeepCopy(vtkDataArray* da);
-  //@}
+  ///@}
 
   /**
    * Create a shallow copy of other into this, if possible. Shallow copies are
@@ -326,13 +326,13 @@ public:
    */
   void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Set/get the lookup table associated with this scalar data, if any.
    */
   void SetLookupTable(vtkLookupTable* lut);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
-  //@}
+  ///@}
 
   /**
    * The range of the data array values for the given component will be
@@ -345,7 +345,7 @@ public:
    */
   void GetRange(double range[2], int comp) { this->ComputeRange(range, comp); }
 
-  //@{
+  ///@{
   /**
    * Return the range of the data array values for the given component. If
    * comp is -1, return the range of the magnitude (L2 norm) over all
@@ -359,7 +359,7 @@ public:
     this->GetRange(this->Range, comp);
     return this->Range;
   }
-  //@}
+  ///@}
 
   /**
    * Return the range of the data array. If the array has multiple components,
@@ -391,7 +391,7 @@ public:
    */
   void GetFiniteRange(double range[2], int comp) { this->ComputeFiniteRange(range, comp); }
 
-  //@{
+  ///@{
   /**
    * Return the range of the data array values for the given component. If
    * comp is -1, return the range of the magnitude (L2 norm) over all
@@ -405,7 +405,7 @@ public:
     this->GetFiniteRange(this->FiniteRange, comp);
     return this->FiniteRange;
   }
-  //@}
+  ///@}
 
   /**
    * Return the range of the data array. If the array has multiple components,
@@ -426,7 +426,7 @@ public:
    */
   void GetFiniteRange(double range[2]) { this->GetFiniteRange(range, 0); }
 
-  //@{
+  ///@{
   /**
    * These methods return the Min and Max possible range of the native
    * data type. For example if a vtkScalars consists of unsigned char
@@ -438,7 +438,7 @@ public:
   static void GetDataTypeRange(int type, double range[2]);
   static double GetDataTypeMin(int type);
   static double GetDataTypeMax(int type);
-  //@}
+  ///@}
 
   /**
    * Return the maximum norm for the tuples.

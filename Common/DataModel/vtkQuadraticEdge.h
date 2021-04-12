@@ -89,7 +89,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[3]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[3]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -102,7 +102,7 @@ public:
   {
     vtkQuadraticEdge::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
 protected:
   vtkQuadraticEdge();

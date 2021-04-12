@@ -50,15 +50,15 @@ public:
    */
   static vtkResliceCursorLineRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkResliceCursorLineRepresentation, vtkResliceCursorRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -67,9 +67,9 @@ public:
   void StartWidgetInteraction(double startEventPos[2]) override;
   void WidgetInteraction(double e[2]) override;
   void Highlight(int highlightOn) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
@@ -78,7 +78,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Get the bounds of this prop. This simply returns the bounds of the
@@ -86,13 +86,13 @@ public:
    */
   double* GetBounds() override;
 
-  //@{
+  ///@{
   /**
    * Get the reslice cursor actor. You must set the reslice cursor on this
    * class
    */
   vtkGetObjectMacro(ResliceCursorActor, vtkResliceCursorActor);
-  //@}
+  ///@}
 
   /**
    * Get the reslice cursor.

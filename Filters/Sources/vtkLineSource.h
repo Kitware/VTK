@@ -64,25 +64,25 @@ public:
   vtkTypeMacro(vtkLineSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set position of first end point.
    */
   vtkSetVector3Macro(Point1, double);
   vtkGetVectorMacro(Point1, double, 3);
   void SetPoint1(float[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set position of other end point.
    */
   vtkSetVector3Macro(Point2, double);
   vtkGetVectorMacro(Point2, double, 3);
   void SetPoint2(float[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get how the line segment is to be refined. One can choose to add points
    * at regular intervals per segment (defined using `Resolution`) or explicit
@@ -93,18 +93,18 @@ public:
   vtkSetMacro(UseRegularRefinement, bool);
   vtkGetMacro(UseRegularRefinement, bool);
   vtkBooleanMacro(UseRegularRefinement, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Divide line into Resolution number of pieces. This is used when
    * `UseRegularRefinement` is true.
    */
   vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API for setting/getting refinement ratios for points added to the line
    * segment. The ratio is in the range `[0.0, 1.0]` where 0.0 is the start of
@@ -118,17 +118,17 @@ public:
   void SetRefinementRatio(int index, double value);
   int GetNumberOfRefinementRatios();
   double GetRefinementRatio(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the list of points defining a broken line
    */
   virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -136,7 +136,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkLineSource(int res = 1);

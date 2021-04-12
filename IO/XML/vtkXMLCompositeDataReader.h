@@ -68,13 +68,13 @@ public:
   vtkGetMacro(PieceDistribution, int);
   /**@}*/
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkCompositeDataSet* GetOutput();
   vtkCompositeDataSet* GetOutput(int);
-  //@}
+  ///@}
 
   void SetFileName(const char*) override;
 
@@ -154,7 +154,7 @@ private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) = delete;
   void operator=(const vtkXMLCompositeDataReader&) = delete;
 
-  //@{
+  ///@{
   /**
    * Given the number of datasets (@a numDatasets) and number of pieces (@a numPieces),
    * return the piece number of a dataset at the chosen index (@a datasetIndex)
@@ -164,7 +164,7 @@ private:
     unsigned int datasetIndex, unsigned int numDatasets, int numPieces);
   static int GetPieceAssignmentForInterleaveStrategy(
     unsigned int datasetIndex, unsigned int numDatasets, int numPieces);
-  //@}
+  ///@}
 
   int PieceDistribution;
 

@@ -129,7 +129,7 @@ public:
     LargestRegion = 2
   };
 
-  //@{
+  ///@{
   /**
    * The input for seed locations (input port 1).
    * Each point in the supplied data set will be used as a seed, unless
@@ -139,9 +139,9 @@ public:
   void SetSeedConnection(vtkAlgorithmOutput* port);
   vtkAlgorithmOutput* GetSeedConnection();
   void SetSeedData(vtkDataSet* data);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The input for a stencil (input port 2).
    * The output labels will be restricted to the region inside the stencil,
@@ -151,9 +151,9 @@ public:
   void SetStencilConnection(vtkAlgorithmOutput* port);
   vtkAlgorithmOutput* GetStencilConnection();
   void SetStencilData(vtkImageStencilData* data);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar type for the output label image.
    * This should be one of UnsignedChar, Short, UnsignedShort, or Int
@@ -169,9 +169,9 @@ public:
   const char* GetLabelScalarTypeAsString();
   vtkSetMacro(LabelScalarType, int);
   vtkGetMacro(LabelScalarType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the mode for applying labels to the output.
    * Labeling by SeedScalar uses the scalars from the seeds as labels, if
@@ -190,9 +190,9 @@ public:
   const char* GetLabelModeAsString();
   vtkSetMacro(LabelMode, int);
   vtkGetMacro(LabelMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set which regions to output from this filter.
    * This can be all the regions, just the seeded regions, or the largest
@@ -206,16 +206,16 @@ public:
   const char* GetExtractionModeAsString();
   vtkSetMacro(ExtractionMode, int);
   vtkGetMacro(ExtractionMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The label used when LabelMode is ConstantValue.
    * The default value is 255.
    */
   vtkSetMacro(LabelConstantValue, int);
   vtkGetMacro(LabelConstantValue, int);
-  //@}
+  ///@}
 
   /**
    * Get the number of extracted regions.
@@ -244,16 +244,16 @@ public:
    */
   vtkIntArray* GetExtractedRegionExtents() { return this->ExtractedRegionExtents; }
 
-  //@{
+  ///@{
   /**
    * Turn this on to request creation of the ExtractedRegionExtents array.
    */
   vtkSetMacro(GenerateRegionExtents, vtkTypeBool);
   vtkBooleanMacro(GenerateRegionExtents, vtkTypeBool);
   vtkGetMacro(GenerateRegionExtents, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the size range for the extracted regions.
    * Only regions that have sizes within the specified range will be present
@@ -261,9 +261,9 @@ public:
    */
   vtkSetVector2Macro(SizeRange, vtkIdType);
   vtkGetVector2Macro(SizeRange, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar range used to define potential regions.
    * Only voxels with values that are within this range will be considered
@@ -273,15 +273,15 @@ public:
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVector2Macro(ScalarRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For multi-component input images, select which component to use.
    */
   vtkSetMacro(ActiveComponent, int);
   vtkGetMacro(ActiveComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageConnectivityFilter();

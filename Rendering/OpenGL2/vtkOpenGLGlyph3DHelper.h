@@ -72,7 +72,7 @@ protected:
   void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
 
-  //@{
+  ///@{
   /**
    * Perform string replacements on the shader templates
    */
@@ -86,7 +86,7 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderPositionVC(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
-  //@}
+  ///@}
 
   /**
    * Set the shader parameteres related to the actor/mapper

@@ -38,20 +38,20 @@ public:
   vtkTypeMacro(vtkExtractDataOverTime, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Index of point to extract at each time step
    */
   vtkSetMacro(PointIndex, int);
   vtkGetMacro(PointIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of time steps
    */
   vtkGetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
 protected:
   vtkExtractDataOverTime();

@@ -45,23 +45,23 @@ public:
   static vtkNetCDFPOPReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The file to open
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable subsampling in i,j and k dimensions in the vtkRectilinearGrid
    */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Variable array selection.
    */
@@ -69,7 +69,7 @@ public:
   virtual const char* GetVariableArrayName(int index);
   virtual int GetVariableArrayStatus(const char* name);
   virtual void SetVariableArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
 protected:
   vtkNetCDFPOPReader();

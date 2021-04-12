@@ -41,13 +41,13 @@ public:
   vtkTypeMacro(vtkAMREnzoParticlesReader, vtkAMRBaseParticlesReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Returns the requested particle type.
    */
   vtkSetMacro(ParticleType, int);
   vtkGetMacro(ParticleType, int);
-  //@}
+  ///@}
 
   /**
    * See vtkAMRBaseParticlesReader::GetTotalNumberOfParticles.

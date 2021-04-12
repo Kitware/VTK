@@ -36,30 +36,30 @@ public:
   vtkTypeMacro(vtkImageToAMR, vtkOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of levels in the generated Overlapping-AMR.
    */
   vtkSetClampMacro(NumberOfLevels, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfLevels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the refinement ratio for levels. This refinement ratio is used for all
    * levels.
    */
   vtkSetClampMacro(RefinementRatio, int, 2, VTK_INT_MAX);
   vtkGetMacro(RefinementRatio, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of blocks in the output
    */
   vtkSetClampMacro(MaximumNumberOfBlocks, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfBlocks, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageToAMR();

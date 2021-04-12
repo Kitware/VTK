@@ -37,24 +37,24 @@ class vtkMergePoints;
 class VTKFILTERSSOURCES_EXPORT vtkCellTypeSource : public vtkUnstructuredGridAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type and printing instance values.
    */
   static vtkCellTypeSource* New();
   vtkTypeMacro(vtkCellTypeSource, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the type of cells to be generated.
    */
   void SetCellType(int cellType);
   vtkGetMacro(CellType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the order of Lagrange interpolation to be used.
    *
@@ -66,9 +66,9 @@ public:
    */
   vtkSetMacro(CellOrder, int);
   vtkGetMacro(CellOrder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether quadratic cells with simplicial shapes should be "completed".
    *
@@ -91,25 +91,25 @@ public:
   vtkSetMacro(CompleteQuadraticSimplicialElements, bool);
   vtkGetMacro(CompleteQuadraticSimplicialElements, bool);
   vtkBooleanMacro(CompleteQuadraticSimplicialElements, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the polynomial order of the "Polynomial" point field.
    * The default is 1.
    */
   vtkSetClampMacro(PolynomialFieldOrder, int, 0, VTK_INT_MAX);
   vtkGetMacro(PolynomialFieldOrder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the dimension of the cell blocks to be generated
    */
   int GetCellDimension();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION (0) - Output single-precision floating point.
@@ -117,9 +117,9 @@ public:
    */
   vtkSetClampMacro(OutputPrecision, int, 0, 1);
   vtkGetMacro(OutputPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of cells in each direction. If a 1D cell type is
    * selected then only the first dimension is used and if a 2D cell
@@ -129,7 +129,7 @@ public:
   void SetBlocksDimensions(int*);
   void SetBlocksDimensions(int, int, int);
   vtkGetVector3Macro(BlocksDimensions, int);
-  //@}
+  ///@}
 
 protected:
   vtkCellTypeSource();

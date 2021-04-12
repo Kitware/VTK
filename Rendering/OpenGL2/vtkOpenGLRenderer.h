@@ -137,37 +137,37 @@ public:
   // get the number of lights turned on
   vtkGetMacro(LightingCount, int);
 
-  //@{
+  ///@{
   /**
    * Set the user light transform applied after the camera transform.
    * Can be null to disable it.
    */
   void SetUserLightTransform(vtkTransform* transform);
   vtkTransform* GetUserLightTransform();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get environment textures used for image based lighting.
    */
   vtkPBRLUTTexture* GetEnvMapLookupTable();
   vtkPBRIrradianceTexture* GetEnvMapIrradiance();
   vtkPBRPrefilterTexture* GetEnvMapPrefiltered();
-  //@}
+  ///@}
 
   /**
    * Get spherical harmonics coefficients used for irradiance
    */
   vtkFloatArray* GetSphericalHarmonics();
 
-  //@{
+  ///@{
   /**
    * Use spherical harmonics instead of irradiance texture
    */
   vtkSetMacro(UseSphericalHarmonics, bool);
   vtkGetMacro(UseSphericalHarmonics, bool);
   vtkBooleanMacro(UseSphericalHarmonics, bool);
-  //@}
+  ///@}
 
   /**
    * Overriden in order to connect the texture to the environment map textures.

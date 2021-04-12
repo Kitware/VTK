@@ -97,51 +97,51 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * String representing database type (e.g. "psql").
    */
   const char* GetDatabaseType() override { return this->DatabaseType; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The database server host name.
    */
   virtual void SetHostName(const char*);
   vtkGetStringMacro(HostName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The user name for connecting to the database server.
    */
   virtual void SetUser(const char*);
   vtkGetStringMacro(User);
-  //@}
+  ///@}
 
   /**
    * The user's password for connecting to the database server.
    */
   virtual void SetPassword(const char*);
 
-  //@{
+  ///@{
   /**
    * The name of the database to connect to.
    */
   virtual void SetDatabaseName(const char*);
   vtkGetStringMacro(DatabaseName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Additional options for the database.
    */
   virtual void SetConnectOptions(const char*);
   vtkGetStringMacro(ConnectOptions);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The port used for connecting to the database.
    */
@@ -149,7 +149,7 @@ public:
   virtual int GetServerPortMinValue() { return 0; }
   virtual int GetServerPortMaxValue() { return VTK_INT_MAX; }
   vtkGetMacro(ServerPort, int);
-  //@}
+  ///@}
 
   /**
    * Get a URL referencing the current database connection.

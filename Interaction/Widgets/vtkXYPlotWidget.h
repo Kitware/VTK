@@ -44,13 +44,13 @@ public:
   vtkTypeMacro(vtkXYPlotWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the XY plot used by this Widget. One is created automatically.
    */
   virtual void SetXYPlotActor(vtkXYPlotActor*);
   vtkGetObjectMacro(XYPlotActor, vtkXYPlotActor);
-  //@}
+  ///@}
 
   /**
    * Methods for turning the interactor observer on and off.

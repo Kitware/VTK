@@ -45,26 +45,26 @@ public:
   vtkTypeMacro(vtkCone, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate cone equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate cone normal.
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the cone angle (expressed in degrees).
    */
   vtkSetClampMacro(Angle, double, 0.0, 89.0);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
 protected:
   vtkCone();

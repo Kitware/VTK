@@ -46,13 +46,13 @@ public:
   vtkTypeMacro(vtkPExtractDataArraysOverTime, vtkExtractDataArraysOverTime);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPExtractDataArraysOverTime();

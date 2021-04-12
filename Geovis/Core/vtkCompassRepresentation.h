@@ -58,13 +58,13 @@ public:
    */
   static vtkCompassRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkCompassRepresentation, vtkContinuousValueWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Position the first end point of the slider. Note that this point is an
@@ -86,30 +86,30 @@ public:
    */
   vtkCoordinate* GetPoint2Coordinate();
 
-  //@{
+  ///@{
   /**
    * Get the slider properties. The properties of the slider when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(RingProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the selection property. This property is used to modify the
    * appearance of selected objects (e.g., the slider).
    */
   vtkGetObjectMacro(SelectedProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the properties for the label and title text.
    */
   vtkGetObjectMacro(LabelProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkSliderWidget. The PlaceWidget() method
    * assumes that the parameter bounds[6] specifies the location in display
@@ -123,9 +123,9 @@ public:
   virtual void DistanceWidgetInteraction(double eventPos[2]);
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void Highlight(int) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -133,7 +133,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
-  //@}
+  ///@}
 
   virtual void SetHeading(double value);
   virtual double GetHeading();

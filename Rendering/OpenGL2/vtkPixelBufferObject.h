@@ -62,7 +62,7 @@ public:
   vtkTypeMacro(vtkPixelBufferObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the context. Context must be a vtkOpenGLRenderWindow.
    * This does not increase the reference count of the
@@ -72,9 +72,9 @@ public:
    */
   void SetContext(vtkRenderWindow* context);
   vtkRenderWindow* GetContext();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Usage is a performance hint.
    * Valid values are:
@@ -94,9 +94,9 @@ public:
    */
   vtkGetMacro(Usage, int);
   vtkSetMacro(Usage, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Upload data to PBO mapped.
    * The input data can be freed after this call.
@@ -118,9 +118,9 @@ public:
     newinc[2] = 0;
     return this->Upload3D(type, data, newdims, comps, newinc, 0, nullptr);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Update data to PBO mapped sourcing it from a 2D array.
    * The input data can be freed after this call.
@@ -141,7 +141,7 @@ public:
     newinc[2] = 0;
     return this->Upload3D(type, data, newdims, comps, newinc, 0, nullptr);
   }
-  //@}
+  ///@}
 
   /**
    * Update data to PBO mapped sourcing it from a 3D array.
@@ -154,7 +154,7 @@ public:
   bool Upload3D(int type, void* data, unsigned int dims[3], int comps, vtkIdType increments[3],
     int components, int* componentList);
 
-  //@{
+  ///@{
   /**
    * Get the type with which the data is loaded into the PBO mapped.
    * eg. VTK_FLOAT for float32, VTK_CHAR for byte, VTK_UNSIGNED_CHAR for
@@ -162,17 +162,17 @@ public:
    */
   vtkGetMacro(Type, int);
   vtkSetMacro(Type, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of components used to initialize the buffer.
    */
   vtkGetMacro(Components, int);
   vtkSetMacro(Components, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the size of the data loaded into the PBO mapped memory. Size is
    * in the number of elements of the uploaded Type.
@@ -180,16 +180,16 @@ public:
   vtkGetMacro(Size, unsigned int);
   vtkSetMacro(Size, unsigned int);
   void SetSize(unsigned int nTups, int nComps);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the openGL buffer handle.
    */
   vtkGetMacro(Handle, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Download data from pixel buffer to the 1D array. The length of the array
    * must be equal to the size of the data in the memory.
@@ -206,9 +206,9 @@ public:
     newincrements[2] = 0;
     return this->Download3D(type, data, newdims, numcomps, newincrements);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Download data from pixel buffer to the 2D array. (lengthx * lengthy)
    * must be equal to the size of the data in the memory.
@@ -225,7 +225,7 @@ public:
     newincrements[2] = 0;
     return this->Download3D(type, data, newdims, numcomps, newincrements);
   }
-  //@}
+  ///@}
 
   /**
    * Download data from pixel buffer to the 3D array.
@@ -293,7 +293,7 @@ public:
    */
   void Bind(BufferType buffer);
 
-  //@{
+  ///@{
   /**
    * Map the buffer to our addresspace. Returns a pointer to the mapped memory
    * for read/write access. If type, tuples and components are specified new buffer
@@ -303,7 +303,7 @@ public:
   void* MapBuffer(int type, unsigned int numtuples, int comps, BufferType mode);
   void* MapBuffer(unsigned int numbytes, BufferType mode);
   void* MapBuffer(BufferType mode);
-  //@}
+  ///@}
 
   /**
    * Un-map the buffer from our address space, OpenGL can then use/reclaim the

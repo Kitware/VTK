@@ -37,13 +37,13 @@ public:
   vtkTypeMacro(vtkSimplePointsReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the file from which to read points.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkSimplePointsReader();

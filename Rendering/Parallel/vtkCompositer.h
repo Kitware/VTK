@@ -52,30 +52,30 @@ public:
   virtual void CompositeBuffer(
     vtkDataArray* pBuf, vtkFloatArray* zBuf, vtkDataArray* pTmp, vtkFloatArray* zTmp);
 
-  //@{
+  ///@{
   /**
    * Access to the controller.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A hack to get a sub world until I can get communicators working.
    */
   vtkSetMacro(NumberOfProcesses, int);
   vtkGetMacro(NumberOfProcesses, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods that allocate and delete memory with special MPIPro calls.
    */
   static void DeleteArray(vtkDataArray* da);
   static void ResizeFloatArray(vtkFloatArray* fa, int numComp, vtkIdType size);
   static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, int numComp, vtkIdType size);
-  //@}
+  ///@}
 
 protected:
   vtkCompositer();

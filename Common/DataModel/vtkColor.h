@@ -53,7 +53,7 @@ public:
     this->Data[2] = blue;
   }
 
-  //@{
+  ///@{
   /**
    * Set the red, green and blue components of the color.
    */
@@ -63,7 +63,7 @@ public:
     this->Data[1] = green;
     this->Data[2] = blue;
   }
-  //@}
+  ///@}
 
   /**
    * Set the red component of the color, i.e. element 0.
@@ -122,7 +122,7 @@ public:
     this->Data[3] = alpha;
   }
 
-  //@{
+  ///@{
   /**
    * Set the red, green and blue components of the color.
    */
@@ -132,9 +132,9 @@ public:
     this->Data[1] = green;
     this->Data[2] = blue;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the red, green, blue and alpha components of the color.
    */
@@ -145,7 +145,7 @@ public:
     this->Data[2] = blue;
     this->Data[3] = alpha;
   }
-  //@}
+  ///@}
 
   /**
    * Set the red component of the color, i.e. element 0.
@@ -204,7 +204,7 @@ public:
   {
   }
 
-  //@{
+  ///@{
   /**
    * Construct a color from a hexadecimal representation such as 0x0000FF (blue).
    */
@@ -217,7 +217,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
-  //@}
+  ///@}
 
   vtkColor3ub(unsigned char r, unsigned char g, unsigned char b)
     : vtkColor3<unsigned char>(r, g, b)
@@ -274,7 +274,7 @@ public:
   {
   }
 
-  //@{
+  ///@{
   /**
    * Construct a color from a hexadecimal representation such as 0x0000FFAA
    * (opaque blue).
@@ -290,7 +290,7 @@ public:
     hex >>= 8;
     this->Data[0] = hex & 0xff;
   }
-  //@}
+  ///@}
 
   vtkColor4ub(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255)
     : vtkColor4<unsigned char>(r, g, b, a)

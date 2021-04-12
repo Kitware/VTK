@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkSynchronizedRenderers, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the renderer to be synchronized by this instance. A
    * vtkSynchronizedRenderers instance can be used to synchronize exactly 1
@@ -58,18 +58,18 @@ public:
    */
   virtual void SetRenderer(vtkRenderer*);
   virtual vtkRenderer* GetRenderer();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the parallel message communicator. This is used to communicate among
    * processes.
    */
   virtual void SetParallelController(vtkMultiProcessController*);
   vtkGetObjectMacro(ParallelController, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable parallel rendering. Unless Parallel rendering is on, the
    * cameras won't be synchronized across processes.
@@ -77,17 +77,17 @@ public:
   vtkSetMacro(ParallelRendering, bool);
   vtkGetMacro(ParallelRendering, bool);
   vtkBooleanMacro(ParallelRendering, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the image reduction factor.
    */
   vtkSetClampMacro(ImageReductionFactor, int, 1, 50);
   vtkGetMacro(ImageReductionFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on (default), the rendered images are pasted back on to the screen. You
    * should turn this flag off on processes that are not meant to be visible to
@@ -96,9 +96,9 @@ public:
   vtkSetMacro(WriteBackImages, bool);
   vtkGetMacro(WriteBackImages, bool);
   vtkBooleanMacro(WriteBackImages, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the root-process id. This is required when the ParallelController
    * is a vtkSocketController. Set to 0 by default (which will not work when
@@ -106,7 +106,7 @@ public:
    */
   vtkSetMacro(RootProcessId, int);
   vtkGetMacro(RootProcessId, int);
-  //@}
+  ///@}
 
   /**
    * Computes visible prob bounds. This must be called on all processes at the
@@ -117,16 +117,16 @@ public:
    */
   void CollectiveExpandForVisiblePropBounds(double bounds[6]);
 
-  //@{
+  ///@{
   /**
    * When set, this->CaptureRenderedImage() does not capture image from the
    * screen instead passes the call to the delegate.
    */
   virtual void SetCaptureDelegate(vtkSynchronizedRenderers*);
   vtkGetObjectMacro(CaptureDelegate, vtkSynchronizedRenderers);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When multiple groups of processes are synchronized together using different
    * controllers, one needs to specify the order in which the various
@@ -137,9 +137,9 @@ public:
   vtkSetMacro(AutomaticEventHandling, bool);
   vtkGetMacro(AutomaticEventHandling, bool);
   vtkBooleanMacro(AutomaticEventHandling, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When doing rendering between multiple processes, it is often easier to have
    * all ranks do the rendering on a black background. This helps avoid issues
@@ -154,7 +154,7 @@ public:
   vtkSetMacro(FixBackground, bool);
   vtkGetMacro(FixBackground, bool);
   vtkBooleanMacro(FixBackground, bool);
-  //@}
+  ///@}
 
   enum
   {

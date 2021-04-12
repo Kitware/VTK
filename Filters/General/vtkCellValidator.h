@@ -210,7 +210,7 @@ public:
   static State Check(vtkBezierHexahedron*, double tolerance);
   static State Check(vtkBezierWedge*, double tolerance);
 
-  //@{
+  ///@{
   /**
    * Set/Get the tolerance. This value is used as an epsilon for floating point
    * equality checks throughout the cell checking process. The default value is
@@ -218,7 +218,7 @@ public:
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkCellValidator();

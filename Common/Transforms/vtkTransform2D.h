@@ -87,15 +87,15 @@ public:
   void SetMatrix(vtkMatrix3x3* matrix) { this->SetMatrix(matrix->GetData()); }
   void SetMatrix(const double elements[9]);
 
-  //@{
+  ///@{
   /**
    * Get the underlying 3x3 matrix.
    */
   vtkGetObjectMacro(Matrix, vtkMatrix3x3);
   void GetMatrix(vtkMatrix3x3* matrix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the position from the current transformation matrix as an array
    * of two floating point numbers. This is simply returning the translation
@@ -109,9 +109,9 @@ public:
     pos[0] = static_cast<float>(temp[0]);
     pos[1] = static_cast<float>(temp[1]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the x and y scale from the current transformation matrix as an array
    * of two floating point numbers. This is simply returning the scale
@@ -125,7 +125,7 @@ public:
     pos[0] = static_cast<float>(temp[0]);
     pos[1] = static_cast<float>(temp[1]);
   }
-  //@}
+  ///@}
 
   /**
    * Return a matrix which is the inverse of the current transformation
@@ -185,7 +185,7 @@ public:
    */
   void InverseTransformPoints(vtkPoints2D* inPts, vtkPoints2D* outPts);
 
-  //@{
+  ///@{
   /**
    * Use this method only if you wish to compute the transformation in
    * homogeneous (x,y,w) coordinates, otherwise use TransformPoint().
@@ -196,7 +196,7 @@ public:
   {
     this->GetMatrix()->MultiplyPoint(in, out);
   }
-  //@}
+  ///@}
 
 protected:
   vtkTransform2D();

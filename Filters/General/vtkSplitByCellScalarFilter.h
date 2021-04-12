@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkSplitByCellScalarFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify if input points array must be passed to output blocks. If so,
    * filter processing is faster but outblocks will contains more points than
@@ -55,7 +55,7 @@ public:
   vtkGetMacro(PassAllPoints, bool);
   vtkSetMacro(PassAllPoints, bool);
   vtkBooleanMacro(PassAllPoints, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSplitByCellScalarFilter();

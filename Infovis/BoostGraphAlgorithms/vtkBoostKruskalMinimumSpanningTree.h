@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the name of the edge-weight input array, which must name an
    * array that is part of the edge data of the input graph and
@@ -58,18 +58,18 @@ public:
    * vtkDoubleArray.
    */
   vtkSetStringMacro(EdgeWeightArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output selection type. The default is to use the
    * the set of minimum spanning tree edges "MINIMUM_SPANNING_TREE_EDGES". No
    * other options are defined.
    */
   vtkSetStringMacro(OutputSelectionType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to negate the edge weights. By negating the edge
    * weights this algorithm will give you the 'maximal' spanning
@@ -80,7 +80,7 @@ public:
   void SetNegateEdgeWeights(bool value);
   vtkGetMacro(NegateEdgeWeights, bool);
   vtkBooleanMacro(NegateEdgeWeights, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostKruskalMinimumSpanningTree();

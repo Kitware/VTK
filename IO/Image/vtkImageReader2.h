@@ -56,16 +56,16 @@ public:
   vtkTypeMacro(vtkImageReader2, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name for the image file. If the data is stored in
    * multiple files, then use SetFileNames or SetFilePrefix instead.
    */
   virtual void SetFileName(const char*);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a list of file names.  Each file must be a single slice,
    * and each slice must be of the same size. The files must be in the
@@ -75,9 +75,9 @@ public:
    */
   virtual void SetFileNames(vtkStringArray*);
   vtkGetObjectMacro(FileNames, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file prefix for the image file or files.  This can be
    * used in place of SetFileName or SetFileNames if the filenames
@@ -87,16 +87,16 @@ public:
    */
   virtual void SetFilePrefix(const char*);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The snprintf-style format string used to build filename from
    * FilePrefix and slice number.
    */
   virtual void SetFilePattern(const char*);
   vtkGetStringMacro(FilePattern);
-  //@}
+  ///@}
 
   /**
    * Specify the in memory image buffer.
@@ -128,68 +128,68 @@ public:
   virtual void SetDataScalarTypeToSignedChar() { this->SetDataScalarType(VTK_SIGNED_CHAR); }
   virtual void SetDataScalarTypeToUnsignedChar() { this->SetDataScalarType(VTK_UNSIGNED_CHAR); }
 
-  //@{
+  ///@{
   /**
    * Get the file format.  Pixels are this type in the file.
    */
   vtkGetMacro(DataScalarType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of scalar components
    */
   vtkSetMacro(NumberOfScalarComponents, int);
   vtkGetMacro(NumberOfScalarComponents, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the extent of the data on disk.
    */
   vtkSetVector6Macro(DataExtent, int);
   vtkGetVector6Macro(DataExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of dimensions stored in a file. This defaults to two.
    */
   vtkSetMacro(FileDimensionality, int);
   int GetFileDimensionality() { return this->FileDimensionality; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the spacing of the data in the file.
    */
   vtkSetVector3Macro(DataSpacing, double);
   vtkGetVector3Macro(DataSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the data (location of first pixel in the file).
    */
   vtkSetVector3Macro(DataOrigin, double);
   vtkGetVector3Macro(DataOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction of the data (9 elements: 3x3 matrix).
    */
   vtkSetVectorMacro(DataDirection, double, 9);
   vtkGetVectorMacro(DataDirection, double, 9);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the size of the header computed by this object.
    */
   unsigned long GetHeaderSize();
   unsigned long GetHeaderSize(unsigned long slice);
-  //@}
+  ///@}
 
   /**
    * If there is a tail on the file, you want to explicitly set the
@@ -197,7 +197,7 @@ public:
    */
   virtual void SetHeaderSize(unsigned long size);
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -216,18 +216,18 @@ public:
   virtual int GetDataByteOrder();
   virtual void SetDataByteOrder(int);
   virtual const char* GetDataByteOrderAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When reading files which start at an unusual index, this can be added
    * to the slice number when generating the file name (default = 0)
    */
   vtkSetMacro(FileNameSliceOffset, int);
   vtkGetMacro(FileNameSliceOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When reading files which have regular, but non contiguous slices
    * (eg filename.1,filename.3,filename.5)
@@ -235,16 +235,16 @@ public:
    */
   vtkSetMacro(FileNameSliceSpacing, int);
   vtkGetMacro(FileNameSliceSpacing, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    */
   vtkSetMacro(SwapBytes, vtkTypeBool);
   virtual vtkTypeBool GetSwapBytes() { return this->SwapBytes; }
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
-  //@}
+  ///@}
 
   istream* GetFile() { return this->File; }
   vtkGetVectorMacro(DataIncrements, unsigned long, 4);
@@ -253,7 +253,7 @@ public:
   void CloseFile();
   virtual void SeekFile(int i, int j, int k);
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the data comes from the file starting in the lower left
    * corner or upper left corner.
@@ -261,15 +261,15 @@ public:
   vtkBooleanMacro(FileLowerLeft, vtkTypeBool);
   vtkGetMacro(FileLowerLeft, vtkTypeBool);
   vtkSetMacro(FileLowerLeft, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the internal file name
    */
   virtual void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
-  //@}
+  ///@}
 
   /**
    * Return non zero if the reader can read the given file name.
@@ -289,7 +289,7 @@ public:
    */
   virtual const char* GetFileExtensions() { return nullptr; }
 
-  //@{
+  ///@{
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
@@ -298,7 +298,7 @@ public:
 protected:
   vtkImageReader2();
   ~vtkImageReader2() override;
-  //@}
+  ///@}
 
   vtkStringArray* FileNames;
 

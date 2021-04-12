@@ -62,21 +62,21 @@ public:
     this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
   }
 
-  //@{
+  ///@{
   /**
    * The spacing along the z-axis between tree map levels.
    */
   vtkGetMacro(LevelDeltaZ, double);
   vtkSetMacro(LevelDeltaZ, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing along the z-axis between tree map levels.
    */
   vtkGetMacro(AddNormals, bool);
   vtkSetMacro(AddNormals, bool);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

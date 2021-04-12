@@ -40,47 +40,47 @@ using vtkImage2DIslandPixel = struct vtkImage2DIslandPixel_t;
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageIslandRemoval2D : public vtkImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Constructor: Sets default filter to be identity.
    */
   static vtkImageIslandRemoval2D* New();
   vtkTypeMacro(vtkImageIslandRemoval2D, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the cutoff area for removal
    */
   vtkSetMacro(AreaThreshold, int);
   vtkGetMacro(AreaThreshold, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether to use 4 or 8 neighbors
    */
   vtkSetMacro(SquareNeighborhood, vtkTypeBool);
   vtkGetMacro(SquareNeighborhood, vtkTypeBool);
   vtkBooleanMacro(SquareNeighborhood, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to remove.
    */
   vtkSetMacro(IslandValue, double);
   vtkGetMacro(IslandValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the value to put in the place of removed pixels.
    */
   vtkSetMacro(ReplaceValue, double);
   vtkGetMacro(ReplaceValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageIslandRemoval2D();

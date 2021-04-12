@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkSelectionSource, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Add a (piece, id) to the selection set. The source will generate
    * only the ids for which piece == UPDATE_PIECE_NUMBER.
@@ -44,7 +44,7 @@ public:
    */
   void AddID(vtkIdType piece, vtkIdType id);
   void AddStringID(vtkIdType piece, const char* id);
-  //@}
+  ///@}
 
   /**
    * Add a point in world space to probe at.
@@ -66,13 +66,13 @@ public:
    */
   void AddBlock(vtkIdType blockno);
 
-  //@{
+  ///@{
   /**
    * Removes all IDs.
    */
   void RemoveAllIDs();
   void RemoveAllStringIDs();
-  //@}
+  ///@}
 
   /**
    * Remove all thresholds added with AddThreshold.
@@ -89,7 +89,7 @@ public:
    */
   void RemoveAllBlocks();
 
-  //@{
+  ///@{
   /**
    * Set the content type for the generated selection.
    * Possible values are as defined by
@@ -97,9 +97,9 @@ public:
    */
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the field type for the generated selection.
    * Possible values are as defined by
@@ -107,60 +107,60 @@ public:
    */
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When extracting by points, extract the cells that contain the
    * passing points.
    */
   vtkSetMacro(ContainingCells, int);
   vtkGetMacro(ContainingCells, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify number of layers to extract connected to the selected elements.
    */
   vtkSetClampMacro(NumberOfLayers, int, 0, VTK_INT_MAX);
   vtkGetMacro(NumberOfLayers, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determines whether the selection describes what to include or exclude.
    * Default is 0, meaning include.
    */
   vtkSetMacro(Inverse, int);
   vtkGetMacro(Inverse, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access to the name of the selection's subset description array.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access to the component number for the array specified by ArrayName.
    * Default is component 0. Use -1 for magnitude.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
    */
   vtkSetMacro(CompositeIndex, int);
   vtkGetMacro(CompositeIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If HierarchicalLevel or HierarchicalIndex < 0 , then HIERARCHICAL_LEVEL()
    * and HIERARCHICAL_INDEX() keys are not added to the output.
@@ -169,9 +169,9 @@ public:
   vtkGetMacro(HierarchicalLevel, int);
   vtkSetMacro(HierarchicalIndex, int);
   vtkGetMacro(HierarchicalIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For selector-based block selection.
    */
@@ -179,15 +179,15 @@ public:
   vtkGetStringMacro(AssemblyName);
   void AddSelector(const char* selector);
   void RemoveAllSelectors();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the query expression string.
    */
   vtkSetStringMacro(QueryString);
   vtkGetStringMacro(QueryString);
-  //@}
+  ///@}
 
 protected:
   vtkSelectionSource();

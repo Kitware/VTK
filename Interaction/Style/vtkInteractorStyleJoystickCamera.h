@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkInteractorStyleJoystickCamera, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -60,7 +60,7 @@ public:
   void OnRightButtonUp() override;
   void OnMouseWheelForward() override;
   void OnMouseWheelBackward() override;
-  //@}
+  ///@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since

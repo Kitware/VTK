@@ -92,22 +92,22 @@ public:
    */
   static void VTKToXdmfAttributes(vtkDataObject* dObject, XdmfGrid* grid);
 
-  //@{
+  ///@{
   /**
    * Helpers for Unstructured Grid translation
    */
   static unsigned int GetNumberOfPointsPerCell(int vtk_cell_type, bool& fail);
   static int GetVTKCellType(shared_ptr<const XdmfTopologyType> topologyType);
   static int GetXdmfCellType(int vtkType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Helper used in VTKToXdmf to set the time in a Xdmf grid
    */
   static void SetTime(XdmfGrid* grid, double hasTime, double time);
   static void SetTime(XdmfGraph* graph, double hasTime, double time);
-  //@}
+  ///@}
 
   // vtkXdmf3RegularGrid
 

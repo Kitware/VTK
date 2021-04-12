@@ -77,15 +77,15 @@ public:
   vtkTypeMacro(vtkClipClosedSurface, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the vtkPlaneCollection that holds the clipping planes.
    */
   virtual void SetClippingPlanes(vtkPlaneCollection* planes);
   vtkGetObjectMacro(ClippingPlanes, vtkPlaneCollection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for creating new points while clipping.  If the
    * tolerance is too small, then degenerate triangles might be produced.
@@ -93,9 +93,9 @@ public:
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Pass the point data to the output.  Point data will be interpolated
    * when new points are generated.  This is off by default.
@@ -103,9 +103,9 @@ public:
   vtkSetMacro(PassPointData, vtkTypeBool);
   vtkBooleanMacro(PassPointData, vtkTypeBool);
   vtkGetMacro(PassPointData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to generate an outline wherever an input face was
    * cut by a plane.  This is off by default.
@@ -113,9 +113,9 @@ public:
   vtkSetMacro(GenerateOutline, vtkTypeBool);
   vtkBooleanMacro(GenerateOutline, vtkTypeBool);
   vtkGetMacro(GenerateOutline, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to generate polygonal faces for the output.  This is
    * on by default.  If it is off, then the output will have no polys.
@@ -123,9 +123,9 @@ public:
   vtkSetMacro(GenerateFaces, vtkTypeBool);
   vtkBooleanMacro(GenerateFaces, vtkTypeBool);
   vtkGetMacro(GenerateFaces, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to add cell scalars, so that new faces and outlines
    * can be distinguished from original faces and lines.  The options
@@ -141,9 +141,9 @@ public:
   void SetScalarModeToLabels() { this->SetScalarMode(VTK_CCS_SCALAR_MODE_LABELS); }
   vtkGetMacro(ScalarMode, int);
   const char* GetScalarModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color for all cells were part of the original geometry.
    * If the input data already has color cell scalars, then those
@@ -152,9 +152,9 @@ public:
    */
   vtkSetVector3Macro(BaseColor, double);
   vtkGetVector3Macro(BaseColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color for any new geometry, either faces or outlines, that are
    * created as a result of the clipping. The default color is orange.
@@ -162,9 +162,9 @@ public:
    */
   vtkSetVector3Macro(ClipColor, double);
   vtkGetVector3Macro(ClipColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the active plane, so that the clipping from that plane can be
    * displayed in a different color.  Set this to -1 if there is no active
@@ -172,9 +172,9 @@ public:
    */
   vtkSetMacro(ActivePlaneId, int);
   vtkGetMacro(ActivePlaneId, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the color for any new geometry produced by clipping with the
    * ActivePlane, if ActivePlaneId is set.  Default is yellow.
@@ -182,9 +182,9 @@ public:
    */
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate errors when the triangulation fails.  Usually the
    * triangulation errors are too small to see, but they result in
@@ -194,7 +194,7 @@ public:
   vtkSetMacro(TriangulationErrorDisplay, vtkTypeBool);
   vtkBooleanMacro(TriangulationErrorDisplay, vtkTypeBool);
   vtkGetMacro(TriangulationErrorDisplay, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkClipClosedSurface();

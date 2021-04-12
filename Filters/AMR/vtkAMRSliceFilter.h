@@ -46,21 +46,21 @@ public:
 
   // Inline Gettters & Setters
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset-from-origin of the slicing plane.
    */
   vtkSetMacro(OffsetFromOrigin, double);
   vtkGetMacro(OffsetFromOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum resolution used in this instance.
    */
   vtkSetMacro(MaxResolution, unsigned int);
   vtkGetMacro(MaxResolution, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Tags to identify normals along the X, Y and Z directions.
@@ -72,23 +72,23 @@ public:
     Z_NORMAL = 4
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the Axis normal. The accpetable values are defined in the
    * NormalTag enum.
    */
   vtkSetMacro(Normal, int);
   vtkGetMacro(Normal, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a multiprocess controller for paralle processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
   // Standard Pipeline methods
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

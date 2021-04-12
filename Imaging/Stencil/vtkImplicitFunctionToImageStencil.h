@@ -38,21 +38,21 @@ public:
   vtkTypeMacro(vtkImplicitFunctionToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function to convert into a stencil.
    */
   virtual void SetInput(vtkImplicitFunction*);
   vtkGetObjectMacro(Input, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the threshold value for the implicit function.
    */
   vtkSetMacro(Threshold, double);
   vtkGetMacro(Threshold, double);
-  //@}
+  ///@}
 
   /**
    * Override GetMTime() to account for the implicit function.

@@ -169,14 +169,14 @@ protected:
    */
   int ReadLine(char result[80]);
 
-  //@{
+  ///@{
   /**
    * Internal function to read in a single integer.
    * Returns zero if there was an error.
    */
   int ReadInt(int* result);
   int ReadPartId(int* result);
-  //@}
+  ///@}
 
   /**
    * Internal function to read in an integer array.
@@ -204,7 +204,7 @@ protected:
    */
   int CountTimeSteps();
 
-  //@{
+  ///@{
   /**
    * Read to the next time step in the geometry file.
    */
@@ -213,7 +213,7 @@ protected:
   int SkipUnstructuredGrid(char line[256]);
   int SkipRectilinearGrid(char line[256]);
   int SkipImageData(char line[256]);
-  //@}
+  ///@}
 
   /**
    * Seeks the IFile to the nearest time step that is <= the target time step

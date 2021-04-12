@@ -35,13 +35,13 @@ public:
   vtkTypeMacro(vtkCompositedSynchronizedRenderers, vtkSynchronizedRenderers);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the composite. vtkTreeCompositer is used by default.
    */
   void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
-  //@}
+  ///@}
 
 protected:
   vtkCompositedSynchronizedRenderers();

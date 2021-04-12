@@ -48,12 +48,12 @@ public:
    * Set the piecewise function to draw its points
    */
   virtual void SetPiecewiseFunction(vtkPiecewiseFunction* function);
-  //@{
+  ///@{
   /**
    * Get the piecewise function
    */
   vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
-  //@}
+  ///@}
 
   /**
    * Add a point to the function. Returns the index of the point (0 based),

@@ -47,15 +47,15 @@ public:
   vtkTypeMacro(vtkParticleReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -75,9 +75,9 @@ public:
   int GetDataByteOrder();
   void SetDataByteOrder(int);
   const char* GetDataByteOrderAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    * Not used when reading text files.
@@ -85,18 +85,18 @@ public:
   vtkSetMacro(SwapBytes, vtkTypeBool);
   vtkTypeBool GetSwapBytes() { return this->SwapBytes; }
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Default: 1. If 1 then each particle has a value associated with it.
    */
   vtkSetMacro(HasScalar, vtkTypeBool);
   vtkGetMacro(HasScalar, vtkTypeBool);
   vtkBooleanMacro(HasScalar, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the file type.  The options are:
    * - FILE_TYPE_IS_UNKNOWN (default) the class
@@ -111,9 +111,9 @@ public:
   void SetFileTypeToUnknown() { this->SetFileType(FILE_TYPE_IS_UNKNOWN); }
   void SetFileTypeToText() { this->SetFileType(FILE_TYPE_IS_TEXT); }
   void SetFileTypeToBinary() { this->SetFileType(FILE_TYPE_IS_BINARY); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the data type.  The options are:
    * - VTK_FLOAT (default) single precision floating point.
@@ -123,7 +123,7 @@ public:
   vtkGetMacro(DataType, int);
   void SetDataTypeToFloat() { this->SetDataType(VTK_FLOAT); }
   void SetDataTypeToDouble() { this->SetDataType(VTK_DOUBLE); }
-  //@}
+  ///@}
 
 protected:
   vtkParticleReader();
@@ -137,7 +137,7 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * The format that will be read if the file is a text file is:
    * x, y, z, s (where s is some scalar value associated with the particle).
@@ -150,16 +150,16 @@ protected:
    */
   int ProduceOutputFromTextFileDouble(vtkInformationVector* outputVector);
   int ProduceOutputFromTextFileFloat(vtkInformationVector* outputVector);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This reader assumes that the file is binary and consists of floating
    * point values by default.
    */
   int ProduceOutputFromBinaryFileDouble(vtkInformationVector* outputVector);
   int ProduceOutputFromBinaryFileFloat(vtkInformationVector* outputVector);
-  //@}
+  ///@}
 
   /**
    * Determine the type of file based on an analysis of its contents.

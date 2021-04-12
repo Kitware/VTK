@@ -91,7 +91,7 @@ public:
   vtkTypeMacro(vtkGL2PSExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the prefix of the files to write out. The resulting filenames
    * will have .ps or .eps or .tex appended to them depending on the
@@ -99,9 +99,9 @@ public:
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The initial size of the GL2PS export buffer in bytes. The buffer is used to
    * store the exported image prior to writing to file. If the buffer is too
@@ -112,16 +112,16 @@ public:
    */
   vtkSetMacro(BufferSize, int);
   vtkGetMacro(BufferSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the title for the output, if supported. If nullptr, "VTK GL2PS Export" is
    * used.
    */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  //@}
+  ///@}
 
   enum OutputFormat
   {
@@ -132,7 +132,7 @@ public:
     SVG_FILE
   };
 
-  //@{
+  ///@{
   /**
    * Configure the exporter to expect a painter-ordered 2D rendering, that is,
    * a rendering at a fixed depth where primitives are drawn from the bottom up.
@@ -145,9 +145,9 @@ public:
     this->SetSortToOff();
     this->SetSimpleLineOffset(0);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the format of file to write out.  This can be one of:
    * PS_FILE, EPS_FILE, PDF_FILE, TEX_FILE.  Defaults to EPS_FILE.
@@ -162,7 +162,7 @@ public:
   void SetFileFormatToTeX() { this->SetFileFormat(TEX_FILE); }
   void SetFileFormatToSVG() { this->SetFileFormat(SVG_FILE); }
   const char* GetFileFormatAsString();
-  //@}
+  ///@}
 
   enum SortScheme
   {
@@ -171,7 +171,7 @@ public:
     BSP_SORT = 2
   };
 
-  //@{
+  ///@{
   /**
    * Set the type of sorting algorithm to order primitives from
    * back to front.  Successive algorithms are more memory
@@ -183,9 +183,9 @@ public:
   void SetSortToSimple() { this->SetSort(SIMPLE_SORT); }
   void SetSortToBSP() { this->SetSort(BSP_SORT); }
   const char* GetSortAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off compression when generating PostScript or PDF
    * output. By default compression is on.
@@ -193,9 +193,9 @@ public:
   vtkSetMacro(Compress, vtkTypeBool);
   vtkGetMacro(Compress, vtkTypeBool);
   vtkBooleanMacro(Compress, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off drawing the background frame.  If off the background
    * is treated as white.  By default the background is drawn.
@@ -204,9 +204,9 @@ public:
   vtkSetMacro(DrawBackground, vtkTypeBool);
   vtkGetMacro(DrawBackground, vtkTypeBool);
   vtkBooleanMacro(DrawBackground, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the GL2PS_SIMPLE_LINE_OFFSET option.  When enabled a
    * small offset is added in the z-buffer to all the lines in the
@@ -216,9 +216,9 @@ public:
   vtkSetMacro(SimpleLineOffset, vtkTypeBool);
   vtkGetMacro(SimpleLineOffset, vtkTypeBool);
   vtkBooleanMacro(SimpleLineOffset, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off GL2PS messages sent to stderr (GL2PS_SILENT).  When
    * enabled GL2PS messages are suppressed.  Defaults to off.
@@ -226,9 +226,9 @@ public:
   vtkSetMacro(Silent, vtkTypeBool);
   vtkGetMacro(Silent, vtkTypeBool);
   vtkBooleanMacro(Silent, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the GL2PS_BEST_ROOT option.  When enabled the
    * construction of the BSP tree is optimized by choosing the root
@@ -238,9 +238,9 @@ public:
   vtkSetMacro(BestRoot, vtkTypeBool);
   vtkGetMacro(BestRoot, vtkTypeBool);
   vtkBooleanMacro(BestRoot, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off drawing the text.  If on (default) the text is drawn.
    * If the FileFormat is set to TeX output then a LaTeX picture is
@@ -250,9 +250,9 @@ public:
   vtkSetMacro(Text, vtkTypeBool);
   vtkGetMacro(Text, vtkTypeBool);
   vtkBooleanMacro(Text, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off landscape orientation.  If off (default) the
    * orientation is set to portrait.
@@ -260,9 +260,9 @@ public:
   vtkSetMacro(Landscape, vtkTypeBool);
   vtkGetMacro(Landscape, vtkTypeBool);
   vtkBooleanMacro(Landscape, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the GL2PS_PS3_SHADING option.  When enabled the
    * shfill PostScript level 3 operator is used.  Read the GL2PS
@@ -271,9 +271,9 @@ public:
   vtkSetMacro(PS3Shading, vtkTypeBool);
   vtkGetMacro(PS3Shading, vtkTypeBool);
   vtkBooleanMacro(PS3Shading, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off culling of occluded polygons (GL2PS_OCCLUSION_CULL).
    * When enabled hidden polygons are removed.  This reduces file size
@@ -282,9 +282,9 @@ public:
   vtkSetMacro(OcclusionCull, vtkTypeBool);
   vtkGetMacro(OcclusionCull, vtkTypeBool);
   vtkBooleanMacro(OcclusionCull, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off writing 3D props as raster images.  2D props are
    * rendered using vector graphics primitives.  If you have hi-res
@@ -296,9 +296,9 @@ public:
   vtkSetMacro(Write3DPropsAsRasterImage, vtkTypeBool);
   vtkGetMacro(Write3DPropsAsRasterImage, vtkTypeBool);
   vtkBooleanMacro(Write3DPropsAsRasterImage, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off exporting text as path information, rather than character data.
    * This is useful for the PDF backend, which does not properly
@@ -307,9 +307,9 @@ public:
   vtkSetMacro(TextAsPath, bool);
   vtkGetMacro(TextAsPath, bool);
   vtkBooleanMacro(TextAsPath, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Collection of props to exclude from rasterization. These will be
    * rendered as 2D vector primitives in the output. This setting is ignored if
@@ -318,25 +318,25 @@ public:
    */
   void SetRasterExclusions(vtkPropCollection*);
   vtkGetObjectMacro(RasterExclusions, vtkPropCollection);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the ratio between the OpenGL PointSize and that used by GL2PS
    * to generate PostScript.  Defaults to a ratio of 5/7.
    */
   vtkSetMacro(PointSizeFactor, float);
   vtkGetMacro(PointSizeFactor, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the ratio between the OpenGL LineWidth and that used by GL2PS
    * to generate PostScript.  Defaults to a ratio of 5/7.
    */
   vtkSetMacro(LineWidthFactor, float);
   vtkGetMacro(LineWidthFactor, float);
-  //@}
+  ///@}
 
 protected:
   vtkGL2PSExporter();

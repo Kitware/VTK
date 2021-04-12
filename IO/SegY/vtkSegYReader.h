@@ -55,7 +55,7 @@ public:
     VTK_SEGY_CUSTOM = 2
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether to use source x/y coordinates or CDP coordinates or custom
    * byte positions for data position in the SEG-Y trace header. Defaults to
@@ -70,9 +70,9 @@ public:
   void SetXYCoordModeToSource();
   void SetXYCoordModeToCDP();
   void SetXYCoordModeToCustom();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify X and Y byte positions for custom XYCoordinateMode.
    * By default, XCoordByte = 73, YCoordByte = 77 i.e. source xy.
@@ -83,7 +83,7 @@ public:
   vtkGetMacro(XCoordByte, int);
   vtkSetMacro(YCoordByte, int);
   vtkGetMacro(YCoordByte, int);
-  //@}
+  ///@}
 
   enum VTKSegYVerticalCRS
   {
@@ -91,7 +91,7 @@ public:
     VTK_SEGY_VERTICAL_DEPTHS
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether the vertical coordinates in the SEG-Y file are heights
    * (positive up) or depths (positive down). By default, the vertical
@@ -104,9 +104,9 @@ public:
    */
   vtkSetMacro(VerticalCRS, int);
   vtkGetMacro(VerticalCRS, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if we create a vtkStructuredGrid even when the data is
    * 3D. Note this consumes more memory but it shows the precise
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(StructuredGrid, int);
   vtkGetMacro(StructuredGrid, int);
   vtkBooleanMacro(StructuredGrid, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should we force the data to be interpreted as a 2D dataset? It may be a
    * 2D sheet through 3D space. When this is turned on we ignore the cross
@@ -130,7 +130,7 @@ public:
   vtkSetMacro(Force2D, bool);
   vtkGetMacro(Force2D, bool);
   vtkBooleanMacro(Force2D, bool);
-  //@}
+  ///@}
 
 protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,

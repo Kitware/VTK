@@ -84,7 +84,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly
    * expensive in both time and storage. If the output data will be processed
@@ -94,9 +94,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of gradients. Gradient computation is fairly
    * expensive in both time and storage. Note that if ComputeNormals is on,
@@ -108,18 +108,18 @@ public:
   vtkSetMacro(ComputeGradients, vtkTypeBool);
   vtkGetMacro(ComputeGradients, vtkTypeBool);
   vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of scalars.
    */
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to interpolate other attribute data. That is, as the
    * isosurface is generated, interpolate all point attribute data across
@@ -129,7 +129,7 @@ public:
   vtkSetMacro(InterpolateAttributes, vtkTypeBool);
   vtkGetMacro(InterpolateAttributes, vtkTypeBool);
   vtkBooleanMacro(InterpolateAttributes, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set a particular contour value at contour number i. The index i ranges
@@ -185,13 +185,13 @@ public:
     this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
   }
 
-  //@{
+  ///@{
   /**
    * Set/get which component of the scalar array to contour on; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkFlyingEdges3D();

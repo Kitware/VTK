@@ -106,7 +106,7 @@ public:
    */
   bool StringToPath(const char* str, vtkPath* path, vtkTextProperty* tprop, int dpi) override;
 
-  //@{
+  ///@{
   /**
    * Set to true if the graphics implementation requires texture image dimensions
    * to be a power of two. Default is true, but this member will be set
@@ -114,7 +114,7 @@ public:
    */
   void SetScaleToPowerOfTwo(bool val) override;
   bool GetScaleToPowerOfTwo() override;
-  //@}
+  ///@}
 
 protected:
   vtkMatplotlibMathTextUtilities();
@@ -198,12 +198,12 @@ private:
    */
   static Availability CheckMPLAvailability();
 
-  //@{
+  ///@{
   /**
    * Cache the availability of matplotlib in the current python session.
    */
   static Availability MPLMathTextAvailable;
-  //@}
+  ///@}
 
   typedef std::vector<std::vector<std::string>> GridOfStrings;
 

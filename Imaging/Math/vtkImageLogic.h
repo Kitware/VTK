@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkImageLogic, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the Operation to perform.
    */
@@ -55,15 +55,15 @@ public:
   void SetOperationToNand() { this->SetOperation(VTK_NAND); }
   void SetOperationToNor() { this->SetOperation(VTK_NOR); }
   void SetOperationToNot() { this->SetOperation(VTK_NOT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the value to use for true in the output.
    */
   vtkSetMacro(OutputTrueValue, double);
   vtkGetMacro(OutputTrueValue, double);
-  //@}
+  ///@}
 
   /**
    * Set the Input1 of this filter.

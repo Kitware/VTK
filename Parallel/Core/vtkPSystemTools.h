@@ -55,7 +55,7 @@ public:
   static std::string CollapseFullPath(const std::string& in_relative);
   static std::string CollapseFullPath(const std::string& in_relative, const char* in_base);
 
-  //@{
+  ///@{
   /**
    * Return true if a file exists in the current directory.
    * If isFile = true, then make sure the file is a file and
@@ -68,7 +68,7 @@ public:
   static bool FileExists(const std::string& filename, bool isFile);
   static bool FileExists(const char* filename);
   static bool FileExists(const std::string& filename);
-  //@}
+  ///@}
 
   /**
    * Return true if the file is a directory

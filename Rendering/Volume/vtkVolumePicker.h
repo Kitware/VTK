@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkVolumePicker, vtkCellPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set whether to pick the cropping planes of props that have them.
    * If this is set, then the pick will be done on the cropping planes
@@ -54,9 +54,9 @@ public:
   vtkSetMacro(PickCroppingPlanes, vtkTypeBool);
   vtkBooleanMacro(PickCroppingPlanes, vtkTypeBool);
   vtkGetMacro(PickCroppingPlanes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the index of the cropping plane that the pick ray passed
    * through on its way to the prop. This will be set regardless
@@ -65,7 +65,7 @@ public:
    * not cropped, the value will bet set to -1.
    */
   vtkGetMacro(CroppingPlaneId, int);
-  //@}
+  ///@}
 
 protected:
   vtkVolumePicker();

@@ -99,16 +99,16 @@ class vtkIdTypeArray;
 class VTKFILTERSCORE_EXPORT vtkMultiObjectMassProperties : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type and printing.
    */
   static vtkMultiObjectMassProperties* New();
   vtkTypeMacro(vtkMultiObjectMassProperties, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to skip the validity check (the first part of the
    * algorithm). By default this is off; however even if enabled validity
@@ -118,7 +118,7 @@ public:
   vtkSetMacro(SkipValidityCheck, vtkTypeBool);
   vtkGetMacro(SkipValidityCheck, vtkTypeBool);
   vtkBooleanMacro(SkipValidityCheck, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the number of objects identified. This is valid only after the

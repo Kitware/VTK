@@ -45,21 +45,21 @@ public:
   vtkTypeMacro(vtkVRMLExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the VRML file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Speed of navigation. Default is 4.
    */
   vtkSetMacro(Speed, double);
   vtkGetMacro(Speed, double);
-  //@}
+  ///@}
 
   /**
    * Set the file pointer to write to. This will override

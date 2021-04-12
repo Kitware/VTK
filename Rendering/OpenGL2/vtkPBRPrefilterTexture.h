@@ -40,13 +40,13 @@ public:
   vtkTypeMacro(vtkPBRPrefilterTexture, vtkOpenGLTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the input texture.
    */
   void SetInputTexture(vtkOpenGLTexture*);
   vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
-  //@}
+  ///@}
 
   /**
    * Implement base class method.
@@ -58,23 +58,23 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Get size of texture (input texture height).
    */
   vtkGetMacro(PrefilterSize, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of mip-map levels.
    * Default is 5.
    */
   vtkGetMacro(PrefilterLevels, unsigned int);
   vtkSetMacro(PrefilterLevels, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of samples.
    * The number of samples for each roughness is between 1
@@ -83,9 +83,9 @@ public:
    */
   vtkGetMacro(PrefilterMaxSamples, unsigned int);
   vtkSetMacro(PrefilterMaxSamples, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the conversion to linear color space.
    * If the input texture is in sRGB color space and the conversion is not done by OpenGL
@@ -94,7 +94,7 @@ public:
   vtkGetMacro(ConvertToLinear, bool);
   vtkSetMacro(ConvertToLinear, bool);
   vtkBooleanMacro(ConvertToLinear, bool);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this texture.

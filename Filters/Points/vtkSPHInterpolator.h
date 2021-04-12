@@ -92,7 +92,7 @@ class vtkFloatArray;
 class VTKFILTERSPOINTS_EXPORT vtkSPHInterpolator : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing.
@@ -100,9 +100,9 @@ public:
   static vtkSPHInterpolator* New();
   vtkTypeMacro(vtkSPHInterpolator, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the dataset Pc that will be probed by the input points P.  The
    * Input P defines the dataset structure (the points and cells) for the
@@ -112,7 +112,7 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the dataset Pc that will be probed by the input points P.  The
@@ -122,7 +122,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate near a
@@ -130,9 +130,9 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an interpolation kernel. By default a vtkSPHQuinticKernel is used
    * (i.e., closest point). The interpolation kernel changes the basis of the
@@ -140,18 +140,18 @@ public:
    */
   void SetKernel(vtkSPHKernel* kernel);
   vtkGetObjectMacro(Kernel, vtkSPHKernel);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an (optional) cutoff distance for each point in the input P. If
    * not specified, then the kernel cutoff is used.
    */
   vtkSetMacro(CutoffArrayName, vtkStdString);
   vtkGetMacro(CutoffArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the density array name. This is optional. Typically both the density
    * and mass arrays are specified together (in order to compute the local volume).
@@ -160,9 +160,9 @@ public:
    */
   vtkSetMacro(DensityArrayName, vtkStdString);
   vtkGetMacro(DensityArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mass array name. This is optional. Typically both the
    * density and mass arrays are specified together (in order to compute the
@@ -172,9 +172,9 @@ public:
    */
   vtkSetMacro(MassArrayName, vtkStdString);
   vtkGetMacro(MassArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Adds an array to the list of arrays which are to be excluded from the
    * interpolation process.
@@ -184,9 +184,9 @@ public:
     this->ExcludedArrays.push_back(excludedArray);
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Clears the contents of excluded array list.
    */
@@ -195,14 +195,14 @@ public:
     this->ExcludedArrays.clear();
     this->Modified();
   }
-  //@}
+  ///@}
 
   /**
    * Return the number of excluded arrays.
    */
   int GetNumberOfExcludedArrays() { return static_cast<int>(this->ExcludedArrays.size()); }
 
-  //@{
+  ///@{
   /**
    * Return the name of the ith excluded array.
    */
@@ -214,9 +214,9 @@ public:
     }
     return this->ExcludedArrays[i].c_str();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Adds an array to the list of arrays whose derivative is to be taken. If
    * the name of the array is "derivArray" this will produce an output array
@@ -227,9 +227,9 @@ public:
     this->DerivArrays.push_back(derivArray);
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Clears the contents of derivative array list.
    */
@@ -238,14 +238,14 @@ public:
     this->DerivArrays.clear();
     this->Modified();
   }
-  //@}
+  ///@}
 
   /**
    * Return the number of derivative arrays.
    */
   int GetNumberOfDerivativeArrays() { return static_cast<int>(this->DerivArrays.size()); }
 
-  //@{
+  ///@{
   /**
    * Return the name of the ith derivative array.
    */
@@ -257,7 +257,7 @@ public:
     }
     return this->DerivArrays[i].c_str();
   }
-  //@}
+  ///@}
 
   // How to handle NULL/empty points
   enum NullStrategy
@@ -266,7 +266,7 @@ public:
     NULL_VALUE = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify a strategy to use when encountering a "null" point during the
    * interpolation process. Null points occur when the local neighborhood (of
@@ -280,9 +280,9 @@ public:
   vtkGetMacro(NullPointsStrategy, int);
   void SetNullPointsStrategyToMaskPoints() { this->SetNullPointsStrategy(MASK_POINTS); }
   void SetNullPointsStrategyToNullValue() { this->SetNullPointsStrategy(NULL_VALUE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the NullPointsStrategy == MASK_POINTS, then an array is generated for
    * each input point. This vtkCharArray is placed into the output of the filter,
@@ -291,9 +291,9 @@ public:
    */
   vtkSetMacro(ValidPointsMaskArrayName, vtkStdString);
   vtkGetMacro(ValidPointsMaskArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the null point value. When a null point is encountered then all
    * components of each null tuple are set to this value. By default the
@@ -301,9 +301,9 @@ public:
    */
   vtkSetMacro(NullValue, double);
   vtkGetMacro(NullValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to compute the summation of weighting coefficients (the
    * so-called Shepard sum). In the interior of a SPH point cloud, the
@@ -315,9 +315,9 @@ public:
   vtkSetMacro(ComputeShepardSum, vtkTypeBool);
   vtkBooleanMacro(ComputeShepardSum, vtkTypeBool);
   vtkGetMacro(ComputeShepardSum, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If ComputeShepardSum is on, then an array is generated with name
    * ShepardSumArrayName for each input point. This vtkFloatArray is placed
@@ -326,9 +326,9 @@ public:
    */
   vtkSetMacro(ShepardSumArrayName, vtkStdString);
   vtkGetMacro(ShepardSumArrayName, vtkStdString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If enabled, then input arrays that are non-real types (i.e., not float
    * or double) are promoted to float type on output. This is because the
@@ -338,9 +338,9 @@ public:
   vtkSetMacro(PromoteOutputArrays, vtkTypeBool);
   vtkBooleanMacro(PromoteOutputArrays, vtkTypeBool);
   vtkGetMacro(PromoteOutputArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to shallow copy the input point data arrays to the
    * output. On by default.
@@ -348,9 +348,9 @@ public:
   vtkSetMacro(PassPointArrays, vtkTypeBool);
   vtkBooleanMacro(PassPointArrays, vtkTypeBool);
   vtkGetMacro(PassPointArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to shallow copy the input cell data arrays to the
    * output. On by default.
@@ -358,9 +358,9 @@ public:
   vtkSetMacro(PassCellArrays, vtkTypeBool);
   vtkBooleanMacro(PassCellArrays, vtkTypeBool);
   vtkGetMacro(PassCellArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to pass the field-data arrays from the input to the
    * output. On by default.
@@ -368,9 +368,9 @@ public:
   vtkSetMacro(PassFieldArrays, vtkTypeBool);
   vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
   vtkGetMacro(PassFieldArrays, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether to normalize all arrays with the Shepard coefficients
    * (except the density array and the Shepard sum array). If the Shepard
@@ -380,7 +380,7 @@ public:
   vtkSetMacro(ShepardNormalization, vtkTypeBool);
   vtkBooleanMacro(ShepardNormalization, vtkTypeBool);
   vtkGetMacro(ShepardNormalization, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the MTime of this object also considering the locator and kernel.

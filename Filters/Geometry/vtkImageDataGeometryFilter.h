@@ -52,16 +52,16 @@ public:
    */
   static vtkImageDataGeometryFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
    */
   void SetExtent(int extent[6]);
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
   int* GetExtent() VTK_SIZEHINT(6) { return this->Extent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set ThresholdCells to true if you wish to skip any voxel/pixels which have scalar
    * values less than the specified threshold.
@@ -70,9 +70,9 @@ public:
   vtkSetMacro(ThresholdCells, vtkTypeBool);
   vtkGetMacro(ThresholdCells, vtkTypeBool);
   vtkBooleanMacro(ThresholdCells, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set ThresholdValue to the scalar value by which to threshold cells when extracting geometry
    * when ThresholdCells is true. Cells with scalar values greater than the threshold will be
@@ -81,9 +81,9 @@ public:
   vtkSetMacro(ThresholdValue, double);
   vtkGetMacro(ThresholdValue, double);
   vtkBooleanMacro(ThresholdValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set OutputTriangles to true if you wish to generate triangles instead of quads
    * when extracting cells from 2D imagedata
@@ -92,7 +92,7 @@ public:
   vtkSetMacro(OutputTriangles, vtkTypeBool);
   vtkGetMacro(OutputTriangles, vtkTypeBool);
   vtkBooleanMacro(OutputTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageDataGeometryFilter();

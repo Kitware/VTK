@@ -65,7 +65,7 @@ public:
    */
   virtual void SetRenderWindow(vtkRenderWindow* win);
 
-  //@{
+  ///@{
   /**
    * The render window interactor. Note that this requires special
    * handling in order to do correctly - see the notes in the detailed
@@ -73,7 +73,7 @@ public:
    */
   virtual vtkRenderWindowInteractor* GetInteractor();
   virtual void SetInteractor(vtkRenderWindowInteractor*);
-  //@}
+  ///@}
 
   /**
    * Updates the representations, then calls Render() on the render window

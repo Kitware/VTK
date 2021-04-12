@@ -40,7 +40,7 @@ public:
 
   static vtkResampleToImage* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get if the filter should use Input bounds to sub-sample the data.
    * By default it is set to 1.
@@ -48,24 +48,24 @@ public:
   vtkSetMacro(UseInputBounds, bool);
   vtkGetMacro(UseInputBounds, bool);
   vtkBooleanMacro(UseInputBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get sampling bounds. If (UseInputBounds == 1) then the sampling
    * bounds won't be used.
    */
   vtkSetVector6Macro(SamplingBounds, double);
   vtkGetVector6Macro(SamplingBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get sampling dimension along each axis. Default will be [10,10,10]
    */
   vtkSetVector3Macro(SamplingDimensions, int);
   vtkGetVector3Macro(SamplingDimensions, int);
-  //@}
+  ///@}
 
   /**
    * Get the output data for this algorithm.

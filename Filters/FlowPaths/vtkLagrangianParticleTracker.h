@@ -128,25 +128,25 @@ public:
     STEP_CUR_CELL_DIV_THEO = 5
   } CellLengthComputation;
 
-  //@{
+  ///@{
   /**
    * Set/Get the integration model.
    * Default is vtkLagrangianMatidaIntegrationModel
    */
   void SetIntegrationModel(vtkLagrangianBasicIntegrationModel* integrationModel);
   vtkGetObjectMacro(IntegrationModel, vtkLagrangianBasicIntegrationModel);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the integrator.
    * Default is vtkRungeKutta2
    */
   void SetIntegrator(vtkInitialValueProblemSolver* integrator);
   vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether or not to use PolyVertex cell type
    * for the interaction output
@@ -154,9 +154,9 @@ public:
    */
   vtkSetMacro(GeneratePolyVertexInteractionOutput, bool);
   vtkGetMacro(GeneratePolyVertexInteractionOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the cell length computation mode.
    * Available modes are :
@@ -172,50 +172,50 @@ public:
    */
   vtkSetMacro(CellLengthComputationMode, int);
   vtkGetMacro(CellLengthComputationMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the integration step factor. Default is 1.0.
    */
   vtkSetMacro(StepFactor, double);
   vtkGetMacro(StepFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the integration step factor min. Default is 0.5.
    */
   vtkSetMacro(StepFactorMin, double);
   vtkGetMacro(StepFactorMin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the integration step factor max. Default is 1.5.
    */
   vtkSetMacro(StepFactorMax, double);
   vtkGetMacro(StepFactorMax, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of steps. -1 means no limit. Default is 100.
    */
   vtkSetMacro(MaximumNumberOfSteps, int);
   vtkGetMacro(MaximumNumberOfSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum integration time. A negative value means no limit.
    * Default is -1.
    */
   vtkSetMacro(MaximumIntegrationTime, double);
   vtkGetMacro(MaximumIntegrationTime, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Adaptive Step Reintegration feature.
    * it checks the step size after the integration
@@ -225,9 +225,9 @@ public:
   vtkSetMacro(AdaptiveStepReintegration, bool);
   vtkGetMacro(AdaptiveStepReintegration, bool);
   vtkBooleanMacro(AdaptiveStepReintegration, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the generation of the particle path output,
    * Default is true.
@@ -235,9 +235,9 @@ public:
   vtkSetMacro(GenerateParticlePathsOutput, bool);
   vtkGetMacro(GenerateParticlePathsOutput, bool);
   vtkBooleanMacro(GenerateParticlePathsOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the source object used to generate particle initial position (seeds).
    * Note that this method does not connect the pipeline. The algorithm will
@@ -246,14 +246,14 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the source object used to generate particle initial position (seeds).
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Specify the source object used to compute surface interaction with
    * Note that this method does not connect the pipeline. The algorithm will
@@ -262,7 +262,7 @@ public:
    */
   void SetSurfaceData(vtkDataObject* source);
   vtkDataObject* GetSurface();
-  //@}
+  ///@}
 
   /**
    * Specify the object used to compute surface interaction with.

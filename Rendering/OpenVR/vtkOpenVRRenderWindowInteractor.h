@@ -51,7 +51,7 @@ public:
    */
   virtual void Initialize();
 
-  //@{
+  ///@{
   /**
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
@@ -60,7 +60,7 @@ public:
    */
   static void SetClassExitMethod(void (*f)(void*), void* arg);
   static void SetClassExitMethodArgDelete(void (*f)(void*));
-  //@}
+  ///@}
 
   /**
    * These methods correspond to the Exit, User and Pick
@@ -68,7 +68,7 @@ public:
    */
   virtual void ExitCallback();
 
-  //@{
+  ///@{
   /**
    * Set/Get the optional translation to map world coordinates into the
    * 3D physical space (meters, 0,0,0).
@@ -77,7 +77,7 @@ public:
   virtual double* GetPhysicalTranslation(vtkCamera*);
   virtual void SetPhysicalScale(double);
   virtual double GetPhysicalScale();
-  //@}
+  ///@}
 
   /**
    * Run the event loop and return. This is provided so that you can
@@ -111,49 +111,49 @@ public:
   void ConvertPoseToWorldCoordinates(const vr::TrackedDevicePose_t& tdPose, double pos[3],
     double wxyz[4], double ppos[3], double wdir[3]);
 
-  //@{
+  ///@{
   /**
    * Get the latest touchpad or joystick position for a device
    */
   // void GetTouchPadPosition(vtkEventDataDevice, vtkEventDataDeviceInput, float[3]) override;
-  //@}
+  ///@}
 
   /*
    * Return starting physical to world matrix
    */
   void GetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
 
-  //@{
+  ///@{
   /**
    * Assign an event or std::function to an event path
    */
   void AddAction(std::string path, vtkCommand::EventIds, bool isAnalog);
   void AddAction(std::string path, bool isAnalog, std::function<void(vtkEventData*)>);
-  //@}
+  ///@}
   // add an event action
 
-  //@{
+  ///@{
   /**
    * Set/Get the json file describing action bindings for events
    * See https://github.com/ValveSoftware/openvr/wiki/Action-manifest
    */
   vtkGetMacro(ActionManifestFileName, std::string);
   vtkSetMacro(ActionManifestFileName, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the json file describing action set to use
    */
   vtkGetMacro(ActionSetName, std::string);
   vtkSetMacro(ActionSetName, std::string);
-  //@}
+  ///@}
 
 protected:
   vtkOpenVRRenderWindowInteractor();
   ~vtkOpenVRRenderWindowInteractor() override;
 
-  //@{
+  ///@{
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
@@ -162,16 +162,16 @@ protected:
   static void (*ClassExitMethod)(void*);
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Win32-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
-  //@}
+  ///@}
 
   /**
    * This will start up the event loop and never return. If you

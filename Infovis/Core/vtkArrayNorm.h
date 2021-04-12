@@ -48,39 +48,39 @@ public:
   vtkTypeMacro(vtkArrayNorm, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Controls the dimension along which norms will be computed.  For input matrices,
    * For input matrices, use "0" (rows) or "1" (columns). Default: 0
    */
   vtkGetMacro(Dimension, int);
   vtkSetMacro(Dimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls the L-value.  Default: 2
    */
   vtkGetMacro(L, int);
   void SetL(int value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether to invert output values.  Default: false
    */
   vtkSetMacro(Invert, int);
   vtkGetMacro(Invert, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Defines an optional "window" used to compute the norm on a subset of the elements
    * in a vector.
    */
   void SetWindow(const vtkArrayRange& window);
   vtkArrayRange GetWindow();
-  //@}
+  ///@}
 
 protected:
   vtkArrayNorm();

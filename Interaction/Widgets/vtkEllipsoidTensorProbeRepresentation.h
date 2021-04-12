@@ -42,13 +42,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkEllipsoidTensorProbeRepresentation
 public:
   static vtkEllipsoidTensorProbeRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkEllipsoidTensorProbeRepresentation, vtkTensorProbeRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   void BuildRepresentation() override;
   int RenderOpaqueGeometry(vtkViewport*) override;
@@ -58,13 +58,13 @@ public:
    */
   int SelectProbe(int pos[2]) override;
 
-  //@{
+  ///@{
   /**
    * See vtkProp for details.
    */
   void GetActors(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

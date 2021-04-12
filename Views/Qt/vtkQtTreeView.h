@@ -174,22 +174,22 @@ public:
    */
   void SetItemDelegate(QAbstractItemDelegate* delegate);
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring items in view.  Default is "color".
    */
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color vertices.  Default is off.
    */
   void SetColorByArray(bool vis);
   bool GetColorByArray();
   vtkBooleanMacro(ColorByArray, bool);
-  //@}
+  ///@}
 
   void ApplyViewTheme(vtkViewTheme* theme) override;
 

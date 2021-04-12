@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkWebGLExporter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get all the needed information from the vtkRenderer
    */
@@ -66,7 +66,7 @@ public:
   void SetCenterOfRotation(float a1, float a2, float a3);
   void SetMaxAllowedSize(int mesh, int lines);
   void SetMaxAllowedSize(int size);
-  //@}
+  ///@}
 
   static void ComputeMD5(const unsigned char* content, int size, std::string& hash);
 

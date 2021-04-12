@@ -102,13 +102,13 @@ public:
    */
   void ClearLinkEdges();
 
-  //@{
+  ///@{
   /**
    * The graph describing how to link the columns in the table.
    */
   vtkGetObjectMacro(LinkGraph, vtkMutableDirectedGraph);
   void SetLinkGraph(vtkMutableDirectedGraph* g);
-  //@}
+  ///@}
 
   /**
    * Links the columns in a specific order.
@@ -117,14 +117,14 @@ public:
   void LinkColumnPath(
     vtkStringArray* column, vtkStringArray* domain = nullptr, vtkBitArray* hidden = nullptr);
 
-  //@{
+  ///@{
   /**
    * Specify the directedness of the output graph.
    */
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
-  //@}
+  ///@}
 
   /**
    * Get the current modified time.

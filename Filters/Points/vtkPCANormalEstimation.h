@@ -64,7 +64,7 @@ class vtkIdList;
 class VTKFILTERSPOINTS_EXPORT vtkPCANormalEstimation : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -72,9 +72,9 @@ public:
   static vtkPCANormalEstimation* New();
   vtkTypeMacro(vtkPCANormalEstimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For each sampled point, specify the number of the closest, surrounding
    * points used to estimate the normal (the so called k-neighborhood). By
@@ -83,7 +83,7 @@ public:
    */
   vtkSetClampMacro(SampleSize, int, 1, VTK_INT_MAX);
   vtkGetMacro(SampleSize, int);
-  //@}
+  ///@}
 
   /**
    * This enum is used to control how normals oriented is controlled.
@@ -95,7 +95,7 @@ public:
     GRAPH_TRAVERSAL = 3
   };
 
-  //@{
+  ///@{
   /**
    * Configure how the filter addresses consistency in normal
    * oreientation. When initially computed using PCA, a point normal may
@@ -113,9 +113,9 @@ public:
   void SetNormalOrientationToAsComputed() { this->SetNormalOrientation(AS_COMPUTED); }
   void SetNormalOrientationToPoint() { this->SetNormalOrientation(POINT); }
   void SetNormalOrientationToGraphTraversal() { this->SetNormalOrientation(GRAPH_TRAVERSAL); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the normal orientation is to be consistent with a specified
    * direction, then an orientation point should be set. The sign of the
@@ -124,18 +124,18 @@ public:
    */
   vtkSetVector3Macro(OrientationPoint, double);
   vtkGetVectorMacro(OrientationPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The normal orientation can be flipped by enabling this flag.
    */
   vtkSetMacro(FlipNormals, bool);
   vtkGetMacro(FlipNormals, bool);
   vtkBooleanMacro(FlipNormals, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate points
@@ -143,7 +143,7 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
 protected:
   vtkPCANormalEstimation();

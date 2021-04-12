@@ -30,33 +30,33 @@
 class VTKIMAGINGGENERAL_EXPORT vtkImageConvolve : public vtkThreadedImageAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Construct an instance of vtkImageConvolve filter.
    */
   static vtkImageConvolve* New();
   vtkTypeMacro(vtkImageConvolve, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the kernel size
    */
   vtkGetVector3Macro(KernelSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the kernel to be a given 3x3 or 5x5 or 7x7 kernel.
    */
   void SetKernel3x3(const double kernel[9]);
   void SetKernel5x5(const double kernel[25]);
-  //@}
+  ///@}
 
   void SetKernel7x7(const double kernel[49]);
 
-  //@{
+  ///@{
   /**
    * Return an array that contains the kernel.
    */
@@ -64,7 +64,7 @@ public:
   void GetKernel3x3(double kernel[9]);
   double* GetKernel5x5() VTK_SIZEHINT(25);
   void GetKernel5x5(double kernel[25]);
-  //@}
+  ///@}
 
   double* GetKernel7x7() VTK_SIZEHINT(49);
   void GetKernel7x7(double kernel[49]);
@@ -77,13 +77,13 @@ public:
   void SetKernel5x5x5(const double kernel[125]);
   void SetKernel7x7x7(const double kernel[343]);
 
-  //@{
+  ///@{
   /**
    * Return an array that contains the kernel
    */
   double* GetKernel3x3x3() VTK_SIZEHINT(27);
   void GetKernel3x3x3(double kernel[27]);
-  //@}
+  ///@}
 
   double* GetKernel5x5x5() VTK_SIZEHINT(125);
   void GetKernel5x5x5(double kernel[125]);

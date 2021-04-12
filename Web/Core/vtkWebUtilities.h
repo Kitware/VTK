@@ -39,7 +39,7 @@ public:
   static std::string WriteAttributesToJavaScript(int field_type, vtkDataSet*);
   static std::string WriteAttributeHeadersToJavaScript(int field_type, vtkDataSet*);
 
-  //@{
+  ///@{
   /**
    * This method is similar to the ProcessRMIs() method on the GlobalController
    * except that it is Python friendly in the sense that it will release the
@@ -48,7 +48,7 @@ public:
    */
   static void ProcessRMIs();
   static void ProcessRMIs(int reportError, int dont_loop = 0);
-  //@}
+  ///@}
 
 protected:
   vtkWebUtilities();

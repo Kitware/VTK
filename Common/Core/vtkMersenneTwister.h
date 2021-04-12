@@ -82,14 +82,14 @@ class VTKCOMMONCORE_EXPORT vtkMersenneTwister : public vtkRandomSequence
 public:
   typedef vtkTypeUInt32 SequenceId;
 
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkMersenneTwister* New();
   vtkTypeMacro(vtkMersenneTwister, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy general API of vtkRandomSequence superclass. Initialize the

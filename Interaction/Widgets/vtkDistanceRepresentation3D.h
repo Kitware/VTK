@@ -53,68 +53,68 @@ public:
    */
   static vtkDistanceRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation3D, vtkDistanceRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API.
    */
   double GetDistance() override { return this->Distance; }
 
-  //@{
+  ///@{
   /**
    * Scale the glyphs used as tick marks. By default it is
    * 1/40th of the length.
    */
   void SetGlyphScale(double scale);
   vtkGetMacro(GlyphScale, double);
-  //@}
+  ///@}
 
   /**
    * Convenience method to get the line actor property.
    */
   virtual vtkProperty* GetLineProperty();
 
-  //@{
+  ///@{
   /**
    * Set/Get position of the label title in normalized coordinates [0,1].
    * 0 is at the start of the line whereas 1 is at the end.
    */
   void SetLabelPosition(double labelPosition);
   vtkGetMacro(LabelPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of ticks in ruler mode.
    */
   vtkSetClampMacro(MaximumNumberOfRulerTicks, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfRulerTicks, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to get the glyph actor. Using this it is
    * possible to control the appearance of the glyphs.
    */
   vtkGetObjectMacro(GlyphActor, vtkActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method Get the label actor. It is possible to
    * control the appearance of the label.
    */
   vtkGetObjectMacro(LabelActor, vtkFollower);
   virtual void SetLabelActor(vtkFollower*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -126,31 +126,31 @@ public:
   void GetPoint2WorldPosition(double pos[3]) override;
   void SetPoint1WorldPosition(double pos[3]) override;
   void SetPoint2WorldPosition(double pos[3]) override;
-  //@}
+  ///@}
 
   void SetPoint1DisplayPosition(double pos[3]) override;
   void SetPoint2DisplayPosition(double pos[3]) override;
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
 
-  //@{
+  ///@{
   /**
    * Method to satisfy superclasses' API.
    */
   void BuildRepresentation() override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text (font size along each dimension). This helps control
    * the appearance of the 3D text.
@@ -165,7 +165,7 @@ public:
   }
   virtual void SetLabelScale(double scale[3]);
   virtual double* GetLabelScale();
-  //@}
+  ///@}
 
   /**
    * Get the distance annotation property

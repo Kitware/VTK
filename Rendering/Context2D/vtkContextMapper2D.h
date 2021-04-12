@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkContextMapper2D* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the input for this object - only accepts vtkTable as input.
    */
   virtual void SetInputData(vtkTable* input);
   virtual vtkTable* GetInput();
-  //@}
+  ///@}
 
   /**
    * Make the arrays accessible to the plot objects.

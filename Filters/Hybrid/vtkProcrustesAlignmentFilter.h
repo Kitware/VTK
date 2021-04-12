@@ -74,23 +74,23 @@ public:
    */
   static vtkProcrustesAlignmentFilter* New();
 
-  //@{
+  ///@{
   /**
    * Get the internal landmark transform. Use it to constrain the number of
    * degrees of freedom of the alignment (i.e. rigid body, similarity, etc.).
    * The default is a similarity alignment.
    */
   vtkGetObjectMacro(LandmarkTransform, vtkLandmarkTransform);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the estimated mean point cloud
    */
   vtkGetObjectMacro(MeanPoints, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When on, the initial alignment is to the centroid
    * of the cohort curves.  When off, the alignment is to the
@@ -100,9 +100,9 @@ public:
   vtkSetMacro(StartFromCentroid, bool);
   vtkGetMacro(StartFromCentroid, bool);
   vtkBooleanMacro(StartFromCentroid, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -114,7 +114,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkProcrustesAlignmentFilter();

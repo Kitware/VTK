@@ -60,79 +60,79 @@ public:
   vtkTypeMacro(vtkGenericGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry by point id.
    */
   vtkSetMacro(PointClipping, vtkTypeBool);
   vtkGetMacro(PointClipping, vtkTypeBool);
   vtkBooleanMacro(PointClipping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry by cell id.
    */
   vtkSetMacro(CellClipping, vtkTypeBool);
   vtkGetMacro(CellClipping, vtkTypeBool);
   vtkBooleanMacro(CellClipping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off selection of geometry via bounding box.
    */
   vtkSetMacro(ExtentClipping, vtkTypeBool);
   vtkGetMacro(ExtentClipping, vtkTypeBool);
   vtkBooleanMacro(ExtentClipping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the minimum point id for point id selection.
    */
   vtkSetClampMacro(PointMinimum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(PointMinimum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum point id for point id selection.
    */
   vtkSetClampMacro(PointMaximum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(PointMaximum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the minimum cell id for point id selection.
    */
   vtkSetClampMacro(CellMinimum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(CellMinimum, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum cell id for point id selection.
    */
   vtkSetClampMacro(CellMaximum, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(CellMaximum, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
    */
   void SetExtent(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
 
-  //@{
+  ///@{
   /**
    * Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
    */
   void SetExtent(double extent[6]);
   double* GetExtent() { return this->Extent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off merging of coincident points. Note that is merging is
    * on, points with different point attributes (e.g., normals) are merged,
@@ -141,16 +141,16 @@ public:
   vtkSetMacro(Merging, vtkTypeBool);
   vtkGetMacro(Merging, vtkTypeBool);
   vtkBooleanMacro(Merging, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified.
@@ -162,7 +162,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
@@ -172,7 +172,7 @@ public:
   vtkSetMacro(PassThroughCellIds, vtkTypeBool);
   vtkGetMacro(PassThroughCellIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughCellIds, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkGenericGeometryFilter();

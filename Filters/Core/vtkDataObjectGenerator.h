@@ -49,13 +49,13 @@ public:
   vtkTypeMacro(vtkDataObjectGenerator, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The string that will be parsed to specify a dataobject structure.
    */
   vtkSetStringMacro(Program);
   vtkGetStringMacro(Program);
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectGenerator();

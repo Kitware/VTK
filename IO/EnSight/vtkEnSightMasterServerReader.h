@@ -38,20 +38,20 @@ public:
    */
   int DetermineFileName(int piece);
 
-  //@{
+  ///@{
   /**
    * Get the file name that will be read.
    */
   vtkGetStringMacro(PieceCaseFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the current piece.
    */
   vtkSetMacro(CurrentPiece, int);
   vtkGetMacro(CurrentPiece, int);
-  //@}
+  ///@}
 
   int CanReadFile(const char* fname) override;
 

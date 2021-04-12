@@ -47,13 +47,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the selection frustum. The planes object must contain six planes.
    */
   void SetFrustum(vtkPlanes*);
   vtkPlanes* GetFrustum();
-  //@}
+  ///@}
 
 protected:
   vtkFrustumSelector(vtkPlanes* f = nullptr);

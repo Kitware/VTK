@@ -56,7 +56,7 @@ struct vtkTestUtilities
   static inline char* GetArgOrEnvOrDefault(
     const char* arg, int argc, char* argv[], const char* env, const char* def);
 
-  //@{
+  ///@{
   /**
    * Given a file name, this function returns a new string which is (in theory)
    * the full path. This path is constructed by prepending the file name with a
@@ -66,7 +66,7 @@ struct vtkTestUtilities
    */
   static inline char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, int argc, char* argv[],
     const char* env, const char* def, const char* fname, int slash = 0);
-  //@}
+  ///@}
 };
 
 inline char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])

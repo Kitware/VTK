@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkPolyDataReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
   vtkPolyData* GetOutput();
   vtkPolyData* GetOutput(int idx);
   void SetOutput(vtkPolyData* output);
-  //@}
+  ///@}
 
   /**
    * Actual reading happens here

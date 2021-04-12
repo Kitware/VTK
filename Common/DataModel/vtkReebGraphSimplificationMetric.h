@@ -60,7 +60,7 @@ public:
   vtkTypeMacro(vtkReebGraphSimplificationMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the lowest possible value for the custom metric space.
    * This value can be set prior to launching the Reeb graph simplification and
@@ -69,9 +69,9 @@ public:
    */
   vtkSetMacro(LowerBound, double);
   vtkGetMacro(LowerBound, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the highest possible value for the custom metric space.
    * This value can be set prior to launching the Reeb graph simplification and
@@ -80,7 +80,7 @@ public:
    */
   vtkSetMacro(UpperBound, double);
   vtkGetMacro(UpperBound, double);
-  //@}
+  ///@}
 
   /**
    * Function to implement in your simplification metric algorithm.

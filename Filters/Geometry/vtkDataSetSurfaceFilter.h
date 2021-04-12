@@ -105,7 +105,7 @@ typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Statndard methods for object instantiation, type information, and printing.
    */
@@ -113,7 +113,7 @@ public:
   vtkTypeMacro(vtkDataSetSurfaceFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * When input is structured data, this flag will generate faces with
    * triangle strips.  This should render faster and use less memory, but no
@@ -122,9 +122,9 @@ public:
   vtkSetMacro(UseStrips, vtkTypeBool);
   vtkGetMacro(UseStrips, vtkTypeBool);
   vtkBooleanMacro(UseStrips, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PieceInvariant is true, vtkDataSetSurfaceFilter requests
    * 1 ghost level from input in order to remove internal surface
@@ -132,9 +132,9 @@ public:
    */
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
@@ -149,9 +149,9 @@ public:
   vtkSetMacro(PassThroughPointIds, vtkTypeBool);
   vtkGetMacro(PassThroughPointIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
@@ -168,9 +168,9 @@ public:
   {
     return (this->OriginalPointIdsName ? this->OriginalPointIdsName : "vtkOriginalPointIds");
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the input is an unstructured grid with nonlinear faces, this parameter
    * determines how many times the face is subdivided into linear faces.  If 0,
@@ -184,9 +184,9 @@ public:
    */
   vtkSetMacro(NonlinearSubdivisionLevel, int);
   vtkGetMacro(NonlinearSubdivisionLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Disable delegation to an internal vtkGeometryFilter. The geometry filter runs
    * much faster (especially for unstructured grids); however the two filters
@@ -195,9 +195,9 @@ public:
   vtkSetMacro(Delegation, vtkTypeBool);
   vtkGetMacro(Delegation, vtkTypeBool);
   vtkBooleanMacro(Delegation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Direct access methods so that this class can be used as an
    * algorithm without using it as a filter (i.e., no pipeline updates).
@@ -227,7 +227,7 @@ public:
    * of the filter is executed.
    */
   virtual int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output);
-  //@{
+  ///@{
   /**
    * Execute the filter on \a input and store the result in \a output.
    * The correct function should be used accordingly to the type of the input.
@@ -236,7 +236,7 @@ public:
   virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
     vtkIdType* wholeExt, bool extractface[6]);
-  //@}
+  ///@}
 
   /**
    * Optimized \a UnstructuredGridExecute function for vtkUnstructuredGrid and subclass instances
@@ -258,7 +258,7 @@ public:
     return this->UniformGridExecute(input, output, ext, wholeExt, extractface);
   }
 #endif
-  //@}
+  ///@}
 
 protected:
   vtkDataSetSurfaceFilter();

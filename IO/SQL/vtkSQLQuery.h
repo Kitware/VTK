@@ -71,7 +71,7 @@ public:
   vtkTypeMacro(vtkSQLQuery, vtkRowQuery);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The query string to be executed.  Since some databases will
    * process the query string as soon as it's set, this method returns
@@ -79,7 +79,7 @@ public:
    */
   virtual bool SetQuery(const char* query);
   virtual const char* GetQuery();
-  //@}
+  ///@}
 
   /**
    * Return true if the query is active (i.e. execution was successful
@@ -104,12 +104,12 @@ public:
   virtual bool CommitTransaction() { return true; }
   virtual bool RollbackTransaction() { return true; }
 
-  //@{
+  ///@{
   /**
    * Return the database associated with the query.
    */
   vtkGetObjectMacro(Database, vtkSQLDatabase);
-  //@}
+  ///@}
 
   /**
    * Bind a parameter to a placeholder in a query.  A full discussion

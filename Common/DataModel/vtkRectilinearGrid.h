@@ -73,7 +73,7 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
@@ -105,7 +105,7 @@ public:
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
-  //@}
+  ///@}
 
   /**
    * Given a user-supplied vtkPoints container object, this method fills in all
@@ -113,21 +113,21 @@ public:
    */
   void GetPoints(vtkPoints* pnts);
 
-  //@{
+  ///@{
   /**
    * Set dimensions of rectilinear grid dataset.
    * This also sets the extent.
    */
   void SetDimensions(int i, int j, int k);
   void SetDimensions(const int dim[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get dimensions of this rectilinear grid dataset.
    */
   vtkGetVectorMacro(Dimensions, int, 3);
-  //@}
+  ///@}
 
   /**
    * Return the dimensionality of the data.
@@ -159,31 +159,31 @@ public:
    */
   void GetPoint(const int i, const int j, const int k, double p[3]);
 
-  //@{
+  ///@{
   /**
    * Specify the grid coordinates in the x-direction.
    */
   virtual void SetXCoordinates(vtkDataArray*);
   vtkGetObjectMacro(XCoordinates, vtkDataArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the grid coordinates in the y-direction.
    */
   virtual void SetYCoordinates(vtkDataArray*);
   vtkGetObjectMacro(YCoordinates, vtkDataArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the grid coordinates in the z-direction.
    */
   virtual void SetZCoordinates(vtkDataArray*);
   vtkGetObjectMacro(ZCoordinates, vtkDataArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Different ways to set the extent of the data array.  The extent
    * should be set before the "Scalars" are set or allocated.
@@ -192,7 +192,7 @@ public:
   void SetExtent(int extent[6]);
   void SetExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax);
   vtkGetVector6Macro(Extent, int);
-  //@}
+  ///@}
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -204,13 +204,13 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
   /**
    * Structured extent. The extent type is a 3D extent
@@ -224,15 +224,15 @@ public:
    */
   void Crop(const int* updateExtent) override;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkRectilinearGrid* GetData(vtkInformation* info);
   static vtkRectilinearGrid* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scalar data type for the points. This is setting pipeline info.
    */
@@ -241,9 +241,9 @@ public:
   static bool HasScalarType(vtkInformation* meta_data);
   int GetScalarType();
   const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro(this->GetScalarType()); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of scalar components for points. As with the
    * SetScalarType method this is setting pipeline info.
@@ -252,7 +252,7 @@ public:
   static int GetNumberOfScalarComponents(vtkInformation* meta_data);
   static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
   int GetNumberOfScalarComponents();
-  //@}
+  ///@}
 
 protected:
   vtkRectilinearGrid();

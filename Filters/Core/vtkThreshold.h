@@ -75,15 +75,15 @@ public:
    */
   void ThresholdBetween(double lower, double upper);
 
-  //@{
+  ///@{
   /**
    * Get the Upper and Lower thresholds.
    */
   vtkGetMacro(UpperThreshold, double);
   vtkGetMacro(LowerThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the filter works with scalar point data and cell attribute
    * data.  By default (AttributeModeToDefault), the filter will use point
@@ -100,9 +100,9 @@ public:
   }
   void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
   const char* GetAttributeModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the decision of in / out is made with multi-component data.
    * The choices are to use the selected component (specified in the
@@ -117,18 +117,18 @@ public:
   void SetComponentModeToUseAll() { this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL); }
   void SetComponentModeToUseAny() { this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY); }
   const char* GetComponentModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When the component mode is UseSelected, this ivar indicated the selected
    * component. The default value is 0.
    */
   vtkSetClampMacro(SelectedComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(SelectedComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If using scalars from point data, all scalars for all points in a cell
    * must satisfy the threshold criterion if AllScalars is set. Otherwise,
@@ -138,9 +138,9 @@ public:
   vtkSetMacro(AllScalars, vtkTypeBool);
   vtkGetMacro(AllScalars, vtkTypeBool);
   vtkBooleanMacro(AllScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this is on (default is off), we will use the continuous interval
    * [minimum cell scalar, maxmimum cell scalar] to intersect the threshold bound
@@ -152,9 +152,9 @@ public:
   vtkSetMacro(UseContinuousCellRange, vtkTypeBool);
   vtkGetMacro(UseContinuousCellRange, vtkTypeBool);
   vtkBooleanMacro(UseContinuousCellRange, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the data type of the output points (See the data types defined in
    * vtkType.h). The default data type is float.
@@ -166,9 +166,9 @@ public:
   void SetPointsDataTypeToFloat() { this->SetPointsDataType(VTK_FLOAT); }
   void SetPointsDataType(int type);
   int GetPointsDataType();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Invert the threshold results. That is, cells that would have been in the output with this
    * option off are excluded, while cells that would have been excluded from the output are
@@ -177,9 +177,9 @@ public:
   vtkSetMacro(Invert, bool);
   vtkGetMacro(Invert, bool);
   vtkBooleanMacro(Invert, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -187,9 +187,9 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods used for thresholding. vtkThreshold::Lower returns true if s is lower than threshold,
    * vtkThreshold::Upper returns true if s is upper than treshold, and vtkThreshold::Between returns
@@ -207,7 +207,7 @@ public:
   int Lower(double s) const;
   int Upper(double s) const;
   int Between(double s) const;
-  //@}
+  ///@}
 protected:
   vtkThreshold();
   ~vtkThreshold() override;

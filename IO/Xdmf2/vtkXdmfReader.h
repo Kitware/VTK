@@ -58,7 +58,7 @@ public:
   //// RequestInformation pipeline pass has happened.
   // unsigned int GetNumberOfDomains();
 
-  //@{
+  ///@{
   /**
    * Set the active domain. Only one domain can be selected at a time. By
    * default the first domain in the datafile is chosen. Setting this to null
@@ -68,20 +68,20 @@ public:
    */
   vtkSetStringMacro(DomainName);
   vtkGetStringMacro(DomainName);
-  //@}
+  ///@}
 
   //// Description:
   //// Returns the name for the active domain. Note that this may be different
   //// from what GetDomainName() returns if DomainName is nullptr or invalid.
   // vtkGetStringMacro(ActiveDomainName);
 
-  //@{
+  ///@{
   /**
    * Name of the file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * Get information about point-based arrays. As is typical with readers this
@@ -96,15 +96,15 @@ public:
    */
   const char* GetPointArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set the point array status.
    */
   int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get information about cell-based arrays.  As is typical with readers this
    * in only valid after the filename is set and UpdateInformation() has been
@@ -114,9 +114,9 @@ public:
   const char* GetCellArrayName(int index);
   void SetCellArrayStatus(const char* name, int status);
   int GetCellArrayStatus(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about grids. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -126,9 +126,9 @@ public:
   const char* GetGridName(int index);
   void SetGridStatus(const char* gridname, int status);
   int GetGridStatus(const char* gridname);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set information about sets. As is typical with readers this is valid
    * only after the filename as been set and UpdateInformation() has been
@@ -139,7 +139,7 @@ public:
   const char* GetSetName(int index);
   void SetSetStatus(const char* gridname, int status);
   int GetSetStatus(const char* gridname);
-  //@}
+  ///@}
 
   /**
    * These methods are provided to make it easier to use the Sets in ParaView.
@@ -148,26 +148,26 @@ public:
   const char* GetSetArrayName(int index) { return this->GetSetName(index); }
   int GetSetArrayStatus(const char* name) { return this->GetSetStatus(name); }
 
-  //@{
+  ///@{
   /**
    * Get/Set the stride used to skip points when reading structured datasets.
    * This affects all grids being read.
    */
   vtkSetVector3Macro(Stride, int);
   vtkGetVector3Macro(Stride, int);
-  //@}
+  ///@}
 
   /**
    * Determine if the file can be read with this reader.
    */
   virtual int CanReadFile(const char* filename);
 
-  //@{
+  ///@{
   /**
    * Every time the SIL is updated a this will return a different value.
    */
   vtkGetMacro(SILUpdateStamp, int);
-  //@}
+  ///@}
 
   /**
    * SIL describes organization of/relationships between classifications
@@ -196,7 +196,7 @@ public:
    */
   XdmfReaderCachedData& GetDataSetCache();
 
-  //@{
+  ///@{
   /**
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
@@ -204,9 +204,9 @@ public:
   vtkSetMacro(ReadFromInputString, bool);
   vtkGetMacro(ReadFromInputString, bool);
   vtkBooleanMacro(ReadFromInputString, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkCharArray to be used  when reading from a string.
    * If set, this array has precedence over InputString.
@@ -217,9 +217,9 @@ public:
    */
   virtual void SetInputArray(vtkCharArray*);
   vtkGetObjectMacro(InputArray, vtkCharArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the InputString for use when reading from a character array.
    * Optionally include the length for binary strings. Note that a copy
@@ -235,7 +235,7 @@ public:
   {
     this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length()));
   }
-  //@}
+  ///@}
 
 protected:
   vtkXdmfReader();

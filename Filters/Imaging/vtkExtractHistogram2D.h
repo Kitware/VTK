@@ -67,33 +67,33 @@ public:
     HISTOGRAM_IMAGE = 3
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the number of bins to be used per dimension (x,y)
    */
   vtkSetVector2Macro(NumberOfBins, int);
   vtkGetVector2Macro(NumberOfBins, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the components of the arrays in the two input columns
    * to be used during histogram computation.  Defaults to component 0.
    */
   vtkSetVector2Macro(ComponentsToProcess, int);
   vtkGetVector2Macro(ComponentsToProcess, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get a custom domain for histogram computation.  UseCustomHistogramExtents
    * must be called for these to actually be used.
    */
   vtkSetVector4Macro(CustomHistogramExtents, double);
   vtkGetVector4Macro(CustomHistogramExtents, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the extents in CustomHistogramExtents when computing the
    * histogram, rather than the simple range of the input columns.
@@ -101,9 +101,9 @@ public:
   vtkSetMacro(UseCustomHistogramExtents, vtkTypeBool);
   vtkGetMacro(UseCustomHistogramExtents, vtkTypeBool);
   vtkBooleanMacro(UseCustomHistogramExtents, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the scalar type of the output histogram.  If the input
    * is relatively small, you can save space by using a smaller
@@ -117,15 +117,15 @@ public:
   void SetScalarTypeToFloat() { this->SetScalarType(VTK_FLOAT); }
   void SetScalarTypeToDouble() { this->SetScalarType(VTK_DOUBLE); }
   vtkGetMacro(ScalarType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the count of the histogram bin containing the largest number
    * of input rows.
    */
   vtkGetMacro(MaximumBinCount, double);
-  //@}
+  ///@}
 
   /**
    * Compute the range of the bin located at position (binX,binY) in
@@ -161,13 +161,13 @@ public:
   vtkGetMacro(SwapColumns, vtkTypeBool);
   vtkBooleanMacro(SwapColumns, vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * Get/Set an optional mask that can ignore rows of the table
    */
   virtual void SetRowMask(vtkDataArray*);
   vtkGetObjectMacro(RowMask, vtkDataArray);
-  //@}
+  ///@}
 
   /**
    * Given a collection of models, calculate aggregate model. Not used.

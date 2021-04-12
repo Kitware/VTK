@@ -60,7 +60,7 @@ public:
    */
   unsigned int GetNumberOfMembers();
 
-  //@{
+  ///@{
   /**
    * Set/Get the current ensemble member to process. Note that this data member
    * will not be used if the UPDATE_MEMBER key is present in the pipeline. Also,
@@ -69,7 +69,7 @@ public:
    */
   vtkSetMacro(CurrentMember, unsigned int);
   vtkGetMacro(CurrentMember, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Set the meta-data that will be propagated downstream. Make sure that this table

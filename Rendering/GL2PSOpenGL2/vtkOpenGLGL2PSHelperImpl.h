@@ -74,7 +74,7 @@ protected:
   static void GetTransformParameters(vtkRenderer* ren, vtkMatrix4x4* actorMatrix,
     vtkMatrix4x4* xform, double vpOrigin[2], double halfSize[2], double zfact[2]);
 
-  //@{
+  ///@{
   /**
    * Project the point from world coordinates into device coordinates.
    */
@@ -83,9 +83,9 @@ protected:
     double halfWidth, double halfHeight, double zfact1, double zfact2);
   static void ProjectPoints(
     vtkPoints* points, vtkRenderer* ren, vtkMatrix4x4* actorMatrix = nullptr);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Unproject the point from device coordinates into world coordinates.
    * Input Z coordinate should be in NDC space.
@@ -94,7 +94,7 @@ protected:
     double viewportOrigin[2], double halfWidth, double halfHeight, double zfact1, double zfact2);
   static void UnprojectPoints(
     double* points3D, vtkIdType numPoints, vtkRenderer* ren, vtkMatrix4x4* actorMatrix = nullptr);
-  //@}
+  ///@}
 
   void DrawPathPS(vtkPath* path, double rasterPos[3], double windowPos[2], unsigned char rgba[4],
     double scale[2], double rotateAngle, float strokeWidth, const std::string& label);

@@ -93,95 +93,95 @@ public:
    */
   vtkVector2f MapFromParent(const vtkVector2f& point) override;
 
-  //@{
+  ///@{
   /**
    * The mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::LEFT_BUTTON.
    */
   vtkSetMacro(PanMouseButton, int);
   vtkGetMacro(PanMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(PanModifier, int);
   vtkGetMacro(PanModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_BUTTON (disabled).
    */
   vtkSetMacro(SecondaryPanMouseButton, int);
   vtkGetMacro(SecondaryPanMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(SecondaryPanModifier, int);
   vtkGetMacro(SecondaryPanModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::RIGHT_BUTTON.
    */
   vtkSetMacro(ZoomMouseButton, int);
   vtkGetMacro(ZoomMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::NO_MODIFIER.
    */
   vtkSetMacro(ZoomModifier, int);
   vtkGetMacro(ZoomModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary mouse button from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::LEFT_BUTTON.
    */
   vtkSetMacro(SecondaryZoomMouseButton, int);
   vtkGetMacro(SecondaryZoomMouseButton, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A secondary modifier from vtkContextMouseEvent to use for panning.
    * Default is vtkContextMouseEvent::SHIFT_MODIFIER.
    */
   vtkSetMacro(SecondaryZoomModifier, int);
   vtkGetMacro(SecondaryZoomModifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to zoom on mouse wheels. Default is true.
    */
   vtkSetMacro(ZoomOnMouseWheel, bool);
   vtkGetMacro(ZoomOnMouseWheel, bool);
   vtkBooleanMacro(ZoomOnMouseWheel, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to pan in the Y direction on mouse wheels. Default is false.
    */
   vtkSetMacro(PanYOnMouseWheel, bool);
   vtkGetMacro(PanYOnMouseWheel, bool);
   vtkBooleanMacro(PanYOnMouseWheel, bool);
-  //@}
+  ///@}
 
   /**
    * Returns true if the transform is interactive, false otherwise.

@@ -41,7 +41,7 @@ public:
   vtkTypeMacro(vtkImageDataToUniformGrid, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default, values of 0 (i.e. Reverse = 0) in the array will
    * result in that point or cell to be blanked. Set Reverse to
@@ -51,7 +51,7 @@ public:
   vtkSetClampMacro(Reverse, vtkTypeBool, 0, 1);
   vtkGetMacro(Reverse, vtkTypeBool);
   vtkBooleanMacro(Reverse, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageDataToUniformGrid();

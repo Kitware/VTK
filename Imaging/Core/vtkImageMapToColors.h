@@ -41,15 +41,15 @@ public:
   vtkTypeMacro(vtkImageMapToColors, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the lookup table.
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output format, the default is RGBA.
    */
@@ -59,17 +59,17 @@ public:
   void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; }
   void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; }
   void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the component to map for multi-component images (default: 0)
    */
   vtkSetMacro(ActiveComponent, int);
   vtkGetMacro(ActiveComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the alpha component of the input when computing the alpha component
    * of the output (useful when converting monochrome+alpha data to RGBA)
@@ -77,21 +77,21 @@ public:
   vtkSetMacro(PassAlphaToOutput, vtkTypeBool);
   vtkBooleanMacro(PassAlphaToOutput, vtkTypeBool);
   vtkGetMacro(PassAlphaToOutput, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * We need to check the modified time of the lookup table too.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get Color that should be used in case of UnMatching
    * data.
    */
   vtkSetVector4Macro(NaNColor, unsigned char);
   vtkGetVector4Macro(NaNColor, unsigned char);
-  //@}
+  ///@}
 
 protected:
   vtkImageMapToColors();

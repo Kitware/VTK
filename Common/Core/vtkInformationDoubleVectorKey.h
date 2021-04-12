@@ -48,7 +48,7 @@ public:
     return new vtkInformationDoubleVectorKey(name, location, length);
   }
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -59,7 +59,7 @@ public:
   double Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, double* value);
   int Length(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

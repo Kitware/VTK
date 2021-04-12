@@ -87,22 +87,22 @@ public:
    */
   static vtkPolyDataPointSampler* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros for type information and printing.
    */
   vtkTypeMacro(vtkPolyDataPointSampler, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the approximate distance between points. This is an absolute
    * distance measure. The default is 0.01.
    */
   vtkSetClampMacro(Distance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Distance, double);
-  //@}
+  ///@}
 
   /**
    * Specify how points are to be generated.
@@ -113,7 +113,7 @@ public:
     RANDOM_GENERATION
   };
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve the type of point generation: either regular point
    * generation or random point generation. By default, regular point
@@ -123,9 +123,9 @@ public:
   vtkGetMacro(PointGenerationMode, int);
   void SetPointGenerationModeToRegular() { this->SetPointGenerationMode(REGULAR_GENERATION); }
   void SetPointGenerationModeToRandom() { this->SetPointGenerationMode(RANDOM_GENERATION); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve a boolean flag indicating whether cell vertex points should
    * be output.
@@ -133,9 +133,9 @@ public:
   vtkGetMacro(GenerateVertexPoints, bool);
   vtkSetMacro(GenerateVertexPoints, bool);
   vtkBooleanMacro(GenerateVertexPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve a boolean flag indicating whether cell edges should
    * be sampled to produce output points. The default is true.
@@ -143,9 +143,9 @@ public:
   vtkGetMacro(GenerateEdgePoints, bool);
   vtkSetMacro(GenerateEdgePoints, bool);
   vtkBooleanMacro(GenerateEdgePoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve a boolean flag indicating whether cell interiors should
    * be sampled to produce output points. The default is true.
@@ -153,9 +153,9 @@ public:
   vtkGetMacro(GenerateInteriorPoints, bool);
   vtkSetMacro(GenerateInteriorPoints, bool);
   vtkBooleanMacro(GenerateInteriorPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve a boolean flag indicating whether cell vertices should
    * be generated. Cell vertices are useful if you actually want to display
@@ -166,9 +166,9 @@ public:
   vtkGetMacro(GenerateVertices, bool);
   vtkSetMacro(GenerateVertices, bool);
   vtkBooleanMacro(GenerateVertices, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve a boolean flag indicating whether point data should be
    * interpolated onto the newly generated points. If enabled, points
@@ -180,7 +180,7 @@ public:
   vtkGetMacro(InterpolatePointData, bool);
   vtkSetMacro(InterpolatePointData, bool);
   vtkBooleanMacro(InterpolatePointData, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataPointSampler();

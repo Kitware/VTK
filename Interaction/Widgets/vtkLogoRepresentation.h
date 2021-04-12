@@ -49,36 +49,36 @@ public:
    */
   static vtkLogoRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/retrieve the image to display in the balloon.
    */
   virtual void SetImage(vtkImageData* img);
   vtkGetObjectMacro(Image, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the image property (relevant only if an image is shown).
    */
   virtual void SetImageProperty(vtkProperty2D* p);
   vtkGetObjectMacro(ImageProperty, vtkProperty2D);
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses' API.
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -86,7 +86,7 @@ public:
   void GetActors2D(vtkPropCollection* pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
-  //@}
+  ///@}
 
 protected:
   vtkLogoRepresentation();

@@ -90,7 +90,7 @@ public:
     USE_Z = 2
   };
 
-  //@{
+  ///@{
   /**
    * Set the axis of rotation to use. It is set by default to Z.
    */
@@ -99,57 +99,57 @@ public:
   void SetAxisToX() { this->SetAxis(USE_X); }
   void SetAxisToY() { this->SetAxis(USE_Y); }
   void SetAxisToZ() { this->SetAxis(USE_Z); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get resolution of sweep operation. Resolution controls the number
    * of intermediate node points.
    */
   vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the skirt.
    */
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get angle of rotation.
    */
   vtkSetMacro(DefaultAngle, double);
   vtkGetMacro(DefaultAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get angles of rotation for each block in a composite data set.
    */
   void RemoveAllPerBlockAngles();
   void AddPerBlockAngle(vtkIdType blockId, double angle);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get total amount of translation along the z-axis.
    */
   vtkSetMacro(Translation, double);
   vtkGetMacro(Translation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get change in radius during sweep process.
    */
   vtkSetMacro(DeltaRadius, double);
   vtkGetMacro(DeltaRadius, double);
-  //@}
+  ///@}
 
 protected:
   vtkQuadRotationalExtrusionFilter();

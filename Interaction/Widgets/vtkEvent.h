@@ -36,13 +36,13 @@ public:
    */
   static vtkEvent* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkEvent, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Ways to specify modifiers to VTK events. These can be logical OR'd to
@@ -57,45 +57,45 @@ public:
     AltModifier = 4
   };
 
-  //@{
+  ///@{
   /**
    * Set the modifier for the event.
    */
   vtkSetMacro(EventId, unsigned long);
   vtkGetMacro(EventId, unsigned long);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the modifier for the event.
    */
   vtkSetMacro(Modifier, int);
   vtkGetMacro(Modifier, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the KeyCode for the event.
    */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the repease count for the event.
    */
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the complex key symbol (compound key strokes) for the event.
    */
   vtkSetStringMacro(KeySym);
   vtkGetStringMacro(KeySym);
-  //@}
+  ///@}
 
   /**
    * Convenience method computes the event modifier from an interactor.

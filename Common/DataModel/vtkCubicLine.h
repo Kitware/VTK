@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkCubicLine, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -67,7 +67,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
-  //@}
+  ///@}
 
   /**
    * Return the distance of the parametric coordinate provided to the
@@ -97,7 +97,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[4]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[4]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -110,7 +110,7 @@ public:
   {
     vtkCubicLine::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
 protected:
   vtkCubicLine();

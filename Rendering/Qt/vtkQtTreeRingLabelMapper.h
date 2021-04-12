@@ -69,13 +69,13 @@ public:
   vtkTypeMacro(vtkQtTreeRingLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Draw the text to the screen at each input point.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
-  //@}
+  ///@}
 
   /**
    * The input to this filter.
@@ -87,7 +87,7 @@ public:
    */
   virtual void SetSectorsArrayName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property. Note that multiple type text properties
    * (set with a second integer parameter) are not currently supported,
@@ -103,15 +103,15 @@ public:
   {
     return this->Superclass::GetLabelTextProperty(type);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the text rotation array.
    */
   vtkSetStringMacro(TextRotationArrayName);
   vtkGetStringMacro(TextRotationArrayName);
-  //@}
+  ///@}
 
   /**
    * Return the object's MTime. This is overridden to include

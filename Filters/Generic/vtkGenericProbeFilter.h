@@ -55,22 +55,22 @@ public:
   vtkTypeMacro(vtkGenericProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the point locations used to probe input. A generic dataset
    * type is assumed.
    */
   void SetSourceData(vtkGenericDataSet* source);
   vtkGenericDataSet* GetSource();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the list of point ids in the output that contain attribute data
    * interpolated from the source.
    */
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
-  //@}
+  ///@}
 
 protected:
   vtkGenericProbeFilter();

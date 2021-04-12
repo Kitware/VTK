@@ -113,47 +113,47 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkKMeansStatistics* New();
 
-  //@{
+  ///@{
   /**
    * Set the DistanceFunctor.
    */
   virtual void SetDistanceFunctor(vtkKMeansDistanceFunctor*);
   vtkGetObjectMacro(DistanceFunctor, vtkKMeansDistanceFunctor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the \a DefaultNumberOfClusters, used when no initial cluster coordinates are specified.
    */
   vtkSetMacro(DefaultNumberOfClusters, int);
   vtkGetMacro(DefaultNumberOfClusters, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the KValuesArrayName.
    */
   vtkSetStringMacro(KValuesArrayName);
   vtkGetStringMacro(KValuesArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the MaxNumIterations used to terminate iterations on
    * cluster center coordinates when the relative tolerance can not be met.
    */
   vtkSetMacro(MaxNumIterations, int);
   vtkGetMacro(MaxNumIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the relative \a Tolerance used to terminate iterations on
    * cluster center coordinates.
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
   /**
    * Given a collection of models, calculate aggregate model

@@ -68,13 +68,13 @@ public:
   virtual vtkGPUInfo* GetGPUInfo(int i);
 
 protected:
-  //@{
+  ///@{
   /**
    * Default constructor. Set Probed to false. Set Array to NULL.
    */
   vtkGPUInfoList();
   ~vtkGPUInfoList() override;
-  //@}
+  ///@}
 
   bool Probed;
   vtkGPUInfoListArray* Array;

@@ -115,7 +115,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the InsideOut flag. With this flag off, a vertex is considered
    * inside (the implicit function or the isosurface) if the (function or scalar)
@@ -126,9 +126,9 @@ public:
   vtkSetMacro(InsideOut, vtkTypeBool);
   vtkGetMacro(InsideOut, vtkTypeBool);
   vtkBooleanMacro(InsideOut, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the clipping value of the implicit function (if an implicit function
    * is applied) or scalar data array (if a scalar data array is used), with 0.0
@@ -137,9 +137,9 @@ public:
    */
   vtkSetMacro(Value, double);
   vtkGetMacro(Value, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get flag UseValueAsOffset, with true as the default value. With this flag
    * on, IVAR Value is used as an offset parameter to the implicit function. Value
@@ -148,9 +148,9 @@ public:
   vtkSetMacro(UseValueAsOffset, bool);
   vtkGetMacro(UseValueAsOffset, bool);
   vtkBooleanMacro(UseValueAsOffset, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the implicit function with which to perform the clipping operation.
    * Unless an implicit function is defined, the specified input scalar data will
@@ -158,9 +158,9 @@ public:
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get flag GenerateClipScalars, with 0 as the default value. With this
    * flag on, the scalar point data values obtained by evaluating the implicit
@@ -170,9 +170,9 @@ public:
   vtkSetMacro(GenerateClipScalars, vtkTypeBool);
   vtkGetMacro(GenerateClipScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a point locator locator for merging duplicate points. By default,
    * an instance of vtkMergePoints is used. Note that this IVAR is provided
@@ -183,9 +183,9 @@ public:
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the tolerance used for merging duplicate points near the clipping
    * intersection cells. This tolerance may prevent the generation of degenerate
@@ -193,7 +193,7 @@ public:
    */
   vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
   vtkGetMacro(MergeTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Create a default point locator when none is specified. The point locator is
@@ -201,7 +201,7 @@ public:
    */
   void CreateDefaultLocator();
 
-  //@{
+  ///@{
   /**
    * Set/Get whether a second output is generated. The second output contains the
    * polygonal data that is clipped away by the iso-surface.
@@ -209,14 +209,14 @@ public:
   vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
   vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Return the clipped output.
    */
   vtkUnstructuredGrid* GetClippedOutput();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::Precision enum for an explanation of the available
@@ -224,7 +224,7 @@ public:
    */
   vtkSetClampMacro(OutputPointsPrecision, int, SINGLE_PRECISION, DEFAULT_PRECISION);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkTableBasedClipDataSet(vtkImplicitFunction* cf = nullptr);

@@ -59,7 +59,7 @@
 class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {
 public:
-  //@{
+  ///@{
   /**
    * Instantiate object with %%-#6.3g label format. By default, point ids
    * are labeled.
@@ -67,7 +67,7 @@ public:
   static vtkDynamic2DLabelMapper* New();
   vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Set the points array name to use to give priority to labels.
@@ -75,7 +75,7 @@ public:
    */
   void SetPriorityArrayName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Whether to reverse the priority order (i.e. low values have high priority).
    * Default is off.
@@ -83,9 +83,9 @@ public:
   vtkSetMacro(ReversePriority, bool);
   vtkGetMacro(ReversePriority, bool);
   vtkBooleanMacro(ReversePriority, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the label height padding as a percentage. The percentage
    * is a percentage of your label height.
@@ -93,9 +93,9 @@ public:
    */
   vtkSetMacro(LabelHeightPadding, float);
   vtkGetMacro(LabelHeightPadding, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the label width padding as a percentage. The percentage
    * is a percentage of your label ^height^ (yes, not a typo).
@@ -103,15 +103,15 @@ public:
    */
   vtkSetMacro(LabelWidthPadding, float);
   vtkGetMacro(LabelWidthPadding, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw non-overlapping labels to the screen.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
-  //@}
+  ///@}
 
 protected:
   vtkDynamic2DLabelMapper();

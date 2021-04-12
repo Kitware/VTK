@@ -94,7 +94,7 @@ public:
    */
   std::string GetRelationShipString();
 
-  //@{
+  ///@{
   /**
    * Computes the SendExtent and RcvExtent for this neighbor. The method assumes
    * that the overlap extent and orientation are already computed. Using this
@@ -103,7 +103,7 @@ public:
    */
   void ComputeSendAndReceiveExtent(int gridRealExtent[6], int gridGhostedExtent[6],
     int neiRealExtent[6], int WholeExtent[6], const int N) override;
-  //@}
+  ///@}
 };
 
 #endif /* vtkStructuredAMRNeighbor_h */

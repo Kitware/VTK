@@ -46,7 +46,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSortFileNames* New();
 
-  //@{
+  ///@{
   /**
    * Sort the file names into groups, according to similarity in
    * filename name and path.  Files in different directories,
@@ -57,9 +57,9 @@ public:
   vtkSetMacro(Grouping, vtkTypeBool);
   vtkGetMacro(Grouping, vtkTypeBool);
   vtkBooleanMacro(Grouping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sort the files numerically, rather than lexicographically.
    * For filenames that contain numbers, this means the order will be
@@ -71,9 +71,9 @@ public:
   vtkSetMacro(NumericSort, vtkTypeBool);
   vtkGetMacro(NumericSort, vtkTypeBool);
   vtkBooleanMacro(NumericSort, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ignore case when sorting.  This flag is honored by both
    * the sorting and the grouping. This is off by default.
@@ -81,9 +81,9 @@ public:
   vtkSetMacro(IgnoreCase, vtkTypeBool);
   vtkGetMacro(IgnoreCase, vtkTypeBool);
   vtkBooleanMacro(IgnoreCase, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Skip directories. If this flag is set, any input item that
    * is a directory rather than a file will not be included in
@@ -92,15 +92,15 @@ public:
   vtkSetMacro(SkipDirectories, vtkTypeBool);
   vtkGetMacro(SkipDirectories, vtkTypeBool);
   vtkBooleanMacro(SkipDirectories, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a list of file names to group and sort.
    */
   void SetInputFileNames(vtkStringArray* input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Get the full list of sorted filenames.

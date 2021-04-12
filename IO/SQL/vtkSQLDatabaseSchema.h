@@ -130,7 +130,7 @@ public:
    */
   virtual int AddTable(const char* tblName);
 
-  //@{
+  ///@{
   /**
    * Add a column to table.
 
@@ -144,9 +144,9 @@ public:
     return this->AddColumnToTable(
       this->GetTableHandleFromName(tblName), colType, colName, colSize, colAttribs);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add an index to table.
 
@@ -157,9 +157,9 @@ public:
   {
     return this->AddIndexToTable(this->GetTableHandleFromName(tblName), idxType, idxName);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a column to a table index.
 
@@ -172,9 +172,9 @@ public:
     return this->AddColumnToIndex(tblHandle, this->GetIndexHandleFromName(tblName, idxName),
       this->GetColumnHandleFromName(tblName, colName));
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a (possibly backend-specific) trigger action to a table.
 
@@ -189,9 +189,9 @@ public:
     return this->AddTriggerToTable(
       this->GetTableHandleFromName(tblName), trgType, trgName, trgAction, trgBackend);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add (possibly backend-specific) text to the end of a
    * CREATE TABLE (...) statement.
@@ -210,7 +210,7 @@ public:
   {
     return this->AddOptionToTable(this->GetTableHandleFromName(tblName), optStr, optBackend);
   }
-  //@}
+  ///@}
 
   /**
    * Given a preamble name, get its handle.
@@ -362,13 +362,13 @@ public:
    */
   int GetNumberOfOptionsInTable(int tblHandle);
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the schema.
    */
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
-  //@}
+  ///@}
 
   // Tokens passed to AddTable to indicate the type of data that follows. Random integers chosen to
   // prevent mishaps.

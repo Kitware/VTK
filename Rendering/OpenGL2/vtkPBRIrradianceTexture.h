@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkPBRIrradianceTexture, vtkOpenGLTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the input texture.
    */
   void SetInputTexture(vtkOpenGLTexture* texture);
   vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
-  //@}
+  ///@}
 
   /**
    * Implement base class method.
@@ -57,16 +57,16 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of texture.
    * Default is 256.
    */
   vtkGetMacro(IrradianceSize, unsigned int);
   vtkSetMacro(IrradianceSize, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of steps in radians used to sample hemisphere.
    * Default is (pi/64).
@@ -75,9 +75,9 @@ public:
    */
   vtkGetMacro(IrradianceStep, float);
   vtkSetMacro(IrradianceStep, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the conversion to linear color space.
    * If the input texture is in sRGB color space and the conversion is not done by OpenGL
@@ -86,7 +86,7 @@ public:
   vtkGetMacro(ConvertToLinear, bool);
   vtkSetMacro(ConvertToLinear, bool);
   vtkBooleanMacro(ConvertToLinear, bool);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this texture.

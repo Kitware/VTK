@@ -54,21 +54,21 @@ public:
   vtkTypeMacro(vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Normal axis: 0=X, 1=Y, 2=Z. Default is 0
    */
   vtkSetClampMacro(PlaneNormalAxis, int, 0, 2);
   vtkGetMacro(PlaneNormalAxis, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Position of plane: Axis constant. Default is 0.0
    */
   vtkSetMacro(PlanePosition, double);
   vtkGetMacro(PlanePosition, double);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridAxisCut();

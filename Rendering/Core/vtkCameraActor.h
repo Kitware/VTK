@@ -42,22 +42,22 @@ public:
   vtkTypeMacro(vtkCameraActor, vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The camera to represent. Initial value is NULL.
    */
   void SetCamera(vtkCamera* camera);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ratio between the width and the height of the frustum. Initial value is
    * 1.0 (square)
    */
   vtkSetMacro(WidthByHeightRatio, double);
   vtkGetMacro(WidthByHeightRatio, double);
-  //@}
+  ///@}
 
   /**
    * Support the standard render methods.

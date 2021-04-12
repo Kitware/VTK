@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkDataObjectWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods delegated to vtkDataWriter, see vtkDataWriter.
    */
@@ -64,7 +64,7 @@ public:
   unsigned char* GetBinaryOutputString() { return this->Writer->GetBinaryOutputString(); }
   void SetFieldDataName(const char* fieldname) { this->Writer->SetFieldDataName(fieldname); }
   char* GetFieldDataName() { return this->Writer->GetFieldDataName(); }
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectWriter();

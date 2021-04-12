@@ -56,7 +56,7 @@ public:
    */
   void SetPointIds(vtkIdList* pointIds);
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -92,16 +92,16 @@ public:
   int GetParametricCenter(double pcoords[3]) override;
   double* GetParametricCoords() override;
   int IsPrimaryCell() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
-  //@}
+  ///@}
 
   /**
    * This method is used to support the vtkDataSet::GetCell(vtkGenericCell *)

@@ -45,13 +45,13 @@ public:
    */
   static vtkTextWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkTextWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -60,7 +60,7 @@ public:
    */
   void SetRepresentation(vtkTextRepresentation* r);
 
-  //@{
+  ///@{
   /**
    * Specify a vtkTextActor to manage. This is a convenient, alternative
    * method to specify the representation for the widget (i.e., used instead
@@ -69,7 +69,7 @@ public:
    */
   void SetTextActor(vtkTextActor* textActor);
   vtkTextActor* GetTextActor();
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.

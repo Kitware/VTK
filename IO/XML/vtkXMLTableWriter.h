@@ -35,23 +35,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLTableWriter* New();
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of pieces used to stream the table through the
    * pipeline while writing to the file.
    */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the piece to write to the file.  If this is
    * negative or equal to the NumberOfPieces, all pieces will be written.
    */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
-  //@}
+  ///@}
 
   /**
    * See the vtkAlgorithm for a description of what these do

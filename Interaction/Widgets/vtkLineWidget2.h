@@ -96,13 +96,13 @@ public:
    */
   static vtkLineWidget2* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkLineWidget2, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Override superclasses' SetEnabled() method because the line

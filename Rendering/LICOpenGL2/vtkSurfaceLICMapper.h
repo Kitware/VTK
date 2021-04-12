@@ -86,12 +86,12 @@ public:
    */
   void ShallowCopy(vtkAbstractMapper*) override;
 
-  //@{
+  ///@{
   /**
    * Get the vtkSurfaceLICInterface used by this mapper
    */
   vtkGetObjectMacro(LICInterface, vtkSurfaceLICInterface);
-  //@}
+  ///@}
 
 protected:
   vtkSurfaceLICMapper();

@@ -42,15 +42,15 @@ public:
    */
   vtkMolecule* GetMolecule();
 
-  //@{
+  ///@{
   /**
    * Get the starting / ending atom ids for this bond.
    */
   vtkIdType GetBeginAtomId() const;
   vtkIdType GetEndAtomId() const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a vtkAtom object that refers to the starting / ending atom
    * for this bond.
@@ -59,7 +59,7 @@ public:
   vtkAtom GetEndAtom();
   vtkAtom GetBeginAtom() const;
   vtkAtom GetEndAtom() const;
-  //@}
+  ///@}
 
   /**
    * Get the bond order for this bond.

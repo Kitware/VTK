@@ -77,16 +77,16 @@ public:
    */
   bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
-  //@{
+  ///@{
   /**
    * Set the plot color
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
   void SetColor(double r, double g, double b) override;
   void GetColor(double rgb[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the width of the line.
    */
@@ -99,9 +99,9 @@ public:
       this->Modified();
     }
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the width of the line.
    */
@@ -111,9 +111,9 @@ public:
                   << this->Width);
     return this->Width;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the horizontal offset of the bars.
    * Positive values move the bars leftward.
@@ -122,16 +122,16 @@ public:
    */
   vtkSetMacro(Offset, float);
   vtkGetMacro(Offset, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the orientation of the bars.
    * Valid orientations are VERTICAL (default) and HORIZONTAL.
    */
   virtual void SetOrientation(int orientation);
   vtkGetMacro(Orientation, int);
-  //@}
+  ///@}
 
   /**
    * A helper used by both GetUnscaledBounds and GetBounds(double[4]).
@@ -163,13 +163,13 @@ public:
    */
   vtkColorSeries* GetColorSeries();
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
   virtual void SetLookupTable(vtkScalarsToColors* lut);
   virtual vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -177,25 +177,25 @@ public:
    */
   virtual void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, bool);
   vtkGetMacro(ScalarVisibility, bool);
   vtkBooleanMacro(ScalarVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable mapping of the opacity values. Default is set to true.
    */
   vtkSetMacro(EnableOpacityMapping, bool);
   vtkGetMacro(EnableOpacityMapping, bool);
   vtkBooleanMacro(EnableOpacityMapping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which array to use for coloring using these methods.
@@ -203,7 +203,7 @@ public:
    */
   void SelectColorArray(vtkIdType arrayNum);
   void SelectColorArray(const vtkStdString& arrayName);
-  //@}
+  ///@}
 
   /**
    * Get the array name to color by.
@@ -287,7 +287,7 @@ protected:
    */
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
-  //@{
+  ///@{
   /**
    * Lookup Table for coloring bars by scalar value
    */
@@ -296,7 +296,7 @@ protected:
   bool ScalarVisibility;
   bool EnableOpacityMapping;
   vtkStdString ColorArrayName;
-  //@}
+  ///@}
 
   bool LogX;
   bool LogY;

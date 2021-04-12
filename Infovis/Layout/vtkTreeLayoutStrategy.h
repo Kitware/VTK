@@ -59,7 +59,7 @@ public:
    */
   void Layout() override;
 
-  //@{
+  ///@{
   /**
    * The sweep angle of the tree.
    * For a standard tree layout, this should be between 0 and 180.
@@ -67,9 +67,9 @@ public:
    */
   vtkSetClampMacro(Angle, double, 0, 360);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, the tree is laid out with levels on concentric circles
    * around the root. If unset (default), the tree is laid out with
@@ -78,9 +78,9 @@ public:
   vtkSetMacro(Radial, bool);
   vtkGetMacro(Radial, bool);
   vtkBooleanMacro(Radial, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of tree levels. Levels near zero give more space
    * to levels near the root, while levels near one (the default)
@@ -89,9 +89,9 @@ public:
    */
   vtkSetMacro(LogSpacingValue, double);
   vtkGetMacro(LogSpacingValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of leaves.  Levels near one evenly space leaves
    * with no gaps between subtrees.  Levels near zero creates
@@ -99,27 +99,27 @@ public:
    */
   vtkSetClampMacro(LeafSpacing, double, 0.0, 1.0);
   vtkGetMacro(LeafSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the array to use to determine the distance from the
    * root.
    */
   vtkSetStringMacro(DistanceArrayName);
   vtkGetStringMacro(DistanceArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The amount of counter-clockwise rotation to apply after the
    * layout.
    */
   vtkSetMacro(Rotation, double);
   vtkGetMacro(Rotation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set and the input is not a tree but a general graph, the filter
    * will reverse the edges on the graph before extracting a tree using
@@ -128,7 +128,7 @@ public:
   vtkSetMacro(ReverseEdges, bool);
   vtkGetMacro(ReverseEdges, bool);
   vtkBooleanMacro(ReverseEdges, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTreeLayoutStrategy();

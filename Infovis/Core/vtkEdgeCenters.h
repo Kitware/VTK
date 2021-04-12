@@ -49,14 +49,14 @@ public:
    */
   static vtkEdgeCenters* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of vertex cells.
    */
   vtkSetMacro(VertexCells, vtkTypeBool);
   vtkGetMacro(VertexCells, vtkTypeBool);
   vtkBooleanMacro(VertexCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkEdgeCenters();

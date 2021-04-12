@@ -35,13 +35,13 @@ public:
   vtkTypeMacro(vtkOBJReader, vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get first comment in the file.
    * Comment may be multiple lines. # and leading spaces are removed.
    */
   vtkGetStringMacro(Comment);
-  //@}
+  ///@}
 
 protected:
   vtkOBJReader();

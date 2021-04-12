@@ -98,7 +98,7 @@ protected:
    */
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
 
-  //@{
+  ///@{
   /**
    * Internal pipeline objects.
    */
@@ -107,7 +107,7 @@ protected:
   vtkGeometryFilter* GeometryFilter;
   vtkPolyDataMapper* Mapper;
   vtkActor* Actor;
-  //@}
+  ///@}
 
   vtkGetStringMacro(CellColorArrayNameInternal);
   vtkSetStringMacro(CellColorArrayNameInternal);

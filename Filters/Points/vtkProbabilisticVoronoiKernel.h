@@ -45,14 +45,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkProbabilisticVoronoiKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkProbabilisticVoronoiKernel* New();
   vtkTypeMacro(vtkProbabilisticVoronoiKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;

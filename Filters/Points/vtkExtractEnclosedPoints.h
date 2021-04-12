@@ -59,16 +59,16 @@
 class VTKFILTERSPOINTS_EXPORT vtkExtractEnclosedPoints : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkExtractEnclosedPoints* New();
   vtkTypeMacro(vtkExtractEnclosedPoints, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the surface to be used to test for containment. Two methods are
    * provided: one directly for vtkPolyData, and one for the output of a
@@ -76,17 +76,17 @@ public:
    */
   void SetSurfaceData(vtkPolyData* pd);
   void SetSurfaceConnection(vtkAlgorithmOutput* algOutput);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a pointer to the enclosing surface.
    */
   vtkPolyData* GetSurface();
   vtkPolyData* GetSurface(vtkInformationVector* sourceInfo);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to check the surface for closure. If on, then the
    * algorithm first checks to see if the surface is closed and manifold.
@@ -94,16 +94,16 @@ public:
   vtkSetMacro(CheckSurface, vtkTypeBool);
   vtkBooleanMacro(CheckSurface, vtkTypeBool);
   vtkGetMacro(CheckSurface, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the tolerance on the intersection. The tolerance is expressed as
    * a fraction of the diagonal of the bounding box of the enclosing surface.
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkExtractEnclosedPoints();

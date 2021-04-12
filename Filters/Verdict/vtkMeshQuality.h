@@ -106,7 +106,7 @@ public:
   vtkTypeMacro(vtkMeshQuality, vtkDataSetAlgorithm);
   static vtkMeshQuality* New();
 
-  //@{
+  ///@{
   /**
    * This variable controls whether or not cell quality is stored as
    * cell data in the resulting mesh or discarded (leaving only the
@@ -116,9 +116,9 @@ public:
   vtkSetMacro(SaveCellQuality, vtkTypeBool);
   vtkGetMacro(SaveCellQuality, vtkTypeBool);
   vtkBooleanMacro(SaveCellQuality, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to function the quality of triangles.
    * The default is VTK_QUALITY_RADIUS_RATIO and valid values also include
@@ -175,9 +175,9 @@ public:
   {
     this->SetTriangleQualityMeasure(VTK_QUALITY_DISTORTION);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to measure the quality of quadrilaterals.
    * The default is VTK_QUALITY_EDGE_RATIO and valid values also include
@@ -245,9 +245,9 @@ public:
     this->SetQuadQualityMeasure(VTK_QUALITY_SHEAR_AND_SIZE);
   }
   void SetQuadQualityMeasureToDistortion() { this->SetQuadQualityMeasure(VTK_QUALITY_DISTORTION); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to measure the quality of tetrahedra.
    * The default is VTK_QUALITY_RADIUS_RATIO (identical to Verdict's aspect
@@ -291,9 +291,9 @@ public:
     this->SetTetQualityMeasure(VTK_QUALITY_SHAPE_AND_SIZE);
   }
   void SetTetQualityMeasureToDistortion() { this->SetTetQualityMeasure(VTK_QUALITY_DISTORTION); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to measure the quality of hexahedra.
    * The default is VTK_QUALITY_MAX_ASPECT_FROBENIUS and valid values also include
@@ -348,7 +348,7 @@ public:
     this->SetHexQualityMeasure(VTK_QUALITY_SHEAR_AND_SIZE);
   }
   void SetHexQualityMeasureToDistortion() { this->SetHexQualityMeasure(VTK_QUALITY_DISTORTION); }
-  //@}
+  ///@}
 
   /**
    * This is a static function used to calculate the area of a triangle.
@@ -632,7 +632,7 @@ public:
    */
   static double TetMinAngle(vtkCell* cell);
 
-  //@{
+  ///@{
   /**
    * This is a static function used to calculate the collapse ratio of a tetrahedron.
    * The collapse ratio is a dimensionless number defined as the smallest ratio of the
@@ -653,7 +653,7 @@ public:
   static double TetRelativeSizeSquared(vtkCell* cell);
   static double TetShapeandSize(vtkCell* cell);
   static double TetDistortion(vtkCell* cell);
-  //@}
+  ///@}
 
   /**
    * This is a static function used to calculate the edge ratio of a hexahedron.
@@ -677,7 +677,7 @@ public:
    */
   static double HexMedAspectFrobenius(vtkCell* cell);
 
-  //@{
+  ///@{
   /**
    * This is a static function used to calculate the maximal Frobenius aspect of
    * the 8 corner tetrahedra of a hexahedron, when the reference
@@ -704,7 +704,7 @@ public:
   static double HexShapeAndSize(vtkCell* cell);
   static double HexShearAndSize(vtkCell* cell);
   static double HexDistortion(vtkCell* cell);
-  //@}
+  ///@}
 
   /**
    * These methods are deprecated. Use Get/SetSaveCellQuality() instead.
@@ -720,7 +720,7 @@ public:
   vtkTypeBool GetRatio() { return this->GetSaveCellQuality(); }
   vtkBooleanMacro(Ratio, vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * These methods are deprecated. The functionality of computing cell
    * volume is being removed until it can be computed for any 3D cell.
@@ -753,9 +753,9 @@ public:
   }
   vtkTypeBool GetVolume() { return this->Volume; }
   vtkBooleanMacro(Volume, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * CompatibilityMode governs whether, when both a quality function
    * and cell volume are to be stored as cell data, the two values
@@ -799,7 +799,7 @@ public:
   }
   vtkGetMacro(CompatibilityMode, vtkTypeBool);
   vtkBooleanMacro(CompatibilityMode, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkMeshQuality();

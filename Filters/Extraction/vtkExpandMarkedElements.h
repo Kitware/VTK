@@ -46,22 +46,22 @@ public:
   vtkTypeMacro(vtkExpandMarkedElements, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default, is initialized to
    * `vtkMultiProcessController::GetGlobalController` in the constructor.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of layers to expand by.
    */
   vtkSetClampMacro(NumberOfLayers, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfLayers, int);
-  //@}
+  ///@}
 protected:
   vtkExpandMarkedElements();
   ~vtkExpandMarkedElements() override;

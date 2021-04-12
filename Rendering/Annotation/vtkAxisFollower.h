@@ -49,15 +49,15 @@ public:
    */
   static vtkAxisFollower* New();
 
-  //@{
+  ///@{
   /**
    * Set axis that needs to be followed.
    */
   virtual void SetAxis(vtkAxisActor*);
   virtual vtkAxisActor* GetAxis();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get state of auto center mode where additional
    * translation will be added to make sure the underlying
@@ -66,9 +66,9 @@ public:
   vtkSetMacro(AutoCenter, vtkTypeBool);
   vtkGetMacro(AutoCenter, vtkTypeBool);
   vtkBooleanMacro(AutoCenter, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable / disable use of distance based LOD. If enabled the actor
    * will not be visible at a certain distance from the camera.
@@ -76,9 +76,9 @@ public:
    */
   vtkSetMacro(EnableDistanceLOD, int);
   vtkGetMacro(EnableDistanceLOD, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set distance LOD threshold (0.0 - 1.0).This determines at what fraction
    * of camera far clip range, actor is not visible.
@@ -86,9 +86,9 @@ public:
    */
   vtkSetClampMacro(DistanceLODThreshold, double, 0.0, 1.0);
   vtkGetMacro(DistanceLODThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable / disable use of view angle based LOD. If enabled the actor
    * will not be visible at a certain view angle.
@@ -96,9 +96,9 @@ public:
    */
   vtkSetMacro(EnableViewAngleLOD, int);
   vtkGetMacro(EnableViewAngleLOD, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set view angle LOD threshold (0.0 - 1.0).This determines at what view
    * angle to geometry will make the geometry not visible.
@@ -106,34 +106,34 @@ public:
    */
   vtkSetClampMacro(ViewAngleLODThreshold, double, 0.0, 1.0);
   vtkGetMacro(ViewAngleLODThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired screen offset from the axis.
    * Convenience method, using a zero horizontal offset
    */
   double GetScreenOffset();
   void SetScreenOffset(double offset);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the desired screen offset from the axis.
    * first component is horizontal, second is vertical.
    */
   vtkSetVector2Macro(ScreenOffsetVector, double);
   vtkGetVector2Macro(ScreenOffsetVector, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This causes the actor to be rendered. It in turn will render the actor's
    * property, texture map and then mapper. If a property hasn't been
    * assigned, then the actor will create one automatically.
    */
   void Render(vtkRenderer* ren) override;
-  //@}
+  ///@}
 
   /**
    * Overriden to disable this function, and use ComputeTransformMatrix instead, as

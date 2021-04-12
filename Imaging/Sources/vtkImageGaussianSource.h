@@ -38,29 +38,29 @@ public:
    */
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax, int zMin, int zMax);
 
-  //@{
+  ///@{
   /**
    * Set/Get the center of the Gaussian.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Maximum value of the gaussian
    */
   vtkSetMacro(Maximum, double);
   vtkGetMacro(Maximum, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the standard deviation of the gaussian
    */
   vtkSetMacro(StandardDeviation, double);
   vtkGetMacro(StandardDeviation, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageGaussianSource();

@@ -98,7 +98,7 @@ public:
    */
   void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override;
 
-  //@{
+  ///@{
   /**
    * If set to true, the covariance matrix is replaced by
    * the Median Absolute Deviation matrix.
@@ -107,7 +107,7 @@ public:
   vtkSetMacro(MedianAbsoluteDeviation, bool);
   vtkGetMacro(MedianAbsoluteDeviation, bool);
   vtkBooleanMacro(MedianAbsoluteDeviation, bool);
-  //@}
+  ///@}
 
 protected:
   vtkMultiCorrelativeStatistics();

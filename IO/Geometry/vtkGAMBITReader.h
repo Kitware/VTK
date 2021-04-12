@@ -43,37 +43,37 @@ public:
   vtkTypeMacro(vtkGAMBITReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the file name of the GAMBIT data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of cells. The number of cells is only valid after a
    * successful read of the data file is performed.
    */
   vtkGetMacro(NumberOfCells, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of nodes. The number of nodes is only valid after a
    * successful read of the data file is performed.
    */
   vtkGetMacro(NumberOfNodes, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data components at the nodes and cells.
    */
   vtkGetMacro(NumberOfNodeFields, int);
   vtkGetMacro(NumberOfCellFields, int);
-  //@}
+  ///@}
 
 protected:
   vtkGAMBITReader();

@@ -50,38 +50,38 @@ public:
   vtkTypeMacro(vtkHyperTreeGridAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkDataObject* GetOutput();
   vtkDataObject* GetOutput(int);
   virtual void SetOutput(vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as a hyper tree grid.
    */
   vtkHyperTreeGrid* GetHyperTreeGridOutput();
   vtkHyperTreeGrid* GetHyperTreeGridOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as a polygonal dataset.
    */
   vtkPolyData* GetPolyDataOutput();
   vtkPolyData* GetPolyDataOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the output as an unstructured grid.
    */
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
   vtkUnstructuredGrid* GetUnstructuredGridOutput(int);
-  //@}
+  ///@}
 
   /**
    * See vtkAlgorithm for details
@@ -89,7 +89,7 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -97,9 +97,9 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
@@ -107,7 +107,7 @@ public:
    */
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridAlgorithm();
@@ -140,28 +140,28 @@ protected:
    */
   virtual int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) = 0;
 
-  //@{
+  ///@{
   /**
    * Define default input and output port types
    */
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Reference to input and output data
    */
   vtkDataSetAttributes* InData;
   vtkDataSetAttributes* OutData;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * JB Si a vrai, l'objet output aura le meme type que le type d'objet en entree input.
    */
   bool AppropriateOutput;
-  //@}
+  ///@}
 
 private:
   vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) = delete;

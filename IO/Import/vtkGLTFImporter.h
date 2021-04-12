@@ -78,13 +78,13 @@ public:
   vtkTypeMacro(vtkGLTFImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * glTF defines multiple camera objects, but no default behavior for which camera should be
@@ -113,14 +113,14 @@ public:
    */
   std::string GetAnimationName(vtkIdType animationIndex) override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable/Get the status of specific animations
    */
   void EnableAnimation(vtkIdType animationIndex) override;
   void DisableAnimation(vtkIdType animationIndex) override;
   bool IsAnimationEnabled(vtkIdType animationIndex) override;
-  //@}
+  ///@}
 
   /**
    * Get the number of available cameras.

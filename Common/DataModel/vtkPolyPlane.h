@@ -46,27 +46,27 @@ public:
   vtkTypeMacro(vtkPolyPlane, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate plane equation for point x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate function gradient at point x[3].
    */
   void EvaluateGradient(double x[3], double g[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set/get point through which plane passes. Plane is defined by point
    * and normal.
    */
   virtual void SetPolyLine(vtkPolyLine*);
   vtkGetObjectMacro(PolyLine, vtkPolyLine);
-  //@}
+  ///@}
 
   /**
    * Override GetMTime to include the polyline

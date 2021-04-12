@@ -66,48 +66,48 @@ public:
    */
   static vtkCapsuleSource* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the radius of the capsule. The initial value is 0.5.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the center of the capsule. The initial value is (0.0, 0.0, 0.0).
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the length of the cylinder. The initial value is 1.0.
    */
   vtkSetClampMacro(CylinderLength, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(CylinderLength, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the number of points in the longitude direction for the spheres. The initial value
    * is 8.
    */
   vtkSetClampMacro(ThetaResolution, int, 8, VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(ThetaResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the number of points in the latitude direction for the spheres. The initial value is 8.
    */
   vtkSetClampMacro(PhiResolution, int, 8, VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Cause the spheres to be tessellated with edges along the latitude and longitude lines. If off,
    * triangles are generated at non-polar regions, which results in edges that are not parallel to
@@ -118,9 +118,9 @@ public:
   vtkSetMacro(LatLongTessellation, int);
   vtkGetMacro(LatLongTessellation, int);
   vtkBooleanMacro(LatLongTessellation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -128,7 +128,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkCapsuleSource(int res = 8);

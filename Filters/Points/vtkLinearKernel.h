@@ -37,14 +37,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkLinearKernel : public vtkGeneralizedKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkLinearKernel* New();
   vtkTypeMacro(vtkLinearKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;

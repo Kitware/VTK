@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkDataSetGradient, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of computed vector array.
    */
   vtkSetStringMacro(ResultArrayName);
   vtkGetStringMacro(ResultArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkDataSetGradient();

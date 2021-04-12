@@ -63,25 +63,25 @@ public:
    */
   static vtkRibbonFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set the "half" width of the ribbon. If the width is allowed to vary,
    * this is the minimum width. The default is 0.5
    */
   vtkSetClampMacro(Width, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(Width, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the offset angle of the ribbon from the line normal. (The angle
    * is expressed in degrees.) The default is 0.0
    */
   vtkSetClampMacro(Angle, double, 0, 360);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the variation of ribbon width with scalar value.
    * The default is Off
@@ -89,27 +89,27 @@ public:
   vtkSetMacro(VaryWidth, vtkTypeBool);
   vtkGetMacro(VaryWidth, vtkTypeBool);
   vtkBooleanMacro(VaryWidth, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the maximum ribbon width in terms of a multiple of the minimum width.
    * The default is 2.0
    */
   vtkSetMacro(WidthFactor, double);
   vtkGetMacro(WidthFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default normal to use if no normals are supplied, and
    * DefaultNormalOn is set. The default is (0,0,1)
    */
   vtkSetVector3Macro(DefaultNormal, double);
   vtkGetVectorMacro(DefaultNormal, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a boolean to control whether to use default normals.
    * The default is Off
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(UseDefaultNormal, vtkTypeBool);
   vtkGetMacro(UseDefaultNormal, vtkTypeBool);
   vtkBooleanMacro(UseDefaultNormal, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether and how texture coordinates are produced. This is
    * useful for striping the ribbon with time textures, etc.
@@ -134,9 +134,9 @@ public:
   void SetGenerateTCoordsToUseLength() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH); }
   void SetGenerateTCoordsToUseScalars() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS); }
   const char* GetGenerateTCoordsAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the conversion of units during the texture coordinates
    * calculation. The TextureLength indicates what length (whether
@@ -145,7 +145,7 @@ public:
    */
   vtkSetClampMacro(TextureLength, double, 0.000001, VTK_INT_MAX);
   vtkGetMacro(TextureLength, double);
-  //@}
+  ///@}
 
 protected:
   vtkRibbonFilter();

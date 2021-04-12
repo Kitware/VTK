@@ -51,13 +51,13 @@ class vtkPointSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkFindCellStrategy : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methdos for type information and printing.
    */
   vtkTypeMacro(vtkFindCellStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * All subclasses of this class must provide an initialize method.  This

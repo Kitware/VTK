@@ -37,63 +37,63 @@ public:
   vtkTypeMacro(vtkBufferedArchiver, vtkArchiver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Open the arhive for writing.
    */
   void OpenArchive() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Close the arhive.
    */
   void CloseArchive() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert \p data of size \p size into the archive at \p relativePath.
    */
   void InsertIntoArchive(
     const std::string& relativePath, const char* data, std::size_t size) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Checks if \p relativePath represents an entry in the archive.
    */
   bool Contains(const std::string& relativePath) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the buffer.
    */
   const char* GetBuffer();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the address of the buffer.
    */
   const void* GetBufferAddress();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the allocated buffer size.
    */
   void SetAllocatedSize(std::size_t);
   std::size_t GetAllocatedSize();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the buffer used size.
    */
   std::size_t GetBufferSize();
-  //@}
+  ///@}
 
 protected:
   vtkBufferedArchiver();

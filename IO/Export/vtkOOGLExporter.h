@@ -40,13 +40,13 @@ public:
   vtkTypeMacro(vtkOOGLExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the Geomview file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkOOGLExporter();

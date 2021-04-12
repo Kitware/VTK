@@ -46,28 +46,28 @@ public:
    */
   static vtkWidgetCallbackMapper* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetCallbackMapper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkWidgetEventTranslator to coordinate with.
    */
   void SetEventTranslator(vtkWidgetEventTranslator* t);
   vtkGetObjectMacro(EventTranslator, vtkWidgetEventTranslator);
-  //@}
+  ///@}
 
   /**
    * Convenient typedef for working with callbacks.
    */
   typedef void (*CallbackType)(vtkAbstractWidget*);
 
-  //@{
+  ///@{
   /**
    * This class works with the class vtkWidgetEventTranslator to set up the
    * initial coorespondence between VTK events, widget events, and callbacks.
@@ -86,7 +86,7 @@ public:
     vtkAbstractWidget* w, CallbackType f);
   // void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
   //                       vtkAbstractWidget *w, CallbackType f);
-  //@}
+  ///@}
 
   /**
    * This method invokes the callback given a widget event. A non-zero value

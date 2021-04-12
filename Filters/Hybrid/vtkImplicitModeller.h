@@ -117,16 +117,16 @@ public:
    */
   double ComputeModelBounds(vtkDataSet* input = nullptr);
 
-  //@{
+  ///@{
   /**
    * Set/Get the i-j-k dimensions on which to sample distance function.
    */
   vtkGetVectorMacro(SampleDimensions, int, 3);
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the distance away from surface of input geometry to
    * sample. This value is specified as a percentage of the length of
@@ -135,18 +135,18 @@ public:
    */
   vtkSetClampMacro(MaximumDistance, double, 0.0, 1.0);
   vtkGetMacro(MaximumDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the region in space in which to perform the sampling. If
    * not specified, it will be computed automatically.
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the model bounds are computed. If the ivar AdjustBounds
    * is set, then the bounds specified (or computed automatically) is modified
@@ -156,9 +156,9 @@ public:
   vtkSetMacro(AdjustBounds, vtkTypeBool);
   vtkGetMacro(AdjustBounds, vtkTypeBool);
   vtkBooleanMacro(AdjustBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the amount to grow the model bounds (if the ivar AdjustBounds
    * is set). The value is a fraction of the maximum length of the sides
@@ -166,9 +166,9 @@ public:
    */
   vtkSetClampMacro(AdjustDistance, double, -1.0, 1.0);
   vtkGetMacro(AdjustDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The outer boundary of the structured point set can be assigned a
    * particular value. This can be used to close or "cap" all surfaces.
@@ -176,18 +176,18 @@ public:
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the capping value to use. The CapValue is also used as an
    * initial distance value at each point in the dataset.
    */
   void SetCapValue(double value);
   vtkGetMacro(CapValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If a non-floating output type is specified, the output distances can be
    * scaled to use the entire positive scalar range of the output type
@@ -201,9 +201,9 @@ public:
   vtkSetMacro(ScaleToMaximumDistance, vtkTypeBool);
   vtkGetMacro(ScaleToMaximumDistance, vtkTypeBool);
   vtkBooleanMacro(ScaleToMaximumDistance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to visit each cell once per append or each voxel once
    * per append.  Some tests have shown once per voxel to be faster
@@ -216,26 +216,26 @@ public:
   void SetProcessModeToPerVoxel() { this->SetProcessMode(VTK_VOXEL_MODE); }
   void SetProcessModeToPerCell() { this->SetProcessMode(VTK_CELL_MODE); }
   const char* GetProcessModeAsString(void);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the level of the locator to use when using the per voxel
    * process mode.
    */
   vtkSetMacro(LocatorMaxLevel, int);
   vtkGetMacro(LocatorMaxLevel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the number of threads used during Per-Voxel processing mode
    */
   vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
   vtkGetMacro(NumberOfThreads, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired output scalar type.
    */
@@ -251,7 +251,7 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
-  //@}
+  ///@}
 
   /**
    * Initialize the filter for appending data. You must invoke the

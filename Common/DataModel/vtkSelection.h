@@ -107,21 +107,21 @@ public:
    */
   virtual std::string GetNodeNameAtIndex(unsigned int idx) const;
 
-  //@{
+  ///@{
   /**
    * Removes a selection node.
    */
   virtual void RemoveNode(unsigned int idx);
   virtual void RemoveNode(const std::string& name);
   virtual void RemoveNode(vtkSelectionNode*);
-  //@}
+  ///@}
 
   /**
    * Removes all selection nodes.
    */
   virtual void RemoveAllNodes();
 
-  //@{
+  ///@{
   /**
    * Get/Set the expression that defines the boolean expression to combine the
    * selection nodes. Expression consists of node name identifiers, `|` for
@@ -135,7 +135,7 @@ public:
    */
   vtkSetMacro(Expression, std::string);
   vtkGetMacro(Expression, std::string);
-  //@}
+  ///@}
 
   /**
    * Copy selection nodes of the input.
@@ -180,21 +180,21 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Dumps the contents of the selection, giving basic information only.
    */
   virtual void Dump();
   virtual void Dump(ostream& os);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve a vtkSelection stored inside an invormation object.
    */
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Evaluates the expression for each element in the values. The order

@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkImageWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name for the image file. You should specify either
    * a FileName or a FilePrefix. Use FilePrefix if the data is stored
@@ -44,9 +44,9 @@ public:
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file prefix for the image file(s).You should specify either
    * a FileName or FilePrefix. Use FilePrefix if the data is stored
@@ -54,17 +54,17 @@ public:
    */
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The snprintf format used to build filename from FilePrefix and number.
    */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * What dimension are the files to be written. Usually this is 2, or 3.
    * If it is 2 and the input is a volume then the volume will be
@@ -72,7 +72,7 @@ public:
    */
   vtkSetMacro(FileDimensionality, int);
   vtkGetMacro(FileDimensionality, int);
-  //@}
+  ///@}
 
   /**
    * Set/Get the input object from the image pipeline.

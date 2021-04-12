@@ -110,7 +110,7 @@ public:
   vtkTypeMacro(vtkPlaneWidget, vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -122,17 +122,17 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the resolution (number of subdivisions) of the plane.
    */
   void SetResolution(int r);
   int GetResolution();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the plane.
    */
@@ -140,9 +140,9 @@ public:
   void SetOrigin(double x[3]);
   double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the point defining the first axis of the plane.
    */
@@ -150,9 +150,9 @@ public:
   void SetPoint1(double x[3]);
   double* GetPoint1() VTK_SIZEHINT(3);
   void GetPoint1(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the point defining the second axis of the plane.
    */
@@ -160,9 +160,9 @@ public:
   void SetPoint2(double x[3]);
   double* GetPoint2() VTK_SIZEHINT(3);
   void GetPoint2(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the center of the plane.
    */
@@ -170,9 +170,9 @@ public:
   void SetCenter(double x[3]);
   double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the normal to the plane.
    */
@@ -180,9 +180,9 @@ public:
   void SetNormal(double x[3]);
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the plane appears when GetPolyData() is invoked.
    * If the mode is "outline", then just the outline of the plane
@@ -197,9 +197,9 @@ public:
   void SetRepresentationToOutline() { this->SetRepresentation(VTK_PLANE_OUTLINE); }
   void SetRepresentationToWireframe() { this->SetRepresentation(VTK_PLANE_WIREFRAME); }
   void SetRepresentationToSurface() { this->SetRepresentation(VTK_PLANE_SURFACE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the plane widget to be aligned with one of the x-y-z axes.
    * Remember that when the state changes, a ModifiedEvent is invoked.
@@ -215,7 +215,7 @@ public:
   vtkSetMacro(NormalToZAxis, vtkTypeBool);
   vtkGetMacro(NormalToZAxis, vtkTypeBool);
   vtkBooleanMacro(NormalToZAxis, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the plane.  The
@@ -250,7 +250,7 @@ public:
    */
   void UpdatePlacement(void) override;
 
-  //@{
+  ///@{
   /**
    * Get the handle properties (the little balls are the handles). The
    * properties of the handles when selected and normal can be
@@ -258,9 +258,9 @@ public:
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the plane properties. The properties of the plane when selected
    * and unselected can be manipulated.
@@ -268,7 +268,7 @@ public:
   virtual void SetPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
 protected:
   vtkPlaneWidget();

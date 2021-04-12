@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDescriptiveStatistics* New();
 
-  //@{
+  ///@{
   /**
    * Set/get whether the unbiased estimator for the variance should be used, or if
    * the population variance will be calculated.
@@ -74,9 +74,9 @@ public:
   vtkSetMacro(UnbiasedVariance, vtkTypeBool);
   vtkGetMacro(UnbiasedVariance, vtkTypeBool);
   vtkBooleanMacro(UnbiasedVariance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the G1 estimator for the skewness should be used, or if
    * the g1 skewness will be calculated.
@@ -85,9 +85,9 @@ public:
   vtkSetMacro(G1Skewness, vtkTypeBool);
   vtkGetMacro(G1Skewness, vtkTypeBool);
   vtkBooleanMacro(G1Skewness, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the G2 estimator for the kurtosis should be used, or if
    * the g2 kurtosis will be calculated.
@@ -96,9 +96,9 @@ public:
   vtkSetMacro(G2Kurtosis, vtkTypeBool);
   vtkGetMacro(G2Kurtosis, vtkTypeBool);
   vtkBooleanMacro(G2Kurtosis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get whether the deviations returned should be signed, or should
    * only have their magnitude reported.
@@ -107,7 +107,7 @@ public:
   vtkSetMacro(SignedDeviations, vtkTypeBool);
   vtkGetMacro(SignedDeviations, vtkTypeBool);
   vtkBooleanMacro(SignedDeviations, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Given a collection of models, calculate aggregate model

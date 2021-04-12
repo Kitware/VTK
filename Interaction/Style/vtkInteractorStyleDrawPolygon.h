@@ -39,23 +39,23 @@ public:
   vtkTypeMacro(vtkInteractorStyleDrawPolygon, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings
    */
   void OnMouseMove() override;
   void OnLeftButtonDown() override;
   void OnLeftButtonUp() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to draw polygon in screen pixels. Default is ON
    */
   vtkSetMacro(DrawPolygonPixels, bool);
   vtkGetMacro(DrawPolygonPixels, bool);
   vtkBooleanMacro(DrawPolygonPixels, bool);
-  //@}
+  ///@}
 
   /**
    * Get the current polygon points in display units

@@ -93,14 +93,14 @@ public:
    */
   size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord, size_t maxWords, int wordType);
 
-  //@{
+  ///@{
   /**
    * Get/Set the compressor used to decompress binary and appended data
    * after reading from the file.
    */
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
-  //@}
+  ///@}
 
   /**
    * Get the size of a word of the given type.
@@ -113,25 +113,25 @@ public:
    */
   int Parse() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set flag to abort reading of data.  This may be set by a
    * progress event observer.
    */
   vtkGetMacro(Abort, int);
   vtkSetMacro(Abort, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set progress of reading data.  This may be checked by a
    * progress event observer.
    */
   vtkGetMacro(Progress, float);
   vtkSetMacro(Progress, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the character encoding that will be used to set the attributes's
    * encoding type of each vtkXMLDataElement created by this parser (i.e.,
@@ -142,7 +142,7 @@ public:
    */
   vtkSetClampMacro(AttributesEncoding, int, VTK_ENCODING_NONE, VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributesEncoding, int);
-  //@}
+  ///@}
 
   /**
    * If you need the text inside XMLElements, turn IgnoreCharacterData off.

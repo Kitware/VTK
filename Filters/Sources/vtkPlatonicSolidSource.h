@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkPlatonicSolidSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the type of PlatonicSolid solid to create.
    */
@@ -53,9 +53,9 @@ public:
   void SetSolidTypeToOctahedron() { this->SetSolidType(VTK_SOLID_OCTAHEDRON); }
   void SetSolidTypeToIcosahedron() { this->SetSolidType(VTK_SOLID_ICOSAHEDRON); }
   void SetSolidTypeToDodecahedron() { this->SetSolidType(VTK_SOLID_DODECAHEDRON); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -63,7 +63,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkPlatonicSolidSource();

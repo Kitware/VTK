@@ -69,15 +69,15 @@ public:
    */
   static vtkImplicitPlaneRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitPlaneRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the origin of the plane.
    */
@@ -85,9 +85,9 @@ public:
   void SetOrigin(double x[3]);
   double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the normal to the plane.
    */
@@ -96,9 +96,9 @@ public:
   void SetNormalToCamera();
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the plane widget to be aligned with one of the x-y-z axes.
    * If one axis is set on, the other two will be set off.
@@ -115,9 +115,9 @@ public:
   void SetNormalToZAxis(vtkTypeBool);
   vtkGetMacro(NormalToZAxis, vtkTypeBool);
   vtkBooleanMacro(NormalToZAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If enabled, and a vtkCamera is available through the renderer, then
    * LockNormalToCamera will cause the normal to follow the camera's
@@ -126,9 +126,9 @@ public:
   virtual void SetLockNormalToCamera(vtkTypeBool);
   vtkGetMacro(LockNormalToCamera, vtkTypeBool);
   vtkBooleanMacro(LockNormalToCamera, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
@@ -136,9 +136,9 @@ public:
   vtkSetMacro(Tubing, vtkTypeBool);
   vtkGetMacro(Tubing, vtkTypeBool);
   vtkBooleanMacro(Tubing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the plane. In some cases the plane
    * interferes with the object that it is operating on (i.e., the
@@ -148,18 +148,18 @@ public:
   void SetDrawPlane(vtkTypeBool plane);
   vtkGetMacro(DrawPlane, vtkTypeBool);
   vtkBooleanMacro(DrawPlane, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the drawing of the outline.
    */
   void SetDrawOutline(vtkTypeBool plane);
   vtkGetMacro(DrawOutline, vtkTypeBool);
   vtkBooleanMacro(DrawOutline, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to translate the bounding box by grabbing it
    * with the left mouse button.
@@ -167,9 +167,9 @@ public:
   vtkSetMacro(OutlineTranslation, vtkTypeBool);
   vtkGetMacro(OutlineTranslation, vtkTypeBool);
   vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to move the widget outside of the bounds
    * specified in the initial PlaceWidget() invocation.
@@ -177,9 +177,9 @@ public:
   vtkSetMacro(OutsideBounds, vtkTypeBool);
   vtkGetMacro(OutsideBounds, vtkTypeBool);
   vtkBooleanMacro(OutsideBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggles constraint translation axis on/off.
    */
@@ -187,16 +187,16 @@ public:
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if ContrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the bounds of the widget representation. PlaceWidget can also be
    * used to set the bounds of the widget but it may also have other effects
@@ -205,9 +205,9 @@ public:
    */
   vtkSetVector6Macro(WidgetBounds, double);
   vtkGetVector6Macro(WidgetBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether the plane should be constrained to the widget bounds.
    * If on, the origin will not be allowed to move outside the set widget bounds.
@@ -218,16 +218,16 @@ public:
   vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
   vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
   vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
   vtkGetMacro(ScaleEnabled, vtkTypeBool);
   vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata that defines the plane. The polydata contains a single
@@ -263,48 +263,48 @@ public:
    */
   void UpdatePlacement(void);
 
-  //@{
+  ///@{
   /**
    * Get the properties on the normal (line and cone).
    */
   vtkGetObjectMacro(NormalProperty, vtkProperty);
   vtkGetObjectMacro(SelectedNormalProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the plane properties. The properties of the plane when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the outline.
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the property of the intersection edges. (This property also
    * applies to the edges when tubed.)
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set color to the edge
    */
   void SetEdgeColor(vtkLookupTable*);
   void SetEdgeColor(double, double, double);
   void SetEdgeColor(double c[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a translation distance used by the BumpPlane() method. Note that the
    * distance is normalized; it is the fraction of the length of the bounding
@@ -312,7 +312,7 @@ public:
    */
   vtkSetClampMacro(BumpDistance, double, 0.000001, 1);
   vtkGetMacro(BumpDistance, double);
-  //@}
+  ///@}
 
   /**
    * Translate the plane in the direction of the normal by the
@@ -332,7 +332,7 @@ public:
    */
   void PushPlane(double distance);
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkImplicitPlaneWidget2.
    */
@@ -350,9 +350,9 @@ public:
     unsigned long event, void* calldata, int modify = 0) override;
   void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
     unsigned long event, void* calldata) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -362,7 +362,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   // Manage the state of the widget
   enum _InteractionState
@@ -376,7 +376,7 @@ public:
     Scaling
   };
 
-  //@{
+  ///@{
   /**
    * The interaction state may be set from a widget (e.g.,
    * vtkImplicitPlaneWidget2) or other object. This controls how the
@@ -387,22 +387,22 @@ public:
    * based on events, the widget may modify this further.
    */
   vtkSetClampMacro(InteractionState, int, Outside, Scaling);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the visual appearance of the representation based on the
    * state it is in. This state is usually the same as InteractionState.
    */
   virtual void SetRepresentationState(int);
   vtkGetMacro(RepresentationState, int);
-  //@}
+  ///@}
 
   // Get the underlying implicit plane object used by this rep
   // that can be used as a cropping plane in vtkMapper.
   vtkPlane* GetUnderlyingPlane() { return this->Plane; }
 
-  //@{
+  ///@{
   /**
    * Control if the plane should be drawn cropped by the bounding box
    * or without cropping. Defaults to on.
@@ -410,18 +410,18 @@ public:
   virtual void SetCropPlaneToBoundingBox(bool);
   vtkGetMacro(CropPlaneToBoundingBox, bool);
   vtkBooleanMacro(CropPlaneToBoundingBox, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For complex events should we snap orientations to
    * be aligned with the x y z axes
    */
   vtkGetMacro(SnapToAxes, bool);
   vtkSetMacro(SnapToAxes, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Forces the plane's normal to be aligned with x, y or z axis.
    * The alignment happens when calling SetNormal.
@@ -434,7 +434,7 @@ public:
     this->AlwaysSnapToNearestAxis = snap;
     this->SetNormal(this->GetNormal());
   }
-  //@}
+  ///@}
 
 protected:
   vtkImplicitPlaneRepresentation();

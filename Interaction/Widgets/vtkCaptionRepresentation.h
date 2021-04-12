@@ -52,33 +52,33 @@ public:
    */
   static vtkCaptionRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkCaptionRepresentation, vtkBorderRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the position of the anchor (i.e., the point that the caption is anchored to).
    * Note that the position should be specified in world coordinates.
    */
   void SetAnchorPosition(double pos[3]);
   void GetAnchorPosition(double pos[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vtkCaptionActor2D to manage. If not specified, then one
    * is automatically created.
    */
   void SetCaptionActor2D(vtkCaptionActor2D* captionActor);
   vtkGetObjectMacro(CaptionActor2D, vtkCaptionActor2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and get the instances of vtkPointHandleRepresention3D used to implement this
    * representation. Normally default representations are created, but you can
@@ -86,7 +86,7 @@ public:
    */
   void SetAnchorRepresentation(vtkPointHandleRepresentation3D*);
   vtkGetObjectMacro(AnchorRepresentation, vtkPointHandleRepresentation3D);
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API.
@@ -98,7 +98,7 @@ public:
     size[1] = 2.0;
   }
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -109,16 +109,16 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts
    * of the caption when the text actor's ScaledText is OFF
    */
   vtkSetClampMacro(FontFactor, double, 0.1, 10.0);
   vtkGetMacro(FontFactor, double);
-  //@}
+  ///@}
 
 protected:
   vtkCaptionRepresentation();

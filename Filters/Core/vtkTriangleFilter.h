@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkTriangleFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off passing vertices through filter (default: on).
    * If this is on, then the input vertex cells will be broken
@@ -45,9 +45,9 @@ public:
   vtkBooleanMacro(PassVerts, vtkTypeBool);
   vtkSetMacro(PassVerts, vtkTypeBool);
   vtkGetMacro(PassVerts, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off passing lines through filter (default: on).
    * If this is on, then the input polylines will be broken
@@ -57,7 +57,7 @@ public:
   vtkBooleanMacro(PassLines, vtkTypeBool);
   vtkSetMacro(PassLines, vtkTypeBool);
   vtkGetMacro(PassLines, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkTriangleFilter()

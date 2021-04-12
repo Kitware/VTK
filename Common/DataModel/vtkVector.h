@@ -57,7 +57,7 @@ public:
   {
   }
 
-  //@{
+  ///@{
   /**
    * Get the squared norm of the vector.
    */
@@ -70,14 +70,14 @@ public:
     }
     return result;
   }
-  //@}
+  ///@}
 
   /**
    * Get the norm of the vector, i.e. its length.
    */
   double Norm() const { return sqrt(static_cast<double>(this->SquaredNorm())); }
 
-  //@{
+  ///@{
   /**
    * Normalize the vector in place.
    * \return The length of the vector.
@@ -96,9 +96,9 @@ public:
     }
     return norm;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the normalized form of this vector.
    * \return The normalized form of this vector.
@@ -109,9 +109,9 @@ public:
     temp.Normalize();
     return temp;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The dot product of this and the supplied vector.
    */
@@ -124,9 +124,9 @@ public:
     }
     return result;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Cast the vector to the specified type, returning the result.
    */
@@ -140,7 +140,7 @@ public:
     }
     return result;
   }
-  //@}
+  ///@}
 };
 
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
@@ -167,7 +167,7 @@ public:
     this->Data[1] = y;
   }
 
-  //@{
+  ///@{
   /**
    * Set the x and y components of the vector.
    */
@@ -176,7 +176,7 @@ public:
     this->Data[0] = x;
     this->Data[1] = y;
   }
-  //@}
+  ///@}
 
   /**
    * Set the x component of the vector, i.e. element 0.
@@ -198,7 +198,7 @@ public:
    */
   const T& GetY() const { return this->Data[1]; }
 
-  //@{
+  ///@{
   /**
    * Lexicographical comparison of two vector.
    */
@@ -206,7 +206,7 @@ public:
   {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
   }
-  //@}
+  ///@}
 };
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
@@ -234,7 +234,7 @@ public:
     this->Data[2] = z;
   }
 
-  //@{
+  ///@{
   /**
    * Set the x, y and z components of the vector.
    */
@@ -244,7 +244,7 @@ public:
     this->Data[1] = y;
     this->Data[2] = z;
   }
-  //@}
+  ///@}
 
   /**
    * Set the x component of the vector, i.e. element 0.
@@ -276,7 +276,7 @@ public:
    */
   const T& GetZ() const { return this->Data[2]; }
 
-  //@{
+  ///@{
   /**
    * Return the cross product of this X other.
    */
@@ -288,9 +288,9 @@ public:
     res[2] = this->Data[0] * other.Data[1] - this->Data[1] * other.Data[0];
     return res;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Lexicographical comparison of two vector.
    */
@@ -300,7 +300,7 @@ public:
       (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
       (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
   }
-  //@}
+  ///@}
 };
 
 // .NAME vtkVector4 - templated base type for storage of 4D vectors.
@@ -329,7 +329,7 @@ public:
     this->Data[3] = w;
   }
 
-  //@{
+  ///@{
   /**
    * Set the x, y, z and w components of a 3D vector in homogeneous coordinates.
    */
@@ -340,7 +340,7 @@ public:
     this->Data[2] = z;
     this->Data[3] = w;
   }
-  //@}
+  ///@}
 
   /**
    * Set the x component of the vector, i.e. element 0.
@@ -381,7 +381,7 @@ public:
    * Get the w component of the vector, i.e. element 3.
    */
   const T& GetW() const { return this->Data[3]; }
-  //@}
+  ///@}
 };
 
 /**
@@ -412,7 +412,7 @@ public:
   {                                                                                                \
   }
 
-//@{
+///@{
 /**
  * Some derived classes for the different vectors commonly used.
  */
@@ -427,7 +427,7 @@ public:
   }
   vtkVectorDerivedMacro(vtkVector2i, int, 2);
 };
-//@}
+///@}
 
 class vtkVector2f : public vtkVector2<float>
 {

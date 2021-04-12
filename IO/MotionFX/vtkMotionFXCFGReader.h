@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkMotionFXCFGReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the filename.
    */
@@ -52,15 +52,15 @@ public:
   {
     return this->FileName.empty() ? nullptr : this->FileName.c_str();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the time resolution for timesteps produced by the reader.
    */
   vtkSetClampMacro(TimeResolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(TimeResolution, int);
-  //@}
+  ///@}
 
 protected:
   vtkMotionFXCFGReader();

@@ -74,23 +74,23 @@ public:
    */
   static vtkSphereTree* New();
 
-  //@{
+  ///@{
   /**
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSphereTree, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the dataset from which to build the sphere tree.
    */
   virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Build the sphere tree (if necessary) from the data set specified. The
    * build time is recorded so the sphere tree will only build if something has
@@ -99,9 +99,9 @@ public:
    */
   void Build();
   void Build(vtkDataSet* input);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the tree hierarchy is built. If not, then just
    * cell spheres are created (one for each cell).
@@ -109,9 +109,9 @@ public:
   vtkSetMacro(BuildHierarchy, bool);
   vtkGetMacro(BuildHierarchy, bool);
   vtkBooleanMacro(BuildHierarchy, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods for cell selection based on a geometric query. Internally
    * different methods are used depending on the dataset type. The array
@@ -124,9 +124,9 @@ public:
   const unsigned char* SelectPoint(double point[3], vtkIdType& numSelected);
   const unsigned char* SelectLine(double origin[3], double ray[3], vtkIdType& numSelected);
   const unsigned char* SelectPlane(double origin[3], double normal[3], vtkIdType& numSelected);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods for cell selection based on a geometric query. Internally
    * different methods are used depending on the dataset type. The method
@@ -140,9 +140,9 @@ public:
   void SelectPoint(double point[3], vtkIdList* cellIds);
   void SelectLine(double origin[3], double ray[3], vtkIdList* cellIds);
   void SelectPlane(double origin[3], double normal[3], vtkIdList* cellIds);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sphere tree creation requires gathering spheres into groups. The
    * Resolution variable is a rough guide to the size of each group (the size
@@ -152,9 +152,9 @@ public:
    */
   vtkSetClampMacro(Resolution, int, 2, VTK_MAX_SPHERE_TREE_RESOLUTION);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of levels for the tree. By default, the
    * number of levels is set to ten. If the number of levels is set to one or
@@ -164,7 +164,7 @@ public:
    */
   vtkSetClampMacro(MaxLevel, int, 1, VTK_MAX_SPHERE_TREE_LEVELS);
   vtkGetMacro(MaxLevel, int);
-  //@}
+  ///@}
 
   /**
    * Get the current depth of the sphere tree. This value may change each
@@ -174,7 +174,7 @@ public:
    */
   vtkGetMacro(NumberOfLevels, int);
 
-  //@{
+  ///@{
   /**
    * Special methods to retrieve the sphere tree data. This is
    * generally used for debugging or with filters like
@@ -188,7 +188,7 @@ public:
    */
   const double* GetCellSpheres();
   const double* GetTreeSpheres(int level, vtkIdType& numSpheres);
-  //@}
+  ///@}
 
 protected:
   vtkSphereTree();

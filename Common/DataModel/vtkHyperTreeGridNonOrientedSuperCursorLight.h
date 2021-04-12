@@ -69,32 +69,32 @@ public:
    */
   virtual void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) = 0;
 
-  //@{
+  ///@{
   /**
    * Set the hyper tree grid to which the cursor is pointing.
    */
   vtkHyperTreeGrid* GetGrid();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return if a Tree pointing exist
    */
   bool HasTree();
-  //@}
+  ///@}
 
   /**
    * JB Return if a Tree pointing exist
    */
   bool HasTree(unsigned int icursor);
 
-  //@{
+  ///@{
   /**
    * Set the hyper tree to which the cursor is pointing.
    */
   vtkHyperTree* GetTree();
   vtkHyperTree* GetTree(unsigned int icursor);
-  //@}
+  ///@}
 
   /**
    * Return the index of the current vertex in the tree.

@@ -46,14 +46,14 @@ public:
   vtkTypeMacro(vtkMoleculeAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkMolecule* GetOutput();
   vtkMolecule* GetOutput(int);
   virtual void SetOutput(vtkMolecule* d);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details
@@ -67,7 +67,7 @@ public:
   vtkDataObject* GetInput(int port);
   vtkMolecule* GetMoleculeInput(int port);
 
-  //@{
+  ///@{
   /**
    * Set an input of this algorithm. You should not override these
    * methods because they are not the only way to connect a pipeline.
@@ -79,9 +79,9 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add an input of this algorithm.  Note that these methods support
    * old-style pipeline connections.  When writing new code you should
@@ -90,7 +90,7 @@ public:
    */
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
 protected:
   vtkMoleculeAlgorithm();

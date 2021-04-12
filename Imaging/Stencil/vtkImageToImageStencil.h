@@ -38,13 +38,13 @@ public:
   vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the image data to convert into a stencil.
    */
   void SetInputData(vtkImageData* input);
   vtkImageData* GetInput();
-  //@}
+  ///@}
 
   /**
    * The values greater than or equal to the value match.
@@ -61,7 +61,7 @@ public:
    */
   void ThresholdBetween(double lower, double upper);
 
-  //@{
+  ///@{
   /**
    * Get the Upper and Lower thresholds.
    */
@@ -69,7 +69,7 @@ public:
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(LowerThreshold, double);
   vtkGetMacro(LowerThreshold, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageToImageStencil();

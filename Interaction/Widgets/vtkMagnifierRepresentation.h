@@ -48,22 +48,22 @@ public:
    */
   static vtkMagnifierRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Define standard methods.
    */
   vtkTypeMacro(vtkMagnifierRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the renderer viewport in which to place the magnifier.
    */
   void SetRenderer(vtkRenderer* ren) override { this->Superclass::SetRenderer(ren); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to control the magnification factor. The magnification factor
    * is relative to the associated renderer's camera. The bump method
@@ -73,9 +73,9 @@ public:
    */
   vtkSetClampMacro(MagnificationFactor, double, 0.001, 1000.0);
   vtkGetMacro(MagnificationFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Optionally specify and maintain the list of view props (e.g., actors,
    * volumes, etc).  By default, if nothing is specified, then the view props
@@ -88,17 +88,17 @@ public:
   int HasViewProp(vtkProp*);
   void RemoveViewProp(vtkProp*);
   void RemoveAllViewProps(void);
-  //@{
+  ///@{
 
-  //@{
+  ///@{
   /**
    * Specify the size of the magnifier viewport in pixels.
    */
   vtkSetVector2Macro(Size, int);
   vtkGetVector2Macro(Size, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Optionally specify whether a border should be drawn on the outer edge of
    * the magnifier viewport. By default this is off.
@@ -106,14 +106,14 @@ public:
   vtkSetMacro(Border, bool);
   vtkGetMacro(Border, bool);
   vtkBooleanMacro(Border, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the properties of the border.
    */
   vtkGetObjectMacro(BorderProperty, vtkProperty2D);
-  //@}
+  ///@}
 
   /**
    * Define the various states that the representation can be in.
@@ -124,14 +124,14 @@ public:
     Visible
   };
 
-  //@{
+  ///@{
   /**
    * Subclasses should implement these methods. See the superclasses'
    * documentation for more information.
    */
   void BuildRepresentation() override;
   void WidgetInteraction(double eventPos[2]) override;
-  //@}
+  ///@}
 
   /**
    * Specify the interaction state of the widget. This is generally performed
@@ -147,7 +147,7 @@ public:
    */
   vtkRenderer* GetMagnificationRenderer() { return this->MagnificationRenderer; }
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -157,7 +157,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Return the MTime of this object. It takes into account MTimes

@@ -46,31 +46,31 @@ public:
     META_KEY = 0x08
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the mouse buttons state.
    */
   vtkSetMacro(Buttons, unsigned int);
   vtkGetMacro(Buttons, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get modifier state.
    */
   vtkSetMacro(Modifiers, unsigned int);
   vtkGetMacro(Modifiers, unsigned int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the chart code.
    */
   vtkSetMacro(KeyCode, char);
   vtkGetMacro(KeyCode, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get event position.
    */
@@ -80,7 +80,7 @@ public:
   vtkGetMacro(Y, double);
   vtkSetMacro(Scroll, double);
   vtkGetMacro(Scroll, double);
-  //@}
+  ///@}
 
   // Handle double click
   vtkSetMacro(RepeatCount, int);

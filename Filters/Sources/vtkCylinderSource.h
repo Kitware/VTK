@@ -40,48 +40,48 @@ public:
   vtkTypeMacro(vtkCylinderSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the height of the cylinder. Initial value is 1.
    */
   vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Height, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radius of the cylinder. Initial value is 0.5
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get cylinder center. Initial value is (0.0,0.0,0.0)
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of facets used to define cylinder. Initial value is 6.
    */
   vtkSetClampMacro(Resolution, int, 3, VTK_CELL_SIZE);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether to cap cylinder with polygons. Initial value is true.
    */
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -89,7 +89,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkCylinderSource(int res = 6);

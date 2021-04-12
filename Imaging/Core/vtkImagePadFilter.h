@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkImagePadFilter, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The image extent of the output has to be set explicitly.
    */
@@ -43,15 +43,15 @@ public:
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int* GetOutputWholeExtent() VTK_SIZEHINT(6) { return this->OutputWholeExtent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of output scalar components.
    */
   vtkSetMacro(OutputNumberOfScalarComponents, int);
   vtkGetMacro(OutputNumberOfScalarComponents, int);
-  //@}
+  ///@}
 
 protected:
   vtkImagePadFilter();

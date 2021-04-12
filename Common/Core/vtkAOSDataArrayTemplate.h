@@ -78,7 +78,7 @@ public:
     this->Buffer->GetBuffer()[valueIdx] = value;
   }
 
-  //@{
+  ///@{
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
@@ -89,9 +89,9 @@ public:
     std::copy(this->Buffer->GetBuffer() + valueIdx,
       this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents, tuple);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
@@ -101,7 +101,7 @@ public:
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents, this->Buffer->GetBuffer() + valueIdx);
   }
-  //@}
+  ///@}
 
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
@@ -112,7 +112,7 @@ public:
     return this->Buffer->GetBuffer()[this->NumberOfComponents * tupleIdx + comp];
   }
 
-  //@{
+  ///@{
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
@@ -122,24 +122,24 @@ public:
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set component @a comp of all tuples to @a value.
    */
   void FillTypedComponent(int compIdx, ValueType value) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set all the values in array to @a value.
    */
   void FillValue(ValueType value) override;
   void Fill(double value) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the address of a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
@@ -147,9 +147,9 @@ public:
    */
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the address of a particular data index. Performs no checks
    * to verify that the memory has been allocated etc.
@@ -159,9 +159,9 @@ public:
    */
   ValueType* GetPointer(vtkIdType valueIdx);
   void* GetVoidPointer(vtkIdType valueIdx) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This method lets the user specify data to be held by the array.  The
    * array argument is a pointer to the data.  size is the size of the
@@ -180,7 +180,7 @@ public:
   void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save);
   void SetVoidArray(void* array, vtkIdType size, int save) override;
   void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override;
-  //@}
+  ///@}
 
   /**
    * This method allows the user to specify a custom free function to be
@@ -239,7 +239,7 @@ public:
   Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
   Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
 
-  //@{
+  ///@{
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a
    * vtkAOSDataArrayTemplate.
@@ -263,7 +263,7 @@ public:
     }
     return nullptr;
   }
-  //@}
+  ///@}
 
   int GetArrayType() const override { return vtkAbstractArray::AoSDataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;

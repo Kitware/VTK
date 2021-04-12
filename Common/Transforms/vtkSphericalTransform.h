@@ -56,13 +56,13 @@ protected:
    */
   void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
-  //@{
+  ///@{
   /**
    * Internal functions for calculating the transformation.
    */
   void ForwardTransformPoint(const float in[3], float out[3]) override;
   void ForwardTransformPoint(const double in[3], double out[3]) override;
-  //@}
+  ///@}
 
   void ForwardTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
   void ForwardTransformDerivative(

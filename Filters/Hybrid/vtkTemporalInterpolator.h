@@ -66,7 +66,7 @@ public:
   vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If you require a discrete number of outputs steps, to be
    * generated from an input source - for example, you required
@@ -78,9 +78,9 @@ public:
    */
   vtkSetMacro(DiscreteTimeStepInterval, double);
   vtkGetMacro(DiscreteTimeStepInterval, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ResampleFactor is a non zero positive integer, each pair
    * of input time steps will be interpolated between with the number
@@ -92,16 +92,16 @@ public:
    */
   vtkSetMacro(ResampleFactor, int);
   vtkGetMacro(ResampleFactor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether input data is cached to avoid updating input
    * when multiple interpolations are asked between 2 time steps.
    */
   vtkSetMacro(CacheData, bool);
   vtkGetMacro(CacheData, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalInterpolator();

@@ -81,7 +81,7 @@ public:
 
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set the dimension of the output tessellation.
    * Cells in dimensions higher than the given value will have
@@ -92,11 +92,11 @@ public:
    */
   vtkSetClampMacro(OutputDimension, int, 1, 3);
   vtkGetMacro(OutputDimension, int);
-  //@}
+  ///@}
 
   int GetOutputDimension() const;
 
-  //@{
+  ///@{
   /**
    * These are convenience routines for setting properties maintained by the
    * tessellator and subdivider. They are implemented here for ParaView's
@@ -106,17 +106,17 @@ public:
   int GetMaximumNumberOfSubdivisions();
   virtual void SetChordError(double ce);
   double GetChordError();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are for the ParaView client.
    */
   virtual void ResetFieldCriteria();
   virtual void SetFieldCriterion(int field, double err);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The adaptive tessellation will output vertices that are not shared
    * among cells, even where they should be. This can be corrected to
@@ -126,7 +126,7 @@ public:
   vtkGetMacro(MergePoints, vtkTypeBool);
   vtkSetMacro(MergePoints, vtkTypeBool);
   vtkBooleanMacro(MergePoints, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkTessellatorFilter();
@@ -163,7 +163,7 @@ protected:
   vtkTypeBool MergePoints;
   vtkPointLocator* Locator;
 
-  //@{
+  ///@{
   /**
    * These member variables are set by SetupOutput for use inside the
    * callback members OutputLine and OutputTriangle.
@@ -172,7 +172,7 @@ protected:
   vtkPoints* OutputPoints;
   vtkDataArray** OutputAttributes;
   int* OutputAttributeIndices;
-  //@}
+  ///@}
 
   static void AddAPoint(const double*, vtkEdgeSubdivisionCriterion*, void*, const void*);
   static void AddALine(

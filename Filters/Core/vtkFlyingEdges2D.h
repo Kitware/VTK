@@ -135,7 +135,7 @@ public:
     this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
   }
 
-  //@{
+  ///@{
   /**
    * Option to set the point scalars of the output.  The scalars will be the
    * iso value of course.  By default this flag is on.
@@ -143,15 +143,15 @@ public:
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of the scalar array to contour on; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkFlyingEdges2D();

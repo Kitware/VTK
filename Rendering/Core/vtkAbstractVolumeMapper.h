@@ -41,24 +41,24 @@ public:
   vtkTypeMacro(vtkAbstractVolumeMapper, vtkAbstractMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the input data
    */
   virtual vtkDataSet* GetDataSetInput();
   virtual vtkDataObject* GetDataObjectInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override { this->vtkAbstractMapper3D::GetBounds(bounds); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the mapper works with scalar point data and cell attribute
    * data.  By default (ScalarModeToDefault), the mapper will use point data,
@@ -84,9 +84,9 @@ public:
   {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which scalar array to use during rendering.
@@ -95,7 +95,7 @@ public:
    */
   virtual void SelectScalarArray(int arrayNum);
   virtual void SelectScalarArray(const char* arrayName);
-  //@}
+  ///@}
 
   /**
    * Get the array name or number and component to use for rendering.
@@ -109,7 +109,7 @@ public:
    */
   const char* GetScalarModeAsString();
 
-  //@{
+  ///@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    */
@@ -117,7 +117,7 @@ public:
   virtual float GetGradientMagnitudeBias() { return 0.0f; }
   virtual float GetGradientMagnitudeScale(int) { return 1.0f; }
   virtual float GetGradientMagnitudeBias(int) { return 0.0f; }
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

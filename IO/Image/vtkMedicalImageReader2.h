@@ -38,14 +38,14 @@ public:
   vtkTypeMacro(vtkMedicalImageReader2, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the medical image properties object
    */
   vtkGetObjectMacro(MedicalImageProperties, vtkMedicalImageProperties);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For backward compatibility, propagate calls to the MedicalImageProperties
    * object.
@@ -64,7 +64,7 @@ public:
   virtual const char* GetImageNumber();
   virtual void SetModality(const char*);
   virtual const char* GetModality();
-  //@}
+  ///@}
 
 protected:
   vtkMedicalImageReader2();

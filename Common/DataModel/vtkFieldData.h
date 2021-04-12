@@ -109,13 +109,13 @@ public:
    */
   void NullData(vtkIdType id);
 
-  //@{
+  ///@{
   /**
    * Remove an array (with the given name or index) from the list of arrays.
    */
   virtual void RemoveArray(const char* name);
   virtual void RemoveArray(int index);
-  //@}
+  ///@}
 
   /**
    * Not recommended for use. Use GetAbstractArray(int i) instead.
@@ -139,7 +139,7 @@ public:
    */
   vtkDataArray* GetArray(const char* arrayName, int& index);
 
-  //@{
+  ///@{
   /**
    * Not recommended for use. Use GetAbstractArray(const char *arrayName)
    * instead.
@@ -154,7 +154,7 @@ public:
     int i;
     return this->GetArray(arrayName, i);
   }
-  //@}
+  ///@}
 
   /**
    * Returns the ith array in the field. Unlike GetArray(), this method returns
@@ -171,7 +171,7 @@ public:
    */
   vtkAbstractArray* GetAbstractArray(const char* arrayName, int& index);
 
-  //@{
+  ///@{
   /**
    * Return the array with the name given. Returns nullptr if array not found.
    * Unlike GetArray(), this method returns a vtkAbstractArray and can be used
@@ -182,9 +182,9 @@ public:
     int i;
     return this->GetAbstractArray(arrayName, i);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return 1 if an array with the given name could be found. 0 otherwise.
    */
@@ -195,9 +195,9 @@ public:
     // assert( i == -1);
     return array ? 1 : 0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the name of ith array.
    * Note that this is equivalent to:
@@ -208,7 +208,7 @@ public:
     vtkAbstractArray* da = this->GetAbstractArray(i);
     return da ? da->GetName() : nullptr;
   }
-  //@}
+  ///@}
 
   /**
    * Pass entire arrays of input data through to output. Obey the "copy"

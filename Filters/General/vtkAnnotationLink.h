@@ -61,23 +61,23 @@ public:
   vtkTypeMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The annotations to be shared.
    */
   vtkGetObjectMacro(AnnotationLayers, vtkAnnotationLayers);
   virtual void SetAnnotationLayers(vtkAnnotationLayers* layers);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or get the current selection in the annotation layers.
    */
   virtual void SetCurrentSelection(vtkSelection* sel);
   virtual vtkSelection* GetCurrentSelection();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The domain mappings.
    */
@@ -86,7 +86,7 @@ public:
   void RemoveAllDomainMaps();
   int GetNumberOfDomainMaps();
   vtkTable* GetDomainMap(int i);
-  //@}
+  ///@}
 
   /**
    * Get the mtime of this object.

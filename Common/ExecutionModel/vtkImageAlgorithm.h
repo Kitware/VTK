@@ -40,14 +40,14 @@ public:
   vtkTypeMacro(vtkImageAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkImageData* GetOutput();
   vtkImageData* GetOutput(int);
   virtual void SetOutput(vtkDataObject* d);
-  //@}
+  ///@}
 
   /**
    * Process a request from the executive.  For vtkImageAlgorithm, the
@@ -57,7 +57,7 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection to
@@ -65,9 +65,9 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a data object for one of the input port connections.  The use
    * of this method is strongly discouraged, but some filters that were
@@ -76,9 +76,9 @@ public:
   vtkDataObject* GetInput(int port);
   vtkDataObject* GetInput() { return this->GetInput(0); }
   vtkImageData* GetImageDataInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection to
@@ -86,7 +86,7 @@ public:
    */
   virtual void AddInputData(vtkDataObject*);
   virtual void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
 protected:
   vtkImageAlgorithm();
@@ -132,23 +132,23 @@ protected:
    */
   virtual void ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo);
 
-  //@{
+  ///@{
   /**
    * This method is the old style execute method, provided for the sake
    * of backwards compatibility with older filters and readers.
    */
   virtual void ExecuteData(vtkDataObject* output);
   virtual void Execute();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allocate the output data.  This will be called before RequestData,
    * it is not necessary for subclasses to call this method themselves.
    */
   virtual void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent);
   virtual vtkImageData* AllocateOutputData(vtkDataObject* out, vtkInformation* outInfo);
-  //@}
+  ///@}
 
   /**
    * Copy the other point and cell data.  Subclasses will almost never
@@ -157,7 +157,7 @@ protected:
   virtual void CopyAttributeData(
     vtkImageData* in, vtkImageData* out, vtkInformationVector** inputVector);
 
-  //@{
+  ///@{
   /**
    * These method should be reimplemented by subclasses that have
    * more than a single input or single output.
@@ -165,7 +165,7 @@ protected:
    */
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
 private:
   vtkImageAlgorithm(const vtkImageAlgorithm&) = delete;

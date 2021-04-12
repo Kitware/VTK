@@ -62,15 +62,15 @@ public:
    */
   static vtkBorderRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Define standard methods.
    */
   vtkTypeMacro(vtkBorderRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify opposite corners of the box defining the boundary of the
    * widget. By default, these coordinates are in the normalized viewport
@@ -82,7 +82,7 @@ public:
    */
   vtkViewportCoordinateMacro(Position);
   vtkViewportCoordinateMacro(Position2);
-  //@}
+  ///@}
 
   enum
   {
@@ -91,7 +91,7 @@ public:
     BORDER_ACTIVE
   };
 
-  //@{
+  ///@{
   /**
    * Specify when and if the border should appear. If ShowBorder is "on",
    * then the border will always appear. If ShowBorder is "off" then the
@@ -110,34 +110,34 @@ public:
   void SetShowBorderToOff() { this->SetShowBorder(BORDER_OFF); }
   void SetShowBorderToOn() { this->SetShowBorder(BORDER_ON); }
   void SetShowBorderToActive() { this->SetShowBorder(BORDER_ACTIVE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify when and if the vertical border should appear.
    * See Also: SetShowBorder(), SetShowHorizontalBorder()
    */
   vtkSetClampMacro(ShowVerticalBorder, int, BORDER_OFF, BORDER_ACTIVE);
   vtkGetMacro(ShowVerticalBorder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify when and if the horizontal border should appear.
    * See Also: SetShowBorder(), SetShowVerticalBorder()
    */
   vtkSetClampMacro(ShowHorizontalBorder, int, BORDER_OFF, BORDER_ACTIVE);
   vtkGetMacro(ShowHorizontalBorder, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the properties of the border.
    */
   vtkGetObjectMacro(BorderProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether resizing operations should keep the x-y directions
    * proportional to one another. Also, if ProportionalResize is on, then
@@ -148,9 +148,9 @@ public:
   vtkSetMacro(ProportionalResize, vtkTypeBool);
   vtkGetMacro(ProportionalResize, vtkTypeBool);
   vtkBooleanMacro(ProportionalResize, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a minimum and/or maximum size (in pixels) that this representation
    * can take. These methods require two values: size values in the x and y
@@ -160,9 +160,9 @@ public:
   vtkGetVector2Macro(MinimumSize, int);
   vtkSetVector2Macro(MaximumSize, int);
   vtkGetVector2Macro(MaximumSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels)
    * in which the cursor is considered to be on the widget, or on a
@@ -170,17 +170,17 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 10);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * After a selection event within the region interior to the border; the
    * normalized selection coordinates may be obtained.
    */
   vtkGetVectorMacro(SelectionPoint, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is a modifier of the interaction state. When set, widget interaction
    * allows the border (and stuff inside of it) to be translated with mouse
@@ -189,7 +189,7 @@ public:
   vtkSetMacro(Moving, vtkTypeBool);
   vtkGetMacro(Moving, vtkTypeBool);
   vtkBooleanMacro(Moving, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Define the various states that the representation can be in.
@@ -215,7 +215,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Subclasses should implement these methods. See the superclasses'
    * documentation for more information.
@@ -229,9 +229,9 @@ public:
     size[1] = 1.0;
   }
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -242,29 +242,29 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   void SetBWActorDisplayOverlay(bool);
 
-  //@{
+  ///@{
   /**
    * Set/Get the RGB color of the border.
    * Default is white (1.0, 1.0, 1.0).
    */
   vtkSetVector3Macro(BorderColor, double);
   vtkGetVector3Macro(BorderColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the thickness of the border in screen units.
    * Default is 1.0.
    */
   vtkSetClampMacro(BorderThickness, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(BorderThickness, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between no radius and maximum radius.
    * In order to compute round corners, we create 2 points
@@ -275,9 +275,9 @@ public:
    */
   vtkSetClampMacro(CornerRadiusStrength, double, 0.0, 1.0);
   vtkGetMacro(CornerRadiusStrength, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of points that define each round corners.
    * A high value increase the resolution of the corners.
@@ -285,27 +285,27 @@ public:
    */
   vtkSetClampMacro(CornerResolution, int, 0, 1000);
   vtkGetMacro(CornerResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the RGB color of the background polygon.
    * Default is white (1.0, 1.0, 1.0).
    */
   vtkSetVector3Macro(PolygonColor, double);
   vtkGetVector3Macro(PolygonColor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the opacity of the background color.
    * Default is 0.0.
    */
   vtkSetClampMacro(PolygonOpacity, double, 0.0, 1.0);
   vtkGetMacro(PolygonOpacity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the background color and the opacity at once
    */
@@ -317,7 +317,7 @@ public:
    */
   void GetPolygonRGBA(double rgba[4]);
   void GetPolygonRGBA(double& r, double& g, double& b, double& a);
-  //@}
+  ///@}
 
 protected:
   vtkBorderRepresentation();

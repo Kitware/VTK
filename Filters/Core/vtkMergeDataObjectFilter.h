@@ -51,15 +51,15 @@ public:
   vtkTypeMacro(vtkMergeDataObjectFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the data object to merge with the input dataset.
    */
   void SetDataObjectInputData(vtkDataObject* object);
   vtkDataObject* GetDataObject();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify where to place the field data during the merge process.  There
    * are three choices: the field data associated with the vtkDataObject
@@ -71,7 +71,7 @@ public:
   void SetOutputFieldToDataObjectField();
   void SetOutputFieldToPointDataField();
   void SetOutputFieldToCellDataField();
-  //@}
+  ///@}
 
 protected:
   vtkMergeDataObjectFilter();

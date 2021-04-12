@@ -47,14 +47,14 @@ class vtkDoubleArray;
 class VTKFILTERSPOINTS_EXPORT vtkSPHQuarticKernel : public vtkSPHKernel
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   static vtkSPHQuarticKernel* New();
   vtkTypeMacro(vtkSPHQuarticKernel, vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Produce the computational parameters for the kernel. Invoke this method
@@ -62,7 +62,7 @@ public:
    */
   void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
-  //@{
+  ///@{
   /**
    * Compute weighting factor given a normalized distance from a sample point.
    */
@@ -74,9 +74,9 @@ public:
     return (tmp1 * tmp1 * tmp1 * tmp1 - 5.0 * tmp2 * tmp2 * tmp2 * tmp2 +
       10.0 * tmp3 * tmp3 * tmp3 * tmp3);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute weighting factor for derivative quantities given a normalized
    * distance from a sample point.
@@ -88,7 +88,7 @@ public:
     double tmp3 = 0.5 - std::min(d, 0.5);
     return (-4.0 * tmp1 * tmp1 * tmp1 + 20.0 * tmp2 * tmp2 * tmp2 - 40.0 * tmp3 * tmp3 * tmp3);
   }
-  //@}
+  ///@}
 
 protected:
   vtkSPHQuarticKernel();

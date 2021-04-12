@@ -95,13 +95,13 @@ public:
    */
   static vtkAxesTransformWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkAxesTransformWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Override superclasses' SetEnabled() method because the line

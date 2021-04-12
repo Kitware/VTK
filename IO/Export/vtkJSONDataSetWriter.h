@@ -55,15 +55,15 @@ class VTKIOEXPORT_EXPORT vtkJSONDataSetWriter : public vtkWriter
 public:
   using vtkWriter::Write;
 
-  //@{
+  ///@{
   /**
    * Compute a MD5 digest of a void/(const unsigned char) pointer to compute a
    *  string hash
    */
   static void ComputeMD5(const unsigned char* content, int size, std::string& hash);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Compute the target JavaScript typed array name for the given vtkDataArray
    * (Uin8, Uint16, Uin32, Int8, Int16, Int32, Float32, Float64) or
@@ -73,24 +73,24 @@ public:
    * argument will be set to true and Uint32/Int32 will be returned instead.
    */
   static std::string GetShortType(vtkDataArray* input, bool& needConversion);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a Unique identifier for that array
    * (i.e.: Float32_356_13f880891af7b77262c49cae09a41e28 )
    */
   static std::string GetUID(vtkDataArray*, bool& needConversion);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a Unique identifier for any invalid string
    */
   std::string GetValidString(const char*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Write the contents of the vtkDataArray to disk based on the filePath
    * provided without any extra information. Just the raw data will be
@@ -100,21 +100,21 @@ public:
    * to Uint32 or Int32 before being written.
    */
   bool WriteArrayContents(vtkDataArray*, const char* relativeFilePath);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For backwards compatiblity, this static method writes a data array's
    * contents directly to a file.
    */
   static bool WriteArrayAsRAW(vtkDataArray*, const char* filePath);
-  //@}
+  ///@}
 
   static vtkJSONDataSetWriter* New();
   vtkTypeMacro(vtkJSONDataSetWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk data file to write.
    * This correspond to the root directory of the data to write.
@@ -124,23 +124,23 @@ public:
   void SetFileName(const char*);
   VTK_DEPRECATED_IN_9_0_0("Use vtkJSONDataSetWriter::GetArchiveName")
   virtual char* GetFileName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkDataSet* GetInput();
   vtkDataSet* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Scene Archiver object
    */
   virtual void SetArchiver(vtkArchiver*);
   vtkGetObjectMacro(Archiver, vtkArchiver);
-  //@}
+  ///@}
 
   void Write(vtkDataSet*);
 

@@ -69,14 +69,14 @@ public:
     ROW_DATA = 5,
   };
 
-  //@{
+  ///@{
   /**
    * The field type to copy into the output table.
    * Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
    */
   vtkGetMacro(FieldType, int);
   void SetFieldType(int);
-  //@}
+  ///@}
 
   vtkGetMacro(CurrentRow, int);
   vtkGetStringMacro(Text);

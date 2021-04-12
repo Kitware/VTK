@@ -69,7 +69,7 @@ public:
   //   // load.
   //   vtkGetObjectMacro(VariableArraySelection, vtkDataArraySelection);
 
-  //@{
+  ///@{
   /**
    * Variable array selection.
    */
@@ -77,7 +77,7 @@ public:
   virtual const char* GetVariableArrayName(int index);
   virtual int GetVariableArrayStatus(const char* name);
   virtual void SetVariableArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   /**
    * Convenience method to get a list of variable arrays.  The length of the
@@ -86,7 +86,7 @@ public:
    */
   virtual vtkStringArray* GetAllVariableArrayNames();
 
-  //@{
+  ///@{
   /**
    * Returns an array with string encodings for the dimensions used in each of
    * the variables.  The indices in the returned array correspond to those used
@@ -94,7 +94,7 @@ public:
    * will have the same encoded string returned by this method.
    */
   vtkGetObjectMacro(VariableDimensions, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Loads the grid with the given dimensions.  The dimensions are encoded in a
@@ -111,7 +111,7 @@ public:
    */
   bool ComputeArraySelection();
 
-  //@{
+  ///@{
   /**
    * Returns an array with string encodings for the dimension combinations used
    * in the variables.  The result is the same as GetVariableDimensions except
@@ -120,9 +120,9 @@ public:
    * meaningless.
    */
   vtkGetObjectMacro(AllDimensions, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on, any float or double variable read that has a _FillValue attribute
    * will have that fill value replaced with a not-a-number (NaN) value.  The
@@ -135,9 +135,9 @@ public:
   vtkGetMacro(ReplaceFillValueWithNan, vtkTypeBool);
   vtkSetMacro(ReplaceFillValueWithNan, vtkTypeBool);
   vtkBooleanMacro(ReplaceFillValueWithNan, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access to the time dimensions units.
    * Can be used by the udunits library to convert raw numerical time values
@@ -145,7 +145,7 @@ public:
    */
   vtkGetStringMacro(TimeUnits);
   vtkGetStringMacro(Calendar);
-  //@}
+  ///@}
 
   /**
    * Get units attached to a particular array in the netcdf file.

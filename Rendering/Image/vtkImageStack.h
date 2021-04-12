@@ -69,14 +69,14 @@ public:
    */
   vtkImageSliceCollection* GetImages() { return this->Images; }
 
-  //@{
+  ///@{
   /**
    * Set the active layer number.  This is the layer that will be
    * used for picking and interaction.
    */
   vtkSetMacro(ActiveLayer, int);
   int GetActiveLayer() { return this->ActiveLayer; }
-  //@}
+  ///@}
 
   /**
    * Get the active image.  This will be the topmost image whose
@@ -95,13 +95,13 @@ public:
    */
   vtkImageProperty* GetProperty() override;
 
-  //@{
+  ///@{
   /**
    * Get the combined bounds of all of the images.
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
-  //@}
+  ///@}
 
   /**
    * Return the max MTime of all the images.
@@ -128,14 +128,14 @@ public:
    */
   void GetImages(vtkPropCollection*);
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -147,7 +147,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* win) override;
 
-  //@{
+  ///@{
   /**
    * Methods for traversing the stack as if it was an assembly.
    * The traversal only gives the view prop for the active layer.
@@ -155,7 +155,7 @@ public:
   void InitPathTraversal() override;
   vtkAssemblyPath* GetNextPath() override;
   int GetNumberOfPaths() override;
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

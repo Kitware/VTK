@@ -64,14 +64,14 @@ public:
   vtkTypeMacro(vtkGraphAnnotationLayersFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Produce outlines of the hulls on output port 1.
    */
   void OutlineOn();
   void OutlineOff();
   void SetOutline(bool b);
-  //@}
+  ///@}
 
   /**
    * Scale each hull by the amount specified. Defaults to 1.0.

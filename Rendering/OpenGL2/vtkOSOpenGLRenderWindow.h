@@ -72,7 +72,7 @@ public:
    */
   virtual void SetFullScreen(vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * Set the size of the window in screen coordinates in pixels.
    * This resizes the operating system's window and redraws it.
@@ -82,7 +82,7 @@ public:
    */
   void SetSize(int width, int height) override;
   void SetSize(int a[2]) override { this->SetSize(a[0], a[1]); }
-  //@}
+  ///@}
 
   /**
    * Get the current size of the screen in pixels.
@@ -96,13 +96,13 @@ public:
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
 
-  //@{
+  ///@{
   /**
    * Move the window to a new position on the display.
    */
   void SetPosition(int x, int y) override;
   void SetPosition(int a[2]) override { this->SetPosition(a[0], a[1]); }
-  //@}
+  ///@}
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
@@ -149,7 +149,7 @@ public:
    */
   virtual void WindowRemap(void);
 
-  //@{
+  ///@{
   /**
    * Xwindow get set functions
    */
@@ -158,7 +158,7 @@ public:
   virtual void* GetGenericParentId() { return 0; }
   virtual void* GetGenericContext();
   virtual void* GetGenericDrawable() { return 0; }
-  //@}
+  ///@}
 
   /**
    * Set the X display id for this RenderWindow to use to a pre-existing

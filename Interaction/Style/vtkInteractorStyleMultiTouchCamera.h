@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkInteractorStyleMultiTouchCamera, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Event bindings for gestures
    */
@@ -54,7 +54,7 @@ public:
   void OnPan() override;
   void OnEndPan() override;
 
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleMultiTouchCamera();

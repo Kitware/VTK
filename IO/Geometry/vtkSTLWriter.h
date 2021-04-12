@@ -45,32 +45,32 @@ public:
   vtkTypeMacro(vtkSTLWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the header for the file as text. The header cannot contain 0x00 characters.
    * \sa SetBinaryHeader()
    */
   vtkSetStringMacro(Header);
   vtkGetStringMacro(Header);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set binary header for the file.
    * Binary header is only used when writing binary type files.
@@ -79,9 +79,9 @@ public:
    */
   virtual void SetBinaryHeader(vtkUnsignedCharArray* binaryHeader);
   vtkGetObjectMacro(BinaryHeader, vtkUnsignedCharArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
@@ -89,7 +89,7 @@ public:
   vtkGetMacro(FileType, int);
   void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
   void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
-  //@}
+  ///@}
 
 protected:
   vtkSTLWriter();

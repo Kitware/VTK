@@ -45,7 +45,7 @@ public:
   vtkTypeMacro(vtkGraphToPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Create a second output containing points and orientation vectors
    * for drawing arrows or other glyphs on edges.  This output should be
@@ -57,9 +57,9 @@ public:
   vtkSetMacro(EdgeGlyphOutput, bool);
   vtkGetMacro(EdgeGlyphOutput, bool);
   vtkBooleanMacro(EdgeGlyphOutput, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The position of the glyph point along the edge.
    * 0 puts a glyph point at the source of each edge.
@@ -69,7 +69,7 @@ public:
    */
   vtkSetMacro(EdgeGlyphPosition, double);
   vtkGetMacro(EdgeGlyphPosition, double);
-  //@}
+  ///@}
 
 protected:
   vtkGraphToPolyData();

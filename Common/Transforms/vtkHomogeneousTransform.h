@@ -79,16 +79,16 @@ public:
     return static_cast<vtkHomogeneousTransform*>(this->GetInverse());
   }
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
   void InternalTransformPoint(const float in[3], float out[3]) override;
   void InternalTransformPoint(const double in[3], double out[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This will calculate the transformation as well as its derivative
    * without calling Update.  Meant for use only within other VTK
@@ -98,7 +98,7 @@ public:
     const float in[3], float out[3], float derivative[3][3]) override;
   void InternalTransformDerivative(
     const double in[3], double out[3], double derivative[3][3]) override;
-  //@}
+  ///@}
 
 protected:
   vtkHomogeneousTransform();

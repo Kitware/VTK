@@ -77,7 +77,7 @@ public:
    */
   static vtkAxisActor2D* New();
 
-  //@{
+  ///@{
   /**
    * Specify the position of the first point defining the axis.
    * Note: backward compatibility only, use vtkActor2D's Position instead.
@@ -86,9 +86,9 @@ public:
   virtual void SetPoint1(double x[2]) { this->SetPosition(x); }
   virtual void SetPoint1(double x, double y) { this->SetPosition(x, y); }
   virtual double* GetPoint1() { return this->GetPosition(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the position of the second point defining the axis. Note that
    * the order from Point1 to Point2 controls which side the tick marks
@@ -99,18 +99,18 @@ public:
   virtual void SetPoint2(double x[2]) { this->SetPosition2(x); }
   virtual void SetPoint2(double x, double y) { this->SetPosition2(x, y); }
   virtual double* GetPoint2() { return this->GetPosition2(); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the (min,max) axis range. This will be used in the generation
    * of labels, if labels are visible.
    */
   vtkSetVector2Macro(Range, double);
   vtkGetVectorMacro(Range, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether this axis should act like a measuring tape (or ruler) with
    * specified major tick spacing. If enabled, the distance between major ticks
@@ -119,23 +119,23 @@ public:
   vtkSetMacro(RulerMode, vtkTypeBool);
   vtkGetMacro(RulerMode, vtkTypeBool);
   vtkBooleanMacro(RulerMode, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the RulerDistance which indicates the spacing of the major ticks.
    * This ivar only has effect when the RulerMode is on.
    */
   vtkSetClampMacro(RulerDistance, double, 0, VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance, double);
-  //@}
+  ///@}
 
   enum LabelMax
   {
     VTK_MAX_LABELS = 25
   };
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of annotation labels to show. This also controls the
    * number of major ticks shown. Note that this ivar only holds meaning if
@@ -143,18 +143,18 @@ public:
    */
   vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
   vtkGetMacro(NumberOfLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels on the scalar
    * bar.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag that controls whether the labels and ticks are
    * adjusted for "nice" numerical values to make it easier to read
@@ -183,60 +183,60 @@ public:
     this->UpdateAdjustedRange();
     return this->AdjustedNumberOfLabels;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title of the scalar bar actor,
    */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title text property.
    */
   virtual void SetTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text property.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the length of the tick marks (expressed in pixels or display
    * coordinates).
    */
   vtkSetClampMacro(TickLength, int, 0, 100);
   vtkGetMacro(TickLength, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of minor ticks to be displayed between each tick. Default
    * is 0.
    */
   vtkSetClampMacro(NumberOfMinorTicks, int, 0, 20);
   vtkGetMacro(NumberOfMinorTicks, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the length of the minor tick marks (expressed in pixels or
    * display coordinates).
    */
   vtkSetClampMacro(MinorTickLength, int, 0, 100);
   vtkGetMacro(MinorTickLength, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset of the labels (expressed in pixels or display
    * coordinates). The offset is the distance of labels from tick marks
@@ -244,54 +244,54 @@ public:
    */
   vtkSetClampMacro(TickOffset, int, 0, 100);
   vtkGetMacro(TickOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get visibility of the axis line.
    */
   vtkSetMacro(AxisVisibility, vtkTypeBool);
   vtkGetMacro(AxisVisibility, vtkTypeBool);
   vtkBooleanMacro(AxisVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get visibility of the axis tick marks.
    */
   vtkSetMacro(TickVisibility, vtkTypeBool);
   vtkGetMacro(TickVisibility, vtkTypeBool);
   vtkBooleanMacro(TickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get visibility of the axis labels.
    */
   vtkSetMacro(LabelVisibility, vtkTypeBool);
   vtkGetMacro(LabelVisibility, vtkTypeBool);
   vtkBooleanMacro(LabelVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get visibility of the axis title.
    */
   vtkSetMacro(TitleVisibility, vtkTypeBool);
   vtkGetMacro(TitleVisibility, vtkTypeBool);
   vtkBooleanMacro(TitleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get position of the axis title. 0 is at the start of the
    * axis whereas 1 is at the end.
    */
   vtkSetMacro(TitlePosition, double);
   vtkGetMacro(TitlePosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts used
    * to label and title the axes. This ivar used in conjunction with
@@ -299,25 +299,25 @@ public:
    */
   vtkSetClampMacro(FontFactor, double, 0.1, 2.0);
   vtkGetMacro(FontFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the relative size of the axis labels
    * to the axis title.
    */
   vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
   vtkGetMacro(LabelFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw the axis.
    */
   int RenderOverlay(vtkViewport* viewport) override;
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -355,7 +355,7 @@ public:
   static int SetMultipleFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
     int nbOfMappers, int* targetSize, double factor, int* stringSize);
 
-  //@{
+  ///@{
   /**
    * Specify whether to size the fonts relative to the viewport or relative to
    * length of the axis. By default, fonts are resized relative to the viewport.
@@ -363,9 +363,9 @@ public:
   vtkSetMacro(SizeFontRelativeToAxis, vtkTypeBool);
   vtkGetMacro(SizeFontRelativeToAxis, vtkTypeBool);
   vtkBooleanMacro(SizeFontRelativeToAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default the AxisActor controls the font size of the axis label.  If this
    * option is set to true, it will instead use whatever font size is set in the
@@ -374,7 +374,7 @@ public:
   vtkSetMacro(UseFontSizeFromProperty, vtkTypeBool);
   vtkGetMacro(UseFontSizeFromProperty, vtkTypeBool);
   vtkBooleanMacro(UseFontSizeFromProperty, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of an axis actor. Overloads the virtual vtkProp method.

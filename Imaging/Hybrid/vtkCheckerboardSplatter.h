@@ -118,7 +118,7 @@ public:
    */
   static vtkCheckerboardSplatter* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the dimensions of the sampling structured point set. Higher
    * values produce better results but may be much slower.
@@ -126,9 +126,9 @@ public:
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
   vtkGetVectorMacro(SampleDimensions, int, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which
    * the sampling is performed. If any of the (min,max) bounds values are
@@ -137,9 +137,9 @@ public:
    */
   vtkSetVector6Macro(ModelBounds, double);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the footprint size of the splat in terms of propagation across a
    * voxel neighborhood. The Footprint value simply indicates the number of
@@ -152,9 +152,9 @@ public:
    */
   vtkSetClampMacro(Footprint, int, 0, VTK_INT_MAX);
   vtkGetMacro(Footprint, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the radius variable that controls the Gaussian exponential
    * function (see equation above). If set to zero, it is automatically set
@@ -163,9 +163,9 @@ public:
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Multiply Gaussian splat distribution by this value. If ScalarWarping
    * is on, then the Scalar value will be multiplied by the ScaleFactor
@@ -173,9 +173,9 @@ public:
    */
   vtkSetClampMacro(ScaleFactor, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the sharpness of decay of the splats. This is the exponent
    * constant in the Gaussian equation described above. Normally this is a
@@ -183,18 +183,18 @@ public:
    */
   vtkSetMacro(ExponentFactor, double);
   vtkGetMacro(ExponentFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the scaling of splats by scalar value.
    */
   vtkSetMacro(ScalarWarping, vtkTypeBool);
   vtkGetMacro(ScalarWarping, vtkTypeBool);
   vtkBooleanMacro(ScalarWarping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the generation of elliptical splats. If normal warping is
    * on, then the input normals affect the distribution of the splat. This
@@ -203,9 +203,9 @@ public:
   vtkSetMacro(NormalWarping, vtkTypeBool);
   vtkGetMacro(NormalWarping, vtkTypeBool);
   vtkBooleanMacro(NormalWarping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the shape of elliptical splatting. Eccentricity is the ratio
    * of the major axis (aligned along normal) to the minor (axes) aligned
@@ -215,9 +215,9 @@ public:
    */
   vtkSetClampMacro(Eccentricity, double, 0.001, VTK_DOUBLE_MAX);
   vtkGetMacro(Eccentricity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the scalar accumulation mode. This mode expresses how scalar
    * values are combined when splats overlap one another. The Max mode acts
@@ -232,9 +232,9 @@ public:
   void SetAccumulationModeToMax() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MAX); }
   void SetAccumulationModeToSum() { this->SetAccumulationMode(VTK_ACCUMULATION_MODE_SUM); }
   const char* GetAccumulationModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set what type of scalar data this source should generate. Only double
    * and float types are supported currently due to precision requirements
@@ -244,9 +244,9 @@ public:
   vtkGetMacro(OutputScalarType, int);
   void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
   void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the outer boundary of the volume
    * to a specified cap value. This can be used to close surfaces
@@ -255,18 +255,18 @@ public:
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cap value to use. (This instance variable only has effect
    * if the ivar Capping is on.)
    */
   vtkSetMacro(CapValue, double);
   vtkGetMacro(CapValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Null value for output points not receiving a contribution from
    * the input points. (This is the initial value of the voxel samples, by
@@ -276,9 +276,9 @@ public:
    */
   vtkSetMacro(NullValue, double);
   vtkGetMacro(NullValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum dimension of the checkerboard (i.e., the number of
    * squares in any of the i, j, or k directions). This number also impacts
@@ -288,9 +288,9 @@ public:
    */
   vtkSetClampMacro(MaximumDimension, int, 0, 255);
   vtkGetMacro(MaximumDimension, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the crossover point expressed in footprint size where the
    * splatting operation is parallelized (through vtkSMPTools). By default
@@ -300,7 +300,7 @@ public:
    */
   vtkSetClampMacro(ParallelSplatCrossover, int, 0, 255);
   vtkGetMacro(ParallelSplatCrossover, int);
-  //@}
+  ///@}
 
   /**
    * Compute the size of the sample bounding box automatically from the

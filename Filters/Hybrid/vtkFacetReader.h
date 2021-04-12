@@ -49,13 +49,13 @@ public:
   vtkTypeMacro(vtkFacetReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of Facet datafile to read
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   static int CanReadFile(const char* filename);
 

@@ -50,7 +50,7 @@ public:
   vtkTypeMacro(vtkRenderWindowInteractor3D, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
@@ -62,9 +62,9 @@ public:
    */
   void Enable() override;
   void Disable() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * With VR we know the world coordinate positions and orientations of events.
    * These methods support querying them instead of going through a display X,Y
@@ -104,9 +104,9 @@ public:
   }
   virtual void GetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   virtual void GetLastWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * With VR we know the physical/room coordinate positions
    * and orientations of events.
@@ -140,9 +140,9 @@ public:
     }
   }
   virtual void SetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * With VR we know the physical/room coordinate positions
    * and orientations of events.
@@ -151,9 +151,9 @@ public:
   virtual void GetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   virtual void GetLastPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   virtual void GetStartingPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * With VR we know the world coordinate positions
    * and orientations of events. These methods
@@ -217,32 +217,32 @@ public:
     }
   }
   virtual void SetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Override to set pointers down
    */
   void RightButtonPressEvent() override;
   void RightButtonReleaseEvent() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Override to set pointers down
    */
   void MiddleButtonPressEvent() override;
   void MiddleButtonReleaseEvent() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the latest touchpad or joystick position for a device
    */
   virtual void GetTouchPadPosition(vtkEventDataDevice, vtkEventDataDeviceInput, float[3]) {}
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the optional scale translation to map world coordinates into the
    * 3D physical space (meters, 0,0,0).
@@ -251,16 +251,16 @@ public:
   virtual double* GetPhysicalTranslation(vtkCamera*) { return nullptr; }
   virtual void SetPhysicalScale(double) {}
   virtual double GetPhysicalScale() { return 1.0; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the translation for pan/swipe gestures, update LastTranslation
    */
   void SetTranslation3D(double val[3]);
   vtkGetVector3Macro(Translation3D, double);
   vtkGetVector3Macro(LastTranslation3D, double);
-  //@}
+  ///@}
 
 protected:
   vtkRenderWindowInteractor3D();

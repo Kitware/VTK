@@ -51,12 +51,12 @@ public:
   vtkTypeMacro(vtkExtractSelectedArraysOverTime, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the number of time steps
    */
   vtkGetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
   /**
    * Convenience method to specify the selection connection (2nd input
@@ -67,16 +67,16 @@ public:
     this->SetInputConnection(1, algOutput);
   }
 
-  //@{
+  ///@{
   /**
    * Set/get the vtkExtractSelection instance used to obtain
    * array values at each time step. By default, vtkExtractSelection is used.
    */
   virtual void SetSelectionExtractor(vtkExtractSelection*);
   vtkExtractSelection* GetSelectionExtractor();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of breaking a selection into a separate time-history
    * table for each (block,ID)-tuple, you may call
@@ -90,7 +90,7 @@ public:
   vtkSetMacro(ReportStatisticsOnly, bool);
   vtkGetMacro(ReportStatisticsOnly, bool);
   vtkBooleanMacro(ReportStatisticsOnly, bool);
-  //@}
+  ///@}
 
 protected:
   vtkExtractSelectedArraysOverTime();

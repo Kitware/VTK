@@ -45,20 +45,20 @@ public:
    */
   static vtkAngleRepresentation2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAngleRepresentation2D, vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API.
    */
   double GetAngle() override;
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -73,9 +73,9 @@ public:
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetCenterDisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the three leaders used to create this representation.
    * By obtaining these leaders the user can set the appropriate
@@ -84,7 +84,7 @@ public:
   vtkGetObjectMacro(Ray1, vtkLeaderActor2D);
   vtkGetObjectMacro(Ray2, vtkLeaderActor2D);
   vtkGetObjectMacro(Arc, vtkLeaderActor2D);
-  //@}
+  ///@}
 
   /**
    * Method defined by vtkWidgetRepresentation superclass and
@@ -92,13 +92,13 @@ public:
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
 protected:
   vtkAngleRepresentation2D();

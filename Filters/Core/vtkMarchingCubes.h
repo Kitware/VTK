@@ -74,7 +74,7 @@ public:
   // Because we delegate to vtkContourValues
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly
    * expensive in both time and storage. If the output data will be
@@ -84,9 +84,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of gradients. Gradient computation is
    * fairly expensive in both time and storage. Note that if
@@ -98,25 +98,25 @@ public:
   vtkSetMacro(ComputeGradients, vtkTypeBool);
   vtkGetMacro(ComputeGradients, vtkTypeBool);
   vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of scalars.
    */
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * override the default locator.  Useful for changing the number of
    * bins for performance or specifying a more aggressive locator.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is

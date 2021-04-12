@@ -298,25 +298,25 @@ public:
    */
   void InsertValue(vtkIdType idx, Scalar v);
 
-  //@{
+  ///@{
   /**
    * Set/Get normalize flag. Default: false
    */
   vtkSetMacro(Normalize, bool);
   vtkGetMacro(Normalize, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPeriodicDataArray();
   ~vtkPeriodicDataArray() override;
 
-  //@{
+  ///@{
   /**
    * Read only container, not supported.
    */
   bool AllocateTuples(vtkIdType numTuples);
   bool ReallocateTuples(vtkIdType numTuples);
-  //@}
+  ///@}
 
   /**
    * Transform the provided tuple

@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkLightingMapPass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the type of lighting render to perform
    */
@@ -54,7 +54,7 @@ public:
   };
   vtkSetMacro(RenderType, RenderMode);
   vtkGetMacro(RenderType, RenderMode);
-  //@}
+  ///@}
 
   /**
    * If this key exists on the PropertyKeys of a prop, the active scalar array

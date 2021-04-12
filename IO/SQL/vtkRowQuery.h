@@ -127,7 +127,7 @@ public:
    */
   virtual const char* GetLastErrorText() = 0;
 
-  //@{
+  ///@{
   /**
    * Many databases do not preserve case in field names.  This can
    * cause GetFieldIndex to fail if you search for a field named
@@ -139,7 +139,7 @@ public:
   vtkSetMacro(CaseSensitiveFieldNames, bool);
   vtkGetMacro(CaseSensitiveFieldNames, bool);
   vtkBooleanMacro(CaseSensitiveFieldNames, bool);
-  //@}
+  ///@}
 
 protected:
   vtkRowQuery();

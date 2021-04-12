@@ -61,7 +61,7 @@ public:
    */
   void RemoveAllPlanes(void);
 
-  //@{
+  ///@{
   /**
    * Add a plane to the current set of planes. It will be added at the
    * end of the list, and an index that can later be used to set this
@@ -75,9 +75,9 @@ public:
    */
   int AddPlane(double A, double B, double C);
   int AddPlane(double plane[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the normal values for plane i. This is a plane that was already
    * added to the current set of planes with AddPlane(), and is now being
@@ -88,9 +88,9 @@ public:
    */
   void SetPlane(int i, double A, double B, double C);
   void SetPlane(int i, double plane[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Variations of AddPlane()/SetPlane() that allow D to be set. These
    * methods are used when GenerateHull() is used.
@@ -99,7 +99,7 @@ public:
   int AddPlane(double plane[3], double D);
   void SetPlane(int i, double A, double B, double C, double D);
   void SetPlane(int i, double plane[3], double D);
-  //@}
+  ///@}
 
   /**
    * Set all the planes at once using a vtkPlanes implicit function.
@@ -107,12 +107,12 @@ public:
    */
   void SetPlanes(vtkPlanes* planes);
 
-  //@{
+  ///@{
   /**
    * Get the number of planes in the current set of planes.
    */
   vtkGetMacro(NumberOfPlanes, int);
-  //@}
+  ///@}
 
   /**
    * Add the 8 planes that represent the vertices of a cube - the combination
@@ -146,7 +146,7 @@ public:
    */
   void AddRecursiveSpherePlanes(int level);
 
-  //@{
+  ///@{
   /**
    * A special method that is used to generate a polyhedron directly
    * from a set of n planes. The planes that are supplied by the user
@@ -161,7 +161,7 @@ public:
   void GenerateHull(vtkPolyData* pd, double* bounds);
   void GenerateHull(
     vtkPolyData* pd, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  //@}
+  ///@}
 
 protected:
   vtkHull();

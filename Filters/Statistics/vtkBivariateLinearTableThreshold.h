@@ -56,14 +56,14 @@ public:
   vtkTypeMacro(vtkBivariateLinearTableThreshold, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Include the line in the threshold.  Essentially whether the threshold operation
    * uses > versus >=.
    */
   vtkSetMacro(Inclusive, int);
   vtkGetMacro(Inclusive, int);
-  //@}
+  ///@}
 
   /**
    * Add a numeric column to the pair of columns to be thresholded.  Call twice.
@@ -128,7 +128,7 @@ public:
    */
   void ClearLineEquations();
 
-  //@{
+  ///@{
   /**
    * Set the threshold type.  Above: find all rows that are above the specified
    * lines.  Below: find all rows that are below the specified lines.  Near:
@@ -153,9 +153,9 @@ public:
   {
     this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_BETWEEN);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manually access the maximum/minimum x,y values.  This is used in
    * conjunction with UseNormalizedDistance when determining if a row
@@ -163,17 +163,17 @@ public:
    */
   vtkSetVector2Macro(ColumnRanges, double);
   vtkGetVector2Macro(ColumnRanges, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The Cartesian distance within which a point will pass the near threshold.
    */
   vtkSetMacro(DistanceThreshold, double);
   vtkGetMacro(DistanceThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Renormalize the space of the data such that the X and Y axes are
    * "square" over the specified ColumnRanges.  This essentially scales
@@ -184,7 +184,7 @@ public:
   vtkSetMacro(UseNormalizedDistance, vtkTypeBool);
   vtkGetMacro(UseNormalizedDistance, vtkTypeBool);
   vtkBooleanMacro(UseNormalizedDistance, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Convert the two-point line formula to implicit form.
@@ -221,7 +221,7 @@ protected:
    */
   virtual int ApplyThreshold(vtkTable* tableToThreshold, vtkIdTypeArray* acceptedIds);
 
-  //@{
+  ///@{
   /**
    * Determine if x,y is above all specified lines.
    */
@@ -241,7 +241,7 @@ protected:
    * Determine if x,y is between ANY TWO of the specified lines.
    */
   int ThresholdBetween(double x, double y);
-  //@}
+  ///@}
 
 private:
   vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) = delete;

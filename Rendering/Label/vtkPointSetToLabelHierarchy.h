@@ -45,86 +45,86 @@ public:
   vtkTypeMacro(vtkPointSetToLabelHierarchy, vtkLabelHierarchyAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the "ideal" number of labels to associate with each node in the output hierarchy.
    */
   vtkSetMacro(TargetLabelCount, int);
   vtkGetMacro(TargetLabelCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the maximum tree depth in the output hierarchy.
    */
   vtkSetMacro(MaximumDepth, int);
   vtkGetMacro(MaximumDepth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to use unicode strings.
    */
   vtkSetMacro(UseUnicodeStrings, bool);
   vtkGetMacro(UseUnicodeStrings, bool);
   vtkBooleanMacro(UseUnicodeStrings, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the label array name.
    */
   virtual void SetLabelArrayName(const char* name);
   virtual const char* GetLabelArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the priority array name.
    */
   virtual void SetSizeArrayName(const char* name);
   virtual const char* GetSizeArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the priority array name.
    */
   virtual void SetPriorityArrayName(const char* name);
   virtual const char* GetPriorityArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the icon index array name.
    */
   virtual void SetIconIndexArrayName(const char* name);
   virtual const char* GetIconIndexArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the text orientation array name.
    */
   virtual void SetOrientationArrayName(const char* name);
   virtual const char* GetOrientationArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the maximum text width (in world coordinates) array name.
    */
   virtual void SetBoundedSizeArrayName(const char* name);
   virtual const char* GetBoundedSizeArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the text property assigned to the hierarchy.
    */
   virtual void SetTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
 protected:
   vtkPointSetToLabelHierarchy();

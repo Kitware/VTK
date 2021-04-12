@@ -71,39 +71,39 @@ public:
   vtkTypeMacro(vtkSuperquadricSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the center of the superquadric. Default is 0,0,0.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scale factors of the superquadric. Default is 1,1,1.
    */
   vtkSetVector3Macro(Scale, double);
   vtkGetVectorMacro(Scale, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of points in the longitude direction. Initial value is 16.
    */
   vtkGetMacro(ThetaResolution, int);
   void SetThetaResolution(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of points in the latitude direction. Initial value is 16.
    */
   vtkGetMacro(PhiResolution, int);
   void SetPhiResolution(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric ring thickness (toroids only).
    * Changing thickness maintains the outside diameter of the toroid.
@@ -111,9 +111,9 @@ public:
    */
   vtkGetMacro(Thickness, double);
   vtkSetClampMacro(Thickness, double, VTK_MIN_SUPERQUADRIC_THICKNESS, 1.0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric north/south roundness.
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
@@ -121,9 +121,9 @@ public:
    */
   vtkGetMacro(PhiRoundness, double);
   void SetPhiRoundness(double e);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric east/west roundness.
    * Values range from 0 (rectangular) to 1 (circular) to higher orders.
@@ -131,17 +131,17 @@ public:
    */
   vtkGetMacro(ThetaRoundness, double);
   void SetThetaRoundness(double e);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Superquadric isotropic size. Initial value is 0.5;
    */
   vtkSetMacro(Size, double);
   vtkGetMacro(Size, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get axis of symmetry for superquadric (x axis: 0, y axis: 1, z axis: 2). Initial value
    * is 1.
@@ -151,9 +151,9 @@ public:
   void SetXAxisOfSymmetry() { this->SetAxisOfSymmetry(0); }
   void SetYAxisOfSymmetry() { this->SetAxisOfSymmetry(1); }
   void SetZAxisOfSymmetry() { this->SetAxisOfSymmetry(2); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
    * Initial value is 0.
@@ -161,9 +161,9 @@ public:
   vtkBooleanMacro(Toroidal, vtkTypeBool);
   vtkGetMacro(Toroidal, vtkTypeBool);
   vtkSetMacro(Toroidal, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -171,7 +171,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkSuperquadricSource(int res = 16);

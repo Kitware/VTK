@@ -34,16 +34,16 @@ public:
   vtkTypeMacro(vtkImageFlip, vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify which axis will be flipped.  This must be an integer
    * between 0 (for x) and 2 (for z). Initial value is 0.
    */
   vtkSetMacro(FilteredAxis, int);
   vtkGetMacro(FilteredAxis, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default the image will be flipped about its center, and the
    * Origin, Spacing and Extent of the output will be identical to
@@ -63,7 +63,7 @@ public:
   vtkSetMacro(FlipAboutOrigin, vtkTypeBool);
   vtkGetMacro(FlipAboutOrigin, vtkTypeBool);
   vtkBooleanMacro(FlipAboutOrigin, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Keep the mis-named Axes variations around for compatibility with old
@@ -72,7 +72,7 @@ public:
   void SetFilteredAxes(int axis) { this->SetFilteredAxis(axis); }
   int GetFilteredAxes() { return this->GetFilteredAxis(); }
 
-  //@{
+  ///@{
   /**
    * PreserveImageExtentOff wasn't covered by test scripts and its
    * implementation was broken.  It is deprecated now and it has
@@ -81,7 +81,7 @@ public:
   vtkSetMacro(PreserveImageExtent, vtkTypeBool);
   vtkGetMacro(PreserveImageExtent, vtkTypeBool);
   vtkBooleanMacro(PreserveImageExtent, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageFlip();

@@ -47,13 +47,13 @@ public:
   vtkTypeMacro(vtkDistributedPointCloudFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Get the points that are inside innerBounds and put them in output DataSet.

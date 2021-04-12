@@ -212,7 +212,7 @@ public:
     CATEGORICAL
   };
 
-  //@{
+  ///@{
   /**
    * Set the color scheme that should be used.
    * The variant of this function that takes an integer should pass a
@@ -222,7 +222,7 @@ public:
    */
   virtual void SetColorScheme(int scheme);
   virtual int SetColorSchemeByName(const vtkStdString& schemeName);
-  //@}
+  ///@}
 
   /**
    * Return the number of schemes currently defined.
@@ -330,13 +330,13 @@ protected:
    */
   virtual void CopyOnWrite();
 
-  //@{
+  ///@{
   /**
    * Private data pointer of the class, stores the color list.
    */
   class Private;
   Private* Storage;
-  //@}
+  ///@}
 
   /**
    * The color scheme being used.

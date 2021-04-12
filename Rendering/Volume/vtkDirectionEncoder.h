@@ -39,13 +39,13 @@
 class VTKRENDERINGVOLUME_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Get the name of this class
    */
   vtkTypeMacro(vtkDirectionEncoder, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given a normal vector n, return the encoded direction

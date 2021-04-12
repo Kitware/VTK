@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkWedge, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See vtkCell3D API for description of these methods.
    */
@@ -66,7 +66,7 @@ public:
   vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
   bool GetCentroid(double centroid[3]) const override;
   bool IsInsideOut() override;
-  //@}
+  ///@}
 
   /**
    * static constexpr handle on the number of points.
@@ -96,7 +96,7 @@ public:
    */
   static constexpr vtkIdType MaximumValence = 3;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -119,7 +119,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
-  //@}
+  ///@}
 
   /**
    * Return the case table for table-based isocontouring (aka marching cubes
@@ -137,7 +137,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[6]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[18]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -151,9 +151,9 @@ public:
     vtkWedge::InterpolationDerivs(pcoords, derivs);
   }
   int JacobianInverse(const double pcoords[3], double** inverse, double derivs[18]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
@@ -164,7 +164,7 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId) VTK_SIZEHINT(2);
   static const vtkIdType* GetFaceArray(vtkIdType faceId) VTK_SIZEHINT(MaximumFaceSize + 1);
-  //@}
+  ///@}
 
   /**
    * Static method version of GetEdgeToAdjacentFaces.

@@ -86,7 +86,7 @@ public:
    */
   bool IsInStencil() { return this->InStencil; }
 
-  //@{
+  ///@{
   /**
    * Get the index at the beginning of the current span.
    */
@@ -96,7 +96,7 @@ public:
     result[1] = this->Index[1];
     result[2] = this->Index[2];
   }
-  //@}
+  ///@}
 
   /**
    * Get the index at the beginning of the current span.

@@ -63,16 +63,16 @@ class vtkGraph;
 class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
   static vtkTemporalStatistics* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of the average values over time.  On by
    * default.  The resulting array names have "_average" appended to them.
@@ -80,9 +80,9 @@ public:
   vtkGetMacro(ComputeAverage, vtkTypeBool);
   vtkSetMacro(ComputeAverage, vtkTypeBool);
   vtkBooleanMacro(ComputeAverage, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of the minimum values over time.  On by
    * default.  The resulting array names have "_minimum" appended to them.
@@ -90,9 +90,9 @@ public:
   vtkGetMacro(ComputeMinimum, vtkTypeBool);
   vtkSetMacro(ComputeMinimum, vtkTypeBool);
   vtkBooleanMacro(ComputeMinimum, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the computation of the maximum values over time.  On by
    * default.  The resulting array names have "_maximum" appended to them.
@@ -100,7 +100,7 @@ public:
   vtkGetMacro(ComputeMaximum, vtkTypeBool);
   vtkSetMacro(ComputeMaximum, vtkTypeBool);
   vtkBooleanMacro(ComputeMaximum, vtkTypeBool);
-  //@}
+  ///@}
 
   // Definition:
   // Turn on/off the computation of the standard deviation of the values over
@@ -159,14 +159,14 @@ private:
   vtkTemporalStatistics(const vtkTemporalStatistics&) = delete;
   void operator=(const vtkTemporalStatistics&) = delete;
 
-  //@{
+  ///@{
   /**
    * Used to avoid multiple warnings for the same filter when
    * the number of points or cells in the data set is changing
    * between time steps.
    */
   bool GeneratedChangingTopologyWarning;
-  //@}
+  ///@}
 };
 
 #endif //_vtkTemporalStatistics_h

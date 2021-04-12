@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLTableReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkTable* GetOutput();
   vtkTable* GetOutput(int idx);
-  //@}
+  ///@}
 
   /**
    * Get the number of rows in the output.

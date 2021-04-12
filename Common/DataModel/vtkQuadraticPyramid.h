@@ -56,7 +56,7 @@ public:
   vtkTypeMacro(vtkQuadraticPyramid, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
@@ -67,7 +67,7 @@ public:
   int GetNumberOfFaces() override { return 5; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
-  //@}
+  ///@}
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
@@ -104,7 +104,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[13]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[39]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -117,8 +117,8 @@ public:
   {
     vtkQuadraticPyramid::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
@@ -128,7 +128,7 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
-  //@}
+  ///@}
 
   /**
    * Given parametric coordinates compute inverse Jacobian transformation
@@ -151,7 +151,7 @@ protected:
   vtkDoubleArray* CellScalars;
   vtkDoubleArray* Scalars; // used to avoid New/Delete in contouring/clipping
 
-  //@{
+  ///@{
   /**
    * This method adds in a point at the center of the quadrilateral face
    * and then interpolates values to that point. In order to do this it
@@ -160,8 +160,8 @@ protected:
    **/
   void Subdivide(
     vtkPointData* inPd, vtkCellData* inCd, vtkIdType cellId, vtkDataArray* cellScalars);
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Resize the superclasses' member arrays to newSize where newSize should either be
    * 13 or 14. Call with 13 to reset the reallocation done in the Subdivide()
@@ -169,7 +169,7 @@ protected:
    * Subdivice. For efficiency it only resizes the superclasses' arrays.
    **/
   void ResizeArrays(vtkIdType newSize);
-  //@}
+  ///@}
 
 private:
   vtkQuadraticPyramid(const vtkQuadraticPyramid&) = delete;

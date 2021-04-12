@@ -54,13 +54,13 @@ public:
    */
   static vtkPointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPointPlacer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Given a renderer and a display position in pixel coordinates,
@@ -128,23 +128,23 @@ public:
    */
   virtual int UpdateInternalState() { return 0; }
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance used when performing computations
    * in display coordinates.
    */
   vtkSetClampMacro(PixelTolerance, int, 1, 100);
   vtkGetMacro(PixelTolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance used when performing computations
    * in world coordinates.
    */
   vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(WorldTolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkPointPlacer();

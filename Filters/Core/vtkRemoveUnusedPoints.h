@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkRemoveUnusedPoints, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable adding a `vtkOriginalPointIds` array to the point data
    * which identifies the original point index. Default is true.
@@ -42,16 +42,16 @@ public:
   vtkSetMacro(GenerateOriginalPointIds, bool);
   vtkGetMacro(GenerateOriginalPointIds, bool);
   vtkBooleanMacro(GenerateOriginalPointIds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose the name to use for the original point ids array. Default is `vtkOriginalPointIds`.
    * This is used only when `GenerateOriginalPointIds` is true.
    */
   vtkSetStringMacro(OriginalPointIdsArrayName);
   vtkGetStringMacro(OriginalPointIdsArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkRemoveUnusedPoints();

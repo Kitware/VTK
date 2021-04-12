@@ -35,23 +35,23 @@ public:
   vtkTypeMacro(vtkImageShiftScale, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the shift value. This value is added to each pixel
    */
   vtkSetMacro(Shift, double);
   vtkGetMacro(Shift, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale value. Each pixel is multiplied by this value.
    */
   vtkSetMacro(Scale, double);
   vtkGetMacro(Scale, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired output scalar type. The result of the shift
    * and scale operations is cast to the type specified.
@@ -68,9 +68,9 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When the ClampOverflow flag is on, the data is thresholded so that
    * the output value does not exceed the max or min of the data type.
@@ -82,7 +82,7 @@ public:
   vtkSetMacro(ClampOverflow, vtkTypeBool);
   vtkGetMacro(ClampOverflow, vtkTypeBool);
   vtkBooleanMacro(ClampOverflow, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImageShiftScale();

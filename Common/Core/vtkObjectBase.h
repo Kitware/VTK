@@ -174,7 +174,7 @@ public:
    */
   void Print(ostream& os);
 
-  //@{
+  ///@{
   /**
    * Methods invoked by print to print information about the object
    * including superclasses. Typically not called by the user (use
@@ -184,7 +184,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
-  //@}
+  ///@}
 
   /**
    * Increase the reference count (mark as used by another object).
@@ -216,14 +216,14 @@ public:
    */
   static void SetMemkindDirectory(const char* directoryname);
 
-  //@{
+  ///@{
   /**
    * A global state flag that controls whether vtkObjects are
    * constructed in the usual way (the default) or within the extended
    * memory space.
    */
   static bool GetUsingMemkind();
-  //@}
+  ///@}
 
   /**
    * A class to help modify and restore the global UsingMemkind state, like

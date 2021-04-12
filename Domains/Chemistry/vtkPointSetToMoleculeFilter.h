@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkPointSetToMoleculeFilter, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set if the filter should look for lines in input cells and convert them
    * into bonds.
@@ -45,7 +45,7 @@ public:
   vtkGetMacro(ConvertLinesIntoBonds, bool);
   vtkSetMacro(ConvertLinesIntoBonds, bool);
   vtkBooleanMacro(ConvertLinesIntoBonds, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPointSetToMoleculeFilter();

@@ -43,15 +43,15 @@ public:
    */
   static vtkAttributesErrorMetric* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkAttributesErrorMetric, vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Absolute tolerance of the active scalar (attribute+component).
    * Subdivision is required if the square distance between the real attribute
@@ -61,7 +61,7 @@ public:
    * 0.01 will give better result than 0.1.
    */
   vtkGetMacro(AbsoluteAttributeTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Set the absolute attribute accuracy to `value'. See
@@ -75,7 +75,7 @@ public:
    */
   void SetAbsoluteAttributeTolerance(double value);
 
-  //@{
+  ///@{
   /**
    * Relative tolerance of the active scalar (attribute+component).
    * Subdivision is required if the square distance between the real attribute
@@ -85,7 +85,7 @@ public:
    * 0.01 will give better result than 0.1.
    */
   vtkGetMacro(AttributeTolerance, double);
-  //@}
+  ///@}
 
   /**
    * Set the relative attribute accuracy to `value'. See

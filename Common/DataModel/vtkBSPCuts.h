@@ -109,27 +109,27 @@ public:
   void PrintTree();
   void PrintArrays();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkBSPCuts* GetData(vtkInformation* info);
   static vtkBSPCuts* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Restore data object to initial state,
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Shallow copy.  These copy the data, but not any of the
    * pipeline connections.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
 protected:
   vtkBSPCuts();

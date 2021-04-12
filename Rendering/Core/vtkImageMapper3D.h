@@ -63,7 +63,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override = 0;
 
-  //@{
+  ///@{
   /**
    * The input data for this mapper.
    */
@@ -71,9 +71,9 @@ public:
   vtkImageData* GetInput();
   vtkDataSet* GetDataSetInput();
   vtkDataObject* GetDataObjectInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of displaying the image only out to the image
    * bounds, include a half-voxel border around the image.
@@ -83,9 +83,9 @@ public:
   vtkSetMacro(Border, vtkTypeBool);
   vtkBooleanMacro(Border, vtkTypeBool);
   vtkGetMacro(Border, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of rendering only to the image border, render out
    * to the viewport boundary with the background color.  The
@@ -95,9 +95,9 @@ public:
   vtkSetMacro(Background, vtkTypeBool);
   vtkBooleanMacro(Background, vtkTypeBool);
   vtkGetMacro(Background, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Automatically set the slice position to the camera focal point.
    * This provides a convenient way to interact with the image, since
@@ -106,9 +106,9 @@ public:
   vtkSetMacro(SliceAtFocalPoint, vtkTypeBool);
   vtkBooleanMacro(SliceAtFocalPoint, vtkTypeBool);
   vtkGetMacro(SliceAtFocalPoint, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Automatically set the slice orientation so that it faces the camera.
    * This provides a convenient way to interact with the image, since
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(SliceFacesCamera, vtkTypeBool);
   vtkBooleanMacro(SliceFacesCamera, vtkTypeBool);
   vtkGetMacro(SliceFacesCamera, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A plane that describes what slice of the input is being
    * rendered by the mapper.  This plane is in world coordinates,
@@ -128,7 +128,7 @@ public:
    * These methods are automatically called by Render.
    */
   vtkGetObjectMacro(SlicePlane, vtkPlane);
-  //@}
+  ///@}
 
   /**
    * Get the plane as a homogeneous 4-vector that gives the plane
@@ -137,15 +137,15 @@ public:
    */
   virtual void GetSlicePlaneInDataCoords(vtkMatrix4x4* propMatrix, double plane[4]);
 
-  //@{
+  ///@{
   /**
    * The number of threads to create when rendering.
    */
   vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
   vtkGetMacro(NumberOfThreads, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on streaming, to pull the minimum amount of data from the input.
    * Streaming decreases the memory required to display large images, since
@@ -158,7 +158,7 @@ public:
   vtkSetMacro(Streaming, vtkTypeBool);
   vtkGetMacro(Streaming, vtkTypeBool);
   vtkBooleanMacro(Streaming, vtkTypeBool);
-  //@}
+  ///@}
 
   // return the bounds in index space
   virtual void GetIndexBounds(double extent[6]) = 0;
@@ -167,13 +167,13 @@ protected:
   vtkImageMapper3D();
   ~vtkImageMapper3D() override;
 
-  //@{
+  ///@{
   /**
    * See algorithm for more info
    */
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
   /**
    * Handle requests from the pipeline executive.

@@ -61,14 +61,14 @@ public:
   static vtkMPIImageReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/set the multi process controller to use for coordinated reads.  By
    * default, set to the global controller.
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController*);
-  //@}
+  ///@}
 
 protected:
   vtkMPIImageReader();
@@ -116,14 +116,14 @@ protected:
    */
   virtual void TransformData(vtkImageData* data);
 
-  //@{
+  ///@{
   /**
    * A group of processes that are reading the same file (as determined by
    * PartitionController.
    */
   void SetGroupedController(vtkMultiProcessController*);
   vtkMultiProcessController* GroupedController;
-  //@}
+  ///@}
 
   void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override;
 

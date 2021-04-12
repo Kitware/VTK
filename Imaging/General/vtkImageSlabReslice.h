@@ -58,7 +58,7 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the blend mode. Default is MIP (ie Max)
    */
@@ -67,34 +67,34 @@ public:
   void SetBlendModeToMin() { this->SetBlendMode(VTK_IMAGE_SLAB_MIN); }
   void SetBlendModeToMax() { this->SetBlendMode(VTK_IMAGE_SLAB_MAX); }
   void SetBlendModeToMean() { this->SetBlendMode(VTK_IMAGE_SLAB_MEAN); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Number of sample points used across the slab cross-section. If equal to
    * 1, this ends up being a thin reslice through the data a.k.a.
    * vtkImageReslice
    */
   vtkGetMacro(NumBlendSamplePoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * SlabThickness of slab in world coords. SlabThickness must be non-zero and
    * positive.
    */
   vtkSetMacro(SlabThickness, double);
   vtkGetMacro(SlabThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Spacing between slabs in world units. (Number of Slices, ie samples to
    * blend is computed from SlabThickness and SlabResolution).
    */
   vtkSetMacro(SlabResolution, double);
   vtkGetMacro(SlabResolution, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageSlabReslice();

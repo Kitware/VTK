@@ -89,7 +89,7 @@ public:
    */
   void UpdateAll();
 
-  //@{
+  ///@{
   /**
    * Convert viewport to texture coordinates
    */
@@ -98,7 +98,7 @@ public:
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
   }
-  //@}
+  ///@}
 
   /**
    * Convert a viewport to a bounding box and it's texture coordinates for a
@@ -116,7 +116,7 @@ public:
   void ViewportQuadTextureCoords(
     const vtkPixelExtent& viewExt, const vtkPixelExtent& viewportExt, GLfloat* tcoords);
 
-  //@{
+  ///@{
   /**
    * Convert the entire view to a bounding box and it's texture coordinates for
    * a screen size texture.
@@ -126,9 +126,9 @@ public:
     quadpts[0] = quadpts[2] = 0.0f;
     quadpts[1] = quadpts[3] = 1.0f;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convert the entire view to a bounding box and it's texture coordinates for
    * a screen size texture.
@@ -138,7 +138,7 @@ public:
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
   }
-  //@}
+  ///@}
 
   /**
    * Render a quad (to trigger a shader to run)

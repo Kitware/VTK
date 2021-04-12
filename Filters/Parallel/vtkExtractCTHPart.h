@@ -71,7 +71,7 @@ public:
   vtkTypeMacro(vtkExtractCTHPart, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Select cell-data arrays (volume-fraction arrays) to contour with.
    */
@@ -79,9 +79,9 @@ public:
   void RemoveVolumeArrayNames();
   int GetNumberOfVolumeArrayNames();
   const char* GetVolumeArrayName(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the parallel controller. By default, the value returned by
    * vtkMultiBlockDataSetAlgorithm::GetGlobalController() when the object is
@@ -89,18 +89,18 @@ public:
    */
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * On by default, enables logic to cap the material volume.
    */
   vtkSetMacro(Capping, bool);
   vtkGetMacro(Capping, bool);
   vtkBooleanMacro(Capping, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Triangulate results. When set to false, the internal cut and contour filters
    * are told not to triangulate results if possible. true by default.
@@ -108,9 +108,9 @@ public:
   vtkSetMacro(GenerateTriangles, bool);
   vtkGetMacro(GenerateTriangles, bool);
   vtkBooleanMacro(GenerateTriangles, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate solid geometry as results instead of 2D contours.
    * When set to true, GenerateTriangles flag will be ignored.
@@ -119,9 +119,9 @@ public:
   vtkSetMacro(GenerateSolidGeometry, bool);
   vtkGetMacro(GenerateSolidGeometry, bool);
   vtkBooleanMacro(GenerateSolidGeometry, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to false, the output surfaces will not hide contours extracted from
    * ghost cells. This results in overlapping contours but overcomes holes.
@@ -130,29 +130,29 @@ public:
   vtkSetMacro(RemoveGhostCells, bool);
   vtkGetMacro(RemoveGhostCells, bool);
   vtkBooleanMacro(RemoveGhostCells, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set, get or manipulate the implicit clipping plane.
    */
   void SetClipPlane(vtkPlane* clipPlane);
   vtkGetObjectMacro(ClipPlane, vtkPlane);
-  //@}
+  ///@}
 
   /**
    * Look at clip plane to compute MTime.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set and get the volume fraction surface value. This value should be
    * between 0 and 1
    */
   vtkSetClampMacro(VolumeFractionSurfaceValue, double, 0.0, 1.0);
   vtkGetMacro(VolumeFractionSurfaceValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkExtractCTHPart();

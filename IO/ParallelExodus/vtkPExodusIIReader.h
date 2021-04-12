@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkPExodusIIReader, vtkExodusIIReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the communication object used to relay a list of files
    * from the rank 0 process to all others. This is the only interprocess
@@ -62,9 +62,9 @@ public:
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods tell the reader that the data is distributed across
    * multiple files. This is for distributed execution. It this case,
@@ -78,9 +78,9 @@ public:
   vtkGetStringMacro(FilePattern);
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the range of files that are being loaded. The range for single
    * file should add to 0.
@@ -88,7 +88,7 @@ public:
   void SetFileRange(int, int);
   void SetFileRange(int* r) { this->SetFileRange(r[0], r[1]); }
   vtkGetVector2Macro(FileRange, int);
-  //@}
+  ///@}
 
   /**
    * Provide an arbitrary list of file names instead of a prefix,
@@ -110,12 +110,12 @@ public:
    */
   int GetNumberOfFileNames() { return this->NumberOfFileNames; }
 
-  //@{
+  ///@{
   /**
    * Return the number of files to be read.
    */
   vtkGetMacro(NumberOfFiles, int);
-  //@}
+  ///@}
 
   vtkIdType GetTotalNumberOfElements() override;
   vtkIdType GetTotalNumberOfNodes() override;
@@ -126,7 +126,7 @@ public:
    */
   virtual void Broadcast(vtkMultiProcessController* ctrl);
 
-  //@{
+  ///@{
   /**
    * The size of the variable cache in MegaByes. This represents the maximum
    * size of cache that a single partition reader can have while reading. When
@@ -139,19 +139,19 @@ public:
    */
   vtkGetMacro(VariableCacheSize, double);
   vtkSetMacro(VariableCacheSize, double);
-  //@}
+  ///@}
 
 protected:
   vtkPExodusIIReader();
   ~vtkPExodusIIReader() override;
 
-  //@{
+  ///@{
   /**
    * Try to "guess" the pattern of files.
    */
   int DeterminePattern(const char* file);
   static int DetermineFileId(const char* file);
-  //@}
+  ///@}
 
   // holds the size of the variable cache in GigaBytes
   double VariableCacheSize;

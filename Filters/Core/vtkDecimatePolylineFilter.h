@@ -54,20 +54,20 @@ class vtkPriorityQueue;
 class VTKFILTERSCORE_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkDecimatePolylineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Instantiate this object with a target reduction of 0.90.
    */
   static vtkDecimatePolylineFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify the desired reduction in the total number of polygons (e.g., if
    * TargetReduction is set to 0.9, this filter will try to reduce the data set
@@ -75,9 +75,9 @@ public:
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the largest decimation error that is allowed during the decimation
    * process. This may limit the maximum reduction that may be achieved. The
@@ -86,9 +86,9 @@ public:
    */
   vtkSetClampMacro(MaximumError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -96,7 +96,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkDecimatePolylineFilter();

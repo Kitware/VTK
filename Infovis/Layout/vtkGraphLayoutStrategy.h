@@ -76,21 +76,21 @@ public:
    */
   virtual int IsLayoutComplete() { return 1; }
 
-  //@{
+  ///@{
   /**
    * Whether to use edge weights in the layout or not.
    */
   virtual void SetWeightEdges(bool state);
   vtkGetMacro(WeightEdges, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the field to use for the edge weights.
    */
   virtual void SetEdgeWeightField(const char* field);
   vtkGetStringMacro(EdgeWeightField);
-  //@}
+  ///@}
 
 protected:
   vtkGraphLayoutStrategy();

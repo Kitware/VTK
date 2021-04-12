@@ -75,7 +75,7 @@ public:
   static int WriteElementToFile(
     vtkXMLDataElement*, const char* filename, vtkIndent* indent = nullptr);
 
-  //@{
+  ///@{
   /**
    * Read a vtkXMLDataElement from a stream, string or file.
    * The 'encoding' parameter will be used to set the internal encoding of the
@@ -92,7 +92,7 @@ public:
     const char* str, int encoding = VTK_ENCODING_NONE);
   static vtkXMLDataElement* ReadElementFromFile(
     const char* filename, int encoding = VTK_ENCODING_NONE);
-  //@}
+  ///@}
 
   /**
    * Sets attributes of an element from an array of encoded attributes.
@@ -116,7 +116,7 @@ public:
   static int FindSimilarElements(
     vtkXMLDataElement* elem, vtkXMLDataElement* tree, vtkXMLDataElement*** results);
 
-  //@{
+  ///@{
   /**
    * Factor and unfactor a tree. This operation looks for duplicate elements
    * in the tree, and replace them with references to a pool of elements.
@@ -124,7 +124,7 @@ public:
    */
   static void FactorElements(vtkXMLDataElement* tree);
   static void UnFactorElements(vtkXMLDataElement* tree);
-  //@}
+  ///@}
 
 protected:
   vtkXMLUtilities() = default;

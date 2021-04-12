@@ -48,7 +48,7 @@ public:
    */
   static PyObject* CallMethod(PyMethodDef* methods, PyObject* self, PyObject* args);
 
-  //@{
+  ///@{
   /**
    * Find a method that takes the single arg provided, this is used
    * to locate the correct constructor signature for a conversion.
@@ -56,7 +56,7 @@ public:
    * argument types for each method.
    */
   static PyMethodDef* FindConversionMethod(PyMethodDef* methods, PyObject* arg);
-  //@}
+  ///@}
 };
 
 #endif

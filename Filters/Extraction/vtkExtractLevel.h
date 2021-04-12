@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkExtractLevel, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Select the levels that should be extracted. All other levels will have no
    * datasets in them.
@@ -42,7 +42,7 @@ public:
   void AddLevel(unsigned int level);
   void RemoveLevel(unsigned int level);
   void RemoveAllLevels();
-  //@}
+  ///@}
 
 protected:
   vtkExtractLevel();

@@ -63,15 +63,15 @@ public:
     return reinterpret_cast<vtkScalarBarRepresentation*>(this->GetRepresentation());
   }
 
-  //@{
+  ///@{
   /**
    * Get the ScalarBar used by this Widget. One is created automatically.
    */
   virtual void SetScalarBarActor(vtkScalarBarActor* actor);
   virtual vtkScalarBarActor* GetScalarBarActor();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Can the widget be moved. On by default. If off, the widget cannot be moved
    * around.
@@ -81,7 +81,7 @@ public:
   vtkSetMacro(Repositionable, vtkTypeBool);
   vtkGetMacro(Repositionable, vtkTypeBool);
   vtkBooleanMacro(Repositionable, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.

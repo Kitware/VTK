@@ -45,13 +45,13 @@ public:
    */
   static vtkTensorProbeWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkTensorProbeWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

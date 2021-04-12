@@ -91,13 +91,13 @@ public:
    */
   void Grab() override;
 
-  //@{
+  ///@{
   /**
    * Request a particular frame size (set the third value to 1).
    */
   void SetFrameSize(int x, int y, int z) override;
   void SetFrameSize(int dim[3]) override { this->SetFrameSize(dim[0], dim[1], dim[2]); }
-  //@}
+  ///@}
 
   /**
    * Request a particular frame rate (default 30 frames per second).
@@ -121,13 +121,13 @@ public:
    */
   void ReleaseSystemResources() override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of the video
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * The internal function which actually does the grab.  You will
@@ -170,7 +170,7 @@ public:
     this->VideoCallbackClientData = clientData;
   }
 
-  //@{
+  ///@{
   /**
    * How many threads to use for the decoding codec
    * this will be in addition to the feed and drain threads.
@@ -178,7 +178,7 @@ public:
    */
   vtkSetMacro(DecodingThreads, int);
   vtkGetMacro(DecodingThreads, int);
-  //@}
+  ///@}
 
 protected:
   vtkFFMPEGVideoSource();

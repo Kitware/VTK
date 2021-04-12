@@ -49,11 +49,11 @@ public:
   vtkTypeMacro(vtkOMETIFFReader, vtkTIFFReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   int CanReadFile(const char* fname) override;
   const char* GetFileExtensions() override { return ".ome.tif .ome.tiff"; }
   const char* GetDescriptiveName() override { return "OME TIFF"; }
-  //@}
+  ///@}
 
 protected:
   vtkOMETIFFReader();

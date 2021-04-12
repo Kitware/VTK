@@ -99,7 +99,7 @@ public:
   vtkTypeMacro(vtkFixedPointVolumeRayCastMapper, vtkVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the distance between samples used for rendering
    * when AutoAdjustSampleDistances is off, or when this mapper
@@ -107,9 +107,9 @@ public:
    */
   vtkSetMacro(SampleDistance, float);
   vtkGetMacro(SampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the distance between samples when interactive rendering is happening.
    * In this case, interactive is defined as this volume mapper having less than 1
@@ -119,9 +119,9 @@ public:
    */
   vtkSetMacro(InteractiveSampleDistance, float);
   vtkGetMacro(InteractiveSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sampling distance in the XY image dimensions. Default value of 1 meaning
    * 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
@@ -131,27 +131,27 @@ public:
    */
   vtkSetClampMacro(ImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(ImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the minimum image sample distance allow when the image
    * sample distance is being automatically adjusted.
    */
   vtkSetClampMacro(MinimumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MinimumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the maximum image sample distance allow when the image
    * sample distance is being automatically adjusted.
    */
   vtkSetClampMacro(MaximumImageSampleDistance, float, 0.1f, 100.0f);
   vtkGetMacro(MaximumImageSampleDistance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If AutoAdjustSampleDistances is on, the ImageSampleDistance
    * and the SampleDistance will be varied to achieve the allocated
@@ -164,9 +164,9 @@ public:
   vtkSetClampMacro(AutoAdjustSampleDistances, vtkTypeBool, 0, 1);
   vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Automatically compute the sample distance from the data spacing.  When
    * the number of voxels is 8, the sample distance will be roughly 1/200
@@ -178,9 +178,9 @@ public:
   vtkSetClampMacro(LockSampleDistanceToInputSpacing, vtkTypeBool, 0, 1);
   vtkGetMacro(LockSampleDistanceToInputSpacing, vtkTypeBool);
   vtkBooleanMacro(LockSampleDistanceToInputSpacing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of threads to use. This by default is equal to
    * the number of available processors detected.
@@ -188,9 +188,9 @@ public:
    */
   void SetNumberOfThreads(int num);
   int GetNumberOfThreads();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
@@ -198,9 +198,9 @@ public:
   vtkSetClampMacro(IntermixIntersectingGeometry, vtkTypeBool, 0, 1);
   vtkGetMacro(IntermixIntersectingGeometry, vtkTypeBool);
   vtkBooleanMacro(IntermixIntersectingGeometry, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * What is the image sample distance required to achieve the desired time?
    * A version of this method is provided that does not require the volume
@@ -210,7 +210,7 @@ public:
    */
   float ComputeRequiredImageSampleDistance(float desiredTime, vtkRenderer* ren);
   float ComputeRequiredImageSampleDistance(float desiredTime, vtkRenderer* ren, vtkVolume* vol);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -269,7 +269,7 @@ public:
 
   int ShouldUseNearestNeighborInterpolation(vtkVolume* vol);
 
-  //@{
+  ///@{
   /**
    * Set / Get the underlying image object. One will be automatically
    * created - only need to set it when using from an AMR mapper which
@@ -277,7 +277,7 @@ public:
    */
   void SetRayCastImage(vtkFixedPointRayCastImage*);
   vtkGetObjectMacro(RayCastImage, vtkFixedPointRayCastImage);
-  //@}
+  ///@}
 
   int PerImageInitialization(vtkRenderer*, vtkVolume*, int, double*, double*, int*);
   void PerVolumeInitialization(vtkRenderer*, vtkVolume*);
@@ -301,7 +301,7 @@ public:
   }
   float GetEstimatedRenderTime(vtkRenderer* ren) { return this->RetrieveRenderTime(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get the window / level applied to the final color.
    * This allows brightness / contrast adjustments on the
@@ -319,7 +319,7 @@ public:
   vtkGetMacro(FinalColorWindow, float);
   vtkSetMacro(FinalColorLevel, float);
   vtkGetMacro(FinalColorLevel, float);
-  //@}
+  ///@}
 
   // Here to be used by the mapper to tell the helper
   // to flip the MIP comparison in order to support

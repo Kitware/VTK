@@ -48,31 +48,31 @@ public:
   vtkTypeMacro(vtkElevationFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Define one end of the line (small scalar values).  Default is
    * (0,0,0).
    */
   vtkSetVector3Macro(LowPoint, double);
   vtkGetVectorMacro(LowPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define other end of the line (large scalar values).  Default is
    * (0,0,1).
    */
   vtkSetVector3Macro(HighPoint, double);
   vtkGetVectorMacro(HighPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify range to map scalars into.  Default is [0, 1].
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVectorMacro(ScalarRange, double, 2);
-  //@}
+  ///@}
 
 protected:
   vtkElevationFilter();

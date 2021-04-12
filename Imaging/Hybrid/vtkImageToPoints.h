@@ -40,16 +40,16 @@ public:
   vtkTypeMacro(vtkImageToPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Only extract the points that lie within the stencil.
    */
   void SetStencilConnection(vtkAlgorithmOutput* port);
   vtkAlgorithmOutput* GetStencilConnection();
   void SetStencilData(vtkImageStencilData* stencil);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired precision for the output points.
    * See vtkAlgorithm::DesiredOutputPrecision for the available choices.
@@ -57,7 +57,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageToPoints();

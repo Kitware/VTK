@@ -47,13 +47,13 @@ public:
   static vtkUTF16TextCodec* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name this codec goes by - should match the string the factory will take to create it
    */
   const char* Name() override;
   bool CanHandle(const char* NameString) override;
-  //@}
+  ///@}
 
   /**
    * Set the endianness - true if Big false is little

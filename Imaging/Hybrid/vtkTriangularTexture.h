@@ -46,31 +46,31 @@ public:
    */
   static vtkTriangularTexture* New();
 
-  //@{
+  ///@{
   /**
    * Set a Scale Factor.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the X texture map dimension. Default is 64.
    */
   vtkSetMacro(XSize, int);
   vtkGetMacro(XSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Y texture map dimension. Default is 64.
    */
   vtkSetMacro(YSize, int);
   vtkGetMacro(YSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the texture pattern.
    * 1 = opaque at centroid (default)
@@ -79,7 +79,7 @@ public:
    */
   vtkSetClampMacro(TexturePattern, int, 1, 3);
   vtkGetMacro(TexturePattern, int);
-  //@}
+  ///@}
 
 protected:
   vtkTriangularTexture();

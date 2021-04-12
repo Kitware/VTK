@@ -64,7 +64,7 @@ public:
    */
   void CreateOutputWindow() override {}
 
-  //@{
+  ///@{
   /**
    * If you don't need any special functionality from the controller, you
    * can swap out the dummy communicator for another one.
@@ -72,7 +72,7 @@ public:
   vtkGetObjectMacro(RMICommunicator, vtkCommunicator);
   virtual void SetCommunicator(vtkCommunicator*);
   virtual void SetRMICommunicator(vtkCommunicator*);
-  //@}
+  ///@}
 
 protected:
   vtkDummyController();

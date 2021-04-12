@@ -88,7 +88,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * WeightArray is the string name of the DataArray in the input's
    * FieldData that holds the weighting coefficients for each point.
@@ -100,9 +100,9 @@ public:
    */
   vtkSetStringMacro(WeightArray);
   vtkGetStringMacro(WeightArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * TransformIndexArray is the string name of the DataArray in the input's
    * FieldData that holds the indices for the transforms for each point.
@@ -121,9 +121,9 @@ public:
    */
   vtkSetStringMacro(TransformIndexArray);
   vtkGetStringMacro(TransformIndexArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The CellDataWeightArray is analogous to the WeightArray, except
    * for CellData.  The array is searched for first in the CellData
@@ -133,18 +133,18 @@ public:
    */
   vtkSetStringMacro(CellDataWeightArray);
   vtkGetStringMacro(CellDataWeightArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The CellDataTransformIndexArray is like a TransformIndexArray,
    * except for cell data.  The array must have type UnsignedShort.
    */
   vtkSetStringMacro(CellDataTransformIndexArray);
   vtkGetStringMacro(CellDataTransformIndexArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set or Get one of the filter's transforms. The transform number must
    * be less than the number of transforms allocated for the object.  Setting
@@ -153,9 +153,9 @@ public:
    */
   virtual void SetTransform(vtkAbstractTransform* transform, int num);
   virtual vtkAbstractTransform* GetTransform(int num);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of transforms for the filter.  References to non-existent
    * filter numbers in the data array is equivalent to a weight of zero
@@ -164,9 +164,9 @@ public:
    */
   virtual void SetNumberOfTransforms(int num);
   vtkGetMacro(NumberOfTransforms, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If AddInputValues is true, the output values of this filter will be
    * offset from the input values.  The effect is exactly equivalent to
@@ -175,7 +175,7 @@ public:
   vtkBooleanMacro(AddInputValues, vtkTypeBool);
   vtkSetMacro(AddInputValues, vtkTypeBool);
   vtkGetMacro(AddInputValues, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractTransform** Transforms;

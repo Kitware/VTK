@@ -64,22 +64,22 @@ public:
     CUBIC_CURVE
   };
 
-  //@{
+  ///@{
   /**
    * Insert the next control point in the path.
    */
   void InsertNextPoint(float pts[3], int code);
   void InsertNextPoint(double pts[3], int code);
   void InsertNextPoint(double x, double y, double z, int code);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the array of control point codes:
    */
   void SetCodes(vtkIntArray*);
   vtkIntArray* GetCodes();
-  //@}
+  ///@}
 
   /**
    * vtkPath doesn't use cells. These methods return trivial values.
@@ -117,13 +117,13 @@ public:
    */
   void Reset();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPath* GetData(vtkInformation* info);
   static vtkPath* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkPath();

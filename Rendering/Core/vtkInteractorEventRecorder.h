@@ -49,13 +49,13 @@ public:
   void SetEnabled(int) override;
   void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of a file events should be written to/from.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * Invoke this method to begin recording events. The events will be
@@ -79,7 +79,7 @@ public:
    */
   void Rewind();
 
-  //@{
+  ///@{
   /**
    * Enable reading from an InputString as compared to the default
    * behavior, which is to read from a file.
@@ -87,15 +87,15 @@ public:
   vtkSetMacro(ReadFromInputString, vtkTypeBool);
   vtkGetMacro(ReadFromInputString, vtkTypeBool);
   vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the string to read from.
    */
   vtkSetStringMacro(InputString);
   vtkGetStringMacro(InputString);
-  //@}
+  ///@}
 
 protected:
   vtkInteractorEventRecorder();

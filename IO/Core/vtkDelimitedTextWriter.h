@@ -40,48 +40,48 @@ public:
   vtkTypeMacro(vtkDelimitedTextWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the delimiter use to separate fields ("," by default.)
    */
   vtkSetStringMacro(FieldDelimiter);
   vtkGetStringMacro(FieldDelimiter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the delimiter used for string data, if any
    * eg. double quotes(").
    */
   vtkSetStringMacro(StringDelimiter);
   vtkGetStringMacro(StringDelimiter);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the filename for the file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set if StringDelimiter must be used for string data.
    * True by default.
    */
   vtkSetMacro(UseStringDelimiter, bool);
   vtkGetMacro(UseStringDelimiter, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
-  //@}
+  ///@}
 
   /**
    * This convenience method returns the string, sets the IVAR to nullptr,

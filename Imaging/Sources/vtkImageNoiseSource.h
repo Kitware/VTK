@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkImageNoiseSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum and maximum values for the generated noise.
    */
@@ -45,9 +45,9 @@ public:
   vtkGetMacro(Minimum, double);
   vtkSetMacro(Maximum, double);
   vtkGetMacro(Maximum, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set how large of an image to generate.
    */
@@ -56,7 +56,7 @@ public:
   {
     this->SetWholeExtent(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]);
   }
-  //@}
+  ///@}
 
 protected:
   vtkImageNoiseSource();

@@ -39,13 +39,13 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericPointIterator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK construction and type macros.
    */
   vtkTypeMacro(vtkGenericPointIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Move iterator to first position if any (loop initialization).
@@ -84,13 +84,13 @@ public:
   virtual vtkIdType GetId() = 0;
 
 protected:
-  //@{
+  ///@{
   /**
    * Destructor.
    */
   vtkGenericPointIterator();
   ~vtkGenericPointIterator() override;
-  //@}
+  ///@}
 
 private:
   vtkGenericPointIterator(const vtkGenericPointIterator&) = delete;

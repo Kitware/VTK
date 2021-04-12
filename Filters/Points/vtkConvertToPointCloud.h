@@ -42,7 +42,7 @@ public:
     VERTEX_CELLS = 2
   } CellGeneration;
 
-  //@{
+  ///@{
   /**
    * Set/Get the cell generation mode.
    * Available modes are:
@@ -55,7 +55,7 @@ public:
    */
   vtkSetMacro(CellGenerationMode, int);
   vtkGetMacro(CellGenerationMode, int);
-  //@}
+  ///@}
 
 protected:
   vtkConvertToPointCloud() = default;

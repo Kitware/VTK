@@ -74,19 +74,19 @@ public:
 
   static vtkIncrementalOctreeNode* New();
 
-  //@{
+  ///@{
   /**
    * Get the number of points inside or under this node.
    */
   vtkGetMacro(NumberOfPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the list of point indices, nullptr for a non-leaf node.
    */
   vtkGetObjectMacro(PointIdSet, vtkIdList);
-  //@}
+  ///@}
 
   /**
    * Delete the eight child nodes.
@@ -105,19 +105,19 @@ public:
    */
   void GetBounds(double bounds[6]) const;
 
-  //@{
+  ///@{
   /**
    * Get access to MinBounds. Do not free this pointer.
    */
   vtkGetVector3Macro(MinBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get access to MaxBounds. Do not free this pointer.
    */
   vtkGetVector3Macro(MaxBounds, double);
-  //@}
+  ///@}
 
   /**
    * Get access to MinDataBounds. Note that MinDataBounds is not valid until

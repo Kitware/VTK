@@ -42,7 +42,7 @@ public:
    */
   virtual void ReplaceNthInputConnection(int idx, vtkAlgorithmOutput* input);
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -50,9 +50,9 @@ public:
    */
   void SetInputData(int num, vtkDataObject* input);
   void SetInputData(vtkDataObject* input) { this->SetInputData(0, input); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get one input to this filter. This method is only for support of
    * old-style pipeline connections.  When writing new code you should
@@ -60,7 +60,7 @@ public:
    */
   vtkDataObject* GetInput(int num);
   vtkDataObject* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
   /**
    * Get the number of inputs to this filter. This method is only for

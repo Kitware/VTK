@@ -107,7 +107,7 @@ public:
   void DestroyWindow() override;
   // }@
 
-  //@{
+  ///@{
   /**
    * Allow to update state within observer callback without changing
    * data argument and MTime.
@@ -115,7 +115,7 @@ public:
   void SetIsDirect(vtkTypeBool newValue);
   void SetSupportsOpenGL(int newValue);
   void SetIsCurrent(bool newValue);
-  //@}
+  ///@}
 
   /**
    * Override the Render method to do some state management.
@@ -131,16 +131,16 @@ public:
    */
   float GetMaximumHardwareLineWidth() override;
 
-  //@{
+  ///@{
   /**
    * Specify a non-zero line width to force the hardware line width determined
    * by the window.
    */
   vtkSetClampMacro(ForceMaximumHardwareLineWidth, float, 0, VTK_FLOAT_MAX);
   vtkGetMacro(ForceMaximumHardwareLineWidth, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set this to true to indicate that the context is now ready. For backwards
    * compatibility reasons, it's set to true by default. If set to false, the

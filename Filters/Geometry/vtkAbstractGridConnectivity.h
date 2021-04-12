@@ -66,13 +66,13 @@ public:
   vtkTypeMacro(vtkAbstractGridConnectivity, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of ghost layers
    */
   vtkSetMacro(NumberOfGhostLayers, unsigned int);
   vtkGetMacro(NumberOfGhostLayers, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Sets the total number of grids in the domain.
@@ -167,23 +167,23 @@ protected:
    */
   void RegisterGridNodes(const int gridID, vtkPoints* nodes);
 
-  //@{
+  ///@{
   /**
    * Allocate/De-allocate the data-structures where the user-supplied grids
    * will be registered.
    */
   void AllocateUserRegisterDataStructures();
   void DeAllocateUserRegisterDataStructures();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allocated/De-allocate the data-structures where the ghosted grid
    * data will be stored.
    */
   void AllocateInternalDataStructures();
   void DeAllocateInternalDataStructures();
-  //@}
+  ///@}
 
   // The total number of grids, set initially by the user.
   unsigned int NumberOfGrids;

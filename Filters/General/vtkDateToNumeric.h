@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkDateToNumeric, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * You can specify your own format to parse dates by. This string
    * follows the formatting conventions of std::get_time
    */
   vtkGetStringMacro(DateFormat);
   vtkSetStringMacro(DateFormat);
-  //@}
+  ///@}
 
 protected:
   vtkDateToNumeric();

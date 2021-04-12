@@ -66,25 +66,25 @@ public:
     INTERACT_PAN
   };
 
-  //@{
+  ///@{
   /**
    * Get the cursor positions in pixel coords
    */
   vtkGetVector2Macro(CursorStartPosition, int);
   vtkGetVector2Macro(CursorCurrentPosition, int);
   vtkGetVector2Macro(CursorLastPosition, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the cursor positions in a given coordinate system
    */
   void GetCursorStartPosition(vtkViewport* viewport, double pos[2]);
   void GetCursorCurrentPosition(vtkViewport* viewport, double pos[2]);
   void GetCursorLastPosition(vtkViewport* viewport, double pos[2]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
@@ -97,25 +97,25 @@ public:
   void OnRightButtonDown() override;
   void OnRightButtonUp() override;
   void OnLeave() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   virtual void StartInspect(int x, int y);
   virtual void Inspect(int x, int y);
   virtual void EndInspect();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   void StartZoom() override;
   void Zoom() override;
   void EndZoom() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   void StartPan() override;
   void Pan() override;
   void EndPan() override;
-  //@}
+  ///@}
 
   /**
    * Override the "fly-to" (f keypress) for images.

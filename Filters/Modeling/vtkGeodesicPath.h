@@ -31,13 +31,13 @@ class vtkPolyData;
 class VTKFILTERSMODELING_EXPORT vtkGeodesicPath : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkGeodesicPath, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
 protected:
   vtkGeodesicPath();

@@ -74,34 +74,34 @@ public:
   bool SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper* mapper, vtkProp* prop,
     vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the SSAO hemisphere radius.
    * Default is 0.5
    */
   vtkGetMacro(Radius, double);
   vtkSetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of samples.
    * Default is 32
    */
   vtkGetMacro(KernelSize, unsigned int);
   vtkSetClampMacro(KernelSize, unsigned int, 1, 1000);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the bias when comparing samples.
    * Default is 0.01
    */
   vtkGetMacro(Bias, double);
   vtkSetMacro(Bias, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set blurring of the ambient occlusion.
    * Blurring can help to improve the result if samples number is low.
@@ -110,7 +110,7 @@ public:
   vtkGetMacro(Blur, bool);
   vtkSetMacro(Blur, bool);
   vtkBooleanMacro(Blur, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSSAOPass() = default;

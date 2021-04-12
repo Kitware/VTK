@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkVectorFieldTopology, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify a uniform integration step unit for MinimumIntegrationStep,
    * InitialIntegrationStep, and MaximumIntegrationStep.
@@ -53,57 +53,57 @@ public:
    */
   vtkSetMacro(IntegrationStepUnit, int);
   vtkGetMacro(IntegrationStepUnit, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see the maximal number of iterations in this class and in vtkStreamTracer
    */
   vtkSetMacro(MaxNumSteps, int);
   vtkGetMacro(MaxNumSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Initial, minimum, and maximum step size used for line integration,
    * expressed in IntegrationStepUnit
    */
   vtkSetMacro(IntegrationStepSize, double);
   vtkGetMacro(IntegrationStepSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see the distance by which the seedpoints of the separatrices are placed away from the
    * saddle expressed in IntegrationStepUnit
    */
   vtkSetMacro(SeparatrixDistance, double);
   vtkGetMacro(SeparatrixDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see if the simple (fast) or iterative (correct) version is called
    */
   vtkSetMacro(UseIterativeSeeding, bool);
   vtkGetMacro(UseIterativeSeeding, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see if the separatring surfaces (separatrices in 3D) are computed or not
    */
   vtkSetMacro(ComputeSurfaces, bool);
   vtkGetMacro(ComputeSurfaces, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify/see if the boundary cells are treated or not
    */
   vtkSetMacro(ExcludeBoundary, bool);
   vtkGetMacro(ExcludeBoundary, bool);
-  //@}
+  ///@}
 
 protected:
   vtkVectorFieldTopology();

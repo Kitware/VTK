@@ -71,7 +71,7 @@ public:
    */
   static vtkRectilinearGridToTetrahedra* New();
 
-  //@{
+  ///@{
   /**
    * Set the method to divide each cell (voxel) in the RectilinearGrid
    * into tetrahedra.
@@ -82,9 +82,9 @@ public:
   void SetTetraPerCellTo5And12() { SetTetraPerCell(VTK_VOXEL_TO_5_AND_12_TET); }
   vtkSetMacro(TetraPerCell, int);
   vtkGetMacro(TetraPerCell, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should the tetrahedra have scalar data
    * indicating which Voxel they came from in the vtkRectilinearGrid?
@@ -92,7 +92,7 @@ public:
   vtkSetMacro(RememberVoxelId, vtkTypeBool);
   vtkGetMacro(RememberVoxelId, vtkTypeBool);
   vtkBooleanMacro(RememberVoxelId, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * This function for convenience for creating a Rectilinear Grid

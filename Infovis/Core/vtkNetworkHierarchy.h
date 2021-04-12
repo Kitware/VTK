@@ -42,13 +42,13 @@ public:
   static vtkNetworkHierarchy* New();
   vtkTypeMacro(vtkNetworkHierarchy, vtkTreeAlgorithm);
 
-  //@{
+  ///@{
   /**
    * Used to store the ip array name
    */
   vtkGetStringMacro(IPArrayName);
   vtkSetStringMacro(IPArrayName);
-  //@}
+  ///@}
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

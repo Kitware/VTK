@@ -38,7 +38,7 @@ public:
   static vtkDummyCommunicator* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Since there is no one to communicate with, these methods just report an
    * error.
@@ -53,7 +53,7 @@ public:
     vtkWarningMacro("There is no one to receive from.");
     return 0;
   }
-  //@}
+  ///@}
 
 protected:
   vtkDummyCommunicator();

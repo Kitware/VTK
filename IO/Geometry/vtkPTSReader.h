@@ -35,15 +35,15 @@ public:
   vtkTypeMacro(vtkPTSReader, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name.
    */
   void SetFileName(const char* filename);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean value indicates whether or not to limit points read to a specified
    * (ReadBounds) region.
@@ -51,26 +51,26 @@ public:
   vtkBooleanMacro(LimitReadToBounds, bool);
   vtkSetMacro(LimitReadToBounds, bool);
   vtkGetMacro(LimitReadToBounds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bounds to use if LimitReadToBounds is On
    */
   vtkSetVector6Macro(ReadBounds, double);
   vtkGetVector6Macro(ReadBounds, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The output type defaults to float, but can instead be double.
    */
   vtkBooleanMacro(OutputDataTypeIsDouble, bool);
   vtkSetMacro(OutputDataTypeIsDouble, bool);
   vtkGetMacro(OutputDataTypeIsDouble, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean value indicates whether or not to limit number of points read
    * based on MaxNumbeOfPoints.
@@ -78,18 +78,18 @@ public:
   vtkBooleanMacro(LimitToMaxNumberOfPoints, bool);
   vtkSetMacro(LimitToMaxNumberOfPoints, bool);
   vtkGetMacro(LimitToMaxNumberOfPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum number of points to load if LimitToMaxNumberOfPoints is on/true.
    * Sets a temporary onRatio.
    */
   vtkSetClampMacro(MaxNumberOfPoints, vtkIdType, 1, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean value indicates whether or not to create cells
    * for this dataset. Otherwise only points and scalars
@@ -98,9 +98,9 @@ public:
   vtkBooleanMacro(CreateCells, bool);
   vtkSetMacro(CreateCells, bool);
   vtkGetMacro(CreateCells, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean value indicates when color values are present
    * if luminance should be read in as well
@@ -109,7 +109,7 @@ public:
   vtkBooleanMacro(IncludeColorAndLuminance, bool);
   vtkSetMacro(IncludeColorAndLuminance, bool);
   vtkGetMacro(IncludeColorAndLuminance, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPTSReader();

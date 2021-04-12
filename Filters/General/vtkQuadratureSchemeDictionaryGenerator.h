@@ -57,14 +57,14 @@ private:
   vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
   void operator=(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
 
-  //@{
+  ///@{
   /**
    * Generate definitions for each cell type found on the
    * input data set. The same definition will be used
    * for all point data arrays.
    */
   int Generate(vtkUnstructuredGrid* usgOut);
-  //@}
+  ///@}
 };
 
 #endif

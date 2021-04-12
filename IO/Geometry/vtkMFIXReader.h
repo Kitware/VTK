@@ -57,59 +57,59 @@ public:
   vtkTypeMacro(vtkMFIXReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the file name of the MFIX Restart data file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of cells. The number of cells is only valid after a
    * successful read of the data file is performed.
    */
   vtkGetMacro(NumberOfCells, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of nodes. The number of nodes is only valid after a
    * successful read of the data file is performed.
    */
   vtkGetMacro(NumberOfPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data components at the nodes and cells.
    */
   vtkGetMacro(NumberOfCellFields, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Which TimeStep to read.
    */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the number of timesteps.
    */
   vtkGetMacro(NumberOfTimeSteps, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Which TimeStepRange to read
    */
   vtkGetVector2Macro(TimeStepRange, int);
   vtkSetVector2Macro(TimeStepRange, int);
-  //@}
+  ///@}
 
   /**
    * Get the number of cell arrays available in the input.
@@ -122,22 +122,22 @@ public:
    */
   const char* GetCellArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the cell array with the given name is to
    * be read.
    */
   int GetCellArrayStatus(const char* name);
   void SetCellArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off all cell arrays.
    */
   void DisableAllCellArrays();
   void EnableAllCellArrays();
-  //@}
+  ///@}
 
   /**
    * Get the range of cell data.

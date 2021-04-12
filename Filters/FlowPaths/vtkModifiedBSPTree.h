@@ -156,13 +156,13 @@ class vtkIdListCollection;
 class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard Type-Macro
    */
   vtkTypeMacro(vtkModifiedBSPTree, vtkAbstractCellLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct with maximum 32 cells per node. (average 16->31)

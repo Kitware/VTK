@@ -86,13 +86,13 @@ public:
    */
   static vtkSeedWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkSeedWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -178,12 +178,12 @@ public:
    */
   vtkHandleWidget* GetSeed(int n);
 
-  //@{
+  ///@{
   /**
    * Get the widget state.
    */
   vtkGetMacro(WidgetState, int);
-  //@}
+  ///@}
 
   // The state of the widget
 

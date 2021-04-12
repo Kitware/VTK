@@ -63,13 +63,13 @@ public:
    */
   void Grab() override;
 
-  //@{
+  ///@{
   /**
    * Request a particular frame size (set the third value to 1).
    */
   void SetFrameSize(int x, int y, int z) override;
   void SetFrameSize(int dim[3]) override { this->SetFrameSize(dim[0], dim[1], dim[2]); }
-  //@}
+  ///@}
 
   /**
    * Request a particular frame rate (default 30 frames per second).
@@ -81,14 +81,14 @@ public:
    */
   void SetOutputFormat(int format) override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off the preview (overlay) window.
    */
   void SetPreview(int p);
   vtkBooleanMacro(Preview, int);
   vtkGetMacro(Preview, int);
-  //@}
+  ///@}
 
   /**
    * Bring up a modal dialog box for video format selection.
@@ -112,13 +112,13 @@ public:
    */
   void ReleaseSystemResources() override;
 
-  //@{
+  ///@{
   /**
    * For internal use only
    */
   void LocalInternalGrab(void*);
   void OnParentWndDestroy();
-  //@}
+  ///@}
 
 protected:
   vtkWin32VideoSource();

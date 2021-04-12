@@ -63,14 +63,14 @@ class vtkImageData;
 class VTKFILTERSGENERAL_EXPORT vtkDiscreteFlyingEdgesClipper2D : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, printing, and type information.
    */
   static vtkDiscreteFlyingEdgesClipper2D* New();
   vtkTypeMacro(vtkDiscreteFlyingEdgesClipper2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The modified time is a function of the contour values because we delegate to
@@ -117,7 +117,7 @@ public:
    */
   vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
-  //@{
+  ///@{
   /**
    * Generate numContours equally spaced contour values between the specified
    * range. Contour values will include min/max range values.
@@ -130,9 +130,9 @@ public:
   {
     this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to set the cell scalars of the output. The scalars will be the
    * contour values. By default this flag is on.
@@ -140,16 +140,16 @@ public:
   vtkSetMacro(ComputeScalars, int);
   vtkGetMacro(ComputeScalars, int);
   vtkBooleanMacro(ComputeScalars, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of a multi-component scalar array to contour on;
    * defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkDiscreteFlyingEdgesClipper2D();

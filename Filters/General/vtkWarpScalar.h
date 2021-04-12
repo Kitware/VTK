@@ -46,7 +46,7 @@ class vtkDataArray;
 class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, obtaining type information,
    * and printing.
@@ -54,17 +54,17 @@ public:
   static vtkWarpScalar* New();
   vtkTypeMacro(vtkWarpScalar, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify value to scale displacement.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off use of user specified normal. If on, data normals
    * will be ignored and instance variable Normal will be used instead.
@@ -72,18 +72,18 @@ public:
   vtkSetMacro(UseNormal, vtkTypeBool);
   vtkGetMacro(UseNormal, vtkTypeBool);
   vtkBooleanMacro(UseNormal, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Normal (i.e., direction) along which to warp geometry. Only used
    * if UseNormal boolean set to true or no normals available in data.
    */
   vtkSetVector3Macro(Normal, double);
   vtkGetVectorMacro(Normal, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag specifying that input data is x-y plane. If x-y plane,
    * then the z value is used to warp the surface in the z-axis direction
@@ -92,9 +92,9 @@ public:
   vtkSetMacro(XYPlane, vtkTypeBool);
   vtkGetMacro(XYPlane, vtkTypeBool);
   vtkBooleanMacro(XYPlane, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points type. By default
    * (DEFAULT_PRECISION) the output type is SINGLE_PRECISION, otherwise it is
@@ -102,7 +102,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

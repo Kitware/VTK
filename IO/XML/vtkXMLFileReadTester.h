@@ -40,21 +40,21 @@ public:
    */
   int TestReadFile();
 
-  //@{
+  ///@{
   /**
    * Get the data type of the XML file tested.  If the file could not
    * be read, returns nullptr.
    */
   vtkGetStringMacro(FileDataType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the file version of the XML file tested.  If the file could not
    * be read, returns nullptr.
    */
   vtkGetStringMacro(FileVersion);
-  //@}
+  ///@}
 
 protected:
   vtkXMLFileReadTester();

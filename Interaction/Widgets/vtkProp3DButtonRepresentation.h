@@ -56,24 +56,24 @@ public:
    */
   static vtkProp3DButtonRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of the class.
    */
   vtkTypeMacro(vtkProp3DButtonRepresentation, vtkButtonRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add the ith texture corresponding to the ith button state.
    * The parameter i should be (0 <= i < NumberOfStates).
    */
   void SetButtonProp(int i, vtkProp3D* prop);
   vtkProp3D* GetButtonProp(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether the button should always face the camera. If enabled,
    * the button reorients itself towards the camera as the camera moves.
@@ -81,20 +81,20 @@ public:
   vtkSetMacro(FollowCamera, vtkTypeBool);
   vtkGetMacro(FollowCamera, vtkTypeBool);
   vtkBooleanMacro(FollowCamera, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Extend the vtkButtonRepresentation::SetState() method.
    */
   void SetState(int state) override;
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the vtkWidgetRepresentation API.
    */
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void BuildRepresentation() override;
-  //@}
+  ///@}
 
   /**
    * This method positions (translates and scales the props) into the
@@ -102,7 +102,7 @@ public:
    */
   void PlaceWidget(double bounds[6]) override;
 
-  //@{
+  ///@{
   /**
    * Provide the necessary methods to satisfy the rendering API.
    */
@@ -114,7 +114,7 @@ public:
   int RenderVolumetricGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /*
    * Register internal Pickers within PickingManager

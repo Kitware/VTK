@@ -63,20 +63,20 @@
 class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkCellDerivatives, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct to compute the gradient of the scalars and vectors.
    */
   static vtkCellDerivatives* New();
 
-  //@{
+  ///@{
   /**
    * Control how the filter works to generate vector cell data. You
    * can choose to pass the input cell vectors, compute the gradient
@@ -90,9 +90,9 @@ public:
   void SetVectorModeToComputeGradient() { this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT); }
   void SetVectorModeToComputeVorticity() { this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY); }
   const char* GetVectorModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how the filter works to generate tensor cell data. You can
    * choose to pass the input cell tensors, compute the gradient of
@@ -111,7 +111,7 @@ public:
     this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);
   }
   const char* GetTensorModeAsString();
-  //@}
+  ///@}
 
 protected:
   vtkCellDerivatives();

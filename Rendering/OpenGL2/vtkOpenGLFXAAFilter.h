@@ -77,7 +77,7 @@ public:
    */
   void UpdateConfiguration(vtkFXAAOptions* opts);
 
-  //@{
+  ///@{
   /**
    * Parameter for tuning the FXAA implementation. See vtkFXAAOptions for
    * details and suggested values.
@@ -97,7 +97,7 @@ public:
   vtkGetMacro(EndpointSearchIterations, int);
   virtual void SetDebugOptionValue(vtkFXAAOptions::DebugOption opt);
   vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption);
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLFXAAFilter();

@@ -72,7 +72,7 @@ public:
   double* GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds(bounds); }
 
-  //@{
+  ///@{
   /**
    * Add a level of detail with a given mapper, property, backface property,
    * texture, and guess of rendering time.  The property and texture fields
@@ -92,23 +92,23 @@ public:
   int AddLOD(vtkAbstractVolumeMapper* m, double time);
   int AddLOD(vtkImageMapper3D* m, vtkImageProperty* p, double time);
   int AddLOD(vtkImageMapper3D* m, double time);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current number of LODs.
    */
   vtkGetMacro(NumberOfLODs, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current index, used to determine the ID of the next LOD that is
    * added.  Useful for guessing what IDs have been used (with NumberOfLODs,
    * without depending on the constructor initialization to 1000.
    */
   vtkGetMacro(CurrentIndex, int);
-  //@}
+  ///@}
 
   /**
    * Delete a level of detail given an ID. This is the ID returned by the
@@ -116,7 +116,7 @@ public:
    */
   void RemoveLOD(int id);
 
-  //@{
+  ///@{
   /**
    * Methods to set / get the property of an LOD. Since the LOD could be
    * a volume or an actor, you have to pass in the pointer to the property
@@ -129,9 +129,9 @@ public:
   void GetLODProperty(int id, vtkVolumeProperty** p);
   void SetLODProperty(int id, vtkImageProperty* p);
   void GetLODProperty(int id, vtkImageProperty** p);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get the mapper of an LOD. Since the LOD could be
    * a volume or an actor, you have to pass in the pointer to the mapper
@@ -144,7 +144,7 @@ public:
   void GetLODMapper(int id, vtkAbstractVolumeMapper** m);
   void SetLODMapper(int id, vtkImageMapper3D* m);
   void GetLODMapper(int id, vtkImageMapper3D** m);
-  //@}
+  ///@}
 
   /**
    * Get the LODMapper as an vtkAbstractMapper3D.  It is the user's
@@ -153,25 +153,25 @@ public:
    */
   vtkAbstractMapper3D* GetLODMapper(int id);
 
-  //@{
+  ///@{
   /**
    * Methods to set / get the backface property of an LOD. This method is only
    * valid for LOD ids that are Actors (not Volumes)
    */
   void SetLODBackfaceProperty(int id, vtkProperty* t);
   void GetLODBackfaceProperty(int id, vtkProperty** t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get the texture of an LOD. This method is only
    * valid for LOD ids that are Actors (not Volumes)
    */
   void SetLODTexture(int id, vtkTexture* t);
   void GetLODTexture(int id, vtkTexture** t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable / disable a particular LOD. If it is disabled, it will not
    * be used during automatic selection, but can be selected as the
@@ -180,9 +180,9 @@ public:
   void EnableLOD(int id);
   void DisableLOD(int id);
   int IsLODEnabled(int id);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the level of a particular LOD. When a LOD is selected for
    * rendering because it has the largest render time that fits within
@@ -194,9 +194,9 @@ public:
   void SetLODLevel(int id, double level);
   double GetLODLevel(int id);
   double GetLODIndexLevel(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access method that can be used to find out the estimated render time
    * (the thing used to select an LOD) for a given LOD ID or index.
@@ -204,9 +204,9 @@ public:
    */
   double GetLODEstimatedRenderTime(int id);
   double GetLODIndexEstimatedRenderTime(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on / off automatic selection of LOD.
    * This is on by default. If it is off, then the SelectedLODID is
@@ -215,16 +215,16 @@ public:
   vtkSetClampMacro(AutomaticLODSelection, vtkTypeBool, 0, 1);
   vtkGetMacro(AutomaticLODSelection, vtkTypeBool);
   vtkBooleanMacro(AutomaticLODSelection, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the id of the LOD that is to be drawn when automatic LOD selection
    * is turned off.
    */
   vtkSetMacro(SelectedLODID, int);
   vtkGetMacro(SelectedLODID, int);
-  //@}
+  ///@}
 
   /**
    * Get the ID of the previously (during the last render) selected LOD index
@@ -236,7 +236,7 @@ public:
    */
   int GetPickLODID(void);
 
-  //@{
+  ///@{
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
@@ -244,18 +244,18 @@ public:
    */
   void GetActors(vtkPropCollection*) override;
   void GetVolumes(vtkPropCollection*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the id of the LOD that is to be used for picking when automatic
    * LOD pick selection is turned off.
    */
   void SetSelectedPickLODID(int id);
   vtkGetMacro(SelectedPickLODID, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on / off automatic selection of picking LOD.
    * This is on by default. If it is off, then the SelectedLODID is
@@ -264,21 +264,21 @@ public:
   vtkSetClampMacro(AutomaticPickLODSelection, vtkTypeBool, 0, 1);
   vtkGetMacro(AutomaticPickLODSelection, vtkTypeBool);
   vtkBooleanMacro(AutomaticPickLODSelection, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of this vtkLODProp3D.
    */
   void ShallowCopy(vtkProp* prop) override;
 
-  //@{
+  ///@{
   /**
    * Support the standard render methods.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderVolumetricGeometry(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

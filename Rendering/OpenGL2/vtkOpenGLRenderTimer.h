@@ -76,16 +76,16 @@ public:
    */
   bool Ready();
 
-  //@{
+  ///@{
   /**
    * If Ready() returns true, get the elapsed time in the requested units.
    */
   float GetElapsedSeconds();
   float GetElapsedMilliseconds();
   vtkTypeUInt64 GetElapsedNanoseconds();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This class can also be used in a reusable manner where the start and stop
    * events stay in flight until they are both completed. Calling ReusableStart
@@ -114,7 +114,7 @@ public:
   void ReusableStart();
   void ReusableStop();
   float GetReusableElapsedSeconds();
-  //@}
+  ///@}
 
   /**
    * If Ready() returns true, return the start or stop time in nanoseconds.

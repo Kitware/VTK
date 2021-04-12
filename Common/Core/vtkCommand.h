@@ -417,14 +417,14 @@ public:
    */
   virtual void Execute(vtkObject* caller, unsigned long eventId, void* callData) = 0;
 
-  //@{
+  ///@{
   /**
    * Convenience methods for translating between event names and event
    * ids.
    */
   static const char* GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char* event);
-  //@}
+  ///@}
 
   /**
    * Does this event type contain vtkEventData

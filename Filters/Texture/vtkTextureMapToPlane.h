@@ -54,32 +54,32 @@ public:
    */
   static vtkTextureMapToPlane* New();
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the origin of the plane. Used in conjunction with
    * the Point1 and Point2 ivars to specify a map plane.
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVectorMacro(Origin, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the first axis of the plane.
    */
   vtkSetVector3Macro(Point1, double);
   vtkGetVectorMacro(Point1, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point defining the second axis of the plane.
    */
   vtkSetVector3Macro(Point2, double);
   vtkGetVectorMacro(Point2, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify plane normal. An alternative way to specify a map plane. Using
    * this method, the object will scale the resulting texture coordinate
@@ -87,32 +87,32 @@ public:
    */
   vtkSetVector3Macro(Normal, double);
   vtkGetVectorMacro(Normal, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify s-coordinate range for texture s-t coordinate pair.
    */
   vtkSetVector2Macro(SRange, double);
   vtkGetVectorMacro(SRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify t-coordinate range for texture s-t coordinate pair.
    */
   vtkSetVector2Macro(TRange, double);
   vtkGetVectorMacro(TRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off automatic plane generation.
    */
   vtkSetMacro(AutomaticPlaneGeneration, vtkTypeBool);
   vtkGetMacro(AutomaticPlaneGeneration, vtkTypeBool);
   vtkBooleanMacro(AutomaticPlaneGeneration, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkTextureMapToPlane();

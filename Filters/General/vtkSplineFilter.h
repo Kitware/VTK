@@ -67,16 +67,16 @@ public:
    */
   static vtkSplineFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set the maximum number of subdivisions that are created for each
    * polyline.
    */
   vtkSetClampMacro(MaximumNumberOfSubdivisions, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfSubdivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify how the number of subdivisions is determined.
    */
@@ -85,9 +85,9 @@ public:
   void SetSubdivideToSpecified() { this->SetSubdivide(VTK_SUBDIVIDE_SPECIFIED); }
   void SetSubdivideToLength() { this->SetSubdivide(VTK_SUBDIVIDE_LENGTH); }
   const char* GetSubdivideAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of subdivisions that are created for the
    * polyline. This method only has effect if Subdivisions is set
@@ -95,9 +95,9 @@ public:
    */
   vtkSetClampMacro(NumberOfSubdivisions, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfSubdivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the number of subdivisions that are created for the
    * polyline based on an absolute length. The length of the spline
@@ -105,17 +105,17 @@ public:
    */
   vtkSetClampMacro(Length, double, 0.0000001, VTK_DOUBLE_MAX);
   vtkGetMacro(Length, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkSpline to use to perform the interpolation.
    */
   virtual void SetSpline(vtkSpline*);
   vtkGetObjectMacro(Spline, vtkSpline);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether and how texture coordinates are produced. This is
    * useful for striping the output polyline. The texture coordinates
@@ -133,9 +133,9 @@ public:
   void SetGenerateTCoordsToUseLength() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH); }
   void SetGenerateTCoordsToUseScalars() { this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS); }
   const char* GetGenerateTCoordsAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the conversion of units during the texture coordinates
    * calculation. The TextureLength indicates what length (whether
@@ -144,7 +144,7 @@ public:
    */
   vtkSetClampMacro(TextureLength, double, 0.000001, VTK_INT_MAX);
   vtkGetMacro(TextureLength, double);
-  //@}
+  ///@}
 
 protected:
   vtkSplineFilter();

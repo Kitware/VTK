@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkTableReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
   vtkTable* GetOutput();
   vtkTable* GetOutput(int idx);
   void SetOutput(vtkTable* output);
-  //@}
+  ///@}
 
   /**
    * Actual reading happens here

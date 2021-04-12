@@ -42,15 +42,15 @@ public:
    */
   static vtkSeedRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkSeedRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of seed points defining
    * this representation. Note that methods are available for both
@@ -61,7 +61,7 @@ public:
   virtual void SetSeedWorldPosition(unsigned int seedNum, double pos[3]);
   virtual void SetSeedDisplayPosition(unsigned int seedNum, double pos[3]);
   virtual void GetSeedDisplayPosition(unsigned int seedNum, double pos[3]);
-  //@}
+  ///@}
 
   /**
    * Return the number of seeds (or handles) that have been created.
@@ -85,14 +85,14 @@ public:
    */
   vtkHandleRepresentation* GetHandleRepresentation(unsigned int num);
 
-  //@{
+  ///@{
   /**
    * Returns the model HandleRepresentation.
    */
   vtkHandleRepresentation* GetHandleRepresentation() { return this->HandleRepresentation; };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels) in
    * which the cursor is considered near enough to the seed points of
@@ -100,7 +100,7 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 100);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
   // Used to communicate about the state of the representation
   enum
@@ -109,7 +109,7 @@ public:
     NearSeed
   };
 
-  //@{
+  ///@{
   /**
    * These are methods specific to vtkSeedRepresentation and which are
    * invoked from vtkSeedWidget.
@@ -122,20 +122,20 @@ public:
   virtual void RemoveLastHandle();
   // Delete the currently active handle
   virtual void RemoveActiveHandle();
-  //@}
+  ///@}
 
   /**
    * Remove the nth handle.
    */
   virtual void RemoveHandle(int n);
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
   void BuildRepresentation() override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
-  //@}
+  ///@}
 
 protected:
   vtkSeedRepresentation();

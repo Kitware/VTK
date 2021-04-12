@@ -86,7 +86,7 @@ public:
    */
   virtual void PackElements(vtkTable* curTable, void* vElements);
 
-  //@{
+  ///@{
   /**
    * Unpack the cluster center coordinates in \a vElements into columns of \a curTable.
    * This code may assume that the columns in \a curTable are all of the type returned by \a
@@ -96,7 +96,7 @@ public:
     vtkTable* curTable, vtkTable* newTable, void* vLocalElements, void* vGlobalElements, int np);
   virtual void UnPackElements(
     vtkTable* curTable, void* vLocalElements, vtkIdType numRows, vtkIdType numCols);
-  //@}
+  ///@}
 
   /**
    * Return the data type used to store cluster center coordinates.

@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkSplitColumnComponents, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If on this filter will calculate an additional magnitude column for all
    * columns it splits with two or more components.
@@ -61,7 +61,7 @@ public:
   vtkSetMacro(CalculateMagnitudes, bool);
   vtkGetMacro(CalculateMagnitudes, bool);
   vtkBooleanMacro(CalculateMagnitudes, bool);
-  //@}
+  ///@}
 
   enum
   {
@@ -71,7 +71,7 @@ public:
     NAMES_WITH_UNDERSCORES = 3    // e.g. Points_X
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the array naming mode.
    * Description is NUMBERS_WITH_PARENS.
@@ -82,9 +82,9 @@ public:
   void SetNamingModeToNamesWithParens() { this->SetNamingMode(NAMES_WITH_PARENS); }
   void SetNamingModeToNamesWithUnderscores() { this->SetNamingMode(NAMES_WITH_UNDERSCORES); }
   vtkGetMacro(NamingMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are keys that get added to each output array to make it easier for
    * downstream filters to know which output array were extracted from which
@@ -97,7 +97,7 @@ public:
    */
   static vtkInformationStringKey* ORIGINAL_ARRAY_NAME();
   static vtkInformationIntegerKey* ORIGINAL_COMPONENT_NUMBER();
-  //@}
+  ///@}
 
 protected:
   vtkSplitColumnComponents();

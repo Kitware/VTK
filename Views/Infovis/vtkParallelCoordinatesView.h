@@ -146,7 +146,7 @@ protected:
 
   void PrepareForRendering() override;
 
-  //@{
+  ///@{
   /**
    * Handle axis manipulation
    */
@@ -155,7 +155,7 @@ protected:
   void SelectData(unsigned long event);
   void Zoom(unsigned long event);
   void Pan(unsigned long event);
-  //@}
+  ///@}
 
   /**
    * Set/Get the position of axis highlights

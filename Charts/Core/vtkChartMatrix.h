@@ -68,7 +68,7 @@ public:
    */
   virtual vtkVector2i GetSize() const { return this->Size; }
 
-  //@{
+  ///@{
   /**
    * Set/get the borders of the chart matrix (space in pixels around each chart).
    */
@@ -84,24 +84,24 @@ public:
       borders[i] = this->Borders[i];
     }
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the gutter that should be left between the charts in the matrix.
    */
   virtual void SetGutter(const vtkVector2f& gutter);
   void SetGutterX(float value);
   void SetGutterY(float value);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a specific resize that will move the bottom left point of a chart.
    */
   virtual void SetSpecificResize(const vtkVector2i& index, const vtkVector2f& resize);
   virtual void ClearSpecificResizes();
-  //@}
+  ///@}
 
   /**
    * Get the gutter that should be left between the charts in the matrix.

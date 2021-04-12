@@ -60,7 +60,7 @@ public:
     USE_Z = 8
   };
 
-  //@{
+  ///@{
   /**
    * Set the normal of the plane to use as mirror.
    */
@@ -75,16 +75,16 @@ public:
   void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); }
   void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); }
   void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the reflection plane is set to X, Y or Z, this variable
    * is use to set the position of the plane.
    */
   vtkSetMacro(Center, double);
   vtkGetMacro(Center, double);
-  //@}
+  ///@}
 
 protected:
   vtkHyperTreeGridAxisReflection();

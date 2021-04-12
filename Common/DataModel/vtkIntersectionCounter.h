@@ -29,7 +29,7 @@
 class vtkIntersectionCounter
 {
 public:
-  //@{
+  ///@{
   /**
    * This tolerance must be converted to parametric space. Here tol is the
    * tolerance in world coordinates; length is the ray length.
@@ -42,7 +42,7 @@ public:
   {
     this->Tolerance = (length > 0.0 ? (tol / length) : 0.0);
   }
-  //@}
+  ///@}
 
   /**
    * Set/Get the intersection tolerance.

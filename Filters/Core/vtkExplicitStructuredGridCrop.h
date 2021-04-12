@@ -32,7 +32,7 @@ public:
   vtkTypeMacro(vtkExplicitStructuredGridCrop, vtkExplicitStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The whole extent of the output has to be set explicitly.
    */
@@ -40,7 +40,7 @@ public:
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int* GetOutputWholeExtent() { return this->OutputWholeExtent; }
-  //@}
+  ///@}
 
   void ResetOutputWholeExtent();
 

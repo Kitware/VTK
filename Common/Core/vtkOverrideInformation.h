@@ -64,7 +64,7 @@ public:
    */
   vtkObjectFactory* GetObjectFactory() { return this->ObjectFactory; }
 
-  //@{
+  ///@{
   /**
    * Set the class override name
    */
@@ -79,7 +79,7 @@ public:
    * Set the description
    */
   vtkSetStringMacro(Description);
-  //@}
+  ///@}
 
 protected:
   virtual void SetObjectFactory(vtkObjectFactory*);

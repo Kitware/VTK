@@ -101,45 +101,45 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * String representing database type (e.g. "mysql").
    */
   const char* GetDatabaseType() override { return this->DatabaseType; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The database server host name.
    */
   vtkSetStringMacro(HostName);
   vtkGetStringMacro(HostName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The user name for connecting to the database server.
    */
   vtkSetStringMacro(User);
   vtkGetStringMacro(User);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The user's password for connecting to the database server.
    */
   vtkSetStringMacro(Password);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the database to connect to.
    */
   vtkSetStringMacro(DatabaseName);
   vtkGetStringMacro(DatabaseName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should automatic reconnection be enabled?
    * This defaults to true.
@@ -148,15 +148,15 @@ public:
   vtkSetMacro(Reconnect, int);
   vtkGetMacro(Reconnect, int);
   vtkBooleanMacro(Reconnect, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The port used for connecting to the database.
    */
   vtkSetClampMacro(ServerPort, int, 0, VTK_INT_MAX);
   vtkGetMacro(ServerPort, int);
-  //@}
+  ///@}
 
   /**
    * Get the URL of the database.

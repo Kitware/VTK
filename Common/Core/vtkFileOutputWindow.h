@@ -42,15 +42,15 @@ public:
    */
   void DisplayText(const char*) override;
 
-  //@{
+  ///@{
   /**
    * Sets the name for the log file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turns on buffer flushing for the output
    * to the log file.
@@ -58,9 +58,9 @@ public:
   vtkSetMacro(Flush, vtkTypeBool);
   vtkGetMacro(Flush, vtkTypeBool);
   vtkBooleanMacro(Flush, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Setting append will cause the log file to be
    * opened in append mode.  Otherwise, if the log file exists,
@@ -70,7 +70,7 @@ public:
   vtkSetMacro(Append, vtkTypeBool);
   vtkGetMacro(Append, vtkTypeBool);
   vtkBooleanMacro(Append, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkFileOutputWindow();

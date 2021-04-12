@@ -42,13 +42,13 @@ class vtkIntArray;
 class VTKINTERACTIONWIDGETS_EXPORT vtkContourLineInterpolator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkContourLineInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Subclasses that wish to interpolate a line segment must implement this.

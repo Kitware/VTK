@@ -36,14 +36,14 @@ public:
   vtkTypeMacro(vtkReebGraphSimplificationFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the persistence threshold for simplification (from 0 to 1).
    * Default value: 0 (no simplification).
    */
   vtkSetMacro(SimplificationThreshold, double);
   vtkGetMacro(SimplificationThreshold, double);
-  //@}
+  ///@}
 
   /**
    * Set the persistence metric evaluation code

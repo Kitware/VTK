@@ -54,7 +54,7 @@
 class VTKFILTERSPOINTS_EXPORT vtkDensifyPointCloudFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -62,7 +62,7 @@ public:
   static vtkDensifyPointCloudFilter* New();
   vtkTypeMacro(vtkDensifyPointCloudFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This enum is used to specify how the local point neighborhood is
@@ -78,7 +78,7 @@ public:
     N_CLOSEST = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify how the local point neighborhood is defined. By default an N
    * closest neighborhood is used. This tends to avoid explosive point
@@ -88,9 +88,9 @@ public:
   vtkGetMacro(NeighborhoodType, int);
   void SetNeighborhoodTypeToRadius() { this->SetNeighborhoodType(RADIUS); }
   void SetNeighborhoodTypeToNClosest() { this->SetNeighborhoodType(N_CLOSEST); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define a local neighborhood for each point in terms of a local
    * radius. By default, the radius is 1.0. This data member is relevant only
@@ -98,9 +98,9 @@ public:
    */
   vtkSetClampMacro(Radius, double, 1, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define a local neighborhood in terms of the N closest points. By default
    * the number of the closest points is =6. This data member is relevant
@@ -108,9 +108,9 @@ public:
    */
   vtkSetClampMacro(NumberOfClosestPoints, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfClosestPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the target point distance. Points will be created in an
    * iterative fashion until all points in their local neighborhood are the
@@ -121,18 +121,18 @@ public:
    */
   vtkSetClampMacro(TargetDistance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(TargetDistance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The maximum number of iterations to run. By default the maximum is
    * one.
    */
   vtkSetClampMacro(MaximumNumberOfIterations, int, 1, VTK_SHORT_MAX);
   vtkGetMacro(MaximumNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set a limit on the maximum number of points that can be created. This
    * data member serves as a crude barrier to explosive point creation; it does
@@ -142,9 +142,9 @@ public:
    */
   vtkSetClampMacro(MaximumNumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
   vtkGetMacro(MaximumNumberOfPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the interpolation of attribute data from the input point
    * cloud to new, added points.
@@ -152,7 +152,7 @@ public:
   vtkSetMacro(InterpolateAttributeData, bool);
   vtkGetMacro(InterpolateAttributeData, bool);
   vtkBooleanMacro(InterpolateAttributeData, bool);
-  //@}
+  ///@}
 
 protected:
   vtkDensifyPointCloudFilter();

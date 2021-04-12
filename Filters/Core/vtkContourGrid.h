@@ -74,7 +74,7 @@ public:
    */
   static vtkContourGrid* New();
 
-  //@{
+  ///@{
   /**
    * Methods to set / get contour values.
    */
@@ -86,14 +86,14 @@ public:
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
-  //@}
+  ///@}
 
   /**
    * Modified GetMTime Because we delegate to vtkContourValues
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly
    * expensive in both time and storage. If the output data will be
@@ -103,45 +103,45 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of scalars.
    */
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable the use of a scalar tree to accelerate contour extraction.
    */
   vtkSetMacro(UseScalarTree, vtkTypeBool);
   vtkGetMacro(UseScalarTree, vtkTypeBool);
   vtkBooleanMacro(UseScalarTree, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the instance of vtkScalarTree to use. If not specified
    * and UseScalarTree is enabled, then a vtkSimpleScalarTree will be used.
    */
   void SetScalarTree(vtkScalarTree* sTree);
   vtkGetObjectMacro(ScalarTree, vtkScalarTree);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this is enabled (by default), the output will be triangles otherwise,
    * the output may be represented by one or more polygons. WARNING: if the
@@ -152,7 +152,7 @@ public:
   vtkSetMacro(GenerateTriangles, vtkTypeBool);
   vtkGetMacro(GenerateTriangles, vtkTypeBool);
   vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is
@@ -160,7 +160,7 @@ public:
    */
   void CreateDefaultLocator();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -168,7 +168,7 @@ public:
    */
   void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
-  //@}
+  ///@}
 
 protected:
   vtkContourGrid();

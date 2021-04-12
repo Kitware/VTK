@@ -49,40 +49,40 @@ public:
   vtkTypeMacro(vtkTreeFieldAggregator, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The field to aggregate.  If this is a string array, the entries are converted to double.
    * TODO: Remove this field and use the ArrayToProcess in vtkAlgorithm.
    */
   vtkGetStringMacro(Field);
   vtkSetStringMacro(Field);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the value of the vertex is less than MinValue then consider it's value to be minVal.
    */
   vtkGetMacro(MinValue, double);
   vtkSetMacro(MinValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, the algorithm will assume a size of 1 for each leaf vertex.
    */
   vtkSetMacro(LeafVertexUnitSize, bool);
   vtkGetMacro(LeafVertexUnitSize, bool);
   vtkBooleanMacro(LeafVertexUnitSize, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, the leaf values in the tree will be logarithmically scaled (base 10).
    */
   vtkSetMacro(LogScale, bool);
   vtkGetMacro(LogScale, bool);
   vtkBooleanMacro(LogScale, bool);
-  //@}
+  ///@}
 
 protected:
   vtkTreeFieldAggregator();

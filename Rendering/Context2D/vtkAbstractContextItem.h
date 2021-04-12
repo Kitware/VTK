@@ -251,34 +251,34 @@ public:
    */
   virtual vtkVector2f MapFromScene(const vtkVector2f& point);
 
-  //@{
+  ///@{
   /**
    * Get the visibility of the item (should it be drawn).
    */
   vtkGetMacro(Visible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the visibility of the item (should it be drawn).
    * Visible by default.
    */
   vtkSetMacro(Visible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get if the item is interactive (should respond to mouse events).
    */
   vtkGetMacro(Interactive, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set if the item is interactive (should respond to mouse events).
    */
   vtkSetMacro(Interactive, bool);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractContextItem();

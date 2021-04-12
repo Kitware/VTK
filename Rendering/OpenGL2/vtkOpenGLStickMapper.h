@@ -32,26 +32,26 @@ public:
   vtkTypeMacro(vtkOpenGLStickMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the array to scale with.
    */
   vtkSetStringMacro(ScaleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the array to orient with
    */
   vtkSetStringMacro(OrientationArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the array to select with
    */
   vtkSetStringMacro(SelectionIdArray);
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLStickMapper();

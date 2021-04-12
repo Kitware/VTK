@@ -154,7 +154,7 @@ public:
   void FindCellsAlongLine(
     const double p1[3], const double p2[3], double tolerance, vtkIdList* cells) override;
 
-  //@{
+  ///@{
   /**
    * Satisfy vtkLocator abstract interface.
    */
@@ -164,7 +164,7 @@ public:
   virtual void ForceBuildLocator();
   virtual void BuildLocatorInternal();
   void GenerateRepresentation(int level, vtkPolyData* pd) override;
-  //@}
+  ///@}
 
 protected:
   vtkCellLocator();

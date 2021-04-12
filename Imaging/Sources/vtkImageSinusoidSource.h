@@ -38,7 +38,7 @@ public:
    */
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax, int zMin, int zMax);
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction vector which determines the sinusoidal
    * orientation. The magnitude is ignored.
@@ -46,31 +46,31 @@ public:
   void SetDirection(double, double, double);
   void SetDirection(double dir[3]);
   vtkGetVector3Macro(Direction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the period of the sinusoid in pixels.
    */
   vtkSetMacro(Period, double);
   vtkGetMacro(Period, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the phase: 0->2Pi.  0 => Cosine, pi/2 => Sine.
    */
   vtkSetMacro(Phase, double);
   vtkGetMacro(Phase, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the magnitude of the sinusoid.
    */
   vtkSetMacro(Amplitude, double);
   vtkGetMacro(Amplitude, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageSinusoidSource();

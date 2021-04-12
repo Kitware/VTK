@@ -65,36 +65,36 @@ public:
   vtkTypeMacro(vtkArrayWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get / set the filename where data will be stored (when used as a filter).
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get / set whether data will be written in binary format (when used as a filter).
    */
   vtkSetMacro(Binary, vtkTypeBool);
   vtkGetMacro(Binary, vtkTypeBool);
   vtkBooleanMacro(Binary, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * The output string. This is only set when WriteToOutputString is set.
    */
   virtual vtkStdString GetOutputString() { return this->OutputString; }
 
-  //@{
+  ///@{
   /**
    * Whether to output to a string instead of to a file, which is the default.
    */
   vtkSetMacro(WriteToOutputString, bool);
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
-  //@}
+  ///@}
 
   int Write() override; // This is necessary to get Write() wrapped for scripting languages.
 

@@ -42,16 +42,16 @@ public:
   vtkTypeMacro(vtkImageReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the data VOI. You can limit the reader to only
    * read a subset of the data.
    */
   vtkSetVector6Macro(DataVOI, int);
   vtkGetVector6Macro(DataVOI, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Data mask.  The data mask is a simply integer whose bits are
    * treated as a mask to the bits read from disk.  That is, the data mask is
@@ -61,9 +61,9 @@ public:
    */
   vtkGetMacro(DataMask, vtkTypeUInt64);
   vtkSetMacro(DataMask, vtkTypeUInt64);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get transformation matrix to transform the data from slice space
    * into world space. This matrix must be a permutation matrix. To qualify,
@@ -71,7 +71,7 @@ public:
    */
   virtual void SetTransform(vtkTransform*);
   vtkGetObjectMacro(Transform, vtkTransform);
-  //@}
+  ///@}
 
   // Warning !!!
   // following should only be used by methods or template helpers, not users
@@ -80,13 +80,13 @@ public:
 
   int OpenAndSeekFile(int extent[6], int slice);
 
-  //@{
+  ///@{
   /**
    * Set/get the scalar array name for this data set.
    */
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  //@}
+  ///@}
 
   /**
    * vtkImageReader itself can read raw binary files. That being the case,

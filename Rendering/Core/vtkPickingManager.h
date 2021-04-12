@@ -86,7 +86,7 @@ public:
   vtkTypeMacro(vtkPickingManager, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable management.
    * When disabled, it redirects every pick on the picker.
@@ -95,9 +95,9 @@ public:
   vtkBooleanMacro(Enabled, bool);
   vtkSetMacro(Enabled, bool);
   vtkGetMacro(Enabled, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable optimization depending on the renderWindowInteractor events.
    * The mechanism keeps in cache the last selected picker as well as the last
@@ -109,15 +109,15 @@ public:
    */
   void SetOptimizeOnInteractorEvents(bool optimize);
   vtkGetMacro(OptimizeOnInteractorEvents, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the window interactor associated with the manager.
    */
   void SetInteractor(vtkRenderWindowInteractor* iren);
   vtkGetMacro(Interactor, vtkRenderWindowInteractor*);
-  //@}
+  ///@}
 
   /**
    * Register a picker into the picking manager.

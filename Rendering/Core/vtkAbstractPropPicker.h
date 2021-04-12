@@ -82,7 +82,7 @@ public:
   vtkTypeMacro(vtkAbstractPropPicker, vtkAbstractPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Return the vtkAssemblyPath that has been picked. The assembly path lists
    * all the vtkProps that form an assembly. If no assembly is present, then
@@ -93,7 +93,7 @@ public:
    */
   virtual void SetPath(vtkAssemblyPath*);
   vtkGetObjectMacro(Path, vtkAssemblyPath);
-  //@}
+  ///@}
 
   // The following are convenience methods to maintain API with older
   // versions of VTK, and to allow query for the return type of a pick. Note:

@@ -56,7 +56,7 @@ public:
   vtkTypeMacro(vtkConstrained2DLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Seed the random number generator used to jitter point positions.
    * This has a significant effect on their final positions when
@@ -64,9 +64,9 @@ public:
    */
   vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of iterations to be used.
    * The higher this number, the more iterations through the algorithm
@@ -77,9 +77,9 @@ public:
    */
   vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfIterations, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of iterations per layout.
    * The only use for this ivar is for the application
@@ -89,9 +89,9 @@ public:
    */
   vtkSetClampMacro(IterationsPerLayout, int, 0, VTK_INT_MAX);
   vtkGetMacro(IterationsPerLayout, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the initial temperature.  The temperature default is '5'
    * for no particular reason
@@ -100,9 +100,9 @@ public:
    */
   vtkSetClampMacro(InitialTemperature, float, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(InitialTemperature, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the Cool-down rate.
    * The higher this number is, the longer it will take to "cool-down",
@@ -113,16 +113,16 @@ public:
    */
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manually set the resting distance. Otherwise the
    * distance is computed automatically.
    */
   vtkSetMacro(RestDistance, float);
   vtkGetMacro(RestDistance, float);
-  //@}
+  ///@}
 
   /**
    * This strategy sets up some data structures
@@ -145,14 +145,14 @@ public:
    */
   int IsLayoutComplete() override { return this->LayoutComplete; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the input constraint array name. If no input array
    * name is set then the name 'constraint' is used.
    */
   vtkSetStringMacro(InputArrayName);
   vtkGetStringMacro(InputArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkConstrained2DLayoutStrategy();

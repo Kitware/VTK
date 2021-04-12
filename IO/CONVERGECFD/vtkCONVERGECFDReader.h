@@ -78,13 +78,13 @@ public:
    */
   virtual int CanReadFile(const char* fname);
 
-  //@{
+  ///@{
   /**
    * Specify file name of the Exodus file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkCONVERGECFDReader();

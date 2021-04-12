@@ -56,7 +56,7 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
@@ -68,7 +68,7 @@ public:
    */
   void Enable() override;
   void Disable() override;
-  //@}
+  ///@}
 
   /**
    * Cocoa specific application terminate, calls ClassExitMethod then
@@ -84,7 +84,7 @@ public:
    */
   void ProcessEvents() override;
 
-  //@{
+  ///@{
   /**
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
@@ -93,7 +93,7 @@ public:
    */
   static void SetClassExitMethod(void (*f)(void*), void* arg);
   static void SetClassExitMethodArgDelete(void (*f)(void*));
-  //@}
+  ///@}
 
   /**
    * These methods correspond to the Exit, User and Pick
@@ -115,7 +115,7 @@ protected:
   void SetTimerDictionary(void* dictionary); // Really an NSMutableDictionary*
   void* GetTimerDictionary();
 
-  //@{
+  ///@{
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
@@ -124,16 +124,16 @@ protected:
   static void (*ClassExitMethod)(void*);
   static void (*ClassExitMethodArgDelete)(void*);
   static void* ClassExitMethodArg;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Cocoa-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
   int InternalDestroyTimer(int platformTimerId) override;
-  //@}
+  ///@}
 
   /**
    * This will start up the event loop and never return. If you
@@ -142,14 +142,14 @@ protected:
    */
   void StartEventLoop() override;
 
-  //@{
+  ///@{
   /**
    * Accessors for the cocoa manager (Really an NSMutableDictionary*).
    * It manages all Cocoa objects in this C++ class.
    */
   void SetCocoaManager(void* manager);
   void* GetCocoaManager();
-  //@}
+  ///@}
 
 #ifdef VTK_USE_TDX
   vtkTDxMacDevice* Device;

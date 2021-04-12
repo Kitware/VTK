@@ -71,27 +71,27 @@ public:
   vtkTypeMacro(vtkAbstractPicker, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the renderer in which pick event occurred.
    */
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the selection point in screen (pixel) coordinates. The third
    * value is related to z-buffer depth. (Normally should be =0.)
    */
   vtkGetVectorMacro(SelectionPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return position in global coordinates of pick point.
    */
   vtkGetVectorMacro(PickPosition, double, 3);
-  //@}
+  ///@}
 
   /**
    * Perform pick operation with selection point provided. Normally the
@@ -134,7 +134,7 @@ public:
     return 0;
   }
 
-  //@{
+  ///@{
   /**
    * Use these methods to control whether to limit the picking to this list
    * (rather than renderer's actors). Make sure that the pick list contains
@@ -143,7 +143,7 @@ public:
   vtkSetMacro(PickFromList, vtkTypeBool);
   vtkGetMacro(PickFromList, vtkTypeBool);
   vtkBooleanMacro(PickFromList, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Initialize list of actors in pick list.

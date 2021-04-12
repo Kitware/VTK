@@ -52,7 +52,7 @@ public:
     USE_Z = 8
   };
 
-  //@{
+  ///@{
   /**
    * Set the normal of the plane to use as mirror.
    */
@@ -67,18 +67,18 @@ public:
   void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); }
   void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); }
   void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the reflection plane is set to X, Y or Z, this variable
    * is use to set the position of the plane.
    */
   vtkSetMacro(Center, double);
   vtkGetMacro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on (the default), copy the input geometry to the output. If off,
    * the output will only contain the reflection.
@@ -86,9 +86,9 @@ public:
   vtkSetMacro(CopyInput, vtkTypeBool);
   vtkGetMacro(CopyInput, vtkTypeBool);
   vtkBooleanMacro(CopyInput, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If off (the default), only Vectors, Normals and Tensors will be flipped.
    * If on, all 3-component data arrays ( considered as 3D vectors),
@@ -99,7 +99,7 @@ public:
   vtkSetMacro(FlipAllInputArrays, bool);
   vtkGetMacro(FlipAllInputArrays, bool);
   vtkBooleanMacro(FlipAllInputArrays, bool);
-  //@}
+  ///@}
 
 protected:
   vtkReflectionFilter();

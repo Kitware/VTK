@@ -47,12 +47,12 @@ public:
    */
   int RenderOverlay(vtkViewport* viewport) override;
 
-  //@{
+  ///@{
   /**
    * Get the vtkContext2D for the actor.
    */
   vtkGetNewMacro(Context, vtkContext2D);
-  //@}
+  ///@}
 
   /**
    * Get the chart object for the actor.

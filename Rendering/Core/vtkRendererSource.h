@@ -70,14 +70,14 @@ public:
    */
   void SetInput(vtkRenderer*);
 
-  //@{
+  ///@{
   /**
    * Returns which renderer is being used as the source for the pixel data.
    */
   vtkGetObjectMacro(Input, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the entire RenderWindow as a data source or just the Renderer.
    * The default is zero, just the Renderer.
@@ -85,18 +85,18 @@ public:
   vtkSetMacro(WholeWindow, vtkTypeBool);
   vtkGetMacro(WholeWindow, vtkTypeBool);
   vtkBooleanMacro(WholeWindow, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this flag is on, then filter execution causes a render first.
    */
   vtkSetMacro(RenderFlag, vtkTypeBool);
   vtkGetMacro(RenderFlag, vtkTypeBool);
   vtkBooleanMacro(RenderFlag, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab z-buffer
    * (i.e., depth values) along with the image data. The z-buffer data
@@ -105,9 +105,9 @@ public:
   vtkSetMacro(DepthValues, vtkTypeBool);
   vtkGetMacro(DepthValues, vtkTypeBool);
   vtkBooleanMacro(DepthValues, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab z-buffer
    * (i.e., depth values) along with the image data. The z-buffer data
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(DepthValuesInScalars, vtkTypeBool);
   vtkGetMacro(DepthValuesInScalars, vtkTypeBool);
   vtkBooleanMacro(DepthValuesInScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A boolean value to control whether to grab only the z-buffer (i.e.,
    * depth values) without the associated image (color scalars) data. If
@@ -131,7 +131,7 @@ public:
   vtkSetMacro(DepthValuesOnly, vtkTypeBool);
   vtkGetMacro(DepthValuesOnly, vtkTypeBool);
   vtkBooleanMacro(DepthValuesOnly, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the output data object for a port on this algorithm.

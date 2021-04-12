@@ -39,14 +39,14 @@ public:
   vtkTypeMacro(vtkAMREnzoReader, vtkAMRBaseReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get whether data should be converted to CGS
    */
   vtkSetMacro(ConvertToCGS, vtkTypeBool);
   vtkGetMacro(ConvertToCGS, vtkTypeBool);
   vtkBooleanMacro(ConvertToCGS, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * See vtkAMRBaseReader::GetNumberOfBlocks

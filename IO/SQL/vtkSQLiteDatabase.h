@@ -72,7 +72,7 @@ public:
     CREATE
   };
 
-  //@{
+  ///@{
   /**
    * Open a new connection to the database.  You need to set the
    * filename before calling this function.  Returns true if the
@@ -84,7 +84,7 @@ public:
    */
   bool Open(const char* password) override;
   bool Open(const char* password, int mode);
-  //@}
+  ///@}
 
   /**
    * Close the connection to the database.
@@ -126,20 +126,20 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * String representing database type (e.g. "sqlite").
    */
   const char* GetDatabaseType() override { return this->DatabaseType; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * String representing the database filename.
    */
   vtkGetStringMacro(DatabaseFileName);
   vtkSetStringMacro(DatabaseFileName);
-  //@}
+  ///@}
 
   /**
    * Get the URL of the database.

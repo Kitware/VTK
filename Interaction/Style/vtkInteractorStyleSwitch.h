@@ -62,7 +62,7 @@ public:
    */
   void SetAutoAdjustCameraClippingRange(vtkTypeBool value) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get current style
    */
@@ -72,7 +72,7 @@ public:
   void SetCurrentStyleToTrackballActor();
   void SetCurrentStyleToTrackballCamera();
   void SetCurrentStyleToMultiTouchCamera();
-  //@}
+  ///@}
 
   /**
    * Only care about the char event, which is used to switch between
@@ -80,14 +80,14 @@ public:
    */
   void OnChar() override;
 
-  //@{
+  ///@{
   /**
    * Overridden from vtkInteractorObserver because the interactor styles
    * used by this class must also be updated.
    */
   void SetDefaultRenderer(vtkRenderer*) override;
   void SetCurrentRenderer(vtkRenderer*) override;
-  //@}
+  ///@}
 
 protected:
   vtkInteractorStyleSwitch();

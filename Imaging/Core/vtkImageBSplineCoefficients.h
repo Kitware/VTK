@@ -57,16 +57,16 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the degree of the spline polynomial.  The default value is 3,
    * and the maximum is 9.
    */
   vtkSetClampMacro(SplineDegree, int, 0, VTK_IMAGE_BSPLINE_DEGREE_MAX);
   vtkGetMacro(SplineDegree, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the border mode.  The filter that is used to create the
    * coefficients must repeat the image somehow to make a theoritically
@@ -82,9 +82,9 @@ public:
   void SetBorderModeToMirror() { this->SetBorderMode(VTK_IMAGE_BORDER_MIRROR); }
   vtkGetMacro(BorderMode, int);
   const char* GetBorderModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the scalar type of the output.  Default is float.
    * Floating-point output is used to avoid overflow, since the
@@ -95,9 +95,9 @@ public:
   void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
   void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
   const char* GetOutputScalarTypeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bypass the filter, do not do any processing.  If this is on,
    * then the output data will reference the input data directly,
@@ -108,7 +108,7 @@ public:
   vtkSetMacro(Bypass, vtkTypeBool);
   vtkBooleanMacro(Bypass, vtkTypeBool);
   vtkGetMacro(Bypass, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Check a point against the image bounds.  Return 0 if out of bounds,
@@ -118,7 +118,7 @@ public:
    */
   int CheckBounds(const double point[3]);
 
-  //@{
+  ///@{
   /**
    * Interpolate a value from the image.  You must call Update() before
    * calling this method for the first time.  The first signature can
@@ -128,7 +128,7 @@ public:
   void Evaluate(const double point[3], double* value);
   double Evaluate(double x, double y, double z);
   double Evaluate(const double point[3]) { return this->Evaluate(point[0], point[1], point[2]); }
-  //@}
+  ///@}
 
 protected:
   vtkImageBSplineCoefficients();

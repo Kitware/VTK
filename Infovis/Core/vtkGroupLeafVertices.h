@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkGroupLeafVertices, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name of the domain that non-leaf vertices will be assigned to.
    * If the input graph already contains vertices in this domain:
@@ -50,7 +50,7 @@ public:
    */
   vtkSetStringMacro(GroupDomain);
   vtkGetStringMacro(GroupDomain);
-  //@}
+  ///@}
 
 protected:
   vtkGroupLeafVertices();

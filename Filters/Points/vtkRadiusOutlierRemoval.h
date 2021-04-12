@@ -58,7 +58,7 @@ class vtkPointSet;
 class VTKFILTERSPOINTS_EXPORT vtkRadiusOutlierRemoval : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -66,26 +66,26 @@ public:
   static vtkRadiusOutlierRemoval* New();
   vtkTypeMacro(vtkRadiusOutlierRemoval, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the local search radius.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of neighbors that a point must have, within
    * the specified radius, for the point to not be considered isolated.
    */
   vtkSetClampMacro(NumberOfNeighbors, int, 1, VTK_INT_MAX);
   vtkGetMacro(NumberOfNeighbors, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a point locator. By default a vtkStaticPointLocator is
    * used. The locator performs efficient searches to locate near a
@@ -93,7 +93,7 @@ public:
    */
   void SetLocator(vtkAbstractPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
-  //@}
+  ///@}
 
 protected:
   vtkRadiusOutlierRemoval();

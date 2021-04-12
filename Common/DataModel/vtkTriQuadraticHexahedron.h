@@ -86,7 +86,7 @@ public:
   vtkTypeMacro(vtkTriQuadraticHexahedron, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
@@ -97,7 +97,7 @@ public:
   int GetNumberOfFaces() override { return 6; }
   vtkCell* GetEdge(int) override;
   vtkCell* GetFace(int) override;
-  //@}
+  ///@}
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
@@ -129,7 +129,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[27]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[81]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -142,8 +142,8 @@ public:
   {
     vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
@@ -153,7 +153,7 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
-  //@}
+  ///@}
 
   /**
    * Given parametric coordinates compute inverse Jacobian transformation

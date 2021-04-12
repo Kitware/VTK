@@ -95,7 +95,7 @@ public:
    */
   void RemoveExtent(int r1, int r2, int yIdx, int zIdx);
 
-  //@{
+  ///@{
   /**
    * Set the desired spacing for the stencil.
    * This must be called before the stencil is Updated, ideally
@@ -104,9 +104,9 @@ public:
    */
   vtkSetVector3Macro(Spacing, double);
   vtkGetVector3Macro(Spacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the desired origin for the stencil.
    * This must be called before the stencil is Updated, ideally
@@ -115,9 +115,9 @@ public:
    */
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the extent of the data.  This is should be called only
    * by vtkImageStencilSource, as it is part of the basic pipeline
@@ -126,7 +126,7 @@ public:
   void SetExtent(const int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   vtkGetVector6Macro(Extent, int);
-  //@}
+  ///@}
 
   /**
    * Allocate space for the sub-extents.  This is called by
@@ -139,22 +139,22 @@ public:
    */
   void Fill();
 
-  //@{
+  ///@{
   /**
    * Override these to handle origin, spacing, scalar type, and scalar
    * number of components.  See vtkDataObject for details.
    */
   void CopyInformationFromPipeline(vtkInformation* info) override;
   void CopyInformationToPipeline(vtkInformation* info) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkImageStencilData* GetData(vtkInformation* info);
   static vtkImageStencilData* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Add merges the stencil supplied as argument into Self.
@@ -211,24 +211,24 @@ protected:
    */
   void CopyOriginAndSpacingFromPipeline(vtkInformation* info);
 
-  //@{
+  ///@{
   /**
    * The Spacing and Origin of the data.
    */
   double Spacing[3];
   double Origin[3];
-  //@}
+  ///@}
 
   int Extent[6];
 
-  //@{
+  ///@{
   /**
    * The actual 'data' is stored here.
    */
   int NumberOfExtentEntries;
   int* ExtentListLengths;
   int** ExtentLists;
-  //@}
+  ///@}
 
 private:
   vtkImageStencilData(const vtkImageStencilData&) = delete;
@@ -263,12 +263,12 @@ public:
    */
   void PrepareForNewData(const int allocateExtent[2] = nullptr);
 
-  //@{
+  ///@{
   /**
    * Insert a line into the raster, given the two end points.
    */
   void InsertLine(const double pt1[2], const double pt2[2]);
-  //@}
+  ///@}
 
   /**
    * Fill the specified extent of a vtkImageStencilData with the raster,

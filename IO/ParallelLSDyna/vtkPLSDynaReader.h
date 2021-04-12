@@ -140,13 +140,13 @@ public:
    */
   int CanReadFile(const char* fname) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object. By default we use the world controller
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   vtkPLSDynaReader();

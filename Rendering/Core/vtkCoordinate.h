@@ -85,7 +85,7 @@ public:
    */
   static vtkCoordinate* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the coordinate system which this coordinate
    * is defined in. The options are Display, Normalized Display,
@@ -106,11 +106,11 @@ public:
   void SetCoordinateSystemToView() { this->SetCoordinateSystem(VTK_VIEW); }
   void SetCoordinateSystemToPose() { this->SetCoordinateSystem(VTK_POSE); }
   void SetCoordinateSystemToWorld() { this->SetCoordinateSystem(VTK_WORLD); }
-  //@}
+  ///@}
 
   const char* GetCoordinateSystemAsString();
 
-  //@{
+  ///@{
   /**
    * Set/get the value of this coordinate. This can be thought of as
    * the position of this coordinate in its coordinate system.
@@ -118,9 +118,9 @@ public:
   vtkSetVector3Macro(Value, double);
   vtkGetVector3Macro(Value, double);
   void SetValue(double a, double b) { this->SetValue(a, b, 0.0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this coordinate is relative to another coordinate,
    * then specify that coordinate as the ReferenceCoordinate.
@@ -128,9 +128,9 @@ public:
    */
   virtual void SetReferenceCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(ReferenceCoordinate, vtkCoordinate);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want this coordinate to be relative to a specific
    * vtkViewport (vtkRenderer) then you can specify that here.
@@ -140,9 +140,9 @@ public:
    */
   void SetViewport(vtkViewport* viewport);
   vtkGetObjectMacro(Viewport, vtkViewport);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the computed value in a specified coordinate system.
    */
@@ -150,7 +150,7 @@ public:
   int* GetComputedViewportValue(vtkViewport*) VTK_SIZEHINT(2);
   int* GetComputedDisplayValue(vtkViewport*) VTK_SIZEHINT(2);
   int* GetComputedLocalDisplayValue(vtkViewport*) VTK_SIZEHINT(2);
-  //@}
+  ///@}
 
   double* GetComputedDoubleViewportValue(vtkViewport*) VTK_SIZEHINT(2);
   double* GetComputedDoubleDisplayValue(vtkViewport*) VTK_SIZEHINT(2);

@@ -94,14 +94,14 @@ public:
    */
   static int PrintCurrentLeaks();
 
-  //@{
+  ///@{
   /**
    * Get/Set flag for exiting with an error when leaks are present.
    * Default is on when VTK_DEBUG_LEAKS is on and off otherwise.
    */
   static int GetExitError();
   static void SetExitError(int);
-  //@}
+  ///@}
 
   static void SetDebugLeaksObserver(vtkDebugLeaksObserver* observer);
   static vtkDebugLeaksObserver* GetDebugLeaksObserver();

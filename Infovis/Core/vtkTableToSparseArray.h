@@ -61,30 +61,30 @@ public:
   vtkTypeMacro(vtkTableToSparseArray, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the set of input table columns that will be mapped to coordinates
    * in the output sparse array.
    */
   void ClearCoordinateColumns();
   void AddCoordinateColumn(const char* name);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the input table column that will be mapped to values in the output array.
    */
   void SetValueColumn(const char* name);
   const char* GetValueColumn();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the extents of the output array.
    */
   void ClearOutputExtents();
   void SetOutputExtents(const vtkArrayExtents& extents);
-  //@}
+  ///@}
 
 protected:
   vtkTableToSparseArray();

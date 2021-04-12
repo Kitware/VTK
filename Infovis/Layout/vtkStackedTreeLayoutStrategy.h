@@ -65,23 +65,23 @@ public:
   void LayoutEdgePoints(vtkTree* inputTree, vtkDataArray* sectorArray, vtkDataArray* sizeArray,
     vtkTree* edgeRoutingTree) override;
 
-  //@{
+  ///@{
   /**
    * Define the tree ring's interior radius.
    */
   vtkSetMacro(InteriorRadius, double);
   vtkGetMacro(InteriorRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the thickness of each of the tree rings.
    */
   vtkSetMacro(RingThickness, double);
   vtkGetMacro(RingThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the start angle for the root node.
    * NOTE: It is assumed that the root end angle is greater than the
@@ -89,9 +89,9 @@ public:
    */
   vtkSetMacro(RootStartAngle, double);
   vtkGetMacro(RootStartAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the end angle for the root node.
    * NOTE: It is assumed that the root end angle is greater than the
@@ -99,9 +99,9 @@ public:
    */
   vtkSetMacro(RootEndAngle, double);
   vtkGetMacro(RootEndAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define whether or not rectangular coordinates are being used
    * (as opposed to polar coordinates).
@@ -109,9 +109,9 @@ public:
   vtkSetMacro(UseRectangularCoordinates, bool);
   vtkGetMacro(UseRectangularCoordinates, bool);
   vtkBooleanMacro(UseRectangularCoordinates, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define whether to reverse the order of the tree stacks from
    * low to high.
@@ -119,9 +119,9 @@ public:
   vtkSetMacro(Reverse, bool);
   vtkGetMacro(Reverse, bool);
   vtkBooleanMacro(Reverse, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The spacing of tree levels in the edge routing tree.
    * Levels near zero give more space
@@ -131,7 +131,7 @@ public:
    */
   vtkSetMacro(InteriorLogSpacingValue, double);
   vtkGetMacro(InteriorLogSpacingValue, double);
-  //@}
+  ///@}
 
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it).

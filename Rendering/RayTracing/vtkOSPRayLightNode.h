@@ -46,14 +46,14 @@ public:
    */
   void Render(bool prepass) override;
 
-  //@{
+  ///@{
   /**
    * A global multiplier to all ospray lights.
    * default is 1.0
    */
   static void SetLightScale(double s);
   static double GetLightScale();
-  //@}
+  ///@}
 
   // state beyond rendering core...
 
@@ -64,13 +64,13 @@ public:
    */
   static vtkInformationIntegerKey* IS_AMBIENT();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get IS_AMBIENT on a vtkLight.
    */
   static void SetIsAmbient(int, vtkLight*);
   static int GetIsAmbient(vtkLight*);
-  //@}
+  ///@}
 
   /**
    * The radius setting, when > 0.0, produces soft shadows in the
@@ -78,13 +78,13 @@ public:
    */
   static vtkInformationDoubleKey* RADIUS();
 
-  //@{
+  ///@{
   /**
    * Convenience method to set/get RADIUS on a vtkLight.
    */
   static void SetRadius(double, vtkLight*);
   static double GetRadius(vtkLight*);
-  //@}
+  ///@}
 
 protected:
   vtkOSPRayLightNode();

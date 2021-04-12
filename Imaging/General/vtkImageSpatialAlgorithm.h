@@ -37,19 +37,19 @@ public:
   vtkTypeMacro(vtkImageSpatialAlgorithm, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the Kernel size.
    */
   vtkGetVector3Macro(KernelSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the Kernel middle.
    */
   vtkGetVector3Macro(KernelMiddle, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageSpatialAlgorithm();

@@ -53,22 +53,22 @@ public:
     ROW_DATA = 5
   };
 
-  //@{
+  ///@{
   /**
    * The field type to add the membership array to.
    */
   vtkGetMacro(FieldType, int);
   vtkSetClampMacro(FieldType, int, 0, 5);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the array added to the output vtkDataSetAttributes
    * indicating membership. Defaults to "membership".
    */
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
   vtkSetStringMacro(InputArrayName);
   vtkGetStringMacro(InputArrayName);

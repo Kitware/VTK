@@ -119,7 +119,7 @@ public:
    */
   static vtkStreamTracer* New();
 
-  //@{
+  ///@{
   /**
    * Specify the starting point (seed) of a streamline in the global
    * coordinate system. Search must be performed to find the initial cell
@@ -127,9 +127,9 @@ public:
    */
   vtkSetVector3Macro(StartPosition, double);
   vtkGetVector3Macro(StartPosition, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the source object used to generate starting points (seeds).
    * Note that this method does not connect the pipeline. The algorithm will
@@ -138,7 +138,7 @@ public:
    */
   void SetSourceData(vtkDataSet* source);
   vtkDataSet* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the source object used to generate starting points (seeds).
@@ -181,7 +181,7 @@ public:
     FIXED_REASONS_FOR_TERMINATION_COUNT
   };
 
-  //@{
+  ///@{
   /**
    * Set/get the integrator type to be used for streamline generation.
    * The object passed is not actually used but is cloned with
@@ -199,7 +199,7 @@ public:
   void SetIntegratorTypeToRungeKutta2() { this->SetIntegratorType(RUNGE_KUTTA2); }
   void SetIntegratorTypeToRungeKutta4() { this->SetIntegratorType(RUNGE_KUTTA4); }
   void SetIntegratorTypeToRungeKutta45() { this->SetIntegratorType(RUNGE_KUTTA45); }
-  //@}
+  ///@}
 
   /**
    * Set the velocity field interpolator type to the one involving
@@ -213,13 +213,13 @@ public:
    */
   void SetInterpolatorTypeToCellLocator();
 
-  //@{
+  ///@{
   /**
    * Specify the maximum length of a streamline expressed in LENGTH_UNIT.
    */
   vtkSetMacro(MaximumPropagation, double);
   vtkGetMacro(MaximumPropagation, double);
-  //@}
+  ///@}
 
   /**
    * Specify a uniform integration step unit for MinimumIntegrationStep,
@@ -230,7 +230,7 @@ public:
   void SetIntegrationStepUnit(int unit);
   int GetIntegrationStepUnit() { return this->IntegrationStepUnit; }
 
-  //@{
+  ///@{
   /**
    * Specify the Initial step size used for line integration, expressed in:
    * LENGTH_UNIT      = 1
@@ -240,9 +240,9 @@ public:
    */
   vtkSetMacro(InitialIntegrationStep, double);
   vtkGetMacro(InitialIntegrationStep, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Minimum step size used for line integration, expressed in:
    * LENGTH_UNIT      = 1
@@ -251,9 +251,9 @@ public:
    */
   vtkSetMacro(MinimumIntegrationStep, double);
   vtkGetMacro(MinimumIntegrationStep, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the Maximum step size used for line integration, expressed in:
    * LENGTH_UNIT      = 1
@@ -262,40 +262,40 @@ public:
    */
   vtkSetMacro(MaximumIntegrationStep, double);
   vtkGetMacro(MaximumIntegrationStep, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum error tolerated throughout streamline integration.
    */
   vtkSetMacro(MaximumError, double);
   vtkGetMacro(MaximumError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum number of steps for integrating a streamline.
    */
   vtkSetMacro(MaximumNumberOfSteps, vtkIdType);
   vtkGetMacro(MaximumNumberOfSteps, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the terminal speed value, below which integration is terminated.
    */
   vtkSetMacro(TerminalSpeed, double);
   vtkGetMacro(TerminalSpeed, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Unset the streamlines to be computed on a surface
    */
   vtkGetMacro(SurfaceStreamlines, bool);
   vtkSetMacro(SurfaceStreamlines, bool);
   vtkBooleanMacro(SurfaceStreamlines, bool);
-  //@}
+  ///@}
 
   enum
   {
@@ -310,7 +310,7 @@ public:
     INTERPOLATOR_WITH_CELL_LOCATOR
   };
 
-  //@{
+  ///@{
   /**
    * Specify whether the streamline is integrated in the upstream or
    * downstream direction.
@@ -320,9 +320,9 @@ public:
   void SetIntegrationDirectionToForward() { this->SetIntegrationDirection(FORWARD); }
   void SetIntegrationDirectionToBackward() { this->SetIntegrationDirection(BACKWARD); }
   void SetIntegrationDirectionToBoth() { this->SetIntegrationDirection(BOTH); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off vorticity computation at streamline points
    * (necessary for generating proper stream-ribbons using the
@@ -330,16 +330,16 @@ public:
    */
   vtkSetMacro(ComputeVorticity, bool);
   vtkGetMacro(ComputeVorticity, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This can be used to scale the rate with which the streamribbons
    * twist. The default is 1.
    */
   vtkSetMacro(RotationScale, double);
   vtkGetMacro(RotationScale, double);
-  //@}
+  ///@}
 
   /**
    * The object used to interpolate the velocity field during

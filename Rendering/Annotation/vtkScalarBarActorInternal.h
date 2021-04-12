@@ -92,7 +92,7 @@ public:
    *
    * Only valid within methods invoked by vtkScalarBarActor::RebuildLayout().
    */
-  //@{
+  ///@{
   vtkViewport* Viewport;
 
   /// The thickness and length of the (square) NaN swatch.
@@ -161,10 +161,10 @@ public:
   /// Map from viewport coordinates to the leader line color of each
   /// annotation.
   std::map<double, vtkColor3ub> LabelColors;
-  //@}
+  ///@}
 
   /// Cache of classes holding geometry assembled and ready for rendering.
-  //@{
+  ///@{
   ActorVector TextActors;
   DoubleVector TextActorAnchors;
   vtkPolyData* AnnotationBoxes;
@@ -187,7 +187,7 @@ public:
   vtkPolyData* AboveRangeSwatch;
   vtkPolyDataMapper2D* AboveRangeSwatchMapper;
   vtkActor2D* AboveRangeSwatchActor;
-  //@}
+  ///@}
 };
 
 #endif

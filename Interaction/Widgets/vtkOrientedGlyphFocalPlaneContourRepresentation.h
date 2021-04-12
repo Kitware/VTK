@@ -51,15 +51,15 @@ public:
    */
   static vtkOrientedGlyphFocalPlaneContourRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkOrientedGlyphFocalPlaneContourRepresentation, vtkFocalPlaneContourRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the cursor shape. Keep in mind that the shape will be
    * aligned with the constraining plane by orienting it such that
@@ -67,9 +67,9 @@ public:
    */
   void SetCursorShape(vtkPolyData* cursorShape);
   vtkPolyData* GetCursorShape();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the shape of the cursor (handle) when it is active.
    * This is the geometry that will be used when the mouse is
@@ -77,32 +77,32 @@ public:
    */
   void SetActiveCursorShape(vtkPolyData* activeShape);
   vtkPolyData* GetActiveCursorShape();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used when the handle is not active
    * (the mouse is not near the handle)
    */
   vtkGetObjectMacro(Property, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used when the user is interacting
    * with the handle.
    */
   vtkGetObjectMacro(ActiveProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is the property used by the lines.
    */
   vtkGetObjectMacro(LinesProperty, vtkProperty2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkOrientedGlyphFocalPlaneContourRepresentation must implement these methods.
    * These are the methods that the widget and its representation use to communicate with each
@@ -113,9 +113,9 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modified = 0) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -125,7 +125,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Get the points in this contour as a vtkPolyData.

@@ -34,14 +34,14 @@ public:
   vtkTypeMacro(vtkDataSetRegionSurfaceFilter, vtkDataSetSurfaceFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The name of the cell based array that we use to extract interfaces from
    * Default is "Regions"
    */
   vtkSetStringMacro(RegionArrayName);
   vtkGetStringMacro(RegionArrayName);
-  //@}
+  ///@}
 
   int UnstructuredGridExecute(vtkDataSet* input, vtkPolyData* output) override;
 
@@ -51,50 +51,50 @@ public:
   // override one of the signatures
   void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad* quad) override;
 
-  //@{
+  ///@{
   /**
    * Whether to return single sided material interfaces or double sided
    * Default is single
    */
   vtkSetMacro(SingleSided, bool);
   vtkGetMacro(SingleSided, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field array that has characteristics of each material
    * Default is "material_properties"
    */
   vtkSetStringMacro(MaterialPropertiesName);
   vtkGetStringMacro(MaterialPropertiesName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field array that has material type identifiers in it
    * Default is "material_ids"
    */
   vtkSetStringMacro(MaterialIDsName);
   vtkGetStringMacro(MaterialIDsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the output field array that records parent materials of each interface
    * Default is "material_ancestors"
    */
   vtkSetStringMacro(MaterialPIDsName);
   vtkGetStringMacro(MaterialPIDsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the field array that has material interface type identifiers in it
    * Default is "interface_ids"
    */
   vtkSetStringMacro(InterfaceIDsName);
   vtkGetStringMacro(InterfaceIDsName);
-  //@}
+  ///@}
 
 protected:
   vtkDataSetRegionSurfaceFilter();

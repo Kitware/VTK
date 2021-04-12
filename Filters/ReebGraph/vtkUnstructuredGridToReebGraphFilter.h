@@ -39,13 +39,13 @@ public:
   vtkTypeMacro(vtkUnstructuredGridToReebGraphFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the scalar field id (default = 0).
    */
   vtkSetMacro(FieldId, int);
   vtkGetMacro(FieldId, int);
-  //@}
+  ///@}
 
   vtkReebGraph* GetOutput();
 

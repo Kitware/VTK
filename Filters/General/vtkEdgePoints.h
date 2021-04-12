@@ -46,13 +46,13 @@ public:
    */
   static vtkEdgePoints* New();
 
-  //@{
+  ///@{
   /**
    * Set/get the contour value.
    */
   vtkSetMacro(Value, double);
   vtkGetMacro(Value, double);
-  //@}
+  ///@}
 
 protected:
   vtkEdgePoints();

@@ -50,22 +50,22 @@ public:
     BASE_2 = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify the logarithm base to apply
    */
   vtkSetMacro(Base, int);
   vtkGetMacro(Base, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether this filter should emit progress events
    */
   vtkSetMacro(EmitProgress, bool);
   vtkGetMacro(EmitProgress, bool);
   vtkBooleanMacro(EmitProgress, bool);
-  //@}
+  ///@}
 
 protected:
   vtkBoostLogWeighting();

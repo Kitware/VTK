@@ -39,17 +39,17 @@ public:
    */
   static vtkBezierContourLineInterpolator* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkBezierContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   int InterpolateLine(vtkRenderer* ren, vtkContourRepresentation* rep, int idx1, int idx2) override;
 
-  //@{
+  ///@{
   /**
    * The difference between a line segment connecting two points and the curve
    * connecting the same points. In the limit of the length of the curve
@@ -58,16 +58,16 @@ public:
    */
   vtkSetClampMacro(MaximumCurveError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumCurveError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Maximum number of bezier line segments between two nodes. Larger values
    * create a finer interpolation. Default is 100.
    */
   vtkSetClampMacro(MaximumCurveLineSegments, int, 1, 1000);
   vtkGetMacro(MaximumCurveLineSegments, int);
-  //@}
+  ///@}
 
   /**
    * Span of the interpolator, i.e. the number of control points it's supposed

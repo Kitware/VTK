@@ -75,7 +75,7 @@ public:
    */
   bool IsInitialized() { return this->Initialized; }
 
-  //@{
+  ///@{
   /**
    * Access the mutex that protects the arrays during a call to
    * Initialize()
@@ -84,33 +84,33 @@ public:
   VTK_DEPRECATED_IN_9_1_0("Use LockWriteMutex() and UnlockWriteMutex() instead.")
   vtkGetObjectMacro(WriteMutex, vtkSimpleMutexLock);
 #endif
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Lock the mutex that protects the arrays during a call to
    * Initialize().
    */
   void LockWriteMutex();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Unlock the mutex that protects the arrays during a call to
    * Initialize().
    */
   void UnlockWriteMutex();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the number of elements for which this vtkBlueObeliskData
    * instance contains information.
    */
   vtkGetMacro(NumberOfElements, unsigned short);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access the raw arrays stored in this vtkBlueObeliskData.
    */
@@ -121,7 +121,7 @@ public:
   vtkGetNewMacro(PeriodicTableBlocks, vtkStringArray);
   vtkGetNewMacro(ElectronicConfigurations, vtkStringArray);
   vtkGetNewMacro(Families, vtkStringArray);
-  //@}
+  ///@}
 
   vtkGetNewMacro(Masses, vtkFloatArray);
   vtkGetNewMacro(ExactMasses, vtkFloatArray);

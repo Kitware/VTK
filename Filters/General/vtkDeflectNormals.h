@@ -35,25 +35,25 @@ public:
   vtkTypeMacro(vtkDeflectNormals, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify value to scale deflection.
    * Default is 1.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify user defined normal.
    * Default is (0, 0, 1).
    */
   vtkSetVector3Macro(UserNormal, double);
   vtkGetVector3Macro(UserNormal, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify value of the user defined normal.
    * Default is false.
@@ -61,7 +61,7 @@ public:
   vtkSetMacro(UseUserNormal, bool);
   vtkGetMacro(UseUserNormal, bool);
   vtkBooleanMacro(UseUserNormal, bool);
-  //@}
+  ///@}
 
 protected:
   vtkDeflectNormals();

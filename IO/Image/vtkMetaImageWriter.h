@@ -87,13 +87,13 @@ public:
   void SetFileName(const char* fname) override;
   char* GetFileName() override { return this->MHDFileName; }
 
-  //@{
+  ///@{
   /**
    * Specify the file name of the raw image data.
    */
   virtual void SetRAWFileName(const char* fname);
   virtual char* GetRAWFileName();
-  //@}
+  ///@}
 
   virtual void SetCompression(bool compress) { this->Compress = compress; }
   virtual bool GetCompression(void) { return this->Compress; }

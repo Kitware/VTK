@@ -33,14 +33,14 @@ public:
   vtkTypeMacro(vtkUnstructuredGridToExplicitStructuredGrid, vtkExplicitStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the whole extents for the grid to produce. The size of the grid
    * must match the number of cells in the input.
    */
   vtkSetVector6Macro(WholeExtent, int);
   vtkGetVector6Macro(WholeExtent, int);
-  //@}
+  ///@}
 
 protected:
   vtkUnstructuredGridToExplicitStructuredGrid();

@@ -42,23 +42,23 @@ public:
   vtkTypeMacro(vtkPointSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the number of points to generate.
    */
   vtkSetClampMacro(NumberOfPoints, vtkIdType, 1, VTK_ID_MAX);
   vtkGetMacro(NumberOfPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the center of the point cloud.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radius of the point cloud.  If you are
    * generating a Gaussian distribution, then this is
@@ -66,9 +66,9 @@ public:
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the distribution to use.  The default is a
    * uniform distribution.  The shell distribution produces
@@ -78,9 +78,9 @@ public:
   void SetDistributionToUniform() { this->SetDistribution(VTK_POINT_UNIFORM); }
   void SetDistributionToShell() { this->SetDistribution(VTK_POINT_SHELL); }
   vtkGetMacro(Distribution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -88,9 +88,9 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a random sequence generator.
    * By default, the generator in vtkMath is used to maintain backwards
@@ -98,7 +98,7 @@ public:
    */
   virtual void SetRandomSequence(vtkRandomSequence* randomSequence);
   vtkGetObjectMacro(RandomSequence, vtkRandomSequence);
-  //@}
+  ///@}
 
 protected:
   vtkPointSource(vtkIdType numPts = 10);

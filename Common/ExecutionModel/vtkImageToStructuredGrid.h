@@ -46,13 +46,13 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Helper function to copy point/cell data from image to grid
    */
   void CopyPointData(vtkImageData*, vtkStructuredGrid*);
   void CopyCellData(vtkImageData*, vtkStructuredGrid*);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int, vtkInformation* info) override;
   int FillOutputPortInformation(int, vtkInformation* info) override;

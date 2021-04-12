@@ -71,13 +71,13 @@ public:
    */
   static vtkInterpolatedVelocityField* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkInterpolatedVelocityField, vtkCompositeInterpolatedVelocityField);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Add a dataset used for the implicit function evaluation. If more than

@@ -33,40 +33,40 @@ public:
   vtkTypeMacro(vtkImageGridSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid spacing in pixel units.  Default (10,10,0).
    * A value of zero means no grid.
    */
   vtkSetVector3Macro(GridSpacing, int);
   vtkGetVector3Macro(GridSpacing, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the grid origin, in ijk integer values.  Default (0,0,0).
    */
   vtkSetVector3Macro(GridOrigin, int);
   vtkGetVector3Macro(GridOrigin, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the grey level of the lines. Default 1.0.
    */
   vtkSetMacro(LineValue, double);
   vtkGetMacro(LineValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the grey level of the fill. Default 0.0.
    */
   vtkSetMacro(FillValue, double);
   vtkGetMacro(FillValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the data type of pixels in the imported data.
    * As a convenience, the OutputScalarType is set to the same value.
@@ -82,32 +82,32 @@ public:
   {
     return vtkImageScalarTypeNameMacro(this->DataScalarType);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the extent of the whole output image,
    * Default: (0,255,0,255,0,0)
    */
   vtkSetVector6Macro(DataExtent, int);
   vtkGetVector6Macro(DataExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel spacing.
    */
   vtkSetVector3Macro(DataSpacing, double);
   vtkGetVector3Macro(DataSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the data.
    */
   vtkSetVector3Macro(DataOrigin, double);
   vtkGetVector3Macro(DataOrigin, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageGridSource();

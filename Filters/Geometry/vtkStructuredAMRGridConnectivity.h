@@ -88,7 +88,7 @@ public:
     vtkUnsignedCharArray* nodesGhostArray, vtkUnsignedCharArray* cellGhostArray,
     vtkPointData* pointData, vtkCellData* cellData, vtkPoints* gridNodes);
 
-  //@{
+  ///@{
   /**
    * Get/Set macro for BalancedRefinement property, default is true. If the
    * refinement is balanced, then, adjacent grids in the AMR hierarchy can
@@ -96,9 +96,9 @@ public:
    */
   vtkSetMacro(BalancedRefinement, bool);
   vtkGetMacro(BalancedRefinement, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set macro NodeCentered property which indicates if the data is
    * node-centered or cell-centered. By default, node-centered is set to false
@@ -106,16 +106,16 @@ public:
    */
   vtkSetMacro(NodeCentered, bool);
   vtkGetMacro(NodeCentered, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set CellCentered property which indicates if the data is cell-centered
    * By default, cell-centered is set to true.
    */
   vtkSetMacro(CellCentered, bool);
   vtkGetMacro(CellCentered, bool);
-  //@}
+  ///@}
 
   /**
    * Returns the number of neighbors for the grid corresponding to the given
@@ -298,7 +298,7 @@ protected:
    */
   int GetNumberOfConnectingBlockFaces(const int gridID);
 
-  //@{
+  ///@{
   /**
    * Checks if the block corresponding to the given grid ID has a block
    * adjacent to it in the given block direction.
@@ -328,7 +328,7 @@ protected:
     }
     return (status);
   }
-  //@}
+  ///@}
 
   /**
    * Removes a block connection along the given direction for the block

@@ -53,21 +53,21 @@
 class VTKFILTERSCORE_EXPORT vtkPolyDataPlaneClipper : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard construction, type, and print methods.
    */
   static vtkPolyDataPlaneClipper* New();
   vtkTypeMacro(vtkPolyDataPlaneClipper, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The modified time depends on the delegated clipping plane.
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify the plane (an implicit function) to perform the clipping. The
    * definition of the plane used to perform the clipping (i.e., its origin
@@ -75,9 +75,9 @@ public:
    */
   void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane, vtkPlane);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to generate clipping loops, i.e., the intersection of
    * the plane with the input polydata. The generation of clipping loops will
@@ -89,9 +89,9 @@ public:
   vtkSetMacro(ClippingLoops, bool);
   vtkGetMacro(ClippingLoops, bool);
   vtkBooleanMacro(ClippingLoops, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to cap the clipped output vtkPolyData. If enabled, a
    * second vtkPolyData output will be produced that contains the capping
@@ -104,7 +104,7 @@ public:
   vtkSetMacro(Capping, bool);
   vtkGetMacro(Capping, bool);
   vtkBooleanMacro(Capping, bool);
-  //@}
+  ///@}
 
   /**
    * Get the output dataset representing the clipping loops and capping
@@ -115,7 +115,7 @@ public:
    */
   vtkPolyData* GetCap();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points type. See the
    * documentation for the vtkAlgorithm::DesiredOutputPrecision enum for an
@@ -124,9 +124,9 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the number of input triangles in a batch, where a batch defines
    * a subset of the input triangles operated on during threaded
@@ -135,7 +135,7 @@ public:
    */
   vtkSetClampMacro(BatchSize, unsigned int, 1, VTK_INT_MAX);
   vtkGetMacro(BatchSize, unsigned int);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataPlaneClipper();

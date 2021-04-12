@@ -43,21 +43,21 @@ public:
    */
   virtual int CanReadFile(const char* name);
 
-  //@{
+  ///@{
   /**
    * Set the current time step. It should be greater than 0 and smaller than
    * MaxTimeStep.
    */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the maximum time step.
    */
   vtkGetMacro(MaxTimeStep, int);
-  //@}
+  ///@}
 
 protected:
   vtkXYZMolReader();

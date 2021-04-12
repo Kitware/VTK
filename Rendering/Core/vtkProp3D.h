@@ -51,7 +51,7 @@ public:
    */
   void ShallowCopy(vtkProp* prop) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get/Add the position of the Prop3D in world coordinates.
    */
@@ -68,14 +68,14 @@ public:
       this->IsIdentity = 0;
     }
   };
-  //@}
+  ///@}
 
   virtual void SetPosition(double pos[3]) { this->SetPosition(pos[0], pos[1], pos[2]); }
   vtkGetVectorMacro(Position, double, 3);
   void AddPosition(double deltaPosition[3]);
   void AddPosition(double deltaX, double deltaY, double deltaZ);
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the Prop3D. This is the point about which all
    * rotations take place.
@@ -95,9 +95,9 @@ public:
   };
   virtual void SetOrigin(const double pos[3]) { this->SetOrigin(pos[0], pos[1], pos[2]); }
   vtkGetVectorMacro(Origin, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the scale of the actor. Scaling in performed independently on the
    * X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
@@ -117,14 +117,14 @@ public:
   };
   virtual void SetScale(double scale[3]) { this->SetScale(scale[0], scale[1], scale[2]); }
   vtkGetVectorMacro(Scale, double, 3);
-  //@}
+  ///@}
 
   /**
    * Method to set the scale isotropically
    */
   void SetScale(double s) { this->SetScale(s, s, s); }
 
-  //@{
+  ///@{
   /**
    * In addition to the instance variables such as position and orientation,
    * you can add an additional transformation for your own use.  This
@@ -139,17 +139,17 @@ public:
    */
   void SetUserTransform(vtkLinearTransform* transform);
   vtkGetObjectMacro(UserTransform, vtkLinearTransform);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The UserMatrix can be used in place of UserTransform.
    */
   void SetUserMatrix(vtkMatrix4x4* matrix);
   vtkMatrix4x4* GetUserMatrix();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return a reference to the Prop3D's 4x4 composite matrix.
    * Get the matrix from the position, origin, scale and orientation This
@@ -157,19 +157,19 @@ public:
    */
   virtual void GetMatrix(vtkMatrix4x4* result);
   virtual void GetMatrix(double result[16]);
-  //@}
+  ///@}
 
   /**
    * Return a reference to the Prop3D's composite transform.
    */
 
-  //@{
+  ///@{
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
   void GetBounds(double bounds[6]);
   double* GetBounds() VTK_SIZEHINT(6) override = 0;
-  //@}
+  ///@}
 
   /**
    * Get the center of the bounding box in world coordinates.
@@ -245,7 +245,7 @@ public:
    */
   void SetOrientation(double orientation[3]);
 
-  //@{
+  ///@{
   /**
    * Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
    * The ordering in which these rotations must be done to generate the
@@ -254,7 +254,7 @@ public:
    */
   double* GetOrientation() VTK_SIZEHINT(3);
   void GetOrientation(double orentation[3]);
-  //@}
+  ///@}
 
   /**
    * Returns the WXYZ orientation of the Prop3D.
@@ -310,7 +310,7 @@ public:
    */
   virtual void ComputeMatrix();
 
-  //@{
+  ///@{
   /**
    * Get a pointer to an internal vtkMatrix4x4. that represents
    */
@@ -319,14 +319,14 @@ public:
     this->ComputeMatrix();
     return this->Matrix;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is the matrix for this actor identity
    */
   vtkGetMacro(IsIdentity, int);
-  //@}
+  ///@}
 
 protected:
   vtkProp3D();

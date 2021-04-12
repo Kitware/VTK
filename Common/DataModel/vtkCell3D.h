@@ -192,7 +192,7 @@ public:
    */
   int Inflate(double dist) override;
 
-  //@{
+  ///@{
   /**
    * Set the tolerance for merging clip intersection points that are near
    * the vertices of cells. This tolerance is used to prevent the generation
@@ -200,7 +200,7 @@ public:
    */
   vtkSetClampMacro(MergeTolerance, double, 0.0001, 0.25);
   vtkGetMacro(MergeTolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkCell3D();

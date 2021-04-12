@@ -131,7 +131,7 @@ public:
    */
   static void PrependPythonPath(const char* dir);
 
-  //@{
+  ///@{
   /**
    * Prepend custom paths to `sys.path` after attempt to find the `landmark` using the
    * `anchor` prefix provided. If found, the path to the landmark gets added the python path
@@ -147,9 +147,9 @@ public:
    */
   static void PrependPythonPath(
     const char* anchor, const char* landmark, bool add_landmark = false);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * To capture stdin, especially for non-terminal applications, set CaptureStdin
    * to true. In that case vtkCommand::UpdateEvent will be fired with the calldata
@@ -158,19 +158,19 @@ public:
    */
   static void SetCaptureStdin(bool);
   static bool GetCaptureStdin();
-  //@}
+  ///@}
 
   VTK_DEPRECATED_IN_9_0_0("Use vtkPythonInterpreter::GetLogVerbosity")
   static int GetPythonVerboseFlag();
 
-  //@{
+  ///@{
   /**
    * Get/Set the verbosity level at which vtkPythonInterpreter should generate
    * log output. Default value is `vtkLogger::VERBOSITY_TRACE`.
    */
   static void SetLogVerbosity(int);
   static int GetLogVerbosity();
-  //@}
+  ///@}
 
 protected:
   vtkPythonInterpreter();
@@ -178,7 +178,7 @@ protected:
 
   friend struct vtkPythonStdStreamCaptureHelper;
 
-  //@{
+  ///@{
   /**
    * Internal methods used by Python. Don't call directly.
    */
@@ -187,7 +187,7 @@ protected:
   static void WriteStdErr(const char* txt);
   static void FlushStdErr();
   static vtkStdString ReadStdin();
-  //@}
+  ///@}
 
 private:
   vtkPythonInterpreter(const vtkPythonInterpreter&) = delete;
@@ -200,13 +200,13 @@ private:
    * the end of the operation. If false, send the output as it becomes available.
    */
   static bool ConsoleBuffering;
-  //@{
+  ///@{
   /**
    * Accumulate here output printed to console by the python interpreter.
    */
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
-  //@}
+  ///@}
 
   /**
    * Since vtkPythonInterpreter is often used outside CPython executable, e.g.

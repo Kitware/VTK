@@ -38,13 +38,13 @@ public:
    */
   static vtkGenericAttributeCollection* New();
 
-  //@{
+  ///@{
   /**
    * Standard type definition and print methods for a VTK class.
    */
   vtkTypeMacro(vtkGenericAttributeCollection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Return the number of attributes (e.g., instances of vtkGenericAttribute)
@@ -169,16 +169,16 @@ public:
   // new pipeline update mechanism is checked in.
   // *** BEGIN
 
-  //@{
+  ///@{
   /**
    * Index of the attribute to be processed (not necessarily scalar).
    * \pre not_empty: !IsEmpty()
    * \post valid_result: result>=0 && result<GetNumberOfAttributes()
    */
   vtkGetMacro(ActiveAttribute, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Component of the active attribute to be processed. -1 means module.
    * \pre not_empty: GetNumberOfAttributes()>0
@@ -186,7 +186,7 @@ public:
    * result<GetAttribute(GetActiveAttribute())->GetNumberOfComponents()
    */
   vtkGetMacro(ActiveComponent, int);
-  //@}
+  ///@}
 
   /**
    * Set the scalar attribute to be processed. -1 means module.
@@ -199,14 +199,14 @@ public:
    */
   void SetActiveAttribute(int attribute, int component = 0);
 
-  //@{
+  ///@{
   /**
    * Number of attributes to interpolate.
    * \pre not_empty: !IsEmpty()
    * \post positive_result: result>=0
    */
   vtkGetMacro(NumberOfAttributesToInterpolate, int);
-  //@}
+  ///@}
 
   /**
    * Indices of attributes to interpolate.
@@ -222,7 +222,7 @@ public:
    */
   int HasAttribute(int size, int* attributes, int attribute) VTK_SIZEHINT(attributes, size);
 
-  //@{
+  ///@{
   /**
    * Set the attributes to interpolate.
    * \pre not_empty: !IsEmpty()
@@ -235,7 +235,7 @@ public:
    */
   void SetAttributesToInterpolate(int size, int* attributes) VTK_SIZEHINT(attributes, size);
   void SetAttributesToInterpolateToAll();
-  //@}
+  ///@}
 
 protected:
   /**

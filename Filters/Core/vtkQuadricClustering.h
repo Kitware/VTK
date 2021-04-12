@@ -101,16 +101,16 @@ class vtkQuadricClusteringCellSet;
 class VTKFILTERSCORE_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard instantiation, type and print methods.
    */
   static vtkQuadricClustering* New();
   vtkTypeMacro(vtkQuadricClustering, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of divisions along each axis for the spatial bins.
    * The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
@@ -128,9 +128,9 @@ public:
   void SetNumberOfDivisions(int div0, int div1, int div2);
   int* GetNumberOfDivisions() VTK_SIZEHINT(3);
   void GetNumberOfDivisions(int div[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable automatic adjustment of number of divisions. If off, the number
    * of divisions specified by the user is always used (as long as it is valid).
@@ -139,9 +139,9 @@ public:
   vtkSetMacro(AutoAdjustNumberOfDivisions, vtkTypeBool);
   vtkGetMacro(AutoAdjustNumberOfDivisions, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustNumberOfDivisions, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is an alternative way to set up the bins.  If you are trying to match
    * boundaries between pieces, then you should use these methods rather than
@@ -154,9 +154,9 @@ public:
   void SetDivisionSpacing(double x, double y, double z);
   void SetDivisionSpacing(double s[3]) { this->SetDivisionSpacing(s[0], s[1], s[2]); }
   vtkGetVector3Macro(DivisionSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Normally the point that minimizes the quadric error function is used as
    * the output of the bin.  When this flag is on, the bin point is forced to
@@ -168,9 +168,9 @@ public:
   vtkSetMacro(UseInputPoints, vtkTypeBool);
   vtkGetMacro(UseInputPoints, vtkTypeBool);
   vtkBooleanMacro(UseInputPoints, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default, this flag is off.  When "UseFeatureEdges" is on, then
    * quadrics are computed for boundary edges/feature edges.  They influence
@@ -181,9 +181,9 @@ public:
   vtkGetMacro(UseFeatureEdges, vtkTypeBool);
   vtkBooleanMacro(UseFeatureEdges, vtkTypeBool);
   vtkFeatureEdges* GetFeatureEdges() { return this->FeatureEdges; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * By default, this flag is off.  It only has an effect when
    * "UseFeatureEdges" is also on.  When "UseFeaturePoints" is on, then
@@ -194,18 +194,18 @@ public:
   vtkSetMacro(UseFeaturePoints, vtkTypeBool);
   vtkGetMacro(UseFeaturePoints, vtkTypeBool);
   vtkBooleanMacro(UseFeaturePoints, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the angle to use in determining whether a point on a boundary /
    * feature edge is a feature point.
    */
   vtkSetClampMacro(FeaturePointsAngle, double, 0.0, 180.0);
   vtkGetMacro(FeaturePointsAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this flag is on (and it is on by default), then triangles that are
    * completely contained in a bin are added to the bin quadrics.  When the
@@ -215,9 +215,9 @@ public:
   vtkSetMacro(UseInternalTriangles, vtkTypeBool);
   vtkGetMacro(UseInternalTriangles, vtkTypeBool);
   vtkBooleanMacro(UseInternalTriangles, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods provide an alternative way of executing the filter.
    * PolyData can be added to the result in pieces (append).
@@ -238,9 +238,9 @@ public:
   }
   void Append(vtkPolyData* piece);
   void EndAppend();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag makes the filter copy cell data from input to output
    * (the best it can).  It uses input cells that trigger the addition
@@ -250,9 +250,9 @@ public:
   vtkSetMacro(CopyCellData, vtkTypeBool);
   vtkGetMacro(CopyCellData, vtkTypeBool);
   vtkBooleanMacro(CopyCellData, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a boolean indicating whether to remove duplicate cells
    * (i.e. triangles).  This is a little slower, and takes more memory, but
@@ -262,7 +262,7 @@ public:
   vtkSetMacro(PreventDuplicateCells, vtkTypeBool);
   vtkGetMacro(PreventDuplicateCells, vtkTypeBool);
   vtkBooleanMacro(PreventDuplicateCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkQuadricClustering();
@@ -281,7 +281,7 @@ protected:
    */
   void ComputeRepresentativePoint(double quadric[9], vtkIdType binId, double point[3]);
 
-  //@{
+  ///@{
   /**
    * Add triangles to the quadric array.  If geometry flag is on then
    * triangles are added to the output.
@@ -292,9 +292,9 @@ protected:
     vtkPolyData* output);
   void AddTriangle(vtkIdType* binIds, double* pt0, double* pt1, double* pt2, int geometeryFlag,
     vtkPolyData* input, vtkPolyData* output);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add edges to the quadric array.  If geometry flag is on then
    * edges are added to the output.
@@ -303,9 +303,9 @@ protected:
     vtkPolyData* output);
   void AddEdge(vtkIdType* binIds, double* pt0, double* pt1, int geometeryFlag, vtkPolyData* input,
     vtkPolyData* output);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add vertices to the quadric array.  If geometry flag is on then
    * vertices are added to the output.
@@ -314,7 +314,7 @@ protected:
     vtkPolyData* output);
   void AddVertex(
     vtkIdType binId, double* pt, int geometryFlag, vtkPolyData* input, vtkPolyData* output);
-  //@}
+  ///@}
 
   /**
    * Initialize the quadric matrix to 0's.
@@ -334,14 +334,14 @@ protected:
    */
   void FindFeaturePoints(vtkCellArray* edges, vtkPoints* edgePts, double angle);
 
-  //@{
+  ///@{
   /**
    * This method will rep[lace the quadric generated points with the
    * input points with the lowest error.
    */
   void EndAppendUsingPoints(vtkPolyData* input, vtkPolyData* output);
   vtkTypeBool UseInputPoints;
-  //@}
+  ///@}
 
   /**
    * This method sets the vertices of the output.

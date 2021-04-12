@@ -68,7 +68,7 @@ public:
    */
   float* GetDecodedGradientTable(void) override;
 
-  //@{
+  ///@{
   /**
    * Set / Get the recursion depth for the subdivision. This
    * indicates how many time one triangle on the initial 8-sided
@@ -86,7 +86,7 @@ public:
    */
   vtkSetClampMacro(RecursionDepth, int, 0, 6);
   vtkGetMacro(RecursionDepth, int);
-  //@}
+  ///@}
 
 protected:
   vtkRecursiveSphereDirectionEncoder();

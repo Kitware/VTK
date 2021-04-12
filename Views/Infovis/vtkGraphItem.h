@@ -48,26 +48,26 @@ public:
   vtkTypeMacro(vtkGraphItem, vtkContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The graph that this item draws.
    */
   virtual void SetGraph(vtkGraph* graph);
   vtkGetObjectMacro(Graph, vtkGraph);
-  //@}
+  ///@}
 
   /**
    * Exposes the incremental graph layout for updating parameters.
    */
   virtual vtkIncrementalForceLayout* GetLayout();
 
-  //@{
+  ///@{
   /**
    * Begins or ends the layout animation.
    */
   virtual void StartLayoutAnimation(vtkRenderWindowInteractor* interactor);
   virtual void StopLayoutAnimation();
-  //@}
+  ///@}
 
   /**
    * Incrementally updates the graph layout.
@@ -193,7 +193,7 @@ protected:
    */
   virtual vtkIdType HitVertex(const vtkVector2f& pos);
 
-  //@{
+  ///@{
   /**
    * Handle mouse events.
    */
@@ -203,7 +203,7 @@ protected:
   bool MouseButtonPressEvent(const vtkContextMouseEvent& event) override;
   bool MouseButtonReleaseEvent(const vtkContextMouseEvent& event) override;
   bool MouseWheelEvent(const vtkContextMouseEvent& event, int delta) override;
-  //@}
+  ///@}
 
   /**
    * Whether this graph item is hit.

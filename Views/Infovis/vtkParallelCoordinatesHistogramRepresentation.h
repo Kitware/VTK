@@ -77,48 +77,48 @@ public:
    */
   void ApplyViewTheme(vtkViewTheme* theme) override;
 
-  //@{
+  ///@{
   /**
    * Whether to use the histogram rendering mode or the superclass's line rendering mode
    */
   virtual void SetUseHistograms(vtkTypeBool);
   vtkGetMacro(UseHistograms, vtkTypeBool);
   vtkBooleanMacro(UseHistograms, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to compute and show outlier lines
    */
   virtual void SetShowOutliers(vtkTypeBool);
   vtkGetMacro(ShowOutliers, vtkTypeBool);
   vtkBooleanMacro(ShowOutliers, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control over the range of the lookup table used to draw the histogram quads.
    */
   vtkSetVector2Macro(HistogramLookupTableRange, double);
   vtkGetVector2Macro(HistogramLookupTableRange, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The number of histogram bins on either side of each pair of axes.
    */
   void SetNumberOfHistogramBins(int, int);
   void SetNumberOfHistogramBins(int*);
   vtkGetVector2Macro(NumberOfHistogramBins, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Target maximum number of outliers to be drawn, although not guaranteed.
    */
   void SetPreferredNumberOfOutliers(int);
   vtkGetMacro(PreferredNumberOfOutliers, int);
-  //@}
+  ///@}
 
   /**
    * Calls superclass swap, and assures that only histograms affected by the
@@ -204,14 +204,14 @@ protected:
    */
   virtual int PlaceHistogramCurveQuads(vtkPolyData* polyData);
 
-  //@{
+  ///@{
   /**
    * Compute the number of axes and their individual ranges, as well
    * as histograms if requested.
    */
   int ComputeDataProperties() override;
   int UpdatePlotProperties(vtkStringArray*) override;
-  //@}
+  ///@}
 
   /**
    * Access the input data object containing the histograms and

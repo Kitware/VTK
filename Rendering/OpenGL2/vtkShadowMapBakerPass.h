@@ -73,7 +73,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the camera, lights, and opaque geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -82,9 +82,9 @@ public:
    */
   vtkGetObjectMacro(OpaqueSequence, vtkRenderPass);
   virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Delegate for compositing of the shadow maps across processors.
    * If it is NULL, there is no z compositing.
@@ -93,9 +93,9 @@ public:
    */
   vtkGetObjectMacro(CompositeZPass, vtkRenderPass);
   virtual void SetCompositeZPass(vtkRenderPass* compositeZPass);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of pixels in each dimension of the shadow maps
    * (shadow maps are square). Initial value is 256. The greater the better.
@@ -103,7 +103,7 @@ public:
    */
   vtkSetMacro(Resolution, unsigned int);
   vtkGetMacro(Resolution, unsigned int);
-  //@}
+  ///@}
 
   /**
    * INTERNAL USE ONLY.

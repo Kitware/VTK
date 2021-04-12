@@ -81,15 +81,15 @@ public:
    */
   static vtkHoverWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkHoverWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the hovering interval (in milliseconds). If after moving the
    * mouse the pointer stays over a vtkProp for this duration, then a
@@ -97,7 +97,7 @@ public:
    */
   vtkSetClampMacro(TimerDuration, int, 1, 100000);
   vtkGetMacro(TimerDuration, int);
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -138,13 +138,13 @@ protected:
   virtual int SubclassEndHoverAction() { return 0; }
   virtual int SubclassSelectAction() { return 0; }
 
-  //@{
+  ///@{
   /**
    * Helper methods for creating and destroying timers.
    */
   int TimerId;
   int TimerDuration;
-  //@}
+  ///@}
 
 private:
   vtkHoverWidget(const vtkHoverWidget&) = delete;

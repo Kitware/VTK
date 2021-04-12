@@ -36,7 +36,7 @@ public:
   vtkTypeMacro(vtkImageDataStreamer, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set how many pieces to divide the input into.
    * void SetNumberOfStreamDivisions(int num);
@@ -44,15 +44,15 @@ public:
    */
   vtkSetMacro(NumberOfStreamDivisions, int);
   vtkGetMacro(NumberOfStreamDivisions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the extent translator that will be used to split the requests
    */
   virtual void SetExtentTranslator(vtkExtentTranslator*);
   vtkGetObjectMacro(ExtentTranslator, vtkExtentTranslator);
-  //@}
+  ///@}
 
   // See the vtkAlgorithm for a description of what these do
   vtkTypeBool ProcessRequest(

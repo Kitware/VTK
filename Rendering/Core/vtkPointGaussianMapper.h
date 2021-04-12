@@ -38,41 +38,41 @@ public:
   vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the optional scale transfer function. This is only
    * used when a ScaleArray is also specified.
    */
   void SetScaleFunction(vtkPiecewiseFunction*);
   vtkGetObjectMacro(ScaleFunction, vtkPiecewiseFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the table used in computing scale, used when
    * converting a vtkPiecewiseFunction to a table
    */
   vtkSetMacro(ScaleTableSize, int);
   vtkGetMacro(ScaleTableSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the array to scale with.
    */
   vtkSetStringMacro(ScaleArray);
   vtkGetStringMacro(ScaleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the component of the array to scale with.
    */
   vtkSetMacro(ScaleArrayComponent, int);
   vtkGetMacro(ScaleArrayComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default scale factor of the point gaussians.  This
    * defaults to 1.0. All radius computations will be scaled by the factor
@@ -83,53 +83,53 @@ public:
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Treat the points/splats as emissive light sources. The default is true.
    */
   vtkSetMacro(Emissive, vtkTypeBool);
   vtkGetMacro(Emissive, vtkTypeBool);
   vtkBooleanMacro(Emissive, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the optional opacity transfer function. This is only
    * used when an OpacityArray is also specified.
    */
   void SetScalarOpacityFunction(vtkPiecewiseFunction*);
   vtkGetObjectMacro(ScalarOpacityFunction, vtkPiecewiseFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the table used in computing opacities, used when
    * converting a vtkPiecewiseFunction to a table
    */
   vtkSetMacro(OpacityTableSize, int);
   vtkGetMacro(OpacityTableSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to set the optional opacity array.  If specified this
    * array will be used to generate the opacity values.
    */
   vtkSetStringMacro(OpacityArray);
   vtkGetStringMacro(OpacityArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method to set the component of the array to opacify with.
    */
   vtkSetMacro(OpacityArrayComponent, int);
   vtkGetMacro(OpacityArrayComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Method to override the fragment shader code for the splat.  You can
    * set this to draw other shapes. For the OPenGL2 backend some of
@@ -141,9 +141,9 @@ public:
    */
   vtkSetStringMacro(SplatShaderCode);
   vtkGetStringMacro(SplatShaderCode);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When drawing triangles as opposed too point mode
    * (triangles are for splats shaders that are bigger than a pixel)
@@ -159,7 +159,7 @@ public:
    */
   vtkSetMacro(TriangleScale, float);
   vtkGetMacro(TriangleScale, float);
-  //@}
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

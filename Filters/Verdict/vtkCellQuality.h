@@ -84,7 +84,7 @@ public:
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
   static vtkCellQuality* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to function the quality of all
    * supported geometries. For qualities that are not defined for certain
@@ -96,7 +96,7 @@ public:
    */
   vtkSetMacro(QualityMeasure, int);
   vtkGetMacro(QualityMeasure, int);
-  //@}
+  ///@}
 
   void SetQualityMeasureToArea() { this->SetQualityMeasure(AREA); }
   void SetQualityMeasureToAspectBeta() { this->SetQualityMeasure(ASPECT_BETA); }
@@ -128,7 +128,7 @@ public:
   void SetQualityMeasureToVolume() { this->SetQualityMeasure(VOLUME); }
   void SetQualityMeasureToWarpage() { this->SetQualityMeasure(WARPAGE); }
 
-  //@{
+  ///@{
   /**
    * Set/Get the return value for unsupported geometry. Unsupported geometry
    * are geometries that are not supported by this filter currently, future
@@ -137,9 +137,9 @@ public:
    */
   vtkSetMacro(UnsupportedGeometry, double);
   vtkGetMacro(UnsupportedGeometry, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the return value for undefined quality. Undefined quality
    * are qualities that could be addressed by this filter but is not well
@@ -149,7 +149,7 @@ public:
    */
   vtkSetMacro(UndefinedQuality, double);
   vtkGetMacro(UndefinedQuality, double);
-  //@}
+  ///@}
 
   double TriangleStripArea(vtkCell*);
   double PixelArea(vtkCell*);
@@ -271,7 +271,7 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * A function called by some VERDICT triangle quality functions to test for
    * inverted triangles.
@@ -281,7 +281,7 @@ protected:
    */
   static int GetCurrentTriangleNormal(double point[3], double normal[3]);
   static double CurrentTriNormal[3];
-  //@}
+  ///@}
 
   int QualityMeasure;
 

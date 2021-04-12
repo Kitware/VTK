@@ -281,13 +281,13 @@ public:
    */
   static void EndLogToFile(const char* path);
 
-  //@{
+  ///@{
   /**
    * Get/Set the name to identify the current thread in the log output.
    */
   static void SetThreadName(const std::string& name);
   static std::string GetThreadName();
-  //@}
+  ///@}
 
   /**
    * Returns a printable string for a vtkObjectBase instance.
@@ -311,14 +311,14 @@ public:
     const char* message;     // User message goes here.
   };
 
-  //@{
+  ///@{
   /**
    * Callback handle types.
    */
   using LogHandlerCallbackT = void (*)(void* user_data, const Message& message);
   using CloseHandlerCallbackT = void (*)(void* user_data);
   using FlushHandlerCallbackT = void (*)(void* user_data);
-  //@}
+  ///@}
 
   /**
    * Add a callback to call on each log message with a  verbosity less or equal
@@ -367,7 +367,7 @@ public:
    */
   static Verbosity ConvertToVerbosity(const char* text);
 
-  //@{
+  ///@{
   /**
    * @internal
    *
@@ -408,7 +408,7 @@ public:
     LSInternals* Internals;
   };
 #endif
-  //@}
+  ///@}
 protected:
   vtkLogger();
   ~vtkLogger() override;
@@ -420,7 +420,7 @@ private:
   static std::string ThreadName;
 };
 
-//@{
+///@{
 /**
  * Add to log given the verbosity level.
  * The text will be logged when the log verbosity is set to the specified level
@@ -451,9 +451,9 @@ private:
     vtkmsg.rdbuf()->freeze(0);                                                                     \
   }
 #define vtkLog(verbosity_name, x) vtkVLog(vtkLogger::VERBOSITY_##verbosity_name, x)
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Add to log only when the `cond` passes.
  *
@@ -485,7 +485,7 @@ private:
     vtkmsg.rdbuf()->freeze(0);                                                                     \
   }
 #define vtkLogIf(verbosity_name, cond, x) vtkVLogIf(vtkLogger::VERBOSITY_##verbosity_name, cond, x)
-//@}
+///@}
 
 #define VTKLOG_CONCAT_IMPL(s1, s2) s1##s2
 #define VTKLOG_CONCAT(s1, s2) VTKLOG_CONCAT_IMPL(s1, s2)
@@ -502,7 +502,7 @@ private:
 #define vtkLogScopeFunction(verbosity_name) vtkLogScopeF(verbosity_name, "%s", __func__)
 #define vtkVLogScopeFunction(level) vtkVLogScopeF(level, "%s", __func__)
 
-//@{
+///@{
 /**
  * Explicitly mark start and end of log scope. This is useful in cases where the
  * start and end of the scope does not happen within the same C++ scope.
@@ -517,7 +517,7 @@ private:
 #define vtkVLogStartScope(level, id) vtkLogger::StartScope(level, id, __FILE__, __LINE__)
 #define vtkVLogStartScopeF(level, id, ...)                                                         \
   vtkLogger::StartScopeF(level, id, __FILE__, __LINE__, __VA_ARGS__)
-//@}
+///@}
 
 /**
  * Convenience macro to generate an identifier string for any vtkObjectBase subclass.

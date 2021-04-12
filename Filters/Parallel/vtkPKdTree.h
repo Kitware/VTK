@@ -100,15 +100,15 @@ public:
    */
   int CreateGlobalDataArrayBounds();
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The PKdTree class can assign spatial regions to processors after
    * building the k-d tree, using one of several partitioning criteria.
@@ -119,7 +119,7 @@ public:
    * automatically turns on RegionAssignment.
    */
   vtkGetMacro(RegionAssignment, int);
-  //@}
+  ///@}
 
   static const int NoRegionAssignment;
   static const int ContiguousAssignment;
@@ -156,12 +156,12 @@ public:
    */
   const int* GetRegionAssignmentMap() { return &this->RegionAssignmentMap[0]; }
 
-  //@{
+  ///@{
   /**
    * / Returns the number of regions in the region assignment map.
    */
   int GetRegionAssignmentMapLength() { return static_cast<int>(this->RegionAssignmentMap.size()); }
-  //@}
+  ///@}
 
   /**
    * Writes the list of region IDs assigned to the specified
@@ -240,7 +240,7 @@ public:
    */
   int GetRegionsCellCountForProcess(int ProcessId, int* count, int len);
 
-  //@{
+  ///@{
   /**
    * After regions have been assigned to processes, I may want to know
    * which cells I have that are in the regions assigned to a particular
@@ -272,7 +272,7 @@ public:
     int ProcessId, vtkDataSet* set, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells);
   vtkIdType GetCellListsForProcessRegions(
     int ProcessId, vtkIdList* inRegionCells, vtkIdList* onBoundaryCells);
-  //@}
+  ///@}
 
   /**
    * Return a list of all processes in order from front to back given a
@@ -395,7 +395,7 @@ private:
   int AllCheckForFailure(int rc, const char* where, const char* how);
   void AllCheckParameters();
 
-  //@{
+  ///@{
   /**
    * Return the global bounds over all processes.  Returns true
    * if successful and false otherwise.
@@ -404,7 +404,7 @@ private:
   int DivideRegion(vtkKdNode* kd, int L, int level, int tag);
   int BreadthFirstDivide(double* bounds);
   void enQueueNode(vtkKdNode* kd, int L, int level, int tag);
-  //@}
+  ///@}
 
   int Select(int dim, int L, int R);
   void _select(int L, int R, int K, int dim);

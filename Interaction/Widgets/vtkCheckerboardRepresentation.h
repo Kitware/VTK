@@ -47,31 +47,31 @@ public:
    */
   static vtkCheckerboardRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkCheckerboardRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageCheckerboard to manipulate.
    */
   void SetCheckerboard(vtkImageCheckerboard* chkrbrd);
   vtkGetObjectMacro(Checkerboard, vtkImageCheckerboard);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an instance of vtkImageActor to decorate.
    */
   void SetImageActor(vtkImageActor* imageActor);
   vtkGetObjectMacro(ImageActor, vtkImageActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the offset of the ends of the sliders (on the boundary edges of
    * the image) from the corner of the image. The offset is expressed as a
@@ -79,7 +79,7 @@ public:
    */
   vtkSetClampMacro(CornerOffset, double, 0.0, 0.4);
   vtkGetMacro(CornerOffset, double);
-  //@}
+  ///@}
 
   enum
   {
@@ -95,7 +95,7 @@ public:
    */
   void SliderValueChanged(int sliderNum);
 
-  //@{
+  ///@{
   /**
    * Set and get the instances of vtkSliderRepresention used to implement this
    * representation. Normally default representations are created, but you can
@@ -109,9 +109,9 @@ public:
   vtkGetObjectMacro(RightRepresentation, vtkSliderRepresentation3D);
   vtkGetObjectMacro(BottomRepresentation, vtkSliderRepresentation3D);
   vtkGetObjectMacro(LeftRepresentation, vtkSliderRepresentation3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by superclass.
    */
@@ -122,7 +122,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkCheckerboardRepresentation();

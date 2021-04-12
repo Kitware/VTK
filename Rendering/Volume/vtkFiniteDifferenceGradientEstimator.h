@@ -55,14 +55,14 @@ public:
    */
   static vtkFiniteDifferenceGradientEstimator* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the spacing between samples for the finite differences
    * method used to compute the normal. This spacing is in voxel units.
    */
   vtkSetMacro(SampleSpacingInVoxels, int);
   vtkGetMacro(SampleSpacingInVoxels, int);
-  //@}
+  ///@}
 
   // The sample spacing between samples taken for the normal estimation
   int SampleSpacingInVoxels;

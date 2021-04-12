@@ -44,15 +44,15 @@ public:
 
   static vtkXMLParser* New();
 
-  //@{
+  ///@{
   /**
    * Get/Set the input stream.
    */
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Used by subclasses and their supporting classes.  These methods
    * wrap around the tellg and seekg methods of the input stream to
@@ -60,23 +60,23 @@ public:
    */
   vtkTypeInt64 TellG();
   void SeekG(vtkTypeInt64 position);
-  //@}
+  ///@}
 
   /**
    * Parse the XML input.
    */
   virtual int Parse();
 
-  //@{
+  ///@{
   /**
    * Parse the XML message. If length is specified, parse only the
    * first "length" characters
    */
   virtual int Parse(const char* inputString);
   virtual int Parse(const char* inputString, unsigned int length);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When parsing fragments of XML, or when streaming XML,
    * use the following three methods:
@@ -90,17 +90,17 @@ public:
   virtual int InitializeParser();
   virtual int ParseChunk(const char* inputString, unsigned int length);
   virtual int CleanupParser();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and get file name.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this is off (the default), CharacterDataHandler will be called to
    * process text within XML Elements. If this is on, the text will be
@@ -108,9 +108,9 @@ public:
    */
   vtkSetMacro(IgnoreCharacterData, int);
   vtkGetMacro(IgnoreCharacterData, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and get the encoding the parser should expect (nullptr defaults to
    * Expat's own default encoder, i.e UTF-8).
@@ -119,7 +119,7 @@ public:
    */
   vtkSetStringMacro(Encoding);
   vtkGetStringMacro(Encoding);
-  //@}
+  ///@}
 
 protected:
   vtkXMLParser();

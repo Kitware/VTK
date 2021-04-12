@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkOpenVRInteractorStyle, vtkInteractorStyle3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Override generic event bindings to call the corresponding action.
    */
@@ -53,9 +53,9 @@ public:
   void OnViewerMovement3D(vtkEventData* edata) override;
   void OnMove3D(vtkEventData* edata) override;
   void OnMenu3D(vtkEventData* edata) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Interaction mode entry points.
    */
@@ -69,18 +69,18 @@ public:
   virtual void EndClip(vtkEventDataDevice3D*);
   virtual void StartDolly3D(vtkEventDataDevice3D*);
   virtual void EndDolly3D(vtkEventDataDevice3D*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Multitouch events binding.
    */
   void OnPan() override;
   void OnPinch() override;
   void OnRotate() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods for intertaction.
    */
@@ -88,9 +88,9 @@ public:
   void LoadNextCameraPose();
   virtual void PositionProp(vtkEventData*, double* lwpos = nullptr, double* lwori = nullptr);
   virtual void Clip(vtkEventDataDevice3D*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Map controller inputs to actions.
    * Actions are defined by a VTKIS_*STATE*, interaction entry points,
@@ -98,18 +98,18 @@ public:
    */
   void MapInputToAction(vtkCommand::EventIds eid, int state);
   void MapInputToAction(vtkCommand::EventIds eid, vtkEventDataAction action, int state);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the helper text that goes with an input,
    * deprecated as open vr mostly provides it
    */
   void AddTooltipForInput(
     vtkEventDataDevice device, vtkEventDataDeviceInput input, const std::string& text);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicates if picking should be updated every frame. If so, the interaction
    * picker will try to pick a prop and rays will be updated accordingly.
@@ -118,16 +118,16 @@ public:
   vtkSetMacro(HoverPick, bool);
   vtkGetMacro(HoverPick, bool);
   vtkBooleanMacro(HoverPick, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if the grab mode use the ray to grab distant objects
    */
   vtkSetMacro(GrabWithRay, bool);
   vtkGetMacro(GrabWithRay, bool);
   vtkBooleanMacro(GrabWithRay, bool);
-  //@}
+  ///@}
 
   int GetInteractionState(vtkEventDataDevice device)
   {

@@ -101,7 +101,7 @@ public:
    */
   vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
-  //@{
+  ///@{
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
@@ -114,9 +114,9 @@ public:
   {
     this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to set the point scalars of the output.  The scalars will be the
    * label values.  By default this flag is on.
@@ -124,15 +124,15 @@ public:
   vtkSetMacro(ComputeScalars, int);
   vtkGetMacro(ComputeScalars, int);
   vtkBooleanMacro(ComputeScalars, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get which component of the scalar array to contour on; defaults to 0.
    */
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  //@}
+  ///@}
 
 protected:
   vtkDiscreteFlyingEdges2D();

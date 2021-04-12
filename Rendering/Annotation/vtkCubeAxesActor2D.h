@@ -69,21 +69,21 @@ public:
    */
   static vtkCubeAxesActor2D* New();
 
-  //@{
+  ///@{
   /**
    * Draw the axes as per the vtkProp superclass' API.
    */
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
-  //@{
+  ///@{
   /**
    * Use the bounding box of this input dataset to draw the cube axes. If this
    * is not specified, then the class will attempt to determine the bounds from
@@ -92,9 +92,9 @@ public:
   virtual void SetInputConnection(vtkAlgorithmOutput*);
   virtual void SetInputData(vtkDataSet*);
   virtual vtkDataSet* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the bounding box of this prop to draw the cube axes. The
    * ViewProp is used to determine the bounds only if the Input is not
@@ -102,9 +102,9 @@ public:
    */
   void SetViewProp(vtkProp* prop);
   vtkGetObjectMacro(ViewProp, vtkProp);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the region in space around which to draw the bounds.
    * The bounds is used only when no Input or Prop is specified. The bounds
@@ -116,9 +116,9 @@ public:
   void GetBounds(
     double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the range of values used on the bounds.
    * The ranges are specified according to (xmin,xmax, ymin,ymax, zmin,zmax),
@@ -129,9 +129,9 @@ public:
   void GetRanges(
     double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax);
   void GetRanges(double ranges[6]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify an origin for the axes. These usually intersect at one of the
    * corners of the bounding box, however users have the option to override this if
@@ -140,9 +140,9 @@ public:
   vtkSetMacro(XOrigin, double);
   vtkSetMacro(YOrigin, double);
   vtkSetMacro(ZOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a flag that controls whether the axes use the data ranges
    * or the ranges set by SetRanges. By default the axes use the data
@@ -151,16 +151,16 @@ public:
   vtkSetMacro(UseRanges, vtkTypeBool);
   vtkGetMacro(UseRanges, vtkTypeBool);
   vtkBooleanMacro(UseRanges, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera to perform scaling and translation of the
    * vtkCubeAxesActor2D.
    */
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
   enum FlyMode
   {
@@ -169,7 +169,7 @@ public:
     VTK_FLY_NONE = 2
   };
 
-  //@{
+  ///@{
   /**
    * Specify a mode to control how the axes are drawn: either outer edges
    * or closest triad to the camera position, or you may also disable flying
@@ -180,9 +180,9 @@ public:
   void SetFlyModeToOuterEdges() { this->SetFlyMode(VTK_FLY_OUTER_EDGES); }
   void SetFlyModeToClosestTriad() { this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD); }
   void SetFlyModeToNone() { this->SetFlyMode(VTK_FLY_NONE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a flag that controls whether the axes are scaled to fit in
    * the viewport. If off, the axes size remains constant (i.e., stay the
@@ -192,9 +192,9 @@ public:
   vtkSetMacro(Scaling, vtkTypeBool);
   vtkGetMacro(Scaling, vtkTypeBool);
   vtkBooleanMacro(Scaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of annotation labels to show along the x, y, and
    * z axes. This values is a suggestion: the number of labels may vary
@@ -202,9 +202,9 @@ public:
    */
   vtkSetClampMacro(NumberOfLabels, int, 0, 50);
   vtkGetMacro(NumberOfLabels, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels for the x, y, and z axes. By default,
    * use "X", "Y" and "Z".
@@ -215,7 +215,7 @@ public:
   vtkGetStringMacro(YLabel);
   vtkSetStringMacro(ZLabel);
   vtkGetStringMacro(ZLabel);
-  //@}
+  ///@}
 
   /**
    * Retrieve handles to the X, Y and Z axis (so that you can set their text
@@ -225,43 +225,43 @@ public:
   vtkAxisActor2D* GetYAxisActor2D() { return this->YAxis; }
   vtkAxisActor2D* GetZAxisActor2D() { return this->ZAxis; }
 
-  //@{
+  ///@{
   /**
    * Set/Get the title text property of all axes. Note that each axis can
    * be controlled individually through the GetX/Y/ZAxisActor2D() methods.
    */
   virtual void SetAxisTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(AxisTitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text property of all axes. Note that each axis can
    * be controlled individually through the GetX/Y/ZAxisActor2D() methods.
    */
   virtual void SetAxisLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(AxisLabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels on each of the
    * x-y-z axes.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts used
    * to label and title the axes.
    */
   vtkSetClampMacro(FontFactor, double, 0.1, 2.0);
   vtkGetMacro(FontFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the inertial factor that controls how often (i.e, how
    * many renders) the axes can switch position (jump from one axes
@@ -269,9 +269,9 @@ public:
    */
   vtkSetClampMacro(Inertia, int, 1, VTK_INT_MAX);
   vtkGetMacro(Inertia, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the variable that controls whether the actual
    * bounds of the dataset are always shown. Setting this variable
@@ -282,9 +282,9 @@ public:
    */
   vtkSetClampMacro(ShowActualBounds, int, 0, 1);
   vtkGetMacro(ShowActualBounds, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify an offset value to "pull back" the axes from the corner at
    * which they are joined to avoid overlap of axes labels. The
@@ -292,7 +292,7 @@ public:
    */
   vtkSetMacro(CornerOffset, double);
   vtkGetMacro(CornerOffset, double);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -301,7 +301,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of each axis.
    */
@@ -314,7 +314,7 @@ public:
   vtkSetMacro(ZAxisVisibility, vtkTypeBool);
   vtkGetMacro(ZAxisVisibility, vtkTypeBool);
   vtkBooleanMacro(ZAxisVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of a CubeAxesActor2D.

@@ -138,13 +138,13 @@ public:
    */
   static vtkContourWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkContourWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * The method for activating and deactivating this widget. This method
@@ -181,21 +181,21 @@ public:
    */
   void CloseLoop();
 
-  //@{
+  ///@{
   /**
    * Convenient method to change what state the widget is in.
    */
   vtkSetMacro(WidgetState, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenient method to determine the state of the method
    */
   vtkGetMacro(WidgetState, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
    * and points between nodes can be picked/un-picked by Ctrl+Click on the node.
@@ -203,9 +203,9 @@ public:
   void SetAllowNodePicking(vtkTypeBool);
   vtkGetMacro(AllowNodePicking, vtkTypeBool);
   vtkBooleanMacro(AllowNodePicking, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Follow the cursor ? If this is ON, during definition, the last node of the
    * contour will automatically follow the cursor, without waiting for the
@@ -216,9 +216,9 @@ public:
   vtkSetMacro(FollowCursor, vtkTypeBool);
   vtkGetMacro(FollowCursor, vtkTypeBool);
   vtkBooleanMacro(FollowCursor, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define a contour by continuously drawing with the mouse cursor.
    * Press and hold the left mouse button down to continuously draw.
@@ -232,7 +232,7 @@ public:
   vtkSetMacro(ContinuousDraw, vtkTypeBool);
   vtkGetMacro(ContinuousDraw, vtkTypeBool);
   vtkBooleanMacro(ContinuousDraw, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Initialize the contour widget from a user supplied set of points. The

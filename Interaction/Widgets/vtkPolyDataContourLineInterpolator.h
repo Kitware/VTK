@@ -35,13 +35,13 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyDataContourLineInterpolator
   : public vtkContourLineInterpolator
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolyDataContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Subclasses that wish to interpolate a line segment must implement this.
@@ -61,13 +61,13 @@ public:
   int UpdateNode(vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node),
     int vtkNotUsed(idx)) override = 0;
 
-  //@{
+  ///@{
   /**
    * Be sure to add polydata on which you wish to place points to this list
    * or they will not be considered for placement.
    */
   vtkGetObjectMacro(Polys, vtkPolyDataCollection);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataContourLineInterpolator();

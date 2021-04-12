@@ -59,7 +59,7 @@ public:
   vtkTypeMacro(vtkCGMWriter, vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //@{
+  ///@{
   /**
    * Specify a vtkViewport object to be used to transform the vtkPolyData
    * points into 2D coordinates. By default (no vtkViewport specified), the
@@ -68,9 +68,9 @@ public:
    */
   virtual void SetViewport(vtkViewport*);
   vtkGetObjectMacro(Viewport, vtkViewport);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the sorting of the cells via depth. If enabled, polygonal
    * cells will be sorted from back to front, i.e., a Painter's algorithm
@@ -78,18 +78,18 @@ public:
    */
   vtkSetMacro(Sort, int);
   vtkGetMacro(Sort, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the resolution of the CGM file. This number is used to integerize
    * the maximum coordinate range of the plot file.
    */
   vtkSetClampMacro(Resolution, int, 100, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control how output polydata is colored. By default (ColorModeToDefault),
    * if per cell colors are defined (unsigned chars of 1-4 components), then
@@ -105,9 +105,9 @@ public:
   void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
   void SetColorModeToSpecifiedColor() { this->SetColorMode(VTK_COLOR_MODE_SPECIFIED_COLOR); }
   void SetColorModeToRandomColors() { this->SetColorMode(VTK_COLOR_MODE_RANDOM_COLORS); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the specified color to color the polydata cells. This
    * color is only used when the color mode is set to
@@ -118,7 +118,7 @@ public:
    */
   vtkSetVector3Macro(SpecifiedColor, float);
   vtkGetVectorMacro(SpecifiedColor, float, 3);
-  //@}
+  ///@}
 
 protected:
   vtkCGMWriter();

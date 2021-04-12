@@ -89,23 +89,23 @@ public:
    */
   virtual void Grab();
 
-  //@{
+  ///@{
   /**
    * Are we in record mode? (record mode and play mode are mutually
    * exclusive).
    */
   vtkGetMacro(Recording, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Are we in play mode? (record mode and play mode are mutually
    * exclusive).
    */
   vtkGetMacro(Playing, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the full-frame size.  This must be an allowed size for the device,
    * the device may either refuse a request for an illegal frame size or
@@ -117,17 +117,17 @@ public:
   virtual void SetFrameSize(int x, int y, int z);
   virtual void SetFrameSize(int dim[3]) { this->SetFrameSize(dim[0], dim[1], dim[2]); }
   vtkGetVector3Macro(FrameSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Request a particular frame rate (default 30 frames per second).
    */
   virtual void SetFrameRate(float rate);
   vtkGetMacro(FrameRate, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the output format.  This must be appropriate for device,
    * usually only VTK_LUMINANCE, VTK_RGB, and VTK_RGBA are supported.
@@ -137,18 +137,18 @@ public:
   void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); }
   void SetOutputFormatToRGBA() { this->SetOutputFormat(VTK_RGBA); }
   vtkGetMacro(OutputFormat, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set size of the frame buffer, i.e. the number of frames that
    * the 'tape' can store.
    */
   virtual void SetFrameBufferSize(int FrameBufferSize);
   vtkGetMacro(FrameBufferSize, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the number of frames to copy to the output on each execute.
    * The frames will be concatenated along the Z dimension, with the
@@ -157,9 +157,9 @@ public:
    */
   vtkSetMacro(NumberOfOutputFrames, int);
   vtkGetMacro(NumberOfOutputFrames, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to automatically advance the buffer before each grab.
    * Default: on
@@ -167,9 +167,9 @@ public:
   vtkBooleanMacro(AutoAdvance, vtkTypeBool);
   vtkSetMacro(AutoAdvance, vtkTypeBool);
   vtkGetMacro(AutoAdvance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the clip rectangle for the frames.  The video will be clipped
    * before it is copied into the framebuffer.  Changing the ClipRegion
@@ -179,9 +179,9 @@ public:
   virtual void SetClipRegion(int r[6]) { this->SetClipRegion(r[0], r[1], r[2], r[3], r[4], r[5]); }
   virtual void SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z1);
   vtkGetVector6Macro(ClipRegion, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the WholeExtent of the output.  This can be used to either
    * clip or pad the video frame.  This clipping/padding is done when
@@ -193,27 +193,27 @@ public:
    */
   vtkSetVector6Macro(OutputWholeExtent, int);
   vtkGetVector6Macro(OutputWholeExtent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the pixel spacing.
    * Default: (1.0,1.0,1.0)
    */
   vtkSetVector3Macro(DataSpacing, double);
   vtkGetVector3Macro(DataSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the coordinates of the lower, left corner of the frame.
    * Default: (0.0,0.0,0.0)
    */
   vtkSetVector3Macro(DataOrigin, double);
   vtkGetVector3Macro(DataOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For RGBA output only (4 scalar components), set the opacity.  This
    * will not modify the existing contents of the framebuffer, only
@@ -221,24 +221,24 @@ public:
    */
   vtkSetMacro(Opacity, float);
   vtkGetMacro(Opacity, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This value is incremented each time a frame is grabbed.
    * reset it to zero (or any other value) at any time.
    */
   vtkGetMacro(FrameCount, int);
   vtkSetMacro(FrameCount, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the frame index relative to the 'beginning of the tape'.  This
    * value wraps back to zero if it increases past the FrameBufferSize.
    */
   vtkGetMacro(FrameIndex, int);
-  //@}
+  ///@}
 
   /**
    * Get a time stamp in seconds (resolution of milliseconds) for
@@ -255,14 +255,14 @@ public:
    */
   double GetFrameTimeStamp() { return this->FrameTimeStamp; }
 
-  //@{
+  ///@{
   /**
    * Initialize the hardware.  This is called automatically
    * on the first Update or Grab.
    */
   virtual void Initialize();
   virtual int GetInitialized() { return this->Initialized; }
-  //@}
+  ///@}
 
   /**
    * Release the video driver.  This method must be called before
@@ -278,14 +278,14 @@ public:
    */
   virtual void InternalGrab();
 
-  //@{
+  ///@{
   /**
    * And internal variable which marks the beginning of a Record session.
    * These methods are for internal use only.
    */
   void SetStartTimeStamp(double t) { this->StartTimeStamp = t; }
   double GetStartTimeStamp() { return this->StartTimeStamp; }
-  //@}
+  ///@}
 
 protected:
   vtkVideoSource();
@@ -360,7 +360,7 @@ protected:
   void** FrameBuffer;
   double* FrameBufferTimeStamps;
 
-  //@{
+  ///@{
   /**
    * These methods can be overridden in subclasses
    */
@@ -369,7 +369,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char* outPtr, char* rowPtr, int start, int count);
-  //@}
+  ///@}
 
 private:
   vtkVideoSource(const vtkVideoSource&) = delete;

@@ -84,7 +84,7 @@ public:
    */
   unsigned int GetCurrentFlatIndex() override;
 
-  //@{
+  ///@{
   /**
    * If VisitOnlyLeaves is true, the iterator will only visit nodes
    * (sub-datasets) that are not composite. If it encounters a composite
@@ -98,9 +98,9 @@ public:
   vtkSetMacro(VisitOnlyLeaves, vtkTypeBool);
   vtkGetMacro(VisitOnlyLeaves, vtkTypeBool);
   vtkBooleanMacro(VisitOnlyLeaves, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If TraverseSubTree is set to true, the iterator will visit the entire tree
    * structure, otherwise it only visits the first level children. Set to 1 by
@@ -109,7 +109,7 @@ public:
   vtkSetMacro(TraverseSubTree, vtkTypeBool);
   vtkGetMacro(TraverseSubTree, vtkTypeBool);
   vtkBooleanMacro(TraverseSubTree, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDataObjectTreeIterator();

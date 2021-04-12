@@ -37,13 +37,13 @@ public:
   vtkTypeMacro(vtkHoudiniPolyDataWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specifies the delimited text file to be loaded.
    */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkHoudiniPolyDataWriter();

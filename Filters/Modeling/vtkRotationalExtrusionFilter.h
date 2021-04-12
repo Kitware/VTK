@@ -74,47 +74,47 @@ public:
    */
   static vtkRotationalExtrusionFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get resolution of sweep operation. Resolution controls the number
    * of intermediate node points.
    */
   vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
   vtkGetMacro(Resolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the capping of the skirt.
    */
   vtkSetMacro(Capping, vtkTypeBool);
   vtkGetMacro(Capping, vtkTypeBool);
   vtkBooleanMacro(Capping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get angle of rotation.
    */
   vtkSetMacro(Angle, double);
   vtkGetMacro(Angle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get total amount of translation along the z-axis.
    */
   vtkSetMacro(Translation, double);
   vtkGetMacro(Translation, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get change in radius during sweep process.
    */
   vtkSetMacro(DeltaRadius, double);
   vtkGetMacro(DeltaRadius, double);
-  //@}
+  ///@}
 
 protected:
   vtkRotationalExtrusionFilter();

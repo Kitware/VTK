@@ -170,14 +170,14 @@ public:
    */
   virtual const char* GetOverrideDescription(int index);
 
-  //@{
+  ///@{
   /**
    * Set and Get the Enable flag for the specific override of className.
    * if subclassName is null, then it is ignored.
    */
   virtual void SetEnableFlag(vtkTypeBool flag, const char* className, const char* subclassName);
   virtual vtkTypeBool GetEnableFlag(const char* className, const char* subclassName);
-  //@}
+  ///@}
 
   /**
    * Return 1 if this factory overrides the given class name, 0 otherwise.
@@ -195,12 +195,12 @@ public:
    */
   virtual void Disable(const char* className);
 
-  //@{
+  ///@{
   /**
    * This returns the path to a dynamically loaded factory.
    */
   vtkGetStringMacro(LibraryPath);
-  //@}
+  ///@}
 
   typedef vtkObject* (*CreateFunction)();
 

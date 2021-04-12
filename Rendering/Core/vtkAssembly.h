@@ -89,7 +89,7 @@ public:
    */
   vtkProp3DCollection* GetParts() { return this->Parts; }
 
-  //@{
+  ///@{
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
@@ -97,9 +97,9 @@ public:
    */
   void GetActors(vtkPropCollection*) override;
   void GetVolumes(vtkPropCollection*) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Render this assembly and all its parts.
    * The rendering process is recursive.
@@ -111,7 +111,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* ren) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* ren) override;
   int RenderVolumetricGeometry(vtkViewport* ren) override;
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
@@ -125,7 +125,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Methods to traverse the parts of an assembly. Each part (starting from
    * the root) will appear properly transformed and with the correct
@@ -141,7 +141,7 @@ public:
   void InitPathTraversal() override;
   vtkAssemblyPath* GetNextPath() override;
   int GetNumberOfPaths() override;
-  //@}
+  ///@}
 
   /**
    * Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).

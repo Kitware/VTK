@@ -36,7 +36,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseVectorKey : public vtkInforma
 public:
   vtkTypeMacro(vtkInformationObjectBaseVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@{
+  ///@{
   /**
    * The name of the static instance and the class in which
    * it is defined(location) should be passed to the constructor.
@@ -49,7 +49,7 @@ public:
     const char* name, const char* location, const char* requiredClass = nullptr);
   //
   ~vtkInformationObjectBaseVectorKey() override;
-  //@}
+  ///@}
 
   /**
    * This method simply returns a new vtkInformationObjectBaseVectorKey, given a
@@ -91,7 +91,7 @@ public:
    */
   void Set(vtkInformation* info, vtkObjectBase* value, int i);
 
-  //@{
+  ///@{
   /**
    * Remove all instances of val from the list. If using the indexed overload,
    * the object at the specified position is removed.
@@ -99,7 +99,7 @@ public:
   void Remove(vtkInformation* info, vtkObjectBase* val);
   void Remove(vtkInformation* info, int idx);
   using Superclass::Remove; // Don't hide base class methods
-  //@}
+  ///@}
 
   /**
    * Copy n values from the range in source defined by [from  from+n-1]

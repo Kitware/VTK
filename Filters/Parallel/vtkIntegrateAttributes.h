@@ -45,23 +45,23 @@ public:
   vtkTypeMacro(vtkIntegrateAttributes, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the parallel controller to use. By default, set to.
    * `vtkMultiProcessController::GlobalController`.
    */
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set to true then the filter will divide all output cell data arrays (the integrated values)
    * by the computed volume/area of the dataset.  Defaults to false.
    */
   vtkSetMacro(DivideAllCellDataByVolume, bool);
   vtkGetMacro(DivideAllCellDataByVolume, bool);
-  //@}
+  ///@}
 
 protected:
   vtkIntegrateAttributes();

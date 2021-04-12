@@ -61,7 +61,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Controller
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -69,7 +69,7 @@ public:
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   virtual void SetController(vtkMultiProcessController* controller);
-  //@}
+  ///@}
 
   /**
    * Is the pass supported by the OpenGL context?

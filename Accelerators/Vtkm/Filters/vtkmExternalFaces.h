@@ -50,7 +50,7 @@ public:
    */
   vtkUnstructuredGrid* GetOutput();
 
-  //@{
+  ///@{
   /**
    * Get/Set if the points from the input that are unused in the output should
    * be removed. This will take extra time but the result dataset may use
@@ -59,7 +59,7 @@ public:
   vtkSetMacro(CompactPoints, bool);
   vtkGetMacro(CompactPoints, bool);
   vtkBooleanMacro(CompactPoints, bool);
-  //@}
+  ///@}
 
 protected:
   vtkmExternalFaces();

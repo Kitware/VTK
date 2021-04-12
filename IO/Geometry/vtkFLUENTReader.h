@@ -55,21 +55,21 @@ public:
   vtkTypeMacro(vtkFLUENTReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the file name of the Fluent case file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of cells. The number of cells is only valid after a
    * successful read of the data file is performed. Initial value is 0.
    */
   vtkGetMacro(NumberOfCells, vtkIdType);
-  //@}
+  ///@}
 
   /**
    * Get the number of cell arrays available in the input.
@@ -82,24 +82,24 @@ public:
    */
   const char* GetCellArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the cell array with the given name is to
    * be read.
    */
   int GetCellArrayStatus(const char* name);
   void SetCellArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off all cell arrays.
    */
   void DisableAllCellArrays();
   void EnableAllCellArrays();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
@@ -136,7 +136,7 @@ public:
   struct scalarDataVector;
   struct vectorDataVector;
   struct intVectorVector;
-  //@}
+  ///@}
 
 protected:
   vtkFLUENTReader();
@@ -144,7 +144,7 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    * Not used when reading text files.
@@ -152,7 +152,7 @@ protected:
   vtkSetMacro(SwapBytes, vtkTypeBool);
   vtkTypeBool GetSwapBytes() { return this->SwapBytes; }
   vtkBooleanMacro(SwapBytes, vtkTypeBool);
-  //@}
+  ///@}
 
   virtual bool OpenCaseFile(const char* filename);
   virtual bool OpenDataFile(const char* filename);

@@ -47,16 +47,16 @@ class vtkAbstractTransform;
 class VTKFILTERSMODELING_EXPORT vtkFillHolesFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information and printing.
    */
   static vtkFillHolesFilter* New();
   vtkTypeMacro(vtkFillHolesFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the maximum hole size to fill. This is represented as a radius
    * to the bounding circumsphere containing the hole.  Note that this is an
@@ -65,7 +65,7 @@ public:
    */
   vtkSetClampMacro(HoleSize, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(HoleSize, double);
-  //@}
+  ///@}
 
 protected:
   vtkFillHolesFilter();

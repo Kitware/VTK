@@ -61,13 +61,13 @@ public:
   vtkTypeMacro(vtkLabeledTreeMapDataMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Draw the text to the screen at each input point.
    */
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override;
-  //@}
+  ///@}
 
   /**
    * The input to this filter.
@@ -79,7 +79,7 @@ public:
    */
   virtual void SetRectanglesArrayName(const char* name);
 
-  //@{
+  ///@{
   /**
    * Indicates if the label can be displayed clipped by the Window
    * mode = 0 - ok to clip labels
@@ -87,38 +87,38 @@ public:
    */
   vtkGetMacro(ClipTextMode, int);
   vtkSetMacro(ClipTextMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicates if the label can be moved by its ancestors
    */
   vtkGetMacro(ChildMotion, int);
   vtkSetMacro(ChildMotion, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicates at which level labeling should be dynamic
    */
   vtkGetMacro(DynamicLevel, int);
   vtkSetMacro(DynamicLevel, int);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * The range of font sizes to use when rendering the labels.
    */
   void SetFontSizeRange(int maxSize, int minSize, int delta = 4);
   void GetFontSizeRange(int range[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The range of levels to attempt to label.
    * The level of a vertex is the length of the path to the root
@@ -126,7 +126,7 @@ public:
    */
   void SetLevelRange(int startLevel, int endLevel);
   void GetLevelRange(int range[2]);
-  //@}
+  ///@}
 
 protected:
   vtkLabeledTreeMapDataMapper();

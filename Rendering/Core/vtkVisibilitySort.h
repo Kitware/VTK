@@ -60,7 +60,7 @@ public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * To facilitate incremental sorting algorithms, the cells are retrieved
    * in an iteration process.  That is, call InitTraversal to start the
@@ -74,18 +74,18 @@ public:
    */
   virtual void InitTraversal() = 0;
   virtual vtkIdTypeArray* GetNextCells() = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of cells that GetNextCells will return
    * in one invocation.
    */
   vtkSetClampMacro(MaxCellsReturned, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaxCellsReturned, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the matrix that transforms from object space to world space.
    * Generally, you get this matrix from a call to GetMatrix of a vtkProp3D
@@ -93,27 +93,27 @@ public:
    */
   virtual void SetModelTransform(vtkMatrix4x4* mat);
   vtkGetObjectMacro(ModelTransform, vtkMatrix4x4);
-  //@}
+  ///@}
 
   vtkGetObjectMacro(InverseModelTransform, vtkMatrix4x4);
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera that specifies the viewing parameters.
    */
   virtual void SetCamera(vtkCamera* camera);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the data set containing the cells to sort.
    */
   virtual void SetInput(vtkDataSet* data);
   vtkGetObjectMacro(Input, vtkDataSet);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the sorting direction.  Be default, the direction is set
    * to back to front.
@@ -122,7 +122,7 @@ public:
   vtkSetMacro(Direction, int);
   void SetDirectionToBackToFront() { this->SetDirection(BACK_TO_FRONT); }
   void SetDirectionToFrontToBack() { this->SetDirection(FRONT_TO_BACK); }
-  //@}
+  ///@}
 
   enum
   {
@@ -130,13 +130,13 @@ public:
     FRONT_TO_BACK
   };
 
-  //@{
+  ///@{
   /**
    * Overwritten to enable garbage collection.
    */
   void Register(vtkObjectBase* o) override;
   void UnRegister(vtkObjectBase* o) override;
-  //@}
+  ///@}
 
 protected:
   vtkVisibilitySort();

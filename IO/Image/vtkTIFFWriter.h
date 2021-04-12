@@ -51,7 +51,7 @@ public:
     LZW
   };
 
-  //@{
+  ///@{
   /**
    * Set compression type. Sinze LZW compression is patented outside US, the
    * additional work steps have to be taken in order to use that compression.
@@ -63,7 +63,7 @@ public:
   void SetCompressionToJPEG() { this->SetCompression(JPEG); }
   void SetCompressionToDeflate() { this->SetCompression(Deflate); }
   void SetCompressionToLZW() { this->SetCompression(LZW); }
-  //@}
+  ///@}
 
 protected:
   vtkTIFFWriter();

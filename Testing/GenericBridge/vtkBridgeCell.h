@@ -147,7 +147,7 @@ public:
    */
   void GetBoundaryIterator(vtkGenericCellIterator* boundaries, int dim = -1) override;
 
-  //@{
+  ///@{
   /**
    * Number of cells (dimension>boundary->GetDimension()) of the dataset
    * that share the boundary `boundary' of `this'.
@@ -160,7 +160,7 @@ public:
    */
   int CountNeighbors(vtkGenericAdaptorCell* boundary) override;
   void CountEdgeNeighbors(int* sharing) override;
-  //@}
+  ///@}
 
   /**
    * Put into `neighbors' the cells (dimension>boundary->GetDimension())
@@ -400,7 +400,7 @@ public:
    */
   double* GetParametricCoords() override;
 #if 0
-  //@{
+  ///@{
   /**
    * Tessellate the cell if it is not linear or if at least one attribute of
    * `attributes' is not linear. The output are linear cells of the same
@@ -421,9 +421,9 @@ public:
   // For the internals of the tessellation algorithm (the hash table in particular)
   int IsFaceOnBoundary(vtkIdType faceId) override;
   int IsOnBoundary() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Put into `id' the list of ids the point of the cell.
    * \pre id_exists: id!=0
@@ -438,7 +438,7 @@ public:
                                vtkPointData *pd,
                                vtkCellData *cd );
 #endif
-  //@}
+  ///@}
 
   /**
    * Return the ids of the vertices defining face `faceId'.

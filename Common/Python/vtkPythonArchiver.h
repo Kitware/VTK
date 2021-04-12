@@ -58,34 +58,34 @@ public:
    */
   void SetPythonObject(PyObject* obj);
 
-  //@{
+  ///@{
   /**
    * Open the arhive for writing.
    */
   void OpenArchive() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Close the arhive.
    */
   void CloseArchive() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert \p data of size \p size into the archive at \p relativePath.
    */
   void InsertIntoArchive(
     const std::string& relativePath, const char* data, std::size_t size) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Checks if \p relativePath represents an entry in the archive.
    */
   bool Contains(const std::string& relativePath) override;
-  //@}
+  ///@}
 
 protected:
   vtkPythonArchiver();

@@ -37,25 +37,25 @@ public:
   vtkTypeMacro(vtkNonOverlappingAMRAlgorithm, vtkUniformGridAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm
    */
   vtkNonOverlappingAMR* GetOutput();
   vtkNonOverlappingAMR* GetOutput(int);
-  //@}
+  ///@}
 
 protected:
   vtkNonOverlappingAMRAlgorithm();
   ~vtkNonOverlappingAMRAlgorithm() override;
 
-  //@{
+  ///@{
   /**
    * See algorithm for more info.
    */
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
 private:
   vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) = delete;

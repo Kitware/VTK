@@ -63,15 +63,15 @@ public:
    */
   static vtkAffineRepresentation2D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAffineRepresentation2D, vtkAffineRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the width of the various parts of the representation (in
    * pixels).  The three parts are of the representation are the translation
@@ -85,9 +85,9 @@ public:
   vtkGetMacro(CircleWidth, int);
   vtkSetClampMacro(AxesWidth, int, 10, VTK_INT_MAX);
   vtkGetMacro(AxesWidth, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the origin of the widget (in world coordinates). The origin
    * is the point where the widget places itself. Note that rotations and
@@ -96,7 +96,7 @@ public:
   void SetOrigin(const double o[3]) { this->SetOrigin(o[0], o[1], o[2]); }
   void SetOrigin(double ox, double oy, double oz);
   vtkGetVector3Macro(Origin, double);
-  //@}
+  ///@}
 
   /**
    * Retrieve a linear transform characterizing the affine transformation
@@ -108,7 +108,7 @@ public:
    */
   void GetTransform(vtkTransform* t) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the properties when unselected and selected.
    */
@@ -118,9 +118,9 @@ public:
   vtkGetObjectMacro(Property, vtkProperty2D);
   vtkGetObjectMacro(SelectedProperty, vtkProperty2D);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable the display of text with numeric values characterizing the
    * transformation. Rotation and shear are expressed in degrees; translation
@@ -129,9 +129,9 @@ public:
   vtkSetMacro(DisplayText, vtkTypeBool);
   vtkGetMacro(DisplayText, vtkTypeBool);
   vtkBooleanMacro(DisplayText, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Subclasses of vtkAffineRepresentation2D must implement these methods. These
    * are the methods that the widget and its representation use to
@@ -145,9 +145,9 @@ public:
   void EndWidgetInteraction(double eventPos[2]) override;
   int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void BuildRepresentation() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
@@ -155,7 +155,7 @@ public:
   void GetActors2D(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  //@}
+  ///@}
 
 protected:
   vtkAffineRepresentation2D();

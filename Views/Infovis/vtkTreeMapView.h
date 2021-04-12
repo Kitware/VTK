@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkTreeMapView, vtkTreeAreaView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Sets the treemap layout strategy
    */
@@ -53,15 +53,15 @@ public:
   virtual void SetLayoutStrategyToBox();
   virtual void SetLayoutStrategyToSliceAndDice();
   virtual void SetLayoutStrategyToSquarify();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The sizes of the fonts used for labeling.
    */
   virtual void SetFontSizeRange(const int maxSize, const int minSize, const int delta = 4);
   virtual void GetFontSizeRange(int range[3]);
-  //@}
+  ///@}
 
 protected:
   vtkTreeMapView();

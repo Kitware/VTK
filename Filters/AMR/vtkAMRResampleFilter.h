@@ -56,65 +56,65 @@ public:
   vtkTypeMacro(vtkAMRResampleFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& oss, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the number of samples (cells) in each dimension.
    * Nominal value for the number of samples is 10x10x10.
    */
   vtkSetVector3Macro(NumberOfSamples, int);
   vtkGetVector3Macro(NumberOfSamples, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the TransferToNodes flag
    */
   vtkSetMacro(TransferToNodes, int);
   vtkGetMacro(TransferToNodes, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro to allow the filter to operate in both demand-driven
    * and standard modes
    */
   vtkSetMacro(DemandDrivenMode, int);
   vtkGetMacro(DemandDrivenMode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the number of subdivisions
    */
   vtkSetMacro(NumberOfPartitions, int);
   vtkGetMacro(NumberOfPartitions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and Get the min corner
    */
   vtkSetVector3Macro(Min, double);
   vtkGetVector3Macro(Min, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and Get the max corner
    */
   vtkSetVector3Macro(Max, double);
   vtkGetVector3Macro(Max, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the number of subdivisions
    */
   vtkSetMacro(UseBiasVector, bool);
   vtkGetMacro(UseBiasVector, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and Get the bias vector.  If UseBiasVector is true
    * then the largest component of this vector can not have
@@ -122,15 +122,15 @@ public:
    */
   vtkSetVector3Macro(BiasVector, double);
   vtkGetVector3Macro(BiasVector, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get macro for the multi-process controller
    */
   vtkSetMacro(Controller, vtkMultiProcessController*);
   vtkGetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
   // Standard pipeline routines
 

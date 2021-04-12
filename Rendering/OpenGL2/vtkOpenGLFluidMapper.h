@@ -49,24 +49,24 @@ public:
   vtkTypeMacro(vtkOpenGLFluidMapper, vtkAbstractVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the input data to map.
    */
   void SetInputData(vtkPolyData* in);
   vtkPolyData* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, bool);
   vtkGetMacro(ScalarVisibility, bool);
   vtkBooleanMacro(ScalarVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the particle radius, must be explicitly set by user
    * To fuse the gaps between particles and obtain a smooth surface,
@@ -76,9 +76,9 @@ public:
    */
   vtkSetMacro(ParticleRadius, float);
   vtkGetMacro(ParticleRadius, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of filter iterations to filter the depth surface
    * This is an optional parameter, default value is 3
@@ -87,18 +87,18 @@ public:
    */
   vtkSetMacro(SurfaceFilterIterations, uint32_t);
   vtkGetMacro(SurfaceFilterIterations, uint32_t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of filter iterations to filter the volume thickness
    * and particle color This is an optional parameter, default value is 3
    */
   vtkSetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
   vtkGetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the filter radius for smoothing the depth surface
    * This is an optional parameter, default value is 5
@@ -108,16 +108,16 @@ public:
    */
   vtkSetMacro(SurfaceFilterRadius, uint32_t);
   vtkGetMacro(SurfaceFilterRadius, uint32_t);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the filter radius to filter the volume thickness and particle
    * color This is an optional parameter, default value is 10 (pixels)
    */
   vtkSetMacro(ThicknessAndVolumeColorFilterRadius, float);
   vtkGetMacro(ThicknessAndVolumeColorFilterRadius, float);
-  //@}
+  ///@}
 
   /**
    * Filter method to filter the depth buffer
@@ -130,13 +130,13 @@ public:
     NumFilterMethods
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the filter method for filtering fluid surface
    */
   vtkSetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
   vtkGetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
-  //@}
+  ///@}
 
   /**
    * Optional parameters, exclusively for narrow range filter
@@ -171,15 +171,15 @@ public:
     NumDisplayModes
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the display mode
    */
   vtkSetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode);
   vtkGetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the fluid attenuation color
    * (color that will be absorpted exponentially when going through the fluid
@@ -187,18 +187,18 @@ public:
    */
   vtkSetVector3Macro(AttenuationColor, float);
   vtkGetVector3Macro(AttenuationColor, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the fluid surface color if rendered in opaque surface mode
    * without particle color
    */
   vtkSetVector3Macro(OpaqueColor, float);
   vtkGetVector3Macro(OpaqueColor, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the power value for particle color if input data has particle
    * color Default value is 0.1, and can be set to any non-negative number The
@@ -207,9 +207,9 @@ public:
    */
   vtkSetMacro(ParticleColorPower, float);
   vtkGetMacro(ParticleColorPower, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the scale value for particle color if input data has particle
    * color Default value is 1.0, and can be set to any non-negative number The
@@ -218,9 +218,9 @@ public:
    */
   vtkSetMacro(ParticleColorScale, float);
   vtkGetMacro(ParticleColorScale, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the fluid volume attenuation scale, which will be multiplied
    * with attennuation color Default value is 1.0, and can be set to any
@@ -229,9 +229,9 @@ public:
    */
   vtkSetMacro(AttenuationScale, float);
   vtkGetMacro(AttenuationScale, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the fluid surface additional reflection scale This value is in
    * [0, 1], which 0 means using the reflection color computed from fresnel
@@ -240,9 +240,9 @@ public:
    */
   vtkSetMacro(AdditionalReflection, float);
   vtkGetMacro(AdditionalReflection, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the scale value for refraction This is needed for tweak
    * refraction of volumes with different size scales For example, fluid
@@ -251,15 +251,15 @@ public:
    */
   vtkSetMacro(RefractionScale, float);
   vtkGetMacro(RefractionScale, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the fluid refraction index. The default value is 1.33 (water)
    */
   vtkSetMacro(RefractiveIndex, float);
   vtkGetMacro(RefractiveIndex, float);
-  //@}
+  ///@}
 
   /**
    * This calls RenderPiece

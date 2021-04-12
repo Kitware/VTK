@@ -48,7 +48,7 @@ public:
     CYLINDERZ = 4
   };
 
-  //@{
+  ///@{
   /**
    * The shape of the region of interest.  Cylinders can be oriented
    * along the X, Y, or Z axes.  The default shape is "Box".
@@ -61,16 +61,16 @@ public:
   void SetShapeToCylinderY() { this->SetShape(CYLINDERY); }
   void SetShapeToCylinderZ() { this->SetShape(CYLINDERZ); }
   virtual const char* GetShapeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the bounds of the region of interest.  The bounds take
    * the spacing and origin into account.
    */
   vtkGetVector6Macro(Bounds, double);
   vtkSetVector6Macro(Bounds, double);
-  //@}
+  ///@}
 
 protected:
   vtkROIStencilSource();

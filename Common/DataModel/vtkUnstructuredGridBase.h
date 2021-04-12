@@ -106,13 +106,13 @@ public:
    */
   virtual int IsHomogeneous() = 0;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkUnstructuredGridBase* GetData(vtkInformation* info);
   static vtkUnstructuredGridBase* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkUnstructuredGridBase();

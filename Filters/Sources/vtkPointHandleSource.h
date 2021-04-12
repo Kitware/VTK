@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkPointHandleSource, vtkHandleSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the handle.
    * The default position is (0,0,0).
@@ -48,9 +48,9 @@ public:
   void SetPosition(double xPos, double yPos, double zPos) override;
   using vtkHandleSource::GetPosition;
   double* GetPosition() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the direction of the handle.
    * The direction is used in case the handle is
@@ -61,7 +61,7 @@ public:
   void SetDirection(double xDir, double yDir, double zDir) override;
   using vtkHandleSource::GetDirection;
   double* GetDirection() override;
-  //@}
+  ///@}
 
   vtkPointHandleSource(const vtkPointHandleSource&) = delete;
   void operator=(const vtkPointHandleSource&) = delete;

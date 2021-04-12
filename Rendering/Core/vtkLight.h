@@ -85,7 +85,7 @@ public:
    */
   virtual void Render(vtkRenderer*, int) {}
 
-  //@{
+  ///@{
   /**
    * Set/Get the color of the light. It is possible to set the ambient,
    * diffuse and specular colors separately. The SetColor() method sets
@@ -100,9 +100,9 @@ public:
   vtkGetVectorMacro(SpecularColor, double, 3);
   void SetColor(double, double, double);
   void SetColor(const double a[3]) { this->SetColor(a[0], a[1], a[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the light.
    * Note: The position of the light is defined in the coordinate
@@ -113,9 +113,9 @@ public:
   vtkSetVector3Macro(Position, double);
   vtkGetVectorMacro(Position, double, 3);
   void SetPosition(const float* a) { this->SetPosition(a[0], a[1], a[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the point at which the light is shining.
    * Note: The focal point of the light is defined in the coordinate
@@ -126,43 +126,43 @@ public:
   vtkSetVector3Macro(FocalPoint, double);
   vtkGetVectorMacro(FocalPoint, double, 3);
   void SetFocalPoint(const float* a) { this->SetFocalPoint(a[0], a[1], a[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the brightness of the light (from one to zero).
    */
   vtkSetMacro(Intensity, double);
   vtkGetMacro(Intensity, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn the light on or off.
    */
   vtkSetMacro(Switch, vtkTypeBool);
   vtkGetMacro(Switch, vtkTypeBool);
   vtkBooleanMacro(Switch, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn positional lighting on or off.
    */
   vtkSetMacro(Positional, vtkTypeBool);
   vtkGetMacro(Positional, vtkTypeBool);
   vtkBooleanMacro(Positional, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the exponent of the cosine used in positional lighting.
    */
   vtkSetClampMacro(Exponent, double, 0.0, 128.0);
   vtkGetMacro(Exponent, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the lighting cone angle of a positional light in degrees.
    * This is the angle between the axis of the cone and a ray along the edge of
@@ -172,18 +172,18 @@ public:
    */
   vtkSetMacro(ConeAngle, double);
   vtkGetMacro(ConeAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the quadratic attenuation constants. They are specified as
    * constant, linear, and quadratic, in that order.
    */
   vtkSetVector3Macro(AttenuationValues, double);
   vtkGetVectorMacro(AttenuationValues, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the light's transformation matrix.  If a matrix is set for
    * a light, the light's parameters (position and focal point) are
@@ -191,9 +191,9 @@ public:
    */
   virtual void SetTransformMatrix(vtkMatrix4x4*);
   vtkGetObjectMacro(TransformMatrix, vtkMatrix4x4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the position of the light, modified by the transformation matrix
    * (if it exists).
@@ -201,9 +201,9 @@ public:
   void GetTransformedPosition(double& x, double& y, double& z);
   void GetTransformedPosition(double a[3]);
   double* GetTransformedPosition() VTK_SIZEHINT(3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the focal point of the light, modified by the transformation matrix
    * (if it exists).
@@ -211,7 +211,7 @@ public:
   void GetTransformedFocalPoint(double& x, double& y, double& z);
   void GetTransformedFocalPoint(double a[3]);
   double* GetTransformedFocalPoint() VTK_SIZEHINT(3);
-  //@}
+  ///@}
 
   /**
    * Use transform matrix to transform point (if it exists).
@@ -223,7 +223,7 @@ public:
    */
   void TransformVector(double a[3], double b[3]);
 
-  //@{
+  ///@{
   /**
    * Set the position and focal point of a light based on elevation and
    * azimuth.  The light is moved so it is shining from the given angle.
@@ -232,14 +232,14 @@ public:
    */
   void SetDirectionAngle(double elevation, double azimuth);
   void SetDirectionAngle(const double ang[2]) { this->SetDirectionAngle(ang[0], ang[1]); }
-  //@}
+  ///@}
 
   /**
    * Perform deep copy of this light.
    */
   void DeepCopy(vtkLight* light);
 
-  //@{
+  ///@{
   /**
    * Set/Get the type of the light.
    * A SceneLight is a light located in the world coordinate space.  A light
@@ -264,18 +264,18 @@ public:
   void SetLightTypeToHeadlight() { this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT); }
   void SetLightTypeToSceneLight() { this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT); }
   void SetLightTypeToCameraLight() { this->SetLightType(VTK_LIGHT_TYPE_CAMERA_LIGHT); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Query the type of the light.
    */
   int LightTypeIsHeadlight();
   int LightTypeIsSceneLight();
   int LightTypeIsCameraLight();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the shadow intensity
    * By default a light will be completely blocked when in shadow
@@ -284,15 +284,15 @@ public:
    */
   vtkSetMacro(ShadowAttenuation, float);
   vtkGetMacro(ShadowAttenuation, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the information object associated with the light.
    */
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
-  //@}
+  ///@}
 
 protected:
   vtkLight();

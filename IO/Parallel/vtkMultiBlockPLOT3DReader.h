@@ -145,15 +145,15 @@ public:
   vtkTypeMacro(vtkMultiBlockPLOT3DReader, vtkParallelReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkMultiBlockDataSet* GetOutput();
   vtkMultiBlockDataSet* GetOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the PLOT3D geometry filename.
    */
@@ -162,9 +162,9 @@ public:
   const char* GetFileName(int i) { return this->vtkParallelReader::GetFileName(i); }
   virtual void SetXYZFileName(const char*);
   vtkGetStringMacro(XYZFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the PLOT3D solution filename. This adds a filename
    * using the superclass' AddFileName() method. To read a series
@@ -177,17 +177,17 @@ public:
    */
   void SetQFileName(const char* name);
   const char* GetQFileName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the PLOT3D function filename.
    */
   vtkSetStringMacro(FunctionFileName);
   vtkGetStringMacro(FunctionFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When this option is turned on, the reader will try to figure
    * out the values of various options such as byte order, byte
@@ -201,9 +201,9 @@ public:
   vtkSetMacro(AutoDetectFormat, vtkTypeBool);
   vtkGetMacro(AutoDetectFormat, vtkTypeBool);
   vtkBooleanMacro(AutoDetectFormat, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is the file to be read written in binary format (as opposed
    * to ascii).
@@ -211,9 +211,9 @@ public:
   vtkSetMacro(BinaryFile, vtkTypeBool);
   vtkGetMacro(BinaryFile, vtkTypeBool);
   vtkBooleanMacro(BinaryFile, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Does the file to be read contain information about number of
    * grids. In some PLOT3D files, the first value contains the number
@@ -223,9 +223,9 @@ public:
   vtkSetMacro(MultiGrid, vtkTypeBool);
   vtkGetMacro(MultiGrid, vtkTypeBool);
   vtkBooleanMacro(MultiGrid, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Were the arrays written with leading and trailing byte counts ?
    * Usually, files written by a fortran program will contain these
@@ -234,9 +234,9 @@ public:
   vtkSetMacro(HasByteCount, vtkTypeBool);
   vtkGetMacro(HasByteCount, vtkTypeBool);
   vtkBooleanMacro(HasByteCount, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is there iblanking (point visibility) information in the file.
    * If there is iblanking arrays, these will be read and assigned
@@ -245,9 +245,9 @@ public:
   vtkSetMacro(IBlanking, vtkTypeBool);
   vtkGetMacro(IBlanking, vtkTypeBool);
   vtkBooleanMacro(IBlanking, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If only two-dimensional data was written to the file,
    * turn this on.
@@ -255,9 +255,9 @@ public:
   vtkSetMacro(TwoDimensionalGeometry, vtkTypeBool);
   vtkGetMacro(TwoDimensionalGeometry, vtkTypeBool);
   vtkBooleanMacro(TwoDimensionalGeometry, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is this file in double precision or single precision.
    * This only matters for binary files.
@@ -266,9 +266,9 @@ public:
   vtkSetMacro(DoublePrecision, vtkTypeBool);
   vtkGetMacro(DoublePrecision, vtkTypeBool);
   vtkBooleanMacro(DoublePrecision, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Try to read a binary file even if the file length seems to be
    * inconsistent with the header information. Use this with caution,
@@ -278,9 +278,9 @@ public:
   vtkSetMacro(ForceRead, vtkTypeBool);
   vtkGetMacro(ForceRead, vtkTypeBool);
   vtkBooleanMacro(ForceRead, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the byte order of the file (remember, more Unix workstations
    * write big endian whereas PCs write little endian). Default is
@@ -292,25 +292,25 @@ public:
   vtkSetMacro(ByteOrder, int);
   vtkGetMacro(ByteOrder, int);
   const char* GetByteOrderAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the gas constant. Default is 1.0.
    */
   vtkSetMacro(R, double);
   vtkGetMacro(R, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio of specific heats. Default is 1.4.
    */
   vtkSetMacro(Gamma, double);
   vtkGetMacro(Gamma, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When set to true (default), the reader will preserve intermediate computed
    * quantities that were not explicitly requested e.g. if `VelocityMagnitude` is
@@ -323,25 +323,25 @@ public:
   vtkGetMacro(PreserveIntermediateFunctions, bool);
   vtkBooleanMacro(PreserveIntermediateFunctions, bool);
 
-  //@{
+  ///@{
   /**
    * Specify the scalar function to extract. If ==(-1), then no scalar
    * function is extracted.
    */
   void SetScalarFunctionNumber(int num);
   vtkGetMacro(ScalarFunctionNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the vector function to extract. If ==(-1), then no vector
    * function is extracted.
    */
   void SetVectorFunctionNumber(int num);
   vtkGetMacro(VectorFunctionNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify additional functions to read. These are placed into the
    * point data as data arrays. Later on they can be used by labeling
@@ -350,7 +350,7 @@ public:
   void AddFunction(int functionNumber);
   void RemoveFunction(int);
   void RemoveAllFunctions();
-  //@}
+  ///@}
 
   /**
    * Return 1 if the reader can read the given file name. Only meaningful
@@ -358,14 +358,14 @@ public:
    */
   virtual int CanReadBinaryFile(const char* fname);
 
-  //@{
+  ///@{
   /**
    * Set/Get the communicator object (we'll use global World controller
    * if you don't set a different one).
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   void AddFunctionName(const std::string& name) { FunctionNames.push_back(name); }
 
@@ -375,7 +375,7 @@ public:
     FILE_LITTLE_ENDIAN = 1
   };
 
-  //@{
+  ///@{
   /**
    * These methods have to be overwritten from superclass
    * because Plot3D actually uses the XYZ file to read these.
@@ -386,13 +386,13 @@ public:
   int ReadMesh(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
   int ReadPoints(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
   int ReadArrays(int piece, int npieces, int nghosts, int timestep, vtkDataObject* output) override;
-  //@}
+  ///@}
 
 protected:
   vtkMultiBlockPLOT3DReader();
   ~vtkMultiBlockPLOT3DReader() override;
 
-  //@{
+  ///@{
   /**
    * Overridden from superclass to do actual reading.
    */
@@ -403,7 +403,7 @@ protected:
     const std::string& fname, int piece, int npieces, int nghosts, vtkDataObject* output) override;
   int ReadArrays(
     const std::string& fname, int piece, int npieces, int nghosts, vtkDataObject* output) override;
-  //@}
+  ///@}
 
   vtkDataArray* CreateFloatArray();
 
@@ -439,7 +439,7 @@ protected:
   void AssignAttribute(int fNumber, vtkStructuredGrid* output, int attributeType);
   void MapFunction(int fNumber, vtkStructuredGrid* output);
 
-  //@{
+  ///@{
   /**
    * Each of these methods compute a derived quantity. On success, the array is
    * added to the output and a pointer to the same is returned.
@@ -459,7 +459,7 @@ protected:
   vtkDataArray* ComputeSoundSpeed(vtkStructuredGrid* output);
   vtkDataArray* ComputeVorticityMagnitude(vtkStructuredGrid* output);
   vtkDataArray* ComputeStrainRate(vtkStructuredGrid* output);
-  //@}
+  ///@}
 
   // Returns a vtkFloatArray or a vtkDoubleArray depending
   // on DoublePrecision setting

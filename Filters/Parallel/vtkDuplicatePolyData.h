@@ -37,18 +37,18 @@ public:
   vtkTypeMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   void InitializeSchedule(int numProcs);
 
-  //@{
+  ///@{
   /**
    * This flag causes sends and receives to be matched.
    * When this flag is off, two sends occur then two receives.
@@ -58,9 +58,9 @@ public:
   vtkSetMacro(Synchronous, vtkTypeBool);
   vtkGetMacro(Synchronous, vtkTypeBool);
   vtkBooleanMacro(Synchronous, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This duplicate filter works in client server mode when this
    * controller is set.  We have a client flag to differentiate the
@@ -71,16 +71,16 @@ public:
   void SetSocketController(vtkSocketController* controller);
   vtkSetMacro(ClientFlag, int);
   vtkGetMacro(ClientFlag, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This returns to size of the output (on this process).
    * This method is not really used.  It is needed to have
    * the same API as vtkCollectPolyData.
    */
   vtkGetMacro(MemorySize, unsigned long);
-  //@}
+  ///@}
 
 protected:
   vtkDuplicatePolyData();

@@ -72,7 +72,7 @@ public:
    */
   void Inverse() override;
 
-  //@{
+  ///@{
   /**
    * Create a translation matrix and concatenate it with the current
    * transformation according to PreMultiply or PostMultiply semantics.
@@ -80,9 +80,9 @@ public:
   void Translate(double x, double y, double z) { this->Concatenation->Translate(x, y, z); }
   void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); }
   void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a rotation matrix and concatenate it with the current
    * transformation according to PreMultiply or PostMultiply semantics.
@@ -101,9 +101,9 @@ public:
   {
     this->RotateWXYZ(angle, axis[0], axis[1], axis[2]);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a rotation matrix about the X, Y, or Z axis and concatenate
    * it with the current transformation according to PreMultiply or
@@ -112,9 +112,9 @@ public:
   void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); }
   void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); }
   void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a scale matrix (i.e. set the diagonal elements to x, y, z)
    * and concatenate it with the current transformation according to
@@ -123,9 +123,9 @@ public:
   void Scale(double x, double y, double z) { this->Concatenation->Scale(x, y, z); }
   void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); }
   void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the current matrix directly. Note: First, the current
    * matrix is set to the identity, then the input matrix is concatenated.
@@ -136,16 +136,16 @@ public:
     this->Concatenation->Identity();
     this->Concatenate(elements);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Concatenates the matrix with the current transformation according
    * to PreMultiply or PostMultiply semantics.
    */
   void Concatenate(vtkMatrix4x4* matrix) { this->Concatenate(*matrix->Element); }
   void Concatenate(const double elements[16]) { this->Concatenation->Concatenate(elements); }
-  //@}
+  ///@}
 
   /**
    * Concatenate the specified transform with the current transformation
@@ -199,7 +199,7 @@ public:
     return this->Concatenation->GetNumberOfTransforms() + (this->Input == nullptr ? 0 : 1);
   }
 
-  //@{
+  ///@{
   /**
    * Get one of the concatenated transformations as a vtkAbstractTransform.
    * These transformations are applied, in series, every time the
@@ -232,9 +232,9 @@ public:
     }
     return static_cast<vtkLinearTransform*>(t);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the x, y, z orientation angles from the transformation matrix as an
    * array of three floating point values.
@@ -253,7 +253,7 @@ public:
     this->GetOrientation(this->ReturnValue);
     return this->ReturnValue;
   }
-  //@}
+  ///@}
 
   /**
    * Convenience function to get the x, y, z orientation angles from
@@ -261,7 +261,7 @@ public:
    */
   static void GetOrientation(double orient[3], vtkMatrix4x4* matrix);
 
-  //@{
+  ///@{
   /**
    * Return the wxyz angle+axis representing the current orientation.
    * The angle is in degrees and the axis is a unit vector.
@@ -281,9 +281,9 @@ public:
     this->GetOrientationWXYZ(this->ReturnValue);
     return this->ReturnValue;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the position from the current transformation matrix as an array
    * of three floating point numbers. This is simply returning the translation
@@ -303,9 +303,9 @@ public:
     this->GetPosition(this->ReturnValue);
     return this->ReturnValue;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the scale factors of the current transformation matrix as
    * an array of three float numbers.  These scale factors are not necessarily
@@ -326,7 +326,7 @@ public:
     this->GetScale(this->ReturnValue);
     return this->ReturnValue;
   }
-  //@}
+  ///@}
 
   /**
    * Return a matrix which is the inverse of the current transformation
@@ -341,7 +341,7 @@ public:
    */
   void GetTranspose(vtkMatrix4x4* transpose);
 
-  //@{
+  ///@{
   /**
    * Set the input for this transformation.  This will be used as the
    * base transformation if it is set.  This method allows you to build
@@ -352,7 +352,7 @@ public:
    */
   void SetInput(vtkLinearTransform* input);
   vtkLinearTransform* GetInput() { return this->Input; }
-  //@}
+  ///@}
 
   /**
    * Get the inverse flag of the transformation.  This controls
@@ -363,7 +363,7 @@ public:
    */
   int GetInverseFlag() { return this->Concatenation->GetInverseFlag(); }
 
-  //@{
+  ///@{
   /**
    * Pushes the current transformation onto the transformation stack.
    */
@@ -376,9 +376,9 @@ public:
     this->Stack->Push(&this->Concatenation);
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
@@ -392,7 +392,7 @@ public:
     this->Stack->Pop(&this->Concatenation);
     this->Modified();
   }
-  //@}
+  ///@}
 
   /**
    * Check for self-reference.  Will return true if concatenating
@@ -418,7 +418,7 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Use this method only if you wish to compute the transformation in
    * homogeneous (x,y,z,w) coordinates, otherwise use TransformPoint().
@@ -429,7 +429,7 @@ public:
   {
     this->GetMatrix()->MultiplyPoint(in, out);
   }
-  //@}
+  ///@}
 
 protected:
   vtkTransform();

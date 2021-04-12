@@ -85,13 +85,13 @@ public:
   vtkTypeMacro(vtkOrientationMarkerWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the orientation marker to be displayed in this widget.
    */
   virtual void SetOrientationMarker(vtkProp* prop);
   vtkGetObjectMacro(OrientationMarker, vtkProp);
-  //@}
+  ///@}
 
   /**
    * Enable/disable the widget. Default is 0 (disabled).
@@ -104,7 +104,7 @@ public:
    */
   void ExecuteCameraUpdateEvent(vtkObject* o, unsigned long event, void* calldata);
 
-  //@{
+  ///@{
   /**
    * Set/get whether to allow this widget to be interactively moved/scaled.
    * Default is On.
@@ -112,9 +112,9 @@ public:
   void SetInteractive(vtkTypeBool interact);
   vtkGetMacro(Interactive, vtkTypeBool);
   vtkBooleanMacro(Interactive, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the color of the outline of this widget.  The outline is visible
    * when (in interactive mode) the cursor is over this widget.
@@ -122,9 +122,9 @@ public:
    */
   void SetOutlineColor(double r, double g, double b);
   double* GetOutlineColor() VTK_SIZEHINT(3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the viewport to position/size this widget.
    * Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
@@ -139,9 +139,9 @@ public:
    */
   vtkSetVector4Macro(Viewport, double);
   vtkGetVector4Macro(Viewport, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance representing the distance to the widget (in pixels)
    * in which the cursor is considered to be on the widget, or on a
@@ -149,15 +149,15 @@ public:
    */
   vtkSetClampMacro(Tolerance, int, 1, 10);
   vtkGetMacro(Tolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Need to reimplement this->Modified() because of the
    * vtkSetVector4Macro/vtkGetVector4Macro use
    */
   void Modified() override;
-  //@}
+  ///@}
 
 protected:
   vtkOrientationMarkerWidget();

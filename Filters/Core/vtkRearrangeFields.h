@@ -125,7 +125,7 @@ public:
   int RemoveOperation(const char* operationType, const char* attributeType,
     const char* fromFieldLoc, const char* toFieldLoc);
 
-  //@{
+  ///@{
   /**
    * Remove all operations.
    */
@@ -135,7 +135,7 @@ public:
     this->LastId = 0;
     this->DeleteAllOperations();
   }
-  //@}
+  ///@}
 
   enum FieldType
   {

@@ -69,7 +69,7 @@ public:
    */
   vtkStringArray* GetRowNames();
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the column that specifies the name
    * of this table's rows.  By default, we assume this
@@ -79,7 +79,7 @@ public:
    */
   vtkGetMacro(NameColumn, vtkStdString);
   vtkSetMacro(NameColumn, vtkStdString);
-  //@}
+  ///@}
 
   /**
    * Set which way the table should face within the visualization.
@@ -98,39 +98,39 @@ public:
    */
   double GetTextAngleForOrientation(int orientation);
 
-  //@{
+  ///@{
   /**
    * Set the position of the heatmap.
    */
   vtkSetVector2Macro(Position, float);
   void SetPosition(const vtkVector2f& pos);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get position of the heatmap.
    */
   vtkGetVector2Macro(Position, float);
   vtkVector2f GetPositionVector();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the height of the cells in our heatmap.
    * Default is 18 pixels.
    */
   vtkGetMacro(CellHeight, double);
   vtkSetMacro(CellHeight, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the width of the cells in our heatmap.
    * Default is 36 pixels.
    */
   vtkGetMacro(CellWidth, double);
   vtkSetMacro(CellWidth, double);
-  //@}
+  ///@}
 
   /**
    * Get the bounds for this item as (Xmin,Xmax,Ymin,Ymax).
@@ -148,14 +148,14 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  //@{
+  ///@{
   /**
    * Get the width of the largest row or column label drawn by this
    * heatmap.
    */
   vtkGetMacro(RowLabelWidth, float);
   vtkGetMacro(ColumnLabelWidth, float);
-  //@}
+  ///@}
 
   /**
    * Enum for Orientation.

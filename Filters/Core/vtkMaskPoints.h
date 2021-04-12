@@ -52,50 +52,50 @@ public:
   vtkTypeMacro(vtkMaskPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Turn on every nth point (strided sampling), ignored by random modes.
    */
   vtkSetClampMacro(OnRatio, int, 1, VTK_INT_MAX);
   vtkGetMacro(OnRatio, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Limit the number of points that can be passed through (i.e.,
    * sets the output sample size).
    */
   vtkSetClampMacro(MaximumNumberOfPoints, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(MaximumNumberOfPoints, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Start sampling with this point. Ignored by certain random modes.
    */
   vtkSetClampMacro(Offset, vtkIdType, 0, VTK_ID_MAX);
   vtkGetMacro(Offset, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Special flag causes randomization of point selection.
    */
   vtkSetMacro(RandomMode, bool);
   vtkGetMacro(RandomMode, bool);
   vtkBooleanMacro(RandomMode, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get Seed used for generating a spatially uniform distributions.
    * default is 1.
    */
   vtkSetMacro(RandomSeed, int);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Special mode selector that switches between random mode types.
    * 0 - randomized strides: randomly strides through the data (default);
@@ -128,9 +128,9 @@ public:
    */
   vtkSetClampMacro(RandomModeType, int, RANDOMIZED_ID_STRIDES, UNIFORM_SPATIAL_VOLUME);
   vtkGetMacro(RandomModeType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * THIS ONLY WORKS WITH THE PARALLEL IMPLEMENTATION vtkPMaskPoints RUNNING
    * IN PARALLEL.
@@ -147,9 +147,9 @@ public:
   vtkSetMacro(ProportionalMaximumNumberOfPoints, bool);
   vtkGetMacro(ProportionalMaximumNumberOfPoints, bool);
   vtkBooleanMacro(ProportionalMaximumNumberOfPoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Generate output polydata vertices as well as points. A useful
    * convenience method because vertices are drawn (they are topology) while
@@ -158,9 +158,9 @@ public:
   vtkSetMacro(GenerateVertices, bool);
   vtkGetMacro(GenerateVertices, bool);
   vtkBooleanMacro(GenerateVertices, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When vertex generation is enabled, by default vertices are produced
    * as multi-vertex cells (more than one per cell), if you wish to have
@@ -169,9 +169,9 @@ public:
   vtkSetMacro(SingleVertexPerCell, bool);
   vtkGetMacro(SingleVertexPerCell, bool);
   vtkBooleanMacro(SingleVertexPerCell, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -179,7 +179,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkMaskPoints();

@@ -82,14 +82,14 @@ public:
   virtual vtkTextProperty* GetVertexLabelTextProperty();
   vtkSetStringMacro(VertexHoverArrayName);
   vtkGetStringMacro(VertexHoverArrayName);
-  //@{
+  ///@{
   /**
    * Whether to hide the display of vertex labels during mouse interaction.  Default is off.
    */
   vtkSetMacro(HideVertexLabelsOnInteraction, bool);
   vtkGetMacro(HideVertexLabelsOnInteraction, bool);
   vtkBooleanMacro(HideVertexLabelsOnInteraction, bool);
-  //@}
+  ///@}
 
   // ------------------------------------------------------------------------
   // Edge labels
@@ -105,14 +105,14 @@ public:
   virtual vtkTextProperty* GetEdgeLabelTextProperty();
   vtkSetStringMacro(EdgeHoverArrayName);
   vtkGetStringMacro(EdgeHoverArrayName);
-  //@{
+  ///@{
   /**
    * Whether to hide the display of edge labels during mouse interaction.  Default is off.
    */
   vtkSetMacro(HideEdgeLabelsOnInteraction, bool);
   vtkGetMacro(HideEdgeLabelsOnInteraction, bool);
   vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool);
-  //@}
+  ///@}
 
   // ------------------------------------------------------------------------
   // Vertex icons
@@ -136,7 +136,7 @@ public:
   virtual void SetVertexDefaultIcon(int icon);
   virtual int GetVertexDefaultIcon();
 
-  //@{
+  ///@{
   /**
    * Set the mode to one of
    * <ul>
@@ -156,7 +156,7 @@ public:
   {
     this->SetVertexIconSelectionMode(3);
   }
-  //@}
+  ///@}
 
   // ------------------------------------------------------------------------
   // Edge icons
@@ -222,21 +222,21 @@ public:
   // ------------------------------------------------------------------------
   // Vertex layout strategy
 
-  //@{
+  ///@{
   /**
    * Set/get the graph layout strategy.
    */
   virtual void SetLayoutStrategy(vtkGraphLayoutStrategy* strategy);
   virtual vtkGraphLayoutStrategy* GetLayoutStrategy();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the layout strategy by name.
    */
   virtual void SetLayoutStrategy(const char* name);
   vtkGetStringMacro(LayoutStrategyName);
-  //@}
+  ///@}
 
   /**
    * Set predefined layout strategies.
@@ -290,7 +290,7 @@ public:
   // ------------------------------------------------------------------------
   // Edge layout strategy
 
-  //@{
+  ///@{
   /**
    * Set/get the graph layout strategy.
    */
@@ -298,7 +298,7 @@ public:
   virtual vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
   void SetEdgeLayoutStrategyToArcParallel() { this->SetEdgeLayoutStrategy("Arc Parallel"); }
   void SetEdgeLayoutStrategyToPassThrough() { this->SetEdgeLayoutStrategy("Pass Through"); }
-  //@}
+  ///@}
 
   /**
    * Set the edge layout strategy to a geospatial arced strategy
@@ -306,13 +306,13 @@ public:
    */
   virtual void SetEdgeLayoutStrategyToGeo(double explodeFactor = 0.2);
 
-  //@{
+  ///@{
   /**
    * Set the edge layout strategy by name.
    */
   virtual void SetEdgeLayoutStrategy(const char* name);
   vtkGetStringMacro(EdgeLayoutStrategyName);
-  //@}
+  ///@}
 
   // ------------------------------------------------------------------------
   // Miscellaneous
@@ -322,32 +322,32 @@ public:
    */
   void ApplyViewTheme(vtkViewTheme* theme) override;
 
-  //@{
+  ///@{
   /**
    * Set the graph vertex glyph type.
    */
   virtual void SetGlyphType(int type);
   virtual int GetGlyphType();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to scale vertex glyphs.
    */
   virtual void SetScaling(bool b);
   virtual bool GetScaling();
   vtkBooleanMacro(Scaling, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the glyph scaling array name.
    */
   virtual void SetScalingArrayName(const char* name);
   virtual const char* GetScalingArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Vertex/edge scalar bar visibility.
    */
@@ -355,15 +355,15 @@ public:
   virtual bool GetVertexScalarBarVisibility();
   virtual void SetEdgeScalarBarVisibility(bool b);
   virtual bool GetEdgeScalarBarVisibility();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Obtain the scalar bar widget used to draw a legend for the vertices/edges.
    */
   virtual vtkScalarBarWidget* GetVertexScalarBar();
   virtual vtkScalarBarWidget* GetEdgeScalarBar();
-  //@}
+  ///@}
 
   /**
    * Whether the current graph layout is complete.
@@ -384,13 +384,13 @@ protected:
   vtkRenderedGraphRepresentation();
   ~vtkRenderedGraphRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Called by the view to add/remove this representation.
    */
   bool AddToView(vtkView* view) override;
   bool RemoveFromView(vtkView* view) override;
-  //@}
+  ///@}
 
   void PrepareForRendering(vtkRenderView* view) override;
 
@@ -404,7 +404,7 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Internal filter classes.
    */
@@ -436,7 +436,7 @@ protected:
   vtkSmartPointer<vtkIconGlyphFilter> VertexIconGlyph;
   vtkSmartPointer<vtkPolyDataMapper2D> VertexIconMapper;
   vtkSmartPointer<vtkTexturedActor2D> VertexIconActor;
-  //@}
+  ///@}
 
   char* VertexHoverArrayName;
   char* EdgeHoverArrayName;

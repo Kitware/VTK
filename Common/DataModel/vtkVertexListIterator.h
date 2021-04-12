@@ -53,14 +53,14 @@ public:
    */
   virtual void SetGraph(vtkGraph* graph);
 
-  //@{
+  ///@{
   /**
    * Get the graph associated with this iterator.
    */
   vtkGetObjectMacro(Graph, vtkGraph);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the next edge in the graph.
    */
@@ -70,7 +70,7 @@ public:
     ++this->Current;
     return v;
   }
-  //@}
+  ///@}
 
   /**
    * Whether this iterator has more edges.

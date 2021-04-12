@@ -282,14 +282,14 @@ public:
    */
   virtual vtkHyperTree* Freeze(const char* mode) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get tree index in hypertree grid.
    * Services for internal use between hypertree grid and hypertree.
    */
   void SetTreeIndex(vtkIdType treeIndex) { this->Datas->TreeIndex = treeIndex; }
   vtkIdType GetTreeIndex() const { return this->Datas->TreeIndex; }
-  //@}
+  ///@}
 
   /**
    * Return the number of levels.
@@ -334,7 +334,7 @@ public:
    */
   vtkIdType GetNumberOfChildren() const { return this->NumberOfChildren; }
 
-  //@{
+  ///@{
   /**
    * Set/Get scale of the tree in each direction for the ground
    * level (0).
@@ -342,7 +342,7 @@ public:
   void GetScale(double s[3]) const;
 
   double GetScale(unsigned int d) const;
-  //@}
+  ///@}
 
   /**
    * In an hypertree, all cells are the same size by level. This
@@ -480,7 +480,7 @@ public:
    */
   virtual const unsigned int* GetElderChildIndexArray(size_t& nbElements) const = 0;
 
-  //@{
+  ///@{
   /**
    * In an hypertree, all cells are the same size by level. This
    * fonction initializes this cache system is particulary used by
@@ -488,16 +488,16 @@ public:
    * Here, you set a scales since extern description (sharing).
    */
   void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) const { this->Scales = scales; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the existence scales.
    */
   bool HasScales() const { return (this->Scales != nullptr); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return all scales.
    */
@@ -506,7 +506,7 @@ public:
     assert(this->Scales != nullptr);
     return this->Scales;
   }
-  //@}
+  ///@}
 
 protected:
   vtkHyperTree();

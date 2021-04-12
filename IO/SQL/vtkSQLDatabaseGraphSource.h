@@ -59,7 +59,7 @@ public:
   void AddLinkEdge(const char* column1, const char* column2);
   void ClearLinkEdges();
 
-  //@{
+  ///@{
   /**
    * If on (default), generate edge pedigree ids.
    * If off, assign an array to be edge pedigree ids.
@@ -67,17 +67,17 @@ public:
   vtkGetMacro(GenerateEdgePedigreeIds, bool);
   vtkSetMacro(GenerateEdgePedigreeIds, bool);
   vtkBooleanMacro(GenerateEdgePedigreeIds, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use this array name for setting or generating edge pedigree ids.
    */
   vtkSetStringMacro(EdgePedigreeIdArrayName);
   vtkGetStringMacro(EdgePedigreeIdArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If on (default), generate a directed output graph.
    * If off, generate an undirected output graph.
@@ -85,7 +85,7 @@ public:
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
-  //@}
+  ///@}
 
 protected:
   vtkSQLDatabaseGraphSource();

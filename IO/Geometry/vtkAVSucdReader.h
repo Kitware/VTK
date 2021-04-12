@@ -51,80 +51,80 @@ public:
   vtkTypeMacro(vtkAVSucdReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of AVS UCD datafile to read
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Is the file to be read written in binary format (as opposed to ascii).
    */
   vtkSetMacro(BinaryFile, vtkTypeBool);
   vtkGetMacro(BinaryFile, vtkTypeBool);
   vtkBooleanMacro(BinaryFile, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of cells.
    */
   vtkGetMacro(NumberOfCells, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the total number of nodes.
    */
   vtkGetMacro(NumberOfNodes, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data fields at the nodes.
    */
   vtkGetMacro(NumberOfNodeFields, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data fields at the cell centers.
    */
   vtkGetMacro(NumberOfCellFields, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data fields for the model. Unused because VTK
    * has no methods for it.
    */
   vtkGetMacro(NumberOfFields, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of data components at the nodes and cells.
    */
   vtkGetMacro(NumberOfNodeComponents, int);
   vtkGetMacro(NumberOfCellComponents, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the endian-ness of the binary file.
    */
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
   const char* GetByteOrderAsString();
-  //@}
+  ///@}
 
   vtkSetMacro(ByteOrder, int);
   vtkGetMacro(ByteOrder, int);
 
-  //@{
+  ///@{
   /**
    * The following methods allow selective reading of solutions fields.  by
    * default, ALL data fields are the nodes and cells are read, but this can
@@ -138,7 +138,7 @@ public:
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   void DisableAllCellArrays();
   void EnableAllCellArrays();

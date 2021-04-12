@@ -68,13 +68,13 @@ public:
    */
   static vtkButtonWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard macros.
    */
   vtkTypeMacro(vtkButtonWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

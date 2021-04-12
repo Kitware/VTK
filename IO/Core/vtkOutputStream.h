@@ -37,13 +37,13 @@ public:
   static vtkOutputStream* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the real output stream.
    */
   vtkSetMacro(Stream, ostream*);
   vtkGetMacro(Stream, ostream*);
-  //@}
+  ///@}
 
   /**
    * Called after the stream position has been set by the caller, but

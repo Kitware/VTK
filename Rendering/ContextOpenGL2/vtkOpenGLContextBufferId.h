@@ -47,13 +47,13 @@ public:
    */
   void ReleaseGraphicsResources() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
   void SetContext(vtkRenderWindow* context) override;
   vtkRenderWindow* GetContext() override;
-  //@}
+  ///@}
 
   /**
    * Returns if the context supports the required extensions.

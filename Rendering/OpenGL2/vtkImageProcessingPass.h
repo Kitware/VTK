@@ -48,7 +48,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the image to be processed.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -57,7 +57,7 @@ public:
    */
   vtkGetObjectMacro(DelegatePass, vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass* delegatePass);
-  //@}
+  ///@}
 
 protected:
   /**

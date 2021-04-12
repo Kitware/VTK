@@ -41,15 +41,15 @@ public:
   vtkTypeMacro(vtkOpenQubeMoleculeSource, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //@{
+  ///@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule* GetOutput();
   void SetOutput(vtkMolecule*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the OpenQube readable file.
    * @note: If both a source OpenQube BasisSet object and a FileName
@@ -58,9 +58,9 @@ public:
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the OpenQube BasisSet object to read from.
    * @note: If both a source OpenQube BasisSet object and a FileName
@@ -69,9 +69,9 @@ public:
    */
   virtual void SetBasisSet(OpenQube::BasisSet* b);
   vtkGetMacro(BasisSet, OpenQube::BasisSet*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set whether or not to take ownership of the BasisSet object. Defaults
    * to false when SetBasisSet is used and true when the basis is read from a
@@ -81,7 +81,7 @@ public:
   vtkSetMacro(CleanUpBasisSet, bool);
   vtkGetMacro(CleanUpBasisSet, bool);
   vtkBooleanMacro(CleanUpBasisSet, bool);
-  //@}
+  ///@}
 
 protected:
   vtkOpenQubeMoleculeSource();

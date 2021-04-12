@@ -67,7 +67,7 @@ public:
    */
   int Parse() override;
 
-  //@{
+  ///@{
   /**
    * These are only implemented to prevent compiler warnings about hidden
    * virtual overloads. This function simply call Parse(); the arguments are
@@ -75,7 +75,7 @@ public:
    */
   int Parse(const char*) override;
   int Parse(const char*, unsigned int) override;
-  //@}
+  ///@}
 
 protected:
   vtkBlueObeliskDataParser();
@@ -147,7 +147,7 @@ private:
   vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&) = delete;
   void operator=(const vtkBlueObeliskDataParser&) = delete;
 
-  //@{
+  ///@{
   /**
    * Resize array if needed and set the entry at ind to val.
    */
@@ -155,9 +155,9 @@ private:
   static void ResizeAndSetValue(vtkStdString* val, vtkStringArray* arr, vtkIdType ind);
   static void ResizeAndSetValue(float val, vtkFloatArray* arr, vtkIdType ind);
   static void ResizeAndSetValue(unsigned short val, vtkUnsignedShortArray* arr, vtkIdType ind);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Parse types from const char *
    */
@@ -165,15 +165,15 @@ private:
   static float parseFloat(const char*);
   static void parseFloat3(const char* str, float[3]);
   static unsigned short parseUnsignedShort(const char*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convert a string to lower case. This will modify the input string
    * and return the input pointer.
    */
   static vtkStdString* ToLower(vtkStdString*);
-  //@}
+  ///@}
 };
 
 #endif

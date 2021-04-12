@@ -52,20 +52,20 @@ public:
    */
   static vtkAngleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAngleRepresentation3D, vtkAngleRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the superclasses API. Angle returned is in radians.
    */
   double GetAngle() override;
 
-  //@{
+  ///@{
   /**
    * Methods to Set/Get the coordinates of the two points defining
    * this representation. Note that methods are available for both
@@ -83,9 +83,9 @@ public:
   void GetPoint1DisplayPosition(double pos[3]) override;
   void GetCenterDisplayPosition(double pos[3]) override;
   void GetPoint2DisplayPosition(double pos[3]) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the three leaders used to create this representation.
    * By obtaining these leaders the user can set the appropriate
@@ -95,15 +95,15 @@ public:
   vtkGetObjectMacro(Ray2, vtkActor);
   vtkGetObjectMacro(Arc, vtkActor);
   vtkGetObjectMacro(TextActor, vtkFollower);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scale text.
    */
   virtual void SetTextActorScale(double scale[3]);
   virtual double* GetTextActorScale();
-  //@}
+  ///@}
 
   /**
    * Method defined by vtkWidgetRepresentation superclass and
@@ -111,7 +111,7 @@ public:
    */
   void BuildRepresentation() override;
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
@@ -119,7 +119,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
 protected:
   vtkAngleRepresentation3D();

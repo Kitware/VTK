@@ -104,13 +104,13 @@ public:
     return this->Superclass::GetChildMetaData(blockno);
   }
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkMultiBlockDataSet* GetData(vtkInformation* info);
   static vtkMultiBlockDataSet* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Unhiding superclass method.

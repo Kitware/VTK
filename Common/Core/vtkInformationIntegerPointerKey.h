@@ -37,7 +37,7 @@ public:
   vtkInformationIntegerPointerKey(const char* name, const char* location, int length = -1);
   ~vtkInformationIntegerPointerKey() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the value associated with this key in the given
    * information object.
@@ -46,7 +46,7 @@ public:
   int* Get(vtkInformation* info);
   void Get(vtkInformation* info, int* value);
   int Length(vtkInformation* info);
-  //@}
+  ///@}
 
   /**
    * Copy the entry associated with this key from one information

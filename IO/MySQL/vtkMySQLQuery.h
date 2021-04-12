@@ -67,7 +67,7 @@ public:
    */
   bool Execute() override;
 
-  //@{
+  ///@{
   /**
    * Begin, commit, or roll back a transaction.
 
@@ -77,7 +77,7 @@ public:
   bool BeginTransaction() override;
   bool CommitTransaction() override;
   bool RollbackTransaction() override;
-  //@}
+  ///@}
 
   /**
    * The number of fields in the query result.
@@ -142,15 +142,15 @@ public:
    * Bind a string value -- string must be null-terminated
    */
   bool BindParameter(int index, const char* stringValue) override;
-  //@{
+  ///@{
   /**
    * Bind a string value by specifying an array and a size
    */
   bool BindParameter(int index, const char* stringValue, size_t length) override;
   bool BindParameter(int index, const vtkStdString& string) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
@@ -158,7 +158,7 @@ public:
    */
   bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
   /**
    * Escape a string for use in a query

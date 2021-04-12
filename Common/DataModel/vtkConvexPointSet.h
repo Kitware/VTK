@@ -51,7 +51,7 @@ public:
    */
   virtual int HasFixedTopology() { return 0; }
 
-  //@{
+  ///@{
   /**
    * See vtkCell3D API for description of these methods.
    * @warning These method are unimplemented in vtkConvexPointSet
@@ -117,7 +117,7 @@ public:
     vtkWarningMacro(<< "vtkConvexPointSet::GetCentroid Not Implemented");
     return false;
   }
-  //@}
+  ///@}
 
   /**
    * See vtkCell3D API for description of this method.
@@ -135,7 +135,7 @@ public:
   int RequiresInitialization() override { return 1; }
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * A convex point set has no explicit cell edge or faces; however
    * implicitly (after triangulation) it does. Currently the method
@@ -150,7 +150,7 @@ public:
   vtkCell* GetEdge(int) override { return nullptr; }
   int GetNumberOfFaces() override;
   vtkCell* GetFace(int faceId) override;
-  //@}
+  ///@}
 
   /**
    * Satisfy the vtkCell API. This method contours by triangulating the
@@ -219,14 +219,14 @@ public:
    */
   int IsPrimaryCell() override { return 0; }
 
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(const double pcoords[3], double* sf) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
-  //@}
+  ///@}
 
 protected:
   vtkConvexPointSet();

@@ -68,29 +68,29 @@ public:
   vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The DIMACS file name.
    */
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Vertex attribute array name
    */
   vtkGetStringMacro(VertexAttributeArrayName);
   vtkSetStringMacro(VertexAttributeArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Edge attribute array name
    */
   vtkGetStringMacro(EdgeAttributeArrayName);
   vtkSetStringMacro(EdgeAttributeArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkDIMACSGraphReader();

@@ -33,29 +33,29 @@ public:
   vtkTypeMacro(vtkJSONImageWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name for the image file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify ArrayName to export. By default nullptr which will dump ALL arrays.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify Slice in Z to export. By default -1 which will dump the full 3D domain.
    */
   vtkSetMacro(Slice, int);
   vtkGetMacro(Slice, int);
-  //@}
+  ///@}
 
   /**
    * The main interface which triggers the writer to start.

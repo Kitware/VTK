@@ -44,29 +44,29 @@
 class VTKINTERACTIONWIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkButtonRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the current button state.
    */
   vtkSetClampMacro(NumberOfStates, int, 1, VTK_INT_MAX);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve the current button state.
    */
   vtkGetMacro(State, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Manipulate the state. Note that the NextState() and PreviousState() methods
    * use modulo traversal. The "state" integral value will be clamped within
@@ -76,7 +76,7 @@ public:
   virtual void SetState(int state);
   virtual void NextState();
   virtual void PreviousState();
-  //@}
+  ///@}
 
   enum _InteractionState
   {
@@ -84,7 +84,7 @@ public:
     Inside
   };
 
-  //@{
+  ///@{
   /**
    * These methods control the appearance of the button as it is being
    * interacted with. Subclasses will behave differently depending on their
@@ -101,7 +101,7 @@ public:
   };
   void Highlight(int) override;
   vtkGetMacro(HighlightState, int);
-  //@}
+  ///@}
 
   /**
    * Satisfy some of vtkProp's API.

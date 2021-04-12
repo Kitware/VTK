@@ -37,48 +37,48 @@ public:
   vtkTypeMacro(vtkOTKernelSmoothing, vtkOTFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods to set / get number of points to compute, 129 by default
    */
   vtkSetClampMacro(PointNumber, int, 1, VTK_INT_MAX);
   vtkGetMacro(PointNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get flag that triggers
    * Gaussian PDF computation, true by default
    */
   vtkSetMacro(GaussianPDF, bool);
   vtkGetMacro(GaussianPDF, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get flag that triggers
    * Triangular PDF computation, true by default
    */
   vtkSetMacro(TriangularPDF, bool);
   vtkGetMacro(TriangularPDF, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get flag that triggers
    * Epanechnikov PDF computation, true by default
    */
   vtkSetMacro(EpanechnikovPDF, bool);
   vtkGetMacro(EpanechnikovPDF, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to set / get the boundary correction, false by default
    */
   vtkSetMacro(BoundaryCorrection, bool);
   vtkGetMacro(BoundaryCorrection, bool);
-  //@}
+  ///@}
 
 protected:
   vtkOTKernelSmoothing();

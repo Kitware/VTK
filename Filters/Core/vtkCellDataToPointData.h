@@ -62,14 +62,14 @@ class vtkDataSet;
 class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkCellDataToPointData* New();
   vtkTypeMacro(vtkCellDataToPointData, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /// Options to specify what cells contribute to the cell-averaging calculation
   enum ContributingCellEnum
@@ -79,7 +79,7 @@ public:
     DataSetMax = 2 //!< Highest dimension cells in the data set
   };
 
-  //@{
+  ///@{
   /**
    * Control whether the input cell data is to be passed to the output. If
    * on, then the input cell data is passed through to the output; otherwise,
@@ -88,18 +88,18 @@ public:
   vtkSetMacro(PassCellData, bool);
   vtkGetMacro(PassCellData, bool);
   vtkBooleanMacro(PassCellData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to specify what cells to include in the cell-averaging computation.
    * Options are all cells (All, Patch and DataSetMax). The default is All.
    */
   vtkSetClampMacro(ContributingCellOption, int, 0, 2);
   vtkGetMacro(ContributingCellOption, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Activate selective processing of arrays. If false, only arrays selected
    * by the user will be considered by this filter. The default is true.
@@ -107,7 +107,7 @@ public:
   vtkSetMacro(ProcessAllArrays, bool);
   vtkGetMacro(ProcessAllArrays, bool);
   vtkBooleanMacro(ProcessAllArrays, bool);
-  //@}
+  ///@}
 
   /**
    * Adds an array to be processed. This only has an effect if the
@@ -136,31 +136,31 @@ protected:
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  //@{
+  ///@{
   /**
    * Special algorithm for unstructured grids and polydata to make sure
    * that we properly take into account ContributingCellOption.
    */
   int RequestDataForUnstructuredData(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*);
-  //@}
+  ///@}
 
   int InterpolatePointData(vtkDataSet* input, vtkDataSet* output);
 
-  //@{
+  ///@{
   /**
    * Option to pass cell data arrays through to the output. Default is 0/off.
    */
   bool PassCellData;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Option to specify what cells to include in the computation.
    * Options are all cells (All, Patch and DataSet). The default is All.
    */
   int ContributingCellOption;
-  //@}
+  ///@}
 
   /**
    * Option to activate selective processing of arrays.

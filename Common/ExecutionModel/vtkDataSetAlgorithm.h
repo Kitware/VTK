@@ -52,13 +52,13 @@ public:
   vtkTypeMacro(vtkDataSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkDataSet* GetOutput();
   vtkDataSet* GetOutput(int);
-  //@}
+  ///@}
 
   /**
    * Get the input data object. This method is not recommended for use, but
@@ -96,7 +96,7 @@ public:
    */
   vtkRectilinearGrid* GetRectilinearGridOutput();
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -106,9 +106,9 @@ public:
   void SetInputData(int, vtkDataObject*);
   void SetInputData(vtkDataSet*);
   void SetInputData(int, vtkDataSet*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use AddInputConnection() to
@@ -118,7 +118,7 @@ public:
   void AddInputData(vtkDataSet*);
   void AddInputData(int, vtkDataSet*);
   void AddInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details

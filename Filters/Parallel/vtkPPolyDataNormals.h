@@ -32,7 +32,7 @@ public:
 
   static vtkPPolyDataNormals* New();
 
-  //@{
+  ///@{
   /**
    * To get piece invariance, this filter has to request an
    * extra ghost level.  By default piece invariance is on.
@@ -40,7 +40,7 @@ public:
   vtkSetMacro(PieceInvariant, vtkTypeBool);
   vtkGetMacro(PieceInvariant, vtkTypeBool);
   vtkBooleanMacro(PieceInvariant, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkPPolyDataNormals();

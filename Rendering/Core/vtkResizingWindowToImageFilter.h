@@ -74,23 +74,23 @@ public:
    */
   void SetInput(vtkWindow* input);
 
-  //@{
+  ///@{
   /**
    * Returns which renderer is being used as the source for the pixel data.
    * Initial value is 0.
    */
   vtkGetObjectMacro(Input, vtkWindow);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the size of the target image in pixels.
    */
   vtkGetVector2Macro(Size, int);
   vtkSetVector2Macro(Size, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the size limit of the image (in pixels per axis) for switching
    * from rendering the entire image in memory to using tiling which uses less
@@ -98,9 +98,9 @@ public:
    */
   vtkGetMacro(SizeLimit, int);
   vtkSetMacro(SizeLimit, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the window buffer from which data will be read.  Choices
    * include VTK_RGB (read the color image from the window), VTK_RGBA
@@ -112,7 +112,7 @@ public:
   void SetInputBufferTypeToRGB() { this->SetInputBufferType(VTK_RGB); }
   void SetInputBufferTypeToRGBA() { this->SetInputBufferType(VTK_RGBA); }
   void SetInputBufferTypeToZBuffer() { this->SetInputBufferType(VTK_ZBUFFER); }
-  //@}
+  ///@}
 
   /**
    * Get the output data object for a port on this algorithm.

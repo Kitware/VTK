@@ -44,40 +44,40 @@ public:
   vtkTypeMacro(vtkDistanceToCamera, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The renderer which will ultimately render these points.
    */
   void SetRenderer(vtkRenderer* ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired screen size obtained by scaling glyphs by the distance
    * array. It assumes the glyph at each point will be unit size.
    */
   vtkSetMacro(ScreenSize, double);
   vtkGetMacro(ScreenSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to scale the distance by the input array to process.
    */
   vtkSetMacro(Scaling, bool);
   vtkGetMacro(Scaling, bool);
   vtkBooleanMacro(Scaling, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The name of the distance array. If not set, the array is
    * named 'DistanceToCamera'.
    */
   vtkSetStringMacro(DistanceArrayName);
   vtkGetStringMacro(DistanceArrayName);
-  //@}
+  ///@}
 
   /**
    * The modified time of this filter.

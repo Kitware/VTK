@@ -117,7 +117,7 @@ public:
    */
   virtual vtkMatrix4x4* GetDirectionCosines();
 
-  //@{
+  ///@{
   /**
    * Get the slope and intercept for rescaling the scalar values
    * to real data values.  To convert scalar values to real values,
@@ -125,9 +125,9 @@ public:
    */
   virtual double GetRescaleSlope();
   virtual double GetRescaleIntercept();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Rescale real data values to float.  If this is done, the
    * RescaleSlope and RescaleIntercept will be set to 1 and 0
@@ -136,9 +136,9 @@ public:
   vtkSetMacro(RescaleRealValues, vtkTypeBool);
   vtkBooleanMacro(RescaleRealValues, vtkTypeBool);
   vtkGetMacro(RescaleRealValues, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the scalar range of the output from the information in
    * the file header.  This is more efficient that computing the
@@ -152,20 +152,20 @@ public:
     range[0] = r[0];
     range[1] = r[1];
   }
-  //@}
+  ///@}
 
   /**
    * Get the number of time steps in the file.
    */
   virtual int GetNumberOfTimeSteps();
 
-  //@{
+  ///@{
   /**
    * Set the time step to read.
    */
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
-  //@}
+  ///@}
 
   /**
    * Get the image attributes, which contain patient information and

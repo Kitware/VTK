@@ -40,13 +40,13 @@ public:
   vtkTypeMacro(vtkImplicitSum, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Evaluate implicit function using current functions and weights.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate gradient of the weighted sum of functions.  Input functions
@@ -81,7 +81,7 @@ public:
    */
   void SetFunctionWeight(vtkImplicitFunction* f, double weight);
 
-  //@{
+  ///@{
   /**
    * When calculating the function and gradient values of the
    * composite function, setting NormalizeByWeight on will divide the
@@ -92,7 +92,7 @@ public:
   vtkSetMacro(NormalizeByWeight, vtkTypeBool);
   vtkGetMacro(NormalizeByWeight, vtkTypeBool);
   vtkBooleanMacro(NormalizeByWeight, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitSum();

@@ -60,15 +60,15 @@
  * @authors Goodwin Lawlor, Bill Lorensen
  */
 
-//@{
+///@{
 /*
  * @warning
  * Currently only triangles are processed. Use vtkTriangleFilter to
  * convert any strips or polygons to triangles.
  */
-//@}
+///@}
 
-//@{
+///@{
 /*
  * @cite
  * Goodwin Lawlor <goodwin.lawlor@ucd.ie>, University College Dublin,
@@ -79,14 +79,14 @@
  * The original code was contained here: https://github.com/glawlor/vtkbioeng
  *
  */
-//@}
+///@}
 
-//@{
+///@{
 /*
  *  @see
  *  vtkTriangleFilter, vtkSelectPolyData, vtkOBBTree
  */
-//@}
+///@}
 
 #ifndef vtkCollisionDetectionFilter_h
 #define vtkCollisionDetectionFilter_h
@@ -105,14 +105,14 @@ class vtkIdTypeArray;
 class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for construction, type and printing.
    */
   static vtkCollisionDetectionFilter* New();
   vtkTypeMacro(vtkCollisionDetectionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   enum CollisionModes
   {
@@ -121,7 +121,7 @@ public:
     VTK_HALF_CONTACTS = 2
   };
 
-  //@{
+  ///@{
   /** Set the collision mode to VTK_ALL_CONTACTS to find all the contacting cell pairs with
    * two points per collision, or VTK_HALF_CONTACTS to find all the contacting cell pairs
    * with one point per collision, or VTK_FIRST_CONTACT to quickly find the first contact
@@ -148,9 +148,9 @@ public:
       return "HalfContacts";
     }
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Description:
    * Intersect two polygons, return x1 and x2 as the two points of intersection. If
@@ -160,17 +160,17 @@ public:
    */
   int IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6], int npts2, double* pts2,
     double bounds2[6], double tol2, double x1[2], double x2[3], int CollisionMode);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set and Get the input vtk polydata models
    */
   void SetInputData(int i, vtkPolyData* model);
   vtkPolyData* GetInputData(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /** Get an array of the contacting cells. This is a convenience method to access
    * the "ContactCells" field array in outputs 0 and 1. These arrays index contacting
    * cells (eg) index 50 of array 0 points to a cell (triangle) which contacts/intersects
@@ -178,46 +178,46 @@ public:
    * GetOutput(i)->GetFieldData()->GetArray("ContactCells")
    */
   vtkIdTypeArray* GetContactCells(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /** Get the output with the points where the contacting cells intersect. This method is
    *  is equivalent to GetOutputPort(2)/GetOutput(2)
    */
   vtkAlgorithmOutput* GetContactsOutputPort() { return this->GetOutputPort(2); }
   vtkPolyData* GetContactsOutput() { return this->GetOutput(2); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /* Specify the transform object used to transform models. Alternatively, matrices
    * can be set instead.
 `  */
   void SetTransform(int i, vtkLinearTransform* transform);
   vtkLinearTransform* GetTransform(int i) { return this->Transform[i]; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /* Specify the matrix object used to transform models.
    */
   void SetMatrix(int i, vtkMatrix4x4* matrix);
   vtkMatrix4x4* GetMatrix(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /* Set and Get the obb tolerance (absolute value, in world coords). Default is 0.001
    */
   vtkSetMacro(BoxTolerance, float);
   vtkGetMacro(BoxTolerance, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /* Set and Get the cell tolerance (squared value). Default is 0.0
    */
   vtkSetMacro(CellTolerance, double);
   vtkGetMacro(CellTolerance, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Set and Get the the flag to visualize the contact cells. If set the contacting cells
    * will be coloured from red through to blue, with collisions first determined coloured red.
@@ -225,9 +225,9 @@ public:
   vtkSetMacro(GenerateScalars, int);
   vtkGetMacro(GenerateScalars, int);
   vtkBooleanMacro(GenerateScalars, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Get the number of contacting cell pairs
    */
@@ -235,38 +235,38 @@ public:
   {
     return this->GetOutput(0)->GetFieldData()->GetArray("ContactCells")->GetNumberOfTuples();
   }
-  //@}
+  ///@}
 
-  //@{Description:
+  ///@{Description:
   /*
    * Get the number of box tests
    */
   vtkGetMacro(NumberOfBoxTests, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Set and Get the number of cells in each OBB. Default is 2
    */
   vtkSetMacro(NumberOfCellsPerNode, int);
   vtkGetMacro(NumberOfCellsPerNode, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Set and Get the opacity of the polydata output when a collision takes place.
    * Default is 1.0
    */
   vtkSetClampMacro(Opacity, float, 0.0, 1.0);
   vtkGetMacro(Opacity, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /*
    * Return the MTime also considering the transform.
    */
   vtkMTimeType GetMTime() override;
-  //@}
+  ///@}
 
 protected:
   vtkCollisionDetectionFilter();

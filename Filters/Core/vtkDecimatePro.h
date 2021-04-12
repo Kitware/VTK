@@ -104,7 +104,7 @@ public:
    */
   static vtkDecimatePro* New();
 
-  //@{
+  ///@{
   /**
    * Specify the desired reduction in the total number of polygons (e.g., if
    * TargetReduction is set to 0.9, this filter will try to reduce the data set
@@ -116,9 +116,9 @@ public:
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off whether to preserve the topology of the original mesh. If
    * on, mesh splitting and hole elimination will not occur. This may limit
@@ -127,9 +127,9 @@ public:
   vtkSetMacro(PreserveTopology, vtkTypeBool);
   vtkGetMacro(PreserveTopology, vtkTypeBool);
   vtkBooleanMacro(PreserveTopology, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mesh feature angle. This angle is used to define what
    * an edge is (i.e., if the surface normal between two adjacent triangles
@@ -137,9 +137,9 @@ public:
    */
   vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
   vtkGetMacro(FeatureAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the splitting of the mesh at corners, along edges, at
    * non-manifold points, or anywhere else a split is required. Turning
@@ -149,9 +149,9 @@ public:
   vtkSetMacro(Splitting, vtkTypeBool);
   vtkGetMacro(Splitting, vtkTypeBool);
   vtkBooleanMacro(Splitting, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the mesh split angle. This angle is used to control the splitting
    * of the mesh. A split line exists when the surface normals between
@@ -159,9 +159,9 @@ public:
    */
   vtkSetClampMacro(SplitAngle, double, 0.0, 180.0);
   vtkGetMacro(SplitAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In some cases you may wish to split the mesh prior to algorithm
    * execution. This separates the mesh into semi-planar patches, which are
@@ -173,9 +173,9 @@ public:
   vtkSetMacro(PreSplitMesh, vtkTypeBool);
   vtkGetMacro(PreSplitMesh, vtkTypeBool);
   vtkBooleanMacro(PreSplitMesh, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the largest decimation error that is allowed during the decimation
    * process. This may limit the maximum reduction that may be achieved. The
@@ -184,9 +184,9 @@ public:
    */
   vtkSetClampMacro(MaximumError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(MaximumError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The computed error can either be computed directly from the mesh
    * or the error may be accumulated as the mesh is modified. If the error
@@ -198,9 +198,9 @@ public:
   vtkSetMacro(AccumulateError, vtkTypeBool);
   vtkGetMacro(AccumulateError, vtkTypeBool);
   vtkBooleanMacro(AccumulateError, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The MaximumError is normally defined as a fraction of the dataset bounding
    * diagonal. By setting ErrorIsAbsolute to 1, the error is instead defined
@@ -208,17 +208,17 @@ public:
    */
   vtkSetMacro(ErrorIsAbsolute, int);
   vtkGetMacro(ErrorIsAbsolute, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Same as MaximumError, but to be used when ErrorIsAbsolute is 1
    */
   vtkSetClampMacro(AbsoluteError, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(AbsoluteError, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the deletion of vertices on the boundary of a mesh. This
    * may limit the maximum reduction that may be achieved.
@@ -226,9 +226,9 @@ public:
   vtkSetMacro(BoundaryVertexDeletion, vtkTypeBool);
   vtkGetMacro(BoundaryVertexDeletion, vtkTypeBool);
   vtkBooleanMacro(BoundaryVertexDeletion, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If the number of triangles connected to a vertex exceeds "Degree", then
    * the vertex will be split. (NOTE: the complexity of the triangulation
@@ -237,9 +237,9 @@ public:
    */
   vtkSetClampMacro(Degree, int, 25, VTK_CELL_SIZE);
   vtkGetMacro(Degree, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the inflection point ratio. An inflection point occurs
    * when the ratio of reduction error between two iterations is greater
@@ -247,7 +247,7 @@ public:
    */
   vtkSetClampMacro(InflectionPointRatio, double, 1.001, VTK_DOUBLE_MAX);
   vtkGetMacro(InflectionPointRatio, double);
-  //@}
+  ///@}
 
   /**
    * Get the number of inflection points. Only returns a valid value after
@@ -275,7 +275,7 @@ public:
    */
   double* GetInflectionPoints();
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
@@ -283,7 +283,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkDecimatePro();

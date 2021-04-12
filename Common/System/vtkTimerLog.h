@@ -103,13 +103,13 @@ public:
   static void LoggingOn() { vtkTimerLog::SetLogging(1); }
   static void LoggingOff() { vtkTimerLog::SetLogging(0); }
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum number of entries allowed in the timer log
    */
   static void SetMaxEntries(int a);
   static int GetMaxEntries();
-  //@}
+  ///@}
 
   /**
    * Record a timing event.  The event is represented by a formatted
@@ -119,15 +119,15 @@ public:
   static void FormatAndMarkEvent(const char* format, ...) VTK_FORMAT_PRINTF(1, 2);
 #endif
 
-  //@{
+  ///@{
   /**
    * Write the timing table out to a file.  Calculate some helpful
    * statistics (deltas and percentages) in the process.
    */
   static void DumpLog(const char* filename);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * I want to time events, so I am creating this interface to
    * mark events that have a start and an end.  These events can be,
@@ -135,20 +135,20 @@ public:
    */
   static void MarkStartEvent(const char* EventString);
   static void MarkEndEvent(const char* EventString);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Insert an event with a known wall time value (in seconds)
    * and cpuTicks.
    */
   static void InsertTimedEvent(const char* EventString, double time, int cpuTicks);
-  //@}
+  ///@}
 
   static void DumpLogWithIndents(ostream* os, double threshold);
   static void DumpLogWithIndentsAndPercentages(ostream* os);
 
-  //@{
+  ///@{
   /**
    * Programmatic access to events.  Indexed from 0 to num-1.
    */
@@ -157,7 +157,7 @@ public:
   static double GetEventWallTime(int i);
   static const char* GetEventString(int i);
   static vtkTimerLogEntry::LogEntryType GetEventType(int i);
-  //@}
+  ///@}
 
   /**
    * Record a timing event and capture wall time and cpu ticks.

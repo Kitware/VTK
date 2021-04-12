@@ -38,26 +38,26 @@ public:
   vtkTypeMacro(vtkGaussianCubeReader2, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule* GetOutput();
   void SetOutput(vtkMolecule*) override;
-  //@}
+  ///@}
 
   /**
    * Get/Set the output (vtkImageData) that the reader will fill
    */
   vtkImageData* GetGridOutput();
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the CML file
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkGaussianCubeReader2();

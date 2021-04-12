@@ -67,14 +67,14 @@ public:
     vtkDoubleArray* intersectionLengths, vtkDataArray* scalars, vtkDataArray* nearIntersections,
     vtkDataArray* farIntersections) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/get the bounds of the cast ray (in viewing coordinates).  By
    * default the range is [0,1].
    */
   vtkSetVector2Macro(Bounds, double);
   vtkGetVector2Macro(Bounds, double);
-  //@}
+  ///@}
 
   // Descrption:
   // Set/get the maximum number of intersections returned with a call to

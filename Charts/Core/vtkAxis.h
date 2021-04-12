@@ -95,45 +95,45 @@ public:
    */
   static vtkAxis* New();
 
-  //@{
+  ///@{
   /**
    * Get/set the position of the axis (LEFT, BOTTOM, RIGHT, TOP, PARALLEL).
    */
   virtual void SetPosition(int position);
   vtkGetMacro(Position, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set point 1 of the axis (in pixels), this is usually the origin.
    */
   void SetPoint1(const vtkVector2f& pos);
   void SetPoint1(float x, float y);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get point 1 of the axis (in pixels), this is usually the origin.
    */
   vtkGetVector2Macro(Point1, float);
   vtkVector2f GetPosition1();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set point 2 of the axis (in pixels), this is usually the terminus.
    */
   void SetPoint2(const vtkVector2f& pos);
   void SetPoint2(float x, float y);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get point 2 of the axis (in pixels), this is usually the terminus.
    */
   vtkGetVector2Macro(Point2, float);
   vtkVector2f GetPosition2();
-  //@}
+  ///@}
 
   /**
    * Set the number of tick marks for this axis. Default is -1, which leads to
@@ -141,28 +141,28 @@ public:
    */
   virtual void SetNumberOfTicks(int numberOfTicks);
 
-  //@{
+  ///@{
   /**
    * Get the number of tick marks for this axis.
    */
   vtkGetMacro(NumberOfTicks, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the length of tick marks (in pixels).
    */
   vtkSetMacro(TickLength, float);
   vtkGetMacro(TickLength, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkTextProperty that governs how the axis labels are displayed.
    * Note that the alignment properties are not used.
    */
   vtkGetObjectMacro(LabelProperties, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Set the logical minimum value of the axis, in plot coordinates.
@@ -171,14 +171,14 @@ public:
    */
   virtual void SetMinimum(double minimum);
 
-  //@{
+  ///@{
   /**
    * Get the logical minimum value of the axis, in plot coordinates.
    * If LogScaleActive is true (not just LogScale), then this
    * returns the minimum base-10 <b>exponent</b>.
    */
   vtkGetMacro(Minimum, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical maximum value of the axis, in plot coordinates.
@@ -187,14 +187,14 @@ public:
    */
   virtual void SetMaximum(double maximum);
 
-  //@{
+  ///@{
   /**
    * Get the logical maximum value of the axis, in plot coordinates.
    * If LogScaleActive is true (not just LogScale), then this
    * returns the maximum base-10 <b>exponent</b>.
    */
   vtkGetMacro(Maximum, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical, unscaled minimum value of the axis, in plot coordinates.
@@ -203,26 +203,26 @@ public:
    */
   virtual void SetUnscaledMinimum(double minimum);
 
-  //@{
+  ///@{
   /**
    * Get the logical minimum value of the axis, in plot coordinates.
    */
   vtkGetMacro(UnscaledMinimum, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical maximum value of the axis, in plot coordinates.
    */
   virtual void SetUnscaledMaximum(double maximum);
 
-  //@{
+  ///@{
   /**
    * Get the logical maximum value of the axis, in plot coordinates.
    */
   vtkGetMacro(UnscaledMaximum, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the logical range of the axis, in plot coordinates.
 
@@ -236,9 +236,9 @@ public:
   virtual void SetRange(double range[2]);
   virtual void SetUnscaledRange(double minimum, double maximum);
   virtual void SetUnscaledRange(double range[2]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the logical range of the axis, in plot coordinates.
 
@@ -248,86 +248,86 @@ public:
    */
   virtual void GetRange(double* range);
   virtual void GetUnscaledRange(double* range);
-  //@}
+  ///@}
 
   /**
    * Set the logical lowest possible value for \a Minimum, in plot coordinates.
    */
   virtual void SetMinimumLimit(double lowest);
 
-  //@{
+  ///@{
   /**
    * Get the logical lowest possible value for \a Minimum, in plot coordinates.
    */
   vtkGetMacro(MinimumLimit, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical highest possible value for \a Maximum, in plot coordinates.
    */
   virtual void SetMaximumLimit(double highest);
 
-  //@{
+  ///@{
   /**
    * Get the logical highest possible value for \a Maximum, in plot coordinates.
    */
   vtkGetMacro(MaximumLimit, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical lowest possible value for \a Minimum, in plot coordinates.
    */
   virtual void SetUnscaledMinimumLimit(double lowest);
 
-  //@{
+  ///@{
   /**
    * Get the logical lowest possible value for \a Minimum, in plot coordinates.
    */
   vtkGetMacro(UnscaledMinimumLimit, double);
-  //@}
+  ///@}
 
   /**
    * Set the logical highest possible value for \a Maximum, in plot coordinates.
    */
   virtual void SetUnscaledMaximumLimit(double highest);
 
-  //@{
+  ///@{
   /**
    * Get the logical highest possible value for \a Maximum, in plot coordinates.
    */
   vtkGetMacro(UnscaledMaximumLimit, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the margins of the axis, in pixels.
    */
   vtkGetVector2Macro(Margins, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the margins of the axis, in pixels.
    */
   vtkSetVector2Macro(Margins, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the title text of the axis.
    */
   virtual void SetTitle(const vtkStdString& title);
   virtual vtkStdString GetTitle();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkTextProperty that governs how the axis title is displayed.
    */
   vtkGetObjectMacro(TitleProperties, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get whether the axis is using a log scale.
    * This will always be false when LogScale is false.
@@ -341,9 +341,9 @@ public:
    * becomes false again.
    */
   vtkGetMacro(LogScaleActive, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the axis should <b>attempt</b> to use a log scale.
 
@@ -353,72 +353,72 @@ public:
   vtkGetMacro(LogScale, bool);
   virtual void SetLogScale(bool logScale);
   vtkBooleanMacro(LogScale, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the axis grid lines should be drawn, default is true.
    */
   vtkSetMacro(GridVisible, bool);
   vtkGetMacro(GridVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the axis labels should be visible.
    */
   vtkSetMacro(LabelsVisible, bool);
   vtkGetMacro(LabelsVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the labels for the range should be visible.
    */
   vtkSetMacro(RangeLabelsVisible, bool);
   vtkGetMacro(RangeLabelsVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the offset (in pixels) of the label text position from the axis
    */
   vtkSetMacro(LabelOffset, float);
   vtkGetMacro(LabelOffset, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the tick marks should be visible.
    */
   vtkSetMacro(TicksVisible, bool);
   vtkGetMacro(TicksVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the axis line should be visible.
    */
   vtkSetMacro(AxisVisible, bool);
   vtkGetMacro(AxisVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether the axis title should be visible.
    */
   vtkSetMacro(TitleVisible, bool);
   vtkGetMacro(TitleVisible, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the numerical precision to use, default is 2. This is ignored
    * when Notation is STANDARD_NOTATION or PRINTF_NOTATION.
    */
   virtual void SetPrecision(int precision);
   vtkGetMacro(Precision, int);
-  //@}
+  ///@}
 
   /**
    * Enumeration of the axis notations available.
@@ -431,16 +431,16 @@ public:
     PRINTF_NOTATION
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the printf-style format string used when TickLabelAlgorithm is
    * TICK_SIMPLE and Notation is PRINTF_NOTATION. The default is "%g".
    */
   virtual void SetLabelFormat(const std::string& fmt);
   vtkGetMacro(LabelFormat, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the printf-style format string used for range labels.
    * This format is always used regardless of TickLabelAlgorithm and
@@ -448,9 +448,9 @@ public:
    */
   vtkSetMacro(RangeLabelFormat, std::string);
   vtkGetMacro(RangeLabelFormat, std::string);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the numerical notation, standard, scientific, fixed, or a
    * printf-style format string.
@@ -458,7 +458,7 @@ public:
    */
   virtual void SetNotation(int notation);
   vtkGetMacro(Notation, int);
-  //@}
+  ///@}
 
   /**
    * Enumeration of the axis behaviors.
@@ -470,29 +470,29 @@ public:
     CUSTOM    // Deprecated, use the tick label settings instead.
   };
 
-  //@{
+  ///@{
   /**
    * Get/set the behavior of the axis (auto or fixed). The default is 0 (auto).
    */
   vtkSetMacro(Behavior, int);
   vtkGetMacro(Behavior, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the vtkPen object that controls the way this axis is drawn.
    */
   vtkGetObjectMacro(Pen, vtkPen);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the vtkPen object that controls the way this axis is drawn.
    */
   vtkGetObjectMacro(GridPen, vtkPen);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the tick label algorithm that is used to calculate the min, max
    * and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
@@ -502,9 +502,9 @@ public:
    */
   vtkSetMacro(TickLabelAlgorithm, int);
   vtkGetMacro(TickLabelAlgorithm, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the scaling factor used for the axis, this defaults to 1.0 (no
    * scaling), and is used to coordinate scaling with the plots, charts, etc.
@@ -513,7 +513,7 @@ public:
   vtkGetMacro(ScalingFactor, double);
   vtkSetMacro(Shift, double);
   vtkGetMacro(Shift, double);
-  //@}
+  ///@}
 
   /**
    * Update the geometry of the axis. Takes care of setting up the tick mark
@@ -716,7 +716,7 @@ protected:
   bool TitleAppended;               // Track if the title is updated when the label formats
                                     // are changed in the Extended Axis Labeling algorithm
 
-  //@{
+  ///@{
   /**
    * Scaling factor used on this axis, this is used to accurately render very
    * small/large numbers accurately by converting the underlying range by the
@@ -724,7 +724,7 @@ protected:
    */
   double ScalingFactor;
   double Shift;
-  //@}
+  ///@}
 
   /**
    * Are we using custom tick labels, or should the axis generate them?

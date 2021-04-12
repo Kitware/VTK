@@ -41,13 +41,13 @@ public:
    */
   static vtkResliceCursorThickLineRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkResliceCursorThickLineRepresentation, vtkResliceCursorLineRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * INTERNAL - Do not use

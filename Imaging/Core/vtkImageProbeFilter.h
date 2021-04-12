@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkImageProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the data set that will be probed at the input points.
    * The Input gives the geometry (the points and cells) for the output,
@@ -60,7 +60,7 @@ public:
    */
   void SetSourceData(vtkDataObject* source);
   vtkDataObject* GetSource();
-  //@}
+  ///@}
 
   /**
    * Specify the data set that will be probed at the input points.
@@ -70,7 +70,7 @@ public:
    */
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-  //@{
+  ///@{
   /**
    * Set the interpolator to use.  If this is not set, then nearest-neighbor
    * interpolation will be used, with the tolerance of the interpolator set
@@ -78,7 +78,7 @@ public:
    */
   virtual void SetInterpolator(vtkAbstractImageInterpolator* interpolator);
   virtual vtkAbstractImageInterpolator* GetInterpolator() { return this->Interpolator; }
-  //@}
+  ///@}
 
 protected:
   vtkImageProbeFilter();

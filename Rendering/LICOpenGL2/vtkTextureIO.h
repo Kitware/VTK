@@ -64,7 +64,7 @@ public:
   static void Write(const char* filename, vtkTextureObject* texture,
     const std::deque<vtkPixelExtent>& exts, const double* origin = nullptr);
 
-  //@{
+  ///@{
   /**
    * Write list of subsets to disk as multiblock image data at dataset origin(optional).
    */
@@ -73,7 +73,7 @@ public:
   {
     Write(filename.c_str(), texture, exts, origin);
   }
-  //@}
+  ///@}
 };
 
 #endif

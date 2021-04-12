@@ -82,14 +82,14 @@ class vtkStaticCellLocator;
 class VTKFILTERSMODELING_EXPORT vtkImprintFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, print and provide type information.
    */
   static vtkImprintFilter* New();
   vtkTypeMacro(vtkImprintFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify the first vtkPolyData input connection which defines the
@@ -98,7 +98,7 @@ public:
   void SetTargetConnection(vtkAlgorithmOutput* algOutput);
   vtkAlgorithmOutput* GetTargetConnection();
 
-  //@{
+  ///@{
   /**
    * Specify the first vtkPolyData input which defines the surface mesh to
    * imprint (i.e., the taregt). The imprint surface is provided by the
@@ -106,7 +106,7 @@ public:
    */
   void SetTargetData(vtkDataObject* target);
   vtkDataObject* GetTarget();
-  //@}
+  ///@}
 
   /**
    * Specify the a second vtkPolyData input connection which defines the
@@ -116,23 +116,23 @@ public:
   void SetImprintConnection(vtkAlgorithmOutput* algOutput);
   vtkAlgorithmOutput* GetImprintConnection();
 
-  //@{
+  ///@{
   /**
    * Specify the a second vtkPolyData input which defines the surface mesh
    * with which to imprint the target (i.e., the first input).
    */
   void SetImprintData(vtkDataObject* imprint);
   vtkDataObject* GetImprint();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a tolerance which controls how close the imprint surface must be
    * to the target to successfully imprint the surface.
    */
   vtkSetClampMacro(Tolerance, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
   enum SpecifiedOutput
   {
@@ -141,7 +141,7 @@ public:
     MERGED_IMPRINT = 2
   };
 
-  //@{
+  ///@{
   /**
    * Control what is output by the filter. This can be useful for debugging
    * or to extract portions of the data. The choices are: TARGET_CELLS -
@@ -156,7 +156,7 @@ public:
   void SetOutputTypeToTargetCells() { this->SetOutputType(TARGET_CELLS); }
   void SetOutputTypeToImprintedCells() { this->SetOutputType(IMPRINTED_CELLS); }
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
-  //@}
+  ///@}
 
   enum DebugOutput
   {
@@ -165,7 +165,7 @@ public:
     OUTPUT_TRIANGULATION = 2
   };
 
-  //@{
+  ///@{
   /**
    * The following methods support debugging. By default, NO_DEBUG_OUTPUT is
    * produced and the second output of this filter is empty. If INPUT_POINTS
@@ -181,15 +181,15 @@ public:
   void SetDebugOutputTypeToOutputTriangulation() { this->SetDebugOutputType(OUTPUT_TRIANGULATION); }
   vtkSetMacro(DebugCellId, vtkIdType);
   vtkGetMacro(DebugCellId, vtkIdType);
-  //@{
+  ///@{
 
-  //@{
+  ///@{
   /**
    * Get the output data (in the second output, if the DebugOutput !=
    * NO_DEBUG_OUTPUT).
    */
   vtkPolyData* GetDebugOutput();
-  //@}
+  ///@}
 
 protected:
   vtkImprintFilter();

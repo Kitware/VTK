@@ -28,14 +28,14 @@ class VTKFILTERSPARALLEL_EXPORT vtkPSphereSource : public vtkSphereSource
 public:
   vtkTypeMacro(vtkPSphereSource, vtkSphereSource);
 
-  //@{
+  ///@{
   /**
    * Construct sphere with radius=0.5 and default resolution 8 in both Phi
    * and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
    */
   static vtkPSphereSource* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Get the estimated memory size in kibibytes (1024 bytes).

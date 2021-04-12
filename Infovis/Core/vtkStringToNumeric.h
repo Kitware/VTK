@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkStringToNumeric, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Convert all numeric columns to vtkDoubleArray, even if they
    * contain only integer values. Default is off.
@@ -47,25 +47,25 @@ public:
   vtkSetMacro(ForceDouble, bool);
   vtkGetMacro(ForceDouble, bool);
   vtkBooleanMacro(ForceDouble, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default integer value assigned to arrays.  Default is 0.
    */
   vtkSetMacro(DefaultIntegerValue, int);
   vtkGetMacro(DefaultIntegerValue, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the default double value assigned to arrays.  Default is 0.0
    */
   vtkSetMacro(DefaultDoubleValue, double);
   vtkGetMacro(DefaultDoubleValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to trim whitespace from strings prior to conversion to a numeric.
    * Default is false to preserve backward compatibility.
@@ -83,34 +83,34 @@ public:
   vtkSetMacro(TrimWhitespacePriorToNumericConversion, bool);
   vtkGetMacro(TrimWhitespacePriorToNumericConversion, bool);
   vtkBooleanMacro(TrimWhitespacePriorToNumericConversion, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to detect and convert field data arrays.  Default is on.
    */
   vtkSetMacro(ConvertFieldData, bool);
   vtkGetMacro(ConvertFieldData, bool);
   vtkBooleanMacro(ConvertFieldData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to detect and convert cell data arrays.  Default is on.
    */
   vtkSetMacro(ConvertPointData, bool);
   vtkGetMacro(ConvertPointData, bool);
   vtkBooleanMacro(ConvertPointData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to detect and convert point data arrays.  Default is on.
    */
   vtkSetMacro(ConvertCellData, bool);
   vtkGetMacro(ConvertCellData, bool);
   vtkBooleanMacro(ConvertCellData, bool);
-  //@}
+  ///@}
 
   /**
    * Whether to detect and convert vertex data arrays.  Default is on.

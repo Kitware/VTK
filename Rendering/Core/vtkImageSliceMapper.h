@@ -43,15 +43,15 @@ public:
   vtkTypeMacro(vtkImageSliceMapper, vtkImageMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The slice to display, if there are multiple slices.
    */
   virtual void SetSliceNumber(int slice);
   virtual int GetSliceNumber();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use GetSliceNumberMinValue() and GetSliceNumberMaxValue()
    * to get the range of allowed slices.  These methods call
@@ -59,9 +59,9 @@ public:
    */
   virtual int GetSliceNumberMinValue();
   virtual int GetSliceNumberMaxValue();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the orientation of the slices to display.  The default
    * orientation is 2, which is K. Not the orientaiton here
@@ -76,9 +76,9 @@ public:
   void SetOrientationToX() { this->SetOrientation(0); }
   void SetOrientationToY() { this->SetOrientation(1); }
   void SetOrientationToZ() { this->SetOrientation(2); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Use the specified CroppingRegion.  The default is to display
    * the full slice.
@@ -86,16 +86,16 @@ public:
   vtkSetMacro(Cropping, vtkTypeBool);
   vtkBooleanMacro(Cropping, vtkTypeBool);
   vtkGetMacro(Cropping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the display extent.  This is ignored unless Cropping
    * is set.
    */
   vtkSetVector6Macro(CroppingRegion, int);
   vtkGetVector6Macro(CroppingRegion, int);
-  //@}
+  ///@}
 
   /**
    * This should only be called by the renderer.
@@ -114,14 +114,14 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * The bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double* GetBounds() override;
   void GetBounds(double bounds[6]) override { this->vtkAbstractMapper3D::GetBounds(bounds); }
-  //@}
+  ///@}
 
   // return the bounds in index space
   void GetIndexBounds(double extent[6]) override;
@@ -139,7 +139,7 @@ public:
   vtkTypeBool ProcessRequest(
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  //@{
+  ///@{
   /**
    * Set the display extent.  For when this mapper is used as a helper
    * class.
@@ -153,7 +153,7 @@ public:
     this->DisplayExtent[4] = extent[4];
     this->DisplayExtent[5] = extent[5];
   }
-  //@}
+  ///@}
 
 protected:
   vtkImageSliceMapper();

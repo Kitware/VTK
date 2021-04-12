@@ -50,13 +50,13 @@ public:
   vtkTypeMacro(vtkRowQueryToTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The query to execute.
    */
   void SetQuery(vtkRowQuery* query);
   vtkGetObjectMacro(Query, vtkRowQuery);
-  //@}
+  ///@}
 
   /**
    * Update the modified time based on the query.

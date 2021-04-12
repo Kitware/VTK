@@ -41,13 +41,13 @@ class vtkIdList;
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLinks : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkAbstractCellLinks, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Build the link list array. All subclasses must implement this method.
@@ -128,7 +128,7 @@ public:
    *    TIds *GetCells(vtkIdType ptId)
    */
 
-  //@{
+  ///@{
   /**
    * Select all cells with a point degree in the range [minDegree,maxDegree).
    * The degree is the number of cells using a point. The selection is
@@ -137,9 +137,9 @@ public:
    * be the maximum cell id referenced in the links.
    */
   virtual void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force sequential processing (i.e. single thread) of the link building
    * process. By default, sequential processing is off. Note this flag only
@@ -151,7 +151,7 @@ public:
   vtkSetMacro(SequentialProcessing, bool);
   vtkGetMacro(SequentialProcessing, bool);
   vtkBooleanMacro(SequentialProcessing, bool);
-  //@}
+  ///@}
 
 protected:
   vtkAbstractCellLinks();

@@ -58,22 +58,22 @@ public:
   static vtkSubCommunicator* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get the group on which communication will happen.
    */
   vtkGetObjectMacro(Group, vtkProcessGroup);
   virtual void SetGroup(vtkProcessGroup* group);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Implementation for abstract supercalss.
    */
   int SendVoidArray(
     const void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
   int ReceiveVoidArray(void* data, vtkIdType length, int type, int remoteHandle, int tag) override;
-  //@}
+  ///@}
 
 protected:
   vtkSubCommunicator();

@@ -73,14 +73,14 @@ protected:
 
   bool ProcessEvent(void* event);
 
-  //@{
+  ///@{
   /**
    * SDL2-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
   int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
   int InternalDestroyTimer(int platformTimerId) override;
-  //@}
+  ///@}
 
   std::map<int, int> VTKToPlatformTimerMap;
 

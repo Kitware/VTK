@@ -55,7 +55,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* window) override;
 
-  //@{
+  ///@{
   /**
    * Get the maximum number of LOD. OpenGL context must be bound.
    * The maximum number of LOD depends on GPU capabilities.
@@ -77,7 +77,7 @@ public:
    */
   void SetLODDistanceAndTargetReduction(
     vtkIdType index, float distance, float targetReduction) override;
-  //@}
+  ///@}
 
 protected:
   vtkOpenGLGlyph3DMapper();

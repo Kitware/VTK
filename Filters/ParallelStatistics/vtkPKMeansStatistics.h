@@ -46,14 +46,14 @@ public:
   vtkTypeMacro(vtkPKMeansStatistics, vtkKMeansStatistics);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the multiprocess controller. If no controller is set,
    * single process is assumed.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Subroutine to update new cluster centers from the old centers.

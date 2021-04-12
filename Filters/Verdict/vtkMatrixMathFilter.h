@@ -56,7 +56,7 @@ public:
   vtkTypeMacro(vtkMatrixMathFilter, vtkDataSetAlgorithm);
   static vtkMatrixMathFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the particular estimator used to function the quality of query.
    */
@@ -66,7 +66,7 @@ public:
   void SetOperationToEigenvalue() { this->SetOperation(EIGENVALUE); }
   void SetOperationToEigenvector() { this->SetOperation(EIGENVECTOR); }
   void SetOperationToInverse() { this->SetOperation(INVERSE); }
-  //@}
+  ///@}
 
 protected:
   ~vtkMatrixMathFilter() override;

@@ -111,7 +111,7 @@ public:
    * "NumberOfNodes" weights for each quadrature point.
    */
   const double* GetShapeFunctionWeights() const { return this->ShapeFunctionWeights; }
-  //@{
+  ///@{
   /**
    * Get the array of shape function weights associated with a
    * single quadrature point.
@@ -121,7 +121,7 @@ public:
     int idx = quadraturePointId * this->NumberOfNodes;
     return this->ShapeFunctionWeights + idx;
   }
-  //@}
+  ///@}
   /**
    * Access to the quadrature weights.
    */

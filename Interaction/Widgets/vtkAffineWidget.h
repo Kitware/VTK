@@ -71,13 +71,13 @@ public:
    */
   static vtkAffineWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkAffineWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

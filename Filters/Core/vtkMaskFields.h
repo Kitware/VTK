@@ -106,7 +106,7 @@ public:
   void CopyFieldsOn() { this->CopyFields = 1; }
   void CopyAttributesOn() { this->CopyAttributes = 1; }
 
-  //@{
+  ///@{
   /**
    * Helper methods used by other language bindings. Allows the caller to
    * specify arguments as strings instead of enums.
@@ -115,7 +115,7 @@ public:
   void CopyAttributeOff(const char* attributeLoc, const char* attributeType);
   void CopyFieldOn(const char* fieldLoc, const char* name);
   void CopyFieldOff(const char* fieldLoc, const char* name);
-  //@}
+  ///@}
 
   /**
    * Turn on copying of all data.

@@ -55,15 +55,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarBarRepresentation* New();
 
-  //@{
+  ///@{
   /**
    * The prop that is placed in the renderer.
    */
   vtkGetObjectMacro(ScalarBarActor, vtkScalarBarActor);
   virtual void SetScalarBarActor(vtkScalarBarActor*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Satisfy the superclass' API.
    */
@@ -74,9 +74,9 @@ public:
     size[0] = 2.0;
     size[1] = 2.0;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
@@ -89,24 +89,24 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, the orientation will be updated based on the widget's position.
    * Default is true.
    */
   vtkSetMacro(AutoOrient, bool);
   vtkGetMacro(AutoOrient, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the orientation.
    */
   void SetOrientation(int orient);
   int GetOrientation();
-  //@}
+  ///@}
 
 protected:
   vtkScalarBarRepresentation();

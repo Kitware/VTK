@@ -97,16 +97,16 @@ public:
    */
   const char* GetLastErrorText() override;
 
-  //@{
+  ///@{
   /**
    * Begin, commit, or roll back a transaction.
    */
   bool BeginTransaction() override;
   bool CommitTransaction() override;
   bool RollbackTransaction() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the query string to be used.  Returns true if the query is
    * OK; false if there's some problem with it that can be detected
@@ -114,7 +114,7 @@ public:
    */
   bool SetQuery(const char* queryString) override;
   const char* GetQuery() override;
-  //@}
+  ///@}
 
   /**
    * The following methods bind a parameter value to a placeholder in
@@ -144,14 +144,14 @@ public:
    * Bind a string value -- string must be null-terminated
    */
   bool BindParameter(int index, const char* stringValue) override;
-  //@{
+  ///@{
   /**
    * Bind a string value by specifying an array and a size
    */
   bool BindParameter(int index, const char* stringValue, size_t length) override;
   bool BindParameter(int index, const vtkStdString& string) override;
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Bind a blob value.  Not all databases support blobs as a data
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
@@ -159,7 +159,7 @@ public:
    */
   bool BindParameter(int index, const void* data, size_t length) override;
   bool ClearParameterBindings() override;
-  //@}
+  ///@}
 
 protected:
   vtkODBCQuery();

@@ -37,13 +37,13 @@ public:
 
   static vtkmPointTransform* New();
 
-  //@{
+  ///@{
   /**
    * Specify the transform object used to transform the points
    */
   void SetTransform(vtkHomogeneousTransform* tf);
   vtkGetObjectMacro(Transform, vtkHomogeneousTransform);
-  //@}
+  ///@}
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

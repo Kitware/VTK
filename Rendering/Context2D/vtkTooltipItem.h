@@ -47,51 +47,51 @@ public:
    */
   static vtkTooltipItem* New();
 
-  //@{
+  ///@{
   /**
    * Set the position of the tooltip (in pixels).
    */
   vtkSetVector2Macro(Position, float);
   void SetPosition(const vtkVector2f& pos);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get position of the axis (in pixels).
    */
   vtkGetVector2Macro(Position, float);
   vtkVector2f GetPositionVector();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the text of the item.
    */
   virtual void SetText(const vtkStdString& text);
   virtual vtkStdString GetText();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the vtkTextProperty object that controls the way the
    * text is rendered.
    */
   vtkGetObjectMacro(Pen, vtkPen);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the vtkPen object.
    */
   vtkGetObjectMacro(Brush, vtkBrush);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkTextProperty that governs how the tooltip text is displayed.
    */
   vtkGetObjectMacro(TextProperties, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Update the geometry of the tooltip.

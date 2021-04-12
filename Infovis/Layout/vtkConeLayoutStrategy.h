@@ -59,7 +59,7 @@ public:
   vtkTypeMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Determine the compactness, the ratio between the
    * average width of a cone in the tree, and the
@@ -69,9 +69,9 @@ public:
    */
   vtkSetMacro(Compactness, float);
   vtkGetMacro(Compactness, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Determine if layout should be compressed, i.e. the
    * layout puts children closer together, possibly allowing
@@ -82,9 +82,9 @@ public:
   vtkSetMacro(Compression, vtkTypeBool);
   vtkGetMacro(Compression, vtkTypeBool);
   vtkBooleanMacro(Compression, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the spacing parameter that affects space between
    * layers of the tree.  If compression is on, Spacing is the
@@ -94,7 +94,7 @@ public:
    */
   vtkSetMacro(Spacing, float);
   vtkGetMacro(Spacing, float);
-  //@}
+  ///@}
 
   /**
    * Perform the layout.

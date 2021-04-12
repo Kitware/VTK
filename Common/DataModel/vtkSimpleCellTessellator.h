@@ -72,12 +72,12 @@ public:
   vtkTypeMacro(vtkSimpleCellTessellator, vtkGenericCellTessellator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the higher order cell in order to access the evaluation function.
    */
   vtkGetObjectMacro(GenericCell, vtkGenericAdaptorCell);
-  //@}
+  ///@}
 
   /**
    * Tessellate a face of a 3D `cell'. The face is specified by the
@@ -295,14 +295,14 @@ protected:
    */
   vtkGenericAttributeCollection* AttributeCollection;
 
-  //@{
+  ///@{
   /**
    * To avoid New/Delete
    */
   vtkDoubleArray* TessellatePoints; // Allow to use GetPointer
   vtkCellArray* TessellateCellArray;
   vtkPointData* TessellatePointData;
-  //@}
+  ///@}
 
   int FindEdgeReferenceCount(double p1[3], double p2[3], vtkIdType& e1, vtkIdType& e2);
 

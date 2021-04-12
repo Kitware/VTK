@@ -55,29 +55,29 @@ public:
    */
   VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the global origin of the amr data set
    */
   void SetOrigin(const double origin[3]);
   double* GetOrigin();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the grid spacing at a given level
    */
   void SetSpacing(unsigned int level, const double spacing[3]);
   void GetSpacing(unsigned int level, double spacing[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the AMRBox for a given block
    */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id);
-  //@}
+  ///@}
 
   /**
    * Returns the bounding information of a data set.
@@ -118,14 +118,14 @@ public:
    */
   int GetRefinementRatio(unsigned int level);
 
-  //@{
+  ///@{
   /**
    * Set/Get the source id of a block. The source id is produced by an
    * AMR source, e.g. a file reader might set this to be a file block id
    */
   void SetAMRBlockSourceIndex(unsigned int level, unsigned int id, int sourceId);
   int GetAMRBlockSourceIndex(unsigned int level, unsigned int id);
-  //@}
+  ///@}
 
   /**
    * Returns the refinement ratio for the position pointed by the iterator.
@@ -176,7 +176,7 @@ public:
   vtkAMRInformation* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
   void SetAMRInfo(vtkAMRInformation* info) override { return Superclass::SetAMRInfo(info); }
 
-  //@{
+  ///@{
   /**
    * Check whether the data set is internally consistent, e.g.
    * whether the meta data and actual data blocks match.
@@ -187,7 +187,7 @@ public:
 protected:
   vtkOverlappingAMR();
   ~vtkOverlappingAMR() override;
-  //@}
+  ///@}
 
 private:
   vtkOverlappingAMR(const vtkOverlappingAMR&) = delete;

@@ -61,13 +61,13 @@ public:
    */
   static vtkParametricFigure8Klein* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of the bottle. Default is 1.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
   /**
    * Return the parametric dimension of the class.

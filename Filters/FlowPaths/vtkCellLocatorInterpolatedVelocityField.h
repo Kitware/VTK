@@ -68,14 +68,14 @@ public:
    */
   static vtkCellLocatorInterpolatedVelocityField* New();
 
-  //@{
+  ///@{
   /**
    * Get the cell locator attached to the most recently visited dataset.
    */
   vtkGetObjectMacro(LastCellLocator, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the prototype of the cell locator that is used for interpolating
    * the velocity field during integration. The prototype is used to
@@ -85,7 +85,7 @@ public:
    */
   void SetCellLocatorPrototype(vtkAbstractCellLocator* prototype);
   vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
-  //@}
+  ///@}
 
   /**
    * Import parameters. Sub-classes can add more after chaining.

@@ -52,7 +52,7 @@ public:
    */
   vtkSocket* GetLastSelectedSocket() { return this->SelectedSocket; }
 
-  //@{
+  ///@{
   /**
    * Overridden to unset SelectedSocket.
    */
@@ -60,7 +60,7 @@ public:
   void RemoveItem(int i);
   void RemoveItem(vtkObject*);
   void RemoveAllItems();
-  //@}
+  ///@}
 
 protected:
   vtkSocketCollection();

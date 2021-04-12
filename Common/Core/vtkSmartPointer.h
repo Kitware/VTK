@@ -117,7 +117,7 @@ public:
   { // Create a new reference on copy
     vtkSmartPointer::CheckTypes<U>();
   }
-  //@}
+  ///@}
 
   /**
    * Move the pointer from the vtkNew smart pointer to the new vtkSmartPointer,
@@ -132,7 +132,7 @@ public:
     r.Object = nullptr;
   }
 
-  //@{
+  ///@{
   /**
    * Assign object to reference.  This removes any reference to an old
    * object.
@@ -153,7 +153,7 @@ public:
     this->vtkSmartPointerBase::operator=(r.GetPointer());
     return *this;
   }
-  //@}
+  ///@}
 
   /**
    * Assign object to reference.  This removes any reference to an old
@@ -181,13 +181,13 @@ public:
     return *this;
   }
 
-  //@{
+  ///@{
   /**
    * Get the contained pointer.
    */
   T* GetPointer() const noexcept { return static_cast<T*>(this->Object); }
   T* Get() const noexcept { return static_cast<T*>(this->Object); }
-  //@}
+  ///@}
 
   /**
    * Get the contained pointer.

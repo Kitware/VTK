@@ -59,16 +59,16 @@ public:
    */
   void AddItem(vtkActor2D* a);
 
-  //@{
+  ///@{
   /**
    * Standard Collection methods
    */
   int IsItemPresent(vtkActor2D* a);
   vtkActor2D* GetNextActor2D();
   vtkActor2D* GetLastActor2D();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access routines that are provided for compatibility with previous
    * version of VTK.  Please use the GetNextActor2D(), GetLastActor2D()
@@ -76,7 +76,7 @@ public:
    */
   vtkActor2D* GetNextItem();
   vtkActor2D* GetLastItem();
-  //@}
+  ///@}
 
   /**
    * Sort and then render the collection of 2D actors.

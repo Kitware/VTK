@@ -78,14 +78,14 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArrayIterator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiation, type information, and printing.
    */
   vtkTypeMacro(vtkCellArrayIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCellArrayIterator* New();
-  //@}
+  ///@}
 
   /**
    * Return the vtkCellArray object over which iteration is occuring.
@@ -109,7 +109,7 @@ public:
    * The following are methods supporting random access iteration.
    */
 
-  //@{
+  ///@{
   /**
    * Initialize the iterator to a specific cell and return the cell. Note
    * that methods passing vtkIdLists always copy data from the vtkCellArray
@@ -133,7 +133,7 @@ public:
     this->GoToCell(cellId);
     return this->GetCurrentCell();
   }
-  //@}
+  ///@}
 
   /**
    * The following are methods supporting forward iteration.
@@ -164,7 +164,7 @@ public:
    */
   vtkIdType GetCurrentCellId() const { return this->CurrentCellId; }
 
-  //@}
+  ///@}
   /**
    * Returns the definition of the current cell during forward
    * traversal. Note that methods passing vtkIdLists always copy data from
@@ -199,7 +199,7 @@ public:
     this->CellArray->GetCellAtId(this->CurrentCellId, this->TempCell);
     return this->TempCell;
   }
-  //@}
+  ///@}
 
   /**
    * Specialized methods for performing operations on the vtkCellArray.

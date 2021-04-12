@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkExplicitStructuredGridSurfaceFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If on, the output polygonal dataset will have a celldata array that
    * holds the cell index of the original 3D cell that produced each output
@@ -49,9 +49,9 @@ public:
   vtkSetMacro(PassThroughPointIds, int);
   vtkGetMacro(PassThroughPointIds, int);
   vtkBooleanMacro(PassThroughPointIds, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
@@ -68,7 +68,7 @@ public:
   {
     return (this->OriginalPointIdsName ? this->OriginalPointIdsName : "vtkOriginalPointIds");
   }
-  //@}
+  ///@}
 
 protected:
   vtkExplicitStructuredGridSurfaceFilter();

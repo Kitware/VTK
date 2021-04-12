@@ -41,13 +41,13 @@ public:
   vtkTypeMacro(vtkInformationIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the information to iterator over.
    */
   void SetInformation(vtkInformation*);
   vtkGetObjectMacro(Information, vtkInformation);
-  //@}
+  ///@}
 
   /**
    * Set the function to iterate over. The iterator

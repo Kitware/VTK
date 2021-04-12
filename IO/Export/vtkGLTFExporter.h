@@ -47,15 +47,15 @@ public:
   vtkTypeMacro(vtkGLTFExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the GLTF file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Should the binary data be included in the json file as a base64
    * string.
@@ -63,9 +63,9 @@ public:
   vtkGetMacro(InlineData, bool);
   vtkSetMacro(InlineData, bool);
   vtkBooleanMacro(InlineData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * It looks for a point array called
    * NORMAL in the data and it saves it in the
@@ -76,9 +76,9 @@ public:
   vtkGetMacro(SaveNormal, bool);
   vtkSetMacro(SaveNormal, bool);
   vtkBooleanMacro(SaveNormal, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * It looks for point arrays called
    * _BATCHID in the data and it saves it in the
@@ -92,7 +92,7 @@ public:
   vtkGetMacro(SaveBatchId, bool);
   vtkSetMacro(SaveBatchId, bool);
   vtkBooleanMacro(SaveBatchId, bool);
-  //@}
+  ///@}
 
   /**
    * Write the result to a string instead of a file

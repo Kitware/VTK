@@ -41,7 +41,7 @@ public:
    */
   size_t GetMaximumCompressionSpace(size_t size) override;
 
-  //@{
+  ///@{
   /**
    *  Get/Set the compression level.
    */
@@ -50,7 +50,7 @@ public:
 
   // Compression level setter required by vtkDataCompresor.
   void SetCompressionLevel(int compressionLevel) override;
-  //@}
+  ///@}
 
 protected:
   vtkZLibDataCompressor();

@@ -53,7 +53,7 @@ class vtkIdTypeArray;
 class VTKFILTERSGENERAL_EXPORT vtkRemovePolyData : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods to instantiate, obtain information, and print information.
    *
@@ -61,22 +61,22 @@ public:
   static vtkRemovePolyData* New();
   vtkTypeMacro(vtkRemovePolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Remove a vtkPolyData dataset from the list of data.
    */
   void RemoveInputData(vtkPolyData*);
 
-  //@{
+  ///@{
   /**
    * Get any input of this filter.
    */
   vtkPolyData* GetInput(int idx);
   vtkPolyData* GetInput() { return this->GetInput(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the list of cell ids to delete. These are cell ids of the input
    * polydata - note that polydata with mixed cell types (e.g., verts, lines,
@@ -85,18 +85,18 @@ public:
    */
   void SetCellIds(vtkIdTypeArray*);
   vtkGetObjectMacro(CellIds, vtkIdTypeArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the list of points ids to delete. Any cells using any of the
    * points listed are removed.
    */
   void SetPointIds(vtkIdTypeArray*);
   vtkGetObjectMacro(PointIds, vtkIdTypeArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * ExactMatch controls how the matching of cells when additional input
    * vtkPolyDatas are provided. When ExactMatch is enabled, then if any
@@ -112,7 +112,7 @@ public:
   vtkSetMacro(ExactMatch, bool);
   vtkGetMacro(ExactMatch, bool);
   vtkBooleanMacro(ExactMatch, bool);
-  //@}
+  ///@}
 
 protected:
   vtkRemovePolyData();

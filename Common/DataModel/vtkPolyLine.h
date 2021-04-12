@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkPolyLine, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Given points and lines, compute normals to lines. These are not true
    * normals, they are "orientation" normals used by classes like vtkTubeFilter
@@ -50,9 +50,9 @@ public:
    */
   static int GenerateSlidingNormals(vtkPoints*, vtkCellArray*, vtkDataArray*);
   static int GenerateSlidingNormals(vtkPoints*, vtkCellArray*, vtkDataArray*, double* firstNormal);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -78,7 +78,7 @@ public:
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int IsPrimaryCell() override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Return the center of the point cloud in parametric coordinates.

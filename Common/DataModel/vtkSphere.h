@@ -39,34 +39,34 @@ public:
    */
   static vtkSphere* New();
 
-  //@{
+  ///@{
   /**
    * Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate sphere gradient.
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the radius of the sphere. The default is 0.5.
    */
   vtkSetMacro(Radius, double);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the center of the sphere. The default is (0,0,0).
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVectorMacro(Center, double, 3);
-  //@}
+  ///@}
 
   /**
    * Quick evaluation of the sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
@@ -77,7 +77,7 @@ public:
       (x[2] - center[2]) * (x[2] - center[2]) - R * R;
   }
 
-  //@{
+  ///@{
   /**
    * Create a bounding sphere from a set of points. The set of points is
    * defined by an array of doubles, in the order of x-y-z (which repeats for
@@ -90,9 +90,9 @@ public:
     float* pts, vtkIdType numPts, float sphere[4], vtkIdType hints[2]);
   static void ComputeBoundingSphere(
     double* pts, vtkIdType numPts, double sphere[4], vtkIdType hints[2]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Create a bounding sphere from a set of spheres. The set of input spheres
    * is defined by an array of pointers to spheres. Each sphere is defined by
@@ -105,7 +105,7 @@ public:
     float** spheres, vtkIdType numSpheres, float sphere[4], vtkIdType hints[2]);
   static void ComputeBoundingSphere(
     double** spheres, vtkIdType numSpheres, double sphere[4], vtkIdType hints[2]);
-  //@}
+  ///@}
 
 protected:
   vtkSphere();

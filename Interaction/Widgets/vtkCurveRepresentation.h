@@ -67,14 +67,14 @@ public:
     Pushing
   };
 
-  //@{
+  ///@{
   /**
    * Set the interaction state
    */
   vtkSetMacro(InteractionState, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Force the widget to be projected onto one of the orthogonal
    * planes.  Remember that when the InteractionState changes, a
@@ -87,7 +87,7 @@ public:
   vtkSetMacro(ProjectToPlane, vtkTypeBool);
   vtkGetMacro(ProjectToPlane, vtkTypeBool);
   vtkBooleanMacro(ProjectToPlane, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set up a reference to a vtkPlaneSource that could be from another widget
@@ -102,7 +102,7 @@ public:
   void SetProjectionNormalToZAxes() { this->SetProjectionNormal(2); }
   void SetProjectionNormalToOblique() { this->SetProjectionNormal(3); }
 
-  //@{
+  ///@{
   /**
    * Set the position of poly line handles and points in terms of a plane's
    * position. i.e., if ProjectionNormal is 0, all of the x-coordinate
@@ -112,7 +112,7 @@ public:
    */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the
@@ -123,33 +123,33 @@ public:
    */
   virtual void GetPolyData(vtkPolyData* pd) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get the handle properties (the spheres are the handles). The
    * properties of the handles when selected and unselected can be manipulated.
    */
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the line properties. The properties of the line when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(LineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of handles for this widget.
    */
   virtual void SetNumberOfHandles(int npts) = 0;
   vtkGetMacro(NumberOfHandles, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @deprecated VTK 9.1. Use `GetDirectional`  and `SetDirectional` instead.
    */
@@ -161,9 +161,9 @@ public:
   virtual void DirectionalLineOn();
   VTK_DEPRECATED_IN_9_1_0("renamed to DirectionalOff")
   virtual void DirectionalLineOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the representation to be directional or not.
    * The meaning of being directional depends on the representation and
@@ -172,9 +172,9 @@ public:
   virtual void SetDirectional(bool val);
   vtkGetMacro(Directional, bool);
   vtkBooleanMacro(Directional, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the handles. Call GetNumberOfHandles
    * to determine the valid range of handle indices.
@@ -184,9 +184,9 @@ public:
   virtual void GetHandlePosition(int handle, double xyz[3]);
   virtual double* GetHandlePosition(int handle);
   virtual vtkDoubleArray* GetHandlePositions() = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the curve is open or closed. A closed forms a
    * continuous loop: the first and last points are the same.  A
@@ -195,7 +195,7 @@ public:
   void SetClosed(vtkTypeBool closed);
   vtkGetMacro(Closed, vtkTypeBool);
   vtkBooleanMacro(Closed, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Convenience method to determine whether the curve is
@@ -219,7 +219,7 @@ public:
    */
   virtual void InitializeHandles(vtkPoints* points) = 0;
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation
    * API. Note that a version of place widget is available where the
@@ -231,9 +231,9 @@ public:
   void WidgetInteraction(double e[2]) override;
   void EndWidgetInteraction(double e[2]) override;
   double* GetBounds() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
@@ -242,7 +242,7 @@ public:
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
   /**
    * Convenience method to set the line color.
@@ -255,7 +255,7 @@ public:
    */
   void RegisterPickers() override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the current handle index. Setting the current handle index will
    * also result in the handle being highlighted. Set to `-1` to remove the
@@ -263,18 +263,18 @@ public:
    */
   void SetCurrentHandleIndex(int index);
   vtkGetMacro(CurrentHandleIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Gets/Sets the constraint axis for translations. Returns Axis::NONE
    * if none.
    **/
   vtkGetMacro(TranslationAxis, int);
   vtkSetClampMacro(TranslationAxis, int, -1, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggles constraint translation axis on/off.
    */
@@ -282,14 +282,14 @@ public:
   void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
   void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
   void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns true if ContrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  //@}
+  ///@}
 
 protected:
   vtkCurveRepresentation();

@@ -62,16 +62,16 @@ public:
   void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
     vtkDataArray* farIntersections, float color[4]) override;
 
-  //@{
+  ///@{
   /**
    * The class used to fill the pre integration table.  By default, a
    * vtkUnstructuredGridPartialPreIntegration is built.
    */
   vtkGetObjectMacro(Integrator, vtkUnstructuredGridVolumeRayIntegrator);
   virtual void SetIntegrator(vtkUnstructuredGridVolumeRayIntegrator*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the integration table built.
    */
@@ -79,18 +79,18 @@ public:
   vtkGetMacro(IntegrationTableScalarResolution, int);
   vtkSetMacro(IntegrationTableLengthResolution, int);
   vtkGetMacro(IntegrationTableLengthResolution, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get how an integration table is indexed.
    */
   virtual double GetIntegrationTableScalarShift(int component = 0);
   virtual double GetIntegrationTableScalarScale(int component = 0);
   virtual double GetIntegrationTableLengthScale();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set whether to use incremental pre-integration (by default it's
    * on).  Incremental pre-integration is much faster but can introduce
@@ -100,7 +100,7 @@ public:
   vtkGetMacro(IncrementalPreIntegration, vtkTypeBool);
   vtkSetMacro(IncrementalPreIntegration, vtkTypeBool);
   vtkBooleanMacro(IncrementalPreIntegration, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the partial pre-integration table for the given scalar component.

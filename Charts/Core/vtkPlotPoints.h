@@ -88,13 +88,13 @@ public:
    */
   void GetUnscaledInputBounds(double bounds[4]) override;
 
-  //@{
+  ///@{
   /**
    * Specify a lookup table for the mapper to use.
    */
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
   /**
    * Create default lookup table. Generally used to create one when none
@@ -102,16 +102,16 @@ public:
    */
   virtual void CreateDefaultLookupTable();
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
   vtkSetMacro(ScalarVisibility, vtkTypeBool);
   vtkGetMacro(ScalarVisibility, vtkTypeBool);
   vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which array to use for coloring using these methods.
@@ -119,7 +119,7 @@ public:
    */
   void SelectColorArray(vtkIdType arrayNum);
   void SelectColorArray(const vtkStdString& arrayName);
-  //@}
+  ///@}
 
   /**
    * Get the array name to color by.
@@ -158,31 +158,31 @@ public:
     DIAMOND = VTK_MARKER_DIAMOND
   };
 
-  //@{
+  ///@{
   /**
    * Get/set the marker style that should be used. The default is none, the enum
    * in this class is used as a parameter.
    */
   vtkGetMacro(MarkerStyle, int);
   vtkSetMacro(MarkerStyle, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the marker size that should be used. The default is negative, and
    * in that case it is 2.3 times the pen width, if less than 8 will be used.
    */
   vtkGetMacro(MarkerSize, float);
   vtkSetMacro(MarkerSize, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/set the valid point mask array name.
    */
   vtkGetMacro(ValidPointMaskName, vtkStdString);
   vtkSetMacro(ValidPointMaskName, vtkStdString);
-  //@}
+  ///@}
 
 protected:
   vtkPlotPoints();
@@ -226,21 +226,21 @@ protected:
    */
   void CreateSortedPoints();
 
-  //@{
+  ///@{
   /**
    * Store a well packed set of XY coordinates for this data series.
    */
   vtkPoints2D* Points;
   vtkNew<vtkFloatArray> SelectedPoints;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sorted points, used when searching for the nearest point.
    */
   class VectorPIMPL;
   VectorPIMPL* Sorted;
-  //@}
+  ///@}
 
   /**
    * An array containing the indices of all the "bad points", meaning any x, y
@@ -264,17 +264,17 @@ protected:
    */
   vtkTimeStamp BuildTime;
 
-  //@{
+  ///@{
   /**
    * The marker style that should be used
    */
   int MarkerStyle;
   float MarkerSize;
-  //@}
+  ///@}
 
   bool LogX, LogY;
 
-  //@{
+  ///@{
   /**
    * Lookup Table for coloring points by scalar value
    */
@@ -282,7 +282,7 @@ protected:
   vtkUnsignedCharArray* Colors;
   vtkTypeBool ScalarVisibility;
   vtkStdString ColorArrayName;
-  //@}
+  ///@}
 
   /**
    * Cached bounds on the plot input axes

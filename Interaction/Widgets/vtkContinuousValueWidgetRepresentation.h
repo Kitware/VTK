@@ -37,15 +37,15 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkContinuousValueWidgetRepresentation
   : public vtkWidgetRepresentation
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkContinuousValueWidgetRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkSliderWidget. The PlaceWidget() method
    * assumes that the parameter bounds[6] specifies the location in display
@@ -56,7 +56,7 @@ public:
   void StartWidgetInteraction(double eventPos[2]) override = 0;
   void WidgetInteraction(double eventPos[2]) override = 0;
   //  virtual void Highlight(int);
-  //@}
+  ///@}
 
   // Enums are used to describe what is selected
   enum _InteractionState

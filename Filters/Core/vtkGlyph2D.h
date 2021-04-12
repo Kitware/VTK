@@ -39,13 +39,13 @@
 class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for obtaining type information and printing.
    */
   vtkTypeMacro(vtkGlyph2D, vtkGlyph3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,

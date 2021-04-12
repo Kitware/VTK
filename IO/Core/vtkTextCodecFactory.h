@@ -56,7 +56,7 @@ public:
    */
   typedef vtkTextCodec* (*CreateFunction)();
 
-  //@{
+  ///@{
   /**
    * Provides mechanism to register/unregister additional callbacks to create
    * concrete subclasses of vtkTextCodecFactory to handle different protocols.
@@ -65,7 +65,7 @@ public:
   static void RegisterCreateCallback(CreateFunction callback);
   static void UnRegisterCreateCallback(CreateFunction callback);
   static void UnRegisterAllCreateCallbacks();
-  //@}
+  ///@}
 
   /**
    * Given a codec/storage name try to find one of our registered codecs that
@@ -95,13 +95,13 @@ private:
   vtkTextCodecFactory(const vtkTextCodecFactory&) = delete;
   void operator=(const vtkTextCodecFactory&) = delete;
 
-  //@{
+  ///@{
   /**
    * Data structure used to store registered callbacks.
    */
   class CallbackVector;
   static CallbackVector* Callbacks;
-  //@}
+  ///@}
 };
 
 #endif // vtkTextCodecFactory_h

@@ -63,7 +63,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarsToColors* New();
 
-  //@{
+  ///@{
   /**
    * Return true if all of the values defining the mapping have an opacity
    * equal to 1. Default implementation returns true. The more complex
@@ -71,7 +71,7 @@ public:
    */
   virtual int IsOpaque();
   virtual int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component);
-  //@}
+  ///@}
 
   /**
    * Perform any processing required (if any) before processing
@@ -79,14 +79,14 @@ public:
    */
   virtual void Build() {}
 
-  //@{
+  ///@{
   /**
    * Sets/Gets the range of scalars that will be mapped.
    */
   virtual double* GetRange() VTK_SIZEHINT(2);
   virtual void SetRange(double min, double max);
   virtual void SetRange(const double rng[2]) { this->SetRange(rng[0], rng[1]); }
-  //@}
+  ///@}
 
   /**
    * Map one value through the lookup table and return a color defined
@@ -129,7 +129,7 @@ public:
     return static_cast<double>(rgb[0] * 0.30 + rgb[1] * 0.59 + rgb[2] * 0.11);
   }
 
-  //@{
+  ///@{
   /**
    * Specify an additional opacity (alpha) value to blend with. Values
    * != 1 modify the resulting color consistent with the requested
@@ -138,9 +138,9 @@ public:
    */
   virtual void SetAlpha(double alpha);
   vtkGetMacro(Alpha, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internal methods that map a data array into an unsigned char array.
    * The output format can be set to VTK_RGBA (4 components),
@@ -164,9 +164,9 @@ public:
     vtkDataArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
   virtual vtkUnsignedCharArray* MapScalars(
     vtkAbstractArray* scalars, int colorMode, int component, int outputFormat = VTK_RGBA);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Change mode that maps vectors by magnitude vs. component.
    * If the mode is "RGBColors", then the vectors components are
@@ -177,7 +177,7 @@ public:
   void SetVectorModeToMagnitude();
   void SetVectorModeToComponent();
   void SetVectorModeToRGBColors();
-  //@}
+  ///@}
 
   enum VectorModes
   {
@@ -186,16 +186,16 @@ public:
     RGBCOLORS = 2
   };
 
-  //@{
+  ///@{
   /**
    * If the mapper does not select which component of a vector
    * to map to colors, you can specify it here.
    */
   vtkSetMacro(VectorComponent, int);
   vtkGetMacro(VectorComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When mapping vectors, consider only the number of components selected
    * by VectorSize to be part of the vector, and ignore any other
@@ -205,7 +205,7 @@ public:
    */
   vtkSetMacro(VectorSize, int);
   vtkGetMacro(VectorSize, int);
-  //@}
+  ///@}
 
   /**
    * Map vectors through the lookup table.  Unlike MapScalarsThroughTable,
@@ -267,7 +267,7 @@ public:
    */
   virtual vtkIdType GetNumberOfAvailableColors();
 
-  //@{
+  ///@{
   /**
    * Set a list of discrete values, either
    * as a categorical set of values (when IndexedLookup is true) or
@@ -284,7 +284,7 @@ public:
   virtual void SetAnnotations(vtkAbstractArray* values, vtkStringArray* annotations);
   vtkGetObjectMacro(AnnotatedValues, vtkAbstractArray);
   vtkGetObjectMacro(Annotations, vtkStringArray);
-  //@}
+  ///@}
 
   /**
    * Add a new entry (or change an existing entry) to the list of annotated values.
@@ -357,7 +357,7 @@ public:
    */
   virtual void ResetAnnotations();
 
-  //@{
+  ///@{
   /**
    * Set/get whether the lookup table is for categorical or ordinal data.
    * The default is ordinal data; values not present in the lookup table
@@ -369,9 +369,9 @@ public:
   vtkSetMacro(IndexedLookup, vtkTypeBool);
   vtkGetMacro(IndexedLookup, vtkTypeBool);
   vtkBooleanMacro(IndexedLookup, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Converts a color from numeric type T to uchar. We assume the integral type
    * is already in the range 0-255. If it is not, behavior is undefined.
@@ -387,7 +387,7 @@ public:
   {
     *dest = ColorToUChar(t);
   }
-  //@}
+  ///@}
 
 protected:
   vtkScalarsToColors();
@@ -462,7 +462,7 @@ private:
   void operator=(const vtkScalarsToColors&) = delete;
 };
 
-//@{
+///@{
 /**
  * Specializations of vtkScalarsToColors::ColorToUChar
  * Converts from a color in a floating point type in range 0.0-1.0 to a uchar
@@ -478,6 +478,6 @@ inline unsigned char vtkScalarsToColors::ColorToUChar(float t)
 {
   return static_cast<unsigned char>(t * 255 + 0.5);
 }
-//@}
+///@}
 
 #endif

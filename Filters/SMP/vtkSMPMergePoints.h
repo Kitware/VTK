@@ -81,7 +81,7 @@ public:
    */
   vtkIdType GetMaxId() { return this->AtomicInsertionId - 1; }
 
-  //@{
+  ///@{
   /**
    * Returns the number of points in a bin.
    */
@@ -94,7 +94,7 @@ public:
     vtkIdList* bucket = this->HashTable[idx];
     return bucket ? bucket->GetNumberOfIds() : 0;
   }
-  //@}
+  ///@}
 
   /**
    * Returns the number of bins.

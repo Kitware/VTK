@@ -49,16 +49,16 @@ public:
    */
   virtual int OpenStream() = 0;
 
-  //@{
+  ///@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
   vtkSetMacro(WriteToOutputString, vtkTypeBool);
   vtkGetMacro(WriteToOutputString, vtkTypeBool);
   vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * When WriteToOutputString in on, then a string is allocated, written to,
    * and can be retrieved with these methods.  The string is deleted during
@@ -70,7 +70,7 @@ public:
   {
     return reinterpret_cast<unsigned char*>(this->OutputString);
   }
-  //@}
+  ///@}
 
   /**
    * This convenience method returns the string, sets the IVAR to nullptr,
@@ -98,7 +98,7 @@ public:
    */
   virtual void EndDocument() = 0;
 
-  //@{
+  ///@{
   /**
    * Starts/ends a new X3D node specified via nodeID. The list of
    * nodeIds can be found in vtkX3DExportWriterSymbols.h. The EndNode
@@ -107,7 +107,7 @@ public:
    */
   virtual void StartNode(int nodeID) = 0;
   virtual void EndNode() = 0;
-  //@}
+  ///@}
 
   /**
    * Sets the field specified with attributeID

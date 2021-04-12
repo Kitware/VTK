@@ -53,13 +53,13 @@ public:
    */
   static vtkOpenVRControlsHelper* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkOpenVRControlsHelper, vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   enum ButtonSides
   {
@@ -73,15 +73,15 @@ public:
     Right = 1
   };
 
-  //@{
+  ///@{
   /**
    * Methods to interface with the vtkOpenVRPanelWidget.
    */
   void BuildRepresentation();
   void UpdateRepresentation();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods supporting the rendering process.
    */
@@ -89,14 +89,14 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set Tooltip text (used by TextActor)
    */
   void SetText(vtkStdString str);
-  //@}
+  ///@}
 
   void SetTooltipInfo(const char* s, int buttonSide, int drawSide, const char* txt)
   {

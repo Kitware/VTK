@@ -49,7 +49,7 @@ protected:
   vtkGenericImageInterpolator();
   ~vtkGenericImageInterpolator() override;
 
-  //@{
+  ///@{
   /**
    * Get the interpolation functions.
    */
@@ -57,9 +57,9 @@ protected:
     void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
     void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the row interpolation functions.
    */
@@ -67,7 +67,7 @@ protected:
     void (**doublefunc)(vtkInterpolationWeights*, int, int, int, double*, int)) override;
   void GetRowInterpolationFunc(
     void (**floatfunc)(vtkInterpolationWeights*, int, int, int, float*, int)) override;
-  //@}
+  ///@}
 
 private:
   vtkGenericImageInterpolator(const vtkGenericImageInterpolator&) = delete;

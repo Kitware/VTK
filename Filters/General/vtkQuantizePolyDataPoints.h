@@ -52,13 +52,13 @@ public:
   vtkTypeMacro(vtkQuantizePolyDataPoints, vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify quantization grain size. Default is 0.25
    */
   vtkSetClampMacro(QFactor, double, 1E-5, VTK_FLOAT_MAX);
   vtkGetMacro(QFactor, double);
-  //@}
+  ///@}
 
   /**
    * Perform quantization on a point

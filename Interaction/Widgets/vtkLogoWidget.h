@@ -42,13 +42,13 @@ public:
    */
   static vtkLogoWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this

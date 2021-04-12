@@ -44,31 +44,31 @@ public:
     DIV = 3
   };
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the operator to apply. Default is ADD (0).
    */
   vtkSetMacro(Operator, int);
   vtkGetMacro(Operator, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the first time step.
    */
   vtkSetMacro(FirstTimeStepIndex, int);
   vtkGetMacro(FirstTimeStepIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the second time step.
    */
   vtkSetMacro(SecondTimeStepIndex, int);
   vtkGetMacro(SecondTimeStepIndex, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * @brief Set/Get the suffix to be append to the output array name.
    * If not specified, output will be suffixed with '_' and the operation
@@ -76,7 +76,7 @@ public:
    */
   vtkSetStringMacro(OutputArrayNameSuffix);
   vtkGetStringMacro(OutputArrayNameSuffix);
-  //@}
+  ///@}
 
 protected:
   vtkTemporalArrayOperatorFilter();

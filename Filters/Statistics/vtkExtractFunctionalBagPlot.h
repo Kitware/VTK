@@ -43,13 +43,13 @@ public:
   // Density value for the median quartile.
   vtkSetMacro(DensityForP50, double);
 
-  //@{
+  ///@{
   /**
    * Density value for the user defined quartile.
    */
   vtkSetMacro(DensityForPUser, double);
   vtkSetMacro(PUser, int);
-  //@}
+  ///@}
 
 protected:
   vtkExtractFunctionalBagPlot();

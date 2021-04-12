@@ -53,13 +53,13 @@ public:
    */
   int GetDataObjectType() override { return VTK_DIRECTED_GRAPH; }
 
-  //@{
+  ///@{
   /**
    * Retrieve a graph from an information vector.
    */
   static vtkDirectedGraph* GetData(vtkInformation* info);
   static vtkDirectedGraph* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
   /**
    * Check the storage, and accept it if it is a valid

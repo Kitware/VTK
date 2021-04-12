@@ -94,16 +94,16 @@ public:
    */
   virtual const char* GetDescriptiveName() { return "MNI object"; }
 
-  //@{
+  ///@{
   /**
    * Set the property associated with the object.  Optional.
    * This is useful for exporting an actor.
    */
   virtual void SetProperty(vtkProperty* property);
   virtual vtkProperty* GetProperty() { return this->Property; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the mapper associated with the object.  Optional.
    * This is useful for exporting an actor with the same colors
@@ -111,34 +111,34 @@ public:
    */
   virtual void SetMapper(vtkMapper* mapper);
   virtual vtkMapper* GetMapper() { return this->Mapper; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the lookup table associated with the object.  This will be
    * used to convert scalar values to colors, if a mapper is not set.
    */
   virtual void SetLookupTable(vtkLookupTable* table);
   virtual vtkLookupTable* GetLookupTable() { return this->LookupTable; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
@@ -146,7 +146,7 @@ public:
   vtkGetMacro(FileType, int);
   void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
   void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
-  //@}
+  ///@}
 
 protected:
   vtkMNIObjectWriter();

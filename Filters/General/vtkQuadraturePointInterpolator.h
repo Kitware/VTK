@@ -59,7 +59,7 @@ private:
   void operator=(const vtkQuadraturePointInterpolator&) = delete;
   //
   void Clear();
-  //@{
+  ///@{
   /**
    * Generate field data arrays that have all scalar/vector
    * fields interpolated to the quadrature points. The type
@@ -67,7 +67,7 @@ private:
    * meta data in each data array.
    */
   int InterpolateFields(vtkUnstructuredGrid* usgOut);
-  //@}
+  ///@}
 };
 
 #endif

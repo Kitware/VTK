@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkScalarsToTextureFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get a color transfer function.
    * This transfer function will be used to determine the pixel colors of the texture.
@@ -52,9 +52,9 @@ public:
    */
   void SetTransferFunction(vtkScalarsToColors* stc);
   vtkScalarsToColors* GetTransferFunction();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if a new point array containing RGBA values have to be computed by the specified
    * color transfer function.
@@ -62,16 +62,16 @@ public:
   vtkGetMacro(UseTransferFunction, bool);
   vtkSetMacro(UseTransferFunction, bool);
   vtkBooleanMacro(UseTransferFunction, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the width and height of the generated texture.
    * Default is 128x128. The width and height must be greater than 1.
    */
   vtkSetVector2Macro(TextureDimensions, int);
   vtkGetVector2Macro(TextureDimensions, int);
-  //@}
+  ///@}
 
 protected:
   vtkScalarsToTextureFilter();

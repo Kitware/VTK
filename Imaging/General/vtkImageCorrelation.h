@@ -37,14 +37,14 @@ public:
   vtkTypeMacro(vtkImageCorrelation, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Determines how the input is interpreted (set of 2d slices ...).
    * The default is 2.
    */
   vtkSetClampMacro(Dimensionality, int, 2, 3);
   vtkGetMacro(Dimensionality, int);
-  //@}
+  ///@}
 
   /**
    * Set the input image.

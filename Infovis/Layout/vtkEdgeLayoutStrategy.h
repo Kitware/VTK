@@ -57,13 +57,13 @@ public:
    */
   virtual void Layout() = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get the field to use for the edge weights.
    */
   vtkSetStringMacro(EdgeWeightArrayName);
   vtkGetStringMacro(EdgeWeightArrayName);
-  //@}
+  ///@}
 
 protected:
   vtkEdgeLayoutStrategy();

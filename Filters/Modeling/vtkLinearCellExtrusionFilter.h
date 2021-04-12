@@ -45,16 +45,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLinearCellExtrusionFilter* New();
 
-  //@{
+  ///@{
   /**
    * Specify the scale factor applied on the cell value during extrusion.
    * Default is 1.0
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if the algorithm should use the specified vector instead of cell normals.
    * Default is false
@@ -62,17 +62,17 @@ public:
   vtkSetMacro(UseUserVector, bool);
   vtkGetMacro(UseUserVector, bool);
   vtkBooleanMacro(UseUserVector, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the scale factor applied on the cell value during extrusion.
    */
   vtkSetVector3Macro(UserVector, double);
   vtkGetVector3Macro(UserVector, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify if the algorithm should merge duplicate points.
    * Default is false
@@ -80,16 +80,16 @@ public:
   vtkSetMacro(MergeDuplicatePoints, bool);
   vtkGetMacro(MergeDuplicatePoints, bool);
   vtkBooleanMacro(MergeDuplicatePoints, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points.
    * By default, an instance of vtkMergePoints is used.
    */
   vtkGetSmartPointerMacro(Locator, vtkIncrementalPointLocator);
   vtkSetSmartPointerMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Create default locator. Used to create one when none is specified. The

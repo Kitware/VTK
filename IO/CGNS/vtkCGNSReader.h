@@ -59,13 +59,13 @@ public:
   vtkTypeMacro(vtkCGNSReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of CGNS datafile to read
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
   /**
    * Is the given file name a CGNS file?
@@ -82,7 +82,7 @@ public:
    */
   vtkDataArraySelection* GetFamilySelection();
 
-  //@{
+  ///@{
   /**
    * API to select bases to read. These calls simply forward to the
    * vtkDataArraySelection instance obtained from `GetBaseSelection()`.
@@ -95,9 +95,9 @@ public:
   void EnableAllBases();
   int GetNumberOfBaseArrays();
   const char* GetBaseArrayName(int index);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API to select families to read. These calls simply forward to the
    * vtkDataArraySelection instance obtained from `GetFamilySelection()`.
@@ -108,9 +108,9 @@ public:
   int GetFamilyArrayStatus(const char* name);
   void EnableAllFamilies();
   void DisableAllFamilies();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API to get information of point arrays and enable/disable loading of
    * a particular arrays.
@@ -121,9 +121,9 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * API to get information of cell arrays and enable/disable loading of
    * a particular arrays.
@@ -134,13 +134,13 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
-  //@}
+  ///@}
 
   vtkSetMacro(DoublePrecisionMesh, int);
   vtkGetMacro(DoublePrecisionMesh, int);
   vtkBooleanMacro(DoublePrecisionMesh, int);
 
-  //@{
+  ///@{
   /**
    * Enable/disable loading of boundary condition patches.
    * Defaults to false.
@@ -148,9 +148,9 @@ public:
   vtkSetMacro(LoadBndPatch, bool);
   vtkGetMacro(LoadBndPatch, bool);
   vtkBooleanMacro(LoadBndPatch, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable loading of zone mesh. Defaults to true. It may be turned off
    * to load only boundary patches (when LoadBndPatch if ON), for example.
@@ -158,7 +158,7 @@ public:
   vtkSetMacro(LoadMesh, bool);
   vtkGetMacro(LoadMesh, bool);
   vtkBooleanMacro(LoadMesh, bool);
-  //@}
+  ///@}
 
   /**
    * This option is provided for debugging and should not be used for production
@@ -207,7 +207,7 @@ public:
   vtkGetMacro(DistributeBlocks, bool);
   vtkBooleanMacro(DistributeBlocks, bool);
 
-  //@{
+  ///@{
   /**
    * This reader can cache the mesh points if they are time invariant.
    * They will be stored with a unique reference to their /base/zonename
@@ -217,7 +217,7 @@ public:
   vtkGetMacro(CacheMesh, bool);
   vtkBooleanMacro(CacheMesh, bool);
 
-  //@{
+  ///@{
   /**
    * This reader can cache the meshconnectivities if they are time invariant.
    * They will be stored with a unique reference to their /base/zonename
@@ -227,7 +227,7 @@ public:
   vtkGetMacro(CacheConnectivity, bool);
   vtkBooleanMacro(CacheConnectivity, bool);
 
-  //@{
+  ///@{
   /**
    * Set/get the communication object used to relay a list of files
    * from the rank 0 process to all others. This is the only interprocess
@@ -235,7 +235,7 @@ public:
    */
   void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Sends metadata (that read from the input file, not settings modified

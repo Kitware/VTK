@@ -128,16 +128,16 @@ public:
    */
   vtkPolyData* GetSource(int id = 0);
 
-  //@{
+  ///@{
   /**
    * Turn on/off scaling of source geometry.
    */
   vtkSetMacro(Scaling, vtkTypeBool);
   vtkBooleanMacro(Scaling, vtkTypeBool);
   vtkGetMacro(Scaling, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Either scale by scalar or by vector/normal magnitude.
    */
@@ -151,9 +151,9 @@ public:
   }
   void SetScaleModeToDataScalingOff() { this->SetScaleMode(VTK_DATA_SCALING_OFF); }
   const char* GetScaleModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Either color by scale, scalar or by vector/normal magnitude.
    */
@@ -163,34 +163,34 @@ public:
   void SetColorModeToColorByScalar() { this->SetColorMode(VTK_COLOR_BY_SCALAR); }
   void SetColorModeToColorByVector() { this->SetColorMode(VTK_COLOR_BY_VECTOR); }
   const char* GetColorModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify scale factor to scale object by.
    */
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify range to map scalar values into.
    */
   vtkSetVector2Macro(Range, double);
   vtkGetVectorMacro(Range, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off orienting of input geometry along vector/normal.
    */
   vtkSetMacro(Orient, vtkTypeBool);
   vtkBooleanMacro(Orient, vtkTypeBool);
   vtkGetMacro(Orient, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off clamping of "scalar" values to range. (Scalar value may be
    * vector magnitude if ScaleByVector() is enabled.)
@@ -198,9 +198,9 @@ public:
   vtkSetMacro(Clamping, vtkTypeBool);
   vtkBooleanMacro(Clamping, vtkTypeBool);
   vtkGetMacro(Clamping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to use vector or normal to perform vector operations.
    */
@@ -210,9 +210,9 @@ public:
   void SetVectorModeToUseNormal() { this->SetVectorMode(VTK_USE_NORMAL); }
   void SetVectorModeToVectorRotationOff() { this->SetVectorMode(VTK_VECTOR_ROTATION_OFF); }
   const char* GetVectorModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Index into table of sources by scalar, by vector/normal magnitude, or
    * no indexing. If indexing is turned off, then the first source glyph in
@@ -224,9 +224,9 @@ public:
   void SetIndexModeToVector() { this->SetIndexMode(VTK_INDEXING_BY_VECTOR); }
   void SetIndexModeToOff() { this->SetIndexMode(VTK_INDEXING_OFF); }
   const char* GetIndexModeAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of point ids as part of the output. The
    * point ids are the id of the input generating point. The point ids are
@@ -236,43 +236,43 @@ public:
   vtkSetMacro(GeneratePointIds, vtkTypeBool);
   vtkGetMacro(GeneratePointIds, vtkTypeBool);
   vtkBooleanMacro(GeneratePointIds, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the PointIds array if generated. By default the Ids
    * are named "InputPointIds", but this can be changed with this function.
    */
   vtkSetStringMacro(PointIdsName);
   vtkGetStringMacro(PointIdsName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want to use an arbitrary scalars array, then set its name here.
    * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char* fieldName) { this->SetInputScalarsSelection(fieldName); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want to use an arbitrary vectors array, then set its name here.
    * By default this in nullptr and the filter will use the active vector array.
    */
   vtkGetStringMacro(InputVectorsSelection);
   void SelectInputVectors(const char* fieldName) { this->SetInputVectorsSelection(fieldName); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If you want to use an arbitrary normals array, then set its name here.
    * By default this in nullptr and the filter will use the active normal array.
    */
   vtkGetStringMacro(InputNormalsSelection);
   void SelectInputNormals(const char* fieldName) { this->SetInputNormalsSelection(fieldName); }
-  //@}
+  ///@}
 
 protected:
   vtkGenericGlyph3DFilter();
@@ -308,7 +308,7 @@ private:
   void operator=(const vtkGenericGlyph3DFilter&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the method of scaling as a descriptive character string.
  */
@@ -327,9 +327,9 @@ inline const char* vtkGenericGlyph3DFilter::GetScaleModeAsString()
     return "DataScalingOff";
   }
 }
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Return the method of coloring as a descriptive character string.
  */
@@ -348,9 +348,9 @@ inline const char* vtkGenericGlyph3DFilter::GetColorModeAsString()
     return "ColorByScale";
   }
 }
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Return the vector mode as a character string.
  */
@@ -369,9 +369,9 @@ inline const char* vtkGenericGlyph3DFilter::GetVectorModeAsString()
     return "VectorRotationOff";
   }
 }
-//@}
+///@}
 
-//@{
+///@{
 /**
  * Return the index mode as a character string.
  */
@@ -390,6 +390,6 @@ inline const char* vtkGenericGlyph3DFilter::GetIndexModeAsString()
     return "IndexingByVector";
   }
 }
-//@}
+///@}
 
 #endif

@@ -61,15 +61,15 @@ public:
    */
   void Initialize(int numLevels, const int* blocksPerLevel);
 
-  //@{
+  ///@{
   /**
    * returns the value of vtkUniformGrid::GridDescription() of any block
    */
   vtkGetMacro(GridDescription, int);
   void SetGridDescription(int description);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the AMR dataset origin
    * The origin is essentially the minimum of all the grids.
@@ -77,7 +77,7 @@ public:
   void GetOrigin(double origin[3]);
   double* GetOrigin();
   void SetOrigin(const double* origin);
-  //@}
+  ///@}
 
   /**
    * Return the number of levels
@@ -129,27 +129,27 @@ public:
 
   bool HasSpacing(unsigned int level);
 
-  //@{
+  ///@{
   /**
    * Methods to set and get the AMR box at a given position
    */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
-  //@}
+  ///@}
 
   /**
    * return the amr box coarsened to the previous level
    */
   bool GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const;
 
-  //@{
+  ///@{
   /**
    * Get/Set the SourceIndex of a block. Typically, this is a file-type specific index
    * that can be used by a reader to load a particular file block
    */
   int GetAMRBlockSourceIndex(int index);
   void SetAMRBlockSourceIndex(int index, int sourceId);
-  //@}
+  ///@}
 
   /**
    * This method computes the refinement ratio at each level.

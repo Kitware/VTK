@@ -68,7 +68,7 @@ public:
   ValueType& GetValueReference(vtkIdType idx) override;
   void GetTypedTuple(vtkIdType idx, Scalar* t) const override;
 
-  //@{
+  ///@{
   /**
    * This container is read only -- this method does nothing but print a
    * warning.
@@ -105,7 +105,7 @@ public:
   void SetValue(vtkIdType idx, Scalar value) override;
   vtkIdType InsertNextValue(Scalar v) override;
   void InsertValue(vtkIdType idx, Scalar v) override;
-  //@}
+  ///@}
 
 protected:
   vtkCPExodusIINodalCoordinatesTemplate();

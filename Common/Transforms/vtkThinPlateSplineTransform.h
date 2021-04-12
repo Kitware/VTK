@@ -54,15 +54,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkThinPlateSplineTransform* New();
 
-  //@{
+  ///@{
   /**
    * Specify the 'stiffness' of the spline. The default is 1.0.
    */
   vtkGetMacro(Sigma, double);
   vtkSetMacro(Sigma, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the radial basis function to use.  The default is
    * R2LogR which is appropriate for 2D. Use |R| (SetBasisToR)
@@ -75,9 +75,9 @@ public:
   void SetBasisToR() { this->SetBasis(VTK_RBF_R); }
   void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); }
   const char* GetBasisAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the radial basis function to a custom function.  You must
    * supply both the function and its derivative with respect to r.
@@ -97,9 +97,9 @@ public:
     this->BasisDerivative = dUdr;
     this->Modified();
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the source landmarks for the warp.  If you add or change the
    * vtkPoints object, you must call Modified() on it or the transformation
@@ -107,9 +107,9 @@ public:
    */
   void SetSourceLandmarks(vtkPoints* source);
   vtkGetObjectMacro(SourceLandmarks, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the target landmarks for the warp.  If you add or change the
    * vtkPoints object, you must call Modified() on it or the transformation
@@ -117,7 +117,7 @@ public:
    */
   void SetTargetLandmarks(vtkPoints* target);
   vtkGetObjectMacro(TargetLandmarks, vtkPoints);
-  //@}
+  ///@}
 
   /**
    * Get the MTime.
@@ -129,7 +129,7 @@ public:
    */
   vtkAbstractTransform* MakeTransform() override;
 
-  //@{
+  ///@{
   /**
    * Get/set whether the bulk linear transformation matrix is regularized.
    *
@@ -149,7 +149,7 @@ public:
   vtkGetMacro(RegularizeBulkTransform, bool);
   vtkSetMacro(RegularizeBulkTransform, bool);
   vtkBooleanMacro(RegularizeBulkTransform, bool);
-  //@}
+  ///@}
 
 protected:
   vtkThinPlateSplineTransform();

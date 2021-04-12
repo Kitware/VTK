@@ -50,7 +50,7 @@ public:
     MAGNIFICATION_FACTORS
   };
 
-  //@{
+  ///@{
   /**
    * The resizing method to use.  The default is to set the output image
    * dimensions, and allow the filter to resize the image to these new
@@ -63,9 +63,9 @@ public:
   void SetResizeMethodToOutputSpacing() { this->SetResizeMethod(OUTPUT_SPACING); }
   void SetResizeMethodToMagnificationFactors() { this->SetResizeMethod(MAGNIFICATION_FACTORS); }
   virtual const char* GetResizeMethodAsString();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired output dimensions.  This is only used if the ResizeMethod is
    * set to OutputDimensions.  If you want to keep one of the image dimensions
@@ -73,9 +73,9 @@ public:
    */
   vtkSetVector3Macro(OutputDimensions, int);
   vtkGetVector3Macro(OutputDimensions, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired output spacing.  This is only used if the ResizeMethod is
    * set to OutputSpacing.  If you want to keep one of the original spacing
@@ -83,9 +83,9 @@ public:
    */
   vtkSetVector3Macro(OutputSpacing, double);
   vtkGetVector3Macro(OutputSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The desired magnification factor, meaning that the sample spacing will
    * be reduced by this factor.  This setting is only used if the ResizeMethod
@@ -93,9 +93,9 @@ public:
    */
   vtkSetVector3Macro(MagnificationFactors, double);
   vtkGetVector3Macro(MagnificationFactors, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If Border is Off (the default), then the centers of each of the corner
    * voxels will be considered to form the rectangular bounds of the image.
@@ -108,9 +108,9 @@ public:
   vtkSetMacro(Border, vtkTypeBool);
   vtkBooleanMacro(Border, vtkTypeBool);
   vtkGetMacro(Border, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to crop the input image before resizing (Off by default).  If this
    * is On, then the CroppingRegion must be set.
@@ -118,9 +118,9 @@ public:
   vtkSetMacro(Cropping, vtkTypeBool);
   vtkBooleanMacro(Cropping, vtkTypeBool);
   vtkGetMacro(Cropping, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If Cropping is On, then the CroppingRegion will be used to crop the image
    * before it is resized.  The region must be specified in data coordinates,
@@ -128,24 +128,24 @@ public:
    */
   vtkSetVector6Macro(CroppingRegion, double);
   vtkGetVector6Macro(CroppingRegion, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn interpolation on or off (by default, interpolation is on).
    */
   vtkSetMacro(Interpolate, vtkTypeBool);
   vtkBooleanMacro(Interpolate, vtkTypeBool);
   vtkGetMacro(Interpolate, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the interpolator for resampling the data.
    */
   virtual void SetInterpolator(vtkAbstractImageInterpolator* sampler);
   virtual vtkAbstractImageInterpolator* GetInterpolator();
-  //@}
+  ///@}
 
   /**
    * Get the modified time of the filter.

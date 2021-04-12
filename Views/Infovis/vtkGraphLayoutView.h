@@ -57,161 +57,161 @@ public:
   vtkTypeMacro(vtkGraphLayoutView, vtkRenderView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The array to use for vertex labeling.  Default is "VertexDegree".
    */
   void SetVertexLabelArrayName(const char* name);
   const char* GetVertexLabelArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for edge labeling.  Default is "LabelText".
    */
   void SetEdgeLabelArrayName(const char* name);
   const char* GetEdgeLabelArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to show vertex labels.  Default is off.
    */
   void SetVertexLabelVisibility(bool vis);
   bool GetVertexLabelVisibility();
   vtkBooleanMacro(VertexLabelVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to hide vertex labels during mouse interactions.  Default is off.
    */
   void SetHideVertexLabelsOnInteraction(bool vis);
   bool GetHideVertexLabelsOnInteraction();
   vtkBooleanMacro(HideVertexLabelsOnInteraction, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to show the edges at all. Default is on
    */
   void SetEdgeVisibility(bool vis);
   bool GetEdgeVisibility();
   vtkBooleanMacro(EdgeVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to show edge labels.  Default is off.
    */
   void SetEdgeLabelVisibility(bool vis);
   bool GetEdgeLabelVisibility();
   vtkBooleanMacro(EdgeLabelVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to hide edge labels during mouse interactions.  Default is off.
    */
   void SetHideEdgeLabelsOnInteraction(bool vis);
   bool GetHideEdgeLabelsOnInteraction();
   vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring vertices.  The default behavior
    * is to color by vertex degree.
    */
   void SetVertexColorArrayName(const char* name);
   const char* GetVertexColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color vertices.  Default is off.
    */
   void SetColorVertices(bool vis);
   bool GetColorVertices();
   vtkBooleanMacro(ColorVertices, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring edges.  Default is "color".
    */
   void SetEdgeColorArrayName(const char* name);
   const char* GetEdgeColorArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color edges.  Default is off.
    */
   void SetColorEdges(bool vis);
   bool GetColorEdges();
   vtkBooleanMacro(ColorEdges, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether edges are selectable. Default is on.
    */
   void SetEdgeSelection(bool vis);
   bool GetEdgeSelection();
   vtkBooleanMacro(EdgeSelection, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring edges.
    */
   void SetEnabledEdgesArrayName(const char* name);
   const char* GetEnabledEdgesArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color edges.  Default is off.
    */
   void SetEnableEdgesByArray(bool vis);
   int GetEnableEdgesByArray();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for coloring vertices.
    */
   void SetEnabledVerticesArrayName(const char* name);
   const char* GetEnabledVerticesArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to color vertices.  Default is off.
    */
   void SetEnableVerticesByArray(bool vis);
   int GetEnableVerticesByArray();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array used for scaling (if ScaledGlyphs is ON)
    */
   void SetScalingArrayName(const char* name);
   const char* GetScalingArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether to use scaled glyphs or not.  Default is off.
    */
   void SetScaledGlyphs(bool arg);
   bool GetScaledGlyphs();
   vtkBooleanMacro(ScaledGlyphs, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use when performing the graph layout.
    * The possible strings are:
@@ -244,9 +244,9 @@ public:
   void SetLayoutStrategyToCone() { this->SetLayoutStrategy("Cone"); }
   void SetLayoutStrategyToSpanTree() { this->SetLayoutStrategy("Span Tree"); }
   const char* GetLayoutStrategyName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use when performing the graph layout.
    * This signature allows an application to create a layout
@@ -254,9 +254,9 @@ public:
    */
   vtkGraphLayoutStrategy* GetLayoutStrategy();
   void SetLayoutStrategy(vtkGraphLayoutStrategy* s);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use when performing the edge layout.
    * The possible strings are:
@@ -268,9 +268,9 @@ public:
   void SetEdgeLayoutStrategyToArcParallel() { this->SetEdgeLayoutStrategy("Arc Parallel"); }
   void SetEdgeLayoutStrategyToPassThrough() { this->SetEdgeLayoutStrategy("Pass Through"); }
   const char* GetEdgeLayoutStrategyName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The layout strategy to use when performing the edge layout.
    * This signature allows an application to create a layout
@@ -278,7 +278,7 @@ public:
    */
   vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
   void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy* s);
-  //@}
+  ///@}
 
   /**
    * Associate the icon at index "index" in the vtkTexture to all vertices
@@ -298,62 +298,62 @@ public:
    */
   void SetIconAlignment(int alignment);
 
-  //@{
+  ///@{
   /**
    * Whether icons are visible (default off).
    */
   void SetIconVisibility(bool b);
   bool GetIconVisibility();
   vtkBooleanMacro(IconVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array used for assigning icons
    */
   void SetIconArrayName(const char* name);
   const char* GetIconArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The type of glyph to use for the vertices
    */
   void SetGlyphType(int type);
   int GetGlyphType();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the font used for vertex labeling
    */
   virtual void SetVertexLabelFontSize(const int size);
   virtual int GetVertexLabelFontSize();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The size of the font used for edge labeling
    */
   virtual void SetEdgeLabelFontSize(const int size);
   virtual int GetEdgeLabelFontSize();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether the scalar bar for edges is visible.  Default is off.
    */
   void SetEdgeScalarBarVisibility(bool vis);
   bool GetEdgeScalarBarVisibility();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Whether the scalar bar for vertices is visible.  Default is off.
    */
   void SetVertexScalarBarVisibility(bool vis);
   bool GetVertexScalarBarVisibility();
-  //@}
+  ///@}
 
   /**
    * Reset the camera based on the bounds of the selected region.
@@ -384,7 +384,7 @@ protected:
   vtkGraphLayoutView();
   ~vtkGraphLayoutView() override;
 
-  //@{
+  ///@{
   /**
    * Overrides behavior in vtkView to create a vtkRenderedGraphRepresentation
    * by default.
@@ -393,7 +393,7 @@ protected:
   virtual vtkRenderedGraphRepresentation* GetGraphRepresentation();
   // Called to process events.  Overrides behavior in vtkRenderView.
   void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData) override;
-  //@}
+  ///@}
 
 private:
   vtkGraphLayoutView(const vtkGraphLayoutView&) = delete;

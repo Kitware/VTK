@@ -38,14 +38,14 @@ public:
   vtkTypeMacro(vtkClipConvexPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set all the planes at once using a vtkPlanes implicit function.
    * This also sets the D value.
    */
   void SetPlanes(vtkPlaneCollection* planes);
   vtkGetObjectMacro(Planes, vtkPlaneCollection);
-  //@}
+  ///@}
 
   /**
    * Redefines this method, as this filter depends on time of its components

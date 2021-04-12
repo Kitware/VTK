@@ -46,7 +46,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set a vtkImageData that has the Spacing, Origin, and
    * WholeExtent that will be used for the stencil.  This
@@ -57,9 +57,9 @@ public:
    */
   virtual void SetInformationInput(vtkImageData*);
   vtkGetObjectMacro(InformationInput, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Origin to be used for the stencil.  It should be
    * set to the Origin of the image you intend to apply the
@@ -67,9 +67,9 @@ public:
    */
   vtkSetVector3Macro(OutputOrigin, double);
   vtkGetVector3Macro(OutputOrigin, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the Spacing to be used for the stencil. It should be
    * set to the Spacing of the image you intend to apply the
@@ -77,16 +77,16 @@ public:
    */
   vtkSetVector3Macro(OutputSpacing, double);
   vtkGetVector3Macro(OutputSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the whole extent for the stencil (anything outside
    * this extent will be considered to be "outside" the stencil).
    */
   vtkSetVector6Macro(OutputWholeExtent, int);
   vtkGetVector6Macro(OutputWholeExtent, int);
-  //@}
+  ///@}
 
   /**
    * Report object referenced by instances of this class.

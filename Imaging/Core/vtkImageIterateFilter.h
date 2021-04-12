@@ -36,14 +36,14 @@ public:
   vtkTypeMacro(vtkImageIterateFilter, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get which iteration is current being performed. Normally the
    * user will not access this method.
    */
   vtkGetMacro(Iteration, int);
   vtkGetMacro(NumberOfIterations, int);
-  //@}
+  ///@}
 
 protected:
   vtkImageIterateFilter();

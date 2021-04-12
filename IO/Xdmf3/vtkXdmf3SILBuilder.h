@@ -52,23 +52,23 @@ public:
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Add vertex, child-edge or cross-edge to the graph.
    */
   vtkIdType AddVertex(const char* name);
   vtkIdType AddChildEdge(vtkIdType parent, vtkIdType child);
   vtkIdType AddCrossEdge(vtkIdType src, vtkIdType dst);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the vertex id for the root vertex.
    */
   vtkIdType GetRootVertex();
   vtkIdType GetBlocksRoot();
   vtkIdType GetHierarchyRoot();
-  //@}
+  ///@}
 
   bool IsMaxedOut();
 

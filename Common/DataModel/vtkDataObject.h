@@ -64,13 +64,13 @@ public:
   vtkTypeMacro(vtkDataObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the information object associated with this data object.
    */
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
-  //@}
+  ///@}
 
   /**
    * Data objects are composite objects and need to check each part for MTime.
@@ -90,14 +90,14 @@ public:
    */
   void ReleaseData();
 
-  //@{
+  ///@{
   /**
    * Get the flag indicating the data has been released.
    */
   vtkGetMacro(DataReleased, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off flag to control whether every object releases its data
    * after being used by a filter.
@@ -106,15 +106,15 @@ public:
   void GlobalReleaseDataFlagOn() { this->SetGlobalReleaseDataFlag(1); }
   void GlobalReleaseDataFlagOff() { this->SetGlobalReleaseDataFlag(0); }
   static int GetGlobalReleaseDataFlag();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign or retrieve a general field data to this data object.
    */
   virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData, vtkFieldData);
-  //@}
+  ///@}
 
   /**
    * Return class name of data type. This is one of VTK_STRUCTURED_GRID,
@@ -216,14 +216,14 @@ public:
    */
   virtual void PrepareForNewData() { this->Initialize(); }
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.  These copy the data, but not any of the
    * pipeline connections.
    */
   virtual void ShallowCopy(vtkDataObject* src);
   virtual void DeepCopy(vtkDataObject* src);
-  //@}
+  ///@}
 
   /**
    * The ExtentType will be left as VTK_PIECES_EXTENT for data objects
@@ -408,13 +408,13 @@ public:
   // \ingroup InformationKeys
   static vtkInformationDataObjectKey* SIL();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkDataObject* GetData(vtkInformation* info);
   static vtkDataObject* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkDataObject();

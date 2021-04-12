@@ -93,16 +93,16 @@ public:
    */
   void DataChanged() override;
 
-  //@{
+  ///@{
   /**
    * These methods don't make sense for mapped data array. Prints an error and
    * returns.
    */
   void SetVoidArray(void*, vtkIdType, int) override;
   void SetVoidArray(void*, vtkIdType, int, int) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Not implemented. Print error and return nullptr.
    */
@@ -111,7 +111,7 @@ public:
     vtkErrorMacro(<< "WriteVoidPointer: Method not implemented.");
     return nullptr;
   }
-  //@}
+  ///@}
 
   /**
    * Invalidate the internal temporary array and call superclass method.
@@ -131,13 +131,13 @@ private:
   vtkMappedDataArray(const vtkMappedDataArray&) = delete;
   void operator=(const vtkMappedDataArray&) = delete;
 
-  //@{
+  ///@{
   /**
    * GetVoidPointer.
    */
   ValueType* TemporaryScalarPointer;
   size_t TemporaryScalarPointerSize;
-  //@}
+  ///@}
 };
 
 // Declare vtkArrayDownCast implementations for mapped containers:

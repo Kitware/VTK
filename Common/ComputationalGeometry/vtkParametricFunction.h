@@ -100,82 +100,82 @@ public:
    */
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum u-value.
    */
   vtkSetMacro(MinimumU, double);
   vtkGetMacro(MinimumU, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum u-value.
    */
   vtkSetMacro(MaximumU, double);
   vtkGetMacro(MaximumU, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum v-value.
    */
   vtkSetMacro(MinimumV, double);
   vtkGetMacro(MinimumV, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum v-value.
    */
   vtkSetMacro(MaximumV, double);
   vtkGetMacro(MaximumV, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum w-value.
    */
   vtkSetMacro(MinimumW, double);
   vtkGetMacro(MinimumW, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum w-value.
    */
   vtkSetMacro(MaximumW, double);
   vtkGetMacro(MaximumW, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the first triangle strip to the last one.
    */
   vtkSetClampMacro(JoinU, vtkTypeBool, 0, 1);
   vtkGetMacro(JoinU, vtkTypeBool);
   vtkBooleanMacro(JoinU, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the ends of the triangle strips.
    */
   vtkSetClampMacro(JoinV, vtkTypeBool, 0, 1);
   vtkGetMacro(JoinV, vtkTypeBool);
   vtkBooleanMacro(JoinV, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the ends of the triangle strips.
    */
   vtkSetClampMacro(JoinW, vtkTypeBool, 0, 1);
   vtkGetMacro(JoinW, vtkTypeBool);
   vtkBooleanMacro(JoinW, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the first triangle strip to
    * the last one with a twist.
@@ -185,9 +185,9 @@ public:
   vtkSetClampMacro(TwistU, vtkTypeBool, 0, 1);
   vtkGetMacro(TwistU, vtkTypeBool);
   vtkBooleanMacro(TwistU, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the ends of the
    * triangle strips with a twist.
@@ -197,9 +197,9 @@ public:
   vtkSetClampMacro(TwistV, vtkTypeBool, 0, 1);
   vtkGetMacro(TwistV, vtkTypeBool);
   vtkBooleanMacro(TwistV, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which joins the ends of the
    * triangle strips with a twist.
@@ -209,9 +209,9 @@ public:
   vtkSetClampMacro(TwistW, vtkTypeBool, 0, 1);
   vtkGetMacro(TwistW, vtkTypeBool);
   vtkBooleanMacro(TwistW, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which determines the ordering of the
    * vertices forming the triangle strips. The ordering of the
@@ -224,9 +224,9 @@ public:
   vtkSetClampMacro(ClockwiseOrdering, vtkTypeBool, 0, 1);
   vtkGetMacro(ClockwiseOrdering, vtkTypeBool);
   vtkBooleanMacro(ClockwiseOrdering, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flag which determines whether derivatives are available
    * from the parametric function (i.e., whether the Evaluate() method
@@ -235,7 +235,7 @@ public:
   vtkSetClampMacro(DerivativesAvailable, vtkTypeBool, 0, 1);
   vtkGetMacro(DerivativesAvailable, vtkTypeBool);
   vtkBooleanMacro(DerivativesAvailable, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkParametricFunction();

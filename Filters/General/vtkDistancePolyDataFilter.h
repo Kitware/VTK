@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkDistancePolyDataFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of the signed distance between
    * the first poly data and the second poly data. Defaults to on.
@@ -55,9 +55,9 @@ public:
   vtkSetMacro(SignedDistance, vtkTypeBool);
   vtkGetMacro(SignedDistance, vtkTypeBool);
   vtkBooleanMacro(SignedDistance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable negation of the distance values. Defaults to
    * off. Has no effect if SignedDistance is off.
@@ -65,9 +65,9 @@ public:
   vtkSetMacro(NegateDistance, vtkTypeBool);
   vtkGetMacro(NegateDistance, vtkTypeBool);
   vtkBooleanMacro(NegateDistance, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of a second output poly data with the
    * distance from the first poly data at each point. Defaults to on.
@@ -75,7 +75,7 @@ public:
   vtkSetMacro(ComputeSecondDistance, vtkTypeBool);
   vtkGetMacro(ComputeSecondDistance, vtkTypeBool);
   vtkBooleanMacro(ComputeSecondDistance, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the second output, which is a copy of the second input with an
@@ -85,7 +85,7 @@ public:
    */
   vtkPolyData* GetSecondDistanceOutput();
 
-  //@{
+  ///@{
   /**
    * Enable/disable computation of cell-center distance to the
    * second poly data. Defaults to on for backwards compatibility.
@@ -96,7 +96,7 @@ public:
   vtkSetMacro(ComputeCellCenterDistance, vtkTypeBool);
   vtkGetMacro(ComputeCellCenterDistance, vtkTypeBool);
   vtkBooleanMacro(ComputeCellCenterDistance, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkDistancePolyDataFilter();

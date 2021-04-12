@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPImageDataReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkImageData* GetOutput();
   vtkImageData* GetOutput(int idx);
-  //@}
+  ///@}
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo

@@ -49,7 +49,7 @@ public:
    */
   void ResetRequests() { this->Requests.clear(); }
   // --------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Empty current buffer
    */
@@ -83,8 +83,8 @@ public:
     return result ? 1 : 0;
   }
   // --------------------------------------------------------------------
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * This function does not use the buffer like other column selection methods.
    */
@@ -102,8 +102,8 @@ public:
     return 0;
   }
   // --------------------------------------------------------------------
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * This function does not use the buffer like other column selection methods.
    */
@@ -122,13 +122,13 @@ public:
     return 0;
   }
   // --------------------------------------------------------------------
-  //@}
+  ///@}
   /**
    * Return the number of currently-defined requests
    */
   vtkIdType GetNumberOfRequests() { return static_cast<vtkIdType>(this->Requests.size()); }
   // --------------------------------------------------------------------
-  //@{
+  ///@{
   /**
    * Return the number of columns associated with request \a r.
    */
@@ -146,8 +146,8 @@ public:
     return static_cast<vtkIdType>(it->size());
   }
   // --------------------------------------------------------------------
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Provide the name of the \a c-th column of the \a r-th request in \a columnName.
    * Returns false if the request or column does not exist and true otherwise.
@@ -175,7 +175,7 @@ public:
     columnName = *cit;
     return true;
   }
-  //@}
+  ///@}
 
   std::set<std::set<vtkStdString>> Requests;
   std::set<vtkStdString> Buffer;

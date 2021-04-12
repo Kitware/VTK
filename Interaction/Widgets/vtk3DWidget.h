@@ -70,7 +70,7 @@ public:
   vtkTypeMacro(vtk3DWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This method is used to initially place the widget.  The placement of the
    * widget depends on whether a Prop3D or input dataset is provided. If one
@@ -84,9 +84,9 @@ public:
   virtual void PlaceWidget();
   virtual void PlaceWidget(
     double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a vtkProp3D around which to place the widget. This
    * is not required, but if supplied, it is used to initially
@@ -94,9 +94,9 @@ public:
    */
   virtual void SetProp3D(vtkProp3D*);
   vtkGetObjectMacro(Prop3D, vtkProp3D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the input dataset. This is not required, but if supplied,
    * and no vtkProp3D is specified, it is used to initially position
@@ -105,9 +105,9 @@ public:
   virtual void SetInputData(vtkDataSet*);
   virtual void SetInputConnection(vtkAlgorithmOutput*);
   virtual vtkDataSet* GetInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a factor representing the scaling of the widget upon placement
    * (via the PlaceWidget() method). Normally the widget is placed so that
@@ -117,9 +117,9 @@ public:
    */
   vtkSetClampMacro(PlaceFactor, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(PlaceFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the factor that controls the size of the handles that
    * appear as part of the widget. These handles (like spheres, etc.)
@@ -128,7 +128,7 @@ public:
    */
   vtkSetClampMacro(HandleSize, double, 0.001, 0.5);
   vtkGetMacro(HandleSize, double);
-  //@}
+  ///@}
 
 protected:
   vtk3DWidget();

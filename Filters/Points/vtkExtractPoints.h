@@ -65,7 +65,7 @@ class vtkPointSet;
 class VTKFILTERSPOINTS_EXPORT vtkExtractPoints : public vtkPointCloudFilter
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
@@ -73,17 +73,17 @@ public:
   static vtkExtractPoints* New();
   vtkTypeMacro(vtkExtractPoints, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the implicit function for inside/outside checks.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Boolean controls whether to extract points that are inside of implicit
    * function (ExtractInside == true) or outside of implicit function
@@ -92,7 +92,7 @@ public:
   vtkSetMacro(ExtractInside, bool);
   vtkGetMacro(ExtractInside, bool);
   vtkBooleanMacro(ExtractInside, bool);
-  //@}
+  ///@}
 
   /**
    * Return the MTime taking into account changes to the implicit function

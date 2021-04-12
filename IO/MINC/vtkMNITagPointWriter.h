@@ -93,7 +93,7 @@ public:
    */
   virtual const char* GetDescriptiveName() { return "MNI tags"; }
 
-  //@{
+  ///@{
   /**
    * Set the points (unless you set them as inputs).
    */
@@ -101,51 +101,51 @@ public:
   virtual void SetPoints(vtkPoints* points) { this->SetPoints(0, points); }
   virtual vtkPoints* GetPoints(int port);
   virtual vtkPoints* GetPoints() { return this->GetPoints(0); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the labels (unless the input PointData has an
    * array called LabelText). Labels are optional.
    */
   virtual void SetLabelText(vtkStringArray* a);
   vtkGetObjectMacro(LabelText, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the weights (unless the input PointData has an
    * array called Weights).  Weights are optional.
    */
   virtual void SetWeights(vtkDoubleArray* a);
   vtkGetObjectMacro(Weights, vtkDoubleArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the structure ids (unless the input PointData has
    * an array called StructureIds).  These are optional.
    */
   virtual void SetStructureIds(vtkIntArray* a);
   vtkGetObjectMacro(StructureIds, vtkIntArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the structure ids (unless the input PointData has
    * an array called PatientIds).  These are optional.
    */
   virtual void SetPatientIds(vtkIntArray* a);
   vtkGetObjectMacro(PatientIds, vtkIntArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set comments to be added to the file.
    */
   vtkSetStringMacro(Comments);
   vtkGetStringMacro(Comments);
-  //@}
+  ///@}
 
   /**
    * Write the file.
@@ -157,13 +157,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Specify file name of vtk polygon data file to write.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkMNITagPointWriter();

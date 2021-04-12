@@ -56,13 +56,13 @@ public:
    */
   static vtkTerrainContourLineInterpolator* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkTerrainContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Interpolate to create lines between contour nodes idx1 and idx2.
@@ -81,16 +81,16 @@ public:
   int UpdateNode(vtkRenderer*, vtkContourRepresentation*, double* vtkNotUsed(node),
     int vtkNotUsed(idx)) override;
 
-  //@{
+  ///@{
   /**
    * Set the height field data. The height field data is a 2D image. The
    * scalars in the image represent the height field. This must be set.
    */
   virtual void SetImageData(vtkImageData*);
   vtkGetObjectMacro(ImageData, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the vtkProjectedTerrainPath operator used to project the terrain
    * onto the data. This operator has several modes, See the documentation
@@ -98,7 +98,7 @@ public:
    * data at 0 height offset.
    */
   vtkGetObjectMacro(Projector, vtkProjectedTerrainPath);
-  //@}
+  ///@}
 
 protected:
   vtkTerrainContourLineInterpolator();

@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkImageInterpolator, vtkAbstractImageInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The interpolation mode for point scalars (default: linear).  Subclasses
    * will provide additional interpolation modes, so this is a virtual method.
@@ -49,7 +49,7 @@ public:
   void SetInterpolationModeToCubic() { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); }
   int GetInterpolationMode() { return this->InterpolationMode; }
   virtual const char* GetInterpolationModeAsString();
-  //@}
+  ///@}
 
   /**
    * Get the support size for use in computing update extents.  If the data
@@ -65,7 +65,7 @@ public:
    */
   bool IsSeparable() override;
 
-  //@{
+  ///@{
   /**
    * If the data is going to be sampled on a regular grid, then the
    * interpolation weights can be precomputed.  A matrix must be supplied
@@ -79,7 +79,7 @@ public:
     vtkInterpolationWeights*& weights) override;
   void PrecomputeWeightsForExtent(const float matrix[16], const int extent[6], int newExtent[6],
     vtkInterpolationWeights*& weights) override;
-  //@}
+  ///@}
 
   /**
    * Free the precomputed weights.  THIS METHOD IS THREAD SAFE.
@@ -100,7 +100,7 @@ protected:
    */
   void InternalDeepCopy(vtkAbstractImageInterpolator* obj) override;
 
-  //@{
+  ///@{
   /**
    * Get the interpolation functions.
    */
@@ -108,9 +108,9 @@ protected:
     void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
     void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the row interpolation functions.
    */
@@ -118,7 +118,7 @@ protected:
     void (**doublefunc)(vtkInterpolationWeights*, int, int, int, double*, int)) override;
   void GetRowInterpolationFunc(
     void (**floatfunc)(vtkInterpolationWeights*, int, int, int, float*, int)) override;
-  //@}
+  ///@}
 
   int InterpolationMode;
 

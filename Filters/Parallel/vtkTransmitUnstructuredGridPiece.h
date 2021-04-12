@@ -39,23 +39,23 @@ public:
   vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off creating ghost cells (on by default).
    */
   vtkSetMacro(CreateGhostCells, vtkTypeBool);
   vtkGetMacro(CreateGhostCells, vtkTypeBool);
   vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkTransmitUnstructuredGridPiece();

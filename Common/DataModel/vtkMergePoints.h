@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkMergePoints, vtkPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Determine whether point given by x[3] has been inserted into points list.
    * Return id of previously inserted point if this is true, otherwise return
@@ -48,7 +48,7 @@ public:
   {
     return this->vtkPointLocator::IsInsertedPoint(x, y, z);
   }
-  //@}
+  ///@}
 
   /**
    * Determine whether point given by x[3] has been inserted into points list.

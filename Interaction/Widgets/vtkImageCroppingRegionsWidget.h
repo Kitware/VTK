@@ -42,29 +42,29 @@ class vtkPolyData;
 class VTKINTERACTIONWIDGETS_EXPORT vtkImageCroppingRegionsWidget : public vtk3DWidget
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   static vtkImageCroppingRegionsWidget* New();
   vtkTypeMacro(vtkImageCroppingRegionsWidget, vtk3DWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Place/Adjust widget within bounds
    */
   using vtk3DWidget::PlaceWidget;
   void PlaceWidget(double bounds[6]) override;
-  //@}
+  ///@}
 
   /**
    * Enable/disable the widget
    */
   void SetEnabled(int enabling) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane positions that represent the cropped region.
    */
@@ -79,15 +79,15 @@ public:
   }
   virtual void SetPlanePositions(
     double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the cropping region flags
    */
   virtual void SetCroppingRegionFlags(int flags);
   vtkGetMacro(CroppingRegionFlags, int);
-  //@}
+  ///@}
 
   /**
    * Set/get the slice orientation
@@ -115,15 +115,15 @@ public:
     this->SetSliceOrientation(vtkImageCroppingRegionsWidget::SLICE_ORIENTATION_XZ);
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the slice number
    */
   virtual void SetSlice(int num);
   vtkGetMacro(Slice, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get line 1 color
    */
@@ -131,9 +131,9 @@ public:
   virtual void SetLine1Color(double rgb[3]) { this->SetLine1Color(rgb[0], rgb[1], rgb[2]); }
   virtual double* GetLine1Color();
   virtual void GetLine1Color(double rgb[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get line 2 color
    */
@@ -141,9 +141,9 @@ public:
   virtual void SetLine2Color(double rgb[3]) { this->SetLine2Color(rgb[0], rgb[1], rgb[2]); }
   virtual double* GetLine2Color();
   virtual void GetLine2Color(double rgb[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get line 3 color
    */
@@ -151,9 +151,9 @@ public:
   virtual void SetLine3Color(double rgb[3]) { this->SetLine3Color(rgb[0], rgb[1], rgb[2]); }
   virtual double* GetLine3Color();
   virtual void GetLine3Color(double rgb[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get line 4 color
    */
@@ -161,9 +161,9 @@ public:
   virtual void SetLine4Color(double rgb[3]) { this->SetLine4Color(rgb[0], rgb[1], rgb[2]); }
   virtual double* GetLine4Color();
   virtual void GetLine4Color(double rgb[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the input volume mapper
    * Update the widget according to its mapper
@@ -171,9 +171,9 @@ public:
   virtual void SetVolumeMapper(vtkVolumeMapper* mapper);
   vtkGetObjectMacro(VolumeMapper, vtkVolumeMapper);
   virtual void UpdateAccordingToInput();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Callbacks for user interaction.
    */
@@ -184,7 +184,7 @@ public:
   void OnButtonPress();
   void OnButtonRelease();
   void OnMouseMove();
-  //@}
+  ///@}
 
   /**
    * Events invoked by this widget

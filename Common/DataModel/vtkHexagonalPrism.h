@@ -49,7 +49,7 @@ public:
   vtkTypeMacro(vtkHexagonalPrism, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * See vtkCell3D API for description of these methods.
    */
@@ -70,7 +70,7 @@ public:
   vtkIdType GetPointToOneRingPoints(vtkIdType pointId, const vtkIdType*& pts) override;
   bool GetCentroid(double centroid[3]) const override;
   bool IsInsideOut() override;
-  //@}
+  ///@}
 
   /**
    * static constexpr handle on the number of points.
@@ -100,7 +100,7 @@ public:
    */
   static constexpr vtkIdType MaximumValence = 3;
 
-  //@{
+  ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
@@ -111,7 +111,7 @@ public:
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
-  //@}
+  ///@}
 
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
@@ -130,7 +130,7 @@ public:
 
   static void InterpolationFunctions(const double pcoords[3], double weights[12]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[36]);
-  //@{
+  ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
@@ -143,9 +143,9 @@ public:
   {
     vtkHexagonalPrism::InterpolationDerivs(pcoords, derivs);
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
@@ -156,7 +156,7 @@ public:
    */
   static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
   static const vtkIdType* GetFaceArray(vtkIdType faceId);
-  //@}
+  ///@}
 
   /**
    * Static method version of GetEdgeToAdjacentFaces.

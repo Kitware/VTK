@@ -37,40 +37,40 @@ public:
   vtkTypeMacro(vtkCutMaterial, vtkPolyDataAlgorithm);
   static vtkCutMaterial* New();
 
-  //@{
+  ///@{
   /**
    * Cell array that contains the material values.
    */
   vtkSetStringMacro(MaterialArrayName);
   vtkGetStringMacro(MaterialArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Material to probe.
    */
   vtkSetMacro(Material, int);
   vtkGetMacro(Material, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * For now, we just use the cell values.
    * The array name to cut.
    */
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The last piece of information that specifies the plane.
    */
   vtkSetVector3Macro(UpVector, double);
   vtkGetVector3Macro(UpVector, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Accesses to the values computed during the execute method.  They
    * could be used to get a good camera view for the resulting plane.
@@ -78,7 +78,7 @@ public:
   vtkGetVector3Macro(MaximumPoint, double);
   vtkGetVector3Macro(CenterPoint, double);
   vtkGetVector3Macro(Normal, double);
-  //@}
+  ///@}
 
 protected:
   vtkCutMaterial();

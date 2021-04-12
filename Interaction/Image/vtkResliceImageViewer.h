@@ -44,43 +44,43 @@ class vtkPlane;
 class VTKINTERACTIONIMAGE_EXPORT vtkResliceImageViewer : public vtkImageViewer2
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   static vtkResliceImageViewer* New();
   vtkTypeMacro(vtkResliceImageViewer, vtkImageViewer2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Render the resulting image.
    */
   void Render() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the input image to the viewer.
    */
   void SetInputData(vtkImageData* in) override;
   void SetInputConnection(vtkAlgorithmOutput* input) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set window and level for mapping pixels to colors.
    */
   void SetColorWindow(double s) override;
   void SetColorLevel(double s) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the internal render window, renderer, image actor, and
    * image map instances.
    */
   vtkGetObjectMacro(ResliceCursorWidget, vtkResliceCursorWidget);
-  //@}
+  ///@}
 
   /**
    * Set/get the slice orientation
@@ -103,57 +103,57 @@ public:
     this->SetResliceMode(vtkResliceImageViewer::RESLICE_OBLIQUE);
   }
 
-  //@{
+  ///@{
   /**
    * Set/Get the reslice cursor.
    */
   vtkResliceCursor* GetResliceCursor();
   void SetResliceCursor(vtkResliceCursor* rc);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the lookup table
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkScalarsToColors* GetLookupTable();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Switch to / from thick mode
    */
   virtual void SetThickMode(int);
   virtual int GetThickMode();
-  //@}
+  ///@}
 
   /**
    * Reset all views back to initial state
    */
   virtual void Reset();
 
-  //@{
+  ///@{
   /**
    * Get the point placer.
    */
   vtkGetObjectMacro(PointPlacer, vtkBoundedPlanePointPlacer);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the measurements manager
    */
   vtkGetObjectMacro(Measurements, vtkResliceImageViewerMeasurements);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the render window interactor
    */
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Scroll slices on the mouse wheel ? In the case of MPR
    * view, it moves one "normalized spacing" in the direction of the normal to
@@ -163,7 +163,7 @@ public:
   vtkSetMacro(SliceScrollOnMouseWheel, vtkTypeBool);
   vtkGetMacro(SliceScrollOnMouseWheel, vtkTypeBool);
   vtkBooleanMacro(SliceScrollOnMouseWheel, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Increment/Decrement slice by 'inc' slices
@@ -185,14 +185,14 @@ protected:
   void UpdateDisplayExtent() override;
   virtual void UpdatePointPlacer();
 
-  //@{
+  ///@{
   /**
    * Convenience methods to get the reslice plane and the normalized
    * spacing between slices in reslice mode.
    */
   vtkPlane* GetReslicePlane();
   double GetInterSliceSpacingInResliceMode();
-  //@}
+  ///@}
 
   vtkResliceCursorWidget* ResliceCursorWidget;
   vtkBoundedPlanePointPlacer* PointPlacer;

@@ -54,13 +54,13 @@ public:
    */
   static vtkCellCentersPointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkCellCentersPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Descuription:
   // Add an actor (that represents a terrain in a rendererd scene) to the
@@ -108,14 +108,14 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  //@{
+  ///@{
   /**
    * Get the Prop picker.
    */
   vtkGetObjectMacro(CellPicker, vtkCellPicker);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Modes to change the point placement. Parametric center picks
    * the parametric center within the cell. CellPointsMean picks
@@ -124,7 +124,7 @@ public:
    */
   vtkSetMacro(Mode, int);
   vtkGetMacro(Mode, int);
-  //@}
+  ///@}
 
   enum
   {

@@ -48,16 +48,16 @@ public:
    */
   static vtkFollower* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera to follow. If this is not set, then the follower
    * won't know who to follow.
    */
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This causes the actor to be rendered. It in turn will render the actor's
    * property, texture map and then mapper. If a property hasn't been
@@ -66,7 +66,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   virtual void Render(vtkRenderer* ren);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources associated with this vtkProp3DFollower.

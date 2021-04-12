@@ -40,14 +40,14 @@ public:
   vtkTypeMacro(vtkMultiNewickTreeReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output of this reader.
    */
   vtkMultiPieceDataSet* GetOutput();
   vtkMultiPieceDataSet* GetOutput(int idx);
   void SetOutput(vtkMultiPieceDataSet* output);
-  //@}
+  ///@}
 
   /**
    * Actual reading happens here

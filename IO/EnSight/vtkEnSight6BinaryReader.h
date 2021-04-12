@@ -167,14 +167,14 @@ protected:
    */
   int ReadFloatArray(float* result, int numFloats);
 
-  //@{
+  ///@{
   /**
    * Read to the next time step in the geometry file.
    */
   int SkipTimeStep();
   int SkipStructuredGrid(char line[256]);
   int SkipUnstructuredGrid(char line[256]);
-  //@}
+  ///@}
 
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;

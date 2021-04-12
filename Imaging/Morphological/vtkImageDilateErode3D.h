@@ -34,7 +34,7 @@ class vtkImageEllipsoidSource;
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageDilateErode3D : public vtkImageSpatialAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Construct an instance of vtkImageDilateErode3D filter.
    * By default zero values are dilated.
@@ -42,7 +42,7 @@ public:
   static vtkImageDilateErode3D* New();
   vtkTypeMacro(vtkImageDilateErode3D, vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * This method sets the size of the neighborhood.  It also sets the
@@ -50,7 +50,7 @@ public:
    */
   void SetKernelSize(int size0, int size1, int size2);
 
-  //@{
+  ///@{
   /**
    * Set/Get the Dilate and Erode values to be used by this filter.
    */
@@ -58,7 +58,7 @@ public:
   vtkGetMacro(DilateValue, double);
   vtkSetMacro(ErodeValue, double);
   vtkGetMacro(ErodeValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkImageDilateErode3D();

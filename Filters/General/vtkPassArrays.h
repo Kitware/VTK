@@ -99,7 +99,7 @@ public:
   virtual void RemoveCellDataArray(const char* name);
   virtual void RemoveFieldDataArray(const char* name);
 
-  //@{
+  ///@{
   /**
    * Clear all arrays to pass through.
    */
@@ -107,9 +107,9 @@ public:
   virtual void ClearPointDataArrays();
   virtual void ClearCellDataArrays();
   virtual void ClearFieldDataArrays();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Instead of passing only the specified arrays, remove the specified arrays
    * and keep all other arrays. Default is off.
@@ -117,9 +117,9 @@ public:
   vtkSetMacro(RemoveArrays, bool);
   vtkGetMacro(RemoveArrays, bool);
   vtkBooleanMacro(RemoveArrays, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Process only those field types explicitly specified with AddFieldType.
    * Otherwise, processes field types associated with at least one specified
@@ -128,7 +128,7 @@ public:
   vtkSetMacro(UseFieldTypes, bool);
   vtkGetMacro(UseFieldTypes, bool);
   vtkBooleanMacro(UseFieldTypes, bool);
-  //@}
+  ///@}
 
   /**
    * Add a field type to process.

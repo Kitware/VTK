@@ -55,7 +55,7 @@ public:
    */
   static vtkTextMapper* New();
 
-  //@{
+  ///@{
   /**
    * Return the size[2]/width/height of the rectangle required to draw this
    * mapper (in pixels).
@@ -63,30 +63,30 @@ public:
   virtual void GetSize(vtkViewport*, int size[2]);
   virtual int GetWidth(vtkViewport* v);
   virtual int GetHeight(vtkViewport* v);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The input text string to the mapper.
    */
   vtkSetStringMacro(Input);
   vtkGetStringMacro(Input);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    */
   virtual void SetTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
   /**
    * Shallow copy of an actor.
    */
   void ShallowCopy(vtkAbstractMapper* m) override;
 
-  //@{
+  ///@{
   /**
    * Set and return the font size (in points) required to make this mapper fit
    * in a given
@@ -96,7 +96,7 @@ public:
   virtual int SetConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight);
   static int SetConstrainedFontSize(
     vtkTextMapper*, vtkViewport*, int targetWidth, int targetHeight);
-  //@}
+  ///@}
 
   /**
    * Set and return the font size (in points) required to make each element of
@@ -108,7 +108,7 @@ public:
   static int SetMultipleConstrainedFontSize(vtkViewport*, int targetWidth, int targetHeight,
     vtkTextMapper** mappers, int nbOfMappers, int* maxResultingSize);
 
-  //@{
+  ///@{
   /**
    * Use these methods when setting font size relative to the renderer's size. These
    * methods are static so that external classes (e.g., widgets) can easily use them.
@@ -117,7 +117,7 @@ public:
     vtkTextMapper*, vtkViewport*, const int* winSize, int* stringSize, float sizeFactor = 0.0);
   static int SetMultipleRelativeFontSize(vtkViewport* viewport, vtkTextMapper** textMappers,
     int nbOfMappers, int* winSize, int* stringSize, float sizeFactor);
-  //@}
+  ///@}
 
   void RenderOverlay(vtkViewport*, vtkActor2D*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;

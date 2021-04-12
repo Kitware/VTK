@@ -50,13 +50,13 @@ class vtkBarLabelArray;
 class VTKRENDERINGANNOTATION_EXPORT vtkBarChartActor : public vtkActor2D
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkBarChartActor, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Instantiate this class.
@@ -68,58 +68,58 @@ public:
    */
   virtual void SetInput(vtkDataObject*);
 
-  //@{
+  ///@{
   /**
    * Get the input data object to this actor.
    */
   vtkGetObjectMacro(Input, vtkDataObject);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the display of a plot title.
    */
   vtkSetMacro(TitleVisibility, vtkTypeBool);
   vtkGetMacro(TitleVisibility, vtkTypeBool);
   vtkBooleanMacro(TitleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title of the bar chart.
    */
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the title text property. The property controls the
    * appearance of the plot title.
    */
   virtual void SetTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the display of bar labels.
    */
   vtkSetMacro(LabelVisibility, vtkTypeBool);
   vtkGetMacro(LabelVisibility, vtkTypeBool);
   vtkBooleanMacro(LabelVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text property. This controls the appearance
    * of all bar bar labels.
    */
   virtual void SetLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify colors for each bar. If not specified, they are
    * automatically generated.
@@ -130,26 +130,26 @@ public:
     this->SetBarColor(i, color[0], color[1], color[2]);
   }
   double* GetBarColor(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the names of each bar. If
    * not specified, then an integer number is automatically generated.
    */
   void SetBarLabel(const int i, const char*);
   const char* GetBarLabel(int i);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the title of the y-axis.
    */
   vtkSetStringMacro(YTitle);
   vtkGetStringMacro(YTitle);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable the creation of a legend. If on, the legend labels will
    * be created automatically unless the per plot legend symbol has been
@@ -158,24 +158,24 @@ public:
   vtkSetMacro(LegendVisibility, vtkTypeBool);
   vtkGetMacro(LegendVisibility, vtkTypeBool);
   vtkBooleanMacro(LegendVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Retrieve handles to the legend box. This is useful if you would like
    * to manually control the legend appearance.
    */
   vtkGetObjectMacro(LegendActor, vtkLegendBoxActor);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Draw the bar plot.
    */
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
   /**
    * Does this prop have some translucent polygonal geometry?

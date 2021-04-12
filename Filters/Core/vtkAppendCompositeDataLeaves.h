@@ -69,7 +69,7 @@ public:
   vtkTypeMacro(vtkAppendCompositeDataLeaves, vtkCompositeDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/get whether the field data of each dataset in the composite dataset is copied to the
    * output. If AppendFieldData is non-zero, then field data arrays from all the inputs are added to
@@ -78,7 +78,7 @@ public:
   vtkSetMacro(AppendFieldData, vtkTypeBool);
   vtkGetMacro(AppendFieldData, vtkTypeBool);
   vtkBooleanMacro(AppendFieldData, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkAppendCompositeDataLeaves();

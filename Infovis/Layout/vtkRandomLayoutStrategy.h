@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkRandomLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Seed the random number generator used to compute point positions.
    * This has a significant effect on their final positions when
@@ -51,9 +51,9 @@ public:
    */
   vtkSetClampMacro(RandomSeed, int, 0, VTK_INT_MAX);
   vtkGetMacro(RandomSeed, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / get the region in space in which to place the final graph.
    * The GraphBounds only affects the results if AutomaticBoundsComputation
@@ -61,9 +61,9 @@ public:
    */
   vtkSetVector6Macro(GraphBounds, double);
   vtkGetVectorMacro(GraphBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off automatic graph bounds calculation. If this
    * boolean is off, then the manually specified GraphBounds is used.
@@ -72,9 +72,9 @@ public:
   vtkSetMacro(AutomaticBoundsComputation, vtkTypeBool);
   vtkGetMacro(AutomaticBoundsComputation, vtkTypeBool);
   vtkBooleanMacro(AutomaticBoundsComputation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off layout of graph in three dimensions. If off, graph
    * layout occurs in two dimensions. By default, three dimensional
@@ -83,7 +83,7 @@ public:
   vtkSetMacro(ThreeDimensionalLayout, vtkTypeBool);
   vtkGetMacro(ThreeDimensionalLayout, vtkTypeBool);
   vtkBooleanMacro(ThreeDimensionalLayout, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Set the graph to layout.

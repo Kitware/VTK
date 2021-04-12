@@ -41,15 +41,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPolyDataReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkPolyData* GetOutput();
   vtkPolyData* GetOutput(int idx);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the number of verts/lines/strips/polys in the output.
    */
@@ -57,7 +57,7 @@ public:
   virtual vtkIdType GetNumberOfLines();
   virtual vtkIdType GetNumberOfStrips();
   virtual vtkIdType GetNumberOfPolys();
-  //@}
+  ///@}
 
 protected:
   vtkXMLPolyDataReader();

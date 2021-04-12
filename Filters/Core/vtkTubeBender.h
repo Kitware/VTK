@@ -57,13 +57,13 @@ public:
   vtkTypeMacro(vtkTubeBender, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the minimum tube radius (minimum because the tube radius may vary).
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
 protected:
   vtkTubeBender();

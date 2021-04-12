@@ -59,13 +59,13 @@ public:
    */
   static vtkImplicitBoolean* New();
 
-  //@{
+  ///@{
   /**
    * Evaluate boolean combinations of implicit function using current operator.
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate gradient of boolean combination.
@@ -92,7 +92,7 @@ public:
    */
   vtkImplicitFunctionCollection* GetFunction() { return this->FunctionList; }
 
-  //@{
+  ///@{
   /**
    * Specify the type of boolean operation.
    */
@@ -103,7 +103,7 @@ public:
   void SetOperationTypeToDifference() { this->SetOperationType(VTK_DIFFERENCE); }
   void SetOperationTypeToUnionOfMagnitudes() { this->SetOperationType(VTK_UNION_OF_MAGNITUDES); }
   const char* GetOperationTypeAsString();
-  //@}
+  ///@}
 
 protected:
   vtkImplicitBoolean();
@@ -118,7 +118,7 @@ private:
   void operator=(const vtkImplicitBoolean&) = delete;
 };
 
-//@{
+///@{
 /**
  * Return the boolean operation type as a descriptive character string.
  */
@@ -141,6 +141,6 @@ inline const char* vtkImplicitBoolean::GetOperationTypeAsString(void)
     return "UnionOfMagnitudes";
   }
 }
-//@}
+///@}
 
 #endif

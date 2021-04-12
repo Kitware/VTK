@@ -60,32 +60,32 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Turn on/off merging of points/triangles.
    */
   vtkSetMacro(Merging, vtkTypeBool);
   vtkGetMacro(Merging, vtkTypeBool);
   vtkBooleanMacro(Merging, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off tagging of solids with scalars.
    */
   vtkSetMacro(ScalarTags, vtkTypeBool);
   vtkGetMacro(ScalarTags, vtkTypeBool);
   vtkBooleanMacro(ScalarTags, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
   void SetLocator(vtkIncrementalPointLocator* locator);
   vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
-  //@}
+  ///@}
 
   /**
    * Get header string.

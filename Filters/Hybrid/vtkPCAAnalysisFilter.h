@@ -71,12 +71,12 @@ public:
    */
   static vtkPCAAnalysisFilter* New();
 
-  //@{
+  ///@{
   /**
    * Get the vector of eigenvalues sorted in descending order
    */
   vtkGetObjectMacro(Evals, vtkFloatArray);
-  //@}
+  ///@}
 
   /**
    * Fills the shape with:

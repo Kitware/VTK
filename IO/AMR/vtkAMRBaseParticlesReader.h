@@ -38,38 +38,38 @@ public:
   vtkTypeMacro(vtkAMRBaseParticlesReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set & Get the frequency.
    */
   vtkGetMacro(Frequency, int);
   vtkSetMacro(Frequency, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get the multi-process controller.
    */
   vtkGetMacro(Controller, vtkMultiProcessController*);
   vtkSetMacro(Controller, vtkMultiProcessController*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set & Get for filter location and boolean macro
    */
   vtkSetMacro(FilterLocation, vtkTypeBool);
   vtkGetMacro(FilterLocation, vtkTypeBool);
   vtkBooleanMacro(FilterLocation, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the data array selection tables used to configure which data
    * arrays are loaded by the reader.
    */
   vtkGetObjectMacro(ParticleDataArraySelection, vtkDataArraySelection);
-  //@}
+  ///@}
 
   /**
    * Get the number of particles arrays available in the input.
@@ -82,18 +82,18 @@ public:
    */
   const char* GetParticleArrayName(int index);
 
-  //@{
+  ///@{
   /**
    * Get/Set whether the particle array status.
    */
   int GetParticleArrayStatus(const char* name);
   void SetParticleArrayStatus(const char* name, int status);
-  //@}
+  ///@}
 
   virtual void SetFileName(const char* fileName);
   vtkGetStringMacro(FileName);
 
-  //@{
+  ///@{
   /**
    * Sets the min location
    */
@@ -103,9 +103,9 @@ public:
     this->MinLocation[1] = miny;
     this->MinLocation[2] = minz;
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Sets the max location
    */
@@ -115,7 +115,7 @@ public:
     this->MaxLocation[1] = maxy;
     this->MaxLocation[2] = maxz;
   }
-  //@}
+  ///@}
 
   /**
    * Returns the total number of particles
@@ -174,13 +174,13 @@ protected:
    */
   void Initialize();
 
-  //@{
+  ///@{
   /**
    * Standard Array selection variables & methods
    */
   vtkDataArraySelection* ParticleDataArraySelection;
   vtkCallbackCommand* SelectionObserver;
-  //@}
+  ///@}
 
   /**
    * Initializes the ParticleDataArraySelection object. This method
@@ -202,14 +202,14 @@ protected:
   static void SelectionModifiedCallback(
     vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
-  //@{
+  ///@{
   /**
    * Standard pipeline operations
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
   int NumberOfBlocks;
 

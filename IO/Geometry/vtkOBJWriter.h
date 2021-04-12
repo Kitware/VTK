@@ -41,22 +41,22 @@ public:
   vtkTypeMacro(vtkOBJWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the inputs to this writer.
    */
   vtkPolyData* GetInputGeometry();
   vtkImageData* GetInputTexture();
   vtkDataSet* GetInput(int port);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the file name of the OBJ file.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkOBJWriter();

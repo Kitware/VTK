@@ -41,13 +41,13 @@ public:
   vtkTypeMacro(vtkEquirectangularToCubeMapTexture, vtkOpenGLTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the input equirectangular 2D texture.
    */
   void SetInputTexture(vtkOpenGLTexture* texture);
   vtkGetObjectMacro(InputTexture, vtkOpenGLTexture);
-  //@}
+  ///@}
 
   /**
    * Implement base class method.
@@ -59,14 +59,14 @@ public:
    */
   void Render(vtkRenderer* ren) override { this->Load(ren); }
 
-  //@{
+  ///@{
   /**
    * Set/Get size of each face of the output cubemap texture.
    * Default is 512.
    */
   vtkGetMacro(CubeMapSize, unsigned int);
   vtkSetMacro(CubeMapSize, unsigned int);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this texture.

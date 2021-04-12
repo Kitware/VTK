@@ -143,7 +143,7 @@ public:
   vtkTypeMacro(vtkImagePlaneWidget, vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods that satisfy the superclass' API.
    */
@@ -155,14 +155,14 @@ public:
   {
     this->Superclass::PlaceWidget(xmin, xmax, ymin, ymax, zmin, zmax);
   }
-  //@}
+  ///@}
 
   /**
    * Set the vtkImageData* input for the vtkImageReslice.
    */
   void SetInputConnection(vtkAlgorithmOutput* aout) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the origin of the plane.
    */
@@ -170,9 +170,9 @@ public:
   void SetOrigin(double xyz[3]);
   double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the point defining the first axis of the plane.
    */
@@ -180,9 +180,9 @@ public:
   void SetPoint1(double xyz[3]);
   double* GetPoint1() VTK_SIZEHINT(3);
   void GetPoint1(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of the point defining the second axis of the plane.
    */
@@ -190,23 +190,23 @@ public:
   void SetPoint2(double xyz[3]);
   double* GetPoint2() VTK_SIZEHINT(3);
   void GetPoint2(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the center of the plane.
    */
   double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double xyz[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the normal to the plane.
    */
   double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
-  //@}
+  ///@}
 
   /**
    * Get the vector from the plane origin to point1.
@@ -238,7 +238,7 @@ public:
    */
   void SetSlicePosition(double position);
 
-  //@{
+  ///@{
   /**
    * Set the interpolation to use when texturing the plane.
    */
@@ -250,14 +250,14 @@ public:
   }
   void SetResliceInterpolateToLinear() { this->SetResliceInterpolate(VTK_LINEAR_RESLICE); }
   void SetResliceInterpolateToCubic() { this->SetResliceInterpolate(VTK_CUBIC_RESLICE); }
-  //@}
+  ///@}
 
   /**
    * Convenience method to get the vtkImageReslice output.
    */
   vtkImageData* GetResliceOutput();
 
-  //@{
+  ///@{
   /**
    * Make sure that the plane remains within the volume.
    * Default is On.
@@ -265,9 +265,9 @@ public:
   vtkSetMacro(RestrictPlaneToVolume, vtkTypeBool);
   vtkGetMacro(RestrictPlaneToVolume, vtkTypeBool);
   vtkBooleanMacro(RestrictPlaneToVolume, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Let the user control the lookup table. NOTE: apply this method BEFORE
    * applying the SetLookupTable method.
@@ -276,9 +276,9 @@ public:
   vtkSetMacro(UserControlledLookupTable, vtkTypeBool);
   vtkGetMacro(UserControlledLookupTable, vtkTypeBool);
   vtkBooleanMacro(UserControlledLookupTable, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify whether to interpolate the texture or not. When off, the
    * reslice interpolation is nearest neighbour regardless of how the
@@ -288,9 +288,9 @@ public:
   vtkSetMacro(TextureInterpolate, vtkTypeBool);
   vtkGetMacro(TextureInterpolate, vtkTypeBool);
   vtkBooleanMacro(TextureInterpolate, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control the visibility of the actual texture mapped reformatted plane.
    * in some cases you may only want the plane outline for example.
@@ -298,7 +298,7 @@ public:
   virtual void SetTextureVisibility(vtkTypeBool);
   vtkGetMacro(TextureVisibility, vtkTypeBool);
   vtkBooleanMacro(TextureVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Grab the polydata (including points) that defines the plane.  The
@@ -330,7 +330,7 @@ public:
    */
   vtkTexture* GetTexture();
 
-  //@{
+  ///@{
   /**
    * Convenience method to get the vtkImageMapToColors filter used by this
    * widget.  The user can properly render other transparent actors in a
@@ -339,9 +339,9 @@ public:
    */
   vtkGetObjectMacro(ColorMap, vtkImageMapToColors);
   virtual void SetColorMap(vtkImageMapToColors*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the plane's outline properties. The properties of the plane's
    * outline when selected and unselected can be manipulated.
@@ -350,9 +350,9 @@ public:
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   virtual void SetSelectedPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method sets the plane orientation normal to the
    * x, y, or z axes.  Default is XAxes (0).
@@ -362,7 +362,7 @@ public:
   void SetPlaneOrientationToXAxes() { this->SetPlaneOrientation(0); }
   void SetPlaneOrientationToYAxes() { this->SetPlaneOrientation(1); }
   void SetPlaneOrientationToZAxes() { this->SetPlaneOrientation(2); }
-  //@}
+  ///@}
 
   /**
    * Set the internal picker to one defined by the user.  In this way,
@@ -372,7 +372,7 @@ public:
    */
   void SetPicker(vtkAbstractPropPicker*);
 
-  //@{
+  ///@{
   /**
    * Set/Get the internal lookuptable (lut) to one defined by the user, or,
    * alternatively, to the lut of another vtkImgePlaneWidget.  In this way,
@@ -382,9 +382,9 @@ public:
    */
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable text display of window-level, image coordinates and
    * scalar values in a render window.
@@ -392,25 +392,25 @@ public:
   vtkSetMacro(DisplayText, vtkTypeBool);
   vtkGetMacro(DisplayText, vtkTypeBool);
   vtkBooleanMacro(DisplayText, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the properties of the cross-hair cursor.
    */
   virtual void SetCursorProperty(vtkProperty*);
   vtkGetObjectMacro(CursorProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the properties of the margins.
    */
   virtual void SetMarginProperty(vtkProperty*);
   vtkGetObjectMacro(MarginProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the size of the margins based on a percentage of the
    * plane's width and height, limited between 0 and 50%.
@@ -419,25 +419,25 @@ public:
   vtkGetMacro(MarginSizeX, double);
   vtkSetClampMacro(MarginSizeY, double, 0.0, 0.5);
   vtkGetMacro(MarginSizeY, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property for the image data and window-level annotation.
    */
   void SetTextProperty(vtkTextProperty* tprop);
   vtkTextProperty* GetTextProperty();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the property for the resliced image.
    */
   virtual void SetTexturePlaneProperty(vtkProperty*);
   vtkGetObjectMacro(TexturePlaneProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the current window and level values.  SetWindowLevel should
    * only be called after SetInput.  If a shared lookup table is being used,
@@ -448,7 +448,7 @@ public:
   void GetWindowLevel(double wl[2]);
   double GetWindow() { return this->CurrentWindow; }
   double GetLevel() { return this->CurrentLevel; }
-  //@}
+  ///@}
 
   /**
    * Get the image coordinate position and voxel value.  Currently only
@@ -463,32 +463,32 @@ public:
    */
   int GetCursorDataStatus();
 
-  //@{
+  ///@{
   /**
    * Get the current cursor position.  To be used in conjunction with
    * GetCursorDataStatus.
    */
   vtkGetVectorMacro(CurrentCursorPosition, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current image value at the current cursor position.  To
    * be used in conjunction with GetCursorDataStatus.  The value is
    * VTK_DOUBLE_MAX when the data is invalid.
    */
   vtkGetMacro(CurrentImageValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the current reslice class and reslice axes
    */
   vtkGetObjectMacro(ResliceAxes, vtkMatrix4x4);
   vtkGetObjectMacro(Reslice, vtkImageReslice);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Choose between voxel centered or continuous cursor probing.  With voxel
    * centered probing, the cursor snaps to the nearest voxel and the reported
@@ -499,18 +499,18 @@ public:
   vtkSetMacro(UseContinuousCursor, vtkTypeBool);
   vtkGetMacro(UseContinuousCursor, vtkTypeBool);
   vtkBooleanMacro(UseContinuousCursor, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable mouse interaction so the widget remains on display.
    */
   void SetInteraction(vtkTypeBool interact);
   vtkGetMacro(Interaction, vtkTypeBool);
   vtkBooleanMacro(Interaction, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set action associated to buttons.
    */
@@ -526,9 +526,9 @@ public:
   vtkGetMacro(MiddleButtonAction, int);
   vtkSetClampMacro(RightButtonAction, int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(RightButtonAction, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the auto-modifiers associated to buttons.
    * This allows users to bind some buttons to actions that are usually
@@ -549,7 +549,7 @@ public:
   vtkGetMacro(MiddleButtonAutoModifier, int);
   vtkSetClampMacro(RightButtonAutoModifier, int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
   vtkGetMacro(RightButtonAutoModifier, int);
-  //@}
+  ///@}
 
 protected:
   vtkImagePlaneWidget();

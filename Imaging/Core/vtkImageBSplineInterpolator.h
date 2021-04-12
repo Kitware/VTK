@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkImageBSplineInterpolator, vtkAbstractImageInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the degree of the spline polynomial.  The default value is 3,
    * and the maximum is 9.  The data must be pre-filtered for the same
@@ -62,7 +62,7 @@ public:
   int GetSplineDegree() { return this->SplineDegree; }
   int GetSplineDegreeMinValue() { return 0; }
   int GetSplineDegreeMaxValue() { return VTK_IMAGE_BSPLINE_DEGREE_MAX; }
-  //@}
+  ///@}
 
   /**
    * Get the support size for use in computing update extents.  If the data
@@ -78,7 +78,7 @@ public:
    */
   bool IsSeparable() override;
 
-  //@{
+  ///@{
   /**
    * If the data is going to be sampled on a regular grid, then the
    * interpolation weights can be precomputed.  A matrix must be
@@ -93,7 +93,7 @@ public:
     vtkInterpolationWeights*& weights) override;
   void PrecomputeWeightsForExtent(const float matrix[16], const int extent[6], int newExtent[6],
     vtkInterpolationWeights*& weights) override;
-  //@}
+  ///@}
 
   /**
    * Free the precomputed weights.  THIS METHOD IS THREAD SAFE.
@@ -114,7 +114,7 @@ protected:
    */
   void InternalDeepCopy(vtkAbstractImageInterpolator* obj) override;
 
-  //@{
+  ///@{
   /**
    * Get the interpolation functions.
    */
@@ -122,9 +122,9 @@ protected:
     void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*)) override;
   void GetInterpolationFunc(
     void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*)) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the row interpolation functions.
    */
@@ -132,7 +132,7 @@ protected:
     void (**doublefunc)(vtkInterpolationWeights*, int, int, int, double*, int)) override;
   void GetRowInterpolationFunc(
     void (**floatfunc)(vtkInterpolationWeights*, int, int, int, float*, int)) override;
-  //@}
+  ///@}
 
   /**
    * Build the lookup tables used for the interpolation.

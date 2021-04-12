@@ -41,29 +41,29 @@ public:
   vtkTypeMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The array to use for the x coordinate values.
    */
   virtual void SetXCoordArrayName(const char* name);
   virtual const char* GetXCoordArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for the y coordinate values.
    */
   virtual void SetYCoordArrayName(const char* name);
   virtual const char* GetYCoordArrayName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The array to use for the z coordinate values.
    */
   virtual void SetZCoordArrayName(const char* name);
   virtual const char* GetZCoordArrayName();
-  //@}
+  ///@}
 
   /**
    * Perform the random layout.

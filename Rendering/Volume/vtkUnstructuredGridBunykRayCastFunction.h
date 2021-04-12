@@ -136,26 +136,26 @@ public:
    */
   double* GetPoints() { return this->Points; }
 
-  //@{
+  ///@{
   /**
    * Access to an internal structure for the templated method.
    */
   vtkGetObjectMacro(ViewToWorldMatrix, vtkMatrix4x4);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access to an internal structure for the templated method.
    */
   vtkGetVectorMacro(ImageOrigin, int, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access to an internal structure for the templated method.
    */
   vtkGetVectorMacro(ImageViewportSize, int, 2);
-  //@}
+  ///@}
 
   /**
    * Access to an internal structure for the templated method.

@@ -58,13 +58,13 @@ public:
    */
   static vtkLegendScaleActor* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkLegendScaleActor, vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   enum AttributeLocation
   {
@@ -72,7 +72,7 @@ public:
     XY_COORDINATES = 1
   };
 
-  //@{
+  ///@{
   /**
    * Specify the mode for labeling the scale axes. By default, the axes are
    * labeled with the distance between points (centered at a distance of
@@ -83,9 +83,9 @@ public:
   vtkGetMacro(LabelMode, int);
   void SetLabelModeToDistance() { this->SetLabelMode(DISTANCE); }
   void SetLabelModeToXYCoordinates() { this->SetLabelMode(XY_COORDINATES); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the flags that control which of the four axes to display (top,
    * bottom, left and right). By default, all the axes are displayed.
@@ -102,9 +102,9 @@ public:
   vtkSetMacro(BottomAxisVisibility, vtkTypeBool);
   vtkGetMacro(BottomAxisVisibility, vtkTypeBool);
   vtkBooleanMacro(BottomAxisVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Indicate whether the legend scale should be displayed or not.
    * The default is On.
@@ -112,25 +112,25 @@ public:
   vtkSetMacro(LegendVisibility, vtkTypeBool);
   vtkGetMacro(LegendVisibility, vtkTypeBool);
   vtkBooleanMacro(LegendVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method that turns all the axes either on or off.
    */
   void AllAxesOn();
   void AllAxesOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Convenience method that turns all the axes and the legend scale.
    */
   void AllAnnotationsOn();
   void AllAnnotationsOff();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset of the right axis from the border. This number is expressed in
    * pixels, and represents the approximate distance of the axes from the sides
@@ -138,9 +138,9 @@ public:
    */
   vtkSetClampMacro(RightBorderOffset, int, 5, VTK_INT_MAX);
   vtkGetMacro(RightBorderOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset of the top axis from the border. This number is expressed in
    * pixels, and represents the approximate distance of the axes from the sides
@@ -148,9 +148,9 @@ public:
    */
   vtkSetClampMacro(TopBorderOffset, int, 5, VTK_INT_MAX);
   vtkGetMacro(TopBorderOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset of the left axis from the border. This number is expressed in
    * pixels, and represents the approximate distance of the axes from the sides
@@ -158,9 +158,9 @@ public:
    */
   vtkSetClampMacro(LeftBorderOffset, int, 5, VTK_INT_MAX);
   vtkGetMacro(LeftBorderOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the offset of the bottom axis from the border. This number is expressed in
    * pixels, and represents the approximate distance of the axes from the sides
@@ -168,26 +168,26 @@ public:
    */
   vtkSetClampMacro(BottomBorderOffset, int, 5, VTK_INT_MAX);
   vtkGetMacro(BottomBorderOffset, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the corner offset. This is the offset factor used to offset the
    * axes at the corners. Default value is 2.0.
    */
   vtkSetClampMacro(CornerOffsetFactor, double, 1.0, 10.0);
   vtkGetMacro(CornerOffsetFactor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels text properties for the legend title and labels.
    */
   vtkGetObjectMacro(LegendTitleProperty, vtkTextProperty);
   vtkGetObjectMacro(LegendLabelProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods to retrieve the vtkAxisActors used to represent
    * the four axes that form this representation. Users may retrieve and
@@ -197,9 +197,9 @@ public:
   vtkGetObjectMacro(TopAxis, vtkAxisActor2D);
   vtkGetObjectMacro(LeftAxis, vtkAxisActor2D);
   vtkGetObjectMacro(BottomAxis, vtkAxisActor2D);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Standard methods supporting the rendering process.
    */
@@ -208,7 +208,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
-  //@}
+  ///@}
 
 protected:
   vtkLegendScaleActor();

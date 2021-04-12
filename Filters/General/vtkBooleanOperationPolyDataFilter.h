@@ -63,7 +63,7 @@ public:
     VTK_DIFFERENCE
   };
 
-  //@{
+  ///@{
   /**
    * Set the boolean operation to perform. Defaults to union.
    */
@@ -72,9 +72,9 @@ public:
   void SetOperationToUnion() { this->SetOperation(VTK_UNION); }
   void SetOperationToIntersection() { this->SetOperation(VTK_INTERSECTION); }
   void SetOperationToDifference() { this->SetOperation(VTK_DIFFERENCE); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off cell reorientation of the intersection portion of the
    * surface when the operation is set to DIFFERENCE. Defaults to on.
@@ -82,16 +82,16 @@ public:
   vtkSetMacro(ReorientDifferenceCells, vtkTypeBool);
   vtkGetMacro(ReorientDifferenceCells, vtkTypeBool);
   vtkBooleanMacro(ReorientDifferenceCells, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the tolerance used to determine when a point's absolute
    * distance is considered to be zero. Defaults to 1e-6.
    */
   vtkSetMacro(Tolerance, double);
   vtkGetMacro(Tolerance, double);
-  //@}
+  ///@}
 
 protected:
   vtkBooleanOperationPolyDataFilter();
@@ -130,13 +130,13 @@ private:
    */
   int Operation;
 
-  //@{
+  ///@{
   /**
    * Determines if cells from the intersection surface should be
    * reversed in the difference surface.
    */
   vtkTypeBool ReorientDifferenceCells;
-  //@}
+  ///@}
 };
 
 #endif

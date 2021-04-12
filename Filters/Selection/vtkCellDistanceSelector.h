@@ -43,7 +43,7 @@ class vtkSelection;
 class vtkAlgorithmOutput;
 class vtkDataArray;
 
-//@{
+///@{
 /**
  * Grows a selection, selecting neighbor cells, up to a user defined topological distance
  */
@@ -52,7 +52,7 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 public:
   vtkTypeMacro(vtkCellDistanceSelector, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   static vtkCellDistanceSelector* New();
 
@@ -88,24 +88,24 @@ public:
    */
   void SetInputSelection(vtkSelection* obj) { this->SetInputData(INPUT_SELECTION, obj); }
 
-  //@{
+  ///@{
   /**
    * Tells how far (in term of topological distance) away from seed cells to expand the selection
    */
   vtkSetMacro(Distance, int);
   vtkGetMacro(Distance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, seed cells passed with SetSeedCells will be included in the final selection
    */
   vtkSetMacro(IncludeSeed, vtkTypeBool);
   vtkGetMacro(IncludeSeed, vtkTypeBool);
   vtkBooleanMacro(IncludeSeed, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If set, intermediate cells (between seed cells and the selection boundary) will be included in
    * the final selection
@@ -113,7 +113,7 @@ public:
   vtkSetMacro(AddIntermediate, vtkTypeBool);
   vtkGetMacro(AddIntermediate, vtkTypeBool);
   vtkBooleanMacro(AddIntermediate, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkCellDistanceSelector();

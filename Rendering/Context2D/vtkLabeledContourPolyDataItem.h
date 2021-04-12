@@ -60,7 +60,7 @@ public:
    */
   virtual void SetTextProperty(vtkTextProperty* tprop);
 
-  //@{
+  ///@{
   /**
    * The text properties used to label the lines. Note that both vertical and
    * horizontal justifications will be reset to "Centered" prior to rendering.
@@ -80,9 +80,9 @@ public:
    */
   virtual void SetTextProperties(vtkTextPropertyCollection* coll);
   virtual vtkTextPropertyCollection* GetTextProperties();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Values in this array correspond to vtkTextProperty objects in the
    * TextProperties collection. If a contour line's scalar value exists in
@@ -91,9 +91,9 @@ public:
    */
   virtual vtkDoubleArray* GetTextPropertyMapping();
   virtual void SetTextPropertyMapping(vtkDoubleArray* mapping);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If true, labels will be placed and drawn during rendering. Otherwise,
    * only the mapper returned by GetPolyDataMapper() will be rendered.
@@ -102,16 +102,16 @@ public:
   vtkSetMacro(LabelVisibility, bool);
   vtkGetMacro(LabelVisibility, bool);
   vtkBooleanMacro(LabelVisibility, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ensure that there are at least SkipDistance pixels between labels. This
    * is only enforced on labels along the same line. The default is 0.
    */
   vtkSetMacro(SkipDistance, double);
   vtkGetMacro(SkipDistance, double);
-  //@}
+  ///@}
 
 protected:
   vtkLabeledContourPolyDataItem();

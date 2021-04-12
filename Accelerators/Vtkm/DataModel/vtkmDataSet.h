@@ -106,14 +106,14 @@ public:
    */
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
 
-  //@{
+  ///@{
   /**
    * Locate the closest point to the global coordinate x. Return the
    * point id. If point id < 0; then no point found. (This may arise
    * when point is outside of dataset.)
    */
   vtkIdType FindPoint(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Locate cell based on global coordinate x and tolerance
@@ -172,13 +172,13 @@ public:
    */
   int GetDataObjectType() override { return VTK_DATA_SET; }
 
-  //@{
+  ///@{
   /**
    * Shallow and Deep copy.
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
-  //@}
+  ///@}
 
 protected:
   vtkmDataSet();

@@ -44,14 +44,14 @@ public:
    */
   static vtkOrientedPolygonalHandleRepresentation3D* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(
     vtkOrientedPolygonalHandleRepresentation3D, vtkAbstractPolygonalHandleRepresentation3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
 protected:
   vtkOrientedPolygonalHandleRepresentation3D();

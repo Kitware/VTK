@@ -62,7 +62,7 @@ public:
    */
   int GetSize();
 
-  //@{
+  ///@{
   /**
    * Add points to the function. If a duplicate point is added
    * then the previous point is removed unless
@@ -71,7 +71,7 @@ public:
    */
   int AddPoint(double x, double y);
   int AddPoint(double x, double y, double midpoint, double sharpness);
-  //@}
+  ///@}
 
   /**
    * Remove a point from the function at a given id
@@ -109,7 +109,7 @@ public:
    */
   double GetValue(double x);
 
-  //@{
+  ///@{
   /**
    * For the node specified by index, set/get the
    * location (X), value (Y), midpoint, and sharpness
@@ -118,9 +118,9 @@ public:
    */
   int GetNodeValue(int index, double val[4]);
   int SetNodeValue(int index, double val[4]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns a pointer to the data stored in the table.
    * Fills from a pointer to data stored in a similar table. These are
@@ -130,14 +130,14 @@ public:
    */
   double* GetDataPointer();
   void FillFromDataPointer(int, double*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Returns the min and max node locations of the function.
    */
   vtkGetVector2Macro(Range, double);
-  //@}
+  ///@}
 
   /**
    * Remove all points out of the new range, and make sure there is a point
@@ -146,7 +146,7 @@ public:
    */
   int AdjustRange(double range[2]);
 
-  //@{
+  ///@{
   /**
    * Fills in an array of function values evaluated at regular intervals.
    * Parameter "stride" is used to step through the output "table". If
@@ -157,7 +157,7 @@ public:
     double x1, double x2, int size, float* table, int stride = 1, int logIncrements = 0);
   void GetTable(
     double x1, double x2, int size, double* table, int stride = 1, int logIncrements = 0);
-  //@}
+  ///@}
 
   /**
    * Constructs a piecewise function from a table.  Function range is
@@ -167,7 +167,7 @@ public:
    */
   void BuildFunctionFromTable(double x1, double x2, int size, double* table, int stride = 1);
 
-  //@{
+  ///@{
   /**
    * When zero range clamping is Off, GetValue() returns 0.0 when a
    * value is requested outside of the points specified.
@@ -179,7 +179,7 @@ public:
   vtkSetMacro(Clamping, vtkTypeBool);
   vtkGetMacro(Clamping, vtkTypeBool);
   vtkBooleanMacro(Clamping, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Interpolate between the control points in base-10 logrithmic space.
@@ -214,15 +214,15 @@ public:
    */
   void Initialize() override;
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPiecewiseFunction* GetData(vtkInformation* info);
   static vtkPiecewiseFunction* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Toggle whether to allow duplicate scalar values in the piecewise
    * function (off by default).
@@ -230,7 +230,7 @@ public:
   vtkSetMacro(AllowDuplicateScalars, vtkTypeBool);
   vtkGetMacro(AllowDuplicateScalars, vtkTypeBool);
   vtkBooleanMacro(AllowDuplicateScalars, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Estimates the minimum size of a table such that it would correctly sample this function.

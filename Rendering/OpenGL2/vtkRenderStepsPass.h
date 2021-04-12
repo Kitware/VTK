@@ -59,61 +59,61 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Camera Step
    */
   vtkGetObjectMacro(CameraPass, vtkCameraPass);
   void SetCameraPass(vtkCameraPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Lights Step
    */
   vtkGetObjectMacro(LightsPass, vtkRenderPass);
   void SetLightsPass(vtkRenderPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Opaque Step
    */
   vtkGetObjectMacro(OpaquePass, vtkRenderPass);
   void SetOpaquePass(vtkRenderPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the translucent Step
    */
   vtkGetObjectMacro(TranslucentPass, vtkRenderPass);
   void SetTranslucentPass(vtkRenderPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Volume Step
    */
   vtkGetObjectMacro(VolumetricPass, vtkRenderPass);
   void SetVolumetricPass(vtkRenderPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the Overlay Step
    */
   vtkGetObjectMacro(OverlayPass, vtkRenderPass);
   void SetOverlayPass(vtkRenderPass*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the RenderPass used for the PostProcess Step
    */
   vtkGetObjectMacro(PostProcessPass, vtkRenderPass);
   void SetPostProcessPass(vtkRenderPass*);
-  //@}
+  ///@}
 
 protected:
   vtkRenderStepsPass();

@@ -46,7 +46,7 @@ public:
   vtkTypeMacro(vtkLookupTableWithEnabling, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This must be set before MapScalars() is called.
    * Indices of this array must map directly to those in the scalars array
@@ -55,7 +55,7 @@ public:
    */
   vtkGetObjectMacro(EnabledArray, vtkDataArray);
   virtual void SetEnabledArray(vtkDataArray* enabledArray);
-  //@}
+  ///@}
 
   /**
    * Map a set of scalars through the lookup table.

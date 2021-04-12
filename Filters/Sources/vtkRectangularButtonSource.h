@@ -62,31 +62,31 @@ public:
    */
   static vtkRectangularButtonSource* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the width of the button.
    */
   vtkSetClampMacro(Width, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Width, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the height of the button.
    */
   vtkSetClampMacro(Height, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Height, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the depth of the button (the z-eliipsoid axis length).
    */
   vtkSetClampMacro(Depth, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(Depth, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio of the bottom of the button with the
    * shoulder region. Numbers greater than one produce buttons
@@ -95,9 +95,9 @@ public:
    */
   vtkSetClampMacro(BoxRatio, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(BoxRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio of the texture region to the
    * shoulder region. This number must be 0<=tr<=1.
@@ -108,9 +108,9 @@ public:
    */
   vtkSetClampMacro(TextureRatio, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(TextureRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio of the height of the texture region
    * to the shoulder height. Values greater than 1.0 yield
@@ -120,9 +120,9 @@ public:
    */
   vtkSetClampMacro(TextureHeightRatio, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(TextureHeightRatio, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -130,7 +130,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkRectangularButtonSource();

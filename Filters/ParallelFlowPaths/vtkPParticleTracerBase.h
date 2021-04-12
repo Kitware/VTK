@@ -40,14 +40,14 @@ public:
   vtkTypeMacro(vtkPParticleTracerBase, vtkParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the controller used when sending particles between processes
    * The controller must be an instance of vtkMPIController.
    */
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
 protected:
   struct RemoteParticleInfo

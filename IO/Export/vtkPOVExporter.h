@@ -95,13 +95,13 @@ public:
   vtkTypeMacro(vtkPOVExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * The filename to save into.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
 protected:
   vtkPOVExporter();

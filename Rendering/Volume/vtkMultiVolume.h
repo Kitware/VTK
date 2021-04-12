@@ -58,16 +58,16 @@ public:
   vtkTypeMacro(vtkMultiVolume, vtkVolume);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Add / Remove a vtkVolume instance.
    */
   void SetVolume(vtkVolume* volume, int port = 0);
   vtkVolume* GetVolume(int port = 0);
   void RemoveVolume(int port) { this->SetVolume(nullptr, port); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given that this class represents a bounding-box only there is no property
    * directly associated with it (a cannot be set directly).
@@ -77,7 +77,7 @@ public:
    */
   void SetProperty(vtkVolumeProperty* property) override;
   vtkVolumeProperty* GetProperty() override;
-  //@}
+  ///@}
 
   /**
    * Computes the bounds of the box containing all of the vtkVolume instances.

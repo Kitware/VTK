@@ -73,7 +73,7 @@ public:
   void Render(const vtkRenderState* s) override;
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the volumetric geometry, if needed.
    * It is usually set to a vtkVolumetricPass.
@@ -81,7 +81,7 @@ public:
    */
   vtkGetObjectMacro(VolumetricPass, vtkRenderPass) virtual void SetVolumetricPass(
     vtkRenderPass* volumetricPass);
-  //@}
+  ///@}
 
   // vtkOpenGLRenderPass virtuals:
   bool PreReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
@@ -162,7 +162,7 @@ protected:
    */
   void Initialize(const vtkRenderState* state);
 
-  //@{
+  ///@{
   /**
    * Initialize helpers.
    */
@@ -170,7 +170,7 @@ protected:
   void InitDepthTexture(vtkTextureObject* tex, const vtkRenderState* s);
   void InitOpaqueDepthTexture(vtkTextureObject* tex, const vtkRenderState* s);
   void InitFramebuffer(const vtkRenderState* s);
-  //@}
+  ///@}
 
   /**
    * Bind and activate draw buffers.

@@ -46,7 +46,7 @@ public:
    */
   static vtkCursor2D* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the bounding box of the 2D cursor. This defines the outline
    * of the cursor, and where the focal point should lie.
@@ -54,9 +54,9 @@ public:
   void SetModelBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   void SetModelBounds(const double bounds[6]);
   vtkGetVectorMacro(ModelBounds, double, 6);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the position of cursor focus. If translation mode is on,
    * then the entire cursor (including bounding box, cursor, and shadows)
@@ -75,45 +75,45 @@ public:
     this->SetFocalPoint(xyz);
   }
   vtkGetVectorMacro(FocalPoint, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe bounding box.
    */
   vtkSetMacro(Outline, vtkTypeBool);
   vtkGetMacro(Outline, vtkTypeBool);
   vtkBooleanMacro(Outline, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the wireframe axes.
    */
   vtkSetMacro(Axes, vtkTypeBool);
   vtkGetMacro(Axes, vtkTypeBool);
   vtkBooleanMacro(Axes, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify a radius for a circle. This erases the cursor
    * lines around the focal point.
    */
   vtkSetClampMacro(Radius, double, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off the point located at the cursor focus.
    */
   vtkSetMacro(Point, vtkTypeBool);
   vtkGetMacro(Point, vtkTypeBool);
   vtkBooleanMacro(Point, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable the translation mode. If on, changes in cursor position
    * cause the entire widget to translate along with the cursor.
@@ -122,9 +122,9 @@ public:
   vtkSetMacro(TranslationMode, vtkTypeBool);
   vtkGetMacro(TranslationMode, vtkTypeBool);
   vtkBooleanMacro(TranslationMode, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off cursor wrapping. If the cursor focus moves outside the
    * specified bounds, the cursor will either be restrained against the
@@ -133,15 +133,15 @@ public:
   vtkSetMacro(Wrap, vtkTypeBool);
   vtkGetMacro(Wrap, vtkTypeBool);
   vtkBooleanMacro(Wrap, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn every part of the cursor on or off.
    */
   void AllOn();
   void AllOff();
-  //@}
+  ///@}
 
 protected:
   vtkCursor2D();

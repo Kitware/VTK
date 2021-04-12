@@ -75,7 +75,7 @@ public:
    */
   double EvaluateScalar(double u[3], double Pt[3], double Du[9]) override;
 
-  //@{
+  ///@{
   /**
    * By default, this class is constructed with three instances of
    * vtkCardinalSpline (for each of the x-y-z coordinate axes). The user may
@@ -87,9 +87,9 @@ public:
   vtkGetObjectMacro(XSpline, vtkSpline);
   vtkGetObjectMacro(YSpline, vtkSpline);
   vtkGetObjectMacro(ZSpline, vtkSpline);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the list of points defining the spline. Do this by
    * specifying a vtkPoints array containing the points. Note that
@@ -98,18 +98,18 @@ public:
    */
   void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points, vtkPoints);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Another API to set the points. Set the number of points and then set the
    * individual point coordinates.
    */
   void SetNumberOfPoints(vtkIdType numPts);
   void SetPoint(vtkIdType index, double x, double y, double z);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the spline is open or closed. A closed spline forms
    * a continuous loop: the first and last points are the same, and
@@ -118,9 +118,9 @@ public:
   vtkSetMacro(Closed, vtkTypeBool);
   vtkGetMacro(Closed, vtkTypeBool);
   vtkBooleanMacro(Closed, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Control whether the spline is parameterized by length or by point index.
    * Default is by length.
@@ -128,9 +128,9 @@ public:
   vtkSetMacro(ParameterizeByLength, vtkTypeBool);
   vtkGetMacro(ParameterizeByLength, vtkTypeBool);
   vtkBooleanMacro(ParameterizeByLength, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the type of constraint of the left(right) end points. Four
    * constraints are available:
@@ -151,9 +151,9 @@ public:
   vtkGetMacro(LeftConstraint, int);
   vtkSetClampMacro(RightConstraint, int, 0, 3);
   vtkGetMacro(RightConstraint, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The values of the derivative on the left and right sides. The value
    * is used only if the left(right) constraint is type 1-3.
@@ -162,7 +162,7 @@ public:
   vtkGetMacro(LeftValue, double);
   vtkSetMacro(RightValue, double);
   vtkGetMacro(RightValue, double);
-  //@}
+  ///@}
 
 protected:
   vtkParametricSpline();

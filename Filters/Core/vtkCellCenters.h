@@ -55,7 +55,7 @@ public:
    */
   static vtkCellCenters* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the generation of vertex cells. The default
    * is Off.
@@ -63,9 +63,9 @@ public:
   vtkSetMacro(VertexCells, bool);
   vtkGetMacro(VertexCells, bool);
   vtkBooleanMacro(VertexCells, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/disable whether input cell data arrays should be passed through (or
    * copied) as output point data arrays. Default is `true` i.e. the arrays will
@@ -74,7 +74,7 @@ public:
   vtkSetMacro(CopyArrays, bool);
   vtkGetMacro(CopyArrays, bool);
   vtkBooleanMacro(CopyArrays, bool);
-  //@}
+  ///@}
 
   /**
    * Compute centers of cells from a dataset, storing them in the centers array.

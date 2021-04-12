@@ -41,12 +41,12 @@ public:
   vtkTypeMacro(vtkViewNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This is the VTK class that this node stands in for.
    */
   vtkGetObjectMacro(Renderable, vtkObject);
-  //@}
+  ///@}
 
   /**
    * Builds myself.
@@ -68,29 +68,29 @@ public:
    */
   virtual void Invalidate(bool /*prepass*/) {}
 
-  //@{
+  ///@{
   /**
    * Access the node that owns this one.
    */
   virtual void SetParent(vtkViewNode*);
   virtual vtkViewNode* GetParent();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Access nodes that this one owns.
    */
   virtual std::list<vtkViewNode*> const& GetChildren() { return this->Children; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A factory that creates particular subclasses for different
    * rendering back ends.
    */
   virtual void SetMyFactory(vtkViewNodeFactory*);
   vtkGetObjectMacro(MyFactory, vtkViewNodeFactory);
-  //@}
+  ///@}
 
   /**
    * Returns the view node that corresponding to the provided object
@@ -145,22 +145,22 @@ protected:
 
   virtual void Apply(int operation, bool prepass);
 
-  //@{
+  ///@{
   /**
    * convenience method to add node or nodes
    * if missing from our current list
    */
   void AddMissingNode(vtkObject* obj);
   void AddMissingNodes(vtkCollection* col);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Called first before adding missing nodes.
    * Keeps track of the nodes that should be in the collection
    */
   void PrepareNodes();
-  //@}
+  ///@}
 
   /**
    * Called after PrepareNodes and AddMissingNodes

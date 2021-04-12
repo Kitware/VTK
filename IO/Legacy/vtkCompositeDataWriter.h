@@ -47,25 +47,25 @@ public:
   vtkTypeMacro(vtkCompositeDataWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkCompositeDataSet* GetInput();
   vtkCompositeDataSet* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkCompositeDataWriter();
   ~vtkCompositeDataWriter() override;
 
-  //@{
+  ///@{
   /**
    * Performs the actual writing.
    */
   void WriteData() override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
   bool WriteCompositeData(ostream*, vtkMultiBlockDataSet*);
   bool WriteCompositeData(ostream*, vtkMultiPieceDataSet*);

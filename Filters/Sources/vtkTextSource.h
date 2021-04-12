@@ -50,40 +50,40 @@ public:
    */
   static vtkTextSource* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the text to be drawn.
    */
   vtkSetStringMacro(Text);
   vtkGetStringMacro(Text);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Controls whether or not a background is drawn with the text.
    */
   vtkSetMacro(Backing, vtkTypeBool);
   vtkGetMacro(Backing, vtkTypeBool);
   vtkBooleanMacro(Backing, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the foreground color. Default is white (1,1,1). ALpha is always 1.
    */
   vtkSetVector3Macro(ForegroundColor, double);
   vtkGetVectorMacro(ForegroundColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the background color. Default is black (0,0,0). Alpha is always 1.
    */
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVectorMacro(BackgroundColor, double, 3);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the desired precision for the output points.
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
@@ -91,7 +91,7 @@ public:
    */
   vtkSetMacro(OutputPointsPrecision, int);
   vtkGetMacro(OutputPointsPrecision, int);
-  //@}
+  ///@}
 
 protected:
   vtkTextSource();

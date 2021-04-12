@@ -41,31 +41,31 @@ public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter, vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the number of pieces used to stream the image through the
    * pipeline while writing to the file.
    */
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the piece to write to the file.  If this is
    * negative or equal to the NumberOfPieces, all pieces will be written.
    */
   vtkSetMacro(WritePiece, int);
   vtkGetMacro(WritePiece, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the ghost level used to pad each piece.
    */
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  //@}
+  ///@}
 
   // See the vtkAlgorithm for a description of what these do
   vtkTypeBool ProcessRequest(

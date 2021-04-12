@@ -65,43 +65,43 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Evaluate the ImplicitVolume. This returns the interpolated scalar value
    * at x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
-  //@}
+  ///@}
 
   /**
    * Evaluate ImplicitVolume gradient.
    */
   void EvaluateGradient(double x[3], double n[3]) override;
 
-  //@{
+  ///@{
   /**
    * Specify the volume for the implicit function.
    */
   virtual void SetVolume(vtkImageData*);
   vtkGetObjectMacro(Volume, vtkImageData);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the function value to use for points outside of the dataset.
    */
   vtkSetMacro(OutValue, double);
   vtkGetMacro(OutValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the function gradient to use for points outside of the dataset.
    */
   vtkSetVector3Macro(OutGradient, double);
   vtkGetVector3Macro(OutGradient, double);
-  //@}
+  ///@}
 
 protected:
   vtkImplicitVolume();

@@ -57,7 +57,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * How far in front of a point must a neighboring point
    * be to be used as a filler candidate.  Expressed as
@@ -66,9 +66,9 @@ public:
    */
   vtkSetMacro(CandidatePointRatio, float);
   vtkGetMacro(CandidatePointRatio, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * How large of an angle must the filler candidates
    * span before a point will be filled. Expressed in
@@ -77,7 +77,7 @@ public:
    */
   vtkSetMacro(MinimumCandidateAngle, float);
   vtkGetMacro(MinimumCandidateAngle, float);
-  //@}
+  ///@}
 
 protected:
   /**

@@ -103,15 +103,15 @@ public:
    */
   void SetOutputFormat(int format) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the video channel
    */
   virtual void SetVideoChannel(int channel);
   vtkGetMacro(VideoChannel, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the video format
    */
@@ -123,9 +123,9 @@ public:
   void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_MIL_CCIR); }
   void SetVideoFormatToNonStandard() { this->SetVideoFormat(VTK_MIL_NONSTANDARD); }
   vtkGetMacro(VideoFormat, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the video input
    */
@@ -136,9 +136,9 @@ public:
   void SetVideoInputToRGB() { this->SetVideoInput(VTK_MIL_RGB); }
   void SetVideoInputToDigital() { this->SetVideoInput(VTK_MIL_DIGITAL); }
   vtkGetMacro(VideoInput, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the video levels for composite/SVideo: the valid ranges are:
    * Contrast [0.0,2.0]
@@ -154,9 +154,9 @@ public:
   vtkGetMacro(HueLevel, float);
   virtual void SetSaturationLevel(float saturation);
   vtkGetMacro(SaturationLevel, float);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the video levels for monochrome/RGB: valid values are
    * between 0.0 and 255.0.
@@ -165,9 +165,9 @@ public:
   virtual float GetBlackLevel() { return this->BlackLevel; }
   virtual void SetWhiteLevel(float value);
   virtual float GetWhiteLevel() { return this->WhiteLevel; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the system which you want use.  If you don't specify a system,
    * then your primary digitizer will be autodetected.
@@ -187,41 +187,41 @@ public:
   void SetMILSystemTypeToOrion() { this->SetMILSystemType(VTK_MIL_ORION); }
   void SetMILSystemTypeToCronos() { this->SetMILSystemType(VTK_MIL_CRONOS); }
   void SetMILSystemTypeToOdyssey() { this->SetMILSystemType(VTK_MIL_ODYSSEY); }
-  //@}
-  //@{
+  ///@}
+  ///@{
   /**
    * Set the system number if you have multiple systems of the same type
    */
   vtkSetMacro(MILSystemNumber, int);
   vtkGetMacro(MILSystemNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the DCF filename for non-standard video formats
    */
   vtkSetStringMacro(MILDigitizerDCF);
   vtkGetStringMacro(MILDigitizerDCF);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the digitizer number for systems with multiple digitizers
    */
   vtkSetMacro(MILDigitizerNumber, int);
   vtkGetMacro(MILDigitizerNumber, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set whether to display MIL error messages (default on)
    */
   virtual void SetMILErrorMessages(int yesno);
   vtkBooleanMacro(MILErrorMessages, int);
   vtkGetMacro(MILErrorMessages, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Allows fine-grained control
    */
@@ -231,7 +231,7 @@ public:
   vtkGetMacro(MILSysID, long);
   vtkGetMacro(MILDigID, long);
   vtkGetMacro(MILBufID, long);
-  //@}
+  ///@}
 
   /**
    * Initialize the driver (this is called automatically when the
@@ -245,7 +245,7 @@ public:
    */
   void ReleaseSystemResources() override;
 
-  //@{
+  ///@{
   /**
    * For internal use only
    */
@@ -254,7 +254,7 @@ public:
   int FrameCounter;
   int ForceGrab;
   void InternalGrab() override;
-  //@}
+  ///@}
 
 protected:
   vtkMILVideoSource();

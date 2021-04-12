@@ -41,13 +41,13 @@ class vtkGenericAdaptorCell;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellIterator : public vtkObject
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK construction and type macros.
    */
   vtkTypeMacro(vtkGenericCellIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Move iterator to first position if any (loop initialization).

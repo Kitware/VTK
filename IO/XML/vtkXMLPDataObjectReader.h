@@ -76,21 +76,21 @@ protected:
    */
   virtual int ReadPiece(vtkXMLDataElement* ePiece) = 0;
 
-  //@{
+  ///@{
   /**
    * Methods for creating a filename for each piece in the dataset
    */
   char* CreatePieceFileName(const char* fileName);
   void SplitFileName();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Callback registered with the PieceProgressObserver.
    */
   static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   virtual void PieceProgressCallback() = 0;
-  //@}
+  ///@}
 
   /**
    * Pieces from the input summary file.
@@ -107,13 +107,13 @@ protected:
    */
   char* PathName;
 
-  //@{
+  ///@{
   /**
    * Information per-piece.
    */
   vtkXMLDataElement** PieceElements;
   int* CanReadPieceFlag;
-  //@}
+  ///@}
 
   vtkCallbackCommand* PieceProgressObserver;
 

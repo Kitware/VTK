@@ -74,7 +74,7 @@ A SafeDivision(A a, A b)
   return (a / b);
 }
 
-//@{
+///@{
 /**
  * A slightly different fuzzy comparator that checks if two values are
  * "nearly" equal based on Knuth, "The Art of Computer Programming (vol II)"
@@ -85,7 +85,7 @@ bool NearlyEqual(A a, A b, A tol = std::numeric_limits<A>::epsilon())
   A absdiff = fabs(a - b);
   A d1 = vtkMathUtilities::SafeDivision<A>(absdiff, fabs(a));
   A d2 = vtkMathUtilities::SafeDivision<A>(absdiff, fabs(b));
-  //@}
+  ///@}
 
   if ((d1 <= tol) || (d2 <= tol))
   {

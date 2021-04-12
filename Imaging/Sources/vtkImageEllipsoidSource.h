@@ -34,7 +34,7 @@ public:
   vtkTypeMacro(vtkImageEllipsoidSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the extent of the whole output image.
    */
@@ -42,41 +42,41 @@ public:
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetWholeExtent(int extent[6]);
   int* GetWholeExtent() VTK_SIZEHINT(6) { return this->WholeExtent; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the center of the ellipsoid.
    */
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the radius of the ellipsoid.
    */
   vtkSetVector3Macro(Radius, double);
   vtkGetVector3Macro(Radius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the inside pixel values.
    */
   vtkSetMacro(InValue, double);
   vtkGetMacro(InValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the outside pixel values.
    */
   vtkSetMacro(OutValue, double);
   vtkGetMacro(OutValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set what type of scalar data this source should generate.
    */
@@ -92,7 +92,7 @@ public:
   void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
   void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
   void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
-  //@}
+  ///@}
 
 protected:
   vtkImageEllipsoidSource();

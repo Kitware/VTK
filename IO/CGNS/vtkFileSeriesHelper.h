@@ -49,14 +49,14 @@ public:
 
   typedef bool (*FileNameFunctorType)(vtkAlgorithm* reader, const std::string& filename);
 
-  //@{
+  ///@{
   /**
    * Specify the set of files that comprise the series.
    */
   void RemoveAllFileNames();
   void AddFileName(const char* fname);
   void SetFileNames(const std::vector<std::string>& filenames);
-  //@}
+  ///@}
 
   /**
    * Get the number of files in the series.
@@ -76,16 +76,16 @@ public:
    */
   virtual bool ReadMetaFile(const char* metafilename);
 
-  //@{
+  ///@{
   /**
    * Get/Set the parallel controller. By default
    * vtkMultiProcessController::GetGlobalController() will be used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * In vtkFileSeriesHelper::UpdateInformation,
    * vtkFileSeriesHelper tries to determine time information from the reader by
@@ -98,7 +98,7 @@ public:
   vtkSetMacro(IgnoreReaderTime, bool);
   vtkGetMacro(IgnoreReaderTime, bool);
   vtkBooleanMacro(IgnoreReaderTime, bool);
-  //@}
+  ///@}
 
   /**
    * vtkFileSeriesHelper needs to collect information about the nature of the

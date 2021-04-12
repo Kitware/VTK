@@ -43,14 +43,14 @@ public:
   vtkTypeMacro(vtkDIYDataExchanger, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the controller to use. By default
    * vtkMultiProcessController::GetGlobalController is used.
    */
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
   /**
    * Exchange data between all ranks in the process group defined by the

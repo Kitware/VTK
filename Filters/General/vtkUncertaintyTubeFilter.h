@@ -43,27 +43,27 @@ class vtkTubeArray;
 class VTKFILTERSGENERAL_EXPORT vtkUncertaintyTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard methods for printing and obtaining type information for instances of this class.
    */
   vtkTypeMacro(vtkUncertaintyTubeFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Object factory method to instantiate this class.
    */
   static vtkUncertaintyTubeFilter* New();
 
-  //@{
+  ///@{
   /**
    * Set / get the number of sides for the tube. At a minimum,
    * the number of sides is 3.
    */
   vtkSetClampMacro(NumberOfSides, int, 3, VTK_INT_MAX);
   vtkGetMacro(NumberOfSides, int);
-  //@}
+  ///@}
 
 protected:
   vtkUncertaintyTubeFilter();

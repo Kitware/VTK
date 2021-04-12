@@ -123,7 +123,7 @@ public:
   }
   void Annotate(vtkView* view, vtkAnnotationLayers* annotations, bool extend);
 
-  //@{
+  ///@{
   /**
    * Whether this representation is able to handle a selection.
    * Default is true.
@@ -131,7 +131,7 @@ public:
   vtkSetMacro(Selectable, bool);
   vtkGetMacro(Selectable, bool);
   vtkBooleanMacro(Selectable, bool);
-  //@}
+  ///@}
 
   /**
    * Updates the selection in the selection link and fires a selection
@@ -198,7 +198,7 @@ public:
   }
   virtual vtkAlgorithmOutput* GetInternalOutputPort(int port, int conn);
 
-  //@{
+  ///@{
   /**
    * Set the selection type produced by this view.
    * This should be one of the content type constants defined in
@@ -209,23 +209,23 @@ public:
    */
   vtkSetMacro(SelectionType, int);
   vtkGetMacro(SelectionType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If a VALUES selection, the arrays used to produce a selection.
    */
   virtual void SetSelectionArrayNames(vtkStringArray* names);
   vtkGetObjectMacro(SelectionArrayNames, vtkStringArray);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If a VALUES selection, the array used to produce a selection.
    */
   virtual void SetSelectionArrayName(const char* name);
   virtual const char* GetSelectionArrayName();
-  //@}
+  ///@}
 
   /**
    * Convert the selection to a type appropriate for sharing with other
@@ -261,13 +261,13 @@ protected:
    */
   virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
 
-  //@{
+  ///@{
   /**
    * The annotation link for this representation.
    */
   virtual void SetAnnotationLinkInternal(vtkAnnotationLink* link);
   vtkAnnotationLink* AnnotationLinkInternal;
-  //@}
+  ///@}
 
   // Whether its representation can handle a selection.
   bool Selectable;

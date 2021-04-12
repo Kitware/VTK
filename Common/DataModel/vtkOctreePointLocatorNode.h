@@ -51,15 +51,15 @@ public:
 
   static vtkOctreePointLocatorNode* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of points contained in this region.
    */
   void SetNumberOfPoints(int numberOfPoints) { this->NumberOfPoints = numberOfPoints; }
   vtkGetMacro(NumberOfPoints, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the bounds of the spatial region represented by this node.
    * Caller allocates storage for 6-vector in GetBounds.
@@ -67,9 +67,9 @@ public:
   void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   void SetBounds(const double b[6]) { this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]); }
   void GetBounds(double* b) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the bounds of the points contained in this spatial region.
    * This may be smaller than the bounds of the region itself.
@@ -77,18 +77,18 @@ public:
    */
   void SetDataBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   void GetDataBounds(double* b) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the
    * 3 bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
   vtkGetMacro(MinBounds, double*);
   vtkGetMacro(MaxBounds, double*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the xmin, ymin and zmin value of the bounds of this region
    */
@@ -98,9 +98,9 @@ public:
     this->MinBounds[1] = minBounds[1];
     this->MinBounds[2] = minBounds[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the xmax, ymax and zmax value of the bounds of this region
    */
@@ -110,18 +110,18 @@ public:
     this->MaxBounds[1] = maxBounds[1];
     this->MaxBounds[2] = maxBounds[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
    * 3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
   vtkGetMacro(MinDataBounds, double*);
   vtkGetMacro(MaxDataBounds, double*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the xmin, ymin and zmin value of the bounds of this
    * data within this region.
@@ -132,9 +132,9 @@ public:
     this->MinDataBounds[1] = minDataBounds[1];
     this->MinDataBounds[2] = minDataBounds[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the xmax, ymax and zmax value of the bounds of this
    * data within this region.
@@ -145,17 +145,17 @@ public:
     this->MaxDataBounds[1] = maxDataBounds[1];
     this->MaxDataBounds[2] = maxDataBounds[2];
   }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the ID associated with the region described by this node.  If
    * this is not a leaf node, this value should be -1.
    */
   vtkGetMacro(ID, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If this node is not a leaf node, there are leaf nodes below it whose
    * regions represent a partitioning of this region.  The IDs of these
@@ -163,7 +163,7 @@ public:
    * ID that is contained in this node.
    */
   vtkGetMacro(MinID, int);
-  //@}
+  ///@}
 
   /**
    * Add the 8 children.

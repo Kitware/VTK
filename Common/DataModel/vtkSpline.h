@@ -65,7 +65,7 @@ public:
   vtkTypeMacro(vtkSpline, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the parametric range. If not set, the range is determined
    * implicitly by keeping track of the (min,max) parameter values for
@@ -75,9 +75,9 @@ public:
   void SetParametricRange(double tMin, double tMax);
   void SetParametricRange(double tRange[2]) { this->SetParametricRange(tRange[0], tRange[1]); }
   void GetParametricRange(double tRange[2]) const;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get ClampValue. If On, results of the interpolation will be
    * clamped to the min/max of the input data.
@@ -85,7 +85,7 @@ public:
   vtkSetMacro(ClampValue, vtkTypeBool);
   vtkGetMacro(ClampValue, vtkTypeBool);
   vtkBooleanMacro(ClampValue, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Compute the coefficients for the spline.
@@ -117,7 +117,7 @@ public:
    */
   void RemoveAllPoints();
 
-  //@{
+  ///@{
   /**
    * Control whether the spline is open or closed. A closed spline forms
    * a continuous loop: the first and last points are the same, and
@@ -126,9 +126,9 @@ public:
   vtkSetMacro(Closed, vtkTypeBool);
   vtkGetMacro(Closed, vtkTypeBool);
   vtkBooleanMacro(Closed, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the type of constraint of the left(right) end points. Four
    * constraints are available:
@@ -149,9 +149,9 @@ public:
   vtkGetMacro(LeftConstraint, int);
   vtkSetClampMacro(RightConstraint, int, 0, 3);
   vtkGetMacro(RightConstraint, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The values of the derivative on the left and right sides. The value
    * is used only if the left(right) constraint is type 1-3.
@@ -160,7 +160,7 @@ public:
   vtkGetMacro(LeftValue, double);
   vtkSetMacro(RightValue, double);
   vtkGetMacro(RightValue, double);
-  //@}
+  ///@}
 
   /**
    * Return the MTime also considering the Piecewise function.

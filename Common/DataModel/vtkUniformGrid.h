@@ -34,14 +34,14 @@ class vtkAMRBox;
 class VTKCOMMONDATAMODEL_EXPORT vtkUniformGrid : public vtkImageData
 {
 public:
-  //@{
+  ///@{
   /**
    * Construct an empty uniform grid.
    */
   static vtkUniformGrid* New();
   vtkTypeMacro(vtkUniformGrid, vtkImageData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Copy the geometric and topological structure of an input image data
@@ -54,7 +54,7 @@ public:
    */
   int GetDataObjectType() override { return VTK_UNIFORM_GRID; }
 
-  //@{
+  ///@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
@@ -79,7 +79,7 @@ public:
   }
   void Initialize() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
-  //@}
+  ///@}
 
   /**
    * Returns the data description of this uniform grid instance.
@@ -121,7 +121,7 @@ public:
   int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhostsI, int nGhostsJ,
     int nGhostsK);
 
-  //@{
+  ///@{
   /**
    * Methods for supporting blanking of cells. Blanking turns on or off
    * points in the structured grid, and hence the cells connected to them.
@@ -132,9 +132,9 @@ public:
   virtual void UnBlankPoint(vtkIdType ptId);
   virtual void BlankPoint(const int i, const int j, const int k);
   virtual void UnBlankPoint(const int i, const int j, const int k);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods for supporting blanking of cells. Blanking turns on or off
    * cells in the structured grid.
@@ -145,7 +145,7 @@ public:
   virtual void UnBlankCell(vtkIdType ptId);
   virtual void BlankCell(const int i, const int j, const int k);
   virtual void UnBlankCell(const int i, const int j, const int k);
-  //@}
+  ///@}
 
   /**
    * Returns 1 if there is any visibility constraint on the cells,
@@ -174,13 +174,13 @@ public:
 
   virtual vtkImageData* NewImageDataCopy();
 
-  //@{
+  ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkUniformGrid* GetData(vtkInformation* info);
   static vtkUniformGrid* GetData(vtkInformationVector* v, int i = 0);
-  //@}
+  ///@}
 
 protected:
   vtkUniformGrid();

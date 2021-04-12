@@ -68,29 +68,29 @@ public:
    */
   static vtkLinkEdgels* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get the threshold for Phi vs. Alpha link thresholding.
    */
   vtkSetMacro(LinkThreshold, double);
   vtkGetMacro(LinkThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/get the threshold for Phi vs. Phi link thresholding.
    */
   vtkSetMacro(PhiThreshold, double);
   vtkGetMacro(PhiThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the threshold for image gradient thresholding.
    */
   vtkSetMacro(GradientThreshold, double);
   vtkGetMacro(GradientThreshold, double);
-  //@}
+  ///@}
 
 protected:
   vtkLinkEdgels();

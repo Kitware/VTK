@@ -44,13 +44,13 @@ public:
   vtkTypeMacro(vtkBlankStructuredGridWithImage, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set / get the input image used to perform the blanking.
    */
   void SetBlankingInputData(vtkImageData* input);
   vtkImageData* GetBlankingInput();
-  //@}
+  ///@}
 
 protected:
   vtkBlankStructuredGridWithImage();

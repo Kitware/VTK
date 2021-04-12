@@ -49,7 +49,7 @@ public:
    */
   static vtkVectorDot* New();
 
-  //@{
+  ///@{
   /**
    * Enable/disable the mapping of scalars into a specified range. This will
    * significantly improve the performance of the algorithm but the resulting
@@ -60,24 +60,24 @@ public:
   vtkSetMacro(MapScalars, vtkTypeBool);
   vtkGetMacro(MapScalars, vtkTypeBool);
   vtkBooleanMacro(MapScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the range into which to map the scalars. This mapping only
    * occurs if MapScalars is enabled.
    */
   vtkSetVector2Macro(ScalarRange, double);
   vtkGetVectorMacro(ScalarRange, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Return the actual range of the generated scalars (prior to mapping).
    * Note that the data is valid only after the filter executes.
    */
   vtkGetVectorMacro(ActualRange, double, 2);
-  //@}
+  ///@}
 
 protected:
   vtkVectorDot();

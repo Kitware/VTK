@@ -37,13 +37,13 @@ public:
   vtkTypeMacro(vtkPolyDataWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkPolyDataWriter() = default;

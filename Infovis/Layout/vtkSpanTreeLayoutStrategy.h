@@ -73,7 +73,7 @@ public:
   vtkTypeMacro(vtkSpanTreeLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * If set, base the layout on a depth-first spanning tree,
    * rather than the default breadth-first spanning tree.
@@ -84,7 +84,7 @@ public:
   vtkSetMacro(DepthFirstSpanningTree, bool);
   vtkGetMacro(DepthFirstSpanningTree, bool);
   vtkBooleanMacro(DepthFirstSpanningTree, bool);
-  //@}
+  ///@}
 
   /**
    * Perform the layout.

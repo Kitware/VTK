@@ -53,7 +53,7 @@ public:
 
   static vtkMapArrayValues* New();
 
-  //@{
+  ///@{
   /**
    * Set/Get where the data is located that is being mapped.
    * See FieldType enumeration for possible values.
@@ -61,9 +61,9 @@ public:
    */
   vtkSetMacro(FieldType, int);
   vtkGetMacro(FieldType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether to copy the data from the input array to the output array
    * before the mapping occurs. If turned off, FillValue is used to initialize
@@ -72,9 +72,9 @@ public:
   vtkSetMacro(PassArray, vtkTypeBool);
   vtkGetMacro(PassArray, vtkTypeBool);
   vtkBooleanMacro(PassArray, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether to copy the data from the input array to the output array
    * before the mapping occurs. If turned off, FillValue is used to initialize
@@ -82,34 +82,34 @@ public:
    */
   vtkSetMacro(FillValue, double);
   vtkGetMacro(FillValue, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the input array. This must be set prior to execution.
    */
   vtkSetStringMacro(InputArrayName);
   vtkGetStringMacro(InputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the output array. Default is "ArrayMap".
    */
   vtkSetStringMacro(OutputArrayName);
   vtkGetStringMacro(OutputArrayName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the type of the output array. See vtkSetGet.h for possible values.
    * Default is VTK_INT.
    */
   vtkGetMacro(OutputArrayType, int);
   vtkSetMacro(OutputArrayType, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add to the internal STL map. "from" should be a value in the input array and
    * "to" should be the new value it gets assigned in the output array.
@@ -119,7 +119,7 @@ public:
   void AddToMap(int from, const char* to);
   void AddToMap(const char* from, int to);
   void AddToMap(const char* from, const char* to);
-  //@}
+  ///@}
 
   /**
    * Clear the internal map.

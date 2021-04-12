@@ -64,25 +64,25 @@ public:
    */
   static vtkPolarAxesActor* New();
 
-  //@{
+  ///@{
   /**
    * Draw the polar axes
    */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the coordinate of the pole.
    */
   virtual void SetPole(double[3]);
   virtual void SetPole(double, double, double);
   vtkGetVector3Macro(Pole, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable log scale
    * Default: false
@@ -90,26 +90,26 @@ public:
   vtkSetMacro(Log, bool);
   vtkGetMacro(Log, bool);
   vtkBooleanMacro(Log, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Gets/Sets the number of radial axes
    */
   vtkSetClampMacro(RequestedNumberOfRadialAxes, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES);
   vtkGetMacro(RequestedNumberOfRadialAxes, vtkIdType);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get a number of ticks that one would like to display along polar axis
    * NB: it modifies DeltaRangeMajor to correspond to this number
    */
   virtual void SetNumberOfPolarAxisTicks(int);
   int GetNumberOfPolarAxisTicks();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the number of polar axis ticks and arcs should be automatically calculated
    * Default: true
@@ -117,49 +117,49 @@ public:
   vtkSetMacro(AutoSubdividePolarAxis, bool);
   vtkGetMacro(AutoSubdividePolarAxis, bool);
   vtkBooleanMacro(AutoSubdividePolarAxis, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Define the range values displayed on the polar Axis.
    */
   vtkSetVector2Macro(Range, double);
   vtkGetVectorMacro(Range, double, 2);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimal radius of the polar coordinates.
    */
   virtual void SetMinimumRadius(double);
   vtkGetMacro(MinimumRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum radius of the polar coordinates.
    */
   virtual void SetMaximumRadius(double);
   vtkGetMacro(MaximumRadius, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum radius of the polar coordinates (in degrees).
    */
   virtual void SetMinimumAngle(double);
   vtkGetMacro(MinimumAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the maximum radius of the polar coordinates (in degrees).
    */
   virtual void SetMaximumAngle(double);
   vtkGetMacro(MaximumAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the minimum radial angle distinguishable from polar axis
    * NB: This is used only when polar axis is visible
@@ -167,9 +167,9 @@ public:
    */
   vtkSetClampMacro(SmallestVisiblePolarAngle, double, 0., 5.);
   vtkGetMacro(SmallestVisiblePolarAngle, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the location of the ticks.
    * Inside: tick end toward positive direction of perpendicular axes.
@@ -177,17 +177,17 @@ public:
    */
   vtkSetClampMacro(TickLocation, int, vtkAxisActor::VTK_TICKS_INSIDE, vtkAxisActor::VTK_TICKS_BOTH);
   vtkGetMacro(TickLocation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Default: true
    */
   vtkSetMacro(RadialUnits, bool);
   vtkGetMacro(RadialUnits, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the screen size of title and label text.
    * ScreenSize determines the size of the text in terms of screen
@@ -196,33 +196,33 @@ public:
    */
   vtkSetMacro(ScreenSize, double);
   vtkGetMacro(ScreenSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the camera to perform scaling and translation of the
    * vtkPolarAxesActor.
    */
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera, vtkCamera);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the labels for the polar axis.
    * Default: "Radial Distance".
    */
   vtkSetStringMacro(PolarAxisTitle);
   vtkGetStringMacro(PolarAxisTitle);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the polar axis labels.
    */
   vtkSetStringMacro(PolarLabelFormat);
   vtkGetStringMacro(PolarLabelFormat);
-  //@}
+  ///@}
 
   enum ExponentLocation
   {
@@ -231,7 +231,7 @@ public:
     VTK_EXPONENT_LABELS = 2
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the location of the exponent (if any) of the polar axis values.
    * Possible location: VTK_EXPONENT_BOTTOM, VTK_EXPONENT_EXTERN,
@@ -239,15 +239,15 @@ public:
    */
   vtkSetClampMacro(ExponentLocation, int, VTK_EXPONENT_BOTTOM, VTK_EXPONENT_LABELS);
   vtkGetMacro(ExponentLocation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * String to format angle values displayed on the radial axes.
    */
   vtkSetStringMacro(RadialAngleFormat);
   vtkGetStringMacro(RadialAngleFormat);
-  //@}
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this actor.
@@ -256,73 +256,73 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  //@{
+  ///@{
   /**
    * Enable and disable the use of distance based LOD for titles and labels.
    */
   vtkSetMacro(EnableDistanceLOD, int);
   vtkGetMacro(EnableDistanceLOD, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set distance LOD threshold [0.0 - 1.0] for titles and labels.
    */
   vtkSetClampMacro(DistanceLODThreshold, double, 0.0, 1.0);
   vtkGetMacro(DistanceLODThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable and disable the use of view angle based LOD for titles and labels.
    */
   vtkSetMacro(EnableViewAngleLOD, int);
   vtkGetMacro(EnableViewAngleLOD, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
    */
   vtkSetClampMacro(ViewAngleLODThreshold, double, 0., 1.);
   vtkGetMacro(ViewAngleLODThreshold, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of the polar axis.
    */
   vtkSetMacro(PolarAxisVisibility, vtkTypeBool);
   vtkGetMacro(PolarAxisVisibility, vtkTypeBool);
   vtkBooleanMacro(PolarAxisVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of inner radial grid lines
    */
   vtkSetMacro(DrawRadialGridlines, vtkTypeBool);
   vtkGetMacro(DrawRadialGridlines, vtkTypeBool);
   vtkBooleanMacro(DrawRadialGridlines, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of inner polar arcs grid lines
    */
   vtkSetMacro(DrawPolarArcsGridlines, vtkTypeBool);
   vtkGetMacro(DrawPolarArcsGridlines, vtkTypeBool);
   vtkBooleanMacro(DrawPolarArcsGridlines, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of titles for polar axis.
    */
   vtkSetMacro(PolarTitleVisibility, vtkTypeBool);
   vtkGetMacro(PolarTitleVisibility, vtkTypeBool);
   vtkBooleanMacro(PolarTitleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
   enum TitleLocation
   {
@@ -330,34 +330,34 @@ public:
     VTK_TITLE_EXTERN = 1
   };
 
-  //@{
+  ///@{
   /**
    * Get/Set the alignment of the radial axes title related to the axis.
    * Possible Alignment: VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(RadialAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
   vtkGetMacro(RadialAxisTitleLocation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the alignment of the polar axes title related to the axis.
    * Possible Alignment: VTKTITLE_BOTTOM, VTK_TITLE_EXTERN
    */
   vtkSetClampMacro(PolarAxisTitleLocation, int, VTK_TITLE_BOTTOM, VTK_TITLE_EXTERN);
   vtkGetMacro(PolarAxisTitleLocation, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of labels for polar axis.
    */
   vtkSetMacro(PolarLabelVisibility, vtkTypeBool);
   vtkGetMacro(PolarLabelVisibility, vtkTypeBool);
   vtkBooleanMacro(PolarLabelVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If On, the ticks are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
    * and continue counterclockwise with the step DeltaAngle Major/Minor. if Off, the start angle is
@@ -367,9 +367,9 @@ public:
   vtkSetMacro(ArcTicksOriginToPolarAxis, vtkTypeBool);
   vtkGetMacro(ArcTicksOriginToPolarAxis, vtkTypeBool);
   vtkBooleanMacro(ArcTicksOriginToPolarAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * If On, the radial axes are drawn from the angle of the polarAxis (i.e. this->MinimalRadius)
    * and continue counterclockwise with the step DeltaAngleRadialAxes. if Off, the start angle is
@@ -379,299 +379,299 @@ public:
   vtkSetMacro(RadialAxesOriginToPolarAxis, vtkTypeBool);
   vtkGetMacro(RadialAxesOriginToPolarAxis, vtkTypeBool);
   vtkBooleanMacro(RadialAxesOriginToPolarAxis, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the overall visibility of ticks.
    */
   vtkSetMacro(PolarTickVisibility, vtkTypeBool);
   vtkGetMacro(PolarTickVisibility, vtkTypeBool);
   vtkBooleanMacro(PolarTickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of major ticks on polar axis and last radial axis.
    */
   vtkSetMacro(AxisTickVisibility, vtkTypeBool);
   vtkGetMacro(AxisTickVisibility, vtkTypeBool);
   vtkBooleanMacro(AxisTickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of minor ticks on polar axis and last radial axis.
    */
   vtkSetMacro(AxisMinorTickVisibility, vtkTypeBool);
   vtkGetMacro(AxisMinorTickVisibility, vtkTypeBool);
   vtkBooleanMacro(AxisMinorTickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of major ticks on the last arc.
    */
   vtkSetMacro(ArcTickVisibility, vtkTypeBool);
   vtkGetMacro(ArcTickVisibility, vtkTypeBool);
   vtkBooleanMacro(ArcTickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of minor ticks on the last arc.
    */
   vtkSetMacro(ArcMinorTickVisibility, vtkTypeBool);
   vtkGetMacro(ArcMinorTickVisibility, vtkTypeBool);
   vtkBooleanMacro(ArcMinorTickVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the major ticks on the last arc.
    */
   vtkSetMacro(ArcMajorTickSize, double);
   vtkGetMacro(ArcMajorTickSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the major ticks on the polar axis.
    */
   vtkSetMacro(PolarAxisMajorTickSize, double);
   vtkGetMacro(PolarAxisMajorTickSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the major ticks on the last radial axis.
    */
   vtkSetMacro(LastRadialAxisMajorTickSize, double);
   vtkGetMacro(LastRadialAxisMajorTickSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Polar Axis ticks size
    */
   vtkSetMacro(PolarAxisTickRatioSize, double);
   vtkGetMacro(PolarAxisTickRatioSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Last Radial axis ticks size
    */
   vtkSetMacro(LastAxisTickRatioSize, double);
   vtkGetMacro(LastAxisTickRatioSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Arc ticks size
    */
   vtkSetMacro(ArcTickRatioSize, double);
   vtkGetMacro(ArcTickRatioSize, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the thickness of polar axis ticks
    */
   vtkSetMacro(PolarAxisMajorTickThickness, double);
   vtkGetMacro(PolarAxisMajorTickThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the thickness of last radial axis ticks
    */
   vtkSetMacro(LastRadialAxisMajorTickThickness, double);
   vtkGetMacro(LastRadialAxisMajorTickThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the size of the thickness of the last arc ticks
    */
   vtkSetMacro(ArcMajorTickThickness, double);
   vtkGetMacro(ArcMajorTickThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Polar Axis ticks thickness
    */
   vtkSetMacro(PolarAxisTickRatioThickness, double);
   vtkGetMacro(PolarAxisTickRatioThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Last Radial axis ticks thickness
    */
   vtkSetMacro(LastAxisTickRatioThickness, double);
   vtkGetMacro(LastAxisTickRatioThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the ratio between major and minor Arc ticks thickness
    */
   vtkSetMacro(ArcTickRatioThickness, double);
   vtkGetMacro(ArcTickRatioThickness, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the step between 2 major ticks, in range value (values displayed on the axis).
    */
   vtkSetMacro(DeltaRangeMajor, double);
   vtkGetMacro(DeltaRangeMajor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the step between 2 minor ticks, in range value (values displayed on the axis).
    */
   vtkSetMacro(DeltaRangeMinor, double);
   vtkGetMacro(DeltaRangeMinor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the angle between 2 major ticks on the last arc.
    */
   vtkSetMacro(DeltaAngleMajor, double);
   vtkGetMacro(DeltaAngleMajor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the angle between 2 minor ticks on the last arc.
    */
   vtkSetMacro(DeltaAngleMinor, double);
   vtkGetMacro(DeltaAngleMinor, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the angle between 2 radial axes.
    */
   vtkSetMacro(DeltaAngleRadialAxes, double);
   vtkGetMacro(DeltaAngleRadialAxes, double);
-  //@}
+  ///@}
 
   //------------------------------------------------
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of non-polar radial axes.
    */
   vtkSetMacro(RadialAxesVisibility, vtkTypeBool);
   vtkGetMacro(RadialAxesVisibility, vtkTypeBool);
   vtkBooleanMacro(RadialAxesVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of titles for non-polar radial axes.
    */
   vtkSetMacro(RadialTitleVisibility, vtkTypeBool);
   vtkGetMacro(RadialTitleVisibility, vtkTypeBool);
   vtkBooleanMacro(RadialTitleVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on and off the visibility of arcs for polar axis.
    */
   vtkSetMacro(PolarArcsVisibility, vtkTypeBool);
   vtkGetMacro(PolarArcsVisibility, vtkTypeBool);
   vtkBooleanMacro(PolarArcsVisibility, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable/Disable labels 2D mode (always facing the camera).
    */
   void SetUse2DMode(int val);
   int GetUse2DMode();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the polar axis title text property.
    */
   virtual void SetPolarAxisTitleTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(PolarAxisTitleTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the polar axis labels text property.
    */
   virtual void SetPolarAxisLabelTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(PolarAxisLabelTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the last radial axis text property.
    */
   virtual void SetLastRadialAxisTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(LastRadialAxisTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the secondary radial axes text property.
    */
   virtual void SetSecondaryRadialAxesTextProperty(vtkTextProperty* p);
   vtkGetObjectMacro(SecondaryRadialAxesTextProperty, vtkTextProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set polar axis actor properties.
    */
   virtual void SetPolarAxisProperty(vtkProperty*);
   vtkGetObjectMacro(PolarAxisProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set last radial axis actor properties.
    */
   virtual void SetLastRadialAxisProperty(vtkProperty* p);
   vtkGetObjectMacro(LastRadialAxisProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set secondary radial axes actors properties.
    */
   virtual void SetSecondaryRadialAxesProperty(vtkProperty* p);
   vtkGetObjectMacro(SecondaryRadialAxesProperty, vtkProperty);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set principal polar arc actor property.
    */
   virtual void SetPolarArcsProperty(vtkProperty* p);
   vtkProperty* GetPolarArcsProperty();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set secondary polar arcs actors property.
    */
   virtual void SetSecondaryPolarArcsProperty(vtkProperty* p);
   vtkProperty* GetSecondaryPolarArcsProperty();
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Explicitly specify the region in space around which to draw the bounds.
    * The bounds are used only when no Input or Prop is specified. The bounds
@@ -683,15 +683,15 @@ public:
   void GetBounds(
     double& xmin, double& xmax, double& ymin, double& ymax, double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Ratio
    */
   vtkSetClampMacro(Ratio, double, 0.001, 100.0);
   vtkGetMacro(Ratio, double);
-  //@}
+  ///@}
 
 protected:
   vtkPolarAxesActor();
@@ -785,13 +785,13 @@ protected:
    */
   void GetSignificantPartFromValues(vtkStringArray* valuesStr, std::list<double>& valuesList);
 
-  //@{
+  ///@{
   /**
    * Convenience methods
    */
   double FFix(double);
   double FSign(double, double);
-  //@}
+  ///@}
 
   /**
    * Automatically rescale titles and labels
@@ -911,14 +911,14 @@ protected:
   vtkPolyDataMapper* PolarArcsMapper;
   vtkActor* PolarArcsActor;
 
-  //@{
+  ///@{
   /**
    * Structures for secondary polar arcs
    */
   vtkPolyData* SecondaryPolarArcs;
   vtkPolyDataMapper* SecondaryPolarArcsMapper;
   vtkActor* SecondaryPolarArcsActor;
-  //@}
+  ///@}
 
   /**
    * Camera attached to the polar axes system
@@ -935,14 +935,14 @@ protected:
    */
   vtkAxisActor** RadialAxes;
 
-  //@{
+  ///@{
   /**
    * Title to be used for the polar axis
    * NB: Non-polar radial axes use the polar angle as title and have no labels
    */
   char* PolarAxisTitle;
   char* PolarLabelFormat;
-  //@}
+  ///@}
 
   /**
    * String to format angle values displayed on the radial axes.
@@ -979,14 +979,14 @@ protected:
    */
   double ViewAngleLODThreshold;
 
-  //@{
+  ///@{
   /**
    * Visibility of polar axis and its title, labels, ticks (major only)
    */
   vtkTypeBool PolarAxisVisibility;
   vtkTypeBool PolarTitleVisibility;
   vtkTypeBool PolarLabelVisibility;
-  //@}
+  ///@}
 
   /**
    * Describes the tick orientation for the graph elements involved by this property.
@@ -1048,13 +1048,13 @@ protected:
    */
   double PolarAxisTickRatioThickness, LastAxisTickRatioThickness, ArcTickRatioThickness;
 
-  //@{
+  ///@{
   /**
    * Visibility of radial axes and their titles
    */
   vtkTypeBool RadialAxesVisibility;
   vtkTypeBool RadialTitleVisibility;
-  //@}
+  ///@}
 
   /**
    * Define the alignment of the title related to the radial axis. (BOTTOM or EXTERN)
@@ -1097,7 +1097,7 @@ protected:
    */
   vtkPoints* ArcMinorTickPts;
 
-  //@{
+  ///@{
   /**
    * vtk object for arc Ticks
    */
@@ -1107,15 +1107,15 @@ protected:
   vtkPolyDataMapper* ArcMinorTickPolyDataMapper;
   vtkActor* ArcTickActor;
   vtkActor* ArcMinorTickActor;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Text properties of polar axis title and labels
    */
   vtkTextProperty* PolarAxisTitleTextProperty;
   vtkTextProperty* PolarAxisLabelTextProperty;
-  //@}
+  ///@}
 
   /**
    * Text properties of last radial axis

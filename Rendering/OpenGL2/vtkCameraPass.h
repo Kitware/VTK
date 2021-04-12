@@ -55,7 +55,7 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
-  //@{
+  ///@{
   /**
    * Delegate for rendering the geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -65,9 +65,9 @@ public:
    */
   vtkGetObjectMacro(DelegatePass, vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass* delegatePass);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Used to override the aspect ratio used when computing the projection
    * matrix. This is useful when rendering for tile-displays for example.
@@ -76,20 +76,20 @@ public:
   vtkGetMacro(AspectRatioOverride, double);
 
 protected:
-  //@}
+  ///@}
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
   vtkCameraPass();
 
-  //@{
+  ///@{
   /**
    * Destructor.
    */
   ~vtkCameraPass() override;
   virtual void GetTiledSizeAndOrigin(
     const vtkRenderState* render_state, int* width, int* height, int* originX, int* originY);
-  //@}
+  ///@}
 
   vtkRenderPass* DelegatePass;
 

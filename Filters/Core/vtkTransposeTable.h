@@ -40,7 +40,7 @@ public:
   vtkTypeMacro(vtkTransposeTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * This flag indicates if a column must be inserted at index 0
    * with the names (ids) of the input columns.
@@ -49,9 +49,9 @@ public:
   vtkGetMacro(AddIdColumn, bool);
   vtkSetMacro(AddIdColumn, bool);
   vtkBooleanMacro(AddIdColumn, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag indicates if the output column must be named using the
    * names listed in the index 0 column.
@@ -60,16 +60,16 @@ public:
   vtkGetMacro(UseIdColumn, bool);
   vtkSetMacro(UseIdColumn, bool);
   vtkBooleanMacro(UseIdColumn, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the id column added by option AddIdColumn.
    * Default: ColName
    */
   vtkGetStringMacro(IdColumnName);
   vtkSetStringMacro(IdColumnName);
-  //@}
+  ///@}
 
 protected:
   vtkTransposeTable();

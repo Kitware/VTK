@@ -59,7 +59,7 @@ public:
   vtkGetMacro(Normalize, vtkTypeBool);
   vtkBooleanMacro(Normalize, vtkTypeBool);
 
-  //@{
+  ///@{
   /**
    * Control how the filter works to generate scalar data from the
    * input vector data. By default, (AttributeModeToDefault) the
@@ -78,7 +78,7 @@ public:
   }
   void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
   const char* GetAttributeModeAsString();
-  //@}
+  ///@}
 
 protected:
   vtkVectorNorm();

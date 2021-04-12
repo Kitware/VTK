@@ -36,15 +36,15 @@ public:
   vtkTypeMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm.
    */
   vtkHierarchicalBoxDataSet* GetOutput();
   vtkHierarchicalBoxDataSet* GetOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Assign a data object as input. Note that this method does not
    * establish a pipeline connection. Use SetInputConnection() to
@@ -52,7 +52,7 @@ public:
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   /**
    * see vtkAlgorithm for details
@@ -91,7 +91,7 @@ protected:
     return 1;
   }
 
-  //@{
+  ///@{
   /**
    * This is called by the superclass.
    * This is the method you should override.
@@ -100,7 +100,7 @@ protected:
   {
     return 1;
   }
-  //@}
+  ///@}
 
   // Create a default executive.
   vtkExecutive* CreateDefaultExecutive() override;

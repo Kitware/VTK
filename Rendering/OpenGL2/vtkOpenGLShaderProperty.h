@@ -76,7 +76,7 @@ public:
   void ClearAllGeometryShaderReplacements() override;
   void ClearAllShaderReplacements() override;
 
-  //@{
+  ///@{
   /**
    * This function enables you to apply your own substitutions
    * to the shader creation process. The shader code in this class
@@ -91,7 +91,7 @@ public:
   void ClearShaderReplacement(vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue, bool replaceFirst);
   void ClearAllShaderReplacements(vtkShader::Type shaderType);
-  //@}
+  ///@}
 
   /**
    * @brief GetAllShaderReplacements returns all user-specified shader

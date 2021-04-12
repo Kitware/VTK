@@ -104,7 +104,7 @@ private:
    */
   void AddNamedSet(std::string uniqueName);
 
-  //@{
+  ///@{
   /**
    * records times that xdmf grids supply data at
    * if timespecs are only implied we add them to make things simpler later on
@@ -112,7 +112,7 @@ private:
   void InspectTime(shared_ptr<XdmfItem> item);
   void GetSetTime(shared_ptr<XdmfGrid> child, unsigned int& cnt);
   void GetSetTime(shared_ptr<XdmfGraph> child, unsigned int& cnt);
-  //@}
+  ///@}
 
   /**
    * for parallel partitioning

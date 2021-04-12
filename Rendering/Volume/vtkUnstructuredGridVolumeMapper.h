@@ -42,14 +42,14 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeMapper, vtkAbstractVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the input data
    */
   virtual void SetInputData(vtkUnstructuredGridBase*);
   virtual void SetInputData(vtkDataSet*);
   vtkUnstructuredGridBase* GetInput();
-  //@}
+  ///@}
 
   vtkSetMacro(BlendMode, int);
   void SetBlendModeToComposite()

@@ -39,21 +39,21 @@ public:
   vtkTypeMacro(vtkUniformGridAMRAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get the output data object for a port on this algorithm
    */
   vtkUniformGridAMR* GetOutput();
   vtkUniformGridAMR* GetOutput(int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set an input of this algorithm.
    */
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
-  //@}
+  ///@}
 
   /**
    * See vtkAlgorithm for details
@@ -106,13 +106,13 @@ protected:
    */
   vtkExecutive* CreateDefaultExecutive() override;
 
-  //@{
+  ///@{
   /**
    * See algorithm for more info.
    */
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  //@}
+  ///@}
 
   vtkDataObject* GetInput(int port);
 

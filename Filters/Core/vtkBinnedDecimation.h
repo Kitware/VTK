@@ -95,16 +95,16 @@
 class VTKFILTERSCORE_EXPORT vtkBinnedDecimation : public vtkPolyDataAlgorithm
 {
 public:
-  //@{
+  ///@{
   /**
    * Standard instantiation, type and print methods.
    */
   static vtkBinnedDecimation* New();
   vtkTypeMacro(vtkBinnedDecimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the number of divisions along each axis for the spatial bins.
    * The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
@@ -126,9 +126,9 @@ public:
   void SetNumberOfDivisions(int div0, int div1, int div2);
   int* GetNumberOfDivisions() VTK_SIZEHINT(3);
   void GetNumberOfDivisions(int div[3]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Enable automatic adjustment of number of divisions. If disabled, the
    * number of divisions specified by the user is always used (as long as it
@@ -137,9 +137,9 @@ public:
   vtkSetMacro(AutoAdjustNumberOfDivisions, bool);
   vtkGetMacro(AutoAdjustNumberOfDivisions, bool);
   vtkBooleanMacro(AutoAdjustNumberOfDivisions, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This is an alternative way to set up the bins.  If you are trying to
    * match boundaries between pieces, then you should use these methods
@@ -152,9 +152,9 @@ public:
   void SetDivisionSpacing(double x, double y, double z);
   void SetDivisionSpacing(double s[3]) { this->SetDivisionSpacing(s[0], s[1], s[2]); }
   vtkGetVector3Macro(DivisionSpacing, double);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Four options exist for generating output points. 1) Pass the input
    * points through to the output; 2) select one of the input points in the bin and
@@ -187,9 +187,9 @@ public:
   void SetPointGenerationModeToBinPoints() { this->SetPointGenerationMode(BIN_POINTS); }
   void SetPointGenerationModeToBinCenters() { this->SetPointGenerationMode(BIN_CENTERS); }
   void SetPointGenerationModeToBinAverages() { this->SetPointGenerationMode(BIN_AVERAGES); }
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag directs the filter to produce output point data from the input
    * point data (on by default). If the ProducePointData is set to
@@ -203,9 +203,9 @@ public:
   vtkSetMacro(ProducePointData, bool);
   vtkGetMacro(ProducePointData, bool);
   vtkBooleanMacro(ProducePointData, bool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * This flag directs the filter to copy cell data from input to output.
    * This flag is off by default.
@@ -214,7 +214,7 @@ public:
   vtkGetMacro(ProduceCellData, bool);
   vtkBooleanMacro(ProduceCellData, bool);
 
-  //@}
+  ///@}
   /**
    * Return a flag indicating whether large ids were used during
    * execution. The value of this flag is only valid after filter

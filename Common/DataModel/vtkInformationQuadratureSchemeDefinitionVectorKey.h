@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKe
 public:
   vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@{
+  ///@{
   /**
    * The name of the static instance and the class in which
    * it is defined(location) should be passed to the constructor.
@@ -47,7 +47,7 @@ public:
   vtkInformationQuadratureSchemeDefinitionVectorKey(const char* name, const char* location);
   //
   ~vtkInformationQuadratureSchemeDefinitionVectorKey() override;
-  //@}
+  ///@}
 
   /**
    * Clear the vector.
@@ -99,7 +99,7 @@ public:
   // implement.
   // vtkQuadratureSchemeDefinition **Get(vtkInformation* info);
 
-  //@{
+  ///@{
   /**
    * Copy the entry associated with this key from one information
    * object to another.  If there is no entry in the first information
@@ -107,7 +107,7 @@ public:
    */
   void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
   void DeepCopy(vtkInformation* from, vtkInformation* to) override;
-  //@}
+  ///@}
 
   /**
    * Print the key's value in an information object to a stream.

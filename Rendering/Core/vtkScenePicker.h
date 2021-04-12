@@ -63,13 +63,13 @@ public:
   vtkTypeMacro(vtkScenePicker, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set the renderer. Scene picks are restricted to the viewport.
    */
   virtual void SetRenderer(vtkRenderer*);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  //@}
+  ///@}
 
   /**
    * Get cell id at the pick position.
@@ -92,7 +92,7 @@ public:
    */
   vtkProp* GetViewProp(int displayPos[2]);
 
-  //@{
+  ///@{
   /**
    * Vertex picking (using the method GetVertexId()), required
    * additional resources and can slow down still render time by
@@ -101,7 +101,7 @@ public:
   vtkSetMacro(EnableVertexPicking, vtkTypeBool);
   vtkGetMacro(EnableVertexPicking, vtkTypeBool);
   vtkBooleanMacro(EnableVertexPicking, vtkTypeBool);
-  //@}
+  ///@}
 
 protected:
   vtkScenePicker();

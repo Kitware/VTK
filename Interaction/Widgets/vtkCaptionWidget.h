@@ -55,13 +55,13 @@ public:
    */
   static vtkCaptionWidget* New();
 
-  //@{
+  ///@{
   /**
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkCaptionWidget, vtkBorderWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   /**
    * Override superclasses' SetEnabled() method because the caption leader
@@ -79,7 +79,7 @@ public:
     this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
-  //@{
+  ///@{
   /**
    * Specify a vtkCaptionActor2D to manage. This is convenient, alternative
    * method to SetRepresentation(). It internally create a vtkCaptionRepresentation
@@ -87,7 +87,7 @@ public:
    */
   void SetCaptionActor2D(vtkCaptionActor2D* capActor);
   vtkCaptionActor2D* GetCaptionActor2D();
-  //@}
+  ///@}
 
   /**
    * Create the default widget representation if one is not set.

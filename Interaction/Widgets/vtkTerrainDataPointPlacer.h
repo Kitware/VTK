@@ -52,13 +52,13 @@ public:
    */
   static vtkTerrainDataPointPlacer* New();
 
-  //@{
+  ///@{
   /**
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkTerrainDataPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
   // Descuription:
   // Add an actor (that represents a terrain in a rendererd scene) to the
@@ -66,7 +66,7 @@ public:
   virtual void AddProp(vtkProp*);
   virtual void RemoveAllProps();
 
-  //@{
+  ///@{
   /**
    * This is the height above (or below) the terrain that the dictated
    * point should be placed. Positive values indicate distances above the
@@ -75,7 +75,7 @@ public:
    */
   vtkSetMacro(HeightOffset, double);
   vtkGetMacro(HeightOffset, double);
-  //@}
+  ///@}
 
   /**
    * Given a renderer and a display position in pixel coordinates,
@@ -114,12 +114,12 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  //@{
+  ///@{
   /**
    * Get the Prop picker.
    */
   vtkGetObjectMacro(PropPicker, vtkPropPicker);
-  //@}
+  ///@}
 
 protected:
   vtkTerrainDataPointPlacer();

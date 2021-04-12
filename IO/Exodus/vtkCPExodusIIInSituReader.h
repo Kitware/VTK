@@ -45,29 +45,29 @@ public:
   vtkTypeMacro(vtkCPExodusIIInSituReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Get/Set the name of the Exodus file to read.
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get/Set the current timestep to read as a zero-based index.
    */
   vtkGetMacro(CurrentTimeStep, int);
   vtkSetMacro(CurrentTimeStep, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the range of timesteps, represented as [0, numTimeSteps - 1]. Call
    * UpdateInformation first to set this without reading any timestep data.
    */
   vtkGetVector2Macro(TimeStepRange, int);
-  //@}
+  ///@}
 
   /**
    * Get the floating point tag associated with the timestep at 'step'.

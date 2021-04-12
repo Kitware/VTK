@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPRectilinearGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkRectilinearGrid* GetOutput();
   vtkRectilinearGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
 protected:
   vtkXMLPRectilinearGridReader();

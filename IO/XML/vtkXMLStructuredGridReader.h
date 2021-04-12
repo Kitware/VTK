@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLStructuredGridReader* New();
 
-  //@{
+  ///@{
   /**
    * Get the reader's output.
    */
   vtkStructuredGrid* GetOutput();
   vtkStructuredGrid* GetOutput(int idx);
-  //@}
+  ///@}
 
 protected:
   vtkXMLStructuredGridReader();

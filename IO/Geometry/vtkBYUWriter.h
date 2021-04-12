@@ -42,72 +42,72 @@ public:
   vtkTypeMacro(vtkBYUWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Specify the name of the geometry file to write.
    */
   vtkSetStringMacro(GeometryFileName);
   vtkGetStringMacro(GeometryFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the displacement file to write.
    */
   vtkSetStringMacro(DisplacementFileName);
   vtkGetStringMacro(DisplacementFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the scalar file to write.
    */
   vtkSetStringMacro(ScalarFileName);
   vtkGetStringMacro(ScalarFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify the name of the texture file to write.
    */
   vtkSetStringMacro(TextureFileName);
   vtkGetStringMacro(TextureFileName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off writing the displacement file.
    */
   vtkSetMacro(WriteDisplacement, vtkTypeBool);
   vtkGetMacro(WriteDisplacement, vtkTypeBool);
   vtkBooleanMacro(WriteDisplacement, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off writing the scalar file.
    */
   vtkSetMacro(WriteScalar, vtkTypeBool);
   vtkGetMacro(WriteScalar, vtkTypeBool);
   vtkBooleanMacro(WriteScalar, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Turn on/off writing the texture file.
    */
   vtkSetMacro(WriteTexture, vtkTypeBool);
   vtkGetMacro(WriteTexture, vtkTypeBool);
   vtkBooleanMacro(WriteTexture, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Get the input to this writer.
    */
   vtkPolyData* GetInput();
   vtkPolyData* GetInput(int port);
-  //@}
+  ///@}
 
 protected:
   vtkBYUWriter();

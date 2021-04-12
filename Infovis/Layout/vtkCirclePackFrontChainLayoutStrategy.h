@@ -66,7 +66,7 @@ public:
    */
   void Layout(vtkTree* inputTree, vtkDataArray* areaArray, vtkDataArray* sizeArray) override;
 
-  //@{
+  ///@{
   /**
    * Width and Height define the size of the output window that the
    * circle packing is placed inside.  Defaults to Width 1, Height 1
@@ -75,7 +75,7 @@ public:
   vtkSetMacro(Width, int);
   vtkGetMacro(Height, int);
   vtkSetMacro(Height, int);
-  //@}
+  ///@}
 
 protected:
   vtkCirclePackFrontChainLayoutStrategy();

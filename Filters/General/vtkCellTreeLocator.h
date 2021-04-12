@@ -122,7 +122,7 @@ public:
    */
   vtkIdType FindCell(double x[3]) override { return this->Superclass::FindCell(x); }
 
-  //@{
+  ///@{
   /**
    * Satisfy vtkLocator abstract interface.
    */
@@ -132,9 +132,9 @@ public:
   virtual void BuildLocatorIfNeeded();
   virtual void ForceBuildLocator();
   void BuildLocator() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Internal classes made public to allow subclasses to create
    * customized some traversal algorithms
@@ -147,7 +147,7 @@ public:
     friend class vtkCellPointTraversal;
     friend class vtkCellTreeNode;
     friend class vtkCellTreeBuilder;
-    //@}
+    ///@}
 
   public:
     float DataBBox[6]; // This store the bounding values of the dataset

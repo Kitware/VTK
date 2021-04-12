@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkImageMarchingCubes, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Methods to set contour values
    */
@@ -65,23 +65,23 @@ public:
   vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
-  //@}
+  ///@}
 
   /**
    * Because we delegate to vtkContourValues & refer to vtkImplicitFunction
    */
   vtkMTimeType GetMTime() override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of scalars.
    */
   vtkSetMacro(ComputeScalars, vtkTypeBool);
   vtkGetMacro(ComputeScalars, vtkTypeBool);
   vtkBooleanMacro(ComputeScalars, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of normals. Normal computation is fairly expensive
    * in both time and storage. If the output data will be processed by filters
@@ -90,9 +90,9 @@ public:
   vtkSetMacro(ComputeNormals, vtkTypeBool);
   vtkGetMacro(ComputeNormals, vtkTypeBool);
   vtkBooleanMacro(ComputeNormals, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the computation of gradients. Gradient computation is fairly expensive
    * in both time and storage. Note that if ComputeNormals is on, gradients will
@@ -103,7 +103,7 @@ public:
   vtkSetMacro(ComputeGradients, vtkTypeBool);
   vtkGetMacro(ComputeGradients, vtkTypeBool);
   vtkBooleanMacro(ComputeGradients, vtkTypeBool);
-  //@}
+  ///@}
 
   // Should be protected, but the templated functions need these
   vtkTypeBool ComputeScalars;
@@ -121,7 +121,7 @@ public:
   void AddLocatorPoint(int cellX, int cellY, int edge, vtkIdType ptId);
   void IncrementLocatorZ();
 
-  //@{
+  ///@{
   /**
    * The InputMemoryLimit determines the chunk size (the number of slices
    * requested at each iteration).  The units of this limit is KiloBytes.
@@ -129,7 +129,7 @@ public:
    */
   vtkSetMacro(InputMemoryLimit, vtkIdType);
   vtkGetMacro(InputMemoryLimit, vtkIdType);
-  //@}
+  ///@}
 
 protected:
   vtkImageMarchingCubes();

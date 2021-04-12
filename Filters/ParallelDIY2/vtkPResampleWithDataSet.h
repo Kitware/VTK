@@ -38,16 +38,16 @@ public:
 
   static vtkPResampleWithDataSet* New();
 
-  //@{
+  ///@{
   /**
    * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get if the filter should use Balanced Partitioning for fast lookup of
    * the input points. Balanced Partitioning partitions the points into similar
@@ -64,7 +64,7 @@ public:
   vtkSetMacro(UseBalancedPartitionForPointsLookup, bool);
   vtkGetMacro(UseBalancedPartitionForPointsLookup, bool);
   vtkBooleanMacro(UseBalancedPartitionForPointsLookup, bool);
-  //@}
+  ///@}
 
 protected:
   vtkPResampleWithDataSet();

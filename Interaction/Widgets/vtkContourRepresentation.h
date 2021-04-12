@@ -119,15 +119,15 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRe
   friend class vtkContourWidget;
 
 public:
-  //@{
+  ///@{
   /**
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkContourRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a node at a specific world position. Returns 0 if the
    * node could not be added, 1 otherwise.
@@ -135,9 +135,9 @@ public:
   virtual int AddNodeAtWorldPosition(double x, double y, double z);
   virtual int AddNodeAtWorldPosition(double worldPos[3]);
   virtual int AddNodeAtWorldPosition(double worldPos[3], double worldOrient[9]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Add a node at a specific display position. This will be
    * converted into a world position according to the current
@@ -147,9 +147,9 @@ public:
   virtual int AddNodeAtDisplayPosition(double displayPos[2]);
   virtual int AddNodeAtDisplayPosition(int displayPos[2]);
   virtual int AddNodeAtDisplayPosition(int X, int Y);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Given a display position, activate a node. The closest
    * node within tolerance will be activated. If a node is
@@ -159,7 +159,7 @@ public:
   virtual int ActivateNode(double displayPos[2]);
   virtual int ActivateNode(int displayPos[2]);
   virtual int ActivateNode(int X, int Y);
-  //@}
+  ///@}
 
   // Description:
   // Move the active node to a specified world position.
@@ -169,7 +169,7 @@ public:
   virtual int SetActiveNodeToWorldPosition(double pos[3]);
   virtual int SetActiveNodeToWorldPosition(double pos[3], double orient[9]);
 
-  //@{
+  ///@{
   /**
    * Move the active node based on a specified display position.
    * The display position will be converted into a world
@@ -180,9 +180,9 @@ public:
   virtual int SetActiveNodeToDisplayPosition(double pos[2]);
   virtual int SetActiveNodeToDisplayPosition(int pos[2]);
   virtual int SetActiveNodeToDisplayPosition(int X, int Y);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get whether the active or nth node is selected.
    */
@@ -190,7 +190,7 @@ public:
   virtual int GetActiveNodeSelected();
   virtual int GetNthNodeSelected(int);
   virtual int SetNthNodeSelected(int);
-  //@}
+  ///@}
 
   /**
    * Get the world position of the active node. Will return
@@ -241,7 +241,7 @@ public:
    */
   virtual int GetNthNodeWorldOrientation(int n, double orient[9]);
 
-  //@{
+  ///@{
   /**
    * Set the nth node's display position. Display position
    * will be converted into world position according to the
@@ -253,9 +253,9 @@ public:
   virtual int SetNthNodeDisplayPosition(int n, int X, int Y);
   virtual int SetNthNodeDisplayPosition(int n, int pos[2]);
   virtual int SetNthNodeDisplayPosition(int n, double pos[2]);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the nth node's world position. Will return
    * 1 on success, or 0 if there are not at least
@@ -265,7 +265,7 @@ public:
    */
   virtual int SetNthNodeWorldPosition(int n, double pos[3]);
   virtual int SetNthNodeWorldPosition(int n, double pos[3], double orient[9]);
-  //@}
+  ///@}
 
   /**
    * Get the nth node's slope. Will return
@@ -335,23 +335,23 @@ public:
    */
   virtual int AddNodeOnContour(int X, int Y);
 
-  //@{
+  ///@{
   /**
    * The tolerance to use when calculations are performed in
    * display coordinates
    */
   vtkSetClampMacro(PixelTolerance, int, 1, 100);
   vtkGetMacro(PixelTolerance, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * The tolerance to use when calculations are performed in
    * world coordinates
    */
   vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(WorldTolerance, double);
-  //@}
+  ///@}
 
   // Used to communicate about the state of the representation
   enum
@@ -368,7 +368,7 @@ public:
     Scale
   };
 
-  //@{
+  ///@{
   /**
    * Set / get the current operation. The widget is either
    * inactive, or it is being translated.
@@ -386,7 +386,7 @@ public:
   }
   void SetCurrentOperationToShift() { this->SetCurrentOperation(vtkContourRepresentation::Shift); }
   void SetCurrentOperationToScale() { this->SetCurrentOperation(vtkContourRepresentation::Scale); }
-  //@}
+  ///@}
 
   // Description:
   // Set / get the Point Placer. The point placer is
@@ -396,7 +396,7 @@ public:
   void SetPointPlacer(vtkPointPlacer*);
   vtkGetObjectMacro(PointPlacer, vtkPointPlacer);
 
-  //@{
+  ///@{
   /**
    * Set / Get the Line Interpolator. The line interpolator
    * is responsible for generating the line segments connecting
@@ -404,9 +404,9 @@ public:
    */
   void SetLineInterpolator(vtkContourLineInterpolator*);
   vtkGetObjectMacro(LineInterpolator, vtkContourLineInterpolator);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
@@ -414,9 +414,9 @@ public:
   int ComputeInteractionState(int X, int Y, int modified = 0) override = 0;
   void StartWidgetInteraction(double e[2]) override = 0;
   void WidgetInteraction(double e[2]) override = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Methods required by vtkProp superclass.
    */
@@ -425,9 +425,9 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport) override = 0;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override = 0;
   vtkTypeBool HasTranslucentPolygonalGeometry() override = 0;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set / Get the ClosedLoop value. This ivar indicates whether the contour
    * forms a closed loop.
@@ -435,9 +435,9 @@ public:
   void SetClosedLoop(vtkTypeBool val);
   vtkGetMacro(ClosedLoop, vtkTypeBool);
   vtkBooleanMacro(ClosedLoop, vtkTypeBool);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * A flag to indicate whether to show the Selected nodes
    * Default is to set it to false.
@@ -445,7 +445,7 @@ public:
   virtual void SetShowSelectedNodes(vtkTypeBool);
   vtkGetMacro(ShowSelectedNodes, vtkTypeBool);
   vtkBooleanMacro(ShowSelectedNodes, vtkTypeBool);
-  //@}
+  ///@}
 
   /**
    * Get the points in this contour as a vtkPolyData.
@@ -485,7 +485,7 @@ protected:
   void AddNodeAtPositionInternal(double worldPos[3], double worldOrient[9], double displayPos[2]);
   void SetNthNodeWorldPositionInternal(int n, double worldPos[3], double worldOrient[9]);
 
-  //@{
+  ///@{
   /**
    * Given a world position and orientation, this computes the display position
    * using the renderer of this class.
@@ -494,7 +494,7 @@ protected:
     double worldPos[3], double worldOrient[9], int displayPos[2]);
   void GetRendererComputedDisplayPositionFromWorldPosition(
     double worldPos[3], double worldOrient[9], double displayPos[2]);
-  //@}
+  ///@}
 
   virtual void UpdateLines(int index);
   void UpdateLine(int idx1, int idx2);
