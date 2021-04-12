@@ -262,7 +262,7 @@ public:
    * should contains a vtkSMPTools method.
    *
    * This version of Scope doesn't take a number of threads as parameter and will
-   * use the VTK_SMP_MAX_THREADS env variable.
+   * uses the VTK_SMP_MAX_THREADS env variable.
    *
    * Usage example:
    * \code
