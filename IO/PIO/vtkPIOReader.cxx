@@ -139,16 +139,16 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     this->Float64 = pioAdaptor->GetFloat64();
 
     // Get the variable names and set in the selection
-    std::set<std::string> variables_to_enable_by_default;
+    std::set<std::string> variablesToEnableByDefault;
     for (int cc = 0, max = this->pioAdaptor->GetNumberOfDefaultVariables(); cc < max; ++cc)
     {
-      variables_to_enable_by_default.insert(this->pioAdaptor->GetVariableName(cc));
+      variablesToEnableByDefault.insert(this->pioAdaptor->GetVariableName(cc));
     }
     for (int i = 0, max = this->pioAdaptor->GetNumberOfVariables(); i < max; i++)
     {
       const auto varName = this->pioAdaptor->GetVariableName(i);
-      this->CellDataArraySelection->AddArray(varName,
-        variables_to_enable_by_default.find(varName) != variables_to_enable_by_default.end());
+      this->CellDataArraySelection->AddArray(
+        varName, variablesToEnableByDefault.find(varName) != variablesToEnableByDefault.end());
     }
 
     // Collect temporal information from PIOAdaptor's last PIO file
