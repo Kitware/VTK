@@ -32,6 +32,40 @@
 #include <iterator>
 #include <set>
 #include <sstream>
+#include <tuple>
+
+namespace
+{
+
+std::pair<std::string, std::string> GetBlockNameAndLabel(
+  vtkInformation* metadata, const std::string& defaultName)
+{
+  if (metadata && metadata->Has(vtkCompositeDataSet::NAME()) &&
+    metadata->Get(vtkCompositeDataSet::NAME()))
+  {
+    std::string label = metadata->Get(vtkCompositeDataSet::NAME());
+    std::string name = vtkDataAssembly::MakeValidNodeName(label.c_str());
+    return std::make_pair(name, label);
+  }
+  else
+  {
+    return std::make_pair(defaultName, std::string());
+  }
+}
+
+// String used as the attribute name for data assembly nodes to identify
+// data-assembly instances that represent a hierarchy.
+constexpr const char* CATEGORY_ATTRIBUTE_NAME = "vtk_category";
+
+// Value used for CATEGORY_ATTRIBUTE_NAME attribute on the generate data assembly
+// when it represents the hierarchy for the input dataset.
+constexpr const char* CATEGORY_HIERARCHY = "hierarchy";
+
+// Value used for CATEGORY_ATTRIBUTE_NAME attribute on the generated data assembly
+// when the data assembly representation a hierarchy for the input with dataset indices
+// pointing to the transformed `vtkPartitionedDataSetCollection` rather than the input.
+constexpr const char* CATEGORY_TRANSFORMED_HIERARCHY = "xformed_hierarchy";
+}
 
 vtkStandardNewMacro(vtkDataAssemblyUtilities);
 //----------------------------------------------------------------------------
@@ -108,7 +142,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
   assert(amr != nullptr && hierarchy != nullptr);
   hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", amr->GetDataObjectType());
-  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(
+    vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_HIERARCHY);
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", amr->GetClassName());
 
   if (output)
@@ -120,8 +155,10 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   for (unsigned int level = 0, numLevels = amr->GetNumberOfLevels(); level < numLevels; ++level)
   {
-    auto node = hierarchy->AddNode(("Block" + std::to_string(level)).c_str());
-    hierarchy->SetAttribute(node, "label", ("Level " + std::to_string(level)).c_str());
+    const auto label = "Level " + std::to_string(level);
+    const auto name = vtkDataAssembly::MakeValidNodeName(label.c_str());
+    auto node = hierarchy->AddNode(name.c_str());
+    hierarchy->SetAttribute(node, "label", label.c_str());
     hierarchy->SetAttribute(node, "amr_level", level);
 
     const auto numDataSets = amr->GetNumberOfDataSets(level);
@@ -150,7 +187,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     // partitioned-dataset index in the output.
     vtkNew<vtkDataAssembly> clone;
     clone->DeepCopy(hierarchy);
-    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->SetAttribute(
+      vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_TRANSFORMED_HIERARCHY);
     clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
     for (auto& pair : output_node2dataset_map)
     {
@@ -217,10 +255,14 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
       for (unsigned int bidx = 0, numBlocks = mb->GetNumberOfBlocks(); bidx < numBlocks; ++bidx)
       {
         auto metadata = mb->HasMetaData(bidx) ? mb->GetMetaData(bidx) : nullptr;
-        auto child = hierarchy->AddNode(("Block" + std::to_string(bidx)).c_str(), nodeid);
-        if (metadata && metadata->Has(vtkCompositeDataSet::NAME()))
+
+        std::string label, name;
+        std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(bidx));
+
+        auto child = hierarchy->AddNode(name.c_str(), nodeid);
+        if (!label.empty())
         {
-          hierarchy->SetAttribute(child, "label", metadata->Get(vtkCompositeDataSet::NAME()));
+          hierarchy->SetAttribute(child, "label", label.c_str());
         }
 
         auto block = mb->GetBlock(bidx);
@@ -244,7 +286,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
   };
 
   hierarchy->SetRootNodeName("Root");
-  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(
+    vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_HIERARCHY);
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", input->GetClassName());
   f(input, vtkDataAssembly::GetRootNode(), nullptr);
 
@@ -255,7 +298,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     // partitioned-dataset index in the output.
     vtkNew<vtkDataAssembly> clone;
     clone->DeepCopy(hierarchy);
-    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->SetAttribute(
+      vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_TRANSFORMED_HIERARCHY);
     clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
     for (auto& pair : output_node2dataset_map)
     {
@@ -281,21 +325,25 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
   unsigned int cid = 0;
   hierarchy->SetRootNodeName("Root");
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_type", input->GetDataObjectType());
-  hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "hierarchy");
+  hierarchy->SetAttribute(
+    vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_HIERARCHY);
   hierarchy->SetAttribute(vtkDataAssembly::GetRootNode(), "label", input->GetClassName());
   hierarchy->AddDataSetIndex(vtkDataAssembly::GetRootNode(), cid++);
 
   for (unsigned int p = 0; p < input->GetNumberOfPartitionedDataSets(); ++p)
   {
-    auto node = hierarchy->AddNode(("Block" + std::to_string(p)).c_str());
+    auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
+    std::string name, label;
+    std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(p));
+
+    auto node = hierarchy->AddNode(name.c_str());
 
     // dataset index in a hierarchy represents the composite index.
     hierarchy->AddDataSetIndex(node, cid++);
 
-    auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
-    if (metadata && metadata->Has(vtkCompositeDataSet::NAME()))
+    if (!label.empty())
     {
-      hierarchy->SetAttribute(node, "label", metadata->Get(vtkCompositeDataSet::NAME()));
+      hierarchy->SetAttribute(node, "label", label.c_str());
     }
 
     if (output)
@@ -313,7 +361,8 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
     // partitioned-dataset index in the output.
     vtkNew<vtkDataAssembly> clone;
     clone->DeepCopy(hierarchy);
-    clone->SetAttribute(vtkDataAssembly::GetRootNode(), "vtk_category", "xformed_hierarchy");
+    clone->SetAttribute(
+      vtkDataAssembly::GetRootNode(), CATEGORY_ATTRIBUTE_NAME, CATEGORY_TRANSFORMED_HIERARCHY);
     clone->RemoveAllDataSetIndices(0, /*traverse_subtree=*/true);
     for (auto& pair : output_node2dataset_map)
     {
@@ -476,7 +525,8 @@ vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
 
   const auto root = vtkDataAssembly::GetRootNode();
 
-  if (strcmp(hierarchy->GetAttributeOrDefault(root, "vtk_category", ""), "xformed_hierarchy") != 0)
+  if (strcmp(hierarchy->GetAttributeOrDefault(root, CATEGORY_ATTRIBUTE_NAME, ""),
+        CATEGORY_TRANSFORMED_HIERARCHY) != 0)
   {
     vtkLogF(
       ERROR, "Input hierarchy not generated using `vtkDataAssemblyUtilities` is not supported!");
@@ -618,8 +668,8 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
 
   const auto root = vtkDataAssembly::GetRootNode();
   const bool isHierarchy =
-    (strcmp(hierarchyOrAssembly->GetAttributeOrDefault(root, "vtk_category", ""), "hierarchy") ==
-      0);
+    (strcmp(hierarchyOrAssembly->GetAttributeOrDefault(root, CATEGORY_ATTRIBUTE_NAME, ""),
+       CATEGORY_HIERARCHY) == 0);
   if (!isHierarchy && data == nullptr)
   {
     vtkLogF(ERROR, "Missing required `data` argument.");
@@ -696,7 +746,8 @@ std::string vtkDataAssemblyUtilities::GetSelectorForCompositeId(
   unsigned int id, vtkDataAssembly* hierarchy)
 {
   const auto root = vtkDataAssembly::GetRootNode();
-  if (strcmp(hierarchy->GetAttributeOrDefault(root, "vtk_category", ""), "hierarchy") != 0)
+  if (strcmp(hierarchy->GetAttributeOrDefault(root, CATEGORY_ATTRIBUTE_NAME, ""),
+        CATEGORY_HIERARCHY) != 0)
   {
     vtkLogF(ERROR,
       "GetSelectorForCompositeId is only supported on a data-assembly representation a hierarchy.");

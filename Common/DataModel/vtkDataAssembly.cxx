@@ -393,11 +393,13 @@ std::string vtkDataAssembly::MakeValidNodeName(const char* name)
     }
     else
     {
-      result += '_';
+      result;
     }
   }
 
-  if ((name[0] < 'a' || name[0] > 'z') && (name[0] < 'A' || name[0] > 'Z') && name[0] != '_')
+  if (result.empty() ||
+    ((result[0] < 'a' || result[0] > 'z') && (result[0] < 'A' || result[0] > 'Z') &&
+      result[0] != '_'))
   {
     return "_" + result;
   }

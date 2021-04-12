@@ -445,6 +445,9 @@ public:
 
   /**
    * Converts any string to a string that is a valid node name.
+   * This is done by simply discarding any non-supported character.
+   * Additionally, if the first character is not a "_" or an alphabet, then
+   * the "_" is prepended.
    */
   static std::string MakeValidNodeName(const char* name);
 
