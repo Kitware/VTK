@@ -102,8 +102,8 @@ public:
   }
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
-  ///@}
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
+  ///@}
 
   /**
    * Get cell neighbors around cell located at `seedloc`, except cell of id `cellId`.
