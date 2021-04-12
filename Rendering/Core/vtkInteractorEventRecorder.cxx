@@ -137,6 +137,7 @@ void vtkInteractorEventRecorder::Record()
       {
         vtkErrorMacro(<< "Unable to open file: " << this->FileName);
         delete this->OutputStream;
+        this->OutputStream = nullptr;
         return;
       }
 
@@ -178,6 +179,7 @@ void vtkInteractorEventRecorder::Play()
       {
         vtkErrorMacro(<< "Unable to read from string");
         delete this->InputStream;
+        this->InputStream = nullptr;
         return;
       }
     }
@@ -190,6 +192,7 @@ void vtkInteractorEventRecorder::Play()
         {
           vtkErrorMacro(<< "Unable to open file: " << this->FileName);
           delete this->InputStream;
+          this->InputStream = nullptr;
           return;
         }
       }
