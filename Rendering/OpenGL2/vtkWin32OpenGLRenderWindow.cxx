@@ -1212,7 +1212,10 @@ int* vtkWin32OpenGLRenderWindow::GetPosition(void)
   }
 
   //  Find the current window position
-  //  x,y,&this->Position[0],&this->Position[1],&child);
+  RECT rect;
+  GetWindowRect(this->WindowId, &rect);
+  this->Position[0] = rect.left;
+  this->Position[1] = rect.top;
 
   return this->Position;
 }
