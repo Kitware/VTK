@@ -118,7 +118,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
   }
 
   // Textures
-  if (tcoordsArray.size())
+  if (!tcoordsArray.empty())
   {
     vtkIdType vtEndIndex = 0;
     vtkIdType pointEndIndex = 0;
