@@ -142,11 +142,13 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     std::set<std::string> variablesToEnableByDefault;
     for (int cc = 0, max = this->pioAdaptor->GetNumberOfDefaultVariables(); cc < max; ++cc)
     {
-      variablesToEnableByDefault.insert(this->pioAdaptor->GetVariableName(cc));
+      variablesToEnableByDefault.insert(this->pioAdaptor->GetVariableDefault(cc));
     }
     for (int i = 0, max = this->pioAdaptor->GetNumberOfVariables(); i < max; i++)
     {
       const auto varName = this->pioAdaptor->GetVariableName(i);
+      // vtkDataArraySelection::AddArray doesn't override the setting only adds it
+      // (without affecting MTime) if not already present.
       this->CellDataArraySelection->AddArray(
         varName, variablesToEnableByDefault.find(varName) != variablesToEnableByDefault.end());
     }
