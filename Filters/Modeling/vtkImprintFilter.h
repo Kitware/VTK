@@ -161,24 +161,37 @@ public:
   enum DebugOutput
   {
     NO_DEBUG_OUTPUT = 0,
-    INPUT_POINTS = 1,
-    OUTPUT_TRIANGULATION = 2
+    TRIANGULATION_INPUT = 1,
+    TRIANGULATION_OUTPUT = 2
   };
 
   ///@{
   /**
+   * Indicate whether the output should be triangulated. By default (i.e.,
+   * TriangulateOutputOff) the imprint cells, if not triangles nor intersect
+   * target cell boundaries, will not be triangulated. (Cells in the
+   * transition region are always triangulated because they are typically
+   * concave.)
+   */
+  vtkSetMacro(TriangulateOutput, bool);
+  vtkGetMacro(TriangulateOutput, bool);
+  vtkBooleanMacro(TriangulateOutput, bool);
+  //@}
+
+  //@{
+  /**
    * The following methods support debugging. By default, NO_DEBUG_OUTPUT is
-   * produced and the second output of this filter is empty. If INPUT_POINTS
-   * is set, then the input points specified by the target DebugCellId are
-   * output to the second output to this filter.  If OUTPUT_TRIANGULATION is
+   * produced and the second output of this filter is empty. If TRIANGULATION_INPUT
+   * is set, then the input points and edges contained by the target DebugCellId are
+   * output to the second output to this filter.  If TRIANGULATION_OUTPUT is
    * set, then the output triangulation for the specified DebugCellId is
    * placed in a second output to this filter.
    */
-  vtkSetClampMacro(DebugOutputType, int, NO_DEBUG_OUTPUT, OUTPUT_TRIANGULATION);
+  vtkSetClampMacro(DebugOutputType, int, NO_DEBUG_OUTPUT, TRIANGULATION_OUTPUT);
   vtkGetMacro(DebugOutputType, int);
   void SetDebugOutputTypeToNoDebugOutput() { this->SetDebugOutputType(NO_DEBUG_OUTPUT); }
-  void SetDebugOutputTypeToInputPoints() { this->SetDebugOutputType(INPUT_POINTS); }
-  void SetDebugOutputTypeToOutputTriangulation() { this->SetDebugOutputType(OUTPUT_TRIANGULATION); }
+  void SetDebugOutputTypeToTriangulationInput() { this->SetDebugOutputType(TRIANGULATION_INPUT); }
+  void SetDebugOutputTypeToTriangulationOutput() { this->SetDebugOutputType(TRIANGULATION_OUTPUT); }
   vtkSetMacro(DebugCellId, vtkIdType);
   vtkGetMacro(DebugCellId, vtkIdType);
   ///@{
@@ -197,6 +210,7 @@ protected:
 
   double Tolerance;
   int OutputType;
+  bool TriangulateOutput;
 
   int DebugOutputType;
   vtkIdType DebugCellId;

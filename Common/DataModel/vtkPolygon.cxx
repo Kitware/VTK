@@ -46,7 +46,8 @@ vtkPolygon::vtkPolygon()
   this->TriScalars = vtkDoubleArray::New();
   this->TriScalars->Allocate(3);
   this->Line = vtkLine::New();
-  this->Tolerance = 0.0;
+  this->Tolerance = 1.0e-06;
+  this->Tol = 0.0; // Internal tolerance derived from this->Tolerance
   this->SuccessfulTriangulation = 0;
   this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
   this->UseMVCInterpolation = false;
@@ -823,8 +824,6 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
   }
 }
 
-#define VTK_POLYGON_TOLERANCE 1.0e-06
-
 //------------------------------------------------------------------------------
 // Triangulate polygon.
 //
@@ -835,7 +834,7 @@ int vtkPolygon::Triangulate(vtkIdList* outTris)
   double d = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
-  this->Tolerance = VTK_POLYGON_TOLERANCE * d;
+  this->Tol = this->Tolerance * d;
   this->SuccessfulTriangulation = 1;
 
   this->Tris->Reset();
@@ -1283,7 +1282,7 @@ double vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex* vtx)
 // returns != 0 if vertex can be removed. Uses half-space
 // comparison to determine whether ear-cut is valid, and may
 // resort to line-plane intersections to resolve possible
-// instersections with ear-cut.
+// intersections with ear-cut.
 int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx, double tolerance)
 {
   int i, sign, currentSign;
@@ -1332,7 +1331,8 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx, double to
       {
         oneNegative = (sign < 0 ? 1 : 0); // very important
       }
-      if (vtkLine::Intersection(sPt, next->x, vtx->x, vtx->previous->x, s, t) != 0)
+      if (vtkLine::Intersection(
+            sPt, next->x, vtx->x, vtx->previous->x, s, t, tolerance, vtkLine::Absolute) != 0)
       {
         return 0;
       }
@@ -1369,11 +1369,11 @@ int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
 // angles (narrow triangles) are cut off first. This implementation uses
 // a priority queue to cut off ears with smallest angles. Also, the
 // algorithm works in 3D (the points don't have to be projected into
-// 2D, and the ordering direction of the points is nor important as
+// 2D, and the ordering direction of the points is not important as
 // long as the polygon edges do not self intersect).
 int vtkPolygon::EarCutTriangulation()
 {
-  vtkPolyVertexList poly(this->PointIds, this->Points, this->Tolerance * this->Tolerance);
+  vtkPolyVertexList poly(this->PointIds, this->Points, this->Tol * this->Tol);
   vtkLocalPolyVertex* vtx;
   int i, id;
 
@@ -1417,7 +1417,7 @@ int vtkPolygon::EarCutTriangulation()
     else
     {
       id = VertexQueue->Pop(); // removes it, even if can't be split
-      if (poly.CanRemoveVertex(id, this->Tolerance))
+      if (poly.CanRemoveVertex(id, this->Tol))
       {
         poly.RemoveVertex(id, this->Tris, VertexQueue);
       }
@@ -1441,7 +1441,7 @@ int vtkPolygon::EarCutTriangulation()
 // starting at a user-defined seed value.
 int vtkPolygon::UnbiasedEarCutTriangulation(int seed)
 {
-  vtkPolyVertexList poly(this->PointIds, this->Points, this->Tolerance * this->Tolerance);
+  vtkPolyVertexList poly(this->PointIds, this->Points, this->Tol * this->Tol);
 
   // First compute the polygon normal the correct way
   //
@@ -1457,7 +1457,7 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed)
 
   while (poly.NumberOfVerts > 2)
   {
-    if (poly.CanRemoveVertex(vtx, this->Tolerance))
+    if (poly.CanRemoveVertex(vtx, this->Tol))
     {
       poly.RemoveVertex(vtx, this->Tris);
     }
@@ -1563,7 +1563,7 @@ void vtkPolygon::Contour(double value, vtkDataArray* cellScalars,
   double d = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
-  this->Tolerance = VTK_POLYGON_TOLERANCE * d;
+  this->Tol = this->Tolerance * d;
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);
 
@@ -1673,7 +1673,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* 
   d = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
-  this->Tolerance = VTK_POLYGON_TOLERANCE * d;
+  this->Tol = this->Tolerance * d;
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);
 
@@ -1804,7 +1804,7 @@ void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
   double d = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
     (bounds[5] - bounds[4]) * (bounds[5] - bounds[4]));
-  this->Tolerance = VTK_POLYGON_TOLERANCE * d;
+  this->Tol = this->Tolerance * d;
 
   this->SuccessfulTriangulation = 1;
   this->ComputeNormal(this->Points, this->Normal);

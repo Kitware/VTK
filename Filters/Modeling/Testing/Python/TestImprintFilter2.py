@@ -31,7 +31,7 @@ xFormF.SetTransform(xForm)
 imp = vtk.vtkImprintFilter()
 imp.SetTargetConnection(plane1.GetOutputPort())
 imp.SetImprintConnection(xFormF.GetOutputPort())
-imp.SetTolerance(0.00001)
+imp.SetTolerance(0.001)
 imp.Update()
 
 mapper = vtk.vtkPolyDataMapper()
