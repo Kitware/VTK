@@ -78,7 +78,7 @@ vtkStructuredGrid::~vtkStructuredGrid()
 void vtkStructuredGrid::CopyStructure(vtkDataSet* ds)
 {
   vtkStructuredGrid* sg = static_cast<vtkStructuredGrid*>(ds);
-  vtkPointSet::CopyStructure(ds);
+  Superclass::CopyStructure(ds);
   int i;
 
   for (i = 0; i < 3; i++)
@@ -872,9 +872,7 @@ void vtkStructuredGrid::SetExtent(int extent[6])
   this->DataDescription = description;
 
   this->Modified();
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
+  vtkStructuredData::GetDimensionsFromExtent(extent, this->Dimensions);
 }
 
 //------------------------------------------------------------------------------
@@ -941,7 +939,7 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtk
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -974,7 +972,7 @@ void vtkStructuredGrid::GetCellNeighbors(
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -990,7 +988,7 @@ void vtkStructuredGrid::GetCellNeighbors(
 //------------------------------------------------------------------------------
 unsigned long vtkStructuredGrid::GetActualMemorySize()
 {
-  return this->vtkPointSet::GetActualMemorySize();
+  return this->Superclass::GetActualMemorySize();
 }
 
 //------------------------------------------------------------------------------
@@ -1001,7 +999,7 @@ void vtkStructuredGrid::ShallowCopy(vtkDataObject* dataObject)
   {
     this->InternalStructuredGridCopy(grid);
   }
-  this->vtkPointSet::ShallowCopy(dataObject);
+  this->Superclass::ShallowCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
@@ -1013,7 +1011,7 @@ void vtkStructuredGrid::DeepCopy(vtkDataObject* dataObject)
   {
     this->InternalStructuredGridCopy(grid);
   }
-  this->vtkPointSet::DeepCopy(dataObject);
+  this->Superclass::DeepCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
