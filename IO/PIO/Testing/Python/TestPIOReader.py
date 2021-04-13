@@ -9,6 +9,19 @@ rank = controller.GetLocalProcessId()
 
 pioreader = vtk.vtkPIOReader()
 pioreader.SetFileName("" + str(VTK_DATA_ROOT) + "/Data/PIO/simple.pio")
+pioreader.UpdateInformation()
+
+# confirm default arrays are enabled
+default_arrays = ["tev", "pres", "rho", "rade", "cell_energy", "kemax",
+        "vel", "eng"]
+selection = pioreader.GetCellDataArraySelection()
+for name in default_arrays:
+    if not selection.ArrayExists(name) or selection.ArrayIsEnabled(name):
+        # all's well
+        pass
+    else:
+        raise RuntimeError("'%s' should have been enabled by default." % name)
+
 pioreader.SetCurrentTimeStep(1)
 pioreader.Update()
 
