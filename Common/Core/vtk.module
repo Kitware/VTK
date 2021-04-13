@@ -9,6 +9,7 @@ KIT
 GROUPS
   StandAlone
 DEPENDS
+  VTK::kissfft
   VTK::kwiml
   VTK::vtksys
 PRIVATE_DEPENDS

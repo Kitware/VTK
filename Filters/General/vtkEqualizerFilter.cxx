@@ -63,21 +63,12 @@ public:
     if (it == this->Spectrums.end())
     {
       const vtkIdType tuplesCount = array->GetNumberOfTuples();
-      double* values = new double[tuplesCount];
+      std::vector<double> values(tuplesCount);
       for (vtkIdType tupleId = 0; tupleId < tuplesCount; ++tupleId)
         values[tupleId] = array->GetTuple1(tupleId);
 
-      int spectrumSize = 0;
-
-      vtkFFT::ComplexNumber* spectrum = nullptr;
-      vtkFFT::FftDirect(&values[0], tuplesCount, &spectrumSize, spectrum);
-      this->SpectrumSize = spectrumSize;
-
-      this->Spectrums[array->GetName()] =
-        std::vector<vtkFFT::ComplexNumber>(spectrum, spectrum + spectrumSize);
-
-      delete[] spectrum;
-      delete[] values;
+      this->Spectrums[array->GetName()] = vtkFFT::FftDirect(values);
+      this->SpectrumSize = this->Spectrums[array->GetName()].size();
     }
 
     return this->Spectrums.at(array->GetName());
@@ -89,7 +80,7 @@ public:
     auto it = this->NormalizedSpectrums.find(array->GetName());
     if (it == this->NormalizedSpectrums.end())
     {
-      const std::vector<vtkFFT::ComplexNumber>& spectrum = this->GetSpectrum(array);
+      auto spectrum = this->GetSpectrum(array);
       auto maxModule = std::numeric_limits<double>::min();
       std::vector<double> modules;
       for (vtkIdType spectrumId = 0; spectrumId < this->GetHalfSpectrumSize(); ++spectrumId)
@@ -378,7 +369,7 @@ void vtkEqualizerFilter::ProcessColumn(
   vtkDataArray* array, vtkTable* spectrumTable, vtkTable* resultTable, vtkTable* normalizedTable)
 {
   // FFT
-  std::vector<vtkFFT::ComplexNumber> spectrum = this->Internal->GetSpectrum(array);
+  auto spectrum = this->Internal->GetSpectrum(array);
   if (spectrum.empty())
   {
     vtkErrorMacro(<< "Spectrum is empty: " << array->GetName());
@@ -397,8 +388,10 @@ void vtkEqualizerFilter::ProcessColumn(
   auto modifiers = this->Internal->GetModifiers(this->SamplingFrequency);
   for (const auto& modifier : modifiers)
   {
-    spectrum[modifier.first] *= modifier.second;
-    spectrum[this->Internal->SpectrumSize - modifier.first - 1] *= modifier.second;
+    spectrum[modifier.first].r *= modifier.second;
+    spectrum[modifier.first].i *= modifier.second;
+    spectrum[this->Internal->SpectrumSize - modifier.first - 1].r *= modifier.second;
+    spectrum[this->Internal->SpectrumSize - modifier.first - 1].i *= modifier.second;
 
     normSpectrum[modifier.first] *= modifier.second;
   }
@@ -431,7 +424,7 @@ void vtkEqualizerFilter::ProcessColumn(
 
   for (vtkIdType spectrumId = 0; spectrumId < this->Internal->GetHalfSpectrumSize(); ++spectrumId)
   {
-    const vtkFFT::ComplexNumber& value = spectrum[spectrumId];
+    auto value = spectrum[spectrumId];
     // we are only interested in amplitude spectrum, so we use complex_module
     // divide by the number of elements so that the amplitudes are in millivolts, not Fourier sums.
     double modifier = pow(10, 0.05 * this->SpectrumGain);
@@ -445,16 +438,7 @@ void vtkEqualizerFilter::ProcessColumn(
   // end fill spectrum table
 
   // fill result table
-  int outCount;
-  vtkFFT::ComplexNumber* num = nullptr;
-  vtkFFT::FftInverse(spectrum.data(), this->Internal->SpectrumSize, &outCount, num);
-  double* outputData = new double[this->Internal->OriginalSize];
-
-  if (num)
-  {
-    vtkFFT::ComplexesToDoubles(outputData, num, this->Internal->OriginalSize);
-    delete[] num;
-  }
+  auto num = vtkFFT::FftInverse(spectrum);
 
   vtkSmartPointer<vtkDoubleArray> rfftArray = vtkSmartPointer<vtkDoubleArray>::New();
   rfftArray->SetNumberOfComponents(1);
@@ -463,10 +447,9 @@ void vtkEqualizerFilter::ProcessColumn(
 
   for (int spectrumId = 0; spectrumId < this->Internal->OriginalSize; ++spectrumId)
   {
-    double val = outputData[spectrumId];
+    auto val = num[spectrumId];
     rfftArray->SetTuple1(spectrumId, val);
   }
   resultTable->AddColumn(rfftArray);
   // end fill result table
-  delete[] outputData;
 }

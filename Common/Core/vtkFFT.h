@@ -24,15 +24,19 @@
 #define vtkFFT_h
 
 #include "vtkObject.h"
-
+#include "vtk_kissfft.h"
+// clang-format off
+#include VTK_KISSFFT_HEADER(kiss_fft.h)
+#include VTK_KISSFFT_HEADER(tools/kiss_fftr.h)
+// clang-format on
 #include <complex>
 #include <vector>
 
 class VTKCOMMONCORE_EXPORT vtkFFT : public vtkObject
 {
 public:
-  using FFT_UNIT_TYPE = float;
-  using ComplexNumber = std::complex<FFT_UNIT_TYPE>;
+  using ScalarNumber = kiss_fft_scalar;
+  using ComplexNumber = kiss_fft_cpx;
 
   static vtkFFT* New();
   vtkTypeMacro(vtkFFT, vtkObject);
@@ -40,21 +44,19 @@ public:
 
   /**
    * Compute the one-dimensional discrete Fourier Transform for real input
+   *
+   *  input has nfft scalar points
+   *  output has nfft/2+1 complex points
    */
-  static void FftDirect(
-    const double* in, const int inCount, int* outCount, ComplexNumber*& outData);
+  static std::vector<ComplexNumber> FftDirect(const std::vector<ScalarNumber>& in);
 
   /**
    * Compute the inverse of DFT
+   *
+   *  input has  nfft/2+1 complex points
+   *  output has nfft scalar points
    */
-  static void FftInverse(
-    const ComplexNumber* in, const int inCount, int* outCount, ComplexNumber*& outData);
-
-  /**
-   * Convert an array of complex numbers to array of doubles
-   */
-  static void ComplexesToDoubles(
-    double* __restrict out, const ComplexNumber* __restrict in, const int inCount);
+  static std::vector<ScalarNumber> FftInverse(const std::vector<ComplexNumber>& in);
 
   /**
    * Return the module of complex number

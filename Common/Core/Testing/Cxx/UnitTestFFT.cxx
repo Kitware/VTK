@@ -21,15 +21,14 @@
 #include <array>
 #include <memory>
 
-static bool FuzzyCompare(
-  const vtkFFT::ComplexNumber& result, const vtkFFT::ComplexNumber& test, double epsilon)
+static bool FuzzyCompare(const vtkFFT::ComplexNumber& result, const vtkFFT::ComplexNumber& test,
+  vtkFFT::ScalarNumber epsilon)
 {
-  return (vtkFFT::ComplexModule(result - test) < epsilon * epsilon);
+  return ((vtkFFT::ComplexModule(result) - vtkFFT::ComplexModule(test)) < epsilon * epsilon);
 }
 
 static int Test_fft_direct();
 static int Test_fft_inverse();
-static int Test_complexes_to_doubles();
 static int Test_complex_module();
 static int Test_rfftfreq();
 static int Test_fft_direct_inverse();
@@ -40,7 +39,6 @@ int UnitTestFFT(int, char*[])
 
   status += Test_fft_direct();
   status += Test_fft_inverse();
-  status += Test_complexes_to_doubles();
   status += Test_complex_module();
   status += Test_rfftfreq();
   status += Test_fft_direct_inverse();
@@ -55,43 +53,98 @@ int UnitTestFFT(int, char*[])
 
 int Test_fft_direct()
 {
-  return Test_fft_direct_inverse();
+  std::cout << "Test_fft_direct..";
+
+  static constexpr auto countIn = 16;
+  static constexpr auto countOut = (countIn / 2) + 1;
+  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
+    return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
+  };
+  auto status = 0;
+  // zeroes
+  std::vector<vtkFFT::ScalarNumber> zeroes(countIn);
+  std::generate(zeroes.begin(), zeroes.end(), []() { return 0; });
+
+  auto resultZeroes = vtkFFT::FftDirect(zeroes);
+
+  std::vector<vtkFFT::ComplexNumber> expectedZeroes(countOut);
+  std::generate(expectedZeroes.begin(), expectedZeroes.end(), []() {
+    return vtkFFT::ComplexNumber{ 0.0, 0.0 };
+  });
+  auto is_equal =
+    std::equal(expectedZeroes.begin(), expectedZeroes.end(), resultZeroes.begin(), comparator);
+  if (!is_equal)
+  {
+    status++;
+  }
+
+  // ones
+  std::vector<vtkFFT::ScalarNumber> ones(countIn);
+  std::generate(ones.begin(), ones.end(), []() { return 1.0; });
+
+  auto resultOnes = vtkFFT::FftDirect(ones);
+
+  std::vector<vtkFFT::ComplexNumber> expectedOnes(countOut);
+  std::generate(expectedOnes.begin(), expectedOnes.end(), []() {
+    return vtkFFT::ComplexNumber{ 0.0, 0.0 };
+  });
+  expectedOnes[0] = { 16.0, 0.0 };
+  is_equal = std::equal(expectedOnes.begin(), expectedOnes.end(), resultOnes.begin(), comparator);
+  if (!is_equal)
+  {
+    status++;
+  }
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
 }
 
 int Test_fft_inverse()
 {
-  return Test_fft_direct_inverse();
-}
+  std::cout << "Test_fft_inverse..";
 
-int Test_complexes_to_doubles()
-{
-  int status = 0;
-  std::cout << "Test_complexes_to_doubles..";
+  static constexpr auto countIn = 9;
+  static constexpr auto countOut = (countIn - 1) * 2;
+  auto comparator = [](vtkFFT::ScalarNumber l, vtkFFT::ScalarNumber r) {
+    return vtkMathUtilities::FuzzyCompare(
+      l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
+  };
+  auto status = 0;
+  // zeroes
+  std::vector<vtkFFT::ComplexNumber> zeroes(countIn);
+  std::generate(zeroes.begin(), zeroes.end(), []() { return vtkFFT::ComplexNumber{ 0.0, 0.0 }; });
 
-  static constexpr int countOut = 6;
-  static constexpr int countIn = 10;
+  auto resultZeroes = vtkFFT::FftInverse(zeroes);
 
-  std::array<vtkFFT::ComplexNumber, countIn> complexNumbers;
-  auto sign = -1;
-  for (auto i = 0; i < countIn; i++)
+  std::vector<vtkFFT::ScalarNumber> expectedZeroes(countOut);
+  std::generate(expectedZeroes.begin(), expectedZeroes.end(), []() { return 0.0; });
+  auto is_equal =
+    std::equal(expectedZeroes.begin(), expectedZeroes.end(), resultZeroes.begin(), comparator);
+  if (!is_equal)
   {
-    sign *= -1;
-    complexNumbers[i] = vtkFFT::ComplexNumber(i, 2 * i * sign);
+    status++;
   }
 
-  std::array<double, countOut> test1 = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
-  std::array<double, countOut> result1;
-  vtkFFT::ComplexesToDoubles(&result1[0], complexNumbers.data(), countOut);
+  // ones
+  std::vector<vtkFFT::ComplexNumber> ones(countIn);
+  std::generate(ones.begin(), ones.end(), []() { return vtkFFT::ComplexNumber{ 0.0, 0.0 }; });
+  ones[0] = { 16.0, 0.0 };
 
-  for (auto i = 0; i < countOut; i++)
+  auto resultOnes = vtkFFT::FftInverse(ones);
+
+  std::vector<vtkFFT::ScalarNumber> expectedOnes(countOut);
+  std::generate(expectedOnes.begin(), expectedOnes.end(), []() { return 1.0; });
+  is_equal = std::equal(expectedOnes.begin(), expectedOnes.end(), resultOnes.begin(), comparator);
+  if (!is_equal)
   {
-    if (!vtkMathUtilities::FuzzyCompare(
-          result1.at(i), test1.at(i), std::numeric_limits<double>::epsilon()))
-    {
-      std::cout << "Expected " << test1.at(i) << " but got " << result1.at(i) << " difference is "
-                << test1.at(i) - result1.at(i) << std::endl;
-      status++;
-    }
+    status++;
   }
 
   if (status)
@@ -110,7 +163,7 @@ int Test_complex_module()
   int status = 0;
   std::cout << "Test_complex_module..";
 
-  vtkFFT::ComplexNumber complexNumber1(3, 4);
+  vtkFFT::ComplexNumber complexNumber1 = { 3, 4 };
   double module1 = vtkFFT::ComplexModule(complexNumber1);
   double test1 = 5;
   if (!vtkMathUtilities::FuzzyCompare(module1, test1, std::numeric_limits<double>::epsilon()))
@@ -182,23 +235,13 @@ int Test_fft_direct_inverse()
   std::cout << "Test_fft_direct_inverse..";
 
   static constexpr auto countIn = 1000;
-  std::array<double, countIn> input;
+  std::vector<double> input(countIn);
   auto val = 0;
   std::generate(input.begin(), input.end(), [&val]() { return std::sin(val++); });
 
-  int countOut = -1;
-  vtkFFT::ComplexNumber* spectrum = nullptr;
-  vtkFFT::FftDirect(input.data(), countIn, &countOut, spectrum);
+  auto spectrum = vtkFFT::FftDirect(input);
 
-  int countRes = -1;
-  vtkFFT::ComplexNumber* resultComplex = nullptr;
-  vtkFFT::FftInverse(spectrum, countOut, &countRes, resultComplex);
-
-  double result[countRes];
-  vtkFFT::ComplexesToDoubles(&result[0], resultComplex, countIn);
-
-  delete[] spectrum;
-  delete[] resultComplex;
+  auto result = vtkFFT::FftInverse(spectrum);
 
   for (auto i = 0; i < countIn; i++)
   {
