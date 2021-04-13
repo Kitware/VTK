@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkPythonUtil.h"
 #include "vtkPythonOverload.h"
 
@@ -27,7 +24,6 @@
 #include "vtkPythonCommand.h"
 #include "vtkSmartPointerBase.h"
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
 #include "vtkVariant.h"
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
@@ -1034,21 +1030,6 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
     case VTK_OBJECT:
     {
       h = _Py_HashPointer(v->ToVTKObject());
-      break;
-    }
-
-    case VTK_UNICODE_STRING:
-    {
-      vtkUnicodeString u = v->ToUnicodeString();
-      const char* s = u.utf8_str();
-      PyObject* tmp = PyUnicode_DecodeUTF8(s, strlen(s), "strict");
-      if (tmp == nullptr)
-      {
-        PyErr_Clear();
-        return 0;
-      }
-      h = PyObject_Hash(tmp);
-      Py_DECREF(tmp);
       break;
     }
 

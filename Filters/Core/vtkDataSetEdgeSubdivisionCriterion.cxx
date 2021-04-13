@@ -10,6 +10,7 @@
 #include "vtkStreamingTessellator.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "vtkCell.h"
 #include "vtkCellData.h"

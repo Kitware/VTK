@@ -63,15 +63,6 @@ public:
 
   ///@{
   /**
-   * Whether to use unicode strings.
-   */
-  vtkSetMacro(UseUnicodeStrings, bool);
-  vtkGetMacro(UseUnicodeStrings, bool);
-  vtkBooleanMacro(UseUnicodeStrings, bool);
-  ///@}
-
-  ///@{
-  /**
    * Set/get the label array name.
    */
   virtual void SetLabelArrayName(const char* name);
@@ -137,7 +128,6 @@ protected:
 
   int TargetLabelCount;
   int MaximumDepth;
-  bool UseUnicodeStrings;
   vtkTextProperty* TextProperty;
 
 private:

@@ -99,8 +99,6 @@ public:
    * Returns the hover text at an x,y location.
    */
   virtual std::string GetHoverString(vtkView* view, int x, int y);
-  VTK_DEPRECATED_IN_9_1_0("Use std::string GetHoverString(vtkView* view, int x, int y)")
-  virtual const char* GetHoverText(vtkView* view, int x, int y);
 
   ///@{
   /**

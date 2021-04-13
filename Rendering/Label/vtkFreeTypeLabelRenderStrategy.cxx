@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkFreeTypeLabelRenderStrategy.h"
 
 #include "vtkActor2D.h"
@@ -55,15 +52,13 @@ void vtkFreeTypeLabelRenderStrategy::ReleaseGraphicsResources(vtkWindow* window)
 // int compute_bounds_iter1 = 0;
 //------------------------------------------------------------------------------
 void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
-  vtkTextProperty* tprop, vtkUnicodeString label, double bds[4])
+  vtkTextProperty* tprop, vtkStdString label, double bds[4])
 {
   // vtkTimerLog* timer = vtkTimerLog::New();
   // timer->StartTimer();
 
   // Check for empty string.
-  vtkStdString str;
-  label.utf8_str(str);
-  if (str.length() == 0)
+  if (label.empty())
   {
     bds[0] = 0;
     bds[1] = 0;
@@ -95,7 +90,7 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
   }
 
   int bbox[4];
-  this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox, dpi);
+  this->TextRenderer->GetBoundingBox(copy, label, bbox, dpi);
 
   // Take line offset into account
   bds[0] = bbox[0];
@@ -144,7 +139,7 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
 // int render_label_iter1 = 0;
 //------------------------------------------------------------------------------
 void vtkFreeTypeLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkUnicodeString label)
+  int x[2], vtkTextProperty* tprop, vtkStdString label)
 {
   // vtkTimerLog* timer = vtkTimerLog::New();
   // timer->StartTimer();
@@ -159,7 +154,7 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
     tprop = this->DefaultTextProperty;
   }
   this->Mapper->SetTextProperty(tprop);
-  this->Mapper->SetInput(label.utf8_str());
+  this->Mapper->SetInput(label);
   this->Actor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
   this->Actor->GetPositionCoordinate()->SetValue(x[0], x[1], 0.0);
   this->Mapper->RenderOverlay(this->Renderer, this->Actor);

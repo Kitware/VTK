@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGroupLeafVertices.h"
 
 #include "vtkIdList.h"
@@ -35,7 +32,6 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
@@ -76,7 +72,7 @@ static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdTyp
   vtkVariant val;
   switch (arr->GetDataType())
   {
-    vtkSuperExtraExtendedTemplateMacro(
+    vtkExtraExtendedTemplateMacro(
       val = vtkGroupLeafVerticesGetValue(static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
   }
   return val;
@@ -318,14 +314,6 @@ int vtkGroupLeafVertices::RequestData(
               for (int j = 0; j < comps; j++)
               {
                 data->InsertValue(group_vertex + j - 1, vtkVariant());
-              }
-            }
-            else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr2))
-            {
-              vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr2);
-              for (int j = 0; j < comps; j++)
-              {
-                data->InsertValue(group_vertex + j - 1, vtkUnicodeString::from_utf8(""));
               }
             }
             else

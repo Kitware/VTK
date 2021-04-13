@@ -11,5 +11,6 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::IOCore
   VTK::vtksys
+  VTK::utf8
 TEST_DEPENDS
   VTK::TestingCore

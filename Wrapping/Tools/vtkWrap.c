@@ -158,7 +158,7 @@ int vtkWrap_IsNumeric(ValueInfo* val)
 int vtkWrap_IsString(ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  return (t == VTK_PARSE_STRING || t == VTK_PARSE_UNICODE_STRING);
+  return (t == VTK_PARSE_STRING);
 }
 
 /* -------------------------------------------------------------------- */
@@ -1001,8 +1001,6 @@ const char* vtkWrap_GetTypeName(ValueInfo* val)
       return "signed char";
     case VTK_PARSE_BOOL:
       return "bool";
-    case VTK_PARSE_UNICODE_STRING:
-      return "vtkUnicodeString";
     case VTK_PARSE_SSIZE_T:
       return "ssize_t";
     case VTK_PARSE_SIZE_T:

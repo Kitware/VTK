@@ -18,9 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkLabelPlacer.h"
 
 #include "vtkCamera.h"
@@ -43,8 +40,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTimerLog.h"
-#include "vtkUnicodeString.h"
-#include "vtkUnicodeStringArray.h"
 
 #include <vector>
 
@@ -227,7 +222,6 @@ vtkLabelPlacer::vtkLabelPlacer()
   this->IteratorType = vtkLabelHierarchy::QUEUE;
   this->VisiblePoints = vtkSelectVisiblePoints::New();
   this->VisiblePoints->SetTolerance(0.002);
-  this->UseUnicodeStrings = false;
 
   this->LastRendererSize[0] = 0;
   this->LastRendererSize[1] = 0;
@@ -278,7 +272,6 @@ void vtkLabelPlacer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Gravity: " << this->Gravity << "\n";
   os << indent << "MaximumLabelFraction: " << this->MaximumLabelFraction << "\n";
   os << indent << "PositionsAsNormals: " << (this->PositionsAsNormals ? "ON" : "OFF") << "\n";
-  os << indent << "UseUnicodeStrings: " << (this->UseUnicodeStrings ? "ON" : "OFF") << "\n";
   os << indent << "IteratorType: " << this->IteratorType << "\n";
   os << indent << "OutputTraversedBounds: " << (this->OutputTraversedBounds ? "ON" : "OFF") << "\n";
   os << indent
@@ -420,20 +413,9 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* ouData3 = vtkPolyData::SafeDownCast(outInfo3->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkStringArray* nameArr0 = vtkStringArray::New();
-  vtkUnicodeStringArray* nameUArr0 = vtkUnicodeStringArray::New();
-
-  if (this->UseUnicodeStrings)
-  {
-    nameUArr0->SetName("LabelText");
-    ouData0->GetPointData()->AddArray(nameUArr0);
-  }
-  else
-  {
-    nameArr0->SetName("LabelText");
-    ouData0->GetPointData()->AddArray(nameArr0);
-  }
+  nameArr0->SetName("LabelText");
+  ouData0->GetPointData()->AddArray(nameArr0);
   nameArr0->Delete();
-  nameUArr0->Delete();
 
   vtkDoubleArray* opArr0 = vtkDoubleArray::New();
   opArr0->SetName("Opacity");
@@ -451,7 +433,6 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
   idArr0->Delete();
 
   vtkStringArray* nameArr = vtkArrayDownCast<vtkStringArray>(inData->GetLabels());
-  vtkUnicodeStringArray* nameUArr = vtkArrayDownCast<vtkUnicodeStringArray>(inData->GetLabels());
   vtkIntArray* iconIndexArr = vtkArrayDownCast<vtkIntArray>(inData->GetIconIndices());
 
   if (!inData)
@@ -734,16 +715,8 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
                             << ur[0] << "," << ur[1] << ")");
       if (labelType == 0)
       {
-        if (this->UseUnicodeStrings)
-        {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \""
-                                 << nameUArr->GetValue(inIter->GetLabelId()).utf8_str() << "\"");
-        }
-        else
-        {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \""
-                                 << nameArr->GetValue(inIter->GetLabelId()).c_str() << "\"");
-        }
+        vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \""
+                               << nameArr->GetValue(inIter->GetLabelId()).c_str() << "\"");
       }
       else
       {
@@ -761,16 +734,8 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       { // label is text
         if (vtkLabelPlacer::Internal::DumpPlaced)
         {
-          if (this->UseUnicodeStrings)
-          {
-            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": "
-                          << nameUArr->GetValue(inIter->GetLabelId()).utf8_str());
-          }
-          else
-          {
-            vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": "
-                          << nameArr->GetValue(inIter->GetLabelId()).c_str());
-          }
+          vtkDebugMacro(<< ll[0] << " -- " << ur[0] << ", " << ll[1] << " -- " << ur[1] << ": "
+                        << nameArr->GetValue(inIter->GetLabelId()).c_str());
         }
         switch (coordSys)
         {
@@ -784,14 +749,7 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
         }
         // Store the anchor point in world coordinates
         ouData0->InsertNextCell(VTK_VERTEX, 1, conn);
-        if (this->UseUnicodeStrings)
-        {
-          nameUArr0->InsertNextValue(nameUArr->GetValue(inIter->GetLabelId()));
-        }
-        else
-        {
-          nameArr0->InsertNextValue(nameArr->GetValue(inIter->GetLabelId()));
-        }
+        nameArr0->InsertNextValue(nameArr->GetValue(inIter->GetLabelId()));
         opArr0->InsertNextValue(opacity);
         idArr0->InsertNextValue(0);
       }

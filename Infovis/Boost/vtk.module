@@ -7,4 +7,5 @@ DEPENDS
 TEST_DEPENDS
   VTK::CommonDataModel
   VTK::TestingCore
+  VTK::utf8
 EXCLUDE_WRAP

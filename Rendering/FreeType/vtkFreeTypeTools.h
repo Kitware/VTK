@@ -30,7 +30,6 @@
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkSmartPointer.h"            // For smart pointer
 #include "vtkTextRenderer.h"            // For Metrics struct
-#include "vtkUnicodeString.h"           // For vtkUnicodeStringValueType
 
 #include <array> // for std::array
 
@@ -127,7 +126,7 @@ public:
    * information is generic and not tied to a single font size, but describes a
    * scalable font defined on the EM square.
    */
-  GlyphOutline GetUnscaledGlyphOutline(vtkTextProperty* tprop, vtkUnicodeStringValueType charId);
+  GlyphOutline GetUnscaledGlyphOutline(vtkTextProperty* tprop, vtkTypeUInt32 charId);
 
   /**
    * Return a 2D vector detailing the unscaled kerning offset for a pair of
@@ -135,8 +134,8 @@ public:
    * not tied to a single font size, but describe a scalable font defined on
    * the EM square.
    */
-  std::array<int, 2> GetUnscaledKerning(vtkTextProperty* tprop, vtkUnicodeStringValueType leftChar,
-    vtkUnicodeStringValueType rightChar);
+  std::array<int, 2> GetUnscaledKerning(
+    vtkTextProperty* tprop, vtkTypeUInt32 leftChar, vtkTypeUInt32 rightChar);
 
   ///@{
   /**
@@ -162,9 +161,6 @@ public:
    * @sa GetMetrics
    */
   bool GetBoundingBox(vtkTextProperty* tprop, const vtkStdString& str, int dpi, int bbox[4]);
-  VTK_DEPRECATED_IN_9_1_0("Use bool GetBoundingBox(vtkTextProperty* tprop, const vtkStdString& "
-                          "str, int dpi, int bbox[4])")
-  bool GetBoundingBox(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, int bbox[4]);
   ///@}
 
   ///@{
@@ -174,10 +170,6 @@ public:
    */
   bool GetMetrics(
     vtkTextProperty* tprop, const vtkStdString& str, int dpi, vtkTextRenderer::Metrics& metrics);
-  VTK_DEPRECATED_IN_9_1_0("Use bool GetMetrics(vtkTextProperty* tprop, const vtkStdString& str, "
-                          "int dpi, vtkTextRenderer::Metrics& metrics)")
-  bool GetMetrics(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi,
-    vtkTextRenderer::Metrics& metrics);
   ///@}
 
   ///@{
@@ -193,10 +185,6 @@ public:
    */
   bool RenderString(vtkTextProperty* tprop, const vtkStdString& str, int dpi, vtkImageData* data,
     int textDims[2] = nullptr);
-  VTK_DEPRECATED_IN_9_1_0("Use bool RenderString(vtkTextProperty* tprop, const vtkStdString& str, "
-                          "int dpi, vtkImageData* data, int textDims[2])")
-  bool RenderString(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi,
-    vtkImageData* data, int textDims[2] = nullptr);
   ///@}
 
   ///@{
@@ -207,9 +195,6 @@ public:
    * property's horizontal and vertical justification options.
    */
   bool StringToPath(vtkTextProperty* tprop, const vtkStdString& str, int dpi, vtkPath* path);
-  VTK_DEPRECATED_IN_9_1_0("Use bool StringToPath(vtkTextProperty* tprop, const vtkStdString& str, "
-                          "int dpi, vtkPath* path)")
-  bool StringToPath(vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, vtkPath* path);
   ///@}
 
   ///@{
@@ -220,10 +205,6 @@ public:
    */
   int GetConstrainedFontSize(
     const vtkStdString& str, vtkTextProperty* tprop, int dpi, int targetWidth, int targetHeight);
-  VTK_DEPRECATED_IN_9_1_0("Use int GetConstrainedFontSize(const vtkStdString& str, "
-                          "vtkTextProperty* tprop, int dpi, int targetWidth, int targetHeight)")
-  int GetConstrainedFontSize(const vtkUnicodeString& str, vtkTextProperty* tprop, int dpi,
-    int targetWidth, int targetHeight);
   ///@}
 
   /**
@@ -449,15 +430,13 @@ private:
   /**
    * Internal helper called by RenderString methods
    */
-  template <typename StringType>
   bool RenderStringInternal(
-    vtkTextProperty* tprop, const StringType& str, int dpi, vtkImageData* data, int textDims[2]);
+    vtkTextProperty* tprop, const std::string& str, int dpi, vtkImageData* data, int textDims[2]);
 
   /**
    * Internal helper method called by StringToPath methods
    */
-  template <typename StringType>
-  bool StringToPathInternal(vtkTextProperty* tprop, const StringType& str, int dpi, vtkPath* path);
+  bool StringToPathInternal(vtkTextProperty* tprop, const std::string& str, int dpi, vtkPath* path);
 
   ///@{
   /**
@@ -465,11 +444,8 @@ private:
    * and stores it in the MetaData provided.
    */
   bool CalculateBoundingBox(const vtkStdString& str, MetaData& metaData);
-  VTK_DEPRECATED_IN_9_1_0(
-    "Use bool CalculateBoundingBox(const vtkStdString& str, MetaData& metaData)")
-  bool CalculateBoundingBox(const vtkUnicodeString& str, MetaData& metaData);
-  template <typename T>
-  bool CalculateBoundingBox(const T& str, MetaData& metaData, const T& defaultHeightString);
+  bool CalculateBoundingBox(
+    const std::string& str, MetaData& metaData, const std::string& defaultHeightString);
   ///@}
 
   /**
@@ -477,25 +453,23 @@ private:
    * metaData is passed through the character renderer and caches properties
    * about data (e.g. range, dimensions, increments, etc).
    */
-  template <typename StringType, typename DataType>
-  bool PopulateData(const StringType& str, DataType data, MetaData& metaData);
+  template <typename DataType>
+  bool PopulateData(const std::string& str, DataType data, MetaData& metaData);
 
   /**
    * Renders a single line of text (between begin and end) to the image data.
    */
-  template <typename IteratorType, typename DataType>
-  bool RenderLine(
-    IteratorType begin, IteratorType end, int lineIndex, DataType data, MetaData& metaData);
+  template <typename DataType>
+  bool RenderLine(std::string::const_iterator begin, std::string::const_iterator end, int lineIndex,
+    DataType data, MetaData& metaData);
 
   ///@{
   /**
    * Implementations for rendering a single character to a specific target.
    */
-  template <typename CharType>
-  bool RenderCharacter(CharType character, int& x, int& y, FT_UInt& previousGlyphIndex,
+  bool RenderCharacter(FT_UInt32 codepoint, int& x, int& y, FT_UInt& previousGlyphIndex,
     vtkImageData* image, MetaData& metaData);
-  template <typename CharType>
-  bool RenderCharacter(CharType character, int& x, int& y, FT_UInt& previousGlyphIndex,
+  bool RenderCharacter(FT_UInt32 codepoint, int& x, int& y, FT_UInt& previousGlyphIndex,
     vtkPath* path, MetaData& metaData);
   ///@}
 
@@ -506,8 +480,8 @@ private:
    * fontsize (in points) that will fit the return string @a str into the @a
    * targetWidth and @a targetHeight.
    */
-  template <typename T>
-  int FitStringToBBox(const T& str, MetaData& metaData, int targetWidth, int targetHeight);
+  int FitStringToBBox(
+    const std::string& str, MetaData& metaData, int targetWidth, int targetHeight);
 
   ///@{
   /**
@@ -517,8 +491,8 @@ private:
    * is a tight fitting bbox around the rendering string, assuming (0, 0)
    * is the pen origin.
    */
-  template <typename T>
-  void GetLineMetrics(T begin, T end, MetaData& metaData, int& width, int bbox[4]);
+  void GetLineMetrics(std::string::const_iterator begin, std::string::const_iterator end,
+    MetaData& metaData, int& width, int bbox[4]);
   ///@}
 };
 

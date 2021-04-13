@@ -82,15 +82,6 @@ public:
 
   ///@{
   /**
-   * Set whether, or not, to use unicode strings.
-   */
-  vtkSetMacro(UseUnicodeStrings, bool);
-  vtkGetMacro(UseUnicodeStrings, bool);
-  vtkBooleanMacro(UseUnicodeStrings, bool);
-  ///@}
-
-  ///@{
-  /**
    * Use label anchor point coordinates as normal vectors and eliminate those
    * pointing away from the camera. Valid only when points are on a sphere
    * centered at the origin (such as a 3D geographic view). Off by default.
@@ -234,7 +225,6 @@ protected:
   bool PositionsAsNormals;
   bool GeneratePerturbedLabelSpokes;
   bool UseDepthBuffer;
-  bool UseUnicodeStrings;
   bool PlaceAllLabels;
   bool OutputTraversedBounds;
 

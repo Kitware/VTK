@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkLabeledDataMapper.h"
 
 #include "vtkActor2D.h"
@@ -37,7 +34,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkTypeTraits.h"
-#include "vtkUnicodeStringArray.h"
 
 #include <map>
 
@@ -359,7 +355,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   vtkAbstractArray* abstractData = nullptr;
   vtkDataArray* numericData = nullptr;
   vtkStringArray* stringData = nullptr;
-  vtkUnicodeStringArray* uStringData = nullptr;
 
   if (input->GetNumberOfPoints() == 0)
   {
@@ -422,7 +417,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       }
       numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
       stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
-      uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
     };
     break;
   }
@@ -447,10 +441,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     if (stringData)
     {
       numComp = stringData->GetNumberOfComponents();
-    }
-    else if (uStringData)
-    {
-      numComp = uStringData->GetNumberOfComponents();
     }
     else
     {
@@ -543,13 +533,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     {
       FormatString = "";
     }
-    else if (uStringData)
-    {
-      vtkWarningMacro(
-        "Unicode string arrays are not adequately supported by the vtkLabeledDataMapper.  Unicode "
-        "strings will be converted to vtkStdStrings for rendering.");
-      FormatString = "unicode";
-    }
     else
     {
       FormatString = "BUG - COULDN'T DETECT DATA TYPE";
@@ -632,14 +615,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         // we'll sidestep a lot of snprintf nonsense.
         if (this->LabelFormat == nullptr)
         {
-          if (uStringData)
-          {
-            ResultString = uStringData->GetValue(i).utf8_str();
-          }
-          else
-          {
-            ResultString = stringData->GetValue(i);
-          }
+          ResultString = stringData->GetValue(i);
         }
         else // the user specified a label format
         {

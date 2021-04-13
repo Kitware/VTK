@@ -174,21 +174,6 @@ public:
   void ComputeStringBounds(const vtkStdString& string, float bounds[4]) override;
 
   /**
-   * Draw some text to the screen.
-   */
-  void DrawString(float* point, const vtkUnicodeString& string) override;
-
-  /**
-   * Compute the bounds of the supplied string. The bounds will be copied to the
-   * supplied bounds variable, the first two elements are the bottom corner of
-   * the string, and the second two elements are the width and height of the
-   * bounding box. An empty bounding box (0, 0, 0, 0) is returned for an
-   * empty string or string with only characters that cannot be rendered.
-   * NOTE: This function does not take account of the text rotation.
-   */
-  void ComputeStringBounds(const vtkUnicodeString& string, float bounds[4]) override;
-
-  /**
    * Compute the bounds of the supplied string while taking into account the
    * justification of the currently applied text property. Simple rotations
    * (0, 90, 180, 270 degrees) are also properly taken into account.
@@ -493,7 +478,7 @@ private:
     bool operator==(vtkTypeUInt64 key) { return this->Key == key; }
   };
 
-  void ComputeStringBoundsInternal(const vtkUnicodeString& string, float bounds[4]);
+  void ComputeStringBoundsInternal(const std::string& string, float bounds[4]);
 
   vtkTransform* ProjectionMatrix;
   vtkTransform* ModelMatrix;

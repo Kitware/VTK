@@ -19,6 +19,8 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkFieldData);
 vtkStandardExtendedNewMacro(vtkFieldData);
 

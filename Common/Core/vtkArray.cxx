@@ -19,13 +19,9 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkArray.h"
 #include "vtkDenseArray.h"
 #include "vtkSparseArray.h"
-#include "vtkUnicodeString.h"
 #include "vtkVariant.h"
 
 #include <algorithm>
@@ -100,8 +96,6 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<vtkIdType>::New();
         case VTK_STRING:
           return vtkDenseArray<vtkStdString>::New();
-        case VTK_UNICODE_STRING:
-          return vtkDenseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkDenseArray<vtkVariant>::New();
       }
@@ -144,8 +138,6 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<vtkIdType>::New();
         case VTK_STRING:
           return vtkSparseArray<vtkStdString>::New();
-        case VTK_UNICODE_STRING:
-          return vtkSparseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkSparseArray<vtkVariant>::New();
       }

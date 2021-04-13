@@ -26,8 +26,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 
-#include "vtkUnicodeString.h"
-
 #include "vtkFreeTypeStringToImage.h"
 #include "vtkQtStringToImage.h"
 
@@ -57,14 +55,12 @@ int TestFreeTypeRender(int argc, char* argv[])
   double orientation = 0.0;
   prop->SetOrientation(orientation);
   vtkSmartPointer<vtkImageData> imageqt = vtkSmartPointer<vtkImageData>::New();
-  int result =
-    qt->RenderString(prop, vtkUnicodeString::from_utf8("My String\n AV \xe2\x84\xab"), imageqt);
+  int result = qt->RenderString(prop, "My String\n AV \xe2\x84\xab", imageqt);
   item->SetImage(imageqt);
   item->SetPosition(20, 20);
 
   vtkSmartPointer<vtkImageData> imageft = vtkSmartPointer<vtkImageData>::New();
-  result = freetype->RenderString(
-    prop, vtkUnicodeString::from_utf8("My String\n AV \xe2\x84\xab"), imageft);
+  result = freetype->RenderString("My String\n AV \xe2\x84\xab", imageft);
   item2->SetImage(imageft);
   item2->SetPosition(80, 110 - orientation);
 

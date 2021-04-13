@@ -17,6 +17,7 @@ PRIVATE_DEPENDS
   VTK::InfovisCore
   VTK::libxml2
   VTK::vtksys
+  VTK::utf8
 TEST_DEPENDS
   VTK::InfovisCore
   VTK::InfovisLayout

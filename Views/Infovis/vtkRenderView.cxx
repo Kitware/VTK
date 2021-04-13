@@ -52,7 +52,6 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkTransform.h"
 #include "vtkTransformCoordinateSystems.h"
-#include "vtkUnicodeString.h"
 #include "vtkViewTheme.h"
 
 #ifdef VTK_USE_QT

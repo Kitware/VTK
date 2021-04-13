@@ -51,8 +51,8 @@ int TestDelimitedTextReader(int argc, char* argv[])
     }
     else
     {
-      reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(":"));
-      reader->SetUnicodeStringDelimiters(vtkUnicodeString::from_utf8("\""));
+      reader->SetUTF8FieldDelimiters(":");
+      reader->SetUTF8StringDelimiters("\"");
       reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
     }
 
@@ -90,7 +90,7 @@ int TestDelimitedTextReader(int argc, char* argv[])
     }
     else
     {
-      reader->SetUnicodeFieldDelimiters(vtkUnicodeString::from_utf8(","));
+      reader->SetUnicodeFieldDelimiters(",");
       reader->SetUnicodeCharacterSet(UnicodeCharacterSet[index]);
     }
 

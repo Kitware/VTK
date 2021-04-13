@@ -45,30 +45,3 @@ void vtkLabelRenderStrategy::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "DefaultTextProperty: " << this->DefaultTextProperty << endl;
 }
-
-//------------------------------------------------------------------------------
-void vtkLabelRenderStrategy::ComputeLabelBounds(
-  vtkTextProperty* tprop, vtkStdString label, double bds[4])
-{
-  this->ComputeLabelBounds(tprop, vtkUnicodeString::from_utf8(label.c_str()), bds);
-}
-
-//------------------------------------------------------------------------------
-void vtkLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtkStdString label)
-{
-  this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label));
-}
-
-//------------------------------------------------------------------------------
-void vtkLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkStdString label, int maxWidth)
-{
-  this->RenderLabel(x, tprop, vtkUnicodeString::from_utf8(label), maxWidth);
-}
-
-//------------------------------------------------------------------------------
-void vtkLabelRenderStrategy::RenderLabel(
-  int x[2], vtkTextProperty* tprop, vtkUnicodeString label, int vtkNotUsed(maxWidth))
-{
-  this->RenderLabel(x, tprop, label);
-}

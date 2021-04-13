@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkFreeTypeTools.h"
 
 #include "vtkImageData.h"
@@ -29,7 +26,7 @@
 #include "vtkVectorOperators.h"
 
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
+#include <vtk_utf8.h>
 
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
@@ -260,7 +257,7 @@ vtkFreeTypeTools::FaceMetrics vtkFreeTypeTools::GetFaceMetrics(vtkTextProperty* 
 
 //------------------------------------------------------------------------------
 vtkFreeTypeTools::GlyphOutline vtkFreeTypeTools::GetUnscaledGlyphOutline(
-  vtkTextProperty* tprop, vtkUnicodeStringValueType charId)
+  vtkTextProperty* tprop, vtkTypeUInt32 charId)
 {
   size_t tpropCacheId;
   this->MapTextPropertyToId(tprop, &tpropCacheId);
@@ -305,7 +302,7 @@ vtkFreeTypeTools::GlyphOutline vtkFreeTypeTools::GetUnscaledGlyphOutline(
 
 //------------------------------------------------------------------------------
 std::array<int, 2> vtkFreeTypeTools::GetUnscaledKerning(
-  vtkTextProperty* tprop, vtkUnicodeStringValueType leftChar, vtkUnicodeStringValueType rightChar)
+  vtkTextProperty* tprop, vtkTypeUInt32 leftChar, vtkTypeUInt32 rightChar)
 {
   std::array<int, 2> result{ { 0, 0 } };
   if (leftChar == 0 || rightChar == 0)
@@ -512,73 +509,8 @@ bool vtkFreeTypeTools::GetBoundingBox(
 }
 
 //------------------------------------------------------------------------------
-bool vtkFreeTypeTools::GetBoundingBox(
-  vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, int bbox[4])
-{
-  // We need the tprop and bbox
-  if (!tprop || !bbox)
-  {
-    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr or zero");
-    return false;
-  }
-
-  if (str.empty())
-  {
-    std::fill(bbox, bbox + 4, 0);
-    return true;
-  }
-
-  MetaData metaData;
-  bool result = this->PrepareMetaData(tprop, dpi, metaData);
-  if (result)
-  {
-    result = this->CalculateBoundingBox(str, metaData);
-    if (result)
-    {
-      memcpy(bbox, metaData.bbox.GetData(), sizeof(int) * 4);
-    }
-  }
-  return result;
-}
-
-//------------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetMetrics(
   vtkTextProperty* tprop, const vtkStdString& str, int dpi, vtkTextRenderer::Metrics& metrics)
-{
-  if (!tprop)
-  {
-    vtkErrorMacro(<< "nullptr text property.");
-    return false;
-  }
-
-  if (str.empty())
-  {
-    metrics = vtkTextRenderer::Metrics();
-    return true;
-  }
-
-  MetaData metaData;
-  bool result = this->PrepareMetaData(tprop, dpi, metaData);
-  if (result)
-  {
-    result = this->CalculateBoundingBox(str, metaData);
-    if (result)
-    {
-      metrics.BoundingBox = metaData.bbox;
-      metrics.TopLeft = metaData.TL;
-      metrics.TopRight = metaData.TR;
-      metrics.BottomLeft = metaData.BL;
-      metrics.BottomRight = metaData.BR;
-      metrics.Ascent = metaData.ascent;
-      metrics.Descent = metaData.descent;
-    }
-  }
-  return result;
-}
-
-//------------------------------------------------------------------------------
-bool vtkFreeTypeTools::GetMetrics(
-  vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, vtkTextRenderer::Metrics& metrics)
 {
   if (!tprop)
   {
@@ -619,13 +551,6 @@ bool vtkFreeTypeTools::RenderString(
 }
 
 //------------------------------------------------------------------------------
-bool vtkFreeTypeTools::RenderString(
-  vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, vtkImageData* data, int textDims[2])
-{
-  return this->RenderStringInternal(tprop, str, dpi, data, textDims);
-}
-
-//------------------------------------------------------------------------------
 bool vtkFreeTypeTools::StringToPath(
   vtkTextProperty* tprop, const vtkStdString& str, int dpi, vtkPath* path)
 {
@@ -633,28 +558,8 @@ bool vtkFreeTypeTools::StringToPath(
 }
 
 //------------------------------------------------------------------------------
-bool vtkFreeTypeTools::StringToPath(
-  vtkTextProperty* tprop, const vtkUnicodeString& str, int dpi, vtkPath* path)
-{
-  return this->StringToPathInternal(tprop, str, dpi, path);
-}
-
-//------------------------------------------------------------------------------
 int vtkFreeTypeTools::GetConstrainedFontSize(
   const vtkStdString& str, vtkTextProperty* tprop, int dpi, int targetWidth, int targetHeight)
-{
-  MetaData metaData;
-  if (!this->PrepareMetaData(tprop, dpi, metaData))
-  {
-    vtkErrorMacro(<< "Could not prepare metadata.");
-    return false;
-  }
-  return this->FitStringToBBox(str, metaData, targetWidth, targetHeight);
-}
-
-//------------------------------------------------------------------------------
-int vtkFreeTypeTools::GetConstrainedFontSize(
-  const vtkUnicodeString& str, vtkTextProperty* tprop, int dpi, int targetWidth, int targetHeight)
 {
   MetaData metaData;
   if (!this->PrepareMetaData(tprop, dpi, metaData))
@@ -1252,9 +1157,8 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty* tprop, int dpi, M
 }
 
 //------------------------------------------------------------------------------
-template <typename StringType>
 bool vtkFreeTypeTools::RenderStringInternal(
-  vtkTextProperty* tprop, const StringType& str, int dpi, vtkImageData* data, int textDims[2])
+  vtkTextProperty* tprop, const std::string& str, int dpi, vtkImageData* data, int textDims[2])
 {
   // Check parameters
   if (!tprop || !data)
@@ -1381,9 +1285,8 @@ bool vtkFreeTypeTools::RenderStringInternal(
 }
 
 //------------------------------------------------------------------------------
-template <typename StringType>
 bool vtkFreeTypeTools::StringToPathInternal(
-  vtkTextProperty* tprop, const StringType& str, int dpi, vtkPath* path)
+  vtkTextProperty* tprop, const std::string& str, int dpi, vtkPath* path)
 {
   // Setup the metadata
   MetaData metaData;
@@ -1416,32 +1319,14 @@ const char* DEFAULT_HEIGHT_STRING = "_/7Agfy";
 }
 
 //------------------------------------------------------------------------------
-bool vtkFreeTypeTools::CalculateBoundingBox(const vtkUnicodeString& str, MetaData& metaData)
-{
-  return CalculateBoundingBox(str, metaData, vtkUnicodeString::from_utf8(DEFAULT_HEIGHT_STRING));
-}
-
-//------------------------------------------------------------------------------
 bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData& metaData)
 {
   return CalculateBoundingBox(str, metaData, vtkStdString(DEFAULT_HEIGHT_STRING));
 }
 
-namespace
-{
-
-template <typename T>
-constexpr typename T::value_type newline()
-{
-  return static_cast<typename T::value_type>('\n');
-}
-
-}
-
 //------------------------------------------------------------------------------
-template <typename T>
 bool vtkFreeTypeTools::CalculateBoundingBox(
-  const T& str, MetaData& metaData, const T& defaultHeightString)
+  const std::string& str, MetaData& metaData, const std::string& defaultHeightString)
 {
   // Calculate the metrics for each line. These will be used to calculate
   // a bounding box, but first we need to know the maximum line length to
@@ -1450,8 +1335,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
   metaData.maxLineWidth = 0;
 
   // Go through the string, line by line, and build the metrics data.
-  typename T::const_iterator beginLine = str.begin();
-  typename T::const_iterator endLine = std::find(beginLine, str.end(), newline<T>());
+  std::string::const_iterator beginLine = str.begin();
+  std::string::const_iterator endLine = std::find(beginLine, str.end(), '\n');
   while (endLine != str.end())
   {
     metaData.lineMetrics.emplace_back();
@@ -1460,7 +1345,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
     metaData.maxLineWidth = std::max(metaData.maxLineWidth, metaData.lineMetrics.back().width);
     beginLine = endLine;
     ++beginLine;
-    endLine = std::find(beginLine, str.end(), newline<T>());
+    endLine = std::find(beginLine, str.end(), '\n');
   }
   // Last line...
   metaData.lineMetrics.emplace_back();
@@ -1469,7 +1354,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
   metaData.maxLineWidth = std::max(metaData.maxLineWidth, metaData.lineMetrics.back().width);
 
   size_t numLines = metaData.lineMetrics.size();
-  T heightString;
+  std::string heightString;
   if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
   {
     // Calculate line height from actual characters. This works only for single line text
@@ -1485,7 +1370,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
   }
   int ascent = 0;
   int descent = 0;
-  typename T::const_iterator it = heightString.begin();
+  std::string::const_iterator it = heightString.begin();
   while (it != heightString.end())
   {
     FT_BitmapGlyph bitmapGlyph;
@@ -1915,13 +1800,12 @@ void vtkFreeTypeTools::RenderBackground(
 }
 
 //------------------------------------------------------------------------------
-template <typename StringType, typename DataType>
-bool vtkFreeTypeTools::PopulateData(const StringType& str, DataType data, MetaData& metaData)
+template <typename DataType>
+bool vtkFreeTypeTools::PopulateData(const std::string& str, DataType data, MetaData& metaData)
 {
   // Go through the string, line by line
-  typename StringType::const_iterator beginLine = str.begin();
-  typename StringType::const_iterator endLine =
-    std::find(beginLine, str.end(), newline<StringType>());
+  std::string::const_iterator beginLine = str.begin();
+  std::string::const_iterator endLine = std::find(beginLine, str.end(), '\n');
 
   int lineIndex = 0;
   while (endLine != str.end())
@@ -1933,7 +1817,7 @@ bool vtkFreeTypeTools::PopulateData(const StringType& str, DataType data, MetaDa
 
     beginLine = endLine;
     ++beginLine;
-    endLine = std::find(beginLine, str.end(), newline<StringType>());
+    endLine = std::find(beginLine, str.end(), '\n');
     ++lineIndex;
   }
 
@@ -1942,32 +1826,32 @@ bool vtkFreeTypeTools::PopulateData(const StringType& str, DataType data, MetaDa
 }
 
 //------------------------------------------------------------------------------
-template <typename IteratorType, typename DataType>
-bool vtkFreeTypeTools::RenderLine(
-  IteratorType begin, IteratorType end, int lineIndex, DataType data, MetaData& metaData)
+template <typename DataType>
+bool vtkFreeTypeTools::RenderLine(std::string::const_iterator begin,
+  std::string::const_iterator end, int lineIndex, DataType data, MetaData& metaData)
 {
   int x = metaData.lineMetrics[lineIndex].origin.GetX();
   int y = metaData.lineMetrics[lineIndex].origin.GetY();
 
   // Render char by char
   FT_UInt previousGlyphIndex = 0; // for kerning
-  for (; begin != end; ++begin)
+  while (begin != end)
   {
-    this->RenderCharacter(*begin, x, y, previousGlyphIndex, data, metaData);
+    vtkTypeUInt32 codepoint = utf8::next(begin, end);
+    this->RenderCharacter(codepoint, x, y, previousGlyphIndex, data, metaData);
   }
 
   return true;
 }
 
 //------------------------------------------------------------------------------
-template <typename CharType>
-bool vtkFreeTypeTools::RenderCharacter(CharType character, int& x, int& y,
+bool vtkFreeTypeTools::RenderCharacter(FT_UInt32 codepoint, int& x, int& y,
   FT_UInt& previousGlyphIndex, vtkImageData* image, MetaData& metaData)
 {
   ImageMetaData* iMetaData = reinterpret_cast<ImageMetaData*>(&metaData);
   FT_BitmapGlyph bitmapGlyph = nullptr;
   FT_UInt glyphIndex;
-  FT_Bitmap* bitmap = this->GetBitmap(character, &iMetaData->scaler, glyphIndex, bitmapGlyph);
+  FT_Bitmap* bitmap = this->GetBitmap(codepoint, &iMetaData->scaler, glyphIndex, bitmapGlyph);
 
   // Add the kerning
   if (iMetaData->faceHasKerning && previousGlyphIndex && glyphIndex)
@@ -2071,13 +1955,12 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int& x, int& y,
 }
 
 //------------------------------------------------------------------------------
-template <typename CharType>
-bool vtkFreeTypeTools::RenderCharacter(CharType character, int& x, int& y,
+bool vtkFreeTypeTools::RenderCharacter(FT_UInt32 codepoint, int& x, int& y,
   FT_UInt& previousGlyphIndex, vtkPath* path, MetaData& metaData)
 {
   FT_UInt glyphIndex = 0;
   FT_OutlineGlyph outlineGlyph = nullptr;
-  FT_Outline* outline = this->GetOutline(character, &metaData.scaler, glyphIndex, outlineGlyph);
+  FT_Outline* outline = this->GetOutline(codepoint, &metaData.scaler, glyphIndex, outlineGlyph);
 
   // Add the kerning
   if (metaData.faceHasKerning && previousGlyphIndex && glyphIndex)
@@ -2287,9 +2170,8 @@ void vtkFreeTypeTools::OutlineToPath(int x, int y, FT_Outline* outline, vtkPath*
 
 //------------------------------------------------------------------------------
 // Similar to implementations in vtkFreeTypeUtilities and vtkTextMapper.
-template <typename T>
 int vtkFreeTypeTools::FitStringToBBox(
-  const T& str, MetaData& metaData, int targetWidth, int targetHeight)
+  const std::string& str, MetaData& metaData, int targetWidth, int targetHeight)
 {
   if (str.empty() || targetWidth == 0 || targetHeight == 0 || metaData.textProperty == nullptr)
   {
@@ -2482,8 +2364,8 @@ FT_Outline* vtkFreeTypeTools::GetOutline(
 }
 
 //------------------------------------------------------------------------------
-template <typename T>
-void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData& metaData, int& width, int bbox[4])
+void vtkFreeTypeTools::GetLineMetrics(std::string::const_iterator begin,
+  std::string::const_iterator end, MetaData& metaData, int& width, int bbox[4])
 {
   FT_BitmapGlyph bitmapGlyph = nullptr;
   FT_UInt gindex = 0;
@@ -2494,10 +2376,11 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData& metaData, int& w
   bbox[0] = bbox[1] = pen[0];
   bbox[2] = bbox[3] = pen[1];
 
-  for (; begin != end; ++begin)
+  while (begin != end)
   {
     // Get the bitmap and glyph index:
-    FT_Bitmap* bitmap = this->GetBitmap(*begin, &metaData.scaler, gindex, bitmapGlyph);
+    vtkTypeUInt32 codepoint = utf8::next(begin, end);
+    FT_Bitmap* bitmap = this->GetBitmap(codepoint, &metaData.scaler, gindex, bitmapGlyph);
 
     // Adjust the pen location for kerning
     if (metaData.faceHasKerning && gindexLast && gindex)

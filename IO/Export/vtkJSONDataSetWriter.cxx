@@ -472,7 +472,6 @@ std::string vtkJSONDataSetWriter::GetShortType(vtkDataArray* input, bool& needCo
 
     case VTK_BIT:
     case VTK_STRING:
-    case VTK_UNICODE_STRING:
     case VTK_VARIANT:
     default:
       ss << "xxx";

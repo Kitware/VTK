@@ -25,12 +25,10 @@
 #ifndef vtkStringToImage_h
 #define vtkStringToImage_h
 
-#include "vtkDeprecation.h" // for deprecation macros
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkStdString;
-class vtkUnicodeString;
 class vtkTextProperty;
 class vtkImageData;
 class vtkVector2i;
@@ -55,10 +53,6 @@ public:
    * is valid (it may not if GetBoundingBox() failed or if the string
    * was empty).
    */
-  VTK_DEPRECATED_IN_9_1_0(
-    "Use vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi)")
-  virtual vtkVector2i GetBounds(
-    vtkTextProperty* property, const vtkUnicodeString& string, int dpi) = 0;
   virtual vtkVector2i GetBounds(vtkTextProperty* property, const vtkStdString& string, int dpi) = 0;
   ///@}
 
@@ -70,10 +64,6 @@ public:
    * This is useful when ScaleToPowerOfTwo is true, and the image dimensions may
    * not match the dimensions of the rendered text.
    */
-  VTK_DEPRECATED_IN_9_1_0("Use int RenderString(vtkTextProperty* property, const vtkStdString& "
-                          "string, int dpi, vtkImageData* data, int text_dims[2] = nullptr)")
-  virtual int RenderString(vtkTextProperty* property, const vtkUnicodeString& string, int dpi,
-    vtkImageData* data, int textDims[2] = nullptr) = 0;
   virtual int RenderString(vtkTextProperty* property, const vtkStdString& string, int dpi,
     vtkImageData* data, int text_dims[2] = nullptr) = 0;
   ///@}

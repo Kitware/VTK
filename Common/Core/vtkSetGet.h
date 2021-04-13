@@ -72,10 +72,9 @@
   (((type) == VTK_DOUBLE) ? "double" :                                                             \
   (((type) == VTK_ID_TYPE) ? "idtype" :                                                            \
   (((type) == VTK_STRING) ? "string" :                                                             \
-  (((type) == VTK_UNICODE_STRING) ? "unicode string" :                                             \
   (((type) == VTK_VARIANT) ? "variant" :                                                           \
   (((type) == VTK_OBJECT) ? "object" :                                                             \
-  "Undefined"))))))))))))))))))))
+  "Undefined")))))))))))))))))))
 // clang-format on
 
 /* Various compiler-specific performance hints. */

@@ -44,7 +44,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
-#include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -264,7 +263,6 @@ struct TextPropertyKey
 };
 
 typedef TextPropertyKey<vtkStdString> UTF8TextPropertyKey;
-typedef TextPropertyKey<vtkUnicodeString> UTF16TextPropertyKey;
 
 class vtkOpenGLContextDevice2D::Private
 {
@@ -499,8 +497,7 @@ public:
    * Cache for text images. Generating texture for strings is expensive,
    * we cache the textures here for a faster reuse.
    */
-  mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
-  mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
+  mutable vtkTextureImageCache<UTF8TextPropertyKey> TextTextureCache;
   ///@}
 };
 

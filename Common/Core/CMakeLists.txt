@@ -224,8 +224,6 @@ set(classes
   vtkStringOutputWindow
   vtkTimePointUtility
   vtkTimeStamp
-  vtkUnicodeString
-  vtkUnicodeStringArray
   vtkUnsignedCharArray
   vtkUnsignedIntArray
   vtkUnsignedLongArray
@@ -266,10 +264,6 @@ set(nowrap_template_classes
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
-  # A separate file that hides some deprecated usages from headers to avoid
-  # spamming users of `vtkVariant*.h` headers with noisy warnings. Remove with
-  # `VTK_DEPRECATED_IN_9_1_0()`.
-  vtkVariantCast.cxx
   ${instantiation_sources}
   ${vtk_smp_sources})
 
@@ -460,19 +454,6 @@ if (NOT VTK_LEGACY_REMOVE)
     vtkConfigure.h
     vtkToolkits.h)
 endif ()
-
-add_custom_command(
-  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
-  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake"
-  COMMAND "${CMAKE_COMMAND}"
-          "-Dsource_dir=${CMAKE_CURRENT_SOURCE_DIR}"
-          "-Dbinary_dir=${CMAKE_CURRENT_BINARY_DIR}"
-          -P "${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake"
-  OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h")
-
-set_source_files_properties(vtkUnicodeString.cxx
-  PROPERTIES
-    OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 

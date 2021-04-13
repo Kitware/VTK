@@ -18,11 +18,7 @@
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkSmartPointer.h"
-#include "vtkUnicodeString.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkVariantBoostSerialization.h"
@@ -32,6 +28,8 @@
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+
+#include "vtk_utf8.h"
 
 int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -52,7 +50,10 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   const vtkTypeUInt16 greek_text_utf16[] = { 0x039C, 0x03B7, 0x03BD, 0x03B9, 0x03BD, ' ', 0x03B1,
     0x03B5, 0x03B9, 0x03B4, 0x03B5, 0 };
 
-  sourceArray->SetValue(6, vtkUnicodeString::from_utf16(greek_text_utf16));
+  vtkStdString text;
+  utf8::utf16to8(
+    std::begin(greek_text_utf16), std::end(greek_text_utf16), std::back_inserter(text));
+  sourceArray->SetValue(6, text);
 
   // Serialize the array
   std::ostringstream out_stream;
@@ -103,14 +104,22 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_VARIANT_ARRAY_DATA_CHECK(0, ToChar, "Character");
   VTK_VARIANT_ARRAY_DATA_CHECK(1, ToFloat, "Float");
   VTK_VARIANT_ARRAY_DATA_CHECK(2, ToDouble, "Double");
-  if (strcmp(sourceArray->GetValue(3).ToString(), sinkArray->GetValue(3).ToString()) != 0)
+  const char* source = sourceArray->GetValue(3).ToString().c_str();
+  const char* sink = sinkArray->GetValue(3).ToString().c_str();
+  if (strcmp(source, sink) != 0)
   {
-    cerr << "String mismatch: \"" << sourceArray->GetValue(3).ToString() << "\" vs. \""
-         << sinkArray->GetValue(3).ToString() << "\".\n";
+    cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
     ++errors;
   }
   VTK_VARIANT_ARRAY_DATA_CHECK(4, ToInt, "Int");
   VTK_VARIANT_ARRAY_DATA_CHECK(5, ToLong, "Long");
+  source = sourceArray->GetValue(6).ToString().c_str();
+  sink = sinkArray->GetValue(6).ToString().c_str();
+  if (strcmp(source, sink) != 0)
+  {
+    cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
+    ++errors;
+  }
 #undef VTK_VARIANT_ARRAY_DATA_CHECK
 
   return errors;

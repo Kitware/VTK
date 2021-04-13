@@ -293,11 +293,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(StdString);
     }
 
-"vtkUnicodeString" {
-      yylval.str = vtkstrndup(yytext, yyleng);
-      return(UnicodeString);
-    }
-
 "Qt::"{ID} {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(QT_ID);

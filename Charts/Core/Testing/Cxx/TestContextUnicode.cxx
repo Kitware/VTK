@@ -13,9 +13,6 @@
 
 =========================================================================*/
 
-// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkContextItem.h"
@@ -28,8 +25,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
-
-#include "vtkUnicodeString.h"
 
 #include "vtkRegressionTestImage.h"
 
@@ -89,8 +84,8 @@ bool ContextUnicode::Paint(vtkContext2D* painter)
   painter->GetTextProp()->SetFontFamily(VTK_FONT_FILE);
   painter->GetTextProp()->SetFontFile(this->FontFile.c_str());
   painter->DrawString(70, 20, "Angstrom");
-  painter->DrawString(150, 20, vtkUnicodeString::from_utf8("\xe2\x84\xab"));
-  painter->DrawString(100, 80, vtkUnicodeString::from_utf8("a\xce\xb1"));
-  painter->DrawString(100, 50, vtkUnicodeString::from_utf8("\xce\xb1\xce\xb2\xce\xb3"));
+  painter->DrawString(150, 20, "\xe2\x84\xab");
+  painter->DrawString(100, 80, "a\xce\xb1");
+  painter->DrawString(100, 50, "\xce\xb1\xce\xb2\xce\xb3");
   return true;
 }

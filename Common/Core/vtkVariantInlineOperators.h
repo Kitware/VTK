@@ -105,13 +105,6 @@ inline bool vtkVariant::operator==(const vtkVariant& other) const
     return (this->ToString() == other.ToString());
   }
 
-  // Fourth test: the Unicode STRING type dominates all else.  If either item
-  // is a unicode string then they must both be compared as strings.
-  if ((this->Type == VTK_UNICODE_STRING) || (other.Type == VTK_UNICODE_STRING))
-  {
-    return this->CheckUnicodeStringEqual(other);
-  }
-
   // Fifth: floating point dominates integer types.
   // Demote to the lowest-floating-point precision for the comparison.
   // This effectively makes the lower-precision number an interval
@@ -178,13 +171,6 @@ inline bool vtkVariant::operator<(const vtkVariant& other) const
   if ((this->Type == VTK_STRING) || (other.Type == VTK_STRING))
   {
     return (this->ToString() < other.ToString());
-  }
-
-  // Fourth test: the Unicode STRING type dominates all else.  If either item
-  // is a unicode string then they must both be compared as strings.
-  if ((this->Type == VTK_UNICODE_STRING) || (other.Type == VTK_UNICODE_STRING))
-  {
-    return this->CheckUnicodeStringLessThan(other);
   }
 
   // Fourth: floating point dominates integer types.

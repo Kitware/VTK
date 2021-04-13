@@ -118,11 +118,6 @@ size_t vtkWrapPython_PyTemplateName(const char* name, char* pname)
     strcpy(pname, "str");
     return n;
   }
-  else if (n == 16 && strncmp(name, "vtkUnicodeString", n) == 0)
-  {
-    strcpy(pname, "unicode");
-    return n;
-  }
 
   /* check whether name is templated */
   for (i = 0; i < n; i++)
