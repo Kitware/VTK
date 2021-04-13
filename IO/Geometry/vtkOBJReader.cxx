@@ -161,11 +161,16 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkIntArray> matIds = vtkSmartPointer<vtkIntArray>::New();
   matIds->SetNumberOfComponents(1);
   matIds->SetName("MaterialIds");
+  const char* noMaterialName = "NO_MATERIAL";
   vtkSmartPointer<vtkStringArray> matNames = vtkSmartPointer<vtkStringArray>::New();
   matNames->SetName("MaterialNames");
   matNames->SetNumberOfComponents(1);
+  vtkSmartPointer<vtkStringArray> libNames = vtkSmartPointer<vtkStringArray>::New();
+  libNames->SetName("MaterialLibraries");
+  libNames->SetNumberOfComponents(1);
   std::unordered_map<std::string, int> matNameToId;
   std::unordered_map<vtkIdType, std::string> startCellToMatName;
+  bool cellWithNotTextureFound = false;
   int matcnt = 0;
   int matid = 0;
 
@@ -387,6 +392,19 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         // remember that starting with current cell, we should draw with it
         startCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
+      }
+      else if (strcmp(cmd, "mtllib") == 0)
+      {
+        std::istringstream istr;
+        std::string libName;
+        istr.str(pLine);
+        istr >> libName;
+        if (istr.bad())
+        {
+          vtkErrorMacro(<< "Error reading 'mtllib' at line " << lineNr);
+          everything_ok = false;
+        }
+        libNames->InsertNextValue(libName);
       }
       else if (strcmp(cmd, "vt") == 0)
       {
@@ -694,6 +712,19 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
                 polys->InsertCellPoint(iVert - 1);
               }
               nVerts++;
+              if (!cellWithNotTextureFound)
+              {
+                cellWithNotTextureFound = true;
+                if (matNameToId.find(noMaterialName) == matNameToId.end())
+                {
+                  // haven't seen this material yet, keep a record of it
+                  matNameToId.emplace(noMaterialName, matcnt);
+                  matNames->InsertNextValue(noMaterialName);
+                  matcnt++;
+                }
+                // remember that starting with current cell, we should draw with it
+                startCellToMatName[polys->GetNumberOfCells() - 1] = noMaterialName;
+              }
             }
             else if (strcmp(pLine, "\\\n") == 0)
             {
@@ -771,7 +802,8 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   fclose(in);
 
   const bool hasGroups = (groupId >= 0);
-  const bool hasMaterials = (matcnt > 0);
+  const bool hasMaterials =
+    (matcnt > 1 || (matcnt == 1 && matNames->GetValue(0) != noMaterialName));
 
   if (everything_ok) // (otherwise just release allocated memory and return)
   {
@@ -836,6 +868,10 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
         output->GetCellData()->AddArray(matIds);
         output->GetFieldData()->AddArray(matNames);
+        if (libNames->GetNumberOfTuples() > 0)
+        {
+          output->GetFieldData()->AddArray(libNames);
+        }
       }
 
       if (hasGroups && faceScalars)
@@ -901,11 +937,13 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
         // then we must do something else VTK will complain. (crash on render attempt)
         // Easiest solution is to delete polys that don't have complete tcoords (if there
         // are any tcoords in the dataset) or normals (if there are any normals in the dataset).
+        // We allow cells with tcoords to mix with cells without tcoords
 
-        if ((n_pts != n_tcoord_pts && hasTCoords) || (n_pts != n_normal_pts && hasNormals))
+        if ((n_pts != n_tcoord_pts && hasTCoords && n_tcoord_pts > 0) ||
+          (n_pts != n_normal_pts && hasNormals))
         {
           // skip this poly
-          vtkDebugMacro(<< "Skipping poly " << celli + 1 << " (1-based index)");
+          vtkWarningMacro(<< "Skipping poly " << celli + 1 << " (1-based index)");
         }
         else
         {
@@ -923,6 +961,15 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
                 vtkFloatArray* new_tcoords = new_tcoords_vector.at(k);
                 new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[pointi]));
                 ++k;
+              }
+            }
+            else
+            {
+              const float nonExistingTexture[] = { -1.0, -1.0 };
+              for (size_t k = 0; k < tcoords_map.size(); ++k)
+              {
+                vtkFloatArray* new_tcoords = new_tcoords_vector.at(k);
+                new_tcoords->InsertNextTuple(nonExistingTexture);
               }
             }
             // copy the normal for this point across (if there is one)
@@ -969,6 +1016,10 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         output->GetCellData()->AddArray(matIds);
         output->GetFieldData()->AddArray(matNames);
+        if (libNames->GetNumberOfTuples() > 0)
+        {
+          output->GetFieldData()->AddArray(libNames);
+        }
       }
 
       if (hasGroups && faceScalars)

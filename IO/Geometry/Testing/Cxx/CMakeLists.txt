@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOBJReaderGroups.cxx,NO_VALID
   TestOBJReaderMaterials.cxx,NO_VALID
   TestOBJReaderMultiTexture.cxx,NO_VALID
+  TestOBJWriterMultiTexture.cxx,NO_VALID
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
   TestOBJReaderRelative.cxx,NO_VALID
   TestOBJReaderSingleTexture.cxx,NO_VALID

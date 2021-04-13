@@ -22,6 +22,9 @@
  * One can specify a texture passing a vtkImageData on port 1.
  * If a texture is set, additionals .mtl and .png files are generated. Those files have the same
  * name without obj extension.
+ * Alternatively, one can specify a TextureFileName pointing to an existing texture.
+ * In this case a .mtl file is generated pointing to the specified file.
+ *
  */
 
 #ifndef vtkOBJWriter_h
@@ -52,6 +55,16 @@ public:
 
   ///@{
   /**
+   * Get/Set the path to an existing texture file for the OBJ.
+   * If this is set, the writer will generate mtllib, usemtl lines
+   * and a .mtl file that points to the existing texture file.
+   */
+  vtkSetStringMacro(TextureFileName);
+  vtkGetStringMacro(TextureFileName);
+  //@}
+
+  //@{
+  /**
    * Get/Set the file name of the OBJ file.
    */
   vtkSetStringMacro(FileName);
@@ -66,6 +79,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;
+  char* TextureFileName;
 
 private:
   vtkOBJWriter(const vtkOBJWriter&) = delete;
