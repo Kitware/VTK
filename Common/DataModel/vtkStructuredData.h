@@ -33,6 +33,7 @@
 #include "vtkObject.h"
 
 class vtkIdList;
+class vtkUnsignedCharArray;
 
 #define VTK_UNCHANGED 0
 #define VTK_SINGLE_POINT 1
@@ -108,6 +109,17 @@ public:
    */
   static void GetDimensionsFromExtent(
     const int ext[6], int dims[3], int dataDescription = VTK_EMPTY);
+
+  /**
+   * Return non-zero value if specified point is visible.
+   */
+  static bool IsPointVisible(vtkIdType cellId, vtkUnsignedCharArray* ghosts);
+
+  /**
+   * Return non-zero value if specified cell is visible.
+   */
+  static bool IsCellVisible(vtkIdType cellId, int dimensions[3], int dataDescription,
+    vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray = nullptr);
 
   /**
    * Returns the cell dimensions, i.e., the number of cells along the i,j,k

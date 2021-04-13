@@ -14,12 +14,23 @@
 =========================================================================*/
 #include "vtkStructuredData.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredExtent.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
 #include <cassert>
+
+namespace
+{
+// FIXME
+// I don't know if it makes sense to add `REFINEDCELL` in this mask.
+// Needs further investigation.
+constexpr unsigned char MASKED_CELL_VALUE =
+  vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 void vtkStructuredData::PrintSelf(ostream& os, vtkIndent indent)
@@ -359,6 +370,132 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList* cellIds, int di
       cellIds->InsertNextId(cellId);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredData::IsPointVisible(vtkIdType pointId, vtkUnsignedCharArray* ghosts)
+{
+  return ghosts && !(ghosts->GetValue(pointId) & vtkDataSetAttributes::HIDDENPOINT);
+}
+
+//------------------------------------------------------------------------------
+bool vtkStructuredData::IsCellVisible(vtkIdType cellId, int dimensions[3], int dataDescription,
+  vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray)
+{
+  if (cellGhostArray && (cellGhostArray->GetValue(cellId) & MASKED_CELL_VALUE))
+  {
+    return false;
+  }
+
+  if (!pointGhostArray)
+  {
+    return dataDescription != VTK_EMPTY;
+  }
+
+  int numIds = 0;
+  vtkIdType ptIds[8];
+  int iMin, iMax, jMin, jMax, kMin, kMax;
+  vtkIdType d01 = dimensions[0] * dimensions[1];
+  iMin = iMax = jMin = jMax = kMin = kMax = 0;
+
+  switch (dataDescription)
+  {
+    case VTK_EMPTY:
+      return false;
+
+    case VTK_SINGLE_POINT: // cellId can only be = 0
+      numIds = 1;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      break;
+
+    case VTK_X_LINE:
+      iMin = cellId;
+      iMax = cellId + 1;
+      numIds = 2;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMax + jMin * dimensions[0] + kMin * d01;
+      break;
+
+    case VTK_Y_LINE:
+      jMin = cellId;
+      jMax = cellId + 1;
+      numIds = 2;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMin + jMax * dimensions[0] + kMin * d01;
+      break;
+
+    case VTK_Z_LINE:
+      kMin = cellId;
+      kMax = cellId + 1;
+      numIds = 2;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMin + jMin * dimensions[0] + kMax * d01;
+      break;
+
+    case VTK_XY_PLANE:
+      iMin = cellId % (dimensions[0] - 1);
+      iMax = iMin + 1;
+      jMin = cellId / (dimensions[0] - 1);
+      jMax = jMin + 1;
+      numIds = 4;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMax + jMin * dimensions[0] + kMin * d01;
+      ptIds[2] = iMax + jMax * dimensions[0] + kMin * d01;
+      ptIds[3] = iMin + jMax * dimensions[0] + kMin * d01;
+      break;
+
+    case VTK_YZ_PLANE:
+      jMin = cellId % (dimensions[1] - 1);
+      jMax = jMin + 1;
+      kMin = cellId / (dimensions[1] - 1);
+      kMax = kMin + 1;
+      numIds = 4;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMin + jMax * dimensions[0] + kMin * d01;
+      ptIds[2] = iMin + jMax * dimensions[0] + kMax * d01;
+      ptIds[3] = iMin + jMin * dimensions[0] + kMax * d01;
+      break;
+
+    case VTK_XZ_PLANE:
+      iMin = cellId % (dimensions[0] - 1);
+      iMax = iMin + 1;
+      kMin = cellId / (dimensions[0] - 1);
+      kMax = kMin + 1;
+      numIds = 4;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMax + jMin * dimensions[0] + kMin * d01;
+      ptIds[2] = iMax + jMin * dimensions[0] + kMax * d01;
+      ptIds[3] = iMin + jMin * dimensions[0] + kMax * d01;
+      break;
+
+    case VTK_XYZ_GRID:
+      iMin = cellId % (dimensions[0] - 1);
+      iMax = iMin + 1;
+      jMin = (cellId / (dimensions[0] - 1)) % (dimensions[1] - 1);
+      jMax = jMin + 1;
+      kMin = cellId / ((dimensions[0] - 1) * (dimensions[1] - 1));
+      kMax = kMin + 1;
+      numIds = 8;
+      ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
+      ptIds[1] = iMax + jMin * dimensions[0] + kMin * d01;
+      ptIds[2] = iMax + jMax * dimensions[0] + kMin * d01;
+      ptIds[3] = iMin + jMax * dimensions[0] + kMin * d01;
+      ptIds[4] = iMin + jMin * dimensions[0] + kMax * d01;
+      ptIds[5] = iMax + jMin * dimensions[0] + kMax * d01;
+      ptIds[6] = iMax + jMax * dimensions[0] + kMax * d01;
+      ptIds[7] = iMin + jMax * dimensions[0] + kMax * d01;
+      break;
+  }
+
+  for (int i = 0; i < numIds; i++)
+  {
+    if (!vtkStructuredData::IsPointVisible(ptIds[i], pointGhostArray))
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
