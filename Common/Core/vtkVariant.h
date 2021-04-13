@@ -194,6 +194,7 @@ public:
   /**
    * Get whether the variant is a Unicode string.
    */
+  VTK_DEPRECATED_IN_9_1_0("Use bool IsString() const")
   bool IsUnicodeString() const;
 
   /**
