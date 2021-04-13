@@ -913,7 +913,7 @@ void vtkRectilinearGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vt
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -946,7 +946,7 @@ void vtkRectilinearGrid::GetCellNeighbors(
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -992,9 +992,7 @@ void vtkRectilinearGrid::SetExtent(int extent[6])
   this->DataDescription = description;
 
   this->Modified();
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
+  vtkStructuredData::GetDimensionsFromExtent(extent, this->Dimensions);
 }
 
 //------------------------------------------------------------------------------
@@ -1077,7 +1075,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(double x[3], int ijk[3], do
 //------------------------------------------------------------------------------
 unsigned long vtkRectilinearGrid::GetActualMemorySize()
 {
-  unsigned long size = this->vtkDataSet::GetActualMemorySize();
+  unsigned long size = this->Superclass::GetActualMemorySize();
 
   if (this->XCoordinates)
   {
@@ -1114,7 +1112,7 @@ void vtkRectilinearGrid::ShallowCopy(vtkDataObject* dataObject)
   }
 
   // Do superclass
-  this->vtkDataSet::ShallowCopy(dataObject);
+  this->Superclass::ShallowCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
@@ -1145,7 +1143,7 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject* dataObject)
   }
 
   // Do superclass
-  this->vtkDataSet::DeepCopy(dataObject);
+  this->Superclass::DeepCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
