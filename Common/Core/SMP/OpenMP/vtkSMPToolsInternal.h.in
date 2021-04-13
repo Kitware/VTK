@@ -69,11 +69,24 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
 
 //--------------------------------------------------------------------------------
 template <typename InputIt, typename OutputIt, typename Functor>
-void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
+void vtkSMPTools_Impl_Transform(
+  InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
   auto size = std::distance(inBegin, inEnd);
 
-  TransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
+  UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, outBegin, transform);
+  vtkSMPTools_Impl_For(0, size, 0, exec);
+}
+
+//--------------------------------------------------------------------------------
+template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
+static void vtkSMPTools_Impl_Transform(
+  InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
+{
+  auto size = std::distance(inBegin1, inEnd);
+
+  BinaryTransformCall<InputIt1, InputIt2, OutputIt, Functor> exec(
+    inBegin1, inBegin2, outBegin, transform);
   vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 
@@ -84,7 +97,7 @@ void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
   auto size = std::distance(begin, end);
 
   FillFunctor<T> fill(value);
-  TransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
+  UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, begin, fill);
   vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 

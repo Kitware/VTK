@@ -53,9 +53,18 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
 
 //--------------------------------------------------------------------------------
 template <typename InputIt, typename OutputIt, typename Functor>
-void vtkSMPTools_Impl_Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor& transform)
+void vtkSMPTools_Impl_Transform(
+  InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
-  std::transform(inBegin, inEnd, outBegin, outBegin, transform);
+  std::transform(inBegin, inEnd, outBegin, transform);
+}
+
+//--------------------------------------------------------------------------------
+template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
+static void vtkSMPTools_Impl_Transform(
+  InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
+{
+  std::transform(inBegin1, inEnd, inBegin2, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------

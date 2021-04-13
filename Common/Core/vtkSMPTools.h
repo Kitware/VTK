@@ -245,7 +245,7 @@ public:
 
   /**
    * A convenience method for transforming data. It is a drop in replacement for
-   * std::transform(), it does a binary operation on the input ranges. The data array must have the
+   * std::transform(), it does a unary operation on the input ranges. The data array must have the
    * same length. The performed transformation is defined by operator() of the functor object.
    *
    * Usage example with vtkDataArray:
@@ -253,7 +253,7 @@ public:
    * const auto range0 = vtk::DataArrayValueRange<1>(array0);
    * auto range1 = vtk::DataArrayValueRange<1>(array1);
    * vtkSMPTools::Transform(
-   *   range0.cbegin(), range0.cend(), range1.begin(), [](double x, double y) { return x * y; });
+   *   range0.cbegin(), range0.cend(), range1.begin(), [](double x) { return x - 1; });
    * \endcode
    *
    * Please visit vtkDataArrayRange.h documentation for more information and optimisation.
@@ -262,6 +262,29 @@ public:
   static void Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
   {
     vtk::detail::smp::vtkSMPTools_Impl_Transform(inBegin, inEnd, outBegin, transform);
+  }
+
+  /**
+   * A convenience method for transforming data. It is a drop in replacement for
+   * std::transform(), it does a binary operation on the input ranges. The data array must have the
+   * same length. The performed transformation is defined by operator() of the functor object.
+   *
+   * Usage example with vtkDataArray:
+   * \code
+   * const auto range0 = vtk::DataArrayValueRange<1>(array0);
+   * auto range1 = vtk::DataArrayValueRange<1>(array1);
+   * vtkSMPTools::Transform(
+   *   range0.cbegin(), range0.cend(), range1.cbegin(), range1.begin(),
+   *   [](double x, double y) { return x * y; });
+   * \endcode
+   *
+   * Please visit vtkDataArrayRange.h documentation for more information and optimisation.
+   */
+  template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
+  static void Transform(
+    InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
   }
 
   /**
