@@ -236,7 +236,7 @@ void vtkImageData::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdLis
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -269,7 +269,7 @@ void vtkImageData::GetCellNeighbors(
       break;
 
     default:
-      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+      this->Superclass::GetCellNeighbors(cellId, ptIds, cellIds);
   }
 
   // If blanking, remove blanked cells.
@@ -2079,9 +2079,7 @@ void vtkImageData::SetExtent(int* extent)
     return;
   }
 
-  this->Dimensions[0] = extent[1] - extent[0] + 1;
-  this->Dimensions[1] = extent[3] - extent[2] + 1;
-  this->Dimensions[2] = extent[5] - extent[4] + 1;
+  vtkStructuredData::GetDimensionsFromExtent(extent, this->Dimensions);
 
   this->SetDataDescription(description);
 
@@ -2153,7 +2151,7 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int& min, int& max, const int* u
 //------------------------------------------------------------------------------
 unsigned long vtkImageData::GetActualMemorySize()
 {
-  return this->vtkDataSet::GetActualMemorySize();
+  return this->Superclass::GetActualMemorySize();
 }
 
 //------------------------------------------------------------------------------
@@ -2167,7 +2165,7 @@ void vtkImageData::ShallowCopy(vtkDataObject* dataObject)
   }
 
   // Do superclass
-  this->vtkDataSet::ShallowCopy(dataObject);
+  this->Superclass::ShallowCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
@@ -2182,7 +2180,7 @@ void vtkImageData::DeepCopy(vtkDataObject* dataObject)
   }
 
   // Do superclass
-  this->vtkDataSet::DeepCopy(dataObject);
+  this->Superclass::DeepCopy(dataObject);
 }
 
 //------------------------------------------------------------------------------
