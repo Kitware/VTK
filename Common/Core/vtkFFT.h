@@ -46,7 +46,7 @@ public:
    * Compute the one-dimensional discrete Fourier Transform for real input
    *
    *  input has nfft scalar points
-   *  output has nfft/2+1 complex points
+   *  output has nfft/2+1 complex points in case of success and empty in case of failure
    */
   static std::vector<ComplexNumber> FftDirect(const std::vector<ScalarNumber>& in);
 
@@ -54,7 +54,7 @@ public:
    * Compute the inverse of DFT
    *
    *  input has  nfft/2+1 complex points
-   *  output has nfft scalar points
+   *  output has nfft scalar points in case of success and empty in case of failure
    */
   static std::vector<ScalarNumber> FftInverse(const std::vector<ComplexNumber>& in);
 

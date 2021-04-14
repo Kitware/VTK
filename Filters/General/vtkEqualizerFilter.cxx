@@ -406,7 +406,7 @@ void vtkEqualizerFilter::ProcessColumn(
   freqColumn->SetName("Frequency");
   for (vtkIdType spectrumId = 0; spectrumId < this->Internal->GetHalfSpectrumSize(); ++spectrumId)
   {
-    freqColumn->SetTuple1(spectrumId, freqArray.at(spectrumId));
+    freqColumn->SetValue(spectrumId, freqArray.at(spectrumId));
   }
 
   spectrumTable->AddColumn(freqColumn);
@@ -422,16 +422,16 @@ void vtkEqualizerFilter::ProcessColumn(
   normalizedArray->SetNumberOfTuples(this->Internal->GetHalfSpectrumSize());
   normalizedArray->SetName(array->GetName());
 
+  double modifier = pow(10, 0.05 * this->SpectrumGain);
   for (vtkIdType spectrumId = 0; spectrumId < this->Internal->GetHalfSpectrumSize(); ++spectrumId)
   {
     auto value = spectrum[spectrumId];
     // we are only interested in amplitude spectrum, so we use complex_module
     // divide by the number of elements so that the amplitudes are in millivolts, not Fourier sums.
-    double modifier = pow(10, 0.05 * this->SpectrumGain);
     double module = vtkFFT::ComplexModule(value) * modifier / this->Internal->GetHalfSpectrumSize();
-    leadArray->SetTuple1(spectrumId, module);
+    leadArray->SetValue(spectrumId, module);
 
-    normalizedArray->SetTuple1(spectrumId, normSpectrum[spectrumId] * modifier);
+    normalizedArray->SetValue(spectrumId, normSpectrum[spectrumId] * modifier);
   }
   spectrumTable->AddColumn(leadArray);
   normalizedTable->AddColumn(normalizedArray);
@@ -448,7 +448,7 @@ void vtkEqualizerFilter::ProcessColumn(
   for (int spectrumId = 0; spectrumId < this->Internal->OriginalSize; ++spectrumId)
   {
     auto val = num[spectrumId];
-    rfftArray->SetTuple1(spectrumId, val);
+    rfftArray->SetValue(spectrumId, val);
   }
   resultTable->AddColumn(rfftArray);
   // end fill result table

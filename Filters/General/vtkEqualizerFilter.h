@@ -38,6 +38,7 @@ public:
   //@{
   /**
    * Set / Get the sampling frequency of the original signal in Hz
+   * Default value is: 1000
    */
   vtkSetMacro(SamplingFrequency, int);
   vtkGetMacro(SamplingFrequency, int);
@@ -47,7 +48,8 @@ public:
   /**
    * Set / Get a flag to process all columns of the table.
    * If set to true, all columns of the table will be used. The "SetArray()" method will have no
-   * effect. false by default.
+   * effect.
+   * Default value is: false
    */
   vtkSetMacro(AllColumns, bool);
   vtkGetMacro(AllColumns, bool);
@@ -56,6 +58,7 @@ public:
   //@{
   /**
    * Set / Get the name of the column from which the data array is taken
+   * Default value is: std::string()
    */
   vtkSetStdStringFromCharMacro(Array);
   vtkGetCharFromStdStringMacro(Array);
@@ -64,7 +67,7 @@ public:
   /**
    * Set / Get anchor points in the following format
    * "P1x,P1y;P2x,P2y; ... PNx,PNy;"
-   * "0,1;500,1;" by default
+   * Default value is: "0,1;500,1;"
    */
   void SetPoints(const std::string& points);
   std::string GetPoints() const;
@@ -72,6 +75,7 @@ public:
   //@{
   /**
    * Set / Get the spectrum gain in dB
+   * Default value is: 0
    */
   vtkSetMacro(SpectrumGain, int);
   vtkGetMacro(SpectrumGain, int);

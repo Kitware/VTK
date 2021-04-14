@@ -97,36 +97,6 @@ bool isNearLine(
   bool res = { onLine && t < 1.0 && t > 0.0 };
   return res;
 }
-
-// TODO: replace to std::lower_bound
-// analog std::lower_bound
-// use it because
-// in gcc available std::lower_bound only with 3 parameters
-// in vc available std::lower_bound only with 4 parameters
-template <class ForwardIt, class T>
-ForwardIt lowerBound3(ForwardIt first, ForwardIt last, const T& value)
-{
-  ForwardIt it;
-  typename std::iterator_traits<ForwardIt>::difference_type count, step;
-  count = std::distance(first, last);
-
-  while (count > 0)
-  {
-    it = first;
-    step = count / 2;
-    std::advance(it, step);
-    if (*it < value)
-    {
-      first = ++it;
-      count -= step + 1;
-    }
-    else
-    {
-      count = step;
-    }
-  }
-  return first;
-}
 }
 
 // using namespace equalizer;
@@ -152,8 +122,7 @@ public:
   //------------------------------------------------------------------------------
   void addPoint(const equalizer::EqualizerPoint& point)
   {
-    this->Points.insert(
-      (equalizer::lowerBound3(this->Points.begin(), this->Points.end(), point)), point);
+    this->Points.insert((std::lower_bound(this->Points.begin(), this->Points.end(), point)), point);
   }
 
   //------------------------------------------------------------------------------
