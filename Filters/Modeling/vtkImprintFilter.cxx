@@ -1591,7 +1591,7 @@ struct vtkPerimeterPoint
   }
 
   // Used to support sorting points around the perimeter of the target candidate cell.
-  bool operator<(const vtkPerimeterPoint& p) { return (this->T < p.T); }
+  bool operator<(const vtkPerimeterPoint& p) const { return (this->T < p.T); }
 };
 using vtkPerimeterList = std::vector<vtkPerimeterPoint>;
 
