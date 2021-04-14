@@ -161,9 +161,13 @@ public:
    * of DataSetT* from the `dobj`. If dobj is a DataSetT, the returned
    * vector will have just 1 DataSetT. If dobj is a vtkCompositeDataSet, then
    * we iterate over it and add all non-null leaf nodes to the returned vector.
+   *
+   * If `preserveNull` is true (defaults to false), then `nullptr` place holders
+   * are added as placeholders when leaf node dataset type does not match the
+   * requested or is nullptr to begin with.
    */
   template <class DataSetT = vtkDataSet>
-  static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj);
+  static std::vector<DataSetT*> GetDataSets(vtkDataObject* dobj, bool preserveNull = false);
 
 protected:
   vtkCompositeDataSet();

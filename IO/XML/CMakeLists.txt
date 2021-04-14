@@ -30,9 +30,7 @@ set(classes
   vtkXMLPUnstructuredDataReader
   vtkXMLPUnstructuredGridReader
   vtkXMLPartitionedDataSetCollectionReader
-  vtkXMLPartitionedDataSetCollectionWriter
   vtkXMLPartitionedDataSetReader
-  vtkXMLPartitionedDataSetWriter
   vtkXMLPolyDataReader
   vtkXMLPolyDataWriter
   vtkXMLReader

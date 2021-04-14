@@ -2,7 +2,9 @@ from vtkmodules import vtkCommonCore as cc
 from vtkmodules import vtkCommonDataModel as dm
 from vtkmodules import vtkCommonExecutionModel as em
 from vtkmodules import vtkImagingCore as ic
-from vtkmodules import vtkIOXML as ixml
+from vtkmodules.vtkIOParallelXML import vtkXMLPartitionedDataSetWriter
+from vtkmodules.vtkIOXML import vtkXMLPartitionedDataSetReader
+
 
 from vtk.test import Testing
 from vtk.util.misc import vtkGetTempDir
@@ -33,12 +35,12 @@ class TestXMLPartitionedDataSet(Testing.vtkTest):
 
         tmpdir = vtkGetTempDir()
         fname = tmpdir+"/testxmlpartds.vtpd"
-        w = ixml.vtkXMLPartitionedDataSetWriter()
+        w = vtkXMLPartitionedDataSetWriter()
         w.SetInputData(p)
         w.SetFileName(fname)
         w.Write()
 
-        r = ixml.vtkXMLPartitionedDataSetReader()
+        r = vtkXMLPartitionedDataSetReader()
         r.SetFileName(fname)
         r.Update()
         o = r.GetOutputDataObject(0)

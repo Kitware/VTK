@@ -1,4 +1,9 @@
 set(classes
+  vtkXMLCompositeDataSetWriterHelper
+  vtkXMLDataWriterHelper
+  vtkXMLPartitionedDataSetCollectionWriter
+  vtkXMLPartitionedDataSetWriter
+  vtkXMLWriter2
   vtkXMLPDataObjectWriter
   vtkXMLPDataSetWriter
   vtkXMLPDataWriter

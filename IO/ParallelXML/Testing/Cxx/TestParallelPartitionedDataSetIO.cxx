@@ -28,8 +28,8 @@
 #include "vtkPoints.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLPPartitionedDataSetWriter.h"
 #include "vtkXMLPartitionedDataSetReader.h"
+#include "vtkXMLPartitionedDataSetWriter.h"
 #include "vtksys/FStream.hxx"
 
 #include <string>
@@ -242,7 +242,7 @@ int TestParallelPartitionedDataSetIO(int argc, char* argv[])
   pds->SetNumberOfPartitions(1);
   pds->SetPartition(0, ug);
 
-  vtkNew<vtkXMLPPartitionedDataSetWriter> w;
+  vtkNew<vtkXMLPartitionedDataSetWriter> w;
   w->SetController(contr);
   w->SetInputData(pds);
   char* tempDir =
