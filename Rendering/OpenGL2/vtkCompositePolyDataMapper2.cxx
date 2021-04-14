@@ -389,7 +389,7 @@ void vtkCompositeMapperHelper2::DrawIBO(vtkRenderer* ren, vtkActor* actor, int p
     //   prog->SetUniform3f("ambientColorUniform", ambientColor);
     // }
 
-    bool selecting = (this->CurrentSelector ? true : false);
+    bool selecting = this->CurrentSelector != nullptr;
     bool tpass = actor->IsRenderingTranslucentPolygonalGeometry();
 
     for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)

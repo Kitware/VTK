@@ -2076,7 +2076,7 @@ int vtkScalarBarActor::MapAnnotationLabels(
   vtkScalarsToColors* lkup, double start, double delta, const double* range)
 {
   int numNotes = lkup->GetNumberOfAnnotatedValues();
-  bool indexed = lkup->GetIndexedLookup() ? true : false;
+  bool indexed = lkup->GetIndexedLookup() != 0;
   bool vertical = (this->Orientation == VTK_ORIENT_VERTICAL);
   vtkColor4d fltCol;
   double drange = range[1] - range[0];
@@ -2325,7 +2325,7 @@ struct vtkScalarBarHLabelPlacer
     , Pad(pad)
     , LeaderPad(leaderPad)
     , Dir(dir < 0 ? -1. : 1.)
-    , HaveCtr(n % 2 ? true : false)
+    , HaveCtr(n % 2 != 0)
   {
     this->XBounds[0] = xmin;
     this->XBounds[1] = xmax;

@@ -337,7 +337,7 @@ bool vtkPostgreSQLDatabase::HasError()
   // Assume that an unopened connection is not a symptom of failure.
   if (this->Connection)
   {
-    return this->LastErrorText ? true : false;
+    return this->LastErrorText != nullptr;
   }
   else
   {

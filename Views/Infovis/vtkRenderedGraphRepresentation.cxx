@@ -325,7 +325,7 @@ void vtkRenderedGraphRepresentation::SetEdgeVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetEdgeVisibility()
 {
-  return this->EdgeActor->GetVisibility() ? true : false;
+  return this->EdgeActor->GetVisibility() != 0;
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeSelection(bool b)
@@ -415,7 +415,7 @@ void vtkRenderedGraphRepresentation::SetEdgeIconVisibility(bool)
 
 bool vtkRenderedGraphRepresentation::GetVertexIconVisibility()
 {
-  return (this->VertexIconActor->GetVisibility() ? true : false);
+  return this->VertexIconActor->GetVisibility() != 0;
 }
 
 bool vtkRenderedGraphRepresentation::GetEdgeIconVisibility()
@@ -658,7 +658,7 @@ void vtkRenderedGraphRepresentation::SetVertexScalarBarVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetVertexScalarBarVisibility()
 {
-  return this->VertexScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+  return this->VertexScalarBar->GetScalarBarActor()->GetVisibility() != 0;
 }
 
 void vtkRenderedGraphRepresentation::SetEdgeScalarBarVisibility(bool b)
@@ -668,7 +668,7 @@ void vtkRenderedGraphRepresentation::SetEdgeScalarBarVisibility(bool b)
 
 bool vtkRenderedGraphRepresentation::GetEdgeScalarBarVisibility()
 {
-  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() != 0;
 }
 
 vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetVertexScalarBar()
@@ -683,7 +683,7 @@ vtkScalarBarWidget* vtkRenderedGraphRepresentation::GetEdgeScalarBar()
 
 bool vtkRenderedGraphRepresentation::IsLayoutComplete()
 {
-  return this->Layout->IsLayoutComplete() ? true : false;
+  return this->Layout->IsLayoutComplete() != 0;
 }
 
 void vtkRenderedGraphRepresentation::UpdateLayout()

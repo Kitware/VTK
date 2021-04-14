@@ -207,7 +207,7 @@ void vtkX3DExporter::WriteData()
   writer->StartNode(NavigationInfo);
   writer->SetField(type, "\"EXAMINE\" \"FLY\" \"ANY\"", true);
   writer->SetField(speed, static_cast<float>(this->Speed));
-  writer->SetField(headlight, this->HasHeadLight(ren) ? true : false);
+  writer->SetField(headlight, this->HasHeadLight(ren) != 0);
   writer->EndNode();
 
   writer->StartNode(DirectionalLight);
@@ -357,7 +357,7 @@ void vtkX3DExporter::WriteALight(vtkLight* aLight, vtkX3DExporterWriter* writer)
   // TODO: Check correct color
   writer->SetField(color, SFCOLOR, colord);
   writer->SetField(intensity, static_cast<float>(aLight->GetIntensity()));
-  writer->SetField(on, aLight->GetSwitch() ? true : false);
+  writer->SetField(on, aLight->GetSwitch() != 0);
   writer->EndNode();
   writer->Flush();
 }

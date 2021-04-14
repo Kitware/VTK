@@ -2189,7 +2189,7 @@ void vtkXMLWriter::UpdateFieldData(vtkFieldData* fieldDataCopy)
   vtkDataObject* input = this->GetInput();
   vtkFieldData* fieldData = input->GetFieldData();
   vtkInformation* meta = input->GetInformation();
-  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
   if ((!fieldData || !fieldData->GetNumberOfArrays()) && !hasTime)
   {
     fieldDataCopy->Initialize();

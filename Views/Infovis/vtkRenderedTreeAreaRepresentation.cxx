@@ -334,7 +334,7 @@ void vtkRenderedTreeAreaRepresentation::SetEdgeScalarBarVisibility(bool b)
 
 bool vtkRenderedTreeAreaRepresentation::GetEdgeScalarBarVisibility()
 {
-  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() ? true : false;
+  return this->EdgeScalarBar->GetScalarBarActor()->GetVisibility() != 0;
 }
 
 void vtkRenderedTreeAreaRepresentation::SetGraphHoverArrayName(const char* name, int idx)

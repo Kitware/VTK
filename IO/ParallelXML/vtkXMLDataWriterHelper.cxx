@@ -82,7 +82,7 @@ bool vtkXMLDataWriterHelper::AddGlobalFieldData(vtkCompositeDataSet* input)
   }
 
   auto meta = input->GetInformation();
-  const bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  const bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
   auto fieldData = input->GetFieldData();
   if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
   {

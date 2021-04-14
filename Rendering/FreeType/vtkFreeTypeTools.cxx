@@ -927,7 +927,7 @@ bool vtkFreeTypeTools::GetGlyphIndex(size_t tprop_cache_id, FT_UInt32 c, FT_UInt
   // Lookup the glyph index
   *gindex = FTC_CMapCache_Lookup(*cmap_cache, face_id, 0, c);
 
-  return *gindex ? true : false;
+  return *gindex != 0;
 }
 
 //------------------------------------------------------------------------------

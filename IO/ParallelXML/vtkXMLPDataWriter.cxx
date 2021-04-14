@@ -53,7 +53,7 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
   vtkFieldData* fieldData = input->GetFieldData();
 
   vtkInformation* meta = input->GetInformation();
-  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) != 0;
   if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
   {
     vtkNew<vtkFieldData> fieldDataCopy;
