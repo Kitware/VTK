@@ -181,7 +181,7 @@ vtkChartXY::vtkChartXY()
   {
     this->ChartPrivate->axes.push_back(vtkAxis::New());
     // By default just show the left and bottom axes
-    this->ChartPrivate->axes.back()->SetVisible(i < 2 ? true : false);
+    this->ChartPrivate->axes.back()->SetVisible(i < 2);
     this->AttachAxisRangeListener(this->ChartPrivate->axes.back());
     this->AddItem(this->ChartPrivate->axes.back());
   }

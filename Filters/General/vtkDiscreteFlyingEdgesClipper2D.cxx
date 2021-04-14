@@ -84,7 +84,7 @@ struct SingleContourValue : public ContourMap<T>
     : ContourMap<T>(values, 1)
   {
   }
-  bool IsContourValue(T label) override { return (label == this->CachedValue ? true : false); }
+  bool IsContourValue(T label) override { return label == this->CachedValue; }
 };
 
 // Represent a few contour values

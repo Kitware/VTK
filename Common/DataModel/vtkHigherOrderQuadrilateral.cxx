@@ -500,7 +500,7 @@ bool vtkHigherOrderQuadrilateral::SubCellCoordinatesFromId(int& i, int& j, int& 
   i = subId % this->Order[0];
   j = (subId / this->Order[0]) % this->Order[1];
   k = 0;
-  return i + this->Order[0] * j == subId ? true : false;
+  return i + this->Order[0] * j == subId;
 }
 
 /**\brief A convenience function to get a connectivity offset from a control-point tuple.

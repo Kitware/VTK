@@ -1454,7 +1454,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // edge connectivity is constructed (i.e., incident edges to each point are
   // identified), then the local topology around each point is analyzed to
   // create a local smoothing stencil.
-  bool largeIds = ((numPts > VTK_INT_MAX || numCells > VTK_INT_MAX) ? true : false);
+  bool largeIds = numPts > VTK_INT_MAX || numCells > VTK_INT_MAX;
   PointConnectivityBase* ptConn;
   if (largeIds)
   {

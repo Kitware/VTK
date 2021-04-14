@@ -373,18 +373,12 @@ struct vtkTriEdge
   }
 
   // Equivalence operator
-  bool operator==(vtkTriEdge& edge)
-  {
-    return ((this->V0 == edge.V0 && this->V1 == edge.V1) ? true : false);
-  }
+  bool operator==(vtkTriEdge& edge) { return this->V0 == edge.V0 && this->V1 == edge.V1; }
 
   // Indicate whether the edge provided is a reversed edge to this one (i.e.,
   // same edge but opposite direction). This check is needed because we don't
   // want loops to travel back and forth along the same edge.
-  bool IsReverseEdge(vtkTriEdge* edge)
-  {
-    return ((this->V0 == edge->V1 && this->V1 == edge->V0) ? true : false);
-  }
+  bool IsReverseEdge(vtkTriEdge* edge) { return this->V0 == edge->V1 && this->V1 == edge->V0; }
 };
 
 // Supports the representation and construction of edge networks for the
@@ -1578,7 +1572,7 @@ struct ProduceIntersectionPoints
 
     // Determine whether the points are within MergeTol of one another. if so,
     // then they are considered the same point.
-    bool coincident = (vtkMath::Distance2BetweenPoints(xInt, x) <= this->MergeTol2 ? true : false);
+    bool coincident = (vtkMath::Distance2BetweenPoints(xInt, x) <= this->MergeTol2);
 
     // If the imprint edge end point is already classified on the edge, and the points are
     // coincident, then the intersection point is the same as the imprint edge end point.

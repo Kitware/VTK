@@ -187,7 +187,7 @@ bool PIO_DATA::read(const std::list<std::string>* fields_to_read)
     return false;
   }
   this->Infile->read((char*)&two, sizeof(two));
-  reverse_endian = (two != 2.0) ? true : false;
+  reverse_endian = two != 2.0;
   read_pio_word(PIO_VERSION);
   read_pio_word(PIO_NAME_LENGTH);
   read_pio_word(PIO_HEADER_LENGTH);
@@ -546,7 +546,7 @@ bool PIO_DATA::GetPIOfileTime(const char* piofile, double& time)
     return false;
   }
   this->Infile->read((char*)&two, sizeof(two));
-  reverse_endian = (two != 2.0) ? true : false;
+  reverse_endian = two != 2.0;
   read_pio_word(PIO_VERSION);
   read_pio_word(PIO_NAME_LENGTH);
   read_pio_word(PIO_HEADER_LENGTH);
@@ -608,7 +608,7 @@ bool IsPIOfile(const char* piofile)
   file.read(name, 8);
   name[8] = '\0';
   file.close();
-  return (strcmp(name, "pio_file") == 0) ? true : false;
+  return strcmp(name, "pio_file") == 0;
 } // End IsPIOfile
 
 void PIO_DATA::GetPIOData(PIO_FIELD& _pio_field, const double*& _data, const char*& _cdata)

@@ -251,7 +251,7 @@ int TestTimeDependentInformationExecution()
   int numErrors(0);
   for (int i = 1; i < 2; i++)
   {
-    bool hasTemporalMeta = i == 0 ? false : true;
+    bool hasTemporalMeta = i != 0;
     vtkNew<TestTimeSource> imageSource;
     imageSource->SetHasTimeDependentData(hasTemporalMeta);
 

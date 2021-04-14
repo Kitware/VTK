@@ -1449,7 +1449,7 @@ struct IdRecorder
     }
   }
   vtkIdType* GetPointer() { return this->Ids->GetPointer(0); }
-  vtkTypeBool PassThru() { return (this->Ids.Get() == nullptr ? false : true); }
+  vtkTypeBool PassThru() { return this->Ids.Get() != nullptr; }
   void Allocate(vtkIdType num)
   {
     if (this->Ids.Get() != nullptr)

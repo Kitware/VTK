@@ -77,7 +77,7 @@ vtkDataObject* vtkXdmf3HeavyDataHandler::Populate(
   shared_ptr<XdmfDomain> group = shared_dynamic_cast<XdmfDomain>(item);
 
   shared_ptr<XdmfGridCollection> asGC = shared_dynamic_cast<XdmfGridCollection>(item);
-  bool isDomain = asGC ? false : true;
+  bool isDomain = !asGC;
   bool isTemporal = false;
   if (asGC)
   {

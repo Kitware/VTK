@@ -213,7 +213,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   // Retrieve interface arrays if available
   vtkDataArray* inNormals = nullptr;
   vtkDataArray* inIntercepts = nullptr;
-  bool hasInterface = input->GetHasInterface() ? true : false;
+  bool hasInterface = input->GetHasInterface();
   if (hasInterface)
   {
     inNormals = this->OutData->GetArray(output->GetInterfaceNormalsName());

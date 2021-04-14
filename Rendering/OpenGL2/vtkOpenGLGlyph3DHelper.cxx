@@ -307,7 +307,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
   for (int i = PrimitiveStart;
        i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
   {
-    this->DrawingVertices = (i > PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = i > PrimitiveTriStrips;
     if (this->Primitives[i].IBO->IndexCount)
     {
       this->UpdateShaders(this->Primitives[i], ren, actor);
@@ -398,7 +398,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
   for (int i = PrimitiveStart;
        i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
   {
-    this->DrawingVertices = (i > PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = i > PrimitiveTriStrips;
     if (this->Primitives[i].IBO->IndexCount)
     {
       GLenum mode = this->GetOpenGLMode(representation, i);

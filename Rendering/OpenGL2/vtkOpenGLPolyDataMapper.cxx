@@ -3359,7 +3359,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
                                     : vtkOpenGLPolyDataMapper::PrimitiveTriStrips + 1);
        i++)
   {
-    this->DrawingVertices = (i > vtkOpenGLPolyDataMapper::PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = i > vtkOpenGLPolyDataMapper::PrimitiveTriStrips;
     this->DrawingSelection = false;
     if (this->Primitives[i].IBO->IndexCount)
     {

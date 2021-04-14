@@ -155,7 +155,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF(
   {
     // four cases: domain, temporal, spatial or hierarchical
     shared_ptr<XdmfGridCollection> asGC = shared_dynamic_cast<XdmfGridCollection>(item);
-    bool isDomain = asGC ? false : true;
+    bool isDomain = !asGC;
 
     if (asGC)
     {

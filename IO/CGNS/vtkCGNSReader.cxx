@@ -4694,7 +4694,7 @@ int vtkCGNSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   for (int base = 0; base < this->Internals->Internal->GetNumberOfBaseNodes(); ++base)
   {
     const CGNSRead::BaseInformation& curBase = this->Internals->Internal->GetBase(base);
-    this->BaseSelection->AddArray(curBase.name, base == 0 ? true : false);
+    this->BaseSelection->AddArray(curBase.name, base == 0);
 
     // add families.
     for (auto& finfo : curBase.family)

@@ -449,7 +449,7 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(vtkRenderer* ren, vtkActor* acto
                                   : vtkOpenGLPolyDataMapper::PrimitiveEnd);
        i++)
   {
-    this->DrawingVertices = (i > vtkOpenGLPolyDataMapper::PrimitiveTriStrips ? true : false);
+    this->DrawingVertices = i > vtkOpenGLPolyDataMapper::PrimitiveTriStrips;
     this->DrawingSelection = false;
     GLenum mode = this->GetOpenGLMode(representation, i);
     this->DrawIBO(ren, actor, i, this->Primitives[i], mode,

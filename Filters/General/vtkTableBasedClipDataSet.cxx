@@ -104,7 +104,7 @@ public:
   int GetPointId() { return ptId; }
   void SetInfo(int, int, int);
   void SetNext(vtkTableBasedClipperEdgeHashEntry* n) { next = n; }
-  bool IsMatch(int i1, int i2) { return (i1 == id1 && i2 == id2 ? true : false); }
+  bool IsMatch(int i1, int i2) { return i1 == id1 && i2 == id2; }
 
   vtkTableBasedClipperEdgeHashEntry* GetNext() { return next; }
 

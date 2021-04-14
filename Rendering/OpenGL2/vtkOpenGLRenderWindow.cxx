@@ -2110,7 +2110,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 #endif
       1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
       true, 32,             // depth buffer
-      this->MultiSamples, this->StencilCapable != 0 ? true : false);
+      this->MultiSamples, this->StencilCapable != 0);
     this->LastMultiSamples = this->MultiSamples;
     this->GetState()->PopFramebufferBindings();
   }
@@ -2126,7 +2126,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
       true,                 // textures
       2, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
       true, 32,             // depth buffer
-      0, this->StencilCapable != 0 ? true : false);
+      0, this->StencilCapable != 0);
     this->GetState()->PopFramebufferBindings();
   }
   else
@@ -2141,7 +2141,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
       true,                 // textures
       1, VTK_UNSIGNED_CHAR, // 1 color buffer uchar
       true, 32,             // depth buffer
-      0, this->StencilCapable != 0 ? true : false);
+      0, this->StencilCapable != 0);
     this->GetState()->PopFramebufferBindings();
   }
 

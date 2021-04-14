@@ -156,7 +156,7 @@ bool VTXSchemaManager::InitReaderXMLVTK()
     this->Reader.reset(new schema::VTXvtkVTU(xmlContents, this->IO, this->Engine));
   }
 
-  const bool success = this->Reader ? true : false;
+  const bool success = static_cast<bool>(this->Reader);
   return success;
 }
 

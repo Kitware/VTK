@@ -570,7 +570,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting
     bool err = true;
     if (this->DatabaseName && this->HostName)
     {
-      err = this->Open() ? false : true;
+      err = !this->Open();
     }
     if (err)
     {
@@ -628,7 +628,7 @@ bool vtkPostgreSQLDatabase::DropDatabase(const char* dbName)
     bool err = true;
     if (this->DatabaseName && this->HostName)
     {
-      err = this->Open() ? false : true;
+      err = !this->Open();
     }
     if (err)
     {

@@ -431,7 +431,7 @@ void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool 
   // then the bit '0' (discriminant) is appended
   // ITU C.14.4: If the alternative string-index is present,
   // then the bit '1' (discriminant) is appended
-  this->Writer->PutBit(literal ? false : true);
+  this->Writer->PutBit(!literal);
   if (literal)
   {
     // ITU C.14.3.1 If the value of the component add-to-table is TRUE,

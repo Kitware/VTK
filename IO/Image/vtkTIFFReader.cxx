@@ -867,8 +867,8 @@ void vtkTIFFReader::ReadTiles(void* buffer)
   const unsigned int tileWidth = this->InternalImage->TileWidth;
   const unsigned int tileHeight = this->InternalImage->TileHeight;
   const unsigned int pixelSize = this->InternalImage->SamplesPerPixel;
-  const bool rowMultiple = (height % tileHeight == 0) ? true : false;
-  const bool colMultiple = (width % tileWidth == 0) ? true : false;
+  const bool rowMultiple = height % tileHeight == 0;
+  const bool colMultiple = width % tileWidth == 0;
   const bool flip = this->InternalImage->Orientation != ORIENTATION_TOPLEFT;
 
   for (unsigned int slice = 0; slice < this->InternalImage->NumberOfPages; ++slice)

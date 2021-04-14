@@ -146,7 +146,7 @@ bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
 {
   assert("pre: valid_textureUnitId_range" && textureUnitId >= 0 &&
     textureUnitId < this->GetNumberOfTextureUnits());
-  return (this->TextureUnits[textureUnitId] ? true : false);
+  return this->TextureUnits[textureUnitId];
 }
 
 //------------------------------------------------------------------------------

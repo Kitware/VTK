@@ -374,7 +374,7 @@ bool vtkWidgetRepresentation::NearbyEvent(int X, int Y, double bounds[6])
     (pickPoint[1] - focus[1]) * (pickPoint[1] - focus[1]) +
     (pickPoint[2] - focus[2]) * (pickPoint[2] - focus[2]));
 
-  return ((dist > 0.75 * length) ? false : true);
+  return dist <= 0.75 * length;
 }
 
 //------------------------------------------------------------------------------

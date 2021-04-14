@@ -58,7 +58,7 @@ public:
     }
     Vertices[0].removable = Vertices[size - 1].removable = false;
     // Some polylines close in on themselves
-    this->IsLoop = (Vertices[0].id == Vertices[size - 1].id ? true : false);
+    this->IsLoop = Vertices[0].id == Vertices[size - 1].id;
   }
 
   ~Polyline()

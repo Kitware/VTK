@@ -834,7 +834,7 @@ bool vtkFreeTypeTools::GetSize(FTC_Scaler scaler, FT_Size* size)
     vtkErrorMacro(<< "Failed looking up a FreeType Size");
   }
 
-  return error ? false : true;
+  return !error;
 }
 
 //------------------------------------------------------------------------------
@@ -882,7 +882,7 @@ bool vtkFreeTypeTools::GetFace(size_t tprop_cache_id, FT_Face* face)
     vtkErrorMacro(<< "Failed looking up a FreeType Face");
   }
 
-  return error ? false : true;
+  return !error;
 }
 
 //------------------------------------------------------------------------------
@@ -988,7 +988,7 @@ bool vtkFreeTypeTools::GetGlyph(
   // Lookup the glyph
   FT_Error error = FTC_ImageCache_Lookup(*image_cache, &image_type_rec, gindex, glyph, nullptr);
 
-  return error ? false : true;
+  return !error;
 }
 
 //------------------------------------------------------------------------------
@@ -1025,7 +1025,7 @@ bool vtkFreeTypeTools::GetGlyph(FTC_Scaler scaler, FT_UInt gindex, FT_Glyph* gly
   FT_Error error =
     FTC_ImageCache_LookupScaler(*image_cache, scaler, loadFlags, gindex, glyph, nullptr);
 
-  return error ? false : true;
+  return !error;
 }
 
 //------------------------------------------------------------------------------

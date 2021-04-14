@@ -77,10 +77,10 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         pass->AddArray(type, "column1");
 
         std::cerr << "RemoveArrays flag is " << removeArrays << std::endl;
-        pass->SetRemoveArrays(removeArrays > 0 ? true : false);
+        pass->SetRemoveArrays(removeArrays > 0);
 
         std::cerr << "UseFieldTypes flag is " << useFieldTypes << std::endl;
-        pass->SetUseFieldTypes(useFieldTypes > 0 ? true : false);
+        pass->SetUseFieldTypes(useFieldTypes > 0);
         pass->ClearFieldTypes();
         int processType = (type + 1) % 3;
         std::cerr << "FieldType is " << processType << std::endl;

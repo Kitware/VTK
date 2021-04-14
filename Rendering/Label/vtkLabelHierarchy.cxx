@@ -958,7 +958,7 @@ struct vtkQuadtreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
+    return da < db ? true : (da == db ? (a < b) : false);
   }
 };
 
@@ -1301,7 +1301,7 @@ struct vtkOctreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return (da < db ? true : (da == db ? (a < b ? true : false) : false));
+    return da < db ? true : (da == db ? (a < b) : false);
   }
 };
 

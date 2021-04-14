@@ -747,7 +747,7 @@ struct BinTuple
 
   // Operator< used to support the sort operation. Just sort on bin
   // id; points within a bin can be in any order.
-  bool operator<(const BinTuple& tuple) const { return (Bin < tuple.Bin ? true : false); }
+  bool operator<(const BinTuple& tuple) const { return Bin < tuple.Bin; }
 };
 
 template <typename PointsT, typename TIds>
@@ -1430,8 +1430,7 @@ int vtkBinnedDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Determine what type of ids are needed: smaller id types save a lot of
   // memory.
-  this->LargeIds =
-    ((numBins > VTK_INT_MAX || numPts > VTK_INT_MAX || numTris > VTK_INT_MAX) ? true : false);
+  this->LargeIds = numBins > VTK_INT_MAX || numPts > VTK_INT_MAX || numTris > VTK_INT_MAX;
 
   // Fast path: dispatch to real point types
   using vtkArrayDispatch::Reals;
