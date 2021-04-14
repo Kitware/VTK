@@ -319,14 +319,8 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
     // set for this image, but that's a required field so we set a warning flag.
     // (Because the "Photometrics" field is an enum, we can't rely on setting
     // this->Photometrics to some signal value.)
-    if (TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics))
-    {
-      this->HasValidPhotometricInterpretation = true;
-    }
-    else
-    {
-      this->HasValidPhotometricInterpretation = false;
-    }
+    this->HasValidPhotometricInterpretation =
+      TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics) != 0;
     if (!TIFFGetField(this->Image, TIFFTAG_TILEDEPTH, &this->TileDepth))
     {
       this->TileDepth = 0;

@@ -61,14 +61,7 @@ public:
 
   void Initialize(vtkGraph* g, int v)
   {
-    if (vtkUndirectedGraph::SafeDownCast(g))
-    {
-      this->Undirected = true;
-    }
-    else
-    {
-      this->Undirected = false;
-    }
+    this->Undirected = vtkUndirectedGraph::SafeDownCast(g) != nullptr;
 
     this->iti->Initialize(g, vtkIdType(v - 1));
 

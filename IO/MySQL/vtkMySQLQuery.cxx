@@ -542,14 +542,7 @@ bool vtkMySQLQuery::Execute()
         // mysql_field_count will return 0 for statements like INSERT.
         // set Active to false so that we don't call mysql_fetch_row on a nullptr
         // argument and segfault
-        if (mysql_field_count(db) == 0)
-        {
-          this->Active = false;
-        }
-        else
-        {
-          this->Active = true;
-        }
+        this->Active = mysql_field_count(db) != 0;
         return true;
       }
       else

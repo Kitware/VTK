@@ -507,14 +507,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   bool hasScaleArray = this->Owner->GetScaleArray() != nullptr &&
     poly->GetPointData()->HasArray(this->Owner->GetScaleArray());
 
-  if (this->Owner->GetScaleFactor() == 0.0)
-  {
-    this->UsingPoints = true;
-  }
-  else
-  {
-    this->UsingPoints = false;
-  }
+  this->UsingPoints = this->Owner->GetScaleFactor() == 0.0;
 
   // if we have an opacity array then get it and if we have
   // a ScalarOpacityFunction map the array through it

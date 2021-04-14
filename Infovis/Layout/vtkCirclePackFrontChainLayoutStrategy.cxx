@@ -435,14 +435,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
   if (CjfromCn != frontChain.end())
   {
     Cj = CjfromCn;
-    if (this->validCjAfterCn(Ci, Cm, lCn, circlesArray, frontChain, CnSearchPathLength))
-    {
-      CjAfterCn = true;
-    }
-    else
-    {
-      CjAfterCn = false;
-    }
+    CjAfterCn = this->validCjAfterCn(Ci, Cm, lCn, circlesArray, frontChain, CnSearchPathLength);
     return;
   }
 
@@ -467,14 +460,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::findIntersectingCircle
   if (CjfromCm != frontChain.end())
   {
     Cj = CjfromCm;
-    if (this->validCjBeforeCm(Ci, lCm, Cn, circlesArray, frontChain, CmSearchPathLength))
-    {
-      CjAfterCn = false;
-    }
-    else
-    {
-      CjAfterCn = true;
-    }
+    CjAfterCn = !this->validCjBeforeCm(Ci, lCm, Cn, circlesArray, frontChain, CmSearchPathLength);
     return;
   }
 

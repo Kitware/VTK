@@ -622,15 +622,7 @@ struct PositionFileMotion : public Motion
     std::string s_isOrientation;
     set(s_isOrientation, "isOrientation", params, std::string("false"));
     s_isOrientation = vtksys::SystemTools::LowerCase(s_isOrientation);
-    if (s_isOrientation == "true" || s_isOrientation == "1")
-    {
-      this->isOrientation = true;
-    }
-    else
-    {
-      // default.
-      this->isOrientation = false;
-    }
+    this->isOrientation = s_isOrientation == "true" || s_isOrientation == "1";
   }
 
   // read_position_file is defined later since it needs the Actions namespace.

@@ -59,25 +59,12 @@ void vtkSPHKernel::Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkP
   this->DefaultVolume = pow(this->SpatialStep, this->Dimension);
 
   // See if cutoff array is provided.
-  if (this->CutoffArray && this->CutoffArray->GetNumberOfComponents() == 1)
-  {
-    this->UseCutoffArray = true;
-  }
-  else
-  {
-    this->UseCutoffArray = false;
-  }
+  this->UseCutoffArray = this->CutoffArray && this->CutoffArray->GetNumberOfComponents() == 1;
 
   // See if local mass and density information is provided
-  if (this->DensityArray && this->MassArray && this->DensityArray->GetNumberOfComponents() == 1 &&
-    this->MassArray->GetNumberOfComponents() == 1)
-  {
-    this->UseArraysForVolume = true;
-  }
-  else
-  {
-    this->UseArraysForVolume = false;
-  }
+  this->UseArraysForVolume = this->DensityArray && this->MassArray &&
+    this->DensityArray->GetNumberOfComponents() == 1 &&
+    this->MassArray->GetNumberOfComponents() == 1;
 }
 
 //------------------------------------------------------------------------------

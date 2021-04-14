@@ -1088,14 +1088,7 @@ void vtkCubeAxesActor::AdjustValues(
   std::string xTitle;
   if (xPow != 0)
   {
-    if (!this->MustAdjustXValue || this->LastXPow != xPow)
-    {
-      this->ForceXLabelReset = true;
-    }
-    else
-    {
-      this->ForceXLabelReset = false;
-    }
+    this->ForceXLabelReset = !this->MustAdjustXValue || this->LastXPow != xPow;
     this->MustAdjustXValue = true;
 
     std::ostringstream sstream;
@@ -1135,14 +1128,7 @@ void vtkCubeAxesActor::AdjustValues(
   std::string yTitle;
   if (yPow != 0)
   {
-    if (!this->MustAdjustYValue || this->LastYPow != yPow)
-    {
-      this->ForceYLabelReset = true;
-    }
-    else
-    {
-      this->ForceYLabelReset = false;
-    }
+    this->ForceYLabelReset = !this->MustAdjustYValue || this->LastYPow != yPow;
     this->MustAdjustYValue = true;
 
     std::ostringstream sstream;
@@ -1181,14 +1167,7 @@ void vtkCubeAxesActor::AdjustValues(
   std::string zTitle;
   if (zPow != 0)
   {
-    if (!this->MustAdjustZValue || this->LastZPow != zPow)
-    {
-      this->ForceZLabelReset = true;
-    }
-    else
-    {
-      this->ForceZLabelReset = false;
-    }
+    this->ForceZLabelReset = !this->MustAdjustZValue || this->LastZPow != zPow;
     this->MustAdjustZValue = true;
 
     std::ostringstream sstream;
