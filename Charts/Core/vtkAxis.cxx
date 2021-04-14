@@ -1136,7 +1136,7 @@ void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
 //------------------------------------------------------------------------------
 void vtkAxis::GenerateTickLabels(double min, double max)
 {
-  if (this->CustomTickLabels == true)
+  if (this->CustomTickLabels)
   {
     // Never generate new tick labels if custom tick labels are being used.
     return;

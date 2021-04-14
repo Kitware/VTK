@@ -1062,7 +1062,7 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
   this->LargeIds = (numPts >= VTK_INT_MAX || numCells >= VTK_INT_MAX);
 
   // Generate all of the merged points and triangles
-  if (this->LargeIds == false)
+  if (!this->LargeIds)
   {
     if (!ProcessEdges<int>(numCells, inPts, cellIter, plane, inout, distance, outPts, newPolys,
           this->MergePoints, this->InterpolateAttributes, this->SequentialProcessing,

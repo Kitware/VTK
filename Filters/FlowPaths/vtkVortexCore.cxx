@@ -130,7 +130,7 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
     return false;
   }
 
-  if (computeAdditionalTerms == false)
+  if (!computeAdditionalTerms)
   {
     return true;
   }

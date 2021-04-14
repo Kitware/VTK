@@ -415,7 +415,7 @@ void vtkTimerLog::DumpLogWithIndents(ostream* os, double threshold)
       int indent1 = vtkTimerLog::GetEventIndent(i1);
       vtkTimerLogEntry::LogEntryType eventType = vtkTimerLog::GetEventType(i1);
       int endEvent = -1; // only modified if this is a START event
-      if (eventType == vtkTimerLogEntry::END && handledEvents[i1] == true)
+      if (eventType == vtkTimerLogEntry::END && handledEvents[i1])
       {
         continue; // this END event is handled by the corresponding START event
       }

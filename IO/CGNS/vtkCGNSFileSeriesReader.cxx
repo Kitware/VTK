@@ -138,7 +138,7 @@ void vtkCGNSFileSeriesReader::SetReader(vtkCGNSReader* reader)
 //----------------------------------------------------------------------------
 void vtkCGNSFileSeriesReader::OnReaderModifiedEvent()
 {
-  if (this->InProcessRequest == false)
+  if (!this->InProcessRequest)
   {
     this->Modified();
   }

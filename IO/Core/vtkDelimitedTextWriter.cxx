@@ -111,7 +111,7 @@ void vtkDelimitedTextWriterGetDataString(
   {
     if ((index + cc) < iter->GetNumberOfValues())
     {
-      if (*first == false)
+      if (!*first)
       {
         (*stream) << writer->GetFieldDelimiter();
       }
@@ -120,7 +120,7 @@ void vtkDelimitedTextWriterGetDataString(
     }
     else
     {
-      if (*first == false)
+      if (!*first)
       {
         (*stream) << writer->GetFieldDelimiter();
       }
@@ -140,7 +140,7 @@ void vtkDelimitedTextWriterGetDataString(vtkArrayIteratorTemplate<vtkStdString>*
   {
     if ((index + cc) < iter->GetNumberOfValues())
     {
-      if (*first == false)
+      if (!*first)
       {
         (*stream) << writer->GetFieldDelimiter();
       }
@@ -149,7 +149,7 @@ void vtkDelimitedTextWriterGetDataString(vtkArrayIteratorTemplate<vtkStdString>*
     }
     else
     {
-      if (*first == false)
+      if (!*first)
       {
         (*stream) << writer->GetFieldDelimiter();
       }

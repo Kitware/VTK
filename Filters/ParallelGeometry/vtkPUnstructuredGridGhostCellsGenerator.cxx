@@ -1174,7 +1174,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::FindGhostCells()
       this->Internals->CurrentGrid->GetCellPoints(*cellIdIter, pointIdsList);
       for (int j = 0; j < pointIdsList->GetNumberOfIds(); j++)
       {
-        if (visitedPointIds.insert(pointIdsList->GetId(j)).second == true)
+        if (visitedPointIds.insert(pointIdsList->GetId(j)).second)
         {
           pointId->SetId(0, pointIdsList->GetId(j));
           this->Internals->CurrentGrid->GetCellNeighbors(*cellIdIter, pointId, cellIdsList);

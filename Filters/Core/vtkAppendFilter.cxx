@@ -383,7 +383,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Note, not copying global ids is the default behavior.
   // Since paraview/paraview#19961, global point ids can be used for the merging
   // decision. In this case, they can be merged.
-  if (reallyMergePoints == false || (reallyMergePoints == true && globalIdsArray))
+  if (!reallyMergePoints || (reallyMergePoints && globalIdsArray))
   {
     output->GetPointData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   }

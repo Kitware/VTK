@@ -208,8 +208,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkIdType currentNumPts = polylineSize;
     while (1.0 - (static_cast<double>(currentNumPts) / static_cast<double>(polylineSize)) <
         this->TargetReduction &&
-      ((polyline->IsLoop == false && currentNumPts > 2) ||
-        (polyline->IsLoop == true && currentNumPts > 3)))
+      ((!polyline->IsLoop && currentNumPts > 2) || (polyline->IsLoop && currentNumPts > 3)))
     {
       vtkIdType poppedIdx = this->PriorityQueue->Pop();
       if (poppedIdx < 0)

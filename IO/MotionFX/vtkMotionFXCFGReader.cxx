@@ -671,7 +671,7 @@ struct PositionFileMotion : public Motion
     }
 
     vtkVector3d cumulativeS(0.0); //, cumulativeTheta(0.0);
-    if (this->isOrientation == false)
+    if (!this->isOrientation)
     {
       for (auto citer = this->positions.begin(); citer != iter; ++citer)
       {

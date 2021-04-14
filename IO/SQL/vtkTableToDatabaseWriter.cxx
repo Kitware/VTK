@@ -45,7 +45,7 @@ bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase* db)
     return false;
   }
   this->Database = db;
-  if (this->Database->IsOpen() == false)
+  if (!this->Database->IsOpen())
   {
     vtkErrorMacro(<< "SetDatabase must be passed an open database connection");
     this->Database = nullptr;

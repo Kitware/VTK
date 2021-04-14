@@ -417,7 +417,7 @@ bool vtkSTLReader::ReadASCIISTL(
 
   std::string errorMessage;
 
-  for (StlAsciiScanState state = scanSolid; errorMessage.empty() == true; /*nil*/)
+  for (StlAsciiScanState state = scanSolid; errorMessage.empty(); /*nil*/)
   {
     char* cmd = fgets(line, 255, fp);
 

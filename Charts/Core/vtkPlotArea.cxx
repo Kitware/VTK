@@ -520,7 +520,7 @@ void vtkPlotArea::Update()
     vtkTableCache& cache = (*this->TableCache);
 
     cache.Reset();
-    cache.ValidPointMask = (this->ValidPointMaskName.empty() == false)
+    cache.ValidPointMask = !this->ValidPointMaskName.empty()
       ? vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName))
       : nullptr;
     cache.SetPoints(

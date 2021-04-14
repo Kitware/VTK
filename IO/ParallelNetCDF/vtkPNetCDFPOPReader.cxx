@@ -326,7 +326,7 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
           &varidp);
       }
 
-      if (firstPass == true)
+      if (firstPass)
       {
         firstPass = false;
         // Get the latitude, longitude & depth values: the first reader process

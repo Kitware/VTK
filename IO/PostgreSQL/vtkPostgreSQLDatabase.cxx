@@ -589,7 +589,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase(const char* dbName, bool dropExisting
   qstr += "\"";
   vtkSQLQuery* query = this->GetQueryInstance();
   query->SetQuery(qstr.c_str());
-  if (query->Execute() == false)
+  if (!query->Execute())
   {
     this->SetLastErrorText(query->GetLastErrorText());
     vtkErrorMacro(
@@ -642,7 +642,7 @@ bool vtkPostgreSQLDatabase::DropDatabase(const char* dbName)
   qstr += "\"";
   vtkSQLQuery* query = this->GetQueryInstance();
   query->SetQuery(qstr.c_str());
-  if (query->Execute() == false)
+  if (!query->Execute())
   {
     this->SetLastErrorText(query->GetLastErrorText());
     vtkErrorMacro(<< "Could not drop database \"" << dbName << "\".  "

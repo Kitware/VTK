@@ -529,7 +529,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
           id++;
         } while (!done && (used[id] == 1));
 
-        if (done == false)
+        if (!done)
         {
           // Write it into our output line
           memcpy(out_p + out_n, p, n * sizeof(vtkIdType));

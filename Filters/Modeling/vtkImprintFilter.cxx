@@ -2834,7 +2834,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // A cell map might be needed for debugging or for copying cell attribute data.
   vtkCellMapType cellMap;
   vtkCellMapType* cellMapPtr = &cellMap;
-  if (this->DebugOutputType == NO_DEBUG_OUTPUT && this->PassCellData == false)
+  if (this->DebugOutputType == NO_DEBUG_OUTPUT && !this->PassCellData)
   {
     cellMapPtr = nullptr; // indicate that no cell map is necessary
   }

@@ -855,7 +855,7 @@ int vtkFunctionParser::IsScalarResult()
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
     this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
   {
-    if (this->Evaluate() == false)
+    if (!this->Evaluate())
       return 0;
   }
   return (this->StackPointer == 0);
@@ -877,7 +877,7 @@ int vtkFunctionParser::IsVectorResult()
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
     this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
   {
-    if (this->Evaluate() == false)
+    if (!this->Evaluate())
       return 0;
   }
   return (this->StackPointer == 2);
@@ -2139,7 +2139,7 @@ void vtkFunctionParser::CheckExpression(int& pos, char** error)
     } // while ( currentChar == ')' )
 
     // If necessary, break out to the outer loop.
-    if (breakToOuterLoop == true)
+    if (breakToOuterLoop)
     {
       continue;
     }

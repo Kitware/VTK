@@ -272,7 +272,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   glFinish();
 #endif
 
-  if (!this->Program1->Program || this->Program1->Program->GetCompiled() != true)
+  if (!this->Program1->Program || !this->Program1->Program->GetCompiled())
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
                   "shader or a driver bug.");
@@ -401,7 +401,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   glFinish();
 #endif
 
-  if (!this->Program2->Program || this->Program2->Program->GetCompiled() != true)
+  if (!this->Program2->Program || !this->Program2->Program->GetCompiled())
   {
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a "
                   "shader or a driver bug.");

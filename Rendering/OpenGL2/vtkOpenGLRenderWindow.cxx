@@ -2211,7 +2211,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   rw->SetDisplayId(this->GetGenericDisplayId());
   rw->SetOffScreenRendering(1);
   rw->Initialize();
-  if (rw->GlewInitValid == false)
+  if (!rw->GlewInitValid)
   {
     this->OpenGLSupportMessage = "glewInit failed for this window, OpenGL not supported.";
     rw->Delete();

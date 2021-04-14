@@ -157,7 +157,7 @@ void vtkMersenneTwister::InitializeSequence(
     periodExp = MersenneExponents[periodExp % 15];
   }
 
-  if (this->Internal->Values.insert(vtkMersenneTwisterInternals::Value(id, 0.)).second == false)
+  if (!this->Internal->Values.insert(vtkMersenneTwisterInternals::Value(id, 0.)).second)
   {
     vtkWarningMacro(<< "Initializing process " << id << " which is already "
                     << "initialized. This may break sequence encapsulation.");

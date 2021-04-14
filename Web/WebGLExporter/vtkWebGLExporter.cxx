@@ -148,7 +148,7 @@ void vtkWebGLExporter::parseRenderer(
     vtkWidgetRepresentation* trt = vtkWidgetRepresentation::SafeDownCast(prop);
     if (trt != nullptr)
       this->hasWidget = true;
-    if ((onlyWidget == false || trt != nullptr) && prop->GetVisibility())
+    if ((!onlyWidget || trt != nullptr) && prop->GetVisibility())
     {
       vtkPropCollection* allactors = vtkPropCollection::New();
       prop->GetActors(allactors);
@@ -162,7 +162,7 @@ void vtkWebGLExporter::parseRenderer(
       }
       allactors->Delete();
     }
-    if (onlyWidget == false && prop->GetVisibility())
+    if (!onlyWidget && prop->GetVisibility())
     {
       vtkPropCollection* all2dactors = vtkPropCollection::New();
       prop->GetActors2D(all2dactors);

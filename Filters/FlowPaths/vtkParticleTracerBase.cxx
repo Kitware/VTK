@@ -1017,7 +1017,7 @@ int vtkParticleTracerBase::RequestData(
     vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
     // first check if the point data is consistent on all blocks of a multiblock
     // and over all processes.
-    if (this->IsPointDataValid(input) == false)
+    if (!this->IsPointDataValid(input))
     {
       vtkErrorMacro(
         "Point data arrays are not consistent across all data sets. Cannot do flow paths.");
@@ -1616,7 +1616,7 @@ bool vtkParticleTracerBase::IsPointDataValid(
   {
     std::vector<std::string> tempNames;
     this->GetPointDataArrayNames(vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()), tempNames);
-    if (std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()) == false)
+    if (!std::equal(tempNames.begin(), tempNames.end(), arrayNames.begin()))
     {
       iter->Delete();
       return false;

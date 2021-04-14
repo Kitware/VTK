@@ -1346,7 +1346,7 @@ int vtkIntersectionPolyDataFilter::Impl ::GetLoops(vtkPolyData* pd, std::vector<
   for (vtkIdType ptId = 0; ptId < numPoints; ptId++)
   {
     // if the point hasn't already been touch and put in a loop
-    if (ptBool[ptId] == false)
+    if (!ptBool[ptId])
     {
       nextPt.id = ptId;
       pd->GetPoint(nextPt.id, nextPt.pt);
@@ -1370,7 +1370,7 @@ int vtkIntersectionPolyDataFilter::Impl ::GetLoops(vtkPolyData* pd, std::vector<
   // Check now for untouched lines, possible to still have
   for (vtkIdType lineId = 0; lineId < pd->GetNumberOfCells(); lineId++)
   {
-    if (lineBool[lineId] == false)
+    if (!lineBool[lineId])
     {
       vtkDebugWithObjectMacro(this->ParentFilter, << "LINE FALSE: Find extra loop/s");
       pd->GetCellPoints(lineId, cellPoints);

@@ -231,7 +231,7 @@ void vtkDepthPeelingPassCreateTexture(vtkTextureObject* to, vtkOpenGLRenderWindo
   int width, int height, int numComponents, bool isDepth, int depthFormat)
 {
   to->SetContext(context);
-  if (isDepth == true)
+  if (isDepth)
   {
     to->AllocateDepth(width, height, depthFormat);
   }

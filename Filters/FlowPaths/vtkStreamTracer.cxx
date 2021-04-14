@@ -698,7 +698,7 @@ void vtkStreamTracer::Integrate(vtkPointData* input0Data, vtkPolyData* output,
 
   // Check Surface option
   vtkInterpolatedVelocityField* surfaceFunc = nullptr;
-  if (this->SurfaceStreamlines == true)
+  if (this->SurfaceStreamlines)
   {
     surfaceFunc = vtkInterpolatedVelocityField::SafeDownCast(func);
     if (surfaceFunc)

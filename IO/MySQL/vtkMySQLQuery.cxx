@@ -331,7 +331,7 @@ bool vtkMySQLQueryInternals::SetQuery(
   this->FreeUserParameterList();
   this->FreeBoundParameters();
 
-  if (this->ValidPreparedStatementSQL(queryString) == false)
+  if (!this->ValidPreparedStatementSQL(queryString))
   {
     return true; // we'll have to handle this query in immediate mode
   }
@@ -818,7 +818,7 @@ bool vtkMySQLQuery::NextRow()
 
 vtkVariant vtkMySQLQuery::DataValue(vtkIdType column)
 {
-  if (this->IsActive() == false)
+  if (!this->IsActive())
   {
     vtkWarningMacro(<< "DataValue() called on inactive query");
     return vtkVariant();

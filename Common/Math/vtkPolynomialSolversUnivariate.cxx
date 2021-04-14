@@ -1187,7 +1187,7 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
       } // While ub[nloc] - lb[nloc] > tol
 
       bisection[nloc] = false;
-      if (bisect == false)
+      if (!bisect)
       {
         // Move on to next interval.
         continue;

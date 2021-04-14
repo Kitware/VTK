@@ -715,7 +715,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
     // nothing more to do.
     return dsIndices;
   }
-  else if (!isHierarchy && leaf_nodes_only == false)
+  else if (!isHierarchy && !leaf_nodes_only)
   {
     // convert partitioned dataset index to composite index.
     assert(data != nullptr);

@@ -353,7 +353,7 @@ bool vtkSQLiteQuery::NextRow()
 //------------------------------------------------------------------------------
 vtkVariant vtkSQLiteQuery::DataValue(vtkIdType column)
 {
-  if (this->IsActive() == false)
+  if (!this->IsActive())
   {
     vtkWarningMacro(<< "DataValue() called on inactive query");
     return vtkVariant();
