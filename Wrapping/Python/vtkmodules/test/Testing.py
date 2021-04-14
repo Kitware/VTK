@@ -107,10 +107,7 @@ _NO_IMAGE = 0
 
 def skip():
     '''Cause the test to be skipped due to insufficient requirements.'''
-    sys.exit(0)
-    # CMake 3.9 is required to make this not appear on CDash as a failure. See
-    # issue #17031.
-    #sys.exit(125)
+    sys.exit(125)
 
 
 class vtkTest(unittest.TestCase):
