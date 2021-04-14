@@ -549,8 +549,6 @@ struct vtkTriEdgeList : public std::vector<vtkTriEdge>
       nextEdge = possibleEdge;
       return (nextEdge != nullptr ? nextEdge->V1 : -1);
     }
-
-    return -1;
   }
 
 }; // vtkTriEdgeList
