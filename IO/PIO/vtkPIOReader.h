@@ -109,6 +109,7 @@ public:
   void SetCellArrayStatus(const char* name, int status);
   void DisableAllCellArrays();
   void EnableAllCellArrays();
+  vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
   //@}
 
   //@{

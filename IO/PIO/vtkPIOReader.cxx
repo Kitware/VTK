@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkPIOReader.h"
 
-#include <iostream>
+#include "PIOAdaptor.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
@@ -34,7 +34,8 @@
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "PIOAdaptor.h"
+#include <iostream>
+#include <set>
 
 vtkStandardNewMacro(vtkPIOReader);
 
@@ -138,17 +139,18 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
     this->Float64 = pioAdaptor->GetFloat64();
 
     // Get the variable names and set in the selection
-    int numberOfVariables = this->pioAdaptor->GetNumberOfVariables();
-    for (int i = 0; i < numberOfVariables; i++)
+    std::set<std::string> variablesToEnableByDefault;
+    for (int cc = 0, max = this->pioAdaptor->GetNumberOfDefaultVariables(); cc < max; ++cc)
     {
-      this->CellDataArraySelection->AddArray(this->pioAdaptor->GetVariableName(i));
+      variablesToEnableByDefault.insert(this->pioAdaptor->GetVariableDefault(cc));
     }
-    this->DisableAllCellArrays();
-
-    // Set the variable names loaded by default
-    for (int i = 0; i < this->pioAdaptor->GetNumberOfDefaultVariables(); i++)
+    for (int i = 0, max = this->pioAdaptor->GetNumberOfVariables(); i < max; i++)
     {
-      this->SetCellArrayStatus(this->pioAdaptor->GetVariableDefault(i), 1);
+      const auto varName = this->pioAdaptor->GetVariableName(i);
+      // vtkDataArraySelection::AddArray doesn't override the setting only adds it
+      // (without affecting MTime) if not already present.
+      this->CellDataArraySelection->AddArray(
+        varName, variablesToEnableByDefault.find(varName) != variablesToEnableByDefault.end());
     }
 
     // Collect temporal information from PIOAdaptor's last PIO file
