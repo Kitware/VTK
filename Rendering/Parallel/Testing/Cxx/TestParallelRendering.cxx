@@ -170,15 +170,13 @@ int TestParallelRendering(int argc, char* argv[])
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
-  int retVal = 1; // 1==failed
-
   int numProcs = contr->GetNumberOfProcesses();
 
-  if (numProcs < 2 && false)
+  if (numProcs < 2)
   {
     cout << "This test requires at least 2 processes" << endl;
     contr->Delete();
-    return retVal;
+    return EXIT_FAILURE;
   }
 
   vtkMultiProcessController::SetGlobalController(contr);
@@ -189,7 +187,7 @@ int TestParallelRendering(int argc, char* argv[])
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal = p->GetReturnValue();
+  int retVal = p->GetReturnValue();
 
   p->Delete();
   contr->Finalize();

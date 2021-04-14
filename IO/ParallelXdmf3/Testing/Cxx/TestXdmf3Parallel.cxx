@@ -111,14 +111,12 @@ int TestXdmf3Parallel(int argc, char** argv)
   vtkNew<vtkMPIController> contr;
   contr->Initialize(&argc, &argv, 1);
 
-  int retVal = 1; // 1 == failed
-
   int numProcs = contr->GetNumberOfProcesses();
 
-  if (numProcs < 2 && false)
+  if (numProcs < 2)
   {
     cout << "This test requires at least 2 processes" << endl;
-    return retVal;
+    return EXIT_FAILURE;
   }
 
   vtkMultiProcessController::SetGlobalController(contr);
@@ -147,7 +145,7 @@ int TestXdmf3Parallel(int argc, char** argv)
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
 
-  retVal = p->GetReturnValue();
+  int retVal = p->GetReturnValue();
 
   p->Delete();
   contr->Finalize();
