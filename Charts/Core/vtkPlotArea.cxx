@@ -57,14 +57,7 @@ class vtkPlotArea::vtkTableCache
     vtkVector2f pos;
     static bool compVector3fX(const vtkIndexedVector2f& v1, const vtkIndexedVector2f& v2)
     {
-      if (v1.pos.GetX() < v2.pos.GetX())
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return v1.pos.GetX() < v2.pos.GetX();
     }
     // See if the point is within tolerance.
     static bool inRange(

@@ -184,10 +184,5 @@ bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(
   FcFontSetDestroy(fontMatches);
   fontMatches = nullptr;
 
-  if (error)
-  {
-    return false;
-  }
-
-  return true;
+  return !error;
 }

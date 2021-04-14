@@ -1454,10 +1454,7 @@ bool vtkPLY::equal_strings(const char* s1, const char* s2)
     if (*s1++ != *s2++)
       return false;
 
-  if (*s1 != *s2)
-    return false;
-  else
-    return true;
+  return *s1 == *s2;
 }
 
 /******************************************************************************

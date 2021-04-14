@@ -954,12 +954,7 @@ bool vtkAMRResampleFilter::RegionIntersectsWithAMR(
   region.SetMinPoint(regionMin);
   region.SetMaxPoint(regionMax);
 
-  if (domain.Intersects(region))
-  {
-    return true;
-  }
-
-  return false;
+  return domain.Intersects(region);
 }
 
 //------------------------------------------------------------------------------
@@ -1150,12 +1145,7 @@ bool vtkAMRResampleFilter::GridsIntersect(double* g1, double* g2)
   vtkBoundingBox b2;
   b2.SetBounds(g2);
 
-  if (b1.IntersectBox(b2))
-  {
-    return true;
-  }
-
-  return false;
+  return b1.IntersectBox(b2);
 }
 
 //------------------------------------------------------------------------------
@@ -1201,12 +1191,7 @@ bool vtkAMRResampleFilter::IsRegionMine(const int regionIdx)
   }
 
   int myRank = this->Controller->GetLocalProcessId();
-  if (myRank == this->GetRegionProcessId(regionIdx))
-  {
-    return true;
-  }
-
-  return false;
+  return myRank == this->GetRegionProcessId(regionIdx);
 }
 
 //------------------------------------------------------------------------------
@@ -1217,12 +1202,7 @@ bool vtkAMRResampleFilter::IsParallel()
     return false;
   }
 
-  if (this->Controller->GetNumberOfProcesses() > 1)
-  {
-    return true;
-  }
-
-  return false;
+  return this->Controller->GetNumberOfProcesses() > 1;
 }
 
 //------------------------------------------------------------------------------

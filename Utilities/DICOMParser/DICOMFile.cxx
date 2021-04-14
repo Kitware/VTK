@@ -91,15 +91,8 @@ bool DICOMFile::Open(const dicom_stl::string& filename)
   InputStream.open(filename.c_str(), dicom_stream::ios::in);
 #endif
 
-  // if (InputStream.is_open())
-  if (InputStream.rdbuf()->is_open())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  // return InputStream.is_open();
+  return InputStream.rdbuf()->is_open();
 }
 
 void DICOMFile::Close()

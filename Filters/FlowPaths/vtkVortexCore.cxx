@@ -329,12 +329,7 @@ bool vtkParallelVectorsForVortexCore::ComputeAdditionalCriteria(
   }
 
   // If any of the criteria fail, do not add this point
-  if (!computeVortexCriteria(S, Omega, criterionArrayValues.data()))
-  {
-    return false;
-  }
-
-  return true;
+  return computeVortexCriteria(S, Omega, criterionArrayValues.data());
 }
 
 //------------------------------------------------------------------------------

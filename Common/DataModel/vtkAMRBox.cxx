@@ -217,11 +217,7 @@ bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const dou
   double min[3] = { bb[0], bb[2], bb[4] };
   double max[3] = { bb[1], bb[3], bb[5] };
 
-  if (x >= min[0] && x <= max[0] && y >= min[1] && y <= max[1] && z >= min[2] && z <= max[2])
-  {
-    return true;
-  }
-  return false;
+  return min[0] <= x && x <= max[0] && min[1] <= y && y <= max[1] && min[2] <= z && z <= max[2];
 }
 
 //------------------------------------------------------------------------------
@@ -321,12 +317,8 @@ bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox& other, const int q)
 
 bool vtkAMRBox::Intersect(const vtkAMRBox& other)
 {
-  if (!this->IntersectBoxAlongDimension(other, 0) || !this->IntersectBoxAlongDimension(other, 1) ||
-    !this->IntersectBoxAlongDimension(other, 2))
-  {
-    return false;
-  }
-  return true;
+  return this->IntersectBoxAlongDimension(other, 0) && this->IntersectBoxAlongDimension(other, 1) &&
+    this->IntersectBoxAlongDimension(other, 2);
 }
 
 int vtkAMRBox::GetCellLinearIndex(
@@ -425,11 +417,7 @@ bool vtkAMRBox::DoesBoxIntersectAlongDimension(const vtkAMRBox& other, const int
   minVal = (this->LoCorner[q] < other.LoCorner[q]) ? other.LoCorner[q] : this->LoCorner[q];
   maxVal = (this->HiCorner[q] > other.HiCorner[q]) ? other.HiCorner[q] : this->HiCorner[q];
 
-  if (minVal >= maxVal)
-  {
-    return false;
-  }
-  return true;
+  return minVal < maxVal;
 }
 
 bool vtkAMRBox::DoesIntersect(const vtkAMRBox& other) const

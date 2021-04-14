@@ -1875,14 +1875,7 @@ inline bool vtkAxis::InRange(double value)
     min = max;
     max = this->Minimum;
   }
-  if (value < min || value > max)
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  return min <= value && value <= max;
 }
 
 //------------------------------------------------------------------------------

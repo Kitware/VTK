@@ -40,14 +40,7 @@ struct vtkObserverCompare
     }
     else if (p1 == p2)
     {
-      if (w1 < w2)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      return w1 < w2;
     }
     else
     {

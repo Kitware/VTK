@@ -525,12 +525,8 @@ bool inline ExceedsEdgeAngle(vtkIdType ptId, TIds pt0, TIds pt1, double cosEdgeA
     l1[k] = p1[k] - p0[k];
     l2[k] = p2[k] - p1[k];
   }
-  if ((vtkMath::Normalize(l1) >= 0.0) && (vtkMath::Normalize(l2) >= 0.0) &&
-    (vtkMath::Dot(l1, l2) < cosEdgeAngle))
-  {
-    return true;
-  }
-  return false;
+  return vtkMath::Normalize(l1) >= 0.0 && vtkMath::Normalize(l2) >= 0.0 &&
+    vtkMath::Dot(l1, l2) < cosEdgeAngle;
 }
 
 // Various methods for performing local analysis of the region around a point

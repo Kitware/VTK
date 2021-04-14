@@ -421,11 +421,7 @@ bool vtkXdmf3HeavyDataHandler::ShouldRead(unsigned int piece, unsigned int npiec
   }
   if (npieces < this->NumProcs)
   {
-    if (piece == this->Rank)
-    {
-      return true;
-    }
-    return false;
+    return piece == this->Rank;
   }
 
 #if 1

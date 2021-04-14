@@ -367,12 +367,8 @@ void vtkOpenGLStickMapperCreateVBO(vtkPolyData* poly, vtkIdType numPts, unsigned
 //------------------------------------------------------------------------------
 bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer* ren, vtkActor* act)
 {
-  if (this->Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
-    this->VBOBuildTime < this->SelectionStateChanged)
-  {
-    return true;
-  }
-  return false;
+  return this->Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
+    this->VBOBuildTime < this->SelectionStateChanged;
 }
 
 //------------------------------------------------------------------------------

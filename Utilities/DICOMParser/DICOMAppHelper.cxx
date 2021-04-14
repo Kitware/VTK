@@ -995,14 +995,7 @@ bool DICOMAppHelper::RescaledImageDataIsFloat()
   double d1 = fabs(sf - this->RescaleSlope);
   double d2 = fabs(of - this->RescaleOffset);
 
-  if (d1 > 0.0 || d2 > 0.0)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return d1 > 0.0 || d2 > 0.0;
 }
 
 void DICOMAppHelper::GetImageData(void*& data, DICOMParser::VRTypes& dataType, unsigned long& len)

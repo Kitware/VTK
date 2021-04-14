@@ -604,14 +604,7 @@ bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(vtkLagrangianParticle
   double pcoords[3];
   int subId;
   int ret = cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
-  if (ret != 0)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return ret != 0;
 }
 
 //------------------------------------------------------------------------------

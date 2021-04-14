@@ -36,14 +36,7 @@ vtkEvent::~vtkEvent()
 // Comparison against event with no modifiers
 bool vtkEvent::operator==(unsigned long VTKEvent)
 {
-  if (this->EventId == VTKEvent)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return this->EventId == VTKEvent;
 }
 
 // Comparison against event with modifiers

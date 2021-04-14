@@ -33,11 +33,7 @@ namespace types
 
 bool DataArray::IsScalar() const noexcept
 {
-  if (this->VectorVariables.empty())
-  {
-    return true;
-  }
-  return false;
+  return this->VectorVariables.empty();
 }
 
 void DataArray::ConvertTo3DVTK(const std::vector<double>& fillValues)

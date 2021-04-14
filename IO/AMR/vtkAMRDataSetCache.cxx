@@ -172,14 +172,7 @@ bool vtkAMRDataSetCache::HasAMRBlockCellData(int compositeIdx, const char* name)
     vtkCellData* CD = gridPtr->GetCellData();
     assert("pre: cell data is nullptr" && (CD != nullptr));
 
-    if (CD->HasArray(name))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return CD->HasArray(name) != 0;
   }
   return false;
 }
@@ -197,14 +190,7 @@ bool vtkAMRDataSetCache::HasAMRBlockPointData(int compositeIdx, const char* name
     vtkPointData* PD = gridPtr->GetPointData();
     assert("pre: point data is nullptr" && (PD != nullptr));
 
-    if (PD->HasArray(name))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return PD->HasArray(name) != 0;
   }
   return false;
 }

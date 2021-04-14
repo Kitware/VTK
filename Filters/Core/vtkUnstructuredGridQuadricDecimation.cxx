@@ -892,11 +892,7 @@ public:
   // check to see if a vertex belongs to this tetrahedron
   bool ContainVertex(vtkUnstructuredGridQuadricDecimationVertex* v) const
   {
-    if (Verts[0] == v || Verts[1] == v || Verts[2] == v || Verts[3] == v)
-    {
-      return true;
-    }
-    return false;
+    return Verts[0] == v || Verts[1] == v || Verts[2] == v || Verts[3] == v;
   }
 
   // check to see if we can change fromV to toV without changing the orietation

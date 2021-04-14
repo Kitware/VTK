@@ -65,9 +65,5 @@ int TestGraphWeightEuclideanDistanceFilter(int, char*[])
 template <typename T>
 static bool FuzzyCompare(T a, T b)
 {
-  if (fabs(static_cast<float>(a) - static_cast<float>(b)) < 1e-4)
-  {
-    return true;
-  }
-  return false;
+  return fabs(static_cast<float>(a) - static_cast<float>(b)) < 1e-4;
 }

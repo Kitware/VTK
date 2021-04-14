@@ -35,11 +35,7 @@ bool vtkBackgroundColorMonitor::StateChanged(vtkRenderer* ren)
 {
   unsigned int oldUpTime = this->UpTime;
   this->Update(ren);
-  if (oldUpTime != this->UpTime)
-  {
-    return true;
-  }
-  return false;
+  return oldUpTime != this->UpTime;
 }
 
 //------------------------------------------------------------------------------

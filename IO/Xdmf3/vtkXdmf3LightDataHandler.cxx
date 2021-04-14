@@ -344,11 +344,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
 //------------------------------------------------------------------------------
 bool vtkXdmf3LightDataHandler::TooDeep(unsigned int depth)
 {
-  if (this->MaxDepth != 0 && depth >= this->MaxDepth)
-  {
-    return true;
-  }
-  return false;
+  return this->MaxDepth != 0 && depth >= this->MaxDepth;
 }
 
 //------------------------------------------------------------------------------
@@ -469,11 +465,7 @@ bool vtkXdmf3LightDataHandler::ShouldRead(unsigned int piece, unsigned int npiec
   }
   if (npieces < this->NumProcs)
   {
-    if (piece == this->Rank)
-    {
-      return true;
-    }
-    return false;
+    return piece == this->Rank;
   }
 
 #if 1

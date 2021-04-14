@@ -8,15 +8,8 @@ namespace
 {
 bool Inside(double q[3], double gbounds[6])
 {
-  if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) || (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
-    (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  return gbounds[0] <= q[0] && q[0] <= gbounds[1] && gbounds[2] <= q[1] && q[1] <= gbounds[3] &&
+    gbounds[4] <= q[2] && q[2] <= gbounds[5];
 }
 
 bool FindInLevel(double q[3], vtkOverlappingAMR* amrds, int level, unsigned int& gridId)

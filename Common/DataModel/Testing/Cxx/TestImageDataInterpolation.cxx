@@ -54,9 +54,7 @@ bool eq(double a, double b, double TOL = 1e-9)
   double adiff = std::abs(a - b);
   double d1 = SafeDiv(adiff, std::abs(a));
   double d2 = SafeDiv(adiff, std::abs(b));
-  if ((d1 <= TOL) || (d2 <= TOL))
-    return true;
-  return false;
+  return d1 <= TOL || d2 <= TOL;
 }
 
 // Description:

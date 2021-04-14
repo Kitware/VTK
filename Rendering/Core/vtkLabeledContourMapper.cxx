@@ -1513,12 +1513,7 @@ bool allOutside(const vtkVector2i& point, const vtkVector2i& direction, const La
   }
 
   testVector = other.BLd - point;
-  if (direction.Dot(testVector) <= 0)
-  {
-    return false;
-  }
-
-  return true;
+  return direction.Dot(testVector) > 0;
 }
 
 // Generate a vector pointing out from each edge of the rectangle. Do this

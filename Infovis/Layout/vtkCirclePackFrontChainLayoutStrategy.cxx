@@ -578,14 +578,7 @@ bool vtkCirclePackFrontChainLayoutStrategyImplementation::circlesIntersect(
 
   double distanceSq = pow(c1[0] - c2[0], 2) + pow(c1[1] - c2[1], 2);
 
-  if (distanceSq > pow(c1[2] + c2[2], 2))
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  return distanceSq <= pow(c1[2] + c2[2], 2);
 }
 
 // Delete all circles out of fronChain from circleToStartAt to circleToEndAt, not including

@@ -385,13 +385,8 @@ namespace
 // inconsistent to maintain backwards compatibility.
 bool outwardOrientation(int cellType)
 {
-  if (cellType == VTK_QUADRATIC_LINEAR_WEDGE || cellType == VTK_BIQUADRATIC_QUADRATIC_WEDGE ||
-    cellType == VTK_QUADRATIC_WEDGE)
-  {
-    return false;
-  }
-
-  return true;
+  return cellType != VTK_QUADRATIC_LINEAR_WEDGE && cellType != VTK_BIQUADRATIC_QUADRATIC_WEDGE &&
+    cellType != VTK_QUADRATIC_WEDGE;
 }
 }
 

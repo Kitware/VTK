@@ -316,14 +316,7 @@ bool vtkSQLiteQuery::NextRow()
   {
     vtkDebugMacro(<< "NextRow(): Initial fetch being handled.");
     this->InitialFetch = false;
-    if (this->InitialFetchResult == SQLITE_DONE)
-    {
-      return false;
-    }
-    else
-    {
-      return true;
-    }
+    return this->InitialFetchResult != SQLITE_DONE;
   }
   else
   {

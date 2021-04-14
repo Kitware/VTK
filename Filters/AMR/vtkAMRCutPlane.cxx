@@ -529,10 +529,5 @@ bool vtkAMRCutPlane::IsAMRData2D(vtkOverlappingAMR* input)
 {
   assert("pre: Input AMR dataset is nullptr" && (input != nullptr));
 
-  if (input->GetGridDescription() != VTK_XYZ_GRID)
-  {
-    return true;
-  }
-
-  return false;
+  return input->GetGridDescription() != VTK_XYZ_GRID;
 }

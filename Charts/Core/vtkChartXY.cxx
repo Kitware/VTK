@@ -1672,15 +1672,8 @@ bool vtkChartXY::Hit(const vtkContextMouseEvent& mouse)
     return false;
   }
   vtkVector2i pos(mouse.GetScreenPos());
-  if (pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
-    pos[1] < this->Point2[1])
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return pos[0] > this->Point1[0] && pos[0] < this->Point2[0] && pos[1] > this->Point1[1] &&
+    pos[1] < this->Point2[1];
 }
 
 //------------------------------------------------------------------------------

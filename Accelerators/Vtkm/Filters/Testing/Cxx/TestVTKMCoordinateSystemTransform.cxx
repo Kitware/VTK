@@ -36,11 +36,7 @@ bool ArePointsWithinTolerance(double v1, double v2)
 
   if (v1 == 0.0)
   {
-    if (fabs(v2) < tolerance)
-    {
-      return true;
-    }
-    return false;
+    return fabs(v2) < tolerance;
   }
   if (fabs(fabs(v1) - fabs(v2)) < tolerance)
   {

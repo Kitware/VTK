@@ -55,11 +55,7 @@ bool IsCellInverted(double points[4][3])
     return true;
   }
   vtkPolygon::ComputeNormal(3, points[1], normal);
-  if (normal[2] > 0)
-  {
-    return true;
-  }
-  return false;
+  return normal[2] > 0;
 }
 
 template <class T>

@@ -173,11 +173,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
   fileName = vtksys::SystemTools::CollapseFullPath(fileName);
   this->InternalModel->FileName = fileName;
 
-  if (!impl.LoadModelMetaDataFromFile(fileName, this->UsedExtensions))
-  {
-    return false;
-  }
-  return true;
+  return impl.LoadModelMetaDataFromFile(fileName, this->UsedExtensions);
 }
 
 /** Data loading **/

@@ -370,11 +370,7 @@ bool vtkMPIController::TestAll(const int count, vtkMPICommunicator::Request requ
   vtkMPICommunicator* myMPICommunicator = (vtkMPICommunicator*)this->Communicator;
 
   myMPICommunicator->TestAll(count, requests, flag);
-  if (flag)
-  {
-    return true;
-  }
-  return false;
+  return flag != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -386,11 +382,7 @@ bool vtkMPIController::TestAny(const int count, vtkMPICommunicator::Request requ
   vtkMPICommunicator* myMPICommunicator = (vtkMPICommunicator*)this->Communicator;
 
   myMPICommunicator->TestAny(count, requests, idx, flag);
-  if (flag)
-  {
-    return true;
-  }
-  return false;
+  return flag != 0;
 }
 
 //------------------------------------------------------------------------------

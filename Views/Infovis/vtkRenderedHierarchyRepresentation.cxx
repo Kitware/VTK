@@ -209,22 +209,14 @@ bool vtkRenderedHierarchyRepresentation::AddToView(vtkView* view)
 {
   this->Superclass::AddToView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
-  if (rv)
-  {
-    return true;
-  }
-  return false;
+  return rv != nullptr;
 }
 
 bool vtkRenderedHierarchyRepresentation::RemoveFromView(vtkView* view)
 {
   this->Superclass::RemoveFromView(view);
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
-  if (rv)
-  {
-    return true;
-  }
-  return false;
+  return rv != nullptr;
 }
 
 vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(vtkView* view, vtkSelection* sel)
