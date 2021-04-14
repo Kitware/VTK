@@ -51,6 +51,7 @@ set(classes
   vtkXMLUnstructuredGridReader
   vtkXMLUnstructuredGridWriter
   vtkXMLWriter
+  vtkXMLWriterBase
   vtkXMLWriterC)
 
 vtk_module_add_module(VTK::IOXML
