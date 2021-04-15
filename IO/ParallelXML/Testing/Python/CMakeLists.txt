@@ -8,4 +8,5 @@ endif()
 vtk_add_test_python(
   TestPXMLTimeInField.py,NO_DATA,NO_VALID,NO_RT
   TestXMLPartitionedDataSet.py,NO_DATA,NO_VALID,NO_RT
+  TestXMLPartitionedDataSetCollection.py,NO_DATA,NO_VALID,NO_RT
 )
