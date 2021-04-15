@@ -9,3 +9,6 @@ RUN sh /root/install_cuda.sh
 
 COPY install_adios.sh /root/install_adios.sh
 RUN sh /root/install_adios.sh
+
+COPY install_openvr.sh /root/install_openvr.sh
+RUN sh /root/install_openvr.sh
