@@ -1152,16 +1152,7 @@ struct ProduceIntersectionPoints
   // the updated coordinates.
   void GetUpdatedPoint(vtkIdType id, vtkPointInfo* p, double x[3])
   {
-    if (0 && p->Classification != PointClassification::Outside)
-    {
-      x[0] = p->X[0];
-      x[1] = p->X[1];
-      x[2] = p->X[2];
-    }
-    else
-    {
-      this->Imprint->GetPoint(id, x);
-    }
+    this->Imprint->GetPoint(id, x);
   }
 
   // Indicate whether this imprint cell is contained within a target cell.
