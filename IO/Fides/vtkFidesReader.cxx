@@ -476,8 +476,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->PointDataArraySelection->GetArrayName(i);
     if (this->PointDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, vtkm::cont::Field::Association::POINTS));
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::POINTS);
     }
   }
   int nCArrays = this->CellDataArraySelection->GetNumberOfArrays();
@@ -486,8 +485,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->CellDataArraySelection->GetArrayName(i);
     if (this->CellDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, vtkm::cont::Field::Association::CELL_SET));
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::CELL_SET);
     }
   }
   int nFArrays = this->FieldDataArraySelection->GetNumberOfArrays();
@@ -496,8 +494,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->FieldDataArraySelection->GetArrayName(i);
     if (this->FieldDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, fides::Association::FIELD_DATA));
+      arraySelection.Data.emplace_back(aname, fides::Association::FIELD_DATA);
     }
   }
   selections.Set(fides::keys::FIELDS(), arraySelection);
