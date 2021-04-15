@@ -20,6 +20,7 @@ set(CTEST_TEST_TIMEOUT 100)
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
+  TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
   REPEAT UNTIL_PASS:3)
