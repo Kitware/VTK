@@ -550,7 +550,7 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     if (typeStr.empty())
     {
       vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
-      return 1;
+      return true;
     }
     // FIXME: adios2 IO object returns an template dependent class instance instead of
     // a pointer or template independent object. Without using std::variant,
