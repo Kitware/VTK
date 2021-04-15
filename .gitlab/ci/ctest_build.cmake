@@ -8,6 +8,11 @@ ctest_start(APPEND)
 
 include(ProcessorCount)
 ProcessorCount(nproc)
+if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
+  if (nproc GREATER "$ENV{CTEST_MAX_PARALLELISM}")
+    set(nproc "$ENV{CTEST_MAX_PARALLELISM}")
+  endif ()
+endif ()
 
 set(targets_to_build "all")
 

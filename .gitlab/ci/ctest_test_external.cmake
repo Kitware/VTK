@@ -35,6 +35,11 @@ endif ()
 
 include(ProcessorCount)
 ProcessorCount(nproc)
+if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
+  if (nproc GREATER "$ENV{CTEST_MAX_PARALLELISM}")
+    set(nproc "$ENV{CTEST_MAX_PARALLELISM}")
+  endif ()
+endif ()
 
 if (CTEST_CMAKE_GENERATOR MATCHES "Make")
   # Drop the `-i` flag without remorse.
