@@ -17,6 +17,7 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 
+#include <vtksys/Encoding.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -114,13 +115,13 @@ std::string vtkResourceFileLocator::GetLibraryPathForSymbolWin32(const void* fpt
 #if defined(_WIN32) && !defined(__CYGWIN__)
   MEMORY_BASIC_INFORMATION mbi;
   VirtualQuery(fptr, &mbi, sizeof(mbi));
-  char pathBuf[16384];
-  if (!GetModuleFileName(static_cast<HMODULE>(mbi.AllocationBase), pathBuf, sizeof(pathBuf)))
+  wchar_t pathBuf[16384];
+  if (!GetModuleFileNameW(static_cast<HMODULE>(mbi.AllocationBase), pathBuf, sizeof(pathBuf)))
   {
     return std::string();
   }
 
-  return std::string(pathBuf);
+  return vtksys::Encoding::ToNarrow(pathBuf);
 #else
   (void)fptr;
   return std::string();
