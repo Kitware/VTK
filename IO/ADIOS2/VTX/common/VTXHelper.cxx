@@ -274,7 +274,7 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept
   {
     csv += el + ", ";
   }
-  if (input.size() > 0)
+  if (!input.empty())
   {
     csv.pop_back();
     csv.pop_back();

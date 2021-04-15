@@ -357,12 +357,12 @@ void vtkOBJWriter::WriteData()
   else
   {
     // Write triangle strips
-    ::WriteFaces(f, polyStrips, normals != nullptr, tcoordsArray.size());
+    ::WriteFaces(f, polyStrips, normals != nullptr, !tcoordsArray.empty());
 
     // Write polygons.
     if (polys)
     {
-      ::WriteFaces(f, polys, normals != nullptr, tcoordsArray.size());
+      ::WriteFaces(f, polys, normals != nullptr, !tcoordsArray.empty());
     }
 
     // Write lines.

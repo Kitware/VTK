@@ -440,7 +440,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(
     return 0;
   }
 
-  if (!this->Impl->AvailVars.size())
+  if (this->Impl->AvailVars.empty())
   {
     vtkErrorMacro("No variables can be inquired in the provided file. Abort reading");
     return 0;
@@ -490,7 +490,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Convert user selected array names into inquire variables
   this->ConvertArraySelectionToInqVar();
 
-  if (!this->Impl->InquiredVars.size())
+  if (this->Impl->InquiredVars.empty())
   {
     this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("No inquire variable is specified. Abort reading now");
