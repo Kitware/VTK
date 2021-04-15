@@ -74,7 +74,7 @@ void vtkSMPTools_Impl_Transform(
 {
   auto size = std::distance(inBegin, inEnd);
 
-  UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, outBegin, transform);
+  UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
   vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 
@@ -97,7 +97,7 @@ void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
   auto size = std::distance(begin, end);
 
   FillFunctor<T> fill(value);
-  UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, begin, fill);
+  UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
   vtkSMPTools_Impl_For(0, size, 0, exec);
 }
 
