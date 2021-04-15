@@ -134,7 +134,7 @@
 .fedora33_ubsan:
     extends:
         - .fedora33
-        - .fedora_mpich_addon
+        # - .fedora_mpich_addon
         - .fedora_ubsan_addon
 
     variables:
