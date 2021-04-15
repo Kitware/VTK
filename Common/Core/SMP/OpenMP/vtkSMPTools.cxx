@@ -45,11 +45,6 @@ void vtkSMPTools::Initialize(int numThreads)
 #pragma omp single
   if (numThreads > 0)
   {
-    if (numThreads > maxThreads)
-    {
-      vtkWarningMacro(<< "Unable to initialize " << numThreads << " threads as requested\n"
-                      << "Falling back to OpenMP maximum (" << maxThreads << ")");
-    }
     numThreads = std::min(numThreads, maxThreads);
     vtkSMPNumberOfSpecifiedThreads = numThreads;
     omp_set_num_threads(numThreads);
