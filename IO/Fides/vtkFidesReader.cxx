@@ -133,15 +133,15 @@ void vtkFidesReader::SetFileName(const std::string& fname)
 // This version is used when a json file with the data model is provided
 void vtkFidesReader::ParseDataModel(const std::string& fname)
 {
-  this->Impl->Reader.reset(new fides::io::DataSetReader(fname));
+  this->Impl->Reader = std::make_unique<fides::io::DataSetReader>(fname);
   this->Impl->HasParsedDataModel = true;
 }
 
 // This version is used when a pre-defined data model is being used
 void vtkFidesReader::ParseDataModel()
 {
-  this->Impl->Reader.reset(
-    new fides::io::DataSetReader(this->FileName, fides::io::DataSetReader::DataModelInput::BPFile));
+  this->Impl->Reader = std::make_unique<fides::io::DataSetReader>(
+    this->FileName, fides::io::DataSetReader::DataModelInput::BPFile);
   this->Impl->HasParsedDataModel = true;
 }
 
