@@ -14,6 +14,12 @@ if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
   endif ()
 endif ()
 
+if (CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+  set(CTEST_BUILD_FLAGS "-j${nproc} -l${nproc}")
+elseif (CTEST_CMAKE_GENERATOR MATCHES "Ninja")
+  set(CTEST_BUILD_FLAGS "-l${nproc}")
+endif ()
+
 set(targets_to_build "all")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "doxygen")
@@ -30,7 +36,7 @@ foreach (target IN LISTS targets_to_build)
 
   if (CTEST_CMAKE_GENERATOR MATCHES "Make")
     # Drop the `-i` flag without remorse.
-    set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
+    set(CTEST_BUILD_COMMAND "make ${CTEST_BUILD_FLAGS}")
 
     if (NOT target STREQUAL "all")
       string(APPEND CTEST_BUILD_COMMAND " ${target}")

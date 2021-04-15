@@ -41,9 +41,15 @@ if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
   endif ()
 endif ()
 
+if (CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+  set(CTEST_BUILD_FLAGS "-j${nproc} -l${nproc}")
+elseif (CTEST_CMAKE_GENERATOR MATCHES "Ninja")
+  set(CTEST_BUILD_FLAGS "-l${nproc}")
+endif ()
+
 if (CTEST_CMAKE_GENERATOR MATCHES "Make")
   # Drop the `-i` flag without remorse.
-  set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
+  set(CTEST_BUILD_COMMAND "make ${CTEST_BUILD_FLAGS}")
 endif ()
 
 ctest_build(
