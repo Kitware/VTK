@@ -38,54 +38,39 @@ namespace
 template <class Type>
 static Type* findBlock(vtkMultiBlockDataSet* mb)
 {
-  const unsigned int nblocks = mb->GetNumberOfBlocks();
-  for (unsigned int blocki = 0; blocki < nblocks; ++blocki)
+  Type* dataset = nullptr;
+  const unsigned int nblocks = (mb ? mb->GetNumberOfBlocks() : 0u);
+  for (unsigned int blocki = 0; !dataset && blocki < nblocks; ++blocki)
   {
     vtkDataObject* obj = mb->GetBlock(blocki);
-    auto* subblock = vtkMultiBlockDataSet::SafeDownCast(obj);
-
-    Type* dataset;
-    if (subblock)
+    dataset = Type::SafeDownCast(obj);
+    if (!dataset)
     {
-      dataset = findBlock<Type>(subblock);
-    }
-    else
-    {
-      dataset = Type::SafeDownCast(obj);
-    }
-    if (dataset)
-    {
-      return dataset;
+      dataset = findBlock<Type>(vtkMultiBlockDataSet::SafeDownCast(obj));
     }
   }
-  return nullptr;
+  return dataset;
 }
 
 // Get named block of specified type
 template <class Type>
 static Type* findBlock(vtkMultiBlockDataSet* mb, const char* blockName)
 {
-  const unsigned int nblocks = mb->GetNumberOfBlocks();
-  for (unsigned int blocki = 0; blocki < nblocks; ++blocki)
+  Type* dataset = nullptr;
+  const unsigned int nblocks = (mb ? mb->GetNumberOfBlocks() : 0u);
+  for (unsigned int blocki = 0; !dataset && blocki < nblocks; ++blocki)
   {
     vtkDataObject* obj = mb->GetBlock(blocki);
-    auto* subblock = vtkMultiBlockDataSet::SafeDownCast(obj);
-
-    Type* dataset;
-    if (subblock)
-    {
-      dataset = findBlock<Type>(subblock, blockName);
-    }
-    else if (strcmp(mb->GetMetaData(blocki)->Get(vtkCompositeDataSet::NAME()), blockName) == 0)
+    if (strcmp(mb->GetMetaData(blocki)->Get(vtkCompositeDataSet::NAME()), blockName) == 0)
     {
       dataset = Type::SafeDownCast(obj);
     }
-    if (dataset)
+    if (!dataset)
     {
-      return dataset;
+      dataset = findBlock<Type>(vtkMultiBlockDataSet::SafeDownCast(obj), blockName);
     }
   }
-  return nullptr;
+  return dataset;
 }
 
 } // End anonymous namespace
