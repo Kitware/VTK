@@ -34,7 +34,7 @@ vtkOTKernelSmoothing::vtkOTKernelSmoothing()
 }
 
 //------------------------------------------------------------------------------
-vtkOTKernelSmoothing::~vtkOTKernelSmoothing() {}
+vtkOTKernelSmoothing::~vtkOTKernelSmoothing() = default;
 
 //------------------------------------------------------------------------------
 void vtkOTKernelSmoothing::PrintSelf(ostream& os, vtkIndent indent)

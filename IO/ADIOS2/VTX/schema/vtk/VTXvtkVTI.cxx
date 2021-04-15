@@ -49,7 +49,7 @@ VTXvtkVTI::VTXvtkVTI(const std::string& schema, adios2::IO& io, adios2::Engine& 
   InitTimes();
 }
 
-VTXvtkVTI::~VTXvtkVTI() {}
+VTXvtkVTI::~VTXvtkVTI() = default;
 
 // PRIVATE
 void VTXvtkVTI::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)
