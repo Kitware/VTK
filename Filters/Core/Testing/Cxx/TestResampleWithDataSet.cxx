@@ -21,6 +21,8 @@
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkCylinder.h"
 #include "vtkExtentTranslator.h"
+#include "vtkFloatArray.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -94,14 +96,15 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
     vtkDataObject* block = randomAttrs->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(randomAttrs->GetOutputDataObject(0));
+
     dataset->SetBlock(i, block);
     block->Delete();
   }
 }
 
-void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
+void CreateSourceDataSet(vtkMultiBlockDataSet* mbds, int numberOfBlocks)
 {
-  dataset->SetNumberOfBlocks(numberOfBlocks);
+  mbds->SetNumberOfBlocks(numberOfBlocks);
 
   vtkNew<vtkExtentTranslator> extentTranslator;
   extentTranslator->SetWholeExtent(-22, 22, -22, 22, -16, 16);
@@ -123,7 +126,21 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
     vtkDataObject* block = wavelet->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(wavelet->GetOutputDataObject(0));
-    dataset->SetBlock(i, block);
+
+    // Add an extra array to test partial data array handling
+    if (i == numberOfBlocks - 1)
+    {
+      auto dataset = vtkDataSet::SafeDownCast(block);
+      auto pd = dataset->GetPointData();
+      vtkNew<vtkFloatArray> partialArray;
+      partialArray->SetName("partialArray");
+      partialArray->SetNumberOfComponents(1);
+      partialArray->SetNumberOfTuples(dataset->GetNumberOfPoints());
+      partialArray->Fill(1);
+      pd->AddArray(partialArray);
+    }
+
+    mbds->SetBlock(i, block);
     block->Delete();
   }
 }
@@ -151,7 +168,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 1 ||
     block->GetPointData()->GetNumberOfArrays() != 3)
   {
-    std::cout << "Unexpected number of arrays in default output" << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in default output");
     return !vtkTesting::FAILED;
   }
 
@@ -165,8 +182,7 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 6 ||
     block->GetPointData()->GetNumberOfArrays() != 8)
   {
-    std::cout << "Unexpected number of arrays in output with pass cell and point arrays"
-              << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass cell and point arrays");
     return !vtkTesting::FAILED;
   }
 
@@ -179,7 +195,19 @@ int TestResampleWithDataSet(int argc, char* argv[])
     block->GetCellData()->GetNumberOfArrays() != 6 ||
     block->GetPointData()->GetNumberOfArrays() != 8)
   {
-    std::cout << "Unexpected number of arrays in output with pass field arrays off" << std::endl;
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass field arrays off");
+    return !vtkTesting::FAILED;
+  }
+
+  resample->PassPartialArraysOn();
+  resample->Update();
+  result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
+  block = static_cast<vtkDataSet*>(result->GetBlock(0));
+  if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
+    block->GetCellData()->GetNumberOfArrays() != 6 ||
+    block->GetPointData()->GetNumberOfArrays() != 9)
+  {
+    vtkLog(ERROR, "Unexpected number of arrays in output with pass partial arrays on");
     return !vtkTesting::FAILED;
   }
 
