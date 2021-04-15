@@ -15,6 +15,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # New baseline?
     "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
 
+    # Numerical problems?
+    "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
+
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
