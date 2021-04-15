@@ -337,14 +337,14 @@ vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
 
 std::string GetFileName(const std::string& fileName) noexcept
 {
-  const std::string output =
+  std::string output =
     EndsWith(fileName, ".bp.dir") ? fileName.substr(0, fileName.size() - 4) : fileName;
   return output;
 }
 
 std::string GetEngineType(const std::string& fileName) noexcept
 {
-  const std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
+  std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
   return engineType;
 }
 
