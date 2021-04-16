@@ -270,7 +270,7 @@ public:
   /**
    * Begin the rendering process.
    */
-  virtual void Start(void);
+  virtual void Start();
 
   /**
    * Update the system, if needed, due to stereo rendering. For some stereo
@@ -296,14 +296,14 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void);
+  virtual void Initialize();
 
   /**
    * Finalize the rendering window.  This will shutdown all system-specific
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  virtual void Finalize(void);
+  virtual void Finalize();
 
   /**
    * Make this windows OpenGL context the current context.
