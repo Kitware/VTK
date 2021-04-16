@@ -1135,8 +1135,6 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
     mod->SetRayLength(ren->GetActiveCamera()->GetClippingRange()[1]);
     mod->SetRayColor(1.0, 0.0, 0.0);
   }
-
-  return;
 }
 //------------------------------------------------------------------------------
 

@@ -145,7 +145,6 @@ void getElbowPosition(
   outElbow[0] = out[0];
   outElbow[1] = out[1];
   outElbow[2] = out[2];
-  return;
 }
 
 void rotateToPoint(double* outOrient, vtkTransform* trans, double target[3], double start[3])
