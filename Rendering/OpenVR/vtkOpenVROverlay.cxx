@@ -197,7 +197,7 @@ void vtkOpenVROverlay::LoadCameraPose(int slot)
 
 void vtkOpenVROverlay::LoadNextCameraPose()
 {
-  if (this->SavedCameraPoses.size() == 0)
+  if (this->SavedCameraPoses.empty())
   {
     return;
   }

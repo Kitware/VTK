@@ -119,7 +119,7 @@ void vtkOpenVRMenuRepresentation::RemoveMenuItem(const char* name)
 
 void vtkOpenVRMenuRepresentation::RemoveAllMenuItems()
 {
-  while (this->Menus.size() > 0)
+  while (!this->Menus.empty())
   {
     auto itr = this->Menus.begin();
     delete *itr;

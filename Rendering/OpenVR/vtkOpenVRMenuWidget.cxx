@@ -126,7 +126,7 @@ void vtkOpenVRMenuWidget::RemoveMenuItem(const char* name)
 
 void vtkOpenVRMenuWidget::RemoveAllMenuItems()
 {
-  while (this->Menus.size() > 0)
+  while (!this->Menus.empty())
   {
     auto itr = this->Menus.begin();
     delete *itr;
