@@ -43,7 +43,7 @@ vtkOpenVRHardwarePicker::~vtkOpenVRHardwarePicker()
 // set up for a pick
 void vtkOpenVRHardwarePicker::Initialize()
 {
-  this->vtkAbstractPropPicker::Initialize();
+  this->Superclass::Initialize();
 }
 
 // Pick from the given collection
