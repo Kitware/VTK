@@ -114,7 +114,7 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
   if (this->DashboardOverlay)
   {
     this->DashboardOverlay->Delete();
-    this->DashboardOverlay = 0;
+    this->DashboardOverlay = nullptr;
   }
   this->Finalize();
 
@@ -126,12 +126,12 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
     ren->SetRenderWindow(nullptr);
   }
   this->HMDTransform->Delete();
-  this->HMDTransform = 0;
+  this->HMDTransform = nullptr;
 
   if (this->HelperWindow)
   {
     this->HelperWindow->Delete();
-    this->HelperWindow = 0;
+    this->HelperWindow = nullptr;
   }
 }
 

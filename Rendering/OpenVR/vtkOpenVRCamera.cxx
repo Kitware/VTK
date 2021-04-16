@@ -29,8 +29,8 @@ vtkStandardNewMacro(vtkOpenVRCamera);
 
 vtkOpenVRCamera::vtkOpenVRCamera()
 {
-  this->LeftEyeProjection = 0;
-  this->RightEyeProjection = 0;
+  this->LeftEyeProjection = nullptr;
+  this->RightEyeProjection = nullptr;
 
   this->LeftEyeTCDCMatrix = vtkMatrix4x4::New();
   this->RightEyeTCDCMatrix = vtkMatrix4x4::New();
@@ -48,8 +48,8 @@ vtkOpenVRCamera::~vtkOpenVRCamera()
   {
     this->LeftEyeProjection->Delete();
     this->RightEyeProjection->Delete();
-    this->LeftEyeProjection = 0;
-    this->RightEyeProjection = 0;
+    this->LeftEyeProjection = nullptr;
+    this->RightEyeProjection = nullptr;
   }
 
   this->LeftEyeTCDCMatrix->Delete();

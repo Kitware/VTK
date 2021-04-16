@@ -49,7 +49,7 @@ vtkOpenVRModel::vtkOpenVRModel()
 vtkOpenVRModel::~vtkOpenVRModel()
 {
   this->ModelVBO->Delete();
-  this->ModelVBO = 0;
+  this->ModelVBO = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -220,8 +220,8 @@ void vtkOpenVRModel::Render(vtkOpenVRRenderWindow* win, const vr::TrackedDeviceP
       this->ModelHelper.Program->SetUniformMatrix("matrix", this->PoseMatrix);
     }
 
-    glDrawElements(
-      GL_TRIANGLES, static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount), GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount),
+      GL_UNSIGNED_SHORT, nullptr);
     this->TextureObject->Deactivate();
 
     // Draw ray

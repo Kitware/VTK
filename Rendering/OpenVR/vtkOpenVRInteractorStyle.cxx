@@ -526,7 +526,7 @@ void vtkOpenVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
   vtkActorCollection* ac;
   vtkActor *anActor, *aPart;
   vtkAssemblyPath* path;
-  if (this->CurrentRenderer != 0)
+  if (this->CurrentRenderer != nullptr)
   {
     ac = this->CurrentRenderer->GetActors();
     vtkCollectionSimpleIterator ait;
@@ -558,7 +558,7 @@ void vtkOpenVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
   vtkActorCollection* ac;
   vtkActor *anActor, *aPart;
   vtkAssemblyPath* path;
-  if (this->CurrentRenderer != 0)
+  if (this->CurrentRenderer != nullptr)
   {
     ac = this->CurrentRenderer->GetActors();
     vtkCollectionSimpleIterator ait;
