@@ -765,8 +765,7 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
-  std::string fullpath =
-    vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName.c_str());
+  std::string fullpath = vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName);
   vr::VRInput()->SetActionManifestPath(fullpath.c_str());
   vr::VRInput()->GetActionSetHandle(this->ActionSetName.c_str(), &this->ActionsetVTK);
 
