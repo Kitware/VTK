@@ -85,7 +85,7 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
-  this->UseOffScreenBuffers = 1;
+  this->UseOffScreenBuffers = true;
   this->Size[0] = 640;
   this->Size[1] = 720;
   this->Position[0] = 100;
