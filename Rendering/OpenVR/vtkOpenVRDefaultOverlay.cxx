@@ -205,9 +205,9 @@ void handleSetViewUp(vtkObject* /* caller */, unsigned long eid, void* clientdat
   }
 }
 
-vtkOpenVRDefaultOverlay::vtkOpenVRDefaultOverlay() {}
+vtkOpenVRDefaultOverlay::vtkOpenVRDefaultOverlay() = default;
 
-vtkOpenVRDefaultOverlay::~vtkOpenVRDefaultOverlay() {}
+vtkOpenVRDefaultOverlay::~vtkOpenVRDefaultOverlay() = default;
 
 void vtkOpenVRDefaultOverlay::SetupSpots()
 {

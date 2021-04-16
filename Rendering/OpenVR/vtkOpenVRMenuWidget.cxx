@@ -38,7 +38,7 @@ public:
   vtkCommand* Command;
   std::string Name;
   std::string Text;
-  InternalElement() {}
+  InternalElement() = default;
 };
 
 //------------------------------------------------------------------------------

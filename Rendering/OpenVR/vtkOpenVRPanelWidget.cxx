@@ -57,7 +57,7 @@ vtkOpenVRPanelWidget::vtkOpenVRPanelWidget()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRPanelWidget::~vtkOpenVRPanelWidget() {}
+vtkOpenVRPanelWidget::~vtkOpenVRPanelWidget() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenVRPanelWidget::SetRepresentation(vtkOpenVRPanelRepresentation* rep)

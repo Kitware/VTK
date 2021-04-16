@@ -60,7 +60,7 @@ vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor() {}
+vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor() = default;
 
 void vtkOpenVRRenderWindowInteractor::SetPhysicalScale(double scale)
 {

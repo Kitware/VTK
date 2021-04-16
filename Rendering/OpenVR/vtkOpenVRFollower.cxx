@@ -21,9 +21,9 @@
 
 vtkStandardNewMacro(vtkOpenVRFollower);
 
-vtkOpenVRFollower::vtkOpenVRFollower() {}
+vtkOpenVRFollower::vtkOpenVRFollower() = default;
 
-vtkOpenVRFollower::~vtkOpenVRFollower() {}
+vtkOpenVRFollower::~vtkOpenVRFollower() = default;
 
 //------------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
