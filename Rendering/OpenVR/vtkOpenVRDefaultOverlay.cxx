@@ -217,7 +217,7 @@ void vtkOpenVRDefaultOverlay::SetupSpots()
     vtkCallbackCommand* cc = vtkCallbackCommand::New();
     cc->SetClientData(reinterpret_cast<char*>(i));
     cc->SetCallback(handleSetViewUp);
-    this->Spots.push_back(vtkOpenVROverlaySpot(913 + i * 91.5, 913 + i * 91.5 + 90, 522, 608, cc));
+    this->Spots.emplace_back(913 + i * 91.5, 913 + i * 91.5 + 90, 522, 608, cc);
     cc->Delete();
   }
   for (int i = 0; i < 5; i++)
@@ -259,7 +259,7 @@ void vtkOpenVRDefaultOverlay::SetupSpots()
     vtkCallbackCommand* cc = vtkCallbackCommand::New();
     cc->SetClientData(reinterpret_cast<char*>(i + 1));
     cc->SetCallback(handleLoadCamera);
-    this->Spots.push_back(vtkOpenVROverlaySpot(37 + i * 104.5, 37 + i * 104.5 + 103, 284, 370, cc));
+    this->Spots.emplace_back(37 + i * 104.5, 37 + i * 104.5 + 103, 284, 370, cc);
     cc->Delete();
   }
   for (int i = 0; i < 8; i++)
@@ -267,7 +267,7 @@ void vtkOpenVRDefaultOverlay::SetupSpots()
     vtkCallbackCommand* cc = vtkCallbackCommand::New();
     cc->SetClientData(reinterpret_cast<char*>(i + 1));
     cc->SetCallback(handleSaveCamera);
-    this->Spots.push_back(vtkOpenVROverlaySpot(37 + i * 104.5, 37 + i * 104.5 + 103, 48, 134, cc));
+    this->Spots.emplace_back(37 + i * 104.5, 37 + i * 104.5 + 103, 48, 134, cc);
     cc->Delete();
   }
 }
