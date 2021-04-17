@@ -165,7 +165,7 @@ int vtkPartitionedDataSetCollectionSource::RequestData(
     const double maxV = function->GetMaximumV();
 
     int totalParts;
-    std::vector<int> counts = ::GenerateAssigments(numPieces, totalParts);
+    std::vector<int> counts = ::GenerateAssignments(numPieces, totalParts);
     const double deltaV = maxV / totalParts;
     const auto range = ::GetRange(piece, counts, totalParts);
     for (int partition = range.first; partition < range.second; ++partition)
