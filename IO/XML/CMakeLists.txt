@@ -30,9 +30,7 @@ set(classes
   vtkXMLPUnstructuredDataReader
   vtkXMLPUnstructuredGridReader
   vtkXMLPartitionedDataSetCollectionReader
-  vtkXMLPartitionedDataSetCollectionWriter
   vtkXMLPartitionedDataSetReader
-  vtkXMLPartitionedDataSetWriter
   vtkXMLPolyDataReader
   vtkXMLPolyDataWriter
   vtkXMLReader
@@ -51,6 +49,7 @@ set(classes
   vtkXMLUnstructuredGridReader
   vtkXMLUnstructuredGridWriter
   vtkXMLWriter
+  vtkXMLWriterBase
   vtkXMLWriterC)
 
 vtk_module_add_module(VTK::IOXML

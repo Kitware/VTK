@@ -21,6 +21,7 @@ set(classes
   vtkOutlineCornerSource
   vtkOutlineSource
   vtkParametricFunctionSource
+  vtkPartitionedDataSetCollectionSource
   vtkPlaneSource
   vtkPlatonicSolidSource
   vtkPointHandleSource

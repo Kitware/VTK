@@ -39,8 +39,6 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
-#include "vtkLZ4DataCompressor.h"
-#include "vtkLZMADataCompressor.h"
 #include "vtkNew.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
@@ -443,42 +441,20 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 } // end anon namespace
 //*****************************************************************************
 
-vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 //------------------------------------------------------------------------------
 vtkXMLWriter::vtkXMLWriter()
 {
-  this->FileName = nullptr;
   this->Stream = nullptr;
-  this->WriteToOutputString = 0;
 
   // Default binary data mode is base-64 encoding.
   this->DataStream = vtkBase64OutputStream::New();
 
-  // Byte order defaults to that of machine.
-#ifdef VTK_WORDS_BIGENDIAN
-  this->ByteOrder = vtkXMLWriter::BigEndian;
-#else
-  this->ByteOrder = vtkXMLWriter::LittleEndian;
-#endif
-  this->HeaderType = vtkXMLWriter::UInt32;
-
-  // Output vtkIdType size defaults to real size.
-#ifdef VTK_USE_64BIT_IDS
-  this->IdType = vtkXMLWriter::Int64;
-#else
-  this->IdType = vtkXMLWriter::Int32;
-#endif
-
   // Initialize compression data.
-  this->BlockSize = 32768; // 2^15
-  this->Compressor = vtkZLibDataCompressor::New();
   this->CompressionHeader = nullptr;
   this->Int32IdTypeBuffer = nullptr;
   this->ByteSwapBuffer = nullptr;
 
-  this->EncodeAppendedData = 1;
   this->AppendedDataPosition = 0;
-  this->DataMode = vtkXMLWriter::Appended;
   this->ProgressRange[0] = 0;
   this->ProgressRange[1] = 1;
 
@@ -494,15 +470,12 @@ vtkXMLWriter::vtkXMLWriter()
   this->UserContinueExecuting = -1; // invalid state
   this->NumberOfTimeValues = nullptr;
   this->FieldDataOM = new OffsetsManagerGroup;
-  this->UsePreviousVersion = true;
 }
 
 //------------------------------------------------------------------------------
 vtkXMLWriter::~vtkXMLWriter()
 {
-  this->SetFileName(nullptr);
   this->DataStream->Delete();
-  this->SetCompressor(nullptr);
   delete this->OutFile;
   this->OutFile = nullptr;
   delete this->OutStringStream;
@@ -512,114 +485,9 @@ vtkXMLWriter::~vtkXMLWriter()
 }
 
 //------------------------------------------------------------------------------
-void vtkXMLWriter::SetCompressorType(int compressorType)
-{
-  if (compressorType == NONE)
-  {
-    if (this->Compressor)
-    {
-      this->Compressor->Delete();
-      this->Compressor = nullptr;
-      this->Modified();
-    }
-  }
-  else if (compressorType == ZLIB)
-  {
-    if (this->Compressor)
-    {
-      this->Compressor->Delete();
-    }
-    this->Compressor = vtkZLibDataCompressor::New();
-    this->Compressor->SetCompressionLevel(this->CompressionLevel);
-    this->Modified();
-  }
-  else if (compressorType == LZ4)
-  {
-    if (this->Compressor)
-    {
-      this->Compressor->Delete();
-    }
-    this->Compressor = vtkLZ4DataCompressor::New();
-    this->Compressor->SetCompressionLevel(this->CompressionLevel);
-    this->Modified();
-  }
-  else if (compressorType == LZMA)
-  {
-    if (this->Compressor)
-    {
-      this->Compressor->Delete();
-    }
-    this->Compressor = vtkLZMADataCompressor::New();
-    this->Compressor->SetCompressionLevel(this->CompressionLevel);
-    this->Modified();
-  }
-  else
-  {
-    vtkWarningMacro("Invalid compressorType:" << compressorType);
-  }
-}
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetCompressionLevel(int compressionLevel)
-{
-  int min = 1;
-  int max = 9;
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
-                << "CompressionLevel  to " << compressionLevel);
-  if (this->CompressionLevel !=
-    (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel)))
-  {
-    this->CompressionLevel =
-      (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
-    if (this->Compressor)
-    {
-      this->Compressor->SetCompressionLevel(compressionLevel);
-    }
-    this->Modified();
-  }
-}
-//------------------------------------------------------------------------------
 void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
-  if (this->ByteOrder == vtkXMLWriter::BigEndian)
-  {
-    os << indent << "ByteOrder: BigEndian\n";
-  }
-  else
-  {
-    os << indent << "ByteOrder: LittleEndian\n";
-  }
-  if (this->IdType == vtkXMLWriter::Int32)
-  {
-    os << indent << "IdType: Int32\n";
-  }
-  else
-  {
-    os << indent << "IdType: Int64\n";
-  }
-  if (this->DataMode == vtkXMLWriter::Ascii)
-  {
-    os << indent << "DataMode: Ascii\n";
-  }
-  else if (this->DataMode == vtkXMLWriter::Binary)
-  {
-    os << indent << "DataMode: Binary\n";
-  }
-  else
-  {
-    os << indent << "DataMode: Appended\n";
-  }
-  if (this->Compressor)
-  {
-    os << indent << "Compressor: " << this->Compressor << "\n";
-  }
-  else
-  {
-    os << indent << "Compressor: (none)\n";
-  }
-  os << indent << "EncodeAppendedData: " << this->EncodeAppendedData << "\n";
-  os << indent << "BlockSize: " << this->BlockSize << "\n";
   if (this->Stream)
   {
     os << indent << "Stream: " << this->Stream << "\n";
@@ -651,124 +519,6 @@ vtkDataObject* vtkXMLWriter::GetInput(int port)
     return nullptr;
   }
   return this->GetExecutive()->GetInputData(port, 0);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetByteOrderToBigEndian()
-{
-  this->SetByteOrder(vtkXMLWriter::BigEndian);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetByteOrderToLittleEndian()
-{
-  this->SetByteOrder(vtkXMLWriter::LittleEndian);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetHeaderType(int t)
-{
-  if (t != vtkXMLWriter::UInt32 && t != vtkXMLWriter::UInt64)
-  {
-    vtkErrorMacro(<< this->GetClassName() << " (" << this << "): cannot set HeaderType to " << t);
-    return;
-  }
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting HeaderType to " << t);
-  if (this->HeaderType != t)
-  {
-    this->HeaderType = t;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetHeaderTypeToUInt32()
-{
-  this->SetHeaderType(vtkXMLWriter::UInt32);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetHeaderTypeToUInt64()
-{
-  this->SetHeaderType(vtkXMLWriter::UInt64);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetIdType(int t)
-{
-#if !defined(VTK_USE_64BIT_IDS)
-  if (t == vtkXMLWriter::Int64)
-  {
-    vtkErrorMacro("Support for Int64 vtkIdType not compiled in VTK.");
-    return;
-  }
-#endif
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting IdType to " << t);
-  if (this->IdType != t)
-  {
-    this->IdType = t;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetIdTypeToInt32()
-{
-  this->SetIdType(vtkXMLWriter::Int32);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetIdTypeToInt64()
-{
-  this->SetIdType(vtkXMLWriter::Int64);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetDataModeToAscii()
-{
-  this->SetDataMode(vtkXMLWriter::Ascii);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetDataModeToBinary()
-{
-  this->SetDataMode(vtkXMLWriter::Binary);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetDataModeToAppended()
-{
-  this->SetDataMode(vtkXMLWriter::Appended);
-}
-
-//------------------------------------------------------------------------------
-void vtkXMLWriter::SetBlockSize(size_t blockSize)
-{
-  // Enforce constraints on block size.
-  size_t nbs = blockSize;
-#if VTK_SIZEOF_DOUBLE > VTK_SIZEOF_ID_TYPE
-  typedef double LargestScalarType;
-#else
-  typedef vtkIdType LargestScalarType;
-#endif
-  size_t remainder = nbs % sizeof(LargestScalarType);
-  if (remainder)
-  {
-    nbs -= remainder;
-    if (nbs < sizeof(LargestScalarType))
-    {
-      nbs = sizeof(LargestScalarType);
-    }
-    vtkWarningMacro("BlockSize must be a multiple of "
-      << int(sizeof(LargestScalarType)) << ".  Using " << nbs << " instead of " << blockSize
-      << ".");
-  }
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting BlockSize to " << nbs);
-  if (this->BlockSize != nbs)
-  {
-    this->BlockSize = nbs;
-    this->Modified();
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -834,22 +584,6 @@ int vtkXMLWriter::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgressDiscrete(1);
 
   return result;
-}
-//------------------------------------------------------------------------------
-int vtkXMLWriter::Write()
-{
-  // Make sure we have input.
-  if (this->GetNumberOfInputConnections(0) < 1)
-  {
-    vtkErrorMacro("No input provided!");
-    return 0;
-  }
-
-  // always write even if the data hasn't changed
-  this->Modified();
-
-  this->Update();
-  return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -993,32 +727,6 @@ int vtkXMLWriter::WriteInternal()
   }
 
   return result;
-}
-
-//------------------------------------------------------------------------------
-int vtkXMLWriter::GetDataSetMajorVersion()
-{
-  if (this->UsePreviousVersion)
-  {
-    return (this->HeaderType == vtkXMLWriter::UInt64) ? 1 : 0;
-  }
-  else
-  {
-    return vtkXMLReaderMajorVersion;
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkXMLWriter::GetDataSetMinorVersion()
-{
-  if (this->UsePreviousVersion)
-  {
-    return (this->HeaderType == vtkXMLWriter::UInt64) ? 0 : 1;
-  }
-  else
-  {
-    return vtkXMLReaderMinorVersion;
-  }
 }
 
 //------------------------------------------------------------------------------

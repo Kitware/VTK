@@ -13,6 +13,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMisc
+  VTK::IOCore
   VTK::ParallelCore
   VTK::vtksys
 TEST_DEPENDS

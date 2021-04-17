@@ -30,8 +30,8 @@
 #ifndef vtkXMLWriter_h
 #define vtkXMLWriter_h
 
-#include "vtkAlgorithm.h"
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtkXMLWriterBase.h"
 
 #include <sstream> // For ostringstream ivar
 
@@ -58,174 +58,11 @@ class OffsetsManager;      // one per piece/per time
 class OffsetsManagerGroup; // array of OffsetsManager
 class OffsetsManagerArray; // array of OffsetsManagerGroup
 
-class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
+class VTKIOXML_EXPORT vtkXMLWriter : public vtkXMLWriterBase
 {
 public:
-  vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
+  vtkTypeMacro(vtkXMLWriter, vtkXMLWriterBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Enumerate big and little endian byte order settings.
-   */
-  enum
-  {
-    BigEndian,
-    LittleEndian
-  };
-
-  /**
-   * Enumerate the supported data modes.
-   * Ascii = Inline ascii data.
-   * Binary = Inline binary data (base64 encoded, possibly compressed).
-   * Appended = Appended binary data (possibly compressed and/or base64).
-   */
-  enum
-  {
-    Ascii,
-    Binary,
-    Appended
-  };
-
-  /**
-   * Enumerate the supported vtkIdType bit lengths.
-   * Int32 = File stores 32-bit values for vtkIdType.
-   * Int64 = File stores 64-bit values for vtkIdType.
-   */
-  enum
-  {
-    Int32 = 32,
-    Int64 = 64
-  };
-
-  /**
-   * Enumerate the supported binary data header bit lengths.
-   * UInt32 = File stores 32-bit binary data header elements.
-   * UInt64 = File stores 64-bit binary data header elements.
-   */
-  enum
-  {
-    UInt32 = 32,
-    UInt64 = 64
-  };
-
-  ///@{
-  /**
-   * Get/Set the byte order of data written to the file.  The default
-   * is the machine's hardware byte order.
-   */
-  vtkSetMacro(ByteOrder, int);
-  vtkGetMacro(ByteOrder, int);
-  void SetByteOrderToBigEndian();
-  void SetByteOrderToLittleEndian();
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the binary data header word type.  The default is UInt32.
-   * Set to UInt64 when storing arrays requiring 64-bit indexing.
-   */
-  virtual void SetHeaderType(int);
-  vtkGetMacro(HeaderType, int);
-  void SetHeaderTypeToUInt32();
-  void SetHeaderTypeToUInt64();
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the size of the vtkIdType values stored in the file.  The
-   * default is the real size of vtkIdType.
-   */
-  virtual void SetIdType(int);
-  vtkGetMacro(IdType, int);
-  void SetIdTypeToInt32();
-  void SetIdTypeToInt64();
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the name of the output file.
-   */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  ///@}
-
-  ///@{
-  /**
-   * Enable writing to an OutputString instead of the default, a file.
-   */
-  vtkSetMacro(WriteToOutputString, vtkTypeBool);
-  vtkGetMacro(WriteToOutputString, vtkTypeBool);
-  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
-  std::string GetOutputString() { return this->OutputString; }
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the compressor used to compress binary and appended data
-   * before writing to the file.  Default is a vtkZLibDataCompressor.
-   */
-  virtual void SetCompressor(vtkDataCompressor*);
-  vtkGetObjectMacro(Compressor, vtkDataCompressor);
-  ///@}
-
-  enum CompressorType
-  {
-    NONE,
-    ZLIB,
-    LZ4,
-    LZMA
-  };
-
-  ///@{
-  /**
-   * Convenience functions to set the compressor to certain known types.
-   */
-  void SetCompressorType(int compressorType);
-  void SetCompressorTypeToNone() { this->SetCompressorType(NONE); }
-  void SetCompressorTypeToLZ4() { this->SetCompressorType(LZ4); }
-  void SetCompressorTypeToZLib() { this->SetCompressorType(ZLIB); }
-  void SetCompressorTypeToLZMA() { this->SetCompressorType(LZMA); }
-
-  void SetCompressionLevel(int compressorLevel);
-  vtkGetMacro(CompressionLevel, int);
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the block size used in compression.  When reading, this
-   * controls the granularity of how much extra information must be
-   * read when only part of the data are requested.  The value should
-   * be a multiple of the largest scalar data type.
-   */
-  virtual void SetBlockSize(size_t blockSize);
-  vtkGetMacro(BlockSize, size_t);
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set the data mode used for the file's data.  The options are
-   * vtkXMLWriter::Ascii, vtkXMLWriter::Binary, and
-   * vtkXMLWriter::Appended.
-   */
-  vtkSetMacro(DataMode, int);
-  vtkGetMacro(DataMode, int);
-  void SetDataModeToAscii();
-  void SetDataModeToBinary();
-  void SetDataModeToAppended();
-  ///@}
-
-  ///@{
-  /**
-   * Get/Set whether the appended data section is base64 encoded.  If
-   * encoded, reading and writing will be slower, but the file will be
-   * fully valid XML and text-only.  If not encoded, the XML
-   * specification will be violated, but reading and writing will be
-   * fast.  The default is to do the encoding.
-   */
-  vtkSetMacro(EncodeAppendedData, vtkTypeBool);
-  vtkGetMacro(EncodeAppendedData, vtkTypeBool);
-  vtkBooleanMacro(EncodeAppendedData, vtkTypeBool);
-  ///@}
 
   ///@{
   /**
@@ -238,16 +75,6 @@ public:
   vtkDataObject* GetInput(int port);
   vtkDataObject* GetInput() { return this->GetInput(0); }
   ///@}
-
-  /**
-   * Get the default file extension for files written by this writer.
-   */
-  virtual const char* GetDefaultFileExtension() = 0;
-
-  /**
-   * Invoke the writer.  Returns 1 for success, 0 for failure.
-   */
-  int Write();
 
   // See the vtkAlgorithm for a description of what these do
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
@@ -279,34 +106,8 @@ protected:
   virtual int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  // The name of the output file.
-  char* FileName;
-
   // The output stream to which the XML is written.
   ostream* Stream;
-
-  // Whether this object is writing to a string or a file.
-  // Default is 0: write to file.
-  vtkTypeBool WriteToOutputString;
-
-  // The output string.
-  std::string OutputString;
-
-  // The output byte order.
-  int ByteOrder;
-
-  // The output binary header word type.
-  int HeaderType;
-
-  // The output vtkIdType.
-  int IdType;
-
-  // The form of binary data to write.  Used by subclasses to choose
-  // how to write data.
-  int DataMode;
-
-  // Whether to base64-encode the appended data section.
-  vtkTypeBool EncodeAppendedData;
 
   // The stream position at which appended data starts.
   vtkTypeInt64 AppendedDataPosition;
@@ -334,14 +135,9 @@ protected:
   unsigned char* ByteSwapBuffer;
 
   // Compression information.
-  vtkDataCompressor* Compressor;
-  size_t BlockSize;
   size_t CompressionBlockNumber;
   vtkXMLDataHeader* CompressionHeader;
   vtkTypeInt64 CompressionHeaderPosition;
-  // Compression Level for vtkDataCompressor objects
-  // 1 (worst compression, fastest) ... 9 (best compression, slowest)
-  int CompressionLevel = 5;
 
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.
@@ -360,10 +156,6 @@ protected:
 
   // Method defined by subclasses to specify the data set's type name.
   virtual const char* GetDataSetName() = 0;
-
-  // Methods to define the file's major and minor version numbers.
-  virtual int GetDataSetMajorVersion();
-  virtual int GetDataSetMinorVersion();
 
   // Utility methods for subclasses.
   vtkDataSet* GetInputAsDataSet();
@@ -500,14 +292,6 @@ protected:
   // Dummy boolean var to start/stop the continue executing:
   // when using the Start/Stop/WriteNextTime API
   int UserContinueExecuting; // can only be -1 = invalid, 0 = stop, 1 = start
-
-  // This variable is used to ease transition to new versions of VTK XML files.
-  // If data that needs to be written satisfies certain conditions,
-  // the writer can use the previous file version version.
-  // For version change 0.1 -> 2.0 (UInt32 header) and 1.0 -> 2.0
-  // (UInt64 header), if data does not have a vtkGhostType array,
-  // the file is written with version: 0.1/1.0.
-  bool UsePreviousVersion;
 
   vtkTypeInt64* NumberOfTimeValues; // one per piece / per timestep
 

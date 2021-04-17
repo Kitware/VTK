@@ -27,6 +27,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 
+#include <cctype> // for std::isspace
+
 namespace
 {
 vtkSmartPointer<vtkDataAssembly> ReadDataAssembly(
@@ -40,11 +42,19 @@ vtkSmartPointer<vtkDataAssembly> ReadDataAssembly(
   }
 
   vtkNew<vtkDataAssembly> assembly;
-  size_t len_encoded_data = strlen(elem->GetCharacterData());
+  const char* encoded_buffer = elem->GetCharacterData();
+  size_t len_encoded_data = strlen(encoded_buffer);
   char* decoded_buffer = new char[len_encoded_data];
-  auto decoded_buffer_len = vtkBase64Utilities::DecodeSafely(
-    reinterpret_cast<const unsigned char*>(elem->GetCharacterData()), len_encoded_data,
-    reinterpret_cast<unsigned char*>(decoded_buffer), len_encoded_data);
+
+  // remove leading whitespace, if any.
+  while (std::isspace(static_cast<int>(*encoded_buffer)))
+  {
+    ++encoded_buffer;
+    --len_encoded_data;
+  }
+  auto decoded_buffer_len =
+    vtkBase64Utilities::DecodeSafely(reinterpret_cast<const unsigned char*>(encoded_buffer),
+      len_encoded_data, reinterpret_cast<unsigned char*>(decoded_buffer), len_encoded_data);
   decoded_buffer[decoded_buffer_len] = '\0';
   assembly->InitializeFromXML(decoded_buffer);
   delete[] decoded_buffer;
@@ -139,6 +149,12 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       col->SetPartitionedDataSet(index, childDS);
       childDS->Delete();
+
+      // if XML node has name, set read that.
+      if (auto name = childXML->GetAttribute("name"))
+      {
+        col->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), name);
+      }
     }
     else if (col != nullptr && strcmp(tagName, "DataAssembly") == 0)
     {
