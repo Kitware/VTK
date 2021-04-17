@@ -52,7 +52,7 @@
 
 namespace
 {
-std::vector<int> GenerateAssigments(int numRanks, int& count)
+std::vector<int> GenerateAssignments(int numRanks, int& count)
 {
   std::vector<int> partsPerRank(numRanks);
   std::iota(partsPerRank.begin(), partsPerRank.end(), 1);

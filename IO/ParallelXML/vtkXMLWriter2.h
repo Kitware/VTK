@@ -17,12 +17,12 @@
  * @brief base class for new-style XML Writers
  *
  * vtkXMLWriter2 is designed to eventually replace vtkXMLWriter. This class and
- * it subclasses model a simpler design for the XML writers that does not rely
+ * its subclasses model a simpler design for the XML writers that does not rely
  * on complex class hierarchy which can cumbersome to develop and debug.
  *
- * vtkXMLWriter2 assume parallel support. While MPI is not required,
- * vtkXMLWriter2 access vtkMultiProcessController and uses it to correctly
- * handle distribute execution. This avoids the need for having a parallel
+ * vtkXMLWriter2 assumes parallel support. While MPI is not required,
+ * vtkXMLWriter2 accesses vtkMultiProcessController and uses it to correctly
+ * handle distributed execution. This avoids the need for having a parallel
  * variant of the writers as `vtkXMLWriter` hierarchy requires. This further
  * simplifies the development and debugging of these writers.
  *
