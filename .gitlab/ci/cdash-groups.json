@@ -8,6 +8,16 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_offscreen_osmesa_python]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[fedora33_mpi_offscreen_osmesa_python_ext_vtk]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[fedora33_mpi_renderless]"
         },
         {

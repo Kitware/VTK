@@ -149,6 +149,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithMSAA$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
+  list(APPEND test_exclusions
+    # Seems to always fail.
+    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$"
+
+    # This is a flaky test. It sometimes passes.
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
