@@ -60,7 +60,7 @@ test-ext:vtk:fedora33-mpi-renderless:
     extends:
         - .fedora33_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
-        - .linux_qt_builder_tags
+        - .linux_builder_tags
         - .cmake_tidy_artifacts
         - .run_automatically
     dependencies:
