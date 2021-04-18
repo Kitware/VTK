@@ -2321,7 +2321,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
     }
-    else if (binfop->CellType == VTK_LAGRANGE_WEDGE && binfop->PointsPerCell == 21)
+    else if ((binfop->CellType == VTK_LAGRANGE_WEDGE && binfop->PointsPerCell == 21) ||
+      (binfop->CellType == VTK_BIQUADRATIC_QUADRATIC_WEDGE && binfop->PointsPerCell == 18))
     {
       // Exodus orders edges like so:
       //   r-dir @ -z, 1-r-s-dir @ -z, s-dir @ -z,
@@ -2352,15 +2353,23 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         // Exodus file and is then followed by wedge face nodes,
         // but not in the same order as VTK or the linear Exodus side-set
         // ordering:
-        int ftmp[6];
-        static int wedgeMapping[6] = { 1, 2, 5, 3, 4, 0 };
-        for (k = 0; k < 6; ++k)
+        if (binfop->PointsPerCell == 21)
         {
-          ftmp[k] = ptr[wedgeMapping[k]];
+          int ftmp[6];
+          static int wedgeMapping6[6] = { 1, 2, 5, 3, 4, 0 };
+          for (k = 0; k < 6; ++k)
+          {
+            ftmp[k] = ptr[wedgeMapping6[k]];
+          }
+          for (k = 0; k < 6; ++k, ++ptr)
+          {
+            *ptr = ftmp[k] - 1;
+          }
         }
-        for (k = 0; k < 6; ++k, ++ptr)
+        else
         {
-          *ptr = ftmp[k] - 1;
+          for (k = 0; k < 3; ++k, ++ptr)
+            *ptr = *ptr - 1;
         }
       }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
@@ -3099,6 +3108,11 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType(BlockInfoType& binfo)
   {
     binfo.CellType = VTK_QUADRATIC_WEDGE;
     binfo.PointsPerCell = 15;
+  }
+  else if ((elemType.substr(0, 3) == "WED") && (binfo.BdsPerEntry[0] == 18))
+  {
+    binfo.CellType = VTK_BIQUADRATIC_QUADRATIC_WEDGE;
+    binfo.PointsPerCell = 18;
   }
   else if ((elemType.substr(0, 3) == "WED") && (binfo.BdsPerEntry[0] == 21))
   {
