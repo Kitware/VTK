@@ -36,6 +36,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkArrayDataAlgorithm.h"
+#include <string>  // for std::string
 #include <utility> // for std::pair
 #include <vector>  // for std::vector
 
