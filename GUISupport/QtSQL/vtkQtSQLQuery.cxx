@@ -71,7 +71,7 @@ bool vtkQtSQLQuery::HasError()
 
 const char* vtkQtSQLQuery::GetLastErrorText()
 {
-  this->SetLastErrorText(this->Internals->QtQuery.lastError().text().toLatin1());
+  this->SetLastErrorText(this->Internals->QtQuery.lastError().text().toUtf8().data());
   return this->LastErrorText;
 }
 
@@ -89,9 +89,9 @@ bool vtkQtSQLQuery::Execute()
   if (error.isValid())
   {
     QString errorString = QString("Query execute error: %1 (type:%2)\n")
-                            .arg(error.text().toLatin1().data())
+                            .arg(error.text().toUtf8().data())
                             .arg(error.type());
-    vtkErrorMacro(<< errorString.toLatin1().data());
+    vtkErrorMacro(<< errorString.toUtf8().data());
     return false;
   }
 
@@ -100,7 +100,7 @@ bool vtkQtSQLQuery::Execute()
   for (int i = 0; i < this->Internals->QtQuery.record().count(); i++)
   {
     this->Internals->FieldNames.emplace_back(
-      this->Internals->QtQuery.record().fieldName(i).toLatin1().data());
+      this->Internals->QtQuery.record().fieldName(i).toUtf8().data());
   }
   return true;
 }
@@ -204,7 +204,7 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     case QVariant::LongLong:
       return vtkVariant(v.toLongLong());
     case QVariant::String:
-      return vtkVariant(v.toString().toLatin1().data());
+      return vtkVariant(v.toString().toUtf8().data());
     case QVariant::UInt:
       return vtkVariant(v.toUInt());
     case QVariant::ULongLong:
@@ -221,6 +221,6 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
     default:
       vtkErrorMacro(<< "Unhandled Qt variant type " << v.type()
                     << " found; returning string variant.");
-      return vtkVariant(v.toString().toLatin1().data());
+      return vtkVariant(v.toString().toUtf8().data());
   }
 }
