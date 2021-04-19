@@ -21,6 +21,7 @@
 
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
+#include "vtkInformation.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
@@ -135,6 +136,7 @@ struct OMFProject::ProjectImpl
       vtkIdType pdsIdx = output->GetNumberOfPartitionedDataSets();
       assembly->AddDataSetIndex(node, pdsIdx);
       output->SetPartitionedDataSet(pdsIdx, partitionedDS);
+      output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), name.c_str());
     }
   }
 
