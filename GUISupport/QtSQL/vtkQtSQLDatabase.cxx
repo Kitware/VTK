@@ -146,7 +146,7 @@ bool vtkQtSQLDatabase::HasError()
 
 const char* vtkQtSQLDatabase::GetLastErrorText()
 {
-  return this->QtDatabase.lastError().text().toLatin1();
+  return this->QtDatabase.lastError().text().toUtf8().data();
 }
 
 vtkStringArray* vtkQtSQLDatabase::GetTables()
@@ -173,7 +173,7 @@ vtkStringArray* vtkQtSQLDatabase::GetTables()
     QStringList tables = this->QtDatabase.tables(QSql::Tables);
     for (int i = 0; i < tables.size(); ++i)
     {
-      this->myTables->InsertNextValue(tables.at(i).toLatin1());
+      this->myTables->InsertNextValue(tables.at(i).toUtf8().data());
     }
   }
 
@@ -188,7 +188,7 @@ vtkStringArray* vtkQtSQLDatabase::GetRecord(const char* table)
   QSqlRecord columns = this->QtDatabase.record(table);
   for (int i = 0; i < columns.count(); i++)
   {
-    this->currentRecord->InsertNextValue(columns.fieldName(i).toLatin1());
+    this->currentRecord->InsertNextValue(columns.fieldName(i).toUtf8().data());
   }
 
   return currentRecord;
@@ -289,11 +289,9 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
   }
 
   // Create Qt 'version' of database prototcol type
-  QString qtType;
-  qtType = protocol.c_str();
-  qtType = "Q" + qtType.toUpper();
+  QString qtType = "Q" + QString::fromUtf8(protocol.c_str()).toUpper();
 
-  this->SetDatabaseType(qtType.toLatin1());
+  this->SetDatabaseType(qtType.toUtf8().data());
   this->SetUserName(username.c_str());
   this->SetHostName(hostname.c_str());
   this->SetDbPort(atoi(dataport.c_str()));

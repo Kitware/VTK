@@ -662,7 +662,7 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
       strValue = strValue.remove(strValue.size() - 2, 2); // remove the last comma
 
       // Reconstruct the variant using this string value
-      v = vtkVariant(strValue.toLatin1().data());
+      v = vtkVariant(strValue.toUtf8().data());
     }
   }
 }

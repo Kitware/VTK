@@ -88,7 +88,7 @@ void StatsView::slotOpenSQLiteDB()
   // Create SQLite reader
   QString fullName = "sqlite://" + fileName;
   vtkSQLiteDatabase* db =
-    vtkSQLiteDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(fullName.toLatin1()));
+    vtkSQLiteDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(fullName.toUtf8().data()));
   bool status = db->Open("");
   if (!status)
   {

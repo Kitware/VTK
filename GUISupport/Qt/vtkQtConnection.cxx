@@ -73,7 +73,7 @@ void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_dat
   if (e == vtkCommand::DeleteEvent)
   {
     this->Owner->Disconnect(this->VTKObject, this->VTKEvent, this->QtObject,
-      this->QtSlot.toLatin1().data(), this->ClientData);
+      this->QtSlot.toUtf8().data(), this->ClientData);
   }
 }
 
@@ -134,7 +134,6 @@ void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << this->VTKObject->GetClassName() << ":"
        << vtkCommand::GetStringFromEventId(this->VTKEvent) << "  <---->  "
-       << this->QtObject->metaObject()->className() << "::" << this->QtSlot.toLatin1().data()
-       << "\n";
+       << this->QtObject->metaObject()->className() << "::" << this->QtSlot.toUtf8().data() << "\n";
   }
 }
