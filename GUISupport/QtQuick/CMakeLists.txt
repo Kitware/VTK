@@ -42,10 +42,10 @@ _vtk_module_real_target(vtk_guisupportqtquick_target VTK::GUISupportQtQuick)
 # Set VTK_MODULE_PLUGIN_NAME and VTK_MODULE_PLUGIN_DIR for the qmldir configuration
 set(vtk_qml_module_dir
   ${_vtk_build_PACKAGE}.${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+set(vtk_qml_module_superpath
+  ${CMAKE_BINARY_DIR}/$<CONFIG>)
 set(vtk_qml_module_path
-  ${CMAKE_BINARY_DIR}/$<CONFIG>/${vtk_qml_module_dir})
-# set(vtk_qml_module_path
-#   ${CMAKE_BINARY_DIR}/${vtk_qml_module_dir})
+  ${vtk_qml_module_superpath}/${vtk_qml_module_dir})
 
 # We use a three step approach to resolving the QML plugin path for qmldir file
 # during compilation of this module.
@@ -125,7 +125,7 @@ if(QMLPLUGINDUMP_EXECUTABLE)
       COMMAND
         ${QMLPLUGINDUMP_EXECUTABLE} ${_vtk_build_PACKAGE}
         ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-        ${CMAKE_BINARY_DIR} > ${qmltypes_file}
+        ${vtk_qml_module_superpath} > ${qmltypes_file}
       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
       # BYPRODUCTS ${qmltypes_file}
       COMMENT "Generating qmltypes file using qmlplugindump"
