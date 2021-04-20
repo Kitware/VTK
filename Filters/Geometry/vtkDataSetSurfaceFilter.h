@@ -89,6 +89,8 @@ class vtkCellIterator;
 class vtkPointData;
 class vtkPoints;
 class vtkIdTypeArray;
+class vtkImageData;
+class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnstructuredGridBase;
 
@@ -234,6 +236,8 @@ public:
    */
   virtual int DataSetExecute(vtkDataSet* input, vtkPolyData* output);
   virtual int StructuredWithBlankingExecute(vtkStructuredGrid* input, vtkPolyData* output);
+  virtual int StructuredWithBlankingExecute(vtkImageData* input, vtkPolyData* output);
+  virtual int StructuredWithBlankingExecute(vtkRectilinearGrid* input, vtkPolyData* output);
   virtual int UniformGridExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* ext,
     vtkIdType* wholeExt, bool extractface[6]);
   ///@}
@@ -354,8 +358,23 @@ private:
   int UnstructuredGridExecuteInternal(vtkUnstructuredGridBase* input, vtkPolyData* output,
     bool handleSubdivision, vtkSmartPointer<vtkCellIterator> cellIter);
 
+  /**
+   * Implementation of StructuredWithBlankingExecute.
+   */
+  template <class GridDataSetT>
+  int StructuredWithBlankingExecuteImpl(GridDataSetT* grid, vtkPolyData* output);
+
+  /**
+   * This method multiplexes which surface filter implementation to use in structured data sets
+   * depending on the presence of blanking or not.
+   */
+  template <class GridDataSetT>
+  int StructuredDataSetExecute(vtkDataSet* input, vtkPolyData* output, vtkIdType* wholeExt);
+
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) = delete;
   void operator=(const vtkDataSetSurfaceFilter&) = delete;
 };
+
+#include "vtkDataSetSurfaceFilter.txx"
 
 #endif

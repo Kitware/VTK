@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkFiltersGeometryCxxTests tests
   TestImageDataToUniformGrid.cxx,NO_VALID
   TestLinearToQuadraticCellsFilter.cxx
   TestProjectSphereFilter.cxx,NO_VALID
+  TestRegularGridDataSetSurfaceFilter.cxx
   TestStructuredAMRNeighbor.cxx,NO_VALID
   TestUniformGridGhostDataGenerator.cxx,NO_VALID
   TestUnstructuredGridGeometryFilter.cxx

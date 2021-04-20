@@ -102,12 +102,55 @@ public:
   }
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   ///@}
+
+  /**
+   * Get cell neighbors around cell located at `seedloc`, except cell of id `cellId`.
+   *
+   * @warning `seedloc` is the position in the grid with the origin shifted to (0, 0, 0).
+   * This is because the backend of this method is shared with `vtkRectilinearGrid` and
+   * `vtkStructuredGrid`.
+   */
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc);
 
   /**
    * Restore data object to initial state.
    */
   void Initialize() override;
+
+  /**
+   * Return non-zero value if specified point is visible.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  unsigned char IsPointVisible(vtkIdType ptId);
+
+  /**
+   * Return non-zero value if specified point is visible.
+   * These methods should be called only after the dimensions of the
+   * grid are set.
+   */
+  unsigned char IsCellVisible(vtkIdType cellId);
+
+  /**
+   * Returns 1 if there is any visibility constraint on the points,
+   * 0 otherwise.
+   */
+  bool HasAnyBlankPoints() override;
+  /**
+   * Returns 1 if there is any visibility constraint on the cells,
+   * 0 otherwise.
+   */
+  bool HasAnyBlankCells() override;
+
+  /**
+   * Given the node dimensions of this grid instance, this method computes the
+   * node dimensions. The value in each dimension can will have a lowest value
+   * of "1" such that computing the total number of cells can be achieved by
+   * simply by cellDims[0]*cellDims[1]*cellDims[2].
+   */
+  void GetCellDims(int cellDims[3]);
 
   /**
    * Same as SetExtent(0, i-1, 0, j-1, 0, k-1)
