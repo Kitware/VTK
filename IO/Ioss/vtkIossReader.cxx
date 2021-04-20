@@ -809,7 +809,9 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
       output->GetMetaData(pdsIdx)->Set(
         vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
-      auto node = assembly->AddNode(ename.second.c_str(), entity_node);
+      auto node = assembly->AddNode(
+        vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
+      assembly->SetAttribute(node, "label", ename.second.c_str());
       assembly->AddDataSetIndex(node, pdsIdx);
 
       auto ioss_etype =
@@ -857,7 +859,9 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
   std::function<void(const Ioss::Assembly*, int)> processAssembly;
   processAssembly = [&assembly, &processAssembly, this](
                       const Ioss::Assembly* ioss_assembly, int parent) {
-    auto node = assembly->AddNode(ioss_assembly->name().c_str(), parent);
+    auto node = assembly->AddNode(
+      vtkDataAssembly::MakeValidNodeName(ioss_assembly->name().c_str()).c_str(), parent);
+    assembly->SetAttribute(node, "label", ioss_assembly->name().c_str());
     if (ioss_assembly->get_member_type() == Ioss::ASSEMBLY)
     {
       for (auto& child : ioss_assembly->get_members())
@@ -869,7 +873,9 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
     {
       for (auto& child : ioss_assembly->get_members())
       {
-        auto dschild = assembly->AddNode(child->name().c_str(), node);
+        auto dschild = assembly->AddNode(
+          vtkDataAssembly::MakeValidNodeName(child->name().c_str()).c_str(), node);
+        assembly->SetAttribute(dschild, "label", child->name().c_str());
         assembly->AddDataSetIndex(dschild, this->GetDataSetIndexForEntity(child));
       }
     }
