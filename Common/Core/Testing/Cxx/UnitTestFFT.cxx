@@ -205,7 +205,7 @@ int Test_rfftfreq()
     status++;
   }
 
-  for (auto i = 0; i < frequencies.size(); i++)
+  for (size_t i = 0; i < frequencies.size(); i++)
   {
     const auto& expected = test1[i];
     const auto& real = frequencies[i];

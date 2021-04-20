@@ -18,6 +18,7 @@
  *
  * vtkFFT provides methods to perform Discrete Fourier Transforms.
  * These include providing forward and reverse Fourier transforms.
+ * The current implementation uses the third-party library kissfft.
  */
 
 #ifndef vtkFFT_h

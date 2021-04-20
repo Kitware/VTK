@@ -54,7 +54,7 @@ public:
   /**
    * Set the transform of the item.
    */
-  void SetTransform(vtkContextTransform* transform);
+  vtkSetMacro(Transform, vtkContextTransform*);
 
 protected:
   vtkContextItem() = default;

@@ -175,7 +175,7 @@ public:
     }
 
     // the first or last point
-    if ((this->TakenPoint == 0) || (this->TakenPoint == this->Points.size() - 1))
+    if ((this->TakenPoint == 0) || (this->TakenPoint == static_cast<int>(this->Points.size()) - 1))
     {
       const equalizer::EqualizerPoint& point = this->Points.at(this->TakenPoint);
       left = point.freq;
@@ -339,8 +339,8 @@ bool vtkEqualizerContextItem::Paint(vtkContext2D* painter)
   auto itPrev = this->Internal->Points.cbegin();
   auto itCur = itPrev;
 
-  const equalizer::EqualizerPoint& curPoint = this->Transform->MapToScene(*itCur);
-  painter->DrawEllipse(curPoint.freq, curPoint.coef, equalizer::EqualizerPoint::radius,
+  const equalizer::EqualizerPoint& firstPoint = this->Transform->MapToScene(*itCur);
+  painter->DrawEllipse(firstPoint.freq, firstPoint.coef, equalizer::EqualizerPoint::radius,
     equalizer::EqualizerPoint::radius);
   for (++itCur; itCur != this->Internal->Points.cend(); ++itCur)
   {
@@ -368,9 +368,8 @@ bool vtkEqualizerContextItem::Hit(const vtkContextMouseEvent& mouse)
 }
 
 //------------------------------------------------------------------------------
-bool vtkEqualizerContextItem::MouseEnterEvent(const vtkContextMouseEvent& mouse)
+bool vtkEqualizerContextItem::MouseEnterEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
-  vtkDebugMacro(<< "MouseEnterEvent: pos = " << mouse.GetPos());
   return true;
 }
 
@@ -416,7 +415,7 @@ bool vtkEqualizerContextItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 }
 
 //------------------------------------------------------------------------------
-bool vtkEqualizerContextItem::MouseLeaveEvent(const vtkContextMouseEvent& mouse)
+bool vtkEqualizerContextItem::MouseLeaveEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   return true;
 }
@@ -433,7 +432,7 @@ bool vtkEqualizerContextItem::MouseButtonPressEvent(const vtkContextMouseEvent& 
   else if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
   {
     this->MouseState = RIGHT_BUTTON_PRESSED;
-    auto removed = this->Internal->RightButtonPressEvent(pos, this->Transform);
+    this->Internal->RightButtonPressEvent(pos, this->Transform);
   }
 
   this->InvokeEvent(vtkCommand::StartInteractionEvent);
@@ -443,7 +442,7 @@ bool vtkEqualizerContextItem::MouseButtonPressEvent(const vtkContextMouseEvent& 
 }
 
 //------------------------------------------------------------------------------
-bool vtkEqualizerContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
+bool vtkEqualizerContextItem::MouseButtonReleaseEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   this->MouseState = NO_BUTTON;
   this->InvokeEvent(vtkCommand::EndInteractionEvent);

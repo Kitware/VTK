@@ -19,9 +19,5 @@
 void vtkContextItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-void vtkContextItem::SetTransform(vtkContextTransform* transform)
-{
-  this->Transform = transform;
+  os << indent << "Opacity: " << this->Opacity << endl;
 }

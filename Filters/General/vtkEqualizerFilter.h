@@ -58,7 +58,6 @@ public:
   //@{
   /**
    * Set / Get the name of the column from which the data array is taken
-   * Default value is: std::string()
    */
   vtkSetStdStringFromCharMacro(Array);
   vtkGetCharFromStdStringMacro(Array);
@@ -67,7 +66,7 @@ public:
   /**
    * Set / Get anchor points in the following format
    * "P1x,P1y;P2x,P2y; ... PNx,PNy;"
-   * Default value is: "0,1;500,1;"
+   * Default value is an empty string
    */
   void SetPoints(const std::string& points);
   std::string GetPoints() const;
