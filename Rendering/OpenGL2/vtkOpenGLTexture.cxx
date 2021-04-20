@@ -476,7 +476,9 @@ unsigned char* vtkOpenGLTexture::ResampleToPowerOfTwo(
   double hx = xsize > 1 ? (xs - 1.0) / (xsize - 1.0) : 0;
   double hy = ysize > 1 ? (ys - 1.0) / (ysize - 1.0) : 0;
 
-  tptr = p = new unsigned char[xsize * ysize * bpp];
+  // make sure to promote the size calc to size_t as int can easily overflow
+  tptr = p = new unsigned char[static_cast<size_t>(xsize) * static_cast<size_t>(ysize) *
+    static_cast<size_t>(bpp)];
 
   // Resample from the previous image. Compute parametric coordinates and
   // interpolate
