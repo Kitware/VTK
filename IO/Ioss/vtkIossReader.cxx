@@ -1176,8 +1176,14 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
     }
 
     // determine state for transient data.
-    const auto min = region->get_min_time();
     const auto max = region->get_max_time();
+    if (max.first <= 0)
+    {
+      // see paraview/paraview#20658 for why this is needed.
+      return nullptr;
+    }
+
+    const auto min = region->get_min_time();
     int state = -1;
     for (int cc = min.first; cc <= max.first; ++cc)
     {
