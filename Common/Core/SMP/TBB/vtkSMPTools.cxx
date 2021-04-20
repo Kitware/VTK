@@ -15,8 +15,6 @@
 
 #include "vtkSMPTools.h"
 
-#include "vtkSMP.h"
-
 #include <mutex>
 
 #ifdef _MSC_VER
@@ -32,12 +30,6 @@
 
 static tbb::task_arena taskArena;
 static std::mutex vtkSMPToolsCS;
-
-//------------------------------------------------------------------------------
-const char* vtkSMPTools::GetBackend()
-{
-  return VTK_SMP_BACKEND;
-}
 
 //------------------------------------------------------------------------------
 void vtkSMPTools::Initialize(int numThreads)

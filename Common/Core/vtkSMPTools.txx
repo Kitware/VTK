@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPTools.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,13 +15,27 @@
 
 #include "vtkSMPTools.h"
 
-// Simple implementation that runs everything sequentially.
-
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int) {}
-
-//------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
+template <typename T>
+void vtkSMPTools::ScopeWithMaxThread(int numThreads, T&& lambda)
 {
-  return 1;
+  const int oldThreadNumber = vtkSMPTools::GetEstimatedNumberOfThreads();
+  vtkSMPTools::Initialize(numThreads);
+  try
+  {
+    lambda();
+  }
+  catch (...)
+  {
+    vtkSMPTools::Initialize(oldThreadNumber);
+    throw;
+  }
+  vtkSMPTools::Initialize(oldThreadNumber);
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkSMPTools::ScopeWithMaxThread(T&& lambda)
+{
+  vtkSMPTools::ScopeWithMaxThread(0, lambda);
 }

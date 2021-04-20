@@ -77,6 +77,12 @@ foreach (vtk_smp_header IN LISTS vtk_smp_headers_to_configure)
     "${CMAKE_CURRENT_BINARY_DIR}/${vtk_smp_header}")
 endforeach()
 
+list(APPEND vtk_smp_sources
+  vtkSMPTools.cxx)
+
+list(APPEND vtk_smp_templates
+  vtkSMPTools.txx)
+
 list(APPEND vtk_smp_headers
   vtkSMPTools.h
   vtkSMPToolsInternalCommon.h

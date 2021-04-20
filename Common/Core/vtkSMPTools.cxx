@@ -15,13 +15,10 @@
 
 #include "vtkSMPTools.h"
 
-// Simple implementation that runs everything sequentially.
+#include "vtkSMP.h"
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int) {}
-
-//------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
+const char* vtkSMPTools::GetBackend()
 {
-  return 1;
+  return VTK_SMP_BACKEND;
 }

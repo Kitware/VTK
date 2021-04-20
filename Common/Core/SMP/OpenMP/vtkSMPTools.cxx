@@ -15,8 +15,6 @@
 
 #include "vtkSMPTools.h"
 
-#include "vtkSMP.h"
-
 #include <omp.h>
 
 #include <algorithm>
@@ -26,11 +24,7 @@ namespace
 int vtkSMPNumberOfSpecifiedThreads = 0;
 }
 
-const char* vtkSMPTools::GetBackend()
-{
-  return VTK_SMP_BACKEND;
-}
-
+//------------------------------------------------------------------------------
 void vtkSMPTools::Initialize(int numThreads)
 {
   const int maxThreads = omp_get_max_threads();
@@ -51,16 +45,19 @@ void vtkSMPTools::Initialize(int numThreads)
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {
   return vtk::detail::smp::GetNumberOfThreads();
 }
 
+//------------------------------------------------------------------------------
 int vtk::detail::smp::GetNumberOfThreads()
 {
   return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads : omp_get_max_threads();
 }
 
+//------------------------------------------------------------------------------
 void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor)
 {
