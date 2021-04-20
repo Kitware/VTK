@@ -1712,7 +1712,8 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
   // additionally holds the number of points. Since
   // vtkLagrangeWedge::PointIndexFromIJK expects the order to be a 4-array, we
   // use this convention here.
-  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder, numPtsPerCell };
+  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder,
+    (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2 };
 
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> cta;
@@ -2208,7 +2209,8 @@ void vtkCellTypeSource::GenerateBezierWedges(vtkUnstructuredGrid* output, int ex
   // additionally holds the number of points. Since
   // vtkBezierWedge::PointIndexFromIJK expects the order to be a 4-array, we
   // use this convention here.
-  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder, numPtsPerCell };
+  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder,
+    (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2 };
 
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> cta;
