@@ -70,7 +70,7 @@ endif()
 
 foreach (vtk_smp_header IN LISTS vtk_smp_headers_to_configure)
   configure_file(
-    "${vtk_smp_implementation_dir}/${vtk_smp_header}.in"
+    "${vtk_smp_implementation_dir}/${vtk_smp_header}"
     "${CMAKE_CURRENT_BINARY_DIR}/${vtk_smp_header}"
     COPYONLY)
   list(APPEND vtk_smp_headers

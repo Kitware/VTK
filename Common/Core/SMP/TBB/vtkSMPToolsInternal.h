@@ -13,12 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkCommonCoreModule.h" // For export macro
+#ifndef vtkSMPToolsInternal_h
+#define vtkSMPToolsInternal_h
+
+#include "vtkCommonCoreModule.h"       // For export macro
 #include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
 
 #ifdef _MSC_VER
-#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
-#  define __TBB_NO_IMPLICIT_LINKAGE 1
+#pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#define __TBB_NO_IMPLICIT_LINKAGE 1
 #endif
 
 #include <tbb/blocked_range.h>
@@ -26,7 +29,7 @@
 #include <tbb/parallel_sort.h>
 
 #ifdef _MSC_VER
-#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
 namespace vtk
@@ -49,10 +52,7 @@ class FuncCall
   void operator=(const FuncCall&) = delete;
 
 public:
-  void operator()(const tbb::blocked_range<vtkIdType>& r) const
-  {
-    o.Execute(r.begin(), r.end());
-  }
+  void operator()(const tbb::blocked_range<vtkIdType>& r) const { o.Execute(r.begin(), r.end()); }
 
   FuncCall(T& _o)
     : o(_o)
@@ -161,3 +161,5 @@ void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end,
 } // namespace smp
 } // namespace detail
 } // namespace vtk
+
+#endif
