@@ -15,10 +15,10 @@
 #ifndef vtkEqualizerFilter_h
 #define vtkEqualizerFilter_h
 
-#include "vtkFiltersGeneralModule.h"
-#include "vtkTableAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkTableAlgorithm.h"       // For the superclass.
 
-#include <string>
+#include <string> // for std::string
 
 /**
  * @class vtkEqualizerFilter

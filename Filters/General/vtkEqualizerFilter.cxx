@@ -29,6 +29,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <sstream>
 #include <string>
 #include <vector>
 
