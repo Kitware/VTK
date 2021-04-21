@@ -36,6 +36,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGLError.h"
 
+#include "vtksys/Encoding.hxx"
+
 // Mouse wheel support
 // In an ideal world we would just have to include <zmouse.h>, but it is not
 // always available with all compilers/headers
@@ -152,14 +154,8 @@ void vtkWin32OpenGLRenderWindow::SetWindowName(const char* _arg)
   vtkWindow::SetWindowName(_arg);
   if (this->WindowId)
   {
-#ifdef UNICODE
-    wchar_t* wname = new wchar_t[mbstowcs(nullptr, this->WindowName, 32000) + 1];
-    mbstowcs(wname, this->WindowName, 32000);
-    SetWindowText(this->WindowId, wname);
-    delete[] wname;
-#else
-    SetWindowText(this->WindowId, this->WindowName);
-#endif
+    std::wstring wname = vtksys::Encoding::ToWide(this->WindowName);
+    SetWindowTextW(this->WindowId, wname.c_str());
   }
 }
 
@@ -261,25 +257,14 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
     if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE)
     {
       LPVOID lpMsgBuf;
-      ::FormatMessage(
+      ::FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-        (LPTSTR)&lpMsgBuf, 0, nullptr);
+        (LPWSTR)&lpMsgBuf, 0, nullptr);
       if (lpMsgBuf)
       {
-#ifdef UNICODE
-        wchar_t* wmsg = new wchar_t[mbstowcs(nullptr, (const char*)lpMsgBuf, 32000) + 1];
-        wchar_t* wtemp =
-          new wchar_t[mbstowcs(nullptr, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000) +
-            1];
-        mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
-        mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
-        vtkErrorMacro(<< wcscat(wtemp, wmsg));
-        delete[] wmsg;
-        delete[] wtemp;
-#else
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << (LPCTSTR)lpMsgBuf);
-#endif
+        std::string message = vtksys::Encoding::ToNarrow((LPWSTR)&lpMsgBuf);
+        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << message.c_str());
         ::LocalFree(lpMsgBuf);
       }
     }
@@ -448,12 +433,8 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
 void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
 {
   // has the class been registered ?
-  WNDCLASS wndClass;
-#ifdef UNICODE
-  if (!GetClassInfo(this->ApplicationInstance, L"vtkOpenGL", &wndClass))
-#else
-  if (!GetClassInfo(this->ApplicationInstance, "vtkOpenGL", &wndClass))
-#endif
+  WNDCLASSA wndClass;
+  if (!GetClassInfoA(this->ApplicationInstance, "vtkOpenGL", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
     wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
@@ -463,16 +444,12 @@ void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = nullptr;
-#ifdef UNICODE
-    wndClass.lpszClassName = L"vtkOpenGL";
-#else
     wndClass.lpszClassName = "vtkOpenGL";
-#endif
     // vtk doesn't use the first extra vtkLONG's worth of bytes,
     // but app writers may want them, so we provide them. VTK
     // does use the second vtkLONG's worth of bytes of extra space.
     wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
-    RegisterClass(&wndClass);
+    RegisterClassA(&wndClass);
   }
 }
 
@@ -601,11 +578,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   HDC hDC, DWORD dwFlags, int debug, int bpp, int zbpp)
 {
   // Create a dummy window, needed for calling wglGetProcAddress.
-#ifdef UNICODE
-  HWND tempId = CreateWindow(L"vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#else
-  HWND tempId = CreateWindow("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#endif
+  HWND tempId = CreateWindowA("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
   HDC tempDC = GetDC(tempId);
   PIXELFORMATDESCRIPTOR tempPfd;
   memset(&tempPfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -957,27 +930,18 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
         this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + std::to_string(count++)).c_str());
       }
 
-#ifdef UNICODE
-      wchar_t* wname = new wchar_t[mbstowcs(nullptr, this->WindowName, 32000) + 1];
-      mbstowcs(wname, this->WindowName, 32000);
-#endif
       int x = this->Position[0];
       int y = this->Position[1];
       int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
       int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
 
+      std::wstring wname = vtksys::Encoding::ToWide(this->WindowName);
       /* create window */
       if (this->ParentId)
       {
-#ifdef UNICODE
-        this->WindowId =
-          CreateWindow(L"vtkOpenGL", wname, WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/, x, y,
-            width, height, this->ParentId, nullptr, this->ApplicationInstance, nullptr);
-#else
-        this->WindowId = CreateWindow("vtkOpenGL", this->WindowName,
+        this->WindowId = CreateWindowW(L"vtkOpenGL", wname.c_str(),
           WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/, x, y, width, height, this->ParentId,
           nullptr, this->ApplicationInstance, nullptr);
-#endif
       }
       else
       {
@@ -992,17 +956,9 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
         }
         RECT r;
         AdjustWindowRectForBorders(0, style, x, y, width, height, r);
-#ifdef UNICODE
-        this->WindowId = CreateWindow(L"vtkOpenGL", wname, style, x, y, r.right - r.left,
+        this->WindowId = CreateWindowW(L"vtkOpenGL", wname.c_str(), style, x, y, r.right - r.left,
           r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
-#else
-        this->WindowId = CreateWindow("vtkOpenGL", this->WindowName, style, x, y, r.right - r.left,
-          r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
-#endif
       }
-#ifdef UNICODE
-      delete[] wname;
-#endif
 
       if (!this->WindowId)
       {

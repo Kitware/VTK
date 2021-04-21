@@ -22,17 +22,10 @@ static int SelfDelete();
 
 #include <windows.h>
 
-#undef _T
-#ifdef UNICODE
-#define _T(x) L x
-#else
-#define _T(x) x
-#endif
-
 static HWND MainWindow = 0;
 static HWND EditWindow = 0;
-static LPCTSTR MainWindowClass = _T("vtkOutputWindowProcess");
-static LPCTSTR EditWindowClass = _T("EDIT");
+static LPCTSTR MainWindowClass = "vtkOutputWindowProcess";
+static LPCTSTR EditWindowClass = "EDIT";
 static LONG MainWindowStyle = (WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW);
 static LONG EditWindowStyle = (ES_MULTILINE | ES_READONLY | WS_CHILD | ES_AUTOVSCROLL |
   ES_AUTOHSCROLL | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | WS_MAXIMIZE);
@@ -53,8 +46,8 @@ static LRESULT APIENTRY MainWindowProc(HWND hWnd, UINT m, WPARAM w, LPARAM l)
 
 static void RegisterWindowClass()
 {
-  WNDCLASS wndClass;
-  if (!GetClassInfo(GetModuleHandle(0), MainWindowClass, &wndClass))
+  WNDCLASSA wndClass;
+  if (!GetClassInfoA(GetModuleHandle(0), MainWindowClass, &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc = MainWindowProc;
@@ -66,7 +59,7 @@ static void RegisterWindowClass()
     wndClass.lpszMenuName = 0;
     wndClass.lpszClassName = MainWindowClass;
     wndClass.cbWndExtra = 0;
-    RegisterClass(&wndClass);
+    RegisterClassA(&wndClass);
   }
 }
 
@@ -106,9 +99,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, PSTR szCmdLine, int iCmdSho
 
   /* Create a simple GUI.  */
   RegisterWindowClass();
-  MainWindow = CreateWindow(
+  MainWindow = CreateWindowA(
     MainWindowClass, MainWindowClass, MainWindowStyle, 0, 0, 512, 512, 0, 0, GetModuleHandle(0), 0);
-  EditWindow = CreateWindow(
+  EditWindow = CreateWindowA(
     EditWindowClass, "", EditWindowStyle, 0, 0, 512, 512, MainWindow, 0, GetModuleHandle(0), 0);
   ShowWindow(MainWindow, SW_SHOW);
   UpdateWindow(MainWindow);

@@ -18,6 +18,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+#include "vtksys/Encoding.hxx"
+
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
@@ -146,20 +148,11 @@ void vtkWin32OutputWindow::AddText(const char* someText)
     return;
   }
 
-#ifdef UNICODE
-  // move to the end of the text area
-  SendMessageW(vtkWin32OutputWindowOutputWindow, EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
-  wchar_t* wmsg = new wchar_t[mbstowcs(nullptr, someText, 32000) + 1];
-  mbstowcs(wmsg, someText, 32000);
-  // Append the text to the control
-  SendMessageW(vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 0, (LPARAM)wmsg);
-  delete[] wmsg;
-#else
   // move to the end of the text area
   SendMessageA(vtkWin32OutputWindowOutputWindow, EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
   // Append the text to the control
-  SendMessageA(vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 0, (LPARAM)someText);
-#endif
+  std::wstring wmsg = vtksys::Encoding::ToWide(someText);
+  SendMessageW(vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 0, (LPARAM)wmsg.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -175,120 +168,67 @@ int vtkWin32OutputWindow::Initialize()
   }
 
   // Initialize the output window
-
-  WNDCLASS wndClass;
   // has the class been registered ?
-#ifdef UNICODE
-  if (!GetClassInfo(GetModuleHandle(nullptr), L"vtkOutputWindow", &wndClass))
-#else
-  if (!GetClassInfo(GetModuleHandle(nullptr), "vtkOutputWindow", &wndClass))
-#endif
+  WNDCLASSA wndClass;
+  if (!GetClassInfoA(GetModuleHandle(nullptr), "vtkOutputWindow", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc = vtkWin32OutputWindowWndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = GetModuleHandle(nullptr);
-#ifndef _WIN32_WCE
     wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-#endif
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = nullptr;
-#ifdef UNICODE
-    wndClass.lpszClassName = L"vtkOutputWindow";
-#else
     wndClass.lpszClassName = "vtkOutputWindow";
-#endif
     // vtk doesn't use these extra bytes, but app writers
     // may want them, so we provide them -- big enough for
     // one run time pointer: 4 bytes on 32-bit builds, 8 bytes
     // on 64-bit builds
     wndClass.cbWndExtra = sizeof(vtkLONG);
-    RegisterClass(&wndClass);
+    RegisterClassA(&wndClass);
   }
 
-  const char* title = this->GetWindowTitle();
-
   // create parent container window
-#ifdef _WIN32_WCE
-  std::vector<wchar_t> wtitle(strlen(title) + 1);
-  mbstowcs(wtitle.data(), title, wtitle.size());
-  HWND win = CreateWindow(L"vtkOutputWindow", wtitle.data(), WS_OVERLAPPED | WS_CLIPCHILDREN, 0, 0,
-    800, 512, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-#elif UNICODE
-  std::vector<wchar_t> wtitle(strlen(title) + 1);
-  mbstowcs(wtitle.data(), title, wtitle.size());
-  HWND win = CreateWindow(L"vtkOutputWindow", wtitle.data(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-    0, 0, 900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-#else
-  HWND win = CreateWindow("vtkOutputWindow", title, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, 0,
-    900, 700, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-#endif
+  int width = 900;
+  int height = 700;
+  std::wstring wtitle = vtksys::Encoding::ToWide(this->GetWindowTitle());
+  HWND win =
+    CreateWindowW(L"vtkOutputWindow", wtitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0, 0,
+      width, height, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
   // Now create child window with text display box
-  CREATESTRUCT lpParam;
+  CREATESTRUCTA lpParam;
   lpParam.hInstance = GetModuleHandle(nullptr);
   lpParam.hMenu = nullptr;
   lpParam.hwndParent = win;
-  lpParam.cx = 900;
-  lpParam.cy = 700;
+  lpParam.cx = width;
+  lpParam.cy = height;
   lpParam.x = 0;
   lpParam.y = 0;
-#if defined(_WIN32_WCE) || defined(UNICODE)
-  lpParam.lpszName = L"Output Control";
-  lpParam.lpszClass = L"EDIT"; // use the RICHEDIT control widget
-#else
   lpParam.lpszName = "Output Control";
   lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
-#endif
-
-#ifdef _WIN32_WCE
-  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD | ES_AUTOVSCROLL | ES_AUTOHSCROLL |
-    WS_VISIBLE | WS_VSCROLL | WS_HSCROLL;
-#else
   lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD | ES_AUTOVSCROLL | ES_AUTOHSCROLL |
     WS_VISIBLE | WS_MAXIMIZE | WS_VSCROLL | WS_HSCROLL;
-#endif
-
   lpParam.dwExStyle = 0;
+
   // Create the EDIT window as a child of win
-#if defined(_WIN32_WCE) || defined(UNICODE)
   vtkWin32OutputWindowOutputWindow =
-    CreateWindow(lpParam.lpszClass, // pointer to registered class name
-      L"",                          // pointer to window name
-      lpParam.style,                // window style
-      lpParam.x,                    // horizontal position of window
-      lpParam.y,                    // vertical position of window
-      lpParam.cx,                   // window width
-      lpParam.cy,                   // window height
-      lpParam.hwndParent,           // handle to parent or owner window
-      nullptr,                      // handle to menu or child-window identifier
-      lpParam.hInstance,            // handle to application instance
-      &lpParam                      // pointer to window-creation data
+    CreateWindowA(lpParam.lpszClass, // pointer to registered class name
+      "",                            // pointer to window name
+      lpParam.style,                 // window style
+      lpParam.x,                     // horizontal position of window
+      lpParam.y,                     // vertical position of window
+      lpParam.cx,                    // window width
+      lpParam.cy,                    // window height
+      lpParam.hwndParent,            // handle to parent or owner window
+      nullptr,                       // handle to menu or child-window identifier
+      lpParam.hInstance,             // handle to application instance
+      &lpParam                       // pointer to window-creation data
     );
-#else
-  vtkWin32OutputWindowOutputWindow =
-    CreateWindow(lpParam.lpszClass, // pointer to registered class name
-      "",                           // pointer to window name
-      lpParam.style,                // window style
-      lpParam.x,                    // horizontal position of window
-      lpParam.y,                    // vertical position of window
-      lpParam.cx,                   // window width
-      lpParam.cy,                   // window height
-      lpParam.hwndParent,           // handle to parent or owner window
-      nullptr,                      // handle to menu or child-window identifier
-      lpParam.hInstance,            // handle to application instance
-      &lpParam                      // pointer to window-creation data
-    );
-#endif
 
   const int maxsize = 5242880;
-
-#ifdef UNICODE
-  SendMessageW(vtkWin32OutputWindowOutputWindow, EM_LIMITTEXT, maxsize, 0L);
-#else
   SendMessageA(vtkWin32OutputWindowOutputWindow, EM_LIMITTEXT, maxsize, 0L);
-#endif
 
   // show the top level container window
   ShowWindow(win, SW_SHOW);
@@ -301,20 +241,11 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   size_t vtkmsgsize = strlen(someText) + 100;
   char* vtkmsg = new char[vtkmsgsize];
   snprintf(vtkmsg, vtkmsgsize, "%s\nPress Cancel to suppress any further messages.", someText);
-#ifdef UNICODE
-  wchar_t* wmsg = new wchar_t[mbstowcs(nullptr, vtkmsg, 32000) + 1];
-  mbstowcs(wmsg, vtkmsg, 32000);
-  if (MessageBox(nullptr, wmsg, L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
+  std::wstring wmsg = vtksys::Encoding::ToWide(vtkmsg);
+  if (MessageBoxW(nullptr, wmsg.c_str(), L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
   {
     vtkObject::GlobalWarningDisplayOff();
   }
-  delete[] wmsg;
-#else
-  if (MessageBox(nullptr, vtkmsg, "Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
-  {
-    vtkObject::GlobalWarningDisplayOff();
-  }
-#endif
   delete[] vtkmsg;
 }
 

@@ -65,7 +65,7 @@ CheckOpenGLVersion::CheckOpenGLVersion(HINSTANCE hInst)
     0,  // Number of Aux buffers in the framebuffer.
     PFD_MAIN_PLANE, 0, 0, 0, 0 };
 
-  WNDCLASS wc = { 0 };
+  WNDCLASSA wc = { 0 };
   wc.lpfnWndProc = DefWindowProc;
   wc.hInstance = hInstance;
   wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BACKGROUND);
@@ -75,7 +75,7 @@ CheckOpenGLVersion::CheckOpenGLVersion(HINSTANCE hInst)
   {
     return;
   }
-  HWND windowHandle = CreateWindow(wc.lpszClassName, "openglversioncheck", WS_OVERLAPPEDWINDOW, 0,
+  HWND windowHandle = CreateWindowA(wc.lpszClassName, "openglversioncheck", WS_OVERLAPPEDWINDOW, 0,
     0, 640, 480, 0, 0, this->hInstance, 0);
 
   if (windowHandle != nullptr)

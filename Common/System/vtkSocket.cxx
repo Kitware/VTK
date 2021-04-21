@@ -28,6 +28,7 @@
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define VTK_WINDOWS_FULL
 #include "vtkWindows.h"
+#include "vtksys/Encoding.hxx"
 #else
 #include <arpa/inet.h>
 #include <cerrno>
@@ -92,13 +93,24 @@
 #if defined(_WIN32) && !defined(__CYGWIN__)
 static const char* wsaStrerror(int wsaeid)
 {
-  static char buf[256] = { '\0' };
-  int ok;
-  ok = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, wsaeid, 0, buf, 256, 0);
+  wchar_t wbuf[256];
+  int ok = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM, 0, wsaeid, 0, wbuf, sizeof(wbuf), 0);
   if (!ok)
   {
-    return 0;
+    return nullptr;
   }
+
+  std::string result = vtksys::Encoding::ToNarrow(wbuf);
+  size_t count = result.length();
+
+  static char buf[256];
+  if (count >= sizeof(buf))
+  {
+    count = sizeof(buf) - 1;
+  }
+  strncpy(buf, result.c_str(), count);
+  buf[count + 1] = '\0';
+
   return buf;
 }
 #endif
