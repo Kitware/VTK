@@ -54,13 +54,13 @@ public:
   /**
    * The writing process is split into 4 parts:
    * 1. `OpenFile` opens the file for writing.
-   * 2. `Start` begins writing by adding header.
+   * 2. `BeginWriting` begins writing by adding header.
    * 3. Write the contents. API calls like `AddGlobalFieldData`, `AddXML` can be used for this.
-   * 4. `End` ends the writing, adding any footers as needed.
+   * 4. `EndWriting` ends the writing, adding any footers as needed.
    */
   bool OpenFile();
-  bool Start();
-  bool End();
+  bool BeginWriting();
+  bool EndWriting();
   ///@}
 
   /**

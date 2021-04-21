@@ -175,7 +175,7 @@ bool vtkXMLPartitionedDataSetCollectionWriter::WriteSummaryXML(
   }
   this->AddArtifact(this->FileName);
 
-  if (!helper->Start())
+  if (!helper->BeginWriting())
   {
     return false;
   }
@@ -242,7 +242,7 @@ bool vtkXMLPartitionedDataSetCollectionWriter::WriteSummaryXML(
 
   helper->AddXML(root);
   helper->AddGlobalFieldData(input);
-  if (!helper->End())
+  if (!helper->EndWriting())
   {
     return false;
   }
