@@ -17,7 +17,6 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkReaderExecutive.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <numeric>
@@ -40,12 +39,6 @@ vtkParallelReader::vtkParallelReader()
 vtkParallelReader::~vtkParallelReader()
 {
   delete this->Internal;
-}
-
-//------------------------------------------------------------------------------
-vtkExecutive* vtkParallelReader::CreateDefaultExecutive()
-{
-  return vtkReaderExecutive::New();
 }
 
 //------------------------------------------------------------------------------

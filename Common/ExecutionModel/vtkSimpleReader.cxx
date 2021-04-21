@@ -17,7 +17,6 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkReaderExecutive.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <numeric>
@@ -41,12 +40,6 @@ vtkSimpleReader::vtkSimpleReader()
 vtkSimpleReader::~vtkSimpleReader()
 {
   delete this->Internal;
-}
-
-//------------------------------------------------------------------------------
-vtkExecutive* vtkSimpleReader::CreateDefaultExecutive()
-{
-  return vtkReaderExecutive::New();
 }
 
 //------------------------------------------------------------------------------

@@ -33,9 +33,9 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkReaderExecutive.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -1546,12 +1546,6 @@ vtkIossReader::~vtkIossReader()
 }
 
 //----------------------------------------------------------------------------
-vtkExecutive* vtkIossReader::CreateDefaultExecutive()
-{
-  return vtkReaderExecutive::New();
-}
-
-//----------------------------------------------------------------------------
 int vtkIossReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
@@ -1691,7 +1685,7 @@ int vtkIossReader::ReadMesh(
   if (!internals.UpdateDatabaseNames(this))
   {
     // this should not be necessary. ReadMetaData returns false when
-    // `UpdateDatabaseNames` fails. At which point vtkReaderExecutive should
+    // `UpdateDatabaseNames` fails. At which point vtkReaderAlgorithm should
     // never call `RequestData` leading to a call to this method. However, it
     // does, for some reason. Hence adding this check here.
     // ref: paraview/paraview#19951.

@@ -605,21 +605,6 @@ protected:
    */
   int DecodeString(char* resname, const char* name);
 
-  vtkTypeBool ProcessRequest(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
-  {
-    return 1;
-  }
-  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
-  {
-    return 1;
-  }
-  virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
-  {
-    return 1;
-  }
-
 private:
   vtkDataReader(const vtkDataReader&) = delete;
   void operator=(const vtkDataReader&) = delete;

@@ -84,8 +84,6 @@ protected:
   vtkParallelReader();
   ~vtkParallelReader() override;
 
-  vtkExecutive* CreateDefaultExecutive() override;
-
   /**
    * A subclass can override this method to provide an actual
    * time value for a given file (this method is called for

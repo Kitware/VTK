@@ -124,8 +124,6 @@ protected:
   vtkSimpleReader();
   ~vtkSimpleReader() override;
 
-  vtkExecutive* CreateDefaultExecutive() override;
-
   int CurrentFileIndex;
   bool HasTemporalMetaData;
 

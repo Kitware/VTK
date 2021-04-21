@@ -41,6 +41,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Overridden to call appropriate handle pipeline request from executive.
+   */
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo);
+
+  /**
    * This can be overridden by a subclass to create an output that
    * is determined by the file being read. If the output is known at
    * compile time, it is easier to override FillOutputPortInformation()
