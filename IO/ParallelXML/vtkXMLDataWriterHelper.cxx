@@ -58,13 +58,13 @@ bool vtkXMLDataWriterHelper::OpenFile()
 }
 
 //----------------------------------------------------------------------------
-bool vtkXMLDataWriterHelper::Start()
+bool vtkXMLDataWriterHelper::BeginWriting()
 {
   return this->Superclass::StartFile() != 0;
 }
 
 //----------------------------------------------------------------------------
-bool vtkXMLDataWriterHelper::End()
+bool vtkXMLDataWriterHelper::EndWriting()
 {
   const bool status = (this->Superclass::EndFile() != 0);
   this->Superclass::CloseStream();
