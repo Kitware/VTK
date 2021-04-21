@@ -119,7 +119,7 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
   c[0] = vtkMath::Dot(a21, b1a1);
   c[1] = -vtkMath::Dot(b21, b1a1);
 
-  //  Solve the system of equations
+  //  Solve the system of equations. Check for colinearity.
   if (vtkMath::SolveLinearSystem(A, c, 2) == 0)
   {
     // The lines are colinear. Therefore, one of the four endpoints is the
@@ -142,59 +142,67 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
       }
     }
     return OnLine;
-  }
-  else
+  } // if colinear
+
+  // The lines are not colinear, check for intersection.
+  // However if they are nearly parallel then the solution
+  // found by vtkMath::SolveLinearSystem may be very inaccurate.
+  // We hence need to check the solution against a tolerance criterion.
+  u = c[0];
+  v = c[1];
+  // calculate intersection point using u
+  double ptu[] = { a21[0], a21[1], a21[2] };
+  vtkMath::MultiplyScalar(ptu, u);
+  vtkMath::Add(ptu, a1, ptu);
+  // calculate intersection point using v
+  double ptv[] = { b21[0], b21[1], b21[2] };
+  vtkMath::MultiplyScalar(ptv, v);
+  vtkMath::Add(ptv, b1, ptv);
+  // difference between the two intersection points should ideally be zero
+  double diff[3];
+  vtkMath::Subtract(ptu, ptv, diff);
+  double diff2 = vtkMath::SquaredNorm(diff);
+
+  double tol2 = 0.0;
+  if (std::isfinite(tolerance))
   {
-    // The infinite lines do intersect.
-    // However if they are nearly parallel then the solution
-    // found by vtkMath::SolveLinearSystem may be very inaccurate.
-    // We hence need to check the solution against a tolerance criterion.
-    u = c[0];
-    v = c[1];
-    // calculate intersection point using u
-    double ptu[] = { a21[0], a21[1], a21[2] };
-    vtkMath::MultiplyScalar(ptu, u);
-    vtkMath::Add(ptu, a1, ptu);
-    // calculate intersection point using v
-    double ptv[] = { b21[0], b21[1], b21[2] };
-    vtkMath::MultiplyScalar(ptv, v);
-    vtkMath::Add(ptv, b1, ptv);
-    // difference between the two intersection points should ideally be zero
-    double diff[3];
-    vtkMath::Subtract(ptu, ptv, diff);
-    double diff2 = vtkMath::SquaredNorm(diff);
-
-    if (std::isfinite(tolerance))
+    // compare either absolute or relative diff; hence either
+    // tolerance*tolerance or diff > tolerance * max(nrm(ptu),nrm(ptv))
+    // but without taking square roots.
+    tol2 = (tolType == Absolute
+        ? tolerance * tolerance
+        : tolerance * tolerance * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)));
+    if (diff2 > tol2)
     {
-      double tol2 = tolerance * tolerance;
-      if (tolType == Relative)
-      {
-        // compare diff > tolerance * max(nrm(ptu),nrm(ptv))
-        // but without taking square roots, hence square this equation
-        if (diff2 > (tol2 * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu))))
-        {
-          return NoIntersect;
-        }
-      }
-      else // Absolute tolerance
-      {
-        if (diff2 > tol2)
-        {
-          return NoIntersect;
-        }
-      }
-    } // valid tolerance
-  }   // lines intersect
+      return NoIntersect;
+    }
+  } // valid tolerance
 
-  //  Check parametric coordinates for intersection.
+  // Check parametric coordinates for intersection within the two finite line
+  // segments specified. Special treatment is required to make sure that
+  // intersections near the line end points are not within tolerance.  Most
+  // intersections will occur within the 0<=u,v<=1 range, handle them as
+  // quickly as possible.
   if ((0.0 <= u) && (u <= 1.0) && (0.0 <= v) && (v <= 1.0))
   {
     return Intersect;
   }
-  else
+  // Otherwise the intersection may be within tolerance at one or both of the
+  // line end points. Note that we already know from previous calculations
+  // that the two points of intersection are within tol of each other; here
+  // we are checking whether they are on the line within the range
+  // (-tol <= u,v <= 1+tol).
+  else if (tol2 > 0.0)
   {
-    return NoIntersect;
+    double uTol = sqrt(tol2 / vtkMath::SquaredNorm(a21));
+    double vTol = sqrt(tol2 / vtkMath::SquaredNorm(b21));
+    if ((-uTol <= u) && (u <= (1.0 + uTol)) && (-vTol <= v) && (v <= (1.0 + vTol)))
+    {
+      return Intersect;
+    }
   }
+
+  return NoIntersect;
 }
 
 //------------------------------------------------------------------------------
