@@ -30,6 +30,7 @@
 #include "vtkWindowToImageFilter.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
 #include <QTimer>
@@ -42,6 +43,7 @@ int TestQQuickVTKRenderItem(int argc, char* argv[])
   QApplication app(argc, argv);
 
   QQmlApplicationEngine engine;
+  qDebug() << "QML2_IMPORT_PATH:" << engine.importPathList();
   engine.load(QUrl("qrc:///TestQQuickVTKRenderItem.qml"));
 
   QObject* topLevel = engine.rootObjects().value(0);
