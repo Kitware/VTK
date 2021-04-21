@@ -37,6 +37,7 @@ resulting in wrapper code that is faster and more compact.
 #include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkUnicodeString.h"
 
+#include <cassert>
 #include <cstring>
 #include <string>
 
@@ -608,7 +609,14 @@ public:
   template <class T>
   static void Save(const T* a, T* b, size_t n)
   {
-    memcpy(b, a, n * sizeof(T));
+    if (b && a)
+    {
+      memcpy(b, a, n * sizeof(T));
+    }
+    else
+    {
+      assert(n == 0);
+    }
   }
 
   /**
@@ -617,7 +625,15 @@ public:
   template <class T>
   static bool HasChanged(const T* a, const T* b, size_t n)
   {
-    return (memcmp(a, b, n * sizeof(T)) != 0);
+    if (a && b)
+    {
+      return (memcmp(a, b, n * sizeof(T)) != 0);
+    }
+    else
+    {
+      assert(n == 0);
+      return false; // Actually indeterminate, but this is compatible.
+    }
   }
 
   /**
