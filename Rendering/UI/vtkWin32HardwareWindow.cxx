@@ -117,12 +117,8 @@ void vtkWin32HardwareWindow::Create()
   }
 
   // has the class been registered ?
-  WNDCLASS wndClass;
-#ifdef UNICODE
-  if (!GetClassInfo(this->ApplicationInstance, L"vtkOpenGL", &wndClass))
-#else
-  if (!GetClassInfo(this->ApplicationInstance, "vtkOpenGL", &wndClass))
-#endif
+  WNDCLASSA wndClass;
+  if (!GetClassInfoA(this->ApplicationInstance, "vtkOpenGL", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
     wndClass.lpfnWndProc = DefWindowProc;
@@ -132,16 +128,12 @@ void vtkWin32HardwareWindow::Create()
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = nullptr;
-#ifdef UNICODE
-    wndClass.lpszClassName = L"vtkOpenGL";
-#else
     wndClass.lpszClassName = "vtkOpenGL";
-#endif
     // vtk doesn't use the first extra vtkLONG's worth of bytes,
     // but app writers may want them, so we provide them. VTK
     // does use the second vtkLONG's worth of bytes of extra space.
     wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
-    RegisterClass(&wndClass);
+    RegisterClassA(&wndClass);
   }
 
   if (!this->WindowId)
@@ -154,15 +146,9 @@ void vtkWin32HardwareWindow::Create()
     /* create window */
     if (this->ParentId)
     {
-#ifdef UNICODE
       this->WindowId =
-        CreateWindow(L"vtkVulkan", wname, WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/, x, y,
-          width, height, this->ParentId, nullptr, this->ApplicationInstance, nullptr);
-#else
-      this->WindowId =
-        CreateWindow("vtkVulkan", "VTK - Vulkan", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        CreateWindowA("vtkVulkan", "VTK - Vulkan", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height, this->ParentId, nullptr, this->ApplicationInstance, nullptr);
-#endif
     }
     else
     {
@@ -177,17 +163,9 @@ void vtkWin32HardwareWindow::Create()
       }
       RECT r;
       AdjustWindowRectForBorders(0, style, x, y, width, height, r);
-#ifdef UNICODE
-      this->WindowId = CreateWindow(L"vtkOpenGL", wname, style, x, y, r.right - r.left,
+      this->WindowId = CreateWindowA("vtkOpenGL", "VTK - Vulkan", style, x, y, r.right - r.left,
         r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
-#else
-      this->WindowId = CreateWindow("vtkOpenGL", "VTK - Vulkan", style, x, y, r.right - r.left,
-        r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
-#endif
     }
-#ifdef UNICODE
-    delete[] wname;
-#endif
 
     if (!this->WindowId)
     {

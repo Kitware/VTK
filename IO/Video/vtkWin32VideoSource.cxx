@@ -205,7 +205,7 @@ void vtkWin32VideoSource::Initialize()
   strcpy(this->WndClassName, "VTKVideo");
 
   // set up a class for the main window
-  WNDCLASS wc;
+  WNDCLASSA wc;
   wc.lpszClassName = this->WndClassName;
   wc.hInstance = hinstance;
   wc.lpfnWndProc = reinterpret_cast<WNDPROC>(&vtkWin32VideoSourceWinProc);
@@ -219,7 +219,7 @@ void vtkWin32VideoSource::Initialize()
 
   for (i = 1; i <= 10; i++)
   {
-    if (RegisterClass(&wc))
+    if (RegisterClassA(&wc))
     {
       break;
     }
@@ -253,7 +253,7 @@ void vtkWin32VideoSource::Initialize()
     vtkWarningMacro("Initialize: AdjustWindowRect failed, error: " << GetLastError());
   }
 
-  this->Internal->ParentWnd = CreateWindow(this->WndClassName, "VTK Video Window", style, 0, 0,
+  this->Internal->ParentWnd = CreateWindowA(this->WndClassName, "VTK Video Window", style, 0, 0,
     r.right - r.left, r.bottom - r.top, nullptr, nullptr, hinstance, nullptr);
 
   if (!this->Internal->ParentWnd)

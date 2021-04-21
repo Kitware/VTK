@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+#include <vtksys/Encoding.hxx>
 #include <vtksys/SystemInformation.hxx>
 #include <vtksys/SystemTools.hxx>
 
@@ -350,15 +351,8 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 #ifdef _WIN32
 int vtkDebugLeaks::DisplayMessageBox(const char* msg)
 {
-#ifdef UNICODE
-  wchar_t* wmsg = new wchar_t[mbstowcs(nullptr, msg, 32000) + 1];
-  mbstowcs(wmsg, msg, 32000);
-  int result = (MessageBox(nullptr, wmsg, L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
-  delete[] wmsg;
-#else
-  int result = (MessageBox(nullptr, msg, "Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
-#endif
-  return result;
+  std::wstring wmsg = vtksys::Encoding::ToWide(msg);
+  return MessageBoxW(nullptr, wmsg.c_str(), L"Error", MB_ICONERROR | MB_OKCANCEL) == IDCANCEL;
 }
 #else
 int vtkDebugLeaks::DisplayMessageBox(const char*)
