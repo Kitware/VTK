@@ -113,6 +113,14 @@ public:
   ///@}
 
   /**
+   * For historical reasons, `vtkCompositeDataSet::ShallowCopy` simply pass
+   * pointers to the leaf non-composite datasets. In some cases, we truly want
+   * to shallow copy those leaf non-composite datasets as well. For those cases,
+   * use this method.
+   */
+  virtual void RecursiveShallowCopy(vtkDataObject* src) = 0;
+
+  /**
    * Returns the total number of points of all blocks. This will
    * iterate over all blocks and call GetNumberOfPoints() so it
    * might be expensive.

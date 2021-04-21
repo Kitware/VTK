@@ -549,6 +549,42 @@ void vtkDataObjectTree::DeepCopy(vtkDataObject* src)
 }
 
 //------------------------------------------------------------------------------
+void vtkDataObjectTree::RecursiveShallowCopy(vtkDataObject* src)
+{
+  if (src == this)
+  {
+    return;
+  }
+
+  this->Internals->Children.clear();
+  this->Superclass::ShallowCopy(src);
+
+  vtkDataObjectTree* from = vtkDataObjectTree::SafeDownCast(src);
+  if (from)
+  {
+    unsigned int numChildren = from->GetNumberOfChildren();
+    this->SetNumberOfChildren(numChildren);
+    for (unsigned int cc = 0; cc < numChildren; cc++)
+    {
+      vtkDataObject* child = from->GetChild(cc);
+      if (child)
+      {
+        auto clone = child->NewInstance();
+        clone->ShallowCopy(child);
+        this->SetChild(cc, clone);
+        clone->FastDelete();
+      }
+      if (from->HasChildMetaData(cc))
+      {
+        vtkInformation* toInfo = this->GetChildMetaData(cc);
+        toInfo->Copy(from->GetChildMetaData(cc), /*deep=*/0);
+      }
+    }
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkDataObjectTree::Initialize()
 {
   this->Internals->Children.clear();

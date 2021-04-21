@@ -126,6 +126,7 @@ public:
    */
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
+  void RecursiveShallowCopy(vtkDataObject* src) override;
   ///@}
 
   /**
