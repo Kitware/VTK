@@ -95,7 +95,7 @@ find_program(QMLPLUGINDUMP_EXECUTABLE qmlplugindump
   )
 mark_as_advanced(QMLPLUGINDUMP_EXECUTABLE)
 if(NOT QMLPLUGINDUMP_EXECUTABLE)
-  message(STATUS "qmlplugindump executable not found.\n"
+  message(WARNING "qmlplugindump executable not found.\n"
                   "It is required to generate the qmltypes file"
                   " for VTK Qml plugin.")
 endif()
@@ -103,6 +103,7 @@ endif()
 set(qmltypes_file
   "${vtk_qml_module_path}/${_vtk_build_PACKAGE}.qmltypes"
   )
+set(qmltypes_create_copy_command FALSE)
 if(QMLPLUGINDUMP_EXECUTABLE)
   get_target_property(qt_config Qt${vtk_qt_major_version}::Core IMPORTED_CONFIGURATIONS)
   if(("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
@@ -110,15 +111,7 @@ if(QMLPLUGINDUMP_EXECUTABLE)
       " Due to Qt issue 47774 (https://bugreports.qt.io/browse/QTBUG-47774),"
       " skipping generation of qmltypes file."
       " Using the one provided with the source tree instead.")
-    add_custom_command(TARGET ${vtk_guisupportqtquick_target}
-      POST_BUILD
-      COMMAND
-        ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
-          ${vtk_qml_module_path}
-      )
-    # file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
-    #   DESTINATION ${vtk_qml_module_path}
-    #   )
+    set(qmltypes_create_copy_command TRUE)
   else()
     add_custom_command(TARGET ${vtk_guisupportqtquick_target}
       POST_BUILD
@@ -132,6 +125,17 @@ if(QMLPLUGINDUMP_EXECUTABLE)
       VERBATIM
       )
   endif()
+else()
+  set(qmltypes_create_copy_command TRUE)
+endif()
+if(qmltypes_create_copy_command)
+  add_custom_command(TARGET ${vtk_guisupportqtquick_target}
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes
+        ${vtk_qml_module_path}
+    COMMENT "Copying qmltypes file from the source tree to ${vtk_qml_module_path}"
+    )
 endif()
 
 # QML plugin qmldir and qmltypes for install tree
