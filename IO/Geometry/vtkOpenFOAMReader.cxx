@@ -316,6 +316,19 @@ void AppendLabelValue(vtkDataArray* array, vtkTypeInt64 val, bool use64BitLabels
   }
 }
 
+// Append unique string to list
+static void appendUniq(vtkStringArray* list, vtkStringArray* items)
+{
+  for (int i = 0; i < items->GetNumberOfTuples(); ++i)
+  {
+    vtkStdString& str = items->GetValue(i);
+    if (list->LookupValue(str) == -1)
+    {
+      list->InsertNextValue(str);
+    }
+  }
+}
+
 // Tuple remapping for symmTensor ordering
 // OpenFOAM [XX XY XZ YY YZ ZZ]
 // VTK uses [XX YY ZZ XY YZ XZ]
@@ -1002,6 +1015,8 @@ public:
 
   const std::string& GetRegionName() const noexcept { return this->RegionName; }
 
+  vtkStringArray* GetLagrangianPaths() { return this->LagrangianPaths; }
+
   // Read mesh/fields and create dataset
   int RequestData(vtkMultiBlockDataSet* output);
   int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, bool);
@@ -1045,6 +1060,9 @@ private:
   vtkStringArray* AreaFieldFiles;
   vtkStringArray* PointFieldFiles;
   vtkStringArray* LagrangianFieldFiles;
+
+  // The cloud paths (region-local)
+  vtkNew<vtkStringArray> LagrangianPaths;
 
   // Mesh dimensions and construction information
   vtkIdType NumPoints;
@@ -5805,15 +5823,16 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const std::string& timePat
       if (io.OpenOrGzip(cloudPath + "/positions") && io.GetObjectName() == "positions" &&
         io.GetClassName().find("Cloud") != std::string::npos)
       {
-        if (this->Parent->LagrangianPaths->LookupValue(displayName) == -1)
+        // Append unique
+        if (this->LagrangianPaths->LookupValue(displayName) == -1)
         {
-          this->Parent->LagrangianPaths->InsertNextValue(displayName);
+          this->LagrangianPaths->InsertNextValue(displayName);
         }
         this->GetFieldNames(cloudPath, true);
         this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
       }
     }
-    this->Parent->LagrangianPaths->Squeeze();
+    this->LagrangianPaths->Squeeze();
   }
 }
 
@@ -6161,7 +6180,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   this->LagrangianFieldFiles->Initialize();
   if (listNextTimeStep)
   {
-    this->Parent->LagrangianPaths->Initialize();
+    this->LagrangianPaths->Initialize();
   }
   this->LocateLagrangianClouds(timePath);
 
@@ -6174,7 +6193,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
     const std::string timePath2(this->TimePath(1));
     this->GetFieldNames(timePath2 + this->RegionPath());
     // if lagrangian clouds were not found at timestep 0
-    if (this->Parent->LagrangianPaths->GetNumberOfTuples() == 0)
+    if (!this->LagrangianPaths->GetNumberOfTuples())
     {
       this->LocateLagrangianClouds(timePath2);
     }
@@ -9594,18 +9613,26 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
 
   auto* lagrangianMesh = vtkMultiBlockDataSet::New();
 
-  const vtkIdType nClouds = this->Parent->LagrangianPaths->GetNumberOfTuples();
+  const std::string regionCloudPrefix(this->RegionPrefix() + "lagrangian/");
 
-  for (vtkIdType cloudi = 0; cloudi < nClouds; ++cloudi)
+  vtkDataArraySelection* selection = this->Parent->PatchDataArraySelection;
+
+  const vtkIdType nItems = selection->GetNumberOfArrays();
+  for (vtkIdType itemi = 0; itemi < nItems; ++itemi)
   {
-    const std::string& displayName = this->Parent->LagrangianPaths->GetValue(cloudi);
-
-    if (!this->Parent->PatchDataArraySelection->ArrayExists(displayName.c_str()) ||
-      !this->Parent->GetPatchArrayStatus(displayName.c_str()) ||
-      !this->IsDisplayRegion(displayName))
+    if (!selection->GetArraySetting(itemi))
     {
       continue;
     }
+    const std::string displayName(selection->GetArrayName(itemi));
+
+    auto slash = displayName.rfind('/');
+    if (slash == std::string::npos || displayName.compare(0, ++slash, regionCloudPrefix) != 0)
+    {
+      continue;
+    }
+    // The cloud name is the final component of the displayName
+    const std::string cloudName(displayName.substr(slash));
 
     // Equivalent to CurrentTimeRegionPath() + "lagrangian/{cloudName}"
     std::string cloudPath(this->CurrentTimePath());
@@ -9615,64 +9642,74 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     }
     cloudPath += displayName;
 
-    // create an empty mesh to keep node/leaf structure of the
-    // multi-block consistent even if mesh doesn't exist
+    // Keep node/leaf structure consistent even if mesh doesn't exist
     vtkNew<vtkPolyData> cloudMesh;
-
-    // The cloud name is the final component of the displayName
-    ::AppendBlock(lagrangianMesh, cloudMesh, displayName.substr(displayName.rfind('/') + 1));
+    ::AppendBlock(lagrangianMesh, cloudMesh, cloudName);
 
     // Get the parcel positions as vtkPoints
     vtkNew<vtkPoints> points;
     {
+      bool missingCloud = true;
       const std::string positionsPath(cloudPath + "/positions");
 
       vtkFoamIOobject io(this->CasePath, this->Parent);
-      if (!io.OpenOrGzip(positionsPath))
+      if (io.OpenOrGzip(positionsPath))
       {
-        continue;
+        vtkFoamEntryValue dict(nullptr);
+
+        try
+        {
+          if (io.IsFloat64())
+          {
+            dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+              vtkFoamRead::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
+          }
+          else
+          {
+            dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
+              vtkFoamRead::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
+          }
+
+          // Transfer float tuples to points
+          auto* pointArray = dict.ReleasePtr<vtkFloatArray>();
+
+          points->SetData(pointArray);
+          pointArray->Delete();
+          missingCloud = false;
+        }
+        catch (const vtkFoamError& err)
+        {
+          vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
+                        << ": " << err);
+        }
       }
 
-      vtkFoamEntryValue dict(nullptr);
-      try
+      if (missingCloud)
       {
-        if (io.IsFloat64())
-        {
-          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
-            vtkFoamRead::vectorListTraits<vtkFloatArray, double, 3, true>>(io);
-        }
-        else
-        {
-          dict.ReadNonUniformList<vtkFoamToken::VECTORLIST, //
-            vtkFoamRead::vectorListTraits<vtkFloatArray, float, 3, true>>(io);
-        }
-
-        // Transfer float tuples to points
-        auto* pointArray = dict.ReleasePtr<vtkFloatArray>();
+        vtkNew<vtkFloatArray> pointArray;
+        pointArray->SetNumberOfComponents(3);
         points->SetData(pointArray);
-        pointArray->Delete();
       }
-      catch (const vtkFoamError& err)
+      const vtkIdType nParticles = points->GetNumberOfPoints();
+
+      cloudMesh->SetPoints(points);
+
+      // Cells (verts) for lagrangian mesh
+      vtkNew<vtkCellArray> verts;
+      verts->AllocateExact(nParticles, nParticles);
+      for (vtkIdType i = 0; i < nParticles; ++i)
       {
-        vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
-                      << ": " << err);
-        continue;
+        verts->InsertNextCell(1, &i);
       }
+      cloudMesh->SetVerts(verts);
     }
 
-    const vtkIdType nParticles = points->GetNumberOfPoints();
+    const vtkIdType nParticles = cloudMesh->GetPoints()->GetNumberOfPoints();
 
-    // Create lagrangian mesh
-    cloudMesh->AllocateEstimate(nParticles, 1);
-    for (vtkIdType i = 0; i < nParticles; i++)
-    {
-      cloudMesh->InsertNextCell(VTK_VERTEX, 1, &i);
-    }
-    cloudMesh->SetPoints(points);
-
+    // Can be empty or missing for a particular region or processor
     if (!nParticles)
     {
-      continue; // Could be empty or missing for a particular region or processor
+      continue;
     }
 
     // Read lagrangian fields
@@ -11291,6 +11328,16 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
   vtkNew<vtkStringArray> cellDataNames;
   vtkNew<vtkStringArray> pointDataNames;
   vtkNew<vtkStringArray> lagrangianDataNames;
+  vtkNew<vtkStringArray> lagrangianPaths;
+
+  if (listNextTimeStep)
+  {
+    this->LagrangianPaths->Initialize();
+  }
+  else
+  {
+    lagrangianPaths->DeepCopy(this->LagrangianPaths);
+  }
 
   int ret = 1;
   vtkOpenFOAMReaderPrivate* reader;
@@ -11300,10 +11347,18 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
   {
     ret *= reader->MakeMetaDataAtTimeStep(
       cellDataNames, pointDataNames, lagrangianDataNames, listNextTimeStep);
+
+    appendUniq(lagrangianPaths, reader->GetLagrangianPaths());
   }
   this->AddSelectionNames(this->Parent->CellDataArraySelection, cellDataNames);
   this->AddSelectionNames(this->Parent->PointDataArraySelection, pointDataNames);
   this->AddSelectionNames(this->Parent->LagrangianDataArraySelection, lagrangianDataNames);
+
+  lagrangianPaths->Squeeze();
+  vtkSortDataArray::Sort(lagrangianPaths);
+
+  // Combine for all regions
+  this->LagrangianPaths->DeepCopy(lagrangianPaths);
 
   return ret;
 }
