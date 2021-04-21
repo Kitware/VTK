@@ -182,6 +182,7 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
 
   if (this->m_renderWindow)
   {
+    this->m_renderWindow->SetMultiSamples(0);
     this->m_renderWindow->SetReadyForRendering(false);
     this->m_renderWindow->SetFrameBlitModeToBlitToHardware();
     vtkNew<QVTKInteractor> iren;
