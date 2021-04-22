@@ -375,6 +375,6 @@ private:
   void operator=(const vtkDataSetSurfaceFilter&) = delete;
 };
 
-#include "vtkDataSetSurfaceFilter.txx"
+#include "vtkDataSetSurfaceFilter.txx" // for templated implementations
 
 #endif
