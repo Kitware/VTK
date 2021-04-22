@@ -18,6 +18,7 @@
 #include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -284,7 +285,34 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   }
 
   this->Metadata->GenerateParentChildInformation();
+
+  this->SynchronizeDataArraySelectionRecursively(ePrimary, this->GetFilePath());
+
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUniformGridAMRReader::SynchronizeDataArraySelectionRecursively(
+  vtkXMLDataElement* element, const std::string& filePath)
+{
+  for (int cc = 0; cc < element->GetNumberOfNestedElements(); ++cc)
+  {
+    vtkXMLDataElement* childXML = element->GetNestedElement(cc);
+    if (!childXML || !childXML->GetName())
+    {
+      continue;
+    }
+
+    const char* tagName = childXML->GetName();
+    if (strcmp(tagName, "DataSet") == 0)
+    {
+      this->SyncDataArraySelections(this, childXML, filePath);
+    }
+    else
+    {
+      this->SynchronizeDataArraySelectionRecursively(childXML, filePath);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

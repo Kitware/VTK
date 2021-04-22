@@ -120,6 +120,9 @@ private:
   vtkXMLUniformGridAMRReader(const vtkXMLUniformGridAMRReader&) = delete;
   void operator=(const vtkXMLUniformGridAMRReader&) = delete;
 
+  void SynchronizeDataArraySelectionRecursively(
+    vtkXMLDataElement* element, const std::string& filePath);
+
   char* OutputDataType;
   vtkSetStringMacro(OutputDataType);
 };

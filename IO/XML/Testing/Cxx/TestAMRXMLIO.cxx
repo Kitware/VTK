@@ -1,9 +1,13 @@
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkNew.h"
 #include "vtkNonOverlappingAMR.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkStructuredData.h"
 #include "vtkTestUtilities.h"
+#include "vtkUniformGrid.h"
 #include "vtkXMLGenericDataObjectReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUniformGridAMRWriter.h"
@@ -111,6 +115,79 @@ bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::strin
   reader2->Update();
   return Validate(output, vtkOverlappingAMR::SafeDownCast(reader2->GetOutputDataObject(0)));
 }
+
+bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
+{
+  vtkNew<vtkAMRGaussianPulseSource> pulse;
+  pulse->SetDimension(3);
+  pulse->SetRootSpacing(13);
+
+  std::string filename = output_dir + "/TestAMRXMLIO_DataArraySelection.vth";
+
+  vtkNew<vtkXMLUniformGridAMRWriter> writer;
+  writer->SetInputConnection(pulse->GetOutputPort());
+  writer->SetFileName(filename.c_str());
+  writer->Write();
+
+  vtkNew<vtkXMLUniformGridAMRReader> reader;
+  reader->SetFileName(filename.c_str());
+
+  reader->SetCellArrayStatus("Centroid", 0);
+  reader->SetCellArrayStatus("Gaussian-Pulse", 0);
+  reader->Update();
+  auto output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+  auto firstDataSet = output->GetDataSet(0, 0);
+  if (firstDataSet->GetCellData()->GetArray("Centroid") ||
+    firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
+  {
+    cerr << "Array status failure. Some disabled array are not available." << endl;
+    return false;
+  }
+
+  reader->SetCellArrayStatus("Centroid", 1);
+  reader->Update();
+  output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+  firstDataSet = output->GetDataSet(0, 0);
+  if (!firstDataSet->GetCellData()->GetArray("Centroid"))
+  {
+    cerr << "Array status failure. Enabled array, Centroid, is not available." << endl;
+    return false;
+  }
+  if (firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
+  {
+    cerr << "Array status failure. Disabled array, Gaussian-Pulse, is available." << endl;
+    return false;
+  }
+
+  reader->SetCellArrayStatus("Centroid", 0);
+  reader->SetCellArrayStatus("Gaussian-Pulse", 1);
+  reader->Update();
+  output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+  firstDataSet = output->GetDataSet(0, 0);
+  if (!firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
+  {
+    cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available." << endl;
+    return false;
+  }
+  if (firstDataSet->GetCellData()->GetArray("Centroid"))
+  {
+    cerr << "Array status failure. Disabled array, Centroid, is available." << endl;
+    return false;
+  }
+
+  reader->SetCellArrayStatus("Centroid", 1);
+  reader->SetCellArrayStatus("Gaussian-Pulse", 1);
+  reader->Update();
+  output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+  firstDataSet = output->GetDataSet(0, 0);
+  if (!firstDataSet->GetCellData()->GetArray("Centroid") ||
+    !firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
+  {
+    cerr << "Array status failure. Some enabled arrays are not available." << endl;
+    return false;
+  }
+  return true;
+}
 }
 
 #define VTK_SUCCESS 0
@@ -153,6 +230,12 @@ int TestAMRXMLIO(int argc, char* argv[])
 
   cout << "Test HierarchicalBox AMR (v1.1)" << endl;
   if (!TestAMRXMLIO_HierarchicalBox(input_dir, output_dir))
+  {
+    return VTK_FAILURE;
+  }
+
+  cout << "Test DataArraySelection" << endl;
+  if (!TestAMRXMLIO_DataArraySelection(output_dir))
   {
     return VTK_FAILURE;
   }
