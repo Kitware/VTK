@@ -72,3 +72,26 @@
   This can be used for mapping surface noise data to retain most of
   the geometry but entirely discarding the internal field. It can also
   potentially arise from finiteArea situations.
+
+
+2021-04-22
+
+# OpenFOAM bugfixes / improvements
+
+- preserve uncollated lagrangian information (fixes #18179)
+
+  Old version assumed lagrangian data are available on all processor
+  sub-directories and used a central naming mechanism accordingly.
+
+  This meant that missing clouds on higher processors would
+  effectively block out clouds. Likely didn't work properly with
+  clouds in multiple regions.
+
+- cleanup/simplify processor directory detection
+
+- avoid rescanning of time directories for decomposed
+  Avoids repetitive calls to directory listings, which tend to really
+  slow down loading.
+
+- fixed handling of SetTimeValue() in vtkPOpenFOAMReader.
+  Mostly affected direct calls from VTK (not from ParaView)
