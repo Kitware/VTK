@@ -25,7 +25,7 @@
 
 #include <vtkm/cont/ArrayHandleSOA.h>
 #include <vtkm/cont/Field.h>
-#include <vtkm/cont/VariantArrayHandle.h>
+#include <vtkm/cont/UnknownArrayHandle.h>
 
 #include <type_traits> // for std::underlying_type
 
@@ -114,7 +114,7 @@ VTKACCELERATORSVTKMCORE_EXPORT
 vtkDataArray* Convert(const vtkm::cont::Field& input);
 
 VTKACCELERATORSVTKMCORE_EXPORT
-vtkDataArray* Convert(const vtkm::cont::VariantArrayHandle& input, const char* name);
+vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const char* name);
 
 VTKACCELERATORSVTKMCORE_EXPORT
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input);
