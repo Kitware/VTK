@@ -43,54 +43,94 @@ int CellSizeFilter2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     if (fabs(length->GetValue(0) - 1.0) > .0001)
     {
       vtkGenericWarningMacro("Wrong length dimension for the cell source type "
-        << OneDCellTypes[i] << " supposed to be 1.0 whereas it is " << length->GetValue(0));
+        << vtkCellTypes::GetClassNameFromTypeId(OneDCellTypes[i])
+        << " supposed to be 1.0 whereas it is " << length->GetValue(0));
       return EXIT_FAILURE;
     }
   }
 
+  std::vector<bool> complete;
   for (int i = 0; i < NumberOf2DCellTypes; i++)
   {
-
-    vtkNew<vtkCellTypeSource> cellTypeSource;
-    cellTypeSource->SetBlocksDimensions(1, 1, 1);
-    cellTypeSource->SetCellOrder(2);
-    cellTypeSource->SetCellType(TwoDCellTypes[i]);
-    vtkNew<vtkCellSizeFilter> filter;
-    filter->SetInputConnection(cellTypeSource->GetOutputPort());
-    filter->ComputeSumOn();
-    filter->Update();
-
-    vtkDoubleArray* area = vtkDoubleArray::SafeDownCast(
-      vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Area"));
-
-    if (fabs(area->GetValue(0) - 1.0) > .0001)
+    if (ThreeDCellTypes[i] == VTK_TRIANGLE)
     {
-      vtkGenericWarningMacro("Wrong area dimension for the cell source type "
-        << TwoDCellTypes[i] << " supposed to be 1.0 whereas it is " << area->GetValue(0));
-      return EXIT_FAILURE;
+      complete = { false, true };
+    }
+    else
+    {
+      complete = { false };
+    }
+    for (size_t j = 0; j < complete.size(); j++)
+    {
+      vtkNew<vtkCellTypeSource> cellTypeSource;
+      cellTypeSource->SetBlocksDimensions(1, 1, 1);
+      if (complete[j])
+      {
+        cellTypeSource->SetCellOrder(2);
+      }
+      else
+      {
+        cellTypeSource->SetCellOrder(3);
+      }
+      cellTypeSource->SetCompleteQuadraticSimplicialElements(complete[j]);
+      cellTypeSource->SetCellType(TwoDCellTypes[i]);
+      vtkNew<vtkCellSizeFilter> filter;
+      filter->SetInputConnection(cellTypeSource->GetOutputPort());
+      filter->ComputeSumOn();
+      filter->Update();
+
+      vtkDoubleArray* area = vtkDoubleArray::SafeDownCast(
+        vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Area"));
+
+      if (fabs(area->GetValue(0) - 1.0) > .0001)
+      {
+        vtkGenericWarningMacro("Wrong area dimension for the cell source type "
+          << vtkCellTypes::GetClassNameFromTypeId(TwoDCellTypes[i])
+          << " supposed to be 1.0 whereas it is " << area->GetValue(0));
+        return EXIT_FAILURE;
+      }
     }
   }
 
   for (int i = 0; i < NumberOf3DCellTypes; i++)
   {
-
-    vtkNew<vtkCellTypeSource> cellTypeSource;
-    cellTypeSource->SetBlocksDimensions(1, 1, 1);
-    cellTypeSource->SetCellOrder(3);
-    cellTypeSource->SetCellType(ThreeDCellTypes[i]);
-    vtkNew<vtkCellSizeFilter> filter;
-    filter->SetInputConnection(cellTypeSource->GetOutputPort());
-    filter->ComputeSumOn();
-    filter->Update();
-
-    vtkDoubleArray* volume = vtkDoubleArray::SafeDownCast(
-      vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Volume"));
-
-    if (fabs(volume->GetValue(0) - 1.0) > .0001)
+    if (ThreeDCellTypes[i] == VTK_LAGRANGE_TETRAHEDRON || ThreeDCellTypes[i] == VTK_LAGRANGE_WEDGE)
     {
-      vtkGenericWarningMacro("Wrong volume dimension for the cell source type "
-        << ThreeDCellTypes[i] << " supposed to be 1.0 whereas it is " << volume->GetValue(0));
-      return EXIT_FAILURE;
+      complete = { false, true };
+    }
+    else
+    {
+      complete = { false };
+    }
+    for (size_t j = 0; j < complete.size(); j++)
+    {
+      vtkNew<vtkCellTypeSource> cellTypeSource;
+      cellTypeSource->SetBlocksDimensions(1, 1, 1);
+      if (complete[j])
+      {
+        cellTypeSource->SetCellOrder(2);
+      }
+      else
+      {
+        cellTypeSource->SetCellOrder(3);
+      }
+      cellTypeSource->SetCompleteQuadraticSimplicialElements(complete[j]);
+      cellTypeSource->SetCellType(ThreeDCellTypes[i]);
+      vtkNew<vtkCellSizeFilter> filter;
+      filter->SetInputConnection(cellTypeSource->GetOutputPort());
+      filter->ComputeSumOn();
+      filter->Update();
+
+      vtkDoubleArray* volume = vtkDoubleArray::SafeDownCast(
+        vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Volume"));
+
+      if (fabs(volume->GetValue(0) - 1.0) > .0001)
+      {
+        vtkGenericWarningMacro("Wrong volume dimension for the cell source type "
+          << vtkCellTypes::GetClassNameFromTypeId(ThreeDCellTypes[i])
+          << " supposed to be 1.0 whereas it is " << volume->GetValue(0));
+        return EXIT_FAILURE;
+      }
     }
   }
 
