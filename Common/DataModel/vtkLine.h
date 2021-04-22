@@ -93,11 +93,16 @@ public:
     OnLine = 3
   };
 
-  // Control the meaning of the provided tolerance.
+  // Control the meaning of the provided tolerance.  Fuzzy tolerances allow
+  // intersections to occur outside of the range (0<=u,v<=1) as long as they
+  // fall within the tolerance provided. Thus non-fuzzy tolerances must be
+  // within the (0,1) parametric range (inclusive)
   enum ToleranceType
   {
     Relative = 0,
-    Absolute = 1
+    Absolute = 1,
+    RelativeFuzzy = 2,
+    AbsoluteFuzzy = 3
   };
 
   /**
