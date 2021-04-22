@@ -1332,7 +1332,7 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx, double to
         oneNegative = (sign < 0 ? 1 : 0); // very important
       }
       if (vtkLine::Intersection(
-            sPt, next->x, vtx->x, vtx->previous->x, s, t, tolerance, vtkLine::Absolute) != 0)
+            sPt, next->x, vtx->x, vtx->previous->x, s, t, tolerance, vtkLine::AbsoluteFuzzy) != 0)
       {
         return 0;
       }

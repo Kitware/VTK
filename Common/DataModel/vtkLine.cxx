@@ -169,7 +169,7 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
     // compare either absolute or relative diff; hence either
     // tolerance*tolerance or diff > tolerance * max(nrm(ptu),nrm(ptv))
     // but without taking square roots.
-    tol2 = (tolType == Absolute
+    tol2 = ((tolType == Absolute || tolType == AbsoluteFuzzy)
         ? tolerance * tolerance
         : tolerance * tolerance * std::max(vtkMath::SquaredNorm(ptv), vtkMath::SquaredNorm(ptu)));
     if (diff2 > tol2)
@@ -192,7 +192,7 @@ int vtkLine::Intersection(const double a1[3], const double a2[3], const double b
   // that the two points of intersection are within tol of each other; here
   // we are checking whether they are on the line within the range
   // (-tol <= u,v <= 1+tol).
-  else if (tol2 > 0.0)
+  else if (tolType >= RelativeFuzzy && tol2 > 0.0)
   {
     double uTol = sqrt(tol2 / vtkMath::SquaredNorm(a21));
     double vTol = sqrt(tol2 / vtkMath::SquaredNorm(b21));
