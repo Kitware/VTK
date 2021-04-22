@@ -59,7 +59,7 @@ public:
         std::make_pair(densityValues[i], vtkColor4ub(r * 255, g * 255, b * 255)));
     }
   }
-  ~DensityMapSettings() {}
+  ~DensityMapSettings() = default;
 
   vtkNew<vtkPen> PlotPen;
   bool ShowDensityMap;

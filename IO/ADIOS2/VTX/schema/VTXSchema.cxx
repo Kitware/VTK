@@ -37,7 +37,7 @@ VTXSchema::VTXSchema(
 {
 }
 
-VTXSchema::~VTXSchema() {}
+VTXSchema::~VTXSchema() = default;
 
 void VTXSchema::Fill(vtkMultiBlockDataSet* multiBlock, const size_t step)
 {

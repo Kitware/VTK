@@ -85,7 +85,7 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
-  this->UseOffScreenBuffers = 1;
+  this->UseOffScreenBuffers = true;
   this->Size[0] = 640;
   this->Size[1] = 720;
   this->Position[0] = 100;
@@ -114,7 +114,7 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
   if (this->DashboardOverlay)
   {
     this->DashboardOverlay->Delete();
-    this->DashboardOverlay = 0;
+    this->DashboardOverlay = nullptr;
   }
   this->Finalize();
 
@@ -126,12 +126,12 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
     ren->SetRenderWindow(nullptr);
   }
   this->HMDTransform->Delete();
-  this->HMDTransform = 0;
+  this->HMDTransform = nullptr;
 
   if (this->HelperWindow)
   {
     this->HelperWindow->Delete();
-    this->HelperWindow = 0;
+    this->HelperWindow = nullptr;
   }
 }
 
@@ -381,7 +381,7 @@ void vtkOpenVRRenderWindow::SetSize(int width, int height)
 
 //------------------------------------------------------------------------------
 // Get the size of the whole screen.
-int* vtkOpenVRRenderWindow::GetScreenSize(void)
+int* vtkOpenVRRenderWindow::GetScreenSize()
 {
   if (this->HMD)
   {
@@ -621,7 +621,7 @@ bool vtkOpenVRRenderWindow::IsHMDPresent()
 
 //------------------------------------------------------------------------------
 // Initialize the rendering window.
-void vtkOpenVRRenderWindow::Initialize(void)
+void vtkOpenVRRenderWindow::Initialize()
 {
   // Loading the SteamVR Runtime
   vr::EVRInitError eError = vr::VRInitError_None;
@@ -698,7 +698,7 @@ void vtkOpenVRRenderWindow::Initialize(void)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenVRRenderWindow::Finalize(void)
+void vtkOpenVRRenderWindow::Finalize()
 {
   this->ReleaseGraphicsResources(this);
   if (this->HMD)
@@ -744,7 +744,7 @@ void vtkOpenVRRenderWindow::AddRenderer(vtkRenderer* ren)
 
 //------------------------------------------------------------------------------
 // Begin the rendering process.
-void vtkOpenVRRenderWindow::Start(void)
+void vtkOpenVRRenderWindow::Start()
 {
   // if the renderer has not been initialized, do so now
   if (this->HelperWindow && !this->HMD)

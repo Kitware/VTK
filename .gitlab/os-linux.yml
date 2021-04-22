@@ -9,7 +9,7 @@
 
 .fedora33:
     extends: .linux
-    image: "kitware/vtk:ci-fedora33-20210219"
+    image: "kitware/vtk:ci-fedora33-20210419"
 
 .fedora_mpich_addon:
     variables:
@@ -33,6 +33,23 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora33_doxygen_mpi_python_qt_tbb
+
+.fedora33_mpi_offscreen_osmesa_python:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_offscreen_osmesa_python
+        VTK_INSTALL: 1
+
+.fedora33_mpi_offscreen_osmesa_python_ext_vtk:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_mpi_offscreen_osmesa_python_ext_vtk
 
 .fedora33_mpi_renderless:
     extends:
@@ -134,7 +151,7 @@
 .fedora33_ubsan:
     extends:
         - .fedora33
-        - .fedora_mpich_addon
+        # - .fedora_mpich_addon
         - .fedora_ubsan_addon
 
     variables:

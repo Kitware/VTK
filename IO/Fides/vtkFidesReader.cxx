@@ -133,15 +133,15 @@ void vtkFidesReader::SetFileName(const std::string& fname)
 // This version is used when a json file with the data model is provided
 void vtkFidesReader::ParseDataModel(const std::string& fname)
 {
-  this->Impl->Reader.reset(new fides::io::DataSetReader(fname));
+  this->Impl->Reader = std::make_unique<fides::io::DataSetReader>(fname);
   this->Impl->HasParsedDataModel = true;
 }
 
 // This version is used when a pre-defined data model is being used
 void vtkFidesReader::ParseDataModel()
 {
-  this->Impl->Reader.reset(
-    new fides::io::DataSetReader(this->FileName, fides::io::DataSetReader::DataModelInput::BPFile));
+  this->Impl->Reader = std::make_unique<fides::io::DataSetReader>(
+    this->FileName, fides::io::DataSetReader::DataModelInput::BPFile);
   this->Impl->HasParsedDataModel = true;
 }
 
@@ -476,8 +476,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->PointDataArraySelection->GetArrayName(i);
     if (this->PointDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, vtkm::cont::Field::Association::POINTS));
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::POINTS);
     }
   }
   int nCArrays = this->CellDataArraySelection->GetNumberOfArrays();
@@ -486,8 +485,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->CellDataArraySelection->GetArrayName(i);
     if (this->CellDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, vtkm::cont::Field::Association::CELL_SET));
+      arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::CELL_SET);
     }
   }
   int nFArrays = this->FieldDataArraySelection->GetNumberOfArrays();
@@ -496,8 +494,7 @@ int vtkFidesReader::RequestData(
     const char* aname = this->FieldDataArraySelection->GetArrayName(i);
     if (this->FieldDataArraySelection->ArrayIsEnabled(aname))
     {
-      arraySelection.Data.push_back(
-        fides::metadata::FieldInformation(aname, fides::Association::FIELD_DATA));
+      arraySelection.Data.emplace_back(aname, fides::Association::FIELD_DATA);
     }
   }
   selections.Set(fides::keys::FIELDS(), arraySelection);

@@ -59,7 +59,7 @@ void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
 vtkmClip::vtkmClip()
   : Internals(new vtkmClip::internals)
 {
-  this->Internals->ClipFunctionConverter.reset(new tovtkm::ImplicitFunctionConverter());
+  this->Internals->ClipFunctionConverter = std::make_unique<tovtkm::ImplicitFunctionConverter>();
   // Clip active point scalars by default
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);

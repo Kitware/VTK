@@ -60,12 +60,12 @@ vtkOpenVROverlay::~vtkOpenVROverlay()
   if (this->OriginalTextureData)
   {
     delete[] this->OriginalTextureData;
-    this->OriginalTextureData = 0;
+    this->OriginalTextureData = nullptr;
   }
   if (this->CurrentTextureData)
   {
     delete[] this->CurrentTextureData;
-    this->CurrentTextureData = 0;
+    this->CurrentTextureData = nullptr;
   }
 }
 
@@ -197,7 +197,7 @@ void vtkOpenVROverlay::LoadCameraPose(int slot)
 
 void vtkOpenVROverlay::LoadNextCameraPose()
 {
-  if (this->SavedCameraPoses.size() == 0)
+  if (this->SavedCameraPoses.empty())
   {
     return;
   }
@@ -292,7 +292,7 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow* win)
   if (this->OriginalTextureData)
   {
     delete[] this->OriginalTextureData;
-    this->OriginalTextureData = 0;
+    this->OriginalTextureData = nullptr;
   }
 
   // if dashboard image exists use it

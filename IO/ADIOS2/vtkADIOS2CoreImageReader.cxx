@@ -440,7 +440,7 @@ int vtkADIOS2CoreImageReader::RequestInformation(
     return 0;
   }
 
-  if (!this->Impl->AvailVars.size())
+  if (this->Impl->AvailVars.empty())
   {
     vtkErrorMacro("No variables can be inquired in the provided file. Abort reading");
     return 0;
@@ -490,7 +490,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Convert user selected array names into inquire variables
   this->ConvertArraySelectionToInqVar();
 
-  if (!this->Impl->InquiredVars.size())
+  if (this->Impl->InquiredVars.empty())
   {
     this->Impl->Adios.reset(nullptr);
     vtkErrorMacro("No inquire variable is specified. Abort reading now");
@@ -550,7 +550,7 @@ bool vtkADIOS2CoreImageReader::InitWorkDistribution()
     if (typeStr.empty())
     {
       vtkErrorMacro("Cannot find a type for " << varName << " invalid name is provided");
-      return 1;
+      return true;
     }
     // FIXME: adios2 IO object returns an template dependent class instance instead of
     // a pointer or template independent object. Without using std::variant,

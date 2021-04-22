@@ -2,7 +2,7 @@
 
 # Install extra dependencies for VTK
 dnf install -y --setopt=install_weak_deps=False \
-   bzip2 patch git-core git-lfs
+    bzip2 patch git-core git-lfs
 
 # Documentation tools
 dnf install -y --setopt=install_weak_deps=False \
@@ -10,19 +10,20 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    libasan libtsan libubsan clang-tools-extra
+    libasan libtsan libubsan clang-tools-extra \
+    ninja-build
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   openmpi-devel mpich-devel
+    openmpi-devel mpich-devel
 
 # Qt dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   qt5-qtbase-devel qt5-qttools-devel
+    qt5-qtbase-devel qt5-qttools-devel
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \
-   mesa-libOSMesa-devel mesa-libOSMesa mesa-dri-drivers mesa-libGL* glx-utils
+    mesa-libOSMesa-devel mesa-libOSMesa mesa-dri-drivers mesa-libGL* glx-utils
 
 # External dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -54,5 +55,14 @@ dnf install -y --setopt=install_weak_deps=False \
 # RPMFusion external dependencies
 dnf install -y --setopt=install_weak_deps=False \
     ffmpeg-devel
+
+# External repository support
+dnf install -y --setopt=install_weak_deps=False \
+    dnf-plugins-core
+
+# Openturns dependencies
+dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_33/science:openturns.repo
+dnf install -y --setopt=install_weak_deps=False \
+    openturns-libs openturns-devel
 
 dnf clean all

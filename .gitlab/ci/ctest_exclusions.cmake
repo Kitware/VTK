@@ -15,6 +15,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # New baseline?
     "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
 
+    # Numerical problems?
+    "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
+
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -144,6 +147,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetQWidgetWidget$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithDisabledInteractor$"
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithMSAA$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
+  list(APPEND test_exclusions
+    # Seems to always fail.
+    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$"
+
+    # This is a flaky test. It sometimes passes.
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")

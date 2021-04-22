@@ -85,7 +85,7 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
 vtkOpenVRRenderer::~vtkOpenVRRenderer()
 {
   this->FloorActor->Delete();
-  this->FloorActor = 0;
+  this->FloorActor = nullptr;
 }
 
 //------------------------------------------------------------------------------

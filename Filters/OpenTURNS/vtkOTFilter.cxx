@@ -34,7 +34,7 @@ vtkOTFilter::vtkOTFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkOTFilter::~vtkOTFilter() {}
+vtkOTFilter::~vtkOTFilter() = default;
 
 //------------------------------------------------------------------------------
 int vtkOTFilter::FillInputPortInformation(int port, vtkInformation* info)

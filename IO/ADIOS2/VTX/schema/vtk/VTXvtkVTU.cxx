@@ -48,7 +48,7 @@ VTXvtkVTU::VTXvtkVTU(const std::string& schema, adios2::IO& io, adios2::Engine& 
   InitTimes();
 }
 
-VTXvtkVTU::~VTXvtkVTU() {}
+VTXvtkVTU::~VTXvtkVTU() = default;
 
 // PRIVATE
 void VTXvtkVTU::DoFill(vtkMultiBlockDataSet* multiBlock, const size_t step)

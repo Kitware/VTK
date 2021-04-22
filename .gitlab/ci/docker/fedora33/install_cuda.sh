@@ -10,6 +10,6 @@ dnf config-manager --add-repo \
 
 # CUDA toolchain
 dnf install -y --setopt=install_weak_deps=False \
-   cuda-compiler-11-2
+   cuda-compiler-11-2 cuda-cudart-devel-11-2 cuda-toolkit-11-2
 
 dnf clean all

@@ -46,7 +46,7 @@ VTXvtkBase::VTXvtkBase(
 {
 }
 
-VTXvtkBase::~VTXvtkBase() {}
+VTXvtkBase::~VTXvtkBase() = default;
 
 bool VTXvtkBase::ReadDataSets(
   const types::DataSetType type, const size_t step, const size_t pieceID)

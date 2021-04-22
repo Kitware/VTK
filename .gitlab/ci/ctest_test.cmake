@@ -8,6 +8,11 @@ ctest_start(APPEND)
 
 include(ProcessorCount)
 ProcessorCount(nproc)
+if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
+  if (nproc GREATER "$ENV{CTEST_MAX_PARALLELISM}")
+    set(nproc "$ENV{CTEST_MAX_PARALLELISM}")
+  endif ()
+endif ()
 
 # Default to a reasonable test timeout.
 set(CTEST_TEST_TIMEOUT 100)
@@ -15,6 +20,7 @@ set(CTEST_TEST_TIMEOUT 100)
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
+  TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
   REPEAT UNTIL_PASS:3)

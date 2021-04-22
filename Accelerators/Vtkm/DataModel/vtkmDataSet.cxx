@@ -264,7 +264,7 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
     std::lock_guard<std::mutex> lock(locator.lock);
     if (locator.buildTime < this->GetMTime())
     {
-      locator.control.reset(new vtkm::cont::PointLocatorSparseGrid);
+      locator.control = std::make_unique<vtkm::cont::PointLocatorSparseGrid>();
       locator.control->SetCoordinates(this->Internals->Coordinates);
       locator.control->Update();
       locator.buildTime = this->GetMTime();
@@ -300,7 +300,7 @@ vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdTyp
     std::lock_guard<std::mutex> lock(locator.lock);
     if (locator.buildTime < this->GetMTime())
     {
-      locator.control.reset(new vtkm::cont::CellLocatorGeneral);
+      locator.control = std::make_unique<vtkm::cont::CellLocatorGeneral>();
       locator.control->SetCellSet(this->Internals->CellSet);
       locator.control->SetCoordinates(this->Internals->Coordinates);
       locator.control->Update();

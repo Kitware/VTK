@@ -35,10 +35,21 @@ endif ()
 
 include(ProcessorCount)
 ProcessorCount(nproc)
+if (NOT "$ENV{CTEST_MAX_PARALLELISM}" STREQUAL "")
+  if (nproc GREATER "$ENV{CTEST_MAX_PARALLELISM}")
+    set(nproc "$ENV{CTEST_MAX_PARALLELISM}")
+  endif ()
+endif ()
+
+if (CTEST_CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+  set(CTEST_BUILD_FLAGS "-j${nproc} -l${nproc}")
+elseif (CTEST_CMAKE_GENERATOR MATCHES "Ninja")
+  set(CTEST_BUILD_FLAGS "-l${nproc}")
+endif ()
 
 if (CTEST_CMAKE_GENERATOR MATCHES "Make")
   # Drop the `-i` flag without remorse.
-  set(CTEST_BUILD_COMMAND "make -j ${nproc} ${CTEST_BUILD_FLAGS}")
+  set(CTEST_BUILD_COMMAND "make ${CTEST_BUILD_FLAGS}")
 endif ()
 
 ctest_build(
@@ -69,6 +80,7 @@ set(CTEST_TEST_TIMEOUT 100)
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
+  TEST_LOAD "${nproc}"
   RETURN_VALUE test_result
   EXCLUDE "${test_exclusions}"
   REPEAT UNTIL_PASS:3)
