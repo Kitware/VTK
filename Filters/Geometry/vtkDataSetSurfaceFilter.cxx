@@ -1572,6 +1572,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
         break;
       case VTK_LAGRANGE_CURVE:
       case VTK_QUADRATIC_EDGE:
+      case VTK_CUBIC_LINE:
       {
         pointIdList = cellIter->GetPointIds();
         numCellPts = pointIdList->GetNumberOfIds();
