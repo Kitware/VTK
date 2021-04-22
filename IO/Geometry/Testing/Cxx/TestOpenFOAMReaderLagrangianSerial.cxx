@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestSimplePointsReaderWriter.cxx
+  Module:    TestOpenFOAMReaderLagrangianSerial
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -63,18 +63,13 @@ int TestOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
   reader->SetFileName(filename);
   delete[] filename;
   reader->Update();
-
-  reader->SetTimeValue(0.01);
-  // reader->CreateCellToPointOn();
-  // reader->ReadZonesOn();
+  reader->SetTimeValue(0.005);
 
   // Re-read with everything selected
   reader->EnableAllPatchArrays();
   reader->Update();
-
   reader->Print(std::cout);
-  reader->GetOutput()->Print(std::cout);
-  // reader->GetOutput()->GetBlock(0)->Print(std::cout);
+  // reader->GetOutput()->Print(std::cout);
 
   auto* allBlocks = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
   auto* lagrangianBlocks = findBlock<vtkMultiBlockDataSet>(allBlocks, "lagrangian");
@@ -85,8 +80,8 @@ int TestOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
     return 1;
   }
 
-  vtkIdType nClouds = 0;
-  vtkIdType nParticles = 0;
+  long nClouds = 0;
+  long nParticles = 0;
 
   const int nLagrangianFields = reader->GetNumberOfLagrangianArrays();
   std::cout << "----- Have " << nLagrangianFields << " Lagrangian fields" << std::endl;
@@ -97,14 +92,12 @@ int TestOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
     std::string displayName(reader->GetPatchArrayName(i));
     auto slash = displayName.rfind('/');
 
-    if (displayName.compare(0, slash, "lagrangian") == 0 && slash != std::string::npos)
+    if (slash != std::string::npos && displayName.compare(0, ++slash, "lagrangian/") == 0)
     {
-      ++slash;
       std::string cloudName(displayName.substr(slash));
       std::cout << "  Display " << displayName << " = Cloud <" << cloudName << ">" << std::endl;
 
       auto* cloudData = findBlock<vtkPolyData>(lagrangianBlocks, cloudName.c_str());
-
       if (cloudData)
       {
         ++nClouds;

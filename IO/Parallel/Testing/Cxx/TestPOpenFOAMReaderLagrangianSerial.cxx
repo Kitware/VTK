@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPOpenFOAMReaderLagrangianUncollated
+  Module:    TestPOpenFOAMReaderLagrangianSerial
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -36,7 +36,7 @@
 namespace
 {
 
-// Get named block
+// Get named block of specified type
 template <class Type>
 static Type* findBlock(vtkMultiBlockDataSet* mb, const char* blockName)
 {
@@ -56,9 +56,10 @@ static Type* findBlock(vtkMultiBlockDataSet* mb, const char* blockName)
   }
   return dataset;
 }
+
 } // End anonymous namespace
 
-int TestPOpenFOAMReaderLagrangianUncollated(int argc, char* argv[])
+int TestPOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkMPIController> controller;
@@ -72,13 +73,13 @@ int TestPOpenFOAMReaderLagrangianUncollated(int argc, char* argv[])
 
   // Read file name.
   char* filename = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/OpenFOAM/simplifiedSiwek-uncollated/simplifiedSiwek-uncollated.foam");
+    argc, argv, "Data/OpenFOAM/simplifiedSiwek-serial/simplifiedSiwek-serial.foam");
 
   // Read the file
   vtkNew<vtkPOpenFOAMReader> reader;
   reader->SetFileName(filename);
   delete[] filename;
-  reader->SetCaseType(vtkPOpenFOAMReader::DECOMPOSED_CASE);
+  reader->SetCaseType(vtkPOpenFOAMReader::RECONSTRUCTED_CASE);
   reader->Update();
 
   reader->SetTimeValue(0.005);
@@ -87,7 +88,16 @@ int TestPOpenFOAMReaderLagrangianUncollated(int argc, char* argv[])
   reader->EnableAllPatchArrays();
   reader->Update();
   reader->Print(std::cout);
-  reader->GetOutput()->Print(std::cout);
+  // reader->GetOutput()->Print(std::cout);
+
+  auto* allBlocks = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
+  auto* lagrangianBlocks = findBlock<vtkMultiBlockDataSet>(allBlocks, "lagrangian");
+
+  if (!lagrangianBlocks)
+  {
+    std::cout << "No lagrangian blocks!\n";
+    return 1;
+  }
 
   long nClouds = 0;
   long nParticles = 0;

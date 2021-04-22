@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestSimplePointsReaderWriter.cxx
+  Module:    TestPOpenFOAMReader
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
