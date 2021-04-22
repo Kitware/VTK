@@ -391,10 +391,6 @@ std::string vtkDataAssembly::MakeValidNodeName(const char* name)
     {
       result += name[cc];
     }
-    else
-    {
-      result;
-    }
   }
 
   if (result.empty() ||

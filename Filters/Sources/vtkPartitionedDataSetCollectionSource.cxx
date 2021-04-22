@@ -61,7 +61,7 @@ std::vector<int> GenerateAssignments(int numRanks, int& count)
 }
 
 // returns [start, end].
-std::pair<int, int> GetRange(int rank, const std::vector<int>& counts, int totalCount)
+std::pair<int, int> GetRange(int rank, const std::vector<int>& counts)
 {
   std::pair<int, int> result(0, counts[0]);
   if (rank == 0)
@@ -167,7 +167,7 @@ int vtkPartitionedDataSetCollectionSource::RequestData(
     int totalParts;
     std::vector<int> counts = ::GenerateAssignments(numPieces, totalParts);
     const double deltaV = maxV / totalParts;
-    const auto range = ::GetRange(piece, counts, totalParts);
+    const auto range = ::GetRange(piece, counts);
     for (int partition = range.first; partition < range.second; ++partition)
     {
       function->SetMinimumV(partition * deltaV);

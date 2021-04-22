@@ -1825,11 +1825,11 @@ struct Triangulate
   int CellTriangulate(vtkOutCellsConn& outCell, vtkPolygon* poly, vtkIdList* outTris)
   {
     vtkPoints* pts = this->OutPts;
-    int npts = outCell.size();
+    vtkIdType npts = static_cast<vtkIdType>(outCell.size());
     double x[3];
 
     // Load up the polygon
-    for (auto i = 0; i < npts; ++i)
+    for (vtkIdType i = 0; i < npts; ++i)
     {
       poly->PointIds->SetId(i, outCell[i]);
       pts->GetPoint(outCell[i], x);
