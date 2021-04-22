@@ -375,7 +375,7 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList* cellIds, int di
 //------------------------------------------------------------------------------
 bool vtkStructuredData::IsPointVisible(vtkIdType pointId, vtkUnsignedCharArray* ghosts)
 {
-  return ghosts && !(ghosts->GetValue(pointId) & vtkDataSetAttributes::HIDDENPOINT);
+  return !(ghosts && (ghosts->GetValue(pointId) & vtkDataSetAttributes::HIDDENPOINT));
 }
 
 //------------------------------------------------------------------------------
