@@ -471,6 +471,7 @@ int vtkPOpenFOAMReader::RequestInformation(
 
     int nProcessorDirs = 0;
     auto processorDirs = vtkSmartPointer<vtkIntArray>::New();
+    vtkStringArray* timeNames;
     vtkDoubleArray* timeValues;
 
     int ret = 1;
@@ -503,16 +504,19 @@ int vtkPOpenFOAMReader::RequestInformation(
           return 0;
         }
         this->Superclass::Readers->AddItem(masterReader);
+        timeNames = masterReader->GetTimeNames();
         timeValues = masterReader->GetTimeValues();
       }
       else
       {
+        timeNames = vtkStringArray::New();
         timeValues = vtkDoubleArray::New();
         this->Superclass::SetTimeInformation(outputVector, timeValues);
       }
     }
     else
     {
+      timeNames = vtkStringArray::New();
       timeValues = vtkDoubleArray::New();
     }
 
@@ -529,6 +533,7 @@ int vtkPOpenFOAMReader::RequestInformation(
 
       this->Controller->Broadcast(processorDirs, 0);
       this->Controller->Broadcast(timeValues, 0);
+      this->Broadcast(timeNames);
       if (this->ProcessId != 0)
       {
         this->Superclass::SetTimeInformation(outputVector, timeValues);
@@ -548,7 +553,7 @@ int vtkPOpenFOAMReader::RequestInformation(
       auto subReader = ::NewFoamReader(this);
 
       // If getting metadata failed, simply skip the reader instance
-      if (subReader->MakeInformationVector(nullptr, procDirName) &&
+      if (subReader->MakeInformationVector(nullptr, procDirName, timeNames, timeValues) &&
         subReader->MakeMetaDataAtTimeStep(true))
       {
         this->Superclass::Readers->AddItem(subReader);
@@ -562,6 +567,7 @@ int vtkPOpenFOAMReader::RequestInformation(
     // Cleanup
     if (this->ProcessId != 0 || (nProcessorDirs == 0))
     {
+      timeNames->Delete();
       timeValues->Delete();
     }
 
@@ -613,17 +619,24 @@ int vtkPOpenFOAMReader::RequestData(
   int ret = 1;
   if (this->Superclass::Readers->GetNumberOfItems())
   {
-    int nSteps = 0;
+    int nTimes(0); // Also used for logic
     double requestedTimeValue(0);
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-      requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-      nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-      if (nSteps > 0)
+      nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+      // UPDATE_TIME_STEP is unreliable if there is only one time-step
+      requestedTimeValue =
+        (1 == nTimes ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
+                     : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
+
+      if (nTimes)
       {
         outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
       }
     }
+
+    // NOTE: do not call SetTimeValue() directly here
 
     vtkAppendCompositeDataLeaves* append = vtkAppendCompositeDataLeaves::New();
     // append->AppendFieldDataOn();
@@ -637,8 +650,8 @@ int vtkPOpenFOAMReader::RequestData(
       // even if the child readers themselves are not modified, mark
       // them as modified if "this" has been modified, since they
       // refer to the property of "this"
-      if ((nSteps > 0 && reader->SetTimeValue(requestedTimeValue)) ||
-        this->MTimeOld != this->GetMTime())
+      if ((nTimes && reader->SetTimeValue(requestedTimeValue)) ||
+        (this->MTimeOld != this->GetMTime()))
       {
         reader->Modified();
       }

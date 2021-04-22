@@ -1000,16 +1000,23 @@ private:
 class vtkOpenFOAMReaderPrivate : public vtkObject
 {
 public:
+  // Use sparingly
+  friend class vtkOpenFOAMReader;
+
   static vtkOpenFOAMReaderPrivate* New();
   vtkTypeMacro(vtkOpenFOAMReaderPrivate, vtkObject);
 
   vtkGetMacro(TimeStep, int);
   vtkSetMacro(TimeStep, int);
 
+  double GetTimeValue() const;
   void SetTimeValue(double requestedTime);
 
   vtkStringArray* GetTimeNames() { return this->TimeNames; }
   vtkDoubleArray* GetTimeValues() { return this->TimeValues; }
+
+  // Print some time information (names, current time-step)
+  void PrintTimes(std::ostream& os, vtkIndent indent, bool full = false) const;
 
   bool HasPolyMesh() const noexcept { return !this->PolyMeshTimeIndexFaces.empty(); }
 
@@ -1024,6 +1031,11 @@ public:
   // Gather time instances information and create cache for mesh times
   bool MakeInformationVector(const std::string& casePath, const std::string& controlDictPath,
     const std::string& procName, vtkOpenFOAMReader* parent, bool requirePolyMesh = true);
+
+  // Use given time instances information and create cache for mesh times
+  bool MakeInformationVector(const std::string& casePath, const std::string& procName,
+    vtkOpenFOAMReader* parent, vtkStringArray* timeNames, vtkDoubleArray* timeValues,
+    bool requirePolyMesh = true);
 
   // Copy time instances information and create cache for mesh times
   void SetupInformation(const std::string& casePath, const std::string& regionName,
@@ -5518,25 +5530,76 @@ void vtkOpenFOAMReaderPrivate::ClearMeshes()
   this->ClearAreaMeshes();
 }
 
+//------------------------------------------------------------------------------
+// Time handling
+
+double vtkOpenFOAMReaderPrivate::GetTimeValue() const
+{
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+
+  if (this->TimeStep < 0 || this->TimeStep >= nTimes)
+  {
+    return 0;
+  }
+
+  return TimeValues->GetValue(this->TimeStep);
+}
+
 void vtkOpenFOAMReaderPrivate::SetTimeValue(double requestedTime)
 {
-  const vtkIdType nTimeValues = this->TimeValues->GetNumberOfTuples();
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
 
-  if (nTimeValues > 0)
+  if (nTimes)
   {
-    int minTimeI = 0;
-    double minTimeDiff = fabs(this->TimeValues->GetValue(0) - requestedTime);
-    for (int timeI = 1; timeI < nTimeValues; timeI++)
+    int nearestIndex = 0;
+    double deltaT = fabs(this->TimeValues->GetValue(0) - requestedTime);
+
+    for (vtkIdType timei = 1; timei < nTimes; ++timei)
     {
-      const double timeDiff(fabs(this->TimeValues->GetValue(timeI) - requestedTime));
-      if (timeDiff < minTimeDiff)
+      const double diff = fabs(this->TimeValues->GetValue(timei) - requestedTime);
+      if (diff < deltaT)
       {
-        minTimeI = timeI;
-        minTimeDiff = timeDiff;
+        deltaT = diff;
+        nearestIndex = timei;
       }
     }
-    this->SetTimeStep(minTimeI); // set Modified() if TimeStep changed
+    this->SetTimeStep(nearestIndex); // set Modified() if TimeStep changed
   }
+}
+
+void vtkOpenFOAMReaderPrivate::PrintTimes(std::ostream& os, vtkIndent indent, bool full) const
+{
+  const vtkIdType nTimes = this->TimeNames->GetNumberOfTuples();
+
+  os << indent << "Times: " << nTimes << " (";
+  if ((nTimes > 5) && !full)
+  {
+    os << this->TimeNames->GetValue(0) << ' ' << this->TimeNames->GetValue(1) << " .. "
+       << this->TimeNames->GetValue(nTimes - 1);
+  }
+  else
+  {
+    for (vtkIdType timei = 0; timei < nTimes; ++timei)
+    {
+      if (timei)
+      {
+        os << ' ';
+      }
+      os << this->TimeNames->GetValue(timei);
+    }
+  }
+  os << ')' << endl;
+  os << indent << "Step: " << this->TimeStep << " (";
+
+  if (this->TimeStep < 0 || this->TimeStep >= nTimes)
+  {
+    os << "n/a";
+  }
+  else
+  {
+    os << this->TimeNames->GetValue(this->TimeStep);
+  }
+  os << ')' << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -5581,6 +5644,53 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
   {
     return false;
   }
+
+  // does not seem to be required even if number of timesteps reduced
+  // upon refresh since ParaView rewinds TimeStep to 0, but for precaution
+  const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+  if (nTimes)
+  {
+    if (this->TimeStep >= nTimes)
+    {
+      this->SetTimeStep(static_cast<int>(nTimes - 1));
+    }
+  }
+  else
+  {
+    this->SetTimeStep(0);
+  }
+
+  // Clear any cached knowledge
+  this->PolyMeshTimeIndexPoints.clear();
+  this->PolyMeshTimeIndexFaces.clear();
+
+  // Normally expect a (default region) polyMesh/, but not for multi-region cases
+  if (requirePolyMesh)
+  {
+    this->PopulateMeshTimeIndices();
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath,
+  const std::string& procName, vtkOpenFOAMReader* parent, vtkStringArray* timeNames,
+  vtkDoubleArray* timeValues, bool requirePolyMesh)
+{
+  vtkFoamDebug(<< "MakeInformationVector (" << this->RegionName << "/" << procName
+               << ") polyMesh:" << requirePolyMesh << " - inherit times\n");
+
+  this->CasePath = casePath;
+  this->ProcessorName = procName;
+  this->Parent = parent;
+
+  this->TimeNames->Delete();
+  this->TimeNames = timeNames;
+  this->TimeNames->Register(nullptr);
+  this->TimeValues->Delete();
+  this->TimeValues = timeValues;
+  this->TimeValues->Register(nullptr);
 
   // does not seem to be required even if number of timesteps reduced
   // upon refresh since ParaView rewinds TimeStep to 0, but for precaution
@@ -6188,14 +6298,21 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   // timestep to add extra objects that don't exist at timestep 0 into
   // selection lists. Note the ObjectNames array will be recreated in
   // RequestData() so we don't have to worry about duplicated fields.
-  if (listNextTimeStep && this->TimeValues->GetNumberOfTuples() >= 2 && this->TimeStep == 0)
+
+  if (listNextTimeStep && this->TimeStep == 0)
   {
-    const std::string timePath2(this->TimePath(1));
-    this->GetFieldNames(timePath2 + this->RegionPath());
-    // if lagrangian clouds were not found at timestep 0
-    if (!this->LagrangianPaths->GetNumberOfTuples())
+    int nextTimeStep = this->TimeStep + 1;
+    if (nextTimeStep < this->TimeValues->GetNumberOfTuples())
     {
-      this->LocateLagrangianClouds(timePath2);
+      timePath = this->TimePath(nextTimeStep);
+      this->GetFieldNames(timePath + this->RegionPath());
+
+      // Lagrangian clouds are likely missing at time 0
+      // - could also lookahead multiple time steps (if desired)
+      if (!this->LagrangianPaths->GetNumberOfTuples())
+      {
+        this->LocateLagrangianClouds(timePath);
+      }
     }
   }
 
@@ -6474,8 +6591,8 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
     this->TimeValues->InsertNextValue(0);
   }
 
-  this->TimeValues->Squeeze();
   this->TimeNames->Squeeze();
+  this->TimeValues->Squeeze();
 
   vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
 
@@ -10902,7 +11019,35 @@ void vtkOpenFOAMReader::SetUse64BitFloats(bool val)
 }
 
 //------------------------------------------------------------------------------
-// PrintSelf
+// Printing
+
+void vtkOpenFOAMReader::PrintTimes(ostream& os, vtkIndent indent, bool full) const
+{
+  os << indent << "TimeInformation (SkipZeroTime: " << this->SkipZeroTime << ")\n";
+  this->Readers->InitTraversal();
+  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
+  {
+    // Is private implementation
+    {
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      if (reader)
+      {
+        reader->PrintTimes(os, indent.GetNextIndent(), full);
+        continue;
+      }
+    }
+    // Is sub-reader for derived type
+    {
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      if (reader)
+      {
+        reader->PrintTimes(os, indent.GetNextIndent(), full);
+        continue;
+      }
+    }
+  }
+}
+
 void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -10913,16 +11058,16 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DecomposePolyhedra: " << this->DecomposePolyhedra << endl;
   os << indent << "PositionsIsIn13Format: " << this->PositionsIsIn13Format << endl;
   os << indent << "ReadZones: " << this->ReadZones << endl;
-  os << indent << "SkipZeroTime: " << this->SkipZeroTime << endl;
-  os << indent << "ListTimeStepsByControlDict: " << this->ListTimeStepsByControlDict << endl;
   os << indent << "AddDimensionsToArrayNames: " << this->AddDimensionsToArrayNames << endl;
 
+  this->PrintTimes(os, indent);
+
+  // PrintSelf for any type of sub-readers
   this->Readers->InitTraversal();
-  vtkObject* reader;
-  while ((reader = this->Readers->GetNextItemAsObject()) != nullptr)
+  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
   {
-    os << indent << "Reader instance " << static_cast<void*>(reader) << ": \n";
-    reader->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "Reader instance " << static_cast<void*>(obj) << ": \n";
+    obj->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
@@ -11033,19 +11178,19 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Times
   {
-    int nTimes = 0;
+    int nTimes(0); // Also used for logic
     double requestedTimeValue(0);
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       nTimes = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
-      requestedTimeValue = (1 == nTimes
-          // Only one time-step available, UPDATE_TIME_STEP is unreliable
-          ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
-          : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
+      // UPDATE_TIME_STEP is unreliable if there is only one time-step
+      requestedTimeValue =
+        (1 == nTimes ? outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0)
+                     : outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
     }
 
-    if (nTimes > 0)
+    if (nTimes) // nTimes also used for logic
     {
       outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
       this->SetTimeValue(requestedTimeValue);
@@ -11114,28 +11259,29 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkOpenFOAMReader::SetTimeInformation(
   vtkInformationVector* outputVector, vtkDoubleArray* timeValues)
 {
-  double timeRange[2];
-  if (timeValues->GetNumberOfTuples() > 0)
-  {
-    outputVector->GetInformationObject(0)->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-      timeValues->GetPointer(0), static_cast<int>(timeValues->GetNumberOfTuples()));
+  const vtkIdType nTimes = timeValues->GetNumberOfTuples();
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
+  double timeRange[2];
+  if (nTimes)
+  {
     timeRange[0] = timeValues->GetValue(0);
-    timeRange[1] = timeValues->GetValue(timeValues->GetNumberOfTuples() - 1);
+    timeRange[1] = timeValues->GetValue(nTimes - 1);
+
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeValues->GetPointer(0),
+      static_cast<int>(nTimes));
   }
   else
   {
     timeRange[0] = timeRange[1] = 0.0;
-    outputVector->GetInformationObject(0)->Set(
-      vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeRange, 0);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeRange, 0);
   }
-  outputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenFOAMReader::MakeInformationVector(
-  vtkInformationVector* outputVector, const vtkStdString& procName)
+int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
+  const vtkStdString& procName, vtkStringArray* timeNames, vtkDoubleArray* timeValues)
 {
   this->FileNameOld->assign(this->FileName);
 
@@ -11190,17 +11336,41 @@ int vtkOpenFOAMReader::MakeInformationVector(
     std::sort(regionNames.begin(), regionNames.end());
   }
 
-  auto masterReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
-  if (!masterReader->MakeInformationVector(
-        casePath, controlDictPath, procName, this->Parent, hasDefaultRegion))
+  vtkIdType nTimeNames = 0;
+  vtkIdType nTimeValues = 0;
+
+  if (((timeNames != nullptr) && (nTimeNames = timeNames->GetNumberOfTuples()) != 0) &&
+    ((timeValues != nullptr) && (nTimeValues = timeValues->GetNumberOfTuples()) != 0) &&
+    (nTimeNames != nTimeValues))
   {
+    vtkErrorMacro(<< "Number of time values " << nTimeValues << " != number of time names "
+                  << nTimeNames);
     return 0;
   }
 
-  if (masterReader->GetTimeValues()->GetNumberOfTuples() == 0)
+  auto masterReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
+
+  if (nTimeNames && nTimeNames == nTimeValues)
+  {
+    if (!masterReader->MakeInformationVector(
+          casePath, procName, this->Parent, timeNames, timeValues, hasDefaultRegion))
+    {
+      return 0;
+    }
+  }
+  else
+  {
+    if (!masterReader->MakeInformationVector(
+          casePath, controlDictPath, procName, this->Parent, hasDefaultRegion))
+    {
+      return 0;
+    }
+  }
+
+  nTimeValues = masterReader->GetTimeValues()->GetNumberOfTuples();
+  if (!nTimeValues)
   {
     vtkErrorMacro(<< this->FileName << " contains no timestep data.");
-    return 0;
   }
 
   if (hasDefaultRegion)
@@ -11295,31 +11465,121 @@ void vtkOpenFOAMReader::AddSelectionNames(
 bool vtkOpenFOAMReader::SetTimeValue(const double timeValue)
 {
   bool modified = false;
-  vtkOpenFOAMReaderPrivate* reader;
   this->Readers->InitTraversal();
-  while ((reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers->GetNextItemAsObject())) !=
-    nullptr)
+  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
   {
-    vtkMTimeType mTime = reader->GetMTime();
-    reader->SetTimeValue(timeValue);
-    if (reader->GetMTime() != mTime)
+    // Is private implementation
     {
-      modified = true;
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      if (reader)
+      {
+        const vtkMTimeType mTime = reader->GetMTime();
+        reader->SetTimeValue(timeValue);
+        if (reader->GetMTime() != mTime)
+        {
+          modified = true;
+        }
+        continue;
+      }
+    }
+    // Is sub-reader for derived type
+    {
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      if (reader)
+      {
+        if (reader->SetTimeValue(timeValue))
+        {
+          modified = true;
+        }
+        continue;
+      }
     }
   }
   return modified;
 }
 
 //------------------------------------------------------------------------------
+double vtkOpenFOAMReader::GetTimeValue() const
+{
+  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+
+  if (obj)
+  {
+    // Is private implementation
+    {
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeValue();
+      }
+    }
+    // Is sub-reader for derived type
+    {
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeValue();
+      }
+    }
+  }
+
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+vtkStringArray* vtkOpenFOAMReader::GetTimeNames()
+{
+  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+
+  if (obj)
+  {
+    // Is private implementation
+    {
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeNames();
+      }
+    }
+    // Is sub-reader for derived type
+    {
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeNames();
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
 vtkDoubleArray* vtkOpenFOAMReader::GetTimeValues()
 {
-  if (this->Readers->GetNumberOfItems() <= 0)
+  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+
+  if (obj)
   {
-    return nullptr;
+    // Is private implementation
+    {
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeValues();
+      }
+    }
+    // Is sub-reader for derived type
+    {
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      if (reader)
+      {
+        return reader->GetTimeValues();
+      }
+    }
   }
-  vtkOpenFOAMReaderPrivate* reader =
-    vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers->GetItemAsObject(0));
-  return reader != nullptr ? reader->GetTimeValues() : nullptr;
+
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
