@@ -311,19 +311,9 @@ void vtkCurvatures::ComputeGaussCurvature(
     e2[1] -= v2[1];
     e2[2] -= v2[2];
 
-    // normalise
-    vtkMath::Normalize(e0);
-    vtkMath::Normalize(e1);
-    vtkMath::Normalize(e2);
-    // angles
-    // I get lots of acos domain errors so clamp the value to +/-1 as the
-    // normalize function can return 1.000000001 etc (I think)
-    double ac1 = vtkMath::Dot(e1, e2);
-    double ac2 = vtkMath::Dot(e2, e0);
-    double ac3 = vtkMath::Dot(e0, e1);
-    alpha0 = acos(-CLAMP_MACRO(ac1));
-    alpha1 = acos(-CLAMP_MACRO(ac2));
-    alpha2 = acos(-CLAMP_MACRO(ac3));
+    alpha0 = vtkMath::Pi() - vtkMath::AngleBetweenVectors(e1, e2);
+    alpha1 = vtkMath::Pi() - vtkMath::AngleBetweenVectors(e2, e0);
+    alpha2 = vtkMath::Pi() - vtkMath::AngleBetweenVectors(e0, e1);
 
     // surf. area
     A = double(vtkTriangle::TriangleArea(v0, v1, v2));
@@ -377,10 +367,13 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData* input, vtkPolyData* output)
     }
     else
     {
-      vtkDebugMacro(<< "Maximum Curvature undefined at point: " << i);
-      // k_max can be any real number. Undefined points will be indistinguishable
-      // from points that actually have a k_max == 0
-      k_max = 0;
+      k_max = h;
+      if (tmp < -0.1)
+      {
+        vtkWarningMacro(
+          << "The Gaussian or mean curvature at point " << i
+          << " have a large computation error... The maximum curvature is likely off.");
+      }
     }
     maximumCurvature->SetComponent(i, 0, k_max);
   }
@@ -417,10 +410,13 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData* input, vtkPolyData* output)
     }
     else
     {
-      vtkDebugMacro(<< "Minimum Curvature undefined at point: " << i);
-      // k_min can be any real number. Undefined points will be indistinguishable
-      // from points that actually have a k_min == 0
-      k_min = 0;
+      k_min = h;
+      if (tmp < -0.1)
+      {
+        vtkWarningMacro(
+          << "The Gaussian or mean curvature at point " << i
+          << " have a large computation error... The minimum curvature is likely off.");
+      }
     }
     minimumCurvature->SetComponent(i, 0, k_min);
   }
