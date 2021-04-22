@@ -1,4 +1,4 @@
- /*=========================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkSMPThreadLocal.h
@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPThreadLocal - A simple thread local implementation for sequential operations.
+// .NAME vtkSMPThreadLocal - A thread local storage implementation using
+// platform specific facilities.
 // .SECTION Description
 // A thread local object is one that maintains a copy of an object of the
 // template type for each thread that processes data. vtkSMPThreadLocal
@@ -29,29 +30,24 @@
 // write/accumulate data to local object when executing in parallel and
 // then having a sequential code block that iterates over the whole storage
 // using the iterators to do the final accumulation.
-//
-// Note that this particular implementation is designed to work in sequential
-// mode and supports only 1 thread.
 
 #ifndef vtkSMPThreadLocal_h
 #define vtkSMPThreadLocal_h
 
-#include "vtkSystemIncludes.h"
+#include "vtkSMPThreadLocalImpl.h"
+#include "vtkSMPToolsInternal.h"
 
 #include <iterator>
-#include <vector>
 
 template <typename T>
 class vtkSMPThreadLocal
 {
-  typedef std::vector<T> TLS;
-  typedef typename TLS::iterator TLSIter;
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal() : NumInitialized(0)
+  vtkSMPThreadLocal()
+    : Backend(vtk::detail::smp::GetNumberOfThreads())
   {
-      this->Initialize();
   }
 
   // Description:
@@ -59,9 +55,19 @@ public:
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
   explicit vtkSMPThreadLocal(const T& exemplar)
-    : NumInitialized(0), Exemplar(exemplar)
+    : Backend(vtk::detail::smp::GetNumberOfThreads())
+    , Exemplar(exemplar)
   {
-      this->Initialize();
+  }
+
+  ~vtkSMPThreadLocal()
+  {
+    detail::ThreadSpecificStorageIterator it;
+    it.SetThreadSpecificStorage(Backend);
+    for (it.SetToBegin(); !it.GetAtEnd(); it.Forward())
+    {
+      delete reinterpret_cast<T*>(it.GetStorage());
+    }
   }
 
   // Description:
@@ -74,22 +80,18 @@ public:
   // the same object.
   T& Local()
   {
-      int tid = this->GetThreadID();
-      if (!this->Initialized[tid])
-      {
-        this->Internal[tid] = this->Exemplar;
-        this->Initialized[tid] = true;
-        ++this->NumInitialized;
-      }
-      return this->Internal[tid];
+    detail::StoragePointerType& ptr = this->Backend.GetStorage();
+    T* local = reinterpret_cast<T*>(ptr);
+    if (!ptr)
+    {
+      ptr = local = new T(this->Exemplar);
+    }
+    return *local;
   }
 
   // Description:
   // Return the number of thread local objects that have been initialized
-  size_t size() const
-  {
-      return this->NumInitialized;
-  }
+  size_t size() const { return this->Backend.Size(); }
 
   // Description:
   // Subset of the standard iterator API.
@@ -99,61 +101,34 @@ public:
   // It is thread safe to iterate over the thread local containers
   // as long as each thread uses its own iterator and does not modify
   // objects in the container.
-  class iterator
-      : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
+  class iterator : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
   {
   public:
     iterator& operator++()
     {
-        this->InitIter++;
-        this->Iter++;
-
-        // Make sure to skip uninitialized
-        // entries.
-        while(this->InitIter != this->EndIter)
-        {
-          if (*this->InitIter)
-          {
-            break;
-          }
-          this->InitIter++;
-          this->Iter++;
-        }
-        return *this;
+      this->Impl.Forward();
+      return *this;
     }
 
     iterator operator++(int)
     {
       iterator copy = *this;
-      ++(*this);
+      this->Impl.Forward();
       return copy;
     }
 
-    bool operator==(const iterator& other)
-    {
-        return this->Iter == other.Iter;
-    }
+    bool operator==(const iterator& other) { return this->Impl == other.Impl; }
 
-    bool operator!=(const iterator& other)
-    {
-        return this->Iter != other.Iter;
-    }
+    bool operator!=(const iterator& other) { return !(this->Impl == other.Impl); }
 
-    T& operator*()
-    {
-        return *this->Iter;
-    }
+    T& operator*() { return *reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
-    T* operator->()
-    {
-        return &*this->Iter;
-    }
+    T* operator->() { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
   private:
+    detail::ThreadSpecificStorageIterator Impl;
+
     friend class vtkSMPThreadLocal<T>;
-    std::vector<bool>::iterator InitIter;
-    std::vector<bool>::iterator EndIter;
-    TLSIter Iter;
   };
 
   // Description:
@@ -161,69 +136,30 @@ public:
   // the local storage container. Thread safe.
   iterator begin()
   {
-      TLSIter iter = this->Internal.begin();
-      std::vector<bool>::iterator iter2 =
-        this->Initialized.begin();
-      std::vector<bool>::iterator enditer =
-        this->Initialized.end();
-      // fast forward to first initialized
-      // value
-      while(iter2 != enditer)
-      {
-        if (*iter2)
-        {
-          break;
-        }
-        iter2++;
-        iter++;
-      }
-      iterator retVal;
-      retVal.InitIter = iter2;
-      retVal.EndIter = enditer;
-      retVal.Iter = iter;
-      return retVal;
-  };
+    iterator it;
+    it.Impl.SetThreadSpecificStorage(Backend);
+    it.Impl.SetToBegin();
+    return it;
+  }
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
   iterator end()
   {
-      iterator retVal;
-      retVal.InitIter = this->Initialized.end();
-      retVal.EndIter = this->Initialized.end();
-      retVal.Iter = this->Internal.end();
-      return retVal;
+    iterator it;
+    it.Impl.SetThreadSpecificStorage(Backend);
+    it.Impl.SetToEnd();
+    return it;
   }
 
 private:
-  TLS Internal;
-  std::vector<bool> Initialized;
-  size_t NumInitialized;
+  detail::ThreadSpecific Backend;
   T Exemplar;
-
-  void Initialize()
-  {
-      this->Internal.resize(this->GetNumberOfThreads());
-      this->Initialized.resize(this->GetNumberOfThreads());
-      std::fill(this->Initialized.begin(),
-                this->Initialized.end(),
-                false);
-  }
-
-  inline int GetNumberOfThreads()
-  {
-      return 1;
-  }
-
-  inline int GetThreadID()
-  {
-      return 0;
-  }
 
   // disable copying
   vtkSMPThreadLocal(const vtkSMPThreadLocal&) = delete;
   void operator=(const vtkSMPThreadLocal&) = delete;
 };
+
 #endif
-// VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h

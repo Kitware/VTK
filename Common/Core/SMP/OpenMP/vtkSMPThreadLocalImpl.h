@@ -39,14 +39,12 @@
 #include <atomic>
 #include <omp.h>
 
-
 namespace detail
 {
 
 typedef void* ThreadIdType;
 typedef vtkTypeUInt32 HashType;
 typedef void* StoragePointerType;
-
 
 struct Slot
 {
@@ -63,13 +61,12 @@ private:
   void operator=(const Slot&);
 };
 
-
 struct HashTableArray
 {
   size_t Size, SizeLg;
   std::atomic<size_t> NumberOfEntries;
-  Slot *Slots;
-  HashTableArray *Prev;
+  Slot* Slots;
+  HashTableArray* Prev;
 
   explicit HashTableArray(size_t sizeLg);
   ~HashTableArray();
@@ -79,7 +76,6 @@ private:
   HashTableArray(const HashTableArray&);
   void operator=(const HashTableArray&);
 };
-
 
 class VTKCOMMONCORE_EXPORT ThreadSpecific
 {
@@ -102,16 +98,17 @@ inline size_t ThreadSpecific::Size() const
   return this->Count;
 }
 
-
 class ThreadSpecificStorageIterator
 {
 public:
   ThreadSpecificStorageIterator()
-    : ThreadSpecificStorage(nullptr), CurrentArray(nullptr), CurrentSlot(0)
+    : ThreadSpecificStorage(nullptr)
+    , CurrentArray(nullptr)
+    , CurrentSlot(0)
   {
   }
 
-  void SetThreadSpecificStorage(ThreadSpecific &threadSpecifc)
+  void SetThreadSpecificStorage(ThreadSpecific& threadSpecifc)
   {
     this->ThreadSpecificStorage = &threadSpecifc;
   }
@@ -132,15 +129,9 @@ public:
     this->CurrentSlot = 0;
   }
 
-  bool GetInitialized() const
-  {
-    return this->ThreadSpecificStorage != nullptr;
-  }
+  bool GetInitialized() const { return this->ThreadSpecificStorage != nullptr; }
 
-  bool GetAtEnd() const
-  {
-    return this->CurrentArray == nullptr;
-  }
+  bool GetAtEnd() const { return this->CurrentArray == nullptr; }
 
   void Forward()
   {
@@ -155,7 +146,7 @@ public:
           break;
         }
       }
-      Slot *slot = this->CurrentArray->Slots + this->CurrentSlot;
+      Slot* slot = this->CurrentArray->Slots + this->CurrentSlot;
       if (slot->Storage)
       {
         break;
@@ -165,24 +156,22 @@ public:
 
   StoragePointerType& GetStorage() const
   {
-    Slot *slot = this->CurrentArray->Slots + this->CurrentSlot;
+    Slot* slot = this->CurrentArray->Slots + this->CurrentSlot;
     return slot->Storage;
   }
 
-  bool operator==(const ThreadSpecificStorageIterator &it) const
+  bool operator==(const ThreadSpecificStorageIterator& it) const
   {
     return (this->ThreadSpecificStorage == it.ThreadSpecificStorage) &&
-           (this->CurrentArray == it.CurrentArray) &&
-           (this->CurrentSlot == it.CurrentSlot);
+      (this->CurrentArray == it.CurrentArray) && (this->CurrentSlot == it.CurrentSlot);
   }
 
 private:
-  ThreadSpecific *ThreadSpecificStorage;
-  HashTableArray *CurrentArray;
+  ThreadSpecific* ThreadSpecificStorage;
+  HashTableArray* CurrentArray;
   size_t CurrentSlot;
 };
 
 } // detail;
 
 #endif
-// VTK-HeaderTest-Exclude: vtkSMPThreadLocalImpl.h

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPToolsInternal.h
+  Module:    vtkSMPToolsInternal.h.in
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,54 +16,42 @@
 #ifndef vtkSMPToolsInternal_h
 #define vtkSMPToolsInternal_h
 
-#include "vtkCommonCoreModule.h"       // For export macro
-#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
-
 #include <algorithm> //for std::sort()
 
-#ifndef __VTK_WRAP__
+#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
+
 namespace vtk
 {
 namespace detail
 {
 namespace smp
 {
-
-typedef void (*ExecuteFunctorPtrType)(void*, vtkIdType, vtkIdType, vtkIdType);
-
-int VTKCOMMONCORE_EXPORT GetNumberOfThreads();
-void VTKCOMMONCORE_EXPORT vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last,
-  vtkIdType grain, ExecuteFunctorPtrType functorExecuter, void* functor);
-
-template <typename FunctorInternal>
-void ExecuteFunctor(void* functor, vtkIdType from, vtkIdType grain, vtkIdType last)
-{
-  vtkIdType to = from + grain;
-  if (to > last)
-  {
-    to = last;
-  }
-
-  FunctorInternal& fi = *reinterpret_cast<FunctorInternal*>(functor);
-  fi.Execute(from, to);
-}
-
 template <typename FunctorInternal>
 void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
   vtkIdType n = last - first;
-  if (n <= 0)
+  if (!n)
   {
     return;
   }
 
-  if (grain >= n)
+  if (grain == 0 || grain >= n)
   {
     fi.Execute(first, last);
   }
   else
   {
-    vtkSMPTools_Impl_For_OpenMP(first, last, grain, ExecuteFunctor<FunctorInternal>, &fi);
+    vtkIdType b = first;
+    while (b < last)
+    {
+      vtkIdType e = b + grain;
+      if (e > last)
+      {
+        e = last;
+      }
+      fi.Execute(b, e);
+      b = e;
+    }
   }
 }
 
@@ -72,10 +60,7 @@ template <typename InputIt, typename OutputIt, typename Functor>
 void vtkSMPTools_Impl_Transform(
   InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
-  auto size = std::distance(inBegin, inEnd);
-
-  UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  std::transform(inBegin, inEnd, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------
@@ -83,22 +68,14 @@ template <typename InputIt1, typename InputIt2, typename OutputIt, typename Func
 static void vtkSMPTools_Impl_Transform(
   InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
 {
-  auto size = std::distance(inBegin1, inEnd);
-
-  BinaryTransformCall<InputIt1, InputIt2, OutputIt, Functor> exec(
-    inBegin1, inBegin2, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  std::transform(inBegin1, inEnd, inBegin2, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------
 template <typename Iterator, typename T>
 void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
 {
-  auto size = std::distance(begin, end);
-
-  FillFunctor<T> fill(value);
-  UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  std::fill(begin, end, value);
 }
 
 //--------------------------------------------------------------------------------
@@ -119,7 +96,4 @@ void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end,
 } // namespace detail
 } // namespace vtk
 
-#endif // __VTK_WRAP__
-
 #endif
-// VTK-HeaderTest-Exclude: vtkSMPToolsInternal.h
