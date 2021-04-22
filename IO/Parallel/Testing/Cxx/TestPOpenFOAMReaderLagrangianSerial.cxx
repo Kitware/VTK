@@ -90,15 +90,6 @@ int TestPOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
   reader->Print(std::cout);
   // reader->GetOutput()->Print(std::cout);
 
-  auto* allBlocks = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput());
-  auto* lagrangianBlocks = findBlock<vtkMultiBlockDataSet>(allBlocks, "lagrangian");
-
-  if (!lagrangianBlocks)
-  {
-    std::cout << "No lagrangian blocks!\n";
-    return 1;
-  }
-
   long nClouds = 0;
   long nParticles = 0;
   int hasLagrangian = 0;
@@ -159,6 +150,8 @@ int TestPOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
   }
   controller->Barrier();
   controller->Broadcast(&retVal, 1, 0);
+
+  controller->Finalize();
 
   return !retVal;
 }

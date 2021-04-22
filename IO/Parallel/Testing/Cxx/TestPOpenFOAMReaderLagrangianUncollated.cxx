@@ -150,5 +150,7 @@ int TestPOpenFOAMReaderLagrangianUncollated(int argc, char* argv[])
   controller->Barrier();
   controller->Broadcast(&retVal, 1, 0);
 
+  controller->Finalize();
+
   return !retVal;
 }
