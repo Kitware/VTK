@@ -17,8 +17,8 @@
 #ifndef vtkmlib_ArrayConverters_hxx
 #define vtkmlib_ArrayConverters_hxx
 
-#include "../Core/vtkmlib/DataArrayConverters.hxx"
 #include "ArrayConverters.h"
+#include "vtkmlib/DataArrayConverters.hxx"
 
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 
