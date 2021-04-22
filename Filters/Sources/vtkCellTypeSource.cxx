@@ -499,7 +499,8 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[horizontalEdge] = mid;
         mids[0] = mid;
       }
@@ -520,7 +521,8 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[verticalEdge] = mid;
         mids[2] = mid;
       }
@@ -536,7 +538,8 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
       {
         point1[k] = (point1[k] + point2[k]) * .5;
       }
-      vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+      vtkIdType mid;
+      this->Locator->InsertUniquePoint(point1, mid);
       mids[1] = mid;
       vtkIdType cellPoints[6] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
         i + (j + 1) * (firstDim + 1), mids[0], mids[1], mids[2] };
@@ -552,7 +555,7 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        mid = output->GetPoints()->InsertNextPoint(point1);
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[horizontalEdge] = mid;
         mids[0] = mid;
       }
@@ -571,7 +574,7 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        mid = output->GetPoints()->InsertNextPoint(point1);
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[verticalEdge] = mid;
         mids[2] = mid;
       }
@@ -610,7 +613,8 @@ void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[bottomEdge] = mid;
         pointIds[4] = mid;
       }
@@ -629,7 +633,8 @@ void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[rightEdge] = mid;
         pointIds[5] = mid;
       }
@@ -648,7 +653,8 @@ void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[topEdge] = mid;
         pointIds[6] = mid;
       }
@@ -667,7 +673,8 @@ void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int 
         {
           point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType mid;
+        this->Locator->InsertUniquePoint(point1, mid);
         edgeToPointId[leftEdge] = mid;
         pointIds[7] = mid;
       }
@@ -1025,7 +1032,7 @@ void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int
         {
           point1[l] = .5 * (point1[l] + point2[l]);
         }
-        hexIds[8] = output->GetPoints()->InsertNextPoint(point1);
+        this->Locator->InsertUniquePoint(point1, hexIds[8]);
 
         vtkIdType tetraIds[12][10] = { { hexIds[0], hexIds[1], hexIds[2], hexIds[8], -1, -1, -1, -1,
                                          -1, -1 },
@@ -1055,7 +1062,8 @@ void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int
               {
                 point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              vtkIdType mid;
+              this->Locator->InsertUniquePoint(point1, mid);
               edgeToPointId[edge] = mid;
               tetraIds[c][4 + e] = mid;
             }
@@ -1139,7 +1147,8 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(vtkUnstructuredGrid* output,
             {
               point1[l] = (point1[l] + point2[l]) * .5;
             }
-            vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+            vtkIdType mid;
+            this->Locator->InsertUniquePoint(point1, mid);
             edgeToPointId[edge] = mid;
             hexIds[8 + e] = mid;
           }
@@ -1214,7 +1223,8 @@ void vtkCellTypeSource::GenerateQuadraticWedges(vtkUnstructuredGrid* output, int
               {
                 point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              vtkIdType mid;
+              this->Locator->InsertUniquePoint(point1, mid);
               edgeToPointId[edge] = mid;
               wedgeIds[c][6 + e] = mid;
             }
@@ -1294,8 +1304,7 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, i
         {
           point1[l] = .5 * (point1[l] + point2[l]);
         }
-        hexIds[8] = output->GetPoints()->InsertNextPoint(point1);
-
+        this->Locator->InsertUniquePoint(point1, hexIds[8]);
         vtkIdType pyramidIds[6][13] = {
           { hexIds[0], hexIds[1], hexIds[2], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
           { hexIds[6], hexIds[5], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
@@ -1320,7 +1329,8 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, i
               {
                 point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              vtkIdType mid;
+              this->Locator->InsertUniquePoint(point1, mid);
               edgeToPointId[edge] = mid;
               pyramidIds[c][5 + e] = mid;
             }
@@ -1495,7 +1505,8 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
           double r = static_cast<double>(m) / order[0];
           double s = static_cast<double>(n) / order[1];
           pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
-          vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+          vtkIdType innerPointId;
+          this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
           conn[connidx] = innerPointId;
         }
       }
@@ -1992,7 +2003,8 @@ void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int ext
           double r = static_cast<double>(m) / order[0];
           double s = static_cast<double>(n) / order[1];
           pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
-          vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+          vtkIdType innerPointId;
+          this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
           conn[connidx] = innerPointId;
         }
       }
