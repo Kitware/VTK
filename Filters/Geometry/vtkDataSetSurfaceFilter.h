@@ -314,6 +314,8 @@ protected:
   vtkIdType* PointMap;
   vtkIdType GetOutputPointId(
     vtkIdType inPtId, vtkDataSet* input, vtkPoints* outPts, vtkPointData* outPD);
+  vtkIdType GetOutputPointIdAndInterpolate(vtkIdType inPtId, vtkDataSet* input, vtkCell* cell,
+    double* weights, vtkPoints* outPts, vtkPointData* outPD);
 
   class vtkEdgeInterpolationMap;
 
