@@ -31,7 +31,7 @@
 #include <vtkm/VecFromPortal.h>           // For vtkm::VecFromPortal
 #include <vtkm/VecTraits.h>               // For vtkm::VecTraits
 #include <vtkm/cont/ArrayHandle.h>        // For vtkm::cont::ArrayHandle
-#include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
+#include <vtkm/cont/UnknownArrayHandle.h> // For vtkm::cont::UnknownArrayHandle
 
 #include <memory> // For unique_ptr
 
@@ -64,7 +64,7 @@ public:
   template <typename V, typename S>
   void SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& ah);
 
-  vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const;
+  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const;
 
   /// concept methods for \c vtkGenericDataArray
   ValueType GetValue(vtkIdType valueIdx) const;

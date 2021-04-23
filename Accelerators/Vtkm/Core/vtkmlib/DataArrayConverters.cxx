@@ -169,9 +169,9 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
   return data;
 }
 
-vtkDataArray* Convert(const vtkm::cont::VariantArrayHandle& input, const char* name)
+vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const char* name)
 {
-  // We need to do the conversion from VariantArrayHandle to a known vtkm::cont::ArrayHandle
+  // We need to do the conversion from UnknownArrayHandle to a known vtkm::cont::ArrayHandle
   // after that we need to fill the vtkDataArray
   vtkDataArray* data = nullptr;
   ArrayConverter aConverter;

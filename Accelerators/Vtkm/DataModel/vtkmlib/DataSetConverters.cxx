@@ -74,7 +74,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
   vtkmDataArray<T>* typedIn3 = vtkmDataArray<T>::SafeDownCast(points->GetData());
   if (typedIn3)
   {
-    return vtkm::cont::CoordinateSystem("coords", typedIn3->GetVtkmVariantArrayHandle());
+    return vtkm::cont::CoordinateSystem("coords", typedIn3->GetVtkmUnknownArrayHandle());
   }
 
   typedef vtkm::Vec<T, 3> Vec3;

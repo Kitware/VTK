@@ -49,7 +49,7 @@ public:
   virtual void Allocate(vtkIdType numTuples) = 0;
   virtual void Reallocate(vtkIdType numTuples) = 0;
 
-  virtual vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const = 0;
+  virtual vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -174,9 +174,9 @@ public:
     this->Portal = this->Handle.WritePortal();
   }
 
-  vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
+  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{ this->Handle };
+    return vtkm::cont::UnknownArrayHandle{ this->Handle };
   }
 
 private:
@@ -243,9 +243,9 @@ public:
     vtkGenericWarningMacro(<< "Reallocate called on read-only vtkmDataArray");
   }
 
-  vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
+  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{ this->Handle };
+    return vtkm::cont::UnknownArrayHandle{ this->Handle };
   }
 
 private:
@@ -325,9 +325,9 @@ public:
     this->Portal = this->Handle.WritePortal();
   }
 
-  vtkm::cont::VariantArrayHandle GetVtkmVariantArrayHandle() const override
+  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const override
   {
-    return vtkm::cont::VariantArrayHandle{ this->GetVtkmArray() };
+    return vtkm::cont::UnknownArrayHandle{ this->GetVtkmArray() };
   }
 
 private:
@@ -437,9 +437,9 @@ void vtkmDataArray<T>::SetVtkmArrayHandle(const vtkm::cont::ArrayHandle<V, S>& a
 }
 
 template <typename T>
-vtkm::cont::VariantArrayHandle vtkmDataArray<T>::GetVtkmVariantArrayHandle() const
+vtkm::cont::UnknownArrayHandle vtkmDataArray<T>::GetVtkmUnknownArrayHandle() const
 {
-  return this->VtkmArray->GetVtkmVariantArrayHandle();
+  return this->VtkmArray->GetVtkmUnknownArrayHandle();
 }
 
 template <typename T>

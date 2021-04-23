@@ -17,7 +17,7 @@
 #ifndef vtkmlib_ArrayConverters_h
 #define vtkmlib_ArrayConverters_h
 
-#include "../Core/vtkmlib/DataArrayConverters.h"
+#include "vtkmlib/DataArrayConverters.h"
 
 #include "vtkAcceleratorsVTKmDataModelModule.h" //required for correct implementation
 #include "vtkmConfigDataModel.h"                //required for general vtkm setup
