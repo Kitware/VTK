@@ -132,21 +132,21 @@ int vtkPartitionedDataSetCollectionSource::RequestData(
   source->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   std::vector<vtkSmartPointer<vtkParametricFunction>> functions;
-  functions.push_back(vtkSmartPointer<vtkParametricBoy>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricCrossCap>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricFigure8Klein>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricKlein>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricMobius>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricRoman>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricBoy>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricCrossCap>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricFigure8Klein>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricKlein>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricMobius>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricRoman>::New());
 
   const auto firstOrientableSurface = static_cast<int>(functions.size());
 
-  functions.push_back(vtkSmartPointer<vtkParametricConicSpiral>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricDini>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricEllipsoid>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricEnneper>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricSuperToroid>::New());
-  functions.push_back(vtkSmartPointer<vtkParametricTorus>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricConicSpiral>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricDini>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricEllipsoid>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricEnneper>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricSuperToroid>::New());
+  functions.emplace_back(vtkSmartPointer<vtkParametricTorus>::New());
 
   vtkNew<vtkDataAssembly> assembly;
   assembly->SetRootNodeName("Assembly");
