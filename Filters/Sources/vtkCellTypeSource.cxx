@@ -1441,7 +1441,6 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
 //------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int extent[6])
 {
-  vtkPoints* points = output->GetPoints();
   // cell dimensions
   const int xDim = extent[1] - extent[0];
   const int yDim = extent[3] - extent[2];
@@ -1939,7 +1938,6 @@ void vtkCellTypeSource::GenerateBezierTris(vtkUnstructuredGrid* output, int exte
 //------------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateBezierQuads(vtkUnstructuredGrid* output, int extent[6])
 {
-  vtkPoints* points = output->GetPoints();
   // cell dimensions
   const int xDim = extent[1] - extent[0];
   const int yDim = extent[3] - extent[2];
