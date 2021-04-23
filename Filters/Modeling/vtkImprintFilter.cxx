@@ -1150,7 +1150,7 @@ struct ProduceIntersectionPoints
   // Get updated point coordinates. Since points can be projected or merged
   // due to coincidence, the coordinates of the imprint points must reflect
   // the updated coordinates.
-  void GetUpdatedPoint(vtkIdType id, vtkPointInfo* p, double x[3])
+  void GetUpdatedPoint(vtkIdType id, vtkPointInfo* vtkNotUsed(p), double x[3])
   {
     this->Imprint->GetPoint(id, x);
   }
