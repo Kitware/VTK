@@ -177,9 +177,7 @@ std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren), vtkVolumeMappe
 
   toShaderStr << "uniform int in_noOfComponents;\n"
                  "\n"
-                 "#ifndef GL_ES\n"
                  "uniform sampler2D in_depthSampler;\n"
-                 "#endif\n"
                  "\n"
                  "// Camera position\n"
                  "uniform vec3 in_cameraPos;\n";
@@ -2407,11 +2405,7 @@ std::string TerminationInit(vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* mappe
       \n\
       \n  g_terminatePointMax = 0.0;\
       \n\
-      \n#ifdef GL_ES\
-      \n  vec4 l_depthValue = vec4(1.0,1.0,1.0,1.0);\
-      \n#else\
       \n  vec4 l_depthValue = texture2D(in_depthSampler, fragTexCoord);\
-      \n#endif\
       \n  // Depth test\
       \n  if(gl_FragCoord.z >= l_depthValue.x)\
       \n    {\
