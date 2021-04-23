@@ -339,7 +339,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   // write this vtkTree out to to a string in PhyloXML format
   vtkNew<vtkPhyloXMLTreeWriter> writer;
   writer->SetInputData(tree);
-  writer->SetWriteToOutputString(1);
+  writer->SetWriteToOutputString(true);
   writer->IgnoreArray("node weight");
   writer->Update();
   std::string phyloXML = writer->GetOutputString();
@@ -355,7 +355,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   // identical to our previous PhyloXML string.
   vtkNew<vtkPhyloXMLTreeWriter> writer2;
   writer2->SetInputData(tree2);
-  writer2->SetWriteToOutputString(1);
+  writer2->SetWriteToOutputString(true);
   writer2->IgnoreArray("node weight");
   writer2->Update();
   std::string phyloXML2 = writer2->GetOutputString();
