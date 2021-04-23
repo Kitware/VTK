@@ -109,6 +109,7 @@ vtkTextRenderer::~vtkTextRenderer()
 {
   delete this->MathTextRegExp;
   delete this->MathTextRegExp2;
+  delete this->MathTextRegExpColumn;
 }
 
 //------------------------------------------------------------------------------
