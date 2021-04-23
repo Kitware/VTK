@@ -26,7 +26,6 @@ vtkCxxSetObjectMacro(vtkXMLWriterBase, Compressor, vtkDataCompressor);
 vtkXMLWriterBase::vtkXMLWriterBase()
   : FileName(nullptr)
   , WriteToOutputString(false)
-  , OutputString()
 #ifdef VTK_WORDS_BIGENDIAN // Byte order defaults to that of machine.
   , ByteOrder(vtkXMLWriterBase::BigEndian)
 #else
