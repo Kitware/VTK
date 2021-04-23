@@ -108,7 +108,7 @@ vtkPartitionedDataSetCollectionSource::vtkPartitionedDataSetCollectionSource()
 }
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSetCollectionSource::~vtkPartitionedDataSetCollectionSource() {}
+vtkPartitionedDataSetCollectionSource::~vtkPartitionedDataSetCollectionSource() = default;
 
 //------------------------------------------------------------------------------
 int vtkPartitionedDataSetCollectionSource::RequestInformation(vtkInformation* vtkNotUsed(request),
