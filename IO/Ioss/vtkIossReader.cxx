@@ -281,6 +281,14 @@ public:
     bool remove_unused_points);
 
   /**
+   * Add "id" array to the dataset using the id for the groupping entity, if
+   * any. The array named "object_id" is added as a cell-data array to follow
+   * the pattern used by vtkExodusIIReader.
+   */
+  bool GenerateEntityIdArray(vtkUnstructuredGrid* grid, const std::string& blockname,
+    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+
+  /**
    * Reads selected field arrays for the given entity block or set.
    * If `read_ioss_ids` is true, then element ids are read as applicable.
    *
@@ -1046,6 +1054,39 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
 }
 
 //----------------------------------------------------------------------------
+bool vtkIossReader::vtkInternals::GenerateEntityIdArray(vtkUnstructuredGrid* dataset,
+  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle)
+{
+  auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  auto region = this->GetRegion(handle);
+  auto group_entity = region->get_entity(blockname, ioss_entity_type);
+  if (!group_entity || !group_entity->property_exists("id"))
+  {
+    return false;
+  }
+
+  auto& cache = this->Cache;
+  const std::string cacheKey{ "__vtk_entity_id__" };
+
+  if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+  {
+    dataset->GetCellData()->AddArray(cachedArray);
+  }
+  else
+  {
+    vtkNew<vtkIdTypeArray> objectId;
+    objectId->SetNumberOfTuples(dataset->GetNumberOfCells());
+    objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
+    objectId->SetName("object_id");
+    cache.Insert(group_entity, cacheKey, objectId);
+    dataset->GetCellData()->AddArray(objectId);
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
   const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
@@ -1756,6 +1797,12 @@ int vtkIossReader::ReadMesh(
           {
             internals.GenerateFileId(dataset, blockname, vtk_entity_type, handle);
           }
+
+          if (this->ReadIds)
+          {
+            internals.GenerateEntityIdArray(dataset, blockname, vtk_entity_type, handle);
+          }
+
           pds->SetPartition(cc, dataset);
         }
       }
