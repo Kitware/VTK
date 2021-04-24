@@ -28,7 +28,6 @@ vtkCxxSetObjectMacro(vtkXMLDataWriterHelper, Writer, vtkXMLWriter2);
 //----------------------------------------------------------------------------
 vtkXMLDataWriterHelper::vtkXMLDataWriterHelper()
   : Writer(nullptr)
-  , DataSetName()
   , DataSetVersion{ 0, 0 }
 {
 }
