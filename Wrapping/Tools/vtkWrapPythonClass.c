@@ -46,23 +46,10 @@ const char* vtkWrapPython_GetSuperClass(ClassInfo* data, HierarchyInfo* hinfo)
 {
   int i;
   const char* supername = NULL;
-  const char* name;
-  const char** args;
-  const char* defaults[2] = { NULL, NULL };
-  char* cp;
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
     supername = data->SuperClasses[i];
-
-    if (strncmp(supername, "vtkTypeTemplate<", 16) == 0)
-    {
-      vtkParse_DecomposeTemplatedType(supername, &name, 2, &args, defaults);
-      cp = (char*)malloc(strlen(args[1]) + 1);
-      strcpy(cp, args[1]);
-      vtkParse_FreeTemplateDecomposition(name, 2, args);
-      supername = cp;
-    }
 
     if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
     {
