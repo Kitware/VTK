@@ -42,100 +42,56 @@ static void vtkWrapPython_GenerateObjectNew(
 
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
-const char* vtkWrapPython_GetSuperClass(ClassInfo* data, HierarchyInfo* hinfo)
+const char* vtkWrapPython_GetSuperClass(
+  ClassInfo* data, HierarchyInfo* hinfo, const char** supermodule)
 {
-  int i;
   const char* supername = NULL;
+  const char* module = NULL;
+  HierarchyEntry* entry;
+  int i;
 
+  /* if there are multiple superclasses, we just need the relevant one */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
     supername = data->SuperClasses[i];
-
-    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
+    if (vtkWrap_IsClassWrapped(hinfo, supername))
     {
-      if (vtkWrap_IsClassWrapped(hinfo, supername) && vtkWrap_IsVTKObjectBaseType(hinfo, supername))
+      if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
       {
-        return supername;
+        /* if class derived from vtkObjectBase, then only accept a
+           superclass that is also a vtkObjectBase */
+        if (vtkWrap_IsVTKObjectBaseType(hinfo, supername))
+        {
+          break;
+        }
+      }
+      else
+      {
+        break;
       }
     }
-    else if (vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, NULL))
-    {
-      return supername;
-    }
+
+    supername = NULL;
   }
 
-  return NULL;
-}
-
-/* -------------------------------------------------------------------- */
-/* check whether the superclass of the specified class is wrapped */
-const char* vtkWrapPython_HasWrappedSuperClass(
-  HierarchyInfo* hinfo, const char* classname, int* is_external)
-{
-  HierarchyEntry* entry;
-  const char* module;
-  const char* name;
-  const char* supername;
-  const char* result = NULL;
-  int depth = 0;
-
-  if (is_external)
+  if (supermodule)
   {
-    *is_external = 0;
-  }
+    *supermodule = NULL;
 
-  if (!hinfo)
-  {
-    return result;
-  }
-
-  name = classname;
-  entry = vtkParseHierarchy_FindEntry(hinfo, name);
-  if (!entry)
-  {
-    return result;
-  }
-
-  module = entry->Module;
-  while (entry->NumberOfSuperClasses == 1)
-  {
-    supername = vtkParseHierarchy_TemplatedSuperClass(entry, name, 0);
-    if (name != classname)
+    if (hinfo && supername)
     {
-      free((char*)name);
-    }
-    name = supername;
-    entry = vtkParseHierarchy_FindEntry(hinfo, name);
-    if (!entry)
-    {
-      break;
-    }
-
-    /* check if superclass is in a different module */
-    if (is_external && depth == 0 && strcmp(entry->Module, module) != 0)
-    {
-      *is_external = 1;
-    }
-    depth++;
-
-    /* the order of these conditions is important */
-    if (entry->IsTypedef)
-    {
-      break;
-    }
-    else
-    {
-      result = entry->Module;
-      break;
+      /* get superclass module and check against our own */
+      entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
+      module = entry->Module;
+      entry = vtkParseHierarchy_FindEntry(hinfo, supername);
+      if (entry && strcmp(entry->Module, module) != 0)
+      {
+        *supermodule = entry->Module;
+      }
     }
   }
 
-  if (name != classname)
-  {
-    free((char*)name);
-  }
-
-  return result;
+  return supername;
 }
 
 /* -------------------------------------------------------------------- */
@@ -221,7 +177,7 @@ void vtkWrapPython_ClassDoc(
   }
 
   /* only consider superclasses that are wrapped */
-  supername = vtkWrapPython_GetSuperClass(data, hinfo);
+  supername = vtkWrapPython_GetSuperClass(data, hinfo, NULL);
   if (supername)
   {
     vtkWrapPython_PyTemplateName(supername, pythonname);
@@ -341,7 +297,7 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInf
   fprintf(fp, "extern \"C\" { PyObject *Py%s_ClassNew(); }\n\n", classname);
 
   /* declare the New methods for all the superclasses */
-  supername = vtkWrapPython_GetSuperClass(data, hinfo);
+  supername = vtkWrapPython_GetSuperClass(data, hinfo, NULL);
   if (supername)
   {
     vtkWrapText_PythonName(supername, classname);
@@ -361,7 +317,7 @@ static void vtkWrapPython_GenerateObjectNew(
 {
   char superclassname[1024];
   const char* name;
-  int is_external;
+  const char* supermodule;
   int has_constants = 0;
   int has_enums = 0;
   int i;
@@ -426,12 +382,11 @@ static void vtkWrapPython_GenerateObjectNew(
     "#endif\n\n");
 
   /* find the first superclass that is a VTK class, create it first */
-  name = vtkWrapPython_GetSuperClass(data, hinfo);
+  name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
   if (name)
   {
     vtkWrapText_PythonName(name, superclassname);
-    vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, &is_external);
-    if (!is_external) /* superclass is in the same module */
+    if (!supermodule) /* superclass is in the same module */
     {
       fprintf(fp, "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n", superclassname);
     }
