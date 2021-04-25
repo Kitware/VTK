@@ -289,6 +289,7 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInf
 {
   char classname[1024];
   const char* supername;
+  const char* supermodule;
 
   /* mangle the classname if necessary */
   vtkWrapText_PythonName(data->Name, classname);
@@ -296,9 +297,9 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, HierarchyInf
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp, "extern \"C\" { PyObject *Py%s_ClassNew(); }\n\n", classname);
 
-  /* declare the New methods for all the superclasses */
-  supername = vtkWrapPython_GetSuperClass(data, hinfo, NULL);
-  if (supername)
+  /* declare ClassNew method for superclass, if it is in the same module */
+  supername = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
+  if (supername && !supermodule)
   {
     vtkWrapText_PythonName(supername, classname);
     fprintf(fp,
