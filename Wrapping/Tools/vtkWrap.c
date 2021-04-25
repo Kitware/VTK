@@ -535,7 +535,7 @@ int vtkWrap_IsClassWrapped(HierarchyInfo* hinfo, const char* classname)
     HierarchyEntry* entry;
     entry = vtkParseHierarchy_FindEntry(hinfo, classname);
 
-    if (entry)
+    if (entry && !vtkParseHierarchy_GetProperty(entry, "WRAPEXCLUDE"))
     {
       return 1;
     }
