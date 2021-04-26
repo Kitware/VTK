@@ -82,9 +82,12 @@ const char* vtkWrapPython_GetSuperClass(
     {
       /* get superclass module and check against our own */
       entry = vtkParseHierarchy_FindEntry(hinfo, data->Name);
-      module = entry->Module;
+      if (entry)
+      {
+        module = entry->Module;
+      }
       entry = vtkParseHierarchy_FindEntry(hinfo, supername);
-      if (entry && strcmp(entry->Module, module) != 0)
+      if (entry && (!module || strcmp(entry->Module, module) != 0))
       {
         *supermodule = entry->Module;
       }
