@@ -92,7 +92,7 @@ test-ext:vtk:fedora33-mpi-offscreen-osmesa-python:
     extends:
         - .fedora33_mpi_offscreen_osmesa_python_ext_vtk
         - .cmake_test_external_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_tidy_artifacts
         - .run_automatically
     dependencies:
