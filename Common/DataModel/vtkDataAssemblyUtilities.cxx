@@ -23,6 +23,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkSMPTools.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
@@ -718,7 +719,7 @@ std::vector<unsigned int> vtkDataAssemblyUtilities::GetSelectedCompositeIds(
     assert(data != nullptr);
 
     std::vector<unsigned int> cids(dsIndices.size());
-    std::transform(dsIndices.begin(), dsIndices.end(), cids.begin(),
+    vtkSMPTools::Transform(dsIndices.begin(), dsIndices.end(), cids.begin(),
       [data](unsigned int partitionIdx) { return data->GetCompositeIndex(partitionIdx); });
     return cids;
   }
