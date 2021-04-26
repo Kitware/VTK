@@ -47,8 +47,7 @@
 
 .macos_ext_builder_tags:
     tags:
-        #- vtk
-        - paraview # FIXME: use ParaView's runners until VTK gets a machine ported to CI.
+        - vtk
         - macos
         - shell
         - xcode-12.3
