@@ -25,7 +25,9 @@
 
 #ifndef vtkMPI4PyCommunicator_h
 #define vtkMPI4PyCommunicator_h
-#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
+// This class should only be wrapped for Python. The hierarchy "wrapping" also
+// needs to see the class for use in the Python wrappers.
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_HIERARCHY__) || defined(__VTK_WRAP_PYTHON__)
 
 #include "vtkPython.h" // For PyObject*; must be first
 
