@@ -16,6 +16,12 @@
 #define _vtk_mpi_ibm
 #endif
 
+// Skip SGI MPT's C++ support.
+#ifndef MPI_NO_CPPBIND
+#define MPI_NO_CPPBIND
+#define _vtk_mpi_sgi
+#endif
+
 // Include the MPI header.
 #include <mpi.h>
 
@@ -33,4 +39,9 @@
 #ifdef _vtk_mpi_ibm
 #undef _MPICC_H
 #undef _vtk_mpi_ibm
+#endif
+
+#ifdef _vtk_mpi_sgi
+#undef MPI_NO_CPPBIND
+#undef _vtk_mpi_sgi
 #endif
