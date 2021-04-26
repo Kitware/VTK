@@ -514,22 +514,18 @@ static int vtkWrapPython_IsValueWrappable(
 
   if (vtkWrap_IsScalar(val))
   {
-    if (vtkWrap_IsNumeric(val) || val->IsEnum || /* marked as enum in ImportExportEnumTypes */
-      vtkWrap_IsEnumMember(data, val) || vtkWrap_IsString(val))
+    if (vtkWrap_IsNumeric(val) || vtkWrap_IsEnumMember(data, val) || vtkWrap_IsString(val))
     {
       return 1;
     }
-    if (vtkWrap_IsObject(val))
+    /* enum types were marked in vtkWrapPython_MarkAllEnums() */
+    if (val->IsEnum)
     {
-      if (vtkWrap_IsSpecialType(hinfo, aClass) ||
-        vtkWrapPython_HasWrappedSuperClass(hinfo, aClass, NULL))
-      {
-        // don't allow scoped names (can't wrap nested classes)
-        if (vtkParse_UnscopedNameLength(aClass) == strlen(aClass))
-        {
-          return 1;
-        }
-      }
+      return 1;
+    }
+    if (vtkWrap_IsObject(val) && vtkWrap_IsClassWrapped(hinfo, aClass))
+    {
+      return 1;
     }
   }
   else if (vtkWrap_IsArray(val) || vtkWrap_IsNArray(val))

@@ -641,7 +641,6 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   int has_constants = 0;
   int has_superclass = 0;
   int has_copycons = 0;
-  int is_external = 0;
 
   /* remove namespaces and template parameters from the
    * class name to get the constructor name */
@@ -651,11 +650,10 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   }
 
   /* get the superclass */
-  supermodule = vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, &is_external);
-  if (supermodule)
+  name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);
+  if (name)
   {
     has_superclass = 1;
-    name = vtkWrapPython_GetSuperClass(data, hinfo);
     vtkWrapText_PythonName(name, supername);
   }
 
@@ -811,7 +809,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
     classname, classname, classname);
 
   /* import New method of the superclass */
-  if (has_superclass && !is_external)
+  if (has_superclass && !supermodule)
   {
     fprintf(fp,
       "#ifndef DECLARED_Py%s_TypeNew\n"
@@ -872,7 +870,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   /* call the superclass New (initialize in dependency order) */
   if (has_superclass)
   {
-    if (!is_external) /* superclass is in the same module */
+    if (!supermodule) /* superclass is in the same module */
     {
       fprintf(fp, "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n", supername);
     }

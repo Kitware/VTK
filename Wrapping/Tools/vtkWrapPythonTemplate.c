@@ -212,12 +212,6 @@ int vtkWrapPython_WrapTemplatedClass(
   int is_vtkobject = 0;
   const char** types;
 
-  /* do not directly wrap vtkTypeTemplate */
-  if (strcmp(data->Name, "vtkTypeTemplate") == 0)
-  {
-    return 0;
-  }
-
   if (hinfo == 0)
   {
     return 0;
