@@ -40,7 +40,17 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
   _vtk_module_get_module_property("${module}"
     PROPERTY  "private_depends"
     VARIABLE  _vtk_java_private_depends)
-  list(APPEND _vtk_java_hierarchy_depends ${_vtk_java_private_depends})
+  list(APPEND _vtk_java_hierarchy_depends
+    ${_vtk_java_private_depends})
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "optional_depends"
+    VARIABLE  _vtk_java_optional_depends)
+  foreach (_vtk_java_optional_depend IN LISTS _vtk_java_optional_depends)
+    if (TARGET "${_vtk_java_optional_depend}")
+      list(APPEND _vtk_java_hierarchy_depends
+        "${_vtk_java_optional_depend}")
+    endif ()
+  endforeach ()
 
   set(_vtk_java_command_depends)
   foreach (_vtk_java_hierarchy_depend IN LISTS _vtk_java_hierarchy_depends)

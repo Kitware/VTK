@@ -121,7 +121,17 @@ function (_vtk_module_wrap_python_sources module sources classes)
   _vtk_module_get_module_property("${module}"
     PROPERTY  "private_depends"
     VARIABLE  _vtk_python_private_depends)
-  list(APPEND _vtk_python_hierarchy_depends ${_vtk_python_private_depends})
+  list(APPEND _vtk_python_hierarchy_depends
+    ${_vtk_python_private_depends})
+  _vtk_module_get_module_property("${module}"
+    PROPERTY  "optional_depends"
+    VARIABLE  _vtk_python_optional_depends)
+  foreach (_vtk_python_optional_depend IN LISTS _vtk_python_optional_depends)
+    if (TARGET "${_vtk_python_optional_depend}")
+      list(APPEND _vtk_python_hierarchy_depends
+        "${_vtk_python_optional_depend}")
+    endif ()
+  endforeach ()
 
   set(_vtk_python_command_depends)
   foreach (_vtk_python_hierarchy_depend IN LISTS _vtk_python_hierarchy_depends)
