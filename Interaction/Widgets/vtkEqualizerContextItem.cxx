@@ -291,8 +291,7 @@ vtkStandardNewMacro(vtkEqualizerContextItem);
 
 //------------------------------------------------------------------------------
 vtkEqualizerContextItem::vtkEqualizerContextItem()
-  : vtkContextItem()
-  , Internal(new vtkInternal())
+  : Internal(new vtkInternal())
 {
   this->Pen->SetColor(0, 0, 0);
   this->Pen->SetWidth(1.0);

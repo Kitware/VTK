@@ -10,7 +10,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int TestEqualizerContextItem(int vtkNotUsed(argc), char** vtkNotUsed(argv))
+int TestEqualizerContextItem(int, char*[])
 {
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);

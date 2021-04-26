@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
 
-#include <vector>
+#include <vector> // for std::vector
 
 class vtkAxis;
 class vtkChartLegend;

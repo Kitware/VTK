@@ -91,13 +91,11 @@ public:
         modules.push_back(module);
       }
 
-      std::vector<double> normSpectrum;
-      for (auto module : modules)
-      {
-        normSpectrum.push_back(module / maxModule);
-      }
+      std::vector<double> normSpectrum(modules);
+      std::for_each(normSpectrum.begin(), normSpectrum.end(),
+        [maxModule](double& module) { module /= maxModule; });
 
-      this->NormalizedSpectrums[array->GetName()] = normSpectrum;
+      this->NormalizedSpectrums[array->GetName()] = std::move(normSpectrum);
     }
 
     return this->NormalizedSpectrums.at(array->GetName());
@@ -203,8 +201,7 @@ vtkStandardNewMacro(vtkEqualizerFilter);
 
 //------------------------------------------------------------------------------
 vtkEqualizerFilter::vtkEqualizerFilter()
-  : vtkTableAlgorithm()
-  , Internal(new vtkInternal())
+  : Internal(new vtkInternal())
 {
   this->SetNumberOfOutputPorts(3);
 }

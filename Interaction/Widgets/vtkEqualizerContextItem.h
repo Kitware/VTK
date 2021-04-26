@@ -15,10 +15,9 @@
 #ifndef vtkEqualizerContextItem_h
 #define vtkEqualizerContextItem_h
 
-#include "vtkContextItem.h"              // For the superclass.
+#include "vtkContextItem.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // For vtkNew
-#include "vtkObject.h"                   // Need vtkTypeMacro
 
 #include <string> // for std::string
 

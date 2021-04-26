@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <numeric>
 
 static bool FuzzyCompare(const vtkFFT::ComplexNumber& result, const vtkFFT::ComplexNumber& test,
   vtkFFT::ScalarNumber epsilon)
@@ -194,9 +195,8 @@ int Test_rfftfreq()
   double sampleSpacing = 1.0 / samplingFrequency;
   std::vector<double> frequencies = vtkFFT::RFftFreq(windowLength, sampleSpacing);
 
-  std::vector<double> test1;
-  for (auto i = 0; i < windowLength / 2; i++)
-    test1.push_back(i);
+  std::vector<double> test1(windowLength / 2);
+  std::iota(test1.begin(), test1.end(), 0);
 
   if (!(frequencies.size() == test1.size()))
   {
