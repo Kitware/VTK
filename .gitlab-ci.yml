@@ -154,6 +154,86 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     needs:
         - test:fedora33-mpi-python-qt-tbb
 
+## Python wheel builds
+
+build:wheel-linux-python36-x86_64:
+    extends:
+        - .wheel_linux36_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-linux-python36-x86_64:
+#     extends:
+#         - .wheel_linux36_x86_64
+#         - .cmake_test_wheel_linux
+#         - .linux_builder_tags
+#         - .run_automatically
+#     dependencies:
+#         - build:wheel-linux-python36-x86_64
+#     needs:
+#         - build:wheel-linux-python36-x86_64
+
+build:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-linux-python37-x86_64
+    needs:
+        - build:wheel-linux-python37-x86_64
+
+build:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-linux-python38-x86_64
+    needs:
+        - build:wheel-linux-python38-x86_64
+
+build:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-linux-python39-x86_64
+    needs:
+        - build:wheel-linux-python39-x86_64
+
 ## Static analysis builds
 
 build:fedora33-tidy:
