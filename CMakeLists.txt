@@ -81,7 +81,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
-add_subdirectory(Remote)
+if (VTK_ENABLE_REMOTE_MODULES)
+  add_subdirectory(Remote)
+endif ()
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
