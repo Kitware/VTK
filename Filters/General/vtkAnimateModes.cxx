@@ -17,6 +17,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkDataArrayAccessor.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
@@ -83,7 +84,7 @@ vtkAnimateModes::vtkAnimateModes()
 vtkAnimateModes::~vtkAnimateModes() = default;
 
 //----------------------------------------------------------------------------
-int vtkAnimateModes::ExecuteInformation(
+int vtkAnimateModes::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto inInfo = inputVector[0]->GetInformationObject(0);
@@ -115,7 +116,7 @@ int vtkAnimateModes::ExecuteInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkAnimateModes::ComputeInputUpdateExtent(
+int vtkAnimateModes::RequestUpdateExtent(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
   auto inInfo = inputVector[0]->GetInformationObject(0);
@@ -133,40 +134,69 @@ int vtkAnimateModes::ComputeInputUpdateExtent(
   return 1;
 }
 
+//------------------------------------------------------------------------------
+int vtkAnimateModes::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 int vtkAnimateModes::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto outInfo = outputVector->GetInformationObject(0);
-  auto input = vtkPointSet::GetData(inputVector[0], 0);
-  auto output = vtkPointSet::GetData(outInfo);
-  output->ShallowCopy(input);
-
-  auto displacement = this->GetInputArrayToProcess(0, inputVector);
-  if (!displacement)
-  {
-    // no input displacement array, nothing to do.
-    return 1;
-  }
-
-  auto modeShapeTime = outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())
+  const auto modeShapeTime = outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())
     ? outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())
     : 0;
 
-  auto inPts = input->GetPoints();
-  auto outPts = vtkPoints::New(inPts->GetDataType());
-  outPts->SetNumberOfPoints(inPts->GetNumberOfPoints());
-  output->SetPoints(outPts);
-  outPts->FastDelete();
+  // functor to animate block.
+  auto executeBlock = [this, modeShapeTime](vtkPointSet* block) {
+    auto displacement = this->GetInputArrayToProcess(0, block);
+    if (!displacement)
+    {
+      // no input displacement array, nothing to do.
+      return;
+    }
 
-  using PointTypes = vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<PointTypes, PointTypes>;
+    auto points = block->GetPoints();
+    auto newPoints = vtkPoints::New(points->GetDataType());
+    newPoints->SetNumberOfPoints(points->GetNumberOfPoints());
 
-  vtkAnimateModesWorker worker;
-  if (!Dispatcher::Execute(
-        inPts->GetData(), displacement, worker, modeShapeTime, outPts->GetData(), this))
+    using PointTypes = vtkArrayDispatch::Reals;
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<PointTypes, PointTypes>;
+
+    vtkAnimateModesWorker worker;
+    if (!Dispatcher::Execute(
+          points->GetData(), displacement, worker, modeShapeTime, newPoints->GetData(), this))
+    {
+      worker(points->GetData(), displacement, modeShapeTime, newPoints->GetData(), this);
+    }
+
+    block->SetPoints(newPoints);
+    newPoints->FastDelete();
+  };
+
+  auto outputDO = vtkDataObject::GetData(outputVector, 0);
+  if (auto inputDT = vtkDataObjectTree::GetData(inputVector[0], 0))
   {
-    worker(inPts->GetData(), displacement, modeShapeTime, outPts->GetData(), this);
+    auto outputDT = vtkDataObjectTree::SafeDownCast(outputDO);
+    assert(outputDT);
+
+    outputDT->RecursiveShallowCopy(inputDT);
+    for (auto block : vtkCompositeDataSet::GetDataSets<vtkPointSet>(outputDT))
+    {
+      executeBlock(block);
+    }
+  }
+  else if (auto inputPS = vtkPointSet::GetData(inputVector[0], 0))
+  {
+    auto outputPS = vtkPointSet::SafeDownCast(outputDO);
+    assert(outputPS);
+
+    outputPS->ShallowCopy(inputPS);
+    executeBlock(outputPS);
   }
 
   // Add field data arrays to provide information about the mode shape
@@ -183,9 +213,9 @@ int vtkAnimateModes::RequestData(
   modeShapeRange->SetNumberOfTuples(1);
   modeShapeRange->SetTypedTuple(0, this->ModeShapesRange);
 
-  output->GetFieldData()->AddArray(modeShape);
-  output->GetFieldData()->AddArray(modeShapeRange);
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), modeShapeTime);
+  outputDO->GetFieldData()->AddArray(modeShape);
+  outputDO->GetFieldData()->AddArray(modeShapeRange);
+  outputDO->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), modeShapeTime);
   return 1;
 }
 

@@ -33,9 +33,9 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkReaderExecutive.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -279,6 +279,14 @@ public:
   bool GetMesh(vtkUnstructuredGrid* grid, const std::string& blockname,
     vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle,
     bool remove_unused_points);
+
+  /**
+   * Add "id" array to the dataset using the id for the groupping entity, if
+   * any. The array named "object_id" is added as a cell-data array to follow
+   * the pattern used by vtkExodusIIReader.
+   */
+  bool GenerateEntityIdArray(vtkUnstructuredGrid* grid, const std::string& blockname,
+    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
 
   /**
    * Reads selected field arrays for the given entity block or set.
@@ -809,7 +817,9 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
       output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), ename.second.c_str());
       output->GetMetaData(pdsIdx)->Set(
         vtkIossReader::ENTITY_TYPE(), etype); // save for vtkIossReader use.
-      auto node = assembly->AddNode(ename.second.c_str(), entity_node);
+      auto node = assembly->AddNode(
+        vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
+      assembly->SetAttribute(node, "label", ename.second.c_str());
       assembly->AddDataSetIndex(node, pdsIdx);
 
       auto ioss_etype =
@@ -857,7 +867,9 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
   std::function<void(const Ioss::Assembly*, int)> processAssembly;
   processAssembly = [&assembly, &processAssembly, this](
                       const Ioss::Assembly* ioss_assembly, int parent) {
-    auto node = assembly->AddNode(ioss_assembly->name().c_str(), parent);
+    auto node = assembly->AddNode(
+      vtkDataAssembly::MakeValidNodeName(ioss_assembly->name().c_str()).c_str(), parent);
+    assembly->SetAttribute(node, "label", ioss_assembly->name().c_str());
     if (ioss_assembly->get_member_type() == Ioss::ASSEMBLY)
     {
       for (auto& child : ioss_assembly->get_members())
@@ -869,7 +881,9 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
     {
       for (auto& child : ioss_assembly->get_members())
       {
-        auto dschild = assembly->AddNode(child->name().c_str(), node);
+        auto dschild = assembly->AddNode(
+          vtkDataAssembly::MakeValidNodeName(child->name().c_str()).c_str(), node);
+        assembly->SetAttribute(dschild, "label", child->name().c_str());
         assembly->AddDataSetIndex(dschild, this->GetDataSetIndexForEntity(child));
       }
     }
@@ -1040,6 +1054,39 @@ bool vtkIossReader::vtkInternals::GetMesh(vtkUnstructuredGrid* dataset,
 }
 
 //----------------------------------------------------------------------------
+bool vtkIossReader::vtkInternals::GenerateEntityIdArray(vtkUnstructuredGrid* dataset,
+  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
+  const DatabaseHandle& handle)
+{
+  auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
+  auto region = this->GetRegion(handle);
+  auto group_entity = region->get_entity(blockname, ioss_entity_type);
+  if (!group_entity || !group_entity->property_exists("id"))
+  {
+    return false;
+  }
+
+  auto& cache = this->Cache;
+  const std::string cacheKey{ "__vtk_entity_id__" };
+
+  if (auto cachedArray = vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
+  {
+    dataset->GetCellData()->AddArray(cachedArray);
+  }
+  else
+  {
+    vtkNew<vtkIdTypeArray> objectId;
+    objectId->SetNumberOfTuples(dataset->GetNumberOfCells());
+    objectId->FillValue(static_cast<vtkIdType>(group_entity->get_property("id").get_int()));
+    objectId->SetName("object_id");
+    cache.Insert(group_entity, cacheKey, objectId);
+    dataset->GetCellData()->AddArray(objectId);
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkIossReader::vtkInternals::GetTopology(vtkUnstructuredGrid* grid,
   const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle)
@@ -1170,8 +1217,14 @@ vtkSmartPointer<vtkAbstractArray> vtkIossReader::vtkInternals::GetField(
     }
 
     // determine state for transient data.
-    const auto min = region->get_min_time();
     const auto max = region->get_max_time();
+    if (max.first <= 0)
+    {
+      // see paraview/paraview#20658 for why this is needed.
+      return nullptr;
+    }
+
+    const auto min = region->get_min_time();
     int state = -1;
     for (int cc = min.first; cc <= max.first; ++cc)
     {
@@ -1534,12 +1587,6 @@ vtkIossReader::~vtkIossReader()
 }
 
 //----------------------------------------------------------------------------
-vtkExecutive* vtkIossReader::CreateDefaultExecutive()
-{
-  return vtkReaderExecutive::New();
-}
-
-//----------------------------------------------------------------------------
 int vtkIossReader::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
@@ -1679,7 +1726,7 @@ int vtkIossReader::ReadMesh(
   if (!internals.UpdateDatabaseNames(this))
   {
     // this should not be necessary. ReadMetaData returns false when
-    // `UpdateDatabaseNames` fails. At which point vtkReaderExecutive should
+    // `UpdateDatabaseNames` fails. At which point vtkReaderAlgorithm should
     // never call `RequestData` leading to a call to this method. However, it
     // does, for some reason. Hence adding this check here.
     // ref: paraview/paraview#19951.
@@ -1750,6 +1797,12 @@ int vtkIossReader::ReadMesh(
           {
             internals.GenerateFileId(dataset, blockname, vtk_entity_type, handle);
           }
+
+          if (this->ReadIds)
+          {
+            internals.GenerateEntityIdArray(dataset, blockname, vtk_entity_type, handle);
+          }
+
           pds->SetPartition(cc, dataset);
         }
       }

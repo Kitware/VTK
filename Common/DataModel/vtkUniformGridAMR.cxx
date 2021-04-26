@@ -318,6 +318,26 @@ void vtkUniformGridAMR::CopyStructure(vtkCompositeDataSet* src)
 }
 
 //------------------------------------------------------------------------------
+void vtkUniformGridAMR::RecursiveShallowCopy(vtkDataObject* src)
+{
+  if (src == this)
+  {
+    return;
+  }
+
+  this->Superclass::ShallowCopy(src);
+
+  if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))
+  {
+    this->SetAMRInfo(hbds->GetAMRInfo());
+    this->AMRData->RecursiveShallowCopy(hbds->GetAMRData());
+    memcpy(this->Bounds, hbds->Bounds, sizeof(double) * 6);
+  }
+
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 const double* vtkUniformGridAMR::GetBounds()
 {
   return !this->AMRData->Empty() ? this->Bounds : this->AMRInfo->GetBounds();

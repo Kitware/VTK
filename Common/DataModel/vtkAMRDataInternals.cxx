@@ -122,3 +122,27 @@ void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
 
   this->Modified();
 }
+
+void vtkAMRDataInternals::RecursiveShallowCopy(vtkObject* src)
+{
+  if (src == this)
+  {
+    return;
+  }
+
+  if (vtkAMRDataInternals* hbds = vtkAMRDataInternals::SafeDownCast(src))
+  {
+    this->Blocks = hbds->Blocks;
+    for (auto& item : this->Blocks)
+    {
+      if (item.Grid)
+      {
+        auto clone = item.Grid->NewInstance();
+        clone->ShallowCopy(item.Grid);
+        item.Grid.TakeReference(clone);
+      }
+    }
+  }
+
+  this->Modified();
+}

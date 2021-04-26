@@ -36,15 +36,15 @@
 #define vtkAnimateModes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkPointSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 #include <vector> // for std::vector
 
-class VTKFILTERSGENERAL_EXPORT vtkAnimateModes : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkAnimateModes : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkAnimateModes* New();
-  vtkTypeMacro(vtkAnimateModes, vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkAnimateModes, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -108,9 +108,9 @@ protected:
   vtkAnimateModes();
   ~vtkAnimateModes() override;
 
-  int ExecuteInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  int ComputeInputUpdateExtent(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:

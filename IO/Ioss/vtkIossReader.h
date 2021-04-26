@@ -354,7 +354,6 @@ protected:
   vtkIossReader();
   ~vtkIossReader() override;
 
-  vtkExecutive* CreateDefaultExecutive() override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:

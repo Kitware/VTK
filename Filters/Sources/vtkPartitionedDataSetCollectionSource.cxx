@@ -161,6 +161,7 @@ int vtkPartitionedDataSetCollectionSource::RequestData(
     function->JoinVOff();
     function->JoinUOff();
     source->SetParametricFunction(function);
+    source->SetScalarModeToV();
 
     const double maxV = function->GetMaximumV();
 

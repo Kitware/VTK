@@ -111,6 +111,7 @@ public:
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
   void CopyStructure(vtkCompositeDataSet* src) override;
+  void RecursiveShallowCopy(vtkDataObject* src) override;
 
   // Retrieve an instance of this class from an information object.
   static vtkUniformGridAMR* GetData(vtkInformation* info);
