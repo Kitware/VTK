@@ -114,7 +114,7 @@ vtkSmartPointer<vtkOpenFOAMReader> NewFoamReader(vtkOpenFOAMReader* parent)
 //
 // - processors<nprocs>, when first == size == 0
 // - processors<nprocs>_<first>-<last>, where last is inclusive
-static std::string ProcessorDirName(const vtkIntArray* dirs, int index)
+std::string ProcessorDirName(const vtkIntArray* dirs, int index)
 {
   if (index < 0 || index >= dirs->GetNumberOfTuples())
   {
@@ -142,7 +142,7 @@ static std::string ProcessorDirName(const vtkIntArray* dirs, int index)
 
 #if VTK_FOAMFILE_COLLATED_FORMAT
 // Number of processor pieces represented by the tuple
-static inline int ProcessorsNumPieces(const int procTuple[])
+inline int ProcessorsNumPieces(const int procTuple[])
 {
   const auto nprocs = procTuple[0];
   // const auto first = procTuple[1];

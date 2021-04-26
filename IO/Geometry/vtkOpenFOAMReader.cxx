@@ -130,8 +130,11 @@
 #define ZLIB_INTERNAL
 #endif
 
-// for possible future extension of linehead-aware directives
+// For possible future extension of linehead-aware directives
 #define VTK_FOAMFILE_RECOGNIZE_LINEHEAD 0
+
+// List time directories according to system/controlDict
+#define VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT 1
 
 // Ignore things like 'U_0' restart files.
 // This could also be made part of the GUI properties
@@ -208,17 +211,14 @@
 #include "vtkWedge.h"
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
-// for getpwnam() / getpwuid()
-#include <pwd.h>
+#include <pwd.h> // For getpwnam(), getpwuid()
 #include <sys/types.h>
-// for getuid()
-#include <unistd.h>
+#include <unistd.h> // For getuid()
 #endif
-// for fabs()
-#include <cmath>
-// for isalnum() / isspace() / isdigit()
-#include <cctype>
 
+#include <algorithm>
+#include <cctype> // For isalnum(), isdigit(), isspace()
+#include <cmath>  // For abs()
 #include <map>
 #include <memory>
 #include <set>
@@ -317,7 +317,7 @@ void AppendLabelValue(vtkDataArray* array, vtkTypeInt64 val, bool use64BitLabels
 }
 
 // Append unique string to list
-static void appendUniq(vtkStringArray* list, vtkStringArray* items)
+void appendUniq(vtkStringArray* list, vtkStringArray* items)
 {
   for (int i = 0; i < items->GetNumberOfTuples(); ++i)
   {
@@ -1209,8 +1209,10 @@ private:
   void SortFieldFiles(vtkStringArray* selections, vtkStringArray* files);
   void LocateLagrangianClouds(const std::string& timePath);
 
+#if VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT
   // List time directories according to system/controlDict
   vtkFoamError ListTimeDirectoriesByControlDict(const std::string& controlDictPath);
+#endif
 
   // List time directories by searching in a case directory
   bool ListTimeDirectoriesByInstances();
@@ -5618,10 +5620,10 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
   bool scanTimeDirs = true;
   bool listOk = true; // Tentative return value
 
-  // List timesteps by directory or predict from controlDict values
-
+#if VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT
   if (!controlDictPath.empty() && this->Parent->GetListTimeStepsByControlDict())
   {
+    // Predict timesteps from controlDict values
     vtkFoamError errors = this->ListTimeDirectoriesByControlDict(controlDictPath);
 
     listOk = errors.empty();
@@ -5635,9 +5637,11 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
       vtkWarningMacro(<< errors << " - listing by instance instead");
     }
   }
+#endif // VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT
 
   if (scanTimeDirs)
   {
+    // List timesteps by directory
     listOk = this->ListTimeDirectoriesByInstances();
   }
   if (!listOk)
@@ -6331,6 +6335,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 //------------------------------------------------------------------------------
 // List time directories according to system/controlDict
 
+#if VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT
 vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   const std::string& controlDictPath)
 {
@@ -6527,6 +6532,7 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   this->TimeNames->Squeeze();
   return vtkFoamError();
 }
+#endif // VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT
 
 //------------------------------------------------------------------------------
 // List time directories by searching all valid time instances in a
@@ -6672,7 +6678,7 @@ namespace
 // - Changed: set to current time index
 // - No change: set to previous time instance
 // - No change and first instance: it is "constant" time instance
-inline static void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool changed)
+inline void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool changed)
 {
   list[i] = changed ? i : (i == 0) ? TIMEINDEX_CONSTANT : list[i - 1];
 }
@@ -6886,10 +6892,7 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
         vtkErrorMacro(<< "Illegal cell label in owner addressing. Face " << facei);
         return false;
       }
-      if (nCells < celli)
-      {
-        nCells = celli; // <- max(nCells, celli)
-      }
+      nCells = std::max(nCells, celli);
     }
   }
 
@@ -6964,10 +6967,7 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
         vtkErrorMacro(<< "Illegal cell label in neighbour addressing. Face " << facei);
         return false;
       }
-      if (nCells < celli)
-      {
-        nCells = celli; // <- max(nCells, celli)
-      }
+      nCells = std::max(nCells, celli);
     }
   }
 
@@ -7041,18 +7041,12 @@ std::unique_ptr<vtkFoamLabelListList> vtkOpenFOAMReaderPrivate::CreateCellFaces(
     for (vtkIdType facei = 0; facei < nFaces; ++facei)
     {
       const vtkTypeInt64 celli = GetLabelValue(&faceOwner, facei, use64BitLabels);
-      if (nCells < celli)
-      {
-        nCells = celli; // <- max(nCells, celli)
-      }
+      nCells = std::max(nCells, celli);
     }
     for (vtkIdType facei = 0; facei < nInternalFaces; ++facei)
     {
       const vtkTypeInt64 celli = GetLabelValue(&faceNeigh, facei, use64BitLabels);
-      if (nCells < celli)
-      {
-        nCells = celli; // <- max(nCells, celli)
-      }
+      nCells = std::max(nCells, celli);
     }
 
     // Set the number of cells
