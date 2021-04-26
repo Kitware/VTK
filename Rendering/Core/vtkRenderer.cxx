@@ -1404,15 +1404,6 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6])
     }
   }
 
-  // Offset a little to make sure bounds are not clipped
-  int offsetX = std::max(static_cast<int>((xmax - xmin) * 0.01), 10);
-  int offsetY = std::max(static_cast<int>((ymax - ymin) * 0.01), 10);
-
-  xmin -= offsetX;
-  xmax += offsetX;
-  ymin -= offsetY;
-  ymax += offsetY;
-
   // Project the focal point in screen space
   double fp[4];
   this->ActiveCamera->GetFocalPoint(fp);
@@ -1465,18 +1456,13 @@ vtkVector3d vtkRenderer::DisplayToWorld(const vtkVector3d& display)
 void vtkRenderer::ZoomToBoxUsingViewAngle(const vtkRecti& box)
 {
   const int* size = this->GetSize();
-  double zoomFactor;
-  if (box.GetWidth() > box.GetHeight())
-  {
-    zoomFactor = size[0] / static_cast<double>(box.GetWidth());
-  }
-  else
-  {
-    zoomFactor = size[1] / static_cast<double>(box.GetHeight());
-  }
+  double zf1 = size[0] / static_cast<double>(box.GetWidth());
+  double zf2 = size[1] / static_cast<double>(box.GetHeight());
+  double zoomFactor = std::min(zf1, zf2);
 
-  vtkCamera* cam = this->GetActiveCamera();
-  cam->Zoom(zoomFactor);
+  // Offset a little to let a free space between the zoomed data
+  // And the edges of the window
+  this->GetActiveCamera()->Zoom(zoomFactor * 0.90);
 }
 
 // Specify the rendering window in which to draw. This is automatically set
