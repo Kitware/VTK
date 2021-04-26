@@ -375,6 +375,84 @@ test:macos-kits-python-qt:
 #     needs:
 #         - test:macos-kits-python-qt
 
+## Python wheel builds
+
+build:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python36-x86_64
+    needs:
+        - build:wheel-macos-python36-x86_64
+
+build:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python37-x86_64
+    needs:
+        - build:wheel-macos-python37-x86_64
+
+build:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python38-x86_64
+    needs:
+        - build:wheel-macos-python38-x86_64
+
+build:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python39-x86_64
+    needs:
+        - build:wheel-macos-python39-x86_64
+
 # Windows
 
 build:windows-vs2019-kits-mpi-python-qt:
