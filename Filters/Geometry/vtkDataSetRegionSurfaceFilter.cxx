@@ -329,7 +329,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
     cellType = cellTypes[cellId];
 
     // A couple of common cases to see if things go faster.
-    if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX)
+    if (cellType == VTK_VERTEX || cellType == VTK_POLY_VERTEX || cellType == VTK_EMPTY_CELL)
     {
       // Do nothing.  This case was handled in the previous loop.
     }
