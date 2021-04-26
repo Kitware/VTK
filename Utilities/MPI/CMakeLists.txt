@@ -14,6 +14,7 @@ vtk_module_definitions(VTK::mpi
   INTERFACE
     MPICH_SKIP_MPICXX
     OMPI_SKIP_MPICXX
+    MPI_NO_CPPBIND
     _MPICC_H)
 
 if (APPLE AND TARGET MPI::MPI_C)
