@@ -19,6 +19,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+#include <deque>
 #include <functional>
 #include <set>
 #include <vector>
@@ -176,8 +177,12 @@ int TestSMP(int, char*[])
   std::vector<double> transformData1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
   std::set<double> transformData2 = { 7, 24, 98, 256, 72, 19, 3, 21, 2, 12 };
   std::vector<double> transformData3 = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+  std::vector<double> transformData4 = { 8, 23, 123, 9, 23, 1, 4, 20, 1, 7, 38, 21 };
+  std::vector<double> transformData5 = { 0, 0, 0, 0 };
   vtkNew<vtkAOSDataArrayTemplate<double>> transformArray0;
   vtkNew<vtkAOSDataArrayTemplate<double>> transformArray1;
+  vtkNew<vtkAOSDataArrayTemplate<double>> transformArray4;
+  vtkNew<vtkAOSDataArrayTemplate<double>> transformArray5;
 
   transformArray0->SetNumberOfComponents(1);
   transformArray0->SetArray(transformData0.data(), transformData0.size(), 1);
@@ -194,7 +199,9 @@ int TestSMP(int, char*[])
   {
     if (*it1 != *it0 * i)
     {
-      cerr << "Error: Bad comparison transform!" << endl;
+      cerr << "Error: Invalid output for vtkSMPTools::Transform (binary op) applied on "
+              "vtk::DataArrayValueRange!"
+           << endl;
       return 1;
     }
   }
@@ -206,28 +213,80 @@ int TestSMP(int, char*[])
   {
     if (it3 != *it2 - 1)
     {
-      cerr << "Error: Bad comparison transform!" << endl;
+      cerr << "Error: Invalid output for vtkSMPTools::Transform (unary op) applied on std::set!"
+           << endl;
       return 1;
     }
     it2++;
   }
 
+  transformArray4->SetNumberOfComponents(3);
+  transformArray4->SetArray(transformData4.data(), transformData4.size(), 1);
+  transformArray5->SetNumberOfComponents(1);
+  transformArray5->SetArray(transformData5.data(), transformData5.size(), 1);
+
+  const auto transformRange4 = vtk::DataArrayTupleRange<3>(transformArray4);
+  auto transformRange5 = vtk::DataArrayValueRange<1>(transformArray5);
+
+  using TupleRef = typename decltype(transformRange4)::const_reference;
+  using ValueType = typename decltype(transformRange5)::ValueType;
+  auto computeMag = [](const TupleRef& tuple) -> ValueType {
+    ValueType mag = 0;
+    for (const auto& comp : tuple)
+    {
+      mag += static_cast<ValueType>(comp);
+    }
+    return mag;
+  };
+
+  vtkSMPTools::Transform(
+    transformRange4.cbegin(), transformRange4.cend(), transformRange5.begin(), computeMag);
+  auto it5 = transformRange5.begin();
+  for (const auto& it4 : transformRange4)
+  {
+    ValueType result = 0;
+    for (const auto& comp : it4)
+    {
+      result += static_cast<ValueType>(comp);
+    }
+    if (result != *it5)
+    {
+      cerr << "Error: Invalid output for vtkSMPTools::Transform (unary op) applied on "
+              "vtk::DataArrayTupleRange!"
+           << endl;
+      return 1;
+    }
+    it5++;
+  }
+
   // Test fill
-  std::vector<double> fillData0 = { 51, 9, 3, -10, 27, 1, -5, 82, 31, 9, 21 };
+  std::vector<double> fillData0 = { 51, 9, 3, -10, 27, 1, -5, 82, 31, 9 };
+  std::deque<double> fillData1 = { 0, 0, 0, 0, 0 };
   vtkNew<vtkAOSDataArrayTemplate<double>> fillArray0;
 
-  fillArray0->SetNumberOfComponents(1);
+  fillArray0->SetNumberOfComponents(2);
   fillArray0->SetArray(fillData0.data(), fillData0.size(), 1);
 
-  // Fill range2 with its first value
-  auto fillRange0 = vtk::DataArrayTupleRange<1>(fillArray0);
-  const auto value = *fillRange0.begin();
-  vtkSMPTools::Fill(fillRange0.begin(), fillRange0.end(), value);
+  auto fillRange0 = vtk::DataArrayTupleRange<2>(fillArray0);
+  const auto fillValue0 = *fillRange0.begin();
+  vtkSMPTools::Fill(fillRange0.begin(), fillRange0.end(), fillValue0);
   for (auto it : fillRange0)
   {
-    if (it != value)
+    if (it != fillValue0)
     {
-      cerr << "Error: Bad comparison transform!" << endl;
+      cerr << "Error: Invalid output for vtkSMPTools::Fill applied on vtk::DataArrayTupleRange!"
+           << endl;
+      return 1;
+    }
+  }
+
+  const double fillValue1 = 42;
+  vtkSMPTools::Fill(fillData1.begin(), fillData1.end(), fillValue1);
+  for (auto& it : fillData1)
+  {
+    if (it != fillValue1)
+    {
+      cerr << "Error: Invalid output for vtkSMPTools::Fill applied on std::deque!" << endl;
       return 1;
     }
   }
