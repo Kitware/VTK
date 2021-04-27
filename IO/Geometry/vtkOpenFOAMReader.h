@@ -62,6 +62,9 @@ class vtkOpenFOAMReaderPrivate;
 class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
+  // Access for implementation class
+  friend class vtkOpenFOAMReaderPrivate;
+
   static vtkOpenFOAMReader* New();
   vtkTypeMacro(vtkOpenFOAMReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -343,12 +346,16 @@ public:
   }
 
   void SetParent(vtkOpenFOAMReader* parent) { this->Parent = parent; }
-  int MakeInformationVector(vtkInformationVector*, const vtkStdString&);
-  bool SetTimeValue(const double);
-  vtkDoubleArray* GetTimeValues();
-  int MakeMetaDataAtTimeStep(const bool);
 
-  friend class vtkOpenFOAMReaderPrivate;
+  int MakeInformationVector(vtkInformationVector*, const vtkStdString& procDirName,
+    vtkStringArray* timeNames = nullptr, vtkDoubleArray* timeValues = nullptr);
+
+  double GetTimeValue() const;
+  bool SetTimeValue(const double);
+  vtkStringArray* GetTimeNames();
+  vtkDoubleArray* GetTimeValues();
+
+  int MakeMetaDataAtTimeStep(const bool);
 
 protected:
   // refresh flag
@@ -450,6 +457,9 @@ private:
   void EnableAllSelectionArrays(vtkDataArraySelection*);
 
   void AddSelectionNames(vtkDataArraySelection*, vtkStringArray*);
+
+  // Print some time information (names, current time-step)
+  void PrintTimes(std::ostream& os, vtkIndent indent = vtkIndent(), bool full = false) const;
 };
 
 #endif

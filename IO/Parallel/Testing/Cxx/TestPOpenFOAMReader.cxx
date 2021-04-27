@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestSimplePointsReaderWriter.cxx
+  Module:    TestPOpenFOAMReader
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -19,24 +19,25 @@
 #include "vtkDummyController.h"
 #endif
 
-#include <vtkCellData.h>
-#include <vtkCompositeDataGeometryFilter.h>
-#include <vtkCompositeRenderManager.h>
-#include <vtkLogger.h>
-#include <vtkMultiBlockDataSet.h>
-#include <vtkMultiProcessController.h>
-#include <vtkNew.h>
-#include <vtkPOpenFOAMReader.h>
-#include <vtkPointData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkUnstructuredGrid.h>
+#include "vtkPOpenFOAMReader.h"
 
-#include <vtkRegressionTestImage.h>
-#include <vtkTestUtilities.h>
+#include "vtkCellData.h"
+#include "vtkCompositeDataGeometryFilter.h"
+#include "vtkCompositeRenderManager.h"
+#include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkUnstructuredGrid.h"
+
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestPOpenFOAMReader(int argc, char* argv[])
 {
@@ -51,14 +52,17 @@ int TestPOpenFOAMReader(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   // Read file name.
-  const std::string filename =
+  char* filename =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/OpenFOAM/cavity/cavity.foam");
-  std::cerr << filename.c_str() << std::endl;
+  std::cerr << filename << std::endl;
 
   // Read the file
   vtkNew<vtkPOpenFOAMReader> reader;
-  reader->SetFileName(filename.c_str());
+  reader->SetFileName(filename);
+  delete[] filename;
+  reader->SetCaseType(vtkPOpenFOAMReader::RECONSTRUCTED_CASE);
   reader->Update();
+
   reader->SetTimeValue(.5);
   //  reader->CreateCellToPointOn();
   reader->ReadZonesOn();
