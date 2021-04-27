@@ -3,6 +3,11 @@ if (NOT DEFINED "ENV{PYTHON_PREFIX}")
     "The `PYTHON_PREFIX` environment variable is required.")
 endif ()
 
+set(python_subdir "bin/")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
+  set(python_subdir "")
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "")
@@ -13,7 +18,7 @@ endif ()
 
 set(VTK_WHEEL_BUILD ON CACHE BOOL "")
 set(CMAKE_PREFIX_PATH "$ENV{PYTHON_PREFIX}" CACHE STRING "")
-set(Python3_EXECUTABLE "$ENV{PYTHON_PREFIX}/bin/python$ENV{PYTHON_VERSION_SUFFIX}" CACHE FILEPATH "")
+set(Python3_EXECUTABLE "$ENV{PYTHON_PREFIX}/${python_subdir}python$ENV{PYTHON_VERSION_SUFFIX}" CACHE FILEPATH "")
 # We always want the Python specified here, not the system one.
 set(Python3_FIND_STRATEGY LOCATION CACHE STRING "")
 

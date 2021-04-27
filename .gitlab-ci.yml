@@ -535,3 +535,83 @@ test:windows-vs2019-mpi-python-qt-static:
         - build:windows-vs2019-mpi-python-qt-static
     needs:
         - build:windows-vs2019-mpi-python-qt-static
+
+## Python wheel builds
+
+build:wheel-windows-python36-x86_64:
+    extends:
+        - .wheel_windows36_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-windows-python36-x86_64:
+#     extends:
+#         - .wheel_windows36_x86_64
+#         - .cmake_test_wheel_windows
+#         - .windows_wheel_builder_tags
+#         - .run_automatically
+#     dependencies:
+#         - build:wheel-windows-python36-x86_64
+#     needs:
+#         - build:wheel-windows-python36-x86_64
+
+build:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-windows-python37-x86_64
+    needs:
+        - build:wheel-windows-python37-x86_64
+
+build:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-windows-python38-x86_64
+    needs:
+        - build:wheel-windows-python38-x86_64
+
+build:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-windows-python39-x86_64
+    needs:
+        - build:wheel-windows-python39-x86_64
