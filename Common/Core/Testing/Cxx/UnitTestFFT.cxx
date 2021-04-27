@@ -25,7 +25,7 @@
 static bool FuzzyCompare(const vtkFFT::ComplexNumber& result, const vtkFFT::ComplexNumber& test,
   vtkFFT::ScalarNumber epsilon)
 {
-  return ((vtkFFT::ComplexModule(result) - vtkFFT::ComplexModule(test)) < epsilon * epsilon);
+  return ((vtkFFT::Abs(result) - vtkFFT::Abs(test)) < epsilon * epsilon);
 }
 
 static int Test_fft_direct();
@@ -165,7 +165,7 @@ int Test_complex_module()
   std::cout << "Test_complex_module..";
 
   vtkFFT::ComplexNumber complexNumber1 = { 3, 4 };
-  double module1 = vtkFFT::ComplexModule(complexNumber1);
+  double module1 = vtkFFT::Abs(complexNumber1);
   double test1 = 5;
   if (!vtkMathUtilities::FuzzyCompare(module1, test1, std::numeric_limits<double>::epsilon()))
   {

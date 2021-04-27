@@ -57,7 +57,7 @@ std::vector<vtkFFT::ScalarNumber> vtkFFT::FftInverse(const std::vector<vtkFFT::C
 }
 
 //------------------------------------------------------------------------------
-double vtkFFT::ComplexModule(const ComplexNumber& in)
+double vtkFFT::Abs(const ComplexNumber& in)
 {
   return sqrt(in.r * in.r + in.i * in.i);
 }

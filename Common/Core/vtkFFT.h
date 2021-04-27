@@ -59,9 +59,9 @@ public:
   static std::vector<ScalarNumber> FftInverse(const std::vector<ComplexNumber>& in);
 
   /**
-   * Return the module of complex number
+   * Return the absolute value (also known as norm, modulus, or magnitude) of complex number
    */
-  static double ComplexModule(const ComplexNumber& in);
+  static double Abs(const ComplexNumber& in);
 
   /**
    * Return the Discrete Fourier Transform sample frequencies

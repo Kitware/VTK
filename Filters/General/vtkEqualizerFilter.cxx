@@ -86,7 +86,7 @@ public:
       std::vector<double> modules;
       for (vtkIdType spectrumId = 0; spectrumId < this->GetHalfSpectrumSize(); ++spectrumId)
       {
-        auto module = vtkFFT::ComplexModule(spectrum[spectrumId]);
+        auto module = vtkFFT::Abs(spectrum[spectrumId]);
         maxModule = (maxModule > module ? maxModule : module);
         modules.push_back(module);
       }
@@ -426,7 +426,7 @@ void vtkEqualizerFilter::ProcessColumn(
     auto value = spectrum[spectrumId];
     // we are only interested in amplitude spectrum, so we use complex_module
     // divide by the number of elements so that the amplitudes are in millivolts, not Fourier sums.
-    double module = vtkFFT::ComplexModule(value) * modifier / this->Internal->GetHalfSpectrumSize();
+    double module = vtkFFT::Abs(value) * modifier / this->Internal->GetHalfSpectrumSize();
     leadArray->SetValue(spectrumId, module);
 
     normalizedArray->SetValue(spectrumId, normSpectrum[spectrumId] * modifier);
