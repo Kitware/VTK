@@ -94,12 +94,12 @@ void QQuickVTKRenderWindow::paint()
     {
       iren->Initialize();
     }
-    this->m_renderWindow->SetMapped(1);
-    this->m_renderWindow->SetIsCurrent(1);
+    this->m_renderWindow->SetMapped(true);
+    this->m_renderWindow->SetIsCurrent(true);
 
     // Since the context is being setup, call OpenGLInitContext
     this->m_renderWindow->SetForceMaximumHardwareLineWidth(1);
-    this->m_renderWindow->SetOwnContext(0);
+    this->m_renderWindow->SetOwnContext(true);
     this->m_renderWindow->OpenGLInitContext();
 
     m_initialized = true;

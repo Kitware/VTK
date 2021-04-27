@@ -204,7 +204,7 @@ int TestQQuickVTKRenderItemWidget(int argc, char* argv[])
   w->SetFileName(vImage.c_str());
   w->Write();
 
-  int retVal = vtktesting->RegressionTest(vImage.c_str(), 10);
+  int retVal = vtktesting->RegressionTest(vImage, 10);
 
   switch (retVal)
   {
