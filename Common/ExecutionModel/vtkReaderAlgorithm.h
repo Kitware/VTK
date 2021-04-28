@@ -44,7 +44,7 @@ public:
    * Overridden to call appropriate handle pipeline request from executive.
    */
   vtkTypeBool ProcessRequest(
-    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo);
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   /**
    * This can be overridden by a subclass to create an output that
