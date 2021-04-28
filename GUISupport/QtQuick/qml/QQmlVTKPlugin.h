@@ -15,13 +15,8 @@
 #ifndef QQmlVTKPlugin_h
 #define QQmlVTKPlugin_h
 
-// vtk includes
-#include "vtkGUISupportQtQuickModule.h" // for export macro
-
 // Qt includes
 #include <QQmlExtensionPlugin>
-
-// Forward declarations
 
 /**
  * \class QQmlVTKPlugin
@@ -62,7 +57,7 @@
  * The VTK QML module follows the version number of the VTK source tree. For example, if compiled
  * against VTK 9.0.x, the VTK module version will be 9.0
  */
-class VTKGUISUPPORTQTQUICK_EXPORT QQmlVTKPlugin : public QQmlExtensionPlugin
+class QQmlVTKPlugin : public QQmlExtensionPlugin
 {
   Q_OBJECT
   typedef QQmlExtensionPlugin Superclass;

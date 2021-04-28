@@ -1,13 +1,11 @@
-find_package ("Qt${vtk_qt_major_version}"
+find_package("Qt${vtk_qt_major_version}"
   COMPONENTS Quick Qml
   REQUIRED
   )
 
-set (CMAKE_AUTOMOC ON)
-set (CMAKE_AUTOUIC ON)
-set (CMAKE_AUTORCC ON)
+set(CMAKE_AUTORCC ON)
 
-vtk_add_test_cxx (vtkGUISupportQtQuickCxxTests tests
+vtk_add_test_cxx(vtkGUISupportQtQuickCxxTests tests
   TestQQuickVTKRenderItem.cxx
   TestQQuickVTKRenderItemWidget.cxx
   TestQQuickVTKRenderWindow.cxx
@@ -23,8 +21,18 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Qml"
     )
 
-set_tests_properties(
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
-  PROPERTIES ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(config_subdir "")
+get_property(multiconfig GLOBAL
+  PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if (multiconfig)
+  set(config_subdir "/$<CONFIG>")
+endif ()
+
+set_property(
+  TEST
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
+  APPEND
+  PROPERTY
+    ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_QMLDIR}${config_subdir}")

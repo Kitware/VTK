@@ -7,14 +7,12 @@ GROUPS
 DEPENDS
   VTK::CommonCore
   VTK::GUISupportQt
-  VTK::InteractionWidgets
   VTK::RenderingCore
-  VTK::RenderingOpenGL2
 PRIVATE_DEPENDS
   VTK::CommonDataModel
-  VTK::FiltersExtraction
   VTK::InteractionStyle
-  VTK::opengl
+  VTK::InteractionWidgets
+  VTK::RenderingOpenGL2
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::IOImage
