@@ -669,6 +669,11 @@ vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 }
 
 //------------------------------------------------------------------------------
+const vtkStdString& vtkStringArray::GetValue(vtkIdType id) const
+{
+  return this->Array[id];
+}
+
 vtkStdString& vtkStringArray::GetValue(vtkIdType id)
 {
   return this->Array[id];
