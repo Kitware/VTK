@@ -1127,9 +1127,12 @@ function (_vtk_module_real_target var module)
       if (DEFINED _vtk_build_module)
         set(_vtk_real_target_msg
           " Is a module dependency missing?")
+      elseif (TARGET "${module}")
+        set(_vtk_real_target_msg
+          " It's a target, but is it a VTK module?")
       else ()
         set(_vtk_real_target_msg
-          " Is a `find_package` missing a required component?")
+          " The module name is not a CMake target. Is there a typo? Is it missing a `Package::` prefix? Is a `find_package` missing a required component?")
       endif ()
     endif ()
     message(FATAL_ERROR
