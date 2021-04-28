@@ -314,14 +314,21 @@ protected:
   vtkIdType* PointMap;
   vtkIdType GetOutputPointId(
     vtkIdType inPtId, vtkDataSet* input, vtkPoints* outPts, vtkPointData* outPD);
+  vtkIdType GetOutputPointIdAndInterpolate(vtkIdType inPtId, vtkDataSet* input, vtkCell* cell,
+    double* weights, vtkPoints* outPts, vtkPointData* outPD);
 
   class vtkEdgeInterpolationMap;
 
   vtkEdgeInterpolationMap* EdgeMap;
+  VTK_DEPRECATED_IN_9_1_0(
+    "Use GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input, vtkCell* "
+    "cell, double pcoords[3], double* weights, vtkPoints* outPts, vtkPointData* outPD) instead")
   vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input,
     vtkCell* cell, double pcoords[3], vtkPoints* outPts, vtkPointData* outPD);
-  vtkIdType GetInterpolatedPointId(
-    vtkDataSet* input, vtkCell* cell, double pcoords[3], vtkPoints* outPts, vtkPointData* outPD);
+  vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB, vtkDataSet* input,
+    vtkCell* cell, double pcoords[3], double* weights, vtkPoints* outPts, vtkPointData* outPD);
+  vtkIdType GetInterpolatedPointId(vtkDataSet* input, vtkCell* cell, double pcoords[3],
+    double* weights, vtkPoints* outPts, vtkPointData* outPD);
   vtkIdType NumberOfNewCells;
 
   // Better memory allocation for faces (hash)

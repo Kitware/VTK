@@ -614,6 +614,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
       if (this->NonlinearSubdivisionLevel > 1)
       {
         // We are going to need parametric coordinates to further subdivide.
+        std::vector<double> weights(cell->GetNumberOfPoints());
         double* pc = cell->GetParametricCoords();
         parametricCoords->Reset();
         parametricCoords->SetNumberOfComponents(3);
@@ -655,8 +656,8 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
               inParamCoords[k][0] = 0.5 * (inParamCoords[pt1][0] + inParamCoords[pt2][0]);
               inParamCoords[k][1] = 0.5 * (inParamCoords[pt1][1] + inParamCoords[pt2][1]);
               inParamCoords[k][2] = 0.5 * (inParamCoords[pt1][2] + inParamCoords[pt2][2]);
-              inPts[k] = GetInterpolatedPointId(
-                inPts[pt1], inPts[pt2], input, cell, inParamCoords[k], newPts, outputPD);
+              inPts[k] = GetInterpolatedPointId(inPts[pt1], inPts[pt2], input, cell,
+                inParamCoords[k], weights.data(), newPts, outputPD);
             }
             //       * 0
             //      / \        Use the 6 points recorded
@@ -666,7 +667,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
             //  /   \ /   \    .
             // *-----*-----*
             // 1     4     2
-            const int subtriangles[12] = { 0, 3, 5, 3, 1, 4, 3, 4, 5, 5, 4, 2 };
+            static const int subtriangles[12] = { 0, 3, 5, 3, 1, 4, 3, 4, 5, 5, 4, 2 };
             for (k = 0; k < 12; k++)
             {
               int localId = subtriangles[k];
