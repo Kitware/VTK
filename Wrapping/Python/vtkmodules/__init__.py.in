@@ -13,7 +13,7 @@ def _windows_dll_path():
     # the installation prefix to append the DLL path.
     _vtk_dll_directory = os.path.dirname(os.path.abspath(__file__))
     # Loop while we have components to remove.
-    while _vtk_python_path:
+    while _vtk_python_path not in ('', '.', '/'):
         # Strip a directory away.
         _vtk_python_path = os.path.dirname(_vtk_python_path)
         _vtk_dll_directory = os.path.dirname(_vtk_dll_directory)
