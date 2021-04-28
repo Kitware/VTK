@@ -498,6 +498,8 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
       nodeIdStack.push(childNodeId);
     }
   }
+
+  this->ApplySkinningMorphing();
 }
 
 //------------------------------------------------------------------------------
@@ -671,8 +673,13 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
 
   this->ImportCameras(this->Renderer);
 
-  auto model = this->Loader->GetInternalModel();
+  this->ApplySkinningMorphing();
+}
 
+//----------------------------------------------------------------------------
+void vtkGLTFImporter::ApplySkinningMorphing()
+{
+  const auto& model = this->Loader->GetInternalModel();
   int scene = model->DefaultScene;
 
   // List of nodes to import
@@ -729,6 +736,15 @@ void vtkGLTFImporter::UpdateTimeStep(double timestep)
       {
         size_t nbWeights = vtkMath::Min<size_t>(node.Weights.size(), 4);
         uniforms->SetUniform1fv("morphWeights", static_cast<int>(nbWeights), node.Weights.data());
+      }
+      else
+      {
+        vtkGLTFDocumentLoader::Mesh& mesh = model->Meshes[node.Mesh];
+        if (!mesh.Weights.empty())
+        {
+          size_t nbWeights = vtkMath::Min<size_t>(mesh.Weights.size(), 4);
+          uniforms->SetUniform1fv("morphWeights", static_cast<int>(nbWeights), mesh.Weights.data());
+        }
       }
     }
 

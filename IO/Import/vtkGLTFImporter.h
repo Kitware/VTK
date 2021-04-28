@@ -155,6 +155,8 @@ protected:
   void ImportCameras(vtkRenderer* renderer) override;
   void ImportLights(vtkRenderer* renderer) override;
 
+  void ApplySkinningMorphing();
+
   char* FileName = nullptr;
 
   std::map<int, vtkSmartPointer<vtkCamera>> Cameras;
