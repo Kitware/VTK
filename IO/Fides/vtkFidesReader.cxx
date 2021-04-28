@@ -396,7 +396,7 @@ vtkFieldData* GetVTKFieldData(
   vtkFieldData* fieldData = vtkFieldData::New();
   for (const auto& fd : fidesFieldData)
   {
-    const std::vector<vtkm::cont::VariantArrayHandle>& fdBlocks = fd.second.GetData();
+    const std::vector<vtkm::cont::UnknownArrayHandle>& fdBlocks = fd.second.GetData();
     if (static_cast<size_t>(partition) < fdBlocks.size())
     {
       auto& array = fdBlocks[partition];
