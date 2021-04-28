@@ -42,7 +42,7 @@ extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfShortFromShort(
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv* env, const int* arr, int size);
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(
   JNIEnv* env, const vtkIdType* arr, int size);
-extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(
+extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfLongFromLongLong(
   JNIEnv* env, const long long* arr, int size);
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(
   JNIEnv* env, const signed char* arr, int size);

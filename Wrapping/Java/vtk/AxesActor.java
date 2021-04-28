@@ -53,9 +53,9 @@ public class AxesActor extends vtkAssembly {
     zactor.GetTextProperty().ItalicOn();
     zactor.GetTextProperty().BoldOff();
 
-    xactor.SetMaximumLineHeight(0.25);
-    yactor.SetMaximumLineHeight(0.25);
-    zactor.SetMaximumLineHeight(0.25);
+    xactor.SetMaximumLineHeight(0.25f);
+    yactor.SetMaximumLineHeight(0.25f);
+    zactor.SetMaximumLineHeight(0.25f);
 
     vtkTubeFilter tube = new vtkTubeFilter();
     tube.SetInputConnection(axes.GetOutputPort());

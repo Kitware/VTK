@@ -149,20 +149,20 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv* env, const vtkIdType* 
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv* env, const long long* ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLongLong(JNIEnv* env, const long long* ptr, int size)
 {
-  jintArray ret;
+  jlongArray ret;
   int i;
-  jint* array;
+  jlong* array;
 
-  ret = env->NewIntArray(size);
+  ret = env->NewLongArray(size);
   if (ret == nullptr)
   {
     // should throw an exception here
     return nullptr;
   }
 
-  array = env->GetIntArrayElements(ret, nullptr);
+  array = env->GetLongArrayElements(ret, nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -170,7 +170,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv* env, const long long
     array[i] = (int)ptr[i];
   }
 
-  env->ReleaseIntArrayElements(ret, array, 0);
+  env->ReleaseLongArrayElements(ret, array, 0);
   return ret;
 }
 

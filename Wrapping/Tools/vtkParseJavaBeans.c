@@ -50,25 +50,19 @@ void output_temp(FILE* fp, int i)
     switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
     {
       case VTK_PARSE_FLOAT:
-        fprintf(fp, "double ");
+        fprintf(fp, "float ");
         break;
       case VTK_PARSE_DOUBLE:
         fprintf(fp, "double ");
         break;
       case VTK_PARSE_INT:
-        fprintf(fp, "int ");
-        break;
       case VTK_PARSE_SHORT:
         fprintf(fp, "int ");
         break;
       case VTK_PARSE_LONG:
-        fprintf(fp, "int ");
-        break;
       case VTK_PARSE_LONG_LONG:
-        fprintf(fp, "int ");
-        break;
       case VTK_PARSE___INT64:
-        fprintf(fp, "int ");
+        fprintf(fp, "long ");
         break;
       case VTK_PARSE_VOID:
         fprintf(fp, "void ");
@@ -100,7 +94,7 @@ void return_result(FILE* fp)
   switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
   {
     case VTK_PARSE_FLOAT:
-      fprintf(fp, "double ");
+      fprintf(fp, "float ");
       break;
     case VTK_PARSE_VOID:
       fprintf(fp, "void ");
@@ -113,16 +107,18 @@ void return_result(FILE* fp)
       break;
     case VTK_PARSE_INT:
     case VTK_PARSE_SHORT:
-    case VTK_PARSE_LONG:
-    case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_INT:
     case VTK_PARSE_UNSIGNED_SHORT:
+      fprintf(fp, "int ");
+      break;
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_STRING:
@@ -136,22 +132,26 @@ void return_result(FILE* fp)
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
     case VTK_PARSE_FLOAT_PTR:
+      fprintf(fp, "float[] ");
+      break;
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "double[] ");
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "int[]  ");
+      break;
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp, "int[]  ");
+      fprintf(fp, "long[]  ");
       break;
   }
 }

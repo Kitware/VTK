@@ -27,7 +27,7 @@ int numberOfWrappedFunctions = 0;
 FunctionInfo* wrappedFunctions[1000];
 FunctionInfo* thisFunction;
 
-void output_temp(FILE* fp, int i, unsigned int aType)
+void outputScalarParamDeclarations(FILE* fp, int i, unsigned int aType)
 {
   /* ignore void */
   if (aType == VTK_PARSE_VOID)
@@ -38,7 +38,7 @@ void output_temp(FILE* fp, int i, unsigned int aType)
   switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
   {
     case VTK_PARSE_FLOAT:
-      fprintf(fp, "double ");
+      fprintf(fp, "float ");
       break;
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "double ");
@@ -50,13 +50,13 @@ void output_temp(FILE* fp, int i, unsigned int aType)
       fprintf(fp, "int ");
       break;
     case VTK_PARSE_LONG:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_LONG_LONG:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE___INT64:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_SIGNED_CHAR:
       fprintf(fp, "char ");
@@ -93,7 +93,7 @@ void return_result(FILE* fp)
   switch (rType)
   {
     case VTK_PARSE_FLOAT:
-      fprintf(fp, "double ");
+      fprintf(fp, "float ");
       break;
     case VTK_PARSE_VOID:
       fprintf(fp, "void ");
@@ -106,18 +106,20 @@ void return_result(FILE* fp)
       break;
     case VTK_PARSE_INT:
     case VTK_PARSE_SHORT:
-    case VTK_PARSE_LONG:
-    case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_INT:
     case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNKNOWN:
+      fprintf(fp, "int ");
+      break;
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-    case VTK_PARSE_UNKNOWN:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_BOOL:
       fprintf(fp, "boolean ");
@@ -134,6 +136,8 @@ void return_result(FILE* fp)
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
     case VTK_PARSE_FLOAT_PTR:
+      fprintf(fp, "float[] ");
+      break;
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "double[] ");
       break;
@@ -142,16 +146,18 @@ void return_result(FILE* fp)
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "int[]  ");
+      break;
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp, "int[]  ");
+      fprintf(fp, "long[]  ");
       break;
     case VTK_PARSE_BOOL_PTR:
       fprintf(fp, "boolean[]  ");
@@ -167,7 +173,7 @@ void return_result_native(FILE* fp)
   switch (rType)
   {
     case VTK_PARSE_FLOAT:
-      fprintf(fp, "double ");
+      fprintf(fp, "float ");
       break;
     case VTK_PARSE_VOID:
       fprintf(fp, "void ");
@@ -180,18 +186,20 @@ void return_result_native(FILE* fp)
       break;
     case VTK_PARSE_INT:
     case VTK_PARSE_SHORT:
-    case VTK_PARSE_LONG:
-    case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_INT:
     case VTK_PARSE_UNSIGNED_SHORT:
+    case VTK_PARSE_UNKNOWN:
+      fprintf(fp, "int ");
+      break;
+    case VTK_PARSE_LONG:
+    case VTK_PARSE_LONG_LONG:
+    case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-    case VTK_PARSE_UNKNOWN:
-      fprintf(fp, "int ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_BOOL:
       fprintf(fp, "boolean ");
@@ -208,6 +216,8 @@ void return_result_native(FILE* fp)
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
     case VTK_PARSE_FLOAT_PTR:
+      fprintf(fp, "float[] ");
+      break;
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "double[] ");
       break;
@@ -216,16 +226,18 @@ void return_result_native(FILE* fp)
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "int[]  ");
+      break;
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp, "int[]  ");
+      fprintf(fp, "long[]  ");
       break;
     case VTK_PARSE_BOOL_PTR:
       fprintf(fp, "boolean[]  ");
@@ -719,7 +731,7 @@ void outputParamDeclarationsNative(FILE* fp)
           fprintf(fp, "byte[] id%i, int len%i", i, i);
           break;
         default:
-          output_temp(fp, i, type);
+          outputScalarParamDeclarations(fp, i, type);
           break;
       }
     }
@@ -752,7 +764,7 @@ void outputParamDeclarations(FILE* fp)
           fprintf(fp, "String id%i", i);
           break;
         default:
-          output_temp(fp, i, type);
+          outputScalarParamDeclarations(fp, i, type);
           break;
       }
     }
