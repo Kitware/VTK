@@ -100,6 +100,11 @@ public:
   vtkTexture* GetTexture(const std::string& nickname, const std::string& varname);
 
   /**
+   * Returns the name (and not the shader variable name) associated to a texture
+   */
+  std::string GetTextureName(const std::string& nickname, const std::string& varname);
+
+  /**
    * Add Material
    * Adds a new material nickname to the set of known materials.
    * If the name is a repeat, we replace the old one.
@@ -115,15 +120,21 @@ public:
 
   /**
    * Add Texture
-   * Adds a new texture. Replaces any previous content.
+   * Given a material @c nickname and a shader variable @c varname, set its data
+   * to a specific texture @c tex named @c texturename. If not specified the texture
+   * is called "unnamedTexture".
+   *
+   * Replaces any previous content.
    **/
-  void AddTexture(const std::string& nickname, const std::string& texturename, vtkTexture* tex);
+  void AddTexture(const std::string& nickname, const std::string& varname, vtkTexture* tex,
+    const std::string& texturename = "unnamedTexture");
 
   /**
    * Remove Texture
-   * Removes a texture. Do nothing if texture does not exist.
+   * Removes a texture for a specific materal @c nickname and shader variable @c varname.
+   * Do nothing if texture does not exist.
    **/
-  void RemoveTexture(const std::string& nickname, const std::string& texturename);
+  void RemoveTexture(const std::string& nickname, const std::string& varname);
 
   /**
    * Remove all textures of a specific material
