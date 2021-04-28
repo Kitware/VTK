@@ -19,7 +19,7 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Qt dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    qt5-qtbase-devel qt5-qttools-devel
+    qt5-qtbase-devel qt5-qttools-devel qt5-qtquickcontrols2-devel
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \

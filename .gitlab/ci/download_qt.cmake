@@ -47,7 +47,7 @@ if (qt_platform STREQUAL "windows_x86")
     "${qt_file_name_prefix}d3dcompiler_47-x64.7z"
     "${qt_file_name_prefix}opengl32sw-64-mesa_12_0_rc2.7z")
 
-  foreach (qt_component IN ITEMS qtbase qttools)
+  foreach (qt_component IN ITEMS qtbase qttools qtdeclarative qtquickcontrols2)
     list(APPEND qt_files
       "${qt_file_name_prefix}${qt_component}-Windows-Windows_10-MSVC${msvc_year}-Windows-Windows_10-X86_64.7z")
   endforeach ()
@@ -57,7 +57,7 @@ elseif (qt_platform STREQUAL "mac_x64")
   set(qt_build_stamp "202009071110")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
-  foreach (qt_component IN ITEMS qtbase qttools)
+  foreach (qt_component IN ITEMS qtbase qttools qtdeclarative qtquickcontrols2)
     list(APPEND qt_files
       "${qt_file_name_prefix}${qt_component}-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z")
   endforeach ()

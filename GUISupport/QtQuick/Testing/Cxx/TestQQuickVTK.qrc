@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/">
+    <file>TestQQuickVTKRenderItem.qml</file>
+    <file>TestQQuickVTKRenderItemWidget.qml</file>
+    <file>TestQQuickVTKRenderWindow.qml</file>
+  </qresource>
+</RCC>

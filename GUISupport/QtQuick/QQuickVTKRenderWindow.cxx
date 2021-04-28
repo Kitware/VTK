@@ -1,0 +1,299 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    QQuickVTKRenderWindow.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "QQuickVTKRenderWindow.h"
+
+// vtk includes
+#include "QQuickVTKInteractorAdapter.h"
+#include "QVTKInteractor.h"
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkImageData.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkOpenGLState.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkWindowToImageFilter.h"
+
+// Qt includes
+#include <QQuickWindow>
+
+//-------------------------------------------------------------------------------------------------
+QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
+  : Superclass(parent)
+{
+  vtkNew<vtkGenericOpenGLRenderWindow> renWin;
+  this->setRenderWindow(renWin);
+  this->m_interactorAdapter = new QQuickVTKInteractorAdapter(this);
+  QObject::connect(
+    this, &QQuickItem::windowChanged, this, &QQuickVTKRenderWindow::handleWindowChanged);
+
+  // Set a standard object name
+  this->setObjectName("QQuickVTKRenderWindow");
+}
+
+//-------------------------------------------------------------------------------------------------
+QQuickVTKRenderWindow::~QQuickVTKRenderWindow()
+{
+  this->m_renderWindow = nullptr;
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::sync()
+{
+  if (!this->isVisible())
+  {
+    return;
+  }
+
+  if (!this->m_renderWindow)
+  {
+    return;
+  }
+
+  QSize windowSize = window()->size() * window()->devicePixelRatio();
+  this->m_renderWindow->SetSize(windowSize.width(), windowSize.height());
+  if (auto iren = this->m_renderWindow->GetInteractor())
+  {
+    iren->SetSize(windowSize.width(), windowSize.height());
+    m_interactorAdapter->ProcessEvents(iren);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::paint()
+{
+  if (!this->isVisible())
+  {
+    return;
+  }
+
+  if (!this->m_renderWindow)
+  {
+    // no render window set, just fill with white.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+
+  auto iren = this->m_renderWindow->GetInteractor();
+  if (!this->m_initialized)
+  {
+    initializeOpenGLFunctions();
+    if (iren)
+    {
+      iren->Initialize();
+    }
+    this->m_renderWindow->SetMapped(true);
+    this->m_renderWindow->SetIsCurrent(true);
+
+    // Since the context is being setup, call OpenGLInitContext
+    this->m_renderWindow->SetForceMaximumHardwareLineWidth(1);
+    this->m_renderWindow->SetOwnContext(true);
+    this->m_renderWindow->OpenGLInitContext();
+
+    m_initialized = true;
+  }
+
+  auto ostate = this->m_renderWindow->GetState();
+  ostate->Reset();
+  ostate->Push();
+  // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
+  ostate->vtkglDepthFunc(GL_LEQUAL);
+
+  this->m_renderWindow->SetReadyForRendering(true);
+  if (iren)
+  {
+    iren->Render();
+  }
+  else
+  {
+    this->m_renderWindow->Render();
+  }
+
+  if (this->m_screenshotScheduled)
+  {
+    this->m_screenshotFilter->SetInput(this->m_renderWindow);
+    this->m_screenshotFilter->SetReadFrontBuffer(false);
+    this->m_screenshotFilter->SetInputBufferTypeToRGB();
+    this->m_screenshotFilter->Update();
+    this->m_screenshotScheduled = false;
+  }
+  this->m_renderWindow->SetReadyForRendering(false);
+
+  ostate->Pop();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::cleanup()
+{
+  if (this->m_renderWindow)
+  {
+    this->m_renderWindow->ReleaseGraphicsResources(this->m_renderWindow);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
+{
+  this->m_interactorAdapter->setQQuickWindow(w);
+  if (w)
+  {
+    // Do not clear the scenegraph before the QML rendering
+    // to preserve the VTK render
+    w->setClearBeforeRendering(false);
+    // This allows the cleanup method to be called on the render thread
+    w->setPersistentSceneGraph(false);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::setRenderWindow(vtkRenderWindow* renWin)
+{
+  auto gwin = vtkGenericOpenGLRenderWindow::SafeDownCast(renWin);
+  if (renWin != nullptr && gwin == nullptr)
+  {
+    qDebug() << "QQuickVTKRenderWindow requires a `vtkGenericOpenGLRenderWindow`. `"
+             << renWin->GetClassName() << "` is not supported.";
+  }
+  this->setRenderWindow(gwin);
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin)
+{
+  if (this->m_renderWindow == renWin)
+  {
+    return;
+  }
+
+  this->m_renderWindow = renWin;
+  this->m_initialized = false;
+
+  if (this->m_renderWindow)
+  {
+    this->m_renderWindow->SetMultiSamples(0);
+    this->m_renderWindow->SetReadyForRendering(false);
+    this->m_renderWindow->SetFrameBlitModeToBlitToHardware();
+    vtkNew<QVTKInteractor> iren;
+    iren->SetRenderWindow(this->m_renderWindow);
+
+    // now set the default style
+    vtkNew<vtkInteractorStyleTrackballCamera> style;
+    iren->SetInteractorStyle(style);
+
+    this->m_renderWindow->SetReadyForRendering(false);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkRenderWindow* QQuickVTKRenderWindow::renderWindow() const
+{
+  return this->m_renderWindow;
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::mapToViewport(const QRectF& rect, double viewport[4])
+{
+  viewport[0] = rect.topLeft().x();
+  viewport[1] = rect.topLeft().y();
+  viewport[2] = rect.bottomRight().x();
+  viewport[3] = rect.bottomRight().y();
+
+  if (this->m_renderWindow)
+  {
+    int* windowSize = this->m_renderWindow->GetSize();
+    if (windowSize && windowSize[0] != 0 && windowSize[1] != 0)
+    {
+      viewport[0] = viewport[0] / (windowSize[0] - 1.0);
+      viewport[1] = viewport[1] / (windowSize[1] - 1.0);
+      viewport[2] = viewport[2] / (windowSize[0] - 1.0);
+      viewport[3] = viewport[3] / (windowSize[1] - 1.0);
+    }
+  }
+
+  // Change to quadrant I (vtk) from IV (Qt)
+  double tmp = 1.0 - viewport[1];
+  viewport[1] = 1.0 - viewport[3];
+  viewport[3] = tmp;
+
+  for (int i = 0; i < 3; ++i)
+  {
+    viewport[i] = viewport[i] > 0.0 ? viewport[i] : 0.0;
+    viewport[i] = viewport[i] > 1.0 ? 1.0 : viewport[i];
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+{
+  m_interactorAdapter->QueueGeometryChanged(newGeometry, oldGeometry);
+
+  Superclass::geometryChanged(newGeometry, oldGeometry);
+}
+
+//-------------------------------------------------------------------------------------------------
+QPointer<QQuickVTKInteractorAdapter> QQuickVTKRenderWindow::interactorAdapter() const
+{
+  return this->m_interactorAdapter;
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> QQuickVTKRenderWindow::captureScreenshot()
+{
+  double viewport[4] = { 0, 0, 1, 1 };
+  return this->captureScreenshot(viewport);
+}
+
+//-------------------------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> QQuickVTKRenderWindow::captureScreenshot(double* viewport)
+{
+  if (!this->window())
+  {
+    return nullptr;
+  }
+  this->m_screenshotScheduled = true;
+  this->m_screenshotFilter->SetViewport(viewport);
+  this->renderNow();
+  return this->m_screenshotFilter->GetOutput();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::renderNow()
+{
+  if (!this->window())
+  {
+    return;
+  }
+  // Schedule a scenegraph update
+  this->window()->update();
+  // Wait for the update to complete
+  QEventLoop loop;
+  QObject::connect(this->window(), &QQuickWindow::afterRendering, &loop, &QEventLoop::quit);
+  loop.exec();
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::render()
+{
+  if (this->window())
+  {
+    this->window()->update();
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+bool QQuickVTKRenderWindow::isInitialized() const
+{
+  return this->m_initialized;
+}

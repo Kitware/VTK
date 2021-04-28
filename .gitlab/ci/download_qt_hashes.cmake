@@ -4,6 +4,8 @@
 
 set("5.15.1-0-202009071110qtbase-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z_hash" a5635124a135f383d9fb92bf628b018cff9f781addfd388926a367cda5b7cd38)
 set("5.15.1-0-202009071110qttools-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z_hash" 45b3debfc317f875d327e4506c0d211dc82ec92c1e9aa60e17b1a747ada22811)
+set("5.15.1-0-202009071110qtdeclarative-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z_hash" c40623f08fb54f0f46758b863d79d88449c04044415eb133b61df02055edd028)
+set("5.15.1-0-202009071110qtquickcontrols2-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z_hash" e09fa3e44bc3edb102963a197f2d1e8444d6ad0b1cae6e2da27fb423c9c62d76)
 
 # There's a filename conflict here.
 if (msvc_year STREQUAL "2019")
@@ -15,6 +17,10 @@ elseif (msvc_year STREQUAL "2015")
 endif ()
 set("5.15.1-0-202009071110qtbase-Windows-Windows_10-MSVC2015-Windows-Windows_10-X86_64.7z_hash" 5d0d2e71e3b00cf88ac4c616b4b314a7e73871f325512821f53c464cdfee961f)
 set("5.15.1-0-202009071110qttools-Windows-Windows_10-MSVC2015-Windows-Windows_10-X86_64.7z_hash" 393630ea20cc5fa29e7987df21526586bcac23c3499fb9889d980758942f942e)
+set("5.15.1-0-202009071110qtdeclarative-Windows-Windows_10-MSVC2015-Windows-Windows_10-X86_64.7z_hash" a40ece71b5685de946084b04642cbd9b80cf51e82b17c3cbdfb926f8ae6063e9)
+set("5.15.1-0-202009071110qtquickcontrols2-Windows-Windows_10-MSVC2015-Windows-Windows_10-X86_64.7z_hash" ef1ea627321bb0a36684dc02303aaf56f667672262cd3c74097397177f53981e)
 
 set("5.15.1-0-202009071110qtbase-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" df2813ce7c6cb4287abd7956cd1cb9d08312e4ac1208b6cb57af4df11b8ebba1)
 set("5.15.1-0-202009071110qttools-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" 94c5e98afa548bf56c7ccc29bccf727b75e2e90df98e83d22575d07f64359cda)
+set("5.15.1-0-202009071110qtdeclarative-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" 9a23e1a2771a2a202b73c640e2eab032c480c2037e22842a113fca9e0f234c46)
+set("5.15.1-0-202009071110qtquickcontrols2-MacOS-MacOS_10_13-Clang-MacOS-MacOS_10_13-X86_64.7z_hash" fc305bbdf6e6301dbb0b9b8c7466b5a57ce8ee2ffb0a8a438a273639b62236c5)
