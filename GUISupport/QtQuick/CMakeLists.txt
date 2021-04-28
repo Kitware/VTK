@@ -99,7 +99,8 @@ get_filename_component(qt_bin_dir "${qt_core_location}" PATH)
 if (APPLE)
   get_filename_component(qt_bin_dir "${qt_bin_dir}" PATH)
 endif ()
-find_program(QMLPLUGINDUMP_EXECUTABLE qmlplugindump
+find_program(QMLPLUGINDUMP_EXECUTABLE
+  NAMES "qmlplugindump-qt${vtk_qt_major_version}" qmlplugindump
   HINTS "${qt_bin_dir}"
   DOC "QmlPlugindump executable location")
 mark_as_advanced(QMLPLUGINDUMP_EXECUTABLE)
