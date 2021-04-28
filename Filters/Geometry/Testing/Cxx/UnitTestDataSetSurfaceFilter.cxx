@@ -120,6 +120,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
     typesToProcess["QuadraticLinearWedge"] = test::CellDescription(VTK_QUADRATIC_LINEAR_WEDGE, 20);
     typesToProcess["BiQuadraticQuadraticWedge"] =
       test::CellDescription(VTK_BIQUADRATIC_QUADRATIC_WEDGE, 32);
+    typesToProcess["EmptyCell"] = test::CellDescription(VTK_EMPTY_CELL, 0);
 
     std::map<std::string, test::CellDescription>::iterator it;
     for (it = typesToProcess.begin(); it != typesToProcess.end(); ++it)

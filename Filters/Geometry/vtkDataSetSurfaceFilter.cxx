@@ -1550,6 +1550,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(vtkUnstructuredGrid
     {
       case VTK_VERTEX:
       case VTK_POLY_VERTEX:
+      case VTK_EMPTY_CELL:
         // Do nothing -- these were handled previously.
         break;
 
@@ -2609,7 +2610,14 @@ vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad(int numPts)
 void vtkDataSetSurfaceFilter::InitQuadHashTraversal()
 {
   this->QuadHashTraversalIndex = 0;
-  this->QuadHashTraversal = this->QuadHash[0];
+  if (this->QuadHashLength == 0)
+  {
+    this->QuadHashTraversal = nullptr;
+  }
+  else
+  {
+    this->QuadHashTraversal = this->QuadHash[0];
+  }
 }
 
 //------------------------------------------------------------------------------
