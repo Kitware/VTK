@@ -195,5 +195,5 @@ install(
 # Install the QML plugin module
 install(
   DIRECTORY "${vtk_qml_module_install_path}"
-  DESTINATION "${CMAKE_INSTALL_PREFIX}"
+  DESTINATION ""
   COMPONENT "${_vtk_build_TARGETS_COMPONENT}")
