@@ -116,7 +116,9 @@ if (NOT MSVC AND NOT MINGW)
     elseif (CMAKE_C_COMPILER_ID STREQUAL "PGI")
       list (APPEND HDF5_CMAKE_C_FLAGS "-Minform=inform")
     endif ()
+    if (FALSE) # XXX(kitware): Silence extraneous messages.
     message (STATUS "CMAKE_C_FLAGS_GENERAL=${HDF5_CMAKE_C_FLAGS}")
+    endif ()
   endif ()
 
   #-----------------------------------------------------------------------------

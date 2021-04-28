@@ -8,7 +8,7 @@ readonly name="hdf5"
 readonly ownership="HDF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/hdf5.git"
-readonly tag="for/vtk-20210318-1.10.7"
+readonly tag="for/vtk-20210428-1.10.7"
 readonly paths="
 CMakeFilters.cmake
 CMakeInstallation.cmake
