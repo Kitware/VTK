@@ -7,9 +7,9 @@ KIT
 GROUPS
   StandAlone
 DEPENDS
+  VTK::CommonCore
   VTK::IOXML
 PRIVATE_DEPENDS
-  VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMisc
