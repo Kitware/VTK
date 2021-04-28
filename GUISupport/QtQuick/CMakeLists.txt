@@ -113,7 +113,7 @@ endif ()
 set(qmltypes_file
   "${vtk_qml_module_path}/${_vtk_build_PACKAGE}.qmltypes")
 get_target_property(qt_config "Qt${vtk_qt_major_version}::Core" IMPORTED_CONFIGURATIONS)
-if (("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
+if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
   message(WARNING
     "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
     "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
