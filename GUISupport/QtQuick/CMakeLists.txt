@@ -156,18 +156,15 @@ set(vtk_qml_module_tmp_install_path
   "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qml")
 set(vtk_qml_module_install_path
   "${vtk_qml_module_tmp_install_path}/$<CONFIG>/${vtk_qml_module_dir}")
-if (WIN32 AND NOT CYGWIN)
-  # Set VTK_MODULE_PLUGIN_DIR for the qmldir configuration
-  # Use the runtime (dll) path for plugin on Windows
-  file(RELATIVE_PATH VTK_MODULE_PLUGIN_DIR
-    "${CMAKE_INSTALL_PREFIX}/${_vtk_build_PACKAGE}"
-    "${CMAKE_INSTALL_PREFIX}/${_vtk_build_RUNTIME_DESTINATION}")
-else ()
-  # Set VTK_MODULE_PLUGIN_DIR for the qmldir configuration
-  file(RELATIVE_PATH VTK_MODULE_PLUGIN_DIR
-    "${CMAKE_INSTALL_PREFIX}/${_vtk_build_PACKAGE}"
-    "${CMAKE_INSTALL_PREFIX}/${_vtk_build_LIBRARY_DESTINATION}")
+set(vtk_qmllib_destination
+  "${_vtk_build_LIBRARY_DESTINATION}")
+if (WIN32)
+  set(vtk_qmllib_destination
+    "${_vtk_build_RUNTIME_DESTINATION}")
 endif ()
+file(RELATIVE_PATH VTK_MODULE_PLUGIN_DIR
+  "/prefix/${_vtk_build_PACKAGE}"
+  "/prefix/${vtk_qmllib_destination}")
 set(qmldir_install_pregen_file
   "${vtk_qml_module_tmp_install_path}/qmldir.install.pregen")
 configure_file(
