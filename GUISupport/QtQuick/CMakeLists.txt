@@ -71,6 +71,14 @@ set(qmldir_gen_file
 file(GENERATE
   OUTPUT "${qmldir_gen_file}"
   INPUT  "${qmldir_pregen_file}")
+
+set(byproducts
+  BYPRODUCTS "${vtk_qml_module_path}/qmldir")
+# Generator expressions are not supported in CMake < 3.20 for byproducts
+if (CMAKE_VERSION VERSION_LESS "3.20")
+  set(byproducts)
+endif ()
+
 add_custom_command(
   TARGET "${vtk_guisupportqtquick_target}"
   POST_BUILD
@@ -80,8 +88,7 @@ add_custom_command(
     "${vtk_qml_module_path}/qmldir"
   WORKING_DIRECTORY
     "${CMAKE_BINARY_DIR}"
-  # Commented out because generator expreesions not supported in CMake < 3.20 for byproducts
-  # BYPRODUCTS ${vtk_qml_module_path}/qmldir
+  ${byproducts}
   COMMENT "Generating qmldir file"
   VERBATIM)
 
@@ -115,6 +122,13 @@ if (QMLPLUGINDUMP_EXECUTABLE)
       "tree instead.")
     set(qmltypes_create_copy_command TRUE)
   else ()
+    set(byproducts
+      BYPRODUCTS "${qmltypes_file}")
+    # Generator expressions are not supported in CMake < 3.20 for byproducts
+    if (CMAKE_VERSION VERSION_LESS "3.20")
+      set(byproducts)
+    endif ()
+
     add_custom_command(
       TARGET "${vtk_guisupportqtquick_target}"
       POST_BUILD
@@ -125,7 +139,7 @@ if (QMLPLUGINDUMP_EXECUTABLE)
         > "${qmltypes_file}"
       WORKING_DIRECTORY
         "${CMAKE_BINARY_DIR}"
-      # BYPRODUCTS ${qmltypes_file}
+      ${byproducts}
       COMMENT "Generating qmltypes file using qmlplugindump"
       VERBATIM)
   endif ()
