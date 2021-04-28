@@ -3,8 +3,6 @@ find_package("Qt${vtk_qt_major_version}"
   REQUIRED
   )
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 vtk_add_test_cxx(vtkGUISupportQtQuickCxxTests tests
