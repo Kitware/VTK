@@ -152,7 +152,7 @@ if (qmltypes_create_copy_command)
     TARGET "${vtk_guisupportqtquick_target}"
     POST_BUILD
     COMMAND
-      "${CMAKE_COMMAND}" -E copy
+      "${CMAKE_COMMAND}" -E copy_if_different
       "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes"
       "${vtk_qml_module_path}"
     COMMENT "Copying qmltypes file from the source tree to ${vtk_qml_module_path}")
