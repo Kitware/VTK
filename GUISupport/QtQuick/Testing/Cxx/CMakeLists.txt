@@ -21,9 +21,11 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Qml"
     )
 
-set_tests_properties(
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
-  VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
-  PROPERTIES
+set_property(
+  TEST
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
+    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
+  APPEND
+  PROPERTY
     ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/$<CONFIG>")
