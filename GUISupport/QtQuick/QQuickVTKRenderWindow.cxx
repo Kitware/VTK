@@ -99,7 +99,7 @@ void QQuickVTKRenderWindow::paint()
 
     // Since the context is being setup, call OpenGLInitContext
     this->m_renderWindow->SetForceMaximumHardwareLineWidth(1);
-    this->m_renderWindow->SetOwnContext(true);
+    this->m_renderWindow->SetOwnContext(false);
     this->m_renderWindow->OpenGLInitContext();
 
     m_initialized = true;
