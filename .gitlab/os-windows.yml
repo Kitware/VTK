@@ -246,8 +246,8 @@
         # DLL.
         # See https://github.com/adang1345/delvewheel/issues/12
         # - pip install delvewheel
-        # - delvewheel show (Get-ChildItem dist\*.whl | % FullName)
-        # - delvewheel repair (Get-ChildItem dist\*.whl | % FullName)
+        # - delvewheel show (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        # - delvewheel repair (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
     interruptible: true
 
 .cmake_test_wheel_windows:

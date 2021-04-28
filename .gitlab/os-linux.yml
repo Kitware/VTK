@@ -301,8 +301,8 @@
         - sccache --show-stats
         - cd build
         - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
-        - auditwheel show dist/*.whl
-        - auditwheel repair dist/*.whl
+        - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
     interruptible: true
 
 .cmake_test_wheel_linux:

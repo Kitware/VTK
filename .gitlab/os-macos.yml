@@ -160,8 +160,8 @@
         - venv/bin/pip install wheel
         - venv/bin/python3 setup.py bdist_wheel
         - venv/bin/pip install delocate
-        - venv/bin/delocate-listdeps dist/*.whl
-        - venv/bin/delocate-wheel -v dist/*.whl
+        - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
     interruptible: true
 
 .cmake_test_wheel_macos:
