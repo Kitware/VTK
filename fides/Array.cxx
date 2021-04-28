@@ -14,10 +14,77 @@
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 
+#include <vtkm/cont/Invoker.h>
+#include <vtkm/worklet/WorkletMapField.h>
+
 namespace fides
 {
 namespace datamodel
 {
+namespace fusionutil
+{
+class PlaneInserterField : public vtkm::worklet::WorkletMapField
+{
+public:
+  PlaneInserterField(vtkm::Id nPlanes, vtkm::Id nPtsPerPlane, vtkm::Id numInsert)
+    : NumPlanes(nPlanes)
+    , PtsPerPlane(nPtsPerPlane)
+    , NumInsert(numInsert)
+  {
+  }
+
+  using ControlSignature = void(WholeArrayIn inField, WholeArrayOut outField);
+  using ExecutionSignature = void(InputIndex, _1, _2);
+  using InputDomain = _1;
+
+  template <typename InFieldType, typename OutFieldType>
+  VTKM_EXEC void operator()(const vtkm::Id& inIdx,
+                            const InFieldType& inField,
+                            OutFieldType& outField) const
+  {
+    vtkm::Id plane0PtIdx = inIdx;
+    vtkm::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
+    vtkm::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
+
+    // This is correct:
+    vtkm::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
+    // Unless we're in the last plane:
+    if (inPlaneIdx == this->NumPlanes - 1)
+    {
+      plane1PtIdx = plane0PtIdx % this->PtsPerPlane;
+    }
+
+    vtkm::Id firstOutputPlaneIndex = inPlaneIdx * (1 + NumInsert);
+
+    const auto& y0 = inField.Get(plane0PtIdx);
+    const auto& y1 = inField.Get(plane1PtIdx);
+    outField.Set(firstOutputPlaneIndex * PtsPerPlane + pt0Offset, y0);
+
+    vtkm::Id numOutCoords = outField.GetNumberOfValues();
+
+    for (vtkm::Id i = 0; i < this->NumInsert; i++)
+    {
+      vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
+      if (outIdx > numOutCoords)
+      {
+        std::string err = "Output index is computed to be " + std::to_string(outIdx) +
+          ", but the output array has size " + std::to_string(numOutCoords);
+        this->RaiseError(err.data());
+      }
+      // To see this is correct, consider insertion of 1 plane.
+      // Then y = (y0 + y1)/2.
+      auto y = y0 + (i + 1) * (y1 - y0) / (this->NumInsert + 1);
+      outField.Set(outIdx, y);
+    }
+  }
+
+private:
+  vtkm::Id NumPlanes;
+  vtkm::Id PtsPerPlane;
+  vtkm::Id NumInsert;
+};
+
+}
 
 void ArrayPlaceholder::ProcessJSON(const rapidjson::Value& json, DataSourcesType&)
 {
@@ -34,7 +101,7 @@ void ArrayPlaceholder::ProcessJSON(const rapidjson::Value& json, DataSourcesType
   this->DataSourceName = json["data_source"].GetString();
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayPlaceholder::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayPlaceholder::Read(
   const std::unordered_map<std::string, std::string>&,
   DataSourcesType&,
   const fides::metadata::MetaData&)
@@ -48,7 +115,7 @@ size_t ArrayPlaceholder::GetNumberOfBlocks(const std::unordered_map<std::string,
   throw std::runtime_error("ArrayPlaceholder::GetNumberOfBlocks should not be called");
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> Array::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> Array::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -146,7 +213,7 @@ void ArrayBasic::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   }
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayBasic::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayBasic::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -227,25 +294,25 @@ void ArrayUniformPointCoordinates::ProcessJSON(const rapidjson::Value& json,
   }
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayUniformPointCoordinates::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> ret;
+  std::vector<vtkm::cont::UnknownArrayHandle> ret;
 
   if (this->DefinedFromVariableShape)
   {
     // In this situation we can do everything now instead of waiting for
     // the PostRead
-    std::vector<vtkm::cont::VariantArrayHandle> dims =
+    std::vector<vtkm::cont::UnknownArrayHandle> dims =
       this->Dimensions->Read(paths, sources, selections);
-    std::vector<vtkm::cont::VariantArrayHandle> origins;
+    std::vector<vtkm::cont::UnknownArrayHandle> origins;
     if (this->Origin)
     {
       origins = this->Origin->Read(paths, sources, selections);
     }
-    std::vector<vtkm::cont::VariantArrayHandle> spacings;
+    std::vector<vtkm::cont::UnknownArrayHandle> spacings;
     if (this->Spacing)
     {
       spacings = this->Spacing->Read(paths, sources, selections);
@@ -256,7 +323,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayUniformPointCoordinates::Read(
 
     for (const auto& array : dims)
     {
-      auto dimsB = array.Cast<vtkm::cont::ArrayHandle<size_t>>();
+      auto dimsB = array.AsArrayHandle<vtkm::cont::ArrayHandle<size_t>>();
       auto dimsPortal = dimsB.ReadPortal();
       vtkm::Id3 dimValues(static_cast<vtkm::Id>(dimsPortal.Get(0)),
                           static_cast<vtkm::Id>(dimsPortal.Get(1)),
@@ -266,14 +333,14 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayUniformPointCoordinates::Read(
       if (this->Origin)
       {
         const auto& origin = origins[0];
-        auto originB = origin.Cast<vtkm::cont::ArrayHandle<double>>();
+        auto originB = origin.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
         auto originPortal = originB.ReadPortal();
         originA = vtkm::Vec3f(originPortal.Get(0), originPortal.Get(1), originPortal.Get(2));
       }
       if (this->Spacing)
       {
         const auto& spacing = spacings[0];
-        auto spacingB = spacing.Cast<vtkm::cont::ArrayHandle<double>>();
+        auto spacingB = spacing.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
         auto spacingPortal = spacingB.ReadPortal();
         spacingA = vtkm::Vec3f(spacingPortal.Get(0), spacingPortal.Get(1), spacingPortal.Get(2));
       }
@@ -290,7 +357,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayUniformPointCoordinates::Read(
   }
   else
   {
-    // in this situation, we need to save the VariantArrayHandles we read
+    // in this situation, we need to save the UnknownArrayHandles we read
     // and once we actually have the data in PostRead, then we can add the coordinates
     // to the dataset
     this->DimensionArrays = this->Dimensions->Read(paths, sources, selections);
@@ -315,9 +382,9 @@ void ArrayUniformPointCoordinates::PostRead(
     size_t nDims = this->DimensionArrays.size();
     for (std::size_t i = 0; i < nDims; i++)
     {
-      auto d = this->DimensionArrays[i].Cast<vtkm::cont::ArrayHandle<std::size_t>>();
-      auto o = this->OriginArrays[i].Cast<vtkm::cont::ArrayHandle<double>>();
-      auto s = this->SpacingArrays[i].Cast<vtkm::cont::ArrayHandle<double>>();
+      auto d = this->DimensionArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
+      auto o = this->OriginArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+      auto s = this->SpacingArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
       auto dPortal = d.ReadPortal();
       auto oPortal = o.ReadPortal();
       auto sPortal = s.ReadPortal();
@@ -370,17 +437,17 @@ void ArrayCartesianProduct::ProcessJSON(const rapidjson::Value& json, DataSource
   this->ZArray->ProcessJSON(zarray, sources);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayCartesianProduct::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
-  std::vector<vtkm::cont::VariantArrayHandle> xarrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> xarrays =
     this->XArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::VariantArrayHandle> yarrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> yarrays =
     this->YArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::VariantArrayHandle> zarrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> zarrays =
     this->ZArray->Read(paths, sources, selections);
   size_t nArrays = xarrays.size();
   for (size_t i = 0; i < nArrays; i++)
@@ -392,17 +459,17 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayCartesianProduct::Read(
     using doubleType = vtkm::cont::ArrayHandle<double>;
     if (xarray.IsType<floatType>() && yarray.IsType<floatType>() && zarray.IsType<floatType>())
     {
-      auto xarrayF = xarray.Cast<floatType>();
-      auto yarrayF = yarray.Cast<floatType>();
-      auto zarrayF = zarray.Cast<floatType>();
+      auto xarrayF = xarray.AsArrayHandle<floatType>();
+      auto yarrayF = yarray.AsArrayHandle<floatType>();
+      auto zarrayF = zarray.AsArrayHandle<floatType>();
       retVal.push_back(vtkm::cont::make_ArrayHandleCartesianProduct(xarrayF, yarrayF, zarrayF));
     }
     else if (xarray.IsType<doubleType>() && yarray.IsType<doubleType>() &&
              zarray.IsType<doubleType>())
     {
-      auto xarrayD = xarray.Cast<doubleType>();
-      auto yarrayD = yarray.Cast<doubleType>();
-      auto zarrayD = zarray.Cast<doubleType>();
+      auto xarrayD = xarray.AsArrayHandle<doubleType>();
+      auto yarrayD = yarray.AsArrayHandle<doubleType>();
+      auto zarrayD = zarray.AsArrayHandle<doubleType>();
       retVal.push_back(vtkm::cont::make_ArrayHandleCartesianProduct(xarrayD, yarrayD, zarrayD));
     }
     else
@@ -470,7 +537,7 @@ std::vector<size_t> ArrayXGC::GetShape(const std::unordered_map<std::string, std
   return ds->GetVariableShape(this->VariableName);
 }
 
-/// Functor created so that VariantArrayHandle's CastAndCall() will handle making the
+/// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
 /// appropriate cast to an ArrayHandle.
 /// The specialization is because it tries to use other StorageTags when compiling,
 /// but we only want to support StorageTagBasic.
@@ -478,7 +545,7 @@ struct ArrayXGCCoordinates::AddToVectorFunctor
 {
   template <typename T, typename S>
   VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
-                            std::vector<vtkm::cont::VariantArrayHandle>&,
+                            std::vector<vtkm::cont::UnknownArrayHandle>&,
                             vtkm::Id,
                             vtkm::Id,
                             vtkm::Id,
@@ -489,7 +556,7 @@ struct ArrayXGCCoordinates::AddToVectorFunctor
   /// This version is for creating the coordinates AHs.
   template <typename T>
   VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>& array,
-                            std::vector<vtkm::cont::VariantArrayHandle>& retVal,
+                            std::vector<vtkm::cont::UnknownArrayHandle>& retVal,
                             vtkm::Id numberOfPlanes,
                             vtkm::Id numberOfPlanesOwned,
                             vtkm::Id planeStartId,
@@ -510,7 +577,7 @@ void ArrayXGCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesT
   this->IsCylindrical = json["is_cylindrical"].GetBool();
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCCoordinates::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -529,7 +596,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCCoordinates::Read(
   // Removing because for XGC Fides blocks are not the same as ADIOS blocks
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
 
   auto coordArrays = this->ReadSelf(paths, sources, newSelections, fides::io::IsVector::No);
   if (coordArrays.size() != 1)
@@ -554,21 +621,29 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCCoordinates::Read(
       "No XGC block info returned. May want to double check block selection.");
   }
 
+  size_t numInsertPlanes = 0;
+  if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    numInsertPlanes =
+      selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+  }
+
   for (size_t i = 0; i < blocksInfo.size(); ++i)
   {
     const auto& block = blocksInfo[i];
-    coordsAH.ResetTypes(vtkm::TypeListFieldScalar())
-      .CastAndCall(AddToVectorFunctor(),
-                   retVal,
-                   NumberOfPlanes,
-                   block.NumberOfPlanesOwned,
-                   block.PlaneStartId,
-                   this->IsCylindrical);
+    coordsAH
+      .CastAndCallForTypes<vtkm::TypeListFieldScalar, vtkm::List<vtkm::cont::StorageTagBasic>>(
+        AddToVectorFunctor(),
+        retVal,
+        NumberOfPlanes * (1 + numInsertPlanes),
+        block.NumberOfPlanesOwned * (1 + numInsertPlanes),
+        block.PlaneStartId * (1 + numInsertPlanes),
+        this->IsCylindrical);
   }
   return retVal;
 }
 
-/// Functor created so that VariantArrayHandle's CastAndCall() will handle making the
+/// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
 /// appropriate cast to an ArrayHandle.
 /// The specialization is because it tries to use other StorageTags when compiling,
 /// but we only want to support StorageTagBasic.
@@ -576,8 +651,8 @@ struct ArrayXGCField::AddToVectorFunctor
 {
   template <typename T, typename S>
   VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
-                            std::vector<vtkm::cont::VariantArrayHandle>&,
-                            std::vector<vtkm::cont::VariantArrayHandle>&,
+                            std::vector<vtkm::cont::UnknownArrayHandle>&,
+                            std::vector<vtkm::cont::UnknownArrayHandle>&,
                             vtkm::Id,
                             bool) const
   {
@@ -586,7 +661,7 @@ struct ArrayXGCField::AddToVectorFunctor
   /// This version is for creating the field AHs
   template <typename T>
   VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>& array,
-                            std::vector<vtkm::cont::VariantArrayHandle>& retVal,
+                            std::vector<vtkm::cont::UnknownArrayHandle>& retVal,
                             vtkm::Id numberOfPlanesOwned,
                             bool is2dField) const
   {
@@ -607,7 +682,7 @@ struct ArrayXGCField::AddToVectorFunctor
   }
 };
 
-vtkm::cont::VariantArrayHandle ArrayXGCField::Read3DVariable(
+vtkm::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -629,7 +704,7 @@ vtkm::cont::VariantArrayHandle ArrayXGCField::Read3DVariable(
   return arrays[0];
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCField::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -665,7 +740,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCField::Read(
     this->FieldDimsChecked = true;
   }
 
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
 
   metadata::MetaData newSelections = selections;
   // Removing because for XGC Fides blocks are not the same as ADIOS blocks
@@ -695,8 +770,8 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCField::Read(
     for (size_t i = 0; i < blocksInfo.size(); ++i)
     {
       const auto& block = blocksInfo[i];
-      fieldAH.ResetTypes(vtkm::TypeListScalarAll())
-        .CastAndCall(AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
+      fieldAH.CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
+        AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
     }
   }
   else
@@ -719,14 +794,74 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayXGCField::Read(
       newSelections.Remove(fides::keys::BLOCK_SELECTION());
       newSelections.Set(fides::keys::BLOCK_SELECTION(), planesToRead);
       auto planeData = this->Read3DVariable(paths, sources, newSelections);
-      planeData.ResetTypes(vtkm::TypeListScalarAll())
-        .CastAndCall(AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
+
+      planeData
+        .CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
+          AddToVectorFunctor(), retVal, block.NumberOfPlanesOwned, this->Is2DField);
     }
   }
 
   return retVal;
 }
 
+void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                             const fides::metadata::MetaData& metaData)
+{
+  size_t numInsertPlanes = 0;
+  if (!this->Is2DField && metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    numInsertPlanes =
+      metaData.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+  }
+
+  if (numInsertPlanes == 0)
+  {
+    return;
+  }
+
+  if (dataSets.size() > 1)
+    throw std::runtime_error("Plane insert for XGC not supported for multiple datasets.");
+
+  const auto& cs = dataSets[0].GetCellSet();
+  if (!cs.IsType<vtkm::cont::CellSetExtrude>())
+    throw std::runtime_error("Wrong type of cell set for XGC dataset.");
+
+  auto cellSet = cs.Cast<vtkm::cont::CellSetExtrude>();
+  vtkm::Id ptsPerPlane = cellSet.GetNumberOfPointsPerPlane();
+  vtkm::Id numPlanes = this->NumberOfPlanes;
+  vtkm::Id totNumPlanes = numPlanes + (numPlanes * numInsertPlanes);
+
+  if (!dataSets[0].HasPointField(this->VariableName))
+  {
+    return;
+  }
+
+  auto fieldArray = dataSets[0].GetField(this->VariableName).GetData();
+
+  vtkm::cont::Invoker invoke;
+
+  using floatType = vtkm::cont::ArrayHandleStride<float>;
+  using doubleType = vtkm::cont::ArrayHandleStride<double>;
+  fusionutil::PlaneInserterField planeInserter(numPlanes, ptsPerPlane, numInsertPlanes);
+  if (fieldArray.IsType<floatType>())
+  {
+    auto inArr = fieldArray.AsArrayHandle<floatType>();
+    vtkm::cont::ArrayHandle<float> outArr;
+    outArr.Allocate(totNumPlanes * ptsPerPlane);
+    invoke(planeInserter, inArr, outArr);
+    dataSets[0].AddPointField(this->VariableName, outArr);
+  }
+  else if (fieldArray.IsType<doubleType>())
+  {
+    auto inArr = fieldArray.AsArrayHandle<doubleType>();
+    vtkm::cont::ArrayHandle<double> outArr;
+    outArr.Allocate(totNumPlanes * ptsPerPlane);
+    invoke(planeInserter, inArr, outArr);
+    dataSets[0].AddPointField(this->VariableName, outArr);
+  }
+  else
+    throw std::runtime_error("Unsupported field type for XGC.");
+}
 
 void ArrayGTCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
@@ -755,12 +890,12 @@ void ArrayGTCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesT
   this->ZArray->ProcessJSON(zarray, sources);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ArrayGTCCoordinates::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
 
   //First time, so read and set cache.
   if (!this->IsCached)
@@ -805,7 +940,6 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayGTCCoordinates::Read(
     {
       throw std::runtime_error("Only float and double arrays are supported in ArrayGTC products.");
     }
-    this->IsCached = true;
   }
 
   retVal.push_back(this->CachedCoords);
@@ -818,8 +952,170 @@ size_t ArrayGTCCoordinates::GetNumberOfBlocks(const std::unordered_map<std::stri
   return 1;
 }
 
+class ArrayGTCCoordinates::PlaneInserter : public vtkm::worklet::WorkletMapField
+{
+public:
+  PlaneInserter(vtkm::Id nPlanes, vtkm::Id nPtsPerPlane, vtkm::Id numInsert)
+    : NumPlanes(nPlanes)
+    , PtsPerPlane(nPtsPerPlane)
+    , NumInsert(numInsert)
+  {
+    this->dT = 1 / static_cast<vtkm::Float64>(this->NumInsert + 1);
+    this->dPhi = 1 / static_cast<vtkm::Float64>(this->NumPlanes * (1 + this->NumInsert));
+  }
+
+  using ControlSignature = void(WholeArrayIn inCoords, WholeArrayOut outCoords);
+  using ExecutionSignature = void(InputIndex, _1, _2);
+  using InputDomain = _1;
+
+  //Need to template this later.
+  using PointType = vtkm::Vec<vtkm::Float32, 3>;
+
+  template <typename InCoordsType, typename OutCoordsType>
+  VTKM_EXEC void operator()(const vtkm::Id& inIdx,
+                            const InCoordsType& inCoords,
+                            OutCoordsType& outCoords) const
+  {
+    vtkm::Id plane0PtIdx = inIdx;
+    vtkm::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
+    vtkm::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
+    // This is correct:
+    vtkm::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
+    // Unless we're in the last plane:
+    if (inPlaneIdx == this->NumPlanes - 1)
+    {
+      plane1PtIdx = plane0PtIdx % this->PtsPerPlane;
+    }
+
+    vtkm::Id firstOutputPlaneIndex = inPlaneIdx * (1 + this->NumInsert);
+
+    const auto& plane0Pt = inCoords.Get(plane0PtIdx);
+    const auto& plane1Pt = inCoords.Get(plane1PtIdx);
+    outCoords.Set(firstOutputPlaneIndex * this->PtsPerPlane + pt0Offset, plane0Pt);
+
+    //Now add NumInsert interpolated points.
+    const auto rad = vtkm::Sqrt((plane0Pt[0] * plane0Pt[0] + plane0Pt[1] * plane0Pt[1]));
+    const auto Z = plane0Pt[2];
+
+    //optimize this later...
+    auto phi0 = vtkm::ATan2(plane0Pt[1], plane0Pt[0]);
+    auto phi1 = vtkm::ATan2(plane1Pt[1], plane1Pt[0]);
+
+    if (phi0 < phi1)
+    {
+      phi0 += vtkm::TwoPi();
+    }
+
+    vtkm::Float64 t = dT;
+    vtkm::Id numOutCoords = outCoords.GetNumberOfValues();
+
+    for (vtkm::Id i = 0; i < this->NumInsert; i++)
+    {
+      //calculate the index for the inbetween plane points.
+      vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
+      if (outIdx > numOutCoords)
+      {
+        std::string err = "Output index is computed to be " + std::to_string(outIdx) +
+          ", but the output array has size " + std::to_string(numOutCoords);
+        this->RaiseError(err.data());
+      }
+      //interpolate phi, convert to cartesian.
+      auto phi = phi0 + t * (phi1 - phi0);
+      PointType outPt(rad * vtkm::Cos(phi), rad * vtkm::Sin(phi), Z);
+      outCoords.Set(outIdx, outPt);
+      t += dT;
+    }
+  }
+
+private:
+  vtkm::Id NumPlanes;
+  vtkm::Id PtsPerPlane;
+  vtkm::Id NumInsert;
+  vtkm::Float64 dT;
+  vtkm::Float64 dPhi;
+};
+
+void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                                   const fides::metadata::MetaData& metaData)
+{
+  if (dataSets.size() != 1)
+  {
+    throw std::runtime_error("Wrong number of partitions for GTC DataSets.");
+  }
+
+  if (!dataSets[0].HasField("num_planes") || !dataSets[0].HasField("num_pts_per_plane"))
+  {
+    throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
+  }
+
+  auto& dataSet = dataSets[0];
+  auto& cs = dataSet.GetCoordinateSystem();
+
+  size_t numInsertPlanes = 0;
+  if (metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    numInsertPlanes =
+      metaData.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+  }
+
+  if (numInsertPlanes == 0)
+  {
+    this->CachedCoords = cs.GetData();
+    this->IsCached = true;
+  }
+  else if (!this->IsCached)
+  {
+    //Add additional planes.
+    if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
+    {
+      throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
+    }
+
+    using intType = vtkm::cont::ArrayHandle<int>;
+    auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
+    auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
+
+    vtkm::Id numberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
+    vtkm::Id numberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
+
+    ArrayGTCCoordinates::PlaneInserter plnIns(
+      numberOfPlanes, numberOfPointsPerPlane, numInsertPlanes);
+    if (cs.GetData().IsType<GTCCoordsType32>())
+    {
+      auto inCoords = cs.GetData().AsArrayHandle<GTCCoordsType32>();
+      GTCCoordsType32 newCoords;
+      vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+      vtkm::cont::Invoker invoke;
+      newCoords.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      invoke(plnIns, inCoords, newCoords);
+
+      this->CachedCoords = newCoords;
+    }
+    else if (cs.GetData().IsType<GTCCoordsType64>())
+    {
+      auto inCoords = cs.GetData().AsArrayHandle<GTCCoordsType64>();
+      GTCCoordsType64 newCoords;
+      vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+      vtkm::cont::Invoker invoke;
+      newCoords.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      invoke(plnIns, inCoords, newCoords);
+
+      this->CachedCoords = newCoords;
+    }
+    else
+    {
+      throw std::runtime_error("unsupported coordinates type for GTC.");
+    }
+
+    this->IsCached = true;
+  }
+
+  //Set coords to cached coordinates.
+  cs = vtkm::cont::CoordinateSystem("coords", this->CachedCoords);
+}
+
 /// Reads and returns array handles.
-std::vector<vtkm::cont::VariantArrayHandle> ArrayGTCField::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCField::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -829,6 +1125,75 @@ std::vector<vtkm::cont::VariantArrayHandle> ArrayGTCField::Read(
   newSelections.Set(fides::keys::READ_AS_MULTIBLOCK(), flag);
 
   return this->ReadSelf(paths, sources, newSelections);
+}
+
+void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                             const fides::metadata::MetaData& metaData)
+{
+  if (dataSets.size() != 1)
+  {
+    throw std::runtime_error("Wrong number of partitions for GTC DataSets.");
+  }
+
+  size_t numInsertPlanes = 0;
+  if (metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    numInsertPlanes =
+      metaData.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+  }
+  //No extra planes, we're done.
+  if (numInsertPlanes == 0)
+  {
+    return;
+  }
+
+  //Add additional planes.
+  auto& dataSet = dataSets[0];
+  if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
+  {
+    throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
+  }
+
+  using intType = vtkm::cont::ArrayHandle<int>;
+  auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
+  auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
+
+  int numberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
+  int numberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
+
+  if (dataSet.HasPointField(this->VariableName))
+  {
+    const auto& field = dataSet.GetField(this->VariableName);
+    const auto& arr = field.GetData();
+
+    vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+    fusionutil::PlaneInserterField planeInserter(
+      numberOfPlanes, numberOfPointsPerPlane, numInsertPlanes);
+    vtkm::cont::Invoker invoke;
+
+    if (arr.IsType<vtkm::cont::ArrayHandle<vtkm::Float32>>())
+    {
+      auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float32>>();
+      vtkm::cont::ArrayHandle<vtkm::Float32> outArr;
+      outArr.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      invoke(planeInserter, inArr, outArr);
+
+      dataSet.AddPointField(this->VariableName, outArr);
+    }
+    else if (arr.IsType<vtkm::cont::ArrayHandle<vtkm::Float64>>())
+    {
+      auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
+      vtkm::cont::ArrayHandle<vtkm::Float64> outArr;
+      outArr.Allocate(numTotalPlanes * numberOfPointsPerPlane);
+      invoke(planeInserter, inArr, outArr);
+
+      dataSet.AddPointField(this->VariableName, outArr);
+    }
+    else
+    {
+      throw std::runtime_error("Unsupported type for GTC field.");
+    }
+  }
 }
 
 }

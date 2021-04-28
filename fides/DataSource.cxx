@@ -144,7 +144,7 @@ void DataSource::Refresh()
 }
 
 template <typename VariableType, typename VecType>
-vtkm::cont::VariantArrayHandle AllocateArrayHandle(vtkm::Id bufSize, VariableType*& buffer)
+vtkm::cont::UnknownArrayHandle AllocateArrayHandle(vtkm::Id bufSize, VariableType*& buffer)
 {
   vtkm::cont::ArrayHandleBasic<VecType> arrayHandle;
   arrayHandle.Allocate(bufSize);
@@ -153,7 +153,7 @@ vtkm::cont::VariantArrayHandle AllocateArrayHandle(vtkm::Id bufSize, VariableTyp
 }
 
 template <typename VariableType, vtkm::IdComponent Dim>
-vtkm::cont::VariantArrayHandle AllocateArrayHandle(const VariableType* vecData, vtkm::Id bufSize)
+vtkm::cont::UnknownArrayHandle AllocateArrayHandle(const VariableType* vecData, vtkm::Id bufSize)
 {
   vtkm::cont::ArrayHandle<VariableType> arrayHandle =
     vtkm::cont::make_ArrayHandle(vecData, bufSize, vtkm::CopyFlag::Off);
@@ -198,7 +198,7 @@ vtkm::Id GetBufferSize(adios2::Engine& reader,
 }
 
 template <typename VariableType>
-vtkm::cont::VariantArrayHandle ReadVariableInternal(adios2::Engine& reader,
+vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
                                                     adios2::Variable<VariableType>& varADIOS2,
                                                     size_t blockId,
                                                     EngineType engineType,
@@ -209,7 +209,7 @@ vtkm::cont::VariantArrayHandle ReadVariableInternal(adios2::Engine& reader,
   auto blocksInfo = reader.BlocksInfo(varADIOS2, step);
   const auto& shape = blocksInfo[blockId].Count;
 
-  vtkm::cont::VariantArrayHandle retVal;
+  vtkm::cont::UnknownArrayHandle retVal;
   VariableType* buffer = nullptr;
 
   if (engineType == EngineType::Inline)
@@ -317,7 +317,7 @@ vtkm::cont::VariantArrayHandle ReadVariableInternal(adios2::Engine& reader,
 
 // Inline engine is not supported for multiblock read into a contiguous array
 template <typename VariableType>
-vtkm::cont::VariantArrayHandle ReadMultiBlockVariableInternal(
+vtkm::cont::UnknownArrayHandle ReadMultiBlockVariableInternal(
   adios2::Engine& reader,
   adios2::Variable<VariableType>& varADIOS2,
   std::vector<size_t> blocks,
@@ -330,7 +330,7 @@ vtkm::cont::VariantArrayHandle ReadMultiBlockVariableInternal(
     bufSize += GetBufferSize(reader, varADIOS2, blockId, step);
   }
 
-  vtkm::cont::VariantArrayHandle retVal;
+  vtkm::cont::UnknownArrayHandle retVal;
   vtkm::cont::ArrayHandleBasic<VariableType> arrayHandle;
   arrayHandle.Allocate(bufSize);
   VariableType* buffer = arrayHandle.GetWritePointer();
@@ -375,7 +375,7 @@ std::vector<size_t> GetVariableShapeInternal(adios2::IO& adiosIO,
 }
 
 template <typename VariableType>
-std::vector<vtkm::cont::VariantArrayHandle> ReadVariableBlocksInternal(
+std::vector<vtkm::cont::UnknownArrayHandle> ReadVariableBlocksInternal(
   adios2::IO& adiosIO,
   adios2::Engine& reader,
   const std::string& varName,
@@ -384,7 +384,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ReadVariableBlocksInternal(
   IsVector isit = IsVector::Auto,
   bool isMultiBlock = false)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> arrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> arrays;
   if (selections.Has(fides::keys::BLOCK_SELECTION()) &&
       selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data.empty())
   {
@@ -452,7 +452,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ReadVariableBlocksInternal(
 }
 
 template <typename VariableType>
-std::vector<vtkm::cont::VariantArrayHandle> GetDimensionsInternal(
+std::vector<vtkm::cont::UnknownArrayHandle> GetDimensionsInternal(
   adios2::IO& adiosIO,
   adios2::Engine& reader,
   const std::string& varName,
@@ -486,7 +486,7 @@ std::vector<vtkm::cont::VariantArrayHandle> GetDimensionsInternal(
     blocksToReallyRead = blocksToRead;
   }
 
-  std::vector<vtkm::cont::VariantArrayHandle> arrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> arrays;
   arrays.reserve(blocksToReallyRead.size());
 
   for (auto blockId : blocksToReallyRead)
@@ -505,7 +505,7 @@ std::vector<vtkm::cont::VariantArrayHandle> GetDimensionsInternal(
 // Since this is grabbing a scalar variable, ADIOS should always be
 // able to return the actual value immediately
 template <typename VariableType>
-std::vector<vtkm::cont::VariantArrayHandle> GetScalarVariableInternal(
+std::vector<vtkm::cont::UnknownArrayHandle> GetScalarVariableInternal(
   adios2::IO& adiosIO,
   adios2::Engine& reader,
   const std::string& varName,
@@ -513,8 +513,8 @@ std::vector<vtkm::cont::VariantArrayHandle> GetScalarVariableInternal(
 {
   auto varADIOS2 = adiosIO.InquireVariable<VariableType>(varName);
 
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
-  vtkm::cont::VariantArrayHandle valueAH;
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  vtkm::cont::UnknownArrayHandle valueAH;
   vtkm::cont::ArrayHandleBasic<VariableType> arrayHandle;
   arrayHandle.Allocate(1);
   VariableType* buffer = arrayHandle.GetWritePointer();
@@ -641,7 +641,7 @@ std::vector<vtkm::cont::VariantArrayHandle> GetScalarVariableInternal(
       break;                                     \
   }
 
-std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetVariableDimensions(
+std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetVariableDimensions(
   const std::string& varName,
   const fides::metadata::MetaData& selections)
 {
@@ -654,7 +654,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetVariableDimensions(
   {
     // previously we were throwing an error if the variable could not be found,
     // but it's possible that a variable may just not be available on a certain timestep.
-    return std::vector<vtkm::cont::VariantArrayHandle>();
+    return std::vector<vtkm::cont::UnknownArrayHandle>();
   }
 
   const std::string& type = itr->second["Type"];
@@ -669,7 +669,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetVariableDimensions(
   throw std::runtime_error("Unsupported variable type " + type);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetScalarVariable(
+std::vector<vtkm::cont::UnknownArrayHandle> DataSource::GetScalarVariable(
   const std::string& varName,
   const fides::metadata::MetaData& selections)
 {
@@ -682,7 +682,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetScalarVariable(
   {
     // previously we were throwing an error if the variable could not be found,
     // but it's possible that a variable may just not be available on a certain timestep.
-    return std::vector<vtkm::cont::VariantArrayHandle>();
+    return std::vector<vtkm::cont::UnknownArrayHandle>();
   }
 
   const std::string& type = itr->second["Type"];
@@ -697,7 +697,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::GetScalarVariable(
   throw std::runtime_error("Unsupported variable type " + type);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> DataSource::ReadVariable(
+std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadVariable(
   const std::string& varName,
   const fides::metadata::MetaData& selections,
   IsVector isit)
@@ -711,7 +711,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::ReadVariable(
   {
     // previously we were throwing an error if the variable could not be found,
     // but it's possible that a variable may just not be available on a certain timestep.
-    return std::vector<vtkm::cont::VariantArrayHandle>();
+    return std::vector<vtkm::cont::UnknownArrayHandle>();
   }
   const std::string& type = itr->second["Type"];
   if (type.empty())
@@ -725,7 +725,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::ReadVariable(
   throw std::runtime_error("Unsupported variable type " + type);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> DataSource::ReadMultiBlockVariable(
+std::vector<vtkm::cont::UnknownArrayHandle> DataSource::ReadMultiBlockVariable(
   const std::string& varName,
   const fides::metadata::MetaData& selections)
 {
@@ -738,7 +738,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataSource::ReadMultiBlockVariable(
   {
     // previously we were throwing an error if the variable could not be found,
     // but it's possible that a variable may just not be available on a certain timestep.
-    return std::vector<vtkm::cont::VariantArrayHandle>();
+    return std::vector<vtkm::cont::UnknownArrayHandle>();
   }
   const std::string& type = itr->second["Type"];
   if (type.empty())

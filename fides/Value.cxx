@@ -45,7 +45,7 @@ void Value::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
   this->ValueImpl->ProcessJSON(json, sources);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> Value::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> Value::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -59,7 +59,7 @@ size_t Value::GetNumberOfBlocks(const std::unordered_map<std::string, std::strin
   return this->ValueImpl->GetNumberOfBlocks(paths, sources);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ValueVariableDimensions::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -106,17 +106,17 @@ void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fide
   }
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ValueArray::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ValueArray::Read(
   const std::unordered_map<std::string, std::string>& fidesNotUsed(paths),
   DataSourcesType& fidesNotUsed(sources),
   const fides::metadata::MetaData& fidesNotUsed(selections))
 {
-  std::vector<vtkm::cont::VariantArrayHandle> retVal;
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
   retVal.push_back(vtkm::cont::make_ArrayHandle(this->Values, vtkm::CopyFlag::On));
   return retVal;
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ValueScalar::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ValueScalar::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -133,7 +133,7 @@ std::vector<vtkm::cont::VariantArrayHandle> ValueScalar::Read(
   return ds->GetScalarVariable(this->VariableName, selections);
 }
 
-std::vector<vtkm::cont::VariantArrayHandle> ValueArrayVariable::Read(
+std::vector<vtkm::cont::UnknownArrayHandle> ValueArrayVariable::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)

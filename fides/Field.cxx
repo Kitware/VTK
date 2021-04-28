@@ -128,7 +128,7 @@ std::vector<vtkm::cont::Field> Field::Read(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> arrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   std::vector<vtkm::cont::Field> fields;
   size_t nFields = arrays.size();
@@ -142,11 +142,17 @@ std::vector<vtkm::cont::Field> Field::Read(
   return fields;
 }
 
+void Field::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                     const fides::metadata::MetaData& selections)
+{
+  this->Array->PostRead(partitions, selections);
+}
+
 FieldData Field::ReadFieldData(const std::unordered_map<std::string, std::string>& paths,
                                DataSourcesType& sources,
                                const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::VariantArrayHandle> arrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   return FieldData(this->Name, std::move(arrays));
 }

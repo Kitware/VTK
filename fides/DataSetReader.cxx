@@ -468,8 +468,10 @@ public:
 
   void PostRead(std::vector<vtkm::cont::DataSet>& pds, const fides::metadata::MetaData& selections)
   {
-    this->CellSet->PostRead(pds, selections);
     this->CoordinateSystem->PostRead(pds, selections);
+    this->CellSet->PostRead(pds, selections);
+    for (auto& f : this->Fields)
+      f.second->PostRead(pds, selections);
   }
 
   void DoAllReads()
@@ -670,14 +672,6 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
       auto itr = this->Impl->Fields.find(std::make_pair(field.Name, field.Association));
       if (itr != this->Impl->Fields.end())
       {
-        if (field.Association == fides::Association::FIELD_DATA)
-        {
-          // this var shouldn't be saved in the vtkm dataset
-          datamodel::FieldData fieldData =
-            itr->second->ReadFieldData(paths, this->Impl->DataSources, selections);
-          this->Impl->FDManager->AddField(field.Name, fieldData);
-          continue;
-        }
         std::vector<vtkm::cont::Field> fieldVec =
           itr->second->Read(paths, this->Impl->DataSources, selections);
         for (size_t i = 0; i < nPartitions; i++)
@@ -694,14 +688,6 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
   {
     for (auto& field : this->Impl->Fields)
     {
-      if (field.second->Association == fides::Association::FIELD_DATA)
-      {
-        // this var shouldn't be saved in the vtkm dataset
-        datamodel::FieldData fieldData =
-          field.second->ReadFieldData(paths, this->Impl->DataSources, selections);
-        this->Impl->FDManager->AddField(field.second->Name, fieldData);
-        continue;
-      }
       std::vector<vtkm::cont::Field> fields =
         field.second->Read(paths, this->Impl->DataSources, selections);
       for (size_t i = 0; i < nPartitions; i++)

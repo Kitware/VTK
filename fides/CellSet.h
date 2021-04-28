@@ -105,7 +105,7 @@ struct CellSetSingleType : public CellSetBase
 protected:
   std::pair<unsigned char, int> CellInformation;
   std::vector<vtkm::cont::DynamicCellSet> CellSetCache;
-  std::vector<vtkm::cont::VariantArrayHandle> ConnectivityArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> ConnectivityArrays;
 };
 
 /// \brief Class to read unstructured grids of mixed cell types.
@@ -137,9 +137,9 @@ protected:
   std::unique_ptr<Array> CellTypes = nullptr;
   std::unique_ptr<Array> NumberOfVertices = nullptr;
   std::unique_ptr<Array> Connectivity = nullptr;
-  std::vector<vtkm::cont::VariantArrayHandle> CellTypesArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> NumberOfVerticesArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> ConnectivityArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> CellTypesArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> NumberOfVerticesArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> ConnectivityArrays;
 };
 
 /// \brief Class to read structured grids.
@@ -168,7 +168,7 @@ struct CellSetStructured : public CellSetBase
 
 private:
   std::unique_ptr<Value> Dimensions = nullptr;
-  std::vector<vtkm::cont::VariantArrayHandle> DimensionArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> DimensionArrays;
 };
 
 
@@ -194,6 +194,9 @@ struct CellSetXGC : public CellSetBase
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
+  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                        const fides::metadata::MetaData& selections) override;
+
 private:
   std::vector<vtkm::cont::DynamicCellSet> CellSetCache;
   std::unique_ptr<Array> CellConnectivity = nullptr;
@@ -201,6 +204,8 @@ private:
   vtkm::Id NumberOfPlanes = -1;
   bool IsPeriodic = true;
   std::unique_ptr<XGCCommon> CommonImpl;
+
+  class CalcPsi;
 };
 
 /// \brief Class to read GTC cell set.
@@ -238,19 +243,14 @@ private:
     const vtkm::cont::ArrayHandle<int>& igrid,
     const vtkm::cont::ArrayHandle<int>& indexShift);
 
-  std::vector<vtkm::cont::VariantArrayHandle> IGridArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> IndexShiftArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> NumPlanesArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> NumPtsPerPlaneArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> IGridArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> IndexShiftArrays;
   std::unique_ptr<Array> IGrid = nullptr;
   std::unique_ptr<Array> IndexShift = nullptr;
-  std::unique_ptr<Array> NumPlanes = nullptr;
-  std::unique_ptr<Array> NumPtsPerPlane = nullptr;
   vtkm::Id NumberOfPlanes = -1;
   vtkm::Id NumberOfPointsPerPlane = -1;
 };
 
 }
 }
-
 #endif

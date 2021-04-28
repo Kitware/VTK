@@ -17,7 +17,7 @@ namespace fides
 namespace datamodel
 {
 
-std::vector<vtkm::cont::VariantArrayHandle> DataModelBase::ReadSelf(
+std::vector<vtkm::cont::UnknownArrayHandle> DataModelBase::ReadSelf(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections,
@@ -37,7 +37,7 @@ std::vector<vtkm::cont::VariantArrayHandle> DataModelBase::ReadSelf(
   const auto& ds = sources[this->DataSourceName];
   std::string path = itr->second + ds->FileName;
   ds->OpenSource(path);
-  std::vector<vtkm::cont::VariantArrayHandle> var;
+  std::vector<vtkm::cont::UnknownArrayHandle> var;
   bool readAsMultiBlock = false;
   if (selections.Has(fides::keys::READ_AS_MULTIBLOCK()))
   {

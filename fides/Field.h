@@ -52,6 +52,9 @@ struct Field : public DataModelBase
                                       DataSourcesType& sources,
                                       const fides::metadata::MetaData& selections);
 
+  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                const fides::metadata::MetaData& selections);
+
   /// Similar to Read() but to be used when reading field data instead of regular
   /// fields. The heavy-lifting is
   /// handled by the underlying Array object.

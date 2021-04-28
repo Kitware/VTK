@@ -13,7 +13,7 @@
 
 #include <fides/DataSource.h>
 
-#include <vtkm/cont/VariantArrayHandle.h>
+#include <vtkm/cont/UnknownArrayHandle.h>
 
 #include <fides_rapidjson.h>
 // clang-format off
@@ -71,13 +71,13 @@ protected:
   // Data reading usually happens through this method, which works
   // with the data source. This also handles data caching for static
   // variables.
-  std::vector<vtkm::cont::VariantArrayHandle> ReadSelf(
+  std::vector<vtkm::cont::UnknownArrayHandle> ReadSelf(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections,
     fides::io::IsVector isItVector = fides::io::IsVector::Auto);
 
-  std::vector<vtkm::cont::VariantArrayHandle> Cache;
+  std::vector<vtkm::cont::UnknownArrayHandle> Cache;
 };
 
 }

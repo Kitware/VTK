@@ -14,13 +14,71 @@
 #include <vtkm/VectorAnalysis.h>
 #include <vtkm/cont/Algorithm.h>
 #include <vtkm/cont/ArrayHandleCast.h>
+#include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 #include <vtkm/cont/CellSetExtrude.h>
 #include <vtkm/cont/UnknownArrayHandle.h>
+
+#include <vtkm/cont/Invoker.h>
+#include <vtkm/worklet/WorkletMapField.h>
 
 namespace fides
 {
 namespace datamodel
 {
+namespace fusionutil
+{
+
+//Calculate the radius for each point coordinate.
+class CalcRadius : public vtkm::worklet::WorkletMapField
+{
+public:
+  using ControlSignature = void(FieldIn in, FieldOut out);
+  using ExecutionSignature = void(_1 inArray, _2 outVal);
+  using InputDomain = _1;
+
+  template <typename T, typename S>
+  VTKM_EXEC void operator()(const T& pt, S& out) const
+  {
+    out = vtkm::Sqrt(pt[0] * pt[0] + pt[1] * pt[1]);
+  }
+};
+
+class CalcPhi : public vtkm::worklet::WorkletMapField
+{
+public:
+  CalcPhi(vtkm::Id nPlanes, vtkm::Id ptsPerPlane)
+    : NumPlanes(nPlanes)
+    , NumPtsPerPlane(ptsPerPlane)
+  {
+    this->Phi0 = 0;
+    this->DeltaPhi = vtkm::TwoPi() / static_cast<vtkm::Float64>(this->NumPlanes);
+  }
+
+  using ControlSignature = void(FieldIn in, FieldOut out);
+  using ExecutionSignature = void(InputIndex idx, _2 outVal);
+  using InputDomain = _1;
+
+  template <typename T>
+  VTKM_EXEC void operator()(const vtkm::Id& idx, T& out) const
+  {
+    vtkm::Id plane = idx / this->NumPtsPerPlane;
+    vtkm::Float64 planePhi = static_cast<vtkm::Float64>(plane * this->DeltaPhi);
+    out = static_cast<T>(this->Phi0 + planePhi);
+
+    if (out < 0)
+    {
+      out += 360;
+    }
+  }
+
+private:
+  vtkm::Id NumPlanes;
+  vtkm::Id NumPtsPerPlane;
+  vtkm::Float64 DeltaPhi;
+  vtkm::Float64 Phi0;
+};
+
+};
 
 void CellSet::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
@@ -157,7 +215,7 @@ void CellSetSingleType::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   {
     auto& pds = partitions[i];
     vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
-      this->ConnectivityArrays[i].Cast<vtkm::cont::ArrayHandle<vtkm::Id>>();
+      this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
     auto& cellSet = pds.GetCellSet().Cast<vtkm::cont::CellSetSingleType<>>();
     cellSet.Fill(pds.GetNumberOfPoints(),
                  this->CellInformation.first,
@@ -240,16 +298,16 @@ void CellSetExplicit::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   {
     const auto& pds = partitions[i];
     vtkm::cont::ArrayHandle<vtkm::IdComponent> nVertsCasted =
-      this->NumberOfVerticesArrays[i].Cast<vtkm::cont::ArrayHandle<vtkm::IdComponent>>();
+      this->NumberOfVerticesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::IdComponent>>();
     vtkm::cont::ArrayHandle<vtkm::Id> offsets;
     vtkm::cont::Algorithm::ScanExtended(
       vtkm::cont::make_ArrayHandleCast<vtkm::Id, vtkm::cont::ArrayHandle<vtkm::IdComponent>>(
         nVertsCasted),
       offsets);
     vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
-      this->ConnectivityArrays[i].Cast<vtkm::cont::ArrayHandle<vtkm::Id>>();
+      this->ConnectivityArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
     vtkm::cont::ArrayHandle<vtkm::UInt8> typesCasted =
-      this->CellTypesArrays[i].Cast<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
+      this->CellTypesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
     auto& cellSet = pds.GetCellSet().Cast<vtkm::cont::CellSetExplicit<>>();
     cellSet.Fill(pds.GetNumberOfPoints(), typesCasted, connCasted, offsets);
   }
@@ -300,7 +358,8 @@ void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   {
     const auto& ds = partitions[i];
     auto& cellSet = ds.GetCellSet().Cast<vtkm::cont::CellSetStructured<3>>();
-    const auto& dimArray = this->DimensionArrays[i].Cast<vtkm::cont::ArrayHandle<std::size_t>>();
+    const auto& dimArray =
+      this->DimensionArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
     auto dimPortal = dimArray.ReadPortal();
 
     vtkm::Id3 dims(static_cast<vtkm::Id>(dimPortal.Get(0)),
@@ -356,13 +415,20 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
     this->NumberOfPlanes = this->CommonImpl->GetNumberOfPlanes(paths, sources);
   }
 
+  size_t numInsertPlanes = 0;
+  if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    numInsertPlanes =
+      selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+  }
+
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
   std::vector<vtkm::cont::DynamicCellSet> cellSets;
 
   //load the connect_list
-  std::vector<vtkm::cont::VariantArrayHandle> connectivityVec =
+  std::vector<vtkm::cont::UnknownArrayHandle> connectivityVec =
     this->CellConnectivity->Read(paths, sources, newSelections);
   if (connectivityVec.size() != 1)
   {
@@ -373,14 +439,14 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   intType connectivityAH;
   if (connectivityVec[0].IsType<intType>())
   {
-    connectivityVec[0].CopyTo(connectivityAH);
+    connectivityVec[0].AsArrayHandle(connectivityAH);
   }
   else
   {
     throw std::runtime_error("Only int arrays are supported for XGC cell connectivity.");
   }
 
-  std::vector<vtkm::cont::VariantArrayHandle> planeConnectivityVec =
+  std::vector<vtkm::cont::UnknownArrayHandle> planeConnectivityVec =
     this->PlaneConnectivity->Read(paths, sources, newSelections);
 
   if (planeConnectivityVec.size() > 1)
@@ -390,7 +456,7 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   intType planeConnectivityAH;
   if (planeConnectivityVec[0].IsType<intType>())
   {
-    planeConnectivityVec[0].CopyTo(planeConnectivityAH);
+    planeConnectivityVec[0].AsArrayHandle(planeConnectivityAH);
   }
   else
   {
@@ -405,6 +471,12 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   {
     blocksInfo = this->CommonImpl->GetXGCBlockInfo(
       selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data);
+    if (numInsertPlanes > 0)
+    {
+      std::cerr << "WARNING: PLANE_INSERTION not supported when using BLOCK_SELECTION. Ignoring."
+                << std::endl;
+      numInsertPlanes = 0;
+    }
   }
   else
   {
@@ -419,12 +491,12 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   for (size_t i = 0; i < blocksInfo.size(); ++i)
   {
     const auto& block = blocksInfo[i];
+    vtkm::Int32 numPlanes = block.NumberOfPlanesOwned * (1 + numInsertPlanes);
     auto xgcCell = vtkm::cont::CellSetExtrude(connectivityAH,
                                               static_cast<vtkm::Int32>(numPointsPerPlane),
-                                              static_cast<vtkm::Int32>(block.NumberOfPlanesOwned),
+                                              static_cast<vtkm::Int32>(numPlanes),
                                               planeConnectivityAH,
                                               this->IsPeriodic);
-
     cellSets.push_back(xgcCell);
   }
 
@@ -435,6 +507,104 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetXGC::Read(
   return cellSets;
 }
 
+class CellSetXGC::CalcPsi : public vtkm::worklet::WorkletMapField
+{
+public:
+  CalcPsi(double psix, vtkm::Id ptsPerPlane)
+    : PsiX(psix)
+    , PointsPerPlane(ptsPerPlane)
+  {
+  }
+
+  using ControlSignature = void(WholeArrayIn in, FieldOut out);
+  using ExecutionSignature = void(_1 inArray, OutputIndex idx, _2 outVal);
+  using InputDomain = _2;
+
+  template <typename T, typename S>
+  VTKM_EXEC void operator()(const T& in, const vtkm::Id& idx, S& out) const
+  {
+    out = in.Get(idx % this->PointsPerPlane) / this->PsiX;
+  }
+
+private:
+  double PsiX;
+  vtkm::Id PointsPerPlane;
+};
+
+void CellSetXGC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                          const fides::metadata::MetaData& selections)
+{
+  //This is a hack until we decide with XGC how to cellset connectivity.
+  for (auto& ds : partitions)
+  {
+    auto& cs = ds.GetCellSet().Cast<vtkm::cont::CellSetExtrude>();
+    vtkm::cont::ArrayHandle<int> nextNode;
+    vtkm::Id n = cs.GetNumberOfPointsPerPlane() * cs.GetNumberOfPlanes();
+    nextNode.Allocate(n);
+    auto portal = nextNode.WritePortal();
+    for (vtkm::Id i = 0; i < n; i++)
+      portal.Set(i, i);
+    vtkm::cont::CellSetExtrude newCS(cs.GetConnectivityArray(),
+                                     cs.GetNumberOfPointsPerPlane(),
+                                     cs.GetNumberOfPlanes(),
+                                     nextNode,
+                                     cs.GetIsPeriodic());
+
+    ds.SetCellSet(newCS);
+  }
+
+  bool addR = false, addPhi = false, addPsi = false;
+
+  if (selections.Has(fides::keys::fusion::ADD_R_FIELD()))
+    addR = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_R_FIELD()).Value;
+  if (selections.Has(fides::keys::fusion::ADD_PHI_FIELD()))
+    addPhi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PHI_FIELD()).Value;
+  if (selections.Has(fides::keys::fusion::ADD_PSI_FIELD()))
+    addPsi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PSI_FIELD()).Value;
+
+  if (addR || addPhi || addPsi)
+  {
+    for (auto& ds : partitions)
+    {
+      using CellSetType = vtkm::cont::CellSetExtrude;
+      using CoordsType = vtkm::cont::ArrayHandleXGCCoordinates<double>;
+
+      const auto& cs = ds.GetCellSet().Cast<CellSetType>();
+      const auto& coords = ds.GetCoordinateSystem().GetData().AsArrayHandle<CoordsType>();
+
+      vtkm::cont::Invoker invoke;
+      if (addR)
+      {
+        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        invoke(fusionutil::CalcRadius{}, coords, var);
+        ds.AddPointField("R", var);
+      }
+      if (addPhi)
+      {
+        fusionutil::CalcPhi calcPhi(cs.GetNumberOfPlanes(), cs.GetNumberOfPointsPerPlane());
+        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        invoke(calcPhi, coords, var);
+        ds.AddPointField("Phi", var);
+      }
+      if (addPsi)
+      {
+        vtkm::Float64 psi_x = ds.GetField("psi_x")
+                                .GetData()
+                                .AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>()
+                                .ReadPortal()
+                                .Get(0);
+        auto psi =
+          ds.GetField("PSI").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
+
+        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        var.Allocate(coords.GetNumberOfValues());
+        CellSetXGC::CalcPsi calcPsi(psi_x, cs.GetNumberOfPointsPerPlane());
+        invoke(calcPsi, psi, var);
+        ds.AddPointField("Psi", var);
+      }
+    }
+  }
+}
 
 void CellSetGTC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
@@ -451,20 +621,6 @@ void CellSetGTC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   }
   this->IndexShift.reset(new Array());
   this->IndexShift->ProcessJSON(json["index_shift"], sources);
-
-  if (!json.HasMember("num_planes") || !json["num_planes"].IsObject())
-  {
-    throw std::runtime_error("must provide a num_planes object for GTC CellSet.");
-  }
-  this->NumPlanes.reset(new Array());
-  this->NumPlanes->ProcessJSON(json["num_planes"], sources);
-
-  if (!json.HasMember("num_pts_per_plane") || !json["num_pts_per_plane"].IsObject())
-  {
-    throw std::runtime_error("must provide a num_pts_per_plane object for GTC CellSet.");
-  }
-  this->NumPtsPerPlane.reset(new Array());
-  this->NumPtsPerPlane->ProcessJSON(json["num_pts_per_plane"], sources);
 }
 
 std::vector<vtkm::cont::DynamicCellSet> CellSetGTC::Read(
@@ -488,19 +644,6 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetGTC::Read(
       throw std::runtime_error("index_shift object not found for GTC CellSet.");
     }
 
-    this->NumPlanesArrays = this->NumPlanes->Read(paths, sources, selections);
-    if (this->NumPlanesArrays.size() != 1 || this->NumPlanesArrays[0].GetNumberOfValues() != 1)
-    {
-      throw std::runtime_error("num_planes object not found for GTC CellSet.");
-    }
-
-    this->NumPtsPerPlaneArrays = this->NumPtsPerPlane->Read(paths, sources, selections);
-    if (this->NumPtsPerPlaneArrays.size() != 1 ||
-        this->NumPtsPerPlaneArrays[0].GetNumberOfValues() != 1)
-    {
-      throw std::runtime_error("num_pts_per_plane object not found for GTC CellSet.");
-    }
-
     //Create the cell sets. We will fill them in PostRead
     vtkm::cont::CellSetSingleType<> cellSet;
     this->CachedCellSet = cellSet;
@@ -511,38 +654,68 @@ std::vector<vtkm::cont::DynamicCellSet> CellSetGTC::Read(
 }
 
 void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
-                          const fides::metadata::MetaData& fidesNotUsed(selections))
+                          const fides::metadata::MetaData& selections)
 {
   if (partitions.size() != 1)
   {
     throw std::runtime_error("Wrong type for partitions for GTC DataSets.");
   }
 
+  auto& dataSet = partitions[0];
   if (this->IsCached)
   {
+    dataSet.SetCellSet(this->CachedCellSet);
     return;
   }
 
-  auto nPlns = this->NumPlanesArrays[0];
-  auto nPtsPerPln = this->NumPtsPerPlaneArrays[0];
-
-  using intType = vtkm::cont::ArrayHandle<int>;
-  if (!(nPlns.IsType<intType>() && nPtsPerPln.IsType<intType>()))
+  if (!dataSet.HasField("num_planes") || !dataSet.HasField("num_pts_per_plane"))
   {
-    throw std::runtime_error("Wrong type for num_planes and/or num_pts_per_plane in GTC cell.");
+    throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
   }
 
-  auto numPlanesI = nPlns.AsArrayHandle<intType>();
-  auto numPtsPerPlaneI = nPtsPerPln.AsArrayHandle<intType>();
+  using intType = vtkm::cont::ArrayHandle<int>;
+  auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
+  auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
 
-  this->NumberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlaneI.ReadPortal().Get(0));
-  this->NumberOfPlanes = static_cast<vtkm::Id>(numPlanesI.ReadPortal().Get(0));
+  this->NumberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
+  this->NumberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
 
-  auto ds = partitions[0];
-  this->ComputeCellSet(ds);
+  if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    auto numInsertPlanes =
+      selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+    this->NumberOfPlanes = this->NumberOfPlanes * (1 + numInsertPlanes);
+  }
 
-  //Cached cellset has been computed now.
-  this->IsCached = true;
+  //Calculate the cellset.
+  this->ComputeCellSet(dataSet);
+
+  //Add additional fields if requested.
+  bool addR = false, addPhi = false;
+  if (selections.Has(fides::keys::fusion::ADD_R_FIELD()))
+    addR = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_R_FIELD()).Value;
+  if (selections.Has(fides::keys::fusion::ADD_PHI_FIELD()))
+    addPhi = selections.Get<fides::metadata::Bool>(fides::keys::fusion::ADD_PHI_FIELD()).Value;
+
+  if (addR)
+  {
+    vtkm::cont::ArrayHandle<vtkm::Float32> var;
+    vtkm::cont::Invoker invoke;
+
+    const auto& coords = dataSet.GetCoordinateSystem().GetData();
+    invoke(fusionutil::CalcRadius{}, coords, var);
+    dataSet.AddPointField("R", var);
+  }
+  if (addPhi)
+  {
+    vtkm::cont::ArrayHandle<vtkm::Float32> var;
+    vtkm::cont::Invoker invoke;
+
+    const auto& coords = dataSet.GetCoordinateSystem().GetData();
+    fusionutil::CalcPhi calcPhi(this->NumberOfPlanes, this->NumberOfPointsPerPlane);
+    invoke(calcPhi, coords, var);
+    dataSet.AddPointField("Phi", var);
+  }
 }
 
 template <typename T, typename C>
@@ -685,15 +858,15 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
     if (!(ids[0] < nNodes && ids[1] < nNodes && ids[2] < nNodes))
       throw std::runtime_error("Invalid connectivity for GTC Cellset.");
 
-    //plane 0
-    connIds.push_back(ids[0]);
-    connIds.push_back(ids[1]);
-    connIds.push_back(ids[2]);
-
     //plane N-1
     connIds.push_back(pn[ids[0]] + offset);
     connIds.push_back(pn[ids[1]] + offset);
     connIds.push_back(pn[ids[2]] + offset);
+
+    //plane 0
+    connIds.push_back(ids[0]);
+    connIds.push_back(ids[1]);
+    connIds.push_back(ids[2]);
   }
 
   return connIds;
@@ -729,17 +902,20 @@ void CellSetGTC::ComputeCellSet(vtkm::cont::DataSet& dataSet)
   }
   else
   {
-    throw std::runtime_error("Unsuported type for GTC coordinates system.");
+    throw std::runtime_error("Unsupported type for GTC coordinates system.");
   }
 
   if (!dataSet.GetCellSet().IsType<vtkm::cont::CellSetSingleType<>>())
   {
-    throw std::runtime_error("Unsuported cellset type for GTC.");
+    throw std::runtime_error("Unsupported cellset type for GTC.");
   }
 
   auto& cellSet = dataSet.GetCellSet().Cast<vtkm::cont::CellSetSingleType<>>();
   auto connIdsAH = vtkm::cont::make_ArrayHandle(connIds, vtkm::CopyFlag::On);
   cellSet.Fill(numCoords, vtkm::CELL_SHAPE_WEDGE, 6, connIdsAH);
+
+  this->CachedCellSet = cellSet;
+  this->IsCached = true;
 }
 
 }

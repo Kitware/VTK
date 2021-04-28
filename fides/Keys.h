@@ -48,6 +48,31 @@ FIDES_EXPORT KeyType STEP_SELECTION();
 FIDES_EXPORT KeyType PLANE_SELECTION();
 
 FIDES_EXPORT KeyType READ_AS_MULTIBLOCK();
+
+//Special namespace for fusion related keys.
+namespace fusion
+{
+/// Key used for specifying planes to be inserted
+/// for GTC and XGC data.
+/// Uses fides::metadata::Size
+FIDES_EXPORT KeyType PLANE_INSERTION();
+
+/// Key used for specifying that the Radius field should be added.
+/// for GTC and XGC data.
+/// Uses fides::metadata::Bool
+FIDES_EXPORT KeyType ADD_R_FIELD();
+
+/// Key used for specifying that the Phi field should be added.
+/// for GTC and XGC data.
+/// Uses fides::metadata::Bool
+FIDES_EXPORT KeyType ADD_PHI_FIELD();
+
+/// Key used for specifying that the Psi field should be added.
+/// for GTC and XGC data.
+/// Uses fides::metadata::Bool
+FIDES_EXPORT KeyType ADD_PSI_FIELD();
+}
+
 }
 }
 

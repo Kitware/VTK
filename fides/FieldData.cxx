@@ -16,7 +16,7 @@ namespace datamodel
 {
 
 FieldData::FieldData(const std::string& name,
-                     const std::vector<vtkm::cont::VariantArrayHandle>&& data)
+                     const std::vector<vtkm::cont::UnknownArrayHandle>&& data)
   : Name(name)
   , Data(std::move(data))
 {
@@ -27,12 +27,12 @@ std::string FieldData::GetName() const
   return this->Name;
 }
 
-const std::vector<vtkm::cont::VariantArrayHandle>& FieldData::GetData() const
+const std::vector<vtkm::cont::UnknownArrayHandle>& FieldData::GetData() const
 {
   return this->Data;
 }
 
-std::vector<vtkm::cont::VariantArrayHandle>& FieldData::GetData()
+std::vector<vtkm::cont::UnknownArrayHandle>& FieldData::GetData()
 {
   return this->Data;
 }
