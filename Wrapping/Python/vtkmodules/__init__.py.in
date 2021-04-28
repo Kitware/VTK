@@ -18,9 +18,10 @@ def _windows_dll_path():
         _vtk_python_path = os.path.dirname(_vtk_python_path)
         _vtk_dll_directory = os.path.dirname(_vtk_dll_directory)
     _vtk_dll_directory = os.path.join(_vtk_dll_directory, _vtk_dll_path)
-    # We never remove this path; it is required for VTK to work and there's no
-    # scope where we can easily remove the directory again.
-    _ = os.add_dll_directory(_vtk_dll_directory)
+    if os.path.exists(_vtk_dll_directory):
+        # We never remove this path; it is required for VTK to work and there's
+        # no scope where we can easily remove the directory again.
+        _ = os.add_dll_directory(_vtk_dll_directory)
 
     # Build tree support.
     try:
@@ -28,7 +29,8 @@ def _windows_dll_path():
 
         # Add any paths needed for the build tree.
         for path in _build_paths.paths:
-            _ = os.add_dll_directory(path)
+            if os.path.exists(path):
+                _ = os.add_dll_directory(path)
     except ImportError:
         # Relocatable install tree (or non-Windows).
         pass
