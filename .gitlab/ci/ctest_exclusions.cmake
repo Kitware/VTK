@@ -164,14 +164,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
-  list(APPEND test_exclusions
-    # QtQuick event loop / OpenGL context issues. Needs investigation
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
-endif ()
-
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
