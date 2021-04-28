@@ -68,8 +68,8 @@
             - build/ci-venv/
 
             # QML artifacts
-            - build/*/*/qmldir
-            - build/*/*/VTK.qmltypes
+            - build/*/*/*/qmldir
+            - build/*/*/*/*/*/VTK.qmltypes
 
 .cmake_test_artifacts:
     artifacts:

@@ -44,7 +44,7 @@ _vtk_module_real_target(vtk_guisupportqtquick_target VTK::GUISupportQtQuick)
 set(vtk_qml_module_dir
   "${_vtk_build_PACKAGE}.${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 set(vtk_qml_module_superpath
-  "${CMAKE_BINARY_DIR}/$<CONFIG>")
+  "${CMAKE_CURRENT_BINARY_DIR}/qml/$<CONFIG>")
 set(vtk_qml_module_path
   "${vtk_qml_module_superpath}/${vtk_qml_module_dir}")
 
@@ -59,7 +59,7 @@ set(vtk_qml_module_path
 set(VTK_MODULE_PLUGIN_NAME "$<TARGET_FILE_BASE_NAME:${vtk_guisupportqtquick_target}>")
 set(VTK_MODULE_PLUGIN_DIR "$<TARGET_FILE_DIR:${vtk_guisupportqtquick_target}>")
 set(vtk_qml_module_tmp_build_path
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldirBuild")
+  "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldir")
 set(qmldir_pregen_file
   "${vtk_qml_module_tmp_build_path}/qmldir.pregen")
 configure_file(
@@ -87,7 +87,7 @@ add_custom_command(
     "${qmldir_gen_file}"
     "${vtk_qml_module_path}/qmldir"
   WORKING_DIRECTORY
-    "${CMAKE_BINARY_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
   ${byproducts}
   COMMENT "Generating qmldir file"
   VERBATIM)
@@ -145,7 +145,7 @@ else ()
       "${vtk_qml_module_superpath}"
       > "${qmltypes_file}"
     WORKING_DIRECTORY
-      "${CMAKE_BINARY_DIR}"
+      "${CMAKE_CURRENT_BINARY_DIR}"
     ${byproducts}
     COMMENT "Generating qmltypes file using qmlplugindump"
     VERBATIM)
@@ -153,7 +153,7 @@ endif ()
 
 # QML plugin qmldir and qmltypes for install tree
 set(vtk_qml_module_tmp_install_path
-  "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qmldirInstall")
+  "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/qml")
 set(vtk_qml_module_install_path
   "${vtk_qml_module_tmp_install_path}/$<CONFIG>/${vtk_qml_module_dir}")
 if (WIN32 AND NOT CYGWIN)
