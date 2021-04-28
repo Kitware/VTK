@@ -21,6 +21,13 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     "Qt${vtk_qt_major_version}::Qml"
     )
 
+set(config_subdir "")
+get_property(multiconfig GLOBAL
+  PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if (multiconfig)
+  set(config_subdir "/$<CONFIG>")
+endif ()
+
 set_property(
   TEST
     VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
@@ -28,4 +35,4 @@ set_property(
     VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
   APPEND
   PROPERTY
-    ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/$<CONFIG>")
+    ENVIRONMENT "QML2_IMPORT_PATH=${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_QMLDIR}${config_subdir}")
