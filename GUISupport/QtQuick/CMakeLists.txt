@@ -104,58 +104,50 @@ find_program(QMLPLUGINDUMP_EXECUTABLE qmlplugindump
   DOC "QmlPlugindump executable location")
 mark_as_advanced(QMLPLUGINDUMP_EXECUTABLE)
 if (NOT QMLPLUGINDUMP_EXECUTABLE)
-  message(WARNING
+  message(FATAL_ERROR
     "qmlplugindump executable not found.\nIt is required to generate the "
     "qmltypes file for VTK Qml plugin.")
 endif ()
 
 set(qmltypes_file
   "${vtk_qml_module_path}/${_vtk_build_PACKAGE}.qmltypes")
-set(qmltypes_create_copy_command FALSE)
-if (QMLPLUGINDUMP_EXECUTABLE)
-  get_target_property(qt_config "Qt${vtk_qt_major_version}::Core" IMPORTED_CONFIGURATIONS)
-  if (("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
-    message(WARNING
-      "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
-      "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
-      "generation of qmltypes file. Using the one provided with the source "
-      "tree instead.")
-    set(qmltypes_create_copy_command TRUE)
-  else ()
-    set(byproducts
-      BYPRODUCTS "${qmltypes_file}")
-    # Generator expressions are not supported in CMake < 3.20 for byproducts
-    if (CMAKE_VERSION VERSION_LESS "3.20")
-      set(byproducts)
-    endif ()
+get_target_property(qt_config "Qt${vtk_qt_major_version}::Core" IMPORTED_CONFIGURATIONS)
+if (("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
+  message(WARNING
+    "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
+    "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
+    "generation of qmltypes file. Using the one provided with the source "
+    "tree instead.")
 
-    add_custom_command(
-      TARGET "${vtk_guisupportqtquick_target}"
-      POST_BUILD
-      COMMAND
-        "${QMLPLUGINDUMP_EXECUTABLE}" "${_vtk_build_PACKAGE}"
-        "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-        "${vtk_qml_module_superpath}"
-        > "${qmltypes_file}"
-      WORKING_DIRECTORY
-        "${CMAKE_BINARY_DIR}"
-      ${byproducts}
-      COMMENT "Generating qmltypes file using qmlplugindump"
-      VERBATIM)
-  endif ()
-else ()
-  set(qmltypes_create_copy_command TRUE)
-endif ()
-
-if (qmltypes_create_copy_command)
   add_custom_command(
     TARGET "${vtk_guisupportqtquick_target}"
     POST_BUILD
     COMMAND
       "${CMAKE_COMMAND}" -E copy_if_different
       "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_build_PACKAGE}.qmltypes"
-      "${vtk_qml_module_path}"
+      "${qmltypes_file}"
     COMMENT "Copying qmltypes file from the source tree to ${vtk_qml_module_path}")
+else ()
+  set(byproducts
+    BYPRODUCTS "${qmltypes_file}")
+  # Generator expressions are not supported in CMake < 3.20 for byproducts
+  if (CMAKE_VERSION VERSION_LESS "3.20")
+    set(byproducts)
+  endif ()
+
+  add_custom_command(
+    TARGET "${vtk_guisupportqtquick_target}"
+    POST_BUILD
+    COMMAND
+      "${QMLPLUGINDUMP_EXECUTABLE}" "${_vtk_build_PACKAGE}"
+      "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+      "${vtk_qml_module_superpath}"
+      > "${qmltypes_file}"
+    WORKING_DIRECTORY
+      "${CMAKE_BINARY_DIR}"
+    ${byproducts}
+    COMMENT "Generating qmltypes file using qmlplugindump"
+    VERBATIM)
 endif ()
 
 # QML plugin qmldir and qmltypes for install tree
