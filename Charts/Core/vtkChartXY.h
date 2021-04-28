@@ -33,6 +33,8 @@
 #include "vtkSmartPointer.h"     // For SP ivars
 #include "vtkVector.h"           // For vtkVector2f in struct
 
+#include <vector> // for std::vector
+
 class vtkAxis;
 class vtkChartLegend;
 class vtkIdTypeArray;
@@ -374,6 +376,11 @@ public:
    * with the supplied selectionIds array for a standard row based selections.
    */
   static void MakeSelection(vtkAnnotationLink* link, const MapIndexToIds& selection);
+
+  /**
+   *  Get the vector of vtkContextTransform
+   */
+  const std::vector<vtkContextTransform*>& GetTransforms() const;
 
   /**
    * Populate the annotation link with the supplied selectionIds array, and set
