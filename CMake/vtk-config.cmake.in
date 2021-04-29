@@ -143,7 +143,7 @@ if (TARGET VTK::opengl)
   set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
 endif ()
 
-if(@vtk_qt_major_version@) # VTK_QT_VERSION
+if (@vtk_qt_major_version@) # VTK_QT_VERSION
   set("${CMAKE_FIND_PACKAGE_NAME}_QT_VERSION" "@vtk_qt_major_version@")
 endif ()
 
