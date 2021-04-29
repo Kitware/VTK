@@ -75,7 +75,6 @@ public:
     virtual OutputIterator& operator++(int) = 0;
     virtual OutputIterator& operator*() = 0;
     virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
-    ///@}
 
     OutputIterator() = default;
     virtual ~OutputIterator() = default;
@@ -84,6 +83,7 @@ public:
     OutputIterator(const OutputIterator&) = delete;
     OutputIterator& operator=(const OutputIterator&) = delete;
   };
+  ///@}
 
   /**
    * Iterate through the sequence represented by the stream assigning the result
