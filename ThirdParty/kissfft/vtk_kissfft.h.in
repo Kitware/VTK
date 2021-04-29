@@ -19,9 +19,9 @@
 #cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkkissfft
 
 #if VTK_MODULE_USE_EXTERNAL_vtkkissfft
-# define VTK_KISSFFT_HEADER(header) <vtkkissfft/header>
-#else
 # define VTK_KISSFFT_HEADER(header) <header>
+#else
+# define VTK_KISSFFT_HEADER(header) <vtkkissfft/header>
 #endif
 
 #endif
