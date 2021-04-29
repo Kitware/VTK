@@ -27,6 +27,7 @@
 #include "vtkPen.h"
 #include "vtkVector.h"
 
+#include <limits>
 #include <set>
 #include <sstream>
 #include <vector>
