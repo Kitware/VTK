@@ -77,6 +77,16 @@ std::string FindRealName(const std::string& materialType, const std::string& ali
   }
   return alias;
 }
+
+// backward compatibility over OSPRay 2.0 name changes
+void BackwardCompatibilityName(std::string& implname)
+{
+  implname[0] = std::tolower(implname[0]);
+  if (implname == "oBJMaterial")
+  {
+    implname = "obj";
+  }
+}
 }
 
 typedef std::map<std::string, std::vector<double>> NamedVariables;
@@ -329,38 +339,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON(
 
     std::string implname = nextmat["type"].asString();
     // backward compatibility over OSPRay 2.0 name changes
-    if (implname == "Alloy")
-    {
-      implname = "alloy";
-    }
-    if (implname == "CarPaint")
-    {
-      implname = "carPaint";
-    }
-    if (implname == "Glass")
-    {
-      implname = "glass";
-    }
-    if (implname == "Metal")
-    {
-      implname = "metal";
-    }
-    if (implname == "MetallicPaint")
-    {
-      implname = "metallicPaint";
-    }
-    if (implname == "OBJMaterial")
-    {
-      implname = "obj";
-    }
-    if (implname == "Principled")
-    {
-      implname = "principled";
-    }
-    if (implname == "ThinGlass")
-    {
-      implname = "thinGlass";
-    }
+    ::BackwardCompatibilityName(implname);
     this->Internal->ImplNames[nickname] = implname;
     if (nextmat.isMember("textures"))
     {
@@ -488,38 +467,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
         implname = "thinGlass";
       }
       // backward compatibility over OSPRay 2.0 name changes
-      if (implname == "Alloy")
-      {
-        implname = "alloy";
-      }
-      if (implname == "CarPaint")
-      {
-        implname = "carPaint";
-      }
-      if (implname == "Glass")
-      {
-        implname = "glass";
-      }
-      if (implname == "Metal")
-      {
-        implname = "metal";
-      }
-      if (implname == "MetallicPaint")
-      {
-        implname = "metallicPaint";
-      }
-      if (implname == "OBJMaterial")
-      {
-        implname = "obj";
-      }
-      if (implname == "Principled")
-      {
-        implname = "principled";
-      }
-      if (implname == "ThinGlass")
-      {
-        implname = "thinGlass";
-      }
+      ::BackwardCompatibilityName(implname);
 
       this->Internal->ImplNames[nickname] = implname;
     }
@@ -1181,7 +1129,7 @@ vtkOSPRayMaterialLibrary::GetParametersDictionary()
         { "map_baseColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_baseColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
       } },
-    { "Luminous",
+    { "luminous",
       {
         { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "intensity", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
