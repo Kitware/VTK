@@ -106,9 +106,18 @@ public:
 
 protected:
   /**
-   * Structure to inherit from for data sets having a grid topology.
+   * Base block structure for data sets.
    */
-  struct GridBlockStructure
+  struct DataSetBlockStructure
+  {
+    vtkSmartPointer<vtkFieldData> GhostCellData;
+    vtkSmartPointer<vtkFieldData> GhostPointData;
+  };
+
+  /**
+   * Structure to inherit from for data sets having a structured grid topology.
+   */
+  struct GridBlockStructure : public DataSetBlockStructure
   {
     /**
      * `GridBlockStructure` constructor. It takes the extent of a neighbor block as input.
@@ -337,103 +346,11 @@ protected:
      * @note This grid can be 1D or 0D.
      */
     Grid2D GridInterface;
-  };
-
-  /**
-   * Base ghost buffer structure holding point data and cell data.
-   */
-  template <class DataSetT>
-  struct ImplicitGeometryGhosts
-  {
-    /**
-     * Convenient typedef.
-     */
-    using BlockType =
-      typename vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
-
-    virtual ~ImplicitGeometryGhosts() = default;
-
-    ///@{
-    /**
-     * Methods to be called by `GhostBuffersHelper::Enqueue`.
-     * `pointIds` / `cellIds` are the set of ids mapping to the data to be enqueued.
-     */
-    static void EnqueuePointBuffers(const diy::Master::ProxyWithLink& cp,
-      const diy::BlockID& blockId, DataSetT* input, vtkIdList* pointIds);
-    static void EnqueueCellBuffers(const diy::Master::ProxyWithLink& cp,
-      const diy::BlockID& blockId, DataSetT* input, vtkIdList* cellIds);
-    ///@}
-
-    ///@{
-    /**
-     * Methods to be called by `GhostBuffersHelper::Dequeue`.
-     * `pointIds` / `cellIds` are the set of ids mapping to the data to be dequeued.
-     */
-    virtual void DequeuePointBuffers(const diy::Master::ProxyWithLink& cp, int gid);
-    virtual void DequeueCellBuffers(const diy::Master::ProxyWithLink& cp, int gid);
-    ///@}
-
-    ///@{
-    /**
-     * Methods to be called by `GhostBuffersHelper::FillReceivedGhosts`.
-     * This method fills the points / cells of ids `pointIds` / `cellIds` with the received buffers
-     * when exchanging ghosts.
-     */
-    virtual void FillReceivedGhostPoints(
-      BlockType* block, DataSetT* output, vtkIdList* pointIds) const;
-    virtual void FillReceivedGhostCells(
-      BlockType* block, DataSetT* output, vtkIdList* cellIds) const;
-    ///@}
-
-    ///@{
-    /**
-     * Point and cell data that have been sent by this block's neighbor.
-     */
-    vtkSmartPointer<vtkFieldData> PointData;
-    vtkSmartPointer<vtkFieldData> CellData;
-    ///@}
-  };
-
-  /**
-   * Ghost buffer holding point data, cell data, as well as points.
-   */
-  template <class DataSetT>
-  struct ExplicitPointGeometryGhosts : public ImplicitGeometryGhosts<DataSetT>
-  {
-    ///@{
-    /**
-     * Convenient typedefs.
-     */
-    using Superclass = ImplicitGeometryGhosts<DataSetT>;
-    using BlockType = typename Superclass::BlockType;
-    ///@}
-
-    ~ExplicitPointGeometryGhosts() override = default;
 
     /**
-     * See `Superclass`. In addition to enqueueing point and cell data, this method enqueues point
-     * positions as well.
+     * Buffer to store received ghost points from neighboring blocks.
      */
-    static void EnqueuePointBuffers(const diy::Master::ProxyWithLink& cp,
-      const diy::BlockID& blockId, DataSetT* input, vtkIdList* pointIds);
-
-    /**
-     * See `Superclass`. In addition to dequeueing point and cell data, this method dequeues point
-     * positions as well.
-     */
-    void DequeuePointBuffers(const diy::Master::ProxyWithLink& cp, int gid) override;
-
-    /**
-     * See `Superclass`. In addition to filling point and cell data, this method filles point
-     * positions as well.
-     */
-    void FillReceivedGhostPoints(
-      BlockType* block, DataSetT* output, vtkIdList* pointIds) const override;
-
-    /**
-     * Points that have been sent by this block's neighbor.
-     */
-    vtkNew<vtkPoints> Points;
+    vtkNew<vtkPoints> GhostPoints;
   };
 
 public:
@@ -444,10 +361,8 @@ public:
    * to determine whether this block is to be connected with ourself.
    *   - `InformationType`: This holds all information from the input necessary to allocate the
    *   output for this block. This can include bounds, extent, etc.
-   *   - `GhostBuffersType`: This is a list of buffers receiving ghost information from connected
-   * blocks. Typically, cell data and / or point data and / or explicit geometry.
    */
-  template <class BlockStructureT, class InformationT, class GhostBuffersT>
+  template <class BlockStructureT, class InformationT>
   struct Block : public diy::Serialization<vtkFieldData*>
   {
     ///@{
@@ -456,7 +371,6 @@ public:
      */
     typedef BlockStructureT BlockStructureType;
     typedef InformationT InformationType;
-    typedef GhostBuffersT GhostBuffersType;
     ///@}
 
     /**
@@ -470,11 +384,9 @@ public:
      */
     InformationType Information;
 
-    /**
-     * `GhostsBuffersType` holds buffers used to receive data sent by other blocks.
-     */
-    BlockMapType<GhostBuffersType> GhostBuffers;
-    ///@}
+    BlockMapType<vtkBoundingBox> NeighborBoundingBoxes;
+
+    vtkBoundingBox BoundingBox;
 
     vtkSmartPointer<vtkUnsignedCharArray> GhostCellArray;
     vtkSmartPointer<vtkUnsignedCharArray> GhostPointArray;
@@ -484,12 +396,9 @@ public:
   /**
    * Block typedefs.
    */
-  using ImageDataBlock =
-    Block<ImageDataBlockStructure, GridInformation, ImplicitGeometryGhosts<vtkImageData>>;
-  using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation,
-    ImplicitGeometryGhosts<vtkRectilinearGrid>>;
-  using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation,
-    ExplicitPointGeometryGhosts<vtkStructuredGrid>>;
+  using ImageDataBlock = Block<ImageDataBlockStructure, GridInformation>;
+  using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation>;
+  using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation>;
   ///@}
 
   /**
@@ -507,55 +416,6 @@ public:
 protected:
   vtkDIYGhostUtilities();
   ~vtkDIYGhostUtilities() override;
-
-  /**
-   * This helper class automatizes enqueueing ghosts depending on the ghost data needed to be
-   * shared. This includes point data and / or cell data and / or geometry.
-   */
-  template <class DataSetT>
-  class GhostBuffersHelper
-  {
-  public:
-    ///@{
-    /**
-     * Convenient typedefs.
-     */
-    using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
-    using GhostBuffersType = typename BlockType::GhostBuffersType;
-    ///@}
-
-    /**
-     * This method enqueues ghosts from local block and sends them to block of id `blockId`.
-     * `input` corresponds to the input data set mapped to input `block`.
-     */
-    static void Enqueue(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
-      DataSetT* input, BlockType* block);
-
-    /**
-     * This method dequeues the ghost data that was sent by block of global id `gid` using
-     * `GhostBuffersHelper::Enqueue`.
-     */
-    static void Dequeue(
-      const diy::Master::ProxyWithLink& cp, int gid, GhostBuffersType& ghostBuffers);
-
-    /**
-     * This method initializes the ghost arrays for the output of current block.
-     * After calling this method, the current block will own an allocated buffer of ghost arrays for
-     * cell and point data, filled by default with zero everywhere.
-     */
-    static void InitializeGhostArrays(BlockType* block, DataSetT* output);
-
-    /**
-     * This method fills already initialized cell and point ghost arrays with the correct ghost
-     * types.
-     */
-    static void FillReceivedGhosts(BlockType* block, int gid, DataSetT* output);
-
-    /**
-     * This method adds the ghost arrays from current blocks into the output.
-     */
-    static void AddGhostArrays(BlockType* block, DataSetT* output);
-  };
 
   /**
    * This method will set all ghosts points in `output` to zero. It will also
@@ -597,62 +457,6 @@ protected:
   ///@{
   /**
    * Method to be overloaded for each supported type of input data set.
-   * It computes the list of cell ids in `input` to be sent to current `block`'s neighbor of global
-   * id `gid`.
-   */
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIds(
-    const ImageDataBlock* block, int gid, vtkImageData* input);
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIds(
-    const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input);
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input);
-  ///@}
-
-  ///@{
-  /**
-   * Method to be overloaded for each supported type of input data set.
-   * It computes the list of cell ids in `output` that should be filled with what was sent by
-   * `block` of id `gid`.
-   */
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIds(
-    const ImageDataBlock* block, int gid, vtkImageData* input);
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIds(
-    const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input);
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input);
-  ///@}
-
-  ///@{
-  /**
-   * Method to be overloaded for each supported type of input data set.
-   * It computes the list of point ids in `input` to be sent to current `block`'s neighbor of global
-   * id `gid`.
-   */
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIds(
-    const ImageDataBlock* block, int gid, vtkImageData* input);
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIds(
-    const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input);
-  static vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input);
-  ///@}
-
-  ///@{
-  /**
-   * Method to be overloaded for each supported type of input data set.
-   * It computes the list of point ids in `output` that should be filled with what was sent by
-   * `block` of id `gid`.
-   */
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIds(
-    const ImageDataBlock* block, int gid, vtkImageData* input);
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIds(
-    const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input);
-  static vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input);
-  ///@}
-
-  ///@{
-  /**
-   * Method to be overloaded for each supported type of input data set.
    * This method is called in the pipeline right after diy environment
    * has been set up. It exchanges between every information needed for the data set type `DataSetT`
    * in order to be able to set link connections.
@@ -675,6 +479,33 @@ protected:
     std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels);
   static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
     std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels);
+  ///@}
+
+  ///@{
+  /**
+   * This method enqueues ghosts between communicating blocks. One version of this method
+   * is implemented per supported input types. It enqueues ghosts to block of id `blockId`.
+   */
+  static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
+    vtkImageData* input, ImageDataBlock* block);
+  static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
+    vtkRectilinearGrid* input, RectilinearGridBlock* block);
+  static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
+    vtkStructuredGrid* input, StructuredGridBlock* block);
+  ///@}
+
+  ///@{
+  /**
+   * This method dequeues ghosts sent between communicating blocks. One version of this method
+   * is implemented per supported input types. It receives data from block of id `gid` and
+   * stores is inside `blockStructured`.
+   */
+  static void DequeueGhosts(
+    const diy::Master::ProxyWithLink& cp, int gid, ImageDataBlockStructure& blockStructure);
+  static void DequeueGhosts(
+    const diy::Master::ProxyWithLink& cp, int gid, RectilinearGridBlockStructure& blockStructure);
+  static void DequeueGhosts(
+    const diy::Master::ProxyWithLink& cp, int gid, StructuredGridBlockStructure& blockStructure);
   ///@}
 
   ///@{
@@ -702,12 +533,6 @@ protected:
    */
   template <class DataSetT>
   static void InitializeGhostArrays(diy::Master& master, std::vector<DataSetT*>& outputs);
-
-  /**
-   * This method sets every ghost array where data was exchanged to a duplicate ghost.
-   */
-  template <class DataSetT>
-  static void FillReceivedGhosts(const diy::Master& master, std::vector<DataSetT*>& outputs);
 
   /**
    * Adds ghost arrays, which are present in blocks of `master`, to `outputs` point and / or cell
