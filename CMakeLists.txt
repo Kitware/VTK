@@ -25,6 +25,7 @@ set(headers
 vtk_module_add_module(VTK::kissfft
   SOURCES ${sources}
   HEADERS ${headers}
+  HEADER_DIRECTORIES
   HEADERS_SUBDIR "vtkkissfft")
 
 target_compile_definitions(kissfft
