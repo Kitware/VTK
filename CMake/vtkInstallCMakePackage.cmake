@@ -31,6 +31,16 @@ if (TARGET VTK::GUISupportQtQuick)
   set(vtk_has_qml 1)
 endif ()
 
+get_property(vtk_opengl_preference_set GLOBAL
+  PROPERTY _vtk_opengl_preference
+  SET)
+if (vtk_opengl_preference_set)
+  get_property(vtk_opengl_preference GLOBAL
+    PROPERTY _vtk_opengl_preference)
+else ()
+  set(vtk_opengl_preference "")
+endif ()
+
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"

@@ -74,6 +74,17 @@ else ()
       "expected and it was not found. Please install GLVND libraries.")
   endif ()
 
+  if (TARGET OpenGL::OpenGL)
+    set(opengl_preference "GLVND")
+  elseif (UNIX AND TARGET OpenGL::GL)
+    set(opengl_preference "LEGACY")
+  else ()
+    set(opengl_preference "")
+  endif ()
+  set_property(GLOBAL
+    PROPERTY
+      _vtk_opengl_preference "${opengl_preference}")
+
   if (APPLE)
     vtk_module_definitions(VTK::opengl
       INTERFACE
