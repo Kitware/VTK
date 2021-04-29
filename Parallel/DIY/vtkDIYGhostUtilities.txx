@@ -133,111 +133,6 @@ vtkDIYGhostUtilities::ExchangeBoundingBoxes(
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
-void vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::Enqueue(
-  const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId, DataSetT* input,
-  BlockType* block)
-{
-  vtkSmartPointer<vtkIdList> cellIds =
-    vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(block, blockId.gid, input);
-  GhostBuffersType::EnqueueCellBuffers(cp, blockId, input, cellIds);
-
-  vtkSmartPointer<vtkIdList> pointIds =
-    vtkDIYGhostUtilities::ComputeInputInterfacePointIds(block, blockId.gid, input);
-  GhostBuffersType::EnqueuePointBuffers(cp, blockId, input, pointIds);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::EnqueuePointBuffers(
-  const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId, DataSetT* input,
-  vtkIdList* pointIds)
-{
-  vtkNew<vtkPointData> pointData;
-  vtkPointData* inputPointData = input->GetPointData();
-  pointData->CopyStructure(inputPointData);
-  inputPointData->GetField(pointIds, pointData);
-
-  cp.enqueue<vtkFieldData*>(blockId, pointData);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::EnqueueCellBuffers(
-  const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId, DataSetT* input,
-  vtkIdList* cellIds)
-{
-  vtkNew<vtkCellData> cellData;
-  vtkCellData* inputCellData = input->GetCellData();
-  cellData->CopyStructure(inputCellData);
-  inputCellData->GetField(cellIds, cellData);
-
-  cp.enqueue<vtkFieldData*>(blockId, cellData);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ExplicitPointGeometryGhosts<DataSetT>::EnqueuePointBuffers(
-  const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId, DataSetT* input,
-  vtkIdList* pointIds)
-{
-  ExplicitPointGeometryGhosts::Superclass::EnqueuePointBuffers(cp, blockId, input, pointIds);
-
-  vtkDataArray* inputPoints = input->GetPoints()->GetData();
-  vtkSmartPointer<vtkDataArray> points(
-    vtkSmartPointer<vtkDataArray>::Take(inputPoints->NewInstance()));
-  points->SetNumberOfComponents(3);
-  points->SetNumberOfTuples(pointIds->GetNumberOfIds());
-  inputPoints->GetTuples(pointIds, points);
-
-  cp.enqueue<vtkDataArray*>(blockId, points);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::Dequeue(
-  const diy::Master::ProxyWithLink& cp, int gid, GhostBuffersType& ghostBuffers)
-{
-  ghostBuffers.DequeueCellBuffers(cp, gid);
-  ghostBuffers.DequeuePointBuffers(cp, gid);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::DequeuePointBuffers(
-  const diy::Master::ProxyWithLink& cp, int gid)
-{
-  vtkFieldData* pointData = nullptr;
-  cp.dequeue<vtkFieldData*>(gid, pointData);
-  this->PointData = vtkSmartPointer<vtkFieldData>::Take(pointData);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::DequeueCellBuffers(
-  const diy::Master::ProxyWithLink& cp, int gid)
-{
-  vtkFieldData* cellData = nullptr;
-  cp.dequeue<vtkFieldData*>(gid, cellData);
-  this->CellData = vtkSmartPointer<vtkFieldData>::Take(cellData);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ExplicitPointGeometryGhosts<DataSetT>::DequeuePointBuffers(
-  const diy::Master::ProxyWithLink& cp, int gid)
-{
-  this->Superclass::DequeuePointBuffers(cp, gid);
-  vtkDataArray* points = nullptr;
-  cp.dequeue<vtkDataArray*>(gid, points);
-  if (points)
-  {
-    this->Points->SetData(points);
-    points->FastDelete();
-  }
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
 void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataSetT*>& inputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
@@ -250,7 +145,7 @@ void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataS
     for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
     {
       const diy::BlockID& blockId = cp.link()->target(id);
-      vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::Enqueue(cp, blockId, input, block);
+      vtkDIYGhostUtilities::EnqueueGhosts(cp, blockId, input, block);
     }
   });
 
@@ -264,124 +159,10 @@ void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataS
       // we need this extra check because incoming is not empty when using only one block
       if (!cp.incoming(gid).empty())
       {
-        vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::Dequeue(
-          cp, gid, block->GhostBuffers[gid]);
+        vtkDIYGhostUtilities::DequeueGhosts(cp, gid, block->BlockStructures.at(gid));
       }
     }
   });
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::FillReceivedGhosts(
-  BlockType* block, int gid, DataSetT* output)
-{
-  GhostBuffersType& ghostBuffers = block->GhostBuffers.at(gid);
-
-  vtkSmartPointer<vtkIdList> pointIds =
-    vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(block, gid, output);
-  ghostBuffers.FillReceivedGhostPoints(block, output, pointIds);
-
-  vtkSmartPointer<vtkIdList> cellIds =
-    vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(block, gid, output);
-  ghostBuffers.FillReceivedGhostCells(block, output, cellIds);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::FillReceivedGhostPoints(
-  BlockType* block, DataSetT* output, vtkIdList* pointIds) const
-{
-  vtkUnsignedCharArray* ghostPointArray = block->GhostPointArray;
-
-  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
-  {
-    vtkIdType pointId = pointIds->GetId(i);
-    ghostPointArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
-  }
-
-  if (!this->PointData)
-  {
-    return;
-  }
-
-  vtkPointData* outputPointData = output->GetPointData();
-
-  vtkNew<vtkIdList> sourcePointIds;
-  sourcePointIds->SetNumberOfIds(this->PointData->GetNumberOfTuples());
-  std::iota(sourcePointIds->begin(), sourcePointIds->end(), 0);
-
-  for (int arrayId = 0; arrayId < this->PointData->GetNumberOfArrays(); ++arrayId)
-  {
-    vtkAbstractArray* array = this->PointData->GetArray(arrayId);
-    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
-    {
-      vtkAbstractArray* outputArray = outputPointData->GetAbstractArray(array->GetName());
-      if (outputArray)
-      {
-        outputArray->InsertTuples(pointIds, sourcePointIds, array);
-      }
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ExplicitPointGeometryGhosts<DataSetT>::FillReceivedGhostPoints(
-  BlockType* block, DataSetT* output, vtkIdList* pointIds) const
-{
-  this->Superclass::FillReceivedGhostPoints(block, output, pointIds);
-
-  if (!this->Points)
-  {
-    return;
-  }
-
-  vtkPoints* outputPoints = output->GetPoints();
-
-  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
-  {
-    vtkIdType pointId = pointIds->GetId(i);
-    outputPoints->SetPoint(pointId, this->Points->GetPoint(i));
-  }
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::ImplicitGeometryGhosts<DataSetT>::FillReceivedGhostCells(
-  BlockType* block, DataSetT* output, vtkIdList* cellIds) const
-{
-  vtkUnsignedCharArray* ghostCellArray = block->GhostCellArray;
-
-  for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
-  {
-    vtkIdType cellId = cellIds->GetId(i);
-    ghostCellArray->SetValue(cellId, vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
-  }
-
-  if (!this->CellData)
-  {
-    return;
-  }
-
-  vtkCellData* outputCellData = output->GetCellData();
-
-  vtkNew<vtkIdList> sourceCellIds;
-  sourceCellIds->SetNumberOfIds(this->CellData->GetNumberOfTuples());
-  std::iota(sourceCellIds->begin(), sourceCellIds->end(), 0);
-
-  for (int arrayId = 0; arrayId < this->CellData->GetNumberOfArrays(); ++arrayId)
-  {
-    vtkAbstractArray* array = this->CellData->GetArray(arrayId);
-    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
-    {
-      vtkAbstractArray* outputArray = outputCellData->GetAbstractArray(array->GetName());
-      if (outputArray)
-      {
-        outputArray->InsertTuples(cellIds, sourceCellIds, array);
-      }
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -392,18 +173,12 @@ void vtkDIYGhostUtilities::AddGhostArrays(diy::Master& master, std::vector<DataS
 
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
-    vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::AddGhostArrays(
-      master.block<BlockType>(localId), outputs[localId]);
-  }
-}
+    DataSetT* output = outputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
 
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::AddGhostArrays(
-  BlockType* block, DataSetT* output)
-{
-  output->GetPointData()->AddArray(block->GhostPointArray);
-  output->GetCellData()->AddArray(block->GhostCellArray);
+    output->GetPointData()->AddArray(block->GhostPointArray);
+    output->GetCellData()->AddArray(block->GhostCellArray);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -415,18 +190,12 @@ void vtkDIYGhostUtilities::InitializeGhostArrays(
 
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
-    vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::InitializeGhostArrays(
-      master.block<BlockType>(localId), outputs[localId]);
-  }
-}
+    DataSetT* output = outputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
 
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::InitializeGhostArrays(
-  BlockType* block, DataSetT* output)
-{
-  vtkDIYGhostUtilities::InitializeGhostCellArray(block, output);
-  vtkDIYGhostUtilities::InitializeGhostPointArray(block, output);
+    vtkDIYGhostUtilities::InitializeGhostCellArray(block, output);
+    vtkDIYGhostUtilities::InitializeGhostPointArray(block, output);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -463,26 +232,6 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
     ghostPointArray->SetNumberOfTuples(output->GetNumberOfPoints());
   }
   ghostPointArray->Fill(0);
-}
-
-//----------------------------------------------------------------------------
-template <class DataSetT>
-void vtkDIYGhostUtilities::FillReceivedGhosts(
-  const diy::Master& master, std::vector<DataSetT*>& outputs)
-{
-  using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
-
-  for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
-  {
-    DataSetT* output = outputs[localId];
-    BlockType* block = master.block<BlockType>(localId);
-
-    for (auto& item : block->GhostBuffers)
-    {
-      vtkDIYGhostUtilities::GhostBuffersHelper<DataSetT>::FillReceivedGhosts(
-        block, item.first, output);
-    }
-  }
 }
 
 //----------------------------------------------------------------------------

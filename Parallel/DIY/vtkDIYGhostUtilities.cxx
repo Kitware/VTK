@@ -118,7 +118,7 @@ bool IsExtentValid(const int* extent)
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
-void FillCellArrayForGrids(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
+void FillCellArrayForStructuredData(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
   int kmin, int kmax, typename ArrayT::ValueType val)
 {
   const int* gridExtent = grid->GetExtent();
@@ -141,7 +141,7 @@ void FillCellArrayForGrids(ArrayT* array, GridDataSetT* grid, int imin, int imax
  * `array` needs to be already allocated.
  */
 template <class ArrayT, class GridDataSetT>
-void FillPointArrayForGrids(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
+void FillPointArrayForStructuredData(ArrayT* array, GridDataSetT* grid, int imin, int imax, int jmin, int jmax,
   int kmin, int kmax, typename ArrayT::ValueType val)
 {
   const int* gridExtent = grid->GetExtent();
@@ -1161,7 +1161,7 @@ bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
 
 //----------------------------------------------------------------------------
 template <class GridDataSetT>
-LinkMap ComputeLinkMapForGrids(const diy::Master& master,
+LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
   std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs, int outputGhostLevels)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
@@ -1232,7 +1232,7 @@ LinkMap ComputeLinkMapForGrids(const diy::Master& master,
  * such that the cells lie in the intersection of the 2 input extents.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInterfaceCellIdsForGrids(
+vtkSmartPointer<vtkIdList> ComputeInterfaceCellIdsForStructuredData(
   const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
 {
   int imin, imax, jmin, jmax, kmin, kmax;
@@ -1272,7 +1272,7 @@ vtkSmartPointer<vtkIdList> ComputeInterfaceCellIdsForGrids(
  * block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForGrids(
+vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForStructuredData(
   const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
   int gid, GridDataSetT* grid)
 {
@@ -1283,7 +1283,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForGrids(
   const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
 
-  return ComputeInterfaceCellIdsForGrids(localExtent, extent, grid);
+  return ComputeInterfaceCellIdsForStructuredData(localExtent, extent, grid);
 }
 
 //----------------------------------------------------------------------------
@@ -1292,7 +1292,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForGrids(
  * the block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForGrids(
+vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
   const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
   int gid, GridDataSetT* grid)
 {
@@ -1305,7 +1305,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForGrids(
   ExtentType localExtent{
     gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
-  return ComputeInterfaceCellIdsForGrids(localExtent, extent, grid);
+  return ComputeInterfaceCellIdsForStructuredData(localExtent, extent, grid);
 }
 
 //----------------------------------------------------------------------------
@@ -1314,7 +1314,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForGrids(
  * such that the points lie in the intersection of the 2 input extents.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForGrids(unsigned char adjacencyMask,
+vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned char adjacencyMask,
   const ExtentType& localExtent, const ExtentType& extent, GridDataSetT* grid)
 {
   int imin, imax, jmin, jmax, kmin, kmax;
@@ -1369,7 +1369,7 @@ vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForGrids(unsigned char adjace
  * the block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForGrids(
+vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForStructuredData(
   const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
   int gid, GridDataSetT* grid)
 {
@@ -1381,7 +1381,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForGrids(
   const ExtentType& extent = blockStructure.ExtentWithNewGhosts;
   const ExtentType& localExtent = block->Information.Extent;
 
-  return ComputeInterfacePointIdsForGrids(adjacencyMask, localExtent, extent, grid);
+  return ComputeInterfacePointIdsForStructuredData(adjacencyMask, localExtent, extent, grid);
 }
 
 //----------------------------------------------------------------------------
@@ -1390,7 +1390,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForGrids(
  * the block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
-vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForGrids(
+vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
   int gid, GridDataSetT* grid)
 {
@@ -1406,7 +1406,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForGrids(
 
   // We do a bit shift on adjacencyMask to have the same adjacency mask as in the Input version of
   // this function. It produces an axial symmetry on each dimension having an adjacency.
-  return ComputeInterfacePointIdsForGrids(adjacencyMask << 1, localExtent, extent, grid);
+  return ComputeInterfacePointIdsForStructuredData(adjacencyMask << 1, localExtent, extent, grid);
 }
 
 //----------------------------------------------------------------------------
@@ -1579,8 +1579,81 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 }
 
 //----------------------------------------------------------------------------
+void EnqueuePointDataForStructuredData(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* pointIds)
+{
+  vtkNew<vtkPointData> pointData;
+  vtkPointData* inputPointData = input->GetPointData();
+  pointData->CopyStructure(inputPointData);
+  inputPointData->GetField(pointIds, pointData);
+
+  cp.enqueue<vtkFieldData*>(blockId, pointData);
+}
+
+//----------------------------------------------------------------------------
+void EnqueueCellDataForStructuredData(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* pointIds)
+{
+  vtkNew<vtkCellData> cellData;
+  vtkCellData* inputCellData = input->GetCellData();
+  cellData->CopyStructure(inputCellData);
+  inputCellData->GetField(pointIds, cellData);
+
+  cp.enqueue<vtkFieldData*>(blockId, cellData);
+}
+
+
+//----------------------------------------------------------------------------
+void EnqueuePointsForStructuredData(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkPointSet* input, vtkIdList* pointIds)
+{
+  vtkDataArray* inputPoints = input->GetPoints()->GetData();
+  vtkSmartPointer<vtkDataArray> points(
+    vtkSmartPointer<vtkDataArray>::Take(inputPoints->NewInstance()));
+  points->SetNumberOfComponents(3);
+  points->SetNumberOfTuples(pointIds->GetNumberOfIds());
+  inputPoints->GetTuples(pointIds, points);
+
+  cp.enqueue<vtkDataArray*>(blockId, points);
+}
+
+//----------------------------------------------------------------------------
+template<class BlockStructureT>
+void DequeueCellData(const diy::Master::ProxyWithLink& cp, int gid,
+    BlockStructureT& blockStructure)
+{
+  vtkFieldData* cellData = nullptr;
+  cp.dequeue<vtkFieldData*>(gid, cellData);
+  blockStructure.GhostCellData = vtkSmartPointer<vtkFieldData>::Take(cellData);
+}
+
+//----------------------------------------------------------------------------
+template<class BlockStructureT>
+void DequeuePointData(const diy::Master::ProxyWithLink& cp, int gid,
+    BlockStructureT& blockStructure)
+{
+  vtkFieldData* pointData = nullptr;
+  cp.dequeue<vtkFieldData*>(gid, pointData);
+  blockStructure.GhostPointData = vtkSmartPointer<vtkFieldData>::Take(pointData);
+}
+
+//----------------------------------------------------------------------------
+template<class BlockStructureT>
+void DequeuePoints(const diy::Master::ProxyWithLink& cp, int gid,
+    BlockStructureT& blockStructure)
+{
+  vtkDataArray* points = nullptr;
+  cp.dequeue<vtkDataArray*>(gid, points);
+  if (points)
+  {
+    blockStructure.GhostPoints->SetData(points);
+    points->FastDelete();
+  }
+}
+
+//----------------------------------------------------------------------------
 template<class GridDataSetT>
-void DeepCopyInputsAndAllocateGhostsForGrids(const diy::Master& master,
+void DeepCopyInputsAndAllocateGhostsForStructuredData(const diy::Master& master,
     std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
@@ -1606,7 +1679,7 @@ void DeepCopyInputsAndAllocateGhostsForGrids(const diy::Master& master,
  * different size.
  */
 template <class GridDataSetT>
-void FillHiddenGhostsForGrids(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
+void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<GridDataSetT*>& outputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
   static constexpr unsigned char CELL_GHOST_VALUE =
@@ -1638,59 +1711,216 @@ void FillHiddenGhostsForGrids(const diy::Master& master, std::vector<GridDataSet
     // This is repeated for each dimension.
     if (!isDimensionDegenerate[0])
     {
-      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
         localExtentWithNoGhosts[0], localExtent[2], localExtent[3] + isDimensionDegenerate[1],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillCellArrayForGrids(ghostCellArray, output, localExtentWithNoGhosts[1],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtentWithNoGhosts[1],
         localExtent[1], localExtent[2], localExtent[3] + isDimensionDegenerate[1], localExtent[4],
         localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtent[0],
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0],
         localExtentWithNoGhosts[0] - 1, localExtent[2], localExtent[3], localExtent[4],
         localExtent[5], POINT_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtentWithNoGhosts[1] + 1,
         localExtent[1], localExtent[2], localExtent[3], localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[1])
     {
-      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2], localExtentWithNoGhosts[2],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtentWithNoGhosts[3], localExtent[3],
         localExtent[4], localExtent[5] + isDimensionDegenerate[2], CELL_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtentWithNoGhosts[2] - 1, localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtentWithNoGhosts[3] + 1, localExtent[3], localExtent[4], localExtent[5],
         POINT_GHOST_VALUE);
     }
     if (!isDimensionDegenerate[2])
     {
-      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtent[4], localExtentWithNoGhosts[4],
         CELL_GHOST_VALUE);
 
-      FillCellArrayForGrids(ghostCellArray, output, localExtent[0],
+      FillCellArrayForStructuredData(ghostCellArray, output, localExtent[0],
         localExtent[1] + isDimensionDegenerate[0], localExtent[2],
         localExtent[3] + isDimensionDegenerate[1], localExtentWithNoGhosts[5], localExtent[5],
         CELL_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtent[4], localExtentWithNoGhosts[4] - 1,
         POINT_GHOST_VALUE);
 
-      FillPointArrayForGrids(ghostPointArray, output, localExtent[0], localExtent[1],
+      FillPointArrayForStructuredData(ghostPointArray, output, localExtent[0], localExtent[1],
         localExtent[2], localExtent[3], localExtentWithNoGhosts[5] + 1, localExtent[5],
         POINT_GHOST_VALUE);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+template<class BlockT>
+void FillReceivedGhostPointDataForStructuredData(BlockT* block, int gid, vtkDataSet* output,
+    vtkIdList* pointIds)
+{
+  vtkUnsignedCharArray* ghostPointArray = block->GhostPointArray;
+
+  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
+  {
+    vtkIdType pointId = pointIds->GetId(i);
+    ghostPointArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+  }
+
+  vtkFieldData* pointData = block->BlockStructures.at(gid).GhostPointData;
+
+  if (!pointData)
+  {
+    return;
+  }
+
+  vtkPointData* outputPointData = output->GetPointData();
+
+  vtkNew<vtkIdList> sourcePointIds;
+  sourcePointIds->SetNumberOfIds(pointData->GetNumberOfTuples());
+  std::iota(sourcePointIds->begin(), sourcePointIds->end(), 0);
+
+  for (int arrayId = 0; arrayId < pointData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* array = pointData->GetArray(arrayId);
+    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    {
+      vtkAbstractArray* outputArray = outputPointData->GetAbstractArray(array->GetName());
+      if (outputArray)
+      {
+        outputArray->InsertTuples(pointIds, sourcePointIds, array);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+template<class BlockT>
+void FillReceivedGhostCellDataForStructuredData(BlockT* block, int gid, vtkDataSet* output,
+    vtkIdList* cellIds)
+{
+  vtkUnsignedCharArray* ghostCellArray = block->GhostCellArray;
+
+  for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
+  {
+    vtkIdType cellId = cellIds->GetId(i);
+    ghostCellArray->SetValue(cellId, vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+  }
+
+  vtkFieldData* cellData = block->BlockStructures.at(gid).GhostCellData;
+
+  if (!cellData)
+  {
+    return;
+  }
+
+  vtkCellData* outputCellData = output->GetCellData();
+
+  vtkNew<vtkIdList> sourceCellIds;
+  sourceCellIds->SetNumberOfIds(cellData->GetNumberOfTuples());
+  std::iota(sourceCellIds->begin(), sourceCellIds->end(), 0);
+
+  for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* array = cellData->GetArray(arrayId);
+    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    {
+      vtkAbstractArray* outputArray = outputCellData->GetAbstractArray(array->GetName());
+      if (outputArray)
+      {
+        outputArray->InsertTuples(cellIds, sourceCellIds, array);
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+template<class BlockT>
+void FillReceivedGhostPointsForStructuredData(BlockT* block, int gid, vtkPointSet* output,
+    vtkIdList* pointIds)
+{
+  vtkPoints* points = block->BlockStructures.at(gid).GhostPoints;
+  if (!points)
+  {
+    return;
+  }
+
+  vtkPoints* outputPoints = output->GetPoints();
+
+  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
+  {
+    vtkIdType pointId = pointIds->GetId(i);
+    outputPoints->SetPoint(pointId, points->GetPoint(i));
+  }
+}
+
+//----------------------------------------------------------------------------
+void FillReceivedGhosts(ImageDataBlock* block, int gid, vtkImageData* output)
+{
+  vtkSmartPointer<vtkIdList> pointIds =
+    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
+  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
+
+  vtkSmartPointer<vtkIdList> cellIds =
+    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
+  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+}
+
+//----------------------------------------------------------------------------
+void FillReceivedGhosts(RectilinearGridBlock* block, int gid, vtkRectilinearGrid* output)
+{
+  vtkSmartPointer<vtkIdList> pointIds =
+    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
+  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
+
+  vtkSmartPointer<vtkIdList> cellIds =
+    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
+  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+}
+
+//----------------------------------------------------------------------------
+void FillReceivedGhosts(StructuredGridBlock* block, int gid, vtkStructuredGrid* output)
+{
+  vtkSmartPointer<vtkIdList> pointIds =
+    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
+  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
+  FillReceivedGhostPointsForStructuredData(block, gid, output, pointIds);
+
+  vtkSmartPointer<vtkIdList> cellIds =
+    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
+  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+}
+
+
+
+//----------------------------------------------------------------------------
+template <class DataSetT>
+void FillReceivedGhosts(const diy::Master& master, std::vector<DataSetT*>& outputs)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
+
+  for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
+  {
+    DataSetT* output = outputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
+
+    for (auto& item : block->BlockStructures)
+    {
+      FillReceivedGhosts(block, item.first, output);
     }
   }
 }
@@ -2080,7 +2310,7 @@ LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
   const diy::Master& master, std::vector<vtkImageData*>& inputs,
   std::vector<vtkImageData*>& outputs, int outputGhostLevels)
 {
-  return ComputeLinkMapForGrids(master, inputs, outputs, outputGhostLevels);
+  return ComputeLinkMapForStructuredData(master, inputs, outputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
@@ -2088,7 +2318,7 @@ LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
   const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
   std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels)
 {
-  return ComputeLinkMapForGrids(master, inputs, outputs, outputGhostLevels);
+  return ComputeLinkMapForStructuredData(master, inputs, outputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
@@ -2096,7 +2326,7 @@ LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
     const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
     std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels)
 {
-  return ComputeLinkMapForGrids(master, inputs, outputs,
+  return ComputeLinkMapForStructuredData(master, inputs, outputs,
       outputGhostLevels);
 }
 
@@ -2104,127 +2334,108 @@ LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
 void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
     std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs)
 {
-  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
     std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs)
 {
-  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
     std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs)
 {
-  DeepCopyInputsAndAllocateGhostsForGrids(master, inputs, outputs);
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkImageData* input, ImageDataBlock* block)
+{
+  vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+
+  vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkRectilinearGrid* input, RectilinearGridBlock* block)
+{
+  vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+
+  vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkStructuredGrid* input, StructuredGridBlock* block)
+{
+  vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+
+  vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
+      block, blockId.gid, input);
+  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
+  EnqueuePointsForStructuredData(cp, blockId, input, pointIds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, int gid,
+    ImageDataBlockStructure& blockStructure)
+{
+  DequeueCellData(cp, gid, blockStructure);
+  DequeuePointData(cp, gid, blockStructure);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, int gid,
+    RectilinearGridBlockStructure& blockStructure)
+{
+  DequeueCellData(cp, gid, blockStructure);
+  DequeuePointData(cp, gid, blockStructure);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, int gid,
+    StructuredGridBlockStructure& blockStructure)
+{
+  DequeueCellData(cp, gid, blockStructure);
+  DequeuePointData(cp, gid, blockStructure);
+  DequeuePoints(cp, gid, blockStructure);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
   std::vector<vtkImageData*>& outputs)
 {
-  FillHiddenGhostsForGrids(master, outputs);
-  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
+  FillHiddenGhostsForStructuredData(master, outputs);
+  FillReceivedGhosts(master, outputs);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
   std::vector<vtkRectilinearGrid*>& outputs)
 {
-  FillHiddenGhostsForGrids(master, outputs);
-  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
+  FillHiddenGhostsForStructuredData(master, outputs);
+  FillReceivedGhosts(master, outputs);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
     std::vector<vtkStructuredGrid*>& outputs)
 {
-  FillHiddenGhostsForGrids(master, outputs);
-  vtkDIYGhostUtilities::FillReceivedGhosts(master, outputs);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
-  const ImageDataBlock* block, int gid, vtkImageData* input)
-{
-  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
-  const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
-{
-  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfaceCellIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
-{
-  return ComputeInputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
-  const ImageDataBlock* block, int gid, vtkImageData* input)
-{
-  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
-  const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
-{
-  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfaceCellIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
-{
-  return ComputeOutputInterfaceCellIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
-  const ImageDataBlock* block, int gid, vtkImageData* input)
-{
-  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
-  const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
-{
-  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeInputInterfacePointIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
-{
-  return ComputeInputInterfacePointIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
-  const ImageDataBlock* block, int gid, vtkImageData* input)
-{
-  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
-  const RectilinearGridBlock* block, int gid, vtkRectilinearGrid* input)
-{
-  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
-}
-
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> vtkDIYGhostUtilities::ComputeOutputInterfacePointIds(
-    const StructuredGridBlock* block, int gid, vtkStructuredGrid* input)
-{
-  return ComputeOutputInterfacePointIdsForGrids(block, gid, input);
+  FillHiddenGhostsForStructuredData(master, outputs);
+  FillReceivedGhosts(master, outputs);
 }
