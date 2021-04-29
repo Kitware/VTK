@@ -14,6 +14,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
   "${qml_build_output_dir}/${qml_module_dir}")
 
+# Set the VTK_QML_DIR for use in the test suite during the build. Other
+# consumers will get it from `vtk-config.cmake`.
+set(VTK_QML_DIR "${qml_build_output_dir}"
+  CACHE INTERNAL "QML output directory")
+
 if (multiconfig)
   foreach (config IN LISTS CMAKE_CONFIGURATION_TYPES)
     string(TOUPPER "${config}" upper_config)

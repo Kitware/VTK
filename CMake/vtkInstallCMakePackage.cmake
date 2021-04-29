@@ -26,6 +26,11 @@ if (VTK_WRAP_PYTHON)
   set(vtk_python_version "${VTK_PYTHON_VERSION}")
 endif ()
 
+set(vtk_has_qml 0)
+if (TARGET VTK::GUISupportQtQuick)
+  set(vtk_has_qml 1)
+endif ()
+
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"
