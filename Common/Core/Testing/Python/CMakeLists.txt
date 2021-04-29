@@ -28,6 +28,7 @@ vtk_add_test_python(
   TestSwigPointer.py
   TestTerminationCrash.py
   TestVariant.py
+  TestVersion.py
   TestWeakref.py
   TestCommand.py
   TestInvokeEvent.py

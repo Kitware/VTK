@@ -21,6 +21,7 @@ if sys.version_info < (3,5):
     # as vtkmodules. This ensures that importing modules from within the vtkmodules package
     # continues to work.
     vtk_m.__path__ = vtkmodules_m.__path__
+    vtk_m.__version__ = vtkmodules_m.__version__
     # replace old `vtk` module with this new package.
     sys.modules[__name__] = vtk_m
 
@@ -35,6 +36,7 @@ else:
     # make vtkmodules.all act as the vtkmodules package to support importing
     # other modules from vtkmodules package via `vtk`.
     all_m.__path__ = vtkmodules_m.__path__
+    all_m.__version__ = vtkmodules_m.__version__
 
     # replace old `vtk` module with the `all` package.
     sys.modules[__name__] = all_m
