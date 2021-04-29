@@ -11,8 +11,9 @@
 #ifndef fides_datamodel_Array_H_
 #define fides_datamodel_Array_H_
 
+#include <vtkm/cont/ArrayHandleSOA.h>
 #include <vtkm/cont/PartitionedDataSet.h>
-#include <vtkm/cont/VariantArrayHandle.h>
+#include <vtkm/cont/UnknownArrayHandle.h>
 
 #include <fides/DataModel.h>
 #include <fides/Value.h>
@@ -28,7 +29,7 @@ struct ArrayBase : public DataModelBase
 {
   /// Reads and returns array handles. Has to be implemented
   /// by subclasses.
-  virtual std::vector<vtkm::cont::VariantArrayHandle> Read(
+  virtual std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
@@ -66,7 +67,7 @@ struct ArrayPlaceholder : public ArrayBase
   /// Throws error because this Array class is a placeholder for
   /// arrays belonging to wildcard fields that will eventually
   /// be expanded
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>&,
     DataSourcesType&,
     const fides::metadata::MetaData&) override;
@@ -102,7 +103,7 @@ struct Array : public DataModelBase
 
   /// Reads and returns array handles. Handled by the
   /// internal ArrayBase subclass.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -136,7 +137,7 @@ struct ArrayBasic : public ArrayBase
   /// handled by the \c DataModelBase \c ReadSelf() method.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -167,7 +168,7 @@ struct ArrayUniformPointCoordinates : public ArrayBase
   /// origin and spacing. The origin of each block is computed based
   /// on spacing and additional values provided by the Dimensions
   /// Value object (start indices for each block).
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -187,9 +188,9 @@ private:
   std::unique_ptr<Value> Dimensions = nullptr;
   std::unique_ptr<Value> Origin = nullptr;
   std::unique_ptr<Value> Spacing = nullptr;
-  std::vector<vtkm::cont::VariantArrayHandle> DimensionArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> OriginArrays;
-  std::vector<vtkm::cont::VariantArrayHandle> SpacingArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> DimensionArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> OriginArrays;
+  std::vector<vtkm::cont::UnknownArrayHandle> SpacingArrays;
   bool DefinedFromVariableShape = true;
 };
 
@@ -201,7 +202,7 @@ struct ArrayCartesianProduct : public ArrayBase
   /// Reads and returns array handles. This class depends on
   /// three separate (basic) array  objects that form the
   /// cartesian product.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -252,7 +253,7 @@ struct ArrayXGCCoordinates : public ArrayXGC
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -266,17 +267,20 @@ private:
 struct ArrayXGCField : public ArrayXGC
 {
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
   /// Special handling for reading 3D variables. Use instead of the superclass's
   /// ReadSelf()
-  vtkm::cont::VariantArrayHandle Read3DVariable(
+  vtkm::cont::UnknownArrayHandle Read3DVariable(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
+
+  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                const fides::metadata::MetaData& metaData) override;
 
 private:
   /// If Is2DField, then that means the variable is duplicated for each plane
@@ -293,7 +297,7 @@ struct ArrayGTCCoordinates : public ArrayBase
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -304,20 +308,28 @@ struct ArrayGTCCoordinates : public ArrayBase
   size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
                            DataSourcesType& sources) override;
 
+  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                const fides::metadata::MetaData& metaData) override;
+
 private:
+  using GTCCoordsType32 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_32>;
+  using GTCCoordsType64 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_64>;
+
   bool IsCached = false;
-  vtkm::cont::VariantArrayHandle CachedCoords;
+  vtkm::cont::UnknownArrayHandle CachedCoords;
 
   std::unique_ptr<ArrayBasic> XArray = nullptr;
   std::unique_ptr<ArrayBasic> YArray = nullptr;
   std::unique_ptr<ArrayBasic> ZArray = nullptr;
+
+  class PlaneInserter;
 };
 
 /// \brief Class to read \c ArrayGTCField objects.
 struct ArrayGTCField : public ArrayBase
 {
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::VariantArrayHandle> Read(
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -330,6 +342,9 @@ struct ArrayGTCField : public ArrayBase
   {
     return 1;
   }
+
+  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                const fides::metadata::MetaData& metaData) override;
 };
 
 

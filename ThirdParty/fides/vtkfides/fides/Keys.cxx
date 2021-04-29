@@ -49,5 +49,29 @@ KeyType READ_AS_MULTIBLOCK()
   return reinterpret_cast<KeyType>(&READ_AS_MULTIBLOCK);
 }
 
+namespace fusion
+{
+KeyType PLANE_INSERTION()
+{
+  return reinterpret_cast<KeyType>(&PLANE_INSERTION);
+}
+
+KeyType ADD_R_FIELD()
+{
+  return reinterpret_cast<KeyType>(&ADD_R_FIELD);
+}
+
+KeyType ADD_PHI_FIELD()
+{
+  return reinterpret_cast<KeyType>(&ADD_PHI_FIELD);
+}
+
+KeyType ADD_PSI_FIELD()
+{
+  return reinterpret_cast<KeyType>(&ADD_PSI_FIELD);
+}
+
+}
+
 }
 }
