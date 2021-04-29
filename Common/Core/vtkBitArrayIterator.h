@@ -60,17 +60,17 @@ public:
   /**
    * Must be called only after Initialize.
    */
-  vtkIdType GetNumberOfTuples();
+  vtkIdType GetNumberOfTuples() const;
 
   /**
    * Must be called only after Initialize.
    */
-  vtkIdType GetNumberOfValues();
+  vtkIdType GetNumberOfValues() const;
 
   /**
    * Must be called only after Initialize.
    */
-  int GetNumberOfComponents();
+  int GetNumberOfComponents() const;
 
   /**
    * Get the data type from the underlying array.

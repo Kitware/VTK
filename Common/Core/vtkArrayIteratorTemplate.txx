@@ -60,7 +60,7 @@ void vtkArrayIteratorTemplate<T>::Initialize(vtkAbstractArray* a)
 
 //-----------------------------------------------------------------------------
 template <class T>
-vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfTuples()
+vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfTuples() const
 {
   if (this->Array)
   {
@@ -71,7 +71,7 @@ vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfTuples()
 
 //-----------------------------------------------------------------------------
 template <class T>
-vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfValues()
+vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfValues() const
 {
   if (this->Array)
   {
@@ -82,7 +82,7 @@ vtkIdType vtkArrayIteratorTemplate<T>::GetNumberOfValues()
 
 //-----------------------------------------------------------------------------
 template <class T>
-int vtkArrayIteratorTemplate<T>::GetNumberOfComponents()
+int vtkArrayIteratorTemplate<T>::GetNumberOfComponents() const
 {
   if (this->Array)
   {
