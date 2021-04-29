@@ -129,7 +129,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   int limit = 6;
   int stat = 0;
   vtkTimerLog* timer = vtkTimerLog::New();
-  timer->SetMaxEntries(100);
+  vtkTimerLog::SetMaxEntries(100);
 
   cout << "------Testing set 'Jenkins Traub'------" << endl;
   cout << 13 << " polynomials in the set." << endl;

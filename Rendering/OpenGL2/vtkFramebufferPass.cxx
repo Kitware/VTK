@@ -148,7 +148,7 @@ void vtkFramebufferPass::Render(const vtkRenderState* s)
 
   // now copy the result to the outer FO
   ostate->PushReadFramebufferBinding();
-  this->FrameBufferObject->Bind(this->FrameBufferObject->GetReadMode());
+  this->FrameBufferObject->Bind(vtkOpenGLFramebufferObject::GetReadMode());
 
   ostate->vtkglViewport(
     this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);

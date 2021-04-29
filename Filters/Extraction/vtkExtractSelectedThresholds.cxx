@@ -321,7 +321,8 @@ int vtkExtractSelectedThresholds::ExtractCells(
         int above = 0;
         int below = 0;
         ptId = cellPts->GetId(i);
-        int inside = this->EvaluateValue(inScalars, comp_no, ptId, lims, &above, &below, nullptr);
+        int inside = vtkExtractSelectedThresholds::EvaluateValue(
+          inScalars, comp_no, ptId, lims, &above, &below, nullptr);
         totalAbove += above;
         totalBelow += below;
         // Have we detected a cell that straddles the threshold?
@@ -339,7 +340,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     }
     else // use cell scalars
     {
-      keepCell = this->EvaluateValue(inScalars, comp_no, cellId, lims);
+      keepCell = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, cellId, lims);
       if (passThrough && (keepCell ^ inverse))
       {
         cellInArray->SetValue(cellId, flag);
@@ -500,7 +501,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkIdType outPtCnt = 0;
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
   {
-    int keepPoint = this->EvaluateValue(inScalars, comp_no, ptId, lims);
+    int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, ptId, lims);
     if (keepPoint ^ inverse)
     {
       if (passThrough)
@@ -620,7 +621,7 @@ int vtkExtractSelectedThresholds::ExtractRows(
   vtkIdType outRCnt = 0;
   for (vtkIdType rowId = 0; rowId < numRows; rowId++)
   {
-    int keepRow = this->EvaluateValue(inScalars, comp_no, rowId, lims);
+    int keepRow = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, rowId, lims);
     if (keepRow ^ inverse)
     {
       if (passThrough)

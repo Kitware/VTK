@@ -229,7 +229,8 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer* r)
 
       this->FloatingPointFrameBufferResourcesAllocated = true;
 
-      if (!fo->GetFrameBufferStatus(fo->GetDrawMode(), desc))
+      if (!vtkOpenGLFramebufferObject::GetFrameBufferStatus(
+            vtkOpenGLFramebufferObject::GetDrawMode(), desc))
       {
         vtkWarningMacro("Missing FBO support. The algorithm may produce visual artifacts.");
         this->CanDoFloatingPointFrameBuffer = false;
@@ -408,8 +409,8 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   if ((this->ColorsMappedTime < this->MTime) || (this->ColorsMappedTime < input->GetMTime()) ||
     (this->LastProperty != property) || (this->ColorsMappedTime < property->GetMTime()))
   {
-    vtkDataArray* scalars = this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
-      this->ArrayId, this->ArrayName, this->UsingCellColors);
+    vtkDataArray* scalars = vtkOpenGLProjectedTetrahedraMapper::GetScalars(input, this->ScalarMode,
+      this->ArrayAccessMode, this->ArrayId, this->ArrayName, this->UsingCellColors);
     if (!scalars)
     {
       vtkErrorMacro(<< "Can't use projected tetrahedra without scalars!");
@@ -507,10 +508,10 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
     // bind draw+read to set it up
     ostate->PushFramebufferBindings();
-    fo->Bind(fo->GetDrawMode());
+    fo->Bind(vtkOpenGLFramebufferObject::GetDrawMode());
     fo->ActivateDrawBuffer(0);
 
-    if (!fo->CheckFrameBufferStatus(fo->GetDrawMode()))
+    if (!fo->CheckFrameBufferStatus(vtkOpenGLFramebufferObject::GetDrawMode()))
     {
       vtkErrorMacro("FO is incomplete ");
     }
@@ -1047,7 +1048,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   if (fo)
   {
     // copy from our fbo to the default one
-    fo->Bind(fo->GetReadMode());
+    fo->Bind(vtkOpenGLFramebufferObject::GetReadMode());
 
     // draw to default fbo
     ostate->PopDrawFramebufferBinding();

@@ -1219,7 +1219,7 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
         normals->SetTuple3(idx, 1, 0, 0);
       }
 
-      lineNormalGenerator->GenerateSlidingNormals(outputPoints, outputLines, normals, firstNormal);
+      vtkPolyLine::GenerateSlidingNormals(outputPoints, outputLines, normals, firstNormal);
       lineNormalGenerator->Delete();
 
       vtkIdType i;

@@ -125,8 +125,8 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
   {
     //  calculate element interpolation functions and derivatives
     //
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkQuad::InterpolationFunctions(pcoords, weights);
+    vtkQuad::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     //
@@ -190,7 +190,7 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuad::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001)
   {
@@ -272,7 +272,7 @@ void vtkQuad::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuad::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 4; i++)

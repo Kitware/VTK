@@ -95,7 +95,7 @@ bool vtkQtSQLDatabase::Open(const char* password)
 
   // We have to assign a unique ID to each database connection, so
   // Qt doesn't blow-away existing connections
-  const QString connection_name = QString::number(this->id++);
+  const QString connection_name = QString::number(vtkQtSQLDatabase::id++);
   this->QtDatabase = QSqlDatabase::addDatabase(this->DatabaseType, connection_name);
 
   if (this->HostName != nullptr)

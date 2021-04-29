@@ -437,7 +437,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       fRange[i] = static_cast<float>(r[i]);
     }
-    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[0], this->CoordsBias[0]);
+    vtkVolumeTexture::GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[0], this->CoordsBias[0]);
     vtkDataArray* yCoords = rgBlock->GetYCoordinates();
     this->CoordsTexSizes[1] = yCoords->GetNumberOfTuples();
     r = yCoords->GetFiniteRange(0);
@@ -445,7 +445,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       fRange[i] = static_cast<float>(r[i]);
     }
-    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[1], this->CoordsBias[1]);
+    vtkVolumeTexture::GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[1], this->CoordsBias[1]);
     vtkDataArray* zCoords = rgBlock->GetZCoordinates();
     this->CoordsTexSizes[2] = zCoords->GetNumberOfTuples();
     r = zCoords->GetFiniteRange(0);
@@ -453,7 +453,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       fRange[i] = static_cast<float>(r[i]);
     }
-    this->GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[2], this->CoordsBias[2]);
+    vtkVolumeTexture::GetScaleAndBias(VTK_FLOAT, fRange, this->CoordsScale[2], this->CoordsBias[2]);
 
     vtkNew<vtkFloatArray> coordsArray;
     coordsArray->SetNumberOfComponents(3);

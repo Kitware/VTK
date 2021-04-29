@@ -202,8 +202,8 @@ int vtkQuadraticWedge::EvaluatePosition(const double* x, double closestPoint[3],
   for (int iteration = 0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkQuadraticWedge::InterpolationFunctions(pcoords, weights);
+    vtkQuadraticWedge::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -269,7 +269,7 @@ int vtkQuadraticWedge::EvaluatePosition(const double* x, double closestPoint[3],
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticWedge::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
     pcoords[2] >= -0.001 && pcoords[2] <= 1.001 && pcoords[0] + pcoords[1] <= 1.001)
@@ -316,7 +316,7 @@ void vtkQuadraticWedge::EvaluateLocation(
 {
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticWedge::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (int i = 0; i < 15; i++)
@@ -372,7 +372,7 @@ void vtkQuadraticWedge::Subdivide(
   this->CellScalars->Resize(18);
   for (numMidPts = 0; numMidPts < 3; numMidPts++)
   {
-    this->InterpolationFunctions(MidPoints[numMidPts], weights);
+    vtkQuadraticWedge::InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
@@ -540,7 +540,7 @@ void vtkQuadraticWedge::JacobianInverse(
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(pcoords, derivs);
+  vtkQuadraticWedge::InterpolationDerivs(pcoords, derivs);
 
   // create Jacobian matrix
   m[0] = m0;

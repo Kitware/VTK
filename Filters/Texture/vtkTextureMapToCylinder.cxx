@@ -90,7 +90,7 @@ int vtkTextureMapToCylinder::RequestData(vtkInformation* vtkNotUsed(request),
       pts->SetPoint(ptId, x);
     }
 
-    OBB->ComputeOBB(pts, corner, max, mid, min, size);
+    vtkOBBTree::ComputeOBB(pts, corner, max, mid, min, size);
     pts->Delete();
     OBB->Delete();
 

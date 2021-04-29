@@ -115,7 +115,7 @@ int vtkCubicLine::EvaluatePosition(const double x[3], double closestPoint[3], in
     else
     {
       // Compute weights only
-      this->InterpolationFunctions(pcoords, weights);
+      vtkCubicLine::InterpolationFunctions(pcoords, weights);
     }
   }
 
@@ -133,7 +133,7 @@ void vtkCubicLine::EvaluateLocation(
   this->Points->GetPoint(2, a2); // first midside node
   this->Points->GetPoint(3, a3); // second midside node
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkCubicLine::InterpolationFunctions(pcoords, weights);
 
   for (i = 0; i < 3; i++)
   {
@@ -319,7 +319,7 @@ void vtkCubicLine::Derivatives(
 
   v3 = vtkMath::Dot(vec30, v10);
 
-  this->InterpolationDerivs(pcoords, funcDerivs);
+  vtkCubicLine::InterpolationDerivs(pcoords, funcDerivs);
 
   J = v0 * funcDerivs[0] + v1 * funcDerivs[1] + v2 * funcDerivs[2] + v3 * funcDerivs[3];
 

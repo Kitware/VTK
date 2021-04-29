@@ -56,7 +56,7 @@ int TestPWindBladeReader(int argc, char* argv[])
 {
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize(&argc, &argv, 0);
-  controller->SetGlobalController(controller);
+  vtkMPIController::SetGlobalController(controller);
 
   // Read file name.
   char* fname =
@@ -183,7 +183,7 @@ int TestPWindBladeReader(int argc, char* argv[])
   iren->Delete();
 
   controller->Finalize(0);
-  controller->SetGlobalController(nullptr);
+  vtkMPIController::SetGlobalController(nullptr);
   controller->Delete();
 
   return !retVal;

@@ -672,7 +672,8 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
   }
 
   // Get the data type
-  int dataType = this->ConvertMINCTypeToVTKType(this->MINCImageType, this->MINCImageTypeSigned);
+  int dataType =
+    vtkMINCImageReader::ConvertMINCTypeToVTKType(this->MINCImageType, this->MINCImageTypeSigned);
   this->ImageAttributes->SetDataType(dataType);
 
   // Get the name from the file name by removing the path and

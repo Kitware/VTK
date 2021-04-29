@@ -84,7 +84,7 @@ public:
     {
       vtkSelectionNode* node = result->GetNode(n);
       vtkInformation* properties = node->GetProperties();
-      vtkInformationIntegerKey* infoIntKey = node->PROP_ID();
+      vtkInformationIntegerKey* infoIntKey = vtkSelectionNode::PROP_ID();
 
       vtkAbstractArray* abs = node->GetSelectionList();
       vtkIdType size = abs->GetSize();
@@ -95,7 +95,7 @@ public:
 
       // Get the vtkAlgorithm instance of the prop to connect it to
       // the outline filter.
-      vtkInformationObjectBaseKey* key = node->PROP();
+      vtkInformationObjectBaseKey* key = vtkSelectionNode::PROP();
       vtkObjectBase* keyObj = key->Get(properties);
       if (!keyObj)
         continue;

@@ -146,7 +146,7 @@ void vtkHandleWidget::SelectAction(vtkAbstractWidget* w)
   reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)
     ->SetInteractionState(vtkHandleRepresentation::Selecting);
 
-  self->GenericAction(self);
+  vtkHandleWidget::GenericAction(self);
 }
 
 //------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ void vtkHandleWidget::SelectAction3D(vtkAbstractWidget* w)
   reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)
     ->SetInteractionState(vtkHandleRepresentation::Selecting);
 
-  self->GenericAction(self);
+  vtkHandleWidget::GenericAction(self);
 }
 
 //------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ void vtkHandleWidget::TranslateAction(vtkAbstractWidget* w)
   reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)
     ->SetInteractionState(vtkHandleRepresentation::Translating);
 
-  self->GenericAction(self);
+  vtkHandleWidget::GenericAction(self);
 }
 
 //------------------------------------------------------------------------------
@@ -228,7 +228,7 @@ void vtkHandleWidget::ScaleAction(vtkAbstractWidget* w)
     reinterpret_cast<vtkHandleRepresentation*>(self->WidgetRep)
       ->SetInteractionState(vtkHandleRepresentation::Scaling);
 
-    self->GenericAction(self);
+    vtkHandleWidget::GenericAction(self);
   }
 }
 

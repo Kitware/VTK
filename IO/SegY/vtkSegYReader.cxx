@@ -179,7 +179,7 @@ int vtkSegYReader::RequestDataObject(vtkInformation*,
 
   if (this->Reader->In.is_open())
   {
-    this->Reader->In.seekg(0, this->Reader->In.beg);
+    this->Reader->In.seekg(0, vtksys::ifstream::beg);
   }
   else
   {

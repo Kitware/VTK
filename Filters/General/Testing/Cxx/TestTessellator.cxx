@@ -2703,7 +2703,7 @@ int* vtkTestTessellatorSubdivision::TestPointConn = pointConn;
 vtkTestTessellatorSubdivision::vtkTestTessellatorSubdivision()
 {
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestList[this->CurrentTestId];
+  this->CurrentTest = vtkTestTessellatorSubdivision::TestList[this->CurrentTestId];
   this->CurrentEdge = 0;
   this->AmbiguousTests = 0;
 }
@@ -2727,7 +2727,7 @@ void vtkTestTessellatorSubdivision::AmbiguousTestsOn()
   this->AmbiguousTests = 1;
   this->CurrentEdge = 0;
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestListCanAmbig[0];
+  this->CurrentTest = vtkTestTessellatorSubdivision::TestListCanAmbig[0];
   this->Modified();
 }
 
@@ -2739,7 +2739,7 @@ void vtkTestTessellatorSubdivision::AmbiguousTestsOff()
   this->AmbiguousTests = 0;
   this->CurrentEdge = 0;
   this->CurrentTestId = 0;
-  this->CurrentTest = this->TestList[0];
+  this->CurrentTest = vtkTestTessellatorSubdivision::TestList[0];
   this->Modified();
 }
 
@@ -2748,7 +2748,7 @@ int vtkTestTessellatorSubdivision::GetCurrentTet() const
   if (!this->AmbiguousTests)
     return -1;
 
-  return this->TestListCanAmbig[this->CurrentTestId * 3 + 1];
+  return vtkTestTessellatorSubdivision::TestListCanAmbig[this->CurrentTestId * 3 + 1];
 }
 
 int vtkTestTessellatorSubdivision::GetCurrentAmbiguousFaces() const
@@ -2756,7 +2756,7 @@ int vtkTestTessellatorSubdivision::GetCurrentAmbiguousFaces() const
   if (!this->AmbiguousTests)
     return -1;
 
-  return this->TestListCanAmbig[this->CurrentTestId * 3 + 2];
+  return vtkTestTessellatorSubdivision::TestListCanAmbig[this->CurrentTestId * 3 + 2];
 }
 
 bool vtkTestTessellatorSubdivision::EvaluateLocationAndFields(
@@ -2772,24 +2772,25 @@ bool vtkTestTessellatorSubdivision::EvaluateLocationAndFields(
       do
       {
         this->CurrentTestId++;
-        this->CurrentTest = this->TestListCanAmbig[this->CurrentTestId * 3];
-      } while (this->TestListCanAmbig[this->CurrentTestId * 3 + 1] < 0);
+        this->CurrentTest =
+          vtkTestTessellatorSubdivision::TestListCanAmbig[this->CurrentTestId * 3];
+      } while (vtkTestTessellatorSubdivision::TestListCanAmbig[this->CurrentTestId * 3 + 1] < 0);
     }
     else
     {
       this->CurrentTestId++;
-      this->CurrentTest = this->TestList[this->CurrentTestId];
+      this->CurrentTest = vtkTestTessellatorSubdivision::TestList[this->CurrentTestId];
     }
     if (this->CurrentTest < 0)
     {
       this->CurrentTestId = 0;
       if (this->AmbiguousTests)
       {
-        this->CurrentTest = this->TestListCanAmbig[0];
+        this->CurrentTest = vtkTestTessellatorSubdivision::TestListCanAmbig[0];
       }
       else
       {
-        this->CurrentTest = this->TestList[0];
+        this->CurrentTest = vtkTestTessellatorSubdivision::TestList[0];
       }
     }
   }

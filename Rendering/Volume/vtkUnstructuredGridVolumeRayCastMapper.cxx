@@ -194,8 +194,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render(vtkRenderer* ren, vtkVolume*
   vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
   inputAlg->UpdateWholeExtent();
 
-  this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
-    this->ArrayId, this->ArrayName, this->CellScalars);
+  this->Scalars = vtkUnstructuredGridVolumeRayCastMapper::GetScalars(this->GetInput(),
+    this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, this->CellScalars);
 
   if (this->Scalars == nullptr)
   {

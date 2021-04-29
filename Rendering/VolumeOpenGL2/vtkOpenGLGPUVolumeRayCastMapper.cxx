@@ -659,8 +659,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren)
     }
 
     int isCellData;
-    vtkDataArray* arr = this->Parent->GetScalars(maskInput, this->Parent->ScalarMode,
-      this->Parent->ArrayAccessMode, this->Parent->ArrayId, this->Parent->ArrayName, isCellData);
+    vtkDataArray* arr =
+      vtkOpenGLGPUVolumeRayCastMapper::GetScalars(maskInput, this->Parent->ScalarMode,
+        this->Parent->ArrayAccessMode, this->Parent->ArrayId, this->Parent->ArrayName, isCellData);
     if (maskInput->GetMTime() > this->MaskUpdateTime ||
       this->CurrentMask->GetLoadedScalars() != arr ||
       (arr && arr->GetMTime() > this->MaskUpdateTime))
@@ -2885,9 +2886,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     // (across input objects) can be rendered. This could be addressed by
     // overriding the mapper's settings with array settings defined in the
     // vtkMultiVolume instance.
-    vtkDataArray* scalars =
-      this->Parent->GetScalars(input, this->Parent->ScalarMode, this->Parent->ArrayAccessMode,
-        this->Parent->ArrayId, this->Parent->ArrayName, this->Parent->CellFlag);
+    vtkDataArray* scalars = vtkOpenGLGPUVolumeRayCastMapper::GetScalars(input,
+      this->Parent->ScalarMode, this->Parent->ArrayAccessMode, this->Parent->ArrayId,
+      this->Parent->ArrayName, this->Parent->CellFlag);
 
     if (this->NeedToInitializeResources || (input->GetMTime() > it->second.Texture->UploadTime) ||
       (scalars != it->second.Texture->GetLoadedScalars()) ||

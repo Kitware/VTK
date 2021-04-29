@@ -172,8 +172,8 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   for (iteration = converged = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
+    vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     for (i = 0; i < 3; i++)
@@ -240,7 +240,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
     pcoords[2] >= -0.001 && pcoords[2] <= 1.001)
@@ -288,7 +288,7 @@ void vtkTriQuadraticHexahedron::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 27; i++)
@@ -448,7 +448,7 @@ void vtkTriQuadraticHexahedron::JacobianInverse(
   double x[3];
 
   // compute interpolation function derivatives
-  this->InterpolationDerivs(pcoords, derivs);
+  vtkTriQuadraticHexahedron::InterpolationDerivs(pcoords, derivs);
 
   // create Jacobian matrix
   m[0] = m0;

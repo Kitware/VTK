@@ -96,7 +96,7 @@ void vtkQuadraticQuad::Subdivide(double* weights)
   double pc[3], x[3];
 
   pc[0] = pc[1] = 0.5;
-  this->InterpolationFunctions(pc, weights);
+  vtkQuadraticQuad::InterpolationFunctions(pc, weights);
 
   double p[3];
   x[0] = x[1] = x[2] = 0.0;
@@ -174,7 +174,7 @@ int vtkQuadraticQuad::EvaluatePosition(const double* x, double closestPoint[3], 
     else
     {
       // Compute weights only
-      this->InterpolationFunctions(pcoords, weights);
+      vtkQuadraticQuad::InterpolationFunctions(pcoords, weights);
     }
   }
 
@@ -187,7 +187,7 @@ void vtkQuadraticQuad::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticQuad::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 8; i++)
@@ -245,7 +245,7 @@ void vtkQuadraticQuad::InterpolateAttributes(
   this->CellScalars->Resize(9);
   for (numMidPts = 0; numMidPts < 1; numMidPts++)
   {
-    this->InterpolationFunctions(MidPoints[numMidPts], weights);
+    vtkQuadraticQuad::InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
@@ -434,7 +434,7 @@ void vtkQuadraticQuad::Derivatives(
   double *J[3], J0[3], J1[3], J2[3];
   double *JI[3], JI0[3], JI1[3], JI2[3];
 
-  this->InterpolationDerivs(pcoords, functionDerivs);
+  vtkQuadraticQuad::InterpolationDerivs(pcoords, functionDerivs);
 
   // Compute transposed Jacobian and inverse Jacobian
   J[0] = J0;

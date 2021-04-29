@@ -108,8 +108,8 @@ int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3
   for (iteration = converged = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkHexagonalPrism::InterpolationFunctions(pcoords, weights);
+    vtkHexagonalPrism::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     for (i = 0; i < 3; i++)
@@ -176,7 +176,7 @@ int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkHexagonalPrism::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
     pcoords[2] >= -0.001 && pcoords[2] <= 1.001)

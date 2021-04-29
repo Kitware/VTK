@@ -285,7 +285,7 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
 
   // bind the draw mode but leave read as the previous FO
   this->State->PushFramebufferBindings();
-  this->Framebuffer->Bind(this->Framebuffer->GetDrawMode());
+  this->Framebuffer->Bind(vtkOpenGLFramebufferObject::GetDrawMode());
   this->Framebuffer->ActivateDrawBuffers(2);
 
 #ifdef GL_MULTISAMPLE

@@ -560,7 +560,7 @@ int vtkStructuredGridLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "glFinish after rendering quad" << endl);
 
   vtkLineIntegralConvolution2D* internal = vtkLineIntegralConvolution2D::New();
-  if (!internal->IsSupported(this->Context))
+  if (!vtkLineIntegralConvolution2D::IsSupported(this->Context))
   {
     this->LICProgram->ReleaseGraphicsResources(renWin);
     delete this->LICProgram;

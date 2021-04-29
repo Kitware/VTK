@@ -854,9 +854,9 @@ void vtkOpenVRRenderWindowInteractor::ExitCallback()
   {
     this->InvokeEvent(vtkCommand::ExitEvent, nullptr);
   }
-  else if (this->ClassExitMethod)
+  else if (vtkOpenVRRenderWindowInteractor::ClassExitMethod)
   {
-    (*this->ClassExitMethod)(this->ClassExitMethodArg);
+    (*vtkOpenVRRenderWindowInteractor::ClassExitMethod)(this->ClassExitMethodArg);
   }
 
   this->TerminateApp();

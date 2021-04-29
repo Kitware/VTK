@@ -77,7 +77,7 @@ void VTXvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
     for (auto& dataArrayPair : dataSet)
     {
       const std::string& variableName = dataArrayPair.first;
-      if (this->TIMENames.count(variableName) == 1)
+      if (VTXvtkVTI::TIMENames.count(variableName) == 1)
       {
         continue;
       }
@@ -94,7 +94,7 @@ void VTXvtkVTI::ReadPiece(const size_t step, const size_t pieceID)
     for (auto& dataArrayPair : dataSet)
     {
       const std::string& variableName = dataArrayPair.first;
-      if (this->TIMENames.count(variableName) == 1)
+      if (VTXvtkVTI::TIMENames.count(variableName) == 1)
       {
         continue;
       }
@@ -112,7 +112,7 @@ void VTXvtkVTI::Init()
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
-    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, this->TIMENames);
+    types::DataSet dataSet = helper::XMLInitDataSet(dataSetNode, VTXvtkVTI::TIMENames);
 
     for (auto& dataArrayPair : dataSet)
     {

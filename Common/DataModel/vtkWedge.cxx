@@ -248,8 +248,8 @@ int vtkWedge::EvaluatePosition(const double x[3], double closestPoint[3], int& s
   for (int iteration = 0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkWedge::InterpolationFunctions(pcoords, weights);
+    vtkWedge::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -312,7 +312,7 @@ int vtkWedge::EvaluatePosition(const double x[3], double closestPoint[3], int& s
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkWedge::InterpolationFunctions(pcoords, weights);
 
   if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
     pcoords[2] >= -0.001 && pcoords[2] <= 1.001 && pcoords[0] + pcoords[1] <= 1.001)
@@ -360,7 +360,7 @@ void vtkWedge::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkWedge::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 6; i++)

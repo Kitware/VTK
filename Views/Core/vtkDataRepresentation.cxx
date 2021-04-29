@@ -149,7 +149,7 @@ void vtkDataRepresentation::ProcessEvents(
         vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(i, j);
         vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
         if (dataObject &&
-          (dataObject->GetGlobalReleaseDataFlag() ||
+          (vtkDataObject::GetGlobalReleaseDataFlag() ||
             inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
         {
           std::pair<int, int> p(i, j);

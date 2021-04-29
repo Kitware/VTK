@@ -193,7 +193,7 @@ void vtkXMLDataParser::SeekInlineDataPosition(vtkXMLDataElement* element)
     {
       ;
     }
-    while (stream->get(c) && element->IsSpace(c))
+    while (stream->get(c) && vtkXMLDataElement::IsSpace(c))
     {
       ;
     }
@@ -289,7 +289,7 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   {
     ;
   }
-  while (this->Stream->get(c) && this->IsSpace(c))
+  while (this->Stream->get(c) && vtkXMLDataParser::IsSpace(c))
   {
     ;
   }

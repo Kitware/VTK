@@ -128,8 +128,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3], const double
 
     // Get all of the line segments that intersect the visible blocks
     int flags = vmapper->GetCroppingRegionFlags();
-    if (!this->ClipLineWithCroppingRegion(bounds, extent, flags, x1, x2, t1, t2, extentPlaneId,
-          numSegments, t1List, t2List, s1List, planeIdList))
+    if (!vtkVolumePicker::ClipLineWithCroppingRegion(bounds, extent, flags, x1, x2, t1, t2,
+          extentPlaneId, numSegments, t1List, t2List, s1List, planeIdList))
     {
       return VTK_DOUBLE_MAX;
     }
@@ -138,7 +138,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3], const double
   {
     // If no cropping, then use volume bounds
     double s2;
-    if (!this->ClipLineWithExtent(extent, x1, x2, s1, s2, extentPlaneId))
+    if (!vtkVolumePicker::ClipLineWithExtent(extent, x1, x2, s1, s2, extentPlaneId))
     {
       return VTK_DOUBLE_MAX;
     }

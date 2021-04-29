@@ -91,7 +91,7 @@ int vtkDistributedPointCloudFilter::RequestData(
   {
     double bounds[6];
     this->OptimizeBoundingBox(subControllersTree, input, bounds);
-    this->GetPointsInsideBounds(controller, input, output, bounds);
+    vtkDistributedPointCloudFilter::GetPointsInsideBounds(controller, input, output, bounds);
   }
   else
   {

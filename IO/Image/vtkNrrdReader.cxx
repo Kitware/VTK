@@ -142,7 +142,7 @@ static std::vector<double> ParseVector(std::string s)
     size_t i = s.find(',');
     std::string value = s.substr(0, i);
     result.push_back(atof(value.c_str()));
-    if (i == s.npos)
+    if (i == std::string::npos)
       break;
     s = s.substr(i + 1);
   }
@@ -371,7 +371,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
     }
 
     size_t delm = line.find(": ");
-    if (delm != line.npos)
+    if (delm != std::string::npos)
     {
       // A field/description pair.
       std::string field = line.substr(0, delm);
@@ -467,7 +467,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
       else if (field == "space")
       {
         // All spaces are either 3D or 3D with time.
-        if (description.find("time") != description.npos)
+        if (description.find("time") != std::string::npos)
         {
           vtkErrorMacro(<< "Time in NRRD array not supported (yet).");
           return 0;
@@ -578,7 +578,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
     }
 
     delm = line.find(":=");
-    if (delm != line.npos)
+    if (delm != std::string::npos)
     {
       // A key/value pair.
       continue;

@@ -876,7 +876,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
     vtkIntArray* iarr = vtkIntArray::New();
     iarr->SetNumberOfComponents(1);
     iarr->SetNumberOfTuples(numCells);
-    iarr->SetName(this->GetFileIdArrayName());
+    iarr->SetName(vtkExodusIIReaderPrivate::GetFileIdArrayName());
     cd->AddArray(iarr);
     iarr->FastDelete();
     for (vtkIdType i = 0; i < numCells; ++i)
@@ -1609,7 +1609,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
 
     // ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(VTK_DOUBLE);
-    arr->SetName(this->GetGlobalVariableValuesArrayName());
+    arr->SetName(vtkExodusIIReaderPrivate::GetGlobalVariableValuesArrayName());
     arr->SetNumberOfComponents(1);
     arr->SetNumberOfTuples(
       static_cast<vtkIdType>(this->ArrayInfo[vtkExodusIIReader::GLOBAL].size()));
@@ -2730,7 +2730,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     bsinfop = (BlockSetInfoType*)this->GetObjectInfo(otypidx, obj);
 
     arr = vtkIntArray::New();
-    arr->SetName(this->GetObjectIdArrayName());
+    arr->SetName(vtkExodusIIReaderPrivate::GetObjectIdArrayName());
     arr->SetNumberOfComponents(1);
     arr->SetNumberOfTuples(bsinfop->Size);
     arr->FillComponent(0, bsinfop->Id);

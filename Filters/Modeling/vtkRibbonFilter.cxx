@@ -192,7 +192,7 @@ int vtkRibbonFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       singlePolyline->Reset(); // avoid instantiation
       singlePolyline->InsertNextCell(npts, pts);
-      if (!lineNormalGenerator->GenerateSlidingNormals(inPts, singlePolyline, inNormals))
+      if (!vtkPolyLine::GenerateSlidingNormals(inPts, singlePolyline, inNormals))
       {
         vtkWarningMacro(<< "No normals for line!");
         continue; // skip tubing this polyline

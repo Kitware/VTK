@@ -214,7 +214,7 @@ void vtkHDRReader::ConvertAllDataFromRGBToXYZ(float* outPtr, int size)
 {
   for (int i = 0; i < size; i += HDR_DATA_SIZE)
   {
-    this->XYZ2RGB(matrixXYZ2RGB, outPtr[i], outPtr[i + 1], outPtr[i + 2]);
+    vtkHDRReader::XYZ2RGB(matrixXYZ2RGB, outPtr[i], outPtr[i + 1], outPtr[i + 2]);
   }
 }
 

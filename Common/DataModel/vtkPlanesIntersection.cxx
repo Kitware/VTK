@@ -648,7 +648,7 @@ void vtkPlanesIntersection::ComputeRegionVertices()
       {
         this->planesMatrix(i, j, k, M);
 
-        int notInvertible = this->Invert3x3(M);
+        int notInvertible = vtkPlanesIntersection::Invert3x3(M);
 
         if (notInvertible)
         {

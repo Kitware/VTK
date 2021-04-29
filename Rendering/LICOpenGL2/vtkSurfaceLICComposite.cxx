@@ -165,7 +165,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
   // leaving each rank with some data.
   deque<vtkPixelExtent> tmpOut0;
 
-  this->MakeDecompDisjoint(tmpIn, tmpOut0);
+  vtkSurfaceLICComposite::MakeDecompDisjoint(tmpIn, tmpOut0);
 
   // minimize and remove empty extents.
   int nx[2];

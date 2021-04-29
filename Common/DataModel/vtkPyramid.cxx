@@ -278,7 +278,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
   {
     pcoords[0] = pcoords[1] = 0;
     pcoords[2] = 1;
-    this->InterpolationFunctions(pcoords, weights);
+    vtkPyramid::InterpolationFunctions(pcoords, weights);
     if (closestPoint)
     {
       memcpy(closestPoint, x, 3 * sizeof(double));
@@ -314,8 +314,8 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
   for (int iteration = 0; !converged && (iteration < VTK_MAX_ITERATION); iteration++)
   {
     //  calculate element interpolation functions and derivatives
-    this->InterpolationFunctions(pcoords, weights);
-    this->InterpolationDerivs(pcoords, derivs);
+    vtkPyramid::InterpolationFunctions(pcoords, weights);
+    vtkPyramid::InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
     double fcol[3] = { 0, 0, 0 }, rcol[3] = { 0, 0, 0 }, scol[3] = { 0, 0, 0 },
@@ -378,7 +378,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
     return -1;
   }
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkPyramid::InterpolationFunctions(pcoords, weights);
 
   // This is correct in that the XY parametric coordinate plane "shrinks"
   // while Z increases and X and Y always are between 0 and 1.
@@ -428,7 +428,7 @@ void vtkPyramid::EvaluateLocation(
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkPyramid::InterpolationFunctions(pcoords, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 5; i++)

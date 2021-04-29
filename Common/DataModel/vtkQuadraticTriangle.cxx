@@ -136,7 +136,7 @@ int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[
     else
     {
       // Compute weights only
-      this->InterpolationFunctions(pcoords, weights);
+      vtkQuadraticTriangle::InterpolationFunctions(pcoords, weights);
     }
   }
 
@@ -156,7 +156,7 @@ void vtkQuadraticTriangle::EvaluateLocation(
   this->Points->GetPoint(4, a4);
   this->Points->GetPoint(5, a5);
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkQuadraticTriangle::InterpolationFunctions(pcoords, weights);
 
   for (i = 0; i < 3; i++)
   {
@@ -252,7 +252,7 @@ void vtkQuadraticTriangle::Derivatives(
   double *J[3], J0[3], J1[3], J2[3];
   double *JI[3], JI0[3], JI1[3], JI2[3];
 
-  this->InterpolationDerivs(pcoords, functionDerivs);
+  vtkQuadraticTriangle::InterpolationDerivs(pcoords, functionDerivs);
 
   // Compute transposed Jacobian and inverse Jacobian
   J[0] = J0;

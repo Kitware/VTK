@@ -52,5 +52,5 @@ int TestVtkQtTableView(int argc, char* argv[])
 
   // Start the Qt event loop to run the application
   QTimer::singleShot(500, &app, SLOT(quit()));
-  return app.exec();
+  return QApplication::exec();
 }

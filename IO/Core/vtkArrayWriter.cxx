@@ -401,7 +401,7 @@ bool vtkArrayWriter::Write(ostream& stream, bool WriteBinary)
     if (!array)
       throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
-    return this->Write(array, stream, WriteBinary);
+    return vtkArrayWriter::Write(array, stream, WriteBinary);
   }
   catch (std::exception& e)
   {

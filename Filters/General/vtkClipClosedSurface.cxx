@@ -385,7 +385,8 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ScalarMode == VTK_CCS_SCALAR_MODE_COLORS)
   {
     numberOfScalarComponents = 3;
-    this->CreateColorValues(this->BaseColor, this->ClipColor, this->ActivePlaneColor, colors);
+    vtkClipClosedSurface::CreateColorValues(
+      this->BaseColor, this->ClipColor, this->ActivePlaneColor, colors);
   }
   else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_LABELS)
   {
@@ -436,7 +437,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* lines = vtkCellArray::New();
   if (input->GetLines() && input->GetLines()->GetNumberOfCells() > 0)
   {
-    this->BreakPolylines(
+    vtkClipClosedSurface::BreakPolylines(
       input->GetLines(), lines, inputScalars, firstLineScalar, lineScalars, colors[0]);
   }
 
@@ -454,9 +455,9 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     polys = vtkCellArray::New();
-    this->CopyPolygons(
+    vtkClipClosedSurface::CopyPolygons(
       input->GetPolys(), polys, inputScalars, firstPolyScalar, polyScalars, colors[0]);
-    this->BreakTriangleStrips(
+    vtkClipClosedSurface::BreakTriangleStrips(
       input->GetStrips(), polys, inputScalars, firstStripScalar, polyScalars, colors[0]);
 
     // Check if the input has polys and quads or just triangles
@@ -769,7 +770,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   outPolyData->Delete();
 
   // Finally, store the points in the output
-  this->SqueezeOutputPoints(output, points, pointData, inputPointsType);
+  vtkClipClosedSurface::SqueezeOutputPoints(output, points, pointData, inputPointsType);
   output->Squeeze();
 
   points->Delete();

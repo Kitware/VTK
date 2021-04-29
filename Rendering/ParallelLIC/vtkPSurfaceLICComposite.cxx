@@ -650,7 +650,7 @@ int vtkPSurfaceLICComposite::MakeDecompLocallyDisjoint(
   for (size_t r = 0; r < nr; ++r)
   {
     deque<vtkPixelExtent> tmp(in[r]);
-    this->MakeDecompDisjoint(tmp, out[r]);
+    vtkPSurfaceLICComposite::MakeDecompDisjoint(tmp, out[r]);
   }
   return 0;
 }
@@ -822,7 +822,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
       guardExts[r] = tmpExts;
       // make sure it's disjoint
       disjointGuardExts[r].clear();
-      this->MakeDecompDisjoint(tmpExts, disjointGuardExts[r]);
+      vtkPSurfaceLICComposite::MakeDecompDisjoint(tmpExts, disjointGuardExts[r]);
     }
   }
   else
@@ -860,7 +860,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
       guardExts[r] = tmpExts;
       // make sure it's disjoint
       disjointGuardExts[r].clear();
-      this->MakeDecompDisjoint(tmpExts, disjointGuardExts[r]);
+      vtkPSurfaceLICComposite::MakeDecompDisjoint(tmpExts, disjointGuardExts[r]);
     }
 #ifdef vtkSurfaceLICPainterTIME
     log->GetHeader() << "\n";

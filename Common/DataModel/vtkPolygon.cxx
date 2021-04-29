@@ -353,7 +353,7 @@ int vtkPolygon::EvaluatePosition(const double x[3], double closestPoint[3], int&
   pcoords[2] = 0.0;
 
   if (pcoords[0] >= 0.0 && pcoords[0] <= 1.0 && pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-    (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(),
+    (vtkPolygon::PointInPolygon(cp, this->Points->GetNumberOfPoints(),
        static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0), this->GetBounds(),
        n) == VTK_POLYGON_INSIDE))
   {

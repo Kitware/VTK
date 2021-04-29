@@ -382,7 +382,7 @@ int vtkDelaunay2D::RequestData(vtkInformation* vtkNotUsed(request),
     // map the input points into that plane.
     if (this->ProjectionPlaneMode == VTK_BEST_FITTING_PLANE)
     {
-      this->SetTransform(this->ComputeBestFittingPlane(input));
+      this->SetTransform(vtkDelaunay2D::ComputeBestFittingPlane(input));
       tPoints = vtkPoints::New();
       this->Transform->TransformPoints(inPoints, tPoints);
     }

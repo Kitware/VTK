@@ -202,7 +202,7 @@ void vtkLSDynaSummaryParser::CharacterDataHandler(const char* data, int length)
   }
   // skip leading whitespace
   int i = 0;
-  while (this->PartName.empty() && i < length && this->IsSpace(data[i]))
+  while (this->PartName.empty() && i < length && vtkLSDynaSummaryParser::IsSpace(data[i]))
     ++i;
 
   if (i < length)

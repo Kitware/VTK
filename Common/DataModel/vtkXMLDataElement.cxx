@@ -363,7 +363,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream& os, vtkIndent indent)
   if (this->CharacterDataWidth < 1)
   {
     os << indent;
-    this->PrintWithEscapedData(os, this->CharacterData);
+    vtkXMLDataElement::PrintWithEscapedData(os, this->CharacterData);
     os << endl;
   }
   // Treat as space/line delimited fields limiting
@@ -375,7 +375,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream& os, vtkIndent indent)
     string characterDataToken;
     issCharacterData >> characterDataToken;
     os << indent;
-    this->PrintWithEscapedData(os, characterDataToken.c_str());
+    vtkXMLDataElement::PrintWithEscapedData(os, characterDataToken.c_str());
 
     int it = 0;
     while (issCharacterData.good())
@@ -390,7 +390,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream& os, vtkIndent indent)
       }
 
       issCharacterData >> characterDataToken;
-      this->PrintWithEscapedData(os, characterDataToken.c_str());
+      vtkXMLDataElement::PrintWithEscapedData(os, characterDataToken.c_str());
       ++it;
     }
 

@@ -1006,7 +1006,7 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
 //------------------------------------------------------------------------------
 bool vtkXdmfHeavyData::ReadAttributes(vtkDataSet* dataSet, XdmfGrid* xmfGrid, int* update_extents)
 {
-  int data_dimensionality = this->Domain->GetDataDimensionality(xmfGrid);
+  int data_dimensionality = vtkXdmfDomain::GetDataDimensionality(xmfGrid);
 
   int numAttributes = xmfGrid->GetNumberOfAttributes();
   for (int cc = 0; cc < numAttributes; cc++)

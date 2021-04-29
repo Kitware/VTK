@@ -140,10 +140,10 @@ bool VTXSchemaManager::InitReaderXMLVTK()
 
   const std::string type = std::string(typeXML.value());
 
-  if (this->SupportedTypes.count(type) == 0)
+  if (VTXSchemaManager::SupportedTypes.count(type) == 0)
   {
     throw std::runtime_error("ERROR: ADIOS2Reader only supports types= " +
-      helper::SetToCSV(this->SupportedTypes) + " when reading type xml attribute in " +
+      helper::SetToCSV(VTXSchemaManager::SupportedTypes) + " when reading type xml attribute in " +
       this->SchemaName + " from " + this->Engine.Name() + "\n");
   }
 

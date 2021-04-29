@@ -1895,7 +1895,7 @@ int vtkCellValidator::RequestData(vtkInformation* vtkNotUsed(request),
     {
       std::stringstream s;
       cell->Print(s);
-      this->PrintState(state, s, vtkIndent(0));
+      vtkCellValidator::PrintState(state, s, vtkIndent(0));
       vtkOutputWindowDisplayText(s.str().c_str());
     }
     ++counter;

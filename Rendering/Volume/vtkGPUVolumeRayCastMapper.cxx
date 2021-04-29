@@ -350,7 +350,7 @@ int vtkGPUVolumeRayCastMapper::ValidateInput(vtkVolumeProperty* property, const 
   if (goodSoFar)
   {
     // Now make sure we can find scalars
-    scalars = this->GetScalars(this->TransformedInputs[port], this->ScalarMode,
+    scalars = vtkGPUVolumeRayCastMapper::GetScalars(this->TransformedInputs[port], this->ScalarMode,
       this->ArrayAccessMode, this->ArrayId, this->ArrayName, this->CellFlag);
 
     // We couldn't find scalars

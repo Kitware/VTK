@@ -555,7 +555,7 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
     {
       vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
       vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      if (dataObject && (dataObject->GetGlobalReleaseDataFlag() || inInfo->Get(RELEASE_DATA())))
+      if (dataObject && (vtkDataObject::GetGlobalReleaseDataFlag() || inInfo->Get(RELEASE_DATA())))
       {
         dataObject->ReleaseData();
       }

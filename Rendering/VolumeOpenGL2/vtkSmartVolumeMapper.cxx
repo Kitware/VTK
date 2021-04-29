@@ -269,8 +269,8 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer* ren, vtkVolume* vol)
   }
 
   int usingCellColors = 0;
-  vtkDataArray* scalars = this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
-    this->ArrayId, this->ArrayName, usingCellColors);
+  vtkDataArray* scalars = vtkSmartVolumeMapper::GetScalars(input, this->ScalarMode,
+    this->ArrayAccessMode, this->ArrayId, this->ArrayName, usingCellColors);
 
   if (!scalars)
   {
@@ -592,7 +592,7 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
   }
 
   int isCellData = 0;
-  vtkDataArray* dataArray = this->GetScalars(
+  vtkDataArray* dataArray = vtkSmartVolumeMapper::GetScalars(
     input, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, isCellData);
   if (!dataArray)
   {

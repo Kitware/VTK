@@ -691,8 +691,8 @@ void DICOMAppHelper::TransferSyntaxCallback(
 void DICOMAppHelper::BitsAllocatedCallback(
   DICOMParser* parser, doublebyte, doublebyte, DICOMParser::VRTypes, unsigned char* val, quadbyte)
 {
-  this->BitsAllocated = parser->GetDICOMFile()->ReturnAsUnsignedShort(
-    val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
+  this->BitsAllocated =
+    DICOMFile::ReturnAsUnsignedShort(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
 #ifdef DEBUG_DICOM_APP_HELPER
   dicom_stream::cout << "Bits allocated: " << this->BitsAllocated << dicom_stream::endl;
 #endif

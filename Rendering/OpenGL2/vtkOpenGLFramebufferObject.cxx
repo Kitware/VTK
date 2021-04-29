@@ -401,7 +401,7 @@ void vtkOpenGLFramebufferObject::SetContext(vtkRenderWindow* rw)
     return;
   }
   // check for support
-  if (!this->LoadRequiredExtensions(renWin))
+  if (!vtkOpenGLFramebufferObject::LoadRequiredExtensions(renWin))
   {
     vtkErrorMacro("Context does not support the required extensions");
     return;
@@ -1448,7 +1448,7 @@ vtkPixelBufferObject* vtkOpenGLFramebufferObject::Download(
   vtkPixelBufferObject* pbo = vtkPixelBufferObject::New();
   pbo->SetContext(this->Context);
 
-  this->Download(extent, vtkType, nComps, oglType, oglFormat, pbo);
+  vtkOpenGLFramebufferObject::Download(extent, vtkType, nComps, oglType, oglFormat, pbo);
 
   return pbo;
 }

@@ -116,7 +116,7 @@ public:
   Histogram(vtkIdType size)
   {
     // Construct the array of bins.
-    this->Bins.assign(size + 1, this->Init);
+    this->Bins.assign(size + 1, Histogram::Init);
   }
 
   // Reset the fields of the bins in the histogram.
@@ -124,7 +124,7 @@ public:
   {
     for (vtkIdType i = 0; i < size + 1; i++)
     {
-      this->Bins[i] = this->Init;
+      this->Bins[i] = Histogram::Init;
     }
     this->Counter = 0;
   }

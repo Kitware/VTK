@@ -954,7 +954,7 @@ void vtkLineIntegralConvolution2D::SetContext(vtkOpenGLRenderWindow* renWin)
   this->FBO->SetContext(renWin);
   this->Modified();
 
-  if (renWin && !this->IsSupported(renWin))
+  if (renWin && !vtkLineIntegralConvolution2D::IsSupported(renWin))
   {
     vtkErrorMacro("The required OpenGL extensions are not present");
   }

@@ -121,7 +121,7 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
   // in polygon only if absolutely necessary.
   if (xProj[0] >= this->Bounds[0] && xProj[0] <= this->Bounds[1] && xProj[1] >= this->Bounds[2] &&
     xProj[1] <= this->Bounds[3] && xProj[2] >= this->Bounds[4] && xProj[2] <= this->Bounds[5] &&
-    this->Polygon->PointInPolygon(xProj, numPts,
+    vtkPolygon::PointInPolygon(xProj, numPts,
       vtkArrayDownCast<vtkDoubleArray>(this->Polygon->Points->GetData())->GetPointer(0),
       this->Bounds, this->Normal) == 1)
   {

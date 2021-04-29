@@ -392,7 +392,7 @@ static FT_Error vtkFreeTypeToolsFaceRequester(
   vtkSmartPointer<vtkTextProperty> tprop = vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  bool faceIsSet = self->LookupFace(tprop, lib, face);
+  bool faceIsSet = vtkFreeTypeTools::LookupFace(tprop, lib, face);
 
   if (!faceIsSet)
   {

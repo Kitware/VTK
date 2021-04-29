@@ -26,7 +26,7 @@ int TestDirectory(int, char*[])
   vtkDirectory* testDir = vtkDirectory::New();
   myDir->Open(".");
   char buf[1024];
-  myDir->GetCurrentWorkingDirectory(buf, 1024);
+  vtkDirectory::GetCurrentWorkingDirectory(buf, 1024);
   cout << "Working Directory: " << buf << endl;
   // Get each file name in the directory
   for (int i = 0; i < myDir->GetNumberOfFiles(); i++)

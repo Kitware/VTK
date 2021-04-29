@@ -2599,7 +2599,7 @@ void vtkXMLWriter::WriteAttributeIndices(vtkDataSetAttributes* dsa, char** names
   {
     if (attributeIndices[i] >= 0)
     {
-      const char* attrName = dsa->GetAttributeTypeAsString(i);
+      const char* attrName = vtkDataSetAttributes::GetAttributeTypeAsString(i);
       vtkDataArray* a = dsa->GetArray(attributeIndices[i]);
       const char* arrayName = a->GetName();
       if (!arrayName)

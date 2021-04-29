@@ -501,7 +501,7 @@ int vtkLineWidget::ForwardEvent(unsigned long event)
     return 0;
   }
 
-  this->CurrentPointWidget->ProcessEvents(this, event, this->CurrentPointWidget, nullptr);
+  vtkPointWidget::ProcessEvents(this, event, this->CurrentPointWidget, nullptr);
 
   return 1;
 }

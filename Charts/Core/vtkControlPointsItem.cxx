@@ -104,7 +104,7 @@ protected:
       pos[1] = vpos.GetY();
       double bounds[4];
       this->ControlPointsItem->GetBounds(bounds);
-      return (!this->ControlPointsItem->ClampPos(pos, bounds));
+      return (!vtkControlPointsItem::ClampPos(pos, bounds));
     }
     return false;
   }
@@ -390,7 +390,7 @@ bool vtkControlPointsItem::Hit(const vtkContextMouseEvent& mouse)
     pos[1] = vpos.GetY();
     double bounds[4];
     this->GetBounds(bounds);
-    bool clamped = this->ClampPos(pos, bounds);
+    bool clamped = vtkControlPointsItem::ClampPos(pos, bounds);
     if (!clamped)
     {
       return true;
@@ -429,9 +429,9 @@ bool vtkControlPointsItem::ClampValidScreenPos(double pos[2])
   {
     double bounds[4];
     this->GetBounds(bounds);
-    return this->ClampPos(pos, bounds);
+    return vtkControlPointsItem::ClampPos(pos, bounds);
   }
-  return this->ClampPos(pos, validBounds);
+  return vtkControlPointsItem::ClampPos(pos, validBounds);
 }
 
 //------------------------------------------------------------------------------

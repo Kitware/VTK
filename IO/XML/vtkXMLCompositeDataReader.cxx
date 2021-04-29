@@ -140,7 +140,7 @@ std::string vtkXMLCompositeDataReader::GetFilePath()
 {
   std::string filePath = this->FileName;
   std::string::size_type pos = filePath.find_last_of("/\\");
-  if (pos != filePath.npos)
+  if (pos != std::string::npos)
   {
     filePath = filePath.substr(0, pos);
   }
@@ -296,7 +296,8 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderForFile(const std::string& fil
 
   // Search for the reader matching this extension.
   const char* rname = nullptr;
-  for (const vtkXMLCompositeDataReaderEntry* readerEntry = this->Internal->ReaderList;
+  for (const vtkXMLCompositeDataReaderEntry* readerEntry =
+         vtkXMLCompositeDataReaderInternals::ReaderList;
        !rname && readerEntry->extension; ++readerEntry)
   {
     if (ext == readerEntry->extension)
@@ -419,12 +420,12 @@ int vtkXMLCompositeDataReader::ShouldReadDataSet(
   switch (this->PieceDistribution)
   {
     case vtkXMLCompositeDataReader::Block:
-      assignment = this->GetPieceAssignmentForBlockStrategy(
+      assignment = vtkXMLCompositeDataReader::GetPieceAssignmentForBlockStrategy(
         datasetIndex, numDatasets, this->Internal->UpdateNumberOfPieces);
       break;
 
     case vtkXMLCompositeDataReader::Interleave:
-      assignment = this->GetPieceAssignmentForInterleaveStrategy(
+      assignment = vtkXMLCompositeDataReader::GetPieceAssignmentForInterleaveStrategy(
         datasetIndex, numDatasets, this->Internal->UpdateNumberOfPieces);
       break;
 

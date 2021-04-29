@@ -149,7 +149,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPo
       pcoords[1] = 0.5 + 0.5 * pc1;
     }
     pcoords[2] = 0.0;
-    this->InterpolationFunctions(pcoords, weights);
+    vtkBiQuadraticTriangle::InterpolationFunctions(pcoords, weights);
   }
 
   return returnStatus;
@@ -169,7 +169,7 @@ void vtkBiQuadraticTriangle::EvaluateLocation(
   this->Points->GetPoint(5, a5);
   this->Points->GetPoint(6, a6);
 
-  this->InterpolationFunctions(pcoords, weights);
+  vtkBiQuadraticTriangle::InterpolationFunctions(pcoords, weights);
 
   for (i = 0; i < 3; i++)
   {
@@ -321,7 +321,7 @@ void vtkBiQuadraticTriangle::Derivatives(
   v6[0] = vtkMath::Dot(vec60, v10);
   v6[1] = vtkMath::Dot(vec60, v20);
 
-  this->InterpolationDerivs(pcoords, funcDerivs);
+  vtkBiQuadraticTriangle::InterpolationDerivs(pcoords, funcDerivs);
 
   // Compute Jacobian and inverse Jacobian
   J[0] = J0;

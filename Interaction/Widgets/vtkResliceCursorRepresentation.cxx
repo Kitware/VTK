@@ -104,7 +104,7 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
 
   vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
   texturePlaneMapper->SetInputConnection(this->PlaneSource->GetOutputPort());
-  texturePlaneMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  vtkPolyDataMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   this->Texture->SetQualityTo32Bit();
   this->Texture->SetColorMode(VTK_COLOR_MODE_DEFAULT);
