@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include <cmath>
+#include <limits>
 
 #include "vtkLine.h"
 #include "vtkMath.h"

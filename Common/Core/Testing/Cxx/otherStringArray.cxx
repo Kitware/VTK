@@ -17,23 +17,38 @@
 #include "vtkDebugLeaks.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkNew.h"
 #include "vtkStringArray.h"
 
 #include <sstream>
 
 #define SIZE 1000
 
+namespace
+{
+ostream& printStrings(ostream& os, const vtkStringArray* list)
+{
+  const vtkIdType len = list->GetNumberOfValues();
+
+  for (vtkIdType i = 0; i < len; ++i)
+  {
+    os << "\t\tValue " << i << ": " << list->GetValue(i) << endl;
+  }
+
+  return os;
+}
+
+} // End anonymous namespace
+
 int doStringArrayTest(ostream& strm, int size)
 {
   int errors = 0;
 
-  vtkStringArray* ptr = vtkStringArray::New();
+  vtkNew<vtkStringArray> ptr;
   vtkStdString* strings = new vtkStdString[SIZE];
   for (int i = 0; i < SIZE; ++i)
   {
-    char buf[1024];
-    snprintf(buf, sizeof(buf), "string entry %d", i);
-    strings[i] = vtkStdString(buf);
+    strings[i] = vtkStdString("string entry " + std::to_string(i));
   }
 
   strm << "\tResize(0)...";
@@ -76,12 +91,14 @@ int doStringArrayTest(ostream& strm, int size)
   {
     ++errors;
     strm << "FAILED.  Expected 'string entry 123', got '" << value << "'" << endl;
+    bool dump = false;
 #ifdef DUMP_VALUES
-    for (int i = 0; i < ptr->GetNumberOfValues(); ++i)
-    {
-      strm << "\t\tValue " << i << ": " << ptr->GetValue(i) << endl;
-    }
+    dump = true;
 #endif
+    if (dump)
+    {
+      ::printStrings(strm, ptr);
+    }
   }
 
   strm << "\tSetValue...";
@@ -120,12 +137,12 @@ int doStringArrayTest(ostream& strm, int size)
   }
 
   strm << "\tvtkAbstractArray::GetTuples(vtkIdList)...";
-  vtkIdList* indices = vtkIdList::New();
+  vtkNew<vtkIdList> indices;
   indices->InsertNextId(10);
   indices->InsertNextId(20);
   indices->InsertNextId(314);
 
-  vtkStringArray* newValues = vtkStringArray::New();
+  vtkNew<vtkStringArray> newValues;
   newValues->SetNumberOfValues(3);
   ptr->GetTuples(indices, newValues);
 
@@ -171,13 +188,9 @@ int doStringArrayTest(ostream& strm, int size)
     strm << "FAILED" << endl;
   }
 
-  newValues->Delete();
-  indices->Delete();
-
   strm << "PrintSelf..." << endl;
   strm << *ptr;
 
-  ptr->Delete();
   delete[] strings;
   return errors;
 }

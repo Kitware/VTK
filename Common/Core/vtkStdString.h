@@ -27,6 +27,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"   // For VTKCOMMONCORE_EXPORT.
 #include <string>                // For the superclass.
+#include <utility>               // For std::move
 
 class vtkStdString;
 VTKCOMMONCORE_EXPORT ostream& operator<<(ostream&, const vtkStdString&);
@@ -47,19 +48,27 @@ public:
   typedef StdString::const_reverse_iterator const_reverse_iterator;
 
   vtkStdString()
-    : StdString()
+    : std::string()
   {
   }
   vtkStdString(const value_type* s)
-    : StdString(s)
+    : std::string(s)
   {
   }
   vtkStdString(const value_type* s, size_type n)
-    : StdString(s, n)
+    : std::string(s, n)
   {
   }
-  vtkStdString(const StdString& s, size_type pos = 0, size_type n = npos)
-    : StdString(s, pos, n)
+  vtkStdString(const std::string& s)
+    : std::string(s)
+  {
+  }
+  vtkStdString(std::string&& s)
+    : std::string(std::move(s))
+  {
+  }
+  vtkStdString(const std::string& s, size_type pos, size_type n = std::string::npos)
+    : std::string(s, pos, n)
   {
   }
 

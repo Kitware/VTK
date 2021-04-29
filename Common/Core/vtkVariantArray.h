@@ -287,7 +287,7 @@ public:
   /**
    * Return the number of values in the array.
    */
-  vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
+  vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
 
   ///@{
   /**

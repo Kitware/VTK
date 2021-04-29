@@ -135,7 +135,7 @@ public:
   /**
    * Return the number of points in the cell.
    */
-  vtkIdType GetNumberOfPoints() { return this->PointIds->GetNumberOfIds(); }
+  vtkIdType GetNumberOfPoints() const { return this->PointIds->GetNumberOfIds(); }
 
   /**
    * Return the number of edges in the cell.

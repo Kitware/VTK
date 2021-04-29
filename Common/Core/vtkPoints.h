@@ -123,7 +123,7 @@ public:
   /**
    * Return number of points in array.
    */
-  vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples(); }
+  vtkIdType GetNumberOfPoints() const { return this->Data->GetNumberOfTuples(); }
 
   /**
    * Return a pointer to a double point x[3] for a specific id.

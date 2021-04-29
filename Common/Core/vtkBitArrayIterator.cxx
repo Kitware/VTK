@@ -96,7 +96,7 @@ void vtkBitArrayIterator::SetValue(vtkIdType id, int value)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkBitArrayIterator::GetNumberOfTuples()
+vtkIdType vtkBitArrayIterator::GetNumberOfTuples() const
 {
   if (this->Array)
   {
@@ -105,7 +105,7 @@ vtkIdType vtkBitArrayIterator::GetNumberOfTuples()
   return 0;
 }
 //------------------------------------------------------------------------------
-vtkIdType vtkBitArrayIterator::GetNumberOfValues()
+vtkIdType vtkBitArrayIterator::GetNumberOfValues() const
 {
   if (this->Array)
   {
@@ -114,7 +114,7 @@ vtkIdType vtkBitArrayIterator::GetNumberOfValues()
   return 0;
 }
 //------------------------------------------------------------------------------
-int vtkBitArrayIterator::GetNumberOfComponents()
+int vtkBitArrayIterator::GetNumberOfComponents() const
 {
   if (this->Array)
   {

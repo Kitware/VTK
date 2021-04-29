@@ -54,7 +54,7 @@ public:
   /**
    * Return the number of id's in the list.
    */
-  vtkIdType GetNumberOfIds() { return this->NumberOfIds; }
+  vtkIdType GetNumberOfIds() const noexcept { return this->NumberOfIds; }
 
   /**
    * Return the id at location i.
