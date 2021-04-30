@@ -12,7 +12,7 @@
 #include <fides/Value.h>
 #include <fides/xgc/XGCCommon.h>
 
-#include <vtkm/cont/VariantArrayHandle.h>
+#include <vtkm/cont/UnknownArrayHandle.h>
 
 namespace fides
 {
@@ -21,7 +21,7 @@ namespace datamodel
 
 class XGCCommon::XGCCommonImpl
 {
-  /// Functor created so that VariantArrayHandle's CastAndCall() will handle making the
+  /// Functor created so that UnknownArrayHandle's CastAndCall() will handle making the
   /// appropriate cast to an ArrayHandle.
   /// This functor handles setting a scalar value
   struct SetScalarValueFunctor
@@ -55,7 +55,8 @@ class XGCCommon::XGCCommonImpl
     }
 
     vtkm::Id value;
-    valAH.ResetTypes(vtkm::TypeListScalarAll()).CastAndCall(SetScalarValueFunctor(), value);
+    valAH.CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
+      SetScalarValueFunctor(), value);
     return value;
   }
 

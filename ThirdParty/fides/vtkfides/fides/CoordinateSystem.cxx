@@ -48,7 +48,7 @@ std::vector<vtkm::cont::CoordinateSystem> CoordinateSystem::Read(
   //  vtkm::List<vtkm::cont::ArrayHandleUniformPointCoordinates::StorageTag,
   //                    vtkm::cont::StorageTagBasic>;
   // using VecType = vtkm::Vec<float, 3>;
-  std::vector<vtkm::cont::VariantArrayHandle> arrays =
+  std::vector<vtkm::cont::UnknownArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   std::vector<vtkm::cont::CoordinateSystem> coordSystems;
   coordSystems.reserve(arrays.size());

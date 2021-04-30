@@ -17,7 +17,7 @@
 #include <adios2.h>
 #include <map>
 #include <vector>
-#include <vtkm/cont/VariantArrayHandle.h>
+#include <vtkm/cont/UnknownArrayHandle.h>
 
 namespace fides
 {
@@ -107,7 +107,7 @@ struct DataSource
   /// Applies the provided set of selections to potentially restricted
   /// what is loaded. Actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
-  std::vector<vtkm::cont::VariantArrayHandle> ReadVariable(
+  std::vector<vtkm::cont::UnknownArrayHandle> ReadVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections,
     IsVector isit = IsVector::Auto);
@@ -117,20 +117,20 @@ struct DataSource
   /// As with \c ReadVariable(), actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
   /// Inline engine is not supported with this type of read
-  std::vector<vtkm::cont::VariantArrayHandle> ReadMultiBlockVariable(
+  std::vector<vtkm::cont::UnknownArrayHandle> ReadMultiBlockVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
   /// Reads a scalar variable and can be used when when an
   /// actual value is needed immediately.
-  std::vector<vtkm::cont::VariantArrayHandle> GetScalarVariable(
+  std::vector<vtkm::cont::UnknownArrayHandle> GetScalarVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
   /// Returns the dimensions and start of an n-dimensional variable.
   /// The first n values are the dimensions and the last n the start.
   /// Unlike ReadVariable(), the values are accessible immediately.
-  std::vector<vtkm::cont::VariantArrayHandle> GetVariableDimensions(
+  std::vector<vtkm::cont::UnknownArrayHandle> GetVariableDimensions(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
