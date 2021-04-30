@@ -159,9 +159,12 @@
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
         - venv/bin/pip install wheel
         - venv/bin/python3 setup.py bdist_wheel
-        - venv/bin/pip install delocate
-        - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
-        - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+        # XXX: `delocate` can't handle `@loader_path` or do recursive
+        # dependency scanning. Ignore it and just do it manually because
+        # apparently VTK is the most complicated wheel in the world.
+        # - venv/bin/pip install delocate
+        # - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        # - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
     interruptible: true
 
 .cmake_test_wheel_macos:

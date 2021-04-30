@@ -56,8 +56,8 @@ if (WIN32)
     "${setup_py_build_dir}/vtkmodules")
 elseif (APPLE)
   set(CMAKE_INSTALL_LIBDIR
-    # Apple uses delocate which copies the libraries into the wheel for us.
-    "lib")
+    # Store libraries in a subdirectory here.
+    "${setup_py_build_dir}/vtkmodules/.dylibs")
 else ()
   set(CMAKE_INSTALL_LIBDIR
     # Linux bundles what libraries we have when they're put beside the modules.
