@@ -468,7 +468,6 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
   }
 
   // Filter fluid thickness and color (if applicable)
-  if (true)
   {
     if (!this->QuadThicknessFilter)
     {
@@ -529,7 +528,6 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     glState->PopFramebufferBindings();
   }
 
-  if (true)
   {
     // Filter depth surface
     if (DisplayMode != UnfilteredOpaqueSurface && DisplayMode != UnfilteredSurfaceNormal)
@@ -612,7 +610,6 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
   }
 
   // Compute normal for the filtered depth surface
-  if (true)
   {
     if (!this->QuadFluidNormal)
     {

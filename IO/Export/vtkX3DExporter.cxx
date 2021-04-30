@@ -513,7 +513,6 @@ void vtkX3DExporter::WriteAPiece(
   {
     // If representation is points, then we don't have to render different cell
     // types in separate shapes, since the cells type no longer matter.
-    if (true)
     {
       writer->StartNode(Shape);
       this->WriteAnAppearance(anActor, writeEmissiveColor, writer);
