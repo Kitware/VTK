@@ -191,6 +191,12 @@ public:
   std::vector<int> AddNodes(const std::vector<std::string>& names, int parent = 0);
 
   /**
+   * Add a subtree by copy the nodes from another tree starting with the
+   * specified parent index.
+   */
+  int AddSubtree(int parent, vtkDataAssembly* other, int otherParent = 0);
+
+  /**
    * Removes a node from the assembly. The node identified by the id and all its
    * children are removed.
    *

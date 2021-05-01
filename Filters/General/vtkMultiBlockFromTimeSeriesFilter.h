@@ -13,13 +13,11 @@
 
 =========================================================================*/
 /**
- * @class   vtkMultiBlockFromTimeSeriesFilter
- * @brief   collects multiple inputs into one multi-group dataset
+ * @class vtkMultiBlockFromTimeSeriesFilter
+ * @brief converts a temporal dataset into multiblock.
  *
- * vtkMultiBlockFromTimeSeriesFilter is a 1 to 1 filter that merges multiple
- * time steps from the input into one multiblock dataset.  It will assign each
- * time step from the input to one group of the multi-block dataset and will
- * assign each timestep's data as a block in the multi-block datset.
+ * @deprecated Use vtkGroupTimeStepsFilter instead. vtkGroupTimeStepsFilter can
+ * handle vtkPartitionedDataSetCollection and other input types better.
  */
 
 #ifndef vtkMultiBlockFromTimeSeriesFilter_h
@@ -32,7 +30,7 @@
 #include <vector> // Vector to hold timesteps
 
 class vtkMultiBlockDataSet;
-
+VTK_DEPRECATED_IN_9_1_0("Use vtkGroupTimeStepsFilter instead")
 class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter
   : public vtkMultiBlockDataSetAlgorithm
 {
@@ -47,7 +45,6 @@ protected:
   ~vtkMultiBlockFromTimeSeriesFilter() override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
-
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

@@ -49,6 +49,7 @@ set(classes
   vtkGraphToPoints
   vtkGraphWeightEuclideanDistanceFilter
   vtkGraphWeightFilter
+  vtkGroupTimeStepsFilter
   vtkHierarchicalDataLevelFilter
   vtkHyperStreamline
   vtkIconGlyphFilter
