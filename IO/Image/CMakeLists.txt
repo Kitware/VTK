@@ -33,6 +33,7 @@ set(classes
   vtkPostScriptWriter
   vtkSEPReader
   vtkSLCReader
+  vtkTGAReader
   vtkTIFFReader
   vtkTIFFWriter
   vtkVolume16Reader

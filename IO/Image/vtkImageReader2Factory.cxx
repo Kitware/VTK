@@ -26,6 +26,7 @@
 #include "vtkPNGReader.h"
 #include "vtkPNMReader.h"
 #include "vtkSLCReader.h"
+#include "vtkTGAReader.h"
 #include "vtkTIFFReader.h"
 
 // Destroying the prototype readers requires information keys.
@@ -138,6 +139,8 @@ void vtkImageReader2Factory::InitializeReaders()
   vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkGESignaReader::New()));
   reader->Delete();
   vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkMetaImageReader::New()));
+  reader->Delete();
+  vtkImageReader2Factory::AvailableReaders->AddItem((reader = vtkTGAReader::New()));
   reader->Delete();
 }
 

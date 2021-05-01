@@ -15,7 +15,8 @@ vtk_module_test_data(
   Data/nifti_rgb.nii.gz
   Data/planar_rgb.nii.gz
   Data/small.H
-  Data/small.H@)
+  Data/small.H@
+  Data/vtk.tga)
 
 add_subdirectory(Cxx)
 
