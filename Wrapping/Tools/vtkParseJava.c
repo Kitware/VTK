@@ -35,6 +35,17 @@ void outputScalarParamDeclarations(FILE* fp, int i, unsigned int aType)
     return;
   }
 
+  switch (aType & VTK_PARSE_BASE_TYPE)
+  {
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_CHAR:
+      fprintf(fp, "byte ");
+      break;
+    case VTK_PARSE_CHAR:
+      fprintf(fp, "char ");
+      break;
+  }
+
   switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
   {
     case VTK_PARSE_FLOAT:
@@ -47,28 +58,18 @@ void outputScalarParamDeclarations(FILE* fp, int i, unsigned int aType)
       fprintf(fp, "int ");
       break;
     case VTK_PARSE_SHORT:
-      fprintf(fp, "int ");
+      fprintf(fp, "short ");
       break;
     case VTK_PARSE_LONG:
-      fprintf(fp, "long ");
-      break;
     case VTK_PARSE_LONG_LONG:
-      fprintf(fp, "long ");
-      break;
     case VTK_PARSE___INT64:
       fprintf(fp, "long ");
-      break;
-    case VTK_PARSE_SIGNED_CHAR:
-      fprintf(fp, "char ");
       break;
     case VTK_PARSE_BOOL:
       fprintf(fp, "boolean ");
       break;
     case VTK_PARSE_VOID:
       fprintf(fp, "void ");
-      break;
-    case VTK_PARSE_CHAR:
-      fprintf(fp, "char ");
       break;
     case VTK_PARSE_OBJECT:
       fprintf(fp, "%s ", thisFunction->ArgClasses[i]);
@@ -104,12 +105,18 @@ void return_result(FILE* fp)
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "double ");
       break;
-    case VTK_PARSE_INT:
-    case VTK_PARSE_SHORT:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
-    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "byte ");
+      break;
+    case VTK_PARSE_SHORT:
     case VTK_PARSE_UNSIGNED_SHORT:
+      fprintf(fp, "short ");
+      break;
+    case VTK_PARSE_INT:
+    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "int ");
+      break;
     case VTK_PARSE_UNKNOWN:
       fprintf(fp, "int ");
       break;
@@ -142,14 +149,16 @@ void return_result(FILE* fp)
       fprintf(fp, "double[] ");
       break;
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
-      fprintf(fp, "byte[] ");
+    case VTK_PARSE_SIGNED_CHAR_PTR:
+      fprintf(fp, "byte[]  ");
+      break;
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "short[] ");
       break;
     case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_SHORT_PTR:
-      fprintf(fp, "int[]  ");
+      fprintf(fp, "int[] ");
       break;
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
@@ -184,12 +193,18 @@ void return_result_native(FILE* fp)
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "double ");
       break;
-    case VTK_PARSE_INT:
-    case VTK_PARSE_SHORT:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
-    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "byte ");
+      break;
+    case VTK_PARSE_SHORT:
     case VTK_PARSE_UNSIGNED_SHORT:
+      fprintf(fp, "short ");
+      break;
+    case VTK_PARSE_INT:
+    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "int ");
+      break;
     case VTK_PARSE_UNKNOWN:
       fprintf(fp, "int ");
       break;
@@ -215,21 +230,26 @@ void return_result_native(FILE* fp)
 
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp, "boolean[]  ");
+      break;
     case VTK_PARSE_FLOAT_PTR:
       fprintf(fp, "float[] ");
       break;
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "double[] ");
       break;
+    case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
-      fprintf(fp, "byte[] ");
+      fprintf(fp, "byte[]  ");
+      break;
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "short[]  ");
       break;
     case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_SHORT_PTR:
-      fprintf(fp, "int[]  ");
+      fprintf(fp, "int[] ");
       break;
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
@@ -238,9 +258,6 @@ void return_result_native(FILE* fp)
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
       fprintf(fp, "long[]  ");
-      break;
-    case VTK_PARSE_BOOL_PTR:
-      fprintf(fp, "boolean[]  ");
       break;
   }
 }
@@ -251,17 +268,16 @@ void return_result_native(FILE* fp)
  * return 0 if the types do not map to the same type */
 static int CheckMatch(unsigned int type1, unsigned int type2, const char* c1, const char* c2)
 {
-  static unsigned int floatTypes[] = { VTK_PARSE_DOUBLE, VTK_PARSE_FLOAT, 0 };
-
-  static unsigned int intTypes[] = { VTK_PARSE_UNSIGNED_LONG_LONG, VTK_PARSE_UNSIGNED___INT64,
-    VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_LONG,
-    VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT,
-    VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
+  static unsigned int byteTypes[] = { VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
+  static unsigned int shortTypes[] = { VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT, 0 };
+  static unsigned int intTypes[] = { VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, 0 };
+  static unsigned int longTypes[] = { VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
+    VTK_PARSE_UNSIGNED___INT64, VTK_PARSE_LONG, VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, 0 };
 
   static unsigned int stringTypes[] = { VTK_PARSE_CHAR_PTR, VTK_PARSE_STRING_REF, VTK_PARSE_STRING,
     0 };
 
-  static unsigned int* numericTypes[] = { floatTypes, intTypes, 0 };
+  static unsigned int* numericTypes[] = { byteTypes, shortTypes, intTypes, longTypes, 0 };
 
   int i, j;
   int hit1, hit2;
@@ -630,7 +646,9 @@ int checkFunctionSignature(ClassInfo* data)
   if (rType == VTK_PARSE_STRING_PTR)
     args_ok = 0;
 
-  /* eliminate unsigned char * and unsigned short * */
+  /* eliminate unsigned char/short/int/long/int64 pointers */
+  if (rType == VTK_PARSE_UNSIGNED_CHAR_PTR)
+    args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_INT_PTR)
     args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_SHORT_PTR)

@@ -54,6 +54,13 @@ void output_proto_vars(FILE* fp, int i)
     return;
   }
 
+  if (aType == VTK_PARSE_BOOL_PTR)
+  {
+    fprintf(fp, "jbooleanArray ");
+    fprintf(fp, "id%i", i);
+    return;
+  }
+
   if (aType == VTK_PARSE_FLOAT_PTR)
   {
     fprintf(fp, "jfloatArray ");
@@ -68,8 +75,21 @@ void output_proto_vars(FILE* fp, int i)
     return;
   }
 
-  if ((aType == VTK_PARSE_INT_PTR) || (aType == VTK_PARSE_SHORT_PTR) ||
-    (aType == VTK_PARSE_SIGNED_CHAR_PTR))
+  if (aType == VTK_PARSE_SIGNED_CHAR_PTR)
+  {
+    fprintf(fp, "jbyteArray ");
+    fprintf(fp, "id%i", i);
+    return;
+  }
+
+  if (aType == VTK_PARSE_SHORT_PTR)
+  {
+    fprintf(fp, "jshortArray ");
+    fprintf(fp, "id%i", i);
+    return;
+  }
+
+  if (aType == VTK_PARSE_INT_PTR)
   {
     fprintf(fp, "jintArray ");
     fprintf(fp, "id%i", i);
@@ -84,6 +104,17 @@ void output_proto_vars(FILE* fp, int i)
     return;
   }
 
+  switch (aType & VTK_PARSE_BASE_TYPE)
+  {
+    case VTK_PARSE_SIGNED_CHAR:
+    case VTK_PARSE_UNSIGNED_CHAR:
+      fprintf(fp, "jbyte ");
+      break;
+    case VTK_PARSE_CHAR:
+      fprintf(fp, "jchar ");
+      break;
+  }
+
   switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
   {
     case VTK_PARSE_FLOAT:
@@ -92,9 +123,10 @@ void output_proto_vars(FILE* fp, int i)
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "jdouble ");
       break;
-    case VTK_PARSE_INT:
     case VTK_PARSE_SHORT:
-    case VTK_PARSE_SIGNED_CHAR:
+      fprintf(fp, "jshort ");
+      break;
+    case VTK_PARSE_INT:
       fprintf(fp, "jint ");
       break;
     case VTK_PARSE_LONG:
@@ -107,9 +139,6 @@ void output_proto_vars(FILE* fp, int i)
       break;
     case VTK_PARSE_VOID:
       fprintf(fp, "void ");
-      break;
-    case VTK_PARSE_CHAR:
-      fprintf(fp, "jchar ");
       break;
     case VTK_PARSE_OBJECT:
       fprintf(fp, "jobject ");
@@ -146,52 +175,54 @@ void use_hints(FILE* fp)
           MAX_ARGS);
       }
       break;
-
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfBooleanFromBool(env,temp%i,%i);\n", MAX_ARGS,
+        thisFunction->HintSize);
+      break;
     case VTK_PARSE_FLOAT_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfFloatFromFloat(env,temp%i,%i);\n", MAX_ARGS,
         thisFunction->HintSize);
       break;
-
     case VTK_PARSE_DOUBLE_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfDoubleFromDouble(env,temp%i,%i);\n", MAX_ARGS,
         thisFunction->HintSize);
       break;
-
-    case VTK_PARSE_INT_PTR:
-      fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromInt(env,temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
-      break;
-
-    case VTK_PARSE_LONG_LONG_PTR:
-      fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromLongLong(env,temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
-      break;
-
     case VTK_PARSE_SIGNED_CHAR_PTR:
-      fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromSignedChar(env,temp%i,%i);\n", MAX_ARGS,
+      fprintf(fp, "    return vtkJavaMakeJArrayOfByteFromSignedChar(env,temp%i,%i);\n", MAX_ARGS,
         thisFunction->HintSize);
       break;
-
-    case VTK_PARSE_BOOL_PTR:
-      fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromBool(env,temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
-      break;
-
     case VTK_PARSE_SHORT_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfShortFromShort(env,temp%i,%i);\n", MAX_ARGS,
         thisFunction->HintSize);
       break;
-
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfShortFromUnsignedShort(env,temp%i,%i);\n",
+        MAX_ARGS, thisFunction->HintSize);
+      break;
+    case VTK_PARSE_INT_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromInt(env,temp%i,%i);\n", MAX_ARGS,
+        thisFunction->HintSize);
+      break;
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfIntFromUnsignedInt(env,temp%i,%i);\n", MAX_ARGS,
+        thisFunction->HintSize);
+      break;
     case VTK_PARSE_LONG_PTR:
       fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromLong(env,temp%i,%i);\n", MAX_ARGS,
         thisFunction->HintSize);
       break;
-
-    case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_SHORT_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromUnsignedLong(env,temp%i,%i);\n", MAX_ARGS,
+        thisFunction->HintSize);
+      break;
+    case VTK_PARSE_LONG_LONG_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromLongLong(env,temp%i,%i);\n", MAX_ARGS,
+        thisFunction->HintSize);
+      break;
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
+      fprintf(fp, "    return vtkJavaMakeJArrayOfLongFromUnsignedLongLong(env,temp%i,%i);\n",
+        MAX_ARGS, thisFunction->HintSize);
       break;
   }
 }
@@ -214,12 +245,18 @@ void return_result(FILE* fp)
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "jdouble ");
       break;
-    case VTK_PARSE_INT:
-    case VTK_PARSE_SHORT:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_UNSIGNED_CHAR:
-    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "jbyte ");
+      break;
+    case VTK_PARSE_SHORT:
     case VTK_PARSE_UNSIGNED_SHORT:
+      fprintf(fp, "jshort ");
+      break;
+    case VTK_PARSE_INT:
+    case VTK_PARSE_UNSIGNED_INT:
+      fprintf(fp, "jint ");
+      break;
     case VTK_PARSE_UNKNOWN: /* enum */
       fprintf(fp, "jint ");
       break;
@@ -423,14 +460,33 @@ void get_args(FILE* fp, int i)
         fprintf(fp, "  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n", i, j, i, j);
       }
       break;
-    case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp, "  tempArray%i = (void *)(env->GetByteArrayElements(id%i,nullptr));\n", i, i);
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  temp%i[%i] = ((jbyte *)tempArray%i)[%i];\n", i, j, i, j);
+      }
+      break;
+    case VTK_PARSE_SHORT_PTR:
+      fprintf(fp, "  tempArray%i = (void *)(env->GetShortArrayElements(id%i,nullptr));\n", i, i);
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  temp%i[%i] = ((jshort *)tempArray%i)[%i];\n", i, j, i, j);
+      }
+      break;
+    case VTK_PARSE_INT_PTR:
       fprintf(fp, "  tempArray%i = (void *)(env->GetIntArrayElements(id%i,nullptr));\n", i, i);
       for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  temp%i[%i] = ((jint *)tempArray%i)[%i];\n", i, j, i, j);
+      }
+      break;
+
+    case VTK_PARSE_BOOL_PTR:
+      fprintf(fp, "  tempArray%i = (void *)(env->GetBooleanArrayElements(id%i,nullptr));\n", i, i);
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  temp%i[%i] = ((jboolean *)tempArray%i)[%i];\n", i, j, i, j);
       }
       break;
     case VTK_PARSE_LONG_PTR:
@@ -492,15 +548,33 @@ void copy_and_release_args(FILE* fp, int i)
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp, "  delete[] temp%i;\n", i);
       break;
-    case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
-    case VTK_PARSE_BOOL_PTR:
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  ((jbyte *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
+      }
+      fprintf(fp, "  env->ReleaseByteArrayElements(id%i,(jint *)tempArray%i,0);\n", i, i);
+      break;
+    case VTK_PARSE_SHORT_PTR:
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  ((jshort *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
+      }
+      fprintf(fp, "  env->ReleaseShortArrayElements(id%i,(jint *)tempArray%i,0);\n", i, i);
+      break;
+    case VTK_PARSE_INT_PTR:
       for (j = 0; j < thisFunction->ArgCounts[i]; j++)
       {
         fprintf(fp, "  ((jint *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
       }
       fprintf(fp, "  env->ReleaseIntArrayElements(id%i,(jint *)tempArray%i,0);\n", i, i);
+      break;
+    case VTK_PARSE_BOOL_PTR:
+      for (j = 0; j < thisFunction->ArgCounts[i]; j++)
+      {
+        fprintf(fp, "  ((jboolean *)tempArray%i)[%i] = temp%i[%i];\n", i, j, i, j);
+      }
+      fprintf(fp, "  env->ReleaseBooleanArrayElements(id%i,(jint *)tempArray%i,0);\n", i, i);
       break;
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
@@ -583,17 +657,16 @@ void do_return(FILE* fp)
  * return 0 if the types do not map to the same type */
 static int CheckMatch(unsigned int type1, unsigned int type2, const char* c1, const char* c2)
 {
-  static unsigned int floatTypes[] = { VTK_PARSE_DOUBLE, VTK_PARSE_FLOAT, 0 };
-
-  static unsigned int intTypes[] = { VTK_PARSE_UNSIGNED_LONG_LONG, VTK_PARSE_UNSIGNED___INT64,
-    VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_LONG,
-    VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT,
-    VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
+  static unsigned int byteTypes[] = { VTK_PARSE_UNSIGNED_CHAR, VTK_PARSE_SIGNED_CHAR, 0 };
+  static unsigned int shortTypes[] = { VTK_PARSE_UNSIGNED_SHORT, VTK_PARSE_SHORT, 0 };
+  static unsigned int intTypes[] = { VTK_PARSE_UNSIGNED_INT, VTK_PARSE_INT, 0 };
+  static unsigned int longTypes[] = { VTK_PARSE_UNSIGNED_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
+    VTK_PARSE_UNSIGNED___INT64, VTK_PARSE_LONG, VTK_PARSE_LONG_LONG, VTK_PARSE___INT64, 0 };
 
   static unsigned int stringTypes[] = { VTK_PARSE_CHAR_PTR, VTK_PARSE_STRING_REF, VTK_PARSE_STRING,
     0 };
 
-  static unsigned int* numericTypes[] = { floatTypes, intTypes, 0 };
+  static unsigned int* numericTypes[] = { byteTypes, shortTypes, intTypes, longTypes, 0 };
 
   int i, j;
   int hit1, hit2;
@@ -816,7 +889,7 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
   fprintf(fp, "  op = (%s *)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
   fprintf(fp, "  temp20 = static_cast<%s*>(op->GetVoidPointer(0));\n", type);
   fprintf(fp, "  size = op->GetMaxId()+1;\n");
-  fprintf(fp, "  return vtkJavaMakeJArrayOf%sFrom%s(env,temp20,size);\n", fromtype, fromtype);
+  fprintf(fp, "  return vtkJavaMakeJArrayOf%sFrom%s(env,temp20,size);\n", jfromtype, fromtype);
   fprintf(fp, "}\n");
 
   fprintf(fp,
@@ -1021,7 +1094,9 @@ int checkFunctionSignature(ClassInfo* data)
   if (rType == VTK_PARSE_STRING_PTR)
     args_ok = 0;
 
-  /* eliminate unsigned char * and unsigned short * */
+  /* eliminate unsigned char/short/int/long/int64 pointers */
+  if (rType == VTK_PARSE_UNSIGNED_CHAR_PTR)
+    args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_INT_PTR)
     args_ok = 0;
   if (rType == VTK_PARSE_UNSIGNED_SHORT_PTR)
