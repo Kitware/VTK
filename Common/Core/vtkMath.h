@@ -310,14 +310,21 @@ public:
   static double Gaussian(double mean, double std);
 
   /**
-   * Assign values to a 3-vector (double version). Result is stored in b according to b = a.
+   * Assign values to a 3-vector (templated version). Result is stored in b according to b = a.
+   * Each parameter must implement operator[].
    */
-  static void Assign(const double a[3], double b[3])
+  template <class VectorT1, class VectorT2>
+  static void Assign(const VectorT1& a, VectorT2&& b)
   {
     b[0] = a[0];
     b[1] = a[1];
     b[2] = a[2];
   }
+
+  /**
+   * Assign values to a 3-vector (double version). Result is stored in b according to b = a.
+   */
+  static void Assign(const double a[3], double b[3]) { vtkMath::Assign<>(a, b); }
 
   /**
    * Addition of two 3-vectors (float version). Result is stored in c according to c = a + b.
