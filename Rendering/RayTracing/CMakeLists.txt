@@ -23,7 +23,8 @@ set(nowrap_classes
 set(nowrap_headers
   RTWrapper/RTWrapper.h
   RTWrapper/Types.h
-  RTWrapper/Backend.h)
+  RTWrapper/Backend.h
+  vtkOSPRayCache.h)
 
 vtk_object_factory_declare(
   BASE vtkOSPRayVolumeInterface
