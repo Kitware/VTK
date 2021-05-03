@@ -16,6 +16,7 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -150,4 +151,31 @@ void vtkDataObjectAlgorithm::AddInputData(vtkDataObject* input)
 void vtkDataObjectAlgorithm::AddInputData(int index, vtkDataObject* input)
 {
   this->AddInputDataInternal(index, input);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataObjectAlgorithm::SetOutputDataObject(
+  int dataType, vtkInformation* outInfo, bool exact /*=false*/)
+{
+  if (!outInfo)
+  {
+    return false;
+  }
+
+  auto dobj = vtkDataObject::GetData(outInfo);
+  if (dobj == nullptr ||
+    (exact == false && vtkDataObjectTypes::TypeIdIsA(dobj->GetDataObjectType(), dataType)) ||
+    (exact == true && dobj->GetDataObjectType() != dataType))
+  {
+    dobj = vtkDataObjectTypes::NewDataObject(dataType);
+    if (!dobj)
+    {
+      return false;
+    }
+
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), dobj);
+    outInfo->Set(vtkDataObject::DATA_EXTENT_TYPE(), dobj->GetExtentType());
+    dobj->FastDelete();
+  }
+  return true;
 }

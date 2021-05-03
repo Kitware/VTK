@@ -122,6 +122,17 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
+  /**
+   * A helper method that can be used by subclasses in
+   * `RequestDataObject` to create an output data object of the given type if
+   * not already present.
+   *
+   * Note, this uses `vtkDataObjectTypes::TypeIdIsA` to test types. For exact
+   * match, set `exact` to true.
+   */
+  static bool SetOutputDataObject(
+    int dataType, vtkInformation* outputInformation, bool exact = false);
+
 private:
   vtkDataObjectAlgorithm(const vtkDataObjectAlgorithm&) = delete;
   void operator=(const vtkDataObjectAlgorithm&) = delete;

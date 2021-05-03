@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
+// Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
 #include "vtkMultiBlockFromTimeSeriesFilter.h"
 
 #include "vtkInformation.h"

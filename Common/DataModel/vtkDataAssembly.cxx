@@ -153,6 +153,41 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 };
 
 //------------------------------------------------------------------------------
+// Walker used to offset all node "id"s.
+struct OffsetIdWalker : public pugi::xml_tree_walker
+{
+  int Offset;
+  OffsetIdWalker(int offset)
+    : Offset(offset)
+  {
+  }
+
+  void update(pugi::xml_node& node) const
+  {
+    if (IsAssemblyNode(node))
+    {
+      auto attr = node.attribute("id");
+      auto id = attr.as_uint(VTK_UNSIGNED_INT_MAX);
+      if (id != VTK_UNSIGNED_INT_MAX)
+      {
+        attr.set_value(id + this->Offset);
+      }
+    }
+  }
+
+  bool begin(pugi::xml_node& node) override
+  {
+    this->update(node);
+    return true;
+  }
+  bool for_each(pugi::xml_node& node) override
+  {
+    this->update(node);
+    return true;
+  }
+};
+
+//------------------------------------------------------------------------------
 class FindNodesWithNameVisitor : public vtkDataAssemblyVisitor
 {
 public:
@@ -460,6 +495,47 @@ void vtkDataAssembly::DeepCopy(vtkDataAssembly* other)
   {
     this->Initialize();
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkDataAssembly::AddSubtree(int parent, vtkDataAssembly* other, int otherParent)
+{
+  if (!other)
+  {
+    vtkErrorMacro("'other' cannot be nullptr.");
+    return -1;
+  }
+
+  auto& internals = (*this->Internals);
+  auto node = internals.FindNode(parent);
+  if (!node)
+  {
+    vtkErrorMacro("Parent node with id=" << parent << " not found.");
+    return -1;
+  }
+
+  auto& ointernals = (*other->Internals);
+  auto onode = ointernals.FindNode(otherParent);
+  if (!onode)
+  {
+    vtkErrorMacro("Note node with id=" << parent << " not found on 'other'");
+    return -1;
+  }
+
+  auto subtree = node.append_copy(onode);
+  if (otherParent == 0)
+  {
+    // remove type and version attributes.
+    subtree.remove_attribute(subtree.attribute("type"));
+    subtree.remove_attribute(subtree.attribute("version"));
+  }
+
+  // now update node ids on the copied subtree.
+  OffsetIdWalker walker(internals.MaxUniqueId + 1);
+  subtree.traverse(walker);
+
+  // reset internal datastructure (and also validate it)
+  return internals.ParseDocument(this);
 }
 
 //------------------------------------------------------------------------------
