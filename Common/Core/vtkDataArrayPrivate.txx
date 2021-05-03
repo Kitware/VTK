@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert> // for assert()
+#include <limits>
 #include <vector>
 
 namespace vtkDataArrayPrivate
