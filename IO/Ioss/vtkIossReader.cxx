@@ -1815,12 +1815,14 @@ int vtkIossReader::ReadMesh(
     }
   }
 
-  if (!dbaseHandles.empty())
+  // Read global data. Since this should be same on all ranks, we only read on
+  // root node and broadcast it to all. This helps us easily handle the case
+  // where the number of reading-ranks is more than writing-ranks.
+  auto controller = this->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+  if (!dbaseHandles.empty() && rank == 0)
   {
-    // FIXME: if reading of more ranks than writing, we don't read the following
-    // data in those extra ranks. Consequently, we must communicate that from
-    // root node to those ranks.
-
     // Read global data. Since global data is expected to be identical on all
     // files in a partitioned collection, we can read it from the first
     // dbaseHandle alone.
@@ -1836,6 +1838,27 @@ int vtkIossReader::ReadMesh(
 
     // Handle assemblies.
     internals.ReadAssemblies(collection, dbaseHandles[0]);
+  }
+
+  if (numRanks > 1)
+  {
+    vtkNew<vtkUnstructuredGrid> temp;
+    vtkMultiProcessStream stream;
+    if (rank == 0)
+    {
+      temp->GetFieldData()->ShallowCopy(collection->GetFieldData());
+      stream << collection->GetDataAssembly()->SerializeToXML(vtkIndent());
+    }
+    controller->Broadcast(temp, 0);
+    controller->Broadcast(stream, 0);
+    if (rank > 0)
+    {
+      collection->GetFieldData()->ShallowCopy(temp->GetFieldData());
+
+      std::string xml;
+      stream >> xml;
+      collection->GetDataAssembly()->InitializeFromXML(xml.c_str());
+    }
   }
 
   internals.ClearCacheUnused();
