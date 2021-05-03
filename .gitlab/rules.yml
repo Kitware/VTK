@@ -27,6 +27,8 @@
 
 .merged_only:
     rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
         - if: '$CI_PROJECT_PATH == "vtk/vtk"'
           when: on_success
         - when: never
