@@ -470,8 +470,8 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   // Find all files starting with base name with -h appended
   auto directory = vtkSmartPointer<vtkDirectory>::New();
   uint64_t numFiles = 0;
-  std::ostringstream tempStr;
-  tempStr << hdfBaseName << "-h";
+  std::ostringstream baseNameStr;
+  baseNameStr << hdfBaseName << "-h";
 
   std::map<std::string, std::vector<std::string>> varToFileMap;
   std::set<std::string> cycleSet;
@@ -490,32 +490,44 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
       numFiles = directory->GetNumberOfFiles();
       for (unsigned int i = 0; i < numFiles; i++)
       {
-        // Check for legal hdf name (doesn't have a suffix)
+        // Check for legal hdf name
+        // check that the beginning of the filename is correct
         std::string fileStr = directory->GetFile(i);
-        std::size_t found = fileStr.find(tempStr.str());
-        if (found != std::string::npos)
+        std::size_t found = fileStr.find(baseNameStr.str());
+        if (found == std::string::npos || found > 0)
         {
-          // check if there is only one "-" in the filename
-          std::size_t dashPos = fileStr.find('-');
+          continue;
+        }
+
+        // check that there is no '.' in the filename
+        // filename should not have file extension or be a hidden file
+        std::size_t dotPos = fileStr.find('.');
+        if (dotPos != std::string::npos)
+        {
+          continue;
+        }
+
+        // check if there is only one "-" in the filename
+        std::size_t dashPos = fileStr.find('-');
+        if (dashPos != std::string::npos)
+        {
+          std::string postDash = fileStr.substr(dashPos + 1);
+          dashPos = postDash.find('-');
           if (dashPos != std::string::npos)
           {
-            std::string postDash = fileStr.substr(dashPos + 1);
-            dashPos = postDash.find("-");
-            if (dashPos != std::string::npos)
-            {
-              // more than one dash was found
-              continue;
-            }
+            // more than one dash was found
+            continue;
           }
-
-          std::string cycleStr = fileStr.substr(fileStr.size() - 6, 6);
-          std::string varStr = fileStr.substr(fileStr.size() - 9, 3);
-          cycleSet.insert(cycleStr);
-          std::ostringstream tempStr2;
-          tempStr2 << hdfDirectory[dir] << Slash << fileStr;
-          varToFileMap[varStr].push_back(tempStr2.str());
-          numFound++;
         }
+
+        size_t base_length = baseNameStr.str().length();
+        std::string cycleStr = fileStr.substr(base_length + 7, fileStr.length() - base_length + 7);
+        std::string varStr = fileStr.substr(base_length + 4, 3);
+        cycleSet.insert(cycleStr);
+        std::ostringstream tempStr2;
+        tempStr2 << hdfDirectory[dir] << Slash << fileStr;
+        varToFileMap[varStr].push_back(tempStr2.str());
+        numFound++;
       }
       if (numFound == 0)
       {
