@@ -72,9 +72,9 @@ public:
   class OutputIterator
   {
   public:
-    virtual OutputIterator& operator++(int) = 0;
-    virtual OutputIterator& operator*() = 0;
-    virtual OutputIterator& operator=(const vtkUnicodeString::value_type value) = 0;
+    virtual OutputIterator& operator++(int) { return *this; }
+    virtual OutputIterator& operator*() { return *this; }
+    virtual OutputIterator& operator=(const vtkTypeUInt32& value) = 0;
 
     OutputIterator() = default;
     virtual ~OutputIterator() = default;
@@ -90,7 +90,7 @@ public:
    * to the output iterator.  The stream will be advanced to its end so
    * subsequent use would need to reset it.
    */
-  virtual void ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output) = 0;
+  virtual void ToUnicode(istream& inputStream, vtkTextCodec::OutputIterator& output);
 
   /**
    * convenience method to take data from the stream and put it into a

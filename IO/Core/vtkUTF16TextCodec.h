@@ -66,11 +66,6 @@ public:
   void FindEndianness(istream& InputStream);
 
   /**
-   * is the given sample valid for this codec? - will take endianness into account
-   */
-  bool IsValid(istream& InputStream) override;
-
-  /**
    * Iterate through the sequence represented by the begin and end iterators assigning the result
    * to the output iterator.  This is the current pattern in vtkDelimitedTextReader
    */
