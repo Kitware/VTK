@@ -54,7 +54,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
   }
 
   auto mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
-  auto surface = vtkPolyData::SafeDownCast(streamBlock->GetBlock(1));
+  auto surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
   auto parcels = vtkPolyData::SafeDownCast(streamBlock->GetBlock(2));
 
   if (!mesh)
@@ -98,37 +98,64 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     }
   }
 
-  if (!surface)
+  if (!surfaces)
   {
-    std::cerr << "No surface block found in file." << std::endl;
+    std::cerr << "No surfaces block found in file." << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (surface->GetNumberOfPoints() != 8693)
+  if (surfaces->GetNumberOfPoints() != 9085)
   {
-    std::cerr << "Incorrect number of points in surface." << std::endl;
+    std::cerr << "Incorrect number of points in surfaces." << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (surface->GetNumberOfCells() != 9318)
+  if (surfaces->GetNumberOfCells() != 9318)
   {
-    std::cerr << "Incorrect number of cells in surface." << std::endl;
+    std::cerr << "Incorrect number of cells in surfaces." << std::endl;
     return EXIT_FAILURE;
   }
 
-  if (surface->GetCellData()->GetNumberOfArrays() != static_cast<int>(cellArrays.size()))
+  int numBlocks = surfaces->GetNumberOfBlocks();
+  if (numBlocks != 7)
   {
-    std::cerr << "Incorrect number of cell data arrays on surface" << std::endl;
+    std::cerr << "Incorrect number of surface blocks. Should be 7, got " << numBlocks << std::endl;
     return EXIT_FAILURE;
   }
-  for (const auto& cellArrayName : cellArrays)
+  int expectedNumPoints[] = { 5535, 837, 829, 510, 1374, 0, 0 };
+  int expectedNumCells[] = { 6038, 770, 763, 461, 1286, 0, 0 };
+  for (int i = 0; i < numBlocks; ++i)
   {
-    auto cellData = surface->GetCellData();
-    if (!cellData->HasArray(cellArrayName.c_str()))
+    vtkPolyData* surface = vtkPolyData::SafeDownCast(surfaces->GetBlock(i));
+    if (!surface)
     {
-      std::cerr << "Surface is missing expected cell data array '" << cellArrayName << "'"
-                << std::endl;
+      std::cerr << "No polydata surface at block " << i << std::endl;
       return EXIT_FAILURE;
+    }
+    if (surface->GetNumberOfPoints() != expectedNumPoints[i])
+    {
+      std::cerr << "Incorrect number of points in surface block " << i << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (surface->GetNumberOfCells() != expectedNumCells[i])
+    {
+      std::cerr << "Incorrect number of cells in surface block " << i << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (surface->GetCellData()->GetNumberOfArrays() != static_cast<int>(cellArrays.size()))
+    {
+      std::cerr << "Incorrect number of cell data arrays on surface at block " << i << std::endl;
+      return EXIT_FAILURE;
+    }
+    for (auto cellArrayName : cellArrays)
+    {
+      auto cellData = surface->GetCellData();
+      if (!cellData->HasArray(cellArrayName.c_str()))
+      {
+        std::cerr << "surface " << i << " is missing expected cell data array '" << cellArrayName
+                  << "'" << std::endl;
+        return EXIT_FAILURE;
+      }
     }
   }
 
@@ -176,7 +203,7 @@ int TestCONVERGECFDReader(int argc, char* argv[])
 
   streamBlock = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutput()->GetBlock(0));
   mesh = vtkUnstructuredGrid::SafeDownCast(streamBlock->GetBlock(0));
-  surface = vtkPolyData::SafeDownCast(streamBlock->GetBlock(1));
+  surfaces = vtkMultiBlockDataSet::SafeDownCast(streamBlock->GetBlock(1));
   parcels = vtkPolyData::SafeDownCast(streamBlock->GetBlock(2));
 
   auto cellData = mesh->GetCellData();
@@ -191,16 +218,26 @@ int TestCONVERGECFDReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  cellData = surface->GetCellData();
-  if (cellData->GetArray("EPS") != nullptr)
+  for (int i = 0; i < numBlocks; ++i)
   {
-    std::cerr << "Data array 'EPS' should not have been read but is available" << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (cellData->GetArray("DENSITY") != nullptr)
-  {
-    std::cerr << "Data array 'DENSITY' should not have been read but is available" << std::endl;
-    return EXIT_FAILURE;
+    vtkPolyData* surface = vtkPolyData::SafeDownCast(surfaces->GetBlock(i));
+    if (!surface)
+    {
+      std::cerr << "No polydata surface at block " << i << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    cellData = surface->GetCellData();
+    if (cellData->GetArray("EPS") != nullptr)
+    {
+      std::cerr << "Data array 'EPS' should not have been read but is available" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (cellData->GetArray("DENSITY") != nullptr)
+    {
+      std::cerr << "Data array 'DENSITY' should not have been read but is available" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   auto parcelData = parcels->GetPointData();

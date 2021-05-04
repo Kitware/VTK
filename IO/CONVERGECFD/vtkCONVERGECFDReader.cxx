@@ -438,8 +438,8 @@ int vtkCONVERGECFDReader::RequestData(
     return 0;
   }
 
-  ScopedH5GHandle boundaryId = H5Gopen(fileId, "/BOUNDARIES");
-  if (boundaryId < 0)
+  ScopedH5GHandle boundaryHandle = H5Gopen(fileId, "/BOUNDARIES");
+  if (boundaryHandle < 0)
   {
     vtkErrorMacro("Cannot open group/BOUNDARIES");
     return 0;
@@ -548,8 +548,102 @@ int vtkCONVERGECFDReader::RequestData(
     vtkNew<vtkPoints> points;
     points->SetData(pointArray);
 
-    // Create surface
-    std::set<vtkIdType> surfacePointIds;
+    // boundaryIdToIndex must be size of max id... ids are not guaranteed to be sequential,
+    // i.e., 1, 3, 5, 30, 31, 32, 1001 so it's better to use map instead of array lookup
+    std::map<int, int> boundaryIdToIndex;
+
+    hsize_t numBoundaryNames = GetDataLength(boundaryHandle, "BOUNDARY_NAMES");
+    std::vector<std::string> boundaryNames(numBoundaryNames);
+    ReadStrings(boundaryHandle, "BOUNDARY_NAMES", boundaryNames);
+    hsize_t numBoundaries = GetDataLength(boundaryHandle, "NUM_ELEMENTS");
+    std::vector<int> boundaryNumElements(numBoundaries);
+    ReadArray(
+      boundaryHandle, "NUM_ELEMENTS", boundaryNumElements.data(), boundaryNumElements.size());
+    std::vector<int> boundaryIds(numBoundaries);
+    ReadArray(boundaryHandle, "BOUNDARY_IDS", boundaryIds.data(), boundaryIds.size());
+    if (numBoundaries != numBoundaryNames)
+    {
+      vtkErrorMacro("Number of BOUNDARY_NAMES does not match NUM_ELEMENTS");
+      return 0;
+    }
+
+    // Multiple surfaces can exist in a single file. We create a vtkPolyData for
+    // each one and store them under another multiblock dataset.
+    vtkNew<vtkMultiBlockDataSet> multiSurfaces;
+    multiSurfaces->SetNumberOfBlocks(static_cast<unsigned int>(boundaryIds.size()));
+    for (size_t i = 0; i < boundaryIds.size(); ++i)
+    {
+      // If boundary index 0 has boundary id == 1, index 1 of boundaryIdToIndex will be 0.
+      boundaryIdToIndex[boundaryIds[i]] = static_cast<int>(i);
+
+      vtkNew<vtkPolyData> boundarySurface;
+      multiSurfaces->SetBlock(static_cast<unsigned int>(i), boundarySurface);
+      multiSurfaces->GetMetaData(static_cast<unsigned int>(i))
+        ->Set(vtkCompositeDataSet::NAME(), boundaryNames[i]);
+
+      vtkNew<vtkCellArray> polys;
+      polys->AllocateEstimate(boundaryNumElements[i], 4);
+      boundarySurface->SetPolys(polys);
+    }
+
+    // Create maps from surface point IDs for each block
+    std::vector<std::set<vtkIdType>> blocksSurfacePointIds(boundaryIds.size());
+    for (int polyId = 0; polyId < numPolygons; ++polyId)
+    {
+      if (connectedCells[2 * polyId + 0] >= 0 && connectedCells[2 * polyId + 1] >= 0)
+      {
+        // Polygon is not part of a surface, so skip.
+        continue;
+      }
+
+      int boundaryId = -(connectedCells[2 * polyId + 0] + 1);
+      int boundaryIndex = boundaryIdToIndex[boundaryId];
+      vtkIdType numCellPts =
+        static_cast<vtkIdType>(polygonOffsets[polyId + 1] - polygonOffsets[polyId]);
+      for (vtkIdType id = 0; id < numCellPts; ++id)
+      {
+        vtkIdType ptId = polygons[polygonOffsets[polyId] + id];
+        blocksSurfacePointIds[boundaryIndex].insert(ptId);
+      }
+    }
+
+    // Create maps from original point IDs to surface point IDs for each block
+    std::vector<std::map<vtkIdType, vtkIdType>> blocksOriginalToBlockPointId(numBoundaryNames);
+    for (hsize_t boundaryIndex = 0; boundaryIndex < numBoundaryNames; ++boundaryIndex)
+    {
+      const int numBoundaryPolygons = boundaryNumElements[boundaryIndex];
+
+      // Create a map from original point ID in the global points list
+      vtkIdType newIndex = 0;
+      for (vtkIdType id : blocksSurfacePointIds[boundaryIndex])
+      {
+        blocksOriginalToBlockPointId[boundaryIndex][id] = newIndex++;
+      }
+
+      // Clear some memory
+      blocksSurfacePointIds[boundaryIndex].clear();
+
+      // Create localized points for this block
+      vtkNew<vtkPoints> blockPoints;
+      blockPoints->SetDataType(points->GetDataType());
+      blockPoints->SetNumberOfPoints(newIndex);
+      vtkFloatArray* toArray = vtkFloatArray::SafeDownCast(blockPoints->GetData());
+      for (auto it = blocksOriginalToBlockPointId[boundaryIndex].begin();
+           it != blocksOriginalToBlockPointId[boundaryIndex].end(); ++it)
+      {
+        vtkIdType from = it->first;
+        vtkIdType to = it->second;
+        float xyz[3];
+        pointArray->GetTypedTuple(from, xyz);
+        toArray->SetTypedTuple(to, xyz);
+      }
+
+      vtkPolyData* boundarySurface =
+        vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
+      boundarySurface->SetPoints(blockPoints);
+    }
+
+    // Go through polygons again and add them to the polydata blocks
     vtkIdType numSurfacePolys = 0;
     for (int polyId = 0; polyId < numPolygons; ++polyId)
     {
@@ -559,73 +653,34 @@ int vtkCONVERGECFDReader::RequestData(
         continue;
       }
 
-      vtkIdType numCellPts =
-        static_cast<vtkIdType>(polygonOffsets[polyId + 1] - polygonOffsets[polyId]);
-      for (vtkIdType id = 0; id < numCellPts; ++id)
-      {
-        surfacePointIds.insert(polygons[polygonOffsets[polyId] + id]);
-      }
       numSurfacePolys++;
-    }
 
-    // Remap original point indices in stream to surface points
-    std::map<vtkIdType, vtkIdType> originalToSurfacePointId;
-    vtkIdType newIndex = 0;
-    for (vtkIdType id : surfacePointIds)
-    {
-      originalToSurfacePointId[id] = newIndex++;
-    }
-
-    vtkNew<vtkPoints> surfacePoints;
-    surfacePoints->SetDataType(points->GetDataType());
-    surfacePoints->SetNumberOfPoints(newIndex);
-    vtkFloatArray* toArray = vtkFloatArray::SafeDownCast(surfacePoints->GetData());
-    for (auto it = originalToSurfacePointId.begin(); it != originalToSurfacePointId.end(); ++it)
-    {
-      vtkIdType from = it->first;
-      vtkIdType to = it->second;
-      float xyz[3];
-      pointArray->GetTypedTuple(from, xyz);
-      toArray->SetTypedTuple(to, xyz);
-    }
-
-    vtkNew<vtkPolyData> surface;
-    surface->SetPoints(surfacePoints);
-
-    vtkNew<vtkCellArray> polys;
-    polys->AllocateEstimate(numSurfacePolys, 4);
-    std::vector<vtkIdType> ptIds(3);
-    for (int polyId = 0; polyId < numPolygons; ++polyId)
-    {
-      if (connectedCells[2 * polyId + 0] >= 0 && connectedCells[2 * polyId + 1] >= 0)
-      {
-        // Polygon is not part of a surface, so skip.
-        continue;
-      }
-
+      int boundaryId = -(connectedCells[2 * polyId + 0] + 1);
+      int boundaryIndex = boundaryIdToIndex[boundaryId];
+      vtkPolyData* polyData = vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
       vtkIdType numCellPts =
         static_cast<vtkIdType>(polygonOffsets[polyId + 1] - polygonOffsets[polyId]);
-      if (ptIds.size() < static_cast<size_t>(numCellPts))
-      {
-        ptIds.resize(numCellPts);
-      }
+      std::vector<vtkIdType> ptIds(numCellPts);
       for (vtkIdType id = 0; id < numCellPts; ++id)
       {
-        ptIds[id] = originalToSurfacePointId[polygons[polygonOffsets[polyId] + id]];
+        vtkIdType ptId = polygons[polygonOffsets[polyId] + id];
+        ptIds[id] = blocksOriginalToBlockPointId[boundaryIndex][ptId];
       }
-
-      polys->InsertNextCell(numCellPts, &ptIds[0]);
+      polyData->GetPolys()->InsertNextCell(numCellPts, &ptIds[0]);
     }
 
-    surface->SetPolys(polys);
+    // Clear some memory
+    blocksOriginalToBlockPointId.clear();
 
-    // Create a new unstructured grid
-    vtkNew<vtkUnstructuredGrid> ugrid;
-    ugrid->SetPoints(points);
-
-    // Create a map from cell to polygon and from surface polygon to volumetric polygon
+    // Create a map from cell to polygons
     std::map<int, std::set<int>> cellToPoly;
+
+    // Create a map from polygon to the volumetric cell to which it is attached
     std::vector<int> polyToCell(numSurfacePolys);
+
+    // Create a map from polygon to boundary
+    std::vector<int> polyToBoundary(numSurfacePolys);
+
     vtkIdType surfacePolyCount = 0;
     for (int polyId = 0; polyId < numPolygons; ++polyId)
     {
@@ -633,18 +688,27 @@ int vtkCONVERGECFDReader::RequestData(
       int cell1 = connectedCells[2 * polyId + 1];
       if (cell0 >= 0)
       {
+        // Add polyId to cell 0's list of polygons
         cellToPoly[cell0].insert(polyId);
       }
       if (cell1 >= 0)
       {
+        // Add polyId to cell 1's list of polygons
         cellToPoly[cell1].insert(polyId);
       }
 
       if (cell0 < 0 || cell1 < 0)
       {
-        polyToCell[surfacePolyCount++] = cell0 >= 0 ? cell0 : cell1;
+        assert(polyToBoundary.size() > surfacePolyCount);
+        polyToBoundary[surfacePolyCount] = cell0 >= 0 ? -(cell1 + 1) : -(cell0 + 1);
+        polyToCell[surfacePolyCount] = cell0 >= 0 ? cell0 : cell1;
+        surfacePolyCount++;
       }
     }
+
+    // Create a new unstructured grid
+    vtkNew<vtkUnstructuredGrid> ugrid;
+    ugrid->SetPoints(points);
 
     // Create polyhedra from their faces
     vtkNew<vtkIdList> faces;
@@ -739,19 +803,41 @@ int vtkCONVERGECFDReader::RequestData(
         ugrid->GetCellData()->AddArray(dataArray);
 
         // Now pull out the values needed for the surface geometry
-        vtkNew<vtkFloatArray> surfaceDataArray;
-        surfaceDataArray->SetNumberOfComponents(dataArray->GetNumberOfComponents());
-        surfaceDataArray->SetNumberOfTuples(numSurfacePolys);
-        surfaceDataArray->SetName(varName.c_str());
-        for (vtkIdType id = 0; id < numSurfacePolys; ++id)
+        for (int boundaryIndex = 0;
+             boundaryIndex < static_cast<int>(multiSurfaces->GetNumberOfBlocks()); ++boundaryIndex)
         {
-          for (int c = 0; c < surfaceDataArray->GetNumberOfComponents(); ++c)
+          vtkPolyData* boundarySurface =
+            vtkPolyData::SafeDownCast(multiSurfaces->GetBlock(boundaryIndex));
+          int numBoundaryPolys = boundarySurface->GetNumberOfCells();
+          vtkNew<vtkFloatArray> surfaceDataArray;
+          surfaceDataArray->SetNumberOfComponents(dataArray->GetNumberOfComponents());
+          surfaceDataArray->SetNumberOfTuples(numBoundaryPolys);
+          surfaceDataArray->SetName(varName.c_str());
+          vtkIdType localDataCount = 0;
+          for (vtkIdType id = 0; id < numSurfacePolys; ++id)
           {
-            surfaceDataArray->SetTypedComponent(
-              id, c, dataArray->GetTypedComponent(polyToCell[id], c));
+            assert(polyToBoundary.size() > id);
+            if (boundaryIdToIndex.find(polyToBoundary[id]) == boundaryIdToIndex.end())
+            {
+              vtkErrorMacro(
+                "polyToBoundary[id] is not found within boundaryIdToIndex" << polyToBoundary[id]);
+              return 0;
+            }
+            const int polyBoundaryIndex = boundaryIdToIndex[polyToBoundary[id]];
+            if (polyBoundaryIndex != boundaryIndex)
+            {
+              continue;
+            }
+            for (int c = 0; c < surfaceDataArray->GetNumberOfComponents(); ++c)
+            {
+              assert(polyToCell.size() > id);
+              surfaceDataArray->SetTypedComponent(
+                localDataCount, c, dataArray->GetTypedComponent(polyToCell[id], c));
+            }
+            ++localDataCount;
           }
+          boundarySurface->GetCellData()->AddArray(surfaceDataArray);
         }
-        surface->GetCellData()->AddArray(surfaceDataArray);
       }
     }
 
@@ -760,7 +846,7 @@ int vtkCONVERGECFDReader::RequestData(
     streamMB->SetNumberOfBlocks(2);
     streamMB->SetBlock(0, ugrid);
     streamMB->GetMetaData(0u)->Set(vtkCompositeDataSet::NAME(), "Mesh");
-    streamMB->SetBlock(1, surface);
+    streamMB->SetBlock(1, multiSurfaces);
     streamMB->GetMetaData(1u)->Set(vtkCompositeDataSet::NAME(), "Surface");
 
     // ++++ PARCEL DATA ++++
