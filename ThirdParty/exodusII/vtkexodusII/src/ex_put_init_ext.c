@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -115,8 +88,8 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
   int  dim[2];
   int  varid;
   int  status;
-  int  int_type;
   char errmsg[MAX_ERR_LENGTH];
+  int  sixty_four_kb = 64 * 1024;
 
   /* Can have nonzero model->num_elem_blk even if model->num_elem == 0 */
   if (count > 0) {
@@ -135,20 +108,27 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
-    ex__set_compact_storage(exoid, varid);
+    if (4 * count < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
+    }
 
     /* type id array */
-    int_type = NC_INT;
+    int int_type = NC_INT;
+    int int_size = 4;
     if (ex_int64_status(exoid) & EX_IDS_INT64_DB) {
       int_type = NC_INT64;
+      int_size = 8;
     }
+
     if ((status = nc_def_var(exoid, id_array_dim_name, int_type, 1, dim, &varid)) != NC_NOERR) {
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s id array in file id %d", type,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
       return (status); /* exit define mode and return */
     }
-    ex__set_compact_storage(exoid, varid);
+    if (int_size * count < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
+    }
 
     /*   store property name as attribute of property array variable */
     if ((status = nc_put_att_text(exoid, varid, ATT_PROP_NAME, 3, "ID")) != NC_NOERR) {
@@ -240,8 +220,8 @@ static void invalidate_id_status(int exoid, const char *var_stat, const char *va
 
 int ex_put_init_ext(int exoid, const ex_init_params *model)
 {
-  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim,
-      nsetdim, ssetdim, dim_str_name, dim[2], temp;
+  int numdimdim, numnoddim, elblkdim, edblkdim, fablkdim, esetdim, fsetdim, elsetdim, nsetdim,
+      ssetdim, dim_str_name, dim[2], temp;
   int nmapdim, edmapdim, famapdim, emapdim, timedim;
   int status;
   int title_len;
@@ -249,10 +229,12 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   /* used for header size calculations which are turned off for now */
   int header_size, fixed_var_size, iows;
 #endif
-  char                  errmsg[MAX_ERR_LENGTH];
+  char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
   int rootid = exoid & EX_FILE_ID_MASK;
 
   if (rootid == exoid && nc_inq_dimid(exoid, DIM_NUM_DIM, &temp) == NC_NOERR) {
