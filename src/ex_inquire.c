@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 
 #include "exodusII.h"
@@ -163,8 +136,11 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
   char      errmsg[MAX_ERR_LENGTH];
   int       status;
   char      tmp_title[2048];
+  int       num_var;
 
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    return (EX_FATAL);
+  }
 
   if (ret_char) {
     *ret_char = '\0'; /* Only needs to be non-null for TITLE and some GROUP NAME inquiries */
@@ -838,6 +814,76 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     if (ex__get_dimension_value(exoid, ret_int, 0, DIM_NUM_FAM, 1) != EX_NOERR) {
       return (EX_FATAL);
     }
+    break;
+
+  case EX_INQ_NUM_NODE_VAR:
+    if (ex_get_variable_param(exoid, EX_NODAL, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_EDGE_BLOCK_VAR:
+    if (ex_get_variable_param(exoid, EX_EDGE_BLOCK, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_FACE_BLOCK_VAR:
+    if (ex_get_variable_param(exoid, EX_FACE_BLOCK, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_ELEM_BLOCK_VAR:
+    if (ex_get_variable_param(exoid, EX_ELEM_BLOCK, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_NODE_SET_VAR:
+    if (ex_get_variable_param(exoid, EX_NODE_SET, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_EDGE_SET_VAR:
+    if (ex_get_variable_param(exoid, EX_EDGE_SET, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_FACE_SET_VAR:
+    if (ex_get_variable_param(exoid, EX_FACE_SET, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_ELEM_SET_VAR:
+    if (ex_get_variable_param(exoid, EX_ELEM_SET, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_SIDE_SET_VAR:
+    if (ex_get_variable_param(exoid, EX_SIDE_SET, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
+    break;
+
+  case EX_INQ_NUM_GLOBAL_VAR:
+    if (ex_get_variable_param(exoid, EX_GLOBAL, &num_var) != EX_NOERR) {
+      return (EX_FATAL);
+    }
+    *ret_int = num_var;
     break;
 
   case EX_INQ_COORD_FRAMES:
