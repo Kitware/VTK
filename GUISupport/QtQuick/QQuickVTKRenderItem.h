@@ -233,7 +233,11 @@ protected:
   virtual void setViewport(const QRectF& rect);
 
   // Event handlers
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#else
+  void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#endif
   bool event(QEvent* ev) override;
 
 private:

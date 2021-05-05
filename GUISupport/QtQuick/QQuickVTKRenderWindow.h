@@ -241,7 +241,11 @@ protected:
   vtkNew<vtkWindowToImageFilter> m_screenshotFilter;
 
   // Event handlers
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#else
+  void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#endif
 
 private:
   QQuickVTKRenderWindow(const QQuickVTKRenderWindow&) = delete;

@@ -149,9 +149,11 @@ void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
   this->m_interactorAdapter->setQQuickWindow(w);
   if (w)
   {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Do not clear the scenegraph before the QML rendering
     // to preserve the VTK render
     w->setClearBeforeRendering(false);
+#endif
     // This allows the cleanup method to be called on the render thread
     w->setPersistentSceneGraph(false);
   }
@@ -235,11 +237,19 @@ void QQuickVTKRenderWindow::mapToViewport(const QRectF& rect, double viewport[4]
 }
 
 //-------------------------------------------------------------------------------------------------
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void QQuickVTKRenderWindow::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+#else
+void QQuickVTKRenderWindow::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry)
+#endif
 {
   m_interactorAdapter->QueueGeometryChanged(newGeometry, oldGeometry);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   Superclass::geometryChanged(newGeometry, oldGeometry);
+#else
+  Superclass::geometryChange(newGeometry, oldGeometry);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------

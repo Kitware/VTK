@@ -170,7 +170,11 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
 }
 
 //-------------------------------------------------------------------------------------------------
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+#else
+void QQuickVTKRenderItem::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry)
+#endif
 {
   if (!this->renderWindow())
   {
@@ -178,7 +182,11 @@ void QQuickVTKRenderItem::geometryChanged(const QRectF& newGeometry, const QRect
   }
   this->renderWindow()->interactorAdapter()->QueueGeometryChanged(newGeometry, oldGeometry);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   Superclass::geometryChanged(newGeometry, oldGeometry);
+#else
+  Superclass::geometryChange(newGeometry, oldGeometry);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
