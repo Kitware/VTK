@@ -33,7 +33,7 @@ vtkReaderAlgorithm::~vtkReaderAlgorithm() = default;
 
 //------------------------------------------------------------------------------
 vtkTypeBool vtkReaderAlgorithm::ProcessRequest(
-  vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
+  vtkInformation* request, vtkInformationVector** vtkNotUsed(inInfo), vtkInformationVector* outInfo)
 {
   using vtkSDDP = vtkStreamingDemandDrivenPipeline;
   vtkInformation* reqs = outInfo->GetInformationObject(0);
