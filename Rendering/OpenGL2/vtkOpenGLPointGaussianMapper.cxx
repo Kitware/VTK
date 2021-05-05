@@ -212,7 +212,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
 bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
-  this->LastLightComplexity[&cellBO] = 0;
+  this->PrimitiveInfo[&cellBO].LastLightComplexity = 0;
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() : -1;
@@ -222,7 +222,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
     this->LastSelectionState = picking;
   }
 
-  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
+  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor, &cellBO);
 
   // has something changed that would require us to recreate the shader?
   // candidates are

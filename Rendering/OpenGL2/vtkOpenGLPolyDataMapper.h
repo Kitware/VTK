@@ -22,6 +22,7 @@
 #define vtkOpenGLPolyDataMapper_h
 
 #include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_0_0
+#include "vtkInformation.h"  // for prim struct
 #include "vtkNew.h"          // For vtkNew
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkPolyDataMapper.h"
@@ -428,22 +429,30 @@ protected:
   virtual bool HaveTCoords(vtkPolyData* poly);
 
   // values we use to determine if we need to rebuild shaders
-  std::map<const vtkOpenGLHelper*, int> LastLightComplexity;
-  std::map<const vtkOpenGLHelper*, int> LastLightCount;
-  std::map<const vtkOpenGLHelper*, vtkTimeStamp> LightComplexityChanged;
+  // stored in a map keyed on the vtkOpenGLHelper, so one
+  // typically entry per type of primitive we render which
+  // matches the shader programs we use
+  class primitiveInfo
+  {
+  public:
+    int LastLightComplexity;
+    int LastLightCount;
+    vtkTimeStamp LightComplexityChanged;
+
+    // Caches the vtkOpenGLRenderPass::RenderPasses() information.
+    // Note: Do not dereference the pointers held by this object. There is no
+    // guarantee that they are still valid!
+    vtkNew<vtkInformation> LastRenderPassInfo;
+  };
+  std::map<const vtkOpenGLHelper*, primitiveInfo> PrimitiveInfo;
 
   bool PointPicking;
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
 
-  // Caches the vtkOpenGLRenderPass::RenderPasses() information.
-  // Note: Do not dereference the pointers held by this object. There is no
-  // guarantee that they are still valid!
-  vtkNew<vtkInformation> LastRenderPassInfo;
-
   // Check the renderpasses in actor's property keys to see if they've changed
   // render stages:
-  vtkMTimeType GetRenderPassStageMTime(vtkActor* actor);
+  vtkMTimeType GetRenderPassStageMTime(vtkActor* actor, const vtkOpenGLHelper* cellBO);
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOBuildTime;     // When was the OpenGL VBO updated?

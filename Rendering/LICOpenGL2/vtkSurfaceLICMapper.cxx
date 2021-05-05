@@ -105,7 +105,7 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Dec", "uniform mat3 normalMatrix;");
   }
 
-  if (this->LastLightComplexity[this->LastBoundBO] > 0)
+  if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
       // projected vectors
