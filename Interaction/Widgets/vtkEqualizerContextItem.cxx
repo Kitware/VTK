@@ -176,7 +176,8 @@ public:
     }
 
     // the first or last point
-    if ((this->TakenPoint == 0) || (this->TakenPoint == static_cast<int>(this->Points.size()) - 1))
+    if ((this->TakenPoint == 0) ||
+      (this->TakenPoint == static_cast<vtkIdType>(this->Points.size()) - 1))
     {
       const equalizer::EqualizerPoint& point = this->Points.at(this->TakenPoint);
       left = point.freq;
@@ -203,7 +204,7 @@ public:
       auto point = transform->MapToScene(this->Points.at(i));
       if (equalizer::isNear(posScreen, point, equalizer::EqualizerPoint::radiusInteractive))
       {
-        this->TakenPoint = i;
+        this->TakenPoint = static_cast<vtkIdType>(i);
         break;
       }
     }
@@ -284,7 +285,7 @@ public:
 
   // attributes
   EqualizerPoints Points;
-  int TakenPoint = -1;
+  vtkIdType TakenPoint = -1;
 };
 
 //------------------------------------------------------------------------------
