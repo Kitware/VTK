@@ -394,6 +394,16 @@ public:
     return 0;
   }
 
+  /**
+   * Releases any open file handles.
+   */
+  void ReleaseHandles()
+  {
+    // RegionMap is where all the handles are kept. All we need to do is release
+    // them.
+    this->RegionMap.clear();
+  }
+
 private:
   std::vector<int> GetFileIds(const std::string& dbasename, int myrank, int numRanks) const;
   Ioss::Region* GetRegion(const std::string& dbasename, int fileid);
@@ -1968,6 +1978,17 @@ const char* vtkIossReader::GetDataAssemblyNodeNameForEntityType(int type)
 bool vtkIossReader::DoTestFilePatternMatching()
 {
   return vtkIossFilesScanner::DoTestFilePatternMatching();
+}
+
+//----------------------------------------------------------------------------
+vtkTypeBool vtkIossReader::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo)
+{
+  const auto status = this->Superclass::ProcessRequest(request, inInfo, outInfo);
+
+  auto& internals = (*this->Internals);
+  internals.ReleaseHandles();
+  return status;
 }
 
 //----------------------------------------------------------------------------
