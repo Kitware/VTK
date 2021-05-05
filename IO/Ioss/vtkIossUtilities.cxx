@@ -45,9 +45,33 @@ namespace vtkIossUtilities
 class Cache::CacheInternals
 {
 public:
-  using KeyType = std::pair<const void*, std::string>;
+  using KeyType = std::pair<std::string, std::string>;
   using ValueType = std::pair<vtkSmartPointer<vtkObject>, bool>;
   std::map<KeyType, ValueType> CacheMap;
+
+  static std::string GetPath(const Ioss::GroupingEntity* entity)
+  {
+    std::ostringstream stream;
+    auto e = entity;
+    while (e)
+    {
+      stream << e->generic_name().c_str();
+      auto parent = e->contained_in();
+      if (parent == e)
+      {
+        break;
+      }
+      if (parent)
+      {
+        stream << '/';
+      }
+      e = parent;
+    }
+    stream
+      << ":"
+      << vtksys::SystemTools::GetFilenameName(entity->get_database()->decoded_filename()).c_str();
+    return stream.str();
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -100,7 +124,7 @@ void Cache::Clear()
 vtkObject* Cache::Find(const Ioss::GroupingEntity* entity, const std::string& cachekey) const
 {
   auto& internals = (*this->Internals);
-  auto key = CacheInternals::KeyType(entity, cachekey);
+  auto key = CacheInternals::KeyType(CacheInternals::GetPath(entity), cachekey);
   auto iter = internals.CacheMap.find(key);
   if (iter != internals.CacheMap.end())
   {
@@ -115,7 +139,7 @@ void Cache::Insert(
   const Ioss::GroupingEntity* entity, const std::string& cachekey, vtkObject* array)
 {
   auto& internals = (*this->Internals);
-  auto key = CacheInternals::KeyType(entity, cachekey);
+  auto key = CacheInternals::KeyType(CacheInternals::GetPath(entity), cachekey);
   auto& value = internals.CacheMap[key];
   value.first = array;
   value.second = true;
