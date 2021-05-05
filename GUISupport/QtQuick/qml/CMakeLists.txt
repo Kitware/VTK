@@ -38,10 +38,12 @@ target_link_libraries(qmlvtkplugin
     VTK::GUISupportQtQuick
     "Qt${vtk_qt_major_version}::Qml")
 
-# QML plugins should have a "d" suffix in debug builds.
-set_property(TARGET qmlvtkplugin
-  PROPERTY
-    DEBUG_POSTFIX "d")
+if(NOT APPLE)
+  # QML plugins should have a "d" suffix in debug builds.
+  set_property(TARGET qmlvtkplugin
+    PROPERTY
+      DEBUG_POSTFIX "d")
+endif()
 
 install(
   TARGETS qmlvtkplugin
