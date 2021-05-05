@@ -152,8 +152,13 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
   {
     QObject::disconnect(
       this->window(), &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderItem::sync);
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QObject::disconnect(
       window(), &QQuickWindow::beforeRendering, this, &QQuickVTKRenderItem::paint);
+#else
+    QObject::disconnect(
+      window(), &QQuickWindow::beforeRenderPassRecording, this, &QQuickVTKRenderItem::paint);
+#endif
     QObject::disconnect(
       window(), &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderItem::cleanup);
   }
@@ -162,8 +167,13 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
   {
     QObject::connect(w, &QQuickWindow::beforeSynchronizing, this, &QQuickVTKRenderItem::sync,
       Qt::DirectConnection);
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QObject::connect(
       w, &QQuickWindow::beforeRendering, this, &QQuickVTKRenderItem::paint, Qt::DirectConnection);
+#else
+    QObject::connect(w, &QQuickWindow::beforeRenderPassRecording, this, &QQuickVTKRenderItem::paint,
+      Qt::DirectConnection);
+#endif
     QObject::connect(w, &QQuickWindow::sceneGraphInvalidated, this, &QQuickVTKRenderItem::cleanup,
       Qt::DirectConnection);
   }
