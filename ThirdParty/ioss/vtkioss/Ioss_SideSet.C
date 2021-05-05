@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include <Ioss_DatabaseIO.h>
 #include <Ioss_ElementTopology.h>
@@ -57,14 +31,8 @@ namespace {
     if (old_ge != nullptr) {
       std::string        filename = sset->get_database()->get_filename();
       std::ostringstream errmsg;
-      int64_t            id1 = 0;
-      int64_t            id2 = 0;
-      if (side_block->property_exists(id_str())) {
-        id1 = side_block->get_property(id_str()).get_int();
-      }
-      if (old_ge->property_exists(id_str())) {
-        id2 = old_ge->get_property(id_str()).get_int();
-      }
+      int64_t            id1 = side_block->get_optional_property(id_str(), 0);
+      int64_t            id2 = old_ge->get_optional_property(id_str(), 0);
       fmt::print(errmsg,
                  "\nERROR: There are multiple side blocks with the same name "
                  "defined in side set '{}' in the database file '{}'.\n"
@@ -95,7 +63,7 @@ Ioss::SideSet::SideSet(Ioss::DatabaseIO *io_database, const std::string &my_name
 Ioss::SideSet::SideSet(const Ioss::SideSet &other) : Ioss::GroupingEntity(other)
 {
   for (const auto &block : other.sideBlocks) {
-    Ioss::SideBlock *sb = new Ioss::SideBlock(*block);
+    auto *sb = new Ioss::SideBlock(*block);
     add(sb);
   }
 }
@@ -202,3 +170,52 @@ void Ioss::SideSet::block_membership(std::vector<std::string> &block_members)
   }
   block_members = blockMembership;
 }
+
+bool Ioss::SideSet::equal_(const SideSet &rhs, const bool quiet) const
+{
+  std::vector<SideBlock *> lhs_side_blocks = this->sideBlocks;
+  std::vector<SideBlock *> rhs_side_blocks = rhs.sideBlocks;
+
+  // COMPARE SideBlocks
+  for (auto &lhs_side_block : lhs_side_blocks) {
+    std::vector<SideBlock *>::iterator it;
+    for (it = rhs_side_blocks.begin(); it != rhs_side_blocks.end(); it++) {
+      if ((*(*it)).operator==(*lhs_side_block))
+        break;
+    }
+
+    if (it == rhs_side_blocks.end()) {
+      // NO match for this side block
+      return false;
+    }
+
+    rhs_side_blocks.erase(it);
+  }
+
+  // COMPARE block membership
+  std::vector<std::string> lhs_block_membership = this->blockMembership;
+  std::vector<std::string> rhs_block_membership = rhs.blockMembership;
+
+  for (auto &lhs_block_member : lhs_block_membership) {
+    std::vector<std::string>::iterator it;
+    for (it = rhs_block_membership.begin(); it != rhs_block_membership.end(); it++) {
+      if ((*it).compare(lhs_block_member) == 0)
+        break;
+    }
+
+    if (it == rhs_block_membership.end()) {
+      // NO match for this side block
+      return false;
+    }
+
+    rhs_block_membership.erase(it);
+  }
+
+  return true;
+}
+
+bool Ioss::SideSet::operator==(const SideSet &rhs) const { return equal_(rhs, false); }
+
+bool Ioss::SideSet::operator!=(const SideSet &rhs) const { return !(*this == rhs); }
+
+bool Ioss::SideSet::equal(const SideSet &rhs) const { return equal_(rhs, true); }

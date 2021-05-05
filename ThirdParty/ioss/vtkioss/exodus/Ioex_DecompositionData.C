@@ -1,18 +1,18 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// See packages/seacas/LICENSE for details.
+// See packages/seacas/LICENSE for details
 
+#include <exodus/Ioex_DecompositionData.h>
+#if defined PARALLEL_AWARE_EXODUS
 #include <Ioss_CodeTypes.h>
 #include <Ioss_ElementTopology.h> // for ElementTopology
 #include <Ioss_Field.h>           // for Field, etc
 #include <Ioss_Map.h>             // for Map, MapContainer
-#include <Ioss_ParallelUtils.h>   // for ParallelUtils, etc
 #include <Ioss_PropertyManager.h> // for PropertyManager
 #include <Ioss_Sort.h>
 #include <Ioss_Utils.h>
-#include <exodus/Ioex_DecompositionData.h>
 #include <exodus/Ioex_Utils.h>
 
 #include <algorithm> // for lower_bound, copy, etc
@@ -174,6 +174,86 @@ namespace Ioex {
       m_decomposition.calculate_element_centroids(x, y, z);
     }
 
+    if (m_decomposition.m_method == "MAP") {
+      // Need to read and store the element_to_processor map data into `m_elementToProc` vector.
+      auto        pos       = m_decomposition.m_decompExtra.find(",");
+      std::string map_name  = m_decomposition.m_decompExtra.substr(0, pos);
+      bool        map_read  = false;
+      int         map_count = ex_inquire_int(filePtr, EX_INQ_ELEM_MAP);
+      if (map_count > 0) {
+        int max_name_length = ex_inquire_int(filePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+        max_name_length     = max_name_length < 32 ? 32 : max_name_length;
+        char **names        = Ioss::Utils::get_name_array(map_count, max_name_length);
+        ex_get_names(filePtr, EX_ELEM_MAP, names);
+
+        for (int i = 0; i < map_count; i++) {
+          if (std::string(names[i]) == map_name) {
+            m_decomposition.m_elementToProc.resize(decomp_elem_count());
+            ex_get_partial_num_map(filePtr, EX_ELEM_MAP, i + 1, decomp_elem_offset() + 1,
+                                   decomp_elem_count(), m_decomposition.m_elementToProc.data());
+            map_read = true;
+            break;
+          }
+        }
+        Ioss::Utils::delete_name_array(names, map_count);
+      }
+
+      if (!map_read) {
+        if (m_processor == 0) {
+          fmt::print(stderr,
+                     "\nERROR: Element decomposition map '{}' could not be read from file.\n",
+                     map_name);
+        }
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    if (m_decomposition.m_method == "VARIABLE") {
+      // Need to read and store the element_to_processor variable data into `m_elementToProc`
+      // vector.
+
+      auto        pos       = m_decomposition.m_decompExtra.find(",");
+      std::string var_name  = m_decomposition.m_decompExtra.substr(0, pos);
+      int         var_index = 0;
+      int         var_count = ex_inquire_int(filePtr, EX_INQ_NUM_ELEM_BLOCK_VAR);
+      if (var_count > 0) {
+        int max_name_length = ex_inquire_int(filePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+        max_name_length     = max_name_length < 32 ? 32 : max_name_length;
+        char **names        = Ioss::Utils::get_name_array(var_count, max_name_length);
+        ex_get_variable_names(filePtr, EX_ELEM_BLOCK, var_count, names);
+
+        for (int i = 0; i < var_count; i++) {
+          if (Ioss::Utils::str_equal(std::string(names[i]), var_name)) {
+            var_index = i + 1;
+            break;
+          }
+        }
+        Ioss::Utils::delete_name_array(names, var_count);
+      }
+
+      if (var_index == 0) {
+        if (m_processor == 0) {
+          fmt::print(stderr,
+                     "\nERROR: Element decomposition variable '{}' does not exist on database.\n",
+                     var_name);
+        }
+        exit(EXIT_FAILURE);
+      }
+
+      size_t block_count = el_blocks.size();
+      for (size_t i = 0; i < block_count; i++) {
+        size_t              count  = get_block_element_count(i);
+        size_t              offset = get_block_element_offset(i);
+        std::vector<double> file_data(count);
+        ex_get_partial_var(filePtr, 1, EX_ELEM_BLOCK, var_index, el_blocks[i].id_, offset + 1,
+                           count, file_data.data());
+
+        for (double value : file_data) {
+          m_decomposition.m_elementToProc.push_back((int)value);
+        }
+      }
+    }
+
 #if !defined(NO_ZOLTAN_SUPPORT)
     float version = 0.0;
     Zoltan_Initialize(0, nullptr, &version);
@@ -208,9 +288,8 @@ namespace Ioex {
     m_decomposition.show_progress("\tFinished with Ioex::decompose_model");
 
     if (m_decomposition.m_showHWM || m_decomposition.m_showProgress) {
-      int64_t             min, max, avg;
-      Ioss::ParallelUtils pu(m_decomposition.m_comm);
-      pu.hwm_memory_stats(min, max, avg);
+      int64_t min, max, avg;
+      m_decomposition.m_pu.hwm_memory_stats(min, max, avg);
       int64_t MiB = 1024 * 1024;
       if (m_processor == 0) {
         fmt::print(Ioss::DEBUG(), "\n\tHigh Water Memory at end of Decomposition: {}M  {}M  {}M\n",
@@ -430,7 +509,7 @@ namespace Ioex {
         if (remain == 0 || total_read == entitylist_size) {
           // entitylist is full at this point...
           // * Broadcast data to other processors
-          // * Each procesor extracts the entities it manages.
+          // * Each processor extracts the entities it manages.
           m_decomposition.show_progress("\tBroadcast entitylist begin");
           MPI_Bcast(entitylist.data(), entitylist.size(), Ioss::mpi_type(INT(0)), root, comm_);
           m_decomposition.show_progress("\tBroadcast entitylist end");
@@ -1766,3 +1845,4 @@ namespace Ioex {
     }
   }
 } // namespace Ioex
+#endif

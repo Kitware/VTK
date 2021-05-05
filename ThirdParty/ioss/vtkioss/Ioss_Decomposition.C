@@ -1,35 +1,9 @@
 /*
- * Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * See packages/seacas/LICENSE for details
  */
 
 #include <Ioss_Decomposition.h>
@@ -85,9 +59,9 @@ namespace {
     return dist;
   }
 
-  bool check_valid_decomp_method(const std::string &method) 
+  bool check_valid_decomp_method(const std::string &method)
   {
-    const auto& valid_methods = Ioss::valid_decomp_methods();
+    const auto &valid_methods = Ioss::valid_decomp_methods();
     if (std::find(valid_methods.begin(), valid_methods.end(), method) != valid_methods.end()) {
       return true;
     }
@@ -115,7 +89,8 @@ namespace {
       std::ostringstream errmsg;
       fmt::print(errmsg,
                  "ERROR: Invalid decomposition method specified: '{}'\n"
-                 "       Valid methods: {}\n", method, fmt::join(Ioss::valid_decomp_methods(), ", "));
+                 "       Valid methods: {}\n",
+                 method, fmt::join(Ioss::valid_decomp_methods(), ", "));
       IOSS_ERROR(errmsg);
     }
     return method;
@@ -123,7 +98,7 @@ namespace {
 
 #if !defined(NO_PARMETIS_SUPPORT)
   int get_common_node_count(const std::vector<Ioss::BlockDecompositionData> &el_blocks,
-                            MPI_Comm                                         comm)
+                            Ioss::ParallelUtils &                            pu)
   {
     // Determine number of nodes that elements must share to be
     // considered connected.  A 8-node hex-only mesh would have 4
@@ -157,8 +132,7 @@ namespace {
       }
     }
     common_nodes = std::max(1, common_nodes);
-    Ioss::ParallelUtils par_util(comm);
-    common_nodes = par_util.global_minmax(common_nodes, Ioss::ParallelUtils::DO_MIN);
+    common_nodes = pu.global_minmax(common_nodes, Ioss::ParallelUtils::DO_MIN);
 
 #if IOSS_DEBUG_OUTPUT
     fmt::print(Ioss::DEBUG(), "Setting common_nodes to {}\n", common_nodes);
@@ -172,15 +146,18 @@ namespace Ioss {
 
   const std::vector<std::string> &valid_decomp_methods()
   {
-    static const std::vector<std::string> valid_methods{
-      "LINEAR"
+    static const std::vector<std::string> valid_methods
+    {
+      "LINEAR", "MAP", "VARIABLE"
 #if !defined(NO_ZOLTAN_SUPPORT)
-	,"BLOCK", "CYCLIC", "RANDOM", "RCB", "RIB", "HSFC"
+          ,
+          "BLOCK", "CYCLIC", "RANDOM", "RCB", "RIB", "HSFC"
 #endif
 #if !defined(NO_PARMETIS_SUPPORT)
-	,"KWAY", "KWAY_GEOM", "GEOM_KWAY", "METIS_SFC"
+          ,
+          "KWAY", "KWAY_GEOM", "GEOM_KWAY", "METIS_SFC"
 #endif
-	};
+    };
     return valid_methods;
   }
 
@@ -189,17 +166,24 @@ namespace Ioss {
 
   template <typename INT>
   Decomposition<INT>::Decomposition(const Ioss::PropertyManager &props, MPI_Comm comm)
-      : m_comm(comm)
+      : m_comm(comm), m_pu(comm), m_processor(m_pu.parallel_rank()),
+        m_processorCount(m_pu.parallel_size())
   {
-    MPI_Comm_rank(m_comm, &m_processor);
-    MPI_Comm_size(m_comm, &m_processorCount);
     m_method = get_decomposition_method(props, m_processor);
+    if (m_method == "MAP" || m_method == "VARIABLE") {
+      m_decompExtra = props.get_optional("DECOMPOSITION_EXTRA", "processor_id");
+    }
 
     Utils::check_set_bool_property(props, "RETAIN_FREE_NODES", m_retainFreeNodes);
     Utils::check_set_bool_property(props, "DECOMP_SHOW_HWM", m_showHWM);
     Utils::check_set_bool_property(props, "DECOMP_SHOW_PROGRESS", m_showProgress);
     if (!m_showProgress) {
       Utils::check_set_bool_property(props, "ENABLE_TRACING", m_showProgress);
+    }
+
+    if (props.exists("PARMETIS_COMMON_NODE_COUNT") &&
+        props.get("PARMETIS_COMMON_NODE_COUNT").get_int() > 0) {
+      m_commonNodeCount = props.get("PARMETIS_COMMON_NODE_COUNT").get_int();
     }
   }
 
@@ -316,12 +300,12 @@ namespace Ioss {
     show_progress(__func__);
     if (m_processor == 0) {
       fmt::print(Ioss::OUTPUT(),
-                 "\nIOSS: Using decomposition method '{}' for {:n} elements on {} processors.\n",
+                 "\nIOSS: Using decomposition method '{}' for {:n} elements on {} mpi ranks.\n",
                  m_method, m_globalElementCount, m_processorCount);
 
       if ((size_t)m_processorCount > m_globalElementCount) {
         fmt::print(Ioss::WARNING(),
-                   "Decomposing {} elements across {} processors will "
+                   "Decomposing {} elements across {} mpi ranks will "
                    "result in some processors with *NO* elements.\n",
                    m_globalElementCount, m_processorCount);
       }
@@ -345,6 +329,12 @@ namespace Ioss {
       else {
         simple_node_decompose();
       }
+    }
+    if (m_method == "VARIABLE") {
+      guided_decompose();
+    }
+    if (m_method == "MAP") {
+      guided_decompose();
     }
 
     show_progress("\tfinished with decomposition method");
@@ -560,6 +550,151 @@ namespace Ioss {
     }
   }
 
+  template <typename INT> void Decomposition<INT>::guided_decompose()
+  {
+    show_progress(__func__);
+    assert(m_method == "MAP" || m_method == "VARIABLE");
+    // - Read my portion of the map / variable.
+    // - count # of exports to each rank
+    // -- exportElementCount[proc]
+    // - share that with each rank -- becomes their import count
+    // - build list of exported elements (exportElementMap)
+    // - communicate to all proc -- becomes   importElementMap.
+    // Create `exportElementIndex` from `exportElementCount`
+
+    std::string label;
+    if (m_method == "MAP") {
+      label = "map";
+    }
+    else {
+      label = "variable";
+    }
+
+    // If the "m_decompExtra" string contains a comma, then the
+    // value following the comma is either an integer "scale"
+    // which is divided into each entry in m_elementToProc, or it
+    // is the string "auto" which will automatically scale all
+    // values by the *integer* "max/processorCount"
+    //
+    // NOTE: integer division with *no* rounding is used.
+
+    // Get maximum value in the m_elementToProc vector for use in scaling or verifying
+    // `m_elementToProc` is populated in Ioex_Decomposition.C...
+    auto local_max = *std::max_element(m_elementToProc.begin(), m_elementToProc.end());
+    auto max_proc  = m_pu.global_minmax(local_max, Ioss::ParallelUtils::DO_MAX);
+
+    // [0..m_processorCount).
+    double scale = 1.0;
+    auto   pos   = m_decompExtra.find(",");
+    if (pos != std::string::npos) {
+      // Extract the string following the comma...
+      auto scale_str = m_decompExtra.substr(pos + 1);
+      if (scale_str == "AUTO" || scale_str == "auto") {
+        scale = double(max_proc + 1) / (double)m_processorCount;
+        if (m_processor == 0) {
+          fmt::print(Ioss::OUTPUT(),
+                     "IOSS: Element Processor {} automatic scaling factor = {:.5}\n", label, scale);
+        }
+      }
+      else {
+        scale = std::stod(scale_str);
+      }
+
+      if (scale < 1.0) {
+        std::ostringstream errmsg;
+        fmt::print(errmsg,
+                   "ERROR: Processor {} scaling factor is {} which is not allowed.\n"
+                   "\tIt must be >= 1.0. Scaling values is not possible.",
+                   label, scale);
+        IOSS_ERROR(errmsg);
+      }
+
+      // Do the scaling (integer division...)
+      std::transform(m_elementToProc.begin(), m_elementToProc.end(), m_elementToProc.begin(),
+                     [scale](int p) { return int(double(p) / scale); });
+      max_proc = int(double(max_proc) / scale);
+    }
+
+    // Check that values in the map/variable are in range
+    if (max_proc < m_processorCount - 1) {
+      if (m_processor == 0) {
+        fmt::print(Ioss::WARNING(),
+                   "Max value in element processor {} is {} which is\n"
+                   "\tless than the processor count ({}). Make sure this is correct.\n",
+                   label, max_proc, m_processorCount);
+      }
+    }
+    else if (max_proc >= m_processorCount) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg,
+                 "ERROR: The element processor {} '{}' specifies a processor of {} which\n"
+                 "\tis not valid for a decomposition on {} processors.",
+                 label, m_decompExtra, max_proc, m_processorCount);
+      IOSS_ERROR(errmsg);
+    }
+
+    // Finally... Do the decomposition...
+    // Count exports to each rank...
+    exportElementCount.resize(m_processorCount + 1);
+    exportElementIndex.resize(m_processorCount + 1);
+    importElementCount.resize(m_processorCount + 1);
+    importElementIndex.resize(m_processorCount + 1);
+
+    for (auto &proc : m_elementToProc) {
+      exportElementCount[proc]++;
+    }
+
+    size_t local = exportElementCount[m_processor];
+    localElementMap.reserve(local);
+    for (size_t i = 0; i < m_elementToProc.size(); i++) {
+      if (m_elementToProc[i] == m_processor) {
+        localElementMap.push_back(i);
+      }
+    }
+
+    exportElementCount[m_processor] = 0;
+#if IOSS_DEBUG_OUTPUT
+    fmt::print(Ioss::DEBUG(), "[{}] Export Count: {}\n", m_processor,
+               fmt::join(exportElementCount, " "));
+#endif
+    MPI_Alltoall(exportElementCount.data(), 1, Ioss::mpi_type((INT)0), importElementCount.data(), 1,
+                 Ioss::mpi_type((INT)0), m_comm);
+    show_progress("\tguided_decompose Communication 1 finished");
+
+    // Now fill the vectors with the elements ...
+    size_t exp_size = std::accumulate(exportElementCount.begin(), exportElementCount.end(), 0);
+    exportElementMap.resize(exp_size);
+
+    std::copy(exportElementCount.begin(), exportElementCount.end(), exportElementIndex.begin());
+    Ioss::Utils::generate_index(exportElementIndex);
+
+    {
+      std::vector<INT> tmp_disp(exportElementIndex);
+      for (size_t i = 0; i < m_elementToProc.size(); i++) {
+        if (m_elementToProc[i] != m_processor) {
+          exportElementMap[tmp_disp[m_elementToProc[i]]++] = m_elementOffset + i;
+        }
+      }
+    }
+
+    m_elementToProc.clear();
+
+    size_t imp_size = std::accumulate(importElementCount.begin(), importElementCount.end(), 0);
+    importElementMap.resize(imp_size);
+    importElementIndex.resize(m_processorCount + 1);
+    std::copy(importElementCount.begin(), importElementCount.end(), importElementIndex.begin());
+    Ioss::Utils::generate_index(importElementIndex);
+
+    Ioss::MY_Alltoallv(exportElementMap, exportElementCount, exportElementIndex, importElementMap,
+                       importElementCount, importElementIndex, m_comm);
+    show_progress("\tguided_decompose Communication 2 finished");
+
+#if IOSS_DEBUG_OUTPUT
+    fmt::print(Ioss::DEBUG(), "Processor {}:\t{} local, {} imported and {} exported elements\n",
+               m_processor, m_elementCount - exp_size, imp_size, exp_size);
+#endif
+  }
+
   template <typename INT> void Decomposition<INT>::simple_decompose()
   {
     show_progress(__func__);
@@ -732,11 +867,12 @@ namespace Ioss {
                                                     idx_t *element_dist, idx_t *pointer,
                                                     idx_t *adjacency, idx_t *elem_partition)
   {
-    idx_t  wgt_flag     = 0; // No weights
-    idx_t *elm_wgt      = nullptr;
-    idx_t  ncon         = 1;
-    idx_t  num_flag     = 0; // Use C-based numbering
-    idx_t  common_nodes = get_common_node_count(el_blocks, m_comm);
+    idx_t  wgt_flag = 0; // No weights
+    idx_t *elm_wgt  = nullptr;
+    idx_t  ncon     = 1;
+    idx_t  num_flag = 0; // Use C-based numbering
+    idx_t  common_nodes =
+        m_commonNodeCount > 0 ? m_commonNodeCount : get_common_node_count(el_blocks, m_pu);
 
     idx_t               nparts = m_processorCount;
     idx_t               ndims  = m_spatialDimension;
@@ -782,17 +918,17 @@ namespace Ioss {
       }
 
       if (sizeof(double) == sizeof(real_t)) {
-	rc = ParMETIS_V3_PartGeomKway(element_dist, dual_xadj, dual_adjacency, elm_wgt, elm_wgt,
-				      &wgt_flag, &num_flag, &ndims, (real_t *)m_centroids.data(),
-				      &ncon, &nparts, tp_wgts.data(), ub_vec.data(), options.data(),
-				      &edge_cuts, elem_partition, &m_comm);
+        rc = ParMETIS_V3_PartGeomKway(element_dist, dual_xadj, dual_adjacency, elm_wgt, elm_wgt,
+                                      &wgt_flag, &num_flag, &ndims, (real_t *)m_centroids.data(),
+                                      &ncon, &nparts, tp_wgts.data(), ub_vec.data(), options.data(),
+                                      &edge_cuts, elem_partition, &m_comm);
       }
       else {
-	std::vector<real_t> centroids(m_centroids.begin(), m_centroids.end());
-	rc = ParMETIS_V3_PartGeomKway(element_dist, dual_xadj, dual_adjacency, elm_wgt, elm_wgt,
-				      &wgt_flag, &num_flag, &ndims, centroids.data(),
-				      &ncon, &nparts, tp_wgts.data(), ub_vec.data(), options.data(),
-				      &edge_cuts, elem_partition, &m_comm);
+        std::vector<real_t> centroids(m_centroids.begin(), m_centroids.end());
+        rc = ParMETIS_V3_PartGeomKway(element_dist, dual_xadj, dual_adjacency, elm_wgt, elm_wgt,
+                                      &wgt_flag, &num_flag, &ndims, centroids.data(), &ncon,
+                                      &nparts, tp_wgts.data(), ub_vec.data(), options.data(),
+                                      &edge_cuts, elem_partition, &m_comm);
       }
 
 #if IOSS_DEBUG_OUTPUT
@@ -811,13 +947,12 @@ namespace Ioss {
     else if (m_method == "METIS_SFC") {
       int rc = METIS_OK;
       if (sizeof(double) == sizeof(real_t)) {
-	rc = ParMETIS_V3_PartGeom(element_dist, &ndims, (real_t *)m_centroids.data(),
-				  elem_partition, &m_comm);
+        rc = ParMETIS_V3_PartGeom(element_dist, &ndims, (real_t *)m_centroids.data(),
+                                  elem_partition, &m_comm);
       }
       else {
-	std::vector<real_t> centroids(m_centroids.begin(), m_centroids.end());
-	rc = ParMETIS_V3_PartGeom(element_dist, &ndims, centroids.data(),
-				  elem_partition, &m_comm);
+        std::vector<real_t> centroids(m_centroids.begin(), m_centroids.end());
+        rc = ParMETIS_V3_PartGeom(element_dist, &ndims, centroids.data(), elem_partition, &m_comm);
       }
 
       if (rc != METIS_OK) {
@@ -914,7 +1049,7 @@ namespace Ioss {
         export_map.emplace_back(std::make_pair(export_procs[i], export_global_ids[i]));
       }
 
-      std::sort(export_map.begin(), export_map.end());
+      Ioss::sort(export_map.begin(), export_map.end());
       exportElementMap.reserve(num_export);
       exportElementIndex.resize(m_processorCount + 1);
       exportElementCount.resize(m_processorCount + 1);
@@ -936,12 +1071,12 @@ namespace Ioss {
       }
       std::vector<std::pair<int, int64_t>> export_map;
       export_map.reserve(num_export);
-      int64_t *export_glob = reinterpret_cast<int64_t *>(export_global_ids);
+      auto *export_glob = reinterpret_cast<int64_t *>(export_global_ids);
       for (int i = 0; i < num_export; i++) {
-        export_map.push_back(std::make_pair(export_procs[i], export_glob[i]));
+        export_map.emplace_back(export_procs[i], export_glob[i]);
       }
 
-      std::sort(export_map.begin(), export_map.end());
+      Ioss::sort(export_map.begin(), export_map.end());
       exportElementMap.reserve(num_export);
       exportElementIndex.resize(m_processorCount + 1);
       exportElementCount.resize(m_processorCount + 1);
@@ -950,7 +1085,7 @@ namespace Ioss {
         exportElementCount[elem_count.first]++;
       }
 
-      int64_t *import_glob = reinterpret_cast<int64_t *>(import_global_ids);
+      auto *import_glob = reinterpret_cast<int64_t *>(import_global_ids);
       for (int i = 0; i < num_import; i++) {
         importElementMap.push_back(import_glob[i]);
         importElementCount[import_procs[i]]++;
@@ -984,7 +1119,7 @@ namespace Ioss {
     }
     else {
       assert(global_id_size == 2);
-      int64_t *export_glob = reinterpret_cast<int64_t *>(export_global_ids);
+      auto *export_glob = reinterpret_cast<int64_t *>(export_global_ids);
 
       for (size_t i = 0; i < export_count; i++) {
         // flag all elements to be exported...
@@ -1010,23 +1145,27 @@ namespace Ioss {
     show_progress(__func__);
     // global_index is 1-based index into global list of elems
     // [1..global_elem_count]
+#if defined(DC_USE_HOPSCOTCH) || defined(DC_USE_ROBIN)
+    elemGTL.reserve(localElementMap.size() + m_importPreLocalElemIndex + importElementMap.size());
+#endif
     for (size_t i = 0; i < localElementMap.size(); i++) {
-      size_t global_index   = localElementMap[i] + m_elementOffset + 1;
-      size_t local_index    = i + m_importPreLocalElemIndex + 1;
-      elemGTL[global_index] = local_index;
+      size_t global_index = localElementMap[i] + m_elementOffset + 1;
+      size_t local_index  = i + m_importPreLocalElemIndex + 1;
+      elemGTL.insert({global_index, local_index});
     }
 
     for (size_t i = 0; i < m_importPreLocalElemIndex; i++) {
-      size_t global_index   = importElementMap[i] + 1;
-      size_t local_index    = i + 1;
-      elemGTL[global_index] = local_index;
+      size_t global_index = importElementMap[i] + 1;
+      size_t local_index  = i + 1;
+      elemGTL.insert({global_index, local_index});
     }
 
     for (size_t i = m_importPreLocalElemIndex; i < importElementMap.size(); i++) {
-      size_t global_index   = importElementMap[i] + 1;
-      size_t local_index    = localElementMap.size() + i + 1;
-      elemGTL[global_index] = local_index;
+      size_t global_index = importElementMap[i] + 1;
+      size_t local_index  = localElementMap.size() + i + 1;
+      elemGTL.insert({global_index, local_index});
     }
+    show_progress("build_global_to_local_elem_map end");
   }
 
   template <typename INT> void Decomposition<INT>::get_local_node_list()
@@ -1206,8 +1345,8 @@ namespace Ioss {
       if (found_count > 0) {
         nodes.shrink_to_fit();
         localNodeMap.shrink_to_fit();
-        std::sort(nodes.begin(), nodes.end());
-        std::sort(localNodeMap.begin(), localNodeMap.end());
+        Ioss::sort(nodes.begin(), nodes.end());
+        Ioss::sort(localNodeMap.begin(), localNodeMap.end());
         for (int proc = m_processor + 1; proc < m_processorCount + 1; proc++) {
           nodeIndex[proc] += found_count;
         }
@@ -1244,7 +1383,7 @@ namespace Ioss {
     //
     // * iterate all local nodes (those that are in both file and ioss
     // decomposition)
-    //   on this procesor and all exported nodes,
+    //   on this processor and all exported nodes,
     // * put in a vector and sort on (id,proc).
     // * iterate and create a vector of all shared nodes and the
     //   processor they are on..
@@ -1267,7 +1406,7 @@ namespace Ioss {
         node_proc_list.push_back(std::make_pair(exportNodeMap[i], p));
       }
     }
-    std::sort(node_proc_list.begin(), node_proc_list.end());
+    Ioss::sort(node_proc_list.begin(), node_proc_list.end());
 
     std::vector<std::pair<INT, int>> shared_nodes;
     for (size_t i = 0; i < node_proc_list.size(); i++) {

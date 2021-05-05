@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_FileInfo.h>
@@ -39,7 +13,7 @@
 #include <string>
 #include <tokenize.h>
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #include <sys/unistd.h>
 #else
 #include <direct.h>
@@ -184,7 +158,7 @@ namespace Ioss {
   //: Returns TRUE if we are pointing to a symbolic link
   bool FileInfo::is_symlink() const
   {
-#ifndef _MSC_VER
+#ifndef _WIN32
     struct stat s
     {
     };
@@ -317,7 +291,7 @@ namespace Ioss {
 
   std::string FileInfo::realpath() const
   {
-#ifdef _MSC_VER
+#ifdef _WIN32
     char *path = _fullpath(nullptr, filename_.c_str(), _MAX_PATH);
 #else
     char *path = ::realpath(filename_.c_str(), nullptr);
@@ -354,7 +328,7 @@ namespace Ioss {
       struct stat st;
       if (stat(path_root.c_str(), &st) != 0) {
         const int mode = 0777; // Users umask will be applied to this.
-#ifdef _MSC_VER
+#ifdef _WIN32
         if (mkdir(path_root.c_str()) != 0 && errno != EEXIST) {
 #else
         if (mkdir(path_root.c_str(), mode) != 0 && errno != EEXIST) {
@@ -381,6 +355,7 @@ namespace Ioss {
 
   void FileInfo::create_path(const std::string &filename, MPI_Comm communicator)
   {
+    PAR_UNUSED(communicator);
 #ifdef SEACAS_HAVE_MPI
     int                error_found = 0;
     std::ostringstream errmsg;
@@ -428,12 +403,6 @@ namespace {
 
   bool do_stat(const std::string &filename, struct stat *s)
   {
-#if defined(__PUMAGON__)
-    // Portland pgCC compiler on janus has 'char*' instead of 'const char*' for
-    // first argument to stat function.
-    return (stat((char *)filename.c_str(), s) == 0);
-#else
     return (stat(filename.c_str(), s) == 0);
-#endif
   }
 } // namespace

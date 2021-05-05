@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include <Ioss_DatabaseIO.h>
 #include <Ioss_GroupingEntity.h>
@@ -108,10 +82,7 @@ const Ioss::GroupingEntity *Ioss::GroupingEntity::contained_in() const
 
 std::string Ioss::GroupingEntity::generic_name() const
 {
-  int64_t id = 0;
-  if (property_exists("id")) {
-    id = get_property("id").get_int();
-  }
+  int64_t id = get_optional_property("id", 0);
   return Ioss::Utils::encode_entity_name(short_type_string(), id);
 }
 
@@ -205,20 +176,22 @@ Ioss::Property Ioss::GroupingEntity::get_implicit_property(const std::string &my
  *  \param[in] new_field The field to add
  *
  */
-void Ioss::GroupingEntity::field_add(const Ioss::Field &new_field)
+void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
 {
+  size_t field_size = new_field.raw_count();
+
   if (new_field.get_role() == Ioss::Field::REDUCTION) {
+    if (field_size == 0) {
+      new_field.reset_count(1);
+    }
     fields.add(new_field);
     return;
   }
 
   size_t entity_size = entity_count();
-  size_t field_size  = new_field.raw_count();
   if (field_size == 0 && entity_size != 0) {
     // Set field size to match entity size...
-    Ioss::Field tmp_field(new_field);
-    tmp_field.reset_count(entity_size);
-    fields.add(tmp_field);
+    new_field.reset_count(entity_size);
   }
   else if (entity_size != field_size && type() != REGION) {
     std::string        filename = get_database()->get_filename();
@@ -230,9 +203,7 @@ void Ioss::GroupingEntity::field_add(const Ioss::Field &new_field)
                type_string(), name(), entity_size, new_field.get_name(), field_size, filename);
     IOSS_ERROR(errmsg);
   }
-  else {
-    fields.add(new_field);
-  }
+  fields.add(new_field);
 }
 
 /** \brief Read field data from the database file into memory using a pointer.
@@ -355,4 +326,147 @@ void Ioss::GroupingEntity::property_update(const std::string &property,
     auto *nge = const_cast<Ioss::GroupingEntity *>(this);
     nge->property_add(Ioss::Property(property, value));
   }
+}
+
+bool Ioss::GroupingEntity::equal_(const Ioss::GroupingEntity &rhs, const bool quiet) const
+{
+  if (this->entityName.compare(rhs.entityName) != 0) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityName mismatch ({} vs. {})\n",
+                 this->entityName.c_str(), rhs.entityName.c_str());
+    }
+    return false;
+  }
+
+  if (this->entityCount != rhs.entityCount) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityCount mismatch ([] vs. [])\n",
+                 this->entityCount, rhs.entityCount);
+    }
+    return false;
+  }
+
+  if (this->attributeCount != rhs.attributeCount) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: attributeCount mismatch ([] vs. [])\n",
+                 this->attributeCount, rhs.attributeCount);
+    }
+    return false;
+  }
+
+  if (this->entityState != rhs.entityState) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: entityState mismatch ([] vs. [])\n",
+                 this->entityState, rhs.entityState);
+    }
+    return false;
+  }
+
+  if (this->hash_ != rhs.hash_) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: hash_ mismatch ({} vs. {})\n", this->hash_,
+                 rhs.hash_);
+    }
+    return false;
+  }
+
+  /* COMPARE properties */
+  Ioss::NameList lhs_properties, rhs_properties;
+  this->properties.describe(&lhs_properties);
+  rhs.properties.describe(&rhs_properties);
+
+  if (lhs_properties.size() != rhs_properties.size()) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: NUMBER of properties are different ({} vs. {})\n",
+                 lhs_properties.size(), rhs_properties.size());
+    }
+    return false;
+  }
+
+  for (auto &lhs_property : lhs_properties) {
+    auto it = std::find(rhs_properties.begin(), rhs_properties.end(), lhs_property);
+    if (it == rhs_properties.end()) {
+      if (!quiet) {
+        fmt::print(Ioss::OUTPUT(),
+                   "WARNING: GroupingEntity: INPUT property ({}) not found in OUTPUT\n",
+                   lhs_property.c_str());
+      }
+      continue;
+    }
+
+    if (this->properties.get(lhs_property) != rhs.properties.get(lhs_property)) {
+      // EMPIRICALLY, different representations (e.g., CGNS vs. Exodus) of the same mesh
+      // can have different values for the "original_block_order" property.
+      if (lhs_property.compare("original_block_order") == 0) {
+        if (!quiet) {
+          fmt::print(Ioss::OUTPUT(),
+                     "WARNING: values for \"original_block_order\" DIFFER ({} vs. {})\n",
+                     this->properties.get(lhs_property).get_int(),
+                     rhs.properties.get(lhs_property).get_int());
+        }
+      }
+      else {
+        if (!quiet) {
+          fmt::print(Ioss::OUTPUT(), "GroupingEntity: PROPERTY ({}) mismatch\n",
+                     lhs_property.c_str());
+        }
+        return false;
+      }
+    }
+  }
+
+  if (!quiet) {
+    for (auto &rhs_property : rhs_properties) {
+      auto it = std::find(lhs_properties.begin(), lhs_properties.end(), rhs_property);
+      if (it == lhs_properties.end()) {
+        fmt::print(Ioss::OUTPUT(),
+                   "WARNING: GroupingEntity: OUTPUT property ({}) not found in INPUT\n",
+                   rhs_property.c_str());
+      }
+    }
+  }
+
+  /* COMPARE fields */
+  Ioss::NameList lhs_fields, rhs_fields;
+  this->fields.describe(&lhs_fields);
+  rhs.fields.describe(&rhs_fields);
+
+  if (lhs_fields.size() != rhs_fields.size()) {
+    if (!quiet) {
+      fmt::print(Ioss::OUTPUT(), "GroupingEntity: NUMBER of fields are different ({} vs. {})\n",
+                 lhs_fields.size(), rhs_fields.size());
+    }
+    return false;
+  }
+
+  for (auto &field : lhs_fields) {
+    if (!quiet) {
+      if (!this->fields.get(field).equal(rhs.fields.get(field))) {
+        fmt::print(Ioss::OUTPUT(), "GroupingEntity: FIELD ({}) mismatch\n", field.c_str());
+        return false;
+      }
+    }
+    else {
+      if (this->fields.get(field) != rhs.fields.get(field)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool Ioss::GroupingEntity::operator==(const Ioss::GroupingEntity &rhs) const
+{
+  return equal_(rhs, true);
+}
+
+bool Ioss::GroupingEntity::operator!=(const Ioss::GroupingEntity &rhs) const
+{
+  return !(*this == rhs);
+}
+
+bool Ioss::GroupingEntity::equal(const Ioss::GroupingEntity &rhs) const
+{
+  return equal_(rhs, false);
 }

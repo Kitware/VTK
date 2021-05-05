@@ -27,10 +27,12 @@ set(classes
   Ioss_Beam4
   Ioss_Blob
   Ioss_CommSet
+  Ioss_Compare
   Ioss_CompositeVariableType
   Ioss_ConcreteVariableType
   Ioss_ConstructedVariableType
   Ioss_CoordinateFrame
+  Ioss_CopyDatabase
   Ioss_DatabaseIO
   Ioss_Edge2
   Ioss_Edge2D2
@@ -61,8 +63,8 @@ set(classes
   Ioss_Initializer
   Ioss_IOFactory
   Ioss_Map
-  Ioss_Node
   Ioss_NodeBlock
+  Ioss_Node
   Ioss_NodeSet
   Ioss_ParallelUtils
   Ioss_Property
@@ -98,16 +100,16 @@ set(classes
   Ioss_Tet14
   Ioss_Tet15
   Ioss_Tet16
-  Ioss_Tet4
   Ioss_Tet40
+  Ioss_Tet4
   Ioss_Tet7
   Ioss_Tet8
   Ioss_Tracer
   Ioss_Transform
   Ioss_Tri13
   Ioss_Tri3
-  Ioss_Tri4
   Ioss_Tri4a
+  Ioss_Tri4
   Ioss_Tri6
   Ioss_Tri7
   Ioss_Tri9
@@ -151,17 +153,16 @@ set(classes
 
   transform/Iotr_Initializer
   transform/Iotr_MinMax
-  transform/Iotr_Offset
   transform/Iotr_Offset3D
-  transform/Iotr_Scale
+  transform/Iotr_Offset
   transform/Iotr_Scale3D
+  transform/Iotr_Scale
   transform/Iotr_Tensor
   transform/Iotr_VectorMagnitude)
 
 if (SEACAS_HAVE_MPI)
   list(APPEND classes
     Ioss_Decomposition
-
     exodus/Ioex_DecompositionData
     exodus/Ioex_ParallelDatabaseIO)
 endif ()
@@ -186,49 +187,149 @@ list(APPEND sources
 
 list(APPEND headers
   catch.hpp
+  bhopscotch_map.h
+  bhopscotch_set.h
+  hopscotch_growth_policy.h
+  hopscotch_hash.h
+  hopscotch_map.h
+  hopscotch_set.h
+  Ioss_Assembly.h
+  Ioss_Beam2.h
+  Ioss_Beam3.h
+  Ioss_Beam4.h
+  Ioss_Blob.h
   Ioss_BoundingBox.h
   Ioss_CodeTypes.h
+  Ioss_CommSet.h
+  Ioss_Compare.h
+  Ioss_CompositeVariableType.h
+  Ioss_ConcreteVariableType.h
+  Ioss_ConstructedVariableType.h
+  Ioss_CoordinateFrame.h
+  Ioss_CopyDatabase.h
+  Ioss_DatabaseIO.h
+  Ioss_DataPool.h
   Ioss_DataSize.h
   Ioss_DBUsage.h
+  Ioss_Decomposition.h
   Ioss_Doxygen.h
+  Ioss_Edge2D2.h
+  Ioss_Edge2D3.h
+  Ioss_Edge2.h
+  Ioss_Edge3.h
+  Ioss_Edge4.h
+  Ioss_EdgeBlock.h
+  Ioss_EdgeSet.h
+  Ioss_ElementBlock.h
+  Ioss_ElementSet.h
+  Ioss_ElementTopology.h
   Ioss_ElementVariableType.h
+  Ioss_EntityBlock.h
+  Ioss_EntitySet.h
   Ioss_EntityType.h
+  Ioss_FaceBlock.h
+  Ioss_FaceGenerator.h
+  Ioss_FaceSet.h
+  Ioss_Field.h
+  Ioss_FieldManager.h
+  Ioss_FileInfo.h
+  Ioss_Getline.h
+  Ioss_GetLongOpt.h
+  Ioss_Glob.h
+  Ioss_GroupingEntity.h
+  Ioss_Hex16.h
+  Ioss_Hex20.h
+  Ioss_Hex27.h
+  Ioss_Hex32.h
+  Ioss_Hex64.h
+  Ioss_Hex8.h
+  Ioss_Initializer.h
+  Ioss_IOFactory.h
+  Ioss_Map.h
   Ioss_MeshCopyOptions.h
   Ioss_MeshType.h
   Ioss_NamedSuffixVariableType.h
+  Ioss_NodeBlock.h
+  Ioss_Node.h
+  Ioss_NodeSet.h
   Ioss_NullEntity.h
+  Ioss_ParallelUtils.h
+  Ioss_Property.h
+  Ioss_PropertyManager.h
+  Ioss_Pyramid13.h
+  Ioss_Pyramid14.h
+  Ioss_Pyramid18.h
+  Ioss_Pyramid19.h
+  Ioss_Pyramid5.h
+  Ioss_Quad12.h
+  Ioss_Quad16.h
+  Ioss_Quad4.h
+  Ioss_Quad6.h
+  Ioss_Quad8.h
+  Ioss_Quad9.h
+  Ioss_Region.h
   Ioss_ScopeGuard.h
+  Ioss_SerializeIO.h
+  Ioss_Shell4.h
+  Ioss_Shell8.h
+  Ioss_Shell9.h
+  Ioss_ShellLine2D2.h
+  Ioss_ShellLine2D3.h
+  Ioss_SideBlock.h
+  Ioss_SideSet.h
+  Ioss_SmartAssert.h
   Ioss_Sort.h
+  Ioss_Sphere.h
+  Ioss_Spring2.h
+  Ioss_Spring3.h
   Ioss_StandardElementTypes.h
   Ioss_State.h
+  Ioss_StructuredBlock.h
   Ioss_SubSystem.h
+  Ioss_Super.h
   Ioss_SurfaceSplit.h
+  Ioss_Tet10.h
+  Ioss_Tet11.h
+  Ioss_Tet14.h
+  Ioss_Tet15.h
+  Ioss_Tet16.h
+  Ioss_Tet40.h
+  Ioss_Tet4.h
+  Ioss_Tet7.h
+  Ioss_Tet8.h
+  Ioss_Tracer.h
+  Ioss_Transform.h
+  Ioss_Tri13.h
+  Ioss_Tri3.h
+  Ioss_Tri4a.h
+  Ioss_Tri4.h
+  Ioss_Tri6.h
+  Ioss_Tri7.h
+  Ioss_Tri9.h
+  Ioss_TriShell3.h
+  Ioss_TriShell4.h
+  Ioss_TriShell6.h
+  Ioss_TriShell7.h
+  Ioss_Unknown.h
+  Ioss_Utils.h
+  Ioss_VariableType.h
   Ioss_Version.h
-
-  fmt/chrono.h
-  fmt/color.h
-  fmt/compile.h
-  fmt/core.h
-  fmt/format-inl.h
-  fmt/format.h
-  fmt/locale.h
-  fmt/os.h
-  fmt/ostream.h
-  fmt/posix.h
-  fmt/printf.h
-  fmt/ranges.h
-
-  hash/bhopscotch_map.h
-  hash/bhopscotch_set.h
-  hash/hopscotch_growth_policy.h
-  hash/hopscotch_hash.h
-  hash/hopscotch_map.h
-  hash/hopscotch_set.h
-  hash/robin_growth_policy.h
-  hash/robin_hash.h
-  hash/robin_map.h
-  hash/robin_set.h
-
+  Ioss_Wedge12.h
+  Ioss_Wedge15.h
+  Ioss_Wedge16.h
+  Ioss_Wedge18.h
+  Ioss_Wedge20.h
+  Ioss_Wedge21.h
+  Ioss_Wedge24.h
+  Ioss_Wedge52.h
+  Ioss_Wedge6.h
+  Ioss_ZoneConnectivity.h
+  pdqsort.h
+  robin_growth_policy.h
+  robin_hash.h
+  robin_map.h
+  robin_set.h
+  tokenize.h
   vtk_ioss_mangle.h)
 
 vtk_module_find_package(PACKAGE Threads)
@@ -243,6 +344,9 @@ vtk_module_definitions(VTK::ioss
 vtk_module_link(VTK::ioss
   PRIVATE
     Threads::Threads)
+vtk_module_include(VTK::ioss
+    PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/private_copy_fmt")
 
 # for GetProcessMemoryInfo
 if (MINGW)

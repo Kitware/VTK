@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #ifndef IOSS_Iogn_DashSurfaceMesh_h
 #define IOSS_Iogn_DashSurfaceMesh_h
@@ -93,21 +67,21 @@ namespace Iogn {
     std::vector<std::vector<std::string>> sidesetTouchingBlocks;
 
     ExodusData() {}
-    ExodusData(const std::vector<double>           coords,
-               const std::vector<std::vector<int>> elemBlockConnectivity,
-               const std::vector<int>              globalNumOfElemsInBlock,
-               const std::vector<int>              localNumOfElemsInBlock,
-               const std::vector<Topology> blockTopoData, int globalNumNodes,
-               const std::vector<int>                globalIdsOfLocalElems,
-               const std::vector<int>                globalIdsLocalNodes,
+    ExodusData(std::vector<double> coords, std::vector<std::vector<int>> elemBlockConnectivity,
+               std::vector<int> globalNumOfElemsInBlock, std::vector<int> localNumOfElemsInBlock,
+               std::vector<Topology> blockTopoData, int globalNumNodes,
+               std::vector<int> globalIdsOfLocalElems, std::vector<int> globalIdsLocalNodes,
                std::vector<std::vector<int>>         sidesetConn = std::vector<std::vector<int>>(),
                std::vector<std::vector<std::string>> sidesetBlocks =
                    std::vector<std::vector<std::string>>())
-        : coordinates(coords), elementBlockConnectivity(elemBlockConnectivity),
-          globalNumberOfElementsInBlock(globalNumOfElemsInBlock),
-          localNumberOfElementsInBlock(localNumOfElemsInBlock), blockTopologicalData(blockTopoData),
-          globalNumberOfNodes(globalNumNodes), globalIdsOfLocalElements(globalIdsOfLocalElems),
-          globalIdsOfLocalNodes(globalIdsLocalNodes), sidesetConnectivity(std::move(sidesetConn)),
+        : coordinates(std::move(coords)),
+          elementBlockConnectivity(std::move(elemBlockConnectivity)),
+          globalNumberOfElementsInBlock(std::move(globalNumOfElemsInBlock)),
+          localNumberOfElementsInBlock(std::move(localNumOfElemsInBlock)),
+          blockTopologicalData(std::move(blockTopoData)), globalNumberOfNodes(globalNumNodes),
+          globalIdsOfLocalElements(std::move(globalIdsOfLocalElems)),
+          globalIdsOfLocalNodes(std::move(globalIdsLocalNodes)),
+          sidesetConnectivity(std::move(sidesetConn)),
           sidesetTouchingBlocks(std::move(sidesetBlocks))
     {
     }
@@ -130,10 +104,10 @@ namespace Iogn {
 
     std::vector<SharedNode> sharedNodes{};
 
-    DashSurfaceData(const std::vector<double> &coords, const std::vector<int> &connectivity1,
-                    const std::vector<int> &connectivity2)
-        : coordinates(coords), surfaceAConnectivity(connectivity1),
-          surfaceBConnectivity(connectivity2)
+    DashSurfaceData(std::vector<double> coords, std::vector<int> connectivity1,
+                    std::vector<int> connectivity2)
+        : coordinates(std::move(coords)), surfaceAConnectivity(std::move(connectivity1)),
+          surfaceBConnectivity(std::move(connectivity2))
     {
       this->setSerialDefaults();
     }
