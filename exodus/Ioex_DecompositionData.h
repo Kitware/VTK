@@ -1,40 +1,17 @@
 /*
- * Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * See packages/seacas/LICENSE for details
  */
 #ifndef IOPX_DECOMPOSITONDATA_H
 #define IOPX_DECOMPOSITONDATA_H
 
 #include "vtk_ioss_mangle.h"
+
+#include <vtk_exodusII.h>
+#if defined PARALLEL_AWARE_EXODUS
 
 #include <Ioss_CodeTypes.h>
 #include <vector>
@@ -49,7 +26,6 @@
 #include <Ioss_Decomposition.h>
 #include <Ioss_Map.h>
 #include <Ioss_PropertyManager.h>
-#include <vtk_exodusII.h>
 
 namespace Ioss {
   class Field;
@@ -59,9 +35,9 @@ namespace Ioex {
   class DecompositionDataBase
   {
   public:
-    DecompositionDataBase(MPI_Comm comm) : comm_(comm), m_processor(0), m_processorCount(0) {}
+    DecompositionDataBase(MPI_Comm comm) : comm_(comm) {}
 
-    virtual ~DecompositionDataBase() {}
+    virtual ~DecompositionDataBase()            = default;
     virtual int    int_size() const             = 0;
     virtual void   decompose_model(int filePtr) = 0;
     virtual size_t ioss_node_count() const      = 0;
@@ -80,8 +56,8 @@ namespace Ioex {
 
     MPI_Comm comm_;
 
-    int m_processor;
-    int m_processorCount;
+    int m_processor{0};
+    int m_processorCount{0};
 
     std::vector<Ioss::BlockDecompositionData> el_blocks;
     std::vector<Ioss::SetDecompositionData>   node_sets;
@@ -97,6 +73,8 @@ namespace Ioex {
 
     void get_block_connectivity(int filePtr, void *data, int64_t id, size_t blk_seq,
                                 size_t nnpe) const;
+
+    void read_elem_proc_map(int filePtr, void *data) const;
 
     void get_node_entity_proc_data(void *entity_proc, const Ioss::MapContainer &node_map,
                                    bool do_map) const;
@@ -123,7 +101,7 @@ namespace Ioex {
   {
   public:
     DecompositionData(const Ioss::PropertyManager &props, MPI_Comm communicator);
-    ~DecompositionData() {}
+    ~DecompositionData() = default;
 
     int int_size() const { return sizeof(INT); }
 
@@ -288,4 +266,5 @@ namespace Ioex {
     Ioss::Decomposition<INT> m_decomposition;
   };
 } // namespace Ioex
+#endif
 #endif

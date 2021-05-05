@@ -1,34 +1,8 @@
-// Copyright(C) 2019, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include <Ioss_Assembly.h>
 #include <Ioss_DatabaseIO.h>
@@ -62,15 +36,9 @@ namespace {
     const Ioss::GroupingEntity *old_ge = assem->get_member(name);
 
     if (old_ge != nullptr) {
-      std::string filename = assem->get_database()->get_filename();
-      int64_t     id1      = 0;
-      int64_t     id2      = 0;
-      if (member->property_exists(id_str())) {
-        id1 = member->get_property(id_str()).get_int();
-      }
-      if (old_ge->property_exists(id_str())) {
-        id2 = old_ge->get_property(id_str()).get_int();
-      }
+      std::string        filename = assem->get_database()->get_filename();
+      int64_t            id1      = member->get_optional_property(id_str(), 0);
+      int64_t            id2      = old_ge->get_optional_property(id_str(), 0);
       std::ostringstream errmsg;
       fmt::print(errmsg,
                  "\nERROR: There are multiple assembly members named '{}' "
@@ -125,7 +93,7 @@ const Ioss::GroupingEntity *Ioss::Assembly::get_member(const std::string &my_nam
 {
   IOSS_FUNC_ENTER(m_);
   const Ioss::GroupingEntity *ge = nullptr;
-  for (auto mem : m_members) {
+  for (const auto &mem : m_members) {
     if (mem->name() == my_name) {
       ge = mem;
       break;
@@ -143,6 +111,13 @@ bool Ioss::Assembly::add(const Ioss::GroupingEntity *member)
     m_type = member->type();
   }
   return true;
+}
+
+void Ioss::Assembly::remove_members()
+{
+  IOSS_FUNC_ENTER(m_);
+  m_members.clear();
+  m_members.shrink_to_fit();
 }
 
 bool Ioss::Assembly::remove(const Ioss::GroupingEntity *removal)

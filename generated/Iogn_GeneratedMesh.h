@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #ifndef IOSS_Iogn_GeneratedMesh_h
 #define IOSS_Iogn_GeneratedMesh_h
@@ -194,7 +168,10 @@ namespace Iogn {
     explicit GeneratedMesh(const std::string &parameters, int proc_count = 1, int my_proc = 0);
     GeneratedMesh(int64_t num_x, int64_t num_y, int64_t num_z, int proc_count = 1, int my_proc = 0);
     GeneratedMesh();
-    virtual ~GeneratedMesh();
+    GeneratedMesh(const GeneratedMesh &) = delete;
+    GeneratedMesh &operator=(const GeneratedMesh &) = delete;
+
+    virtual ~GeneratedMesh() = default;
 
     /**
      * Split each hexahedral element into 6 tetrahedral elements.
@@ -488,9 +465,6 @@ namespace Iogn {
     template <typename INT> void raw_element_map(std::vector<INT> &map) const;
     template <typename INT> void raw_connectivity(int64_t block_number, INT *connect) const;
 
-    GeneratedMesh(const GeneratedMesh &);
-    GeneratedMesh &operator=(const GeneratedMesh &);
-
     void set_variable_count(const std::string &type, size_t count);
     void parse_options(const std::vector<std::string> &groups);
     void show_parameters() const;
@@ -500,22 +474,22 @@ namespace Iogn {
     std::vector<ShellLocation>           nodesets;
     std::vector<ShellLocation>           sidesets;
     std::array<std::array<double, 3>, 3> rotmat;
-    size_t                               numX, numY, numZ;
-    size_t                               myNumZ, myStartZ;
+    size_t                               numX{0}, numY{0}, numZ{0};
+    size_t                               myNumZ{0}, myStartZ{0};
 
-    size_t processorCount;
-    size_t myProcessor;
+    size_t processorCount{0};
+    size_t myProcessor{0};
 
-    size_t                             timestepCount;
+    size_t                             timestepCount{0};
     std::map<Ioss::EntityType, size_t> variableCount;
 
-    double offX, offY, offZ; /** Offsets in X, Y, and Z directions */
-    double sclX, sclY, sclZ; /** Scale in X, Y, and Z directions
-                              * location of node at (i,j,k)
-                              * position is (sclX*i+offX,
-                              * sclY*i+offY, sclZ*i+offZ) */
-    bool doRotation;
-    bool createTets;
+    double offX{0}, offY{0}, offZ{0}; /** Offsets in X, Y, and Z directions */
+    double sclX{1}, sclY{1}, sclZ{1}; /** Scale in X, Y, and Z directions
+                                       * location of node at (i,j,k)
+                                       * position is (sclX*i+offX,
+                                       * sclY*i+offY, sclZ*i+offZ) */
+    bool doRotation{false};
+    bool createTets{false};
   };
 } // namespace Iogn
 #endif
