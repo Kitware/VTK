@@ -37,9 +37,9 @@ implements MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListe
 
   public static int convertModifiers(int mods) {
     int modifiers = 0;
-    if ((mods & SWT.SHIFT) != 0) modifiers |= java.awt.Event.SHIFT_MASK;
-    if ((mods & SWT.CTRL) != 0) modifiers |= java.awt.Event.CTRL_MASK;
-    if ((mods & SWT.ALT) != 0) modifiers |= java.awt.Event.ALT_MASK;
+    if ((mods & SWT.SHIFT) != 0) modifiers |= java.awt.Event.SHIFT_DOWN_MASK;
+    if ((mods & SWT.CTRL) != 0) modifiers |= java.awt.Event.CTRL_DOWN_MASK;
+    if ((mods & SWT.ALT) != 0) modifiers |= java.awt.Event.ALT_DOWN_MASK;
     return modifiers;
   }
 
