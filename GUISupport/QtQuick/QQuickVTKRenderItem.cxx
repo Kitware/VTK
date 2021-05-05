@@ -17,7 +17,6 @@
 // vtk includes
 #include "QQuickVTKInteractiveWidget.h"
 #include "QQuickVTKInteractorAdapter.h"
-#include "QQuickVTKRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkRenderWindow.h"
 

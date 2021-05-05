@@ -127,8 +127,9 @@
 #include <QQuickItem>
 
 // vtk includes
-#include "vtkNew.h"      // For vtkNew
-#include "vtkRenderer.h" // For vtkRenderer
+#include "QQuickVTKRenderWindow.h" // For QQuickVTKRenderWindow
+#include "vtkNew.h"                // For vtkNew
+#include "vtkRenderer.h"           // For vtkRenderer
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
@@ -137,7 +138,6 @@ class QHoverEvent;
 class QKeyEvent;
 class QMouseEvent;
 class QQuickVTKInteractiveWidget;
-class QQuickVTKRenderWindow;
 class vtkImageData;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
