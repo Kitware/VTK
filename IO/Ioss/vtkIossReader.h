@@ -350,6 +350,12 @@ public:
    */
   static bool DoTestFilePatternMatching();
 
+  /**
+   * Overridden to release handles at the end of each pass.
+   */
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
+
 protected:
   vtkIossReader();
   ~vtkIossReader() override;
