@@ -93,7 +93,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
 
-  if (this->LastLightComplexity[this->LastBoundBO] > 0)
+  if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0)
   {
     // we use vertex instead of vertexMC
     vtkShaderProgram::Substitute(VSSource, "//VTK::PositionVC::Impl",
@@ -327,7 +327,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
         program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId * 16]));
 
         // for lit shaders set normal matrix
-        if (this->LastLightComplexity[this->LastBoundBO] > 0 &&
+        if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0 &&
           this->VBOs->GetNumberOfComponents("normalMC") == 3 && !this->UsingInstancing)
         {
           program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId * 9]));

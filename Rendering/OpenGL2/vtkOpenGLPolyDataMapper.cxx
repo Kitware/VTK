@@ -124,8 +124,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   for (int i = vtkOpenGLPolyDataMapper::PrimitiveStart; i < vtkOpenGLPolyDataMapper::PrimitiveEnd;
        i++)
   {
-    this->LastLightComplexity[&this->Primitives[i]] = -1;
-    this->LastLightCount[&this->Primitives[i]] = 0;
+    auto& primInfo = this->PrimitiveInfo[&this->Primitives[i]];
+    primInfo.LastLightComplexity = -1;
+    primInfo.LastLightCount = 0;
     this->Primitives[i].PrimitiveType = i;
     this->SelectionPrimitives[i].PrimitiveType = i;
   }
@@ -429,7 +430,8 @@ bool vtkOpenGLPolyDataMapper::DrawingEdges(vtkRenderer*, vtkActor* actor)
 }
 
 //-----------------------------------------------------------------------------
-vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
+vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(
+  vtkActor* actor, const vtkOpenGLHelper* cellBO)
 {
   vtkInformation* info = actor->GetPropertyKeys();
   vtkMTimeType renderPassMTime = 0;
@@ -440,10 +442,12 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
     curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
   }
 
+  vtkInformation* lastRenderPassInfo = this->PrimitiveInfo[cellBO].LastRenderPassInfo;
+
   int lastRenderPasses = 0;
-  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
+  if (lastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
   {
-    lastRenderPasses = this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
+    lastRenderPasses = lastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
   }
   else // have no last pass
   {
@@ -466,7 +470,7 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
     for (int i = 0; i < curRenderPasses; ++i)
     {
       vtkObjectBase* curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
-      vtkObjectBase* lastRP = this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkObjectBase* lastRP = lastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
 
       if (curRP != lastRP)
       {
@@ -486,11 +490,11 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor* actor)
   // Cache the current set of render passes for next time:
   if (info)
   {
-    this->LastRenderPassInfo->CopyEntry(info, vtkOpenGLRenderPass::RenderPasses());
+    lastRenderPassInfo->CopyEntry(info, vtkOpenGLRenderPass::RenderPasses());
   }
   else
   {
-    this->LastRenderPassInfo->Clear();
+    lastRenderPassInfo->Clear();
   }
 
   return renderPassMTime;
@@ -780,7 +784,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::string colorImpl;
 
   // specular lighting?
-  if (this->LastLightComplexity[this->LastBoundBO])
+  if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity)
   {
     colorDec += "uniform float specularIntensity; // the material specular intensity\n"
                 "uniform vec3 specularColorUniform; // intensity weighted color\n"
@@ -845,7 +849,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
                   "uniform float diffuseIntensityBF; // the material diffuse\n"
                   "uniform vec3 ambientColorUniformBF; // ambient material color\n"
                   "uniform vec3 diffuseColorUniformBF; // diffuse material color\n";
-      if (this->LastLightComplexity[this->LastBoundBO])
+      if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity)
       {
         colorDec += "uniform float specularIntensityBF; // the material specular intensity\n"
                     "uniform vec3 specularColorUniformBF; // intensity weighted color\n"
@@ -907,8 +911,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       false);
   }
 
-  int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
-  int lastLightCount = this->LastLightCount[this->LastBoundBO];
+  int lastLightComplexity = this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity;
+  int lastLightCount = this->PrimitiveInfo[this->LastBoundBO].LastLightCount;
 
   if (actor->GetProperty()->GetInterpolation() != VTK_PBR && lastLightCount == 0)
   {
@@ -1498,7 +1502,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   // If rendering luminance values, write those values to the fragment
   if (info && info->Has(vtkLightingMapPass::RENDER_LUMINANCE()))
   {
-    switch (this->LastLightComplexity[this->LastBoundBO])
+    switch (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity)
     {
       case 0: // no lighting
         vtkShaderProgram::Substitute(
@@ -2105,7 +2109,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     return;
   }
 
-  if (this->LastLightComplexity[this->LastBoundBO] > 0)
+  if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0)
   {
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -2374,7 +2378,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
     FSSource, "//VTK::Camera::Dec", "uniform int cameraParallel;\n", false);
 
   // do we need the vertex in the shader in View Coordinates
-  if (this->LastLightComplexity[this->LastBoundBO] > 0 ||
+  if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0 ||
     this->DrawingTubes(*this->LastBoundBO, actor))
   {
     vtkShaderProgram::Substitute(VSSource, "//VTK::PositionVC::Dec", "out vec4 vertexVCVSOutput;");
@@ -2540,12 +2544,12 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     numberOfLights = oren->GetLightingCount();
   }
 
-  if (this->LastLightComplexity[&cellBO] != lightComplexity ||
-    this->LastLightCount[&cellBO] != numberOfLights)
+  auto& primInfo = this->PrimitiveInfo[&cellBO];
+  if (primInfo.LastLightComplexity != lightComplexity || primInfo.LastLightCount != numberOfLights)
   {
-    this->LightComplexityChanged[&cellBO].Modified();
-    this->LastLightComplexity[&cellBO] = lightComplexity;
-    this->LastLightCount[&cellBO] = numberOfLights;
+    primInfo.LightComplexityChanged.Modified();
+    primInfo.LastLightComplexity = lightComplexity;
+    primInfo.LastLightCount = numberOfLights;
   }
 
   // has something changed that would require us to recreate the shader?
@@ -2558,7 +2562,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   // we do some quick simple tests first
 
   // Have the renderpasses changed?
-  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
+  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor, &cellBO);
 
   vtkOpenGLCamera* cam = (vtkOpenGLCamera*)(ren->GetActiveCamera());
 
@@ -2577,7 +2581,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   if (cellBO.Program == nullptr || cellBO.ShaderSourceTime < this->GetMTime() ||
     cellBO.ShaderSourceTime < actor->GetProperty()->GetMTime() ||
     cellBO.ShaderSourceTime < actor->GetShaderProperty()->GetShaderMTime() ||
-    cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
+    cellBO.ShaderSourceTime < primInfo.LightComplexityChanged ||
     cellBO.ShaderSourceTime < this->SelectionStateChanged ||
     cellBO.ShaderSourceTime < renderPassMTime || cellBO.ShaderChangeValue != scv)
   {
@@ -2892,7 +2896,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor*)
 {
   // for unlit there are no lighting parameters
-  if (this->LastLightComplexity[&cellBO] < 1)
+  if (this->PrimitiveInfo[&cellBO].LastLightComplexity < 1)
   {
     return;
   }
@@ -3144,7 +3148,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
     }
 
     if (actor->GetProperty()->GetInterpolation() == VTK_PBR &&
-      this->LastLightComplexity[this->LastBoundBO] > 0)
+      this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity > 0)
     {
       program->SetUniformf("metallicUniform", static_cast<float>(ppty->GetMetallic()));
       program->SetUniformf("roughnessUniform", static_cast<float>(ppty->GetRoughness()));
@@ -3179,7 +3183,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
     }
 
     // handle specular
-    if (this->LastLightComplexity[&cellBO])
+    if (this->PrimitiveInfo[this->LastBoundBO].LastLightComplexity)
     {
       program->SetUniformf("specularIntensity", sIntensity);
       program->SetUniform3f("specularColorUniform", sColor);
@@ -3208,7 +3212,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
     program->SetUniform3f("diffuseColorUniformBF", dColor);
 
     // handle specular
-    if (this->LastLightComplexity[&cellBO])
+    if (this->PrimitiveInfo[&cellBO].LastLightComplexity)
     {
       program->SetUniformf("specularIntensityBF", sIntensity);
       program->SetUniform3f("specularColorUniformBF", sColor);
