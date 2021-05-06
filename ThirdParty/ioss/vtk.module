@@ -4,6 +4,7 @@ LIBRARY_NAME
   vtkioss
 PRIVATE_DEPENDS
   VTK::exodusII
+  VTK::cgns
 OPTIONAL_DEPENDS
   VTK::mpi
 THIRD_PARTY
