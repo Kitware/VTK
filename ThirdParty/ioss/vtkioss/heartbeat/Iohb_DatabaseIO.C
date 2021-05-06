@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include <Ioss_CodeTypes.h>
 #include <Ioss_Utils.h>
@@ -173,8 +147,6 @@ namespace Iohb {
 
   DatabaseIO::~DatabaseIO()
   {
-    delete layout_;
-    delete legend_;
     if (streamNeedsDelete && (logStream != nullptr)) {
       delete logStream;
     }
@@ -183,27 +155,24 @@ namespace Iohb {
   void DatabaseIO::initialize() const
   {
     if (!initialized_) {
-      assert(layout_ == nullptr);
-      assert(legend_ == nullptr);
-
       auto *new_this = const_cast<DatabaseIO *>(this);
 
       if (properties.exists("FILE_FORMAT")) {
         std::string format = properties.get("FILE_FORMAT").get_string();
         if (Ioss::Utils::str_equal(format, "spyhis")) {
-          new_this->fileFormat = SPYHIS;
+          new_this->fileFormat = Iohb::Format::SPYHIS;
         }
         else if (Ioss::Utils::str_equal(format, "csv")) {
-          new_this->fileFormat = CSV;
+          new_this->fileFormat = Iohb::Format::CSV;
         }
         else if (Ioss::Utils::str_equal(format, "ts_csv")) {
-          new_this->fileFormat = TS_CSV;
+          new_this->fileFormat = Iohb::Format::TS_CSV;
         }
         else if (Ioss::Utils::str_equal(format, "text")) {
-          new_this->fileFormat = TEXT;
+          new_this->fileFormat = Iohb::Format::TEXT;
         }
         else if (Ioss::Utils::str_equal(format, "ts_text")) {
-          new_this->fileFormat = TS_TEXT;
+          new_this->fileFormat = Iohb::Format::TS_TEXT;
         }
       }
 
@@ -222,26 +191,26 @@ namespace Iohb {
       }
 
       // "Predefined" formats... (put first so can modify settings if wanted)
-      if (fileFormat == CSV) {
+      if (fileFormat == Iohb::Format::CSV) {
         new_this->addTimeField = true;
         new_this->showLegend   = true;
         new_this->showLabels   = false;
         new_this->separator_   = ", ";
       }
-      else if (fileFormat == TS_CSV) {
+      else if (fileFormat == Iohb::Format::TS_CSV) {
         new_this->addTimeField = true;
         new_this->showLegend   = true;
         new_this->showLabels   = false;
         new_this->separator_   = ", ";
         new_this->tsFormat     = defaultTsFormat;
       }
-      else if (fileFormat == TEXT) {
+      else if (fileFormat == Iohb::Format::TEXT) {
         new_this->addTimeField = true;
         new_this->showLegend   = true;
         new_this->showLabels   = false;
         new_this->separator_   = "\t";
       }
-      else if (fileFormat == TS_TEXT) {
+      else if (fileFormat == Iohb::Format::TS_TEXT) {
         new_this->addTimeField = true;
         new_this->showLegend   = true;
         new_this->showLabels   = false;
@@ -300,7 +269,7 @@ namespace Iohb {
       }
 
       // SpyHis format is specific format, so don't override these settings:
-      if (fileFormat == SPYHIS) {
+      if (fileFormat == Iohb::Format::SPYHIS) {
         new_this->addTimeField = true;
         new_this->showLegend   = true;
         new_this->showLabels   = false;
@@ -308,7 +277,7 @@ namespace Iohb {
       }
 
       if (showLegend) {
-        new_this->legend_ = new Layout(false, precision_, separator_, fieldWidth_);
+        new_this->legend_.reset(new Layout(false, precision_, separator_, fieldWidth_));
         if (!tsFormat.empty()) {
           new_this->legend_->add_literal("+");
           new_this->legend_->add_literal(time_stamp(tsFormat));
@@ -316,7 +285,7 @@ namespace Iohb {
         }
 
         if (addTimeField) {
-          if (fileFormat == SPYHIS) {
+          if (fileFormat == Iohb::Format::SPYHIS) {
             new_this->legend_->add_legend("TIME");
           }
           else {
@@ -338,7 +307,7 @@ namespace Iohb {
     // If this is the first time, open the output stream and see if user wants a legend
     initialize();
 
-    layout_ = new Layout(showLabels, precision_, separator_, fieldWidth_);
+    layout_.reset(new Layout(showLabels, precision_, separator_, fieldWidth_));
     if (tsFormat != "") {
       layout_->add_literal("+");
       layout_->add_literal(time_stamp(tsFormat));
@@ -362,20 +331,18 @@ namespace Iohb {
   bool DatabaseIO::end_state__(int /* state */, double /* time */)
   {
     if (legend_ != nullptr) {
-      if (fileFormat == SPYHIS) {
+      if (fileFormat == Iohb::Format::SPYHIS) {
         time_t calendar_time = time(nullptr);
         *logStream << "% Sierra SPYHIS Output " << ctime(&calendar_time);
         *logStream << *legend_ << '\n'; // Legend output twice for SPYHIS
       }
 
       *logStream << *legend_ << '\n';
-      delete legend_;
-      legend_ = nullptr;
+      legend_.reset();
     }
 
     *logStream << *layout_ << '\n';
-    delete layout_;
-    layout_ = nullptr;
+    layout_.reset();
 
     // Flush the buffer to disk...
     // flush if there is more than 'flushInterval_' seconds since the last flush to avoid

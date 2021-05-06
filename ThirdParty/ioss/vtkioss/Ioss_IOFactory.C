@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #include "Ioss_DBUsage.h" // for DatabaseUsage
 #include <Ioss_IOFactory.h>
@@ -122,8 +96,9 @@ Ioss::DatabaseIO *Ioss::IOFactory::create(const std::string &type, const std::st
     if (my_props.exists("SHOW_CONFIG")) {
       static bool output = false;
       if (!output && pu.parallel_rank() == 0) {
-	output = true;
-	show_configuration();
+        output             = true;
+        std::string config = show_configuration();
+        Ioss::OUTPUT() << config;
       }
     }
     Ioss::IOFactory *factory = (*iter).second;
@@ -143,18 +118,20 @@ int Ioss::IOFactory::describe(NameList *names)
   return describe__(registry(), names);
 }
 
-void Ioss::IOFactory::show_configuration()
+std::string Ioss::IOFactory::show_configuration()
 {
-  fmt::print(Ioss::OUTPUT(), "\nIOSS Library Version '{}'\n\n", Ioss::Version());
+  std::stringstream config;
+  fmt::print(config, "IOSS Library Version '{}'\n\n", Ioss::Version());
   NameList db_types;
   describe(&db_types);
-  fmt::print(Ioss::OUTPUT(), "Supported database types:\n\t{}\n", fmt::join(db_types, ", "));
+  fmt::print(config, "Supported database types:\n\t{}\n", fmt::join(db_types, ", "));
 
 #if defined(SEACAS_HAVE_MPI)
-  fmt::print(Ioss::OUTPUT(), "\nSupported decomposition methods:\n\t{}\n", fmt::join(Ioss::valid_decomp_methods(), ", "));
+  fmt::print(config, "\nSupported decomposition methods:\n\t{}\n",
+             fmt::join(Ioss::valid_decomp_methods(), ", "));
 #endif
 
-  fmt::print(Ioss::OUTPUT(), "\nThird-Party Library Configuration Information:\n\n");
+  fmt::print(config, "\nThird-Party Library Configuration Information:\n\n");
 
   // Each database type may appear multiple times in the registry
   // due to aliasing (i.e. exodus, genesis, exodusII, ...)
@@ -165,9 +142,10 @@ void Ioss::IOFactory::show_configuration()
   for (const auto &db : *registry()) {
     auto result = unique_facs.insert(db.second);
     if (result.second) {
-      db.second->show_config();
+      config << db.second->show_config();
     }
   }
+  return config.str();
 }
 
 Ioss::IOFactory::IOFactory(const std::string &type)

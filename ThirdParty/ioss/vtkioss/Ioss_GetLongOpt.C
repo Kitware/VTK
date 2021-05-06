@@ -1,48 +1,22 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 /* S Manoharan. Advanced Computer Research Institute. Lyon. France */
 #include <Ioss_GetLongOpt.h>
 #include <cstring>
+#include <fmt/color.h>
 #include <fmt/ostream.h>
+#include <sstream>
 
 namespace Ioss {
   /** \brief Create an empty options database.
    *
    * \param optmark The command line symbol designating options.
    */
-  GetLongOption::GetLongOption(const char optmark)
-      : table(nullptr), ustring(nullptr), pname(nullptr), last(nullptr), enroll_done(0),
-        optmarker(optmark)
+  GetLongOption::GetLongOption(const char optmark) : optmarker(optmark)
   {
     ustring = "[valid options and arguments]";
   }
@@ -95,11 +69,11 @@ namespace Ioss {
    * \param[in] optval The default value.
    * \returns 1 if successful, 0 if unsuccessful.
    */
-  int GetLongOption::enroll(const char *const opt, const OptType t, const char *const desc,
-                            const char *const val, const char *const optval)
+  bool GetLongOption::enroll(const char *const opt, const OptType t, const char *const desc,
+                             const char *const val, const char *const optval, bool extra_line)
   {
-    if (enroll_done != 0) {
-      return 0;
+    if (options_parsed) {
+      return false;
     }
 
     auto *c        = new Cell;
@@ -109,6 +83,7 @@ namespace Ioss {
     c->value       = val;
     c->opt_value   = optval;
     c->next        = nullptr;
+    c->extra_line  = extra_line;
 
     if (last == nullptr) {
       table = last = c;
@@ -118,7 +93,7 @@ namespace Ioss {
       last       = c;
     }
 
-    return 1;
+    return true;
   }
 
   const char *GetLongOption::program_name() const { return pname == nullptr ? "[UNSET]" : pname; }
@@ -154,8 +129,10 @@ namespace Ioss {
   {
     int my_optind = 1;
 
-    pname       = basename(*argv);
-    enroll_done = 1;
+    std::ostringstream multiple_match;
+
+    pname          = basename(*argv);
+    options_parsed = true;
     if (argc-- <= 1) {
       return my_optind;
     }
@@ -175,7 +152,7 @@ namespace Ioss {
         tmptoken = ++token;
       }
 
-      while ((static_cast<int>(*tmptoken != 0) != 0) && *tmptoken != '=') {
+      while (*tmptoken != '\0' && *tmptoken != '=') {
         ++tmptoken;
       }
       /* (tmptoken - token) is now equal to the command line option
@@ -212,11 +189,11 @@ namespace Ioss {
               if (matchStatus == PartialMatch) {
                 // First time, print the message header and the first
                 // matched duplicate...
-                fmt::print(stderr, "ERROR: {}: Multiple matches found for option '{}{}'.\n", pname,
-                           optmarker, strtok(token, "= "));
-                fmt::print(stderr, "\t{}{}: {}\n", optmarker, pc->option, pc->description);
+                fmt::print(multiple_match, "ERROR: {}: Multiple matches found for option '{}{}'.\n",
+                           pname, optmarker, strtok(token, "= "));
+                fmt::print(multiple_match, "\t{}{}: {}\n", optmarker, pc->option, pc->description);
               }
-              fmt::print(stderr, "\t{}{}:{}\n", optmarker, t->option, t->description);
+              fmt::print(multiple_match, "\t{}{}:{}\n", optmarker, t->option, t->description);
               matchStatus = MultipleMatch;
             }
           }
@@ -239,11 +216,11 @@ namespace Ioss {
         return -1; /* no match */
       }
       else if (matchStatus == MultipleMatch) {
+        std::cerr << multiple_match.str();
         return -1; /* no match */
       }
 
     } /* end while */
-
     return my_optind;
   }
 
@@ -259,7 +236,7 @@ namespace Ioss {
    */
   int GetLongOption::parse(char *const str, char *const p)
   {
-    enroll_done       = 1;
+    options_parsed    = true;
     char *      token = strtok(str, " \t");
     const char *name  = p != nullptr ? p : "GetLongOption";
 
@@ -271,7 +248,7 @@ namespace Ioss {
 
       char *ladtoken = nullptr; /* lookahead token */
       char *tmptoken = ++token;
-      while ((static_cast<int>(*tmptoken != 0) != 0) && *tmptoken != '=') {
+      while (*tmptoken != '\0' && *tmptoken != '=') {
         ++tmptoken;
       }
       /* (tmptoken - token) is now equal to the command line option
@@ -366,7 +343,7 @@ namespace Ioss {
         return 0;
       }
       else {
-        if (nexttoken != nullptr && nexttoken[0] != optmarker) {
+        if (nexttoken != nullptr) {
           c->value = nexttoken;
           return 1;
         }
@@ -385,19 +362,51 @@ namespace Ioss {
    */
   void GetLongOption::usage(std::ostream &outfile) const
   {
-    Cell *t;
-
-    fmt::print(outfile, "\nusage: {} {}\n", pname, ustring);
-    for (t = table; t != nullptr; t = t->next) {
-      fmt::print(outfile, "\t{}{}", optmarker, t->option);
-      if (t->type == GetLongOption::MandatoryValue) {
-        fmt::print(outfile, " <$val>");
-      }
-      else if (t->type == GetLongOption::OptionalValue) {
-        fmt::print(outfile, " [$val]");
-      }
-      fmt::print(outfile, " ({})\n", t->description);
+    // The API of `usage` specifies an `ostream` for the output location. However,
+    // the fmt::print color options do not work with an ostream and instead
+    // want a FILE*.  To give formatting in the usage message, we convert the
+    // ostream to a FILE* if it is std::cout or std::cerr; otherwise use the old
+    // non-formatted version...
+    FILE *out = nullptr;
+    if (&outfile == &std::cout) {
+      out = stdout;
     }
-    outfile.flush();
+    else if (&outfile == &std::cerr) {
+      out = stderr;
+    }
+
+    if (out != nullptr) {
+      fmt::print(out, fmt::emphasis::bold, "\nusage: {} {}\n", pname, ustring);
+      for (Cell *t = table; t != nullptr; t = t->next) {
+        fmt::print(out, fmt::emphasis::bold, "\t{}{}", optmarker, t->option);
+        if (t->type == GetLongOption::MandatoryValue) {
+          fmt::print(out, fmt::emphasis::italic | fmt::emphasis::bold, " <$val>");
+        }
+        else if (t->type == GetLongOption::OptionalValue) {
+          fmt::print(out, fmt::emphasis::italic | fmt::emphasis::bold, " [$val]");
+        }
+        fmt::print(out, " ({})\n", t->description);
+        if (t->extra_line) {
+          fmt::print(out, "\n");
+        }
+      }
+    }
+    else {
+      fmt::print(outfile, "\nusage: {} {}\n", pname, ustring);
+      for (Cell *t = table; t != nullptr; t = t->next) {
+        fmt::print(outfile, "\t{}{}", optmarker, t->option);
+        if (t->type == GetLongOption::MandatoryValue) {
+          fmt::print(outfile, " <$val>");
+        }
+        else if (t->type == GetLongOption::OptionalValue) {
+          fmt::print(outfile, " [$val]");
+        }
+        fmt::print(outfile, " ({})\n", t->description);
+        if (t->extra_line) {
+          fmt::print(outfile, "\n");
+        }
+      }
+      outfile.flush();
+    }
   }
 } // namespace Ioss

@@ -1,47 +1,21 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
-#include <exodus/Ioex_IOFactory.h> // for Ioex IOFactory
 #include <exodus/Ioex_DatabaseIO.h> // for Ioex DatabaseIO
+#include <exodus/Ioex_IOFactory.h>  // for Ioex IOFactory
 
-#if defined(SEACAS_HAVE_MPI)
+#if defined(PARALLEL_AWARE_EXODUS)          // Defined in exodusII.h
 #include <exodus/Ioex_ParallelDatabaseIO.h> // for Ioex ParallelDatabaseIO
 #endif
 #include <tokenize.h>
 
 #include <cstddef> // for nullptr
 #include <vtk_exodusII.h>
-#include <string> // for string
 #include <fmt/ostream.h>
+#include <string> // for string
 
 #include "Ioss_CodeTypes.h" // for MPI_Comm
 #include "Ioss_DBUsage.h"   // for DatabaseUsage
@@ -54,7 +28,7 @@ namespace Ioss {
   class DatabaseIO;
 } // namespace Ioss
 
-#if defined(SEACAS_HAVE_MPI)
+#if defined(PARALLEL_AWARE_EXODUS)
 namespace {
   std::string check_decomposition_property(const Ioss::PropertyManager &properties,
                                            Ioss::DatabaseUsage          db_usage);
@@ -76,7 +50,7 @@ namespace Ioex {
     Ioss::IOFactory::alias("exodus", "exodusii");
     Ioss::IOFactory::alias("exodus", "exodusII");
     Ioss::IOFactory::alias("exodus", "genesis");
-#if defined(SEACAS_HAVE_MPI)
+#if defined(PARALLEL_AWARE_EXODUS)
     Ioss::IOFactory::alias("exodus", "dof_exodus");
     Ioss::IOFactory::alias("exodus", "dof");
 #endif
@@ -86,7 +60,7 @@ namespace Ioex {
                                        MPI_Comm                     communicator,
                                        const Ioss::PropertyManager &properties) const
   {
-#if defined(SEACAS_HAVE_MPI)
+#if defined(PARALLEL_AWARE_EXODUS)
     // The "exodus" and "parallel_exodus" databases can both be accessed
     // from this factory.  The "parallel_exodus" is returned only if the following
     // are true:
@@ -124,25 +98,29 @@ namespace Ioex {
       return new Ioex::DatabaseIO(nullptr, filename, db_usage, communicator, properties);
   }
 
-  void IOFactory::show_config() const 
-  { 
-    ex_print_config(); 
+  std::string IOFactory::show_config() const
+  {
+    std::stringstream config;
+    config << ex_config();
 #if !defined(NO_PARMETIS_SUPPORT)
-  fmt::print(Ioss::OUTPUT(), "\tParMetis Library Version: {}.{}.{} (Parallel Decomposition)\n"
-	     "\t\tInteger Size is {}, Real Size is {}\n\n", PARMETIS_MAJOR_VERSION, PARMETIS_MINOR_VERSION, PARMETIS_SUBMINOR_VERSION,
-	     IDXTYPEWIDTH, REALTYPEWIDTH);
+    fmt::print(config,
+               "\tParMetis Library Version: {}.{}.{} (Parallel Decomposition)\n"
+               "\t\tInteger Size is {}, Real Size is {}\n\n",
+               PARMETIS_MAJOR_VERSION, PARMETIS_MINOR_VERSION, PARMETIS_SUBMINOR_VERSION,
+               IDXTYPEWIDTH, REALTYPEWIDTH);
 #else
-  fmt::print(Ioss::OUTPUT(), "\tParMetis Library is NOT Available for Parallel Decomposition.\n\n");
+    fmt::print(config, "\tParMetis Library is NOT Available for Parallel Decomposition.\n\n");
 #endif
 #if !defined(NO_ZOLTAN_SUPPORT)
-  fmt::print(Ioss::OUTPUT(), "\tZoltan Library is Available for Parallel Decomposition.\n\n");
+    fmt::print(config, "\tZoltan Library is Available for Parallel Decomposition.\n\n");
 #else
-  fmt::print(Ioss::OUTPUT(), "\tZoltan Library is NOT Available for Parallel Decomposition.\n\n");
+    fmt::print(config, "\tZoltan Library is NOT Available for Parallel Decomposition.\n\n");
 #endif
+    return config.str();
   }
 } // namespace Ioex
 
-#if defined(SEACAS_HAVE_MPI)
+#if defined(PARALLEL_AWARE_EXODUS)
 namespace {
   std::string check_decomposition_property(const Ioss::PropertyManager &properties,
                                            Ioss::DatabaseUsage          db_usage)

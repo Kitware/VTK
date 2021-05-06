@@ -1,34 +1,8 @@
-// Copyright(C) 1999-2017 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
 #ifndef IOSS_Ioss_StructuredBlock_h
 #define IOSS_Ioss_StructuredBlock_h
@@ -60,20 +34,23 @@ namespace Ioss {
 
   struct BoundaryCondition
   {
-    BoundaryCondition(const std::string name, const std::string fam_name,
-                      const Ioss::IJK_t range_beg, const Ioss::IJK_t range_end)
-        : m_bcName(std::move(name)), m_famName(std::move(fam_name)),
-          m_rangeBeg(std::move(range_beg)), m_rangeEnd(std::move(range_end))
+    BoundaryCondition(std::string name, std::string fam_name, Ioss::IJK_t range_beg,
+                      Ioss::IJK_t range_end)
+        : m_bcName(std::move(name)), m_famName(std::move(fam_name)), m_rangeBeg(range_beg),
+          m_rangeEnd(range_end)
     {
     }
 
     // Deprecated... Use the constructor above with both name and fam_name
-    BoundaryCondition(const std::string name, const Ioss::IJK_t range_beg,
-                      const Ioss::IJK_t range_end)
-        : m_bcName(name), m_famName(std::move(name)), m_rangeBeg(std::move(range_beg)),
-          m_rangeEnd(std::move(range_end))
+    BoundaryCondition(std::string name, Ioss::IJK_t range_beg, Ioss::IJK_t range_end)
+        : m_bcName(name), m_famName(std::move(name)), m_rangeBeg(range_beg), m_rangeEnd(range_end)
     {
     }
+
+    // cereal requires a default constructor when de-serializing vectors of objects.  Because
+    // StructuredBlock contains a vector of BoundaryCondition objects, this default constructor is
+    // necessary.
+    BoundaryCondition() = default;
 
     BoundaryCondition(const BoundaryCondition &copy_from) = default;
 
@@ -86,6 +63,10 @@ namespace Ioss {
     // Return number of cell faces in the BC
     size_t get_face_count() const;
 
+    bool operator==(const Ioss::BoundaryCondition &rhs) const;
+    bool operator!=(const Ioss::BoundaryCondition &rhs) const;
+    bool equal(const Ioss::BoundaryCondition &rhs) const;
+
     std::string m_bcName{};
     std::string m_famName{};
 
@@ -95,7 +76,15 @@ namespace Ioss {
 
     mutable int m_face{-1};
 
+    template <class Archive> void serialize(Archive &archive)
+    {
+      archive(m_bcName, m_famName, m_rangeBeg, m_rangeEnd, m_face);
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc);
+
+  private:
+    bool equal_(const Ioss::BoundaryCondition &rhs, bool quiet) const;
   };
 
   class DatabaseIO;
@@ -318,6 +307,11 @@ namespace Ioss {
               global_offset < m_nodeOffset + get_property("node_count").get_int());
     }
 
+    /* COMPARE two StructuredBlocks */
+    bool operator==(const Ioss::StructuredBlock &rhs) const;
+    bool operator!=(const Ioss::StructuredBlock &rhs) const;
+    bool equal(const Ioss::StructuredBlock &rhs) const;
+
   protected:
     int64_t internal_get_field_data(const Field &field, void *data,
                                     size_t data_size) const override;
@@ -326,9 +320,10 @@ namespace Ioss {
                                     size_t data_size) const override;
 
   private:
-    int m_ni{};
-    int m_nj{};
-    int m_nk{};
+    bool equal_(const Ioss::StructuredBlock &rhs, bool quiet) const;
+    int  m_ni{};
+    int  m_nj{};
+    int  m_nk{};
 
     int m_offsetI{}; // Valid 'i' ordinal runs from m_offsetI+1 to m_offsetI+m_ni
     int m_offsetJ{};
@@ -351,6 +346,11 @@ namespace Ioss {
     std::vector<BoundaryCondition>         m_boundaryConditions;
     std::vector<size_t>                    m_blockLocalNodeIndex;
     std::vector<std::pair<size_t, size_t>> m_globalIdMap;
+
+    template <class Archive> void serialize(Archive &archive)
+    {
+      archive(m_zoneConnectivity, m_boundaryConditions, m_blockLocalNodeIndex, m_globalIdMap);
+    }
   };
 } // namespace Ioss
 #endif

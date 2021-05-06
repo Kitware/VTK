@@ -1,34 +1,8 @@
-// Copyright(C) 2009-2017 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+// See packages/seacas/LICENSE for details
 #if !defined(IOSS_SMART_ASSERT_H)
 #define IOSS_SMART_ASSERT_H
 
@@ -84,7 +58,7 @@ class assert_context
   using string = std::string;
 
 public:
-  assert_context() : line_(0), level_(lvl_debug) {}
+  assert_context() : level_(lvl_debug) {}
 
   // where the assertion failed: file & line
   void set_file_line(const char *file, int line)
@@ -99,8 +73,8 @@ public:
   void          set_expr(const string &str) { expr_ = str; }
   const string &get_expr() const { return expr_; }
 
-  typedef std::pair<string, string> val_and_str;
-  using vals_array = std::vector<val_and_str>;
+  using val_and_str = std::pair<string, string>;
+  using vals_array  = std::vector<val_and_str>;
   // return values array as a vector of pairs:
   // [Value, corresponding string]
   const vals_array &get_vals_array() const { return vals_; }
@@ -126,14 +100,14 @@ public:
 private:
   // where the assertion occurred
   string file_{};
-  int    line_;
+  int    line_{0};
 
   // expression and values
   string     expr_{};
   vals_array vals_{};
 
   // level and message
-  int    level_;
+  int    level_{lvl_debug};
   string msg_{};
 };
 
@@ -305,8 +279,8 @@ private:
   }
 
   // the handler
-  typedef std::map<int, assert_func> handlers_collection;
-  static handlers_collection &       handlers()
+  using handlers_collection = std::map<int, assert_func>;
+  static handlers_collection &handlers()
   {
     static handlers_collection inst;
     return inst;

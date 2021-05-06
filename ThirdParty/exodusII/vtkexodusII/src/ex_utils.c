@@ -1,36 +1,9 @@
 /*
- * Copyright (c) 2005-2017, 2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *
- *     * Redistributions in binary form must reproduce the above
- *       copyright notice, this list of conditions and the following
- *       disclaimer in the documentation and/or other materials provided
- *       with the distribution.
- *
- *     * Neither the name of NTESS nor the names of its
- *       contributors may be used to endorse or promote products derived
- *       from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * See packages/seacas/LICENSE for details
  */
 /*****************************************************************************
  *
@@ -91,76 +64,97 @@ extern char *ncmpi_inq_libvers();
   \ingroup Utilities
   \undoc
 */
-void ex_print_config(void)
+const char *ex_config(void)
 {
-  fprintf(stderr, "\tExodus Version %s, Released %s\n", EXODUS_VERSION, EXODUS_RELEASE_DATE);
+  static char buffer[2048];
+  int         j =
+      sprintf(buffer, "\tExodus Version %s, Released %s\n", EXODUS_VERSION, EXODUS_RELEASE_DATE);
 #if defined(PARALLEL_AWARE_EXODUS)
-  fprintf(stderr, "\t\tParallel enabled\n");
+  j += sprintf(buffer + j, "\t\tParallel enabled\n");
 #else
-  fprintf(stderr, "\t\tParallel NOT enabled\n");
+  j += sprintf(buffer + j, "\t\tParallel NOT enabled\n");
 #endif
 #if defined(EXODUS_THREADSAFE)
-  fprintf(stderr, "\t\tThread Safe enabled\n");
+  j += sprintf(buffer + j, "\t\tThread Safe enabled\n");
 #else
-  fprintf(stderr, "\t\tThread Safe NOT enabled\n");
+  j += sprintf(buffer + j, "\t\tThread Safe NOT enabled\n");
 #endif
 #if defined(SEACAS_HIDE_DEPRECATED_CODE)
-  fprintf(stderr, "\t\tDeprecated Functions NOT built\n\n");
+  j += sprintf(buffer + j, "\t\tDeprecated Functions NOT built\n\n");
 #else
-  fprintf(stderr, "\t\tDeprecated Functions available\n\n");
+  j += sprintf(buffer + j, "\t\tDeprecated Functions available\n\n");
 #endif
 #if defined(NC_VERSION)
-  fprintf(stderr, "\tNetCDF Version %s\n", NC_VERSION);
+  j += sprintf(buffer + j, "\tNetCDF Version %s\n", NC_VERSION);
 #else
-  fprintf(stderr, "\tNetCDF Version < 4.3.3\n");
+  j += sprintf(buffer + j, "\tNetCDF Version < 4.3.3\n");
 #endif
 #if NC_HAS_CDF5
-  fprintf(stderr, "\t\tCDF5 enabled\n");
+  j += sprintf(buffer + j, "\t\tCDF5 enabled\n");
 #endif
 #ifndef _MSC_VER
 #if NC_HAS_HDF5
   {
     unsigned major, minor, release;
     H5get_libversion(&major, &minor, &release);
-    fprintf(stderr, "\t\tHDF5 enabled (%u.%u.%u)\n", major, minor, release);
+    j += sprintf(buffer + j, "\t\tHDF5 enabled (%u.%u.%u)\n", major, minor, release);
   }
-  fprintf(stderr, "\t\tZlib Compression (read/write) enabled\n");
-#if defined(NC_HAS_SZIP_WRITE)
-  fprintf(stderr, "\t\tSZip Compression (read/write) enabled\n");
+  j += sprintf(buffer + j, "\t\tZlib Compression (read/write) enabled\n");
+#if NC_HAS_SZIP_WRITE == 1
+  j += sprintf(buffer + j, "\t\tSZip Compression (read/write) enabled\n");
+#else
+  j += sprintf(buffer + j, "\t\tSZip Compression (read/write) NOT enabled\n");
 #endif
 #endif
 #endif
+#if defined(PARALLEL_AWARE_EXODUS)
 #if NC_HAS_PARALLEL
-  fprintf(stderr, "\t\tParallel IO enabled via HDF5 and/or PnetCDF\n");
+  j += sprintf(buffer + j, "\t\tParallel IO enabled via HDF5 and/or PnetCDF\n");
+#else
+  j += sprintf(buffer + j,
+               "\t\tParallel IO *NOT* enabled via HDF5 and/or PnetCDF (PROBABLY A BUILD ERROR!)\n");
 #endif
 #if NC_HAS_PARALLEL4
-  fprintf(stderr, "\t\tParallel IO enabled via HDF5\n");
-#if NC_HAS_PAR_FILTERS
-  fprintf(stderr, "\t\tParallel IO supports filters\n");
+  j += sprintf(buffer + j, "\t\tParallel IO enabled via HDF5\n");
+#else
+  j += sprintf(buffer + j, "\t\tParallel IO *NOT* enabled via HDF5\n");
 #endif
+#if NC_HAS_PAR_FILTERS
+  j += sprintf(buffer + j, "\t\tParallel IO supports filters\n");
 #endif
 #if NC_HAS_PNETCDF
   {
     char *libver = ncmpi_inq_libvers();
-    fprintf(stderr, "\t\tParallel IO enabled via PnetCDF (%s)\n", libver);
+    j += sprintf(buffer + j, "\t\tParallel IO enabled via PnetCDF (%s)\n", libver);
   }
+#else
+  j += sprintf(buffer + j, "\t\tParallel IO *NOT* enabled via PnetCDF\n");
 #endif
+#endif /* PARALLEL_AWARE_EXODUS */
+
 #if NC_HAS_ERANGE_FILL
-  fprintf(stderr, "\t\tERANGE_FILL support\n");
+  j += sprintf(buffer + j, "\t\tERANGE_FILL support\n");
 #endif
 #if NC_RELAX_COORD_BOUND
-  fprintf(stderr, "\t\tRELAX_COORD_BOUND defined\n");
+  j += sprintf(buffer + j, "\t\tRELAX_COORD_BOUND defined\n");
+#endif
+#if defined(NC_COMPACT)
+  j += sprintf(buffer + j, "\t\tNC_COMPACT defined\n");
 #endif
 #if defined(NC_HAVE_META_H)
-  fprintf(stderr, "\t\tNC_HAVE_META_H defined\n");
+  j += sprintf(buffer + j, "\t\tNC_HAVE_META_H defined\n");
 #endif
-#if defined(NC_HAS_NC2)
-  fprintf(stderr, "\t\tAPI Version 2 support enabled\n");
+#if NC_HAS_NC2
+  j += sprintf(buffer + j, "\t\tAPI Version 2 support enabled\n");
 #else
-  fprintf(stderr, "\t\tAPI Version 2 support NOT enabled\n");
+  j += sprintf(buffer + j, "\t\tAPI Version 2 support NOT enabled\n");
 #endif
-  fprintf(stderr, "\n");
+  j += sprintf(buffer + j, "\n");
+
+  assert(j < 2048);
+  return buffer;
 }
+void ex_print_config(void) { fprintf(stderr, "%s\n", ex_config()); }
 
 /*!
   \ingroup Utilities
@@ -170,16 +164,16 @@ int ex__check_file_type(const char *path, int *type)
 {
   /* Based on (stolen from?) NC_check_file_type from netcdf sources.
 
-  Type is set to:
-  1 if this is a netcdf classic file,
-  2 if this is a netcdf 64-bit offset file,
-  4 pnetcdf cdf5 file.
-  5 if this is an hdf5 file
+     Type is set to:
+     1 if this is a netcdf classic file,
+     2 if this is a netcdf 64-bit offset file,
+     4 pnetcdf cdf5 file.
+     5 if this is an hdf5 file
   */
 
 #define MAGIC_NUMBER_LEN 4
 
-  char magic[MAGIC_NUMBER_LEN];
+  char magic[MAGIC_NUMBER_LEN+1];
   EX_FUNC_ENTER();
 
   *type = 0;
@@ -190,12 +184,21 @@ int ex__check_file_type(const char *path, int *type)
     int   i;
 
     if (!(fp = fopen(path, "r"))) {
-      EX_FUNC_LEAVE(errno);
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Could not open file '%s', error = %s.", path,
+               strerror(errno));
+      ex_err(__func__, errmsg, EX_WRONGFILETYPE);
+      EX_FUNC_LEAVE(EX_FATAL);
     }
-    i = fread(magic, MAGIC_NUMBER_LEN, 1, fp);
+    i                       = fread(magic, MAGIC_NUMBER_LEN, 1, fp);
+    magic[MAGIC_NUMBER_LEN] = '\0';
     fclose(fp);
     if (i != 1) {
-      EX_FUNC_LEAVE(errno);
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Could not read magic data from file '%s', err = %s.",
+               path, strerror(errno));
+      ex_err(__func__, errmsg, EX_WRONGFILETYPE);
+      EX_FUNC_LEAVE(EX_FATAL);
     }
   }
 
@@ -214,6 +217,15 @@ int ex__check_file_type(const char *path, int *type)
       *type = 4; /* cdf5 (including pnetcdf) file */
     }
   }
+  if (*type == 0) {
+    char errmsg[MAX_ERR_LENGTH];
+    snprintf(
+        errmsg, MAX_ERR_LENGTH,
+        "ERROR: Could not recognize %s as a valid Exodus/NetCDF file variant.  Magic value is '%s'",
+        path, magic);
+    ex_err(__func__, errmsg, EX_WRONGFILETYPE);
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
   EX_FUNC_LEAVE(EX_NOERR);
 }
 
@@ -226,7 +238,9 @@ int ex_set_max_name_length(int exoid, int length)
   char errmsg[MAX_ERR_LENGTH];
 
   EX_FUNC_ENTER();
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
   if (length <= 0) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Max name length must be positive.");
     ex_err_fn(exoid, __func__, errmsg, NC_EMAXNAME);
@@ -255,7 +269,9 @@ void ex__update_max_name_length(int exoid, int length)
   int rootid    = exoid & EX_FILE_ID_MASK;
 
   EX_FUNC_ENTER();
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_VOID();
+  }
 
   /* Get current value of the maximum_name_length attribute... */
   if ((status = nc_get_att_int(rootid, NC_GLOBAL, ATT_MAX_NAME_LENGTH, &db_length)) != NC_NOERR) {
@@ -299,7 +315,9 @@ int ex__put_names(int exoid, int varid, size_t num_names, char **names, ex_entit
   int    found_name = 0;
 
   EX_FUNC_ENTER();
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
   /* inquire previously defined dimensions  */
   name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_ALLOWED_NAME_LENGTH) + 1;
 
@@ -363,7 +381,9 @@ int ex__put_name(int exoid, int varid, size_t index, const char *name, ex_entity
   char   errmsg[MAX_ERR_LENGTH];
   size_t name_length;
 
-  ex__check_valid_file_id(exoid, __func__);
+  if (ex__check_valid_file_id(exoid, __func__) == EX_FATAL) {
+    EX_FUNC_LEAVE(EX_FATAL);
+  }
 
   /* inquire previously defined dimensions  */
   name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_ALLOWED_NAME_LENGTH) + 1;
@@ -380,7 +400,8 @@ int ex__put_name(int exoid, int varid, size_t index, const char *name, ex_entity
       fprintf(stderr,
               "Warning: The %s %s name '%s' is too long.\n\tIt will be "
               "truncated from %d to %d characters. [Called from %s]\n",
-              ex_name_of_object(obj_type), subtype, name, (int)strlen(name), (int)name_length - 1, routine);
+              ex_name_of_object(obj_type), subtype, name, (int)strlen(name), (int)name_length - 1,
+              routine);
       count[1] = name_length;
       too_long = 1;
     }
@@ -452,7 +473,8 @@ int ex__get_name(int exoid, int varid, size_t index, char *name, int name_size,
 
   status = nc_get_vara_text(exoid, varid, start, count, name);
   if (status != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s name at index %d from file id %d [Called from %s]",
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: failed to get %s name at index %d from file id %d [Called from %s]",
              ex_name_of_object(obj_type), (int)index, exoid, routine);
     ex_err_fn(exoid, __func__, errmsg, status);
     return (EX_FATAL);
@@ -1348,6 +1370,7 @@ int ex_get_num_props(int exoid, ex_entity_type obj_type)
     }
     cntr++;
   }
+  EX_FUNC_LEAVE(EX_FATAL);
 }
 
 /*!
@@ -1691,7 +1714,11 @@ int ex__get_dimension(int exoid, const char *DIMENSION, const char *label, size_
 /*!
   \deprecated
 */
-size_t ex_header_size(int exoid) { EX_UNUSED(exoid); return 0; }
+size_t ex_header_size(int exoid)
+{
+  EX_UNUSED(exoid);
+  return 0;
+}
 
 void ex__set_compact_storage(int exoid, int varid)
 {
@@ -1735,21 +1762,23 @@ void ex__compress_variable(int exoid, int varid, int type)
         }
       }
       else if (file->compression_algorithm == EX_COMPRESS_SZIP) {
-#if NC_HAS_SZIP__DISABLED
+#if NC_HAS_SZIP_WRITE == 1
         /* See: https://support.hdfgroup.org/doc_resource/SZIP/ and
                 https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetSzip
            for details on SZIP library and parameters.
         */
 
-        /* const int NC_SZIP_EC = 4; */       /* Selects entropy coding method for szip. */
-        const int NC_SZIP_NN            = 32; /* Selects nearest neighbor coding method for szip. */
-        const int SZIP_PIXELS_PER_BLOCK = 16; /* Even and <= 32; typical values are 8, 10, 16, 32 */
+        /* const int NC_SZIP_EC = 4; */ /* Selects entropy coding method for szip. */
+        const int NC_SZIP_NN = 32;      /* Selects nearest neighbor coding method for szip. */
+        /* Even and between 4 and 32; typical values are 8, 10, 16, 32 */
+        const int SZIP_PIXELS_PER_BLOCK =
+            file->compression_level == 0 ? 32 : file->compression_level;
         nc_def_var_szip(exoid, varid, NC_SZIP_NN, SZIP_PIXELS_PER_BLOCK);
 #else
         char errmsg[MAX_ERR_LENGTH];
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: Compression algorithm SZIP is not supported yet (EXPERIMENTAL).");
-        ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
+        ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
 #endif
       }
 
@@ -2114,12 +2143,12 @@ int ex__handle_mode(unsigned int my_mode, int is_parallel, int run_version)
 int ex__populate_header(int exoid, const char *path, int my_mode, int is_parallel, int *comp_ws,
                         int *io_ws)
 {
-  int status;
-  int old_fill;
-  int lio_ws;
-  int filesiz    = 1;
-  int is_hdf5    = 0;
-  int is_pnetcdf = 0;
+  int  status;
+  int  old_fill;
+  int  lio_ws;
+  int  filesiz    = 1;
+  bool is_hdf5    = false;
+  bool is_pnetcdf = false;
 
   float version;
   char  errmsg[MAX_ERR_LENGTH];
@@ -2162,15 +2191,16 @@ int ex__populate_header(int exoid, const char *path, int my_mode, int is_paralle
   nc_inq_format_extended(exoid, &format, &mode);
 
   if (format & NC_FORMAT_PNETCDF) {
-    is_pnetcdf = 1;
+    is_pnetcdf = true;
+    ;
   }
 
   if (format & NC_FORMAT_NC_HDF5) {
-    is_hdf5 = 1;
+    is_hdf5 = true;
   }
 
-  if (ex__conv_init(exoid, comp_ws, io_ws, 0, int64_status, is_parallel, is_hdf5, is_pnetcdf) !=
-      EX_NOERR) {
+  if (ex__conv_init(exoid, comp_ws, io_ws, 0, int64_status, is_parallel, is_hdf5, is_pnetcdf,
+                    my_mode & EX_WRITE) != EX_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to init conversion routines in file id %d",
              exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_LASTERR);

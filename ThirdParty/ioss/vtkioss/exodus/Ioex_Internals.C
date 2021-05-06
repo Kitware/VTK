@@ -1,44 +1,19 @@
-// Copyright(C) 1999-2017, 2020 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//
-//     * Redistributions in binary form must reproduce the above
-//       copyright notice, this list of conditions and the following
-//       disclaimer in the documentation and/or other materials provided
-//       with the distribution.
-//
-//     * Neither the name of NTESS nor the names of its
-//       contributors may be used to endorse or promote products derived
-//       from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// See packages/seacas/LICENSE for details
 
-
-#include <Ioss_Utils.h>            // for IOSS_WARNING
-#include <cassert>                 // for assert
 #include <exodus/Ioex_Internals.h> // for Internals, ElemBlock, etc
 #include <exodus/Ioex_Utils.h>
+
+#include "exodusII.h" // for ex_err, ex_opts, etc
 
 extern "C" {
 #include <exodusII_int.h>
 }
+
+#include <cassert> // for assert
 #include <cstddef> // for size_t
 #include <cstdio>  // for nullptr
 #include <cstdlib> // for exit, EXIT_FAILURE
@@ -64,8 +39,8 @@ extern "C" {
 #include "Ioss_Region.h"
 #include "Ioss_SideBlock.h"
 #include "Ioss_SideSet.h"
+#include "Ioss_Utils.h"
 #include "Ioss_VariableType.h"
-#include "vtk_exodusII.h" // for ex_err, ex_opts, etc
 
 using namespace Ioex;
 
@@ -88,6 +63,8 @@ namespace {
                                   nc_type type);
 
   int put_int_array(int exoid, const char *var_type, const std::vector<int> &array);
+  int put_int_array(int exoid, const char *var_type, const std::vector<int64_t> &array);
+
   int put_id_array(int exoid, const char *var_type, const std::vector<entity_id> &ids);
   int define_coordinate_vars(int exodusFilePtr, int64_t nodes, int node_dim, int dimension,
                              int dim_dim, int str_dim);
@@ -135,12 +112,7 @@ Assembly::Assembly(const Ioss::Assembly &other)
     name = other.name();
   }
 
-  if (other.property_exists("id")) {
-    id = other.get_property("id").get_int();
-  }
-  else {
-    id = 1;
-  }
+  id             = other.get_optional_property("id", 1);
   entityCount    = other.member_count();
   attributeCount = other.get_property("attribute_count").get_int();
   type           = Ioex::map_exodus_type(other.get_member_type());
@@ -152,16 +124,6 @@ Assembly::Assembly(const Ioss::Assembly &other)
   }
 }
 
-Assembly &Assembly::operator=(const Assembly &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  attributeCount = other.attributeCount;
-  type           = other.type;
-  return *this;
-}
-
 Blob::Blob(const Ioss::Blob &other)
 {
   if (other.property_exists("db_name")) {
@@ -171,23 +133,9 @@ Blob::Blob(const Ioss::Blob &other)
     name = other.name();
   }
 
-  if (other.property_exists("id")) {
-    id = other.get_property("id").get_int();
-  }
-  else {
-    id = 1;
-  }
+  id             = other.get_optional_property("id", 1);
   entityCount    = other.entity_count();
   attributeCount = other.get_property("attribute_count").get_int();
-}
-
-Blob &Blob::operator=(const Blob &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  attributeCount = other.attributeCount;
-  return *this;
 }
 
 NodeBlock::NodeBlock(const Ioss::NodeBlock &other)
@@ -199,31 +147,11 @@ NodeBlock::NodeBlock(const Ioss::NodeBlock &other)
     name = other.name();
   }
 
-  if (other.property_exists("id")) {
-    id = other.get_property("id").get_int();
-  }
-  else {
-    id = 1;
-  }
-  entityCount = other.entity_count();
-  if (other.property_exists("locally_owned_count")) {
-    localOwnedCount = other.get_property("locally_owned_count").get_int();
-  }
-  else {
-    localOwnedCount = entityCount;
-  }
-  attributeCount = other.get_property("attribute_count").get_int();
-  procOffset     = 0;
-}
-
-NodeBlock &NodeBlock::operator=(const NodeBlock &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  attributeCount = other.attributeCount;
-  procOffset     = other.procOffset;
-  return *this;
+  id              = other.get_optional_property("id", 1);
+  entityCount     = other.entity_count();
+  localOwnedCount = other.get_optional_property("locally_owned_count", entityCount);
+  attributeCount  = other.get_property("attribute_count").get_int();
+  procOffset      = 0;
 }
 
 EdgeBlock::EdgeBlock(const Ioss::EdgeBlock &other)
@@ -237,35 +165,16 @@ EdgeBlock::EdgeBlock(const Ioss::EdgeBlock &other)
 
   id             = other.get_property("id").get_int();
   entityCount    = other.entity_count();
-  nodesPerEntity = other.get_property("topology_node_count").get_int();
+  nodesPerEntity = other.topology()->number_nodes();
   attributeCount = other.get_property("attribute_count").get_int();
 
-  std::string el_type = other.get_property("topology_type").get_string();
+  std::string el_type = other.topology()->name();
   if (other.property_exists("original_topology_type")) {
     el_type = other.get_property("original_topology_type").get_string();
   }
 
   Ioss::Utils::copy_string(elType, el_type);
   procOffset = 0;
-}
-
-EdgeBlock &EdgeBlock::operator=(const EdgeBlock &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  nodesPerEntity = other.nodesPerEntity;
-  attributeCount = other.attributeCount;
-  procOffset     = other.procOffset;
-  Ioss::Utils::copy_string(elType, other.elType);
-  return *this;
-}
-
-bool EdgeBlock::operator==(const EdgeBlock &other) const
-{
-  return name == other.name && id == other.id && entityCount == other.entityCount &&
-         nodesPerEntity == other.nodesPerEntity && attributeCount == other.attributeCount &&
-         procOffset == other.procOffset;
 }
 
 FaceBlock::FaceBlock(const Ioss::FaceBlock &other)
@@ -279,7 +188,7 @@ FaceBlock::FaceBlock(const Ioss::FaceBlock &other)
 
   id             = other.get_property("id").get_int();
   entityCount    = other.entity_count();
-  nodesPerEntity = other.get_property("topology_node_count").get_int();
+  nodesPerEntity = other.topology()->number_nodes();
   if (other.field_exists("connectivty_edge")) {
     edgesPerEntity = other.get_field("connectivity_edge").raw_storage()->component_count();
   }
@@ -288,33 +197,13 @@ FaceBlock::FaceBlock(const Ioss::FaceBlock &other)
   }
   attributeCount = other.get_property("attribute_count").get_int();
 
-  std::string el_type = other.get_property("topology_type").get_string();
+  std::string el_type = other.topology()->name();
   if (other.property_exists("original_topology_type")) {
     el_type = other.get_property("original_topology_type").get_string();
   }
 
   Ioss::Utils::copy_string(elType, el_type);
   procOffset = 0;
-}
-
-FaceBlock &FaceBlock::operator=(const FaceBlock &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  nodesPerEntity = other.nodesPerEntity;
-  edgesPerEntity = other.edgesPerEntity;
-  attributeCount = other.attributeCount;
-  procOffset     = other.procOffset;
-  Ioss::Utils::copy_string(elType, other.elType);
-  return *this;
-}
-
-bool FaceBlock::operator==(const FaceBlock &other) const
-{
-  return name == other.name && id == other.id && entityCount == other.entityCount &&
-         nodesPerEntity == other.nodesPerEntity && edgesPerEntity == other.edgesPerEntity &&
-         attributeCount == other.attributeCount && procOffset == other.procOffset;
 }
 
 ElemBlock::ElemBlock(const Ioss::ElementBlock &other)
@@ -326,9 +215,10 @@ ElemBlock::ElemBlock(const Ioss::ElementBlock &other)
     name = other.name();
   }
 
-  id             = other.get_property("id").get_int();
-  entityCount    = other.entity_count();
-  nodesPerEntity = other.get_property("topology_node_count").get_int();
+  id                = other.get_property("id").get_int();
+  entityCount       = other.entity_count();
+  globalEntityCount = other.get_optional_property("global_entity_count", 0);
+  nodesPerEntity    = other.topology()->number_nodes();
 
   if (other.field_exists("connectivity_edge")) {
     edgesPerEntity = other.get_field("connectivity_edge").raw_storage()->component_count();
@@ -344,12 +234,10 @@ ElemBlock::ElemBlock(const Ioss::ElementBlock &other)
     facesPerEntity = 0;
   }
 
-  attributeCount      = other.get_property("attribute_count").get_int();
-  offset_             = other.get_offset();
-  std::string el_type = other.get_property("topology_type").get_string();
-  if (other.property_exists("original_topology_type")) {
-    el_type = other.get_property("original_topology_type").get_string();
-  }
+  attributeCount = other.get_property("attribute_count").get_int();
+  offset_        = other.get_offset();
+  std::string el_type =
+      other.get_optional_property("original_topology_type", other.topology()->name());
 
   Ioss::Utils::copy_string(elType, el_type);
 
@@ -364,29 +252,6 @@ ElemBlock::ElemBlock(const Ioss::ElementBlock &other)
   procOffset = 0;
 }
 
-ElemBlock &ElemBlock::operator=(const ElemBlock &other)
-{
-  name           = other.name;
-  id             = other.id;
-  entityCount    = other.entityCount;
-  nodesPerEntity = other.nodesPerEntity;
-  edgesPerEntity = other.edgesPerEntity;
-  facesPerEntity = other.facesPerEntity;
-  attributeCount = other.attributeCount;
-  offset_        = other.offset_;
-  procOffset     = other.procOffset;
-  Ioss::Utils::copy_string(elType, other.elType);
-  return *this;
-}
-
-bool ElemBlock::operator==(const ElemBlock &other) const
-{
-  return name == other.name && id == other.id && entityCount == other.entityCount &&
-         nodesPerEntity == other.nodesPerEntity && edgesPerEntity == other.edgesPerEntity &&
-         facesPerEntity == other.facesPerEntity && attributeCount == other.attributeCount &&
-         procOffset == other.procOffset && std::strcmp(elType, other.elType) == 0;
-}
-
 NodeSet::NodeSet(const Ioss::NodeSet &other)
 {
   if (other.property_exists("db_name")) {
@@ -396,26 +261,16 @@ NodeSet::NodeSet(const Ioss::NodeSet &other)
     name = other.name();
   }
 
-  id          = other.get_property("id").get_int();
-  entityCount = other.entity_count();
-  if (other.property_exists("locally_owned_count")) {
-    localOwnedCount = other.get_property("locally_owned_count").get_int();
-  }
-  else {
-    localOwnedCount = entityCount;
-  }
-  attributeCount = other.get_property("attribute_count").get_int();
-  dfCount        = other.get_property("distribution_factor_count").get_int();
+  id                = other.get_property("id").get_int();
+  entityCount       = other.entity_count();
+  globalEntityCount = other.get_optional_property("global_entity_count", 0);
+  localOwnedCount   = other.get_optional_property("locally_owned_count", entityCount);
+  attributeCount    = other.get_property("attribute_count").get_int();
+  dfCount           = other.get_property("distribution_factor_count").get_int();
   if (dfCount > 0 && dfCount != entityCount) {
     dfCount = entityCount;
   }
   procOffset = 0;
-}
-
-bool NodeSet::operator==(const NodeSet &other) const
-{
-  return id == other.id && entityCount == other.entityCount && dfCount == other.dfCount &&
-         name == other.name && procOffset == other.procOffset;
 }
 
 EdgeSet::EdgeSet(const Ioss::EdgeSet &other)
@@ -434,12 +289,6 @@ EdgeSet::EdgeSet(const Ioss::EdgeSet &other)
   procOffset     = 0;
 }
 
-bool EdgeSet::operator==(const EdgeSet &other) const
-{
-  return id == other.id && entityCount == other.entityCount && dfCount == other.dfCount &&
-         procOffset == other.procOffset && name == other.name;
-}
-
 FaceSet::FaceSet(const Ioss::FaceSet &other)
 {
   if (other.property_exists("db_name")) {
@@ -454,12 +303,6 @@ FaceSet::FaceSet(const Ioss::FaceSet &other)
   attributeCount = other.get_property("attribute_count").get_int();
   dfCount        = other.get_property("distribution_factor_count").get_int();
   procOffset     = 0;
-}
-
-bool FaceSet::operator==(const FaceSet &other) const
-{
-  return id == other.id && entityCount == other.entityCount && dfCount == other.dfCount &&
-         procOffset == other.procOffset && name == other.name;
 }
 
 ElemSet::ElemSet(const Ioss::ElementSet &other)
@@ -478,12 +321,6 @@ ElemSet::ElemSet(const Ioss::ElementSet &other)
   procOffset     = 0;
 }
 
-bool ElemSet::operator==(const ElemSet &other) const
-{
-  return id == other.id && entityCount == other.entityCount && dfCount == other.dfCount &&
-         procOffset == other.procOffset && name == other.name;
-}
-
 SideSet::SideSet(const Ioss::SideBlock &other)
 {
   if (other.property_exists("db_name")) {
@@ -495,6 +332,7 @@ SideSet::SideSet(const Ioss::SideBlock &other)
 
   id                         = other.get_property("id").get_int();
   entityCount                = other.entity_count();
+  globalEntityCount          = other.get_optional_property("global_entity_count", 0);
   dfCount                    = other.get_property("distribution_factor_count").get_int();
   const std::string &io_name = other.name();
 
@@ -517,6 +355,7 @@ SideSet::SideSet(const Ioss::SideSet &other)
 
   id                         = other.get_property("id").get_int();
   entityCount                = other.entity_count();
+  globalEntityCount          = other.get_optional_property("global_entity_count", 0);
   dfCount                    = other.get_property("distribution_factor_count").get_int();
   const std::string &io_name = other.name();
 
@@ -526,17 +365,6 @@ SideSet::SideSet(const Ioss::SideSet &other)
   }
   procOffset   = 0;
   dfProcOffset = 0;
-}
-
-bool SideSet::operator==(const SideSet &other) const
-{
-  return id == other.id && entityCount == other.entityCount && dfCount == other.dfCount &&
-         procOffset == other.procOffset && dfProcOffset == other.dfProcOffset && name == other.name;
-}
-
-bool CommunicationMap::operator==(const CommunicationMap &other) const
-{
-  return id == other.id && entityCount == other.entityCount && type == other.type;
 }
 
 Internals::Internals(int exoid, size_t maximum_name_length, const Ioss::ParallelUtils &util)
@@ -550,7 +378,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
 {
   // Determine global counts...
   if (!mesh.file_per_processor) {
-    get_global_counts(mesh);
+    mesh.get_global_counts();
   }
 
   int         ierr = 0;
@@ -772,11 +600,14 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
     }
 
     struct ex__file_item *file = ex__find_file_item(exodusFilePtr);
-    file->time_varid           = varid;
+    if (file) {
+      file->time_varid = varid;
+    }
 
     ex__compress_variable(exodusFilePtr, varid, 2);
   } // Exit redefine mode
 
+  bool output_global_data = (mesh.comm.outputNemesis && mesh.comm.processorCount > 1);
   if (var_params.num_edge > 0) {
     if ((ierr = put_non_define_data(mesh.edgeblocks)) != EX_NOERR) {
       EX_FUNC_LEAVE(ierr);
@@ -792,14 +623,14 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
   }
 
   if (var_params.num_elem > 0) {
-    if ((ierr = put_non_define_data(mesh.elemblocks)) != EX_NOERR) {
+    if ((ierr = put_non_define_data(mesh.elemblocks, output_global_data)) != EX_NOERR) {
       EX_FUNC_LEAVE(ierr);
     }
     output_names(mesh.elemblocks, exodusFilePtr, EX_ELEM_BLOCK);
   }
 
   if (var_params.num_nset > 0) {
-    if ((ierr = put_non_define_data(mesh.nodesets)) != EX_NOERR) {
+    if ((ierr = put_non_define_data(mesh.nodesets, output_global_data)) != EX_NOERR) {
       EX_FUNC_LEAVE(ierr);
     }
     output_names(mesh.nodesets, exodusFilePtr, EX_NODE_SET);
@@ -827,7 +658,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
   }
 
   if (var_params.num_sset > 0) {
-    if ((ierr = put_non_define_data(mesh.sidesets)) != EX_NOERR) {
+    if ((ierr = put_non_define_data(mesh.sidesets, output_global_data)) != EX_NOERR) {
       EX_FUNC_LEAVE(ierr);
     }
     output_names(mesh.sidesets, exodusFilePtr, EX_SIDE_SET);
@@ -839,9 +670,11 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
 void Mesh::populate(Ioss::Region *region)
 {
   {
-    const auto &    node_blocks = region->get_node_blocks();
-    Ioex::NodeBlock N(*node_blocks[0]);
-    nodeblocks.push_back(N);
+    const auto &node_blocks = region->get_node_blocks();
+    if (!node_blocks.empty()) {
+      Ioex::NodeBlock N(*node_blocks[0]);
+      nodeblocks.push_back(N);
+    }
   }
 
   // Assemblies --
@@ -934,6 +767,133 @@ void Mesh::populate(Ioss::Region *region)
       sidesets.push_back(T);
     }
   }
+
+  // Determine global counts...
+  if (!file_per_processor) {
+    get_global_counts();
+  }
+}
+
+void Mesh::get_global_counts()
+{
+#if defined(SEACAS_HAVE_MPI)
+  std::vector<int64_t> counts;
+  std::vector<int64_t> global_counts;
+
+  for (auto &nodeblock : nodeblocks) {
+    counts.push_back(nodeblock.localOwnedCount);
+  }
+  for (auto &edgeblock : edgeblocks) {
+    counts.push_back(edgeblock.entityCount);
+  }
+  for (auto &faceblock : faceblocks) {
+    counts.push_back(faceblock.entityCount);
+  }
+  for (auto &elemblock : elemblocks) {
+    counts.push_back(elemblock.entityCount);
+  }
+  for (auto &nodeset : nodesets) {
+    counts.push_back(nodeset.localOwnedCount);
+    counts.push_back(nodeset.dfCount);
+  }
+  for (auto &edgeset : edgesets) {
+    counts.push_back(edgeset.entityCount);
+    counts.push_back(edgeset.dfCount);
+  }
+  for (auto &faceset : facesets) {
+    counts.push_back(faceset.entityCount);
+    counts.push_back(faceset.dfCount);
+  }
+  for (auto &elemset : elemsets) {
+    counts.push_back(elemset.entityCount);
+    counts.push_back(elemset.dfCount);
+  }
+  for (auto &sideset : sidesets) {
+    counts.push_back(sideset.entityCount);
+    counts.push_back(sideset.dfCount);
+  }
+  for (auto &blob : blobs) {
+    counts.push_back(blob.entityCount);
+  }
+
+  // Now gather this information on each processor so
+  // they can determine the offsets and totals...
+  global_counts.resize(counts.size() * parallelUtil.parallel_size());
+
+  MPI_Allgather(&counts[0], counts.size(), MPI_LONG_LONG_INT, &global_counts[0], counts.size(),
+                MPI_LONG_LONG_INT, parallelUtil.communicator());
+
+  std::vector<int64_t> offsets(counts.size());
+
+  size_t my_proc    = parallelUtil.parallel_rank();
+  size_t proc_count = parallelUtil.parallel_size();
+
+  // Calculate offsets for each entity on each processor
+  for (size_t j = 0; j < offsets.size(); j++) {
+    for (size_t i = 0; i < my_proc; i++) {
+      offsets[j] += global_counts[i * offsets.size() + j];
+    }
+  }
+
+  // Now calculate the total count of entities over all processors
+  for (size_t j = 0; j < offsets.size(); j++) {
+    for (size_t i = 1; i < proc_count; i++) {
+      global_counts[j] += global_counts[i * offsets.size() + j];
+    }
+  }
+
+  size_t j = 0;
+  for (auto &nodeblock : nodeblocks) {
+    nodeblock.procOffset  = offsets[j];
+    nodeblock.entityCount = global_counts[j++];
+  }
+  for (auto &edgeblock : edgeblocks) {
+    edgeblock.procOffset  = offsets[j];
+    edgeblock.entityCount = global_counts[j++];
+  }
+  for (auto &faceblock : faceblocks) {
+    faceblock.procOffset  = offsets[j];
+    faceblock.entityCount = global_counts[j++];
+  }
+  for (auto &elemblock : elemblocks) {
+    elemblock.procOffset  = offsets[j];
+    elemblock.entityCount = global_counts[j++];
+  }
+  for (auto &nodeset : nodesets) {
+    nodeset.procOffset  = offsets[j];
+    nodeset.entityCount = global_counts[j++];
+    nodeset.dfCount     = global_counts[j++];
+    if (nodeset.dfCount != 0) {
+      // Need to adjust for locally-owned only in the auto-join output.
+      nodeset.dfCount = nodeset.entityCount;
+    }
+  }
+  for (auto &edgeset : edgesets) {
+    edgeset.procOffset  = offsets[j];
+    edgeset.entityCount = global_counts[j++];
+    edgeset.dfCount     = global_counts[j++];
+  }
+  for (auto &faceset : facesets) {
+    faceset.procOffset  = offsets[j];
+    faceset.entityCount = global_counts[j++];
+    faceset.dfCount     = global_counts[j++];
+  }
+  for (auto &elemset : elemsets) {
+    elemset.procOffset  = offsets[j];
+    elemset.entityCount = global_counts[j++];
+    elemset.dfCount     = global_counts[j++];
+  }
+  for (auto &sideset : sidesets) {
+    sideset.procOffset   = offsets[j];
+    sideset.entityCount  = global_counts[j++];
+    sideset.dfProcOffset = offsets[j];
+    sideset.dfCount      = global_counts[j++];
+  }
+  for (auto &blob : blobs) {
+    blob.procOffset  = offsets[j];
+    blob.entityCount = global_counts[j++];
+  }
+#endif
 }
 
 int Internals::write_meta_data(Mesh &mesh)
@@ -941,11 +901,6 @@ int Internals::write_meta_data(Mesh &mesh)
   EX_FUNC_ENTER();
   int ierr;
   {
-    // Determine global counts...
-    if (!mesh.file_per_processor) {
-      get_global_counts(mesh);
-    }
-
     // Determine length of longest name... Reduces calls to put_att
     maximumNameLength = get_max_name_length(mesh.edgeblocks, maximumNameLength);
     maximumNameLength = get_max_name_length(mesh.faceblocks, maximumNameLength);
@@ -955,6 +910,8 @@ int Internals::write_meta_data(Mesh &mesh)
     maximumNameLength = get_max_name_length(mesh.facesets, maximumNameLength);
     maximumNameLength = get_max_name_length(mesh.elemsets, maximumNameLength);
     maximumNameLength = get_max_name_length(mesh.sidesets, maximumNameLength);
+    maximumNameLength = get_max_name_length(mesh.blobs, maximumNameLength);
+    maximumNameLength = get_max_name_length(mesh.assemblies, maximumNameLength);
 
     Redefine the_database(exodusFilePtr);
     // Set the database to NOFILL mode.  Only writes values we want written...
@@ -1010,7 +967,9 @@ int Internals::write_meta_data(Mesh &mesh)
   }
 
   // NON-Define mode output...
-  if ((ierr = put_non_define_data(mesh.comm)) != EX_NOERR) {
+  bool output_global_data = (mesh.comm.outputNemesis && mesh.comm.processorCount > 1);
+
+  if ((ierr = put_non_define_data(mesh.comm, mesh.full_nemesis_data)) != EX_NOERR) {
     EX_FUNC_LEAVE(ierr);
   }
 
@@ -1022,11 +981,11 @@ int Internals::write_meta_data(Mesh &mesh)
     EX_FUNC_LEAVE(ierr);
   }
 
-  if ((ierr = put_non_define_data(mesh.elemblocks)) != EX_NOERR) {
+  if ((ierr = put_non_define_data(mesh.elemblocks, output_global_data)) != EX_NOERR) {
     EX_FUNC_LEAVE(ierr);
   }
 
-  if ((ierr = put_non_define_data(mesh.nodesets)) != EX_NOERR) {
+  if ((ierr = put_non_define_data(mesh.nodesets, output_global_data)) != EX_NOERR) {
     EX_FUNC_LEAVE(ierr);
   }
 
@@ -1042,7 +1001,7 @@ int Internals::write_meta_data(Mesh &mesh)
     EX_FUNC_LEAVE(ierr);
   }
 
-  if ((ierr = put_non_define_data(mesh.sidesets)) != EX_NOERR) {
+  if ((ierr = put_non_define_data(mesh.sidesets, output_global_data)) != EX_NOERR) {
     EX_FUNC_LEAVE(ierr);
   }
 
@@ -1088,126 +1047,6 @@ void Internals::update_assembly_data(int exoid, std::vector<Assembly> &assemblie
   if (stage == 0 || stage == 2) {
     internal.put_non_define_data(assemblies);
   }
-}
-
-void Internals::get_global_counts(Mesh &mesh)
-{
-  PAR_UNUSED(mesh);
-#if defined(SEACAS_HAVE_MPI)
-  std::vector<int64_t> counts;
-  std::vector<int64_t> global_counts;
-
-  counts.push_back(mesh.nodeblocks[0].localOwnedCount);
-  for (auto &edgeblock : mesh.edgeblocks) {
-    counts.push_back(edgeblock.entityCount);
-  }
-  for (auto &faceblock : mesh.faceblocks) {
-    counts.push_back(faceblock.entityCount);
-  }
-  for (auto &elemblock : mesh.elemblocks) {
-    counts.push_back(elemblock.entityCount);
-  }
-  for (auto &nodeset : mesh.nodesets) {
-    counts.push_back(nodeset.localOwnedCount);
-    counts.push_back(nodeset.dfCount);
-  }
-  for (auto &edgeset : mesh.edgesets) {
-    counts.push_back(edgeset.entityCount);
-    counts.push_back(edgeset.dfCount);
-  }
-  for (auto &faceset : mesh.facesets) {
-    counts.push_back(faceset.entityCount);
-    counts.push_back(faceset.dfCount);
-  }
-  for (auto &elemset : mesh.elemsets) {
-    counts.push_back(elemset.entityCount);
-    counts.push_back(elemset.dfCount);
-  }
-  for (auto &sideset : mesh.sidesets) {
-    counts.push_back(sideset.entityCount);
-    counts.push_back(sideset.dfCount);
-  }
-  for (auto &blob : mesh.blobs) {
-    counts.push_back(blob.entityCount);
-  }
-
-  // Now gather this information on each processor so
-  // they can determine the offsets and totals...
-  global_counts.resize(counts.size() * parallelUtil.parallel_size());
-
-  MPI_Allgather(&counts[0], counts.size(), MPI_LONG_LONG_INT, &global_counts[0], counts.size(),
-                MPI_LONG_LONG_INT, parallelUtil.communicator());
-
-  std::vector<int64_t> offsets(counts.size());
-
-  size_t my_proc    = parallelUtil.parallel_rank();
-  size_t proc_count = parallelUtil.parallel_size();
-
-  // Calculate offsets for each entity on each processor
-  for (size_t j = 0; j < offsets.size(); j++) {
-    for (size_t i = 0; i < my_proc; i++) {
-      offsets[j] += global_counts[i * offsets.size() + j];
-    }
-  }
-
-  // Now calculate the total count of entities over all processors
-  for (size_t j = 0; j < offsets.size(); j++) {
-    for (size_t i = 1; i < proc_count; i++) {
-      global_counts[j] += global_counts[i * offsets.size() + j];
-    }
-  }
-
-  size_t j                       = 0;
-  mesh.nodeblocks[0].procOffset  = offsets[j];
-  mesh.nodeblocks[0].entityCount = global_counts[j++];
-
-  for (auto &edgeblock : mesh.edgeblocks) {
-    edgeblock.procOffset  = offsets[j];
-    edgeblock.entityCount = global_counts[j++];
-  }
-  for (auto &faceblock : mesh.faceblocks) {
-    faceblock.procOffset  = offsets[j];
-    faceblock.entityCount = global_counts[j++];
-  }
-  for (auto &elemblock : mesh.elemblocks) {
-    elemblock.procOffset  = offsets[j];
-    elemblock.entityCount = global_counts[j++];
-  }
-  for (auto &nodeset : mesh.nodesets) {
-    nodeset.procOffset  = offsets[j];
-    nodeset.entityCount = global_counts[j++];
-    nodeset.dfCount     = global_counts[j++];
-    if (nodeset.dfCount != 0) {
-      // Need to adjust for locally-owned only in the auto-join output.
-      nodeset.dfCount = nodeset.entityCount;
-    }
-  }
-  for (auto &edgeset : mesh.edgesets) {
-    edgeset.procOffset  = offsets[j];
-    edgeset.entityCount = global_counts[j++];
-    edgeset.dfCount     = global_counts[j++];
-  }
-  for (auto &faceset : mesh.facesets) {
-    faceset.procOffset  = offsets[j];
-    faceset.entityCount = global_counts[j++];
-    faceset.dfCount     = global_counts[j++];
-  }
-  for (auto &elemset : mesh.elemsets) {
-    elemset.procOffset  = offsets[j];
-    elemset.entityCount = global_counts[j++];
-    elemset.dfCount     = global_counts[j++];
-  }
-  for (auto &sideset : mesh.sidesets) {
-    sideset.procOffset   = offsets[j];
-    sideset.entityCount  = global_counts[j++];
-    sideset.dfProcOffset = offsets[j];
-    sideset.dfCount      = global_counts[j++];
-  }
-  for (auto &blob : mesh.blobs) {
-    blob.procOffset = offsets[j];
-    blob.entityCount = global_counts[j++];
-  }
-#endif
 }
 
 int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
@@ -1343,12 +1182,14 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
   }
   {
     struct ex__file_item *file = ex__find_file_item(exodusFilePtr);
-    file->time_varid           = varid;
+    if (file != nullptr) {
+      file->time_varid = varid;
+    }
   }
 
   ex__compress_variable(exodusFilePtr, varid, 2);
 
-  if (mesh.nodeblocks[0].entityCount > 0) {
+  if (!mesh.nodeblocks.empty() && mesh.nodeblocks[0].entityCount > 0) {
     status = nc_def_dim(exodusFilePtr, DIM_NUM_NODES, mesh.nodeblocks[0].entityCount, &numnoddim);
     if (status != NC_NOERR) {
       ex_opts(EX_VERBOSE);
@@ -1358,27 +1199,29 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
 
     // Define the node map here to avoid a later redefine call
-    int dims[1];
-    dims[0] = numnoddim;
-    status  = nc_def_var(exodusFilePtr, VAR_NODE_NUM_MAP, map_type, 1, dims, &varid);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      if (status == NC_ENAMEINUSE) {
-        errmsg =
-            fmt::format("Error: node numbering map already exists in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+    if (mesh.use_node_map) {
+      int dims[1];
+      dims[0] = numnoddim;
+      status  = nc_def_var(exodusFilePtr, VAR_NODE_NUM_MAP, map_type, 1, dims, &varid);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        if (status == NC_ENAMEINUSE) {
+          errmsg =
+              fmt::format("Error: node numbering map already exists in file id {}", exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        else {
+          errmsg = fmt::format("Error: failed to create node numbering map array in file id {}",
+                               exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        return (EX_FATAL);
       }
-      else {
-        errmsg = fmt::format("Error: failed to create node numbering map array in file id {}",
-                             exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      }
-      return (EX_FATAL);
+      ex__compress_variable(exodusFilePtr, varid, 1);
     }
-    ex__compress_variable(exodusFilePtr, varid, 1);
   }
 
-  if (mesh.nodeblocks[0].attributeCount > 0) {
+  if (!mesh.nodeblocks.empty() && mesh.nodeblocks[0].attributeCount > 0) {
     int numattrdim;
     status = nc_def_dim(exodusFilePtr, DIM_NUM_ATT_IN_NBLK, mesh.nodeblocks[0].attributeCount,
                         &numattrdim);
@@ -1436,25 +1279,27 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
 
     // Define the element map here to avoid a later redefine call
-    int dims[1];
-    dims[0] = numelemdim;
-    varid   = 0;
-    status  = nc_def_var(exodusFilePtr, VAR_ELEM_NUM_MAP, map_type, 1, dims, &varid);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      if (status == NC_ENAMEINUSE) {
-        errmsg =
-            fmt::format("Error: element numbering map already exists in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+    if (mesh.use_elem_map) {
+      int dims[1];
+      dims[0] = numelemdim;
+      varid   = 0;
+      status  = nc_def_var(exodusFilePtr, VAR_ELEM_NUM_MAP, map_type, 1, dims, &varid);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        if (status == NC_ENAMEINUSE) {
+          errmsg = fmt::format("Error: element numbering map already exists in file id {}",
+                               exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        else {
+          errmsg = fmt::format("Error: failed to create element numbering map in file id {}",
+                               exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        return (EX_FATAL);
       }
-      else {
-        errmsg = fmt::format("Error: failed to create element numbering map in file id {}",
-                             exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      }
-      return (EX_FATAL);
+      ex__compress_variable(exodusFilePtr, varid, 1);
     }
-    ex__compress_variable(exodusFilePtr, varid, 1);
   }
 
   size_t face_count = 0;
@@ -1473,23 +1318,25 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
 
     // Define the face map here to avoid a later redefine call
-    int dims[1];
-    dims[0] = numfacedim;
-    varid   = 0;
-    status  = nc_def_var(exodusFilePtr, VAR_FACE_NUM_MAP, map_type, 1, dims, &varid);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      if (status == NC_ENAMEINUSE) {
-        errmsg =
-            fmt::format("Error: face numbering map already exists in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+    if (mesh.use_face_map) {
+      int dims[1];
+      dims[0] = numfacedim;
+      varid   = 0;
+      status  = nc_def_var(exodusFilePtr, VAR_FACE_NUM_MAP, map_type, 1, dims, &varid);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        if (status == NC_ENAMEINUSE) {
+          errmsg =
+              fmt::format("Error: face numbering map already exists in file id {}", exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        else {
+          errmsg = fmt::format("Error: failed to create face numbering map in file id {}",
+                               exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        return (EX_FATAL);
       }
-      else {
-        errmsg =
-            fmt::format("Error: failed to create face numbering map in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      }
-      return (EX_FATAL);
     }
   }
 
@@ -1509,23 +1356,25 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
 
     // Define the edge map here to avoid a later redefine call
-    int dims[1];
-    dims[0] = numedgedim;
-    varid   = 0;
-    status  = nc_def_var(exodusFilePtr, VAR_EDGE_NUM_MAP, map_type, 1, dims, &varid);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      if (status == NC_ENAMEINUSE) {
-        errmsg =
-            fmt::format("Error: edge numbering map already exists in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+    if (mesh.use_edge_map) {
+      int dims[1];
+      dims[0] = numedgedim;
+      varid   = 0;
+      status  = nc_def_var(exodusFilePtr, VAR_EDGE_NUM_MAP, map_type, 1, dims, &varid);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        if (status == NC_ENAMEINUSE) {
+          errmsg =
+              fmt::format("Error: edge numbering map already exists in file id {}", exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        else {
+          errmsg = fmt::format("Error: failed to create edge numbering map in file id {}",
+                               exodusFilePtr);
+          ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        }
+        return (EX_FATAL);
       }
-      else {
-        errmsg =
-            fmt::format("Error: failed to create edge numbering map in file id {}", exodusFilePtr);
-        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      }
-      return (EX_FATAL);
     }
   }
 
@@ -1576,9 +1425,11 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
   }
 
   // ========================================================================
-  if (define_coordinate_vars(exodusFilePtr, mesh.nodeblocks[0].entityCount, numnoddim,
-                             mesh.dimensionality, numdimdim, namestrdim) != EX_NOERR) {
-    return (EX_FATAL);
+  if (!mesh.nodeblocks.empty()) {
+    if (define_coordinate_vars(exodusFilePtr, mesh.nodeblocks[0].entityCount, numnoddim,
+                               mesh.dimensionality, numdimdim, namestrdim) != EX_NOERR) {
+      return (EX_FATAL);
+    }
   }
 
   // Define dimension for the number of processors
@@ -1706,74 +1557,76 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     }
 
     // Internal Node status
-    status = conditional_define_variable(exodusFilePtr, VAR_INT_N_STAT, dimid_npf, &nodeMapVarID[0],
-                                         NC_INT);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+    if (mesh.full_nemesis_data) {
+      status = conditional_define_variable(exodusFilePtr, VAR_INT_N_STAT, dimid_npf,
+                                           &nodeMapVarID[0], NC_INT);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Border node status
-    status = conditional_define_variable(exodusFilePtr, VAR_BOR_N_STAT, dimid_npf, &nodeMapVarID[1],
-                                         NC_INT);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Border node status
+      status = conditional_define_variable(exodusFilePtr, VAR_BOR_N_STAT, dimid_npf,
+                                           &nodeMapVarID[1], NC_INT);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // External Node status
-    status = conditional_define_variable(exodusFilePtr, VAR_EXT_N_STAT, dimid_npf, &nodeMapVarID[2],
-                                         NC_INT);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // External Node status
+      status = conditional_define_variable(exodusFilePtr, VAR_EXT_N_STAT, dimid_npf,
+                                           &nodeMapVarID[2], NC_INT);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define the variable IDs for the elemental status vectors
-    // Internal elements
-    status = conditional_define_variable(exodusFilePtr, VAR_INT_E_STAT, dimid_npf,
-                                         &elementMapVarID[0], NC_INT);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Define the variable IDs for the elemental status vectors
+      // Internal elements
+      status = conditional_define_variable(exodusFilePtr, VAR_INT_E_STAT, dimid_npf,
+                                           &elementMapVarID[0], NC_INT);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Border elements
-    status = conditional_define_variable(exodusFilePtr, VAR_BOR_E_STAT, dimid_npf,
-                                         &elementMapVarID[1], NC_INT);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Border elements
+      status = conditional_define_variable(exodusFilePtr, VAR_BOR_E_STAT, dimid_npf,
+                                           &elementMapVarID[1], NC_INT);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define variable for the internal element information
-    status = define_variable(exodusFilePtr, comm.elementsInternal, DIM_NUM_INT_ELEMS,
-                             VAR_ELEM_MAP_INT, bulk_type);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Define variable for the internal element information
+      status = define_variable(exodusFilePtr, comm.elementsInternal, DIM_NUM_INT_ELEMS,
+                               VAR_ELEM_MAP_INT, bulk_type);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define variable for the border element information
-    status = define_variable(exodusFilePtr, comm.elementsBorder, DIM_NUM_BOR_ELEMS,
-                             VAR_ELEM_MAP_BOR, bulk_type);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Define variable for the border element information
+      status = define_variable(exodusFilePtr, comm.elementsBorder, DIM_NUM_BOR_ELEMS,
+                               VAR_ELEM_MAP_BOR, bulk_type);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define variable for vector of internal FEM node IDs
-    status = define_variable(exodusFilePtr, comm.nodesInternal, DIM_NUM_INT_NODES, VAR_NODE_MAP_INT,
-                             bulk_type);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Define variable for vector of internal FEM node IDs
+      status = define_variable(exodusFilePtr, comm.nodesInternal, DIM_NUM_INT_NODES,
+                               VAR_NODE_MAP_INT, bulk_type);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define variable for vector of border FEM node IDs
-    status = define_variable(exodusFilePtr, comm.nodesBorder, DIM_NUM_BOR_NODES, VAR_NODE_MAP_BOR,
-                             bulk_type);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
-    }
+      // Define variable for vector of border FEM node IDs
+      status = define_variable(exodusFilePtr, comm.nodesBorder, DIM_NUM_BOR_NODES, VAR_NODE_MAP_BOR,
+                               bulk_type);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
 
-    // Define dimension for vector of external FEM node IDs
-    status = define_variable(exodusFilePtr, comm.nodesExternal, DIM_NUM_EXT_NODES, VAR_NODE_MAP_EXT,
-                             bulk_type);
-    if (status != EX_NOERR) {
-      return (EX_FATAL);
+      // Define dimension for vector of external FEM node IDs
+      status = define_variable(exodusFilePtr, comm.nodesExternal, DIM_NUM_EXT_NODES,
+                               VAR_NODE_MAP_EXT, bulk_type);
+      if (status != EX_NOERR) {
+        return (EX_FATAL);
+      }
     }
 
     // Add the nodal communication map count
@@ -1810,22 +1663,24 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       ecnt_cmap += elem.entityCount;
     }
 
-    {
-      const char *  vars[]  = {VAR_E_COMM_IDS, VAR_E_COMM_STAT, VAR_E_COMM_DATA_IDX, nullptr};
-      const nc_type types[] = {ids_type, NC_INT, bulk_type};
+    if (mesh.full_nemesis_data) {
+      {
+        const char *  vars[]  = {VAR_E_COMM_IDS, VAR_E_COMM_STAT, VAR_E_COMM_DATA_IDX, nullptr};
+        const nc_type types[] = {ids_type, NC_INT, bulk_type};
 
-      status = define_variables(exodusFilePtr, static_cast<int>(comm.elementMap.size()),
-                                DIM_NUM_E_CMAPS, vars, types);
-      if (status != EX_NOERR) {
-        return (EX_FATAL);
+        status = define_variables(exodusFilePtr, static_cast<int>(comm.elementMap.size()),
+                                  DIM_NUM_E_CMAPS, vars, types);
+        if (status != EX_NOERR) {
+          return (EX_FATAL);
+        }
       }
-    }
-    {
-      const char *  vars[]  = {VAR_E_COMM_EIDS, VAR_E_COMM_PROC, VAR_E_COMM_SIDS, nullptr};
-      const nc_type types[] = {ids_type, NC_INT, bulk_type};
-      status = define_variables(exodusFilePtr, ecnt_cmap, DIM_ECNT_CMAP, vars, types);
-      if (status != EX_NOERR) {
-        return (EX_FATAL);
+      {
+        const char *  vars[]  = {VAR_E_COMM_EIDS, VAR_E_COMM_PROC, VAR_E_COMM_SIDS, nullptr};
+        const nc_type types[] = {ids_type, NC_INT, bulk_type};
+        status = define_variables(exodusFilePtr, ecnt_cmap, DIM_ECNT_CMAP, vars, types);
+        if (status != EX_NOERR) {
+          return (EX_FATAL);
+        }
       }
     }
   }
@@ -1839,50 +1694,97 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
   }
   int dims[1];
 
-  ex__check_valid_file_id(exodusFilePtr, __func__);
+  std::string errmsg;
+  int         status;
+  if ((status = ex__check_valid_file_id(exodusFilePtr, __func__)) != EX_NOERR) {
+    errmsg = fmt::format("Error: Invalid exodus file handle: {}", exodusFilePtr);
+    ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+    return (EX_FATAL);
+  }
 
   int int_type = NC_INT;
   if (ex_int64_status(exodusFilePtr) & EX_IDS_INT64_DB) {
     int_type = NC_INT64;
   }
 
-  for (size_t i = 0; i < assemblies.size(); i++) {
-    char *numentryptr = DIM_NUM_ENTITY_ASSEMBLY(assemblies[i].id);
+  for (const auto &assembly : assemblies) {
+    char *numentryptr = DIM_NUM_ENTITY_ASSEMBLY(assembly.id);
 
     /* define dimensions and variables */
     int dimid;
-    nc_def_dim(exodusFilePtr, numentryptr, assemblies[i].entityCount, &dimid);
+    status = nc_def_dim(exodusFilePtr, numentryptr, assembly.entityCount, &dimid);
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to define number of entities in assembly in file id {}",
+                           exodusFilePtr);
+      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
 
     /* create variable array in which to store the entry lists */
     int entlst_id;
     dims[0] = dimid;
-    nc_def_var(exodusFilePtr, VAR_ENTITY_ASSEMBLY(assemblies[i].id), int_type, 1, dims, &entlst_id);
+    if ((status = nc_def_var(exodusFilePtr, VAR_ENTITY_ASSEMBLY(assembly.id), int_type, 1, dims,
+                             &entlst_id)) != NC_NOERR) {
+      errmsg = fmt::format("Error: failed to define entity assembly variable in file id {}",
+                           exodusFilePtr);
+      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
     ex__compress_variable(exodusFilePtr, entlst_id, 1);
 
     if (ex_int64_status(exodusFilePtr) & EX_IDS_INT64_DB) {
-      long long tmp = assemblies[i].id;
-      nc_put_att_longlong(exodusFilePtr, entlst_id, EX_ATTRIBUTE_ID, NC_INT64, 1, &tmp);
+      long long tmp = assembly.id;
+      status = nc_put_att_longlong(exodusFilePtr, entlst_id, EX_ATTRIBUTE_ID, NC_INT64, 1, &tmp);
     }
     else {
-      int id = assemblies[i].id;
-      nc_put_att_int(exodusFilePtr, entlst_id, EX_ATTRIBUTE_ID, NC_INT, 1, &id);
+      int id = assembly.id;
+      status = nc_put_att_int(exodusFilePtr, entlst_id, EX_ATTRIBUTE_ID, NC_INT, 1, &id);
+    }
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}", EX_ATTRIBUTE_ID,
+                           exodusFilePtr);
+      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
     }
 
-    int type = assemblies[i].type;
-    nc_put_att_int(exodusFilePtr, entlst_id, EX_ATTRIBUTE_TYPE, NC_INT, 1, &type);
+    int type = assembly.type;
+    status   = nc_put_att_int(exodusFilePtr, entlst_id, EX_ATTRIBUTE_TYPE, NC_INT, 1, &type);
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
+                           EX_ATTRIBUTE_TYPE, exodusFilePtr);
+      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
 
-    nc_put_att_text(exodusFilePtr, entlst_id, EX_ATTRIBUTE_NAME, assemblies[i].name.size() + 1,
-                    assemblies[i].name.c_str());
+    status = nc_put_att_text(exodusFilePtr, entlst_id, EX_ATTRIBUTE_NAME, assembly.name.size() + 1,
+                             assembly.name.c_str());
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
+                           EX_ATTRIBUTE_NAME, exodusFilePtr);
+      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
 
     {
-      char *contains = ex_name_of_object(assemblies[i].type);
-      nc_put_att_text(exodusFilePtr, entlst_id, EX_ATTRIBUTE_TYPENAME, strlen(contains) + 1,
-                      contains);
+      char *contains = ex_name_of_object(assembly.type);
+      status         = nc_put_att_text(exodusFilePtr, entlst_id, EX_ATTRIBUTE_TYPENAME,
+                               strlen(contains) + 1, contains);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
+                             EX_ATTRIBUTE_TYPENAME, exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
     }
 
     /* Increment assembly count */
     struct ex__file_item *file = ex__find_file_item(exodusFilePtr);
-    if (file) {
+    if (file != nullptr) {
       file->assembly_count++;
     }
   }
@@ -2171,7 +2073,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
       // 1 and in parallel mode, set the mode to independent.
       if (blocks[iblk].attributeCount > 1) {
         struct ex__file_item *file = ex__find_file_item(exodusFilePtr);
-        if (file->is_parallel && file->is_hdf5) {
+        if (file && file->is_parallel && file->is_hdf5) {
           nc_var_par_access(exodusFilePtr, varid, NC_INDEPENDENT);
         }
       }
@@ -2513,7 +2415,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
   return (EX_NOERR);
 }
 
-int Internals::put_non_define_data(const CommunicationMetaData &comm)
+int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_nemesis_data)
 {
   // Metadata that must be written outside of define mode...
   if (comm.outputNemesis) {
@@ -2543,59 +2445,61 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm)
     int    nmstat;
     size_t start[1];
 
-    nmstat = comm.nodesInternal == 0 ? 0 : 1;
-    status = nc_put_var_int(exodusFilePtr, nodeMapVarID[0], &nmstat);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      errmsg = fmt::format("Error: failed to output status for internal node map in file ID {}",
-                           exodusFilePtr);
-      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
-    }
+    if (full_nemesis_data) {
+      nmstat = comm.nodesInternal == 0 ? 0 : 1;
+      status = nc_put_var_int(exodusFilePtr, nodeMapVarID[0], &nmstat);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to output status for internal node map in file ID {}",
+                             exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
 
-    nmstat = comm.nodesBorder == 0 ? 0 : 1;
-    status = nc_put_var_int(exodusFilePtr, nodeMapVarID[1], &nmstat);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      errmsg = fmt::format("Error: failed to output status for border node map in file ID {}",
-                           exodusFilePtr);
-      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
-    }
+      nmstat = comm.nodesBorder == 0 ? 0 : 1;
+      status = nc_put_var_int(exodusFilePtr, nodeMapVarID[1], &nmstat);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to output status for border node map in file ID {}",
+                             exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
 
-    nmstat = comm.nodesExternal == 0 ? 0 : 1;
-    status = nc_put_var_int(exodusFilePtr, nodeMapVarID[2], &nmstat);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      errmsg = fmt::format("Error: failed to output status for external node map in file ID {}",
-                           exodusFilePtr);
-      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
-    }
+      nmstat = comm.nodesExternal == 0 ? 0 : 1;
+      status = nc_put_var_int(exodusFilePtr, nodeMapVarID[2], &nmstat);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to output status for external node map in file ID {}",
+                             exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
 
-    nmstat = comm.elementsInternal == 0 ? 0 : 1;
-    status = nc_put_var_int(exodusFilePtr, elementMapVarID[0], &nmstat);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      errmsg = fmt::format("Error: failed to output status for internal elem map in file ID {}",
-                           exodusFilePtr);
-      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
-    }
+      nmstat = comm.elementsInternal == 0 ? 0 : 1;
+      status = nc_put_var_int(exodusFilePtr, elementMapVarID[0], &nmstat);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to output status for internal elem map in file ID {}",
+                             exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
 
-    nmstat = comm.elementsBorder == 0 ? 0 : 1;
-    status = nc_put_var_int(exodusFilePtr, elementMapVarID[1], &nmstat);
-    if (status != NC_NOERR) {
-      ex_opts(EX_VERBOSE);
-      errmsg = fmt::format("Error: failed to output status for border elem map in file ID {}",
-                           exodusFilePtr);
-      ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      nmstat = comm.elementsBorder == 0 ? 0 : 1;
+      status = nc_put_var_int(exodusFilePtr, elementMapVarID[1], &nmstat);
+      if (status != NC_NOERR) {
+        ex_opts(EX_VERBOSE);
+        errmsg = fmt::format("Error: failed to output status for border elem map in file ID {}",
+                             exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
     }
 
     size_t ncnt_cmap = 0;
-    for (const auto &elem : comm.nodeMap) {
-      ncnt_cmap += elem.entityCount;
+    for (const auto &nmap : comm.nodeMap) {
+      ncnt_cmap += nmap.entityCount;
     }
 
     if (!comm.nodeMap.empty() && ncnt_cmap > 0) {
@@ -2727,7 +2631,9 @@ int Internals::put_non_define_data(const std::vector<Blob> &blobs)
   int status;
   int entlst_id;
 
+  size_t name_length = 0;
   for (const auto &blob : blobs) {
+    name_length = std::max(name_length, blob.name.length());
     if ((status = nc_inq_varid(exodusFilePtr, VAR_ENTITY_BLOB(blob.id), &entlst_id)) != NC_NOERR) {
       std::string errmsg =
           fmt::format("Error: failed to locate entity list array for blob {} in file id {}",
@@ -2744,16 +2650,27 @@ int Internals::put_non_define_data(const std::vector<Blob> &blobs)
       return (EX_FATAL);
     }
   }
+  ex__update_max_name_length(exodusFilePtr, name_length);
   return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<Assembly> &assemblies)
 {
+  size_t name_length = 0;
   for (const auto &assembly : assemblies) {
-    int status = EX_NOERR;
+    int status  = EX_NOERR;
+    name_length = std::max(name_length, assembly.name.length());
+
     if (!assembly.memberIdList.empty()) {
       int entlst_id = 0;
-      nc_inq_varid(exodusFilePtr, VAR_ENTITY_ASSEMBLY(assembly.id), &entlst_id);
+      if ((status = nc_inq_varid(exodusFilePtr, VAR_ENTITY_ASSEMBLY(assembly.id), &entlst_id)) !=
+          EX_NOERR) {
+        std::string errmsg =
+            fmt::format("Error: failed to locate entity list for assembly {} in file id {}",
+                        assembly.id, exodusFilePtr);
+        ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
+        return (EX_FATAL);
+      }
       if ((status = nc_put_var_longlong(exodusFilePtr, entlst_id,
                                         (long long int *)assembly.memberIdList.data())) !=
           EX_NOERR) {
@@ -2765,10 +2682,11 @@ int Internals::put_non_define_data(const std::vector<Assembly> &assemblies)
       }
     }
   }
+  ex__update_max_name_length(exodusFilePtr, name_length);
   return EX_NOERR;
 }
 
-int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks)
+int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool output_global_data)
 {
   int num_elem_blk = static_cast<int>(blocks.size()); // Verified via assert earlier...
 
@@ -2781,6 +2699,20 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks)
 
     if (put_id_array(exodusFilePtr, VAR_ID_EL_BLK, elem_blk_id) != NC_NOERR) {
       return (EX_FATAL);
+    }
+
+    if (output_global_data) {
+      if (put_id_array(exodusFilePtr, VAR_ELBLK_IDS_GLOBAL, elem_blk_id) != NC_NOERR) {
+        return (EX_FATAL);
+      }
+
+      std::vector<int64_t> counts(num_elem_blk);
+      for (int iblk = 0; iblk < num_elem_blk; iblk++) {
+        counts[iblk] = blocks[iblk].globalEntityCount;
+      }
+      if (put_int_array(exodusFilePtr, VAR_ELBLK_CNT_GLOBAL, counts) != NC_NOERR) {
+        return (EX_FATAL);
+      }
     }
 
     // Now, write the element block status array
@@ -3665,7 +3597,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
   return (EX_NOERR);
 }
 
-int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets)
+int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets, bool output_global_data)
 {
   if (nodesets.empty()) {
     return (EX_NOERR);
@@ -3680,6 +3612,20 @@ int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets)
 
   if (put_id_array(exodusFilePtr, VAR_NS_IDS, nodeset_id) != NC_NOERR) {
     return (EX_FATAL);
+  }
+
+  if (output_global_data) {
+    if (put_id_array(exodusFilePtr, VAR_NS_IDS_GLOBAL, nodeset_id) != NC_NOERR) {
+      return (EX_FATAL);
+    }
+
+    std::vector<int64_t> counts(num_nodesets);
+    for (size_t iset = 0; iset < num_nodesets; iset++) {
+      counts[iset] = nodesets[iset].globalEntityCount;
+    }
+    if (put_int_array(exodusFilePtr, VAR_NS_NODE_CNT_GLOBAL, counts) != NC_NOERR) {
+      return (EX_FATAL);
+    }
   }
 
   // Now, write the status array
@@ -3935,7 +3881,7 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
   return (EX_NOERR);
 }
 
-int Internals::put_non_define_data(const std::vector<SideSet> &sidesets)
+int Internals::put_non_define_data(const std::vector<SideSet> &sidesets, bool output_global_data)
 {
   if (sidesets.empty()) {
     return (EX_NOERR);
@@ -3950,6 +3896,20 @@ int Internals::put_non_define_data(const std::vector<SideSet> &sidesets)
 
   if (put_id_array(exodusFilePtr, VAR_SS_IDS, sideset_id) != NC_NOERR) {
     return (EX_FATAL);
+  }
+
+  if (output_global_data) {
+    if (put_id_array(exodusFilePtr, VAR_SS_IDS_GLOBAL, sideset_id) != NC_NOERR) {
+      return (EX_FATAL);
+    }
+
+    std::vector<int64_t> counts(num_sidesets);
+    for (int iset = 0; iset < num_sidesets; iset++) {
+      counts[iset] = sidesets[iset].globalEntityCount;
+    }
+    if (put_int_array(exodusFilePtr, VAR_SS_SIDE_CNT_GLOBAL, counts) != NC_NOERR) {
+      return (EX_FATAL);
+    }
   }
 
   // Now, write the status array
@@ -3968,8 +3928,8 @@ int Internals::put_non_define_data(const std::vector<SideSet> &sidesets)
 namespace {
   template <typename T> size_t get_max_name_length(const std::vector<T> &entities, size_t old_max)
   {
-    for (size_t i = 0; i < entities.size(); i++) {
-      old_max = std::max(old_max, entities[i].name.size());
+    for (const auto &entity : entities) {
+      old_max = std::max(old_max, entity.name.size());
     }
     return (old_max);
   }
@@ -3984,7 +3944,7 @@ namespace {
       for (size_t i = 0; i < entities.size(); i++) {
         names[i] = (char *)entities[i].name.c_str();
       }
-      return (ex_put_names(exoid, ent_type, &names[0]));
+      return (ex_put_names(exoid, ent_type, names.data()));
     }
     return (EX_NOERR);
   }
@@ -4094,7 +4054,31 @@ namespace {
       return (EX_FATAL);
     }
 
-    status = nc_put_var_int(exoid, var_id, &array[0]);
+    status = nc_put_var_int(exoid, var_id, array.data());
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to write {} array in file id {}", var_type, exoid);
+      ex_err_fn(exoid, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
+    return (EX_NOERR);
+  }
+
+  int put_int_array(int exoid, const char *var_type, const std::vector<int64_t> &array)
+  {
+    std::string errmsg;
+    int         var_id;
+    int         status;
+
+    status = nc_inq_varid(exoid, var_type, &var_id);
+    if (status != NC_NOERR) {
+      ex_opts(EX_VERBOSE);
+      errmsg = fmt::format("Error: failed to locate {} in file id {}", var_type, exoid);
+      ex_err_fn(exoid, __func__, errmsg.c_str(), status);
+      return (EX_FATAL);
+    }
+
+    status = nc_put_var_longlong(exoid, var_id, (long long *)array.data());
     if (status != NC_NOERR) {
       ex_opts(EX_VERBOSE);
       errmsg = fmt::format("Error: failed to write {} array in file id {}", var_type, exoid);
@@ -4120,7 +4104,7 @@ namespace {
     int id_type = get_type(exoid, EX_IDS_INT64_API);
 
     if (id_type == NC_INT64) {
-      status = nc_put_var_longlong(exoid, var_id, (long long int *)&ids[0]);
+      status = nc_put_var_longlong(exoid, var_id, (long long int *)ids.data());
     }
     else {
       // Have entity_id (long long), need ints...
@@ -4133,7 +4117,7 @@ namespace {
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-      status = nc_put_var_int(exoid, var_id, &int_ids[0]);
+      status = nc_put_var_int(exoid, var_id, int_ids.data());
     }
 
     if (status != NC_NOERR) {
@@ -4234,8 +4218,9 @@ namespace {
       return EX_NOERR;
     }
 
-    int         dimid = 0;
-    int         varid = 0;
+    size_t      sixty_four_kb = 64 * 1024;
+    int         dimid         = 0;
+    int         varid         = 0;
     int         dim[2];
     int         namestrdim = 0;
     std::string errmsg;
@@ -4264,10 +4249,13 @@ namespace {
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
       return (EX_FATAL);
     }
-    ex__set_compact_storage(exoid, varid);
+    if (count * 4 < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
+    }
 
     // id array:
     int ids_type = get_type(exoid, EX_IDS_INT64_DB);
+    int ids_size = ids_type == NC_INT ? 4 : 8;
     status       = nc_def_var(exoid, id_var, ids_type, 1, dim, &varid);
     if (status != NC_NOERR) {
       ex_opts(EX_VERBOSE);
@@ -4275,7 +4263,9 @@ namespace {
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
       return (EX_FATAL);
     }
-    ex__set_compact_storage(exoid, varid);
+    if (count * ids_size < sixty_four_kb) {
+      ex__set_compact_storage(exoid, varid);
+    }
 
     // store property name as attribute of property array variable
     status = nc_put_att_text(exoid, varid, ATT_PROP_NAME, 3, "ID");
@@ -4286,7 +4276,6 @@ namespace {
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
       return (EX_FATAL);
     }
-    ex__set_compact_storage(exoid, varid);
 
     if (name_var != nullptr) {
       dim[0] = dimid;
