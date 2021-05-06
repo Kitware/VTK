@@ -402,7 +402,7 @@ void vtkPlaneSource::Push(double distance)
 //------------------------------------------------------------------------------
 void vtkPlaneSource::Rotate(double angle, double rotationAxis[3])
 {
-  if (abs(angle) < EPSILON)
+  if (std::abs(angle) < EPSILON)
   {
     return;
   }
