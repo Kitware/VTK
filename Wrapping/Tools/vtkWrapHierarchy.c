@@ -901,12 +901,13 @@ int main(int argc, char* argv[])
   char** files = 0;
   char* flags;
   char* module_name;
+  StringCache* string_cache;
 
   /* pre-define a macro to identify the language */
   vtkParse_DefineMacro("__VTK_WRAP_HIERARCHY__", 0);
 
   /* parse command-line options */
-  StringCache* string_cache = vtkParse_MainMulti(argc, argv);
+  string_cache = vtkParse_MainMulti(argc, argv);
   options = vtkParse_GetCommandLineOptions();
 
   /* make sure than an output file was given on the command line */
