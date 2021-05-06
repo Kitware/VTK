@@ -3542,7 +3542,6 @@ function (vtk_module_add_module name)
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_module_optional_depend IN LISTS _vtk_add_module_optional_depends)
       if (TARGET "${_vtk_add_module_optional_depend}")
-        set(_vtk_add_module_have_optional_depend 1)
         set(_vtk_add_module_optional_depend_link "${_vtk_add_module_optional_depend}")
         if (_vtk_add_module_build_with_kit)
           get_property(_vtk_add_module_optional_depend_kit GLOBAL
@@ -3563,13 +3562,11 @@ function (vtk_module_add_module name)
         target_link_libraries("${_vtk_add_module_real_target}"
           PRIVATE
             "${_vtk_add_module_optional_depend_link}")
-      else ()
-        set(_vtk_add_module_have_optional_depend 0)
       endif ()
       string(REPLACE "::" "_" _vtk_add_module_optional_depend_safe "${_vtk_add_module_optional_depend}")
       target_compile_definitions("${_vtk_add_module_real_target}"
         PRIVATE
-          "VTK_MODULE_ENABLE_${_vtk_add_module_optional_depend_safe}=${_vtk_add_module_have_optional_depend}")
+          "VTK_MODULE_ENABLE_${_vtk_add_module_optional_depend_safe}=$<TARGET_EXISTS:${_vtk_add_module_optional_depend}>")
     endforeach ()
 
     if (_vtk_add_module_private_depends_forward_link)
@@ -4133,14 +4130,9 @@ function (vtk_module_add_executable name)
       PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
     foreach (_vtk_add_executable_optional_depend IN LISTS _vtk_add_executable_optional_depends)
       string(REPLACE "::" "_" _vtk_add_executable_optional_depend_safe "${_vtk_add_executable_optional_depend}")
-      if (TARGET "${_vtk_add_executable_optional_depend}")
-        set(_vtk_add_executable_have_optional_depend 1)
-      else ()
-        set(_vtk_add_executable_have_optional_depend 0)
-      endif ()
       target_compile_definitions("${_vtk_add_executable_target_name}"
         PRIVATE
-          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=${_vtk_add_executable_have_optional_depend}")
+          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<TARGET_EXISTS:{_vtk_add_executable_optional_depend}>")
     endforeach ()
 
     if (_vtk_module_warnings)
