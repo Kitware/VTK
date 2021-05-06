@@ -812,7 +812,7 @@ char* vtkParse_NewString(StringCache* cache, size_t n)
     cache->ChunkSize = 8176;
   }
 
-  // align next start position on an 8-byte boundary
+  /* align next start position on an 8-byte boundary */
   nextPosition = (((cache->Position + n + 8) | 7) - 7);
 
   if (cache->NumberOfChunks == 0 || nextPosition > cache->ChunkSize)
