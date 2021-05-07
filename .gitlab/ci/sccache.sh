@@ -43,6 +43,6 @@ $shatool --check sccache.sha256sum
 tar xf "$tarball"
 mv "$filename/sccache" .
 
-mkdir shortcuts
+mkdir -p shortcuts
 cp ./sccache shortcuts/gcc
 cp ./sccache shortcuts/g++

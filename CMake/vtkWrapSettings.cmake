@@ -18,12 +18,6 @@ if (VTK_PYTHON_VERSION STREQUAL "3")
   mark_as_advanced(VTK_DLL_PATHS)
 endif ()
 
-# Force reset of hints file location in cache if it was moved
-if(VTK_WRAP_HINTS AND NOT EXISTS ${VTK_WRAP_HINTS})
-  unset(VTK_WRAP_HINTS CACHE)
-  unset(VTK_WRAP_HINTS)
-endif()
-
 if (VTK_BUILD_TESTING OR VTK_WRAP_PYTHON)
   # VTK only supports a single Python version at a time, so make artifact
   # finding interactive.

@@ -7,6 +7,37 @@
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
         GIT_SUBMODULE_STRATEGY: none
 
+.manylinux2014_x86_64:
+    image: "quay.io/pypa/manylinux2014_x86_64:latest"
+
+.wheel_linux36_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux36_x86_64
+        PYTHON_PREFIX: /opt/python/cp36-cp36m
+
+.wheel_linux37_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux37_x86_64
+        PYTHON_PREFIX: /opt/python/cp37-cp37m
+
+.wheel_linux38_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_x86_64
+        PYTHON_PREFIX: /opt/python/cp38-cp38
+
+.wheel_linux39_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_x86_64
+        PYTHON_PREFIX: /opt/python/cp39-cp39
+
 .fedora33:
     extends: .linux
     image: "kitware/vtk:ci-fedora33-20210426"
@@ -254,4 +285,32 @@
     script:
         - *before_script_linux
         - "$LAUNCHER ctest --output-on-failure -V -S .gitlab/ci/ctest_memcheck.cmake"
+    interruptible: true
+
+.cmake_build_wheel_linux:
+    stage: build
+
+    script:
+        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
+        - *before_script_linux
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - cd build
+        - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
+        - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+    interruptible: true
+
+.cmake_test_wheel_linux:
+    stage: test
+
+    script:
+        - yum install -y --setopt=install_weak_deps=False libXcursor
+        - "$PYTHON_PREFIX/bin/python -m venv venv"
+        - venv/bin/pip install build/dist/*.whl
+        - venv/bin/python -c "import vtk"
     interruptible: true

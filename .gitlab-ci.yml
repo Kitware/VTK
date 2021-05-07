@@ -154,6 +154,86 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     needs:
         - test:fedora33-mpi-python-qt-tbb
 
+## Python wheel builds
+
+build:wheel-linux-python36-x86_64:
+    extends:
+        - .wheel_linux36_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-linux-python36-x86_64:
+#     extends:
+#         - .wheel_linux36_x86_64
+#         - .cmake_test_wheel_linux
+#         - .linux_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - build:wheel-linux-python36-x86_64
+#     needs:
+#         - build:wheel-linux-python36-x86_64
+
+build:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-linux-python37-x86_64
+    needs:
+        - build:wheel-linux-python37-x86_64
+
+build:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-linux-python38-x86_64
+    needs:
+        - build:wheel-linux-python38-x86_64
+
+build:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-linux-python39-x86_64
+    needs:
+        - build:wheel-linux-python39-x86_64
+
 ## Static analysis builds
 
 build:fedora33-tidy:
@@ -295,6 +375,84 @@ test:macos-kits-python-qt:
 #     needs:
 #         - test:macos-kits-python-qt
 
+## Python wheel builds
+
+build:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python36-x86_64
+    needs:
+        - build:wheel-macos-python36-x86_64
+
+build:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python37-x86_64
+    needs:
+        - build:wheel-macos-python37-x86_64
+
+build:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python38-x86_64
+    needs:
+        - build:wheel-macos-python38-x86_64
+
+build:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python39-x86_64
+    needs:
+        - build:wheel-macos-python39-x86_64
+
 # Windows
 
 build:windows-vs2019-kits-mpi-python-qt:
@@ -377,3 +535,83 @@ test:windows-vs2019-mpi-python-qt-static:
         - build:windows-vs2019-mpi-python-qt-static
     needs:
         - build:windows-vs2019-mpi-python-qt-static
+
+## Python wheel builds
+
+build:wheel-windows-python36-x86_64:
+    extends:
+        - .wheel_windows36_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-windows-python36-x86_64:
+#     extends:
+#         - .wheel_windows36_x86_64
+#         - .cmake_test_wheel_windows
+#         - .windows_wheel_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - build:wheel-windows-python36-x86_64
+#     needs:
+#         - build:wheel-windows-python36-x86_64
+
+build:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-windows-python37-x86_64
+    needs:
+        - build:wheel-windows-python37-x86_64
+
+build:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-windows-python38-x86_64
+    needs:
+        - build:wheel-windows-python38-x86_64
+
+build:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-windows-python39-x86_64
+    needs:
+        - build:wheel-windows-python39-x86_64

@@ -9,6 +9,37 @@
         # use so that different versions can be tested in a single pipeline.
         DEVELOPER_DIR: "/Applications/Xcode-12.3.app/Contents/Developer"
 
+.wheel_macos_x86_64:
+    extends: .macos
+
+.wheel_macos36_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos36_x86_64
+        PYTHON_VERSION_SUFFIX: "3.6"
+
+.wheel_macos37_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos37_x86_64
+        PYTHON_VERSION_SUFFIX: "3.7"
+
+.wheel_macos38_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos38_x86_64
+        PYTHON_VERSION_SUFFIX: "3.8"
+
+.wheel_macos39_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos39_x86_64
+        PYTHON_VERSION_SUFFIX: "3.9"
+
 ### Build and test
 
 .macos_build:
@@ -45,10 +76,17 @@
         - xcode-12.3
         - nonconcurrent
 
+.macos_wheel_builder_tags:
+    tags:
+        - vtk
+        - macos
+        - shell
+        - xcode-12.3
+        - concurrent
+
 .macos_ext_builder_tags:
     tags:
-        #- vtk
-        - paraview # FIXME: use ParaView's runners until VTK gets a machine ported to CI.
+        - vtk
         - macos
         - shell
         - xcode-12.3
@@ -101,4 +139,42 @@
         - *before_script_macos
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
 
+    interruptible: true
+
+.cmake_build_wheel_macos:
+    stage: build
+
+    script:
+        - *before_script_macos
+        - .gitlab/ci/sccache.sh
+        - cmake -P .gitlab/ci/download_wheel_python.cmake
+        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        # Allow the server to already be running.
+        - "sccache --start-server || :"
+        - sccache --show-stats
+        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - cd build
+        - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - venv/bin/pip install wheel
+        - venv/bin/python3 setup.py bdist_wheel
+        # XXX: `delocate` can't handle `@loader_path` or do recursive
+        # dependency scanning. Ignore it and just do it manually because
+        # apparently VTK is the most complicated wheel in the world.
+        # - venv/bin/pip install delocate
+        # - venv/bin/delocate-listdeps dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        # - venv/bin/delocate-wheel -v dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+    interruptible: true
+
+.cmake_test_wheel_macos:
+    stage: test
+
+    script:
+        - *before_script_macos
+        - cmake -P .gitlab/ci/download_wheel_python.cmake
+        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - venv/bin/pip install build/dist/*.whl
+        - venv/bin/python -c "import vtk"
     interruptible: true

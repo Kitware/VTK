@@ -33,6 +33,8 @@ endif()
 
 include(vtkCMakeBackports)
 
+option(VTK_WHEEL_BUILD "Build in such a way that Python wheels are supported" OFF)
+mark_as_advanced(VTK_WHEEL_BUILD)
 if (VTK_WHEEL_BUILD)
   include(vtkWheelPreparation)
 endif ()
@@ -81,7 +83,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
-add_subdirectory(Remote)
+if (VTK_ENABLE_REMOTE_MODULES)
+  add_subdirectory(Remote)
+endif ()
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
@@ -374,6 +378,14 @@ if (VTK_WRAP_PYTHON)
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
     "WIN32;VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)
+
+  if (APPLE AND VTK_WHEEL_BUILD)
+    list(APPEND CMAKE_INSTALL_RPATH
+      # Wheels place loaded libraries under a `.dylibs` subdirectory. Add this
+      # to the rpath list.
+      "@loader_path/.dylibs")
+  endif ()
+
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTKPython
@@ -387,6 +399,11 @@ if (VTK_WRAP_PYTHON)
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
     TARGET          VTK::vtkpythonmodules)
+
+  if (APPLE AND VTK_WHEEL_BUILD)
+    list(REMOVE_ITEM CMAKE_INSTALL_RPATH
+      "@loader_path/.dylibs")
+  endif ()
 
   add_subdirectory(Wrapping/Python)
 
