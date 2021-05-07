@@ -41,10 +41,11 @@ public:
 
   ///@{
   /**
-   * Specify/see if the simple (fast) or iterative (correct) version is called
+   * Specify/determine if the simple (fast) or iterative (correct) version is called.
    */
   vtkSetMacro(UseIterativeSeeding, bool);
   vtkGetMacro(UseIterativeSeeding, bool);
+  vtkBooleanMacro(UseIterativeSeeding, bool);
   ///@}
 
 protected:

@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellLocatorInterpolatedVelocityField.h"
+#include "vtkCellLocatorStrategy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -62,6 +63,7 @@ vtkCxxSetObjectMacro(vtkEvenlySpacedStreamlines2D, Integrator, vtkInitialValuePr
 vtkCxxSetObjectMacro(
   vtkEvenlySpacedStreamlines2D, InterpolatorPrototype, vtkAbstractInterpolatedVelocityField);
 
+//------------------------------------------------------------------------------
 vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
 {
   this->Integrator = vtkRungeKutta2::New();
@@ -88,8 +90,6 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
   this->InterpolatorPrototype = nullptr;
 
   // by default process active point vectors
-  this->SetInputArrayToProcess(
-    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
   this->SeparatingDistance = 1;
   this->SeparatingDistanceArcLength = 1;
   this->SeparatingDistanceRatio = 0.5;
@@ -100,6 +100,7 @@ vtkEvenlySpacedStreamlines2D::vtkEvenlySpacedStreamlines2D()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 }
 
+//------------------------------------------------------------------------------
 vtkEvenlySpacedStreamlines2D::~vtkEvenlySpacedStreamlines2D()
 {
   this->SetIntegrator(nullptr);
@@ -108,6 +109,7 @@ vtkEvenlySpacedStreamlines2D::~vtkEvenlySpacedStreamlines2D()
   this->Streamlines->Delete();
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -253,6 +255,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::ComputeCellLength(double* cellLength)
 {
   vtkAbstractInterpolatedVelocityField* func;
@@ -282,6 +285,7 @@ int vtkEvenlySpacedStreamlines2D::ComputeCellLength(double* cellLength)
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
@@ -291,6 +295,7 @@ int vtkEvenlySpacedStreamlines2D::FillInputPortInformation(int port, vtkInformat
   return 1;
 }
 
+//------------------------------------------------------------------------------
 bool vtkEvenlySpacedStreamlines2D::IsStreamlineTooCloseToOthers(
   void* clientdata, vtkPoints* points, vtkDataArray* velocity, int direction)
 {
@@ -337,6 +342,7 @@ bool vtkEvenlySpacedStreamlines2D::IsStreamlineLooping(
   return retVal;
 }
 
+//------------------------------------------------------------------------------
 template <typename CellCheckerType>
 bool vtkEvenlySpacedStreamlines2D::ForEachCell(
   double* point, CellCheckerType checker, vtkPoints* points, vtkDataArray* velocity, int direction)
@@ -375,6 +381,7 @@ bool vtkEvenlySpacedStreamlines2D::ForEachCell(
   return false;
 }
 
+//------------------------------------------------------------------------------
 bool vtkEvenlySpacedStreamlines2D::IsLooping(
   double* point, vtkIdType cellId, vtkPoints* points, vtkDataArray* velocity, int direction)
 {
@@ -440,6 +447,7 @@ bool vtkEvenlySpacedStreamlines2D::IsLooping(
   return false;
 }
 
+//------------------------------------------------------------------------------
 template <int distanceType>
 bool vtkEvenlySpacedStreamlines2D::IsTooClose(
   double* point, vtkIdType cellId, vtkPoints* points, vtkDataArray* velocity, int direction)
@@ -463,6 +471,7 @@ bool vtkEvenlySpacedStreamlines2D::IsTooClose(
   return false;
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::GetIntegratorType()
 {
   if (!this->Integrator)
@@ -480,6 +489,7 @@ int vtkEvenlySpacedStreamlines2D::GetIntegratorType()
   return vtkStreamTracer::UNKNOWN;
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorTypeToDataSetPointLocator()
 {
   this->SetInterpolatorType(
@@ -491,6 +501,7 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorTypeToCellLocator()
   this->SetInterpolatorType(static_cast<int>(vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR));
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
 {
   if (interpType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
@@ -499,9 +510,13 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
     vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField> cellLoc =
       vtkSmartPointer<vtkCellLocatorInterpolatedVelocityField>::New();
 
+    // create the locator (FindCell()) strategy
+    vtkSmartPointer<vtkCellLocatorStrategy> strategy =
+      vtkSmartPointer<vtkCellLocatorStrategy>::New();
+
     // specify the type of the cell locator attached to the interpolator
     vtkSmartPointer<vtkModifiedBSPTree> cellLocType = vtkSmartPointer<vtkModifiedBSPTree>::New();
-    cellLoc->SetCellLocatorPrototype(cellLocType);
+    strategy->SetCellLocator(cellLocType);
 
     this->SetInterpolatorPrototype(cellLoc);
   }
@@ -514,6 +529,7 @@ void vtkEvenlySpacedStreamlines2D::SetInterpolatorType(int interpType)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetIntegratorType(int type)
 {
   vtkInitialValueProblemSolver* ivp = nullptr;
@@ -536,6 +552,7 @@ void vtkEvenlySpacedStreamlines2D::SetIntegratorType(int type)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetIntegrationStepUnit(int unit)
 {
   if (unit != vtkStreamTracer::LENGTH_UNIT && unit != vtkStreamTracer::CELL_LENGTH_UNIT)
@@ -552,6 +569,7 @@ void vtkEvenlySpacedStreamlines2D::SetIntegrationStepUnit(int unit)
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 double vtkEvenlySpacedStreamlines2D::ConvertToLength(double interval, int unit, double cellLength)
 {
   double retVal = 0.0;
@@ -566,6 +584,7 @@ double vtkEvenlySpacedStreamlines2D::ConvertToLength(double interval, int unit, 
   return retVal;
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo)
 {
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
@@ -598,6 +617,7 @@ int vtkEvenlySpacedStreamlines2D::SetupOutput(vtkInformation* inInfo, vtkInforma
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkEvenlySpacedStreamlines2D::CheckInputs(
   vtkAbstractInterpolatedVelocityField*& func, int* maxCellSize)
 {
@@ -687,9 +707,16 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(
 
   const char* vecName = vectors->GetName();
   func->SelectVectors(vecType, vecName);
+
+  // This initializes / builds the data processing cache in support of threading etc.
+  // It takes into account the input to the filter (which may be a composite dataset)
+  // as well as any additional added datasets via AddDataSet().
+  func->Initialize(this->InputData);
+
   return VTK_OK;
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::InitializeSuperposedGrid(double* bounds)
 {
   this->SuperposedGrid->SetExtent(floor(bounds[0] / this->SeparatingDistanceArcLength),
@@ -702,6 +729,7 @@ void vtkEvenlySpacedStreamlines2D::InitializeSuperposedGrid(double* bounds)
   this->InitializePoints(this->CurrentPoints);
 }
 
+//------------------------------------------------------------------------------
 template <typename T>
 void vtkEvenlySpacedStreamlines2D::InitializePoints(T& points)
 {
@@ -712,6 +740,7 @@ void vtkEvenlySpacedStreamlines2D::InitializePoints(T& points)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::InitializeMinPointIds()
 {
   this->MinPointIds.resize(this->SuperposedGrid->GetNumberOfCells());
@@ -721,6 +750,7 @@ void vtkEvenlySpacedStreamlines2D::InitializeMinPointIds()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::AddToAllPoints(vtkPolyData* streamline)
 {
   vtkPoints* points = streamline->GetPoints();
@@ -739,6 +769,7 @@ void vtkEvenlySpacedStreamlines2D::AddToAllPoints(vtkPolyData* streamline)
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::GetBounds(vtkCompositeDataSet* cds, double bounds[6])
 {
   if (vtkOverlappingAMR::SafeDownCast(cds))
@@ -789,6 +820,7 @@ void vtkEvenlySpacedStreamlines2D::GetBounds(vtkCompositeDataSet* cds, double bo
   }
 }
 
+//------------------------------------------------------------------------------
 const char* vtkEvenlySpacedStreamlines2D::GetInputArrayToProcessName()
 {
   vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -818,16 +850,19 @@ const char* vtkEvenlySpacedStreamlines2D::GetInputArrayToProcessName()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetIntegratorTypeToRungeKutta2()
 {
   this->SetIntegratorType(vtkStreamTracer::RUNGE_KUTTA2);
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::SetIntegratorTypeToRungeKutta4()
 {
   this->SetIntegratorType(vtkStreamTracer::RUNGE_KUTTA4);
 }
 
+//------------------------------------------------------------------------------
 void vtkEvenlySpacedStreamlines2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -70,30 +70,6 @@ public:
    */
   static vtkCellLocatorInterpolatedVelocityField* New();
 
-  ///@{
-  /**
-   * Get the cell locator attached to the most recently visited dataset.
-   */
-  vtkGetObjectMacro(LastCellLocator, vtkAbstractCellLocator);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the prototype of the cell locator that is used for interpolating
-   * the velocity field during integration. The prototype is used to
-   * instantiate locators for performing interpolation. By default, a
-   * vtkModifiedBSPTree is used - other classes such as vtkStaticCellLocator
-   * can be faster.
-   */
-  void SetCellLocatorPrototype(vtkAbstractCellLocator* prototype);
-  vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
-  ///@}
-
-  /**
-   * Import parameters. Sub-classes can add more after chaining.
-   */
-  void CopyParameters(vtkAbstractInterpolatedVelocityField* from) override;
-
   /**
    * Add a dataset coupled with a cell locator (of type vtkAbstractCellLocator)
    * for vector function evaluation. Note the use of a vtkAbstractCellLocator
@@ -119,17 +95,21 @@ public:
    */
   void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
 
+  ///@{
+  /**
+   * Set/Get the prototype of the cell locator that is used for interpolating
+   * the velocity field during integration. The prototype is used to
+   * instantiate locators for performing interpolation. By default, a
+   * vtkModifiedBSPTree is used - other classes such as vtkStaticCellLocator
+   * can be faster.
+   */
+  void SetCellLocatorPrototype(vtkAbstractCellLocator* prototype);
+  vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
+  ///@}
+
 protected:
   vtkCellLocatorInterpolatedVelocityField();
   ~vtkCellLocatorInterpolatedVelocityField() override;
-
-  /**
-   * Evaluate the velocity field f at point (x, y, z) in a specified dataset
-   * (actually of type vtkPointSet only) through the use of the associated
-   * vtkAbstractCellLocator::FindCell() (instead of involving vtkPointLocator)
-   * to locate the next cell if the given point is outside the current cell.
-   */
-  int FunctionValues(vtkDataSet* dataset, vtkAbstractCellLocator* loc, double* x, double* f);
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -142,9 +122,7 @@ protected:
   }
 
 private:
-  vtkAbstractCellLocator* LastCellLocator;
   vtkAbstractCellLocator* CellLocatorPrototype;
-  vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType* CellLocators;
 
   vtkCellLocatorInterpolatedVelocityField(const vtkCellLocatorInterpolatedVelocityField&) = delete;
   void operator=(const vtkCellLocatorInterpolatedVelocityField&) = delete;

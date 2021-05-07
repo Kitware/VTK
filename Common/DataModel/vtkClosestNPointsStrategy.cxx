@@ -87,6 +87,19 @@ vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGen
 }
 
 //------------------------------------------------------------------------------
+void vtkClosestNPointsStrategy::CopyParameters(vtkFindCellStrategy* from)
+{
+
+  this->Superclass::CopyParameters(from);
+
+  vtkClosestNPointsStrategy* strategy = vtkClosestNPointsStrategy::SafeDownCast(from);
+  if (strategy)
+  {
+    this->ClosestNPoints = strategy->ClosestNPoints;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkClosestNPointsStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

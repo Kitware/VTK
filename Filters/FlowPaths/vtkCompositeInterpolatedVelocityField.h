@@ -18,7 +18,8 @@
  *  obtaining the interpolated velocity values at a point
  *
  *  vtkCompositeInterpolatedVelocityField acts as a continuous velocity field
- *  by performing cell interpolation on one or more underlying vtkDataSets.
+ *  by performing cell interpolation on one or more underlying vtkDataSets. That is,
+ *  composite datasets are combined to create a continuous velocity field.
  *
  * @warning
  *  vtkCompositeInterpolatedVelocityField is not thread safe. A new instance
@@ -69,6 +70,12 @@ public:
    */
   vtkGetMacro(LastDataSetIndex, int);
   ///@}
+
+  /**
+   * Copy essential parameters between instances of this class. See
+   * vtkAbstractInterpolatedVelocityField for more information.
+   */
+  void CopyParameters(vtkAbstractInterpolatedVelocityField* from) override;
 
 protected:
   vtkCompositeInterpolatedVelocityField();

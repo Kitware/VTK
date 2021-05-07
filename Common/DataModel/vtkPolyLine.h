@@ -42,14 +42,19 @@ public:
 
   ///@{
   /**
-   * Given points and lines, compute normals to lines. These are not true
-   * normals, they are "orientation" normals used by classes like vtkTubeFilter
-   * that control the rotation around the line. The normals try to stay pointing
-   * in the same direction as much as possible (i.e., minimal rotation) w.r.t the
-   * firstNormal (computed if nullptr). Always returns 1 (success).
+   * Given points and lines, compute normals to the lines. These are not true
+   * normals, they are "orientation" normals used by classes like
+   * vtkTubeFilter that control the rotation around the line. The normals try
+   * to stay pointing in the same direction as much as possible (i.e.,
+   * minimal rotation) w.r.t the firstNormal (which is computed if
+   * firstnormal=nullptr). Always returns 1 (success). Note that it is
+   * possible to thread this computation by setting "threading=true". However
+   * make sure that none of the points are used more than one time if
+   * threading is enabled, otherwise a data race will be produced.
    */
-  static int GenerateSlidingNormals(vtkPoints*, vtkCellArray*, vtkDataArray*);
-  static int GenerateSlidingNormals(vtkPoints*, vtkCellArray*, vtkDataArray*, double* firstNormal);
+  static int GenerateSlidingNormals(vtkPoints* pts, vtkCellArray* lines, vtkDataArray* normals);
+  static int GenerateSlidingNormals(vtkPoints* pts, vtkCellArray* lines, vtkDataArray* normals,
+    double* firstNormal, bool threading = false);
   ///@}
 
   ///@{

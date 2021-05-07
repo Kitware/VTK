@@ -14,12 +14,21 @@
 =========================================================================*/
 #include "vtkInterpolatedVelocityField.h"
 
+#include "vtkClosestPointStrategy.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
+
+//------------------------------------------------------------------------------
+vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
+{
+  // Create the default FindCellStrategy. Note that it is deleted by the
+  // superclass.
+  this->FindCellStrategy = vtkClosestPointStrategy::New();
+}
 
 //------------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
@@ -48,7 +57,7 @@ void vtkInterpolatedVelocityField::SetLastCellId(vtkIdType c, int dataindex)
   this->LastDataSet = (*this->DataSets)[dataindex];
 
   // if the dataset changes, then the cached cell is invalidated
-  // we might as well prefetch the cached cell either way
+  // we might as well prefetch the cached cell either way.
   if (this->LastCellId != -1)
   {
     this->LastDataSet->GetCell(this->LastCellId, this->GenCell);
@@ -72,10 +81,12 @@ int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
     ds = this->LastDataSet;
   }
 
+  // Use the superclass's method first as it is faster.
   int retVal = this->FunctionValues(ds, x, f);
 
   if (!retVal)
   {
+    // Okay need to check other datasets since we are outside of the current dataset.
     for (this->LastDataSetIndex = 0;
          this->LastDataSetIndex < static_cast<int>(this->DataSets->size());
          this->LastDataSetIndex++)

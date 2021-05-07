@@ -142,6 +142,4 @@ Ren1.AddActor(Actor10)
 iren.Initialize()
 
 alg.SetDefaultExecutivePrototype(None)
-#del alg
-
-#iren.Start()
+iren.Start()

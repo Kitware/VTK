@@ -43,8 +43,15 @@ class AbstractPStreamTracerUtils;
 class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
+  ///@{
+  /**
+   * Standard methods to instantiate the class, obtain type information and
+   * print object state.
+   */
+  static vtkPStreamTracer* New();
   vtkTypeMacro(vtkPStreamTracer, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
@@ -56,7 +63,19 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
-  static vtkPStreamTracer* New();
+  ///@{
+  /**
+   * If true the filter considers that the whole seed source is available on all ranks.
+   * Else the filter will aggregate all seed sources from all ranks and merge their points.
+   *
+   * This property only makes sense when the filter is parallelized and is a no-op for its
+   * sequential version.
+   * Default is true.
+   */
+  vtkSetMacro(UseLocalSeedSource, bool);
+  vtkGetMacro(UseLocalSeedSource, bool);
+  vtkBooleanMacro(UseLocalSeedSource, bool);
+  ///@}
 
 protected:
   vtkPStreamTracer();
@@ -66,6 +85,9 @@ protected:
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
+
+  // Only relevant for this derived parallel version of vtkStreamTracer
+  bool UseLocalSeedSource;
 
   vtkAbstractInterpolatedVelocityField* Interpolator;
   void SetInterpolator(vtkAbstractInterpolatedVelocityField*);

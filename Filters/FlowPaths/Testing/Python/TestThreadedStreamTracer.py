@@ -3,8 +3,8 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# Control the test size
-res = 4
+# Control test size
+res = 2
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -13,6 +13,7 @@ renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
+
 # create pipeline
 #
 pl3d = vtk.vtkMultiBlockPLOT3DReader()
@@ -22,17 +23,23 @@ pl3d.SetScalarFunctionNumber(100)
 pl3d.SetVectorFunctionNumber(202)
 pl3d.Update()
 output = pl3d.GetOutput().GetBlock(0)
+
+# Create a rake of streamlines
 ps = vtk.vtkPlaneSource()
 ps.SetXResolution(res)
 ps.SetYResolution(res)
 ps.SetOrigin(2,-2,26)
 ps.SetPoint1(2,2,26)
 ps.SetPoint2(2,-2,32)
+ps.Update()
+
 psMapper = vtk.vtkPolyDataMapper()
 psMapper.SetInputConnection(ps.GetOutputPort())
+
 psActor = vtk.vtkActor()
 psActor.SetMapper(psMapper)
 psActor.GetProperty().SetRepresentationToWireframe()
+
 rk4 = vtk.vtkRungeKutta4()
 streamer = vtk.vtkStreamTracer()
 streamer.SetInputData(output)
@@ -42,20 +49,35 @@ streamer.SetInitialIntegrationStep(.2)
 streamer.SetIntegrationDirectionToForward()
 streamer.SetComputeVorticity(1)
 streamer.SetIntegrator(rk4)
+
+numStreamers = ps.GetOutput().GetNumberOfPoints()
+timer = vtk.vtkTimerLog()
+timer.StartTimer()
+streamer.Update()
+timer.StopTimer()
+time = timer.GetElapsedTime()
+print("Time to generate: {0} streamers".format(numStreamers), ": {0}".format(time))
+
 rf = vtk.vtkRibbonFilter()
 rf.SetInputConnection(streamer.GetOutputPort())
 rf.SetInputArrayToProcess(1, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "Normals")
 rf.SetWidth(0.1)
 rf.SetWidthFactor(5)
+
 streamMapper = vtk.vtkPolyDataMapper()
 streamMapper.SetInputConnection(rf.GetOutputPort())
 streamMapper.SetScalarRange(output.GetScalarRange())
 streamline = vtk.vtkActor()
 streamline.SetMapper(streamMapper)
+
+print("Output scalar range:",output.GetScalarRange())
+
 outline = vtk.vtkStructuredGridOutlineFilter()
 outline.SetInputData(output)
+
 outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
+
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 # Add the actors to the renderer, set the background and size
@@ -74,8 +96,6 @@ cam1.SetViewUp(-0.16123,0.264271,0.950876)
 # render the image
 #
 renWin.Render()
-# prevent the tk window from showing up then start the event loop
-# for testing
 threshold = 15
 iren.Start()
 # --- end of script --

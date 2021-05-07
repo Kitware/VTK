@@ -277,7 +277,7 @@ int vtkStreamSurface::AdvectIterative(
       vtkErrorMacro("Circle is empty, output may not be correct.");
       return 0;
     }
-  }
+  } // currentIteration < MaximumNumberOfSteps
 
   this->StreamTracer->SetInputData(nullptr);
   return 1;
