@@ -56,17 +56,12 @@ install(
     COMPONENT "${_vtk_build_TARGETS_COMPONENT}")
 
 # Prepare the `qmldir` file.
-set(_vtk_qml_relative_dir)
-if (multiconfig)
-  set(_vtk_qml_relative_dir " $<CONFIG>")
-endif ()
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/qmldir.in"
   "${CMAKE_CURRENT_BINARY_DIR}/qmldir"
   @ONLY)
 file(GENERATE
-  OUTPUT "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${config_subdir}/qmldir"
+  OUTPUT "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/qmldir"
   INPUT  "${CMAKE_CURRENT_BINARY_DIR}/qmldir")
 
 # Generate the qmltypes file for the VTK QML plugin
