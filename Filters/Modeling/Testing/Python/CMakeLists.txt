@@ -22,6 +22,7 @@ vtk_add_test_python(
   TestImprintFilter2.py
   TestImprintFilter3.py
   TestImprintFilter4.py
+  TestImprintFilter5.py
   TestOutlineFilter.py
   TestPointSampler.py
   TestPointSampler2.py
