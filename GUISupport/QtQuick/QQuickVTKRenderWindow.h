@@ -282,6 +282,11 @@ protected:
   void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
 #endif
 
+  /**
+   * Check the scenegraph backend and graphics API being used.
+   */
+  bool checkGraphicsBackend();
+
 private:
   QQuickVTKRenderWindow(const QQuickVTKRenderWindow&) = delete;
   void operator=(const QQuickVTKRenderWindow) = delete;

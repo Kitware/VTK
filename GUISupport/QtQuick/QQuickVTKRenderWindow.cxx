@@ -97,6 +97,11 @@ void QQuickVTKRenderWindow::init()
     return;
   }
 
+  if (!this->checkGraphicsBackend())
+  {
+    return;
+  }
+
   auto iren = this->m_renderWindow->GetInteractor();
   if (!this->m_initialized)
   {
@@ -146,6 +151,12 @@ void QQuickVTKRenderWindow::paint()
   // beforeRenderPassRecording API available
   this->init();
 #endif
+
+  if (!this->checkGraphicsBackend())
+  {
+    return;
+  }
+
   this->window()->beginExternalCommands();
   auto iren = this->m_renderWindow->GetInteractor();
   auto ostate = this->m_renderWindow->GetState();
@@ -351,4 +362,21 @@ void QQuickVTKRenderWindow::render()
 bool QQuickVTKRenderWindow::isInitialized() const
 {
   return this->m_initialized;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool QQuickVTKRenderWindow::checkGraphicsBackend()
+{
+  // Enforce the use of OpenGL API
+  QSGRendererInterface* rif = this->window()->rendererInterface();
+  auto gApi = rif->graphicsApi();
+  if (!(gApi == QSGRendererInterface::OpenGL || gApi == QSGRendererInterface::OpenGLRhi))
+  {
+    qCritical(R"***(Error: QtQuick scenegraph is using an unsupported graphics API: %d.
+Set the QSG_INFO environment variable to get more information.
+Use QQuickVTKRenderWindow::setupGraphicsBackend() to set the right backend.)***",
+      gApi);
+    return false;
+  }
+  return true;
 }
