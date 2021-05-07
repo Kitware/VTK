@@ -139,7 +139,8 @@ public:
 
   ///@{
   /**
-   * Enable the use of a scalar tree to accelerate contour extraction.
+   * Enable the use of a scalar tree to accelerate contour extraction. By
+   * default, an instance of vtkSpanSpace is created when needed.
    */
   vtkSetMacro(UseScalarTree, vtkTypeBool);
   vtkGetMacro(UseScalarTree, vtkTypeBool);

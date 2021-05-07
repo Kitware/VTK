@@ -585,6 +585,12 @@ int vtkContourFilter::RequestData(
     } // if using scalar tree
     else
     {
+      if (this->ScalarTree == nullptr)
+      {
+        this->ScalarTree = vtkSpanSpace::New();
+      }
+      this->ScalarTree->SetDataSet(input);
+
       vtkCell* cell;
       // Note: This will have problems when input contains 2D and 3D cells.
       // CellData will get scrabled because of the implicit ordering of
