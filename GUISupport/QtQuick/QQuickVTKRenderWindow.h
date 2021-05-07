@@ -198,12 +198,20 @@ public Q_SLOTS:
   virtual void sync();
 
   /**
+   * Initialize the VTK render window for OpenGL based on the context created by QtQuick
+   *
+   * \note This method is called at the beforeRenderPassRecording stage of the QtQuick scenegraph.
+   * All the QtQuick element rendering is stacked visually above the vtk rendering.
+   */
+  virtual void init();
+
+  /**
    * This is the function called on the QtQuick render thread right before the scenegraph is
    * rendered. This is the stage where all the vtk rendering is performed. Applications would rarely
    * need to override this method.
    *
-   * \note This method is called at the beforeRendering stage of the QtQuick scenegraph. All the
-   * QtQuick element rendering is stacked visually above the vtk rendering.
+   * \note This method is called at the beforeRenderPassRecording stage of the QtQuick scenegraph.
+   * All the QtQuick element rendering is stacked visually above the vtk rendering.
    */
   virtual void paint();
 
@@ -215,7 +223,7 @@ public Q_SLOTS:
 
   /**
    * Convenience method that schedules a scenegraph update and waits for the update.
-   * @sa render()
+   * \sa render()
    */
   virtual void renderNow();
 

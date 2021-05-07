@@ -202,6 +202,14 @@ public Q_SLOTS:
   virtual void sync();
 
   /**
+   * Initialize the graphics resources required for this render item.
+   *
+   * This method is called on the QtQuick render thread at the beforeRenderPassRecording stage of
+   * the scenegraph render loop.
+   */
+  virtual void init();
+
+  /**
    * This is the function called on the QtQuick render thread right before the scenegraph is
    * rendered. This is the stage where all the vtk rendering is performed. Applications would rarely
    * need to override this method.

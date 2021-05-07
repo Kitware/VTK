@@ -129,6 +129,22 @@ void QQuickVTKRenderItem::paint()
 }
 
 //-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderItem::init()
+{
+  if (!this->isVisible())
+  {
+    return;
+  }
+  if (!this->m_renderWindow)
+  {
+    return;
+  }
+
+  // Forward the init call to the window
+  this->m_renderWindow->init();
+}
+
+//-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderItem::cleanup()
 {
   if (!this->isVisible())
@@ -171,6 +187,9 @@ void QQuickVTKRenderItem::handleWindowChanged(QQuickWindow* w)
     QObject::connect(
       w, &QQuickWindow::beforeRendering, this, &QQuickVTKRenderItem::paint, Qt::DirectConnection);
 #else
+    // Separate the steps between initialization and actual rendering
+    QObject::connect(
+      w, &QQuickWindow::beforeRendering, this, &QQuickVTKRenderItem::init, Qt::DirectConnection);
     QObject::connect(w, &QQuickWindow::beforeRenderPassRecording, this, &QQuickVTKRenderItem::paint,
       Qt::DirectConnection);
 #endif

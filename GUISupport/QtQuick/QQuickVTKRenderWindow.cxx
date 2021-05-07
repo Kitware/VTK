@@ -70,7 +70,7 @@ void QQuickVTKRenderWindow::sync()
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::paint()
+void QQuickVTKRenderWindow::init()
 {
   if (!this->isVisible())
   {
@@ -104,13 +104,39 @@ void QQuickVTKRenderWindow::paint()
 
     m_initialized = true;
   }
+}
 
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::paint()
+{
+  if (!this->isVisible())
+  {
+    return;
+  }
+
+  if (!this->m_renderWindow)
+  {
+    // no render window set, just fill with white.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+  // Explicitly call init here if using an older Qt version with no
+  // beforeRenderPassRecording API available
+  this->init();
+#endif
+  this->window()->beginExternalCommands();
+  auto iren = this->m_renderWindow->GetInteractor();
   auto ostate = this->m_renderWindow->GetState();
   ostate->Reset();
   ostate->Push();
   // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
   ostate->vtkglDepthFunc(GL_LEQUAL);
 
+  // auto iren = this->m_renderWindow->GetInteractor();
   this->m_renderWindow->SetReadyForRendering(true);
   if (iren)
   {
@@ -132,6 +158,7 @@ void QQuickVTKRenderWindow::paint()
   this->m_renderWindow->SetReadyForRendering(false);
 
   ostate->Pop();
+  this->window()->endExternalCommands();
 }
 
 //-------------------------------------------------------------------------------------------------
