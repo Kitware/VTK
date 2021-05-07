@@ -40,6 +40,7 @@ int TestQQuickVTKRenderItem(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
+  QQuickVTKRenderWindow::setupGraphicsBackend();
   QApplication app(argc, argv);
 
   QQmlApplicationEngine engine;

@@ -77,6 +77,21 @@
  *  }
  * @endcode
  *
+ * To ensure that the graphics backend set up by QtQuick matches that expected by VTK, use the
+ * method QQuickVTKRenderWindow::setupGraphicsBackend() before a QApplication/QGuiApplication is
+ * instantiated in the main method of the application.
+ *
+ * @code
+ * int main(int argc, char* argv[])
+ * {
+ *   // Setup the graphics backend
+ *   QQuickVTKRenderWindow::setupGraphicsBackend();
+ *   QGuiApplication app(argc, argv);
+ *   ...
+ *   return EXIT_SUCCESS;
+ * }
+ * @endcode
+ *
  * The VTK pipeline can be then set up for each \b VTKRenderItem in the C++ code.
  *
  * ## QtQuick scenegraph and threaded render loop
@@ -142,6 +157,16 @@ public:
    * Destructor
    */
   ~QQuickVTKRenderWindow();
+
+  /**
+   * Set up the graphics surface format and api.
+   *
+   * This method sets the graphics API to OpenGLRhi and sets up the surface format for intermixed
+   * VTK and QtQuick rendering.
+   * Use this method before instantiating a QApplication/QGuiApplication in a QtQuick/QML app with
+   * a VTK render view like QQuickVTKRenderItem.
+   */
+  static void setupGraphicsBackend();
 
   ///@{
   /**
