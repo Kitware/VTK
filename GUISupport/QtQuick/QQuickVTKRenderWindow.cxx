@@ -49,7 +49,9 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
 void QQuickVTKRenderWindow::setupGraphicsBackend()
 {
   QSurfaceFormat::setDefaultFormat(QVTKRenderWindowAdapter::defaultFormat());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
   QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
