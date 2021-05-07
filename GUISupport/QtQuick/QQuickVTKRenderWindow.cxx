@@ -48,7 +48,11 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKRenderWindow::setupGraphicsBackend()
 {
-  QSurfaceFormat::setDefaultFormat(QVTKRenderWindowAdapter::defaultFormat());
+  QSurfaceFormat fmt = QVTKRenderWindowAdapter::defaultFormat(false);
+  // By default QtQuick sets the alpha buffer size to 0. We follow the same thing here to prevent a
+  // transparent background.
+  fmt.setAlphaBufferSize(0);
+  QSurfaceFormat::setDefaultFormat(fmt);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
   QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
 #endif
