@@ -119,6 +119,7 @@ class QWheelEvent;
 class vtkGenericOpenGLRenderWindow;
 class vtkImageData;
 class vtkRenderWindow;
+class vtkRenderer;
 class vtkWindowToImageFilter;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
@@ -247,6 +248,7 @@ protected:
   // Screenshot stuff
   bool m_screenshotScheduled = false;
   vtkNew<vtkWindowToImageFilter> m_screenshotFilter;
+  vtkNew<vtkRenderer> m_dummyRenderer;
 
   // Event handlers
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
