@@ -240,12 +240,15 @@ public class vtkPanel
     rw.SetDesiredUpdateRate(5.0);
     lastX = e.getX();
     lastY = e.getY();
-    if ((e.getModifiers() == InputEvent.BUTTON2_MASK) ||
-      (e.getModifiers() == (InputEvent.BUTTON1_MASK | InputEvent.SHIFT_MASK)))
+    int mods = e.getModifiersEx();
+    int ShiftMouseButton1 = InputEvent.BUTTON1_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK;
+    int MouseButton2 =  InputEvent.BUTTON2_DOWN_MASK;
+    int MouseButton3 = InputEvent.BUTTON3_DOWN_MASK;
+    if (((mods & MouseButton2) == MouseButton2) || ((mods & ShiftMouseButton1) == ShiftMouseButton1))
     {
       InteractionModeTranslate();
     }
-    else if (e.getModifiers() == InputEvent.BUTTON3_MASK)
+    else if ((mods & MouseButton3) == MouseButton3)
     {
       InteractionModeZoom();
     }

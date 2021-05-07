@@ -653,21 +653,37 @@ void outputFunction(FILE* fp, ClassInfo* data)
           }
           else
           {
+            switch (aType & VTK_PARSE_BASE_TYPE)
+            {
+              case VTK_PARSE_SIGNEDCHAR:
+              case VTK_PARSE_UNSIGNEDCHAR:
+                fprintf(fp, " Byte.valueOf(id0)");
+                break;
+              case VTK_PARSE_CHAR:
+                fprintf(fp, " Character.valueOf(id0)");
+                break;
+            }
+
             switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
             {
               case VTK_PARSE_FLOAT:
+                fprintf(fp, " Float.valueOf(id0)");
+                break;
               case VTK_PARSE_DOUBLE:
-                fprintf(fp, " new Double(id0)");
+                fprintf(fp, " Double.valueOf(id0)");
+                break;
+              case VTK_PARSE_SHORT:
+                fprintf(fp, " Short.valueOf(id0)");
                 break;
               case VTK_PARSE_INT:
-              case VTK_PARSE_SHORT:
+                fprintf(fp, " Integer.valueOf(id0)");
+                break;
               case VTK_PARSE_LONG:
-                fprintf(fp, " new Integer(id0)");
+                fprintf(fp, " Long.valueOf(id0)");
                 break;
               case VTK_PARSE_OBJECT:
                 fprintf(fp, " id0");
                 break;
-              case VTK_PARSE_CHAR: /* not implemented yet */
               default:
                 fprintf(fp, " null");
             }
