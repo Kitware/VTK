@@ -75,13 +75,10 @@ function (vtk_module_test_executable name)
     if (TARGET "${test_optional_depend}")
       list(APPEND test_depends
         "${test_optional_depend}")
-      set(test_optional_depend_flag "1")
-    else ()
-      set(test_optional_depend_flag "0")
     endif ()
     string(REPLACE "::" "_" safe_test_optional_depend "${test_optional_depend}")
     list(APPEND optional_depends_flags
-      "VTK_MODULE_ENABLE_${safe_test_optional_depend}=${test_optional_depend_flag}")
+      "VTK_MODULE_ENABLE_${safe_test_optional_depend}=$<TARGET_EXISTS:${test_optional_depend}>")
   endforeach ()
 
   target_link_libraries("${name}"

@@ -353,16 +353,14 @@ endif ()
 if (VTK_USE_X)
   vtk_module_find_package(PACKAGE X11)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC X11::X11)
-  if (X11_Xcursor_FOUND)
+  if (TARGET X11::Xcursor)
     vtk_module_link(VTK::RenderingOpenGL2 PRIVATE X11::Xcursor)
-    set(_have_xcursor 1)
   else()
     message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
-    set(_have_xcursor 0)
   endif()
   set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
     PROPERTY
-      COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=${_have_xcursor}"
+      COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
   )
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
