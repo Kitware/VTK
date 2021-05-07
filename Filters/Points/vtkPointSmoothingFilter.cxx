@@ -914,8 +914,14 @@ struct CharacterizeMesh
   void Reduce()
   {
     // Don't need scratch storage anymore
-    delete[] this->LocalNeiPoints.Local();
-    delete[] this->LocalNeiNormals.Local();
+    for (auto& iter : this->LocalNeiPoints)
+    {
+      delete[] iter;
+    }
+    for (auto& iter : this->LocalNeiNormals)
+    {
+      delete[] iter;
+    }
 
     // Min / max edge lengths
     double min = VTK_DOUBLE_MAX;
@@ -1084,7 +1090,13 @@ struct SmoothPoints
     } // for all points in this batch
   }   // operator()
 
-  void Reduce() { delete[] this->LocalNeiPoints.Local(); }
+  void Reduce()
+  {
+    for (auto& iter : this->LocalNeiPoints)
+    {
+      delete[] iter;
+    }
+  }
 
 }; // SmoothPoints
 
