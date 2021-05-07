@@ -1017,6 +1017,33 @@ struct ProjPointsWorker
   }
 };
 
+// Output projected points. If a point was not successfully projected, it retains its
+// initial coordinates.
+void OutputProjectedImprint(vtkPolyData* imprint, vtkPointList* pList, vtkPolyData* output)
+{
+  output->ShallowCopy(imprint);
+  vtkPoints* outPts = output->GetPoints();
+  vtkIdType numPts = outPts->GetNumberOfPoints();
+
+  vtkNew<vtkPoints> newPts;
+  newPts->SetDataType(outPts->GetDataType());
+  newPts->SetNumberOfPoints(numPts);
+
+  for (auto ptId = 0; ptId < numPts; ++ptId)
+  {
+    vtkPointInfo& pt = (*pList)[ptId];
+    if (pt.Classification <= PointClassification::Outside)
+    {
+      continue; // point coordinates remain unchanged
+    }
+
+    // Update point coordinates
+    newPts->SetPoint(ptId, pt.X);
+  }
+
+  output->SetPoints(newPts);
+}
+
 // Once point projection is completed, insert them into the output vtkPoints
 // array and the candidate cells triangulation structure.  Also assign a
 // global point id to the projected points - hence this method is serial.
@@ -2187,6 +2214,15 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     ppWorker(
       imprintPts->GetData(), candidateOutput, candidateCellLocator, &pList, this->Tolerance, &tpc);
+  }
+
+  // If the desired output is a projection of the imprint onto the target,
+  // the output is the imprint mesh with point coordinates modified by
+  // projection onto the target.
+  if (this->OutputType == PROJECTED_IMPRINT)
+  {
+    OutputProjectedImprint(imprint, &pList, output);
+    return 1;
   }
 
   // With the imprint points projected, insert non-outside points into the

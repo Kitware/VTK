@@ -47,7 +47,12 @@
  *
  * Some notes:
  * -- The algorithm assumes that the input target and imprint cells are convex.
- * -- The number of output points is (numTargetPts + numImprintPts + numEdgeIntPts).
+ * -- If performing a PROJECTED_IMPRINT, the output is the imprint mesh with
+ *    the point coordinates modified by projecting the imprint points onto
+ *    the target. If the profection of an imprint point onto the target is
+ *    unsuccessful, the imprint point coordinates are not modified.
+ * -- If performing a MERGED_IMPRINT, the number of output points is
+ *    (numTargetPts + numImprintPts + numEdgeIntPts).
  * -- Not all of the output points may be used, for example if an imprint point
  *    is coincident (within the tolerance) of a target point, the target point
  *    replaces the imprint point.
@@ -138,7 +143,8 @@ public:
   {
     TARGET_CELLS = 0,
     IMPRINTED_CELLS = 1,
-    MERGED_IMPRINT = 2
+    PROJECTED_IMPRINT = 2,
+    MERGED_IMPRINT = 3
   };
 
   ///@{
@@ -148,6 +154,8 @@ public:
    * output the target cells in contact (relative to the tolerance) of the
    * imprint mesh; IMPRINTED_CELLS - output the target's imprinted cells
    * after intersection and triangulation with the imprint mesh;
+   * PROJECTED_IMPRINT - project the imprint mesh onto the target mesh,
+   * modififying the imprint mesh point coordinates to lie on the target mesh;
    * MERGED_IMPRINT - merge the target and imprint meshs after the imprint
    * operation. By default, MERGED_IMPRINT is produced.
    */
@@ -155,6 +163,7 @@ public:
   vtkGetMacro(OutputType, int);
   void SetOutputTypeToTargetCells() { this->SetOutputType(TARGET_CELLS); }
   void SetOutputTypeToImprintedCells() { this->SetOutputType(IMPRINTED_CELLS); }
+  void SetOutputTypeToProjectedImprint() { this->SetOutputType(PROJECTED_IMPRINT); }
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
   ///@}
 
