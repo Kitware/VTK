@@ -30,6 +30,7 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <cctype>
 #include <fstream>
 #include <string>
 #include <utility>
