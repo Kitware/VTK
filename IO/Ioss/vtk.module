@@ -10,6 +10,7 @@ DEPENDS
   VTK::ParallelCore
 PRIVATE_DEPENDS
   VTK::FiltersCore
+  VTK::FiltersExtraction
   VTK::ioss
 OPTIONAL_DEPENDS
   VTK::ParallelMPI

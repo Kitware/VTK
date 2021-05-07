@@ -33,6 +33,7 @@
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIossReader.h"
+#include "vtkLogger.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeInt32Array.h"
@@ -44,6 +45,7 @@
 // clang-format off
 #include VTK_IOSS(Ioss_Region.h)
 #include VTK_IOSS(Ioss_Transform.h)
+#include VTK_IOSS(Ioss_StructuredBlock.h)
 // clang-format on
 
 #include <cassert>
@@ -52,6 +54,13 @@
 class vtkCellArray;
 namespace vtkIossUtilities
 {
+
+enum DatabaseFormatType
+{
+  UNKNOWN,
+  EXODUS,
+  CGNS
+};
 
 /**
  * Cache
@@ -107,18 +116,28 @@ using ArrayList = typename vtkTypeList::Unique<
 std::set<double> GetTimeValues(const Ioss::Region* region);
 
 /**
+ * This is primarily intended for CGNS. CGNS ends up naming blocks in separate
+ * files separate e.g. block_0_proc-0, block_0_proc-1, etc. This is clunky and
+ * causes the block selection as well as the output dataset to be oddly
+ * structured. We want all merge all pieces of a block for all procs. This
+ * function helps that by stripping out the "proc-\d+" substring.
+ */
+std::string GetSanitizedBlockName(const Ioss::Region* region, const std::string& name);
+
+/**
  * Populates `entitySelection` with available entity block (or set) names and
  * populates `fieldSelection` with transient and attribute fields on the chosen
  * entity block (or set).
  */
 template <typename EntityType>
-void GetEntityAndFieldNames(const Ioss::Region*, const std::vector<EntityType*>& entities,
+void GetEntityAndFieldNames(const Ioss::Region* region, const std::vector<EntityType*>& entities,
   std::set<EntityNameType>& entity_names, std::set<std::string>& field_names)
 {
   for (const auto& entity : entities)
   {
     const int64_t id = entity->property_exists("id") ? entity->get_property("id").get_int() : 0;
-    entity_names.insert(EntityNameType{ static_cast<vtkTypeUInt64>(id), entity->name() });
+    auto name = vtkIossUtilities::GetSanitizedBlockName(region, entity->name());
+    entity_names.insert(EntityNameType{ static_cast<vtkTypeUInt64>(id), name });
 
     Ioss::NameList attributeNames;
     entity->field_describe(Ioss::Field::TRANSIENT, &attributeNames);
@@ -184,7 +203,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
  * Throws `std::runtime_error` on error or coordinates not present.
  */
 vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
-  Ioss::GroupingEntity* group_entity, Cache* cache = nullptr);
+  const Ioss::GroupingEntity* group_entity, Cache* cache = nullptr);
 
 /**
  * Returns true if the field is transient.
@@ -199,8 +218,33 @@ bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname
  */
 std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock);
 
+/**
+ * Must be called before using any Ioss library functions. Necessary to
+ * initialize factories used internally by Ioss library.
+ */
 void InitializeEnvironmentForIoss();
 
+/**
+ * Given a filename determines and returns the database type. Currently,
+ * this simply looks at the filename.
+ */
+DatabaseFormatType DetectType(const std::string& dbaseName);
+
+/**
+ * Given any GroupingEntity pointer, returns the format that the associated
+ * database is in. Use this to determine if we're dealing with Exodus or CGNS
+ * database.
+ */
+DatabaseFormatType GetFormat(const Ioss::GroupingEntity* entity);
+
+/**
+ * Returns collection of StructuredBlock's matching the selected blockname.
+ * Since vtkIossReader may modify block names to avoid creating separate block
+ * for each rank for what logically is the same block, we have to use this
+ * method to find the blocks user selected. @sa GetSanitizedBlockName
+ */
+std::vector<Ioss::StructuredBlock*> GetMatchingStructuredBlocks(
+  Ioss::Region* region, const std::string& blockname);
 };
 
 #endif

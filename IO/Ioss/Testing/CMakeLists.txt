@@ -1,4 +1,8 @@
 set(datasets
+  Data/CGNS/fluid.cgns.4.0
+  Data/CGNS/fluid.cgns.4.1
+  Data/CGNS/fluid.cgns.4.2
+  Data/CGNS/fluid.cgns.4.3
   Data/Exodus/Assembly-Example.g
   Data/Exodus/block_with_attributes.g
   Data/Exodus/can.e.4/can.e.4.0
