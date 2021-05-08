@@ -5,4 +5,6 @@ vtk_module_test_data(
   Data/3DTiles/berlin-tileset.json
   )
 
-add_subdirectory(Cxx)
+# We have to update proj before we can activate this test.
+# Now it depends on proj 6 being installed on the host system.
+# add_subdirectory(Cxx)
