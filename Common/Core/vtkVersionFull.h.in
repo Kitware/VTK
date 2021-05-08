@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVersion.cxx
+  Module:    vtkVersionFull.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,25 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkVersion.h"
-#include "vtkObjectFactory.h"
-#include "vtkVersionFull.h"
+#ifndef vtkVersionFull_h
+#define vtkVersionFull_h
 
-vtkStandardNewMacro(vtkVersion);
+/* This is in its own header to reduce build dependencies */
 
-void vtkVersion::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
-}
+#define VTK_VERSION_FULL "@VTK_VERSION_FULL@"
 
-const char* vtkVersion::GetVTKVersionFull()
-{
-  // Since VTK_VERSION_FULL changes with every commit, it is kept out of the
-  // header file to avoid excessive rebuilds.
-  return VTK_VERSION_FULL;
-}
-
-const char* GetVTKVersion()
-{
-  return vtkVersion::GetVTKVersion();
-}
+#endif
