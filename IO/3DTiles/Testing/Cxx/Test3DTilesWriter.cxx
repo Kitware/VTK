@@ -83,7 +83,7 @@ vtkSmartPointer<vtkMultiBlockDataSet> ReadOBJFiles(int numberOfBuildings, int vt
   const std::vector<std::string>& files, std::array<double, 3>& fileOffset)
 {
   auto root = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-  for (size_t i = 0; i < files.size() && i < numberOfBuildings; ++i)
+  for (size_t i = 0; i < files.size() && i < static_cast<size_t>(numberOfBuildings); ++i)
   {
     vtkNew<vtkOBJReader> reader;
     reader->SetFileName(files[i].c_str());
