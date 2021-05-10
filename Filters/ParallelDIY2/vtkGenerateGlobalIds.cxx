@@ -141,7 +141,7 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(self->GetController());
 
   vtkLogStartScope(TRACE, "extract points");
-  auto datasets = vtkDIYUtilities::GetDataSets(dobj);
+  auto datasets = vtkCompositeDataSet::GetDataSets(dobj);
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(),
                    [&cell_centers](vtkDataSet* ds) {
                      return ds == nullptr || ds->GetNumberOfPoints() == 0 ||
