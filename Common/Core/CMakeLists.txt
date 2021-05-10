@@ -390,7 +390,7 @@ foreach (generated_header IN LISTS generated_headers)
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}"
     @ONLY)
-  list(APPEND nowrap_headers
+  list(APPEND headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
 
