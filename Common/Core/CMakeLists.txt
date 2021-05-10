@@ -379,6 +379,7 @@ set(generated_headers
   vtkSMP.h
   vtkThreads.h
   vtkToolkits.h
+  vtkVersionFull.h
   vtkVersionMacros.h)
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND generated_headers
