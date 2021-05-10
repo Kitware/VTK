@@ -53,23 +53,20 @@ public:
   /**
    * Get/Set the name of the XYZ Molecule file
    */
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
+  vtkSetStdStringFromCharMacro(FileName);
+  vtkGetCharFromStdStringMacro(FileName);
   ///@}
 
 protected:
   vtkXYZMolReader2();
-  ~vtkXYZMolReader2() override;
+  ~vtkXYZMolReader2() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char* FileName;
-  std::vector<istream::pos_type> file_positions; // to store beginning of each tstep
+  std::string FileName = "";
+  std::vector<istream::pos_type> FilePositions; // to store beginning of each step
   std::vector<double> TimeSteps;
-
-  int NumberOfTimeSteps;
-  int NumberOfAtoms;
 
 private:
   vtkXYZMolReader2(const vtkXYZMolReader2&) = delete;
