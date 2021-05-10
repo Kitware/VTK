@@ -26,8 +26,13 @@
 #include "vtkParallelDIYModule.h" // for export macros
 #include "vtkSmartPointer.h"      // needed for vtkSmartPointer
 
+#include <map>    // For Link
+#include <set>    // For Link
+#include <vector> // For GetDataSets
+
 // clang-format off
 #include "vtk_diy2.h" // needed for DIY
+#include VTK_DIY2(diy/master.hpp)
 #include VTK_DIY2(diy/mpi.hpp)
 #include VTK_DIY2(diy/serialization.hpp)
 #include VTK_DIY2(diy/types.hpp)
@@ -118,6 +123,21 @@ public:
    * Convenience method to get local bounds for the data object.
    */
   static vtkBoundingBox GetLocalBounds(vtkDataObject* dobj);
+
+  /**
+   * Links master such that there is communication between ranks as given
+   * in `linksMap`.
+   * `linksMap` is a vector of a list of global ids. The size of this vector should be the same as
+   * the number of blocks in the current rank and should map to the block of same local id.
+   * The associated list of global ids will tell which block is to be connected with the local
+   * block.
+   */
+  template <class DummyT>
+  static void Link(diy::Master& master, const diy::Assigner& assigner,
+    const std::vector<std::map<int, DummyT>>& linksMap);
+
+  static void Link(
+    diy::Master& master, const diy::Assigner& assigner, const std::vector<std::set<int>>& linksMap);
 
 protected:
   vtkDIYUtilities();
