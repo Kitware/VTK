@@ -122,8 +122,9 @@ vtkPointSet* ConvertCellsToBoundingSpheres(vtkDataSet* ds, std::vector<vtkBoundi
 // shared boundingBoxes of each input block, and the input source of local block,
 // this method creates one vtkUnstructuredGrid for each block containing cells
 // from source overlapping the bounding box of corresponding block.
-// If no cells intersect, the returned vtkUnstructuredGrid is set to nullptr.
-// The output vtkUnstructuredGrid Holds the original cell id from source.
+// If no cells intersect, there is no allocation at corresponding global id
+// in the returned map.
+// The output vtkUnstructuredGrid holds the original cell id from source.
 // This information is used later to figure out who intersected who in the last
 // step of this filter.
 std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandidateByProcess(
@@ -230,30 +231,26 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
     }
   }
 
-  // Filling output vtkUnstructured grids, with our list of tuples we just created
-  std::transform(cactptidList.begin(), cactptidList.end(), std::inserter(ugList, ugList.begin()),
-    [](const std::pair<int, CellArrayCellTypePointsIdTuple>& pair)
-      -> std::pair<int, vtkSmartPointer<vtkUnstructuredGrid>> {
-      int globalId = pair.first;
-      const CellArrayCellTypePointsIdTuple& cactptid = pair.second;
-      vtkCellArray* ca = std::get<0>(cactptid);
-      if (ca->GetNumberOfCells())
-      {
-        vtkUnsignedCharArray* ct = std::get<1>(cactptid);
-        vtkPoints* pt = std::get<2>(cactptid);
-        vtkIdTypeArray* idArray = std::get<3>(cactptid);
+  for (const auto& pair : cactptidList)
+  {
+    int globalId = pair.first;
+    const CellArrayCellTypePointsIdTuple& cactptid = pair.second;
+    vtkCellArray* ca = std::get<0>(cactptid);
+    if (ca->GetNumberOfCells())
+    {
+      vtkUnsignedCharArray* ct = std::get<1>(cactptid);
+      vtkPoints* pt = std::get<2>(cactptid);
+      vtkIdTypeArray* idArray = std::get<3>(cactptid);
 
-        vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
-        ug->SetCells(ct, ca);
-        ug->SetPoints(pt);
-        idArray->SetName(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME);
-        ug->GetCellData()->AddArray(idArray);
+      vtkNew<vtkUnstructuredGrid> ug;
+      ug->SetCells(ct, ca);
+      ug->SetPoints(pt);
+      idArray->SetName(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME);
+      ug->GetCellData()->AddArray(idArray);
 
-        return std::pair<int, vtkSmartPointer<vtkUnstructuredGrid>>(
-          globalId, vtkSmartPointer<vtkUnstructuredGrid>::Take(ug));
-      }
-      return std::pair<int, vtkSmartPointer<vtkUnstructuredGrid>>(globalId, nullptr);
-    });
+      ugList[globalId] = ug;
+    }
+  }
 
   return ugList;
 }
@@ -394,12 +391,10 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   vtkLogStartScope(TRACE, "populate master");
   std::vector<int> gids;
   assigner.local_gids(comm.rank(), gids);
-  for (size_t lid = 0; lid < gids.size(); ++lid)
-  {
-    auto block = new Block();
-    auto link = new diy::Link();
-    master.add(gids[lid], block, link);
-  }
+
+  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(
+    /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
+  decomposer.decompose(comm.rank(), assigner, master);
   vtkLogEndScope("populate master");
 
   int myrank = comm.rank();
@@ -453,17 +448,16 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   }
   vtkLogEndScope("isolate overlapping cell candidates for neighbor ranks");
 
-  // We prepare resetting links between blocks depending on the presence or not
-  // of potential cell collisions.
-  vtkLogStartScope(TRACE, "relink master");
-  std::map<int, std::vector<int>> neighbors;
+  // We check if each rank found the same links between blocks.
+  // If one block finds that a cell intersects the bounding box of another block, but this other
+  // block does not find so, it means that those blocks should not be linked: there won't be any
+  // overlaps.
+  // After this diy communication, the link map is symmetric among blocks.
   diy::all_to_all(master, assigner,
-    [&master, &neighbors, &overlappingCellCandidatesDataSetsArray](
-      Block*, const diy::ReduceProxy& rp) {
+    [&master, &overlappingCellCandidatesDataSetsArray](Block*, const diy::ReduceProxy& rp) {
       int myBlockId = rp.gid();
       int localId = master.lid(myBlockId);
       auto& overlappingCellCandidatesDataSets = overlappingCellCandidatesDataSetsArray[localId];
-      auto it = overlappingCellCandidatesDataSets.cbegin();
       if (rp.round() == 0)
       {
         for (int i = 0; i < rp.out_link().size(); ++i)
@@ -471,14 +465,9 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
           const diy::BlockID& blockId = rp.out_link().target(i);
           if (blockId.gid != myBlockId)
           {
-            int connected =
-              it != overlappingCellCandidatesDataSets.cend() && (it->second != nullptr);
+            int connected = (overlappingCellCandidatesDataSets.count(blockId.gid) != 0);
             const auto dest = rp.out_link().target(i);
             rp.enqueue(dest, &connected, 1);
-            if (it != overlappingCellCandidatesDataSets.cend())
-            {
-              ++it;
-            }
           }
         };
       }
@@ -491,25 +480,21 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
           {
             int connected;
             rp.dequeue(src, &connected, 1);
-            if (connected)
+            if (!connected)
             {
-              neighbors[rp.gid()].push_back(src.gid);
+              auto it = overlappingCellCandidatesDataSets.find(src.gid);
+              if (it != overlappingCellCandidatesDataSets.end())
+              {
+                overlappingCellCandidatesDataSets.erase(it);
+              }
             }
           }
         }
       }
     });
 
-  // Update local links.
-  for (auto& pair : neighbors)
-  {
-    auto l = new diy::Link();
-    for (const auto& nid : pair.second)
-    {
-      l->add_neighbor(diy::BlockID(nid, assigner.rank(nid)));
-    }
-    master.replace_link(master.lid(pair.first), l);
-  }
+  vtkLogStartScope(TRACE, "relink master");
+  vtkDIYUtilities::Link(master, assigner, overlappingCellCandidatesDataSetsArray);
   vtkLogEndScope("relink master");
 
   // We share overlapping candidates with neighbor blocks.
@@ -523,7 +508,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
     for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
     {
       vtkdiy2::BlockID& targetBlockId = cp.link()->target(i);
-      cp.enqueue<vtkDataSet*>(targetBlockId, candidates[targetBlockId.gid]);
+      cp.enqueue<vtkDataSet*>(targetBlockId, candidates.at(targetBlockId.gid));
     }
   });
   master.exchange();
@@ -597,10 +582,6 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
     for (auto& pair : queryCellDataSets)
     {
       vtkSmartPointer<vtkDataSet>& queryCellDataSet = pair.second;
-      if (!queryCellDataSet)
-      {
-        continue;
-      }
       int globalId = pair.first;
       std::vector<vtkBoundingBox> queryCellBoundingBoxes;
       vtkSmartPointer<vtkPointSet> queryPointCloud = vtkSmartPointer<vtkPointSet>::Take(
@@ -666,10 +647,6 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       auto& collisionIds = collisionIdPair.second;
       auto& collisionListMap = collisionListMapList[globalId];
       vtkDataSet* queryCellDataSet = queryCellDataSets[globalId];
-      if (!queryCellDataSet)
-      {
-        continue;
-      }
       vtkIdTypeArray* neighborIdMapArray = vtkIdTypeArray::SafeDownCast(
         queryCellDataSet->GetCellData()->GetArray(ID_MAP_TO_ORIGIN_DATASET_IDS_NAME));
       for (const auto& pair : collisionListMap)
