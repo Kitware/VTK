@@ -6,8 +6,7 @@ set(classes
   vtkImageFourierFilter
   vtkImageIdealHighPass
   vtkImageIdealLowPass
-  vtkImageRFFT
-  vtkTableFFT)
+  vtkImageRFFT)
 
 vtk_module_add_module(VTK::ImagingFourier
   CLASSES ${classes})

@@ -105,6 +105,7 @@ set(classes
   vtkSubdivisionFilter
   vtkSynchronizeTimeFilter
   vtkTableBasedClipDataSet
+  vtkTableFFT
   vtkTableToPolyData
   vtkTableToStructuredGrid
   vtkTemporalPathLineFilter
