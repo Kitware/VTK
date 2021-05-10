@@ -68,7 +68,7 @@ public:
       for (vtkIdType tupleId = 0; tupleId < tuplesCount; ++tupleId)
         values[tupleId] = array->GetTuple1(tupleId);
 
-      this->Spectrums[array->GetName()] = vtkFFT::FftDirect(values);
+      this->Spectrums[array->GetName()] = vtkFFT::RFft(values);
       this->SpectrumSize = this->Spectrums[array->GetName()].size();
     }
 
@@ -436,7 +436,7 @@ void vtkEqualizerFilter::ProcessColumn(
   // end fill spectrum table
 
   // fill result table
-  auto num = vtkFFT::FftInverse(spectrum);
+  auto num = vtkFFT::IRFft(spectrum);
 
   vtkSmartPointer<vtkDoubleArray> rfftArray = vtkSmartPointer<vtkDoubleArray>::New();
   rfftArray->SetNumberOfComponents(1);
