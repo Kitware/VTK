@@ -452,6 +452,69 @@ struct LocalDataType
     this->Coords.TakeReference(vtkPoints::New());
   }
 
+  LocalDataType(const LocalDataType& other)
+  {
+    this->ThreadId = other.ThreadId;
+
+    this->Verts = other.Verts;
+    this->Lines = other.Lines;
+    this->Polys = other.Polys;
+    this->Strips = other.Strips;
+
+    this->VertsConnOffset = other.VertsConnOffset;
+    this->VertsOffset = other.VertsOffset;
+    this->LinesConnOffset = other.LinesConnOffset;
+    this->LinesOffset = other.LinesOffset;
+    this->PolysConnOffset = other.PolysConnOffset;
+    this->PolysOffset = other.PolysOffset;
+    this->StripsConnOffset = other.StripsConnOffset;
+    this->StripsOffset = other.StripsOffset;
+
+    this->PointMap = other.PointMap;
+    // These are here to have a different allocation for each threads
+    this->Cell.TakeReference(vtkGenericCell::New());
+    this->CellIds.TakeReference(vtkIdList::New());
+    this->IPts.TakeReference(vtkIdList::New());
+    this->ICellIds.TakeReference(vtkIdList::New());
+    this->Coords.TakeReference(vtkPoints::New());
+  }
+
+  LocalDataType& operator=(const LocalDataType& other)
+  {
+    if (this != &other)
+    {
+      LocalDataType tmp = LocalDataType(other);
+      this->Swap(tmp);
+    }
+    return *this;
+  }
+
+  void Swap(LocalDataType& other)
+  {
+    using std::swap; // the compiler will use custom swap for members if it exists
+
+    swap(this->Verts, other.Verts);
+    swap(this->Lines, other.Lines);
+    swap(this->Polys, other.Polys);
+    swap(this->Strips, other.Strips);
+
+    swap(this->VertsConnOffset, other.VertsConnOffset);
+    swap(this->VertsOffset, other.VertsOffset);
+    swap(this->LinesConnOffset, other.LinesConnOffset);
+    swap(this->LinesOffset, other.LinesOffset);
+    swap(this->PolysConnOffset, other.PolysConnOffset);
+    swap(this->PolysOffset, other.PolysOffset);
+    swap(this->StripsConnOffset, other.StripsConnOffset);
+    swap(this->StripsOffset, other.StripsOffset);
+
+    swap(this->PointMap, other.PointMap);
+    swap(this->Cell, other.Cell);
+    swap(this->CellIds, other.CellIds);
+    swap(this->IPts, other.IPts);
+    swap(this->ICellIds, other.ICellIds);
+    swap(this->Coords, other.Coords);
+  }
+
   void SetPointMap(vtkIdType* ptMap)
   {
     this->PointMap = ptMap;
