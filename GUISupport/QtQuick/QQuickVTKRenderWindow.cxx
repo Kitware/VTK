@@ -17,15 +17,19 @@
 // vtk includes
 #include "QQuickVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
+#include "QVTKRenderWindowAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkWindowToImageFilter.h"
 
 // Qt includes
 #include <QQuickWindow>
+#include <QSGRendererInterface>
+#include <QSurfaceFormat>
 
 //-------------------------------------------------------------------------------------------------
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
@@ -39,6 +43,19 @@ QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
 
   // Set a standard object name
   this->setObjectName("QQuickVTKRenderWindow");
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::setupGraphicsBackend()
+{
+  QSurfaceFormat fmt = QVTKRenderWindowAdapter::defaultFormat(false);
+  // By default QtQuick sets the alpha buffer size to 0. We follow the same thing here to prevent a
+  // transparent background.
+  fmt.setAlphaBufferSize(0);
+  QSurfaceFormat::setDefaultFormat(fmt);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGLRhi);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -70,7 +87,7 @@ void QQuickVTKRenderWindow::sync()
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKRenderWindow::paint()
+void QQuickVTKRenderWindow::init()
 {
   if (!this->isVisible())
   {
@@ -83,6 +100,11 @@ void QQuickVTKRenderWindow::paint()
     QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
     f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     f->glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+
+  if (!this->checkGraphicsBackend())
+  {
     return;
   }
 
@@ -102,15 +124,54 @@ void QQuickVTKRenderWindow::paint()
     this->m_renderWindow->SetOwnContext(false);
     this->m_renderWindow->OpenGLInitContext();
 
+    // Add a dummy renderer covering the whole size of the render window as a transparent viewport.
+    // Without this, the QtQuick rendering is stenciled out.
+    this->m_dummyRenderer->InteractiveOff();
+    this->m_dummyRenderer->SetLayer(1);
+    this->m_renderWindow->AddRenderer(this->m_dummyRenderer);
+    this->m_renderWindow->SetNumberOfLayers(2);
+
     m_initialized = true;
   }
+}
 
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKRenderWindow::paint()
+{
+  if (!this->isVisible())
+  {
+    return;
+  }
+
+  if (!this->m_renderWindow)
+  {
+    // no render window set, just fill with white.
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+  // Explicitly call init here if using an older Qt version with no
+  // beforeRenderPassRecording API available
+  this->init();
+#endif
+
+  if (!this->checkGraphicsBackend())
+  {
+    return;
+  }
+
+  this->window()->beginExternalCommands();
+  auto iren = this->m_renderWindow->GetInteractor();
   auto ostate = this->m_renderWindow->GetState();
   ostate->Reset();
   ostate->Push();
   // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL
   ostate->vtkglDepthFunc(GL_LEQUAL);
 
+  // auto iren = this->m_renderWindow->GetInteractor();
   this->m_renderWindow->SetReadyForRendering(true);
   if (iren)
   {
@@ -132,6 +193,7 @@ void QQuickVTKRenderWindow::paint()
   this->m_renderWindow->SetReadyForRendering(false);
 
   ostate->Pop();
+  this->window()->endExternalCommands();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -149,9 +211,11 @@ void QQuickVTKRenderWindow::handleWindowChanged(QQuickWindow* w)
   this->m_interactorAdapter->setQQuickWindow(w);
   if (w)
   {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Do not clear the scenegraph before the QML rendering
     // to preserve the VTK render
     w->setClearBeforeRendering(false);
+#endif
     // This allows the cleanup method to be called on the render thread
     w->setPersistentSceneGraph(false);
   }
@@ -235,11 +299,19 @@ void QQuickVTKRenderWindow::mapToViewport(const QRectF& rect, double viewport[4]
 }
 
 //-------------------------------------------------------------------------------------------------
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void QQuickVTKRenderWindow::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
+#else
+void QQuickVTKRenderWindow::geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry)
+#endif
 {
   m_interactorAdapter->QueueGeometryChanged(newGeometry, oldGeometry);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   Superclass::geometryChanged(newGeometry, oldGeometry);
+#else
+  Superclass::geometryChange(newGeometry, oldGeometry);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -296,4 +368,21 @@ void QQuickVTKRenderWindow::render()
 bool QQuickVTKRenderWindow::isInitialized() const
 {
   return this->m_initialized;
+}
+
+//-------------------------------------------------------------------------------------------------
+bool QQuickVTKRenderWindow::checkGraphicsBackend()
+{
+  // Enforce the use of OpenGL API
+  QSGRendererInterface* rif = this->window()->rendererInterface();
+  auto gApi = rif->graphicsApi();
+  if (!(gApi == QSGRendererInterface::OpenGL || gApi == QSGRendererInterface::OpenGLRhi))
+  {
+    qCritical(R"***(Error: QtQuick scenegraph is using an unsupported graphics API: %d.
+Set the QSG_INFO environment variable to get more information.
+Use QQuickVTKRenderWindow::setupGraphicsBackend() to set the right backend.)***",
+      gApi);
+    return false;
+  }
+  return true;
 }

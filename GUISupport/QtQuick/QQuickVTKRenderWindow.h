@@ -77,6 +77,21 @@
  *  }
  * @endcode
  *
+ * To ensure that the graphics backend set up by QtQuick matches that expected by VTK, use the
+ * method QQuickVTKRenderWindow::setupGraphicsBackend() before a QApplication/QGuiApplication is
+ * instantiated in the main method of the application.
+ *
+ * @code
+ * int main(int argc, char* argv[])
+ * {
+ *   // Setup the graphics backend
+ *   QQuickVTKRenderWindow::setupGraphicsBackend();
+ *   QGuiApplication app(argc, argv);
+ *   ...
+ *   return EXIT_SUCCESS;
+ * }
+ * @endcode
+ *
  * The VTK pipeline can be then set up for each \b VTKRenderItem in the C++ code.
  *
  * ## QtQuick scenegraph and threaded render loop
@@ -119,6 +134,7 @@ class QWheelEvent;
 class vtkGenericOpenGLRenderWindow;
 class vtkImageData;
 class vtkRenderWindow;
+class vtkRenderer;
 class vtkWindowToImageFilter;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderWindow
@@ -141,6 +157,16 @@ public:
    * Destructor
    */
   ~QQuickVTKRenderWindow();
+
+  /**
+   * Set up the graphics surface format and api.
+   *
+   * This method sets the graphics API to OpenGLRhi and sets up the surface format for intermixed
+   * VTK and QtQuick rendering.
+   * Use this method before instantiating a QApplication/QGuiApplication in a QtQuick/QML app with
+   * a VTK render view like QQuickVTKRenderItem.
+   */
+  static void setupGraphicsBackend();
 
   ///@{
   /**
@@ -198,12 +224,20 @@ public Q_SLOTS:
   virtual void sync();
 
   /**
+   * Initialize the VTK render window for OpenGL based on the context created by QtQuick
+   *
+   * \note This method is called at the beforeRenderPassRecording stage of the QtQuick scenegraph.
+   * All the QtQuick element rendering is stacked visually above the vtk rendering.
+   */
+  virtual void init();
+
+  /**
    * This is the function called on the QtQuick render thread right before the scenegraph is
    * rendered. This is the stage where all the vtk rendering is performed. Applications would rarely
    * need to override this method.
    *
-   * \note This method is called at the beforeRendering stage of the QtQuick scenegraph. All the
-   * QtQuick element rendering is stacked visually above the vtk rendering.
+   * \note This method is called at the beforeRenderPassRecording stage of the QtQuick scenegraph.
+   * All the QtQuick element rendering is stacked visually above the vtk rendering.
    */
   virtual void paint();
 
@@ -215,7 +249,7 @@ public Q_SLOTS:
 
   /**
    * Convenience method that schedules a scenegraph update and waits for the update.
-   * @sa render()
+   * \sa render()
    */
   virtual void renderNow();
 
@@ -239,9 +273,19 @@ protected:
   // Screenshot stuff
   bool m_screenshotScheduled = false;
   vtkNew<vtkWindowToImageFilter> m_screenshotFilter;
+  vtkNew<vtkRenderer> m_dummyRenderer;
 
   // Event handlers
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#else
+  void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#endif
+
+  /**
+   * Check the scenegraph backend and graphics API being used.
+   */
+  bool checkGraphicsBackend();
 
 private:
   QQuickVTKRenderWindow(const QQuickVTKRenderWindow&) = delete;

@@ -18,9 +18,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     # Numerical problems?
     "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
 
-    # QtQuick event loop issue with CI VNC
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-
     # These tests all seem to have some problem with the rendering order of
     # some components of the scenes that are being tested. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -162,14 +159,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
 
     # This is a flaky test. It sometimes passes.
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
-endif ()
-
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
-  list(APPEND test_exclusions
-    # QtQuick event loop / OpenGL context issues. Needs investigation
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
-    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")

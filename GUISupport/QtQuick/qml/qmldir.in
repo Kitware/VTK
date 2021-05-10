@@ -1,4 +1,4 @@
 module VTK
-plugin qmlvtkplugin@_vtk_qml_relative_dir@
+plugin qmlvtkplugin
 classname QQmlVTKPlugin
 typeinfo plugins.qmltypes

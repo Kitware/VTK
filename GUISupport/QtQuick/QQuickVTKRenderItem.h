@@ -67,32 +67,39 @@
  *  }
  * @endcode
  *
- * The corresponding C++ class that sets up the VTK pipeline would look like the following:
+ * The corresponding C++ code that sets up the VTK pipeline would look like the following:
  *
  * @code
- *   QQmlApplicaQtionEngine engine;
- *   engine.load(QUrl("qrc:///<qmlfile>.qml"));
+ *   int main(int argc, char* argv[])
+ *   {
+ *     QQuickVTKRenderWindow::setupGraphicsBackend();
+ *     QGuiApplication app(argc, argv);
  *
- *   QObject* topLevel = engine.rootObjects().value(0);
- *   QQuickWindow* window = qobject_cast<QQuickWindow*>(topLevel);
+ *     QQmlApplicaQtionEngine engine;
+ *     engine.load(QUrl("qrc:///<qmlfile>.qml"));
  *
- *   window->show();
+ *     QObject* topLevel = engine.rootObjects().value(0);
+ *     QQuickWindow* window = qobject_cast<QQuickWindow*>(topLevel);
  *
- *   // Fetch the QQuick window using the standard object name set up in the constructor
- *   QQuickVTKRenderItem* qquickvtkItem = topLevel->findChild<QQuickVTKRenderItem*>("ConeView");
+ *     window->show();
  *
- *   // Create a cone pipeline and add it to the view
- *   vtkNew<vtkActor> actor;
- *   vtkNew<vtkPolyDataMapper> mapper;
- *   vtkNew<vtkConeSource> cone;
- *   mapper->SetInputConnection(cone->GetOutputPort());
- *   actor->SetMapper(mapper);
- *   qquickvtkItem->renderer()->AddActor(actor);
- *   qquickvtkItem->renderer()->ResetCamera();
- *   qquickvtkItem->renderer()->SetBackground(0.5, 0.5, 0.7);
- *   qquickvtkItem->renderer()->SetBackground2(0.7, 0.7, 0.7);
- *   qquickvtkItem->renderer()->SetGradientBackground(true);
- *   qquickvtkItem->update();
+ *     // Fetch the QQuick window using the standard object name set up in the constructor
+ *     QQuickVTKRenderItem* qquickvtkItem = topLevel->findChild<QQuickVTKRenderItem*>("ConeView");
+ *
+ *     // Create a cone pipeline and add it to the view
+ *     vtkNew<vtkActor> actor;
+ *     vtkNew<vtkPolyDataMapper> mapper;
+ *     vtkNew<vtkConeSource> cone;
+ *     mapper->SetInputConnection(cone->GetOutputPort());
+ *     actor->SetMapper(mapper);
+ *     qquickvtkItem->renderer()->AddActor(actor);
+ *     qquickvtkItem->renderer()->ResetCamera();
+ *     qquickvtkItem->renderer()->SetBackground(0.5, 0.5, 0.7);
+ *     qquickvtkItem->renderer()->SetBackground2(0.7, 0.7, 0.7);
+ *     qquickvtkItem->renderer()->SetGradientBackground(true);
+ *     qquickvtkItem->update();
+ *     app.exec();
+ *   }
  * @endcode
  *
  * ## QtQuick scenegraph and threaded render loop
@@ -127,8 +134,9 @@
 #include <QQuickItem>
 
 // vtk includes
-#include "vtkNew.h"      // For vtkNew
-#include "vtkRenderer.h" // For vtkRenderer
+#include "QQuickVTKRenderWindow.h" // For QQuickVTKRenderWindow
+#include "vtkNew.h"                // For vtkNew
+#include "vtkRenderer.h"           // For vtkRenderer
 
 #include "vtkGUISupportQtQuickModule.h" // for export macro
 
@@ -137,7 +145,6 @@ class QHoverEvent;
 class QKeyEvent;
 class QMouseEvent;
 class QQuickVTKInteractiveWidget;
-class QQuickVTKRenderWindow;
 class vtkImageData;
 
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKRenderItem
@@ -202,6 +209,14 @@ public Q_SLOTS:
   virtual void sync();
 
   /**
+   * Initialize the graphics resources required for this render item.
+   *
+   * This method is called on the QtQuick render thread at the beforeRenderPassRecording stage of
+   * the scenegraph render loop.
+   */
+  virtual void init();
+
+  /**
    * This is the function called on the QtQuick render thread right before the scenegraph is
    * rendered. This is the stage where all the vtk rendering is performed. Applications would rarely
    * need to override this method.
@@ -233,7 +248,11 @@ protected:
   virtual void setViewport(const QRectF& rect);
 
   // Event handlers
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#else
+  void geometryChange(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+#endif
   bool event(QEvent* ev) override;
 
 private:
