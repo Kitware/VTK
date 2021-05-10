@@ -79,6 +79,7 @@ public:
    */
   virtual vtkDataArraySelection* GetPointDataArraySelection();
   virtual vtkDataArraySelection* GetCellDataArraySelection();
+  virtual vtkDataArraySelection* GetFieldDataArraySelection();
   //@}
 
   //@{
@@ -96,17 +97,6 @@ public:
    */
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
-  //@}
-
-  //@{
-  /**
-   * Get/Set whether the point or cell array with the given name is to
-   * be read.
-   */
-  int GetPointArrayStatus(const char* name);
-  int GetCellArrayStatus(const char* name);
-  void SetPointArrayStatus(const char* name, int status);
-  void SetCellArrayStatus(const char* name, int status);
   //@}
 
 protected:

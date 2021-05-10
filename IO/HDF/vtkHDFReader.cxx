@@ -190,22 +190,9 @@ vtkDataArraySelection* vtkHDFReader::GetPointDataArraySelection()
 }
 
 //----------------------------------------------------------------------------
-int vtkHDFReader::GetPointArrayStatus(const char* name)
+vtkDataArraySelection* vtkHDFReader::GetFieldDataArraySelection()
 {
-  return this->DataArraySelection[vtkDataObject::POINT]->ArrayIsEnabled(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkHDFReader::SetPointArrayStatus(const char* name, int status)
-{
-  if (status)
-  {
-    this->DataArraySelection[vtkDataObject::POINT]->EnableArray(name);
-  }
-  else
-  {
-    this->DataArraySelection[vtkDataObject::POINT]->DisableArray(name);
-  }
+  return this->DataArraySelection[vtkDataObject::FIELD];
 }
 
 //----------------------------------------------------------------------------
@@ -224,25 +211,6 @@ vtkDataArraySelection* vtkHDFReader::GetCellDataArraySelection()
 const char* vtkHDFReader::GetCellArrayName(int index)
 {
   return this->DataArraySelection[vtkDataObject::CELL]->GetArrayName(index);
-}
-
-//----------------------------------------------------------------------------
-int vtkHDFReader::GetCellArrayStatus(const char* name)
-{
-  return this->DataArraySelection[vtkDataObject::CELL]->ArrayIsEnabled(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkHDFReader::SetCellArrayStatus(const char* name, int status)
-{
-  if (status)
-  {
-    this->DataArraySelection[vtkDataObject::CELL]->EnableArray(name);
-  }
-  else
-  {
-    this->DataArraySelection[vtkDataObject::CELL]->DisableArray(name);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -292,6 +260,15 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     }
     info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     newOutput->Delete();
+    for (int i = 0; i < vtkHDFReader::GetNumberOfAttributeTypes(); ++i)
+    {
+      this->DataArraySelection[i]->RemoveAllArrays();
+      std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
+      for (const std::string& arrayName : arrayNames)
+      {
+        this->DataArraySelection[i]->AddArray(arrayName.c_str());
+      }
+    }
   }
   return 1;
 }
@@ -335,16 +312,6 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Invalid dataset type: " << dataSetType);
     return 0;
   }
-
-  for (int i = 0; i < vtkHDFReader::GetNumberOfAttributeTypes(); ++i)
-  {
-    this->DataArraySelection[i]->RemoveAllArrays();
-    std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
-    for (const std::string& arrayName : arrayNames)
-    {
-      this->DataArraySelection[i]->AddArray(arrayName.c_str());
-    }
-  }
   return 1;
 }
 
@@ -386,17 +353,20 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
     std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
     {
-      vtkSmartPointer<vtkDataArray> array;
-      std::vector<hsize_t> fileExtent = ::ReduceDimension(&updateExtent[0], this->WholeExtent);
-      std::copy(updateExtent.begin(), updateExtent.end(), fileExtent.begin());
-      if ((array = vtk::TakeSmartPointer(
-             this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
+      if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
       {
-        vtkErrorMacro("Error reading array " << name);
-        return 0;
+        vtkSmartPointer<vtkDataArray> array;
+        std::vector<hsize_t> fileExtent = ::ReduceDimension(&updateExtent[0], this->WholeExtent);
+        std::copy(updateExtent.begin(), updateExtent.end(), fileExtent.begin());
+        if ((array = vtk::TakeSmartPointer(
+               this->Impl->NewArray(attributeType, name.c_str(), fileExtent))) == nullptr)
+        {
+          vtkErrorMacro("Error reading array " << name);
+          return 0;
+        }
+        array->SetName(name.c_str());
+        data->GetAttributesAsFieldData(attributeType)->AddArray(array);
       }
-      array->SetName(name.c_str());
-      data->GetAttributesAsFieldData(attributeType)->AddArray(array);
     }
   }
   return 1;
@@ -483,15 +453,18 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
     std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
     {
-      vtkSmartPointer<vtkDataArray> array;
-      if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(attributeType, name.c_str(),
-             offsets[attributeType], (*numberOf[attributeType])[filePiece]))) == nullptr)
+      if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
       {
-        vtkErrorMacro("Error reading array " << name);
-        return 0;
+        vtkSmartPointer<vtkDataArray> array;
+        if ((array = vtk::TakeSmartPointer(this->Impl->NewArray(attributeType, name.c_str(),
+               offsets[attributeType], (*numberOf[attributeType])[filePiece]))) == nullptr)
+        {
+          vtkErrorMacro("Error reading array " << name);
+          return 0;
+        }
+        array->SetName(name.c_str());
+        pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
       }
-      array->SetName(name.c_str());
-      pieceData->GetAttributesAsFieldData(attributeType)->AddArray(array);
     }
   }
   return 1;
@@ -553,8 +526,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   int dataSetType = this->Impl->GetDataSetType();
-  std::vector<std::string> pointArrays;
-  std::vector<std::string> cellArrays;
   if (dataSetType == VTK_IMAGE_DATA)
   {
     vtkImageData* data = vtkImageData::SafeDownCast(output);
