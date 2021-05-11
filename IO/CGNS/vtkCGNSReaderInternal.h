@@ -41,7 +41,12 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
+
+// .clang-format off
 #include "vtk_cgns.h"
+#include VTK_CGNS(cgnslib.h)
+#include VTK_CGNS(cgns_io.h)
+// .clang-format on
 
 namespace CGNSRead
 {
