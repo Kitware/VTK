@@ -38,6 +38,18 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, ClassI
 static void vtkWrapPython_CustomMethods(
   FILE* fp, const char* classname, ClassInfo* data, int do_constructors);
 
+/* replace AddObserver with a python-specific version */
+static void vtkWrapPython_ReplaceAddObserver(FILE* fp, const char* classname, ClassInfo* data);
+
+/* replace InvokeEvent with a python-specific version */
+static void vtkWrapPython_ReplaceInvokeEvent(FILE* fp, const char* classname, ClassInfo* data);
+
+/* modify vtkObjectBase methods as needed for Python */
+static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, ClassInfo* data);
+
+/* modify vtkCollection to be more Pythonic */
+static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, ClassInfo* data);
+
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
@@ -613,14 +625,36 @@ int vtkWrapPython_MethodCheck(ClassInfo* data, FunctionInfo* currentFunction, Hi
 
 /* -------------------------------------------------------------------- */
 /* generate code for custom methods for some classes */
+/* classname is the Pythonic name, for if data->Name is a templated id */
+/* if do_constructors != 0, do constructors, else do any other methods */
 static void vtkWrapPython_CustomMethods(
   FILE* fp, const char* classname, ClassInfo* data, int do_constructors)
+{
+  if (do_constructors == 0)
+  {
+    /* Modify AddObserver to accept a Python observer methods */
+    vtkWrapPython_ReplaceAddObserver(fp, classname, data);
+
+    /* Modify InvokeEvent to allow Python objects as CallData */
+    vtkWrapPython_ReplaceInvokeEvent(fp, classname, data);
+
+    /* Make reference counting methods safe, add GetAddressAsString() */
+    vtkWrapPython_ObjectBaseMethods(fp, classname, data);
+
+    /* Make collection iterator into a Python iterator */
+    vtkWrapPython_CollectionMethods(fp, classname, data);
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate pythonic AddObserver method for vtkObject */
+static void vtkWrapPython_ReplaceAddObserver(FILE* fp, const char* classname, ClassInfo* data)
 {
   int i;
   FunctionInfo* theFunc;
 
   /* the python vtkObject needs special hooks for observers */
-  if (strcmp("vtkObject", data->Name) == 0 && do_constructors == 0)
+  if (strcmp("vtkObject", classname) == 0)
   {
     /* Remove the original AddObserver method */
     for (i = 0; i < data->NumberOfFunctions; i++)
@@ -724,35 +758,47 @@ static void vtkWrapPython_CustomMethods(
       "  return result;\n"
       "}\n"
       "\n");
+  }
+}
 
-    /* the python vtkObject needs a special InvokeEvent to turn any
-       calldata into an appropriately unwrapped void pointer */
+/* -------------------------------------------------------------------- */
+/* generate data handlers for InvokeEvent method for vtkObject */
+static void vtkWrapPython_ReplaceInvokeEvent(FILE* fp, const char* classname, ClassInfo* data)
+{
+  int i;
+  FunctionInfo* theFunc;
 
-    /* different types of callback data */
+  /* the python vtkObject needs a special InvokeEvent to turn any
+     calldata into an appropriately unwrapped void pointer */
 
-    int numCallBackTypes = 5;
+  /* different types of callback data */
 
-    static const char* callBackTypeString[] = { "z", "", "i", "d", "V" };
+  int numCallBackTypes = 5;
 
-    static const char* fullCallBackTypeString[] = { "z", "", "i", "d", "V *vtkObjectBase" };
+  static const char* callBackTypeString[] = { "z", "", "i", "d", "V" };
 
-    static const char* callBackTypeDecl[] = { "  const char *calldata = nullptr;\n", "",
-      "  long calldata;\n", "  double calldata;\n", "  vtkObjectBase *calldata = nullptr;\n" };
+  static const char* fullCallBackTypeString[] = { "z", "", "i", "d", "V *vtkObjectBase" };
 
-    static const char* callBackReadArg[] = { " &&\n      ap.GetValue(calldata)", "",
-      " &&\n      ap.GetValue(calldata)", " &&\n      ap.GetValue(calldata)",
-      " &&\n      ap.GetVTKObject(calldata, \"vtkObject\")" };
+  static const char* callBackTypeDecl[] = { "  const char *calldata = nullptr;\n", "",
+    "  long calldata;\n", "  double calldata;\n", "  vtkObjectBase *calldata = nullptr;\n" };
 
-    static const char* methodCallSecondHalf[] = { ", const_cast<char *>(calldata)", "",
-      ", &calldata", ", &calldata", ", calldata" };
+  static const char* callBackReadArg[] = { " &&\n      ap.GetValue(calldata)", "",
+    " &&\n      ap.GetValue(calldata)", " &&\n      ap.GetValue(calldata)",
+    " &&\n      ap.GetVTKObject(calldata, \"vtkObject\")" };
 
-    /* two ways to refer to an event */
-    static const char* eventTypeString[] = { "L", "z" };
-    static const char* eventTypeDecl[] = { "  unsigned long event;\n",
-      "  const char *event = nullptr;\n" };
+  static const char* methodCallSecondHalf[] = { ", const_cast<char *>(calldata)", "", ", &calldata",
+    ", &calldata", ", calldata" };
 
-    int callBackIdx, eventIdx;
+  /* two ways to refer to an event */
+  static const char* eventTypeString[] = { "L", "z" };
+  static const char* eventTypeDecl[] = { "  unsigned long event;\n",
+    "  const char *event = nullptr;\n" };
 
+  int callBackIdx, eventIdx;
+
+  /* the python vtkObject needs special hooks for observers */
+  if (strcmp("vtkObject", classname) == 0)
+  {
     /* Remove the original InvokeEvent method */
     for (i = 0; i < data->NumberOfFunctions; i++)
     {
@@ -839,9 +885,17 @@ static void vtkWrapPython_CustomMethods(
       "  return nullptr;\n"
       "}\n");
   }
+}
+
+/* -------------------------------------------------------------------- */
+/* generate custom methods needed for vtkObjectBase */
+static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, ClassInfo* data)
+{
+  int i;
+  FunctionInfo* theFunc;
 
   /* the python vtkObjectBase needs a couple extra functions */
-  if (strcmp("vtkObjectBase", data->Name) == 0 && do_constructors == 0)
+  if (strcmp("vtkObjectBase", classname) == 0)
   {
     /* remove the original methods, if they exist */
     for (i = 0; i < data->NumberOfFunctions; i++)
@@ -959,15 +1013,20 @@ static void vtkWrapPython_CustomMethods(
       "\n",
       classname, data->Name, data->Name, data->Name);
   }
+}
 
-  if (strcmp("vtkCollection", data->Name) == 0 && do_constructors == 0)
+/* -------------------------------------------------------------------- */
+/* generate custom methods needed for vtkCollection */
+static void vtkWrapPython_CollectionMethods(FILE* fp, const char* classname, ClassInfo* data)
+{
+  if (strcmp("vtkCollection", classname) == 0)
   {
     fprintf(fp,
       "static PyObject *\n"
       "PyvtkCollection_Iter(PyObject *self)\n"
       "{\n"
       "  PyVTKObject *vp = (PyVTKObject *)self;\n"
-      "  vtkCollection *op = static_cast<vtkCollection *>(vp->vtk_ptr);\n"
+      "  %s *op = static_cast<%s *>(vp->vtk_ptr);\n"
       "\n"
       "  PyObject *result = nullptr;\n"
       "\n"
@@ -982,17 +1041,18 @@ static void vtkWrapPython_CustomMethods(
       "  }\n"
       "\n"
       "  return result;\n"
-      "}\n");
+      "}\n",
+      data->Name, data->Name);
   }
 
-  if (strcmp("vtkCollectionIterator", data->Name) == 0 && do_constructors == 0)
+  if (strcmp("vtkCollectionIterator", classname) == 0)
   {
     fprintf(fp,
       "static PyObject *\n"
       "PyvtkCollectionIterator_Next(PyObject *self)\n"
       "{\n"
       "  PyVTKObject *vp = (PyVTKObject *)self;\n"
-      "  vtkCollectionIterator *op = static_cast<vtkCollectionIterator*>(vp->vtk_ptr);\n"
+      "  %s *op = static_cast<%s*>(vp->vtk_ptr);\n"
       "\n"
       "  PyObject *result = nullptr;\n"
       "\n"
@@ -1014,6 +1074,7 @@ static void vtkWrapPython_CustomMethods(
       "{\n"
       "  Py_INCREF(self);\n"
       "  return self;\n"
-      "}\n");
+      "}\n",
+      data->Name, data->Name);
   }
 }
