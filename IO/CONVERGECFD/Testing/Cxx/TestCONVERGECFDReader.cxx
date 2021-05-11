@@ -30,10 +30,20 @@
 
 int TestCONVERGECFDReader(int argc, char* argv[])
 {
-  // Read file name.
-  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/post_5016_spray.h5");
-
   vtkNew<vtkCONVERGECFDReader> reader;
+
+  // Read CONVERGE 3.1 file name
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/converge3.1-format.h5");
+  reader->SetFileName(fname);
+  reader->Update();
+  delete[] fname;
+
+  // Check on the structure of the output multiblock dataset
+
+  // Read file name (CONVERGE 3.0 file).
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/post_5016_spray.h5");
+  reader->GetCellDataArraySelection()->RemoveAllArrays();
+  reader->GetParcelDataArraySelection()->RemoveAllArrays();
   reader->SetFileName(fname);
   reader->Update();
   delete[] fname;
