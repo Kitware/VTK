@@ -143,11 +143,11 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   {
     connectivityFlags = vtkUnsignedCharArray::SafeDownCast(
       input->GetCellData()->GetAbstractArray(facesConnectivityFlagsArrayName));
-    if (!connectivityFlags)
-    {
-      vtkErrorMacro("Make sure Connectivity Flags have been computed before using this filter");
-      return 0;
-    }
+  }
+  if (!connectivityFlags)
+  {
+    vtkErrorMacro("Make sure Connectivity Flags have been computed before using this filter");
+    return 0;
   }
 
   vtkPoints* points = input->GetPoints();
