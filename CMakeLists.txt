@@ -224,6 +224,8 @@ set_property(GLOBAL
 
 option(VTK_BUILD_ALL_MODULES "Build all modules by default" OFF)
 mark_as_advanced(VTK_BUILD_ALL_MODULES)
+set(_vtk_module_reason_WANT_BY_DEFAULT
+  "via `VTK_BUILD_ALL_MODULES`")
 
 option(VTK_TARGET_SPECIFIC_COMPONENTS "Install files in target-specific components" OFF)
 mark_as_advanced(VTK_TARGET_SPECIFIC_COMPONENTS)
