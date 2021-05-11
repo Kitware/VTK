@@ -5,6 +5,9 @@ vtk_module_test_data(
   Data/3DTiles/berlin-tileset.json
   )
 
-# We have to update proj before we can activate this test.
+# We have to update proj to be able to run this test.
 # Now it depends on proj 6 being installed on the host system.
-# add_subdirectory(Cxx)
+find_package(PROJ4)
+if (PROJ4_FOUND AND PROJ4_VERSION VERSION_GREATER 5)
+  add_subdirectory(Cxx)
+endif()

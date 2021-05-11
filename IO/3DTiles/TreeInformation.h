@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//------------------------------------------------------------------------------
 /**
  * @class TreeInformation
  * @brief Additional information and routins for 3D Tiles octree nodes.
