@@ -1250,7 +1250,7 @@ const char* vtkParseHierarchy_ExpandTypedefsInName(
 const char* vtkParseHierarchy_QualifiedEnumName(
   HierarchyInfo* hinfo, ClassInfo* data, StringCache* cache, const char* name)
 {
-  // check to see if this is an enum defined in the class
+  /* check to see if this is an enum defined in the class */
   if (data)
   {
     int j;
@@ -1268,7 +1268,7 @@ const char* vtkParseHierarchy_QualifiedEnumName(
     }
   }
 
-  // check the hierarchy information for the enum type
+  /* check the hierarchy information for the enum type */
   if (hinfo)
   {
     HierarchyEntry* entry;

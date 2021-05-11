@@ -725,7 +725,10 @@ int checkFunctionSignature(ClassInfo* data)
 
 void outputParamDeclarationsNative(FILE* fp)
 {
-  for (int i = 0; i < thisFunction->NumberOfArguments; i++)
+  int i;
+  unsigned int type;
+
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
     if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
@@ -740,7 +743,7 @@ void outputParamDeclarationsNative(FILE* fp)
         fprintf(fp, ",");
       }
 
-      unsigned int type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+      type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
       switch (type)
       {
         case VTK_PARSE_CHAR_PTR:
@@ -758,7 +761,10 @@ void outputParamDeclarationsNative(FILE* fp)
 
 void outputParamDeclarations(FILE* fp)
 {
-  for (int i = 0; i < thisFunction->NumberOfArguments; i++)
+  int i;
+  unsigned int type;
+
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
     if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
@@ -773,7 +779,7 @@ void outputParamDeclarations(FILE* fp)
         fprintf(fp, ",");
       }
 
-      unsigned int type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+      type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
       switch (type)
       {
         case VTK_PARSE_CHAR_PTR:
@@ -791,7 +797,10 @@ void outputParamDeclarations(FILE* fp)
 
 void outputFunctionParams(FILE* fp)
 {
-  for (int i = 0; i < thisFunction->NumberOfArguments; i++)
+  int i;
+  unsigned int type;
+
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
     if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
@@ -804,7 +813,8 @@ void outputFunctionParams(FILE* fp)
     {
       fprintf(fp, ",");
     }
-    unsigned int type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+
+    type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
     switch (type)
     {
       case VTK_PARSE_CHAR_PTR:
@@ -821,8 +831,11 @@ void outputFunctionParams(FILE* fp)
 
 void outputStringConversionVariables(FILE* fp)
 {
+  int i;
+  unsigned int type;
+
   /* output local variables which convert string args to byte arrays */
-  for (int i = 0; i < thisFunction->NumberOfArguments; i++)
+  for (i = 0; i < thisFunction->NumberOfArguments; i++)
   {
     if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
     {
@@ -831,7 +844,7 @@ void outputStringConversionVariables(FILE* fp)
       break;
     }
 
-    unsigned int type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
+    type = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
     switch (type)
     {
       case VTK_PARSE_CHAR_PTR:

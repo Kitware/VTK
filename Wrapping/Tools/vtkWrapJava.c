@@ -1497,7 +1497,7 @@ int main(int argc, char* argv[])
     fprintf(fp, "  if(id != 0)\n");
     fprintf(fp, "  {\n");
     fprintf(fp, "    op = reinterpret_cast<%s*>(id);\n", data->Name);
-    // fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n");
+    /* fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n"); */
     fprintf(fp, "    name = op->GetClassName();\n");
     fprintf(fp, "  }\n");
     fprintf(fp, "  return vtkJavaCharToUTF8(env,name,strlen(name));\n");

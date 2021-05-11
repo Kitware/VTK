@@ -2472,9 +2472,6 @@ int vtkParsePreprocess_EvaluateExpression(
  */
 void vtkParsePreprocess_AddStandardMacros(PreprocessInfo* info, preproc_platform_t platform)
 {
-  int save_external = info->IsExternal;
-  info->IsExternal = 1;
-
   /* define common extension operators as macros that return "false" */
   const char** operatorMacro;
   static const char* operatorMacros[] = {
@@ -2489,6 +2486,10 @@ void vtkParsePreprocess_AddStandardMacros(PreprocessInfo* info, preproc_platform
 #endif
     NULL
   };
+
+  /* these macros aren't created by #define's in the current source file */
+  int save_external = info->IsExternal;
+  info->IsExternal = 1;
 
   /* these operators aren't true macros, but it's expedient to define them as such
    * rather than add dedicated code to the preprocessor for handling them */
