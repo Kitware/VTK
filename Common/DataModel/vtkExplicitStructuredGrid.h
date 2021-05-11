@@ -44,6 +44,11 @@
  * then j (0 <= j <= dims[1] - 2), then k ( 0 <= k <= dims[2] - 2) where dims[]
  * are the dimensions of the grid in the i-j-k topological directions.
  * The number of cells is (dims[0] - 1) * (dims[1] - 1) * (dims[2] - 1).
+ *
+ * In order for an ESG to be usable by most other ESG specific filters,
+ * it is needed to call the ComputeFacesConnectivityFlagsArray method.
+ * It is also recommended to call CheckAndReorderFaces method to fix any
+ * faces issues in the dataset.
  */
 
 #ifndef vtkExplicitStructuredGrid_h
@@ -201,7 +206,9 @@ public:
   vtkIdType ComputeCellId(int i, int j, int k, bool adjustForExtent = true);
 
   /**
-   * Compute the faces connectivity flags array.
+   * Compute the faces connectivity flags array. This method should
+   * be called after the construction if the ESG is to be used by
+   * other filters.
    */
   void ComputeFacesConnectivityFlagsArray();
 
