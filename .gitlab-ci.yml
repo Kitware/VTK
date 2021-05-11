@@ -384,6 +384,7 @@ build:wheel-macos-python36-x86_64:
         - .macos_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    timeout: 90 minutes
 
 test:wheel-macos-python36-x86_64:
     extends:
@@ -403,6 +404,7 @@ build:wheel-macos-python37-x86_64:
         - .macos_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    timeout: 90 minutes
 
 test:wheel-macos-python37-x86_64:
     extends:
@@ -422,6 +424,7 @@ build:wheel-macos-python38-x86_64:
         - .macos_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
+    timeout: 90 minutes
 
 test:wheel-macos-python38-x86_64:
     extends:
@@ -441,6 +444,7 @@ build:wheel-macos-python39-x86_64:
         - .macos_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
+    timeout: 90 minutes
 
 test:wheel-macos-python39-x86_64:
     extends:

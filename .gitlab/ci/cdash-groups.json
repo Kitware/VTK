@@ -83,6 +83,46 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_macos36_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos37_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos38_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_macos39_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows36_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows37_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows38_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
+            "buildname": "[wheel_windows39_x86_64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[windows_vs2019_kits_mpi_python_qt]"
         },
         {
