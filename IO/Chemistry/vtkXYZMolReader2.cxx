@@ -17,34 +17,23 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-
 #include "vtkMolecule.h"
+#include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
-
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/FStream.hxx"
 
 #include <cmath>
 #include <cstring>
-
 #include <sstream>
+
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXYZMolReader2);
 
 //------------------------------------------------------------------------------
 vtkXYZMolReader2::vtkXYZMolReader2()
-  : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
-  this->NumberOfTimeSteps = 0;
-  this->NumberOfAtoms = 0;
-}
-
-//------------------------------------------------------------------------------
-vtkXYZMolReader2::~vtkXYZMolReader2()
-{
-  this->SetFileName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -59,48 +48,37 @@ void vtkXYZMolReader2::SetOutput(vtkMolecule* output)
   this->GetExecutive()->SetOutputData(0, output);
 }
 
+//------------------------------------------------------------------------------
 int vtkXYZMolReader2::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  if (!this->FileName)
-  {
-    return 0;
-  }
+  vtksys::ifstream fileInput(this->FileName.c_str());
 
-  vtksys::ifstream file_in(this->FileName);
-
-  if (!file_in.is_open())
+  if (!fileInput.is_open())
   {
     vtkErrorMacro("vtkXYZMolReader2 error opening file: " << this->FileName);
     return 0;
   }
 
-  while (file_in)
+  vtkIdType nAtoms = 0;
+  int timeStep = 0;
+
+  while (fileInput)
   {
-    int natoms;
-    istream::pos_type current_pos = file_in.tellg();
-    file_in >> natoms;
-    file_in.get(); // end of line char
-    if (!file_in)
+    istream::pos_type currentPos = fileInput.tellg();
+    fileInput >> nAtoms;
+    fileInput.get(); // end of line char
+    if (!fileInput)
+    {
       break; // reached after last timestep
-
-    file_positions.push_back(current_pos);
-
-    if (!this->NumberOfAtoms) // first read
-    {
-      this->NumberOfAtoms = natoms;
     }
-    else
-    {
-      // do a consistency check with previous step. Assume there should be same # of atoms
-      if (this->NumberOfAtoms != natoms)
-        vtkWarningMacro("XYZMolReader2 has different number of atoms at each timestep "
-          << this->NumberOfAtoms << " " << natoms);
-    }
+
+    this->FilePositions.emplace_back(currentPos);
+
     std::string title;
-    getline(file_in, title); // second title line
+    getline(fileInput, title); // second title line
     if (!title.empty())
     {
       // second title line may have a time index, time value and E?
@@ -111,35 +89,35 @@ int vtkXYZMolReader2::RequestInformation(vtkInformation* vtkNotUsed(request),
         std::istringstream tmp(&title[found + 6]);
         double timeValue;
         tmp >> timeValue;
-        this->TimeSteps.push_back(timeValue);
+        this->TimeSteps.emplace_back(timeValue);
       }
       else
       {
-        this->TimeSteps.push_back(this->NumberOfTimeSteps);
+        this->TimeSteps.emplace_back(timeStep);
       }
     }
     else
     {
-      this->TimeSteps.push_back(this->NumberOfTimeSteps);
+      this->TimeSteps.emplace_back(timeStep);
     }
+    timeStep++;
 
-    this->NumberOfTimeSteps++;
-    for (int i = 0; i < natoms; i++)
+    for (int i = 0; i < nAtoms; i++)
     {
-      getline(file_in, title); // for each atom a line with symbol, x, y, z
+      getline(fileInput, title); // for each atom a line with symbol, x, y, z
     }
   }
-  file_in.close();
+  fileInput.close();
 
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeSteps[0], this->NumberOfTimeSteps);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->TimeSteps[0], timeStep);
   double timeRange[2];
   timeRange[0] = this->TimeSteps[0];
-  timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps - 1];
+  timeRange[1] = this->TimeSteps[timeStep - 1];
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkXYZMolReader2::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
@@ -148,19 +126,13 @@ int vtkXYZMolReader2::RequestData(
 
   if (!output)
   {
-    vtkErrorMacro(<< "vtkXYZMolReader2 does not have a vtkMolecule "
-                     "as output.");
+    vtkErrorMacro("vtkXYZMolReader2 does not have a vtkMolecule as output.");
     return 1;
   }
 
-  if (!this->FileName)
-  {
-    return 0;
-  }
+  vtksys::ifstream fileInput(this->FileName.c_str());
 
-  vtksys::ifstream file_in(this->FileName);
-
-  if (!file_in.is_open())
+  if (!fileInput.is_open())
   {
     vtkErrorMacro("vtkXYZMolReader2 error opening file: " << this->FileName);
     return 0;
@@ -208,42 +180,34 @@ int vtkXYZMolReader2::RequestData(
     timestep = 0;
   }
 
-  file_in.seekg(file_positions[timestep]);
-  int nbAtoms;
+  fileInput.seekg(this->FilePositions[timestep]);
+  vtkIdType nAtoms;
 
-  file_in >> nbAtoms;
-  file_in.get(); // end of line char
+  fileInput >> nAtoms;
+  fileInput.get(); // end of line char
 
-  if (nbAtoms != this->NumberOfAtoms)
-  {
-    vtkErrorMacro("vtkXYZMolReader2 error reading file: "
-      << this->FileName << " Premature EOF while reading molecule.");
-    file_in.close();
-    return 0;
-  }
   std::string title;
-  getline(file_in, title); // second title line
+  getline(fileInput, title); // second title line
 
   // construct vtkMolecule
   output->Initialize();
 
-  vtkPeriodicTable* pT = vtkPeriodicTable::New();
-  for (int i = 0; i < this->NumberOfAtoms; i++)
+  vtkNew<vtkPeriodicTable> pT;
+  for (int i = 0; i < nAtoms; i++)
   {
     char atomType[16];
     float x, y, z;
-    file_in >> atomType >> x >> y >> z;
-    if (file_in.fail()) // checking we are at end of line
+    fileInput >> atomType >> x >> y >> z;
+    if (fileInput.fail()) // checking we are at end of line
     {
       vtkErrorMacro("vtkXYZMolReader2 error reading file: "
         << this->FileName << " Problem reading atoms' positions.");
-      file_in.close();
+      fileInput.close();
       return 0;
     }
     output->AppendAtom(pT->GetAtomicNumber(atomType), x, y, z);
   }
-  pT->Delete();
-  file_in.close();
+  fileInput.close();
 
   return 1;
 }
@@ -252,6 +216,5 @@ int vtkXYZMolReader2::RequestData(
 void vtkXYZMolReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Number of Atoms: " << this->NumberOfAtoms << endl;
-  os << indent << "Number of TimeSteps: " << this->NumberOfTimeSteps;
+  os << indent << "FileName: " << this->FileName << endl;
 }
