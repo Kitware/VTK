@@ -76,42 +76,6 @@ vtkQuadricLODActor::~vtkQuadricLODActor()
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport* vp)
-{
-  int renderedSomething = 0;
-  vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
-
-  if (!this->Mapper)
-  {
-    return 0;
-  }
-
-  // is this actor opaque ?
-  // Do this check only when not in selection mode
-  if (this->GetIsOpaque() || (ren->GetSelector() && this->Property->GetOpacity() > 0.0))
-  {
-    this->GetProperty()->Render(this, ren);
-
-    // render the backface property
-    if (this->BackfaceProperty)
-    {
-      this->BackfaceProperty->BackfaceRender(this, ren);
-    }
-
-    // render the texture
-    if (this->Texture)
-    {
-      this->Texture->Render(ren);
-    }
-    this->Render(ren, this->Mapper);
-
-    renderedSomething = 1;
-  }
-
-  return renderedSomething;
-}
-
-//------------------------------------------------------------------------------
 void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
 {
   if (!this->Mapper)
@@ -300,6 +264,10 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
   // The internal actor needs to share property keys. This allows depth peeling
   // etc to work.
   this->LODActor->SetPropertyKeys(this->GetPropertyKeys());
+
+  // copy current translucent pass setting
+  this->LODActor->SetIsRenderingTranslucentPolygonalGeometry(
+    this->IsRenderingTranslucentPolygonalGeometry());
 
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.

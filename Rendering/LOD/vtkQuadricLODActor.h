@@ -192,12 +192,6 @@ public:
   void Render(vtkRenderer*, vtkMapper*) override;
 
   /**
-   * This method is used internally by the rendering process. We override
-   * the superclass method to properly set the estimated render time.
-   */
-  int RenderOpaqueGeometry(vtkViewport* viewport) override;
-
-  /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
