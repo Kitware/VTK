@@ -485,6 +485,9 @@ set("_vtk_module_reason_Package::Frobnitz"
   "via the `ENABLE_FROBNITZ` setting")
 ~~~
 
+Additionally, the reason for the `WANT_BY_DEFAULT` value may be provided via
+the `_vtk_module_reason_WANT_BY_DEFAULT` variable.
+
 @section module-scanning-multiple Scanning multiple groups of modules
 
 When scanning complicated projects, multiple scans may be required to get
@@ -723,6 +726,8 @@ function (vtk_module_scan)
 
       if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "via `VTK_MDDULE_ENABLE_${_vtk_scan_module_name_safe}`")
         _vtk_module_debug(enable "@_vtk_scan_module_name@ is `${_vtk_scan_enable_${_vtk_scan_module_name}}` by cache value")
       endif ()
 
@@ -752,6 +757,8 @@ function (vtk_module_scan)
         set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
+          set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+            "via `VTK_GROUP_ENABLE_${_vtk_scan_group}`")
           _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
         endif ()
       endforeach ()
@@ -767,6 +774,13 @@ function (vtk_module_scan)
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "WANT")
       else ()
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "DONT_WANT")
+      endif ()
+      if (DEFINED _vtk_module_reason_WANT_BY_DEFAULT)
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "${_vtk_module_reason_WANT_BY_DEFAULT}")
+      else ()
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "via `WANT_BY_DEFAULT=${_vtk_scan_WANT_BY_DEFAULT}`")
       endif ()
       _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_${_vtk_scan_module_name}}")
     endif ()
@@ -885,7 +899,7 @@ function (vtk_module_scan)
       # disabled module will be dealt with later.
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
       set("_vtk_scan_provide_reason_${_vtk_scan_module}"
-        "via a `YES` setting")
+        "via a `YES` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `YES` setting")
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "WANT")
       # Check to see if we can provide this module by checking of any of its
@@ -898,7 +912,7 @@ function (vtk_module_scan)
 
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
       set("_vtk_scan_provide_reason_${_vtk_scan_module}"
-        "via a `WANT` setting")
+        "via a `WANT` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `WANT` setting")
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
@@ -932,7 +946,7 @@ function (vtk_module_scan)
       # Disable the module.
       set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
       set("_vtk_scan_provide_reason_${_vtk_scan_module}"
-        "via a `NO` setting")
+        "via a `NO` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to `NO` setting")
     endif ()
 
