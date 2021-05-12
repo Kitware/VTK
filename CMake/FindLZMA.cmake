@@ -2,7 +2,7 @@ find_path(LZMA_INCLUDE_DIR
   NAMES lzma.h
   DOC "lzma include directory")
 find_library(LZMA_LIBRARY
-  NAMES lzma
+  NAMES lzma liblzma
   DOC "lzma library")
 
 if (LZMA_INCLUDE_DIR)
