@@ -145,9 +145,15 @@ if (VTK_WRAP_PYTHON)
   list(APPEND vtk_requested_modules
     VTK::WrappingPythonCore
     VTK::PythonInterpreter)
+  set("_vtk_module_reason_VTK::WrappingPythonCore"
+    "via `VTK_WRAP_PYTHON`")
+  set("_vtk_module_reason_VTK::PythonInterpreter"
+    "via `VTK_WRAP_PYTHON`")
 else ()
   list(APPEND vtk_rejected_modules
     VTK::Python)
+  set("_vtk_module_reason_VTK::Python"
+    "via `VTK_WRAP_PYTHON`")
 endif ()
 if (VTK_WRAP_JAVA)
   list(APPEND vtk_requested_modules
@@ -156,6 +162,8 @@ else ()
   list(APPEND vtk_rejected_modules
     VTK::Java)
 endif ()
+set("_vtk_module_reason_VTK::Java"
+  "via `VTK_WRAP_JAVA`")
 # For vtkTkRenderWidget (only useful with Python, since WRAP_TCL is gone)
 if (VTK_USE_TK)
   set(VTK_GROUP_ENABLE_Tk YES)
@@ -168,27 +176,39 @@ else ()
   set(_vtk_module_group_default_MPI "DONT_WANT")
   list(APPEND vtk_rejected_modules
     VTK::mpi)
+  set("_vtk_module_reason_VTK::mpi"
+    "via `VTK_USE_MPI`")
 endif ()
 if (VTK_ENABLE_LOGGING)
   list(APPEND vtk_requested_modules
     VTK::loguru)
+  set("_vtk_module_reason_VTK::loguru"
+    "via `VTK_ENABLE_LOGGING`")
 endif ()
 
 if (VTK_BUILD_TESTING)
   list(APPEND vtk_requested_modules
     # Required for just about all VTK tests.
     VTK::TestingCore)
+  set("_vtk_module_reason_VTK::TestingCore"
+    "via `VTK_BUILD_TESTING`")
 endif ()
 
 list(APPEND vtk_requested_modules
   # Required for just about everything.
   VTK::CommonCore
   VTK::CommonDataModel)
+set("_vtk_module_reason_VTK::CommonCore"
+  "all VTK builds require VTK::CommonCore")
+set("_vtk_module_reason_VTK::CommonDataModel"
+  "all VTK builds require VTK::CommonDataModel")
 
 if (VTK_ENABLE_WRAPPING)
   list(APPEND vtk_requested_modules
     # Required for wrapping with hierarchy files.
     VTK::WrappingTools)
+  set("_vtk_module_reason_VTK::WrappingTools"
+    "via `VTK_ENABLE_WRAPPING`")
 endif ()
 
 if (vtk_requested_modules)
@@ -204,6 +224,8 @@ set_property(GLOBAL
 
 option(VTK_BUILD_ALL_MODULES "Build all modules by default" OFF)
 mark_as_advanced(VTK_BUILD_ALL_MODULES)
+set(_vtk_module_reason_WANT_BY_DEFAULT
+  "via `VTK_BUILD_ALL_MODULES`")
 
 option(VTK_TARGET_SPECIFIC_COMPONENTS "Install files in target-specific components" OFF)
 mark_as_advanced(VTK_TARGET_SPECIFIC_COMPONENTS)

@@ -474,6 +474,20 @@ modules may not add themselves to kits declared prior. The arguments are as foll
     - `DEFAULT`: Test modules will be enabled if their required dependencies
       are satisfied and skipped otherwise.
 
+To make error messages clearer, modules passed to `REQUIRES_MODULES` and
+`REJECT_MODULES` may have a `_vtk_module_reason_<MODULE>` variable set to the
+reason for the module appearing in either argument. For example, if the
+`Package::Frobnitz` module is required due to a `ENABLE_FROBNITZ` cache
+variable:
+
+~~~{.cmake}
+set("_vtk_module_reason_Package::Frobnitz"
+  "via the `ENABLE_FROBNITZ` setting")
+~~~
+
+Additionally, the reason for the `WANT_BY_DEFAULT` value may be provided via
+the `_vtk_module_reason_WANT_BY_DEFAULT` variable.
+
 @section module-scanning-multiple Scanning multiple groups of modules
 
 When scanning complicated projects, multiple scans may be required to get
@@ -712,6 +726,8 @@ function (vtk_module_scan)
 
       if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "via `VTK_MDDULE_ENABLE_${_vtk_scan_module_name_safe}`")
         _vtk_module_debug(enable "@_vtk_scan_module_name@ is `${_vtk_scan_enable_${_vtk_scan_module_name}}` by cache value")
       endif ()
 
@@ -741,6 +757,8 @@ function (vtk_module_scan)
         set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
+          set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+            "via `VTK_GROUP_ENABLE_${_vtk_scan_group}`")
           _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
         endif ()
       endforeach ()
@@ -756,6 +774,13 @@ function (vtk_module_scan)
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "WANT")
       else ()
         set("_vtk_scan_enable_${_vtk_scan_module_name}" "DONT_WANT")
+      endif ()
+      if (DEFINED _vtk_module_reason_WANT_BY_DEFAULT)
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "${_vtk_module_reason_WANT_BY_DEFAULT}")
+      else ()
+        set("_vtk_scan_enable_reason_${_vtk_scan_module_name}"
+          "via `WANT_BY_DEFAULT=${_vtk_scan_WANT_BY_DEFAULT}`")
       endif ()
       _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using `WANT_BY_DEFAULT`: ${_vtk_scan_enable_${_vtk_scan_module_name}}")
     endif ()
@@ -838,10 +863,24 @@ function (vtk_module_scan)
   # as arguments.
   foreach (_vtk_scan_request_module IN LISTS _vtk_scan_REQUEST_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_request_module}" ON)
+    if (DEFINED "_vtk_module_reason_${_vtk_scan_request_module}")
+      set("_vtk_scan_provide_reason_${_vtk_scan_request_module}"
+        "${_vtk_module_reason_${_vtk_scan_request_module}}")
+    else ()
+      set("_vtk_scan_provide_reason_${_vtk_scan_request_module}"
+        "via REQUEST_MODULES")
+    endif ()
     _vtk_module_debug(provide "@_vtk_scan_request_module@ is provided via `REQUEST_MODULES`")
   endforeach ()
   foreach (_vtk_scan_reject_module IN LISTS _vtk_scan_REJECT_MODULES)
     set("_vtk_scan_provide_${_vtk_scan_reject_module}" OFF)
+    if (DEFINED "_vtk_module_reason_${_vtk_scan_reject_module}")
+      set("_vtk_scan_provide_reason_${_vtk_scan_reject_module}"
+        "${_vtk_module_reason_${_vtk_scan_reject_module}}")
+    else ()
+      set("_vtk_scan_provide_reason_${_vtk_scan_reject_module}"
+        "via REJECT_MODULES")
+    endif ()
     _vtk_module_debug(provide "@_vtk_scan_reject_module@ is not provided via `REJECT_MODULES`")
   endforeach ()
 
@@ -859,6 +898,8 @@ function (vtk_module_scan)
       # Mark enabled modules as to-be-provided. Any errors with requiring a
       # disabled module will be dealt with later.
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      set("_vtk_scan_provide_reason_${_vtk_scan_module}"
+        "via a `YES` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `YES` setting")
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "WANT")
       # Check to see if we can provide this module by checking of any of its
@@ -870,10 +911,18 @@ function (vtk_module_scan)
       endif ()
 
       set("_vtk_scan_provide_${_vtk_scan_module}" ON)
+      set("_vtk_scan_provide_reason_${_vtk_scan_module}"
+        "via a `WANT` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is provided due to `WANT` setting")
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          set("_vtk_scan_provide_reason_${_vtk_scan_module}"
+            "due to the ${_vtk_scan_module_depend} module not being available")
+          if (DEFINED "_vtk_scan_provide_reason_${_vtk_scan_module_depend}")
+            string(APPEND "_vtk_scan_provide_reason_${_vtk_scan_module}"
+              " (${_vtk_scan_provide_reason_${_vtk_scan_module_depend}})")
+          endif ()
           _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
@@ -883,6 +932,12 @@ function (vtk_module_scan)
       foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
           set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          set("_vtk_scan_provide_reason_${_vtk_scan_module}"
+            "due to the ${_vtk_scan_module_depend} module not being available")
+          if (DEFINED "_vtk_scan_provide_reason_${_vtk_scan_module_depend}")
+            string(APPEND "_vtk_scan_provide_reason_${_vtk_scan_module}"
+              " (${_vtk_scan_provide_reason_${_vtk_scan_module_depend}})")
+          endif ()
           _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to not provided dependency @_vtk_scan_module_depend@")
           break ()
         endif ()
@@ -890,6 +945,8 @@ function (vtk_module_scan)
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "NO")
       # Disable the module.
       set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+      set("_vtk_scan_provide_reason_${_vtk_scan_module}"
+        "via a `NO` setting (${_vtk_scan_enable_reason_${_vtk_scan_module}})")
       _vtk_module_debug(provide "@_vtk_scan_module@ is not provided due to `NO` setting")
     endif ()
 
@@ -956,17 +1013,28 @@ function (vtk_module_scan)
             continue ()
           else ()
             message(FATAL_ERROR
-              "The ${_vtk_scan_module} module requires the disabled module ${_vtk_scan_module_depend}.")
+              "The ${_vtk_scan_module} module (enabled "
+              "${_vtk_scan_provide_reason_${_vtk_scan_module}}) requires the "
+              "disabled module ${_vtk_scan_module_depend} (disabled "
+              "${_vtk_scan_provide_reason_${_vtk_scan_module_depend}}).")
           endif ()
         endif ()
 
         if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}")
           if (NOT _vtk_scan_provide_${_vtk_scan_module_depend})
             message(FATAL_ERROR
-              "The ${_vtk_scan_module_depend} module should be provided (as "
-              "required by ${_vtk_scan_module}), but is disabled.")
+              "The ${_vtk_scan_module_depend} module (disabled "
+              "${_vtk_scan_provide_reason_${_vtk_scan_module_depend}}) should "
+              "be provided because it is required by ${_vtk_scan_module} "
+              "(${_vtk_scan_provide_reason_${_vtk_scan_module}})")
           endif ()
           continue ()
+        endif ()
+        set("_vtk_scan_provide_reason_${_vtk_scan_module_depend}"
+          "via dependency from ${_vtk_scan_module}")
+        if (DEFINED "_vtk_scan_provide_reason_${_vtk_scan_module}")
+          string(APPEND "_vtk_scan_provide_reason_${_vtk_scan_module_depend}"
+            " (${_vtk_scan_provide_reason_${_vtk_scan_module}})")
         endif ()
         set("_vtk_scan_provide_${_vtk_scan_module_depend}" ON)
 
