@@ -43,7 +43,7 @@
 #if defined(_WIN32)
 // xxx(kitware)
 // #include <psapi.h>
-#include <windows.h>
+// #include <windows.h>
 #undef max
 
 #elif defined(__unix__) || defined(__unix) || defined(unix) ||                                     \

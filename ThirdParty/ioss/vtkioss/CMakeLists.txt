@@ -15,6 +15,7 @@ if (vtk_netcdf_has_parallel)
 endif ()
 
 set(SEACAS_HAVE_EXODUS ON)
+set(SEACAS_HAVE_CGNS ON)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SEACASIoss_config.h.in"
@@ -132,6 +133,12 @@ set(classes
   Ioss_ZoneConnectivity
   tokenize
 
+  cgns/Iocgns_DatabaseIO
+  cgns/Iocgns_Utils
+  cgns/Iocgns_Initializer
+  cgns/Iocgns_StructuredZoneData
+  cgns/Iocgns_IOFactory
+
   exodus/Ioex_BaseDatabaseIO
   exodus/Ioex_DatabaseIO
   exodus/Ioex_Internals
@@ -163,6 +170,9 @@ set(classes
 if (SEACAS_HAVE_MPI)
   list(APPEND classes
     Ioss_Decomposition
+    # For now, we don't support MPI-enabled CGNS.
+    # cgns/Iocgns_DecompositionData
+    # cgns/Iocgns_ParallelDatabaseIO
     exodus/Ioex_DecompositionData
     exodus/Ioex_ParallelDatabaseIO)
 endif ()

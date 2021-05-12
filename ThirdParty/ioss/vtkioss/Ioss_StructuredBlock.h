@@ -20,8 +20,7 @@
 #include <string>
 
 #if defined(SEACAS_HAVE_CGNS) && !defined(BUILT_IN_SIERRA)
-#include <cgnstypes.h>
-using INT = cgsize_t;
+using INT = std::int64_t;
 #else
 // If this is not being built with CGNS, then default to using 32-bit integers.
 // Currently there is no way to input/output a structured mesh without CGNS,
