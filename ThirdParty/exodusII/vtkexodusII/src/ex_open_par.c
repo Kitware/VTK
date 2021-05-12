@@ -30,7 +30,7 @@
 
 #include "exodusII.h"
 #include "exodusII_int.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 /*!
 \ingroup Utilities
 

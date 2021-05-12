@@ -127,7 +127,7 @@ exoid = ex_create ("test.exo"       \comment{filename path}
 #if defined(PARALLEL_AWARE_EXODUS)
 
 #include "exodusII_int.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 /* NOTE: Do *not* call `ex_create_par_int()` directly.  The public API
  *       function name is `ex_create_par()` which is a wrapper that calls
