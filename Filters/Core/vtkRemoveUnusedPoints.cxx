@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkUnsignedCharArray.h"
@@ -48,7 +49,7 @@ struct RemapPointIds
     for (vtkIdType cc = 0, max = input->GetNumberOfTuples(); cc < max; ++cc)
     {
       input->GetTypedTuple(cc, tuple.get());
-      std::transform(tuple.get(), tuple.get() + numComps, tuple.get(),
+      vtkSMPTools::Transform(tuple.get(), tuple.get() + numComps, tuple.get(),
         [this](vtkIdType id) { return this->PointMap[id]; });
       output->SetTypedTuple(cc, tuple.get());
     }
