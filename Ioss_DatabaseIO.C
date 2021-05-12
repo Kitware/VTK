@@ -37,7 +37,6 @@
 #include <iterator>
 #include <set>
 #include <string>
-#include <sys/stat.h>
 #include <tokenize.h>
 #include <utility>
 #include <vector>
