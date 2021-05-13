@@ -326,7 +326,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         # Connect the parent's destroyed signal to this widget's close
         # slot for proper cleanup of VTK objects.
         if self.parent():
-            self.parent().destroyed.connect(self.close)
+            self.parent().destroyed.connect(self.close, Qt.DirectConnection)
 
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
