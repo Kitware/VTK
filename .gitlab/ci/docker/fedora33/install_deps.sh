@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Install extra dependencies for VTK
 dnf install -y --setopt=install_weak_deps=False \
     bzip2 patch git-core git-lfs
