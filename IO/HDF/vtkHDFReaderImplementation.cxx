@@ -148,23 +148,23 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     {
       this->Close();
     }
-    if ((this->File = H5Fopen(this->FileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
-    {
-      vtkErrorWithObjectMacro(this->Reader, "Error oppening " << fileName);
-      return false;
-    }
-    if ((this->VTKGroup = H5Gopen(this->File, "/VTKHDF", H5P_DEFAULT)) < 0)
-    {
-      vtkErrorWithObjectMacro(this->Reader, "Error opening /VTKHDF");
-      return false;
-    }
-    std::array<const char*, 3> groupNames = { "/VTKHDF/PointData", "/VTKHDF/CellData",
-      "/VTKHDF/FieldData" };
     // turn off error logging and save error function
     H5E_auto_t f;
     void* client_data;
     H5Eget_auto(H5E_DEFAULT, &f, &client_data);
     H5Eset_auto(H5E_DEFAULT, nullptr, nullptr);
+    if ((this->File = H5Fopen(this->FileName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT)) < 0)
+    {
+      // we try to read a non-HDF file
+      return false;
+    }
+    if ((this->VTKGroup = H5Gopen(this->File, "/VTKHDF", H5P_DEFAULT)) < 0)
+    {
+      // we try to read a non-VTKHDF file
+      return false;
+    }
+    std::array<const char*, 3> groupNames = { "/VTKHDF/PointData", "/VTKHDF/CellData",
+      "/VTKHDF/FieldData" };
     // try to open cell or point group. Its OK if they don't exist.
     for (size_t i = 0; i < this->AttributeDataGroup.size(); ++i)
     {
