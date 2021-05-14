@@ -179,15 +179,9 @@ typedef signed char vtkTypeInt8;
 #define VTK_TYPE_UINT8 VTK_UNSIGNED_CHAR
 #define VTK_TYPE_UINT8_MIN VTK_UNSIGNED_CHAR_MIN
 #define VTK_TYPE_UINT8_MAX VTK_UNSIGNED_CHAR_MAX
-#if VTK_TYPE_CHAR_IS_SIGNED
-#define VTK_TYPE_INT8 VTK_CHAR
-#define VTK_TYPE_INT8_MIN VTK_CHAR_MIN
-#define VTK_TYPE_INT8_MAX VTK_CHAR_MAX
-#else
 #define VTK_TYPE_INT8 VTK_SIGNED_CHAR
 #define VTK_TYPE_INT8_MIN VTK_SIGNED_CHAR_MIN
 #define VTK_TYPE_INT8_MAX VTK_SIGNED_CHAR_MAX
-#endif
 #else
 #error "No native data type can represent an 8-bit integer."
 #endif
