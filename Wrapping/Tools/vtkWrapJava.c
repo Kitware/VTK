@@ -28,7 +28,7 @@ FunctionInfo* wrappedFunctions[1000];
 FunctionInfo* thisFunction;
 ClassInfo* thisClass;
 
-void output_proto_vars(FILE* fp, int i)
+void OutputParamDeclarations(FILE* fp, int i)
 {
   unsigned int aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
@@ -44,63 +44,54 @@ void output_proto_vars(FILE* fp, int i)
     return;
   }
 
-  if ((aType == VTK_PARSE_CHAR_PTR) || (aType == VTK_PARSE_STRING) ||
-    (aType == VTK_PARSE_STRING_REF))
+  if (((thisFunction->Parameters[i]->CountHint == NULL) && (aType == VTK_PARSE_CHAR_PTR)) ||
+    (aType == VTK_PARSE_STRING) || (aType == VTK_PARSE_STRING_REF))
   {
-    fprintf(fp, " jbyteArray ");
-    fprintf(fp, "id%i", i);
-    fprintf(fp, ", jint ");
-    fprintf(fp, "len%i", i);
+    fprintf(fp, " jbyteArray id%i, jint len%i", i, i);
     return;
   }
 
   if (aType == VTK_PARSE_BOOL_PTR)
   {
-    fprintf(fp, "jbooleanArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jbooleanArray id%i", i);
     return;
   }
 
   if (aType == VTK_PARSE_FLOAT_PTR)
   {
-    fprintf(fp, "jfloatArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jfloatArray id%i", i);
     return;
   }
 
   if (aType == VTK_PARSE_DOUBLE_PTR)
   {
-    fprintf(fp, "jdoubleArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jdoubleArray id%i", i);
     return;
   }
 
-  if (aType == VTK_PARSE_SIGNED_CHAR_PTR)
+  if (((thisFunction->Parameters[i]->CountHint != NULL) && (aType == VTK_PARSE_CHAR_PTR)) ||
+    (aType == VTK_PARSE_SIGNED_CHAR_PTR) || (aType == VTK_PARSE_UNSIGNED_CHAR_PTR))
   {
-    fprintf(fp, "jbyteArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jbyteArray id%i", i);
     return;
   }
 
   if (aType == VTK_PARSE_SHORT_PTR)
   {
-    fprintf(fp, "jshortArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jshortArray id%i", i);
     return;
   }
 
   if (aType == VTK_PARSE_INT_PTR)
   {
-    fprintf(fp, "jintArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jintArray id%i", i);
     return;
   }
 
   if ((aType == VTK_PARSE_LONG_PTR) || (aType == VTK_PARSE_LONG_LONG_PTR) ||
     (aType == VTK_PARSE___INT64_PTR))
   {
-    fprintf(fp, "jlongArray ");
-    fprintf(fp, "id%i", i);
+    fprintf(fp, "jlongArray id%i", i);
     return;
   }
 
@@ -154,51 +145,64 @@ void output_proto_vars(FILE* fp, int i)
 /* when the cpp file doesn't have enough info use the hint file */
 void use_hints(FILE* fp)
 {
-  unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
+  unsigned int rawType = thisFunction->ReturnType;
 
+  const char* qualifier = "";
+  if ((rawType & VTK_PARSE_CONST) != 0)
+  {
+    qualifier = "const ";
+  }
+
+  unsigned int basicType = rawType & VTK_PARSE_UNQUALIFIED_TYPE;
   /* use the hint */
-  switch (rType)
+  switch (basicType)
   {
     case VTK_PARSE_UNSIGNED_CHAR_PTR:
       /* for vtkDataWriter we want to handle this case specially */
       if (strcmp(thisFunction->Name, "GetBinaryOutputString") != 0 ||
         strcmp(thisClass->Name, "vtkDataWriter") != 0)
       {
-        fprintf(fp, "  return vtkJavaMakeJArrayOfByte(env,(jbyte*)temp%i,%i);\n", MAX_ARGS,
-          thisFunction->HintSize);
+        fprintf(fp,
+          "  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<%sjbyte*>(temp%i), %i);\n",
+          qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       }
       else
       {
         fprintf(fp,
-          "  return vtkJavaMakeJArrayOfByte(env,(jbyte*)temp%i,op->GetOutputStringLength());\n",
-          MAX_ARGS);
+          "  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<%sjbyte*>(temp%i), "
+          "op->GetOutputStringLength());\n",
+          qualifier, MAX_ARGS);
       }
       break;
     case VTK_PARSE_BOOL_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfBoolean(env,(jboolean*)temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp,
+        "  return vtkJavaMakeJArrayOfBoolean(env, reinterpret_cast<%sjboolean*>(temp%i), %i);\n",
+        qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       break;
     case VTK_PARSE_FLOAT_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfFloat(env,temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp, "  return vtkJavaMakeJArrayOfFloat(env, temp%i, %i);\n", MAX_ARGS,
+        thisFunction->ReturnValue->Count);
       break;
     case VTK_PARSE_DOUBLE_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfDouble(env,temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp, "  return vtkJavaMakeJArrayOfDouble(env, temp%i, %i);\n", MAX_ARGS,
+        thisFunction->ReturnValue->Count);
       break;
+    case VTK_PARSE_CHAR_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfByte(env,(jbyte*)temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp,
+        "  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<%sjbyte*>(temp%i), %i);\n",
+        qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       break;
     case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_UNSIGNED_SHORT_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfShort(env,(jshort*)temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp,
+        "  return vtkJavaMakeJArrayOfShort(env, reinterpret_cast<%sjshort*>(temp%i), %i);\n",
+        qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       break;
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_UNSIGNED_INT_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfInt(env,(jint*)temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp, "  return vtkJavaMakeJArrayOfInt(env, reinterpret_cast<%sjint*>(temp%i), %i);\n",
+        qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       break;
     case VTK_PARSE_LONG_PTR:
     case VTK_PARSE_UNSIGNED_LONG_PTR:
@@ -206,8 +210,9 @@ void use_hints(FILE* fp)
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_UNSIGNED___INT64_PTR:
-      fprintf(fp, "  return vtkJavaMakeJArrayOfLong(env,(jlong*)temp%i,%i);\n", MAX_ARGS,
-        thisFunction->HintSize);
+      fprintf(fp,
+        "  return vtkJavaMakeJArrayOfLong(env, reinterpret_cast<%sjlong*>(temp%i), %i);\n",
+        qualifier, MAX_ARGS, thisFunction->ReturnValue->Count);
       break;
   }
 }
@@ -257,6 +262,8 @@ void return_result(FILE* fp)
       fprintf(fp, "jboolean ");
       break;
     case VTK_PARSE_CHAR_PTR:
+      fprintf(fp, thisFunction->ReturnValue->Count == 0 ? "jbyteArray " : "jarray ");
+      break;
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
       fprintf(fp, "jbyteArray ");
@@ -281,12 +288,13 @@ void return_result(FILE* fp)
   }
 }
 
-void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount)
+void OutputLocalVariableDeclarations(
+  FILE* fp, int i, unsigned int aType, const char* Id, int aCount)
 {
   /* handle VAR FUNCTIONS */
   if (aType == VTK_PARSE_FUNCTION)
   {
-    fprintf(fp, "  vtkJavaVoidFuncArg *temp%i = new vtkJavaVoidFuncArg;\n", i);
+    fprintf(fp, "  vtkJavaVoidFuncArg* fstruct = new vtkJavaVoidFuncArg;\n");
     return;
   }
 
@@ -314,25 +322,25 @@ void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount
   switch ((aType & VTK_PARSE_BASE_TYPE) & ~VTK_PARSE_UNSIGNED)
   {
     case VTK_PARSE_FLOAT:
-      fprintf(fp, "float  ");
+      fprintf(fp, "float ");
       break;
     case VTK_PARSE_DOUBLE:
       fprintf(fp, "double ");
       break;
     case VTK_PARSE_INT:
-      fprintf(fp, "int    ");
+      fprintf(fp, "int ");
       break;
     case VTK_PARSE_SHORT:
-      fprintf(fp, "short  ");
+      fprintf(fp, "short ");
       break;
     case VTK_PARSE_LONG:
-      fprintf(fp, "long   ");
+      fprintf(fp, "long ");
       break;
     case VTK_PARSE_VOID:
-      fprintf(fp, "void   ");
+      fprintf(fp, "void ");
       break;
     case VTK_PARSE_CHAR:
-      fprintf(fp, "char   ");
+      fprintf(fp, "char ");
       break;
     case VTK_PARSE_LONG_LONG:
       fprintf(fp, "long long ");
@@ -357,17 +365,20 @@ void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount
       break;
   }
 
+  int FunctionReturnsObjectOrString = (i == MAX_ARGS) ||
+    ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT_PTR) ||
+    ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_PTR);
+
   switch (aType & VTK_PARSE_INDIRECT)
   {
     case VTK_PARSE_REF:
       if (i == MAX_ARGS)
       {
-        fprintf(fp, " *"); /* act " &" */
+        fprintf(fp, "* "); /* act " &" */
       }
       break;
     case VTK_PARSE_POINTER:
-      if ((i == MAX_ARGS) || ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_OBJECT_PTR) ||
-        ((aType & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_CHAR_PTR))
+      if (FunctionReturnsObjectOrString)
       {
         fprintf(fp, "* ");
       }
@@ -379,9 +390,7 @@ void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount
   fprintf(fp, "temp%i", i);
 
   /* handle arrays */
-  if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) && (i != MAX_ARGS) &&
-    ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_OBJECT_PTR) &&
-    ((aType & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_CHAR_PTR))
+  if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) && !FunctionReturnsObjectOrString)
   {
     fprintf(fp, "[%i]", aCount);
   }
@@ -389,76 +398,93 @@ void output_temp(FILE* fp, int i, unsigned int aType, const char* Id, int aCount
   fprintf(fp, ";\n");
 }
 
-void get_args(FILE* fp, int i)
+void OutputLocalVariableAssignments(FILE* fp, int i)
 {
-  unsigned int aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
-  int j;
+  unsigned int rawType = thisFunction->ArgTypes[i];
 
   /* handle VAR FUNCTIONS */
-  if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
+  if (rawType == VTK_PARSE_FUNCTION)
   {
-    fprintf(fp, "  env->GetJavaVM(&(temp%i->vm));\n", i);
-    fprintf(fp, "  temp%i->uobj = env->NewGlobalRef(id0);\n", i);
-    fprintf(fp, "  char* temp%i_str = vtkJavaUTF8ToChar(env,id1,len1);\n", i);
-    fprintf(
-      fp, "  temp%i->mid = env->GetMethodID(env->GetObjectClass(id0),temp%i_str,\"()V\");\n", i, i);
+    fprintf(fp, "  env->GetJavaVM(&(fstruct->vm));\n");
+    fprintf(fp, "  fstruct->uobj = env->NewGlobalRef(id0);\n");
+    fprintf(fp, "  char* handler = vtkJavaUTF8ToChars(env ,id1, len1);\n");
+    fprintf(fp, "  fstruct->mid = env->GetMethodID(env->GetObjectClass(id0), handler, \"()V\");\n");
+    fprintf(fp, "  delete[] handler;\n");
     return;
   }
 
+  unsigned int basicType = rawType & VTK_PARSE_UNQUALIFIED_TYPE;
   /* ignore void */
-  if (aType == VTK_PARSE_VOID)
+  if (basicType == VTK_PARSE_VOID)
   {
     return;
   }
 
-  switch (aType)
+  switch (basicType)
   {
     case VTK_PARSE_CHAR:
-      fprintf(fp, "  temp%i = (char)(0xff & id%i);\n", i, i);
+      fprintf(fp, "  temp%i = static_cast<char>(0xff & id%i);\n", i, i);
       break;
     case VTK_PARSE_BOOL:
       fprintf(fp, "  temp%i = (id%i != 0) ? true : false;\n", i, i);
       break;
     case VTK_PARSE_CHAR_PTR:
-      fprintf(fp, "  temp%i = vtkJavaUTF8ToChar(env,id%i,len%i);\n", i, i, i);
+      if (thisFunction->Parameters[i]->CountHint == NULL)
+      {
+        fprintf(fp, "  temp%i = vtkJavaUTF8ToChars(env, id%i, len%i);\n", i, i, i);
+      }
+      else
+      {
+        fprintf(fp,
+          "  env->GetByteArrayRegion(id%i, 0, %i, reinterpret_cast<jbyte*>(&temp%i[0]));\n", i,
+          thisFunction->Parameters[i]->Count, i);
+      }
       break;
     case VTK_PARSE_STRING:
     case VTK_PARSE_STRING_REF:
-      fprintf(fp, "  temp%i = vtkJavaUTF8ToString(env,id%i,len%i);\n", i, i, i);
+      fprintf(fp, "  temp%i = vtkJavaUTF8ToString(env, id%i, len%i);\n", i, i, i);
       break;
     case VTK_PARSE_OBJECT_PTR:
-      fprintf(fp, "  temp%i = (%s*)(vtkJavaGetPointerFromObject(env,id%i));\n", i,
+      fprintf(fp, "  temp%i = static_cast<%s*>(vtkJavaGetPointerFromObject(env, id%i));\n", i,
         thisFunction->ArgClasses[i], i);
       break;
     case VTK_PARSE_FLOAT_PTR:
-      fprintf(fp, "  env->GetFloatArrayRegion(id%i,0,%i,(jfloat*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+      fprintf(fp, "  env->GetFloatArrayRegion(id%i, 0, %i, &temp%i[0]);\n", i,
+        thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_DOUBLE_PTR:
-      fprintf(fp, "  env->GetDoubleArrayRegion(id%i,0,%i,(jdouble*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+      fprintf(fp, "  env->GetDoubleArrayRegion(id%i, 0, %i, &temp%i[0]);\n", i,
+        thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_SIGNED_CHAR_PTR:
-      fprintf(fp, "  env->GetByteArrayRegion(id%i,0,%i,(jbyte*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+      fprintf(fp, "  env->GetByteArrayRegion(id%i, 0, %i, reinterpret_cast<jbyte*>(&temp%i[0]));\n",
+        i, thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_SHORT_PTR:
-      fprintf(fp, "  env->GetShortArrayRegion(id%i,0,%i,(jshort*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+      fprintf(fp,
+        "  env->GetShortArrayRegion(id%i, 0, %i, reinterpret_cast<jshort*>(&temp%i[0]));\n", i,
+        thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_INT_PTR:
-      fprintf(fp, "  env->GetIntArrayRegion(id%i,0,%i,(jint*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+      fprintf(fp, "  env->GetIntArrayRegion(id%i, 0, %i, reinterpret_cast<jint*>(&temp%i[0]));\n",
+        i, thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_BOOL_PTR:
-      fprintf(fp, "  env->GetBooleanArrayRegion(id%i,0,%i,(jboolean*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+      fprintf(fp,
+        "  env->GetBooleanArrayRegion(id%i, 0, %i, reinterpret_cast<jboolean*>(&temp%i[0]));\n", i,
+        thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_PTR:
     case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
     case VTK_PARSE___INT64_PTR:
-      fprintf(fp, "  env->GetLongArrayRegion(id%i,0,%i,(jlong*)&temp%i[0]);\n", i,
-        thisFunction->ArgCounts[i], i);
+    case VTK_PARSE_UNSIGNED___INT64_PTR:
+      fprintf(fp, "  env->GetLongArrayRegion(id%i, 0, %i, reinterpret_cast<jlong*>(&temp%i[0]));\n",
+        i, thisFunction->Parameters[i]->Count, i);
       break;
     case VTK_PARSE_UNKNOWN:
       fprintf(fp, "  temp%i = static_cast<%s>(id%i);\n", i, thisFunction->ArgClasses[i], i);
@@ -473,14 +499,13 @@ void get_args(FILE* fp, int i)
   }
 }
 
-void copy_and_release_args(FILE* fp, int i)
+void OutputCopyAndReleaseLocalVariables(FILE* fp, int i)
 {
   unsigned int rawType = thisFunction->ArgTypes[i];
 
   /* handle VAR FUNCTIONS */
   if (rawType == VTK_PARSE_FUNCTION)
   {
-    fprintf(fp, "  delete[] temp%i_str;\n", i);
     return;
   }
 
@@ -491,51 +516,67 @@ void copy_and_release_args(FILE* fp, int i)
     return;
   }
 
-  // only return values for non-const arrays
-  if ((rawType & VTK_PARSE_CONST) == 0)
+  if ((basicType == VTK_PARSE_CHAR_PTR) && (thisFunction->Parameters[i]->CountHint == NULL))
   {
-    switch (basicType)
+    fprintf(fp, "  delete[] temp%i;\n", i);
+  }
+  else
+  {
+    // only return values for non-const arrays
+    if ((rawType & VTK_PARSE_CONST) == 0)
     {
-      case VTK_PARSE_FLOAT_PTR:
-        fprintf(fp, "  env->SetFloatArrayRegion(id%i,0,%i,(jfloat*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_DOUBLE_PTR:
-        fprintf(fp, "  env->SetDoubleArrayRegion(id%i,0,%i,(jdouble*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_CHAR_PTR:
-        fprintf(fp, "  delete[] temp%i;\n", i);
-        break;
-      case VTK_PARSE_SIGNED_CHAR_PTR:
-        fprintf(fp, "  env->SetByteArrayRegion(id%i,0,%i,(jbyte*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_SHORT_PTR:
-        fprintf(fp, "  env->SetShortArrayRegion(id%i,0,%i,(jshort*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_INT_PTR:
-        fprintf(fp, "  env->SetIntArrayRegion(id%i,0,%i,(jint*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_BOOL_PTR:
-        fprintf(fp, "  env->SetBooleanArrayRegion(id%i,0,%i,(jboolean*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      case VTK_PARSE_LONG_PTR:
-      case VTK_PARSE_LONG_LONG_PTR:
-      case VTK_PARSE___INT64_PTR:
-        fprintf(fp, "  env->SetLongArrayRegion(id%i,0,%i,(jlong*)&temp%i[0]);\n", i,
-          thisFunction->ArgCounts[i], i);
-        break;
-      default:
-        break;
+      switch (basicType)
+      {
+        case VTK_PARSE_FLOAT_PTR:
+          fprintf(fp, "  env->SetFloatArrayRegion(id%i, 0, %i, &temp%i[0]);\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_DOUBLE_PTR:
+          fprintf(fp, "  env->SetDoubleArrayRegion(id%i, 0, %i, &temp%i[0]);\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_CHAR_PTR:
+        case VTK_PARSE_SIGNED_CHAR_PTR:
+        case VTK_PARSE_UNSIGNED_CHAR_PTR:
+          fprintf(fp,
+            "  env->SetByteArrayRegion(id%i, 0, %i, reinterpret_cast<jbyte*>(&temp%i[0]));\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_SHORT_PTR:
+        case VTK_PARSE_UNSIGNED_SHORT_PTR:
+          fprintf(fp,
+            "  env->SetShortArrayRegion(id%i, 0, %i, reinterpret_cast<jshort*>(&temp%i[0]));\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_INT_PTR:
+        case VTK_PARSE_UNSIGNED_INT_PTR:
+          fprintf(fp,
+            "  env->SetIntArrayRegion(id%i, 0, %i, reinterpret_cast<jint*>(&temp%i[0]));\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_BOOL_PTR:
+          fprintf(fp,
+            "  env->SetBooleanArrayRegion(id%i, 0, %i, reinterpret_cast<jboolean*>(&temp%i[0]));\n",
+            i, thisFunction->Parameters[i]->Count, i);
+          break;
+        case VTK_PARSE_LONG_PTR:
+        case VTK_PARSE_UNSIGNED_LONG_PTR:
+        case VTK_PARSE_LONG_LONG_PTR:
+        case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+        case VTK_PARSE___INT64_PTR:
+        case VTK_PARSE_UNSIGNED___INT64_PTR:
+          fprintf(fp,
+            "  env->SetLongArrayRegion(id%i, 0, %i, reinterpret_cast<jlong*>(&temp%i[0]));\n", i,
+            thisFunction->Parameters[i]->Count, i);
+          break;
+        default:
+          break;
+      }
     }
   }
 }
 
-void do_return(FILE* fp)
+void OutputFunctionResult(FILE* fp)
 {
   unsigned int rType = (thisFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
 
@@ -549,24 +590,32 @@ void do_return(FILE* fp)
   {
     case VTK_PARSE_CHAR_PTR:
     {
-      fprintf(fp,
-        "  return vtkJavaCharToUTF8(env,temp%i,temp%i == nullptr ? 0 : strlen(temp%i));\n",
-        MAX_ARGS, MAX_ARGS, MAX_ARGS);
+      if (thisFunction->ReturnValue->Count > 0)
+      {
+        use_hints(fp);
+      }
+      else
+      {
+        fprintf(fp,
+          "  return (temp%i == nullptr) ? env->NewByteArray(0) : vtkJavaCharsToUTF8(env, temp%i, "
+          "strlen(temp%i));\n",
+          MAX_ARGS, MAX_ARGS, MAX_ARGS);
+      }
       break;
     }
     case VTK_PARSE_STRING:
     {
-      fprintf(fp, "  return vtkJavaStringToUTF8(env,temp%i);\n", MAX_ARGS);
+      fprintf(fp, "  return vtkJavaStringToUTF8(env, temp%i);\n", MAX_ARGS);
       break;
     }
     case VTK_PARSE_STRING_REF:
     {
-      fprintf(fp, "  return vtkJavaStringToUTF8(env,*temp%i);\n", MAX_ARGS);
+      fprintf(fp, "  return vtkJavaStringToUTF8(env, *temp%i);\n", MAX_ARGS);
       break;
     }
     case VTK_PARSE_OBJECT_PTR:
     {
-      fprintf(fp, "  return (jlong)(size_t)temp%i;", MAX_ARGS);
+      fprintf(fp, "  return reinterpret_cast<jlong>(temp%i);", MAX_ARGS);
       break;
     }
 
@@ -574,13 +623,18 @@ void do_return(FILE* fp)
     /* this is done by looking them up in a hint file */
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
-    case VTK_PARSE_UNSIGNED_CHAR_PTR:
-    case VTK_PARSE_INT_PTR:
-    case VTK_PARSE_SHORT_PTR:
-    case VTK_PARSE_LONG_PTR:
-    case VTK_PARSE_LONG_LONG_PTR:
-    case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
+    case VTK_PARSE_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+    case VTK_PARSE_INT_PTR:
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+    case VTK_PARSE_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_PTR:
+    case VTK_PARSE_LONG_LONG_PTR:
+    case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
+    case VTK_PARSE___INT64_PTR:
+    case VTK_PARSE_UNSIGNED___INT64_PTR:
     case VTK_PARSE_BOOL_PTR:
       use_hints(fp);
       break;
@@ -730,12 +784,12 @@ void HandleDataReader(FILE* fp, ClassInfo* data)
   fprintf(fp, " JNICALL Java_vtk_%s_%s_1%i(JNIEnv* env, jobject obj, jbyteArray id0, jint id1)\n",
     data->Name, thisFunction->Name, numberOfWrappedFunctions);
   fprintf(fp, "{\n");
-  fprintf(fp, "  %s* op;\n", data->Name);
-  fprintf(fp, "  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
-  fprintf(fp, "  jboolean isCopy;\n");
-  fprintf(fp, "  jbyte* data = env->GetByteArrayElements(id0,&isCopy);\n");
-  fprintf(fp, "  op->SetBinaryInputString((const char*)data,id1);\n");
-  fprintf(fp, "  env->ReleaseByteArrayElements(id0,data,JNI_ABORT);\n");
+  fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
+    data->Name);
+  fprintf(fp, "  char* data = new char[id1];\n");
+  fprintf(fp, "  env->GetByteArrayRegion(id0, 0, id1, reinterpret_cast<jbyte*>(&data[0]));\n");
+  fprintf(fp, "  op->SetBinaryInputString(data, id1);\n");
+  fprintf(fp, "  delete[] data;\n");
   fprintf(fp, "}\n");
 }
 
@@ -743,76 +797,71 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
 {
   const char* type = 0;
   const char* jtype = 0;
-  const char* fromtype = 0;
   const char* jfromtype = 0;
 
   if (!strcmp("vtkCharArray", data->Name))
   {
     type = "char";
-    fromtype = "Char";
     jtype = "byte";
     jfromtype = "Byte";
   }
   else if (!strcmp("vtkDoubleArray", data->Name))
   {
     type = "double";
-    fromtype = "Double";
     jtype = type;
-    jfromtype = fromtype;
+    jfromtype = "Double";
   }
   else if (!strcmp("vtkFloatArray", data->Name))
   {
     type = "float";
-    fromtype = "Float";
     jtype = type;
-    jfromtype = fromtype;
+    jfromtype = "Float";
   }
   else if (!strcmp("vtkIntArray", data->Name))
   {
     type = "int";
-    fromtype = "Int";
     jtype = type;
-    jfromtype = fromtype;
+    jfromtype = "Int";
   }
   else if (!strcmp("vtkLongArray", data->Name))
   {
     type = "long";
-    fromtype = "Long";
     jtype = type;
-    jfromtype = fromtype;
+    jfromtype = "Long";
   }
   else if (!strcmp("vtkShortArray", data->Name))
   {
     type = "short";
-    fromtype = "Short";
     jtype = type;
-    jfromtype = fromtype;
+    jfromtype = "Short";
+  }
+  else if (!strcmp("vtkSignedCharArray", data->Name))
+  {
+    type = "signed char";
+    jtype = "byte";
+    jfromtype = "Byte";
   }
   else if (!strcmp("vtkUnsignedCharArray", data->Name))
   {
     type = "unsigned char";
-    fromtype = "UnsignedChar";
     jtype = "byte";
     jfromtype = "Byte";
   }
   else if (!strcmp("vtkUnsignedIntArray", data->Name))
   {
     type = "unsigned int";
-    fromtype = "UnsignedInt";
     jtype = "int";
     jfromtype = "Int";
   }
   else if (!strcmp("vtkUnsignedLongArray", data->Name))
   {
     type = "unsigned long";
-    fromtype = "UnsignedLong";
     jtype = "long";
     jfromtype = "Long";
   }
   else if (!strcmp("vtkUnsignedShortArray", data->Name))
   {
     type = "unsigned short";
-    fromtype = "UnsignedShort";
     jtype = "short";
     jfromtype = "Short";
   }
@@ -822,35 +871,31 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
   }
 
   fprintf(fp, "// Array conversion routines\n");
-  fprintf(fp,
-    "extern \"C\" JNIEXPORT jarray JNICALL Java_vtk_%s_GetJavaArray_10("
-    "JNIEnv* env, jobject obj)\n",
-    data->Name);
+  fprintf(fp, "extern \"C\" JNIEXPORT ");
+  fprintf(fp, "jarray JNICALL Java_vtk_%s_GetJavaArray_10(JNIEnv* env, jobject obj)\n", data->Name);
   fprintf(fp, "{\n");
-  fprintf(fp, "  %s* op;\n", data->Name);
-  fprintf(fp, "  %s* temp20;\n", type);
-  fprintf(fp, "  vtkIdType size;\n");
-  fprintf(fp, "\n");
-  fprintf(fp, "  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
-  fprintf(fp, "  temp20 = static_cast<%s*>(op->GetVoidPointer(0));\n", type);
-  fprintf(fp, "  size = op->GetMaxId()+1;\n");
-  fprintf(fp, "  return vtkJavaMakeJArrayOf%s(env,(j%s*)temp20,size);\n", jfromtype, jtype);
-  fprintf(fp, "}\n");
-
+  fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
+    data->Name);
+  fprintf(fp, "  %s* temp20 = static_cast<%s*>(op->GetVoidPointer(0));\n", type, type);
   fprintf(fp,
-    "extern \"C\" JNIEXPORT void  JNICALL Java_vtk_%s_SetJavaArray_10("
-    "JNIEnv* env, jobject obj,j%sArray id0)\n",
+    "  return vtkJavaMakeJArrayOf%s(env, reinterpret_cast<j%s*>(temp20), op->GetSize());\n",
+    jfromtype, jtype);
+  fprintf(fp, "}\n\n");
+
+  fprintf(fp, "extern \"C\" JNIEXPORT ");
+  fprintf(fp,
+    "void  JNICALL Java_vtk_%s_SetJavaArray_10(JNIEnv* env, jobject obj, j%sArray id0, jint "
+    "len0)\n",
     data->Name, jtype);
   fprintf(fp, "{\n");
-  fprintf(fp, "  %s* op;\n", data->Name);
-  fprintf(fp, "  %s* tempArray0;\n", type);
-  fprintf(fp, "  int length;\n");
-  fprintf(fp, "  tempArray0 = (%s*)(env->Get%sArrayElements(id0,nullptr));\n", type, jfromtype);
-  fprintf(fp, "  length = env->GetArrayLength(id0);\n");
-  fprintf(fp, "  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
-  fprintf(fp, "  op->SetNumberOfTuples(length/op->GetNumberOfComponents());\n");
-  fprintf(fp, "  memcpy(op->GetVoidPointer(0), tempArray0, length*sizeof(%s));\n", type);
-  fprintf(fp, "  env->Release%sArrayElements(id0,(j%s*)tempArray0,0);\n", jfromtype, jtype);
+  fprintf(fp, "  %s* buffer = new %s[len0];\n", type, type);
+  fprintf(fp, "  env->Get%sArrayRegion(id0, 0, len0, reinterpret_cast<j%s*>(&buffer[0]));\n",
+    jfromtype, jtype);
+  fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
+    data->Name);
+  fprintf(fp, "  op->SetNumberOfTuples(len0 / op->GetNumberOfComponents());\n");
+  fprintf(fp, "  memcpy(op->GetVoidPointer(0), buffer, len0 * sizeof(%s));\n", type);
+  fprintf(fp, "  delete[] buffer;\n");
   fprintf(fp, "}\n");
 }
 
@@ -1058,8 +1103,9 @@ int checkFunctionSignature(ClassInfo* data)
   {
     aType = (thisFunction->ArgTypes[i] & VTK_PARSE_UNQUALIFIED_TYPE);
 
-    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) && (thisFunction->ArgCounts[i] <= 0) &&
-      (aType != VTK_PARSE_OBJECT_PTR) && (aType != VTK_PARSE_CHAR_PTR))
+    if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
+      (thisFunction->Parameters[i]->Count <= 0) && (aType != VTK_PARSE_OBJECT_PTR) &&
+      (aType != VTK_PARSE_CHAR_PTR))
       args_ok = 0;
   }
 
@@ -1180,7 +1226,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
       for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
         fprintf(fp, ",");
-        output_proto_vars(fp, i);
+        OutputParamDeclarations(fp, i);
 
         /* ignore args after function pointer */
         if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
@@ -1190,14 +1236,11 @@ void outputFunction(FILE* fp, ClassInfo* data)
       }
       fprintf(fp, ")\n{\n");
 
-      /* get the object pointer */
-      fprintf(fp, "  %s* op;\n", data->Name);
-
       /* process the args */
       for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
-        output_temp(fp, i, thisFunction->ArgTypes[i], thisFunction->ArgClasses[i],
-          thisFunction->ArgCounts[i]);
+        OutputLocalVariableDeclarations(fp, i, thisFunction->ArgTypes[i],
+          thisFunction->ArgClasses[i], thisFunction->ArgCounts[i]);
 
         /* ignore args after function pointer */
         if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
@@ -1205,12 +1248,13 @@ void outputFunction(FILE* fp, ClassInfo* data)
           break;
         }
       }
-      output_temp(fp, MAX_ARGS, thisFunction->ReturnType, thisFunction->ReturnClass, 0);
+      OutputLocalVariableDeclarations(
+        fp, MAX_ARGS, thisFunction->ReturnType, thisFunction->ReturnClass, 0);
 
       /* now get the required args from the stack */
       for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
-        get_args(fp, i);
+        OutputLocalVariableAssignments(fp, i);
 
         /* ignore args after function pointer */
         if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
@@ -1219,7 +1263,8 @@ void outputFunction(FILE* fp, ClassInfo* data)
         }
       }
 
-      fprintf(fp, "\n  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
+      fprintf(fp, "\n  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n",
+        data->Name, data->Name);
 
       switch (rType)
       {
@@ -1233,7 +1278,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
           }
           else
           {
-            fprintf(fp, "  temp%i = (op)->%s(", MAX_ARGS, thisFunction->Name);
+            fprintf(fp, "  temp%i = op->%s(", MAX_ARGS, thisFunction->Name);
           }
           break;
       }
@@ -1246,7 +1291,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
         }
         if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
         {
-          fprintf(fp, "vtkJavaVoidFunc,(void*)temp%i", i);
+          fprintf(fp, "vtkJavaVoidFunc,fstruct");
           break;
         }
         else
@@ -1265,7 +1310,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
       /* now copy and release any arrays */
       for (i = 0; i < thisFunction->NumberOfArguments; i++)
       {
-        copy_and_release_args(fp, i);
+        OutputCopyAndReleaseLocalVariables(fp, i);
 
         /* ignore args after function pointer */
         if (thisFunction->ArgTypes[i] == VTK_PARSE_FUNCTION)
@@ -1273,7 +1318,7 @@ void outputFunction(FILE* fp, ClassInfo* data)
           break;
         }
       }
-      do_return(fp);
+      OutputFunctionResult(fp);
       fprintf(fp, "\n}\n");
 
       wrappedFunctions[numberOfWrappedFunctions] = thisFunction;
@@ -1423,53 +1468,53 @@ int main(int argc, char* argv[])
 
   if ((!data->NumberOfSuperClasses) && (data->HasDelete))
   {
-    fprintf(fp,
-      "\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDeleteReference(JNIEnv*,jclass,jlong "
-      "id)\n",
-      data->Name);
-    fprintf(fp, "{\n  %s* op;\n", data->Name);
-    fprintf(fp, "  op = reinterpret_cast<%s*>(id);\n", data->Name);
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
+    fprintf(
+      fp, "void JNICALL Java_vtk_%s_VTKDeleteReference(JNIEnv*,jclass,jlong id)\n", data->Name);
+    fprintf(fp, "  {\n");
+    fprintf(fp, "  %s* op = reinterpret_cast<%s*>(id);\n", data->Name, data->Name);
     fprintf(fp, "  op->Delete();\n");
     fprintf(fp, "}\n");
 
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
     fprintf(fp,
-      "\nextern \"C\" JNIEXPORT jbyteArray JNICALL "
-      "Java_vtk_%s_VTKGetClassNameBytesFromReference(JNIEnv* env,jclass,jlong id)\n",
+      "jbyteArray JNICALL Java_vtk_%s_VTKGetClassNameBytesFromReference(JNIEnv* env,jclass,jlong "
+      "id)\n",
       data->Name);
     fprintf(fp, "{\n");
     fprintf(fp, "  const char* name = \"\";\n");
-    fprintf(fp, "  %s* op;\n", data->Name);
     fprintf(fp, "  if(id != 0)\n");
     fprintf(fp, "  {\n");
-    fprintf(fp, "    op = reinterpret_cast<%s*>(id);\n", data->Name);
-    /* fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n"); */
+    fprintf(fp, "    %s* op = reinterpret_cast<%s*>(id);\n", data->Name, data->Name);
     fprintf(fp, "    name = op->GetClassName();\n");
     fprintf(fp, "  }\n");
-    fprintf(fp, "  return vtkJavaCharToUTF8(env,name,strlen(name));\n");
+    fprintf(fp,
+      "  return (name == nullptr) ? env->NewByteArray(0) : vtkJavaCharsToUTF8(env, name, "
+      "strlen(name));\n");
     fprintf(fp, "}\n");
 
-    fprintf(fp,
-      "\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDelete(JNIEnv* env,jobject obj)\n",
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
+    fprintf(fp, "void JNICALL Java_vtk_%s_VTKDelete(JNIEnv* env,jobject obj)\n", data->Name);
+    fprintf(fp, "  {\n");
+    fprintf(fp, "  %s* op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
       data->Name);
-    fprintf(fp, "{\n  %s* op;\n", data->Name);
-    fprintf(fp, "  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
     fprintf(fp, "  op->Delete();\n");
     fprintf(fp, "}\n");
 
-    fprintf(fp,
-      "\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKRegister(JNIEnv* env,jobject obj)\n",
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
+    fprintf(fp, "void JNICALL Java_vtk_%s_VTKRegister(JNIEnv* env,jobject obj)\n", data->Name);
+    fprintf(fp, "  {\n");
+    fprintf(fp, " %s*  op = static_cast<%s*>(vtkJavaGetPointerFromObject(env, obj));\n", data->Name,
       data->Name);
-    fprintf(fp, "{\n  %s* op;\n", data->Name);
-    fprintf(fp, "  op = (%s*)vtkJavaGetPointerFromObject(env,obj);\n", data->Name);
     fprintf(fp, "  op->Register(op);\n");
     fprintf(fp, "}\n");
   }
   if (!data->IsAbstract)
   {
-    fprintf(fp, "\nextern \"C\" JNIEXPORT jlong JNICALL Java_vtk_%s_VTKInit(JNIEnv*, jobject)",
-      data->Name);
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
+    fprintf(fp, "jlong JNICALL Java_vtk_%s_VTKInit(JNIEnv*, jobject)", data->Name);
     fprintf(fp, "\n{");
-    fprintf(fp, "\n  return (jlong)(size_t)(void*)%s::New();", data->Name);
+    fprintf(fp, "\n  return reinterpret_cast<jlong>(%s::New());", data->Name);
     fprintf(fp, "\n}\n");
   }
 
@@ -1487,36 +1532,37 @@ int main(int argc, char* argv[])
   if (!strcmp("vtkObjectBase", data->Name))
   {
     /* Add the Print method to vtkObjectBase. */
-    fprintf(fp,
-      "\nextern \"C\" JNIEXPORT jbyteArray JNICALL Java_vtk_vtkObjectBase_PrintBytes(JNIEnv "
-      "*env,jobject "
-      "obj)\n");
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
+    fprintf(fp, "jbyteArray JNICALL Java_vtk_vtkObjectBase_PrintBytes(JNIEnv* env, jobject obj)\n");
     fprintf(fp, "{\n");
-    fprintf(fp, "  vtkObjectBase* op = (vtkObjectBase*)vtkJavaGetPointerFromObject(env,obj);\n");
+    fprintf(fp,
+      "  vtkObjectBase* op = static_cast<vtkObjectBase*>(vtkJavaGetPointerFromObject(env, "
+      "obj));\n");
     fprintf(fp, "  std::ostringstream stream;\n");
     fprintf(fp, "  op->Print(stream);\n");
     fprintf(fp, "  stream.put('\\0');\n");
-    fprintf(fp, "  const std::string& text = stream.str();\n");
-    fprintf(fp, "  return vtkJavaStringToUTF8(env,text);\n");
+    fprintf(fp, "  return vtkJavaStringToUTF8(env, stream.str());\n");
     fprintf(fp, "}\n");
   }
 
   if (!strcmp("vtkObject", data->Name))
   {
+    fprintf(fp, "\nextern \"C\" JNIEXPORT ");
     fprintf(fp,
-      "\nextern \"C\" JNIEXPORT jlong JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv* env,jobject "
+      "jlong JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv* env, jobject "
       "obj, jbyteArray id0, jint len0, jobject id1, jbyteArray id2, jint len2)\n");
     fprintf(fp, "{\n");
     fprintf(fp, "  vtkJavaCommand* command = vtkJavaCommand::New();\n");
     fprintf(fp, "  command->AssignJavaVM(env);\n");
     fprintf(fp, "  command->SetGlobalRef(env->NewGlobalRef(id1));\n");
-    fprintf(fp, "  char* handler = vtkJavaUTF8ToChar(env,id2,len2);\n");
-    fprintf(
-      fp, " command->SetMethodID(env->GetMethodID(env->GetObjectClass(id1),handler,\"()V\"));\n");
+    fprintf(fp, "  char* handler = vtkJavaUTF8ToChars(env, id2, len2);\n");
+    fprintf(fp, "  jclass classtype = env->GetObjectClass(id1);\n");
+    fprintf(fp, "  command->SetMethodID(env->GetMethodID(classtype, handler,\"()V\"));\n");
     fprintf(fp, "  delete[] handler;\n");
-    fprintf(fp, "  char* event = vtkJavaUTF8ToChar(env,id0,len0);\n");
-    fprintf(fp, "  vtkObject* op = (vtkObject*)vtkJavaGetPointerFromObject(env,obj);\n");
-    fprintf(fp, "  unsigned long result = op->AddObserver(event,command);\n");
+    fprintf(fp, "  char* event = vtkJavaUTF8ToChars(env, id0, len0);\n");
+    fprintf(
+      fp, "  vtkObject* op = static_cast<vtkObject*>(vtkJavaGetPointerFromObject(env, obj));\n");
+    fprintf(fp, "  unsigned long result = op->AddObserver(event, command);\n");
     fprintf(fp, "  delete[] event;\n");
     fprintf(fp, "  command->Delete();\n");
     fprintf(fp, "  return result;\n");

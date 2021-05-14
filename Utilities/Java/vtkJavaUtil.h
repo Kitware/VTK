@@ -24,9 +24,9 @@
 #include <string>
 
 extern VTKJAVA_EXPORT void* vtkJavaGetPointerFromObject(JNIEnv* env, jobject obj);
-extern VTKJAVA_EXPORT char* vtkJavaUTF8ToChar(JNIEnv* env, jbyteArray bytes, jint length);
+extern VTKJAVA_EXPORT char* vtkJavaUTF8ToChars(JNIEnv* env, jbyteArray bytes, jint length);
 extern VTKJAVA_EXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint length);
-extern VTKJAVA_EXPORT jbyteArray vtkJavaCharToUTF8(JNIEnv* env, const char* chars, size_t length);
+extern VTKJAVA_EXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length);
 extern VTKJAVA_EXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text);
 
 extern VTKJAVA_EXPORT jarray vtkJavaMakeJArrayOfBoolean(JNIEnv* env, const jboolean* ptr, int size);

@@ -139,7 +139,7 @@ static void JNU_ThrowByName(JNIEnv* env, const char* name, const char* msg)
   env->DeleteLocalRef(cls);
 }
 
-JNIEXPORT char* vtkJavaUTF8ToChar(JNIEnv* env, jbyteArray bytes, jint length)
+JNIEXPORT char* vtkJavaUTF8ToChars(JNIEnv* env, jbyteArray bytes, jint length)
 {
   char* result = new char[length + 1];
   if (result == nullptr)
@@ -158,7 +158,7 @@ JNIEXPORT char* vtkJavaUTF8ToChar(JNIEnv* env, jbyteArray bytes, jint length)
 JNIEXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint length)
 {
   std::string result;
-  char* cstring = vtkJavaUTF8ToChar(env, bytes, length);
+  char* cstring = vtkJavaUTF8ToChars(env, bytes, length);
   if (cstring != nullptr)
   {
     result.assign(cstring, length);
@@ -170,12 +170,13 @@ JNIEXPORT std::string vtkJavaUTF8ToString(JNIEnv* env, jbyteArray bytes, jint le
 
 JNIEXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text)
 {
-  return vtkJavaCharToUTF8(env, text.c_str(), text.length());
+  return vtkJavaCharsToUTF8(env, text.c_str(), text.length());
 }
 
-JNIEXPORT jbyteArray vtkJavaCharToUTF8(JNIEnv* env, const char* chars, size_t length)
+JNIEXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length)
 {
-  return (jbyteArray)vtkJavaMakeJArrayOfByte(env, (jbyte*)chars, length);
+  return static_cast<jbyteArray>(
+    vtkJavaMakeJArrayOfByte(env, reinterpret_cast<const jbyte*>(chars), length));
 }
 
 //**jcp this is the callback interface stub for Java. no user parms are passed
@@ -184,7 +185,7 @@ JNIEXPORT jbyteArray vtkJavaCharToUTF8(JNIEnv* env, const char* chars, size_t le
 // called functions. - edited by km
 JNIEXPORT void vtkJavaVoidFunc(void* f)
 {
-  vtkJavaVoidFuncArg* iprm = (vtkJavaVoidFuncArg*)f;
+  vtkJavaVoidFuncArg* iprm = static_cast<vtkJavaVoidFuncArg*>(f);
   // make sure we have a valid method ID
   if (iprm->mid)
   {
@@ -201,9 +202,7 @@ JNIEXPORT void vtkJavaVoidFunc(void* f)
 
 JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 {
-  vtkJavaVoidFuncArg* arg2;
-
-  arg2 = (vtkJavaVoidFuncArg*)arg;
+  vtkJavaVoidFuncArg* arg2 = static_cast<vtkJavaVoidFuncArg*>(arg);
 
   JNIEnv* e;
   // it should already be atached
