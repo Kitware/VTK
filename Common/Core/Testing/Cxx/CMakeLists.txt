@@ -81,6 +81,8 @@ set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 # Tell TestXMLFileOutputWindow where to write test file
 set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
 
+set(TestCLI11_ARGS --file=sample.vtk -c 100 --flag)
+
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   set(scale_soa_test TestScaledSOADataArrayTemplate.cxx)
 endif ()
@@ -112,6 +114,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestArrayUserTypes.cxx
   TestArrayVariants.cxx
   TestBitArray.cxx
+  TestCLI11.cxx
   TestCollection.cxx
   TestConditionVariable.cxx
   # TestCxxFeatures.cxx # This is in its own exe too.

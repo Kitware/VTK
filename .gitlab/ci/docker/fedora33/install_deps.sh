@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # Install extra dependencies for VTK
 dnf install -y --setopt=install_weak_deps=False \
     bzip2 patch git-core git-lfs
@@ -35,7 +37,7 @@ dnf install -y --setopt=install_weak_deps=False \
     boost-devel tbb-devel postgresql-server-devel libpq-devel mariadb-devel \
     libiodbc-devel PDAL-devel liblas-devel openslide-devel libarchive-devel \
     freeglut-devel sqlite-devel PEGTL-devel cgnslib-devel proj-devel \
-    wkhtmltopdf
+    wkhtmltopdf cli11-devel
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
