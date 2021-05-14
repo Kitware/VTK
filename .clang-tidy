@@ -53,6 +53,7 @@ modernize-*,\
 -modernize-avoid-c-arrays,\
 -modernize-deprecated-headers,\
 -modernize-loop-convert,\
+-modernize-make-unique,\
 -modernize-pass-by-value,\
 -modernize-raw-string-literal,\
 -modernize-replace-random-shuffle,\
