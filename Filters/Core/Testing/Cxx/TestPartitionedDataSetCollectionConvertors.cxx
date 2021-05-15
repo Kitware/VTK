@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectToPartitionedDataSetCollection.h"
 #include "vtkExodusIIReader.h"
@@ -20,7 +21,6 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkPartitionedDataSetCollectionToMultiBlockDataSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
@@ -95,7 +95,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   // Note, the output vtkMultiBlockDataSet is not same as the original
   // vtkMultiBlockDataSet by design.
   //-------------------------------------------------------------
-  vtkNew<vtkPartitionedDataSetCollectionToMultiBlockDataSet> p2m;
+  vtkNew<vtkConvertToMultiBlockDataSet> p2m;
   p2m->SetInputConnection(m2p->GetOutputPort());
   p2m->Update();
 

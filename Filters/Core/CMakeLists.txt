@@ -24,6 +24,7 @@ set(classes
   vtkContourFilter
   vtkContourGrid
   vtkContourHelper
+  vtkConvertToMultiBlockDataSet
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter
@@ -65,7 +66,6 @@ set(classes
   vtkMergeFilter
   vtkMoleculeAppend
   vtkMultiObjectMassProperties
-  vtkPartitionedDataSetCollectionToMultiBlockDataSet
   vtkPassThrough
   vtkPlaneCutter
   vtkPointDataToCellData

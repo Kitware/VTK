@@ -8,7 +8,7 @@ to representation hierarchical datasets in VTK which is intended to replace
 into a `vtkPartitionedDataSetCollection` with ease. If input is a vtkMultiBlockDataSet, the hierarchical
 organization is represented in the `vtkDataAssembly` associated with the generated output.
 
-`vtkPartitionedDataSetCollectionToMultiBlockDataSet` and its parallel
-counterpart `vtkPPartitionedDataSetCollectionToMultiBlockDataSet` are inverse of
+`vtkConvertToMultiBlockDataSet` and its parallel
+counterpart `vtkPConvertToMultiBlockDataSet` are inverse of
 `vtkDataObjectToPartitionedDataSetCollection` i.e. they can convert a
 vtkPartitionedDataSetCollection to a `vtkMultiBlockDataSet`.
