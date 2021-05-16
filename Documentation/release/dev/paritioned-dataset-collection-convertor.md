@@ -4,11 +4,11 @@
 to representation hierarchical datasets in VTK which is intended to replace
 `vtkMultiBlockDataSet` and `vtkMultiPieceDataSet`.
 
-`vtkDataObjectToPartitionedDataSetCollection` is a new filter that lets you convert any dataset
+`vtkConvertToPartitionedDataSetCollection` is a new filter that lets you convert any dataset
 into a `vtkPartitionedDataSetCollection` with ease. If input is a vtkMultiBlockDataSet, the hierarchical
 organization is represented in the `vtkDataAssembly` associated with the generated output.
 
 `vtkConvertToMultiBlockDataSet` and its parallel
 counterpart `vtkPConvertToMultiBlockDataSet` are inverse of
-`vtkDataObjectToPartitionedDataSetCollection` i.e. they can convert a
+`vtkConvertToPartitionedDataSetCollection` i.e. they can convert a
 vtkPartitionedDataSetCollection to a `vtkMultiBlockDataSet`.

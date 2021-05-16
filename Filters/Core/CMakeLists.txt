@@ -25,10 +25,10 @@ set(classes
   vtkContourGrid
   vtkContourHelper
   vtkConvertToMultiBlockDataSet
+  vtkConvertToPartitionedDataSetCollection
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter
-  vtkDataObjectToPartitionedDataSetCollection
   vtkDataSetEdgeSubdivisionCriterion
   vtkDataSetToDataObjectFilter
   vtkDecimatePolylineFilter

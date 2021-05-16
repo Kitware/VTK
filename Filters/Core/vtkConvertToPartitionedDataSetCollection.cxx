@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDataObjectToPartitionedDataSetCollection.cxx
+  Module:    vtkConvertToPartitionedDataSetCollection.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDataObjectToPartitionedDataSetCollection.h"
+#include "vtkConvertToPartitionedDataSetCollection.h"
 
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
@@ -32,24 +32,22 @@
 #include <functional>
 #include <vector>
 
-vtkStandardNewMacro(vtkDataObjectToPartitionedDataSetCollection);
+vtkStandardNewMacro(vtkConvertToPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
-vtkDataObjectToPartitionedDataSetCollection::vtkDataObjectToPartitionedDataSetCollection() =
-  default;
+vtkConvertToPartitionedDataSetCollection::vtkConvertToPartitionedDataSetCollection() = default;
 
 //----------------------------------------------------------------------------
-vtkDataObjectToPartitionedDataSetCollection::~vtkDataObjectToPartitionedDataSetCollection() =
-  default;
+vtkConvertToPartitionedDataSetCollection::~vtkConvertToPartitionedDataSetCollection() = default;
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToPartitionedDataSetCollection::FillInputPortInformation(int, vtkInformation* info)
+int vtkConvertToPartitionedDataSetCollection::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToPartitionedDataSetCollection::RequestData(
+int vtkConvertToPartitionedDataSetCollection::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
@@ -84,7 +82,7 @@ int vtkDataObjectToPartitionedDataSetCollection::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent indent)
+void vtkConvertToPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

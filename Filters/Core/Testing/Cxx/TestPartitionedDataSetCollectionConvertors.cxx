@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkConvertToMultiBlockDataSet.h"
+#include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataObjectToPartitionedDataSetCollection.h"
 #include "vtkExodusIIReader.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
@@ -67,7 +67,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   //-------------------------------------------------------------
   // Test vtkMultiBlockDataSet to vtkPartitionedDataSetCollection.
   //-------------------------------------------------------------
-  vtkNew<vtkDataObjectToPartitionedDataSetCollection> m2p;
+  vtkNew<vtkConvertToPartitionedDataSetCollection> m2p;
   m2p->SetInputDataObject(reader->GetOutputDataObject(0));
   m2p->Update();
 

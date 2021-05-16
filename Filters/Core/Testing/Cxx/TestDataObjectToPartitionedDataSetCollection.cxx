@@ -1,5 +1,5 @@
+#include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataObjectToPartitionedDataSetCollection.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
@@ -26,7 +26,7 @@ int TestDataObjectToPartitionedDataSetCollection(int, char*[])
   mb->SetBlock(1, vtkNew<vtkUnstructuredGrid>());
   mb->GetMetaData(1)->Set(vtkCompositeDataSet::NAME(), "Block-1");
 
-  vtkNew<vtkDataObjectToPartitionedDataSetCollection> convertor;
+  vtkNew<vtkConvertToPartitionedDataSetCollection> convertor;
   convertor->SetInputDataObject(mb);
   convertor->Update();
 
