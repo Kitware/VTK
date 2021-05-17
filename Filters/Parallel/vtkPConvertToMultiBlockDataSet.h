@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPPartitionedDataSetCollectionToMultiBlockDataSet.h
+  Module:    vtkPConvertToMultiBlockDataSet.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,12 +13,11 @@
 
 =========================================================================*/
 /**
- * @class vtkPPartitionedDataSetCollectionToMultiBlockDataSet
- * @brief parallel version of vtkPartitionedDataSetCollectionToMultiBlockDataSet
+ * @class vtkPConvertToMultiBlockDataSet
+ * @brief parallel version of vtkConvertToMultiBlockDataSet
  *
- * vtkPPartitionedDataSetCollectionToMultiBlockDataSet is an MPI aware version
- * of the vtkPartitionedDataSetCollectionToMultiBlockDataSet that converts
- * partitioned-dataset-collection to a vtkMultiBlockDataSet.
+ * vtkPConvertToMultiBlockDataSet is the MPI-aware version of
+ * vtkConvertToMultiBlockDataSet.
  *
  * The extra work this filter does it to ensure that each `vtkPartitionedDataSet` instance
  * in the input when replaced by a `vtkMultiPieceDataSet in the output,
@@ -29,21 +28,19 @@
  * identical on all ranks. Hence, this extra check is needed.
  */
 
-#ifndef vtkPPartitionedDataSetCollectionToMultiBlockDataSet_h
-#define vtkPPartitionedDataSetCollectionToMultiBlockDataSet_h
+#ifndef vtkPConvertToMultiBlockDataSet_h
+#define vtkPConvertToMultiBlockDataSet_h
 
+#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkFiltersParallelModule.h" // For export macro
-#include "vtkPartitionedDataSetCollectionToMultiBlockDataSet.h"
 
 class vtkMultiProcessController;
-
-class VTKFILTERSPARALLEL_EXPORT vtkPPartitionedDataSetCollectionToMultiBlockDataSet
-  : public vtkPartitionedDataSetCollectionToMultiBlockDataSet
+class VTKFILTERSPARALLEL_EXPORT vtkPConvertToMultiBlockDataSet
+  : public vtkConvertToMultiBlockDataSet
 {
 public:
-  static vtkPPartitionedDataSetCollectionToMultiBlockDataSet* New();
-  vtkTypeMacro(vtkPPartitionedDataSetCollectionToMultiBlockDataSet,
-    vtkPartitionedDataSetCollectionToMultiBlockDataSet);
+  static vtkPConvertToMultiBlockDataSet* New();
+  vtkTypeMacro(vtkPConvertToMultiBlockDataSet, vtkConvertToMultiBlockDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -56,17 +53,15 @@ public:
   ///@}
 
 protected:
-  vtkPPartitionedDataSetCollectionToMultiBlockDataSet();
-  ~vtkPPartitionedDataSetCollectionToMultiBlockDataSet() override;
+  vtkPConvertToMultiBlockDataSet();
+  ~vtkPConvertToMultiBlockDataSet() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkMultiProcessController* Controller;
-
 private:
-  vtkPPartitionedDataSetCollectionToMultiBlockDataSet(
-    const vtkPPartitionedDataSetCollectionToMultiBlockDataSet&) = delete;
-  void operator=(const vtkPPartitionedDataSetCollectionToMultiBlockDataSet&) = delete;
+  vtkPConvertToMultiBlockDataSet(const vtkPConvertToMultiBlockDataSet&) = delete;
+  void operator=(const vtkPConvertToMultiBlockDataSet&) = delete;
+  vtkMultiProcessController* Controller;
 };
 
 #endif

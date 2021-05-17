@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkConvertToMultiBlockDataSet.h"
+#include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataObjectToPartitionedDataSetCollection.h"
 #include "vtkExodusIIReader.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkPartitionedDataSetCollectionToMultiBlockDataSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
@@ -67,7 +67,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   //-------------------------------------------------------------
   // Test vtkMultiBlockDataSet to vtkPartitionedDataSetCollection.
   //-------------------------------------------------------------
-  vtkNew<vtkDataObjectToPartitionedDataSetCollection> m2p;
+  vtkNew<vtkConvertToPartitionedDataSetCollection> m2p;
   m2p->SetInputDataObject(reader->GetOutputDataObject(0));
   m2p->Update();
 
@@ -95,7 +95,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   // Note, the output vtkMultiBlockDataSet is not same as the original
   // vtkMultiBlockDataSet by design.
   //-------------------------------------------------------------
-  vtkNew<vtkPartitionedDataSetCollectionToMultiBlockDataSet> p2m;
+  vtkNew<vtkConvertToMultiBlockDataSet> p2m;
   p2m->SetInputConnection(m2p->GetOutputPort());
   p2m->Update();
 

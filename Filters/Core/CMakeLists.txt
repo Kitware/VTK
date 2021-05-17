@@ -24,10 +24,11 @@ set(classes
   vtkContourFilter
   vtkContourGrid
   vtkContourHelper
+  vtkConvertToMultiBlockDataSet
+  vtkConvertToPartitionedDataSetCollection
   vtkCutter
   vtkDataObjectGenerator
   vtkDataObjectToDataSetFilter
-  vtkDataObjectToPartitionedDataSetCollection
   vtkDataSetEdgeSubdivisionCriterion
   vtkDataSetToDataObjectFilter
   vtkDecimatePolylineFilter
@@ -65,7 +66,6 @@ set(classes
   vtkMergeFilter
   vtkMoleculeAppend
   vtkMultiObjectMassProperties
-  vtkPartitionedDataSetCollectionToMultiBlockDataSet
   vtkPassThrough
   vtkPlaneCutter
   vtkPointDataToCellData

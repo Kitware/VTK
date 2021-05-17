@@ -64,10 +64,8 @@
  * separately.
  *
  * For `vtkMultiBlockDataSet`, the filter internally uses
- * `vtkDataObjectToPartitionedDataSetCollection` and
- * `vtkPartitionedDataSetCollectionToMultiBlockDataSet` to convert the
+ * `vtkDataAssemblyUtilities` to convert the
  * vtkMultiBlockDataSet to a vtkPartitionedDataSetCollection and back.
- *
  */
 #ifndef vtkRedistributeDataSetFilter_h
 #define vtkRedistributeDataSetFilter_h

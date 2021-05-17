@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkDataObjectToPartitionedDataSetCollection.h
+  Module:    vtkConvertToPartitionedDataSetCollection.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 /**
- * @class vtkDataObjectToPartitionedDataSetCollection
+ * @class vtkConvertToPartitionedDataSetCollection
  * @brief convert any dataset to vtkPartitionedDataSetCollection.
  *
- * vtkDataObjectToPartitionedDataSetCollection converts any dataset to a
+ * vtkConvertToPartitionedDataSetCollection converts any dataset to a
  * vtkPartitionedDataSetCollection. If the input is a multiblock dataset or an
  * AMR dataset, it creates a vtkDataAssembly for the output
  * vtkPartitionedDataSetCollection that reflects the input's hierarchical
@@ -25,32 +25,31 @@
  * @sa vtkDataAssemblyUtilities
  */
 
-#ifndef vtkDataObjectToPartitionedDataSetCollection_h
-#define vtkDataObjectToPartitionedDataSetCollection_h
+#ifndef vtkConvertToPartitionedDataSetCollection_h
+#define vtkConvertToPartitionedDataSetCollection_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
 
-class VTKFILTERSCORE_EXPORT vtkDataObjectToPartitionedDataSetCollection
+class VTKFILTERSCORE_EXPORT vtkConvertToPartitionedDataSetCollection
   : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:
-  static vtkDataObjectToPartitionedDataSetCollection* New();
-  vtkTypeMacro(
-    vtkDataObjectToPartitionedDataSetCollection, vtkPartitionedDataSetCollectionAlgorithm);
+  static vtkConvertToPartitionedDataSetCollection* New();
+  vtkTypeMacro(vtkConvertToPartitionedDataSetCollection, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkDataObjectToPartitionedDataSetCollection();
-  ~vtkDataObjectToPartitionedDataSetCollection() override;
+  vtkConvertToPartitionedDataSetCollection();
+  ~vtkConvertToPartitionedDataSetCollection() override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-  vtkDataObjectToPartitionedDataSetCollection(
-    const vtkDataObjectToPartitionedDataSetCollection&) = delete;
-  void operator=(const vtkDataObjectToPartitionedDataSetCollection&) = delete;
+  vtkConvertToPartitionedDataSetCollection(
+    const vtkConvertToPartitionedDataSetCollection&) = delete;
+  void operator=(const vtkConvertToPartitionedDataSetCollection&) = delete;
 };
 
 #endif

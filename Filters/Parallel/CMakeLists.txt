@@ -17,6 +17,7 @@ set(classes
   vtkPassThroughFilter
   vtkPeriodicFilter
   vtkPCellDataToPointData
+  vtkPConvertToMultiBlockDataSet
   vtkPExtractDataArraysOverTime
   vtkPExtractExodusGlobalTemporalVariables
   vtkPExtractSelectedArraysOverTime
@@ -30,7 +31,6 @@ set(classes
   vtkPOutlineCornerFilter
   vtkPOutlineFilter
   vtkPOutlineFilterInternals
-  vtkPPartitionedDataSetCollectionToMultiBlockDataSet
   vtkPPolyDataNormals
   vtkPProbeFilter
   vtkPProjectSphereFilter
@@ -54,8 +54,8 @@ set(headers
   vtkBlockDistribution.h)
 
 vtk_object_factory_declare(
-  BASE vtkPartitionedDataSetCollectionToMultiBlockDataSet
-  OVERRIDE vtkPPartitionedDataSetCollectionToMultiBlockDataSet
+  BASE vtkConvertToMultiBlockDataSet
+  OVERRIDE vtkPConvertToMultiBlockDataSet
   )
 
 vtk_object_factory_configure(
