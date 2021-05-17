@@ -1,4 +1,4 @@
-set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential"
+set(VTK_SMP_IMPLEMENTATION_TYPE "STDThread"
   CACHE STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, STDThread, OpenMP or TBB")
 set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE
   PROPERTY
@@ -6,10 +6,10 @@ set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE
 
 if (NOT (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP" OR
          VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB" OR
-         VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "STDThread"))
+         VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "Sequential"))
   set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE
     PROPERTY
-      VALUE "Sequential")
+      VALUE "STDThread")
 endif ()
 
 set(vtk_smp_headers_to_configure)
