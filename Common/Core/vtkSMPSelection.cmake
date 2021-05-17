@@ -1,11 +1,12 @@
 set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential"
-  CACHE STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, OpenMP or TBB")
+  CACHE STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, STDThread, OpenMP or TBB")
 set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE
   PROPERTY
-    STRINGS Sequential OpenMP TBB)
+    STRINGS Sequential OpenMP TBB STDThread)
 
 if (NOT (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP" OR
-         VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB"))
+         VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB" OR
+         VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "STDThread"))
   set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE
     PROPERTY
       VALUE "Sequential")
@@ -50,6 +51,19 @@ elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
       "Required OpenMP version (3.1) for atomics not detected. Using default "
       "atomics implementation.")
   endif()
+
+elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "STDThread")
+  set(vtk_smp_implementation_dir "${CMAKE_CURRENT_SOURCE_DIR}/SMP/STDThread")
+
+  list(APPEND vtk_smp_sources
+    "${vtk_smp_implementation_dir}/vtkSMPTools.cxx"
+    "${vtk_smp_implementation_dir}/vtkSMPThreadLocalImpl.cxx"
+    "${vtk_smp_implementation_dir}/vtkSMPThreadPool.cxx")
+  list(APPEND vtk_smp_headers_to_configure
+    vtkSMPThreadLocal.h
+    vtkSMPThreadLocalImpl.h
+    vtkSMPThreadPool.h
+    vtkSMPToolsInternal.h)
 
 elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "Sequential")
   set(vtk_smp_implementation_dir "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
