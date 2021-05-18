@@ -134,7 +134,7 @@ endif ()
 # Install the QML plugin module
 install(
   FILES
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${config_subdir}/qmldir"
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/qmldir"
     "${qmltypes_file_output}"
   DESTINATION "${CMAKE_INSTALL_QMLDIR}${config_subdir}/${qml_module_dir}"
   COMPONENT "${_vtk_build_TARGETS_COMPONENT}")
