@@ -515,7 +515,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       int comp = blankPoints ? 1 : 0;
       int d0 = blockSize[0] * blockSize[1];
-      int d01 = (blockSize[0] - 1) * (blockSize[1] - 1);
+      int d01 = (blockSize[0] - 1 + this->IsCellData) * (blockSize[1] - 1 + this->IsCellData);
       const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
       int ptId, cellId;
       for (int k = 0; k < blockSize[2] - 1; ++k)
@@ -525,7 +525,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
           for (int i = 0; i < blockSize[0] - 1; ++i)
           {
             ptId = k * d0 + j * blockSize[0] + i;
-            cellId = k * d01 + j * (blockSize[0] - 1) + i;
+            cellId = k * d01 + j * (blockSize[0] - 1 + this->IsCellData) + i;
             blankingArrayRange[ptId][comp] = blankCellsRange[cellId];
           }
         }
