@@ -212,7 +212,7 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   this->FileName = "";
   this->MTLFileName = "";
   this->DefaultMTLFileName = true;
-  this->TexturePath = ".";
+  this->TexturePath = "./";
   this->VertexScale = 1.0;
   this->SuccessParsingFiles = 1;
   this->SetNumberOfInputPorts(0);
