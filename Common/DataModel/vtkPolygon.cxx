@@ -24,6 +24,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
+#include <limits> // For DBL_MAX
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1005,22 +1006,8 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
 int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
 {
   int i, j, k, success = 0, numPts = this->PointIds->GetNumberOfIds();
-  double totalArea, area_static[VTK_CELL_SIZE], *area;
+  double totalArea, area, areaMin;
   double p[3][3];
-
-  // For most polygons, there should be fewer than VTK_CELL_SIZE points. In
-  // the event that we have a huge polygon, dynamically allocate an
-  // appropriately sized array.
-  std::vector<double> area_dynamic;
-  if (numPts - 2 <= VTK_CELL_SIZE)
-  {
-    area = &area_static[0];
-  }
-  else
-  {
-    area_dynamic.resize(numPts - 2);
-    area = area_dynamic.data();
-  }
 
   for (i = 0; i < numPts; i++)
   {
@@ -1030,7 +1017,7 @@ int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
     {
       continue;
     }
-
+    areaMin = DBL_MAX;
     totalArea = 0.;
     for (j = 0; j < numPts - 2; j++)
     {
@@ -1038,20 +1025,16 @@ int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
       {
         this->Points->GetPoint(this->Tris->GetId(3 * j + k), p[k]);
       }
-      area[j] = vtkTriangle::TriangleArea(p[0], p[1], p[2]);
-      totalArea += area[j];
+      area = vtkTriangle::TriangleArea(p[0], p[1], p[2]);
+      totalArea += area;
+      areaMin = std::min(area, areaMin);
     }
 
-    for (j = 0; j < numPts - 2; j++)
+    if ((totalArea != 0.) && areaMin / totalArea < tolerance)
     {
-      if (area[j] / totalArea < tolerance)
-      {
-        success = 0;
-        break;
-      }
+      success = 0;
     }
-
-    if (success == 1)
+    else
     {
       break;
     }
