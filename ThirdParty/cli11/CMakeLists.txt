@@ -10,8 +10,11 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_cli11.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtk_cli11.h")
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_cli11_external.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_cli11_external.h")
+
 
 vtk_module_install_headers(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_cli11.h")
+  FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtk_cli11.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vtk_cli11_forward.h"
+        "${CMAKE_CURRENT_BINARY_DIR}/vtk_cli11_external.h")
