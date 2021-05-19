@@ -348,7 +348,8 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
   }
 
   // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
-  for (int attributeType = 0; attributeType < this->GetNumberOfAttributeTypes(); ++attributeType)
+  for (int attributeType = 0; attributeType < vtkHDFReader::GetNumberOfAttributeTypes();
+       ++attributeType)
   {
     std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
