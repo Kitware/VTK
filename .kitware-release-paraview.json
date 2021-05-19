@@ -1,0 +1,11 @@
+{
+    "release_user": "kwrobot.release.paraview",
+    "project": "vtk/vtk",
+    "target_branch": "paraview/release",
+    "maintainers": [
+        "ben.boeckel",
+        "cory.quammen",
+        "utkarsh.ayachit",
+        "vbolea"
+    ]
+}
