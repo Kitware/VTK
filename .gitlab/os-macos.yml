@@ -130,7 +130,6 @@
         - *before_script_macos
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
-    timeout: 2 hours
 
 .cmake_test_external_macos:
     stage: test-ext

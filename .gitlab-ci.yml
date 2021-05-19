@@ -245,7 +245,7 @@ build:fedora33-tidy:
         - .run_manually
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
-    timeout: 2 hours
+    timeout: 150 minutes
 
 ## Sanitizer builds
 
@@ -341,7 +341,7 @@ build:macos-kits-python-qt:
         - .cmake_build_artifacts
         - .run_manually
     # Some of the macOS runners are not very powerful.
-    timeout: 2 hours
+    timeout: 150 minutes
 
 test:macos-kits-python-qt:
     extends:
@@ -354,6 +354,7 @@ test:macos-kits-python-qt:
         - build:macos-kits-python-qt
     needs:
         - build:macos-kits-python-qt
+    timeout: 2 hours
 
 # FIXME: This is not working because Qt uses @rpath/ for its library
 # references. Since we're using a `nonconcurrent` runner for this, we can't
