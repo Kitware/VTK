@@ -450,11 +450,14 @@ void HandleDataArray(FILE* fp, ClassInfo* data)
   fprintf(fp, "\n");
   fprintf(fp, "  private native %s[] GetJavaArray_0();\n", type);
   fprintf(fp, "  public %s[] GetJavaArray()\n", type);
-  fprintf(fp, "    { return GetJavaArray_0(); }\n");
-  fprintf(fp, "\n");
-  fprintf(fp, "  private native void SetJavaArray_0(%s[] arr);\n", type);
+  fprintf(fp, "  {\n");
+  fprintf(fp, "    return GetJavaArray_0();\n");
+  fprintf(fp, "  }\n\n");
+  fprintf(fp, "  private native void SetJavaArray_0(%s[] arr, int length);\n", type);
   fprintf(fp, "  public void SetJavaArray(%s[] arr)\n", type);
-  fprintf(fp, "    { SetJavaArray_0(arr); }\n");
+  fprintf(fp, "  {\n");
+  fprintf(fp, "    SetJavaArray_0(arr,arr.length);\n");
+  fprintf(fp, "  }\n");
 }
 
 static int isClassWrapped(const char* classname)
