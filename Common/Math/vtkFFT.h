@@ -121,6 +121,8 @@ public:
    * because kernels are symmetric by definitions. This point is very important for some
    * kernels like Bartlett for example.
    *
+   * @warning Hanning and Bartlett generators needs a size > 1 !
+   *
    * Can be used with @c GenerateKernel1D and @c GenerateKernel2D for generating full kernels.
    */
   using WindowGenerator = double (*)(const std::size_t, const std::size_t);
@@ -134,7 +136,7 @@ public:
 
   /**
    * Given a window generator function, create a symmetric 1D kernel.
-   * Type @c Array must support operator[] for writing.
+   * Type @c Array1D must support operator[] for writing.
    */
   template <typename Array1D>
   static void GenerateKernel1D(Array1D kernel, const std::size_t n, WindowGenerator generator);

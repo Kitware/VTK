@@ -25,7 +25,6 @@
  * @brief   FFT for table columns
  *
  * vtkTableFFT performs the Fast Fourier Transform on the columns of a table.
- * Internally, it uses kissfft to perform the actual FFT.
  * It can perform the FFT per block in order to resample the input and have a
  * smaller output, and also offer a interface for windowing the input signal.
  */
@@ -50,8 +49,9 @@ public:
     BARTLETT,
     SINE,
     BLACKMAN,
+    RECTANGULAR,
 
-    RECTANGULAR // Keep RECTANGULAR as last in enum for coherency in code
+    MAX_WINDOWING_FUNCTION
   };
 
   //@{
@@ -79,8 +79,8 @@ public:
 
   //@{
   /**
-   * Specify if the filter should use the optimized dft for real values.
-   * This will cause output columns to have from n to ((n / 2) + 1) rows.
+   * Specify if the filter should use the optimized discrete fourier transform for
+   * real values. This will cause output columns to have from n to ((n / 2) + 1) rows.
    *
    * Default is false
    */
@@ -92,7 +92,7 @@ public:
   //@{
   /**
    * Specify if the filter should create a frequency column based on a column
-   * named "time" (not case sensitive).
+   * named "time" (not case sensitive). An evenly-spaced time array is expected.
    *
    * Default is false
    */
@@ -104,10 +104,10 @@ public:
   //@{
   /**
    * Only used if @c AverageFft is true
-   * Specify the number of blocks to use when computing
-   * the average fft over the whole input sample array.
-   * If NumberOfBlock == 1, no average is done and we only compute
-   * the fft on the first @c BlockSize samples of the input data.
+   *
+   * Specify the number of blocks to use when computing the average fft over
+   * the whole input sample array. If NumberOfBlock == 1, no average is done
+   * and we only compute the fft on the first @c BlockSize samples of the input data.
    *
    * This parameter is ignored if @c BlockSize is superior
    * to the number of samples of the input array.
@@ -121,8 +121,8 @@ public:
   //@{
   /**
    * Only used if @c AverageFft is true
-   * Specify the number of samples to use for each block.
-   * This should be a power of 2.
+   *
+   * Specify the number of samples to use for each block. This should be a power of 2.
    * If not, the closest power of two will be used anyway.
    *
    * Default is 1024
@@ -155,12 +155,12 @@ protected:
    * This checks that the given parameters are coherent with the input and
    * tries to extract time information from a column.
    */
-  virtual void Initialize(vtkTable* input);
+  void Initialize(vtkTable* input);
 
   /**
    * Perform the FFT on the given data array.
    */
-  virtual vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray* input);
+  vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray* input);
 
 private:
   vtkTableFFT(const vtkTableFFT&) = delete;
