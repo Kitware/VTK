@@ -97,7 +97,7 @@ endif ()
 
 get_target_property(qt_config "Qt${vtk_qt_major_version}::Core" IMPORTED_CONFIGURATIONS)
 if (WIN32 AND ("DEBUG" IN_LIST qt_config) AND ("RELEASE" IN_LIST qt_config))
-  message(WARNING
+  message(AUTHOR_WARNING
     "Qt5 is configured in both Debug and Release modes. Due to Qt issue "
     "47774 (https://bugreports.qt.io/browse/QTBUG-47774), skipping "
     "generation of qmltypes file. Using the one provided with the source "
