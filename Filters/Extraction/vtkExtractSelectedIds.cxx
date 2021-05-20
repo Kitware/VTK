@@ -187,7 +187,8 @@ void vtkExtractSelectedIdsCopyCells(
 
   vtkSmartPointer<vtkCellIterator> cellIter =
     vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
-  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell(), ++i)
+  for (i = 0, cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell(), ++i)
   {
     if (inArray[i] > 0)
     {
