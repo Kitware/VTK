@@ -80,7 +80,7 @@ test:fedora33-mpi-offscreen-osmesa-python:
     extends:
         - .fedora33_mpi_offscreen_osmesa_python
         - .cmake_test_linux
-        - .linux_builder_tags
+        - .linux_qt_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
