@@ -31,8 +31,10 @@ find_package_handle_standard_args(OpenSlide
 if (OPENSLIDE_FOUND)
   set(OPENSLIDE_LIBRARIES "${OPENSLIDE_LIBRARY}")
   set(OPENSLIDE_INCLUDE_DIRS "${OPENSLIDE_INCLUDE_DIR}")
-  add_library(OpenSlide::OpenSlide UNKNOWN IMPORTED)
-  set_target_properties(OpenSlide::OpenSlide PROPERTIES
-    IMPORTED_LOCATION "${OPENSLIDE_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES "${OPENSLIDE_INCLUDE_DIR}")
+  if (NOT TARGET OpenSlide::OpenSlide)
+    add_library(OpenSlide::OpenSlide UNKNOWN IMPORTED)
+    set_target_properties(OpenSlide::OpenSlide PROPERTIES
+      IMPORTED_LOCATION "${OPENSLIDE_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENSLIDE_INCLUDE_DIR}")
+  endif ()
 endif ()
