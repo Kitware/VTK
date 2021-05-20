@@ -75,6 +75,14 @@
     variables:
         CMAKE_CONFIGURATION: windows_vs2019_kits_mpi_python_qt
 
+
+.windows_vs2019_mpi_python_qt_stdthread:
+    extends:
+        - .windows_vs2019
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2019_mpi_python_qt_stdthread
+
 .windows_vs2019_kits_mpi_python_qt_ext_vtk:
     extends:
         - .windows_vs2019

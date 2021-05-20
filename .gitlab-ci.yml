@@ -154,6 +154,27 @@ test-ext:vtk:fedora33-mpi-python-qt-tbb:
     needs:
         - test:fedora33-mpi-python-qt-tbb
 
+build:fedora33-mpi-python-qt-shared-stdthread:
+    extends:
+        - .fedora33_mpi_python_qt_shared_stdthread
+        - .cmake_build_linux
+        - .linux_qt_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:fedora33-mpi-python-qt-shared-stdthread:
+    extends:
+        - .fedora33_mpi_python_qt_shared_stdthread
+        - .cmake_test_linux
+        - .linux_qt_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:fedora33-mpi-python-qt-shared-stdthread
+    needs:
+        - build:fedora33-mpi-python-qt-shared-stdthread
+
+
 ## Python wheel builds
 
 build:wheel-linux-python36-x86_64:
@@ -356,6 +377,28 @@ test:macos-kits-python-qt:
         - build:macos-kits-python-qt
     timeout: 2 hours
 
+build:macos-python-qt-stdthread:
+    extends:
+        - .macos_python_qt_stdthread
+        - .cmake_build_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    # Some of the macOS runners are not very powerful.
+    timeout: 2 hours
+
+test:macos-python-qt-stdthread:
+    extends:
+        - .macos_python_qt_stdthread
+        - .cmake_test_macos
+        - .macos_builder_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:macos-python-qt-stdthread
+    needs:
+        - build:macos-python-qt-stdthread
+
 # FIXME: This is not working because Qt uses @rpath/ for its library
 # references. Since we're using a `nonconcurrent` runner for this, we can't
 # bake in any paths at build time. However, to install Qt next to it, we need
@@ -479,6 +522,26 @@ test:windows-vs2019-kits-mpi-python-qt:
         - build:windows-vs2019-kits-mpi-python-qt
     needs:
         - build:windows-vs2019-kits-mpi-python-qt
+
+build:windows-vs2019-mpi-python-qt-stdthread:
+    extends:
+        - .windows_vs2019_mpi_python_qt_stdthread
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:windows-vs2019-mpi-python-qt-stdthread:
+    extends:
+        - .windows_vs2019_mpi_python_qt_stdthread
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:windows-vs2019-mpi-python-qt-stdthread
+    needs:
+        - build:windows-vs2019-mpi-python-qt-stdthread
 
 # This is disabled because VTK-m doesn't make a relocatable installation of its
 # imported targets (cf. `vtkm::tbb` since it embeds the build-time locations
