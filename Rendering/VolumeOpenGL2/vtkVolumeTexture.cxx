@@ -528,11 +528,11 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
       int d01 = (blockSize[0] - 1 + this->IsCellData) * (blockSize[1] - 1 + this->IsCellData);
       const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
       int ptId, cellId;
-      for (int k = 0; k < blockSize[2]; ++k)
+      for (int k = 0; k < blockSize[2] - 1 + this->IsCellData; ++k)
       {
-        for (int j = 0; j < blockSize[1]; ++j)
+        for (int j = 0; j < blockSize[1] - 1 + this->IsCellData; ++j)
         {
-          for (int i = 0; i < blockSize[0]; ++i)
+          for (int i = 0; i < blockSize[0] - 1 + this->IsCellData; ++i)
           {
             ptId = k * d0 + j * blockSize[0] + i;
             cellId = k * d01 + j * (blockSize[0] - 1 + this->IsCellData) + i;
