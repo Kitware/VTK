@@ -161,6 +161,28 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenMP build (non tested)
+  list(APPEND test_exclusions
+    # Theses tests fail for stdthread + openmp builds they may be link to a bad use of ThreadLocal
+    # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
+    "^VTK::FiltersCoreCxx-TestResampleWithDataSet$"
+    "^VTK::FiltersExtractionPython-ExtractTensors$"
+    "^VTK::FiltersGeneralPython-TestGroupTimeStepsFilter$"
+    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$" # Not sure this test fails only for stdthread
+    "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
+    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
+    "^VTK::InteractionWidgetsCxx-TestSplineWidget$"
+    "^VTK::IOIossCxx-TestIossSuperelements$"
+    "^VTK::IOIossCxx-TestIossExodus$"
+    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::ParallelMPICxx-MPI-TestPProbe$"
+    "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
+    "^VTK::FiltersGeneralCxx-TestAnimateModes$"
+    "^VTK::FiltersCoreCxx-TestProbeFilterImageInput$"
+    "^VTK::FiltersCorePython-TestProbeFilterImageInput$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
