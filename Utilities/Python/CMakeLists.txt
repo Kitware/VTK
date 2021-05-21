@@ -24,6 +24,12 @@ if (NOT DEFINED VTK_PYTHON_VERSION)
       STRINGS "2;3")
 endif ()
 
+if (VTK_PYTHON_VERSION STREQUAL "2")
+  message(DEPRECATION
+    "Python2 support is deprecated and will be removed in a future release. "
+    "Please migrate to a supported version of Python.")
+endif ()
+
 # VTK only supports a single Python version at a time, so make artifact finding
 # interactive.
 set("Python${VTK_PYTHON_VERSION}_ARTIFACTS_INTERACTIVE" ON)
