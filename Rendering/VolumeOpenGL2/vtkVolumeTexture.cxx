@@ -505,9 +505,19 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     if (blankPoints)
     {
       const auto blankPointsRange = vtk::DataArrayValueRange<1>(ugPointBlankArray);
-      for (auto blankPtId = 0; blankPtId < numPts; ++blankPtId)
+      int d0 = (blockSize[0] - this->IsCellData) * (blockSize[1] - this->IsCellData);
+      int ptId, cellId;
+      for (int k = 0; k < blockSize[2]; ++k)
       {
-        blankingArrayRange[blankPtId][0] = blankPointsRange[blankPtId];
+        for (int j = 0; j < blockSize[1]; ++j)
+        {
+          for (int i = 0; i < blockSize[0]; ++i)
+          {
+            cellId = k * d0 + j * (blockSize[0] - this->IsCellData) + i;
+            ptId = k * (blockSize[0]) * (blockSize[1]) + j * (blockSize[0]) + i;
+            blankingArrayRange[cellId][0] = blankPointsRange[ptId];
+          }
+        }
       }
     }
 
@@ -515,17 +525,17 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     {
       int comp = blankPoints ? 1 : 0;
       int d0 = blockSize[0] * blockSize[1];
-      int d01 = (blockSize[0] - 1) * (blockSize[1] - 1);
+      int d01 = (blockSize[0] - 1 + this->IsCellData) * (blockSize[1] - 1 + this->IsCellData);
       const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
       int ptId, cellId;
-      for (int k = 0; k < blockSize[2] - 1; ++k)
+      for (int k = 0; k < blockSize[2] - 1 + this->IsCellData; ++k)
       {
-        for (int j = 0; j < blockSize[1] - 1; ++j)
+        for (int j = 0; j < blockSize[1] - 1 + this->IsCellData; ++j)
         {
-          for (int i = 0; i < blockSize[0] - 1; ++i)
+          for (int i = 0; i < blockSize[0] - 1 + this->IsCellData; ++i)
           {
             ptId = k * d0 + j * blockSize[0] + i;
-            cellId = k * d01 + j * (blockSize[0] - 1) + i;
+            cellId = k * d01 + j * (blockSize[0] - 1 + this->IsCellData) + i;
             blankingArrayRange[ptId][comp] = blankCellsRange[cellId];
           }
         }
