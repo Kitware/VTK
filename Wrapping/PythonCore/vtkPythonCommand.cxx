@@ -234,7 +234,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
     arglist = Py_BuildValue("(Ns)", obj2, eventname);
   }
 
-  PyObject* result = PyEval_CallObject(this->obj, arglist);
+  PyObject* result = PyObject_Call(this->obj, arglist, nullptr);
   Py_DECREF(arglist);
 
   if (result)
