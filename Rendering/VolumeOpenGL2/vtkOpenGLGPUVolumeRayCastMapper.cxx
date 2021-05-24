@@ -3616,6 +3616,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderMultipleInputs(
   this->SetVolumeShaderParameters(prog, independent, numComp, wcvc);
   this->SetLightingShaderParameters(ren, prog, this->MultiVolume, numSamplers);
   this->SetCameraShaderParameters(prog, ren, cam);
+
+  this->SetClippingPlanes(ren, prog, this->MultiVolume);
+
   this->RenderVolumeGeometry(ren, prog, this->MultiVolume, geometry);
   this->FinishRendering(numComp);
 }
