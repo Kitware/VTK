@@ -255,6 +255,49 @@ test:wheel-linux-python39-x86_64:
     needs:
         - build:wheel-linux-python39-x86_64
 
+upload:wheel:
+    extends:
+        - .pypi_upload
+        - .weekly_upload_only
+    dependencies:
+        - build:wheel-linux-python36-x86_64
+        - build:wheel-linux-python37-x86_64
+        - build:wheel-linux-python38-x86_64
+        - build:wheel-linux-python39-x86_64
+        - build:wheel-macos-python36-x86_64
+        - build:wheel-macos-python37-x86_64
+        - build:wheel-macos-python38-x86_64
+        - build:wheel-macos-python39-x86_64
+        - build:wheel-windows-python36-x86_64
+        - build:wheel-windows-python37-x86_64
+        - build:wheel-windows-python38-x86_64
+        - build:wheel-windows-python39-x86_64
+    needs:
+        - build:wheel-linux-python36-x86_64
+        # - test:wheel-linux-python36-x86_64
+        - build:wheel-linux-python37-x86_64
+        - test:wheel-linux-python37-x86_64
+        - build:wheel-linux-python38-x86_64
+        - test:wheel-linux-python38-x86_64
+        - build:wheel-linux-python39-x86_64
+        - test:wheel-linux-python39-x86_64
+        - build:wheel-macos-python36-x86_64
+        - test:wheel-macos-python36-x86_64
+        - build:wheel-macos-python37-x86_64
+        - test:wheel-macos-python37-x86_64
+        - build:wheel-macos-python38-x86_64
+        - test:wheel-macos-python38-x86_64
+        - build:wheel-macos-python39-x86_64
+        - test:wheel-macos-python39-x86_64
+        - build:wheel-windows-python36-x86_64
+        # - test:wheel-windows-python36-x86_64
+        - build:wheel-windows-python37-x86_64
+        - test:wheel-windows-python37-x86_64
+        - build:wheel-windows-python38-x86_64
+        - test:wheel-windows-python38-x86_64
+        - build:wheel-windows-python39-x86_64
+        - test:wheel-windows-python39-x86_64
+
 ## Static analysis builds
 
 build:fedora33-tidy:

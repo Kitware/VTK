@@ -40,3 +40,11 @@
       - if: '$RSYNC_UPLOAD_ENABLE == "true"'
         when: on_success
       - when: never
+
+.weekly_upload_only:
+    rules:
+      - if: '$CI_COMMIT_TAG == "true"'
+        when: on_success
+      - if: '$PYPI_WEEKLY_UPLOAD == "true"'
+        when: on_success
+      - when: never
