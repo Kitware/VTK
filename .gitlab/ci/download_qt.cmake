@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 # Input variables.
 set(qt_version_major "5")
 set(qt_version_minor "15")
-set(qt_version_patch "1")
+set(qt_version_patch "2")
 # This URL is only visible inside of Kitware's network. Please use your own Qt
 # Account to obtain these files.
 set(qt_url_root "https://paraview.org/files/dependencies/internal/qt")
@@ -33,15 +33,7 @@ set(qt_version_nodot "${qt_version_major}${qt_version_minor}${qt_version_patch}"
 # Files needed to download.
 set(qt_files)
 if (qt_platform STREQUAL "windows_x86")
-  if (msvc_year STREQUAL "2019")
-    set(qt_build_stamp "202009071110")
-  elseif (msvc_year STREQUAL "2015")
-    set(qt_build_stamp "202009071110")
-  else ()
-    message(FATAL_ERROR
-      "Build stamp for MSVC ${msvc_year} is unknown")
-  endif ()
-
+  set(qt_build_stamp "202011130602")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
   list(APPEND qt_files
     "${qt_file_name_prefix}d3dcompiler_47-x64.7z"
@@ -54,7 +46,7 @@ if (qt_platform STREQUAL "windows_x86")
 
   set(qt_subdir "${qt_version}/msvc${msvc_year}_64")
 elseif (qt_platform STREQUAL "mac_x64")
-  set(qt_build_stamp "202009071110")
+  set(qt_build_stamp "202011130601")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN ITEMS qtbase qttools qtdeclarative qtquickcontrols2)
