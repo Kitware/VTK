@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
+# Wheels do not build against Qt.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
+  return ()
+endif ()
+
 # Input variables.
 set(qt_version_major "5")
 set(qt_version_minor "15")
