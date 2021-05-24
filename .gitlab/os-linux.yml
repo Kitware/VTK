@@ -204,6 +204,7 @@
         - build
         - docker
         - linux
+        - vtk
 
 .linux_qt_builder_tags:
     tags:
@@ -211,12 +212,14 @@
         - docker
         - linux
         - linux-3.17
+        - vtk
 
 .linux_tester_tags:
     tags:
         - docker
         - linux
         - x11
+        - vtk
 
 .linux_qt_tester_tags:
     tags:
@@ -224,6 +227,7 @@
         - linux
         - linux-3.17
         - x11
+        - vtk
 
 .linux_qt_tester_priv_tags:
     tags:
@@ -232,6 +236,7 @@
         - linux-3.17
         - privileged
         - x11
+        - vtk
 
 .linux_tester_priv_tags:
     tags:
@@ -239,6 +244,7 @@
         - linux
         - privileged
         - x11
+        - vtk
 
 ## Linux-specific scripts
 
