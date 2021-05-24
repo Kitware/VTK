@@ -349,8 +349,8 @@ public:
     : Value(x)
   {
   }
-  operator SafeBool() { return this->Value ? &SafeBoolDummy::Dummy : 0; }
-  SafeBool operator!() { return this->Value ? 0 : &SafeBoolDummy::Dummy; }
+  operator SafeBool() { return this->Value ? &SafeBoolDummy::Dummy : nullptr; }
+  SafeBool operator!() { return this->Value ? nullptr : &SafeBoolDummy::Dummy; }
 
 protected:
   int Value;
