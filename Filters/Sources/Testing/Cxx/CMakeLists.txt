@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestOutlineCornerSource.cxx,NO_VALID
   TestOutlineSource.cxx,NO_VALID
   TestParametricFunctionSource.cxx,NO_VALID
+  TestPartitionedDataSetSource.cxx,NO_VALID
   TestPlaneSource.cxx,NO_VALID
   TestPlatonicSolidSource.cxx,NO_VALID
   TestPointSource.cxx,NO_VALID
