@@ -53,25 +53,25 @@
         # could run at the same time, so we drop it.
         GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci"
 
-.macos_kits_python_qt:
+.macos_x86_64_kits_python_qt:
     extends: .macos_build
 
     variables:
-        CMAKE_CONFIGURATION: macos_kits_python_qt
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt
         VTK_INSTALL: 1
 
-.macos_python_qt_stdthread:
+.macos_x86_64_python_qt_stdthread:
     extends: .macos_build
 
     variables:
-        CMAKE_CONFIGURATION: macos_python_qt_stdthread
+        CMAKE_CONFIGURATION: macos_x86_64_python_qt_stdthread
         VTK_INSTALL: 1
 
-.macos_kits_python_qt_ext_vtk:
+.macos_x86_64_kits_python_qt_ext_vtk:
     extends: .macos
 
     variables:
-        CMAKE_CONFIGURATION: macos_kits_python_qt_ext_vtk
+        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_ext_vtk
 
 ## Tags
 

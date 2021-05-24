@@ -23,7 +23,7 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vs2017" OR
   set(qt_platform "windows_x86")
   set(msvc_year "2019")
   set(qt_abi "win64_msvc${msvc_year}_64")
-elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
   set(qt_platform "mac_x64")
   set(qt_abi "clang_64")
 else ()
