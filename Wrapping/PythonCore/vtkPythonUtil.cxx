@@ -563,7 +563,7 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
     if (obj)
     {
       PyObject* arglist = Py_BuildValue("()");
-      PyObject* result = PyEval_CallObject(obj, arglist);
+      PyObject* result = PyObject_Call(obj, arglist, nullptr);
       Py_DECREF(arglist);
       Py_DECREF(obj);
       if (result == nullptr)
@@ -1082,7 +1082,7 @@ void vtkPythonVoidFunc(void* arg)
 
   arglist = Py_BuildValue("()");
 
-  result = PyEval_CallObject(func, arglist);
+  result = PyObject_Call(func, arglist, nullptr);
   Py_DECREF(arglist);
 
   if (result)
