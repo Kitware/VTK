@@ -14,6 +14,8 @@ For the following targets on x86\_64:
   - macos10.10
   - windows
 
+Additionally, there is a wheel for Python 3.9 targeting macos11.0 on arm64.
+
 Generally, all modules that do not require external libraries are available in
 the official wheels.
 

@@ -9,6 +9,16 @@
         # use so that different versions can be tested in a single pipeline.
         DEVELOPER_DIR: "/Applications/Xcode-12.4.app/Contents/Developer"
 
+.wheel_macos_arm64:
+    extends: .macos
+
+.wheel_macos39_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos39_arm64
+        PYTHON_VERSION_SUFFIX: "3.9"
+
 .wheel_macos_x86_64:
     extends: .macos
 

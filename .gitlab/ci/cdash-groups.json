@@ -113,6 +113,11 @@
         {
             "group": "master",
             "site": "gitlab-ci",
+            "buildname": "[wheel_macos39_arm64]"
+        },
+        {
+            "group": "master",
+            "site": "gitlab-ci",
             "buildname": "[wheel_macos39_x86_64]"
         },
         {
