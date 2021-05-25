@@ -16,6 +16,7 @@
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -159,29 +160,43 @@ void vtkExtractSelectedLocationsCopyCells(
   originalIds->SetNumberOfComponents(1);
   originalIds->SetName("vtkOriginalCellIds");
 
+  int cellType;
+  vtkIdType numCellPts;
+  vtkIdList* pointIdList;
   vtkIdType i, j, newId = 0;
   vtkIdList* ptIds = vtkIdList::New();
-  for (i = 0; i < numCells; i++)
+  vtkIdList* faces;
+
+  vtkSmartPointer<vtkCellIterator> cellIter =
+    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+  for (i = 0, cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell(), ++i)
   {
     if (inArray[i] > 0)
     {
+      cellType = cellIter->GetCellType();
+      numCellPts = cellIter->GetNumberOfPoints();
+      pointIdList = cellIter->GetPointIds();
+
+      ptIds->Reset();
       // special handling for polyhedron cells
-      if (vtkUnstructuredGrid::SafeDownCast(input) && vtkUnstructuredGrid::SafeDownCast(output) &&
-        input->GetCellType(i) == VTK_POLYHEDRON)
+      if (cellType == VTK_POLYHEDRON)
       {
-        ptIds->Reset();
-        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, ptIds);
+        faces = cellIter->GetFaces();
+        for (j = 0; j < faces->GetNumberOfIds(); ++j)
+        {
+          ptIds->InsertNextId(faces->GetId(j));
+        }
         vtkUnstructuredGrid::ConvertFaceStreamPointIds(ptIds, pointMap);
       }
       else
       {
-        input->GetCellPoints(i, ptIds);
-        for (j = 0; j < ptIds->GetNumberOfIds(); j++)
+        for (j = 0; j < numCellPts; j++)
         {
-          ptIds->SetId(j, pointMap[ptIds->GetId(j)]);
+          ptIds->InsertId(j, pointMap[pointIdList->GetId(j)]);
         }
       }
-      output->InsertNextCell(input->GetCellType(i), ptIds);
+      output->InsertNextCell(cellType, ptIds);
       outCD->CopyData(inCD, i, newId++);
       originalIds->InsertNextValue(i);
     }
