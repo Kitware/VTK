@@ -319,6 +319,8 @@
     script:
         - yum install -y --setopt=install_weak_deps=False libXcursor
         - "$PYTHON_PREFIX/bin/python -m venv venv"
+        - venv/bin/pip install twine
+        - venv/bin/twine check build/dist/*.whl
         - venv/bin/pip install build/dist/*.whl
         - venv/bin/python -c "import vtk"
     interruptible: true
