@@ -99,7 +99,7 @@ const char* ResolveShader =
 
     // for each sample in the multi sample buffer...
     ivec2 itexcoords = ivec2(floor(textureSize(tex) * texCoord));
-    vec3 accumulate;
+    vec3 accumulate = vec3(0.0,0.0,0.0);
     float alpha = 0.0;
 
     for (int i = 0; i < samplecount; i++)
