@@ -92,7 +92,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   ExampleDataArrayRangeAPI.cxx
   ExampleDataArrayRangeDispatch.cxx
-  UnitTestFFT.cxx
   UnitTestMath.cxx
   TestAbstractArraySize.cxx
   TestArrayAPI.cxx

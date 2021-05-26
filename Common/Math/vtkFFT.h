@@ -29,7 +29,8 @@
 #ifndef vtkFFT_h
 #define vtkFFT_h
 
-#include "vtkMath.h" // For vtkMath::Pi
+#include "vtkCommonMathModule.h" // For export macro
+#include "vtkMath.h"             // For vtkMath::Pi
 #include "vtkObject.h"
 
 #include "vtk_kissfft.h" // For kiss_fft_scalar, kiss_fft_cpx
@@ -41,7 +42,7 @@
 #include <vector> // For std::vector
 #include <cmath>  // for std::sin, std::cos, std::sqrt
 
-class VTKCOMMONCORE_EXPORT vtkFFT : public vtkObject
+class VTKCOMMONMATH_EXPORT vtkFFT : public vtkObject
 {
 public:
   using ScalarNumber = kiss_fft_scalar;

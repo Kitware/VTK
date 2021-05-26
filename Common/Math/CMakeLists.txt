@@ -1,5 +1,6 @@
 set(classes
   vtkAmoebaMinimizer
+  vtkFFT
   vtkFunctionSet
   vtkInitialValueProblemSolver
   vtkMatrix3x3
