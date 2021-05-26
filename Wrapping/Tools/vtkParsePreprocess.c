@@ -20,11 +20,12 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkParsePreprocess.h"
+#include "vtkParseSystem.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 
 /**
   This file handles preprocessor directives via a simple
@@ -53,6 +54,10 @@
 #define HASH_ERROR 0x0f6321efu
 #define HASH_LINE 0x7c9a15adu
 #define HASH_PRAGMA 0x1566a9fdu
+
+/* globals for cacheing directory listings */
+static StringCache system_info_strings = { 0, 0, 0, 0 };
+static SystemInfo system_info = { &system_info_strings, NULL, NULL };
 
 /** Extend dynamic arrays in a progression of powers of two.
  * Whenever "n" reaches a power of two, then the array size is
@@ -1655,7 +1660,6 @@ const char* preproc_find_include_file(
 {
   int i, n, ii, nn;
   size_t j, m;
-  struct stat fs;
   const char* directory;
   char* output;
   size_t outputsize = 16;
@@ -1831,11 +1835,7 @@ const char* preproc_find_include_file(
           }
         }
       }
-#if defined(_WIN32) && !defined(__CYGWIN__)
-      else if (stat(output, &fs) == 0 && (fs.st_mode & _S_IFMT) != _S_IFDIR)
-#else
-      else if (stat(output, &fs) == 0 && !S_ISDIR(fs.st_mode))
-#endif
+      else if (vtkParse_FileExists(&system_info, output) == VTK_PARSE_ISFILE)
       {
         nn = info->NumberOfIncludeFiles;
         info->IncludeFiles =

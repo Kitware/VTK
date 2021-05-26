@@ -253,6 +253,12 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_FreeStringCache(StringCache* cache);
 
+  /**
+   * Compute a hash for a string, using the first n bytes.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  unsigned int vtkParse_HashString(const char* cp, size_t n);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
