@@ -332,9 +332,10 @@ int GetCellType(const Ioss::ElementTopology* topology)
       {
         case 15:
           return VTK_QUADRATIC_WEDGE;
+        case 18:
+          return VTK_BIQUADRATIC_QUADRATIC_WEDGE;
         case 21:
           return VTK_LAGRANGE_WEDGE;
-        case 18:
         case 6:
           return VTK_WEDGE;
       }
@@ -429,6 +430,45 @@ static vtkSmartPointer<vtkDataArray> ChangeComponents(vtkDataArray* array, int n
 }
 
 //----------------------------------------------------------------------------
+struct Swizzler
+{
+  const std::vector<int>& Ordering;
+
+  template <typename ArrayT>
+  void operator()(ArrayT* array)
+  {
+    const int numComps = array->GetNumberOfComponents();
+    using ValueType = typename ArrayT::ValueType;
+    ValueType* inTuple = new ValueType[numComps];
+    ValueType* outTuple = new ValueType[numComps];
+    for (vtkIdType cc = 0, max = array->GetNumberOfTuples(); cc < max; ++cc)
+    {
+      array->GetTypedTuple(cc, inTuple);
+      for (int comp = 0; comp < numComps; ++comp)
+      {
+        outTuple[comp] = inTuple[this->Ordering[comp]];
+      }
+      array->SetTypedTuple(cc, outTuple);
+    }
+    delete[] inTuple;
+    delete[] outTuple;
+  }
+};
+
+//----------------------------------------------------------------------------
+static bool SwizzleComponents(vtkDataArray* array, const std::vector<int>& ordering)
+{
+  Swizzler worker{ ordering };
+  using SupportedArrays = vtkIossUtilities::ArrayList;
+  using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
+  if (!Dispatch::Execute(array, worker))
+  {
+    throw std::runtime_error("Failed to strip extra components from array!");
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> GetConnectivity(
   Ioss::GroupingEntity* group_entity, int& vtk_topology_type, Cache* cache /*=nullptr*/)
 {
@@ -516,6 +556,65 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   else if (vtk_cell_points > ioss_cell_points)
   {
     throw std::runtime_error("VTK cell requires more points than provided!");
+  }
+
+  // IOSS cells and VTK cells need not have same point ordering. If that's the
+  // case, we need to transform them.
+  // Here, using the indexes specified in Ioss docs (which are 1-based), just
+  // add them so that the cell is ordered correctly in VTK.
+  // ref: https://gsjaardema.github.io/seacas-docs/html/element_types.html
+  std::vector<int> ordering_transform;
+  switch (vtk_topology_type)
+  {
+    case VTK_WEDGE:
+      ordering_transform = std::vector<int>{ 4, 5, 6, 1, 2, 3 };
+      break;
+
+    case VTK_QUADRATIC_WEDGE: // wedge-15
+      // clang-format off
+      ordering_transform = std::vector<int>{
+        4, 5, 6, 1, 2, 3,
+        13, 14, 15,
+        7, 8, 9,
+        10, 11, 12
+      };
+      // clang-format on
+      break;
+
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE: // wedge-18
+      // clang-format off
+      ordering_transform = std::vector<int>{
+        /* 2 triangles */
+        4, 5, 6, 1, 2, 3,
+
+        /* edge centers */
+        13, 14, 15,
+        7, 8, 9,
+        10, 11, 12,
+
+        /* quad-centers */
+        16, 17, 18
+      };
+      // clang-format on
+
+    case VTK_LAGRANGE_WEDGE: // wedge-21
+      // here, the ordering is consistent with IOSS!
+      // so don't do anything.
+      break;
+
+    default:
+      break;
+  }
+
+  if (!ordering_transform.empty())
+  {
+    // offset by 1 to make 0-based.
+    for (auto& val : ordering_transform)
+    {
+      val -= 1;
+    }
+    assert(ordering_transform.size() == vtk_cell_points);
+    vtkIossUtilities::SwizzleComponents(connectivity_raw, ordering_transform);
   }
 
   // change number of components to 1.
