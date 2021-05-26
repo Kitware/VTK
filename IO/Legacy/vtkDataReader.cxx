@@ -1872,7 +1872,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
           {
             vtkTypeUInt64 length;
             IS->read(reinterpret_cast<char*>(&length), 8);
-            vtkByteSwap::Swap4BE(&length);
+            vtkByteSwap::Swap8BE(&length);
             stringLength = length;
           }
           std::vector<char> str(stringLength);
