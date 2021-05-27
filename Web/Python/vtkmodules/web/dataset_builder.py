@@ -2,7 +2,7 @@ from vtk import *
 from vtk.web import getJSArrayType
 from vtk.web.camera import *
 from vtk.web.query_data_model import *
-from vtk.web import iteritems, buffer
+from vtk.web import iteritems, memoryview
 import json, os, math, gzip, shutil
 
 # Global helper variables
@@ -359,7 +359,7 @@ class DataProberDataSetBuilder(DataSetBuilder):
         for field in self.fieldsToWrite:
             array = arrays.GetArray(field)
             if array:
-                b = buffer(array)
+                b = memoryview(array)
                 with open(self.dataHandler.getDataAbsoluteFilePath(field), "wb") as f:
                     f.write(b)
 
@@ -433,7 +433,7 @@ class ConvertVolumeStackToSortedStack(object):
         imageSize = self.width * self.height
         self.layers = len(layerNames)
 
-        # Write all images as single buffer
+        # Write all images as single memoryview
         opacity = vtkUnsignedCharArray()
         opacity.SetNumberOfComponents(1)
         opacity.SetNumberOfTuples(numberOfValues)
@@ -495,13 +495,13 @@ class ConvertVolumeStackToSortedStack(object):
                 )
 
         with open(os.path.join(directory, "alpha.uint8"), "wb") as f:
-            f.write(buffer(opacityOrder))
+            f.write(memoryview(opacityOrder))
 
         with open(os.path.join(directory, "intensity.uint8"), "wb") as f:
-            f.write(buffer(intensityOrder))
+            f.write(memoryview(intensityOrder))
 
         with open(os.path.join(directory, "order.uint8"), "wb") as f:
-            f.write(buffer(destOrder))
+            f.write(memoryview(destOrder))
 
 
 class SortedCompositeDataSetBuilder(VolumeCompositeDataSetBuilder):

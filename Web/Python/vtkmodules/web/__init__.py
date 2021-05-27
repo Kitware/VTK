@@ -1,7 +1,5 @@
 import sys, re, hashlib, base64
 
-py3 = sys.version_info >= (3, 0)
-
 arrayTypesMapping = [
     " ",  # VTK_VOID            0
     " ",  # VTK_BIT             1
@@ -31,24 +29,13 @@ javascriptMapping = {
     "d": "Float64Array",
 }
 
-if py3:
 
-    def iteritems(d, **kwargs):
-        return iter(d.items(**kwargs))
-
-
-else:
-
-    def iteritems(d, **kwargs):
-        return d.iteritems(**kwargs)
+def iteritems(d, **kwargs):
+    return iter(d.items(**kwargs))
 
 
-if sys.version_info >= (2, 7):
-    buffer = memoryview
-    base64Encode = lambda x: base64.b64encode(x).decode("utf-8")
-else:
-    buffer = buffer
-    base64Encode = lambda x: x.encode("base64")
+def base64Encode(x):
+    return base64.b64encode(x).decode("utf-8")
 
 
 def hashDataArray(dataArray):
