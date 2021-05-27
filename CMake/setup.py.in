@@ -110,7 +110,7 @@ if 'GITLAB_CI' in os.environ:
                 )
 
             count = 0
-            for line in git_log.stdout.lines():
+            for line in git_log.stdout.readlines():
                 if line == b'VTK Nightly Date Stamp\n':
                     break
                 count += 1
@@ -128,7 +128,7 @@ if 'GITLAB_CI' in os.environ:
                     cwd=os.environ['GIT_CLONE_PATH'],
                 )
 
-            count = len(git_log.stdout.lines())
+            count = len(git_log.stdout.readlines())
 
         version = version_base + '.dev' + str(count)
     elif 'CI_MERGE_REQUEST_ID' in os.environ:
