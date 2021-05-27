@@ -532,6 +532,7 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
     dependencies = []
 
     if hasattr(mapper, "GetInputDataObject"):
+        mapper.GetInputAlgorithm().Update()
         dataObject = mapper.GetInputDataObject(0, 0)
     else:
         if context.debugAll:
@@ -542,6 +543,7 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
         dataObjectInstance = serializeInstance(
             mapper, dataObject, dataObjectId, context, depth + 1
         )
+
         if dataObjectInstance:
             dependencies.append(dataObjectInstance)
             calls.append(["setInputData", [wrapId(dataObjectId)]])
@@ -563,7 +565,7 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
             dependencies.append(lookupTableInstance)
             calls.append(["setLookupTable", [wrapId(lookupTableId)]])
 
-    if dataObjectInstance and lookupTableInstance:
+    if dataObjectInstance:
         colorArrayName = (
             mapper.GetArrayName()
             if mapper.GetArrayAccessMode() == 1
@@ -929,6 +931,7 @@ def rendererSerializer(parent, instance, objId, context, depth):
                 "useDepthPeeling": instance.GetUseDepthPeeling(),
                 "occlusionRatio": instance.GetOcclusionRatio(),
                 "maximumNumberOfPeels": instance.GetMaximumNumberOfPeels(),
+                "interactive": instance.GetInteractive(),
             },
             "dependencies": dependencies,
             "calls": calls,
