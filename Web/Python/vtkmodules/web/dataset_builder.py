@@ -1,8 +1,8 @@
 from vtk import *
-from vtk.web import getJSArrayType
-from vtk.web.camera import *
-from vtk.web.query_data_model import *
-from vtk.web import iteritems, memoryview
+from vtkmodules.web import getJSArrayType
+from vtkmodules.web.camera import *
+from vtkmodules.web.query_data_model import *
+from vtkmodules.web import iteritems
 import json, os, math, gzip, shutil
 
 # Global helper variables

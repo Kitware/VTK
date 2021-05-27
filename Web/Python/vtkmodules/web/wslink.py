@@ -16,8 +16,8 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from wslink import websocket
 from wslink import register as exportRpc
 
-from vtk.web import protocols
-from vtk.vtkWebCore import vtkWebApplication
+from vtkmodules.web import protocols
+from vtkmodules.vtkWebCore import vtkWebApplication
 
 # =============================================================================
 application = None

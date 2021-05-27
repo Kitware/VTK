@@ -4,7 +4,7 @@ Core Module for Web Base Data Generation
 
 import sys, os, json
 
-from vtk.web import iteritems
+from vtkmodules.web import iteritems
 
 
 class DataHandler(object):

@@ -1,4 +1,4 @@
-import sys, re, hashlib, base64
+import hashlib, base64
 
 arrayTypesMapping = [
     " ",  # VTK_VOID            0

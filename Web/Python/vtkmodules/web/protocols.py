@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 
 import os, sys, logging, types, inspect, traceback, re, base64, time
 
-from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
+from vtkmodules.vtkWebCore import vtkWebInteractionEvent
 
 from .render_window_serializer import (
     serializeInstance,
