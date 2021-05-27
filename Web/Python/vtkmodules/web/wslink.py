@@ -8,16 +8,16 @@ from __future__ import absolute_import, division, print_function
 # import inspect, types, string, random, logging, six, json, re, base64
 import json, base64, time
 
-from twisted.python         import log
-from twisted.internet       import reactor
+from twisted.python import log
+from twisted.internet import reactor
 
 from autobahn.twisted.websocket import WebSocketServerProtocol
 
 from wslink import websocket
 from wslink import register as exportRpc
 
-from vtk.web import protocols
-from vtk.vtkWebCore import vtkWebApplication
+from vtkmodules.web import protocols
+from vtkmodules.vtkWebCore import vtkWebApplication
 
 # =============================================================================
 application = None
@@ -27,6 +27,7 @@ application = None
 # Base class for vtkWeb ServerProtocol
 #
 # =============================================================================
+
 
 class ServerProtocol(websocket.ServerProtocol):
     """
@@ -39,7 +40,7 @@ class ServerProtocol(websocket.ServerProtocol):
     """
 
     def __init__(self):
-        log.msg('Creating SP')
+        log.msg("Creating SP")
         self.setSharedObject("app", self.initApplication())
         websocket.ServerProtocol.__init__(self)
 

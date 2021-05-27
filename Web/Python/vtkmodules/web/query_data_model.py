@@ -4,7 +4,8 @@ Core Module for Web Base Data Generation
 
 import sys, os, json
 
-from vtk.web import iteritems
+from vtkmodules.web import iteritems
+
 
 class DataHandler(object):
     def __init__(self, basePath):
@@ -26,18 +27,22 @@ class DataHandler(object):
 
     def updateBasePattern(self):
         self.priority.sort(key=lambda item: item[1])
-        self.basePattern = ''
-        patternSeparator = ''
+        self.basePattern = ""
+        patternSeparator = ""
         currentPriority = -1
 
         for item in self.priority:
             if currentPriority != -1:
                 if currentPriority == item[1]:
-                    patternSeparator = '_'
+                    patternSeparator = "_"
                 else:
-                    patternSeparator = '/'
+                    patternSeparator = "/"
             currentPriority = item[1]
-            self.basePattern = '{%s}%s%s' % (item[0], patternSeparator, self.basePattern)
+            self.basePattern = "{%s}%s%s" % (
+                item[0],
+                patternSeparator,
+                self.basePattern,
+            )
 
     def registerArgument(self, **kwargs):
         """
@@ -50,14 +55,14 @@ class DataHandler(object):
          - defaultIdx
         """
         newArgument = {}
-        argName = kwargs['name']
+        argName = kwargs["name"]
         self.argOrder.append(argName)
         for key, value in iteritems(kwargs):
-            if key == 'priority':
+            if key == "priority":
                 self.priority.append([argName, value])
-            elif key == 'values':
+            elif key == "values":
                 self.realValues[argName] = value
-                newArgument[key] = [ "{value}".format(value=x) for x in value ]
+                newArgument[key] = ["{value}".format(value=x) for x in value]
             else:
                 newArgument[key] = value
 
@@ -82,35 +87,37 @@ class DataHandler(object):
         """
         name, type, mimeType, fileName, dependencies
         """
-        newData = { 'metadata': {} }
-        argName = kwargs['name']
+        newData = {"metadata": {}}
+        argName = kwargs["name"]
         for key, value in iteritems(kwargs):
-            if key == 'fileName':
-                if 'rootFile' in kwargs and kwargs['rootFile']:
-                    newData['pattern'] = '{pattern}/%s' % value
+            if key == "fileName":
+                if "rootFile" in kwargs and kwargs["rootFile"]:
+                    newData["pattern"] = "{pattern}/%s" % value
                 else:
-                    newData['pattern'] = '{pattern}%s' % value
+                    newData["pattern"] = "{pattern}%s" % value
             else:
                 newData[key] = value
 
         self.data[argName] = newData
 
     def addDataMetaData(self, name, key, value):
-        self.data[name]['metadata'][key] = value
+        self.data[name]["metadata"][key] = value
 
     def getDataAbsoluteFilePath(self, name, createDirectories=True):
-        dataPattern = self.data[name]['pattern']
-        if '{pattern}' in dataPattern:
+        dataPattern = self.data[name]["pattern"]
+        if "{pattern}" in dataPattern:
             if len(self.basePattern) == 0:
-                dataPattern = dataPattern.replace('{pattern}/', self.basePattern).replace('{pattern}', self.basePattern)
-                self.data[name]['pattern'] = dataPattern
+                dataPattern = dataPattern.replace(
+                    "{pattern}/", self.basePattern
+                ).replace("{pattern}", self.basePattern)
+                self.data[name]["pattern"] = dataPattern
             else:
-                dataPattern = dataPattern.replace('{pattern}', self.basePattern)
-                self.data[name]['pattern'] = dataPattern
+                dataPattern = dataPattern.replace("{pattern}", self.basePattern)
+                self.data[name]["pattern"] = dataPattern
 
         keyValuePair = {}
         for key, value in iteritems(self.current):
-            keyValuePair[key] = self.arguments[key]['values'][value]
+            keyValuePair[key] = self.arguments[key]["values"][value]
 
         fullpath = os.path.join(self.__root, dataPattern.format(**keyValuePair))
 
@@ -135,16 +142,16 @@ class DataHandler(object):
             self.updateBasePattern()
 
         for name in self.data:
-            dataPattern = self.data[name]['pattern']
-            if '{pattern}' in dataPattern:
-                dataPattern = dataPattern.replace('{pattern}', self.basePattern)
-                self.data[name]['pattern'] = dataPattern
+            dataPattern = self.data[name]["pattern"]
+            if "{pattern}" in dataPattern:
+                dataPattern = dataPattern.replace("{pattern}", self.basePattern)
+                self.data[name]["pattern"] = dataPattern
 
     def __getattr__(self, name):
         if self.basePattern == None:
             self.updateBasePattern()
 
-        for i in range(len(self.arguments[name]['values'])):
+        for i in range(len(self.arguments[name]["values"])):
             self.current[name] = i
             yield self.realValues[name][i]
 
@@ -155,11 +162,11 @@ class DataHandler(object):
         self.computeDataPatterns()
 
         jsonData = {
-            "arguments_order" : self.argOrder,
-            "type"            : self.types,
-            "arguments"       : self.arguments,
-            "metadata"        : self.metadata,
-            "data"            : []
+            "arguments_order": self.argOrder,
+            "type": self.types,
+            "arguments": self.arguments,
+            "metadata": self.metadata,
+            "data": [],
         }
 
         # Add sections
@@ -168,7 +175,7 @@ class DataHandler(object):
 
         # Add data
         for key, value in iteritems(self.data):
-            jsonData['data'].append(value)
+            jsonData["data"].append(value)
 
         filePathToWrite = os.path.join(self.__root, "index.json")
         with open(filePathToWrite, "w") as fileToWrite:

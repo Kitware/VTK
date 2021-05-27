@@ -7,7 +7,8 @@ set(files
   vtkmodules/web/render_window_serializer.py
   vtkmodules/web/testing.py
   vtkmodules/web/vtkjs_helper.py
-  vtkmodules/web/wslink.py)
+  vtkmodules/web/wslink.py
+  vtkmodules/web/utils.py)
 
 vtk_module_add_python_package(VTK::WebPython
   FILES               ${files}
