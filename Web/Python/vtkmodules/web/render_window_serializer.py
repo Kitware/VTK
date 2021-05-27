@@ -21,7 +21,6 @@ from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
 # Array helpers
 # -----------------------------------------------------------------------------
 
-
 def zipCompression(name, data):
     with io.BytesIO() as in_memory:
         with zipfile.ZipFile(in_memory, mode="w") as zf:
@@ -147,6 +146,7 @@ class SynchronizationContext:
 # -----------------------------------------------------------------------------
 
 SERIALIZERS = {}
+JS_CLASS_MAPPING = {}
 context = None
 
 # -----------------------------------------------------------------------------
@@ -158,12 +158,23 @@ def registerInstanceSerializer(name, method):
     global SERIALIZERS
     SERIALIZERS[name] = method
 
+def registerJSClass(vtk_class, js_class):
+    global JS_CLASS_MAPPING
+    JS_CLASS_MAPPING[vtk_class] = js_class
+
+def class_name(vtk_obj):
+    vtk_class = vtk_obj.GetClassName()
+    if vtk_class in JS_CLASS_MAPPING:
+        return JS_CLASS_MAPPING[vtk_class]
+
+    return vtk_class
+
 
 # -----------------------------------------------------------------------------
 
 
 def serializeInstance(parent, instance, instanceId, context, depth):
-    instanceType = instance.GetClassName()
+    instanceType = class_name(instance)
     serializer = SERIALIZERS[instanceType] if instanceType in SERIALIZERS else None
 
     if serializer:
@@ -183,13 +194,21 @@ def serializeInstance(parent, instance, instanceId, context, depth):
 
 def initializeSerializers():
     # Actors/viewProps
+    registerInstanceSerializer("vtkActor", genericActorSerializer)
     registerInstanceSerializer("vtkOpenGLActor", genericActorSerializer)
     registerInstanceSerializer("vtkPVLODActor", genericActorSerializer)
 
     # Mappers
+    registerInstanceSerializer("vtkMapper", genericMapperSerializer)
+    registerInstanceSerializer("vtkDataSetMapper", genericMapperSerializer)
+    registerInstanceSerializer("vtkPolyDataMapper", genericMapperSerializer)
+    registerInstanceSerializer("vtkImageDataMapper", genericMapperSerializer)
     registerInstanceSerializer("vtkOpenGLPolyDataMapper", genericMapperSerializer)
     registerInstanceSerializer("vtkCompositePolyDataMapper2", genericMapperSerializer)
-    registerInstanceSerializer("vtkDataSetMapper", genericMapperSerializer)
+    registerJSClass("vtkPolyDataMapper", "vtkMapper")
+    registerJSClass("vtkDataSetMapper", "vtkMapper")
+    registerJSClass("vtkOpenGLPolyDataMapper", "vtkMapper")
+    registerJSClass("vtkCompositePolyDataMapper2", "vtkMapper")
 
     # LookupTables/TransferFunctions
     registerInstanceSerializer("vtkLookupTable", lookupTableSerializer2)
@@ -198,9 +217,11 @@ def initializeSerializers():
     )
 
     # Textures
+    registerInstanceSerializer("vtkTexture", textureSerializer)
     registerInstanceSerializer("vtkOpenGLTexture", textureSerializer)
 
     # Property
+    registerInstanceSerializer("vtkProperty", propertySerializer)
     registerInstanceSerializer("vtkOpenGLProperty", propertySerializer)
 
     # Datasets
@@ -210,6 +231,7 @@ def initializeSerializers():
     registerInstanceSerializer("vtkMultiBlockDataSet", mergeToPolydataSerializer)
 
     # RenderWindows
+    registerInstanceSerializer("vtkRenderWindow", renderWindowSerializer)
     registerInstanceSerializer("vtkCocoaRenderWindow", renderWindowSerializer)
     registerInstanceSerializer("vtkXOpenGLRenderWindow", renderWindowSerializer)
     registerInstanceSerializer("vtkWin32OpenGLRenderWindow", renderWindowSerializer)
@@ -222,12 +244,15 @@ def initializeSerializers():
     registerInstanceSerializer("vtkExternalOpenGLRenderWindow", renderWindowSerializer)
 
     # Renderers
+    registerInstanceSerializer("vtkRenderer", rendererSerializer)
     registerInstanceSerializer("vtkOpenGLRenderer", rendererSerializer)
 
     # Cameras
+    registerInstanceSerializer("vtkCamera", cameraSerializer)
     registerInstanceSerializer("vtkOpenGLCamera", cameraSerializer)
 
     # Lights
+    registerInstanceSerializer("vtkLight", lightSerializer)
     registerInstanceSerializer("vtkPVLight", lightSerializer)
     registerInstanceSerializer("vtkOpenGLLight", lightSerializer)
 
@@ -454,7 +479,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
         return {
             "parent": getReferenceId(parent),
             "id": actorId,
-            "type": actor.GetClassName(),
+            "type": class_name(actor),
             "properties": {
                 # vtkProp
                 "visibility": actorVisibility,
@@ -574,7 +599,7 @@ def genericMapperSerializer(parent, mapper, mapperId, context, depth):
         return {
             "parent": getReferenceId(parent),
             "id": mapperId,
-            "type": mapper.GetClassName(),
+            "type": class_name(mapper),
             "properties": {
                 "resolveCoincidentTopology": mapper.GetResolveCoincidentTopology(),
                 "renderTime": mapper.GetRenderTime(),
@@ -620,7 +645,7 @@ def lookupTableSerializer(parent, lookupTable, lookupTableId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": lookupTableId,
-        "type": lookupTable.GetClassName(),
+        "type": class_name(lookupTable),
         "properties": {
             "numberOfColors": lookupTable.GetNumberOfColors(),
             "valueRange": lookupTableRange,
@@ -689,7 +714,7 @@ def propertySerializer(parent, propObj, propObjId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": propObjId,
-        "type": propObj.GetClassName(),
+        "type": class_name(propObj),
         "properties": {
             "representation": representation,
             "diffuseColor": colorToUse,
@@ -717,8 +742,6 @@ def propertySerializer(parent, propObj, propObjId, context, depth):
 
 
 def imagedataSerializer(parent, dataset, datasetId, context, depth):
-    datasetType = dataset.GetClassName()
-
     if hasattr(dataset, "GetDirectionMatrix"):
         direction = [dataset.GetDirectionMatrix().GetElement(0, i) for i in range(9)]
     else:
@@ -731,7 +754,7 @@ def imagedataSerializer(parent, dataset, datasetId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": datasetId,
-        "type": datasetType,
+        "type": class_name(dataset),
         "properties": {
             "spacing": dataset.GetSpacing(),
             "origin": dataset.GetOrigin(),
@@ -746,8 +769,6 @@ def imagedataSerializer(parent, dataset, datasetId, context, depth):
 
 
 def polydataSerializer(parent, dataset, datasetId, context, depth):
-    datasetType = dataset.GetClassName()
-
     if dataset and dataset.GetPoints():
         properties = {}
 
@@ -790,7 +811,7 @@ def polydataSerializer(parent, dataset, datasetId, context, depth):
         return {
             "parent": getReferenceId(parent),
             "id": datasetId,
-            "type": datasetType,
+            "type": class_name(dataset),
             "properties": properties,
         }
 
@@ -836,7 +857,7 @@ def colorTransferFunctionSerializer(parent, instance, objId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": objId,
-        "type": instance.GetClassName(),
+        "type": class_name(instance),
         "properties": {
             "clamping": 1 if instance.GetClamping() else 0,
             "colorSpace": instance.GetColorSpace(),
@@ -910,7 +931,7 @@ def rendererSerializer(parent, instance, objId, context, depth):
         return {
             "parent": getReferenceId(parent),
             "id": objId,
-            "type": instance.GetClassName(),
+            "type": class_name(instance),
             "properties": {
                 "background": instance.GetBackground(),
                 "background2": instance.GetBackground2(),
@@ -947,7 +968,7 @@ def cameraSerializer(parent, instance, objId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": objId,
-        "type": instance.GetClassName(),
+        "type": class_name(instance),
         "properties": {
             "focalPoint": instance.GetFocalPoint(),
             "position": instance.GetPosition(),
@@ -982,7 +1003,7 @@ def lightSerializer(parent, instance, objId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": objId,
-        "type": instance.GetClassName(),
+        "type": class_name(instance),
         "properties": {
             # 'specularColor': instance.GetSpecularColor(),
             # 'ambientColor': instance.GetAmbientColor(),
@@ -1027,7 +1048,7 @@ def renderWindowSerializer(parent, instance, objId, context, depth):
     return {
         "parent": getReferenceId(parent),
         "id": objId,
-        "type": instance.GetClassName(),
+        "type": class_name(instance),
         "properties": {"numberOfLayers": instance.GetNumberOfLayers()},
         "dependencies": dependencies,
         "calls": calls,

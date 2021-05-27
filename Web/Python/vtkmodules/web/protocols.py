@@ -9,10 +9,11 @@ import os, sys, logging, types, inspect, traceback, re, base64, time
 
 from vtkmodules.vtkWebCore import vtkWebInteractionEvent
 
-from .render_window_serializer import (
+from vtkmodules.web.render_window_serializer import (
     serializeInstance,
     SynchronizationContext,
     getReferenceId,
+    initializeSerializers,
 )
 
 # import Twisted reactor for later callback
@@ -729,6 +730,7 @@ class vtkWebFileBrowser(vtkWebProtocol):
 class vtkWebLocalRendering(vtkWebProtocol):
     def __init__(self, **kwargs):
         super(vtkWebLocalRendering, self).__init__()
+        initializeSerializers()
         self.context = SynchronizationContext(True)
         self.trackingViews = {}
         self.mtime = 0
