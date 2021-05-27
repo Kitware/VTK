@@ -16,3 +16,5 @@ For the following targets on x86\_64:
 
 Generally, all modules that do not require external libraries are available in
 the official wheels.
+
+VTK also uploads weekly development snapshots to PyPI for testing purposes.

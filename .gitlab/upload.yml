@@ -16,3 +16,19 @@
         - chmod 400 $RSYNC_BINARY_KEY
         - ssh-keygen -y -f $RSYNC_BINARY_KEY > $RSYNC_BINARY_KEY.pub
         - rsync -tv --recursive -e "ssh -i $RSYNC_BINARY_KEY -o StrictHostKeyChecking=no" build/$SRC_SUBDIR kitware@public.kitware.com:$RSYNC_DESTINATION/
+
+.pypi_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux
+        - build
+    environment:
+        name: pypi-upload
+
+    script:
+        - cd build/
+        - ls dist
+        - dnf install -y --setopt=install_weak_deps=False twine
+        - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*

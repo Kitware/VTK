@@ -181,6 +181,8 @@
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+        - venv/bin/pip install twine
+        - venv/bin/twine check build/dist/*.whl
         - venv/bin/pip install build/dist/*.whl
         - venv/bin/python -c "import vtk"
     interruptible: true
