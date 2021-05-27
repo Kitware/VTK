@@ -1,9 +1,18 @@
-from vtk import *
-from vtkmodules.web import getJSArrayType
-from vtkmodules.web.camera import *
-from vtkmodules.web.query_data_model import *
-from vtkmodules.web import iteritems
-import json, os, math, gzip, shutil
+import json, os, gzip, shutil
+
+from vtkmodules.vtkRenderingCore import vtkWindowToImageFilter
+from vtkmodules.vtkIOImage import vtkPNGReader, vtkPNGWriter, vtkJPEGWriter
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkCommonCore import vtkUnsignedCharArray
+from vtkmodules.vtkFiltersParallel import vtkPResampleFilter
+
+from vtkmodules.web import iteritems, getJSArrayType
+from vtkmodules.web.camera import (
+    update_camera,
+    create_spherical_camera,
+    create_cylindrical_camera,
+)
+from vtkmodules.web.query_data_model import DataHandler
 
 # Global helper variables
 encode_codes = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
