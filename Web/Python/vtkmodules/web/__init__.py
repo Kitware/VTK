@@ -14,6 +14,9 @@ arrayTypesMapping = [
     "f",  # VTK_FLOAT          10
     "d",  # VTK_DOUBLE         11
     "L",  # VTK_ID_TYPE        12
+    " ",  # unspecified        13
+    " ",  # unspecified        14
+    "b",  # signed_char        15
 ]
 
 javascriptMapping = {
