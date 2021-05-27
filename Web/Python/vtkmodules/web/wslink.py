@@ -8,8 +8,8 @@ from __future__ import absolute_import, division, print_function
 # import inspect, types, string, random, logging, six, json, re, base64
 import json, base64, time
 
-from twisted.python         import log
-from twisted.internet       import reactor
+from twisted.python import log
+from twisted.internet import reactor
 
 from autobahn.twisted.websocket import WebSocketServerProtocol
 
@@ -28,6 +28,7 @@ application = None
 #
 # =============================================================================
 
+
 class ServerProtocol(websocket.ServerProtocol):
     """
     Defines the core server protocol for vtkWeb. Adds support to
@@ -39,7 +40,7 @@ class ServerProtocol(websocket.ServerProtocol):
     """
 
     def __init__(self):
-        log.msg('Creating SP')
+        log.msg("Creating SP")
         self.setSharedObject("app", self.initApplication())
         websocket.ServerProtocol.__init__(self)
 

@@ -38,9 +38,9 @@ test_module_comm_queue = None
 import vtk
 
 # Try standard Python imports
-try :
+try:
     import os, re, time, datetime, threading, imp, inspect, Queue, types, io
-except :
+except:
     import_warning_info += "\nUnable to load at least one basic Python module"
 
 # Image comparison imports
@@ -54,24 +54,32 @@ try:
     import base64
     import itertools
 except:
-    import_warning_info += "\nUnable to load at least one modules necessary for image comparison"
+    import_warning_info += (
+        "\nUnable to load at least one modules necessary for image comparison"
+    )
 
 # Browser testing imports
-try :
+try:
     import selenium
     from selenium import webdriver
-except :
-    import_warning_info += "\nUnable to load at least one module necessary for browser tests"
+except:
+    import_warning_info += (
+        "\nUnable to load at least one module necessary for browser tests"
+    )
 
 # HTTP imports
-try :
+try:
     import requests
-except :
-    import_warning_info += "\nUnable to load at least one module necessary for HTTP tests"
+except:
+    import_warning_info += (
+        "\nUnable to load at least one module necessary for HTTP tests"
+    )
 
 
 # Define some infrastructure to support different (or no) browsers
 test_module_browsers = ["firefox", "chrome", "internet_explorer", "safari", "nobrowser"]
+
+
 class TestModuleBrowsers:
     firefox, chrome, internet_explorer, safari, nobrowser = range(5)
 
@@ -84,6 +92,7 @@ class TestModuleBrowsers:
 class DependencyError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
@@ -95,6 +104,7 @@ class DependencyError(Exception):
 class Dictionary(dict):
     def __getattribute__(self, attrName):
         return self[attrName]
+
     def __setattr__(self, attrName, attrValue):
         self[attrName] = attrValue
 
@@ -102,7 +112,7 @@ class Dictionary(dict):
 # =============================================================================
 # Checks whether test script supplied, if so, safely imports needed modules
 # =============================================================================
-def initialize(opts, reactor=None, cleanupMethod=None) :
+def initialize(opts, reactor=None, cleanupMethod=None):
     """
     This function should be called to initialize the testing module.  The first
     important thing it does is to store the options for later, since the
@@ -140,21 +150,24 @@ def initialize(opts, reactor=None, cleanupMethod=None) :
 
     # If we got one, add the cleanup method to the testing options
     if cleanupMethod:
-        testModuleOptions['cleanupMethod'] = cleanupMethod
+        testModuleOptions["cleanupMethod"] = cleanupMethod
 
     # Check if a test was actually requested
-    if (testModuleOptions.testScriptPath != "" and testModuleOptions.testScriptPath is not None) :
+    if (
+        testModuleOptions.testScriptPath != ""
+        and testModuleOptions.testScriptPath is not None
+    ):
         # Check if we ran into trouble with any of the testing imports
-        if import_warning_info != "" :
+        if import_warning_info != "":
             print("WARNING: Some tests may have unmet dependencies")
             print(import_warning_info)
 
-        if reactor is not None :
+        if reactor is not None:
             # Add startTest callback to the reactor callback queue, so that
             # the test thread gets started after the reactor is running.  Of
             # course this should only happen if everything is good for tests.
             reactor.callWhenRunning(_start_test_thread)
-        else :
+        else:
             # Otherwise, our aim is to start the thread from another process
             # so just call the start method.
             _start_test_thread()
@@ -163,7 +176,7 @@ def initialize(opts, reactor=None, cleanupMethod=None) :
 # =============================================================================
 # Grab out the command-line arguments needed for by the testing module.
 # =============================================================================
-def add_arguments(parser) :
+def add_arguments(parser):
     """
     This function retrieves any command-line arguments that the client-side
     tester needs.  In order to run a test, you will typically just need the
@@ -180,36 +193,46 @@ def add_arguments(parser) :
       'safari', or 'nobrowser'.
     """
 
-    parser.add_argument("--run-test-script",
-                        default="",
-                        help="The path to a test script to run",
-                        dest="testScriptPath")
+    parser.add_argument(
+        "--run-test-script",
+        default="",
+        help="The path to a test script to run",
+        dest="testScriptPath",
+    )
 
-    parser.add_argument("--baseline-img-dir",
-                        default="",
-                        help="The path to the directory containing the web test baseline images",
-                        dest="baselineImgDir")
+    parser.add_argument(
+        "--baseline-img-dir",
+        default="",
+        help="The path to the directory containing the web test baseline images",
+        dest="baselineImgDir",
+    )
 
-    parser.add_argument("--test-use-browser",
-                        default="nobrowser",
-                        help="One of 'chrome', 'firefox', 'internet_explorer', 'safari', or 'nobrowser'.",
-                        dest="useBrowser")
+    parser.add_argument(
+        "--test-use-browser",
+        default="nobrowser",
+        help="One of 'chrome', 'firefox', 'internet_explorer', 'safari', or 'nobrowser'.",
+        dest="useBrowser",
+    )
 
-    parser.add_argument("--temporary-directory",
-                        default=".",
-                        help="A temporary directory for storing test images and diffs",
-                        dest="tmpDirectory")
+    parser.add_argument(
+        "--temporary-directory",
+        default=".",
+        help="A temporary directory for storing test images and diffs",
+        dest="tmpDirectory",
+    )
 
-    parser.add_argument("--test-image-file-name",
-                        default="",
-                        help="Name of file in which to store generated test image",
-                        dest="testImgFile")
+    parser.add_argument(
+        "--test-image-file-name",
+        default="",
+        help="Name of file in which to store generated test image",
+        dest="testImgFile",
+    )
 
 
 # =============================================================================
 # Initialize the test client
 # =============================================================================
-def _start_test_thread() :
+def _start_test_thread():
     """
     This function checks whether testing is required and if so, sets up a Queue
     for the purpose of communicating with the thread.  then it starts the
@@ -219,11 +242,15 @@ def _start_test_thread() :
     global test_module_comm_queue
     test_module_comm_queue = Queue.Queue()
 
-    t = threading.Thread(target=launch_web_test,
-                         args = [],
-                         kwargs = { 'serverOpts': testModuleOptions,
-                                    'commQueue': test_module_comm_queue,
-                                    'testScript': testModuleOptions.testScriptPath })
+    t = threading.Thread(
+        target=launch_web_test,
+        args=[],
+        kwargs={
+            "serverOpts": testModuleOptions,
+            "commQueue": test_module_comm_queue,
+            "testScript": testModuleOptions.testScriptPath,
+        },
+    )
 
     t.start()
 
@@ -231,7 +258,7 @@ def _start_test_thread() :
 # =============================================================================
 # Test scripts call this function to indicate passage of their test
 # =============================================================================
-def test_pass(testName) :
+def test_pass(testName):
     """
     Test scripts should call this function to indicate that the test passed.  A
     note is recorded that the test succeeded, and is checked later on from the
@@ -239,14 +266,14 @@ def test_pass(testName) :
     """
 
     global test_module_comm_queue
-    resultObj = { testName: 'pass' }
+    resultObj = {testName: "pass"}
     test_module_comm_queue.put(resultObj)
 
 
 # =============================================================================
 # Test scripts call this function to indicate failure of their test
 # =============================================================================
-def test_fail(testName) :
+def test_fail(testName):
     """
     Test scripts should call this function to indicate that the test failed.  A
     note is recorded that the test did not succeed, and this note is checked
@@ -261,14 +288,14 @@ def test_fail(testName) :
     """
 
     global test_module_comm_queue
-    resultObj = { testName: 'fail' }
+    resultObj = {testName: "fail"}
     test_module_comm_queue.put(resultObj)
 
 
 # =============================================================================
 # Concatenate any number of strings into a single path string.
 # =============================================================================
-def concat_paths(*pathElts) :
+def concat_paths(*pathElts):
     """
     A very simple convenience function so that test scripts can build platform
     independent paths out of a list of elements, without having to import the
@@ -285,7 +312,7 @@ def concat_paths(*pathElts) :
 # So we can change our time format in a single place, this function is
 # provided.
 # =============================================================================
-def get_current_time_string() :
+def get_current_time_string():
     """
     This function returns the current time as a string, using ISO 8601 format.
     """
@@ -348,7 +375,7 @@ def wait_with_timeout(delay=None, limit=0, criterion=None):
 # Define a WebTest class with five stages of testing: initialization, setup,
 # capture, postprocess, and cleanup.
 # =============================================================================
-class WebTest(object) :
+class WebTest(object):
     """
     This is the base class for all automated web-based tests.  It defines five
     stages that any test must run through, and allows any or all of these
@@ -356,10 +383,11 @@ class WebTest(object) :
     method to invoke the five stages overridden by subclasses, one at a time:
     1) initialize, 2) setup, 3) capture, 4) postprocess, and 5) cleanup.
     """
+
     class Abort:
         pass
 
-    def __init__(self, url=None, testname=None, **kwargs) :
+    def __init__(self, url=None, testname=None, **kwargs):
         self.url = url
         self.testname = testname
 
@@ -373,7 +401,7 @@ class WebTest(object) :
         except WebTest.Abort:
             # Placeholder for future option to return failure result
             pass
-        except :
+        except:
             self.cleanup()
             raise
 
@@ -410,6 +438,7 @@ class BrowserBasedWebTest(WebTest):
     browser window size, and asking the browser to load the url.  Cleanup
     involves closing the browser window.
     """
+
     def __init__(self, size=None, browser=None, **kwargs):
         self.size = size
         self.browser = browser
@@ -426,7 +455,9 @@ class BrowserBasedWebTest(WebTest):
             elif self.browser == TestModuleBrowsers.internet_explorer:
                 self.window = webdriver.Ie()
             else:
-                raise DependencyError("self.browser argument has illegal value %r" % (self.browser))
+                raise DependencyError(
+                    "self.browser argument has illegal value %r" % (self.browser)
+                )
         except DependencyError as dErr:
             raise
         except Exception as inst:
@@ -442,7 +473,9 @@ class BrowserBasedWebTest(WebTest):
         try:
             self.window.quit()
         except:
-            print('Unable to call window.quit, perhaps this is expected because of unmet browser dependency.')
+            print(
+                "Unable to call window.quit, perhaps this is expected because of unmet browser dependency."
+            )
 
 
 # =============================================================================
@@ -459,6 +492,7 @@ class ImageComparatorWebTest(BrowserBasedWebTest):
     classes may also prefer to override the capture phase to capture only
     certain portions of the browser window for image comparison.
     """
+
     def __init__(self, filename=None, baseline=None, temporaryDir=None, **kwargs):
         if filename is None:
             raise TypeError("missing argument 'filename'")
@@ -476,9 +510,9 @@ class ImageComparatorWebTest(BrowserBasedWebTest):
     def postprocess(self):
         result = compare_images(self.filename, self.baseline, self.tmpDir)
 
-        if result == 1 :
+        if result == 1:
             test_pass(self.testname)
-        else :
+        else:
             test_fail(self.testname)
 
 
@@ -486,7 +520,7 @@ class ImageComparatorWebTest(BrowserBasedWebTest):
 # Given a css selector to use in finding the image element, get the element,
 # then base64 decode the "src" attribute and return it.
 # =============================================================================
-def get_image_data(browser, cssSelector) :
+def get_image_data(browser, cssSelector):
     """
     This function takes a selenium browser and a css selector string and uses
     them to find the target HTML image element.  The desired image element
@@ -506,7 +540,7 @@ def get_image_data(browser, cssSelector) :
 
     # Now get the Base64 image string and decode it into image data
     base64String = imageElt.get_attribute("src")
-    b64RegEx = re.compile(r'data:image/jpeg;base64,(.+)')
+    b64RegEx = re.compile(r"data:image/jpeg;base64,(.+)")
     b64Matcher = b64RegEx.match(base64String)
     imgdata = base64.b64decode(b64Matcher.group(1))
 
@@ -517,7 +551,7 @@ def get_image_data(browser, cssSelector) :
 # Combines a variation on above function with the write_image_to_disk function.
 # converting jpg to png in the process, if necessary.
 # =============================================================================
-def save_image_data_as_png(browser, cssSelector, imgfilename) :
+def save_image_data_as_png(browser, cssSelector, imgfilename):
     """
     This function takes a selenium browser instance, a css selector string,
     and a file name.  It uses the css selector string to finds the target HTML
@@ -537,7 +571,7 @@ def save_image_data_as_png(browser, cssSelector, imgfilename) :
     """
     imageElt = browser.find_element_by_css_selector(cssSelector)
     base64String = imageElt.get_attribute("src")
-    b64RegEx = re.compile(r'data:image/jpeg;base64,(.+)')
+    b64RegEx = re.compile(r"data:image/jpeg;base64,(.+)")
     b64Matcher = b64RegEx.match(base64String)
     img = Image.open(io.BytesIO(base64.b64decode(b64Matcher.group(1))))
     img.save(imgfilename)
@@ -547,7 +581,7 @@ def save_image_data_as_png(browser, cssSelector, imgfilename) :
 # Given a decoded image and the full path to a file, write the image to the
 # file.
 # =============================================================================
-def write_image_to_disk(imgData, filePath) :
+def write_image_to_disk(imgData, filePath):
     """
     This function takes an image data, as returned by this module's
     get_image_data() function for example, and writes it out to the file given by
@@ -558,7 +592,7 @@ def write_image_to_disk(imgData, filePath) :
         the image should be written.
     """
 
-    with open(filePath, 'wb') as f:
+    with open(filePath, "wb") as f:
         f.write(imgData)
 
 
@@ -567,7 +601,7 @@ def write_image_to_disk(imgData, filePath) :
 # is a subclass of vtk.web.testing.WebTest, so we should write some
 # documentation to help people avoid that.
 # =============================================================================
-def instantiate_test_subclass(pathToScript, **kwargs) :
+def instantiate_test_subclass(pathToScript, **kwargs):
     """
     This function takes the fully qualified path to a test file, along with
     any needed keyword arguments, then dynamically loads the file as a module
@@ -582,21 +616,21 @@ def instantiate_test_subclass(pathToScript, **kwargs) :
     """
 
     # Load the file as a module
-    moduleName = imp.load_source('dynamicTestModule', pathToScript)
+    moduleName = imp.load_source("dynamicTestModule", pathToScript)
     instance = None
 
     # Inspect dynamically loaded module members
-    for name, obj in inspect.getmembers(moduleName) :
+    for name, obj in inspect.getmembers(moduleName):
         # Looking for classes only
-        if inspect.isclass(obj) :
+        if inspect.isclass(obj):
             instance = obj.__new__(obj)
             # And only classes defined in the dynamically loaded module
-            if instance.__module__ == 'dynamicTestModule' :
-                try :
+            if instance.__module__ == "dynamicTestModule":
+                try:
                     instance.__init__(**kwargs)
-                    break;
+                    break
                 except Exception as inst:
-                    print('Caught exception: ' + str(type(inst)))
+                    print("Caught exception: " + str(type(inst)))
                     print(inst)
                     raise
 
@@ -607,7 +641,7 @@ def instantiate_test_subclass(pathToScript, **kwargs) :
 # For testing purposes, define a function which can interact with a running
 # paraview or vtk web application service.
 # =============================================================================
-def launch_web_test(*args, **kwargs) :
+def launch_web_test(*args, **kwargs):
     """
     This function loads a python file as a module (with no package), and then
     instantiates the class it must contain, and finally executes the run_test()
@@ -631,38 +665,42 @@ def launch_web_test(*args, **kwargs) :
 
     # This is really the thing all test scripts will need: access to all
     # the options used to start the server process.
-    if 'serverOpts' in kwargs :
-        serverOpts = kwargs['serverOpts']
+    if "serverOpts" in kwargs:
+        serverOpts = kwargs["serverOpts"]
         # print 'These are the serverOpts we got: '
         # print serverOpts
 
     # Get the full path to the test script
-    if 'testScript' in kwargs :
-        testScriptFile = kwargs['testScript']
+    if "testScript" in kwargs:
+        testScriptFile = kwargs["testScript"]
 
-    testName = 'unknown'
+    testName = "unknown"
 
     # Check for a test file (python file)
-    if testScriptFile is None :
-        print('No test script file found, no test script will be run.')
+    if testScriptFile is None:
+        print("No test script file found, no test script will be run.")
         test_fail(testName)
 
     # The test name will be generated from the python script name, so
     # match and capture a bunch of contiguous characters which are
     # not '.', '\', or '/', followed immediately by the string '.py'.
-    fnamePattern = re.compile('([^\.\/\\\]+)\.py')
+    fnamePattern = re.compile("([^\.\/\\\]+)\.py")
     fmatch = re.search(fnamePattern, testScriptFile)
-    if fmatch :
+    if fmatch:
         testName = fmatch.group(1)
-    else :
-        print('Unable to parse testScriptFile (' + str(testScriptfile) + '), no test will be run')
+    else:
+        print(
+            "Unable to parse testScriptFile ("
+            + str(testScriptfile)
+            + "), no test will be run"
+        )
         test_fail(testName)
 
     # If we successfully got a test name, we are ready to try and run the test
-    if testName != 'unknown' :
+    if testName != "unknown":
 
         # Output file and baseline file names are generated from the test name
-        imgFileName = testName + '.png'
+        imgFileName = testName + ".png"
         knownGoodFileName = concat_paths(serverOpts.baselineImgDir, imgFileName)
         tempDir = serverOpts.tmpDirectory
         testImgFileName = serverOpts.testImgFile
@@ -670,42 +708,47 @@ def launch_web_test(*args, **kwargs) :
         testBrowser = test_module_browsers.index(serverOpts.useBrowser)
 
         # Now try to instantiate and run the test
-        try :
-            testInstance = instantiate_test_subclass(testScriptFile,
-                                                     testname=testName,
-                                                     host=serverOpts.host,
-                                                     port=serverOpts.port,
-                                                     browser=testBrowser,
-                                                     filename=testImgFileName,
-                                                     baseline=knownGoodFileName,
-                                                     temporaryDir=tempDir)
+        try:
+            testInstance = instantiate_test_subclass(
+                testScriptFile,
+                testname=testName,
+                host=serverOpts.host,
+                port=serverOpts.port,
+                browser=testBrowser,
+                filename=testImgFileName,
+                baseline=knownGoodFileName,
+                temporaryDir=tempDir,
+            )
 
             # If we were able to instantiate the test, run it, otherwise we
             # consider it a failure.
-            if testInstance is not None :
+            if testInstance is not None:
                 try:
                     testInstance.run_test()
                 except DependencyError as derr:
                     # TODO: trigger return SKIP_RETURN_CODE when CMake 3 is required
-                    print('Some dependency of this test was not met, allowing it to pass')
+                    print(
+                        "Some dependency of this test was not met, allowing it to pass"
+                    )
                     test_pass(testName)
-            else :
-                print('Unable to instantiate test instance, failing test')
+            else:
+                print("Unable to instantiate test instance, failing test")
                 test_fail(testName)
                 return
 
-        except Exception as inst :
+        except Exception as inst:
             import sys, traceback
+
             tb = sys.exc_info()[2]
-            print('Caught an exception while running test script:')
-            print('  ' + str(type(inst)))
-            print('  ' + str(inst))
-            print('  ' + ''.join(traceback.format_tb(tb)))
+            print("Caught an exception while running test script:")
+            print("  " + str(type(inst)))
+            print("  " + str(inst))
+            print("  " + "".join(traceback.format_tb(tb)))
             test_fail(testName)
 
     # If we were passed a cleanup method to run after testing, invoke it now
-    if 'cleanupMethod' in serverOpts :
-        serverOpts['cleanupMethod']()
+    if "cleanupMethod" in serverOpts:
+        serverOpts["cleanupMethod"]()
 
 
 # =============================================================================
@@ -714,7 +757,7 @@ def launch_web_test(*args, **kwargs) :
 # passed back to this function after the service has completed.  Failure of
 # of the test is indicated by raising an exception in here.
 # =============================================================================
-def finalize() :
+def finalize():
     """
     This function checks the module's global test_module_comm_queue variable for a
     test result.  If one is found and the result is 'fail', then this function
@@ -727,17 +770,19 @@ def finalize() :
 
     global test_module_comm_queue
 
-    if test_module_comm_queue is not None :
+    if test_module_comm_queue is not None:
         resultObject = test_module_comm_queue.get()
 
         failedATest = False
 
-        for testName in resultObject :
+        for testName in resultObject:
             testResult = resultObject[testName]
-            if testResult == 'fail' :
-                print('  Test -> ' + testName + ': ' + testResult)
+            if testResult == "fail":
+                print("  Test -> " + testName + ": " + testResult)
                 failedATest = True
 
-        if failedATest is True :
-            raise Exception("At least one of the requested tests failed.  " +
-                            "See detailed output, above, for more information")
+        if failedATest is True:
+            raise Exception(
+                "At least one of the requested tests failed.  "
+                + "See detailed output, above, for more information"
+            )
