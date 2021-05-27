@@ -249,6 +249,12 @@ public:
 
   void paint()
   {
+    if (this->InPaint)
+    {
+      vtkLogF(TRACE, "recursive paint ?");
+      return;
+    }
+
     vtkLogScopeFunction(TRACE);
     QVTKInternalsDebugMacro("paint");
     QScopedValueRollback<bool> var(this->InPaint, true);
