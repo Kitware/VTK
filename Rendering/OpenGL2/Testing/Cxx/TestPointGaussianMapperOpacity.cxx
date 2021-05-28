@@ -14,7 +14,7 @@
  =========================================================================*/
 
 // .SECTION Thanks
-// <verbatim>
+// \verbatim
 //
 // This file is based loosely on the PointSprites plugin developed
 // and contributed by
@@ -25,7 +25,7 @@
 //  John Biddiscombe, Ugo Varetto (CSCS)
 //  Stephane Ploix (EDF)
 //
-// </verbatim>
+// \endverbatim
 
 #include "vtkActor.h"
 #include "vtkCamera.h"

@@ -20,15 +20,15 @@
  * tags for each text display method. The text is processed to replace
  * XML markup characters.
  *
- *   DisplayText - <Text>
+ *   DisplayText - \<Text\>
  *
- *   DisplayErrorText - <Error>
+ *   DisplayErrorText - \<Error\>
  *
- *   DisplayWarningText - <Warning>
+ *   DisplayWarningText - \<Warning\>
  *
- *   DisplayGenericWarningText - <GenericWarning>
+ *   DisplayGenericWarningText - \<GenericWarning\>
  *
- *   DisplayDebugText - <Debug>
+ *   DisplayDebugText - \<Debug\>
  *
  * The method DisplayTag outputs the text unprocessed. To use this
  * class, instantiate it and then call SetInstance(this).

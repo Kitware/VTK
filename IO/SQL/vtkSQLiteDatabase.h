@@ -32,8 +32,8 @@
  * in VTK/Utilities/vtksqlite.
  *
  * If you want to open a database that stays in memory and never gets
- * written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
- * specify the file path by passing the URL 'sqlite://<file_path>'.
+ * written to disk, pass in the URL <tt>sqlite://:memory:</tt>; otherwise,
+ * specify the file path by passing the URL <tt>sqlite://\<file_path\></tt>.
  *
  * @par Thanks:
  * Thanks to Andrew Wilson and Philippe Pebay from Sandia National
@@ -150,7 +150,9 @@ public:
    * Return the SQL string with the syntax to create a column inside a
    * "CREATE TABLE" SQL statement.
    * NB: this method implements the SQLite-specific syntax:
+   * \code
    * <column name> <column type> <column attributes>
+   * \endcode
    */
   vtkStdString GetColumnSpecification(
     vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle) override;

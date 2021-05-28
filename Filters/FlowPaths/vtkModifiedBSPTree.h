@@ -96,6 +96,7 @@
  * maintaining sorted order. This makes for an efficient subdivision strategy.
  *
  * NB. The following reference has been sent to me
+ * \code
  *   @Article{formella-1995-ray,
  *     author =     "Arno Formella and Christian Gill",
  *     title =      "{Ray Tracing: A Quantitative Analysis and a New
@@ -123,6 +124,7 @@
  *                    which allows for an extensive comparison of ray tracing
  *                    algorithms.}",
  *   }
+ * \endcode
  *
  * @par Thanks:
  *  John Biddiscombe for developing and contributing this class

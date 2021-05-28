@@ -54,10 +54,11 @@ public:
    *  Additional logic can be implemented here.
    *  Example of usage (3dwidgets_remotingviews.xml):
    *
+   * \code
    *     <Proxy class="vtkEqualizerContextItem"
    *       name="EqualizerContextItem"
    *       post_creation="InstantiateHandleRepresentation">
-   *
+   * \endcode
    */
   void InstantiateHandleRepresentation() {}
 

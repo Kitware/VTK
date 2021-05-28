@@ -29,10 +29,10 @@
  * vtkTriangle vtkQuadraticTriangle
  * vtkBiQuadraticQuad vtkBiQuadraticQuadraticWedge vtkBiQuadraticQuadraticHexahedron
  * @par Thanks:
- * <verbatim>
+ * @verbatim
  * This file has been developed by Oxalya - www.oxalya.com
  * Copyright (c) EDF - www.edf.fr
- * </verbatim>
+ * @endverbatim
  */
 
 #ifndef vtkBiQuadraticTriangle_h

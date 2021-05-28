@@ -195,7 +195,9 @@ public:
    * Return the SQL string with the syntax to create a column inside a
    * "CREATE TABLE" SQL statement.
    * NB: this method implements the PostgreSQL-specific syntax:
+   * \code
    * <column name> <column type> <column attributes>
+   * \endcode
    */
   vtkStdString GetColumnSpecification(
     vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle) override;

@@ -387,8 +387,8 @@ public:
   void SetCopyAttribute(int index, int value, int ctype = ALLCOPY);
 
   /**
-   * Get the attribute copy flag for copy operation <ctype> of attribute
-   * <index>.
+   * Get the attribute copy flag for copy operation \c ctype of attribute
+   * \c index.
    */
   int GetCopyAttribute(int index, int ctype);
 

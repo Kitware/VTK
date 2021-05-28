@@ -260,8 +260,8 @@ public:
    * vertex1Id, scalar1
    * vertex2Id, scalar2
 
-   * where vertex<i>Id is the Id of the vertex in the vtkPolyData structure
-   * and scalar<i> is the corresponding scalar field value.
+   * where vertexNId is the Id of the vertex in the vtkPolyData structure
+   * and scalarN is the corresponding scalar field value.
 
    * IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
    */
@@ -276,10 +276,10 @@ public:
    * vertex1Id, scalar1
    * vertex2Id, scalar2
    * vertex3Id, scalar3
-
-   * where vertex<i>Id is the Id of the vertex in the vtkUnstructuredGrid
-   * structure and scalar<i> is the corresponding scalar field value.
-
+   *
+   * where vertexNId is the Id of the vertex in the vtkUnstructuredGrid
+   * structure and scalarN is the corresponding scalar field value.
+   *
    * IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
    */
   int StreamTetrahedron(vtkIdType vertex0Id, double scalar0, vtkIdType vertex1Id, double scalar1,

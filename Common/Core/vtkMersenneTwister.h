@@ -94,8 +94,8 @@ public:
   void Initialize(vtkTypeUInt32 seed) override { this->InitializeSequence(0, seed); }
 
   /**
-   * Initialize a new Mersenne Twister sequence, given a) a <seed> and b) a
-   * Mersenne exponent (p s.t. 2^p-1 is a Mersenne prime). If <p> is not a
+   * Initialize a new Mersenne Twister sequence, given a) a \c seed and b) a
+   * Mersenne exponent (p s.t. 2^p-1 is a Mersenne prime). If \c p is not a
    * usable Mersenne exponent, its value is used to pick one from a list.
    * The return value is the id for the generated sequence, which is used as a
    * key to access values of the sequence.
@@ -123,7 +123,7 @@ public:
   double GetValue() override { return this->GetValue(0); }
 
   /**
-   * Move to the next number in random sequence <id>. If no sequence is
+   * Move to the next number in random sequence \c id. If no sequence is
    * associated with this id, a warning is given and a sequence is generated
    * with default values.
    */

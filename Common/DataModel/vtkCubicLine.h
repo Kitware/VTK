@@ -24,10 +24,10 @@
  * mid-edge nodes. Please note that the parametric coordinates lie between -1 and 1
  * in accordance with most standard documentations.
  * @par Thanks:
- * <verbatim>
+ * \verbatim
  * This file has been developed by Oxalya - www.oxalya.com
  * Copyright (c) EDF - www.edf.fr
- * </verbatim>
+ * \endverbatim
  */
 
 #ifndef vtkCubicLine_h
