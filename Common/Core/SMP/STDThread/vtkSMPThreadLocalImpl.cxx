@@ -48,7 +48,7 @@ inline HashType GetHash(ThreadIdType id)
 
 Slot::Slot()
   : ThreadId(0)
-  , Storage(0)
+  , Storage(nullptr)
 {
 }
 
