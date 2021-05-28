@@ -161,6 +161,9 @@ if (NOT cdash_show_third_party_warnings)
     # Warnings due to DIY
     "xmemory.*: warning C4996:.*Default Bounds constructor"
 
+    # vtkm uses deprecated TBB headers
+    "TBB Warning: tbb/task.h is deprecated"
+
     # vtkm related warnings, someone working on vtkm shoudl fix these and once fixed
     # remove these suppressions
     "struct VTKM_DEPRECATED"
