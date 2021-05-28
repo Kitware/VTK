@@ -10,6 +10,7 @@ GROUPS
   StandAlone
 DEPENDS
   VTK::CommonCore
+  VTK::kissfft
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::CommonTransforms

@@ -5,5 +5,6 @@ vtk_add_test_cxx(vtkCommonMathCxxTests tests
   TestPolynomialSolversUnivariate.cxx
   TestQuaternion.cxx
   TestQuaternionInterpolator.cxx
+  UnitTestFFT.cxx
   )
 vtk_test_cxx_executable(vtkCommonMathCxxTests tests)

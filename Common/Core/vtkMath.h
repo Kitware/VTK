@@ -94,7 +94,7 @@ public:
   /**
    * A mathematical constant. This version is atan(1.0) * 4.0
    */
-  static double Pi() { return 3.141592653589793; }
+  static constexpr double Pi() { return 3.141592653589793; }
 
   ///@{
   /**
