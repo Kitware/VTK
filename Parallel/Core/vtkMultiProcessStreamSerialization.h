@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @file vtkMultiProcessSerialization.h
+ * @file vtkMultiProcessStreamSerialization.h
  * @brief Utility to serialize STL containers to vtkMultiProcessStream
  *
  * This header provides helpers to make it easier to serialize STL containers
