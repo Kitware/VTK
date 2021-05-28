@@ -58,8 +58,8 @@
  * The class also provides methods for defining a color through an HTML color
  * string. The following formats are supported:
  *
- * - #RGB                  (3-digit hexadecimal number, where #4F2 is a shortcut for #44FF22)
- * - #RRGGBB               (6-digit hexadecimal number)
+ * - \#RGB                 (3-digit hexadecimal number, where #4F2 is a shortcut for #44FF22)
+ * - \#RRGGBB              (6-digit hexadecimal number)
  * - rgb(r, g, b)          (where r, g, b are in 0..255 or percentage values)
  * - rgba(r, g, b, a)      (where r, g, b, are in 0..255 or percentage values, a is in 0.0..1.0)
  * - a CSS3 color name     (e.g. "steelblue")
@@ -337,8 +337,8 @@ public:
   /**
    * Return a vtkColor4ub instance from an HTML color string in any of
    * the following formats:
-   * - #RGB
-   * - #RRGGBB
+   * - \#RGB
+   * - \#RRGGBB
    * - rgb(r, g, b)
    * - rgba(r, g, b, a)
    * - a CSS3 color name, e.g. "steelblue"
@@ -351,8 +351,8 @@ public:
   /**
    * Return a vtkColor3ub instance from an HTML color string in any of
    * the following formats:
-   * - #RGB
-   * - #RRGGBB
+   * - \#RGB
+   * - \#RRGGBB
    * - rgb(r, g, b)
    * - rgba(r, g, b, a)
    * - a CSS3 color name, e.g. "steelblue"

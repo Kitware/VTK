@@ -218,6 +218,14 @@ public:
    * `ComputeBreadthFirstOrderDescriptor`. The current tree is ready to use
    * after calling this method.
    *
+   * @param descriptor is a binary descriptor, in breadth first order, that describes
+   * the tree topology. If vertex of index `id` in breadth first order has
+   * children, then the corresponding value in `descriptor` is one. Otherwise, it
+   * is set to zero. Remember that arrays are appended, meaning that the index
+   * in `descriptor` corresponding to `id` in the current tree
+   * would be the size of `descriptor`
+   * before calling this method, plus `id`.
+   *
    * @param numberOfBits: Number of bits to be read in the descriptor to build
    * the tree. Remember that the last depth of the tree is not encoded in the
    * descriptor, as we know that they are full of zeros (because leaves have no children).
@@ -240,14 +248,14 @@ public:
    * concatenating breadth first order description and mapping of concatenated
    * trees.
    *
-   * `numberOfVerticesPerDepth` is self explanatory: from depth 0 to the maximum
+   * @param numberOfVerticesPerDepth is self explanatory: from depth 0 to the maximum
    * depth of the tree, it stores the number of vertices at each depth. If the
    * input tree has masked subtrees such that getting rid of those subtrees
    * reduces the depth, then `numberOfVerticesPerDepth` will take this smaller
    * depth into account rather than adding zeros. In other words,
    * `numberOfVerticesPerDepth` cannot have zero values.
    *
-   * `descriptor` is a binary descriptor, in breadth first order, that describes
+   * @param descriptor is a binary descriptor, in breadth first order, that describes
    * the tree topology. If vertex of index `id` in breadth first order has
    * children, then the corresponding value in `descriptor` is one. Otherwise, it
    * is set to zero. Remember that arrays are appended, meaning that the index
@@ -255,7 +263,7 @@ public:
    * would be the size of `descriptor`
    * before calling this method, plus `id`.
    *
-   * `breadthFirstIdMap` maps breadth first ordering to current indexing of the
+   * @param breadthFirstIdMap maps breadth first ordering to current indexing of the
    * current tree. In other word, the value at appended position `id` in this
    * array gives the corresponding index in the current tree.
    *
