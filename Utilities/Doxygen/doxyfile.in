@@ -60,7 +60,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
-EXCLUDE_PATTERNS     =
+EXCLUDE_PATTERNS     = ".*/Testing/"
 EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkSetGet.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresLineCases.h" \
@@ -70,9 +70,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Rendering/Testing/vtkRegressionTestImage.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Core/Testing/vtkTestDriver.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h"
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
