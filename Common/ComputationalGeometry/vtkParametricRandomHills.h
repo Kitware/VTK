@@ -257,7 +257,7 @@ private:
    * Centers (x,y), variances (x,y) and amplitudes of the hills.
    */
   vtkDoubleArray* hillData;
+  ///@}
 };
-///@}
 
 #endif

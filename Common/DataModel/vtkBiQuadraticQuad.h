@@ -107,7 +107,6 @@ public:
   {
     vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords, derivs);
   }
-  ///@}
 
 protected:
   vtkBiQuadraticQuad();

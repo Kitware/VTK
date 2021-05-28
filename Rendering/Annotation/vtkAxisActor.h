@@ -960,7 +960,7 @@ private:
   double LabelOffset;
   double TitleOffset;
   double ExponentOffset;
+  ///@}
 };
-///@}
 
 #endif

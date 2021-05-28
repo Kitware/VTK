@@ -118,7 +118,6 @@ private:
   void operator=(const vtkImplicitBoolean&) = delete;
 };
 
-///@{
 /**
  * Return the boolean operation type as a descriptive character string.
  */
@@ -141,6 +140,5 @@ inline const char* vtkImplicitBoolean::GetOperationTypeAsString(void)
     return "UnionOfMagnitudes";
   }
 }
-///@}
 
 #endif

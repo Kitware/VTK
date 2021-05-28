@@ -269,7 +269,6 @@ private:
   void operator=(const vtkConnectivityFilter&) = delete;
 };
 
-///@{
 /**
  * Return the method of extraction as a string.
  */
@@ -300,6 +299,5 @@ inline const char* vtkConnectivityFilter::GetExtractionModeAsString(void)
     return "ExtractLargestRegion";
   }
 }
-///@}
 
 #endif

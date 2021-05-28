@@ -237,7 +237,6 @@ private:
   vtkIdList* PointIds;
 };
 
-///@{
 /**
  * Return the method of extraction as a string.
  */
@@ -264,6 +263,5 @@ inline const char* vtkEuclideanClusterExtraction::GetExtractionModeAsString(void
     return "ExtractLargestCluster";
   }
 }
-///@}
 
 #endif

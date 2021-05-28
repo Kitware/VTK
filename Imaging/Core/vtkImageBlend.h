@@ -211,7 +211,6 @@ private:
   void operator=(const vtkImageBlend&) = delete;
 };
 
-///@{
 /**
  * Get the blending mode as a descriptive string
  */
@@ -227,6 +226,5 @@ inline const char* vtkImageBlend::GetBlendModeAsString()
       return "Unknown Blend Mode";
   }
 }
-///@}
 
 #endif

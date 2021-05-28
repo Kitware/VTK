@@ -801,7 +801,6 @@ private:
   void operator=(const vtkProperty&) = delete;
 };
 
-///@{
 /**
  * Return the method of shading as a descriptive character string.
  */
@@ -824,9 +823,7 @@ inline const char* vtkProperty::GetInterpolationAsString(void)
     return "Physically based rendering";
   }
 }
-///@}
 
-///@{
 /**
  * Return the method of shading as a descriptive character string.
  */
@@ -845,6 +842,5 @@ inline const char* vtkProperty::GetRepresentationAsString(void)
     return "Surface";
   }
 }
-///@}
 
 #endif

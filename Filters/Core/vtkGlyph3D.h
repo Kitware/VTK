@@ -236,6 +236,7 @@ public:
   const char* GetVectorModeAsString();
   ///@}
 
+  ///@{
   /**
    * Set/Get point position glyphs will face towards. Used if vector mode is
    * VTK_FOLLOW_CAMERA_DIRECTION.
@@ -244,6 +245,7 @@ public:
   vtkGetVectorMacro(FollowedCameraPosition, double, 3);
   ///@}
 
+  ///@{
   /**
    * Set/Get glyphs up direction. Used if vector mode is VTK_FOLLOW_CAMERA_DIRECTION.
    */
@@ -375,7 +377,6 @@ private:
   void operator=(const vtkGlyph3D&) = delete;
 };
 
-///@{
 /**
  * Return the method of scaling as a descriptive character string.
  */
@@ -394,9 +395,7 @@ inline const char* vtkGlyph3D::GetScaleModeAsString(void)
     return "DataScalingOff";
   }
 }
-///@}
 
-///@{
 /**
  * Return the method of coloring as a descriptive character string.
  */
@@ -415,9 +414,7 @@ inline const char* vtkGlyph3D::GetColorModeAsString(void)
     return "ColorByScale";
   }
 }
-///@}
 
-///@{
 /**
  * Return the vector mode as a character string.
  */
@@ -440,9 +437,7 @@ inline const char* vtkGlyph3D::GetVectorModeAsString(void)
     return "VectorRotationOff";
   }
 }
-///@}
 
-///@{
 /**
  * Return the index mode as a character string.
  */
@@ -461,6 +456,5 @@ inline const char* vtkGlyph3D::GetIndexModeAsString(void)
     return "IndexingByVector";
   }
 }
-///@}
 
 #endif

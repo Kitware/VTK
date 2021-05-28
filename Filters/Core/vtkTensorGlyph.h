@@ -102,6 +102,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
+  ///@{
   /**
    * Specify the geometry to copy to each point.
    * Note that this method does not connect the pipeline. The algorithm will

@@ -277,7 +277,6 @@ private:
   void operator=(const vtkPolyDataConnectivityFilter&) = delete;
 };
 
-///@{
 /**
  * Return the method of extraction as a string.
  */
@@ -308,6 +307,5 @@ inline const char* vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void
     return "ExtractLargestRegion";
   }
 }
-///@}
 
 #endif

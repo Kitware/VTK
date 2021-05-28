@@ -103,9 +103,9 @@ extern "C"
      when it encounters a dataset with a type it doesn't like.
   -----------------------------------------------------------------------------*/
 
+  ///@{
   /*! \defgroup NIFTI1_DATATYPE_ALIASES NIFTI Datatype Aliases
       \brief aliases for the nifti1 datatype codes
-      @{
    */
   /*! unsigned char. */
 #define NIFTI_TYPE_UINT8 2
@@ -139,7 +139,7 @@ extern "C"
 #define NIFTI_TYPE_COMPLEX256 2048
   /*! 4 8 bit bytes. */
 #define NIFTI_TYPE_RGBA32 2304
-  /* @} */
+  ///@}
 
   /*---------------------------------------------------------------------------*/
   /* MISCELLANEOUS C MACROS

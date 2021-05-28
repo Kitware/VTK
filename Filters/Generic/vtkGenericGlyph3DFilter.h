@@ -308,7 +308,6 @@ private:
   void operator=(const vtkGenericGlyph3DFilter&) = delete;
 };
 
-///@{
 /**
  * Return the method of scaling as a descriptive character string.
  */
@@ -327,9 +326,7 @@ inline const char* vtkGenericGlyph3DFilter::GetScaleModeAsString()
     return "DataScalingOff";
   }
 }
-///@}
 
-///@{
 /**
  * Return the method of coloring as a descriptive character string.
  */
@@ -348,9 +345,7 @@ inline const char* vtkGenericGlyph3DFilter::GetColorModeAsString()
     return "ColorByScale";
   }
 }
-///@}
 
-///@{
 /**
  * Return the vector mode as a character string.
  */
@@ -369,9 +364,7 @@ inline const char* vtkGenericGlyph3DFilter::GetVectorModeAsString()
     return "VectorRotationOff";
   }
 }
-///@}
 
-///@{
 /**
  * Return the index mode as a character string.
  */
@@ -390,6 +383,5 @@ inline const char* vtkGenericGlyph3DFilter::GetIndexModeAsString()
     return "IndexingByVector";
   }
 }
-///@}
 
 #endif
