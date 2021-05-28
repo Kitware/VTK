@@ -31,7 +31,9 @@
  * Time series are supported. The reader assumes a time series is defined
  * in a sequence of files that follow the naming convention
  *
+ * \code
  * <prefix><zero-padded index>[_][<time>].h5
+ * \endcode
  *
  * where the prefix is determined from the FileName property passed to
  * the reader. The underscore and time elements are optional. The time
