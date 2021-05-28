@@ -63,10 +63,6 @@
  * also populate a double array of specified size with a random sequence. It
  * will do so using one or more threads depending on the number of values
  * requested to generate.
- *
- * @warning
- * This class has been threaded with vtkMultiThreader. The amount of work
- * each thread performs is controlled by the #define VTK_MERSENNE_CHUNK.
  */
 
 #ifndef vtkMersenneTwister_h
