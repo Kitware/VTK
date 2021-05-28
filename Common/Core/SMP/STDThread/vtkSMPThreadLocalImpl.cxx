@@ -55,7 +55,7 @@ Slot::Slot()
 Slot::~Slot() = default;
 
 HashTableArray::HashTableArray(size_t sizeLg)
-  : Size(1u << sizeLg)
+  : Size(1ULL << sizeLg)
   , SizeLg(sizeLg)
   , NumberOfEntries(0)
   , Prev(nullptr)
