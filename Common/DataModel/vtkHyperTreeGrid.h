@@ -258,8 +258,8 @@ public:
   ///@{
   /**
    * Get the orientation of 1D or 2D grids:
-   * . in 1D: 0, 1, 2 = aligned along X, Y, Z axis
-   * . in 2D: 0, 1, 2 = normal to X, Y, Z axis
+   * - in 1D: 0, 1, 2 = aligned along X, Y, Z axis
+   * - in 2D: 0, 1, 2 = normal to X, Y, Z axis
    * NB: Not used in 3D
    */
   unsigned int GetOrientation() const { return this->Orientation; }

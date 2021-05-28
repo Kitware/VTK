@@ -75,7 +75,7 @@ public:
 
   ///@{
   /**
-   * Specify declarations for variables..
+   * Specify declarations for variables.
    */
   void SetVariable(const char* variable, const char* declaration);
   void AddVariable(const char* variable, const char* declaration);

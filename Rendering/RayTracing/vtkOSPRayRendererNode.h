@@ -273,7 +273,7 @@ public:
   ///@}
 
   /**
-   * Temporal cache size..
+   * Temporal cache size.
    */
   static vtkInformationIntegerKey* TIME_CACHE_SIZE();
   ///@{
