@@ -1,0 +1,18 @@
+NAME
+  VTK::OpenVDB
+LIBRARY_NAME
+  vtkIOOpenVDB
+CONDITION
+  VTK_ENABLE_OPENVDB
+GROUPS
+  StandAlone
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::ParallelCore
+  VTK::vtksys
+  VTK::RenderingCore
