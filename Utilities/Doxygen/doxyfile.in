@@ -194,4 +194,7 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
                "VTK_SIZEHINT(...)=" \
+               "VTK_DEPRECATED_IN_8_2_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_0_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_1_0(msg)=" \
                "DOXYGEN_SHOULD_SKIP_THIS"
