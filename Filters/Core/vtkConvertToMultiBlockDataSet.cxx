@@ -29,7 +29,7 @@ vtkConvertToMultiBlockDataSet::vtkConvertToMultiBlockDataSet() = default;
 vtkConvertToMultiBlockDataSet::~vtkConvertToMultiBlockDataSet() = default;
 
 //----------------------------------------------------------------------------
-int vtkConvertToMultiBlockDataSet::FillInputPortInformation(int port, vtkInformation* info)
+int vtkConvertToMultiBlockDataSet::FillInputPortInformation(int /*port*/, vtkInformation* info)
 {
   // now add our info
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
