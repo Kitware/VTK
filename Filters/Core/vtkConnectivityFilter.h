@@ -272,7 +272,7 @@ private:
 /**
  * Return the method of extraction as a string.
  */
-inline const char* vtkConnectivityFilter::GetExtractionModeAsString(void)
+inline const char* vtkConnectivityFilter::GetExtractionModeAsString()
 {
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
   {

@@ -804,7 +804,7 @@ private:
 /**
  * Return the method of shading as a descriptive character string.
  */
-inline const char* vtkProperty::GetInterpolationAsString(void)
+inline const char* vtkProperty::GetInterpolationAsString()
 {
   if (this->Interpolation == VTK_FLAT)
   {
@@ -827,7 +827,7 @@ inline const char* vtkProperty::GetInterpolationAsString(void)
 /**
  * Return the method of shading as a descriptive character string.
  */
-inline const char* vtkProperty::GetRepresentationAsString(void)
+inline const char* vtkProperty::GetRepresentationAsString()
 {
   if (this->Representation == VTK_POINTS)
   {

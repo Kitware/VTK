@@ -580,7 +580,7 @@ private:
 /**
  * Return the interpolation type as a descriptive character string.
  */
-inline const char* vtkVolumeProperty::GetInterpolationTypeAsString(void)
+inline const char* vtkVolumeProperty::GetInterpolationTypeAsString()
 {
   if (this->InterpolationType == VTK_NEAREST_INTERPOLATION)
   {

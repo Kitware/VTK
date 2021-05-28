@@ -121,7 +121,7 @@ private:
 /**
  * Return the boolean operation type as a descriptive character string.
  */
-inline const char* vtkImplicitBoolean::GetOperationTypeAsString(void)
+inline const char* vtkImplicitBoolean::GetOperationTypeAsString()
 {
   if (this->OperationType == VTK_UNION)
   {

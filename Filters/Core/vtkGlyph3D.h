@@ -380,7 +380,7 @@ private:
 /**
  * Return the method of scaling as a descriptive character string.
  */
-inline const char* vtkGlyph3D::GetScaleModeAsString(void)
+inline const char* vtkGlyph3D::GetScaleModeAsString()
 {
   if (this->ScaleMode == VTK_SCALE_BY_SCALAR)
   {
@@ -399,7 +399,7 @@ inline const char* vtkGlyph3D::GetScaleModeAsString(void)
 /**
  * Return the method of coloring as a descriptive character string.
  */
-inline const char* vtkGlyph3D::GetColorModeAsString(void)
+inline const char* vtkGlyph3D::GetColorModeAsString()
 {
   if (this->ColorMode == VTK_COLOR_BY_SCALAR)
   {
@@ -418,7 +418,7 @@ inline const char* vtkGlyph3D::GetColorModeAsString(void)
 /**
  * Return the vector mode as a character string.
  */
-inline const char* vtkGlyph3D::GetVectorModeAsString(void)
+inline const char* vtkGlyph3D::GetVectorModeAsString()
 {
   if (this->VectorMode == VTK_USE_VECTOR)
   {
@@ -441,7 +441,7 @@ inline const char* vtkGlyph3D::GetVectorModeAsString(void)
 /**
  * Return the index mode as a character string.
  */
-inline const char* vtkGlyph3D::GetIndexModeAsString(void)
+inline const char* vtkGlyph3D::GetIndexModeAsString()
 {
   if (this->IndexMode == VTK_INDEXING_OFF)
   {

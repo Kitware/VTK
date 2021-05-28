@@ -410,7 +410,7 @@ private:
 /**
  * Return the method of extraction as a string.
  */
-inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString(void)
+inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString()
 {
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
   {
