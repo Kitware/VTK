@@ -24,10 +24,15 @@
 
   3. This notice may not be removed or altered from any source distribution.
 
- * -------------------------------------------------------------------------
- * 
- *  DEVELOPER'S NOTE:
- *    When adding a defined constant to this file, also add the same defined 
+ *    _____ __  __ _____   ____  _____ _______       _   _ _______
+ *   |_   _|  \/  |  __ \ / __ \|  __ \__   __|/\   | \ | |__   __|
+ *     | | | \  / | |__) | |  | | |__) | | |  /  \  |  \| |  | |
+ *     | | | |\/| |  ___/| |  | |  _  /  | | / /\ \ | . ` |  | |
+ *    _| |_| |  | | |    | |__| | | \ \  | |/ ____ \| |\  |  | |
+ *   |_____|_|  |_|_|     \____/|_|  \_\ |_/_/    \_\_| \_|  |_|
+ *
+ * -------------------  DEVELOPER'S NOTES  ---------------------------
+ *    (1) When adding a defined constant to this file, also add the same defined 
  *    constant to cgns_f.F90
  *          
  * ------------------------------------------------------------------------- */
@@ -35,8 +40,8 @@
 #ifndef CGNSLIB_H
 #define CGNSLIB_H
 
-#define CGNS_VERSION 4100
-#define CGNS_DOTVERS 4.10
+#define CGNS_VERSION 4200
+#define CGNS_DOTVERS 4.20
 
 #define CGNS_COMPATVERSION 2540
 #define CGNS_COMPATDOTVERS 2.54
@@ -90,7 +95,6 @@
 #define CG_MODE_READ	0
 #define CG_MODE_WRITE	1
 #define CG_MODE_MODIFY  2
-#define CG_MODE_CLOSED  3
 
 /* file types */
 
@@ -125,8 +129,11 @@
 #define CG_CONFIG_FILE_TYPE  5
 #define CG_CONFIG_RIND_INDEX 6
 
-#define CG_CONFIG_HDF5_COMPRESS   201
-#define CG_CONFIG_HDF5_MPI_COMM   202
+#define CG_CONFIG_HDF5_COMPRESS        201
+#define CG_CONFIG_HDF5_MPI_COMM        202
+#define CG_CONFIG_HDF5_DISKLESS        203
+#define CG_CONFIG_HDF5_DISKLESS_INCR   204
+#define CG_CONFIG_HDF5_DISKLESS_WRITE  205
 
 /* HDF5 dataset storage layout */
 
@@ -473,10 +480,12 @@ typedef enum {
   CGNS_ENUMV( RealSingle ) =3,
   CGNS_ENUMV( RealDouble ) =4,
   CGNS_ENUMV( Character ) =5,
-  CGNS_ENUMV( LongInteger ) =6
+  CGNS_ENUMV( LongInteger ) =6,
+  CGNS_ENUMV( ComplexSingle ) =7,
+  CGNS_ENUMV( ComplexDouble ) =8
 } CGNS_ENUMT( DataType_t );
 
-#define NofValidDataTypes 7
+#define NofValidDataTypes 9
 
 extern CGNSDLL const char * DataTypeName[NofValidDataTypes];
 
@@ -995,6 +1004,12 @@ CGNSDLL int cg_poly_section_write(int file_number, int B, int Z,
 	const char * SectionName, CGNS_ENUMT(ElementType_t) type,
 	cgsize_t start, cgsize_t end, int nbndry, const cgsize_t * elements,
 	const cgsize_t * connect_offset, int *S);
+CGNSDLL int cg_section_general_write(int file_number, int B, int Z,
+        const char * SectionName, const CGNS_ENUMT(ElementType_t) type,
+        const CGNS_ENUMT(DataType_t) elementDataType, cgsize_t start,
+        cgsize_t end, cgsize_t elementDataSize, int nbndry, int *S);
+CGNSDLL int cg_section_initialize(int file_number, int B, int Z, int S);
+
 CGNSDLL int cg_parent_data_write(int file_number, int B, int Z, int S,
 	const cgsize_t * parent_data);
 CGNSDLL int cg_npe( CGNS_ENUMT(ElementType_t) type, int *npe);
@@ -1007,8 +1022,15 @@ CGNSDLL int cg_section_partial_write(int file_number, int B, int Z,
 
 CGNSDLL int cg_elements_partial_write(int fn, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, const cgsize_t *elements);
+CGNSDLL int cg_elements_general_write(int fn, int B, int Z, int S,
+	cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type,
+        const void *elements);
+
 CGNSDLL int cg_poly_elements_partial_write(int fn, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, const cgsize_t *elements, const cgsize_t *connect_offset);
+CGNSDLL int cg_poly_elements_general_write(int fn, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type,
+    const void *elements, const void *connect_offset);
 
 CGNSDLL int cg_parent_data_partial_write(int fn, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, const cgsize_t *ParentData);
@@ -1017,6 +1039,17 @@ CGNSDLL int cg_elements_partial_read(int file_number, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, cgsize_t *elements, cgsize_t *parent_data);
 CGNSDLL int cg_poly_elements_partial_read(int file_number, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, cgsize_t *elements, cgsize_t *connect_offset, cgsize_t *parent_data);
+
+/* For reading with a datatype different from cgsize_t. Use at your own risk */
+CGNSDLL int cg_elements_general_read(int file_number, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type, void* elements);
+CGNSDLL int cg_poly_elements_general_read(int file_number, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type, void* elements, void* connect_offset);
+CGNSDLL int cg_parent_elements_general_read(int file_number, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type, void* parelem);
+CGNSDLL int cg_parent_elements_position_general_read(int file_number, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, CGNS_ENUMT(DataType_t) m_type, void* parface);
+
 
 CGNSDLL int cg_ElementPartialSize(int file_number, int B, int Z, int S,
 	cgsize_t start, cgsize_t end, cgsize_t *ElementDataSize);

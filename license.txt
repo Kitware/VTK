@@ -25,7 +25,7 @@ This license is borrowed from the zlib/libpng License:
 
     http://www.opensource.org/licenses/zlib-license.php
 
-and supercedes the GNU Lesser General Public License (LGPL) which
+and supersedes the GNU Lesser General Public License (LGPL) which
 previously governed the use and distribution of the software.
 
 For details on the policy governing the distribution of the CGNS

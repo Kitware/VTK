@@ -93,6 +93,13 @@ CGNSDLL int cgp_elements_write_data(int fn, int B, int Z, int S,
 CGNSDLL int cgp_elements_read_data(int fn, int B, int Z, int S,
     cgsize_t start, cgsize_t end, cgsize_t *elements);
 
+CGNSDLL int cgp_poly_section_write(int fn, int B, int Z,
+    const char *sectionname, CGNS_ENUMT(ElementType_t) type,
+    cgsize_t start, cgsize_t end, cgsize_t maxoffset,
+    int nbndry, int *S);
+CGNSDLL int cgp_poly_elements_write_data(int fn, int B, int Z, int S,
+    cgsize_t start, cgsize_t end, const cgsize_t *elements, const cgsize_t *offsets);
+
 CGNSDLL int cgp_parent_data_write(int fn, int B, int Z, int S,
 				  cgsize_t start, cgsize_t end,
 				  const cgsize_t *parent_data);
