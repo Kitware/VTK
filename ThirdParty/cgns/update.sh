@@ -8,7 +8,7 @@ readonly name="cgns"
 readonly ownership="cgns Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/cgns.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-20210528-4.2.0"
 
 readonly paths="
 .gitattributes
@@ -28,6 +28,9 @@ src/cgnsconfig.h.in
 src/cgnslib.c
 src/cgnslib.h
 src/cgnstypes.h.in
+src/cg_hash_types.h.in
+src/cg_hashmap.h
+src/cg_hashmap.c
 src/pcgnslib.c
 src/pcgnslib.h
 src/adf/ADF.h
