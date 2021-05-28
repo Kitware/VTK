@@ -164,7 +164,7 @@ public:
    */
   vtkIdType GetCurrentCellId() const { return this->CurrentCellId; }
 
-  ///@}
+  ///@{
   /**
    * Returns the definition of the current cell during forward
    * traversal. Note that methods passing vtkIdLists always copy data from

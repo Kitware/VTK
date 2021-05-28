@@ -1541,7 +1541,7 @@ inline void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdList* pts)
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType pts[])
+inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts)
   VTK_SIZEHINT(pts, npts)
 {
   return this->Visit(vtkCellArray_detail::InsertNextCellImpl{}, npts, pts);

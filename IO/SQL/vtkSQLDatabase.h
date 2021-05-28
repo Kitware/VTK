@@ -162,7 +162,9 @@ public:
    * Return the SQL string with the syntax to create a column inside a
    * "CREATE TABLE" SQL statement.
    * NB: this method implements the following minimally-portable syntax:
+   * \code
    * <column name> <column type> <column attributes>
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., MySQL.
    */
@@ -173,7 +175,9 @@ public:
    * Return the SQL string with the syntax to create an index inside a
    * "CREATE TABLE" SQL statement.
    * NB1: this method implements the following minimally-portable syntax:
+   * \code
    * <index type> [<index name>] (<column name 1>,... )
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., MySQL.
    * NB2: this method does not assume that INDEX creation is supported
@@ -190,7 +194,9 @@ public:
    * NB1: support is contingent on VTK_FEATURE_TRIGGERS being recognized as
    * a supported feature. Not all backends (e.g., SQLite) support it.
    * NB2: this method implements the following minimally-portable syntax:
+   * \code
    * <trigger name> {BEFORE | AFTER} <event> ON <table name> FOR EACH ROW <trigger action>
+   * \endcode
    * It must be overwritten for those SQL backends which have a different
    * syntax such as, e.g., PostgreSQL.
    */

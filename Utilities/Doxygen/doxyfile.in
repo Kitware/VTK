@@ -45,7 +45,8 @@ ALLEXTERNALS         = NO
 IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" \
                        "@VTK_SOURCE_DIR@/Filters" \
                        "@VTK_SOURCE_DIR@/Geovis" \
-                       "@VTK_SOURCE_DIR@/Rendering"
+                       "@VTK_SOURCE_DIR@/Rendering" \
+                       "@VTK_SOURCE_DIR@"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
@@ -59,7 +60,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
-EXCLUDE_PATTERNS     =
+EXCLUDE_PATTERNS     = ".*/Testing/"
 EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkSetGet.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresLineCases.h" \
@@ -69,9 +70,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Rendering/Testing/vtkRegressionTestImage.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Core/Testing/vtkTestDriver.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h"
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
@@ -194,4 +193,7 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
                "VTK_SIZEHINT(...)=" \
+               "VTK_DEPRECATED_IN_8_2_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_0_0(msg)=" \
+               "VTK_DEPRECATED_IN_9_1_0(msg)=" \
                "DOXYGEN_SHOULD_SKIP_THIS"

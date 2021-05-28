@@ -62,7 +62,7 @@ public:
    * \brief Initializes the index map.
    * \param voi the extent of the volume of interest
    * \param wholeExt the whole extent of the domain
-   * \param smapleRate the sampling rate
+   * \param sampleRate the sampling rate
    * \param includeBoundary indicates whether to include the boundary or not.
    */
   void Initialize(int voi[6], int wholeExt[6], int sampleRate[3], bool includeBoundary);

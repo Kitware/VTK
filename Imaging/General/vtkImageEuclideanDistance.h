@@ -29,7 +29,7 @@
  * 2^N with a large N (typically for 256x256 slices), Saito's algorithm
  * encounters a lot of cache conflicts during the 3rd iteration which can
  * slow it very significantly. In that case, one should use
- * ::SetAlgorithmToSaitoCached() instead for better performance.
+ * vtkImageEuclideanDistance::SetAlgorithmToSaitoCached() instead for better performance.
  *
  * References:
  *

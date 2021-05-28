@@ -43,15 +43,15 @@
  *
  * \li if vtkExtractDataArraysOverTime::ReportStatisticsOnly is true, then the
  *     stats are computed per input block (if input is a composite dataset) or on the whole
- *     input dataset and placed as blocks named as **stats block=<block id>**.
+ *     input dataset and placed as blocks named as <tt>stats block=\<block id\></tt>.
  *     For non-composite input, the single leaf block is output is named as
- *     **stats**.
+ *     \c stats.
  *
  * \li if vtkExtractDataArraysOverTime::ReportStatisticsOnly if off, then each
  *    tracked element is placed in a separate output block. The block name is of
- *    the form **id=<id> block=<block id>** where the **block=** suffix is
+ *    the form <tt>id=\<id\> block=\<block id\></tt> where the \em block= suffix is
  *    dropped for non-composite input datasets. If global ids are being used for
- *    tracking then the name is simply **gid=<global id>**.
+ *    tracking then the name is simply <tt>gid=\<global id\></tt>.
  *
  * @sa vtkPExtractDataArraysOverTime
  */

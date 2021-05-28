@@ -203,11 +203,10 @@ private:
   void operator=(const vtkSelectPolyData&) = delete;
 };
 
-///@{
 /**
  * Return the method of determining in/out of loop as a string.
  */
-inline const char* vtkSelectPolyData::GetSelectionModeAsString(void)
+inline const char* vtkSelectPolyData::GetSelectionModeAsString()
 {
   if (this->SelectionMode == VTK_INSIDE_SMALLEST_REGION)
   {
@@ -222,6 +221,5 @@ inline const char* vtkSelectPolyData::GetSelectionModeAsString(void)
     return "InsideClosestPointRegion";
   }
 }
-///@}
 
 #endif

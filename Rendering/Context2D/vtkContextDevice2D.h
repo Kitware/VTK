@@ -85,6 +85,9 @@ public:
    * Draw a series of point sprites, images centred at the points supplied.
    * The supplied vtkImageData is the sprite to be drawn, only squares will be
    * drawn and the size is set using SetPointSize.
+   * \param sprite the image to draw
+   * \param points where to draw the sprites
+   * \param n the number of points
    * \param colors is an optional array of colors.
    * \param nc_comps is the number of components for the color.
    */
@@ -99,6 +102,10 @@ public:
    * - VTK_MARKER_SQUARE
    * - VTK_MARKER_CIRCLE
    * - VTK_MARKER_DIAMOND
+   * \param shape the shape of the marker
+   * \param highlight whether to highlight the marker or not
+   * \param points where to draw the sprites
+   * \param n the number of points
    * \param colors is an optional array of colors.
    * \param nc_comps is the number of components for the color.
    */

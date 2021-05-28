@@ -82,11 +82,10 @@ private:
   void operator=(const vtkHedgeHog&) = delete;
 };
 
-///@{
 /**
  * Return the vector mode as a character string.
  */
-inline const char* vtkHedgeHog::GetVectorModeAsString(void)
+inline const char* vtkHedgeHog::GetVectorModeAsString()
 {
   if (this->VectorMode == VTK_USE_VECTOR)
   {
@@ -102,4 +101,3 @@ inline const char* vtkHedgeHog::GetVectorModeAsString(void)
   }
 }
 #endif
-///@}

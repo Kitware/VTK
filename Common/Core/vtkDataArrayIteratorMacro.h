@@ -62,6 +62,7 @@
  *
  * To use this macro, create a templated worker function:
  *
+ * @code
  * template <class Iterator>
  * void myFunc(Iterator begin, Iterator end, ...) {...}
  *
@@ -70,9 +71,10 @@
  *
  * vtkAbstractArray *someArray = ...;
  * switch (someArray->GetDataType())
- *   {
+ * {
  *   vtkDataArrayIteratorMacro(someArray, myFunc(vtkDABegin, vtkDAEnd, ...));
- *   }
+ * }
+ * @endcode
  *
  * @sa
  * vtkArrayDispatch vtkGenericDataArray

@@ -441,7 +441,7 @@ protected:
    * input connection.
    *
    * ///TODO Elaborate on why this is an issue, texture coords (?)
-   * @TODO: This is the workaround to deal with GPUVolumeRayCastMapper
+   * \todo This is the workaround to deal with GPUVolumeRayCastMapper
    * not able to handle extents starting from non zero values.
    * There is not a easy fix in the GPU volume ray cast mapper hence
    * this fix has been introduced.

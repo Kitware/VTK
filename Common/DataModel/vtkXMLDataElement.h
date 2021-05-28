@@ -278,7 +278,7 @@ public:
   ///@{
   /**
    * Get/Set the width (in number of fields) that character
-   * data (that between open and closing tags ie. <X> ... </X>)
+   * data (that between open and closing tags ie. \<X\> ... \</X\>)
    * is printed. If the width is less than one the tag's character
    * data is printed all on one line. If it is greater than one
    * the character data is streamed insterting line feeds every

@@ -309,7 +309,7 @@ public:
 
   ///@{
   /**
-   * If on, also add in the tab (i.e. '\t') character as a field delimiter.
+   * If on, also add in the tab (i.e. \c '\\t') character as a field delimiter.
    * We add this specially since applications may have a more
    * difficult time doing this. Defaults to off.
    */

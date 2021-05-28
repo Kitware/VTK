@@ -62,8 +62,8 @@ public:
    *
    * * VertexShader and GeometryShader should be used as-is when building the
    * ShaderProgram.
-   * * FragmentShaderTemplate supports the replacements //VTK::FSQ::Decl and
-   * //VTK::FSQ::Impl for declaring variables and the shader body,
+   * * FragmentShaderTemplate supports the replacements @code //VTK::FSQ::Decl @endcode and
+   * @code //VTK::FSQ::Impl @endcode for declaring variables and the shader body,
    * respectively.
    * * The varying texCoord is available to the fragment shader for texture
    * lookups into full-screen textures, ie. texture2D(textureName, texCoord).

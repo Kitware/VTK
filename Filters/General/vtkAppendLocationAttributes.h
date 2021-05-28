@@ -42,6 +42,7 @@ public:
   vtkTypeMacro(vtkAppendLocationAttributes, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
    * Enable/disable whether input point locations should be saved as a point data array.
    * Default is `true` i.e. the points will be propagated as a point data array named

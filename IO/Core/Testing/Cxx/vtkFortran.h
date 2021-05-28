@@ -26,9 +26,9 @@
  *    - void FOO_()
  *    - void foo_()
  *
- *  2. Passing array, Fortran start at 1 instead of 0.
+ * 2. Passing array, Fortran start at 1 instead of 0.
  *
- *  3. Passing STRING array from fortran to C is a bit more tricky.
+ * 3. Passing STRING array from fortran to C is a bit more tricky
  *
  *  For more information refer to:
  *  [ FORTRAN/C INTEROPERABILITY  ]

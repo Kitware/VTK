@@ -197,7 +197,7 @@ public:
    * area. If adaptive scaling is on and the cube's image is outside of these
    * bounds, the cube is adaptively scaled. The max and min relative cube sizes
    * are clamped between 1. and 1.e-6, and MaxRelativeubeSize must be more than
-   * <RescaleFactor> greater than MinRelativeCubeScreenArea.
+   * \c RescaleFactor greater than MinRelativeCubeScreenArea.
    */
   void SetMinRelativeCubeScreenArea(double);
   vtkGetMacro(MinRelativeCubeScreenArea, double);
@@ -252,7 +252,7 @@ protected:
   /**
    * If adaptive scaling is enabled, rescale the cube so that its
    * representational area in the display window falls between
-   * <MinRelativeCubeScreenArea> and <MaxRelativeCubeScreenArea>.
+   * \c MinRelativeCubeScreenArea and \c MaxRelativeCubeScreenArea.
    */
   void ScaleIfNecessary(vtkViewport*);
 

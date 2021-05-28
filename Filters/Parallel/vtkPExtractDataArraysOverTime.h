@@ -21,12 +21,12 @@
  *
  * It combines results from all ranks and produce non-empty result only on rank 0.
  *
- * @caveats Caveats Caveats
+ * @section vtkPExtractDataArraysOverTime-caveats Caveats
  *
  * This filter's behavior when `ReportStatisticsOnly` is true is buggy and will
  * change in the future. When `ReportStatisticsOnly` currently, each rank
  * computes separate stats for local data. Consequently, this filter preserves
- * each processes results separately (by adding suffix **rank=<rank num>** to each
+ * each processes results separately (by adding suffix <tt>rank=\<rank num\></tt> to each
  * of the block names, as appropriate. In future, we plan to fix this to
  * correctly compute stats in parallel for each block.
  */

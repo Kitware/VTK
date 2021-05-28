@@ -153,10 +153,8 @@ protected:
    * are tested (not geometry) because you can save yourself
    * field evaluations if you check the geometry yourself
    * and it fails the test.
-   * @param p0 is the first endpoint of the edge
    * @param p1 is the linearly interpolated midpoint of the edge
    * @param p1_actual is the actual midpoint of the edge
-   * @param p2 is the second endpoint of the edge
    * @param field_start is the offset into the above arrays
    * indicating where the scalar field values start (when
    * isosurfacing, the embedding dimension may be smaller

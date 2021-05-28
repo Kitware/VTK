@@ -580,7 +580,7 @@ public:
    * For the second GatherV variant, \c recvLengths and \c offsets are not known
    * on \c destProcessId.  The \c recvLengths is set using a gather operation
    * and \c offsets is computed from \c recvLengths. recvLengths has
-   * \c NumberOfProcesses elements and \offsets has NumberOfProcesses + 1 elements.
+   * \c NumberOfProcesses elements and \c offsets has NumberOfProcesses + 1 elements.
    * The third variant is the same as the second variant but it does not expose
    * \c recvLength and \c offsets
    */

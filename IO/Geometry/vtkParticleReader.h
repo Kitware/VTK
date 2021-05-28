@@ -180,11 +180,10 @@ protected:
 
   /**
    * Enumerate the supported file types.
-   * <pre>
+   *
    * - FILE_TYPE_IS_UNKNOWN, (default) the class will attempt to determine the file type.
    * - FILE_TYPE_IS_TEXT, the file type is text.
    * - FILE_TYPE_IS_BINARY, the file type is binary.
-   * </pre>
    */
   enum FILE_TYPE
   {

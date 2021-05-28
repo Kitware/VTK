@@ -407,11 +407,10 @@ private:
   void operator=(const vtkPolyDataEdgeConnectivityFilter&) = delete;
 };
 
-///@{
 /**
  * Return the method of extraction as a string.
  */
-inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString(void)
+inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString()
 {
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
   {
@@ -442,6 +441,5 @@ inline const char* vtkPolyDataEdgeConnectivityFilter::GetExtractionModeAsString(
     return "ExtractLargestRegion";
   }
 }
-///@}
 
 #endif

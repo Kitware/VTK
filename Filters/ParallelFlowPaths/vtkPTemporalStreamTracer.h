@@ -119,10 +119,6 @@ protected:
 
   void AddParticleToMPISendList(vtkTemporalStreamTracerNamespace::ParticleInformation& info);
 
-  //
-
-  //
-
   // MPI controller needed when running in parallel
   vtkMultiProcessController* Controller;
 

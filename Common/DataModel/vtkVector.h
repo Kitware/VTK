@@ -381,7 +381,6 @@ public:
    * Get the w component of the vector, i.e. element 3.
    */
   const T& GetW() const { return this->Data[3]; }
-  ///@}
 };
 
 /**

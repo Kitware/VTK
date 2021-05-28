@@ -41,21 +41,17 @@ public:
   vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
+   * Use vtkShaderProgram::Substitute to replace @code //VTK::XXX:YYY @endcode declarations in
    * the shader sources. Gets called before other mapper shader replacements
    * Return false on error.
    */
   virtual bool PreReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
     std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop);
-
-  /**
-   * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
-   * the shader sources. Gets called after other mapper shader replacements.
-   * Return false on error.
-   */
   virtual bool PostReplaceShaderValues(std::string& vertexShader, std::string& geometryShader,
     std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop);
+  ///@}
 
   /**
    * Update the uniforms of the shader program.

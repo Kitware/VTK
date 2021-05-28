@@ -20,8 +20,8 @@
  *
  * Step 1: call vtkBreakPoint::Break() in the code.
  * Step 2: start MPI, each process will display its PID and sleep.
- * Step 3: start gdb with the PID: gdb --pid=<PID>
- * Step 4: set a breakpoint at the line of interest: (gdb) b <option>
+ * Step 3: start gdb with the PID: \code gdb --pid=$PID \endcode
+ * Step 4: set a breakpoint at the line of interest: \code (gdb) b $option \endcode
  * Step 5: go out of the sleep: (gdb) set var i=1
  * Original instructions at the OpenMPI FAQ:
  * http://www.open-mpi.de/faq/?category=debugging#serial-debuggers

@@ -67,7 +67,7 @@ public:
   vtkDataObject* GetSource();
   ///@}
 
-  ///@}
+  ///@{
   /**
    * Specify the data set that will be probed at the input points.
    * The Input gives the geometry (the points and cells) for the output,

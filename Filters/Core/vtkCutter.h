@@ -251,11 +251,10 @@ private:
   void operator=(const vtkCutter&) = delete;
 };
 
-///@{
 /**
  * Return the sorting procedure as a descriptive character string.
  */
-inline const char* vtkCutter::GetSortByAsString(void)
+inline const char* vtkCutter::GetSortByAsString()
 {
   if (this->SortBy == VTK_SORT_BY_VALUE)
   {
@@ -266,6 +265,5 @@ inline const char* vtkCutter::GetSortByAsString(void)
     return "SortByCell";
   }
 }
-///@}
 
 #endif

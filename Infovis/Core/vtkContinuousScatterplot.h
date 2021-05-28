@@ -23,7 +23,7 @@
 * cells to depict the density distribution of the data projection in the bivariate range
 * space.
 *
-* @section Introduction
+* @section vtkContinuousScatterplot-introduction Introduction
 * Given a bivariate field (f1,f2) defined on an unstructured grid which is
 * composed of tetrahedral cells, we can initially subdivide each cell based on its
 * projection in the range into a number of fragments along the first field f1, we refer
@@ -54,7 +54,7 @@
 * bin density to pixel transparency, then the image can be displayed as a continuous
 * scatterplot.
 
-* @section Algorithm
+* @section vtkContinuousScatterplot-algorithm Algorithm
 * The algorithm of this filter can be described as:
 *   Require: R.1 The domain space is an unstructured grid data set composed of
 *                tetrahedral cells;
@@ -132,7 +132,7 @@
 *        distribution over the bins will be exported as a point data array in the output
 *        data structure.
 *
-* @section VTK Filter Design
+* @section vtkContinuousScatterplot-filter-design VTK Filter Design
 * The input and output ports of the filter:
 *      Input port : the input data set should be a vtkUnstructuredGrid, with each of its
 *                   cell defined as a tetrahedron. At least two scalar fields are
@@ -144,7 +144,7 @@
 *                   is stored in an point data array named "volume" in the output
 *                   vtkImageData.
 *
-* @section How To Use This Filter
+* @section vtkContinuousScatterplot-how-to-use How To Use This Filter
 * Suppose we have a tetrahedral mesh stored in a vtkUnstructuredGrid, we call this
 * data set "inputData". This data set has two scalar arrays whose names are "f1"
 * and "f2" respectively. We would like the resolution of output image set to (resX,resY).

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 /**
- * @class   vtkImageMagnitude
- * @brief   Colapses components with magnitude function..
+ * @class   vtkImageMagnitude.h
+ * @brief   Colapses components with magnitude function.
  *
  * vtkImageMagnitude takes the magnitude of the components.
  */

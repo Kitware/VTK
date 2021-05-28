@@ -20,7 +20,7 @@
 #include <utility>
 
 /**
- * @file vtkMeta
+ * @file vtkMeta.h
  * This file contains a variety of metaprogramming constructs for working
  * with vtk types.
  */

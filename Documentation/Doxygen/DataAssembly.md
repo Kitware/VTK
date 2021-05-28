@@ -4,7 +4,7 @@ VTK 10.0 introduces a new mechanism for representing data hierarchies
 using vtkPartitionedDataSetCollection and vtkDataAssembly. This document
 describes the design details.
 
-#Data Model
+# Data Model
 
 The design is based on three classes:
 
@@ -14,7 +14,7 @@ The design is based on three classes:
 * `vtkDataAssembly` defines the hierarchical relationships between items in a
   `vtkPartitionedDataSetCollection`.
 
-##Partitioned Dataset
+## Partitioned Dataset
 
 `vtkPartitionedDataSet` is simply a collection of datasets that are to be
 treated as a logical whole. In data-parallel applications, each dataset may
@@ -27,7 +27,7 @@ a `vtkPartitionedDataSet` comprises of `vtkDataSet` subclasses, all will have
 exactly the same number of point data/cell data arrays, with same names, same
 number of components, and same data types.
 
-##Partitioned Dataset Collection
+## Partitioned Dataset Collection
 
 `vtkPartitionedDataSetCollection` is a collection of `vtkPartitionedDataSet`.
 Thus, it is simply a mechanism to group multiple `vtkPartitionedDataSet`
@@ -40,7 +40,7 @@ between each items, partitioned-datasets, in the `vtkPartitionedDataSetCollectio
 Thus, in the multiblock-dataset parlance, each item in this collection can be thought
 of as a block.
 
-##Data Assembly
+## Data Assembly
 
 `vtkDataAssembly` is a means to define an hierarchical organization of items in a
 `vtkPartitionedDataSetCollection`. This is literally a tree made up of named nodes.
@@ -66,7 +66,7 @@ supports a mechanism to iterate over all nodes in depth-first or breadth-first
 order using a *visitor*. vtkDataAssemblyVisitor defines a API that can be
 implemented to do custom action as each node in the tree is visited.
 
-#Design Implications
+# Design Implications
 
 1. Since `vtkPartitionedDataSet` is simply parts of a whole, there is no specific significance
    to the number of partitions. In distributed pipelines, for example, a `vtkPartitionedDataSet`

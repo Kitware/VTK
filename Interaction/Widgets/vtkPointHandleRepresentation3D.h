@@ -116,6 +116,7 @@ public:
   vtkBooleanMacro(TranslationMode, vtkTypeBool);
   ///@}
 
+  ///@{
   /**
    * Convenience methods to turn outline and shadows on and off.
    */

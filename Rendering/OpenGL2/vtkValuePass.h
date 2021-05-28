@@ -138,7 +138,7 @@ protected:
    */
 
   /**
-   * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
+   * Use vtkShaderProgram::Substitute to replace @code //VTK::XXX:YYY @endcode declarations in
    * the shader sources. Gets called after other mapper shader replacements.
    * Return false on error.
    */

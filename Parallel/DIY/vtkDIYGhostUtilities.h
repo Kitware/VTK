@@ -99,7 +99,7 @@ public:
 
   /**
    * This helper structure owns a typedef to the block type of `DataSetT` used with diy to generate
-   * ghosts. This block type is defined as `DataSetTypeToBlockTypeConverter<DataSetT>::BlockType`.
+   * ghosts. This block type is defined as \c DataSetTypeToBlockTypeConverter<DataSetT>::BlockType.
    */
   template <class DataSetT>
   struct DataSetTypeToBlockTypeConverter;

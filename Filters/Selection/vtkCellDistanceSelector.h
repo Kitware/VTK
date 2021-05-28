@@ -43,13 +43,13 @@ class vtkSelection;
 class vtkAlgorithmOutput;
 class vtkDataArray;
 
-///@{
 /**
  * Grows a selection, selecting neighbor cells, up to a user defined topological distance
  */
 class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAlgorithm
 {
 public:
+  ///@{
   vtkTypeMacro(vtkCellDistanceSelector, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
