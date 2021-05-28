@@ -46,7 +46,7 @@
  * on when it is known that the data is spatially partitioned as is the case
  * after this filter has executed.
  *
- * @section SupportedDataTypes  Supported Data Types
+ * @section vtkRedistributeDataSetFilter-SupportedDataTypes  Supported Data Types
  *
  * vtkRedistributeDataSetFilter is primarily intended for unstructured datasets
  * i.e. vtkUnstructuredGrid, vtkPolyData and composite datasets comprising of

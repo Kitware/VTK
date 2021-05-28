@@ -21,7 +21,7 @@
  *
  * It combines results from all ranks and produce non-empty result only on rank 0.
  *
- * @caveats Caveats Caveats
+ * @section vtkPExtractDataArraysOverTime-caveats Caveats
  *
  * This filter's behavior when `ReportStatisticsOnly` is true is buggy and will
  * change in the future. When `ReportStatisticsOnly` currently, each rank

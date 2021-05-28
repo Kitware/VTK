@@ -23,7 +23,7 @@
  * The specific data-assembly to use to apply the selectors to determine the
  * blocks to extract is chosen using `vtkExtractBlockUsingDataAssembly::SetAssemblyName`.
  *
- * @section SupportedDataTypes Supported Data Types
+ * @section vtkExtractBlockUsingDataAssembly-SupportedDataTypes Supported Data Types
  *
  * This filter accepts `vtkUniformGridAMR`,
  * `vtkMultiBlockDataSet`, and `vtkPartitionedDataSetCollection` (and

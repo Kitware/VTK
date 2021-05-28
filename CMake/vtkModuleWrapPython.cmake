@@ -6,7 +6,7 @@
 @file vtkModuleWrapPython.cmake
 @brief APIs for wrapping modules for Python
 
-@section Limitations
+@section python-wrapping-limitations Limitations
 
 Known limitations include:
 

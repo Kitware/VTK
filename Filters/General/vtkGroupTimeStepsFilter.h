@@ -25,7 +25,7 @@
  * the input cannot be stored in a vtkPartitionedDataSetCollection,
  * vtkMultiBlockDataSet is created instead.
  *
- * @section Limitations Limitations
+ * @section vtkGroupTimeStepsFilter-Limitations Limitations
  *
  * The filter may not work correctly if the input dataset type changes over
  * time.
