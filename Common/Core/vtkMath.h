@@ -1027,7 +1027,7 @@ public:
    * The quaternion is in the form [w, x, y, z].
    * The method used is that of B.K.P. Horn.
    * See: https://people.csail.mit.edu/bkph/articles/Quaternions.pdf
-   * @saQuaternionToMatrix3x3() MultiplyQuaternion()
+   * @sa QuaternionToMatrix3x3() MultiplyQuaternion()
    * @sa vtkQuaternion
    */
   static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);

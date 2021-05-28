@@ -28,7 +28,7 @@
  * should be implemented with this in mind to provide a predictable
  * compressor interface for vtkDataCompressor users.
  *
- * @pat Thanks:
+ * @par Thanks:
  * Homogeneous CompressionLevel behavior contributed by Quincy Wofford
  * (qwofford@lanl.gov) and John Patchett (patchett@lanl.gov)
  *
