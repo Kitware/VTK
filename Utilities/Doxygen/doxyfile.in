@@ -45,7 +45,8 @@ ALLEXTERNALS         = NO
 IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" \
                        "@VTK_SOURCE_DIR@/Filters" \
                        "@VTK_SOURCE_DIR@/Geovis" \
-                       "@VTK_SOURCE_DIR@/Rendering"
+                       "@VTK_SOURCE_DIR@/Rendering" \
+                       "@VTK_SOURCE_DIR@"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
