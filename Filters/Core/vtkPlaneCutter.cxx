@@ -49,7 +49,10 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridBase.h"
+
+#include <cmath>
+#include <unordered_map>
 
 vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
@@ -439,13 +442,13 @@ struct PointSetFunctor : public CuttingFunctor
 // Process unstructured grids
 struct UnstructuredGridFunctor : public PointSetFunctor
 {
-  vtkUnstructuredGrid* Grid;
+  vtkUnstructuredGridBase* Grid;
 
   UnstructuredGridFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
     vtkSphereTree* tree, double* origin, double* normal, bool interpolate)
     : PointSetFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
-    this->Grid = vtkUnstructuredGrid::SafeDownCast(input);
+    this->Grid = vtkUnstructuredGridBase::SafeDownCast(input);
     this->SetInPoints(this->Grid->GetPoints());
   }
 
@@ -490,6 +493,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
     vtkPoints* cellPoints;
     const unsigned char* selected = this->Selected + beginCellId;
 
+    vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
     // Loop over the cell, processing only the one that are needed
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
@@ -505,7 +509,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
       else
       {
         // without a sphere tree, use the inOutPoints
-        needCell = this->IsCellSlicedByPlane(cellId);
+        needCell = this->IsCellSlicedByPlane(cellId, pointIds);
       }
       if (needCell)
       {
@@ -548,11 +552,13 @@ struct UnstructuredGridFunctor : public PointSetFunctor
 
   void Reduce() { PointSetFunctor::Reduce(); }
 
-  bool IsCellSlicedByPlane(vtkIdType cellId)
+  bool IsCellSlicedByPlane(vtkIdType cellId, vtkIdList* pointIds)
   {
     vtkIdType npts;
     const vtkIdType* pts;
-    this->Grid->GetCellPoints(cellId, npts, pts);
+    this->Grid->GetCellPoints(cellId, pointIds);
+    npts = pointIds->GetNumberOfIds();
+    pts = pointIds->GetPointer(0);
     return this->ArePointsAroundPlane(npts, pts);
   }
 
@@ -1910,7 +1916,8 @@ int vtkPlaneCutter::ExecuteDataSet(
       input, output, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes);
   }
 
-  else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+  // get any implemenations of vtkUnstructuredGridBase
+  else if (vtkUnstructuredGridBase::SafeDownCast(input))
   {
     UnstructuredGridFunctor::Execute(
       input, output, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes);
