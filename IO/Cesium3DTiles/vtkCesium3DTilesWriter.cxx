@@ -179,8 +179,6 @@ std::array<double, 6> AddBuildingsWithTexture(vtkMultiBlockDataSet* root,
 
   // translate the buildings so that the minimum wholeBB is at 0,0,0
   offset = { { wholeBB[0], wholeBB[2], wholeBB[4] } };
-
-  std::cout << "offset: " << offset[0] << ", " << offset[1] << ", " << offset[2] << std::endl;
   vtkNew<vtkTransformFilter> f;
   vtkNew<vtkTransform> t;
   t->Identity();
@@ -221,7 +219,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->SaveTextures = true;
   this->SaveGLTF = true;
   this->NumberOfBuildingsPerTile = 100;
-  this->UTMZone = 0;
+  this->UTMZone = 1;
   this->UTMHemisphere = 'N';
   this->SrsName = nullptr;
 }

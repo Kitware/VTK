@@ -384,12 +384,12 @@ Json::Value TreeInformation::GenerateCesium3DTiles(vtkIncrementalOctreeNode* nod
     this->UTMHemisphere, this->NodeBounds[node->GetID()], this->Offset);
   std::ostringstream ostr;
   ostr << std::string("NodeBounds(") << node->GetID() << ")";
-  PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
-  std::cout << "lonlatheight: " << (lonlatheight[0] * 180.0) / vtkMath::Pi() << " "
-            << (lonlatheight[1] * 180.0) / vtkMath::Pi() << " "
-            << (lonlatheight[2] * 180.0) / vtkMath::Pi() << " "
-            << (lonlatheight[3] * 180.0) / vtkMath::Pi() << " " << lonlatheight[4] << " "
-            << lonlatheight[5] << " " << std::endl;
+  // PrintBounds(ostr.str(), &this->NodeBounds[node->GetID()][0]);
+  // std::cout << "lonlatheight: " << (lonlatheight[0] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonlatheight[1] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonlatheight[2] * 180.0) / vtkMath::Pi() << " "
+  //           << (lonlatheight[3] * 180.0) / vtkMath::Pi() << " " << lonlatheight[4] << " "
+  //           << lonlatheight[5] << " " << std::endl;
   for (int i = 0; i < 6; ++i)
   {
     v[i] = lonlatheight[i];
