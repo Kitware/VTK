@@ -187,7 +187,8 @@ public:
    * @param dimension
    * @param numberOfChildren
    */
-  void Initialize(unsigned char, unsigned char, unsigned char);
+  void Initialize(
+    unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren);
 
   /**
    * Restore a state from read data, without using a cursor
@@ -247,6 +248,8 @@ public:
    * one can create one unique big array for an entire `vtkHyperTreeGrid`
    * concatenating breadth first order description and mapping of concatenated
    * trees.
+   *
+   * @param inputMask the mask provided by `vtkHyperTreeGrid`.
    *
    * @param numberOfVerticesPerDepth is self explanatory: from depth 0 to the maximum
    * depth of the tree, it stores the number of vertices at each depth. If the

@@ -211,6 +211,10 @@ public:
    * - VTK_MARKER_CIRCLE
    * - VTK_MARKER_DIAMOND
    * Marker size is determined by the current pen width.
+   * \param shape the shape of the marker
+   * \param highlight whether to highlight the marker or not
+   * \param points where to draw the markers
+   * \param n number of points
    * \param colors is an optional array of colors.
    * \param nc_comps is the number of components for the color.
    */

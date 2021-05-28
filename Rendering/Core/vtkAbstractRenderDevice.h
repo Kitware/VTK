@@ -44,6 +44,7 @@ public:
   /**
    * @brief Create a window with the desired geometry.
    * @param geometry The geometry in screen coordinates for the window.
+   * @param name The name of the window.
    * @return True on success, false on failure.
    */
   virtual bool CreateNewWindow(const vtkRecti& geometry, const std::string& name) = 0;

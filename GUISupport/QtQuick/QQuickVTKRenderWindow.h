@@ -197,7 +197,7 @@ public:
   /**
    * Capture a screenshot of the window
    *
-   * \param Viewport area to capture.
+   * \param viewport area to capture.
    * \returns Image data containing the window capture.
    * \note This triggers a scenegraph update to capture the render window view.
    */

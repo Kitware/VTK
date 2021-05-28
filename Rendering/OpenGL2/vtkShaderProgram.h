@@ -214,7 +214,7 @@ public:
    * this is useful for building up shader strings which typically involve
    * lots of string substitutions.
    *
-   * \param[in] shader  The source shader object to perform substitutions on
+   * \param[in] source  The source code to perform substitutions on
    * \param[in] search  The string to search for
    * \param[in] replace The string replacement
    * \param[in] all     Whether to replace all matches or just the first one
