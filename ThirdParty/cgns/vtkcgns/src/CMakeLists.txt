@@ -30,11 +30,11 @@ endif (CGNS_ENABLE_HDF5)
 # create configured header files #
 ################################
 
-if ("${SIZE_OF_LONG}" GREATER 4)
+if ("${SIZEOF_LONG}" GREATER 4)
   set(CGLONGT long)
-else ("${SIZE_OF_LONG}" GREATER 4)
+else ("${SIZEOF_LONG}" GREATER 4)
   set(CGLONGT "long long")
-endif ("${SIZE_OF_LONG}" GREATER 4)
+endif ("${SIZEOF_LONG}" GREATER 4)
 
 set(BUILDLEGACY 0)
 set(BUILD64BIT 0)
@@ -75,15 +75,35 @@ else (WIN32)
   set(LIBS -lm)
 endif (WIN32)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+include(CheckCCompilerFlag)
+macro(check_and_add_compiler_option _option)
+  message(STATUS "Checking C compiler flag ${_option}")
+  string(REPLACE "=" "-" _temp_option_variable ${_option})
+  string(REGEX REPLACE "^-" "" _option_variable ${_temp_option_variable})
+  check_c_compiler_flag("${_option}" ${_option_variable})
+  if(${${_option_variable}})
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_option}")
+  endif()
+endmacro()
+if (CMAKE_C_COMPILER_ID MATCHES "GNU")
+  check_and_add_compiler_option("-std=gnu99")
+elseif (CMAKE_C_COMPILER_ID MATCHES "XL")
+  check_and_add_compiler_option("-qlanglvl=extc99")
+elseif(CMAKE_C_COMPILER_ID MATCHES "Sun")
+  check_and_add_compiler_option("-xc99")
+endif()
+
 string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug IS_DEBUG)
 if (IS_DEBUG)
   set(BUILDDEBUG 1)
-  set(CFLAGS ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG})
-  set(LDFLAGS ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
+  set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
+  set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
 else (IS_DEBUG)
   set(BUILDDEBUG 0)
-  set(CFLAGS ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE})
-  set(LDFLAGS ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_RELEASE})
+  set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
+  set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 endif (IS_DEBUG)
 endif ()
 
@@ -107,6 +127,26 @@ set(HDF5_HAVE_COLL_METADATA 0)
 set(HDF5_HAVE_FILE_SPACE_STRATEGY 0)
 set(FORTRAN_DEFAULT_INTEGER_C_INT64_T 0)
 set(HAVE_STAT64_STRUCT 0)
+set(HAVE_COMPLEX_C99_EXT 0)
+
+#For cg_hash_types.h.in
+CHECK_INCLUDE_FILE(stdint.h HAVE_STDINT_H)
+set(SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P})
+
+include(CheckCSourceCompiles)
+check_c_source_compiles("
+#include <complex.h>
+int main(int argc, char *argv[]){
+#if !defined(_MSC_VER)
+float _Complex a[2];
+__real__(a[1]) = (float) 1.0;
+__imag__(a[1]) = (float) 0.0;
+#endif
+return 0;
+}
+"
+  HAVE_COMPLEX_C99_EXT
+)
 
 if (BUILDFORTRAN)
 
@@ -508,6 +548,8 @@ if (FALSE) # XXX(kitware): No need for this.
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cgnsBuild.defs.in
 		${CMAKE_CURRENT_BINARY_DIR}/cgnsBuild.defs )
 endif ()
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cg_hash_types.h.in
+		${CMAKE_CURRENT_BINARY_DIR}/cg_hash_types.h )
 
 include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -521,6 +563,7 @@ set(cgns_C_FILES
 	cgns_internals.c
 	cgns_io.c
 	cgnslib.c
+	cg_hashmap.c
 	adf/ADF_interface.c
 	adf/ADF_internals.c)
 
@@ -554,12 +597,11 @@ else (CGNS_ENABLE_FORTRAN)
 endif (CGNS_ENABLE_FORTRAN)
 
 if (FALSE) # XXX(kitware): Handled by ParaView.
-set(CGNS_BUILD_SHARED "ON" CACHE BOOL "Build a shared version of the library")
 option(CGNS_USE_SHARED "Link programs to the CGNS shared library" "ON")
 
 # Build a static version of the library
 if (CGNS_ENABLE_FORTRAN)
-    add_library(cgns_static STATIC ${cgns_FILES} $<TARGET_OBJECTS:cgns_f2c>)
+  add_library(cgns_static STATIC ${cgns_FILES} $<TARGET_OBJECTS:cgns_f2c>)
 else (CGNS_ENABLE_FORTRAN)
   add_library(cgns_static STATIC ${cgns_FILES})
 endif (CGNS_ENABLE_FORTRAN)
@@ -570,14 +612,15 @@ set_property(TARGET cgns_static PROPERTY LINKER_LANGUAGE C)
 if(CGNS_BUILD_SHARED)
   mark_as_advanced(CLEAR CGNS_USE_SHARED)
   if (CGNS_ENABLE_FORTRAN)
-    add_library(cgns_shared SHARED ${cgns_FILES} cgns_f.F90)
+    add_library(cgns_shared SHARED ${cgns_FILES} $<TARGET_OBJECTS:cgns_f2c>)
   else (CGNS_ENABLE_FORTRAN)
     add_library(cgns_shared SHARED ${cgns_FILES})
   endif (CGNS_ENABLE_FORTRAN)
   # under windows we need to define BUILD_DLL
   # and link with the HDF5 libraries to build a dll
   if (WIN32 OR CYGWIN)
-    add_definitions(-DBUILD_DLL)
+    target_compile_definitions(cgns_shared PRIVATE -DBUILD_DLL)
+    target_compile_definitions(cgns_shared INTERFACE -DUSE_DLL)
   endif (WIN32 OR CYGWIN)
   if (CGNS_ENABLE_HDF5 AND HDF5_LIBRARY)
     target_link_libraries(cgns_shared ${HDF5_LIBRARY} ${CMAKE_DL_LIBS})
