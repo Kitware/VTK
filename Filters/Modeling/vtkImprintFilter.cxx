@@ -676,7 +676,7 @@ struct BoundsCull
   {
     // Loop over all cell marks, and output the target candidate cells
     // accordingly. Note that if just the target candidate cells are desired,
-    // the other cells are not output.
+    // or just the imprinted region is desired, the other cells are not output.
     vtkIdType npts;
     const vtkIdType* pts;
     vtkPolyData* target = this->Target;
@@ -693,7 +693,8 @@ struct BoundsCull
       {
         candidateOutput->InsertNextCell(*iter, npts, pts);
       }
-      else if (outputType != vtkImprintFilter::TARGET_CELLS)
+      else if (outputType != vtkImprintFilter::TARGET_CELLS &&
+        outputType != vtkImprintFilter::IMPRINTED_REGION)
       {
         output->InsertNextCell(-(*iter), npts, pts);
       }
@@ -1637,7 +1638,8 @@ struct Triangulate
   vtkCandidateList* CandidateList;
   vtkPolyData* Output;
   vtkIdType TargetOffset;
-  vtkIdType DebugOption; // used for debugging
+  int OutputType;
+  int DebugOption; // used for debugging
   vtkIdType DebugCellId;
   vtkPolyData* DebugOutput;
   vtkPointClassifier* PtClassifier;
@@ -1648,7 +1650,7 @@ struct Triangulate
   vtkSMPThreadLocal<vtkSmartPointer<vtkIdList>> OutTris;
 
   Triangulate(vtkPoints* outPts, vtkPointList* pl, vtkPolyData* candidates, vtkCandidateList* ca,
-    vtkPolyData* output, vtkIdType offset, vtkIdType debugOption, vtkIdType debugCellId,
+    vtkPolyData* output, vtkIdType offset, int outputType, int debugOption, vtkIdType debugCellId,
     vtkPolyData* debugOutput, vtkPointClassifier* pc, bool triOutput)
     : OutPts(outPts)
     , PointList(pl)
@@ -1656,6 +1658,7 @@ struct Triangulate
     , CandidateList(ca)
     , Output(output)
     , TargetOffset(offset)
+    , OutputType(outputType)
     , DebugOption(debugOption)
     , DebugCellId(debugCellId)
     , DebugOutput(debugOutput)
@@ -2049,6 +2052,7 @@ struct Triangulate
     const vtkIdType* pts;
     int cellType;
     vtkIdType numCandidates = static_cast<vtkIdType>(this->CandidateList->size());
+    int outputType = this->OutputType;
 
     for (auto cellId = 0; cellId < numCandidates; cellId++)
     {
@@ -2057,10 +2061,13 @@ struct Triangulate
       // output.
       if (cInfo == nullptr)
       {
-        cellType = this->Candidates->GetCellType(cellId);
-        this->Candidates->GetCellPoints(cellId, npts, pts);
-        cId = this->Output->InsertNextCell(cellType, npts, pts);
-        this->CellLabels->InsertValue(cId, CellClassification::TargetCell);
+        if (outputType != vtkImprintFilter::IMPRINTED_REGION)
+        {
+          cellType = this->Candidates->GetCellType(cellId);
+          this->Candidates->GetCellPoints(cellId, npts, pts);
+          cId = this->Output->InsertNextCell(cellType, npts, pts);
+          this->CellLabels->InsertValue(cId, CellClassification::TargetCell);
+        }
       }
 
       // Otherwise, the results of the tessellation are sent to
@@ -2075,8 +2082,12 @@ struct Triangulate
           npts = cInfo->OutCellsNPts[i];
           pts = conn + offset;
           cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
-          cId = this->Output->InsertNextCell(cellType, npts, pts);
-          this->CellLabels->InsertValue(cId, cInfo->OutCellsClass[i]);
+          if (outputType == vtkImprintFilter::IMPRINTED_REGION &&
+            cInfo->OutCellsClass[i] == ImprintCell)
+          {
+            cId = this->Output->InsertNextCell(cellType, npts, pts);
+            this->CellLabels->InsertValue(cId, cInfo->OutCellsClass[i]);
+          }
           offset += npts;
         } // for all cells in this target candidate cell
       }   // target cell has been triangulated
@@ -2254,7 +2265,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // constraint edges are associated with the candidate cells via the
   // candidate array.
   Triangulate tri(outPts, &pList, candidateOutput, &candidateList, output, numTargetPts,
-    this->DebugOutputType, this->DebugCellId, out2, &pc, this->TriangulateOutput);
+    this->OutputType, this->DebugOutputType, this->DebugCellId, out2, &pc, this->TriangulateOutput);
   vtkSMPTools::For(0, numCandidateCells, tri);
 
   return 1;

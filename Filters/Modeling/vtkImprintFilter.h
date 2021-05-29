@@ -144,7 +144,8 @@ public:
     TARGET_CELLS = 0,
     IMPRINTED_CELLS = 1,
     PROJECTED_IMPRINT = 2,
-    MERGED_IMPRINT = 3
+    IMPRINTED_REGION = 3,
+    MERGED_IMPRINT = 4
   };
 
   ///@{
@@ -156,14 +157,16 @@ public:
    * after intersection and triangulation with the imprint mesh;
    * PROJECTED_IMPRINT - project the imprint mesh onto the target mesh,
    * modififying the imprint mesh point coordinates to lie on the target mesh;
-   * MERGED_IMPRINT - merge the target and imprint meshs after the imprint
-   * operation. By default, MERGED_IMPRINT is produced.
+   * IMPRINTED_REGION - extract just the area of contact between the target
+   * and imprint; and MERGED_IMPRINT - merge the target and imprint mesh
+   * after the imprint operation. By default, MERGED_IMPRINT is produced.
    */
   vtkSetClampMacro(OutputType, int, TARGET_CELLS, MERGED_IMPRINT);
   vtkGetMacro(OutputType, int);
   void SetOutputTypeToTargetCells() { this->SetOutputType(TARGET_CELLS); }
   void SetOutputTypeToImprintedCells() { this->SetOutputType(IMPRINTED_CELLS); }
   void SetOutputTypeToProjectedImprint() { this->SetOutputType(PROJECTED_IMPRINT); }
+  void SetOutputTypeToImprintedRegion() { this->SetOutputType(IMPRINTED_REGION); }
   void SetOutputTypeToMergedImprint() { this->SetOutputType(MERGED_IMPRINT); }
   ///@}
 
