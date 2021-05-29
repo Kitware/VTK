@@ -2082,7 +2082,7 @@ struct Triangulate
           npts = cInfo->OutCellsNPts[i];
           pts = conn + offset;
           cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
-          if (outputType == vtkImprintFilter::IMPRINTED_REGION &&
+          if (outputType != vtkImprintFilter::IMPRINTED_REGION ||
             cInfo->OutCellsClass[i] == ImprintCell)
           {
             cId = this->Output->InsertNextCell(cellType, npts, pts);
