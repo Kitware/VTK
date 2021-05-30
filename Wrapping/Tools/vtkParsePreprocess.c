@@ -55,10 +55,6 @@
 #define HASH_LINE 0x7c9a15adu
 #define HASH_PRAGMA 0x1566a9fdu
 
-/* globals for cacheing directory listings */
-static StringCache system_info_strings = { 0, 0, 0, 0 };
-static SystemInfo system_info = { &system_info_strings, NULL, NULL };
-
 /** Extend dynamic arrays in a progression of powers of two.
  * Whenever "n" reaches a power of two, then the array size is
  * doubled so that "n" can be safely incremented. */
@@ -1835,7 +1831,7 @@ const char* preproc_find_include_file(
           }
         }
       }
-      else if (vtkParse_FileExists(&system_info, output) == VTK_PARSE_ISFILE)
+      else if (vtkParse_FileExists(info->System, output) == VTK_PARSE_ISFILE)
       {
         nn = info->NumberOfIncludeFiles;
         info->IncludeFiles =
@@ -4753,6 +4749,7 @@ void vtkParsePreprocess_Init(PreprocessInfo* info, const char* filename)
   info->ConditionalDepth = 0;
   info->ConditionalDone = 0;
   info->MacroCounter = 0;
+  info->System = NULL;
 
   if (filename)
   {

@@ -44,6 +44,7 @@
 #define vtkParsePreprocess_h
 
 #include "vtkParseString.h"
+#include "vtkParseSystem.h"
 #include "vtkWrappingToolsModule.h"
 
 /**
@@ -91,6 +92,7 @@ typedef struct _PreprocessInfo
   int ConditionalDepth; /* internal state variable */
   int ConditionalDone;  /* internal state variable */
   int MacroCounter;     /* for ordering macro definitions */
+  SystemInfo* System;   /* for cacheing the file system directory */
 } PreprocessInfo;
 
 /**

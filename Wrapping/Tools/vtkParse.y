@@ -152,6 +152,10 @@ int yylex(void);
 FileInfo      *data = NULL;
 int            parseDebug;
 
+/* globals for cacheing directory listings */
+static StringCache system_strings = { 0, 0, 0, 0 };
+static SystemInfo system_cache = { &system_strings, NULL, NULL };
+
 /* the "preprocessor" */
 PreprocessInfo *preprocessor = NULL;
 
@@ -4904,6 +4908,7 @@ FileInfo *vtkParse_ParseFile(
   preprocessor = (PreprocessInfo *)malloc(sizeof(PreprocessInfo));
   vtkParsePreprocess_Init(preprocessor, filename);
   preprocessor->Strings = data->Strings;
+  preprocessor->System = &system_cache;
   vtkParsePreprocess_AddStandardMacros(preprocessor,
     PredefinePlatformMacros ? VTK_PARSE_NATIVE : VTK_PARSE_UNDEF);
 
@@ -5132,6 +5137,13 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
   return 1;
 }
 
+/* Free any caches or buffers, call just before program exits */
+void vtkParse_FinalCleanup(void)
+{
+  vtkParse_FreeFileCache(&system_cache);
+  vtkParse_FreeStringCache(&system_strings);
+}
+
 /* Free the FileInfo struct returned by vtkParse_ParseFile() */
 void vtkParse_Free(FileInfo *file_info)
 {
@@ -5233,8 +5245,8 @@ void vtkParse_IncludeDirectory(const char *dirname)
 /** Return the full path to a header file.  */
 const char *vtkParse_FindIncludeFile(const char *filename)
 {
-  static StringCache cache = {0, 0, 0, 0};
-  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, &cache, 0, 0, 0, 0};
+  static StringCache string_cache = { 0, 0, 0, 0 };
+  static PreprocessInfo info = { 0, 0, 0, 0, 0, 0, &string_cache, 0, 0, 0, 0, &system_cache };
   int val;
   int i;
 

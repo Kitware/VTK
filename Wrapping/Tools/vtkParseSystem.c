@@ -226,17 +226,6 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
     return VTK_PARSE_NOFILE;
   }
 
-  /* Case insensisivity is a sticky issue for the cache. Case-insensitive
-     filesystems are possible on all platforms, and there is no efficient
-     way to check beforehand whether a directory is case-sensitive.
-     If the wrong case is used for a directory name on a case-insensitive
-     filesystem, the directory might be scanned and cached more than once,
-     which is a minor issue.
-     However, if the wrong case is used for a filename, the file might not
-     be found. Since VTK is tested cross-platform, can we assume the correct
-     case is always used for all filenames that are encountered in the build?
-  */
-
   /* check if the file is already cached */
   result = system_file_cached(info, name, l);
   if (result != VTK_PARSE_NOFILE)
@@ -280,9 +269,6 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
   {
     fullname[l] = '/';
   }
-
-  /* Note: MAX_PATH for FindFirstFile is only 260 characters.
-     FindFirstFileW (unicode paths) allows 32767 characters. */
 
   /* begin the search, using local text encoding */
   dirhandle = FindFirstFile(fullname, &entry);
