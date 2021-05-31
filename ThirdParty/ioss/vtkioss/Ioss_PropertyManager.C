@@ -22,7 +22,6 @@ Ioss::PropertyManager::PropertyManager(const PropertyManager &from)
 Ioss::PropertyManager::~PropertyManager()
 {
   try {
-    IOSS_FUNC_ENTER(m_);
     m_properties.clear();
   }
   catch (...) {
@@ -50,7 +49,6 @@ void Ioss::PropertyManager::add(const Ioss::Property &new_prop)
  */
 bool Ioss::PropertyManager::exists(const std::string &property_name) const
 {
-  IOSS_FUNC_ENTER(m_);
   return (m_properties.find(property_name) != m_properties.end());
 }
 

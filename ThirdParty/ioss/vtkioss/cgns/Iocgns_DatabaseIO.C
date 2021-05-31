@@ -48,7 +48,6 @@
 #include "Ioss_SmartAssert.h"
 #include "Ioss_SubSystem.h"
 
-// xxx(kitware)
 //extern char hdf5_access[64];
 
 namespace {
@@ -583,10 +582,17 @@ namespace Iocgns {
   void DatabaseIO::openDatabase__() const
   {
     if (m_cgnsFilePtr < 0) {
+#if 0
+      // This is currently disabled due to a recent change in CGNS
+      // that changed how `hdf5_access` was dealt with...  Since
+      // memory_read and memory_write are experimental in SEACAS/IOSS,
+      // I disabled until we can determine how best to handle this in
+      // current CGNS.
       if ((is_input() && properties.exists("MEMORY_READ")) ||
           (!is_input() && properties.exists("MEMORY_WRITE"))) {
-        // Ioss::Utils::copy_string(hdf5_access, "PARALLEL");
+	Ioss::Utils::copy_string(hdf5_access, "PARALLEL");
       }
+#endif
 
       CGCHECKM(cg_set_file_type(CG_FILE_HDF5));
 
@@ -618,10 +624,12 @@ namespace Iocgns {
 #endif
       // Will not return if error...
       check_valid_file_open(ierr);
+#if 0
       if ((is_input() && properties.exists("MEMORY_READ")) ||
           (!is_input() && properties.exists("MEMORY_WRITE"))) {
-       // Ioss::Utils::copy_string(hdf5_access, "NATIVE");
+        Ioss::Utils::copy_string(hdf5_access, "NATIVE");
       }
+#endif
 
       if (properties.exists("INTEGER_SIZE_API")) {
         int isize = properties.get("INTEGER_SIZE_API").get_int();
@@ -1246,8 +1254,29 @@ namespace Iocgns {
       for (auto &conn : block->m_zoneConnectivity) {
         if (conn.m_donorZone < 0) {
           auto donor_iter = m_zoneNameMap.find(conn.m_donorName);
-          SMART_ASSERT(donor_iter != m_zoneNameMap.end());
-          conn.m_donorZone = (*donor_iter).second;
+	  if (donor_iter == m_zoneNameMap.end()) {
+	    if (proc_count == 1) {
+	      // This is most likely a parallel decomposed model, but only a single
+	      // part is being accessed.  Do the best we can without being able to
+	      // access the data on the other processor files...
+	      auto zname_proc = Iocgns::Utils::decompose_name(conn.m_donorName, true);
+	      conn.m_donorProcessor = zname_proc.second;
+	      auto donor_block = get_region()->get_structured_block(zname_proc.first);
+	      if (donor_block != nullptr) {
+		conn.m_donorZone = Iocgns::Utils::get_db_zone(donor_block);
+	      }
+	      else {
+		// Since we are only accessing a single file in a decomposed
+		// set of fpp files, we can't access the donor zone on the
+		// other processor(s), so we have to set the ZGC to inactive.
+		conn.m_isActive = false;
+	      }
+	    }
+	    else {
+	      SMART_ASSERT(donor_iter != m_zoneNameMap.end());
+	      conn.m_donorZone = (*donor_iter).second;
+	    }
+	  }
         }
         if (proc_count > 1) {
           int         offset = (conn.m_donorProcessor * blocks.size() + (conn.m_donorZone - 1)) * 3;

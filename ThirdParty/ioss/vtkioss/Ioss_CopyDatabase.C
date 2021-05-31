@@ -174,7 +174,7 @@ void Ioss::transfer_assemblies(Ioss::Region &region, Ioss::Region &output_region
     }
 
     if (options.verbose && rank == 0) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n", "Assemblies", assem.size());
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n", "Assemblies", assem.size());
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -200,9 +200,9 @@ void Ioss::transfer_blobs(Ioss::Region &region, Ioss::Region &output_region,
     }
 
     if (options.verbose && rank == 0) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}", (*blobs.begin())->type_string() + "s",
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}", (*blobs.begin())->type_string() + "s",
                  blobs.size());
-      fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14n}\n", total_entities);
+      fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14L}\n", total_entities);
     }
     if (options.debug && rank == 0) {
       fmt::print(Ioss::DEBUG(), "\n");
@@ -220,7 +220,7 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   // Minimize number of times that we grow the memory buffer used for transferring field data.
   size_t max_field_size = calculate_maximum_field_size(region);
   if (options.verbose && rank == 0) {
-    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {:n} bytes.\n", max_field_size);
+    fmt::print(Ioss::DEBUG(), "\n Maximum Field size = {:L} bytes.\n", max_field_size);
   }
 
   DataPool data_pool;
@@ -777,8 +777,8 @@ namespace {
       size_t num_nodes = inb->entity_count();
       size_t degree    = inb->get_property("component_degree").get_int();
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of Coordinates per Node = {:14n}\n", degree);
-        fmt::print(Ioss::DEBUG(), " Number of Nodes                = {:14n}\n", num_nodes);
+        fmt::print(Ioss::DEBUG(), " Number of Coordinates per Node = {:14L}\n", degree);
+        fmt::print(Ioss::DEBUG(), " Number of Nodes                = {:14L}\n", num_nodes);
       }
       auto *nb = new Ioss::NodeBlock(*inb);
       output_region.add(nb);
@@ -861,9 +861,9 @@ namespace {
         output_region.add(block);
       }
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n",
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
                    (*blocks.begin())->type_string() + "s", blocks.size());
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n",
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
                    (*blocks.begin())->contains_string() + "s", total_entities);
       }
       if (options.debug && rank == 0) {
@@ -929,9 +929,9 @@ namespace {
       }
 
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n",
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
                    (*blocks.begin())->type_string() + "s", blocks.size());
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n",
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
                    (*blocks.begin())->contains_string() + "s", total_entities);
       }
       if (options.debug && rank == 0) {
@@ -988,9 +988,9 @@ namespace {
     }
 
     if (options.verbose && rank == 0 && !fss.empty()) {
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n", (*fss.begin())->type_string() + "s",
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n", (*fss.begin())->type_string() + "s",
                  fss.size());
-      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}\n",
+      fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}\n",
                  (*fss.begin())->contains_string() + "s", total_sides);
     }
     if (options.debug && rank == 0) {
@@ -1016,9 +1016,9 @@ namespace {
       }
 
       if (options.verbose && rank == 0) {
-        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14n}",
+        fmt::print(Ioss::DEBUG(), " Number of {:20s} = {:14L}",
                    (*sets.begin())->type_string() + "s", sets.size());
-        fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14n}\n", total_entities);
+        fmt::print(Ioss::DEBUG(), "\tLength of entity list = {:14L}\n", total_entities);
       }
       if (options.debug && rank == 0) {
         fmt::print(Ioss::DEBUG(), "\n");

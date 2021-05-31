@@ -553,20 +553,20 @@ namespace Ioss {
         "\n Database: {0}\n"
         " Mesh Type = {1}, {39}\n"
         "                      {38:{24}s}\t                 {38:{23}s}\t Variables : Transient / Reduction\n"
-        " Spatial dimensions = {2:{24}n}\t                 {38:{23}s}\t Global     = {26:{25}n}\t{44:{25}n}\n"
-        " Node blocks        = {7:{24}n}\t Nodes         = {3:{23}n}\t Nodal      = {27:{25}n}\t{45:{25}n}\n"
-        " Edge blocks        = {8:{24}n}\t Edges         = {4:{23}n}\t Edge       = {33:{25}n}\t{46:{25}n}\n"
-        " Face blocks        = {9:{24}n}\t Faces         = {5:{23}n}\t Face       = {34:{25}n}\t{47:{25}n}\n"
-        " Element blocks     = {10:{24}n}\t Elements      = {6:{23}n}\t Element    = {28:{25}n}\t{48:{25}n}\n"
-        " Structured blocks  = {11:{24}n}\t Cells         = {17:{23}n}\t Structured = {29:{25}n}\t{49:{25}n}\n"
-        " Node sets          = {12:{24}n}\t Node list     = {18:{23}n}\t Nodeset    = {30:{25}n}\t{50:{25}n}\n"
-        " Edge sets          = {13:{24}n}\t Edge list     = {19:{23}n}\t Edgeset    = {35:{25}n}\t{51:{25}n}\n"
-        " Face sets          = {14:{24}n}\t Face list     = {20:{23}n}\t Faceset    = {36:{25}n}\t{52:{25}n}\n"
-        " Element sets       = {15:{24}n}\t Element list  = {21:{23}n}\t Elementset = {37:{25}n}\t{53:{25}n}\n"
-        " Element side sets  = {16:{24}n}\t Element sides = {22:{23}n}\t Sideset    = {31:{25}n}\n"
-        " Assemblies         = {40:{24}n}\t                 {38:{23}s}\t Assembly   = {41:{25}n}\t{54:{25}n}\n"
-        " Blobs              = {42:{24}n}\t                 {38:{23}s}\t Blob       = {43:{25}n}\t{55:{25}n}\n\n"
-        " Time steps         = {32:{24}n}\n",
+        " Spatial dimensions = {2:{24}L}\t                 {38:{23}s}\t Global     = {26:{25}L}\t{44:{25}L}\n"
+        " Node blocks        = {7:{24}L}\t Nodes         = {3:{23}L}\t Nodal      = {27:{25}L}\t{45:{25}L}\n"
+        " Edge blocks        = {8:{24}L}\t Edges         = {4:{23}L}\t Edge       = {33:{25}L}\t{46:{25}L}\n"
+        " Face blocks        = {9:{24}L}\t Faces         = {5:{23}L}\t Face       = {34:{25}L}\t{47:{25}L}\n"
+        " Element blocks     = {10:{24}L}\t Elements      = {6:{23}L}\t Element    = {28:{25}L}\t{48:{25}L}\n"
+        " Structured blocks  = {11:{24}L}\t Cells         = {17:{23}L}\t Structured = {29:{25}L}\t{49:{25}L}\n"
+        " Node sets          = {12:{24}L}\t Node list     = {18:{23}L}\t Nodeset    = {30:{25}L}\t{50:{25}L}\n"
+        " Edge sets          = {13:{24}L}\t Edge list     = {19:{23}L}\t Edgeset    = {35:{25}L}\t{51:{25}L}\n"
+        " Face sets          = {14:{24}L}\t Face list     = {20:{23}L}\t Faceset    = {36:{25}L}\t{52:{25}L}\n"
+        " Element sets       = {15:{24}L}\t Element list  = {21:{23}L}\t Elementset = {37:{25}L}\t{53:{25}L}\n"
+        " Element side sets  = {16:{24}L}\t Element sides = {22:{23}L}\t Sideset    = {31:{25}L}\n"
+        " Assemblies         = {40:{24}L}\t                 {38:{23}s}\t Assembly   = {41:{25}L}\t{54:{25}L}\n"
+        " Blobs              = {42:{24}L}\t                 {38:{23}s}\t Blob       = {43:{25}L}\t{55:{25}L}\n\n"
+        " Time steps         = {32:{24}L}\n",
         get_database()->get_filename(), mesh_type_string(),
         get_property("spatial_dimension").get_int(), get_property("node_count").get_int(),
         get_property("edge_count").get_int(), get_property("face_count").get_int(),
@@ -615,8 +615,6 @@ namespace Ioss {
         Ioss::Utils::generate_history_mesh(this);
         set_state(new_state);
       }
-
-      IOSS_FUNC_ENTER(m_);
       success = db->begin(new_state);
     }
     return success;
@@ -666,12 +664,22 @@ namespace Ioss {
    */
   bool Region::end_mode(State current_state)
   {
-    IOSS_FUNC_ENTER(m_);
-    return end_mode__(current_state);
+    bool success = true;
+    {
+      IOSS_FUNC_ENTER(m_);
+      success = end_mode__(current_state);
+    }
+
+    // Pass the 'end state' message on to the database so it can do any
+    // cleanup/data checking/manipulations it needs to do.
+    success = get_database()->end(current_state);
+    begin_mode(STATE_CLOSED);
+    return success;
   }
 
   bool Region::end_mode__(State current_state)
   {
+    bool success = true;
     // Check that 'current_state' matches the current state of the
     // Region (that is, we are leaving the state we are in).
     if (get_state() != current_state) {
@@ -756,13 +764,6 @@ namespace Ioss {
     else if (current_state == STATE_DEFINE_TRANSIENT) {
       transientDefined = true;
     }
-
-    // Pass the 'end state' message on to the database so it can do any
-    // cleanup/data checking/manipulations it needs to do.
-    DatabaseIO *db      = get_database();
-    bool        success = db->end(current_state);
-
-    begin_mode__(STATE_CLOSED);
 
     return success;
   }

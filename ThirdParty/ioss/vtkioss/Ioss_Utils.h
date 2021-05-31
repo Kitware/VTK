@@ -205,7 +205,7 @@ namespace Ioss {
      * (1,234,567,890 would return 13)
      * Typically used with the `fmt::print()` functions as:
      * ```
-     * fmt::print("{:{}n}", number, number_width(number,true))
+     * fmt::print("{:{}L}", number, number_width(number,true))
      * fmt::print("{:{}d}", number, number_width(number,false))
      * ```
      */

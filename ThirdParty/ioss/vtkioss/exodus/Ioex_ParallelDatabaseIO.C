@@ -888,7 +888,7 @@ namespace Ioex {
           // worst case...
           fmt::print(
               Ioss::WARNING(),
-              "Skipping step {:n} at time {} in database file\n\t{}.\nThe data for that step "
+              "Skipping step {:L} at time {} in database file\n\t{}.\nThe data for that step "
               "is possibly corrupt.\n",
               i + 1, tsteps[i], get_filename());
         }
@@ -4103,7 +4103,7 @@ void ParallelDatabaseIO::write_nodal_transient_field(ex_entity_type /* type */,
         fmt::print(errmsg,
                    "ERROR: Problem outputting nodal variable '{}' with index = {} to file '{}' on "
                    "processor {}\n"
-                   "\tShould have output {:n} values, but instead only output {:n} values.\n",
+                   "\tShould have output {:L} values, but instead only output {:L} values.\n",
                    var_name, var_index, get_filename(), myProcessor, nodeCount, num_out);
         IOSS_ERROR(errmsg);
       }
@@ -4237,7 +4237,7 @@ void ParallelDatabaseIO::write_entity_transient_field(ex_entity_type type, const
 
       if (ierr < 0) {
         std::ostringstream extra_info;
-        fmt::print(extra_info, "Outputting component {} of field '{}' at step {:n} on {} '{}'.", i,
+        fmt::print(extra_info, "Outputting component {} of field '{}' at step {:L} on {} '{}'.", i,
                    field_name, step, ge->type_string(), ge->name());
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__, extra_info.str());
       }

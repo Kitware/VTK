@@ -9,7 +9,7 @@
 
 namespace Ioss {
   class Region;
-  class MeshCopyOptions;
+  struct MeshCopyOptions;
 
   //! Copy the mesh in `region` to `output_region`.  Behavior can be controlled
   //! via options in `options`
