@@ -37,12 +37,13 @@
 #define CG_BUILD_SCOPE  @BUILDSCOPE@
 #define CG_BUILD_BASESCOPE @BUILDBASESCOPE@
 #define CG_BUILD_PARALLEL  @BUILDPARALLEL@
+#define CG_BUILD_COMPLEX_C99_EXT @HAVE_COMPLEX_C99_EXT@
 
 #define CG_MAX_INT32 0x7FFFFFFF
 #ifdef _WIN32
 # define CG_LONG_T __int64
 #ifdef _MSC_VER
-# ifdef CG_BUILD_64BIT
+# if CG_BUILD_64BIT
 #  define stat _stat32i64
 # endif
 #endif

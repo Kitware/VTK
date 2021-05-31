@@ -1270,7 +1270,7 @@ int cgio_copy_node (int cgio_num_inp, double id_inp,
             if (data_size) {
                 data = malloc((size_t)data_size);
                 if (data == NULL) return set_error(CGIO_ERR_MALLOC);
-                ADFH_Read_All_Data(id_inp, NULL, (char *)data, &ierr);
+                ADFH_Read_All_Data(id_inp, data_type, (char *)data, &ierr);
                 if (ierr > 0) {
                     free(data);
                     return set_error(ierr);
