@@ -138,7 +138,7 @@
 
 // Ignore things like 'U_0' restart files.
 // This could also be made part of the GUI properties
-#define VTK_FOAMFILE_IGNORE_FIELD_RESTART 0
+#define VTK_FOAMFILE_IGNORE_FIELD_RESTART 1
 
 // Support for finiteArea
 #define VTK_FOAMFILE_FINITE_AREA 0
