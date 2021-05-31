@@ -1659,7 +1659,7 @@ const char* preproc_find_include_file(
   const char* directory;
   char* output;
   size_t outputsize = 16;
-  int count;
+  int pass, passes;
   int extra = 0;
 
   /* allow filename to be terminated by quote or bracket */
@@ -1738,8 +1738,12 @@ const char* preproc_find_include_file(
     preproc_add_include_file(info, info->FileName);
   }
 
-  /* Check twice. First check the cache, then stat the files. */
-  for (count = 0; count < (2 - cache_only); count++)
+  /* Check the cache of files that have already been included,
+     then check the cache of all files known to exist on the system,
+     then go to the filesystem as a last resort (for if case-insensitivity
+     or text normalization issues cause a false negative with the cache). */
+  passes = (cache_only ? 1 : 3);
+  for (pass = 1; pass <= passes; pass++)
   {
     n = info->NumberOfIncludeDirectories;
     for (i = 0; i < (n + extra); i++)
@@ -1819,7 +1823,8 @@ const char* preproc_find_include_file(
         output[j + m] = '\0';
       }
 
-      if (count == 0)
+      /* in pass 1, check if this file has already been included */
+      if (pass == 1)
       {
         nn = info->NumberOfIncludeFiles;
         for (ii = 0; ii < nn; ii++)
@@ -1831,7 +1836,8 @@ const char* preproc_find_include_file(
           }
         }
       }
-      else if (vtkParse_FileExists(info->System, output) == VTK_PARSE_ISFILE)
+      /* in pass 2, check with the cache, and in pass 3, without the cache */
+      else if (vtkParse_FileExists((pass == 2 ? info->System : NULL), output) == VTK_PARSE_ISFILE)
       {
         nn = info->NumberOfIncludeFiles;
         info->IncludeFiles =
