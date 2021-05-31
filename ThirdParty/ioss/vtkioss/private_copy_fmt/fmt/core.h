@@ -24,7 +24,6 @@
 #define FMT_HEADER_ONLY
 #endif
 #define FMT_STATIC_THOUSANDS_SEPARATOR ','
-#define FMT_DEPRECATED_N_SPECIFIER
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
 #define FMT_VERSION 70103

@@ -5,7 +5,7 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkioss/COPYRIGHT"
-  VERSION       "2021-04-05"
+  VERSION       "2021-05-12"
   STANDARD_INCLUDE_DIRS)
 
 #configure_file(

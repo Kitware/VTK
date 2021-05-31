@@ -400,8 +400,8 @@ namespace Ioss {
     auto endp  = std::chrono::steady_clock::now();
     auto diffh = endh - starth;
     auto difff = endf - endh;
-    fmt::print("Node ID hash time:   \t{:.6n} ms\t{:12n} nodes/second\n"
-               "Face generation time:\t{:.6n} ms\t{:12n} faces/second\n",
+    fmt::print("Node ID hash time:   \t{:.6L} ms\t{:12L} nodes/second\n"
+               "Face generation time:\t{:.6L} ms\t{:12L} faces/second\n",
                std::chrono::duration<double, std::milli>(diffh).count(),
                INT(hashIds_.size() / std::chrono::duration<double>(diffh).count()),
                std::chrono::duration<double, std::milli>(difff).count(),
@@ -411,12 +411,12 @@ namespace Ioss {
     size_t proc_count = region_.get_database()->util().parallel_size();
 
     if (proc_count > 1) {
-      fmt::print("Parallel time:       \t{:.6n} ms\t{:12n} faces/second.\n",
+      fmt::print("Parallel time:       \t{:.6L} ms\t{:12L} faces/second.\n",
                  std::chrono::duration<double, std::milli>(diffp).count(),
                  INT(face_count / std::chrono::duration<double>(diffp).count()));
     }
 #endif
-    fmt::print("Total time:          \t{:.6n} ms\n\n",
+    fmt::print("Total time:          \t{:.6L} ms\n\n",
                std::chrono::duration<double, std::milli>(endp - starth).count());
 #endif
   }

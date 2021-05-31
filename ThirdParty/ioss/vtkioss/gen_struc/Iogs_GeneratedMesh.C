@@ -298,11 +298,11 @@ namespace Iogs {
                  "\tX = {} * (0..{}) + {}\tRange: {} <= X <= {}\n"
                  "\tY = {} * (0..{}) + {}\tRange: {} <= Y <= {}\n"
                  "\tZ = {} * (0..{}) + {}\tRange: {} <= Z <= {}\n\n"
-                 "\tNode Count (total) = {:12n}\n"
-                 "\tCell Count (total) = {:12n}\n"
-                 "\tBlock Count        = {:12n}\n"
-                 "\tSideSet Count      = {:12n}\n"
-                 "\tTimestep Count     = {:12n}\n\n",
+                 "\tNode Count (total) = {:12L}\n"
+                 "\tCell Count (total) = {:12L}\n"
+                 "\tBlock Count        = {:12L}\n"
+                 "\tSideSet Count      = {:12L}\n"
+                 "\tTimestep Count     = {:12L}\n\n",
                  numX, numY, numZ, sclX, numX, offX, offX, offX + numX * sclX, sclY, numY, offY,
                  offY, offY + numY * sclY, sclZ, numZ, offZ, offZ, offZ + numZ * sclZ, node_count(),
                  element_count(), structured_block_count(), sideset_count(), timestep_count());
