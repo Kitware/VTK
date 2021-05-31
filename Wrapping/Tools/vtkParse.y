@@ -5246,7 +5246,7 @@ void vtkParse_IncludeDirectory(const char *dirname)
 const char *vtkParse_FindIncludeFile(const char *filename)
 {
   static StringCache string_cache = { 0, 0, 0, 0 };
-  static PreprocessInfo info = { 0, 0, 0, 0, 0, 0, &string_cache, 0, 0, 0, 0, &system_cache };
+  static PreprocessInfo info = { 0, 0, 0, 0, 0, 0, &string_cache, 0, 0, 0, 0, 0, 0, &system_cache };
   int val;
   int i;
 

@@ -1669,6 +1669,16 @@ const char* preproc_find_include_file(
     m++;
   }
 
+  /* check if the header file is listed as "missing" */
+  n = info->NumberOfMissingFiles;
+  for (i = 0; i < n; i++)
+  {
+    if (strncmp(filename, info->MissingFiles[i], m) == 0 && info->MissingFiles[i][m] == '\0')
+    {
+      return NULL;
+    }
+  }
+
   /* search file system for the file */
   output = (char*)malloc(outputsize);
 
@@ -1848,6 +1858,16 @@ const char* preproc_find_include_file(
         return info->IncludeFiles[nn];
       }
     }
+  }
+
+  if (!cache_only)
+  {
+    /* header file could not be found, mark it so we don't try again */
+    n = info->NumberOfMissingFiles;
+    info->MissingFiles =
+      (const char**)preproc_array_check((char**)info->MissingFiles, sizeof(char*), n);
+    info->MissingFiles[info->NumberOfMissingFiles++] =
+      vtkParse_CacheString(info->Strings, filename, m);
   }
 
   free(output);
@@ -4755,6 +4775,8 @@ void vtkParsePreprocess_Init(PreprocessInfo* info, const char* filename)
   info->ConditionalDepth = 0;
   info->ConditionalDone = 0;
   info->MacroCounter = 0;
+  info->NumberOfMissingFiles = 0;
+  info->MissingFiles = NULL;
   info->System = NULL;
 
   if (filename)
@@ -4795,6 +4817,7 @@ void vtkParsePreprocess_Free(PreprocessInfo* info)
 
   free((char**)info->IncludeDirectories);
   free((char**)info->IncludeFiles);
+  free((char**)info->MissingFiles);
 
   free(info);
 }
