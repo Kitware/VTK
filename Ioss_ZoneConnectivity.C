@@ -46,7 +46,7 @@ namespace Ioss {
 
 #if 1
     fmt::print(os,
-               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {:n} nodes."
+               "\t\t{}[P{}]:\tDZ {}\tName '{}' shares {:L} nodes."
                "\n\t\t\t\t      Range: [{}..{}, {}..{}, {}..{}]\t      Donor Range: [{}..{}, "
                "{}..{}, {}..{}]"
                "\n\t\t\t\tLocal Range: [{}..{}, {}..{}, {}..{}]\tDonor Local Range: [{}..{}, "

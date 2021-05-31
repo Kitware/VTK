@@ -300,7 +300,7 @@ namespace Ioss {
     show_progress(__func__);
     if (m_processor == 0) {
       fmt::print(Ioss::OUTPUT(),
-                 "\nIOSS: Using decomposition method '{}' for {:n} elements on {} mpi ranks.\n",
+                 "\nIOSS: Using decomposition method '{}' for {:L} elements on {} mpi ranks.\n",
                  m_method, m_globalElementCount, m_processorCount);
 
       if ((size_t)m_processorCount > m_globalElementCount) {

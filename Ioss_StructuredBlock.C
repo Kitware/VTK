@@ -271,7 +271,7 @@ namespace Ioss {
 
   std::ostream &operator<<(std::ostream &os, const BoundaryCondition &bc)
   {
-    fmt::print(os, "\t\tBC Name '{}' owns {:10n} faces.\tRange: [{}..{}, {}..{}, {}..{}]",
+    fmt::print(os, "\t\tBC Name '{}' owns {:10L} faces.\tRange: [{}..{}, {}..{}, {}..{}]",
                bc.m_bcName, bc.get_face_count(), bc.m_rangeBeg[0], bc.m_rangeEnd[0],
                bc.m_rangeBeg[1], bc.m_rangeEnd[1], bc.m_rangeBeg[2], bc.m_rangeEnd[2]);
     return os;

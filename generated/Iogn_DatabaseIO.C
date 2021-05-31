@@ -156,8 +156,8 @@ namespace Iogn {
         int_byte_size_api() == 4) {
       std::ostringstream errmsg;
       fmt::print(errmsg,
-                 "ERROR: The node count is {:n} and the element count is {:n}.\n"
-                 "       This exceeds the capacity of the 32-bit integers ({:n})\n"
+                 "ERROR: The node count is {:L} and the element count is {:L}.\n"
+                 "       This exceeds the capacity of the 32-bit integers ({:L})\n"
                  "       which are being requested by the client.\n"
                  "       The mesh requires 64-bit integers which can be requested by setting the "
                  "`INTEGER_SIZE_API=8` property.",

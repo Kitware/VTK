@@ -30,6 +30,7 @@
 #include <io.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#define NOMINMAX
 #include <windows.h>
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
