@@ -485,8 +485,8 @@ private:
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
    */
-  bool GenerateFileId(vtkDataSet* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+  bool GenerateFileId(
+    vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle);
 
   /**
    * Fields like "ids" have to be vtkIdTypeArray in VTK. This method does the
@@ -1172,7 +1172,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetExodusD
 
   if (self->GetGenerateFileId())
   {
-    this->GenerateFileId(dataset, blockname, vtk_entity_type, handle);
+    this->GenerateFileId(dataset, group_entity, handle);
   }
 
   if (self->GetReadIds())
@@ -1220,7 +1220,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
 
       if (self->GetGenerateFileId())
       {
-        this->GenerateFileId(grid, blockname, vtk_entity_type, handle);
+        this->GenerateFileId(grid, group_entity, handle);
       }
 
       if (self->GetReadIds())
@@ -1813,12 +1813,9 @@ bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GenerateFileId(vtkDataSet* grid, const std::string& blockname,
-  vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle)
+bool vtkIossReader::vtkInternals::GenerateFileId(
+  vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
-  const auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
-  auto region = this->GetRegion(handle.first, handle.second);
-  auto group_entity = region ? region->get_entity(blockname, ioss_entity_type) : nullptr;
   if (!group_entity)
   {
     return false;
