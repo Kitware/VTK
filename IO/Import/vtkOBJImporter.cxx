@@ -261,6 +261,10 @@ std::string vtkOBJPolyDataProcessor::GetTextureFilename(int idx)
 
   if (mtl && !mtl->texture_filename.empty())
   {
+    if (vtksys::SystemTools::FileExists(mtl->texture_filename))
+    {
+      return mtl->texture_filename;
+    }
     std::vector<std::string> path_and_filename(2);
     path_and_filename[0] = this->TexturePath;
     path_and_filename[1] = mtl->texture_filename;
