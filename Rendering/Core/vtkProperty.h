@@ -597,6 +597,16 @@ public:
 
   ///@{
   /**
+   * Show texture maps when the geometry is backfacing. Texture maps are
+   * always shown when frontfacing. By default this is true.
+   */
+  vtkSetMacro(ShowTexturesOnBackface, bool);
+  vtkGetMacro(ShowTexturesOnBackface, bool);
+  vtkBooleanMacro(ShowTexturesOnBackface, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the texture object to control rendering texture maps. This will
    * be a vtkTexture object. A property does not need to have an associated
    * texture map and multiple properties can share one texture. Textures
@@ -785,6 +795,7 @@ protected:
   bool Lighting;
   bool RenderPointsAsSpheres;
   bool RenderLinesAsTubes;
+  bool ShowTexturesOnBackface;
 
   vtkTypeBool Shading;
 

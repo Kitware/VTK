@@ -21,6 +21,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestAssemblyBounds.cxx,NO_VALID
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
+  TestBackfaceTexture.cxx
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx

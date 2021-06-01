@@ -1540,7 +1540,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
   // always define texture maps if we have them
-  std::string tMapDecFS;
+  std::string tMapDecFS = "uniform bool showTexturesOnBackface;";
   for (auto it : textures)
   {
     if (it.first->GetCubeMap())
@@ -1856,8 +1856,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   // handled in the scalar coloring code
   if (nbTex2d > 0 && (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates))
   {
-    vtkShaderProgram::Substitute(
-      FSSource, "//VTK::TCoord::Impl", tCoordImpFS + "gl_FragData[0] = gl_FragData[0] * tcolor;");
+    vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
+      tCoordImpFS +
+        "if (gl_FrontFacing == true || showTexturesOnBackface) {"
+        "gl_FragData[0] = gl_FragData[0] * tcolor; }");
   }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
@@ -2734,6 +2736,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
 
   if (this->HaveTextures(actor))
   {
+    cellBO.Program->SetUniformi(
+      "showTexturesOnBackface", actor->GetProperty()->GetShowTexturesOnBackface() ? 1 : 0);
+
     std::vector<texinfo> textures = this->GetTextures(actor);
     for (size_t i = 0; i < textures.size(); ++i)
     {
