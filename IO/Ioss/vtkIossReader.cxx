@@ -1717,15 +1717,6 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
     switch (group_entity->type())
     {
       case Ioss::EntityType::NODEBLOCK:
-        // the nodeblocks nested under StructuredBlock seems to have bad ids.
-        // so we skip them.
-        if (group_entity->contained_in()->type() != Ioss::EntityType::STRUCTUREDBLOCK)
-        {
-          fieldnames.emplace_back("ids");
-          globalIdsFieldName = "ids";
-        }
-        break;
-
       case Ioss::EntityType::EDGEBLOCK:
       case Ioss::EntityType::FACEBLOCK:
       case Ioss::EntityType::ELEMENTBLOCK:
@@ -1738,13 +1729,13 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
         if (vtkPointData::SafeDownCast(dsa))
         {
           fieldnames.emplace_back("cell_node_ids");
-          globalIdsFieldName = "cell_node_ids";
         }
         else
         {
           fieldnames.emplace_back("cell_ids");
-          globalIdsFieldName = "cell_ids";
         }
+        // note: unlike for Exodus, there ids are not unique
+        // across blocks and hence are not flagged as global ids.
         break;
 
       case Ioss::EntityType::EDGESET:
@@ -1770,7 +1761,7 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
     if (auto array = this->GetField(
           fieldname, region, group_entity, handle, timestep, ids_to_extract, cache_key_suffix))
     {
-      if (fieldname == "ids")
+      if (fieldname == globalIdsFieldName)
       {
         dsa->SetGlobalIds(vtkDataArray::SafeDownCast(array));
       }
@@ -1795,7 +1786,17 @@ bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
     // node fields are stored under nested node block. So use that.
     auto sb = dynamic_cast<Ioss::StructuredBlock*>(group_entity);
     auto& nodeBlock = sb->get_node_block();
-    return this->GetFields(dsa, selection, region, &nodeBlock, handle, timestep, read_ioss_ids);
+    if (!this->GetFields(
+          dsa, selection, region, &nodeBlock, handle, timestep, /*read_ioss_ids=*/false))
+    {
+      return false;
+    }
+
+    // for STRUCTUREDBLOCK, the node ids are read from the SB itself, and not
+    // the nested nodeBlock.
+    return read_ioss_ids
+      ? this->GetFields(dsa, nullptr, region, sb, handle, timestep, /*read_ioss_ids=*/true)
+      : true;
   }
   else
   {

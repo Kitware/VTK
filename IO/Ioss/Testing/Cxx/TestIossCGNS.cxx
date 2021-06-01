@@ -56,6 +56,16 @@ int TestIossCGNS(int argc, char* argv[])
       vtkLogF(ERROR, "missing 'file_id'");
       return EXIT_FAILURE;
     }
+    if (ds->GetCellData()->GetArray("cell_ids") == nullptr)
+    {
+      vtkLogF(ERROR, "missing 'cell_ids'");
+      return EXIT_FAILURE;
+    }
+    if (ds->GetPointData()->GetArray("cell_node_ids") == nullptr)
+    {
+      vtkLogF(ERROR, "missing 'cell_node_ids'");
+      return EXIT_FAILURE;
+    }
   }
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
