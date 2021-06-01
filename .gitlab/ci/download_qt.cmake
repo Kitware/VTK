@@ -23,6 +23,8 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vs2017" OR
   set(qt_platform "windows_x86")
   set(msvc_year "2019")
   set(qt_abi "win64_msvc${msvc_year}_64")
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
+  set(qt_platform "mac_arm64")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
   set(qt_platform "mac_x64")
   set(qt_abi "clang_64")
@@ -60,6 +62,11 @@ elseif (qt_platform STREQUAL "mac_x64")
   endforeach ()
 
   set(qt_subdir "${qt_version}/clang_64")
+elseif (qt_platform STREQUAL "mac_arm64")
+  set(qt_subdir "qt-${qt_version}-macosx11.0-arm64")
+  set(qt_files "${qt_subdir}.tar.xz")
+  set("${qt_files}_hash" "31796cf6dbbc3ae867862636127795a3b463a655b15f7c663d188eb31218ac6f")
+  set(qt_url_prefix "https://gitlab.kitware.com/api/v4/projects/6955/packages/generic/qt/v${qt_version}-20210524.0") # XXX: see below
 else ()
   message(FATAL_ERROR
     "Unknown files for ${qt_platform}")
@@ -72,8 +79,10 @@ if (NOT qt_subdir)
 endif ()
 
 # Build up the path to the file to download.
-set(qt_url_path "${qt_platform}/desktop/qt5_${qt_version_nodot}/qt.qt5.${qt_version_nodot}.${qt_abi}")
-set(qt_url_prefix "${qt_url_root}/${qt_url_path}")
+if (NOT qt_url_prefix) # XXX: Replace this when Qt ships official arm64 binaries.
+  set(qt_url_path "${qt_platform}/desktop/qt5_${qt_version_nodot}/qt.qt5.${qt_version_nodot}.${qt_abi}")
+  set(qt_url_prefix "${qt_url_root}/${qt_url_path}")
+endif ()
 
 # Include the file containing the hashes of the files that matter.
 include("${CMAKE_CURRENT_LIST_DIR}/download_qt_hashes.cmake")

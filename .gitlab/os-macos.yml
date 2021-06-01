@@ -53,6 +53,13 @@
         # could run at the same time, so we drop it.
         GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci"
 
+.macos_arm64_kits_python_qt:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_arm64_kits_python_qt
+        VTK_INSTALL: 1
+
 .macos_x86_64_kits_python_qt:
     extends: .macos_build
 
@@ -95,6 +102,22 @@
     tags:
         - vtk
         - macos
+        - shell
+        - xcode-12.4
+        - concurrent
+
+.macos_arm64_builder_tags:
+    tags:
+        - vtk
+        - macos-arm64
+        - shell
+        - xcode-12.4
+        - nonconcurrent
+
+.macos_arm64_wheel_builder_tags:
+    tags:
+        - vtk
+        - macos-arm64
         - shell
         - xcode-12.4
         - concurrent

@@ -397,6 +397,26 @@ upload:documentation:
 
 # macOS
 
+build:macos-arm64-kits-python-qt:
+    extends:
+        - .macos_arm64_kits_python_qt
+        - .cmake_build_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:macos-arm64-kits-python-qt:
+    extends:
+        - .macos_arm64_kits_python_qt
+        - .cmake_test_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:macos-arm64-kits-python-qt
+    needs:
+        - build:macos-arm64-kits-python-qt
+
 build:macos-x86_64-kits-python-qt:
     extends:
         - .macos_x86_64_kits_python_qt

@@ -183,6 +183,20 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
     "^VTK::FiltersCorePython-TestProbeFilterImageInput$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
+  list(APPEND test_exclusions
+    # Crowded geometry?
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
+    "^VTK::ViewsInfovisCxx-TestTreeMapView$"
+
+    # Line rendering differences.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
+    "^VTK::FiltersGeneralPython-TestCellDerivs$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
