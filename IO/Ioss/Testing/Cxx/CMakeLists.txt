@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkIOIossCxxTests tests
   TestIossAssemblies.cxx,NO_VALID
+  TestIossCGNS.cxx
   TestIossExodusRestarts.cxx,NO_VALID
   TestIossExodus.cxx,NO_VALID
   TestIossUnsupported.cxx,NO_VALID

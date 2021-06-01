@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+#include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <Ioss_ElementTopology.h>
@@ -177,6 +178,8 @@ Ioss::EntityType GetIossEntityType(vtkIossReader::EntityType vtk_type)
       return Ioss::EntityType::FACEBLOCK;
     case vtkIossReader::ELEMENTBLOCK:
       return Ioss::EntityType::ELEMENTBLOCK;
+    case vtkIossReader::STRUCTUREDBLOCK:
+      return Ioss::EntityType::STRUCTUREDBLOCK;
     case vtkIossReader::NODESET:
       return Ioss::EntityType::NODESET;
     case vtkIossReader::EDGESET:
@@ -534,7 +537,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
-  Ioss::GroupingEntity* group_entity, Cache* cache /*=nullptr*/)
+  const Ioss::GroupingEntity* group_entity, Cache* cache /*=nullptr*/)
 {
   if (auto cached = (cache
           ? vtkPoints::SafeDownCast(cache->Find(group_entity, "__vtk_mesh_model_coordinates__"))
@@ -605,6 +608,35 @@ std::string GetDisplacementFieldName(Ioss::GroupingEntity* nodeblock)
   return std::string();
 }
 
+//----------------------------------------------------------------------------
+DatabaseFormatType DetectType(const std::string& dbaseName)
+{
+  // clang-format off
+  auto name = vtksys::SystemTools::LowerCase(dbaseName);
+  vtksys::RegularExpression extensionRegexCGNS(R"(^.*\.(cgns[^-.]*))");
+  // clang-format on
+  if (extensionRegexCGNS.find(name) && extensionRegexCGNS.match(1) == "cgns")
+  {
+    return DatabaseFormatType::CGNS;
+  }
+  return DatabaseFormatType::EXODUS;
+}
+
+//----------------------------------------------------------------------------
+DatabaseFormatType GetFormat(const Ioss::GroupingEntity* entity)
+{
+  assert(entity != nullptr && entity->get_database() != nullptr);
+  if (entity->get_database()->get_format() == "CGNS")
+  {
+    return DatabaseFormatType::CGNS;
+  }
+  else
+  {
+    return DatabaseFormatType::EXODUS;
+  }
+}
+
+//----------------------------------------------------------------------------
 // Implementation detail for Schwarz counter idiom.
 class vtkIossUtilitiesCleanup
 {
@@ -644,6 +676,7 @@ vtkIossUtilitiesCleanup::~vtkIossUtilitiesCleanup()
   }
 }
 
+//----------------------------------------------------------------------------
 void InitializeEnvironmentForIoss()
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -661,6 +694,44 @@ void InitializeEnvironmentForIoss()
     vtkIossUtilitiesCleanupMPIController->Initialize(&argc, &argv);
   }
 #endif
+}
+
+//----------------------------------------------------------------------------
+std::string GetSanitizedBlockName(const Ioss::Region* region, const std::string& blockname)
+{
+  if (vtkIossUtilities::GetFormat(region) != vtkIossUtilities::DatabaseFormatType::CGNS)
+  {
+    return blockname;
+  }
+
+  // clang-format off
+  vtksys::RegularExpression regex(R"(_proc-[0-9]+)");
+  // clang-format on
+  std::string newname = blockname;
+  while (regex.find(newname))
+  {
+    newname.erase(
+      std::next(newname.begin(), regex.start()), std::next(newname.begin(), regex.end()));
+  }
+
+  return newname;
+}
+
+//----------------------------------------------------------------------------
+std::vector<Ioss::StructuredBlock*> GetMatchingStructuredBlocks(
+  Ioss::Region* region, const std::string& blockname)
+{
+  std::vector<Ioss::StructuredBlock*> groups;
+  for (auto block : region->get_structured_blocks())
+  {
+    if (block->name() == blockname ||
+      vtkIossUtilities::GetSanitizedBlockName(region, block->name()) == blockname)
+    {
+      groups.push_back(block);
+    }
+  }
+
+  return groups;
 }
 
 } // end of namespace.

@@ -95,7 +95,8 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
   // clang-format off
   // Matches paths `{NAME}.e-s{RS}.{NUMRANKS}.{RANK}` or {NAME}.g-s{RS}.{NUMRANKS}.{RANK}`
   // where `-s{RS}` and/or `.{NUMRANKS}.{RANK}` is optional.
-  vtksys::RegularExpression extensionRegex(R"(^(.*\.[eg][^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
+  vtksys::RegularExpression extensionRegexExodus(R"(^(.*\.[eg][^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
+  vtksys::RegularExpression extensionRegexCGNS(R"(^(.*\.cgns[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
   // clang-format on
 
   std::set<std::string> prefixes;
@@ -113,9 +114,13 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
       // this happens if the unix_fname was not a full path.
       fname_wo_path = unix_fname;
     }
-    if (extensionRegex.find(fname_wo_path))
+    if (extensionRegexExodus.find(fname_wo_path))
     {
-      prefixes.insert(extensionRegex.match(1));
+      prefixes.insert(extensionRegexExodus.match(1));
+    }
+    else if (extensionRegexCGNS.find(fname_wo_path))
+    {
+      prefixes.insert(extensionRegexCGNS.match(1));
     }
   }
 
@@ -147,7 +152,13 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
 
   for (const auto& filename : dirlist)
   {
-    if (extensionRegex.find(filename) && prefixes.find(extensionRegex.match(1)) != prefixes.end())
+    if (extensionRegexExodus.find(filename) &&
+      prefixes.find(extensionRegexExodus.match(1)) != prefixes.end())
+    {
+      result.insert(prefix + filename);
+    }
+    else if (extensionRegexCGNS.find(filename) &&
+      prefixes.find(extensionRegexCGNS.match(1)) != prefixes.end())
     {
       result.insert(prefix + filename);
     }

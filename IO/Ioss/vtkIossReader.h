@@ -22,7 +22,11 @@
  * @brief Reader for Ioss (Sierra IO System)
  *
  * vtkIossReader is reader that uses the Ioss (Sierra IO System) library to
- * read files. Currently, this reader support Exodus files.
+ * read files. Currently, this reader support Exodus and CGNS file formats. Ioss
+ * imposes certain restrictions on these file formats and hence it may not be
+ * possible to open every Exodus or CGNS file using this reader. This is
+ * true especially for CGNS, more so than Exodus. In that case `vtkCGNSReader`
+ * may be more appropriate.
  *
  * @section SpecifyingFiles Specifying Files
  *
@@ -272,6 +276,7 @@ public:
     EDGEBLOCK,
     FACEBLOCK,
     ELEMENTBLOCK,
+    STRUCTUREDBLOCK,
     NODESET,
     EDGESET,
     FACESET,
@@ -299,6 +304,10 @@ public:
   {
     return this->GetEntitySelection(ELEMENTBLOCK);
   }
+  vtkDataArraySelection* GetStructuredBlockSelection()
+  {
+    return this->GetEntitySelection(STRUCTUREDBLOCK);
+  }
   vtkDataArraySelection* GetNodeSetSelection() { return this->GetEntitySelection(NODESET); }
   vtkDataArraySelection* GetEdgeSetSelection() { return this->GetEntitySelection(EDGESET); }
   vtkDataArraySelection* GetFaceSetSelection() { return this->GetEntitySelection(FACESET); }
@@ -312,6 +321,10 @@ public:
   vtkDataArraySelection* GetElementBlockFieldSelection()
   {
     return this->GetFieldSelection(ELEMENTBLOCK);
+  }
+  vtkDataArraySelection* GetStructuredBlockFieldSelection()
+  {
+    return this->GetFieldSelection(STRUCTUREDBLOCK);
   }
   vtkDataArraySelection* GetNodeSetFieldSelection() { return this->GetFieldSelection(NODESET); }
   vtkDataArraySelection* GetEdgeSetFieldSelection() { return this->GetFieldSelection(EDGESET); }

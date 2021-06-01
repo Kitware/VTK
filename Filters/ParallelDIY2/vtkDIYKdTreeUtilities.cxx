@@ -455,6 +455,12 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
     (*mb_offset) += total_global_cells;
   }
 
+  if (nblocks == 0)
+  {
+    // no local blocks, no ids to generate.
+    return true;
+  }
+
   // compute exclusive scan to determine the global id offsets for each local partition.
   std::vector<vtkIdType> local_cell_offsets(nblocks, 0);
   local_cell_offsets[0] = global_offset;
