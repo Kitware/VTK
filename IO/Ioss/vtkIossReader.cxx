@@ -485,8 +485,8 @@ private:
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
    */
-  bool GenerateFileId(vtkDataSet* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle);
+  bool GenerateFileId(
+    vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle);
 
   /**
    * Fields like "ids" have to be vtkIdTypeArray in VTK. This method does the
@@ -1172,7 +1172,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetExodusD
 
   if (self->GetGenerateFileId())
   {
-    this->GenerateFileId(dataset, blockname, vtk_entity_type, handle);
+    this->GenerateFileId(dataset, group_entity, handle);
   }
 
   if (self->GetReadIds())
@@ -1220,7 +1220,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
 
       if (self->GetGenerateFileId())
       {
-        this->GenerateFileId(grid, blockname, vtk_entity_type, handle);
+        this->GenerateFileId(grid, group_entity, handle);
       }
 
       if (self->GetReadIds())
@@ -1717,15 +1717,6 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
     switch (group_entity->type())
     {
       case Ioss::EntityType::NODEBLOCK:
-        // the nodeblocks nested under StructuredBlock seems to have bad ids.
-        // so we skip them.
-        if (group_entity->contained_in()->type() != Ioss::EntityType::STRUCTUREDBLOCK)
-        {
-          fieldnames.emplace_back("ids");
-          globalIdsFieldName = "ids";
-        }
-        break;
-
       case Ioss::EntityType::EDGEBLOCK:
       case Ioss::EntityType::FACEBLOCK:
       case Ioss::EntityType::ELEMENTBLOCK:
@@ -1738,13 +1729,13 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
         if (vtkPointData::SafeDownCast(dsa))
         {
           fieldnames.emplace_back("cell_node_ids");
-          globalIdsFieldName = "cell_node_ids";
         }
         else
         {
           fieldnames.emplace_back("cell_ids");
-          globalIdsFieldName = "cell_ids";
         }
+        // note: unlike for Exodus, there ids are not unique
+        // across blocks and hence are not flagged as global ids.
         break;
 
       case Ioss::EntityType::EDGESET:
@@ -1770,7 +1761,7 @@ bool vtkIossReader::vtkInternals::GetFields(vtkDataSetAttributes* dsa,
     if (auto array = this->GetField(
           fieldname, region, group_entity, handle, timestep, ids_to_extract, cache_key_suffix))
     {
-      if (fieldname == "ids")
+      if (fieldname == globalIdsFieldName)
       {
         dsa->SetGlobalIds(vtkDataArray::SafeDownCast(array));
       }
@@ -1795,7 +1786,17 @@ bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
     // node fields are stored under nested node block. So use that.
     auto sb = dynamic_cast<Ioss::StructuredBlock*>(group_entity);
     auto& nodeBlock = sb->get_node_block();
-    return this->GetFields(dsa, selection, region, &nodeBlock, handle, timestep, read_ioss_ids);
+    if (!this->GetFields(
+          dsa, selection, region, &nodeBlock, handle, timestep, /*read_ioss_ids=*/false))
+    {
+      return false;
+    }
+
+    // for STRUCTUREDBLOCK, the node ids are read from the SB itself, and not
+    // the nested nodeBlock.
+    return read_ioss_ids
+      ? this->GetFields(dsa, nullptr, region, sb, handle, timestep, /*read_ioss_ids=*/true)
+      : true;
   }
   else
   {
@@ -1813,12 +1814,9 @@ bool vtkIossReader::vtkInternals::GetNodeFields(vtkDataSetAttributes* dsa,
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::GenerateFileId(vtkDataSet* grid, const std::string& blockname,
-  vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle)
+bool vtkIossReader::vtkInternals::GenerateFileId(
+  vtkDataSet* grid, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle)
 {
-  const auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
-  auto region = this->GetRegion(handle.first, handle.second);
-  auto group_entity = region ? region->get_entity(blockname, ioss_entity_type) : nullptr;
   if (!group_entity)
   {
     return false;

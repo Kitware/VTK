@@ -13,6 +13,8 @@
 
 =========================================================================*/
 #include <vtkCamera.h>
+#include <vtkCompositeDataSet.h>
+#include <vtkCompositeDataSetRange.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
@@ -41,8 +43,30 @@ int TestIossCGNS(int argc, char* argv[])
   vtkNew<vtkIossReader> reader;
   reader->ReadIdsOn();
   reader->AddFileName(fname.c_str());
+  reader->GenerateFileIdOn();
   reader->UpdateInformation();
   reader->GetSideSetSelection()->EnableAllArrays();
+
+  reader->Update();
+  for (auto dObj : vtk::Range(vtkCompositeDataSet::SafeDownCast(reader->GetOutputDataObject(0))))
+  {
+    auto ds = vtkDataSet::SafeDownCast(dObj);
+    if (ds->GetCellData()->GetArray("file_id") == nullptr)
+    {
+      vtkLogF(ERROR, "missing 'file_id'");
+      return EXIT_FAILURE;
+    }
+    if (ds->GetCellData()->GetArray("cell_ids") == nullptr)
+    {
+      vtkLogF(ERROR, "missing 'cell_ids'");
+      return EXIT_FAILURE;
+    }
+    if (ds->GetPointData()->GetArray("cell_node_ids") == nullptr)
+    {
+      vtkLogF(ERROR, "missing 'cell_node_ids'");
+      return EXIT_FAILURE;
+    }
+  }
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
   vtkNew<vtkCompositePolyDataMapper> mapper;
