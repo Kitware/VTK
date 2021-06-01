@@ -47,13 +47,17 @@ if (TARGET VTK::IOExport AND TARGET VTK::IOImport)
     PRIVATE
       ${VTK_LIBRARIES}
       VTK::IOExport
-      VTK::IOImport)
+      VTK::IOImport
+      VTK::RenderingOpenGL2
+      )
 
   vtk_module_autoinit(
     TARGETS objtovtp
     MODULES ${VTK_LIBRARIES}
             VTK::IOExport
-            VTK::IOImport)
+            VTK::IOImport
+            VTK::RenderingOpenGL2
+            )
 endif ()
 
 if (BUILD_TESTING)
