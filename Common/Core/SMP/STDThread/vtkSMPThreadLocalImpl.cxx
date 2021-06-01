@@ -190,7 +190,7 @@ StoragePointerType& ThreadSpecific::GetStorage()
     slot = AcquireSlot(array, threadId, hash, firstAccess);
     if (!slot) // not enough room, resize
     {
-      std::lock_guard<std::mutex> lguard(slot->Mutex);
+      std::lock_guard<std::mutex> lguard(this->Mutex);
 
       if (this->Root == array)
       {
