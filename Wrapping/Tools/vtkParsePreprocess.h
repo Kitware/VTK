@@ -44,6 +44,7 @@
 #define vtkParsePreprocess_h
 
 #include "vtkParseString.h"
+#include "vtkParseSystem.h"
 #include "vtkWrappingToolsModule.h"
 
 /**
@@ -86,11 +87,14 @@ typedef struct _PreprocessInfo
   const char** IncludeDirectories;
   int NumberOfIncludeFiles; /* all included files */
   const char** IncludeFiles;
-  StringCache* Strings; /* to aid string allocation */
-  int IsExternal;       /* label all macros as "external" */
-  int ConditionalDepth; /* internal state variable */
-  int ConditionalDone;  /* internal state variable */
-  int MacroCounter;     /* for ordering macro definitions */
+  StringCache* Strings;     /* to aid string allocation */
+  int IsExternal;           /* label all macros as "external" */
+  int ConditionalDepth;     /* internal state variable */
+  int ConditionalDone;      /* internal state variable */
+  int MacroCounter;         /* for ordering macro definitions */
+  int NumberOfMissingFiles; /* include files that cannot be found */
+  const char** MissingFiles;
+  SystemInfo* System; /* for cacheing the file system directory */
 } PreprocessInfo;
 
 /**

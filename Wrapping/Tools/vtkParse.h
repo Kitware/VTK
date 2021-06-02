@@ -97,6 +97,13 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT
   void vtkParse_Free(FileInfo* data);
 
+  /**
+   * Free any caches or buffers, call just before program exits.
+   * This can safely be called multiple times.
+   */
+  VTKWRAPPINGTOOLS_EXPORT
+  void vtkParse_FinalCleanup(void);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

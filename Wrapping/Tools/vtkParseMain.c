@@ -422,6 +422,9 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
 
+  /* hook the cleanup function */
+  atexit(vtkParse_FinalCleanup);
+
   /* pre-define the __VTK_WRAP__ macro */
   vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
@@ -534,6 +537,9 @@ StringCache* vtkParse_MainMulti(int argc, char* argv[])
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
+
+  /* hook the cleanup function */
+  atexit(vtkParse_FinalCleanup);
 
   /* pre-define the __VTK_WRAP__ macro */
   vtkParse_DefineMacro("__VTK_WRAP__", 0);
