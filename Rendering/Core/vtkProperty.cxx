@@ -107,6 +107,7 @@ vtkProperty::vtkProperty()
   this->Lighting = true;
   this->RenderPointsAsSpheres = false;
   this->RenderLinesAsTubes = false;
+  this->ShowTexturesOnBackface = true;
 
   this->Shading = 0;
   this->MaterialName = nullptr;
@@ -169,6 +170,7 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetCoatStrength(p->GetCoatStrength());
     this->SetCoatNormalScale(p->GetCoatNormalScale());
     this->SetCoatColor(p->GetCoatColor());
+    this->SetShowTexturesOnBackface(p->GetShowTexturesOnBackface());
 
     this->RemoveAllTextures();
     auto iter = p->Textures.begin();
@@ -483,6 +485,8 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "RenderPointsAsSpheres: " << (this->RenderPointsAsSpheres ? "On" : "Off") << endl;
   os << indent << "RenderLinesAsTubes: " << (this->RenderLinesAsTubes ? "On" : "Off") << endl;
+  os << indent << "ShowTexturesOnBackface: " << (this->ShowTexturesOnBackface ? "On" : "Off")
+     << endl;
 
   os << indent << "Shading: " << (this->Shading ? "On" : "Off") << endl;
 
