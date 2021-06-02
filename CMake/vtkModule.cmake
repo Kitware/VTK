@@ -466,7 +466,7 @@ modules may not add themselves to kits declared prior. The arguments are as foll
   * `HIDE_MODULES_FROM_CACHE`: (Defaults to `OFF`) Whether or not to hide the
     control variables from the cache or not. If enabled, modules will not be
     built unless they are required elsewhere.
-  * `ENABLE_TESTS`: (Defaults to `WANT`) Whether or not modules required by
+  * `ENABLE_TESTS`: (Defaults to `DEFAULT`) Whether or not modules required by
     the tests for the scanned modules should be enabled or not.
     - `ON`: Modules listed as `TEST_DEPENDS` will be required.
     - `OFF`: Test modules will not be considered.
@@ -569,7 +569,7 @@ function (vtk_module_scan)
   endif ()
 
   if (NOT DEFINED _vtk_scan_ENABLE_TESTS)
-    set(_vtk_scan_ENABLE_TESTS "WANT")
+    set(_vtk_scan_ENABLE_TESTS "DEFAULT")
   endif ()
 
   if (NOT (_vtk_scan_ENABLE_TESTS STREQUAL "ON" OR
