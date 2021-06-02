@@ -470,7 +470,9 @@ modules may not add themselves to kits declared prior. The arguments are as foll
     the tests for the scanned modules should be enabled or not.
     - `ON`: Modules listed as `TEST_DEPENDS` will be required.
     - `OFF`: Test modules will not be considered.
-    - `WANT`: Test dependencies will enable modules if possible.
+    - `WANT`: Test dependencies will enable modules if possible. Note that this
+      has known issues where modules required only via testing may not have
+      their dependencies enabled.
     - `DEFAULT`: Test modules will be enabled if their required dependencies
       are satisfied and skipped otherwise.
 
@@ -850,6 +852,11 @@ function (vtk_module_scan)
     set_property(GLOBAL
       PROPERTY
         "_vtk_module_${_vtk_scan_module_name}_implementable" "${${_vtk_scan_module_name}_IMPLEMENTABLE}")
+    if (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
+      set_property(GLOBAL
+        PROPERTY
+          "_vtk_module_${_vtk_scan_module_name}_enable_tests_by_want" "1")
+    endif ()
   endforeach ()
 
   set(_vtk_scan_current_modules "${_vtk_scan_all_modules}")
@@ -2485,8 +2492,21 @@ function (vtk_module_build)
 
     foreach (_vtk_build_depend IN LISTS "_vtk_build_${_vtk_build_module}_depends" "_vtk_build_${_vtk_build_module}_private_depends")
       if (NOT TARGET "${_vtk_build_depend}")
+        get_property(_vtk_build_enable_tests_by_want GLOBAL
+          PROPERTY  "_vtk_module_${_vtk_build_module}_enable_tests_by_want")
+
+        set(_vtk_build_explain "")
+        if (_vtk_build_enable_tests_by_want)
+          string(APPEND _vtk_build_explain
+            " The `vtk_module_scan` for this module used `ENABLE_TESTS WANT`. "
+            "This is a known issue, but the fix is not trivial. You may "
+            "either change the flag used to control testing for this scan or "
+            "explicitly enable the ${_vtk_build_depend} module.")
+        endif ()
+
         message(FATAL_ERROR
-          "The ${_vtk_build_depend} dependency is missing for ${_vtk_build_module}.")
+          "The ${_vtk_build_depend} dependency is missing for "
+          "${_vtk_build_module}.${_vtk_build_explain}")
       endif ()
     endforeach ()
 
