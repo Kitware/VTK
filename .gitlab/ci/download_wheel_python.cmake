@@ -18,6 +18,7 @@ set(python39_windows_x86_64_hash "80cdc6e5eafdec26fd6cd9b7cfd01aa578116b588b6753
 set(python36_macos_x86_64_hash "bd3b68dfc9787c39312c8bd554853fe750abd999e100690c3ed81c29447b02d3")
 set(python37_macos_x86_64_hash "1d31a228ac921c13787f74e0b9e7a04ae5806e70c5226e23711840bf0f0c9e90")
 set(python38_macos_x86_64_hash "0665ce12462b0cc91afeec26355306136325ce49c8fa388a0e5f3ccf384d1e20")
+set(python39_macos_arm64_hash "ba83efdffd37a6cf2b9e126da173af2d11b7f6dcba7d6206e66fc61efe52365d")
 set(python39_macos_x86_64_hash "24154d1571453bee30053b0103a9c47d48969014d9bda4a29174c66ae4efd46e")
 
 # Extracting information from the build configuration.
@@ -47,6 +48,8 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
   set(python_arch "x86_64")
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
+  set(python_arch "arm64")
 else ()
   message(FATAL_ERROR
     "Unknown architecture for Python")

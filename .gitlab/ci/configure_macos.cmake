@@ -21,7 +21,8 @@ set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
 
-# Ensure that we're targeting 10.15.
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "")
+# Add rpath entries for Xcode frameworks.
+set(CMAKE_BUILD_RPATH "$ENV{DEVELOPER_DIR}/Library/Frameworks" CACHE STRING "")
+set(CMAKE_INSTALL_RPATH "$ENV{DEVELOPER_DIR}/Library/Frameworks" CACHE STRING "")
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")

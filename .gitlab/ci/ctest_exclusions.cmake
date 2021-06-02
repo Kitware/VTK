@@ -165,22 +165,35 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
   list(APPEND test_exclusions
     # Theses tests fail for stdthread + openmp builds they may be link to a bad use of ThreadLocal
     # Need investigations https://gitlab.kitware.com/vtk/vtk/-/issues/18222
-    "^VTK::FiltersCoreCxx-TestResampleWithDataSet$"
-    "^VTK::FiltersExtractionPython-ExtractTensors$"
-    "^VTK::FiltersGeneralPython-TestGroupTimeStepsFilter$"
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$" # Not sure this test fails only for stdthread
-    "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
-    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
-    "^VTK::InteractionWidgetsCxx-TestSplineWidget$"
-    "^VTK::IOIossCxx-TestIossSuperelements$"
-    "^VTK::IOIossCxx-TestIossExodus$"
-    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$"
-    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
-    "^VTK::ParallelMPICxx-MPI-TestPProbe$"
-    "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
-    "^VTK::FiltersGeneralCxx-TestAnimateModes$"
     "^VTK::FiltersCoreCxx-TestProbeFilterImageInput$"
-    "^VTK::FiltersCorePython-TestProbeFilterImageInput$")
+    "^VTK::FiltersCoreCxx-TestResampleWithDataSet$"
+    "^VTK::FiltersCorePython-TestProbeFilterImageInput$"
+    "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
+    "^VTK::FiltersExtractionPython-ExtractTensors$"
+    "^VTK::FiltersGeneralCxx-TestAnimateModes$"
+    "^VTK::FiltersGeneralPython-TestGroupTimeStepsFilter$"
+    "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
+    "^VTK::IOIossCxx-TestIossExodus$"
+    "^VTK::IOIossCxx-TestIossSuperelements$"
+    "^VTK::ImagingHybridPython-TestCheckerboardSplatter$"
+    "^VTK::InteractionWidgetsCxx-TestSplineWidget$"
+    "^VTK::ParallelMPICxx-MPI-TestPProbe$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
+  list(APPEND test_exclusions
+    # Crowded geometry?
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
+    "^VTK::ViewsInfovisCxx-TestTreeMapView$"
+
+    # Line rendering differences.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
+    "^VTK::FiltersGeneralPython-TestCellDerivs$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")

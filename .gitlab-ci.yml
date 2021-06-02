@@ -267,6 +267,7 @@ upload:wheel:
         - build:wheel-macos-python36-x86_64
         - build:wheel-macos-python37-x86_64
         - build:wheel-macos-python38-x86_64
+        # - build:wheel-macos-python39-arm64
         - build:wheel-macos-python39-x86_64
         - build:wheel-windows-python36-x86_64
         - build:wheel-windows-python37-x86_64
@@ -287,6 +288,8 @@ upload:wheel:
         - test:wheel-macos-python37-x86_64
         - build:wheel-macos-python38-x86_64
         - test:wheel-macos-python38-x86_64
+        # - build:wheel-macos-python39-arm64
+        # - test:wheel-macos-python39-arm64
         - build:wheel-macos-python39-x86_64
         - test:wheel-macos-python39-x86_64
         - build:wheel-windows-python36-x86_64
@@ -397,9 +400,29 @@ upload:documentation:
 
 # macOS
 
-build:macos-kits-python-qt:
+build:macos-arm64-kits-python-qt:
     extends:
-        - .macos_kits_python_qt
+        - .macos_arm64_kits_python_qt
+        - .cmake_build_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+
+test:macos-arm64-kits-python-qt:
+    extends:
+        - .macos_arm64_kits_python_qt
+        - .cmake_test_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    dependencies:
+        - build:macos-arm64-kits-python-qt
+    needs:
+        - build:macos-arm64-kits-python-qt
+
+build:macos-x86_64-kits-python-qt:
+    extends:
+        - .macos_x86_64_kits_python_qt
         - .cmake_build_macos
         - .macos_builder_tags
         - .cmake_build_artifacts
@@ -407,22 +430,22 @@ build:macos-kits-python-qt:
     # Some of the macOS runners are not very powerful.
     timeout: 150 minutes
 
-test:macos-kits-python-qt:
+test:macos-x86_64-kits-python-qt:
     extends:
-        - .macos_kits_python_qt
+        - .macos_x86_64_kits_python_qt
         - .cmake_test_macos
         - .macos_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:macos-kits-python-qt
+        - build:macos-x86_64-kits-python-qt
     needs:
-        - build:macos-kits-python-qt
+        - build:macos-x86_64-kits-python-qt
     timeout: 2 hours
 
-build:macos-python-qt-stdthread:
+build:macos-x86_64-python-qt-stdthread:
     extends:
-        - .macos_python_qt_stdthread
+        - .macos_x86_64_python_qt_stdthread
         - .cmake_build_macos
         - .macos_builder_tags
         - .cmake_build_artifacts
@@ -430,17 +453,17 @@ build:macos-python-qt-stdthread:
     # Some of the macOS runners are not very powerful.
     timeout: 2 hours
 
-test:macos-python-qt-stdthread:
+test:macos-x86_64-python-qt-stdthread:
     extends:
-        - .macos_python_qt_stdthread
+        - .macos_x86_64_python_qt_stdthread
         - .cmake_test_macos
         - .macos_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - build:macos-python-qt-stdthread
+        - build:macos-x86_64-python-qt-stdthread
     needs:
-        - build:macos-python-qt-stdthread
+        - build:macos-x86_64-python-qt-stdthread
 
 # FIXME: This is not working because Qt uses @rpath/ for its library
 # references. Since we're using a `nonconcurrent` runner for this, we can't
@@ -450,17 +473,17 @@ test:macos-python-qt-stdthread:
 # tests exists that are just Python scripts, so `vtkpython` needs to work
 # standalone.
 #
-# test-ext:vtk:macos-kits-python-qt:
+# test-ext:vtk:macos-x86_64-kits-python-qt:
 #     extends:
-#         - .macos_kits_python_qt_ext_vtk
+#         - .macos_x86_64_kits_python_qt_ext_vtk
 #         - .cmake_test_external_macos
 #         - .macos_ext_builder_tags
 #         - .cmake_tidy_artifacts
 #         - .run_automatically
 #     dependencies:
-#         - test:macos-kits-python-qt
+#         - test:macos-x86_64-kits-python-qt
 #     needs:
-#         - test:macos-kits-python-qt
+#         - test:macos-x86_64-kits-python-qt
 
 ## Python wheel builds
 
@@ -523,6 +546,27 @@ test:wheel-macos-python38-x86_64:
         - build:wheel-macos-python38-x86_64
     needs:
         - build:wheel-macos-python38-x86_64
+
+# XXX(Python): We need to tell Python that this is *not* a `universal2` binary
+# and instead is arm64-only. See <https://github.com/pypa/wheel/issues/406>.
+# build:wheel-macos-python39-arm64:
+#     extends:
+#         - .wheel_macos39_arm64
+#         - .cmake_build_wheel_macos
+#         - .macos_arm64_wheel_builder_tags
+#         - .cmake_wheel_artifacts
+#         - .run_manually
+
+# test:wheel-macos-python39-arm64:
+#     extends:
+#         - .wheel_macos39_arm64
+#         - .cmake_test_wheel_macos
+#         - .macos_arm64_wheel_builder_tags
+#         - .run_automatically
+#     dependencies:
+#         - build:wheel-macos-python39-arm64
+#     needs:
+#         - build:wheel-macos-python39-arm64
 
 build:wheel-macos-python39-x86_64:
     extends:
