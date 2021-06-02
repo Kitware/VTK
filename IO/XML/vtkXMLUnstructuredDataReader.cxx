@@ -29,7 +29,40 @@
 #include "vtkXMLDataElement.h"
 
 #include <cassert>
+#include <tuple>
 #include <utility>
+
+namespace
+{
+// Ensures that array1 and array2 are of the same type. Returns a pair with
+// array type selected as follows:
+// * if both arrays have different element bytesize, the one with the larger size
+//   is chosen
+// * if both arrays have different element types, then the type for the second
+//   argument is chosen
+std::pair<vtkSmartPointer<vtkDataArray>, vtkSmartPointer<vtkDataArray>> MatchArrayTypes(
+  vtkSmartPointer<vtkDataArray> array1, vtkSmartPointer<vtkDataArray> array2)
+{
+  if (array1->GetElementComponentSize() > array2->GetElementComponentSize())
+  {
+    auto new2 = vtk::TakeSmartPointer(array1->NewInstance());
+    new2->DeepCopy(array2);
+    return std::make_pair(array1, new2);
+  }
+  else if (array2->GetElementComponentSize() > array1->GetElementComponentSize() ||
+    array1->GetDataType() != array2->GetDataType())
+  {
+    auto new1 = vtk::TakeSmartPointer(array2->NewInstance());
+    new1->DeepCopy(array1);
+    return std::make_pair(new1, array2);
+  }
+  else
+  {
+    return std::make_pair(array1, array2);
+  }
+}
+
+}
 
 //------------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -752,17 +785,10 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     {
       return 0;
     }
-
-    // If the offset array was converted, we need to make sure the connectivity
-    // array is of the same type.
-    if (offsetsNeedConversion)
-    {
-      vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
-        vtkSmartPointer<vtkCellArray::ArrayType64>::New();
-      newArray->DeepCopy(conn);
-      conn = newArray;
-    }
   }
+
+  // Ensure that `conn` and `cellOffsets` arrays have same types.
+  std::tie(conn, cellOffsets) = MatchArrayTypes(conn, cellOffsets);
 
   //------------------- Construct vtkCellArray ---------------------------------
 
