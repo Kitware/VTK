@@ -52,16 +52,18 @@ namespace omf
 namespace
 {
 
-void createCoordinatesArray(double origin, std::vector<double> spacing, vtkDoubleArray* coords)
+// originally origin was added to the coordinates here, but the origin needs to be
+// added to the points AFTER performing rotation, scaling, etc
+void createCoordinatesArray(std::vector<double> spacing, vtkDoubleArray* coords)
 {
   std::vector<double> s(spacing.size(), 0);
   std::partial_sum(spacing.begin(), spacing.end(), s.begin());
 
   coords->SetNumberOfValues(static_cast<vtkIdType>(s.size() + 1));
-  coords->SetValue(0, origin);
+  coords->SetValue(0, 0);
   for (vtkIdType i = 0; i < static_cast<vtkIdType>(s.size()); ++i)
   {
-    coords->SetValue(i + 1, static_cast<vtkIdType>(s[i] + origin));
+    coords->SetValue(i + 1, static_cast<vtkIdType>(s[i]));
   }
 }
 
@@ -403,8 +405,8 @@ void SurfaceElement::ProcessGeometry(
 
     vtkNew<vtkDoubleArray> x;
     vtkNew<vtkDoubleArray> y;
-    createCoordinatesArray(origin[0], tensor_u, x);
-    createCoordinatesArray(origin[1], tensor_v, y);
+    createCoordinatesArray(tensor_u, x);
+    createCoordinatesArray(tensor_v, y);
 
     vtkNew<vtkDoubleArray> z;
     z->SetNumberOfValues(1);
@@ -458,9 +460,9 @@ void SurfaceElement::ProcessGeometry(
           newPt[0] = vtkMath::Dot(pt, rotCol1);
           newPt[1] = vtkMath::Dot(pt, rotCol2);
           newPt[2] = vtkMath::Dot(pt, rotCol3);
-          newPt[0] += this->GlobalOrigin[0];
-          newPt[1] += this->GlobalOrigin[1];
-          newPt[2] += this->GlobalOrigin[2];
+          newPt[0] += this->GlobalOrigin[0] + origin[0];
+          newPt[1] += this->GlobalOrigin[1] + origin[1];
+          newPt[2] += this->GlobalOrigin[2] + origin[2];
           points->InsertNextPoint(newPt);
         }
       }
@@ -498,9 +500,9 @@ void VolumeElement::ProcessGeometry(
   vtkNew<vtkDoubleArray> x;
   vtkNew<vtkDoubleArray> y;
   vtkNew<vtkDoubleArray> z;
-  createCoordinatesArray(origin[0], tensor_u, x);
-  createCoordinatesArray(origin[1], tensor_v, y);
-  createCoordinatesArray(origin[2], tensor_w, z);
+  createCoordinatesArray(tensor_u, x);
+  createCoordinatesArray(tensor_v, y);
+  createCoordinatesArray(tensor_w, z);
 
   std::array<vtkIdType, 3> dims = { { x->GetNumberOfValues(), y->GetNumberOfValues(),
     z->GetNumberOfValues() } };
@@ -527,9 +529,9 @@ void VolumeElement::ProcessGeometry(
         newPt[0] = vtkMath::Dot(pt, rotCol1);
         newPt[1] = vtkMath::Dot(pt, rotCol2);
         newPt[2] = vtkMath::Dot(pt, rotCol3);
-        newPt[0] += this->GlobalOrigin[0];
-        newPt[1] += this->GlobalOrigin[1];
-        newPt[2] += this->GlobalOrigin[2];
+        newPt[0] += this->GlobalOrigin[0] + origin[0];
+        newPt[1] += this->GlobalOrigin[1] + origin[1];
+        newPt[2] += this->GlobalOrigin[2] + origin[2];
         points->InsertNextPoint(newPt);
       }
     }

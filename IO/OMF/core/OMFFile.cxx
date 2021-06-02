@@ -52,8 +52,7 @@ struct DecompressToDataArrayWorker
 
     using ValueType = typename ArrayT::ValueType;
 
-    vtkIdType numTuplesStart = 4096;
-    vtkIdType numTuples = numTuplesStart;
+    vtkIdType numTuples = zStream->avail_in;
     vtkIdType numValues = numTuples * numComponents;
     vtkIdType bufSizeBytes = numValues * sizeof(ValueType);
     vtkIdType destPos = 0;
@@ -63,7 +62,7 @@ struct DecompressToDataArrayWorker
     do
     {
       // preserve data already added
-      array->Resize(numTuples);
+      array->Resize(totalTuplesRead + numTuples);
       zStream->next_out = reinterpret_cast<unsigned char*>(array->WritePointer(destPos, numValues));
       zStream->avail_out = bufSizeBytes;
       auto err = inflate(zStream, Z_NO_FLUSH);
@@ -75,7 +74,10 @@ struct DecompressToDataArrayWorker
       vtkIdType numValuesRead = (bufSizeBytes - zStream->avail_out) / sizeof(ValueType);
       destPos += numValuesRead;
       totalTuplesRead += numValuesRead / numComponents;
-      numTuples += numTuplesStart;
+      vtkIdType expand = totalTuplesRead * 0.3;
+      numTuples += expand;
+      numValues = numTuples * numComponents;
+      bufSizeBytes = numValues * sizeof(ValueType);
     } while (zStream->avail_in > 0);
     inflateEnd(zStream);
 
