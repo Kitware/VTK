@@ -107,6 +107,14 @@ protected:
   vtkSMPThreadLocal<std::array<APIType, 2 * NumComps>> TLRange;
 
 public:
+  MinAndMax()
+  {
+    for (int i = 0, j = 0; i < NumComps; ++i, j += 2)
+    {
+      this->ReducedRange[j] = vtkTypeTraits<APIType>::Max();
+      this->ReducedRange[j + 1] = vtkTypeTraits<APIType>::Min();
+    }
+  }
   void Initialize()
   {
     auto& range = this->TLRange.Local();
@@ -114,8 +122,6 @@ public:
     {
       range[j] = vtkTypeTraits<APIType>::Max();
       range[j + 1] = vtkTypeTraits<APIType>::Min();
-      this->ReducedRange[j] = vtkTypeTraits<APIType>::Max();
-      this->ReducedRange[j + 1] = vtkTypeTraits<APIType>::Min();
     }
   }
   void Reduce()
@@ -334,6 +340,11 @@ public:
     , NumComps(Array->GetNumberOfComponents())
     , ReducedRange(2 * NumComps)
   {
+    for (int i = 0, j = 0; i < this->NumComps; ++i, j += 2)
+    {
+      this->ReducedRange[j] = vtkTypeTraits<APIType>::Max();
+      this->ReducedRange[j + 1] = vtkTypeTraits<APIType>::Min();
+    }
   }
   void Initialize()
   {
@@ -343,8 +354,6 @@ public:
     {
       range[j] = vtkTypeTraits<APIType>::Max();
       range[j + 1] = vtkTypeTraits<APIType>::Min();
-      this->ReducedRange[j] = vtkTypeTraits<APIType>::Max();
-      this->ReducedRange[j + 1] = vtkTypeTraits<APIType>::Min();
     }
   }
   void Reduce()
