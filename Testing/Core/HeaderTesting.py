@@ -341,7 +341,7 @@ class TestVTKFiles:
         lines = []
         oldlines = []
         copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) = delete;" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) = delete;" % self.ClassName
+        asgnoperator = "^\s*(void|%s\s*&)\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) = delete;" % (self.ClassName, self.ClassName)
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
