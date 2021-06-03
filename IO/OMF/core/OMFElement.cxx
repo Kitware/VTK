@@ -141,7 +141,7 @@ ProjectElement::ProjectElement(const std::string& uid, double globalOrigin[3])
 
 //------------------------------------------------------------------------------
 void ProjectElement::ProcessJSON(std::shared_ptr<OMFFile>& file, const Json::Value& element,
-  vtkPartitionedDataSet* output, bool writeOutTextures)
+  vtkPartitionedDataSet* output, bool writeOutTextures, bool columnMajorOrdering)
 {
   if (!element.isMember("geometry"))
   {
@@ -154,6 +154,11 @@ void ProjectElement::ProcessJSON(std::shared_ptr<OMFFile>& file, const Json::Val
 
   // optional properties: data and textures
   this->ProcessDataFields(file, element["data"], output);
+
+  if (columnMajorOrdering)
+  {
+    this->ProcessColumnOrdering(file, element["data"], output);
+  }
 
   if (writeOutTextures && element.isMember("textures") && !element["textures"].empty())
   {
@@ -219,6 +224,72 @@ void ProjectElement::ProcessDataFields(
       else
       {
         setFieldDataArray(dataArray, output, location, name);
+      }
+    }
+  }
+}
+
+void VolumeElement::ProcessColumnOrdering(
+  std::shared_ptr<OMFFile>& file, const Json::Value& dataJSON, vtkPartitionedDataSet* output)
+{
+  if (!dataJSON.isNull() && dataJSON.isArray())
+  {
+    // for each array
+    for (Json::Value::ArrayIndex ai = 0; ai < dataJSON.size(); ++ai)
+    {
+      std::string uid, name, location;
+      helper::GetStringValue(dataJSON[ai], uid);
+      const auto& data = file->JSONRoot()[uid];
+      helper::GetStringValue(data["name"], name);
+      helper::GetStringValue(data["location"], location);
+
+      vtkIdType dstIdx = 0;
+      int aid = 0;
+      if (location == "vertices")
+      {
+        vtkAbstractArray* da = output->GetPartition(0)->GetPointData()->GetArray(name.c_str(), aid);
+        if (da)
+        {
+          vtkSmartPointer<vtkAbstractArray> newDA;
+          newDA.TakeReference(vtkAbstractArray::CreateArray(da->GetDataType()));
+          newDA->DeepCopy(da);
+          for (size_t k = 0; k < this->Dimensions[2]; k++)
+          {
+            for (size_t j = 0; j < this->Dimensions[1]; j++)
+            {
+              for (size_t i = 0; i < this->Dimensions[0]; i++)
+              {
+                newDA->SetTuple(
+                  dstIdx++, k + this->Dimensions[2] * (j + i * this->Dimensions[1]), da);
+              }
+            }
+          }
+          output->GetPartition(0)->GetPointData()->RemoveArray(aid);
+          output->GetPartition(0)->GetPointData()->AddArray(newDA);
+        }
+      }
+      else if (location == "cells" || location == "faces" || location == "segments")
+      {
+        vtkDataArray* da = output->GetPartition(0)->GetCellData()->GetArray(name.c_str(), aid);
+        if (da)
+        {
+          vtkSmartPointer<vtkAbstractArray> newDA;
+          newDA.TakeReference(vtkAbstractArray::CreateArray(da->GetDataType()));
+          newDA->DeepCopy(da);
+          for (size_t k = 0; k < this->Dimensions[2] - 1; k++)
+          {
+            for (size_t j = 0; j < this->Dimensions[1] - 1; j++)
+            {
+              for (size_t i = 0; i < this->Dimensions[0] - 1; i++)
+              {
+                newDA->SetTuple(dstIdx++,
+                  k + (this->Dimensions[2] - 1) * (j + i * (this->Dimensions[1] - 1)), da);
+              }
+            }
+          }
+          output->GetPartition(0)->GetCellData()->RemoveArray(aid);
+          output->GetPartition(0)->GetCellData()->AddArray(newDA);
+        }
       }
     }
   }
@@ -506,6 +577,9 @@ void VolumeElement::ProcessGeometry(
 
   std::array<vtkIdType, 3> dims = { { x->GetNumberOfValues(), y->GetNumberOfValues(),
     z->GetNumberOfValues() } };
+  this->Dimensions[0] = dims[0];
+  this->Dimensions[1] = dims[1];
+  this->Dimensions[2] = dims[2];
   vtkNew<vtkStructuredGrid> sgrid;
   sgrid->SetDimensions(dims[0], dims[1], dims[2]);
 

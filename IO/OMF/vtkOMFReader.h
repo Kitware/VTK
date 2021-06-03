@@ -77,6 +77,16 @@ public:
   vtkGetMacro(WriteOutTextures, bool);
   ///@}
 
+  ///@{
+  /**
+   * Get/Set if scalar data is in column major order.
+   * It should be in row major order but some software seems to
+   * write out column major for volumes.
+   */
+  vtkSetMacro(ColumnMajorOrdering, bool);
+  vtkGetMacro(ColumnMajorOrdering, bool);
+  ///@}
+
 protected:
   vtkOMFReader();
   ~vtkOMFReader() override;
@@ -92,6 +102,7 @@ protected:
 
   char* FileName;
   bool WriteOutTextures = true;
+  bool ColumnMajorOrdering = false;
 
 private:
   vtkOMFReader(const vtkOMFReader&) = delete;

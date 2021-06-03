@@ -39,7 +39,7 @@ public:
   virtual ~ProjectElement() = default;
 
   virtual void ProcessJSON(std::shared_ptr<OMFFile>& file, const Json::Value& element,
-    vtkPartitionedDataSet* output, bool writeOutTextures);
+    vtkPartitionedDataSet* output, bool writeOutTextures, bool columnMajorOrdering);
 
 protected:
   std::string UID;
@@ -49,6 +49,8 @@ protected:
     vtkPartitionedDataSet* output) = 0;
   virtual void ProcessDataFields(
     std::shared_ptr<OMFFile>& file, const Json::Value& dataJSON, vtkPartitionedDataSet* output);
+  virtual void ProcessColumnOrdering(std::shared_ptr<OMFFile>& /*file*/,
+    const Json::Value& /*dataJSON*/, vtkPartitionedDataSet* /*output*/){};
   virtual void ProcessTextures(std::shared_ptr<OMFFile>& file, const Json::Value& textureJSON,
     vtkPartitionedDataSet* output, const std::string& elementName);
 };
@@ -103,6 +105,9 @@ public:
 protected:
   void ProcessGeometry(std::shared_ptr<OMFFile>& file, const std::string& geometryUID,
     vtkPartitionedDataSet* output) override;
+  void ProcessColumnOrdering(std::shared_ptr<OMFFile>& file, const Json::Value& dataJSON,
+    vtkPartitionedDataSet* output) override;
+  size_t Dimensions[3];
 };
 
 } // end namespace omf
