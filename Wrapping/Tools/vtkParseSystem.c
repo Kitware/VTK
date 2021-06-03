@@ -41,7 +41,7 @@
 /* struct dirent only has d_type on certain systems */
 /* (Linux defines _DIRENT_HAVE_D_TYPE to help us out) */
 #ifndef HAVE_DIRENT_D_TYPE
-#if defined(_DIRENT_HAVE_D_TYPE) || defined(__FreeBSD__) || defined(__DARWIN__)
+#if defined(_DIRENT_HAVE_D_TYPE) || defined(__FreeBSD__) || defined(__APPLE__)
 #define HAVE_DIRENT_D_TYPE
 #endif
 #endif
@@ -342,18 +342,19 @@ system_filetype_t vtkParse_FileExists(SystemInfo* info, const char* name)
       memcpy(fullname, name, l);
       strcpy(&fullname[l], entry->d_name);
 
-      if (stat(fullname, &fs) == 0)
+      if (stat(fullname, &fs) != 0)
       {
-        if (S_ISDIR(fs.st_mode))
-        {
-          type = VTK_PARSE_ISDIR;
-        }
-        else
-        {
-          type = VTK_PARSE_ISFILE;
-          /* add the file to the cache */
-          system_file_add(info, fullname, type);
-        }
+        type = VTK_PARSE_NOFILE;
+      }
+      else if (S_ISDIR(fs.st_mode))
+      {
+        type = VTK_PARSE_ISDIR;
+      }
+      else
+      {
+        type = VTK_PARSE_ISFILE;
+        /* add the file to the cache */
+        system_file_add(info, fullname, type);
       }
 
       /* check if this directory entry is the file we are looking for */
