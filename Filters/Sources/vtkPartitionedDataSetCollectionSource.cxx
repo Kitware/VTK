@@ -82,9 +82,9 @@ void OffsetPoints(ArrayType* array, const vtkVector3d& delta)
   VTK_ASSUME(array->GetNumberOfComponents() == 3);
 
   using ValueType = vtk::GetAPIType<ArrayType>;
-  ValueType tuple[3];
 
   vtkSMPTools::For(0, array->GetNumberOfTuples(), [&](vtkIdType start, vtkIdType end) {
+    ValueType tuple[3];
     for (vtkIdType tidx = start; tidx < end; ++tidx)
     {
       array->GetTypedTuple(tidx, tuple);
