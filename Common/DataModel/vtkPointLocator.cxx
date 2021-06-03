@@ -1346,7 +1346,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const double x[3])
   //  points in this bucket, search 1st level neighbors, and so on,
   //  until closest point found.
   //
-  for (closest = 0, minDist2 = VTK_DOUBLE_MAX, level = 0; (closest == 0) &&
+  for (closest = -1, minDist2 = VTK_DOUBLE_MAX, level = 0; (closest == -1) &&
        (level < this->Divisions[0] || level < this->Divisions[1] || level < this->Divisions[2]);
        level++)
   {
