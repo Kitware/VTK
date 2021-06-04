@@ -178,6 +178,15 @@ public:
    */
   void SetFileName(const char* fname);
 
+  //@{
+  /**
+   * Get/Set the IOSS database name to use for reading the file. If not
+   * specified (default), the reader will determine based on the file extension.
+   */
+  vtkSetStringMacro(DatabaseTypeOverride);
+  vtkGetStringMacro(DatabaseTypeOverride);
+  //@}
+
   ///@{
   /**
    * When set to true, the reader can automatically locate and load additional
@@ -270,6 +279,22 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
+  ///@{
+  /**
+   * IOSS databases support various properties that affect how the database is
+   * read. These properties can be set using this API. Note, it's best to call
+   * this before the first update to the reader since any change and the reader
+   * will flush all caches and close all open databases etc.
+   */
+  void AddProperty(const char* name, int value);
+  void AddProperty(const char* name, double value);
+  void AddProperty(const char* name, void* value);
+  void AddProperty(const char* name, const char* value);
+  void RemoveProperty(const char* name);
+  void ClearProperties();
+  ///@}
+
+  ///@}
   enum EntityType
   {
     NODEBLOCK,
@@ -388,6 +413,7 @@ private:
   bool ApplyDisplacements;
   bool ReadGlobalFields;
   bool ReadQAAndInformationRecords;
+  char* DatabaseTypeOverride;
 
   class vtkInternals;
   vtkInternals* Internals;
