@@ -36,7 +36,3 @@ curl -OL "$url/$filename"
 $shatool --check sccache.sha256sum
 mv "$filename" sccache
 chmod +x sccache
-
-mkdir shortcuts
-cp ./sccache shortcuts/gcc
-cp ./sccache shortcuts/g++
