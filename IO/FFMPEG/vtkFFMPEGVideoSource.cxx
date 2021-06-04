@@ -156,6 +156,7 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
 //------------------------------------------------------------------------------
 vtkFFMPEGVideoSource::~vtkFFMPEGVideoSource()
 {
+  this->Stop();
   this->vtkFFMPEGVideoSource::ReleaseSystemResources();
   delete[] this->FileName;
   delete this->Internal;
@@ -515,6 +516,7 @@ void* vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo* data)
     }
     else if (ret == AVERROR_EOF)
     {
+      this->FeedMutex.unlock();
       return nullptr;
     }
     else if (ret < 0) // error code
@@ -595,6 +597,7 @@ void* vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo* data)
     }
     else if (ret == AVERROR_EOF)
     {
+      this->FeedAudioMutex.unlock();
       return nullptr;
     }
     else if (ret < 0) // error code
