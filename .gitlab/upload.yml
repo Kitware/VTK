@@ -1,0 +1,17 @@
+# Steps for uploading artifacts
+
+.pypi_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux
+        - build
+    environment:
+        name: pypi-upload
+
+    script:
+        - cd build/
+        - ls dist
+        - dnf install -y --setopt=install_weak_deps=False twine
+        - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*

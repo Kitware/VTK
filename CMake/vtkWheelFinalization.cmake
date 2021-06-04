@@ -1,5 +1,9 @@
 set(vtk_features)
 
+if (TARGET VTK::WebPython)
+  list(APPEND vtk_features "web")
+endif ()
+
 if (TARGET VTK::mpi)
   list(APPEND vtk_features "mpi")
 endif ()

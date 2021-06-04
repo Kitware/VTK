@@ -70,9 +70,75 @@ python_code_features = {
 features = python_code_features
 features.update(vtk_features.FEATURES)
 
+extra_packages = []
+if 'web' in vtk_features.FEATURES:
+    extra_packages.append('vtkmodules.web')
+
+########################################
+# Version computation logic
+########################################
+
+# Assume a development version at first.
+version_base = '@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@'
+version = version_base + '.dev0'
+
+if 'GITLAB_CI' in os.environ:
+    if 'CI_COMMIT_TAG' in os.environ:
+        if '.rc' in os.environ['CI_COMMIT_TAG']:
+            # rc tag. Add this to the version.
+            rc_bit = os.environ['CI_COMMIT_TAG'].split('.')[-1]
+            version = version_base + '.' + rc_bit
+        else:
+            # Official release, use the version number.
+            version = version_base
+    elif 'CI_COMMIT_BRANCH' in os.environ:
+        # Build on an official branch.
+
+        # Check if we're on `master` or the release branch.
+        if 20200000 < int('@VTK_BUILD_VERSION@'):
+            # Master, count commits since the last nightly update.
+            git_log = subprocess.Popen([
+                        'git',
+                        'log',
+                        '--first-parent',
+                        '--pretty=%s',
+                        os.environ['CI_COMMIT_BRANCH'],
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=os.environ['GIT_CLONE_PATH'],
+                )
+
+            count = 0
+            for line in git_log.stdout.readlines():
+                if line == b'VTK Nightly Date Stamp\n':
+                    break
+                count += 1
+        else:
+            # Release branch, count commits since the last tag.
+            git_log = subprocess.Popen([
+                        'git',
+                        'log',
+                        '--first-parent',
+                        '--pretty=%s',
+                        'v' + version_base + '..'
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=os.environ['GIT_CLONE_PATH'],
+                )
+
+            count = len(git_log.stdout.readlines())
+
+        version = version_base + '.dev' + str(count)
+    elif 'CI_MERGE_REQUEST_ID' in os.environ:
+        # Build on a merge request.
+        version = version_base + '.dev0' + '+mr' + \
+                os.environ['CI_MERGE_REQUEST_ID']
+
 setup(
     name='vtk',
-    version='@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@',
+    version=version,
     author='VTK developers',
     packages=[
         'vtkmodules',
@@ -83,13 +149,13 @@ setup(
         'vtkmodules.tk',
         'vtkmodules.util',
         'vtkmodules.wx',
-    ],
+    ] + extra_packages,
     py_modules=[
         'vtk',
     ],
     ext_package='vtkmodules',
     ext_modules=[
-        # https://gitlab.kitware.com/cmake/cmake/issues/19145
+        # https://gitlab.kitware.com/cmake/cmake/-/issues/19145
         #ConfiguredCMakeExtension('vtkmodules', target='vtkpythonmodules'),
         ConfiguredCMakeExtension('vtkCommonCorePython', target='vtkCommonCorePython'),
     ],
@@ -102,7 +168,7 @@ setup(
             # macOS modules.
             '*-darwin.so',
             # macOS shared libraries.
-            'lib*.dylib*',
+            '.dylibs',
             # Windows modules.
             '*.pyd',
             # Windows shared libraries.

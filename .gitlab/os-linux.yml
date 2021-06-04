@@ -1,0 +1,89 @@
+# Linux-specific builder configurations and build commands
+
+## Base images
+
+.manylinux2014_x86_64:
+    image: "quay.io/pypa/manylinux2014_x86_64:latest"
+
+    variables:
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+
+.wheel_linux36_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux36_x86_64
+        PYTHON_PREFIX: /opt/python/cp36-cp36m
+
+.wheel_linux37_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux37_x86_64
+        PYTHON_PREFIX: /opt/python/cp37-cp37m
+
+.wheel_linux38_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_x86_64
+        PYTHON_PREFIX: /opt/python/cp38-cp38
+
+.wheel_linux39_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_x86_64
+        PYTHON_PREFIX: /opt/python/cp39-cp39
+
+.linux_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux
+        - vtk
+
+## Linux-specific scripts
+
+.before_script_linux: &before_script_linux
+    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/ninja.sh
+    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
+    - cmake --version
+    - ninja --version
+    - "git submodule update --init --recursive || :"
+    - git submodule foreach --recursive cmake -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    # Load any modules that may be necessary.
+    - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
+
+.cmake_build_wheel_linux:
+    stage: build
+
+    script:
+        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
+        - *before_script_linux
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+        - cd build
+        - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
+        - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
+        - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+    interruptible: true
+
+.cmake_test_wheel_linux:
+    stage: test
+
+    script:
+        - yum install -y --setopt=install_weak_deps=False libXcursor
+        - "$PYTHON_PREFIX/bin/python -m venv venv"
+        - venv/bin/pip install twine
+        - venv/bin/twine check build/dist/*.whl
+        - venv/bin/pip install build/dist/*.whl
+        - venv/bin/python -c "import vtk"
+    interruptible: true

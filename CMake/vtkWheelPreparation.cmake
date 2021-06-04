@@ -1,6 +1,7 @@
 # Force some VTK options for wheels.
 set(VTK_PYTHON_VERSION 3)
 set(VTK_BUILD_TESTING OFF)
+set(VTK_LEGACY_SILENT ON)
 set(VTK_ENABLE_WRAPPING ON)
 set(VTK_WRAP_PYTHON ON)
 set(Python3_ARTIFACTS_INTERACTIVE ON)
@@ -49,12 +50,19 @@ set(vtk_hierarchy_destination_args
 set(setup_py_build_dir
   "build/lib.${python_platform}-${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
 # Required for Windows DLL placement.
-set(CMAKE_INSTALL_BINDIR
-  # Must correlate with `vtk_module_wrap_python(PYTHON_PACKAGE)` argument
-  "${setup_py_build_dir}/vtkmodules")
-set(CMAKE_INSTALL_LIBDIR
-  # Must correlate with `vtk_module_wrap_python(PYTHON_PACKAGE)` argument
-  "${setup_py_build_dir}/vtkmodules")
+if (WIN32)
+  set(CMAKE_INSTALL_BINDIR
+    # Must correlate with `vtk_module_wrap_python(PYTHON_PACKAGE)` argument
+    "${setup_py_build_dir}/vtkmodules")
+elseif (APPLE)
+  set(CMAKE_INSTALL_LIBDIR
+    # Store libraries in a subdirectory here.
+    "${setup_py_build_dir}/vtkmodules/.dylibs")
+else ()
+  set(CMAKE_INSTALL_LIBDIR
+    # Linux bundles what libraries we have when they're put beside the modules.
+    "${setup_py_build_dir}/vtkmodules")
+endif ()
 set(VTK_PYTHON_SITE_PACKAGES_SUFFIX ".")
 set(VTK_CUSTOM_LIBRARY_SUFFIX "")
 set(VTK_INSTALL_SDK OFF)
