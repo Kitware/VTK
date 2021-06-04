@@ -171,7 +171,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread") # They failed also on OpenM
     "^VTK::FiltersExtractionCxx-TestExtractSelectionUsingDataAssembly$"
     "^VTK::FiltersExtractionPython-ExtractTensors$"
     "^VTK::FiltersGeneralCxx-TestAnimateModes$"
-    "^VTK::FiltersGeneralPython-TestGroupTimeStepsFilter$"
     "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
     "^VTK::FiltersPointsPython-TestPointSmoothingFilter$"
