@@ -254,7 +254,6 @@
 .before_script_linux: &before_script_linux
     - .gitlab/ci/cmake.sh
     - .gitlab/ci/ninja.sh
-    - .gitlab/ci/sccache.sh
     - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
     - cmake --version
     - ninja --version
@@ -270,6 +269,7 @@
 
     script:
         - *before_script_linux
+        - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
