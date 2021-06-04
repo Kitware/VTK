@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
 foreach(policy
     CMP0083 # CMake 3.14
+    CMP0077 # CMake 3.13
     CMP0071 # CMake 3.10
     CMP0068 # CMake 3.9
     )
