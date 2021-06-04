@@ -1,0 +1,11 @@
+# Lists of paths for artifacts of various stages.
+
+.cmake_wheel_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - compile_output.log
+            - wheel_output.log
+
+            - build/dist/*.whl

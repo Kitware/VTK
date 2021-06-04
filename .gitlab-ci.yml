@@ -1,0 +1,348 @@
+include:
+    # Metadata shared my many jobs
+    - local: .gitlab/rules.yml
+    - local: .gitlab/artifacts.yml
+    - local: .gitlab/upload.yml
+
+    # OS builds.
+    - local: .gitlab/os-linux.yml
+    - local: .gitlab/os-macos.yml
+    - local: .gitlab/os-windows.yml
+
+stages:
+    - build
+    - test
+    - test-ext
+    - upload
+
+################################################################################
+# Job declarations
+#
+# Each job must pull in each of the following keys:
+#
+#   - a "base image"
+#   - a build script
+#   - tags for the jobs
+#     - already provided for upload and CI update jobs
+#   - rules for when to run the job
+#
+# Additionally, jobs may also contain:
+#
+#   - artifacts
+#   - dependency/needs jobs for required jobs
+################################################################################
+
+# Linux
+
+## Python wheel builds
+
+build:wheel-linux-python36-x86_64:
+    extends:
+        - .wheel_linux36_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-linux-python36-x86_64:
+#     extends:
+#         - .wheel_linux36_x86_64
+#         - .cmake_test_wheel_linux
+#         - .linux_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - build:wheel-linux-python36-x86_64
+#     needs:
+#         - build:wheel-linux-python36-x86_64
+
+build:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-linux-python37-x86_64:
+    extends:
+        - .wheel_linux37_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-linux-python37-x86_64
+    needs:
+        - build:wheel-linux-python37-x86_64
+
+build:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-linux-python38-x86_64:
+    extends:
+        - .wheel_linux38_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-linux-python38-x86_64
+    needs:
+        - build:wheel-linux-python38-x86_64
+
+build:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-linux-python39-x86_64:
+    extends:
+        - .wheel_linux39_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-linux-python39-x86_64
+    needs:
+        - build:wheel-linux-python39-x86_64
+
+upload:wheel:
+    extends:
+        - .pypi_upload
+        - .weekly_upload_only
+    dependencies:
+        - build:wheel-linux-python36-x86_64
+        - build:wheel-linux-python37-x86_64
+        - build:wheel-linux-python38-x86_64
+        - build:wheel-linux-python39-x86_64
+        - build:wheel-macos-python36-x86_64
+        - build:wheel-macos-python37-x86_64
+        - build:wheel-macos-python38-x86_64
+        # - build:wheel-macos-python39-arm64
+        - build:wheel-macos-python39-x86_64
+        - build:wheel-windows-python36-x86_64
+        - build:wheel-windows-python37-x86_64
+        - build:wheel-windows-python38-x86_64
+        - build:wheel-windows-python39-x86_64
+    needs:
+        - build:wheel-linux-python36-x86_64
+        # - test:wheel-linux-python36-x86_64
+        - build:wheel-linux-python37-x86_64
+        - test:wheel-linux-python37-x86_64
+        - build:wheel-linux-python38-x86_64
+        - test:wheel-linux-python38-x86_64
+        - build:wheel-linux-python39-x86_64
+        - test:wheel-linux-python39-x86_64
+        - build:wheel-macos-python36-x86_64
+        - test:wheel-macos-python36-x86_64
+        - build:wheel-macos-python37-x86_64
+        - test:wheel-macos-python37-x86_64
+        - build:wheel-macos-python38-x86_64
+        - test:wheel-macos-python38-x86_64
+        # - build:wheel-macos-python39-arm64
+        # - test:wheel-macos-python39-arm64
+        - build:wheel-macos-python39-x86_64
+        - test:wheel-macos-python39-x86_64
+        - build:wheel-windows-python36-x86_64
+        # - test:wheel-windows-python36-x86_64
+        - build:wheel-windows-python37-x86_64
+        - test:wheel-windows-python37-x86_64
+        - build:wheel-windows-python38-x86_64
+        - test:wheel-windows-python38-x86_64
+        - build:wheel-windows-python39-x86_64
+        - test:wheel-windows-python39-x86_64
+
+# macOS
+
+## Python wheel builds
+
+build:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+    timeout: 90 minutes
+
+test:wheel-macos-python36-x86_64:
+    extends:
+        - .wheel_macos36_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python36-x86_64
+    needs:
+        - build:wheel-macos-python36-x86_64
+
+build:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+    timeout: 90 minutes
+
+test:wheel-macos-python37-x86_64:
+    extends:
+        - .wheel_macos37_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python37-x86_64
+    needs:
+        - build:wheel-macos-python37-x86_64
+
+build:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+    timeout: 90 minutes
+
+test:wheel-macos-python38-x86_64:
+    extends:
+        - .wheel_macos38_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-macos-python38-x86_64
+    needs:
+        - build:wheel-macos-python38-x86_64
+
+# XXX(Python): We need to tell Python that this is *not* a `universal2` binary
+# and instead is arm64-only. See <https://github.com/pypa/wheel/issues/406>.
+# build:wheel-macos-python39-arm64:
+#     extends:
+#         - .wheel_macos39_arm64
+#         - .cmake_build_wheel_macos
+#         - .macos_arm64_wheel_builder_tags
+#         - .cmake_wheel_artifacts
+#         - .run_manually
+
+# test:wheel-macos-python39-arm64:
+#     extends:
+#         - .wheel_macos39_arm64
+#         - .cmake_test_wheel_macos
+#         - .macos_arm64_wheel_builder_tags
+#         - .run_automatically
+#     dependencies:
+#         - build:wheel-macos-python39-arm64
+#     needs:
+#         - build:wheel-macos-python39-arm64
+
+build:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+    timeout: 90 minutes
+
+test:wheel-macos-python39-x86_64:
+    extends:
+        - .wheel_macos39_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python39-x86_64
+    needs:
+        - build:wheel-macos-python39-x86_64
+
+# Windows
+
+## Python wheel builds
+
+build:wheel-windows-python36-x86_64:
+    extends:
+        - .wheel_windows36_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+# XXX(rust): This build ends up needing a Rust compiler to compile the
+# `cryptography` package.
+# test:wheel-windows-python36-x86_64:
+#     extends:
+#         - .wheel_windows36_x86_64
+#         - .cmake_test_wheel_windows
+#         - .windows_wheel_builder_tags
+#         - .merged_only
+#     dependencies:
+#         - build:wheel-windows-python36-x86_64
+#     needs:
+#         - build:wheel-windows-python36-x86_64
+
+build:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-windows-python37-x86_64:
+    extends:
+        - .wheel_windows37_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-windows-python37-x86_64
+    needs:
+        - build:wheel-windows-python37-x86_64
+
+build:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .merged_only
+
+test:wheel-windows-python38-x86_64:
+    extends:
+        - .wheel_windows38_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .merged_only
+    dependencies:
+        - build:wheel-windows-python38-x86_64
+    needs:
+        - build:wheel-windows-python38-x86_64
+
+build:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+
+test:wheel-windows-python39-x86_64:
+    extends:
+        - .wheel_windows39_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-windows-python39-x86_64
+    needs:
+        - build:wheel-windows-python39-x86_64

@@ -1,0 +1,34 @@
+# Rules for where jobs can run
+
+.run_automatically:
+    rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: on_success
+        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          when: on_success
+        - when: never
+
+.run_manually:
+    rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: manual
+        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          when: delayed
+          start_in: 30 minutes
+        - when: never
+
+.merged_only:
+    rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
+        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
+          when: on_success
+        - when: never
+
+.weekly_upload_only:
+    rules:
+      - if: '$CI_COMMIT_TAG == "true"'
+        when: on_success
+      - if: '$PYPI_WEEKLY_UPLOAD == "true"'
+        when: on_success
+      - when: never
