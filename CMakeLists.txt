@@ -373,6 +373,14 @@ if (VTK_WRAP_PYTHON)
     "${vtk_required_python_modules}\n")
   get_property(vtk_soabi GLOBAL
     PROPERTY  _vtk_python_soabi)
+
+  if (APPLE AND VTK_WHEEL_BUILD)
+    list(APPEND CMAKE_INSTALL_RPATH
+      # Wheels place loaded libraries under a `.dylibs` subdirectory. Add this
+      # to the rpath list.
+      "@loader_path/.dylibs")
+  endif ()
+
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTKPython
@@ -384,6 +392,11 @@ if (VTK_WRAP_PYTHON)
     SOABI               "${vtk_soabi}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET          VTK::vtkpythonmodules)
+
+  if (APPLE AND VTK_WHEEL_BUILD)
+    list(REMOVE_ITEM CMAKE_INSTALL_RPATH
+      "@loader_path/.dylibs")
+  endif ()
 
   add_subdirectory(Wrapping/Python)
 
