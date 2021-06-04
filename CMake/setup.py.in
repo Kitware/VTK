@@ -168,7 +168,7 @@ setup(
             # macOS modules.
             '*-darwin.so',
             # macOS shared libraries.
-            'lib*.dylib*',
+            '.dylibs',
             # Windows modules.
             '*.pyd',
             # Windows shared libraries.
