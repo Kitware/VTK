@@ -71,6 +71,8 @@ features = python_code_features
 features.update(vtk_features.FEATURES)
 
 extra_packages = []
+if 'web' in vtk_features.FEATURES:
+    extra_packages.append('vtkmodules.web')
 
 ########################################
 # Version computation logic
