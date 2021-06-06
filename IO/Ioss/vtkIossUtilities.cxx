@@ -712,12 +712,18 @@ DatabaseFormatType DetectType(const std::string& dbaseName)
 {
   // clang-format off
   auto name = vtksys::SystemTools::LowerCase(dbaseName);
+  if (name == "catalyst.bin")
+  {
+    return DatabaseFormatType::CATALYST;
+  }
+
   vtksys::RegularExpression extensionRegexCGNS(R"(^.*\.(cgns[^-.]*))");
   // clang-format on
   if (extensionRegexCGNS.find(name) && extensionRegexCGNS.match(1) == "cgns")
   {
     return DatabaseFormatType::CGNS;
   }
+
   return DatabaseFormatType::EXODUS;
 }
 
@@ -728,6 +734,10 @@ DatabaseFormatType GetFormat(const Ioss::GroupingEntity* entity)
   if (entity->get_database()->get_format() == "CGNS")
   {
     return DatabaseFormatType::CGNS;
+  }
+  else if (entity->get_database()->get_format() == "CATALYST2")
+  {
+    return DatabaseFormatType::CATALYST;
   }
   else
   {

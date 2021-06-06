@@ -59,7 +59,8 @@ enum DatabaseFormatType
 {
   UNKNOWN,
   EXODUS,
-  CGNS
+  CGNS,
+  CATALYST,
 };
 
 /**

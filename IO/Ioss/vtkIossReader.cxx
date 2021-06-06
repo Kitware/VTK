@@ -202,10 +202,19 @@ class vtkIossReader::vtkInternals
   vtkIossUtilities::Cache Cache;
 
   vtkIossUtilities::DatabaseFormatType Format = vtkIossUtilities::DatabaseFormatType::UNKNOWN;
+  vtkIossReader* IOSSReader = nullptr;
 
 public:
+  vtkInternals(vtkIossReader* reader)
+    : IOSSReader(reader)
+  {
+  }
+
+  Ioss::PropertyManager DatabaseProperties;
   std::set<std::string> FileNames;
   vtkTimeStamp FileNamesMTime;
+
+  void* ConduitNode = nullptr;
 
   const std::vector<double>& GetTimeSteps() const { return this->TimestepValues; }
   vtkIossUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
@@ -216,7 +225,20 @@ public:
    */
   void ClearCache() { this->Cache.Clear(); }
   void ResetCacheAccessCounts() { this->Cache.ResetAccessCounts(); }
-  void ClearCacheUnused() { this->Cache.ClearUnused(); }
+  void ClearCacheUnused()
+  {
+    switch (this->Format)
+    {
+      case vtkIossUtilities::DatabaseFormatType::CATALYST:
+        // For Catalyst, we don't want to hold on to the cache for longer than
+        // the RequestData pass. For we clear it entirely here.
+        this->Cache.Clear();
+        break;
+      default:
+        this->Cache.ClearUnused();
+        break;
+    }
+  }
   //@}
 
   /**
@@ -349,6 +371,16 @@ public:
     {
       pair.second->get_database()->closeDatabase();
     }
+  }
+
+  /**
+   * Clear all regions, databases etc.
+   */
+  void Reset()
+  {
+    this->Cache.Clear();
+    this->RegionMap.clear();
+    this->TimestepValuesMTime = vtkTimeStamp();
   }
 
 private:
@@ -1011,20 +1043,44 @@ Ioss::Region* vtkIossReader::vtkInternals::GetRegion(const std::string& dbasenam
       properties.add(Ioss::Property("my_processor", processor));
       properties.add(Ioss::Property("processor_count", iter->second.ProcessCount));
     }
+
     // fixme: should this be configurable? it won't really work if we made it
     // configurable since our vtkDataArraySelection object would need to purged
     // and refilled.
     properties.add(Ioss::Property("FIELD_SUFFIX_SEPARATOR", ""));
+
+    // Fillup with user-specified properties.
+    Ioss::NameList names;
+    this->DatabaseProperties.describe(&names);
+
+    for (const auto& name : names)
+    {
+      properties.add(this->DatabaseProperties.get(name));
+    }
+
     // If MPI is enabled in the build, Ioss can call MPI routines. We need to
     // make sure that MPI is initialized before calling
     // Ioss::IOFactory::create.
     vtkIossUtilities::InitializeEnvironmentForIoss();
-    const auto dtype =
-      vtkIossUtilities::DetectType(dbasename) == vtkIossUtilities::DatabaseFormatType::CGNS
-      ? "cgns"
-      : "exodusII";
-    auto dbase = std::unique_ptr<Ioss::DatabaseIO>(
-      Ioss::IOFactory::create(dtype, dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties));
+    std::string dtype;
+    switch (vtkIossUtilities::DetectType(dbasename))
+    {
+      case vtkIossUtilities::DatabaseFormatType::CGNS:
+        dtype = "cgns";
+        break;
+      case vtkIossUtilities::DatabaseFormatType::CATALYST:
+        dtype = "catalyst";
+        break;
+      case vtkIossUtilities::DatabaseFormatType::EXODUS:
+      default:
+        dtype = "exodusII";
+        break;
+    }
+
+    auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
+      this->IOSSReader->DatabaseTypeOverride ? std::string(this->IOSSReader->DatabaseTypeOverride)
+                                             : dtype,
+      dbasename, Ioss::READ_RESTART, MPI_COMM_WORLD, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
       throw std::runtime_error(
@@ -1102,6 +1158,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSet
   const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
   const DatabaseHandle& handle, int timestep, vtkIossReader* self)
 {
+  // TODO: ideally, this method shouldn't depend on format but entity type.
   switch (this->Format)
   {
     case vtkIossUtilities::DatabaseFormatType::CGNS:
@@ -1117,6 +1174,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetDataSet
       }
 
     case vtkIossUtilities::DatabaseFormatType::EXODUS:
+    case vtkIossUtilities::DatabaseFormatType::CATALYST:
       switch (vtk_entity_type)
       {
         case STRUCTUREDBLOCK:
@@ -1983,7 +2041,8 @@ vtkIossReader::vtkIossReader()
   , ApplyDisplacements(true)
   , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
-  , Internals(new vtkIossReader::vtkInternals())
+  , DatabaseTypeOverride(nullptr)
+  , Internals(new vtkIossReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -1991,6 +2050,7 @@ vtkIossReader::vtkIossReader()
 //----------------------------------------------------------------------------
 vtkIossReader::~vtkIossReader()
 {
+  this->SetDatabaseTypeOverride(nullptr);
   this->SetController(nullptr);
   delete this->Internals;
 }
@@ -2367,6 +2427,100 @@ vtkTypeBool vtkIossReader::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
+template <typename T>
+bool updateProperty(Ioss::PropertyManager& pm, const std::string& name, const T& value,
+  Ioss::Property::BasicType type, T (Ioss::Property::*getter)() const)
+{
+  if (!pm.exists(name) || !pm.get(name).is_valid() || pm.get(name).get_type() != type ||
+    (pm.get(name).*getter)() != value)
+  {
+    pm.add(Ioss::Property(name, value));
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::AddProperty(const char* name, int value)
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (updateProperty<int64_t>(pm, name, value, Ioss::Property::INTEGER, &Ioss::Property::get_int))
+  {
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::AddProperty(const char* name, double value)
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (updateProperty<double>(pm, name, value, Ioss::Property::REAL, &Ioss::Property::get_real))
+  {
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::AddProperty(const char* name, void* value)
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (updateProperty<void*>(pm, name, value, Ioss::Property::POINTER, &Ioss::Property::get_pointer))
+  {
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::AddProperty(const char* name, const char* value)
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (updateProperty<std::string>(
+        pm, name, value, Ioss::Property::STRING, &Ioss::Property::get_string))
+  {
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::RemoveProperty(const char* name)
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (pm.exists(name))
+  {
+    pm.erase(name);
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::ClearProperties()
+{
+  auto& internals = (*this->Internals);
+  auto& pm = internals.DatabaseProperties;
+  if (pm.count() > 0)
+  {
+    Ioss::NameList names;
+    pm.describe(&names);
+    for (const auto& name : names)
+    {
+      pm.erase(name);
+    }
+    internals.Reset();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkIossReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -2377,6 +2531,7 @@ void vtkIossReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << endl;
   os << indent << "ReadGlobalFields: " << this->ReadGlobalFields << endl;
   os << indent << "ReadQAAndInformationRecords: " << this->ReadQAAndInformationRecords << endl;
+  os << indent << "DatabaseTypeOverride: " << this->DatabaseTypeOverride << endl;
   os << indent << "NodeBlockSelection: " << endl;
   this->GetNodeBlockSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "EdgeBlockSelection: " << endl;
