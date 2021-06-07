@@ -146,6 +146,70 @@ public:
    */
   virtual vtkVector2i GetChartIndex(const vtkVector2f& position);
 
+  /**
+   * Get internal 1-D index corresponding to the 2-D chart index.
+   */
+  virtual std::size_t GetFlatIndex(const vtkVector2i& index);
+
+  /**
+   * Total number of charts within this chart matrix.
+   */
+  virtual std::size_t GetNumberOfCharts();
+
+  /**
+   * Link all charts in the rectangle from leftBottom to rightTop.
+   * Label only the outer most y-axis and x-axis.
+   * This removes of gutter space between the linked charts.
+   */
+  virtual void LabelOuter(const vtkVector2i& leftBottomIdx, const vtkVector2i& rightTopIdx);
+
+  ///@{
+  /**
+   * The chart at index1 will be setup to mimic
+   * axis range of chart at index2 for specified axis.
+   * Note: index is a two dimensional chart index. See vtkChartMatrix::GetChartIndex()
+   *       flatIndex is a one dimensional chart index. See vtkChartMatrix::GetFlatIndex()
+   */
+  virtual void Link(const vtkVector2i& index1, const vtkVector2i& index2, int axis = 1);
+  virtual void Link(const size_t& flatIndex1, const size_t& flatIndex2, int axis = 1);
+  ///@}
+
+  ///@{
+  /**
+   * Link a chart to all other charts in this chart matrix for specified axis
+   */
+  virtual void LinkAll(const vtkVector2i& index, int axis = 1);
+  virtual void LinkAll(const size_t& flatIndex, int axis = 1);
+  ///@}
+
+  ///@{
+  /**
+   * Unlink the two charts for specified axis
+   */
+  virtual void Unlink(const vtkVector2i& index1, const vtkVector2i& index2, int axis = 1);
+  virtual void Unlink(const size_t& flatIndex1, const size_t& flatIndex2, int axis = 1);
+  ///@}
+
+  ///@{
+  /**
+   * Unlink all charts from given chart for a specified axis.
+   */
+  virtual void UnlinkAll(const vtkVector2i& index, int axis = 1);
+  virtual void UnlinkAll(const size_t& flatIndex, int axis = 1);
+  ///@}
+
+  ///@{
+  /**
+   * Unlink every chart from all other charts for a specified axis.
+   * This effectively removes any linkage in the chart matrix.
+   * If vtkChartMatrix::LabelOuter() was used, call ResetLinkedLayout,
+   * sot that the gutters that were removed will
+   * be put back in place.
+   */
+  virtual void ResetLinks(int axis = 1);
+  virtual void ResetLinkedLayout();
+  ///@}
+
 protected:
   vtkChartMatrix();
   ~vtkChartMatrix() override;
@@ -158,6 +222,8 @@ protected:
   std::map<vtkVector2i, vtkVector2f> SpecificResize;
   int Borders[4];
   bool LayoutIsDirty;
+
+  virtual void SynchronizeAxisRanges(vtkObject* caller, unsigned long eventId, void* calldata);
 
 private:
   vtkChartMatrix(const vtkChartMatrix&) = delete;
