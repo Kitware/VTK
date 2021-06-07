@@ -43,7 +43,7 @@ public:
    * datasets in output.
    */
   bool ProcessJSON(vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
-    bool writeOutTextures);
+    bool writeOutTextures, bool columnMajorOrdering);
 
 private:
   struct ProjectImpl;

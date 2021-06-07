@@ -140,8 +140,8 @@ int vtkOMFReader::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetDataAssembly(assembly);
 
   // If parsed successfully into Json, then convert it
-  if (!this->Impl->Project.ProcessJSON(
-        output, this->Impl->DataElementSelection, this->WriteOutTextures))
+  if (!this->Impl->Project.ProcessJSON(output, this->Impl->DataElementSelection,
+        this->WriteOutTextures, this->ColumnMajorOrdering))
   {
     vtkErrorMacro(<< "OMF file " << this->FileName << " could not be read correctly");
     return VTK_ERROR;
