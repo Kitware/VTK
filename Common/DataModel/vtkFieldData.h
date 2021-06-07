@@ -45,6 +45,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include <vector> // For list indices
 
 #include "vtkAbstractArray.h" // Needed for inline methods.
 
@@ -406,23 +407,27 @@ public:
     virtual ~BasicIterator();
     void PrintSelf(ostream& os, vtkIndent indent);
 
-    int GetListSize() const { return this->ListSize; }
+    int GetListSize() const { return static_cast<int>(this->List.size()); }
     int GetCurrentIndex() { return this->List[this->Position]; }
     int BeginIndex()
     {
       this->Position = -1;
       return this->NextIndex();
     }
-    int End() const { return (this->Position >= this->ListSize); }
+    int End() const { return (this->Position >= static_cast<int>(this->List.size())); }
     int NextIndex()
     {
       this->Position++;
       return (this->End() ? -1 : this->List[this->Position]);
     }
 
+    // Support C++ range-for loops; e.g, code like
+    // "for (const auto& i : basicIterator)".
+    std::vector<int>::const_iterator begin() { return this->List.begin(); }
+    std::vector<int>::const_iterator end() { return this->List.end(); }
+
   protected:
-    int* List;
-    int ListSize;
+    std::vector<int> List;
     int Position;
   };
 
