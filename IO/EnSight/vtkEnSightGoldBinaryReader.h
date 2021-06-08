@@ -179,6 +179,12 @@ protected:
   ///@}
 
   /**
+   * Internal function to read a single float.
+   * Returns zero if there was an error.
+   */
+  int ReadFloat(float* result);
+
+  /**
    * Internal function to read in an integer array.
    * Returns zero if there was an error.
    */

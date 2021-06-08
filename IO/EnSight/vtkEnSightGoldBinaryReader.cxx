@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <array>
 #include <cctype>
@@ -55,7 +56,6 @@
 
 class vtkEnSightGoldBinaryReader::vtkUtilities
 {
-public:
   static int GetDestinationComponent(int srcComponent, int numComponents)
   {
     if (numComponents == 6)
@@ -75,17 +75,79 @@ public:
     return srcComponent;
   }
 
-  static vtkSmartPointer<vtkFloatArray> ReadVariableFloats(vtkEnSightGoldBinaryReader* self,
-    const char* description, vtkDataSetAttributes* dsa, vtkIdType numElements, int numComponents,
-    int component = -1)
+public:
+  static vtkSmartPointer<vtkFloatArray> ReadVariableFloats(const char* sectionHeader,
+    vtkEnSightGoldBinaryReader* self, const char* description, vtkDataSetAttributes* dsa,
+    vtkIdType numElements, int numComponents, int component = -1)
   {
-    vtkNew<vtkFloatArray> buffer;
-    buffer->SetNumberOfTuples(numElements);
-    self->ReadFloatArray(buffer->GetPointer(0), numElements);
+    auto parts = vtksys::SystemTools::SplitString(sectionHeader, ' ');
+    const bool hasUndef = (parts.back() == "undef");
+    const bool hasPartial = (parts.back() == "partial");
+
+    float undefValue{ 0 };
+    if (hasUndef)
+    {
+      self->ReadFloat(&undefValue);
+    }
+
+    vtkNew<vtkIdList> partialIndices;
+    if (hasPartial)
+    {
+      int count;
+      self->ReadInt(&count);
+
+      std::vector<int> buffer(count);
+      self->ReadIntArray(&buffer.front(), count);
+
+      partialIndices->SetNumberOfIds(count);
+      std::copy(buffer.begin(), buffer.end(), partialIndices->GetPointer(0));
+    }
+
+    // replace undefined values with "internal undef" which in ParaView is NaN
+    auto replaceUndef = [&](vtkFloatArray* farray) {
+      if (hasUndef)
+      {
+        const float nanfloat = std::nanf("1");
+        for (vtkIdType cc = 0; cc < numElements; ++cc)
+        {
+          if (farray->GetTypedComponent(cc, 0) == undefValue)
+          {
+            farray->SetTypedComponent(cc, 0, nanfloat);
+          }
+        }
+      }
+    };
+
+    auto readComponent = [&](vtkIdType count) {
+      vtkNew<vtkFloatArray> buffer;
+      buffer->SetNumberOfTuples(count);
+      if (hasPartial)
+      {
+        // fill with NaNs
+        buffer->FillValue(std::nanf("1"));
+
+        vtkNew<vtkFloatArray> pbuffer;
+        pbuffer->SetNumberOfTuples(partialIndices->GetNumberOfIds());
+        self->ReadFloatArray(
+          pbuffer->GetPointer(0), static_cast<int>(partialIndices->GetNumberOfIds()));
+
+        // now copy the tuples over from pbuffer to buffer.
+        vtkNew<vtkIdList> srcIds;
+        srcIds->SetNumberOfIds(partialIndices->GetNumberOfIds());
+        std::iota(srcIds->begin(), srcIds->end(), 0);
+        buffer->InsertTuples(partialIndices, srcIds, pbuffer);
+      }
+      else
+      {
+        self->ReadFloatArray(buffer->GetPointer(0), count);
+        replaceUndef(buffer);
+      }
+      return buffer;
+    };
 
     if (numComponents == 1)
     {
-      return buffer;
+      return readComponent(numElements);
     }
     else if (numComponents > 1 && component != -1)
     {
@@ -101,6 +163,7 @@ public:
         array = vtkFloatArray::SafeDownCast(dsa->GetArray(description));
         assert(array && array->GetNumberOfComponents() == numComponents);
       }
+      auto buffer = readComponent(numElements);
       array->CopyComponent(component, buffer, 0);
       return array;
     }
@@ -110,19 +173,12 @@ public:
       array = vtk::TakeSmartPointer(vtkFloatArray::New());
       array->SetNumberOfComponents(numComponents);
       array->SetNumberOfTuples(numElements);
-
-      int readComponent = 0;
-      do
+      for (int comp = 0; comp < numComponents; ++comp)
       {
-        const int destComponent =
-          vtkUtilities::GetDestinationComponent(readComponent, numComponents);
+        const int destComponent = vtkUtilities::GetDestinationComponent(comp, numComponents);
+        auto buffer = readComponent(numElements);
         array->CopyComponent(destComponent, buffer, 0);
-        ++readComponent;
-        if (readComponent < numComponents)
-        {
-          self->ReadFloatArray(buffer->GetPointer(0), numElements);
-        }
-      } while (readComponent < numComponents);
+      }
       return array;
     }
 
@@ -1560,7 +1616,7 @@ bool vtkEnSightGoldBinaryReader::ReadVariableArray(const char* description,
     {
       // read full data.
       array = vtkUtilities::ReadVariableFloats(
-        this, description, dsa, numElements, numComponents, component);
+        line, this, description, dsa, numElements, numComponents, component);
 
       lineRead = advance();
     }
@@ -1596,7 +1652,7 @@ bool vtkEnSightGoldBinaryReader::ReadVariableArray(const char* description,
         auto dstIds = this->GetCellIds(idx, elementType);
         const auto numCellsPerElementType = dstIds->GetNumberOfIds();
         auto subarray = vtkUtilities::ReadVariableFloats(
-          this, description, dsa, numCellsPerElementType, numComponents, component);
+          line, this, description, dsa, numCellsPerElementType, numComponents, component);
 
         srcIds->SetNumberOfIds(numCellsPerElementType);
         std::iota(srcIds->begin(), srcIds->end(), 0);
@@ -3333,6 +3389,47 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
   }
 
   if (!this->GoldIFile->read((char*)result, sizeof(int)))
+  {
+    vtkErrorMacro("Read failed");
+    return 0;
+  }
+
+  if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+  {
+    vtkByteSwap::Swap4LE(result);
+  }
+  else if (this->ByteOrder == FILE_BIG_ENDIAN)
+  {
+    vtkByteSwap::Swap4BE(result);
+  }
+
+  if (this->Fortran)
+  {
+    if (!this->GoldIFile->read(dummy, 4))
+    {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+// Internal function to read a single float.
+// Returns zero if there was an error.
+int vtkEnSightGoldBinaryReader::ReadFloat(float* result)
+{
+  char dummy[4];
+  if (this->Fortran)
+  {
+    if (!this->GoldIFile->read(dummy, 4))
+    {
+      vtkErrorMacro("Read (fortran) failed.");
+      return 0;
+    }
+  }
+
+  if (!this->GoldIFile->read((char*)result, sizeof(float)))
   {
     vtkErrorMacro("Read failed");
     return 0;
