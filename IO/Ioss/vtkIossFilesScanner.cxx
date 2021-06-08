@@ -92,14 +92,24 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
     return originalSet;
   }
 
-  // clang-format off
   // Matches paths `{NAME}.e-s{RS}.{NUMRANKS}.{RANK}` or {NAME}.g-s{RS}.{NUMRANKS}.{RANK}`
   // where `-s{RS}` and/or `.{NUMRANKS}.{RANK}` is optional.
-  vtksys::RegularExpression extensionRegexExodus(R"(^(.*\.[eg][^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
-  vtksys::RegularExpression extensionRegexCGNS(R"(^(.*\.cgns[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
-  // clang-format on
+  vtksys::RegularExpression extensionRegexExodus(
+    R"(^(.*\.[eg][^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
+  vtksys::RegularExpression extensionRegexCGNS(
+    R"(^(.*\.cgns[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
 
-  std::set<std::string> prefixes;
+  // extract process count from the filename, if any, otherwise -1.
+  auto getProcessCount = [](const std::string& fname) {
+    vtksys::RegularExpression procRegEx(R"(^.*\.([0-9]+)\.[0-9]+$)");
+    if (procRegEx.find(fname))
+    {
+      return std::atoi(procRegEx.match(1).c_str());
+    }
+    return -1;
+  };
+
+  std::map<std::string, int> prefixes;
   std::set<std::string> result;
   for (const auto& fname : originalSet)
   {
@@ -116,11 +126,12 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
     }
     if (extensionRegexExodus.find(fname_wo_path))
     {
-      prefixes.insert(extensionRegexExodus.match(1));
+      prefixes.insert(
+        std::make_pair(extensionRegexExodus.match(1), getProcessCount(fname_wo_path)));
     }
     else if (extensionRegexCGNS.find(fname_wo_path))
     {
-      prefixes.insert(extensionRegexCGNS.match(1));
+      prefixes.insert(std::make_pair(extensionRegexCGNS.match(1), getProcessCount(fname_wo_path)));
     }
   }
 
@@ -152,13 +163,23 @@ std::set<std::string> vtkIossFilesScanner::GetRelatedFiles(
 
   for (const auto& filename : dirlist)
   {
-    if (extensionRegexExodus.find(filename) &&
-      prefixes.find(extensionRegexExodus.match(1)) != prefixes.end())
+    std::string dbaseName;
+    if (extensionRegexExodus.find(filename))
     {
-      result.insert(prefix + filename);
+      dbaseName = extensionRegexExodus.match(1);
     }
-    else if (extensionRegexCGNS.find(filename) &&
-      prefixes.find(extensionRegexCGNS.match(1)) != prefixes.end())
+    else if (extensionRegexCGNS.find(filename))
+    {
+      dbaseName = extensionRegexCGNS.match(1);
+    }
+    else
+    {
+      continue;
+    }
+
+    const int procCount = getProcessCount(filename);
+    auto piter = prefixes.find(dbaseName);
+    if (piter != prefixes.end() && piter->second == procCount)
     {
       result.insert(prefix + filename);
     }
@@ -210,6 +231,13 @@ bool vtkIossFilesScanner::DoTestFilePatternMatching()
         { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },
         { "C:/Directory space/mysimoutput.e-s.000", "C:/Directory space/mysimoutput.e-s.001",
           "C:/Directory space/mysimoutput.e-s.002" }))
+  {
+    return false;
+  }
+
+  if (!verify({ "/tmp/can.e.4.0" },
+        { "can.e.4.0", "can.e.4.1", "can.e.4.2", "can.e.4.3", "can.e.2.0", "can.e.2.1" },
+        { "/tmp/can.e.4.0", "/tmp/can.e.4.1", "/tmp/can.e.4.2", "/tmp/can.e.4.3" }))
   {
     return false;
   }
