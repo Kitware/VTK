@@ -179,6 +179,12 @@ protected:
   ///@}
 
   /**
+   * Internal function to read a single float.
+   * Returns zero if there was an error.
+   */
+  int ReadFloat(float* result);
+
+  /**
    * Internal function to read in an integer array.
    * Returns zero if there was an error.
    */
@@ -246,6 +252,31 @@ private:
   int SizeOfInt;
   vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) = delete;
   void operator=(const vtkEnSightGoldBinaryReader&) = delete;
+
+  /**
+   * Opens a variable file name. This will compute the full path and then open
+   * it. `variableType` is simply used to report helpful error messages.
+   */
+  bool OpenVariableFile(const char* fname, const char* variableType);
+
+  /**
+   * Jump forward to a particular timestep in the variable file, if
+   * applicable.
+   */
+  bool SkipToTimeStep(const char* fileName, int timeStep, vtkMultiBlockDataSet* compositeOutput,
+    int attributeType, int numComponents, bool measured);
+
+  /**
+   * Reads measured data froma variable file.
+   */
+  bool ReadMeasureVariableArray(
+    const char* description, vtkMultiBlockDataSet* compositeOutput, int numComponents);
+
+  bool ReadVariableArray(const char* description, vtkMultiBlockDataSet* compositeOutput,
+    int attributeType, int numComponents, int component = -1);
+
+  class vtkUtilities;
+  friend class vtkUtilities;
 };
 
 #endif
