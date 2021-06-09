@@ -204,6 +204,9 @@ class vtkIossReader::vtkInternals
   vtkIossUtilities::DatabaseFormatType Format = vtkIossUtilities::DatabaseFormatType::UNKNOWN;
   vtkIossReader* IOSSReader = nullptr;
 
+  vtkSmartPointer<vtkDataAssembly> Assembly;
+  vtkTimeStamp AssemblyMTime;
+
 public:
   vtkInternals(vtkIossReader* reader)
     : IOSSReader(reader)
@@ -214,7 +217,7 @@ public:
   std::set<std::string> FileNames;
   vtkTimeStamp FileNamesMTime;
 
-  void* ConduitNode = nullptr;
+  std::set<std::string> Selectors;
 
   const std::vector<double>& GetTimeSteps() const { return this->TimestepValues; }
   vtkIossUtilities::DatabaseFormatType GetFormat() const { return this->Format; }
@@ -280,6 +283,13 @@ public:
    * names for entity-blocks, -sets, and fields defined on them.
    */
   bool UpdateEntityAndFieldSelections(vtkIossReader* self);
+
+  /**
+   * Populates the vtkDataAssembly used for block/set selection.
+   */
+  bool UpdateAssembly(vtkIossReader* self, int* tag);
+
+  vtkDataAssembly* GetAssembly() const { return this->Assembly; }
 
   /**
    * Fills up the output data-structure based on the entity blocks/sets chosen
@@ -559,6 +569,8 @@ private:
     vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
     vtkIossReader* self);
   ///@}
+
+  bool BuildAssembly(Ioss::Region* region, vtkDataAssembly* assembly, int root, bool add_leaves);
 };
 
 //----------------------------------------------------------------------------
@@ -899,7 +911,153 @@ bool vtkIossReader::vtkInternals::UpdateEntityAndFieldSelections(vtkIossReader* 
     }
   }
 
+  // Populate DatasetIndexMap.
+  unsigned int pdsIdx = 0;
+  for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
+  {
+    // for sidesets when reading CGNS, use the patch names.
+    const auto& namesSet = this->EntityNames[etype];
+
+    // EntityNames are sorted by their exodus "id".
+    for (const auto& ename : namesSet)
+    {
+      auto ioss_etype =
+        vtkIossUtilities::GetIossEntityType(static_cast<vtkIossReader::EntityType>(etype));
+      this->DatasetIndexMap[std::make_pair(ioss_etype, ename.second)] = pdsIdx++;
+    }
+  }
+
   this->SelectionsMTime.Modified();
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIossReader::vtkInternals::BuildAssembly(
+  Ioss::Region* region, vtkDataAssembly* assembly, int root, bool add_leaves)
+{
+  if (region == nullptr || assembly == nullptr)
+  {
+    return false;
+  }
+
+  // assemblies in Ioss are simply stored as a vector. we need to build graph
+  // from that vector of assemblies.
+  std::set<const Ioss::GroupingEntity*> root_assemblies;
+  for (auto& ioss_assembly : region->get_assemblies())
+  {
+    assert(ioss_assembly != nullptr);
+    root_assemblies.insert(ioss_assembly);
+
+    for (auto child : ioss_assembly->get_members())
+    {
+      // a child cannot be a root, so remove it.
+      root_assemblies.erase(child);
+    }
+  }
+
+  if (root_assemblies.empty())
+  {
+    return false;
+  }
+
+  std::function<void(const Ioss::Assembly*, int)> processAssembly;
+  processAssembly = [&assembly, &processAssembly, &add_leaves, this](
+                      const Ioss::Assembly* ioss_assembly, int parent) {
+    auto node = assembly->AddNode(
+      vtkDataAssembly::MakeValidNodeName(ioss_assembly->name().c_str()).c_str(), parent);
+    assembly->SetAttribute(node, "label", ioss_assembly->name().c_str());
+    if (ioss_assembly->get_member_type() == Ioss::ASSEMBLY)
+    {
+      for (auto& child : ioss_assembly->get_members())
+      {
+        processAssembly(dynamic_cast<const Ioss::Assembly*>(child), node);
+      }
+    }
+    else
+    {
+      for (auto& child : ioss_assembly->get_members())
+      {
+        int dsnode = node;
+        if (add_leaves)
+        {
+          dsnode = assembly->AddNode(
+            vtkDataAssembly::MakeValidNodeName(child->name().c_str()).c_str(), node);
+          assembly->SetAttribute(dsnode, "label", child->name().c_str());
+        }
+        assembly->AddDataSetIndex(dsnode, this->GetDataSetIndexForEntity(child));
+      }
+    }
+  };
+
+  // to preserve order of assemblies, we iterate over region assemblies.
+  for (auto& ioss_assembly : region->get_assemblies())
+  {
+    if (root_assemblies.find(ioss_assembly) != root_assemblies.end())
+    {
+      processAssembly(ioss_assembly, root);
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkIossReader::vtkInternals::UpdateAssembly(vtkIossReader* self, int* tag)
+{
+  if (this->AssemblyMTime > this->DatabaseNamesMTime)
+  {
+    return true;
+  }
+
+  this->AssemblyMTime.Modified();
+
+  auto controller = self->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+
+  if (rank == 0)
+  {
+    // it's unclear how assemblies in Ioss are distributed across partitioned
+    // files. so we assume they are duplicated on all only read it from root node.
+    const auto handle = this->GetDatabaseHandles(rank, numRanks, 0).front();
+    auto region = this->GetRegion(handle);
+
+    this->Assembly = vtk::TakeSmartPointer(vtkDataAssembly::New());
+    this->Assembly->SetRootNodeName("Assemblies");
+    const auto status = this->BuildAssembly(region, this->Assembly, 0, /*add_leaves=*/false);
+    *tag = status ? static_cast<int>(this->AssemblyMTime.GetMTime()) : 0;
+    if (numRanks > 1)
+    {
+      vtkMultiProcessStream stream;
+
+      stream << (*tag);
+      stream << this->Assembly->SerializeToXML(vtkIndent());
+      controller->Broadcast(stream, 0);
+    }
+    if (!status)
+    {
+      this->Assembly = nullptr;
+    }
+  }
+  else
+  {
+    vtkMultiProcessStream stream;
+    controller->Broadcast(stream, 0);
+
+    std::string data;
+    stream >> (*tag) >> data;
+
+    if ((*tag) != 0)
+    {
+      this->Assembly = vtk::TakeSmartPointer(vtkDataAssembly::New());
+      this->Assembly->InitializeFromXML(data.c_str());
+    }
+    else
+    {
+      this->Assembly = nullptr;
+    }
+  }
+
   return true;
 }
 
@@ -911,8 +1069,6 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
   vtkNew<vtkDataAssembly> assembly;
   assembly->SetRootNodeName("Ioss");
   output->SetDataAssembly(assembly);
-
-  this->DatasetIndexMap.clear();
 
   for (int etype = vtkIossReader::NODEBLOCK + 1; etype < vtkIossReader::ENTITY_END; ++etype)
   {
@@ -944,7 +1100,6 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
 
       auto ioss_etype =
         vtkIossUtilities::GetIossEntityType(static_cast<vtkIossReader::EntityType>(etype));
-      this->DatasetIndexMap[std::make_pair(ioss_etype, ename.second)] = pdsIdx;
     }
   }
 
@@ -969,54 +1124,10 @@ bool vtkIossReader::vtkInternals::ReadAssemblies(
     return false;
   }
 
-  // assemblies in Ioss are simply stored as a vector. we need to build graph
-  // from that vector of assemblies.
-  std::set<const Ioss::GroupingEntity*> root_assemblies;
-  auto node_assemblies = assembly->AddNode("assemblies");
-  for (auto& ioss_assembly : region->get_assemblies())
+  const auto node_assemblies = assembly->AddNode("assemblies");
+  if (!this->BuildAssembly(region, assembly, node_assemblies, false))
   {
-    assert(ioss_assembly != nullptr);
-    root_assemblies.insert(ioss_assembly);
-
-    for (auto child : ioss_assembly->get_members())
-    {
-      // a child cannot be a root, so remove it.
-      root_assemblies.erase(child);
-    }
-  }
-
-  std::function<void(const Ioss::Assembly*, int)> processAssembly;
-  processAssembly = [&assembly, &processAssembly, this](
-                      const Ioss::Assembly* ioss_assembly, int parent) {
-    auto node = assembly->AddNode(
-      vtkDataAssembly::MakeValidNodeName(ioss_assembly->name().c_str()).c_str(), parent);
-    assembly->SetAttribute(node, "label", ioss_assembly->name().c_str());
-    if (ioss_assembly->get_member_type() == Ioss::ASSEMBLY)
-    {
-      for (auto& child : ioss_assembly->get_members())
-      {
-        processAssembly(dynamic_cast<const Ioss::Assembly*>(child), node);
-      }
-    }
-    else
-    {
-      for (auto& child : ioss_assembly->get_members())
-      {
-        auto dschild = assembly->AddNode(
-          vtkDataAssembly::MakeValidNodeName(child->name().c_str()).c_str(), node);
-        assembly->SetAttribute(dschild, "label", child->name().c_str());
-        assembly->AddDataSetIndex(dschild, this->GetDataSetIndexForEntity(child));
-      }
-    }
-  };
-
-  // to preserve order of assemblies, we iterate over region assemblies.
-  for (auto& ioss_assembly : region->get_assemblies())
-  {
-    if (root_assemblies.find(ioss_assembly) != root_assemblies.end())
-    {
-      processAssembly(ioss_assembly, node_assemblies);
-    }
+    assembly->RemoveNode(node_assemblies);
   }
 
   return true;
@@ -2042,6 +2153,7 @@ vtkIossReader::vtkIossReader()
   , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
+  , AssemblyTag(0)
   , Internals(new vtkIossReader::vtkInternals(this))
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -2182,6 +2294,12 @@ int vtkIossReader::ReadMetaData(vtkInformation* metadata)
     return 0;
   }
 
+  // read assembly information.
+  if (!internals.UpdateAssembly(this, &this->AssemblyTag))
+  {
+    return 0;
+  }
+
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
   return 1;
 }
@@ -2216,6 +2334,17 @@ int vtkIossReader::ReadMesh(
     return 0;
   }
 
+  std::set<unsigned int> selectedAssemblyIndices;
+  if (!internals.Selectors.empty() && internals.GetAssembly() != nullptr)
+  {
+    std::vector<std::string> selectors(internals.Selectors.size());
+    std::copy(internals.Selectors.begin(), internals.Selectors.end(), selectors.begin());
+    auto assembly = internals.GetAssembly();
+    auto nodes = assembly->SelectNodes(selectors);
+    auto dsindices = assembly->GetDataSetIndices(nodes);
+    selectedAssemblyIndices.insert(dsindices.begin(), dsindices.end());
+  }
+
   const auto isCGNS = (internals.GetFormat() == vtkIossUtilities::DatabaseFormatType::CGNS);
 
   // dbaseHandles are handles for individual files this instance will to read to
@@ -2228,7 +2357,8 @@ int vtkIossReader::ReadMesh(
       static_cast<vtkIossReader::EntityType>(collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE()));
 
     auto selection = this->GetEntitySelection(vtk_entity_type);
-    if (!selection->ArrayIsEnabled(blockname.c_str()))
+    if (!selection->ArrayIsEnabled(blockname.c_str()) &&
+      selectedAssemblyIndices.find(pdsIdx) == selectedAssemblyIndices.end())
     {
       // skip disabled blocks.
       continue;
@@ -2518,6 +2648,63 @@ void vtkIossReader::ClearProperties()
     internals.Reset();
     this->Modified();
   }
+}
+
+//----------------------------------------------------------------------------
+vtkDataAssembly* vtkIossReader::GetAssembly()
+{
+  auto& internals = (*this->Internals);
+  return internals.GetAssembly();
+}
+
+//----------------------------------------------------------------------------
+bool vtkIossReader::AddSelector(const char* selector)
+{
+  auto& internals = (*this->Internals);
+  if (selector != nullptr && internals.Selectors.insert(selector).second)
+  {
+    this->Modified();
+    return true;
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::ClearSelectors()
+{
+  auto& internals = (*this->Internals);
+  if (!internals.Selectors.empty())
+  {
+    internals.Selectors.clear();
+    this->Modified();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkIossReader::SetSelector(const char* selector)
+{
+  this->ClearSelectors();
+  this->AddSelector(selector);
+}
+
+//----------------------------------------------------------------------------
+int vtkIossReader::GetNumberOfSelectors() const
+{
+  auto& internals = (*this->Internals);
+  return static_cast<int>(internals.Selectors.size());
+}
+
+//----------------------------------------------------------------------------
+const char* vtkIossReader::GetSelector(int index) const
+{
+  auto& internals = (*this->Internals);
+  if (index >= 0 && index < this->GetNumberOfSelectors())
+  {
+    auto iter = std::next(internals.Selectors.begin(), index);
+    return iter->c_str();
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

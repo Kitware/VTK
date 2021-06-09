@@ -64,6 +64,25 @@
  *
  * By default, all blocks are enabled, while all sets are disabled.
  *
+ * In additional to selecting blocks and sets by name, if the file defines assemblies
+ * that organize these blocks and sets, then one can use selector expressions
+ * to enable blocks/sets as defined in the assemblies.
+ *
+ * A block (or set) is treated as enabled if it is either explicitly enabled using the
+ * block selection or implicitly enabled due to a selector specified on over the assemblies.
+ *
+ * Typical usage to select blocks by assembly alone is as follows:
+ *
+ * @code{.cpp}
+ * vtkNew<vtkIossReader> reader;
+ * reader->SetFileName(...);
+ * reader->UpdateInformation();
+ * reader->GetElementBlockSelection()->DisableAllArrays();
+ * ...
+ * reader->AddSelector("//Low");
+ * reader->AddSelector("//High");
+ * @endcode
+ *
  * @section SelectingArrays Selecting arrays to read
  *
  * Similar to the block and set selection, arrays (or fields as Ioss refers to
@@ -154,6 +173,7 @@
 #include "vtkReaderAlgorithm.h"
 
 class vtkDataArraySelection;
+class vtkDataAssembly;
 class vtkMultiProcessController;
 
 class VTKIOIOSS_EXPORT vtkIossReader : public vtkReaderAlgorithm
@@ -368,6 +388,48 @@ public:
     this->RemoveAllFieldSelections();
   }
 
+  //@{
+  /**
+   * Assemblies provide yet another way of selection blocks/sets to load, if
+   * available in the dataset. If a block (or set) is enabled either in the
+   * block (or set) selection or using assembly selector then it is treated as
+   * enabled and will be read.
+   *
+   * This method returns the vtkDataAssembly. Since IOSS can have multiple
+   * assemblies, all are nested under the root "Assemblies" node.
+   *
+   * If the file has no assemblies, this will return nullptr.
+   */
+  vtkDataAssembly* GetAssembly();
+  //@}
+
+  /**
+   * Whenever the assembly is changed, this tag gets changed. Note, users should
+   * not assume that this is monotonically increasing but instead simply rely on
+   * its value to determine if the assembly may have changed since last time.
+   *
+   * It is set to 0 whenever there's no valid assembly available.
+   */
+  vtkGetMacro(AssemblyTag, int);
+
+  //@{
+  /**
+   * API to specify selectors that indicate which branches on the assembly are
+   * chosen.
+   */
+  bool AddSelector(const char* selector);
+  void ClearSelectors();
+  void SetSelector(const char* selector);
+  //@}
+
+  ///@{
+  /**
+   * API to access selectors.
+   */
+  int GetNumberOfSelectors() const;
+  const char* GetSelector(int index) const;
+  ///@}
+
   ///@{
   /**
    * Implementation for vtkReaderAlgorithm API
@@ -414,6 +476,7 @@ private:
   bool ReadGlobalFields;
   bool ReadQAAndInformationRecords;
   char* DatabaseTypeOverride;
+  int AssemblyTag;
 
   class vtkInternals;
   vtkInternals* Internals;
