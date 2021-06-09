@@ -1,0 +1,11 @@
+NAME
+  VTK::RenderingFFMPEGOpenGL2
+LIBRARY_NAME
+  vtkRenderingFFMPEGOpenGL2
+DEPENDS
+  VTK::IOFFMPEG
+  VTK::RenderingOpenGL2
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::TestingRendering
