@@ -1420,6 +1420,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
     // this is the family name for this side set.
     const auto family = sideSet->name();
 
+    std::map<const Ioss::StructuredBlock*, vtkSmartPointer<vtkDataSet>> fullGridMap;
+
     // for each side block, find the BC matching the family name and then do extract
     // VOI.
     for (const auto& sideBlock : sideSet->get_side_blocks())
@@ -1432,17 +1434,22 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
         if (bc.m_famName == family)
         {
           // read full grid with fields.
-          auto grids = this->GetCGNSDataSets(
-            parentBlock->name(), vtkIossReader::STRUCTUREDBLOCK, handle, timestep, self);
-          if (grids.empty())
+          auto iter = fullGridMap.find(parentBlock);
+          if (iter == fullGridMap.end())
           {
-            continue;
+            auto grids = this->GetCGNSDataSets(
+              parentBlock->name(), vtkIossReader::STRUCTUREDBLOCK, handle, timestep, self);
+            if (grids.empty())
+            {
+              continue;
+            }
+            assert(grids.size() == 1);
+            iter = fullGridMap.insert(std::make_pair(parentBlock, grids.front())).first;
           }
-          assert(grids.size() == 1);
-          auto fullGrid = grids.front();
+          assert(iter != fullGridMap.end() && iter->second != nullptr);
 
           vtkNew<vtkExtractGrid> extractor;
-          extractor->SetInputDataObject(fullGrid);
+          extractor->SetInputDataObject(iter->second);
 
           // extents in bc are starting with 1.
           // so adjust them for VTK
@@ -1470,7 +1477,6 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
           sideBlockInfo->InsertNextValue(parentBlock->name());
           piece->GetFieldData()->AddArray(sideBlockInfo);
           result.emplace_back(piece);
-          break;
         }
       }
     }
