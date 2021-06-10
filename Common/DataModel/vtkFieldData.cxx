@@ -45,66 +45,50 @@ void vtkFieldData::NullData(vtkIdType id)
 //------------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator(const int* list, unsigned int listSize)
 {
+  this->Position = 0;
+
   if (list)
   {
     if (listSize > 0)
     {
-      this->List = new int[listSize];
-      memcpy(this->List, list, listSize * sizeof(int));
+      this->List.assign(list, list + listSize);
     }
     else
     {
-      this->List = nullptr;
+      this->List.clear();
     }
-    this->ListSize = listSize;
   }
   else
   {
-    this->List = nullptr;
-    this->ListSize = 0;
+    this->List.clear();
   }
-  this->Position = 0;
 }
 
 //------------------------------------------------------------------------------
-vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list, unsigned int listSize)
-  : vtkFieldData::BasicIterator(list, listSize)
+vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list, unsigned int lSize)
+  : vtkFieldData::BasicIterator(list, lSize)
 {
   this->Fields = dsa;
   dsa->Register(nullptr);
   if (!list)
   {
-    this->ListSize = dsa->GetNumberOfArrays();
-    this->List = new int[this->ListSize];
-    for (int i = 0; i < this->ListSize; i++)
+    int listSize = dsa->GetNumberOfArrays();
+    this->List.reserve(listSize);
+    for (int i = 0; i < listSize; i++)
     {
-      this->List[i] = i;
+      this->List.push_back(i);
     }
   }
   this->Detached = 0;
 }
 
 //------------------------------------------------------------------------------
-vtkFieldData::BasicIterator::BasicIterator()
-{
-  this->List = nullptr;
-  this->ListSize = 0;
-}
+vtkFieldData::BasicIterator::BasicIterator() {}
 
 //------------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator& source)
 {
-  this->ListSize = source.ListSize;
-
-  if (this->ListSize > 0)
-  {
-    this->List = new int[this->ListSize];
-    memcpy(this->List, source.List, this->ListSize * sizeof(int));
-  }
-  else
-  {
-    this->List = nullptr;
-  }
+  this->List = source.List;
 }
 
 //------------------------------------------------------------------------------
@@ -123,10 +107,11 @@ vtkFieldData::Iterator::Iterator(const vtkFieldData::Iterator& source)
 void vtkFieldData::BasicIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "BasicIterator:{";
-  if (this->ListSize > 0)
+  size_t listSize = this->List.size();
+  if (listSize > 0)
   {
     os << this->List[0];
-    for (int i = 1; i < this->ListSize; ++i)
+    for (size_t i = 1; i < listSize; ++i)
     {
       os << ", " << this->List[i];
     }
@@ -142,17 +127,9 @@ vtkFieldData::BasicIterator& vtkFieldData::BasicIterator::operator=(
   {
     return *this;
   }
-  delete[] this->List;
-  this->ListSize = source.ListSize;
-  if (this->ListSize > 0)
-  {
-    this->List = new int[this->ListSize];
-    memcpy(this->List, source.List, this->ListSize * sizeof(int));
-  }
-  else
-  {
-    this->List = nullptr;
-  }
+
+  this->List = source.List;
+
   return *this;
 }
 
@@ -178,10 +155,7 @@ vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(const vtkFieldData::It
 }
 
 //------------------------------------------------------------------------------
-vtkFieldData::BasicIterator::~BasicIterator()
-{
-  delete[] this->List;
-}
+vtkFieldData::BasicIterator::~BasicIterator() {}
 
 //------------------------------------------------------------------------------
 vtkFieldData::Iterator::~Iterator()
