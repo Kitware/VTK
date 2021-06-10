@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <vtkDataArraySelection.h>
 #include <vtkDataAssembly.h>
 #include <vtkInformation.h>
 #include <vtkIossReader.h>
@@ -68,9 +69,18 @@ int TestIossAssemblies(int argc, char* argv[])
   auto fname = ::GetFileName(argc, argv, "Data/Exodus/Assembly-Example.g");
   vtkNew<vtkIossReader> reader;
   reader->SetFileName(fname.c_str());
+  reader->UpdateInformation();
+
+  // disable all blocks.
+  reader->GetElementBlockSelection()->DisableAllArrays();
+
+  // enable only "Low".
+  reader->SetSelector("//Low");
+
   reader->Update();
 
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+
   if (!::Validate(pdc, "//assemblies/Low", { "block_1", "block_2", "block_3", "block_4" }) ||
     !::Validate(
       pdc, "//assemblies/Conglomerate/Top/Odd", { "block_1", "block_3", "block_5", "block_7" }) ||
@@ -86,5 +96,22 @@ int TestIossAssemblies(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // ensure only "Low" blocks were read in.
+  for (unsigned int cc = 0; cc < pdc->GetNumberOfPartitionedDataSets(); ++cc)
+  {
+    if (cc < 4)
+    {
+      if (pdc->GetNumberOfPartitions(cc) == 0)
+      {
+        vtkLogF(ERROR, "'Low' block wasn't read!");
+        return EXIT_FAILURE;
+      }
+    }
+    else if (pdc->GetNumberOfPartitions(cc) != 0)
+    {
+      vtkLogF(ERROR, "Non-'Low' block was read!");
+      return EXIT_FAILURE;
+    }
+  }
   return EXIT_SUCCESS;
 }
