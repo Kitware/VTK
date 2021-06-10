@@ -3,6 +3,7 @@ set(datasets
   Data/CGNS/fluid.cgns.4.1
   Data/CGNS/fluid.cgns.4.2
   Data/CGNS/fluid.cgns.4.3
+  Data/CGNS/r24_node_tailor_test_output/sparc-volume.cgns.36.00
   Data/Exodus/Assembly-Example.g
   Data/Exodus/block_with_attributes.g
   Data/Exodus/can.e.4/can.e.4.0

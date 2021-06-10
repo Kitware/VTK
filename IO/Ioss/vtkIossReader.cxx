@@ -521,8 +521,8 @@ private:
    * Reads node block array with displacements and then transforms
    * the points in the grid using those displacements.
    */
-  bool ApplyDisplacements(vtkUnstructuredGrid* grid, const std::string& blockname,
-    vtkIossReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep);
+  bool ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
+    Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
 
   /**
    * Adds 'file_id' array to indicate which file the dataset was read from.
@@ -1336,7 +1336,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetExodusD
 
   if (self->GetApplyDisplacements())
   {
-    this->ApplyDisplacements(dataset, blockname, vtk_entity_type, handle, timestep);
+    this->ApplyDisplacements(dataset, region, group_entity, handle, timestep);
   }
 
   if (self->GetGenerateFileId())
@@ -1387,6 +1387,11 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
       this->GetNodeFields(grid->GetPointData(), nodeFieldSelection, region, group_entity, handle,
         timestep, self->GetReadIds());
 
+      if (self->GetApplyDisplacements())
+      {
+        this->ApplyDisplacements(grid, region, group_entity, handle, timestep);
+      }
+
       if (self->GetGenerateFileId())
       {
         this->GenerateFileId(grid, group_entity, handle);
@@ -1415,6 +1420,8 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
     // this is the family name for this side set.
     const auto family = sideSet->name();
 
+    std::map<const Ioss::StructuredBlock*, vtkSmartPointer<vtkDataSet>> fullGridMap;
+
     // for each side block, find the BC matching the family name and then do extract
     // VOI.
     for (const auto& sideBlock : sideSet->get_side_blocks())
@@ -1427,17 +1434,22 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
         if (bc.m_famName == family)
         {
           // read full grid with fields.
-          auto grids = this->GetCGNSDataSets(
-            parentBlock->name(), vtkIossReader::STRUCTUREDBLOCK, handle, timestep, self);
-          if (grids.empty())
+          auto iter = fullGridMap.find(parentBlock);
+          if (iter == fullGridMap.end())
           {
-            continue;
+            auto grids = this->GetCGNSDataSets(
+              parentBlock->name(), vtkIossReader::STRUCTUREDBLOCK, handle, timestep, self);
+            if (grids.empty())
+            {
+              continue;
+            }
+            assert(grids.size() == 1);
+            iter = fullGridMap.insert(std::make_pair(parentBlock, grids.front())).first;
           }
-          assert(grids.size() == 1);
-          auto fullGrid = grids.front();
+          assert(iter != fullGridMap.end() && iter->second != nullptr);
 
           vtkNew<vtkExtractGrid> extractor;
-          extractor->SetInputDataObject(fullGrid);
+          extractor->SetInputDataObject(iter->second);
 
           // extents in bc are starting with 1.
           // so adjust them for VTK
@@ -1465,7 +1477,6 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIossReader::vtkInternals::GetCGNSDat
           sideBlockInfo->InsertNextValue(parentBlock->name());
           piece->GetFieldData()->AddArray(sideBlockInfo);
           result.emplace_back(piece);
-          break;
         }
       }
     }
@@ -2010,13 +2021,9 @@ bool vtkIossReader::vtkInternals::GenerateFileId(
 }
 
 //----------------------------------------------------------------------------
-bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkUnstructuredGrid* grid,
-  const std::string& blockname, vtkIossReader::EntityType vtk_entity_type,
-  const DatabaseHandle& handle, int timestep)
+bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* region,
+  Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep)
 {
-  const auto ioss_entity_type = vtkIossUtilities::GetIossEntityType(vtk_entity_type);
-  auto region = this->GetRegion(handle.first, handle.second);
-  auto group_entity = region ? region->get_entity(blockname, ioss_entity_type) : nullptr;
   if (!group_entity)
   {
     return false;
@@ -2031,18 +2038,43 @@ bool vtkIossReader::vtkInternals::ApplyDisplacements(vtkUnstructuredGrid* grid,
     return true;
   }
 
-  auto nodeBlock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
-  auto displ_array_name = vtkIossUtilities::GetDisplacementFieldName(nodeBlock);
-  if (displ_array_name.empty())
+  vtkSmartPointer<vtkDataArray> array;
+
+  if (group_entity->type() == Ioss::EntityType::STRUCTUREDBLOCK)
   {
-    return false;
+    // CGNS
+    // node fields are stored under nested node block. So use that.
+    auto sb = dynamic_cast<Ioss::StructuredBlock*>(group_entity);
+    auto& nodeBlock = sb->get_node_block();
+    auto displ_array_name = vtkIossUtilities::GetDisplacementFieldName(&nodeBlock);
+    if (displ_array_name.empty())
+    {
+      return false;
+    }
+
+    array = vtkDataArray::SafeDownCast(
+      this->GetField(displ_array_name, region, &nodeBlock, handle, timestep));
+  }
+  else
+  {
+    // EXODUS
+    // node fields are stored in global node-block from which we need to subset based on the "ids"
+    // for those current block.
+    auto nodeBlock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
+    auto displ_array_name = vtkIossUtilities::GetDisplacementFieldName(nodeBlock);
+    if (displ_array_name.empty())
+    {
+      return false;
+    }
+
+    auto vtk_raw_ids_array =
+      vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"));
+    const std::string cache_key_suffix =
+      vtk_raw_ids_array != nullptr ? group_entity->name() : std::string();
+    array = vtkDataArray::SafeDownCast(this->GetField(
+      displ_array_name, region, nodeBlock, handle, timestep, vtk_raw_ids_array, cache_key_suffix));
   }
 
-  auto vtk_raw_ids_array =
-    vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"));
-  const std::string cache_key_suffix = vtk_raw_ids_array != nullptr ? blockname : std::string();
-  auto array = vtkDataArray::SafeDownCast(this->GetField(
-    displ_array_name, region, nodeBlock, handle, timestep, vtk_raw_ids_array, cache_key_suffix));
   if (array)
   {
     // NOTE: array maybe 2 component for 2d dataset; but our points are always 3D.
