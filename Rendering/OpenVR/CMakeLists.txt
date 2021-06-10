@@ -1,6 +1,6 @@
 vtk_module_find_package(PACKAGE OpenVR)
 
-option(VTK_ENABLE_OPENVR_COLLABORATION "Enable OpenVR collaboration support. Requires cppzmq library" OFF)
+option(VTK_ENABLE_OPENVR_COLLABORATION "Enable OpenVR collaboration support. Requires libzmq library" OFF)
 mark_as_advanced(VTK_ENABLE_OPENVR_COLLABORATION)
 
 set(classes
@@ -63,7 +63,6 @@ vtk_object_factory_configure(
   EXPORT_MACRO "VTKRENDERINGOPENVR_EXPORT")
 
 if (VTK_ENABLE_OPENVR_COLLABORATION)
-  vtk_module_find_package(PACKAGE cppzmq)
   vtk_module_find_package(PACKAGE ZeroMQ)
   list(APPEND classes vtkOpenVRCollaborationClient)
 endif()
@@ -77,9 +76,7 @@ vtk_module_link(VTK::RenderingOpenVR
     OpenVR::OpenVR)
 
 if (VTK_ENABLE_OPENVR_COLLABORATION)
-  vtk_module_link(VTK::RenderingOpenVR
-    PRIVATE
-      cppzmq libzmq)
+  vtk_module_link(VTK::RenderingOpenVR PRIVATE libzmq)
 endif()
 
 set(openvr_input_files
