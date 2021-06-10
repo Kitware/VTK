@@ -611,8 +611,6 @@ int vtkCONVERGECFDReader::RequestData(
     std::vector<std::map<vtkIdType, vtkIdType>> blocksOriginalToBlockPointId(numBoundaryNames);
     for (hsize_t boundaryIndex = 0; boundaryIndex < numBoundaryNames; ++boundaryIndex)
     {
-      const int numBoundaryPolygons = boundaryNumElements[boundaryIndex];
-
       // Create a map from original point ID in the global points list
       vtkIdType newIndex = 0;
       for (vtkIdType id : blocksSurfacePointIds[boundaryIndex])

@@ -20,11 +20,6 @@
 #include <bitset>
 #include <string>
 
-namespace
-{
-constexpr unsigned char BitMask[8] = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-} // anonymous namespace
-
 // This test makes sure that the unsused reachable bits of the last byte are set
 // to zero.
 int TestBitArray(int, char*[])
