@@ -126,7 +126,7 @@ upload:wheel:
         - build:wheel-macos-python36-x86_64
         - build:wheel-macos-python37-x86_64
         - build:wheel-macos-python38-x86_64
-        # - build:wheel-macos-python39-arm64
+        - build:wheel-macos-python39-arm64
         - build:wheel-macos-python39-x86_64
         - build:wheel-windows-python36-x86_64
         - build:wheel-windows-python37-x86_64
@@ -147,8 +147,8 @@ upload:wheel:
         - test:wheel-macos-python37-x86_64
         - build:wheel-macos-python38-x86_64
         - test:wheel-macos-python38-x86_64
-        # - build:wheel-macos-python39-arm64
-        # - test:wheel-macos-python39-arm64
+        - build:wheel-macos-python39-arm64
+        - test:wheel-macos-python39-arm64
         - build:wheel-macos-python39-x86_64
         - test:wheel-macos-python39-x86_64
         - build:wheel-windows-python36-x86_64
@@ -224,26 +224,24 @@ test:wheel-macos-python38-x86_64:
     needs:
         - build:wheel-macos-python38-x86_64
 
-# XXX(Python): We need to tell Python that this is *not* a `universal2` binary
-# and instead is arm64-only. See <https://github.com/pypa/wheel/issues/406>.
-# build:wheel-macos-python39-arm64:
-#     extends:
-#         - .wheel_macos39_arm64
-#         - .cmake_build_wheel_macos
-#         - .macos_arm64_wheel_builder_tags
-#         - .cmake_wheel_artifacts
-#         - .run_manually
+build:wheel-macos-python39-arm64:
+    extends:
+        - .wheel_macos39_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
 
-# test:wheel-macos-python39-arm64:
-#     extends:
-#         - .wheel_macos39_arm64
-#         - .cmake_test_wheel_macos
-#         - .macos_arm64_wheel_builder_tags
-#         - .run_automatically
-#     dependencies:
-#         - build:wheel-macos-python39-arm64
-#     needs:
-#         - build:wheel-macos-python39-arm64
+test:wheel-macos-python39-arm64:
+    extends:
+        - .wheel_macos39_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .run_automatically
+    dependencies:
+        - build:wheel-macos-python39-arm64
+    needs:
+        - build:wheel-macos-python39-arm64
 
 build:wheel-macos-python39-x86_64:
     extends:

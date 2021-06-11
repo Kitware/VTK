@@ -18,6 +18,7 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos39_arm64
         PYTHON_VERSION_SUFFIX: "3.9"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos_x86_64:
     extends: .macos
@@ -115,6 +116,8 @@
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
+          # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
+        - '[ "$( uname -m )" = "arm64" ] && venv/bin/pip install wheel'
         - venv/bin/pip install twine
         - venv/bin/twine check build/dist/*.whl
         - venv/bin/pip install build/dist/*.whl
