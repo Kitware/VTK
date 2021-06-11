@@ -110,6 +110,13 @@ double vtkMinimalStandardRandomSequence::GetRangeValue(double rangeMin, double r
 }
 
 //------------------------------------------------------------------------------
+double vtkMinimalStandardRandomSequence::GetNextRangeValue(double rangeMin, double rangeMax)
+{
+  this->Next();
+  return this->GetRangeValue(rangeMin, rangeMax);
+}
+
+//------------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

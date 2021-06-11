@@ -116,6 +116,13 @@ public:
    */
   virtual double GetRangeValue(double rangeMin, double rangeMax);
 
+  /**
+   * Get the next value in the sequence within a range.
+   *
+   * \see vtkMinimalStandardRandomSequence::GetRangeValue
+   */
+  double GetNextRangeValue(double rangeMin, double rangeMax);
+
 protected:
   vtkMinimalStandardRandomSequence();
   ~vtkMinimalStandardRandomSequence() override;

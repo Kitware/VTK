@@ -47,6 +47,14 @@ public:
    */
   virtual double GetScaledValue(double mean, double standardDeviation);
 
+  /**
+   * Return the next value in the sequence given the mean and standard
+   * deviation of the Gaussian.
+   *
+   * \see vtkGaussianRandomSequence::GetScaledValue
+   */
+  double GetNextScaledValue(double mean, double standardDeviation);
+
 protected:
   vtkGaussianRandomSequence();
   ~vtkGaussianRandomSequence() override;
