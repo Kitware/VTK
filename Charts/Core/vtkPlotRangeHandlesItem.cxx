@@ -26,6 +26,7 @@
 #include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 
 #include <sstream>
@@ -204,17 +205,39 @@ bool vtkPlotRangeHandlesItem::Paint(vtkContext2D* painter)
     vtkVector2f labelBounds[2];
     painter->ComputeStringBounds(label.str(), labelBounds[0].GetData());
 
+    float labelStartX = this->HoveredPosition[0] - labelBounds[1].GetX() / 2.0f;
+    float labelStartY = this->HoveredPosition[1] - labelBounds[1].GetY() * 2.0f;
+
+    // When the tooltip is not locked to the mouse position, place it at the
+    // middle of the X axis.
+    if (!this->LockTooltipToMouse)
+    {
+      double screenBounds[4];
+      this->GetBounds(screenBounds);
+
+      labelStartX =
+        static_cast<float>(screenBounds[1] + screenBounds[0]) / 2.0f - labelBounds[1].GetX() / 2.0f;
+      labelStartY = 0;
+    }
+
     float scale[2];
     painter->GetTransform()->GetScale(scale);
-    double screenBounds[4];
-    this->GetBounds(screenBounds);
 
-    float labelStart =
-      static_cast<float>(screenBounds[1] + screenBounds[0]) / 2.0f - labelBounds[1].GetX() / 2.0f;
+    // Make sure justification is set to left as this is not guaranteed by all
+    // types of vtkChart.
+    vtkTextProperty* currentTextProp = painter->GetTextProp();
+    int currentJustification = currentTextProp->GetJustification();
+    currentTextProp->SetJustificationToLeft();
+    painter->ApplyTextProp(currentTextProp);
+
     painter->ApplyBrush(this->RangeLabelBrush);
-    painter->DrawRect(labelStart - 5.0f / scale[0], 0, labelBounds[1].GetX() + 8.0f / scale[0],
-      labelBounds[1].GetY() + 10.0f / scale[1]);
-    painter->DrawString(labelStart, 3.0f / scale[1], label.str());
+    painter->DrawRect(labelStartX - 5.0f / scale[0], labelStartY,
+      labelBounds[1].GetX() + 8.0f / scale[0], labelBounds[1].GetY() + 10.0f / scale[1]);
+    painter->DrawString(labelStartX, labelStartY + 3.0f / scale[1], label.str());
+
+    // Reset justification
+    currentTextProp->SetJustification(currentJustification);
+    painter->ApplyTextProp(currentTextProp);
   }
 
   this->PaintChildren(painter);
@@ -416,6 +439,7 @@ bool vtkPlotRangeHandlesItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   {
     vtkVector2f vpos = mouse.GetPos();
     this->SetActiveHandlePosition(vpos[this->HandleOrientation]);
+    this->HoveredPosition[this->HandleOrientation] = this->ActiveHandlePosition;
     this->InvokeEvent(vtkCommand::InteractionEvent);
     this->GetScene()->SetDirty(true);
     return true;
@@ -435,6 +459,13 @@ bool vtkPlotRangeHandlesItem::MouseEnterEvent(const vtkContextMouseEvent& mouse)
   }
   this->SetCursor(VTK_CURSOR_SIZEWE - this->HandleOrientation);
   this->GetScene()->SetDirty(true);
+
+  if (this->ActiveHandle == vtkPlotRangeHandlesItem::NO_HANDLE)
+  {
+    this->HoveredPosition[this->HandleOrientation] = vpos[this->HandleOrientation];
+    this->HoveredPosition[1 - this->HandleOrientation] = vpos[1 - this->HandleOrientation];
+  }
+
   return true;
 }
 

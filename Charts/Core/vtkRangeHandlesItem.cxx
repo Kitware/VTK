@@ -40,6 +40,7 @@ vtkRangeHandlesItem::vtkRangeHandlesItem()
   this->RangeLabelBrush->SetColor(255, 255, 255, 200);
   this->ExtentToAxisRangeOff();
   this->SetHandleOrientation(vtkPlotRangeHandlesItem::Orientation::VERTICAL);
+  this->LockTooltipToMouseOff();
 }
 
 //------------------------------------------------------------------------------
