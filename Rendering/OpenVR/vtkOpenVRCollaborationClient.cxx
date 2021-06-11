@@ -28,8 +28,7 @@
 #include "vtkTransform.h"
 
 #include <sstream>
-#include <zmq.hpp> // https://github.com/zeromq/cppzmq
-
+#include <zmq.h>
 namespace
 {
 const double RAY_LENGTH = 200.0;    // in meters
@@ -52,17 +51,34 @@ double AVATAR_COLORS[][3] = {
 
 const int NUM_COLORS = sizeof(AVATAR_COLORS) / sizeof(AVATAR_COLORS[0]);
 
-//  Receives all remaining message parts from socket, does nothing.
-void s_clear(zmq::socket_t& socket)
+// two local helper functions for libzmq
+std::string _zmq_string_recv(void* socket, int flags)
 {
-  int more = socket.get(zmq::sockopt::rcvmore);
+  zmq_msg_t msg;
+  int rc = zmq_msg_init(&msg);
+  assert(rc == 0);
+  rc = zmq_msg_recv(&msg, socket, flags);
+  assert(rc != -1);
+  return std::string(static_cast<const char*>(zmq_msg_data(&msg)), zmq_msg_size(&msg));
+}
+
+//  Receives all remaining message parts from socket, does nothing.
+void _zmq_sock_clear(void* socket)
+{
+  int more;
+  size_t more_size = sizeof(more);
+  zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
   while (more)
   {
     //  Process all parts of the message
-    zmq::message_t message;
-    socket.recv(message);
+    zmq_msg_t part;
+    int rc = zmq_msg_init(&part);
+    assert(rc == 0);
+    /* Block until a message is available to be received from socket */
+    rc = zmq_msg_recv(&part, socket, 0);
+    assert(rc != -1);
 
-    more = socket.get(zmq::sockopt::rcvmore);
+    zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
   }
 }
 
@@ -78,16 +94,45 @@ void s_clear(zmq::socket_t& socket)
 class vtkOpenVRCollaborationClientInternal
 {
 public:
-  zmq::context_t Context;
-  zmq::socket_t Requester;
-  zmq::socket_t Subscriber;
-  zmq::pollitem_t CollabPollItems[2];
+  void* Context;
+  void* Requester;
+  void* Subscriber;
+  zmq_pollitem_t CollabPollItems[2];
+
   vtkOpenVRCollaborationClientInternal()
-    : Context(1)
-    , Requester(Context, ZMQ_DEALER)
-    , Subscriber(Context, ZMQ_SUB)
-    , CollabPollItems{ { this->Requester, 0, ZMQ_POLLIN, 0 },
-      { this->Subscriber, 0, ZMQ_POLLIN, 0 } } {};
+    : CollabPollItems{ { nullptr, 0, ZMQ_POLLIN, 0 }, { nullptr, 0, ZMQ_POLLIN, 0 } }
+  {
+    // ceate context
+    this->Context = zmq_ctx_new();
+    assert(this->Context);
+    int rc = zmq_ctx_set(this->Context, ZMQ_IO_THREADS, 1);
+    assert(rc == 0);
+    rc = zmq_ctx_set(this->Context, ZMQ_MAX_SOCKETS, ZMQ_MAX_SOCKETS_DFLT);
+    assert(rc == 0);
+
+    this->Requester = zmq_socket(this->Context, ZMQ_DEALER);
+    this->Subscriber = zmq_socket(this->Context, ZMQ_SUB);
+
+    this->CollabPollItems[0].socket = this->Requester;
+    this->CollabPollItems[1].socket = this->Subscriber;
+  }
+
+  ~vtkOpenVRCollaborationClientInternal()
+  {
+    if (this->Requester)
+    {
+      zmq_close(this->Requester);
+    }
+    if (this->Subscriber)
+    {
+      zmq_close(this->Subscriber);
+    }
+    int rc;
+    do
+    {
+      rc = zmq_ctx_term(this->Context);
+    } while (rc == -1 && errno == EINTR);
+  }
 };
 
 vtkStandardNewMacro(vtkOpenVRCollaborationClient);
@@ -148,13 +193,13 @@ void vtkOpenVRCollaborationClient::Disconnect()
 
   mvLog(vtkLogger::VERBOSITY_INFO, "Collab server disconnecting. " << std::endl);
 
-  if (this->Internal->Requester.handle() != nullptr)
+  if (this->Internal->Requester != nullptr)
   {
-    this->Internal->Requester.close();
+    zmq_close(this->Internal->Requester);
   }
-  if (this->Internal->Subscriber.handle() != nullptr)
+  if (this->Internal->Subscriber != nullptr)
   {
-    this->Internal->Subscriber.close();
+    zmq_close(this->Internal->Subscriber);
   }
   for (auto it : this->AvatarUpdateTime)
   {
@@ -286,15 +331,15 @@ void vtkOpenVRCollaborationClient::SendAMessage(
   }
 
   // send header, our ID, session.
-  this->Internal->Requester.send(zmq::str_buffer("PMVZ"), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(this->CollabID), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(this->CollabSession), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(msgType), zmq::send_flags::sndmore);
+  zmq_send_const(this->Internal->Requester, "PMVZ", 4, ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, this->CollabID.c_str(), this->CollabID.size(), ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, this->CollabSession.c_str(), this->CollabSession.size(),
+    ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, msgType.c_str(), msgType.size(), ZMQ_SNDMORE);
 
   // send the number of arguments
   uint16_t numArgs = static_cast<uint16_t>(args.size());
-  this->Internal->Requester.send(
-    zmq::message_t(&numArgs, sizeof(numArgs)), zmq::send_flags::sndmore);
+  zmq_send(this->Internal->Requester, &numArgs, sizeof(numArgs), ZMQ_SNDMORE);
 
   // now send the arguments
   for (int i = 0; i < numArgs; ++i)
@@ -303,31 +348,31 @@ void vtkOpenVRCollaborationClient::SendAMessage(
 
     // send the arg type
     uint16_t type = static_cast<uint16_t>(arg.Type);
-    this->Internal->Requester.send(zmq::message_t(&type, sizeof(type)), zmq::send_flags::sndmore);
+    zmq_send(this->Internal->Requester, &type, sizeof(type), ZMQ_SNDMORE);
 
     // send the arg count (how many in the vector)
     uint16_t count = static_cast<uint16_t>(arg.Count);
-    this->Internal->Requester.send(zmq::message_t(&count, sizeof(count)), zmq::send_flags::sndmore);
+    zmq_send(this->Internal->Requester, &count, sizeof(count), ZMQ_SNDMORE);
 
     // finally send the data
     switch (arg.Type)
     {
       case Double:
       {
-        this->Internal->Requester.send(zmq::message_t(arg.Data.get(), sizeof(double) * arg.Count),
-          (i == numArgs - 1 ? zmq::send_flags::none : zmq::send_flags::sndmore));
+        zmq_send(this->Internal->Requester, arg.Data.get(), sizeof(double) * arg.Count,
+          (i == numArgs - 1 ? 0 : ZMQ_SNDMORE));
         break;
       }
       case Int32:
       {
-        this->Internal->Requester.send(zmq::message_t(arg.Data.get(), sizeof(int32_t) * arg.Count),
-          (i == numArgs - 1 ? zmq::send_flags::none : zmq::send_flags::sndmore));
+        zmq_send(this->Internal->Requester, arg.Data.get(), sizeof(int32_t) * arg.Count,
+          (i == numArgs - 1 ? 0 : ZMQ_SNDMORE));
         break;
       }
       case String:
       {
-        this->Internal->Requester.send(zmq::message_t(arg.Data.get(), arg.Count),
-          (i == numArgs - 1 ? zmq::send_flags::none : zmq::send_flags::sndmore));
+        zmq_send(this->Internal->Requester, arg.Data.get(), arg.Count,
+          (i == numArgs - 1 ? 0 : ZMQ_SNDMORE));
         break;
       }
     }
@@ -496,11 +541,8 @@ vtkOpenVRCollaborationClient::GetMessageArguments()
 {
   std::vector<Argument> result;
 
-  zmq::message_t update;
-
   uint16_t numArgs = 0;
-  this->Internal->Subscriber.recv(update);
-  memcpy(&numArgs, update.data(), sizeof(numArgs));
+  zmq_recv(this->Internal->Subscriber, &numArgs, sizeof(numArgs), 0);
 
   result.resize(numArgs);
 
@@ -510,27 +552,22 @@ vtkOpenVRCollaborationClient::GetMessageArguments()
 
     // get the arg type
     uint16_t argType = Double;
-    this->Internal->Subscriber.recv(update);
-    memcpy(&argType, update.data(), sizeof(argType));
+    zmq_recv(this->Internal->Subscriber, &argType, sizeof(argType), 0);
     arg.Type = static_cast<ArgumentType>(argType);
 
     // get the arg count
     uint16_t argCount = 0;
-    this->Internal->Subscriber.recv(update);
-    memcpy(&argCount, update.data(), sizeof(argCount));
+    zmq_recv(this->Internal->Subscriber, &argCount, sizeof(argCount), 0);
     arg.Count = argCount;
 
     switch (arg.Type)
     {
       case Double:
       {
-        auto zresult = this->Internal->Subscriber.recv(update);
-        if (zresult && update.size() == sizeof(double) * arg.Count)
-        {
-          arg.Data = std::shared_ptr<void>(malloc(sizeof(double) * arg.Count), free);
-          memcpy(arg.Data.get(), update.data(), sizeof(double) * arg.Count);
-        }
-        else
+        arg.Data = std::shared_ptr<void>(malloc(sizeof(double) * arg.Count), free);
+        auto zresult =
+          zmq_recv(this->Internal->Subscriber, arg.Data.get(), sizeof(double) * arg.Count, 0);
+        if (zresult != sizeof(double) * arg.Count)
         {
           vtkErrorMacro("failed to get valid argument");
         }
@@ -538,13 +575,10 @@ vtkOpenVRCollaborationClient::GetMessageArguments()
       }
       case Int32:
       {
-        auto zresult = this->Internal->Subscriber.recv(update);
-        if (zresult && update.size() == sizeof(int32_t) * arg.Count)
-        {
-          arg.Data = std::shared_ptr<void>(malloc(sizeof(int32_t) * arg.Count), free);
-          memcpy(arg.Data.get(), update.data(), sizeof(int32_t) * arg.Count);
-        }
-        else
+        arg.Data = std::shared_ptr<void>(malloc(sizeof(int32_t) * arg.Count), free);
+        auto zresult =
+          zmq_recv(this->Internal->Subscriber, arg.Data.get(), sizeof(int32_t) * arg.Count, 0);
+        if (zresult != sizeof(int32_t) * arg.Count)
         {
           vtkErrorMacro("failed to get valid argument");
         }
@@ -552,13 +586,9 @@ vtkOpenVRCollaborationClient::GetMessageArguments()
       }
       case String:
       {
-        auto zresult = this->Internal->Subscriber.recv(update);
-        if (zresult)
-        {
-          arg.Data = std::shared_ptr<void>(malloc(update.size()), free);
-          memcpy(arg.Data.get(), update.data(), update.size());
-        }
-        else
+        arg.Data = std::shared_ptr<void>(malloc(arg.Count), free);
+        auto zresult = zmq_recv(this->Internal->Subscriber, arg.Data.get(), arg.Count, 0);
+        if (zresult != arg.Count)
         {
           vtkErrorMacro("failed to get valid argument");
         }
@@ -577,10 +607,11 @@ void vtkOpenVRCollaborationClient::SendAMessage(std::string const& msgType)
     return;
   }
   // send header, our ID, session.
-  this->Internal->Requester.send(zmq::str_buffer("PMVZ"), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(this->CollabID), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(this->CollabSession), zmq::send_flags::sndmore);
-  this->Internal->Requester.send(zmq::buffer(msgType));
+  zmq_send_const(this->Internal->Requester, "PMVZ", 4, ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, this->CollabID.c_str(), this->CollabID.size(), ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, this->CollabSession.c_str(), this->CollabSession.size(),
+    ZMQ_SNDMORE);
+  zmq_send(this->Internal->Requester, msgType.c_str(), msgType.size(), 0);
 }
 
 void vtkOpenVRCollaborationClient::SendPoseMessage(
@@ -820,13 +851,11 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
   do
   {
     // timeout is 0, return immediately.
-    zmq::poll(&(this->Internal->CollabPollItems)[0], 2, 0);
+    zmq_poll(&(this->Internal->CollabPollItems)[0], 2, 0);
     if (this->Internal->CollabPollItems[0].revents & ZMQ_POLLIN)
     {
       // reply on the request-reply (dealer) socket - expect ID or error.
-      zmq::message_t msg;
-      this->Internal->Requester.recv(msg, zmq::recv_flags::dontwait);
-      std::string reply = msg.to_string();
+      std::string reply = _zmq_string_recv(this->Internal->Requester, ZMQ_DONTWAIT);
       if (reply == "ERROR")
       {
         mvLog(vtkLogger::VERBOSITY_ERROR, "Collab server returned error " << std::endl);
@@ -861,17 +890,10 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
     //
     if (this->Internal->CollabPollItems[1].revents & ZMQ_POLLIN)
     {
-      zmq::message_t update;
-      if (this->Internal->Subscriber.recv(update, zmq::recv_flags::dontwait))
+      std::string sig = _zmq_string_recv(this->Internal->Subscriber, ZMQ_DONTWAIT);
+      if (sig.size())
       {
-        if (update.size() == 0)
-        {
-          mvLog(vtkLogger::VERBOSITY_ERROR, "Error: empty session header");
-          s_clear(this->Internal->Subscriber);
-          continue;
-        }
         // verify the signature
-        std::string sig = std::string(static_cast<const char*>(update.data()), update.size());
         // we can get bad data, so make sure the first message contains the
         // correct data before requesting other pieces (which could block
         // and hang the app if the data was bad)
@@ -879,16 +901,13 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
         {
           // the first sub-msg contains the session string for the subscription
           //  process other avatar updates
-          zmq::message_t msg;
-          this->Internal->Subscriber.recv(msg, zmq::recv_flags::dontwait);
-          std::string otherID = msg.to_string();
-          this->Internal->Subscriber.recv(msg, zmq::recv_flags::dontwait);
-          std::string type = msg.to_string();
+          std::string otherID = _zmq_string_recv(this->Internal->Subscriber, ZMQ_DONTWAIT);
+          std::string type = _zmq_string_recv(this->Internal->Subscriber, ZMQ_DONTWAIT);
           if (otherID.empty() || type.empty())
           {
             // error, ignore
             mvLog(vtkLogger::VERBOSITY_ERROR, "empty ID or ID " << otherID << ",  " << type);
-            s_clear(this->Internal->Subscriber);
+            _zmq_sock_clear(this->Internal->Subscriber);
             continue;
           }
 
@@ -898,7 +917,7 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
         {
           mvLog(vtkLogger::VERBOSITY_ERROR,
             "Error: mismatched session header with signature of: " << sig);
-          s_clear(this->Internal->Subscriber);
+          _zmq_sock_clear(this->Internal->Subscriber);
         }
 
         // we got a message on the publish socket, see if this is the first one.
@@ -911,6 +930,12 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
           args[0].SetString(this->CollabID);
           this->SendAMessage("J", args);
         }
+      }
+      else
+      {
+        mvLog(vtkLogger::VERBOSITY_ERROR, "Error: empty session header");
+        _zmq_sock_clear(this->Internal->Subscriber);
+        continue;
       }
     }
 
@@ -930,8 +955,8 @@ void vtkOpenVRCollaborationClient::HandleCollabMessage()
       {
         this->RetryCount = 1;
       }
-      this->Internal->Requester.send(zmq::str_buffer("ping"), zmq::send_flags::sndmore);
-      this->Internal->Requester.send(zmq::buffer(this->CollabID));
+      zmq_send_const(this->Internal->Requester, "ping", 4, ZMQ_SNDMORE);
+      zmq_send(this->Internal->Requester, this->CollabID.c_str(), this->CollabID.size(), 0);
       this->NeedHeartbeat = currTime + HEARTBEAT_INTERVAL;
     }
 
@@ -1105,26 +1130,27 @@ bool vtkOpenVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
   ss.str(std::string());
   ss << "tcp://" << this->CollabHost << ":" << (this->CollabPort + 1);
   std::string subscriberEndpoint = ss.str();
-  if (this->Internal->Requester.handle() != nullptr)
+  if (this->Internal->Requester != nullptr)
   {
-    this->Internal->Requester.close();
+    zmq_close(this->Internal->Requester);
   }
-  if (this->Internal->Subscriber.handle() != nullptr)
+  if (this->Internal->Subscriber != nullptr)
   {
-    this->Internal->Subscriber.close();
+    zmq_close(this->Internal->Subscriber);
   }
   this->Connected = false;
-  this->Internal->Requester = zmq::socket_t(this->Internal->Context, ZMQ_DEALER);
-  this->Internal->Subscriber = zmq::socket_t(this->Internal->Context, ZMQ_SUB);
+  this->Internal->Requester = zmq_socket(this->Internal->Context, ZMQ_DEALER);
+  this->Internal->Subscriber = zmq_socket(this->Internal->Context, ZMQ_SUB);
 
-  this->Internal->Requester.connect(requesterEndpoint);
-  this->Internal->Subscriber.connect(subscriberEndpoint);
+  zmq_connect(this->Internal->Requester, requesterEndpoint.c_str());
+  zmq_connect(this->Internal->Subscriber, subscriberEndpoint.c_str());
   // Subscribe to messages for our session, subscription required by zmq
   // We won't receive messages from other sessions.
-  this->Internal->Subscriber.set(zmq::sockopt::subscribe, this->CollabSession);
+  zmq_setsockopt(this->Internal->Subscriber, ZMQ_SUBSCRIBE, this->CollabSession.c_str(),
+    this->CollabSession.size());
   // once we close, we want the socket to close immediately, and drop messages.
   int linger = 0;
-  this->Internal->Requester.set(zmq::sockopt::linger, linger);
+  zmq_setsockopt(this->Internal->Requester, ZMQ_LINGER, &linger, sizeof(linger));
   this->Internal->CollabPollItems[0].socket = this->Internal->Requester;
   this->Internal->CollabPollItems[1].socket = this->Internal->Subscriber;
   this->Connected = true;
@@ -1134,7 +1160,7 @@ bool vtkOpenVRCollaborationClient::Initialize(vtkOpenGLRenderer* ren)
   this->NeedHeartbeat = currTime + HEARTBEAT_INTERVAL;
   this->NeedReply = currTime + HEARTBEAT_INTERVAL * LIVE_COUNT * this->RetryCount;
   this->PublishAvailable = false;
-  this->Internal->Requester.send(zmq::str_buffer("HelloPMVZ"));
+  zmq_send_const(this->Internal->Requester, "HelloPMVZ", 9, 0);
   // async reply, so get ID in HandleCollabMessage()
 
   // add observer based on VR versus windowed
