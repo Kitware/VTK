@@ -141,12 +141,17 @@ public:
   int GetSetStatus(const char* gridname);
   ///@}
 
+  ///@{
   /**
-   * These methods are provided to make it easier to use the Sets in ParaView.
+   * These methods are provided to make it easier to use the Sets/Grids in ParaView.
    */
   int GetNumberOfSetArrays() { return this->GetNumberOfSets(); }
   const char* GetSetArrayName(int index) { return this->GetSetName(index); }
   int GetSetArrayStatus(const char* name) { return this->GetSetStatus(name); }
+  int GetNumberOfGridArrays() { return this->GetNumberOfGrids(); }
+  const char* GetGridArrayName(int index) { return this->GetGridName(index); }
+  int GetGridArrayStatus(const char* name) { return this->GetGridStatus(name); }
+  ///@}
 
   ///@{
   /**
