@@ -70,6 +70,9 @@ vtkRandomAttributeGenerator::vtkRandomAttributeGenerator()
   this->AttributesConstantPerBlock = false;
 }
 
+namespace
+{
+
 //------------------------------------------------------------------------------
 template <class T>
 void GenerateRandomTuple(
@@ -105,6 +108,8 @@ void CopyTupleFrom0Bit(vtkDataArray* data, vtkIdType i, int minComp, int maxComp
   {
     data->SetComponent(i, comp, data->GetComponent(0, comp));
   }
+}
+
 }
 
 //------------------------------------------------------------------------------
