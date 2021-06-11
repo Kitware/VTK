@@ -332,6 +332,13 @@ if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
   endif ()
 endif ()
 
+set(vtk_library_version_info
+  VERSION             "${VTK_VERSION}"
+  SOVERSION           "1")
+if (VTK_WHEEL_BUILD)
+  set(vtk_library_version_info)
+endif ()
+
 vtk_module_build(
   MODULES             ${vtk_modules}
   KITS                ${vtk_kits}
@@ -342,8 +349,7 @@ vtk_module_build(
   CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LICENSE_DESTINATION "${CMAKE_INSTALL_LICENSEDIR}"
   LIBRARY_NAME_SUFFIX "${VTK_CUSTOM_LIBRARY_SUFFIX}"
-  VERSION             "${VTK_VERSION}"
-  SOVERSION           "1"
+  ${vtk_library_version_info}
   TEST_DATA_TARGET    VTKData
   INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
   BUILD_WITH_KITS     "${VTK_ENABLE_KITS}"
