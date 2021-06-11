@@ -15,7 +15,6 @@
 
 #include <vtkCellArray.h>
 #include <vtkCleanPolyData.h>
-#include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 
 namespace
