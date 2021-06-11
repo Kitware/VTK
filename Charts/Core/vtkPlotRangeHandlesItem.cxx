@@ -198,7 +198,8 @@ bool vtkPlotRangeHandlesItem::Paint(vtkContext2D* painter)
     double range[2];
     this->GetHandlesRange(range);
     std::stringstream label;
-    label << "Range : [" << std::to_string(range[0]) << ", " << std::to_string(range[1]) << "]";
+    label << "Range : [" << this->GetNumber(range[0], nullptr) << ", "
+          << this->GetNumber(range[1], nullptr) << "]";
 
     vtkVector2f labelBounds[2];
     painter->ComputeStringBounds(label.str(), labelBounds[0].GetData());
