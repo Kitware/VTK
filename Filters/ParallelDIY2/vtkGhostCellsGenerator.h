@@ -29,8 +29,8 @@
  * @warning If an input already holds ghosts, the input ghost cells should be tagged as
  * `CELLDUPLICATE` in order for this filter to work properly.
  *
- * @note Currently, only `vtkImageData`, `vtkRectilinearGrid` and `vtkStructuredGrid` are
- * implemented.
+ * @note Currently,`vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
+ * `vtkUnstructuredGrid` are implemented.
  */
 
 #ifndef vtkGhostCellsGenerator_h

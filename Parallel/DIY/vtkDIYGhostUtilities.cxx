@@ -15,23 +15,34 @@
 #include "vtkDIYGhostUtilities.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkCellData.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
-#include <vector>
+#include <algorithm>
+#include <numeric>
+#include <unordered_map>
 
 // clang-format off
 #include "vtk_diy2.h"
@@ -64,14 +75,17 @@ using DataSetTypeToBlockTypeConverter =
 using ImageDataBlock = vtkDIYGhostUtilities::ImageDataBlock;
 using RectilinearGridBlock = vtkDIYGhostUtilities::RectilinearGridBlock;
 using StructuredGridBlock = vtkDIYGhostUtilities::StructuredGridBlock;
+using UnstructuredGridBlock = vtkDIYGhostUtilities::UnstructuredGridBlock;
 
 using ImageDataBlockStructure = ImageDataBlock::BlockStructureType;
 using RectilinearGridBlockStructure = RectilinearGridBlock::BlockStructureType;
 using StructuredGridBlockStructure = StructuredGridBlock::BlockStructureType;
+using UnstructuredGridBlockStructure = UnstructuredGridBlock::BlockStructureType;
 
 using ImageDataInformation = ImageDataBlock::InformationType;
 using RectilinearGridInformation = RectilinearGridBlock::InformationType;
 using StructuredGridInformation = StructuredGridBlock::InformationType;
+using UnstructuredGridInformation = UnstructuredGridBlock::InformationType;
 //@}
 
 //============================================================================
@@ -105,6 +119,9 @@ enum Overlap
   XZ = 0x05,
   YZ = 0x06
 };
+
+//----------------------------------------------------------------------------
+constexpr char LOCAL_POINT_IDS_ARRAY_NAME[] = "detail::PointIds";
 
 //----------------------------------------------------------------------------
 bool IsExtentValid(const int* extent)
@@ -155,6 +172,88 @@ void FillPointArrayForStructuredData(ArrayT* array, GridDataSetT* grid, int imin
         array->SetValue(vtkStructuredData::ComputePointIdForExtent(gridExtent, ijk), val);
       }
     }
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(vtkPoints* inputPoints,
+    const vtkBoundingBox& bb)
+{
+  vtkNew<vtkIdList> pointIds;
+
+  auto inputPointsRange = vtk::DataArrayTupleRange<3>(inputPoints->GetData());
+  using ConstPointRef = typename decltype(inputPointsRange)::ConstTupleReferenceType;
+
+  for (vtkIdType pointId = 0; pointId < inputPointsRange.size(); ++pointId)
+  {
+    ConstPointRef point = inputPointsRange[pointId];
+    if (bb.ContainsPoint(point))
+    {
+      pointIds->InsertNextId(pointId);
+    }
+  }
+
+  return pointIds;
+}
+
+//----------------------------------------------------------------------------
+template<class PointSetT>
+void ExchangeBlockStructuresForPointSets(diy::Master& master)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
+  using BlockInformationType = typename BlockType::InformationType;
+
+  master.foreach ([&master](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    BlockInformationType& info = block->Information;
+    vtkPointSet* surface = vtkPointSet::SafeDownCast(info.SurfaceFilter->GetOutputDataObject(0));
+
+    for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+    {
+      const diy::BlockID& blockId = cp.link()->target(id);
+
+      vtkSmartPointer<vtkIdList> ids = ExtractPointIdsInsideBoundingBox(
+          surface->GetPoints(), block->NeighborBoundingBoxes.at(blockId.gid));
+
+      vtkNew<vtkIdList> identity;
+      identity->SetNumberOfIds(ids->GetNumberOfIds());
+      std::iota(identity->begin(), identity->end(), 0);
+
+      vtkNew<vtkPoints> points;
+      points->SetDataType(surface->GetPoints()->GetDataType());
+      points->InsertPoints(identity, ids, surface->GetPoints());
+
+      cp.enqueue<vtkDataArray*>(blockId, points->GetData());
+    }
+  });
+
+  master.exchange();
+
+  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+
+    for (const int gid : incoming)
+    {
+      if (!cp.incoming(gid).empty())
+      {
+        vtkDataArray* points = nullptr;
+        cp.dequeue(gid, points);
+        auto& blockStructure = block->BlockStructures[gid];
+        blockStructure.InterfacingPoints->SetData(points);
+        points->FastDelete();
+      }
+    }
+  });
+}
+
+//----------------------------------------------------------------------------
+template<class StructuredDataSetT>
+void CloneGeometricStructuresForStructuredData(std::vector<StructuredDataSetT*>& inputs,
+    std::vector<StructuredDataSetT*>& outputs)
+{
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    outputs[localId]->CopyStructure(inputs[localId]);
   }
 }
 
@@ -1162,7 +1261,7 @@ bool SynchronizeGridExtents(StructuredGridBlockStructure& localBlockStructure,
 //----------------------------------------------------------------------------
 template <class GridDataSetT>
 LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
-  std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs, int outputGhostLevels)
+  std::vector<GridDataSetT*>& inputs, int outputGhostLevels)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
   using BlockStructureType = typename BlockType::BlockStructureType;
@@ -1186,8 +1285,7 @@ LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
       continue;
     }
 
-    auto& output = outputs[localId];
-    int dim = output->GetDataDimension();
+    int dim = input->GetDataDimension();
 
     auto& localLinks = linkMap[localId];
 
@@ -1220,6 +1318,566 @@ LinkMap ComputeLinkMapForStructuredData(const diy::Master& master,
       // We update our neighbor's block extent with ghost layers given spatial adjacency.
       LinkGrid<BlockType>(blockStructures, it, block->Information, localLinks,
         adjacencyMask, overlapMask, outputGhostLevels, dim);
+    }
+  }
+
+  return linkMap;
+}
+
+//----------------------------------------------------------------------------
+template<class PointSetT>
+void SetupBlockSelfInformationForPointSets(diy::Master& master,
+    std::vector<PointSetT*>& inputs)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    PointSetT* input = inputs[localId];
+    BlockType* block = master.block<BlockType>(localId);
+    typename BlockType::InformationType& information = block->Information;
+    information.BoundingBox = vtkBoundingBox(input->GetBounds());
+
+    vtkNew<vtkIdTypeArray> pointIds;
+    pointIds->SetName(LOCAL_POINT_IDS_ARRAY_NAME);
+    pointIds->SetNumberOfComponents(1);
+    pointIds->SetNumberOfTuples(input->GetNumberOfPoints());
+    auto pointIdsRange = vtk::DataArrayValueRange<1>(pointIds);
+    // FIXME Ideally, this should be done with an implicit array
+    std::iota(pointIdsRange.begin(), pointIdsRange.end(), 0);
+
+    vtkNew<PointSetT> inputWithLocalPointIds;
+    inputWithLocalPointIds->ShallowCopy(input);
+    inputWithLocalPointIds->GetPointData()->AddArray(pointIds);
+
+    vtkDataSetSurfaceFilter* surfaceFilter = information.SurfaceFilter;
+    surfaceFilter->SetInputData(inputWithLocalPointIds);
+    surfaceFilter->Update();
+
+    vtkPointSet* surface = vtkPointSet::SafeDownCast(surfaceFilter->GetOutputDataObject(0));
+
+    vtkSmartPointer<vtkAbstractPointLocator>& locator = information.SurfacePointLocator;
+    locator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+    locator->SetDataSet(surface);
+    locator->BuildLocator();
+
+    information.SurfacePoints = surface->GetPoints()->GetData();
+    information.SurfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
+        surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
+
+    // These variables are used when adding points from neighboring blocks.
+    // After points are added from a block b, these indices must be incremented by the number of
+    // points added by this block, so we know where we left off for the following block.
+    information.CurrentMaxPointId = input->GetNumberOfPoints();
+    information.CurrentMaxCellId = input->GetNumberOfCells();
+    information.CurrentConnectivitySize =
+      input->GetCells()->GetConnectivityArray()->GetNumberOfTuples();
+    information.CurrentFacesSize =
+      input->GetFaces() ? input->GetFaces()->GetNumberOfValues() : 0;
+  }
+}
+
+//============================================================================
+/**
+ * This functor extracts point ids of the source that match points in the target.
+ * 2 outputs are produced:
+ * - The matching point ids in the source that are sorted in the same order as points appear in the
+ *   source, in MatchingSourcePointIds
+ * - Those same point ids, but sorted in the same order as points appear in the target, in
+ *   MatchingReceivedPointIdsSortedLikeTarget.
+ */
+struct MatchingPointExtractor
+{
+  MatchingPointExtractor(vtkIdTypeArray* sourcePointIds, vtkAbstractPointLocator* locator,
+      vtkDataArray* sourcePoints)
+    : SourcePointIds(sourcePointIds)
+    , Locator(locator) // Locator should be constructed using source points
+    , SourcePoints(sourcePoints)
+  {
+  }
+
+  template<class PointArrayT>
+  void operator()(PointArrayT* points)
+  {
+    this->MatchingSourcePointIds->SetNumberOfComponents(1);
+
+    PointArrayT* surfacePoints = vtkArrayDownCast<PointArrayT>(this->SourcePoints);
+
+    auto pointsRange = vtk::DataArrayTupleRange<3>(points);
+    auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
+
+    using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
+    using ValueType = typename PointArrayT::ValueType;
+    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+
+    std::set<vtkIdType> inverseMap;
+    vtkIdType pointId = 0;
+
+    for (ConstPointRef point : pointsRange)
+    {
+      vtkIdType closestPointId = this->Locator->FindClosestPoint(point[0], point[1], point[2]);
+      ConstPointRef closestPoint = surfacePointsRange[closestPointId];
+
+      if (Comparator<IsInteger>::Equals(point[0], closestPoint[0]) &&
+          Comparator<IsInteger>::Equals(point[1], closestPoint[1]) &&
+          Comparator<IsInteger>::Equals(point[2], closestPoint[2]))
+      {
+        this->MatchingSourcePointIds->InsertNextValue(
+            this->SourcePointIds->GetValue(closestPointId));
+        inverseMap.insert(closestPointId);
+      }
+    }
+    for (const vtkIdType& id : inverseMap)
+    {
+      this->MatchingReceivedPointIdsSortedLikeTarget->InsertNextValue(
+          this->SourcePointIds->GetValue(id));
+    }
+
+    ++pointId;
+  }
+
+  // Inputs
+  vtkIdTypeArray* SourcePointIds;
+  vtkAbstractPointLocator* Locator;
+  vtkDataArray* SourcePoints;
+
+  // Outputs
+  vtkIdTypeArray* MatchingSourcePointIds;
+  vtkIdTypeArray* MatchingReceivedPointIdsSortedLikeTarget;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * This function will fill the buffers describing the geometry to send to a connected block.
+ * Inputs:
+ * - seedPointIdsToSendWithIndex: Points interfacing the neighboring block. These are being used to
+ *   tell the neighboring block which points in the geometry buffer being sent are already present
+ *   there (the block already has a copy because those are the points that interface the 2 blocks).
+ *   We tag them with a negative sign and the position of this point in the buffer we already sent
+ *   to the block when exchanging interfaces to see who's connected to who. The neighboring block
+ *   will use this index to retrieve which point we are talking about (this is retrieved with
+ *   MatchingReceivedPointIdsSortedLikeTarget in MatchingPointExtractor).
+ * - pointIdsToSendWithIndex: Every point ids, besides the one interfacing the current connected
+ *   block, that we need to send, with their index in the point buffer we will send.
+ * - cellIdsToSend: self-explanatory
+ * - ug: the unstructured grid that we own.
+ * - connectivitySize: size of the connectivity information we will send.
+ * - buffer: The output of this function, with everything filled up and ready to send.
+ */
+template<class InputArrayT, class OutputArrayT>
+void FillUnstructuredGridGeometryBuffer(
+    const std::map<vtkIdType, vtkIdType>& seedPointIdsToSendWithIndex,
+    const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex,
+    const std::set<vtkIdType>& cellIdsToSend, vtkUnstructuredGrid* ug,
+    vtkIdType facesSize, vtkIdType connectivitySize,
+    UnstructuredGridBlockStructure::GeometryBufferType& buffer)
+{
+  vtkCellArray* cellArray = buffer.CellArray;
+  OutputArrayT* connectivity = vtkArrayDownCast<OutputArrayT>(cellArray->GetConnectivityArray());
+  OutputArrayT* offsets = vtkArrayDownCast<OutputArrayT>(cellArray->GetOffsetsArray());
+  vtkNew<vtkUnsignedCharArray> types;
+  buffer.Types = types;
+
+  connectivity->SetNumberOfValues(connectivitySize);
+  offsets->SetNumberOfValues(cellIdsToSend.size() + 1);
+  types->SetNumberOfValues(cellIdsToSend.size());
+
+  auto connectivityRange = vtk::DataArrayValueRange<1>(connectivity);
+
+  vtkCellArray* inputCellArray = ug->GetCells();
+  vtkIdType outputId = 0;
+  vtkIdType currentConnectivitySize = 0;
+
+  vtkIdTypeArray* inputFaces = ug->GetFaces();
+  vtkIdTypeArray* inputFaceLocations = ug->GetFaceLocations();
+
+  // faces and faceLocations deal with VTK_POLYHEDRON. If there are VTK_POLYHEDRON cells in the
+  // input, we instantiate those arrays for our buffers.
+  if (inputFaces)
+  {
+    buffer.Faces = vtkSmartPointer<vtkIdTypeArray>::New();
+    buffer.Faces->SetNumberOfValues(facesSize);
+    buffer.FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
+    buffer.FaceLocations->SetNumberOfValues(cellIdsToSend.size());
+    buffer.FaceLocations->FillValue(-1);
+  }
+
+  vtkIdTypeArray* faces = buffer.Faces;
+  vtkIdTypeArray* faceLocations = buffer.FaceLocations;
+
+  InputArrayT* inputConnectivity = vtkArrayDownCast<InputArrayT>(
+      inputCellArray->GetConnectivityArray());
+  InputArrayT* inputOffsets = vtkArrayDownCast<InputArrayT>(
+      inputCellArray->GetOffsetsArray());
+
+  vtkNew<vtkIdList> pointIdsListToSend;
+
+  vtkIdType currentFacesId = 0;
+
+  for (const vtkIdType& cellId : cellIdsToSend)
+  {
+    int cellType = ug->GetCellType(cellId);
+    if (cellType == VTK_POLYHEDRON)
+    {
+      faceLocations->SetValue(outputId, currentFacesId);
+      vtkIdType id = inputFaceLocations->GetValue(cellId);
+      vtkIdType numberOfFaces = inputFaces->GetValue(id++);
+      faces->SetValue(currentFacesId++, numberOfFaces);
+      for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+      {
+        vtkIdType numberOfPoints = inputFaces->GetValue(id++);
+        faces->SetValue(currentFacesId++, numberOfPoints);
+        for (vtkIdType facePointId = 0; facePointId < numberOfPoints; ++facePointId)
+        {
+          vtkIdType pointId = inputFaces->GetValue(id + facePointId);
+          auto it = pointIdsToSendWithIndex.find(pointId);
+          // We will find a valid it of the point of id pointId is not on the interface between us
+          // and the current connected block
+          if (it != pointIdsToSendWithIndex.end())
+          {
+            faces->SetValue(currentFacesId + facePointId, it->second);
+          }
+          else
+          {
+            // We put a negative id here to tell the block who will receive this
+            // that this point is part of the interfacing points: the neighboring block already owns
+            // a copy of this point.
+            faces->SetValue(currentFacesId + facePointId, -seedPointIdsToSendWithIndex.at(pointId));
+          }
+        }
+        currentFacesId += numberOfPoints;
+        id += numberOfPoints;
+      }
+    }
+
+    vtkIdType inputOffset = inputOffsets->GetValue(cellId);
+    offsets->SetValue(outputId, currentConnectivitySize);
+
+    vtkIdType nextOffset = currentConnectivitySize +
+      inputOffsets->GetValue(cellId + 1) - inputOffset;
+
+    vtkIdType counter = 0;
+    for (vtkIdType offset = offsets->GetValue(outputId); offset < nextOffset; ++offset, ++counter)
+    {
+      vtkIdType pointId = inputConnectivity->GetValue(inputOffset + counter);
+      auto it = pointIdsToSendWithIndex.find(pointId);
+      // We will find a valid it of the point of id pointId is not on the interface between us
+      // and the current connected block
+      if (it != pointIdsToSendWithIndex.end())
+      {
+        connectivityRange[offset] = it->second;
+      }
+      else
+      {
+        // We put a negative id here to tell the block who will receive this
+        // that this point is part of the interfacing points: the neighboring block already owns a
+        // copy of this point.
+        connectivityRange[offset] = -seedPointIdsToSendWithIndex.at(pointId);
+      }
+    }
+
+    types->SetValue(outputId++, cellType);
+    currentConnectivitySize = nextOffset;
+  }
+
+  offsets->SetValue(cellIdsToSend.size(), currentConnectivitySize);
+}
+
+//----------------------------------------------------------------------------
+/**
+ * Given seed point ids mapped with their index inside the given list, which should basically be the
+ * ids of the points interfacing with the current connected block, this function computes, looking
+ * at the connectivity of the input data set, which other points are to be sent to the connected
+ * block, as well as which cells. It then fills buffers describing the geometry of the cells that we
+ * need to send.
+ */
+void BuildGeometryBufferToSend(vtkUnstructuredGrid* ug, vtkIdTypeArray* seedPointIds,
+    UnstructuredGridBlockStructure& blockStructure, int outputGhostLevels)
+{
+  std::set<vtkIdType> pointIdsToSend;
+  std::set<vtkIdType> cellIdsToSend;
+
+  for (vtkIdType pointId = 0; pointId < seedPointIds->GetNumberOfValues(); ++pointId)
+  {
+    pointIdsToSend.insert(seedPointIds->GetValue(pointId));
+  }
+
+  std::set<vtkIdType> cellIdsToSendAtLastLevel;
+  std::set<vtkIdType> pointIdsToSendAtLastLevel;
+
+  pointIdsToSendAtLastLevel.insert(pointIdsToSend.cbegin(), pointIdsToSend.cend());
+
+  vtkUnsignedCharArray* ghostCellArray = vtkArrayDownCast<vtkUnsignedCharArray>(
+      ug->GetCellGhostArray());
+
+  vtkCellArray* inputCells = ug->GetCells();
+  vtkIdTypeArray* inputFaces = ug->GetFaces();
+  vtkIdTypeArray* inputFaceLocations = ug->GetFaceLocations();
+
+  vtkIdType maxPointId = 0;
+  vtkIdType connectivitySize = 0;
+  vtkIdType facesSize = 0;
+
+  vtkNew<vtkIdList> ids;
+
+  // At each level, we look at the last chunk of point its that we added (starting with
+  // seed points that are on the interface between us and the neighboring block).
+  for (int ghostLevel = 0; ghostLevel < outputGhostLevels; ++ghostLevel)
+  {
+    std::set<vtkIdType> cellIdsToSendAtThisLevel;
+    std::set<vtkIdType> pointIdsToSendAtThisLevel;
+
+    // For each point in this chunk of points, we look at every cells that use this point.
+    // If the found cell has already been added as a cell to send, we skip. If not, we add it as a
+    // cell to send.
+    for (const vtkIdType& pointId : pointIdsToSendAtLastLevel)
+    {
+      ug->GetPointCells(pointId, ids);
+      for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
+      {
+        vtkIdType cellIdToSend = ids->GetId(id);
+        if ((!ghostCellArray || !ghostCellArray->GetValue(cellIdToSend)) &&
+            !cellIdsToSend.count(cellIdToSend))
+        {
+          cellIdsToSendAtThisLevel.insert(cellIdToSend);
+          cellIdsToSend.insert(cellIdToSend);
+          connectivitySize += inputCells->GetCellSize(cellIdToSend);
+          if (inputFaces && inputFaceLocations->GetValue(cellIdToSend) != -1) // i.e. is polyhedron
+          {
+            vtkIdType locationId = inputFaceLocations->GetValue(cellIdToSend);
+            vtkIdType numberOfFaces = inputFaces->GetValue(locationId++);
+            facesSize += 1 + numberOfFaces;
+            for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+            {
+              vtkIdType faceSize = inputFaces->GetValue(locationId);
+              facesSize += faceSize;
+              locationId += faceSize + 1;
+            }
+          }
+        }
+      }
+    }
+
+    // For each cells that we want to send at this level, we look at all points composing them, and
+    // we add any point that has never been processed in the previous scope into the new chunk of
+    // points.
+    for (const vtkIdType& cellId : cellIdsToSendAtThisLevel)
+    {
+      ug->GetCellPoints(cellId, ids);
+      for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
+      {
+        vtkIdType pointIdToSend = ids->GetId(id);
+        if (!pointIdsToSend.count(pointIdToSend))
+        {
+          maxPointId = std::max(pointIdToSend, maxPointId);
+          pointIdsToSendAtThisLevel.insert(pointIdToSend);
+          pointIdsToSend.insert(pointIdToSend);
+        }
+      }
+    }
+
+    std::swap(cellIdsToSendAtThisLevel, cellIdsToSendAtLastLevel);
+    std::swap(pointIdsToSendAtThisLevel, pointIdsToSendAtLastLevel);
+  }
+
+  // We want to create an index for each point we want to send.
+  // This will help up locate those points in the sending buffer. We do that because we are not
+  // going to send again the interfacing points. Our neighbor is already aware of those points.
+  // We index the interfacing points, we get rid of them in the buffer that we constructed in the
+  // last scope, which owns a copy of them. At the end, the union of the 2 std::map we are
+  // constructed has no overlaps, and describes every points that play a role in ghost exchanging.
+  std::map<vtkIdType, vtkIdType> seedPointIdsWithIndex;
+  {
+    vtkIdType tag = 0;
+    auto seedPointIdsRange = vtk::DataArrayValueRange<1>(seedPointIds);
+    // We remove those seed points from the union of all point ids to send.
+    for (const vtkIdType pointId : seedPointIdsRange)
+    {
+      pointIdsToSend.erase(pointId);
+      seedPointIdsWithIndex[pointId] = ++tag;
+    }
+  }
+
+  std::map<vtkIdType, vtkIdType> pointIdsToSendWithIndex;
+  {
+    vtkIdType id = 0;
+    for (const vtkIdType& pointId : pointIdsToSend)
+    {
+      pointIdsToSendWithIndex[pointId] = id++;
+    }
+  }
+
+  blockStructure.PointIdsToSend->SetNumberOfIds(pointIdsToSend.size());
+
+  // We fill our internal buffer of point ids to send (skipping those on the interface)
+  std::transform(pointIdsToSend.cbegin(), pointIdsToSend.cend(),
+      blockStructure.PointIdsToSend->begin(),
+      [](vtkIdType pointId) -> vtkIdType { return pointId; });
+
+  // We do the same for cells
+  blockStructure.CellIdsToSend->SetNumberOfIds(cellIdsToSend.size());
+  std::transform(cellIdsToSend.cbegin(), cellIdsToSend.cend(),
+      blockStructure.CellIdsToSend->begin(),
+      [](vtkIdType cellId) -> vtkIdType { return cellId; });
+
+  auto& buffer = blockStructure.SendBuffer;
+
+  vtkCellArray* cellArray = buffer.CellArray;
+
+  // We're being careful to account for different storage options in cell arrays
+#ifdef VTK_USE_64BIT_IDS
+  if (!(maxPointId >> 32))
+  {
+    cellArray->ConvertTo32BitStorage();
+  }
+#endif
+
+  unsigned char mask = (cellArray->IsStorage64Bit() << 1) | ug->GetCells()->IsStorage64Bit();
+
+  switch (mask)
+  {
+    case 0:
+      FillUnstructuredGridGeometryBuffer<vtkCellArray::ArrayType32, vtkCellArray::ArrayType32>(
+          seedPointIdsWithIndex, pointIdsToSendWithIndex, cellIdsToSend, ug, facesSize,
+          connectivitySize, blockStructure.SendBuffer);
+      break;
+    case 1:
+      FillUnstructuredGridGeometryBuffer<vtkCellArray::ArrayType64, vtkCellArray::ArrayType32>(
+          seedPointIdsWithIndex, pointIdsToSendWithIndex, cellIdsToSend, ug, facesSize,
+          connectivitySize, blockStructure.SendBuffer);
+      break;
+    case 2:
+      FillUnstructuredGridGeometryBuffer<vtkCellArray::ArrayType32, vtkCellArray::ArrayType64>(
+          seedPointIdsWithIndex, pointIdsToSendWithIndex, cellIdsToSend, ug, facesSize,
+          connectivitySize, blockStructure.SendBuffer);
+      break;
+    case 3:
+      FillUnstructuredGridGeometryBuffer<vtkCellArray::ArrayType64, vtkCellArray::ArrayType64>(
+          seedPointIdsWithIndex, pointIdsToSendWithIndex, cellIdsToSend, ug, facesSize,
+          connectivitySize, blockStructure.SendBuffer);
+      break;
+  }
+}
+
+//----------------------------------------------------------------------------
+template<class PointSetT>
+LinkMap ComputeLinkMapForPointSets(const diy::Master& master,
+    std::vector<PointSetT*>& inputs, int outputGhostLevels)
+{
+  using BlockType = typename DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+  using BlockInformationType = typename BlockType::InformationType;
+
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+
+  LinkMap linkMap(inputs.size());
+
+  // For each local point id to be sent to connected blocks, this multimap
+  // stores which block id this point is to be sent to, as well as its position in the buffer being
+  // sent to its corresponding block.
+  std::vector<std::multimap<vtkIdType, std::pair<int, vtkIdType>>> localPointIdsToSendBufferMultimaps(
+      inputs.size());
+
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    BlockType* block = master.block<BlockType>(localId);
+    BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
+    BlockInformationType& info = block->Information;
+
+    PointSetT* input = inputs[localId];
+
+    Links& localLinks = linkMap[localId];
+
+    MatchingPointExtractor matchingPointExtractor(info.SurfacePointIds, info.SurfacePointLocator,
+      info.SurfacePoints);
+
+    for (auto it = blockStructures.begin(); it != blockStructures.end();)
+    {
+      BlockStructureType& blockStructure = it->second;
+      vtkIdTypeArray* matchingReceivedPointIds = blockStructure.MatchingReceivedPointIds;
+      matchingPointExtractor.MatchingSourcePointIds = matchingReceivedPointIds;
+      matchingPointExtractor.MatchingReceivedPointIdsSortedLikeTarget =
+        blockStructure.MatchingReceivedPointIdsSortedLikeTarget;
+      Dispatcher::Execute(blockStructure.InterfacingPoints->GetData(), matchingPointExtractor);
+
+      // Blocks are connected if there is at least one point that is in both blocks.
+      // If there are none, we delete the block in BlockStructures.
+      if (matchingReceivedPointIds->GetNumberOfTuples())
+      {
+        localLinks.emplace(it->first);
+
+        BuildGeometryBufferToSend(input, matchingReceivedPointIds, blockStructure,
+            outputGhostLevels);
+
+        vtkIdList* pointIdsToSend = blockStructure.PointIdsToSend;
+        for (vtkIdType id = 0; id < pointIdsToSend->GetNumberOfIds(); ++id)
+        {
+          localPointIdsToSendBufferMultimaps[localId].insert(
+              { pointIdsToSend->GetId(id), { it->first, id } });
+        }
+        ++it;
+      }
+      else
+      {
+        it = blockStructures.erase(it);
+      }
+    }
+  }
+
+  // In this part, we look at points that are duplicated among every blocks.
+  // In the previous step, we looked at what points / cells we needed to send. It is possible that
+  // multiple blocks own a copy of the same point and that those blocks need to exchange this point
+  // information to some common block neighbor. When such events happen, the receiving block will
+  // instantiate multiple copies of the same point if nothing is done against it.
+  // We can detect those points by looking at which points on our interface do we send to multiple
+  // blocks. An interfacing point for one block A can be a non-interfacing point for a block B, and
+  // be sent both by us and A to B.
+  //
+  // So here, we list each points for which it could happen and store it in SharedPointIds.
+  // The receiving block will then be able to look at those and deal with this information.
+  // We only need to send the index of duplicate points.
+  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
+  {
+    BlockType* block = master.block<BlockType>(localId);
+    auto& blockStructures = block->BlockStructures;
+
+    const auto& localPointIdsToSendBufferMultimap = localPointIdsToSendBufferMultimaps[localId];
+
+    vtkIdType previousPointId = -1;
+    vtkIdType previousLocalId = -1;
+    vtkIdType previousPointIdInSendBuffer = -1;
+    for (auto it = localPointIdsToSendBufferMultimap.cbegin();
+        it != localPointIdsToSendBufferMultimap.cend(); ++it)
+    {
+      vtkIdType pointId = it->first;
+
+      if (pointId == previousPointId)
+      {
+        // Do not forget to store the previous point as it is a duplicate.
+        blockStructures.at(previousLocalId).SharedPointIds->InsertNextValue(
+            previousPointIdInSendBuffer);
+      }
+
+      // Look for other duplicates and store the one we just found
+      while (pointId == previousPointId && it != localPointIdsToSendBufferMultimap.cend())
+      {
+        auto& pair = it->second;
+        int localIdTmp = pair.first;
+        vtkIdType pointIdInSendBuffer = pair.second;
+        blockStructures.at(localIdTmp).SharedPointIds->InsertNextValue(pointIdInSendBuffer);
+        if (++it == localPointIdsToSendBufferMultimap.cend())
+        {
+          break;
+        }
+        pointId = it->first;
+      }
+      if (it == localPointIdsToSendBufferMultimap.cend())
+      {
+        break;
+      }
+
+      previousPointId = pointId;
+      previousLocalId = it->second.first;
+      previousPointIdInSendBuffer = it->second.second;
     }
   }
 
@@ -1293,13 +1951,8 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfaceCellIdsForStructuredData(
  */
 template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
+  typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure, GridDataSetT* grid)
 {
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
   ExtentType localExtent{
@@ -1387,17 +2040,12 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForStructuredData(
 //----------------------------------------------------------------------------
 /**
  * This function returns the ids in output `grid` of the points such that `grid`'s extent overlaps
- * the block of global id gid's extent when ghosts are added.
+ * the block corresponding to current blockStruture's extent when ghosts are added.
  */
 template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
-  const typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType* block,
-  int gid, GridDataSetT* grid)
+  typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType& blockStructure, GridDataSetT* grid)
 {
-  using BlockType = typename DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType;
-  using BlockStructureType = typename BlockType::BlockStructureType;
-
-  const BlockStructureType& blockStructure = block->BlockStructures.at(gid);
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ExtentType& extent = blockStructure.Extent;
   int* gridExtent = grid->GetExtent();
@@ -1510,6 +2158,12 @@ void UpdateOutputGridStructure(GridDataSetT* output,
 }
 
 //----------------------------------------------------------------------------
+void CloneDataObject(vtkDataObject* input, vtkDataObject* clone)
+{
+  clone->GetFieldData()->ShallowCopy(input->GetFieldData());
+}
+
+//----------------------------------------------------------------------------
 /**
  * Clone a `grid` into a `clone`. clone should have wider extents than grid.
  * This function does a deep copy of every scalar fields.
@@ -1517,6 +2171,8 @@ void UpdateOutputGridStructure(GridDataSetT* output,
 template <class GridDataSetT>
 void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
 {
+  CloneDataObject(grid, clone);
+
   vtkCellData* cloneCellData = clone->GetCellData();
   vtkCellData* gridCellData = grid->GetCellData();
   cloneCellData->CopyStructure(gridCellData);
@@ -1574,12 +2230,87 @@ void CloneGrid(GridDataSetT* grid, GridDataSetT* clone)
       }
     }
   }
-
-  clone->GetFieldData()->ShallowCopy(grid->GetFieldData());
 }
 
 //----------------------------------------------------------------------------
-void EnqueuePointDataForStructuredData(const diy::Master::ProxyWithLink& cp,
+void ClonePointSet(vtkPointSet* ps, vtkPointSet* clone)
+{
+  CloneDataObject(ps, clone);
+
+  vtkCellData* cloneCellData = clone->GetCellData();
+  vtkCellData* psCellData = ps->GetCellData();
+  cloneCellData->CopyStructure(psCellData);
+  for (int arrayId = 0; arrayId < cloneCellData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* sourceArray = psCellData->GetAbstractArray(arrayId);
+    cloneCellData->GetAbstractArray(arrayId)->InsertTuples(0, sourceArray->GetNumberOfTuples(), 0,
+        sourceArray);
+  }
+
+  vtkPointData* clonePointData = clone->GetPointData();
+  vtkPointData* psPointData = ps->GetPointData();
+  clonePointData->CopyStructure(psPointData);
+  for (int arrayId = 0; arrayId < clonePointData->GetNumberOfArrays(); ++arrayId)
+  {
+    vtkAbstractArray* sourceArray = psPointData->GetAbstractArray(arrayId);
+    clonePointData->GetAbstractArray(arrayId)->InsertTuples(0, sourceArray->GetNumberOfTuples(), 0,
+        sourceArray);
+  }
+
+  vtkPoints* sourcePoints = ps->GetPoints();
+  clone->GetPoints()->InsertPoints(0, sourcePoints->GetNumberOfPoints(), 0, sourcePoints);
+}
+
+//============================================================================
+template<class ArrayT>
+struct ArrayFiller
+{
+  using ValueType = typename ArrayT::ValueType;
+
+  ArrayFiller(ArrayT* array, ValueType value) : Array(array), Value(value)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    for (vtkIdType id = startId; id < endId; ++id)
+    {
+      this->Array->SetValue(id, this->Value);
+    }
+  }
+
+  ArrayT* Array;
+  ValueType Value;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * We're doing a homebrewed shallow copy because we do not want to share any pointer with the input,
+ * which is the case for unstructured grid cell connectivity information.
+ */
+void CloneUnstructuredGrid(vtkUnstructuredGrid* ug, vtkUnstructuredGrid* clone)
+{
+  ClonePointSet(ug, clone);
+
+  vtkCellArray* ugCellArray = ug->GetCells();
+  vtkCellArray* cloneCellArray = clone->GetCells();
+  vtkDataArray* ugConnectivity = ugCellArray->GetConnectivityArray();
+  vtkDataArray* ugOffsets = ugCellArray->GetOffsetsArray();
+
+  cloneCellArray->GetConnectivityArray()->InsertTuples(0, ugConnectivity->GetNumberOfTuples(), 0,
+      ugConnectivity);
+  cloneCellArray->GetOffsetsArray()->InsertTuples(0, ugOffsets->GetNumberOfTuples(), 0, ugOffsets);
+  clone->GetCellTypesArray()->InsertTuples(0, ug->GetNumberOfCells(), 0, ug->GetCellTypesArray());
+
+  if (clone->GetFaces() && ug->GetFaces())
+  {
+    clone->GetFaceLocations()->InsertTuples(0, ug->GetNumberOfCells(), 0, ug->GetFaceLocations());
+    clone->GetFaces()->InsertTuples(0, ug->GetFaces()->GetNumberOfValues(), 0, ug->GetFaces());
+  }
+}
+
+//----------------------------------------------------------------------------
+void EnqueuePointData(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* pointIds)
 {
   vtkNew<vtkPointData> pointData;
@@ -1591,7 +2322,7 @@ void EnqueuePointDataForStructuredData(const diy::Master::ProxyWithLink& cp,
 }
 
 //----------------------------------------------------------------------------
-void EnqueueCellDataForStructuredData(const diy::Master::ProxyWithLink& cp,
+void EnqueueCellData(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkDataSet* input, vtkIdList* pointIds)
 {
   vtkNew<vtkCellData> cellData;
@@ -1602,9 +2333,8 @@ void EnqueueCellDataForStructuredData(const diy::Master::ProxyWithLink& cp,
   cp.enqueue<vtkFieldData*>(blockId, cellData);
 }
 
-
 //----------------------------------------------------------------------------
-void EnqueuePointsForStructuredData(const diy::Master::ProxyWithLink& cp,
+void EnqueuePoints(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkPointSet* input, vtkIdList* pointIds)
 {
   vtkDataArray* inputPoints = input->GetPoints()->GetData();
@@ -1618,6 +2348,24 @@ void EnqueuePointsForStructuredData(const diy::Master::ProxyWithLink& cp,
 }
 
 //----------------------------------------------------------------------------
+void EnqueueCellsForUnstructuredGrid(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, UnstructuredGridBlockStructure::GeometryBufferType& buffer)
+{
+  cp.enqueue<vtkDataArray*>(blockId, buffer.Types);
+  cp.enqueue<vtkDataArray*>(blockId, buffer.CellArray->GetOffsetsArray());
+  cp.enqueue<vtkDataArray*>(blockId, buffer.CellArray->GetConnectivityArray());
+  cp.enqueue<vtkDataArray*>(blockId, buffer.Faces);
+  cp.enqueue<vtkDataArray*>(blockId, buffer.FaceLocations);
+}
+
+//----------------------------------------------------------------------------
+void EnqueueSharedPointIds(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkIdTypeArray* sharedPointIds)
+{
+  cp.enqueue<vtkDataArray*>(blockId, sharedPointIds);
+}
+
+//----------------------------------------------------------------------------
 template<class BlockStructureT>
 void DequeueCellData(const diy::Master::ProxyWithLink& cp, int gid,
     BlockStructureT& blockStructure)
@@ -1625,6 +2373,48 @@ void DequeueCellData(const diy::Master::ProxyWithLink& cp, int gid,
   vtkFieldData* cellData = nullptr;
   cp.dequeue<vtkFieldData*>(gid, cellData);
   blockStructure.GhostCellData = vtkSmartPointer<vtkFieldData>::Take(cellData);
+}
+
+//----------------------------------------------------------------------------
+void DequeueCellsForUnstructuredGrid(const diy::Master::ProxyWithLink& cp, int gid,
+    UnstructuredGridBlockStructure& blockStructure)
+{
+  UnstructuredGridBlockStructure::GeometryBufferType& buffer = blockStructure.ReceiveBuffer;
+
+  vtkDataArray* types = nullptr;
+  vtkDataArray* offsets = nullptr;
+  vtkDataArray* connectivity = nullptr;
+  vtkDataArray* faces = nullptr;
+  vtkDataArray* faceLocations = nullptr;
+
+  cp.dequeue<vtkDataArray*>(gid, types);
+  cp.dequeue<vtkDataArray*>(gid, offsets);
+  cp.dequeue<vtkDataArray*>(gid, connectivity);
+  cp.dequeue<vtkDataArray*>(gid, faces);
+  cp.dequeue<vtkDataArray*>(gid, faceLocations);
+
+  buffer.Types = vtkSmartPointer<vtkUnsignedCharArray>::Take(
+      vtkArrayDownCast<vtkUnsignedCharArray>(types));
+  buffer.Faces = vtkSmartPointer<vtkIdTypeArray>::Take(
+      vtkArrayDownCast<vtkIdTypeArray>(faces));
+  buffer.FaceLocations = vtkSmartPointer<vtkIdTypeArray>::Take(
+      vtkArrayDownCast<vtkIdTypeArray>(faceLocations));
+
+  using ArrayType32 = vtkCellArray::ArrayType32;
+  using ArrayType64 = vtkCellArray::ArrayType64;
+
+  if (ArrayType32* offsets32 = vtkArrayDownCast<ArrayType32>(offsets))
+  {
+    buffer.CellArray->SetData(offsets32, vtkArrayDownCast<ArrayType32>(connectivity));
+  }
+  else
+  {
+    buffer.CellArray->SetData(vtkArrayDownCast<ArrayType64>(offsets),
+        vtkArrayDownCast<ArrayType64>(connectivity));
+  }
+
+  offsets->FastDelete();
+  connectivity->FastDelete();
 }
 
 //----------------------------------------------------------------------------
@@ -1652,6 +2442,17 @@ void DequeuePoints(const diy::Master::ProxyWithLink& cp, int gid,
 }
 
 //----------------------------------------------------------------------------
+template<class BlockStructureT>
+void DequeueSharedPointIds(const diy::Master::ProxyWithLink& cp, int gid,
+    BlockStructureT& blockStructure)
+{
+  vtkDataArray* sharedPointIds = nullptr;
+  cp.dequeue<vtkDataArray*>(gid, sharedPointIds);
+  blockStructure.ReceivedSharedPointIds = vtkSmartPointer<vtkIdTypeArray>::Take(
+      vtkArrayDownCast<vtkIdTypeArray>(sharedPointIds));
+}
+
+//----------------------------------------------------------------------------
 template<class GridDataSetT>
 void DeepCopyInputsAndAllocateGhostsForStructuredData(const diy::Master& master,
     std::vector<GridDataSetT*>& inputs, std::vector<GridDataSetT*>& outputs)
@@ -1668,6 +2469,439 @@ void DeepCopyInputsAndAllocateGhostsForStructuredData(const diy::Master& master,
     UpdateOutputGridStructure(output, info);
 
     CloneGrid(input, output);
+  }
+}
+
+//============================================================================
+/**
+ * This functor appends the cell buffers (connectivity + offset + polyhedron faces) to add the
+ * geometry that has been sent by one block neighbor.
+ *
+ * Noteworthy parameters:
+ * - matchingReceivedPointIds: This lists the ids of our external surface that match the interface
+ *   of a neighboring block. We need those points to connect the interfacing cells of this block.
+ * - redirectionMapForDuplicatePointIds: Maps to our output points, the points that have been sent
+ *   by the current block neighbor and that have already been added to our point list by another
+ *   connected block.
+ * - pointIdOffsetIntervals: This map maps output point id to the number of points of lower id that
+ *   are duplicate in source points. This allows to keep track of where the target point id should
+ *   be in the target arrays given a source point id: just subtract the lower bound of this map.
+ * - PointIdOffset: This is the number of points already present in our output points before adding
+ *   the ghosts from this neighboring block.
+ * - CellIdOffset: This is the number of cells already present in our output cells before adding the
+ *   ghosts from this neighboring block.
+ * - ConnectivityOffset: This is the current size of the connectivity array, before adding ghosts
+ *   from thie neighboring block.
+ */
+template<class ArrayT>
+struct CellArrayInserter
+{
+  CellArrayInserter(vtkCellArray* srcCells, vtkCellArray* dstCells,
+      vtkIdTypeArray* matchingReceivedPointIds,
+      const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
+      const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals,
+      vtkIdType numberOfPointsInDest, vtkIdType numberOfCellsInDest,
+      vtkIdType connectivitySizeInDest)
+    : SourceCells(srcCells)
+    , DestCells(dstCells)
+    , MatchingReceivedPointIds(matchingReceivedPointIds)
+    , RedirectionMapForDuplicatePointIds(redirectionMapForDuplicatePointIds)
+    , PointIdOffsetIntervals(pointIdOffsetIntervals)
+    , PointIdOffset(numberOfPointsInDest)
+    , CellIdOffset(numberOfCellsInDest)
+    , ConnectivityOffset(connectivitySizeInDest)
+  {
+    ArrayT* offsetsDest = vtkArrayDownCast<ArrayT>(this->DestCells->GetOffsetsArray());
+    ArrayT* offsetsSource = vtkArrayDownCast<ArrayT>(this->SourceCells->GetOffsetsArray());
+
+    // Last location of offsets will never be set in the loop, as it has
+    // numberOfCells + 1 values.
+    offsetsDest->SetValue(this->CellIdOffset + this->SourceCells->GetNumberOfCells(),
+        offsetsDest->GetValue(this->CellIdOffset) +
+        offsetsSource->GetValue(this->SourceCells->GetNumberOfCells()));
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    ArrayT* offsetsSource = vtkArrayDownCast<ArrayT>(this->SourceCells->GetOffsetsArray());
+    ArrayT* connectivitySource = vtkArrayDownCast<ArrayT>(
+        this->SourceCells->GetConnectivityArray());
+    ArrayT* offsetsDest = vtkArrayDownCast<ArrayT>(this->DestCells->GetOffsetsArray());
+    ArrayT* connectivityDest = vtkArrayDownCast<ArrayT>(this->DestCells->GetConnectivityArray());
+
+    for (vtkIdType cellId = startId; cellId < endId; ++cellId)
+    {
+      vtkIdType offset = offsetsSource->GetValue(cellId);
+      vtkIdType nextOffset = offsetsSource->GetValue(cellId + 1);
+      offsetsDest->SetValue(this->CellIdOffset + cellId, this->ConnectivityOffset + offset);
+
+      for (vtkIdType id = offset; id < nextOffset; ++id)
+      {
+        vtkIdType pointId = connectivitySource->GetValue(id);
+        if (pointId >= 0)
+        {
+          if (this->RedirectionMapForDuplicatePointIds.empty())
+          {
+            // If we do not have duplicate points, we just add the received point naively.
+            connectivityDest->SetValue(this->ConnectivityOffset + id,
+                this->PointIdOffset + pointId);
+          }
+          else
+          {
+            // If we do have duplicates, we look if the current point id is a duplicate or not
+            auto it = this->RedirectionMapForDuplicatePointIds.find(pointId);
+            if (it == this->RedirectionMapForDuplicatePointIds.end())
+            {
+              // Here, pointId is not a duplicate, so we can add the received point almost
+              // normally. We just have to watch out for the induced offset that previous duplicate
+              // points might have caused.
+              connectivityDest->SetValue(this->ConnectivityOffset + id,
+                  this->PointIdOffset + pointId -
+                  this->PointIdOffsetIntervals.lower_bound(pointId)->second);
+            }
+            else
+            {
+              // If pointId is a duplicate, we already own a copy of this point, and its index
+              // is stored in the iterator we just fetched.
+              connectivityDest->SetValue(this->ConnectivityOffset + id, it->second);
+            }
+          }
+        }
+        else
+        {
+          // In this case, we already own a copy of this point. It is on the interfacing surface
+          // between us and the block who sent us those ids. We have to retrieve where this point
+          // is located.
+          // We tagged those points by giving them a negative id.
+          connectivityDest->SetValue(this->ConnectivityOffset + id,
+              this->MatchingReceivedPointIds->GetValue(-pointId - 1));
+        }
+      }
+    }
+  }
+
+  vtkCellArray* SourceCells;
+  vtkCellArray* DestCells;
+  vtkIdTypeArray* MatchingReceivedPointIds;
+  const std::map<vtkIdType, vtkIdType>& RedirectionMapForDuplicatePointIds;
+  const std::map<vtkIdType, vtkIdType>& PointIdOffsetIntervals;
+  vtkIdType PointIdOffset;
+  vtkIdType CellIdOffset;
+  vtkIdType ConnectivityOffset;
+};
+
+//----------------------------------------------------------------------------
+template<class ArrayT>
+void InsertCells(vtkCellArray* srcCells, vtkCellArray* dstCells,
+    vtkIdTypeArray* matchingReceivedPointIds,
+    const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
+    const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals,
+    vtkIdType numberOfPointsInDest, vtkIdType numberOfCellsInDest, vtkIdType connectivitySizeInDest)
+{
+  CellArrayInserter<ArrayT> inserter(srcCells, dstCells, matchingReceivedPointIds,
+      redirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+      numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest);
+  vtkSMPTools::For(0, srcCells->GetNumberOfCells(), inserter);
+}
+
+//----------------------------------------------------------------------------
+void InsertCells(vtkCellArray* srcCells, vtkCellArray* dstCells,
+    vtkIdTypeArray* matchingReceivedPointIds,
+    const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
+    const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals,
+    vtkIdType numberOfPointsInDest, vtkIdType numberOfCellsInDest, vtkIdType connectivitySizeInDest)
+{
+  using ArrayType32 = vtkCellArray::ArrayType32;
+  using ArrayType64 = vtkCellArray::ArrayType64;
+
+  if (srcCells->IsStorage64Bit())
+  {
+    InsertCells<ArrayType64>(srcCells, dstCells, matchingReceivedPointIds,
+        redirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+        numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest);
+  }
+  else
+  {
+    InsertCells<ArrayType32>(srcCells, dstCells, matchingReceivedPointIds,
+        redirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+        numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest);
+  }
+}
+
+//============================================================================
+struct PolyhedronsInserter
+{
+  PolyhedronsInserter(vtkIdTypeArray* srcFaceLocations, vtkIdTypeArray* srcFaces,
+      vtkIdTypeArray* dstFaceLocations, vtkIdTypeArray* dstFaces,
+      vtkIdTypeArray* matchingReceivedPointIds,
+      const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
+      const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals,
+      vtkIdType pointIdOffset, vtkIdType cellIdOffset, vtkIdType facesOffset)
+  : SourceFaceLocations(srcFaceLocations)
+  , SourceFaces(srcFaces)
+  , DestFaceLocations(dstFaceLocations)
+  , DestFaces(dstFaces)
+  , MatchingReceivedPointIds(matchingReceivedPointIds)
+  , RedirectionMapForDuplicatePointIds(redirectionMapForDuplicatePointIds)
+  , PointIdOffsetIntervals(pointIdOffsetIntervals)
+  , PointIdOffset(pointIdOffset)
+  , CellIdOffset(cellIdOffset)
+  , FacesOffset(facesOffset)
+  {
+  }
+
+  void operator()(vtkIdType startId, vtkIdType endId)
+  {
+    for (vtkIdType cellId = startId; cellId < endId; ++cellId)
+    {
+      // We enter the following if statement if current cell is a VTK_POLYHEDRON
+      if (this->SourceFaceLocations->GetValue(cellId) != -1)
+      {
+        vtkIdType id = this->SourceFaceLocations->GetValue(cellId);
+        vtkIdType currentFacesOffset = this->FacesOffset + id;
+
+        vtkIdType numberOfFaces = this->SourceFaces->GetValue(id++);
+
+
+        this->DestFaceLocations->SetValue(this->CellIdOffset + cellId, currentFacesOffset);
+        this->DestFaces->SetValue(currentFacesOffset++, numberOfFaces);
+
+        for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+        {
+          vtkIdType faceSize = this->SourceFaces->GetValue(id++);
+          this->DestFaces->SetValue(currentFacesOffset++, faceSize);
+
+          for (vtkIdType facePointId = 0; facePointId < faceSize; ++facePointId)
+          {
+            // The following follows the same logic as for the connectivity array:
+            // Depending of if we already own a copy of the point, we map the connectivity
+            // to the point that is already stored. Otherwise, we create a new point.
+            vtkIdType pointId = this->SourceFaces->GetValue(id + facePointId);
+            if (pointId >= 0)
+            {
+              if (this->RedirectionMapForDuplicatePointIds.empty())
+              {
+                this->DestFaces->SetValue(currentFacesOffset + facePointId,
+                    this->PointIdOffset + pointId);
+              }
+              else
+              {
+                auto it = this->RedirectionMapForDuplicatePointIds.find(pointId);
+                if (it == this->RedirectionMapForDuplicatePointIds.end())
+                {
+                  this->DestFaces->SetValue(currentFacesOffset + facePointId,
+                      this->PointIdOffset + pointId -
+                      this->PointIdOffsetIntervals.lower_bound(pointId)->second);
+                }
+                else
+                {
+                  this->DestFaces->SetValue(currentFacesOffset + facePointId, it->second);
+                }
+              }
+            }
+            else
+            {
+              this->DestFaces->SetValue(currentFacesOffset + facePointId,
+                  this->MatchingReceivedPointIds->GetValue(-pointId - 1));
+            }
+          }
+          id += faceSize;
+          currentFacesOffset += faceSize;
+        }
+      }
+    }
+  }
+
+  vtkIdTypeArray* SourceFaceLocations;
+  vtkIdTypeArray* SourceFaces;
+  vtkIdTypeArray* DestFaceLocations;
+  vtkIdTypeArray* DestFaces;
+  vtkIdTypeArray* MatchingReceivedPointIds;
+  const std::map<vtkIdType, vtkIdType>& RedirectionMapForDuplicatePointIds;
+  const std::map<vtkIdType, vtkIdType>& PointIdOffsetIntervals;
+  vtkIdType PointIdOffset;
+  vtkIdType CellIdOffset;
+  vtkIdType FacesOffset;
+};
+
+//============================================================================
+/**
+ * This worker is used to checked if 2 points are the same, using the underlying type of the point.
+ */
+struct MatchingPointWorker
+{
+  template<class ArrayT>
+  void operator()(ArrayT* source, ArrayT* target)
+  {
+    using ValueType = typename ArrayT::ValueType;
+    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+
+    ValueType p[3], q[3];
+    source->GetTypedTuple(this->SourcePointId, p);
+    target->GetTypedTuple(this->TargetPointId, q);
+
+    this->PointsAreMatching = Comparator<IsInteger>::Equals(p[0], q[0]) &&
+      Comparator<IsInteger>::Equals(p[1], q[1]) && Comparator<IsInteger>::Equals(p[2], q[2]);
+  }
+
+  vtkIdType SourcePointId;
+  vtkIdType TargetPointId;
+  bool PointsAreMatching;
+};
+
+//----------------------------------------------------------------------------
+void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs)
+{
+  using BlockType = UnstructuredGridBlock;
+  using BlockStructureType = typename BlockType::BlockStructureType;
+
+  for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
+  {
+    BlockType* block = master.block<BlockType>(localId);
+    BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
+
+    vtkNew<vtkIncrementalOctreePointLocator> pointLocator;
+    vtkNew<vtkPoints> points;
+    points->SetDataType(block->Information.SurfacePoints->GetDataType());
+    constexpr double inf = std::numeric_limits<double>::infinity();
+    double bounds[6] = { inf, -inf, inf, -inf, inf, -inf };
+
+    for (auto& pair : blockStructures)
+    {
+      BlockStructureType& blockStructure = pair.second;
+      double* tmp = blockStructure.GhostPoints->GetBounds();
+      bounds[0] = std::min(bounds[0], tmp[0]);
+      bounds[1] = std::max(bounds[1], tmp[1]);
+      bounds[2] = std::min(bounds[2], tmp[2]);
+      bounds[3] = std::max(bounds[3], tmp[3]);
+      bounds[4] = std::min(bounds[4], tmp[4]);
+      bounds[5] = std::max(bounds[5], tmp[5]);
+    }
+
+    pointLocator->InitPointInsertion(points, bounds);
+
+    MatchingPointWorker matchingPointWorker;
+
+    vtkIdType pointIdOffset = inputs[localId]->GetNumberOfPoints();
+
+    // This pointIdRedirection is used to redirect duplicate points that have been sent by multiple
+    // blocks to their location in our local output points.
+    std::unordered_map<vtkIdType, vtkIdType> pointIdRedirection;
+
+    // We look at tagged duplicate points sent by our neighbors and see if they match previously
+    // added points.
+    // If they do, we store their current position in the output point array so we can redirect
+    // cell connectivity to the correct point.
+    //
+    // We do all of that when we allocate because we want to know the exact number of points in the
+    // output at this stage. Since this information can be useful in the future, we store relevant
+    // information.
+    for (auto& pair : blockStructures)
+    {
+      BlockStructureType& blockStructure = pair.second;
+      vtkPoints* receivedPoints = blockStructure.GhostPoints;
+      std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds = blockStructure.RedirectionMapForDuplicatePointIds;
+      auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
+      vtkIdType numberOfMatchingPoints = 0;
+      for (const vtkIdType& pointId : sharedPointIds)
+      {
+        double* p = receivedPoints->GetPoint(pointId);
+        matchingPointWorker.TargetPointId = pointLocator->FindClosestInsertedPoint(p);
+        matchingPointWorker.SourcePointId = pointId;
+
+        if (!points->GetNumberOfPoints())
+        {
+          pointLocator->InsertNextPoint(p);
+          pointIdRedirection.insert({ 0, pointIdOffset + pointId });
+          continue;
+        }
+
+        using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+        Dispatcher::Execute(receivedPoints->GetData(), points->GetData(), matchingPointWorker);
+
+        if (matchingPointWorker.PointsAreMatching)
+        {
+          ++numberOfMatchingPoints;
+          redirectionMapForDuplicatePointIds.insert(
+              { pointId, pointIdRedirection.at(matchingPointWorker.TargetPointId) });
+        }
+        else
+        {
+          pointIdRedirection.insert({ points->GetNumberOfPoints(),
+              pointIdOffset + pointId - numberOfMatchingPoints });
+          pointLocator->InsertNextPoint(p);
+        }
+      }
+      pointIdOffset += receivedPoints->GetNumberOfPoints() - numberOfMatchingPoints;
+    }
+  }
+
+
+  // We can now compute the output point / cell / connectivity sizes
+  for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
+  {
+    vtkUnstructuredGrid* input = inputs[localId];
+    vtkUnstructuredGrid* output = outputs[localId];
+
+    BlockType* block = master.block<BlockType>(localId);
+    vtkIdType numberOfPoints = input->GetNumberOfPoints();
+    vtkIdType numberOfCells = input->GetNumberOfCells();
+    vtkIdType connectivitySize =
+      input->GetCells()->GetConnectivityArray()->GetNumberOfValues();
+    vtkIdType facesSize = input->GetFaces() ? input->GetFaces()->GetNumberOfValues() : 0;
+
+    for (auto& pair : block->BlockStructures)
+    {
+      BlockStructureType& blockStructure = pair.second;
+      numberOfPoints += blockStructure.GhostPoints->GetNumberOfPoints()
+        - static_cast<vtkIdType>(blockStructure.RedirectionMapForDuplicatePointIds.size());
+      numberOfCells += blockStructure.ReceiveBuffer.Types->GetNumberOfValues();
+      connectivitySize +=
+        blockStructure.ReceiveBuffer.CellArray->GetConnectivityArray()->GetNumberOfValues();
+      vtkIdTypeArray* faces = blockStructure.ReceiveBuffer.Faces;
+      facesSize += faces ? faces->GetNumberOfValues() : 0;
+    }
+
+    output->GetCellData()->SetNumberOfTuples(numberOfCells);
+    output->GetPointData()->SetNumberOfTuples(numberOfPoints);
+
+    vtkNew<vtkPoints> outputPoints;
+    outputPoints->SetNumberOfPoints(numberOfPoints);
+    output->SetPoints(outputPoints);
+
+    vtkNew<vtkCellArray> outputCellArray;
+
+    vtkNew<vtkUnsignedCharArray> types;
+    types->SetNumberOfValues(numberOfCells);
+
+    vtkSmartPointer<vtkIdTypeArray> outputFaces = nullptr;
+    vtkSmartPointer<vtkIdTypeArray> outputFaceLocations = nullptr;
+
+    if (facesSize)
+    {
+      outputFaces = vtkSmartPointer<vtkIdTypeArray>::New();
+      outputFaces->SetNumberOfValues(facesSize);
+      outputFaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
+      outputFaceLocations->SetNumberOfValues(numberOfCells);
+      outputFaceLocations->FillValue(-1);
+    }
+
+  // We're being careful to account for different storage options in cell arrays
+#ifdef VTK_USE_64BIT_IDS
+    if (!(connectivitySize >> 32))
+    {
+      outputCellArray->ConvertTo32BitStorage();
+    }
+#endif
+
+    outputCellArray->GetConnectivityArray()->SetNumberOfTuples(connectivitySize);
+    outputCellArray->GetOffsetsArray()->SetNumberOfTuples(numberOfCells + 1);
+
+    output->SetCells(types, outputCellArray,
+        outputFaceLocations, outputFaces);
+
+    CloneUnstructuredGrid(input, output);
   }
 }
 
@@ -1769,143 +3003,303 @@ void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<Gr
 }
 
 //----------------------------------------------------------------------------
-template<class BlockT>
-void FillReceivedGhostPointDataForStructuredData(BlockT* block, int gid, vtkDataSet* output,
-    vtkIdList* pointIds)
+void FillReceivedGhostFieldData(vtkFieldData* sourceFD, vtkFieldData* destFD,
+    vtkIdList* sourceIds, vtkIdList* destIds)
 {
-  vtkUnsignedCharArray* ghostPointArray = block->GhostPointArray;
-
-  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
-  {
-    vtkIdType pointId = pointIds->GetId(i);
-    ghostPointArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
-  }
-
-  vtkFieldData* pointData = block->BlockStructures.at(gid).GhostPointData;
-
-  if (!pointData)
+  if (!sourceFD)
   {
     return;
   }
 
-  vtkPointData* outputPointData = output->GetPointData();
-
-  vtkNew<vtkIdList> sourcePointIds;
-  sourcePointIds->SetNumberOfIds(pointData->GetNumberOfTuples());
-  std::iota(sourcePointIds->begin(), sourcePointIds->end(), 0);
-
-  for (int arrayId = 0; arrayId < pointData->GetNumberOfArrays(); ++arrayId)
+  for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
   {
-    vtkAbstractArray* array = pointData->GetArray(arrayId);
-    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
+    vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
+    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()))
     {
-      vtkAbstractArray* outputArray = outputPointData->GetAbstractArray(array->GetName());
-      if (outputArray)
+      vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
+      if (destArray)
       {
-        outputArray->InsertTuples(pointIds, sourcePointIds, array);
+        destArray->InsertTuples(destIds, sourceIds, sourceArray);
       }
     }
   }
 }
 
 //----------------------------------------------------------------------------
-template<class BlockT>
-void FillReceivedGhostCellDataForStructuredData(BlockT* block, int gid, vtkDataSet* output,
+void FillReceivedGhostFieldDataForStructuredData(vtkFieldData* sourceFD, vtkFieldData* destFD,
+    vtkIdList* ids)
+{
+  if (!sourceFD)
+  {
+    return;
+  }
+
+  vtkNew<vtkIdList> sourceIds;
+  sourceIds->SetNumberOfIds(sourceFD->GetNumberOfTuples());
+  std::iota(sourceIds->begin(), sourceIds->end(), 0);
+
+  FillReceivedGhostFieldData(sourceFD, destFD, sourceIds, ids);
+}
+
+//----------------------------------------------------------------------------
+void FillDuplicatePointGhostArrayForStructuredData(vtkUnsignedCharArray* ghostArray,
+    vtkIdList* pointIds)
+{
+  for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
+  {
+    ghostArray->SetValue(pointIds->GetId(i), vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+  }
+}
+
+//----------------------------------------------------------------------------
+void FillDuplicateCellGhostArrayForStructuredData(vtkUnsignedCharArray* ghostArray,
     vtkIdList* cellIds)
 {
-  vtkUnsignedCharArray* ghostCellArray = block->GhostCellArray;
-
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
   {
-    vtkIdType cellId = cellIds->GetId(i);
-    ghostCellArray->SetValue(cellId, vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+    ghostArray->SetValue(cellIds->GetId(i), vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+  }
+}
+
+//----------------------------------------------------------------------------
+template<class BlockStructureT>
+void FillDuplicatePointGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostArray,
+    int myGid, int gid, BlockStructureT& blockStructure,
+    vtkIdType currentMaxPointId, vtkIdType numberOfAddedPoints)
+{
+  // We set our interfacing points with other blocks to be ghosts if the global id
+  // of the corresponding block is lower than our global id.
+  if (myGid > gid)
+  {
+    std::map<vtkIdType, vtkIdType>& duplicatePointIds =
+      blockStructure.RedirectionMapForDuplicatePointIds;
+    vtkIdTypeArray* pointIds = blockStructure.MatchingReceivedPointIds;
+
+    for (vtkIdType id = 0; id < pointIds->GetNumberOfValues(); ++id)
+    {
+      vtkIdType pointId = pointIds->GetValue(id);
+      if (!duplicatePointIds.count(pointId))
+      {
+        ghostArray->SetValue(pointId, vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
+      }
+    }
   }
 
-  vtkFieldData* cellData = block->BlockStructures.at(gid).GhostCellData;
+  ArrayFiller<vtkUnsignedCharArray> filler(ghostArray,
+      vtkDataSetAttributes::PointGhostTypes::DUPLICATEPOINT);
 
-  if (!cellData)
+  vtkSMPTools::For(currentMaxPointId, currentMaxPointId + numberOfAddedPoints, filler);
+}
+
+//----------------------------------------------------------------------------
+void FillDuplicateCellGhostArrayForUnstructureData(vtkUnsignedCharArray* ghostArray,
+    vtkIdType currentMaxCellId, vtkIdType numberOfAddedCells)
+{\
+  ArrayFiller<vtkUnsignedCharArray> filler(ghostArray,
+      vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL);
+
+  vtkSMPTools::For(currentMaxCellId, currentMaxCellId + numberOfAddedCells, filler);
+}
+
+//----------------------------------------------------------------------------
+void FillReceivedGhostFieldData(vtkFieldData* sourceFD,
+    vtkFieldData* destFD, vtkIdType currentNumberOfElements, vtkIdType numberOfAddedElements)
+{
+  if (!sourceFD)
   {
     return;
   }
 
-  vtkCellData* outputCellData = output->GetCellData();
-
-  vtkNew<vtkIdList> sourceCellIds;
-  sourceCellIds->SetNumberOfIds(cellData->GetNumberOfTuples());
-  std::iota(sourceCellIds->begin(), sourceCellIds->end(), 0);
-
-  for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
+  for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
   {
-    vtkAbstractArray* array = cellData->GetArray(arrayId);
-    if (strcmp(array->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
+    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()))
     {
-      vtkAbstractArray* outputArray = outputCellData->GetAbstractArray(array->GetName());
-      if (outputArray)
+      vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
+      if (destArray)
       {
-        outputArray->InsertTuples(cellIds, sourceCellIds, array);
+        destArray->InsertTuples(currentNumberOfElements, numberOfAddedElements, 0, sourceArray);
       }
     }
   }
 }
 
 //----------------------------------------------------------------------------
-template<class BlockT>
-void FillReceivedGhostPointsForStructuredData(BlockT* block, int gid, vtkPointSet* output,
-    vtkIdList* pointIds)
+void FillReceivedGhostPointsForStructuredData(vtkPoints* sourcePoints,
+    vtkPoints* destPoints, vtkIdList* pointIds)
 {
-  vtkPoints* points = block->BlockStructures.at(gid).GhostPoints;
-  if (!points)
+  if (!sourcePoints)
   {
     return;
   }
 
-  vtkPoints* outputPoints = output->GetPoints();
-
   for (vtkIdType i = 0; i < pointIds->GetNumberOfIds(); ++i)
   {
     vtkIdType pointId = pointIds->GetId(i);
-    outputPoints->SetPoint(pointId, points->GetPoint(i));
+    destPoints->SetPoint(pointId, sourcePoints->GetPoint(i));
   }
 }
 
 //----------------------------------------------------------------------------
-void FillReceivedGhosts(ImageDataBlock* block, int gid, vtkImageData* output)
+void FillReceivedGhosts(ImageDataBlock* block, int vtkNotUsed(myGid), int vtkNotUsed(gid),
+    ImageDataBlockStructure& blockStructure, vtkImageData* output)
 {
   vtkSmartPointer<vtkIdList> pointIds =
-    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
-  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
 
   vtkSmartPointer<vtkIdList> cellIds =
-    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
-  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+    ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+      output->GetCellData(), cellIds);
 }
 
 //----------------------------------------------------------------------------
-void FillReceivedGhosts(RectilinearGridBlock* block, int gid, vtkRectilinearGrid* output)
+void FillReceivedGhosts(RectilinearGridBlock* block, int vtkNotUsed(myGid), int vtkNotUsed(gid),
+    RectilinearGridBlockStructure& blockStructure, vtkRectilinearGrid* output)
 {
   vtkSmartPointer<vtkIdList> pointIds =
-    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
-  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
 
   vtkSmartPointer<vtkIdList> cellIds =
-    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
-  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+    ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+      output->GetCellData(), cellIds);
 }
 
 //----------------------------------------------------------------------------
-void FillReceivedGhosts(StructuredGridBlock* block, int gid, vtkStructuredGrid* output)
+void FillReceivedGhosts(StructuredGridBlock* block, int vtkNotUsed(myGid), int vtkNotUsed(gid),
+    StructuredGridBlockStructure& blockStructure, vtkStructuredGrid* output)
 {
   vtkSmartPointer<vtkIdList> pointIds =
-    ComputeOutputInterfacePointIdsForStructuredData(block, gid, output);
-  FillReceivedGhostPointDataForStructuredData(block, gid, output, pointIds);
-  FillReceivedGhostPointsForStructuredData(block, gid, output, pointIds);
+    ComputeOutputInterfacePointIdsForStructuredData(blockStructure, output);
+  FillDuplicatePointGhostArrayForStructuredData(block->GhostPointArray, pointIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostPointData,
+      output->GetPointData(), pointIds);
+  FillReceivedGhostPointsForStructuredData(blockStructure.GhostPoints, output->GetPoints(),
+      pointIds);
 
   vtkSmartPointer<vtkIdList> cellIds =
-    ComputeOutputInterfaceCellIdsForStructuredData(block, gid, output);
-  FillReceivedGhostCellDataForStructuredData(block, gid, output, cellIds);
+    ComputeOutputInterfaceCellIdsForStructuredData(blockStructure, output);
+  FillDuplicateCellGhostArrayForStructuredData(block->GhostCellArray, cellIds);
+  FillReceivedGhostFieldDataForStructuredData(blockStructure.GhostCellData,
+      output->GetCellData(), cellIds);
 }
 
+//----------------------------------------------------------------------------
+std::map<vtkIdType, vtkIdType> ComputePointIdOffsetIntervals(
+    const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds)
+{
+  std::map<vtkIdType, vtkIdType> pointIdOffsetIntervals;
+  if (redirectionMapForDuplicatePointIds.empty())
+  {
+    return pointIdOffsetIntervals;
+  }
 
+  // Here, we create a fast mechanism for skipping duplicate points.
+  vtkIdType offset = -1;
+  for (const auto& pair : redirectionMapForDuplicatePointIds)
+  {
+    pointIdOffsetIntervals.insert({ pair.first, ++offset });
+  }
+  pointIdOffsetIntervals.insert({ std::numeric_limits<vtkIdType>::max(), ++offset });
+
+  return pointIdOffsetIntervals;
+}
+
+//----------------------------------------------------------------------------
+void FillReceivedGhosts(UnstructuredGridBlock* block, int myGid,
+    int gid, UnstructuredGridBlockStructure& blockStructure, vtkUnstructuredGrid* output)
+{
+  vtkPoints* outputPoints = output->GetPoints();
+  vtkCellArray* outputCellArray = output->GetCells();
+  vtkUnsignedCharArray* outputTypes = output->GetCellTypesArray();
+  vtkIdTypeArray* outputFaceLocations = output->GetFaceLocations();
+  vtkIdTypeArray* outputFaces = output->GetFaces();
+
+  UnstructuredGridInformation& info = block->Information;
+
+  vtkIdType numberOfAddedPoints = blockStructure.GhostPoints->GetNumberOfPoints() -
+    blockStructure.RedirectionMapForDuplicatePointIds.size();
+
+  // If there are no duplicate points on which we do not have ownership,
+  // we can use a shortcut when copying point related data from the received buffers.
+  if (blockStructure.RedirectionMapForDuplicatePointIds.empty())
+  {
+    outputPoints->InsertPoints(info.CurrentMaxPointId, numberOfAddedPoints, 0,
+        blockStructure.GhostPoints);
+    FillReceivedGhostFieldData(blockStructure.GhostPointData,
+        output->GetPointData(), info.CurrentMaxPointId, numberOfAddedPoints);
+  }
+  else
+  {
+    vtkNew<vtkIdList> identity;
+    identity->SetNumberOfIds(numberOfAddedPoints);
+    std::iota(identity->begin(), identity->end(), info.CurrentMaxPointId);
+
+    vtkNew<vtkIdList> pointIds;
+    pointIds->SetNumberOfIds(numberOfAddedPoints);
+    vtkIdType offset = 0;
+    auto it = blockStructure.RedirectionMapForDuplicatePointIds.cbegin();
+    for (vtkIdType id = 0; id < numberOfAddedPoints; ++id)
+    {
+      while (it != blockStructure.RedirectionMapForDuplicatePointIds.cend() &&
+          id + offset == it->first)
+      {
+        ++it;
+        ++offset;
+      }
+      pointIds->SetId(id, id + offset);
+    }
+    outputPoints->InsertPoints(identity, pointIds, blockStructure.GhostPoints);
+
+    FillReceivedGhostFieldData(blockStructure.GhostPointData, output->GetPointData(),
+        pointIds, identity);
+  }
+
+  auto& buffer = blockStructure.ReceiveBuffer;
+  vtkIdType numberOfAddedCells = buffer.Types->GetNumberOfValues();
+
+  outputTypes->InsertTuples(info.CurrentMaxCellId, numberOfAddedCells, 0, buffer.Types);
+
+  std::map<vtkIdType, vtkIdType> pointIdOffsetIntervals = ComputePointIdOffsetIntervals(
+      blockStructure.RedirectionMapForDuplicatePointIds);
+
+  InsertCells(buffer.CellArray, outputCellArray,
+      blockStructure.MatchingReceivedPointIdsSortedLikeTarget,
+      blockStructure.RedirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+      info.CurrentMaxPointId, info.CurrentMaxCellId, info.CurrentConnectivitySize);
+
+  if (vtkIdTypeArray* faceLocations = buffer.FaceLocations)
+  {
+    PolyhedronsInserter inserter(faceLocations, buffer.Faces, outputFaceLocations, outputFaces,
+        blockStructure.MatchingReceivedPointIdsSortedLikeTarget,
+        blockStructure.RedirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+        info.CurrentMaxPointId, info.CurrentMaxCellId, info.CurrentFacesSize);
+
+    vtkSMPTools::For(0, faceLocations->GetNumberOfValues(), inserter);
+  }
+
+  FillDuplicatePointGhostArrayForUnstructureData(block->GhostPointArray,
+      myGid, gid, blockStructure, info.CurrentMaxPointId, numberOfAddedPoints);
+  FillDuplicateCellGhostArrayForUnstructureData(block->GhostCellArray,
+      info.CurrentMaxCellId, numberOfAddedCells);
+
+  FillReceivedGhostFieldData(blockStructure.GhostCellData,
+      output->GetCellData(), info.CurrentMaxCellId, numberOfAddedCells);
+
+  info.CurrentMaxPointId += numberOfAddedPoints;
+  info.CurrentMaxCellId += numberOfAddedCells;
+  info.CurrentConnectivitySize += buffer.CellArray->GetConnectivityArray()->GetNumberOfTuples();
+  info.CurrentFacesSize += buffer.Faces ? buffer.Faces->GetNumberOfValues() : 0;
+}
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
@@ -1917,10 +3311,11 @@ void FillReceivedGhosts(const diy::Master& master, std::vector<DataSetT*>& outpu
   {
     DataSetT* output = outputs[localId];
     BlockType* block = master.block<BlockType>(localId);
+    int gid = master.gid(localId);
 
     for (auto& item : block->BlockStructures)
     {
-      FillReceivedGhosts(block, item.first, output);
+      FillReceivedGhosts(block, gid, item.first, item.second, output);
     }
   }
 }
@@ -2066,6 +3461,13 @@ void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
     typename BlockType::InformationType& information = block->Information;
     information.InputPoints = input->GetPoints();
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::SetupBlockSelfInformation(diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs)
+{
+  SetupBlockSelfInformationForPointSets(master, inputs);
 }
 
 //----------------------------------------------------------------------------
@@ -2306,49 +3708,66 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
 }
 
 //----------------------------------------------------------------------------
-LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
-  const diy::Master& master, std::vector<vtkImageData*>& inputs,
-  std::vector<vtkImageData*>& outputs, int outputGhostLevels)
+void vtkDIYGhostUtilities::CloneGeometricStructures(std::vector<vtkImageData*>& inputs,
+    std::vector<vtkImageData*>& outputs)
 {
-  return ComputeLinkMapForStructuredData(master, inputs, outputs, outputGhostLevels);
+  CloneGeometricStructuresForStructuredData(inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::CloneGeometricStructures(std::vector<vtkRectilinearGrid*>& inputs,
+    std::vector<vtkRectilinearGrid*>& outputs)
+{
+  CloneGeometricStructuresForStructuredData(inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::CloneGeometricStructures(std::vector<vtkStructuredGrid*>& inputs,
+    std::vector<vtkStructuredGrid*>& outputs)
+{
+  CloneGeometricStructuresForStructuredData(inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::CloneGeometricStructures(
+    std::vector<vtkUnstructuredGrid*>& vtkNotUsed(inputs),
+    std::vector<vtkUnstructuredGrid*>& vtkNotUsed(outputs))
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::ExchangeBlockStructures(diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& vtkNotUsed(inputs))
+{
+  ExchangeBlockStructuresForPointSets<vtkUnstructuredGrid>(master);
 }
 
 //----------------------------------------------------------------------------
 LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
-  const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
-  std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels)
+  const diy::Master& master, std::vector<vtkImageData*>& inputs, int outputGhostLevels)
 {
-  return ComputeLinkMapForStructuredData(master, inputs, outputs, outputGhostLevels);
+  return ComputeLinkMapForStructuredData(master, inputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
 LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
-    std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels)
+  const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, int outputGhostLevels)
 {
-  return ComputeLinkMapForStructuredData(master, inputs, outputs,
-      outputGhostLevels);
+  return ComputeLinkMapForStructuredData(master, inputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs)
+LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
+  const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, int outputGhostLevels)
 {
-  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+  return ComputeLinkMapForStructuredData(master, inputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs)
+LinkMap vtkDIYGhostUtilities::ComputeLinkMap(
+  const diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, int outputGhostLevels)
 {
-  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
-}
-
-//----------------------------------------------------------------------------
-void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
-    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs)
-{
-  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+  return ComputeLinkMapForPointSets(master, inputs, outputGhostLevels);
 }
 
 //----------------------------------------------------------------------------
@@ -2357,11 +3776,11 @@ void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
 {
   vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+  EnqueueCellData(cp, blockId, input, cellIds);
 
   vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
+  EnqueuePointData(cp, blockId, input, pointIds);
 }
 
 //----------------------------------------------------------------------------
@@ -2370,11 +3789,11 @@ void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
 {
   vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+  EnqueueCellData(cp, blockId, input, cellIds);
 
   vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
+  EnqueuePointData(cp, blockId, input, pointIds);
 }
 
 //----------------------------------------------------------------------------
@@ -2383,12 +3802,27 @@ void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
 {
   vtkSmartPointer<vtkIdList> cellIds = ComputeInputInterfaceCellIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueueCellDataForStructuredData(cp, blockId, input, cellIds);
+  EnqueueCellData(cp, blockId, input, cellIds);
 
   vtkSmartPointer<vtkIdList> pointIds = ComputeInputInterfacePointIdsForStructuredData(
       block, blockId.gid, input);
-  EnqueuePointDataForStructuredData(cp, blockId, input, pointIds);
-  EnqueuePointsForStructuredData(cp, blockId, input, pointIds);
+  EnqueuePointData(cp, blockId, input, pointIds);
+  EnqueuePoints(cp, blockId, input, pointIds);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, vtkUnstructuredGrid* input, UnstructuredGridBlock* block)
+{
+  UnstructuredGridBlockStructure& blockStructure = block->BlockStructures.at(blockId.gid);
+
+  EnqueueCellData(cp, blockId, input, blockStructure.CellIdsToSend);
+  EnqueueCellsForUnstructuredGrid(cp, blockId, blockStructure.SendBuffer);
+
+  EnqueuePointData(cp, blockId, input, blockStructure.PointIdsToSend);
+  EnqueuePoints(cp, blockId, input, blockStructure.PointIdsToSend);
+
+  EnqueueSharedPointIds(cp, blockId, blockStructure.SharedPointIds);
 }
 
 //----------------------------------------------------------------------------
@@ -2417,6 +3851,47 @@ void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, i
 }
 
 //----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, int gid,
+    UnstructuredGridBlockStructure& blockStructure)
+{
+  DequeueCellData(cp, gid, blockStructure);
+  DequeueCellsForUnstructuredGrid(cp, gid, blockStructure);
+
+  DequeuePointData(cp, gid, blockStructure);
+  DequeuePoints(cp, gid, blockStructure);
+
+  DequeueSharedPointIds(cp, gid, blockStructure);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForStructuredData(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs)
+{
+  DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(master, inputs, outputs);
+}
+
+//----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
   std::vector<vtkImageData*>& outputs)
 {
@@ -2437,5 +3912,12 @@ void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
     std::vector<vtkStructuredGrid*>& outputs)
 {
   FillHiddenGhostsForStructuredData(master, outputs);
+  FillReceivedGhosts(master, outputs);
+}
+
+//----------------------------------------------------------------------------
+void vtkDIYGhostUtilities::FillGhostArrays(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& outputs)
+{
   FillReceivedGhosts(master, outputs);
 }

@@ -31,6 +31,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <vector>
 
@@ -111,7 +112,38 @@ int vtkGhostCellsGenerator::RequestData(
   std::vector<vtkStructuredGrid*> outputsSG =
     vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(outputDO);
 
-  if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty())
+  std::vector<vtkUnstructuredGrid*> inputsUG =
+    vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(inputDO);
+  std::vector<vtkUnstructuredGrid*> outputsUG =
+    vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(outputDO);
+
+  std::vector<vtkUnstructuredGrid*> inputsUGWithoutGhosts(inputsUG.size());
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> inputsUGWithoutGhostsCleaner(inputsUG.size());
+
+  // FIXME
+  // We do a deep copy for unstructured grids removing ghost cells.
+  // Ideally, we should avoid doing such a thing and skip ghost cells in the input
+  // by remapping the input to the output while ignoring the input ghosts.
+  for (int localId = 0; localId < static_cast<vtkIdType>(inputsUG.size()); ++localId)
+  {
+    vtkUnstructuredGrid* input = inputsUG[localId];
+    if (input->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS))
+    {
+      inputsUGWithoutGhostsCleaner[localId] = vtkSmartPointer<vtkUnstructuredGrid>::New();
+      vtkUnstructuredGrid* cleanInput = inputsUGWithoutGhostsCleaner[localId];
+      cleanInput->DeepCopy(input);
+      cleanInput->RemoveGhostCells();
+      cleanInput->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+      cleanInput->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+      inputsUGWithoutGhosts[localId] = cleanInput;
+    }
+    else
+    {
+      inputsUGWithoutGhosts[localId] = input;
+    }
+  }
+
+  if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty() && !inputsUG.empty())
   {
     vtkWarningMacro(<< "Ghost cell generator called with mixed types."
                     << "Ghosts are not exchanged between data sets of different types.");
@@ -122,7 +154,9 @@ int vtkGhostCellsGenerator::RequestData(
     vtkDIYGhostUtilities::GenerateGhostCells(
       inputsRG, outputsRG, this->NumberOfGhostLayers, this->Controller) &&
     vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller);
+      inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller) &&
+    vtkDIYGhostUtilities::GenerateGhostCells(
+      inputsUGWithoutGhosts, outputsUG, this->NumberOfGhostLayers, this->Controller);
 }
 
 //----------------------------------------------------------------------------
