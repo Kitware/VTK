@@ -1685,12 +1685,6 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName, const c
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured, int numberOfComponents,
   int component)
 {
-  char line[80];
-  int partId, realId, numPts, i, lineRead;
-  vtkFloatArray* scalars;
-  float* scalarsRead;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "ScalarsPerNode"))
   {
@@ -1742,14 +1736,6 @@ int vtkEnSightGoldBinaryReader::ReadAsymmetricTensorsPerNode(const char* fileNam
 int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int measured)
 {
-  char line[80];
-  int partId, realId, numPts, i, lineRead;
-  vtkFloatArray* vectors;
-  float tuple[3];
-  float *comp1, *comp2, *comp3;
-  float* vectorsRead;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "VectorPerNode"))
   {
@@ -1780,13 +1766,6 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName, const c
 int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
-  int partId, realId, numPts, i, lineRead;
-  vtkFloatArray* tensors;
-  float *comp1, *comp2, *comp3, *comp4, *comp5, *comp6;
-  float tuple[6];
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "TensorsPerNode"))
   {
@@ -1809,13 +1788,6 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName, const c
 int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput, int numberOfComponents, int component)
 {
-  char line[80];
-  int partId, realId, numCells, numCellsPerElement, i, idx;
-  vtkFloatArray* scalars;
-  float* scalarsRead;
-  int lineRead, elementType;
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "ScalarPerElement"))
   {
@@ -1837,14 +1809,6 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName, cons
 int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
-  int partId, realId, numCells, numCellsPerElement, i, idx;
-  vtkFloatArray* vectors;
-  float *comp1, *comp2, *comp3;
-  int lineRead, elementType;
-  float tuple[3];
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "VectorPerElement"))
   {
@@ -1886,14 +1850,6 @@ int vtkEnSightGoldBinaryReader::ReadAsymmetricTensorsPerElement(const char* file
 int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName, const char* description,
   int timeStep, vtkMultiBlockDataSet* compositeOutput)
 {
-  char line[80];
-  int partId, realId, numCells, numCellsPerElement, i, idx;
-  vtkFloatArray* tensors;
-  int lineRead, elementType;
-  float *comp1, *comp2, *comp3, *comp4, *comp5, *comp6;
-  float tuple[6];
-  vtkDataSet* output;
-
   // Initialize
   if (!this->OpenVariableFile(fileName, "TensorPerElement"))
   {

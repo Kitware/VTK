@@ -1097,9 +1097,6 @@ bool vtkIossReader::vtkInternals::GenerateOutput(
         vtkDataAssembly::MakeValidNodeName(ename.second.c_str()).c_str(), entity_node);
       assembly->SetAttribute(node, "label", ename.second.c_str());
       assembly->AddDataSetIndex(node, pdsIdx);
-
-      auto ioss_etype =
-        vtkIossUtilities::GetIossEntityType(static_cast<vtkIossReader::EntityType>(etype));
     }
   }
 
@@ -2376,8 +2373,6 @@ int vtkIossReader::ReadMesh(
     auto dsindices = assembly->GetDataSetIndices(nodes);
     selectedAssemblyIndices.insert(dsindices.begin(), dsindices.end());
   }
-
-  const auto isCGNS = (internals.GetFormat() == vtkIossUtilities::DatabaseFormatType::CGNS);
 
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
