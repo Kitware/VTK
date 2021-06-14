@@ -786,7 +786,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       reply.xclient.format = 32;
       reply.xclient.data.l[0] = this->WindowId;
       reply.xclient.data.l[1] = 1;
-      reply.xclient.data.l[2] = this->XdndActionCopyAtom;
+
+      if (this->XdndSourceVersion >= 2)
+      {
+        reply.xclient.data.l[2] = this->XdndActionCopyAtom;
+      }
 
       XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
       XFlush(this->DisplayId);
@@ -802,9 +806,9 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         this->XdndSource = event->xclient.data.l[0];
 
         // Check version
-        unsigned char sourceVersion = event->xclient.data.l[1] >> 24;
+        this->XdndSourceVersion = event->xclient.data.l[1] >> 24;
 
-        if (sourceVersion > XDND_VERSION)
+        if (this->XdndSourceVersion > XDND_VERSION)
         {
           return;
         }
@@ -902,7 +906,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
           XConvertSelection(this->DisplayId, xdndSelectionAtom, this->XdndFormatAtom,
             xdndSelectionAtom, this->WindowId, CurrentTime);
         }
-        else
+        else if (this->XdndSourceVersion >= 2)
         {
           XEvent reply;
           memset(&reply, 0, sizeof(reply));

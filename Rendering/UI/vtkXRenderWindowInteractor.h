@@ -112,6 +112,7 @@ protected:
   vtkXRenderWindowInteractorInternals* Internal;
 
   // Drag and drop related
+  int XdndSourceVersion;
   Window XdndSource;
   Atom XdndFormatAtom;
   Atom XdndURIListAtom;
