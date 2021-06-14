@@ -773,11 +773,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       memset(&reply, 0, sizeof(reply));
 
       reply.type = ClientMessage;
-      reply.xclient.window = event->xclient.data.l[0];
+      reply.xclient.window = this->XdndSource;
       reply.xclient.message_type = this->XdndFinishedAtom;
       reply.xclient.format = 32;
       reply.xclient.data.l[0] = this->WindowId;
-      reply.xclient.data.l[1] = itemCount;
+      reply.xclient.data.l[1] = 1;
       reply.xclient.data.l[2] = this->XdndActionCopyAtom;
 
       XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
