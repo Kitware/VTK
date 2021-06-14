@@ -113,6 +113,10 @@ protected:
 
   // Drag and drop related
   Window XdndSource;
+  Atom XdndFormatAtom;
+  Atom XdndURIListAtom;
+  Atom XdndTypeListAtom;
+  Atom XdndEnterAtom;
   Atom XdndPositionAtom;
   Atom XdndDropAtom;
   Atom XdndActionCopyAtom;
