@@ -39,6 +39,11 @@ freely, subject to the following restrictions:
 #endif
 
 #include "ADFH.h"
+
+// xxx(kitware): needed to overcome
+// https://cgnsorg.atlassian.net/browse/CGNS-251
+#define H5O_info_t_vers 2
+
 #include "vtk_hdf5.h"
 #include "cgns_io.h" /* for cgio_find_file */
 
