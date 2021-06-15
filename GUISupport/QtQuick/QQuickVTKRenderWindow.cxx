@@ -163,7 +163,9 @@ void QQuickVTKRenderWindow::paint()
     return;
   }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
   this->window()->beginExternalCommands();
+#endif
   auto iren = this->m_renderWindow->GetInteractor();
   auto ostate = this->m_renderWindow->GetState();
   ostate->Reset();
@@ -193,7 +195,9 @@ void QQuickVTKRenderWindow::paint()
   this->m_renderWindow->SetReadyForRendering(false);
 
   ostate->Pop();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
   this->window()->endExternalCommands();
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -376,7 +380,11 @@ bool QQuickVTKRenderWindow::checkGraphicsBackend()
   // Enforce the use of OpenGL API
   QSGRendererInterface* rif = this->window()->rendererInterface();
   auto gApi = rif->graphicsApi();
-  if (!(gApi == QSGRendererInterface::OpenGL || gApi == QSGRendererInterface::OpenGLRhi))
+  if (!(gApi == QSGRendererInterface::OpenGL
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        || gApi == QSGRendererInterface::OpenGLRhi
+#endif
+        ))
   {
     qCritical(R"***(Error: QtQuick scenegraph is using an unsupported graphics API: %d.
 Set the QSG_INFO environment variable to get more information.
