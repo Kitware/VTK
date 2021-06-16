@@ -43,7 +43,6 @@ vtkStandardNewMacro(vtkLabeledTreeMapDataMapper);
 vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   : CurrentViewPort(nullptr)
   , FontHeights(nullptr)
-  , FontWidths(nullptr)
   , MaxFontLevel(0)
   , MaxTreeLevels(100)
   , ClipTextMode(0)
@@ -103,10 +102,8 @@ vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
   int i;
   for (i = 0; i <= this->MaxFontLevel; i++)
   {
-    delete[] this->FontWidths[i];
     this->HLabelProperties[i]->Delete();
   }
-  delete[] this->FontWidths;
   delete[] this->FontHeights;
   delete[] this->HLabelProperties;
   delete[] this->ChildrenCount;
@@ -670,19 +667,16 @@ void vtkLabeledTreeMapDataMapper::SetFontSizeRange(int maxSize, int minSize, int
       delete[] this->FontHeights;
       for (i = 0; i <= this->MaxFontLevel; i++)
       {
-        delete[] this->FontWidths[i];
         this->HLabelProperties[i]->Delete();
       }
-      delete[] this->FontWidths;
       delete[] this->HLabelProperties;
     }
     this->MaxFontLevel = nLevels;
     this->FontHeights = new int[this->MaxFontLevel + 1];
-    this->FontWidths = new int*[this->MaxFontLevel + 1];
+    this->FontWidths.resize(this->MaxFontLevel + 1);
     this->HLabelProperties = new vtkTextProperty*[this->MaxFontLevel + 1];
     for (i = 0; i <= this->MaxFontLevel; i++)
     {
-      this->FontWidths[i] = new int[95];
       this->HLabelProperties[i] = vtkTextProperty::New();
       this->HLabelProperties[i]->SetFontSize(12);
       this->HLabelProperties[i]->SetBold(1);

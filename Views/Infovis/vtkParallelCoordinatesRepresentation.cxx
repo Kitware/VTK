@@ -989,7 +989,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
 
       // prepare the cell array. might as well initialize it now and only
       // recompute it when something actually changes.
-      vtkIdType* ptIds = new vtkIdType[4];
+      vtkIdType ptIds[4];
 
       quads->InitTraversal();
       for (int i = 0; i < numQuads; i++)
@@ -1000,7 +1000,6 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
         }
         quads->InsertNextCell(4, ptIds);
       }
-      delete[] ptIds;
     }
   }
   else

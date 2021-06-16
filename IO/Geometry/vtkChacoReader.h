@@ -238,8 +238,8 @@ private:
   void FlushLine(FILE* infile);
   void ResetInputBuffers();
 
-  char* Line;
-  int Line_length;
+  char Line[200];
+  const int Line_length = 200;
   int Offset;
   int Break_pnt;
   int Save_pnt;

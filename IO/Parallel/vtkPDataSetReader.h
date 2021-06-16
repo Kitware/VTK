@@ -26,6 +26,8 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkIOParallelModule.h" // For export macro
 
+#include <vector>
+
 class vtkDataSet;
 
 class VTKIOPARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
@@ -88,8 +90,8 @@ protected:
   char* FileName;
   int DataType;
   int NumberOfPieces;
-  char** PieceFileNames;
-  int** PieceExtents;
+  std::vector<std::string> PieceFileNames;
+  std::vector<int[6]> PieceExtents;
 
 private:
   vtkPDataSetReader(const vtkPDataSetReader&) = delete;

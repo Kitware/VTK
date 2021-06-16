@@ -66,8 +66,6 @@ vtkChacoReader::vtkChacoReader()
   this->DataCache = vtkUnstructuredGrid::New();
   this->RemakeDataCacheFlag = 1;
 
-  this->Line_length = 200;
-  this->Line = new char[200];
   this->Offset = 0;
   this->Break_pnt = 200;
   this->Save_pnt = 0;
@@ -85,8 +83,6 @@ vtkChacoReader::~vtkChacoReader()
 
   this->DataCache->Delete();
   this->DataCache = nullptr;
-
-  delete[] this->Line;
 }
 
 //------------------------------------------------------------------------------
