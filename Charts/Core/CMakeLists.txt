@@ -29,6 +29,7 @@ set(classes
   vtkPlotArea
   vtkPlotBag
   vtkPlotBar
+  vtkPlotBarRangeHandlesItem
   vtkPlotBox
   vtkPlotFunctionalBag
   vtkPlotGrid

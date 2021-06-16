@@ -98,6 +98,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestParallelCoordinates.cxx
   TestParallelCoordinatesDouble.cxx
   TestPieChart.cxx
+  TestPlotBarRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPlotMatrix.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
