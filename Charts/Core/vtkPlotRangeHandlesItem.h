@@ -43,7 +43,6 @@
 #include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkPlot.h"
 
-class vtkColorTransferFunction;
 class vtkBrush;
 
 class VTKCHARTSCORE_EXPORT vtkPlotRangeHandlesItem : public vtkPlot
@@ -131,6 +130,16 @@ public:
   vtkSetMacro(SynchronizeRangeHandles, vtkTypeBool);
   vtkGetMacro(SynchronizeRangeHandles, vtkTypeBool);
   vtkBooleanMacro(SynchronizeRangeHandles, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * If On, the range tooltip is always rendered using mouse position,
+   * otherwise it is placed at the center of the x axis Default is On.
+   */
+  vtkSetMacro(LockTooltipToMouse, vtkTypeBool);
+  vtkGetMacro(LockTooltipToMouse, vtkTypeBool);
+  vtkBooleanMacro(LockTooltipToMouse, vtkTypeBool);
   ///@}
 
   /**
@@ -232,6 +241,8 @@ protected:
   float RightHandleDrawRange[2] = { 0, 0 };
   int ActiveHandle = NO_HANDLE;
   int HoveredHandle = NO_HANDLE;
+  float HoveredPosition[2] = { 0, 0 };
+  vtkTypeBool LockTooltipToMouse = true;
   double ActiveHandlePosition = 0;
   double ActiveHandleRangeValue = 0;
   vtkNew<vtkBrush> HighlightBrush;
