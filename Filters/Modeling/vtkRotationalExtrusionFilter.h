@@ -18,7 +18,7 @@
  *
  * vtkRotationalExtrusionFilter is a modeling filter. It takes polygonal
  * data as input and generates polygonal data on output. The input dataset
- * is swept around the z-axis to create new polygonal primitives. These
+ * is swept around an axis to create new polygonal primitives. These
  * primitives form a "skirt" or swept surface. For example, sweeping a
  * line results in a cylindrical shell, and sweeping a circle creates a
  * torus.
@@ -26,8 +26,9 @@
  * There are a number of control parameters for this filter. You can
  * control whether the sweep of a 2D object (i.e., polygon or triangle
  * strip) is capped with the generating geometry via the "Capping" instance
- * variable. Also, you can control the angle of rotation, and whether
- * translation along the z-axis is performed along with the rotation.
+ * variable. Also, you can control the angle of rotation, whether
+ * translation along the axis is performed along with the rotation, and around
+ * which axis this is done.
  * (Translation is useful for creating "springs".) You also can adjust
  * the radius of the generating geometry using the "DeltaRotation" instance
  * variable.
@@ -102,7 +103,7 @@ public:
 
   ///@{
   /**
-   * Set/Get total amount of translation along the z-axis.
+   * Set/Get total amount of translation along the rotation axis.
    */
   vtkSetMacro(Translation, double);
   vtkGetMacro(Translation, double);
@@ -116,6 +117,14 @@ public:
   vtkGetMacro(DeltaRadius, double);
   ///@}
 
+  //@{
+  /**
+   * Set/Get the axis around which the rotation is done.
+   */
+  vtkSetVector3Macro(RotationAxis, double);
+  vtkGetVector3Macro(RotationAxis, double);
+  //@}
+
 protected:
   vtkRotationalExtrusionFilter();
   ~vtkRotationalExtrusionFilter() override = default;
@@ -126,6 +135,7 @@ protected:
   double Angle;
   double Translation;
   double DeltaRadius;
+  double RotationAxis[3] = { 0, 0, 1 };
 
 private:
   vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&) = delete;

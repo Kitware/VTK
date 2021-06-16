@@ -27,6 +27,7 @@
 
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
+//------------------------------------------------------------------------------
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
 // vector (0,0,1), and point (0,0,0).
@@ -39,6 +40,7 @@ vtkRotationalExtrusionFilter::vtkRotationalExtrusionFilter()
   this->Resolution = 12; // 30 degree increments
 }
 
+//------------------------------------------------------------------------------
 int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -60,8 +62,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
   vtkIdType cellId, ptId, ncells;
-  double x[3], newX[3], radius, angleIncr, radIncr, transIncr;
-  double psi, theta;
+  double x[3], newX[3], angleIncr, radIncr, transIncr;
   vtkPoints* newPts;
   vtkCellArray *newLines = nullptr, *newPolys = nullptr, *newStrips;
   vtkCell* edge;
@@ -70,7 +71,6 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   vtkIdType p1, p2;
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
-  double tempd;
   int abort = 0;
 
   // Initialize / check input
@@ -83,6 +83,17 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   {
     vtkErrorMacro(<< "No data to extrude!");
     return 1;
+  }
+
+  double normalizedRotationAxis[3] = { this->RotationAxis[0], this->RotationAxis[1],
+    this->RotationAxis[2] };
+  double norm = vtkMath::Normalize(normalizedRotationAxis);
+
+  // if norm is equal to zero, the extrusion cannot be done
+  if (norm == 0.0)
+  {
+    vtkErrorMacro(<< "Cannot perform extrusion around an axis with a norm of 0.");
+    return 0;
   }
 
   // Build cell data structure.
@@ -132,63 +143,36 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   }
   this->UpdateProgress(0.1);
 
-  // loop assumes rotation around z-axis
   radIncr = this->DeltaRadius / this->Resolution;
   transIncr = this->Translation / this->Resolution;
   angleIncr = vtkMath::RadiansFromDegrees(this->Angle) / this->Resolution;
+
+  double rotationAngleAndAxis[4] = { 0, this->RotationAxis[0], this->RotationAxis[1],
+    this->RotationAxis[2] };
+
   for (i = 1; i <= this->Resolution; i++)
   {
     this->UpdateProgress(0.1 + 0.5 * (i - 1) / this->Resolution);
     for (ptId = 0; ptId < numPts; ptId++)
     {
       inPts->GetPoint(ptId, x);
-      // convert to cylindrical
-      radius = sqrt(x[0] * x[0] + x[1] * x[1]);
-      if (radius > 0.0)
-      {
-        tempd = (double)x[0] / radius;
-        if (tempd < -1.0)
-        {
-          tempd = -1.0;
-        }
-        if (tempd > 1.0)
-        {
-          tempd = 1.0;
-        }
-        theta = acos(tempd);
-        tempd = (double)x[1] / radius;
-        if (tempd < -1.0)
-        {
-          tempd = -1.0;
-        }
-        if (tempd > 1.0)
-        {
-          tempd = 1.0;
-        }
-        if ((psi = asin(tempd)) < 0.0)
-        {
-          if (theta < (vtkMath::Pi() / 2.0))
-          {
-            theta = 2.0 * vtkMath::Pi() + psi;
-          }
-          else
-          {
-            theta = vtkMath::Pi() - psi;
-          }
-        }
 
-        // increment angle
-        radius += i * radIncr;
-        newX[0] = radius * cos(i * angleIncr + theta);
-        newX[1] = radius * sin(i * angleIncr + theta);
-        newX[2] = x[2] + i * transIncr;
-      }
-      else // radius is zero
-      {
-        newX[0] = 0.0;
-        newX[1] = 0.0;
-        newX[2] = x[2] + i * transIncr;
-      }
+      rotationAngleAndAxis[0] = i * angleIncr;
+      vtkMath::RotateVectorByWXYZ(x, rotationAngleAndAxis, newX);
+
+      newX[0] += normalizedRotationAxis[0] * i * transIncr;
+      newX[1] += normalizedRotationAxis[1] * i * transIncr;
+      newX[2] += normalizedRotationAxis[2] * i * transIncr;
+
+      double projection[3];
+      double radialVector[3];
+      vtkMath::ProjectVector(newX, normalizedRotationAxis, projection);
+      vtkMath::Subtract(newX, projection, radialVector);
+
+      newX[0] += radialVector[0] * i * radIncr;
+      newX[1] += radialVector[1] * i * radIncr;
+      newX[2] += radialVector[2] * i * radIncr;
+
       newPts->InsertPoint(ptId + i * numPts, newX);
       outPD->CopyData(pd, ptId, ptId + i * numPts);
     }
@@ -359,6 +343,7 @@ int vtkRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -368,4 +353,6 @@ void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Angle: " << this->Angle << "\n";
   os << indent << "Translation: " << this->Translation << "\n";
   os << indent << "Delta Radius: " << this->DeltaRadius << "\n";
+  os << indent << "Rotation axis: (" << this->RotationAxis[0] << ", " << this->RotationAxis[1]
+     << ", " << this->RotationAxis[2] << ")\n";
 }
