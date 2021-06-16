@@ -630,6 +630,8 @@ void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
   for (std::size_t n = 0; n < nvar; ++n)
   {
     len = strlen(vars[n].name) - 1;
+    // CGNS convention uses CamelCase for vector naming (VectorX)
+    // For added convenience, snake_case is supported (vector_x)
     switch (vars[n].name[len])
     {
       case 'X':
@@ -643,6 +645,30 @@ void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
       case 'Z':
         vars[n].xyzIndex = 3;
         vars[n].isComponent = true;
+        break;
+      case 'x':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          vars[n].xyzIndex = 1;
+          vars[n].isComponent = true;
+          len -= 1;
+        }
+        break;
+      case 'y':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          vars[n].xyzIndex = 2;
+          vars[n].isComponent = true;
+          len -= 1;
+        }
+        break;
+      case 'z':
+        if (len > 0 && vars[n].name[len - 1] == '_')
+        {
+          vars[n].xyzIndex = 3;
+          vars[n].isComponent = true;
+          len -= 1;
+        }
         break;
     }
     if (vars[n].isComponent == true)
@@ -671,56 +697,54 @@ void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
 
   // Detect and tag invalid vector :
   bool invalid = false;
-  for (std::vector<CGNSRead::CGNSVector>::iterator iter = vectors.begin(); iter != vectors.end();
-       ++iter)
+  for (auto& iter : vectors)
   {
     // Check if number of component agrees with phys_dim
-    if (((physicalDim == 3) && (iter->numComp != 6)) ||
-      ((physicalDim == 2) && (iter->numComp != 3)))
+    if (((physicalDim == 3) && (iter.numComp != 6)) || ((physicalDim == 2) && (iter.numComp != 3)))
     {
       for (int index = 0; index < physicalDim; index++)
       {
-        int nv = iter->xyzIndex[index];
+        int nv = iter.xyzIndex[index];
         if (nv >= 0)
         {
           vars[nv].isComponent = false;
         }
       }
-      iter->numComp = 0;
+      iter.numComp = 0;
       invalid = true;
     }
     // Check if a variable is present with a similar
     // name as the vector being built
-    if (CGNSRead::isACGNSVariable(vars, iter->name) == true)
+    if (CGNSRead::isACGNSVariable(vars, iter.name) == true)
     {
       // vtkWarningMacro ( "Warning, vector " << iter->name
       //                  << " can't be assembled." << std::endl );
       for (int index = 0; index < physicalDim; index++)
       {
-        int n = iter->xyzIndex[index];
+        int n = iter.xyzIndex[index];
         if (n >= 0)
         {
           vars[n].isComponent = false;
         }
       }
-      iter->numComp = 0;
+      iter.numComp = 0;
       invalid = true;
     }
-    if (iter->numComp > 0)
+    if (iter.numComp > 0)
     {
       // Check if DataType_t are identical for all components
-      if ((vars[iter->xyzIndex[0]].dt != vars[iter->xyzIndex[1]].dt) ||
-        (vars[iter->xyzIndex[0]].dt != vars[iter->xyzIndex[physicalDim - 1]].dt))
+      if ((vars[iter.xyzIndex[0]].dt != vars[iter.xyzIndex[1]].dt) ||
+        (vars[iter.xyzIndex[0]].dt != vars[iter.xyzIndex[physicalDim - 1]].dt))
       {
         for (int index = 0; index < physicalDim; index++)
         {
-          int n = iter->xyzIndex[index];
+          int n = iter.xyzIndex[index];
           if (n >= 0)
           {
             vars[n].isComponent = false;
           }
         }
-        iter->numComp = 0;
+        iter.numComp = 0;
         invalid = true;
       }
     }
@@ -898,19 +922,16 @@ void vtkCGNSMetaData::PrintSelf(std::ostream& os)
     }
 
     os << "    Family Number: " << this->baseList[b].family.size() << std::endl;
-    for (std::size_t fam = 0; fam < this->baseList[b].family.size(); fam++)
+    for (const auto& fam : this->baseList[b].family)
     {
-      os << "      Family: " << this->baseList[b].family[fam].name
-         << " is BC: " << this->baseList[b].family[fam].isBC << std::endl;
+      os << "      Family: " << fam.name << " is BC: " << fam.isBC << std::endl;
     }
 
     os << "    Reference State:" << std::endl;
-    std::map<std::string, double>::iterator iter;
-    for (iter = this->baseList[b].referenceState.begin();
-         iter != this->baseList[b].referenceState.end(); iter++)
+    for (const auto& iter : this->baseList[b].referenceState)
     {
-      os << "  Variable: " << iter->first;
-      os << "  Value: " << iter->second << std::endl;
+      os << "  Variable: " << iter.first;
+      os << "  Value: " << iter.second << std::endl;
     }
   }
 }
@@ -983,19 +1004,18 @@ static void BroadcastSelection(
   controller->Broadcast(&len, 1, 0);
   if (rank == 0)
   {
-    std::map<std::string, bool>::iterator ite;
     int tmp;
-    for (ite = selection.begin(); ite != selection.end(); ++ite)
+    for (auto& ite : selection)
     {
-      unsigned long len2 = static_cast<unsigned long>(ite->first.size()) + 1;
+      unsigned long len2 = static_cast<unsigned long>(ite.first.size()) + 1;
       controller->Broadcast(&len2, 1, 0);
       if (len2)
       {
-        const char* start = ite->first.c_str();
+        const char* start = ite.first.c_str();
         std::vector<char> tmpVector(start, start + len2);
         controller->Broadcast(&tmpVector[0], len2, 0);
       }
-      tmp = (int)ite->second;
+      tmp = (int)ite.second;
       controller->Broadcast(&tmp, 1, 0);
     }
   }
@@ -1022,18 +1042,17 @@ static void BroadcastRefState(
   controller->Broadcast(&len, 1, 0);
   if (rank == 0)
   {
-    std::map<std::string, double>::iterator ite;
-    for (ite = refInfo.begin(); ite != refInfo.end(); ++ite)
+    for (auto& ite : refInfo)
     {
-      unsigned long len2 = static_cast<unsigned long>(ite->first.size()) + 1;
+      unsigned long len2 = static_cast<unsigned long>(ite.first.size()) + 1;
       controller->Broadcast(&len2, 1, 0);
       if (len2)
       {
-        const char* start = ite->first.c_str();
+        const char* start = ite.first.c_str();
         std::vector<char> tmp(start, start + len2);
         controller->Broadcast(&tmp[0], len2, 0);
       }
-      controller->Broadcast(&ite->second, 1, 0);
+      controller->Broadcast(&ite.second, 1, 0);
     }
   }
   else
@@ -1058,14 +1077,13 @@ static void BroadcastFamilies(vtkMultiProcessController* controller,
   {
     famInfo.resize(len);
   }
-  std::vector<CGNSRead::FamilyInformation>::iterator ite;
-  for (ite = famInfo.begin(); ite != famInfo.end(); ++ite)
+  for (auto& ite : famInfo)
   {
-    BroadcastString(controller, ite->name, rank);
+    BroadcastString(controller, ite.name, rank);
     int flags = 0;
     if (rank == 0)
     {
-      if (ite->isBC == true)
+      if (ite.isBC == true)
       {
         flags = 1;
       }
@@ -1076,7 +1094,7 @@ static void BroadcastFamilies(vtkMultiProcessController* controller,
       controller->Broadcast(&flags, 1, 0);
       if ((flags & 1) != 0)
       {
-        ite->isBC = true;
+        ite.isBC = true;
       }
     }
   }
@@ -1136,23 +1154,22 @@ void vtkCGNSMetaData::Broadcast(vtkMultiProcessController* controller, int rank)
   {
     this->baseList.resize(len);
   }
-  std::vector<CGNSRead::BaseInformation>::iterator ite;
-  for (ite = this->baseList.begin(); ite != baseList.end(); ++ite)
+  for (auto& ite : this->baseList)
   {
-    CGNSRead::BroadcastCGNSString(controller, ite->name);
-    controller->Broadcast(&ite->cellDim, 1, 0);
-    controller->Broadcast(&ite->physicalDim, 1, 0);
-    controller->Broadcast(&ite->baseNumber, 1, 0);
-    controller->Broadcast(&ite->nzones, 1, 0);
+    CGNSRead::BroadcastCGNSString(controller, ite.name);
+    controller->Broadcast(&ite.cellDim, 1, 0);
+    controller->Broadcast(&ite.physicalDim, 1, 0);
+    controller->Broadcast(&ite.baseNumber, 1, 0);
+    controller->Broadcast(&ite.nzones, 1, 0);
 
     int flags = 0;
     if (rank == 0)
     {
-      if (ite->useGridPointers == true)
+      if (ite.useGridPointers == true)
       {
         flags = 1;
       }
-      if (ite->useFlowPointers == true)
+      if (ite.useFlowPointers == true)
       {
         flags = (flags | 2);
       }
@@ -1163,23 +1180,23 @@ void vtkCGNSMetaData::Broadcast(vtkMultiProcessController* controller, int rank)
       controller->Broadcast(&flags, 1, 0);
       if ((flags & 1) != 0)
       {
-        ite->useGridPointers = true;
+        ite.useGridPointers = true;
       }
       if ((flags & 2) != 0)
       {
-        ite->useFlowPointers = true;
+        ite.useFlowPointers = true;
       }
     }
 
-    CGNSRead::BroadcastRefState(controller, ite->referenceState, rank);
-    CGNSRead::BroadcastFamilies(controller, ite->family, rank);
-    CGNSRead::BroadcastZones(controller, ite->zones, rank);
+    CGNSRead::BroadcastRefState(controller, ite.referenceState, rank);
+    CGNSRead::BroadcastFamilies(controller, ite.family, rank);
+    CGNSRead::BroadcastZones(controller, ite.zones, rank);
 
-    CGNSRead::BroadcastSelection(controller, ite->PointDataArraySelection, rank);
-    CGNSRead::BroadcastSelection(controller, ite->CellDataArraySelection, rank);
+    CGNSRead::BroadcastSelection(controller, ite.PointDataArraySelection, rank);
+    CGNSRead::BroadcastSelection(controller, ite.CellDataArraySelection, rank);
 
-    BroadcastIntVector(controller, ite->steps, rank);
-    BroadcastDoubleVector(controller, ite->times, rank);
+    BroadcastIntVector(controller, ite.steps, rank);
+    BroadcastDoubleVector(controller, ite.times, rank);
   }
   CGNSRead::BroadcastString(controller, this->LastReadFilename, rank);
   BroadcastDoubleVector(controller, this->GlobalTime, rank);

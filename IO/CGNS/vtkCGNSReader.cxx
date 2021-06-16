@@ -450,7 +450,7 @@ public:
     std::vector<CGNSRead::CGNSVariable>& cgnsVars, std::vector<CGNSRead::CGNSVector>& cgnsVectors,
     vtkCGNSReader* self);
 
-  static int AllocateVtkArray(int physicalDim, vtkIdType nVals,
+  static int AllocateVtkArray(int physicalDim, int requestedVectorDim, vtkIdType nVals,
     CGNS_ENUMT(GridLocation_t) varCentering, const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
     const std::vector<CGNSRead::CGNSVector>& cgnsVectors, std::vector<vtkDataArray*>& vtkVars,
     vtkCGNSReader* self);
@@ -613,6 +613,7 @@ vtkCGNSReader::vtkCGNSReader()
   this->DistributeBlocks = true;
   this->CacheMesh = false;
   this->CacheConnectivity = false;
+  this->Use3DVector = true;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -1221,12 +1222,17 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
   //
   // VECTORS aliasing ...
   // destination
+  int requestedVectorDim = physicalDim;
+  if (physicalDim < 3)
+  {
+    requestedVectorDim = self->Use3DVector ? 3 : physicalDim;
+  }
   cgsize_t fieldVectMemStart[3] = { 1, 1, 1 };
   cgsize_t fieldVectMemStride[3] = { 3, 1, 1 };
   cgsize_t fieldVectMemEnd[3] = { 1, 1, 1 };
   cgsize_t fieldVectMemDims[3] = { 1, 1, 1 };
 
-  fieldVectMemStride[0] = static_cast<cgsize_t>(physicalDim);
+  fieldVectMemStride[0] = static_cast<cgsize_t>(requestedVectorDim);
 
   fieldVectMemDims[0] = fieldMemDims[0] * fieldVectMemStride[0];
   fieldVectMemDims[1] = fieldMemDims[1];
@@ -1240,7 +1246,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
   // Count number of vars and vectors
   // Assign vars and vectors to a vtkvars array
   vtkPrivate::AllocateVtkArray(
-    physicalDim, nVals, varCentering, cgnsVars, cgnsVectors, vtkVars, self);
+    physicalDim, requestedVectorDim, nVals, varCentering, cgnsVars, cgnsVectors, vtkVars, self);
 
   // Load Data
   for (std::size_t ff = 0; ff < nVarArray; ++ff)
@@ -1309,9 +1315,16 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     else if (cgnsVars[nv].xyzIndex == 1)
     {
       dsa->AddArray(vtkVars[nv]);
-      if (!dsa->GetVectors() && physicalDim == 3)
+      if (!dsa->GetVectors() && requestedVectorDim == 3)
       {
         dsa->SetVectors(vtkVars[nv]);
+      }
+      if (requestedVectorDim != physicalDim)
+      {
+        for (int dim = physicalDim; dim < requestedVectorDim; dim++)
+        {
+          vtkVars[nv]->FillComponent(dim, 0.0);
+        }
       }
       vtkVars[nv]->Delete();
     }
@@ -1676,8 +1689,9 @@ int vtkCGNSReader::vtkPrivate::fillArrayInformation(const std::vector<double>& s
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, vtkIdType nVals,
-  CGNS_ENUMT(GridLocation_t) varCentering, const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
+int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, int requestedVectorDim,
+  vtkIdType nVals, CGNS_ENUMT(GridLocation_t) varCentering,
+  const std::vector<CGNSRead::CGNSVariable>& cgnsVars,
   const std::vector<CGNSRead::CGNSVector>& cgnsVectors, std::vector<vtkDataArray*>& vtkVars,
   vtkCGNSReader* self)
 {
@@ -1753,13 +1767,17 @@ int vtkCGNSReader::vtkPrivate::AllocateVtkArray(int physicalDim, vtkIdType nVals
     }
 
     arr->SetName(iter->name);
-    arr->SetNumberOfComponents(physicalDim);
+    arr->SetNumberOfComponents(requestedVectorDim);
     arr->SetNumberOfTuples(nVals);
 
     for (int dim = 0; dim < physicalDim; ++dim)
     {
       arr->SetComponentName(static_cast<vtkIdType>(dim), cgnsVars[iter->xyzIndex[dim]].name);
       vtkVars[iter->xyzIndex[dim]] = arr;
+    }
+    for (int dim = physicalDim; dim < requestedVectorDim; ++dim)
+    {
+      arr->SetComponentName(static_cast<vtkIdType>(dim), "dummy");
     }
   }
   return 0;
@@ -1974,10 +1992,9 @@ vtkSmartPointer<vtkDataObject> vtkCGNSReader::vtkPrivate::readCurvilinearZone(in
   vtkNew<vtkStructuredGrid> sgrid;
   sgrid->SetExtent(extent);
   sgrid->SetPoints(points.Get());
-  for (std::vector<std::string>::const_iterator sniter = solutionNames.begin();
-       sniter != solutionNames.end(); ++sniter)
+  for (const std::string& sniter : solutionNames)
   {
-    vtkPrivate::readSolution(*sniter, cellDim, physicalDim, zsize, sgrid.Get(), voi, self);
+    vtkPrivate::readSolution(sniter, cellDim, physicalDim, zsize, sgrid.Get(), voi, self);
   }
 
   vtkPrivate::AttachReferenceValue(base, sgrid.Get(), self);
@@ -3040,14 +3057,13 @@ int vtkCGNSReader::GetUnstructuredZone(
   //----------------------------------------------------------------------------
   // Handle solutions
   //----------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator sniter = solutionNames.begin();
-       sniter != solutionNames.end(); ++sniter)
+  for (const std::string& sniter : solutionNames)
   {
     // cellDim=1 is based on the code that was previously here. With cellDim=1, I was
     // able to share the code between Curlinear and Unstructured grids for reading
     // solutions.
     vtkPrivate::readSolution(
-      *sniter, /*cellDim=*/1, physicalDim, zsize, ugrid.Get(), /*voi=*/nullptr, this);
+      sniter, /*cellDim=*/1, physicalDim, zsize, ugrid.Get(), /*voi=*/nullptr, this);
   }
 
   // Handle Reference Values (Mach Number, ...)
