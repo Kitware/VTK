@@ -433,6 +433,8 @@ int vtkXdmfReader::RequestData(
 
   // will be set for structured datasets only.
   int update_extent[6] = { 0, -1, 0, -1, 0, -1 };
+  int zero_extent[6] = { 0, -1, 0, -1, 0, -1 };
+  bool generateGhostArray = false;
   if (output->GetExtentType() == VTK_3D_EXTENT &&
     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
@@ -448,6 +450,14 @@ int vtkXdmfReader::RequestData(
       et->SetGhostLevel(ghost_levels);
       et->PieceToExtent();
       et->GetExtent(update_extent);
+
+      if (ghost_levels > 0)
+      {
+        et->SetGhostLevel(0);
+        et->PieceToExtent();
+        et->GetExtent(zero_extent);
+        generateGhostArray = true;
+      }
     }
   }
 
@@ -498,6 +508,16 @@ int vtkXdmfReader::RequestData(
     double time = this->XdmfDocument->GetActiveDomain()->GetTimeForIndex(this->LastTimeIndex);
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
   }
+
+  if (generateGhostArray)
+  {
+    vtkDataSet* output_tmp = vtkDataSet::SafeDownCast(output);
+    if (output_tmp != nullptr)
+    {
+      output_tmp->GenerateGhostArray(zero_extent);
+    }
+  }
+
   return 1;
 }
 
