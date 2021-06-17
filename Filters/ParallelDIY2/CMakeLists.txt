@@ -13,6 +13,7 @@ set(classes
   vtkOverlappingCellsDetector
   vtkPResampleToImage
   vtkPResampleWithDataSet
+  vtkProbeLineFilter
   vtkRedistributeDataSetFilter)
 
 if (TARGET VTK::ParallelMPI)
