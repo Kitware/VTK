@@ -23,14 +23,19 @@
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDIYUtilities.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkFieldData.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <limits>
 #include <numeric>
@@ -67,26 +72,29 @@ struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkStructuredGrid>
   typedef StructuredGridBlock BlockType;
 };
 
+//============================================================================
+template <>
+struct vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<vtkUnstructuredGrid>
+{
+  typedef UnstructuredGridBlock BlockType;
+};
+
 //----------------------------------------------------------------------------
 template <class DataSetT>
-std::vector<vtkDIYGhostUtilities::BlockMapType<vtkBoundingBox>>
-vtkDIYGhostUtilities::ExchangeBoundingBoxes(
+void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
   diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
-  std::vector<vtkBoundingBox> localbbs(inputs.size());
-  std::vector<BlockMapType<vtkBoundingBox>> bbs(inputs.size());
-
   diy::all_to_all(
-    master, assigner, [&master, &inputs, &bbs, &localbbs](BlockType*, const diy::ReduceProxy& srp) {
+    master, assigner, [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp) {
       int myBlockId = srp.gid();
       int localId = master.lid(myBlockId);
       auto& input = inputs[localId];
       if (srp.round() == 0)
       {
         const double* bounds = input->GetBounds();
-        localbbs[localId] = vtkBoundingBox(bounds);
+        block->BoundingBox = vtkBoundingBox(bounds);
         for (int i = 0; i < srp.out_link().size(); ++i)
         {
           const diy::BlockID& blockId = srp.out_link().target(i);
@@ -105,30 +113,11 @@ vtkDIYGhostUtilities::ExchangeBoundingBoxes(
           if (blockId.gid != myBlockId)
           {
             srp.dequeue(blockId, bounds, 6);
-            bbs[localId][blockId.gid] = vtkBoundingBox(bounds);
+            block->NeighborBoundingBoxes[blockId.gid] = vtkBoundingBox(bounds);
           }
         }
       }
     });
-
-  for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
-  {
-    vtkBoundingBox& localbb = localbbs[localId];
-    BlockMapType<vtkBoundingBox>& bb = bbs[localId];
-    for (auto it = bb.begin(); it != bb.end();)
-    {
-      if (localbb.Intersects(it->second))
-      {
-        ++it;
-      }
-      else
-      {
-        it = bb.erase(it);
-      }
-    }
-  }
-
-  return bbs;
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +152,30 @@ void vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, std::vector<DataS
       }
     }
   });
+}
+
+//----------------------------------------------------------------------------
+template <class BlockT>
+vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingBoxes(
+  const diy::Master& master)
+{
+  LinkMap linkMap(master.size());
+
+  for (int localId = 0; localId < static_cast<int>(master.size()); ++localId)
+  {
+    Links& links = linkMap[localId];
+    BlockT* block = master.block<BlockT>(localId);
+    vtkBoundingBox& localbb = block->BoundingBox;
+    BlockMapType<vtkBoundingBox>& bb = block->NeighborBoundingBoxes;
+    for (auto item : bb)
+    {
+      if (localbb.Intersects(item.second))
+      {
+        links.insert(item.first);
+      }
+    }
+  }
+  return linkMap;
 }
 
 //----------------------------------------------------------------------------
@@ -211,7 +224,7 @@ void vtkDIYGhostUtilities::InitializeGhostCellArray(
     ghostCellArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
     ghostCellArray->SetName(vtkDataSetAttributes::GhostArrayName());
     ghostCellArray->SetNumberOfComponents(1);
-    ghostCellArray->SetNumberOfTuples(output->GetNumberOfCells());
+    ghostCellArray->SetNumberOfValues(output->GetNumberOfCells());
   }
   ghostCellArray->Fill(0);
 }
@@ -229,7 +242,7 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
     ghostPointArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
     ghostPointArray->SetName(vtkDataSetAttributes::GhostArrayName());
     ghostPointArray->SetNumberOfComponents(1);
-    ghostPointArray->SetNumberOfTuples(output->GetNumberOfPoints());
+    ghostPointArray->SetNumberOfValues(output->GetNumberOfPoints());
   }
   ghostPointArray->Fill(0);
 }
@@ -244,7 +257,8 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
 {
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
-                  std::is_base_of<vtkStructuredGrid, DataSetT>::value),
+                  std::is_base_of<vtkStructuredGrid, DataSetT>::value ||
+                  std::is_base_of<vtkUnstructuredGrid, DataSetT>::value),
     "Input data set type is not supported.");
 
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
@@ -262,10 +276,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
     : std::string("No ghosts to generate for empty rank");
   vtkLogStartScope(TRACE, logMessage.c_str());
 
-  for (int i = 0; i < size; ++i)
-  {
-    outputs[i]->CopyStructure(inputs[i]);
-  }
+  CloneGeometricStructures(inputs, outputs);
 
   vtkLogStartScope(TRACE, "Instantiating diy communicator");
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(controller);
@@ -301,11 +312,16 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkDIYGhostUtilities::SetupBlockSelfInformation(master, inputs);
   vtkLogEndScope("Setup block self information.");
 
+  vtkLogStartScope(TRACE, "Exchanging bounding boxes");
+  vtkDIYGhostUtilities::ExchangeBoundingBoxes(master, assigner, inputs);
+  vtkLogEndScope("Exchanging bounding boxes");
+
   // We compute a temporary link map that weeds out data sets that do not have
   // overlapping bounding boxes.
-  vtkLogStartScope(TRACE, "Exchanging bounding boxes");
-  auto temporaryLinkMap = vtkDIYGhostUtilities::ExchangeBoundingBoxes(master, assigner, inputs);
-  vtkLogEndScope("Exchanging bounding boxes");
+  vtkLogStartScope(TRACE, "Computing temporary link map using bounding boxes.");
+  LinkMap temporaryLinkMap =
+    vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingBoxes<BlockType>(master);
+  vtkLogEndScope("Computing temporary link map using bounding boxes.");
 
   // We link our blocks using the temporary link map
   vtkLogStartScope(TRACE, "Relinking blocks using temporary link map");
@@ -321,8 +337,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // The structural information that has been exchanged is used to compute
   // the final link map, mapping blocks that will actually exchange ghosts.
   vtkLogStartScope(TRACE, "Creating link map between connected blocks");
-  LinkMap linkMap =
-    vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputs, outputGhostLevels);
+  LinkMap linkMap = vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputGhostLevels);
   vtkLogEndScope("Creating link map between connected blocks");
 
   vtkLogStartScope(TRACE, "Relinking blocks using link map");

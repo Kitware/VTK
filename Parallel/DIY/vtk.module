@@ -17,6 +17,7 @@ OPTIONAL_DEPENDS
   VTK::ParallelMPI
 PRIVATE_DEPENDS
   VTK::FiltersGeneral
+  VTK::FiltersGeometry
   VTK::IOXML
 TEST_DEPENDS
   VTK::FiltersSources

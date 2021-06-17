@@ -244,6 +244,8 @@ public:
    */
   vtkTypeBool ContainsPoint(const double p[3]) const;
   vtkTypeBool ContainsPoint(double px, double py, double pz) const;
+  template <class PointT>
+  bool ContainsPoint(const PointT& p) const;
   ///@}
 
   /**
@@ -528,6 +530,12 @@ inline vtkTypeBool vtkBoundingBox::ContainsPoint(double px, double py, double pz
 }
 
 inline vtkTypeBool vtkBoundingBox::ContainsPoint(const double p[3]) const
+{
+  return this->ContainsPoint(p[0], p[1], p[2]);
+}
+
+template <class PointT>
+inline bool vtkBoundingBox::ContainsPoint(const PointT& p) const
 {
   return this->ContainsPoint(p[0], p[1], p[2]);
 }

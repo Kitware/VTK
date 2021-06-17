@@ -596,12 +596,6 @@ void vtkDataArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstrac
       << srcIds->GetNumberOfIds() << " Dest: " << dstIds->GetNumberOfIds());
     return;
   }
-  if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
-  {
-    vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
-                                                 << " Dest: " << this->GetDataTypeAsString());
-    return;
-  }
   if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
   {
     vtkErrorMacro("Number of components do not match: Source: "
@@ -656,12 +650,6 @@ void vtkDataArray::InsertTuples(
 {
   if (n == 0)
   {
-    return;
-  }
-  if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
-  {
-    vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
-                                                 << " Dest: " << this->GetDataTypeAsString());
     return;
   }
   if (src->GetNumberOfComponents() != this->GetNumberOfComponents())

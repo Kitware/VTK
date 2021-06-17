@@ -129,6 +129,7 @@ build:fedora33-mpi-python-qt-tbb:
         - .linux_qt_builder_tags
         - .cmake_build_artifacts
         - .run_manually
+    timeout: 90 minutes
 
 test:fedora33-mpi-python-qt-tbb:
     extends:

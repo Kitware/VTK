@@ -48,7 +48,7 @@
 #ifndef vtkDIYGhostUtilities_h
 #define vtkDIYGhostUtilities_h
 
-#include "vtkBoundingBox.h"         // For BlockStructureBase
+#include "vtkBoundingBox.h"         // For ComputeLinkMap
 #include "vtkDIYExplicitAssigner.h" // For DIY assigner
 #include "vtkDIYUtilities.h"        // For Block
 #include "vtkObject.h"
@@ -66,10 +66,14 @@
 #include VTK_DIY2(diy/master.hpp)
 // clang-format on
 
+class vtkAbstractPointLocator;
+class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
+class vtkDataSetSurfaceFilter;
 class vtkFieldData;
 class vtkIdList;
+class vtkIdTypeArray;
 class vtkImageData;
 class vtkMatrix3x3;
 class vtkMultiProcessController;
@@ -77,6 +81,7 @@ class vtkPoints;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnsignedCharArray;
+class vtkUnstructuredGrid;
 
 class VTKPARALLELDIY_EXPORT vtkDIYGhostUtilities : public vtkObject
 {
@@ -99,7 +104,7 @@ public:
 
   /**
    * This helper structure owns a typedef to the block type of `DataSetT` used with diy to generate
-   * ghosts. This block type is defined as \c DataSetTypeToBlockTypeConverter<DataSetT>::BlockType.
+   * ghosts. This block type is defined as `DataSetTypeToBlockTypeConverter<DataSetT>::BlockType`.
    */
   template <class DataSetT>
   struct DataSetTypeToBlockTypeConverter;
@@ -110,8 +115,8 @@ protected:
    */
   struct DataSetBlockStructure
   {
-    vtkSmartPointer<vtkFieldData> GhostCellData;
-    vtkSmartPointer<vtkFieldData> GhostPointData;
+    vtkSmartPointer<vtkFieldData> GhostCellData = nullptr;
+    vtkSmartPointer<vtkFieldData> GhostPointData = nullptr;
   };
 
   /**
@@ -353,6 +358,130 @@ protected:
     vtkNew<vtkPoints> GhostPoints;
   };
 
+  struct PointSetInformation
+  {
+    /**
+     * Bounding box of input.
+     */
+    vtkBoundingBox BoundingBox;
+
+    /**
+     * Filter that is being used to extract the surface of the input.
+     * The surface is used to check how the interface of the input matches the ones of its
+     * neighboring blocks.
+     */
+    vtkNew<vtkDataSetSurfaceFilter> SurfaceFilter;
+
+    /**
+     * Handle to the local point ids of the surface of the input.
+     * Those point ids are being used to rapidly match points of the surface to their original
+     * location in the input.
+     */
+    vtkIdTypeArray* SurfacePointIds;
+
+    /**
+     * Handle to the points of the surface of the input.
+     */
+    vtkDataArray* SurfacePoints;
+
+    /**
+     * Handle to a point locator for surface points of the input.
+     */
+    vtkSmartPointer<vtkAbstractPointLocator> SurfacePointLocator;
+  };
+
+  struct PointSetBlockStructure : public DataSetBlockStructure
+  {
+    /**
+     * This lists the matching point ids to the interfacing points that are exchanged with current
+     * neighboring block. Those ids correspond to local point ordering.
+     */
+    vtkNew<vtkIdTypeArray> MatchingReceivedPointIds;
+
+    /**
+     * This array describes the same points as `MatchingReceivedPointIds`, but points are ordered
+     * like in the current neighboring block.
+     */
+    vtkNew<vtkIdTypeArray> MatchingReceivedPointIdsSortedLikeTarget;
+
+    /**
+     * These are the interfacing points sent by the current neighboring block. They should match
+     * a subset of the output of the surface filter which is in `PointSetInformation`.
+     */
+    vtkNew<vtkPoints> InterfacingPoints;
+
+    /**
+     * Ghost points sent by the current neighboring block.
+     */
+    vtkNew<vtkPoints> GhostPoints;
+
+    /**
+     * This buffer stores the point ids that will be sent by us when ghosts are exchanged.
+     */
+    vtkSmartPointer<vtkPoints> PointsToSend;
+
+    /**
+     * This lists the ids of the points that we own and need to send to the current neighboring
+     * block.
+     */
+    vtkNew<vtkIdList> PointIdsToSend;
+
+    ///@{
+    /**
+     * It can happen that a point can be sent by multiple blocks. If those points are not carefully
+     * tracked down, we can end up instantiating multiple times a point that should be created only
+     * once. This array lists the potential duplicate point ids that are being send / received for
+     * the current neighboring block.
+     */
+    vtkNew<vtkIdTypeArray> SharedPointIds;
+    vtkSmartPointer<vtkIdTypeArray> ReceivedSharedPointIds;
+    ///@}
+
+    /**
+     * This is a mapping from points that have been sent by the current neighboring block and have
+     * already been added in the output points, to their location in the output point array.
+     */
+    std::map<vtkIdType, vtkIdType> RedirectionMapForDuplicatePointIds;
+  };
+
+  struct UnstructuredGridInformation : public PointSetInformation
+  {
+    ///@{
+    /**
+     * This is a cursor telling the amount of points / cells / connectivity / faces information,
+     * that has
+     * already been added to the output. This variable is used at the very end of the pipeline.
+     */
+    vtkIdType CurrentMaxPointId;
+    vtkIdType CurrentMaxCellId;
+    vtkIdType CurrentConnectivitySize;
+    vtkIdType CurrentFacesSize;
+    ///@}
+  };
+
+  struct UnstructuredGridBlockStructure : public PointSetBlockStructure
+  {
+    /**
+     * Topology information for cells to be exchanged.
+     */
+    struct GeometryBufferType
+    {
+      vtkSmartPointer<vtkUnsignedCharArray> Types = nullptr;
+      vtkSmartPointer<vtkIdTypeArray> Faces = nullptr;
+      vtkSmartPointer<vtkIdTypeArray> FaceLocations = nullptr;
+      vtkNew<vtkCellArray> CellArray;
+    };
+
+    /**
+     * This lists the ids of the cells that we own and need to send to the current neighboring
+     * block.
+     */
+    vtkNew<vtkIdList> CellIdsToSend;
+
+    GeometryBufferType SendBuffer;
+    GeometryBufferType ReceiveBuffer;
+  };
+
 public:
   /**
    * Block structure to be used for diy communication.
@@ -399,7 +528,8 @@ public:
   using ImageDataBlock = Block<ImageDataBlockStructure, GridInformation>;
   using RectilinearGridBlock = Block<RectilinearGridBlockStructure, RectilinearGridInformation>;
   using StructuredGridBlock = Block<StructuredGridBlockStructure, StructuredGridInformation>;
-  ///@}
+  using UnstructuredGridBlock = Block<UnstructuredGridBlockStructure, UnstructuredGridInformation>;
+  //@}
 
   /**
    * Main pipeline generating ghosts. It takes as parameters a list of `DataSetT` for the `inputs`
@@ -435,6 +565,20 @@ protected:
 
   ///@{
   /**
+   *
+   */
+  static void CloneGeometricStructures(
+    std::vector<vtkImageData*>& inputs, std::vector<vtkImageData*>& outputs);
+  static void CloneGeometricStructures(
+    std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs);
+  static void CloneGeometricStructures(
+    std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
+  static void CloneGeometricStructures(
+    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs);
+  ///@}
+
+  ///@{
+  /**
    * Method to be overloaded for each supported type of input data set.
    * In this method, given `BlockType` the block type for the data set type,
    * `BlockType::InformationType` is filled with all information needed from the input to create the
@@ -445,14 +589,19 @@ protected:
     diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
   static void SetupBlockSelfInformation(
     diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
+  static void SetupBlockSelfInformation(
+    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
   ///@}
 
   /**
    * This method exchanges the bounding boxes among blocks.
    */
   template <class DataSetT>
-  static std::vector<BlockMapType<vtkBoundingBox>> ExchangeBoundingBoxes(
+  static void ExchangeBoundingBoxes(
     diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs);
+
+  template <class BlockT>
+  static LinkMap ComputeLinkMapUsingBoundingBoxes(const diy::Master& master);
 
   ///@{
   /**
@@ -465,6 +614,8 @@ protected:
   static void ExchangeBlockStructures(
     diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
   static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
   ///@}
 
   ///@{
@@ -473,12 +624,14 @@ protected:
    * that computes the minimal link map being necessary to exchange ghosts.
    * This method is called after `master` has been relinked.
    */
-  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkImageData*>& inputs,
-    std::vector<vtkImageData*>& outputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
-    std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
-    std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(
+    const diy::Master& master, std::vector<vtkImageData*>& inputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(
+    const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(
+    const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(
+    const diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, int outputGhostLevels);
   ///@}
 
   ///@{
@@ -492,6 +645,8 @@ protected:
     vtkRectilinearGrid* input, RectilinearGridBlock* block);
   static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
     vtkStructuredGrid* input, StructuredGridBlock* block);
+  static void EnqueueGhosts(const diy::Master::ProxyWithLink& cp, const diy::BlockID& blockId,
+    vtkUnstructuredGrid* input, UnstructuredGridBlock* block);
   ///@}
 
   ///@{
@@ -506,6 +661,8 @@ protected:
     const diy::Master::ProxyWithLink& cp, int gid, RectilinearGridBlockStructure& blockStructure);
   static void DequeueGhosts(
     const diy::Master::ProxyWithLink& cp, int gid, StructuredGridBlockStructure& blockStructure);
+  static void DequeueGhosts(
+    const diy::Master::ProxyWithLink& cp, int gid, UnstructuredGridBlockStructure& blockStructure);
   ///@}
 
   ///@{
@@ -520,6 +677,8 @@ protected:
     std::vector<vtkRectilinearGrid*>& inputs, std::vector<vtkRectilinearGrid*>& outputs);
   static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
     std::vector<vtkStructuredGrid*>& inputs, std::vector<vtkStructuredGrid*>& outputs);
+  static void DeepCopyInputsAndAllocateGhosts(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs, std::vector<vtkUnstructuredGrid*>& outputs);
   ///@}
 
   /**
@@ -548,6 +707,8 @@ protected:
   static void FillGhostArrays(const diy::Master& master, std::vector<vtkImageData*>& outputs);
   static void FillGhostArrays(const diy::Master& master, std::vector<vtkRectilinearGrid*>& outputs);
   static void FillGhostArrays(const diy::Master& master, std::vector<vtkStructuredGrid*>& outputs);
+  static void FillGhostArrays(
+    const diy::Master& master, std::vector<vtkUnstructuredGrid*>& outputs);
   ///@}
 
 private:

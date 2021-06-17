@@ -21,7 +21,11 @@
 #include "vtkDummyController.h"
 #endif
 
+#include "vtkAbstractPointLocator.h"
+#include "vtkCellArray.h"
+#include "vtkCellCenters.h"
 #include "vtkCellData.h"
+#include "vtkCommunicator.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -35,11 +39,15 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <cmath>
+#include <set>
 
 namespace
 {
@@ -56,8 +64,8 @@ constexpr char GridArrayName[] = "grid_data";
 //----------------------------------------------------------------------------
 double GetGridValue(double i, double j, double k)
 {
-  return std::cos(i * M_PI / MaxExtent) * std::sin(j * M_PI / MaxExtent) *
-    std::exp(-std::abs(k) * std::abs(k) / 9.0);
+  return std::cos(i * M_PI / MaxExtent + 1.0) * std::sin(j * M_PI / MaxExtent + 1.0) *
+    std::exp(-(k - 1.0) * (k - 1.0) / 11.0);
 }
 
 //----------------------------------------------------------------------------
@@ -191,6 +199,8 @@ bool TestImagePointData(vtkPartitionedDataSet* pds, vtkImageData* refImage)
           vtkIdType pointId = vtkStructuredData::ComputePointIdForExtent(extent, ijk);
           if (array->GetTuple1(pointId) != refArray->GetTuple1(refPointId))
           {
+            std::cout << array->GetTuple1(pointId) << " != " << refArray->GetTuple1(refPointId)
+                      << std::endl;
             return false;
           }
         }
@@ -270,7 +280,7 @@ bool TestMixedTypes(int myrank)
 }
 
 //----------------------------------------------------------------------------
-bool Test1DGrids(int myrank)
+bool Test1DGrids(int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
 
@@ -301,8 +311,6 @@ bool Test1DGrids(int myrank)
   refImagePointToCell->Update();
   vtkImageData* refImagePointToCellDO =
     vtkImageData::SafeDownCast(refImagePointToCell->GetOutputDataObject(0));
-
-  int numberOfGhostLayers = 2;
 
   const int newExtent[6] = { xmin != 0 ? xmin : -numberOfGhostLayers,
     xmax != 0 ? xmax : numberOfGhostLayers, 0, 0, 0, 0 };
@@ -529,7 +537,7 @@ bool Test1DGrids(int myrank)
 }
 
 //----------------------------------------------------------------------------
-bool Test2DGrids(int myrank)
+bool Test2DGrids(int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
 
@@ -560,8 +568,6 @@ bool Test2DGrids(int myrank)
   refImagePointToCell->Update();
   vtkImageData* refImagePointToCellDO =
     vtkImageData::SafeDownCast(refImagePointToCell->GetOutputDataObject(0));
-
-  int numberOfGhostLayers = 2;
 
   const int newExtent0[6] = { -MaxExtent, numberOfGhostLayers,
     ymin != 0 ? ymin : -numberOfGhostLayers, ymax != 0 ? ymax : numberOfGhostLayers, 0, 0 };
@@ -835,7 +841,7 @@ bool Test2DGrids(int myrank)
 }
 
 //----------------------------------------------------------------------------
-bool Test3DGrids(int myrank)
+bool Test3DGrids(int myrank, int numberOfGhostLayers)
 {
   bool retVal = true;
   int zmin, zmax;
@@ -867,8 +873,6 @@ bool Test3DGrids(int myrank)
   refImagePointToCell->Update();
   vtkImageData* refImagePointToCellDO =
     vtkImageData::SafeDownCast(refImagePointToCell->GetOutputDataObject(0));
-
-  int numberOfGhostLayers = 2;
 
   const int newExtent0[6] = { -MaxExtent, numberOfGhostLayers, -MaxExtent, numberOfGhostLayers,
     zmin != 0 ? zmin : -numberOfGhostLayers, zmax != 0 ? zmax : numberOfGhostLayers };
@@ -1237,6 +1241,501 @@ bool Test3DGrids(int myrank)
   }
   return retVal;
 }
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
+  vtkImageData* input, bool producePolyhedrons = true)
+{
+  vtkSmartPointer<vtkUnstructuredGrid> output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+
+  output->ShallowCopy(input);
+  vtkNew<vtkPoints> points;
+  output->SetPoints(points);
+  points->SetNumberOfPoints(input->GetNumberOfPoints());
+  for (vtkIdType pointId = 0; pointId < points->GetNumberOfPoints(); ++pointId)
+  {
+    points->SetPoint(pointId, input->GetPoint(pointId));
+  }
+
+  vtkIdType numberOfCells = input->GetNumberOfCells();
+
+  using ArrayType32 = vtkCellArray::ArrayType32;
+  vtkNew<vtkCellArray> cells;
+  cells->Use32BitStorage();
+
+  ArrayType32* offsets = cells->GetOffsetsArray32();
+  offsets->SetNumberOfValues(numberOfCells + 1);
+  for (vtkIdType id = 0; id < offsets->GetNumberOfValues(); ++id)
+  {
+    offsets->SetValue(id, 8 * id);
+  }
+
+  const int* extent = input->GetExtent();
+  vtkNew<vtkIdTypeArray> faces;
+  // half cells * number of faces in voxel [6] * (number of points in face + 1) [4 + 1]
+  faces->SetNumberOfValues((numberOfCells / 2) * (6 * 5 + 1));
+
+  vtkNew<vtkIdTypeArray> faceLocations;
+  faceLocations->SetNumberOfValues(numberOfCells);
+
+  vtkNew<vtkUnsignedCharArray> types;
+  types->SetNumberOfValues(numberOfCells);
+
+  ArrayType32* connectivity = cells->GetConnectivityArray32();
+  connectivity->SetNumberOfValues(8 * numberOfCells);
+  int ijkCell[3];
+  int ijkPoint[3];
+  vtkIdType connectivityId = 0;
+  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  {
+    vtkStructuredData::ComputeCellStructuredCoordsForExtent(cellId, extent, ijkCell);
+    for (ijkPoint[0] = ijkCell[0]; ijkPoint[0] <= ijkCell[0] + 1; ++ijkPoint[0])
+    {
+      for (ijkPoint[1] = ijkCell[1]; ijkPoint[1] <= ijkCell[1] + 1; ++ijkPoint[1])
+      {
+        for (ijkPoint[2] = ijkCell[2]; ijkPoint[2] <= ijkCell[2] + 1; ++ijkPoint[2])
+        {
+          connectivity->SetValue(
+            connectivityId++, vtkStructuredData::ComputePointIdForExtent(extent, ijkPoint));
+        }
+      }
+    }
+
+    if (producePolyhedrons && cellId % 2)
+    {
+      vtkIdType id = ((cellId / 2) * (5 * 6 + 1));
+      faceLocations->SetValue(cellId, id);
+
+      types->SetValue(cellId, VTK_POLYHEDRON);
+
+      faces->SetValue(id, 6); // 6 faces.
+      ++id;
+
+      vtkIdType offsetId = connectivityId - 8;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Bottom face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 1));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 3));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 2));
+
+      id += 5;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Top face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 4));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 5));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 6));
+
+      id += 5;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Front face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 1));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 5));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 4));
+
+      id += 5;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Back face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 2));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 3));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 6));
+
+      id += 5;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Left face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 0));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 2));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 6));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 4));
+
+      id += 5;
+      faces->SetValue(id, 4); // 4 points per face.
+      // Right face
+      faces->SetValue(id + 1, connectivity->GetValue(offsetId + 1));
+      faces->SetValue(id + 2, connectivity->GetValue(offsetId + 3));
+      faces->SetValue(id + 3, connectivity->GetValue(offsetId + 7));
+      faces->SetValue(id + 4, connectivity->GetValue(offsetId + 5));
+    }
+    else
+    {
+      faceLocations->SetValue(cellId, -1);
+      types->SetValue(cellId, VTK_VOXEL);
+    }
+  }
+
+  if (producePolyhedrons)
+  {
+    output->SetCells(types, cells, faceLocations, faces);
+  }
+  else
+  {
+    output->SetCells(VTK_VOXEL, cells);
+  }
+
+  return output;
+}
+
+//----------------------------------------------------------------------------
+bool TestQueryReferenceToGenerated(
+  vtkPointSet* ref, vtkAbstractPointLocator* refLocator, vtkPointSet* gen, bool centers = false)
+{
+  vtkPoints* points = gen->GetPoints();
+  vtkPoints* refPoints = ref->GetPoints();
+  std::set<vtkIdType> passThroughAllPointsCheck;
+
+  vtkDoubleArray* data =
+    vtkArrayDownCast<vtkDoubleArray>(gen->GetPointData()->GetArray(GridArrayName));
+  if (!data)
+  {
+    if (!centers)
+    {
+      vtkLog(ERROR, "Point data scalar field is absent from generated unstructured grid.");
+    }
+    else
+    {
+      vtkLog(ERROR, "Cell data scalar field is absent from generated unstructured grid.");
+    }
+    return false;
+  }
+  vtkDoubleArray* refData =
+    vtkArrayDownCast<vtkDoubleArray>(ref->GetPointData()->GetArray(GridArrayName));
+
+  for (vtkIdType pointId = 0; pointId < gen->GetNumberOfPoints(); ++pointId)
+  {
+    double* p = points->GetPoint(pointId);
+    vtkIdType refPointId = refLocator->FindClosestPoint(p);
+    passThroughAllPointsCheck.insert(refPointId);
+    double* refp = refPoints->GetPoint(refPointId);
+    if (refp[0] != p[0] || refp[1] != p[1] || refp[2] != p[2])
+    {
+      vtkLog(ERROR,
+        "Generated point not present in reference unstructured grid: ("
+          << p[0] << ", " << p[1] << ", " << p[2] << ") != (" << ref[0] << ", " << refp[1] << ", "
+          << refp[2] << ").");
+      return false;
+    }
+
+    if (refData->GetValue(refPointId) != data->GetValue(pointId))
+    {
+      if (!centers)
+      {
+        vtkLog(ERROR, "Generated output for unstructured grid failed to copy point data.");
+      }
+      else
+      {
+        vtkLog(ERROR, "Generated output for unstructured grid failed to copy cell data.");
+      }
+      return false;
+    }
+  }
+
+  if (static_cast<vtkIdType>(passThroughAllPointsCheck.size()) != points->GetNumberOfPoints())
+  {
+    if (!centers)
+    {
+      vtkLog(ERROR, "It seems that there are duplicate point locations in the generated points.");
+    }
+    else
+    {
+      vtkLog(ERROR, "Something's off with cell geometry in the generated output.");
+    }
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestGhostPointsTagging(vtkMultiProcessController* controller, vtkPartitionedDataSet* pds)
+{
+  vtkIdType numberOfNonGhostPoints = 0;
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  {
+    vtkPointSet* ps = vtkPointSet::SafeDownCast(pds->GetPartition(partitionId));
+    int foo;
+    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
+      ps->GetPointData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
+    for (vtkIdType pointId = 0; pointId < ps->GetNumberOfPoints(); ++pointId)
+    {
+      if (!ghosts->GetValue(pointId))
+      {
+        ++numberOfNonGhostPoints;
+      }
+    }
+  }
+
+  vtkIdType globalNumberOfNonGhostPoints;
+
+  controller->AllReduce(
+    &numberOfNonGhostPoints, &globalNumberOfNonGhostPoints, 1, vtkCommunicator::SUM_OP);
+
+  vtkIdType length = 2 * MaxExtent + 1;
+  if (globalNumberOfNonGhostPoints != length * length * length)
+  {
+    vtkLog(ERROR,
+      "Ghost point tagging failed. We have "
+        << globalNumberOfNonGhostPoints
+        << " points that are tagged as non ghost, but we should have "
+        << (length * length * length));
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestGhostCellsTagging(vtkMultiProcessController* controller, vtkPartitionedDataSet* pds)
+{
+  vtkIdType numberOfNonGhostCells = 0;
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  {
+    vtkPointSet* ps = vtkPointSet::SafeDownCast(pds->GetPartition(partitionId));
+    int foo;
+    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
+      ps->GetCellData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName(), foo));
+    for (vtkIdType cellId = 0; cellId < ps->GetNumberOfCells(); ++cellId)
+    {
+      if (!ghosts->GetValue(cellId))
+      {
+        ++numberOfNonGhostCells;
+      }
+    }
+  }
+
+  vtkIdType globalNumberOfNonGhostCells;
+
+  controller->AllReduce(
+    &numberOfNonGhostCells, &globalNumberOfNonGhostCells, 1, vtkCommunicator::SUM_OP);
+
+  vtkIdType length = 2 * MaxExtent;
+  if (globalNumberOfNonGhostCells != length * length * length)
+  {
+    vtkLog(ERROR,
+      "Ghost cell tagging failed. We have "
+        << globalNumberOfNonGhostCells << " cells that are tagged as non ghost, but we should have "
+        << (length * length * length));
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool TestUnstructuredGrid(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers)
+{
+  bool retVal = true;
+  int zmin, zmax;
+
+  switch (myrank)
+  {
+    case 0:
+      zmin = -MaxExtent;
+      zmax = 0;
+      break;
+    case 1:
+      zmin = 0;
+      zmax = MaxExtent;
+      break;
+    default:
+      zmin = 1;
+      zmax = -1;
+      break;
+  }
+
+  // Generating an image englobing the extents of every blocks
+  // to use as a reference
+  vtkNew<vtkImageData> refImage;
+  refImage->SetExtent(-MaxExtent, MaxExtent, -MaxExtent, MaxExtent, -MaxExtent, MaxExtent);
+  FillImage(refImage);
+
+  vtkSmartPointer<vtkUnstructuredGrid> refUG = Convert3DImageToUnstructuredGrid(refImage);
+
+  vtkNew<vtkStaticPointLocator> refLocator;
+  refLocator->SetDataSet(refUG);
+  refLocator->BuildLocator();
+
+  vtkNew<vtkPointDataToCellData> refPointToCell;
+  refPointToCell->SetInputData(refUG);
+  refPointToCell->Update();
+
+  vtkNew<vtkImageData> image0;
+  image0->SetExtent(-MaxExtent, 0, -MaxExtent, 0, zmin, zmax);
+  FillImage(image0);
+  vtkSmartPointer<vtkUnstructuredGrid> ug0 = Convert3DImageToUnstructuredGrid(image0, false);
+
+  vtkNew<vtkImageData> image1;
+  image1->SetExtent(0, MaxExtent, -MaxExtent, 0, zmin, zmax);
+  FillImage(image1);
+  vtkSmartPointer<vtkUnstructuredGrid> ug1 = Convert3DImageToUnstructuredGrid(image1);
+
+  vtkNew<vtkImageData> image2;
+  image2->SetExtent(0, MaxExtent, 0, MaxExtent, zmin, zmax);
+  FillImage(image2);
+  vtkSmartPointer<vtkUnstructuredGrid> ug2 = Convert3DImageToUnstructuredGrid(image2);
+
+  vtkNew<vtkImageData> image3;
+  image3->SetExtent(-MaxExtent, 0, 0, MaxExtent, zmin, zmax);
+  FillImage(image3);
+  vtkSmartPointer<vtkUnstructuredGrid> ug3 = Convert3DImageToUnstructuredGrid(image3);
+
+  vtkNew<vtkPointDataToCellData> point2cell0;
+  point2cell0->SetInputData(ug0);
+  point2cell0->Update();
+
+  vtkNew<vtkPointDataToCellData> point2cell1;
+  point2cell1->SetInputData(ug1);
+  point2cell1->Update();
+
+  vtkNew<vtkPointDataToCellData> point2cell2;
+  point2cell2->SetInputData(ug2);
+  point2cell2->Update();
+
+  vtkNew<vtkPointDataToCellData> point2cell3;
+  point2cell3->SetInputData(ug3);
+  point2cell3->Update();
+
+  vtkLog(INFO, "Testing ghost cells for vtkUnstructuredGrid in rank " << myrank);
+
+  vtkNew<vtkPartitionedDataSet> prePds;
+  prePds->SetNumberOfPartitions(1);
+
+  prePds->SetPartition(0, ug0);
+
+  // We do a simple case with only one ug per rank.
+  // We will use the output of this generator for the next more complex generation,
+  // and ensure that when ghosts are present in the input, everything works fine.
+  vtkNew<vtkGhostCellsGenerator> preGenerator;
+  preGenerator->SetInputDataObject(prePds);
+  preGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  preGenerator->Update();
+
+  vtkPartitionedDataSet* outPrePds =
+    vtkPartitionedDataSet::SafeDownCast(preGenerator->GetOutputDataObject(0));
+  vtkUnstructuredGrid* preug = vtkUnstructuredGrid::SafeDownCast(outPrePds->GetPartition(0));
+
+  if (preug->GetNumberOfCells() != (MaxExtent * MaxExtent * (MaxExtent + numberOfGhostLayers)))
+  {
+    vtkLog(ERROR,
+      "Wrong number of output cells for a one to one ghost cell generation:"
+        << " we should have " << (MaxExtent * MaxExtent * (MaxExtent + numberOfGhostLayers))
+        << ", instead we have " << preug->GetNumberOfCells());
+    retVal = false;
+  }
+
+  if (preug->GetNumberOfPoints() !=
+    ((MaxExtent + 1) * (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers)))
+  {
+    vtkLog(ERROR,
+      "Wrong number of output cells for a one to one ghost cell generation:"
+        << " we should have "
+        << ((MaxExtent + 1) * (MaxExtent + 1) * (MaxExtent + 1 + numberOfGhostLayers))
+        << ", instead we have " << preug->GetNumberOfCells());
+    retVal = false;
+  }
+
+  if (!TestQueryReferenceToGenerated(refUG, refLocator, preug))
+  {
+    retVal = false;
+  }
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  pds->SetNumberOfPartitions(4);
+
+  pds->SetPartition(0, outPrePds->GetPartition(0));
+  pds->SetPartition(1, ug1);
+  pds->SetPartition(2, ug2);
+  pds->SetPartition(3, ug3);
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputDataObject(pds);
+  generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  generator->Update();
+
+  vtkPartitionedDataSet* outPDS =
+    vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+
+  vtkLog(INFO, "Testing ghost points for vtkUnstructuredGrid in rank " << myrank);
+
+  vtkNew<vtkPartitionedDataSet> pdsPointToCell;
+  pdsPointToCell->SetNumberOfPartitions(4);
+
+  pdsPointToCell->SetPartition(0, point2cell0->GetOutputDataObject(0));
+  pdsPointToCell->SetPartition(1, point2cell1->GetOutputDataObject(0));
+  pdsPointToCell->SetPartition(2, point2cell2->GetOutputDataObject(0));
+  pdsPointToCell->SetPartition(3, point2cell3->GetOutputDataObject(0));
+
+  vtkNew<vtkGhostCellsGenerator> cellGenerator;
+  cellGenerator->SetInputDataObject(pdsPointToCell);
+  cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  cellGenerator->Update();
+
+  vtkPartitionedDataSet* outCellPDS =
+    vtkPartitionedDataSet::SafeDownCast(cellGenerator->GetOutputDataObject(0));
+
+  vtkNew<vtkCellCenters> refCenters;
+  refCenters->SetInputData(refPointToCell->GetOutputDataObject(0));
+  refCenters->Update();
+
+  vtkPointSet* refCentersPS = vtkPointSet::SafeDownCast(refCenters->GetOutputDataObject(0));
+
+  vtkNew<vtkStaticPointLocator> refCellsLocator;
+  refCellsLocator->SetDataSet(refCentersPS);
+  refCellsLocator->BuildLocator();
+
+  for (int id = 0; id < 4; ++id)
+  {
+    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDS->GetPartition(id));
+    vtkIdType numberOfCells = (MaxExtent + numberOfGhostLayers) *
+      (MaxExtent + numberOfGhostLayers) * (MaxExtent + numberOfGhostLayers);
+    if (ug->GetNumberOfCells() != numberOfCells)
+    {
+      vtkLog(ERROR,
+        "Wrong number of output cells when generating ghost cells with"
+          << "unstructured grid: " << ug->GetNumberOfCells() << " != " << numberOfCells);
+      retVal = false;
+    }
+    vtkIdType numberOfPoints = (MaxExtent + numberOfGhostLayers + 1) *
+      (MaxExtent + numberOfGhostLayers + 1) * (MaxExtent + numberOfGhostLayers + 1);
+    if (ug->GetNumberOfPoints() != numberOfPoints)
+    {
+      vtkLog(ERROR,
+        "Wrong number of output points when generating ghost cells with "
+          << "unstructured grid: " << ug->GetNumberOfPoints() << " != " << numberOfPoints);
+      retVal = false;
+    }
+
+    if (!TestQueryReferenceToGenerated(refUG, refLocator, ug))
+    {
+      retVal = false;
+    }
+
+    vtkNew<vtkCellCenters> centers;
+    centers->SetInputData(outCellPDS->GetPartition(id));
+    centers->Update();
+
+    if (!TestQueryReferenceToGenerated(refCentersPS, refCellsLocator,
+          vtkPointSet::SafeDownCast(centers->GetOutputDataObject(0)), true))
+    {
+      retVal = false;
+    }
+  }
+
+  if (!TestGhostPointsTagging(controller, outPDS))
+  {
+    retVal = false;
+  }
+
+  if (!TestGhostCellsTagging(controller, outPDS))
+  {
+    retVal = false;
+  }
+
+  return retVal;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -1253,23 +1752,29 @@ int TestGhostCellsGenerator(int argc, char* argv[])
 
   int retVal = EXIT_SUCCESS;
   int myrank = contr->GetLocalProcessId();
+  int numberOfGhostLayers = 2;
 
   if (!TestMixedTypes(myrank))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test1DGrids(myrank))
+  if (!Test1DGrids(myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test2DGrids(myrank))
+  if (!Test2DGrids(myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
 
-  if (!Test3DGrids(myrank))
+  if (!Test3DGrids(myrank, numberOfGhostLayers))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
