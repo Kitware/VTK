@@ -29,6 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
+#include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <array>
@@ -80,9 +81,10 @@ public:
     vtkEnSightGoldBinaryReader* self, const char* description, vtkDataSetAttributes* dsa,
     vtkIdType numElements, int numComponents, int component = -1)
   {
-    auto parts = vtksys::SystemTools::SplitString(sectionHeader, ' ');
-    const bool hasUndef = (parts.back() == "undef");
-    const bool hasPartial = (parts.back() == "partial");
+    vtksys::RegularExpression regEx("^[^ ]+ ([^ ]+)");
+    const bool match = regEx.find(sectionHeader);
+    const bool hasUndef = (match && regEx.match(1) == "undef");
+    const bool hasPartial = (match && regEx.match(1) == "partial");
 
     float undefValue{ 0 };
     if (hasUndef)
