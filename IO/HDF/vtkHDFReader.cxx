@@ -277,6 +277,17 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
 int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  if (!this->FileName)
+  {
+    vtkErrorMacro("Requires valid input file name");
+    return 0;
+  }
+  // Insures a new file is open. This happen for vtkFileSeriesReader
+  // which does not call RequestDataObject for every time step.
+  if (!this->Impl->Open(this->FileName))
+  {
+    return 0;
+  }
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
