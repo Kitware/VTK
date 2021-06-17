@@ -215,6 +215,19 @@
         </Documentation>
       </IntVectorProperty>
 
+      <IntVectorProperty name="Use3DVector"
+                         command="SetUse3DVector"
+                         number_of_elements="1"
+                         animateable="0"
+                         default_values="1"
+                         label="Use 3D vectors"
+                         panel_visibility="advanced">
+        <BooleanDomain name="bool" />
+        <Documentation>
+          Toggle whether to force usage of 3D vector when loading a 2D solution case
+        </Documentation>
+      </IntVectorProperty>
+
       <!-- End CGNSReader -->
     </SourceProxy>
   </ProxyGroup>
@@ -277,6 +290,7 @@
           <Property name="CreateEachSolutionAsBlock" />
           <Property name="IgnoreFlowSolutionPointers" />
           <Property name="UseUnsteadyPattern" />
+          <Property name="Use3DVector" />
         </ExposedProperties>
       </SubProxy>
 

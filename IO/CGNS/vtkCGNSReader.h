@@ -160,6 +160,15 @@ public:
   vtkBooleanMacro(LoadMesh, bool);
   ///@}
 
+  ///@{
+  /**
+   * Enable/disable adding an empty physical dimension to vectors in case of 2D solutions.
+   */
+  vtkSetMacro(Use3DVector, bool);
+  vtkGetMacro(Use3DVector, bool);
+  vtkBooleanMacro(Use3DVector, bool);
+  ///@}
+
   /**
    * This option is provided for debugging and should not be used for production
    * runs as the output data produced may not be correct. When set to true, the
@@ -285,6 +294,7 @@ private:
   bool DistributeBlocks;
   bool CacheMesh;
   bool CacheConnectivity;
+  bool Use3DVector;
 
   // For internal cgio calls (low level IO)
   int cgioNum;      // cgio file reference
