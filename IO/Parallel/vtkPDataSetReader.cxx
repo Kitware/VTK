@@ -551,7 +551,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
   // Read the filename and extents for each piece.
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
-    int* pi = this->PieceExtents[i];
+    int* pi = this->PieceExtents[i].data();
     // Initialize extent to nothing.
     pi[0] = pi[2] = pi[4] = 0;
     pi[1] = pi[3] = pi[5] = -1;
@@ -914,7 +914,7 @@ int vtkPDataSetReader::ImageDataExecute(
       else
       {
         // Reverse the electric slide.
-        reader->GetOutput()->SetExtent(this->PieceExtents[i]);
+        reader->GetOutput()->SetExtent(this->PieceExtents[i].data());
         // Intersect extent and output extent
         reader->GetOutput()->GetExtent(ext);
         for (j = 0; j < 3; ++j)
@@ -1020,7 +1020,7 @@ int vtkPDataSetReader::StructuredGridExecute(
         else
         {
           // Reverse the electric slide.
-          tmp->SetExtent(this->PieceExtents[i]);
+          tmp->SetExtent(this->PieceExtents[i].data());
         }
         ++count;
       }

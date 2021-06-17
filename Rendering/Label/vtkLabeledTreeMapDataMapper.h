@@ -47,8 +47,6 @@
 #include "vtkLabeledDataMapper.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
-#include <vector>
-
 class vtkTree;
 class vtkPoints;
 class vtkCoordinate;
@@ -149,7 +147,7 @@ protected:
   int ApplyMasks(int level, float flimits[4], float blimits[4]);
   vtkViewport* CurrentViewPort;
   int* FontHeights;
-  std::vector<int[95]> FontWidths;
+  int** FontWidths;
   int MaxFontLevel;
   int* ChildrenCount;
   int MaxTreeLevels;

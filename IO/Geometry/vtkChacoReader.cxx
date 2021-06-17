@@ -863,7 +863,6 @@ int vtkChacoReader::OpenCurrentFile()
 
 void vtkChacoReader::ResetInputBuffers()
 {
-  this->Line_length = 200;
   this->Offset = 0;
   this->Break_pnt = 200;
   this->Save_pnt = 0;

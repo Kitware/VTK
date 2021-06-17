@@ -91,7 +91,7 @@ protected:
   int DataType;
   int NumberOfPieces;
   std::vector<std::string> PieceFileNames;
-  std::vector<int[6]> PieceExtents;
+  std::vector<std::array<int, 6>> PieceExtents;
 
 private:
   vtkPDataSetReader(const vtkPDataSetReader&) = delete;

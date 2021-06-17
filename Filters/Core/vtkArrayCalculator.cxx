@@ -786,7 +786,9 @@ void vtkArrayCalculator::AddVectorArrayName(
     delete[] this->VectorVariableNames[i];
     this->VectorVariableNames[i] = nullptr;
     tempComponents[i] = new int[3];
-    std::copy_n(this->SelectedVectorComponents[i], tempComponents[i], 3);
+    tempComponents[i][0] = this->SelectedVectorComponents[i][0];
+    tempComponents[i][1] = this->SelectedVectorComponents[i][1];
+    tempComponents[i][2] = this->SelectedVectorComponents[i][2];
     delete[] this->SelectedVectorComponents[i];
     this->SelectedVectorComponents[i] = nullptr;
   }
