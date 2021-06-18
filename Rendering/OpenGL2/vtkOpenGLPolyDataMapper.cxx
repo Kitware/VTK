@@ -87,6 +87,7 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
   , TimerQuery(new vtkOpenGLRenderTimer)
+  , PauseShiftScale(false)
 {
   this->InternalColorTexture = nullptr;
   this->PopulateSelectionSettings = 1;
@@ -3614,6 +3615,11 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor* actor)
 
 void vtkOpenGLPolyDataMapper::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor)
 {
+  if (this->PauseShiftScale)
+  {
+    return;
+  }
+
   // handle camera shift scale
   if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
     this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)

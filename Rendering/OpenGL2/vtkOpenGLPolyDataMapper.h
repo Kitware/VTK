@@ -193,6 +193,21 @@ public:
   virtual void SetVBOShiftScaleMethod(int m);
   virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
 
+  /**\brief Pause per-render updates to VBO shift+scale parameters.
+   *
+   * For large datasets, re-uploading the VBO during user interaction
+   * can cause stutters in the framerate. Interactors can use this
+   * method to force UpdateCameraShiftScale to return immediately
+   * (without changes) while users are zooming/rotating/etc. and then
+   * re-enable shift-scale just before a still render.
+   *
+   * This setting has no effect unless the shift-scale method is set
+   * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
+   */
+  vtkSetMacro(PauseShiftScale, bool);
+  vtkGetMacro(PauseShiftScale, bool);
+  vtkBooleanMacro(PauseShiftScale, bool);
+
   enum PrimitiveTypes
   {
     PrimitiveStart = 0,
@@ -470,6 +485,7 @@ protected:
   vtkNew<vtkTransform> VBOInverseTransform;
   vtkNew<vtkMatrix4x4> VBOShiftScale;
   int ShiftScaleMethod; // for points
+  bool PauseShiftScale;
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps
