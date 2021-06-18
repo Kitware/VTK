@@ -739,7 +739,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       unsigned long itemCount, bytesAfter;
       XGetWindowProperty(this->DisplayId, event->xselection.requestor, event->xselection.property,
         0, LONG_MAX, False, event->xselection.target, &actualType, &actualFormat, &itemCount,
-        &bytesAfter, (unsigned char**)&data);
+        &bytesAfter, reinterpret_cast<unsigned char**>(&data));
 
       // Conversion checks
       if ((event->xselection.target != AnyPropertyType && actualType != event->xselection.target) ||
@@ -824,7 +824,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
           unsigned long bytesAfter;
           XGetWindowProperty(this->DisplayId, this->XdndSource, this->XdndTypeListAtom, 0, LONG_MAX,
             False, XA_ATOM, &actualType, &actualFormat, &count, &bytesAfter,
-            (unsigned char**)&formats);
+            reinterpret_cast<unsigned char**>(&formats));
         }
         else
         {
