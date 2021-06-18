@@ -24,12 +24,15 @@
 #include "vtkProbeLineFilter.h"
 #include "vtkRTAnalyticSource.h"
 
-static constexpr float ProbingAtCellBoundaries[] = { 10.3309, 10.3309, 10.3309, 236.429, 236.429,
-  192.787, 192.787, 150.466, 150.466, 101.16, 101.16, 36.8801, 36.8801, 3.09331, 3.09331, 10.6523,
-  10.6523, 18.0772, 18.0772, -3.63279, -3.63279, -15.5258, -15.5258, -15.5258, -15.5258, -15.5258 };
+static constexpr float ProbingAtCellBoundaries[] = { 10.3309, 10.3309, 10.3309, 10.3309, 10.3309,
+  1.68499, 1.68499, -8.10485, -8.10485, 3.09254, 3.09254, 26.3884, 26.3884, 49.8718, 49.8718,
+  77.2904, 77.2904, 136.737, 136.737, 211.899, 211.899, 255.795, 255.795, 236.429, 236.429, 192.787,
+  192.787, 150.466, 150.466, 101.16, 101.16, 36.8801, 36.8801, 3.09331, 3.09331, 10.6523, 10.6523,
+  18.0772, 18.0772, -3.63279, -3.63279, -15.5258, -15.5258, -15.5258, -15.5258, -15.5258 };
 
-static constexpr float ProbingAtSegmentCenters[] = { 10.3309, 236.429, 192.787, 150.466, 101.16,
-  36.8801, 3.09331, 10.6523, 18.0772, -3.63279, -15.5258, -15.5258 };
+static constexpr float ProbingAtSegmentCenters[] = { 10.3309, 10.3309, 1.68499, -8.10485, 3.09254,
+  26.3884, 49.8718, 77.2904, 136.737, 211.899, 255.795, 236.429, 192.787, 150.466, 101.16, 36.8801,
+  3.09331, 10.6523, 18.0772, -3.63279, -15.5258, -15.5258 };
 
 static constexpr float ProbingUniformly[] = { 10.3309, -8.10485, 26.3884, 77.2904, 211.899, 236.429,
   150.466, 36.8801, 10.6523, -3.63279, -15.5258 };
@@ -85,6 +88,7 @@ int TestProbeLineFilter(int argc, char* argv[])
 
   vtkPolyData* pd = vtkPolyData::SafeDownCast(probeLine->GetOutputDataObject(0));
   vtkDataArray* array = pd->GetPointData()->GetArray("RTData");
+
   for (vtkIdType pointId = 0; pointId < pd->GetNumberOfPoints(); ++pointId)
   {
     if (std::fabs(array->GetTuple1(pointId) - ProbingAtCellBoundaries[pointId]) > 0.001)

@@ -8,6 +8,7 @@ if (TARGET VTK::mpi)
     TestPResampleToImage.cxx
     TestPResampleWithDataSet2.cxx
     TestPResampleWithDataSet.cxx
+    TestProbeLineFilter.cxx
     TestRedistributeDataSetFilter.cxx
     TestRedistributeDataSetFilterOnIoss.cxx,NO_VALID)
 

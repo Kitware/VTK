@@ -14,11 +14,14 @@
 =========================================================================*/
 #include "vtkProbeLineFilter.h"
 
+#include "vtkAggregateDataSetFilter.h"
 #include "vtkAppendArcLength.h"
 #include "vtkAppendDataSets.h"
 #include "vtkCellCenters.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCutter.h"
+#include "vtkDIYExplicitAssigner.h"
+#include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
@@ -47,12 +50,24 @@
 #include <utility>
 #include <vector>
 
+// clang-format off
+#include "vtk_diy2.h"
+#include VTK_DIY2(diy/master.hpp)
+#include VTK_DIY2(diy/mpi.hpp)
+// clang-format off
+
 vtkStandardNewMacro(vtkProbeLineFilter);
 
 vtkCxxSetObjectMacro(vtkProbeLineFilter, Controller, vtkMultiProcessController);
 
 namespace
 {
+//==============================================================================
+struct PointSetBlock
+{
+  std::vector<vtkNew<vtkPoints>> ReceivedPointsMap;
+};
+
 //==============================================================================
 // This worker projects points from the intersection of the input line onto the line.
 // It outputs a 1D coordinate system in `LineProjection`.
@@ -446,8 +461,67 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
   appender->Update();
   vtkPointSet* pointSoup = vtkPointSet::SafeDownCast(appender->GetOutputDataObject(0));
 
-  PointProjectionWorker pointProjectionWorker(pointSoup, this->Point1, this->Point2);
-  vtkSMPTools::For(0, pointSoup->GetNumberOfPoints(), pointProjectionWorker);
+  // We need to gather points from every ranks to everyranks because vtkProbeFilter
+  // assumes that its input is replicated in every ranks.
+
+  diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->Controller);
+
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new PointSetBlock()); },
+    [](void* b) -> void { delete static_cast<PointSetBlock*>(b); });
+
+  vtkDIYExplicitAssigner assigner(comm, 1);
+
+  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(
+    /*dim*/ 1, diy::interval(0, assigner.nblocks() - 1), assigner.nblocks());
+
+  decomposer.decompose(comm.rank(), assigner, master);
+
+  diy::all_to_all(
+    master, assigner, [&master, pointSoup](PointSetBlock* block, const diy::ReduceProxy& srp) {
+      int myBlockId = srp.gid();
+      if (srp.round() == 0)
+      {
+        for (int i = 0; i < srp.out_link().size(); ++i)
+        {
+          const diy::BlockID& blockId = srp.out_link().target(i);
+          if (blockId.gid != myBlockId)
+          {
+            srp.enqueue(blockId, pointSoup->GetPoints()->GetData());
+          }
+        }
+      }
+      else
+      {
+        block->ReceivedPointsMap.reserve(srp.in_link().size());
+        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        {
+          const diy::BlockID& blockId = srp.in_link().target(i);
+          if (blockId.gid != myBlockId)
+          {
+            vtkDataArray* array = nullptr;
+            srp.dequeue(blockId, array);
+            vtkNew<vtkPoints> points;
+            points->SetData(array);
+            block->ReceivedPointsMap.emplace_back(std::move(points));
+            array->FastDelete();
+          }
+        }
+      }
+    });
+
+  vtkNew<vtkPointSet> reducedPointSoup;
+  reducedPointSoup->DeepCopy(pointSoup);
+
+  PointSetBlock* block = master.block<PointSetBlock>(0);
+  vtkPoints* points = reducedPointSoup->GetPoints();
+  for (vtkPoints* source : block->ReceivedPointsMap)
+  {
+    points->InsertPoints(points->GetNumberOfPoints(), source->GetNumberOfPoints(), 0, source);
+  }
+
+  PointProjectionWorker pointProjectionWorker(reducedPointSoup, this->Point1, this->Point2);
+  vtkSMPTools::For(0, reducedPointSoup->GetNumberOfPoints(), pointProjectionWorker);
 
   auto& lineProjection = pointProjectionWorker.LineProjection;
   std::sort(lineProjection.begin(), lineProjection.end());
@@ -482,7 +556,7 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
 
   bool splitPoints = this->SamplingPattern == SAMPLE_LINE_AT_CELL_BOUNDARIES;
 
-  ProbingPointGeneratorWorker probingPointGeneratorWorker(pointSoup, lineProjection,
+  ProbingPointGeneratorWorker probingPointGeneratorWorker(reducedPointSoup, lineProjection,
     firstPointIdInSegment, lastPointIdInSegment, this->Point1, this->Point2, splitPoints,
     pointProjectionWorker.LineDirection);
   vtkSMPTools::For(firstPointIdInSegment, lastPointIdInSegment, probingPointGeneratorWorker);
@@ -512,8 +586,8 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
 
   vtkNew<vtkPolyLineSource> polyLine;
   polyLine->SetPoints(sortedPoints);
-
   polyLine->Update();
+
   return vtkPolyData::SafeDownCast(polyLine->GetOutputDataObject(0));
 }
 
