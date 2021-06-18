@@ -550,6 +550,7 @@ std::string BaseImplementation(
             \n    // are blanked, skip the texel. In other words, if cell 1\
             \n    // is blanked, texels 1 and 2 would have to be skipped.\
             \n    else if (blankValue.y > 0.0 ||\
+            \n             any(greaterThan(blankValuePy, vec3(0.0))) ||\
             \n             any(greaterThan(blankValueNy, vec3(0.0))))\
             \n      {\
             \n      // skip this texel\
@@ -565,6 +566,7 @@ std::string BaseImplementation(
           \n    // are blanked, skip the texel. In other words, if cell 1\
           \n    // is blanked, texels 1 and 2 would have to be skipped.\
           \n    if (blankValue.x > 0.0 ||\
+          \n        any(greaterThan(blankValueNx, vec3(0.0))) ||\
           \n        any(greaterThan(blankValuePx, vec3(0.0))))\
           \n      {\
           \n      // skip this texel\
