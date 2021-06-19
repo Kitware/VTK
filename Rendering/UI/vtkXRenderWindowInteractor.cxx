@@ -813,7 +813,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         }
 
         // Recover the formats provided by the dnd source
-        Atom* formats = NULL;
+        Atom* formats = nullptr;
         unsigned long count;
         bool list = event->xclient.data.l[1] & 1;
         if (list)
