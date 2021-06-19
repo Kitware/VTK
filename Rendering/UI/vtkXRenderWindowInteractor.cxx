@@ -807,7 +807,6 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 
         // Check version
         this->XdndSourceVersion = event->xclient.data.l[1] >> 24;
-
         if (this->XdndSourceVersion > XDND_VERSION)
         {
           return;
@@ -901,7 +900,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 
         if (this->XdndFormatAtom)
         {
-          // Ask for a conversion of the selection. This will trigger a SelectioNotify event later.
+          // Ask for a conversion of the selection. This will trigger a SelectionNotify event later.
           Atom xdndSelectionAtom = XInternAtom(this->DisplayId, "XdndSelection", False);
           XConvertSelection(this->DisplayId, xdndSelectionAtom, this->XdndFormatAtom,
             xdndSelectionAtom, this->WindowId, CurrentTime);
