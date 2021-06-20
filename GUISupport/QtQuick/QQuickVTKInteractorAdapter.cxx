@@ -97,13 +97,13 @@ void QQuickVTKInteractorAdapter::QueueGeometryChanged(
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKInteractorAdapter::QueueWheelEvent(QQuickItem* item, QWheelEvent* e)
 {
-  QPoint p, gp;
+  QPointF p, gp;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
   p = e->position();
   gp = e->globalPosition();
 #else
-  p = e->pos();
-  gp = e->globalPos();
+  p = e->posF();
+  gp = e->globalPosF();
 #endif
   QWheelEvent* newEvent = new QWheelEvent(this->mapEventPosition(item, p),
     this->mapEventPosition(item, gp), e->pixelDelta(), e->angleDelta(), e->buttons(),
