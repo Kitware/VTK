@@ -333,6 +333,11 @@ void vtkCompositeMapperHelper2::RenderPiece(vtkRenderer* ren, vtkActor* actor)
 
 void vtkCompositeMapperHelper2::UpdateCameraShiftScale(vtkRenderer* ren, vtkActor* actor)
 {
+  if (this->PauseShiftScale)
+  {
+    return;
+  }
+
   // handle camera shift scale
   if (this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
     this->ShiftScaleMethod == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE)
