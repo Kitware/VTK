@@ -33,7 +33,6 @@
 #define vtkSMPThreadLocalImpl_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 
 #include <atomic>
