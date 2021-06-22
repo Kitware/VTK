@@ -43,7 +43,7 @@
 #ifndef vtkProbeLineFilter_h
 #define vtkProbeLineFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkFiltersParallelDIY2Module.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h" // For sampling line
 
@@ -52,7 +52,7 @@
 class vtkMultiProcessController;
 class vtkPolyData;
 
-class VTKFILTERSPARALLEL_EXPORT vtkProbeLineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSPARALLELDIY2_EXPORT vtkProbeLineFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkProbeLineFilter, vtkPolyDataAlgorithm);
