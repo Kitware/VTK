@@ -410,53 +410,52 @@ succeeds.
 
 ### Testing ###
 
-VTK has a [buildbot](http://buildbot.net) instance watching for merge requests
-to test.  A developer must issue a command to buildbot to enable builds:
+VTK uses [gitlab-ci](https://gitlab.kitware.com/help/ci/examples/README.md) to
+test its functionality. CI results are published to CDash and a link is added
+to the `External` stage of the CI pipeline by `@kwrobot`. Developers and
+reviewers should start jobs which make sense for the change using the following
+methods:
+
+- The first thing to check is that CI is enabled in your fork of VTK. If you
+  see a `CI/CD` item on the left sidebar in your fork's project, you're all
+  set. If not, go to `Settings > General` and enable `CI/CD` for "Everyone With
+  Access" under the "Visibility, project features, permissions" section.
+
+- Merge request authors should visit their merge request's pipeline and click
+  the "Play" button on one or more jobs manually. If the merge request has the
+  "Allow commits from members who can merge to the target branch" check box
+  enabled, VTK developers and maintainers may use the "Play" button as well.
+  This flag is visible when editing the merge request.
+
+- VTK Project developers may trigger CI on a merge request by adding a comment
+  with a command among the [trailing lines][#trailing-lines]:
 
     Do: test
 
-The buildbot user (@buildbot) will respond with a comment linking to the CDash
-results when it schedules builds.
+  `@kwrobot` will add an award emoji to the comment to indicate that it was
+  process and also trigger all jobs that are awaiting manual interaction in the
+  merge request's pipeline.
 
-The `Do: test` command accepts the following arguments:
+  The `Do: test` command accepts the following arguments:
 
-  * `--stop`
-        clear the list of commands for the merge request
-  * `--superbuild`
-        build the superbuilds related to the project
-  * `--clear`
-        clear previous commands before adding this command
-  * `--regex-include <arg>` or `-i <arg>`
-        only build on builders matching `<arg>` (a Python regular expression)
-  * `--regex-exclude <arg>` or `-e <arg>`
-        excludes builds on builders matching `<arg>` (a Python regular
-        expression)
+  * `--named <regex>` or `-n <regex>`: Trigger jobs matching `<regex>` wnywhere
+    in their name. Job names may be seen on the merge request's pipeline page.
+  * `--stage <stage>` or `-s <stage>`: Only affect jobs in a given stage. Stage
+    names may be seen on the merge request's pipeline page. Note that the names
+    are determined by what is in the `.gitlab-ci.yml` file ane may be
+    capitalized in the web page, so lowercasing the webpage's display name for
+    stages may be required.
+  * `--action <action>` or `-a <action>`: The action to perform on the jobs.
+    Possible actions:
 
-Multiple `Do: test` commands may be given in separate comments. A new `Do: test`
-command must be explicitly issued for each branch update for which testing is
-desired. Buildbot may skip tests for older branch updates that have not started
-before a test for a new update is requested.
+    - `manual` (the default): Start jobs awaiting manual interaction.
+    - `unsuccessful`: Start or restart jobs which have not completed
+      successfully.
+    - `failed`: Restart jobs which have complete, but without success.
+    - `completed`: Restart all completed jobs.
 
-Builder names always follow this pattern:
-
-        project-host-os-libtype-buildtype+feature1+feature2
-
-  * project: always `vtk` for vtk
-  * host: the buildbot host
-  * os: one of `windows`, `osx`, or `linux`
-  * libtype: `shared` or `static`
-  * buildtype: `release` or `debug`
-  * feature: alphabetical list of features enabled for the build
-
-For a list of all builders, visit the
-[VTK project on open.cdash.org](https://open.cdash.org/index.php?project=VTK).
-
-Otherwise, `Expected`, `Superbuild`, or `Experimental` builds can be
-directly accesssed from within Kitware at the following sites:
-
-  * [vtk-expected](https://buildbot.kitware.com/builders?category=vtk-expected)
-  * [vtk-superbuild](https://buildbot.kitware.com/builders?category=vtk-superbuild)
-  * [vtk-experimental](https://buildbot.kitware.com/builders?category=vtk-experimental)
+If the merge request topic branch is updated by a push, a new manual trigger
+using one of the above methods is needed to start CI again.
 
 Revise a Topic
 --------------
