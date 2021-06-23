@@ -103,6 +103,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
 vtk_add_test_cxx(vtkInteractionWidgetsCxxTests data_tests
   TestButtonWidget.cxx
   TestButtonWidgetMultipleViewports.cxx
+  TestButtonWidgetPlacement.cxx
   TestDijkstraGraphGeodesicPath.cxx
   TestLineWidget.cxx
   TestLineWidget2.cxx

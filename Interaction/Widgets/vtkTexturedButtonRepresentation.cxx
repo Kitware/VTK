@@ -182,8 +182,8 @@ void vtkTexturedButtonRepresentation::PlaceWidget(double scale, double xyz[3], d
   center[1] = (bds[2] + bds[3]) / 2.0;
   center[2] = (bds[4] + bds[5]) / 2.0;
 
-  this->Actor->AddPosition(center[0] - xyz[0], center[1] - xyz[1], center[2] - xyz[2]);
-  this->Follower->AddPosition(center[0] - xyz[0], center[1] - xyz[1], center[2] - xyz[2]);
+  this->Actor->AddPosition(xyz[0] - center[0], xyz[1] - center[1], xyz[2] - center[2]);
+  this->Follower->AddPosition(xyz[0] - center[0], xyz[1] - center[1], xyz[2] - center[2]);
 
   // Scale the button
   this->Actor->SetScale(scale, scale, scale);
