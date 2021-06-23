@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestQuadRotationalExtrusion.cxx
   TestQuadRotationalExtrusionMultiBlock.cxx
   TestRotationalExtrusion.cxx
+  TestRotationalExtrusion2.cxx
   TestSelectEnclosedPoints.cxx
   TestVolumeOfRevolutionFilter.cxx
   UnitTestCollisionDetectionFilter.cxx,NO_DATA,NO_VALID,NO_OUTPUT
