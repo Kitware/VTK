@@ -120,6 +120,8 @@ public:
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
     this->DepthTextureObject = nullptr;
+    this->DepthCopyColorTextureObject = nullptr;
+    this->DepthCopyFBO = nullptr;
     this->SharedDepthTextureObject = false;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
@@ -427,6 +429,8 @@ public:
   GLuint CubeIndicesId;
 
   vtkTextureObject* DepthTextureObject;
+  vtkTextureObject* DepthCopyColorTextureObject;
+  vtkOpenGLFramebufferObject* DepthCopyFBO;
   bool SharedDepthTextureObject;
 
   int TextureWidth;
@@ -747,27 +751,64 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
   if (!this->DepthTextureObject)
   {
     this->DepthTextureObject = vtkTextureObject::New();
+    this->DepthCopyColorTextureObject = vtkTextureObject::New();
   }
 
-  this->DepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+  vtkOpenGLRenderWindow* orenWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  this->DepthTextureObject->SetContext(orenWin);
+  this->DepthCopyColorTextureObject->SetContext(orenWin);
 
   //  this->DepthTextureObject->Activate();
   if (!this->DepthTextureObject->GetHandle())
   {
     // First set the parameters
-    this->DepthTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
-    this->DepthTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
+    this->DepthTextureObject->SetWrapS(vtkTextureObject::Repeat);
+    this->DepthTextureObject->SetWrapT(vtkTextureObject::Repeat);
     this->DepthTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->DepthTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 4);
   }
 
-#ifndef GL_ES_VERSION_3_0
-  // currently broken on ES
-  this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
-    0, 0, this->WindowSize[0], this->WindowSize[1]);
-#endif
-  //  this->DepthTextureObject->Deactivate();
+  if (!this->DepthCopyColorTextureObject->GetHandle())
+  {
+    // First set the parameters
+    this->DepthCopyColorTextureObject->SetWrapS(vtkTextureObject::Repeat);
+    this->DepthCopyColorTextureObject->SetWrapT(vtkTextureObject::Repeat);
+    this->DepthCopyColorTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
+    this->DepthCopyColorTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->DepthCopyColorTextureObject->Allocate2D(
+      this->WindowSize[0], this->WindowSize[1], 4, VTK_UNSIGNED_CHAR);
+  }
+  this->DepthTextureObject->Resize(this->WindowSize[0], this->WindowSize[1]);
+  this->DepthCopyColorTextureObject->Resize(this->WindowSize[0], this->WindowSize[1]);
+
+  // copy depth with a blit
+  if (!this->DepthCopyFBO)
+  {
+    this->DepthCopyFBO = vtkOpenGLFramebufferObject::New();
+    this->DepthCopyFBO->SetContext(orenWin);
+    orenWin->GetState()->PushDrawFramebufferBinding();
+    this->DepthCopyFBO->Bind(GL_DRAW_FRAMEBUFFER);
+    this->DepthCopyFBO->AddDepthAttachment(this->DepthTextureObject);
+    this->DepthCopyFBO->AddColorAttachment(0, this->DepthCopyColorTextureObject);
+  }
+  else
+  {
+    orenWin->GetState()->PushDrawFramebufferBinding();
+  }
+
+  this->DepthCopyFBO->Bind(GL_DRAW_FRAMEBUFFER);
+  {
+    vtkOpenGLState::ScopedglScissor ssaver(orenWin->GetState());
+    orenWin->GetState()->vtkglScissor(0, 0, this->WindowSize[0], this->WindowSize[1]);
+
+    glBlitFramebuffer(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+      this->WindowLowerLeft[0] + this->WindowSize[0],
+      this->WindowLowerLeft[1] + this->WindowSize[1], 0, 0, this->WindowSize[0],
+      this->WindowSize[1], GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+  }
+
+  orenWin->GetState()->PopDrawFramebufferBinding();
 }
 
 //------------------------------------------------------------------------------
@@ -2167,6 +2208,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow* window
     this->Impl->DepthTextureObject->ReleaseGraphicsResources(window);
     this->Impl->DepthTextureObject->Delete();
     this->Impl->DepthTextureObject = nullptr;
+    this->Impl->DepthCopyColorTextureObject->ReleaseGraphicsResources(window);
+    this->Impl->DepthCopyColorTextureObject->Delete();
+    this->Impl->DepthCopyColorTextureObject = nullptr;
+    this->Impl->DepthCopyFBO->ReleaseGraphicsResources(window);
+    this->Impl->DepthCopyFBO->Delete();
+    this->Impl->DepthCopyFBO = nullptr;
   }
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
@@ -3343,14 +3390,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
   vtkShaderProgram* prog, vtkRenderer* ren, int vtkNotUsed(independent), int numComp)
 {
-#ifndef GL_ES_VERSION_3_0
-  // currently broken on ES
   if (!this->SharedDepthTextureObject)
   {
     this->DepthTextureObject->Activate();
   }
   prog->SetUniformi("in_depthSampler", this->DepthTextureObject->GetTextureUnit());
-#endif
 
   if (this->Parent->GetUseJittering())
   {
@@ -3544,12 +3588,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(const int num
     input.DeactivateTransferFunction(this->Parent->BlendMode);
   }
 
-#ifndef GL_ES_VERSION_3_0
   if (this->DepthTextureObject && !this->SharedDepthTextureObject)
   {
     this->DepthTextureObject->Deactivate();
   }
-#endif
 
   if (this->CurrentMask)
   {
