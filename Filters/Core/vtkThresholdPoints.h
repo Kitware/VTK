@@ -72,6 +72,15 @@ public:
 
   ///@{
   /**
+   * Set/Get the component to threshold. Set this to a value greater than the number of
+   * components in the selected data array to threshold by magnitude.
+   */
+  vtkSetMacro(InputArrayComponent, int);
+  vtkGetMacro(InputArrayComponent, int);
+  ///@}
+
+  ///@{
+  /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
@@ -91,6 +100,7 @@ protected:
 
   double LowerThreshold;
   double UpperThreshold;
+  int InputArrayComponent;
   int OutputPointsPrecision;
 
   int (vtkThresholdPoints::*ThresholdFunction)(double s);

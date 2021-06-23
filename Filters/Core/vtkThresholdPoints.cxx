@@ -30,13 +30,12 @@ vtkStandardNewMacro(vtkThresholdPoints);
 // Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper.
 vtkThresholdPoints::vtkThresholdPoints()
+  : LowerThreshold(0.0)
+  , UpperThreshold(0.0)
+  , InputArrayComponent(0)
+  , OutputPointsPrecision(DEFAULT_PRECISION)
+  , ThresholdFunction(&vtkThresholdPoints::Upper)
 {
-  this->LowerThreshold = 0.0;
-  this->UpperThreshold = 1.0;
-  this->OutputPointsPrecision = DEFAULT_PRECISION;
-
-  this->ThresholdFunction = &vtkThresholdPoints::Upper;
-
   // by default process active point scalars
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -198,7 +197,22 @@ int vtkThresholdPoints::RequestData(vtkInformation* vtkNotUsed(request),
       abort = this->GetAbortExecute();
     }
 
-    if ((this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId, 0)))
+    double value = 0.0;
+    if (this->InputArrayComponent < inScalars->GetNumberOfComponents())
+    {
+      value = inScalars->GetComponent(ptId, this->InputArrayComponent);
+    }
+    else
+    {
+      for (int c = 0; c < inScalars->GetNumberOfComponents(); ++c)
+      {
+        double component = inScalars->GetComponent(ptId, c);
+        value += component * component;
+      }
+      value = std::sqrt(value);
+    }
+
+    if ((this->*(this->ThresholdFunction))(value))
     {
       input->GetPoint(ptId, x);
       pts[0] = newPoints->InsertNextPoint(x);
