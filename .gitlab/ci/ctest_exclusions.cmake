@@ -195,6 +195,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
+  # Screenshot issue for test comparison with background buffer
+  list(APPEND test_exclusions
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
