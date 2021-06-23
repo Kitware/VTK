@@ -94,11 +94,15 @@ public:
   int GetCellType(vtkIdType cellId) override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override
   {
-    vtkStructuredData::GetCellPoints(cellId, ptIds, this->DataDescription, this->GetDimensions());
+    int dimensions[3];
+    this->GetDimensions(dimensions);
+    vtkStructuredData::GetCellPoints(cellId, ptIds, this->DataDescription, dimensions);
   }
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
   {
-    vtkStructuredData::GetPointCells(ptId, cellIds, this->GetDimensions());
+    int dimensions[3];
+    this->GetDimensions(dimensions);
+    vtkStructuredData::GetPointCells(ptId, cellIds, dimensions);
   }
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
