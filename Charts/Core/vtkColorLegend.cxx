@@ -288,14 +288,14 @@ void vtkColorLegend::ComputeTexture()
   {
     this->ImageData->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   }
-  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   for (int i = 0; i < dimension; ++i)
   {
     values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->ImageData->GetScalarPointer());
-  this->TransferFunction->MapScalarsThroughTable2(values, ptr, VTK_DOUBLE, dimension, 1, 3);
+  this->TransferFunction->MapScalarsThroughTable2(values, ptr, VTK_DOUBLE, dimension, 1, 4);
   delete[] values;
 }
 
