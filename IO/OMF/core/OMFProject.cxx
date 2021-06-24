@@ -225,8 +225,6 @@ bool OMFProject::CanParseFile(const char* filename, vtkDataArraySelection* selec
   }
 
   this->Impl->GetDataElements(selection);
-  // we want selections to be turned off by default
-  selection->DisableAllArrays();
 
   return true;
 }
