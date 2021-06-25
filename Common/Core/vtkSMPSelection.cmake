@@ -130,5 +130,4 @@ list(APPEND vtk_smp_templates
 list(APPEND vtk_smp_headers
   vtkSMPTools.h
   vtkSMPThreadLocal.h
-  vtkSMPToolsInternalCommon.h
   vtkSMPThreadLocalObject.h)
