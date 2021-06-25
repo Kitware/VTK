@@ -1375,6 +1375,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(unsigned char* buffer, unsign
     assert("post: output grid must have nodes!" && (this->OutputGrid->Nodes != nullptr));
 
     int ijk[3] = { 0, 0, 0 };
+    double* pnt = new double[3];
     unsigned int pntsz = 3;
 
     for (I(ijk) = IMIN(ext); I(ijk) <= IMAX(ext); ++I(ijk))
@@ -1388,7 +1389,6 @@ void vtkStructuredImplicitConnectivity::UnPackData(unsigned char* buffer, unsign
           assert("post: idx is out-of-bounds!" && (idx >= 0) &&
             (idx < this->OutputGrid->Nodes->GetNumberOfPoints()));
 
-          double pnt[3];
           bytestream.Pop(pnt, pntsz);
           assert("post: pntsz!=3" && (pntsz == 3));
 
@@ -1397,6 +1397,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(unsigned char* buffer, unsign
       }   // END for all j
     }     // END for all i
 
+    delete[] pnt;
   } // END if structured
   else if (datatype == VTK_RECTILINEAR_GRID)
   {
