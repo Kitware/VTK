@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkSMPThreadPool.h"
+#include "SMP/STDThread/vtkSMPThreadPool.h"
 
 #include <iostream>
 

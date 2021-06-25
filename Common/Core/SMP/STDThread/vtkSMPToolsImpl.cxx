@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPToolsImpl.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,16 +13,24 @@
 
 =========================================================================*/
 
-#include "vtkSMPTools.h"
-#include "vtkSMPThreadPool.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/STDThread/vtkSMPToolsImpl.txx"
 
-#include <thread>
-#include <vector>
+#include <cstdlib> // For std::getenv()
+#include <thread>  // For std::thread::hardware_concurrency()
+
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
 
 static int specifiedNumThreads = 0;
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int numThreads)
+template <>
+void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
 {
   if (numThreads == 0)
   {
@@ -39,32 +47,18 @@ void vtkSMPTools::Initialize(int numThreads)
 }
 
 //------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
-{
-  return vtk::detail::smp::GetNumberOfThreads();
-}
-
-int vtk::detail::smp::GetNumberOfThreads()
+int GetNumberOfThreadsSTDThread()
 {
   return specifiedNumThreads ? specifiedNumThreads : std::thread::hardware_concurrency();
 }
 
-void vtk::detail::smp::vtkSMPTools_Impl_For_STD(vtkIdType first, vtkIdType last, vtkIdType grain,
-  ExecuteFunctorPtrType functorExecuter, void* functor)
+//------------------------------------------------------------------------------
+template <>
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads()
 {
-  int threadNumber = vtkSMPTools::GetEstimatedNumberOfThreads();
-
-  if (grain <= 0)
-  {
-    vtkIdType estimateGrain = (last - first) / (threadNumber * 4);
-    grain = (estimateGrain > 0) ? estimateGrain : 1;
-  }
-
-  vtkSMPThreadPool pool(threadNumber);
-
-  for (vtkIdType from = first; from < last; from += grain)
-  {
-    auto job = std::bind(functorExecuter, functor, from, grain, last);
-    pool.DoJob(job);
-  }
+  return GetNumberOfThreadsSTDThread();
 }
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk

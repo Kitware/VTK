@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocal.h
+  Module:    vtkSMPThreadLocalImpl.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSMPThreadLocal - A thread local storage implementation using
+// .NAME vtkSMPThreadLocalImpl - A thread local storage implementation using
 // platform specific facilities.
 // .SECTION Description
 // A thread local object is one that maintains a copy of an object of the
@@ -31,22 +31,32 @@
 // then having a sequential code block that iterates over the whole storage
 // using the iterators to do the final accumulation.
 
-#ifndef vtkSMPThreadLocal_h
-#define vtkSMPThreadLocal_h
+#ifndef STDThreadvtkSMPThreadLocalImpl_h
+#define STDThreadvtkSMPThreadLocalImpl_h
 
-#include "vtkSMPThreadLocalImpl.h"
-#include "vtkSMPToolsInternal.h"
+#include "SMP/Common/vtkSMPThreadLocalImplAbstract.h"
+#include "SMP/STDThread/vtkSMPThreadLocalBackend.h"
+#include "SMP/STDThread/vtkSMPToolsImpl.txx"
 
 #include <iterator>
 
-template <typename T>
-class vtkSMPThreadLocal
+namespace vtk
 {
+namespace detail
+{
+namespace smp
+{
+
+template <typename T>
+class vtkSMPThreadLocalImpl<BackendType::STDThread, T> : public vtkSMPThreadLocalImplAbstract<T>
+{
+  typedef typename vtkSMPThreadLocalImplAbstract<T>::ItImpl ItImplAbstract;
+
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal()
-    : Backend(vtk::detail::smp::GetNumberOfThreads())
+  vtkSMPThreadLocalImpl()
+    : Backend(GetNumberOfThreadsSTDThread())
   {
   }
 
@@ -54,15 +64,15 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  explicit vtkSMPThreadLocal(const T& exemplar)
-    : Backend(vtk::detail::smp::GetNumberOfThreads())
+  explicit vtkSMPThreadLocalImpl(const T& exemplar)
+    : Backend(GetNumberOfThreadsSTDThread())
     , Exemplar(exemplar)
   {
   }
 
-  ~vtkSMPThreadLocal()
+  ~vtkSMPThreadLocalImpl()
   {
-    detail::ThreadSpecificStorageIterator it;
+    vtk::detail::smp::STDThread::ThreadSpecificStorageIterator it;
     it.SetThreadSpecificStorage(this->Backend);
     for (it.SetToBegin(); !it.GetAtEnd(); it.Forward())
     {
@@ -78,9 +88,9 @@ public:
   // to the constructor (or a default object if no exemplar was provided)
   // the first time it is called. After the first time, it will return
   // the same object.
-  T& Local()
+  T& Local() override
   {
-    detail::StoragePointerType& ptr = this->Backend.GetStorage();
+    vtk::detail::smp::STDThread::StoragePointerType& ptr = this->Backend.GetStorage();
     T* local = reinterpret_cast<T*>(ptr);
     if (!ptr)
     {
@@ -91,7 +101,7 @@ public:
 
   // Description:
   // Return the number of thread local objects that have been allocated
-  size_t size() const { return this->Backend.GetSize(); }
+  size_t size() const override { return this->Backend.GetSize(); }
 
   // Description:
   // Subset of the standard iterator API.
@@ -101,65 +111,64 @@ public:
   // It is thread safe to iterate over the thread local containers
   // as long as each thread uses its own iterator and does not modify
   // objects in the container.
-  class iterator : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
+  class ItImpl : public vtkSMPThreadLocalImplAbstract<T>::ItImpl
   {
   public:
-    iterator& operator++()
+    void Increment() override { this->Impl.Forward(); }
+
+    bool Compare(ItImplAbstract* other) override
     {
-      this->Impl.Forward();
-      return *this;
+      return this->Impl == static_cast<ItImpl*>(other)->Impl;
     }
 
-    iterator operator++(int)
-    {
-      iterator copy = *this;
-      this->Impl.Forward();
-      return copy;
-    }
+    T& GetContent() override { return *reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
-    bool operator==(const iterator& other) { return this->Impl == other.Impl; }
+    T* GetContentPtr() override { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
 
-    bool operator!=(const iterator& other) { return !(this->Impl == other.Impl); }
-
-    T& operator*() { return *reinterpret_cast<T*>(this->Impl.GetStorage()); }
-
-    T* operator->() { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
+  protected:
+    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
-    detail::ThreadSpecificStorageIterator Impl;
+    vtk::detail::smp::STDThread::ThreadSpecificStorageIterator Impl;
 
-    friend class vtkSMPThreadLocal<T>;
+    friend class vtkSMPThreadLocalImpl<BackendType::STDThread, T>;
   };
 
   // Description:
   // Returns a new iterator pointing to the beginning of
   // the local storage container. Thread safe.
-  iterator begin()
+  std::unique_ptr<ItImplAbstract> begin() override
   {
-    iterator it;
-    it.Impl.SetThreadSpecificStorage(this->Backend);
-    it.Impl.SetToBegin();
+    // XXX(c++14): use std::make_unique
+    auto it = std::unique_ptr<ItImpl>(new ItImpl());
+    it->Impl.SetThreadSpecificStorage(this->Backend);
+    it->Impl.SetToBegin();
     return it;
   }
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
-  iterator end()
+  std::unique_ptr<ItImplAbstract> end() override
   {
-    iterator it;
-    it.Impl.SetThreadSpecificStorage(this->Backend);
-    it.Impl.SetToEnd();
+    // XXX(c++14): use std::make_unique
+    auto it = std::unique_ptr<ItImpl>(new ItImpl());
+    it->Impl.SetThreadSpecificStorage(this->Backend);
+    it->Impl.SetToEnd();
     return it;
   }
 
 private:
-  detail::ThreadSpecific Backend;
+  vtk::detail::smp::STDThread::ThreadSpecific Backend;
   T Exemplar;
 
   // disable copying
-  vtkSMPThreadLocal(const vtkSMPThreadLocal&) = delete;
-  void operator=(const vtkSMPThreadLocal&) = delete;
+  vtkSMPThreadLocalImpl(const vtkSMPThreadLocalImpl&) = delete;
+  void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk
 
 #endif
