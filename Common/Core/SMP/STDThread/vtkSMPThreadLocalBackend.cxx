@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocalImpl.cxx
+  Module:    vtkSMPThreadLocalBackend.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,14 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkSMPThreadLocalImpl.h"
+#include "SMP/STDThread/vtkSMPThreadLocalBackend.h"
 
 #include <algorithm>
 #include <cmath>      // For std::floor & std::log2
 #include <functional> // For std::hash
 #include <thread>     // For std::thread
 
+namespace vtk
+{
 namespace detail
+{
+namespace smp
+{
+namespace STDThread
 {
 
 static ThreadIdType GetThreadId()
@@ -212,4 +218,7 @@ size_t ThreadSpecific::GetSize() const
   return this->Size;
 }
 
-} // detail
+} // STDThread
+} // namespace smp
+} // namespace detail
+} // namespace vtk

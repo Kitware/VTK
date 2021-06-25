@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocalImpl.h
+  Module:    vtkSMPThreadLocalBackend.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -32,8 +32,8 @@
 // This implementation is the same as the OpenMP equivalent but with std::mutex
 // and std::lock_guard instead of omp_lock_t and custom lock guard.
 
-#ifndef vtkSMPThreadLocalImpl_h
-#define vtkSMPThreadLocalImpl_h
+#ifndef STDThreadvtkSMPThreadLocalBackend_h
+#define STDThreadvtkSMPThreadLocalBackend_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
@@ -43,7 +43,13 @@
 #include <mutex>   // std::mutex, std::lock_guard
 #include <thread>
 
+namespace vtk
+{
 namespace detail
+{
+namespace smp
+{
+namespace STDThread
 {
 
 typedef size_t ThreadIdType;
@@ -172,6 +178,9 @@ private:
   size_t CurrentSlot;
 };
 
-} // detail;
+} // STDThread;
+} // namespace smp
+} // namespace detail
+} // namespace vtk
 
 #endif
