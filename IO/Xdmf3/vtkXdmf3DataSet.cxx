@@ -2768,11 +2768,6 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
     index = index + number_dofs_per_cell;
 
     delete[] ptIds;
-    for (unsigned int q = 0; q < number_points_per_new_cell; ++q)
-    {
-      delete[] normal[q];
-    }
-    delete[] normal;
   }
 
   //
