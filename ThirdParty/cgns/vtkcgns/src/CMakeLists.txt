@@ -74,9 +74,11 @@ else (WIN32)
   set(CGNSLIB libcgns.a)
   set(LIBS -lm)
 endif (WIN32)
+endif ()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+if (FALSE) # XXX(kitware): VTK handles flags better.
 include(CheckCCompilerFlag)
 macro(check_and_add_compiler_option _option)
   message(STATUS "Checking C compiler flag ${_option}")
