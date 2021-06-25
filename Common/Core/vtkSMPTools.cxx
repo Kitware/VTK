@@ -20,5 +20,27 @@
 //------------------------------------------------------------------------------
 const char* vtkSMPTools::GetBackend()
 {
-  return VTK_SMP_BACKEND;
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.GetBackend();
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPTools::SetBackend(const char* backend)
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.SetBackend(backend);
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPTools::Initialize(int numThreads)
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.Initialize(numThreads);
+}
+
+//------------------------------------------------------------------------------
+int vtkSMPTools::GetEstimatedNumberOfThreads()
+{
+  auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+  return SMPToolsAPI.GetEstimatedNumberOfThreads();
 }

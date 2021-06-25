@@ -29,8 +29,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include "SMP/Common/vtkSMPToolsAPI.h"
 #include "vtkSMPThreadLocal.h" // For Initialized
-#include "vtkSMPToolsInternal.h"
 
 #include <functional> // For std::function
 
@@ -92,7 +92,8 @@ struct vtkSMPTools_FunctorInternal<Functor, false>
   void Execute(vtkIdType first, vtkIdType last) { this->F(first, last); }
   void For(vtkIdType first, vtkIdType last, vtkIdType grain)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_For(first, last, grain, *this);
+    auto& SMPToolsAPI = vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.For(first, last, grain, *this);
   }
   vtkSMPTools_FunctorInternal<Functor, false>& operator=(
     const vtkSMPTools_FunctorInternal<Functor, false>&);
@@ -121,7 +122,8 @@ struct vtkSMPTools_FunctorInternal<Functor, true>
   }
   void For(vtkIdType first, vtkIdType last, vtkIdType grain)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_For(first, last, grain, *this);
+    auto& SMPToolsAPI = vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.For(first, last, grain, *this);
     this->F.Reduce();
   }
   vtkSMPTools_FunctorInternal<Functor, true>& operator=(
@@ -227,6 +229,18 @@ public:
   static const char* GetBackend();
 
   /**
+   * Change the backend in use.
+   * The options can be: "Sequential", "STDThread", "TBB" or "OpenMP"
+   *
+   * VTK_SMP_BACKEND_IN_USE env variable can also be used to set the default SMPTools
+   * backend, in that case SetBackend() doesn't need to be called.
+   * The backend selected with SetBackend() have the priority over VTK_SMP_BACKEND_IN_USE.
+   *
+   * SetBackend() will return true if the backend was found and available.
+   */
+  static void SetBackend(const char* backend);
+
+  /**
    * Initialize the underlying libraries for execution. This is
    * not required as it is automatically defined by the libaries.
    * However, it can be used to control the maximum number of thread used.
@@ -290,7 +304,8 @@ public:
   template <typename InputIt, typename OutputIt, typename Functor>
   static void Transform(InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_Transform(inBegin, inEnd, outBegin, transform);
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.Transform(inBegin, inEnd, outBegin, transform);
   }
 
   /**
@@ -313,7 +328,8 @@ public:
   static void Transform(
     InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
   }
 
   /**
@@ -333,7 +349,8 @@ public:
   template <typename Iterator, typename T>
   static void Fill(Iterator begin, Iterator end, const T& value)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_Fill(begin, end, value);
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.Fill(begin, end, value);
   }
 
   /**
@@ -344,7 +361,8 @@ public:
   template <typename RandomAccessIterator>
   static void Sort(RandomAccessIterator begin, RandomAccessIterator end)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_Sort(begin, end);
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.Sort(begin, end);
   }
 
   /**
@@ -356,7 +374,8 @@ public:
   template <typename RandomAccessIterator, typename Compare>
   static void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
   {
-    vtk::detail::smp::vtkSMPTools_Impl_Sort(begin, end, comp);
+    auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
+    SMPToolsAPI.Sort(begin, end, comp);
   }
 };
 
