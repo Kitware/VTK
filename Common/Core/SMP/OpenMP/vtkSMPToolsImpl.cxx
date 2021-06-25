@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPToolsImpl.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,19 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkSMPTools.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/OpenMP/vtkSMPToolsImpl.txx"
 
+#include <cstdlib> // For std::getenv()
 #include <omp.h>
 
-#include <algorithm>
-
-namespace
+namespace vtk
 {
-int vtkSMPNumberOfSpecifiedThreads = 0;
-}
+namespace detail
+{
+namespace smp
+{
+static int vtkSMPNumberOfSpecifiedThreads = 0;
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int numThreads)
+template <>
+void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 {
   const int maxThreads = omp_get_max_threads();
   if (numThreads == 0)
@@ -46,19 +50,20 @@ void vtkSMPTools::Initialize(int numThreads)
 }
 
 //------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
-{
-  return vtk::detail::smp::GetNumberOfThreads();
-}
-
-//------------------------------------------------------------------------------
-int vtk::detail::smp::GetNumberOfThreads()
+int GetNumberOfThreadsOpenMP()
 {
   return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads : omp_get_max_threads();
 }
 
 //------------------------------------------------------------------------------
-void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
+template <>
+int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads()
+{
+  return GetNumberOfThreadsOpenMP();
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor)
 {
   if (grain <= 0)
@@ -73,3 +78,7 @@ void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType la
     functorExecuter(functor, from, grain, last);
   }
 }
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk

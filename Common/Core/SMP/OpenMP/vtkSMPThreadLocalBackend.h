@@ -86,7 +86,7 @@ class VTKCOMMONCORE_EXPORT ThreadSpecific
 {
 public:
   explicit ThreadSpecific(unsigned numThreads);
-  ~ThreadSpecific();
+  virtual ~ThreadSpecific() final;
 
   StoragePointerType& GetStorage();
   size_t Size() const;
