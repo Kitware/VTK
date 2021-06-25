@@ -49,6 +49,8 @@ vtkPDataSetReader::vtkPDataSetReader()
   this->StructuredFlag = 0;
   this->NumberOfPieces = 0;
   this->DataType = -1;
+  this->PieceFileNames = nullptr;
+  this->PieceExtents = nullptr;
   this->SetNumberOfOutputPorts(1);
   this->SetNumberOfInputPorts(0);
 }
@@ -70,6 +72,21 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
     return;
   }
 
+  // Delete the previous file names/extents.
+  for (i = 0; i < this->NumberOfPieces; ++i)
+  {
+    delete[] this->PieceFileNames[i];
+    this->PieceFileNames[i] = nullptr;
+    if (this->PieceExtents && this->PieceExtents[i])
+    {
+      delete[] this->PieceExtents[i];
+      this->PieceExtents[i] = nullptr;
+    }
+  }
+  delete[] this->PieceFileNames;
+  this->PieceFileNames = nullptr;
+  delete[] this->PieceExtents;
+  this->PieceExtents = nullptr;
   this->NumberOfPieces = 0;
 
   if (num <= 0)
@@ -78,14 +95,17 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
   }
 
   // Allocate new arrays
-  this->PieceFileNames.resize(num);
-  for (auto& s : this->PieceFileNames)
+  this->PieceFileNames = new char*[num];
+  for (i = 0; i < num; ++i)
   {
-    s.resize(256);
+    this->PieceFileNames[i] = new char[512];
   }
-
   // Allocate piece extents even for unstructured data.
-  this->PieceExtents.resize(num);
+  this->PieceExtents = new int*[num];
+  for (i = 0; i < num; ++i)
+  {
+    this->PieceExtents[i] = new int[6];
+  }
 
   this->NumberOfPieces = num;
 }
@@ -551,7 +571,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
   // Read the filename and extents for each piece.
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
-    int* pi = this->PieceExtents[i].data();
+    int* pi = this->PieceExtents[i];
     // Initialize extent to nothing.
     pi[0] = pi[2] = pi[4] = 0;
     pi[1] = pi[3] = pi[5] = -1;
@@ -577,11 +597,11 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         // Copy filename (relative path?)
         if (val[0] != '/' && val[1] != ':' && dirLength > 0)
         { // Must be a relative path.
-          snprintf(&this->PieceFileNames[i][0], 512, "%s%s", dir, val);
+          snprintf(this->PieceFileNames[i], 512, "%s%s", dir, val);
         }
         else
         {
-          strcpy(&this->PieceFileNames[i][0], val);
+          strcpy(this->PieceFileNames[i], val);
         }
       }
 
@@ -770,7 +790,7 @@ int vtkPDataSetReader::PolyDataExecute(
     reader->ReadAllColorScalarsOn();
     reader->ReadAllTCoordsOn();
     reader->ReadAllFieldsOn();
-    reader->SetFileName(this->PieceFileNames[idx].c_str());
+    reader->SetFileName(this->PieceFileNames[idx]);
     tmp = reader->GetPolyDataOutput();
     if (tmp && tmp->GetDataObjectType() != VTK_POLY_DATA)
     {
@@ -833,7 +853,7 @@ int vtkPDataSetReader::UnstructuredGridExecute(
     reader->ReadAllColorScalarsOn();
     reader->ReadAllTCoordsOn();
     reader->ReadAllFieldsOn();
-    reader->SetFileName(this->PieceFileNames[idx].c_str());
+    reader->SetFileName(this->PieceFileNames[idx]);
     reader->Update();
     if (reader->GetOutput()->GetDataObjectType() != VTK_UNSTRUCTURED_GRID)
     {
@@ -901,7 +921,7 @@ int vtkPDataSetReader::ImageDataExecute(
   {
     if (pieceMask[i])
     {
-      reader->SetFileName(this->PieceFileNames[i].c_str());
+      reader->SetFileName(this->PieceFileNames[i]);
       reader->Update();
       // Sanity check: extent is correct.  Ignore electric slide.
       reader->GetOutput()->GetExtent(ext);
@@ -914,7 +934,7 @@ int vtkPDataSetReader::ImageDataExecute(
       else
       {
         // Reverse the electric slide.
-        reader->GetOutput()->SetExtent(this->PieceExtents[i].data());
+        reader->GetOutput()->SetExtent(this->PieceExtents[i]);
         // Intersect extent and output extent
         reader->GetOutput()->GetExtent(ext);
         for (j = 0; j < 3; ++j)
@@ -1003,7 +1023,7 @@ int vtkPDataSetReader::StructuredGridExecute(
     if (pieceMask[i])
     {
       reader->SetOutput(nullptr);
-      reader->SetFileName(this->PieceFileNames[i].c_str());
+      reader->SetFileName(this->PieceFileNames[i]);
       reader->Update();
       tmp = reader->GetOutput();
       if (tmp->GetNumberOfCells() > 0)
@@ -1020,7 +1040,7 @@ int vtkPDataSetReader::StructuredGridExecute(
         else
         {
           // Reverse the electric slide.
-          tmp->SetExtent(this->PieceExtents[i].data());
+          tmp->SetExtent(this->PieceExtents[i]);
         }
         ++count;
       }
