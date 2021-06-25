@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocalImpl.h
+  Module:    vtkSMPThreadLocalBackend.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,8 +29,8 @@
 // safe and only blocks when a new array needs to be allocated, which should be
 // rare.
 
-#ifndef vtkSMPThreadLocalImpl_h
-#define vtkSMPThreadLocalImpl_h
+#ifndef OpenMPvtkSMPThreadLocalBackend_h
+#define OpenMPvtkSMPThreadLocalBackend_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
@@ -38,7 +38,13 @@
 #include <atomic>
 #include <omp.h>
 
+namespace vtk
+{
 namespace detail
+{
+namespace smp
+{
+namespace OpenMP
 {
 
 typedef void* ThreadIdType;
@@ -171,6 +177,9 @@ private:
   size_t CurrentSlot;
 };
 
-} // detail;
+} // OpenMP;
+} // namespace smp
+} // namespace detail
+} // namespace vtk
 
 #endif

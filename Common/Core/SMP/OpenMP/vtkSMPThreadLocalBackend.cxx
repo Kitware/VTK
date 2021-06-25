@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPThreadLocalImpl.cxx
+  Module:    vtkSMPThreadLocalBackend.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,13 +13,19 @@
 
 =========================================================================*/
 
-#include "vtkSMPThreadLocalImpl.h"
+#include "SMP/OpenMP/vtkSMPThreadLocalBackend.h"
 
 #include <omp.h>
 
 #include <algorithm>
 
+namespace vtk
+{
 namespace detail
+{
+namespace smp
+{
+namespace OpenMP
 {
 
 static ThreadIdType GetThreadId()
@@ -265,4 +271,7 @@ StoragePointerType& ThreadSpecific::GetStorage()
   return slot->Storage;
 }
 
-} // detail
+} // OpenMP
+} // namespace smp
+} // namespace detail
+} // namespace vtk
