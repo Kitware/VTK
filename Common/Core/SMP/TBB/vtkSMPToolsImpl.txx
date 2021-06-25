@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPToolsInternal.h.in
+  Module:    vtkSMPToolsImpl.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,11 +13,12 @@
 
 =========================================================================*/
 
-#ifndef vtkSMPToolsInternal_h
-#define vtkSMPToolsInternal_h
+#ifndef TBBvtkSMPToolsImpl_txx
+#define TBBvtkSMPToolsImpl_txx
 
-#include "vtkCommonCoreModule.h"       // For export macro
-#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/Common/vtkSMPToolsInternal.h" // For common vtk smp class
+#include "vtkCommonCoreModule.h"            // For export macro
 
 #ifdef _MSC_VER
 #pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
@@ -39,8 +40,7 @@ namespace detail
 namespace smp
 {
 
-typedef void (*ExecuteFunctorPtrType)(void*, vtkIdType, vtkIdType, vtkIdType);
-void VTKCOMMONCORE_EXPORT vtkSMPTools_Impl_For_TBB(vtkIdType first, vtkIdType last, vtkIdType grain,
+void VTKCOMMONCORE_EXPORT vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor);
 
 //--------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ public:
 
 //--------------------------------------------------------------------------------
 template <typename FunctorInternal>
-void ExecuteFunctor(void* functor, vtkIdType first, vtkIdType last, vtkIdType grain)
+void ExecuteFunctorTBB(void* functor, vtkIdType first, vtkIdType last, vtkIdType grain)
 {
   FunctorInternal& fi = *reinterpret_cast<FunctorInternal*>(functor);
 
@@ -104,56 +104,64 @@ void ExecuteFunctor(void* functor, vtkIdType first, vtkIdType last, vtkIdType gr
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename FunctorInternal>
-void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
+void vtkSMPToolsImpl<BackendType::TBB>::For(
+  vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
-  vtkSMPTools_Impl_For_TBB(first, last, grain, ExecuteFunctor<FunctorInternal>, &fi);
+  vtkSMPToolsImplForTBB(first, last, grain, ExecuteFunctorTBB<FunctorInternal>, &fi);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt, typename OutputIt, typename Functor>
-void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::TBB>::Transform(
   InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
   auto size = std::distance(inBegin, inEnd);
 
   UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
-static void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::TBB>::Transform(
   InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
 {
   auto size = std::distance(inBegin1, inEnd);
 
   BinaryTransformCall<InputIt1, InputIt2, OutputIt, Functor> exec(
     inBegin1, inBegin2, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename Iterator, typename T>
-void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+void vtkSMPToolsImpl<BackendType::TBB>::Fill(Iterator begin, Iterator end, const T& value)
 {
   auto size = std::distance(begin, end);
 
   FillFunctor<T> fill(value);
   UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
+void vtkSMPToolsImpl<BackendType::TBB>::Sort(RandomAccessIterator begin, RandomAccessIterator end)
 {
   tbb::parallel_sort(begin, end);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator, typename Compare>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
+void vtkSMPToolsImpl<BackendType::TBB>::Sort(
+  RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
 {
   tbb::parallel_sort(begin, end, comp);
 }

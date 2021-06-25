@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPToolsImpl.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,26 +13,36 @@
 
 =========================================================================*/
 
-#include "vtkSMPTools.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/TBB/vtkSMPToolsImpl.txx"
 
-#include <mutex>
+#include <cstdlib> // For std::getenv()
+#include <mutex>   // For std::mutex
 
 #ifdef _MSC_VER
 #pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #define __TBB_NO_IMPLICIT_LINKAGE 1
 #endif
 
-#include <tbb/task_arena.h>
+#include <tbb/task_arena.h> // For tbb:task_arena
 
 #ifdef _MSC_VER
 #pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
+
 static tbb::task_arena taskArena;
 static std::mutex vtkSMPToolsCS;
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int numThreads)
+template <>
+void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
 {
   vtkSMPToolsCS.lock();
 
@@ -57,13 +67,14 @@ void vtkSMPTools::Initialize(int numThreads)
 }
 
 //------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
+template <>
+int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads()
 {
   return taskArena.max_concurrency();
 }
 
 //------------------------------------------------------------------------------
-void vtk::detail::smp::vtkSMPTools_Impl_For_TBB(vtkIdType first, vtkIdType last, vtkIdType grain,
+void vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor)
 {
   if (taskArena.is_active())
@@ -75,3 +86,7 @@ void vtk::detail::smp::vtkSMPTools_Impl_For_TBB(vtkIdType first, vtkIdType last,
     functorExecuter(functor, first, last, grain);
   }
 }
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk
