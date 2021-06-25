@@ -73,7 +73,7 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;
 
 private:
-  openslide_t* openslide_handle;
+  openslide_t* openslide_handle = nullptr;
 
   vtkOpenSlideReader(const vtkOpenSlideReader&) = delete;
   void operator=(const vtkOpenSlideReader&) = delete;
