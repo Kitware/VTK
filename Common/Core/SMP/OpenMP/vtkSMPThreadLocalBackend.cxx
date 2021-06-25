@@ -18,6 +18,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cmath> // For std::floor & std::log2
 
 namespace vtk
 {
@@ -215,19 +216,9 @@ static Slot* AcquireSlot(
 ThreadSpecific::ThreadSpecific(unsigned numThreads)
   : Count(0)
 {
-  // lastSetBit = floor(log2(numThreads))
-  int lastSetBit = 0;
-  for (int i = (sizeof(unsigned) * 8) - 1; i >= 0; --i)
-  {
-    if (numThreads & (1u << i))
-    {
-      lastSetBit = i;
-      break;
-    }
-  }
-
+  const int lastSetBit = (numThreads != 0 ? std::floor(std::log2(numThreads)) : 0);
   // initial size should be more than twice the number of threads
-  size_t initSizeLg = (lastSetBit + 2);
+  const size_t initSizeLg = (lastSetBit + 2);
   this->Root = new HashTableArray(initSizeLg);
 }
 

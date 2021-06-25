@@ -25,7 +25,7 @@ namespace detail
 {
 namespace smp
 {
-static int vtkSMPNumberOfSpecifiedThreads = 0;
+static int specifiedNumThreads = 0;
 
 //------------------------------------------------------------------------------
 template <>
@@ -44,7 +44,7 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
   if (numThreads > 0)
   {
     numThreads = std::min(numThreads, maxThreads);
-    vtkSMPNumberOfSpecifiedThreads = numThreads;
+    specifiedNumThreads = numThreads;
     omp_set_num_threads(numThreads);
   }
 }
@@ -52,7 +52,7 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsOpenMP()
 {
-  return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads : omp_get_max_threads();
+  return specifiedNumThreads ? specifiedNumThreads : omp_get_max_threads();
 }
 
 //------------------------------------------------------------------------------

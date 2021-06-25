@@ -37,11 +37,7 @@ void VTKCOMMONCORE_EXPORT vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType la
 template <typename FunctorInternal>
 void ExecuteFunctorOpenMP(void* functor, vtkIdType from, vtkIdType grain, vtkIdType last)
 {
-  vtkIdType to = from + grain;
-  if (to > last)
-  {
-    to = last;
-  }
+  const vtkIdType to = std::min(from + grain, last);
 
   FunctorInternal& fi = *reinterpret_cast<FunctorInternal*>(functor);
   fi.Execute(from, to);
