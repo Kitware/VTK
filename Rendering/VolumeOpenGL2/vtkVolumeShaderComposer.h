@@ -1411,7 +1411,7 @@ std::string ComputeColor2DYAxisDeclaration(
       colorTableMap[0] +
       ",\n"
       "                         vec2(scalar.w, yscalar.w));\n"
-      "  return computeLighting(color, 0);\n"
+      "  return computeLighting(color, 0, 0);\n"
       "}\n");
   }
   return std::string("vec4 computeColor(vec4 scalar, float opacity)\n"
