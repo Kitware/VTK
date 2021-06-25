@@ -1,7 +1,7 @@
 /*=========================================================================
 
  Program:   Visualization Toolkit
- Module:    vtkSMPThreadLocal.h
+ Module:    vtkSMPThreadLocalImpl.h
 
  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
  All rights reserved.
@@ -33,24 +33,33 @@
 // Note that this particular implementation is designed to work in sequential
 // mode and supports only 1 thread.
 
-#ifndef vtkSMPThreadLocal_h
-#define vtkSMPThreadLocal_h
+#ifndef SequentialvtkSMPThreadLocalImpl_h
+#define SequentialvtkSMPThreadLocalImpl_h
 
+#include "SMP/Common/vtkSMPThreadLocalImplAbstract.h"
 #include "vtkSystemIncludes.h"
 
 #include <iterator>
 #include <vector>
 
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
+
 template <typename T>
-class vtkSMPThreadLocal
+class vtkSMPThreadLocalImpl<BackendType::Sequential, T> : public vtkSMPThreadLocalImplAbstract<T>
 {
   typedef std::vector<T> TLS;
   typedef typename TLS::iterator TLSIter;
+  typedef typename vtkSMPThreadLocalImplAbstract<T>::ItImpl ItImplAbstract;
 
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal()
+  vtkSMPThreadLocalImpl()
     : NumInitialized(0)
   {
     this->Initialize();
@@ -60,7 +69,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  explicit vtkSMPThreadLocal(const T& exemplar)
+  explicit vtkSMPThreadLocalImpl(const T& exemplar)
     : NumInitialized(0)
     , Exemplar(exemplar)
   {
@@ -75,7 +84,7 @@ public:
   // to the constructor (or a default object if no exemplar was provided)
   // the first time it is called. After the first time, it will return
   // the same object.
-  T& Local()
+  T& Local() override
   {
     int tid = this->GetThreadID();
     if (!this->Initialized[tid])
@@ -89,7 +98,7 @@ public:
 
   // Description:
   // Return the number of thread local objects that have been initialized
-  size_t size() const { return this->NumInitialized; }
+  size_t size() const override { return this->NumInitialized; }
 
   // Description:
   // Subset of the standard iterator API.
@@ -99,10 +108,10 @@ public:
   // It is thread safe to iterate over the thread local containers
   // as long as each thread uses its own iterator and does not modify
   // objects in the container.
-  class iterator : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
+  class ItImpl : public vtkSMPThreadLocalImplAbstract<T>::ItImpl
   {
   public:
-    iterator& operator++()
+    void Increment() override
     {
       this->InitIter++;
       this->Iter++;
@@ -118,26 +127,22 @@ public:
         this->InitIter++;
         this->Iter++;
       }
-      return *this;
     }
 
-    iterator operator++(int)
+    bool Compare(ItImplAbstract* other) override
     {
-      iterator copy = *this;
-      ++(*this);
-      return copy;
+      return this->Iter == static_cast<ItImpl*>(other)->Iter;
     }
 
-    bool operator==(const iterator& other) { return this->Iter == other.Iter; }
+    T& GetContent() override { return *this->Iter; }
 
-    bool operator!=(const iterator& other) { return this->Iter != other.Iter; }
+    T* GetContentPtr() override { return &*this->Iter; }
 
-    T& operator*() { return *this->Iter; }
-
-    T* operator->() { return &*this->Iter; }
+  protected:
+    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
-    friend class vtkSMPThreadLocal<T>;
+    friend class vtkSMPThreadLocalImpl<BackendType::Sequential, T>;
     std::vector<bool>::iterator InitIter;
     std::vector<bool>::iterator EndIter;
     TLSIter Iter;
@@ -146,7 +151,7 @@ public:
   // Description:
   // Returns a new iterator pointing to the beginning of
   // the local storage container. Thread safe.
-  iterator begin()
+  std::unique_ptr<ItImplAbstract> begin() override
   {
     TLSIter iter = this->Internal.begin();
     std::vector<bool>::iterator iter2 = this->Initialized.begin();
@@ -162,22 +167,24 @@ public:
       iter2++;
       iter++;
     }
-    iterator retVal;
-    retVal.InitIter = iter2;
-    retVal.EndIter = enditer;
-    retVal.Iter = iter;
+    // XXX(c++14): use std::make_unique
+    auto retVal = std::unique_ptr<ItImpl>(new ItImpl());
+    retVal->InitIter = iter2;
+    retVal->EndIter = enditer;
+    retVal->Iter = iter;
     return retVal;
   };
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
-  iterator end()
+  std::unique_ptr<ItImplAbstract> end() override
   {
-    iterator retVal;
-    retVal.InitIter = this->Initialized.end();
-    retVal.EndIter = this->Initialized.end();
-    retVal.Iter = this->Internal.end();
+    // XXX(c++14): use std::make_unique
+    auto retVal = std::unique_ptr<ItImpl>(new ItImpl());
+    retVal->InitIter = this->Initialized.end();
+    retVal->EndIter = this->Initialized.end();
+    retVal->Iter = this->Internal.end();
     return retVal;
   }
 
@@ -199,8 +206,12 @@ private:
   inline int GetThreadID() { return 0; }
 
   // disable copying
-  vtkSMPThreadLocal(const vtkSMPThreadLocal&) = delete;
-  void operator=(const vtkSMPThreadLocal&) = delete;
+  vtkSMPThreadLocalImpl(const vtkSMPThreadLocalImpl&) = delete;
+  void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk
 
 #endif
