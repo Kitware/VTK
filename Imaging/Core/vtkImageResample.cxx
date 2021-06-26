@@ -197,7 +197,7 @@ int vtkImageResample::RequestInformation(vtkInformation* vtkNotUsed(request),
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
 
-  return 1;
+  return this->RequestInformationBase(inputVector, outputVector);
 }
 
 void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
