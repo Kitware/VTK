@@ -562,6 +562,13 @@ protected:
       inPtr, outPtr, inputType, inputNumComponents, count, idX, idY, idZ, threadId);
   }
 
+  /**
+   * For derived classes, this should be called at the very end of
+   * RequestInformation() to ensure that various bit and pieces of
+   * state information are correctly set prior to execution.
+   */
+  int RequestInformationBase(vtkInformationVector**, vtkInformationVector*);
+
   void GetAutoCroppedOutputBounds(vtkInformation* inInfo, double bounds[6]);
   void AllocateOutputData(vtkImageData* output, vtkInformation* outInfo, int* uExtent) override;
   vtkImageData* AllocateOutputData(vtkDataObject*, vtkInformation*) override;
