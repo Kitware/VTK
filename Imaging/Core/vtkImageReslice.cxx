@@ -491,7 +491,9 @@ vtkAbstractImageInterpolator* vtkImageReslice::GetInterpolator()
 {
   if (this->Interpolator == nullptr)
   {
-    this->Interpolator = vtkImageInterpolator::New();
+    vtkImageInterpolator* i = vtkImageInterpolator::New();
+    i->SetInterpolationMode(this->InterpolationMode);
+    this->Interpolator = i;
   }
 
   return this->Interpolator;
