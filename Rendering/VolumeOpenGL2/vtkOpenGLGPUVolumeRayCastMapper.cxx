@@ -799,8 +799,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
 
   this->DepthCopyFBO->Bind(GL_DRAW_FRAMEBUFFER);
   {
-    vtkOpenGLState::ScopedglScissor ssaver(orenWin->GetState());
-    orenWin->GetState()->vtkglScissor(0, 0, this->WindowSize[0], this->WindowSize[1]);
+    // ON APPLE OSX you must turn off scissor test for DEPTH blits to work
+    auto ostate = orenWin->GetState();
+    vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
 
     glBlitFramebuffer(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
       this->WindowLowerLeft[0] + this->WindowSize[0],
