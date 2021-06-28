@@ -72,12 +72,12 @@ std::string vtkResourceFileLocator::Locate(const std::string& anchor,
       const std::string landmarktocheck = landmarkdir + VTK_PATH_SEPARATOR + landmark;
       if (vtksys::SystemTools::FileExists(landmarktocheck))
       {
-        VTK_FILE_LOCATOR_DEBUG_MESSAGE("trying file %s -- success!", landmarktocheck.c_str());
+        VTK_FILE_LOCATOR_DEBUG_MESSAGE("trying file %s -- found!", landmarktocheck.c_str());
         return landmarkdir;
       }
       else
       {
-        VTK_FILE_LOCATOR_DEBUG_MESSAGE("trying file %s -- failed!", landmarktocheck.c_str());
+        VTK_FILE_LOCATOR_DEBUG_MESSAGE("trying file %s -- not found!", landmarktocheck.c_str());
       }
     }
     path_components.pop_back();
