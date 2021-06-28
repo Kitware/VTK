@@ -491,7 +491,9 @@ vtkAbstractImageInterpolator* vtkImageReslice::GetInterpolator()
 {
   if (this->Interpolator == nullptr)
   {
-    this->Interpolator = vtkImageInterpolator::New();
+    vtkImageInterpolator* i = vtkImageInterpolator::New();
+    i->SetInterpolationMode(this->InterpolationMode);
+    this->Interpolator = i;
   }
 
   return this->Interpolator;
@@ -1085,9 +1087,26 @@ int vtkImageReslice::RequestInformation(vtkInformation* vtkNotUsed(request),
   outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
 
+  return this->RequestInformationBase(inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
+int vtkImageReslice::RequestInformationBase(
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* outStencilInfo = outputVector->GetInformationObject(1);
+
+  int outWholeExt[6];
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt);
+
   if (this->GenerateStencilOutput)
   {
+    double outSpacing[3], outOrigin[3];
+    outInfo->Get(vtkDataObject::SPACING(), outSpacing);
+    outInfo->Get(vtkDataObject::ORIGIN(), outOrigin);
+
     outStencilInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), outWholeExt, 6);
     outStencilInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
     outStencilInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
