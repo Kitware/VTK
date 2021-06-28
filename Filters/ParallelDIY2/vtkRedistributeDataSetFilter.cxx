@@ -556,7 +556,11 @@ bool vtkRedistributeDataSetFilter::InitializeCuts(vtkDataObjectTree* input)
   if (this->UseExplicitCuts && this->ExpandExplicitCuts && gbounds.IsValid())
   {
     auto bbox = gbounds;
-    bbox.Inflate(0.01 * bbox.GetLength(0), 0.01 * bbox.GetLength(1), 0.01 * bbox.GetLength(2));
+    double xInflate = bbox.GetLength(0) == 0 ? 0.01 : 0.01 * bbox.GetLength(0);
+    double yInflate = bbox.GetLength(1) == 0 ? 0.01 : 0.01 * bbox.GetLength(1);
+    double zInflate = bbox.GetLength(2) == 0 ? 0.01 : 0.01 * bbox.GetLength(2);
+    bbox.Inflate(xInflate, yInflate, zInflate);
+
     this->Cuts = vtkRedistributeDataSetFilter::ExpandCuts(this->ExplicitCuts, bbox);
   }
   else if (this->UseExplicitCuts)
@@ -578,7 +582,11 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::GenerateCuts(vtkDataOb
     ? controller->GetNumberOfProcesses()
     : this->GetNumberOfPartitions();
   auto bbox = vtkDIYUtilities::GetLocalBounds(dobj);
-  bbox.Inflate(0.01 * bbox.GetLength(0), 0.01 * bbox.GetLength(1), 0.01 * bbox.GetLength(2));
+
+  double xInflate = bbox.GetLength(0) == 0 ? 0.01 : 0.01 * bbox.GetLength(0);
+  double yInflate = bbox.GetLength(1) == 0 ? 0.01 : 0.01 * bbox.GetLength(1);
+  double zInflate = bbox.GetLength(2) == 0 ? 0.01 : 0.01 * bbox.GetLength(2);
+  bbox.Inflate(xInflate, yInflate, zInflate);
 
   double bds[6];
   bbox.GetBounds(bds);
