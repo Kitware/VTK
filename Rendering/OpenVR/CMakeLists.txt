@@ -78,17 +78,19 @@ vtk_module_link(VTK::RenderingOpenVR
 if (VTK_ENABLE_OPENVR_COLLABORATION)
   # try for matching libzmq to our shared/static build type
   if (BUILD_SHARED_LIBS AND TARGET libzmq)
-    vtk_module_link(VTK::RenderingOpenVR PRIVATE libzmq)
+    set(zmq_target libzmq)
   elseif (NOT BUILD_SHARED_LIBS AND TARGET libzmq-static)
-    vtk_module_link(VTK::RenderingOpenVR PRIVATE libzmq-static)
+    set(zmq_target libzmq-static)
   else ()
     # can't find matching, so use whatever we can find
     if (TARGET libzmq-static)
-      vtk_module_link(VTK::RenderingOpenVR PRIVATE libzmq-static)
+      set(zmq_target libzmq-static)
     else ()
-      vtk_module_link(VTK::RenderingOpenVR PRIVATE libzmq)
+      set(zmq_target libzmq)
     endif ()
   endif ()
+
+  vtk_module_link(VTK::RenderingOpenVR PRIVATE "${zmq_target}")
 endif ()
 
 set(openvr_input_files
