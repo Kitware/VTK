@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkDomainsChemistryOpenGL2
 DESCRIPTION
   OpenGL support for chemistry data
+GROUPS
+  Rendering
 IMPLEMENTS
   VTK::DomainsChemistry
 DEPENDS

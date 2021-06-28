@@ -522,13 +522,13 @@ void DICOMParser::InitTypeMap()
 
   doublebyte group;
   doublebyte element;
-  VRTypes datatype;
+  DICOMTypeValue datatype;
 
   for (int i = 0; i < num_tags; i++)
   {
     group = dicom_tags[i].group;
     element = dicom_tags[i].element;
-    datatype = static_cast<VRTypes>(dicom_tags[i].datatype);
+    datatype = static_cast<DICOMTypeValue>(dicom_tags[i].datatype);
     Implementation->TypeMap.insert(
       dicom_stl::pair<const DICOMMapKey, DICOMTypeValue>(DICOMMapKey(group, element), datatype));
   }
