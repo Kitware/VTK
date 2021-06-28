@@ -40,8 +40,16 @@
  *   existing point in one face of the second grid. Additionally, every points from this corner on
  *   both grids need to match until the opposite corner (opposite w.r.t. each dimension) is reached,
  *   and this opposite corner of the grid junction needs to be a corner of either grid.
+ * - `vtkUnstructuredGrid`: Blocks connect if the external surface of neighboring grids match.
+ *   To do so, only points are looked at. If at least one point matches a point in a neighboring
+ *   grid, then they are connected. If there are no point global ids in the input, the 3D position
+ *   of the points is used to determine if grids match, up to floating point precision in the
+ *   coordinates. Note that integer coordinates can be used with this pipeline. If global ids are
+ *   present in the input point data, then the pipeline will only look at matching global ids, and
+ *   ignore point positions.
  *
- * @note Currently, only `vtkImageData`, `vtkRectilinearGrid` and `vtkStructuredGrid` are
+ * @note Currently, only `vtkImageData`, `vtkRectilinearGrid`, `vtkStructuredGrid` and
+ * `vtkUnstructuredGrid` are
  * implemented. Unless there is determining structural data added to subclasses of those classes,
  * this filter should work well on subclasses of supported types.
  */
@@ -385,9 +393,9 @@ protected:
     vtkDataArray* SurfacePoints;
 
     /**
-     * Handle to a point locator for surface points of the input.
+     * Handle to the point ids of the input surface, if present.
      */
-    vtkSmartPointer<vtkAbstractPointLocator> SurfacePointLocator;
+    vtkIdTypeArray* SurfaceGlobalPointIds;
   };
 
   struct PointSetBlockStructure : public DataSetBlockStructure
@@ -411,14 +419,20 @@ protected:
     vtkNew<vtkPoints> InterfacingPoints;
 
     /**
+     * Point global ids of the interfacing surface sent to us by corresponding block, if present.
+     */
+    vtkSmartPointer<vtkIdTypeArray> InterfacingGlobalPointIds = nullptr;
+
+    /**
+     * Point global ids sent to us by neighboring block, if present. This array has the same
+     * ordering as `GhostPoints`.
+     */
+    vtkSmartPointer<vtkIdTypeArray> GhostGlobalPointIds = nullptr;
+
+    /**
      * Ghost points sent by the current neighboring block.
      */
     vtkNew<vtkPoints> GhostPoints;
-
-    /**
-     * This buffer stores the point ids that will be sent by us when ghosts are exchanged.
-     */
-    vtkSmartPointer<vtkPoints> PointsToSend;
 
     /**
      * This lists the ids of the points that we own and need to send to the current neighboring
@@ -492,7 +506,7 @@ public:
    *   output for this block. This can include bounds, extent, etc.
    */
   template <class BlockStructureT, class InformationT>
-  struct Block : public diy::Serialization<vtkFieldData*>
+  struct Block
   {
     ///@{
     /**

@@ -30,6 +30,7 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGhostCellsGenerator.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
@@ -46,6 +47,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <array>
 #include <cmath>
 #include <set>
 
@@ -53,6 +55,7 @@ namespace
 {
 constexpr int MaxExtent = 5;
 constexpr int GridWidth = 2 * MaxExtent + 1;
+constexpr vtkIdType NumberOfPoints = GridWidth * GridWidth * GridWidth;
 constexpr double XCoordinates[GridWidth] = { -40.0, -25.0, -12.0, -10.0, -4.0, -3.0, 2.0, 10.0,
   12.0, 20.0, 21.0 };
 constexpr double YCoordinates[GridWidth] = { -13.0, -12.0, -11.0, -10.0, -6.0, -3.0, -1.0, 4.0, 5.0,
@@ -1379,6 +1382,30 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
 }
 
 //----------------------------------------------------------------------------
+void GenerateGlobalIdsForUnstructuredGrid(vtkUnstructuredGrid* ug, const int localExtent[6])
+{
+  vtkNew<vtkIdTypeArray> gids;
+  gids->SetNumberOfValues(ug->GetNumberOfPoints());
+  gids->SetName("GlobalIds");
+  int ijk[3];
+  vtkIdType pointId = 0;
+  constexpr int extent[6] = { -MaxExtent, MaxExtent, -MaxExtent, MaxExtent, -MaxExtent, MaxExtent };
+
+  for (ijk[2] = localExtent[4]; ijk[2] <= localExtent[5]; ++ijk[2])
+  {
+    for (ijk[1] = localExtent[2]; ijk[1] <= localExtent[3]; ++ijk[1])
+    {
+      for (ijk[0] = localExtent[0]; ijk[0] <= localExtent[1]; ++ijk[0], ++pointId)
+      {
+        gids->SetValue(pointId, vtkStructuredData::ComputePointIdForExtent(extent, ijk));
+      }
+    }
+  }
+
+  ug->GetPointData()->SetGlobalIds(gids);
+}
+
+//----------------------------------------------------------------------------
 bool TestQueryReferenceToGenerated(
   vtkPointSet* ref, vtkAbstractPointLocator* refLocator, vtkPointSet* gen, bool centers = false)
 {
@@ -1650,6 +1677,7 @@ bool TestUnstructuredGrid(
   pds->SetPartition(2, ug2);
   pds->SetPartition(3, ug3);
 
+  // On this pass, we test point data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> generator;
   generator->SetInputDataObject(pds);
   generator->SetNumberOfGhostLayers(numberOfGhostLayers);
@@ -1668,6 +1696,7 @@ bool TestUnstructuredGrid(
   pdsPointToCell->SetPartition(2, point2cell2->GetOutputDataObject(0));
   pdsPointToCell->SetPartition(3, point2cell3->GetOutputDataObject(0));
 
+  // On this pass, we test cell data when using the cells generator.
   vtkNew<vtkGhostCellsGenerator> cellGenerator;
   cellGenerator->SetInputDataObject(pdsPointToCell);
   cellGenerator->SetNumberOfGhostLayers(numberOfGhostLayers);
@@ -1689,6 +1718,7 @@ bool TestUnstructuredGrid(
   for (int id = 0; id < 4; ++id)
   {
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDS->GetPartition(id));
+
     vtkIdType numberOfCells = (MaxExtent + numberOfGhostLayers) *
       (MaxExtent + numberOfGhostLayers) * (MaxExtent + numberOfGhostLayers);
     if (ug->GetNumberOfCells() != numberOfCells)
@@ -1732,6 +1762,86 @@ bool TestUnstructuredGrid(
   if (!TestGhostCellsTagging(controller, outPDS))
   {
     retVal = false;
+  }
+
+  // Now we're going to test ghost cells generation when using point global ids.
+  // We take the same input as previously, but add global ids, and edit some that should match
+  // across partitions so they do not. The ghost cell generator should ignore point positions in
+  // the presence of a global ids array.
+
+  std::array<vtkImageData*, 4> images = { image0, image1, image2, image3 };
+  pds->SetPartition(0, ug0);
+
+  for (int id = 0; id < 4; ++id)
+  {
+    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(id));
+    GenerateGlobalIdsForUnstructuredGrid(ug, images[id]->GetExtent());
+    vtkIdTypeArray* gids = vtkArrayDownCast<vtkIdTypeArray>(ug->GetPointData()->GetGlobalIds());
+
+    // For the first partition, we mess up an edge with global ids that don't match the
+    // corresponding points in other partitions.
+    if (id == 0)
+    {
+      vtkIdType offset = NumberOfPoints + MaxExtent;
+      int extent[6] = { -MaxExtent, 0, -MaxExtent, 0, zmin, zmax };
+      for (int z = zmin; z <= zmax; ++z)
+      {
+        int ijk[3] = { 0, 0, z };
+        vtkIdType pointId = vtkStructuredData::ComputePointIdForExtent(extent, ijk);
+        gids->SetValue(pointId, offset + z);
+      }
+    }
+  }
+
+  generator->Modified();
+  generator->Update();
+
+  vtkPartitionedDataSet* outPDSWithGID =
+    vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+
+  for (int id = 0; id < 4; ++id)
+  {
+    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDSWithGID->GetPartition(id));
+    bool error = false;
+
+    // Number of points is hardcoded. The topology of the output is kind of weird because out of the
+    // 4 partitions, the first partition has one edge that has global ids that don't match its
+    // counter part in the other partitions. This test ensures that global ids trump point
+    // positions in 3D.
+    switch (id)
+    {
+      case 0:
+        if (ug->GetNumberOfPoints() != 491)
+        {
+          error = true;
+        }
+        break;
+      case 1:
+        if (ug->GetNumberOfPoints() != 532)
+        {
+          error = true;
+        }
+        break;
+      case 2:
+        if (ug->GetNumberOfPoints() != 480)
+        {
+          error = true;
+        }
+        break;
+      case 3:
+        if (ug->GetNumberOfPoints() != 532)
+        {
+          error = true;
+        }
+        break;
+    }
+
+    if (error)
+    {
+      vtkLog(
+        ERROR, "Ghost cells generation for unstructured grid failed when using global ids" << id);
+      retVal = false;
+    }
   }
 
   return retVal;
