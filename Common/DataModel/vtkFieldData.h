@@ -400,11 +400,11 @@ public:
   class VTKCOMMONDATAMODEL_EXPORT BasicIterator
   {
   public:
-    BasicIterator();
+    BasicIterator() = default;
     BasicIterator(const BasicIterator& source);
     BasicIterator(const int* list, unsigned int listSize);
     BasicIterator& operator=(const BasicIterator& source);
-    virtual ~BasicIterator();
+    virtual ~BasicIterator() = default;
     void PrintSelf(ostream& os, vtkIndent indent);
 
     int GetListSize() const { return static_cast<int>(this->List.size()); }
