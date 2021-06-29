@@ -1697,6 +1697,20 @@ void vtkCompositePolyDataMapper2::SetVBOShiftScaleMethod(int m)
   }
 }
 
+void vtkCompositePolyDataMapper2::SetPauseShiftScale(bool pauseShiftScale)
+{
+  if (pauseShiftScale == this->PauseShiftScale)
+  {
+    return;
+  }
+
+  this->Superclass::SetPauseShiftScale(pauseShiftScale);
+  for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    hiter->second->SetPauseShiftScale(pauseShiftScale);
+  }
+}
+
 //------------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 {

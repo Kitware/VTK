@@ -126,6 +126,12 @@ public:
    */
   void SetVBOShiftScaleMethod(int m) override;
 
+  /**\brief Pause updates of shift-scale parameters based on camera position.
+   *
+   * This override passes the information to all instances in \a Helpers .
+   */
+  void SetPauseShiftScale(bool pauseShiftScale) override;
+
   ///@{
   /**
    * Call SetInputArrayToProcess on helpers.
