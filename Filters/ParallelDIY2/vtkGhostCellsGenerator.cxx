@@ -22,12 +22,17 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYGhostUtilities.h"
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkDataObjectTreeRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkRange.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
@@ -55,7 +60,7 @@ vtkGhostCellsGenerator::~vtkGhostCellsGenerator()
 //------------------------------------------------------------------------------
 int vtkGhostCellsGenerator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
@@ -68,95 +73,127 @@ int vtkGhostCellsGenerator::RequestData(
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
 
   bool error = false;
+  int retVal = 1;
 
-  if (auto outputCDS = vtkCompositeDataSet::SafeDownCast(outputDO))
+  std::vector<vtkDataObject*> inputPDSs, outputPDSs;
+
+  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
   {
-    if (auto inputCDS = vtkCompositeDataSet::SafeDownCast(inputDO))
+    auto outputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
+    outputPDSC->CopyStructure(inputPDSC);
+
+    for (unsigned int pdsId = 0; pdsId < inputPDSC->GetNumberOfPartitionedDataSets(); ++pdsId)
     {
-      outputCDS->CopyStructure(inputCDS);
-      auto iter = inputCDS->NewIterator();
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-        auto subInputDO = iter->GetCurrentDataObject();
-        outputCDS->SetDataSet(
-          iter, vtkSmartPointer<vtkDataObject>::Take(subInputDO->NewInstance()));
-      }
-      iter->Delete();
+      inputPDSs.emplace_back(inputPDSC->GetPartitionedDataSet(pdsId));
+      outputPDSs.emplace_back(outputPDSC->GetPartitionedDataSet(pdsId));
     }
-    else
+  }
+  else
+  {
+    inputPDSs.emplace_back(inputDO);
+    outputPDSs.emplace_back(outputDO);
+  }
+
+  for (int partitionId = 0; partitionId < static_cast<int>(inputPDSs.size()); ++partitionId)
+  {
+    vtkDataObject* inputPartition = inputPDSs[partitionId];
+    vtkDataObject* outputPartition = outputPDSs[partitionId];
+
+    if (auto outputCDS = vtkDataObjectTree::SafeDownCast(outputPartition))
+    {
+      if (auto inputCDS = vtkDataObjectTree::SafeDownCast(inputPartition))
+      {
+        using Opts = vtk::DataObjectTreeOptions;
+        outputCDS->CopyStructure(inputCDS);
+        auto outputs = vtk::Range(outputCDS, Opts::None);
+        auto inputs = vtk::Range(inputCDS, Opts::None);
+        for (auto inIt = inputs.begin(), outIt = outputs.begin(); inIt != inputs.end();
+             ++inIt, ++outIt)
+        {
+          *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+        }
+      }
+      else
+      {
+        error = true;
+      }
+    }
+    else if (!vtkDataSet::SafeDownCast(outputPartition) ||
+      !vtkDataSet::SafeDownCast(inputPartition))
     {
       error = true;
     }
-  }
-  else if (!vtkDataSet::SafeDownCast(outputDO) || !vtkDataSet::SafeDownCast(inputDO))
-  {
-    error = true;
-  }
 
-  if (error)
-  {
-    vtkErrorMacro(<< "Could not generate output");
-    return 0;
-  }
-
-  std::vector<vtkImageData*> inputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(inputDO);
-  std::vector<vtkImageData*> outputsID = vtkCompositeDataSet::GetDataSets<vtkImageData>(outputDO);
-
-  std::vector<vtkRectilinearGrid*> inputsRG =
-    vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(inputDO);
-  std::vector<vtkRectilinearGrid*> outputsRG =
-    vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(outputDO);
-
-  std::vector<vtkStructuredGrid*> inputsSG =
-    vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(inputDO);
-  std::vector<vtkStructuredGrid*> outputsSG =
-    vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(outputDO);
-
-  std::vector<vtkUnstructuredGrid*> inputsUG =
-    vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(inputDO);
-  std::vector<vtkUnstructuredGrid*> outputsUG =
-    vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(outputDO);
-
-  std::vector<vtkUnstructuredGrid*> inputsUGWithoutGhosts(inputsUG.size());
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> inputsUGWithoutGhostsCleaner(inputsUG.size());
-
-  // FIXME
-  // We do a deep copy for unstructured grids removing ghost cells.
-  // Ideally, we should avoid doing such a thing and skip ghost cells in the input
-  // by remapping the input to the output while ignoring the input ghosts.
-  for (int localId = 0; localId < static_cast<vtkIdType>(inputsUG.size()); ++localId)
-  {
-    vtkUnstructuredGrid* input = inputsUG[localId];
-    if (input->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS))
+    if (error)
     {
-      inputsUGWithoutGhostsCleaner[localId] = vtkSmartPointer<vtkUnstructuredGrid>::New();
-      vtkUnstructuredGrid* cleanInput = inputsUGWithoutGhostsCleaner[localId];
-      cleanInput->DeepCopy(input);
-      cleanInput->RemoveGhostCells();
-      cleanInput->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-      cleanInput->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-      inputsUGWithoutGhosts[localId] = cleanInput;
+      vtkErrorMacro(<< "Could not generate output.");
+      outputPartition->ShallowCopy(inputPartition);
+      continue;
     }
-    else
+
+    std::vector<vtkImageData*> inputsID =
+      vtkCompositeDataSet::GetDataSets<vtkImageData>(inputPartition);
+    std::vector<vtkImageData*> outputsID =
+      vtkCompositeDataSet::GetDataSets<vtkImageData>(outputPartition);
+
+    std::vector<vtkRectilinearGrid*> inputsRG =
+      vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(inputPartition);
+    std::vector<vtkRectilinearGrid*> outputsRG =
+      vtkCompositeDataSet::GetDataSets<vtkRectilinearGrid>(outputPartition);
+
+    std::vector<vtkStructuredGrid*> inputsSG =
+      vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(inputPartition);
+    std::vector<vtkStructuredGrid*> outputsSG =
+      vtkCompositeDataSet::GetDataSets<vtkStructuredGrid>(outputPartition);
+
+    std::vector<vtkUnstructuredGrid*> inputsUG =
+      vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(inputPartition);
+    std::vector<vtkUnstructuredGrid*> outputsUG =
+      vtkCompositeDataSet::GetDataSets<vtkUnstructuredGrid>(outputPartition);
+
+    std::vector<vtkUnstructuredGrid*> inputsUGWithoutGhosts(inputsUG.size());
+    std::vector<vtkSmartPointer<vtkUnstructuredGrid>> inputsUGWithoutGhostsCleaner(inputsUG.size());
+
+    // FIXME
+    // We do a deep copy for unstructured grids removing ghost cells.
+    // Ideally, we should avoid doing such a thing and skip ghost cells in the input
+    // by remapping the input to the output while ignoring the input ghosts.
+    for (int localId = 0; localId < static_cast<vtkIdType>(inputsUG.size()); ++localId)
     {
-      inputsUGWithoutGhosts[localId] = input;
+      vtkUnstructuredGrid* input = inputsUG[localId];
+      if (input->GetGhostArray(vtkDataObject::FIELD_ASSOCIATION_CELLS))
+      {
+        inputsUGWithoutGhostsCleaner[localId] = vtkSmartPointer<vtkUnstructuredGrid>::New();
+        vtkUnstructuredGrid* cleanInput = inputsUGWithoutGhostsCleaner[localId];
+        cleanInput->DeepCopy(input);
+        cleanInput->RemoveGhostCells();
+        cleanInput->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+        cleanInput->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+        inputsUGWithoutGhosts[localId] = cleanInput;
+      }
+      else
+      {
+        inputsUGWithoutGhosts[localId] = input;
+      }
     }
+
+    if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty() && !inputsUG.empty())
+    {
+      vtkWarningMacro(<< "Ghost cell generator called with mixed types."
+                      << "Ghosts are not exchanged between data sets of different types.");
+    }
+
+    retVal &= vtkDIYGhostUtilities::GenerateGhostCells(
+                inputsID, outputsID, this->NumberOfGhostLayers, this->Controller) &&
+      vtkDIYGhostUtilities::GenerateGhostCells(
+        inputsRG, outputsRG, this->NumberOfGhostLayers, this->Controller) &&
+      vtkDIYGhostUtilities::GenerateGhostCells(
+        inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller) &&
+      vtkDIYGhostUtilities::GenerateGhostCells(
+        inputsUGWithoutGhosts, outputsUG, this->NumberOfGhostLayers, this->Controller);
   }
 
-  if (!inputsID.empty() && !inputsRG.empty() && !inputsSG.empty() && !inputsUG.empty())
-  {
-    vtkWarningMacro(<< "Ghost cell generator called with mixed types."
-                    << "Ghosts are not exchanged between data sets of different types.");
-  }
-
-  return vtkDIYGhostUtilities::GenerateGhostCells(
-           inputsID, outputsID, this->NumberOfGhostLayers, this->Controller) &&
-    vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsRG, outputsRG, this->NumberOfGhostLayers, this->Controller) &&
-    vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsSG, outputsSG, this->NumberOfGhostLayers, this->Controller) &&
-    vtkDIYGhostUtilities::GenerateGhostCells(
-      inputsUGWithoutGhosts, outputsUG, this->NumberOfGhostLayers, this->Controller);
+  return retVal && !error;
 }
 
 //----------------------------------------------------------------------------
