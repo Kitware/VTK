@@ -53,6 +53,10 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
     {
       numThreads = std::atoi(vtkSmpNumThreads);
     }
+    else if (taskArena.is_active())
+    {
+      taskArena.terminate();
+    }
   }
   if (numThreads > 0 && numThreads != taskArena.max_concurrency())
   {

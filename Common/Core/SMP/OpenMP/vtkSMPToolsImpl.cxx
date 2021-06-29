@@ -39,6 +39,11 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
     {
       numThreads = std::atoi(vtkSmpNumThreads);
     }
+    else if (specifiedNumThreads)
+    {
+      specifiedNumThreads = 0;
+      omp_set_num_threads(maxThreads);
+    }
   }
 #pragma omp single
   if (numThreads > 0)
@@ -68,7 +73,7 @@ void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
 {
   if (grain <= 0)
   {
-    vtkIdType estimateGrain = (last - first) / (omp_get_max_threads() * 4);
+    vtkIdType estimateGrain = (last - first) / (GetNumberOfThreadsOpenMP() * 4);
     grain = (estimateGrain > 0) ? estimateGrain : 1;
   }
 

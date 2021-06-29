@@ -207,12 +207,20 @@ public:
 
 private:
   //--------------------------------------------------------------------------------
-  vtkSMPToolsAPI(){};
+  vtkSMPToolsAPI();
+
+  //--------------------------------------------------------------------------------
+  void RefreshNumberOfThread();
 
   /**
    * Indicate which backend to use.
    */
   BackendType ActivatedBackend = DefaultBackend;
+
+  /**
+   * Max threads number
+   */
+  int DesiredNumberOfThread = 0;
 
   /**
    * Sequential backend

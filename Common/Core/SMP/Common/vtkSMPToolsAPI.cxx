@@ -36,6 +36,9 @@ vtkSMPToolsAPI::vtkSMPToolsAPI()
   {
     this->SetBackend(vtkSMPBackendInUse);
   }
+
+  // Set max thread number from env
+  this->RefreshNumberOfThread();
 }
 
 //------------------------------------------------------------------------------
@@ -85,11 +88,20 @@ void vtkSMPToolsAPI::SetBackend(const char* type)
     std::cerr << "WARNING: tried to use a non implemented SMPTools backend " << backend << "!\n";
     std::cerr.flush();
   }
+  this->RefreshNumberOfThread();
 }
 
 //------------------------------------------------------------------------------
 void vtkSMPToolsAPI::Initialize(int numThreads)
 {
+  this->DesiredNumberOfThread = numThreads;
+  this->RefreshNumberOfThread();
+}
+
+//------------------------------------------------------------------------------
+void vtkSMPToolsAPI::RefreshNumberOfThread()
+{
+  const int numThreads = this->DesiredNumberOfThread;
   switch (this->ActivatedBackend)
   {
     case BackendType::Sequential:

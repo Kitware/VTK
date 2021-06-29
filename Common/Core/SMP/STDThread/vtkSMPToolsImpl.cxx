@@ -25,13 +25,13 @@ namespace detail
 {
 namespace smp
 {
-
 static int specifiedNumThreads = 0;
 
 //------------------------------------------------------------------------------
 template <>
 void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
 {
+  const int maxThreads = std::thread::hardware_concurrency();
   if (numThreads == 0)
   {
     const char* vtkSmpNumThreads = std::getenv("VTK_SMP_MAX_THREADS");
@@ -39,9 +39,14 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
     {
       numThreads = std::atoi(vtkSmpNumThreads);
     }
+    else
+    {
+      specifiedNumThreads = 0;
+    }
   }
   if (numThreads > 0)
   {
+    numThreads = std::min(numThreads, maxThreads);
     specifiedNumThreads = numThreads;
   }
 }
