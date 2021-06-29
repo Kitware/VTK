@@ -164,10 +164,10 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
     # The linker is allowed to skip libraries not used by the end result. This
     # can exclude the `libpython` DT_NEEDED entry at the final executable if it
     # itself does not actually use any libpython symbols.
-    "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--no-as-needed>"
+    "$<$<AND:${should_use},$<PLATFORM_ID:Linux>>:LINKER:--no-as-needed>"
     # Due to the above making the symbols actually available, we can ignore
     # unresolved symbols in the shared libraries that are being linked to.
-    "$<$<AND:${is_exe},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
+    "$<$<AND:${should_use},$<PLATFORM_ID:Linux>>:LINKER:--unresolved-symbols=ignore-in-shared-libs>")
 
   # Use the `PythonX::Module` target from FindPython.
   vtk_module_link(VTK::Python
@@ -180,10 +180,10 @@ if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
   # flags.
   target_link_libraries(PythonUsed
     INTERFACE
-      "$<LINK_ONLY:$<${is_exe}:${vtk_python_embed_target}>>")
+      "$<LINK_ONLY:$<${should_use}:${vtk_python_embed_target}>>")
   target_link_options(PythonUsed
     INTERFACE
-      "$<$<AND:${is_exe},${needs_flags}>:${platform_flags}>")
+      "$<$<AND:${should_use},${needs_flags}>:${platform_flags}>")
   _vtk_module_set_module_property(VTK::Python APPEND
     PROPERTY  "forward_link"
     VALUE     VTK::PythonUsed)
