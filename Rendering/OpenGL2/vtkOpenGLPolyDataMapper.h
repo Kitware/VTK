@@ -203,8 +203,11 @@ public:
    *
    * This setting has no effect unless the shift-scale method is set
    * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
+   *
+   * Changing this setting does **not** mark the mapper as modified as
+   * that would force a VBO upload – defeating its own purpose.
    */
-  vtkSetMacro(PauseShiftScale, bool);
+  virtual void SetPauseShiftScale(bool pauseShiftScale) { this->PauseShiftScale = pauseShiftScale; }
   vtkGetMacro(PauseShiftScale, bool);
   vtkBooleanMacro(PauseShiftScale, bool);
 
