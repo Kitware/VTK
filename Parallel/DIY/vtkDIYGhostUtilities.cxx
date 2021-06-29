@@ -1731,7 +1731,7 @@ void BuildGeometryBufferToSend(vtkUnstructuredGrid* ug, vtkIdTypeArray* seedPoin
   }
 #endif
 
-  unsigned char mask = (cellArray->IsStorage64Bit() << 1) | ug->GetCells()->IsStorage64Bit();
+  int mask = (cellArray->IsStorage64Bit() << 1) | static_cast<int>(ug->GetCells()->IsStorage64Bit());
 
   switch (mask)
   {
