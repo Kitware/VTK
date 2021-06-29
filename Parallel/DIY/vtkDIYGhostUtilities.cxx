@@ -3014,7 +3014,7 @@ void FillReceivedGhostFieldData(vtkFieldData* sourceFD, vtkFieldData* destFD,
   for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
   {
     vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
-    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
     {
       vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
       if (destArray)
@@ -3113,7 +3113,7 @@ void FillReceivedGhostFieldData(vtkFieldData* sourceFD,
   for (int arrayId = 0; arrayId < sourceFD->GetNumberOfArrays(); ++arrayId)
   {
     vtkAbstractArray* sourceArray = sourceFD->GetArray(arrayId);
-    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()))
+    if (strcmp(sourceArray->GetName(), vtkDataSetAttributes::GhostArrayName()) != 0)
     {
       vtkAbstractArray* destArray = destFD->GetAbstractArray(sourceArray->GetName());
       if (destArray)
