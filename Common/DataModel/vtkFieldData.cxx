@@ -83,9 +83,6 @@ vtkFieldData::Iterator::Iterator(vtkFieldData* dsa, const int* list, unsigned in
 }
 
 //------------------------------------------------------------------------------
-vtkFieldData::BasicIterator::BasicIterator() {}
-
-//------------------------------------------------------------------------------
 vtkFieldData::BasicIterator::BasicIterator(const vtkFieldData::BasicIterator& source)
 {
   this->List = source.List;
@@ -153,9 +150,6 @@ vtkFieldData::Iterator& vtkFieldData::Iterator::operator=(const vtkFieldData::It
   }
   return *this;
 }
-
-//------------------------------------------------------------------------------
-vtkFieldData::BasicIterator::~BasicIterator() {}
 
 //------------------------------------------------------------------------------
 vtkFieldData::Iterator::~Iterator()
