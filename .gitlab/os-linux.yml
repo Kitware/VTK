@@ -2,6 +2,11 @@
 
 ## Base images
 
+.linux:
+    variables:
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+        GIT_SUBMODULE_STRATEGY: none
+
 .manylinux2014_x86_64:
     image: "quay.io/pypa/manylinux2014_x86_64:latest"
 
@@ -36,11 +41,39 @@
         CMAKE_CONFIGURATION: wheel_linux39_x86_64
         PYTHON_PREFIX: /opt/python/cp39-cp39
 
+.fedora33:
+    extends: .linux
+    image: "kitware/vtk:ci-fedora33-20210513"
+
+.fedora_mpich_addon:
+    variables:
+        MODULES: mpi/mpich-x86_64
+        # Even with SHM size of 512m, SIGBUS still happened. Let's just use the
+        # network instead for reliability.
+        # https://wiki.mpich.org/mpich/index.php/Frequently_Asked_Questions#Q:_Why_MPI_Put_raises_SIGBUS_error_inside_docker.3F
+        MPIR_CVAR_NOLOCAL: 1
+
+.fedora33_doxygen_mpi_python_qt_tbb:
+    extends:
+        - .fedora33
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora33_doxygen_mpi_python_qt_tbb
+
 .linux_builder_tags:
     tags:
         - build
         - docker
         - linux
+        - vtk
+
+.linux_qt_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux
+        - linux-3.17
         - vtk
 
 ## Linux-specific scripts
@@ -57,6 +90,20 @@
     - git submodule update --init --recursive
     # Load any modules that may be necessary.
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
+
+.cmake_build_linux:
+    stage: build
+
+    script:
+        - *before_script_linux
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+        - sccache --show-stats
+
+    interruptible: true
 
 .cmake_build_wheel_linux:
     stage: build

@@ -206,6 +206,16 @@ upload:wheel:vtk:
         - build:wheel-windows-python39-x86_64
         - test:wheel-windows-python39-x86_64
 
+## Documentation
+
+build:documentation:
+    extends:
+        - .fedora33_doxygen_mpi_python_qt_tbb
+        - .cmake_build_linux
+        - .linux_qt_builder_tags
+        - .cmake_doxygen_artifacts
+        - .run_manually
+
 # macOS
 
 ## Python wheel builds

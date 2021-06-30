@@ -24,6 +24,8 @@ set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY "ON" CACHE BOOL "")
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "")
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "")
 
+set(VTK_PYTHON_VERSION "3" CACHE STRING "")
+
 include("${CMAKE_CURRENT_LIST_DIR}/configure_options.cmake")
 
 # Default to Release builds.
