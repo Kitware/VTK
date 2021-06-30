@@ -1,7 +1,7 @@
 # Steps for uploading artifacts
 
 .rsync_upload:
-    image: "fedora:33"
+    image: "fedora:34"
     stage: upload
     tags:
         - docker
