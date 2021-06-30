@@ -114,7 +114,7 @@ test:wheel-linux-python39-x86_64:
     needs:
         - build:wheel-linux-python39-x86_64
 
-upload:wheel:
+upload:wheel:pypi:
     extends:
         - .pypi_upload
         - .weekly_upload_only
