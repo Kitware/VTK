@@ -26,6 +26,9 @@ set(Python3_FIND_STRATEGY LOCATION CACHE STRING "")
 # VTK's software process).
 set(VTK_ENABLE_REMOTE_MODULES OFF CACHE BOOL "")
 
+# Disable debug leaks in wheels.
+set(VTK_DEBUG_LEAKS OFF CACHE BOOL "")
+
 # Disable modules we cannot build for wheels.
 set(VTK_GROUP_ENABLE_Qt NO CACHE STRING "") # Qt
 set(VTK_MODULE_ENABLE_VTK_CommonArchive NO CACHE STRING "") # libarchive
