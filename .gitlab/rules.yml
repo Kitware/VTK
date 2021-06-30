@@ -50,3 +50,11 @@
         - if: '$PYPI_WEEKLY_UPLOAD == "true"'
           when: on_success
         - when: never
+
+.tag_only:
+    rules:
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
+        - if: '$CI_PROJECT_PATH == "vtk/vtk" && $CI_COMMIT_TAG != ""'
+          when: on_success
+        - when: never

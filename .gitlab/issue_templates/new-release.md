@@ -61,10 +61,14 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
     - [ ] Push the tag to the main repository
       - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake
       - [ ] `git push origin v@VERSION@@RC@`
-  - Create tarballs
-    - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v @VERSION@@RC@ v@VERSION@@RC@`)
-  - Upload tarballs to `vtk.org`
-    - [ ] `rsync -rptv $tarballs user@host:VTK_Release/v@MAJOR@.@MINOR@/`
+  - Gather release assets
+    - [ ] Source (from the `build:source` CI job in the tag pipeline)
+    - [ ] Documentation (from the `release-prep:documentation` CI job in the tag pipeline)
+    - [ ] Wheels (from the `build:wheel-*` jobs).
+  - Upload assets to `vtk.org`
+    - [ ] `rsync -rptv $tarballs $wheels user@host:vtk_release/@MAJOR@.@MINOR@/`
+  - [ ] Update `vtk.org/download` with the new release (email
+        `comm@kitware.com` with filenames and hashes)
   - Software process updates (these can all be done independently)
     - [ ] Update kwrobot with the new `release` branch rules (@ben.boeckel)
     - [ ] Run [this script][cdash-update-groups] to update the CDash groups
@@ -76,10 +80,6 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 [release-mr]: https://gitlab.kitware.com/utils/release-utils/-/blob/master/release-mr.py
 [cdash-update-groups]: https://gitlab.kitware.com/utils/cdash-utils/-/blob/master/cdash-update-groups.py
 
-# Upload wheels
-
-  - [ ] Upload wheels to PyPI (via the tag's pipeline)
-
 # Post-release
 
   - [ ] Post an announcement in the Announcements category on
@@ -88,4 +88,5 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 /cc @ben.boeckel
 /cc @ken-martin
 /cc @utkarsh.ayachit
+/milestone %"@VERSION@@RC@"
 /label ~"priority:required"

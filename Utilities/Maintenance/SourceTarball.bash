@@ -89,7 +89,7 @@ download () {
     for urlbase in $urlbases; do
         url="$( echo "$urlbase" | sed -e "s/ALGO/$algo/;s/HASH/$hash/" )"
 
-        if wget "$url" -O "$temppath" >&2; then
+        if wget --no-verbose "$url" -O "$temppath" >&2; then
             mv "$temppath" "$path"
             return
         else
