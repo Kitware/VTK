@@ -62,7 +62,7 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
       - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake
       - [ ] `git push origin v@VERSION@@RC@`
   - Create tarballs
-    - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v v@VERSION@@RC@`)
+    - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v @VERSION@@RC@ v@VERSION@@RC@`)
   - Upload tarballs to `vtk.org`
     - [ ] `rsync -rptv $tarballs user@host:VTK_Release/v@MAJOR@.@MINOR@/`
   - Software process updates (these can all be done independently)
