@@ -31,11 +31,13 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -308,6 +310,15 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
   if (renWin == nullptr)
   {
     vtkErrorMacro("Invalid vtkOpenGLRenderWindow");
+  }
+
+  vtkInformation* volumeKeys = volume->GetPropertyKeys();
+  if (volumeKeys && volumeKeys->Has(vtkOpenGLActor::GLDepthMaskOverride()))
+  {
+    vtkWarningMacro(
+      "Intermixing translucent polygonal data with unstructured grid volumes is not supported!"
+      "\nEither set opacity to 1.0 for polydata in the view or resample the unstructured "
+      "grid to image data and use the ray cast mapper.");
   }
 
   vtkUnstructuredGridBase* input = this->GetInput();
