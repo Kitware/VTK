@@ -35,11 +35,10 @@ git submodule update --recursive --init
       (suggested branch name: `update-to-v@VERSION@`):
       - Assemble release notes into `Documentation/release/@VERSION@.md`.
         - [ ] If `PATCH` is greater than 0, add items to the end of this file.
-      - [ ] Update `version.txt` and tag the commit (tag this commit below)
+    - [ ] Update `CMake/vtkVersion.cmake` and tag the commit (tag this commit below)
 ```
-git checkout -b update-to-v@VERSION@@RC@ @BRANCHPOINT@
-echo @VERSION@@RC@ > version.txt
-git commit -m 'Update version number to @VERSION@@RC@' version.txt
+$EDITOR CMake/vtkVersion.cmake
+git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 ```
       - [ ] Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
             groups
@@ -61,7 +60,7 @@ git commit -m 'Update version number to @VERSION@@RC@' version.txt
     - [ ] Get positive review
     - [ ] `Do: merge`
     - [ ] Push the tag to the main repository
-      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-version.txt`
+      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake
       - [ ] `git push origin v@VERSION@@RC@`
   - Create tarballs
     - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v v@VERSION@@RC@`)
