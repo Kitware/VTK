@@ -25,7 +25,7 @@ const char* vtkSMPTools::GetBackend()
 }
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::SetBackend(const char* backend)
+bool vtkSMPTools::SetBackend(const char* backend)
 {
   auto& SMPToolsAPI = vtk::detail::smp::vtkSMPToolsAPI::GetInstance();
   return SMPToolsAPI.SetBackend(backend);

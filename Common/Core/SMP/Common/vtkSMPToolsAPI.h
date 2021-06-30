@@ -20,6 +20,8 @@
 #include "vtkNew.h"
 #include "vtkObject.h"
 
+#include <memory>
+
 #include "SMP/Common/vtkSMPToolsImpl.h"
 #if VTK_SMP_ENABLE_SEQUENTIAL
 #include "SMP/Sequential/vtkSMPToolsImpl.txx"
@@ -66,7 +68,7 @@ public:
   const char* GetBackend();
 
   //--------------------------------------------------------------------------------
-  void SetBackend(const char* type);
+  bool SetBackend(const char* type);
 
   //--------------------------------------------------------------------------------
   void Initialize(int numThreads = 0);
@@ -81,16 +83,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.For(first, last, grain, fi);
+        this->SequentialBackend->For(first, last, grain, fi);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.For(first, last, grain, fi);
+        this->STDThreadBackend->For(first, last, grain, fi);
         break;
       case BackendType::TBB:
-        this->TBBBackend.For(first, last, grain, fi);
+        this->TBBBackend->For(first, last, grain, fi);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.For(first, last, grain, fi);
+        this->OpenMPBackend->For(first, last, grain, fi);
         break;
     }
   }
@@ -102,16 +104,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.Transform(inBegin, inEnd, outBegin, transform);
+        this->SequentialBackend->Transform(inBegin, inEnd, outBegin, transform);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.Transform(inBegin, inEnd, outBegin, transform);
+        this->STDThreadBackend->Transform(inBegin, inEnd, outBegin, transform);
         break;
       case BackendType::TBB:
-        this->TBBBackend.Transform(inBegin, inEnd, outBegin, transform);
+        this->TBBBackend->Transform(inBegin, inEnd, outBegin, transform);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.Transform(inBegin, inEnd, outBegin, transform);
+        this->OpenMPBackend->Transform(inBegin, inEnd, outBegin, transform);
         break;
     }
   }
@@ -124,16 +126,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
+        this->SequentialBackend->Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
+        this->STDThreadBackend->Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
         break;
       case BackendType::TBB:
-        this->TBBBackend.Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
+        this->TBBBackend->Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
+        this->OpenMPBackend->Transform(inBegin1, inEnd, inBegin2, outBegin, transform);
         break;
     }
   }
@@ -145,16 +147,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.Fill(begin, end, value);
+        this->SequentialBackend->Fill(begin, end, value);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.Fill(begin, end, value);
+        this->STDThreadBackend->Fill(begin, end, value);
         break;
       case BackendType::TBB:
-        this->TBBBackend.Fill(begin, end, value);
+        this->TBBBackend->Fill(begin, end, value);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.Fill(begin, end, value);
+        this->OpenMPBackend->Fill(begin, end, value);
         break;
     }
   }
@@ -166,16 +168,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.Sort(begin, end);
+        this->SequentialBackend->Sort(begin, end);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.Sort(begin, end);
+        this->STDThreadBackend->Sort(begin, end);
         break;
       case BackendType::TBB:
-        this->TBBBackend.Sort(begin, end);
+        this->TBBBackend->Sort(begin, end);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.Sort(begin, end);
+        this->OpenMPBackend->Sort(begin, end);
         break;
     }
   }
@@ -187,16 +189,16 @@ public:
     switch (this->ActivatedBackend)
     {
       case BackendType::Sequential:
-        this->SequentialBackend.Sort(begin, end, comp);
+        this->SequentialBackend->Sort(begin, end, comp);
         break;
       case BackendType::STDThread:
-        this->STDThreadBackend.Sort(begin, end, comp);
+        this->STDThreadBackend->Sort(begin, end, comp);
         break;
       case BackendType::TBB:
-        this->TBBBackend.Sort(begin, end, comp);
+        this->TBBBackend->Sort(begin, end, comp);
         break;
       case BackendType::OpenMP:
-        this->OpenMPBackend.Sort(begin, end, comp);
+        this->OpenMPBackend->Sort(begin, end, comp);
         break;
     }
   }
@@ -226,36 +228,36 @@ private:
    * Sequential backend
    */
 #if VTK_SMP_ENABLE_SEQUENTIAL
-  vtkSMPToolsImpl<BackendType::Sequential> SequentialBackend;
+  std::unique_ptr<vtkSMPToolsImpl<BackendType::Sequential>> SequentialBackend;
 #else
-  vtkSMPToolsDefaultImpl SequentialBackend;
+  std::unique_ptr<vtkSMPToolsDefaultImpl> SequentialBackend;
 #endif
 
   /**
    * STDThread backend
    */
 #if VTK_SMP_ENABLE_STDTHREAD
-  vtkSMPToolsImpl<BackendType::STDThread> STDThreadBackend;
+  std::unique_ptr<vtkSMPToolsImpl<BackendType::STDThread>> STDThreadBackend;
 #else
-  vtkSMPToolsDefaultImpl STDThreadBackend;
+  std::unique_ptr<vtkSMPToolsDefaultImpl> STDThreadBackend;
 #endif
 
   /**
    * TBB backend
    */
 #if VTK_SMP_ENABLE_TBB
-  vtkSMPToolsImpl<BackendType::TBB> TBBBackend;
+  std::unique_ptr<vtkSMPToolsImpl<BackendType::TBB>> TBBBackend;
 #else
-  vtkSMPToolsDefaultImpl TBBBackend;
+  std::unique_ptr<vtkSMPToolsDefaultImpl> TBBBackend;
 #endif
 
   /**
    * TBB backend
    */
 #if VTK_SMP_ENABLE_OPENMP
-  vtkSMPToolsImpl<BackendType::OpenMP> OpenMPBackend;
+  std::unique_ptr<vtkSMPToolsImpl<BackendType::OpenMP>> OpenMPBackend;
 #else
-  vtkSMPToolsDefaultImpl OpenMPBackend;
+  std::unique_ptr<vtkSMPToolsDefaultImpl> OpenMPBackend;
 #endif
 };
 

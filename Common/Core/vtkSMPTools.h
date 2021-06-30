@@ -19,7 +19,7 @@
  * vtkSMPTools provides a set of utility functions that can
  * be used to parallelize parts of VTK code using multiple threads.
  * There are several back-end implementations of parallel functionality
- * (currently Sequential, TBB and X-Kaapi) that actual execution is
+ * (currently Sequential, TBB, OpenMP and STDThread) that actual execution is
  * delegated to.
  */
 
@@ -238,7 +238,7 @@ public:
    *
    * SetBackend() will return true if the backend was found and available.
    */
-  static void SetBackend(const char* backend);
+  static bool SetBackend(const char* backend);
 
   /**
    * Initialize the underlying libraries for execution. This is

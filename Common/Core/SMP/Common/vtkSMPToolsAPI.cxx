@@ -30,7 +30,25 @@ namespace smp
 //------------------------------------------------------------------------------
 vtkSMPToolsAPI::vtkSMPToolsAPI()
 {
-  // Set backend from env if existing
+  // XXX(c++14): use std::make_unique
+#if VTK_SMP_ENABLE_SEQUENTIAL
+  this->SequentialBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::Sequential>>(
+    new vtkSMPToolsImpl<BackendType::Sequential>());
+#endif
+#if VTK_SMP_ENABLE_STDTHREAD
+  this->STDThreadBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::STDThread>>(
+    new vtkSMPToolsImpl<BackendType::STDThread>());
+#endif
+#if VTK_SMP_ENABLE_TBB
+  this->TBBBackend =
+    std::unique_ptr<vtkSMPToolsImpl<BackendType::TBB>>(new vtkSMPToolsImpl<BackendType::TBB>());
+#endif
+#if VTK_SMP_ENABLE_OPENMP
+  this->OpenMPBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::OpenMP>>(
+    new vtkSMPToolsImpl<BackendType::OpenMP>());
+#endif
+
+  // Set backend from env if setted
   const char* vtkSMPBackendInUse = std::getenv("VTK_SMP_BACKEND_IN_USE");
   if (vtkSMPBackendInUse)
   {
@@ -72,23 +90,25 @@ const char* vtkSMPToolsAPI::GetBackend()
 }
 
 //------------------------------------------------------------------------------
-void vtkSMPToolsAPI::SetBackend(const char* type)
+bool vtkSMPToolsAPI::SetBackend(const char* type)
 {
   const std::string backend(type);
-  if (backend == "Sequential")
+  if (backend == "Sequential" && this->SequentialBackend)
     this->ActivatedBackend = BackendType::Sequential;
-  else if (backend == "STDThread")
+  else if (backend == "STDThread" && this->STDThreadBackend)
     this->ActivatedBackend = BackendType::STDThread;
-  else if (backend == "TBB")
+  else if (backend == "TBB" && this->TBBBackend)
     this->ActivatedBackend = BackendType::TBB;
-  else if (backend == "OpenMP")
+  else if (backend == "OpenMP" && this->OpenMPBackend)
     this->ActivatedBackend = BackendType::OpenMP;
   else
   {
     std::cerr << "WARNING: tried to use a non implemented SMPTools backend " << backend << "!\n";
-    std::cerr.flush();
+    std::cerr << "Using " << this->GetBackend() << " instead." << std::endl;
+    return false;
   }
   this->RefreshNumberOfThread();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -105,16 +125,16 @@ void vtkSMPToolsAPI::RefreshNumberOfThread()
   switch (this->ActivatedBackend)
   {
     case BackendType::Sequential:
-      this->SequentialBackend.Initialize(numThreads);
+      this->SequentialBackend->Initialize(numThreads);
       break;
     case BackendType::STDThread:
-      this->STDThreadBackend.Initialize(numThreads);
+      this->STDThreadBackend->Initialize(numThreads);
       break;
     case BackendType::TBB:
-      this->TBBBackend.Initialize(numThreads);
+      this->TBBBackend->Initialize(numThreads);
       break;
     case BackendType::OpenMP:
-      this->OpenMPBackend.Initialize(numThreads);
+      this->OpenMPBackend->Initialize(numThreads);
       break;
   }
 }
@@ -125,13 +145,13 @@ int vtkSMPToolsAPI::GetEstimatedNumberOfThreads()
   switch (this->ActivatedBackend)
   {
     case BackendType::Sequential:
-      return this->SequentialBackend.GetEstimatedNumberOfThreads();
+      return this->SequentialBackend->GetEstimatedNumberOfThreads();
     case BackendType::STDThread:
-      return this->STDThreadBackend.GetEstimatedNumberOfThreads();
+      return this->STDThreadBackend->GetEstimatedNumberOfThreads();
     case BackendType::TBB:
-      return this->TBBBackend.GetEstimatedNumberOfThreads();
+      return this->TBBBackend->GetEstimatedNumberOfThreads();
     case BackendType::OpenMP:
-      return this->OpenMPBackend.GetEstimatedNumberOfThreads();
+      return this->OpenMPBackend->GetEstimatedNumberOfThreads();
   }
   return 0;
 }
