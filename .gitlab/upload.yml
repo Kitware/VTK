@@ -32,3 +32,17 @@
         - ls dist
         - dnf install -y --setopt=install_weak_deps=False twine
         - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*
+
+.pypi_vtk_upload:
+    image: "fedora:34"
+    stage: upload
+    tags:
+        - docker
+        - linux
+        - build
+
+    script:
+        - cd build/
+        - ls dist
+        - dnf install -y --setopt=install_weak_deps=False twine
+        - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/vtk%2fvtk/packages/pypi dist/*
