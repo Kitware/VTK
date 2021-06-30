@@ -59,7 +59,7 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
     - [ ] Get positive review
     - [ ] `Do: merge`
     - [ ] Push the tag to the main repository
-      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake
+      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake`
       - [ ] `git push origin v@VERSION@@RC@`
   - Gather release assets
     - [ ] Source (from the `build:source` CI job in the tag pipeline)
