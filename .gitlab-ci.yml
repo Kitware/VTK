@@ -13,6 +13,7 @@ stages:
     - build
     - test
     - test-ext
+    - release-prep
     - upload
 
 ################################################################################
@@ -215,6 +216,22 @@ build:documentation:
         - .linux_qt_builder_tags
         - .cmake_doxygen_artifacts
         - .run_manually
+
+build:source:
+    extends:
+        - .cmake_source_tarballs
+        - .cmake_release_artifacts
+        - .tag_only
+
+release-prep:documentation:
+    extends:
+        - .cmake_doc_tarball
+        - .cmake_release_artifacts
+        - .tag_only
+    dependencies:
+        - build:documentation
+    needs:
+        - build:documentation
 
 # macOS
 

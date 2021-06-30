@@ -19,3 +19,10 @@
             - wheel_output.log
 
             - build/dist/*.whl
+
+.cmake_release_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - release/

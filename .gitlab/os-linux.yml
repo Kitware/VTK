@@ -136,3 +136,38 @@
         - venv/bin/pip install build/dist/*.whl
         - venv/bin/python -c "import vtk"
     interruptible: true
+
+.cmake_source_tarballs:
+    stage: build
+    image: "fedora:34"
+    tags:
+        - linux
+        - docker
+        - build
+
+    script:
+        - dnf install -y --setopt=install_weak_deps=False git-core git-lfs wget xz zip
+        - 'version="$( echo "$CI_COMMIT_TAG" | sed -e "s/^v//" )"'
+        - Utilities/Maintenance/SourceTarball.bash --tgz -v "$version" "$CI_COMMIT_TAG"
+        - mkdir release
+        - mv -t release -v VTK*$version*
+
+    interruptible: true
+
+.cmake_doc_tarball:
+    stage: release-prep
+    image: "fedora:34"
+    tags:
+        - linux
+        - docker
+        - build
+
+    script:
+        - 'version="$( echo "$CI_COMMIT_TAG" | sed -e "s/^v//" )"'
+        - mkdir release
+        - cd build/install/usr/share/doc/vtk/doxygen
+        - tar czf "$CI_PROJECT_DIR/release/vtkDocHtml-$version.tar.gz" html
+    variables:
+        GIT_STRATEGY: none
+
+    interruptible: true
