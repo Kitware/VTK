@@ -82,10 +82,6 @@ git commit -m 'Update version number to @VERSION@@RC@' version.txt
 
   - [ ] Upload wheels to PyPI (via the tag's pipeline)
 
-# Push tags
-
- - [ ] In the `vtk` repository, run `git push origin v@VERSION@@RC@`.
-
 # Post-release
 
   - [ ] Post an announcement in the Announcements category on
