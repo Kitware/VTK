@@ -30,41 +30,39 @@ git submodule update --recursive --init
       script can be used to find and ensure that merge requests assigned to the
       associated milestone are available on the `release` branch.
 
-  - Integrate changes.
-    - Make a commit for each of these `release`-only changes on a single topic
-      (suggested branch name: `update-to-v@VERSION@`):
-      - Assemble release notes into `Documentation/release/@VERSION@.md`.
-        - [ ] If `PATCH` is greater than 0, add items to the end of this file.
-      - [ ] Update `version.txt` and tag the commit (tag this commit below)
+  - Make a commit for each of these changes on a single topic (suggested branch
+    name: `update-to-v@VERSION@`):
+    - Assemble release notes into `Documentation/release/@MAJOR@.@MINOR@.md`.
+      - [ ] If `PATCH` is greater than 0, add items to the end of this file.
+    - [ ] Remove old release note files
+    - [ ] Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
+          groups
+    - [ ] Update `CMake/vtkVersion.cmake` and tag the commit (tag this commit below)
 ```
-git checkout -b update-to-v@VERSION@@RC@ @BRANCHPOINT@
-echo @VERSION@@RC@ > version.txt
-git commit -m 'Update version number to @VERSION@@RC@' version.txt
+$EDITOR CMake/vtkVersion.cmake
+git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 ```
-      - [ ] Update `.gitlab/ci/cdash-groups.json` to track the `release` CDash
-            groups
-
-    - Create a merge request targeting `release`
-      - [ ] Obtain a GitLab API token for the `kwrobot.release.vtk` user (ask
-            @ben.boeckel if you do not have one)
-      - [ ] Add the `kwrobot.release.vtk` user to your fork with at least
-            `Developer` privileges (so it can open MRs)
-      - [ ] Use [the `release-mr`][release-mr] script to open the create the
-            Merge Request (see script for usage)
-        - Pull the script for each release; it may have been updated since it
-          was last used
-        - The script outputs the information it will be using to create the
-          merge request. Please verify that it is all correct before creating
-          the merge request. See usage at the top of the script to provide
-          information that is either missing or incorrect (e.g., if its data
-          extraction heuristics fail).
+  - Create a merge request targeting `release`
+    - [ ] Obtain a GitLab API token for the `kwrobot.release.vtk` user (ask
+          @ben.boeckel if you do not have one)
+    - [ ] Add the `kwrobot.release.vtk` user to your fork with at least
+          `Developer` privileges (so it can open MRs)
+    - [ ] Use [the `release-mr`][release-mr] script to open the create the
+          Merge Request (see script for usage)
+      - Pull the script for each release; it may have been updated since it
+        was last used
+      - The script outputs the information it will be using to create the
+        merge request. Please verify that it is all correct before creating
+        the merge request. See usage at the top of the script to provide
+        information that is either missing or incorrect (e.g., if its data
+        extraction heuristics fail).
     - [ ] Get positive review
     - [ ] `Do: merge`
     - [ ] Push the tag to the main repository
-      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-version.txt`
+      - [ ] `git tag -a -m 'VTK @VERSION@@RC@' v@VERSION@@RC@ commit-that-updated-vtkVersion.cmake
       - [ ] `git push origin v@VERSION@@RC@`
   - Create tarballs
-    - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v v@VERSION@@RC@`)
+    - [ ] VTK (`Utilities/Maintenance/SourceTarball.bash --txz --tgz --zip -v @VERSION@@RC@ v@VERSION@@RC@`)
   - Upload tarballs to `vtk.org`
     - [ ] `rsync -rptv $tarballs user@host:VTK_Release/v@MAJOR@.@MINOR@/`
   - Software process updates (these can all be done independently)
@@ -81,10 +79,6 @@ git commit -m 'Update version number to @VERSION@@RC@' version.txt
 # Upload wheels
 
   - [ ] Upload wheels to PyPI (via the tag's pipeline)
-
-# Push tags
-
- - [ ] In the `vtk` repository, run `git push origin v@VERSION@@RC@`.
 
 # Post-release
 
