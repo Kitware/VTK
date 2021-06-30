@@ -58,6 +58,7 @@ class vtkMultiBlockDataSet;
 class vtkIndent;
 class vtkPStructuredGridConnectivity;
 
+VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
 class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUniformGridGhostDataGenerator
   : public vtkPDataSetGhostGenerator
 {

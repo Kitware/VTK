@@ -33,15 +33,16 @@
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
+#include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
-#include "vtkUniformGridGhostDataGenerator.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -318,15 +319,16 @@ int Test2D(
 
   vtkMultiBlockDataSet* mbds =
     GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
-  //  WriteMultiBlock( mbds, "INITIAL");
+  WriteMultiBlock(mbds, "INITIAL");
 
-  vtkUniformGridGhostDataGenerator* ghostDataGenerator = vtkUniformGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostDataGenerator = vtkGhostCellsGenerator::New();
 
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostDataGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostDataGenerator->GetOutputDataObject(0));
   //  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);
@@ -350,13 +352,14 @@ int Test3D(
     GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
   //  WriteMultiBlock( mbds, "INITIAL");
 
-  vtkUniformGridGhostDataGenerator* ghostDataGenerator = vtkUniformGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostDataGenerator = vtkGhostCellsGenerator::New();
 
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostDataGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostDataGenerator->GetOutput(0));
   //  WriteMultiBlock( ghostedDataSet, "GHOSTED" );
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);

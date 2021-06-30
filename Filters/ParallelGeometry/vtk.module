@@ -26,6 +26,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersGeneral
+  VTK::FiltersParallelDIY2
   VTK::FiltersParallelMPI
   VTK::IOParallel
   VTK::IOParallelXML

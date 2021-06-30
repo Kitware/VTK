@@ -33,12 +33,12 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
-#include "vtkStructuredGridGhostDataGenerator.h"
 #include "vtkStructuredGridPartitioner.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLMultiBlockDataWriter.h"
@@ -373,14 +373,14 @@ int Test2D(
     GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
   WriteMultiBlock(mbds, "STRUCTUREDINITIAL");
 
-  vtkStructuredGridGhostDataGenerator* ghostDataGenerator =
-    vtkStructuredGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostDataGenerator = vtkGhostCellsGenerator::New();
 
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostDataSet = ghostDataGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostDataGenerator->GetOutputDataObject(0));
   WriteMultiBlock(ghostDataSet, "STRUCTUREDGHOSTED");
 
   rc = CheckFields(ghostDataSet, hasNodeData, hasCellData);
@@ -429,13 +429,13 @@ int Test3D(
     GetDataSet(p, WholeExtent, h, numPartitions, numGhosts, hasNodeData, hasCellData);
   WriteMultiBlock(mbds, "STRUCTUREDINITIAL");
 
-  vtkStructuredGridGhostDataGenerator* ghostDataGenerator =
-    vtkStructuredGridGhostDataGenerator::New();
+  vtkGhostCellsGenerator* ghostDataGenerator = vtkGhostCellsGenerator::New();
   ghostDataGenerator->SetInputData(mbds);
   ghostDataGenerator->SetNumberOfGhostLayers(1);
   ghostDataGenerator->Update();
 
-  vtkMultiBlockDataSet* ghostedDataSet = ghostDataGenerator->GetOutput();
+  vtkMultiBlockDataSet* ghostedDataSet =
+    vtkMultiBlockDataSet::SafeDownCast(ghostDataGenerator->GetOutputDataObject(0));
   WriteMultiBlock(ghostedDataSet, "STRUCTUREDGHOSTED");
 
   rc = CheckFields(ghostedDataSet, hasNodeData, hasCellData);

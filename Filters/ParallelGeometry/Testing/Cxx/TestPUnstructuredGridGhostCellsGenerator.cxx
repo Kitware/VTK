@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkGhostCellsGenerator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -20,7 +21,6 @@
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPUnstructuredGridGhostCellsGenerator.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTimerLog.h"
@@ -131,16 +131,16 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   initialGrid->SetFieldData(fd);
 
   // Prepare the ghost cells generator
-  vtkNew<vtkPUnstructuredGridGhostCellsGenerator> ghostGenerator;
+  vtkNew<vtkGhostCellsGenerator> ghostGenerator;
   ghostGenerator->SetInputData(initialGrid);
   ghostGenerator->SetController(controller);
-  ghostGenerator->UseGlobalPointIdsOn();
 
   // Check BuildIfRequired option
   ghostGenerator->BuildIfRequiredOff();
   ghostGenerator->UpdatePiece(myRank, nbRanks, 0);
 
-  if (ghostGenerator->GetOutput()->GetCellGhostArray() == nullptr)
+  if (!vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0))
+         ->GetCellGhostArray())
   {
     cerr << "Ghost were not generated but were explicitly requested on process "
          << controller->GetLocalProcessId() << endl;
@@ -150,7 +150,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->BuildIfRequiredOn();
   ghostGenerator->UpdatePiece(myRank, nbRanks, 0);
 
-  if (ghostGenerator->GetOutput()->GetCellGhostArray())
+  if (vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0))
+        ->GetCellGhostArray())
   {
     cerr << "Ghost were generated but were not requested on process "
          << controller->GetLocalProcessId() << endl;
@@ -168,9 +169,9 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   // Check if algorithm works with empty input on all nodes except first one
   vtkNew<vtkUnstructuredGrid> emptyGrid;
   ghostGenerator->SetInputData(myRank == 0 ? initialGrid : emptyGrid);
+  ghostGenerator->Modified();
   for (int step = 0; step < 2; ++step)
   {
-    ghostGenerator->SetUseGlobalPointIds(step == 0 ? true : false);
     ghostGenerator->UpdatePiece(myRank, nbRanks, 1);
   }
   ghostGenerator->SetInputData(initialGrid);
@@ -184,7 +185,6 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   {
     for (int step = 0; step < 2; ++step)
     {
-      ghostGenerator->SetUseGlobalPointIds(step == 0 ? true : false);
       ghostGenerator->Modified();
       vtkNew<vtkTimerLog> timer;
       timer->StartTimer();
@@ -192,7 +192,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       timer->StopTimer();
 
       // Save the grid for further analysis
-      outGrids[step] = ghostGenerator->GetOutput();
+      outGrids[step] = vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
 
       if (!CheckFieldData(outGrids[step]->GetFieldData()))
       {
@@ -212,10 +212,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       avgGhostUpdateTime /= static_cast<double>(nbRanks);
       if (controller->GetLocalProcessId() == 0)
       {
-        cerr << "-- Ghost Level: " << ghostLevel
-             << " UseGlobalPointIds: " << ghostGenerator->GetUseGlobalPointIds()
-             << " Elapsed Time: min=" << minGhostUpdateTime << ", avg=" << avgGhostUpdateTime
-             << ", max=" << maxGhostUpdateTime << endl;
+        cerr << "-- Ghost Level: " << ghostLevel << " Elapsed Time: min=" << minGhostUpdateTime
+             << ", avg=" << avgGhostUpdateTime << ", max=" << maxGhostUpdateTime << endl;
       }
     }
 

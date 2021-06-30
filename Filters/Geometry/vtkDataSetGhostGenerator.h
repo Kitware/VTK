@@ -39,6 +39,7 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkMultiBlockDataSet;
 
+VTK_DEPRECATED_IN_9_1_0("Use vtkGhostCellsGenerator instead")
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetGhostGenerator : public vtkMultiBlockDataSetAlgorithm
 {
 public:
