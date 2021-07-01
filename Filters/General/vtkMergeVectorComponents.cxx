@@ -151,16 +151,15 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   outFD->AddArray(vectorFD);
   vectorFD->Delete();
 
-  // if point-data are used, copy the cell data too
-  if (this->AttributeType == vtkDataObject::POINT)
+  // copy the attribute type that has not been copied
+  switch (this->AttributeType)
   {
-    output->GetAttributesAsFieldData(vtkDataObject::CELL)
-      ->PassData(input->GetAttributesAsFieldData(vtkDataObject::CELL));
-  }
-  else if (this->AttributeType == vtkDataObject::CELL)
-  { // if cell-data are used, copy the point data too
-    output->GetAttributesAsFieldData(vtkDataObject::POINT)
-      ->PassData(input->GetAttributesAsFieldData(vtkDataObject::POINT));
+    case vtkDataObject::POINT:
+      output->GetAttributesAsFieldData(vtkDataObject::CELL)
+        ->PassData(input->GetAttributesAsFieldData(vtkDataObject::CELL));
+    case vtkDataObject::CELL:
+      output->GetAttributesAsFieldData(vtkDataObject::POINT)
+        ->PassData(input->GetAttributesAsFieldData(vtkDataObject::POINT));
   }
 
   return 1;
