@@ -218,11 +218,23 @@ void ExchangeBlockStructuresForPointSets(diy::Master& master)
       identity->SetNumberOfIds(ids->GetNumberOfIds());
       std::iota(identity->begin(), identity->end(), 0);
 
-      vtkNew<vtkPoints> points;
-      points->SetDataType(surface->GetPoints()->GetDataType());
-      points->InsertPoints(identity, ids, surface->GetPoints());
+      // If we use global ids to match interfacing points, no need to send points
+      if (vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(
+            surface->GetPointData()->GetGlobalIds()))
+      {
+        vtkNew<vtkIdTypeArray> gids;
+        gids->InsertTuples(identity, ids, globalIds);
 
-      cp.enqueue<vtkDataArray*>(blockId, points->GetData());
+        cp.enqueue<vtkDataArray*>(blockId, surface->GetPointData()->GetGlobalIds());
+      }
+      else
+      {
+        vtkNew<vtkPoints> points;
+        points->SetDataType(surface->GetPoints()->GetDataType());
+        points->InsertPoints(identity, ids, surface->GetPoints());
+
+        cp.enqueue<vtkDataArray*>(blockId, points->GetData());
+      }
     }
   });
 
@@ -236,11 +248,20 @@ void ExchangeBlockStructuresForPointSets(diy::Master& master)
     {
       if (!cp.incoming(gid).empty())
       {
-        vtkDataArray* points = nullptr;
-        cp.dequeue(gid, points);
+        vtkDataArray* data = nullptr;
+        cp.dequeue(gid, data);
         auto& blockStructure = block->BlockStructures[gid];
-        blockStructure.InterfacingPoints->SetData(points);
-        points->FastDelete();
+
+        if (data->GetNumberOfComponents() == 3)
+        {
+          blockStructure.InterfacingPoints->SetData(data);
+          data->FastDelete();
+        }
+        else
+        {
+          blockStructure.InterfacingGlobalPointIds = vtkSmartPointer<vtkIdTypeArray>::Take(
+            vtkArrayDownCast<vtkIdTypeArray>(data));
+        }
       }
     }
   });
@@ -1355,14 +1376,11 @@ void SetupBlockSelfInformationForPointSets(diy::Master& master,
 
     vtkPointSet* surface = vtkPointSet::SafeDownCast(surfaceFilter->GetOutputDataObject(0));
 
-    vtkSmartPointer<vtkAbstractPointLocator>& locator = information.SurfacePointLocator;
-    locator = vtkSmartPointer<vtkKdTreePointLocator>::New();
-    locator->SetDataSet(surface);
-    locator->BuildLocator();
-
     information.SurfacePoints = surface->GetPoints()->GetData();
     information.SurfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
+    information.SurfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
+        surface->GetPointData()->GetGlobalIds());
 
     // These variables are used when adding points from neighboring blocks.
     // After points are added from a block b, these indices must be incremented by the number of
@@ -1387,58 +1405,97 @@ void SetupBlockSelfInformationForPointSets(diy::Master& master,
  */
 struct MatchingPointExtractor
 {
-  MatchingPointExtractor(vtkIdTypeArray* sourcePointIds, vtkAbstractPointLocator* locator,
-      vtkDataArray* sourcePoints)
+  MatchingPointExtractor(vtkIdTypeArray* sourcePointIds, vtkDataSet* surface,
+      vtkDataArray* sourcePoints, vtkIdTypeArray* sourceGlobalPointIds)
     : SourcePointIds(sourcePointIds)
-    , Locator(locator) // Locator should be constructed using source points
     , SourcePoints(sourcePoints)
   {
+    if (sourceGlobalPointIds)
+    {
+      auto gidRange = vtk::DataArrayValueRange<1>(sourceGlobalPointIds);
+      using ConstRef = typename decltype(gidRange)::ConstReferenceType;
+
+      for (ConstRef gid : gidRange)
+      {
+        this->SourceGlobalPointIds.insert({ gid, this->SourceGlobalPointIds.size() });
+      }
+    }
+    else
+    {
+      // We only use the locator if global point ids are not present.
+      this->Locator->SetDataSet(surface);
+      this->Locator->BuildLocator();
+    }
   }
 
   template<class PointArrayT>
-  void operator()(PointArrayT* points)
+  void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
-    this->MatchingSourcePointIds->SetNumberOfComponents(1);
-
-    PointArrayT* surfacePoints = vtkArrayDownCast<PointArrayT>(this->SourcePoints);
-
-    auto pointsRange = vtk::DataArrayTupleRange<3>(points);
-    auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
-
-    using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
-    using ValueType = typename PointArrayT::ValueType;
-    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+    if ((globalPointIds == nullptr) != this->SourceGlobalPointIds.empty())
+    {
+      vtkLog(ERROR, "Inconsistency in the presence of global point ids across partitions. "
+          "The pipeline will fail at generating ghost cells");
+      return;
+    }
 
     std::set<vtkIdType> inverseMap;
-    vtkIdType pointId = 0;
+    auto sourcePointIdsRange = vtk::DataArrayValueRange<1>(this->SourcePointIds);
 
-    for (ConstPointRef point : pointsRange)
+    if (globalPointIds)
     {
-      vtkIdType closestPointId = this->Locator->FindClosestPoint(point[0], point[1], point[2]);
-      ConstPointRef closestPoint = surfacePointsRange[closestPointId];
+      auto gidRange = vtk::DataArrayValueRange<1>(globalPointIds);
+      using ConstRef = typename decltype(gidRange)::ConstReferenceType;
 
-      if (Comparator<IsInteger>::Equals(point[0], closestPoint[0]) &&
-          Comparator<IsInteger>::Equals(point[1], closestPoint[1]) &&
-          Comparator<IsInteger>::Equals(point[2], closestPoint[2]))
+      for (ConstRef gid : gidRange)
       {
-        this->MatchingSourcePointIds->InsertNextValue(
-            this->SourcePointIds->GetValue(closestPointId));
-        inverseMap.insert(closestPointId);
+        auto it = this->SourceGlobalPointIds.find(gid);
+        if (it != this->SourceGlobalPointIds.end())
+        {
+          vtkIdType& matchingPointId = it->second;
+          this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[matchingPointId]);
+          inverseMap.insert(matchingPointId);
+        }
       }
     }
-    for (const vtkIdType& id : inverseMap)
+    else
     {
-      this->MatchingReceivedPointIdsSortedLikeTarget->InsertNextValue(
-          this->SourcePointIds->GetValue(id));
+      PointArrayT* surfacePoints = vtkArrayDownCast<PointArrayT>(this->SourcePoints);
+
+      auto pointsRange = vtk::DataArrayTupleRange<3>(points);
+      auto surfacePointsRange = vtk::DataArrayTupleRange<3>(surfacePoints);
+
+      using ConstPointRef = typename decltype(pointsRange)::ConstTupleReferenceType;
+      using ValueType = typename PointArrayT::ValueType;
+      constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
+
+      for (ConstPointRef point : pointsRange)
+      {
+        vtkIdType closestPointId = this->Locator->FindClosestPoint(point[0], point[1], point[2]);
+        ConstPointRef closestPoint = surfacePointsRange[closestPointId];
+
+        if (Comparator<IsInteger>::Equals(point[0], closestPoint[0]) &&
+            Comparator<IsInteger>::Equals(point[1], closestPoint[1]) &&
+            Comparator<IsInteger>::Equals(point[2], closestPoint[2]))
+        {
+          this->MatchingSourcePointIds->InsertNextValue(sourcePointIdsRange[closestPointId]);
+          inverseMap.insert(closestPointId);
+        }
+      }
     }
 
-    ++pointId;
+    this->MatchingReceivedPointIdsSortedLikeTarget->Allocate(inverseMap.size());
+
+    for (const vtkIdType& id : inverseMap)
+    {
+      this->MatchingReceivedPointIdsSortedLikeTarget->InsertNextValue(sourcePointIdsRange[id]);
+    }
   }
 
   // Inputs
   vtkIdTypeArray* SourcePointIds;
-  vtkAbstractPointLocator* Locator;
+  vtkNew<vtkStaticPointLocator> Locator;
   vtkDataArray* SourcePoints;
+  std::unordered_map<vtkIdType, vtkIdType> SourceGlobalPointIds;
 
   // Outputs
   vtkIdTypeArray* MatchingSourcePointIds;
@@ -1784,20 +1841,25 @@ LinkMap ComputeLinkMapForPointSets(const diy::Master& master,
     BlockInformationType& info = block->Information;
 
     PointSetT* input = inputs[localId];
+    vtkIdTypeArray* globalPointIds = info.SurfaceGlobalPointIds;
 
     Links& localLinks = linkMap[localId];
 
-    MatchingPointExtractor matchingPointExtractor(info.SurfacePointIds, info.SurfacePointLocator,
-      info.SurfacePoints);
+    MatchingPointExtractor matchingPointExtractor(info.SurfacePointIds,
+      vtkDataSet::SafeDownCast(info.SurfaceFilter->GetOutputDataObject(0)),
+      info.SurfacePoints, globalPointIds);
 
     for (auto it = blockStructures.begin(); it != blockStructures.end();)
     {
+
       BlockStructureType& blockStructure = it->second;
       vtkIdTypeArray* matchingReceivedPointIds = blockStructure.MatchingReceivedPointIds;
       matchingPointExtractor.MatchingSourcePointIds = matchingReceivedPointIds;
       matchingPointExtractor.MatchingReceivedPointIdsSortedLikeTarget =
         blockStructure.MatchingReceivedPointIdsSortedLikeTarget;
-      Dispatcher::Execute(blockStructure.InterfacingPoints->GetData(), matchingPointExtractor);
+
+      Dispatcher::Execute(blockStructure.InterfacingPoints->GetData(), matchingPointExtractor,
+          blockStructure.InterfacingGlobalPointIds);
 
       // Blocks are connected if there is at least one point that is in both blocks.
       // If there are none, we delete the block in BlockStructures.
@@ -2334,17 +2396,36 @@ void EnqueueCellData(const diy::Master::ProxyWithLink& cp,
 }
 
 //----------------------------------------------------------------------------
+template<class ArrayT>
+void EnqueueDataArray(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, ArrayT* array)
+{
+  cp.enqueue<vtkDataArray*>(blockId, array);
+}
+
+//----------------------------------------------------------------------------
+template<class ArrayT>
+void EnqueueDataArray(const diy::Master::ProxyWithLink& cp,
+    const diy::BlockID& blockId, ArrayT* array, vtkIdList* ids)
+{
+  if (!array)
+  {
+    cp.enqueue<vtkDataArray*>(blockId, nullptr);
+    return;
+  }
+
+  vtkSmartPointer<ArrayT> subArray = vtkSmartPointer<ArrayT>::Take(array->NewInstance());
+  subArray->SetNumberOfComponents(array->GetNumberOfComponents());
+  subArray->SetNumberOfTuples(ids->GetNumberOfIds());
+  array->GetTuples(ids, subArray);
+  cp.enqueue<vtkDataArray*>(blockId, subArray);
+}
+
+//----------------------------------------------------------------------------
 void EnqueuePoints(const diy::Master::ProxyWithLink& cp,
     const diy::BlockID& blockId, vtkPointSet* input, vtkIdList* pointIds)
 {
-  vtkDataArray* inputPoints = input->GetPoints()->GetData();
-  vtkSmartPointer<vtkDataArray> points(
-    vtkSmartPointer<vtkDataArray>::Take(inputPoints->NewInstance()));
-  points->SetNumberOfComponents(3);
-  points->SetNumberOfTuples(pointIds->GetNumberOfIds());
-  inputPoints->GetTuples(pointIds, points);
-
-  cp.enqueue<vtkDataArray*>(blockId, points);
+  EnqueueDataArray(cp, blockId, input->GetPoints()->GetData(), pointIds);
 }
 
 //----------------------------------------------------------------------------
@@ -2356,13 +2437,6 @@ void EnqueueCellsForUnstructuredGrid(const diy::Master::ProxyWithLink& cp,
   cp.enqueue<vtkDataArray*>(blockId, buffer.CellArray->GetConnectivityArray());
   cp.enqueue<vtkDataArray*>(blockId, buffer.Faces);
   cp.enqueue<vtkDataArray*>(blockId, buffer.FaceLocations);
-}
-
-//----------------------------------------------------------------------------
-void EnqueueSharedPointIds(const diy::Master::ProxyWithLink& cp,
-    const diy::BlockID& blockId, vtkIdTypeArray* sharedPointIds)
-{
-  cp.enqueue<vtkDataArray*>(blockId, sharedPointIds);
 }
 
 //----------------------------------------------------------------------------
@@ -2442,14 +2516,13 @@ void DequeuePoints(const diy::Master::ProxyWithLink& cp, int gid,
 }
 
 //----------------------------------------------------------------------------
-template<class BlockStructureT>
-void DequeueSharedPointIds(const diy::Master::ProxyWithLink& cp, int gid,
-    BlockStructureT& blockStructure)
+template<class ArrayT>
+void DequeueDataArray(const diy::Master::ProxyWithLink& cp, int gid,
+    vtkSmartPointer<ArrayT>& array)
 {
-  vtkDataArray* sharedPointIds = nullptr;
-  cp.dequeue<vtkDataArray*>(gid, sharedPointIds);
-  blockStructure.ReceivedSharedPointIds = vtkSmartPointer<vtkIdTypeArray>::Take(
-      vtkArrayDownCast<vtkIdTypeArray>(sharedPointIds));
+  vtkDataArray* inArray = nullptr;
+  cp.dequeue<vtkDataArray*>(gid, inArray);
+  array = vtkSmartPointer<vtkIdTypeArray>::Take(vtkArrayDownCast<ArrayT>(inArray));
 }
 
 //----------------------------------------------------------------------------
@@ -2755,33 +2828,13 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
 {
   using BlockType = UnstructuredGridBlock;
   using BlockStructureType = typename BlockType::BlockStructureType;
+  using BlockInformation = typename BlockType::InformationType;
 
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
   {
     BlockType* block = master.block<BlockType>(localId);
     BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
-
-    vtkNew<vtkIncrementalOctreePointLocator> pointLocator;
-    vtkNew<vtkPoints> points;
-    points->SetDataType(block->Information.SurfacePoints->GetDataType());
-    constexpr double inf = std::numeric_limits<double>::infinity();
-    double bounds[6] = { inf, -inf, inf, -inf, inf, -inf };
-
-    for (auto& pair : blockStructures)
-    {
-      BlockStructureType& blockStructure = pair.second;
-      double* tmp = blockStructure.GhostPoints->GetBounds();
-      bounds[0] = std::min(bounds[0], tmp[0]);
-      bounds[1] = std::max(bounds[1], tmp[1]);
-      bounds[2] = std::min(bounds[2], tmp[2]);
-      bounds[3] = std::max(bounds[3], tmp[3]);
-      bounds[4] = std::min(bounds[4], tmp[4]);
-      bounds[5] = std::max(bounds[5], tmp[5]);
-    }
-
-    pointLocator->InitPointInsertion(points, bounds);
-
-    MatchingPointWorker matchingPointWorker;
+    BlockInformation& info = block->Information;
 
     vtkIdType pointIdOffset = inputs[localId]->GetNumberOfPoints();
 
@@ -2797,46 +2850,122 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
     // We do all of that when we allocate because we want to know the exact number of points in the
     // output at this stage. Since this information can be useful in the future, we store relevant
     // information.
-    for (auto& pair : blockStructures)
+
+    if (info.SurfaceGlobalPointIds)
     {
-      BlockStructureType& blockStructure = pair.second;
-      vtkPoints* receivedPoints = blockStructure.GhostPoints;
-      std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds = blockStructure.RedirectionMapForDuplicatePointIds;
-      auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
-      vtkIdType numberOfMatchingPoints = 0;
-      for (const vtkIdType& pointId : sharedPointIds)
+      // This is the case when we use global ids instead of point positions
+      std::unordered_map<vtkIdType, vtkIdType> pointIdLocator;
+
+      for (auto& pair : blockStructures)
       {
-        double* p = receivedPoints->GetPoint(pointId);
-        matchingPointWorker.TargetPointId = pointLocator->FindClosestInsertedPoint(p);
-        matchingPointWorker.SourcePointId = pointId;
+        BlockStructureType& blockStructure = pair.second;
 
-        if (!points->GetNumberOfPoints())
-        {
-          pointLocator->InsertNextPoint(p);
-          pointIdRedirection.insert({ 0, pointIdOffset + pointId });
-          continue;
-        }
+        auto globalIds = vtk::DataArrayValueRange<1>(blockStructure.GhostGlobalPointIds);
+        std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds =
+          blockStructure.RedirectionMapForDuplicatePointIds;
 
-        using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
-        Dispatcher::Execute(receivedPoints->GetData(), points->GetData(), matchingPointWorker);
+        auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
+        using ConstRef = typename decltype(sharedPointIds)::ConstReferenceType;
 
-        if (matchingPointWorker.PointsAreMatching)
+        vtkIdType numberOfMatchingPoints = 0;
+
+        for (ConstRef pointId : sharedPointIds)
         {
-          ++numberOfMatchingPoints;
-          redirectionMapForDuplicatePointIds.insert(
-              { pointId, pointIdRedirection.at(matchingPointWorker.TargetPointId) });
+          ConstRef globalId = globalIds[pointId];
+
+          if (pointIdLocator.empty())
+          {
+            pointIdLocator.insert({ globalId, 0 });
+            pointIdRedirection.insert({ 0, pointIdOffset + pointId });
+            continue;
+          }
+
+          auto it = pointIdLocator.find(globalId);
+          if (it != pointIdLocator.end())
+          {
+            ++numberOfMatchingPoints;
+            redirectionMapForDuplicatePointIds.insert({ pointId,
+                pointIdRedirection.at(it->second) });
+          }
+          else
+          {
+            pointIdRedirection.insert({ pointIdLocator.size(),
+                pointIdOffset + pointId - numberOfMatchingPoints });
+            pointIdLocator.insert({ globalId, pointIdLocator.size() });
+          }
         }
-        else
-        {
-          pointIdRedirection.insert({ points->GetNumberOfPoints(),
-              pointIdOffset + pointId - numberOfMatchingPoints });
-          pointLocator->InsertNextPoint(p);
-        }
+        pointIdOffset += globalIds.size() - numberOfMatchingPoints;
       }
-      pointIdOffset += receivedPoints->GetNumberOfPoints() - numberOfMatchingPoints;
+    }
+    else
+    {
+      // This is the case when we use point positions to match points.
+
+      vtkNew<vtkIncrementalOctreePointLocator> pointLocator;
+      vtkNew<vtkPoints> points;
+      points->SetDataType(block->Information.SurfacePoints->GetDataType());
+      constexpr double inf = std::numeric_limits<double>::infinity();
+      double bounds[6] = { inf, -inf, inf, -inf, inf, -inf };
+
+      for (auto& pair : blockStructures)
+      {
+        BlockStructureType& blockStructure = pair.second;
+        double* tmp = blockStructure.GhostPoints->GetBounds();
+        bounds[0] = std::min(bounds[0], tmp[0]);
+        bounds[1] = std::max(bounds[1], tmp[1]);
+        bounds[2] = std::min(bounds[2], tmp[2]);
+        bounds[3] = std::max(bounds[3], tmp[3]);
+        bounds[4] = std::min(bounds[4], tmp[4]);
+        bounds[5] = std::max(bounds[5], tmp[5]);
+      }
+
+      pointLocator->InitPointInsertion(points, bounds);
+
+      MatchingPointWorker matchingPointWorker;
+
+      for (auto& pair : blockStructures)
+      {
+        BlockStructureType& blockStructure = pair.second;
+        vtkPoints* receivedPoints = blockStructure.GhostPoints;
+        std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds =
+          blockStructure.RedirectionMapForDuplicatePointIds;
+        auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
+        using ConstRef = typename decltype(sharedPointIds)::ConstReferenceType;
+        vtkIdType numberOfMatchingPoints = 0;
+        for (ConstRef pointId : sharedPointIds)
+        {
+          double* p = receivedPoints->GetPoint(pointId);
+
+          if (!points->GetNumberOfPoints())
+          {
+            pointLocator->InsertNextPoint(p);
+            pointIdRedirection.insert({ 0, pointIdOffset + pointId });
+            continue;
+          }
+
+          matchingPointWorker.TargetPointId = pointLocator->FindClosestInsertedPoint(p);
+          matchingPointWorker.SourcePointId = pointId;
+
+          using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+          Dispatcher::Execute(receivedPoints->GetData(), points->GetData(), matchingPointWorker);
+
+          if (matchingPointWorker.PointsAreMatching)
+          {
+            ++numberOfMatchingPoints;
+            redirectionMapForDuplicatePointIds.insert(
+                { pointId, pointIdRedirection.at(matchingPointWorker.TargetPointId) });
+          }
+          else
+          {
+            pointIdRedirection.insert({ points->GetNumberOfPoints(),
+                pointIdOffset + pointId - numberOfMatchingPoints });
+            pointLocator->InsertNextPoint(p);
+          }
+        }
+        pointIdOffset += receivedPoints->GetNumberOfPoints() - numberOfMatchingPoints;
+      }
     }
   }
-
 
   // We can now compute the output point / cell / connectivity sizes
   for (int localId = 0; localId < static_cast<int>(outputs.size()); ++localId)
@@ -3819,10 +3948,14 @@ void vtkDIYGhostUtilities::EnqueueGhosts(const diy::Master::ProxyWithLink& cp,
   EnqueueCellData(cp, blockId, input, blockStructure.CellIdsToSend);
   EnqueueCellsForUnstructuredGrid(cp, blockId, blockStructure.SendBuffer);
 
-  EnqueuePointData(cp, blockId, input, blockStructure.PointIdsToSend);
-  EnqueuePoints(cp, blockId, input, blockStructure.PointIdsToSend);
+  vtkIdList* pointIds = blockStructure.PointIdsToSend;
 
-  EnqueueSharedPointIds(cp, blockId, blockStructure.SharedPointIds);
+  EnqueuePointData(cp, blockId, input, pointIds);
+  EnqueuePoints(cp, blockId, input, pointIds);
+  EnqueueDataArray(cp, blockId,
+      vtkArrayDownCast<vtkIdTypeArray>(input->GetPointData()->GetGlobalIds()), pointIds);
+
+  EnqueueDataArray(cp, blockId, blockStructure.SharedPointIds.GetPointer());
 }
 
 //----------------------------------------------------------------------------
@@ -3859,8 +3992,9 @@ void vtkDIYGhostUtilities::DequeueGhosts(const diy::Master::ProxyWithLink& cp, i
 
   DequeuePointData(cp, gid, blockStructure);
   DequeuePoints(cp, gid, blockStructure);
+  DequeueDataArray(cp, gid, blockStructure.GhostGlobalPointIds);
 
-  DequeueSharedPointIds(cp, gid, blockStructure);
+  DequeueDataArray(cp, gid, blockStructure.ReceivedSharedPointIds);
 }
 
 //----------------------------------------------------------------------------
