@@ -33,8 +33,7 @@ vtkMergeVectorComponents::vtkMergeVectorComponents()
   this->YArrayName = nullptr;
   this->ZArrayName = nullptr;
   this->OutputVectorName = nullptr;
-  // NUMBER_OF_ATTRIBUTE_TYPES is set as default because it's not an option
-  this->AttributeType = vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
+  this->AttributeType = vtkDataObject::POINT;
 }
 
 //------------------------------------------------------------------------------

@@ -72,11 +72,14 @@ public:
 
   ///@{
   /**
-   * Set the type of the attribute that the provided arrays are associated with,
-   * i.e. POINT (for point-data) or CELL (for cell-data).
+   * Control which AttributeType the filter operates on (point data or cell data
+   * for vtkDataSets). The default value is vtkDataObject::POINT. The input value for
+   * this function should be either vtkDataObject::POINT or vtkDataObject::CELL.
    */
-  vtkSetMacro(AttributeType, vtkDataObject::AttributeTypes);
-  vtkGetMacro(AttributeType, vtkDataObject::AttributeTypes);
+  vtkSetMacro(AttributeType, int);
+  vtkGetMacro(AttributeType, int);
+  void SetAttributeTypeToPointData() { this->SetAttributeType(vtkDataObject::POINT); }
+  void SetAttributeTypeToCellData() { this->SetAttributeType(vtkDataObject::CELL); }
   ///@}
 
 protected:
@@ -91,7 +94,7 @@ protected:
   char* YArrayName;
   char* ZArrayName;
   char* OutputVectorName;
-  vtkDataObject::AttributeTypes AttributeType;
+  int AttributeType;
 
 private:
   vtkMergeVectorComponents(const vtkMergeVectorComponents&) = delete;
