@@ -70,6 +70,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestTextWidget.cxx
   TestEqualizerContextItem.cxx
   TestTextRepresentationWithBorders.cxx
+  TestTextWidgetBackgroundInteractive.cxx
   )
 vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   NO_VALID
