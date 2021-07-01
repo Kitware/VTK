@@ -66,8 +66,36 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
+  ///@{
+  /**
+   * Resets parameter.
+   */
+  ///@}
+  virtual void Initialize();
+
+  ///@{
+  /**
+   * Specify if the filter must generate the ghost cells only if required by
+   * the pipeline.
+   * If false, ghost cells are computed even if they are not required.
+   * Default is TRUE.
+   */
+  vtkSetMacro(BuildIfRequired, bool);
+  vtkGetMacro(BuildIfRequired, bool);
+  vtkBooleanMacro(BuildIfRequired, bool);
+  ///@}
+
+  ///@{
+  /**
+   * When BuildIfRequired is `false`, this can be used to set the number
+   * of ghost layers to generate. Note, if the downstream pipeline requests more
+   * ghost levels than the number specified here, then the filter will generate
+   * those extra ghost levels as needed. Accepted values are in the interval
+   * [1, VTK_INT_MAX].
+   */
   vtkGetMacro(NumberOfGhostLayers, int);
-  vtkSetMacro(NumberOfGhostLayers, int);
+  vtkSetClampMacro(NumberOfGhostLayers, int, 1, VTK_INT_MAX);
+  ///@}
 
 protected:
   vtkGhostCellsGenerator();
@@ -84,6 +112,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   int NumberOfGhostLayers;
+  bool BuildIfRequired;
 
 private:
   vtkGhostCellsGenerator(const vtkGhostCellsGenerator&) = delete;

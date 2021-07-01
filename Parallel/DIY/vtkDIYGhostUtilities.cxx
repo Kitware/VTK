@@ -463,8 +463,8 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels,
 
 //----------------------------------------------------------------------------
 /**
- * This function looks at the situation when shared dimensions with out neighbor
- * are such that we extent further that our neighbor. If so, we need to extent the new extent of
+ * This function looks at the situation when shared dimensions with our neighbor
+ * are such that we extend further that our neighbor. If so, we need to extend the new extent of
  * our neighbor as well because we have data that they will need.
  * We look a that in the 2 remaining dimensions.
  */
