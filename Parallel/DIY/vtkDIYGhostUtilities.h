@@ -143,9 +143,15 @@ protected:
     ExtentType Extent;
 
     /**
-     * Extent of neighboring block that include ghost layers.
+     * Extent of neighboring block that include ghost layers, shifted to match our mapping of the
+     * extent in the 3D world.
      */
-    ExtentType ExtentWithNewGhosts;
+    ExtentType ShiftedExtentWithNewGhosts;
+
+    /**
+     * Extent of the neighboring block, shifted to match our mapping of the extent in the 3D world.
+     */
+    ExtentType ShiftedExtent;
 
     /**
      * Binary mask encoding the adjacency of the neighboring block w.r.t. current block.
