@@ -173,9 +173,11 @@ void vtkMergeVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "XArrayName: " << this->XArrayName << endl;
-  os << indent << "YArrayName: " << this->YArrayName << endl;
-  os << indent << "ZArrayName: " << this->ZArrayName << endl;
-  os << indent << "OutputVectorName: " << this->OutputVectorName << endl;
+  os << indent << "XArrayName: " << (this->XArrayName ? this->XArrayName : "(nullptr)") << endl;
+  os << indent << "YArrayName: " << (this->YArrayName ? this->YArrayName : "(nullptr)") << endl;
+  os << indent << "ZArrayName: " << (this->ZArrayName ? this->ZArrayName : "(nullptr)") << endl;
+  os << indent
+     << "OutputVectorName: " << (this->OutputVectorName ? this->OutputVectorName : "(nullptr)")
+     << endl;
   os << indent << "AttributeType: " << this->AttributeType << endl;
 }
