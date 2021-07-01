@@ -1,5 +1,15 @@
 # Lists of paths for artifacts of various stages.
 
+.cmake_doxygen_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - compile_output.log
+            - doxygen_output.log
+
+            - build/install/
+
 .cmake_wheel_artifacts:
     artifacts:
         expire_in: 1d
@@ -9,3 +19,10 @@
             - wheel_output.log
 
             - build/dist/*.whl
+
+.cmake_release_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            - release/
