@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractVectorComponents.cxx
+  Module:    vtkMergeVectorComponents.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,12 +29,10 @@ vtkStandardNewMacro(vtkMergeVectorComponents);
 //------------------------------------------------------------------------------
 vtkMergeVectorComponents::vtkMergeVectorComponents()
 {
-  this->SetNumberOfOutputPorts(1);
   this->XArrayName = nullptr;
   this->YArrayName = nullptr;
   this->ZArrayName = nullptr;
   this->OutputVectorName = nullptr;
-  this->OutputInitialized = 0;
   // NUMBER_OF_ATTRIBUTE_TYPES is set as default because it's not an option
   this->AttributeType = vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
 }
@@ -83,13 +81,6 @@ struct vtkMergeComponents
 int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the input and output
-  vtkDataSet* input = vtkDataSet::SafeDownCast(vtkDataObject::GetData(inputVector[0], 0));
-  vtkDataSet* output = vtkDataSet::SafeDownCast(vtkDataObject::GetData(outputVector, 0));
-
-  vtkFieldData *inFD, *outFD;
-  vtkDataArray *vectorFD, *xFD, *yFD, *zFD;
-
   vtkDebugMacro(<< "Merging vector components...");
 
   // check that the attribute type is set
@@ -99,11 +90,6 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  output->CopyStructure(input);
-
-  inFD = input->GetAttributesAsFieldData(this->AttributeType);
-  outFD = output->GetAttributesAsFieldData(this->AttributeType);
-
   // check that array names are set
   if (this->XArrayName == nullptr || this->YArrayName == nullptr || this->ZArrayName == nullptr)
   {
@@ -111,10 +97,19 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  // get the input and output
+  vtkDataSet* input = vtkDataSet::SafeDownCast(vtkDataObject::GetData(inputVector[0], 0));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(vtkDataObject::GetData(outputVector, 0));
+
+  output->CopyStructure(input);
+
+  vtkFieldData* inFD = input->GetAttributesAsFieldData(this->AttributeType);
+  vtkFieldData* outFD = output->GetAttributesAsFieldData(this->AttributeType);
+
   // get the point-data arrays
-  xFD = inFD->GetArray(this->XArrayName);
-  yFD = inFD->GetArray(this->YArrayName);
-  zFD = inFD->GetArray(this->ZArrayName);
+  vtkDataArray* xFD = inFD->GetArray(this->XArrayName);
+  vtkDataArray* yFD = inFD->GetArray(this->YArrayName);
+  vtkDataArray* zFD = inFD->GetArray(this->ZArrayName);
 
   // check if the provided array names correspond to valid arrays
   if ((xFD == nullptr || xFD->GetNumberOfTuples() < 1) ||
@@ -136,7 +131,7 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     outVectorName = this->OutputVectorName;
   }
 
-  vectorFD = vtkDataArray::CreateDataArray(VTK_DOUBLE);
+  vtkDataArray* vectorFD = vtkDataArray::CreateDataArray(VTK_DOUBLE);
   vectorFD->SetNumberOfComponents(3);
   vectorFD->SetNumberOfTuples(xFD->GetNumberOfTuples());
   vectorFD->SetName(outVectorName.c_str());
@@ -151,15 +146,23 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   outFD->AddArray(vectorFD);
   vectorFD->Delete();
 
-  // copy the attribute type that has not been copied
-  switch (this->AttributeType)
+  // copy all the other attribute types
+  vtkFieldData *inOtherFD, *outOtherFD;
+  vtkDataObject::AttributeTypes otherAttributeType;
+  for (unsigned int i = 0; i < vtkDataObject::AttributeTypes::NUMBER_OF_ATTRIBUTE_TYPES; ++i)
   {
-    case vtkDataObject::POINT:
-      output->GetAttributesAsFieldData(vtkDataObject::CELL)
-        ->PassData(input->GetAttributesAsFieldData(vtkDataObject::CELL));
-    case vtkDataObject::CELL:
-      output->GetAttributesAsFieldData(vtkDataObject::POINT)
-        ->PassData(input->GetAttributesAsFieldData(vtkDataObject::POINT));
+    otherAttributeType = static_cast<vtkDataObject::AttributeTypes>(i);
+    if (this->AttributeType != otherAttributeType)
+    {
+      inOtherFD = input->GetAttributesAsFieldData(otherAttributeType);
+      outOtherFD = output->GetAttributesAsFieldData(otherAttributeType);
+
+      // check that attribute type exists
+      if (inOtherFD != nullptr && outOtherFD != nullptr)
+      {
+        outOtherFD->PassData(inOtherFD);
+      }
+    }
   }
 
   return 1;
@@ -169,4 +172,10 @@ int vtkMergeVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkMergeVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "XArrayName: " << this->XArrayName << endl;
+  os << indent << "YArrayName: " << this->YArrayName << endl;
+  os << indent << "ZArrayName: " << this->ZArrayName << endl;
+  os << indent << "OutputVectorName: " << this->OutputVectorName << endl;
+  os << indent << "AttributeType: " << this->AttributeType << endl;
 }

@@ -91,7 +91,6 @@ protected:
   char* YArrayName;
   char* ZArrayName;
   char* OutputVectorName;
-  int OutputInitialized;
   vtkDataObject::AttributeTypes AttributeType;
 
 private:
