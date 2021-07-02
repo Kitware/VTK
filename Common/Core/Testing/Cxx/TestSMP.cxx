@@ -19,6 +19,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+#include <cstdlib>
 #include <deque>
 #include <functional>
 #include <set>
@@ -87,8 +88,9 @@ bool myComp(double a, double b)
   return (a < b);
 }
 
-int TestSMP(int, char*[])
+int doTestSMP()
 {
+  std::cout << "Testing SMP Tools with " << vtkSMPTools::GetBackend() << " backend." << std::endl;
   // vtkSMPTools::Initialize(8);
 
   ARangeFunctor functor1;
@@ -108,7 +110,7 @@ int TestSMP(int, char*[])
   if (total != Target)
   {
     cerr << "Error: ARangeFunctor did not generate " << Target << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   InitializableFunctor functor2;
@@ -130,7 +132,7 @@ int TestSMP(int, char*[])
   if (total != newTarget)
   {
     cerr << "Error: InitializableRangeFunctor did not generate " << newTarget << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // Test Scope
@@ -142,7 +144,7 @@ int TestSMP(int, char*[])
   if (scopeThreadNb <= 0 || scopeThreadNb > targetThreadNb)
   {
     cerr << "Error: on vtkSMPTools::Scope bad number of threads!" << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   // Test sorting
@@ -158,7 +160,7 @@ int TestSMP(int, char*[])
     if (myvector[i] != sdata[i])
     {
       cerr << "Error: Bad vector sort!" << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -168,7 +170,7 @@ int TestSMP(int, char*[])
     if (data1[i] != sdata[i])
     {
       cerr << "Error: Bad comparison sort!" << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -202,7 +204,7 @@ int TestSMP(int, char*[])
       cerr << "Error: Invalid output for vtkSMPTools::Transform (binary op) applied on "
               "vtk::DataArrayValueRange!"
            << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -215,7 +217,7 @@ int TestSMP(int, char*[])
     {
       cerr << "Error: Invalid output for vtkSMPTools::Transform (unary op) applied on std::set!"
            << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     it2++;
   }
@@ -254,7 +256,7 @@ int TestSMP(int, char*[])
       cerr << "Error: Invalid output for vtkSMPTools::Transform (unary op) applied on "
               "vtk::DataArrayTupleRange!"
            << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     it5++;
   }
@@ -276,7 +278,7 @@ int TestSMP(int, char*[])
     {
       cerr << "Error: Invalid output for vtkSMPTools::Fill applied on vtk::DataArrayTupleRange!"
            << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
   }
 
@@ -287,8 +289,27 @@ int TestSMP(int, char*[])
     if (it != fillValue1)
     {
       cerr << "Error: Invalid output for vtkSMPTools::Fill applied on std::deque!" << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
   }
-  return 0;
+  return EXIT_SUCCESS;
+}
+
+int TestSMP(int argc, char* argv[])
+{
+  int returnValue = EXIT_SUCCESS;
+  for (int i = 1; i < argc; i++)
+  {
+    std::string argument(argv[i] + 2);
+    std::size_t separator = argument.find('=');
+    std::string backend = argument.substr(0, separator);
+    int value = std::atoi(argument.substr(separator + 1, argument.size()).c_str());
+    if (value)
+    {
+      vtkSMPTools::SetBackend(backend.c_str());
+      if (doTestSMP() != EXIT_SUCCESS)
+        returnValue = EXIT_FAILURE;
+    }
+  }
+  return returnValue;
 }

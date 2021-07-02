@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPToolsInternalCommon.h
+  Module:    vtkSMPToolsInternal.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,13 +13,12 @@
 
 =========================================================================*/
 
-#ifndef vtkSMPToolsInternalCommon_h
-#define vtkSMPToolsInternalCommon_h
+#ifndef vtkSMPToolsInternal_h
+#define vtkSMPToolsInternal_h
 
 #include <iterator> // For std::advance
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace detail
@@ -105,8 +104,6 @@ public:
 } // namespace smp
 } // namespace detail
 } // namespace vtk
-#endif // __VTK_WRAP__
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #endif
-// VTK-HeaderTest-Exclude: vtkSMPToolsInternalCommon.h

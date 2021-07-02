@@ -12,166 +12,117 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME vtkSMPThreadLocalImpl - A thread local storage implementation using
+// platform specific facilities.
 
-// Thread Specific Storage is implemented as a Hash Table, with the Thread Id
-// as the key and a Pointer to the data as the value. The Hash Table implements
-// Open Addressing with Linear Probing. A fixed-size array (HashTableArray) is
-// used as the hash table. The size of this array is allocated to be large
-// enough to store thread specific data for all the threads with a Load Factor
-// of 0.5. In case the number of threads changes dynamically and the current
-// array is not able to accommodate more entries, a new array is allocated that
-// is twice the size of the current array. To avoid rehashing and blocking the
-// threads, a rehash is not performed immediately. Instead, a linked list of
-// hash table arrays is maintained with the current array at the root and older
-// arrays along the list. All lookups are sequentially performed along the
-// linked list. If the root array does not have an entry, it is created for
-// faster lookup next time. The ThreadSpecific::GetStorage() function is thread
-// safe and only blocks when a new array needs to be allocated, which should be
-// rare.
-//
-// This implementation is the same as the OpenMP equivalent but with std::mutex
-// and std::lock_guard instead of omp_lock_t and custom lock guard.
+#ifndef STDThreadvtkSMPThreadLocalImpl_h
+#define STDThreadvtkSMPThreadLocalImpl_h
 
-#ifndef vtkSMPThreadLocalImpl_h
-#define vtkSMPThreadLocalImpl_h
+#include "SMP/Common/vtkSMPThreadLocalImplAbstract.h"
+#include "SMP/STDThread/vtkSMPThreadLocalBackend.h"
+#include "SMP/STDThread/vtkSMPToolsImpl.txx"
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkSystemIncludes.h"
+#include <iterator>
 
-#include <atomic>
-#include <cstdint> // For uint_fast32_t
-#include <mutex>   // std::mutex, std::lock_guard
-#include <thread>
-
+namespace vtk
+{
 namespace detail
 {
-
-typedef size_t ThreadIdType;
-typedef uint_fast32_t HashType;
-typedef void* StoragePointerType;
-
-struct Slot
+namespace smp
 {
-  std::atomic<ThreadIdType> ThreadId;
-  std::mutex Mutex;
-  StoragePointerType Storage;
 
-  Slot();
-  virtual ~Slot();
-
-private:
-  // not copyable
-  Slot(const Slot&);
-  void operator=(const Slot&);
-};
-
-struct HashTableArray
+template <typename T>
+class vtkSMPThreadLocalImpl<BackendType::STDThread, T> : public vtkSMPThreadLocalImplAbstract<T>
 {
-  size_t Size, SizeLg;
-  std::atomic<size_t> NumberOfEntries;
-  Slot* Slots;
-  HashTableArray* Prev;
+  typedef typename vtkSMPThreadLocalImplAbstract<T>::ItImpl ItImplAbstract;
 
-  explicit HashTableArray(size_t sizeLg);
-  virtual ~HashTableArray();
-
-private:
-  // disallow copying
-  HashTableArray(const HashTableArray&);
-  void operator=(const HashTableArray&);
-};
-
-class VTKCOMMONCORE_EXPORT ThreadSpecific
-{
 public:
-  explicit ThreadSpecific(unsigned numThreads);
-  virtual ~ThreadSpecific();
-
-  StoragePointerType& GetStorage();
-  size_t GetSize() const;
-
-private:
-  std::atomic<HashTableArray*> Root;
-  std::atomic<size_t> Size;
-  std::mutex Mutex;
-
-  friend class ThreadSpecificStorageIterator;
-};
-
-class ThreadSpecificStorageIterator
-{
-public:
-  ThreadSpecificStorageIterator()
-    : ThreadSpecificStorage(nullptr)
-    , CurrentArray(nullptr)
-    , CurrentSlot(0)
+  vtkSMPThreadLocalImpl()
+    : Backend(GetNumberOfThreadsSTDThread())
   {
   }
 
-  void SetThreadSpecificStorage(ThreadSpecific& threadSpecifc)
+  explicit vtkSMPThreadLocalImpl(const T& exemplar)
+    : Backend(GetNumberOfThreadsSTDThread())
+    , Exemplar(exemplar)
   {
-    this->ThreadSpecificStorage = &threadSpecifc;
   }
 
-  void SetToBegin()
+  ~vtkSMPThreadLocalImpl()
   {
-    this->CurrentArray = this->ThreadSpecificStorage->Root;
-    this->CurrentSlot = 0;
-    if (!this->CurrentArray->Slots->Storage)
+    vtk::detail::smp::STDThread::ThreadSpecificStorageIterator it;
+    it.SetThreadSpecificStorage(this->Backend);
+    for (it.SetToBegin(); !it.GetAtEnd(); it.Forward())
     {
-      this->Forward();
+      delete reinterpret_cast<T*>(it.GetStorage());
     }
   }
 
-  void SetToEnd()
+  T& Local() override
   {
-    this->CurrentArray = nullptr;
-    this->CurrentSlot = 0;
-  }
-
-  bool GetInitialized() const { return this->ThreadSpecificStorage != nullptr; }
-
-  bool GetAtEnd() const { return this->CurrentArray == nullptr; }
-
-  void Forward()
-  {
-    while (true)
+    vtk::detail::smp::STDThread::StoragePointerType& ptr = this->Backend.GetStorage();
+    T* local = reinterpret_cast<T*>(ptr);
+    if (!ptr)
     {
-      if (++this->CurrentSlot >= this->CurrentArray->Size)
-      {
-        this->CurrentArray = this->CurrentArray->Prev;
-        this->CurrentSlot = 0;
-        if (!this->CurrentArray)
-        {
-          break;
-        }
-      }
-      Slot* slot = this->CurrentArray->Slots + this->CurrentSlot;
-      if (slot->Storage)
-      {
-        break;
-      }
+      ptr = local = new T(this->Exemplar);
     }
+    return *local;
   }
 
-  StoragePointerType& GetStorage() const
+  size_t size() const override { return this->Backend.GetSize(); }
+
+  class ItImpl : public vtkSMPThreadLocalImplAbstract<T>::ItImpl
   {
-    Slot* slot = this->CurrentArray->Slots + this->CurrentSlot;
-    return slot->Storage;
+  public:
+    void Increment() override { this->Impl.Forward(); }
+
+    bool Compare(ItImplAbstract* other) override
+    {
+      return this->Impl == static_cast<ItImpl*>(other)->Impl;
+    }
+
+    T& GetContent() override { return *reinterpret_cast<T*>(this->Impl.GetStorage()); }
+
+    T* GetContentPtr() override { return reinterpret_cast<T*>(this->Impl.GetStorage()); }
+
+  protected:
+    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+
+  private:
+    vtk::detail::smp::STDThread::ThreadSpecificStorageIterator Impl;
+
+    friend class vtkSMPThreadLocalImpl<BackendType::STDThread, T>;
+  };
+
+  std::unique_ptr<ItImplAbstract> begin() override
+  {
+    // XXX(c++14): use std::make_unique
+    auto it = std::unique_ptr<ItImpl>(new ItImpl());
+    it->Impl.SetThreadSpecificStorage(this->Backend);
+    it->Impl.SetToBegin();
+    return it;
   }
 
-  bool operator==(const ThreadSpecificStorageIterator& it) const
+  std::unique_ptr<ItImplAbstract> end() override
   {
-    return (this->ThreadSpecificStorage == it.ThreadSpecificStorage) &&
-      (this->CurrentArray == it.CurrentArray) && (this->CurrentSlot == it.CurrentSlot);
+    // XXX(c++14): use std::make_unique
+    auto it = std::unique_ptr<ItImpl>(new ItImpl());
+    it->Impl.SetThreadSpecificStorage(this->Backend);
+    it->Impl.SetToEnd();
+    return it;
   }
 
 private:
-  ThreadSpecific* ThreadSpecificStorage;
-  HashTableArray* CurrentArray;
-  size_t CurrentSlot;
+  vtk::detail::smp::STDThread::ThreadSpecific Backend;
+  T Exemplar;
+
+  // disable copying
+  vtkSMPThreadLocalImpl(const vtkSMPThreadLocalImpl&) = delete;
+  void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
 
-} // detail;
+} // namespace smp
+} // namespace detail
+} // namespace vtk
 
 #endif

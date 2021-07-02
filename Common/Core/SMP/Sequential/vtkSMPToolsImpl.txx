@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPToolsInternal.h.in
+  Module:    vtkSMPToolsImpl.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,12 +13,13 @@
 
 =========================================================================*/
 
-#ifndef vtkSMPToolsInternal_h
-#define vtkSMPToolsInternal_h
+#ifndef SequentialvtkSMPToolsImpl_txx
+#define SequentialvtkSMPToolsImpl_txx
 
-#include <algorithm> //for std::sort()
+#include <algorithm> // For std::sort, std::transform, std::fill
 
-#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/Common/vtkSMPToolsInternal.h" // For common vtk smp class
 
 namespace vtk
 {
@@ -26,8 +27,12 @@ namespace detail
 {
 namespace smp
 {
+
+//--------------------------------------------------------------------------------
+template <>
 template <typename FunctorInternal>
-void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
+void vtkSMPToolsImpl<BackendType::Sequential>::For(
+  vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
   vtkIdType n = last - first;
   if (!n)
@@ -56,38 +61,45 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt, typename OutputIt, typename Functor>
-void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::Sequential>::Transform(
   InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
   std::transform(inBegin, inEnd, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
-static void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::Sequential>::Transform(
   InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
 {
   std::transform(inBegin1, inEnd, inBegin2, outBegin, transform);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename Iterator, typename T>
-void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+void vtkSMPToolsImpl<BackendType::Sequential>::Fill(Iterator begin, Iterator end, const T& value)
 {
   std::fill(begin, end, value);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
+void vtkSMPToolsImpl<BackendType::Sequential>::Sort(
+  RandomAccessIterator begin, RandomAccessIterator end)
 {
   std::sort(begin, end);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator, typename Compare>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
+void vtkSMPToolsImpl<BackendType::Sequential>::Sort(
+  RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
 {
   std::sort(begin, end, comp);
 }

@@ -36,9 +36,15 @@ mark_as_advanced(VTK_ALL_NEW_OBJECT_FACTORY)
 
 set(vtk_smp_sources)
 set(vtk_smp_headers)
+set(vtk_smp_nowrap_headers)
 set(vtk_smp_templates)
 set(vtk_smp_defines)
 set(vtk_smp_libraries)
+set(vtk_smp_enable_sequential 0)
+set(vtk_smp_enable_stdthread 0)
+set(vtk_smp_enable_tbb 0)
+set(vtk_smp_enable_openmp 0)
+set(VTK_SMP_IMPLEMENTATION_TYPE)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
 
 # An optional dependency on memkind
@@ -365,7 +371,8 @@ include(TestBigEndian)
 test_big_endian(VTK_WORDS_BIGENDIAN)
 
 set(nowrap_headers
-  vtkMathPrivate.hxx)
+  vtkMathPrivate.hxx
+  ${vtk_smp_nowrap_headers})
 set(generated_headers
   vtkBuild.h
   vtkDebug.h
@@ -487,6 +494,7 @@ if(MSVC)
 endif()
 
 vtk_module_add_module(VTK::CommonCore
+  HEADER_DIRECTORIES
   CLASSES           ${classes}
   TEMPLATE_CLASSES  ${template_classes}
   SOURCES           ${sources}
@@ -515,3 +523,14 @@ vtk_module_link(VTK::CommonCore
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC
     cxx_std_11)
+
+vtk_module_definitions(VTK::CommonCore
+PUBLIC
+  VTK_SMP_ENABLE_SEQUENTIAL=${vtk_smp_enable_sequential}
+  VTK_SMP_ENABLE_STDTHREAD=${vtk_smp_enable_stdthread}
+  VTK_SMP_ENABLE_TBB=${vtk_smp_enable_tbb}
+  VTK_SMP_ENABLE_OPENMP=${vtk_smp_enable_openmp}
+  VTK_SMP_DEFAULT_IMPLEMENTATION_SEQUENTIAL=$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","Sequential">
+  VTK_SMP_DEFAULT_IMPLEMENTATION_STDTHREAD=$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","STDThread">
+  VTK_SMP_DEFAULT_IMPLEMENTATION_TBB=$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","TBB">
+  VTK_SMP_DEFAULT_IMPLEMENTATION_OPENMP=$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","OpenMP">)

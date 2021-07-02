@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPToolsImpl.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,15 +13,29 @@
 
 =========================================================================*/
 
-#include "vtkSMPTools.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/Sequential/vtkSMPToolsImpl.txx"
 
-// Simple implementation that runs everything sequentially.
+namespace vtk
+{
+namespace detail
+{
+namespace smp
+{
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int) {}
+template <>
+void vtkSMPToolsImpl<BackendType::Sequential>::Initialize(int)
+{
+}
 
 //------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
+template <>
+int vtkSMPToolsImpl<BackendType::Sequential>::GetEstimatedNumberOfThreads()
 {
   return 1;
 }
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk

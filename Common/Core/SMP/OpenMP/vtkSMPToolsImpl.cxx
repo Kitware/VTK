@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPTools.cxx
+  Module:    vtkSMPToolsImpl.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,19 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkSMPTools.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/OpenMP/vtkSMPToolsImpl.txx"
 
+#include <cstdlib> // For std::getenv()
 #include <omp.h>
 
-#include <algorithm>
-
-namespace
+namespace vtk
 {
-int vtkSMPNumberOfSpecifiedThreads = 0;
-}
+namespace detail
+{
+namespace smp
+{
+static int specifiedNumThreads = 0;
 
 //------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int numThreads)
+template <>
+void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 {
   const int maxThreads = omp_get_max_threads();
   if (numThreads == 0)
@@ -35,35 +39,41 @@ void vtkSMPTools::Initialize(int numThreads)
     {
       numThreads = std::atoi(vtkSmpNumThreads);
     }
+    else if (specifiedNumThreads)
+    {
+      specifiedNumThreads = 0;
+      omp_set_num_threads(maxThreads);
+    }
   }
 #pragma omp single
   if (numThreads > 0)
   {
     numThreads = std::min(numThreads, maxThreads);
-    vtkSMPNumberOfSpecifiedThreads = numThreads;
+    specifiedNumThreads = numThreads;
     omp_set_num_threads(numThreads);
   }
 }
 
 //------------------------------------------------------------------------------
-int vtkSMPTools::GetEstimatedNumberOfThreads()
+int GetNumberOfThreadsOpenMP()
 {
-  return vtk::detail::smp::GetNumberOfThreads();
+  return specifiedNumThreads ? specifiedNumThreads : omp_get_max_threads();
 }
 
 //------------------------------------------------------------------------------
-int vtk::detail::smp::GetNumberOfThreads()
+template <>
+int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads()
 {
-  return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads : omp_get_max_threads();
+  return GetNumberOfThreadsOpenMP();
 }
 
 //------------------------------------------------------------------------------
-void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
+void vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor)
 {
   if (grain <= 0)
   {
-    vtkIdType estimateGrain = (last - first) / (omp_get_max_threads() * 4);
+    vtkIdType estimateGrain = (last - first) / (GetNumberOfThreadsOpenMP() * 4);
     grain = (estimateGrain > 0) ? estimateGrain : 1;
   }
 
@@ -73,3 +83,7 @@ void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType la
     functorExecuter(functor, from, grain, last);
   }
 }
+
+} // namespace smp
+} // namespace detail
+} // namespace vtk

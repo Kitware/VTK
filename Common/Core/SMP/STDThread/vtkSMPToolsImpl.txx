@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSMPToolsInternal.h
+  Module:    vtkSMPToolsImpl.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,15 +13,17 @@
 
 =========================================================================*/
 
-#ifndef vtkSMPToolsInternal_h
-#define vtkSMPToolsInternal_h
+#ifndef STDThreadvtkSMPToolsImpl_txx
+#define STDThreadvtkSMPToolsImpl_txx
 
-#include "vtkCommonCoreModule.h"       // For export macro
-#include "vtkSMPToolsInternalCommon.h" // For common vtk smp class
+#include <algorithm>  // For std::sort
+#include <functional> // For std::bind
 
-#include <algorithm> //for std::sort()
+#include "SMP/Common/vtkSMPToolsImpl.h"
+#include "SMP/Common/vtkSMPToolsInternal.h" // For common vtk smp class
+#include "SMP/STDThread/vtkSMPThreadPool.h" // For vtkSMPThreadPool
+#include "vtkCommonCoreModule.h"            // For export macro
 
-#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace detail
@@ -29,27 +31,23 @@ namespace detail
 namespace smp
 {
 
-typedef void (*ExecuteFunctorPtrType)(void*, vtkIdType, vtkIdType, vtkIdType);
+int VTKCOMMONCORE_EXPORT GetNumberOfThreadsSTDThread();
 
-int VTKCOMMONCORE_EXPORT GetNumberOfThreads();
-void VTKCOMMONCORE_EXPORT vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last,
-  vtkIdType grain, ExecuteFunctorPtrType functorExecuter, void* functor);
-
+//--------------------------------------------------------------------------------
 template <typename FunctorInternal>
-void ExecuteFunctor(void* functor, vtkIdType from, vtkIdType grain, vtkIdType last)
+void ExecuteFunctorSTDThread(void* functor, vtkIdType from, vtkIdType grain, vtkIdType last)
 {
-  vtkIdType to = from + grain;
-  if (to > last)
-  {
-    to = last;
-  }
+  const vtkIdType to = std::min(from + grain, last);
 
   FunctorInternal& fi = *reinterpret_cast<FunctorInternal*>(functor);
   fi.Execute(from, to);
 }
 
+//--------------------------------------------------------------------------------
+template <>
 template <typename FunctorInternal>
-void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
+void vtkSMPToolsImpl<BackendType::STDThread>::For(
+  vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi)
 {
   vtkIdType n = last - first;
   if (n <= 0)
@@ -63,54 +61,75 @@ void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last, vtkIdType grain, Func
   }
   else
   {
-    vtkSMPTools_Impl_For_OpenMP(first, last, grain, ExecuteFunctor<FunctorInternal>, &fi);
+    int threadNumber = GetNumberOfThreadsSTDThread();
+
+    if (grain <= 0)
+    {
+      vtkIdType estimateGrain = (last - first) / (threadNumber * 4);
+      grain = (estimateGrain > 0) ? estimateGrain : 1;
+    }
+
+    vtkSMPThreadPool pool(threadNumber);
+
+    for (vtkIdType from = first; from < last; from += grain)
+    {
+      auto job = std::bind(ExecuteFunctorSTDThread<FunctorInternal>, &fi, from, grain, last);
+      pool.DoJob(job);
+    }
   }
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt, typename OutputIt, typename Functor>
-void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::STDThread>::Transform(
   InputIt inBegin, InputIt inEnd, OutputIt outBegin, Functor transform)
 {
   auto size = std::distance(inBegin, inEnd);
 
   UnaryTransformCall<InputIt, OutputIt, Functor> exec(inBegin, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename InputIt1, typename InputIt2, typename OutputIt, typename Functor>
-static void vtkSMPTools_Impl_Transform(
+void vtkSMPToolsImpl<BackendType::STDThread>::Transform(
   InputIt1 inBegin1, InputIt1 inEnd, InputIt2 inBegin2, OutputIt outBegin, Functor transform)
 {
   auto size = std::distance(inBegin1, inEnd);
 
   BinaryTransformCall<InputIt1, InputIt2, OutputIt, Functor> exec(
     inBegin1, inBegin2, outBegin, transform);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename Iterator, typename T>
-void vtkSMPTools_Impl_Fill(Iterator begin, Iterator end, const T& value)
+void vtkSMPToolsImpl<BackendType::STDThread>::Fill(Iterator begin, Iterator end, const T& value)
 {
   auto size = std::distance(begin, end);
 
   FillFunctor<T> fill(value);
   UnaryTransformCall<Iterator, Iterator, FillFunctor<T>> exec(begin, begin, fill);
-  vtkSMPTools_Impl_For(0, size, 0, exec);
+  this->For(0, size, 0, exec);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end)
+void vtkSMPToolsImpl<BackendType::STDThread>::Sort(
+  RandomAccessIterator begin, RandomAccessIterator end)
 {
   std::sort(begin, end);
 }
 
 //--------------------------------------------------------------------------------
+template <>
 template <typename RandomAccessIterator, typename Compare>
-void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
+void vtkSMPToolsImpl<BackendType::STDThread>::Sort(
+  RandomAccessIterator begin, RandomAccessIterator end, Compare comp)
 {
   std::sort(begin, end, comp);
 }
@@ -118,7 +137,5 @@ void vtkSMPTools_Impl_Sort(RandomAccessIterator begin, RandomAccessIterator end,
 } // namespace smp
 } // namespace detail
 } // namespace vtk
-
-#endif // __VTK_WRAP__
 
 #endif

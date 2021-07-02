@@ -83,6 +83,12 @@ set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOu
 
 set(TestCLI11_ARGS --file=sample.vtk -c 100 --flag)
 
+set(TestSMP_ARGS
+  --Sequential=$<BOOL:${VTK_SMP_ENABLE_SEQUENTIAL}>
+  --STDThread=$<BOOL:${VTK_SMP_ENABLE_STDTHREAD}>
+  --TBB=$<OR:$<BOOL:${VTK_SMP_ENABLE_TBB}>,$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","TBB">>
+  --OpenMP=$<OR:$<BOOL:${VTK_SMP_ENABLE_OPENMP}>,$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","OpenMP">>)
+
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
   set(scale_soa_test TestScaledSOADataArrayTemplate.cxx)
 endif ()
