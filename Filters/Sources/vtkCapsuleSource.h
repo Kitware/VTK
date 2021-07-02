@@ -95,7 +95,7 @@ public:
    * Set/get the number of points in the longitude direction for the spheres. The initial value
    * is 8.
    */
-  vtkSetClampMacro(ThetaResolution, int, 8, VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(ThetaResolution, int, 8, VTK_INT_MAX);
   vtkGetMacro(ThetaResolution, int);
   ///@}
 
@@ -103,7 +103,7 @@ public:
   /**
    * Set/get the number of points in the latitude direction for the spheres. The initial value is 8.
    */
-  vtkSetClampMacro(PhiResolution, int, 8, VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution, int, 8, VTK_INT_MAX);
   vtkGetMacro(PhiResolution, int);
   ///@}
 
