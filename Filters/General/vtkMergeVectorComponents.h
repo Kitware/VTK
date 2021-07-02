@@ -23,10 +23,10 @@
  * of the arrays, i.e. point-data or cell-data.
  */
 
-#ifndef vtkExtractVectorComponents_h
-#define vtkExtractVectorComponents_h
+#ifndef vtkMergeVectorComponents_h
+#define vtkMergeVectorComponents_h
 
-#include "vtkDataObject.h"
+#include "vtkDataObject.h"           // For attribute types
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
