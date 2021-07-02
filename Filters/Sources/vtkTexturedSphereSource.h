@@ -29,7 +29,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_MAX_SPHERE_RESOLUTION 1024
+#define VTK_MAX_TEXTURED_SPHERE_RESOLUTION 1024 * 1024
 
 class VTKFILTERSSOURCES_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgorithm
 {
@@ -55,7 +55,7 @@ public:
   /**
    * Set the number of points in the longitude direction.
    */
-  vtkSetClampMacro(ThetaResolution, int, 4, VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(ThetaResolution, int, 4, VTK_MAX_TEXTURED_SPHERE_RESOLUTION);
   vtkGetMacro(ThetaResolution, int);
   ///@}
 
@@ -63,7 +63,7 @@ public:
   /**
    * Set the number of points in the latitude direction.
    */
-  vtkSetClampMacro(PhiResolution, int, 4, VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution, int, 4, VTK_MAX_TEXTURED_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution, int);
   ///@}
 

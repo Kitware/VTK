@@ -36,7 +36,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_MAX_SPHERE_RESOLUTION 1024
+#define VTK_MAX_SPHERE_RESOLUTION 1024 * 1024
 
 class VTKFILTERSSOURCES_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm
 {
