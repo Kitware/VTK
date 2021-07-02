@@ -65,6 +65,7 @@ set(classes
   vtkMatricizeArray
   vtkMergeArrays
   vtkMergeCells
+  vtkMergeVectorComponents
   vtkMultiBlockDataGroupFilter
   vtkMultiBlockFromTimeSeriesFilter
   vtkMultiBlockMergeFilter
