@@ -20,6 +20,10 @@
  * For example, a `vtkImageData` inside a `vtkCompositeDataSet` will send and receive ghosts only to
  * and from other `vtkImageData`.
  *
+ * If the input is a `vtkPartitionedDataSetCollection`, then ghosts are computed per partitioned
+ * data set. In other words, ghost are not computed between 2 `vtkDataSet` belonging to 2 different
+ * `vtkPartitionedDataSet`, even if they are adjacent.
+ *
  * If the input is composed of some data sets already owning ghosts, those ghosts are removed from
  * the output and are recomputed. Ghosts in the input are as if they didn't exist.
  * A ghost cell is to be peeled off if it holds the `CELLDUPLICATE` flag in its ghost bit mask.

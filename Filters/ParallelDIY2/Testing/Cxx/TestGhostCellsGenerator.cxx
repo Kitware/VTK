@@ -36,6 +36,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
@@ -1846,6 +1847,98 @@ bool TestUnstructuredGrid(
 
   return retVal;
 }
+
+//----------------------------------------------------------------------------
+bool TestPartitionedDataSetCollection(int myrank, int numberOfGhostLayers)
+{
+  // This test follows the same first steps as in Test3DGrids, but instead of computing ghosts on a
+  // partitioned data set, we compute them on a partitioned data set collection, which means that
+  // there should not be ghosts between the separate partitioned data sets. image0 and image1 belong
+  // to the same collection, image2 and image3 belong to the same collection as well.
+  bool retVal = true;
+  int zmin, zmax;
+
+  switch (myrank)
+  {
+    case 0:
+      zmin = -MaxExtent;
+      zmax = 0;
+      break;
+    case 1:
+      zmin = 0;
+      zmax = MaxExtent;
+      break;
+    default:
+      zmin = 1;
+      zmax = -1;
+      break;
+  }
+
+  const int newExtent0[6] = { -MaxExtent, numberOfGhostLayers, -MaxExtent, 0,
+    zmin != 0 ? zmin : -numberOfGhostLayers, zmax != 0 ? zmax : numberOfGhostLayers };
+
+  const int newExtent1[6] = { -numberOfGhostLayers, MaxExtent, -MaxExtent, 0,
+    zmin != 0 ? zmin : -numberOfGhostLayers, zmax != 0 ? zmax : numberOfGhostLayers };
+
+  const int newExtent2[6] = { -numberOfGhostLayers, MaxExtent, 0, MaxExtent,
+    zmin != 0 ? zmin : -numberOfGhostLayers, zmax != 0 ? zmax : numberOfGhostLayers };
+
+  const int newExtent3[6] = { -MaxExtent, numberOfGhostLayers, 0, MaxExtent,
+    zmin != 0 ? zmin : -numberOfGhostLayers, zmax != 0 ? zmax : numberOfGhostLayers };
+
+  vtkNew<vtkImageData> image0;
+  image0->SetExtent(-MaxExtent, 0, -MaxExtent, 0, zmin, zmax);
+  FillImage(image0);
+
+  vtkNew<vtkImageData> image1;
+  image1->SetExtent(0, MaxExtent, -MaxExtent, 0, zmin, zmax);
+  FillImage(image1);
+
+  vtkNew<vtkImageData> image2;
+  image2->SetExtent(0, MaxExtent, 0, MaxExtent, zmin, zmax);
+  FillImage(image2);
+
+  vtkNew<vtkImageData> image3;
+  image3->SetExtent(-MaxExtent, 0, 0, MaxExtent, zmin, zmax);
+  FillImage(image3);
+
+  vtkNew<vtkPartitionedDataSetCollection> pdsc;
+  pdsc->SetNumberOfPartitionedDataSets(2);
+
+  vtkPartitionedDataSet* pds0 = pdsc->GetPartitionedDataSet(0);
+  pds0->SetNumberOfPartitions(2);
+  pds0->SetPartition(0, image0);
+  pds0->SetPartition(1, image1);
+
+  vtkPartitionedDataSet* pds1 = pdsc->GetPartitionedDataSet(1);
+  pds1->SetNumberOfPartitions(2);
+  pds1->SetPartition(0, image2);
+  pds1->SetPartition(1, image3);
+
+  vtkLog(INFO, "Testing ghost points for vtkPartitionedDataSetCollection in rank " << myrank);
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputDataObject(pdsc);
+  generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+  generator->Update();
+
+  vtkPartitionedDataSetCollection* outPDSC =
+    vtkPartitionedDataSetCollection::SafeDownCast(generator->GetOutputDataObject(0));
+
+  vtkPartitionedDataSet* outPDS0 = outPDSC->GetPartitionedDataSet(0);
+  vtkPartitionedDataSet* outPDS1 = outPDSC->GetPartitionedDataSet(1);
+
+  if (!TestExtent(newExtent0, vtkImageData::SafeDownCast(outPDS0->GetPartition(0))->GetExtent()) ||
+    !TestExtent(newExtent1, vtkImageData::SafeDownCast(outPDS0->GetPartition(1))->GetExtent()) ||
+    !TestExtent(newExtent2, vtkImageData::SafeDownCast(outPDS1->GetPartition(0))->GetExtent()) ||
+    !TestExtent(newExtent3, vtkImageData::SafeDownCast(outPDS1->GetPartition(1))->GetExtent()))
+  {
+    vtkLog(ERROR, "Generating ghosts in vtkPartitionedDataSetCollection failed" << myrank);
+    retVal = false;
+  }
+
+  return retVal;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -1885,6 +1978,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestUnstructuredGrid(contr, myrank, numberOfGhostLayers))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!TestPartitionedDataSetCollection(myrank, numberOfGhostLayers))
   {
     retVal = EXIT_FAILURE;
   }
