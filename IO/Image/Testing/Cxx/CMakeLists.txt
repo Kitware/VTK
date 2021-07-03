@@ -86,6 +86,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestTGAReader.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.tga}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestPNGReaderReadFromMemory.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
 
