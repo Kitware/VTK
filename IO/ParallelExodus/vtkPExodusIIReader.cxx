@@ -251,49 +251,31 @@ int vtkPExodusIIReader::RequestInformation(
       }
     }
 
-    int numFiles = this->NumberOfFileNames;
-    if (numFiles <= 1)
+    // Read meta-data from 1st file.
+    // Previously, this went over all files. This was unnecessary.
+    // First file will have all necessary information.
+    // Otherwise we end up with bugs like paraview/paraview#20559
+    // and paraview/paraview#20558 when the files have no arrays at all.
+
+    if (this->NumberOfFileNames > 1)
     {
-      numFiles = this->NumberOfFiles;
+      strcpy(this->MultiFileName, this->FileNames[0]);
+      if (this->GetGenerateFileIdArray())
+      {
+        vtkPExodusIIReader::DetermineFileId(this->FileNames[0]);
+      }
     }
-
-    // Go through the filenames and see if any of them actually have data
-    // in them. It's possible that some of them don't and if they don't
-    // we won't have the proper information generated.
-    int reader_idx = 0;
-    for (int fileIndex = 0; fileIndex < numFiles; ++fileIndex, ++reader_idx)
+    else if (this->FilePattern)
     {
-      if (this->NumberOfFileNames > 1)
-      {
-        strcpy(this->MultiFileName, this->FileNames[fileIndex]);
-        if (this->GetGenerateFileIdArray())
-        {
-          vtkPExodusIIReader::DetermineFileId(this->FileNames[fileIndex]);
-        }
-      }
-      else if (this->FilePattern)
-      {
-        snprintf(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern,
-          this->FilePrefix, fileIndex);
-      }
-      delete[] this->FileName;
-      this->FileName = vtksys::SystemTools::DuplicateString(this->MultiFileName);
+      snprintf(
+        this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, 0);
+    }
+    delete[] this->FileName;
+    this->FileName = vtksys::SystemTools::DuplicateString(this->MultiFileName);
 
-      // Read in info based on this->FileName
-      requestInformationRetVal =
-        this->Superclass::RequestInformation(request, inputVector, outputVector);
-
-      // This unnecessary. First file will have all necessary information.
-      // Otherwise we end up with bugs like paraview/paraview#20559
-      // and paraview/paraview#20558 when the files have no arrays at all.
-      // if (!this->Metadata->ArrayInfo.empty())
-      //{
-      //  // We have a file with actual data in it
-      //  break;
-      //}
-      break; // break immediately.
-
-    } // loop over file names
+    // Read in info based on this->FileName
+    requestInformationRetVal =
+      this->Superclass::RequestInformation(request, inputVector, outputVector);
   }
   this->Controller->Broadcast(&requestInformationRetVal, 1, 0);
   if (!requestInformationRetVal)
