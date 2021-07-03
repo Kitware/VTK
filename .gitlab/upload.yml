@@ -45,4 +45,4 @@
         - cd build/
         - ls dist
         - dnf install -y --setopt=install_weak_deps=False twine
-        - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/vtk%2fvtk/packages/pypi dist/*
+        - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
