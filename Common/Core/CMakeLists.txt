@@ -526,10 +526,10 @@ vtk_module_compile_features(VTK::CommonCore
 
 vtk_module_definitions(VTK::CommonCore
   PUBLIC
-    VTK_SMP_ENABLE_SEQUENTIAL=${vtk_smp_enable_sequential}
-    VTK_SMP_ENABLE_STDTHREAD=${vtk_smp_enable_stdthread}
-    VTK_SMP_ENABLE_TBB=${vtk_smp_enable_tbb}
-    VTK_SMP_ENABLE_OPENMP=${vtk_smp_enable_openmp}
+    "VTK_SMP_ENABLE_SEQUENTIAL=${vtk_smp_enable_sequential}"
+    "VTK_SMP_ENABLE_STDTHREAD=${vtk_smp_enable_stdthread}"
+    "VTK_SMP_ENABLE_TBB=${vtk_smp_enable_tbb}"
+    "VTK_SMP_ENABLE_OPENMP=${vtk_smp_enable_openmp}"
     "VTK_SMP_DEFAULT_IMPLEMENTATION_SEQUENTIAL=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},Sequential>"
     "VTK_SMP_DEFAULT_IMPLEMENTATION_STDTHREAD=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},STDThread>"
     "VTK_SMP_DEFAULT_IMPLEMENTATION_TBB=$<STREQUAL:${VTK_SMP_IMPLEMENTATION_TYPE},TBB>"
