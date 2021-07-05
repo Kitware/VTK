@@ -251,11 +251,14 @@ protected:
   void InterpolateFunctionsUsingMVC(const double x[3], double* weights);
 
   // variables used by instances of this class
-  double Tolerance; // Intersection tolerance
-  double Tol;
-  int SuccessfulTriangulation; // Stops recursive tri. if necessary
-  double Normal[3];            // polygon normal
-  vtkIdList* Tris;
+  double Tolerance;        // Intersection tolerance set by public API
+  double Tol;              // Internal tolerance set by ComputeBounds()
+  void ComputeTolerance(); // Compute the internal tolerance Tol
+
+  int SuccessfulTriangulation; // Stops recursive triangulation if necessary
+  vtkIdList* Tris;             // Output triangulation placed here
+
+  // These are used for internal computation.
   vtkTriangle* Triangle;
   vtkQuad* Quad;
   vtkDoubleArray* TriScalars;
@@ -266,14 +269,33 @@ protected:
   bool UseMVCInterpolation;
 
   // Helper methods for triangulation------------------------------
+  // Made public for extenal access
+public:
+  // Ear cut triangulation options. The order in which vertices are
+  // removed are controlled by different measures. Changing this can
+  // make subtle differences in some cases. Historically the
+  // PERIMETER2_TO_AREA_RATIO has been used.
+  enum EarCutMeasureTypes
+  {
+    PERIMETER2_TO_AREA_RATIO = 0,
+    DOT_PRODUCT = 1,
+    BEST_QUALITY = 2
+  };
+
+  ///@{
   /**
    * A fast triangulation method. Uses recursive divide and
    * conquer based on plane splitting to reduce loop into triangles.
    * The cell (e.g., triangle) is presumed properly initialized (i.e.,
-   * Points and PointIds).
+   * Points and PointIds). Ears can be removed using different measures
+   * (the measures indicate convexity plus characterize the local
+   * geometry around each vertex).
    */
-  int EarCutTriangulation();
+  int EarCutTriangulation(int measure = PERIMETER2_TO_AREA_RATIO);
+  int EarCutTriangulation(vtkIdList* outTris, int measure = PERIMETER2_TO_AREA_RATIO);
+  ///@}
 
+  ///@{
   /**
    * A fast triangulation method. Uses recursive divide and
    * conquer based on plane splitting to reduce loop into triangles.
@@ -281,7 +303,10 @@ protected:
    * Points and PointIds). Unlike EarCutTriangulation(), vertices are visited
    * sequentially without preference to angle.
    */
-  int UnbiasedEarCutTriangulation(int seed);
+  int UnbiasedEarCutTriangulation(int seed, int measure = PERIMETER2_TO_AREA_RATIO);
+  int UnbiasedEarCutTriangulation(
+    int seed, vtkIdList* outTris, int measure = PERIMETER2_TO_AREA_RATIO);
+  ///@}
 
 private:
   vtkPolygon(const vtkPolygon&) = delete;
