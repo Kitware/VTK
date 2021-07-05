@@ -31,6 +31,7 @@
 #endif
 
 #include <iterator>
+#include <utility> // For std::move
 
 namespace vtk
 {
@@ -86,7 +87,9 @@ public:
     // XXX(c++14): use std::make_unique
     auto iter = std::unique_ptr<ItImpl>(new ItImpl());
     iter->Iter = this->Internal.begin();
-    return iter;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(iter));
+    return abstractIt;
   };
 
   std::unique_ptr<ItImplAbstract> end() override
@@ -94,7 +97,9 @@ public:
     // XXX(c++14): use std::make_unique
     auto iter = std::unique_ptr<ItImpl>(new ItImpl());
     iter->Iter = this->Internal.end();
-    return iter;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(iter));
+    return abstractIt;
   }
 
 private:

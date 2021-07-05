@@ -244,7 +244,7 @@ int doTestSMP()
   vtkSMPTools::Transform(
     transformRange4.cbegin(), transformRange4.cend(), transformRange5.begin(), computeMag);
   auto it5 = transformRange5.begin();
-  for (const auto& it4 : transformRange4)
+  for (const auto&& it4 : transformRange4)
   {
     ValueType result = 0;
     for (const auto& comp : it4)
