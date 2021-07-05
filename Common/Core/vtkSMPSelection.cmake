@@ -52,7 +52,7 @@ if (VTK_SMP_ENABLE_TBB)
     "${vtk_smp_implementation_dir}/vtkSMPToolsImpl.txx")
 endif()
 
-if (VTK_SMP_ENABLE_OPENMP)  
+if (VTK_SMP_ENABLE_OPENMP)
   vtk_module_find_package(PACKAGE OpenMP)
   list(APPEND vtk_smp_libraries
     OpenMP::OpenMP_CXX)
