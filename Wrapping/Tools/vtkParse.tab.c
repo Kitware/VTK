@@ -389,22 +389,39 @@ struct DoxygenCommandInfo
 };
 
 /* List of doxygen commands (@cond is not handled yet) */
-struct DoxygenCommandInfo doxygenCommands[] = { { "def", 3, DOX_COMMAND_DEF },
-  { "category", 8, DOX_COMMAND_CATEGORY }, { "interface", 9, DOX_COMMAND_INTERFACE },
-  { "protocol", 8, DOX_COMMAND_PROTOCOL }, { "class", 5, DOX_COMMAND_CLASS },
-  { "enum", 4, DOX_COMMAND_ENUM }, { "struct", 6, DOX_COMMAND_STRUCT },
-  { "union", 5, DOX_COMMAND_UNION }, { "namespace", 9, DOX_COMMAND_NAMESPACE },
-  { "typedef", 7, DOX_COMMAND_TYPEDEF }, { "fn", 2, DOX_COMMAND_FN },
-  { "property", 8, DOX_COMMAND_PROPERTY }, { "var", 3, DOX_COMMAND_VAR },
-  { "name", 4, DOX_COMMAND_NAME }, { "defgroup", 8, DOX_COMMAND_DEFGROUP },
-  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP }, { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
-  { "example", 7, DOX_COMMAND_EXAMPLE }, { "file", 4, DOX_COMMAND_FILE },
-  { "dir", 3, DOX_COMMAND_DIR }, { "mainpage", 8, DOX_COMMAND_MAINPAGE },
-  { "page", 4, DOX_COMMAND_PAGE }, { "subpage", 7, DOX_COMMAND_SUBPAGE },
-  { "internal", 8, DOX_COMMAND_INTERNAL }, { "package", 7, DOX_COMMAND_PACKAGE },
+/* clang-format off */
+struct DoxygenCommandInfo doxygenCommands[] = {
+  { "def", 3, DOX_COMMAND_DEF },
+  { "category", 8, DOX_COMMAND_CATEGORY },
+  { "interface", 9, DOX_COMMAND_INTERFACE },
+  { "protocol", 8, DOX_COMMAND_PROTOCOL },
+  { "class", 5, DOX_COMMAND_CLASS },
+  { "enum", 4, DOX_COMMAND_ENUM },
+  { "struct", 6, DOX_COMMAND_STRUCT },
+  { "union", 5, DOX_COMMAND_UNION },
+  { "namespace", 9, DOX_COMMAND_NAMESPACE },
+  { "typedef", 7, DOX_COMMAND_TYPEDEF },
+  { "fn", 2, DOX_COMMAND_FN },
+  { "property", 8, DOX_COMMAND_PROPERTY },
+  { "var", 3, DOX_COMMAND_VAR },
+  { "name", 4, DOX_COMMAND_NAME },
+  { "defgroup", 8, DOX_COMMAND_DEFGROUP },
+  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP },
+  { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
+  { "example", 7, DOX_COMMAND_EXAMPLE },
+  { "file", 4, DOX_COMMAND_FILE },
+  { "dir", 3, DOX_COMMAND_DIR },
+  { "mainpage", 8, DOX_COMMAND_MAINPAGE },
+  { "page", 4, DOX_COMMAND_PAGE },
+  { "subpage", 7, DOX_COMMAND_SUBPAGE },
+  { "internal", 8, DOX_COMMAND_INTERNAL },
+  { "package", 7, DOX_COMMAND_PACKAGE },
   { "privatesection", 14, DOX_COMMAND_PRIVATESECTION },
   { "protectedsection", 16, DOX_COMMAND_PROTECTEDSECTION },
-  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION }, { NULL, 0, DOX_COMMAND_OTHER } };
+  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION },
+  { NULL, 0, DOX_COMMAND_OTHER }
+};
+/* clang-format on */
 
 void closeComment(void);
 
