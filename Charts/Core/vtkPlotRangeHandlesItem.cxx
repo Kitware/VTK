@@ -383,6 +383,11 @@ void vtkPlotRangeHandlesItem::TransformDataToScreen(
 //------------------------------------------------------------------------------
 bool vtkPlotRangeHandlesItem::Hit(const vtkContextMouseEvent& mouse)
 {
+  if (!this->Interactive || !this->Visible)
+  {
+    return false;
+  }
+
   // Add more tolerance than the mouse interaction to make sure handles do
   // not stay highlighted when moving the mouse
   vtkVector2f vpos = mouse.GetPos();
