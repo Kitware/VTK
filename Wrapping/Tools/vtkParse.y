@@ -218,13 +218,11 @@ static void end_enum(void);
 static unsigned int guess_constant_type(const char* valstring);
 static void add_constant(const char* name, const char* value, unsigned int attributes,
   unsigned int type, const char* typeclass, int flag);
-static void prepend_scope(char* cp, const char* arg);
 static unsigned int guess_id_type(const char* cp);
 static unsigned int add_indirection(unsigned int type1, unsigned int type2);
 static unsigned int add_indirection_to_array(unsigned int type);
 static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
   unsigned int extra, const char* funcSig);
-static void handle_function_type(ValueInfo* param, const char* name, const char* funcSig);
 static void handle_attribute(const char* att, int pack);
 static void add_legacy_parameter(FunctionInfo* func, ValueInfo* param);
 
@@ -1019,15 +1017,6 @@ static size_t getSigLength(void)
   return sigLength;
 }
 
-/* reset the sig to the specified length */
-static void resetSig(size_t n)
-{
-  if (n < sigLength)
-  {
-    sigLength = n;
-  }
-}
-
 /* reallocate Signature if n chars cannot be appended */
 static void checkSigSize(size_t n)
 {
@@ -1060,23 +1049,6 @@ static void closeSig(void)
 static void openSig(void)
 {
   sigClosed = 0;
-}
-
-/* insert text at the beginning of the signature */
-static void preSig(const char* arg)
-{
-  if (!sigClosed)
-  {
-    size_t n = strlen(arg);
-    checkSigSize(n);
-    if (n > 0)
-    {
-      memmove(&signature[n], signature, sigLength);
-      memmove(signature, arg, n);
-      sigLength += n;
-    }
-    signature[sigLength] = '\0';
-  }
 }
 
 /* append text to the end of the signature */
@@ -1135,45 +1107,6 @@ static const char* cutSig(void)
     signature[sigLength] = 0;
   }
   return cp;
-}
-
-/* swap the signature text using the mark as the radix */
-static void swapSig(void)
-{
-  if (sigMarkDepth > 0)
-  {
-    sigMarkDepth--;
-  }
-  if (signature && sigMark[sigMarkDepth] > 0)
-  {
-    size_t i, m, n, nn;
-    char c;
-    char* cp;
-    cp = signature;
-    n = sigLength;
-    m = sigMark[sigMarkDepth];
-    nn = m / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i];
-      cp[i] = cp[m - i - 1];
-      cp[m - i - 1] = c;
-    }
-    nn = (n - m) / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i + m];
-      cp[i + m] = cp[n - i - 1];
-      cp[n - i - 1] = c;
-    }
-    nn = n / 2;
-    for (i = 0; i < nn; i++)
-    {
-      c = cp[i];
-      cp[i] = cp[n - i - 1];
-      cp[n - i - 1] = c;
-    }
-  }
 }
 
 /* chop the last space from the signature */
@@ -1636,52 +1569,6 @@ static const char* getAttributePrefix(void)
 /*----------------------------------------------------------------
  * Utility methods
  */
-
-/* prepend a scope:: to a name */
-static void prepend_scope(char* cp, const char* arg)
-{
-  size_t i, j, m, n;
-  int depth;
-
-  m = strlen(cp);
-  n = strlen(arg);
-  i = m;
-  while (i > 0 && (vtkParse_CharType(cp[i - 1], CPRE_XID) || cp[i - 1] == ':' || cp[i - 1] == '>'))
-  {
-    i--;
-    if (cp[i] == '>')
-    {
-      depth = 1;
-      while (i > 0)
-      {
-        i--;
-        if (cp[i] == '<')
-        {
-          if (--depth == 0)
-          {
-            break;
-          }
-        }
-        if (cp[i] == '>')
-        {
-          depth++;
-        }
-      }
-    }
-  }
-
-  for (j = m; j > i; j--)
-  {
-    cp[j + n + 1] = cp[j - 1];
-  }
-  for (j = 0; j < n; j++)
-  {
-    cp[j + i] = arg[j];
-  }
-  cp[n + i] = ':';
-  cp[n + i + 1] = ':';
-  cp[m + n + 2] = '\0';
-}
 
 /* expand a type by including pointers from another */
 static unsigned int add_indirection(unsigned int type1, unsigned int type2)
