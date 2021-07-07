@@ -59,12 +59,11 @@ public:
   void ResetCamera(
     double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override;
 
-  using vtkRenderer::ResetCameraClippingRange;
-
   ///@{
   /**
    * Reset the camera clipping range based on a bounding box.
    */
+  void ResetCameraClippingRange() override;
   void ResetCameraClippingRange(const double bounds[6]) override;
   ///@}
 

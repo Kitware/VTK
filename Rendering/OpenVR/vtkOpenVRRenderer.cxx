@@ -282,16 +282,11 @@ void vtkOpenVRRenderer::ResetCamera(
 }
 
 // Reset the camera clipping range to include this entire bounding box
-void vtkOpenVRRenderer::ResetCameraClippingRange(const double bounds[6])
+void vtkOpenVRRenderer::ResetCameraClippingRange()
 {
-  double range[2];
-  int i, j, k;
+  double bounds[6];
 
-  // Don't reset the clipping range when we don't have any 3D visible props
-  if (!vtkMath::AreBoundsInitialized(bounds))
-  {
-    return;
-  }
+  this->ComputeVisiblePropBounds(bounds);
 
   this->GetActiveCameraAndResetIfCreated();
   if (this->ActiveCamera == nullptr)
@@ -300,13 +295,48 @@ void vtkOpenVRRenderer::ResetCameraClippingRange(const double bounds[6])
     return;
   }
 
+  vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
+  double physicalScale = win->GetPhysicalScale();
+
+  // reset the clipping range when we don't have any 3D visible props
+  if (!vtkMath::AreBoundsInitialized(bounds))
+  {
+    // default to 0.2 to 10.0 meters in physcial space if no data bounds
+    this->ActiveCamera->SetClippingRange(0.2 * physicalScale, 10.0 * physicalScale);
+    return;
+  }
+
+  this->ResetCameraClippingRange(bounds);
+}
+
+// Reset the camera clipping range to include this entire bounding box
+void vtkOpenVRRenderer::ResetCameraClippingRange(const double bounds[6])
+{
+  this->GetActiveCameraAndResetIfCreated();
+  if (this->ActiveCamera == nullptr)
+  {
+    vtkErrorMacro(<< "Trying to reset clipping range of non-existent camera");
+    return;
+  }
+
+  double range[2];
+  int i, j, k;
+  vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
+  double physicalScale = win->GetPhysicalScale();
+
+  // reset the clipping range when we don't have any 3D visible props
+  if (!vtkMath::AreBoundsInitialized(bounds))
+  {
+    // default to 0.2 to 10.0 meters in physcial space if no data bounds
+    this->ActiveCamera->SetClippingRange(0.2 * physicalScale, 10.0 * physicalScale);
+    return;
+  }
+
   double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
   this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
 
   double trans[3];
-  vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
   win->GetPhysicalTranslation(trans);
-  double physicalScale = win->GetPhysicalScale();
 
   range[0] = 0.2; // 20 cm in front of HMD
   range[1] = 0.0;
