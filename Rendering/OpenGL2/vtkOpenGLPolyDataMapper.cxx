@@ -86,8 +86,8 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 //------------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   : UsingScalarColoring(false)
-  , TimerQuery(new vtkOpenGLRenderTimer)
   , PauseShiftScale(false)
+  , TimerQuery(new vtkOpenGLRenderTimer)
 {
   this->InternalColorTexture = nullptr;
   this->PopulateSelectionSettings = 1;
