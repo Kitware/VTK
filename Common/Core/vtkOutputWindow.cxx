@@ -17,7 +17,7 @@
 #if defined(_WIN32) && !defined(VTK_USE_X)
 #include "vtkWin32OutputWindow.h"
 #endif
-#if defined(ANDROID)
+#if defined(__ANDROID__) || defined(ANDROID)
 #include "vtkAndroidOutputWindow.h"
 #endif
 

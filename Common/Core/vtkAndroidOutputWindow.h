@@ -48,12 +48,12 @@ public:
    * New lines are converted to carriage return new lines.
    */
   void DisplayText(const char*) override;
-  virtual void DisplayErrorText(const char*);
-  virtual void DisplayWarningText(const char*);
-  virtual void DisplayGenericWarningText(const char*);
+  void DisplayErrorText(const char*) override;
+  void DisplayWarningText(const char*) override;
+  void DisplayGenericWarningText(const char*) override;
   ///@}
 
-  virtual void DisplayDebugText(const char*);
+  void DisplayDebugText(const char*) override;
 
 protected:
   vtkAndroidOutputWindow();
