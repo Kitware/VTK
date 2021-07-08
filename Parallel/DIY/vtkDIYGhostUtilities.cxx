@@ -203,7 +203,7 @@ void ExchangeBlockStructuresForPointSets(diy::Master& master)
   using BlockType = typename DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
   using BlockInformationType = typename BlockType::InformationType;
 
-  master.foreach ([&master](BlockType* block, const diy::Master::ProxyWithLink& cp) {
+  master.foreach ([](BlockType* block, const diy::Master::ProxyWithLink& cp) {
     BlockInformationType& info = block->Information;
     vtkPointSet* surface = vtkPointSet::SafeDownCast(info.SurfaceFilter->GetOutputDataObject(0));
 

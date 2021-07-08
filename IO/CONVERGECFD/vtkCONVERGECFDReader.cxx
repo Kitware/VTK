@@ -697,7 +697,7 @@ int vtkCONVERGECFDReader::RequestData(
 
       if (cell0 < 0 || cell1 < 0)
       {
-        assert(polyToBoundary.size() > surfacePolyCount);
+        assert(polyToBoundary.size() > static_cast<size_t>(surfacePolyCount));
         polyToBoundary[surfacePolyCount] = cell0 >= 0 ? -(cell1 + 1) : -(cell0 + 1);
         polyToCell[surfacePolyCount] = cell0 >= 0 ? cell0 : cell1;
         surfacePolyCount++;
@@ -814,7 +814,7 @@ int vtkCONVERGECFDReader::RequestData(
           vtkIdType localDataCount = 0;
           for (vtkIdType id = 0; id < numSurfacePolys; ++id)
           {
-            assert(polyToBoundary.size() > id);
+            assert(polyToBoundary.size() > static_cast<size_t>(id));
             if (boundaryIdToIndex.find(polyToBoundary[id]) == boundaryIdToIndex.end())
             {
               vtkErrorMacro(
@@ -828,7 +828,7 @@ int vtkCONVERGECFDReader::RequestData(
             }
             for (int c = 0; c < surfaceDataArray->GetNumberOfComponents(); ++c)
             {
-              assert(polyToCell.size() > id);
+              assert(polyToCell.size() > static_cast<size_t>(id));
               surfaceDataArray->SetTypedComponent(
                 localDataCount, c, dataArray->GetTypedComponent(polyToCell[id], c));
             }
