@@ -25,6 +25,7 @@
 #include "vtkSystemIncludes.h"
 
 #include <iterator>
+#include <utility> // For std::move
 #include <vector>
 
 namespace vtk
@@ -130,7 +131,9 @@ public:
     retVal->InitIter = iter2;
     retVal->EndIter = enditer;
     retVal->Iter = iter;
-    return retVal;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(retVal));
+    return abstractIt;
   };
 
   std::unique_ptr<ItImplAbstract> end() override
@@ -140,7 +143,9 @@ public:
     retVal->InitIter = this->Initialized.end();
     retVal->EndIter = this->Initialized.end();
     retVal->Iter = this->Internal.end();
-    return retVal;
+    // XXX(c++14): remove std::move and cast variable
+    std::unique_ptr<ItImplAbstract> abstractIt(std::move(retVal));
+    return abstractIt;
   }
 
 private:
