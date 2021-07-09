@@ -33,6 +33,7 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSPHQuinticKernel.h"
+#include "vtkSmartPointer.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVoronoiKernel.h"
@@ -345,13 +346,14 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   }
 
   // Shepard summation if requested
-  vtkTypeBool computeShepardSum = this->ComputeShepardSum || this->ShepardNormalization;
+  vtkSmartPointer<vtkFloatArray> shepardSumArray;
   float* shepardArray = nullptr;
-  if (computeShepardSum)
+  if (this->ComputeShepardSum || this->ShepardNormalization)
   {
-    this->ShepardSumArray = vtkFloatArray::New();
-    this->ShepardSumArray->SetNumberOfTuples(numPts);
-    shepardArray = this->ShepardSumArray->GetPointer(0);
+    shepardSumArray = vtkSmartPointer<vtkFloatArray>::New();
+    shepardSumArray->SetName(this->ShepardSumArrayName);
+    shepardSumArray->SetNumberOfTuples(numPts);
+    shepardArray = shepardSumArray->GetPointer(0);
   }
 
   // Initialize the SPH kernel
@@ -388,12 +390,9 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
   }     // if Shepard normalization
 
   // Clean up
-  if (this->ShepardSumArray)
+  if (shepardSumArray)
   {
-    this->ShepardSumArray->SetName(this->ShepardSumArrayName);
-    outPD->AddArray(this->ShepardSumArray);
-    this->ShepardSumArray->Delete();
-    this->ShepardSumArray = nullptr;
+    outPD->AddArray(shepardSumArray);
   }
 
   if (mask)
