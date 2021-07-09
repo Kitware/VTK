@@ -126,7 +126,14 @@ int vtkGhostCellsGenerator::RequestData(
         for (auto inIt = inputs.begin(), outIt = outputs.begin(); inIt != inputs.end();
              ++inIt, ++outIt)
         {
-          *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          if (*inIt)
+          {
+            *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+          }
+          else
+          {
+            *outIt = nullptr;
+          }
         }
       }
       else
