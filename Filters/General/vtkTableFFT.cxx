@@ -144,7 +144,19 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
       }
       if (strcmp(name, "vtkValidPointMask") == 0)
       {
-        output->AddColumn(array);
+        if (this->OptimizeForRealInput)
+        {
+          vtkSmartPointer<vtkDataArray> half;
+          half.TakeReference(array->NewInstance());
+          half->DeepCopy(array);
+          half->SetNumberOfTuples(this->Internals->OutputSize);
+          half->Squeeze();
+          output->AddColumn(half);
+        }
+        else
+        {
+          output->AddColumn(array);
+        }
         continue;
       }
     }
@@ -154,7 +166,8 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkSmartPointer<vtkDataArray> fft = this->DoFFT(array);
-    fft->SetName(name);
+    auto namefft = std::string("FFT_").append(name);
+    fft->SetName(namefft.c_str());
     output->AddColumn(fft);
   }
 
@@ -173,6 +186,8 @@ int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
     {
       frequencies->SetValue(i, stdFreq[i]);
     }
+
+    output->AddColumn(frequencies);
   }
 
   return 1;
@@ -249,10 +264,9 @@ vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
   const std::size_t stepSize = (nblocks <= 1) ? 0 : (nvalues - nfft - 1) / (nblocks - 1);
 
   std::vector<vtkFFT::ScalarNumber> block(nfft);
-  std::vector<vtkFFT::ComplexNumber> resFft(outSize);
-  std::fill(resFft.begin(), resFft.end(), vtkFFT::ComplexNumber{ 0.0, 0.0 });
+  std::vector<vtkFFT::ComplexNumber> resFft(outSize, vtkFFT::ComplexNumber{ 0.0, 0.0 });
 
-  for (int b = 0; b < nblocks; ++b)
+  for (std::size_t b = 0; b < nblocks; ++b)
   {
     // Copy data from input to block
     vtkIdType startBlock = b * stepSize;
@@ -267,7 +281,7 @@ vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
       const double mean =
         this->Normalize ? std::accumulate(block.begin(), block.end(), 0.0) / nfft : 0.0;
       const auto& window = this->Internals->Window;
-      for (int i = 0; i < nfft; ++i)
+      for (std::size_t i = 0; i < nfft; ++i)
       {
         block[i] = (block[i] - mean) * window[i];
       }
@@ -292,19 +306,17 @@ vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
     output->SetNumberOfComponents(1);
     output->SetNumberOfTuples(outSize);
 
-    output->SetTuple1(0, output->GetTuple1(0) * norm);
+    output->SetTuple1(0, vtkFFT::Abs(resFft[0]) * norm);
     for (std::size_t i = 1; i < outSize; ++i)
     {
-      output->SetTuple1(i, output->GetTuple1(i) * 2.0 * norm);
+      output->SetTuple1(i, vtkFFT::Abs(resFft[i]) * 2.0 * norm);
     }
   }
   else
   {
     output->SetNumberOfComponents(2);
     output->SetNumberOfTuples(outSize);
-
-    output->SetTuple2(0, resFft[0].r, resFft[0].i);
-    for (std::size_t i = 1; i < outSize; ++i)
+    for (std::size_t i = 0; i < outSize; ++i)
     {
       output->SetTuple2(i, resFft[i].r, resFft[i].i);
     }
