@@ -72,7 +72,7 @@ int TestQQuickVTKRenderItem(int argc, char* argv[])
   vtktesting->AddArguments(argc, argv);
   if (vtktesting->IsInteractiveModeSpecified())
   {
-    return app.exec();
+    return QApplication::exec();
   }
 
   // Wait a little for the application and window to be set up properly
