@@ -1564,7 +1564,7 @@ void SetupBlockSelfInformationForPointSets(diy::Master& master,
 
     vtkPointSet* surface = vtkPointSet::SafeDownCast(surfaceFilter->GetOutputDataObject(0));
 
-    information.SurfacePoints = surface->GetPoints()->GetData();
+    information.SurfacePoints = surface->GetPoints() ? surface->GetPoints()->GetData() : nullptr;
     information.SurfacePointIds = vtkArrayDownCast<vtkIdTypeArray>(
         surface->GetPointData()->GetAbstractArray(LOCAL_POINT_IDS_ARRAY_NAME));
     information.SurfaceGlobalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
@@ -2027,6 +2027,12 @@ LinkMap ComputeLinkMapForPointSets(const diy::Master& master,
     BlockType* block = master.block<BlockType>(localId);
     BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
     BlockInformationType& info = block->Information;
+
+    if (!info.SurfacePoints)
+    {
+      blockStructures.clear();
+      continue;
+    }
 
     PointSetT* input = inputs[localId];
     vtkIdTypeArray* globalPointIds = info.SurfaceGlobalPointIds;
@@ -3024,6 +3030,11 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
     BlockMapType<BlockStructureType>& blockStructures = block->BlockStructures;
     BlockInformation& info = block->Information;
 
+    if (!info.SurfacePoints)
+    {
+      continue;
+    }
+
     vtkIdType pointIdOffset = inputs[localId]->GetNumberOfPoints();
 
     // This pointIdRedirection is used to redirect duplicate points that have been sent by multiple
@@ -3091,7 +3102,7 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
 
       vtkNew<vtkIncrementalOctreePointLocator> pointLocator;
       vtkNew<vtkPoints> points;
-      points->SetDataType(block->Information.SurfacePoints->GetDataType());
+      points->SetDataType(info.SurfacePoints->GetDataType());
       constexpr double inf = std::numeric_limits<double>::infinity();
       double bounds[6] = { inf, -inf, inf, -inf, inf, -inf };
 
@@ -3162,6 +3173,13 @@ void DeepCopyInputsAndAllocateGhostsForUnstructuredGrid(const diy::Master& maste
     vtkUnstructuredGrid* output = outputs[localId];
 
     BlockType* block = master.block<BlockType>(localId);
+
+    if (!block->Information.SurfacePoints)
+    {
+      output->ShallowCopy(input);
+      continue;
+    }
+
     vtkIdType numberOfPoints = input->GetNumberOfPoints();
     vtkIdType numberOfCells = input->GetNumberOfCells();
     vtkIdType connectivitySize =
