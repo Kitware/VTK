@@ -89,7 +89,13 @@ int vtkGhostCellsGenerator::RequestData(
   int reqGhostLayers =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   int numberOfGhostLayersToCompute =
-    this->BuildIfRequired ? reqGhostLayers : this->NumberOfGhostLayers;
+    this->BuildIfRequired ? reqGhostLayers : std::max(reqGhostLayers, this->NumberOfGhostLayers);
+
+  if (numberOfGhostLayersToCompute < 1)
+  {
+    outputDO->ShallowCopy(inputDO);
+    return 1;
+  }
 
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
@@ -221,10 +227,12 @@ int vtkGhostCellsGenerator::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkGhostCellsGenerator::RequestUpdateExtent(
-  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  outputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), this->NumberOfGhostLayers);
+  // we can't trust any ghost levels coming in so we notify all filters before
+  // this that we don't need ghosts
+  inputVector[0]->GetInformationObject(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   return 1;
 }
 

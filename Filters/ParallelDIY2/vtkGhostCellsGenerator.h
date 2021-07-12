@@ -24,6 +24,12 @@
  * data set. In other words, ghost are not computed between 2 `vtkDataSet` belonging to 2 different
  * `vtkPartitionedDataSet`, even if they are adjacent.
  *
+ * If `BuildIfRequired` is set to true (which is by default), then the filter will compute ghost
+ * based on the value being returned by
+ * `vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()` in the downstream streaming
+ * pipeline. If not (i.e. `BuildIfRequired` is off), then the max between this latter value and
+ * `NumberOfGhostLayers` is being used.
+ *
  * If the input is composed of some data sets already owning ghosts, those ghosts are removed from
  * the output and are recomputed. Ghosts in the input are as if they didn't exist.
  * A ghost cell is to be peeled off if it holds the `CELLDUPLICATE` flag in its ghost bit mask.
